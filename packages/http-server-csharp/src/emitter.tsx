@@ -16,7 +16,7 @@ import { JsonConverters } from "./components/serialization/json-converters.jsx";
 import { createServerScalarOverrides } from "./components/type-expression/type-expression.jsx";
 import { EmitterOptions } from "./context/emitter-options-context.js";
 import { reportEmitterDiagnostics } from "./diagnostics.js";
-import { CSharpServiceEmitterOptions } from "./lib.js";
+import type { CSharpServiceEmitterOptions } from "./lib.js";
 import { resolveOpenApiPath, writeOutputWithOverwrite } from "./output-writer.js";
 import { resolveServiceTypes } from "./service-resolution.js";
 import { getFreePort } from "./utils/port.js";
@@ -42,7 +42,12 @@ export async function $onEmit(context: EmitContext<CSharpServiceEmitterOptions>)
   const projectName = options["project-name"] ?? "ServiceProject";
 
   // Report diagnostic warnings (pre-pass before rendering)
-  reportEmitterDiagnostics(context.program, resolution.interfaces, resolution.canonicalOpsMap);
+  reportEmitterDiagnostics(
+    context.program,
+    resolution.interfaces,
+    resolution.canonicalOpsMap,
+    resolution.declarationNamespaces,
+  );
 
   // Resolve OpenAPI path for SwaggerUI
   let openApiPath: string | undefined = options["openapi-path"];

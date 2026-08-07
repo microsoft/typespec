@@ -1,5 +1,5 @@
 import vscode from "vscode";
-import { LogItem, LogLevel, LogListener, LogOptions } from "./logger.js";
+import type { LogItem, LogLevel, LogListener, LogOptions } from "./logger.js";
 
 export interface ExtensionLogOptions extends LogOptions {
   /** show the Output window in vscode */

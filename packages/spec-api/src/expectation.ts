@@ -9,7 +9,7 @@ import {
   validateRawBodyEquals,
   validateXmlBodyEquals,
 } from "./request-validations.js";
-import { CollectionFormat, RequestExt, Resolver, ResolverConfig } from "./types.js";
+import type { CollectionFormat, RequestExt, Resolver, ResolverConfig } from "./types.js";
 import { ValidationError } from "./validation-error.js";
 
 /**

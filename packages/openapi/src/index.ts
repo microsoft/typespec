@@ -29,7 +29,7 @@ export {
   resolveOperationId,
   shouldInline,
 } from "./helpers.js";
-export {
+export type {
   AdditionalInfo,
   Contact,
   ExtensionKey,

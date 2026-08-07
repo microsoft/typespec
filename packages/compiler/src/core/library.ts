@@ -3,7 +3,7 @@ import { createDiagnosticCreator } from "./diagnostic-creator.js";
 import { compilerAssert } from "./diagnostics.js";
 import type { Program } from "./program.js";
 import { createJSONSchemaValidator } from "./schema-validator.js";
-import {
+import type {
   DiagnosticMessages,
   JSONSchemaValidator,
   LinterDefinition,

@@ -2,18 +2,17 @@ import { TelemetryReporter } from "@vscode/extension-telemetry";
 import { inspect } from "util";
 import pkgJson from "../../package.json" with { type: "json" };
 import { EmptyGuid } from "../const.js";
-import { ExtensionStateManager } from "../extension-state-manager.js";
+import type { ExtensionStateManager } from "../extension-state-manager.js";
 import logger from "../log/logger.js";
-import { Result, ResultCode } from "../types.js";
+import type { Result } from "../types.js";
+import { ResultCode } from "../types.js";
 import { isWhitespaceStringOrUndefined } from "../utils.js";
-import {
-  emptyActivityId,
-  generateActivityId,
+import type {
   OperationDetailPropertyName,
   OperationTelemetryEvent,
   RawTelemetryEvent,
-  TelemetryEventName,
 } from "./telemetry-event.js";
+import { emptyActivityId, generateActivityId, TelemetryEventName } from "./telemetry-event.js";
 
 export class TelemetryClient {
   private _client: TelemetryReporter | undefined;

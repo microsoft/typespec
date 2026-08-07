@@ -12,6 +12,12 @@ export function resolveVirtualPath(path: string, ...paths: string[]) {
 export interface BrowserHostCreateOptions {
   readonly compiler: typeof import("@typespec/compiler");
   readonly libraries: Record<string, PlaygroundTspLibrary & { _TypeSpecLibrary_: any }>;
+
+  /**
+   * Libraries that are known to the playground but have not been imported yet, keyed by name.
+   * Each entry imports the library when called. See {@link BrowserHost.loadLibrary}.
+   */
+  readonly deferredLibraries?: Record<string, () => Promise<LoadedPlaygroundTspLibrary>>;
 }
 
 /**
@@ -21,9 +27,23 @@ export function createBrowserHostInternal(options: BrowserHostCreateOptions): Br
   const virtualFs = new Map<string, string>();
   const jsImports = new Map<string, Promise<any>>();
 
-  const libraries: Record<string, PlaygroundTspLibrary & { _TypeSpecLibrary_: any }> = {
+  const libraries: Record<string, PlaygroundTspLibrary & { _TypeSpecLibrary_?: any }> = {
     ...options.libraries,
   };
+
+  const deferredLoaders = new Map(Object.entries(options.deferredLibraries ?? {}));
+  const pendingLoads = new Map<string, Promise<void>>();
+
+  for (const name of deferredLoaders.keys()) {
+    // A placeholder keeps the emitter visible in the UI (dropdown, settings) without paying the
+    // cost of importing it. It is replaced by the real library on the first `loadLibrary` call.
+    libraries[name] = {
+      name,
+      isEmitter: true,
+      deferred: true,
+      packageJson: { name, version: "" } as any,
+    };
+  }
 
   function registerLibraryFiles(
     libName: string,
@@ -43,13 +63,42 @@ export function createBrowserHostInternal(options: BrowserHostCreateOptions): Br
       JSON.stringify({
         name: "playground-pkg",
         dependencies: Object.fromEntries(
-          Object.values(libraries).map((x) => [x.name, x.packageJson.version]),
+          // Deferred libraries have no files registered yet, so listing them would make the
+          // compiler resolve a dependency it cannot read.
+          Object.values(libraries)
+            .filter((x) => !x.deferred)
+            .map((x) => [x.name, x.packageJson.version]),
         ),
       }),
     );
   }
 
-  for (const [libName, lib] of Object.entries(libraries)) {
+  function loadLibrary(name: string): Promise<void> {
+    const loader = deferredLoaders.get(name);
+    if (loader === undefined) {
+      return Promise.resolve();
+    }
+    let pending = pendingLoads.get(name);
+    if (pending === undefined) {
+      pending = loader().then(
+        (lib) => {
+          libraries[name] = lib;
+          registerLibraryFiles(name, lib);
+          updatePackageJson();
+          deferredLoaders.delete(name);
+        },
+        (error) => {
+          // Drop the cached promise so a later compilation can retry after a transient failure.
+          pendingLoads.delete(name);
+          throw error;
+        },
+      );
+      pendingLoads.set(name, pending);
+    }
+    return pending;
+  }
+
+  for (const [libName, lib] of Object.entries(options.libraries)) {
     registerLibraryFiles(libName, lib);
   }
   updatePackageJson();
@@ -61,6 +110,7 @@ export function createBrowserHostInternal(options: BrowserHostCreateOptions): Br
   return {
     compiler: options.compiler,
     libraries,
+    loadLibrary,
     async readUrl(url: string) {
       const contents = virtualFs.get(url);
       if (contents === undefined) {
@@ -184,6 +234,28 @@ export function createBrowserHostInternal(options: BrowserHostCreateOptions): Br
 }
 
 /**
+ * A library that has been imported, along with the raw bundle payload used to populate the
+ * in-memory file system.
+ * @internal
+ */
+export type LoadedPlaygroundTspLibrary = PlaygroundTspLibrary & { _TypeSpecLibrary_: any };
+
+async function importPlaygroundLibrary(
+  libName: string,
+  importOptions: LibraryImportOptions,
+): Promise<LoadedPlaygroundTspLibrary> {
+  const { _TypeSpecLibrary_, $lib, $linter } = (await importLibrary(libName, importOptions)) as any;
+  return {
+    name: libName,
+    isEmitter: $lib?.emitter,
+    definition: $lib,
+    packageJson: JSON.parse(_TypeSpecLibrary_.typespecSourceFiles["package.json"]),
+    linter: $linter,
+    _TypeSpecLibrary_,
+  };
+}
+
+/**
  * Load libraries in parallel from the given list.
  * @param libsToLoad List of library names. Must be available in the webpage importmap.
  * @param importOptions Import configuration.
@@ -191,43 +263,73 @@ export function createBrowserHostInternal(options: BrowserHostCreateOptions): Br
 export async function loadLibraries(
   libsToLoad: readonly string[],
   importOptions: LibraryImportOptions = {},
-): Promise<Record<string, PlaygroundTspLibrary & { _TypeSpecLibrary_: any }>> {
+): Promise<Record<string, LoadedPlaygroundTspLibrary>> {
   const entries = await Promise.all(
     libsToLoad.map(async (libName) => {
-      const { _TypeSpecLibrary_, $lib, $linter } = (await importLibrary(
-        libName,
-        importOptions,
-      )) as any;
-      const lib: PlaygroundTspLibrary & { _TypeSpecLibrary_: any } = {
-        name: libName,
-        isEmitter: $lib?.emitter,
-        definition: $lib,
-        packageJson: JSON.parse(_TypeSpecLibrary_.typespecSourceFiles["package.json"]),
-        linter: $linter,
-        _TypeSpecLibrary_,
-      };
-      return [libName, lib] as const;
+      return [libName, await importPlaygroundLibrary(libName, importOptions)] as const;
     }),
   );
   return Object.fromEntries(entries);
 }
 
 /**
+ * Options for creating the browser host.
+ */
+export interface BrowserHostOptions {
+  /**
+   * Emitters that should not be imported until they are used.
+   *
+   * Importing a library evaluates its module, which for some emitters means downloading a large
+   * runtime up front. Names listed here are shown in the emitter list right away but are only
+   * imported once selected, which keeps the initial load cheap.
+   *
+   * Only use this for pure emitters: a deferred library cannot be referenced by an `import`
+   * statement in the TypeSpec source, since its files are not registered until it is loaded.
+   */
+  readonly deferredEmitters?: readonly string[];
+}
+
+/**
+ * Split the libraries to load into the ones to import now and the ones to import on demand.
+ * @internal
+ */
+export function splitDeferredLibraries(
+  libsToLoad: readonly string[],
+  deferredEmitters: readonly string[] = [],
+): { eager: string[]; deferred: string[] } {
+  const deferredSet = new Set(deferredEmitters);
+  return {
+    eager: libsToLoad.filter((x) => !deferredSet.has(x)),
+    deferred: libsToLoad.filter((x) => deferredSet.has(x)),
+  };
+}
+
+/**
  * Create the browser host from the list of libraries.
  * @param libsToLoad List of libraries to load. Those must be set in the webpage importmap.
  * @param importOptions Import configuration.
+ * @param options Additional host options.
  * @returns
  */
 export async function createBrowserHost(
   libsToLoad: readonly string[],
   importOptions: LibraryImportOptions = {},
+  options: BrowserHostOptions = {},
 ): Promise<BrowserHost> {
+  const { eager, deferred } = splitDeferredLibraries(libsToLoad, options.deferredEmitters);
+
   const [libraries, compiler] = await Promise.all([
-    loadLibraries(libsToLoad, importOptions),
+    loadLibraries(eager, importOptions),
     importTypeSpecCompiler(importOptions),
   ]);
+
+  const deferredLibraries = Object.fromEntries(
+    deferred.map((name) => [name, () => importPlaygroundLibrary(name, importOptions)] as const),
+  );
+
   return createBrowserHostInternal({
     compiler,
     libraries,
+    deferredLibraries,
   });
 }

@@ -1,11 +1,7 @@
 import { deepStrictEqual, equal, ok, strictEqual } from "assert";
 import { describe, it } from "vitest";
-import {
-  CompletionItem,
-  CompletionItemKind,
-  CompletionList,
-  MarkupKind,
-} from "vscode-languageserver";
+import type { CompletionItem, CompletionList } from "vscode-languageserver";
+import { CompletionItemKind, MarkupKind } from "vscode-languageserver";
 import { extractCursor, extractSquiggles } from "../../src/testing/source-utils.js";
 import { createTestServerHost } from "../../src/testing/test-server-host.js";
 
@@ -1352,6 +1348,54 @@ describe("identifiers", () => {
       {
         allowAdditionalCompletions: false,
       },
+    );
+  });
+
+  it("does not complete file namespace members in a using declared before the file namespace", async () => {
+    const completions = await complete(
+      `
+      import "./lib.tsp";
+      using ┆M;
+      namespace MyOrg.Svc;
+      `,
+      undefined,
+      {
+        "test/lib.tsp": `
+        namespace MyOrg.Models { model M {} }
+        namespace Standalone { model S {} }
+        `,
+      },
+    );
+
+    ok(
+      completions.items.some((x) => x.label === "Standalone"),
+      "Should complete global namespaces",
+    );
+    ok(
+      !completions.items.some((x) => x.label === "Models"),
+      "Should not complete `Models` as usings before the file namespace resolve from the global namespace",
+    );
+  });
+
+  it("completes file namespace members in a using declared after the file namespace", async () => {
+    const completions = await complete(
+      `
+      import "./lib.tsp";
+      namespace MyOrg.Svc;
+      using ┆M;
+      `,
+      undefined,
+      {
+        "test/lib.tsp": `
+        namespace MyOrg.Models { model M {} }
+        namespace Standalone { model S {} }
+        `,
+      },
+    );
+
+    ok(
+      completions.items.some((x) => x.label === "Models"),
+      "Should complete `Models` as usings after the file namespace resolve relative to it",
     );
   });
 
