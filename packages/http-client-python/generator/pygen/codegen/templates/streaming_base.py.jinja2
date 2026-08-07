@@ -73,6 +73,8 @@ class JSONLEvent:
 
     :ivar data: The raw JSONL record.
     :vartype data: str or None
+    :keyword data: The raw JSONL record.
+    :paramtype data: str or None
     """
 
     def __init__(
@@ -192,6 +194,17 @@ class ServerSentEvent:
     :vartype id: str
     :ivar retry: The reconnection time in milliseconds, if the stream provided one.
     :vartype retry: int or None
+    :keyword event: The event type. Defaults to ``"message"`` when the stream does not
+        specify one.
+    :paramtype event: str
+    :keyword data: The event payload. Multiple ``data`` lines are joined with ``"\\n"``.
+        Left as a raw string; the caller is responsible for any further parsing.
+    :paramtype data: str
+    :keyword id: The last event ID. Defaults to an empty string until the stream
+        provides one.
+    :paramtype id: str
+    :keyword retry: The reconnection time in milliseconds, if the stream provided one.
+    :paramtype retry: int or None
     """
 
     def __init__(
