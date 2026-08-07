@@ -42,7 +42,12 @@ export async function $onEmit(context: EmitContext<CSharpServiceEmitterOptions>)
   const projectName = options["project-name"] ?? "ServiceProject";
 
   // Report diagnostic warnings (pre-pass before rendering)
-  reportEmitterDiagnostics(context.program, resolution.interfaces, resolution.canonicalOpsMap);
+  reportEmitterDiagnostics(
+    context.program,
+    resolution.interfaces,
+    resolution.canonicalOpsMap,
+    resolution.declarationNamespaces,
+  );
 
   // Resolve OpenAPI path for SwaggerUI
   let openApiPath: string | undefined = options["openapi-path"];

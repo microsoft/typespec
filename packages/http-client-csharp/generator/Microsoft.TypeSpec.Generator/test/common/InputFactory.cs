@@ -732,7 +732,8 @@ namespace Microsoft.TypeSpec.Generator.Tests.Common
             bool generateConvenienceMethod = true,
             string? ns = null,
             bool isExactName = false,
-            bool generateProtocolMethod = true)
+            bool generateProtocolMethod = true,
+            bool bufferResponse = true)
         {
             var operation = new InputOperation(
                 name,
@@ -748,7 +749,7 @@ namespace Microsoft.TypeSpec.Generator.Tests.Common
                 path,
                 null,
                 requestMediaTypes is null ? null : [.. requestMediaTypes],
-                false,
+                bufferResponse,
                 generateProtocolMethod,
                 generateConvenienceMethod,
                 name,

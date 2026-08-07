@@ -1529,6 +1529,16 @@ export interface UsingStatementNode extends BaseNode {
   readonly kind: SyntaxKind.UsingStatement;
   readonly name: IdentifierNode | MemberExpressionNode;
   readonly parent?: TypeSpecScriptNode | NamespaceStatementNode;
+
+  /**
+   * Namespace this using statement is scoped to.
+   * Set by the binder.
+   *
+   * This is the enclosing namespace for a using declared inside a namespace block, or the file(blockless) namespace
+   * if the using is declared after it. It is `undefined` when the using is declared at the file level, before any
+   * blockless namespace declaration, in which case its name resolves from the global namespace.
+   */
+  readonly scopeNamespace?: NamespaceStatementNode;
 }
 
 export interface OperationSignatureDeclarationNode extends BaseNode {

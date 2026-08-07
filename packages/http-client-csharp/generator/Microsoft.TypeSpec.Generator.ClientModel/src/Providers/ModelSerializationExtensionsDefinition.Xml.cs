@@ -245,13 +245,9 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
                 {
                     Declare(
                         dataVar,
-                        Static(typeof(ModelReaderWriter)).Invoke(
-                            nameof(ModelReaderWriter.Write),
-                            [
-                                persistableModelVar,
-                                options.NullCoalesce(ModelSerializationExtensionsSnippets.Wire),
-                                ModelReaderWriterContextSnippets.Default
-                            ])),
+                        ModelReaderWriterSnippets.Write(
+                            persistableModelVar,
+                            options.NullCoalesce(ModelSerializationExtensionsSnippets.Wire))),
                     outerUsing,
                     Return()
                 });
