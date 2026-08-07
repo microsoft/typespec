@@ -90,7 +90,8 @@ export type Condition =
   | And
   | Not
   | "isAssignedToSomeone"
-  | "isOpen";
+  | "isOpen"
+  | "isDraft";
 
 export function payloadType(payloadType: PayloadType["payloadType"]): PayloadType {
   return {

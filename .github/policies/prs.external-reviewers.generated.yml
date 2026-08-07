@@ -21,6 +21,7 @@ configuration:
               - not:
                   hasLabel:
                     label: emitter:graphql
+              - not: isDraft
             then:
               - addReply:
                   reply: "@fionabronwen @swatkatz @steverice — this PR modifies files in the
