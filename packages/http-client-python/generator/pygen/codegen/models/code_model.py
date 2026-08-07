@@ -17,6 +17,7 @@ from .operation_group import OperationGroup
 from .utils import NamespaceType
 from .._utils import DEFAULT_HEADER_TEXT, DEFAULT_LICENSE_DESCRIPTION
 from ... import OptionsDict
+from ...utils import is_typeddict_only
 
 
 def _is_legacy(options) -> bool:
@@ -89,7 +90,7 @@ class CodeModel:  # pylint: disable=too-many-public-methods, disable=too-many-in
         self.clients: list[Client] = [
             Client.from_yaml(client_yaml_data, self) for client_yaml_data in yaml_data["clients"]
         ]
-        if self.options["models-mode"] and self.model_types:
+        if (self.options["models-mode"] or self.generate_typeddict_only) and self.model_types:
             self.sort_model_types()
         self.named_unions: list[CombinedType] = [
             t for t in self.types_map.values() if isinstance(t, CombinedType) and t.name
@@ -173,6 +174,11 @@ class CodeModel:  # pylint: disable=too-many-public-methods, disable=too-many-in
 
     def get_unique_types_alias(self, serialize_namespace: str, imported_namespace: str) -> str:
         return self._get_unique_import_alias(serialize_namespace, imported_namespace, "types")
+
+    @property
+    def generate_typeddict_only(self) -> bool:
+        """Whether this is TypedDict-only generation ('models-mode: none' + TypedDicts)."""
+        return is_typeddict_only(self.options)
 
     @property
     def client_namespace_types(self) -> dict[str, ClientNamespaceType]:

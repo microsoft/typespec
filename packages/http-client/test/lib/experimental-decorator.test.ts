@@ -1,5 +1,6 @@
 import { resolvePath } from "@typespec/compiler";
-import { createTester, expectDiagnostics, t, TesterInstance } from "@typespec/compiler/testing";
+import type { TesterInstance } from "@typespec/compiler/testing";
+import { createTester, expectDiagnostics, t } from "@typespec/compiler/testing";
 import { $ } from "@typespec/compiler/typekit";
 import { beforeAll, expect, it } from "vitest";
 import "../../src/typekit/index.js";

@@ -1,3 +1,4 @@
 export * from "./config-loader.js";
-export { ResolveCompilerOptionsOptions, resolveCompilerOptions } from "./config-to-options.js";
-export * from "./types.js";
+export { resolveCompilerOptions } from "./config-to-options.js";
+export type { ResolveCompilerOptionsOptions } from "./config-to-options.js";
+export type * from "./types.js";

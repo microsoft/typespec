@@ -1,9 +1,7 @@
+import type { Interface, Model, Program } from "@typespec/compiler";
 import {
-  Interface,
   isStdNamespace,
   isTemplateDeclaration,
-  Model,
-  Program,
   type Namespace as TspNamespace,
 } from "@typespec/compiler";
 import { $ } from "@typespec/compiler/typekit";

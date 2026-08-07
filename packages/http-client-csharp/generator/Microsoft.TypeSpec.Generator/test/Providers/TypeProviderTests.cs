@@ -478,6 +478,248 @@ namespace Microsoft.TypeSpec.Generator.Tests.Providers
             Assert.AreEqual(Helpers.GetExpectedFromFile(), actual);
         }
 
+        // An extensible-enum parameter whose nullability was removed (FileFormatType? -> FileFormatType)
+        // gets a hidden overload with the previous nullable signature that delegates with .Value. Since the
+        // current parameter is required, the previous optional default is preserved so omit-callers still
+        // compile.
+        [Test]
+        public async Task BuildMethodsForBackCompatibilityAddsOverloadForRelaxedNullableValueTypeParameter()
+        {
+            await MockHelpers.LoadMockGeneratorAsync(lastContractCompilation: async () => await Helpers.GetCompilationFromDirectoryAsync());
+
+            // The last contract published GetData(string data, FileFormatType? value = default, bool flag =
+            // default); the current generation makes the extensible-enum 'value' non-nullable and required.
+            // The required string 'data' produces an argument assertion in the method body.
+            var typeFactory = CodeModelGenerator.Instance.TypeFactory;
+            var enumInput = InputFactory.StringEnum("fileFormatType", [("json", "json"), ("xml", "xml")], isExtensible: true, usage: InputModelTypeUsage.Input);
+            var data = typeFactory.CreateParameter(InputFactory.QueryParameter("data", InputPrimitiveType.String, isRequired: true))!;
+            var value = typeFactory.CreateParameter(InputFactory.QueryParameter("value", enumInput, isRequired: true))!;
+            var flag = typeFactory.CreateParameter(InputFactory.QueryParameter("flag", InputPrimitiveType.Boolean))!;
+            var getData = new MethodProvider(
+                new MethodSignature("GetData", $"", MethodSignatureModifiers.Public, new CSharpType(typeof(string)), $"", [data, value, flag]),
+                Snippet.Return(data),
+                new TestTypeProvider());
+
+            var typeProvider = new TestTypeProvider(name: "NullabilityChangeType", ns: "Test", methods: [getData]);
+
+            typeProvider.ProcessTypeForBackCompatibility();
+
+            var actual = new TypeProviderWriter(typeProvider).Write().Content;
+            Assert.AreEqual(Helpers.GetExpectedFromFile(), actual);
+        }
+
+        // TypeProvider: a STATIC method whose value-type parameter had its nullability removed gets a hidden
+        // static overload that unwraps the previously-nullable parameter with .Value and delegates through
+        // the declaring type (not `this`), since a static method cannot use an instance receiver.
+        [Test]
+        public async Task BuildMethodsForBackCompatibilityAddsStaticOverloadForRelaxedNullableValueTypeParameter()
+        {
+            await MockHelpers.LoadMockGeneratorAsync(lastContractCompilation: async () => await Helpers.GetCompilationFromDirectoryAsync());
+
+            // The last contract published static GetData(string data, FileFormatType? value = default, bool
+            // flag = default); the current generation makes the extensible-enum 'value' non-nullable and
+            // required. The required string 'data' produces an argument assertion in the method body.
+            var typeFactory = CodeModelGenerator.Instance.TypeFactory;
+            var enumInput = InputFactory.StringEnum("fileFormatType", [("json", "json"), ("xml", "xml")], isExtensible: true, usage: InputModelTypeUsage.Input);
+            var data = typeFactory.CreateParameter(InputFactory.QueryParameter("data", InputPrimitiveType.String, isRequired: true))!;
+            var value = typeFactory.CreateParameter(InputFactory.QueryParameter("value", enumInput, isRequired: true))!;
+            var flag = typeFactory.CreateParameter(InputFactory.QueryParameter("flag", InputPrimitiveType.Boolean))!;
+            var getData = new MethodProvider(
+                new MethodSignature("GetData", $"", MethodSignatureModifiers.Public | MethodSignatureModifiers.Static, new CSharpType(typeof(string)), $"", [data, value, flag]),
+                Snippet.Return(data),
+                new TestTypeProvider());
+
+            var typeProvider = new TestTypeProvider(name: "StaticNullabilityChangeType", ns: "Test", methods: [getData]);
+
+            typeProvider.ProcessTypeForBackCompatibility();
+
+            var actual = new TypeProviderWriter(typeProvider).Write().Content;
+            Assert.AreEqual(Helpers.GetExpectedFromFile(), actual);
+        }
+
+        // TypeProvider: a previous STATIC method and a current INSTANCE method (or vice versa) are different
+        // APIs. The generated shim would preserve the previous signature's static-ness while delegating to
+        // the current method via the wrong receiver (e.g. `this.GetData(...)` inside a static shim, CS0026),
+        // so a candidate whose static modifier differs must be rejected and no overload added.
+        [Test]
+        public async Task BuildMethodsForBackCompatibilitySkipsOverloadWhenStaticnessDiffers()
+        {
+            await MockHelpers.LoadMockGeneratorAsync(lastContractCompilation: async () => await Helpers.GetCompilationFromDirectoryAsync());
+
+            // The last contract published static GetData(int param1); the current generation exposes an
+            // instance GetData(int param1, bool param2 = default). Because the static-ness differs, the new
+            // optional-parameter overload must not be resurrected.
+            var param1 = new ParameterProvider("param1", $"", new CSharpType(typeof(int)));
+            var param2 = new ParameterProvider("param2", $"", new CSharpType(typeof(bool)), defaultValue: Snippet.Default, location: ParameterLocation.Query);
+            var getData = new MethodProvider(
+                new MethodSignature("GetData", $"", MethodSignatureModifiers.Public, new CSharpType(typeof(string)), $"", [param1, param2]),
+                Snippet.Return(Snippet.Null),
+                new TestTypeProvider());
+
+            var typeProvider = new TestTypeProvider(name: "StaticnessMismatchType", ns: "Test", methods: [getData]);
+
+            typeProvider.ProcessTypeForBackCompatibility();
+
+            // Only the current instance method remains; no hidden static back-compat overload was added.
+            var actual = new TypeProviderWriter(typeProvider).Write().Content;
+            Assert.AreEqual(Helpers.GetExpectedFromFile(), actual);
+        }
+
+        // TypeProvider: an abstract method has no body, so the delegating back-compat shim (which must have a
+        // body) cannot preserve the previous 'abstract' modifier without producing invalid C#. Abstract
+        // methods are therefore skipped entirely and no overload is added.
+        [Test]
+        public async Task BuildMethodsForBackCompatibilitySkipsOverloadForAbstractMethod()
+        {
+            await MockHelpers.LoadMockGeneratorAsync(lastContractCompilation: async () => await Helpers.GetCompilationFromDirectoryAsync());
+
+            // The last contract published abstract GetData(int param1); the current generation exposes
+            // GetData(int param1, bool param2 = default). Because the previous method is abstract, no
+            // delegating overload can be generated.
+            var param1 = new ParameterProvider("param1", $"", new CSharpType(typeof(int)));
+            var param2 = new ParameterProvider("param2", $"", new CSharpType(typeof(bool)), defaultValue: Snippet.Default, location: ParameterLocation.Query);
+            var getData = new MethodProvider(
+                new MethodSignature("GetData", $"", MethodSignatureModifiers.Public, new CSharpType(typeof(string)), $"", [param1, param2]),
+                Snippet.Return(Snippet.Null),
+                new TestTypeProvider());
+
+            var typeProvider = new TestTypeProvider(name: "AbstractMethodType", ns: "Test", methods: [getData]);
+
+            typeProvider.ProcessTypeForBackCompatibility();
+
+            // Only the current method remains; no hidden back-compat overload was added.
+            var actual = new TypeProviderWriter(typeProvider).Write().Content;
+            Assert.AreEqual(Helpers.GetExpectedFromFile(), actual);
+        }
+
+        [Test]
+        public async Task BuildMethodsForBackCompatibilityAddsNullableOverloadForUnresolvedCustomValueTypeParameter()
+        {
+            await MockHelpers.LoadMockGeneratorAsync(
+                compilation: async () => await Helpers.GetCompilationFromDirectoryAsync("Customization"),
+                lastContractCompilation: async () => await Helpers.GetCompilationFromDirectoryAsync("LastContract"));
+
+            // Only the custom convenience method GetData(string, FileFormatType, bool?) exists in the current
+            // generation; its FileFormatType parameter is unresolved in the customization compilation.
+            var typeProvider = new TestTypeProvider(name: "UnresolvedNullabilityType", ns: "Test", methods: []);
+
+            typeProvider.ProcessTypeForBackCompatibility();
+
+            var added = typeProvider.Methods.SingleOrDefault(m =>
+                m.Signature.Name == "GetData" &&
+                m.Signature.Parameters.Count == 3 &&
+                m.Signature.Parameters[1].Type is { IsValueType: true, IsNullable: true });
+            Assert.IsNotNull(added, "Expected a hidden nullable back-compat overload even though the custom delegation target's parameter type is unresolved.");
+        }
+
+        // Cross-pass interaction: when a shared parameter's nullability was removed AND the method also
+        // gained a new optional parameter, the new-optional-parameter overload pass forwards the shared
+        // parameter with .Value, and the nullability pass does not add a duplicate overload.
+        [Test]
+        public async Task BuildMethodsForBackCompatibilityUnwrapsRelaxedNullableSharedParameterInOptionalOverload()
+        {
+            await MockHelpers.LoadMockGeneratorAsync(lastContractCompilation: async () => await Helpers.GetCompilationFromDirectoryAsync());
+
+            // Last contract: GetData(string data, FileFormatType? value = default). Current makes the
+            // extensible-enum 'value' non-nullable and adds a new optional parameter 'newFlag'. The required
+            // string 'data' produces an argument assertion in the method body.
+            var typeFactory = CodeModelGenerator.Instance.TypeFactory;
+            var enumInput = InputFactory.StringEnum("fileFormatType", [("json", "json"), ("xml", "xml")], isExtensible: true, usage: InputModelTypeUsage.Input);
+            var data = typeFactory.CreateParameter(InputFactory.QueryParameter("data", InputPrimitiveType.String, isRequired: true))!;
+            var value = typeFactory.CreateParameter(InputFactory.QueryParameter("value", enumInput, isRequired: true))!;
+            var newFlag = typeFactory.CreateParameter(InputFactory.QueryParameter("newFlag", InputPrimitiveType.Boolean))!;
+            var getData = new MethodProvider(
+                new MethodSignature("GetData", $"", MethodSignatureModifiers.Public, new CSharpType(typeof(string)), $"", [data, value, newFlag]),
+                Snippet.Return(data),
+                new TestTypeProvider());
+
+            var typeProvider = new TestTypeProvider(name: "NullabilityAndOptionalChangeType", ns: "Test", methods: [getData]);
+
+            typeProvider.ProcessTypeForBackCompatibility();
+
+            // Exactly one back-compat overload is added (no duplicate across the two passes).
+            Assert.AreEqual(2, typeProvider.Methods.Count);
+
+            var actual = new TypeProviderWriter(typeProvider).Write().Content;
+            Assert.AreEqual(Helpers.GetExpectedFromFile(), actual);
+        }
+
+        // A nullable parameter that changed from optional to required (same type, FileFormatType? value =
+        // default -> FileFormatType? value) gets a hidden reduced-arity overload that drops the parameter
+        // and delegates with its previous default, so omit-callers still compile without an ambiguous call
+        // site.
+        [Test]
+        public async Task BuildMethodsForBackCompatibilityAddsOverloadForNullableParameterThatBecameRequired()
+        {
+            await MockHelpers.LoadMockGeneratorAsync(lastContractCompilation: async () => await Helpers.GetCompilationFromDirectoryAsync());
+
+            // Last contract: GetData(string data, FileFormatType? value = default, bool flag = default).
+            // Current keeps the extensible-enum 'value' nullable but makes it required. The required string
+            // 'data' produces an argument assertion in the method body.
+            var typeFactory = CodeModelGenerator.Instance.TypeFactory;
+            var enumInput = InputFactory.StringEnum("fileFormatType", [("json", "json"), ("xml", "xml")], isExtensible: true, usage: InputModelTypeUsage.Input);
+            var data = typeFactory.CreateParameter(InputFactory.QueryParameter("data", InputPrimitiveType.String, isRequired: true))!;
+            var value = typeFactory.CreateParameter(InputFactory.QueryParameter("value", new InputNullableType(enumInput), isRequired: true))!;
+            var flag = typeFactory.CreateParameter(InputFactory.QueryParameter("flag", InputPrimitiveType.Boolean))!;
+            var getData = new MethodProvider(
+                new MethodSignature("GetData", $"", MethodSignatureModifiers.Public, new CSharpType(typeof(string)), $"", [data, value, flag]),
+                Snippet.Return(data),
+                new TestTypeProvider());
+
+            var typeProvider = new TestTypeProvider(name: "OptionalityChangeType", ns: "Test", methods: [getData]);
+
+            typeProvider.ProcessTypeForBackCompatibility();
+
+            var actual = new TypeProviderWriter(typeProvider).Write().Content;
+            Assert.AreEqual(Helpers.GetExpectedFromFile(), actual);
+        }
+
+        [Test]
+        public async Task BuildMethodsForBackCompatibilitySkipsOptionalityOverloadWhenReducedSignatureExists()
+        {
+            await MockHelpers.LoadMockGeneratorAsync(
+                compilation: async () => await Helpers.GetCompilationFromDirectoryAsync("Customization"),
+                lastContractCompilation: async () => await Helpers.GetCompilationFromDirectoryAsync("LastContract"));
+
+            var typeFactory = CodeModelGenerator.Instance.TypeFactory;
+            var name = typeFactory.CreateParameter(InputFactory.QueryParameter("name", InputPrimitiveType.String, isRequired: true))!;
+            var getData = new MethodProvider(
+                new MethodSignature("GetData", $"", MethodSignatureModifiers.Public, new CSharpType(typeof(string)), $"", [name]),
+                Snippet.Return(name),
+                new TestTypeProvider());
+
+            var typeProvider = new TestTypeProvider(name: "OptionalityDuplicateType", ns: "Test", methods: [getData]);
+
+            typeProvider.ProcessTypeForBackCompatibility();
+
+            // Only the original generated GetData(string name) remains; no duplicate reduced-arity shim added.
+            var actual = new TypeProviderWriter(typeProvider).Write().Content;
+            Assert.AreEqual(Helpers.GetExpectedFromFile(), actual);
+        }
+
+        // When the optionality-restoration reduced-arity shim (dropping the became-required parameter) would share its
+        // required-parameter prefix with another existing overload — here a hand-authored overload whose
+        // trailing parameters are all optional — a caller supplying only those arguments would bind to both
+        // (CS0121). The shim must NOT be added; the existing overload already serves those callers.
+        [Test]
+        public async Task BuildMethodsForBackCompatibilitySkipsOptionalityOverloadWhenAmbiguousWithExistingOverload()
+        {
+            await MockHelpers.LoadMockGeneratorAsync(
+                compilation: async () => await Helpers.GetCompilationFromDirectoryAsync("Customization"),
+                lastContractCompilation: async () => await Helpers.GetCompilationFromDirectoryAsync("LastContract"));
+
+            // Last contract: GetData(string name, int? code = default, string tag = default) (code optional).
+            // Customization makes 'code' required and adds GetData(string name, long other = default). The shim
+            // would drop 'code' to GetData(string name, string tag = default), whose required prefix
+            // (string name) collides with the 'long other' overload, so it must be suppressed.
+            var typeProvider = new TestTypeProvider(name: "AmbiguousOptionalityType", ns: "Test", methods: []);
+
+            typeProvider.ProcessTypeForBackCompatibility();
+
+            var actual = new TypeProviderWriter(typeProvider).Write().Content;
+            Assert.AreEqual(Helpers.GetExpectedFromFile(), actual);
+        }
+
         // TypeProvider: when a previous signature's removal is accepted in the ApiCompat baseline, the
         // optional-parameter overload pass must NOT resurrect it even though the replacement method added
         // optional parameters.
@@ -675,18 +917,49 @@ namespace Microsoft.TypeSpec.Generator.Tests.Providers
             Assert.AreEqual(Helpers.GetExpectedFromFile(), actual);
         }
 
-        // Validates that a parameter whose spec name is not in the last contract keeps its current name.
+        // Validates that a parameter is not positionally restored when no last-contract method matches
+        // the current method's signature (here the last-contract Foo takes an int, the current takes a string).
         [Test]
         public async Task BuildMethodsForBackCompatibilityKeepsUnpublishedParameterName()
         {
             await MockHelpers.LoadMockGeneratorAsync(lastContractCompilation: async () => await Helpers.GetCompilationFromDirectoryAsync());
 
-            // "brandNewParam" has no counterpart in the last contract (TestClient.Foo(oldParam)).
+            // "brandNewParam" has no counterpart in the last contract (TestClient.Foo(int oldParam)).
             var inputParameter = InputFactory.QueryParameter("brandNewParam", InputPrimitiveType.String, isRequired: true);
             var parameter = new ParameterProvider(inputParameter);
             var fooMethod = new MethodProvider(
                 new MethodSignature("Foo", $"", MethodSignatureModifiers.Public, new CSharpType(typeof(string)), $"", [parameter]),
                 Snippet.Return(parameter),
+                new TestTypeProvider());
+
+            var typeProvider = new TestTypeProvider(name: "TestClient", methods: [fooMethod]);
+
+            typeProvider.ProcessTypeForBackCompatibility();
+
+            var actual = new TypeProviderWriter(typeProvider).Write().Content;
+            Assert.AreEqual(Helpers.GetExpectedFromFile(), actual);
+        }
+
+        // Validates the positional fallback: when a spec parameter's previously-published name matches
+        // neither its current name nor its spec original name (e.g. a rename by a different generator),
+        // it is restored from the last-contract method that matches by signature (name and parameter types).
+        [Test]
+        public async Task BuildMethodsForBackCompatibilityRestoresRenamedParameterBySignatureMatch()
+        {
+            await MockHelpers.LoadMockGeneratorAsync(lastContractCompilation: async () => await Helpers.GetCompilationFromDirectoryAsync());
+
+            // The spec name equals the current name ("newParam"), so it is not discoverable by spec name;
+            // only a signature match against the last-contract Foo(string oldParam) can restore "oldParam".
+            var inputParameter = InputFactory.QueryParameter("newParam", InputPrimitiveType.String, isRequired: true);
+
+            var parameter = new ParameterProvider(inputParameter);
+            var fooMethod = new MethodProvider(
+                new MethodSignature("Foo", $"", MethodSignatureModifiers.Public, new CSharpType(typeof(string)), $"", [parameter]),
+                new MethodBodyStatement[]
+                {
+                    Snippet.This.Invoke("Validate", parameter).Terminate(),
+                    Snippet.Return(parameter),
+                },
                 new TestTypeProvider());
 
             var typeProvider = new TestTypeProvider(name: "TestClient", methods: [fooMethod]);

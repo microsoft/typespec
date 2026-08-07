@@ -19,6 +19,8 @@ export const JsonSerialization = createLibrary("System.Text.Json.Serialization",
  */
 export const AspNetMvc = createLibrary("Microsoft.AspNetCore.Mvc", {
   ApiControllerAttribute: { kind: "class", members: {} },
+  ControllerBase: { kind: "class", members: {} },
+  IActionResult: { kind: "interface", members: {} },
   RouteAttribute: { kind: "class", members: {} },
   HttpGetAttribute: { kind: "class", members: {} },
   HttpPostAttribute: { kind: "class", members: {} },

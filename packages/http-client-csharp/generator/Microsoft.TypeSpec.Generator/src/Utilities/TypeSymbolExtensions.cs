@@ -135,7 +135,7 @@ namespace Microsoft.TypeSpec.Generator
                 if (namedTypeSymbol.IsGenericType)
                 {
                     // Handle nullable types
-                    if (typeSymbol.NullableAnnotation == NullableAnnotation.Annotated && !IsCollectionType(namedTypeSymbol))
+                    if (typeSymbol.NullableAnnotation == NullableAnnotation.Annotated && typeSymbol.IsValueType && !IsCollectionType(namedTypeSymbol))
                     {
                         var argTypeSymbol = namedTypeSymbol.TypeArguments.FirstOrDefault();
 
@@ -196,7 +196,11 @@ namespace Microsoft.TypeSpec.Generator
             bool isNullable = fullyQualifiedName.StartsWith(NullableTypeName);
             bool isEnum = typeSymbol.TypeKind == TypeKind.Enum || (isNullable && typeArg?.TypeKind == TypeKind.Enum);
             bool isNullableUnknownType = isNullable && typeArg?.TypeKind == TypeKind.Error;
-            string name = isNullableUnknownType ? fullyQualifiedName : typeSymbol.Name;
+            string name = isNullableUnknownType
+                ? fullyQualifiedName
+                : typeSymbol is IArrayTypeSymbol
+                    ? fullyQualifiedName[(fullyQualifiedName.LastIndexOf('.') + 1)..]
+                    : typeSymbol.Name;
             // get everything before ` in case of generics
             string[] pieces = fullyQualifiedName.Split('`')[0].Split('.');
             List<CSharpType> arguments = [];

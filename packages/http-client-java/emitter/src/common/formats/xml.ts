@@ -1,4 +1,4 @@
-import { SerializationFormat } from "@autorest/codemodel";
+import type { SerializationFormat } from "@autorest/codemodel";
 
 export interface XmlSerializationFormat extends SerializationFormat {
   name?: string;

@@ -1,6 +1,6 @@
 vi.resetModules();
 
-import { TestHost } from "@typespec/compiler/testing";
+import type { TestHost } from "@typespec/compiler/testing";
 import { deepStrictEqual, strictEqual } from "assert";
 import { ok } from "assert/strict";
 import { beforeEach, describe, it, vi } from "vitest";

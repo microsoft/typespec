@@ -24,6 +24,7 @@ import com.microsoft.typespec.http.client.generator.core.extension.model.codemod
 import com.microsoft.typespec.http.client.generator.core.extension.model.codemodel.SealedChoiceSchema;
 import com.microsoft.typespec.http.client.generator.core.extension.model.extensionmodel.XmsExtensions;
 import com.microsoft.typespec.http.client.generator.core.extension.plugin.JavaSettings;
+import com.microsoft.typespec.http.client.generator.core.model.clientmodel.ApiMetadata;
 import com.microsoft.typespec.http.client.generator.core.model.clientmodel.AsyncSyncClient;
 import com.microsoft.typespec.http.client.generator.core.model.clientmodel.ClassType;
 import com.microsoft.typespec.http.client.generator.core.model.clientmodel.Client;
@@ -342,7 +343,7 @@ public class ClientMapper implements IMapper<CodeModel, Client> {
                         String clientBuilderName = clientName + builderSuffix;
                         ClientBuilder clientBuilder = new ClientBuilder(builderPackage, clientBuilderName,
                             serviceClient, (syncClient == null) ? List.of() : List.of(syncClient), List.of(asyncClient),
-                            serviceClient.getCrossLanguageDefinitionId());
+                            serviceClient.getApiMetadata());
 
                         addBuilderTraits(clientBuilder, serviceClient);
                         clientBuilders.add(clientBuilder);
@@ -356,7 +357,7 @@ public class ClientMapper implements IMapper<CodeModel, Client> {
                 } else {
                     // service client builder
                     ClientBuilder clientBuilder = new ClientBuilder(builderPackage, builderName, serviceClient,
-                        syncClientsLocal, asyncClientsLocal, serviceClient.getCrossLanguageDefinitionId());
+                        syncClientsLocal, asyncClientsLocal, serviceClient.getApiMetadata());
                     addBuilderTraits(clientBuilder, serviceClient);
                     clientBuilders.add(clientBuilder);
 
@@ -370,7 +371,8 @@ public class ClientMapper implements IMapper<CodeModel, Client> {
             asyncClients.addAll(asyncClientsLocal);
         }
         builder.clientBuilders(clientBuilders);
-        builder.crossLanguageDefinitionId(codeModel.getLanguage().getJava().getName());
+        builder.apiMetadata(
+            new ApiMetadata.Builder().crossLanguageDefinitionId(codeModel.getLanguage().getJava().getName()).build());
 
         // example/test
         if (settings.isDataPlaneClient() && (settings.isGenerateSamples() || settings.isGenerateTests())) {

@@ -1,8 +1,8 @@
 import { dereference } from "@scalar/openapi-parser";
-import { OpenAPI } from "@scalar/openapi-types";
+import type { OpenAPI } from "@scalar/openapi-types";
 import { beforeAll, describe, expect, it } from "vitest";
 import { createContext } from "../../src/cli/actions/convert/utils/context.js";
-import { OpenAPI3Document } from "../../src/types.js";
+import type { OpenAPI3Document } from "../../src/types.js";
 
 describe("tsp-openapi: Context methods", () => {
   let doc: OpenAPI.Document<{}>;

@@ -1,8 +1,8 @@
-import { Enum, Model, Namespace, Program, Union } from "@typespec/compiler";
-import { unsafe_Mutator } from "@typespec/compiler/experimental";
+import type { Enum, Model, Namespace, Program, Union } from "@typespec/compiler";
+import type { unsafe_Mutator } from "@typespec/compiler/experimental";
 import { $ } from "@typespec/compiler/typekit";
-import { HttpOperation } from "@typespec/http";
-import { Client, InternalClient } from "./interfaces.js";
+import type { HttpOperation } from "@typespec/http";
+import type { Client, InternalClient } from "./interfaces.js";
 import { reportDiagnostic } from "./lib.js";
 import { collectDataTypes } from "./utils/type-collector.js";
 

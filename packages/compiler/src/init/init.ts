@@ -2,15 +2,17 @@ import { confirm as confirmInquirer, input, select } from "@inquirer/prompts";
 import { readdir } from "fs/promises";
 import pc from "picocolors";
 import * as semver from "semver";
-import { CliCompilerHost } from "../core/cli/types.js";
+import type { CliCompilerHost } from "../core/cli/types.js";
 import { parseCliArgsArgOption } from "../core/cli/utils.js";
 import { createDiagnostic } from "../core/messages.js";
 import { getBaseFileName } from "../core/path-utils.js";
-import { Diagnostic, NoTarget } from "../core/types.js";
+import type { Diagnostic } from "../core/types.js";
+import { NoTarget } from "../core/types.js";
 import { installTypeSpecDependencies } from "../install/install.js";
 import { MANIFEST } from "../manifest.js";
-import { validateTemplateDefinitions, ValidationResult } from "./init-template-validate.js";
-import { EmitterTemplate, InitTemplate, InitTemplateInput } from "./init-template.js";
+import type { ValidationResult } from "./init-template-validate.js";
+import { validateTemplateDefinitions } from "./init-template-validate.js";
+import type { EmitterTemplate, InitTemplate, InitTemplateInput } from "./init-template.js";
 import { checkbox } from "./prompts.js";
 import { isFileSkipGeneration, makeScaffoldingConfig, scaffoldNewProject } from "./scaffold.js";
 import {
@@ -319,12 +321,18 @@ async function promptTemplateSelection(templates: Record<string, any>): Promise<
   return templateName;
 }
 
-function isTemplateCompatibleWithTspVersion(template: InitTemplate): boolean {
+/** @internal */
+export function isTemplateCompatibleWithTspVersion(template: InitTemplate): boolean {
   const currentCompilerVersion = MANIFEST.version;
-  return (
-    template.compilerVersion === undefined ||
-    semver.gte(currentCompilerVersion, template.compilerVersion)
-  );
+  if (template.compilerVersion === undefined) {
+    return true;
+  }
+  // If it's a plain version (e.g., "1.2.3"), treat it as >= for backward compatibility
+  if (semver.valid(template.compilerVersion)) {
+    return semver.gte(currentCompilerVersion, template.compilerVersion);
+  }
+  // Otherwise treat it as a semver range (e.g., "^1.2.3", ">=1.2.3")
+  return semver.satisfies(currentCompilerVersion, template.compilerVersion);
 }
 
 async function validateTemplate(template: any, index: LoadedTemplateIndex): Promise<boolean> {

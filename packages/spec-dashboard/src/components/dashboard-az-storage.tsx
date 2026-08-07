@@ -1,5 +1,6 @@
 import { useState } from "react";
-import { CoverageFromAzureStorageOptions, CoverageSummary, getCoverageSummaries } from "../apis.js";
+import type { CoverageFromAzureStorageOptions, CoverageSummary } from "../apis.js";
+import { getCoverageSummaries } from "../apis.js";
 import { useEffectAsync } from "../utils.js";
 import { Dashboard } from "./dashboard.js";
 

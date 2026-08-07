@@ -3,16 +3,8 @@
 import { strictEqual } from "assert";
 import { describe, expect, expectTypeOf, it } from "vitest";
 import { resolvePath } from "../../src/core/path-utils.js";
-import {
-  EmitContext,
-  emitFile,
-  Enum,
-  getLocationContext,
-  Model,
-  navigateProgram,
-  ObjectValue,
-  Program,
-} from "../../src/index.js";
+import type { EmitContext, Enum, Model, ObjectValue, Program } from "../../src/index.js";
+import { emitFile, getLocationContext, navigateProgram } from "../../src/index.js";
 import { mockFile } from "../../src/testing/fs.js";
 import { t } from "../../src/testing/marked-template.js";
 import { resolveVirtualPath } from "../../src/testing/test-utils.js";

@@ -1,13 +1,8 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT license.
 
-import {
-  createTypeSpecLibrary,
-  DiagnosticTarget,
-  JSONSchemaType,
-  paramMessage,
-  Program,
-} from "@typespec/compiler";
+import type { DiagnosticTarget, JSONSchemaType, Program } from "@typespec/compiler";
+import { createTypeSpecLibrary, paramMessage } from "@typespec/compiler";
 
 /**
  * Options that the Protobuf emitter accepts.
