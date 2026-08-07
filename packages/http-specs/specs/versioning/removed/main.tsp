@@ -1,10 +1,12 @@
 import "@typespec/http";
 import "@typespec/spector";
 import "@typespec/versioning";
+import "@azure-tools/typespec-client-generator-core";
 
 using Http;
 using Spector;
 using TypeSpec.Versioning;
+using Azure.ClientGenerator.Core;
 
 /**
  * Test for the `@removed` decorator.
@@ -131,6 +133,8 @@ op v1(@body body: ModelV1): ModelV1;
   ```
   """)
 @route("/v2")
+// Go does not support the union properties in ModelV2.
+@scope("!go")
 @post
 op v2(@body body: ModelV2, @removed(Versions.v2) @query param: string): ModelV2;
 

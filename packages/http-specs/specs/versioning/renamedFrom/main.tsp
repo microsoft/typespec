@@ -1,10 +1,12 @@
 import "@typespec/http";
 import "@typespec/spector";
 import "@typespec/versioning";
+import "@azure-tools/typespec-client-generator-core";
 
 using Http;
 using Spector;
 using TypeSpec.Versioning;
+using Azure.ClientGenerator.Core;
 
 /**
  * Test for the `@renamedFrom` decorator.
@@ -85,6 +87,8 @@ scalar NewScalar extends int32;
 @route("/test")
 @post
 @renamedFrom(Versions.v2, "oldOp")
+// Go does not support the union properties in NewModel.
+@scope("!go")
 op newOp(
   @body body: NewModel,
 
@@ -106,6 +110,8 @@ op newOp(
   """)
 @route("/interface")
 interface NewInterface {
+  // Go does not support the union properties in NewModel.
+  @scope("!go")
   @post
   @route("/test")
   newOpInNewInterface(@body body: NewModel): NewModel;

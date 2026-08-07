@@ -1,10 +1,12 @@
 import "@typespec/http";
 import "@typespec/spector";
 import "@typespec/versioning";
+import "@azure-tools/typespec-client-generator-core";
 
 using Http;
 using Spector;
 using TypeSpec.Versioning;
+using Azure.ClientGenerator.Core;
 
 /**
  * Test for the `@added` decorator.
@@ -100,6 +102,8 @@ scalar V2Scalar extends int32;
   
   """)
 @route("/v1")
+// Go does not support the union properties in ModelV1.
+@scope("!go")
 @post
 op v1(@body body: ModelV1, @added(Versions.v2) @header headerV2: string): ModelV1;
 
@@ -114,6 +118,8 @@ op v1(@body body: ModelV1, @added(Versions.v2) @header headerV2: string): ModelV
   """)
 @route("/v2")
 @added(Versions.v2)
+// Go does not support the union properties in ModelV2.
+@scope("!go")
 @post
 op v2(@body body: ModelV2): ModelV2;
 
@@ -130,6 +136,8 @@ op v2(@body body: ModelV2): ModelV2;
   """)
 @route("/interface-v2")
 interface InterfaceV2 {
+  // Go does not support the union properties in ModelV2.
+  @scope("!go")
   @post
   @route("/v2")
   v2InInterface(@body body: ModelV2): ModelV2;

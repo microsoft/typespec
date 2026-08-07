@@ -1,8 +1,10 @@
 import "@typespec/http";
 import "@typespec/spector";
+import "@azure-tools/typespec-client-generator-core";
 
 using Http;
 using Spector;
+using Azure.ClientGenerator.Core;
 
 /**
  * Describe scenarios for various combinations of unions.
@@ -224,6 +226,8 @@ interface GetAndSend<Union, Payload extends valueof string, Cases = Union> {
       type: Union,
     }
   )
+  // Go does not support union types.
+  @scope("!go")
   get(): {
     prop: Cases;
   };
@@ -245,5 +249,7 @@ interface GetAndSend<Union, Payload extends valueof string, Cases = Union> {
       type: Union,
     }
   )
+  // Go does not support union types.
+  @scope("!go")
   send(prop: Cases): void;
 }

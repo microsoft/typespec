@@ -1442,6 +1442,9 @@ importers:
 
   packages/http-specs:
     dependencies:
+      '@azure-tools/typespec-client-generator-core':
+        specifier: 0.70.0
+        version: 0.70.0(@typespec/compiler@packages+compiler)(@typespec/events@packages+events(@typespec/compiler@packages+compiler))(@typespec/http@packages+http(@typespec/compiler@packages+compiler)(@typespec/streams@packages+streams(@typespec/compiler@packages+compiler)(@typespec/http@packages+http)))(@typespec/openapi@packages+openapi(@typespec/compiler@packages+compiler)(@typespec/http@packages+http))(@typespec/rest@packages+rest(@typespec/compiler@packages+compiler)(@typespec/http@packages+http))(@typespec/sse@packages+sse(@typespec/compiler@packages+compiler)(@typespec/events@packages+events(@typespec/compiler@packages+compiler))(@typespec/http@packages+http))(@typespec/streams@packages+streams(@typespec/compiler@packages+compiler)(@typespec/http@packages+http))(@typespec/versioning@packages+versioning(@typespec/compiler@packages+compiler))(@typespec/xml@packages+xml(@typespec/compiler@packages+compiler))
       '@typespec/compiler':
         specifier: workspace:^
         version: link:../compiler
