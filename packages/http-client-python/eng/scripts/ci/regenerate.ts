@@ -25,10 +25,10 @@ import {
   cleanGeneratedCode,
   getSubdirectories,
   preprocess,
-  RegenerateContext,
-  RegenerateFlags,
+  type RegenerateContext,
+  type RegenerateFlags,
   runParallel,
-} from "./regenerate-common.js";
+} from "./regenerate-common.ts";
 
 // Parse arguments
 const argv = parseArgs({
@@ -47,7 +47,7 @@ const argv = parseArgs({
 
 if (argv.values.help) {
   console.log(`
-${pc.bold("Usage:")} tsx regenerate.ts [options]
+${pc.bold("Usage:")} node regenerate.ts [options]
 
 ${pc.bold("Description:")}
   Regenerates Python SDK code from TypeSpec definitions using in-process compilation.
@@ -75,16 +75,16 @@ ${pc.bold("Options:")}
 
 ${pc.bold("Examples:")}
   ${pc.dim("# Regenerate all packages for both flavors")}
-  tsx regenerate.ts
+  node regenerate.ts
 
   ${pc.dim("# Regenerate only Azure packages")}
-  tsx regenerate.ts --flavor azure
+  node regenerate.ts --flavor azure
 
   ${pc.dim("# Regenerate a specific package by name")}
-  tsx regenerate.ts --flavor azure --name authentication-api-key
+  node regenerate.ts --flavor azure --name authentication-api-key
 
   ${pc.dim("# Regenerate with more parallelism")}
-  tsx regenerate.ts --jobs 50
+  node regenerate.ts --jobs 50
 `);
   process.exit(0);
 }
