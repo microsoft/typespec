@@ -22,7 +22,10 @@ import { TspConfigFileName } from "./const.js";
 import { sendLmChatRequest } from "./lm/language-model.js";
 import logger from "./log/logger.js";
 import telemetryClient from "./telemetry/telemetry-client.js";
-import { resolveTypeSpecServer } from "./tsp-executable-resolver.js";
+import {
+  resolveTypeSpecServer,
+  wasMissingRuntimeDiagnosisReported,
+} from "./tsp-executable-resolver.js";
 import type {
   LspClientCustomRequest_ChatComplete_Name,
   LspClientCustomRequest_ChatCompletion_Params,
@@ -211,7 +214,11 @@ export class TspLanguageClient {
             .filter((m) => m.trim() !== "")
             .join("\n"),
           [],
-          { showOutput: false, showPopup: true },
+          // The resolver may have already reported that the compiler was found but
+          // no runtime is on PATH, then handed back a `tsp` command as a last
+          // resort. Popping this up too would contradict that message ("not found"
+          // vs "found at ..."), so keep it in the output channel only.
+          { showOutput: false, showPopup: !wasMissingRuntimeDiagnosisReported() },
         );
         logger.error("Error detail", [e]);
       } else {
