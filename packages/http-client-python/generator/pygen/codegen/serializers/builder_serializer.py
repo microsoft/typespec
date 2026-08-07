@@ -1268,43 +1268,22 @@ class _OperationSerializer(_BuilderBaseSerializer[OperationType]):
         )
         stream_class = response.stream_class_name(self.async_mode)  # type: ignore[attr-defined]
         terminal_event = getattr(response, "terminal_event", None)
-        streaming_events = getattr(response, "streaming_events", [])
         retval: list[str] = []
         retval.append("def _callback(_http_response, _event):")
         if response.streaming_kind == "sse":  # type: ignore[attr-defined]
-            # SSE payloads arrive as raw ``data`` strings; the terminal marker (e.g. ``[DONE]``)
-            # is consumed by the runtime before this callback runs (see ``terminal_event``).
+            # Heterogeneous SSE (``@events`` unions) is deserialized against the union item
+            # type below; the shared ``_deserialize`` cannot resolve a forward-ref union
+            # member name into a concrete model, so payloads are yielded as parsed JSON.
+            # Per-event ``eventType`` dispatch into distinct model instances requires the
+            # TCGC ``sseMetadata`` (SdkSseMetadata.events[], typespec-client-generator-core
+            # #4882), which is unavailable in the currently pinned TCGC version. The stream's
+            # terminal event (a string-literal union member such as ``[DONE]``) is detected
+            # structurally and passed as ``terminal_event`` below, so the runtime stops
+            # before this callback attempts to JSON-parse it.
             retval.append("    _event_json = json.loads(_event.data)")
-            named_events = [
-                (event_type, event_item_type)
-                for event_type, event_item_type in streaming_events
-                if event_type
-            ]
-            if named_events:
-                # Heterogeneous SSE: route each ``event:`` name to its concrete payload model
-                # (TCGC ``sseMetadata``), yielding distinct model instances.
-                for index, (event_type, event_item_type) in enumerate(named_events):
-                    event_annotation = event_item_type.type_annotation(
-                        is_operation_file=True, serialize_namespace=self.serialize_namespace
-                    )
-                    keyword = "if" if index == 0 else "elif"
-                    retval.append(f'    {keyword} _event.event == {event_type!r}:')
-                    retval.append(f"        deserialized = _deserialize({event_annotation}, _event_json)")
-                retval.append("    else:")
-                retval.append("        deserialized = _event_json")
-            elif streaming_events:
-                # Homogeneous SSE: a single (unnamed) event type deserialized into its model.
-                _event_type, event_item_type = streaming_events[0]
-                event_annotation = event_item_type.type_annotation(
-                    is_operation_file=True, serialize_namespace=self.serialize_namespace
-                )
-                retval.append(f"    deserialized = _deserialize({event_annotation}, _event_json)")
-            else:
-                # No per-event metadata: best-effort deserialize against the union item type.
-                retval.append(f"    deserialized = _deserialize({item_annotation}, _event_json)")
         else:
             retval.append("    _event_json = _event.json()")
-            retval.append(f"    deserialized = _deserialize({item_annotation}, _event_json)")
+        retval.append(f"    deserialized = _deserialize({item_annotation}, _event_json)")
         retval.append("    if cls:")
         retval.append("        return cls(pipeline_response, deserialized, {})  # type: ignore")
         retval.append("    return deserialized")
@@ -1320,43 +1299,6 @@ class _OperationSerializer(_BuilderBaseSerializer[OperationType]):
             )
         return retval
 
-    def _handle_response_body(self, builder: OperationType) -> list[str]:  # pylint: disable=too-many-nested-blocks
-        retval: list[str] = []
-        if len(builder.responses) > 1:
-            status_codes, res_headers, res_deserialization = [], [], []
-            for status_code in builder.success_status_codes:
-                response = builder.get_response_from_status(status_code)  # type: ignore
-                if response.headers or response.type:
-                    status_codes.append(status_code)
-                    res_headers.append(self.response_headers(response))
-                    res_deserialization.append(self.response_deserialization(builder, response))
-
-            is_headers_same = _all_same(res_headers)
-            is_deserialization_same = _all_same(res_deserialization)
-            if is_deserialization_same:
-                if is_headers_same:
-                    retval.extend(res_headers[0])
-                    retval.extend(res_deserialization[0])
-                    retval.append("")
-                else:
-                    for status_code, headers in zip(status_codes, res_headers):
-                        if headers:
-                            retval.append(f"if response.status_code == {status_code}:")
-                            retval.extend([f"    {line}" for line in headers])
-                            retval.append("")
-                    retval.extend(res_deserialization[0])
-                    retval.append("")
-            else:
-                for status_code, headers, deserialization in zip(status_codes, res_headers, res_deserialization):
-                    retval.append(f"if response.status_code == {status_code}:")
-                    retval.extend([f"    {line}" for line in headers])
-                    retval.extend([f"    {line}" for line in deserialization])
-                    retval.append("")
-        else:
-            retval.extend(self.response_headers_and_deserialization(builder, builder.responses[0]))
-            retval.append("")
-        return retval
-
     def handle_response(self, builder: OperationType) -> list[str]:
         retval: list[str] = ["response = pipeline_response.http_response"]
         retval.append("")
@@ -1369,8 +1311,40 @@ class _OperationSerializer(_BuilderBaseSerializer[OperationType]):
             retval.append("deserialized = None")
         if builder.any_response_has_headers:
             retval.append("response_headers = {}")
-        if builder.has_response_body or builder.any_response_has_headers:
-            retval.extend(self._handle_response_body(builder))
+        if builder.has_response_body or builder.any_response_has_headers:  # pylint: disable=too-many-nested-blocks
+            if len(builder.responses) > 1:
+                status_codes, res_headers, res_deserialization = [], [], []
+                for status_code in builder.success_status_codes:
+                    response = builder.get_response_from_status(status_code)  # type: ignore
+                    if response.headers or response.type:
+                        status_codes.append(status_code)
+                        res_headers.append(self.response_headers(response))
+                        res_deserialization.append(self.response_deserialization(builder, response))
+
+                is_headers_same = _all_same(res_headers)
+                is_deserialization_same = _all_same(res_deserialization)
+                if is_deserialization_same:
+                    if is_headers_same:
+                        retval.extend(res_headers[0])
+                        retval.extend(res_deserialization[0])
+                        retval.append("")
+                    else:
+                        for status_code, headers in zip(status_codes, res_headers):
+                            if headers:
+                                retval.append(f"if response.status_code == {status_code}:")
+                                retval.extend([f"    {line}" for line in headers])
+                                retval.append("")
+                        retval.extend(res_deserialization[0])
+                        retval.append("")
+                else:
+                    for status_code, headers, deserialization in zip(status_codes, res_headers, res_deserialization):
+                        retval.append(f"if response.status_code == {status_code}:")
+                        retval.extend([f"    {line}" for line in headers])
+                        retval.extend([f"    {line}" for line in deserialization])
+                        retval.append("")
+            else:
+                retval.extend(self.response_headers_and_deserialization(builder, builder.responses[0]))
+                retval.append("")
         if (
             builder.has_optional_return_type
             or self.code_model.options["models-mode"]

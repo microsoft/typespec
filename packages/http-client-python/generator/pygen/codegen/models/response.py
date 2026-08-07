@@ -65,22 +65,9 @@ class Response(BaseModel):
         # Only treat this as a structured stream when the resolved ``type`` is the per-item
         # type (model / union). When the structured item type could not be resolved we fall
         # back to the raw byte body (``BinaryIteratorType``) and must NOT render ``Stream[...]``.
-        is_structured = bool(streaming) and not isinstance(self.type, BinaryIteratorType)
-        self.streaming_kind: Optional[str] = streaming["kind"] if is_structured else None
-        # Per-event SSE dispatch (TCGC ``sseMetadata``): each entry maps an SSE ``event:``
-        # name to its concrete payload item type, so the generated callback can deserialize
-        # each event into a distinct model instance.
-        self.streaming_events: list[tuple[Optional[str], BaseType]] = []
-        # Terminal-event marker (e.g. ``"[DONE]"``) emitted from ``sseMetadata``; when absent
-        # it is derived structurally from the item union (see ``terminal_event``).
-        self._streaming_terminal_event: Optional[str] = streaming.get("terminalEvent") if is_structured else None
-        if is_structured:
-            for event in streaming.get("events", []):
-                try:
-                    event_item_type = self.code_model.lookup_type(id(event["itemType"]))
-                except KeyError:
-                    continue
-                self.streaming_events.append((event.get("eventType"), event_item_type))
+        self.streaming_kind: Optional[str] = (
+            streaming["kind"] if streaming and not isinstance(self.type, BinaryIteratorType) else None
+        )
 
     @property
     def result_property(self) -> str:
@@ -124,18 +111,14 @@ class Response(BaseModel):
     def terminal_event(self) -> Optional[str]:
         """Terminal event marker for a heterogeneous SSE stream, if any.
 
-        Preferred source is the TCGC ``sseMetadata`` terminal event (emitted as
-        ``terminalEvent``). When absent, we detect it structurally: the first
-        ``ConstantType`` string member of the item union (e.g. ``"[DONE]"``) is treated
-        as the terminal marker, so the runtime can stop before attempting to
-        JSON-deserialize it. Returns ``None`` for homogeneous streams (no marker) and
-        for JSONL.
+        Heterogeneous SSE ``@events`` unions include a string-literal member (e.g.
+        ``"[DONE]"``) that marks the end of the stream. Without TCGC ``sseMetadata``
+        (#4882) we detect it structurally: the first ``ConstantType`` string member of
+        the union item type is treated as the terminal marker, so the runtime can stop
+        before attempting to JSON-deserialize it. Returns ``None`` for homogeneous
+        streams (no constant member) and for JSONL.
         """
-        if self.streaming_kind != "sse":
-            return None
-        if self._streaming_terminal_event is not None:
-            return self._streaming_terminal_event
-        if not isinstance(self.type, CombinedType):
+        if self.streaming_kind != "sse" or not isinstance(self.type, CombinedType):
             return None
         from .constant_type import ConstantType
 
@@ -147,18 +130,6 @@ class Response(BaseModel):
     def stream_class_name(self, async_mode: bool) -> str:
         return "AsyncStream" if async_mode else "Stream"
 
-    @property
-    def stream_item_type(self) -> Optional[BaseType]:
-        """The type used to parametrize ``Stream[...]`` / ``AsyncStream[...]``.
-
-        For a homogeneous stream (a single event payload) this is the concrete payload
-        model rather than the single-member union alias (a ``_unions`` variable, which is
-        not valid as a type annotation). Heterogeneous streams keep the union item type.
-        """
-        if len(self.streaming_events) == 1:
-            return self.streaming_events[0][1]
-        return self.type
-
     def serialization_type(self, **kwargs: Any) -> str:
         if self.type:
             return self.type.serialization_type(**kwargs)
@@ -169,8 +140,7 @@ class Response(BaseModel):
             kwargs["is_operation_file"] = True
             kwargs["is_response"] = True
             stream_class = self.stream_class_name(kwargs.get("async_mode", False))
-            item_type = self.stream_item_type or self.type
-            return f"{stream_class}[{item_type.type_annotation(**kwargs)}]"
+            return f"{stream_class}[{self.type.type_annotation(**kwargs)}]"
         if self.type:
             kwargs["is_operation_file"] = True
             kwargs["is_response"] = True
@@ -184,8 +154,7 @@ class Response(BaseModel):
         kwargs["is_response"] = True
         if self.is_structured_stream and self.type:
             stream_class = self.stream_class_name(kwargs.get("async_mode", False))
-            item_type = self.stream_item_type or self.type
-            return f"An instance of {stream_class} that iterates over {item_type.docstring_text(**kwargs)}"
+            return f"An instance of {stream_class} that iterates over {self.type.docstring_text(**kwargs)}"
         if self.nullable and self.type:
             return f"{self.type.docstring_text(**kwargs)} or None"
         return self.type.docstring_text(**kwargs) if self.type else "None"
@@ -194,11 +163,7 @@ class Response(BaseModel):
         kwargs["is_response"] = True
         if self.is_structured_stream and self.type:
             stream_class = self.stream_class_name(kwargs.get("async_mode", False))
-            item_type = self.stream_item_type or self.type
-            return (
-                f"~{self.code_model.namespace}._utils.streaming_base."
-                f"{stream_class}[{item_type.docstring_type(**kwargs)}]"
-            )
+            return f"~{self.code_model.namespace}._utils.streaming_base.{stream_class}[{self.type.docstring_type(**kwargs)}]"
         if self.nullable and self.type:
             return f"{self.type.docstring_type(**kwargs)} or None"
         return self.type.docstring_type(**kwargs) if self.type else "None"
@@ -226,9 +191,6 @@ class Response(BaseModel):
             file_import.add_submodule_import(relative_path, stream_class, ImportType.LOCAL)
             if self.streaming_kind == "sse":
                 file_import.add_import("json", ImportType.STDLIB)
-                # Ensure each per-event payload model is importable in the operation file.
-                for _event_type, event_item_type in self.streaming_events:
-                    file_import.merge(event_item_type.imports(**kwargs))
         return file_import
 
     def _get_import_type(self, input_path: str) -> ImportType:
