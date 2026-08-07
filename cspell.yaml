@@ -229,6 +229,7 @@ words:
   - pylint
   - pylintrc
   - pyodide
+  - pypi
   - pyproject
   - pyright
   - pyrightconfig
