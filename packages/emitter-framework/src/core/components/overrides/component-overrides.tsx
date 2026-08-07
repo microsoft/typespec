@@ -51,26 +51,54 @@ export interface Experimental_OverrideReferenceProps<
   member?: ModelProperty;
 }
 
+/**
+ * Fallback props type for declaration overrides.
+ *
+ * Declaration props are language specific (`cs.ClassDeclarationProps`, `ts.VarDeclarationProps`,
+ * ...) and cannot be derived from the TypeSpec type, so they default to a permissive record.
+ * Pass the concrete props type explicitly to
+ * {@link Experimental_ComponentOverridesClass.forType} /
+ * {@link Experimental_ComponentOverridesClass.forTypeKind} to get full type checking.
+ */
+export type Experimental_DefaultDeclarationProps = Record<string, any>;
+
 export interface Experimental_OverrideDeclareProps<
   TCustomType extends Type,
+  TDeclarationProps = Experimental_DefaultDeclarationProps,
 > extends Experimental_OverrideEmitPropsBase<TCustomType> {
-  Declaration: ComponentDefinition<Experimental_CustomTypeToProps<TCustomType>>;
-  declarationProps: Experimental_CustomTypeToProps<TCustomType>;
+  /**
+   * The component that produces the default declaration. Call it with (a modified copy of)
+   * {@link declarationProps} to reuse the framework's rendering.
+   */
+  Declaration: ComponentDefinition<TDeclarationProps>;
+  /** The props the framework would have used to render the declaration. */
+  declarationProps: TDeclarationProps;
 }
 
-export type Experimental_OverrideDeclarationComponent<TCustomType extends Type> =
-  ComponentDefinition<Experimental_OverrideDeclareProps<TCustomType>>;
+export type Experimental_OverrideDeclarationComponent<
+  TCustomType extends Type,
+  TDeclarationProps = Experimental_DefaultDeclarationProps,
+> = ComponentDefinition<Experimental_OverrideDeclareProps<TCustomType, TDeclarationProps>>;
 
 export type Experimental_OverrideReferenceComponent<TCustomType extends Type> = ComponentDefinition<
   Experimental_OverrideReferenceProps<TCustomType>
 >;
 
-export interface Experimental_ComponentOverridesConfigBase<TCustomType extends Type> {
+export interface Experimental_ComponentOverridesConfigBase<
+  TCustomType extends Type,
+  TDeclarationProps = Experimental_DefaultDeclarationProps,
+> {
   /**
    * Override when this type is referenced.
    * e.g. When used in <TypeExpression type={type} />
    */
   reference?: Experimental_OverrideReferenceComponent<TCustomType>;
+
+  /**
+   * Override when this type is declared.
+   * e.g. When used in <ClassDeclaration type={type} />
+   */
+  declaration?: Experimental_OverrideDeclarationComponent<TCustomType, TDeclarationProps>;
 }
 
 export interface Experimental_ComponentOverridesProps {
@@ -112,11 +140,32 @@ export interface Experimental_OverridableComponentReferenceProps<
   member?: ModelProperty;
 }
 
-export type Experimental_OverridableComponentProps<T extends Type> =
-  Experimental_OverridableComponentReferenceProps<T>;
+export interface Experimental_OverridableComponentDeclarationProps<
+  T extends Type,
+  TDeclarationProps,
+> extends Experimental_OverrideTypeComponentCommonProps<T> {
+  /**
+   * Pass when rendering a declaration of the provided type or type kind.
+   */
+  declaration: true;
 
-export function Experimental_OverridableComponent<T extends Type>(
-  props: Experimental_OverridableComponentProps<T>,
+  /**
+   * The component that produces the default declaration.
+   */
+  Declaration: ComponentDefinition<TDeclarationProps>;
+
+  /**
+   * The props the framework would have used to render the declaration.
+   */
+  declarationProps: TDeclarationProps;
+}
+
+export type Experimental_OverridableComponentProps<T extends Type, TDeclarationProps = unknown> =
+  | Experimental_OverridableComponentReferenceProps<T>
+  | Experimental_OverridableComponentDeclarationProps<T, TDeclarationProps>;
+
+export function Experimental_OverridableComponent<T extends Type, TDeclarationProps = unknown>(
+  props: Experimental_OverridableComponentProps<T, TDeclarationProps>,
 ) {
   const options = useOverrides();
   const { $ } = useTsp();
@@ -131,6 +180,18 @@ export function Experimental_OverridableComponent<T extends Type>(
   if ("reference" in props && props.reference && descriptor.reference) {
     const CustomComponent = descriptor.reference;
     return <CustomComponent type={props.type} member={props.member} default={props.children} />;
+  }
+
+  if ("declaration" in props && props.declaration && descriptor.declaration) {
+    const CustomComponent = descriptor.declaration;
+    return (
+      <CustomComponent
+        type={props.type}
+        default={props.children}
+        Declaration={props.Declaration}
+        declarationProps={props.declarationProps}
+      />
+    );
   }
 
   return <>{props.children}</>;
