@@ -279,11 +279,28 @@ class CodeModel:  # pylint: disable=too-many-public-methods, disable=too-many-in
             self.need_utils_utils(async_mode, client_namespace)
             or self.need_utils_serialization
             or self.options["models-mode"] == "dpg"
+            or self.need_streaming_base
         )
 
     @property
     def need_utils_serialization(self) -> bool:
         return not self.options["client-side-validation"]
+
+    @property
+    def has_structured_stream(self) -> bool:
+        return any(
+            op.has_structured_stream_response
+            for client in self.clients
+            for og in client.operation_groups
+            for op in og.operations
+        )
+
+    @property
+    def need_streaming_base(self) -> bool:
+        # Whether to emit the vendored ``_utils/streaming_base.py`` (Stream / AsyncStream
+        # + JSONL / SSE decoders). Only needed when at least one operation returns a
+        # structured stream.
+        return self.has_structured_stream
 
     def need_utils_utils(self, async_mode: bool, client_namespace: str) -> bool:
         return (

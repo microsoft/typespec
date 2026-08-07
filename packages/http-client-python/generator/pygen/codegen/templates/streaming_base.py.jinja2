@@ -1,0 +1,562 @@
+# coding=utf-8
+{% if code_model.license_header %}
+{{ code_model.license_header }}
+{% endif %}
+# pylint: disable=line-too-long,useless-suppression,unnecessary-ellipsis
+# --------------------------------------------------------------------------
+# This file is vendored from azure-core (azure.core.streaming). It provides the
+# Stream / AsyncStream helpers (plus the JSONL / SSE decoders and event types)
+# used by generated structured-streaming operations, so the generated package
+# does not take a hard dependency on an azure-core version that ships
+# azure.core.streaming. Do not edit by hand.
+# --------------------------------------------------------------------------
+import codecs
+import json
+from types import TracebackType
+from typing import (
+    Any,
+    AsyncIterator,
+    Callable,
+    Iterator,
+    List,
+    Optional,
+    Protocol,
+    Tuple,
+    Type,
+    TypeVar,
+    cast,
+    runtime_checkable,
+)
+
+from typing_extensions import Self
+
+from azure.core.rest import AsyncHttpResponse, HttpResponse
+
+DecodedType = TypeVar("DecodedType")
+ReturnType_co = TypeVar("ReturnType_co", covariant=True)
+T_co = TypeVar("T_co", covariant=True)
+
+
+@runtime_checkable
+class StreamDecoder(Protocol[T_co]):
+    """Protocol for stream decoders."""
+
+    def iter_events(self, iter_bytes: Iterator[bytes]) -> Iterator[T_co]:
+        """Iterate over events from a byte iterator.
+
+        :param iter_bytes: An iterator of byte chunks.
+        :type iter_bytes: Iterator[bytes]
+        :return: An iterator of decoded data.
+        :rtype: Iterator[DecodedType_co]
+        """
+        ...
+
+
+@runtime_checkable
+class AsyncStreamDecoder(Protocol[T_co]):
+    """Protocol for async stream decoders."""
+
+    # Why this isn't async def: https://mypy.readthedocs.io/en/stable/more_types.html#asynchronous-iterators
+    def aiter_events(self, iter_bytes: AsyncIterator[bytes]) -> AsyncIterator[T_co]:
+        """Asynchronously iterate over events from a byte iterator.
+
+        :param iter_bytes: An asynchronous iterator of byte chunks.
+        :type iter_bytes: AsyncIterator[bytes]
+        :return: An asynchronous iterator of decoded data.
+        :rtype: AsyncIterator[DecodedType_co]
+        """
+        ...
+
+
+class JSONLEvent:
+    """A single JSON Lines (JSONL) event.
+
+    :ivar data: The raw JSONL record.
+    :vartype data: str or None
+    :keyword data: The raw JSONL record.
+    :paramtype data: str or None
+    """
+
+    def __init__(
+        self,
+        *,
+        data: Optional[str] = None,
+    ) -> None:
+        self.data = data
+
+    def json(self) -> Any:
+        """Parse the event data as JSON.
+
+        :return: The parsed JSON value.
+        :rtype: Any
+        """
+        return json.loads(cast(str, self.data))
+
+
+def iter_lines(iter_bytes: Iterator[bytes]) -> Iterator[str]:
+    """Iterate over lines from a byte iterator.
+
+    :param iter_bytes: An iterator of byte chunks.
+    :type iter_bytes: Iterator[bytes]
+    :rtype: Iterator[str]
+    :return: An iterator of lines.
+    """
+    decoder = codecs.getincrementaldecoder("utf-8")()
+
+    # Split only on "\n" (tolerating "\r\n") rather than using str.splitlines(),
+    # which would also break on other Unicode boundaries (\v, \f, \x1c-\x1e, \x85,
+    # \u2028, \u2029) that are valid inside a JSONL record's string value.
+    decoded = ""
+    for chunk in iter_bytes:
+        decoded += decoder.decode(chunk)
+        if decoded:
+            decoded_lines = [line[:-1] if line.endswith("\r") else line for line in decoded.split("\n")]
+            yield from decoded_lines[:-1]
+            decoded = decoded_lines[-1]
+
+    decoded += decoder.decode(b"", final=True)
+    if decoded:
+        yield decoded[:-1] if decoded.endswith("\r") else decoded
+
+
+async def aiter_lines(iter_bytes: AsyncIterator[bytes]) -> AsyncIterator[str]:
+    """Iterate over lines from a byte iterator.
+
+    :param iter_bytes: An iterator of byte chunks.
+    :type iter_bytes: Iterator[bytes]
+    :rtype: Iterator[str]
+    :return: An iterator of lines.
+    """
+    decoder = codecs.getincrementaldecoder("utf-8")()
+
+    # Split only on "\n" (tolerating "\r\n") rather than using str.splitlines(),
+    # which would also break on other Unicode boundaries (\v, \f, \x1c-\x1e, \x85,
+    # \u2028, \u2029) that are valid inside a JSONL record's string value.
+    decoded = ""
+    async for chunk in iter_bytes:
+        decoded += decoder.decode(chunk)
+        if decoded:
+            decoded_lines = [line[:-1] if line.endswith("\r") else line for line in decoded.split("\n")]
+            for line in decoded_lines[:-1]:
+                yield line
+            decoded = decoded_lines[-1]
+
+    decoded += decoder.decode(b"", final=True)
+    if decoded:
+        yield decoded[:-1] if decoded.endswith("\r") else decoded
+
+
+class JSONLDecoder:
+    """Decoder for JSON Lines (JSONL) format. https://jsonlines.org/"""
+
+    def iter_events(self, iter_bytes: Iterator[bytes]) -> Iterator[JSONLEvent]:
+        """Iterate over JSONL events from a byte iterator.
+
+        :param iter_bytes: An iterator of byte chunks.
+        :type iter_bytes: Iterator[bytes]
+        :rtype: Iterator[JSONLEvent]
+        :return: An iterator of JSONL events.
+        """
+
+        yield from (JSONLEvent(data=line) for line in iter_lines(iter_bytes))
+
+
+class AsyncJSONLDecoder:
+    """Asynchronous decoder for JSON Lines (JSONL) format. https://jsonlines.org/"""
+
+    # pylint: disable=invalid-overridden-method
+    async def aiter_events(self, iter_bytes: AsyncIterator[bytes]) -> AsyncIterator[JSONLEvent]:
+        """Asynchronously iterate over JSONL events from a byte iterator.
+
+        :param iter_bytes: An asynchronous iterator of byte chunks.
+        :type iter_bytes: AsyncIterator[bytes]
+        :rtype: AsyncIterator[JSONLEvent]
+        :return: An asynchronous iterator of JSONL events.
+        """
+
+        async for line in aiter_lines(iter_bytes):
+            yield JSONLEvent(data=line)
+
+
+class ServerSentEvent:
+    """A single Server-Sent Event (SSE).
+
+    https://html.spec.whatwg.org/multipage/server-sent-events.html
+
+    :ivar event: The event type. Defaults to ``"message"`` when the stream does not
+        specify one.
+    :vartype event: str
+    :ivar data: The event payload. Multiple ``data`` lines are joined with ``"\\n"``.
+        Left as a raw string; the caller is responsible for any further parsing.
+    :vartype data: str
+    :ivar id: The last event ID. Defaults to an empty string until the stream
+        provides one.
+    :vartype id: str
+    :ivar retry: The reconnection time in milliseconds, if the stream provided one.
+    :vartype retry: int or None
+    :keyword event: The event type. Defaults to ``"message"`` when the stream does not
+        specify one.
+    :paramtype event: str
+    :keyword data: The event payload. Multiple ``data`` lines are joined with ``"\\n"``.
+        Left as a raw string; the caller is responsible for any further parsing.
+    :paramtype data: str
+    :keyword id: The last event ID. Defaults to an empty string until the stream
+        provides one.
+    :paramtype id: str
+    :keyword retry: The reconnection time in milliseconds, if the stream provided one.
+    :paramtype retry: int or None
+    """
+
+    def __init__(
+        self,
+        *,
+        event: str = "message",
+        data: str = "",
+        id: str = "",  # pylint: disable=redefined-builtin
+        retry: Optional[int] = None,
+    ) -> None:
+        self.event = event
+        self.data = data
+        self.id = id
+        self.retry = retry
+
+    def __repr__(self) -> str:
+        return f"ServerSentEvent(event={self.event!r}, data={self.data!r}, " f"id={self.id!r}, retry={self.retry!r})"
+
+    def __eq__(self, other: object) -> bool:
+        if not isinstance(other, ServerSentEvent):
+            return NotImplemented
+        return (self.event, self.data, self.id, self.retry) == (
+            other.event,
+            other.data,
+            other.id,
+            other.retry,
+        )
+
+
+def _split_sse_lines(buf: str) -> Tuple[List[str], str]:
+    """Split ``buf`` into complete SSE lines plus a trailing remainder.
+
+    Per the SSE spec, lines may be separated by ``\\r\\n``, ``\\r`` or ``\\n``. A lone
+    trailing ``\\r`` is kept in the remainder because it may be the first half of a
+    ``\\r\\n`` that arrives in a later chunk.
+
+    :param buf: The buffered, already UTF-8 decoded text.
+    :type buf: str
+    :return: A tuple of ``(complete_lines, remainder)`` where ``remainder`` is the
+        unterminated tail (never containing a line separator, except a single trailing
+        ``\\r`` awaiting a possible ``\\n``).
+    :rtype: tuple[list[str], str]
+    """
+    lines: List[str] = []
+    start = 0
+    i = 0
+    n = len(buf)
+    while i < n:
+        char = buf[i]
+        if char == "\n":
+            lines.append(buf[start:i])
+            i += 1
+            start = i
+        elif char == "\r":
+            if i + 1 < n:
+                lines.append(buf[start:i])
+                i += 2 if buf[i + 1] == "\n" else 1
+                start = i
+            else:
+                # Trailing lone "\r": ambiguous, defer until the next chunk.
+                break
+        else:
+            i += 1
+    return lines, buf[start:]
+
+
+def _iter_sse_lines(iter_bytes: Iterator[bytes]) -> Iterator[str]:
+    """Iterate over SSE lines (line separators stripped) from a byte iterator.
+
+    :param iter_bytes: An iterator of byte chunks.
+    :type iter_bytes: Iterator[bytes]
+    :rtype: Iterator[str]
+    :return: An iterator of decoded lines.
+    """
+    # SSE is always UTF-8 (WHATWG spec). Use utf-8-sig to drop one leading BOM and
+    # errors="replace" so invalid byte sequences become U+FFFD instead of crashing.
+    decoder = codecs.getincrementaldecoder("utf-8-sig")(errors="replace")
+
+    buf = ""
+    for chunk in iter_bytes:
+        buf += decoder.decode(chunk)
+        lines, buf = _split_sse_lines(buf)
+        yield from lines
+
+    buf += decoder.decode(b"", final=True)
+    lines, remainder = _split_sse_lines(buf)
+    yield from lines
+    if remainder:
+        yield remainder[:-1] if remainder.endswith("\r") else remainder
+
+
+async def _aiter_sse_lines(iter_bytes: AsyncIterator[bytes]) -> AsyncIterator[str]:
+    """Asynchronously iterate over SSE lines (separators stripped) from a byte iterator.
+
+    :param iter_bytes: An asynchronous iterator of byte chunks.
+    :type iter_bytes: AsyncIterator[bytes]
+    :rtype: AsyncIterator[str]
+    :return: An asynchronous iterator of decoded lines.
+    """
+    # SSE is always UTF-8 (WHATWG spec). Use utf-8-sig to drop one leading BOM and
+    # errors="replace" so invalid byte sequences become U+FFFD instead of crashing.
+    decoder = codecs.getincrementaldecoder("utf-8-sig")(errors="replace")
+
+    buf = ""
+    async for chunk in iter_bytes:
+        buf += decoder.decode(chunk)
+        lines, buf = _split_sse_lines(buf)
+        for line in lines:
+            yield line
+
+    buf += decoder.decode(b"", final=True)
+    lines, remainder = _split_sse_lines(buf)
+    for line in lines:
+        yield line
+    if remainder:
+        yield remainder[:-1] if remainder.endswith("\r") else remainder
+
+
+class _SSEEventBuilder:
+    """Accumulates SSE field lines and builds :class:`ServerSentEvent` instances."""
+
+    def __init__(self) -> None:
+        self._data: List[str] = []
+        self._event_type = ""
+        self._last_id = ""
+        self._retry: Optional[int] = None
+
+    def add_line(self, line: str) -> Optional[ServerSentEvent]:
+        """Process a single SSE line, dispatching an event on a blank line.
+
+        :param line: A single SSE line with its terminator already stripped.
+        :type line: str
+        :return: A :class:`ServerSentEvent` when ``line`` is blank and an event is
+            pending, otherwise ``None``.
+        :rtype: ServerSentEvent or None
+        """
+        if line == "":
+            return self._dispatch()
+        if line.startswith(":"):
+            # Comment line, ignored.
+            return None
+
+        field, _, value = line.partition(":")
+        if value.startswith(" "):
+            value = value[1:]
+
+        if field == "event":
+            self._event_type = value
+        elif field == "data":
+            self._data.append(value)
+        elif field == "id":
+            if "\x00" not in value:
+                self._last_id = value
+        elif field == "retry":
+            if value.isascii() and value.isdigit():
+                try:
+                    self._retry = int(value)
+                except ValueError:
+                    # All ASCII digits but too long for int() (CPython's int-string
+                    # conversion limit). Ignore rather than crashing the stream.
+                    pass
+        # Unknown fields are ignored per spec.
+        return None
+
+    def _dispatch(self) -> Optional[ServerSentEvent]:
+        if not self._data:
+            # No data accumulated: reset and dispatch nothing.
+            self._event_type = ""
+            return None
+        event = ServerSentEvent(
+            event=self._event_type or "message",
+            data="\n".join(self._data),
+            id=self._last_id,
+            retry=self._retry,
+        )
+        self._data = []
+        self._event_type = ""
+        return event
+
+
+class SSEDecoder:
+    """Decoder for Server-Sent Events (SSE).
+
+    https://html.spec.whatwg.org/multipage/server-sent-events.html
+    """
+
+    def iter_events(self, iter_bytes: Iterator[bytes]) -> Iterator[ServerSentEvent]:
+        """Iterate over SSE events from a byte iterator.
+
+        :param iter_bytes: An iterator of byte chunks.
+        :type iter_bytes: Iterator[bytes]
+        :rtype: Iterator[ServerSentEvent]
+        :return: An iterator of server-sent events.
+        """
+        builder = _SSEEventBuilder()
+        for line in _iter_sse_lines(iter_bytes):
+            event = builder.add_line(line)
+            if event is not None:
+                yield event
+
+
+class AsyncSSEDecoder:
+    """Asynchronous decoder for Server-Sent Events (SSE).
+
+    https://html.spec.whatwg.org/multipage/server-sent-events.html
+    """
+
+    # pylint: disable=invalid-overridden-method
+    async def aiter_events(self, iter_bytes: AsyncIterator[bytes]) -> AsyncIterator[ServerSentEvent]:
+        """Asynchronously iterate over SSE events from a byte iterator.
+
+        :param iter_bytes: An asynchronous iterator of byte chunks.
+        :type iter_bytes: AsyncIterator[bytes]
+        :rtype: AsyncIterator[ServerSentEvent]
+        :return: An asynchronous iterator of server-sent events.
+        """
+        builder = _SSEEventBuilder()
+        async for line in _aiter_sse_lines(iter_bytes):
+            event = builder.add_line(line)
+            if event is not None:
+                yield event
+
+
+class Stream(Iterator[ReturnType_co]):
+    """Stream class for consuming a decoded event stream (e.g. JSONL or SSE).
+
+    :keyword response: The response object.
+    :paramtype response: ~azure.core.rest.HttpResponse
+    :keyword decoder: A decoder to use for the stream. If omitted, the decoder is
+        inferred from the response ``Content-Type`` header.
+    :paramtype decoder: StreamDecoder
+    :keyword deserialization_callback: A callback that takes the response and the decoded event and
+        returns a deserialized object.
+    :paramtype deserialization_callback: Callable[[~azure.core.rest.HttpResponse, Any], ReturnType]
+    :keyword terminal_event: Optional event ``data`` value that terminates the stream (e.g.
+        ``"[DONE]"``). When an event's ``data`` equals this value, iteration stops and the
+        event is not passed to ``deserialization_callback``.
+    :paramtype terminal_event: str or None
+    """
+
+    def __init__(
+        self,
+        *,
+        response: HttpResponse,
+        deserialization_callback: Callable[[HttpResponse, DecodedType], ReturnType_co],
+        decoder: Optional[StreamDecoder[DecodedType]] = None,
+        terminal_event: Optional[str] = None,
+    ) -> None:
+        self._response = response
+        content_type = response.headers.get("Content-Type", "").split(";", 1)[0].strip().lower()
+        self._decoder: StreamDecoder[Any] = (
+            decoder if decoder is not None else (SSEDecoder() if content_type == "text/event-stream" else JSONLDecoder())
+        )
+        self._deserialization_callback = deserialization_callback
+        self._terminal_event = terminal_event
+        self._iterator = self._iter_results()
+
+    def __next__(self) -> ReturnType_co:
+        return self._iterator.__next__()
+
+    def __iter__(self) -> Self:
+        return self
+
+    def _iter_results(self) -> Iterator[ReturnType_co]:
+        for event in self._decoder.iter_events(self._response.iter_bytes()):
+            if self._terminal_event is not None and getattr(event, "data", None) == self._terminal_event:
+                break
+            result = self._deserialization_callback(self._response, event)
+            yield result
+
+    def __exit__(
+        self,
+        exc_type: Optional[Type[BaseException]] = None,
+        exc_value: Optional[BaseException] = None,
+        traceback: Optional[TracebackType] = None,
+    ) -> None:
+        self.close()
+
+    def __enter__(self) -> Self:
+        return self
+
+    def close(self) -> None:
+        self._response.close()
+
+
+class AsyncStream(AsyncIterator[ReturnType_co]):
+    """AsyncStream class for asynchronously consuming a decoded event stream (e.g. JSONL or SSE).
+
+    :keyword response: The response object.
+    :paramtype response: ~azure.core.rest.AsyncHttpResponse
+    :keyword decoder: A decoder to use for the stream. If omitted, the decoder is
+        inferred from the response ``Content-Type`` header.
+    :paramtype decoder: AsyncStreamDecoder
+    :keyword deserialization_callback: A callback that takes the response and the decoded event and
+        returns a deserialized object.
+    :paramtype deserialization_callback: Callable[[~azure.core.rest.AsyncHttpResponse, Any], ReturnType]
+    :keyword terminal_event: Optional event ``data`` value that terminates the stream (e.g.
+        ``"[DONE]"``). When an event's ``data`` equals this value, iteration stops and the
+        event is not passed to ``deserialization_callback``.
+    :paramtype terminal_event: str or None
+    """
+
+    def __init__(
+        self,
+        *,
+        response: AsyncHttpResponse,
+        deserialization_callback: Callable[[AsyncHttpResponse, DecodedType], ReturnType_co],
+        decoder: Optional[AsyncStreamDecoder[DecodedType]] = None,
+        terminal_event: Optional[str] = None,
+    ) -> None:
+        self._response = response
+        content_type = response.headers.get("Content-Type", "").split(";", 1)[0].strip().lower()
+        self._decoder: AsyncStreamDecoder[Any] = (
+            decoder
+            if decoder is not None
+            else (AsyncSSEDecoder() if content_type == "text/event-stream" else AsyncJSONLDecoder())
+        )
+        self._deserialization_callback = deserialization_callback
+        self._terminal_event = terminal_event
+        self._iterator = self._iter_results()
+
+    async def __anext__(self) -> ReturnType_co:
+        return await self._iterator.__anext__()
+
+    def __aiter__(self) -> Self:
+        return self
+
+    async def _iter_results(self) -> AsyncIterator[ReturnType_co]:
+        async for event in self._decoder.aiter_events(self._response.iter_bytes()):
+            if self._terminal_event is not None and getattr(event, "data", None) == self._terminal_event:
+                break
+            result = self._deserialization_callback(self._response, event)
+            yield result
+
+    async def __aexit__(
+        self,
+        exc_type: Optional[Type[BaseException]] = None,
+        exc_value: Optional[BaseException] = None,
+        traceback: Optional[TracebackType] = None,
+    ) -> None:
+        await self.close()
+
+    async def __aenter__(self) -> Self:
+        return self
+
+    async def close(self) -> None:
+        await self._response.close()
+
+
+__all__ = [
+    "Stream",
+    "AsyncStream",
+    "JSONLEvent",
+    "ServerSentEvent",
+]

@@ -42,6 +42,90 @@ export enum ReferredByOperationTypes {
   NonPagingOnly = 2,
 }
 
+type StructuredStreamKind = "jsonl" | "sse";
+type EmittedType = ReturnType<typeof getType>;
+
+interface StructuredStreamEvent {
+  eventType: string | undefined;
+  itemType: EmittedType;
+}
+
+interface StructuredStreamingInfo {
+  kind: StructuredStreamKind;
+  itemType: EmittedType;
+  events?: StructuredStreamEvent[];
+  terminalEvent?: string;
+}
+
+/** Whether pygen can deserialize the stream item type. */
+export function isStructuredStreamType(type: SdkType): boolean {
+  switch (type.kind) {
+    case "model":
+    case "union":
+      return true;
+    case "nullable":
+      return isStructuredStreamType(type.type);
+    default:
+      return false;
+  }
+}
+
+export function getStructuredStreamKind(
+  response: SdkHttpResponse | SdkHttpErrorResponse,
+): StructuredStreamKind | undefined {
+  if (response.sseMetadata) return "sse";
+
+  const contentTypes = response.streamMetadata?.contentTypes ?? response.contentTypes ?? [];
+  for (const contentType of contentTypes) {
+    const mediaType = contentType.split(";", 1)[0].trim().toLowerCase();
+    if (mediaType === "text/event-stream") return "sse";
+    if (mediaType === "application/jsonl") return "jsonl";
+  }
+  return undefined;
+}
+
+function getStringConstantValue(type: SdkType): string | undefined {
+  if (type.kind === "nullable") return getStringConstantValue(type.type);
+  return type.kind === "constant" && typeof type.value === "string" ? type.value : undefined;
+}
+
+function emitStructuredStreamingInfo(
+  context: PythonSdkContext,
+  response: SdkHttpResponse | SdkHttpErrorResponse,
+): StructuredStreamingInfo | undefined {
+  const streamMetadata = response.streamMetadata;
+  if (!streamMetadata || !isStructuredStreamType(streamMetadata.streamType)) return undefined;
+
+  const kind = getStructuredStreamKind(response);
+  if (!kind) return undefined;
+
+  const streaming: StructuredStreamingInfo = {
+    kind,
+    itemType: getType(context, streamMetadata.streamType),
+  };
+
+  const sseMetadata = response.sseMetadata;
+  if (!sseMetadata) return streaming;
+
+  const events = sseMetadata.events
+    .filter((event) => !event.isTerminalEvent)
+    .map((event) => ({
+      eventType: event.eventType,
+      itemType: getType(context, event.payloadType),
+    }));
+  if (events.length > 0) streaming.events = events;
+
+  const terminalEvent = sseMetadata.events.find((event) => event.isTerminalEvent);
+  if (terminalEvent) {
+    const terminalEventValue =
+      getStringConstantValue(terminalEvent.payloadType) ??
+      getStringConstantValue(terminalEvent.type);
+    if (terminalEventValue !== undefined) streaming.terminalEvent = terminalEventValue;
+  }
+
+  return streaming;
+}
+
 function isEtagType(type: SdkType): boolean {
   if (type.kind === "nullable") return isEtagType(type.type);
   const raw = type.__raw;
@@ -682,6 +766,7 @@ function emitHttpResponse(
       "invalid-lro-result",
       method,
     ),
+    streaming: isException ? undefined : emitStructuredStreamingInfo(context, response),
   };
 }
 
