@@ -19,3 +19,7 @@ JSONL = b'{"desc": "one"}\n{"desc": "two"}\n{"desc": "three"}'
 
 def test_basic_send(client: JsonlClient):
     client.basic.send(JSONL)
+
+
+def test_basic_recv(client: JsonlClient):
+    assert b"".join(client.basic.receive()) == JSONL
