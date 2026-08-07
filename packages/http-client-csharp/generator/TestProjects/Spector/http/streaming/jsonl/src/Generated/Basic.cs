@@ -9,7 +9,6 @@ using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;
 
-#pragma warning disable SCME0005 // Type is for evaluation purposes only and is subject to change or removal in future updates.
 namespace Streaming.Jsonl._Basic
 {
     public partial class Basic
@@ -26,9 +25,12 @@ namespace Streaming.Jsonl._Basic
 
         public virtual Task<ClientResult> SendAsync(IAsyncEnumerable<Info> stream, CancellationToken cancellationToken = default) => throw null;
 
+#pragma warning disable SCME0005 // Type is for evaluation purposes only and is subject to change or removal in future updates.
         public virtual Task<AsyncStreamingClientResult<BinaryData>> ReceiveAsync(RequestOptions options) => throw null;
+#pragma warning restore SCME0005 // Type is for evaluation purposes only and is subject to change or removal in future updates.
 
+#pragma warning disable SCME0005 // Type is for evaluation purposes only and is subject to change or removal in future updates.
         public virtual Task<AsyncStreamingClientResult<Info>> ReceiveAsync(CancellationToken cancellationToken = default) => throw null;
+#pragma warning restore SCME0005 // Type is for evaluation purposes only and is subject to change or removal in future updates.
     }
 }
-#pragma warning restore SCME0005 // Type is for evaluation purposes only and is subject to change or removal in future updates.
