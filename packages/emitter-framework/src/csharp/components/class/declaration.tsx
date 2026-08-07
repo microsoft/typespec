@@ -2,7 +2,7 @@ import { For, type Children } from "@alloy-js/core";
 import * as cs from "@alloy-js/csharp";
 import type { Interface, Model } from "@typespec/compiler";
 import { isVoidType } from "@typespec/compiler";
-import { useTsp } from "../../../core/index.js";
+import { Experimental_OverridableComponent, useTsp } from "../../../core/index.js";
 import { Property } from "../property/property.jsx";
 import { TypeExpression } from "../type-expression.jsx";
 import { getDocComments } from "../utils/doc-comments.jsx";
@@ -28,6 +28,19 @@ interface ClassMethodsProps {
 }
 
 export function ClassDeclaration(props: ClassDeclarationProps): Children {
+  return (
+    <Experimental_OverridableComponent
+      declaration
+      type={props.type}
+      Declaration={ClassDeclarationBody}
+      declarationProps={props}
+    >
+      <ClassDeclarationBody {...props} />
+    </Experimental_OverridableComponent>
+  );
+}
+
+function ClassDeclarationBody(props: ClassDeclarationProps): Children {
   const { $ } = useTsp();
 
   const namePolicy = cs.useCSharpNamePolicy();
