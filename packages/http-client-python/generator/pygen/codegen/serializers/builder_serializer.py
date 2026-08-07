@@ -1256,15 +1256,75 @@ class _OperationSerializer(_BuilderBaseSerializer[OperationType]):
         )
         return retval
 
-    def handle_response(self, builder: OperationType) -> list[str]:
-        retval: list[str] = ["response = pipeline_response.http_response"]
+    def handle_structured_stream_response(self, builder: OperationType) -> list[str]:
+        """Emit the body for an operation returning a structured (JSONL / SSE) stream.
+
+        Produces a per-event deserialization callback and returns a ``Stream`` /
+        ``AsyncStream`` wrapping the streamed HTTP response.
+        """
+        response = next(r for r in builder.responses if getattr(r, "is_structured_stream", False))
+        item_annotation = response.type.type_annotation(  # type: ignore[union-attr]
+            is_operation_file=True, serialize_namespace=self.serialize_namespace
+        )
+        stream_class = response.stream_class_name(self.async_mode)  # type: ignore[attr-defined]
+        terminal_event = getattr(response, "terminal_event", None)
+        streaming_events = getattr(response, "streaming_events", [])
+        retval: list[str] = []
+        retval.append("def _callback(_http_response, _event):")
+        if response.streaming_kind == "sse":  # type: ignore[attr-defined]
+            retval.append("    _event_json = json.loads(_event.data)")
+            named_events = [
+                (event_type, event_item_type)
+                for event_type, event_item_type in streaming_events
+                if event_type is not None
+            ]
+            unnamed_events = [event_item_type for event_type, event_item_type in streaming_events if event_type is None]
+            if named_events:
+                for index, (event_type, event_item_type) in enumerate(named_events):
+                    event_annotation = event_item_type.type_annotation(
+                        is_operation_file=True,
+                        serialize_namespace=self.serialize_namespace,
+                    )
+                    keyword = "if" if index == 0 else "elif"
+                    retval.append(f"    {keyword} _event.event == {event_type!r}:")
+                    retval.append(f"        deserialized = _deserialize({event_annotation}, _event_json)")
+                retval.append("    else:")
+                if len(unnamed_events) == 1:
+                    event_annotation = unnamed_events[0].type_annotation(
+                        is_operation_file=True,
+                        serialize_namespace=self.serialize_namespace,
+                    )
+                    retval.append(f"        deserialized = _deserialize({event_annotation}, _event_json)")
+                else:
+                    retval.append("        deserialized = _event_json")
+            elif len(unnamed_events) == 1:
+                event_annotation = unnamed_events[0].type_annotation(
+                    is_operation_file=True,
+                    serialize_namespace=self.serialize_namespace,
+                )
+                retval.append(f"    deserialized = _deserialize({event_annotation}, _event_json)")
+            else:
+                retval.append(f"    deserialized = _deserialize({item_annotation}, _event_json)")
+        else:
+            retval.append("    _event_json = _event.json()")
+            retval.append(f"    deserialized = _deserialize({item_annotation}, _event_json)")
+        retval.append("    if cls:")
+        retval.append("        return cls(pipeline_response, deserialized, {})  # type: ignore")
+        retval.append("    return deserialized")
         retval.append("")
-        retval.extend(self.handle_error_response(builder))
-        retval.append("")
-        if builder.has_optional_return_type:
-            retval.append("deserialized = None")
-        if builder.any_response_has_headers:
-            retval.append("response_headers = {}")
+        if terminal_event is not None:
+            retval.append(
+                f"return {stream_class}(response=response, deserialization_callback=_callback, "
+                f"terminal_event={terminal_event!r})  # type: ignore"
+            )
+        else:
+            retval.append(
+                f"return {stream_class}(response=response, deserialization_callback=_callback)  # type: ignore"
+            )
+        return retval
+
+    def _handle_response_body(self, builder: OperationType) -> list[str]:
+        retval: list[str] = []
         if builder.has_response_body or builder.any_response_has_headers:  # pylint: disable=too-many-nested-blocks
             if len(builder.responses) > 1:
                 status_codes, res_headers, res_deserialization = [], [], []
@@ -1299,6 +1359,21 @@ class _OperationSerializer(_BuilderBaseSerializer[OperationType]):
             else:
                 retval.extend(self.response_headers_and_deserialization(builder, builder.responses[0]))
                 retval.append("")
+        return retval
+
+    def handle_response(self, builder: OperationType) -> list[str]:
+        retval: list[str] = ["response = pipeline_response.http_response"]
+        retval.append("")
+        retval.extend(self.handle_error_response(builder))
+        retval.append("")
+        if builder.has_structured_stream_response:
+            retval.extend(self.handle_structured_stream_response(builder))
+            return retval
+        if builder.has_optional_return_type:
+            retval.append("deserialized = None")
+        if builder.any_response_has_headers:
+            retval.append("response_headers = {}")
+        retval.extend(self._handle_response_body(builder))
         if (
             builder.has_optional_return_type
             or self.code_model.options["models-mode"]

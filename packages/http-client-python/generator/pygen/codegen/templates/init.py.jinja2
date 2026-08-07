@@ -9,6 +9,9 @@
 from .{{ client.filename }} import {{ client.name }}  # type: ignore
     {% endfor %}
 {% endif %}
+{% if streaming_import_path %}
+from {{ streaming_import_path }} import AsyncStream, Stream
+{% endif %}
 {% if not async_mode and code_model.options.get("package-version") %}
 from {{ code_model.get_relative_import_path(serialize_namespace, module_name="_version") }} import VERSION
 
@@ -17,9 +20,15 @@ __version__ = VERSION
 
 {{ keywords.patch_imports(try_except=True) }}
 __all__ = [
+    {% if streaming_import_path %}
+    "AsyncStream",
+    {% endif %}
     {% for client in clients %}
     {{ keywords.escape_str(client.name) }},
     {% endfor %}
+    {% if streaming_import_path %}
+    "Stream",
+    {% endif %}
 ]
 {{ keywords.extend_all }}
 
