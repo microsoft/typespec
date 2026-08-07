@@ -704,6 +704,34 @@ describe("with is", () => {
     });
   });
 
+  it("model is array cannot spread record properties", async () => {
+    const diagnostics = await Tester.diagnose(`
+        model A is Array<string> {
+          ...Record<int32>;
+        }
+        `);
+    expectDiagnostics(diagnostics, {
+      code: "no-array-properties",
+      message: "Array models cannot have any properties.",
+    });
+  });
+
+  it("model extends array cannot spread model properties", async () => {
+    const diagnostics = await Tester.diagnose(`
+        model Source {
+          name: string;
+        }
+
+        model A extends Array<string> {
+          ...Source;
+        }
+        `);
+    expectDiagnostics(diagnostics, {
+      code: "no-array-properties",
+      message: "Array models cannot have any properties.",
+    });
+  });
+
   it("doesn't allow duplicate properties", async () => {
     const diagnostics = await Tester.diagnose(`
         model A { x: int32 }
