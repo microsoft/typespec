@@ -1,6 +1,6 @@
 import { strictEqual } from "assert";
 import { describe, it } from "vitest";
-import { isStructuredStreamType } from "../src/http.js";
+import { getStructuredStreamKind, isStructuredStreamType } from "../src/http.js";
 
 describe("typespec-python: structured streaming", () => {
   it("treats model and union payloads as structured", () => {
@@ -19,5 +19,27 @@ describe("typespec-python: structured streaming", () => {
   it("treats bare byte/string payloads as unstructured", () => {
     strictEqual(isStructuredStreamType({ kind: "bytes" } as any), false);
     strictEqual(isStructuredStreamType({ kind: "string" } as any), false);
+  });
+
+  it("detects the stream protocol explicitly", () => {
+    strictEqual(getStructuredStreamKind({ sseMetadata: { events: [] } } as any), "sse");
+    strictEqual(
+      getStructuredStreamKind({
+        streamMetadata: { contentTypes: ["text/event-stream; charset=utf-8"] },
+      } as any),
+      "sse",
+    );
+    strictEqual(
+      getStructuredStreamKind({
+        streamMetadata: { contentTypes: ["application/jsonl"] },
+      } as any),
+      "jsonl",
+    );
+    strictEqual(
+      getStructuredStreamKind({
+        streamMetadata: { contentTypes: ["application/json"] },
+      } as any),
+      undefined,
+    );
   });
 });

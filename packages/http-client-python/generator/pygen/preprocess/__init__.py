@@ -36,7 +36,7 @@ def update_overload_section(
             if overload_s.get("type"):
                 overload_s["type"] = original_s["type"]
             if overload_s.get("streaming"):
-              overload_s["streaming"] = original_s["streaming"]
+                overload_s["streaming"] = original_s["streaming"]
             if overload_s.get("headers"):
                 for overload_h, original_h in zip(overload_s["headers"], original_s["headers"]):
                     if overload_h.get("type"):

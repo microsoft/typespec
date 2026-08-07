@@ -59,6 +59,25 @@ export function isStructuredStreamType(type: SdkType): boolean {
   }
 }
 
+export function getStructuredStreamKind(
+  response: SdkHttpResponse | SdkHttpErrorResponse,
+): "jsonl" | "sse" | undefined {
+  if (response.sseMetadata) return "sse";
+
+  const contentTypes = response.streamMetadata?.contentTypes ?? response.contentTypes ?? [];
+  for (const contentType of contentTypes) {
+    const mediaType = contentType.split(";", 1)[0].trim().toLowerCase();
+    if (mediaType === "text/event-stream") return "sse";
+    if (mediaType === "application/jsonl") return "jsonl";
+  }
+  return undefined;
+}
+
+function getStringConstantValue(type: SdkType): string | undefined {
+  if (type.kind === "nullable") return getStringConstantValue(type.type);
+  return type.kind === "constant" && typeof type.value === "string" ? type.value : undefined;
+}
+
 /**
  * Build the `streaming` block for a response YAML when the response is a JSONL/SSE
  * stream with a structured payload type (driven by the TCGC stream metadata).
@@ -66,12 +85,8 @@ export function isStructuredStreamType(type: SdkType): boolean {
  * Returns `undefined` when structured streaming should not apply, in which case
  * the existing raw byte-iterator behavior is preserved.
  *
- * Note: the currently consumed TCGC metadata (`streamMetadata`) does not expose
- * per-event SSE metadata (event-type dispatch). Terminal-event handling does NOT
- * depend on it — the terminal marker is a string-literal member of the item union
- * (e.g. `Literal["[DONE]"]`), which the generator detects structurally and passes
- * to the vendored runtime as `terminal_event`. Only `kind` and `itemType` are
- * emitted here; the terminal event is derived generator-side from `itemType`.
+ * For SSE, TCGC `sseMetadata` supplies each event's wire name, payload type, and
+ * terminal marker. JSONL only needs the common stream item type.
  */
 function getStreamingInfo(
   context: PythonSdkContext,
@@ -80,19 +95,33 @@ function getStreamingInfo(
   const streamMetadata = response.streamMetadata;
   if (!streamMetadata) return undefined;
   if (!isStructuredStreamType(streamMetadata.streamType)) return undefined;
-  const contentTypes = streamMetadata.contentTypes ?? response.contentTypes ?? [];
-  const isSse = contentTypes.some((ct) => ct.toLowerCase().includes("event-stream"));
-  // SSE kind is detected from the response Content-Type. A heterogeneous `@events`
-  // union streamType is emitted as a single union `itemType`; the generator detects
-  // the terminal event (a string-literal union member such as `[DONE]`) structurally
-  // and wires it into the runtime, so terminal-event termination works without TCGC
-  // `sseMetadata`. Per-event MODEL dispatch (routing each event to its distinct
-  // payload model) still requires `sseMetadata` (SdkSseMetadata.events[], TCGC
-  // #4882); until then heterogeneous events are yielded as parsed JSON.
-  return {
-    kind: isSse ? "sse" : "jsonl",
+  const kind = getStructuredStreamKind(response);
+  if (!kind) return undefined;
+
+  const streaming: Record<string, any> = {
+    kind,
     itemType: getType(context, streamMetadata.streamType),
   };
+
+  if (kind === "sse" && response.sseMetadata) {
+    const events: Record<string, any>[] = [];
+    let terminalEvent: string | undefined;
+    for (const event of response.sseMetadata.events) {
+      if (event.isTerminalEvent) {
+        terminalEvent =
+          getStringConstantValue(event.payloadType) ?? getStringConstantValue(event.type);
+      } else {
+        events.push({
+          eventType: event.eventType,
+          itemType: getType(context, event.payloadType),
+        });
+      }
+    }
+    if (events.length > 0) streaming.events = events;
+    if (terminalEvent !== undefined) streaming.terminalEvent = terminalEvent;
+  }
+
+  return streaming;
 }
 
 function isEtagType(type: SdkType): boolean {

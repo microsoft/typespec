@@ -104,13 +104,13 @@
     "tsx": "^4.21.0"
   },
   "devDependencies": {
-    "@azure-tools/typespec-autorest": "~0.70.0",
+    "@azure-tools/typespec-autorest": "0.71.0-dev.4",
     "@azure-tools/typespec-azure-core": "~0.70.0",
     "@azure-tools/typespec-azure-resource-manager": "~0.70.0",
-    "@azure-tools/typespec-azure-rulesets": "~0.70.0",
-    "@azure-tools/typespec-client-generator-core": "~0.70.0",
+    "@azure-tools/typespec-azure-rulesets": "0.71.0-dev.5",
+    "@azure-tools/typespec-client-generator-core": "0.71.0-dev.11",
     "@azure-tools/azure-http-specs": "0.1.0-alpha.43",
-    "@typespec/compiler": "^1.14.0",
+    "@typespec/compiler": "1.15.0-dev.17",
     "@typespec/http": "^1.14.0",
     "@typespec/openapi": "^1.14.0",
     "@typespec/rest": "~0.84.0",
@@ -132,5 +132,8 @@
     "typescript-eslint": "^8.49.0",
     "vitest": "^4.0.15",
     "prettier": "^3.9.5"
+  },
+  "overrides": {
+    "@typespec/compiler": "$@typespec/compiler"
   }
 }

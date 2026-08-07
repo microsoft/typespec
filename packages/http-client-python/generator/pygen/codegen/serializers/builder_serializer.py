@@ -1268,22 +1268,46 @@ class _OperationSerializer(_BuilderBaseSerializer[OperationType]):
         )
         stream_class = response.stream_class_name(self.async_mode)  # type: ignore[attr-defined]
         terminal_event = getattr(response, "terminal_event", None)
+        streaming_events = getattr(response, "streaming_events", [])
         retval: list[str] = []
         retval.append("def _callback(_http_response, _event):")
         if response.streaming_kind == "sse":  # type: ignore[attr-defined]
-            # Heterogeneous SSE (``@events`` unions) is deserialized against the union item
-            # type below; the shared ``_deserialize`` cannot resolve a forward-ref union
-            # member name into a concrete model, so payloads are yielded as parsed JSON.
-            # Per-event ``eventType`` dispatch into distinct model instances requires the
-            # TCGC ``sseMetadata`` (SdkSseMetadata.events[], typespec-client-generator-core
-            # #4882), which is unavailable in the currently pinned TCGC version. The stream's
-            # terminal event (a string-literal union member such as ``[DONE]``) is detected
-            # structurally and passed as ``terminal_event`` below, so the runtime stops
-            # before this callback attempts to JSON-parse it.
             retval.append("    _event_json = json.loads(_event.data)")
+            named_events = [
+                (event_type, event_item_type)
+                for event_type, event_item_type in streaming_events
+                if event_type is not None
+            ]
+            unnamed_events = [event_item_type for event_type, event_item_type in streaming_events if event_type is None]
+            if named_events:
+                for index, (event_type, event_item_type) in enumerate(named_events):
+                    event_annotation = event_item_type.type_annotation(
+                        is_operation_file=True,
+                        serialize_namespace=self.serialize_namespace,
+                    )
+                    keyword = "if" if index == 0 else "elif"
+                    retval.append(f"    {keyword} _event.event == {event_type!r}:")
+                    retval.append(f"        deserialized = _deserialize({event_annotation}, _event_json)")
+                retval.append("    else:")
+                if len(unnamed_events) == 1:
+                    event_annotation = unnamed_events[0].type_annotation(
+                        is_operation_file=True,
+                        serialize_namespace=self.serialize_namespace,
+                    )
+                    retval.append(f"        deserialized = _deserialize({event_annotation}, _event_json)")
+                else:
+                    retval.append("        deserialized = _event_json")
+            elif len(unnamed_events) == 1:
+                event_annotation = unnamed_events[0].type_annotation(
+                    is_operation_file=True,
+                    serialize_namespace=self.serialize_namespace,
+                )
+                retval.append(f"    deserialized = _deserialize({event_annotation}, _event_json)")
+            else:
+                retval.append(f"    deserialized = _deserialize({item_annotation}, _event_json)")
         else:
             retval.append("    _event_json = _event.json()")
-        retval.append(f"    deserialized = _deserialize({item_annotation}, _event_json)")
+            retval.append(f"    deserialized = _deserialize({item_annotation}, _event_json)")
         retval.append("    if cls:")
         retval.append("        return cls(pipeline_response, deserialized, {})  # type: ignore")
         retval.append("    return deserialized")
