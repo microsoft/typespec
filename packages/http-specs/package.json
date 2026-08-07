@@ -5,6 +5,11 @@
   "description": "Spec scenarios and mock apis",
   "main": "dist/index.js",
   "type": "module",
+  "files": [
+    "dist/**",
+    "specs/**",
+    "assets/**"
+  ],
   "scripts": {
     "watch": "tsc -p ./tsconfig.build.json --watch",
     "build": "tsc -p ./tsconfig.build.json && pnpm validate-scenarios && pnpm build:smoke",
