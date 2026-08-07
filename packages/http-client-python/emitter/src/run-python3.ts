@@ -4,7 +4,7 @@
 // path resolution algorithm as AutoRest so that the behavior
 // is fully consistent (and also supports AUTOREST_PYTHON_EXE).
 //
-// Invoke it like so: "tsx run-python3.ts script.py"
+// Invoke it like so: "node run-python3.ts script.py"
 
 import cp from "child_process";
 import { patchPythonPath } from "./system-requirements.js";
