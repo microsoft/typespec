@@ -42,6 +42,88 @@ export enum ReferredByOperationTypes {
   NonPagingOnly = 2,
 }
 
+/**
+ * Determine whether a stream's payload type is "structured" (a model or union
+ * that can be deserialized into an item `T`), as opposed to a bare byte/string
+ * stream that should keep the existing raw byte-iterator behavior.
+ */
+export function isStructuredStreamType(type: SdkType): boolean {
+  switch (type.kind) {
+    case "model":
+    case "union":
+      return true;
+    case "nullable":
+      return isStructuredStreamType(type.type);
+    default:
+      return false;
+  }
+}
+
+export function getStructuredStreamKind(
+  response: SdkHttpResponse | SdkHttpErrorResponse,
+): "jsonl" | "sse" | undefined {
+  if (response.sseMetadata) return "sse";
+
+  const contentTypes = response.streamMetadata?.contentTypes ?? response.contentTypes ?? [];
+  for (const contentType of contentTypes) {
+    const mediaType = contentType.split(";", 1)[0].trim().toLowerCase();
+    if (mediaType === "text/event-stream") return "sse";
+    if (mediaType === "application/jsonl") return "jsonl";
+  }
+  return undefined;
+}
+
+function getStringConstantValue(type: SdkType): string | undefined {
+  if (type.kind === "nullable") return getStringConstantValue(type.type);
+  return type.kind === "constant" && typeof type.value === "string" ? type.value : undefined;
+}
+
+/**
+ * Build the `streaming` block for a response YAML when the response is a JSONL/SSE
+ * stream with a structured payload type (driven by the TCGC stream metadata).
+ *
+ * Returns `undefined` when structured streaming should not apply, in which case
+ * the existing raw byte-iterator behavior is preserved.
+ *
+ * For SSE, TCGC `sseMetadata` supplies each event's wire name, payload type, and
+ * terminal marker. JSONL only needs the common stream item type.
+ */
+function getStreamingInfo(
+  context: PythonSdkContext,
+  response: SdkHttpResponse | SdkHttpErrorResponse,
+): Record<string, any> | undefined {
+  const streamMetadata = response.streamMetadata;
+  if (!streamMetadata) return undefined;
+  if (!isStructuredStreamType(streamMetadata.streamType)) return undefined;
+  const kind = getStructuredStreamKind(response);
+  if (!kind) return undefined;
+
+  const streaming: Record<string, any> = {
+    kind,
+    itemType: getType(context, streamMetadata.streamType),
+  };
+
+  if (kind === "sse" && response.sseMetadata) {
+    const events: Record<string, any>[] = [];
+    let terminalEvent: string | undefined;
+    for (const event of response.sseMetadata.events) {
+      if (event.isTerminalEvent) {
+        terminalEvent =
+          getStringConstantValue(event.payloadType) ?? getStringConstantValue(event.type);
+      } else {
+        events.push({
+          eventType: event.eventType,
+          itemType: getType(context, event.payloadType),
+        });
+      }
+    }
+    if (events.length > 0) streaming.events = events;
+    if (terminalEvent !== undefined) streaming.terminalEvent = terminalEvent;
+  }
+
+  return streaming;
+}
+
 function isEtagType(type: SdkType): boolean {
   if (type.kind === "nullable") return isEtagType(type.type);
   const raw = type.__raw;
@@ -682,6 +764,7 @@ function emitHttpResponse(
       "invalid-lro-result",
       method,
     ),
+    streaming: isException ? undefined : getStreamingInfo(context, response),
   };
 }
 
