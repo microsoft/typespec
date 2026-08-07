@@ -64,6 +64,7 @@ export function Models(props: ModelsProps): Children {
         const needsJsonNodes = modelNeedsJsonNodes($, model);
         const usings = needsJsonNodes ? [...modelUsings, "System.Text.Json.Nodes"] : modelUsings;
         const modelName = getModelEmitName($.program, model);
+        const modelFileName = cs.useCSharpNamePolicy().getName(modelName, "class");
         const subNsParts = getSubNamespaceParts(model.namespace, props.serviceNamespace);
 
         const modelContent = <ServerClassDeclaration type={model} emitName={modelName} />;
@@ -75,7 +76,7 @@ export function Models(props: ModelsProps): Children {
         );
 
         return (
-          <CSharpFile path={`${modelName}.cs`} using={usings}>
+          <CSharpFile path={`${modelFileName}.cs`} using={usings}>
             {wrappedContent}
           </CSharpFile>
         );

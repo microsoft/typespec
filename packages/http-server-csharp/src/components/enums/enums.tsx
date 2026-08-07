@@ -83,21 +83,18 @@ export function Enums(props: EnumsProps): Children {
     <For each={allEnums}>
       {(info) => {
         const namePolicy = cs.useCSharpNamePolicy();
+        const enumName = namePolicy.getName(info.name, "enum");
         const subNsParts = getSubNamespaceParts(info.namespace, props.serviceNamespace);
 
         const enumDecl = (
           <>
+            <cs.DocWhen doc={getDocComments($, info.type)} />
             <Attribute
               name={JsonSerialization.JsonConverterAttribute}
               args={["typeof(JsonStringEnumConverter)"]}
             />
             <hbr />
-            <cs.EnumDeclaration
-              name={namePolicy.getName(info.name, "enum")}
-              public
-              refkey={efRefkey(info.type)}
-              doc={getDocComments($, info.type)}
-            >
+            <cs.EnumDeclaration name={enumName} public refkey={efRefkey(info.type)}>
               <For each={info.members} comma hardline>
                 {(member) => (
                   <>
@@ -124,7 +121,7 @@ export function Enums(props: EnumsProps): Children {
         );
 
         return (
-          <CSharpFile path={`${info.name}.cs`} using={["System.Text.Json"]}>
+          <CSharpFile path={`${enumName}.cs`} using={["System.Text.Json"]}>
             {wrappedContent}
           </CSharpFile>
         );
