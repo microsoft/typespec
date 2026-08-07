@@ -7,7 +7,6 @@ import {
   type ModelProperty,
   type Program,
   type Type,
-  type Union,
   type Value,
 } from "@typespec/compiler";
 import type { useTsp } from "@typespec/emitter-framework";
@@ -140,46 +139,6 @@ export function hasNonIntegerValues(en: Enum): boolean {
       return true;
     }
   }
-  return false;
-}
-
-/** Returns true if the TypeSpec type maps to a C# value type (struct). */
-export function isValueType($: ReturnType<typeof useTsp>["$"], type: Type): boolean {
-  // Handle literal types
-  if (type.kind === "Boolean" || type.kind === "Number") return true;
-  if (type.kind === "String") return false;
-
-  if ($.scalar.is(type)) {
-    const baseName = $.scalar.getStdBase(type)?.name ?? type.name;
-    const valueTypes = new Set([
-      "int8",
-      "int16",
-      "int32",
-      "int64",
-      "uint8",
-      "uint16",
-      "uint32",
-      "uint64",
-      "safeint",
-      "float32",
-      "float64",
-      "decimal",
-      "decimal128",
-      "boolean",
-      "numeric",
-      "integer",
-      "float",
-      "plainDate",
-      "plainTime",
-      "utcDateTime",
-      "offsetDateTime",
-      "duration",
-      "unixTimestamp32",
-    ]);
-    return valueTypes.has(baseName);
-  }
-  if ($.enum.is(type)) return true;
-  if (type.kind === "Union" && isUnionEnum(type as Union)) return true;
   return false;
 }
 
