@@ -62,13 +62,13 @@ steps:
   - template: /eng/common/pipelines/templates/steps/create-authenticated-npmrc.yml
 
   - ${{ if eq(parameters.LanguageShortName, 'csharp') }}:
-    - task: NuGetAuthenticate@1
+      - task: NuGetAuthenticate@1
 
   - ${{ if eq(parameters.LanguageShortName, 'python') }}:
-    - template: /eng/common/pipelines/templates/steps/pypi-auth-dev-feed.yml
+      - template: /eng/common/pipelines/templates/steps/pypi-auth-dev-feed.yml
 
   - ${{ if eq(parameters.LanguageShortName, 'java') }}:
-    - template: /eng/common/pipelines/templates/steps/maven-authenticate.yml
+      - template: /eng/common/pipelines/templates/steps/maven-authenticate.yml
 
   - task: NodeTool@0
     displayName: Install Node.js

@@ -13,22 +13,22 @@ $packageRoot = (Resolve-Path "$PSScriptRoot/../..").Path.Replace('\', '/')
 Set-ConsoleEncoding
 
 Push-Location $packageRoot
+$repoRoot = (Resolve-Path "$packageRoot/../..").Path
+$nugetConfigPath = (Join-Path $repoRoot "eng/nuget.config")
+$ciNugetAuditArg = $env:TF_BUILD ? "-p:NuGetAudit=false" : ""
+$previousRestoreConfigFile = $env:RestoreConfigFile
+$previousNuGetAudit = $env:NuGetAudit
 try {
+    # Ensure all dotnet processes, including those spawned by npm scripts and generation,
+    # restore through the repository's Azure DevOps feed instead of nuget.org.
+    $env:RestoreConfigFile = $nugetConfigPath
+    if ($env:TF_BUILD) {
+        $env:NuGetAudit = "false"
+    }
+
     if ($UnitTests) {
         Push-Location "$packageRoot"
-        # Ensure all dotnet processes, including those spawned by npm scripts and tests,
-        # restore through the repository's Azure DevOps feed instead of nuget.org.
-        $repoRoot = (Resolve-Path "$packageRoot/../..").Path
-        $nugetConfigPath = (Join-Path $repoRoot "eng/nuget.config")
-        $ciNugetAuditArg = $env:TF_BUILD ? "-p:NuGetAudit=false" : ""
-        $previousRestoreConfigFile = $env:RestoreConfigFile
-        $previousNuGetAudit = $env:NuGetAudit
         try {
-            $env:RestoreConfigFile = $nugetConfigPath
-            if ($env:TF_BUILD) {
-                $env:NuGetAudit = "false"
-            }
-
             Invoke-LoggedCommand "dotnet nuget list source --configfile `"$nugetConfigPath`"" -GroupOutput
 
             # test the emitter
@@ -44,8 +44,6 @@ try {
             Invoke-LoggedCommand "./eng/scripts/Get-Spector-Coverage.ps1" -GroupOutput
         }
         finally {
-            $env:RestoreConfigFile = $previousRestoreConfigFile
-            $env:NuGetAudit = $previousNuGetAudit
             Pop-Location
         }
     }
@@ -80,5 +78,7 @@ try {
     }
 }
 finally {
+    $env:RestoreConfigFile = $previousRestoreConfigFile
+    $env:NuGetAudit = $previousNuGetAudit
     Pop-Location
 }
