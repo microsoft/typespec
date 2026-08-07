@@ -42,7 +42,8 @@
   },
   "scripts": {
     "clean": "rimraf ./dist ./temp",
-    "build": "pnpm gen-extern-signature && alloy build",
+    "build": "pnpm gen-extern-signature && alloy build && pnpm lint-typespec-library",
+    "lint-typespec-library": "tsp compile . --warn-as-error --import @typespec/library-linter --no-emit",
     "watch": "alloy build --watch",
     "gen-extern-signature": "tspd --enable-experimental gen-extern-signature .",
     "test": "vitest run",
@@ -70,6 +71,7 @@
     "@typespec/compiler": "workspace:~",
     "@typespec/emitter-framework": "workspace:~",
     "@typespec/http": "workspace:~",
+    "@typespec/library-linter": "workspace:^",
     "@typespec/mutator-framework": "workspace:~",
     "@typespec/tspd": "workspace:~",
     "rimraf": "catalog:",
