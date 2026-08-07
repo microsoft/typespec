@@ -1,5 +1,6 @@
 import { type Children } from "@alloy-js/core";
 import { Attribute } from "@alloy-js/csharp";
+import { Serialization } from "@alloy-js/csharp/global/System/Text/Json";
 import {
   getEncode,
   getMaxItems,
@@ -19,7 +20,6 @@ import {
   type Type,
 } from "@typespec/compiler";
 import { isUnionEnum } from "../components/enums/enums.jsx";
-import { JsonSerialization } from "./csharp-libs.jsx";
 
 /**
  * Maps a TypeSpec scalar name to the C# type name used in attributes.
@@ -99,7 +99,7 @@ export function getPropertyAttributes(program: Program, property: ModelProperty)
   ) {
     attrs.push(
       <Attribute
-        name={JsonSerialization.JsonConverterAttribute}
+        name={Serialization.JsonConverterAttribute}
         args={["typeof(JsonStringEnumConverter)"]}
       />,
     );
@@ -141,7 +141,7 @@ function getEncodingAttributes(program: Program, property: ModelProperty): Child
     case "duration":
       result.push(
         <Attribute
-          name={JsonSerialization.JsonConverterAttribute}
+          name={Serialization.JsonConverterAttribute}
           args={["typeof(TimeSpanDurationConverter)"]}
         />,
       );
@@ -149,7 +149,7 @@ function getEncodingAttributes(program: Program, property: ModelProperty): Child
     case "unixTimestamp32":
       result.push(
         <Attribute
-          name={JsonSerialization.JsonConverterAttribute}
+          name={Serialization.JsonConverterAttribute}
           args={["typeof(UnixEpochDateTimeOffsetConverter)"]}
         />,
       );
@@ -158,7 +158,7 @@ function getEncodingAttributes(program: Program, property: ModelProperty): Child
       if (encoding && encoding.encoding.toLowerCase() === "base64url") {
         result.push(
           <Attribute
-            name={JsonSerialization.JsonConverterAttribute}
+            name={Serialization.JsonConverterAttribute}
             args={["typeof(Base64UrlJsonConverter)"]}
           />,
         );
@@ -169,7 +169,7 @@ function getEncodingAttributes(program: Program, property: ModelProperty): Child
       if (encoding && encoding.encoding.toLowerCase() === "unixtimestamp") {
         result.push(
           <Attribute
-            name={JsonSerialization.JsonConverterAttribute}
+            name={Serialization.JsonConverterAttribute}
             args={["typeof(UnixEpochDateTimeOffsetConverter)"]}
           />,
         );
@@ -259,9 +259,7 @@ function getArrayConstraintAttribute(
 function getEncodedNameAttribute(program: Program, property: ModelProperty): Children | undefined {
   const encodedName = resolveEncodedName(program, property, "application/json");
   if (encodedName !== property.name) {
-    return (
-      <Attribute name={JsonSerialization.JsonPropertyNameAttribute} args={[`"${encodedName}"`]} />
-    );
+    return <Attribute name={Serialization.JsonPropertyNameAttribute} args={[`"${encodedName}"`]} />;
   }
   return undefined;
 }

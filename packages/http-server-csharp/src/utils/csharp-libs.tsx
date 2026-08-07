@@ -1,19 +1,12 @@
 import { createLibrary } from "@alloy-js/csharp";
 
 /**
- * Library references for System.Text.Json.Serialization attributes.
- * Using createLibrary ensures proper `using` directive generation and
- * attribute name resolution (e.g., stripping "Attribute" suffix).
- */
-export const JsonSerialization = createLibrary("System.Text.Json.Serialization", {
-  JsonConverterAttribute: { kind: "class", members: {} },
-  JsonPropertyNameAttribute: { kind: "class", members: {} },
-  JsonStringEnumMemberNameAttribute: { kind: "class", members: {} },
-  JsonStringEnumConverter: { kind: "class", members: {} },
-});
-
-/**
  * Library references for Microsoft.AspNetCore.Mvc attributes.
+ * ASP.NET Core is not part of the BCL, so it has no `@alloy-js/csharp` builtin and must be
+ * declared here. BCL namespaces (e.g. `System.Text.Json.Serialization`) should instead be
+ * imported from `@alloy-js/csharp/global/*`.
+ *
+ * Using createLibrary ensures proper `using` directive generation and
  * Using createLibrary ensures proper `using` directive generation and
  * attribute name resolution (e.g., stripping "Attribute" suffix).
  */
