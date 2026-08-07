@@ -30,9 +30,7 @@ export type MessageDecorator = (
  * The field index of a Protobuf message must:
  * - fall between 1 and 2<sup>29</sup> - 1, inclusive.
  * - not fall within the implementation reserved range of 19000 to 19999, inclusive.
- * - not fall within any range that was [marked reserved](#
- *
- * @TypeSpec .Protobuf.reserve).
+ * - not fall within any range that was [marked reserved](#%40TypeSpec.Protobuf.reserve).
  *
  * #### API Compatibility Note
  *
@@ -43,6 +41,7 @@ export type MessageDecorator = (
  * Field indices between 1 and 15 are encoded using a single byte, while field indices from 16 through 2047 require two
  * bytes, so those indices between 1 and 15 should be preferred and reserved for elements that are frequently or always
  * set in the message. See the [Protobuf binary format](https://protobuf.dev/programming-guides/encoding/).
+ *
  * @param index The whole-number index of the field.
  * @example
  * ```typespec

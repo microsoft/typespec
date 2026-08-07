@@ -63,6 +63,18 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers
             var inputClient = InputFactory.Client("TestClient", methods: [serviceMethod]);
 
             MockHelpers.LoadMockGenerator(inputModels: () => [itemType], clients: () => [inputClient]);
+            var jsonLinesContent = ScmCodeModelGenerator.Instance.OutputLibrary.TypeProviders
+                .OfType<JsonLinesBinaryContentDefinition>()
+                .Single();
+            Assert.IsFalse(jsonLinesContent.Methods.Any(
+                method => method.Signature.Name is "DeserializeModel" or "DeserializeValue"));
+            var writeToAsyncMethod = jsonLinesContent.Methods.Single(
+                method => method.Signature.Name == "WriteToAsync");
+            using var writer = new CodeWriter();
+            writer.WriteMethod(writeToAsyncMethod);
+            Assert.AreEqual(
+                Helpers.GetExpectedFromFile("WriteToAsyncStj"),
+                writer.ToString(false));
             var client = ScmCodeModelGenerator.Instance.TypeFactory.CreateClient(inputClient);
             Assert.IsNotNull(client);
 
@@ -106,11 +118,11 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers
             var inputClient = InputFactory.Client("TestClient", methods: [serviceMethod]);
 
             MockHelpers.LoadMockGenerator(inputModels: () => [itemType], clients: () => [inputClient]);
+            Assert.IsFalse(ScmCodeModelGenerator.Instance.OutputLibrary.TypeProviders.Any(
+                type => type is JsonLinesBinaryContentDefinition));
             var client = ScmCodeModelGenerator.Instance.TypeFactory.CreateClient(inputClient);
             Assert.IsNotNull(client);
-            StringAssert.Contains(
-                ScmMethodProviderCollection.StreamingResultDiagnosticId,
-                client!.DisabledFileWarnings.Single().DisableStatement.ToDisplayString());
+            Assert.IsEmpty(client!.DisabledFileWarnings);
 
             var methodCollection = new ScmMethodProviderCollection(serviceMethod, client);
             Assert.AreEqual(2, methodCollection.Count);
@@ -141,6 +153,17 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers
             StringAssert.Contains(
                 "return global::System.ClientModel.AsyncStreamingClientResult.CreateJsonLines",
                 convenienceMethod.BodyStatements!.ToDisplayString());
+            StringAssert.Contains(
+                "global::Sample.SampleContext.Default",
+                convenienceMethod.BodyStatements!.ToDisplayString());
+            StringAssert.DoesNotContain(
+                "JsonLinesBinaryContent",
+                convenienceMethod.BodyStatements!.ToDisplayString());
+            using var writer = new CodeWriter();
+            writer.WriteMethod(convenienceMethod);
+            Assert.AreEqual(
+                Helpers.GetExpectedFromFile(method: "JsonLinesStreamingMethodSuppressionIsScoped"),
+                writer.ToString(false));
 
             foreach (var protocolMethod in methodCollection.Where(method =>
                 method.Signature.Parameters.Any(parameter => parameter.Name == "options")))
@@ -175,6 +198,8 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers
                 response: InputFactory.ServiceMethodResponse(streamType, null));
             var inputClient = InputFactory.Client("TestClient", methods: [serviceMethod]);
             MockHelpers.LoadMockGenerator(inputModels: () => [eventType], clients: () => [inputClient]);
+            Assert.IsFalse(ScmCodeModelGenerator.Instance.OutputLibrary.TypeProviders.Any(
+                type => type is JsonLinesBinaryContentDefinition));
             var client = ScmCodeModelGenerator.Instance.TypeFactory.CreateClient(inputClient);
             Assert.IsNotNull(client);
 
@@ -211,8 +236,9 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers
                 "return global::System.ClientModel.AsyncStreamingClientResult.CreateSse",
                 body);
             StringAssert.Contains(
-                "global::Sample.JsonLinesBinaryContent<global::Sample.Models.Info>.DeserializeModel",
+                "global::Sample.SampleContext.Default",
                 body);
+            StringAssert.DoesNotContain("JsonLinesBinaryContent", body);
             StringAssert.Contains(
                 "item.Data.ToString() == \"[DONE]\"",
                 body);
@@ -253,7 +279,10 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers
                 method.Signature.Name == "ReceiveAsync" &&
                 method.Signature.Parameters.All(parameter => parameter.Name != "options"));
             StringAssert.Contains(
-                "global::Sample.JsonLinesBinaryContent<string>.DeserializeValue",
+                "global::Sample.SampleContext.Default",
+                convenienceMethod.BodyStatements!.ToDisplayString());
+            StringAssert.DoesNotContain(
+                "ToObjectFromJson",
                 convenienceMethod.BodyStatements!.ToDisplayString());
         }
 
@@ -656,6 +685,87 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers
             var signature = listMethod!.Signature;
             var expectedReturnType = new CSharpType(typeof(CollectionResult));
             Assert.IsTrue(signature.ReturnType!.Equals(expectedReturnType));
+        }
+
+        [Test]
+        public void ListMethodWithInheritedPageItems()
+        {
+            var pagingMetadata = InputFactory.PagingMetadata(
+                ["value"],
+                null,
+                null);
+            var itemModel = InputFactory.Model("cat");
+            var basePageModel = InputFactory.Model(
+                "basePage",
+                properties: [InputFactory.Property("value", InputFactory.Array(itemModel))]);
+            var responseModel = InputFactory.Model(
+                "page",
+                properties: [InputFactory.Property("summary", InputPrimitiveType.String)],
+                baseModel: basePageModel);
+            var response = InputFactory.OperationResponse([200], responseModel);
+            var operation = InputFactory.Operation("getCats", responses: [response]);
+            var inputServiceMethod = InputFactory.PagingServiceMethod(
+                "Test",
+                operation,
+                response: InputFactory.ServiceMethodResponse(responseModel, null),
+                pagingMetadata: pagingMetadata);
+            var inputClient = InputFactory.Client("TestClient", methods: [inputServiceMethod]);
+
+            MockHelpers.LoadMockGenerator(
+                inputModels: () => [itemModel, basePageModel, responseModel],
+                clients: () => [inputClient]);
+            var client = ScmCodeModelGenerator.Instance.TypeFactory.CreateClient(inputClient);
+            Assert.IsNotNull(client);
+            var itemModelType = ScmCodeModelGenerator.Instance.TypeFactory.CreateCSharpType(itemModel);
+
+            var methodCollection = new ScmMethodProviderCollection(inputClient.Methods.First(), client!);
+            var listMethod = methodCollection.FirstOrDefault(
+                m => !m.Signature.Parameters.Any(p => p.Name == "options") && m.Signature.Name == "GetCats");
+            Assert.IsNotNull(listMethod);
+
+            var expectedReturnType = new CSharpType(typeof(CollectionResult<>), itemModelType!);
+            Assert.IsTrue(listMethod!.Signature.ReturnType!.Equals(expectedReturnType));
+        }
+
+        [Test]
+        public void ListMethodWithRedeclaredPageItemsUsesDerivedProperty()
+        {
+            var pagingMetadata = InputFactory.PagingMetadata(
+                ["value"],
+                null,
+                null);
+            var baseItemModel = InputFactory.Model("baseCat");
+            var derivedItemModel = InputFactory.Model("derivedCat");
+            var basePageModel = InputFactory.Model(
+                "basePage",
+                properties: [InputFactory.Property("value", InputFactory.Array(baseItemModel))]);
+            var responseModel = InputFactory.Model(
+                "page",
+                properties: [InputFactory.Property("value", InputFactory.Array(derivedItemModel))],
+                baseModel: basePageModel);
+            var response = InputFactory.OperationResponse([200], responseModel);
+            var operation = InputFactory.Operation("getCats", responses: [response]);
+            var inputServiceMethod = InputFactory.PagingServiceMethod(
+                "Test",
+                operation,
+                response: InputFactory.ServiceMethodResponse(responseModel, null),
+                pagingMetadata: pagingMetadata);
+            var inputClient = InputFactory.Client("TestClient", methods: [inputServiceMethod]);
+
+            MockHelpers.LoadMockGenerator(
+                inputModels: () => [baseItemModel, derivedItemModel, basePageModel, responseModel],
+                clients: () => [inputClient]);
+            var client = ScmCodeModelGenerator.Instance.TypeFactory.CreateClient(inputClient);
+            Assert.IsNotNull(client);
+            var derivedItemModelType = ScmCodeModelGenerator.Instance.TypeFactory.CreateCSharpType(derivedItemModel);
+
+            var methodCollection = new ScmMethodProviderCollection(inputClient.Methods.First(), client!);
+            var listMethod = methodCollection.FirstOrDefault(
+                m => !m.Signature.Parameters.Any(p => p.Name == "options") && m.Signature.Name == "GetCats");
+            Assert.IsNotNull(listMethod);
+
+            var expectedReturnType = new CSharpType(typeof(CollectionResult<>), derivedItemModelType!);
+            Assert.IsTrue(listMethod!.Signature.ReturnType!.Equals(expectedReturnType));
         }
 
         [TestCase(true, InputRequestLocation.Header)]

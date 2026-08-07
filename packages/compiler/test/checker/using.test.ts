@@ -363,6 +363,98 @@ describe("compiler: using statements", () => {
     `);
   });
 
+  describe("relative to the file namespace", () => {
+    it("using declared before the file namespace resolves from the global namespace", async () => {
+      const { Y } = await Tester.files({
+        "a.tsp": `namespace Global.Sub { model X { x: int32 } }`,
+      }).compile(t.code`
+        import "./a.tsp";
+        using Global.Sub;
+        namespace Outer.Global.Foo;
+        model ${t.model("Y")} { ... X }
+      `);
+
+      strictEqual(Y.properties.size, 1);
+    });
+
+    it("using declared before the file namespace picks the global namespace over the file namespace sibling", async () => {
+      const { Y } = await Tester.files({
+        "a.tsp": `
+          namespace A { model G { g: int32 } }
+          namespace Outer.A { model L { l: int32 } }
+        `,
+      }).compile(t.code`
+        import "./a.tsp";
+        using A;
+        namespace Outer.Svc;
+        model ${t.model("Y")} { ... G }
+      `);
+
+      strictEqual(Y.properties.size, 1);
+    });
+
+    it("using declared after the file namespace still resolves relative to it", async () => {
+      const { Y } = await Tester.files({
+        "a.tsp": `namespace MyOrg.Models { model X { x: int32 } }`,
+      }).compile(t.code`
+        import "./a.tsp";
+        namespace MyOrg.Svc;
+        using Models;
+        model ${t.model("Y")} { ... X }
+      `);
+
+      strictEqual(Y.properties.size, 1);
+    });
+
+    it("using declared after the file namespace is shadowed by the file namespace sibling", async () => {
+      const diagnostics = await Tester.files({
+        "a.tsp": `
+          namespace A { model G {} }
+          namespace Outer.A { model L {} }
+        `,
+      }).diagnose(`
+        import "./a.tsp";
+        namespace Outer.Svc;
+        using A;
+        model Y { ... G }
+      `);
+
+      expectDiagnostics(diagnostics, {
+        code: "invalid-ref",
+        message: "Unknown identifier G",
+      });
+    });
+
+    it("using inside a block namespace keeps resolving relative to it", async () => {
+      const { Y } = await Tester.files({
+        "a.tsp": `namespace MyOrg.Models { model X { x: int32 } }`,
+      }).compile(t.code`
+        import "./a.tsp";
+        namespace MyOrg.Svc {
+          using Models;
+          model ${t.model("Y")} { ... X }
+        }
+      `);
+
+      strictEqual(Y.properties.size, 1);
+    });
+
+    it("reports an unknown identifier when a using before the file namespace only resolves relatively", async () => {
+      const diagnostics = await Tester.files({
+        "a.tsp": `namespace MyOrg.Models { model X {} }`,
+      }).diagnose(`
+        import "./a.tsp";
+        using Models;
+        namespace MyOrg.Svc;
+      `);
+
+      expectDiagnostics(diagnostics, {
+        code: "invalid-ref",
+        message: "Unknown identifier Models",
+      });
+    });
+  });
+
   it("works when the using'd namespace is merged after the current namespace", async () => {
     await Tester.files({
       "other.tsp": `

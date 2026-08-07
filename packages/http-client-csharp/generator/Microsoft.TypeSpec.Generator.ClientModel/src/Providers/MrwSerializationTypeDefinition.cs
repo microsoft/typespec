@@ -1077,7 +1077,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
             {
                 switchCases.Add(new SwitchCaseStatement(
                     ModelReaderWriterOptionsSnippets.JsonFormat,
-                    Return(Static(typeof(ModelReaderWriter)).Invoke(nameof(ModelReaderWriter.Write), [This, _mrwOptionsParameterSnippet, ModelReaderWriterContextSnippets.Default]))));
+                    Return(ModelReaderWriterSnippets.Write(This, _mrwOptionsParameterSnippet))));
             }
 
             if (_supportsXml)
@@ -2509,10 +2509,10 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
                     $"Deserialization of type {valueType.Name} may not be supported using MRW serialization.",
                     severity: EmitterDiagnosticSeverity.Warning);
                 // Fall back to MRW deserialization for framework type
-                return Static(typeof(ModelReaderWriter)).Invoke(
-                    nameof(ModelReaderWriter.Read),
-                    [data, ModelSerializationExtensionsSnippets.Wire, ModelReaderWriterContextSnippets.Default],
-                    [valueType]);
+                return ModelReaderWriterSnippets.Read(
+                    valueType,
+                    data,
+                    ModelSerializationExtensionsSnippets.Wire);
             }
 
             return exp;

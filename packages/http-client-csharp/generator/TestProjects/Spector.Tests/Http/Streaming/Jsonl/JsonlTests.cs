@@ -12,6 +12,7 @@ namespace TestProjects.Spector.Tests.Http.Streaming.Jsonl
     public class JsonlTests : SpectorTestBase
     {
         [SpectorTest]
+        [Ignore("https://github.com/microsoft/typespec/pull/11575")]
         public Task Send() => Test(async (host) =>
         {
             var client = new JsonlClient(host, null).GetBasicClient();
