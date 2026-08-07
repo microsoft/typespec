@@ -1,0 +1,178 @@
+# coding=utf-8
+{% if code_model.license_header %}
+{{ code_model.license_header }}
+{% endif %}
+import codecs
+from typing import Any, AsyncIterator, Iterator, List, Optional, Tuple
+
+
+def _iter_jsonl(response: Any) -> Iterator[str]:
+    decoder = codecs.getincrementaldecoder("utf-8")()
+    buffered = ""
+    for chunk in response.iter_bytes():
+        buffered += decoder.decode(chunk)
+        lines = buffered.split("\n")
+        buffered = lines.pop()
+        for line in lines:
+            line = line[:-1] if line.endswith("\r") else line
+            if line.strip():
+                yield line
+
+    buffered += decoder.decode(b"", final=True)
+    if buffered.endswith("\r"):
+        buffered = buffered[:-1]
+    if buffered.strip():
+        yield buffered
+
+
+async def _aiter_jsonl(response: Any) -> AsyncIterator[str]:
+    decoder = codecs.getincrementaldecoder("utf-8")()
+    buffered = ""
+    async for chunk in response.iter_bytes():
+        buffered += decoder.decode(chunk)
+        lines = buffered.split("\n")
+        buffered = lines.pop()
+        for line in lines:
+            line = line[:-1] if line.endswith("\r") else line
+            if line.strip():
+                yield line
+
+    buffered += decoder.decode(b"", final=True)
+    if buffered.endswith("\r"):
+        buffered = buffered[:-1]
+    if buffered.strip():
+        yield buffered
+
+
+def _split_sse_lines(buffered: str) -> Tuple[List[str], str]:
+    lines: List[str] = []
+    start = 0
+    index = 0
+    while index < len(buffered):
+        character = buffered[index]
+        if character == "\n":
+            lines.append(buffered[start:index])
+            index += 1
+            start = index
+        elif character == "\r":
+            if index + 1 == len(buffered):
+                break
+            lines.append(buffered[start:index])
+            index += 2 if buffered[index + 1] == "\n" else 1
+            start = index
+        else:
+            index += 1
+    return lines, buffered[start:]
+
+
+def _iter_sse_lines(response: Any) -> Iterator[str]:
+    decoder = codecs.getincrementaldecoder("utf-8-sig")(errors="replace")
+    buffered = ""
+    for chunk in response.iter_bytes():
+        buffered += decoder.decode(chunk)
+        lines, buffered = _split_sse_lines(buffered)
+        yield from lines
+
+    buffered += decoder.decode(b"", final=True)
+    lines, remainder = _split_sse_lines(buffered)
+    yield from lines
+    if remainder:
+        yield remainder[:-1] if remainder.endswith("\r") else remainder
+
+
+async def _aiter_sse_lines(response: Any) -> AsyncIterator[str]:
+    decoder = codecs.getincrementaldecoder("utf-8-sig")(errors="replace")
+    buffered = ""
+    async for chunk in response.iter_bytes():
+        buffered += decoder.decode(chunk)
+        lines, buffered = _split_sse_lines(buffered)
+        for line in lines:
+            yield line
+
+    buffered += decoder.decode(b"", final=True)
+    lines, remainder = _split_sse_lines(buffered)
+    for line in lines:
+        yield line
+    if remainder:
+        yield remainder[:-1] if remainder.endswith("\r") else remainder
+
+
+class _SSEEvent:
+    def __init__(
+        self,
+        *,
+        event: str,
+        data: str,
+        event_id: str,
+        retry: Optional[int],
+    ) -> None:
+        self.event = event
+        self.data = data
+        self.id = event_id
+        self.retry = retry
+
+
+class _SSEEventBuilder:
+    def __init__(self) -> None:
+        self._data: List[str] = []
+        self._event_type = ""
+        self._last_id = ""
+        self._retry: Optional[int] = None
+
+    def add_line(self, line: str) -> Optional[_SSEEvent]:
+        if not line:
+            return self.dispatch()
+        if line.startswith(":"):
+            return None
+
+        field, separator, value = line.partition(":")
+        if separator and value.startswith(" "):
+            value = value[1:]
+        if field == "event":
+            self._event_type = value
+        elif field == "data":
+            self._data.append(value)
+        elif field == "id" and "\x00" not in value:
+            self._last_id = value
+        elif field == "retry" and value.isascii() and value.isdigit():
+            try:
+                self._retry = int(value)
+            except ValueError:
+                pass
+        return None
+
+    def dispatch(self) -> Optional[_SSEEvent]:
+        if not self._data:
+            self._event_type = ""
+            return None
+        event = _SSEEvent(
+            event=self._event_type or "message",
+            data="\n".join(self._data),
+            event_id=self._last_id,
+            retry=self._retry,
+        )
+        self._data = []
+        self._event_type = ""
+        return event
+
+
+def _iter_sse(response: Any) -> Iterator[_SSEEvent]:
+    builder = _SSEEventBuilder()
+    for line in _iter_sse_lines(response):
+        event = builder.add_line(line)
+        if event is not None:
+            yield event
+    event = builder.dispatch()
+    if event is not None:
+        yield event
+
+
+async def _aiter_sse(response: Any) -> AsyncIterator[_SSEEvent]:
+    builder = _SSEEventBuilder()
+    async for line in _aiter_sse_lines(response):
+        event = builder.add_line(line)
+        if event is not None:
+            yield event
+    event = builder.dispatch()
+    if event is not None:
+        yield event

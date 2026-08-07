@@ -585,7 +585,9 @@ class _OperationSerializer(_BuilderBaseSerializer[OperationType]):
     def make_pipeline_call(self, builder: OperationType) -> list[str]:
         retval = []
         type_ignore = self.async_mode and builder.group_name == ""  # is in a mixin
-        if builder.stream_value:
+        if builder.has_structured_stream_response:
+            retval.append("kwargs.pop('stream', None)")
+        elif builder.stream_value:
             retval.append("_decompress = kwargs.pop('decompress', True)")
         pylint_disable = " # pylint: disable=protected-access" if self.code_model.is_azure_flavor else ""
         retval.extend(
@@ -1256,15 +1258,102 @@ class _OperationSerializer(_BuilderBaseSerializer[OperationType]):
         )
         return retval
 
-    def handle_response(self, builder: OperationType) -> list[str]:
-        retval: list[str] = ["response = pipeline_response.http_response"]
-        retval.append("")
-        retval.extend(self.handle_error_response(builder))
-        retval.append("")
-        if builder.has_optional_return_type:
-            retval.append("deserialized = None")
-        if builder.any_response_has_headers:
-            retval.append("response_headers = {}")
+    def handle_structured_stream_response(self, builder: OperationType) -> list[str]:
+        """Emit the body for an operation returning a structured (JSONL / SSE) stream.
+
+        The generated operation owns JSON parsing, deserialization, terminal filtering,
+        event dispatch, customization, and response cleanup.
+        """
+        response = next(r for r in builder.responses if getattr(r, "is_structured_stream", False))
+        item_annotation = response.stream_item_annotation(
+            is_operation_file=True,
+            is_response=True,
+            serialize_namespace=self.serialize_namespace,
+        )
+        terminal_event = getattr(response, "terminal_event", None)
+        streaming_events = getattr(response, "streaming_events", [])
+        generator_annotation = (
+            f"AsyncGenerator[{item_annotation}, None]"
+            if self.async_mode
+            else f"Generator[{item_annotation}, None, None]"
+        )
+        function_def = "async def" if self.async_mode else "def"
+        loop = "async for" if self.async_mode else "for"
+        helper = f"_aiter_{response.streaming_kind}" if self.async_mode else f"_iter_{response.streaming_kind}"
+        retval = [
+            f"{function_def} _response_iterator() -> {generator_annotation}:",
+            "    try:",
+        ]
+
+        if response.streaming_kind == "sse":  # type: ignore[attr-defined]
+            retval.append(f"        {loop} _event in {helper}(response):")
+            indent = "            "
+            if terminal_event is not None:
+                retval.append(f"{indent}if _event.data == {terminal_event!r}:")
+                retval.append(f"{indent}    break")
+            retval.append(f"{indent}_event_json = json.loads(_event.data)")
+            named_events = [
+                (event_type, event_item_type)
+                for event_type, event_item_type in streaming_events
+                if event_type is not None
+            ]
+            unnamed_events = [event_item_type for event_type, event_item_type in streaming_events if event_type is None]
+            if named_events:
+                for index, (event_type, event_item_type) in enumerate(named_events):
+                    event_annotation = event_item_type.type_annotation(
+                        is_operation_file=True,
+                        serialize_namespace=self.serialize_namespace,
+                    )
+                    keyword = "if" if index == 0 else "elif"
+                    retval.append(f"{indent}{keyword} _event.event == {event_type!r}:")
+                    retval.append(f"{indent}    deserialized = _deserialize({event_annotation}, _event_json)")
+                retval.append(f"{indent}else:")
+                if len(unnamed_events) == 1:
+                    event_annotation = unnamed_events[0].type_annotation(
+                        is_operation_file=True,
+                        serialize_namespace=self.serialize_namespace,
+                    )
+                    retval.append(f"{indent}    deserialized = _deserialize({event_annotation}, _event_json)")
+                else:
+                    retval.append(
+                        f'{indent}    raise DeserializationError(f"Unexpected SSE event type: ' '{_event.event!r}")'
+                    )
+            elif len(unnamed_events) == 1:
+                event_annotation = unnamed_events[0].type_annotation(
+                    is_operation_file=True,
+                    serialize_namespace=self.serialize_namespace,
+                )
+                retval.append(f"{indent}deserialized = _deserialize({event_annotation}, _event_json)")
+            else:
+                retval.append(f"{indent}deserialized = _deserialize({item_annotation}, _event_json)")
+            retval.append(f"{indent}yield deserialized")
+        else:
+            retval.extend(
+                [
+                    f"        {loop} _data in {helper}(response):",
+                    "            _event_json = json.loads(_data)",
+                    f"            yield _deserialize({item_annotation}, _event_json)",
+                ]
+            )
+
+        retval.append("    finally:")
+        if self.async_mode:
+            retval.append("        await response.close()")
+        else:
+            retval.append("        response.close()")
+        retval.extend(
+            [
+                "",
+                "_response_generator = _response_iterator()",
+                "if cls:",
+                "    return cls(pipeline_response, _response_generator, {})  # type: ignore",
+                "return _response_generator",
+            ]
+        )
+        return retval
+
+    def _handle_response_body(self, builder: OperationType) -> list[str]:
+        retval: list[str] = []
         if builder.has_response_body or builder.any_response_has_headers:  # pylint: disable=too-many-nested-blocks
             if len(builder.responses) > 1:
                 status_codes, res_headers, res_deserialization = [], [], []
@@ -1299,6 +1388,21 @@ class _OperationSerializer(_BuilderBaseSerializer[OperationType]):
             else:
                 retval.extend(self.response_headers_and_deserialization(builder, builder.responses[0]))
                 retval.append("")
+        return retval
+
+    def handle_response(self, builder: OperationType) -> list[str]:
+        retval: list[str] = ["response = pipeline_response.http_response"]
+        retval.append("")
+        retval.extend(self.handle_error_response(builder))
+        retval.append("")
+        if builder.has_structured_stream_response:
+            retval.extend(self.handle_structured_stream_response(builder))
+            return retval
+        if builder.has_optional_return_type:
+            retval.append("deserialized = None")
+        if builder.any_response_has_headers:
+            retval.append("response_headers = {}")
+        retval.extend(self._handle_response_body(builder))
         if (
             builder.has_optional_return_type
             or self.code_model.options["models-mode"]
