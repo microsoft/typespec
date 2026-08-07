@@ -135,12 +135,25 @@ class Response(BaseModel):
             return self.type.serialization_type(**kwargs)
         return "None"
 
+    def stream_item_annotation(self, **kwargs: Any) -> str:
+        """Valid type expression for a structured stream's item type.
+
+        A named ``CombinedType`` (``@events`` union) renders its ``type_annotation`` as the
+        ``_unions.<Name>`` alias, which is a module-level variable and therefore rejected by
+        pyright/mypy inside ``Stream[...]`` ("Variable not allowed in type expression"). Expand
+        the union inline (``Union[Model, ...]`` / the single member) so the annotation is a
+        valid type expression.
+        """
+        if isinstance(self.type, CombinedType):
+            return self.type.type_definition(**kwargs)
+        return self.type.type_annotation(**kwargs) if self.type else "None"
+
     def type_annotation(self, **kwargs: Any) -> str:
         if self.is_structured_stream and self.type:
             kwargs["is_operation_file"] = True
             kwargs["is_response"] = True
             stream_class = self.stream_class_name(kwargs.get("async_mode", False))
-            return f"{stream_class}[{self.type.type_annotation(**kwargs)}]"
+            return f"{stream_class}[{self.stream_item_annotation(**kwargs)}]"
         if self.type:
             kwargs["is_operation_file"] = True
             kwargs["is_response"] = True
@@ -171,18 +184,26 @@ class Response(BaseModel):
 
     def imports(self, **kwargs: Any) -> FileImport:
         file_import = FileImport(self.code_model)
-        if self.type:
+        # For a structured stream whose item type is a named ``@events`` union, the annotation
+        # is expanded inline (see ``stream_item_annotation``), so import the union member types
+        # rather than the ``_unions`` alias.
+        if self.is_structured_stream and isinstance(self.type, CombinedType):
+            for member in self.type.types:
+                file_import.merge(member.imports(**kwargs))
+            if not all(t.type == "constant" for t in self.type.types):
+                file_import.add_submodule_import("typing", "Union", ImportType.STDLIB)
+        elif self.type:
             file_import.merge(self.type.imports(**kwargs))
+            if isinstance(self.type, CombinedType) and self.type.name:
+                serialize_namespace = kwargs.get("serialize_namespace", self.code_model.namespace)
+                file_import.add_submodule_import(
+                    self.code_model.get_relative_import_path(serialize_namespace),
+                    "_unions",
+                    ImportType.LOCAL,
+                    TypingSection.TYPING,
+                )
         if self.nullable:
             file_import.add_submodule_import("typing", "Optional", ImportType.STDLIB)
-        if isinstance(self.type, CombinedType) and self.type.name:
-            serialize_namespace = kwargs.get("serialize_namespace", self.code_model.namespace)
-            file_import.add_submodule_import(
-                self.code_model.get_relative_import_path(serialize_namespace),
-                "_unions",
-                ImportType.LOCAL,
-                TypingSection.TYPING,
-            )
         if self.is_structured_stream:
             stream_class = self.stream_class_name(kwargs.get("async_mode", False))
             serialize_namespace = kwargs.get("serialize_namespace", self.code_model.namespace)
