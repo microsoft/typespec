@@ -83,6 +83,7 @@ export function Enums(props: EnumsProps): Children {
     <For each={allEnums}>
       {(info) => {
         const namePolicy = cs.useCSharpNamePolicy();
+        const enumName = namePolicy.getName(info.name, "enum");
         const subNsParts = getSubNamespaceParts(info.namespace, props.serviceNamespace);
 
         const enumDecl = (
@@ -93,7 +94,7 @@ export function Enums(props: EnumsProps): Children {
             />
             <hbr />
             <cs.EnumDeclaration
-              name={namePolicy.getName(info.name, "enum")}
+              name={enumName}
               public
               refkey={efRefkey(info.type)}
               doc={getDocComments($, info.type)}
@@ -124,7 +125,7 @@ export function Enums(props: EnumsProps): Children {
         );
 
         return (
-          <CSharpFile path={`${info.name}.cs`} using={["System.Text.Json"]}>
+          <CSharpFile path={`${enumName}.cs`} using={["System.Text.Json"]}>
             {wrappedContent}
           </CSharpFile>
         );
