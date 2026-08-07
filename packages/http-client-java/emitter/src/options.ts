@@ -8,6 +8,10 @@ export const LIB_NAME = "@typespec/http-client-java";
 export const DIAGNOSTIC_DOCS_BASE_PATH = "emitter/src/diagnostics";
 export const DIAGNOSTIC_DOCS_BASE_URL =
   "https://typespec.io/docs/emitters/clients/http-client-java/reference/diagnostics";
+export const DIAGNOSTIC_DOCS_EXCLUDED = new Set([
+  "dpg-protocol-api-not-generated",
+  "dpg-convenience-api-not-generated",
+]);
 
 export interface DevOptions {
   "generate-code-model"?: boolean;
