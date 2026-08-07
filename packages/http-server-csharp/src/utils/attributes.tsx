@@ -1,5 +1,6 @@
-import { type Children } from "@alloy-js/core";
+import { code, type Children } from "@alloy-js/core";
 import { Attribute } from "@alloy-js/csharp";
+import { Serialization } from "@alloy-js/csharp/global/System/Text/Json";
 import {
   getEncode,
   getMaxItems,
@@ -14,69 +15,27 @@ import {
   isArrayModelType,
   resolveEncodedName,
   type ModelProperty,
-  type Program,
   type Scalar,
   type Type,
 } from "@typespec/compiler";
+import type { Typekit } from "@typespec/compiler/typekit";
 import { isUnionEnum } from "../components/enums/enums.jsx";
-import { JsonSerialization } from "./csharp-libs.jsx";
+import { tryGetServerScalarName } from "../components/type-expression/scalar-overrides.js";
 
-/**
- * Maps a TypeSpec scalar name to the C# type name used in attributes.
- * This follows the old emitter's mapping.
- */
-function scalarToCSharpTypeName(program: Program, scalar: Scalar): string | undefined {
-  const stdBase = getStdBase(program, scalar);
-  if (!stdBase) return undefined;
-  const map: Record<string, string> = {
-    int8: "SByte",
-    uint8: "Byte",
-    int16: "Int16",
-    int32: "int",
-    int64: "long",
-    uint16: "UInt16",
-    uint32: "UInt32",
-    uint64: "UInt64",
-    safeint: "long",
-    float32: "float",
-    float64: "double",
-    decimal: "decimal",
-    decimal128: "decimal",
-    numeric: "double",
-    integer: "int",
-    float: "double",
-    boolean: "bool",
-    string: "string",
-    bytes: "byte[]",
-    plainDate: "DateTime",
-    plainTime: "DateTime",
-    utcDateTime: "DateTimeOffset",
-    offsetDateTime: "DateTimeOffset",
-    duration: "TimeSpan",
-    url: "string",
-  };
-  return map[stdBase.name];
-}
-
-function getStdBase(program: Program, scalar: Scalar): Scalar | undefined {
-  if (program.checker.isStdType(scalar)) return scalar;
-  if (scalar.baseScalar) return getStdBase(program, scalar.baseScalar);
-  return undefined;
+function getStdBase($: Typekit, scalar: Scalar): Scalar | undefined {
+  return $.scalar.getStdBase(scalar) ?? undefined;
 }
 
 type WireEncoding = { encoding: string; type: Type };
 
-function getScalarEncoding(
-  program: Program,
-  type: Scalar | ModelProperty,
-): WireEncoding | undefined {
-  const encode = getEncode(program, type);
+function getScalarEncoding($: Typekit, type: Scalar | ModelProperty): WireEncoding | undefined {
+  const encode = getEncode($.program, type);
   if (encode) return { encoding: encode.encoding ?? "string", type: encode.type };
   if (type.kind === "ModelProperty" && type.type.kind === "Scalar") {
-    return getScalarEncoding(program, type.type);
+    return getScalarEncoding($, type.type);
   }
   if (type.kind === "Scalar" && type.baseScalar) {
-    return getScalarEncoding(program, type.baseScalar);
+    return getScalarEncoding($, type.baseScalar);
   }
   return undefined;
 }
@@ -85,11 +44,11 @@ function getScalarEncoding(
  * Get all C# attributes for a model property.
  * Returns an array of attribute strings like `[JsonConverter(typeof(TimeSpanDurationConverter))]`
  */
-export function getPropertyAttributes(program: Program, property: ModelProperty): Children[] {
+export function getPropertyAttributes($: Typekit, property: ModelProperty): Children[] {
   const attrs: Children[] = [];
 
   // Encoding attributes (JsonConverter)
-  const encodingAttrs = getEncodingAttributes(program, property);
+  const encodingAttrs = getEncodingAttributes($, property);
   attrs.push(...encodingAttrs);
 
   // JsonStringEnumConverter for enum and union-as-enum properties
@@ -99,49 +58,49 @@ export function getPropertyAttributes(program: Program, property: ModelProperty)
   ) {
     attrs.push(
       <Attribute
-        name={JsonSerialization.JsonConverterAttribute}
-        args={["typeof(JsonStringEnumConverter)"]}
+        name={Serialization.JsonConverterAttribute}
+        args={[code`typeof(${Serialization.JsonStringEnumConverter})`]}
       />,
     );
   }
 
   // Constraint attributes
-  const numericAttr = getNumericConstraintAttribute(program, property);
+  const numericAttr = getNumericConstraintAttribute($, property);
   if (numericAttr) attrs.push(numericAttr);
 
-  const stringAttr = getStringConstraintAttribute(program, property);
+  const stringAttr = getStringConstraintAttribute($, property);
   if (stringAttr) attrs.push(stringAttr);
 
-  const arrayAttr = getArrayConstraintAttribute(program, property);
+  const arrayAttr = getArrayConstraintAttribute($, property);
   if (arrayAttr) attrs.push(arrayAttr);
 
   // JsonPropertyName (only when encoded name differs)
-  const nameAttr = getEncodedNameAttribute(program, property);
+  const nameAttr = getEncodedNameAttribute($, property);
   if (nameAttr) attrs.push(nameAttr);
 
   // SafeInt constraint
   if (property.type.kind === "Scalar") {
-    const safeIntAttr = getSafeIntAttribute(program, property.type);
+    const safeIntAttr = getSafeIntAttribute($, property.type);
     if (safeIntAttr) attrs.push(safeIntAttr);
   }
 
   return attrs;
 }
 
-function getEncodingAttributes(program: Program, property: ModelProperty): Children[] {
+function getEncodingAttributes($: Typekit, property: ModelProperty): Children[] {
   const result: Children[] = [];
   if (property.type.kind !== "Scalar") return result;
 
-  const stdBase = getStdBase(program, property.type);
+  const stdBase = getStdBase($, property.type);
   if (!stdBase) return result;
 
-  const encoding = getScalarEncoding(program, property);
+  const encoding = getScalarEncoding($, property);
 
   switch (stdBase.name) {
     case "duration":
       result.push(
         <Attribute
-          name={JsonSerialization.JsonConverterAttribute}
+          name={Serialization.JsonConverterAttribute}
           args={["typeof(TimeSpanDurationConverter)"]}
         />,
       );
@@ -149,7 +108,7 @@ function getEncodingAttributes(program: Program, property: ModelProperty): Child
     case "unixTimestamp32":
       result.push(
         <Attribute
-          name={JsonSerialization.JsonConverterAttribute}
+          name={Serialization.JsonConverterAttribute}
           args={["typeof(UnixEpochDateTimeOffsetConverter)"]}
         />,
       );
@@ -158,7 +117,7 @@ function getEncodingAttributes(program: Program, property: ModelProperty): Child
       if (encoding && encoding.encoding.toLowerCase() === "base64url") {
         result.push(
           <Attribute
-            name={JsonSerialization.JsonConverterAttribute}
+            name={Serialization.JsonConverterAttribute}
             args={["typeof(Base64UrlJsonConverter)"]}
           />,
         );
@@ -169,7 +128,7 @@ function getEncodingAttributes(program: Program, property: ModelProperty): Child
       if (encoding && encoding.encoding.toLowerCase() === "unixtimestamp") {
         result.push(
           <Attribute
-            name={JsonSerialization.JsonConverterAttribute}
+            name={Serialization.JsonConverterAttribute}
             args={["typeof(UnixEpochDateTimeOffsetConverter)"]}
           />,
         );
@@ -180,16 +139,13 @@ function getEncodingAttributes(program: Program, property: ModelProperty): Child
   return result;
 }
 
-function getNumericConstraintAttribute(
-  program: Program,
-  property: ModelProperty,
-): Children | undefined {
+function getNumericConstraintAttribute($: Typekit, property: ModelProperty): Children | undefined {
   if (property.type.kind !== "Scalar") return undefined;
 
-  const minVal = getMinValue(program, property);
-  const maxVal = getMaxValue(program, property);
-  const minExcl = getMinValueExclusive(program, property);
-  const maxExcl = getMaxValueExclusive(program, property);
+  const minVal = getMinValue($.program, property);
+  const maxVal = getMaxValue($.program, property);
+  const minExcl = getMinValueExclusive($.program, property);
+  const maxExcl = getMaxValueExclusive($.program, property);
 
   if (
     minVal === undefined &&
@@ -200,7 +156,7 @@ function getNumericConstraintAttribute(
     return undefined;
   }
 
-  const csharpType = scalarToCSharpTypeName(program, property.type);
+  const csharpType = tryGetServerScalarName($, property.type);
   if (!csharpType) return undefined;
 
   const params: string[] = [];
@@ -215,13 +171,10 @@ function getNumericConstraintAttribute(
   return <Attribute name={`NumericConstraint<${csharpType}>`} args={params} />;
 }
 
-function getStringConstraintAttribute(
-  program: Program,
-  property: ModelProperty,
-): Children | undefined {
-  const minLen = getMinLength(program, property);
-  const maxLen = getMaxLength(program, property);
-  const pattern = getPattern(program, property);
+function getStringConstraintAttribute($: Typekit, property: ModelProperty): Children | undefined {
+  const minLen = getMinLength($.program, property);
+  const maxLen = getMaxLength($.program, property);
+  const pattern = getPattern($.program, property);
 
   if (minLen === undefined && maxLen === undefined && pattern === undefined) return undefined;
 
@@ -233,12 +186,9 @@ function getStringConstraintAttribute(
   return <Attribute name="StringConstraint" args={params} />;
 }
 
-function getArrayConstraintAttribute(
-  program: Program,
-  property: ModelProperty,
-): Children | undefined {
-  const minItems = getMinItems(program, property);
-  const maxItems = getMaxItems(program, property);
+function getArrayConstraintAttribute($: Typekit, property: ModelProperty): Children | undefined {
+  const minItems = getMinItems($.program, property);
+  const maxItems = getMaxItems($.program, property);
 
   if (minItems === undefined && maxItems === undefined) return undefined;
   if (property.type.kind !== "Model" || !isArrayModelType(property.type)) return undefined;
@@ -246,7 +196,7 @@ function getArrayConstraintAttribute(
   const elementType = property.type.indexer.value;
   if (elementType.kind !== "Scalar") return undefined;
 
-  const csharpType = scalarToCSharpTypeName(program, elementType);
+  const csharpType = tryGetServerScalarName($, elementType);
   if (!csharpType) return undefined;
 
   const params: string[] = [];
@@ -256,18 +206,16 @@ function getArrayConstraintAttribute(
   return <Attribute name={`ArrayConstraint<${csharpType}>`} args={params} />;
 }
 
-function getEncodedNameAttribute(program: Program, property: ModelProperty): Children | undefined {
-  const encodedName = resolveEncodedName(program, property, "application/json");
+function getEncodedNameAttribute($: Typekit, property: ModelProperty): Children | undefined {
+  const encodedName = resolveEncodedName($.program, property, "application/json");
   if (encodedName !== property.name) {
-    return (
-      <Attribute name={JsonSerialization.JsonPropertyNameAttribute} args={[`"${encodedName}"`]} />
-    );
+    return <Attribute name={Serialization.JsonPropertyNameAttribute} args={[`"${encodedName}"`]} />;
   }
   return undefined;
 }
 
-function getSafeIntAttribute(program: Program, scalar: Scalar): Children | undefined {
-  const stdBase = getStdBase(program, scalar);
+function getSafeIntAttribute($: Typekit, scalar: Scalar): Children | undefined {
+  const stdBase = getStdBase($, scalar);
   if (!stdBase || stdBase.name !== "safeint") return undefined;
   return (
     <Attribute

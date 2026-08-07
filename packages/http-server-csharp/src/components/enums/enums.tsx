@@ -1,7 +1,5 @@
-import type { Refkey } from "@alloy-js/core";
 import { For, type Children } from "@alloy-js/core";
 import * as cs from "@alloy-js/csharp";
-import { Attribute } from "@alloy-js/csharp";
 import {
   type Enum,
   type Namespace as TspNamespace,
@@ -9,51 +7,46 @@ import {
   type Union,
 } from "@typespec/compiler";
 import { useTsp } from "@typespec/emitter-framework";
-import { JsonSerialization } from "../../utils/csharp-libs.jsx";
-import { getDocComments } from "../../utils/doc-comments.jsx";
+import {
+  EnumDeclaration as EfEnumDeclaration,
+  getDocComments,
+  type EnumDeclarationMember,
+} from "@typespec/emitter-framework/csharp";
 import { getSubNamespaceParts } from "../../utils/namespace-utils.js";
 import { CSharpFile } from "../csharp-file.jsx";
 import { efRefkey } from "../type-expression/type-expression.jsx";
 
-/** Normalized member info shared by both enums and union-enums. */
-interface EnumMemberInfo {
-  name: string;
-  serializedValue: string;
-  docSource: Type;
-  memberRefkey?: Refkey;
-}
-
-/** Normalized enum info that abstracts over Enum and union-as-enum types. */
+/** Normalized declaration info that abstracts over `Enum` and union-as-enum types. */
 interface EnumInfo {
   name: string;
   type: Enum | Union;
   namespace: TspNamespace | undefined;
-  members: EnumMemberInfo[];
+  members: EnumDeclarationMember[];
 }
 
-function normalizeEnum(en: Enum): EnumInfo {
+function normalizeEnum($: ReturnType<typeof useTsp>["$"], en: Enum): EnumInfo {
   return {
     name: en.name,
     type: en,
     namespace: en.namespace,
-    members: Array.from(en.members.entries()).map(([key, value]) => ({
+    members: Array.from(en.members.entries()).map(([key, member]) => ({
       name: key,
-      serializedValue: typeof value.value === "string" ? value.value : key,
-      docSource: value,
+      jsonValue: typeof member.value === "string" ? member.value : key,
+      doc: getDocComments($, member),
     })),
   };
 }
 
-function normalizeUnionEnum(union: Union): EnumInfo {
+function normalizeUnionEnum($: ReturnType<typeof useTsp>["$"], union: Union): EnumInfo {
   return {
     name: union.name!,
     type: union,
     namespace: union.namespace,
     members: getUnionEnumMembers(union).map(({ name, value, variant }) => ({
       name,
-      serializedValue: value,
-      docSource: variant,
-      memberRefkey: efRefkey(union, name),
+      jsonValue: value,
+      doc: getDocComments($, variant),
+      refkey: efRefkey(union, name),
     })),
   };
 }
@@ -75,47 +68,24 @@ export function Enums(props: EnumsProps): Children {
   const { $ } = useTsp();
 
   const allEnums: EnumInfo[] = [
-    ...props.enums.map(normalizeEnum),
-    ...props.unionEnums.map(normalizeUnionEnum),
+    ...props.enums.map((en) => normalizeEnum($, en)),
+    ...props.unionEnums.map((union) => normalizeUnionEnum($, union)),
   ];
 
   return (
     <For each={allEnums}>
       {(info) => {
-        const namePolicy = cs.useCSharpNamePolicy();
         const subNsParts = getSubNamespaceParts(info.namespace, props.serviceNamespace);
 
         const enumDecl = (
-          <>
-            <Attribute
-              name={JsonSerialization.JsonConverterAttribute}
-              args={["typeof(JsonStringEnumConverter)"]}
-            />
-            <hbr />
-            <cs.EnumDeclaration
-              name={namePolicy.getName(info.name, "enum")}
-              public
-              refkey={efRefkey(info.type)}
-              doc={getDocComments($, info.type)}
-            >
-              <For each={info.members} comma hardline>
-                {(member) => (
-                  <>
-                    <cs.DocWhen doc={getDocComments($, member.docSource)} />
-                    <Attribute
-                      name={JsonSerialization.JsonStringEnumMemberNameAttribute}
-                      args={[`"${member.serializedValue}"`]}
-                    />
-                    <hbr />
-                    <cs.EnumMember
-                      name={namePolicy.getName(member.name, "enum-member")}
-                      refkey={member.memberRefkey}
-                    />
-                  </>
-                )}
-              </For>
-            </cs.EnumDeclaration>
-          </>
+          <EfEnumDeclaration
+            type={info.type}
+            name={cs.useCSharpNamePolicy().getName(info.name, "enum")}
+            refkey={efRefkey(info.type)}
+            public
+            members={info.members}
+            jsonAttributes
+          />
         );
 
         const wrappedContent = subNsParts.reduceRight<Children>(

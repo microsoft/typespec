@@ -1,6 +1,9 @@
 import type { Program, Scalar, Type } from "@typespec/compiler";
 import { $ } from "@typespec/compiler/typekit";
-import type { Experimental_ComponentOverridesConfigBase } from "./component-overrides.jsx";
+import type {
+  Experimental_ComponentOverridesConfigBase,
+  Experimental_DefaultDeclarationProps,
+} from "./component-overrides.jsx";
 
 const getOverrideForTypeSym: unique symbol = Symbol.for("ef-ts:getOverrideForType");
 const getOverrideForTypeKindSym: unique symbol = Symbol.for("ef-ts:getOverrideForTypeKind");
@@ -14,19 +17,28 @@ export const Experimental_ComponentOverridesConfig = function () {
 };
 
 export class Experimental_ComponentOverridesClass {
-  #typeEmitOptions: Map<Type, Experimental_ComponentOverridesConfigBase<any>> = new Map();
-  #typeKindEmitOptions: Map<Type["kind"], Experimental_ComponentOverridesConfigBase<any>> =
+  #typeEmitOptions: Map<Type, Experimental_ComponentOverridesConfigBase<any, any>> = new Map();
+  #typeKindEmitOptions: Map<Type["kind"], Experimental_ComponentOverridesConfigBase<any, any>> =
     new Map();
 
-  forType<const T extends Type>(type: T, options: Experimental_ComponentOverridesConfigBase<T>) {
+  forType<const T extends Type, TDeclarationProps = Experimental_DefaultDeclarationProps>(
+    type: T,
+    options: Experimental_ComponentOverridesConfigBase<T, TDeclarationProps>,
+  ) {
     this.#typeEmitOptions.set(type, options);
 
     return this;
   }
 
-  forTypeKind<const TKind extends Type["kind"]>(
+  forTypeKind<
+    const TKind extends Type["kind"],
+    TDeclarationProps = Experimental_DefaultDeclarationProps,
+  >(
     typeKind: TKind,
-    options: Experimental_ComponentOverridesConfigBase<Extract<Type, { kind: TKind }>>,
+    options: Experimental_ComponentOverridesConfigBase<
+      Extract<Type, { kind: TKind }>,
+      TDeclarationProps
+    >,
   ) {
     this.#typeKindEmitOptions.set(typeKind, options);
 
