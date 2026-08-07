@@ -8,7 +8,7 @@ import {
   type Namespace as TspNamespace,
 } from "@typespec/compiler";
 import type { useTsp } from "@typespec/emitter-framework";
-import { getCSharpIdentifier, NameCasingType } from "./utils/naming.js";
+import { getCSharpNamespaceName } from "./utils/namespace-utils.js";
 
 /**
  * Collects the namespaces whose declarations are emitted even when nothing references them.
@@ -142,6 +142,5 @@ export function getServiceNamespaceName(
 
   const serviceNs = findServiceNs(globalNs);
   if (!serviceNs) return undefined;
-  const fullName = getFullName(serviceNs);
-  return getCSharpIdentifier(fullName, NameCasingType.Namespace);
+  return getCSharpNamespaceName(getFullName(serviceNs));
 }
