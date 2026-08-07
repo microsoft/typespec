@@ -163,7 +163,8 @@ class Response(BaseModel):
         kwargs["is_response"] = True
         if self.is_structured_stream and self.type:
             stream_class = self.stream_class_name(kwargs.get("async_mode", False))
-            return f"~{self.code_model.namespace}._utils.streaming_base.{stream_class}[{self.type.docstring_type(**kwargs)}]"
+            item_type = self.type.docstring_type(**kwargs)
+            return f"~{self.code_model.namespace}._utils.streaming_base.{stream_class}[{item_type}]"
         if self.nullable and self.type:
             return f"{self.type.docstring_type(**kwargs)} or None"
         return self.type.docstring_type(**kwargs) if self.type else "None"

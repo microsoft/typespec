@@ -1299,18 +1299,8 @@ class _OperationSerializer(_BuilderBaseSerializer[OperationType]):
             )
         return retval
 
-    def handle_response(self, builder: OperationType) -> list[str]:
-        retval: list[str] = ["response = pipeline_response.http_response"]
-        retval.append("")
-        retval.extend(self.handle_error_response(builder))
-        retval.append("")
-        if builder.has_structured_stream_response:
-            retval.extend(self.handle_structured_stream_response(builder))
-            return retval
-        if builder.has_optional_return_type:
-            retval.append("deserialized = None")
-        if builder.any_response_has_headers:
-            retval.append("response_headers = {}")
+    def _handle_response_body(self, builder: OperationType) -> list[str]:
+        retval: list[str] = []
         if builder.has_response_body or builder.any_response_has_headers:  # pylint: disable=too-many-nested-blocks
             if len(builder.responses) > 1:
                 status_codes, res_headers, res_deserialization = [], [], []
@@ -1345,6 +1335,21 @@ class _OperationSerializer(_BuilderBaseSerializer[OperationType]):
             else:
                 retval.extend(self.response_headers_and_deserialization(builder, builder.responses[0]))
                 retval.append("")
+        return retval
+
+    def handle_response(self, builder: OperationType) -> list[str]:
+        retval: list[str] = ["response = pipeline_response.http_response"]
+        retval.append("")
+        retval.extend(self.handle_error_response(builder))
+        retval.append("")
+        if builder.has_structured_stream_response:
+            retval.extend(self.handle_structured_stream_response(builder))
+            return retval
+        if builder.has_optional_return_type:
+            retval.append("deserialized = None")
+        if builder.any_response_has_headers:
+            retval.append("response_headers = {}")
+        retval.extend(self._handle_response_body(builder))
         if (
             builder.has_optional_return_type
             or self.code_model.options["models-mode"]
