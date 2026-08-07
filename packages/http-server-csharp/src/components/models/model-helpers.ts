@@ -7,12 +7,12 @@ import {
   type ModelProperty,
   type Program,
   type Type,
-  type Union,
   type Value,
 } from "@typespec/compiler";
 import type { useTsp } from "@typespec/emitter-framework";
 import { isStatusCode } from "@typespec/http";
 import { getUnionEnumMembers, isUnionEnum } from "../enums/enums.jsx";
+import { getServerScalarName } from "../type-expression/scalar-overrides.js";
 import { assignAnonymousName } from "./anonymous-models.js";
 
 /** Gets the string representation of a literal or default value. */
@@ -142,46 +142,6 @@ export function hasNonIntegerValues(en: Enum): boolean {
   return false;
 }
 
-/** Returns true if the TypeSpec type maps to a C# value type (struct). */
-export function isValueType($: ReturnType<typeof useTsp>["$"], type: Type): boolean {
-  // Handle literal types
-  if (type.kind === "Boolean" || type.kind === "Number") return true;
-  if (type.kind === "String") return false;
-
-  if ($.scalar.is(type)) {
-    const baseName = $.scalar.getStdBase(type)?.name ?? type.name;
-    const valueTypes = new Set([
-      "int8",
-      "int16",
-      "int32",
-      "int64",
-      "uint8",
-      "uint16",
-      "uint32",
-      "uint64",
-      "safeint",
-      "float32",
-      "float64",
-      "decimal",
-      "decimal128",
-      "boolean",
-      "numeric",
-      "integer",
-      "float",
-      "plainDate",
-      "plainTime",
-      "utcDateTime",
-      "offsetDateTime",
-      "duration",
-      "unixTimestamp32",
-    ]);
-    return valueTypes.has(baseName);
-  }
-  if ($.enum.is(type)) return true;
-  if (type.kind === "Union" && isUnionEnum(type as Union)) return true;
-  return false;
-}
-
 /** Returns true if any property of the model uses Record<T> (mapped to JsonObject). */
 export function modelNeedsJsonNodes($: ReturnType<typeof useTsp>["$"], model: Model): boolean {
   for (const prop of model.properties.values()) {
@@ -246,34 +206,16 @@ export function getErrorStatusCode(
   return { value: minVal ?? "default" };
 }
 
-/** Gets a simple C# type name string for a TypeSpec type. */
-export function getCSharpTypeString(program: Program, type: Type): string {
+/**
+ * Gets a simple C# type name string for a TypeSpec type.
+ *
+ * Used where a type name is needed as plain text rather than a rendered reference, such as
+ * error-model constructor parameters. Scalars resolve through {@link getServerScalarName} so
+ * the parameter type always agrees with the type of the property it is assigned to.
+ */
+export function getCSharpTypeString($: ReturnType<typeof useTsp>["$"], type: Type): string {
   if (type.kind === "Scalar") {
-    const scalarMap: Record<string, string> = {
-      string: "string",
-      int8: "sbyte",
-      int16: "short",
-      int32: "int",
-      int64: "long",
-      uint8: "byte",
-      uint16: "ushort",
-      uint32: "uint",
-      uint64: "ulong",
-      float32: "float",
-      float64: "double",
-      boolean: "bool",
-      plainDate: "DateOnly",
-      plainTime: "TimeOnly",
-      utcDateTime: "DateTimeOffset",
-      offsetDateTime: "DateTimeOffset",
-      duration: "TimeSpan",
-      bytes: "byte[]",
-      decimal: "decimal",
-      decimal128: "decimal",
-      url: "Uri",
-      safeint: "long",
-    };
-    return scalarMap[type.name] ?? type.name;
+    return getServerScalarName($, type);
   }
   if (type.kind === "String") return "string";
   if (type.kind === "Boolean") return "bool";
