@@ -110,7 +110,7 @@ Specify this operation is a collection action. (Scopped to a resource, /pets/my-
 
 | Name         | Type             | Description                                                                   |
 | ------------ | ---------------- | ----------------------------------------------------------------------------- |
-| resourceType | `Model`          | Resource marked with                                                          |
+| resourceType | `Model`          | Resource marked with `@resource`                                              |
 | name         | `valueof string` | Name of the action. If not specified, the name of the operation will be used. |
 
 #### `@copyResourceKeyParameters`
@@ -145,9 +145,9 @@ Specify that this is a CreateOrReplace operation for a given resource.
 
 ##### Parameters
 
-| Name         | Type    | Description          |
-| ------------ | ------- | -------------------- |
-| resourceType | `Model` | Resource marked with |
+| Name         | Type    | Description                      |
+| ------------ | ------- | -------------------------------- |
+| resourceType | `Model` | Resource marked with `@resource` |
 
 #### `@createsOrUpdatesResource`
 
@@ -163,9 +163,9 @@ Specify that this is a CreatesOrUpdate operation for a given resource.
 
 ##### Parameters
 
-| Name         | Type    | Description          |
-| ------------ | ------- | -------------------- |
-| resourceType | `Model` | Resource marked with |
+| Name         | Type    | Description                      |
+| ------------ | ------- | -------------------------------- |
+| resourceType | `Model` | Resource marked with `@resource` |
 
 #### `@createsResource`
 
@@ -181,9 +181,9 @@ Specify that this is a Create operation for a given resource.
 
 ##### Parameters
 
-| Name         | Type    | Description          |
-| ------------ | ------- | -------------------- |
-| resourceType | `Model` | Resource marked with |
+| Name         | Type    | Description                      |
+| ------------ | ------- | -------------------------------- |
+| resourceType | `Model` | Resource marked with `@resource` |
 
 #### `@deletesResource`
 
@@ -199,9 +199,9 @@ Specify that this is a Delete operation for a given resource.
 
 ##### Parameters
 
-| Name         | Type    | Description          |
-| ------------ | ------- | -------------------- |
-| resourceType | `Model` | Resource marked with |
+| Name         | Type    | Description                      |
+| ------------ | ------- | -------------------------------- |
+| resourceType | `Model` | Resource marked with `@resource` |
 
 #### `@listsResource`
 
@@ -217,9 +217,9 @@ Specify that this is a List operation for a given resource.
 
 ##### Parameters
 
-| Name         | Type    | Description          |
-| ------------ | ------- | -------------------- |
-| resourceType | `Model` | Resource marked with |
+| Name         | Type    | Description                      |
+| ------------ | ------- | -------------------------------- |
+| resourceType | `Model` | Resource marked with `@resource` |
 
 #### `@parentResource`
 
@@ -253,9 +253,9 @@ Specify that this is a Read operation for a given resource.
 
 ##### Parameters
 
-| Name         | Type    | Description          |
-| ------------ | ------- | -------------------- |
-| resourceType | `Model` | Resource marked with |
+| Name         | Type    | Description                      |
+| ------------ | ------- | -------------------------------- |
+| resourceType | `Model` | Resource marked with `@resource` |
 
 #### `@resource`
 
@@ -277,7 +277,7 @@ Mark this model as a resource type with a name.
 
 #### `@segment`
 
-Defines the preceding path segment for a
+Defines the preceding path segment for a `@path` parameter in auto-generated routes.
 
 ```typespec
 @TypeSpec.Rest.segment(name: valueof string)
@@ -294,6 +294,13 @@ Defines the preceding path segment for a
 | name | `valueof string` | Segment that will be inserted into the operation route before the path parameter's name field. |
 
 ##### Examples
+
+```typespec
+@autoRoute
+interface Pets {
+  get(@segment("pets") @path id: string): void; //-> route: /pets/{id}
+}
+```
 
 #### `@segmentOf`
 
@@ -327,6 +334,6 @@ Specify that this is a Update operation for a given resource.
 
 ##### Parameters
 
-| Name         | Type    | Description          |
-| ------------ | ------- | -------------------- |
-| resourceType | `Model` | Resource marked with |
+| Name         | Type    | Description                      |
+| ------------ | ------- | -------------------------------- |
+| resourceType | `Model` | Resource marked with `@resource` |

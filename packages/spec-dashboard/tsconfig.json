@@ -1,7 +1,6 @@
 {
   "extends": "../../tsconfig.base.json",
   "compilerOptions": {
-    "verbatimModuleSyntax": true,
     "rootDir": "src",
     "incremental": false,
     "composite": false,
