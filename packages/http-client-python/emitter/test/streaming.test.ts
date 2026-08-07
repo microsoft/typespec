@@ -10,7 +10,10 @@ describe("typespec-python: structured streaming", () => {
 
   it("unwraps nullable payloads", () => {
     strictEqual(isStructuredStreamType({ kind: "nullable", type: { kind: "model" } } as any), true);
-    strictEqual(isStructuredStreamType({ kind: "nullable", type: { kind: "bytes" } } as any), false);
+    strictEqual(
+      isStructuredStreamType({ kind: "nullable", type: { kind: "bytes" } } as any),
+      false,
+    );
   });
 
   it("treats bare byte/string payloads as unstructured", () => {
