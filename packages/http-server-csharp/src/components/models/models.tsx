@@ -116,9 +116,7 @@ function ServerClassDeclaration(props: ServerClassDeclarationProps): Children {
   }
 
   // Generate constructor for error models
-  const errorConstructor = isError
-    ? getErrorConstructor($.program, props.type, className)
-    : undefined;
+  const errorConstructor = isError ? getErrorConstructor($, props.type, className) : undefined;
 
   // For error models with base model, check if base is also an error (child constructor)
   const hasChildConstructor =
@@ -178,7 +176,7 @@ function ServerProperty(props: ServerPropertyProps): Children {
   const { $ } = useTsp();
   const namePolicy = cs.useCSharpNamePolicy();
   const propType = props.type.type;
-  const attrs = getPropertyAttributes($.program, props.type);
+  const attrs = getPropertyAttributes($, props.type);
 
   // Determine property name, handling error model conflicts
   let propName = props.type.name;
