@@ -106,6 +106,18 @@ const builtInTemplates: Record<string, InitTemplate> = {
       ...(await localDir("library-ts")),
     ],
   },
+  "library-tsp": {
+    target: "library",
+    title: "Common types library",
+    description: "Create a library of reusable TypeSpec types shared between specs.",
+    compilerVersion: minCompilerVersion,
+    libraries: [],
+    files: [
+      { destination: "main.tsp", skipGeneration: true },
+      { destination: "tspconfig.yaml", skipGeneration: true },
+      ...(await localDir("library-tsp")),
+    ],
+  },
   "emitter-ts": {
     target: "library",
     title: "TypeSpec emitter",

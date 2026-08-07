@@ -21,6 +21,9 @@ tsp init --template library-ts
 
 # Create a TypeSpec emitter with TypeScript enabled.
 tsp init --template emitter-ts
+
+# Create a common types library containing only TypeSpec types shared between specs (no TypeScript).
+tsp init --template library-tsp
 ```
 
 ## Standard package structure
