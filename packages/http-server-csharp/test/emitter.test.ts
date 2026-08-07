@@ -54,6 +54,7 @@ it("uses C# type names for generated type files", async () => {
   ).toBe(true);
   expect(files.some((path) => path.endsWith("/mocks/CamelInterface.cs"))).toBe(true);
   expect(files.some((path) => path.includes("/generated/models/camel"))).toBe(false);
-  expect(files.some((path) => path.includes("/generated/operations/I" + "camel"))).toBe(false);
+  // cspell:ignore Icamel
+  expect(files.some((path) => path.includes("/generated/operations/Icamel"))).toBe(false);
   expect(files.some((path) => path.includes("/generated/controllers/camel"))).toBe(false);
 });
