@@ -76,17 +76,7 @@ export function isStructuredStreamType(type: SdkType): boolean {
 function getStreamingInfo(
   context: PythonSdkContext,
   response: SdkHttpResponse | SdkHttpErrorResponse,
-  method?: SdkServiceMethod<SdkHttpOperation>,
 ): Record<string, any> | undefined {
-  // Structured streaming targets the vendored `azure.core.rest`-based runtime, so
-  // it only applies to the Azure flavor. For unbranded, keep the raw byte-iterator
-  // behavior.
-  if ((context.emitContext.options as any).flavor !== "azure") return undefined;
-  // Request-body streaming is out of scope: operations that carry a request body are
-  // kept on the raw byte-iterator path. This also avoids the per-request-content-type
-  // overloads (whose response item types are serialized inline rather than registered
-  // globally) producing an inconsistent mix of `Stream[T]` and `Iterator[bytes]`.
-  if (method?.operation.bodyParam) return undefined;
   const streamMetadata = response.streamMetadata;
   if (!streamMetadata) return undefined;
   if (!isStructuredStreamType(streamMetadata.streamType)) return undefined;
@@ -745,7 +735,7 @@ function emitHttpResponse(
       "invalid-lro-result",
       method,
     ),
-    streaming: isException ? undefined : getStreamingInfo(context, response, method),
+    streaming: isException ? undefined : getStreamingInfo(context, response),
   };
 }
 

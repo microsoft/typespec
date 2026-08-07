@@ -58,16 +58,8 @@ class Response(BaseModel):
         self.type = type
         self.nullable = yaml_data.get("nullable")
         self.default_content_type = yaml_data.get("defaultContentType")
-        # Structured streaming (JSONL / SSE) metadata. When present, ``self.type`` holds the
-        # per-item type (model or union) rather than the raw byte body, and the response is
-        # rendered as ``Stream[Item]`` / ``AsyncStream[Item]``.
         streaming = yaml_data.get("streaming")
-        # Only treat this as a structured stream when the resolved ``type`` is the per-item
-        # type (model / union). When the structured item type could not be resolved we fall
-        # back to the raw byte body (``BinaryIteratorType``) and must NOT render ``Stream[...]``.
-        self.streaming_kind: Optional[str] = (
-            streaming["kind"] if streaming and not isinstance(self.type, BinaryIteratorType) else None
-        )
+        self.streaming_kind: Optional[str] = streaming["kind"] if streaming else None
 
     @property
     def result_property(self) -> str:
@@ -230,24 +222,12 @@ class Response(BaseModel):
     def from_yaml(cls, yaml_data: dict[str, Any], code_model: "CodeModel") -> "Response":
         streaming = yaml_data.get("streaming")
         if streaming:
-            # Structured stream (JSONL / SSE): the response ``type`` is the raw byte body,
-            # but we render per-item types, so use the streaming item type instead and do
-            # NOT convert it to a BinaryIteratorType (that would trigger the raw-bytes path).
-            # Resolve the item type from the global type map. For heterogeneous / request-body
-            # streaming overloads (out of scope) the item type is serialized inline and not
-            # collected globally; in that case fall back to the raw byte-iterator path below
-            # instead of failing generation (and to avoid emitting duplicate inline models).
-            try:
-                item_type = code_model.lookup_type(id(streaming["itemType"]))
-            except KeyError:
-                item_type = None
-            if item_type is not None:
-                return cls(
-                    yaml_data=yaml_data,
-                    code_model=code_model,
-                    headers=[ResponseHeader.from_yaml(header, code_model) for header in yaml_data["headers"]],
-                    type=item_type,
-                )
+          return cls(
+              yaml_data=yaml_data,
+              code_model=code_model,
+              headers=[ResponseHeader.from_yaml(header, code_model) for header in yaml_data["headers"]],
+              type=code_model.lookup_type(id(streaming["itemType"])),
+          )
         type = code_model.lookup_type(id(yaml_data["type"])) if yaml_data.get("type") else None
         # use ByteIteratorType if we are returning a binary type
         default_content_type = yaml_data.get("defaultContentType", "application/json")
