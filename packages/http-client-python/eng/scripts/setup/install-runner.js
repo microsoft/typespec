@@ -14,21 +14,14 @@ const __dirname = dirname(fileURLToPath(import.meta.url));
 const compiledPath = join(__dirname, "../../../dist/scripts/setup/install.js");
 
 try {
+  await import("./install.ts");
+} catch (err) {
+  if (err?.code !== "ERR_UNSUPPORTED_NODE_MODULES_TYPE_STRIPPING") {
+    throw err;
+  }
   if (existsSync(compiledPath)) {
-    // Installed from npm package: use pre-compiled JavaScript.
-    // Use pathToFileURL so Windows absolute paths (D:\...) are valid ESM URLs.
     await import(pathToFileURL(compiledPath).href);
   } else {
-    // Development context: TypeScript source works via native type stripping.
-    await import("./install.ts");
-  }
-} catch (err) {
-  if (err?.code === "ERR_UNSUPPORTED_NODE_MODULES_TYPE_STRIPPING") {
-    // Running from node_modules without pre-compiled JS — this shouldn't
-    // happen for a properly built package, but fail gracefully rather than
-    // blocking the install.
     console.log("Python environment setup skipped: run 'npm run build' first."); // eslint-disable-line no-console
-  } else {
-    throw err;
   }
 }
