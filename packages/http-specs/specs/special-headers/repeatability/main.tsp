@@ -1,10 +1,12 @@
 import "@typespec/http";
 import "@typespec/versioning";
 import "@typespec/spector";
+import "@azure-tools/typespec-client-generator-core";
 
 using Http;
 using Spector;
 using Versioning;
+using Azure.ClientGenerator.Core;
 
 @doc("Illustrates OASIS repeatability headers")
 @scenarioService("/special-headers/repeatability")
@@ -17,6 +19,8 @@ model RepeatableResponse {
 
   @visibility(Lifecycle.Read)
   @header("Repeatability-Result")
+  // Go does not support the union-valued response header.
+  @scope("!go")
   @doc("Indicates whether the repeatable request was accepted or rejected.")
   repeatabilityResult?: "accepted" | "rejected";
 }

@@ -1,8 +1,10 @@
 import "@typespec/http";
 import "@typespec/spector";
+import "@azure-tools/typespec-client-generator-core";
 
 using Http;
 using Spector;
+using Azure.ClientGenerator.Core;
 
 @doc("Tests for additional properties of models")
 @scenarioService("/type/property/additionalProperties")
@@ -34,6 +36,32 @@ interface ModelOperations<TModel, TDoc extends valueof string> {
   @put
   @doc("Put operation")
   put(@body @doc("body") body: TModel): void;
+}
+
+interface UnionModelOperations<TModel, TDoc extends valueof string> {
+  @scenario
+  @scenarioDoc("""
+    Expected response body:
+    ```json
+    ${TDoc}
+    ```
+    """)
+  // Go does not support union-valued additional properties.
+  @scope("!go")
+  @get
+  get(): TModel;
+
+  @scenario
+  @scenarioDoc("""
+    Expected input body:
+    ```json
+    ${TDoc}
+    ```
+    """)
+  // Go does not support union-valued additional properties.
+  @scope("!go")
+  @put
+  put(@body body: TModel): void;
 }
 
 // ********************************************** Record<unknown> **********************************************
@@ -441,7 +469,7 @@ model MultipleSpreadRecord {
 
 @route("/multipleSpreadRecord")
 interface MultipleSpread
-  extends ModelOperations<
+  extends UnionModelOperations<
       MultipleSpreadRecord,
       "{'flag': true, 'prop1': 'abc', 'prop2': 43.125}"
     > {}
@@ -457,7 +485,7 @@ model SpreadRecordForUnion {
 
 @route("/spreadRecordUnion")
 interface SpreadRecordUnion
-  extends ModelOperations<
+  extends UnionModelOperations<
       SpreadRecordForUnion,
       "{'flag': true, 'prop1': 'abc', 'prop2': 43.125}"
     > {}
@@ -511,7 +539,7 @@ model SpreadRecordForNonDiscriminatedUnion {
 
 @route("/spreadRecordNonDiscriminatedUnion")
 interface SpreadRecordNonDiscriminatedUnion
-  extends ModelOperations<
+  extends UnionModelOperations<
       SpreadRecordForNonDiscriminatedUnion,
       "{'name': 'abc', 'prop1': {'kind': 'kind0', 'fooProp': 'abc'}, 'prop2': {'kind': 'kind1', 'start': '2021-01-01T00:00:00Z', 'end': '2021-01-02T00:00:00Z'}}"
     > {}
@@ -527,7 +555,7 @@ model SpreadRecordForNonDiscriminatedUnion2 {
 
 @route("/spreadRecordNonDiscriminatedUnion2")
 interface SpreadRecordNonDiscriminatedUnion2
-  extends ModelOperations<
+  extends UnionModelOperations<
       SpreadRecordForNonDiscriminatedUnion2,
       "{'name': 'abc', 'prop1': {'kind': 'kind1', 'start': '2021-01-01T00:00:00Z'}, 'prop2': {'kind': 'kind1', 'start': '2021-01-01T00:00:00Z', 'end': '2021-01-02T00:00:00Z'}}"
     > {}
@@ -543,7 +571,7 @@ model SpreadRecordForNonDiscriminatedUnion3 {
 
 @route("/spreadRecordNonDiscriminatedUnion3")
 interface SpreadRecordNonDiscriminatedUnion3
-  extends ModelOperations<
+  extends UnionModelOperations<
       SpreadRecordForNonDiscriminatedUnion3,
       "{'name': 'abc', 'prop1': [{'kind': 'kind1', 'start': '2021-01-01T00:00:00Z'}, {'kind': 'kind1', 'start': '2021-01-01T00:00:00Z'], 'prop2': {'kind': 'kind1', 'start': '2021-01-01T00:00:00Z', 'end': '2021-01-02T00:00:00Z'}}"
     > {}

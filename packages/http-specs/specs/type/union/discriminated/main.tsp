@@ -1,8 +1,10 @@
 import "@typespec/http";
 import "@typespec/spector";
+import "@azure-tools/typespec-client-generator-core";
 
 using Http;
 using Spector;
+using Azure.ClientGenerator.Core;
 
 /**
  * Describe scenarios for discriminated unions.
@@ -62,6 +64,8 @@ namespace Envelope {
         }
         ```
         """)
+      // Go does not support discriminated union types.
+      @scope("!go")
       @get
       get(@query kind?: string): PetWithEnvelope;
 
@@ -79,6 +83,8 @@ namespace Envelope {
         }
         ```
         """)
+      // Go does not support discriminated union types.
+      @scope("!go")
       @put
       put(@body input: PetWithEnvelope): PetWithEnvelope;
     }
@@ -109,6 +115,8 @@ namespace Envelope {
         }
         ```
         """)
+      // Go does not support discriminated union types.
+      @scope("!go")
       @get
       get(@query petType?: string): PetWithCustomNames;
 
@@ -126,6 +134,8 @@ namespace Envelope {
         }
         ```
         """)
+      // Go does not support discriminated union types.
+      @scope("!go")
       @put
       put(@body input: PetWithCustomNames): PetWithCustomNames;
     }
@@ -189,6 +199,8 @@ namespace NoEnvelope {
       }
       ```
       """)
+    // Go does not support discriminated union types.
+    @scope("!go")
     @get
     get(@query kind?: string): PetInline;
 
@@ -204,6 +216,8 @@ namespace NoEnvelope {
       }
       ```
       """)
+    // Go does not support discriminated union types.
+    @scope("!go")
     @put
     put(@body input: PetInline): PetInline;
   }
@@ -230,6 +244,8 @@ namespace NoEnvelope {
       }
       ```
       """)
+    // Go does not support discriminated union types.
+    @scope("!go")
     @get
     get(@query type?: string): PetInlineWithCustomDiscriminator;
 
@@ -245,6 +261,8 @@ namespace NoEnvelope {
       }
       ```
       """)
+    // Go does not support discriminated union types.
+    @scope("!go")
     @put
     put(@body input: PetInlineWithCustomDiscriminator): PetInlineWithCustomDiscriminator;
   }
