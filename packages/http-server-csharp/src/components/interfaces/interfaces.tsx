@@ -7,7 +7,10 @@ import type { OperationHttpCanonicalization } from "@typespec/http-canonicalizat
 import { getUniqueItems } from "@typespec/json-schema";
 import { getDocComments } from "../../utils/doc-comments.jsx";
 import { getSuccessReturnType } from "../../utils/return-type-helpers.js";
-import { TypeExpression } from "../type-expression/type-expression.jsx";
+import {
+  getNullableValueTypeUnionInnerType,
+  TypeExpression,
+} from "../type-expression/type-expression.jsx";
 
 const interfaceRefKeyPrefix = Symbol.for("http-server-csharp:interface");
 
@@ -129,6 +132,9 @@ function BusinessLogicMethod(props: BusinessLogicMethodProps): Children {
     .map(([pName, prop]) => {
       const isUnique = getUniqueItems($.program, prop);
       const isArrayType = prop.type.kind === "Model" && $.array.is(prop.type);
+      const nullableValueType = prop.optional
+        ? getNullableValueTypeUnionInnerType($, prop.type)
+        : undefined;
       let typeExpr: Children;
       if (isUnique && isArrayType && prop.type.kind === "Model" && prop.type.indexer?.value) {
         typeExpr = (
@@ -139,7 +145,7 @@ function BusinessLogicMethod(props: BusinessLogicMethodProps): Children {
           </>
         );
       } else {
-        typeExpr = <TypeExpression type={prop.type} />;
+        typeExpr = <TypeExpression type={nullableValueType ?? prop.type} />;
       }
       return {
         name: namePolicy.getName(pName, "parameter"),
