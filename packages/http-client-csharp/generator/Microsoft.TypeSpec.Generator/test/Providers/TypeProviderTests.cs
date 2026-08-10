@@ -970,6 +970,36 @@ namespace Microsoft.TypeSpec.Generator.Tests.Providers
             Assert.AreEqual(Helpers.GetExpectedFromFile(), actual);
         }
 
+        // Validates that synthesized parameters retain the positional fallback even when their public name
+        // differs from the InputParameter they originated from.
+        [Test]
+        public async Task BuildMethodsForBackCompatibilityRestoresSynthesizedParameterNameBySignatureMatch()
+        {
+            await MockHelpers.LoadMockGeneratorAsync(lastContractCompilation: async () => await Helpers.GetCompilationFromDirectoryAsync());
+
+            var inputParameter = InputFactory.QueryParameter("wireName", InputPrimitiveType.String, isRequired: true);
+            var parameter = new ParameterProvider(
+                "default",
+                $"",
+                new CSharpType(typeof(string)),
+                inputParameter: inputParameter);
+            var fooMethod = new MethodProvider(
+                new MethodSignature("Foo", $"", MethodSignatureModifiers.Public, new CSharpType(typeof(string)), $"", [parameter]),
+                new MethodBodyStatement[]
+                {
+                    Snippet.This.Invoke("Validate", parameter).Terminate(),
+                    Snippet.Return(parameter),
+                },
+                new TestTypeProvider());
+
+            var typeProvider = new TestTypeProvider(name: "TestClient", methods: [fooMethod]);
+
+            typeProvider.ProcessTypeForBackCompatibility();
+
+            var actual = new TypeProviderWriter(typeProvider).Write().Content;
+            Assert.AreEqual(Helpers.GetExpectedFromFile(), actual);
+        }
+
         // When the restored name is used both as an argument (AsArgument -> _asArgument) and
         // as a variable (-> _asVariable), materializing both cached expressions before the rename, the
         // rename must keep them sharing one declaration. Otherwise the writer renames the two

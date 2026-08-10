@@ -184,13 +184,8 @@ namespace Microsoft.TypeSpec.Generator.Utilities
                     string? preservedName = null;
 
                     var inputParameter = parameter.InputParameter;
-                    if (inputParameter is not null)
+                    if (inputParameter is not null && string.Equals(parameter.Name, inputParameter.Name, StringComparison.Ordinal))
                     {
-                        if (!string.Equals(parameter.Name, inputParameter.Name, StringComparison.Ordinal))
-                        {
-                            continue;
-                        }
-
                         var originalName = inputParameter.OriginalName;
                         if (!string.IsNullOrEmpty(originalName))
                         {
