@@ -135,7 +135,7 @@ public class ProxyMethodMapper implements IMapper<Operation, Map<Request, List<P
             .collect(Collectors.toList());
     }
 
-    private static List<ProxyMethodResponseHeader> getResponseHeaders(Operation operation, JavaSettings settings) {
+    protected static List<ProxyMethodResponseHeader> getResponseHeaders(Operation operation, JavaSettings settings) {
         if (!SchemaUtil.responseContainsHeaderSchemas(operation, settings)) {
             return List.of();
         }
