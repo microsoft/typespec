@@ -7,6 +7,7 @@ import com.microsoft.typespec.http.client.generator.core.Javagen;
 import com.microsoft.typespec.http.client.generator.core.extension.model.codemodel.Header;
 import com.microsoft.typespec.http.client.generator.core.extension.model.codemodel.Operation;
 import com.microsoft.typespec.http.client.generator.core.extension.model.codemodel.Request;
+import com.microsoft.typespec.http.client.generator.core.extension.model.codemodel.RequestParameterLocation;
 import com.microsoft.typespec.http.client.generator.core.extension.model.codemodel.Response;
 import com.microsoft.typespec.http.client.generator.core.extension.plugin.JavaSettings;
 import com.microsoft.typespec.http.client.generator.core.extension.plugin.PluginLogger;
@@ -154,6 +155,9 @@ public class ProxyMethodMapper implements IMapper<Operation, Map<Request, List<P
 
     private static ProxyMethodResponseHeader mapResponseHeader(Header header) {
         IType clientType = Mappers.getSchemaMapper().map(header.getSchema()).getClientType();
+        if (Mappers.getProxyParameterMapper().isRemoveModelFromClientType(clientType)) {
+            clientType = SchemaUtil.removeModelFromClientType(RequestParameterLocation.HEADER, clientType);
+        }
         String description = null;
         if (header.getLanguage() != null && header.getLanguage().getDefault() != null) {
             description = header.getLanguage().getDefault().getDescription();

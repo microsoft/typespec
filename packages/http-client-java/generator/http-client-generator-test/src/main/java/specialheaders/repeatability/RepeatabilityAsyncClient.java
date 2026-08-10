@@ -51,8 +51,8 @@ public final class RepeatabilityAsyncClient {
      * <table border="1">
      * <caption>Response Headers</caption>
      * <tr><th>Name</th><th>Type</th><th>Description</th></tr>
-     * <tr><td>Repeatability-Result</td><td>ImmediateSuccessResponseRepeatabilityResult</td><td>Indicates whether the
-     * repeatable request was accepted or rejected.</td></tr>
+     * <tr><td>Repeatability-Result</td><td>String</td><td>Indicates whether the repeatable request was accepted or
+     * rejected.</td></tr>
      * </table>
      * 
      * @param requestOptions The options to configure the HTTP request before HTTP client sends it.

@@ -476,8 +476,7 @@ public final class BodiesImpl {
      * <table border="1">
      * <caption>Response Headers</caption>
      * <tr><th>Name</th><th>Type</th><th>Description</th></tr>
-     * <tr><td>Content-Type</td><td>DownloadFileMultipleContentTypesResponseContentType</td><td>The allowed media (MIME)
-     * types of the file contents.</td></tr>
+     * <tr><td>Content-Type</td><td>String</td><td>The allowed media (MIME) types of the file contents.</td></tr>
      * </table>
      * 
      * @param requestOptions The options to configure the HTTP request before HTTP client sends it.
@@ -508,8 +507,7 @@ public final class BodiesImpl {
      * <table border="1">
      * <caption>Response Headers</caption>
      * <tr><th>Name</th><th>Type</th><th>Description</th></tr>
-     * <tr><td>Content-Type</td><td>DownloadFileMultipleContentTypesResponseContentType</td><td>The allowed media (MIME)
-     * types of the file contents.</td></tr>
+     * <tr><td>Content-Type</td><td>String</td><td>The allowed media (MIME) types of the file contents.</td></tr>
      * </table>
      * 
      * @param requestOptions The options to configure the HTTP request before HTTP client sends it.
