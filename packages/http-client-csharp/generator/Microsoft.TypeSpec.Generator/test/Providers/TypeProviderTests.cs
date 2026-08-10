@@ -421,6 +421,68 @@ namespace Microsoft.TypeSpec.Generator.Tests.Providers
         }
 
         [Test]
+        public async Task BuildConstructorsForBackCompatibilityMatchesNestedValueTypeNullability()
+        {
+            await MockHelpers.LoadMockGeneratorAsync(lastContractCompilation: async () => await Helpers.GetCompilationFromDirectoryAsync());
+
+            var nonNullableParameter = new ParameterProvider("nonNullableCurrent", $"", new CSharpType(typeof(List<int>)));
+            var nullableParameter = new ParameterProvider("nullableCurrent", $"", new CSharpType(typeof(List<int?>)));
+            var typeProvider = new TestTypeProvider(
+                name: "ConstructorNestedNullableOverloadType",
+                ns: "Test",
+                declarationModifiers: TypeSignatureModifiers.Public | TypeSignatureModifiers.Class,
+                constructors:
+                [
+                    new ConstructorProvider(
+                        new ConstructorSignature(typeof(object), $"", MethodSignatureModifiers.Public, [nonNullableParameter]),
+                        Snippet.ThrowExpression(Snippet.Null),
+                        new TestTypeProvider()),
+                    new ConstructorProvider(
+                        new ConstructorSignature(typeof(object), $"", MethodSignatureModifiers.Public, [nullableParameter]),
+                        Snippet.ThrowExpression(Snippet.Null),
+                        new TestTypeProvider()),
+                ]);
+
+            typeProvider.ProcessTypeForBackCompatibility();
+
+            Assert.Multiple(() =>
+            {
+                Assert.AreEqual("nonNullableCurrent", nonNullableParameter.Name);
+                Assert.AreEqual("previousNullableItems", nullableParameter.Name);
+            });
+        }
+
+        [Test]
+        public async Task BuildConstructorsForBackCompatibilityRejectsMixedNullabilityPermutation()
+        {
+            await MockHelpers.LoadMockGeneratorAsync(lastContractCompilation: async () => await Helpers.GetCompilationFromDirectoryAsync());
+
+            var nullable = new ParameterProvider("nullable", $"", new CSharpType(typeof(int)));
+            var nonNullable = new ParameterProvider("nonNullable", $"", new CSharpType(typeof(int?)));
+            var currentConstructor = new ConstructorProvider(
+                new ConstructorSignature(typeof(object), $"", MethodSignatureModifiers.Public, [nullable, nonNullable]),
+                Snippet.ThrowExpression(Snippet.Null),
+                new TestTypeProvider());
+            var typeProvider = new TestTypeProvider(
+                name: "ConstructorMixedNullablePermutationType",
+                ns: "Test",
+                declarationModifiers: TypeSignatureModifiers.Public | TypeSignatureModifiers.Class,
+                constructors: [currentConstructor]);
+
+            typeProvider.ProcessTypeForBackCompatibility();
+
+            Assert.Multiple(() =>
+            {
+                Assert.That(currentConstructor.Signature.Parameters, Is.EqualTo(new[] { nullable, nonNullable }));
+                Assert.That(
+                    currentConstructor.Signature.Parameters.Select(p => p.Name),
+                    Is.EqualTo(new[] { "nullable", "nonNullable" }));
+                Assert.IsFalse(currentConstructor.Signature.Parameters[0].Type.IsNullable);
+                Assert.IsTrue(currentConstructor.Signature.Parameters[1].Type.IsNullable);
+            });
+        }
+
+        [Test]
         public void TryRestorePreviousConstructorParametersRejectsDuplicateFinalNames()
         {
             ParameterProvider[] currentParameters =

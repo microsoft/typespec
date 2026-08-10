@@ -113,10 +113,27 @@ namespace Microsoft.TypeSpec.Generator.Utilities
 
             for (int i = 0; i < params1.Count; i++)
             {
-                var type1 = params1[i].Type;
-                var type2 = params2[i].Type;
-                if (!type1.AreNamesEqual(type2)
-                    || (type1.IsValueType && type1.IsNullable != type2.IsNullable))
+                if (!TypesMatchForOverload(params1[i].Type, params2[i].Type))
+                {
+                    return false;
+                }
+            }
+
+            return true;
+        }
+
+        private static bool TypesMatchForOverload(CSharpType type1, CSharpType type2)
+        {
+            if (!type1.AreNamesEqual(type2)
+                || (type1.IsValueType && type1.IsNullable != type2.IsNullable)
+                || type1.Arguments.Count != type2.Arguments.Count)
+            {
+                return false;
+            }
+
+            for (int i = 0; i < type1.Arguments.Count; i++)
+            {
+                if (!TypesMatchForOverload(type1.Arguments[i], type2.Arguments[i]))
                 {
                     return false;
                 }
@@ -177,13 +194,17 @@ namespace Microsoft.TypeSpec.Generator.Utilities
             {
                 var matchingParameters = currentParameters
                     .Where(p => !usedParameters.Contains(p)
-                        && string.Equals(p.Name, previousNames[i], StringComparison.Ordinal)
-                        && p.Type.AreNamesEqual(previousParameters[i].Type))
+                        && string.Equals(p.Name, previousNames[i], StringComparison.Ordinal))
                     .Take(2)
                     .ToArray();
 
                 if (matchingParameters.Length == 1)
                 {
+                    if (!TypesMatchForOverload(matchingParameters[0].Type, previousParameters[i].Type))
+                    {
+                        return false;
+                    }
+
                     restoredParametersByPosition.Add(i, matchingParameters[0]);
                     usedParameters.Add(matchingParameters[0]);
                 }
@@ -200,13 +221,17 @@ namespace Microsoft.TypeSpec.Generator.Utilities
 
                 var matchingParameters = currentParameters
                     .Where(p => !usedParameters.Contains(p)
-                        && string.Equals(p.Name, previousNames[i], StringComparison.OrdinalIgnoreCase)
-                        && p.Type.AreNamesEqual(previousParameters[i].Type))
+                        && string.Equals(p.Name, previousNames[i], StringComparison.OrdinalIgnoreCase))
                     .Take(2)
                     .ToArray();
 
                 if (matchingParameters.Length == 1)
                 {
+                    if (!TypesMatchForOverload(matchingParameters[0].Type, previousParameters[i].Type))
+                    {
+                        return false;
+                    }
+
                     restoredParametersByPosition.Add(i, matchingParameters[0]);
                     usedParameters.Add(matchingParameters[0]);
                 }
@@ -223,7 +248,7 @@ namespace Microsoft.TypeSpec.Generator.Utilities
 
                 var currentAtPosition = currentParameters[i];
                 if (!usedParameters.Contains(currentAtPosition)
-                    && currentAtPosition.Type.AreNamesEqual(previousParameters[i].Type))
+                    && TypesMatchForOverload(currentAtPosition.Type, previousParameters[i].Type))
                 {
                     restoredParametersByPosition.Add(i, currentAtPosition);
                     usedParameters.Add(currentAtPosition);
@@ -231,7 +256,7 @@ namespace Microsoft.TypeSpec.Generator.Utilities
                 }
 
                 var matchingParameters = currentParameters
-                    .Where(p => !usedParameters.Contains(p) && p.Type.AreNamesEqual(previousParameters[i].Type))
+                    .Where(p => !usedParameters.Contains(p) && TypesMatchForOverload(p.Type, previousParameters[i].Type))
                     .Take(2)
                     .ToArray();
                 if (matchingParameters.Length != 1)
@@ -246,6 +271,11 @@ namespace Microsoft.TypeSpec.Generator.Utilities
             var restoredParameters = Enumerable.Range(0, currentParameters.Count)
                 .Select(i => restoredParametersByPosition[i])
                 .ToArray();
+            if (!ParameterTypesMatch(restoredParameters, previousParameters))
+            {
+                return false;
+            }
+
             bool changed = restoredParameters
                 .Where((parameter, i) =>
                     !ReferenceEquals(parameter, currentParameters[i])
