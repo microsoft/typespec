@@ -144,13 +144,16 @@ namespace Microsoft.TypeSpec.Generator.Utilities
         }
 
         /// <summary>
-        /// Restores parameter names positionally from a matching previous signature. All target names
-        /// are validated before any parameter is updated so swaps and rotations are applied atomically.
+        /// Restores constructor parameters from a matching previous signature. Existing parameter
+        /// objects are reordered when their names were permuted so their semantic associations remain
+        /// intact; simple and casing-only renames update the existing object in place.
         /// </summary>
-        public static bool TryRestorePreviousParameterNames(
-            IReadOnlyList<ParameterProvider> currentParameters,
-            IReadOnlyList<ParameterProvider> previousParameters)
+        public static bool TryRestorePreviousConstructorParameters(
+            ConstructorProvider currentConstructor,
+            ConstructorProvider previousConstructor)
         {
+            var currentParameters = currentConstructor.Signature.Parameters;
+            var previousParameters = previousConstructor.Signature.Parameters;
             if (!ParameterTypesMatch(currentParameters, previousParameters))
             {
                 return false;
@@ -162,23 +165,109 @@ namespace Microsoft.TypeSpec.Generator.Utilities
                 return false;
             }
 
-            bool changed = false;
+            var restoredParametersByPosition = new Dictionary<int, ParameterProvider>();
+            var usedParameters = new HashSet<ParameterProvider>(ReferenceEqualityComparer.Instance);
+
+            // Reserve parameters whose current names identify their semantic target. This ensures
+            // swaps and rotations move the parameter objects instead of renaming their meanings.
             for (int i = 0; i < currentParameters.Count; i++)
             {
-                if (!string.Equals(currentParameters[i].Name, previousNames[i], StringComparison.Ordinal))
+                var matchingParameters = currentParameters
+                    .Where(p => !usedParameters.Contains(p)
+                        && string.Equals(p.Name, previousNames[i], StringComparison.Ordinal)
+                        && p.Type.AreNamesEqual(previousParameters[i].Type))
+                    .Take(2)
+                    .ToArray();
+
+                if (matchingParameters.Length == 1)
                 {
-                    changed = true;
+                    restoredParametersByPosition.Add(i, matchingParameters[0]);
+                    usedParameters.Add(matchingParameters[0]);
                 }
             }
 
+            // Preserve semantic matches whose only difference is casing before falling back to
+            // position-based renames.
+            for (int i = 0; i < currentParameters.Count; i++)
+            {
+                if (restoredParametersByPosition.ContainsKey(i))
+                {
+                    continue;
+                }
+
+                var matchingParameters = currentParameters
+                    .Where(p => !usedParameters.Contains(p)
+                        && string.Equals(p.Name, previousNames[i], StringComparison.OrdinalIgnoreCase)
+                        && p.Type.AreNamesEqual(previousParameters[i].Type))
+                    .Take(2)
+                    .ToArray();
+
+                if (matchingParameters.Length == 1)
+                {
+                    restoredParametersByPosition.Add(i, matchingParameters[0]);
+                    usedParameters.Add(matchingParameters[0]);
+                }
+            }
+
+            // Fill simple and casing-only renames positionally. If that parameter was already moved,
+            // proceed only when the remaining type match is unambiguous.
+            for (int i = 0; i < currentParameters.Count; i++)
+            {
+                if (restoredParametersByPosition.ContainsKey(i))
+                {
+                    continue;
+                }
+
+                var currentAtPosition = currentParameters[i];
+                if (!usedParameters.Contains(currentAtPosition)
+                    && currentAtPosition.Type.AreNamesEqual(previousParameters[i].Type))
+                {
+                    restoredParametersByPosition.Add(i, currentAtPosition);
+                    usedParameters.Add(currentAtPosition);
+                    continue;
+                }
+
+                var matchingParameters = currentParameters
+                    .Where(p => !usedParameters.Contains(p) && p.Type.AreNamesEqual(previousParameters[i].Type))
+                    .Take(2)
+                    .ToArray();
+                if (matchingParameters.Length != 1)
+                {
+                    return false;
+                }
+
+                restoredParametersByPosition.Add(i, matchingParameters[0]);
+                usedParameters.Add(matchingParameters[0]);
+            }
+
+            var restoredParameters = Enumerable.Range(0, currentParameters.Count)
+                .Select(i => restoredParametersByPosition[i])
+                .ToArray();
+            bool changed = restoredParameters
+                .Where((parameter, i) =>
+                    !ReferenceEquals(parameter, currentParameters[i])
+                    || !string.Equals(parameter.Name, previousNames[i], StringComparison.Ordinal))
+                .Any();
             if (!changed)
             {
                 return false;
             }
 
-            for (int i = 0; i < currentParameters.Count; i++)
+            var reorderedParamDocs = restoredParameters
+                .Select(parameter => currentConstructor.XmlDocs.Parameters
+                    .FirstOrDefault(doc => ReferenceEquals(doc.Parameter, parameter)))
+                .ToArray();
+
+            for (int i = 0; i < restoredParameters.Length; i++)
             {
-                currentParameters[i].Update(name: previousNames[i]);
+                restoredParameters[i].Update(name: previousNames[i]);
+            }
+
+            currentConstructor.Signature.Update(parameters: restoredParameters);
+            if (reorderedParamDocs.Length == currentConstructor.XmlDocs.Parameters.Count
+                && reorderedParamDocs.All(doc => doc != null))
+            {
+                currentConstructor.XmlDocs.Update(parameters: reorderedParamDocs!);
             }
 
             return true;

@@ -237,16 +237,19 @@ namespace Microsoft.TypeSpec.Generator.Tests.Providers
         {
             await MockHelpers.LoadMockGeneratorAsync(lastContractCompilation: async () => await Helpers.GetCompilationFromDirectoryAsync());
 
+            var maximumCount = new ParameterProvider("maximumCount", $"The maximum count.", new CSharpType(typeof(int)));
+            var minimumCount = new ParameterProvider("minimumCount", $"The minimum count.", new CSharpType(typeof(int)));
             var currentConstructor = new ConstructorProvider(
                 new ConstructorSignature(
                     new CSharpType(typeof(object)),
                     $"",
                     MethodSignatureModifiers.Public,
-                    [
-                        new ParameterProvider("maximumCount", $"", new CSharpType(typeof(int))),
-                        new ParameterProvider("minimumCount", $"", new CSharpType(typeof(int))),
-                    ]),
-                Snippet.ThrowExpression(Snippet.Null),
+                    [maximumCount, minimumCount]),
+                new MethodBodyStatement[]
+                {
+                    Snippet.This.Property("MaximumCount").Assign(maximumCount).Terminate(),
+                    Snippet.This.Property("MinimumCount").Assign(minimumCount).Terminate(),
+                },
                 new TestTypeProvider());
 
             var typeProvider = new TestTypeProvider(
@@ -257,9 +260,19 @@ namespace Microsoft.TypeSpec.Generator.Tests.Providers
 
             typeProvider.ProcessTypeForBackCompatibility();
 
-            Assert.That(
-                typeProvider.Constructors.Single().Signature.Parameters.Select(p => p.Name),
-                Is.EqualTo(new[] { "minimumCount", "maximumCount" }));
+            var constructor = typeProvider.Constructors.Single();
+            Assert.Multiple(() =>
+            {
+                Assert.That(constructor.Signature.Parameters, Is.EqualTo(new[] { minimumCount, maximumCount }));
+                Assert.AreEqual("The minimum count.", constructor.Signature.Parameters[0].Description.Format);
+                Assert.AreEqual("The maximum count.", constructor.Signature.Parameters[1].Description.Format);
+                Assert.AreEqual(
+                    "this.MaximumCount = maximumCount;\nthis.MinimumCount = minimumCount;\n",
+                    constructor.BodyStatements!.ToDisplayString());
+                Assert.That(
+                    constructor.XmlDocs.Parameters.Select(p => p.Parameter),
+                    Is.EqualTo(new[] { minimumCount, maximumCount }));
+            });
         }
 
         [Test]
@@ -376,7 +389,7 @@ namespace Microsoft.TypeSpec.Generator.Tests.Providers
         }
 
         [Test]
-        public void TryRestorePreviousParameterNamesRejectsDuplicateFinalNames()
+        public void TryRestorePreviousConstructorParametersRejectsDuplicateFinalNames()
         {
             ParameterProvider[] currentParameters =
             [
@@ -388,10 +401,18 @@ namespace Microsoft.TypeSpec.Generator.Tests.Providers
                 new("duplicate", $"", new CSharpType(typeof(string))),
                 new("duplicate", $"", new CSharpType(typeof(string))),
             ];
+            var currentConstructor = new ConstructorProvider(
+                new ConstructorSignature(typeof(object), $"", MethodSignatureModifiers.Public, currentParameters),
+                Snippet.ThrowExpression(Snippet.Null),
+                new TestTypeProvider());
+            var previousConstructor = new ConstructorProvider(
+                new ConstructorSignature(typeof(object), $"", MethodSignatureModifiers.Public, previousParameters),
+                Snippet.ThrowExpression(Snippet.Null),
+                new TestTypeProvider());
 
             Assert.Multiple(() =>
             {
-                Assert.IsFalse(BackCompatHelper.TryRestorePreviousParameterNames(currentParameters, previousParameters));
+                Assert.IsFalse(BackCompatHelper.TryRestorePreviousConstructorParameters(currentConstructor, previousConstructor));
                 Assert.That(currentParameters.Select(p => p.Name), Is.EqualTo(new[] { "first", "second" }));
             });
         }

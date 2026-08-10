@@ -1095,20 +1095,20 @@ namespace Microsoft.TypeSpec.Generator.Providers
                     continue;
                 }
 
-                var renamedParameters = currentConstructor.Signature.Parameters
-                    .Zip(previousConstructor.Signature.Parameters)
-                    .Where(pair => !string.Equals(pair.First.Name, pair.Second.Name, StringComparison.Ordinal))
-                    .Select(pair => (OldName: pair.First.Name, NewName: pair.Second.Name))
+                var changedPositions = currentConstructor.Signature.Parameters
+                    .Zip(previousConstructor.Signature.Parameters, (current, previous) => (current, previous))
+                    .Select((pair, position) => (pair.current.Name, PreviousName: pair.previous.Name, Position: position))
+                    .Where(change => !string.Equals(change.Name, change.PreviousName, StringComparison.Ordinal))
                     .ToArray();
 
-                if (BackCompatHelper.TryRestorePreviousParameterNames(
-                    currentConstructor.Signature.Parameters,
-                    previousConstructor.Signature.Parameters))
+                if (BackCompatHelper.TryRestorePreviousConstructorParameters(
+                    currentConstructor,
+                    previousConstructor))
                 {
-                    foreach (var (oldName, newName) in renamedParameters)
+                    foreach (var (currentName, previousName, position) in changedPositions)
                     {
                         CodeModelGenerator.Instance.Emitter.Debug(
-                            $"Preserved parameter name '{newName}' on constructor '{Name}' from last contract (instead of '{oldName}').",
+                            $"Restored parameter '{previousName}' at position {position} on constructor '{Name}' from last contract (current generated name was '{currentName}').",
                             BackCompatibilityChangeCategory.ParameterNamePreserved);
                     }
                 }
