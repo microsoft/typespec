@@ -122,7 +122,6 @@
     "@typespec/streams": "~0.84.0",
     "@typespec/xml": "~0.84.0",
     "@typespec/http-specs": "0.1.0-alpha.39",
-    "@eslint/js": "^10.0.1",
     "@types/js-yaml": "~4.0.5",
     "@types/node": "~25.0.2",
     "@types/semver": "7.5.8",
@@ -130,7 +129,6 @@
     "picocolors": "~1.1.1",
     "rimraf": "~6.1.2",
     "typescript": "~5.9.2",
-    "typescript-eslint": "^8.49.0",
     "vitest": "^4.0.15",
     "prettier": "^3.9.5"
   }

@@ -41,7 +41,7 @@ ${pc.bold("Description:")}
 
 ${pc.bold("Options:")}
   ${pc.cyan("-e, --emitter")}
-      Run ESLint on TypeScript emitter code.
+      Run Oxlint on TypeScript emitter code.
 
   ${pc.cyan("-g, --generator")}
       Run pylint on Python generator source code (pygen).
@@ -85,7 +85,7 @@ function runCommand(
   const workingDir = cwd || root;
   const name = displayName || command;
 
-  // Add node_modules/.bin directories to PATH so commands like eslint can be found
+  // Add node_modules/.bin directories to PATH so commands like oxlint can be found
   // Also set NODE_PATH so that config files can resolve packages from monorepo's node_modules
   const pathSep = process.platform === "win32" ? ";" : ":";
   const binPaths = [
@@ -134,20 +134,17 @@ function runCommand(
 
 async function lintEmitter(): Promise<boolean> {
   console.log(`\n${pc.bold("=== Linting TypeScript ===")}\n`);
-  // Run eslint with local config to avoid dependency on monorepo's eslint.config.js
-  // This ensures the package can be linted in CI without full monorepo dependencies
-  // Lint both emitter/ and eng/scripts/ directories
   return runCommand(
-    "eslint",
+    "oxlint",
     [
       "emitter/",
       "eng/scripts/",
       "--config",
-      "eng/scripts/ci/config/eslint-ci.config.mjs",
-      "--max-warnings=0",
+      "../../oxlint.config.ts",
+      "--deny-warnings",
     ],
     root,
-    "eslint emitter/ eng/scripts/ --max-warnings=0",
+    "oxlint emitter/ eng/scripts/ --deny-warnings",
   );
 }
 
