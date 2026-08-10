@@ -24,9 +24,6 @@ namespace Microsoft.TypeSpec.Generator.Primitives
     public class CSharpType
     {
         private readonly Type? _type;
-        private readonly TypeProvider? _typeProvider;
-        private readonly CSharpType? _genericTypeDefinition;
-        private readonly bool _isGenericTypeDefinition;
         private object? _literal;
         private Type? _underlyingType;
         private IReadOnlyList<CSharpType>? _unionItemTypes;
@@ -153,37 +150,6 @@ namespace Microsoft.TypeSpec.Generator.Primitives
             bool isStruct,
             CSharpType? baseType = null,
             Type? underlyingEnumType = null)
-            : this(
-                name,
-                ns,
-                isValueType,
-                isNullable,
-                declaringType,
-                args,
-                isPublic,
-                isStruct,
-                baseType,
-                underlyingEnumType,
-                null,
-                null,
-                false)
-        {
-        }
-
-        internal CSharpType(
-            string name,
-            string ns,
-            bool isValueType,
-            bool isNullable,
-            CSharpType? declaringType,
-            IReadOnlyList<CSharpType> args,
-            bool isPublic,
-            bool isStruct,
-            CSharpType? baseType,
-            Type? underlyingEnumType,
-            TypeProvider? typeProvider = null,
-            CSharpType? genericTypeDefinition = null,
-            bool isGenericTypeDefinition = false)
         {
             ArgumentNullException.ThrowIfNull(name, nameof(name));
             ArgumentNullException.ThrowIfNull(ns, nameof(ns));
@@ -199,9 +165,6 @@ namespace Microsoft.TypeSpec.Generator.Primitives
             IsStruct = isStruct;
             BaseType = baseType;
             _underlyingType = underlyingEnumType;
-            _typeProvider = typeProvider;
-            _genericTypeDefinition = genericTypeDefinition;
-            _isGenericTypeDefinition = isGenericTypeDefinition;
         }
 
         public string Namespace { get; internal set; }
@@ -216,8 +179,8 @@ namespace Microsoft.TypeSpec.Generator.Primitives
         /// For nested types, this includes the declaring type name (e.g., "Namespace.DeclaringType.Name").
         /// </summary>
         public string FullyQualifiedName => DeclaringType is null
-            ? string.IsNullOrEmpty(Namespace) ? Name : $"{Namespace}.{Name}"
-            : string.IsNullOrEmpty(Namespace) ? $"{DeclaringType.Name}.{Name}" : $"{Namespace}.{DeclaringType.Name}.{Name}";
+            ? $"{Namespace}.{Name}"
+            : $"{Namespace}.{DeclaringType.Name}.{Name}";
         public CSharpType? DeclaringType { get; private init; }
 
         /// <summary>
@@ -596,12 +559,9 @@ namespace Microsoft.TypeSpec.Generator.Primitives
         }
 
         public CSharpType GetGenericTypeDefinition()
-            => _typeProvider?.Type.WithNullable(IsNullable)
-                ?? _genericTypeDefinition?.WithNullable(IsNullable)
-                ?? (_isGenericTypeDefinition ? WithNullable(IsNullable) : null)
-                ?? (_type is null
-                    ? throw new NotSupportedException("The type doesn't support generics.")
-                    : new(_type, IsNullable));
+            => _type is null
+                ? throw new NotSupportedException($"{nameof(TypeProvider)} doesn't support generics.")
+                : new(_type, IsNullable);
 
         /// <summary>
         /// Constructs a new <see cref="CSharpType"/> with the given nullability <paramref name="isNullable"/>.
@@ -612,7 +572,7 @@ namespace Microsoft.TypeSpec.Generator.Primitives
         {
             var type = isNullable == IsNullable ? this : IsFrameworkType
                 ? new CSharpType(FrameworkType, Arguments, isNullable)
-                : new CSharpType(Name, Namespace, IsValueType, isNullable, DeclaringType, Arguments, IsPublic, IsStruct, BaseType, _underlyingType, _typeProvider, _genericTypeDefinition, _isGenericTypeDefinition);
+                : new CSharpType(Name, Namespace, IsValueType, isNullable, DeclaringType, Arguments, IsPublic, IsStruct, BaseType, _underlyingType);
 
             // Preserve explicit enum semantics for framework types (e.g. referenced extensible enums,
             // which are structs and are not recognized as enums via reflection). The framework constructor
@@ -780,8 +740,7 @@ namespace Microsoft.TypeSpec.Generator.Primitives
             }
             else
             {
-                var genericTypeDefinition = _isGenericTypeDefinition ? WithNullable(false) : _genericTypeDefinition;
-                return new CSharpType(Name, Namespace, IsValueType, IsNullable, DeclaringType, arguments, IsPublic, IsStruct, null, null, _typeProvider, genericTypeDefinition);
+                return new CSharpType(Name, Namespace, IsValueType, IsNullable, DeclaringType, arguments, IsPublic, IsStruct);
             }
         }
 

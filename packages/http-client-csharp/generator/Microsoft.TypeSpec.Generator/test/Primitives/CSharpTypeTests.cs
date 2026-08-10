@@ -7,7 +7,6 @@ using System.Collections.Immutable;
 using System.Linq;
 using System.Text;
 using Microsoft.TypeSpec.Generator.Primitives;
-using Microsoft.TypeSpec.Generator.Providers;
 using NUnit.Framework;
 
 namespace Microsoft.TypeSpec.Generator.Tests.Primitives
@@ -347,32 +346,12 @@ namespace Microsoft.TypeSpec.Generator.Tests.Primitives
             Assert.AreEqual(new CSharpType(typeof(List<>)), actual);
         }
 
-        [Test]
-        public void GetGenericTypeDefinitionForProviderBackedType()
-        {
-            var provider = new GenericTypeProvider();
-            var constructedType = provider.Type.MakeGenericType([typeof(string)]);
-
-            var actual = constructedType.GetGenericTypeDefinition();
-
-            Assert.AreSame(provider.Type, actual);
-        }
-
         [TestCase(typeof(int), false)]
         [TestCase(typeof(ReadOnlyMemory<>), true)]
         public void IsReadOnlyMemory(Type type, bool expected)
         {
             var actual = new CSharpType(type).IsReadOnlyMemory;
             Assert.AreEqual(expected, actual);
-        }
-
-        private sealed class GenericTypeProvider : TypeProvider
-        {
-            protected override string BuildName() => "GenericType";
-            protected override string BuildNamespace() => "Sample";
-            protected override string BuildRelativeFilePath() => "src/GenericType.cs";
-            protected override CSharpType[] GetTypeArguments() =>
-                [new CSharpType(typeof(List<>).GetGenericArguments()[0])];
         }
 
         [TestCase(typeof(int), false)]
