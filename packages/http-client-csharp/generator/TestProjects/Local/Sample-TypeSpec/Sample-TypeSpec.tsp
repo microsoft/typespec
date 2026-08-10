@@ -1,5 +1,8 @@
 import "@typespec/rest";
 import "@typespec/http";
+import "@typespec/http/streams";
+import "@typespec/sse";
+import "@typespec/events";
 import "@typespec/xml";
 import "@typespec/http-client-csharp";
 import "@azure-tools/typespec-client-generator-core";
@@ -19,9 +22,12 @@ import "@azure-tools/typespec-azure-core";
 namespace SampleTypeSpec;
 
 using TypeSpec.Http;
+using TypeSpec.Http.Streams;
 using TypeSpec.Versioning;
 using TypeSpec.HttpClient.CSharp;
 using TypeSpec.Xml;
+using TypeSpec.Events;
+using TypeSpec.SSE;
 using Azure.ClientGenerator.Core;
 
 alias SampleOAuth2 = OAuth2Auth<[
@@ -902,3 +908,29 @@ op uploadCat(
   @header contentType: "multipart/form-data",
   @multipartBody body: Cat,
 ): NoContentResponse;
+
+model StreamingItem {
+  message: string;
+}
+
+@events
+union SampleEvents {
+  @Events.contentType("application/json")
+  item: StreamingItem,
+
+  @Events.contentType("text/plain")
+  @terminalEvent
+  "[DONE]",
+}
+
+@post
+@route("/streaming/jsonl/send")
+op sendJsonLines(stream: JsonlStream<StreamingItem>): NoContentResponse;
+
+@get
+@route("/streaming/jsonl/receive")
+op receiveJsonLines(): JsonlStream<StreamingItem>;
+
+@get
+@route("/streaming/sse/receive")
+op receiveSse(): SSEStream<SampleEvents>;

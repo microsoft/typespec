@@ -23,6 +23,7 @@ await bundleAndUploadPackages({
     "@typespec/sse",
     "@typespec/xml",
     "@typespec/http-client-js",
+    "@typespec/http-server-csharp",
     "@typespec/http-server-js",
   ],
 });

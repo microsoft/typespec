@@ -3,7 +3,6 @@
 
 using System;
 using System.ClientModel;
-using System.ClientModel.Primitives;
 using System.Collections.Generic;
 using System.IO;
 using System.Text.Json;
@@ -26,7 +25,6 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
         private readonly CSharpType _valuesType;
         private readonly FieldProvider _valuesField;
         private readonly FieldProvider _newLineField;
-        private readonly FieldProvider _spaceField;
         private readonly ParameterProvider _streamParameter = new("stream", FormattableStringHelpers.Empty, typeof(Stream));
 
         public JsonLinesBinaryContentDefinition()
@@ -44,12 +42,6 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
                 "_newLine",
                 this,
                 initializationValue: New.Array(typeof(byte), false, false, [Literal(10)]));
-            _spaceField = new FieldProvider(
-                FieldModifiers.Private | FieldModifiers.Static | FieldModifiers.ReadOnly,
-                typeof(byte[]),
-                "_space",
-                this,
-                initializationValue: New.Array(typeof(byte), false, false, [Literal(32)]));
         }
 
         protected override CSharpType[] GetTypeArguments() => [_t];
@@ -67,7 +59,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
         protected override CSharpType BuildBaseType()
             => ScmCodeModelGenerator.Instance.TypeFactory.RequestContentApi.RequestContentType;
 
-        protected override FieldProvider[] BuildFields() => [_valuesField, _newLineField, _spaceField];
+        protected override FieldProvider[] BuildFields() => [_valuesField, _newLineField];
 
         protected override ConstructorProvider[] BuildConstructors()
         {
@@ -85,12 +77,9 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
             =>
             [
                 BuildWriteToAsyncMethod(),
-                BuildWriteJsonAsyncMethod(),
                 BuildWriteToMethod(),
                 BuildTryComputeLengthMethod(),
-                BuildDisposeMethod(),
-                BuildDeserializeModelMethod(),
-                BuildDeserializeValueMethod()
+                BuildDisposeMethod()
             ];
 
         private MethodProvider BuildWriteToAsyncMethod()
@@ -108,7 +97,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
             var wireOptions = Static(ScmCodeModelGenerator.Instance.ModelSerializationExtensionsDefinition.Type)
                 .Property(ScmCodeModelGenerator.Instance.ModelSerializationExtensionsDefinition.WireOptionsField.Name);
             var firstDeclaration = Declare("first", typeof(bool), True, out var first);
-            loop.Add(new IfStatement(first.Equal(False))
+            loop.Add(new IfStatement(Not(first))
             {
                 stream.Invoke(
                     nameof(Stream.WriteAsync),
@@ -116,24 +105,17 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
                     null,
                     true).Terminate()
             });
-            loop.Add(UsingDeclare(
-                "buffer",
-                typeof(MemoryStream),
-                New.Instance<MemoryStream>(),
-                out var buffer));
-            loop.Add(UsingDeclare(
-                "writer",
+            var writerScope = new UsingScopeStatement(
                 typeof(Utf8JsonWriter),
-                New.Instance<Utf8JsonWriter>(buffer),
-                out var writer));
-            loop.Add(writer.As<Utf8JsonWriter>().WriteObjectValue(value.As(_t), wireOptions));
-            loop.Add(writer.As<Utf8JsonWriter>().FlushAsync(cancellationToken).Terminate());
-            loop.Add(Declare("bytes", typeof(byte[]), buffer.As<MemoryStream>().ToArray(), out var bytes));
-            loop.Add(Static(Type).Invoke(
-                "WriteJsonAsync",
-                [stream, bytes, cancellationToken],
-                null,
-                true).Terminate());
+                "writer",
+                New.Instance<Utf8JsonWriter>(stream),
+                out var writer);
+            writerScope.AddRange(
+            [
+                writer.As<Utf8JsonWriter>().WriteObjectValue(value.As(_t), wireOptions),
+                writer.As<Utf8JsonWriter>().FlushAsync(cancellationToken).Terminate()
+            ]);
+            loop.Add(writerScope);
             loop.Add(first.Assign(False).Terminate());
 
             var signature = new MethodSignature(
@@ -144,95 +126,6 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
                 null,
                 [_streamParameter, cancellationToken]);
             return new MethodProvider(signature, new MethodBodyStatement[] { firstDeclaration, loop }, this);
-        }
-
-        private MethodProvider BuildWriteJsonAsyncMethod()
-        {
-            var bytesParameter = new ParameterProvider("bytes", FormattableStringHelpers.Empty, typeof(byte[]));
-            var cancellationToken = KnownParameters.CancellationTokenParameter;
-            ValueExpression stream = _streamParameter;
-            ValueExpression bytes = bytesParameter;
-            var indexableBytes = new IndexableExpression(bytes);
-            var inStringDeclaration = Declare("inString", typeof(bool), False, out var inString);
-            var escapedDeclaration = Declare("escaped", typeof(bool), False, out var escaped);
-            var startDeclaration = Declare("start", typeof(int), Literal(0), out var start);
-            var indexDeclaration = Declare("i", typeof(int), Literal(0), out var index);
-            var loop = new ForStatement(null, index.LessThan(bytes.Property("Length")), index.Increment());
-            loop.Add(Declare("current", typeof(byte), indexableBytes[index], out var current));
-            loop.Add(new IfElseStatement(
-                new IfStatement(inString)
-                {
-                    new IfElseStatement(
-                        new IfStatement(escaped)
-                        {
-                            escaped.Assign(False).Terminate()
-                        },
-                        new IfElseStatement(
-                            new IfStatement(current.Equal(Literal('\\')))
-                            {
-                                escaped.Assign(True).Terminate()
-                            },
-                            new IfStatement(current.Equal(Literal('"')))
-                            {
-                                inString.Assign(False).Terminate()
-                            }))
-                },
-                new IfElseStatement(
-                    new IfStatement(current.Equal(Literal('"')))
-                    {
-                        inString.Assign(True).Terminate()
-                    },
-                    new IfStatement(current.Equal(Literal(':')))
-                    {
-                        stream.Invoke(
-                            nameof(Stream.WriteAsync),
-                            [
-                                bytes,
-                                start,
-                                new BinaryOperatorExpression(
-                                    "+",
-                                    new BinaryOperatorExpression("-", index, start),
-                                    Literal(1)),
-                                cancellationToken
-                            ],
-                            null,
-                            true).Terminate(),
-                        stream.Invoke(
-                            nameof(Stream.WriteAsync),
-                            [_spaceField, Literal(0), Literal(1), cancellationToken],
-                            null,
-                            true).Terminate(),
-                        start.Assign(new BinaryOperatorExpression("+", index, Literal(1))).Terminate()
-                    })));
-
-            var signature = new MethodSignature(
-                "WriteJsonAsync",
-                null,
-                MethodSignatureModifiers.Private | MethodSignatureModifiers.Static | MethodSignatureModifiers.Async,
-                typeof(Task),
-                null,
-                [_streamParameter, bytesParameter, cancellationToken]);
-            return new MethodProvider(
-                signature,
-                new MethodBodyStatement[]
-                {
-                    inStringDeclaration,
-                    escapedDeclaration,
-                    startDeclaration,
-                    indexDeclaration,
-                    loop,
-                    stream.Invoke(
-                        nameof(Stream.WriteAsync),
-                        [
-                            bytes,
-                            start,
-                            new BinaryOperatorExpression("-", bytes.Property("Length"), start),
-                            cancellationToken
-                        ],
-                        null,
-                        true).Terminate()
-                },
-                this);
         }
 
         private MethodProvider BuildWriteToMethod()
@@ -276,49 +169,6 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
                 null,
                 []);
             return new MethodProvider(signature, Array.Empty<MethodBodyStatement>(), this);
-        }
-
-        private MethodProvider BuildDeserializeModelMethod()
-        {
-            var data = new ParameterProvider("data", FormattableStringHelpers.Empty, typeof(BinaryData));
-            var wireOptions = Static(ScmCodeModelGenerator.Instance.ModelSerializationExtensionsDefinition.Type)
-                .Property(ScmCodeModelGenerator.Instance.ModelSerializationExtensionsDefinition.WireOptionsField.Name);
-            var signature = new MethodSignature(
-                "DeserializeModel",
-                null,
-                MethodSignatureModifiers.Public | MethodSignatureModifiers.Static,
-                _t,
-                null,
-                [data]);
-            return new MethodProvider(
-                signature,
-                new MethodBodyStatement[]
-                {
-                    Return(Static(typeof(ModelReaderWriter)).Invoke(
-                        nameof(ModelReaderWriter.Read),
-                        [data, wireOptions],
-                        [_t]))
-                },
-                this);
-        }
-
-        private MethodProvider BuildDeserializeValueMethod()
-        {
-            var data = new ParameterProvider("data", FormattableStringHelpers.Empty, typeof(BinaryData));
-            var signature = new MethodSignature(
-                "DeserializeValue",
-                null,
-                MethodSignatureModifiers.Public | MethodSignatureModifiers.Static,
-                _t,
-                null,
-                [data]);
-            return new MethodProvider(
-                signature,
-                new MethodBodyStatement[]
-                {
-                    Return(data.As<BinaryData>().ToObjectFromJson(_t))
-                },
-                this);
         }
     }
 }

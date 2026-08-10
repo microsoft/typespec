@@ -95,18 +95,6 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
             return $"The {Name} sub-client.";
         }
 
-        protected override SuppressionStatement[] BuildDisabledFileWarnings()
-            => _inputClient.Methods.Any(method =>
-                method.Operation.Responses.Any(response => response.BodyType is InputStreamingType))
-                ?
-                [
-                    new SuppressionStatement(
-                        null,
-                        Literal(ScmMethodProviderCollection.StreamingResultDiagnosticId),
-                        ScmMethodProviderCollection.StreamingResultSuppressionJustification)
-                ]
-                : [];
-
         // for mocking
 #pragma warning disable CS8618 // Non-nullable field must contain a non-null value when exiting constructor. Consider declaring as nullable.
         protected ClientProvider()
