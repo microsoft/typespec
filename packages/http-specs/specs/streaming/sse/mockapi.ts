@@ -3,7 +3,11 @@ import { passOnSuccess } from "@typespec/spec-api";
 
 export const Scenarios: Record<string, ScenarioMockApi> = {};
 
-const unnamedStream = ['data: {"desc": "one"}', 'data: {"desc": "two"}', 'data: {"desc": "three"}']
+const unnamedStream = [
+  'data: {"desc": "one"}',
+  'data: {"desc": "two"}',
+  'data: {"desc": "three"}',
+]
   .map((event) => `${event}\n\n`)
   .join("");
 
@@ -65,6 +69,89 @@ Scenarios.Streaming_Sse_Retrieve_stream = passOnSuccess({
     status: 200,
     body: {
       rawContent: Buffer.from(retrieveStream),
+      contentType: "text/event-stream",
+    },
+  },
+  kind: "MockApiDefinition",
+});
+
+const protocolEvent = (fields: string[]) =>
+  Buffer.from(`${fields.join("\n")}\n\n`);
+
+Scenarios.Streaming_Sse_Protocol_id = passOnSuccess({
+  uri: "/streaming/sse/protocol/id",
+  method: "get",
+  request: {},
+  response: {
+    status: 200,
+    body: {
+      rawContent: protocolEvent(["id: event-1", 'data: {"message": "hello"}']),
+      contentType: "text/event-stream",
+    },
+  },
+  kind: "MockApiDefinition",
+});
+
+Scenarios.Streaming_Sse_Protocol_invalidId = passOnSuccess({
+  uri: "/streaming/sse/protocol/invalid-id",
+  method: "get",
+  request: {},
+  response: {
+    status: 200,
+    body: {
+      rawContent: protocolEvent([
+        "id: invalid\u0000id",
+        'data: {"message": "hello"}',
+      ]),
+      contentType: "text/event-stream",
+    },
+  },
+  kind: "MockApiDefinition",
+});
+
+Scenarios.Streaming_Sse_Protocol_retry = passOnSuccess({
+  uri: "/streaming/sse/protocol/retry",
+  method: "get",
+  request: {},
+  response: {
+    status: 200,
+    body: {
+      rawContent: protocolEvent(["retry: 1000", 'data: {"message": "hello"}']),
+      contentType: "text/event-stream",
+    },
+  },
+  kind: "MockApiDefinition",
+});
+
+Scenarios.Streaming_Sse_Protocol_invalidRetry = passOnSuccess({
+  uri: "/streaming/sse/protocol/invalid-retry",
+  method: "get",
+  request: {},
+  response: {
+    status: 200,
+    body: {
+      rawContent: protocolEvent([
+        "retry: not-a-number",
+        'data: {"message": "hello"}',
+      ]),
+      contentType: "text/event-stream",
+    },
+  },
+  kind: "MockApiDefinition",
+});
+
+Scenarios.Streaming_Sse_Protocol_reconnect = passOnSuccess({
+  uri: "/streaming/sse/protocol/reconnect",
+  method: "get",
+  request: {
+    headers: {
+      "last-event-id": "event-1",
+    },
+  },
+  response: {
+    status: 200,
+    body: {
+      rawContent: protocolEvent(["id: event-2", 'data: {"message": "world"}']),
       contentType: "text/event-stream",
     },
   },
