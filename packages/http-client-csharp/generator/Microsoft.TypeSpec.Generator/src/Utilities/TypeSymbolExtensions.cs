@@ -204,14 +204,15 @@ namespace Microsoft.TypeSpec.Generator
             // get everything before ` in case of generics
             string[] pieces = fullyQualifiedName.Split('`')[0].Split('.');
             List<CSharpType> arguments = [];
+            ITypeSymbol representedTypeSymbol = isNullable && typeArg is not null ? typeArg : typeSymbol;
             INamedTypeSymbol? namedTypeArg = typeArg as INamedTypeSymbol;
+            INamedTypeSymbol? representedNamedTypeSymbol = representedTypeSymbol as INamedTypeSymbol;
             INamedTypeSymbol? enumUnderlyingType = !isNullable ? namedTypeSymbol?.EnumUnderlyingType : namedTypeArg?.EnumUnderlyingType;
 
             // For nullable types, we need to get the type arguments from the underlying type.
-            if (namedTypeSymbol?.IsGenericType == true &&
-                (!isNullable || (namedTypeArg?.IsGenericType == true)))
+            if (representedNamedTypeSymbol?.IsGenericType == true)
             {
-                arguments.AddRange(namedTypeSymbol.TypeArguments.Select(t => GetCSharpType(t, visited)));
+                arguments.AddRange(representedNamedTypeSymbol.TypeArguments.Select(t => GetCSharpType(t, visited)));
             }
 
             // handle nullables
@@ -219,26 +220,36 @@ namespace Microsoft.TypeSpec.Generator
             {
                 // System.Nullable`1[T] -> T
                 name = typeArg.Name;
-                pieces = GetFullyQualifiedName(typeArg).Split('.');
             }
 
-            string ns = string.Join('.', pieces.Take(pieces.Length - 1));
+            string ns = isNullable
+                ? GetRepresentedNamespace(representedTypeSymbol)
+                : string.Join('.', pieces.Take(pieces.Length - 1));
             CSharpType? containingType = null;
 
-            if (typeSymbol.ContainingType != null && typeSymbol.TypeKind != TypeKind.TypeParameter)
+            var containingTypeSymbol = typeSymbol.ContainingType;
+            if (containingTypeSymbol != null && typeSymbol.TypeKind != TypeKind.TypeParameter)
             {
-                containingType = GetCSharpType(typeSymbol.ContainingType, visited);
+                containingType = GetCSharpType(containingTypeSymbol, visited);
                 ns = string.Join('.', pieces.Take(pieces.Length - 2));
             }
 
             CSharpType? baseType = null;
-            if (typeSymbol.BaseType is not null &&
-                typeSymbol.BaseType.TypeKind != TypeKind.Error &&
+            var baseTypeSymbol = representedNamedTypeSymbol?.BaseType ?? (isNullable ? null : typeSymbol.BaseType);
+            if (baseTypeSymbol is not null &&
+                baseTypeSymbol.TypeKind != TypeKind.Error &&
                 !isNullableUnknownType &&
-                !ContainsTypeAsArgument(typeSymbol.BaseType, typeSymbol))
+                !ContainsTypeAsArgument(baseTypeSymbol, typeSymbol))
             {
-                baseType = GetCSharpType(typeSymbol.BaseType, visited);
+                baseType = GetCSharpType(baseTypeSymbol, visited);
             }
+
+            CSharpType? genericTypeDefinition = representedNamedTypeSymbol?.IsGenericType == true &&
+                !SymbolEqualityComparer.Default.Equals(representedNamedTypeSymbol, representedNamedTypeSymbol.OriginalDefinition)
+                    ? GetCSharpType(representedNamedTypeSymbol.OriginalDefinition, visited)
+                    : null;
+            bool isGenericTypeDefinition = representedNamedTypeSymbol?.IsGenericType == true &&
+                SymbolEqualityComparer.Default.Equals(representedNamedTypeSymbol, representedNamedTypeSymbol.OriginalDefinition);
 
             var result = new CSharpType(
                 name,
@@ -247,14 +258,34 @@ namespace Microsoft.TypeSpec.Generator
                 isNullable,
                 containingType,
                 arguments,
-                typeSymbol.DeclaredAccessibility == Accessibility.Public,
+                (representedTypeSymbol.TypeKind == TypeKind.Error ? typeSymbol : representedTypeSymbol).DeclaredAccessibility == Accessibility.Public,
                 isValueType && !isEnum,
                 baseType: baseType,
                 underlyingEnumType: enumUnderlyingType != null
                     ? GetCSharpType(enumUnderlyingType, visited).FrameworkType
-                    : null);
+                    : null,
+                genericTypeDefinition: genericTypeDefinition,
+                isGenericTypeDefinition: isGenericTypeDefinition);
             visited.Remove(typeSymbol);
             return result;
+        }
+
+        private static string GetRepresentedNamespace(ITypeSymbol typeSymbol)
+        {
+            if (typeSymbol.TypeKind == TypeKind.TypeParameter)
+            {
+                return string.Empty;
+            }
+
+            // Strip generic metadata before finding the namespace so dots in type arguments do not
+            // affect the result. This also preserves candidate namespaces carried by error symbols.
+            string fullyQualifiedName = GetFullyQualifiedName(typeSymbol);
+            int genericMarker = fullyQualifiedName.IndexOf('`');
+            string nameWithoutGenerics = genericMarker < 0
+                ? fullyQualifiedName
+                : fullyQualifiedName.Substring(0, genericMarker);
+            int separator = nameWithoutGenerics.LastIndexOf('.');
+            return separator < 0 ? string.Empty : nameWithoutGenerics.Substring(0, separator);
         }
 
         private static CSharpType ConstructShallowCSharpTypeFromSymbol(ITypeSymbol typeSymbol, string fullyQualifiedName)

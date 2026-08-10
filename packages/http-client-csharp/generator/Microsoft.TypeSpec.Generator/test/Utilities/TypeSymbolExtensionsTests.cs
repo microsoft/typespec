@@ -112,6 +112,80 @@ namespace Microsoft.TypeSpec.Generator.Tests.Utilities
         }
 
         [Test]
+        public async Task ConstructedGenericSymbolReturnsGenericTypeDefinition()
+        {
+            var compilation = await Helpers.GetCompilationFromDirectoryAsync(method: nameof(NullableReferenceGenericTypeDoesNotResolveToNullable));
+            var propertySymbol = GetPropertySymbol(compilation, "Container", "Nullable");
+
+            var genericTypeDefinition = propertySymbol.Type.GetCSharpType().GetGenericTypeDefinition();
+
+            Assert.AreEqual("BicepValue", genericTypeDefinition.Name);
+            Assert.AreEqual("Sample", genericTypeDefinition.Namespace);
+            Assert.IsFalse(genericTypeDefinition.IsNullable);
+            Assert.AreEqual(1, genericTypeDefinition.Arguments.Count);
+            Assert.AreEqual("T", genericTypeDefinition.Arguments[0].Name);
+        }
+
+        [Test]
+        public async Task OpenGenericSymbolReturnsItselfAsGenericTypeDefinition()
+        {
+            var compilation = await Helpers.GetCompilationFromDirectoryAsync(method: nameof(NullableReferenceGenericTypeDoesNotResolveToNullable));
+            var typeSymbol = compilation.GetTypeByMetadataName("Sample.BicepValue`1");
+            Assert.IsNotNull(typeSymbol);
+
+            var type = typeSymbol!.GetCSharpType();
+
+            Assert.AreSame(type, type.GetGenericTypeDefinition());
+        }
+
+        [Test]
+        public async Task NullableConstructedGenericValueSymbolReturnsUnderlyingGenericTypeDefinition()
+        {
+            var compilation = await Helpers.GetCompilationFromDirectoryAsync(method: nameof(NullableReferenceGenericTypeDoesNotResolveToNullable));
+            var propertySymbol = GetPropertySymbol(compilation, "Container", "NullableValue");
+
+            var type = propertySymbol.Type.GetCSharpType();
+            var genericTypeDefinition = type.GetGenericTypeDefinition();
+
+            Assert.IsTrue(type.IsNullable);
+            Assert.AreEqual("Sample", type.Namespace);
+            Assert.AreEqual("Sample.GenericValue", type.FullyQualifiedName);
+            Assert.AreEqual("String", type.Arguments.Single().Name);
+            Assert.AreEqual("GenericValue", genericTypeDefinition.Name);
+            Assert.AreEqual("Sample", genericTypeDefinition.Namespace);
+            Assert.IsTrue(genericTypeDefinition.IsNullable);
+            Assert.AreEqual("T", genericTypeDefinition.Arguments.Single().Name);
+        }
+
+        [Test]
+        public async Task NullableGenericValueSymbolPreservesContainingTypeAndAccessibility()
+        {
+            var compilation = await Helpers.GetCompilationFromDirectoryAsync(method: nameof(NullableReferenceGenericTypeDoesNotResolveToNullable));
+
+            var nestedType = GetPropertySymbol(compilation, "Container", "NestedNullableValue").Type.GetCSharpType();
+            var internalType = GetPropertySymbol(compilation, "Container", "InternalNullableValue").Type.GetCSharpType();
+
+            Assert.AreEqual("Sample.Outer", nestedType.Namespace);
+            Assert.IsNull(nestedType.DeclaringType);
+            Assert.AreEqual("Sample.Outer.NestedGenericValue", nestedType.FullyQualifiedName);
+            Assert.IsFalse(internalType.IsPublic);
+        }
+
+        [Test]
+        public async Task NullableStructConstrainedTypeParameterPreservesTypeParameterIdentity()
+        {
+            var compilation = await Helpers.GetCompilationFromDirectoryAsync(method: nameof(NullableReferenceGenericTypeDoesNotResolveToNullable));
+            var propertySymbol = GetPropertySymbol(compilation, "GenericContainer`1", "NullableValue");
+
+            var type = propertySymbol.Type.GetCSharpType();
+
+            Assert.AreEqual("T", type.Name);
+            Assert.AreEqual(string.Empty, type.Namespace);
+            Assert.IsNull(type.DeclaringType);
+            Assert.AreEqual("T", type.FullyQualifiedName);
+        }
+
+        [Test]
         public async Task TypeParameterDoesNotResolveContainingGenericType()
         {
             var compilation = await Helpers.GetCompilationFromDirectoryAsync();

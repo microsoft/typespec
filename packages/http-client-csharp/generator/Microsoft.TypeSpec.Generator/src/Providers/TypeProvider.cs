@@ -189,7 +189,8 @@ namespace Microsoft.TypeSpec.Generator.Providers
                 DeclarationModifiers.HasFlag(TypeSignatureModifiers.Public) && _arguments.All(t => t.IsPublic),
                 DeclarationModifiers.HasFlag(TypeSignatureModifiers.Struct),
                 BaseType,
-                IsEnum ? EnumUnderlyingType.FrameworkType : null);
+                IsEnum ? EnumUnderlyingType.FrameworkType : null,
+                this);
 
         protected virtual bool GetIsEnum() => false;
         public bool IsEnum => GetIsEnum();
