@@ -71,7 +71,7 @@ public class ProxyMethodMapper implements IMapper<Operation, Map<Request, List<P
 
         final List<Integer> expectedStatusCodes = getExpectedResponseStatusCodes(operation);
         builder.responseExpectedStatusCodes(expectedStatusCodes);
-        builder.responseHeaders(getResponseHeaders(operation));
+        builder.responseHeaders(getResponseHeaders(operation, settings));
         buildExpectedResponseFields(operation, settings, builder);
         buildUnexpectedResponseExceptionFields(builder, operation, expectedStatusCodes, settings);
         builder.responseContentTypes(getResponseContentTypes(operation));
@@ -134,7 +134,11 @@ public class ProxyMethodMapper implements IMapper<Operation, Map<Request, List<P
             .collect(Collectors.toList());
     }
 
-    private static List<ProxyMethodResponseHeader> getResponseHeaders(Operation operation) {
+    private static List<ProxyMethodResponseHeader> getResponseHeaders(Operation operation, JavaSettings settings) {
+        if (!SchemaUtil.responseContainsHeaderSchemas(operation, settings)) {
+            return List.of();
+        }
+
         Map<String, ProxyMethodResponseHeader> responseHeaders = new LinkedHashMap<>();
         operation.getResponses()
             .stream()

@@ -538,13 +538,6 @@ public final class ServerDrivenPaginationContinuationTokensImpl {
      * }
      * </pre>
      * 
-     * <p><strong>Response Headers</strong></p>
-     * <table border="1">
-     * <caption>Response Headers</caption>
-     * <tr><th>Name</th><th>Type</th><th>Description</th></tr>
-     * <tr><td>next-token</td><td>String</td><td>The next-token response header.</td></tr>
-     * </table>
-     * 
      * @param requestOptions The options to configure the HTTP request before HTTP client sends it.
      * @throws HttpResponseException thrown if the request is rejected by server.
      * @throws ClientAuthenticationException thrown if the request is rejected by server on status code 401.
@@ -589,13 +582,6 @@ public final class ServerDrivenPaginationContinuationTokensImpl {
      * }
      * </pre>
      * 
-     * <p><strong>Response Headers</strong></p>
-     * <table border="1">
-     * <caption>Response Headers</caption>
-     * <tr><th>Name</th><th>Type</th><th>Description</th></tr>
-     * <tr><td>next-token</td><td>String</td><td>The next-token response header.</td></tr>
-     * </table>
-     * 
      * @param requestOptions The options to configure the HTTP request before HTTP client sends it.
      * @throws HttpResponseException thrown if the request is rejected by server.
      * @throws ClientAuthenticationException thrown if the request is rejected by server on status code 401.
@@ -635,13 +621,6 @@ public final class ServerDrivenPaginationContinuationTokensImpl {
      * }
      * }
      * </pre>
-     * 
-     * <p><strong>Response Headers</strong></p>
-     * <table border="1">
-     * <caption>Response Headers</caption>
-     * <tr><th>Name</th><th>Type</th><th>Description</th></tr>
-     * <tr><td>next-token</td><td>String</td><td>The next-token response header.</td></tr>
-     * </table>
      * 
      * @param requestOptions The options to configure the HTTP request before HTTP client sends it.
      * @throws HttpResponseException thrown if the request is rejected by server.
@@ -687,13 +666,6 @@ public final class ServerDrivenPaginationContinuationTokensImpl {
      * }
      * </pre>
      * 
-     * <p><strong>Response Headers</strong></p>
-     * <table border="1">
-     * <caption>Response Headers</caption>
-     * <tr><th>Name</th><th>Type</th><th>Description</th></tr>
-     * <tr><td>next-token</td><td>String</td><td>The next-token response header.</td></tr>
-     * </table>
-     * 
      * @param requestOptions The options to configure the HTTP request before HTTP client sends it.
      * @throws HttpResponseException thrown if the request is rejected by server.
      * @throws ClientAuthenticationException thrown if the request is rejected by server on status code 401.
@@ -733,13 +705,6 @@ public final class ServerDrivenPaginationContinuationTokensImpl {
      * }
      * }
      * </pre>
-     * 
-     * <p><strong>Response Headers</strong></p>
-     * <table border="1">
-     * <caption>Response Headers</caption>
-     * <tr><th>Name</th><th>Type</th><th>Description</th></tr>
-     * <tr><td>next-token</td><td>String</td><td>The next-token response header.</td></tr>
-     * </table>
      * 
      * @param requestOptions The options to configure the HTTP request before HTTP client sends it.
      * @throws HttpResponseException thrown if the request is rejected by server.
@@ -785,13 +750,6 @@ public final class ServerDrivenPaginationContinuationTokensImpl {
      * }
      * </pre>
      * 
-     * <p><strong>Response Headers</strong></p>
-     * <table border="1">
-     * <caption>Response Headers</caption>
-     * <tr><th>Name</th><th>Type</th><th>Description</th></tr>
-     * <tr><td>next-token</td><td>String</td><td>The next-token response header.</td></tr>
-     * </table>
-     * 
      * @param requestOptions The options to configure the HTTP request before HTTP client sends it.
      * @throws HttpResponseException thrown if the request is rejected by server.
      * @throws ClientAuthenticationException thrown if the request is rejected by server on status code 401.
@@ -831,13 +789,6 @@ public final class ServerDrivenPaginationContinuationTokensImpl {
      * }
      * }
      * </pre>
-     * 
-     * <p><strong>Response Headers</strong></p>
-     * <table border="1">
-     * <caption>Response Headers</caption>
-     * <tr><th>Name</th><th>Type</th><th>Description</th></tr>
-     * <tr><td>next-token</td><td>String</td><td>The next-token response header.</td></tr>
-     * </table>
      * 
      * @param requestOptions The options to configure the HTTP request before HTTP client sends it.
      * @throws HttpResponseException thrown if the request is rejected by server.
@@ -882,13 +833,6 @@ public final class ServerDrivenPaginationContinuationTokensImpl {
      * }
      * }
      * </pre>
-     * 
-     * <p><strong>Response Headers</strong></p>
-     * <table border="1">
-     * <caption>Response Headers</caption>
-     * <tr><th>Name</th><th>Type</th><th>Description</th></tr>
-     * <tr><td>next-token</td><td>String</td><td>The next-token response header.</td></tr>
-     * </table>
      * 
      * @param requestOptions The options to configure the HTTP request before HTTP client sends it.
      * @throws HttpResponseException thrown if the request is rejected by server.
