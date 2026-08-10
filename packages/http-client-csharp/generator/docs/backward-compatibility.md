@@ -23,6 +23,8 @@
   - [Model Constructors](#model-constructors)
     - [Required Property Becomes Optional](#scenario-required-property-becomes-optional)
     - [Parameterless Constructor Becomes Parameterized](#scenario-parameterless-constructor-becomes-parameterized)
+    - [Constructor Parameter Name Restored by Signature Match](#scenario-constructor-parameter-name-restored-by-signature-match)
+    - [Previous Constructor Restored as a Standalone Constructor](#scenario-previous-constructor-restored-as-a-standalone-constructor)
   - [Parameter Naming](#parameter-naming)
     - [Page Size Parameter Casing Correction](#scenario-page-size-parameter-casing-correction)
     - [Top Parameter Conversion to MaxCount](#scenario-top-parameter-conversion-to-maxcount)
@@ -741,6 +743,69 @@ protected Widget() : this(default)
 - The generator prefers an accessible current constructor with the fewest required parameters as the chain target. When necessary, it can chain to a `private protected` initialization constructor.
 - The generated parameterless mocking constructor is removed so it does not duplicate the restored constructor.
 - If the constructor removal is accepted in an ApiCompat baseline, the generator does not restore it.
+
+#### Scenario: Constructor Parameter Name Restored by Signature Match
+
+**Description:** When a constructor keeps the same parameter types (in the same order and count) but one or more parameters would be renamed — because of a `@@clientName`, a spec/property rename, a generator naming-rule change, or a casing correction — the new names would appear on the generated constructor. Renaming a constructor parameter is source-breaking for callers using named arguments and is not flagged by ApiCompat / binary-compat tooling. To avoid this, the generator matches the current constructor to the previously published one by signature and restores the previous parameter names.
+
+This covers straight renames, casing corrections, and parameter **swaps/rotations**. For a swap or rotation (every previous name is still present, just in a different position) the generator realigns the existing parameter objects to the previous positional order instead of renaming positionally, so a caller's named argument stays bound to the same property.
+
+**Example:**
+
+Previous version published `(name, vmSkuName)`:
+
+```csharp
+public MockInputModel(string name, string vmSkuName)
+{
+    Name = name;
+    VmSkuName = vmSkuName;
+}
+```
+
+Current TypeSpec orders the properties differently, which would normally produce `(vmSkuName, name)`. The generator restores the previous parameter order and names:
+
+```csharp
+public MockInputModel(string name, string vmSkuName)
+{
+    VmSkuName = vmSkuName;
+    Name = name;
+}
+```
+
+#### Scenario: Previous Constructor Restored as a Standalone Constructor
+
+**Description:** The [Required Property Becomes Optional](#scenario-required-property-becomes-optional) scenario restores a previous public constructor as an overload that **chains** to a current public constructor. When no current public constructor's parameters form an in-order subsequence of the previous constructor's parameters — for example, the required properties were reordered so there is nothing to chain to — the generator instead restores the previous constructor as a **standalone** constructor that assigns each parameter directly to its matching property.
+
+**Example:**
+
+Previous version published `(beta, alpha, gamma)` with all three required:
+
+```csharp
+public MockInputModel(string beta, string alpha, int gamma)
+{
+    Beta = beta;
+    Alpha = alpha;
+    Gamma = gamma;
+}
+```
+
+Current TypeSpec reorders the required properties (so the current public `(alpha, beta)` constructor is not an in-order subsequence to chain to) and relaxes `gamma` to optional. The previous constructor is restored as a standalone constructor (no `this(...)` initializer):
+
+```csharp
+public MockInputModel(string beta, string alpha, int gamma)
+{
+    Beta = beta;
+    Alpha = alpha;
+    Gamma = gamma;
+}
+```
+
+**Key Points:**
+
+- Used only when no current public constructor can serve as a chain target; otherwise the chaining overload from the "required property becomes optional" scenario is generated.
+- Each parameter must map to a public, settable (or required get-only, constructor-assignable) property of the same type, matched by parameter or wire name. A standalone constructor can also assign required get-only auto-properties, which the chained path cannot.
+- The constructor is still restored even if a newly-required property has no value in the previous signature; the generator assigns what it can and leaves the new property unset (valid because it does not emit the C# `required` modifier).
+- Not restored when a constructor with the same signature already exists, or when the removal is accepted in an ApiCompat baseline.
 
 ### Parameter Naming
 
