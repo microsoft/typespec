@@ -2,7 +2,9 @@ import { type Children } from "@alloy-js/core";
 import type { ParameterProps } from "@alloy-js/csharp";
 import * as cs from "@alloy-js/csharp";
 import { isErrorModel, type Model, type Program } from "@typespec/compiler";
+import { $ } from "@typespec/compiler/typekit";
 import { getHeaderFieldName, isHeader, isStatusCode } from "@typespec/http";
+import { TypeExpression } from "../type-expression/type-expression.jsx";
 import {
   getAllProperties,
   getCSharpTypeString,
@@ -14,6 +16,7 @@ import {
 
 /** Generates the constructor for an error model. */
 export function getErrorConstructor(program: Program, model: Model, className: string): Children {
+  const tk = $(program);
   const statusCode = getErrorStatusCode(program, model);
   const isChild = model.baseModel && isErrorModel(program, model.baseModel);
   const namePolicy = cs.createCSharpNamePolicy();
@@ -53,9 +56,18 @@ export function getErrorConstructor(program: Program, model: Model, className: s
       propName = propName === "Value" ? "ValueName" : `${propName}Prop`;
     }
 
-    const csharpType = getCSharpTypeString(program, prop.type);
+    const csharpType =
+      prop.type.kind === "Model" && tk.record.is(prop.type) ? (
+        <TypeExpression type={prop.type} />
+      ) : (
+        getCSharpTypeString(program, prop.type)
+      );
     const defaultStr = defaultValue ? defaultValue : prop.optional ? "default" : undefined;
-    parameters.push({ name: prop.name, type: csharpType, default: defaultStr });
+    parameters.push({
+      name: prop.name,
+      type: csharpType,
+      default: defaultStr,
+    });
     bodyParts.push(`${propName} = ${prop.name};`);
 
     if (isHeader(program, prop)) {
