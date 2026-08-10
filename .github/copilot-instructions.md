@@ -126,10 +126,6 @@ TypeSpec is a language for defining cloud service APIs and shapes. This monorepo
 
 ## Pull Request instructions
 
-### PR description validation
-
-- In a PR description's validation section, include only checks that are specifically relevant to the current change. Do not list routine build, formatting, linting, generation, or static-analysis commands unless they directly validate behavior unique to the PR.
-
 ### Changelog entries
 
 When the work is done, run `pnpm chronus add` to add a changelog entry. The valid change kinds are defined in [`.chronus/config.yaml`](../.chronus/config.yaml). Do **NOT** use `feat`, `docs`, `patch`, `minor`, or `major` — these are not valid change kinds.
