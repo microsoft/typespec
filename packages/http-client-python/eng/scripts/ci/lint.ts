@@ -140,7 +140,7 @@ async function lintEmitter(): Promise<boolean> {
       "emitter/",
       "eng/scripts/",
       "--config",
-      "../../oxlint.config.ts",
+      "eng/scripts/ci/config/oxlint.json",
       "--deny-warnings",
     ],
     root,
