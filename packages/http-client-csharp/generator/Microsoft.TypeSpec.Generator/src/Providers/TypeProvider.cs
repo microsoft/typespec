@@ -1046,20 +1046,13 @@ namespace Microsoft.TypeSpec.Generator.Providers
 
         /// <summary>
         /// Returns this type's constructors with backward compatibility applied against
-        /// <see cref="LastContractView"/>. The default implementation preserves a previously-published
-        /// public constructor on an abstract base type: when the current generation would emit a
-        /// <c>private protected</c> constructor whose parameters match a <c>public</c> constructor in
-        /// the last contract, the modifier is promoted back to <c>public</c>. Override and call
-        /// <c>base</c> to extend this behavior.
+        /// <see cref="LastContractView"/>. The default implementation restores parameter names on
+        /// matching public or protected constructors. It also preserves a previously-published public
+        /// constructor on an abstract base type by promoting a matching <c>private protected</c>
+        /// constructor back to <c>public</c>. Override and call <c>base</c> to extend this behavior.
         /// </summary>
         protected internal virtual IReadOnlyList<ConstructorProvider> BuildConstructorsForBackCompatibility(IEnumerable<ConstructorProvider> originalConstructors)
         {
-            // Only handle the case of changing modifiers on abstract base types.
-            if (!DeclarationModifiers.HasFlag(TypeSignatureModifiers.Abstract))
-            {
-                return [.. originalConstructors];
-            }
-
             if (LastContractView?.Constructors == null || LastContractView.Constructors.Count == 0)
             {
                 return [.. originalConstructors];
@@ -1067,32 +1060,56 @@ namespace Microsoft.TypeSpec.Generator.Providers
 
             List<ConstructorProvider> constructors = [.. originalConstructors];
 
-            // Check if the last contract had a public constructor with matching parameters
             foreach (var previousConstructor in LastContractView.Constructors)
             {
-                if (!previousConstructor.Signature.Modifiers.HasFlag(MethodSignatureModifiers.Public))
+                var previousModifiers = previousConstructor.Signature.Modifiers;
+                if (!previousModifiers.HasFlag(MethodSignatureModifiers.Public)
+                    && !previousModifiers.HasFlag(MethodSignatureModifiers.Protected))
                 {
                     continue;
                 }
 
-                // Find a matching constructor in the current version by parameter signature
-                for (int i = 0; i < constructors.Count; i++)
+                var currentConstructor = constructors.FirstOrDefault(c =>
+                    BackCompatHelper.ParameterTypesMatch(c.Signature.Parameters, previousConstructor.Signature.Parameters));
+                if (currentConstructor == null)
                 {
-                    var currentConstructor = constructors[i];
-                    if (!currentConstructor.Signature.Modifiers.HasFlag(MethodSignatureModifiers.Private) ||
-                        !currentConstructor.Signature.Modifiers.HasFlag(MethodSignatureModifiers.Protected))
-                    {
-                        continue;
-                    }
+                    continue;
+                }
 
-                    // Check if parameters match (same count and types)
-                    if (BackCompatHelper.ParametersMatch(currentConstructor.Signature.Parameters, previousConstructor.Signature.Parameters))
+                var currentModifiers = currentConstructor.Signature.Modifiers;
+                if (DeclarationModifiers.HasFlag(TypeSignatureModifiers.Abstract)
+                    && previousModifiers.HasFlag(MethodSignatureModifiers.Public)
+                    && currentModifiers.HasFlag(MethodSignatureModifiers.Private)
+                    && currentModifiers.HasFlag(MethodSignatureModifiers.Protected))
+                {
+                    currentConstructor.Signature.Update(modifiers: MethodSignatureModifiers.Public);
+                    currentModifiers = MethodSignatureModifiers.Public;
+                    CodeModelGenerator.Instance.Emitter.Debug(
+                        $"Promoted constructor '{Name}({string.Join(", ", currentConstructor.Signature.Parameters.Select(p => p.Type.ToString()))})' from 'private protected' to 'public' to match last contract.",
+                        BackCompatibilityChangeCategory.ConstructorModifierPreserved);
+                }
+
+                if (!currentModifiers.HasFlag(MethodSignatureModifiers.Public)
+                    && !currentModifiers.HasFlag(MethodSignatureModifiers.Protected))
+                {
+                    continue;
+                }
+
+                var renamedParameters = currentConstructor.Signature.Parameters
+                    .Zip(previousConstructor.Signature.Parameters)
+                    .Where(pair => !string.Equals(pair.First.Name, pair.Second.Name, StringComparison.Ordinal))
+                    .Select(pair => (OldName: pair.First.Name, NewName: pair.Second.Name))
+                    .ToArray();
+
+                if (BackCompatHelper.TryRestorePreviousParameterNames(
+                    currentConstructor.Signature.Parameters,
+                    previousConstructor.Signature.Parameters))
+                {
+                    foreach (var (oldName, newName) in renamedParameters)
                     {
-                        // Change the modifier from private protected to public
-                        currentConstructor.Signature.Update(modifiers: MethodSignatureModifiers.Public);
                         CodeModelGenerator.Instance.Emitter.Debug(
-                            $"Promoted constructor '{Name}({string.Join(", ", currentConstructor.Signature.Parameters.Select(p => p.Type.ToString()))})' from 'private protected' to 'public' to match last contract.",
-                            BackCompatibilityChangeCategory.ConstructorModifierPreserved);
+                            $"Preserved parameter name '{newName}' on constructor '{Name}' from last contract (instead of '{oldName}').",
+                            BackCompatibilityChangeCategory.ParameterNamePreserved);
                     }
                 }
             }

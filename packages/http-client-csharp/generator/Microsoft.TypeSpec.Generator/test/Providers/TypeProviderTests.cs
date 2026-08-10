@@ -232,6 +232,170 @@ namespace Microsoft.TypeSpec.Generator.Tests.Providers
             Assert.IsFalse(constructor.Signature.Modifiers.HasFlag(MethodSignatureModifiers.Public));
         }
 
+        [Test]
+        public async Task BuildConstructorsForBackCompatibilityRestoresSwappedParameterNames()
+        {
+            await MockHelpers.LoadMockGeneratorAsync(lastContractCompilation: async () => await Helpers.GetCompilationFromDirectoryAsync());
+
+            var currentConstructor = new ConstructorProvider(
+                new ConstructorSignature(
+                    new CSharpType(typeof(object)),
+                    $"",
+                    MethodSignatureModifiers.Public,
+                    [
+                        new ParameterProvider("maximumCount", $"", new CSharpType(typeof(int))),
+                        new ParameterProvider("minimumCount", $"", new CSharpType(typeof(int))),
+                    ]),
+                Snippet.ThrowExpression(Snippet.Null),
+                new TestTypeProvider());
+
+            var typeProvider = new TestTypeProvider(
+                name: "ConstructorParameterRenameType",
+                ns: "Test",
+                declarationModifiers: TypeSignatureModifiers.Public | TypeSignatureModifiers.Class,
+                constructors: [currentConstructor]);
+
+            typeProvider.ProcessTypeForBackCompatibility();
+
+            Assert.That(
+                typeProvider.Constructors.Single().Signature.Parameters.Select(p => p.Name),
+                Is.EqualTo(new[] { "minimumCount", "maximumCount" }));
+        }
+
+        [Test]
+        public async Task BuildConstructorsForBackCompatibilityRestoresSimpleParameterRename()
+        {
+            await MockHelpers.LoadMockGeneratorAsync(lastContractCompilation: async () => await Helpers.GetCompilationFromDirectoryAsync());
+
+            var parameter = new ParameterProvider("newName", $"The renamed value.", new CSharpType(typeof(string)));
+            _ = parameter.AsVariable();
+            var currentConstructor = new ConstructorProvider(
+                new ConstructorSignature(
+                    new CSharpType(typeof(object)),
+                    $"",
+                    MethodSignatureModifiers.Public,
+                    [parameter]),
+                Snippet.This.Property("Value").Assign(parameter).Terminate(),
+                new TestTypeProvider());
+
+            var typeProvider = new TestTypeProvider(
+                name: "SimpleConstructorParameterRenameType",
+                ns: "Test",
+                declarationModifiers: TypeSignatureModifiers.Public | TypeSignatureModifiers.Class,
+                constructors: [currentConstructor]);
+
+            typeProvider.ProcessTypeForBackCompatibility();
+
+            Assert.Multiple(() =>
+            {
+                Assert.AreEqual("oldName", parameter.Name);
+                Assert.AreEqual("this.Value = oldName;\n", currentConstructor.BodyStatements!.ToDisplayString());
+                Assert.AreEqual("oldName", currentConstructor.XmlDocs.Parameters.Single().Parameter.Name);
+            });
+        }
+
+        [Test]
+        public async Task BuildConstructorsForBackCompatibilityRestoresParameterNameCasing()
+        {
+            await MockHelpers.LoadMockGeneratorAsync(lastContractCompilation: async () => await Helpers.GetCompilationFromDirectoryAsync());
+
+            var currentConstructor = new ConstructorProvider(
+                new ConstructorSignature(
+                    new CSharpType(typeof(object)),
+                    $"",
+                    MethodSignatureModifiers.Public,
+                    [new ParameterProvider("vMwareSiteId", $"", new CSharpType(typeof(string)))]),
+                Snippet.ThrowExpression(Snippet.Null),
+                new TestTypeProvider());
+
+            var typeProvider = new TestTypeProvider(
+                name: "ConstructorParameterCasingType",
+                ns: "Test",
+                declarationModifiers: TypeSignatureModifiers.Public | TypeSignatureModifiers.Class,
+                constructors: [currentConstructor]);
+
+            typeProvider.ProcessTypeForBackCompatibility();
+
+            Assert.AreEqual("vmwareSiteId", typeProvider.Constructors.Single().Signature.Parameters.Single().Name);
+        }
+
+        [Test]
+        public async Task BuildConstructorsForBackCompatibilityRestoresRotatedParameterNames()
+        {
+            await MockHelpers.LoadMockGeneratorAsync(lastContractCompilation: async () => await Helpers.GetCompilationFromDirectoryAsync());
+
+            var currentConstructor = new ConstructorProvider(
+                new ConstructorSignature(
+                    new CSharpType(typeof(object)),
+                    $"",
+                    MethodSignatureModifiers.Public,
+                    [
+                        new ParameterProvider("third", $"", new CSharpType(typeof(string))),
+                        new ParameterProvider("first", $"", new CSharpType(typeof(string))),
+                        new ParameterProvider("second", $"", new CSharpType(typeof(string))),
+                    ]),
+                Snippet.ThrowExpression(Snippet.Null),
+                new TestTypeProvider());
+
+            var typeProvider = new TestTypeProvider(
+                name: "ConstructorParameterRotationType",
+                ns: "Test",
+                declarationModifiers: TypeSignatureModifiers.Public | TypeSignatureModifiers.Class,
+                constructors: [currentConstructor]);
+
+            typeProvider.ProcessTypeForBackCompatibility();
+
+            Assert.That(
+                typeProvider.Constructors.Single().Signature.Parameters.Select(p => p.Name),
+                Is.EqualTo(new[] { "first", "second", "third" }));
+        }
+
+        [Test]
+        public async Task BuildConstructorsForBackCompatibilityDoesNotRenameParametersWhenTypesDiffer()
+        {
+            await MockHelpers.LoadMockGeneratorAsync(lastContractCompilation: async () => await Helpers.GetCompilationFromDirectoryAsync());
+
+            var currentConstructor = new ConstructorProvider(
+                new ConstructorSignature(
+                    new CSharpType(typeof(object)),
+                    $"",
+                    MethodSignatureModifiers.Public,
+                    [new ParameterProvider("newName", $"", new CSharpType(typeof(string)))]),
+                Snippet.ThrowExpression(Snippet.Null),
+                new TestTypeProvider());
+
+            var typeProvider = new TestTypeProvider(
+                name: "ConstructorParameterTypeMismatchType",
+                ns: "Test",
+                declarationModifiers: TypeSignatureModifiers.Public | TypeSignatureModifiers.Class,
+                constructors: [currentConstructor]);
+
+            typeProvider.ProcessTypeForBackCompatibility();
+
+            Assert.AreEqual("newName", typeProvider.Constructors.Single().Signature.Parameters.Single().Name);
+        }
+
+        [Test]
+        public void TryRestorePreviousParameterNamesRejectsDuplicateFinalNames()
+        {
+            ParameterProvider[] currentParameters =
+            [
+                new("first", $"", new CSharpType(typeof(string))),
+                new("second", $"", new CSharpType(typeof(string))),
+            ];
+            ParameterProvider[] previousParameters =
+            [
+                new("duplicate", $"", new CSharpType(typeof(string))),
+                new("duplicate", $"", new CSharpType(typeof(string))),
+            ];
+
+            Assert.Multiple(() =>
+            {
+                Assert.IsFalse(BackCompatHelper.TryRestorePreviousParameterNames(currentParameters, previousParameters));
+                Assert.That(currentParameters.Select(p => p.Name), Is.EqualTo(new[] { "first", "second" }));
+            });
+        }
+
         // Validates that the base TypeProvider generalizes the new-optional-parameter back-compat to any
         // TypeProvider: a public method that gained an optional non-body parameter relative to the last
         // contract gets a hidden overload matching the previous signature that delegates to the current one.

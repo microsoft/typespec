@@ -102,10 +102,9 @@ namespace Microsoft.TypeSpec.Generator.Utilities
         }
 
         /// <summary>
-        /// Returns true when two parameter lists match positionally by type name and parameter name
-        /// (and have the same count). Used to align a current member with its last-contract counterpart.
+        /// Returns true when two parameter lists match positionally by type name and have the same count.
         /// </summary>
-        public static bool ParametersMatch(IReadOnlyList<ParameterProvider> params1, IReadOnlyList<ParameterProvider> params2)
+        public static bool ParameterTypesMatch(IReadOnlyList<ParameterProvider> params1, IReadOnlyList<ParameterProvider> params2)
         {
             if (params1.Count != params2.Count)
             {
@@ -114,10 +113,51 @@ namespace Microsoft.TypeSpec.Generator.Utilities
 
             for (int i = 0; i < params1.Count; i++)
             {
-                if (!params1[i].Type.AreNamesEqual(params2[i].Type) || params1[i].Name != params2[i].Name)
+                if (!params1[i].Type.AreNamesEqual(params2[i].Type))
                 {
                     return false;
                 }
+            }
+
+            return true;
+        }
+
+        /// <summary>
+        /// Restores parameter names positionally from a matching previous signature. All target names
+        /// are validated before any parameter is updated so swaps and rotations are applied atomically.
+        /// </summary>
+        public static bool TryRestorePreviousParameterNames(
+            IReadOnlyList<ParameterProvider> currentParameters,
+            IReadOnlyList<ParameterProvider> previousParameters)
+        {
+            if (!ParameterTypesMatch(currentParameters, previousParameters))
+            {
+                return false;
+            }
+
+            var previousNames = previousParameters.Select(p => p.Name).ToArray();
+            if (previousNames.Distinct(StringComparer.Ordinal).Count() != previousNames.Length)
+            {
+                return false;
+            }
+
+            bool changed = false;
+            for (int i = 0; i < currentParameters.Count; i++)
+            {
+                if (!string.Equals(currentParameters[i].Name, previousNames[i], StringComparison.Ordinal))
+                {
+                    changed = true;
+                }
+            }
+
+            if (!changed)
+            {
+                return false;
+            }
+
+            for (int i = 0; i < currentParameters.Count; i++)
+            {
+                currentParameters[i].Update(name: previousNames[i]);
             }
 
             return true;
