@@ -93,3 +93,35 @@ it("renders one nullable suffix for optional nullable value parameters", async (
     }
   `);
 });
+
+it("falls back to multipart decorators when canonicalization is unavailable", async () => {
+  const { PetStore } = await runner.compile(t.code`
+    model MultipartParts {
+      metadata: HttpPart<string>;
+      code: HttpPart<bytes>;
+    }
+
+    model DerivedMultipartParts {
+      ...MultipartParts;
+    }
+
+    interface ${t.interface("PetStore")} {
+      @post upload(
+        @header contentType: "multipart/form-data",
+        @header checksum: string,
+        @multipartBody content: DerivedMultipartParts,
+      ): void;
+    }
+  `);
+
+  expect(
+    <Wrapper>
+      <BusinessLogicInterface type={PetStore} />
+    </Wrapper>,
+  ).toRenderTo(`
+    public interface IPetStore
+    {
+        Task UploadAsync(string checksum, MultipartReader reader);
+    }
+  `);
+});
