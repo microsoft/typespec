@@ -132,8 +132,8 @@ public final class TraitsAsyncClient {
      * <table border="1">
      * <caption>Response Headers</caption>
      * <tr><th>Name</th><th>Type</th><th>Description</th></tr>
-     * <tr><td>Repeatability-Result</td><td>RepeatabilityResult</td><td>Indicates whether the repeatable request was
-     * accepted or rejected.</td></tr>
+     * <tr><td>Repeatability-Result</td><td>String</td><td>Indicates whether the repeatable request was accepted or
+     * rejected.</td></tr>
      * </table>
      * 
      * @param id The user's id.
