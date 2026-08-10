@@ -61,7 +61,10 @@ export function Models(props: ModelsProps): Children {
   return (
     <For each={props.models}>
       {(model) => {
-        const needsJsonNodes = modelNeedsJsonNodes($, model);
+        const isRootError =
+          isErrorModel($.program, model) &&
+          !(model.baseModel && isErrorModel($.program, model.baseModel));
+        const needsJsonNodes = modelNeedsJsonNodes($, model, isRootError);
         const usings = needsJsonNodes ? [...modelUsings, "System.Text.Json.Nodes"] : modelUsings;
         const modelName = getModelEmitName($.program, model);
         const subNsParts = getSubNamespaceParts(model.namespace, props.serviceNamespace);
