@@ -160,7 +160,10 @@ public class ProxyMethodMapper implements IMapper<Operation, Map<Request, List<P
         if (CoreUtils.isNullOrEmpty(description)) {
             description = String.format("The %s response header.", header.getHeader());
         }
-        return new ProxyMethodResponseHeader(header.getHeader(), clientType, description);
+        return new ProxyMethodResponseHeader.Builder().serializedName(header.getHeader())
+            .clientType(clientType)
+            .description(description)
+            .build();
     }
 
     /**
