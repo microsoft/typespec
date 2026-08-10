@@ -94,7 +94,6 @@
     "vitest": "^4.1.10"
   },
   "overrides": {
-    "js-yaml": "^4.3.1",
-    "fast-uri": "^3.1.5"
+    "js-yaml": "^4.3.1"
   }
 }
