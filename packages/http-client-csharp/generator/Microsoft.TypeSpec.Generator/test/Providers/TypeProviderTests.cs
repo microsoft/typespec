@@ -389,6 +389,38 @@ namespace Microsoft.TypeSpec.Generator.Tests.Providers
         }
 
         [Test]
+        public async Task BuildConstructorsForBackCompatibilityMatchesValueTypeNullability()
+        {
+            await MockHelpers.LoadMockGeneratorAsync(lastContractCompilation: async () => await Helpers.GetCompilationFromDirectoryAsync());
+
+            var nonNullableParameter = new ParameterProvider("nonNullableCurrent", $"", new CSharpType(typeof(int)));
+            var nullableParameter = new ParameterProvider("nullableCurrent", $"", new CSharpType(typeof(int?)));
+            var typeProvider = new TestTypeProvider(
+                name: "ConstructorNullableOverloadType",
+                ns: "Test",
+                declarationModifiers: TypeSignatureModifiers.Public | TypeSignatureModifiers.Class,
+                constructors:
+                [
+                    new ConstructorProvider(
+                        new ConstructorSignature(typeof(object), $"", MethodSignatureModifiers.Public, [nonNullableParameter]),
+                        Snippet.ThrowExpression(Snippet.Null),
+                        new TestTypeProvider()),
+                    new ConstructorProvider(
+                        new ConstructorSignature(typeof(object), $"", MethodSignatureModifiers.Public, [nullableParameter]),
+                        Snippet.ThrowExpression(Snippet.Null),
+                        new TestTypeProvider()),
+                ]);
+
+            typeProvider.ProcessTypeForBackCompatibility();
+
+            Assert.Multiple(() =>
+            {
+                Assert.AreEqual("nonNullableCurrent", nonNullableParameter.Name);
+                Assert.AreEqual("previousNullable", nullableParameter.Name);
+            });
+        }
+
+        [Test]
         public void TryRestorePreviousConstructorParametersRejectsDuplicateFinalNames()
         {
             ParameterProvider[] currentParameters =

@@ -113,7 +113,10 @@ namespace Microsoft.TypeSpec.Generator.Utilities
 
             for (int i = 0; i < params1.Count; i++)
             {
-                if (!params1[i].Type.AreNamesEqual(params2[i].Type))
+                var type1 = params1[i].Type;
+                var type2 = params2[i].Type;
+                if (!type1.AreNamesEqual(type2)
+                    || (type1.IsValueType && type1.IsNullable != type2.IsNullable))
                 {
                     return false;
                 }
