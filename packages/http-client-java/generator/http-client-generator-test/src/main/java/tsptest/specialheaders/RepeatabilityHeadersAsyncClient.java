@@ -107,6 +107,14 @@ public final class RepeatabilityHeadersAsyncClient {
      * }
      * </pre>
      * 
+     * <p><strong>Response Headers</strong></p>
+     * <table border="1">
+     * <caption>Response Headers</caption>
+     * <tr><th>Name</th><th>Type</th><th>Description</th></tr>
+     * <tr><td>Repeatability-Result</td><td>RepeatabilityResult</td><td>Indicates whether the repeatable request was
+     * accepted or rejected.</td></tr>
+     * </table>
+     * 
      * @param name The name parameter.
      * @param resource The resource instance.
      * @param requestOptions The options to configure the HTTP request before HTTP client sends it.
@@ -145,6 +153,14 @@ public final class RepeatabilityHeadersAsyncClient {
      * }
      * }
      * </pre>
+     * 
+     * <p><strong>Response Headers</strong></p>
+     * <table border="1">
+     * <caption>Response Headers</caption>
+     * <tr><th>Name</th><th>Type</th><th>Description</th></tr>
+     * <tr><td>Repeatability-Result</td><td>RepeatabilityResult</td><td>Indicates whether the repeatable request was
+     * accepted or rejected.</td></tr>
+     * </table>
      * 
      * @param name The name parameter.
      * @param requestOptions The options to configure the HTTP request before HTTP client sends it.
@@ -196,6 +212,15 @@ public final class RepeatabilityHeadersAsyncClient {
      * }
      * }
      * </pre>
+     * 
+     * <p><strong>Response Headers</strong></p>
+     * <table border="1">
+     * <caption>Response Headers</caption>
+     * <tr><th>Name</th><th>Type</th><th>Description</th></tr>
+     * <tr><td>Repeatability-Result</td><td>RepeatabilityResult</td><td>Indicates whether the repeatable request was
+     * accepted or rejected.</td></tr>
+     * <tr><td>Operation-Location</td><td>String</td><td>The location for monitoring the operation state.</td></tr>
+     * </table>
      * 
      * @param name The name parameter.
      * @param resource The resource instance.

@@ -69,6 +69,16 @@ public final class TraitsClient {
      * }
      * </pre>
      * 
+     * <p><strong>Response Headers</strong></p>
+     * <table border="1">
+     * <caption>Response Headers</caption>
+     * <tr><th>Name</th><th>Type</th><th>Description</th></tr>
+     * <tr><td>bar</td><td>String</td><td>The bar response header.</td></tr>
+     * <tr><td>ETag</td><td>String</td><td>The entity tag for the response.</td></tr>
+     * <tr><td>x-ms-client-request-id</td><td>String</td><td>An opaque, globally-unique, client-generated string
+     * identifier for the request.</td></tr>
+     * </table>
+     * 
      * @param id The user's id.
      * @param foo header in request.
      * @param requestOptions The options to configure the HTTP request before HTTP client sends it.
@@ -114,6 +124,14 @@ public final class TraitsClient {
      * }
      * }
      * </pre>
+     * 
+     * <p><strong>Response Headers</strong></p>
+     * <table border="1">
+     * <caption>Response Headers</caption>
+     * <tr><th>Name</th><th>Type</th><th>Description</th></tr>
+     * <tr><td>Repeatability-Result</td><td>RepeatabilityResult</td><td>Indicates whether the repeatable request was
+     * accepted or rejected.</td></tr>
+     * </table>
      * 
      * @param id The user's id.
      * @param body The body parameter.

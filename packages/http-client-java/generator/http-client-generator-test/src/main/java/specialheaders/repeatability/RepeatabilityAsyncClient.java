@@ -47,6 +47,13 @@ public final class RepeatabilityAsyncClient {
      * HTTP-date</td></tr>
      * </table>
      * You can add these to a request with {@link RequestOptions#addHeader}
+     * <p><strong>Response Headers</strong></p>
+     * <table border="1">
+     * <caption>Response Headers</caption>
+     * <tr><th>Name</th><th>Type</th><th>Description</th></tr>
+     * <tr><td>Repeatability-Result</td><td>ImmediateSuccessResponseRepeatabilityResult</td><td>Indicates whether the
+     * repeatable request was accepted or rejected.</td></tr>
+     * </table>
      * 
      * @param requestOptions The options to configure the HTTP request before HTTP client sends it.
      * @throws HttpResponseException thrown if the request is rejected by server.
