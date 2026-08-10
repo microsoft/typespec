@@ -16,6 +16,9 @@ namespace Microsoft.TypeSpec.Generator.Snippets
         public static ScopedApi<byte[]> GetBuffer(this ScopedApi<MemoryStream> stream)
             => stream.Invoke(nameof(MemoryStream.GetBuffer)).As<byte[]>();
 
+        public static ScopedApi<byte[]> ToArray(this ScopedApi<MemoryStream> stream)
+            => stream.Invoke(nameof(MemoryStream.ToArray)).As<byte[]>();
+
         public static ScopedApi<long> Position(this ScopedApi<MemoryStream> stream)
             => stream.Property(nameof(MemoryStream.Position)).As<long>();
 
