@@ -168,12 +168,12 @@ namespace Protocol {
   @scenarioDoc("""
     An SSE event with an `id` field. The event ID is envelope metadata and is
     not part of the typed event data.
-
+    
     Expected response body (content type `text/event-stream`):
     ```
     id: event-1
     data: {"message": "hello"}
-
+    
     ```
     """)
   @route("id")
@@ -183,12 +183,12 @@ namespace Protocol {
   @scenarioDoc("""
     An SSE event with an `id` field containing U+0000 NULL. The field is
     ignored according to the SSE parsing rules.
-
+    
     Expected response body (content type `text/event-stream`):
     ```
-    id: invalid\u0000id
+    id: invalid<U+0000 NULL>id
     data: {"message": "hello"}
-
+    
     ```
     """)
   @route("invalid-id")
@@ -199,12 +199,12 @@ namespace Protocol {
     An SSE event with a valid `retry` field containing only ASCII digits. The
     field sets the client's reconnection delay and is not part of the typed
     event data.
-
+    
     Expected response body (content type `text/event-stream`):
     ```
     retry: 1000
     data: {"message": "hello"}
-
+    
     ```
     """)
   @route("retry")
@@ -214,12 +214,12 @@ namespace Protocol {
   @scenarioDoc("""
     An SSE event with an invalid `retry` field. Since the value contains
     non-ASCII-digit characters, the field is ignored.
-
+    
     Expected response body (content type `text/event-stream`):
     ```
     retry: not-a-number
     data: {"message": "hello"}
-
+    
     ```
     """)
   @route("invalid-retry")
@@ -229,17 +229,17 @@ namespace Protocol {
   @scenarioDoc("""
     An SSE stream that resumes after a reconnect. The client sends the most
     recently received event ID in the `Last-Event-ID` request header.
-
+    
     Expected request header:
     ```
     Last-Event-ID: event-1
     ```
-
+    
     Expected response body (content type `text/event-stream`):
     ```
     id: event-2
     data: {"message": "world"}
-
+    
     ```
     """)
   @route("reconnect")

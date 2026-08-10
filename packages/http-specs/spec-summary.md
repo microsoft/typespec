@@ -5356,43 +5356,12 @@ data: [DONE]
 
 ```
 
-### Streaming_Sse_Retrieve_stream
-
-- Endpoint: `post /streaming/sse/retrieve/stream`
-
-A POST request with a JSON body whose response is an SSE stream, modeled
-after a knowledge-retrieval service. The server streams `partialResult`
-events as results become available, a final `finalResult` event, and a
-terminal `[DONE]` event.
-
-Expected request body (content type `application/json`):
-
-```
-{"query": "what is typespec?"}
-```
-
-Expected response body (content type `text/event-stream`):
-
-```
-event: partialResult
-data: {"text": "partial one"}
-
-event: partialResult
-data: {"text": "partial two"}
-
-event: finalResult
-data: {"references": ["doc1", "doc2"]}
-
-data: [DONE]
-
-```
-
 ### Streaming_Sse_Protocol_id
 
 - Endpoint: `get /streaming/sse/protocol/id`
 
-An SSE event with an `id` field. The event ID is envelope metadata and is not
-part of the typed event data.
+An SSE event with an `id` field. The event ID is envelope metadata and is
+not part of the typed event data.
 
 Expected response body (content type `text/event-stream`):
 
@@ -5406,13 +5375,13 @@ data: {"message": "hello"}
 
 - Endpoint: `get /streaming/sse/protocol/invalid-id`
 
-An SSE event with an `id` field containing U+0000 NULL. The field is ignored
-according to the SSE parsing rules.
+An SSE event with an `id` field containing U+0000 NULL. The field is
+ignored according to the SSE parsing rules.
 
 Expected response body (content type `text/event-stream`):
 
 ```
-id: invalid\u0000id
+id: invalid<U+0000 NULL>id
 data: {"message": "hello"}
 
 ```
@@ -5457,14 +5426,46 @@ data: {"message": "world"}
 
 - Endpoint: `get /streaming/sse/protocol/retry`
 
-An SSE event with a valid `retry` field containing only ASCII digits. The field
-sets the client's reconnection delay and is not part of the typed event data.
+An SSE event with a valid `retry` field containing only ASCII digits. The
+field sets the client's reconnection delay and is not part of the typed
+event data.
 
 Expected response body (content type `text/event-stream`):
 
 ```
 retry: 1000
 data: {"message": "hello"}
+
+```
+
+### Streaming_Sse_Retrieve_stream
+
+- Endpoint: `post /streaming/sse/retrieve/stream`
+
+A POST request with a JSON body whose response is an SSE stream, modeled
+after a knowledge-retrieval service. The server streams `partialResult`
+events as results become available, a final `finalResult` event, and a
+terminal `[DONE]` event.
+
+Expected request body (content type `application/json`):
+
+```
+{"query": "what is typespec?"}
+```
+
+Expected response body (content type `text/event-stream`):
+
+```
+event: partialResult
+data: {"text": "partial one"}
+
+event: partialResult
+data: {"text": "partial two"}
+
+event: finalResult
+data: {"references": ["doc1", "doc2"]}
+
+data: [DONE]
 
 ```
 
