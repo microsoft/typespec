@@ -31,7 +31,8 @@
   "tspMain": "lib/proto.tsp",
   "scripts": {
     "clean": "rimraf ./dist ./temp",
-    "build": "pnpm gen-extern-signature && tsc -p tsconfig.build.json",
+    "build": "pnpm gen-extern-signature && tsc -p tsconfig.build.json && pnpm lint-typespec-library",
+    "lint-typespec-library": "tsp compile . --warn-as-error --import @typespec/library-linter --no-emit",
     "watch": "tsc -p tsconfig.build.json --watch",
     "gen-extern-signature": "tspd --enable-experimental gen-extern-signature .",
     "test": "vitest run",
@@ -47,6 +48,7 @@
     "@types/micromatch": "catalog:",
     "@types/node": "catalog:",
     "@typespec/compiler": "workspace:^",
+    "@typespec/library-linter": "workspace:^",
     "@typespec/tspd": "workspace:^",
     "@vitest/coverage-v8": "catalog:",
     "@vitest/ui": "catalog:",

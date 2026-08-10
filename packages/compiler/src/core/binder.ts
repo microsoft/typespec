@@ -493,6 +493,10 @@ export function createBinder(program: Program): Binder {
   }
 
   function bindUsingStatement(statement: UsingStatementNode) {
+    // Track the scope in which the using was declared. A using declared at the file level, before any
+    // blockless namespace declaration, is not scoped to the file namespace and resolves from the global namespace.
+    mutate(statement).scopeNamespace =
+      scope.kind === SyntaxKind.NamespaceStatement ? scope : undefined;
     mutate(currentFile.usings).push(statement);
   }
 

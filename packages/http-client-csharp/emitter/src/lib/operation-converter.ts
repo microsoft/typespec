@@ -19,6 +19,7 @@ import type {
   SdkQueryParameter,
   SdkServiceMethod,
   SdkServiceResponseHeader,
+  SdkStreamMetadata,
   SdkType,
 } from "@azure-tools/typespec-client-generator-core";
 import {
@@ -30,15 +31,18 @@ import {
   shouldGenerateConvenient,
   shouldGenerateProtocol,
 } from "@azure-tools/typespec-client-generator-core";
-import type { Diagnostic } from "@typespec/compiler";
+import type { Diagnostic, Union } from "@typespec/compiler";
 import {
+  compilerAssert,
   createDiagnosticCollector,
   getDeprecated,
   isErrorModel,
   NoTarget,
 } from "@typespec/compiler";
+import { unsafe_getEventDefinitions } from "@typespec/events/experimental";
 import type { HttpStatusCodeRange } from "@typespec/http";
 import { getResourceOperation } from "@typespec/rest";
+import { isTerminalEvent } from "@typespec/sse";
 import type { CSharpEmitterContext } from "../sdk-context.js";
 import { collectionFormatToDelimMap } from "../type/collection-format.js";
 import type { HttpResponseHeader } from "../type/http-response-header.js";
@@ -64,6 +68,7 @@ import type {
   InputMethodParameter,
   InputPathParameter,
   InputQueryParameter,
+  InputStreamingType,
   InputType,
 } from "../type/input-type.js";
 import { convertLroFinalStateVia } from "../type/operation-final-state-via.js";
@@ -234,7 +239,9 @@ export function fromSdkServiceMethodOperation(
     path: method.operation.path,
     externalDocsUrl: getExternalDocs(sdkContext, method.operation.__raw.operation)?.url,
     requestMediaTypes: requestMediaTypes,
-    bufferResponse: true,
+    bufferResponse: !method.operation.responses.some((response) =>
+      isSupportedStream(response.streamMetadata),
+    ),
     generateProtocolMethod: shouldGenerateProtocol(sdkContext, method.operation.__raw.operation),
     generateConvenienceMethod: generateConvenience,
     crossLanguageDefinitionId: method.crossLanguageDefinitionId,
@@ -351,8 +358,23 @@ function fromSdkServiceMethodParameters(
   for (const p of method.parameters) {
     const methodInputParameter = diagnostics.pipe(fromMethodParameter(sdkContext, p, namespace));
     const operationHttpParameter = getHttpOperationParameter(method, p);
+    const streamMetadata = method.operation.bodyParam?.streamMetadata;
+    const isStreamingBodyParameter =
+      isJsonLinesStream(streamMetadata) &&
+      method.operation.bodyParam!.methodParameterSegments.some((segments) =>
+        segments.some(
+          (segment) =>
+            segment === p || segment.crossLanguageDefinitionId === p.crossLanguageDefinitionId,
+        ),
+      );
 
     if (!operationHttpParameter) {
+      if (isStreamingBodyParameter) {
+        methodInputParameter.type = diagnostics.pipe(
+          fromSdkStreamMetadata(sdkContext, streamMetadata),
+        );
+        methodInputParameter.location = RequestLocation.Body;
+      }
       parameters.push(methodInputParameter);
       continue;
     }
@@ -365,6 +387,12 @@ function fromSdkServiceMethodParameters(
       rootApiVersions,
       diagnostics,
     );
+    if (isStreamingBodyParameter) {
+      methodInputParameter.type = diagnostics.pipe(
+        fromSdkStreamMetadata(sdkContext, streamMetadata),
+      );
+      methodInputParameter.location = RequestLocation.Body;
+    }
     parameters.push(methodInputParameter);
   }
 
@@ -378,6 +406,15 @@ function updateMethodParameter(
   rootApiVersions: string[],
   diagnostics: ReturnType<typeof createDiagnosticCollector>,
 ): void {
+  if (
+    operationHttpParameter.kind === "body" &&
+    isJsonLinesStream(operationHttpParameter.streamMetadata)
+  ) {
+    methodParameter.type = diagnostics.pipe(
+      fromSdkStreamMetadata(sdkContext, operationHttpParameter.streamMetadata),
+    );
+  }
+
   // for content type parameter
   if (isContentType(operationHttpParameter)) {
     methodParameter.type = diagnostics.pipe(
@@ -408,7 +445,9 @@ function fromSdkServiceMethodResponse(
   const diagnostics = createDiagnosticCollector();
 
   return diagnostics.wrap({
-    type: diagnostics.pipe(getResponseType(sdkContext, methodResponse.type)),
+    type: isSupportedStream(methodResponse.streamMetadata)
+      ? diagnostics.pipe(fromSdkStreamMetadata(sdkContext, methodResponse.streamMetadata))
+      : diagnostics.pipe(getResponseType(sdkContext, methodResponse.type)),
     resultSegments: methodResponse.resultSegments?.map((segment) =>
       getResponseSegmentName(segment),
     ),
@@ -607,7 +646,9 @@ function fromBodyParameter(
   rootApiVersions: string[],
 ): [InputBodyParameter, readonly Diagnostic[]] {
   const diagnostics = createDiagnosticCollector();
-  const parameterType = diagnostics.pipe(fromSdkType(sdkContext, p.type, p));
+  const parameterType = isJsonLinesStream(p.streamMetadata)
+    ? diagnostics.pipe(fromSdkStreamMetadata(sdkContext, p.streamMetadata))
+    : diagnostics.pipe(fromSdkType(sdkContext, p.type, p));
 
   const retVar: InputBodyParameter = {
     kind: "body",
@@ -725,7 +766,9 @@ export function fromSdkHttpOperationResponse(
   const range = sdkResponse.statusCodes;
   retVar = {
     statusCodes: toStatusCodesArray(range),
-    bodyType: diagnostics.pipe(getResponseType(sdkContext, sdkResponse.type)),
+    bodyType: isSupportedStream(sdkResponse.streamMetadata)
+      ? diagnostics.pipe(fromSdkStreamMetadata(sdkContext, sdkResponse.streamMetadata))
+      : diagnostics.pipe(getResponseType(sdkContext, sdkResponse.type)),
     headers: diagnostics.pipe(fromSdkServiceResponseHeaders(sdkContext, sdkResponse.headers)),
     isErrorResponse:
       sdkResponse.type !== undefined && isErrorModel(sdkContext.program, sdkResponse.type.__raw!),
@@ -735,6 +778,70 @@ export function fromSdkHttpOperationResponse(
 
   sdkContext.__typeCache.updateSdkResponseReferences(sdkResponse, retVar);
   return diagnostics.wrap(retVar);
+}
+
+function fromSdkStreamMetadata(
+  sdkContext: CSharpEmitterContext,
+  streamMetadata: SdkStreamMetadata,
+): [InputStreamingType, readonly Diagnostic[]] {
+  const diagnostics = createDiagnosticCollector();
+  const originalType = streamMetadata.originalType;
+  const streamKind = getStreamKind(streamMetadata);
+  compilerAssert(
+    streamKind !== undefined,
+    "Stream metadata must have a supported stream kind before it is converted.",
+  );
+  let terminalEventType: string | undefined;
+  let terminalEventValue: string | undefined;
+
+  if (streamKind === "sse" && streamMetadata.streamType.__raw?.kind === "Union") {
+    const eventDefinitions = diagnostics.pipe(
+      unsafe_getEventDefinitions(sdkContext.program, streamMetadata.streamType.__raw as Union),
+    );
+    const terminalDefinition = eventDefinitions.find((definition) =>
+      isTerminalEvent(sdkContext.program, definition.root),
+    );
+    if (terminalDefinition?.payloadType.kind === "String") {
+      terminalEventType = terminalDefinition.eventType;
+      terminalEventValue = terminalDefinition.payloadType.value;
+    }
+  }
+
+  return diagnostics.wrap({
+    kind: "streaming",
+    name: originalType.kind === "model" ? originalType.name : "Stream",
+    valueType: diagnostics.pipe(fromSdkType(sdkContext, streamMetadata.streamType)),
+    streamKind,
+    contentTypes: streamMetadata.contentTypes,
+    terminalEventType,
+    terminalEventValue,
+    crossLanguageDefinitionId:
+      originalType.kind === "model" ? originalType.crossLanguageDefinitionId : "",
+  });
+}
+
+function getStreamKind(
+  streamMetadata: SdkStreamMetadata | undefined,
+): InputStreamingType["streamKind"] | undefined {
+  if (streamMetadata?.contentTypes.includes("application/jsonl")) {
+    return "jsonl";
+  }
+  if (streamMetadata?.contentTypes.includes("text/event-stream")) {
+    return "sse";
+  }
+  return undefined;
+}
+
+function isSupportedStream(
+  streamMetadata: SdkStreamMetadata | undefined,
+): streamMetadata is SdkStreamMetadata {
+  return getStreamKind(streamMetadata) !== undefined;
+}
+
+function isJsonLinesStream(
+  streamMetadata: SdkStreamMetadata | undefined,
+): streamMetadata is SdkStreamMetadata {
+  return getStreamKind(streamMetadata) === "jsonl";
 }
 
 function fromSdkServiceResponseHeaders(
