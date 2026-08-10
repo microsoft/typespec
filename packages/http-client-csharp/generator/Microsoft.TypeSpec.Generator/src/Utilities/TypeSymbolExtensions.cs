@@ -121,7 +121,10 @@ namespace Microsoft.TypeSpec.Generator
             // Handle array types
             if (typeSymbol is IArrayTypeSymbol arrayTypeSymbol)
             {
-                return GetFullyQualifiedName(arrayTypeSymbol.ElementType) + "[]";
+                return GetFullyQualifiedName(arrayTypeSymbol.ElementType)
+                    + "["
+                    + new string(',', arrayTypeSymbol.Rank - 1)
+                    + "]";
             }
             // Handle tuples & generic types
             if (typeSymbol is INamedTypeSymbol namedTypeSymbol)

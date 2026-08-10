@@ -151,6 +151,29 @@ namespace Microsoft.TypeSpec.Generator.Tests.Utilities
             Assert.AreEqual("System.Collections.Generic.IReadOnlyList`1", name);
         }
 
+        [Test]
+        public void MultidimensionalArrayFullyQualifiedNamePreservesRank()
+        {
+            var compilation = CSharpCompilation.Create(
+                "TestAssembly",
+                [CSharpSyntaxTree.ParseText("""
+                namespace Sample
+                {
+                    public class Container
+                    {
+                        public int[,] Matrix { get; }
+                    }
+                }
+                """)],
+                [MetadataReference.CreateFromFile(typeof(object).Assembly.Location)]);
+            var property = compilation.GetTypeByMetadataName("Sample.Container")!
+                .GetMembers("Matrix")
+                .OfType<IPropertySymbol>()
+                .Single();
+
+            Assert.AreEqual("System.Int32[,]", property.Type.GetFullyQualifiedName());
+        }
+
         private static IPropertySymbol GetPropertySymbol(Compilation compilation, string containerName, string propertyName)
         {
             var typeSymbol = compilation.GetTypeByMetadataName($"Sample.{containerName}");

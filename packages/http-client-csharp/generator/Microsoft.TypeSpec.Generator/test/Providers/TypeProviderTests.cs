@@ -258,20 +258,19 @@ namespace Microsoft.TypeSpec.Generator.Tests.Providers
                 declarationModifiers: TypeSignatureModifiers.Public | TypeSignatureModifiers.Class,
                 constructors: [currentConstructor]);
 
-            typeProvider.ProcessTypeForBackCompatibility();
+            var previousParameters = typeProvider.LastContractView!.Constructors.Single().Signature.Parameters;
+            Assert.IsTrue(ConstructorBackCompatHelper.TryCreateRestoredParameters(
+                currentConstructor.Signature.Parameters,
+                previousParameters,
+                out var restoredParameters));
 
-            var constructor = typeProvider.Constructors.Single();
             Assert.Multiple(() =>
             {
-                Assert.That(constructor.Signature.Parameters, Is.EqualTo(new[] { minimumCount, maximumCount }));
-                Assert.AreEqual("The minimum count.", constructor.Signature.Parameters[0].Description.Format);
-                Assert.AreEqual("The maximum count.", constructor.Signature.Parameters[1].Description.Format);
-                Assert.AreEqual(
-                    "this.MaximumCount = maximumCount;\nthis.MinimumCount = minimumCount;\n",
-                    constructor.BodyStatements!.ToDisplayString());
-                Assert.That(
-                    constructor.XmlDocs.Parameters.Select(p => p.Parameter),
-                    Is.EqualTo(new[] { minimumCount, maximumCount }));
+                Assert.That(restoredParameters.Select(p => p.Name), Is.EqualTo(new[] { "minimumCount", "maximumCount" }));
+                Assert.AreEqual("The minimum count.", restoredParameters[0].Description.Format);
+                Assert.AreEqual("The maximum count.", restoredParameters[1].Description.Format);
+                Assert.AreNotSame(minimumCount, restoredParameters[0]);
+                Assert.That(currentConstructor.Signature.Parameters, Is.EqualTo(new[] { maximumCount, minimumCount }));
             });
         }
 
@@ -297,13 +296,17 @@ namespace Microsoft.TypeSpec.Generator.Tests.Providers
                 declarationModifiers: TypeSignatureModifiers.Public | TypeSignatureModifiers.Class,
                 constructors: [currentConstructor]);
 
-            typeProvider.ProcessTypeForBackCompatibility();
+            var previousParameters = typeProvider.LastContractView!.Constructors.Single().Signature.Parameters;
+            Assert.IsTrue(ConstructorBackCompatHelper.TryCreateRestoredParameters(
+                currentConstructor.Signature.Parameters,
+                previousParameters,
+                out var restoredParameters));
 
             Assert.Multiple(() =>
             {
-                Assert.AreEqual("oldName", parameter.Name);
-                Assert.AreEqual("this.Value = oldName;\n", currentConstructor.BodyStatements!.ToDisplayString());
-                Assert.AreEqual("oldName", currentConstructor.XmlDocs.Parameters.Single().Parameter.Name);
+                Assert.AreEqual("oldName", restoredParameters.Single().Name);
+                Assert.AreEqual("newName", parameter.Name);
+                Assert.AreNotSame(parameter, restoredParameters.Single());
             });
         }
 
@@ -327,9 +330,13 @@ namespace Microsoft.TypeSpec.Generator.Tests.Providers
                 declarationModifiers: TypeSignatureModifiers.Public | TypeSignatureModifiers.Class,
                 constructors: [currentConstructor]);
 
-            typeProvider.ProcessTypeForBackCompatibility();
+            var previousParameters = typeProvider.LastContractView!.Constructors.Single().Signature.Parameters;
+            Assert.IsTrue(ConstructorBackCompatHelper.TryCreateRestoredParameters(
+                currentConstructor.Signature.Parameters,
+                previousParameters,
+                out var restoredParameters));
 
-            Assert.AreEqual("vmwareSiteId", typeProvider.Constructors.Single().Signature.Parameters.Single().Name);
+            Assert.AreEqual("vmwareSiteId", restoredParameters.Single().Name);
         }
 
         [Test]
@@ -356,10 +363,14 @@ namespace Microsoft.TypeSpec.Generator.Tests.Providers
                 declarationModifiers: TypeSignatureModifiers.Public | TypeSignatureModifiers.Class,
                 constructors: [currentConstructor]);
 
-            typeProvider.ProcessTypeForBackCompatibility();
+            var previousParameters = typeProvider.LastContractView!.Constructors.Single().Signature.Parameters;
+            Assert.IsTrue(ConstructorBackCompatHelper.TryCreateRestoredParameters(
+                currentConstructor.Signature.Parameters,
+                previousParameters,
+                out var restoredParameters));
 
             Assert.That(
-                typeProvider.Constructors.Single().Signature.Parameters.Select(p => p.Name),
+                restoredParameters.Select(p => p.Name),
                 Is.EqualTo(new[] { "first", "second", "third" }));
         }
 
@@ -383,9 +394,13 @@ namespace Microsoft.TypeSpec.Generator.Tests.Providers
                 declarationModifiers: TypeSignatureModifiers.Public | TypeSignatureModifiers.Class,
                 constructors: [currentConstructor]);
 
-            typeProvider.ProcessTypeForBackCompatibility();
+            var previousParameters = typeProvider.LastContractView!.Constructors.Single().Signature.Parameters;
 
-            Assert.AreEqual("newName", typeProvider.Constructors.Single().Signature.Parameters.Single().Name);
+            Assert.IsFalse(ConstructorBackCompatHelper.TryCreateRestoredParameters(
+                currentConstructor.Signature.Parameters,
+                previousParameters,
+                out _));
+            Assert.AreEqual("newName", currentConstructor.Signature.Parameters.Single().Name);
         }
 
         [Test]
@@ -411,12 +426,23 @@ namespace Microsoft.TypeSpec.Generator.Tests.Providers
                         new TestTypeProvider()),
                 ]);
 
-            typeProvider.ProcessTypeForBackCompatibility();
+            var previousNullableParameters = typeProvider.LastContractView!.Constructors
+                .Single(c => c.Signature.Parameters.Single().Type.IsNullable)
+                .Signature.Parameters;
+            Assert.IsFalse(ConstructorBackCompatHelper.TryCreateRestoredParameters(
+                [nonNullableParameter],
+                previousNullableParameters,
+                out _));
+            Assert.IsTrue(ConstructorBackCompatHelper.TryCreateRestoredParameters(
+                [nullableParameter],
+                previousNullableParameters,
+                out var restoredParameters));
 
             Assert.Multiple(() =>
             {
                 Assert.AreEqual("nonNullableCurrent", nonNullableParameter.Name);
-                Assert.AreEqual("previousNullable", nullableParameter.Name);
+                Assert.AreEqual("previousNullable", restoredParameters.Single().Name);
+                Assert.AreEqual("nullableCurrent", nullableParameter.Name);
             });
         }
 
@@ -443,12 +469,23 @@ namespace Microsoft.TypeSpec.Generator.Tests.Providers
                         new TestTypeProvider()),
                 ]);
 
-            typeProvider.ProcessTypeForBackCompatibility();
+            var previousNullableParameters = typeProvider.LastContractView!.Constructors
+                .Single(c => c.Signature.Parameters.Single().Type.Arguments.Single().IsNullable)
+                .Signature.Parameters;
+            Assert.IsFalse(ConstructorBackCompatHelper.TryCreateRestoredParameters(
+                [nonNullableParameter],
+                previousNullableParameters,
+                out _));
+            Assert.IsTrue(ConstructorBackCompatHelper.TryCreateRestoredParameters(
+                [nullableParameter],
+                previousNullableParameters,
+                out var restoredParameters));
 
             Assert.Multiple(() =>
             {
                 Assert.AreEqual("nonNullableCurrent", nonNullableParameter.Name);
-                Assert.AreEqual("previousNullableItems", nullableParameter.Name);
+                Assert.AreEqual("previousNullableItems", restoredParameters.Single().Name);
+                Assert.AreEqual("nullableCurrent", nullableParameter.Name);
             });
         }
 
@@ -483,7 +520,7 @@ namespace Microsoft.TypeSpec.Generator.Tests.Providers
         }
 
         [Test]
-        public void TryRestorePreviousConstructorParametersRejectsDuplicateFinalNames()
+        public void ConstructorParameterRestorationRejectsDuplicateFinalNames()
         {
             ParameterProvider[] currentParameters =
             [
@@ -495,19 +532,126 @@ namespace Microsoft.TypeSpec.Generator.Tests.Providers
                 new("duplicate", $"", new CSharpType(typeof(string))),
                 new("duplicate", $"", new CSharpType(typeof(string))),
             ];
-            var currentConstructor = new ConstructorProvider(
-                new ConstructorSignature(typeof(object), $"", MethodSignatureModifiers.Public, currentParameters),
-                Snippet.ThrowExpression(Snippet.Null),
-                new TestTypeProvider());
-            var previousConstructor = new ConstructorProvider(
-                new ConstructorSignature(typeof(object), $"", MethodSignatureModifiers.Public, previousParameters),
-                Snippet.ThrowExpression(Snippet.Null),
-                new TestTypeProvider());
+            Assert.Multiple(() =>
+            {
+                Assert.IsFalse(ConstructorBackCompatHelper.TryCreateRestoredParameters(
+                    currentParameters,
+                    previousParameters,
+                    out _));
+                Assert.That(currentParameters.Select(p => p.Name), Is.EqualTo(new[] { "first", "second" }));
+            });
+        }
+
+        [Test]
+        public void ConstructorParameterRestorationRejectsPartialNameOverlap()
+        {
+            ParameterProvider[] currentParameters =
+            [
+                new("second", $"", new CSharpType(typeof(string))),
+                new("replacement", $"", new CSharpType(typeof(string))),
+                new("third", $"", new CSharpType(typeof(string))),
+            ];
+            ParameterProvider[] previousParameters =
+            [
+                new("first", $"", new CSharpType(typeof(string))),
+                new("second", $"", new CSharpType(typeof(string))),
+                new("third", $"", new CSharpType(typeof(string))),
+            ];
+
+            Assert.IsFalse(ConstructorBackCompatHelper.TryCreateRestoredParameters(
+                currentParameters,
+                previousParameters,
+                out _));
+        }
+
+        [Test]
+        public void ConstructorParameterIdentityIncludesRefKindsAndParams()
+        {
+            var value = new ParameterProvider("value", $"", new CSharpType(typeof(int)));
+            var byRef = new ParameterProvider("value", $"", new CSharpType(typeof(int)), isRef: true);
+            var byIn = new ParameterProvider("value", $"", new CSharpType(typeof(int)), isIn: true);
+            var byOut = new ParameterProvider("value", $"", new CSharpType(typeof(int)), isOut: true);
+            var values = new ParameterProvider("values", $"", new CSharpType(typeof(int[])), isParams: true);
+            var array = new ParameterProvider("values", $"", new CSharpType(typeof(int[])));
 
             Assert.Multiple(() =>
             {
-                Assert.IsFalse(BackCompatHelper.TryRestorePreviousConstructorParameters(currentConstructor, previousConstructor));
-                Assert.That(currentParameters.Select(p => p.Name), Is.EqualTo(new[] { "first", "second" }));
+                Assert.IsFalse(ConstructorBackCompatHelper.HaveSameParameterIdentity([value], [byRef]));
+                Assert.IsFalse(ConstructorBackCompatHelper.HaveSameParameterIdentity([value], [byIn]));
+                Assert.IsFalse(ConstructorBackCompatHelper.HaveSameParameterIdentity([value], [byOut]));
+                Assert.IsFalse(ConstructorBackCompatHelper.HaveSameParameterIdentity([values], [array]));
+            });
+        }
+
+        [Test]
+        public void ConstructorParameterIdentityIncludesArrayRankAndNestedNullability()
+        {
+            var vector = new ParameterProvider("value", $"", new CSharpType(typeof(int[])));
+            var matrix = new ParameterProvider("value", $"", new CSharpType(typeof(int[,])));
+            var nestedNonNullable = new ParameterProvider("value", $"", new CSharpType(typeof(List<int[]>)));
+            var nestedNullable = new ParameterProvider("value", $"", new CSharpType(typeof(List<int?[]>)));
+
+            Assert.Multiple(() =>
+            {
+                Assert.IsFalse(ConstructorBackCompatHelper.HaveSameParameterIdentity([vector], [matrix]));
+                Assert.IsFalse(ConstructorBackCompatHelper.HaveSameParameterIdentity([nestedNonNullable], [nestedNullable]));
+            });
+        }
+
+        [Test]
+        public void ConstructorParameterRestorationRejectsIllegalOptionalOrderAndAttributes()
+        {
+            var required = new ParameterProvider("required", $"", new CSharpType(typeof(string)));
+            var optional = new ParameterProvider("optional", $"", new CSharpType(typeof(string)), defaultValue: Snippet.Default);
+            ParameterProvider[] previousParameters =
+            [
+                new("optional", $"", new CSharpType(typeof(string))),
+                new("required", $"", new CSharpType(typeof(string)), defaultValue: Snippet.Default),
+            ];
+
+            Assert.IsFalse(ConstructorBackCompatHelper.TryCreateRestoredParameters(
+                [required, optional],
+                previousParameters,
+                out _));
+
+            var attributed = new ParameterProvider(
+                "newName",
+                $"",
+                new CSharpType(typeof(string)),
+                attributes: [new AttributeStatement(typeof(ObsoleteAttribute))]);
+            Assert.IsFalse(ConstructorBackCompatHelper.TryCreateRestoredParameters(
+                [attributed],
+                [new ParameterProvider("oldName", $"", new CSharpType(typeof(string)))],
+                out _));
+        }
+
+        [Test]
+        public async Task ConstructorCompatibilityExcludesStaticAndPrivateProtectedContracts()
+        {
+            await MockHelpers.LoadMockGeneratorAsync();
+            var typeProvider = new TestTypeProvider();
+            var parameter = new ParameterProvider("value", $"", new CSharpType(typeof(string)));
+            var staticConstructor = new ConstructorProvider(
+                new ConstructorSignature(
+                    typeof(object),
+                    $"",
+                    MethodSignatureModifiers.Public | MethodSignatureModifiers.Static,
+                    [parameter]),
+                Snippet.ThrowExpression(Snippet.Null),
+                typeProvider);
+            var privateProtectedConstructor = new ConstructorProvider(
+                new ConstructorSignature(
+                    typeof(object),
+                    $"",
+                    MethodSignatureModifiers.Private | MethodSignatureModifiers.Protected,
+                    [parameter]),
+                Snippet.ThrowExpression(Snippet.Null),
+                typeProvider);
+
+            Assert.Multiple(() =>
+            {
+                Assert.IsFalse(ConstructorBackCompatHelper.IsEligiblePreviousConstructor(typeProvider, staticConstructor));
+                Assert.IsFalse(ConstructorBackCompatHelper.IsEligiblePreviousConstructor(typeProvider, privateProtectedConstructor));
             });
         }
 

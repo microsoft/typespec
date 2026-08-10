@@ -217,9 +217,11 @@ namespace Microsoft.TypeSpec.Generator.Providers
             ParameterProvider source,
             string newName,
             bool removeDefault,
-            ParameterValidationType? validation = null)
+            ParameterValidationType? validation = null,
+            bool forceClone = false)
         {
-            if (source.Name == newName
+            if (!forceClone
+                && source.Name == newName
                 && !(removeDefault && source.DefaultValue != null)
                 && (validation == null || validation == source.Validation))
             {

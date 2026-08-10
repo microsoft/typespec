@@ -733,7 +733,8 @@ namespace Microsoft.TypeSpec.Generator.Providers
         {
             if (_inputModel.IsUnknownDiscriminatorModel)
             {
-                return [FullConstructor];
+                _initializationConstructor = FullConstructor;
+                return [_initializationConstructor];
             }
 
             // Build the standard single initialization constructor
@@ -742,7 +743,10 @@ namespace Microsoft.TypeSpec.Generator.Providers
                 : _inputModel.Usage.HasFlag(InputModelTypeUsage.Input)
                     ? MethodSignatureModifiers.Public
                     : MethodSignatureModifiers.Internal;
-            var (constructorParameters, constructorInitializer) = BuildConstructorParameters(true);
+            var (constructorParameters, constructorInitializer) = BuildConstructorParameters(
+                true,
+                accessibility,
+                reconcileWithLastContract: true);
 
             var constructor = new ConstructorProvider(
                 signature: new ConstructorSignature(
@@ -756,11 +760,14 @@ namespace Microsoft.TypeSpec.Generator.Providers
                     GetPropertyInitializers(true, parameters: constructorParameters)
                 },
                 this);
+            _initializationConstructor = constructor;
 
             var constructors = new List<ConstructorProvider> { constructor };
 
             // Add FullConstructor if parameters are different
-            if (!constructorParameters.SequenceEqual(FullConstructor.Signature.Parameters))
+            if (!ConstructorBackCompatHelper.HaveSameParameterIdentity(
+                constructorParameters,
+                FullConstructor.Signature.Parameters))
             {
                 constructors.Add(FullConstructor);
             }
@@ -773,6 +780,17 @@ namespace Microsoft.TypeSpec.Generator.Providers
             }
 
             return [.. constructors];
+        }
+
+        private ConstructorProvider? _initializationConstructor;
+        internal ConstructorProvider InitializationConstructor
+        {
+            get
+            {
+                _ = Constructors;
+                return _initializationConstructor
+                    ?? throw new InvalidOperationException($"Initialization constructor for '{Name}' was not built.");
+            }
         }
 
         /// <summary>
@@ -800,14 +818,8 @@ namespace Microsoft.TypeSpec.Generator.Providers
 
             foreach (var previousConstructor in previousConstructors)
             {
-                if (!MethodSignatureHelper.IsPublicApi(previousConstructor.Signature.Modifiers))
-                {
-                    continue;
-                }
-
                 var previousParameters = previousConstructor.Signature.Parameters;
-
-                if (BackCompatHelper.IsConstructorRemovalAcceptedInBaseline(this, previousConstructor.Signature))
+                if (!ConstructorBackCompatHelper.IsEligiblePreviousConstructor(this, previousConstructor))
                 {
                     continue;
                 }
@@ -834,8 +846,8 @@ namespace Microsoft.TypeSpec.Generator.Providers
 
                 // If a constructor with the same parameters already exists - either still generated or
                 // supplied by custom code (which lives in the canonical view) - there is nothing to restore.
-                if (constructors.Any(c => BackCompatHelper.ParametersMatch(c.Signature.Parameters, previousParameters))
-                    || CanonicalView.Constructors.Any(c => BackCompatHelper.ParametersMatch(c.Signature.Parameters, previousParameters)))
+                if (constructors.Any(c => ConstructorBackCompatHelper.HaveSameParameterIdentity(c.Signature.Parameters, previousParameters))
+                    || CanonicalView.Constructors.Any(c => ConstructorBackCompatHelper.HaveSameParameterIdentity(c.Signature.Parameters, previousParameters)))
                 {
                     continue;
                 }
@@ -1174,7 +1186,10 @@ namespace Microsoft.TypeSpec.Generator.Providers
         }
 
         private (IReadOnlyList<ParameterProvider> Parameters, ConstructorInitializer? Initializer) BuildConstructorParameters(
-            bool isInitializationConstructor, bool includeDiscriminatorParameter = false)
+            bool isInitializationConstructor,
+            MethodSignatureModifiers modifiers = MethodSignatureModifiers.None,
+            bool includeDiscriminatorParameter = false,
+            bool reconcileWithLastContract = false)
         {
             var baseParameters = new List<ParameterProvider>();
             var constructorParameters = new List<ParameterProvider>();
@@ -1222,6 +1237,16 @@ namespace Microsoft.TypeSpec.Generator.Providers
                     p.Property is null
                     || (!overriddenProperties.Contains(p.Property!) && (!p.Property.IsDiscriminator || !isInitializationConstructor || (includeDiscriminatorParameter && IsMultiLevelDiscriminator)))));
 
+            if (reconcileWithLastContract
+                && ConstructorBackCompatHelper.TryRestoreInitializationParameters(
+                    this,
+                    modifiers,
+                    constructorParameters,
+                    out var restoredParameters))
+            {
+                constructorParameters = [.. restoredParameters];
+            }
+
             // construct the initializer using the parameters from base signature
             ConstructorInitializer? constructorInitializer = null;
             if (BaseModelProvider != null)
@@ -1245,8 +1270,18 @@ namespace Microsoft.TypeSpec.Generator.Providers
                     }
                     else
                     {
-                        // Standard base constructor call
-                        constructorInitializer = new ConstructorInitializer(true, [.. baseParameters.Select(p => GetExpressionForCtor(p, overriddenProperties, isInitializationConstructor, constructorParameters))]);
+                        // Build the call from the reconciled base signature so a restored parameter
+                        // order is reflected in every derived constructor call.
+                        var baseSignatureParameters = isInitializationConstructor && !HasBaseModelProviderCycle()
+                            ? BaseModelProvider.InitializationConstructor.Signature.Parameters
+                            : baseParameters;
+                        constructorInitializer = new ConstructorInitializer(
+                            true,
+                            [.. baseSignatureParameters.Select(p => GetExpressionForCtor(
+                                p,
+                                overriddenProperties,
+                                isInitializationConstructor,
+                                constructorParameters))]);
                     }
                 }
                 else
@@ -1446,16 +1481,41 @@ namespace Microsoft.TypeSpec.Generator.Providers
             IReadOnlyList<ParameterProvider>? parameters = null)
         {
             List<MethodBodyStatement> methodBodyStatements = new(CanonicalView.Properties.Count + CanonicalView.Fields.Count + 1);
-            Dictionary<string, ParameterProvider> parameterMap = parameters?.ToDictionary(p => p.Name) ?? [];
+            Dictionary<PropertyProvider, ParameterProvider> propertyParameterMap = [];
+            Dictionary<FieldProvider, ParameterProvider> fieldParameterMap = [];
+            if (parameters is not null)
+            {
+                foreach (var parameter in parameters)
+                {
+                    if (parameter.Property is not null)
+                    {
+                        propertyParameterMap.TryAdd(parameter.Property, parameter);
+                    }
+                    else if (parameter.Field is not null)
+                    {
+                        fieldParameterMap.TryAdd(parameter.Field, parameter);
+                    }
+                }
+            }
 
             foreach (var property in CanonicalView.Properties)
             {
-                CreatePropertyAssignmentStatement(isPrimaryConstructor, methodBodyStatements, parameterMap, property);
+                CreatePropertyAssignmentStatement(
+                    isPrimaryConstructor,
+                    methodBodyStatements,
+                    propertyParameterMap,
+                    fieldParameterMap,
+                    property);
             }
 
             foreach (var field in CanonicalView.Fields)
             {
-                CreatePropertyAssignmentStatement(isPrimaryConstructor, methodBodyStatements, parameterMap, field: field);
+                CreatePropertyAssignmentStatement(
+                    isPrimaryConstructor,
+                    methodBodyStatements,
+                    propertyParameterMap,
+                    fieldParameterMap,
+                    field: field);
             }
 
             // If discriminator is defined as optional in the base model, but we have an expression for it, assign it in the
@@ -1504,7 +1564,8 @@ namespace Microsoft.TypeSpec.Generator.Providers
         private void CreatePropertyAssignmentStatement(
             bool isPrimaryConstructor,
             List<MethodBodyStatement> methodBodyStatements,
-            Dictionary<string, ParameterProvider> parameterMap,
+            Dictionary<PropertyProvider, ParameterProvider> propertyParameterMap,
+            Dictionary<FieldProvider, ParameterProvider> fieldParameterMap,
             PropertyProvider? property = default,
             FieldProvider? field = default)
         {
@@ -1537,7 +1598,10 @@ namespace Microsoft.TypeSpec.Generator.Providers
 
             var type = property?.Type ?? field!.Type;
 
-            if (parameterMap.TryGetValue(property?.AsParameter.Name ?? field!.AsParameter.Name, out var parameter) || Type.IsStruct)
+            var hasParameter = property is not null
+                ? propertyParameterMap.TryGetValue(property, out var parameter)
+                : fieldParameterMap.TryGetValue(field!, out parameter);
+            if (hasParameter || Type.IsStruct)
             {
                 if (parameter != null)
                 {

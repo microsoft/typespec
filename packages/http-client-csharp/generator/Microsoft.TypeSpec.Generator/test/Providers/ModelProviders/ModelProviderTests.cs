@@ -2300,6 +2300,122 @@ namespace Microsoft.TypeSpec.Generator.Tests.Providers.ModelProviders
         }
 
         [Test]
+        public async Task BackCompat_ConstructorParameterSwapIsAppliedBeforeBody()
+        {
+            var inputModel = InputFactory.Model(
+                "MockInputModel",
+                usage: InputModelTypeUsage.Input,
+                properties:
+                [
+                    InputFactory.Property("maximumCount", InputPrimitiveType.Int32, isRequired: true),
+                    InputFactory.Property("minimumCount", InputPrimitiveType.Int32, isRequired: true),
+                ]);
+
+            await MockHelpers.LoadMockGeneratorAsync(
+                inputModelTypes: [inputModel],
+                lastContractCompilation: async () => await Helpers.GetCompilationFromDirectoryAsync());
+
+            var model = (ModelProvider)CodeModelGenerator.Instance.OutputLibrary.TypeProviders
+                .Single(t => t.Name == "MockInputModel");
+            var constructor = model.Constructors.Single(c =>
+                c.Signature.Modifiers.HasFlag(MethodSignatureModifiers.Public));
+
+            Assert.Multiple(() =>
+            {
+                Assert.That(
+                    constructor.Signature.Parameters.Select(p => p.Name),
+                    Is.EqualTo(new[] { "minimumCount", "maximumCount" }));
+                Assert.That(
+                    constructor.Signature.Parameters.Select(p => p.Property?.Name),
+                    Is.EqualTo(new[] { "MinimumCount", "MaximumCount" }));
+                Assert.AreEqual(
+                    "MaximumCount = maximumCount;\nMinimumCount = minimumCount;\n",
+                    constructor.BodyStatements!.ToDisplayString());
+                Assert.AreEqual("maximumCount", model.Properties.Single(p => p.Name == "MaximumCount").AsParameter.Name);
+                Assert.AreEqual("minimumCount", model.Properties.Single(p => p.Name == "MinimumCount").AsParameter.Name);
+                Assert.AreEqual(
+                    1,
+                    model.Constructors.Count(c => ConstructorBackCompatHelper.HaveSameParameterIdentity(
+                        c.Signature.Parameters,
+                        constructor.Signature.Parameters)));
+            });
+        }
+
+        [Test]
+        public async Task BackCompat_ConstructorParameterRenameIsAppliedBeforeBody()
+        {
+            var inputModel = InputFactory.Model(
+                "MockInputModel",
+                usage: InputModelTypeUsage.Input,
+                properties:
+                [
+                    InputFactory.Property("newName", InputPrimitiveType.String, isRequired: true),
+                ]);
+
+            await MockHelpers.LoadMockGeneratorAsync(
+                inputModelTypes: [inputModel],
+                lastContractCompilation: async () => await Helpers.GetCompilationFromDirectoryAsync());
+
+            var model = (ModelProvider)CodeModelGenerator.Instance.OutputLibrary.TypeProviders
+                .Single(t => t.Name == "MockInputModel");
+            var constructor = model.Constructors.Single(c =>
+                c.Signature.Modifiers.HasFlag(MethodSignatureModifiers.Public));
+
+            Assert.Multiple(() =>
+            {
+                Assert.AreEqual("oldName", constructor.Signature.Parameters.Single().Name);
+                Assert.That(constructor.BodyStatements!.ToDisplayString(), Does.Contain("NewName = oldName;"));
+                Assert.AreEqual("newName", model.Properties.Single().AsParameter.Name);
+                Assert.AreEqual(
+                    1,
+                    model.Constructors.Count(c => ConstructorBackCompatHelper.HaveSameParameterIdentity(
+                        c.Signature.Parameters,
+                        constructor.Signature.Parameters)));
+            });
+        }
+
+        [Test]
+        public async Task BackCompat_DerivedInitializerUsesRestoredBaseParameterOrder()
+        {
+            var baseModel = InputFactory.Model(
+                "BaseModel",
+                usage: InputModelTypeUsage.Input,
+                properties:
+                [
+                    InputFactory.Property("maximumCount", InputPrimitiveType.Int32, isRequired: true),
+                    InputFactory.Property("minimumCount", InputPrimitiveType.Int32, isRequired: true),
+                ]);
+            var derivedModel = InputFactory.Model(
+                "DerivedModel",
+                usage: InputModelTypeUsage.Input,
+                properties:
+                [
+                    InputFactory.Property("label", InputPrimitiveType.String, isRequired: true),
+                ],
+                baseModel: baseModel);
+
+            await MockHelpers.LoadMockGeneratorAsync(
+                inputModelTypes: [baseModel, derivedModel],
+                lastContractCompilation: async () => await Helpers.GetCompilationFromDirectoryAsync());
+
+            var derived = (ModelProvider)CodeModelGenerator.Instance.OutputLibrary.TypeProviders
+                .Single(t => t.Name == "DerivedModel");
+            var constructor = derived.Constructors.Single(c =>
+                c.Signature.Modifiers.HasFlag(MethodSignatureModifiers.Public));
+
+            Assert.Multiple(() =>
+            {
+                Assert.That(
+                    constructor.Signature.Parameters.Select(p => p.Name),
+                    Is.EqualTo(new[] { "minimumCount", "maximumCount", "label" }));
+                Assert.IsTrue(constructor.Signature.Initializer!.IsBase);
+                Assert.That(
+                    constructor.Signature.Initializer.Arguments.Select(a => a.ToDisplayString()),
+                    Is.EqualTo(new[] { "minimumCount", "maximumCount" }));
+            });
+        }
+
+        [Test]
         public async Task BackCompat_AbstractTypeConstructorAccessibility()
         {
             var discriminatorEnum = InputFactory.StringEnum("kindEnum", [("One", "one"), ("Two", "two")]);

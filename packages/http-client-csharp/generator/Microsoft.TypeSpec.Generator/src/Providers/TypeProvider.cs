@@ -1045,77 +1045,12 @@ namespace Microsoft.TypeSpec.Generator.Providers
         }
 
         /// <summary>
-        /// Returns this type's constructors with backward compatibility applied against
-        /// <see cref="LastContractView"/>. The default implementation restores parameter names on
-        /// matching public or protected constructors. It also preserves a previously-published public
-        /// constructor on an abstract base type by promoting a matching <c>private protected</c>
-        /// constructor back to <c>public</c>. Override and call <c>base</c> to extend this behavior.
+        /// Returns this type's constructors with non-structural backward compatibility applied against
+        /// <see cref="LastContractView"/>. Structural constructor compatibility is applied by the owning
+        /// provider before constructor bodies and callers are materialized.
         /// </summary>
         protected internal virtual IReadOnlyList<ConstructorProvider> BuildConstructorsForBackCompatibility(IEnumerable<ConstructorProvider> originalConstructors)
-        {
-            if (LastContractView?.Constructors == null || LastContractView.Constructors.Count == 0)
-            {
-                return [.. originalConstructors];
-            }
-
-            List<ConstructorProvider> constructors = [.. originalConstructors];
-
-            foreach (var previousConstructor in LastContractView.Constructors)
-            {
-                var previousModifiers = previousConstructor.Signature.Modifiers;
-                if (!previousModifiers.HasFlag(MethodSignatureModifiers.Public)
-                    && !previousModifiers.HasFlag(MethodSignatureModifiers.Protected))
-                {
-                    continue;
-                }
-
-                var currentConstructor = constructors.FirstOrDefault(c =>
-                    BackCompatHelper.ParameterTypesMatch(c.Signature.Parameters, previousConstructor.Signature.Parameters));
-                if (currentConstructor == null)
-                {
-                    continue;
-                }
-
-                var currentModifiers = currentConstructor.Signature.Modifiers;
-                if (DeclarationModifiers.HasFlag(TypeSignatureModifiers.Abstract)
-                    && previousModifiers.HasFlag(MethodSignatureModifiers.Public)
-                    && currentModifiers.HasFlag(MethodSignatureModifiers.Private)
-                    && currentModifiers.HasFlag(MethodSignatureModifiers.Protected))
-                {
-                    currentConstructor.Signature.Update(modifiers: MethodSignatureModifiers.Public);
-                    currentModifiers = MethodSignatureModifiers.Public;
-                    CodeModelGenerator.Instance.Emitter.Debug(
-                        $"Promoted constructor '{Name}({string.Join(", ", currentConstructor.Signature.Parameters.Select(p => p.Type.ToString()))})' from 'private protected' to 'public' to match last contract.",
-                        BackCompatibilityChangeCategory.ConstructorModifierPreserved);
-                }
-
-                if (!currentModifiers.HasFlag(MethodSignatureModifiers.Public)
-                    && !currentModifiers.HasFlag(MethodSignatureModifiers.Protected))
-                {
-                    continue;
-                }
-
-                var changedPositions = currentConstructor.Signature.Parameters
-                    .Zip(previousConstructor.Signature.Parameters, (current, previous) => (current, previous))
-                    .Select((pair, position) => (pair.current.Name, PreviousName: pair.previous.Name, Position: position))
-                    .Where(change => !string.Equals(change.Name, change.PreviousName, StringComparison.Ordinal))
-                    .ToArray();
-
-                if (BackCompatHelper.TryRestorePreviousConstructorParameters(
-                    currentConstructor,
-                    previousConstructor))
-                {
-                    foreach (var (currentName, previousName, position) in changedPositions)
-                    {
-                        CodeModelGenerator.Instance.Emitter.Debug(
-                            $"Restored parameter '{previousName}' at position {position} on constructor '{Name}' from last contract (current generated name was '{currentName}').",
-                            BackCompatibilityChangeCategory.ParameterNamePreserved);
-                    }
-                }
-            }
-
-            return [.. constructors];
-        }
+            => ConstructorBackCompatHelper.ApplyLateCompatibility(this, originalConstructors);
 
         private IReadOnlyList<EnumTypeMember>? _enumValues;
 
