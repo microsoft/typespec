@@ -17,6 +17,7 @@ import { logger } from "../logger.js";
 import { internalRouter } from "../routes/index.js";
 import { loadScenarioMockApis } from "../scenarios-resolver.js";
 import { MockApiServer } from "../server/index.js";
+import { parseJsonLines } from "../utils/body-utils.js";
 import type { ApiMockAppConfig } from "./config.js";
 import { processRequest } from "./request-processor.js";
 
@@ -103,7 +104,22 @@ function validateBody(
   if ("kind" in body) {
     // custom handler for now.
   } else {
-    if (Buffer.isBuffer(body.rawContent)) {
+    if (body.contentType === "application/jsonl") {
+      const expected =
+        typeof body.rawContent === "string" || Buffer.isBuffer(body.rawContent)
+          ? body.rawContent
+          : body.rawContent?.serialize(config);
+      const actual = req.originalRequest.rawBody;
+      if (expected === undefined || actual === undefined) {
+        req.expect.rawBodyEquals(expected);
+      } else {
+        req.expect.deepEqual(
+          parseJsonLines(actual),
+          parseJsonLines(expected),
+          "JSON Lines bodies not equal",
+        );
+      }
+    } else if (Buffer.isBuffer(body.rawContent)) {
       req.expect.rawBodyEquals(body.rawContent);
     } else {
       switch (body.contentType) {
