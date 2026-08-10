@@ -1,8 +1,9 @@
 import { refkey as ayRefkey, code, For, type Children, type Refkey } from "@alloy-js/core";
 import * as cs from "@alloy-js/csharp";
-import type { Interface, Operation } from "@typespec/compiler";
+import type { Interface, ModelProperty, Operation, Program } from "@typespec/compiler";
 import { isTemplateDeclaration, isVoidType } from "@typespec/compiler";
 import { useTsp } from "@typespec/emitter-framework";
+import { getHeaderFieldName, isMultipartBodyProperty } from "@typespec/http";
 import type { OperationHttpCanonicalization } from "@typespec/http-canonicalization";
 import { getUniqueItems } from "@typespec/json-schema";
 import { getDocComments } from "../../utils/doc-comments.jsx";
@@ -13,6 +14,33 @@ import {
 } from "../type-expression/type-expression.jsx";
 
 const interfaceRefKeyPrefix = Symbol.for("http-server-csharp:interface");
+
+/** Detects multipart operations without requiring HTTP canonicalization to succeed. */
+export function operationHasMultipartBody(program: Program, operation: Operation): boolean {
+  return Array.from(operation.parameters.properties.values()).some((prop) =>
+    isMultipartBodyProperty(program, prop),
+  );
+}
+
+function isContentTypeHeader(program: Program, property: ModelProperty) {
+  return getHeaderFieldName(program, property)?.toLowerCase() === "content-type";
+}
+
+/** Gets raw multipart protocol parameters when canonical HTTP metadata is unavailable. */
+export function getMultipartProtocolParameterNames(
+  program: Program,
+  operation: Operation,
+): Set<string> {
+  if (!operationHasMultipartBody(program, operation)) return new Set();
+
+  const names = new Set<string>();
+  for (const [name, prop] of operation.parameters.properties) {
+    if (isMultipartBodyProperty(program, prop) || isContentTypeHeader(program, prop)) {
+      names.add(name);
+    }
+  }
+  return names;
+}
 
 /** Creates a stable refkey for a business logic interface from its TypeSpec Interface type. */
 export function businessLogicInterfaceRefkey(type: Interface): Refkey {
@@ -83,7 +111,9 @@ function BusinessLogicMethod(props: BusinessLogicMethodProps): Children {
     : code`Task`;
 
   // Check if this is a multipart request
-  const isMultipart = props.canonicalOp?.requestParameters.body?.bodyKind === "multipart";
+  const isMultipart =
+    props.canonicalOp?.requestParameters.body?.bodyKind === "multipart" ||
+    operationHasMultipartBody($.program, props.operation);
 
   // For GET operations, suppress body parameters entirely
   const isGet = props.canonicalOp?.method === "get";
@@ -107,7 +137,7 @@ function BusinessLogicMethod(props: BusinessLogicMethodProps): Children {
 
   // For multipart requests, suppress all body-related params
   // For all requests, suppress content-type params
-  const filteredPropNames = new Set<string>();
+  const filteredPropNames = getMultipartProtocolParameterNames($.program, props.operation);
   if (props.canonicalOp) {
     for (const p of props.canonicalOp.requestParameters.properties) {
       if (
