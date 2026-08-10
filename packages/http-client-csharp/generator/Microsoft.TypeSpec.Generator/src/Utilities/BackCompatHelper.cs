@@ -123,6 +123,27 @@ namespace Microsoft.TypeSpec.Generator.Utilities
         }
 
         /// <summary>
+        /// Returns true when two parameter lists match positionally by type name and parameter name.
+        /// </summary>
+        public static bool ParametersMatch(IReadOnlyList<ParameterProvider> params1, IReadOnlyList<ParameterProvider> params2)
+        {
+            if (!ParameterTypesMatch(params1, params2))
+            {
+                return false;
+            }
+
+            for (int i = 0; i < params1.Count; i++)
+            {
+                if (params1[i].Name != params2[i].Name)
+                {
+                    return false;
+                }
+            }
+
+            return true;
+        }
+
+        /// <summary>
         /// Restores parameter names positionally from a matching previous signature. All target names
         /// are validated before any parameter is updated so swaps and rotations are applied atomically.
         /// </summary>
