@@ -12,16 +12,18 @@
 # --------------------------------------------------------------------------
 import codecs
 import json
+from contextlib import aclosing
 from types import TracebackType
 from typing import (
     Any,
+    AsyncGenerator,
     AsyncIterator,
     Callable,
+    Generator,
     Iterator,
     List,
     Optional,
     Protocol,
-    Tuple,
     Type,
     TypeVar,
     cast,
@@ -93,6 +95,64 @@ class JSONLEvent:
         return json.loads(cast(str, self.data))
 
 
+class _JSONLLineFramer:
+    """Incremental JSONL line framer with linear-time behavior.
+
+    JSONL records are separated only by ``"\\n"`` (tolerating ``"\\r\\n"``). Unlike
+    ``str.splitlines()``, other Unicode boundaries (``\\v``, ``\\f``, ``\\x1c``-``\\x1e``,
+    ``\\x85``, ``\\u2028``, ``\\u2029``) are preserved because they are valid inside a JSONL
+    record's string value.
+
+    Rather than re-concatenating and re-splitting the whole pending record on every network chunk
+    (which is O(n^2) for a single long record fragmented across many chunks), the unfinished record
+    is held as a list of fragments and joined only when a terminator arrives (or at EOF). Only the
+    newly decoded text is scanned per chunk, giving O(total) behavior.
+    """
+
+    def __init__(self) -> None:
+        # Fragments of the current, not-yet-terminated record. Never contains a "\n".
+        self._parts: List[str] = []
+
+    def push(self, text: str) -> List[str]:
+        """Feed newly decoded text and return any completed records.
+
+        :param text: Newly decoded text from a single chunk.
+        :type text: str
+        :return: Completed records produced by this chunk (may be empty).
+        :rtype: list[str]
+        """
+        if not text:
+            return []
+
+        segments = text.split("\n")
+        # Fast path: no line terminator, so this is a continuation of the current record. Stash the
+        # fragment without joining or rescanning the accumulated tail.
+        if len(segments) == 1:
+            self._parts.append(text)
+            return []
+
+        first = "".join(self._parts) + segments[0]
+        # All but the final segment are complete records (terminated by "\n"). Strip a trailing "\r"
+        # to tolerate "\r\n" line endings.
+        completed = [line[:-1] if line.endswith("\r") else line for line in [first, *segments[1:-1]]]
+        self._parts = [segments[-1]]
+        return completed
+
+    def flush(self, extra: str = "") -> List[str]:
+        """Return the final unterminated record, if any, at end of stream.
+
+        :param extra: Trailing text from finalizing the incremental decoder.
+        :type extra: str
+        :return: The final record, if non-empty.
+        :rtype: list[str]
+        """
+        tail = "".join(self._parts) + extra
+        self._parts = []
+        if not tail:
+            return []
+        return [tail[:-1] if tail.endswith("\r") else tail]
+
+
 def iter_lines(iter_bytes: Iterator[bytes]) -> Iterator[str]:
     """Iterate over lines from a byte iterator.
 
@@ -102,24 +162,15 @@ def iter_lines(iter_bytes: Iterator[bytes]) -> Iterator[str]:
     :return: An iterator of lines.
     """
     decoder = codecs.getincrementaldecoder("utf-8")()
+    framer = _JSONLLineFramer()
 
-    # Split only on "\n" (tolerating "\r\n") rather than using str.splitlines(),
-    # which would also break on other Unicode boundaries (\v, \f, \x1c-\x1e, \x85,
-    # \u2028, \u2029) that are valid inside a JSONL record's string value.
-    decoded = ""
     for chunk in iter_bytes:
-        decoded += decoder.decode(chunk)
-        if decoded:
-            decoded_lines = [line[:-1] if line.endswith("\r") else line for line in decoded.split("\n")]
-            yield from decoded_lines[:-1]
-            decoded = decoded_lines[-1]
+        yield from framer.push(decoder.decode(chunk))
 
-    decoded += decoder.decode(b"", final=True)
-    if decoded:
-        yield decoded[:-1] if decoded.endswith("\r") else decoded
+    yield from framer.flush(decoder.decode(b"", final=True))
 
 
-async def aiter_lines(iter_bytes: AsyncIterator[bytes]) -> AsyncIterator[str]:
+async def aiter_lines(iter_bytes: AsyncIterator[bytes]) -> AsyncGenerator[str, None]:
     """Iterate over lines from a byte iterator.
 
     :param iter_bytes: An iterator of byte chunks.
@@ -128,22 +179,19 @@ async def aiter_lines(iter_bytes: AsyncIterator[bytes]) -> AsyncIterator[str]:
     :return: An iterator of lines.
     """
     decoder = codecs.getincrementaldecoder("utf-8")()
+    framer = _JSONLLineFramer()
 
-    # Split only on "\n" (tolerating "\r\n") rather than using str.splitlines(),
-    # which would also break on other Unicode boundaries (\v, \f, \x1c-\x1e, \x85,
-    # \u2028, \u2029) that are valid inside a JSONL record's string value.
-    decoded = ""
-    async for chunk in iter_bytes:
-        decoded += decoder.decode(chunk)
-        if decoded:
-            decoded_lines = [line[:-1] if line.endswith("\r") else line for line in decoded.split("\n")]
-            for line in decoded_lines[:-1]:
+    try:
+        async for chunk in iter_bytes:
+            for line in framer.push(decoder.decode(chunk)):
                 yield line
-            decoded = decoded_lines[-1]
+    finally:
+        aclose = getattr(iter_bytes, "aclose", None)
+        if aclose is not None:
+            await aclose()
 
-    decoded += decoder.decode(b"", final=True)
-    if decoded:
-        yield decoded[:-1] if decoded.endswith("\r") else decoded
+    for line in framer.flush(decoder.decode(b"", final=True)):
+        yield line
 
 
 class JSONLDecoder:
@@ -174,8 +222,9 @@ class AsyncJSONLDecoder:
         :return: An asynchronous iterator of JSONL events.
         """
 
-        async for line in aiter_lines(iter_bytes):
-            yield JSONLEvent(data=line)
+        async with aclosing(aiter_lines(iter_bytes)) as lines:
+            async for line in lines:
+                yield JSONLEvent(data=line)
 
 
 class ServerSentEvent:
@@ -234,41 +283,110 @@ class ServerSentEvent:
         )
 
 
-def _split_sse_lines(buf: str) -> Tuple[List[str], str]:
-    """Split ``buf`` into complete SSE lines plus a trailing remainder.
+class _SSELineFramer:
+    """Incremental SSE line framer with linear-time behavior.
 
-    Per the SSE spec, lines may be separated by ``\\r\\n``, ``\\r`` or ``\\n``. A lone
-    trailing ``\\r`` is kept in the remainder because it may be the first half of a
-    ``\\r\\n`` that arrives in a later chunk.
+    Per the SSE spec, lines may be separated by ``"\\r\\n"``, ``"\\r"`` or ``"\\n"``. A lone trailing
+    ``"\\r"`` at a chunk boundary is ambiguous (it may be the first half of a ``"\\r\\n"``) and its
+    resolution is deferred until the next chunk (or EOF).
 
-    :param buf: The buffered, already UTF-8 decoded text.
-    :type buf: str
-    :return: A tuple of ``(complete_lines, remainder)`` where ``remainder`` is the
-        unterminated tail (never containing a line separator, except a single trailing
-        ``\\r`` awaiting a possible ``\\n``).
-    :rtype: tuple[list[str], str]
+    Rather than re-concatenating and re-scanning the whole pending line on every network chunk
+    (which is O(n^2) for a single long line fragmented across many chunks), the unfinished line is
+    held as a list of fragments and joined only when a terminator arrives (or at EOF). Only the
+    newly decoded text is scanned per chunk, giving O(total) behavior.
     """
-    lines: List[str] = []
-    start = 0
-    i = 0
-    n = len(buf)
-    while i < n:
-        char = buf[i]
-        if char == "\n":
-            lines.append(buf[start:i])
-            i += 1
-            start = i
-        elif char == "\r":
-            if i + 1 < n:
-                lines.append(buf[start:i])
-                i += 2 if buf[i + 1] == "\n" else 1
+
+    def __init__(self) -> None:
+        # Fragments of the current, not-yet-terminated line. Never contains a separator.
+        self._parts: List[str] = []
+        # True when the previous chunk ended with a lone "\r" whose "\r\n" status is still unknown.
+        self._pending_cr = False
+
+    def _emit_current(self) -> str:
+        line = "".join(self._parts)
+        self._parts = []
+        return line
+
+    def push(self, text: str) -> List[str]:
+        """Feed newly decoded text and return any completed lines.
+
+        :param text: Newly decoded text from a single chunk.
+        :type text: str
+        :return: Completed lines (separators stripped) produced by this chunk.
+        :rtype: list[str]
+        """
+        if not text:
+            return []
+
+        out: List[str] = []
+        if self._pending_cr:
+            # The deferred "\r" terminates the current line now that more data is available.
+            out.append(self._emit_current())
+            self._pending_cr = False
+            # A leading "\n" is the second half of that "\r\n" pair: consume it.
+            if text[:1] == "\n":
+                text = text[1:]
+
+        n = len(text)
+        start = 0
+        i = 0
+        while i < n:
+            char = text[i]
+            if char == "\n":
+                self._parts.append(text[start:i])
+                out.append(self._emit_current())
+                i += 1
                 start = i
+            elif char == "\r":
+                if i + 1 < n:
+                    self._parts.append(text[start:i])
+                    out.append(self._emit_current())
+                    i += 2 if text[i + 1] == "\n" else 1
+                    start = i
+                else:
+                    # Trailing lone "\r": defer resolution until the next chunk.
+                    self._parts.append(text[start:i])
+                    self._pending_cr = True
+                    start = n
+                    break
             else:
-                # Trailing lone "\r": ambiguous, defer until the next chunk.
-                break
+                i += 1
+
+        if start < n:
+            self._parts.append(text[start:n])
+        return out
+
+    def flush(self, extra: str = "") -> List[str]:
+        """Return any remaining lines at end of stream.
+
+        A lone trailing ``"\\r"`` is treated as a terminator (its ``"\\r\\n"`` half never arrives),
+        and a non-empty final unterminated line is emitted; an empty tail is not, so no blank line
+        (and therefore no spurious event) is invented at EOF.
+
+        :param extra: Trailing text from finalizing the incremental decoder.
+        :type extra: str
+        :return: The remaining lines, if any.
+        :rtype: list[str]
+        """
+        out: List[str] = []
+        if self._pending_cr:
+            out.append(self._emit_current())
+            self._pending_cr = False
+            if extra[:1] == "\n":
+                extra = extra[1:]
+
+        if extra:
+            out.extend(self.push(extra))
+
+        if self._pending_cr:
+            # 'extra' ended in a lone "\r": at EOF it is a terminator; emit the preceding content.
+            out.append(self._emit_current())
+            self._pending_cr = False
         else:
-            i += 1
-    return lines, buf[start:]
+            tail = self._emit_current()
+            if tail:
+                out.append(tail)
+        return out
 
 
 def _iter_sse_lines(iter_bytes: Iterator[bytes]) -> Iterator[str]:
@@ -282,21 +400,15 @@ def _iter_sse_lines(iter_bytes: Iterator[bytes]) -> Iterator[str]:
     # SSE is always UTF-8 (WHATWG spec). Use utf-8-sig to drop one leading BOM and
     # errors="replace" so invalid byte sequences become U+FFFD instead of crashing.
     decoder = codecs.getincrementaldecoder("utf-8-sig")(errors="replace")
+    framer = _SSELineFramer()
 
-    buf = ""
     for chunk in iter_bytes:
-        buf += decoder.decode(chunk)
-        lines, buf = _split_sse_lines(buf)
-        yield from lines
+        yield from framer.push(decoder.decode(chunk))
 
-    buf += decoder.decode(b"", final=True)
-    lines, remainder = _split_sse_lines(buf)
-    yield from lines
-    if remainder:
-        yield remainder[:-1] if remainder.endswith("\r") else remainder
+    yield from framer.flush(decoder.decode(b"", final=True))
 
 
-async def _aiter_sse_lines(iter_bytes: AsyncIterator[bytes]) -> AsyncIterator[str]:
+async def _aiter_sse_lines(iter_bytes: AsyncIterator[bytes]) -> AsyncGenerator[str, None]:
     """Asynchronously iterate over SSE lines (separators stripped) from a byte iterator.
 
     :param iter_bytes: An asynchronous iterator of byte chunks.
@@ -307,20 +419,19 @@ async def _aiter_sse_lines(iter_bytes: AsyncIterator[bytes]) -> AsyncIterator[st
     # SSE is always UTF-8 (WHATWG spec). Use utf-8-sig to drop one leading BOM and
     # errors="replace" so invalid byte sequences become U+FFFD instead of crashing.
     decoder = codecs.getincrementaldecoder("utf-8-sig")(errors="replace")
+    framer = _SSELineFramer()
 
-    buf = ""
-    async for chunk in iter_bytes:
-        buf += decoder.decode(chunk)
-        lines, buf = _split_sse_lines(buf)
-        for line in lines:
-            yield line
+    try:
+        async for chunk in iter_bytes:
+            for line in framer.push(decoder.decode(chunk)):
+                yield line
+    finally:
+        aclose = getattr(iter_bytes, "aclose", None)
+        if aclose is not None:
+            await aclose()
 
-    buf += decoder.decode(b"", final=True)
-    lines, remainder = _split_sse_lines(buf)
-    for line in lines:
+    for line in framer.flush(decoder.decode(b"", final=True)):
         yield line
-    if remainder:
-        yield remainder[:-1] if remainder.endswith("\r") else remainder
 
 
 class _SSEEventBuilder:
@@ -422,10 +533,11 @@ class AsyncSSEDecoder:
         :return: An asynchronous iterator of server-sent events.
         """
         builder = _SSEEventBuilder()
-        async for line in _aiter_sse_lines(iter_bytes):
-            event = builder.add_line(line)
-            if event is not None:
-                yield event
+        async with aclosing(_aiter_sse_lines(iter_bytes)) as lines:
+            async for line in lines:
+                event = builder.add_line(line)
+                if event is not None:
+                    yield event
 
 
 class Stream(Iterator[ReturnType_co]):
@@ -468,12 +580,15 @@ class Stream(Iterator[ReturnType_co]):
     def __iter__(self) -> Self:
         return self
 
-    def _iter_results(self) -> Iterator[ReturnType_co]:
-        for event in self._decoder.iter_events(self._response.iter_bytes()):
-            if self._terminal_event is not None and getattr(event, "data", None) == self._terminal_event:
-                break
-            result = self._deserialization_callback(self._response, event)
-            yield result
+    def _iter_results(self) -> Generator[ReturnType_co, None, None]:
+        try:
+            for event in self._decoder.iter_events(self._response.iter_bytes()):
+                if self._terminal_event is not None and getattr(event, "data", None) == self._terminal_event:
+                    break
+                result = self._deserialization_callback(self._response, event)
+                yield result
+        finally:
+            self._response.close()
 
     def __exit__(
         self,
@@ -487,7 +602,10 @@ class Stream(Iterator[ReturnType_co]):
         return self
 
     def close(self) -> None:
-        self._response.close()
+        try:
+            self._iterator.close()
+        finally:
+            self._response.close()
 
 
 class AsyncStream(AsyncIterator[ReturnType_co]):
@@ -532,12 +650,19 @@ class AsyncStream(AsyncIterator[ReturnType_co]):
     def __aiter__(self) -> Self:
         return self
 
-    async def _iter_results(self) -> AsyncIterator[ReturnType_co]:
-        async for event in self._decoder.aiter_events(self._response.iter_bytes()):
-            if self._terminal_event is not None and getattr(event, "data", None) == self._terminal_event:
-                break
-            result = self._deserialization_callback(self._response, event)
-            yield result
+    async def _iter_results(self) -> AsyncGenerator[ReturnType_co, None]:
+        events = self._decoder.aiter_events(self._response.iter_bytes())
+        try:
+            async for event in events:
+                if self._terminal_event is not None and getattr(event, "data", None) == self._terminal_event:
+                    break
+                result = self._deserialization_callback(self._response, event)
+                yield result
+        finally:
+            aclose = getattr(events, "aclose", None)
+            if aclose is not None:
+                await aclose()
+            await self._response.close()
 
     async def __aexit__(
         self,
@@ -551,7 +676,10 @@ class AsyncStream(AsyncIterator[ReturnType_co]):
         return self
 
     async def close(self) -> None:
-        await self._response.close()
+        try:
+            await self._iterator.aclose()
+        finally:
+            await self._response.close()
 
 
 __all__ = [
