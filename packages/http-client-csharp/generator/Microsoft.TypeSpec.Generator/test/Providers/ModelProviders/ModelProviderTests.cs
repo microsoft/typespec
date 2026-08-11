@@ -2861,6 +2861,54 @@ namespace Microsoft.TypeSpec.Generator.Tests.Providers.ModelProviders
         }
 
         [Test]
+        public async Task BackCompat_RenamedAbstractBaseConstructorNotRestoredWhenRemovalAcceptedInBaseline()
+        {
+            // The last contract published a public `BaseModel(string createdOn)` on an abstract base. The
+            // current generation produces a `private protected BaseModel(string kind)`. Without the baseline
+            // filter, the rename pass would restore the previous "createdOn" name and the base promotion would
+            // re-publish the constructor - but its removal is accepted in the ApiCompat baseline, so it must
+            // not be resurrected, and the current parameter must keep its name.
+            var baseline = Helpers.GetApiCompatBaselineFromFile();
+
+            var derivedInputModel = InputFactory.Model(
+                "DerivedModel",
+                discriminatedKind: "one",
+                properties:
+                [
+                    InputFactory.Property("kind", InputPrimitiveType.String, isRequired: true, isDiscriminator: true)
+                ]);
+            var inputModel = InputFactory.Model(
+                "BaseModel",
+                properties:
+                [
+                    InputFactory.Property("kind", InputPrimitiveType.String, isRequired: true, isDiscriminator: true)
+                ],
+                discriminatedModels: new Dictionary<string, InputModelType>() { { "one", derivedInputModel } });
+
+            await MockHelpers.LoadMockGeneratorAsync(
+                inputModelTypes: [inputModel],
+                lastContractCompilation: async () => await Helpers.GetCompilationFromDirectoryAsync(),
+                apiCompatBaseline: baseline);
+
+            var modelProvider = CodeModelGenerator.Instance.OutputLibrary.TypeProviders.SingleOrDefault(t => t.Name == "BaseModel") as ModelProvider;
+            Assert.IsNotNull(modelProvider);
+
+            modelProvider!.ProcessTypeForBackCompatibility();
+
+            // The baseline-accepted removal must not be promoted back to a public constructor.
+            Assert.IsFalse(
+                modelProvider.Constructors.Any(c =>
+                    c.Signature.Modifiers.HasFlag(MethodSignatureModifiers.Public) && c.Signature.Parameters.Count == 1),
+                "The abstract-base constructor should not be promoted to public when its removal is accepted in the baseline.");
+
+            // The current initialization constructor must keep its parameter name (not renamed to "createdOn").
+            var initConstructor = modelProvider.Constructors.Single(c =>
+                c.Signature.Modifiers.HasFlag(MethodSignatureModifiers.Private)
+                && c.Signature.Modifiers.HasFlag(MethodSignatureModifiers.Protected));
+            Assert.AreEqual("kind", initConstructor.Signature.Parameters[0].Name);
+        }
+
+        [Test]
         public async Task BackCompat_ConstructorNotRestoredWhenReplacedByCustomCode()
         {
             // "resources" was required in the last contract and is now optional, which would normally

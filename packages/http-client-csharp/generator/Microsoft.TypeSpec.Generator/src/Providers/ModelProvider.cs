@@ -797,12 +797,16 @@ namespace Microsoft.TypeSpec.Generator.Providers
                 ? [.. originalConstructorList, .. customConstructors]
                 : originalConstructorList;
 
-            RestorePreviousConstructorParameterNames(originalConstructorList, candidateConstructors, previousConstructors);
+            var restorablePreviousConstructors = previousConstructors
+                .Where(c => !BackCompatHelper.IsConstructorRemovalAcceptedInBaseline(this, c.Signature))
+                .ToList();
+
+            RestorePreviousConstructorParameterNames(originalConstructorList, candidateConstructors, restorablePreviousConstructors);
 
             var constructors = new List<ConstructorProvider>(base.BuildConstructorsForBackCompatibility(originalConstructorList));
             var restorablePropertyLookup = BuildRestorablePropertyLookup();
 
-            foreach (var previousConstructor in previousConstructors)
+            foreach (var previousConstructor in restorablePreviousConstructors)
             {
                 if (!MethodSignatureHelper.IsPublicApi(previousConstructor.Signature.Modifiers))
                 {
@@ -810,11 +814,6 @@ namespace Microsoft.TypeSpec.Generator.Providers
                 }
 
                 var previousParameters = previousConstructor.Signature.Parameters;
-
-                if (BackCompatHelper.IsConstructorRemovalAcceptedInBaseline(this, previousConstructor.Signature))
-                {
-                    continue;
-                }
 
                 // A previously published accessible parameterless constructor is dropped when the current
                 // generation makes a property required. Restore it and drop the generated mocking constructor

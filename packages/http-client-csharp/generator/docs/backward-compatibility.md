@@ -746,7 +746,7 @@ protected Widget() : this(default)
 
 #### Scenario: Constructor Parameter Name Restored by Signature Match
 
-**Description:** When a constructor keeps the same parameter types (in the same order and count) but one or more parameters would be renamed — because of a `@@clientName`, a spec/property rename, a generator naming-rule change, or a casing correction — the new names would appear on the generated constructor. Renaming a constructor parameter is source-breaking for callers using named arguments and is not flagged by ApiCompat / binary-compat tooling. To avoid this, the generator matches the current constructor to the previously published one by signature and restores the previous parameter names.
+**Description:** When a constructor keeps the same parameter types (in the same order and count) but one or more parameters would be renamed — because of a `@@clientName`, a spec/property rename, a generator naming-rule change, or a casing correction — the new names would appear on the generated constructor. Renaming a constructor parameter is source-breaking for callers using named arguments and is reported by ApiCompat as a `CP0017` parameter-name change, even though ordinary binary-compatibility checks may miss it. To avoid this, the generator matches the current constructor to the previously published one by signature and restores the previous parameter names.
 
 This covers straight renames, casing corrections, and parameter **swaps/rotations**. For a swap or rotation (every previous name is still present, just in a different position) the generator realigns the existing parameter objects to the previous positional order instead of renaming positionally, so a caller's named argument stays bound to the same property.
 
