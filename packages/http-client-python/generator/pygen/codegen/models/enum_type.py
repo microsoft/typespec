@@ -203,6 +203,10 @@ class EnumType(BaseType):
                 model_alias = self.code_model.get_unique_models_alias(serialize_namespace, self.client_namespace)
                 module_name = f"{model_alias}."
             file_name = f"{self.code_model.enums_filename}." if self.internal else ""
+            if serialize_namespace_type == NamespaceType.TYPES_FILE:
+                # In types.py the enum symbol is imported directly (bare name), so no ``_enums.``
+                # module prefix even for internal enums — the prefix would be an undefined name.
+                file_name = ""
             model_name = module_name + file_name + self.name
             # we don't need quoted annotation in operation files, and need it in model folder files.
             if not kwargs.get("is_operation_file", False):
@@ -305,9 +309,21 @@ class EnumType(BaseType):
                         typing_section=TypingSection.REGULAR,
                     )
                 elif serialize_namespace_type == NamespaceType.TYPES_FILE:
-                    # Import enum name directly to avoid dotted forward refs in TypedDict annotations
+                    # Import the enum symbol directly to avoid dotted forward refs in TypedDict
+                    # annotations. Internal enums are not re-exported from the public ``models``
+                    # package, so import them from the private ``_enums`` submodule instead — the
+                    # bare-symbol import (rather than the ``_enums`` module) also avoids name
+                    # collisions when internal enums come from several sibling namespaces.
+                    if self.internal:
+                        enums_module = (
+                            f"{relative_path}models.{self.code_model.enums_filename}"
+                            if relative_path != "."
+                            else f".models.{self.code_model.enums_filename}"
+                        )
+                    else:
+                        enums_module = f"{relative_path}models" if relative_path != "." else ".models"
                     file_import.add_submodule_import(
-                        f"{relative_path}models" if relative_path != "." else ".models",
+                        enums_module,
                         self.name,
                         ImportType.LOCAL,
                         typing_section=TypingSection.TYPING,

@@ -9,11 +9,13 @@
 from jinja2 import PackageLoader, Environment
 
 from pygen.codegen.models import CodeModel, JSONModelType, DPGModelType, build_type
-from pygen.codegen.models.imports import ImportType
+from pygen.codegen.models.imports import ImportType, FileImport, TypingSection
 from pygen.codegen.models.model_type import TypedDictModelType
 from pygen.codegen.models.property import Property
 from pygen.codegen.models.list_type import ListType
+from pygen.codegen.models.utils import NamespaceType
 from pygen.codegen.serializers.types_serializer import TypesSerializer, _qualify_shadowed_builtins
+from pygen.codegen.serializers.import_serializer import FileImportSerializer
 from pygen.codegen.serializers.unions_serializer import UnionsSerializer
 
 
@@ -721,3 +723,197 @@ def test_type_changing_under_types_file_does_not_cause_spurious_builtins_import(
 
     output = ts.serialize()
     assert "import builtins" not in output
+
+
+# ---------- Bug 3: TypedDict requiredness override via inheritance (issue #11626) ----------
+
+
+def _make_typed_property(code_model, name, prop_type, *, optional):
+    """Create a Property with an explicit requiredness."""
+    return Property(
+        yaml_data={"wireName": name, "clientName": name, "optional": optional},
+        code_model=code_model,
+        type=prop_type,
+    )
+
+
+def test_typeddict_requiredness_override_uses_flat_form():
+    """A child that changes an inherited field's requiredness must render as a flat TypedDict.
+
+    Regression for mypy ``Overwriting TypedDict field "generatedKeyName" while extending [misc]``.
+    PEP 589 forbids changing an inherited key's requiredness via subclassing, so the child is
+    emitted as a flat ``class Child(TypedDict, total=False):`` listing every field (inherited + own)
+    rather than subclassing the parent.
+    """
+    code_model = _make_code_model(models_mode="dpg")
+    str_type = build_type({"type": "string"}, code_model)
+
+    parent = _make_model_with_usage(code_model, "SearchIndexerKnowledgeStoreProjectionSelector", 2, DPGModelType)
+    parent.properties = [
+        _make_typed_property(code_model, "referenceKeyName", str_type, optional=True),
+        _make_typed_property(code_model, "generatedKeyName", str_type, optional=True),
+    ]
+
+    child = DPGModelType(
+        yaml_data={
+            "name": "SearchIndexerKnowledgeStoreTableProjectionSelector",
+            "type": "model",
+            "snakeCaseName": "searchindexerknowledgestoretableprojectionselector",
+            "usage": 2,
+        },
+        code_model=code_model,
+        # Merged property list: the inherited field is the *same object*, the overridden field is new.
+        properties=[
+            parent.properties[0],  # referenceKeyName inherited unchanged
+            _make_typed_property(code_model, "generatedKeyName", str_type, optional=False),  # now required
+        ],
+        parents=[parent],
+    )
+    code_model.model_types = [parent, child]
+
+    assert TypesSerializer.needs_flat_typeddict(child) is True
+
+    env = _make_env()
+    output = TypesSerializer(code_model=code_model, env=env, models=[parent, child]).serialize()
+
+    # Parent renders normally.
+    assert "class SearchIndexerKnowledgeStoreProjectionSelector(TypedDict, total=False):" in output
+    # Child renders flat — NOT subclassing the parent (which would violate PEP 589).
+    assert "class SearchIndexerKnowledgeStoreTableProjectionSelector(TypedDict, total=False):" in output
+    assert (
+        "class SearchIndexerKnowledgeStoreTableProjectionSelector(SearchIndexerKnowledgeStoreProjectionSelector)"
+        not in output
+    )
+    # The overridden field is required and the inherited field is flattened in.
+    assert "generatedKeyName: Required[str]" in output
+    assert "referenceKeyName: str" in output
+
+
+def test_typeddict_inheritance_without_requiredness_change_still_subclasses():
+    """A child that only adds fields (no requiredness change) keeps normal subclassing."""
+    code_model = _make_code_model(models_mode="dpg")
+    str_type = build_type({"type": "string"}, code_model)
+
+    parent = _make_model_with_usage(code_model, "Base", 2, DPGModelType)
+    parent.properties = [_make_typed_property(code_model, "name", str_type, optional=True)]
+
+    child = DPGModelType(
+        yaml_data={"name": "Derived", "type": "model", "snakeCaseName": "derived", "usage": 2},
+        code_model=code_model,
+        properties=[
+            parent.properties[0],  # inherited unchanged
+            _make_typed_property(code_model, "extra", str_type, optional=True),  # new, same requiredness
+        ],
+        parents=[parent],
+    )
+    code_model.model_types = [parent, child]
+
+    assert TypesSerializer.needs_flat_typeddict(child) is False
+
+    env = _make_env()
+    output = TypesSerializer(code_model=code_model, env=env, models=[parent, child]).serialize()
+    assert "class Derived(Base):" in output
+
+
+# ---------- Bug 1: internal enum reference/import in types.py (issue #11626) ----------
+
+
+def _make_enum_type(code_model, name, *, internal, client_namespace=None):
+    """Build an EnumType (with no members) attached to code_model."""
+    yaml_data = {
+        "type": "enum",
+        "name": name,
+        "valueType": {"type": "string"},
+        "values": [],
+        "internal": internal,
+    }
+    if client_namespace is not None:
+        yaml_data["clientNamespace"] = client_namespace
+    return build_type(yaml_data, code_model)
+
+
+def test_internal_enum_types_file_annotation_uses_bare_name():
+    """An internal enum annotated in types.py must use the bare name, not ``_enums.Name``.
+
+    Regression for mypy ``Name "_enums" is not defined [name-defined]``: types.py imports the enum
+    symbol directly, so the annotation must reference the bare name.
+    """
+    code_model = _make_code_model(models_mode="dpg")
+    enum = _make_enum_type(code_model, "SemanticQueryRewritesResultType", internal=True)
+    annotation = enum.type_annotation(serialize_namespace_type=NamespaceType.TYPES_FILE)
+    assert annotation == 'Union[str, "SemanticQueryRewritesResultType"]'
+    assert "_enums." not in annotation
+
+
+def test_internal_enum_types_file_imports_from_private_enums_submodule():
+    """Internal enums are not public, so types.py imports them from the private ``_enums`` submodule."""
+    code_model = _make_code_model(models_mode="dpg")
+    enum = _make_enum_type(code_model, "SemanticQueryRewritesResultType", internal=True)
+    modules = _local_import_modules(enum.imports(serialize_namespace_type=NamespaceType.TYPES_FILE))
+    suffix = f"models.{code_model.enums_filename}"
+    assert any(module.endswith(suffix) for module in modules), modules
+
+
+def test_public_enum_types_file_imports_from_models_package():
+    """A non-internal enum keeps importing from the public ``models`` package (bare symbol)."""
+    code_model = _make_code_model(models_mode="dpg")
+    enum = _make_enum_type(code_model, "PublicEnum", internal=False)
+    modules = _local_import_modules(enum.imports(serialize_namespace_type=NamespaceType.TYPES_FILE))
+    assert any(module.endswith("models") for module in modules), modules
+    assert not any(module.endswith(code_model.enums_filename) for module in modules), modules
+
+
+def test_internal_enum_property_types_file_serialize_is_consistent():
+    """End-to-end: the internal enum annotation and its import agree in generated types.py."""
+    code_model = _make_code_model(models_mode="dpg")
+    enum = _make_enum_type(code_model, "SemanticQueryRewritesResultType", internal=True)
+    model = _make_model_with_usage(code_model, "SearchDocumentsResult", 2, DPGModelType)
+    model.properties = [_make_property(code_model, "semanticQueryRewritesResultType", enum)]
+    code_model.model_types = [model]
+
+    env = _make_env()
+    output = TypesSerializer(code_model=code_model, env=env, models=[model]).serialize()
+    # The undefined ``_enums.`` prefix must never appear in types.py.
+    assert f"{code_model.enums_filename}.SemanticQueryRewritesResultType" not in output
+    # The enum symbol is imported (from the private submodule) so the forward ref resolves.
+    assert "import SemanticQueryRewritesResultType" in output
+    assert f"models.{code_model.enums_filename}" in output
+
+
+# ---------- Bug 2: duplicate runtime + TYPE_CHECKING import (issue #11626) ----------
+
+
+def test_duplicate_runtime_and_type_checking_import_is_deduped():
+    """A symbol imported at runtime must not be re-imported under ``if TYPE_CHECKING:``.
+
+    Regression for mypy ``Name "KnowledgeSourceKind" already defined [no-redef]``: the same enum was
+    imported at runtime from its ``_enums`` submodule and again for its annotation from the public
+    ``models`` package. The runtime import is sufficient; the TYPE_CHECKING duplicate is dropped.
+    """
+    code_model = _make_code_model(models_mode="dpg")
+    file_import = FileImport(code_model)
+    # Runtime import from the private submodule.
+    file_import.add_submodule_import(
+        "..indexes.models._enums", "KnowledgeSourceKind", ImportType.LOCAL, TypingSection.REGULAR
+    )
+    # TYPE_CHECKING import of the same bound name from a different module.
+    file_import.add_submodule_import(
+        "..indexes.models", "KnowledgeSourceKind", ImportType.LOCAL, typing_section=TypingSection.TYPING
+    )
+
+    output = str(FileImportSerializer(file_import))
+    assert output.count("import KnowledgeSourceKind") == 1
+    # No TYPE_CHECKING duplicate remains (that was the only typing import).
+    assert "if TYPE_CHECKING:" not in output
+
+
+def test_type_checking_import_kept_when_no_runtime_duplicate():
+    """A TYPE_CHECKING import with no runtime counterpart is preserved."""
+    code_model = _make_code_model(models_mode="dpg")
+    file_import = FileImport(code_model)
+    file_import.add_submodule_import(
+        "..indexes.models", "OnlyForTyping", ImportType.LOCAL, typing_section=TypingSection.TYPING
+    )
+    output = str(FileImportSerializer(file_import))
+    assert "if TYPE_CHECKING:" in output
+    assert "import OnlyForTyping" in output

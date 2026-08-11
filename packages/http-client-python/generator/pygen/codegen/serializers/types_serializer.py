@@ -248,6 +248,39 @@ class TypesSerializer(BaseSerializer):
         """Whether any property wire_name is a Python keyword or requires functional TypedDict form."""
         return any(keyword.iskeyword(p.wire_name) or not p.wire_name.isidentifier() for p in model.properties)
 
+    @staticmethod
+    def needs_flat_typeddict(model: ModelType) -> bool:
+        """Whether a TypedDict must be emitted in flat (non-inheriting) form.
+
+        PEP 589 forbids changing an inherited TypedDict field's requiredness in a subclass. When a
+        child redeclares an inherited field with a different requiredness (e.g. the parent renders it
+        as optional via ``total=False`` while the child needs ``Required[...]``), subclassing would
+        emit an illegal ``Overwriting TypedDict field ... while extending`` construct. Such models are
+        instead rendered as a flat TypedDict that lists every field (inherited + own) directly.
+
+        Models with keyword wire_names already flatten all fields via the functional form, so they
+        never hit this path.
+        """
+        if TypesSerializer.has_keyword_wire_names(model):
+            return False
+        non_discriminated_parents = [p for p in model.parents if not p.discriminated_subtypes]
+        if not non_discriminated_parents:
+            return False
+        for parent in non_discriminated_parents:
+            for parent_prop in parent.properties:
+                child_prop = next(
+                    (p for p in model.properties if p.client_name == parent_prop.client_name),
+                    None,
+                )
+                if child_prop is None or child_prop is parent_prop:
+                    # Not overridden by the child (same object is reused when inherited unchanged).
+                    continue
+                parent_required = not (parent_prop.optional or parent_prop.client_default_value is not None)
+                child_required = not (child_prop.optional or child_prop.client_default_value is not None)
+                if parent_required != child_required:
+                    return True
+        return False
+
     def get_shadowed_builtins(self, model: ModelType) -> frozenset[str]:
         """Return the set of builtin type names shadowed by property wire_names in this model.
 
@@ -308,7 +341,11 @@ class TypesSerializer(BaseSerializer):
                 if self.get_shadowed_builtins(model):
                     needs_builtins = True
                 for parent in model.parents:
-                    if parent.client_namespace != model.client_namespace and not parent.discriminated_subtypes:
+                    if (
+                        parent.client_namespace != model.client_namespace
+                        and not parent.discriminated_subtypes
+                        and not self.needs_flat_typeddict(model)
+                    ):
                         # Import parent class from sibling namespace's types module
                         file_import.add_submodule_import(
                             self.code_model.get_relative_import_path(
@@ -334,7 +371,7 @@ class TypesSerializer(BaseSerializer):
         if self.has_keyword_wire_names(model):
             return ""  # functional form is rendered separately
         non_discriminated_parents = [p for p in model.parents if not p.discriminated_subtypes]
-        if non_discriminated_parents:
+        if non_discriminated_parents and not self.needs_flat_typeddict(model):
             basename = ", ".join([m.name for m in non_discriminated_parents])
             return f"class {model.name}({basename}):{model.pylint_disable()}"
         return f"class {model.name}(TypedDict, total=False):{model.pylint_disable()}"
@@ -367,7 +404,7 @@ class TypesSerializer(BaseSerializer):
         if TypesSerializer.has_keyword_wire_names(model):
             return []  # functional form handles all properties
         non_discriminated_parents = [p for p in model.parents if not p.discriminated_subtypes]
-        if non_discriminated_parents:
+        if non_discriminated_parents and not TypesSerializer.needs_flat_typeddict(model):
             parent_properties = [p for bm in non_discriminated_parents for p in bm.properties]
             return [
                 p
