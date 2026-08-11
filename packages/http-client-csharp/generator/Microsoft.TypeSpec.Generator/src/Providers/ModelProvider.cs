@@ -405,6 +405,16 @@ namespace Microsoft.TypeSpec.Generator.Providers
                 return modelProvider;
             }
 
+            if (CustomCodeView?.BaseType is null && _inputModel.BaseModel is not null)
+            {
+                var inputBaseModelProvider = CodeModelGenerator.Instance.TypeFactory.CreateModel(_inputModel.BaseModel);
+                if (inputBaseModelProvider is not null && inputBaseModelProvider.Type.AreNamesEqual(baseType))
+                {
+                    CodeModelGenerator.Instance.TypeFactory.CSharpTypeMap[baseType] = inputBaseModelProvider;
+                    return inputBaseModelProvider;
+                }
+            }
+
             if (CustomCodeView?.BaseType != null && !string.IsNullOrEmpty(baseType.Namespace))
             {
                 foreach (var (mapKey, mapValue) in CodeModelGenerator.Instance.TypeFactory.CSharpTypeMap)
