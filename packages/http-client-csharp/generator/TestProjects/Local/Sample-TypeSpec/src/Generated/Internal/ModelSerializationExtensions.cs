@@ -188,31 +188,7 @@ namespace SampleTypeSpec
             switch (format)
             {
                 case "U":
-                    byte[] output = new byte[Base64.GetMaxEncodedToUtf8Length(value.ToMemory().Span.Length)];
-                    Base64.EncodeToUtf8(value.ToMemory().Span, output, out _, out int bytesWritten);
-                    int i = 0;
-                    for (; i < bytesWritten; i++)
-                    {
-                        if (output[i] == 43)
-                        {
-                            output[i] = 45;
-                        }
-                        else
-                        {
-                            if (output[i] == 47)
-                            {
-                                output[i] = 95;
-                            }
-                            else
-                            {
-                                if (output[i] == 61)
-                                {
-                                    break;
-                                }
-                            }
-                        }
-                    }
-                    writer.WriteStringValue(output.AsSpan(0, i));
+                    writer.WriteBase64UrlStringValue(value.ToMemory().Span);
                     break;
                 case "D":
                     writer.WriteBase64StringValue(value.ToMemory().Span);
@@ -220,6 +196,35 @@ namespace SampleTypeSpec
                 default:
                     throw new ArgumentException($"Format is not supported: '{format}'", nameof(format));
             }
+        }
+
+        public static void WriteBase64UrlStringValue(this Utf8JsonWriter writer, ReadOnlySpan<byte> value)
+        {
+            byte[] output = new byte[Base64.GetMaxEncodedToUtf8Length(value.Length)];
+            Base64.EncodeToUtf8(value, output, out _, out int bytesWritten);
+            int i = 0;
+            for (; i < bytesWritten; i++)
+            {
+                if (output[i] == 43)
+                {
+                    output[i] = 45;
+                }
+                else
+                {
+                    if (output[i] == 47)
+                    {
+                        output[i] = 95;
+                    }
+                    else
+                    {
+                        if (output[i] == 61)
+                        {
+                            break;
+                        }
+                    }
+                }
+            }
+            writer.WriteStringValue(output.AsSpan(0, i));
         }
 
         public static void WriteNumberValue(this Utf8JsonWriter writer, DateTimeOffset value, string format)

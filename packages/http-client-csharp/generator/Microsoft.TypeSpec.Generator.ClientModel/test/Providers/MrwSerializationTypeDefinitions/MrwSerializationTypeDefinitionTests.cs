@@ -1531,10 +1531,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers.MrwSerializat
 
             var methodBody = serialization.BuildJsonModelWriteCoreMethod().BodyStatements!.ToDisplayString();
 
-            Assert.IsTrue(methodBody.Contains($"writer.WriteBase64StringValue(Data, \"{format}\")"),
-                $"BinaryData property should be passed directly to WriteBase64StringValue. Actual:\n{methodBody}");
-            Assert.IsFalse(methodBody.Contains("Data.ToArray()"),
-                $"BinaryData property should not be copied before serialization. Actual:\n{methodBody}");
+            Assert.AreEqual(Helpers.GetExpectedFromFile(format), methodBody);
         }
 
         [Test]

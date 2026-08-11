@@ -296,11 +296,11 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers.Definitions
                 m.Signature.Parameters[1].Type.FrameworkType == typeof(BinaryData));
 
             Assert.IsNotNull(writeBase64Method, "WriteBase64StringValue for BinaryData should be generated");
-            var methodBody = writeBase64Method!.BodyStatements!.ToDisplayString();
-            Assert.IsTrue(methodBody.Contains("value.ToMemory().Span"));
-            Assert.IsTrue(methodBody.Contains("Base64.EncodeToUtf8"));
-            Assert.IsFalse(methodBody.Contains("value.ToArray()"));
-            Assert.IsFalse(methodBody.Contains("ToBase64UrlString"));
+
+            var writer = new TypeProviderWriter(new FilteredMethodsTypeProvider(definition,
+                name => name is "WriteBase64StringValue" or "WriteBase64UrlStringValue"));
+            var file = writer.Write();
+            Assert.AreEqual(Helpers.GetExpectedFromFile(), file.Content);
         }
 
         [Test]

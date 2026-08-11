@@ -11,7 +11,7 @@ using SampleTypeSpec;
 
 namespace TestProjects.Local.Tests
 {
-    public class BinaryDataSerializationTests
+    public class ModelSerializationExtensionsTests
     {
         [TestCase(0, "D")]
         [TestCase(1, "D")]

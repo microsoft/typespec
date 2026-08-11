@@ -33,6 +33,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
         public const string JsonDocumentOptionsFieldName = "JsonDocumentOptions";
         private const string WriteStringValueMethodName = "WriteStringValue";
         private const string WriteBase64StringValueMethodName = "WriteBase64StringValue";
+        private const string WriteBase64UrlStringValueMethodName = "WriteBase64UrlStringValue";
         private const string WriteNumberValueMethodName = "WriteNumberValue";
         private const string WriteObjectValueMethodName = "WriteObjectValue";
         private const string WriteFileBinaryContentMethodName = "WriteFileBinaryContent";
@@ -183,6 +184,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
                 writeStringChar,
                 BuildWriteBase64StringValueMethodProvider(),
                 BuildWriteBase64StringValueBinaryDataMethodProvider(),
+                BuildWriteBase64UrlStringValueMethodProvider(),
                 BuildWriteNumberValueMethodProvider(),
                 BuildWriteObjectValueMethodGeneric(),
                 BuildWriteObjectValueMethodProvider(),
@@ -544,15 +546,50 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
                 Description: null, ReturnDescription: null);
             var writer = ScmKnownParameters.Utf8JsonWriter.As<Utf8JsonWriter>();
             var value = valueParameter.As<BinaryData>();
-            var valueSpan = ReadOnlyMemorySnippets.Span(value.ToMemory());
+            var body = new MethodBodyStatement[]
+            {
+                new IfStatement(value.Equal(Null)) { writer.WriteNullValue(), Return() },
+                new SwitchStatement(_formatParameter)
+                {
+                    new(Literal("U"),
+                        new MethodBodyStatement[]
+                        {
+                            writer.WriteBase64UrlStringValue(value.ToMemory().Span()),
+                            Break
+                        }),
+                    new(Literal("D"),
+                        new MethodBodyStatement[]
+                        {
+                            writer.WriteBase64StringValue(value.ToMemory().Span()),
+                            Break
+                        }),
+                    SwitchCaseStatement.Default(Throw(New.ArgumentException(_formatParameter,
+                        new FormattableStringExpression("Format is not supported: '{0}'", [_formatParameter]))))
+                }
+            };
+
+            return new MethodProvider(signature, body, this, XmlDocProvider.Empty);
+        }
+
+        private MethodProvider BuildWriteBase64UrlStringValueMethodProvider()
+        {
+            var valueParameter = new ParameterProvider("value", FormattableStringHelpers.Empty, typeof(ReadOnlySpan<byte>));
+            var signature = new MethodSignature(
+                Name: WriteBase64UrlStringValueMethodName,
+                Modifiers: _methodModifiers,
+                Parameters: [ScmKnownParameters.Utf8JsonWriter, valueParameter],
+                ReturnType: null,
+                Description: null, ReturnDescription: null);
+            var writer = ScmKnownParameters.Utf8JsonWriter.As<Utf8JsonWriter>();
             var outputVariable = new VariableExpression(typeof(byte[]), "output");
             var output = new IndexableExpression(outputVariable);
-            var base64UrlStatements = new MethodBodyStatement[]
+            var body = new MethodBodyStatement[]
             {
-                Declare(outputVariable, New.Array(typeof(byte), Static(typeof(Base64)).Invoke(nameof(Base64.GetMaxEncodedToUtf8Length), valueSpan.Property(nameof(ReadOnlySpan<byte>.Length))))),
+                Declare(outputVariable, New.Array(typeof(byte),
+                    Static(typeof(Base64)).Invoke(nameof(Base64.GetMaxEncodedToUtf8Length), ReadOnlySpanSnippets.Length(valueParameter)))),
                 Static(typeof(Base64)).Invoke(nameof(Base64.EncodeToUtf8),
                     [
-                        valueSpan,
+                        valueParameter,
                         outputVariable,
                         Dash.AsArgument(isOut: true),
                         new DeclarationExpression(typeof(int), "bytesWritten", out var bytesWritten, isOut: true)
@@ -571,20 +608,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
                         Break
                     }))
                 },
-                writer.WriteStringValue(outputVariable.Invoke(nameof(MemoryExtensions.AsSpan), [Int(0), i])),
-                Break
-            };
-            var body = new MethodBodyStatement[]
-            {
-                new IfStatement(value.Equal(Null)) { writer.WriteNullValue(), Return() },
-                new SwitchStatement(_formatParameter)
-                {
-                    new(Literal("U"), base64UrlStatements),
-                    new(Literal("D"),
-                        new MethodBodyStatement[] { writer.WriteBase64StringValue(valueSpan), Break }),
-                    SwitchCaseStatement.Default(Throw(New.ArgumentException(_formatParameter,
-                        new FormattableStringExpression("Format is not supported: '{0}'", [_formatParameter]))))
-                }
+                writer.WriteStringValue(outputVariable.Invoke(nameof(MemoryExtensions.AsSpan), [Int(0), i]))
             };
 
             return new MethodProvider(signature, body, this, XmlDocProvider.Empty);
