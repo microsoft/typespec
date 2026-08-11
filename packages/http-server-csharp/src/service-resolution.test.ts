@@ -1,5 +1,5 @@
 import { Tester } from "#test/tester.js";
-import type { TesterInstance } from "@typespec/compiler/testing";
+import { t, type TesterInstance } from "@typespec/compiler/testing";
 import { $ } from "@typespec/compiler/typekit";
 import { HttpCanonicalizer } from "@typespec/http-canonicalization";
 import { beforeEach, expect, it } from "vitest";
@@ -108,6 +108,29 @@ it("does not emit template arguments that the instantiation never exposes", asyn
   `);
 
   expect(resolution.models.map((m) => m.name).sort()).toEqual(["Envelope", "Widget"]);
+});
+
+it("tracks the exact source operation for each canonical operation", async () => {
+  const { read } = await runner.compile(t.code`
+    @service
+    namespace Contoso {
+      interface ${t.interface("PetStore")} {
+        @route("/pets/{id}") @get ${t.op("read")}(
+          @path id: string,
+          @query apiVersion?: string,
+        ): string;
+      }
+    }
+  `);
+  const tk = $(runner.program);
+  const resolution = resolveServiceTypes(runner.program, tk, new HttpCanonicalizer(tk));
+  const canonicalOperation = [...resolution.canonicalOperationSourceMap].find(
+    ([, sourceOperation]) => sourceOperation === read,
+  )?.[0];
+
+  expect(canonicalOperation).toBeDefined();
+  expect(resolution.canonicalOperationSourceMap.get(canonicalOperation!)).toBe(read);
+  expect([...resolution.canonicalOpsMap.values()].flat()).toContain(canonicalOperation);
 });
 
 it("discovers the payload type of an HttpPart", async () => {
