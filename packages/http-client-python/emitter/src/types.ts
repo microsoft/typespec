@@ -474,6 +474,12 @@ const sdkScalarKindToPythonKind: Record<string, string> = {
   azureLocation: "string",
 };
 
+const supportedPythonEncodings = new Map<string, ReadonlySet<string>>([
+  ["boolean", new Set(["string"])],
+  ["integer", new Set(["string"])],
+  ["bytes", new Set(["base64", "base64url"])],
+]);
+
 function emitBuiltInType(
   context: PythonSdkContext,
   type: SdkBuiltInType | SdkDurationType | SdkDateTimeType,
@@ -510,10 +516,7 @@ function emitBuiltInType(
       }
     }
 
-    if (
-      (type.encode === "string" && (type.kind === "boolean" || pythonType === "integer")) ||
-      (type.kind === "bytes" && (type.encode === "base64" || type.encode === "base64url"))
-    ) {
+    if (supportedPythonEncodings.get(pythonType)?.has(type.encode)) {
       return getSimpleTypeResult(context, {
         type: pythonType,
         encode: type.encode,
