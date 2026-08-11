@@ -182,6 +182,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
                 writeStringTimeSpan,
                 writeStringChar,
                 BuildWriteBase64StringValueMethodProvider(),
+                BuildWriteBase64StringValueBinaryDataMethodProvider(),
                 BuildWriteNumberValueMethodProvider(),
                 BuildWriteObjectValueMethodGeneric(),
                 BuildWriteObjectValueMethodProvider(),
@@ -524,6 +525,63 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
                         }),
                     new(Literal("D"),
                         new MethodBodyStatement[] { writer.WriteBase64StringValue(value), Break }),
+                    SwitchCaseStatement.Default(Throw(New.ArgumentException(_formatParameter,
+                        new FormattableStringExpression("Format is not supported: '{0}'", [_formatParameter]))))
+                }
+            };
+
+            return new MethodProvider(signature, body, this, XmlDocProvider.Empty);
+        }
+
+        private MethodProvider BuildWriteBase64StringValueBinaryDataMethodProvider()
+        {
+            var valueParameter = new ParameterProvider("value", FormattableStringHelpers.Empty, typeof(BinaryData));
+            var signature = new MethodSignature(
+                Name: WriteBase64StringValueMethodName,
+                Modifiers: _methodModifiers,
+                Parameters: [ScmKnownParameters.Utf8JsonWriter, valueParameter, _formatParameter],
+                ReturnType: null,
+                Description: null, ReturnDescription: null);
+            var writer = ScmKnownParameters.Utf8JsonWriter.As<Utf8JsonWriter>();
+            var value = valueParameter.As<BinaryData>();
+            var valueSpan = ReadOnlyMemorySnippets.Span(value.ToMemory());
+            var outputVariable = new VariableExpression(typeof(byte[]), "output");
+            var output = new IndexableExpression(outputVariable);
+            var base64UrlStatements = new MethodBodyStatement[]
+            {
+                Declare(outputVariable, New.Array(typeof(byte), Static(typeof(Base64)).Invoke(nameof(Base64.GetMaxEncodedToUtf8Length), valueSpan.Property(nameof(ReadOnlySpan<byte>.Length))))),
+                Static(typeof(Base64)).Invoke(nameof(Base64.EncodeToUtf8),
+                    [
+                        valueSpan,
+                        outputVariable,
+                        new DeclarationExpression(typeof(int), "_", isOut: true),
+                        new DeclarationExpression(typeof(int), "bytesWritten", out var bytesWritten, isOut: true)
+                    ]).Terminate(),
+                Declare("i", Int(0), out var i),
+                new ForStatement(null, i.LessThan(bytesWritten), i.Increment())
+                {
+                    new IfElseStatement(new IfStatement(output[i].Equal(Int('+')))
+                    {
+                        output[i].Assign(Int('-')).Terminate()
+                    }, new IfElseStatement(new IfStatement(output[i].Equal(Int('/')))
+                    {
+                        output[i].Assign(Int('_')).Terminate()
+                    }, new IfStatement(output[i].Equal(Int('=')))
+                    {
+                        Break
+                    }))
+                },
+                writer.WriteStringValue(outputVariable.Invoke(nameof(MemoryExtensions.AsSpan), [Int(0), i])),
+                Break
+            };
+            var body = new MethodBodyStatement[]
+            {
+                new IfStatement(value.Equal(Null)) { writer.WriteNullValue(), Return() },
+                new SwitchStatement(_formatParameter)
+                {
+                    new(Literal("U"), base64UrlStatements),
+                    new(Literal("D"),
+                        new MethodBodyStatement[] { writer.WriteBase64StringValue(valueSpan), Break }),
                     SwitchCaseStatement.Default(Throw(New.ArgumentException(_formatParameter,
                         new FormattableStringExpression("Format is not supported: '{0}'", [_formatParameter]))))
                 }
