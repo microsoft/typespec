@@ -165,7 +165,7 @@ export function ControllerAction(props: ControllerActionProps): Children {
   }
 
   // Determine the success status code from the response
-  const { statusCode, hasBody } = getSuccessStatusCode(props.operation);
+  const { statusCode, hasBody } = getSuccessStatusCode($.program, props.operation);
 
   // Determine response type for ProducesResponseType attribute
   const returnType = props.operation.sourceType.returnType;

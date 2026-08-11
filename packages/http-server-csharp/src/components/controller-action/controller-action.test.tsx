@@ -97,6 +97,80 @@ it("renders a DELETE action with path param", async () => {
   `);
 });
 
+it("does not assign a result for void success unions with error responses", async () => {
+  const { deletePet } = await runner.compile(t.code`
+    @error
+    model ErrorResponse {
+      code: string;
+    }
+
+    op ServiceOperation<Response>(): Response | ErrorResponse;
+
+    interface PetStore {
+      @route("/pets") @delete ${t.op("deletePet")} is ServiceOperation<void>;
+    }
+  `);
+
+  const canonOp = canonicalizeOp(deletePet);
+
+  expect(
+    <Wrapper>
+      <ControllerAction operation={canonOp} implFieldName="PetStoreImpl" />
+    </Wrapper>,
+  ).toRenderTo(`
+    using Microsoft.AspNetCore.Mvc;
+
+    class TestController
+    {
+        [HttpDelete]
+        [Route("/pets")]
+        [ProducesResponseType((int)HttpStatusCode.NoContent, Type = typeof(void))]
+        public virtual async Task<IActionResult> DeletePet()
+        {
+            await PetStoreImpl.DeletePetAsync();
+            return NoContent();
+        }
+    }
+  `);
+});
+
+it("preserves result handling for value success unions with error responses", async () => {
+  const { getPet } = await runner.compile(t.code`
+    @error
+    model ErrorResponse {
+      code: string;
+    }
+
+    op ServiceOperation<Response>(): Response | ErrorResponse;
+
+    interface PetStore {
+      @route("/pets") @get ${t.op("getPet")} is ServiceOperation<string>;
+    }
+  `);
+
+  const canonOp = canonicalizeOp(getPet);
+
+  expect(
+    <Wrapper>
+      <ControllerAction operation={canonOp} implFieldName="PetStoreImpl" />
+    </Wrapper>,
+  ).toRenderTo(`
+    using Microsoft.AspNetCore.Mvc;
+
+    class TestController
+    {
+        [HttpGet]
+        [Route("/pets")]
+        [ProducesResponseType((int)HttpStatusCode.OK, Type = typeof(string))]
+        public virtual async Task<IActionResult> GetPet()
+        {
+            var result = await PetStoreImpl.GetPetAsync();
+            return Ok(result);
+        }
+    }
+  `);
+});
+
 it("orders request model call arguments to match the business interface", async () => {
   const { updatePet } = await runner.compile(t.code`
     model UpdatePetRequest {
