@@ -554,7 +554,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
                     [
                         valueSpan,
                         outputVariable,
-                        new DeclarationExpression(typeof(int), "_", isOut: true),
+                        Dash.AsArgument(isOut: true),
                         new DeclarationExpression(typeof(int), "bytesWritten", out var bytesWritten, isOut: true)
                     ]).Terminate(),
                 Declare("i", Int(0), out var i),
