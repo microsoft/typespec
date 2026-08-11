@@ -56,12 +56,15 @@ export function getErrorConstructor(program: Program, model: Model, className: s
       propName = propName === "Value" ? "ValueName" : `${propName}Prop`;
     }
 
-    const csharpType =
-      prop.type.kind === "Model" && tk.record.is(prop.type) ? (
-        <TypeExpression type={prop.type} />
-      ) : (
-        getCSharpTypeString(program, prop.type)
-      );
+    const usesTypeExpression =
+      prop.type.kind === "Union" ||
+      prop.type.kind === "Tuple" ||
+      (prop.type.kind === "Model" && (tk.record.is(prop.type) || tk.array.is(prop.type)));
+    const csharpType = usesTypeExpression ? (
+      <TypeExpression type={prop.type} />
+    ) : (
+      getCSharpTypeString(program, prop.type)
+    );
     const defaultStr = defaultValue ? defaultValue : prop.optional ? "default" : undefined;
     parameters.push({
       name: prop.name,

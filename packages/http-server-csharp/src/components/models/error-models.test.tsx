@@ -45,7 +45,7 @@ function findFileContent(output: any, pathSuffix: string): string | undefined {
   return search(output);
 }
 
-it("maps record error constructor parameters without changing other parameter types", async () => {
+it("maps structured error constructor parameters to their property types", async () => {
   const { ApiError } = await runner.compile(t.code`
     @error
     model ${t.model("ApiError")} {
@@ -54,6 +54,7 @@ it("maps record error constructor parameters without changing other parameter ty
       details?: ApiError[];
       additionalInfo?: Record<unknown>;
       counts?: Record<int32>;
+      pair?: [string, string];
       retryAfter?: int32 | null;
     }
   `);
@@ -70,13 +71,14 @@ it("maps record error constructor parameters without changing other parameter ty
         public ApiError(
             string message,
             string param = default,
-            Array details = default,
+            ApiError[] details = default,
             JsonObject additionalInfo = default,
             IDictionary<string, int> counts = default,
-            object retryAfter = default
+            string[] pair = default,
+            int? retryAfter = default
         ) : base(
             400,
-            value: new { message = message, param = param, details = details, additionalInfo = additionalInfo, counts = counts, retryAfter = retryAfter }
+            value: new { message = message, param = param, details = details, additionalInfo = additionalInfo, counts = counts, pair = pair, retryAfter = retryAfter }
         )
         {
             MessageProp = message;
@@ -84,6 +86,7 @@ it("maps record error constructor parameters without changing other parameter ty
             Details = details;
             AdditionalInfo = additionalInfo;
             Counts = counts;
+            Pair = pair;
             RetryAfter = retryAfter;
         }
     }
@@ -93,7 +96,8 @@ it("maps record error constructor parameters without changing other parameter ty
 it("adds the JsonObject using for inherited record error constructor parameters", async () => {
   const { Base, ApiError } = await runner.compile(t.code`
     model ${t.model("Base")} {
-      data?: Record<unknown>;
+      data?: Record<unknown>[];
+      nestedData?: Record<Record<unknown>>;
     }
 
     @error
@@ -113,4 +117,5 @@ it("adds the JsonObject using for inherited record error constructor parameters"
 
   expect(apiErrorFile).toBeDefined();
   expect(apiErrorFile).toContain("using System.Text.Json.Nodes;");
+  expect(apiErrorFile).toContain("IDictionary<string, JsonObject> nestedData = default");
 });

@@ -188,13 +188,26 @@ export function modelNeedsJsonNodes(
   model: Model,
   includeInherited = false,
 ): boolean {
+  const typeNeedsJsonNodes = (type: Type): boolean => {
+    if (type.kind === "Tuple") return type.values.some(typeNeedsJsonNodes);
+    if (type.kind !== "Model") return false;
+    if ($.record.is(type)) {
+      const valueType = type.indexer?.value;
+      return (
+        (valueType?.kind === "Intrinsic" && valueType.name === "unknown") ||
+        (valueType !== undefined && typeNeedsJsonNodes(valueType))
+      );
+    }
+    if ($.array.is(type) && type.indexer?.value) {
+      return typeNeedsJsonNodes(type.indexer.value);
+    }
+    return false;
+  };
+
   let current: Model | undefined = model;
   while (current) {
     for (const prop of current.properties.values()) {
-      if (prop.type.kind === "Model" && $.record.is(prop.type)) {
-        const valueType = prop.type.indexer?.value;
-        if (valueType?.kind === "Intrinsic" && valueType.name === "unknown") return true;
-      }
+      if (typeNeedsJsonNodes(prop.type)) return true;
     }
     current = includeInherited ? current.baseModel : undefined;
   }

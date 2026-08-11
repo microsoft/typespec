@@ -96,3 +96,101 @@ it("renders a DELETE action with path param", async () => {
     }
   `);
 });
+
+it("orders request model call arguments to match the business interface", async () => {
+  const { updatePet } = await runner.compile(t.code`
+    model UpdatePetRequest {
+      optionalTag?: string;
+      age: int32;
+    }
+
+    interface PetStore {
+      @route("/pets/{petId}") @post ${t.op("updatePet")}(
+        @path petId: string,
+        ...UpdatePetRequest,
+        @query apiVersion: string,
+      ): void;
+    }
+  `);
+
+  const canonOp = canonicalizeOp(updatePet);
+
+  expect(
+    <Wrapper>
+      <ControllerAction
+        operation={canonOp}
+        implFieldName="PetStoreImpl"
+        requestModel={{ name: "PetStoreUpdatePetRequest", op: canonOp, ifaceName: "PetStore" }}
+      />
+    </Wrapper>,
+  ).toRenderTo(`
+    using Microsoft.AspNetCore.Mvc;
+
+    class TestController
+    {
+        [HttpPost]
+        [Route("/pets/{petId}")]
+        [ProducesResponseType((int)HttpStatusCode.NoContent, Type = typeof(void))]
+        public virtual async Task<IActionResult> UpdatePet(
+            string petId,
+            PetStoreUpdatePetRequest body,
+            [FromQuery(Name="apiVersion")]
+            string apiVersion
+        )
+        {
+            await PetStoreImpl.UpdatePetAsync(petId, body.Age, apiVersion, body.OptionalTag);
+            return NoContent();
+        }
+    }
+  `);
+});
+
+it("orders protocol parameter call arguments to match the business interface", async () => {
+  const { getPet, businessGetPet } = await runner.compile(t.code`
+    interface PetStore {
+      @route("/pets/{petId}") @get ${t.op("getPet")}(
+        @path petId: string,
+        @header feature: string,
+        @query apiVersion: string,
+      ): string;
+
+      ${t.op("businessGetPet")}(
+        feature: string,
+        petId: string,
+        apiVersion: string,
+      ): string;
+    }
+  `);
+
+  const canonOp = canonicalizeOp(getPet);
+
+  expect(
+    <Wrapper>
+      <ControllerAction
+        operation={canonOp}
+        businessOperation={businessGetPet}
+        implFieldName="PetStoreImpl"
+      />
+    </Wrapper>,
+  ).toRenderTo(`
+    using Microsoft.AspNetCore.Mvc;
+
+    class TestController
+    {
+        [HttpGet]
+        [Route("/pets/{petId}")]
+        [ProducesResponseType((int)HttpStatusCode.OK, Type = typeof(string))]
+        public virtual async Task<IActionResult> GetPet(
+            string petId,
+            [FromHeader(Name="feature")]
+            string feature,
+            [FromQuery(Name="apiVersion")]
+            string apiVersion
+        )
+        {
+            var result = await PetStoreImpl.GetPetAsync(feature, petId, apiVersion);
+            return Ok(result);
+        }
+    }
+  `);
+});
