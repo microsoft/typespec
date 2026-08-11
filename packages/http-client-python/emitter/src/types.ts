@@ -478,6 +478,7 @@ function emitBuiltInType(
   context: PythonSdkContext,
   type: SdkBuiltInType | SdkDurationType | SdkDateTimeType,
 ): Record<string, any> {
+  const pythonType = sdkScalarKindToPythonKind[type.kind] || type.kind;
   if (type.encode) {
     if (type.kind === "duration") {
       if (type.encode === "ISO8601") {
@@ -509,7 +510,17 @@ function emitBuiltInType(
       }
     }
 
-    // fallback to wire type for unknown or unsupported encode
+    if (
+      (type.encode === "string" && (type.kind === "boolean" || pythonType === "integer")) ||
+      (type.kind === "bytes" && (type.encode === "base64" || type.encode === "base64url"))
+    ) {
+      return getSimpleTypeResult(context, {
+        type: pythonType,
+        encode: type.encode,
+      });
+    }
+
+    // Python cannot apply unknown/custom encodings, so expose the wire type instead of silently ignoring the encoding.
     if ("wireType" in type && type.wireType !== undefined) {
       return getSimpleTypeResult(context, {
         type: sdkScalarKindToPythonKind[type.wireType.kind] || type.wireType.kind,
@@ -519,7 +530,7 @@ function emitBuiltInType(
   }
 
   return getSimpleTypeResult(context, {
-    type: sdkScalarKindToPythonKind[type.kind] || type.kind, // TODO: switch to kind
+    type: pythonType, // TODO: switch to kind
     encode: type.encode,
   });
 }
