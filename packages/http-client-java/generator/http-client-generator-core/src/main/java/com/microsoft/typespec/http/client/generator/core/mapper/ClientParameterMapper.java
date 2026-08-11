@@ -70,7 +70,7 @@ public class ClientParameterMapper implements IMapper<Parameter, ClientMethodPar
         builder.rawType(wireType);
 
         if (isProtocolMethod) {
-            wireType = SchemaUtil.removeModelFromParameter(parameter.getProtocol().getHttp().getIn(), wireType);
+            wireType = SchemaUtil.removeModelFromClientType(parameter.getProtocol().getHttp().getIn(), wireType);
         }
 
         builder.wireType(wireType).annotations(new ArrayList<>());
