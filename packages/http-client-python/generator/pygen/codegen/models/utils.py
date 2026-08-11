@@ -34,6 +34,16 @@ def add_to_pylint_disable(curr_str: str, entry: str) -> str:
     return f"  # pylint: disable={entry}"
 
 
+def escape_sphinx_field_name(name: str) -> str:
+    """Escape a name used as the target of a Sphinx info field (``:ivar``, ``:vartype``,
+    ``:keyword``, ``:paramtype``, ``:param``, ``:type``).
+
+    A leading ``@`` (e.g. a wire name such as ``@search.facets``) is otherwise interpreted
+    by Sphinx/docutils and breaks the rendered docstring, so it must be escaped.
+    """
+    return name.replace("@", "\\@")
+
+
 class NamespaceType(str, Enum):
     """Special signal for impports"""
 

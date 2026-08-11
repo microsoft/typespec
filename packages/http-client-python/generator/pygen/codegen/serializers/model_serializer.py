@@ -23,10 +23,12 @@ from ..models.primitive_types import (
 )
 from .import_serializer import FileImportSerializer
 from .base_serializer import BaseSerializer
-from ..models.utils import NamespaceType, add_to_pylint_disable
+from ..models.utils import NamespaceType, add_to_pylint_disable, escape_sphinx_field_name
 
 
-def _get_xml_deserializer_name(prop: Property) -> Optional[str]:  # pylint: disable=too-many-return-statements
+def _get_xml_deserializer_name(
+    prop: Property,
+) -> Optional[str]:  # pylint: disable=too-many-return-statements
     """Return the _xml_deser_* function name for a scalar XML property, or None."""
     prop_type = prop.type
     # Unwrap ConstantType to get the underlying value type
@@ -80,6 +82,9 @@ def _documentation_string(
     doc_name = (
         prop.wire_name if kwargs.get("serialize_namespace_type") == NamespaceType.TYPES_FILE else prop.client_name
     )
+    # Escape characters that Sphinx would otherwise interpret in the info field target
+    # (e.g. a leading "@" in a wire name such as "@search.facets").
+    doc_name = escape_sphinx_field_name(doc_name)
     sphinx_prefix = f":{description_keyword} {doc_name}:"
     description = prop.description(is_operation_file=False).replace("\\", "\\\\")
     retval.append(f"{sphinx_prefix} {description}" if description else sphinx_prefix)
@@ -94,7 +99,13 @@ def _documentation_string(
 
 class _ModelSerializer(BaseSerializer, ABC):
     def __init__(
-        self, code_model, env, async_mode=False, *, models: list[ModelType], client_namespace: Optional[str] = None
+        self,
+        code_model,
+        env,
+        async_mode=False,
+        *,
+        models: list[ModelType],
+        client_namespace: Optional[str] = None,
     ):
         super().__init__(code_model, env, async_mode, client_namespace=client_namespace)
         self.models = models
