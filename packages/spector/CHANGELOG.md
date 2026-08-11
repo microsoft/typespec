@@ -1,5 +1,17 @@
 # Change Log - @typespec/spector
 
+## 0.1.0-alpha.28
+
+### Features
+
+- [#11239](https://github.com/microsoft/typespec/pull/11239) Support chunked streaming via `streamChunks` in mock response body
+
+### Bug Fixes
+
+- [#11501](https://github.com/microsoft/typespec/pull/11501) Print failed scenarios before the successful ones and flush stdout before exiting so the `knock` diagnostics are not truncated when the output is piped, and report the actual number of passing scenarios in the summary.
+- [#11501](https://github.com/microsoft/typespec/pull/11501) Fail with a clear error when the mock server port is already taken instead of silently running the scenarios against an unrelated server. `server start` now waits for the server to actually be ready, `server stop` no longer signals a process that is not a mock server, and `knock` fails if the server never becomes reachable instead of reporting it as ready.
+
+
 ## 0.1.0-alpha.27
 
 ### Bug Fixes
