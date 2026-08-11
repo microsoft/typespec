@@ -38,10 +38,14 @@ def escape_sphinx_field_name(name: str) -> str:
     """Escape a name used as the target of a Sphinx info field (``:ivar``, ``:vartype``,
     ``:keyword``, ``:paramtype``, ``:param``, ``:type``).
 
-    A leading ``@`` (e.g. a wire name such as ``@search.facets``) is otherwise interpreted
-    by Sphinx/docutils and breaks the rendered docstring, so it must be escaped.
+    A name containing ``@`` (e.g. a wire name such as ``@search.facets``) is wrapped in
+    double backticks so it is treated as an inline literal. This renders cleanly in Sphinx
+    without a leading ``@`` being misinterpreted, and — unlike a ``\\@`` escape — introduces
+    no invalid escape sequence into the generated Python docstring.
     """
-    return name.replace("@", "\\@")
+    if "@" in name:
+        return f"``{name}``"
+    return name
 
 
 class NamespaceType(str, Enum):

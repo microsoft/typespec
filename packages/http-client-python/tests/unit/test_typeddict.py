@@ -406,8 +406,8 @@ def test_models_mode_typeddict_docstring_uses_wire_name():
 
 
 def test_models_mode_typeddict_docstring_escapes_at_sign():
-    """A leading "@" in a wire name must be escaped in the Sphinx info field, but the
-    TypedDict key itself must keep the raw "@"."""
+    """A wire name containing "@" is wrapped in double backticks in the Sphinx info field,
+    but the TypedDict key itself must keep the raw "@"."""
     code_model = _make_code_model(models_mode="typeddict")
     string_type = build_type({"type": "string"}, code_model)
     model = TypedDictModelType(
@@ -430,11 +430,10 @@ def test_models_mode_typeddict_docstring_escapes_at_sign():
     env = _make_env()
     output = TypesSerializer(code_model=code_model, env=env, models=[model]).serialize()
 
-    # Docstring field target is escaped
-    assert ":ivar \\@search.facets:" in output
-    assert ":vartype \\@search.facets: str" in output
-    assert ":ivar @search.facets:" not in output
-    assert ":vartype @search.facets:" not in output
+    # Docstring field target is wrapped in double backticks (no backslash escape)
+    assert ":ivar ``@search.facets``:" in output
+    assert ":vartype ``@search.facets``: str" in output
+    assert "\\@search.facets" not in output
     # The actual TypedDict key keeps the raw "@" (must NOT be escaped in code)
     assert '"@search.facets":' in output
 
