@@ -2483,13 +2483,12 @@ namespace Microsoft.TypeSpec.Generator.Tests.Providers.ModelProviders
         }
 
         [Test]
-        public async Task BackCompat_StandaloneConstructorRestoredWhenNoChainTarget()
+        public async Task BackCompat_ConstructorNotRestoredWhenNoChainTarget()
         {
             // The last contract published `MockInputModel(string beta, string alpha, int gamma)`. The current
-            // generation reorders the required properties (so the public `(alpha, beta)` constructor is not an
-            // in-order subsequence to chain to) and relaxes `gamma` to optional. Because every required
-            // property is still covered, the previous constructor is restored as a standalone constructor that
-            // assigns each parameter to its matching property.
+            // generation reorders the required properties so the public `(alpha, beta)` constructor is not an
+            // in-order subsequence to chain to. A standalone constructor would bypass the current
+            // constructor's initialization, so the previous constructor is not restored.
             var inputModel = InputFactory.Model(
                 "MockInputModel",
                 usage: InputModelTypeUsage.Input | InputModelTypeUsage.Json,
@@ -2510,26 +2509,18 @@ namespace Microsoft.TypeSpec.Generator.Tests.Providers.ModelProviders
 
             modelProvider.ProcessTypeForBackCompatibility();
 
-            var restoredCtor = modelProvider.Constructors.Single(c =>
-                c.Signature.Modifiers.HasFlag(MethodSignatureModifiers.Public)
-                && c.Signature.Parameters.Count == 3);
-            Assert.That(restoredCtor.Signature.Parameters.Select(p => p.Name),
-                Is.EqualTo(new[] { "beta", "alpha", "gamma" }));
-            Assert.IsNull(restoredCtor.Signature.Initializer);
-
-            var content = new TypeProviderWriter(modelProvider).Write().Content;
-            Assert.AreEqual(Helpers.GetExpectedFromFile(), content);
+            Assert.IsFalse(
+                modelProvider.Constructors.Any(c => c.Signature.Parameters.Count == 3),
+                "Expected the previous constructor not to be restored without a chain target.");
         }
 
         [Test]
-        public async Task BackCompat_StandaloneConstructorRestoredWhenRequiredPropertyUnassigned()
+        public async Task BackCompat_ConstructorNotRestoredWhenNewRequiredPropertyPreventsChaining()
         {
             // The last contract published `MockInputModel(string workloadProfileType, int minimumCount, int maximumCount)`.
-            // The current generation adds a required `name` property that the previous constructor has no value
-            // for. The constructor is still restored - reproducing the previous behavior - assigning the
-            // properties it can and leaving the newly-required `Name` unset (valid because the generator does
-            // not emit the C# `required` modifier). This is a round-trip model, so the required properties have
-            // setters; required-ness is tracked independently of the setter.
+            // The current generation adds a required `name` property, so the current public constructor
+            // `(name, workloadProfileType)` is not an in-order subsequence of the previous signature and there
+            // is no chain target. A standalone constructor would bypass initialization, so it is not restored.
             var inputModel = InputFactory.Model(
                 "MockInputModel",
                 usage: InputModelTypeUsage.Input | InputModelTypeUsage.Output | InputModelTypeUsage.Json,
@@ -2551,19 +2542,9 @@ namespace Microsoft.TypeSpec.Generator.Tests.Providers.ModelProviders
 
             modelProvider.ProcessTypeForBackCompatibility();
 
-            var restoredCtor = modelProvider.Constructors.Single(c =>
-                c.Signature.Modifiers.HasFlag(MethodSignatureModifiers.Public)
-                && c.Signature.Parameters.Count == 3);
-            Assert.That(restoredCtor.Signature.Parameters.Select(p => p.Name),
-                Is.EqualTo(new[] { "workloadProfileType", "minimumCount", "maximumCount" }));
-            Assert.IsNull(restoredCtor.Signature.Initializer);
-
-            // `Name` is required but has no source parameter, so the restored constructor leaves it unset.
-            var body = restoredCtor.BodyStatements!.ToDisplayString();
-            Assert.IsFalse(body.Contains("Name ="), $"Did not expect the restored constructor to assign Name, was: {body}");
-
-            var content = new TypeProviderWriter(modelProvider).Write().Content;
-            Assert.AreEqual(Helpers.GetExpectedFromFile(), content);
+            Assert.IsFalse(
+                modelProvider.Constructors.Any(c => c.Signature.Parameters.Count == 3),
+                "Expected the previous constructor not to be restored without a chain target.");
         }
 
         [Test]

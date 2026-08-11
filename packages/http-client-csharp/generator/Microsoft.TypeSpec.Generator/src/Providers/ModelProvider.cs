@@ -939,8 +939,9 @@ namespace Microsoft.TypeSpec.Generator.Providers
             var previousParameters = previousConstructor.Signature.Parameters;
 
             // Find the public constructor to chain to: its parameters must form an in-order subsequence of
-            // the previous constructor's parameters. Prefer the closest one. When none exists the restored
-            // constructor is standalone, assigning each parameter to its matching property.
+            // the previous constructor's parameters. Prefer the closest one. Without a chaining target the
+            // constructor is not restored - a standalone constructor would bypass the current constructor's
+            // initialization (e.g. the implicit base() call and inherited get-only properties).
             ConstructorProvider? targetConstructor = null;
             foreach (var candidate in currentConstructors)
             {
@@ -960,7 +961,12 @@ namespace Microsoft.TypeSpec.Generator.Providers
                 }
             }
 
-            var targetParameters = targetConstructor?.Signature.Parameters ?? [];
+            if (targetConstructor is null)
+            {
+                return false;
+            }
+
+            var targetParameters = targetConstructor.Signature.Parameters;
             var restoredParameters = new List<ParameterProvider>(previousParameters.Count);
             var initializerArguments = new List<ParameterProvider>(targetParameters.Count);
             var extraAssignments = new List<(PropertyProvider Property, ParameterProvider Parameter)>();
@@ -982,53 +988,26 @@ namespace Microsoft.TypeSpec.Generator.Providers
                     continue;
                 }
 
-                // The chained path restores settable, wire-backed properties by parameter name (already
-                // indexed). A standalone path also accepts required get-only auto-properties (assignable in a
-                // constructor) and matches by wire name, so it can fully initialize every property itself.
-                PropertyProvider? property;
-                if (targetConstructor != null)
-                {
-                    property = restorablePropertyLookup.TryGetValue(previousParameter.Name, out var chained)
-                        && chained.Type.AreNamesEqual(previousParameter.Type)
-                        ? chained
-                        : null;
-                }
-                else
-                {
-                    property = CanonicalView.Properties.FirstOrDefault(p =>
-                        MethodSignatureHelper.IsPublicApi(p.Modifiers)
-                        && (p.Body.HasSetter || p.Body is AutoPropertyBody)
-                        && p.Type.AreNamesEqual(previousParameter.Type)
-                        && (string.Equals(p.AsParameter.Name, previousParameter.Name, StringComparison.Ordinal)
-                            || string.Equals(p.WireInfo?.SerializedName, previousParameter.Name, StringComparison.Ordinal)));
-                }
+                // Each extra parameter (not consumed by the chain target) must map to a settable, wire-backed
+                // property assigned in the restored constructor's body.
+                var property = restorablePropertyLookup.TryGetValue(previousParameter.Name, out var chained)
+                    && chained.Type.AreNamesEqual(previousParameter.Type)
+                    ? chained
+                    : null;
 
                 if (property is null || extraAssignments.Any(a => a.Property == property))
                 {
                     return false;
                 }
 
-                var restoredParameter = targetConstructor != null
-                    ? PartialMethodCustomization.CloneParameterWithName(property.AsParameter, previousParameter.Name, removeDefault: true)
-                    : previousParameter;
-
+                var restoredParameter = PartialMethodCustomization.CloneParameterWithName(property.AsParameter, previousParameter.Name, removeDefault: true);
                 restoredParameters.Add(restoredParameter);
                 extraAssignments.Add((property, restoredParameter));
             }
 
-            if (targetConstructor != null)
+            if (targetIndex != targetParameters.Count || extraAssignments.Count == 0)
             {
-                if (targetIndex != targetParameters.Count || extraAssignments.Count == 0)
-                {
-                    return false;
-                }
-            }
-            else
-            {
-                if (currentConstructors.Any(c => MethodSignatureBase.SignatureComparer.Equals(c.Signature, previousConstructor.Signature)))
-                {
-                    return false;
-                }
+                return false;
             }
 
             var bodyStatements = new List<MethodBodyStatement>(extraAssignments.Count);
@@ -1049,7 +1028,7 @@ namespace Microsoft.TypeSpec.Generator.Providers
                 $"Initializes a new instance of {Type:C}",
                 previousConstructor.Signature.Modifiers,
                 restoredParameters,
-                initializer: targetConstructor is null ? null : new ConstructorInitializer(false, initializerArguments));
+                initializer: new ConstructorInitializer(false, initializerArguments));
 
             restoredConstructor = new ConstructorProvider(signature, bodyStatements, this);
             return true;
