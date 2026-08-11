@@ -1016,17 +1016,7 @@ namespace Microsoft.TypeSpec.Generator.Providers
 
             if (targetIndex != targetParameters.Count || extraAssignments.Count == 0)
             {
-                if (targetIndex != targetParameters.Count || extraAssignments.Count == 0)
-                {
-                    return false;
-                }
-            }
-            else
-            {
-                if (currentConstructors.Any(c => MethodSignatureBase.SignatureComparer.Equals(c.Signature, previousConstructor.Signature)))
-                {
-                    return false;
-                }
+                return false;
             }
 
             var bodyStatements = new List<MethodBodyStatement>(extraAssignments.Count);
@@ -1047,7 +1037,7 @@ namespace Microsoft.TypeSpec.Generator.Providers
                 $"Initializes a new instance of {Type:C}",
                 previousConstructor.Signature.Modifiers,
                 restoredParameters,
-                initializer: targetConstructor is null ? null : new ConstructorInitializer(false, initializerArguments));
+                initializer: new ConstructorInitializer(false, initializerArguments));
 
             restoredConstructor = new ConstructorProvider(signature, bodyStatements, this);
             return true;
