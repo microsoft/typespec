@@ -521,8 +521,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
                     new(Literal("U"),
                         new MethodBodyStatement[]
                         {
-                            writer.WriteStringValue(
-                                TypeFormattersSnippets.ToBase64UrlString(value.As<byte[]>())),
+                            writer.WriteBase64UrlStringValue(value),
                             Break
                         }),
                     new(Literal("D"),

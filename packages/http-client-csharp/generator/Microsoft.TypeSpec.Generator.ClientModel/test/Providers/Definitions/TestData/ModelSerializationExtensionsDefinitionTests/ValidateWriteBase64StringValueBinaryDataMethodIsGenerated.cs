@@ -20,7 +20,7 @@ namespace Sample
             switch (format)
             {
                 case "U":
-                    writer.WriteStringValue(global::Sample.TypeFormatters.ToBase64UrlString(value));
+                    writer.WriteBase64UrlStringValue(value);
                     break;
                 case "D":
                     writer.WriteBase64StringValue(value);
