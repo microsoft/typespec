@@ -468,6 +468,32 @@ function Filter-LibrariesByGenerator {
     return @($filtered.ToArray())
 }
 
+function Filter-LibrariesByName {
+    <#
+    .SYNOPSIS
+        Filters libraries by name.
+
+    .PARAMETER Libraries
+        Array of library objects to filter. Each object should have a 'Library' property.
+
+    .PARAMETER LibraryNames
+        Names of the libraries to include. If no names are specified, all libraries are returned.
+    #>
+    param(
+        [Parameter(Mandatory=$true)]
+        [array]$Libraries,
+
+        [Parameter(Mandatory=$false)]
+        [string[]]$LibraryNames
+    )
+
+    if (-not $LibraryNames -or $LibraryNames.Count -eq 0) {
+        return @($Libraries)
+    }
+
+    return @($Libraries | Where-Object { $_.Library -in $LibraryNames })
+}
+
 function Update-OpenAIGenerator {
     <#
     .SYNOPSIS
@@ -978,4 +1004,4 @@ function Update-AzureSpectorScenarios {
     return $generationOutput
 }
 
-Export-ModuleMember -Function "Update-MgmtGenerator", "Update-AzureGenerator", "Filter-LibrariesByGenerator", "Update-OpenAIGenerator", "Add-LocalNuGetSource", "Update-AzureSpectorScenarios"
+Export-ModuleMember -Function "Update-MgmtGenerator", "Update-AzureGenerator", "Filter-LibrariesByGenerator", "Filter-LibrariesByName", "Update-OpenAIGenerator", "Add-LocalNuGetSource", "Update-AzureSpectorScenarios"

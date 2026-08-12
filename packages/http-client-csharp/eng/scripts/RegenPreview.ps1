@@ -38,9 +38,10 @@
     - Use -Azure to regenerate Azure-branded libraries (@azure-typespec/http-client-csharp)
     - Use -Unbranded to regenerate unbranded libraries (@typespec/http-client-csharp)
     - Use -Mgmt to regenerate management plane libraries (@azure-typespec/http-client-csharp-mgmt)
+    - Use -Libraries to regenerate specific comma-separated library names
     - Filters can be combined (e.g. -Azure -Unbranded) to regenerate libraries from multiple generators
     - Omit all filter parameters to regenerate all libraries (default)
-        - Use -Select for interactive selection (can be combined with generator filters)
+    - Use -Select for interactive selection (can be combined with generator filters)
 
 .PARAMETER SdkLibraryRepoPath
     Required. The local file system path to the SDK repository (azure-sdk-for-net or openai-dotnet).
@@ -67,11 +68,17 @@
     If no generator filter is specified, all libraries are regenerated.
     Not applicable in OpenAI mode.
 
+.PARAMETER Libraries
+    Optional. Azure SDK Mode only. Comma-separated names of libraries to regenerate.
+    Can be combined with Select, Azure, Unbranded, and Mgmt filters.
+    Mutually exclusive with Spector.
+    Not applicable in OpenAI mode.
+
 .PARAMETER Spector
     Optional. Azure SDK Mode only. When specified, regenerates the Azure spector test scenarios in azure-sdk-for-net
     instead of regenerating SDK libraries. This builds the local unbranded generator, wires it into the Azure generator,
     and runs the Azure generator's Generate.ps1 to regenerate spector test projects.
-    Mutually exclusive with Select, Azure, Unbranded, and Mgmt parameters.
+    Mutually exclusive with Select, Azure, Unbranded, Mgmt, and Libraries parameters.
     Not applicable in OpenAI mode.
 
 .EXAMPLE
@@ -107,6 +114,10 @@
     .\RegenPreview.ps1 -SdkLibraryRepoPath "C:\repos\azure-sdk-for-net" -Azure -Unbranded
 
 .EXAMPLE
+    # Regenerate specific libraries
+    .\RegenPreview.ps1 -SdkLibraryRepoPath "C:\repos\azure-sdk-for-net" -Libraries "Azure.ResourceManager.AppContainers, Azure.Data.AppConfig"
+
+.EXAMPLE
     # Regenerate Azure spector test scenarios using local changes
     .\RegenPreview.ps1 -SdkLibraryRepoPath "C:\repos\azure-sdk-for-net" -Spector
 #>
@@ -128,6 +139,9 @@ param(
     [switch]$Mgmt,
     
     [Parameter(Mandatory=$false)]
+    [string]$Libraries,
+
+    [Parameter(Mandatory=$false)]
     [switch]$Spector
 )
 
@@ -136,18 +150,32 @@ Set-StrictMode -Version 3.0
 
 # Detect OpenAI mode
 $isOpenAIMode = $SdkLibraryRepoPath -like "*openai-dotnet*"
+$hasLibraryFilter = $PSBoundParameters.ContainsKey('Libraries')
+$libraryNames = @(
+    if ($Libraries) {
+        $Libraries -split ',' |
+            ForEach-Object { $_.Trim() } |
+            Where-Object { $_ } |
+            Select-Object -Unique
+    }
+)
 
 # Validate mutually exclusive parameters
+if ($hasLibraryFilter -and $libraryNames.Count -eq 0) {
+    Write-Error "The -Libraries parameter must specify at least one library name."
+    exit 1
+}
+
 if ($isOpenAIMode) {
     # In OpenAI mode, no filter parameters are allowed
-    if ($Select -or $Azure -or $Unbranded -or $Mgmt -or $Spector) {
-        Write-Error "OpenAI mode detected. The -Select, -Azure, -Unbranded, -Mgmt, and -Spector parameters are not applicable when regenerating OpenAI libraries."
+    if ($Select -or $Azure -or $Unbranded -or $Mgmt -or $hasLibraryFilter -or $Spector) {
+        Write-Error "OpenAI mode detected. The -Select, -Azure, -Unbranded, -Mgmt, -Libraries, and -Spector parameters are not applicable when regenerating OpenAI libraries."
         exit 1
     }
 } else {
     # -Spector is mutually exclusive with all other filter parameters
-    if ($Spector -and ($Select -or $Azure -or $Unbranded -or $Mgmt)) {
-        Write-Error "The -Spector parameter is mutually exclusive with -Select, -Azure, -Unbranded, and -Mgmt."
+    if ($Spector -and ($Select -or $Azure -or $Unbranded -or $Mgmt -or $hasLibraryFilter)) {
+        Write-Error "The -Spector parameter is mutually exclusive with -Select, -Azure, -Unbranded, -Mgmt, and -Libraries."
         exit 1
     }
 }
@@ -173,6 +201,12 @@ if ($isOpenAIMode) {
     # Display active mode
     $modeText = if ($Spector) {
         "Regenerate Azure spector test scenarios"
+    } elseif ($hasLibraryFilter) {
+        if ($Select) {
+            "Interactively select from specified libraries: $($libraryNames -join ', ')"
+        } else {
+            "Regenerate specified libraries: $($libraryNames -join ', ')"
+        }
     } elseif ($Azure -or $Unbranded -or $Mgmt) {
         $generatorNames = @()
         if ($Azure) { $generatorNames += "Azure" }
@@ -559,9 +593,19 @@ try {
             -Azure:$Azure `
             -Unbranded:$Unbranded `
             -Mgmt:$Mgmt)
+        $filteredLibraries = @(Filter-LibrariesByName `
+            -Libraries $filteredLibraries `
+            -LibraryNames $libraryNames)
+
+        if ($hasLibraryFilter) {
+            $missingLibraryNames = @($libraryNames | Where-Object { $_ -notin $filteredLibraries.Library })
+            if ($missingLibraryNames.Count -gt 0) {
+                throw "Libraries not found matching the specified filters: $($missingLibraryNames -join ', ')"
+            }
+        }
         
         if (-not $filteredLibraries -or $filteredLibraries.Count -eq 0) {
-            Write-Host "No libraries found matching the specified generator filter" -ForegroundColor Yellow
+            Write-Host "No libraries found matching the specified filters" -ForegroundColor Yellow
             exit 0
         }
         
@@ -790,6 +834,16 @@ try {
             -Azure:$Azure `
             -Unbranded:$Unbranded `
             -Mgmt:$Mgmt
+        $librariesToAnalyze = @(Filter-LibrariesByName `
+            -Libraries $librariesToAnalyze `
+            -LibraryNames $libraryNames)
+    }
+
+    if ($hasLibraryFilter) {
+        $missingLibraryNames = @($libraryNames | Where-Object { $_ -notin $librariesToAnalyze.Library })
+        if ($missingLibraryNames.Count -gt 0) {
+            throw "Libraries not found matching the specified filters: $($missingLibraryNames -join ', ')"
+        }
     }
     
     # Determine which generators are actually needed
@@ -927,9 +981,12 @@ try {
             -Azure:$Azure `
             -Unbranded:$Unbranded `
             -Mgmt:$Mgmt
+        $libraries = @(Filter-LibrariesByName `
+            -Libraries $libraries `
+            -LibraryNames $libraryNames)
         
         if ($libraries.Count -eq 0) {
-            Write-Host "No libraries found matching the specified generator filter" -ForegroundColor Yellow
+            Write-Host "No libraries found matching the specified filters" -ForegroundColor Yellow
             Write-Host "Skipping regeneration step..." -ForegroundColor Gray
         } else {
             $filterParts = @()
