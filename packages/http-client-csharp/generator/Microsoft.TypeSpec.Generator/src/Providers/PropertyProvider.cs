@@ -5,6 +5,7 @@ using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Diagnostics.CodeAnalysis;
+using System.Linq;
 using System.Reflection.Metadata;
 using Microsoft.TypeSpec.Generator.Expressions;
 using Microsoft.TypeSpec.Generator.Input;
@@ -105,7 +106,7 @@ namespace Microsoft.TypeSpec.Generator.Providers
             var lastContractProperties = enclosingType.LastContractView?.Properties;
             if (!inputProperty.IsExactName &&
                 (lastContractProperties is null ||
-                 !System.Linq.Enumerable.Any(lastContractProperties, p => p.Name == identifierName)))
+                 !lastContractProperties.Any(p => p.Name == identifierName)))
             {
                 identifierName = identifierName.NormalizeCSharpAcronyms();
             }

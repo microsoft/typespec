@@ -1,7 +1,7 @@
 // Copyright (c) Microsoft Corporation. All rights reserved.
 // Licensed under the MIT License.
 
-// cspell:ignore readded
+// cspell:ignore DBOSIP IPDBOS readded
 
 using System;
 using System.Collections.Generic;
