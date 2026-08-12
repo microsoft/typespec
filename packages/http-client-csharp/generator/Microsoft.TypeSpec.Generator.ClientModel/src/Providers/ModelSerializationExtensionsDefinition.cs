@@ -2,6 +2,7 @@
 // Licensed under the MIT License.
 
 using System;
+using System.Buffers;
 using System.Buffers.Text;
 using System.ClientModel;
 using System.ClientModel.Primitives;
@@ -521,7 +522,8 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
                     new(Literal("U"),
                         new MethodBodyStatement[]
                         {
-                            writer.WriteBase64UrlStringValue(value),
+                            writer.WriteStringValue(
+                                TypeFormattersSnippets.ToBase64UrlString(value.As<byte[]>())),
                             Break
                         }),
                     new(Literal("D"),
@@ -572,42 +574,51 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
 
         private MethodProvider BuildWriteBase64UrlStringValueMethodProvider()
         {
-            var valueParameter = new ParameterProvider("value", FormattableStringHelpers.Empty, typeof(ReadOnlySpan<byte>));
+            var sourceParameter = new ParameterProvider("source", FormattableStringHelpers.Empty, typeof(ReadOnlySpan<byte>));
             var signature = new MethodSignature(
                 Name: WriteBase64UrlStringValueMethodName,
                 Modifiers: _methodModifiers,
-                Parameters: [ScmKnownParameters.Utf8JsonWriter, valueParameter],
+                Parameters: [ScmKnownParameters.Utf8JsonWriter, sourceParameter],
                 ReturnType: null,
                 Description: null, ReturnDescription: null);
             var writer = ScmKnownParameters.Utf8JsonWriter.As<Utf8JsonWriter>();
-            var outputVariable = new VariableExpression(typeof(byte[]), "output");
-            var output = new IndexableExpression(outputVariable);
+            var encodedVariable = new VariableExpression(typeof(byte[]), "encoded");
+            var encoded = new IndexableExpression(encodedVariable);
+            var indexVariable = new VariableExpression(typeof(int), "index");
+            var index = indexVariable.As<int>();
             var body = new MethodBodyStatement[]
             {
-                Declare(outputVariable, New.Array(typeof(byte),
-                    Static(typeof(Base64)).Invoke(nameof(Base64.GetMaxEncodedToUtf8Length), ReadOnlySpanSnippets.Length(valueParameter)))),
-                Static(typeof(Base64)).Invoke(nameof(Base64.EncodeToUtf8),
-                    [
-                        valueParameter,
-                        outputVariable,
-                        Dash.AsArgument(isOut: true),
-                        new DeclarationExpression(typeof(int), "bytesWritten", out var bytesWritten, isOut: true)
-                    ]).Terminate(),
-                Declare("i", Int(0), out var i),
-                new ForStatement(null, i.LessThan(bytesWritten), i.Increment())
+                Declare(encodedVariable, New.Array(typeof(byte),
+                    Static(typeof(Base64)).Invoke(nameof(Base64.GetMaxEncodedToUtf8Length), ReadOnlySpanSnippets.Length(sourceParameter)))),
+                Declare("status", typeof(OperationStatus),
+                    Static(typeof(Base64)).Invoke(nameof(Base64.EncodeToUtf8),
+                        [
+                            sourceParameter,
+                            encodedVariable,
+                            new DeclarationExpression(typeof(int), "bytesConsumed", out var bytesConsumed, isOut: true),
+                            new DeclarationExpression(typeof(int), "bytesWritten", out var bytesWritten, isOut: true)
+                        ]),
+                    out var status),
+                new IfStatement(status.NotEqual(Static(typeof(OperationStatus)).Property(nameof(OperationStatus.Done)))
+                    .Or(bytesConsumed.NotEqual(ReadOnlySpanSnippets.Length(sourceParameter))))
                 {
-                    new IfElseStatement(new IfStatement(output[i].Equal(Int('+')))
+                    Throw(New.InvalidOperationException(Literal("Base64Url encoding did not complete.")))
+                },
+                new ForStatement(new DeclarationExpression(indexVariable).Assign(Int(0)), index.LessThan(bytesWritten), index.Increment())
+                {
+                    new IfElseStatement(new IfStatement(encoded[index].Equal(Literal('+').CastTo(typeof(byte))))
                     {
-                        output[i].Assign(Int('-')).Terminate()
-                    }, new IfElseStatement(new IfStatement(output[i].Equal(Int('/')))
+                        encoded[index].Assign(Literal('-').CastTo(typeof(byte))).Terminate()
+                    }, new IfElseStatement(new IfStatement(encoded[index].Equal(Literal('/').CastTo(typeof(byte))))
                     {
-                        output[i].Assign(Int('_')).Terminate()
-                    }, new IfStatement(output[i].Equal(Int('=')))
+                        encoded[index].Assign(Literal('_').CastTo(typeof(byte))).Terminate()
+                    }, new IfStatement(encoded[index].Equal(Literal('=').CastTo(typeof(byte))))
                     {
+                        bytesWritten.Assign(index).Terminate(),
                         Break
                     }))
                 },
-                writer.WriteStringValue(outputVariable.Invoke(nameof(MemoryExtensions.AsSpan), [Int(0), i]))
+                writer.WriteStringValue(encodedVariable.Invoke(nameof(MemoryExtensions.AsSpan), [Int(0), bytesWritten]))
             };
 
             return new MethodProvider(signature, body, this, XmlDocProvider.Empty);

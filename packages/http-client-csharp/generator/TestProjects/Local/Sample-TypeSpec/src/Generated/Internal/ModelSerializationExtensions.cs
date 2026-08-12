@@ -6,6 +6,7 @@
 #nullable disable
 
 using System;
+using System.Buffers;
 using System.Buffers.Text;
 using System.ClientModel.Primitives;
 using System.Collections.Generic;
@@ -168,7 +169,7 @@ namespace SampleTypeSpec
             switch (format)
             {
                 case "U":
-                    writer.WriteBase64UrlStringValue(value);
+                    writer.WriteStringValue(TypeFormatters.ToBase64UrlString(value));
                     break;
                 case "D":
                     writer.WriteBase64StringValue(value);
@@ -198,33 +199,37 @@ namespace SampleTypeSpec
             }
         }
 
-        public static void WriteBase64UrlStringValue(this Utf8JsonWriter writer, ReadOnlySpan<byte> value)
+        public static void WriteBase64UrlStringValue(this Utf8JsonWriter writer, ReadOnlySpan<byte> source)
         {
-            byte[] output = new byte[Base64.GetMaxEncodedToUtf8Length(value.Length)];
-            Base64.EncodeToUtf8(value, output, out _, out int bytesWritten);
-            int i = 0;
-            for (; i < bytesWritten; i++)
+            byte[] encoded = new byte[Base64.GetMaxEncodedToUtf8Length(source.Length)];
+            OperationStatus status = Base64.EncodeToUtf8(source, encoded, out int bytesConsumed, out int bytesWritten);
+            if (status != OperationStatus.Done || bytesConsumed != source.Length)
             {
-                if (output[i] == 43)
+                throw new InvalidOperationException("Base64Url encoding did not complete.");
+            }
+            for (int index = 0; index < bytesWritten; index++)
+            {
+                if (encoded[index] == (byte)'+')
                 {
-                    output[i] = 45;
+                    encoded[index] = (byte)'-';
                 }
                 else
                 {
-                    if (output[i] == 47)
+                    if (encoded[index] == (byte)'/')
                     {
-                        output[i] = 95;
+                        encoded[index] = (byte)'_';
                     }
                     else
                     {
-                        if (output[i] == 61)
+                        if (encoded[index] == (byte)'=')
                         {
+                            bytesWritten = index;
                             break;
                         }
                     }
                 }
             }
-            writer.WriteStringValue(output.AsSpan(0, i));
+            writer.WriteStringValue(encoded.AsSpan(0, bytesWritten));
         }
 
         public static void WriteNumberValue(this Utf8JsonWriter writer, DateTimeOffset value, string format)

@@ -3,6 +3,7 @@
 #nullable disable
 
 using System;
+using System.Buffers;
 using System.Buffers.Text;
 using System.Text.Json;
 
@@ -20,7 +21,7 @@ namespace Sample
             switch (format)
             {
                 case "U":
-                    writer.WriteBase64UrlStringValue(value);
+                    writer.WriteStringValue(global::Sample.TypeFormatters.ToBase64UrlString(value));
                     break;
                 case "D":
                     writer.WriteBase64StringValue(value);
@@ -50,33 +51,37 @@ namespace Sample
             }
         }
 
-        public static void WriteBase64UrlStringValue(this global::System.Text.Json.Utf8JsonWriter writer, global::System.ReadOnlySpan<byte> value)
+        public static void WriteBase64UrlStringValue(this global::System.Text.Json.Utf8JsonWriter writer, global::System.ReadOnlySpan<byte> source)
         {
-            global::System.Byte[] output = new byte[global::System.Buffers.Text.Base64.GetMaxEncodedToUtf8Length(value.Length)];
-            global::System.Buffers.Text.Base64.EncodeToUtf8(value, output, out _, out int bytesWritten);
-            int i = 0;
-            for (; (i < bytesWritten); i++)
+            global::System.Byte[] encoded = new byte[global::System.Buffers.Text.Base64.GetMaxEncodedToUtf8Length(source.Length)];
+            global::System.Buffers.OperationStatus status = global::System.Buffers.Text.Base64.EncodeToUtf8(source, encoded, out int bytesConsumed, out int bytesWritten);
+            if (((status != global::System.Buffers.OperationStatus.Done) || (bytesConsumed != source.Length)))
             {
-                if ((output[i] == 43))
+                throw new global::System.InvalidOperationException("Base64Url encoding did not complete.");
+            }
+            for (int index = 0; (index < bytesWritten); index++)
+            {
+                if ((encoded[index] == ((byte)'+')))
                 {
-                    output[i] = 45;
+                    encoded[index] = ((byte)'-');
                 }
                 else
                 {
-                    if ((output[i] == 47))
+                    if ((encoded[index] == ((byte)'/')))
                     {
-                        output[i] = 95;
+                        encoded[index] = ((byte)'_');
                     }
                     else
                     {
-                        if ((output[i] == 61))
+                        if ((encoded[index] == ((byte)'=')))
                         {
+                            bytesWritten = index;
                             break;
                         }
                     }
                 }
             }
-            writer.WriteStringValue(output.AsSpan(0, i));
+            writer.WriteStringValue(encoded.AsSpan(0, bytesWritten));
         }
     }
 }
