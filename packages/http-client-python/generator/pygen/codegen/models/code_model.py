@@ -145,9 +145,16 @@ class CodeModel:  # pylint: disable=too-many-public-methods, disable=too-many-in
                 if serialize_namespace_split[idx] != imported_namespace_split[idx]:
                     break
                 idx += 1
-            self._relative_import_path[key] = "." * (len(serialize_namespace_split[idx:]) + 1) + ".".join(
-                imported_namespace_split[idx:]
-            )
+            if idx == 0:
+                # The two namespaces share no top-level package, so a relative import would
+                # climb above the package root (e.g. ``from .......search import models``),
+                # which Python rejects at runtime ("attempted relative import beyond top-level
+                # package"). Emit a valid absolute import of the foreign namespace instead.
+                self._relative_import_path[key] = ".".join(imported_namespace_split)
+            else:
+                self._relative_import_path[key] = "." * (len(serialize_namespace_split[idx:]) + 1) + ".".join(
+                    imported_namespace_split[idx:]
+                )
         result = self._relative_import_path[key]
         if module_name is None:
             return result
