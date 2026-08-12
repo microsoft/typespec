@@ -107,10 +107,10 @@ model TypeSpec.Rest.Resource.ResourceCreatedResponse<Resource>
 
 #### Properties
 
-| Name       | Type       | Description      |
-| ---------- | ---------- | ---------------- |
-| statusCode | `201`      | The status code. |
-| body       | `Resource` |                  |
+| Name       | Type       | Description           |
+| ---------- | ---------- | --------------------- |
+| statusCode | `201`      | The status code.      |
+| body       | `Resource` | The created resource. |
 
 ### `ResourceCreateModel` {#TypeSpec.Rest.Resource.ResourceCreateModel}
 

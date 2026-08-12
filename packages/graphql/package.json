@@ -1,6 +1,6 @@
 {
   "name": "@typespec/graphql",
-  "version": "0.1.0",
+  "version": "0.2.0",
   "author": "Microsoft Corporation",
   "description": "TypeSpec library for emitting GraphQL",
   "homepage": "https://typespec.io",
@@ -24,6 +24,10 @@
       "typespec": "./lib/main.tsp",
       "types": "./dist/src/index.d.ts",
       "default": "./dist/src/index.js"
+    },
+    "./mutation-engine": {
+      "types": "./dist/src/mutation-engine/index.d.ts",
+      "default": "./dist/src/mutation-engine/index.js"
     }
   },
   "engines": {
@@ -38,7 +42,8 @@
   },
   "scripts": {
     "clean": "rimraf ./dist ./temp",
-    "build": "pnpm gen-extern-signature && alloy build",
+    "build": "pnpm gen-extern-signature && alloy build && pnpm lint-typespec-library",
+    "lint-typespec-library": "tsp compile . --warn-as-error --import @typespec/library-linter --no-emit",
     "watch": "alloy build --watch",
     "gen-extern-signature": "tspd --enable-experimental gen-extern-signature .",
     "test": "vitest run",
@@ -66,6 +71,7 @@
     "@typespec/compiler": "workspace:~",
     "@typespec/emitter-framework": "workspace:~",
     "@typespec/http": "workspace:~",
+    "@typespec/library-linter": "workspace:^",
     "@typespec/mutator-framework": "workspace:~",
     "@typespec/tspd": "workspace:~",
     "rimraf": "catalog:",

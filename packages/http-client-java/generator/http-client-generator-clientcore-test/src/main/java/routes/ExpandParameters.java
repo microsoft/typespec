@@ -27,7 +27,7 @@ public final class ExpandParameters implements JsonSerializable<ExpandParameters
 
     /**
      * Creates an instance of ExpandParameters class.
-     *
+     * 
      * @param field the field value to set.
      * @param value the value value to set.
      */
@@ -39,7 +39,7 @@ public final class ExpandParameters implements JsonSerializable<ExpandParameters
 
     /**
      * Get the field property: The field property.
-     *
+     * 
      * @return the field value.
      */
     @Metadata(properties = { MetadataProperties.GENERATED })
@@ -49,7 +49,7 @@ public final class ExpandParameters implements JsonSerializable<ExpandParameters
 
     /**
      * Get the value property: The value property.
-     *
+     * 
      * @return the value value.
      */
     @Metadata(properties = { MetadataProperties.GENERATED })
@@ -71,7 +71,7 @@ public final class ExpandParameters implements JsonSerializable<ExpandParameters
 
     /**
      * Reads an instance of ExpandParameters from the JsonReader.
-     *
+     * 
      * @param jsonReader The JsonReader being read.
      * @return An instance of ExpandParameters if the JsonReader was pointing to an instance of it, or null if it was
      * pointing to JSON null.

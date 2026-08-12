@@ -65,8 +65,6 @@ model ResourceCollectionParameters<Resource extends {}> {
 interface ResourceRead<Resource extends {}, Error> {
   /**
    * Gets an instance of the resource.
-   *
-   * @template Resource The resource model.
    */
   @autoRoute
   @doc("Gets an instance of the resource.")
@@ -82,6 +80,8 @@ interface ResourceRead<Resource extends {}, Error> {
 @doc("Resource create operation completed successfully.")
 model ResourceCreatedResponse<Resource> {
   ...CreatedResponse;
+
+  /** The created resource. */
   @bodyRoot body: Resource;
 }
 
@@ -94,16 +94,17 @@ model ResourceCreatedResponse<Resource> {
 interface ResourceCreateOrReplace<Resource extends {}, Error> {
   /**
    * Creates or replaces a instance of the resource.
-   *
-   * @template Resource The resource model to create or replace.
-   * @template Error The error response.
    */
   @autoRoute
   @doc("Creates or replaces an instance of the resource.")
   @createsOrReplacesResource(Resource)
   createOrReplace(
     ...ResourceParameters<Resource>,
-    @bodyRoot resource: ResourceCreateModel<Resource>,
+
+    /** The properties of the resource to create or replace. */
+    @doc("")
+    @bodyRoot
+    resource: ResourceCreateModel<Resource>,
   ): Resource | ResourceCreatedResponse<Resource> | Error;
 }
 
@@ -125,9 +126,6 @@ model ResourceCreateOrUpdateModel<Resource extends {}>
 interface ResourceCreateOrUpdate<Resource extends {}, Error> {
   /**
    * Creates or update an instance of the resource.
-   *
-   * @template Resource The resource model to create or update.
-   * @template Error The error response.
    */
   #suppress "@typespec/http/deprecated-implicit-optionality" "for legacy behavior"
   @autoRoute
@@ -136,7 +134,11 @@ interface ResourceCreateOrUpdate<Resource extends {}, Error> {
   @patch(#{ implicitOptionality: true }) // for legacy behavior
   createOrUpdate(
     ...ResourceParameters<Resource>,
-    @bodyRoot resource: ResourceCreateOrUpdateModel<Resource>,
+
+    /** The properties of the resource to create or update. */
+    @doc("")
+    @bodyRoot
+    resource: ResourceCreateOrUpdateModel<Resource>,
   ): Resource | ResourceCreatedResponse<Resource> | Error;
 }
 
@@ -158,16 +160,17 @@ model ResourceCreateModel<Resource extends {}> is DefaultKeyVisibility<Resource,
 interface ResourceCreate<Resource extends {}, Error> {
   /**
    * Creates a new instance of the resource.
-   *
-   * @template Resource The resource model to create.
-   * @template Error The error response.
    */
   @autoRoute
   @doc("Creates a new instance of the resource.")
   @createsResource(Resource)
   create(
     ...ResourceCollectionParameters<Resource>,
-    @bodyRoot resource: ResourceCreateModel<Resource>,
+
+    /** The properties of the resource to create. */
+    @doc("")
+    @bodyRoot
+    resource: ResourceCreateModel<Resource>,
   ): Resource | ResourceCreatedResponse<Resource> | Error;
 }
 
@@ -182,9 +185,6 @@ interface ResourceCreate<Resource extends {}, Error> {
 interface ResourceUpdate<Resource extends {}, Error> {
   /**
    * Updates an existing instance of the resource.
-   *
-   * @template Resource The resource model to update.
-   * @template Error The error response.
    */
   #suppress "@typespec/http/deprecated-implicit-optionality" "for legacy behavior"
   @autoRoute
@@ -193,7 +193,11 @@ interface ResourceUpdate<Resource extends {}, Error> {
   @patch(#{ implicitOptionality: true }) // for legacy behavior
   update(
     ...ResourceParameters<Resource>,
-    @bodyRoot properties: ResourceCreateOrUpdateModel<Resource>,
+
+    /** The properties of the resource to update. */
+    @doc("")
+    @bodyRoot
+    properties: ResourceCreateOrUpdateModel<Resource>,
   ): Resource | Error;
 }
 
@@ -215,9 +219,6 @@ model ResourceDeletedResponse {
 interface ResourceDelete<Resource extends {}, Error> {
   /**
    * Deletes an existing instance of the resource.
-   *
-   * @template Resource The resource model to delete.
-   * @template Error The error response.
    */
   @autoRoute
   @doc("Deletes an existing instance of the resource.")
@@ -251,9 +252,6 @@ model CollectionWithNextLink<Resource extends {}> {
 interface ResourceList<Resource extends {}, Error> {
   /**
    * Lists all instances of the resource.
-   *
-   * @template Resource The resource model to list.
-   * @template Error The error response.
    */
   @autoRoute
   @doc("Lists all instances of the resource.")
@@ -310,9 +308,6 @@ interface ResourceOperations<Resource extends {}, Error>
 interface SingletonResourceRead<Singleton extends {}, Resource extends {}, Error> {
   /**
    * Gets the singleton resource.
-   *
-   * @template Singleton The singleton resource model.
-   * @template Resource The resource model.
    */
   @autoRoute
   @doc("Gets the singleton resource.")
@@ -333,9 +328,6 @@ interface SingletonResourceRead<Singleton extends {}, Resource extends {}, Error
 interface SingletonResourceUpdate<Singleton extends {}, Resource extends {}, Error> {
   /**
    * Updates the singleton resource.
-   *
-   * @template Singleton The singleton resource model.
-   * @template Resource The resource model.
    */
   #suppress "@typespec/http/deprecated-implicit-optionality" "for legacy behavior"
   @autoRoute
@@ -346,6 +338,8 @@ interface SingletonResourceUpdate<Singleton extends {}, Resource extends {}, Err
   update(
     ...ResourceParameters<Resource>,
 
+    /** The properties of the singleton resource to update. */
+    @doc("")
     @body
     properties: ResourceCreateOrUpdateModel<Singleton>,
   ): Singleton | Error;
@@ -374,9 +368,6 @@ interface SingletonResourceOperations<Singleton extends {}, Resource extends {},
 interface ExtensionResourceRead<Extension extends {}, Resource extends {}, Error> {
   /**
    * Gets an instance of the extension resource.
-   *
-   * @template Extension The extension resource model.
-   * @template Resource The resource model.
    */
   @autoRoute
   @doc("Gets an instance of the extension resource.")
@@ -394,9 +385,6 @@ interface ExtensionResourceRead<Extension extends {}, Resource extends {}, Error
 interface ExtensionResourceCreateOrUpdate<Extension extends {}, Resource extends {}, Error> {
   /**
    * Creates or update an instance of the extension resource.
-   *
-   * @template Extension The extension resource model.
-   * @template Resource The resource model.
    */
   #suppress "@typespec/http/deprecated-implicit-optionality" "for legacy behavior"
   @autoRoute
@@ -406,7 +394,11 @@ interface ExtensionResourceCreateOrUpdate<Extension extends {}, Resource extends
   createOrUpdate(
     ...ResourceParameters<Resource>,
     ...ResourceParameters<Extension>,
-    @bodyRoot resource: ResourceCreateOrUpdateModel<Extension>,
+
+    /** The properties of the extension resource to create or update. */
+    @doc("")
+    @bodyRoot
+    resource: ResourceCreateOrUpdateModel<Extension>,
   ): Extension | ResourceCreatedResponse<Extension> | Error;
 }
 
@@ -420,17 +412,18 @@ interface ExtensionResourceCreateOrUpdate<Extension extends {}, Resource extends
 interface ExtensionResourceCreate<Extension extends {}, Resource extends {}, Error> {
   /**
    * Creates a new instance of the extension resource.
-   *
-   * @template Extension The extension resource model.
-   * @template Resource The resource model.
    */
   @autoRoute
   @doc("Creates a new instance of the extension resource.")
   @createsResource(Extension)
-  create(...ResourceParameters<Resource>, @bodyRoot resource: ResourceCreateModel<Extension>):
-    | Extension
-    | ResourceCreatedResponse<Extension>
-    | Error;
+  create(
+    ...ResourceParameters<Resource>,
+
+    /** The properties of the extension resource to create. */
+    @doc("")
+    @bodyRoot
+    resource: ResourceCreateModel<Extension>,
+  ): Extension | ResourceCreatedResponse<Extension> | Error;
 }
 
 /**
@@ -443,9 +436,6 @@ interface ExtensionResourceCreate<Extension extends {}, Resource extends {}, Err
 interface ExtensionResourceUpdate<Extension extends {}, Resource extends {}, Error> {
   /**
    * Updates an existing instance of the extension resource.
-   *
-   * @template Extension The extension resource model.
-   * @template Resource The resource model.
    */
   #suppress "@typespec/http/deprecated-implicit-optionality" "for legacy behavior"
   @autoRoute
@@ -456,6 +446,8 @@ interface ExtensionResourceUpdate<Extension extends {}, Resource extends {}, Err
     ...ResourceParameters<Resource>,
     ...ResourceParameters<Extension>,
 
+    /** The properties of the extension resource to update. */
+    @doc("")
     @body
     properties: ResourceCreateOrUpdateModel<Extension>,
   ): Extension | Error;
@@ -471,9 +463,6 @@ interface ExtensionResourceUpdate<Extension extends {}, Resource extends {}, Err
 interface ExtensionResourceDelete<Extension extends {}, Resource extends {}, Error> {
   /**
    * Deletes an existing instance of the extension resource.
-   *
-   * @template Extension The extension resource model.
-   * @template Resource The resource model.
    */
   @autoRoute
   @doc("Deletes an existing instance of the extension resource.")
@@ -493,9 +482,6 @@ interface ExtensionResourceDelete<Extension extends {}, Resource extends {}, Err
 interface ExtensionResourceList<Extension extends {}, Resource extends {}, Error> {
   /**
    * Lists all instances of the extension resource.
-   *
-   * @template Extension The extension resource model.
-   * @template Resource The resource model.
    */
   @autoRoute
   @doc("Lists all instances of the extension resource.")

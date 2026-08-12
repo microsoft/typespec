@@ -1221,8 +1221,13 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
             int optional = 400;
 
             var operation = serviceMethod.Operation;
-            // For convenience methods, use the service method parameters
-            var inputParameters = methodType is ScmMethodKind.Convenience ? serviceMethod.Parameters : operation.Parameters;
+            // Convenience methods use the service method parameters. The protocol method does too when
+            // @@override grouped the operation's parameters into an options bag, so both surfaces share
+            // the same shape (https://github.com/microsoft/typespec/issues/11214).
+            var inputParameters = methodType is ScmMethodKind.Convenience
+                || (methodType is ScmMethodKind.Protocol && ShouldGroupProtocolParameters(serviceMethod))
+                ? serviceMethod.Parameters
+                : operation.Parameters;
 
             var pageSizeParameterName = GetPageSizeParameterName(serviceMethod as InputPagingServiceMethod);
 
@@ -1307,7 +1312,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
 
                 if (methodType is ScmMethodKind.Protocol or ScmMethodKind.CreateRequest)
                 {
-                    if (inputParam is InputBodyParameter)
+                    if (inputParam is InputBodyParameter || inputParam is InputMethodParameter { Location: InputRequestLocation.Body })
                     {
                         if (methodType == ScmMethodKind.CreateRequest)
                         {
@@ -1391,6 +1396,89 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
             }
 
             return [.. sortedParams.Values];
+        }
+
+        /// <summary>
+        /// Determines whether the protocol method should adopt the grouped (options bag) parameter shape
+        /// produced by <c>@@override</c>. Grouping is skipped when the request body itself was folded into
+        /// the bag, because the protocol method must keep exposing the body as raw request content.
+        /// </summary>
+        internal static bool ShouldGroupProtocolParameters(InputServiceMethod serviceMethod)
+        {
+            bool hasGroupedParameter = false;
+            foreach (var parameter in serviceMethod.Operation.Parameters)
+            {
+                if (parameter.MethodParameterSegments is not { Count: > 1 } segments)
+                {
+                    continue;
+                }
+
+                // The bag is (or contains) the request body, so the protocol method has to stay flattened
+                // to keep accepting a raw payload.
+                if (parameter is InputBodyParameter
+                    || segments[0] is InputMethodParameter { Location: InputRequestLocation.Body })
+                {
+                    return false;
+                }
+
+                if (!SegmentsPreserveRequiredness(parameter, segments))
+                {
+                    return false;
+                }
+
+                hasGroupedParameter = true;
+            }
+
+            return hasGroupedParameter;
+        }
+
+        /// <summary>
+        /// A required wire parameter must map to a required property so the bag's constructor forces callers
+        /// to supply it. TCGC does not validate this, and when it does not hold, grouping the protocol method
+        /// would silently drop the compile-time guarantee that the flattened signature provides.
+        /// </summary>
+        private static bool SegmentsPreserveRequiredness(InputParameter parameter, IReadOnlyList<InputMethodParameter> segments)
+        {
+            if (!parameter.IsRequired)
+            {
+                return true;
+            }
+
+            var currentType = segments[0].Type;
+            for (int i = 1; i < segments.Count; i++)
+            {
+                if (currentType is not InputModelType model)
+                {
+                    return false;
+                }
+
+                var property = FindPropertyInHierarchy(model, segments[i].Name);
+                if (property is null || !property.IsRequired)
+                {
+                    return false;
+                }
+
+                currentType = property.Type;
+            }
+
+            return true;
+        }
+
+        private static InputModelProperty? FindPropertyInHierarchy(InputModelType model, string name)
+        {
+            for (var current = model; current != null; current = current.BaseModel)
+            {
+                foreach (var property in current.Properties)
+                {
+                    if (property.SerializedName == name
+                        || string.Equals(property.Name, name, StringComparison.OrdinalIgnoreCase))
+                    {
+                        return property;
+                    }
+                }
+            }
+
+            return null;
         }
 
         private static bool HasLiteralContentTypeHeader(InputOperation operation)
