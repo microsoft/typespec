@@ -90,6 +90,44 @@ namespace Microsoft.TypeSpec.Generator.Tests.Providers
             Assert.IsNull(fields[1].InitializationValue);
         }
 
+        [TestCase(false, "CosmosDbOsIpKind", false, "CosmosDBOSIPKind")]
+        [TestCase(true, "IpDbOsValue", false, "IPDBOSValue")]
+        [TestCase(false, "Ipv4AddressIpv6", false, "IPv4AddressIPv6")]
+        [TestCase(true, "IpV4AddressIpV6", false, "IPv4AddressIPv6")]
+        [TestCase(false, "IPV4AddressIPV6", false, "IPV4AddressIPV6")]
+        [TestCase(true, "OsloIpsumOsmosisDbz", false, "OsloIpsumOsmosisDbz")]
+        [TestCase(false, "IpKind", true, "IpKind")]
+        public void BuildEnumType_NormalizesTypeAcronymCasing(
+            bool isExtensible,
+            string inputName,
+            bool isExactName,
+            string expectedName)
+        {
+            MockHelpers.LoadMockGenerator(createCSharpTypeCore: (inputType) => typeof(string));
+            var input = InputFactory.StringEnum(
+                inputName,
+                [("Value", "value")],
+                isExtensible: isExtensible,
+                isExactName: isExactName);
+
+            var enumType = EnumProvider.Create(input);
+
+            Assert.AreEqual(expectedName, enumType.Name);
+        }
+
+        [Test]
+        public async Task BuildEnumType_BackCompatTakesPrecedenceOverAcronymNormalization()
+        {
+            await MockHelpers.LoadMockGeneratorAsync(
+                createCSharpTypeCore: (inputType) => typeof(string),
+                lastContractCompilation: async () => await Helpers.GetCompilationFromDirectoryAsync());
+            var input = InputFactory.StringEnum("IpKind", [("Value", "value")]);
+
+            var enumType = EnumProvider.Create(input);
+
+            Assert.AreEqual("IpKind", enumType.Name);
+        }
+
         // Validates the api version enum
         [TestCase]
         public void BuildEnumType_ValidateApiVersionEnum()

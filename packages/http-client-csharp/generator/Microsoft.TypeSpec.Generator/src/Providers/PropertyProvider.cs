@@ -102,6 +102,13 @@ namespace Microsoft.TypeSpec.Generator.Providers
             var hasOutputUsage = inputProperty.EnclosingType?.Usage.HasFlag(InputModelTypeUsage.Output) ?? false;
             Modifiers = IsDiscriminator || (!hasOutputUsage && _isRequiredNonNullableConstant) ? MethodSignatureModifiers.Internal : MethodSignatureModifiers.Public;
             var identifierName = inputProperty.IsExactName ? inputProperty.Name : inputProperty.Name.ToIdentifierName();
+            var lastContractProperties = enclosingType.LastContractView?.Properties;
+            if (!inputProperty.IsExactName &&
+                (lastContractProperties is null ||
+                 !System.Linq.Enumerable.Any(lastContractProperties, p => p.Name == identifierName)))
+            {
+                identifierName = identifierName.NormalizeCSharpAcronyms();
+            }
             Name = identifierName == enclosingType.Name
                 ? $"{identifierName}Property"
                 : identifierName;
