@@ -626,6 +626,16 @@ namespace Microsoft.TypeSpec.Generator.Providers
 
         protected string NormalizeTypeNameForNewContract(string name)
         {
+            var typeNamespace = BuildNamespace();
+            var currentType = CodeModelGenerator.Instance.SourceInputModel.FindForTypeInCurrentCompilation(
+                typeNamespace,
+                name,
+                _declaringTypeName.Value);
+            if (currentType is not null)
+            {
+                return name;
+            }
+
             var normalizedName = name.NormalizeCSharpAcronyms();
             if (normalizedName == name)
             {
@@ -633,7 +643,7 @@ namespace Microsoft.TypeSpec.Generator.Providers
             }
 
             var lastContractType = CodeModelGenerator.Instance.SourceInputModel.FindForTypeInLastContract(
-                BuildNamespace(),
+                typeNamespace,
                 name,
                 _declaringTypeName.Value);
             return lastContractType is null ? normalizedName : name;

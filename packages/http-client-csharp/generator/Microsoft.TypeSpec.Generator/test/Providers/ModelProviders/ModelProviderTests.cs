@@ -89,7 +89,8 @@ namespace Microsoft.TypeSpec.Generator.Tests.Providers.ModelProviders
                 properties:
                 [
                     InputFactory.Property("dbName", InputPrimitiveType.String),
-                    InputFactory.Property("osProfile", InputPrimitiveType.String)
+                    InputFactory.Property("osProfile", InputPrimitiveType.String),
+                    InputFactory.Property("IpAddress", InputPrimitiveType.String)
                 ]);
             await MockHelpers.LoadMockGeneratorAsync(
                 inputModelTypes: [inputModel],
@@ -101,6 +102,7 @@ namespace Microsoft.TypeSpec.Generator.Tests.Providers.ModelProviders
             Assert.AreEqual("IpAddress", modelProvider!.Name);
             Assert.IsNotNull(modelProvider.Properties.SingleOrDefault(p => p.Name == "DbName"));
             Assert.IsNotNull(modelProvider.Properties.SingleOrDefault(p => p.Name == "OSProfile"));
+            Assert.IsNotNull(modelProvider.Properties.SingleOrDefault(p => p.Name == "IpAddressProperty"));
         }
 
         // Validates that the property body's setter is correctly set based on the property type

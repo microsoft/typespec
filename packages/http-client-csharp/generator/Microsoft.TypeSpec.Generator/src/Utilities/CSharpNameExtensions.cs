@@ -2,6 +2,7 @@
 // Licensed under the MIT License.
 
 using System;
+using System.Text;
 
 namespace Microsoft.TypeSpec.Generator.Utilities
 {
@@ -20,7 +21,8 @@ namespace Microsoft.TypeSpec.Generator.Utilities
 
         public static string NormalizeCSharpAcronyms(this string name)
         {
-            char[]? normalizedName = null;
+            StringBuilder? normalizedName = null;
+            int segmentStart = 0;
             for (int index = 0; index < name.Length - 1; index++)
             {
                 foreach (var rule in _acronymRenamingRules)
@@ -36,14 +38,22 @@ namespace Microsoft.TypeSpec.Generator.Utilities
                         continue;
                     }
 
-                    normalizedName ??= name.ToCharArray();
-                    rule.Replacement.CopyTo(0, normalizedName, index, rule.Replacement.Length);
+                    normalizedName ??= new StringBuilder(name.Length);
+                    normalizedName.Append(name, segmentStart, index - segmentStart);
+                    normalizedName.Append(rule.Replacement);
+                    segmentStart = boundaryIndex;
                     index = boundaryIndex - 1;
                     break;
                 }
             }
 
-            return normalizedName is null ? name : new string(normalizedName);
+            if (normalizedName is null)
+            {
+                return name;
+            }
+
+            normalizedName.Append(name, segmentStart, name.Length - segmentStart);
+            return normalizedName.ToString();
         }
     }
 }

@@ -104,9 +104,12 @@ namespace Microsoft.TypeSpec.Generator.Providers
             Modifiers = IsDiscriminator || (!hasOutputUsage && _isRequiredNonNullableConstant) ? MethodSignatureModifiers.Internal : MethodSignatureModifiers.Public;
             var identifierName = inputProperty.IsExactName ? inputProperty.Name : inputProperty.Name.ToIdentifierName();
             var lastContractProperties = enclosingType.LastContractView?.Properties;
+            var legacyName = identifierName == enclosingType.Name
+                ? $"{identifierName}Property"
+                : identifierName;
             if (!inputProperty.IsExactName &&
                 (lastContractProperties is null ||
-                 !lastContractProperties.Any(p => p.Name == identifierName)))
+                 !lastContractProperties.Any(p => p.Name == legacyName)))
             {
                 identifierName = identifierName.NormalizeCSharpAcronyms();
             }
