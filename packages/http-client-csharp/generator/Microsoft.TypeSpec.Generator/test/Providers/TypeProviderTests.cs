@@ -786,6 +786,34 @@ namespace Microsoft.TypeSpec.Generator.Tests.Providers
             Assert.IsNull(BackCompatHelper.FindPreviousParameterName(typeProvider.LastContractView, "oldParam", "Foo"));
         }
 
+        // A reorder combined with a casing-only rename must still restore the published spelling.
+        // The reorder matches parameters via ToVariableName (so current "URL" aligns with published
+        // "url"), which previously short-circuited the exact-name pass and left the CP0017-breaking
+        // "URL". The exact-name restoration must run against the reordered parameters.
+        [Test]
+        public async Task RestorePreviousParameterNamesRestoresCasingAfterReorder()
+        {
+            await MockHelpers.LoadMockGeneratorAsync(lastContractCompilation: async () => await Helpers.GetCompilationFromDirectoryAsync());
+
+            // Current generation declares Foo(eventId, itemId, URL); the previous contract published
+            // Foo(itemId, eventId, url).
+            var foo = new MethodProvider(
+                new MethodSignature("Foo", $"", MethodSignatureModifiers.Public, new CSharpType(typeof(string)), $"",
+                [
+                    new ParameterProvider("eventId", $"", new CSharpType(typeof(string))),
+                    new ParameterProvider("itemId", $"", new CSharpType(typeof(string))),
+                    new ParameterProvider("URL", $"", new CSharpType(typeof(string))),
+                ]),
+                Snippet.Return(Snippet.Null),
+                new TestTypeProvider());
+
+            var typeProvider = new TestTypeProvider(name: "TestClient", ns: "Test", methods: [foo]);
+            BackCompatHelper.RestorePreviousParameterNames(typeProvider, typeProvider.Methods);
+
+            var actual = new TypeProviderWriter(typeProvider).Write().Content;
+            Assert.AreEqual(Helpers.GetExpectedFromFile(), actual);
+        }
+
         [Test]
         public async Task TryRestorePreviousParameterOrderMatchesNonCanonicalParameterNames()
         {
