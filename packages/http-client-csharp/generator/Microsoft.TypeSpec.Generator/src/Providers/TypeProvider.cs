@@ -1075,6 +1075,11 @@ namespace Microsoft.TypeSpec.Generator.Providers
                     continue;
                 }
 
+                if (BackCompatHelper.IsConstructorRemovalAcceptedInBaseline(this, previousConstructor.Signature))
+                {
+                    continue;
+                }
+
                 // Find a matching constructor in the current version by parameter signature
                 for (int i = 0; i < constructors.Count; i++)
                 {
