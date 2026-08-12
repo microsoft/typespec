@@ -1,5 +1,14 @@
 # Changelog - @typespec/tspd
 
+## 0.77.0
+
+### Features
+
+- [#11221](https://github.com/microsoft/typespec/pull/11221) `tspd doc` now generates a documentation page per linter rule (`reference/rules/<name>.md`) and per diagnostic (`reference/diagnostics/<code>.md`), sourced from the `docs` field on the rule and diagnostic definitions. A `documentation-missing` warning is reported for any linter rule or diagnostic that does not provide documentation.
+- [#11000](https://github.com/microsoft/typespec/pull/11000) `tspd gen-extern-signature` now also generates a typed setter (e.g. `setMyFlag`, `setMyLabel`) for each `auto` decorator, alongside the existing `is*`/`get*` readers.
+- [#11316](https://github.com/microsoft/typespec/pull/11316) Add a `--rules-dir` option (and `rulesDir` API option) to `tspd doc` to control where per-rule reference pages are written. Defaults to `rules` (relative to `--output-dir`); can be set to a path escaping the output dir (e.g. `../rules`) to keep rule pages outside the generated reference folder.
+
+
 ## 0.76.0
 
 ### Features
