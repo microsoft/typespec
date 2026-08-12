@@ -1,6 +1,8 @@
 // Copyright (c) Microsoft Corporation. All rights reserved.
 // Licensed under the MIT License.
 
+// cspell:ignore DBOS IPDBOSIP
+
 using System;
 using System.Collections.Generic;
 using System.Diagnostics.CodeAnalysis;
@@ -103,6 +105,30 @@ namespace Microsoft.TypeSpec.Generator.Tests.Providers
             Assert.AreEqual("my_model", modelProvider.Name);
         }
 
+        [TestCase("IpAddress", false, "IPAddress")]
+        [TestCase("CosmosDbAccount", false, "CosmosDBAccount")]
+        [TestCase("OsProfile", false, "OSProfile")]
+        [TestCase("IpDbOsIpAddressDb", false, "IPDBOSIPAddressDB")]
+        [TestCase("IPAddressCosmosDBOSProfile", false, "IPAddressCosmosDBOSProfile")]
+        [TestCase("Ipv4AddressIpv6", false, "IPv4AddressIPv6")]
+        [TestCase("IpV4AddressIpV6", false, "IPv4AddressIPv6")]
+        [TestCase("IPV4AddressIPV6", false, "IPV4AddressIPV6")]
+        [TestCase("OsloIpsumOsmosisDbz", false, "OsloIpsumOsmosisDbz")]
+        [TestCase("IpAddress", true, "IpAddress")]
+        public void TestPropertyNameNormalizesAcronymCasing(string inputName, bool isExactName, string expectedName)
+        {
+            var inputProperty = InputFactory.Property(
+                inputName,
+                InputPrimitiveType.String,
+                isRequired: true,
+                isExactName: isExactName);
+            InputFactory.Model("TestModel", properties: [inputProperty]);
+
+            var property = new PropertyProvider(inputProperty, new TestTypeProvider());
+
+            Assert.AreEqual(expectedName, property.Name);
+        }
+
         [TestCaseSource(nameof(CollectionPropertyTestCases))]
         public void CollectionProperty(CSharpType coreType, InputModelProperty collectionProperty, CSharpType expectedType)
         {
@@ -162,6 +188,18 @@ namespace Microsoft.TypeSpec.Generator.Tests.Providers
 
             var property = new PropertyProvider(inputModelProperty, testTypeProvider);
             Assert.AreEqual("FilterProperty", property.Name);
+        }
+
+        [Test]
+        public void TestPropertyNameConflictsWithTypeNameAfterAcronymNormalization()
+        {
+            var testTypeProvider = new TestTypeProvider(name: "IPAddress");
+            InputModelProperty inputModelProperty = InputFactory.Property("IpAddress", InputPrimitiveType.String);
+            InputFactory.Model("IPAddress", properties: [inputModelProperty]);
+
+            var property = new PropertyProvider(inputModelProperty, testTypeProvider);
+
+            Assert.AreEqual("IPAddressProperty", property.Name);
         }
 
         [Test]

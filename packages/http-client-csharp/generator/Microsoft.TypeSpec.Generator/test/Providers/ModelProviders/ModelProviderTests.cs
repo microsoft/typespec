@@ -1,6 +1,8 @@
 // Copyright (c) Microsoft Corporation. All rights reserved.
 // Licensed under the MIT License.
 
+// cspell:ignore DBOS IPDBOSIP
+
 using System;
 using System.Collections.Generic;
 using System.IO;
@@ -56,6 +58,51 @@ namespace Microsoft.TypeSpec.Generator.Tests.Providers.ModelProviders
             var prop1Field = baseModelProvider.Fields.FirstOrDefault(f => f.Name == "_prop1");
             Assert.NotNull(prop1Field);
             Assert.AreEqual(FieldModifiers.Private | FieldModifiers.Protected, prop1Field!.Modifiers);
+        }
+
+        [TestCase("IpAddress", false, "IPAddress")]
+        [TestCase("CosmosDbAccount", false, "CosmosDBAccount")]
+        [TestCase("OsProfile", false, "OSProfile")]
+        [TestCase("IpDbOsIpAddressDb", false, "IPDBOSIPAddressDB")]
+        [TestCase("IPAddressCosmosDBOSProfile", false, "IPAddressCosmosDBOSProfile")]
+        [TestCase("Ipv4AddressIpv6", false, "IPv4AddressIPv6")]
+        [TestCase("IpV4AddressIpV6", false, "IPv4AddressIPv6")]
+        [TestCase("Ipv4address", false, "Ipv4address")]
+        [TestCase("Ipv42Address", false, "Ipv42Address")]
+        [TestCase("IPV4AddressIPV6", false, "IPV4AddressIPV6")]
+        [TestCase("OsloIpsumOsmosisDbz", false, "OsloIpsumOsmosisDbz")]
+        [TestCase("IpAddress", true, "IpAddress")]
+        public void TestBuildName_NormalizesAcronymCasing(string inputName, bool isExactName, string expectedName)
+        {
+            var inputModel = InputFactory.Model(inputName, isExactName: isExactName);
+
+            var modelProvider = new ModelProvider(inputModel);
+
+            Assert.AreEqual(expectedName, modelProvider.Name);
+        }
+
+        [Test]
+        public async Task TestBuildName_BackCompatTakesPrecedenceOverAcronymNormalization()
+        {
+            var inputModel = InputFactory.Model(
+                "IpAddress",
+                properties:
+                [
+                    InputFactory.Property("dbName", InputPrimitiveType.String),
+                    InputFactory.Property("osProfile", InputPrimitiveType.String),
+                    InputFactory.Property("IpAddress", InputPrimitiveType.String)
+                ]);
+            await MockHelpers.LoadMockGeneratorAsync(
+                inputModelTypes: [inputModel],
+                lastContractCompilation: async () => await Helpers.GetCompilationFromDirectoryAsync());
+
+            var modelProvider = CodeModelGenerator.Instance.TypeFactory.CreateModel(inputModel);
+
+            Assert.IsNotNull(modelProvider);
+            Assert.AreEqual("IpAddress", modelProvider!.Name);
+            Assert.IsNotNull(modelProvider.Properties.SingleOrDefault(p => p.Name == "DbName"));
+            Assert.IsNotNull(modelProvider.Properties.SingleOrDefault(p => p.Name == "OSProfile"));
+            Assert.IsNotNull(modelProvider.Properties.SingleOrDefault(p => p.Name == "IpAddressProperty"));
         }
 
         // Validates that the property body's setter is correctly set based on the property type
@@ -1791,7 +1838,7 @@ namespace Microsoft.TypeSpec.Generator.Tests.Providers.ModelProviders
             Assert.IsNotNull(modelProvider);
 
             // The property with external type should be resolved
-            var ipAddressProp = modelProvider!.Properties.FirstOrDefault(p => p.Name == "IpAddress");
+            var ipAddressProp = modelProvider!.Properties.FirstOrDefault(p => p.Name == "IPAddress");
             Assert.IsNotNull(ipAddressProp);
             Assert.IsNotNull(ipAddressProp!.Type.FrameworkType);
 
