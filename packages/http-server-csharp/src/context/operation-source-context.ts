@@ -6,6 +6,8 @@ export type OperationSourceMap = Map<OperationHttpCanonicalization, Operation>;
 
 export const OperationSources = createNamedContext<OperationSourceMap>("OperationSources");
 
+const emptyOperationSources: OperationSourceMap = new Map();
+
 export function useOperationSources(): OperationSourceMap {
-  return useContext(OperationSources) ?? new Map();
+  return useContext(OperationSources) ?? emptyOperationSources;
 }
