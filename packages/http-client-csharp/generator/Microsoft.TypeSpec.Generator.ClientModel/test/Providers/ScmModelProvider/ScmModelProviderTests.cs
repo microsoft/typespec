@@ -16,10 +16,25 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers.ScmModelProvi
 {
     public class ScmModelProviderTests
     {
+        private sealed class DerivedScmModelProvider : ScmModel
+        {
+            public DerivedScmModelProvider(InputModelType inputModel) : base(inputModel)
+            {
+            }
+        }
+
         [SetUp]
         public void SetUp()
         {
             MockHelpers.LoadMockGenerator();
+        }
+
+        [Test]
+        public void CanBeInherited()
+        {
+            var provider = new DerivedScmModelProvider(InputFactory.Model("model"));
+
+            Assert.IsInstanceOf<ScmModel>(provider);
         }
 
         [Test]
