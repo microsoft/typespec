@@ -180,7 +180,7 @@ namespace Microsoft.TypeSpec.Generator.Utilities
                 if (matchingPrevious != null
                     && TryRestorePreviousParameterOrder(method, matchingPrevious.Signature))
                 {
-                    continue;
+                    currentParameters = method.Signature.Parameters;
                 }
 
                 for (int i = 0; i < currentParameters.Count; i++)
