@@ -487,6 +487,8 @@ function Filter-LibrariesByName {
         [string[]]$LibraryNames
     )
 
+    $ErrorActionPreference = 'Stop'
+
     if (-not $LibraryNames -or $LibraryNames.Count -eq 0) {
         return @($Libraries)
     }
