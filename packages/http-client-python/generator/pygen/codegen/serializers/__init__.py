@@ -525,6 +525,13 @@ class JinjaSerializer(ReaderAndWriter):
                 general_serializer.serialize_model_base_file(),
             )
 
+        # write private transport-neutral JSONL/SSE framing helpers
+        if self.code_model.need_streaming:
+            self.write_file(
+                utils_folder_path / Path("streaming.py"),
+                general_serializer.serialize_streaming_file(),
+            )
+
     def _serialize_and_write_top_level_folder(self, env: Environment, namespace: str) -> None:
         root_dir = self.code_model.get_root_dir()
         generation_dir = self.code_model.get_generation_dir(namespace)

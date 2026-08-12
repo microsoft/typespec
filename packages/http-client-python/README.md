@@ -153,3 +153,30 @@ Whether to clear the output folder before generating the code. Defaults to `fals
 **Type:** `boolean`
 
 Emit YAML code model only, without running Python generator. For batch processing.
+
+## Structured streaming (JSONL / SSE)
+
+For the **Azure flavor**, operations whose HTTP response is a JSONL (`application/jsonl`) or SSE (`text/event-stream`) stream generate client methods that return `Generator[T, None, None]` (sync) or `AsyncGenerator[T, None]` (async). The generators yield deserialized model instances as each record arrives. This behavior is driven by TCGC response stream metadata; there is no emitter option. The unbranded flavor retains its existing raw-byte response behavior (`Iterator[bytes]` / `AsyncIterator[bytes]`).
+
+Fully consuming a generator closes the underlying response:
+
+```python
+for thing in client.receive():
+    ...
+```
+
+When stopping early, explicitly close the generator so the response is released:
+
+```python
+from contextlib import aclosing, closing
+
+with closing(client.receive()) as stream:
+    first = next(stream)
+
+async with aclosing(async_client.receive()) as stream:
+    first = await anext(stream)
+```
+
+The generated package keeps transport-neutral framing helpers private in `_utils/streaming.py`; generated operations own JSON parsing and model deserialization. The runtime uses only released `azure-core` APIs.
+
+SSE `@events` unions use TCGC event metadata to deserialize each named event into its corresponding generated model. Events marked with `@terminalEvent` stop iteration without being yielded.
