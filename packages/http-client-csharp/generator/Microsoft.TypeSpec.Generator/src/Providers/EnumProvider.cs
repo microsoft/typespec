@@ -128,6 +128,16 @@ namespace Microsoft.TypeSpec.Generator.Providers
             return backCompatName;
         }
 
+        private protected static string GetGeneratedValueName(
+            InputEnumTypeValue inputValue,
+            IReadOnlyList<string> lastContractNames)
+        {
+            var generatedName = inputValue.IsExactName ? inputValue.Name : inputValue.Name.ToIdentifierName();
+            return inputValue.IsExactName || lastContractNames.Contains(generatedName, StringComparer.Ordinal)
+                ? generatedName
+                : generatedName.ReplaceUrlSuffixWithUri();
+        }
+
         protected override bool GetIsEnum() => true;
         protected override CSharpType BuildEnumUnderlyingType() => CodeModelGenerator.Instance.TypeFactory.CreateCSharpType(_inputType!.ValueType) ?? throw new InvalidOperationException($"Failed to create CSharpType for {_inputType.ValueType}");
     }

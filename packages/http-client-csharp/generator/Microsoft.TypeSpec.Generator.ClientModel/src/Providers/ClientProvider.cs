@@ -104,9 +104,9 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
 
         public ClientProvider(InputClient inputClient)
         {
+            _inputClient = inputClient;
             CleanOperationNames(inputClient);
 
-            _inputClient = inputClient;
             _inputAuth = ScmCodeModelGenerator.Instance.InputLibrary.InputNamespace.Auth;
             _endpointParameter = BuildClientEndpointParameter();
             _subClientEndpointParameter = BuildSubClientEndpointParameter();
@@ -207,7 +207,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
             _allClientParameters = GetAllClientParameters();
         }
 
-        private static void CleanOperationNames(InputClient inputClient)
+        private void CleanOperationNames(InputClient inputClient)
         {
             foreach (var serviceMethod in inputClient.Methods)
             {
@@ -217,7 +217,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
             }
         }
 
-        private static string GetCleanOperationName(InputServiceMethod serviceMethod)
+        private string GetCleanOperationName(InputServiceMethod serviceMethod)
         {
             if (serviceMethod.IsExactName)
             {
@@ -228,16 +228,24 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
             // Replace List with Get as .NET convention is to use Get for list operations.
             if (operationName == "List")
             {
-                return "GetAll";
+                operationName = "GetAll";
             }
-            if (operationName.StartsWith("List", StringComparison.Ordinal) &&
+            else if (operationName.StartsWith("List", StringComparison.Ordinal) &&
                 operationName.Length > 4 && char.IsUpper(operationName[4]))
             {
                 // If the operation name starts with List and has a capital letter after it, we replace List with Get.
-                return $"Get{operationName.Substring(4)}";
+                operationName = $"Get{operationName.Substring(4)}";
             }
 
-            return operationName;
+            var lastContractMethods = LastContractView?.Methods;
+            if (lastContractMethods?.Any(m =>
+                m.Signature.Name == operationName ||
+                m.Signature.Name == $"{operationName}Async") == true)
+            {
+                return operationName;
+            }
+
+            return operationName.ReplaceUrlSuffixWithUri();
         }
 
         private string? _namespace;

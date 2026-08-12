@@ -1,6 +1,7 @@
 // Copyright (c) Microsoft Corporation. All rights reserved.
 // Licensed under the MIT License.
 
+using System;
 using System.Diagnostics.CodeAnalysis;
 using System.Text;
 using Microsoft.CodeAnalysis.CSharp;
@@ -83,5 +84,10 @@ namespace Microsoft.TypeSpec.Generator.Input.Extensions
 
         [return: NotNullIfNotNull(nameof(name))]
         public static string ToVariableName(this string name, bool preserveUnderscores = false) => name.ToIdentifierName(useCamelCase: true, preserveUnderscores: preserveUnderscores);
+
+        public static string ReplaceUrlSuffixWithUri(this string name)
+            => name.EndsWith("Url", StringComparison.Ordinal)
+                ? $"{name.Substring(0, name.Length - 3)}Uri"
+                : name;
     }
 }
