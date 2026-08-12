@@ -115,9 +115,9 @@ public class FluentClientMethodExample implements FluentMethodExample {
     }
 
     private static final Set<String> SUPPORTED_PREMIUM_PACKAGES
-        = Set.of("appplatform", "appservice", "authorization", "cdn", "compute", "containerinstance",
-            "containerregistry", "containerservice", "cosmos", "dns", "eventhubs", "keyvault", "monitor", "msi",
-            "network", "privatedns", "redis", "resources", "search", "servicebus", "sql", "storage", "trafficmanager");
+        = Set.of("appservice", "authorization", "cdn", "compute", "containerinstance", "containerregistry",
+            "containerservice", "cosmos", "dns", "eventhubs", "keyvault", "monitor", "msi", "network", "privatedns",
+            "redis", "resources", "search", "servicebus", "sql", "storage", "trafficmanager");
 
     private static final Map<String, String> RESOURCE_SERVICE_CLIENT_REFERENCES = Map.of("feature", "featureClient()",
         "policy", "policyClient()", "subscription", "subscriptionClient()", "lock", "managementLockClient()", "change",
