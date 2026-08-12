@@ -839,7 +839,7 @@ try {
             -LibraryNames $libraryNames)
     }
 
-    if ($hasLibraryFilter) {
+    if ($hasLibraryFilter -and -not $Select) {
         $missingLibraryNames = @($libraryNames | Where-Object { $_ -notin $librariesToAnalyze.Library })
         if ($missingLibraryNames.Count -gt 0) {
             throw "Libraries not found matching the specified filters: $($missingLibraryNames -join ', ')"
