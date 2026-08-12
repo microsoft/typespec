@@ -533,7 +533,7 @@ function emitBuiltInType(
   }
 
   return getSimpleTypeResult(context, {
-    type: pythonType, // TODO: switch to kind
+    type: pythonType,
     encode: type.encode,
   });
 }
