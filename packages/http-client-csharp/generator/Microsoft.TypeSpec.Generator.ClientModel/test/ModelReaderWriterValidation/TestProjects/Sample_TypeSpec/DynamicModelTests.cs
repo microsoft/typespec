@@ -99,7 +99,30 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.ModelReaderWriterValida
         [Test]
         public void JsonPatchTryGetValue_CollectionIndexIsBoundsChecked()
         {
-            var model = ModelReaderWriter.Read<DynamicModel>(
+            var model = ReadDynamicModel();
+
+#pragma warning disable SCME0001 // Type is for evaluation purposes only and is subject to change or removal in future updates.
+            Assert.That(model.Patch.TryGetValue("$.listFoo[0].bar"u8, out string? value), Is.True);
+            Assert.That(value, Is.EqualTo("bar"));
+            Assert.That(model.Patch.TryGetValue("$.listFoo[1].bar"u8, out string? _), Is.False);
+            Assert.That(model.Patch.TryGetValue("$.listOfListFoo[0][0].bar"u8, out string? _), Is.False);
+#pragma warning restore SCME0001 // Type is for evaluation purposes only and is subject to change or removal in future updates.
+        }
+
+        [Test]
+        public void JsonPatchSet_CollectionIndexIsBoundsChecked()
+        {
+            var model = ReadDynamicModel();
+
+#pragma warning disable SCME0001 // Type is for evaluation purposes only and is subject to change or removal in future updates.
+            model.Patch.Set("$.listFoo[1].bar"u8, "\"patched\""u8);
+            model.Patch.Set("$.listOfListFoo[0][0].bar"u8, "\"patched\""u8);
+#pragma warning restore SCME0001 // Type is for evaluation purposes only and is subject to change or removal in future updates.
+        }
+
+        private static DynamicModel ReadDynamicModel()
+        {
+            return ModelReaderWriter.Read<DynamicModel>(
                 BinaryData.FromString(
                     """
                     {
@@ -117,15 +140,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.ModelReaderWriterValida
                     }
                     """),
                 ModelReaderWriterOptions.Json,
-                SampleTypeSpecContext.Default);
-
-            Assert.That(model, Is.Not.Null);
-#pragma warning disable SCME0001 // Type is for evaluation purposes only and is subject to change or removal in future updates.
-            Assert.That(model!.Patch.TryGetValue("$.listFoo[0].bar"u8, out string? value), Is.True);
-            Assert.That(value, Is.EqualTo("bar"));
-            Assert.That(model.Patch.TryGetValue("$.listFoo[1].bar"u8, out string? _), Is.False);
-            Assert.That(model.Patch.TryGetValue("$.listOfListFoo[0][0].bar"u8, out string? _), Is.False);
-#pragma warning restore SCME0001 // Type is for evaluation purposes only and is subject to change or removal in future updates.
+                SampleTypeSpecContext.Default)!;
         }
 
         private static int GetRootPropertyCount(JsonElement root, string propertyName) => root.EnumerateObject().Count(property => property.NameEquals(propertyName));
