@@ -26,9 +26,7 @@ from .base_serializer import BaseSerializer
 from ..models.utils import NamespaceType, add_to_pylint_disable, escape_sphinx_field_name
 
 
-def _get_xml_deserializer_name(
-    prop: Property,
-) -> Optional[str]:  # pylint: disable=too-many-return-statements
+def _get_xml_deserializer_name(prop: Property) -> Optional[str]:  # pylint: disable=too-many-return-statements
     """Return the _xml_deser_* function name for a scalar XML property, or None."""
     prop_type = prop.type
     # Unwrap ConstantType to get the underlying value type
@@ -99,13 +97,7 @@ def _documentation_string(
 
 class _ModelSerializer(BaseSerializer, ABC):
     def __init__(
-        self,
-        code_model,
-        env,
-        async_mode=False,
-        *,
-        models: list[ModelType],
-        client_namespace: Optional[str] = None,
+        self, code_model, env, async_mode=False, *, models: list[ModelType], client_namespace: Optional[str] = None
     ):
         super().__init__(code_model, env, async_mode, client_namespace=client_namespace)
         self.models = models
