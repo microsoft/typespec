@@ -4,6 +4,7 @@ import {
   DIAGNOSTIC_DOCS_BASE_PATH,
   DIAGNOSTIC_DOCS_BASE_URL,
   DIAGNOSTIC_DOCS_EXCLUDED,
+  EmitterOptionsSchema,
 } from "../src/options.js";
 
 describe("diagnostic documentation", () => {
@@ -32,5 +33,16 @@ describe("diagnostic documentation", () => {
         expect(definition.url).toBe(`${DIAGNOSTIC_DOCS_BASE_URL}/${code}`);
       }
     }
+  });
+});
+
+describe("emitter options", () => {
+  it("defines remove-model as an array of model names", () => {
+    expect(EmitterOptionsSchema.properties?.["remove-model"]).toEqual({
+      type: "array",
+      description: "Model names to remove from the generated management client.",
+      items: { type: "string" },
+      nullable: true,
+    });
   });
 });
