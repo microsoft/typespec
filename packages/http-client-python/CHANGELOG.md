@@ -1,5 +1,19 @@
 # Change Log - @typespec/http-client-python
 
+## 0.36.0
+
+### Features
+
+- [#11372](https://github.com/microsoft/typespec/pull/11372) Add a `generate-typeddict` emitter option (default `true`) that controls `TypedDict` generation independently of `models-mode`. `models-mode` now toggles just `dpg` and `none`; the `typeddict` value is deprecated.
+
+### Bug Fixes
+
+- [#11622](https://github.com/microsoft/typespec/pull/11622) Wrap wire names containing `@` (e.g. `@search.facets`) in double backticks when they are used as Sphinx docstring field targets (`:ivar`/`:vartype`/`:keyword`/`:paramtype`/`:param`/`:type`) across models, TypedDicts, operations, and clients, so the generated docstrings render correctly without introducing an invalid escape sequence in the generated code.
+- [#11637](https://github.com/microsoft/typespec/pull/11637) Preserve Python boolean, integer, and bytes client types when using supported string, base64, or base64url wire encodings.
+- [#11507](https://github.com/microsoft/typespec/pull/11507) Only boot the Pyodide runtime in the browser on the first emit instead of when the emitter module is imported. Hosts such as the TypeSpec playground import every available emitter up front, so the eager bootstrap downloaded a full CPython WebAssembly runtime and its wheels on every page load, which prevented the page from loading on mobile browsers.
+- [#11639](https://github.com/microsoft/typespec/pull/11639) Only generate `TypedDict` definitions in `types.py` when they are referenced by operation inputs or required by those input models, omitting unused response-only models.
+
+
 ## 0.35.1
 
 ### Bug Fixes
