@@ -237,6 +237,12 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
                 operationName = $"Get{operationName.Substring(4)}";
             }
 
+            var normalizedName = operationName.NormalizeCSharpUrlSuffix();
+            if (normalizedName == operationName)
+            {
+                return operationName;
+            }
+
             var lastContractMethods = LastContractView?.Methods;
             if (lastContractMethods?.Any(m =>
                 m.Signature.Name == operationName ||
@@ -245,7 +251,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
                 return operationName;
             }
 
-            return operationName.ReplaceUrlSuffixWithUri();
+            return normalizedName;
         }
 
         private string? _namespace;

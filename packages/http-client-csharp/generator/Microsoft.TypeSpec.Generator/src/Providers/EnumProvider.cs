@@ -141,9 +141,16 @@ namespace Microsoft.TypeSpec.Generator.Providers
             IReadOnlyList<string> lastContractNames)
         {
             var generatedName = inputValue.IsExactName ? inputValue.Name : inputValue.Name.ToIdentifierName();
-            return inputValue.IsExactName || lastContractNames.Contains(generatedName, StringComparer.Ordinal)
-                ? generatedName
-                : generatedName.ReplaceUrlSuffixWithUri();
+            if (inputValue.IsExactName)
+            {
+                return generatedName;
+            }
+
+            var normalizedName = generatedName.NormalizeCSharpUrlSuffix();
+            return normalizedName == generatedName ||
+                lastContractNames.Contains(generatedName, StringComparer.Ordinal)
+                    ? generatedName
+                    : normalizedName;
         }
 
         protected override bool GetIsEnum() => true;

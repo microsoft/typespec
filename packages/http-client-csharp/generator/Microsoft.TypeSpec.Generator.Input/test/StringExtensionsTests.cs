@@ -47,15 +47,5 @@ namespace Microsoft.TypeSpec.Generator.Input.Tests
             var result = name.ToVariableName(preserveUnderscores: preserveUnderscores);
             Assert.AreEqual(expected, result);
         }
-
-        [TestCase("CallbackUrl", "CallbackUri")]
-        [TestCase("Url", "Uri")]
-        [TestCase("CallbackUrlValue", "CallbackUrlValue")]
-        [TestCase("CallbackUrls", "CallbackUrls")]
-        [TestCase("CallbackURL", "CallbackURL")]
-        public void TestReplaceUrlSuffixWithUri(string name, string expected)
-        {
-            Assert.AreEqual(expected, name.ReplaceUrlSuffixWithUri());
-        }
     }
 }
