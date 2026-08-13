@@ -28,6 +28,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
         private const string TopParameterName = "top";
         private const string MaxCountParameterName = "maxCount";
         private const string MaxPageSizeParameterName = "maxPageSize";
+        private const string ContentParameterName = "content";
 
         private static readonly Dictionary<string, ParameterProvider> _knownSpecialHeaderParams = new(StringComparer.OrdinalIgnoreCase)
         {
@@ -57,6 +58,9 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
 
         protected override string BuildNamespace() => ClientProvider.Type.Namespace;
 
+        protected override IReadOnlyList<MethodProvider> BuildMethodsForBackCompatibility(IEnumerable<MethodProvider> originalMethods)
+            => [.. originalMethods];
+
         protected override PropertyProvider[] BuildProperties()
         {
             return [.. _pipelineMessage20xClassifiers.Values.OrderBy(v => v.Name)];
@@ -76,6 +80,64 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
             }
 
             return [.. pipelineMessage20xClassifiersFields];
+        }
+
+        protected override IReadOnlyList<CSharpType> BuildHelperDependencyTypes()
+        {
+            var requestApi = ScmCodeModelGenerator.Instance.TypeFactory.HttpRequestApi.ToExpression();
+            var uriBuilderType = requestApi.UriBuilderType;
+            var dependencies = new List<CSharpType>();
+            var dependencyNames = new HashSet<string>(StringComparer.Ordinal);
+            if (uriBuilderType == typeof(ClientUriBuilderDefinition))
+            {
+                TryAddDependency(dependencies, dependencyNames, new ClientUriBuilderDefinition().Type);
+            }
+
+            foreach (var serviceMethod in _inputClient.Methods)
+            {
+                foreach (var parameter in serviceMethod.Operation.Parameters)
+                {
+                    if (IsContentTypeParameter(parameter) ||
+                        parameter is not InputHeaderParameter and not InputQueryParameter)
+                    {
+                        continue;
+                    }
+
+                    var type = ScmCodeModelGenerator.Instance.TypeFactory.CreateCSharpType(parameter.Type);
+                    if (type?.IsDictionary == true)
+                    {
+                        TryAddDependency(dependencies, dependencyNames, ScmCodeModelGenerator.Instance.TypeFactory.DictionaryInitializationType);
+                        if (parameter is InputHeaderParameter headerParameter &&
+                            !string.IsNullOrEmpty(headerParameter.CollectionHeaderPrefix) &&
+                            requestApi.GetCollectionHeaderHelperType() is { } collectionHeaderHelperType)
+                        {
+                            TryAddDependency(dependencies, dependencyNames, collectionHeaderHelperType);
+                        }
+                    }
+                    else if (type?.IsCollection == true)
+                    {
+                        TryAddDependency(dependencies, dependencyNames, ScmCodeModelGenerator.Instance.TypeFactory.ListInitializationType);
+                    }
+                }
+            }
+
+            return dependencies;
+        }
+
+        protected override IReadOnlyList<CSharpType> BuildBodyDependencyTypes()
+        {
+            var dependencies = new List<CSharpType>();
+            var dependencyNames = new HashSet<string>(StringComparer.Ordinal);
+            TryAddDependency(dependencies, dependencyNames, ScmCodeModelGenerator.Instance.TypeFormattersDefinition.Type);
+            return dependencies;
+        }
+
+        private static void TryAddDependency(List<CSharpType> dependencies, HashSet<string> dependencyNames, CSharpType dependency)
+        {
+            if (dependencyNames.Add(dependency.FullyQualifiedName))
+            {
+                dependencies.Add(dependency);
+            }
         }
 
         protected override ScmMethodProvider[] BuildMethods()
@@ -275,7 +337,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
             }
             else
             {
-                var contentParam = signature.Parameters.FirstOrDefault(p => p.Name == "content" && p.Location == ParameterLocation.Body);
+                var contentParam = GetBodyContentParameter(signature.Parameters);
                 statements.AddRange(AppendHeaderParameters(request, operation, paramMap, contentParam: contentParam));
                 statements.AddRange(GetSetContent(request, signature.Parameters));
             }
@@ -342,10 +404,13 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
 
         private IReadOnlyList<MethodBodyStatement> GetSetContent(HttpRequestApi request, IReadOnlyList<ParameterProvider> parameters)
         {
-            var contentParam = parameters.FirstOrDefault(
-                p => p.Location == ParameterLocation.Body);
+            var contentParam = GetBodyContentParameter(parameters);
             return contentParam is null ? [] : [request.Content().Assign(contentParam).Terminate()];
         }
+
+        private static ParameterProvider? GetBodyContentParameter(IReadOnlyList<ParameterProvider> parameters)
+            => parameters.FirstOrDefault(static p => p.InputParameter is InputBodyParameter) ??
+                parameters.FirstOrDefault(static p => p.Location == ParameterLocation.Body);
 
         private Dictionary<List<int>, PropertyProvider> BuildPipelineMessage20xClassifiers()
         {
@@ -575,9 +640,9 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
                         valueExpression.AsDictionary(paramType),
                         out KeyValuePairExpression item);
                     var convertedItem = paramType.ElementType.IsEnum
-                        ? paramType.ElementType.ToSerial(item)
+                        ? paramType.ElementType.ToSerial(item.Value)
                         : item.Value;
-                    forEachStatement.Add(uri.AppendQuery(item.Key, convertedItem, true).Terminate());
+                    AddExplodeQueryItem(forEachStatement, uri, item.Key, convertedItem, paramType.ElementType);
                     return forEachStatement;
                 }
                 else
@@ -612,8 +677,32 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
                 {
                     convertedItem = item;
                 }
-                forEachStatement.Add(uri.AppendQuery(Literal(inputQueryParameter.SerializedName), convertedItem, true).Terminate());
+                AddExplodeQueryItem(forEachStatement, uri, Literal(inputQueryParameter.SerializedName), convertedItem, paramType.ElementType);
                 return forEachStatement;
+            }
+        }
+
+        private static bool IsExtensibleStringEnum(CSharpType type)
+            => type.IsEnum && type.IsStruct && type.UnderlyingEnumType == typeof(string);
+
+        private static void AddExplodeQueryItem(
+            ForEachStatement forEachStatement,
+            ScopedApi uri,
+            ValueExpression key,
+            ValueExpression convertedItem,
+            CSharpType elementType)
+        {
+            if (IsExtensibleStringEnum(elementType))
+            {
+                forEachStatement.Add(Declare("paramStr", typeof(string), convertedItem, out VariableExpression cachedVar));
+                forEachStatement.Add(new IfStatement(cachedVar.As<string>().NotEqual(Null))
+                {
+                    uri.AppendQuery(key, cachedVar, true).Terminate()
+                });
+            }
+            else
+            {
+                forEachStatement.Add(uri.AppendQuery(key, convertedItem, true).Terminate());
             }
         }
 
@@ -919,7 +1008,9 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
 
         private void GetParamInfo(Dictionary<string, ParameterProvider> paramMap, InputOperation operation, InputParameter inputParam, out CSharpType? type, out SerializationFormat? serializationFormat, out ValueExpression? valueExpression)
         {
-            type = ScmCodeModelGenerator.Instance.TypeFactory.CreateCSharpType(inputParam.Type);
+            type = IsContentTypeParameter(inputParam, includeInputHeaderParameter: false)
+                ? null
+                : ScmCodeModelGenerator.Instance.TypeFactory.CreateCSharpType(inputParam.Type);
             serializationFormat = null;
 
             if (inputParam.IsApiVersion && ClientProvider.IsMultiServiceClient)
@@ -1130,8 +1221,13 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
             int optional = 400;
 
             var operation = serviceMethod.Operation;
-            // For convenience methods, use the service method parameters
-            var inputParameters = methodType is ScmMethodKind.Convenience ? serviceMethod.Parameters : operation.Parameters;
+            // Convenience methods use the service method parameters. The protocol method does too when
+            // @@override grouped the operation's parameters into an options bag, so both surfaces share
+            // the same shape (https://github.com/microsoft/typespec/issues/11214).
+            var inputParameters = methodType is ScmMethodKind.Convenience
+                || (methodType is ScmMethodKind.Protocol && ShouldGroupProtocolParameters(serviceMethod))
+                ? serviceMethod.Parameters
+                : operation.Parameters;
 
             var pageSizeParameterName = GetPageSizeParameterName(serviceMethod as InputPagingServiceMethod);
 
@@ -1216,7 +1312,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
 
                 if (methodType is ScmMethodKind.Protocol or ScmMethodKind.CreateRequest)
                 {
-                    if (inputParam is InputBodyParameter)
+                    if (inputParam is InputBodyParameter || inputParam is InputMethodParameter { Location: InputRequestLocation.Body })
                     {
                         if (methodType == ScmMethodKind.CreateRequest)
                         {
@@ -1230,7 +1326,17 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
                     }
                     else
                     {
-                        parameter.Type = parameter.Type.IsEnum ? parameter.Type.UnderlyingEnumType : parameter.Type;
+                        if (IsContentTypeParameter(inputParam))
+                        {
+                            parameter.Type = new CSharpType(typeof(string), isNullable: !inputParam.IsRequired);
+                            parameter.Validation = inputParam.IsRequired
+                                ? ParameterValidationType.AssertNotNullOrEmpty
+                                : ParameterValidationType.None;
+                        }
+                        else
+                        {
+                            parameter.Type = parameter.Type.IsEnum ? parameter.Type.UnderlyingEnumType : parameter.Type;
+                        }
                     }
                 }
                 else if (methodType is ScmMethodKind.Convenience &&
@@ -1249,8 +1355,8 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
                         break;
                     case ParameterLocation.Query:
                     case ParameterLocation.Header:
-                        if (inputParam is InputHeaderParameter { IsContentType: true }
-                            && !HasContentTypeBeforeBodyInLastContract(serviceMethod.Name, client.BackCompatProvider))
+                        if (IsContentTypeParameter(inputParam)
+                            && !HasContentTypeBeforeBodyInLastContract(serviceMethod, client.BackCompatProvider))
                         {
                             sortedParams.Add(contentType++, parameter);
                         }
@@ -1292,12 +1398,94 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
             return [.. sortedParams.Values];
         }
 
+        /// <summary>
+        /// Determines whether the protocol method should adopt the grouped (options bag) parameter shape
+        /// produced by <c>@@override</c>. Grouping is skipped when the request body itself was folded into
+        /// the bag, because the protocol method must keep exposing the body as raw request content.
+        /// </summary>
+        internal static bool ShouldGroupProtocolParameters(InputServiceMethod serviceMethod)
+        {
+            bool hasGroupedParameter = false;
+            foreach (var parameter in serviceMethod.Operation.Parameters)
+            {
+                if (parameter.MethodParameterSegments is not { Count: > 1 } segments)
+                {
+                    continue;
+                }
+
+                // The bag is (or contains) the request body, so the protocol method has to stay flattened
+                // to keep accepting a raw payload.
+                if (parameter is InputBodyParameter
+                    || segments[0] is InputMethodParameter { Location: InputRequestLocation.Body })
+                {
+                    return false;
+                }
+
+                if (!SegmentsPreserveRequiredness(parameter, segments))
+                {
+                    return false;
+                }
+
+                hasGroupedParameter = true;
+            }
+
+            return hasGroupedParameter;
+        }
+
+        /// <summary>
+        /// A required wire parameter must map to a required property so the bag's constructor forces callers
+        /// to supply it. TCGC does not validate this, and when it does not hold, grouping the protocol method
+        /// would silently drop the compile-time guarantee that the flattened signature provides.
+        /// </summary>
+        private static bool SegmentsPreserveRequiredness(InputParameter parameter, IReadOnlyList<InputMethodParameter> segments)
+        {
+            if (!parameter.IsRequired)
+            {
+                return true;
+            }
+
+            var currentType = segments[0].Type;
+            for (int i = 1; i < segments.Count; i++)
+            {
+                if (currentType is not InputModelType model)
+                {
+                    return false;
+                }
+
+                var property = FindPropertyInHierarchy(model, segments[i].Name);
+                if (property is null || !property.IsRequired)
+                {
+                    return false;
+                }
+
+                currentType = property.Type;
+            }
+
+            return true;
+        }
+
+        private static InputModelProperty? FindPropertyInHierarchy(InputModelType model, string name)
+        {
+            for (var current = model; current != null; current = current.BaseModel)
+            {
+                foreach (var property in current.Properties)
+                {
+                    if (property.SerializedName == name
+                        || string.Equals(property.Name, name, StringComparison.OrdinalIgnoreCase))
+                    {
+                        return property;
+                    }
+                }
+            }
+
+            return null;
+        }
+
         private static bool HasLiteralContentTypeHeader(InputOperation operation)
         {
             foreach (var p in operation.Parameters)
             {
-                if (p is InputHeaderParameter { IsContentType: true } header
-                    && header.Type is InputLiteralType)
+                if (p is InputHeaderParameter { IsContentType: true } && p.Type is InputLiteralType)
                 {
                     return true;
                 }
@@ -1305,24 +1493,36 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
             return false;
         }
 
+        private static bool IsContentTypeParameter(InputParameter parameter, bool includeInputHeaderParameter = true) =>
+            includeInputHeaderParameter && parameter is InputHeaderParameter { IsContentType: true } ||
+                parameter is InputMethodParameter { Location: InputRequestLocation.Header } &&
+                string.Equals(parameter.SerializedName, "Content-Type", StringComparison.OrdinalIgnoreCase);
+
         /// <summary>
         /// Checks if the last contract view contains a method matching the given name where
-        /// a "contentType" parameter appears before the body ("content") parameter.
+        /// a "contentType" parameter appears before the body parameter.
         /// If so, we should preserve that ordering for backward compatibility.
         /// </summary>
-        private static bool HasContentTypeBeforeBodyInLastContract(string methodName, TypeProvider backCompatProvider)
+        private static bool HasContentTypeBeforeBodyInLastContract(InputServiceMethod serviceMethod, TypeProvider backCompatProvider) =>
+            GetContentTypeOrderInLastContract(serviceMethod, backCompatProvider) == LastContractContentTypeOrder.BeforeBody;
+
+        private static LastContractContentTypeOrder GetContentTypeOrderInLastContract(
+            InputServiceMethod serviceMethod,
+            TypeProvider backCompatProvider)
         {
             const string contentTypeParamName = "contentType";
-            const string contentParamName = "content";
 
             var lastContractMethods = backCompatProvider.LastContractView?.Methods;
             if (lastContractMethods == null || lastContractMethods.Count == 0)
             {
-                return false;
+                return LastContractContentTypeOrder.NoMatchingMethod;
             }
 
-            var syncMethodName = methodName;
-            var asyncMethodName = methodName + "Async";
+            var syncMethodName = serviceMethod.Name;
+            var asyncMethodName = serviceMethod.Name + "Async";
+            var bodyParameterNames = GetBodyParameterNames(serviceMethod);
+            var matchedMethod = false;
+            var foundAfterBody = false;
 
             foreach (var method in lastContractMethods)
             {
@@ -1332,6 +1532,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
                     continue;
                 }
 
+                matchedMethod = true;
                 int contentTypeIndex = -1;
                 int bodyIndex = -1;
                 for (int i = 0; i < method.Signature.Parameters.Count; i++)
@@ -1341,7 +1542,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
                     {
                         contentTypeIndex = i;
                     }
-                    else if (string.Equals(param.Name, contentParamName, StringComparison.OrdinalIgnoreCase))
+                    else if (IsLastContractBodyParameter(param, bodyParameterNames))
                     {
                         bodyIndex = i;
                     }
@@ -1354,8 +1555,67 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
 
                 if (contentTypeIndex >= 0 && bodyIndex >= 0 && contentTypeIndex < bodyIndex)
                 {
-                    return true;
+                    return LastContractContentTypeOrder.BeforeBody;
                 }
+
+                if (contentTypeIndex >= 0 && bodyIndex >= 0)
+                {
+                    foundAfterBody = true;
+                }
+            }
+
+            if (foundAfterBody)
+            {
+                return LastContractContentTypeOrder.AfterBody;
+            }
+
+            return matchedMethod
+                ? LastContractContentTypeOrder.MatchingMethodWithoutOrder
+                : LastContractContentTypeOrder.NoMatchingMethod;
+        }
+
+        private enum LastContractContentTypeOrder
+        {
+            NoMatchingMethod,
+            MatchingMethodWithoutOrder,
+            BeforeBody,
+            AfterBody
+        }
+
+        private static HashSet<string> GetBodyParameterNames(InputServiceMethod serviceMethod)
+        {
+            var names = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
+            foreach (var parameter in serviceMethod.Parameters)
+            {
+                if (parameter.Location == InputRequestLocation.Body)
+                {
+                    names.Add(parameter.Name);
+                }
+            }
+
+            foreach (var parameter in serviceMethod.Operation.Parameters)
+            {
+                if (parameter is InputBodyParameter)
+                {
+                    names.Add(parameter.Name);
+                }
+            }
+
+            return names;
+        }
+
+        private static bool IsLastContractBodyParameter(ParameterProvider parameter, HashSet<string> bodyParameterNames)
+        {
+            if (parameter.InputParameter is InputBodyParameter ||
+                parameter.Location == ParameterLocation.Body ||
+                bodyParameterNames.Contains(parameter.Name))
+            {
+                return true;
+            }
+
+            if (string.Equals(parameter.Name, ContentParameterName, StringComparison.OrdinalIgnoreCase))
+            {
+                return true;
             }
 
             return false;

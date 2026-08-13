@@ -1,6 +1,6 @@
 import { describe, it } from "vitest";
+import type { DiagnosticMatch } from "../../src/testing/index.js";
 import {
-  DiagnosticMatch,
   expectDiagnosticEmpty,
   expectDiagnostics,
   extractCursor,

@@ -1,32 +1,21 @@
+import type { Interface, ModelProperty, Namespace, Operation, Type } from "@typespec/compiler";
 import {
-  Interface,
   isTemplateDeclaration,
   isTemplateDeclarationOrInstance,
-  ModelProperty,
-  Namespace,
   NoTarget,
-  Operation,
-  Type,
 } from "@typespec/compiler";
-import { createDiagnosable, defineKit, Diagnosable } from "@typespec/compiler/typekit";
-import {
-  getHttpService,
-  getServers,
-  HttpOperation,
-  HttpServer,
-  HttpServiceAuthentication,
-  resolveAuthentication,
-} from "@typespec/http";
+import type { Diagnosable } from "@typespec/compiler/typekit";
+import { createDiagnosable, defineKit } from "@typespec/compiler/typekit";
+import type { HttpOperation, HttpServer, HttpServiceAuthentication } from "@typespec/http";
+import { getHttpService, getServers, resolveAuthentication } from "@typespec/http";
 import "@typespec/http/experimental/typekit";
-import {
-  getClientFeatureLifecycle,
-  GetFeatureLifecycleOptions,
-} from "../../decorators/experimental.js";
-import { InternalClient } from "../../interfaces.js";
+import type { GetFeatureLifecycleOptions } from "../../decorators/experimental.js";
+import { getClientFeatureLifecycle } from "../../decorators/experimental.js";
+import type { InternalClient } from "../../interfaces.js";
 import { reportDiagnostic } from "../../lib.js";
 import { createBaseConstructor, getConstructors } from "../../utils/client-helpers.js";
 import { getStringValue } from "../../utils/helpers.js";
-import { NameKit } from "./utils.js";
+import type { NameKit } from "./utils.js";
 
 interface ClientKit extends NameKit<InternalClient> {
   /**

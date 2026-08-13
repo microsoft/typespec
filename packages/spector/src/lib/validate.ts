@@ -1,12 +1,9 @@
+import type { Interface, Namespace, Operation, Program } from "@typespec/compiler";
 import {
-  Interface,
   isDeclaredInNamespace,
   isTemplateDeclaration,
   listServices,
-  Namespace,
   navigateProgram,
-  Operation,
-  Program,
 } from "@typespec/compiler";
 import { getScenarioDoc, getScenarioName } from "./decorators.js";
 import { reportDiagnostic } from "./lib.js";

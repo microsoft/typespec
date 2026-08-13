@@ -1,5 +1,4 @@
-import {
-  isHttpMetadata,
+import type {
   SdkArrayType,
   SdkBuiltInType,
   SdkConstantType,
@@ -14,12 +13,14 @@ import {
   SdkModelType,
   SdkType,
   SdkUnionType,
-  UsageFlags,
 } from "@azure-tools/typespec-client-generator-core";
-import { getEncode, Type } from "@typespec/compiler";
-import { HttpAuth, Visibility } from "@typespec/http";
+import { isHttpMetadata, UsageFlags } from "@azure-tools/typespec-client-generator-core";
+import type { Type } from "@typespec/compiler";
+import { getEncode } from "@typespec/compiler";
+import type { HttpAuth } from "@typespec/http";
+import { Visibility } from "@typespec/http";
 import { dump } from "js-yaml";
-import { PythonSdkContext } from "./lib.js";
+import type { PythonSdkContext } from "./lib.js";
 import {
   camelToSnakeCase,
   emitParamBase,
@@ -473,10 +474,17 @@ const sdkScalarKindToPythonKind: Record<string, string> = {
   azureLocation: "string",
 };
 
+const supportedPythonEncodings = new Map<string, ReadonlySet<string>>([
+  ["boolean", new Set(["string"])],
+  ["integer", new Set(["string"])],
+  ["bytes", new Set(["base64", "base64url"])],
+]);
+
 function emitBuiltInType(
   context: PythonSdkContext,
   type: SdkBuiltInType | SdkDurationType | SdkDateTimeType,
 ): Record<string, any> {
+  const pythonType = sdkScalarKindToPythonKind[type.kind] || type.kind;
   if (type.encode) {
     if (type.kind === "duration") {
       if (type.encode === "ISO8601") {
@@ -508,7 +516,14 @@ function emitBuiltInType(
       }
     }
 
-    // fallback to wire type for unknown or unsupported encode
+    if (supportedPythonEncodings.get(pythonType)?.has(type.encode)) {
+      return getSimpleTypeResult(context, {
+        type: pythonType,
+        encode: type.encode,
+      });
+    }
+
+    // Python cannot apply unknown/custom encodings, so expose the wire type instead of silently ignoring the encoding.
     if ("wireType" in type && type.wireType !== undefined) {
       return getSimpleTypeResult(context, {
         type: sdkScalarKindToPythonKind[type.wireType.kind] || type.wireType.kind,
@@ -518,7 +533,7 @@ function emitBuiltInType(
   }
 
   return getSimpleTypeResult(context, {
-    type: sdkScalarKindToPythonKind[type.kind] || type.kind, // TODO: switch to kind
+    type: pythonType,
     encode: type.encode,
   });
 }

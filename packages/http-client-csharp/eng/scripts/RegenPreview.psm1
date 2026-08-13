@@ -580,7 +580,7 @@ function Update-OpenAIGenerator {
         Write-Host "Installing dependencies..." -ForegroundColor Gray
         Push-Location $OpenAIRepoPath
         try {
-            $npmOutput = Invoke "npm install" $OpenAIRepoPath
+            $npmOutput = Invoke "npm install --registry https://pkgs.dev.azure.com/azure-sdk/public/_packaging/azure-sdk-for-js/npm/registry/" $OpenAIRepoPath
             if ($LASTEXITCODE -ne 0) {
                 Write-Host $npmOutput -ForegroundColor Red
                 throw "npm install failed"

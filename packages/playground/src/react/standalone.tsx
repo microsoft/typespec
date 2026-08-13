@@ -36,6 +36,12 @@ import {
 export interface ReactPlaygroundConfig extends Partial<PlaygroundProps> {
   readonly libraries: readonly string[];
   readonly importConfig?: LibraryImportOptions;
+  /**
+   * Emitters from {@link libraries} that should only be imported once selected, rather than when
+   * the playground starts. Only valid for pure emitters, which are never referenced by an `import`
+   * statement in the TypeSpec source.
+   */
+  readonly deferredEmitters?: readonly string[];
   /** Content to show while the playground data is loading(Libraries) */
   readonly fallback?: ReactNode;
 }
@@ -51,7 +57,9 @@ function useStandalonePlaygroundContext(
   const [context, setContext] = useState<StandalonePlaygroundContext | undefined>();
   useEffect(() => {
     const load = async () => {
-      const host = await createBrowserHost(config.libraries, config.importConfig);
+      const host = await createBrowserHost(config.libraries, config.importConfig, {
+        deferredEmitters: config.deferredEmitters,
+      });
       await registerMonacoLanguage(host);
 
       const stateStorage = createStandalonePlaygroundStateStorage();
@@ -59,7 +67,7 @@ function useStandalonePlaygroundContext(
       setContext({ host, initialState, stateStorage });
     };
     void load();
-  }, [config.importConfig, config.libraries]);
+  }, [config.importConfig, config.libraries, config.deferredEmitters]);
   return context;
 }
 

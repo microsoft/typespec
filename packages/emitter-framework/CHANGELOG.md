@@ -1,5 +1,12 @@
 # Changelog - @typespec/emitter-framework
 
+## 0.20.0
+
+### Features
+
+- [#11243](https://github.com/microsoft/typespec/pull/11243) Add Python Pydantic helpers to the emitter framework: `PydanticClassDeclaration`, `PydanticSettingsClassDeclaration`, and `PydanticRootModelDeclaration` components, along with `field_validator`, `model_validator`, `field_serializer`, and `computed_field` decorator helpers.
+
+
 ## 0.19.0
 
 ### Deprecations

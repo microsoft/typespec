@@ -44,7 +44,7 @@ jobs:
           azureSubscription: "Azure SDK Engineering System"
           scriptType: bash
           scriptLocation: inlineScript
-          inlineScript: node ./eng/tsp-core/scripts/upload-bundler-packages.js
+          inlineScript: node ./eng/tsp-core/scripts/upload-bundler-packages.ts
 
       - task: AzureCLI@2
         displayName: Upload scenario manifest

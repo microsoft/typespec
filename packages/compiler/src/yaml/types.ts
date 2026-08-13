@@ -1,5 +1,5 @@
-import { Document } from "yaml";
-import { SourceFile } from "../core/types.js";
+import type { Document } from "yaml";
+import type { SourceFile } from "../core/types.js";
 
 export interface YamlScript {
   readonly kind: "yaml-script";

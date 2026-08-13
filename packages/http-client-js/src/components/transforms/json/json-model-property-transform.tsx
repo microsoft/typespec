@@ -1,6 +1,7 @@
-import { Children, code, NamePolicyContext, Refkey } from "@alloy-js/core";
+import type { Children, Refkey } from "@alloy-js/core";
+import { code, NamePolicyContext } from "@alloy-js/core";
 import * as ts from "@alloy-js/typescript";
-import { ModelProperty } from "@typespec/compiler";
+import type { ModelProperty } from "@typespec/compiler";
 import { useTsp } from "@typespec/emitter-framework";
 import { unpackProperty } from "../../utils/unpack-model-property.js";
 import { ScalarDataTransform } from "../data-transform.jsx";

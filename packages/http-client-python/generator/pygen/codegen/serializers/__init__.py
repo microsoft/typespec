@@ -207,10 +207,10 @@ class JinjaSerializer(ReaderAndWriter):
                 self._serialize_and_write_top_level_folder(env=env, namespace=client_namespace)
 
             # add models folder if there are models in this namespace
-            is_typeddict_mode = self.code_model.options["models-mode"] == "typeddict"
-            if (
-                self.code_model.has_non_json_models(client_namespace_type.models) or client_namespace_type.enums
-            ) and self.code_model.options["models-mode"]:
+            is_typeddict_mode = self.code_model.generate_typeddict_only
+            if (self.code_model.has_non_json_models(client_namespace_type.models) or client_namespace_type.enums) and (
+                self.code_model.options["models-mode"] or self.code_model.generate_typeddict_only
+            ):
                 self._serialize_and_write_models_folder(
                     env=env,
                     namespace=client_namespace,
@@ -238,7 +238,7 @@ class JinjaSerializer(ReaderAndWriter):
                     ).serialize(),
                 )
 
-            if not self.code_model.options["models-mode"]:
+            if not self.code_model.options["models-mode"] and not self.code_model.generate_typeddict_only:
                 # keep models file if users ended up just writing a models file
                 model_path = generation_path / Path("models.py")
                 if self.read_file(model_path):
@@ -321,7 +321,7 @@ class JinjaSerializer(ReaderAndWriter):
         # Write the models folder
         models_path = self.code_model.get_generation_dir(namespace) / "models"
         models_mode = self.code_model.options["models-mode"]
-        if models_mode in ("dpg", "typeddict"):
+        if models_mode == "dpg" or self.code_model.generate_typeddict_only:
             serializer = DpgModelSerializer
         else:
             serializer = MsrestModelSerializer

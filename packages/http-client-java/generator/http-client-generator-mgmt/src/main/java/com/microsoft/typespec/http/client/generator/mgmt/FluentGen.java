@@ -42,12 +42,19 @@ import com.microsoft.typespec.http.client.generator.mgmt.model.clientmodel.Fluen
 import com.microsoft.typespec.http.client.generator.mgmt.model.clientmodel.FluentStatic;
 import com.microsoft.typespec.http.client.generator.mgmt.model.clientmodel.examplemodel.FluentMethodMockUnitTest;
 import com.microsoft.typespec.http.client.generator.mgmt.model.javamodel.FluentJavaPackage;
+import com.microsoft.typespec.http.client.generator.mgmt.model.projectmodel.Changelog;
 import com.microsoft.typespec.http.client.generator.mgmt.model.projectmodel.FluentProject;
 import com.microsoft.typespec.http.client.generator.mgmt.namer.FluentNamerFactory;
 import com.microsoft.typespec.http.client.generator.mgmt.template.FluentTemplateFactory;
 import com.microsoft.typespec.http.client.generator.mgmt.util.FluentJavaSettings;
 import com.microsoft.typespec.http.client.generator.mgmt.util.FluentUtils;
 import io.clientcore.core.utils.CoreUtils;
+import java.io.BufferedReader;
+import java.io.IOException;
+import java.nio.charset.StandardCharsets;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -368,9 +375,42 @@ public class FluentGen extends Javagen {
                     javaPackage.addOperationUnitTest(unitTest);
                 }
             }
+        } else if (javaSettings.isFluentPremium()) {
+            // Fluent Premium: only annotate the existing CHANGELOG.md with the api-version.
+            updateChangelogForPremium(javaPackage, apiVersionMap);
         }
 
         return fluentClient;
+    }
+
+    private void updateChangelogForPremium(FluentJavaPackage javaPackage, Map<String, String> apiVersionMap) {
+        if (!this.getFluentJavaSettings().isSdkIntegration()) {
+            return;
+        }
+        String apiVersionDescription = FluentProject.apiVersionDescription(apiVersionMap);
+        if (apiVersionDescription.isEmpty()) {
+            // no api-version available, skip updating CHANGELOG.md
+            return;
+        }
+        String outputFolder = JavaSettings.getInstance().getProjectSettings().getOutputFolder();
+        if (outputFolder == null || !Paths.get(outputFolder).isAbsolute()) {
+            logger.warn(
+                "'output-folder' parameter is not an absolute path, skip updating CHANGELOG.md for Fluent Premium");
+            return;
+        }
+        Path changelogPath = Paths.get(outputFolder, "CHANGELOG.md");
+        if (!Files.isReadable(changelogPath)) {
+            logger.info("'CHANGELOG.md' not found or not readable, skip updating for Fluent Premium");
+            return;
+        }
+        try (BufferedReader reader = Files.newBufferedReader(changelogPath, StandardCharsets.UTF_8)) {
+            Changelog changelog = new Changelog(reader);
+            logger.info("Update 'CHANGELOG.md' with '{}' for Fluent Premium", apiVersionDescription);
+            changelog.updateForVersion(apiVersionDescription);
+            javaPackage.addChangelogMarkdown(changelog);
+        } catch (IOException e) {
+            logger.warn("Failed to parse 'CHANGELOG.md'", e);
+        }
     }
 
     // Fix the case where there are no models but only resource collections.
