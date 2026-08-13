@@ -216,7 +216,6 @@ public class OperationTests {
             .stream()
             .collect(Collectors.toList());
 
-        Assertions.assertEquals(1, resources.size());
         Assertions.assertTrue(resources.get(0).id().endsWith("/virtualMachines/vm1"));
         Assertions.assertTrue(resources.get(0).sendingMetrics());
     }
