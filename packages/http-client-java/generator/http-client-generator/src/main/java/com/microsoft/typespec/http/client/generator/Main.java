@@ -50,6 +50,7 @@ import org.yaml.snakeyaml.representer.Representer;
 public class Main {
     private static final Logger LOGGER = LoggerFactory.getLogger(Main.class);
     private static final String DEFAULT_OUTPUT_DIR = "http-client-generator-test/tsp-output/";
+    private static final String RESOURCES_ARTIFACT_ID = "azure-resourcemanager-resources";
     // private static final String DEFAULT_OUTPUT_DIR = "http-client-generator-clientcore-test/tsp-output/";
 
     private static Yaml yaml = null;
@@ -134,7 +135,8 @@ public class Main {
 
         // properties file
         String artifactId = FluentUtils.getArtifactId();
-        if (!CoreUtils.isNullOrEmpty(artifactId)) {
+        if (!CoreUtils.isNullOrEmpty(artifactId)
+            && shouldWriteFluentPropertiesFile(emitterOptions.getOutputDir(), artifactId, sdkIntegration)) {
             fluentPlugin.writeFile("src/main/resources/" + artifactId + ".properties", "version=${project.version}\n",
                 null);
         }
@@ -142,6 +144,15 @@ public class Main {
         // Others
         javaPackage.getTextFiles()
             .forEach(textFile -> fluentPlugin.writeFile(textFile.getFilePath(), textFile.getContents(), null));
+    }
+
+    static boolean shouldWriteFluentPropertiesFile(String outputDir, String artifactId, boolean sdkIntegration) {
+        if (!sdkIntegration || !RESOURCES_ARTIFACT_ID.equals(artifactId)) {
+            return true;
+        }
+
+        // This library maintains additional properties by hand, so SDK integration must not overwrite the file.
+        return Files.notExists(Paths.get(outputDir, "src/main/resources", artifactId + ".properties"));
     }
 
     private static void handleDPG(CodeModel codeModel, EmitterOptions emitterOptions, boolean sdkIntegration,
