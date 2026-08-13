@@ -186,6 +186,11 @@ namespace Microsoft.TypeSpec.Generator.Utilities
                 for (int i = 0; i < currentParameters.Count; i++)
                 {
                     var parameter = currentParameters[i];
+                    if (parameter.IsExactName)
+                    {
+                        continue;
+                    }
+
                     string? preservedName = null;
 
                     var inputParameter = parameter.InputParameter;

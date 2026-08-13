@@ -56,6 +56,10 @@ namespace Microsoft.TypeSpec.Generator.Providers
         /// </summary>
         public InputParameter? InputParameter { get; private set; }
 
+        internal bool IsExactName =>
+            InputParameter?.IsExactName == true ||
+            Property?.InputProperty?.IsExactName == true;
+
         /// <summary>
         /// Creates a <see cref="ParameterProvider"/> from an <see cref="InputParameter"/>.
         /// </summary>

@@ -146,7 +146,8 @@ namespace Microsoft.TypeSpec.Generator.Providers
                 {
                     if (currentMethodSignature.Name.Equals(previousMethod.Signature.Name))
                     {
-                        if (MethodSignatureHelper.HaveSameParametersInSameOrder(currentMethodSignature, previousMethod.Signature))
+                        if (MethodSignatureHelper.HaveSameParametersInSameOrder(currentMethodSignature, previousMethod.Signature) ||
+                            HasMatchingExactParameterNames(currentMethodSignature, previousMethod.Signature))
                         {
                             foundCompatibleOverload = true;
                             break;
@@ -217,6 +218,25 @@ namespace Microsoft.TypeSpec.Generator.Providers
             }
 
             return [.. factoryMethods];
+        }
+
+        private static bool HasMatchingExactParameterNames(MethodSignature current, MethodSignature previous)
+        {
+            if (!MethodSignature.MethodSignatureComparer.Equals(current, previous))
+            {
+                return false;
+            }
+
+            for (int i = 0; i < current.Parameters.Count; i++)
+            {
+                if (current.Parameters[i].Name != previous.Parameters[i].Name &&
+                    !current.Parameters[i].IsExactName)
+                {
+                    return false;
+                }
+            }
+
+            return true;
         }
 
         internal static IReadOnlyList<string> GetUnavailableSignatureTypes(MethodSignature signature)

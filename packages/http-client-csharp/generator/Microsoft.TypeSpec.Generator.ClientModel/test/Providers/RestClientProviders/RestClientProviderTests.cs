@@ -698,6 +698,32 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers.RestClientPro
         }
 
         [Test]
+        public async Task ExactParameterNameTakesPrecedenceOverLastContractView()
+        {
+            var queryParam = InputFactory.QueryParameter(
+                "oldParam",
+                InputPrimitiveType.String,
+                isRequired: true,
+                isExactName: true);
+            queryParam.Update(name: "exact_param");
+
+            var operation = InputFactory.Operation("GetSomething", parameters: [queryParam]);
+            var serviceMethod = InputFactory.BasicServiceMethod("GetSomething", operation);
+            var client = InputFactory.Client("TestClient", methods: [serviceMethod]);
+
+            var generator = await MockHelpers.LoadMockGeneratorAsync(
+                clients: () => [client],
+                lastContractCompilation: async () => await Helpers.GetCompilationFromDirectoryAsync(
+                    method: nameof(ParameterNamePreservedFromLastContractView)));
+
+            var clientProvider = generator.Object.OutputLibrary.TypeProviders.OfType<ClientProvider>().First();
+            var protocolParams = RestClientProvider.GetMethodParameters(serviceMethod, ScmMethodKind.Protocol, clientProvider);
+
+            Assert.IsNotNull(protocolParams.SingleOrDefault(p => p.Name == "exact_param"));
+            Assert.IsNull(protocolParams.SingleOrDefault(p => p.Name == "oldParam"));
+        }
+
+        [Test]
         public async Task ParameterNamePreservedFromInternalLastContractMethod()
         {
             var queryParam = InputFactory.QueryParameter("oldParam", InputPrimitiveType.String, isRequired: true);
