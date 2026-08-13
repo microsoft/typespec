@@ -1247,6 +1247,49 @@ namespace Microsoft.TypeSpec.Generator.Tests.Providers
             Assert.AreEqual("snake_case_value", properties[1].Name);
         }
 
+        [TestCase(false, "CallbackUrl", false, "CallbackUri")]
+        [TestCase(true, "CallbackUrl", false, "CallbackUri")]
+        [TestCase(false, "CallbackUrlValue", false, "CallbackUrlValue")]
+        [TestCase(true, "CallbackUrls", false, "CallbackUrls")]
+        [TestCase(false, "CallbackUrl", true, "CallbackUrl")]
+        [TestCase(true, "CallbackUrl", true, "CallbackUrl")]
+        public void BuildEnumType_ReplacesCompleteUrlSuffixOnValues(
+            bool isExtensible,
+            string valueName,
+            bool isExactName,
+            string expectedName)
+        {
+            MockHelpers.LoadMockGenerator(createCSharpTypeCore: (inputType) => typeof(string));
+            var enumValues = new List<InputEnumTypeValue>();
+            var enumType = InputFactory.Enum(
+                "mockInputEnum",
+                InputPrimitiveType.String,
+                enumValues,
+                isExtensible: isExtensible);
+            enumValues.Add(InputFactory.EnumMember.String(valueName, "value", enumType, isExactName: isExactName));
+
+            var enumProvider = EnumProvider.Create(enumType);
+
+            Assert.AreEqual(expectedName, enumProvider.EnumValues.Single().Name);
+        }
+
+        [TestCase(false, "Fixed")]
+        [TestCase(true, "Extensible")]
+        public async Task BuildEnumType_PreservesUrlSuffixFromLastContract(bool isExtensible, string testData)
+        {
+            await MockHelpers.LoadMockGeneratorAsync(
+                createCSharpTypeCore: (inputType) => typeof(string),
+                lastContractCompilation: async () => await Helpers.GetCompilationFromDirectoryAsync(parameters: testData));
+            var input = InputFactory.StringEnum(
+                "mockInputEnum",
+                [("CallbackUrl", "value")],
+                isExtensible: isExtensible);
+
+            var enumProvider = EnumProvider.Create(input);
+
+            Assert.AreEqual("CallbackUrl", enumProvider.EnumValues.Single().Name);
+        }
+
         private static void ValidateGetHashCodeMethod(EnumProvider enumType)
         {
             var getHashCodeMethod = enumType.Methods.Single(m => m.Signature.Name == "GetHashCode");

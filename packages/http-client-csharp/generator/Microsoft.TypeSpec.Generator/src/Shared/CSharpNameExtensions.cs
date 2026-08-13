@@ -2,6 +2,7 @@
 // Licensed under the MIT License.
 
 using System;
+using System.Diagnostics.CodeAnalysis;
 using System.Text;
 
 namespace Microsoft.TypeSpec.Generator.Utilities
@@ -55,5 +56,11 @@ namespace Microsoft.TypeSpec.Generator.Utilities
             normalizedName.Append(name, segmentStart, name.Length - segmentStart);
             return normalizedName.ToString();
         }
+
+        [return: NotNullIfNotNull(nameof(name))]
+        public static string? NormalizeCSharpUrlSuffix(this string? name)
+            => !string.IsNullOrEmpty(name) && name.EndsWith("Url", StringComparison.Ordinal)
+                ? $"{name.Substring(0, name.Length - 3)}Uri"
+                : name;
     }
 }
