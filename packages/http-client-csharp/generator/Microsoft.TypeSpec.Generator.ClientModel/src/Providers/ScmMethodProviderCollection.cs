@@ -236,6 +236,10 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
             // Recompute the response body type so we can branch the body accordingly.
             GetResponseType(ServiceMethod.Operation.Responses, true, isAsync, out var responseBodyType);
             var streamingResponse = _streamingResponse.Value;
+            var noBodySuccessStatusCodes = GetNoBodySuccessStatusCodes(ServiceMethod.Operation.Responses);
+            bool hasOptionalResponseBody = responseBodyType is not null
+                && noBodySuccessStatusCodes.Count > 0
+                && ScmCodeModelGenerator.Instance.TypeFactory.ClientResponseApi.ClientResponseType.FrameworkType == typeof(ClientResult);
 
             MethodBodyStatement[] methodBody;
             TypeProvider? collection = null;
@@ -293,23 +297,32 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
                 [
                     .. GetStackVariablesForProtocolParamConversion(convenienceBodyParameters, out var paramDeclarations),
                     Declare("result", This.Invoke(protocolMethod.Signature, [.. GetProtocolMethodArguments(paramDeclarations)], isAsync).ToApi<ClientResponseApi>(), out ClientResponseApi result),
+                    .. hasOptionalResponseBody
+                        ? GetNoBodyResponseStatements(result, responseBodyType, noBodySuccessStatusCodes)
+                        : [],
                     .. GetStackVariablesForReturnValueConversion(result, responseBodyType, isAsync, out var resultDeclarations),
                     IsConvertibleFromBinaryData(responseBodyType)
-                        ? Return(result.FromValue(GetResultConversion(result, result.GetRawResponse(), responseBodyType, resultDeclarations), result.GetRawResponse()))
+                        ? Return(BuildResponseFromValue(
+                            result,
+                            GetResultConversion(result, result.GetRawResponse(), responseBodyType, resultDeclarations),
+                            responseBodyType,
+                            hasOptionalResponseBody))
                         :
                         new[]
                         {
                             Declare("data", result.GetRawResponse().Content(), out var data),
                             UsingDeclare("document", data.Parse(), out var jsonDocument),
                             Declare("element", jsonDocument.RootElement(), out var jsonElement),
-                            Return(result.FromValue(
+                            Return(BuildResponseFromValue(
+                                result,
                                 ScmCodeModelGenerator.Instance.TypeFactory.DeserializeJsonValue(
+                                    responseBodyType,
+                                    jsonElement,
+                                    data,
+                                    ScmCodeModelGenerator.Instance.ModelSerializationExtensionsDefinition.WireOptionsField.As<ModelReaderWriterOptions>(),
+                                    SerializationFormat.Default),
                                 responseBodyType,
-                                jsonElement,
-                                data,
-                                ScmCodeModelGenerator.Instance.ModelSerializationExtensionsDefinition.WireOptionsField.As<ModelReaderWriterOptions>(),
-                                SerializationFormat.Default),
-                                result.GetRawResponse()))
+                                hasOptionalResponseBody))
                         },
                 ];
             }
@@ -1635,7 +1648,8 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
 
         private CSharpType GetConvenienceReturnType(IReadOnlyList<InputOperationResponse> responses, bool isAsync, out CSharpType? responseBodyType)
         {
-            var response = responses.FirstOrDefault(r => !r.IsErrorResponse);
+            var response = responses.FirstOrDefault(r => !r.IsErrorResponse && r.BodyType is not null)
+                ?? responses.FirstOrDefault(r => !r.IsErrorResponse);
             if (response?.BodyType is InputStreamingType streamingType)
             {
                 responseBodyType = GetConvenienceStreamingItemType(streamingType);
@@ -1661,12 +1675,79 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
                     responseBodyType);
             }
 
-            var returnType = responseBodyType == null
+            bool hasOptionalResponseBody = responseBodyType is not null
+                && GetNoBodySuccessStatusCodes(responses).Count > 0
+                && ScmCodeModelGenerator.Instance.TypeFactory.ClientResponseApi.ClientResponseType.FrameworkType == typeof(ClientResult);
+            var responseValueType = hasOptionalResponseBody
+                ? responseBodyType?.OutputType.WithNullable(true)
+                : responseBodyType?.OutputType;
+            var returnType = responseValueType == null
                 ? ScmCodeModelGenerator.Instance.TypeFactory.ClientResponseApi.ClientResponseType
-                : new CSharpType(ScmCodeModelGenerator.Instance.TypeFactory.ClientResponseApi.ClientResponseOfTType.FrameworkType, responseBodyType.OutputType);
+                : new CSharpType(
+                    ScmCodeModelGenerator.Instance.TypeFactory.ClientResponseApi.ClientResponseOfTType.FrameworkType,
+                    responseValueType);
 
             return isAsync ? new CSharpType(typeof(Task<>), returnType) : returnType;
         }
+
+        private static IReadOnlyList<int> GetNoBodySuccessStatusCodes(IReadOnlyList<InputOperationResponse> responses)
+            => [.. responses
+                .Where(r => !r.IsErrorResponse && r.BodyType is null)
+                .SelectMany(r => r.StatusCodes)
+                .Distinct()];
+
+        private static IEnumerable<MethodBodyStatement> GetNoBodyResponseStatements(
+            ClientResponseApi result,
+            CSharpType responseBodyType,
+            IReadOnlyList<int> noBodySuccessStatusCodes)
+        {
+            var rawResponse = result.GetRawResponse();
+            ScopedApi<bool>? noBodyResponseCondition = null;
+            foreach (int statusCode in noBodySuccessStatusCodes)
+            {
+                var statusCodeCondition = rawResponse.Property("Status").Equal(Literal(statusCode));
+                noBodyResponseCondition = noBodyResponseCondition is null
+                    ? statusCodeCondition
+                    : noBodyResponseCondition.Or(statusCodeCondition);
+            }
+
+            if (noBodyResponseCondition is null)
+            {
+                return [];
+            }
+
+            var optionalValueType = responseBodyType.OutputType.WithNullable(true);
+            return
+            [
+                new IfStatement(noBodyResponseCondition)
+                {
+                    Return(BuildOptionalResponse(
+                        DefaultOf(optionalValueType),
+                        rawResponse,
+                        responseBodyType))
+                }
+            ];
+        }
+
+        private static ValueExpression BuildResponseFromValue(
+            ClientResponseApi result,
+            ValueExpression value,
+            CSharpType responseBodyType,
+            bool hasOptionalResponseBody)
+            => hasOptionalResponseBody
+                ? BuildOptionalResponse(value, result.GetRawResponse(), responseBodyType)
+                : result.FromValue(value, result.GetRawResponse());
+
+        private static ValueExpression BuildOptionalResponse(
+            ValueExpression value,
+            HttpResponseApi response,
+            CSharpType responseBodyType)
+            => Static(ScmCodeModelGenerator.Instance.TypeFactory.ClientResponseApi.ClientResponseType)
+                .Invoke(
+                    nameof(ClientResult.FromOptionalValue),
+                    [value, response],
+                    [responseBodyType.OutputType],
+                    false);
 
         private static CSharpType GetRawStreamingItemType(InputStreamingType streamingType)
         {

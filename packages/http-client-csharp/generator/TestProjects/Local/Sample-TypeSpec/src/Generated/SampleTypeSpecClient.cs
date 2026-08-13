@@ -2059,6 +2059,66 @@ namespace SampleTypeSpec
         }
 #pragma warning restore SCME0005 // Type is for evaluation purposes only and is subject to change or removal in future updates.
 
+        /// <summary>
+        /// [Protocol Method] GetOptionalResponse
+        /// <list type="bullet">
+        /// <item>
+        /// <description> This <see href="https://aka.ms/azsdk/net/protocol-methods">protocol method</see> allows explicit creation of the request and processing of the response for advanced scenarios. </description>
+        /// </item>
+        /// </list>
+        /// </summary>
+        /// <param name="options"> The request options, which can override default behaviors of the client pipeline on a per-call basis. </param>
+        /// <exception cref="ClientResultException"> Service returned a non-success status code. </exception>
+        /// <returns> The response returned from the service. </returns>
+        public virtual ClientResult GetOptionalResponse(RequestOptions options)
+        {
+            using PipelineMessage message = CreateGetOptionalResponseRequest(options);
+            return ClientResult.FromResponse(Pipeline.ProcessMessage(message, options));
+        }
+
+        /// <summary>
+        /// [Protocol Method] GetOptionalResponse
+        /// <list type="bullet">
+        /// <item>
+        /// <description> This <see href="https://aka.ms/azsdk/net/protocol-methods">protocol method</see> allows explicit creation of the request and processing of the response for advanced scenarios. </description>
+        /// </item>
+        /// </list>
+        /// </summary>
+        /// <param name="options"> The request options, which can override default behaviors of the client pipeline on a per-call basis. </param>
+        /// <exception cref="ClientResultException"> Service returned a non-success status code. </exception>
+        /// <returns> The response returned from the service. </returns>
+        public virtual async Task<ClientResult> GetOptionalResponseAsync(RequestOptions options)
+        {
+            using PipelineMessage message = CreateGetOptionalResponseRequest(options);
+            return ClientResult.FromResponse(await Pipeline.ProcessMessageAsync(message, options).ConfigureAwait(false));
+        }
+
+        /// <summary> GetOptionalResponse. </summary>
+        /// <param name="cancellationToken"> The cancellation token that can be used to cancel the operation. </param>
+        /// <exception cref="ClientResultException"> Service returned a non-success status code. </exception>
+        public virtual ClientResult<Thing> GetOptionalResponse(CancellationToken cancellationToken = default)
+        {
+            ClientResult result = GetOptionalResponse(cancellationToken.ToRequestOptions());
+            if (result.GetRawResponse().Status == 204)
+            {
+                return ClientResult.FromOptionalValue((Thing)null, result.GetRawResponse());
+            }
+            return ClientResult.FromOptionalValue((Thing)result, result.GetRawResponse());
+        }
+
+        /// <summary> GetOptionalResponse. </summary>
+        /// <param name="cancellationToken"> The cancellation token that can be used to cancel the operation. </param>
+        /// <exception cref="ClientResultException"> Service returned a non-success status code. </exception>
+        public virtual async Task<ClientResult<Thing>> GetOptionalResponseAsync(CancellationToken cancellationToken = default)
+        {
+            ClientResult result = await GetOptionalResponseAsync(cancellationToken.ToRequestOptions()).ConfigureAwait(false);
+            if (result.GetRawResponse().Status == 204)
+            {
+                return ClientResult.FromOptionalValue((Thing)null, result.GetRawResponse());
+            }
+            return ClientResult.FromOptionalValue((Thing)result, result.GetRawResponse());
+        }
+
         /// <summary> Initializes a new instance of AnimalOperations. </summary>
         public virtual AnimalOperations GetAnimalOperationsClient()
         {

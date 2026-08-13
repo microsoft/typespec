@@ -15,9 +15,12 @@ namespace SampleTypeSpec
     public partial class SampleTypeSpecClient
     {
         private static PipelineMessageClassifier _pipelineMessageClassifier200;
+        private static PipelineMessageClassifier _pipelineMessageClassifier200204;
         private static PipelineMessageClassifier _pipelineMessageClassifier204;
 
         private static PipelineMessageClassifier PipelineMessageClassifier200 => _pipelineMessageClassifier200 ??= PipelineMessageClassifier.Create(stackalloc ushort[] { 200 });
+
+        private static PipelineMessageClassifier PipelineMessageClassifier200204 => _pipelineMessageClassifier200204 ??= PipelineMessageClassifier.Create(stackalloc ushort[] { 200, 204 });
 
         private static PipelineMessageClassifier PipelineMessageClassifier204 => _pipelineMessageClassifier204 ??= PipelineMessageClassifier.Create(stackalloc ushort[] { 204 });
 
@@ -496,6 +499,18 @@ namespace SampleTypeSpec
             PipelineMessage message = Pipeline.CreateMessage(uri.ToUri(), "GET", PipelineMessageClassifier200);
             PipelineRequest request = message.Request;
             request.Headers.Set("Accept", "text/event-stream");
+            message.Apply(options);
+            return message;
+        }
+
+        internal PipelineMessage CreateGetOptionalResponseRequest(RequestOptions options)
+        {
+            ClientUriBuilder uri = new ClientUriBuilder();
+            uri.Reset(_endpoint);
+            uri.AppendPath("/optional-response", false);
+            PipelineMessage message = Pipeline.CreateMessage(uri.ToUri(), "GET", PipelineMessageClassifier200204);
+            PipelineRequest request = message.Request;
+            request.Headers.Set("Accept", "application/json");
             message.Apply(options);
             return message;
         }

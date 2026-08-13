@@ -934,3 +934,12 @@ op receiveJsonLines(): JsonlStream<StreamingItem>;
 @get
 @route("/streaming/sse/receive")
 op receiveSse(): SSEStream<SampleEvents>;
+
+@get
+@route("/optional-response")
+op getOptionalResponse(): {
+  @statusCode statusCode: 200;
+  @body body: Thing;
+} | {
+  @statusCode statusCode: 204;
+};

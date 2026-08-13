@@ -414,6 +414,45 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers
         }
 
         [Test]
+        public void ConvenienceMethodWithOptionalResponseBodyReturnsNullableClientResult()
+        {
+            var operation = InputFactory.Operation(
+                "GetLayout",
+                responses:
+                [
+                    InputFactory.OperationResponse([204]),
+                    InputFactory.OperationResponse([200], InputPrimitiveType.String)
+                ]);
+            var serviceMethod = InputFactory.BasicServiceMethod("GetLayout", operation);
+            var inputClient = InputFactory.Client("TestClient", methods: [serviceMethod]);
+
+            MockHelpers.LoadMockGenerator(
+                createCSharpTypeCore: inputType => inputType == InputPrimitiveType.String
+                    ? new CSharpType(typeof(string))
+                    : new CSharpType(typeof(bool)));
+
+            var client = ScmCodeModelGenerator.Instance.TypeFactory.CreateClient(inputClient);
+            Assert.IsNotNull(client);
+            var methodCollection = new ScmMethodProviderCollection(serviceMethod, client!);
+            var convenienceMethod = methodCollection.Single(
+                m => m is ScmMethodProvider { Kind: ScmMethodKind.Convenience }
+                    && m.Signature.Name == "GetLayout");
+
+            Assert.AreEqual(
+                new CSharpType(typeof(ClientResult<>), new CSharpType(typeof(string)).WithNullable(true)),
+                convenienceMethod.Signature.ReturnType);
+
+            var methodBody = convenienceMethod.BodyStatements!.ToDisplayString();
+            StringAssert.Contains("result.GetRawResponse().Status == 204", methodBody);
+            StringAssert.Contains(
+                "return global::System.ClientModel.ClientResult.FromOptionalValue<string>(((string)null), result.GetRawResponse());",
+                methodBody);
+            StringAssert.Contains(
+                "return global::System.ClientModel.ClientResult.FromOptionalValue<string>",
+                methodBody);
+        }
+
+        [Test]
         public void ProtocolMethodIsInternalWhenGenerateProtocolMethodIsFalse()
         {
             var operation = InputFactory.Operation(
