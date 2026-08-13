@@ -129,6 +129,55 @@ namespace Microsoft.TypeSpec.Generator.Tests.Providers
             Assert.AreEqual(expectedName, property.Name);
         }
 
+        [TestCaseSource(nameof(DateTimePropertyNameTestCases))]
+        public void TestPropertyNameNormalizesDateTimeSuffix(
+            string inputName,
+            InputType inputType,
+            bool isExactName,
+            string expectedName)
+        {
+            var inputProperty = InputFactory.Property(
+                inputName,
+                inputType,
+                isRequired: true,
+                isExactName: isExactName);
+            InputFactory.Model("TestModel", properties: [inputProperty]);
+
+            var property = new PropertyProvider(inputProperty, new TestTypeProvider());
+
+            Assert.AreEqual(expectedName, property.Name);
+            Assert.AreEqual(inputName.ToVariableName(), property.WireInfo?.SerializedName);
+        }
+
+        [Test]
+        public void TestPropertyNamePreservesLastContractDateTimeSuffix()
+        {
+            var lastContract = new TestTypeProvider(properties:
+            [
+                new PropertyProvider(
+                    description: null,
+                    modifiers: MethodSignatureModifiers.Public,
+                    type: typeof(DateTimeOffset),
+                    name: "StartTime",
+                    body: new AutoPropertyBody(HasSetter: true),
+                    enclosingType: TestTypeProvider.Empty)
+            ]);
+            var enclosingType = new TestTypeProviderWithLastContract(lastContract);
+            var inputProperty = InputFactory.Property(
+                "StartTime",
+                new InputDateTimeType(
+                    DateTimeKnownEncoding.Rfc3339,
+                    "utcDateTime",
+                    "TypeSpec.utcDateTime",
+                    InputPrimitiveType.String),
+                isRequired: true);
+            InputFactory.Model("TestModel", properties: [inputProperty]);
+
+            var property = new PropertyProvider(inputProperty, enclosingType);
+
+            Assert.AreEqual("StartTime", property.Name);
+        }
+
         [TestCaseSource(nameof(CollectionPropertyTestCases))]
         public void CollectionProperty(CSharpType coreType, InputModelProperty collectionProperty, CSharpType expectedType)
         {
@@ -200,6 +249,45 @@ namespace Microsoft.TypeSpec.Generator.Tests.Providers
             var property = new PropertyProvider(inputModelProperty, testTypeProvider);
 
             Assert.AreEqual("IPAddressProperty", property.Name);
+        }
+
+        private static IEnumerable<TestCaseData> DateTimePropertyNameTestCases()
+        {
+            var dateTime = new InputDateTimeType(
+                DateTimeKnownEncoding.Rfc3339,
+                "utcDateTime",
+                "TypeSpec.utcDateTime",
+                InputPrimitiveType.String);
+
+            yield return new TestCaseData("StartTime", dateTime, false, "StartOn");
+            yield return new TestCaseData("CreationDateTime", dateTime, false, "CreatedOn");
+            yield return new TestCaseData("DeletionTimestamp", dateTime, false, "DeletedOn");
+            yield return new TestCaseData("ModificationTimeStamp", dateTime, false, "ModifiedOn");
+            yield return new TestCaseData("Timestamp", dateTime, false, "On");
+            yield return new TestCaseData("ExpirationDate", dateTime, false, "ExpireOn");
+            yield return new TestCaseData("RecordedAt", dateTime, false, "RecordedOn");
+            yield return new TestCaseData("Date", InputPrimitiveType.PlainDate, false, "On");
+            yield return new TestCaseData("SnapshotTimestamp", dateTime.WithNullable(true), false, "SnapshotOn");
+            yield return new TestCaseData("FromTime", dateTime, false, "FromTime");
+            yield return new TestCaseData("ToDate", dateTime, false, "ToDate");
+            yield return new TestCaseData("RecoveryPointInTime", dateTime, false, "RecoveryPointInTime");
+            yield return new TestCaseData("StartTime", InputPrimitiveType.String, false, "StartTime");
+            yield return new TestCaseData("CreationTimestamp", InputPrimitiveType.String, false, "CreationTimestamp");
+            yield return new TestCaseData("CreationTimestamp", dateTime, true, "CreationTimestamp");
+        }
+
+        private sealed class TestTypeProviderWithLastContract : TestTypeProvider
+        {
+            private readonly TypeProvider _lastContract;
+
+            public TestTypeProviderWithLastContract(TypeProvider lastContract)
+            {
+                _lastContract = lastContract;
+            }
+
+            private protected override TypeProvider? BuildLastContractView(
+                string? generatedTypeName = default,
+                string? generatedTypeNamespace = default) => _lastContract;
         }
 
         [Test]

@@ -67,11 +67,54 @@ namespace Microsoft.TypeSpec.Generator.Tests.Providers
             Assert.IsTrue(parameter.ToPublicInputParameter().Type.Equals(typeof(IEnumerable<string>)));
         }
 
+        [TestCaseSource(nameof(DateTimeParameterNameTestCases))]
+        public void MethodParameterNameNormalizesDateTimeSuffix(
+            string inputName,
+            InputType inputType,
+            bool isExactName,
+            string expectedName)
+        {
+            MockHelpers.LoadMockGenerator();
+            var inputParameter = InputFactory.MethodParameter(
+                inputName,
+                inputType,
+                isRequired: true,
+                isExactName: isExactName);
+
+            var parameter = CodeModelGenerator.Instance.TypeFactory.CreateParameter(inputParameter);
+
+            Assert.IsNotNull(parameter);
+            Assert.AreEqual(expectedName, parameter!.Name);
+            Assert.AreEqual(inputName, parameter.WireInfo.SerializedName);
+        }
+
         private static IEnumerable<InputType> ValueInputTypes()
         {
             yield return InputPrimitiveType.Int32;
             yield return InputPrimitiveType.Float32;
             yield return InputFactory.Int32Enum("inputEnum", [("foo", 1)], isExtensible: true);
+        }
+
+        private static IEnumerable<TestCaseData> DateTimeParameterNameTestCases()
+        {
+            var dateTime = new InputDateTimeType(
+                DateTimeKnownEncoding.Rfc3339,
+                "utcDateTime",
+                "TypeSpec.utcDateTime",
+                InputPrimitiveType.String);
+
+            yield return new TestCaseData("startTime", dateTime, false, "startOn");
+            yield return new TestCaseData("creationTimestamp", dateTime, false, "createdOn");
+            yield return new TestCaseData("timestamp", dateTime, false, "on");
+            yield return new TestCaseData("date", InputPrimitiveType.PlainDate, false, "on");
+            yield return new TestCaseData("modifiedAt", dateTime.WithNullable(true), false, "modifiedOn");
+            yield return new TestCaseData("fromTime", dateTime, false, "fromTime");
+            yield return new TestCaseData("toDate", dateTime, false, "toDate");
+            yield return new TestCaseData("pointInTime", dateTime, false, "pointInTime");
+            yield return new TestCaseData("recoveryPointInTime", dateTime, false, "recoveryPointInTime");
+            yield return new TestCaseData("startTime", InputPrimitiveType.String, false, "startTime");
+            yield return new TestCaseData("creationTimestamp", InputPrimitiveType.String, false, "creationTimestamp");
+            yield return new TestCaseData("creationTimestamp", dateTime, true, "creationTimestamp");
         }
 
         private static IEnumerable<TestCaseData> NotEqualsTestCases()

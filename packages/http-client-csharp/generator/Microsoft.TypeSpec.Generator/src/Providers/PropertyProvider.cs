@@ -111,7 +111,9 @@ namespace Microsoft.TypeSpec.Generator.Providers
                 (lastContractProperties is null ||
                  !lastContractProperties.Any(p => p.Name == legacyName)))
             {
-                identifierName = identifierName.NormalizeCSharpAcronyms();
+                identifierName = identifierName
+                    .NormalizeDateTimeSuffix(inputProperty.Type)
+                    .NormalizeCSharpAcronyms();
             }
             Name = identifierName == enclosingType.Name
                 ? $"{identifierName}Property"
