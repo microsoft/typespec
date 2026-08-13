@@ -624,6 +624,31 @@ namespace Microsoft.TypeSpec.Generator.Providers
         protected abstract string BuildRelativeFilePath();
         protected abstract string BuildName();
 
+        protected string NormalizeTypeNameForNewContract(string name)
+        {
+            var typeNamespace = BuildNamespace();
+            var currentType = CodeModelGenerator.Instance.SourceInputModel.FindForTypeInCurrentCompilation(
+                typeNamespace,
+                name,
+                _declaringTypeName.Value);
+            if (currentType is not null)
+            {
+                return name;
+            }
+
+            var normalizedName = name.NormalizeCSharpAcronyms();
+            if (normalizedName == name)
+            {
+                return name;
+            }
+
+            var lastContractType = CodeModelGenerator.Instance.SourceInputModel.FindForTypeInLastContract(
+                typeNamespace,
+                name,
+                _declaringTypeName.Value);
+            return lastContractType is null ? normalizedName : name;
+        }
+
         /// <summary>
         /// Resets only the cached methods so they are rebuilt on next access.
         /// Use this instead of <see cref="Reset"/> when you need to force a method
@@ -1071,6 +1096,11 @@ namespace Microsoft.TypeSpec.Generator.Providers
             foreach (var previousConstructor in LastContractView.Constructors)
             {
                 if (!previousConstructor.Signature.Modifiers.HasFlag(MethodSignatureModifiers.Public))
+                {
+                    continue;
+                }
+
+                if (BackCompatHelper.IsConstructorRemovalAcceptedInBaseline(this, previousConstructor.Signature))
                 {
                     continue;
                 }

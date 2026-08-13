@@ -53,7 +53,15 @@ namespace Microsoft.TypeSpec.Generator.Providers
 
         protected override string BuildRelativeFilePath() => Path.Combine("src", "Generated", "Models", $"{Name}.cs");
 
-        protected override string BuildName() => _inputType!.IsExactName ? _inputType.Name : _inputType.Name.ToIdentifierName();
+        protected override string BuildName()
+        {
+            if (_inputType!.IsExactName)
+            {
+                return _inputType.Name;
+            }
+
+            return NormalizeTypeNameForNewContract(_inputType.Name.ToIdentifierName());
+        }
         protected override FormattableString BuildDescription() => DocHelpers.GetFormattableDescription(_inputType!.Summary, _inputType.Doc) ?? FormattableStringHelpers.Empty;
 
         protected override TypeProvider[] BuildSerializationProviders()
@@ -126,6 +134,23 @@ namespace Microsoft.TypeSpec.Generator.Providers
             }
 
             return backCompatName;
+        }
+
+        private protected static string GetGeneratedValueName(
+            InputEnumTypeValue inputValue,
+            IReadOnlyList<string> lastContractNames)
+        {
+            var generatedName = inputValue.IsExactName ? inputValue.Name : inputValue.Name.ToIdentifierName();
+            if (inputValue.IsExactName)
+            {
+                return generatedName;
+            }
+
+            var normalizedName = generatedName.NormalizeCSharpUrlSuffix();
+            return normalizedName == generatedName ||
+                lastContractNames.Contains(generatedName, StringComparer.Ordinal)
+                    ? generatedName
+                    : normalizedName;
         }
 
         protected override bool GetIsEnum() => true;

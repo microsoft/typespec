@@ -27,7 +27,7 @@ using static Microsoft.TypeSpec.Generator.Snippets.Snippet;
 
 namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
 {
-    public sealed class ScmModelProvider : ModelProvider
+    public class ScmModelProvider : ModelProvider
     {
         private readonly InputModelType _inputModel;
         private const string JsonPatchFieldName = "_patch";

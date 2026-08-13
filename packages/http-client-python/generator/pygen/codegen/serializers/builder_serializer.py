@@ -32,7 +32,7 @@ from ..models import (
     ParameterListType,
     ByteArraySchema,
 )
-from ..models.utils import NamespaceType
+from ..models.utils import NamespaceType, escape_sphinx_field_name
 from .parameter_serializer import ParameterSerializer, PopKwargType, check_body_optional
 from ..models.parameter_list import ParameterType
 from . import utils
@@ -311,16 +311,15 @@ class _BuilderBaseSerializer(Generic[BuilderType]):
                 or param.method_location == ParameterMethodLocation.KWARG
             ):
                 continue
+            escaped_name = escape_sphinx_field_name(param.client_name)
             description_list.extend(
-                f":{param.description_keyword} {param.client_name}: {param.description}".replace("\n", "\n ").split(
-                    "\n"
-                )
+                f":{param.description_keyword} {escaped_name}: {param.description}".replace("\n", "\n ").split("\n")
             )
             docstring_type = param.docstring_type(
                 async_mode=self.async_mode,
                 serialize_namespace=self.serialize_namespace,
             )
-            description_list.append(f":{param.docstring_type_keyword} {param.client_name}: {docstring_type}")
+            description_list.append(f":{param.docstring_type_keyword} {escaped_name}: {docstring_type}")
         return description_list
 
     def param_description_and_response_docstring(self, builder: BuilderType) -> list[str]:
