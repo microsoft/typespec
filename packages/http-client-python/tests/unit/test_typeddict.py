@@ -405,6 +405,39 @@ def test_models_mode_typeddict_docstring_uses_wire_name():
     assert ":vartype param_name:" not in output
 
 
+def test_models_mode_typeddict_docstring_escapes_at_sign():
+    """A wire name containing "@" is wrapped in double backticks in the Sphinx info field,
+    but the TypedDict key itself must keep the raw "@"."""
+    code_model = _make_code_model(models_mode="typeddict")
+    string_type = build_type({"type": "string"}, code_model)
+    model = TypedDictModelType(
+        yaml_data={"name": "Foo", "type": "model", "snakeCaseName": "foo", "usage": 2},
+        code_model=code_model,
+        properties=[
+            Property(
+                yaml_data={
+                    "wireName": "@search.facets",
+                    "clientName": "search_facets",
+                    "optional": True,
+                },
+                code_model=code_model,
+                type=string_type,
+            )
+        ],
+    )
+    code_model.model_types = [model]
+
+    env = _make_env()
+    output = TypesSerializer(code_model=code_model, env=env, models=[model]).serialize()
+
+    # Docstring field target is wrapped in double backticks (no backslash escape)
+    assert ":ivar ``@search.facets``:" in output
+    assert ":vartype ``@search.facets``: str" in output
+    assert "\\@search.facets" not in output
+    # The actual TypedDict key keeps the raw "@" (must NOT be escaped in code)
+    assert '"@search.facets":' in output
+
+
 def test_types_file_has_no_named_unions():
     """Serialized types.py should not contain named union definitions."""
     code_model = _make_code_model(models_mode="dpg")
