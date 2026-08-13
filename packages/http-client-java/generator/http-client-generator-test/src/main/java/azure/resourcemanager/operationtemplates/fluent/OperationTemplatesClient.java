@@ -75,9 +75,23 @@ public interface OperationTemplatesClient {
     LroPagingsClient getLroPagings();
 
     /**
+     * Gets the LegaciesClient object to access its operations.
+     * 
+     * @return the LegaciesClient object.
+     */
+    LegaciesClient getLegacies();
+
+    /**
      * Gets the OptionalBodiesClient object to access its operations.
      * 
      * @return the OptionalBodiesClient object.
      */
     OptionalBodiesClient getOptionalBodies();
+
+    /**
+     * Gets the PagingsClient object to access its operations.
+     * 
+     * @return the PagingsClient object.
+     */
+    PagingsClient getPagings();
 }
