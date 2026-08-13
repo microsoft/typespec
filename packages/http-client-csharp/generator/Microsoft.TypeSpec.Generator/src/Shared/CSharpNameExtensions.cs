@@ -22,16 +22,10 @@ namespace Microsoft.TypeSpec.Generator.Utilities
             ("Os", "OS")
         ];
 
-        private static readonly Dictionary<string, string> _dateTimeNounRenamingRules = new(StringComparer.Ordinal)
+        private static readonly HashSet<string> _dateTimePrefixExclusions = new(StringComparer.OrdinalIgnoreCase)
         {
-            ["Creation"] = "Created",
-            ["creation"] = "created",
-            ["Deletion"] = "Deleted",
-            ["deletion"] = "deleted",
-            ["Expiration"] = "Expire",
-            ["expiration"] = "expire",
-            ["Modification"] = "Modified",
-            ["modification"] = "modified"
+            "From",
+            "To"
         };
 
         public static string NormalizeCSharpAcronyms(this string name)
@@ -74,12 +68,8 @@ namespace Microsoft.TypeSpec.Generator.Utilities
         public static string NormalizeDateTimeSuffix(this string name, InputType inputType)
         {
             if (!IsDateTimeInputType(inputType) ||
-                name.StartsWith("From", StringComparison.Ordinal) ||
-                name.StartsWith("from", StringComparison.Ordinal) ||
-                name.StartsWith("To", StringComparison.Ordinal) ||
-                name.StartsWith("to", StringComparison.Ordinal) ||
-                name.EndsWith("PointInTime", StringComparison.Ordinal) ||
-                name.Equals("pointInTime", StringComparison.Ordinal))
+                HasExcludedDateTimePrefix(name) ||
+                name.EndsWith("PointInTime", StringComparison.OrdinalIgnoreCase))
             {
                 return name;
             }
@@ -91,13 +81,15 @@ namespace Microsoft.TypeSpec.Generator.Utilities
             }
 
             var prefix = name[..^suffixLength];
-            if (_dateTimeNounRenamingRules.TryGetValue(prefix, out var replacement))
-            {
-                prefix = replacement;
-            }
-
             var onSuffix = prefix.Length == 0 && char.IsLower(name[0]) ? "on" : "On";
             return prefix + onSuffix;
+        }
+
+        private static bool HasExcludedDateTimePrefix(string name)
+        {
+            var lookup = _dateTimePrefixExclusions.GetAlternateLookup<ReadOnlySpan<char>>();
+            return (name.Length >= 4 && lookup.Contains(name.AsSpan(0, 4))) ||
+                (name.Length >= 2 && lookup.Contains(name.AsSpan(0, 2)));
         }
 
         private static int GetDateTimeSuffixLength(string name)

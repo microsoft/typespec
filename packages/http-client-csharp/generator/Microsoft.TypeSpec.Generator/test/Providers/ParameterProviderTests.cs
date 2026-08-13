@@ -104,7 +104,7 @@ namespace Microsoft.TypeSpec.Generator.Tests.Providers
                 InputPrimitiveType.String);
 
             yield return new TestCaseData("startTime", dateTime, false, "startOn");
-            yield return new TestCaseData("creationTimestamp", dateTime, false, "createdOn");
+            yield return new TestCaseData("creationTimestamp", dateTime, false, "creationOn");
             yield return new TestCaseData("timestamp", dateTime, false, "on");
             yield return new TestCaseData("date", InputPrimitiveType.PlainDate, false, "on");
             yield return new TestCaseData("modifiedAt", dateTime.WithNullable(true), false, "modifiedOn");
