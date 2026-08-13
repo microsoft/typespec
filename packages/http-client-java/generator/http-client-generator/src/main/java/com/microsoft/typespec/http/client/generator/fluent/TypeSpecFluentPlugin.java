@@ -86,6 +86,9 @@ public class TypeSpecFluentPlugin extends FluentGen {
         if (options.getRemoveInner() != null) {
             SETTINGS_MAP.put("remove-inner", options.getRemoveInner());
         }
+        if (options.getRemoveModel() != null) {
+            SETTINGS_MAP.put("remove-model", options.getRemoveModel());
+        }
         if (options.getPreserveModel() != null) {
             SETTINGS_MAP.put("preserve-model", options.getPreserveModel());
         }
