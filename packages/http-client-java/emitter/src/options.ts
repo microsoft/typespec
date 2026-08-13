@@ -31,7 +31,6 @@ export interface License {
 
 export interface EmitterOptions {
   license?: License;
-  "remove-model"?: string[];
   "dev-options"?: DevOptions;
 }
 
@@ -39,12 +38,6 @@ export const EmitterOptionsSchema: JSONSchemaType<EmitterOptions> = {
   type: "object",
   properties: {
     ...UnbrandedSdkEmitterOptions.license,
-    "remove-model": {
-      type: "array",
-      description: "Model names to remove from the generated management client.",
-      items: { type: "string" },
-      nullable: true,
-    },
     "dev-options": {
       type: "object",
       description: "Developer options for http-client-java emitter.",
