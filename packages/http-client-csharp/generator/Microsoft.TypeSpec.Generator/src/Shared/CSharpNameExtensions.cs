@@ -22,10 +22,11 @@ namespace Microsoft.TypeSpec.Generator.Utilities
             ("Os", "OS")
         ];
 
-        private static readonly HashSet<string> _dateTimePrefixExclusions = new(StringComparer.OrdinalIgnoreCase)
+        private static readonly HashSet<string> _dateTimeNameExclusions = new(StringComparer.OrdinalIgnoreCase)
         {
             "From",
-            "To"
+            "To",
+            "PointInTime"
         };
 
         public static string NormalizeCSharpAcronyms(this string name)
@@ -68,8 +69,7 @@ namespace Microsoft.TypeSpec.Generator.Utilities
         public static string NormalizeDateTimeSuffix(this string name, InputType inputType)
         {
             if (!IsDateTimeInputType(inputType) ||
-                HasExcludedDateTimePrefix(name) ||
-                name.EndsWith("PointInTime", StringComparison.OrdinalIgnoreCase))
+                HasExcludedDateTimeNameComponent(name))
             {
                 return name;
             }
@@ -85,11 +85,12 @@ namespace Microsoft.TypeSpec.Generator.Utilities
             return prefix + onSuffix;
         }
 
-        private static bool HasExcludedDateTimePrefix(string name)
+        private static bool HasExcludedDateTimeNameComponent(string name)
         {
-            var lookup = _dateTimePrefixExclusions.GetAlternateLookup<ReadOnlySpan<char>>();
+            var lookup = _dateTimeNameExclusions.GetAlternateLookup<ReadOnlySpan<char>>();
             return (name.Length >= 4 && lookup.Contains(name.AsSpan(0, 4))) ||
-                (name.Length >= 2 && lookup.Contains(name.AsSpan(0, 2)));
+                (name.Length >= 2 && lookup.Contains(name.AsSpan(0, 2))) ||
+                (name.Length >= "PointInTime".Length && lookup.Contains(name.AsSpan(^"PointInTime".Length)));
         }
 
         private static int GetDateTimeSuffixLength(string name)
