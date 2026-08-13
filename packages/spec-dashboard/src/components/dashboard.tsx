@@ -1,7 +1,7 @@
 import { Card, CardHeader, SearchBox, Text } from "@fluentui/react-components";
 import type { FunctionComponent } from "react";
-import type { CoverageSummary } from "../apis.js";
 import { useDeferredValue, useMemo, useState } from "react";
+import type { CoverageSummary } from "../apis.js";
 import { useTierFiltering } from "../hooks/use-tier-filtering.js";
 import type { TierConfig } from "../utils/tier-filtering-utils.js";
 import { CoverageOverview } from "./coverage-overview.js";
