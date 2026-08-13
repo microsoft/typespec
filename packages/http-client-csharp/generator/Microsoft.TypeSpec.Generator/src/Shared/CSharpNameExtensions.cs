@@ -3,6 +3,7 @@
 
 using System;
 using System.Collections.Generic;
+using System.Diagnostics.CodeAnalysis;
 using System.Text;
 using Microsoft.TypeSpec.Generator.Input;
 
@@ -144,5 +145,10 @@ namespace Microsoft.TypeSpec.Generator.Utilities
             InputNullableType nullableType => IsDateTimeInputType(nullableType.Type),
             _ => false
         };
+        [return: NotNullIfNotNull(nameof(name))]
+        public static string? NormalizeCSharpUrlSuffix(this string? name)
+            => !string.IsNullOrEmpty(name) && name.EndsWith("Url", StringComparison.Ordinal)
+                ? $"{name.Substring(0, name.Length - 3)}Uri"
+                : name;
     }
 }
