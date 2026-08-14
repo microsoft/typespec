@@ -949,11 +949,6 @@ namespace Microsoft.TypeSpec.Generator.Providers
             {
                 RebuildAttributes();
             }
-
-            foreach (var serializationProvider in SerializationProviders)
-            {
-                serializationProvider.ProcessTypeForBackCompatibility();
-            }
         }
 
         // Runs newly-added back-compatibility members through every registered visitor while leaving
@@ -1024,13 +1019,14 @@ namespace Microsoft.TypeSpec.Generator.Providers
         protected internal virtual IReadOnlyList<MethodProvider> BuildMethodsForBackCompatibility(IEnumerable<MethodProvider> originalMethods)
         {
             var methods = new List<MethodProvider>(originalMethods);
+            var allMethods = methods.Concat(SerializationProviders.SelectMany(p => p.Methods)).ToList();
 
             if (LastContractView?.Methods is not { Count: > 0 } previousMethods)
             {
                 return methods;
             }
 
-            var currentMethodSignatures = BuildCurrentMethodSignatureMap(methods);
+            var currentMethodSignatures = BuildCurrentMethodSignatureMap(allMethods);
 
             foreach (var previousMethod in previousMethods)
             {
@@ -1050,7 +1046,7 @@ namespace Microsoft.TypeSpec.Generator.Providers
                 }
             }
 
-            BackCompatHelper.RestorePreviousParameterNames(this, methods);
+            BackCompatHelper.RestorePreviousParameterNames(this, allMethods);
             BackCompatHelper.AddBackCompatOverloads(this, methods);
 
             return methods;

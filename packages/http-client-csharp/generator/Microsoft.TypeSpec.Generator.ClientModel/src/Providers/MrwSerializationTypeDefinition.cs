@@ -122,6 +122,9 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
 
         protected override TypeSignatureModifiers BuildDeclarationModifiers() => _model.DeclarationModifiers;
 
+        protected override IReadOnlyList<MethodProvider> BuildMethodsForBackCompatibility(IEnumerable<MethodProvider> originalMethods)
+            => [.. originalMethods];
+
         protected override IReadOnlyList<ConstructorProvider> BuildConstructorsForBackCompatibility(IEnumerable<ConstructorProvider> originalConstructors)
             => [.. originalConstructors];
 
