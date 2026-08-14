@@ -1019,6 +1019,7 @@ namespace Microsoft.TypeSpec.Generator.Providers
         protected internal virtual IReadOnlyList<MethodProvider> BuildMethodsForBackCompatibility(IEnumerable<MethodProvider> originalMethods)
         {
             var methods = new List<MethodProvider>(originalMethods);
+            // Serialization methods participate in matching and in-place restoration, but overloads remain on the owning provider.
             var allMethods = methods.Concat(SerializationProviders.SelectMany(p => p.Methods)).ToList();
 
             if (LastContractView?.Methods is not { Count: > 0 } previousMethods)
