@@ -1,4 +1,4 @@
-import { ScenarioData } from "@typespec/spec-coverage-sdk";
+import type { ScenarioData } from "@typespec/spec-coverage-sdk";
 
 export interface TreeTableRow {
   key: string;

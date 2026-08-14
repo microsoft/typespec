@@ -70,9 +70,8 @@ public class WrapperClientMethodTemplate extends ClientMethodTemplateBase {
         Consumer<JavaBlock> method = function -> {
 
             // API comment
-            if (clientMethod.getImplementationDetails() != null
-                && !CoreUtils.isNullOrEmpty(clientMethod.getImplementationDetails().getComment())) {
-                function.line("// " + clientMethod.getImplementationDetails().getComment());
+            if (!CoreUtils.isNullOrEmpty(clientMethod.getApiMetadata().getDevMessage())) {
+                function.line("// " + clientMethod.getApiMetadata().getDevMessage());
             }
 
             boolean shouldReturn = true;

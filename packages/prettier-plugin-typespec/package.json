@@ -1,12 +1,12 @@
 {
   "name": "@typespec/prettier-plugin-typespec",
-  "version": "1.14.0",
+  "version": "1.15.0",
   "description": "",
   "main": "dist/index.js",
   "type": "module",
   "scripts": {
     "build": "pnpm compile && pnpm generate-third-party-notices",
-    "compile": "tsx ./scripts/build.ts",
+    "compile": "node ./scripts/build.ts",
     "test": "vitest run",
     "test:ci": "vitest run",
     "generate-third-party-notices": "typespec-build-tool generate-third-party-notices"

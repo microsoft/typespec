@@ -16,7 +16,7 @@ SIMPLE_ARM_ID = f"/subscriptions/{SUBSCRIPTION_ID}/resourceGroups/{RESOURCE_GROU
 ARM_ID_WITH_TYPE = SIMPLE_ARM_ID
 ARM_ID_WITH_TYPE_AND_SCOPE = SIMPLE_ARM_ID
 ARM_ID_WITH_ALL_SCOPES = f"/subscriptions/{SUBSCRIPTION_ID}/resourceGroups/{RESOURCE_GROUP_NAME}/providers/Microsoft.Compute/virtualMachines/myVm"
-ARM_ID_WITH_GROUP_SCOPE = f"/providers/Microsoft.Management/serviceGroups/test-sg/providers/Microsoft.Authorization/roleDefinitions/{SUBSCRIPTION_ID}"
+ARM_ID_WITH_GROUP_SCOPE = "/providers/Microsoft.Management/serviceGroups/test-sg/providers/Microsoft.Authorization/roleDefinitions/00000000-0000-0000-0000-000000000000"
 
 
 @pytest_asyncio.fixture

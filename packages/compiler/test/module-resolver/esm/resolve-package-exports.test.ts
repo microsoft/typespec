@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
 import { resolvePackageExports } from "../../../src/module-resolver/esm/resolve-package-exports.js";
-import { EsmResolutionContext } from "../../../src/module-resolver/esm/utils.js";
+import type { EsmResolutionContext } from "../../../src/module-resolver/esm/utils.js";
 
 const context: EsmResolutionContext = {
   specifier: "test-lib",

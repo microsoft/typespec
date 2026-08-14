@@ -229,6 +229,7 @@ words:
   - pylint
   - pylintrc
   - pyodide
+  - pypi
   - pyproject
   - pyright
   - pyrightconfig
@@ -327,6 +328,7 @@ words:
   - Vsts
   - vswhere
   - wday
+  - WCAG
   - weidxu
   - westus
   - WHATWG

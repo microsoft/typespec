@@ -752,6 +752,12 @@ const diagnostics = {
       default: paramMessage`Diagnostic "${"code"}" is already suppressed on this node.`,
     },
   },
+  "ambiguous-short-name": {
+    severity: "warning",
+    messages: {
+      default: paramMessage`Short name "${"shortName"}" is ambiguous. It could refer to ${"candidates"}. Use the full name instead.`,
+    },
+  },
   "decorator-decl-target": {
     severity: "error",
     messages: {
@@ -797,6 +803,12 @@ const diagnostics = {
     severity: "error",
     messages: {
       default: paramMessage`onValidate failed with errors. ${"error"}`,
+    },
+  },
+  "emitter-not-found": {
+    severity: "error",
+    messages: {
+      default: paramMessage`Emitter "${"emitterPackage"}" not found. Make sure to install it with \`npm install ${"emitterPackage"}\`.`,
     },
   },
   "invalid-emitter": {

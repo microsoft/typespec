@@ -9,13 +9,10 @@ import { NoTarget, type Diagnostic, type Tracer } from "../core/types.js";
 import { downloadAndExtractPackage } from "../package-manger/npm-package-download.js";
 import { fetchPackageManifest, type NpmManifest } from "../package-manger/npm-registry.js";
 import { mkTempDir } from "../utils/fs-utils.js";
+import type { SupportedPackageManager } from "./config.js";
+import { getPackageManagerConfig, type PackageManagerConfig } from "./config.js";
+import type { Descriptor } from "./spec.js";
 import {
-  getPackageManagerConfig,
-  SupportedPackageManager,
-  type PackageManagerConfig,
-} from "./config.js";
-import {
-  Descriptor,
   resolvePackageManagerSpec,
   updatePackageManagerInPackageJson,
   type ResolvedSpecResult,

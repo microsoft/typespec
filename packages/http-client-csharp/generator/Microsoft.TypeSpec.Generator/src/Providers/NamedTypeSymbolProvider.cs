@@ -75,17 +75,10 @@ namespace Microsoft.TypeSpec.Generator.Providers
         protected override IReadOnlyList<AttributeStatement> BuildAttributes()
             => [.._namedTypeSymbol.GetAttributes().Select(a => new AttributeStatement(a))];
 
+        protected internal override CSharpType[] BuildImplements()
+            => [.. _namedTypeSymbol.AllInterfaces.Select(i => i.GetCSharpType())];
+
         internal override TypeProvider? BaseTypeProvider => _baseTypeProvider ??= BuildBaseTypeProvider();
-
-        protected override CSharpType? BuildBaseType()
-        {
-            if (ShouldSkipBaseType(_namedTypeSymbol.BaseType))
-            {
-                return null;
-            }
-
-            return _namedTypeSymbol.BaseType!.GetCSharpType();
-        }
 
         private TypeProvider? BuildBaseTypeProvider()
         {
@@ -95,6 +88,16 @@ namespace Microsoft.TypeSpec.Generator.Providers
             }
 
             return new NamedTypeSymbolProvider(_namedTypeSymbol.BaseType!, _compilation);
+        }
+
+        protected override CSharpType? BuildBaseType()
+        {
+            if (ShouldSkipBaseType(_namedTypeSymbol.BaseType))
+            {
+                return null;
+            }
+
+            return _namedTypeSymbol.BaseType!.GetCSharpType();
         }
 
         private bool ShouldSkipBaseType(INamedTypeSymbol? baseType)
@@ -244,18 +247,13 @@ namespace Microsoft.TypeSpec.Generator.Providers
             return null;
         }
 
-        private static ValueExpression? GetFieldInitializer(IFieldSymbol fieldSymbol)
+        private static LiteralExpression? GetFieldInitializer(IFieldSymbol fieldSymbol)
         {
-            if (fieldSymbol.ContainingType?.TypeKind == TypeKind.Enum)
-            {
-                if (fieldSymbol.HasConstantValue && fieldSymbol.ConstantValue != null)
-                {
-                    return Literal(fieldSymbol.ConstantValue);
-                }
-                return null;
-            }
-
-            return null;
+            return fieldSymbol.HasConstantValue &&
+                fieldSymbol.ConstantValue != null &&
+                LiteralExpression.TryCreate(fieldSymbol.ConstantValue, out var initializer)
+                ? initializer
+                : null;
         }
 
         private static string? GetOriginalName(ISymbol symbol)
@@ -815,6 +813,14 @@ namespace Microsoft.TypeSpec.Generator.Providers
             {
                 modifiers |= MethodSignatureModifiers.Override;
             }
+            if (methodSymbol.IsSealed)
+            {
+                modifiers |= MethodSignatureModifiers.Sealed;
+            }
+            if (methodSymbol.IsAbstract)
+            {
+                modifiers |= MethodSignatureModifiers.Abstract;
+            }
             if (methodSymbol.IsAsync)
             {
                 modifiers |= MethodSignatureModifiers.Async;
@@ -964,6 +970,8 @@ namespace Microsoft.TypeSpec.Generator.Providers
             Accessibility.Protected => MethodSignatureModifiers.Protected,
             Accessibility.Internal => MethodSignatureModifiers.Internal,
             Accessibility.Public => MethodSignatureModifiers.Public,
+            Accessibility.ProtectedOrInternal => MethodSignatureModifiers.Protected | MethodSignatureModifiers.Internal,
+            Accessibility.ProtectedAndInternal => MethodSignatureModifiers.Protected | MethodSignatureModifiers.Private,
             _ => MethodSignatureModifiers.None
         };
 

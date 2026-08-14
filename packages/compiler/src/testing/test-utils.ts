@@ -2,11 +2,11 @@ import { fail, ok } from "assert";
 import { fileURLToPath } from "url";
 import { getTypeName } from "../core/helpers/type-name-utils.js";
 import { NodeHost } from "../core/node-host.js";
-import { CompilerOptions } from "../core/options.js";
+import type { CompilerOptions } from "../core/options.js";
 import { resolvePath } from "../core/path-utils.js";
 import type { Type } from "../core/types.js";
 import { findProjectRoot } from "../utils/io.js";
-import {
+import type {
   BasicTestRunner,
   TestHost,
   TypeSpecTestLibrary,
