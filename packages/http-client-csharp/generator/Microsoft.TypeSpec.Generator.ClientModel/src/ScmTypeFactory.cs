@@ -5,6 +5,7 @@ using System;
 using System.ClientModel;
 using System.ClientModel.Primitives;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using System.Reflection;
 using System.Text.Json;
@@ -305,10 +306,10 @@ namespace Microsoft.TypeSpec.Generator.ClientModel
             {
                 return _clientModelAssembly.GetType(fullyQualifiedTypeName, throwOnError: false);
             }
-            catch (Exception)
+            catch (Exception e) when (e is ArgumentException or BadImageFormatException or FileLoadException)
             {
-                // The name may not be a loadable type name (e.g. a generic type name whose arguments are
-                // library types). Treat it as an unresolved framework type.
+                // The symbol-derived name is not always a loadable type name (e.g. a generic type name whose
+                // arguments are library types), which makes the lookup throw instead of returning null.
                 return null;
             }
         }
