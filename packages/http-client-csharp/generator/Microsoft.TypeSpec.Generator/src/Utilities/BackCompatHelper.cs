@@ -191,16 +191,9 @@ namespace Microsoft.TypeSpec.Generator.Utilities
 
                     var inputParameter = parameter.InputParameter;
                     if (inputParameter is not null &&
-                        (string.Equals(parameter.Name, inputParameter.Name, StringComparison.Ordinal) ||
-                        (inputParameter is InputMethodParameter { IsExactName: false } &&
-                        inputParameter.Type.IsDateTimeInputType() &&
-                        string.Equals(parameter.Name, inputParameter.Name.NormalizeDateTimeSuffix(), StringComparison.Ordinal))))
+                        string.Equals(inputParameter.Name, inputParameter.OriginalName, StringComparison.Ordinal))
                     {
-                        var originalName = inputParameter.OriginalName;
-                        if (!string.IsNullOrEmpty(originalName))
-                        {
-                            preservedName = FindPreviousParameterName(lastContractView, originalName, method.Signature.Name);
-                        }
+                        preservedName = FindPreviousParameterName(lastContractView, inputParameter.OriginalName, method.Signature.Name);
                     }
 
                     // Fall back to a positional match for synthesized parameters
