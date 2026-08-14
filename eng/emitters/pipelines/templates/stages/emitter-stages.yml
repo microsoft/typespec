@@ -488,8 +488,12 @@ stages:
                         echo "Deployed to https://$APP_NAME.azurewebsites.net"
                       workingDirectory: $(Build.SourcesDirectory)
 
-            templateContext:
-              outputs:
-                - output: pipelineArtifact
+              - task: 1ES.PublishPipelineArtifact@1
+                displayName: Publish artifacts
+                inputs:
                   path: $(Build.ArtifactStagingDirectory)
                   artifact: publish_artifacts
+
+            templateContext:
+              type: releaseJob
+              isProduction: true
