@@ -11,6 +11,8 @@ namespace Microsoft.TypeSpec.Generator.Utilities
     {
         private static readonly (string Source, string Replacement)[] _acronymRenamingRules =
         [
+            ("iPv4", "IPv4"),
+            ("iPv6", "IPv6"),
             ("Ipv4", "IPv4"),
             ("Ipv6", "IPv6"),
             ("IpV4", "IPv4"),
