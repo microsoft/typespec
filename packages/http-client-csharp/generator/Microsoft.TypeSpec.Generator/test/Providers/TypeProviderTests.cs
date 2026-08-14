@@ -12,6 +12,7 @@ using Microsoft.TypeSpec.Generator.Providers;
 using Microsoft.TypeSpec.Generator.Snippets;
 using Microsoft.TypeSpec.Generator.Statements;
 using Microsoft.TypeSpec.Generator.Tests.Common;
+using Microsoft.TypeSpec.Generator.Tests.TestHelpers;
 using Microsoft.TypeSpec.Generator.Utilities;
 using NUnit.Framework;
 
@@ -990,10 +991,8 @@ namespace Microsoft.TypeSpec.Generator.Tests.Providers
             serializationProvider.Update(methods: [explicitOperator]);
             owner.Update(serializations: [serializationProvider]);
 
-            foreach (var provider in owner.SerializationProviders.Prepend(owner))
-            {
-                provider.ProcessTypeForBackCompatibility();
-            }
+            var outputLibrary = new TestOutputLibrary(owner);
+            CSharpGen.ProcessTypeProvidersForBackCompatibility(outputLibrary);
 
             var actual = new TypeProviderWriter(serializationProvider).Write().Content;
             Assert.AreEqual(Helpers.GetExpectedFromFile(), actual);

@@ -86,11 +86,8 @@ namespace Microsoft.TypeSpec.Generator
 
             LoggingHelpers.LogElapsedTime("All visitors have been applied");
 
-            foreach (var outputType in output.TypeProviders)
-            {
-                // Ensure back-compatibility processing is done after all visitors have run
-                outputType.ProcessTypeForBackCompatibility();
-            }
+            // Ensure back-compatibility processing is done after all visitors have run
+            ProcessTypeProvidersForBackCompatibility(output);
 
             try
             {
@@ -209,6 +206,35 @@ namespace Microsoft.TypeSpec.Generator
                 typeProvider.Constructors,
                 typeProvider.Properties,
                 typeProvider.Fields);
+        }
+
+        internal static void ProcessTypeProvidersForBackCompatibility(OutputLibrary output)
+        {
+            var visited = new HashSet<TypeProvider>();
+            foreach (var typeProvider in output.TypeProviders)
+            {
+                ProcessTypeForBackCompatibility(typeProvider, visited);
+            }
+        }
+
+        private static void ProcessTypeForBackCompatibility(TypeProvider typeProvider, HashSet<TypeProvider> visited)
+        {
+            if (!visited.Add(typeProvider))
+            {
+                return;
+            }
+
+            typeProvider.ProcessTypeForBackCompatibility();
+
+            foreach (var serializationProvider in typeProvider.SerializationProviders)
+            {
+                ProcessTypeForBackCompatibility(serializationProvider, visited);
+            }
+
+            foreach (var nestedType in typeProvider.NestedTypes)
+            {
+                ProcessTypeForBackCompatibility(nestedType, visited);
+            }
         }
 
         /// <summary>
