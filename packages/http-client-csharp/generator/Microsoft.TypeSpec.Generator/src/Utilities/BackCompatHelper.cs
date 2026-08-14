@@ -190,7 +190,7 @@ namespace Microsoft.TypeSpec.Generator.Utilities
                     string? preservedName = null;
 
                     var inputParameter = parameter.InputParameter;
-                    if (inputParameter is not null)
+                    if (inputParameter is not null && parameter.NameIsInitializedFromInputParameter)
                     {
                         preservedName = FindPreviousParameterName(lastContractView, inputParameter.OriginalName, method.Signature.Name);
                     }

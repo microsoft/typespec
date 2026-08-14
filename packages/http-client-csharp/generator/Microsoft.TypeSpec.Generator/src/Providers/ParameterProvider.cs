@@ -56,6 +56,8 @@ namespace Microsoft.TypeSpec.Generator.Providers
         /// </summary>
         public InputParameter? InputParameter { get; private set; }
 
+        internal bool NameIsInitializedFromInputParameter { get; private set; }
+
         /// <summary>
         /// Creates a <see cref="ParameterProvider"/> from an <see cref="InputParameter"/>.
         /// </summary>
@@ -67,6 +69,7 @@ namespace Microsoft.TypeSpec.Generator.Providers
                 && inputParameter.Type.IsDateTimeInputType()
                 ? inputParameter.Name.NormalizeDateTimeSuffix()
                 : inputParameter.Name;
+            NameIsInitializedFromInputParameter = true;
             Description = DocHelpers.GetFormattableDescription(inputParameter.Summary, inputParameter.Doc) ?? FormattableStringHelpers.Empty;
             var type = CodeModelGenerator.Instance.TypeFactory.CreateCSharpType(inputParameter.Type) ?? throw new InvalidOperationException($"Failed to create CSharpType for {inputParameter.Type}");
             if (!inputParameter.IsRequired)
@@ -310,6 +313,7 @@ namespace Microsoft.TypeSpec.Generator.Providers
         {
             if (name is not null)
             {
+                NameIsInitializedFromInputParameter = false;
                 Name = name;
                 _asVariable?.Update(name: name);
             }
