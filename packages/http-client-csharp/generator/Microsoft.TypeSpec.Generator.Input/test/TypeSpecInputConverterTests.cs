@@ -10,6 +10,45 @@ namespace Microsoft.TypeSpec.Generator.Input.Tests
     public class TypeSpecInputConverterTests
     {
         [Test]
+        public void LoadsExperimentalOperationDetails()
+        {
+            const string content = """
+                {
+                  "$id": "1",
+                  "name": "bar",
+                  "parameters": [],
+                  "responses": [],
+                  "httpMethod": "GET",
+                  "uri": "",
+                  "path": "",
+                  "bufferResponse": true,
+                  "generateProtocolMethod": true,
+                  "generateConvenienceMethod": true,
+                  "crossLanguageDefinitionId": "Test.bar",
+                  "experimental": {
+                    "diagnosticId": "C",
+                    "dependsOn": ["A", "B"]
+                  }
+                }
+                """;
+            var referenceHandler = new TypeSpecReferenceHandler();
+            var options = new JsonSerializerOptions
+            {
+                ReferenceHandler = referenceHandler,
+                Converters =
+                {
+                    new InputOperationConverter(referenceHandler),
+                }
+            };
+
+            var operation = JsonSerializer.Deserialize<InputOperation>(content, options);
+
+            Assert.IsNotNull(operation?.Experimental);
+            Assert.AreEqual("C", operation!.Experimental!.DiagnosticId);
+            CollectionAssert.AreEqual(new[] { "A", "B" }, operation.Experimental.DependsOn);
+        }
+
+        [Test]
         public void LoadsPagingWithNextLink()
         {
             var directory = Helpers.GetAssetFileOrDirectoryPath(false);

@@ -733,7 +733,8 @@ namespace Microsoft.TypeSpec.Generator.Tests.Common
             string? ns = null,
             bool isExactName = false,
             bool generateProtocolMethod = true,
-            bool bufferResponse = true)
+            bool bufferResponse = true,
+            InputExperimentalDetails? experimental = null)
         {
             var operation = new InputOperation(
                 name,
@@ -753,7 +754,8 @@ namespace Microsoft.TypeSpec.Generator.Tests.Common
                 generateProtocolMethod,
                 generateConvenienceMethod,
                 name,
-                ns);
+                ns,
+                experimental);
             operation.OriginalName = name;
             operation.IsExactName = isExactName;
             return operation;

@@ -14,6 +14,7 @@ import type {
 import { setTypeSpecNamespace } from "@typespec/compiler";
 import type { DynamicModelDecorator } from "../../../generated-defs/TypeSpec.HttpClient.CSharp.js";
 import type { ExternalDocs } from "../type/external-docs.js";
+import type { InputExperimentalDetails } from "../type/input-operation.js";
 
 /**
  * The fully qualified decorator name pattern for the dynamicModel decorator.
@@ -21,6 +22,55 @@ import type { ExternalDocs } from "../type/external-docs.js";
  * @beta
  */
 export const DYNAMIC_MODEL_DECORATOR_PATTERN = "TypeSpec\\.HttpClient\\.CSharp\\.@dynamicModel";
+export const EXPERIMENTAL_DECORATOR_PATTERN = "TypeSpec\\.HttpClient\\.@experimental";
+const experimentalDecoratorName = "TypeSpec.HttpClient.@experimental";
+const csharpEmitterName = "@typespec/http-client-csharp";
+
+interface ExperimentalDecoratorOptions {
+  emitterScope?: string;
+  diagnosticId?: string;
+  dependsOn?: unknown[];
+}
+
+export function getExperimentalDetails(
+  decorators: readonly { name: string; arguments: Record<string, unknown> }[],
+): InputExperimentalDetails | undefined {
+  const decorator = decorators.find((item) => item.name === experimentalDecoratorName);
+  if (!decorator) {
+    return undefined;
+  }
+
+  const options = decorator.arguments.options as ExperimentalDecoratorOptions | undefined;
+  if (!isEmitterScopeApplicable(options?.emitterScope)) {
+    return undefined;
+  }
+
+  return {
+    diagnosticId: typeof options?.diagnosticId === "string" ? options.diagnosticId : undefined,
+    dependsOn: (options?.dependsOn ?? []).filter(
+      (diagnosticId): diagnosticId is string => typeof diagnosticId === "string",
+    ),
+  };
+}
+
+function isEmitterScopeApplicable(emitterScope: string | undefined): boolean {
+  if (!emitterScope) {
+    return true;
+  }
+
+  const scopes = emitterScope
+    .split(",")
+    .map((scope) => scope.trim())
+    .filter((scope) => scope.length > 0);
+  const excludedScopes = scopes
+    .filter((scope) => scope.startsWith("!"))
+    .map((scope) => scope.slice(1));
+  if (excludedScopes.length > 0) {
+    return !excludedScopes.includes(csharpEmitterName);
+  }
+
+  return scopes.includes(csharpEmitterName);
+}
 
 const externalDocsKey = Symbol("externalDocs");
 export function getExternalDocs(context: SdkContext, entity: Type): ExternalDocs | undefined {

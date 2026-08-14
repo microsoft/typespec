@@ -29,4 +29,10 @@ export interface InputOperation {
   crossLanguageDefinitionId: string;
   decorators?: DecoratorInfo[];
   namespace?: string;
+  experimental?: InputExperimentalDetails;
+}
+
+export interface InputExperimentalDetails {
+  diagnosticId?: string;
+  dependsOn: string[];
 }
