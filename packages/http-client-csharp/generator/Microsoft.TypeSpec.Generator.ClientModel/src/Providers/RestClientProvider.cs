@@ -1316,11 +1316,11 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
                     {
                         if (methodType == ScmMethodKind.CreateRequest)
                         {
-                            parameter = ScmKnownParameters.CreateRequestContent(inputParam);
+                            parameter = ScmKnownParameters.CreateRequestContent();
                         }
                         else
                         {
-                            parameter = ScmKnownParameters.CreateRequestContent(inputParam,
+                            parameter = ScmKnownParameters.CreateRequestContent(
                                 optional: parameter.DefaultValue != null);
                         }
                     }
