@@ -968,6 +968,37 @@ namespace Microsoft.TypeSpec.Generator.Tests.Providers
             Assert.AreEqual(Helpers.GetExpectedFromFile(), actual);
         }
 
+        [Test]
+        public async Task BuildMethodsForBackCompatibilityRestoresOperatorParameterNameOnSerializationProvider()
+        {
+            await MockHelpers.LoadMockGeneratorAsync(lastContractCompilation: async () => await Helpers.GetCompilationFromDirectoryAsync());
+
+            var owner = new TestTypeProvider(name: "SerializationBackCompatType", ns: "Test");
+            var serializationProvider = new TestTypeProvider(name: "SerializationBackCompatType", ns: "Test");
+            var response = new ParameterProvider("response", $"", new CSharpType(typeof(string)));
+            var explicitOperator = new MethodProvider(
+                new MethodSignature(
+                    serializationProvider.Name,
+                    $"",
+                    MethodSignatureModifiers.Public | MethodSignatureModifiers.Static | MethodSignatureModifiers.Explicit | MethodSignatureModifiers.Operator,
+                    serializationProvider.Type,
+                    $"",
+                    [response]),
+                Snippet.Return(Snippet.Null),
+                serializationProvider);
+
+            serializationProvider.Update(methods: [explicitOperator]);
+            owner.Update(serializations: [serializationProvider]);
+
+            foreach (var provider in owner.SerializationProviders.Prepend(owner))
+            {
+                provider.ProcessTypeForBackCompatibility();
+            }
+
+            var actual = new TypeProviderWriter(serializationProvider).Write().Content;
+            Assert.AreEqual(Helpers.GetExpectedFromFile(), actual);
+        }
+
         // Validates the positional fallback: when a spec parameter's previously-published name matches
         // neither its current name nor its spec original name (e.g. a rename by a different generator),
         // it is restored from the last-contract method that matches by signature (name and parameter types).

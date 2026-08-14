@@ -90,7 +90,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel
                 }
             }
 
-            var serializationTypes = baseTypes.SelectMany(static type => type.SerializationProviders);
+            var serializationTypes = baseTypes.SelectMany(type => type.SerializationProviders);
 
             return [
                 ..baseTypes,
