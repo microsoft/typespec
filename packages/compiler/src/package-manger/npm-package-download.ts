@@ -17,7 +17,11 @@ export async function downloadPackageVersion(
   options?: NpmRegistryRequestOptions,
 ): Promise<ExtractedTarballResult> {
   const manifest = await fetchPackageManifest(packageName, version, options);
-  return downloadAndExtractTarball(manifest.dist.tarball, dest, undefined, options?.headers);
+  // Only forward the credentials to the tarball if it is served by the same registry.
+  const headers = isSameOrigin(manifest.dist.tarball, options?.registry)
+    ? options?.headers
+    : undefined;
+  return downloadAndExtractTarball(manifest.dist.tarball, dest, undefined, headers);
 }
 
 export async function downloadAndExtractPackage(
@@ -27,6 +31,12 @@ export async function downloadAndExtractPackage(
   headers?: Record<string, string>,
 ): Promise<ExtractedTarballResult> {
   return downloadAndExtractTarball(manifest.dist.tarball, dest, hashAlgorithm, headers);
+}
+
+function isSameOrigin(url: string, other: string | undefined): boolean {
+  if (other === undefined) return false;
+  if (!URL.canParse(url) || !URL.canParse(other)) return false;
+  return new URL(url).origin === new URL(other).origin;
 }
 
 export interface ExtractedTarballResult {
