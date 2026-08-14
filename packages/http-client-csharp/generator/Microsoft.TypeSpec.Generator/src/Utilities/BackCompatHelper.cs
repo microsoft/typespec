@@ -7,6 +7,7 @@ using System.ComponentModel;
 using System.Linq;
 using Microsoft.TypeSpec.Generator.EmitterRpc;
 using Microsoft.TypeSpec.Generator.Expressions;
+using Microsoft.TypeSpec.Generator.Input;
 using Microsoft.TypeSpec.Generator.Input.Extensions;
 using Microsoft.TypeSpec.Generator.Primitives;
 using Microsoft.TypeSpec.Generator.Providers;
@@ -189,7 +190,10 @@ namespace Microsoft.TypeSpec.Generator.Utilities
                     string? preservedName = null;
 
                     var inputParameter = parameter.InputParameter;
-                    if (inputParameter is not null && string.Equals(parameter.Name, inputParameter.Name, StringComparison.Ordinal))
+                    if (inputParameter is not null &&
+                        (string.Equals(parameter.Name, inputParameter.Name, StringComparison.Ordinal) ||
+                        (inputParameter is InputMethodParameter { IsExactName: false } &&
+                        string.Equals(parameter.Name, inputParameter.Name.NormalizeDateTimeSuffix(inputParameter.Type), StringComparison.Ordinal))))
                     {
                         var originalName = inputParameter.OriginalName;
                         if (!string.IsNullOrEmpty(originalName))

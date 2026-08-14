@@ -786,6 +786,28 @@ namespace Microsoft.TypeSpec.Generator.Tests.Providers
             Assert.IsNull(BackCompatHelper.FindPreviousParameterName(typeProvider.LastContractView, "oldParam", "Foo"));
         }
 
+        [Test]
+        public async Task RestorePreviousParameterNamesRestoresNormalizedMethodParameterName()
+        {
+            await MockHelpers.LoadMockGeneratorAsync(lastContractCompilation: async () => await Helpers.GetCompilationFromDirectoryAsync());
+
+            var dateTime = new InputDateTimeType(
+                DateTimeKnownEncoding.Rfc3339,
+                "utcDateTime",
+                "TypeSpec.utcDateTime",
+                InputPrimitiveType.String);
+            var parameter = new ParameterProvider(InputFactory.MethodParameter("startTime", dateTime, isRequired: true));
+            var method = new MethodProvider(
+                new MethodSignature("Foo", $"", MethodSignatureModifiers.Public, new CSharpType(typeof(string)), $"", [parameter]),
+                Snippet.Return(Snippet.Null),
+                new TestTypeProvider());
+            var typeProvider = new TestTypeProvider(name: "TestClient", methods: [method]);
+
+            BackCompatHelper.RestorePreviousParameterNames(typeProvider, typeProvider.Methods);
+
+            Assert.AreEqual("startTime", parameter.Name);
+        }
+
         // A reorder combined with a casing-only rename must still restore the published spelling.
         // The reorder matches parameters via ToVariableName (so current "URL" aligns with published
         // "url"), which previously short-circuited the exact-name pass and left the CP0017-breaking
