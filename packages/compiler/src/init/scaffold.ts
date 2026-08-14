@@ -2,7 +2,10 @@ import { stringify } from "yaml";
 import type { TypeSpecRawConfig } from "../config/types.js";
 import { getDirectoryPath, joinPaths } from "../core/path-utils.js";
 import type { SystemHost } from "../core/types.js";
-import { fetchLatestPackageManifest } from "../package-manger/npm-registry.js";
+import {
+  fetchLatestPackageManifest,
+  type NpmRegistryConfig,
+} from "../package-manger/npm-registry.js";
 import type { PackageJson } from "../types/package-json.js";
 import {
   createFileTemplatingContext,
@@ -58,6 +61,9 @@ export interface ScaffoldingConfig {
    * Selected emitters the tempalates.
    */
   emitters: Record<string, any>;
+
+  /** Configuration used to fetch package metadata from the npm registry. */
+  npmRegistryConfig?: NpmRegistryConfig;
 }
 
 export function normalizeLibrary(library: InitTemplateLibrary): InitTemplateLibrarySpec {
@@ -115,18 +121,26 @@ async function writePackageJson(host: SystemHost, config: ScaffoldingConfig) {
 
   if (!config.template.skipCompilerPackage) {
     versionResolutions.push(
-      resolvePackageVersion("@typespec/compiler").then((v) => ["@typespec/compiler", v]),
+      resolvePackageVersion("@typespec/compiler", config.npmRegistryConfig).then((v) => [
+        "@typespec/compiler",
+        v,
+      ]),
     );
   }
 
   for (const library of config.libraries) {
     versionResolutions.push(
-      getPackageVersion(library.name, library).then((v) => [library.name, v]),
+      getPackageVersion(library.name, library, config.npmRegistryConfig).then((v) => [
+        library.name,
+        v,
+      ]),
     );
   }
 
   for (const key of Object.keys(config.emitters)) {
-    versionResolutions.push(getPackageVersion(key, config.emitters[key]).then((v) => [key, v]));
+    versionResolutions.push(
+      getPackageVersion(key, config.emitters[key], config.npmRegistryConfig).then((v) => [key, v]),
+    );
   }
 
   const dependencies: Record<string, string> = Object.fromEntries(
@@ -264,16 +278,20 @@ async function writeFile(
 async function getPackageVersion(
   packageName: string,
   templatePackageConfig: { version?: string },
+  npmRegistryConfig?: NpmRegistryConfig,
 ): Promise<string> {
   if (templatePackageConfig.version !== undefined) {
     return templatePackageConfig.version;
   }
-  return resolvePackageVersion(packageName);
+  return resolvePackageVersion(packageName, npmRegistryConfig);
 }
 
-async function resolvePackageVersion(packageName: string): Promise<string> {
+async function resolvePackageVersion(
+  packageName: string,
+  npmRegistryConfig?: NpmRegistryConfig,
+): Promise<string> {
   try {
-    const manifest = await fetchLatestPackageManifest(packageName);
+    const manifest = await fetchLatestPackageManifest(packageName, npmRegistryConfig);
     return `^${manifest.version}`;
   } catch {
     return "latest";

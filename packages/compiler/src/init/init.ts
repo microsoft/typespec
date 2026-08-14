@@ -10,6 +10,7 @@ import type { Diagnostic } from "../core/types.js";
 import { NoTarget } from "../core/types.js";
 import { installTypeSpecDependencies } from "../install/install.js";
 import { MANIFEST } from "../manifest.js";
+import { loadNpmRegistryConfig } from "../package-manger/npm-registry-config.js";
 import type { ValidationResult } from "./init-template-validate.js";
 import { validateTemplateDefinitions } from "./init-template-validate.js";
 import type { EmitterTemplate, InitTemplate, InitTemplateInput } from "./init-template.js";
@@ -119,6 +120,7 @@ export async function initTypeSpecProjectWorker(
     directory,
     parameters,
     emitters,
+    npmRegistryConfig: await loadNpmRegistryConfig(),
   });
 
   await scaffoldNewProject(host, scaffoldingConfig);
