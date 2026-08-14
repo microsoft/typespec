@@ -11,6 +11,18 @@ namespace Microsoft.TypeSpec.Generator.Utilities
 {
     internal static class CSharpNameExtensions
     {
+        private const string DateSuffix = "Date";
+        private const string DateTimeSuffix = "DateTime";
+        private const string FromName = "From";
+        private const string LowercaseOnSuffix = "on";
+        private const string OnSuffix = "On";
+        private const string PointInTimeName = "PointInTime";
+        private const string TimeStampSuffix = "TimeStamp";
+        private const string TimeSuffix = "Time";
+        private const string TimestampSuffix = "Timestamp";
+        private const string ToName = "To";
+        private const string AtSuffix = "At";
+
         private static readonly (string Source, string Replacement)[] _acronymRenamingRules =
         [
             ("Ipv4", "IPv4"),
@@ -24,14 +36,17 @@ namespace Microsoft.TypeSpec.Generator.Utilities
 
         private static readonly HashSet<string> _dateTimeNameExclusions = new(StringComparer.OrdinalIgnoreCase)
         {
-            "From",
-            "To",
-            "PointInTime"
+            FromName,
+            ToName,
+            PointInTimeName
         };
 
-        public static string NormalizeCSharpAcronyms(this string name)
+        public static string NormalizeCSharpAcronyms(this string name, bool normalizeDateTimeSuffix = false)
         {
-            StringBuilder? normalizedName = null;
+            var suffixLength = normalizeDateTimeSuffix && !HasExcludedDateTimeNameComponent(name)
+                ? GetDateTimeSuffixLength(name)
+                : 0;
+            StringBuilder? normalizedName = suffixLength > 0 ? new(name.Length - suffixLength + OnSuffix.Length) : null;
             int segmentStart = 0;
             for (int index = 0; index < name.Length - 1; index++)
             {
@@ -62,14 +77,17 @@ namespace Microsoft.TypeSpec.Generator.Utilities
                 return name;
             }
 
-            normalizedName.Append(name, segmentStart, name.Length - segmentStart);
+            normalizedName.Append(name, segmentStart, name.Length - suffixLength - segmentStart);
+            if (suffixLength > 0)
+            {
+                normalizedName.Append(name.Length == suffixLength && char.IsLower(name[0]) ? LowercaseOnSuffix : OnSuffix);
+            }
             return normalizedName.ToString();
         }
 
-        public static string NormalizeDateTimeSuffix(this string name, InputType inputType)
+        public static string NormalizeDateTimeSuffix(this string name)
         {
-            if (!IsDateTimeInputType(inputType) ||
-                HasExcludedDateTimeNameComponent(name))
+            if (HasExcludedDateTimeNameComponent(name))
             {
                 return name;
             }
@@ -81,57 +99,60 @@ namespace Microsoft.TypeSpec.Generator.Utilities
             }
 
             var prefix = name[..^suffixLength];
-            var onSuffix = prefix.Length == 0 && char.IsLower(name[0]) ? "on" : "On";
+            var onSuffix = prefix.Length == 0 && char.IsLower(name[0]) ? LowercaseOnSuffix : OnSuffix;
             return prefix + onSuffix;
         }
 
         private static bool HasExcludedDateTimeNameComponent(string name)
         {
             var lookup = _dateTimeNameExclusions.GetAlternateLookup<ReadOnlySpan<char>>();
-            return (name.Length >= 4 && lookup.Contains(name.AsSpan(0, 4))) ||
-                (name.Length >= 2 && lookup.Contains(name.AsSpan(0, 2))) ||
-                (name.Length >= "PointInTime".Length && lookup.Contains(name.AsSpan(^"PointInTime".Length)));
+            return (name.Length >= FromName.Length && lookup.Contains(name.AsSpan(0, FromName.Length))) ||
+                (name.Length >= ToName.Length && lookup.Contains(name.AsSpan(0, ToName.Length))) ||
+                (name.Length >= PointInTimeName.Length && lookup.Contains(name.AsSpan(^PointInTimeName.Length)));
         }
 
         private static int GetDateTimeSuffixLength(string name)
         {
-            if (name.EndsWith("Timestamp", StringComparison.Ordinal) ||
-                name.EndsWith("TimeStamp", StringComparison.Ordinal))
+            if (name.EndsWith(TimestampSuffix, StringComparison.Ordinal) ||
+                name.EndsWith(TimeStampSuffix, StringComparison.Ordinal))
             {
-                return 9;
+                return TimestampSuffix.Length;
             }
 
-            if (name.Equals("timestamp", StringComparison.Ordinal) ||
-                name.Equals("timeStamp", StringComparison.Ordinal))
+            if (name.Equals(TimestampSuffix, StringComparison.OrdinalIgnoreCase))
             {
-                return 9;
+                return TimestampSuffix.Length;
             }
 
-            if (name.Length > 8 && name.EndsWith("DateTime", StringComparison.Ordinal))
+            if (name.Length > DateTimeSuffix.Length && name.EndsWith(DateTimeSuffix, StringComparison.Ordinal))
             {
-                return 8;
+                return DateTimeSuffix.Length;
             }
 
-            if ((name.Length > 4 && name.EndsWith("Time", StringComparison.Ordinal)) ||
-                name.EndsWith("Date", StringComparison.Ordinal))
+            if (name.Length > TimeSuffix.Length && name.EndsWith(TimeSuffix, StringComparison.Ordinal))
             {
-                return 4;
+                return TimeSuffix.Length;
             }
 
-            if (name.Equals("date", StringComparison.Ordinal))
+            if (name.Equals(DateSuffix, StringComparison.OrdinalIgnoreCase))
             {
-                return 4;
+                return DateSuffix.Length;
             }
 
-            if (name.Length > 2 && name.EndsWith("At", StringComparison.Ordinal))
+            if (name.EndsWith(DateSuffix, StringComparison.Ordinal))
             {
-                return 2;
+                return DateSuffix.Length;
+            }
+
+            if (name.Length > AtSuffix.Length && name.EndsWith(AtSuffix, StringComparison.Ordinal))
+            {
+                return AtSuffix.Length;
             }
 
             return 0;
         }
 
-        private static bool IsDateTimeInputType(InputType inputType) => inputType switch
+        public static bool IsDateTimeInputType(this InputType inputType) => inputType switch
         {
             InputDateTimeType => true,
             InputPrimitiveType { Kind: InputPrimitiveTypeKind.PlainDate } => true,

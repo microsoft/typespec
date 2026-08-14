@@ -64,7 +64,8 @@ namespace Microsoft.TypeSpec.Generator.Providers
         {
             InputParameter = inputParameter;
             Name = inputParameter is InputMethodParameter && !inputParameter.IsExactName
-                ? inputParameter.Name.NormalizeDateTimeSuffix(inputParameter.Type)
+                && inputParameter.Type.IsDateTimeInputType()
+                ? inputParameter.Name.NormalizeDateTimeSuffix()
                 : inputParameter.Name;
             Description = DocHelpers.GetFormattableDescription(inputParameter.Summary, inputParameter.Doc) ?? FormattableStringHelpers.Empty;
             var type = CodeModelGenerator.Instance.TypeFactory.CreateCSharpType(inputParameter.Type) ?? throw new InvalidOperationException($"Failed to create CSharpType for {inputParameter.Type}");

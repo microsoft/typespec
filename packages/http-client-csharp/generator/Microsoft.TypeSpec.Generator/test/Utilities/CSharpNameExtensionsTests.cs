@@ -25,7 +25,13 @@ namespace Microsoft.TypeSpec.Generator.Tests.Utilities
         [TestCaseSource(nameof(DateTimeNameTestCases))]
         public void TestNormalizeDateTimeSuffix(string name, InputType type, string expected)
         {
-            Assert.AreEqual(expected, name.NormalizeDateTimeSuffix(type));
+            Assert.AreEqual(expected, type.IsDateTimeInputType() ? name.NormalizeDateTimeSuffix() : name);
+        }
+
+        [Test]
+        public void NormalizeCSharpAcronymsNormalizesDateTimeSuffixInSinglePass()
+        {
+            Assert.AreEqual("IPStartOn", "IpStartTime".NormalizeCSharpAcronyms(normalizeDateTimeSuffix: true));
         }
 
         private static IEnumerable<TestCaseData> DateTimeNameTestCases()
@@ -44,6 +50,12 @@ namespace Microsoft.TypeSpec.Generator.Tests.Utilities
             yield return new TestCaseData("pointInTime", dateTime, "pointInTime");
             yield return new TestCaseData("recoveryPointInTime", dateTime, "recoveryPointInTime");
             yield return new TestCaseData("startTime", InputPrimitiveType.String, "startTime");
+            yield return new TestCaseData("createdAt", dateTime, "createdOn");
+            yield return new TestCaseData("expiresAt", dateTime, "expiresOn");
+            yield return new TestCaseData("deletedTime", dateTime, "deletedOn");
+            yield return new TestCaseData("finishedTime", dateTime, "finishedOn");
+            yield return new TestCaseData("stateTransitionTime", dateTime, "stateTransitionOn");
+            yield return new TestCaseData("notBefore", dateTime, "notBefore");
         }
     }
 }

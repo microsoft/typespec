@@ -193,7 +193,8 @@ namespace Microsoft.TypeSpec.Generator.Utilities
                     if (inputParameter is not null &&
                         (string.Equals(parameter.Name, inputParameter.Name, StringComparison.Ordinal) ||
                         (inputParameter is InputMethodParameter { IsExactName: false } &&
-                        string.Equals(parameter.Name, inputParameter.Name.NormalizeDateTimeSuffix(inputParameter.Type), StringComparison.Ordinal))))
+                        inputParameter.Type.IsDateTimeInputType() &&
+                        string.Equals(parameter.Name, inputParameter.Name.NormalizeDateTimeSuffix(), StringComparison.Ordinal))))
                     {
                         var originalName = inputParameter.OriginalName;
                         if (!string.IsNullOrEmpty(originalName))

@@ -805,7 +805,8 @@ namespace Microsoft.TypeSpec.Generator.Tests.Providers
 
             BackCompatHelper.RestorePreviousParameterNames(typeProvider, typeProvider.Methods);
 
-            Assert.AreEqual("startTime", parameter.Name);
+            var actual = new TypeProviderWriter(typeProvider).Write().Content;
+            Assert.AreEqual(Helpers.GetExpectedFromFile("Expected"), actual);
         }
 
         // A reorder combined with a casing-only rename must still restore the published spelling.

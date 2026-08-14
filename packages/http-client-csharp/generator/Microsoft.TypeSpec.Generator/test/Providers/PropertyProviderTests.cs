@@ -7,6 +7,7 @@ using System;
 using System.Collections.Generic;
 using System.Diagnostics.CodeAnalysis;
 using System.Linq;
+using System.Threading.Tasks;
 using Microsoft.TypeSpec.Generator.Input;
 using Microsoft.TypeSpec.Generator.Input.Extensions;
 using Microsoft.TypeSpec.Generator.Primitives;
@@ -150,32 +151,29 @@ namespace Microsoft.TypeSpec.Generator.Tests.Providers
         }
 
         [Test]
-        public void TestPropertyNamePreservesLastContractDateTimeSuffix()
+        public async Task TestPropertyNamePreservesLastContractDateTimeSuffix()
         {
-            var lastContract = new TestTypeProvider(properties:
-            [
-                new PropertyProvider(
-                    description: null,
-                    modifiers: MethodSignatureModifiers.Public,
-                    type: typeof(DateTimeOffset),
-                    name: "StartTime",
-                    body: new AutoPropertyBody(HasSetter: true),
-                    enclosingType: TestTypeProvider.Empty)
-            ]);
-            var enclosingType = new TestTypeProviderWithLastContract(lastContract);
-            var inputProperty = InputFactory.Property(
-                "StartTime",
-                new InputDateTimeType(
+            await MockHelpers.LoadMockGeneratorAsync(lastContractCompilation: async () => await Helpers.GetCompilationFromDirectoryAsync());
+
+            var inputModel = InputFactory.Model(
+                "TestModel",
+                @namespace: "Test",
+                properties:
+                [
+                    InputFactory.Property(
+                        "StartTime",
+                        new InputDateTimeType(
                     DateTimeKnownEncoding.Rfc3339,
                     "utcDateTime",
                     "TypeSpec.utcDateTime",
                     InputPrimitiveType.String),
-                isRequired: true);
-            InputFactory.Model("TestModel", properties: [inputProperty]);
+                        isRequired: true)
+                ]);
 
-            var property = new PropertyProvider(inputProperty, enclosingType);
+            var modelProvider = new ModelProvider(inputModel);
+            var actual = new TypeProviderWriter(modelProvider).Write().Content;
 
-            Assert.AreEqual("StartTime", property.Name);
+            Assert.AreEqual(Helpers.GetExpectedFromFile("Expected"), actual);
         }
 
         [TestCaseSource(nameof(CollectionPropertyTestCases))]
@@ -260,7 +258,7 @@ namespace Microsoft.TypeSpec.Generator.Tests.Providers
                 InputPrimitiveType.String);
 
             yield return new TestCaseData("StartTime", dateTime, false, "StartOn");
-            yield return new TestCaseData("CreationDateTime", dateTime, false, "CreationOn");
+            yield return new TestCaseData("CreatedAt", dateTime, false, "CreatedOn");
             yield return new TestCaseData("DeletionTimestamp", dateTime, false, "DeletionOn");
             yield return new TestCaseData("ModificationTimeStamp", dateTime, false, "ModificationOn");
             yield return new TestCaseData("Timestamp", dateTime, false, "On");
@@ -276,19 +274,6 @@ namespace Microsoft.TypeSpec.Generator.Tests.Providers
             yield return new TestCaseData("CreationTimestamp", dateTime, true, "CreationTimestamp");
         }
 
-        private sealed class TestTypeProviderWithLastContract : TestTypeProvider
-        {
-            private readonly TypeProvider _lastContract;
-
-            public TestTypeProviderWithLastContract(TypeProvider lastContract)
-            {
-                _lastContract = lastContract;
-            }
-
-            private protected override TypeProvider? BuildLastContractView(
-                string? generatedTypeName = default,
-                string? generatedTypeNamespace = default) => _lastContract;
-        }
 
         [Test]
         public void CanUpdatePropertyProvider()

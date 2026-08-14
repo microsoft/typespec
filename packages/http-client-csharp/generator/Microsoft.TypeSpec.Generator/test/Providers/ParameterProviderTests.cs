@@ -104,7 +104,7 @@ namespace Microsoft.TypeSpec.Generator.Tests.Providers
                 InputPrimitiveType.String);
 
             yield return new TestCaseData("startTime", dateTime, false, "startOn");
-            yield return new TestCaseData("creationTimestamp", dateTime, false, "creationOn");
+            yield return new TestCaseData("createdAt", dateTime, false, "createdOn");
             yield return new TestCaseData("timestamp", dateTime, false, "on");
             yield return new TestCaseData("date", InputPrimitiveType.PlainDate, false, "on");
             yield return new TestCaseData("modifiedAt", dateTime.WithNullable(true), false, "modifiedOn");
@@ -114,7 +114,7 @@ namespace Microsoft.TypeSpec.Generator.Tests.Providers
             yield return new TestCaseData("recoveryPointInTime", dateTime, false, "recoveryPointInTime");
             yield return new TestCaseData("startTime", InputPrimitiveType.String, false, "startTime");
             yield return new TestCaseData("creationTimestamp", InputPrimitiveType.String, false, "creationTimestamp");
-            yield return new TestCaseData("creationTimestamp", dateTime, true, "creationTimestamp");
+            yield return new TestCaseData("createdAt", dateTime, true, "createdAt");
         }
 
         private static IEnumerable<TestCaseData> NotEqualsTestCases()
