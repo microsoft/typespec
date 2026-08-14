@@ -16,5 +16,7 @@ namespace Sample
         public IList<FileBinaryContent> Contents { get; }
 
         public FileBinaryContent GetContent(FileBinaryContent content) => content;
+
+        public ClientResult UploadContent(FileBinaryContent content) => null;
     }
 }

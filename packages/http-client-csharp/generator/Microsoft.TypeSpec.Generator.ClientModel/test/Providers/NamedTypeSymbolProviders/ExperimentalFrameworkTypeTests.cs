@@ -34,8 +34,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers.NamedTypeSymb
             await MockHelpers.LoadMockGeneratorAsync(
                 lastContractCompilation: async () => await Helpers.GetCompilationFromDirectoryAsync(
                     additionalMetadataReferences: _clientModelReferences,
-                    method: "LastContract",
-                    filePath: GetFilePath()));
+                    method: "LastContract"));
 
             var provider = CodeModelGenerator.Instance.SourceInputModel!.FindForTypeInLastContract("Sample", "SampleClient");
             Assert.IsNotNull(provider, "Failed to resolve 'Sample.SampleClient' from the last contract.");
@@ -88,6 +87,18 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers.NamedTypeSymb
             Assert.AreEqual(typeof(FileBinaryContent), parameterType.FrameworkType);
         }
 
-        private static string GetFilePath([System.Runtime.CompilerServices.CallerFilePath] string filePath = "") => filePath;
+        [Test]
+        public async Task NonExperimentalClientModelTypeFromLastContractIsFrameworkType()
+        {
+            var provider = await LoadLastContractTypeAsync();
+
+            var method = provider.Methods.SingleOrDefault(m => m.Signature.Name == "UploadContent");
+            Assert.IsNotNull(method, "Failed to resolve the 'UploadContent' method from the last contract.");
+
+            var returnType = method!.Signature.ReturnType;
+            Assert.IsNotNull(returnType);
+            Assert.IsTrue(returnType!.IsFrameworkType, "Expected the System.ClientModel type to resolve to a framework type.");
+            Assert.AreEqual(typeof(ClientResult), returnType.FrameworkType);
+        }
     }
 }

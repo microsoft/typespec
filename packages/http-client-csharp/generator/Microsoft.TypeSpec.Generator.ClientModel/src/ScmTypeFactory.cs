@@ -6,6 +6,7 @@ using System.ClientModel;
 using System.ClientModel.Primitives;
 using System.Collections.Generic;
 using System.Linq;
+using System.Reflection;
 using System.Text.Json;
 using System.Xml;
 using System.Xml.Linq;
@@ -22,7 +23,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel
 {
     public class ScmTypeFactory : TypeFactory
     {
-        private static readonly System.Reflection.Assembly _clientModelAssembly = typeof(ClientResult).Assembly;
+        private static readonly Assembly _clientModelAssembly = typeof(ClientResult).Assembly;
 
         private Dictionary<InputClient, ClientProvider?>? _clientCache;
         private Dictionary<InputClient, ClientProvider?> ClientCache => _clientCache ??= [];
