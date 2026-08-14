@@ -820,7 +820,10 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers.MrwSerializat
             var model = generator.Object.OutputLibrary.TypeProviders.OfType<ModelProvider>().Single();
 
             model.EnsureBuilt();
-            model.ProcessTypeForBackCompatibility();
+            foreach (var typeProvider in generator.Object.OutputLibrary.TypeProviders)
+            {
+                typeProvider.ProcessTypeForBackCompatibility();
+            }
 
             var writer = new TypeProviderWriter(new FilteredMethodsTypeProvider(
                 model.SerializationProviders.Single(),
@@ -840,7 +843,10 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers.MrwSerializat
             var model = generator.Object.OutputLibrary.TypeProviders.OfType<ModelProvider>().Single();
 
             model.EnsureBuilt();
-            model.ProcessTypeForBackCompatibility();
+            foreach (var typeProvider in generator.Object.OutputLibrary.TypeProviders)
+            {
+                typeProvider.ProcessTypeForBackCompatibility();
+            }
 
             var writer = new TypeProviderWriter(new FilteredMethodsTypeProvider(
                 model.SerializationProviders.Single(),

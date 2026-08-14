@@ -123,15 +123,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
         protected override TypeSignatureModifiers BuildDeclarationModifiers() => _model.DeclarationModifiers;
 
         protected override IReadOnlyList<MethodProvider> BuildMethodsForBackCompatibility(IEnumerable<MethodProvider> originalMethods)
-        {
-            var methods = originalMethods.ToList();
-            var generatedOperators = methods
-                .Where(m => m.Signature.Modifiers.HasFlag(MethodSignatureModifiers.Operator))
-                .ToList();
-            // The base implementation updates matching operators in place; this partial does not add back-compat overloads.
-            _ = base.BuildMethodsForBackCompatibility(generatedOperators);
-            return methods;
-        }
+            => base.BuildMethodsForBackCompatibility(originalMethods);
 
         protected override IReadOnlyList<ConstructorProvider> BuildConstructorsForBackCompatibility(IEnumerable<ConstructorProvider> originalConstructors)
             => [.. originalConstructors];

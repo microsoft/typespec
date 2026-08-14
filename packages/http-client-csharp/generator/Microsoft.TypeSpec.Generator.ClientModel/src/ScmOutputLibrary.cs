@@ -90,8 +90,11 @@ namespace Microsoft.TypeSpec.Generator.ClientModel
                 }
             }
 
+            var serializationTypes = baseTypes.SelectMany(static type => type.SerializationProviders);
+
             return [
                 ..baseTypes,
+                ..serializationTypes,
                 ..BuildClientTypes(),
                 ScmCodeModelGenerator.Instance.ModelSerializationExtensionsDefinition,
                 ScmCodeModelGenerator.Instance.SerializationFormatDefinition,

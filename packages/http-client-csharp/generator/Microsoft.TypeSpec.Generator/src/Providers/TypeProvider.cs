@@ -949,11 +949,6 @@ namespace Microsoft.TypeSpec.Generator.Providers
             {
                 RebuildAttributes();
             }
-
-            foreach (var serializationProvider in SerializationProviders)
-            {
-                serializationProvider.ProcessTypeForBackCompatibility();
-            }
         }
 
         // Runs newly-added back-compatibility members through every registered visitor while leaving
