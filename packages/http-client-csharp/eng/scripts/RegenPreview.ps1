@@ -609,10 +609,10 @@ try {
             exit 0
         }
         
-        $libraries = @(Select-LibrariesToRegenerate -Libraries $filteredLibraries)
+        $librariesToRegenerate = @(Select-LibrariesToRegenerate -Libraries $filteredLibraries)
         
         # Check if user cancelled selection
-        if (-not $libraries -or $libraries.Count -eq 0) {
+        if (-not $librariesToRegenerate -or $librariesToRegenerate.Count -eq 0) {
             Write-Host "No libraries selected. Exiting..." -ForegroundColor Yellow
             exit 0
         }
@@ -825,7 +825,7 @@ try {
     # Determine which generators are needed based on libraries to be regenerated
     if ($Select) {
         # Libraries were already selected at the beginning
-        $librariesToAnalyze = $libraries
+        $librariesToAnalyze = $librariesToRegenerate
     } else {
         # Load all libraries and apply filters to determine what would be regenerated
         $allLibraries = Get-LibrariesToRegenerate -SdkRepoPath $sdkRepoPath
@@ -976,16 +976,16 @@ try {
         $allLibraries = Get-LibrariesToRegenerate -SdkRepoPath $sdkRepoPath
         
         # Apply generator filter
-        $libraries = Filter-LibrariesByGenerator `
+        $librariesToRegenerate = Filter-LibrariesByGenerator `
             -Libraries $allLibraries `
             -Azure:$Azure `
             -Unbranded:$Unbranded `
             -Mgmt:$Mgmt
-        $libraries = @(Filter-LibrariesByName `
-            -Libraries $libraries `
+        $librariesToRegenerate = @(Filter-LibrariesByName `
+            -Libraries $librariesToRegenerate `
             -LibraryNames $libraryNames)
         
-        if ($libraries.Count -eq 0) {
+        if ($librariesToRegenerate.Count -eq 0) {
             Write-Host "No libraries found matching the specified filters" -ForegroundColor Yellow
             Write-Host "Skipping regeneration step..." -ForegroundColor Gray
         } else {
@@ -998,18 +998,18 @@ try {
             } else {
                 ""
             }
-            Write-Host "Regenerating $($libraries.Count) libraries$filterText" -ForegroundColor Yellow
+            Write-Host "Regenerating $($librariesToRegenerate.Count) libraries$filterText" -ForegroundColor Yellow
         }
     } else {
         # Libraries were already selected at the beginning
-        if ($libraries -and $libraries.Count -gt 0) {
-            Write-Host "Using $($libraries.Count) previously selected libraries" -ForegroundColor Yellow
+        if ($librariesToRegenerate -and $librariesToRegenerate.Count -gt 0) {
+            Write-Host "Using $($librariesToRegenerate.Count) previously selected libraries" -ForegroundColor Yellow
         } else {
             Write-Host "No libraries were selected" -ForegroundColor Yellow
         }
     }
     
-    if (-not $libraries -or $libraries.Count -eq 0) {
+    if (-not $librariesToRegenerate -or $librariesToRegenerate.Count -eq 0) {
         Write-Host "No libraries selected for regeneration" -ForegroundColor Yellow
         $failedCount = 0
     } else {
@@ -1054,7 +1054,7 @@ try {
     
     # Thread-safe collections for progress tracking
     $completed = [System.Collections.Concurrent.ConcurrentBag[int]]::new()
-    $totalCount = $libraries.Count
+    $totalCount = $librariesToRegenerate.Count
     
     Write-Host "Configuring npm registry for tsp-client (temporary .env)..." -ForegroundColor Gray
     $sdkEnvFile = Join-Path $sdkRepoPath ".env"
@@ -1066,7 +1066,7 @@ try {
     try {
     Write-Host "Dispatching $totalCount regeneration jobs ($throttleLimit at a time)..." -ForegroundColor Cyan
     # Run regeneration in parallel
-    $results = $libraries | ForEach-Object -ThrottleLimit $throttleLimit -Parallel {
+    $results = $librariesToRegenerate | ForEach-Object -ThrottleLimit $throttleLimit -Parallel {
         $library = $_
         $azureSdkPath = $using:sdkRepoPath
         $completedBag = $using:completed
