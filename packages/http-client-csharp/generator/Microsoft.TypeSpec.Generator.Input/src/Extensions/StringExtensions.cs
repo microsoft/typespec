@@ -37,7 +37,13 @@ namespace Microsoft.TypeSpec.Generator.Input.Extensions
             }
 
             bool upperCase = false;
-            int firstWordLength = 1;
+            // Treat the "IPv" prefix as one word so IPv4Address becomes ipv4Address.
+            int firstWordLength =
+                useCamelCase &&
+                (name.AsSpan(i).StartsWith("IPv4", StringComparison.Ordinal) ||
+                 name.AsSpan(i).StartsWith("IPv6", StringComparison.Ordinal))
+                    ? 3
+                    : 1;
             for (; i < name.Length; i++)
             {
                 var c = name[i];

@@ -129,6 +129,30 @@ namespace Microsoft.TypeSpec.Generator.Tests.Providers
             Assert.AreEqual(expectedName, property.Name);
         }
 
+        [TestCase("IpAddress", "IPAddress", "ipAddress")]
+        [TestCase("CosmosDbAccount", "CosmosDBAccount", "cosmosDBAccount")]
+        [TestCase("OsProfile", "OSProfile", "osProfile")]
+        [TestCase("Ipv4Address", "IPv4Address", "ipv4Address")]
+        [TestCase("IpV4Address", "IPv4Address", "ipv4Address")]
+        [TestCase("Ipv6Address", "IPv6Address", "ipv6Address")]
+        [TestCase("IpV6Address", "IPv6Address", "ipv6Address")]
+        public void TestPropertyAcronymNormalizationUsesCamelCaseParameterName(
+            string inputName,
+            string expectedPropertyName,
+            string expectedParameterName)
+        {
+            var inputProperty = InputFactory.Property(
+                inputName,
+                InputPrimitiveType.String,
+                isRequired: true);
+            InputFactory.Model("TestModel", properties: [inputProperty]);
+
+            var property = new PropertyProvider(inputProperty, new TestTypeProvider());
+
+            Assert.AreEqual(expectedPropertyName, property.Name);
+            Assert.AreEqual(expectedParameterName, property.AsParameter.Name);
+        }
+
         [TestCaseSource(nameof(CollectionPropertyTestCases))]
         public void CollectionProperty(CSharpType coreType, InputModelProperty collectionProperty, CSharpType expectedType)
         {

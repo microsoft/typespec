@@ -38,6 +38,10 @@ namespace Microsoft.TypeSpec.Generator.Input.Tests
         [TestCase("HelloWorld", false, "helloWorld")]
         [TestCase("Tls_1_0", false, "tls10")]
         [TestCase("UPPER_CASE", false, "upperCASE")]
+        [TestCase("IPv4", false, "ipv4")]
+        [TestCase("IPv4Address", false, "ipv4Address")]
+        [TestCase("IPv6Address", false, "ipv6Address")]
+        [TestCase("PrimaryIPv4Address", false, "primaryIPv4Address")]
         // New behavior with preserveUnderscores = true
         [TestCase("HelloWorld", true, "helloWorld")]
         [TestCase("Tls_1_0", true, "tls_1_0")]
