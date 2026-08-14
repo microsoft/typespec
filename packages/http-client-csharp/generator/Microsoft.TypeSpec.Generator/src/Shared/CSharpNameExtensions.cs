@@ -11,8 +11,6 @@ namespace Microsoft.TypeSpec.Generator.Utilities
     {
         private static readonly (string Source, string Replacement)[] _acronymRenamingRules =
         [
-            ("iPv4", "IPv4"),
-            ("iPv6", "IPv6"),
             ("Ipv4", "IPv4"),
             ("Ipv6", "IPv6"),
             ("IpV4", "IPv4"),
@@ -57,6 +55,21 @@ namespace Microsoft.TypeSpec.Generator.Utilities
 
             normalizedName.Append(name, segmentStart, name.Length - segmentStart);
             return normalizedName.ToString();
+        }
+
+        public static string NormalizeCSharpParameterAcronyms(this string name)
+        {
+            if (name.Length >= 4 &&
+                name[0] == 'i' &&
+                name[1] == 'P' &&
+                name[2] == 'v' &&
+                (name[3] == '4' || name[3] == '6') &&
+                (name.Length == 4 || char.IsUpper(name[4])))
+            {
+                return $"I{name.Substring(1)}";
+            }
+
+            return name;
         }
 
         [return: NotNullIfNotNull(nameof(name))]

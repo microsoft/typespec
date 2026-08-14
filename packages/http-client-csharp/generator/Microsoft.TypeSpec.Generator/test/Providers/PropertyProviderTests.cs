@@ -135,6 +135,7 @@ namespace Microsoft.TypeSpec.Generator.Tests.Providers
         [TestCase("DbAccount", false, "dbAccount")]
         [TestCase("OsProfile", false, "osProfile")]
         [TestCase("RegularName", false, "regularName")]
+        [TestCase("MiniPv4", false, "miniPv4")]
         [TestCase("Ipv4", true, "ipv4")]
         public void TestPropertyParameterDeclarationNormalizesAcronymCasing(string inputName, bool isExactName, string expectedName)
         {
