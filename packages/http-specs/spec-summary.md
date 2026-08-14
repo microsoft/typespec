@@ -3977,6 +3977,33 @@ Expected error response body:
 </XmlErrorBody>
 ```
 
+### Response_BodyOrNoContent_getBody
+
+- Endpoint: `get /response/body-or-no-content/body`
+
+Operation that returns a successful response with a status code of 200 and a `BlobLayout` body.
+
+Both `200` and `204` are declared as successful responses, but this route always returns `200`.
+Expected response status code is 200 with body:
+
+```json
+{ "content": "hello" }
+```
+
+Verify that the `200` response is deserialized normally and that the raw response status and
+headers remain available.
+
+### Response_BodyOrNoContent_getNoContent
+
+- Endpoint: `get /response/body-or-no-content/no-content`
+
+Operation that returns a successful response with a status code of 204 and no content.
+
+Both `200` and `204` are declared as successful responses, but this route always returns `204`.
+Expected response status code is 204 with no body.
+Verify that the `204` response is classified as successful, that it does not attempt body
+deserialization, and that the raw response status and headers remain available.
+
 ### Response_StatusCodeRange_errorResponseStatusCode404
 
 - Endpoint: `get /response/status-code-range/error-response-status-code-404`
