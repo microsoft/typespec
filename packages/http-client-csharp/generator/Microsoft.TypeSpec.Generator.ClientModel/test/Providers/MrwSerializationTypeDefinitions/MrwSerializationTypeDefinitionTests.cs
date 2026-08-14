@@ -7,6 +7,7 @@ using System.ClientModel.Primitives;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text.Json;
+using System.Threading.Tasks;
 using Microsoft.TypeSpec.Generator.ClientModel.Providers;
 using Microsoft.TypeSpec.Generator.Expressions;
 using Microsoft.TypeSpec.Generator.Input;
@@ -14,6 +15,7 @@ using Microsoft.TypeSpec.Generator.Input.Extensions;
 using Microsoft.TypeSpec.Generator.Primitives;
 using Microsoft.TypeSpec.Generator.Providers;
 using Microsoft.TypeSpec.Generator.Snippets;
+using Microsoft.TypeSpec.Generator.SourceInput;
 using Microsoft.TypeSpec.Generator.Statements;
 using Microsoft.TypeSpec.Generator.Tests.Common;
 using NUnit.Framework;
@@ -805,6 +807,47 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers.MrwSerializat
         }
 
         [Test]
+        public async Task ExplicitClientResultOperatorPreservesLastContractParameterName()
+        {
+            var inputModel = InputFactory.Model("mockInputModel");
+            var generator = MockHelpers.LoadMockGenerator(
+                inputModels: () => [inputModel],
+                clientResponseApi: new RenamedClientResultProvider(ValueExpression.Empty));
+            generator.Object.SourceInputModel = new SourceInputModel(
+                null,
+                await Helpers.GetCompilationFromDirectoryAsync());
+            generator.Object.TypeFactory.RootOutputModels.Add(inputModel);
+            var model = generator.Object.OutputLibrary.TypeProviders.OfType<ModelProvider>().Single();
+
+            model.EnsureBuilt();
+            model.ProcessTypeForBackCompatibility();
+
+            var explicitOperator = model.SerializationProviders.Single().Methods.Single(m =>
+                m.Signature.Modifiers.HasFlag(MethodSignatureModifiers.Explicit)
+                && m.Signature.Modifiers.HasFlag(MethodSignatureModifiers.Operator));
+            Assert.AreEqual("result", explicitOperator.Signature.Parameters.Single().Name);
+        }
+
+        [Test]
+        public void ExplicitClientResultOperatorKeepsCurrentParameterNameWithoutLastContract()
+        {
+            var inputModel = InputFactory.Model("mockInputModel");
+            var generator = MockHelpers.LoadMockGenerator(
+                inputModels: () => [inputModel],
+                clientResponseApi: new RenamedClientResultProvider(ValueExpression.Empty));
+            generator.Object.TypeFactory.RootOutputModels.Add(inputModel);
+            var model = generator.Object.OutputLibrary.TypeProviders.OfType<ModelProvider>().Single();
+
+            model.EnsureBuilt();
+            model.ProcessTypeForBackCompatibility();
+
+            var explicitOperator = model.SerializationProviders.Single().Methods.Single(m =>
+                m.Signature.Modifiers.HasFlag(MethodSignatureModifiers.Explicit)
+                && m.Signature.Modifiers.HasFlag(MethodSignatureModifiers.Operator));
+            Assert.AreEqual("response", explicitOperator.Signature.Parameters.Single().Name);
+        }
+
+        [Test]
         public void TestExplicitFromClientResultNotGeneratedForNonRootOutputModel()
         {
             var inputModel = InputFactory.Model("mockInputModel");
@@ -816,6 +859,12 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers.MrwSerializat
             var method = methods.FirstOrDefault(m => m.Signature.Name == "MockInputModel");
 
             Assert.IsNull(method);
+        }
+
+        private record RenamedClientResultProvider(ValueExpression Original)
+            : ClientResultProvider(Original)
+        {
+            public override string ResponseParameterName => "response";
         }
 
         [TestCase(true)]

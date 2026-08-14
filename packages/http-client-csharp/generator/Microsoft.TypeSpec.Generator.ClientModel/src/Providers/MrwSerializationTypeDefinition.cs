@@ -401,17 +401,33 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
 
         private MethodProvider GetExplicitFromClientResultMethod(bool supportsJson, bool supportsXml)
         {
+            MethodProvider method;
             if (supportsJson && supportsXml)
             {
-                return BuildJsonAndXmlExplicitFromClientResult();
+                method = BuildJsonAndXmlExplicitFromClientResult();
             }
-
-            if (supportsXml)
+            else if (supportsXml)
             {
-                return BuildXmlExplicitFromClientResult();
+                method = BuildXmlExplicitFromClientResult();
+            }
+            else
+            {
+                method = BuildExplicitFromClientResult();
             }
 
-            return BuildExplicitFromClientResult();
+            var previousMethod = LastContractView?.Methods.FirstOrDefault(m =>
+                MethodSignature.MethodSignatureComparer.Equals(m.Signature, method.Signature));
+            if (previousMethod?.Signature.Parameters is [var previousParameter]
+                && method.Signature.Parameters is [var parameter]
+                && !string.Equals(parameter.Name, previousParameter.Name, StringComparison.Ordinal))
+            {
+                CodeModelGenerator.Instance.Emitter.Debug(
+                    $"Preserved parameter name '{previousParameter.Name}' on '{Name}.{method.Signature.Name}' from last contract (instead of '{parameter.Name}').",
+                    BackCompatibilityChangeCategory.ParameterNamePreserved);
+                parameter.Update(name: previousParameter.Name);
+            }
+
+            return method;
         }
 
         private MethodProvider BuildExplicitFromClientResult()
