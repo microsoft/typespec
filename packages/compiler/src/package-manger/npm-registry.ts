@@ -82,7 +82,8 @@ export interface NpmHuman {
   readonly url?: string | undefined;
 }
 
-const defaultRegistry = `https://registry.npmjs.org`;
+/** Default npm registry used when nothing else is configured. */
+export const defaultNpmRegistry = `https://registry.npmjs.org`;
 
 /**
  * Returns the npm registry URL to use for fetching packages.
@@ -90,18 +91,36 @@ const defaultRegistry = `https://registry.npmjs.org`;
  * otherwise falls back to the default npm registry.
  */
 export function getNpmRegistry(): string {
-  return (process.env["TYPESPEC_NPM_REGISTRY"] ?? defaultRegistry).replace(/\/$/, "");
+  return (process.env["TYPESPEC_NPM_REGISTRY"] ?? defaultNpmRegistry).replace(/\/$/, "");
+}
+
+/** Options to customize the registry and credentials used when talking to the npm registry. */
+export interface NpmRegistryRequestOptions {
+  /** Registry to use. Default to {@link getNpmRegistry} */
+  readonly registry?: string;
+  /** Extra headers to send with the request.(e.g. authorization header for private registries) */
+  readonly headers?: Record<string, string>;
 }
 
 export async function fetchPackageManifest(
   packageName: string,
   version: string,
+  options?: NpmRegistryRequestOptions,
 ): Promise<NpmManifest> {
-  const url = `${getNpmRegistry()}/${packageName}/${version}`;
-  const res = await fetch(url);
+  const registry = options?.registry ? options.registry.replace(/\/+$/, "") : getNpmRegistry();
+  const url = `${registry}/${packageName}/${version}`;
+  const res = await fetch(url, { headers: options?.headers });
+  if (!res.ok) {
+    throw new Error(
+      `Failed to fetch manifest for package "${packageName}@${version}" from ${registry}: ${res.status} ${res.statusText}`,
+    );
+  }
   return await res.json();
 }
 
-export function fetchLatestPackageManifest(packageName: string): Promise<NpmManifest> {
-  return fetchPackageManifest(packageName, "latest");
+export function fetchLatestPackageManifest(
+  packageName: string,
+  options?: NpmRegistryRequestOptions,
+): Promise<NpmManifest> {
+  return fetchPackageManifest(packageName, "latest", options);
 }

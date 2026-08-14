@@ -11,6 +11,7 @@ import type { TestFileSystem } from "../../src/testing/types.js";
 import { parseYaml as coreParseYaml } from "../../src/yaml/parser.js";
 
 const fetchMock = vi.fn().mockResolvedValue({
+  ok: true,
   json: () => Promise.resolve({ name: "mock-pkg", version: "1.0.0" }),
 });
 
@@ -21,6 +22,7 @@ beforeEach(() => {
 afterEach(() => {
   vi.unstubAllGlobals();
   fetchMock.mockResolvedValue({
+    ok: true,
     json: () => Promise.resolve({ name: "mock-pkg", version: "1.0.0" }),
   });
 });

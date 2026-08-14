@@ -8,6 +8,7 @@ import type { TestHost } from "../../src/testing/index.js";
 import { createTestHost, resolveVirtualPath } from "../../src/testing/index.js";
 
 const fetchMock = vi.fn().mockResolvedValue({
+  ok: true,
   json: () => Promise.resolve({ name: "mock-pkg", version: "1.0.0" }),
 });
 

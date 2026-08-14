@@ -6,12 +6,17 @@ import { fetchPackageManifest } from "../../src/package-manger/npm-registry.js";
 let server: http.Server;
 let registryUrl: string;
 let lastRequestUrl: string | undefined;
+let lastRequestHeaders: Record<string, string | string[] | undefined> = {};
+let responseStatus: number;
 
 beforeEach(async () => {
   lastRequestUrl = undefined;
+  lastRequestHeaders = {};
+  responseStatus = 200;
   server = http.createServer((req, res) => {
     lastRequestUrl = req.url ?? "";
-    res.writeHead(200, { "Content-Type": "application/json" });
+    lastRequestHeaders = req.headers;
+    res.writeHead(responseStatus, { "Content-Type": "application/json" });
     res.end(
       JSON.stringify({
         name: "test-pkg",
@@ -49,4 +54,39 @@ it("strips trailing slash from TYPESPEC_NPM_REGISTRY", async () => {
   const manifest = await fetchPackageManifest("test-pkg", "1.0.0");
   expect(manifest.name).toBe("test-pkg");
   expect(lastRequestUrl).toBe("/test-pkg/1.0.0");
+});
+
+it("uses the registry URL passed in the options", async () => {
+  const manifest = await fetchPackageManifest("test-pkg", "latest", { registry: registryUrl });
+  expect(manifest.name).toBe("test-pkg");
+  expect(lastRequestUrl).toBe("/test-pkg/latest");
+});
+
+it("strips trailing slash from the registry passed in the options", async () => {
+  const manifest = await fetchPackageManifest("test-pkg", "latest", {
+    registry: `${registryUrl}/`,
+  });
+  expect(manifest.name).toBe("test-pkg");
+  expect(lastRequestUrl).toBe("/test-pkg/latest");
+});
+
+it("registry option takes precedence over TYPESPEC_NPM_REGISTRY", async () => {
+  process.env["TYPESPEC_NPM_REGISTRY"] = "https://invalid.registry.example.com";
+  const manifest = await fetchPackageManifest("test-pkg", "latest", { registry: registryUrl });
+  expect(manifest.name).toBe("test-pkg");
+});
+
+it("sends the provided headers", async () => {
+  await fetchPackageManifest("test-pkg", "latest", {
+    registry: registryUrl,
+    headers: { authorization: "Basic dXNlcjpwYXNz" },
+  });
+  expect(lastRequestHeaders.authorization).toBe("Basic dXNlcjpwYXNz");
+});
+
+it("throws a descriptive error if the registry returns an error", async () => {
+  responseStatus = 401;
+  await expect(
+    fetchPackageManifest("test-pkg", "latest", { registry: registryUrl }),
+  ).rejects.toThrowError(/Failed to fetch manifest for package "test-pkg@latest"/);
 });

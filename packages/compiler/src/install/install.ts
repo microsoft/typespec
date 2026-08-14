@@ -8,6 +8,7 @@ import { getDirectoryPath, joinPaths } from "../core/path-utils.js";
 import { NoTarget, type Diagnostic, type Tracer } from "../core/types.js";
 import { downloadAndExtractPackage } from "../package-manger/npm-package-download.js";
 import { fetchPackageManifest, type NpmManifest } from "../package-manger/npm-registry.js";
+import { resolveNpmConfig, type NpmConfig } from "../package-manger/npmrc.js";
 import { mkTempDir } from "../utils/fs-utils.js";
 import type { SupportedPackageManager } from "./config.js";
 import { getPackageManagerConfig, type PackageManagerConfig } from "./config.js";
@@ -91,6 +92,7 @@ async function installPackageManager(
   spec: Descriptor,
   installDir: string,
   manifest: NpmManifest,
+  npmConfig: NpmConfig,
 ) {
   await rm(installDir, { recursive: true, force: true });
   const tempDir = await mkTempDir(host, pmDir, `tsp-pm-${packageManager}-${manifest.version}`);
@@ -99,7 +101,12 @@ async function installPackageManager(
     "downloading-extracting",
     `Downloading and extracting ${packageManager} at version ${manifest.version} in ${tempDir}`,
   );
-  const extractResult = await downloadAndExtractPackage(manifest, tempDir, spec.hash?.algorithm);
+  const extractResult = await downloadAndExtractPackage(
+    manifest,
+    tempDir,
+    spec.hash?.algorithm,
+    npmConfig.getAuthHeaders(manifest.dist.tarball),
+  );
   if (spec.hash) {
     if (spec.hash.value !== extractResult.hash.value) {
       throw new InstallDependenciesError(
@@ -165,7 +172,20 @@ export async function installTypeSpecDependencies(
     );
     const packageManager = spec.name;
     const packageManagerConfig = getPackageManagerConfig(packageManager);
-    const manifest = await fetchPackageManifest(packageManager, spec.range);
+    const npmConfig = await resolveNpmConfig(host, directory);
+    const registry = npmConfig.getRegistry(packageManager);
+    tracer.trace("registry", `Using registry ${registry} to resolve ${packageManager}`);
+    let manifest: NpmManifest;
+    try {
+      manifest = await fetchPackageManifest(packageManager, spec.range, {
+        registry,
+        headers: npmConfig.getAuthHeaders(`${registry}/${packageManager}`),
+      });
+    } catch (e) {
+      throw new InstallDependenciesError(
+        `Failed to resolve package manager ${packageManager}@${spec.range} from registry ${registry}: ${e instanceof Error ? e.message : String(e)}`,
+      );
+    }
     tracer.trace(
       "fetched-manifest",
       `Resolved manifest for ${packageManager} at version ${manifest.version}`,
@@ -182,6 +202,7 @@ export async function installTypeSpecDependencies(
         spec,
         installDir,
         manifest,
+        npmConfig,
       );
       if (savePackageManager) {
         await updatePackageManagerInPackageJson(host, packageJsonPath, {
