@@ -129,8 +129,8 @@ namespace Microsoft.TypeSpec.Generator.Tests.Providers
             Assert.AreEqual(expectedName, property.Name);
         }
 
-        [TestCase("Ipv4", false, "IPv4")]
-        [TestCase("Ipv6", false, "IPv6")]
+        [TestCase("Ipv4", false, "ipv4")]
+        [TestCase("Ipv6", false, "ipv6")]
         [TestCase("IpAddress", false, "ipAddress")]
         [TestCase("DbAccount", false, "dbAccount")]
         [TestCase("OsProfile", false, "osProfile")]

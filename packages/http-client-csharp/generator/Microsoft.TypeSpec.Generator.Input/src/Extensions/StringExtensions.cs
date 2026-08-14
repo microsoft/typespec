@@ -93,7 +93,7 @@ namespace Microsoft.TypeSpec.Generator.Input.Extensions
                 (variableName[3] == '4' || variableName[3] == '6') &&
                 (variableName.Length == 4 || char.IsUpper(variableName[4])))
             {
-                return $"I{variableName.Substring(1)}";
+                return $"ip{variableName.Substring(2)}";
             }
 
             return variableName;

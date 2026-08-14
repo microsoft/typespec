@@ -48,8 +48,8 @@ namespace Microsoft.TypeSpec.Generator.Input.Tests
             Assert.AreEqual(expected, result);
         }
 
-        [TestCase("IPv4", "IPv4")]
-        [TestCase("IPv6Address", "IPv6Address")]
+        [TestCase("IPv4", "ipv4")]
+        [TestCase("IPv6Address", "ipv6Address")]
         [TestCase("IPAddress", "ipAddress")]
         [TestCase("MiniPv4", "miniPv4")]
         [TestCase("IPv4address", "iPv4address")]
