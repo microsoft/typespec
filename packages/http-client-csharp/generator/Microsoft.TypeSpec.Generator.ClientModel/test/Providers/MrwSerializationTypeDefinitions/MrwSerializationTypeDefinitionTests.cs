@@ -822,10 +822,11 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers.MrwSerializat
             model.EnsureBuilt();
             model.ProcessTypeForBackCompatibility();
 
-            var explicitOperator = model.SerializationProviders.Single().Methods.Single(m =>
-                m.Signature.Modifiers.HasFlag(MethodSignatureModifiers.Explicit)
-                && m.Signature.Modifiers.HasFlag(MethodSignatureModifiers.Operator));
-            Assert.AreEqual("result", explicitOperator.Signature.Parameters.Single().Name);
+            var writer = new TypeProviderWriter(new FilteredMethodsTypeProvider(
+                model.SerializationProviders.Single(),
+                name => name == model.Name));
+
+            Assert.AreEqual(Helpers.GetExpectedFromFile(), writer.Write().Content);
         }
 
         [Test]
@@ -841,10 +842,11 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers.MrwSerializat
             model.EnsureBuilt();
             model.ProcessTypeForBackCompatibility();
 
-            var explicitOperator = model.SerializationProviders.Single().Methods.Single(m =>
-                m.Signature.Modifiers.HasFlag(MethodSignatureModifiers.Explicit)
-                && m.Signature.Modifiers.HasFlag(MethodSignatureModifiers.Operator));
-            Assert.AreEqual("response", explicitOperator.Signature.Parameters.Single().Name);
+            var writer = new TypeProviderWriter(new FilteredMethodsTypeProvider(
+                model.SerializationProviders.Single(),
+                name => name == model.Name));
+
+            Assert.AreEqual(Helpers.GetExpectedFromFile(), writer.Write().Content);
         }
 
         [Test]
