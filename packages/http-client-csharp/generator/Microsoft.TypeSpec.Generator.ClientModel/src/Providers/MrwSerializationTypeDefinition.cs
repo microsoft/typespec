@@ -122,9 +122,6 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
 
         protected override TypeSignatureModifiers BuildDeclarationModifiers() => _model.DeclarationModifiers;
 
-        protected override IReadOnlyList<MethodProvider> BuildMethodsForBackCompatibility(IEnumerable<MethodProvider> originalMethods)
-            => [.. originalMethods];
-
         protected override IReadOnlyList<ConstructorProvider> BuildConstructorsForBackCompatibility(IEnumerable<ConstructorProvider> originalConstructors)
             => [.. originalConstructors];
 
@@ -401,33 +398,17 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
 
         private MethodProvider GetExplicitFromClientResultMethod(bool supportsJson, bool supportsXml)
         {
-            MethodProvider method;
             if (supportsJson && supportsXml)
             {
-                method = BuildJsonAndXmlExplicitFromClientResult();
-            }
-            else if (supportsXml)
-            {
-                method = BuildXmlExplicitFromClientResult();
-            }
-            else
-            {
-                method = BuildExplicitFromClientResult();
+                return BuildJsonAndXmlExplicitFromClientResult();
             }
 
-            var previousMethod = LastContractView?.Methods.FirstOrDefault(m =>
-                MethodSignature.MethodSignatureComparer.Equals(m.Signature, method.Signature));
-            if (previousMethod?.Signature.Parameters is [var previousParameter]
-                && method.Signature.Parameters is [var parameter]
-                && !string.Equals(parameter.Name, previousParameter.Name, StringComparison.Ordinal))
+            if (supportsXml)
             {
-                CodeModelGenerator.Instance.Emitter.Debug(
-                    $"Preserved parameter name '{previousParameter.Name}' on '{Name}.{method.Signature.Name}' from last contract (instead of '{parameter.Name}').",
-                    BackCompatibilityChangeCategory.ParameterNamePreserved);
-                parameter.Update(name: previousParameter.Name);
+                return BuildXmlExplicitFromClientResult();
             }
 
-            return method;
+            return BuildExplicitFromClientResult();
         }
 
         private MethodProvider BuildExplicitFromClientResult()
