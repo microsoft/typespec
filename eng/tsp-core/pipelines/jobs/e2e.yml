@@ -10,6 +10,7 @@ jobs:
       TYPESPEC_VS_CI_BUILD: false # Enable official Visual Studio extension build
       TYPESPEC_SKIP_WEBSITE_BUILD: true # Disable docusaurus build
       TYPESPEC_NPM_REGISTRY: https://pkgs.dev.azure.com/azure-sdk/public/_packaging/azure-sdk-for-js/npm/registry/
+      NODE_USE_ENV_PROXY: 1
       DISPLAY: ":99" # Set DISPLAY for Linux GUI applications
 
     pool:

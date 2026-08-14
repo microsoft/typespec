@@ -26,7 +26,7 @@ export interface NpmManifest {
 export interface NpmPackument {
   readonly name: string;
   readonly "dist-tags": { latest: string } & Record<string, string>;
-  readonly versions: Record<string, NpmPackageVersion>;
+  readonly versions: Record<string, NpmManifest>;
 
   readonly [key: string]: unknown;
 }
@@ -111,9 +111,25 @@ export async function fetchPackageManifest(
   version: string,
   config: NpmRegistryConfig = {},
 ): Promise<NpmManifest> {
-  const url = `${getNpmRegistry(config)}/${packageName}/${version}`;
+  const registry = getNpmRegistry(config);
+  const isAzureDevOpsFeed = /\/_packaging\/[^/]+\/npm\/registry$/i.test(new URL(registry).pathname);
+  const url = `${registry}/${packageName}${isAzureDevOpsFeed ? "" : `/${version}`}`;
   const res = await fetch(url, { headers: getNpmRequestHeaders(url, config) });
-  return await res.json();
+  if (!res.ok) {
+    throw new Error(`Request to ${url} failed with status ${res.status}.`);
+  }
+
+  if (!isAzureDevOpsFeed) {
+    return await res.json();
+  }
+
+  const packument = (await res.json()) as NpmPackument;
+  const resolvedVersion = packument["dist-tags"][version] ?? version;
+  const manifest = packument.versions[resolvedVersion];
+  if (manifest === undefined) {
+    throw new Error(`Package "${packageName}" does not have a version or tag "${version}".`);
+  }
+  return manifest;
 }
 
 export function fetchLatestPackageManifest(

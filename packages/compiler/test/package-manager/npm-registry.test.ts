@@ -14,6 +14,7 @@ let server: http.Server;
 let registryUrl: string;
 let lastRequestUrl: string | undefined;
 let lastAuthorization: string | undefined;
+let responseStatus: number;
 let tempDirectory: string | undefined;
 const originalHome = process.env["HOME"];
 const originalUserProfile = process.env["USERPROFILE"];
@@ -21,23 +22,33 @@ const originalUserProfile = process.env["USERPROFILE"];
 beforeEach(async () => {
   lastRequestUrl = undefined;
   lastAuthorization = undefined;
+  responseStatus = 200;
   server = http.createServer((req, res) => {
     lastRequestUrl = req.url ?? "";
     lastAuthorization = req.headers.authorization;
-    res.writeHead(200, { "Content-Type": "application/json" });
+    res.writeHead(responseStatus, { "Content-Type": "application/json" });
+    const manifest = {
+      name: "test-pkg",
+      version: "1.0.0",
+      dependencies: {},
+      optionalDependencies: {},
+      devDependencies: {},
+      peerDependencies: {},
+      bundleDependencies: false,
+      dist: { shasum: "abc", tarball: "http://example.com/test.tgz" },
+      bin: null,
+      _shrinkwrap: null,
+    };
     res.end(
-      JSON.stringify({
-        name: "test-pkg",
-        version: "1.0.0",
-        dependencies: {},
-        optionalDependencies: {},
-        devDependencies: {},
-        peerDependencies: {},
-        bundleDependencies: false,
-        dist: { shasum: "abc", tarball: "http://example.com/test.tgz" },
-        bin: null,
-        _shrinkwrap: null,
-      }),
+      JSON.stringify(
+        lastRequestUrl.includes("/_packaging/")
+          ? {
+              name: "test-pkg",
+              "dist-tags": { latest: "1.0.0" },
+              versions: { "1.0.0": manifest },
+            }
+          : manifest,
+      ),
     );
   });
   await new Promise<void>((resolve) => server.listen(0, "127.0.0.1", resolve));
@@ -61,6 +72,7 @@ it("uses the registry URL from TYPESPEC_NPM_REGISTRY when set", async () => {
   process.env["TYPESPEC_NPM_REGISTRY"] = registryUrl;
   const manifest = await fetchPackageManifest("test-pkg", "latest");
   expect(manifest.name).toBe("test-pkg");
+  expect(manifest.version).toBe("1.0.0");
   expect(lastRequestUrl).toBe("/test-pkg/latest");
 });
 
@@ -68,7 +80,34 @@ it("strips trailing slash from TYPESPEC_NPM_REGISTRY", async () => {
   process.env["TYPESPEC_NPM_REGISTRY"] = `${registryUrl}/`;
   const manifest = await fetchPackageManifest("test-pkg", "1.0.0");
   expect(manifest.name).toBe("test-pkg");
+  expect(manifest.version).toBe("1.0.0");
   expect(lastRequestUrl).toBe("/test-pkg/1.0.0");
+});
+
+it("resolves package versions from the packument for Azure DevOps feeds", async () => {
+  process.env["TYPESPEC_NPM_REGISTRY"] = `${registryUrl}/_packaging/test/npm/registry`;
+
+  const manifest = await fetchPackageManifest("test-pkg", "latest");
+
+  expect(manifest.version).toBe("1.0.0");
+  expect(lastRequestUrl).toBe("/_packaging/test/npm/registry/test-pkg");
+});
+
+it("reports registry errors before reading the manifest", async () => {
+  process.env["TYPESPEC_NPM_REGISTRY"] = registryUrl;
+  responseStatus = 401;
+
+  await expect(fetchPackageManifest("test-pkg", "1.0.0")).rejects.toThrow(
+    `Request to ${registryUrl}/test-pkg/1.0.0 failed with status 401.`,
+  );
+});
+
+it("reports a missing package version", async () => {
+  process.env["TYPESPEC_NPM_REGISTRY"] = `${registryUrl}/_packaging/test/npm/registry`;
+
+  await expect(fetchPackageManifest("test-pkg", "2.0.0")).rejects.toThrow(
+    `Package "test-pkg" does not have a version or tag "2.0.0".`,
+  );
 });
 
 it("loads registry and bearer authentication from NPM_CONFIG_USERCONFIG", async () => {
