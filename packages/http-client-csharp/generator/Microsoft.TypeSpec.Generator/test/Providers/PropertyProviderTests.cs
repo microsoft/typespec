@@ -150,6 +150,28 @@ namespace Microsoft.TypeSpec.Generator.Tests.Providers
             Assert.AreEqual(inputName.ToVariableName(), property.WireInfo?.SerializedName);
         }
 
+        [TestCase("Ipv4", false, "ipv4")]
+        [TestCase("Ipv6", false, "ipv6")]
+        [TestCase("IpAddress", false, "ipAddress")]
+        [TestCase("DbAccount", false, "dbAccount")]
+        [TestCase("OsProfile", false, "osProfile")]
+        [TestCase("RegularName", false, "regularName")]
+        [TestCase("MiniPv4", false, "miniPv4")]
+        [TestCase("Ipv4", true, "ipv4")]
+        public void TestPropertyParameterDeclarationNormalizesAcronymCasing(string inputName, bool isExactName, string expectedName)
+        {
+            var inputProperty = InputFactory.Property(
+                inputName,
+                InputPrimitiveType.String,
+                isRequired: true,
+                isExactName: isExactName);
+            InputFactory.Model("TestModel", properties: [inputProperty]);
+
+            var property = new PropertyProvider(inputProperty, new TestTypeProvider());
+
+            Assert.AreEqual(expectedName, property.AsParameter.AsVariable().Declaration.RequestedName);
+        }
+
         [Test]
         public async Task TestPropertyNamePreservesLastContractDateTimeSuffix()
         {
@@ -300,7 +322,7 @@ namespace Microsoft.TypeSpec.Generator.Tests.Providers
             };
 
             propertyProvider.Update(
-                modifiers: propertyProvider.Modifiers &~ MethodSignatureModifiers.Virtual,
+                modifiers: propertyProvider.Modifiers & ~MethodSignatureModifiers.Virtual,
                 type: new CSharpType(typeof(int)),
                 name: "newName",
                 body: new AutoPropertyBody(HasSetter: true),
