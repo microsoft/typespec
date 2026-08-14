@@ -71,11 +71,12 @@ namespace Microsoft.TypeSpec.Generator.Tests.Common
 
         public static async Task<Compilation> GetCompilationFromDirectoryAsync(
             string? parameters = null,
+            IEnumerable<MetadataReference>? additionalMetadataReferences = null,
             [CallerMemberName] string method = "",
             [CallerFilePath] string filePath = "")
         {
             var directory = GetAssetFileOrDirectoryPath(false, parameters, method, filePath);
-            return await GetCompilationFromDirectoriesAsync([directory], Path.Combine(directory, "Generated"));
+            return await GetCompilationFromDirectoriesAsync([directory], Path.Combine(directory, "Generated"), additionalMetadataReferences);
         }
 
         /// <summary>
@@ -85,10 +86,11 @@ namespace Microsoft.TypeSpec.Generator.Tests.Common
         /// </summary>
         public static async Task<Compilation> GetCompilationFromDirectoriesAsync(
             IReadOnlyList<string> directories,
-            string generatedDirectory)
+            string generatedDirectory,
+            IEnumerable<MetadataReference>? additionalMetadataReferences = null)
         {
             var codeGenAttributeFiles = Path.Combine(_assemblyLocation, "..", "..", "..", "..", "..", "TestProjects", "Local", "Sample-TypeSpec", "src", "Generated", "Internal");
-            var project = CreateExistingCodeProject([.. directories, codeGenAttributeFiles], generatedDirectory);
+            var project = CreateExistingCodeProject([.. directories, codeGenAttributeFiles], generatedDirectory, additionalMetadataReferences);
             var compilation = await project.GetCompilationAsync();
             Assert.That(compilation, Is.Not.Null);
             return compilation!;
@@ -127,7 +129,10 @@ namespace Microsoft.TypeSpec.Generator.Tests.Common
             return compilation!;
         }
 
-        private static Project CreateExistingCodeProject(IEnumerable<string> projectDirectories, string generatedDirectory)
+        private static Project CreateExistingCodeProject(
+            IEnumerable<string> projectDirectories,
+            string generatedDirectory,
+            IEnumerable<MetadataReference>? additionalMetadataReferences = null)
         {
             var workspace = new AdhocWorkspace();
             var newOptionSet = workspace.Options.WithChangedOption(FormattingOptions.NewLine, LanguageNames.CSharp, "\n");
@@ -145,7 +150,8 @@ namespace Microsoft.TypeSpec.Generator.Tests.Common
             project = project
                 .AddMetadataReferences([
                     MetadataReference.CreateFromFile(typeof(object).Assembly.Location),
-                    ..CodeModelGenerator.Instance.AdditionalMetadataReferences
+                    ..CodeModelGenerator.Instance.AdditionalMetadataReferences,
+                    ..additionalMetadataReferences ?? []
                     ])
                 .WithCompilationOptions(new CSharpCompilationOptions(
                     OutputKind.DynamicallyLinkedLibrary, metadataReferenceResolver: new WorkspaceMetadataReferenceResolver(), nullableContextOptions: NullableContextOptions.Disable));

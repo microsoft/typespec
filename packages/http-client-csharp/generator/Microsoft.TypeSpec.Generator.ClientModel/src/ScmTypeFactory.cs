@@ -22,6 +22,8 @@ namespace Microsoft.TypeSpec.Generator.ClientModel
 {
     public class ScmTypeFactory : TypeFactory
     {
+        private static readonly System.Reflection.Assembly _clientModelAssembly = typeof(ClientResult).Assembly;
+
         private Dictionary<InputClient, ClientProvider?>? _clientCache;
         private Dictionary<InputClient, ClientProvider?> ClientCache => _clientCache ??= [];
 
@@ -285,6 +287,30 @@ namespace Microsoft.TypeSpec.Generator.ClientModel
 #pragma warning restore SCME0004
             _ => base.CreateCSharpTypeCore(inputType),
         };
+
+        /// <summary>
+        /// Resolves types declared in the <c>System.ClientModel</c> assembly in addition to the types the
+        /// base factory resolves. <see cref="Type.GetType(string)"/> only probes the core library and the
+        /// assembly declaring the base factory, so types such as <see cref="ClientResult"/> or the
+        /// evaluation-only <c>FileBinaryContent</c> would otherwise not be recognized as framework types
+        /// when their symbols are read from the customization or last contract compilation.
+        /// </summary>
+        protected override Type? CreateFrameworkType(string fullyQualifiedTypeName)
+            => base.CreateFrameworkType(fullyQualifiedTypeName) ?? GetClientModelType(fullyQualifiedTypeName);
+
+        private static Type? GetClientModelType(string fullyQualifiedTypeName)
+        {
+            try
+            {
+                return _clientModelAssembly.GetType(fullyQualifiedTypeName, throwOnError: false);
+            }
+            catch (Exception)
+            {
+                // The name may not be a loadable type name (e.g. a generic type name whose arguments are
+                // library types). Treat it as an unresolved framework type.
+                return null;
+            }
+        }
 
         protected override ScmSerializationOptions? CreateSerializationOptionsCore(InputSerializationOptions inputSerializationOptions)
             => new(inputSerializationOptions);
