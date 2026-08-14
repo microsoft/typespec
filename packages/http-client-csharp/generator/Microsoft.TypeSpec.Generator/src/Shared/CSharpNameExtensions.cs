@@ -57,21 +57,6 @@ namespace Microsoft.TypeSpec.Generator.Utilities
             return normalizedName.ToString();
         }
 
-        public static string NormalizeCSharpParameterAcronyms(this string name)
-        {
-            if (name.Length >= 4 &&
-                name[0] == 'i' &&
-                name[1] == 'P' &&
-                name[2] == 'v' &&
-                (name[3] == '4' || name[3] == '6') &&
-                (name.Length == 4 || char.IsUpper(name[4])))
-            {
-                return $"I{name.Substring(1)}";
-            }
-
-            return name;
-        }
-
         [return: NotNullIfNotNull(nameof(name))]
         public static string? NormalizeCSharpUrlSuffix(this string? name)
             => !string.IsNullOrEmpty(name) && name.EndsWith("Url", StringComparison.Ordinal)

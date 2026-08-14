@@ -47,5 +47,16 @@ namespace Microsoft.TypeSpec.Generator.Input.Tests
             var result = name.ToVariableName(preserveUnderscores: preserveUnderscores);
             Assert.AreEqual(expected, result);
         }
+
+        [TestCase("IPv4", "IPv4")]
+        [TestCase("IPv6Address", "IPv6Address")]
+        [TestCase("IPAddress", "ipAddress")]
+        [TestCase("MiniPv4", "miniPv4")]
+        [TestCase("IPv4address", "iPv4address")]
+        [TestCase(null, null)]
+        public void TestToVariableNameIPvCasing(string name, string expected)
+        {
+            Assert.AreEqual(expected, name.ToVariableName());
+        }
     }
 }
