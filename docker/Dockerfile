@@ -4,8 +4,6 @@
 # cspell:ignore tdnf
 FROM mcr.microsoft.com/devcontainers/javascript-node:24 AS builder
 
-ARG NPM_CONFIG_REGISTRY=https://registry.npmjs.org/
-
 COPY . /app
 
 # Upgrade all packages per https://eng.ms/docs/more/containers-secure-supply-chain/updating.
@@ -16,6 +14,10 @@ COPY . /app
 
 WORKDIR /app
 RUN npm install -g pnpm
+
+# Must set AFTER pnpm is installed, since it can't be installed from our private registry
+ARG NPM_CONFIG_REGISTRY=https://registry.npmjs.org/
+
 RUN pnpm install --filter "@typespec/compiler..."
 RUN pnpm --filter "@typespec/compiler..." run build
 
