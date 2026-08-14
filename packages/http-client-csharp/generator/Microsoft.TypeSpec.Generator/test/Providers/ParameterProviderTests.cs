@@ -103,18 +103,26 @@ namespace Microsoft.TypeSpec.Generator.Tests.Providers
                 "TypeSpec.utcDateTime",
                 InputPrimitiveType.String);
 
-            yield return new TestCaseData("startTime", dateTime, false, "startOn");
-            yield return new TestCaseData("createdAt", dateTime, false, "createdOn");
-            yield return new TestCaseData("timestamp", dateTime, false, "on");
-            yield return new TestCaseData("date", InputPrimitiveType.PlainDate, false, "on");
-            yield return new TestCaseData("modifiedAt", dateTime.WithNullable(true), false, "modifiedOn");
-            yield return new TestCaseData("fromTime", dateTime, false, "fromTime");
-            yield return new TestCaseData("toDate", dateTime, false, "toDate");
-            yield return new TestCaseData("pointInTime", dateTime, false, "pointInTime");
-            yield return new TestCaseData("recoveryPointInTime", dateTime, false, "recoveryPointInTime");
-            yield return new TestCaseData("startTime", InputPrimitiveType.String, false, "startTime");
-            yield return new TestCaseData("creationTimestamp", InputPrimitiveType.String, false, "creationTimestamp");
-            yield return new TestCaseData("createdAt", dateTime, true, "createdAt");
+            var testCases = new (string Name, InputType Type, string NormalizedName)[]
+            {
+                ("startTime", dateTime, "startOn"),
+                ("createdAt", dateTime, "createdOn"),
+                ("timestamp", dateTime, "on"),
+                ("date", InputPrimitiveType.PlainDate, "on"),
+                ("modifiedAt", dateTime.WithNullable(true), "modifiedOn"),
+                ("fromTime", dateTime, "fromTime"),
+                ("toDate", dateTime, "toDate"),
+                ("pointInTime", dateTime, "pointInTime"),
+                ("recoveryPointInTime", dateTime, "recoveryPointInTime"),
+                ("startTime", InputPrimitiveType.String, "startTime"),
+                ("creationTimestamp", InputPrimitiveType.String, "creationTimestamp")
+            };
+
+            foreach (var testCase in testCases)
+            {
+                yield return new TestCaseData(testCase.Name, testCase.Type, false, testCase.NormalizedName);
+                yield return new TestCaseData(testCase.Name, testCase.Type, true, testCase.Name);
+            }
         }
 
         private static IEnumerable<TestCaseData> NotEqualsTestCases()
