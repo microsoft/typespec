@@ -128,6 +128,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
             var generatedOperators = methods
                 .Where(m => m.Signature.Modifiers.HasFlag(MethodSignatureModifiers.Operator))
                 .ToList();
+            // The base implementation updates matching operators in place; this partial does not add back-compat overloads.
             _ = base.BuildMethodsForBackCompatibility(generatedOperators);
             return methods;
         }
