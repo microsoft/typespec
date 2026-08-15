@@ -662,6 +662,31 @@ def _create_value(rf: typing.Optional["_RestField"], value: typing.Any) -> typin
     return _serialize(value, rf._format)
 
 
+def _clone_wire_value(value: typing.Any) -> typing.Any:
+    if isinstance(value, list):
+        return [_clone_wire_value(entry) for entry in value]
+    if isinstance(value, dict):
+        return {key: _clone_wire_value(entry) for key, entry in value.items()}
+    if isinstance(value, set):
+        return {_clone_wire_value(entry) for entry in value}
+    if isinstance(value, tuple):
+        return tuple(_clone_wire_value(entry) for entry in value)
+    return value
+
+
+def _create_public_value(rf: typing.Optional["_RestField"], value: typing.Any) -> typing.Any:
+    if rf and rf._is_model:
+        value = _clone_wire_value(value)
+    return _create_value(rf, value)
+
+
+class _OwnedWireValue:
+    __slots__ = ("value",)
+
+    def __init__(self, value: typing.Mapping[str, typing.Any]) -> None:
+        self.value = value
+
+
 def _create_value_from_wire(rf: typing.Optional["_RestField"], value: typing.Any) -> typing.Any:
     """Build a stored value from an already-serialized (wire/JSON) payload.
 
@@ -935,10 +960,16 @@ class Model(_MyMutableMapping):
                 dict_to_pass.update(self._init_from_xml(args[0]))
             else:
                 rest_field_by_rest_name = self._rest_field_by_rest_name
+                mapping = args[0]
+                if isinstance(mapping, _OwnedWireValue):
+                    mapping = mapping.value
+                    create_value = _create_value_from_wire
+                else:
+                    create_value = _create_public_value
                 dict_to_pass.update(
                     {
-                        k: _create_value_from_wire(rest_field_by_rest_name.get(k), v)
-                        for k, v in args[0].items()
+                        k: create_value(rest_field_by_rest_name.get(k), v)
+                        for k, v in mapping.items()
                     }
                 )
         else:
@@ -1134,10 +1165,10 @@ class Model(_MyMutableMapping):
     @classmethod
     def _deserialize(cls, data, exist_discriminators):
         if not hasattr(cls, "__mapping__"):
-            return cls(data)
+            return cls(data) if isinstance(data, ET.Element) else cls(_OwnedWireValue(data))
         discriminator = cls._get_discriminator(exist_discriminators)
         if discriminator is None:
-            return cls(data)
+            return cls(data) if isinstance(data, ET.Element) else cls(_OwnedWireValue(data))
         exist_discriminators.append(discriminator._rest_name)
         if isinstance(data, ET.Element):
             model_meta = getattr(cls, "_xml", {})
