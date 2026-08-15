@@ -39,6 +39,7 @@
     <ProjectReference Include="$(RepoRoot)\TestProjects\Spector\http\encode\duration\src\Encode.Duration.csproj" />
     <ProjectReference Include="$(RepoRoot)\TestProjects\Spector\http\encode\numeric\src\Encode.Numeric.csproj" />
     <ProjectReference Include="$(RepoRoot)\TestProjects\Spector\http\parameters\basic\src\Parameters.Basic.csproj" />
+    <ProjectReference Include="$(RepoRoot)\TestProjects\Spector\http\parameters\body-root\src\Parameters.BodyRoot.csproj" />
     <ProjectReference Include="$(RepoRoot)\TestProjects\Spector\http\parameters\body-optionality\src\Parameters.BodyOptionality.csproj" />
     <ProjectReference Include="$(RepoRoot)\TestProjects\Spector\http\parameters\collection-format\src\Parameters.CollectionFormat.csproj" />
     <ProjectReference Include="$(RepoRoot)\TestProjects\Spector\http\parameters\spread\src\Parameters.Spread.csproj" />
