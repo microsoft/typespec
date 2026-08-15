@@ -161,10 +161,17 @@ export class OpenAPI31SchemaEmitter extends OpenAPI3SchemaEmitterBase<OpenAPISch
     const shouldSeal = this.shouldSealSchema(model);
     if (!shouldSeal && !model.indexer) return;
 
-    const unevaluatedPropertiesSchema = shouldSeal
+    const indexerSchema = shouldSeal
       ? { not: {} }
       : this.emitter.emitTypeReference(model.indexer!.value);
-    setProperty(schema, "unevaluatedProperties", unevaluatedPropertiesSchema);
+
+    // A declared indexer describes a dictionary, and `additionalProperties` is the keyword for that.
+    // Sealing keeps `unevaluatedProperties`, and so does a model that also extends another model:
+    // both have to account for the properties evaluated by the `allOf` subschema holding the base
+    // model, which `additionalProperties` cannot see and would therefore constrain.
+    const indexerKeyword =
+      shouldSeal || model.baseModel ? "unevaluatedProperties" : "additionalProperties";
+    setProperty(schema, indexerKeyword, indexerSchema);
   }
 
   getRawBinarySchema(): OpenAPISchema3_1 {
