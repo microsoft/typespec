@@ -3,7 +3,6 @@
 # --------------------------------
 # cspell:ignore tdnf
 FROM mcr.microsoft.com/devcontainers/javascript-node:24 AS builder
-
 COPY . /app
 
 ENV NPM_CONFIG_USERCONFIG=/app/docker/.npmrc
