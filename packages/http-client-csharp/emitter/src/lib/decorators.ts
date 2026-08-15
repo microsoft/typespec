@@ -41,6 +41,8 @@ export function getExperimentalDetails(
   }
 
   const options = decorator.arguments.options as ExperimentalDecoratorOptions | undefined;
+  // TCGC filters a top-level `scope` argument, but @experimental carries
+  // `emitterScope` inside its options object.
   if (!isEmitterScopeApplicable(options?.emitterScope)) {
     return undefined;
   }
