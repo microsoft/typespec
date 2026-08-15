@@ -1,7 +1,10 @@
 import * as http from "http";
 import type { AddressInfo } from "net";
 import { afterEach, beforeEach, expect, it } from "vitest";
-import { fetchPackageManifest } from "../../src/package-manger/npm-registry.js";
+import {
+  fetchPackageManifest,
+  getNpmRegistryEnvironment,
+} from "../../src/package-manger/npm-registry.js";
 
 let server: http.Server;
 let registryUrl: string;
@@ -34,6 +37,7 @@ beforeEach(async () => {
 
 afterEach(async () => {
   delete process.env["TYPESPEC_NPM_REGISTRY"];
+  delete process.env["NPM_CONFIG_REGISTRY"];
   await new Promise<void>((resolve) => server.close(() => resolve()));
 });
 
@@ -49,4 +53,23 @@ it("strips trailing slash from TYPESPEC_NPM_REGISTRY", async () => {
   const manifest = await fetchPackageManifest("test-pkg", "1.0.0");
   expect(manifest.name).toBe("test-pkg");
   expect(lastRequestUrl).toBe("/test-pkg/1.0.0");
+});
+
+it("forwards TYPESPEC_NPM_REGISTRY to npm", () => {
+  process.env["TYPESPEC_NPM_REGISTRY"] = `${registryUrl}/`;
+  process.env["NPM_CONFIG_REGISTRY"] = "https://old-registry.example.com";
+
+  const environment = getNpmRegistryEnvironment();
+
+  expect(environment["npm_config_registry"]).toBe(registryUrl);
+  expect(environment).not.toHaveProperty("NPM_CONFIG_REGISTRY");
+});
+
+it("preserves the npm registry environment when no TypeSpec override is set", () => {
+  delete process.env["TYPESPEC_NPM_REGISTRY"];
+  process.env["NPM_CONFIG_REGISTRY"] = "https://configured-registry.example.com";
+
+  const environment = getNpmRegistryEnvironment();
+
+  expect(environment["NPM_CONFIG_REGISTRY"]).toBe("https://configured-registry.example.com");
 });

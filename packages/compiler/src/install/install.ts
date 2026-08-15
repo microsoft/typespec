@@ -7,7 +7,11 @@ import { createDiagnosticCollector } from "../core/diagnostics.js";
 import { getDirectoryPath, joinPaths } from "../core/path-utils.js";
 import { NoTarget, type Diagnostic, type Tracer } from "../core/types.js";
 import { downloadAndExtractPackage } from "../package-manger/npm-package-download.js";
-import { fetchPackageManifest, type NpmManifest } from "../package-manger/npm-registry.js";
+import {
+  fetchPackageManifest,
+  getNpmRegistryEnvironment,
+  type NpmManifest,
+} from "../package-manger/npm-registry.js";
 import { mkTempDir } from "../utils/fs-utils.js";
 import type { SupportedPackageManager } from "./config.js";
 import { getPackageManagerConfig, type PackageManagerConfig } from "./config.js";
@@ -218,7 +222,7 @@ async function runPackageManager(
     stdio,
     cwd: directory,
     env: {
-      ...process.env,
+      ...getNpmRegistryEnvironment(),
       TYPESPEC_CLI_PASSTHROUGH: "1",
     },
   });

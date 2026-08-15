@@ -93,6 +93,24 @@ export function getNpmRegistry(): string {
   return (process.env["TYPESPEC_NPM_REGISTRY"] ?? defaultRegistry).replace(/\/$/, "");
 }
 
+/** Returns the environment used to run npm with the TypeSpec registry override applied. */
+export function getNpmRegistryEnvironment(): Record<string, string | undefined> {
+  const environment = { ...process.env };
+  if (process.env["TYPESPEC_NPM_REGISTRY"] === undefined) {
+    return environment;
+  }
+
+  // Environment variable names are case-insensitive on Windows. Remove any
+  // existing spelling so Node does not choose between duplicate keys.
+  for (const name of Object.keys(environment)) {
+    if (name.toLowerCase() === "npm_config_registry") {
+      delete environment[name];
+    }
+  }
+  environment["npm_config_registry"] = getNpmRegistry();
+  return environment;
+}
+
 export async function fetchPackageManifest(
   packageName: string,
   version: string,
