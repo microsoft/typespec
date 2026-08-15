@@ -4,9 +4,6 @@
 # cspell:ignore tdnf
 FROM mcr.microsoft.com/devcontainers/javascript-node:24 AS builder
 
-ARG NPM_CONFIG_REGISTRY=https://registry.npmjs.org/
-ENV PNPM_CONFIG_REGISTRY=${NPM_CONFIG_REGISTRY}
-
 COPY . /app
 
 # Upgrade all packages per https://eng.ms/docs/more/containers-secure-supply-chain/updating.
