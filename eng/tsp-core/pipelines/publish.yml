@@ -99,6 +99,8 @@ extends:
                   command: login
 
               - template: /eng/common/pipelines/templates/steps/create-authenticated-npmrc.yml
+                parameters:
+                  npmrcPath: ./docker/.npmrc
 
               - script: |
                   docker build -f ./docker/Dockerfile \

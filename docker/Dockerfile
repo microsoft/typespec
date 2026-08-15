@@ -6,6 +6,8 @@ FROM mcr.microsoft.com/devcontainers/javascript-node:24 AS builder
 
 COPY . /app
 
+ENV NPM_CONFIG_USERCONFIG=/app/docker/.npmrc
+
 # Upgrade all packages per https://eng.ms/docs/more/containers-secure-supply-chain/updating.
 # RUN tdnf update -y \
 #   && tdnf install -y \
