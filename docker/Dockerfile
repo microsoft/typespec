@@ -32,6 +32,9 @@ FROM mcr.microsoft.com/azurelinux/base/nodejs:24
 
 COPY --from=builder /app/packages/compiler/*.tgz /tmp/compiler.tgz
 
-RUN npm install -g /tmp/compiler.tgz && rm /tmp/compiler.tgz
+COPY --from=builder /app/docker/.npmrc /tmp/.npmrc
+ENV NPM_CONFIG_USERCONFIG=/tmp/.npmrc
+
+RUN npm install --verbose -g /tmp/compiler.tgz && rm /tmp/compiler.tgz && rm /tmp/.npmrc
 
 ENTRYPOINT ["tsp"]
