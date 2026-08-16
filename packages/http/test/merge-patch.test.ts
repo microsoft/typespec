@@ -989,6 +989,8 @@ describe("visibility transforms", () => {
       `
       model Foo {
         tags?: Record<string>;
+        values?: Record<string | int32>;
+        nullableValues?: Record<string | null>;
       }
 
       @patch op update(@body body: MergePatchUpdate<Foo>): Foo;`,
@@ -1007,6 +1009,27 @@ describe("visibility transforms", () => {
     ok(stringValue);
     deepStrictEqual(stringValue.kind, "Scalar");
     expect(stringValue.name).toBe("string");
+
+    for (const [name, expectedVariants] of [
+      ["values", 3],
+      ["nullableValues", 2],
+    ] as const) {
+      const record = getNonNullableType(checkProperty(envelope, name, true, "Union").type);
+      ok(record);
+      deepStrictEqual(record.kind, "Model");
+      const recordValue = record.indexer?.value;
+      ok(recordValue);
+      deepStrictEqual(recordValue.kind, "Union");
+      expect(recordValue.variants.size).toBe(expectedVariants);
+      expect(
+        [...recordValue.variants.values()].filter(
+          (variant) => variant.type === $(runner.program).intrinsic.null,
+        ),
+      ).toHaveLength(1);
+      expect(
+        [...recordValue.variants.values()].every((variant) => variant.type.kind !== "Union"),
+      ).toBe(true);
+    }
   });
   it("handles complex (required) model property visibility for MergePatchCreateOrUpdate", async () => {
     const [typeGraph, diag] = await compileAndDiagnoseWithRunner(

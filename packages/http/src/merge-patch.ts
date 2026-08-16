@@ -377,7 +377,7 @@ function createMergePatchMutator(
             clone.indexer = {
               key: model.indexer!.key,
               // A null record value represents deletion of that key in a merge patch.
-              value: nullable(realm, value),
+              value: nullableRecordValue(realm, value),
             };
           }
 
@@ -486,6 +486,23 @@ function createMergePatchMutator(
         }),
       ],
     });
+  }
+
+  function nullableRecordValue(realm: Realm, type: Type): Union {
+    const types: Type[] = [];
+    addType(type);
+    addType($(realm).intrinsic.null);
+    return $(realm).union.create(types);
+
+    function addType(type: Type): void {
+      if ($(realm).union.is(type)) {
+        for (const variant of type.variants.values()) {
+          addType(variant.type);
+        }
+      } else if (!types.includes(type)) {
+        types.push(type);
+      }
+    }
   }
 }
 
