@@ -3,6 +3,7 @@ import type { AddressInfo } from "net";
 import { afterEach, beforeEach, expect, it } from "vitest";
 import {
   fetchPackageManifest,
+  getNpmRegistry,
   getNpmRegistryEnvironment,
 } from "../../src/package-manger/npm-registry.js";
 
@@ -72,4 +73,15 @@ it("preserves the npm registry environment when no TypeSpec override is set", ()
   const environment = getNpmRegistryEnvironment();
 
   expect(environment["NPM_CONFIG_REGISTRY"]).toBe("https://configured-registry.example.com");
+});
+
+it.each(["", "   "])("does not forward an empty TypeSpec registry override", (registry) => {
+  process.env["TYPESPEC_NPM_REGISTRY"] = registry;
+  process.env["NPM_CONFIG_REGISTRY"] = "https://configured-registry.example.com";
+
+  const environment = getNpmRegistryEnvironment();
+
+  expect(getNpmRegistry()).toBe("https://registry.npmjs.org");
+  expect(environment["NPM_CONFIG_REGISTRY"]).toBe("https://configured-registry.example.com");
+  expect(environment).not.toHaveProperty("npm_config_registry");
 });

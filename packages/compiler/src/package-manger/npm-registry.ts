@@ -90,13 +90,14 @@ const defaultRegistry = `https://registry.npmjs.org`;
  * otherwise falls back to the default npm registry.
  */
 export function getNpmRegistry(): string {
-  return (process.env["TYPESPEC_NPM_REGISTRY"] ?? defaultRegistry).replace(/\/$/, "");
+  const registry = process.env["TYPESPEC_NPM_REGISTRY"]?.trim();
+  return (registry || defaultRegistry).replace(/\/$/, "");
 }
 
 /** Returns the environment used to run npm with the TypeSpec registry override applied. */
-export function getNpmRegistryEnvironment(): Record<string, string | undefined> {
+export function getNpmRegistryEnvironment(): NodeJS.ProcessEnv {
   const environment = { ...process.env };
-  if (process.env["TYPESPEC_NPM_REGISTRY"] === undefined) {
+  if (!process.env["TYPESPEC_NPM_REGISTRY"]?.trim()) {
     return environment;
   }
 
