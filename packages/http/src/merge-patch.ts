@@ -366,14 +366,18 @@ function createMergePatchMutator(
                 model.indexer!.value,
               ).type,
             };
-          } else if ($(realm).record.is(model) && isMergePatchSubject(model.indexer!.value)) {
+          } else if ($(realm).record.is(model)) {
+            const value = isMergePatchSubject(model.indexer!.value)
+              ? mutateSubgraph(
+                  program,
+                  [_optionalInteriorMutator ?? self], // records are always CreateOrUpdate
+                  model.indexer!.value,
+                ).type
+              : model.indexer!.value;
             clone.indexer = {
               key: model.indexer!.key,
-              value: mutateSubgraph(
-                program,
-                [_optionalInteriorMutator ?? self], // records are always CreateOrUpdate
-                model.indexer!.value,
-              ).type,
+              // A null record value represents deletion of that key in a merge patch.
+              value: nullable(realm, value),
             };
           }
 
