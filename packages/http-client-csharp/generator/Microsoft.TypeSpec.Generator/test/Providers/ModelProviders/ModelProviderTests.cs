@@ -105,6 +105,36 @@ namespace Microsoft.TypeSpec.Generator.Tests.Providers.ModelProviders
             Assert.IsNotNull(modelProvider.Properties.SingleOrDefault(p => p.Name == "IpAddressProperty"));
         }
 
+        [Test]
+        public async Task TestBuildName_BackCompatTakesPrecedenceAfterNamespaceUpdate()
+        {
+            var inputModel = InputFactory.Model(
+                "IpAddress",
+                @namespace: "Sample",
+                properties:
+                [
+                    InputFactory.Property("dbName", InputPrimitiveType.String),
+                    InputFactory.Property("osProfile", InputPrimitiveType.String),
+                    InputFactory.Property("IpAddress", InputPrimitiveType.String)
+                ]);
+            await MockHelpers.LoadMockGeneratorAsync(
+                inputModelTypes: [inputModel],
+                lastContractCompilation: async () => await Helpers.GetCompilationFromDirectoryAsync());
+
+            var modelProvider = CodeModelGenerator.Instance.TypeFactory.CreateModel(inputModel);
+
+            Assert.IsNotNull(modelProvider);
+            Assert.AreEqual("IPAddress", modelProvider!.Name);
+
+            modelProvider.Update(@namespace: "Sample.Models");
+
+            Assert.AreEqual("IpAddress", modelProvider.Name);
+            Assert.IsNotNull(modelProvider.LastContractView);
+            Assert.IsNotNull(modelProvider.Properties.SingleOrDefault(p => p.Name == "DbName"));
+            Assert.IsNotNull(modelProvider.Properties.SingleOrDefault(p => p.Name == "OSProfile"));
+            Assert.IsNotNull(modelProvider.Properties.SingleOrDefault(p => p.Name == "IpAddressProperty"));
+        }
+
         // Validates that the property body's setter is correctly set based on the property type
         [TestCaseSource(nameof(BuildProperties_ValidatePropertySettersTestCases))]
         public void TestBuildProperties_ValidatePropertySetters(InputModelProperty inputModelProperty, CSharpType type, bool hasSetter)
