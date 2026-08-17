@@ -261,8 +261,8 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers.MrwSerializat
             Assert.IsNotNull(xmlDeserializationMethod);
             var methodBody = xmlDeserializationMethod!.BodyStatements!.ToDisplayString();
 
-            Assert.IsTrue(methodBody.Contains("GetDateTimeOffset(\"O\")"),
-                $"DateTimeOffset property should use RFC3339 format. Actual:\n{methodBody}");
+            Assert.IsTrue(methodBody.Contains("@on = child.GetDateTimeOffset(\"O\")"),
+                $"DateTimeOffset property should use child.GetDateTimeOffset(\"O\") with RFC3339 format. Actual:\n{methodBody}");
         }
 
         [Test]
