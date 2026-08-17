@@ -461,6 +461,19 @@ namespace Microsoft.TypeSpec.Generator.Tests.SourceInput
             var genericParameter = new CSharpType(typeof(IEnumerable<>).GetGenericArguments()[0]);
             Assert.IsTrue(baseline.IsMethodRemovalSuppressed("Ns.Foo", "Generic", [genericParameter]));
             Assert.IsFalse(baseline.IsMemberSuppressed("Ns.Foo", "ParameterRename", 1));
+            Assert.IsTrue(baseline.IsMethodRemovalSuppressed("Ns.Foo", "ParameterRename", [new CSharpType(typeof(string))]));
+        }
+
+        [Test]
+        public void ParsesParameterRenameOperatorSuppressions()
+        {
+            var baseline = Helpers.GetApiCompatBaselineFromFile(fileExtension: ".xml", method: "ParameterRenameOperatorSuppressions");
+
+            Assert.IsTrue(baseline.IsMethodRemovalSuppressed("Ns.OperatorCarrier", "ConvertedType", [new CSharpType(typeof(string))]));
+            Assert.IsTrue(baseline.IsMethodRemovalSuppressed("Ns.OperatorCarrier", "ConvertedType", [new CSharpType(typeof(int))]));
+            Assert.IsFalse(baseline.IsMethodRemovalSuppressed("Ns.OperatorCarrier", "ConvertedType", [new CSharpType(typeof(double))]));
+            Assert.IsFalse(baseline.IsMethodRemovalSuppressed("Ns.OtherCarrier", "ConvertedType", [new CSharpType(typeof(string))]));
+            Assert.IsFalse(baseline.IsMemberSuppressed("Ns.OperatorCarrier", "ConvertedType", 1));
         }
     }
 }
