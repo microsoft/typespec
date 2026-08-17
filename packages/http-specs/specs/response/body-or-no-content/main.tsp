@@ -23,10 +23,12 @@ model BlobLayout {
 alias LayoutResponse =
   | {
       @statusCode statusCode: 200;
+      @header("x-ms-request-id") requestId: string;
       @body layout: BlobLayout;
     }
   | {
       @statusCode statusCode: 204;
+      @header("x-ms-request-id") requestId: string;
     };
 
 @scenario
@@ -38,6 +40,7 @@ alias LayoutResponse =
   ```json
   { "content": "hello" }
   ```
+  Expected response header `x-ms-request-id: body-request`.
   Verify that the `200` response is deserialized normally and that the raw response status and
   headers remain available.
   """)
@@ -51,6 +54,7 @@ op getBody(): LayoutResponse;
   
   Both `200` and `204` are declared as successful responses, but this route always returns `204`.
   Expected response status code is 204 with no body.
+  Expected response header `x-ms-request-id: no-content-request`.
   Verify that the `204` response is classified as successful, that it does not attempt body
   deserialization, and that the raw response status and headers remain available.
   """)

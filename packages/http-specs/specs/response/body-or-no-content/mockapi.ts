@@ -9,6 +9,9 @@ Scenarios.Response_BodyOrNoContent_getBody = passOnSuccess({
   request: {},
   response: {
     status: 200,
+    headers: {
+      "x-ms-request-id": "body-request",
+    },
     body: json({
       content: "hello",
     }),
@@ -22,6 +25,9 @@ Scenarios.Response_BodyOrNoContent_getNoContent = passOnSuccess({
   request: {},
   response: {
     status: 204,
+    headers: {
+      "x-ms-request-id": "no-content-request",
+    },
   },
   kind: "MockApiDefinition",
 });

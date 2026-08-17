@@ -3990,6 +3990,7 @@ Expected response status code is 200 with body:
 { "content": "hello" }
 ```
 
+Expected response header `x-ms-request-id: body-request`.
 Verify that the `200` response is deserialized normally and that the raw response status and
 headers remain available.
 
@@ -4001,6 +4002,7 @@ Operation that returns a successful response with a status code of 204 and no co
 
 Both `200` and `204` are declared as successful responses, but this route always returns `204`.
 Expected response status code is 204 with no body.
+Expected response header `x-ms-request-id: no-content-request`.
 Verify that the `204` response is classified as successful, that it does not attempt body
 deserialization, and that the raw response status and headers remain available.
 
