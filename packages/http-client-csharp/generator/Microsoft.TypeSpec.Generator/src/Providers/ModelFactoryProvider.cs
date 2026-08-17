@@ -143,8 +143,7 @@ namespace Microsoft.TypeSpec.Generator.Providers
                 List<MethodSignature> currentOverloads = [];
                 bool foundCompatibleOverload = false;
                 var currentOverloadSignatures = GetCurrentOverloadSignatures(
-                    factoryMethods,
-                    customFactoryMethods,
+                    factoryMethods.Concat(customFactoryMethods),
                     previousMethod.Signature.Name);
 
                 // Attempt to find an updated method in the current contract to call
@@ -172,8 +171,7 @@ namespace Microsoft.TypeSpec.Generator.Providers
                         var factoryMethodToRemove = factoryMethods
                             .FirstOrDefault(m => MethodSignature.MethodSignatureComparer.Equals(m.Signature, currentOverload));
                         var coexistingOverloads = GetCurrentOverloadSignatures(
-                            factoryMethods,
-                            customFactoryMethods,
+                            factoryMethods.Concat(customFactoryMethods),
                             previousMethod.Signature.Name,
                             factoryMethodToRemove);
                         if (TryBuildCompatibleMethodForPreviousContract(
@@ -244,13 +242,11 @@ namespace Microsoft.TypeSpec.Generator.Providers
         }
 
         private IReadOnlyList<MethodSignature> GetCurrentOverloadSignatures(
-            IEnumerable<MethodProvider> factoryMethods,
-            IEnumerable<MethodProvider> customFactoryMethods,
+            IEnumerable<MethodProvider> methods,
             string methodName,
             MethodProvider? methodToExclude = null)
         {
-            return factoryMethods
-                .Concat(customFactoryMethods)
+            return methods
                 .Where(m => !ReferenceEquals(m, methodToExclude) && m.Signature.Name == methodName)
                 .Select(m => m.Signature)
                 .ToList();
@@ -383,7 +379,7 @@ namespace Microsoft.TypeSpec.Generator.Providers
             {
                 var callToOverload = Return(new InvokeMethodExpression(null, currentMethodSignature, arguments));
                 builtMethod = new MethodProvider(
-                    MethodSignatureHelper.BuildBackCompatMethodSignature(
+                    MethodSignatureHelper.BuildBackCompatMethodSignatureWithOverloadAnalysis(
                         previousMethod.Signature,
                         hideMethod,
                         currentMethodSignatures: currentOverloadSignatures),
@@ -397,7 +393,7 @@ namespace Microsoft.TypeSpec.Generator.Providers
             MethodBodyStatements body = ConstructMethodBody(previousMethod.Signature, modelToInstantiate);
 
             builtMethod = new MethodProvider(
-                MethodSignatureHelper.BuildBackCompatMethodSignature(
+                MethodSignatureHelper.BuildBackCompatMethodSignatureWithOverloadAnalysis(
                     previousMethod.Signature,
                     hideMethod,
                     currentMethodSignatures: currentOverloadSignatures),

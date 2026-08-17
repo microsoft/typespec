@@ -60,18 +60,30 @@ namespace Microsoft.TypeSpec.Generator
         internal static MethodSignature BuildBackCompatMethodSignature(
             MethodSignature previousMethodSignature,
             bool hideMethod,
-            bool shouldNotBeAsync = false,
-            IReadOnlyList<MethodSignature>? currentMethodSignatures = null)
+            bool shouldNotBeAsync = false)
+            => BuildBackCompatMethodSignature(
+                previousMethodSignature,
+                hideMethod,
+                shouldNotBeAsync,
+                hideMethod ? previousMethodSignature.Parameters.Count : 0);
+
+        internal static MethodSignature BuildBackCompatMethodSignatureWithOverloadAnalysis(
+            MethodSignature previousMethodSignature,
+            bool hideMethod,
+            IReadOnlyList<MethodSignature> currentMethodSignatures,
+            bool shouldNotBeAsync = false)
+            => BuildBackCompatMethodSignature(
+                previousMethodSignature,
+                hideMethod,
+                shouldNotBeAsync,
+                GetMinimumRequiredParameterCount(previousMethodSignature, currentMethodSignatures));
+
+        private static MethodSignature BuildBackCompatMethodSignature(
+            MethodSignature previousMethodSignature,
+            bool hideMethod,
+            bool shouldNotBeAsync,
+            int requiredParameterCount)
         {
-            // Parameter type differences do not reliably disambiguate overloads because named
-            // arguments, null literals, and implicit conversions can still make both candidates
-            // applicable. When a current overload can be called with an argument count supported
-            // by the previous signature, require all previous parameters.
-            int requiredParameterCount = currentMethodSignatures is not null
-                ? GetMinimumRequiredParameterCount(previousMethodSignature, currentMethodSignatures)
-                : hideMethod
-                    ? previousMethodSignature.Parameters.Count
-                    : 0;
             for (int i = 0; i < requiredParameterCount; i++)
             {
                 previousMethodSignature.Parameters[i].DefaultValue = null;

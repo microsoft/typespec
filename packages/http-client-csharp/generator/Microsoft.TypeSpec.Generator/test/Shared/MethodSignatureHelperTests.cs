@@ -367,7 +367,7 @@ namespace Microsoft.TypeSpec.Generator.Tests.Shared
                 new ParameterProvider("param2", $"", typeof(string), defaultValue: Default),
                 new ParameterProvider("other", $"", typeof(int), defaultValue: Default));
 
-            var backCompatSignature = MethodSignatureHelper.BuildBackCompatMethodSignature(
+            var backCompatSignature = MethodSignatureHelper.BuildBackCompatMethodSignatureWithOverloadAnalysis(
                 previousSignature,
                 hideMethod: true,
                 currentMethodSignatures: [currentSignature1, currentSignature2]);
@@ -376,6 +376,29 @@ namespace Microsoft.TypeSpec.Generator.Tests.Shared
             {
                 Assert.IsNull(parameter.DefaultValue);
             }
+            Assert.IsTrue(backCompatSignature.Attributes.Any(a => a.Type.Equals(typeof(System.ComponentModel.EditorBrowsableAttribute))));
+        }
+
+        [Test]
+        public void BuildBackCompatMethodSignatureWithOverloadAnalysis_HideMethodFalse_RemovesDefaultsWithoutEditorBrowsable()
+        {
+            var previousSignature = CreateMethodSignature("TestMethod",
+                new ParameterProvider("param1", $"", typeof(string), defaultValue: Default),
+                new ParameterProvider("param2", $"", typeof(string), defaultValue: Default));
+            var currentSignature = CreateMethodSignature("TestMethod",
+                new ParameterProvider("param2", $"", typeof(string), defaultValue: Default),
+                new ParameterProvider("param1", $"", typeof(string), defaultValue: Default));
+
+            var backCompatSignature = MethodSignatureHelper.BuildBackCompatMethodSignatureWithOverloadAnalysis(
+                previousSignature,
+                hideMethod: false,
+                currentMethodSignatures: [currentSignature]);
+
+            foreach (var parameter in backCompatSignature.Parameters)
+            {
+                Assert.IsNull(parameter.DefaultValue);
+            }
+            Assert.IsFalse(backCompatSignature.Attributes.Any(a => a.Type.Equals(typeof(System.ComponentModel.EditorBrowsableAttribute))));
         }
 
         [Test]
@@ -387,7 +410,7 @@ namespace Microsoft.TypeSpec.Generator.Tests.Shared
                 new ParameterProvider("first", $"", typeof(bool)),
                 new ParameterProvider("second", $"", typeof(int)));
 
-            var backCompatSignature = MethodSignatureHelper.BuildBackCompatMethodSignature(
+            var backCompatSignature = MethodSignatureHelper.BuildBackCompatMethodSignatureWithOverloadAnalysis(
                 previousSignature,
                 hideMethod: true,
                 currentMethodSignatures: [currentSignature]);
@@ -403,7 +426,7 @@ namespace Microsoft.TypeSpec.Generator.Tests.Shared
             var currentSignature = CreateMethodSignature("TestMethod",
                 new ParameterProvider("value", $"", typeof(string), isRef: true));
 
-            var backCompatSignature = MethodSignatureHelper.BuildBackCompatMethodSignature(
+            var backCompatSignature = MethodSignatureHelper.BuildBackCompatMethodSignatureWithOverloadAnalysis(
                 previousSignature,
                 hideMethod: true,
                 currentMethodSignatures: [currentSignature]);
@@ -421,7 +444,7 @@ namespace Microsoft.TypeSpec.Generator.Tests.Shared
                 new ParameterProvider("second", $"", typeof(int)),
                 new ParameterProvider("rest", $"", typeof(int[]), isParams: true));
 
-            var backCompatSignature = MethodSignatureHelper.BuildBackCompatMethodSignature(
+            var backCompatSignature = MethodSignatureHelper.BuildBackCompatMethodSignatureWithOverloadAnalysis(
                 previousSignature,
                 hideMethod: true,
                 currentMethodSignatures: [currentSignature]);
