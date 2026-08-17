@@ -103,7 +103,7 @@ namespace Microsoft.TypeSpec.Generator.Providers
             }
 
             IReadOnlyList<MethodProvider> customFactoryMethods = CustomCodeView?.Methods ?? [];
-            List<MethodProvider> factoryMethods = [.. originalMethods, .. customFactoryMethods];
+            List<MethodProvider> factoryMethods = [.. originalMethods];
 
             // Preserve the original parameter names on current factory methods when the only
             // change between the previous and current contract is a parameter rename. This
@@ -112,6 +112,7 @@ namespace Microsoft.TypeSpec.Generator.Providers
             BackCompatHelper.RestorePreviousParameterNames(this, factoryMethods);
 
             HashSet<MethodSignature> currentMethodSignatures = factoryMethods
+               .Concat(customFactoryMethods)
                .Select(m => m.Signature)
                .ToHashSet(MethodSignature.MethodSignatureComparer);
 
@@ -141,20 +142,21 @@ namespace Microsoft.TypeSpec.Generator.Providers
 
                 List<MethodSignature> currentOverloads = [];
                 bool foundCompatibleOverload = false;
+                var currentOverloadSignatures = GetCurrentOverloadSignatures(
+                    factoryMethods,
+                    customFactoryMethods,
+                    previousMethod.Signature.Name);
 
                 // Attempt to find an updated method in the current contract to call
-                foreach (var currentMethodSignature in currentMethodSignatures)
+                foreach (var currentMethodSignature in currentOverloadSignatures)
                 {
-                    if (currentMethodSignature.Name.Equals(previousMethod.Signature.Name))
+                    if (MethodSignatureHelper.HaveSameParametersInSameOrder(currentMethodSignature, previousMethod.Signature))
                     {
-                        if (MethodSignatureHelper.HaveSameParametersInSameOrder(currentMethodSignature, previousMethod.Signature))
-                        {
-                            foundCompatibleOverload = true;
-                            break;
-                        }
-
-                        currentOverloads.Add(currentMethodSignature);
+                        foundCompatibleOverload = true;
+                        break;
                     }
+
+                    currentOverloads.Add(currentMethodSignature);
                 }
 
                 if (foundCompatibleOverload)
@@ -168,11 +170,10 @@ namespace Microsoft.TypeSpec.Generator.Providers
                     if (MethodSignatureHelper.ContainsSameParameters(previousMethod.Signature, currentOverload))
                     {
                         var factoryMethodToRemove = factoryMethods
-                            .FirstOrDefault(m =>
-                                !customFactoryMethods.Contains(m) &&
-                                MethodSignature.MethodSignatureComparer.Equals(m.Signature, currentOverload));
+                            .FirstOrDefault(m => MethodSignature.MethodSignatureComparer.Equals(m.Signature, currentOverload));
                         var coexistingOverloads = GetCurrentOverloadSignatures(
                             factoryMethods,
+                            customFactoryMethods,
                             previousMethod.Signature.Name,
                             factoryMethodToRemove);
                         if (TryBuildCompatibleMethodForPreviousContract(
@@ -201,7 +202,7 @@ namespace Microsoft.TypeSpec.Generator.Providers
                         previousMethod,
                         currentOverload,
                         true,
-                        GetCurrentOverloadSignatures(factoryMethods, previousMethod.Signature.Name),
+                        currentOverloadSignatures,
                         out var hiddenMethod))
                     {
                         factoryMethods.Add(hiddenMethod);
@@ -223,7 +224,7 @@ namespace Microsoft.TypeSpec.Generator.Providers
                     previousMethod,
                     null,
                     true,
-                    GetCurrentOverloadSignatures(factoryMethods, previousMethod.Signature.Name),
+                    currentOverloadSignatures,
                     out var builtMethod))
                 {
                     factoryMethods.Add(builtMethod);
@@ -239,19 +240,20 @@ namespace Microsoft.TypeSpec.Generator.Providers
                 }
             }
 
-            return [.. factoryMethods.Where(m => !customFactoryMethods.Contains(m))];
+            return [.. factoryMethods];
         }
 
         private IReadOnlyList<MethodSignature> GetCurrentOverloadSignatures(
             IEnumerable<MethodProvider> factoryMethods,
+            IEnumerable<MethodProvider> customFactoryMethods,
             string methodName,
             MethodProvider? methodToExclude = null)
         {
-            var signatures = factoryMethods
+            return factoryMethods
+                .Concat(customFactoryMethods)
                 .Where(m => !ReferenceEquals(m, methodToExclude) && m.Signature.Name == methodName)
                 .Select(m => m.Signature)
                 .ToList();
-            return signatures;
         }
 
         internal static IReadOnlyList<string> GetUnavailableSignatureTypes(MethodSignature signature)

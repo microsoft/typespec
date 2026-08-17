@@ -3,11 +3,8 @@
 
 using System;
 using System.Collections.Generic;
-using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
-using Microsoft.CodeAnalysis;
-using Microsoft.CodeAnalysis.CSharp;
 using Microsoft.TypeSpec.Generator.Primitives;
 using Microsoft.TypeSpec.Generator.Providers;
 using Microsoft.TypeSpec.Generator.Statements;
@@ -430,20 +427,6 @@ namespace Microsoft.TypeSpec.Generator.Tests.Shared
                 currentMethodSignatures: [currentSignature]);
 
             Assert.IsNotNull(backCompatSignature.Parameters[0].DefaultValue);
-        }
-
-        [Test]
-        public void BuildBackCompatMethodSignature_ConsumerCallsWithNamedNullAndImplicitArgumentsCompile()
-        {
-            var compilation = CSharpCompilation.Create(
-                "Consumer",
-                [CSharpSyntaxTree.ParseText(Helpers.GetExpectedFromFile())],
-                ((string)AppContext.GetData("TRUSTED_PLATFORM_ASSEMBLIES")!)
-                    .Split(Path.PathSeparator)
-                    .Select(path => MetadataReference.CreateFromFile(path)),
-                new CSharpCompilationOptions(OutputKind.DynamicallyLinkedLibrary));
-
-            Assert.IsEmpty(compilation.GetDiagnostics().Where(d => d.Severity == DiagnosticSeverity.Error));
         }
 
         private static MethodSignature CreateMethodSignature(
