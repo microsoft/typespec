@@ -4,11 +4,11 @@
 {% endif %}
 # pylint: disable=line-too-long,useless-suppression,unnecessary-ellipsis
 # --------------------------------------------------------------------------
-# This file is vendored from azure-core (azure.core.streaming). It provides the
-# Stream / AsyncStream helpers (plus the JSONL / SSE decoders and event types)
-# used by generated structured-streaming operations, so the generated package
-# does not take a hard dependency on a core runtime that ships the streaming
-# helpers. Do not edit by hand.
+# This file is vendored from the core streaming runtime
+# ({{ code_model.core_library }}.streaming). It provides the Stream / AsyncStream
+# helpers (plus the JSONL / SSE decoders and event types) used by generated
+# structured-streaming operations, so the generated package does not take a hard
+# dependency on a core runtime that ships the streaming helpers. Do not edit by hand.
 # --------------------------------------------------------------------------
 import codecs
 import json
