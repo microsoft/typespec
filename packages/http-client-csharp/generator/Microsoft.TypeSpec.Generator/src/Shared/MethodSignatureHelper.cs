@@ -67,7 +67,7 @@ namespace Microsoft.TypeSpec.Generator
                 shouldNotBeAsync,
                 hideMethod ? previousMethodSignature.Parameters.Count : 0);
 
-        internal static MethodSignature BuildBackCompatMethodSignatureWithOverloadAnalysis(
+        internal static MethodSignature BuildBackCompatMethodSignature(
             MethodSignature previousMethodSignature,
             bool hideMethod,
             IReadOnlyList<MethodSignature> currentMethodSignatures,

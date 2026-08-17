@@ -273,7 +273,7 @@ namespace Microsoft.TypeSpec.Generator.Tests.Providers.ModelFactories
         }
 
         [Test]
-        public async Task BackCompatibility_ReorderedRequiredParametersPreserveOptionalTrailingParameters()
+        public async Task BackCompatibility_ReorderedRequiredParametersRequireAllParameters()
         {
             var compatibilityModel = GetCompatibilityModel(includeCount: true);
 
@@ -290,7 +290,7 @@ namespace Microsoft.TypeSpec.Generator.Tests.Providers.ModelFactories
         }
 
         [Test]
-        public async Task BackCompatibility_ReorderedFullyOptionalParametersRequireMinimumPrefix()
+        public async Task BackCompatibility_ReorderedFullyOptionalParametersRequireAllParameters()
         {
             var compatibilityModel = GetCompatibilityModel(includeCount: true);
 
@@ -307,7 +307,7 @@ namespace Microsoft.TypeSpec.Generator.Tests.Providers.ModelFactories
         }
 
         [Test]
-        public async Task BackCompatibility_ReorderedCustomOverloadRequiresMinimumPrefix()
+        public async Task BackCompatibility_ReorderedCustomOverloadRequiresAllParameters()
         {
             var compatibilityModel = GetCompatibilityModel(includeCount: false);
 
