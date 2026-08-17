@@ -36,6 +36,6 @@ COPY --from=builder /app/packages/compiler/*.tgz /tmp/compiler.tgz
 
 RUN --mount=type=secret,id=npmrc \
     NPM_CONFIG_USERCONFIG=/run/secrets/npmrc \
-    npm install --verbose -g /tmp/compiler.tgz && rm /tmp/compiler.tgz && rm /tmp/.npmrc
+    npm install --verbose -g /tmp/compiler.tgz && rm /tmp/compiler.tgz
 
 ENTRYPOINT ["tsp"]
