@@ -6,7 +6,7 @@ FROM mcr.microsoft.com/devcontainers/javascript-node:24 AS builder
 
 # Optional: Override npm registry for CFS compliance.
 # pnpm 11+ requires PNPM_CONFIG_REGISTRY (ignores NPM_CONFIG_REGISTRY).
-ARG NPM_REGISTRY=
+ARG NPM_REGISTRY=https://registry.npmjs.org/
 ENV PNPM_CONFIG_REGISTRY=${NPM_REGISTRY}
 ENV NPM_CONFIG_REGISTRY=${NPM_REGISTRY}
 
@@ -32,7 +32,7 @@ RUN pnpm pack
 FROM mcr.microsoft.com/azurelinux/base/nodejs:24
 
 # Inherit registry setting for final stage
-ARG NPM_REGISTRY=
+ARG NPM_REGISTRY=https://registry.npmjs.org/
 ENV NPM_CONFIG_REGISTRY=${NPM_REGISTRY}
 
 COPY --from=builder /app/packages/compiler/*.tgz /tmp/compiler.tgz

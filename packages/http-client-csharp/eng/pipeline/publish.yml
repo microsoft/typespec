@@ -124,7 +124,7 @@ extends:
               NUGET_PACKAGES: $(Agent.TempDirectory)/nuget
               # Set cache for both npm and pnpm (pnpm 11+ ignores npm_config_* prefix)
               npm_config_cache: $(Agent.TempDirectory)/npm-cache
-              pnpm_config_store-dir: $(Agent.TempDirectory)/pnpm-store
+              pnpm_config_store_dir: $(Agent.TempDirectory)/pnpm-store
             steps:
               - checkout: self
 
