@@ -279,19 +279,13 @@ namespace Microsoft.TypeSpec.Generator.Tests.Providers.ModelFactories
             _instance = (await MockHelpers.LoadMockGeneratorAsync(
                 inputNamespaceName: "Sample.Namespace",
                 inputModelTypes: [compatibilityModel],
-                lastContractCompilation: async () => await Helpers.GetCompilationFromDirectoryAsync())).Object;
+                lastContractCompilation: async () => await Helpers.GetCompilationFromDirectoryAsync(parameters: "Last"))).Object;
 
             var modelFactory = _instance.OutputLibrary.ModelFactory.Value;
             modelFactory.ProcessTypeForBackCompatibility();
 
-            var backwardCompatibilityMethod = modelFactory.Methods
-                .Single(m => m.Signature.Name == "CompatibilityModel" && m.Signature.Parameters.Count == 4);
-            var parameters = backwardCompatibilityMethod.Signature.Parameters;
-
-            Assert.IsNull(parameters[0].DefaultValue);
-            Assert.IsNull(parameters[1].DefaultValue);
-            Assert.IsNull(parameters[2].DefaultValue);
-            Assert.IsNotNull(parameters[3].DefaultValue);
+            var content = new TypeProviderWriter(modelFactory).Write().Content;
+            Assert.AreEqual(Helpers.GetExpectedFromFile(), content);
         }
 
         [Test]
@@ -302,19 +296,13 @@ namespace Microsoft.TypeSpec.Generator.Tests.Providers.ModelFactories
             _instance = (await MockHelpers.LoadMockGeneratorAsync(
                 inputNamespaceName: "Sample.Namespace",
                 inputModelTypes: [compatibilityModel],
-                lastContractCompilation: async () => await Helpers.GetCompilationFromDirectoryAsync())).Object;
+                lastContractCompilation: async () => await Helpers.GetCompilationFromDirectoryAsync(parameters: "Last"))).Object;
 
             var modelFactory = _instance.OutputLibrary.ModelFactory.Value;
             modelFactory.ProcessTypeForBackCompatibility();
 
-            var backwardCompatibilityMethod = modelFactory.Methods
-                .Single(m => m.Signature.Name == "CompatibilityModel" && m.Signature.Parameters.Count == 4);
-            var parameters = backwardCompatibilityMethod.Signature.Parameters;
-
-            Assert.IsNull(parameters[0].DefaultValue);
-            Assert.IsNull(parameters[1].DefaultValue);
-            Assert.IsNull(parameters[2].DefaultValue);
-            Assert.IsNotNull(parameters[3].DefaultValue);
+            var content = new TypeProviderWriter(modelFactory).Write().Content;
+            Assert.AreEqual(Helpers.GetExpectedFromFile(), content);
         }
 
         [Test]
@@ -331,17 +319,8 @@ namespace Microsoft.TypeSpec.Generator.Tests.Providers.ModelFactories
             var modelFactory = _instance.OutputLibrary.ModelFactory.Value;
             modelFactory.ProcessTypeForBackCompatibility();
 
-            var backwardCompatibilityMethod = modelFactory.Methods.Single(m => m.Signature.Name == "CompatibilityModel");
-            var parameters = backwardCompatibilityMethod.Signature.Parameters;
-
-            CollectionAssert.AreEqual(
-                new[] { "id", "name", "enabled", "description", "kind" },
-                parameters.Select(p => p.Name));
-            Assert.IsNull(parameters[0].DefaultValue);
-            Assert.IsNull(parameters[1].DefaultValue);
-            Assert.IsNull(parameters[2].DefaultValue);
-            Assert.IsNotNull(parameters[3].DefaultValue);
-            Assert.IsNotNull(parameters[4].DefaultValue);
+            var content = new TypeProviderWriter(modelFactory).Write().Content;
+            Assert.AreEqual(Helpers.GetExpectedFromFile(), content);
         }
 
         // This test validates that only the previous model factory methods are generated when only the parameter ordering is changed

@@ -27,7 +27,7 @@ namespace Microsoft.TypeSpec.Generator
                 return false;
             }
 
-            HashSet<ParameterProvider> method1Parameters = new(method1.Parameters, new ParameterProviderVariableNameComparer());
+            HashSet<ParameterProvider> method1Parameters = new(method1.Parameters);
             foreach (var method2Param in method2.Parameters)
             {
                 if (!method1Parameters.Contains(method2Param))
@@ -131,31 +131,6 @@ namespace Microsoft.TypeSpec.Generator
             }
 
             return Math.Min(previousMethodSignature.Parameters.Count, sharedParameterCount + 1);
-        }
-
-        private sealed class ParameterProviderVariableNameComparer : IEqualityComparer<ParameterProvider>
-        {
-            public bool Equals(ParameterProvider? x, ParameterProvider? y)
-            {
-                if (ReferenceEquals(x, y))
-                {
-                    return true;
-                }
-
-                if (x is null || y is null)
-                {
-                    return false;
-                }
-
-                return x.Type.AreNamesEqual(y.Type)
-                    && x.Name.ToVariableName() == y.Name.ToVariableName()
-                    && x.Attributes.SequenceEqual(y.Attributes);
-            }
-
-            public int GetHashCode(ParameterProvider obj)
-            {
-                return HashCode.Combine(obj.Name.ToVariableName());
-            }
         }
     }
 }
