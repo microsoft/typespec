@@ -102,7 +102,8 @@ namespace Microsoft.TypeSpec.Generator.Providers
                 return [.. originalMethods];
             }
 
-            List<MethodProvider> factoryMethods = [.. originalMethods];
+            IReadOnlyList<MethodProvider> customFactoryMethods = CustomCodeView?.Methods ?? [];
+            List<MethodProvider> factoryMethods = [.. originalMethods, .. customFactoryMethods];
 
             // Preserve the original parameter names on current factory methods when the only
             // change between the previous and current contract is a parameter rename. This
@@ -110,7 +111,7 @@ namespace Microsoft.TypeSpec.Generator.Providers
             // property is renamed via @@clientName, spec rename, or naming-rule change).
             BackCompatHelper.RestorePreviousParameterNames(this, factoryMethods);
 
-            HashSet<MethodSignature> currentMethodSignatures = new List<MethodProvider>([.. factoryMethods, .. CustomCodeView?.Methods ?? []])
+            HashSet<MethodSignature> currentMethodSignatures = factoryMethods
                .Select(m => m.Signature)
                .ToHashSet(MethodSignature.MethodSignatureComparer);
 
@@ -167,7 +168,9 @@ namespace Microsoft.TypeSpec.Generator.Providers
                     if (MethodSignatureHelper.ContainsSameParameters(previousMethod.Signature, currentOverload))
                     {
                         var factoryMethodToRemove = factoryMethods
-                            .FirstOrDefault(m => MethodSignature.MethodSignatureComparer.Equals(m.Signature, currentOverload));
+                            .FirstOrDefault(m =>
+                                !customFactoryMethods.Contains(m) &&
+                                MethodSignature.MethodSignatureComparer.Equals(m.Signature, currentOverload));
                         var coexistingOverloads = GetCurrentOverloadSignatures(
                             factoryMethods,
                             previousMethod.Signature.Name,
@@ -236,7 +239,7 @@ namespace Microsoft.TypeSpec.Generator.Providers
                 }
             }
 
-            return [.. factoryMethods];
+            return [.. factoryMethods.Where(m => !customFactoryMethods.Contains(m))];
         }
 
         private IReadOnlyList<MethodSignature> GetCurrentOverloadSignatures(
@@ -248,11 +251,6 @@ namespace Microsoft.TypeSpec.Generator.Providers
                 .Where(m => !ReferenceEquals(m, methodToExclude) && m.Signature.Name == methodName)
                 .Select(m => m.Signature)
                 .ToList();
-            signatures.AddRange(
-                CustomCodeView?.Methods
-                    .Where(m => m.Signature.Name == methodName)
-                    .Select(m => m.Signature)
-                ?? []);
             return signatures;
         }
 
