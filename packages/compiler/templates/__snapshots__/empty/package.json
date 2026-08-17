@@ -4,6 +4,6 @@
   "type": "module",
   "private": true,
   "dependencies": {
-    "@typespec/compiler": "latest"
+    "@typespec/compiler": "^1.0.0"
   }
 }

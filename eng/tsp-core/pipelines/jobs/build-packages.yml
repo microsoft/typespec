@@ -10,6 +10,8 @@ jobs:
     variables:
       TYPESPEC_SKIP_WEBSITE_BUILD: true # Disable docusaurus build
       TYPESPEC_SKIP_VS_BUILD: true # VS extension is built in the dedicated build-vs (Windows) job
+      TYPESPEC_NPM_REGISTRY: https://pkgs.dev.azure.com/azure-sdk/public/_packaging/azure-sdk-for-js/npm/registry/
+      NODE_USE_ENV_PROXY: 1
 
     steps:
       - template: /eng/tsp-core/pipelines/templates/install.yml
