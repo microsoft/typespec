@@ -38,24 +38,33 @@ namespace Microsoft.TypeSpec.Generator.SourceInput
         private readonly HashSet<string> _suppressedTypes;
         private readonly HashSet<MemberKey> _suppressedMembers;
         private readonly HashSet<MethodKey> _suppressedMethods;
+        private readonly HashSet<ParameterKey> _suppressedParameterNames;
 
-        private ApiCompatBaseline(HashSet<string> suppressedTypes, HashSet<MemberKey> suppressedMembers, HashSet<MethodKey> suppressedMethods)
+        private ApiCompatBaseline(
+            HashSet<string> suppressedTypes,
+            HashSet<MemberKey> suppressedMembers,
+            HashSet<MethodKey> suppressedMethods,
+            HashSet<ParameterKey> suppressedParameterNames)
         {
             _suppressedTypes = suppressedTypes;
             _suppressedMembers = suppressedMembers;
             _suppressedMethods = suppressedMethods;
+            _suppressedParameterNames = suppressedParameterNames;
         }
 
         /// <summary>
         /// An empty baseline that suppresses nothing. Used when no baseline file is present.
         /// </summary>
         public static ApiCompatBaseline Empty { get; } =
-            new(new HashSet<string>(StringComparer.Ordinal), new HashSet<MemberKey>(), new HashSet<MethodKey>());
+            new(new HashSet<string>(StringComparer.Ordinal), new HashSet<MemberKey>(), new HashSet<MethodKey>(), new HashSet<ParameterKey>());
 
         /// <summary>
         /// Gets a value indicating whether this baseline contains any suppressions.
         /// </summary>
-        public bool IsEmpty => _suppressedTypes.Count == 0 && _suppressedMembers.Count == 0;
+        public bool IsEmpty => _suppressedTypes.Count == 0
+            && _suppressedMembers.Count == 0
+            && _suppressedMethods.Count == 0
+            && _suppressedParameterNames.Count == 0;
 
         /// <summary>
         /// Parses an ApiCompat baseline file from disk. Returns <see cref="Empty"/> when the file
@@ -81,6 +90,7 @@ namespace Microsoft.TypeSpec.Generator.SourceInput
             var suppressedTypes = new HashSet<string>(StringComparer.Ordinal);
             var suppressedMembers = new HashSet<MemberKey>();
             var suppressedMethods = new HashSet<MethodKey>();
+            var suppressedParameterNames = new HashSet<ParameterKey>();
 
             foreach (var rawLine in lines)
             {
@@ -134,7 +144,7 @@ namespace Microsoft.TypeSpec.Generator.SourceInput
                 }
             }
 
-            return new ApiCompatBaseline(suppressedTypes, suppressedMembers, suppressedMethods);
+            return new ApiCompatBaseline(suppressedTypes, suppressedMembers, suppressedMethods, suppressedParameterNames);
         }
 
         private static ApiCompatBaseline ParseXml(XDocument document)
@@ -142,6 +152,7 @@ namespace Microsoft.TypeSpec.Generator.SourceInput
             var suppressedTypes = new HashSet<string>(StringComparer.Ordinal);
             var suppressedMembers = new HashSet<MemberKey>();
             var suppressedMethods = new HashSet<MethodKey>();
+            var suppressedParameterNames = new HashSet<ParameterKey>();
 
             foreach (var suppression in document.Descendants())
             {
@@ -190,16 +201,15 @@ namespace Microsoft.TypeSpec.Generator.SourceInput
                         }
                         break;
                     case ParameterNameChangedDiagnostic:
-                        if (TryParseXmlMember(target, out _, out var suppressedMethodKey)
-                            && suppressedMethodKey.HasValue)
+                        if (TryParseXmlParameterRename(target, out var suppressedMethodKey, out var parameterIndex))
                         {
-                            suppressedMethods.Add(suppressedMethodKey.Value);
+                            suppressedParameterNames.Add(new ParameterKey(suppressedMethodKey, parameterIndex));
                         }
                         break;
                 }
             }
 
-            return new ApiCompatBaseline(suppressedTypes, suppressedMembers, suppressedMethods);
+            return new ApiCompatBaseline(suppressedTypes, suppressedMembers, suppressedMethods, suppressedParameterNames);
         }
 
         /// <summary>
@@ -253,6 +263,28 @@ namespace Microsoft.TypeSpec.Generator.SourceInput
 
             return _suppressedMethods.Contains(
                 new MethodKey(declaringTypeFullName, memberName, BuildParameterSignature(parameterTypes)));
+        }
+
+        /// <summary>
+        /// Determines whether a parameter-name change for a specific method parameter has been accepted
+        /// in the baseline.
+        /// </summary>
+        public bool IsParameterNameChangeSuppressed(
+            string declaringTypeFullName,
+            string memberName,
+            IReadOnlyList<CSharpType> parameterTypes,
+            int parameterIndex)
+        {
+            if (string.IsNullOrEmpty(declaringTypeFullName)
+                || string.IsNullOrEmpty(memberName)
+                || parameterIndex < 0)
+            {
+                return false;
+            }
+
+            return _suppressedParameterNames.Contains(new ParameterKey(
+                new MethodKey(declaringTypeFullName, memberName, BuildParameterSignature(parameterTypes)),
+                parameterIndex));
         }
 
         /// <summary>
@@ -458,6 +490,24 @@ namespace Microsoft.TypeSpec.Generator.SourceInput
             }
 
             return false;
+        }
+
+        private static bool TryParseXmlParameterRename(string target, out MethodKey methodKey, out int parameterIndex)
+        {
+            methodKey = default;
+            parameterIndex = -1;
+
+            var dollarIndex = target.LastIndexOf('$');
+            if (dollarIndex < 0 || dollarIndex == target.Length - 1
+                || !int.TryParse(target.Substring(dollarIndex + 1), out parameterIndex)
+                || !TryParseXmlMember(target, out _, out var parsedMethodKey)
+                || !parsedMethodKey.HasValue)
+            {
+                return false;
+            }
+
+            methodKey = parsedMethodKey.Value;
+            return true;
         }
 
         private static string TrimParameterRenameSuffix(string symbol, out string? returnTypeName)
@@ -740,6 +790,25 @@ namespace Microsoft.TypeSpec.Generator.SourceInput
 
             public override int GetHashCode()
                 => HashCode.Combine(_declaringTypeFullName, _memberName, _parameterSignature);
+        }
+
+        private readonly struct ParameterKey : IEquatable<ParameterKey>
+        {
+            private readonly MethodKey _methodKey;
+            private readonly int _parameterIndex;
+
+            public ParameterKey(MethodKey methodKey, int parameterIndex)
+            {
+                _methodKey = methodKey;
+                _parameterIndex = parameterIndex;
+            }
+
+            public bool Equals(ParameterKey other)
+                => _methodKey.Equals(other._methodKey) && _parameterIndex == other._parameterIndex;
+
+            public override bool Equals(object? obj) => obj is ParameterKey other && Equals(other);
+
+            public override int GetHashCode() => HashCode.Combine(_methodKey, _parameterIndex);
         }
     }
 }

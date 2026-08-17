@@ -9,4 +9,8 @@
     <DiagnosticId>CP0017</DiagnosticId>
     <Target>M:Ns.OperatorCarrier.op_Implicit(System.Int32)~Ns.ConvertedType$0</Target>
   </Suppression>
+  <Suppression>
+    <DiagnosticId>CP0017</DiagnosticId>
+    <Target>M:Ns.MultiParameter.Rename(System.String,System.Int32)$0</Target>
+  </Suppression>
 </Suppressions>

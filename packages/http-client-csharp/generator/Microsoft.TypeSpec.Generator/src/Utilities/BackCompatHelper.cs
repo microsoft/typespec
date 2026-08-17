@@ -217,6 +217,12 @@ namespace Microsoft.TypeSpec.Generator.Utilities
                         continue;
                     }
 
+                    if (matchingPrevious is not null
+                        && IsParameterNameChangeAcceptedInBaseline(enclosingType, matchingPrevious.Signature, i))
+                    {
+                        continue;
+                    }
+
                     // Skip the rename when applying it would collide with another current parameter's
                     // name (e.g. two same-typed parameters whose order changed between the previous and
                     // current contracts). A rename in that case would produce a duplicate parameter name
@@ -242,6 +248,24 @@ namespace Microsoft.TypeSpec.Generator.Utilities
                     parameter.Update(name: preservedName);
                 }
             }
+        }
+
+        private static bool IsParameterNameChangeAcceptedInBaseline(
+            TypeProvider enclosingType,
+            MethodSignature previousSignature,
+            int parameterIndex)
+        {
+            var parameterTypes = new CSharpType[previousSignature.Parameters.Count];
+            for (int i = 0; i < parameterTypes.Length; i++)
+            {
+                parameterTypes[i] = previousSignature.Parameters[i].Type;
+            }
+
+            return CodeModelGenerator.Instance.SourceInputModel?.ApiCompatBaseline.IsParameterNameChangeSuppressed(
+                enclosingType.Type.FullyQualifiedName,
+                previousSignature.Name,
+                parameterTypes,
+                parameterIndex) == true;
         }
 
         /// <summary>

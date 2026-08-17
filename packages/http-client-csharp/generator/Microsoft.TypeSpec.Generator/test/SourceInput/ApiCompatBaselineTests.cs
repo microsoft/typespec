@@ -461,7 +461,8 @@ namespace Microsoft.TypeSpec.Generator.Tests.SourceInput
             var genericParameter = new CSharpType(typeof(IEnumerable<>).GetGenericArguments()[0]);
             Assert.IsTrue(baseline.IsMethodRemovalSuppressed("Ns.Foo", "Generic", [genericParameter]));
             Assert.IsFalse(baseline.IsMemberSuppressed("Ns.Foo", "ParameterRename", 1));
-            Assert.IsTrue(baseline.IsMethodRemovalSuppressed("Ns.Foo", "ParameterRename", [new CSharpType(typeof(string))]));
+            Assert.IsTrue(baseline.IsParameterNameChangeSuppressed("Ns.Foo", "ParameterRename", [new CSharpType(typeof(string))], 0));
+            Assert.IsFalse(baseline.IsMethodRemovalSuppressed("Ns.Foo", "ParameterRename", [new CSharpType(typeof(string))]));
         }
 
         [Test]
@@ -469,11 +470,24 @@ namespace Microsoft.TypeSpec.Generator.Tests.SourceInput
         {
             var baseline = Helpers.GetApiCompatBaselineFromFile(fileExtension: ".xml", method: "ParameterRenameOperatorSuppressions");
 
-            Assert.IsTrue(baseline.IsMethodRemovalSuppressed("Ns.OperatorCarrier", "ConvertedType", [new CSharpType(typeof(string))]));
-            Assert.IsTrue(baseline.IsMethodRemovalSuppressed("Ns.OperatorCarrier", "ConvertedType", [new CSharpType(typeof(int))]));
-            Assert.IsFalse(baseline.IsMethodRemovalSuppressed("Ns.OperatorCarrier", "ConvertedType", [new CSharpType(typeof(double))]));
-            Assert.IsFalse(baseline.IsMethodRemovalSuppressed("Ns.OtherCarrier", "ConvertedType", [new CSharpType(typeof(string))]));
+            Assert.IsTrue(baseline.IsParameterNameChangeSuppressed("Ns.OperatorCarrier", "ConvertedType", [new CSharpType(typeof(string))], 0));
+            Assert.IsTrue(baseline.IsParameterNameChangeSuppressed("Ns.OperatorCarrier", "ConvertedType", [new CSharpType(typeof(int))], 0));
+            Assert.IsFalse(baseline.IsParameterNameChangeSuppressed("Ns.OperatorCarrier", "ConvertedType", [new CSharpType(typeof(double))], 0));
+            Assert.IsFalse(baseline.IsParameterNameChangeSuppressed("Ns.OtherCarrier", "ConvertedType", [new CSharpType(typeof(string))], 0));
+            Assert.IsFalse(baseline.IsParameterNameChangeSuppressed("Ns.OperatorCarrier", "ConvertedType", [new CSharpType(typeof(string))], 1));
+            Assert.IsFalse(baseline.IsMethodRemovalSuppressed("Ns.OperatorCarrier", "ConvertedType", [new CSharpType(typeof(string))]));
             Assert.IsFalse(baseline.IsMemberSuppressed("Ns.OperatorCarrier", "ConvertedType", 1));
+        }
+
+        [Test]
+        public void ParameterRenameSuppressionOnlyMatchesItsParameter()
+        {
+            var baseline = Helpers.GetApiCompatBaselineFromFile(fileExtension: ".xml", method: "ParameterRenameOperatorSuppressions");
+            var parameterTypes = new CSharpType[] { new(typeof(string)), new(typeof(int)) };
+
+            Assert.IsTrue(baseline.IsParameterNameChangeSuppressed("Ns.MultiParameter", "Rename", parameterTypes, 0));
+            Assert.IsFalse(baseline.IsParameterNameChangeSuppressed("Ns.MultiParameter", "Rename", parameterTypes, 1));
+            Assert.IsFalse(baseline.IsMethodRemovalSuppressed("Ns.MultiParameter", "Rename", parameterTypes));
         }
     }
 }
