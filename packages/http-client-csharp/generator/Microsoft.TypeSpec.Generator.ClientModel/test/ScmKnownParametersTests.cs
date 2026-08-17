@@ -3,7 +3,9 @@
 
 using System;
 using Microsoft.TypeSpec.Generator.ClientModel.Primitives;
+using Microsoft.TypeSpec.Generator.Input;
 using Microsoft.TypeSpec.Generator.Primitives;
+using Microsoft.TypeSpec.Generator.Tests.Common;
 using NUnit.Framework;
 using static Microsoft.TypeSpec.Generator.Snippets.Snippet;
 
@@ -23,6 +25,15 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests
         {
             var parameter = ScmKnownParameters.CreateRequestContent();
             Assert.AreEqual(ParameterValidationType.AssertNotNull, parameter.Validation);
+        }
+
+        [Test]
+        public void BinaryDataParameterRetainsSourceInput()
+        {
+            var inputParameter = InputFactory.BodyParameter("body", InputPrimitiveType.String);
+            var parameter = ScmKnownParameters.CreateRequestContent(inputParameter);
+
+            Assert.AreSame(inputParameter, parameter.InputParameter);
         }
 
         [Test]

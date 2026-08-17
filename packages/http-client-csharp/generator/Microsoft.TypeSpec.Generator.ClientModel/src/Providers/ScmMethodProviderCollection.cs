@@ -1509,7 +1509,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
                     if (optionalParameter.IsContentParameter)
                     {
                         var nullableRequiredContent =
-                            ScmKnownParameters.CreateRequestContent(nullable: true);
+                            ScmKnownParameters.CreateRequestContent(optionalParameter.InputParameter, nullable: true);
                         requiredParameters.Add(nullableRequiredContent);
                         // Update the body param in the underlying collection
                         var bodyParamIndex = ProtocolMethodParameters.IndexOf(optionalParameter);

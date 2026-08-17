@@ -190,12 +190,13 @@ namespace Microsoft.TypeSpec.Generator.Utilities
                     string? preservedName = null;
 
                     var inputParameter = parameter.InputParameter;
-                    if (inputParameter is not null)
+                    if (inputParameter is not null && !parameter.IsContentParameter)
                     {
                         preservedName = FindPreviousParameterName(lastContractView, inputParameter.OriginalName, method.Signature.Name);
                     }
 
-                    // Fall back to a positional match for synthesized parameters
+                    // Fall back to a positional match for synthesized parameters, including content parameters
+                    // whose input metadata describes the body parameter rather than the public parameter.
                     if (string.IsNullOrEmpty(preservedName))
                     {
                         preservedName = matchingPrevious?.Signature.Parameters[i].Name;

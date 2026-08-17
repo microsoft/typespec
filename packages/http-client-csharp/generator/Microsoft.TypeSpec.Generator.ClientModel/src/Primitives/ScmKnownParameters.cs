@@ -41,12 +41,13 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Primitives
         private static readonly FormattableString RequestContentDescription = $"The content to send as the body of the request.";
         private const string RequestContentParameterName = "content";
 
-        public static ParameterProvider CreateRequestContent(bool optional = false, bool nullable = false) => new(
+        public static ParameterProvider CreateRequestContent(InputParameter? parameter = null, bool optional = false, bool nullable = false) => new(
             RequestContentParameterName,
             RequestContentDescription,
             ScmCodeModelGenerator.Instance.TypeFactory.RequestContentApi.RequestContentType,
             location: ParameterLocation.Body,
-            defaultValue: optional ? Null : null)
+            defaultValue: optional ? Null : null,
+            inputParameter: parameter)
         {
             Validation = nullable ? ParameterValidationType.None : ParameterValidationType.AssertNotNull,
         };

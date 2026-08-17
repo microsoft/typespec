@@ -6,10 +6,10 @@ namespace Test
 {
     public partial class TestClient
     {
-        public string Foo(string defaultName)
+        public string Foo(string content)
         {
-            this.Validate(defaultName);
-            return defaultName;
+            this.Validate(content);
+            return content;
         }
     }
 }
