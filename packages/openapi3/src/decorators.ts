@@ -1,5 +1,12 @@
-import { DecoratorContext, Model, ModelProperty, Program, Type, Union } from "@typespec/compiler";
-import { OneOfDecorator, UseRefDecorator } from "../generated-defs/TypeSpec.OpenAPI.js";
+import type {
+  DecoratorContext,
+  Model,
+  ModelProperty,
+  Program,
+  Type,
+  Union,
+} from "@typespec/compiler";
+import type { OneOfDecorator, UseRefDecorator } from "../generated-defs/TypeSpec.OpenAPI.js";
 import { createStateSymbol, reportDiagnostic } from "./lib.js";
 
 const refTargetsKey = createStateSymbol("refs");

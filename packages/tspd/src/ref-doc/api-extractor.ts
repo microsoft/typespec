@@ -1,4 +1,5 @@
-import { Extractor, ExtractorConfig, ExtractorResult } from "@microsoft/api-extractor";
+import type { ExtractorResult } from "@microsoft/api-extractor";
+import { Extractor, ExtractorConfig } from "@microsoft/api-extractor";
 import { ApiModel } from "@microsoft/api-extractor-model";
 import { TSDocConfigFile } from "@microsoft/tsdoc-config";
 import { joinPaths, type PackageJson } from "@typespec/compiler";

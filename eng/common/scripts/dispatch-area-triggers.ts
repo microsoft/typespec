@@ -1,8 +1,8 @@
 import { parseArgs } from "util";
-import { setOutputVariable } from "./utils/ado.js";
-import { repoRoot } from "./utils/common.js";
-import { findAreasChanged } from "./utils/find-area-changed.js";
-import { listChangedFilesSince } from "./utils/git.js";
+import { setOutputVariable } from "./utils/ado.ts";
+import { repoRoot } from "./utils/common.ts";
+import { findAreasChanged } from "./utils/find-area-changed.ts";
+import { listChangedFilesSince } from "./utils/git.ts";
 
 const args = parseArgs({
   args: process.argv.slice(2),

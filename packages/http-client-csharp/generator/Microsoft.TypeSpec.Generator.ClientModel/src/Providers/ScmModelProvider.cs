@@ -27,7 +27,7 @@ using static Microsoft.TypeSpec.Generator.Snippets.Snippet;
 
 namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
 {
-    public sealed class ScmModelProvider : ModelProvider
+    public class ScmModelProvider : ModelProvider
     {
         private readonly InputModelType _inputModel;
         private const string JsonPatchFieldName = "_patch";
@@ -216,40 +216,77 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
                         if (JsonPatchField != null)
                         {
                             updatedBody.Add(JsonPatchField.Assign(JsonPatchProperty!.AsParameter).Terminate());
-                            if (HasDynamicProperties)
-                            {
-#pragma warning disable SCME0001
-                                updatedBody.Add(JsonPatchField.As<JsonPatch>().SetPropagators(new MemberExpression(null, "PropagateSet"), new MemberExpression(null, "PropagateGet")));
-#pragma warning restore SCME0001
-                            }
                         }
-                        else if (HasDynamicProperties && BaseJsonPatchProperty.Value is not null)
-                        {
-                            // Derived model has dynamic properties but inherits the JsonPatch field from base
-                            // We need to call SetPropagators on the inherited patch field
-#pragma warning disable SCME0001
-                            updatedBody.Add(BaseJsonPatchProperty.Value.As<JsonPatch>().SetPropagators(new MemberExpression(null, "PropagateSet"), new MemberExpression(null, "PropagateGet")));
-#pragma warning restore SCME0001
-                        }
+
+                        AddSetPropagators(updatedBody);
 
                         constructor.Update(bodyStatements: updatedBody);
                     }
                 }
-                else if (JsonPatchField != null && SupportsBinaryDataAdditionalProperties && !NeedsBackCompatAdditionalProperties && constructor.BodyStatements != null)
+                else if (constructor.BodyStatements != null)
                 {
-                    // Remove the additional binary data properties initialization from the init constructor
-                    var updatedBody = constructor.BodyStatements
-                        .Where(s => s is not ExpressionStatement
-                        {
-                            Expression: AssignmentExpression
+                    List<MethodBodyStatement> updatedBody;
+                    if (JsonPatchField != null && SupportsBinaryDataAdditionalProperties && !NeedsBackCompatAdditionalProperties)
+                    {
+                        // Remove the additional binary data properties initialization from the init constructor
+                        updatedBody = constructor.BodyStatements
+                            .Where(s => s is not ExpressionStatement
                             {
-                                Variable: MemberExpression { MemberName: AdditionalPropertiesHelper.AdditionalBinaryDataPropsFieldName }
-                            }
-                        })
-                        .ToList();
+                                Expression: AssignmentExpression
+                                {
+                                    Variable: MemberExpression { MemberName: AdditionalPropertiesHelper.AdditionalBinaryDataPropsFieldName }
+                                }
+                            })
+                            .ToList();
+                    }
+                    else
+                    {
+                        updatedBody = [.. constructor.BodyStatements];
+                    }
+
+                    if (AddSetPropagators(updatedBody))
+                    {
+                        var suppression = new SuppressionStatement(null, Literal(ScmEvaluationTypeDiagnosticId), ScmEvaluationTypeSuppressionJustification);
+                        constructor.Update(suppressions: [suppression, .. constructor.Suppressions]);
+                    }
+
                     constructor.Update(bodyStatements: updatedBody);
                 }
             }
+        }
+
+        /// <summary>
+        /// Registers the patch propagators on the model's JsonPatch field so that patch operations are
+        /// propagated to nested models. This must be emitted in every applicable constructor so that
+        /// propagation behaves consistently regardless of how the model is instantiated.
+        /// </summary>
+        /// <returns><c>true</c> if a <c>SetPropagators</c> call was appended; otherwise <c>false</c>.</returns>
+        private bool AddSetPropagators(List<MethodBodyStatement> updatedBody)
+        {
+            if (!HasDynamicProperties)
+            {
+                return false;
+            }
+
+            if (JsonPatchField != null)
+            {
+#pragma warning disable SCME0001
+                updatedBody.Add(JsonPatchField.As<JsonPatch>().SetPropagators(new MemberExpression(null, "PropagateSet"), new MemberExpression(null, "PropagateGet")));
+#pragma warning restore SCME0001
+                return true;
+            }
+
+            if (BaseJsonPatchProperty.Value is not null)
+            {
+                // Derived model has dynamic properties but inherits the JsonPatch field from base
+                // We need to call SetPropagators on the inherited patch field
+#pragma warning disable SCME0001
+                updatedBody.Add(BaseJsonPatchProperty.Value.As<JsonPatch>().SetPropagators(new MemberExpression(null, "PropagateSet"), new MemberExpression(null, "PropagateGet")));
+#pragma warning restore SCME0001
+                return true;
+            }
+
+            return false;
         }
 
         private List<ConstructorProvider>? BuildMultipartFileConstructors(List<ConstructorProvider> existingConstructors)
@@ -661,6 +698,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
             }
 
             bool needsBackCompat = LastContractView.Properties.Any(p =>
+                MethodSignatureHelper.IsPublicApi(p.Modifiers) &&
                 p.Name == AdditionalPropertiesHelper.DefaultAdditionalPropertiesPropertyName);
 
             if (needsBackCompat)

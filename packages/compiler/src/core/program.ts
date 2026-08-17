@@ -1,16 +1,19 @@
 import pc from "picocolors";
-import { EmitterOptions } from "../config/types.js";
+import type { EmitterOptions } from "../config/types.js";
 import { validateEncodedNamesConflicts } from "../lib/encoded-names.js";
 import { validatePagingOperations } from "../lib/paging.js";
 import { MANIFEST } from "../manifest.js";
 import { ResolveModuleError, resolveModule } from "../module-resolver/module-resolver.js";
-import { ModuleResolutionResult, ResolvedModule } from "../module-resolver/types.js";
-import { PackageJson } from "../types/package-json.js";
+import type { ModuleResolutionResult, ResolvedModule } from "../module-resolver/types.js";
+import type { PackageJson } from "../types/package-json.js";
 import { findProjectRoot } from "../utils/io.js";
 import { deepEquals, isDefined, mapEquals, mutate } from "../utils/misc.js";
 import { createBinder } from "./binder.js";
-import { Checker, createChecker } from "./checker.js";
+import type { Checker } from "./checker.js";
+import { createChecker } from "./checker.js";
 import { createSuppressCodeFix } from "./compiler-code-fixes/suppress.codefix.js";
+import type { DiagnosticCodeResolver, LibraryNameInfo } from "./diagnostic-code.js";
+import { createDiagnosticCodeResolver, formatShortNameCandidates } from "./diagnostic-code.js";
 import { compilerAssert } from "./diagnostics.js";
 import { getEmittedFilesForProgram } from "./emitter-utils.js";
 import { resolveTypeSpecEntrypoint } from "./entrypoint-resolution.js";
@@ -26,28 +29,29 @@ import { createLogger } from "./logger/index.js";
 import { createTracer } from "./logger/tracer.js";
 import { createDiagnostic } from "./messages.js";
 import { createResolveModuleHost } from "./module-host.js";
-import { NameResolver, createResolver } from "./name-resolver.js";
-import { Numeric } from "./numeric.js";
-import { CompilerOptions } from "./options.js";
+import type { NameResolver } from "./name-resolver.js";
+import { createResolver } from "./name-resolver.js";
+import type { Numeric } from "./numeric.js";
+import type { CompilerOptions } from "./options.js";
 import { parse, parseStandaloneTypeReference } from "./parser.js";
 import { getDirectoryPath, joinPaths, resolvePath } from "./path-utils.js";
 import { createPerfReporter, perf } from "./perf.js";
+import type { SourceLoader, SourceResolution } from "./source-loader.js";
 import {
-  SourceLoader,
-  SourceResolution,
   createSourceLoader,
   loadJsFile,
   moduleResolutionErrorToDiagnostic,
 } from "./source-loader.js";
 import { createStateAccessors } from "./state-accessors.js";
-import { ComplexityStats, RuntimeStats, Stats } from "./stats.js";
+import type { ComplexityStats, RuntimeStats, Stats } from "./stats.js";
+import type { SuppressionTracker } from "./suppression-tracking.js";
 import {
-  SuppressionTracker,
   createSuppressionTracker,
+  findAmbiguousSuppressions,
   findDirectiveSuppressingOnNode,
   findDuplicateSuppressions,
 } from "./suppression-tracking.js";
-import {
+import type {
   CompilerHost,
   Diagnostic,
   EmitContext,
@@ -61,12 +65,10 @@ import {
   LogSink,
   ModuleLibraryMetadata,
   Namespace,
-  NoTarget,
   Node,
   PerfReporter,
   SourceFile,
   Sym,
-  SymbolFlags,
   SymbolTable,
   TemplateInstanceTarget,
   Tracer,
@@ -74,6 +76,13 @@ import {
   TypeSpecLibrary,
   TypeSpecScriptNode,
 } from "./types.js";
+import { NoTarget, SymbolFlags } from "./types.js";
+
+/**
+ * The current stage of the compilation pipeline.
+ * Stages progress in order: parsing → checking → validating → linting → emitting.
+ */
+export type CompilationStage = "parsing" | "checking" | "validating" | "linting" | "emitting";
 
 export interface Program {
   compilerOptions: CompilerOptions;
@@ -124,6 +133,9 @@ export interface Program {
   /** @internal */
   readonly suppressionTracker: SuppressionTracker | undefined;
 
+  /** @internal Resolver for short/full diagnostic and linter rule codes. */
+  readonly diagnosticCodeResolver: DiagnosticCodeResolver | undefined;
+
   getGlobalNamespaceType(): Namespace;
 
   resolveTypeReference(reference: string): [Type | undefined, readonly Diagnostic[]];
@@ -138,6 +150,11 @@ export interface Program {
    * Project root. If a tsconfig was found/specified this is the directory for the tsconfig.json. Otherwise directory where the entrypoint is located.
    */
   readonly projectRoot: string;
+
+  /** @internal */
+  setCurrentStage(stage: CompilationStage): void;
+  /** @internal */
+  readonly currentStage: CompilationStage;
 }
 
 interface EmitterRef {
@@ -192,6 +209,7 @@ export async function compile(
   };
   const timer = perf.startTimer();
   // Emitter stage
+  program.setCurrentStage("emitting");
   for (const emitter of program.emitters) {
     // If in dry mode run and an emitter doesn't support it we have to skip it.
     if (program.compilerOptions.dryRun && !emitter.library.definition?.capabilities?.dryRun) {
@@ -228,6 +246,10 @@ async function createProgram(
   let continueToNextStage = true;
   // eslint-disable-next-line prefer-const -- reassigned after source resolution
   let suppressionTracker: SuppressionTracker | undefined;
+  // eslint-disable-next-line prefer-const -- reassigned after source resolution
+  let diagnosticCodeResolver: DiagnosticCodeResolver | undefined;
+
+  let currentStage: CompilationStage = "parsing";
 
   const logger = createLogger({ sink: host.logSink });
   const tracer = createTracer(logger, { filter: options.trace });
@@ -259,6 +281,15 @@ async function createProgram(
     reportDuplicateSymbols,
     get suppressionTracker() {
       return suppressionTracker;
+    },
+    get diagnosticCodeResolver() {
+      return diagnosticCodeResolver;
+    },
+    get currentStage() {
+      return currentStage;
+    },
+    setCurrentStage(stage: CompilationStage) {
+      currentStage = stage;
     },
     hasError() {
       return error;
@@ -305,7 +336,8 @@ async function createProgram(
   // let GC reclaim old program, we do not reuse it beyond this point.
   oldProgram = undefined;
 
-  suppressionTracker = createSuppressionTracker(sourceResolution);
+  diagnosticCodeResolver = createDiagnosticCodeResolver(collectLibraryNameInfos());
+  suppressionTracker = createSuppressionTracker(sourceResolution, diagnosticCodeResolver);
   reportDiagnostics(
     findDuplicateSuppressions(sourceResolution).map(({ directive }) =>
       createDiagnostic({
@@ -315,17 +347,32 @@ async function createProgram(
       }),
     ),
   );
+  reportDiagnostics(
+    findAmbiguousSuppressions(sourceResolution, diagnosticCodeResolver).map(
+      ({ directive, shortName, candidates }) =>
+        createDiagnostic({
+          code: "ambiguous-short-name",
+          format: { shortName, candidates: formatShortNameCandidates(candidates) },
+          target: directive.node,
+        }),
+    ),
+  );
 
   const resolver = (program.resolver = createResolver(program));
   runtimeStats.resolver = perf.time(() => resolver.resolveProgram());
 
-  const linter = createLinter(program, (name) => loadLibrary(basedir, name));
+  const linter = createLinter(
+    program,
+    (name) => loadLibrary(basedir, name),
+    diagnosticCodeResolver,
+  );
   linter.registerLinterLibrary(builtInLinterLibraryName, createBuiltInLinterLibrary());
   if (options.linterRuleSet) {
     program.reportDiagnostics(await linter.extendRuleSet(options.linterRuleSet));
   }
 
   program.checker = createChecker(program, resolver);
+  currentStage = "checking";
   runtimeStats.checker = perf.time(() => program.checker.checkProgram());
 
   complexityStats.createdTypes = program.checker.stats.createdTypes;
@@ -336,6 +383,7 @@ async function createProgram(
   }
 
   // onValidate stage
+  currentStage = "validating";
   await runValidators();
 
   validateRequiredImports();
@@ -347,6 +395,7 @@ async function createProgram(
   }
 
   // Linter stage
+  currentStage = "linting";
   const lintResult = await linter.lint();
   runtimeStats.linter = lintResult.stats.runtime;
   program.reportDiagnostics(lintResult.diagnostics);
@@ -529,6 +578,7 @@ async function createProgram(
   async function loadLibrary(
     basedir: string,
     libraryNameOrPath: string,
+    context?: { isEmitter?: boolean },
   ): Promise<LibraryInstance | undefined> {
     const [resolution, diagnostics] = await resolveEmitterModuleAndEntrypoint(
       basedir,
@@ -536,7 +586,17 @@ async function createProgram(
     );
 
     if (resolution === undefined) {
-      program.reportDiagnostics(diagnostics);
+      if (context?.isEmitter && diagnostics.some((d) => d.code === "import-not-found")) {
+        program.reportDiagnostic(
+          createDiagnostic({
+            code: "emitter-not-found",
+            format: { emitterPackage: libraryNameOrPath },
+            target: NoTarget,
+          }),
+        );
+      } else {
+        program.reportDiagnostics(diagnostics);
+      }
       return undefined;
     }
     const { module, entrypoint } = resolution;
@@ -557,7 +617,7 @@ async function createProgram(
     emitterNameOrPath: string,
     emittersOptions: Record<string, EmitterOptions>,
   ): Promise<EmitterRef | undefined> {
-    const library = await loadLibrary(basedir, emitterNameOrPath);
+    const library = await loadLibrary(basedir, emitterNameOrPath, { isEmitter: true });
 
     if (library === undefined) {
       return undefined;
@@ -618,6 +678,29 @@ async function createProgram(
       );
       return undefined;
     }
+  }
+
+  function collectLibraryNameInfos(): LibraryNameInfo[] {
+    // Read library-declared aliases from each loaded library's `$lib` export.
+    const aliasByName = new Map<string, string>();
+    for (const jsFile of sourceResolution.jsSourceFiles.values()) {
+      const lib = jsFile.esmExports?.$lib as TypeSpecLibrary<any> | undefined;
+      if (lib?.name && lib.alias) {
+        aliasByName.set(lib.name, lib.alias);
+      }
+    }
+
+    const infos: LibraryNameInfo[] = [];
+    const seen = new Set<string>();
+    for (const name of sourceResolution.loadedLibraries.keys()) {
+      seen.add(name);
+      infos.push({ name, alias: aliasByName.get(name) });
+    }
+    // The compiler's built-in linter rules live under `@typespec/compiler`.
+    if (!seen.has(builtInLinterLibraryName)) {
+      infos.push({ name: builtInLinterLibraryName });
+    }
+    return infos;
   }
 
   function computeLibraryMetadata(
@@ -838,7 +921,11 @@ async function createProgram(
       return false; // Can't find target cannot be suppressed.
     }
 
-    const suppressing = findDirectiveSuppressingOnNode(diagnostic.code, node);
+    const suppressing = findDirectiveSuppressingOnNode(
+      diagnostic.code,
+      node,
+      diagnosticCodeResolver,
+    );
     if (suppressing) {
       if (diagnostic.severity === "error") {
         // Cannot suppress errors.

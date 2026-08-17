@@ -1,6 +1,8 @@
 // Copyright (c) Microsoft Corporation. All rights reserved.
 // Licensed under the MIT License.
 
+// cspell:ignore DBOS IPDBOSIP
+
 using System;
 using System.Collections.Generic;
 using System.Diagnostics.CodeAnalysis;
@@ -103,6 +105,52 @@ namespace Microsoft.TypeSpec.Generator.Tests.Providers
             Assert.AreEqual("my_model", modelProvider.Name);
         }
 
+        [TestCase("IpAddress", false, "IPAddress")]
+        [TestCase("CosmosDbAccount", false, "CosmosDBAccount")]
+        [TestCase("OsProfile", false, "OSProfile")]
+        [TestCase("IpDbOsIpAddressDb", false, "IPDBOSIPAddressDB")]
+        [TestCase("IPAddressCosmosDBOSProfile", false, "IPAddressCosmosDBOSProfile")]
+        [TestCase("Ipv4AddressIpv6", false, "IPv4AddressIPv6")]
+        [TestCase("IpV4AddressIpV6", false, "IPv4AddressIPv6")]
+        [TestCase("IPV4AddressIPV6", false, "IPV4AddressIPV6")]
+        [TestCase("OsloIpsumOsmosisDbz", false, "OsloIpsumOsmosisDbz")]
+        [TestCase("IpAddress", true, "IpAddress")]
+        public void TestPropertyNameNormalizesAcronymCasing(string inputName, bool isExactName, string expectedName)
+        {
+            var inputProperty = InputFactory.Property(
+                inputName,
+                InputPrimitiveType.String,
+                isRequired: true,
+                isExactName: isExactName);
+            InputFactory.Model("TestModel", properties: [inputProperty]);
+
+            var property = new PropertyProvider(inputProperty, new TestTypeProvider());
+
+            Assert.AreEqual(expectedName, property.Name);
+        }
+
+        [TestCase("Ipv4", false, "ipv4")]
+        [TestCase("Ipv6", false, "ipv6")]
+        [TestCase("IpAddress", false, "ipAddress")]
+        [TestCase("DbAccount", false, "dbAccount")]
+        [TestCase("OsProfile", false, "osProfile")]
+        [TestCase("RegularName", false, "regularName")]
+        [TestCase("MiniPv4", false, "miniPv4")]
+        [TestCase("Ipv4", true, "ipv4")]
+        public void TestPropertyParameterDeclarationNormalizesAcronymCasing(string inputName, bool isExactName, string expectedName)
+        {
+            var inputProperty = InputFactory.Property(
+                inputName,
+                InputPrimitiveType.String,
+                isRequired: true,
+                isExactName: isExactName);
+            InputFactory.Model("TestModel", properties: [inputProperty]);
+
+            var property = new PropertyProvider(inputProperty, new TestTypeProvider());
+
+            Assert.AreEqual(expectedName, property.AsParameter.AsVariable().Declaration.RequestedName);
+        }
+
         [TestCaseSource(nameof(CollectionPropertyTestCases))]
         public void CollectionProperty(CSharpType coreType, InputModelProperty collectionProperty, CSharpType expectedType)
         {
@@ -165,6 +213,18 @@ namespace Microsoft.TypeSpec.Generator.Tests.Providers
         }
 
         [Test]
+        public void TestPropertyNameConflictsWithTypeNameAfterAcronymNormalization()
+        {
+            var testTypeProvider = new TestTypeProvider(name: "IPAddress");
+            InputModelProperty inputModelProperty = InputFactory.Property("IpAddress", InputPrimitiveType.String);
+            InputFactory.Model("IPAddress", properties: [inputModelProperty]);
+
+            var property = new PropertyProvider(inputModelProperty, testTypeProvider);
+
+            Assert.AreEqual("IPAddressProperty", property.Name);
+        }
+
+        [Test]
         public void CanUpdatePropertyProvider()
         {
             var propertyProvider = new PropertyProvider(
@@ -189,7 +249,7 @@ namespace Microsoft.TypeSpec.Generator.Tests.Providers
             };
 
             propertyProvider.Update(
-                modifiers: propertyProvider.Modifiers &~ MethodSignatureModifiers.Virtual,
+                modifiers: propertyProvider.Modifiers & ~MethodSignatureModifiers.Virtual,
                 type: new CSharpType(typeof(int)),
                 name: "newName",
                 body: new AutoPropertyBody(HasSetter: true),

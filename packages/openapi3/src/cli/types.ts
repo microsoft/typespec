@@ -1,4 +1,4 @@
-import { SourceFile } from "@typespec/compiler";
+import type { SourceFile } from "@typespec/compiler";
 
 export interface CliHost {
   logger: Logger;

@@ -1,5 +1,6 @@
-import { Type, UsageFlags } from "@typespec/compiler";
-import { InternalClient } from "../../interfaces.js";
+import type { Type } from "@typespec/compiler";
+import { UsageFlags } from "@typespec/compiler";
+import type { InternalClient } from "../../interfaces.js";
 
 export interface AccessKit<T extends Type> {
   /**

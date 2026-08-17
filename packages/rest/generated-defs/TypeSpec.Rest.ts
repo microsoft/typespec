@@ -25,19 +25,16 @@ export type AutoRouteDecorator = (
 ) => DecoratorValidatorCallbacks | void;
 
 /**
- * Defines the preceding path segment for a
+ * Defines the preceding path segment for a `@path` parameter in auto-generated routes.
  *
- * @path parameter in auto-generated routes.
  * @param name Segment that will be inserted into the operation route before the path parameter's name field.
  * @example
- *
- *
+ * ```typespec
  * @autoRoute
  * interface Pets {
- * get(
- * @segment ("pets")
- * @path id: string): void; //-> route: /pets/{id}
+ *   get(@segment("pets") @path id: string): void; //-> route: /pets/{id}
  * }
+ * ```
  */
 export type SegmentDecorator = (
   context: DecoratorContext,
@@ -96,10 +93,7 @@ export type ParentResourceDecorator = (
 /**
  * Specify that this is a Read operation for a given resource.
  *
- * @param resourceType Resource marked with
- * @resource
- *
- *
+ * @param resourceType Resource marked with `@resource`
  */
 export type ReadsResourceDecorator = (
   context: DecoratorContext,
@@ -110,10 +104,7 @@ export type ReadsResourceDecorator = (
 /**
  * Specify that this is a Create operation for a given resource.
  *
- * @param resourceType Resource marked with
- * @resource
- *
- *
+ * @param resourceType Resource marked with `@resource`
  */
 export type CreatesResourceDecorator = (
   context: DecoratorContext,
@@ -124,10 +115,7 @@ export type CreatesResourceDecorator = (
 /**
  * Specify that this is a CreateOrReplace operation for a given resource.
  *
- * @param resourceType Resource marked with
- * @resource
- *
- *
+ * @param resourceType Resource marked with `@resource`
  */
 export type CreatesOrReplacesResourceDecorator = (
   context: DecoratorContext,
@@ -138,10 +126,7 @@ export type CreatesOrReplacesResourceDecorator = (
 /**
  * Specify that this is a CreatesOrUpdate operation for a given resource.
  *
- * @param resourceType Resource marked with
- * @resource
- *
- *
+ * @param resourceType Resource marked with `@resource`
  */
 export type CreatesOrUpdatesResourceDecorator = (
   context: DecoratorContext,
@@ -152,10 +137,7 @@ export type CreatesOrUpdatesResourceDecorator = (
 /**
  * Specify that this is a Update operation for a given resource.
  *
- * @param resourceType Resource marked with
- * @resource
- *
- *
+ * @param resourceType Resource marked with `@resource`
  */
 export type UpdatesResourceDecorator = (
   context: DecoratorContext,
@@ -166,10 +148,7 @@ export type UpdatesResourceDecorator = (
 /**
  * Specify that this is a Delete operation for a given resource.
  *
- * @param resourceType Resource marked with
- * @resource
- *
- *
+ * @param resourceType Resource marked with `@resource`
  */
 export type DeletesResourceDecorator = (
   context: DecoratorContext,
@@ -180,10 +159,7 @@ export type DeletesResourceDecorator = (
 /**
  * Specify that this is a List operation for a given resource.
  *
- * @param resourceType Resource marked with
- * @resource
- *
- *
+ * @param resourceType Resource marked with `@resource`
  */
 export type ListsResourceDecorator = (
   context: DecoratorContext,
@@ -205,10 +181,7 @@ export type ActionDecorator = (
 /**
  * Specify this operation is a collection action. (Scopped to a resource, /pets/my-action)
  *
- * @param resourceType Resource marked with
- * @resource
- *
- *
+ * @param resourceType Resource marked with `@resource`
  * @param name Name of the action. If not specified, the name of the operation will be used.
  */
 export type CollectionActionDecorator = (

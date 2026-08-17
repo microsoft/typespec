@@ -96,3 +96,23 @@ namespace Two {
 alias C = Two.A; // This is not valid
 alias C = Two.B; // This is valid
 ```
+
+### Resolving the name of a `using` statement
+
+Where a `using` statement is written relative to a [file-level namespace](#file-level-namespaces) changes how its name is resolved.
+
+A `using` written **before** the blockless namespace declaration is not scoped to it, so its name is resolved from the global namespace:
+
+```typespec
+using Common.Models; // `Common` here is the global `Common` namespace
+namespace MyOrg.Common.Service;
+```
+
+A `using` written **after** the blockless namespace declaration is scoped to it, so its name is resolved relative to the file namespace first:
+
+```typespec
+namespace MyOrg.Service;
+using Models; // Resolves to `MyOrg.Models`
+```
+
+The same applies to a `using` written inside a namespace block, which resolves relative to that namespace.

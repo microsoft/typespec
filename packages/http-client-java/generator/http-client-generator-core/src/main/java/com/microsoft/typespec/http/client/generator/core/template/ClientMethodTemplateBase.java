@@ -14,10 +14,12 @@ import com.microsoft.typespec.http.client.generator.core.model.clientmodel.EnumT
 import com.microsoft.typespec.http.client.generator.core.model.clientmodel.IType;
 import com.microsoft.typespec.http.client.generator.core.model.clientmodel.IterableType;
 import com.microsoft.typespec.http.client.generator.core.model.clientmodel.MapType;
+import com.microsoft.typespec.http.client.generator.core.model.clientmodel.ModelPropertySegment;
 import com.microsoft.typespec.http.client.generator.core.model.clientmodel.ParameterSynthesizedOrigin;
 import com.microsoft.typespec.http.client.generator.core.model.clientmodel.PrimitiveType;
 import com.microsoft.typespec.http.client.generator.core.model.clientmodel.ProxyMethod;
 import com.microsoft.typespec.http.client.generator.core.model.clientmodel.ProxyMethodParameter;
+import com.microsoft.typespec.http.client.generator.core.model.clientmodel.ProxyMethodResponseHeader;
 import com.microsoft.typespec.http.client.generator.core.model.javamodel.JavaJavadocComment;
 import com.microsoft.typespec.http.client.generator.core.model.javamodel.JavaType;
 import com.microsoft.typespec.http.client.generator.core.util.ClientModelUtil;
@@ -88,42 +90,22 @@ public abstract class ClientMethodTemplateBase implements IJavaTemplate<ClientMe
             if (JavaSettings.getInstance().isDataPlaneClient() && JavaSettings.getInstance().isAzureV1()) {
                 // special handling for paging method
                 if (clientMethod.getType().isPaging()) {
-                    String itemName = clientMethod.getMethodPageDetails().getItemName();
-                    // rawResponseType has properties: 'value' and 'nextLink'
-                    IType rawResponseType = clientMethod.getProxyMethod().getRawResponseBodyType();
-                    if (!(rawResponseType instanceof ClassType)) {
-                        throw new IllegalStateException(String.format(
-                            "clientMethod.getProxyMethod().getRawResponseBodyType() should be ClassType for paging method. rawResponseType = %s",
-                            rawResponseType.toString()));
+                    List<ModelPropertySegment> pageItemsPropertyReference
+                        = clientMethod.getMethodPageDetails().getPageItemsPropertyReference();
+                    IType valueListType = pageItemsPropertyReference.get(pageItemsPropertyReference.size() - 1)
+                        .getProperty()
+                        .getClientType();
+                    if (!(valueListType instanceof IterableType)) {
+                        throw new IllegalStateException(
+                            "Page items property must be List or Iterable. ResponseType = " + valueListType);
                     }
-                    ClientModel model = ClientModelUtil.getClientModel(((ClassType) rawResponseType).getName());
-                    Map<String, ClientModelProperty> properties = new LinkedHashMap<>();
-                    traverseProperties(model, properties);
-                    responseBodyType = properties.values()
-                        .stream()
-                        .filter(property -> property.getName().equals(itemName))
-                        .map(ClientModelProperty::getClientType)
-                        .map(valueListType -> {
-                            // value type is List<T>, we need to get the typeArguments
-                            if (!(valueListType instanceof IterableType)) {
-                                throw new IllegalStateException(
-                                    "Type of 'value' property must be List or Iterable, for paging method. ResponseType = "
-                                        + rawResponseType);
-                            }
-                            IType[] listTypeArgs = ((IterableType) valueListType).getTypeArguments();
-                            if (listTypeArgs.length == 0) {
-                                throw new IllegalStateException(
-                                    "List or Iterable type does not have template argument. ResponseType = "
-                                        + rawResponseType);
-                            }
-                            return listTypeArgs[0];
-                        })
-                        .findFirst()
-                        .orElse(null);
-                    if (responseBodyType == null) {
-                        throw new IllegalStateException(itemName
-                            + " not found in properties of rawResponseType. rawResponseType = " + rawResponseType);
+                    IType[] listTypeArgs = ((IterableType) valueListType).getTypeArguments();
+                    if (listTypeArgs.length == 0) {
+                        throw new IllegalStateException(
+                            "Page items List or Iterable does not have a template argument. ResponseType = "
+                                + valueListType);
                     }
+                    responseBodyType = listTypeArgs[0];
                 } else {
                     responseBodyType = clientMethod.getProxyMethod().getRawResponseBodyType();
                 }
@@ -132,6 +114,13 @@ public abstract class ClientMethodTemplateBase implements IJavaTemplate<ClientMe
             }
             if (responseBodyType != null && !responseBodyType.equals(PrimitiveType.VOID)) {
                 responseBodySchemaJavadoc(responseBodyType, commentBlock, typesInJavadoc);
+            }
+
+            if (clientMethod.getParameters()
+                .stream()
+                .anyMatch(parameter -> ClassType.REQUEST_OPTIONS.equals(parameter.getClientType()))
+                && !CoreUtils.isNullOrEmpty(clientMethod.getProxyMethod().getResponseHeaders())) {
+                responseHeadersJavadoc(clientMethod.getProxyMethod().getResponseHeaders(), commentBlock);
             }
         }
 
@@ -180,19 +169,37 @@ public abstract class ClientMethodTemplateBase implements IJavaTemplate<ClientMe
 
     private static void optionalParametersJavadoc(String title, List<ProxyMethodParameter> parameters,
         JavaJavadocComment commentBlock) {
+        List<List<String>> rows = parameters.stream().filter(parameter -> {
+            boolean parameterIsConstantOrFromClient = parameter.isConstant() || parameter.isFromClient();
+            return !parameter.isRequired() && !parameterIsConstantOrFromClient;
+        })
+            .map(parameter -> List.of(parameter.getRequestParameterName(),
+                CodeNamer.escapeXmlComment(parameter.getClientType().toString()), "No",
+                parameterDescriptionOrDefault(parameter)))
+            .collect(Collectors.toList());
+        javadocTable(title, List.of("Name", "Type", "Required", "Description"), rows, commentBlock);
+    }
+
+    private static void responseHeadersJavadoc(List<ProxyMethodResponseHeader> responseHeaders,
+        JavaJavadocComment commentBlock) {
+        List<List<String>> rows = responseHeaders.stream()
+            .map(header -> List.of(CodeNamer.escapeXmlComment(header.getSerializedName()),
+                CodeNamer.escapeXmlComment(header.getClientType().toString()),
+                CodeNamer.escapeXmlComment(header.getDescription())))
+            .collect(Collectors.toList());
+        javadocTable("Response Headers", List.of("Name", "Type", "Description"), rows, commentBlock);
+    }
+
+    private static void javadocTable(String title, List<String> columns, List<List<String>> rows,
+        JavaJavadocComment commentBlock) {
         commentBlock.line(String.format("<p><strong>%s</strong></p>", title));
         commentBlock.line("<table border=\"1\">");
         commentBlock.line(String.format("    <caption>%s</caption>", title));
-        commentBlock.line("    <tr><th>Name</th><th>Type</th><th>Required</th><th>Description</th></tr>");
-        for (ProxyMethodParameter parameter : parameters) {
-            boolean parameterIsConstantOrFromClient = parameter.isConstant() || parameter.isFromClient();
-            if (!parameter.isRequired() && !parameterIsConstantOrFromClient) {
-                commentBlock.line(String.format("    <tr><td>%s</td><td>%s</td><td>No</td><td>%s</td></tr>",
-                    parameter.getRequestParameterName(),
-                    CodeNamer.escapeXmlComment(parameter.getClientType().toString()),
-                    parameterDescriptionOrDefault(parameter)));
-            }
-
+        commentBlock.line("    <tr>"
+            + columns.stream().map(column -> "<th>" + column + "</th>").collect(Collectors.joining()) + "</tr>");
+        for (List<String> row : rows) {
+            commentBlock.line("    <tr>"
+                + row.stream().map(value -> "<td>" + value + "</td>").collect(Collectors.joining()) + "</tr>");
         }
         commentBlock.line("</table>");
     }

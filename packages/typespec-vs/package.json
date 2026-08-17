@@ -2,7 +2,7 @@
   "name": "typespec-vs",
   "private": true,
   "author": "Microsoft Corporation",
-  "version": "1.14.0",
+  "version": "1.15.0",
   "description": "TypeSpec Language Support for Visual Studio",
   "homepage": "https://typespec.io",
   "readme": "https://github.com/microsoft/typespec/blob/main/README.md",
@@ -25,7 +25,7 @@
     "Microsoft.TypeSpec.VS.vsix"
   ],
   "scripts": {
-    "build": "node scripts/build.js"
+    "build": "node scripts/build.ts"
   },
   "devDependencies": {
     "@typespec/internal-build-utils": "workspace:^",

@@ -94,6 +94,8 @@ public class ProxyMethod {
      */
     private final Set<String> responseContentTypes;
 
+    private final List<ProxyMethodResponseHeader> responseHeaders;
+
     private final Map<String, ProxyMethodExample> examples;
 
     private final List<String> specialHeaders;
@@ -123,6 +125,7 @@ public class ProxyMethod {
             .rawResponseBodyType(rawResponseBodyType)
             .isResumable(isResumable)
             .responseContentTypes(responseContentTypes)
+            .responseHeaders(responseHeaders)
             .examples(examples)
             .specialHeaders(specialHeaders)
             .operationId(operationId)
@@ -159,9 +162,9 @@ public class ProxyMethod {
         Map<ClassType, List<Integer>> unexpectedResponseExceptionTypes, String name,
         List<ProxyMethodParameter> parameters, List<ProxyMethodParameter> allParameters, String description,
         IType returnValueWireType, IType responseBodyType, IType rawResponseBodyType, boolean isResumable,
-        Set<String> responseContentTypes, String operationId, Map<String, ProxyMethodExample> examples,
-        List<String> specialHeaders, boolean isSync, String baseName, boolean customHeaderIgnored,
-        String implementation) {
+        Set<String> responseContentTypes, List<ProxyMethodResponseHeader> responseHeaders, String operationId,
+        Map<String, ProxyMethodExample> examples, List<String> specialHeaders, boolean isSync, String baseName,
+        boolean customHeaderIgnored, String implementation) {
         this.requestContentType = requestContentType;
         this.returnType = returnType;
         this.httpMethod = httpMethod;
@@ -179,6 +182,7 @@ public class ProxyMethod {
         this.rawResponseBodyType = rawResponseBodyType;
         this.isResumable = isResumable;
         this.responseContentTypes = responseContentTypes;
+        this.responseHeaders = responseHeaders;
         this.operationId = operationId;
         this.examples = examples;
         this.specialHeaders = specialHeaders;
@@ -284,6 +288,10 @@ public class ProxyMethod {
         return responseContentTypes;
     }
 
+    public List<ProxyMethodResponseHeader> getResponseHeaders() {
+        return responseHeaders;
+    }
+
     public String getOperationId() {
         return operationId;
     }
@@ -359,6 +367,7 @@ public class ProxyMethod {
             .unexpectedResponseExceptionTypes(this.getUnexpectedResponseExceptionTypes())
             .allParameters(allSyncParams)
             .responseContentTypes(this.getResponseContentTypes())
+            .responseHeaders(this.getResponseHeaders())
             .responseExpectedStatusCodes(this.getResponseExpectedStatusCodes())
             .isSync(true)
             .customHeaderIgnored(this.customHeaderIgnored)
@@ -523,6 +532,7 @@ public class ProxyMethod {
         protected IType rawResponseBodyType;
         protected boolean isResumable;
         protected Set<String> responseContentTypes;
+        protected List<ProxyMethodResponseHeader> responseHeaders;
         protected Map<String, ProxyMethodExample> examples;
         protected String operationId;
         protected List<String> specialHeaders;
@@ -734,6 +744,17 @@ public class ProxyMethod {
         }
 
         /**
+         * Sets the response headers.
+         *
+         * @param responseHeaders the response headers.
+         * @return the Builder itself
+         */
+        public Builder responseHeaders(List<ProxyMethodResponseHeader> responseHeaders) {
+            this.responseHeaders = responseHeaders;
+            return this;
+        }
+
+        /**
          * Sets the examples for the method.
          *
          * @param examples the examples
@@ -790,8 +811,9 @@ public class ProxyMethod {
                 CollectionUtil.toImmutableMapOfList(unexpectedResponseExceptionTypes), name,
                 CollectionUtil.toImmutableList(parameters), CollectionUtil.toImmutableList(allParameters), description,
                 returnValueWireType, responseBodyType, rawResponseBodyType, isResumable,
-                CollectionUtil.toImmutableSet(responseContentTypes), operationId, examples,
-                CollectionUtil.toImmutableList(specialHeaders), isSync, baseName, customHeaderIgnored, implementation);
+                CollectionUtil.toImmutableSet(responseContentTypes), CollectionUtil.toImmutableList(responseHeaders),
+                operationId, examples, CollectionUtil.toImmutableList(specialHeaders), isSync, baseName,
+                customHeaderIgnored, implementation);
         }
     }
 }

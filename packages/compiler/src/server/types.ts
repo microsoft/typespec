@@ -1,4 +1,4 @@
-import {
+import type {
   ApplyWorkspaceEditParams,
   ApplyWorkspaceEditResult,
   CodeAction,
@@ -47,10 +47,14 @@ import type {
   SourceLocation,
   TypeSpecScriptNode,
 } from "../core/types.js";
-import { LoadedCoreTemplates } from "../init/core-templates.js";
-import { EmitterTemplate, InitTemplate, InitTemplateLibrarySpec } from "../init/init-template.js";
-import { ScaffoldingConfig } from "../init/scaffold.js";
-import { CompileTracker, ServerCompileOptions } from "./server-compile-manager.js";
+import type { LoadedCoreTemplates } from "../init/core-templates.js";
+import type {
+  EmitterTemplate,
+  InitTemplate,
+  InitTemplateLibrarySpec,
+} from "../init/init-template.js";
+import type { ScaffoldingConfig } from "../init/scaffold.js";
+import type { CompileTracker, ServerCompileOptions } from "./server-compile-manager.js";
 
 export type ServerLogLevel = "trace" | "debug" | "info" | "warning" | "error";
 export interface ServerLog {

@@ -1,6 +1,7 @@
-import { HttpOperation, HttpOperationMultipartBody, isHttpFile } from "@typespec/http";
-import { Module } from "../../ctx.js";
-import { HttpContext } from "../index.js";
+import type { HttpOperation, HttpOperationMultipartBody } from "@typespec/http";
+import { isHttpFile } from "@typespec/http";
+import type { Module } from "../../ctx.js";
+import type { HttpContext } from "../index.js";
 
 import { module as headerHelpers } from "../../../generated-defs/helpers/header.js";
 import { module as multipartHelpers } from "../../../generated-defs/helpers/multipart.js";

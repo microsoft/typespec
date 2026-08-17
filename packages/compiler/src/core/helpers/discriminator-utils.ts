@@ -1,15 +1,12 @@
-import { DiscriminatedOptions } from "../../../generated-defs/TypeSpec.js";
+import type { DiscriminatedOptions } from "../../../generated-defs/TypeSpec.js";
 import { DuplicateTracker } from "../../utils/duplicate-tracker.js";
 import { isDefined } from "../../utils/misc.js";
-import {
-  Discriminator,
-  getDiscriminatedOptions,
-  getDiscriminatedTypes,
-} from "../intrinsic-type-state.js";
+import type { Discriminator } from "../intrinsic-type-state.js";
+import { getDiscriminatedOptions, getDiscriminatedTypes } from "../intrinsic-type-state.js";
 import { createDiagnostic } from "../messages.js";
 import type { Program } from "../program.js";
 import { isTemplateDeclarationOrInstance } from "../type-utils.js";
-import { Diagnostic, Model, Type, Union } from "../types.js";
+import type { Diagnostic, Model, Type, Union } from "../types.js";
 
 export interface DiscriminatedUnion {
   readonly options: Required<DiscriminatedOptions>;

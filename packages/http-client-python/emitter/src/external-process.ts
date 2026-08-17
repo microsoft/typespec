@@ -1,5 +1,6 @@
 import { joinPaths } from "@typespec/compiler";
-import { ChildProcess, spawn, SpawnOptions } from "child_process";
+import type { ChildProcess, SpawnOptions } from "child_process";
+import { spawn } from "child_process";
 import { randomUUID } from "crypto";
 import { mkdir, writeFile } from "fs/promises";
 import jsyaml from "js-yaml";
