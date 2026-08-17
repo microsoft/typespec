@@ -2766,6 +2766,10 @@ namespace Microsoft.TypeSpec.Generator.Tests.Providers.ModelProviders
             var modelProvider = CodeModelGenerator.Instance.OutputLibrary.TypeProviders.OfType<ModelProvider>().Single();
             var constructor = modelProvider.Constructors.Single(c => c.Signature.Modifiers.HasFlag(MethodSignatureModifiers.Public));
             Assert.AreEqual("startOn", constructor.Signature.Parameters.Single().Name);
+
+            var writer = new TypeProviderWriter(modelProvider);
+            var file = writer.Write();
+            Assert.AreEqual(Helpers.GetExpectedFromFile(), file.Content);
         }
 
         [Test]
@@ -2790,6 +2794,10 @@ namespace Microsoft.TypeSpec.Generator.Tests.Providers.ModelProviders
 
             var constructor = modelProvider.Constructors.Single(c => c.Signature.Modifiers.HasFlag(MethodSignatureModifiers.Public));
             Assert.AreEqual("startTime", constructor.Signature.Parameters.Single().Name);
+
+            var writer = new TypeProviderWriter(modelProvider);
+            var file = writer.Write();
+            Assert.AreEqual(Helpers.GetExpectedFromFile(), file.Content);
         }
 
         [Test]
