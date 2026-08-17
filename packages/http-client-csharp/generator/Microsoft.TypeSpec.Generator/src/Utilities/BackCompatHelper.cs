@@ -176,6 +176,10 @@ namespace Microsoft.TypeSpec.Generator.Utilities
 
                 var currentParameters = method.Signature.Parameters;
                 var matchingPrevious = FindMethodWithSameSignatureIgnoringNames(previousMethods, method.Signature);
+                if (matchingPrevious != null && IsMethodRemovalAcceptedInBaseline(enclosingType, matchingPrevious.Signature))
+                {
+                    continue;
+                }
 
                 if (matchingPrevious != null
                     && TryRestorePreviousParameterOrder(method, matchingPrevious.Signature))

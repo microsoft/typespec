@@ -1027,6 +1027,70 @@ namespace Microsoft.TypeSpec.Generator.Tests.Providers
             Assert.AreEqual(Helpers.GetExpectedFromFile(), actual);
         }
 
+        [Test]
+        public async Task BuildMethodsForBackCompatibilitySkipsExplicitOperatorParameterRestoreWhenRemovalAcceptedInBaseline()
+        {
+            var baseline = Helpers.GetApiCompatBaselineFromFile();
+
+            await MockHelpers.LoadMockGeneratorAsync(
+                lastContractCompilation: async () => await Helpers.GetCompilationFromDirectoryAsync(),
+                apiCompatBaseline: baseline);
+
+            var owner = new TestTypeProvider(name: "SerializationBackCompatType", ns: "Test");
+            var serializationProvider = new TestTypeProvider(name: "SerializationBackCompatType", ns: "Test");
+            var response = new ParameterProvider("response", $"", new CSharpType(typeof(string)));
+            var explicitOperator = new MethodProvider(
+                new MethodSignature(
+                    serializationProvider.Name,
+                    $"",
+                    MethodSignatureModifiers.Public | MethodSignatureModifiers.Static | MethodSignatureModifiers.Explicit | MethodSignatureModifiers.Operator,
+                    serializationProvider.Type,
+                    $"",
+                    [response]),
+                Snippet.Return(Snippet.Null),
+                serializationProvider);
+
+            serializationProvider.Update(methods: [explicitOperator]);
+            owner.Update(serializations: [serializationProvider]);
+
+            var outputLibrary = new TestOutputLibrary(owner);
+            CSharpGen.ProcessTypeProvidersForBackCompatibility(outputLibrary);
+
+            Assert.AreEqual("response", serializationProvider.Methods.Single().Signature.Parameters[0].Name);
+        }
+
+        [Test]
+        public async Task BuildMethodsForBackCompatibilitySkipsImplicitOperatorParameterRestoreWhenRemovalAcceptedInBaseline()
+        {
+            var baseline = Helpers.GetApiCompatBaselineFromFile();
+
+            await MockHelpers.LoadMockGeneratorAsync(
+                lastContractCompilation: async () => await Helpers.GetCompilationFromDirectoryAsync(),
+                apiCompatBaseline: baseline);
+
+            var owner = new TestTypeProvider(name: "SerializationImplicitBackCompatType", ns: "Test");
+            var serializationProvider = new TestTypeProvider(name: "SerializationImplicitBackCompatType", ns: "Test");
+            var current = new ParameterProvider("current", $"", serializationProvider.Type);
+            var implicitOperator = new MethodProvider(
+                new MethodSignature(
+                    "BinaryContent",
+                    $"",
+                    MethodSignatureModifiers.Public | MethodSignatureModifiers.Static | MethodSignatureModifiers.Implicit | MethodSignatureModifiers.Operator,
+                    new CSharpType(typeof(string)),
+                    $"",
+                    [current]),
+                Snippet.Return(Snippet.Null),
+                serializationProvider);
+
+            serializationProvider.Update(methods: [implicitOperator]);
+            owner.Update(serializations: [serializationProvider]);
+
+            var outputLibrary = new TestOutputLibrary(owner);
+            CSharpGen.ProcessTypeProvidersForBackCompatibility(outputLibrary);
+
+            Assert.AreEqual("current", serializationProvider.Methods.Single().Signature.Parameters[0].Name);
+        }
+
         // Validates the positional fallback: when a spec parameter's previously-published name matches
         // neither its current name nor its spec original name (e.g. a rename by a different generator),
         // it is restored from the last-contract method that matches by signature (name and parameter types).

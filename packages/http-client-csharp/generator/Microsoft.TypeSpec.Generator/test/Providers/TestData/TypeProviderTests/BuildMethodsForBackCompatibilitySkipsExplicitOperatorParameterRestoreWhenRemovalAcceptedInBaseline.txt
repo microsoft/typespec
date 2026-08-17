@@ -1,0 +1,1 @@
+MembersMustExist : Member 'public Test.SerializationBackCompatType Test.SerializationBackCompatType.SerializationBackCompatType(System.String)' does not exist in the implementation but it does exist in the contract.
