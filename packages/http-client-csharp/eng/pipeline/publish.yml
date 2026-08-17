@@ -122,7 +122,9 @@ extends:
               # to avoid running out of disk space on the root partition during generation
               TMPDIR: $(Agent.TempDirectory)
               NUGET_PACKAGES: $(Agent.TempDirectory)/nuget
+              # Set cache for both npm and pnpm (pnpm 11+ ignores npm_config_* prefix)
               npm_config_cache: $(Agent.TempDirectory)/npm-cache
+              pnpm_config_store_dir: $(Agent.TempDirectory)/pnpm-store
             steps:
               - checkout: self
 
@@ -198,10 +200,12 @@ extends:
                     -PackageJsonPath '$(Build.SourcesDirectory)/packages/http-client-csharp/package.json'
 
               - pwsh: |
+                  # Set force for both npm and pnpm (pnpm 11+ ignores npm_config_* prefix)
                   Write-Host "##vso[task.setvariable variable=npm_config_force]true"
+                  Write-Host "##vso[task.setvariable variable=pnpm_config_force]true"
                   Write-Host "##vso[task.setvariable variable=TSPCLIENT_FORCE_INSTALL]true"
-                  Write-Host "Set npm --force and TSPCLIENT_FORCE_INSTALL for TypeSpec Next"
-                displayName: Configure npm for TypeSpec Next
+                  Write-Host "Set npm/pnpm --force and TSPCLIENT_FORCE_INSTALL for TypeSpec Next"
+                displayName: Configure npm/pnpm for TypeSpec Next
                 condition: ${{ parameters.UseTypeSpecNext }}
 
               - task: UseDotNet@2

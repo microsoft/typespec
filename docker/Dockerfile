@@ -3,6 +3,13 @@
 # --------------------------------
 # cspell:ignore tdnf
 FROM mcr.microsoft.com/devcontainers/javascript-node:24 AS builder
+
+# Optional: Override npm registry for CFS compliance.
+# pnpm 11+ requires PNPM_CONFIG_REGISTRY (ignores NPM_CONFIG_REGISTRY).
+ARG NPM_REGISTRY=https://registry.npmjs.org/
+ENV PNPM_CONFIG_REGISTRY=${NPM_REGISTRY}
+ENV NPM_CONFIG_REGISTRY=${NPM_REGISTRY}
+
 COPY . /app
 
 # Upgrade all packages per https://eng.ms/docs/more/containers-secure-supply-chain/updating.
@@ -23,6 +30,10 @@ RUN pnpm pack
 #  Setup final image
 # --------------------------------
 FROM mcr.microsoft.com/azurelinux/base/nodejs:24
+
+# Inherit registry setting for final stage
+ARG NPM_REGISTRY=https://registry.npmjs.org/
+ENV NPM_CONFIG_REGISTRY=${NPM_REGISTRY}
 
 COPY --from=builder /app/packages/compiler/*.tgz /tmp/compiler.tgz
 

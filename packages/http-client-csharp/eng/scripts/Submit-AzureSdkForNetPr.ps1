@@ -399,17 +399,20 @@ try {
         $configFilesOutputDir = Join-Path $tempDir "eng"
         $emitterPackageJsonPath = Join-Path $configFilesOutputDir "http-client-csharp-emitter-package.json"
         
-        # Set NPM_CONFIG_USERCONFIG to point to our .npmrc so tsp-client's internal npm install
-        # can resolve packages from Azure Artifacts. tsp-client creates a temp directory for
-        # npm install, so a project-level .npmrc in the eng directory won't be found.
+        # Set NPM_CONFIG_USERCONFIG and PNPM_CONFIG_USERCONFIG to point to our .npmrc so
+        # tsp-client's internal npm/pnpm install can resolve packages from Azure Artifacts.
+        # tsp-client creates a temp directory for install, so a project-level .npmrc won't be found.
+        # Note: pnpm 11+ ignores npm_config_* prefix, so we set both.
         $sourceNpmrcPath = Join-Path $PSScriptRoot "../../.npmrc"
         $previousNpmConfigUserconfig = $env:NPM_CONFIG_USERCONFIG
-        
+        $previousPnpmConfigUserconfig = $env:PNPM_CONFIG_USERCONFIG
+
         if (Test-Path $sourceNpmrcPath) {
             $resolvedNpmrcPath = (Resolve-Path $sourceNpmrcPath).Path
-            Write-Host "Setting NPM_CONFIG_USERCONFIG to use .npmrc for tsp-client package resolution..."
+            Write-Host "Setting NPM_CONFIG_USERCONFIG and PNPM_CONFIG_USERCONFIG to use .npmrc for tsp-client package resolution..."
             Write-Host "  Source .npmrc: $resolvedNpmrcPath"
             $env:NPM_CONFIG_USERCONFIG = $resolvedNpmrcPath
+            $env:PNPM_CONFIG_USERCONFIG = $resolvedNpmrcPath
             
             Write-Host "npm registry for tsp-client:"
             npm config get registry
@@ -445,8 +448,9 @@ try {
             }
             Write-Host "Successfully generated emitter-package.json files"
         } finally {
-            # Restore previous NPM_CONFIG_USERCONFIG
+            # Restore previous NPM_CONFIG_USERCONFIG and PNPM_CONFIG_USERCONFIG
             $env:NPM_CONFIG_USERCONFIG = $previousNpmConfigUserconfig
+            $env:PNPM_CONFIG_USERCONFIG = $previousPnpmConfigUserconfig
         }
     } else {
         Write-Warning "TypeSpecSourcePackageJsonPath not provided or file doesn't exist. Skipping emitter-package.json generation."

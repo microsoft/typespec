@@ -1059,7 +1059,8 @@ try {
     Write-Host "Configuring npm registry for tsp-client (temporary .env)..." -ForegroundColor Gray
     $sdkEnvFile = Join-Path $sdkRepoPath ".env"
     $originalSdkEnv = if (Test-Path $sdkEnvFile) { Get-Content $sdkEnvFile -Raw } else { $null }
-    Set-Content $sdkEnvFile "npm_config_registry=$artifactFeedRegistry`n" -Encoding utf8 -NoNewline
+    # Set both npm and pnpm registry env vars (pnpm 11+ ignores npm_config_* prefix)
+    Set-Content $sdkEnvFile "npm_config_registry=$artifactFeedRegistry`npnpm_config_registry=$artifactFeedRegistry`n" -Encoding utf8 -NoNewline
     Write-Host "  Wrote $sdkEnvFile" -ForegroundColor Green
     Write-Host ""
     
