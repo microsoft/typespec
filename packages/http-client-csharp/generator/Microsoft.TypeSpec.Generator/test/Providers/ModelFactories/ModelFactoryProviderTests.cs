@@ -257,9 +257,10 @@ namespace Microsoft.TypeSpec.Generator.Tests.Providers.ModelFactories
             Assert.AreEqual("modelProp", parameters[0].Name);
             Assert.AreEqual("stringProp", parameters[1].Name);
             Assert.AreEqual("listProp", parameters[2].Name);
-            Assert.IsNull(parameters[0].DefaultValue);
-            Assert.IsNotNull(parameters[1].DefaultValue);
-            Assert.IsNotNull(parameters[2].DefaultValue);
+            foreach (var parameter in parameters)
+            {
+                Assert.IsNull(parameter.DefaultValue);
+            }
 
             // validate the previous method body uses named arguments to ensure correct mapping
             // even though the parameter order differs between the previous and current methods

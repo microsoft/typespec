@@ -22,7 +22,7 @@ namespace Sample.Namespace
         }
 
         [global::System.ComponentModel.EditorBrowsableAttribute(global::System.ComponentModel.EditorBrowsableState.Never)]
-        public static global::Sample.Models.CompatibilityModel CompatibilityModel(string id, string name, bool? enabled, string description = default)
+        public static global::Sample.Models.CompatibilityModel CompatibilityModel(string id, string name, bool? enabled, string description)
         {
             return CompatibilityModel(id: id, name: name, kind: default, enabled: enabled, description: description, count: default);
         }

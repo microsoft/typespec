@@ -3,10 +3,15 @@
 
 using System;
 using System.Collections.Generic;
+using System.IO;
+using System.Linq;
 using System.Threading.Tasks;
+using Microsoft.CodeAnalysis;
+using Microsoft.CodeAnalysis.CSharp;
 using Microsoft.TypeSpec.Generator.Primitives;
 using Microsoft.TypeSpec.Generator.Providers;
 using Microsoft.TypeSpec.Generator.Statements;
+using Microsoft.TypeSpec.Generator.Tests.Common;
 using NUnit.Framework;
 using static Microsoft.TypeSpec.Generator.Snippets.Snippet;
 
@@ -350,7 +355,7 @@ namespace Microsoft.TypeSpec.Generator.Tests.Shared
         }
 
         [Test]
-        public void BuildBackCompatMethodSignature_UsesMinimumPrefixAcrossCurrentOverloads()
+        public void BuildBackCompatMethodSignature_RequiresAllParametersForPotentiallyApplicableOverload()
         {
             var previousSignature = CreateMethodSignature("TestMethod",
                 new ParameterProvider("param1", $"", typeof(string), defaultValue: Default),
@@ -370,31 +375,75 @@ namespace Microsoft.TypeSpec.Generator.Tests.Shared
                 hideMethod: true,
                 currentMethodSignatures: [currentSignature1, currentSignature2]);
 
-            Assert.IsNull(backCompatSignature.Parameters[0].DefaultValue);
-            Assert.IsNull(backCompatSignature.Parameters[1].DefaultValue);
-            Assert.IsNull(backCompatSignature.Parameters[2].DefaultValue);
-            Assert.IsNotNull(backCompatSignature.Parameters[3].DefaultValue);
+            foreach (var parameter in backCompatSignature.Parameters)
+            {
+                Assert.IsNull(parameter.DefaultValue);
+            }
         }
 
         [Test]
-        public void BuildBackCompatMethodSignature_OnlyValueTypeNullabilityDistinguishesOverloads()
+        public void BuildBackCompatMethodSignature_PreservesDefaultsForInapplicableArgumentCount()
         {
             var previousSignature = CreateMethodSignature("TestMethod",
-                new ParameterProvider("param1", $"", new CSharpType(typeof(string), isNullable: true), defaultValue: Default),
-                new ParameterProvider("param2", $"", new CSharpType(typeof(int), isNullable: true), defaultValue: Default),
-                new ParameterProvider("param3", $"", typeof(bool), defaultValue: Default));
+                new ParameterProvider("value", $"", typeof(string), defaultValue: Default));
             var currentSignature = CreateMethodSignature("TestMethod",
-                new ParameterProvider("param1", $"", typeof(string), defaultValue: Default),
-                new ParameterProvider("param2", $"", typeof(int), defaultValue: Default));
+                new ParameterProvider("first", $"", typeof(bool)),
+                new ParameterProvider("second", $"", typeof(int)));
 
             var backCompatSignature = MethodSignatureHelper.BuildBackCompatMethodSignature(
                 previousSignature,
                 hideMethod: true,
                 currentMethodSignatures: [currentSignature]);
 
-            Assert.IsNull(backCompatSignature.Parameters[0].DefaultValue);
-            Assert.IsNull(backCompatSignature.Parameters[1].DefaultValue);
-            Assert.IsNotNull(backCompatSignature.Parameters[2].DefaultValue);
+            Assert.IsNotNull(backCompatSignature.Parameters[0].DefaultValue);
+        }
+
+        [Test]
+        public void BuildBackCompatMethodSignature_PreservesDefaultsForRefOutOverload()
+        {
+            var previousSignature = CreateMethodSignature("TestMethod",
+                new ParameterProvider("value", $"", typeof(string), defaultValue: Default));
+            var currentSignature = CreateMethodSignature("TestMethod",
+                new ParameterProvider("value", $"", typeof(string), isRef: true));
+
+            var backCompatSignature = MethodSignatureHelper.BuildBackCompatMethodSignature(
+                previousSignature,
+                hideMethod: true,
+                currentMethodSignatures: [currentSignature]);
+
+            Assert.IsNotNull(backCompatSignature.Parameters[0].DefaultValue);
+        }
+
+        [Test]
+        public void BuildBackCompatMethodSignature_PreservesDefaultsForInapplicableParamsOverload()
+        {
+            var previousSignature = CreateMethodSignature("TestMethod",
+                new ParameterProvider("value", $"", typeof(string), defaultValue: Default));
+            var currentSignature = CreateMethodSignature("TestMethod",
+                new ParameterProvider("first", $"", typeof(bool)),
+                new ParameterProvider("second", $"", typeof(int)),
+                new ParameterProvider("rest", $"", typeof(int[]), isParams: true));
+
+            var backCompatSignature = MethodSignatureHelper.BuildBackCompatMethodSignature(
+                previousSignature,
+                hideMethod: true,
+                currentMethodSignatures: [currentSignature]);
+
+            Assert.IsNotNull(backCompatSignature.Parameters[0].DefaultValue);
+        }
+
+        [Test]
+        public void BuildBackCompatMethodSignature_ConsumerCallsWithNamedNullAndImplicitArgumentsCompile()
+        {
+            var compilation = CSharpCompilation.Create(
+                "Consumer",
+                [CSharpSyntaxTree.ParseText(Helpers.GetExpectedFromFile())],
+                ((string)AppContext.GetData("TRUSTED_PLATFORM_ASSEMBLIES")!)
+                    .Split(Path.PathSeparator)
+                    .Select(path => MetadataReference.CreateFromFile(path)),
+                new CSharpCompilationOptions(OutputKind.DynamicallyLinkedLibrary));
+
+            Assert.IsEmpty(compilation.GetDiagnostics().Where(d => d.Severity == DiagnosticSeverity.Error));
         }
 
         private static MethodSignature CreateMethodSignature(

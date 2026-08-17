@@ -63,9 +63,10 @@ namespace Microsoft.TypeSpec.Generator
             bool shouldNotBeAsync = false,
             IReadOnlyList<MethodSignature>? currentMethodSignatures = null)
         {
-            // Require parameters through the first positional type difference with every competing
-            // overload. If one signature is only a type-prefix of the other, require one beyond the
-            // shared prefix so calls that omit trailing arguments bind only one overload.
+            // Parameter type differences do not reliably disambiguate overloads because named
+            // arguments, null literals, and implicit conversions can still make both candidates
+            // applicable. When a current overload can be called with an argument count supported
+            // by the previous signature, require all previous parameters.
             int requiredParameterCount = currentMethodSignatures is not null
                 ? GetMinimumRequiredParameterCount(previousMethodSignature, currentMethodSignatures)
                 : hideMethod
@@ -115,22 +116,37 @@ namespace Microsoft.TypeSpec.Generator
             MethodSignature previousMethodSignature,
             MethodSignature currentMethodSignature)
         {
-            int sharedParameterCount = Math.Min(
-                previousMethodSignature.Parameters.Count,
-                currentMethodSignature.Parameters.Count);
-            for (int i = 0; i < sharedParameterCount; i++)
+            if (currentMethodSignature.Parameters.Any(p => p.IsRef || p.IsOut))
             {
-                var previousType = previousMethodSignature.Parameters[i].Type;
-                var currentType = currentMethodSignature.Parameters[i].Type;
-                if (!previousType.AreNamesEqual(currentType)
-                    || (previousType.IsNullable != currentType.IsNullable
-                        && (previousType.IsValueType || currentType.IsValueType)))
-                {
-                    return i + 1;
-                }
+                return 0;
             }
 
-            return Math.Min(previousMethodSignature.Parameters.Count, sharedParameterCount + 1);
+            int previousMinimumArgumentCount = GetMinimumArgumentCount(previousMethodSignature);
+            int currentMinimumArgumentCount = GetMinimumArgumentCount(currentMethodSignature);
+            int currentMaximumArgumentCount = currentMethodSignature.Parameters.Any(p => p.IsParams)
+                ? int.MaxValue
+                : currentMethodSignature.Parameters.Count;
+
+            return Math.Max(previousMinimumArgumentCount, currentMinimumArgumentCount) <=
+                Math.Min(previousMethodSignature.Parameters.Count, currentMaximumArgumentCount)
+                ? previousMethodSignature.Parameters.Count
+                : 0;
+        }
+
+        private static int GetMinimumArgumentCount(MethodSignature methodSignature)
+        {
+            int count = 0;
+            foreach (var parameter in methodSignature.Parameters)
+            {
+                if (parameter.DefaultValue is not null || parameter.IsParams)
+                {
+                    break;
+                }
+
+                count++;
+            }
+
+            return count;
         }
     }
 }
