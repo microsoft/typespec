@@ -86,6 +86,8 @@ extends:
             displayName: Build and publish
             variables:
               imageName: "azsdkengsys.azurecr.io/typespec"
+              # Default to Azure SDK public feed; override with pipeline variable for CFS compliance
+              npmRegistry: $[coalesce(variables['NPM_REGISTRY'], 'https://pkgs.dev.azure.com/azure-sdk/public/_packaging/azure-sdk-for-js/npm/registry/')]
             pool:
               name: $(LINUXPOOL)
               image: $(LINUXVMIMAGE)
@@ -100,6 +102,7 @@ extends:
 
               - script: |
                   docker build -f ./docker/Dockerfile \
+                    --build-arg NPM_REGISTRY="$(npmRegistry)" \
                     -t $(imageName):latest \
                     .
                 displayName: "Build"
