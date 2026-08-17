@@ -164,29 +164,44 @@ namespace Microsoft.TypeSpec.Generator.Providers
                 foreach (var currentOverload in currentOverloads)
                 {
                     // If the parameter ordering is the only difference, just use the previous method
-                    if (MethodSignatureHelper.ContainsSameParameters(previousMethod.Signature, currentOverload)
-                        && TryBuildCompatibleMethodForPreviousContract(previousMethod, currentOverload, false, out MethodProvider? replacedMethod))
+                    if (MethodSignatureHelper.ContainsSameParameters(previousMethod.Signature, currentOverload))
                     {
-                        factoryMethods.Add(replacedMethod);
-
                         var factoryMethodToRemove = factoryMethods
                             .FirstOrDefault(m => MethodSignature.MethodSignatureComparer.Equals(m.Signature, currentOverload));
-                        if (factoryMethodToRemove != null)
+                        var coexistingOverloads = GetCurrentOverloadSignatures(
+                            factoryMethods,
+                            previousMethod.Signature.Name,
+                            factoryMethodToRemove);
+                        if (TryBuildCompatibleMethodForPreviousContract(
+                            previousMethod,
+                            currentOverload,
+                            false,
+                            coexistingOverloads,
+                            out MethodProvider? replacedMethod))
                         {
-                            factoryMethods.Remove(factoryMethodToRemove);
+                            factoryMethods.Add(replacedMethod);
+
+                            if (factoryMethodToRemove != null)
+                            {
+                                factoryMethods.Remove(factoryMethodToRemove);
+                            }
+
+                            CodeModelGenerator.Instance.Emitter.Debug(
+                                $"Replaced model factory method '{Name}.{currentOverload.Name}' with previous parameter order from last contract.",
+                                BackCompatibilityChangeCategory.ModelFactoryMethodReplaced);
+                            foundCompatibleOverload = true;
+                            break;
                         }
-
-                        CodeModelGenerator.Instance.Emitter.Debug(
-                            $"Replaced model factory method '{Name}.{currentOverload.Name}' with previous parameter order from last contract.",
-                            BackCompatibilityChangeCategory.ModelFactoryMethodReplaced);
-
-                        foundCompatibleOverload = true;
-                        break;
                     }
 
-                    if (TryBuildCompatibleMethodForPreviousContract(previousMethod, currentOverload, true, out replacedMethod))
+                    if (TryBuildCompatibleMethodForPreviousContract(
+                        previousMethod,
+                        currentOverload,
+                        true,
+                        GetCurrentOverloadSignatures(factoryMethods, previousMethod.Signature.Name),
+                        out var hiddenMethod))
                     {
-                        factoryMethods.Add(replacedMethod);
+                        factoryMethods.Add(hiddenMethod);
                         CodeModelGenerator.Instance.Emitter.Debug(
                             $"Added back-compat overload for model factory method '{Name}.{previousMethod.Signature.Name}' delegating to '{currentOverload.Name}'.",
                             BackCompatibilityChangeCategory.ModelFactoryMethodAdded);
@@ -201,7 +216,12 @@ namespace Microsoft.TypeSpec.Generator.Providers
                 }
 
                 // If no compatible overload found, try to add the previous method by instantiating the model directly.
-                if (TryBuildCompatibleMethodForPreviousContract(previousMethod, null, true, out var builtMethod))
+                if (TryBuildCompatibleMethodForPreviousContract(
+                    previousMethod,
+                    null,
+                    true,
+                    GetCurrentOverloadSignatures(factoryMethods, previousMethod.Signature.Name),
+                    out var builtMethod))
                 {
                     factoryMethods.Add(builtMethod);
                     CodeModelGenerator.Instance.Emitter.Debug(
@@ -217,6 +237,23 @@ namespace Microsoft.TypeSpec.Generator.Providers
             }
 
             return [.. factoryMethods];
+        }
+
+        private IReadOnlyList<MethodSignature> GetCurrentOverloadSignatures(
+            IEnumerable<MethodProvider> factoryMethods,
+            string methodName,
+            MethodProvider? methodToExclude = null)
+        {
+            var signatures = factoryMethods
+                .Where(m => !ReferenceEquals(m, methodToExclude) && m.Signature.Name == methodName)
+                .Select(m => m.Signature)
+                .ToList();
+            signatures.AddRange(
+                CustomCodeView?.Methods
+                    .Where(m => m.Signature.Name == methodName)
+                    .Select(m => m.Signature)
+                ?? []);
+            return signatures;
         }
 
         internal static IReadOnlyList<string> GetUnavailableSignatureTypes(MethodSignature signature)
@@ -310,6 +347,7 @@ namespace Microsoft.TypeSpec.Generator.Providers
             MethodProvider previousMethod,
             MethodSignature? currentMethodSignature,
             bool hideMethod,
+            IReadOnlyList<MethodSignature> currentOverloadSignatures,
             [NotNullWhen(true)] out MethodProvider? builtMethod)
         {
             builtMethod = null;
@@ -345,7 +383,10 @@ namespace Microsoft.TypeSpec.Generator.Providers
             {
                 var callToOverload = Return(new InvokeMethodExpression(null, currentMethodSignature, arguments));
                 builtMethod = new MethodProvider(
-                    MethodSignatureHelper.BuildBackCompatMethodSignature(previousMethod.Signature, hideMethod),
+                    MethodSignatureHelper.BuildBackCompatMethodSignature(
+                        previousMethod.Signature,
+                        hideMethod,
+                        currentMethodSignatures: currentOverloadSignatures),
                     callToOverload,
                     this,
                     previousMethod.XmlDocs);
@@ -356,7 +397,10 @@ namespace Microsoft.TypeSpec.Generator.Providers
             MethodBodyStatements body = ConstructMethodBody(previousMethod.Signature, modelToInstantiate);
 
             builtMethod = new MethodProvider(
-                MethodSignatureHelper.BuildBackCompatMethodSignature(previousMethod.Signature, hideMethod),
+                MethodSignatureHelper.BuildBackCompatMethodSignature(
+                    previousMethod.Signature,
+                    hideMethod,
+                    currentMethodSignatures: currentOverloadSignatures),
                 body,
                 this,
                 previousMethod.XmlDocs);

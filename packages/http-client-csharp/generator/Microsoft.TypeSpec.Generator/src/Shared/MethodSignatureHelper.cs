@@ -57,15 +57,23 @@ namespace Microsoft.TypeSpec.Generator
             return true;
         }
 
-        internal static MethodSignature BuildBackCompatMethodSignature(MethodSignature previousMethodSignature, bool hideMethod, bool shouldNotBeAsync = false)
+        internal static MethodSignature BuildBackCompatMethodSignature(
+            MethodSignature previousMethodSignature,
+            bool hideMethod,
+            bool shouldNotBeAsync = false,
+            IReadOnlyList<MethodSignature>? currentMethodSignatures = null)
         {
-            if (hideMethod)
+            // Require parameters through the first positional type difference with every competing
+            // overload. If one signature is only a type-prefix of the other, require one beyond the
+            // shared prefix so calls that omit trailing arguments bind only one overload.
+            int requiredParameterCount = currentMethodSignatures is not null
+                ? GetMinimumRequiredParameterCount(previousMethodSignature, currentMethodSignatures)
+                : hideMethod
+                    ? previousMethodSignature.Parameters.Count
+                    : 0;
+            for (int i = 0; i < requiredParameterCount; i++)
             {
-                // make all parameter required to avoid ambiguous call sites if necessary
-                foreach (var param in previousMethodSignature.Parameters)
-                {
-                    param.DefaultValue = null;
-                }
+                previousMethodSignature.Parameters[i].DefaultValue = null;
             }
 
             var modifiers = shouldNotBeAsync
@@ -83,6 +91,46 @@ namespace Microsoft.TypeSpec.Generator
                 previousMethodSignature.ReturnDescription,
                 previousMethodSignature.Parameters,
                 Attributes: attributes);
+        }
+
+        private static int GetMinimumRequiredParameterCount(
+            MethodSignature previousMethodSignature,
+            IReadOnlyList<MethodSignature> currentMethodSignatures)
+        {
+            int requiredParameterCount = 0;
+            foreach (var currentMethodSignature in currentMethodSignatures)
+            {
+                if (currentMethodSignature.Name == previousMethodSignature.Name)
+                {
+                    requiredParameterCount = Math.Max(
+                        requiredParameterCount,
+                        GetMinimumRequiredParameterCount(previousMethodSignature, currentMethodSignature));
+                }
+            }
+
+            return requiredParameterCount;
+        }
+
+        private static int GetMinimumRequiredParameterCount(
+            MethodSignature previousMethodSignature,
+            MethodSignature currentMethodSignature)
+        {
+            int sharedParameterCount = Math.Min(
+                previousMethodSignature.Parameters.Count,
+                currentMethodSignature.Parameters.Count);
+            for (int i = 0; i < sharedParameterCount; i++)
+            {
+                var previousType = previousMethodSignature.Parameters[i].Type;
+                var currentType = currentMethodSignature.Parameters[i].Type;
+                if (!previousType.AreNamesEqual(currentType)
+                    || previousType.IsNullable != currentType.IsNullable
+                        && (previousType.IsValueType || currentType.IsValueType))
+                {
+                    return i + 1;
+                }
+            }
+
+            return Math.Min(previousMethodSignature.Parameters.Count, sharedParameterCount + 1);
         }
 
         private sealed class ParameterProviderVariableNameComparer : IEqualityComparer<ParameterProvider>

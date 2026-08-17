@@ -257,10 +257,9 @@ namespace Microsoft.TypeSpec.Generator.Tests.Providers.ModelFactories
             Assert.AreEqual("modelProp", parameters[0].Name);
             Assert.AreEqual("stringProp", parameters[1].Name);
             Assert.AreEqual("listProp", parameters[2].Name);
-            foreach (var param in parameters)
-            {
-                Assert.IsNull(param.DefaultValue);
-            }
+            Assert.IsNull(parameters[0].DefaultValue);
+            Assert.IsNotNull(parameters[1].DefaultValue);
+            Assert.IsNotNull(parameters[2].DefaultValue);
 
             // validate the previous method body uses named arguments to ensure correct mapping
             // even though the parameter order differs between the previous and current methods
@@ -270,6 +269,79 @@ namespace Microsoft.TypeSpec.Generator.Tests.Providers.ModelFactories
             Assert.AreEqual(
                 "return PublicModel1(stringProp: stringProp, modelProp: modelProp, listProp: listProp, dictProp: default);\n",
                 result);
+        }
+
+        [Test]
+        public async Task BackCompatibility_ReorderedRequiredParametersPreserveOptionalTrailingParameters()
+        {
+            var compatibilityModel = GetCompatibilityModel(includeCount: true);
+
+            _instance = (await MockHelpers.LoadMockGeneratorAsync(
+                inputNamespaceName: "Sample.Namespace",
+                inputModelTypes: [compatibilityModel],
+                lastContractCompilation: async () => await Helpers.GetCompilationFromDirectoryAsync())).Object;
+
+            var modelFactory = _instance.OutputLibrary.ModelFactory.Value;
+            modelFactory.ProcessTypeForBackCompatibility();
+
+            var backwardCompatibilityMethod = modelFactory.Methods
+                .Single(m => m.Signature.Name == "CompatibilityModel" && m.Signature.Parameters.Count == 4);
+            var parameters = backwardCompatibilityMethod.Signature.Parameters;
+
+            Assert.IsNull(parameters[0].DefaultValue);
+            Assert.IsNull(parameters[1].DefaultValue);
+            Assert.IsNull(parameters[2].DefaultValue);
+            Assert.IsNotNull(parameters[3].DefaultValue);
+        }
+
+        [Test]
+        public async Task BackCompatibility_ReorderedFullyOptionalParametersRequireMinimumPrefix()
+        {
+            var compatibilityModel = GetCompatibilityModel(includeCount: true);
+
+            _instance = (await MockHelpers.LoadMockGeneratorAsync(
+                inputNamespaceName: "Sample.Namespace",
+                inputModelTypes: [compatibilityModel],
+                lastContractCompilation: async () => await Helpers.GetCompilationFromDirectoryAsync())).Object;
+
+            var modelFactory = _instance.OutputLibrary.ModelFactory.Value;
+            modelFactory.ProcessTypeForBackCompatibility();
+
+            var backwardCompatibilityMethod = modelFactory.Methods
+                .Single(m => m.Signature.Name == "CompatibilityModel" && m.Signature.Parameters.Count == 4);
+            var parameters = backwardCompatibilityMethod.Signature.Parameters;
+
+            Assert.IsNull(parameters[0].DefaultValue);
+            Assert.IsNull(parameters[1].DefaultValue);
+            Assert.IsNull(parameters[2].DefaultValue);
+            Assert.IsNotNull(parameters[3].DefaultValue);
+        }
+
+        [Test]
+        public async Task BackCompatibility_ReorderedCustomOverloadRequiresMinimumPrefix()
+        {
+            var compatibilityModel = GetCompatibilityModel(includeCount: false);
+
+            _instance = (await MockHelpers.LoadMockGeneratorAsync(
+                inputNamespaceName: "Sample.Namespace",
+                inputModelTypes: [compatibilityModel],
+                compilation: async () => await Helpers.GetCompilationFromDirectoryAsync(parameters: "Custom"),
+                lastContractCompilation: async () => await Helpers.GetCompilationFromDirectoryAsync(parameters: "Last"))).Object;
+
+            var modelFactory = _instance.OutputLibrary.ModelFactory.Value;
+            modelFactory.ProcessTypeForBackCompatibility();
+
+            var backwardCompatibilityMethod = modelFactory.Methods.Single(m => m.Signature.Name == "CompatibilityModel");
+            var parameters = backwardCompatibilityMethod.Signature.Parameters;
+
+            CollectionAssert.AreEqual(
+                new[] { "id", "name", "enabled", "description", "kind" },
+                parameters.Select(p => p.Name));
+            Assert.IsNull(parameters[0].DefaultValue);
+            Assert.IsNull(parameters[1].DefaultValue);
+            Assert.IsNull(parameters[2].DefaultValue);
+            Assert.IsNotNull(parameters[3].DefaultValue);
+            Assert.IsNotNull(parameters[4].DefaultValue);
         }
 
         // This test validates that only the previous model factory methods are generated when only the parameter ordering is changed
@@ -374,10 +446,7 @@ namespace Microsoft.TypeSpec.Generator.Tests.Providers.ModelFactories
             var parameters = backwardCompatibilityMethod!.Signature.Parameters;
             Assert.AreEqual(1, parameters.Count);
             Assert.AreEqual("stringProp", parameters[0].Name);
-            foreach (var param in parameters)
-            {
-                Assert.IsNull(param.DefaultValue);
-            }
+            Assert.IsNotNull(parameters[0].DefaultValue);
             var attributes = backwardCompatibilityMethod!.Signature.Attributes;
             Assert.AreEqual(1, attributes.Count);
             var printedAttribute = attributes[0].ToDisplayString();
@@ -1248,6 +1317,24 @@ namespace Microsoft.TypeSpec.Generator.Tests.Providers.ModelFactories
             // overload) so the mutation must be observable on the final method collection.
             var renamed = modelFactory.Methods.FirstOrDefault(m => m.Signature.Name == "PublicModel1Renamed");
             Assert.IsNotNull(renamed, "The visitor's rename of the back-compat method was not applied.");
+        }
+
+        private static InputModelType GetCompatibilityModel(bool includeCount)
+        {
+            List<InputModelProperty> properties =
+            [
+                InputFactory.Property("Id", InputPrimitiveType.String),
+                InputFactory.Property("Name", InputPrimitiveType.String),
+                InputFactory.Property("Kind", InputPrimitiveType.String),
+                InputFactory.Property("Enabled", new InputNullableType(InputPrimitiveType.Boolean)),
+                InputFactory.Property("Description", InputPrimitiveType.String),
+            ];
+            if (includeCount)
+            {
+                properties.Add(InputFactory.Property("Count", new InputNullableType(InputPrimitiveType.Int32)));
+            }
+
+            return InputFactory.Model("CompatibilityModel", properties: properties);
         }
 
         private static InputModelType[] GetTestModels()
