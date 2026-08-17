@@ -2567,7 +2567,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
         {
             if (serializationFormat is SerializationFormat.Bytes_Base64 or SerializationFormat.Bytes_Base64Url)
             {
-                return utf8JsonWriter.WriteBase64StringValue(value.As<BinaryData>().ToArray(), serializationFormat.ToFormatSpecifier());
+                return utf8JsonWriter.WriteBase64StringValue(value.As<BinaryData>(), serializationFormat.ToFormatSpecifier());
             }
             return utf8JsonWriter.WriteBinaryData(value);
         }

@@ -1015,11 +1015,12 @@ namespace Microsoft.TypeSpec.Generator.Tests.Providers.ModelFactories
                 result);
         }
 
-        // Regression test for a model factory parameter SWAP bug: when the previous contract
-        // contained the same-typed parameters in a different order from the current contract,
-        // a naive positional rename would swap which parameter feeds which constructor field
-        // via name-based lookup in GetCtorArgs, producing semantically wrong (and
-        // source-breaking) generated code. Verify no rename occurs in this collision case.
+        // Regression test for a model factory parameter SWAP: when the previous contract contained
+        // the same-typed parameters in a different order from the current contract, the signature
+        // comparer (which ignores names) hid the reorder, leaving a source-breaking CP0017
+        // parameter-name change. The generator now realigns the existing parameter objects to the
+        // previous order, restoring the published signature without corrupting the body's name-based
+        // constructor-argument lookup.
         [Test]
         public async Task BackCompatibility_SwapTypeParamsDoesNotCorrupt()
         {
@@ -1047,26 +1048,75 @@ namespace Microsoft.TypeSpec.Generator.Tests.Providers.ModelFactories
 
             var method = swapMethods[0];
             var parameters = method.Signature.Parameters;
-            // The current method should keep its parameters in the order/names derived from the
-            // current spec: eventId, itemId. A positional rename to the previous contract names
-            // (which were swapped: itemId, eventId) would corrupt the body, so we explicitly
-            // skip the rename when it would create a name collision with another parameter.
+            // The parameters are realigned to the previous contract's order (itemId, eventId) so the
+            // published signature is preserved. The parameter objects keep their names, so no CP0017
+            // parameter-name change is emitted.
             Assert.AreEqual(2, parameters.Count);
-            Assert.AreEqual("eventId", parameters[0].Name);
-            Assert.AreEqual("itemId", parameters[1].Name);
+            Assert.AreEqual("itemId", parameters[0].Name);
+            Assert.AreEqual("eventId", parameters[1].Name);
 
             // No EditorBrowsable hidden overload — there's a single visible method.
             Assert.AreEqual(0, method.Signature.Attributes.Count);
 
-            // The body must reference the parameters in their original positions so that
-            // eventId continues to feed the eventId constructor field and itemId continues
-            // to feed the itemId constructor field.
+            // The body still references the parameters by their original objects, so eventId continues
+            // to feed the eventId constructor field and itemId continues to feed the itemId field.
             var body = method.BodyStatements;
             Assert.IsNotNull(body);
             var result = body!.ToDisplayString();
             Assert.AreEqual(
                 "return new global::Sample.Models.SwapModel(eventId, itemId, additionalBinaryDataProperties: null);\n",
                 result);
+        }
+
+        [Test]
+        public async Task BackCompatibility_AbstractReturnTypeOverloadIsGenerated()
+        {
+            var derived = InputFactory.Model("DerivedModel", discriminatedKind: "derived");
+            var baseModel = InputFactory.Model(
+                "AbstractModel",
+                properties:
+                [
+                    InputFactory.Property("kind", InputPrimitiveType.String, isRequired: true, isDiscriminator: true),
+                    InputFactory.Property("prop1", InputPrimitiveType.String),
+                    InputFactory.Property("prop2", InputPrimitiveType.String),
+                ],
+                derivedModels: [derived]);
+
+            _instance = (await MockHelpers.LoadMockGeneratorAsync(
+                inputNamespaceName: "Sample.Namespace",
+                inputModelTypes: [baseModel, derived],
+                lastContractCompilation: async () => await Helpers.GetCompilationFromDirectoryAsync())).Object;
+
+            var modelFactory = _instance!.OutputLibrary.ModelFactory.Value;
+            modelFactory.ProcessTypeForBackCompatibility();
+
+            var content = new TypeProviderWriter(modelFactory).Write().Content;
+            Assert.AreEqual(Helpers.GetExpectedFromFile(), content);
+        }
+
+        [Test]
+        public async Task BackCompatibility_UnknownDiscriminatorReturnTypeOverloadIsGenerated()
+        {
+            var derived = InputFactory.Model("DerivedModel", discriminatedKind: "derived");
+            var baseModel = InputFactory.Model(
+                "AbstractModel",
+                properties:
+                [
+                    InputFactory.Property("kind", InputPrimitiveType.String, isRequired: true, isDiscriminator: true),
+                    InputFactory.Property("prop1", InputPrimitiveType.String),
+                ],
+                derivedModels: [derived]);
+
+            _instance = (await MockHelpers.LoadMockGeneratorAsync(
+                inputNamespaceName: "Sample.Namespace",
+                inputModelTypes: [baseModel, derived],
+                lastContractCompilation: async () => await Helpers.GetCompilationFromDirectoryAsync())).Object;
+
+            var modelFactory = _instance!.OutputLibrary.ModelFactory.Value;
+            modelFactory.ProcessTypeForBackCompatibility();
+
+            var content = new TypeProviderWriter(modelFactory).Write().Content;
+            Assert.AreEqual(Helpers.GetExpectedFromFile(), content);
         }
 
         [Test]

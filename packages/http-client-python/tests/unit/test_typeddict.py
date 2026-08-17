@@ -13,7 +13,11 @@ from pygen.codegen.models.imports import ImportType
 from pygen.codegen.models.model_type import TypedDictModelType
 from pygen.codegen.models.property import Property
 from pygen.codegen.models.list_type import ListType
-from pygen.codegen.serializers.types_serializer import TypesSerializer, _qualify_shadowed_builtins
+from pygen.codegen.serializers import JinjaSerializer
+from pygen.codegen.serializers.types_serializer import (
+    TypesSerializer,
+    _qualify_shadowed_builtins,
+)
 from pygen.codegen.serializers.unions_serializer import UnionsSerializer
 
 
@@ -25,6 +29,10 @@ def _make_code_model(models_mode="dpg"):
         "models-mode": models_mode,
         "flavor": "unbranded",
         "client-side-validation": False,
+        "keep-setup-py": False,
+        "basic-setup-py": False,
+        "no-namespace-folders": False,
+        "generation-subdir": None,
     }
     # The deprecated 'typeddict' models-mode is represented internally as models-mode
     # none (falsy) + generate-typeddict enabled on a TypeSpec input.
@@ -116,15 +124,15 @@ def test_models_mode_none_types_file_has_no_typeddict_imports():
 # ---------- models-mode=dpg ----------
 
 
-def test_models_mode_dpg_typeddict_models_included():
-    """DPG models have base='dpg', not 'json', so they appear in typeddict_models."""
+def test_models_mode_dpg_operation_typeddict_models_included():
+    """A DPG model with an operation-facing TypedDict copy appears in types.py."""
     code_model = _make_code_model(models_mode="dpg")
-    m1 = _make_model(code_model, "Foo", model_cls=DPGModelType)
+    model = _make_model(code_model, "Foo", model_cls=DPGModelType)
+    typeddict_copy = _make_model(code_model, "Foo", model_cls=TypedDictModelType)
 
     env = _make_env()
-    ts = TypesSerializer(code_model=code_model, env=env, models=[m1])
-    # DPG models have base != "json" so they DO appear in typeddict_models
-    assert len(ts.typeddict_models) == 1
+    ts = TypesSerializer(code_model=code_model, env=env, models=[model, typeddict_copy])
+    assert ts.typeddict_models == [model]
 
 
 def _make_model_with_clid(code_model, name, clid, model_cls):
@@ -154,9 +162,13 @@ def test_typeddict_models_shared_cross_language_id_not_collapsed():
     code_model = _make_code_model(models_mode="dpg")
     clid = "Azure.ResourceManager.Foundations.ResourceUpdateModel"
     cache_dpg = _make_model_with_clid(code_model, "CacheUpdate", clid, DPGModelType)
-    cache_td = _make_model_with_clid(code_model, "CacheUpdate", clid, TypedDictModelType)
+    cache_td = _make_model_with_clid(
+        code_model, "CacheUpdate", clid, TypedDictModelType
+    )
     volume_dpg = _make_model_with_clid(code_model, "VolumeUpdate", clid, DPGModelType)
-    volume_td = _make_model_with_clid(code_model, "VolumeUpdate", clid, TypedDictModelType)
+    volume_td = _make_model_with_clid(
+        code_model, "VolumeUpdate", clid, TypedDictModelType
+    )
 
     env = _make_env()
     ts = TypesSerializer(
@@ -184,6 +196,25 @@ def _make_model_with_usage(code_model, name, usage, model_cls):
     )
 
 
+def test_dpg_unreferenced_input_model_excluded_from_typeddict_models():
+    """An input model used only through models must not render in types.py."""
+    code_model = _make_code_model(models_mode="dpg")
+    json_request = _make_model_with_usage(code_model, "JsonRequest", 2, DPGModelType)
+    json_request_copy = _make_model_with_usage(
+        code_model, "JsonRequest", 2, TypedDictModelType
+    )
+    xml_request = _make_model_with_usage(code_model, "XmlRequest", 2, DPGModelType)
+
+    env = _make_env()
+    ts = TypesSerializer(
+        code_model=code_model,
+        env=env,
+        models=[json_request, json_request_copy, xml_request],
+    )
+
+    assert [m.name for m in ts.typeddict_models] == ["JsonRequest"]
+
+
 def test_dpg_output_only_model_excluded_from_typeddict_models():
     """In dpg mode, response-only models must not render as TypedDicts in types.py.
 
@@ -192,30 +223,44 @@ def test_dpg_output_only_model_excluded_from_typeddict_models():
     ``_types.*`` and is dead code. Only input models belong in types.py.
     """
     code_model = _make_code_model(models_mode="dpg")
-    send_request = _make_model_with_usage(code_model, "SendRequest", 2, DPGModelType)  # Input
-    get_response = _make_model_with_usage(code_model, "GetResponse", 4, DPGModelType)  # Output-only
+    send_request = _make_model_with_usage(
+        code_model, "SendRequest", 2, DPGModelType
+    )  # Input
+    send_request_copy = _make_model_with_usage(
+        code_model, "SendRequest", 2, TypedDictModelType
+    )
+    get_response = _make_model_with_usage(
+        code_model, "GetResponse", 4, DPGModelType
+    )  # Output-only
 
     env = _make_env()
-    ts = TypesSerializer(code_model=code_model, env=env, models=[send_request, get_response])
+    ts = TypesSerializer(
+        code_model=code_model,
+        env=env,
+        models=[send_request, send_request_copy, get_response],
+    )
     rendered = [m.name for m in ts.typeddict_models]
     assert rendered == ["SendRequest"]
     assert "GetResponse" not in rendered
 
 
 def test_dpg_input_output_model_included_in_typeddict_models():
-    """A dpg model used as both input and output still renders in types.py (it is an input)."""
+    """A DPG model used as input and output renders when an operation uses its TypedDict copy."""
     code_model = _make_code_model(models_mode="dpg")
     cat = _make_model_with_usage(code_model, "Cat", 6, DPGModelType)  # Input | Output
+    cat_copy = _make_model_with_usage(code_model, "Cat", 2, TypedDictModelType)
 
     env = _make_env()
-    ts = TypesSerializer(code_model=code_model, env=env, models=[cat])
+    ts = TypesSerializer(code_model=code_model, env=env, models=[cat, cat_copy])
     assert [m.name for m in ts.typeddict_models] == ["Cat"]
 
 
 def test_typeddict_mode_output_only_model_included():
     """In full typeddict mode, every model (incl. output-only) is consumed as a TypedDict."""
     code_model = _make_code_model(models_mode="typeddict")
-    get_response = _make_model_with_usage(code_model, "GetResponse", 4, TypedDictModelType)  # Output-only
+    get_response = _make_model_with_usage(
+        code_model, "GetResponse", 4, TypedDictModelType
+    )  # Output-only
 
     env = _make_env()
     ts = TypesSerializer(code_model=code_model, env=env, models=[get_response])
@@ -233,12 +278,16 @@ def test_dpg_typeddict_copy_without_input_usage_still_kept():
     """
     code_model = _make_code_model(models_mode="dpg")
     # usage 320 == Json(256) | Spread(64), no Input(2) bit — mirrors real tcgc output.
-    send_copy = _make_model_with_usage(code_model, "SendRequest", 320, TypedDictModelType)
+    send_copy = _make_model_with_usage(
+        code_model, "SendRequest", 320, TypedDictModelType
+    )
 
     env = _make_env()
     ts = TypesSerializer(code_model=code_model, env=env, models=[send_copy])
     assert [m.name for m in ts.typeddict_models] == ["SendRequest"]
-    assert not send_copy.is_usage_input  # the copy is kept despite lacking the Input flag
+    assert (
+        not send_copy.is_usage_input
+    )  # the copy is kept despite lacking the Input flag
 
 
 def _make_discriminated_base(code_model, name, usage, subtypes, model_cls=DPGModelType):
@@ -264,8 +313,12 @@ def test_dpg_output_only_discriminated_base_excluded():
     leaving the alias referencing an undefined name.
     """
     code_model = _make_code_model(models_mode="dpg")
-    trex = _make_model_with_usage(code_model, "TRex", 4, DPGModelType)  # Output-only subtype
-    dinosaur = _make_discriminated_base(code_model, "Dinosaur", 4, [trex])  # Output-only base
+    trex = _make_model_with_usage(
+        code_model, "TRex", 4, DPGModelType
+    )  # Output-only subtype
+    dinosaur = _make_discriminated_base(
+        code_model, "Dinosaur", 4, [trex]
+    )  # Output-only base
 
     env = _make_env()
     ts = TypesSerializer(code_model=code_model, env=env, models=[dinosaur, trex])
@@ -279,7 +332,9 @@ def test_dpg_input_discriminated_base_included_with_subtypes():
     code_model = _make_code_model(models_mode="dpg")
     eagle = _make_model_with_usage(code_model, "Eagle", 2, DPGModelType)  # Input
     goose = _make_model_with_usage(code_model, "Goose", 2, DPGModelType)  # Input
-    bird = _make_discriminated_base(code_model, "Bird", 2, [eagle, goose])  # Input base
+    bird = _make_discriminated_base(
+        code_model, "Bird", 2, [eagle, goose], model_cls=TypedDictModelType
+    )
 
     env = _make_env()
     ts = TypesSerializer(code_model=code_model, env=env, models=[bird, eagle, goose])
@@ -295,8 +350,12 @@ def test_dpg_input_base_forces_output_only_subtype_into_types():
     undefined name.
     """
     code_model = _make_code_model(models_mode="dpg")
-    eagle = _make_model_with_usage(code_model, "Eagle", 4, DPGModelType)  # Output-only subtype
-    bird = _make_discriminated_base(code_model, "Bird", 2, [eagle])  # Input base references it
+    eagle = _make_model_with_usage(
+        code_model, "Eagle", 4, DPGModelType
+    )  # Output-only subtype
+    bird = _make_discriminated_base(
+        code_model, "Bird", 2, [eagle], model_cls=TypedDictModelType
+    )
 
     env = _make_env()
     ts = TypesSerializer(code_model=code_model, env=env, models=[bird, eagle])
@@ -322,14 +381,24 @@ def test_dpg_input_model_pulls_in_output_only_property_type():
     keep it.
     """
     code_model = _make_code_model(models_mode="dpg")
-    system_data = _make_model_with_usage(code_model, "SystemData", 4, DPGModelType)  # Output-only
+    system_data = _make_model_with_usage(
+        code_model, "SystemData", 4, DPGModelType
+    )  # Output-only
     resource = _make_model_with_usage(code_model, "Resource", 2, DPGModelType)  # Input
     resource.properties = [_make_property(code_model, "systemData", system_data)]
+    resource_copy = _make_model_with_usage(
+        code_model, "Resource", 2, TypedDictModelType
+    )
+    resource_copy.properties = resource.properties
     # An unrelated output-only response model that nothing input references must stay excluded.
     get_response = _make_model_with_usage(code_model, "GetResponse", 4, DPGModelType)
 
     env = _make_env()
-    ts = TypesSerializer(code_model=code_model, env=env, models=[resource, system_data, get_response])
+    ts = TypesSerializer(
+        code_model=code_model,
+        env=env,
+        models=[resource, resource_copy, system_data, get_response],
+    )
     rendered = sorted(m.name for m in ts.typeddict_models)
     assert rendered == ["Resource", "SystemData"]
     assert "GetResponse" not in rendered
@@ -338,13 +407,25 @@ def test_dpg_input_model_pulls_in_output_only_property_type():
 def test_dpg_input_model_pulls_in_output_only_type_inside_container():
     """Reachability must descend into list/dict element types, not just direct property references."""
     code_model = _make_code_model(models_mode="dpg")
-    item = _make_model_with_usage(code_model, "Item", 4, DPGModelType)  # Output-only element
-    container = _make_model_with_usage(code_model, "Container", 2, DPGModelType)  # Input
-    list_type = ListType(yaml_data={"type": "list"}, code_model=code_model, element_type=item)
+    item = _make_model_with_usage(
+        code_model, "Item", 4, DPGModelType
+    )  # Output-only element
+    container = _make_model_with_usage(
+        code_model, "Container", 2, DPGModelType
+    )  # Input
+    list_type = ListType(
+        yaml_data={"type": "list"}, code_model=code_model, element_type=item
+    )
     container.properties = [_make_property(code_model, "items", list_type)]
+    container_copy = _make_model_with_usage(
+        code_model, "Container", 2, TypedDictModelType
+    )
+    container_copy.properties = container.properties
 
     env = _make_env()
-    ts = TypesSerializer(code_model=code_model, env=env, models=[container, item])
+    ts = TypesSerializer(
+        code_model=code_model, env=env, models=[container, container_copy, item]
+    )
     assert sorted(m.name for m in ts.typeddict_models) == ["Container", "Item"]
 
 
@@ -360,6 +441,26 @@ def test_models_mode_typeddict_models_included():
     env = _make_env()
     ts = TypesSerializer(code_model=code_model, env=env, models=[m1, m2])
     assert len(ts.typeddict_models) == 2
+
+
+def test_models_mode_typeddict_does_not_write_empty_models_folder(
+    tmp_path, monkeypatch
+):
+    """TypedDict-only generation must not write models package scaffolding."""
+    code_model = _make_code_model(models_mode="typeddict")
+    model = _make_model(code_model, "Foo", model_cls=TypedDictModelType)
+    serializer = JinjaSerializer(code_model=code_model, output_folder=tmp_path)
+    written_paths = []
+    monkeypatch.setattr(
+        serializer, "write_file", lambda path, content: written_paths.append(path)
+    )
+    monkeypatch.setattr(serializer, "read_file", lambda path: "")
+
+    serializer._serialize_and_write_models_folder(
+        env=_make_env(), namespace=code_model.namespace, models=[model], enums=[]
+    )
+
+    assert written_paths == []
 
 
 def test_models_mode_typeddict_serialize_contains_class():
@@ -403,6 +504,39 @@ def test_models_mode_typeddict_docstring_uses_wire_name():
     assert ":vartype paramName: str" in output
     assert ":ivar param_name:" not in output
     assert ":vartype param_name:" not in output
+
+
+def test_models_mode_typeddict_docstring_escapes_at_sign():
+    """A wire name containing "@" is wrapped in double backticks in the Sphinx info field,
+    but the TypedDict key itself must keep the raw "@"."""
+    code_model = _make_code_model(models_mode="typeddict")
+    string_type = build_type({"type": "string"}, code_model)
+    model = TypedDictModelType(
+        yaml_data={"name": "Foo", "type": "model", "snakeCaseName": "foo", "usage": 2},
+        code_model=code_model,
+        properties=[
+            Property(
+                yaml_data={
+                    "wireName": "@search.facets",
+                    "clientName": "search_facets",
+                    "optional": True,
+                },
+                code_model=code_model,
+                type=string_type,
+            )
+        ],
+    )
+    code_model.model_types = [model]
+
+    env = _make_env()
+    output = TypesSerializer(code_model=code_model, env=env, models=[model]).serialize()
+
+    # Docstring field target is wrapped in double backticks (no backslash escape)
+    assert ":ivar ``@search.facets``:" in output
+    assert ":vartype ``@search.facets``: str" in output
+    assert "\\@search.facets" not in output
+    # The actual TypedDict key keeps the raw "@" (must NOT be escaped in code)
+    assert '"@search.facets":' in output
 
 
 def test_types_file_has_no_named_unions():
@@ -594,30 +728,44 @@ def _make_required_property(code_model, name, prop_type):
 def test_qualify_shadowed_builtins_ignores_literal_value():
     """A builtin name that only appears inside a ``Literal[...]`` value must not be rewritten."""
     # ``type`` is a builtin, but here it is a literal string value, not a type reference.
-    assert _qualify_shadowed_builtins('Required[Literal["type"]]', frozenset({"type"})) == 'Required[Literal["type"]]'
+    assert (
+        _qualify_shadowed_builtins('Required[Literal["type"]]', frozenset({"type"}))
+        == 'Required[Literal["type"]]'
+    )
 
 
 def test_qualify_shadowed_builtins_ignores_quoted_forward_reference():
     """A builtin name inside a quoted forward reference must not be rewritten."""
-    assert _qualify_shadowed_builtins('list["type"]', frozenset({"type"})) == 'list["type"]'
+    assert (
+        _qualify_shadowed_builtins('list["type"]', frozenset({"type"}))
+        == 'list["type"]'
+    )
 
 
 def test_qualify_shadowed_builtins_rewrites_genuine_bare_reference():
     """A genuine bare builtin type reference is qualified as ``builtins.X``."""
     assert _qualify_shadowed_builtins("bytes", frozenset({"bytes"})) == "builtins.bytes"
     # Only the bare reference is rewritten; the quoted forward reference is left untouched.
-    assert _qualify_shadowed_builtins('Union["Model", bytes]', frozenset({"bytes"})) == 'Union["Model", builtins.bytes]'
+    assert (
+        _qualify_shadowed_builtins('Union["Model", bytes]', frozenset({"bytes"}))
+        == 'Union["Model", builtins.bytes]'
+    )
 
 
 def test_qualify_shadowed_builtins_skips_already_dotted_names():
     """An already-qualified ``builtins.X`` reference must not be double-qualified."""
-    assert _qualify_shadowed_builtins("builtins.bytes", frozenset({"bytes"})) == "builtins.bytes"
+    assert (
+        _qualify_shadowed_builtins("builtins.bytes", frozenset({"bytes"}))
+        == "builtins.bytes"
+    )
 
 
 def test_qualify_shadowed_builtins_mixes_real_and_literal():
     """Within one annotation, a real reference is rewritten while a Literal value is preserved."""
     assert (
-        _qualify_shadowed_builtins('dict[str, Literal["type"]]', frozenset({"type", "str"}))
+        _qualify_shadowed_builtins(
+            'dict[str, Literal["type"]]', frozenset({"type", "str"})
+        )
         == 'dict[builtins.str, Literal["type"]]'
     )
 
@@ -629,10 +777,18 @@ def test_literal_value_matching_builtin_not_detected_as_shadowed():
     with the bare builtin ``type``, so no shadowing occurs.
     """
     code_model = _make_code_model(models_mode="typeddict")
-    const = build_type({"type": "constant", "value": "type", "valueType": {"type": "string"}}, code_model)
+    const = build_type(
+        {"type": "constant", "value": "type", "valueType": {"type": "string"}},
+        code_model,
+    )
     text = build_type({"type": "string"}, code_model)
     model = TypedDictModelType(
-        yaml_data={"name": "TypeParam", "type": "model", "snakeCaseName": "typeparam", "usage": 2},
+        yaml_data={
+            "name": "TypeParam",
+            "type": "model",
+            "snakeCaseName": "typeparam",
+            "usage": 2,
+        },
         code_model=code_model,
         properties=[
             _make_required_property(code_model, "type", const),
@@ -647,10 +803,18 @@ def test_literal_value_matching_builtin_not_detected_as_shadowed():
 def test_literal_value_false_positive_no_builtins_import_and_value_preserved():
     """The reported bug: ``Literal["type"]`` must stay intact and no ``import builtins`` is added."""
     code_model = _make_code_model(models_mode="typeddict")
-    const = build_type({"type": "constant", "value": "type", "valueType": {"type": "string"}}, code_model)
+    const = build_type(
+        {"type": "constant", "value": "type", "valueType": {"type": "string"}},
+        code_model,
+    )
     text = build_type({"type": "string"}, code_model)
     model = TypedDictModelType(
-        yaml_data={"name": "TypeParam", "type": "model", "snakeCaseName": "typeparam", "usage": 2},
+        yaml_data={
+            "name": "TypeParam",
+            "type": "model",
+            "snakeCaseName": "typeparam",
+            "usage": 2,
+        },
         code_model=code_model,
         properties=[
             _make_required_property(code_model, "type", const),
@@ -677,7 +841,12 @@ def test_genuine_sibling_builtin_is_detected_and_qualified():
     str_type = build_type({"type": "string"}, code_model)
     int_type = build_type({"type": "integer"}, code_model)
     model = TypedDictModelType(
-        yaml_data={"name": "Numbers", "type": "model", "snakeCaseName": "numbers", "usage": 2},
+        yaml_data={
+            "name": "Numbers",
+            "type": "model",
+            "snakeCaseName": "numbers",
+            "usage": 2,
+        },
         code_model=code_model,
         properties=[
             _make_required_property(code_model, "int", str_type),
@@ -706,7 +875,12 @@ def test_type_changing_under_types_file_does_not_cause_spurious_builtins_import(
     int_type = build_type({"type": "integer"}, code_model)
     bytes_type = build_type({"type": "bytes", "encode": "base64"}, code_model)
     model = TypedDictModelType(
-        yaml_data={"name": "Blob", "type": "model", "snakeCaseName": "blob", "usage": 2},
+        yaml_data={
+            "name": "Blob",
+            "type": "model",
+            "snakeCaseName": "blob",
+            "usage": 2,
+        },
         code_model=code_model,
         properties=[
             _make_required_property(code_model, "bytes", int_type),

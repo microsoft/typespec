@@ -175,8 +175,13 @@ namespace Microsoft.TypeSpec.Generator.Utilities
                 }
 
                 var currentParameters = method.Signature.Parameters;
-                MethodProvider? matchingPrevious = null;
-                bool matchingPreviousResolved = false;
+                var matchingPrevious = FindMethodWithSameSignatureIgnoringNames(previousMethods, method.Signature);
+
+                if (matchingPrevious != null
+                    && TryRestorePreviousParameterOrder(method, matchingPrevious.Signature))
+                {
+                    currentParameters = method.Signature.Parameters;
+                }
 
                 for (int i = 0; i < currentParameters.Count; i++)
                 {
@@ -184,13 +189,8 @@ namespace Microsoft.TypeSpec.Generator.Utilities
                     string? preservedName = null;
 
                     var inputParameter = parameter.InputParameter;
-                    if (inputParameter is not null)
+                    if (inputParameter is not null && string.Equals(parameter.Name, inputParameter.Name, StringComparison.Ordinal))
                     {
-                        if (!string.Equals(parameter.Name, inputParameter.Name, StringComparison.Ordinal))
-                        {
-                            continue;
-                        }
-
                         var originalName = inputParameter.OriginalName;
                         if (!string.IsNullOrEmpty(originalName))
                         {
@@ -201,12 +201,6 @@ namespace Microsoft.TypeSpec.Generator.Utilities
                     // Fall back to a positional match for synthesized parameters
                     if (string.IsNullOrEmpty(preservedName))
                     {
-                        if (!matchingPreviousResolved)
-                        {
-                            matchingPrevious = FindMethodWithSameSignatureIgnoringNames(previousMethods, method.Signature);
-                            matchingPreviousResolved = true;
-                        }
-
                         preservedName = matchingPrevious?.Signature.Parameters[i].Name;
                     }
 

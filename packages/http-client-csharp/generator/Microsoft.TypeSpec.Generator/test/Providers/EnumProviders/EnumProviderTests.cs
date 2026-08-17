@@ -1,7 +1,7 @@
 // Copyright (c) Microsoft Corporation. All rights reserved.
 // Licensed under the MIT License.
 
-// cspell:ignore readded
+// cspell:ignore DBOSIP IPDBOS readded
 
 using System;
 using System.Collections.Generic;
@@ -88,6 +88,44 @@ namespace Microsoft.TypeSpec.Generator.Tests.Providers
             // non-int based enum does not initialization values.
             Assert.IsNull(fields[0].InitializationValue);
             Assert.IsNull(fields[1].InitializationValue);
+        }
+
+        [TestCase(false, "CosmosDbOsIpKind", false, "CosmosDBOSIPKind")]
+        [TestCase(true, "IpDbOsValue", false, "IPDBOSValue")]
+        [TestCase(false, "Ipv4AddressIpv6", false, "IPv4AddressIPv6")]
+        [TestCase(true, "IpV4AddressIpV6", false, "IPv4AddressIPv6")]
+        [TestCase(false, "IPV4AddressIPV6", false, "IPV4AddressIPV6")]
+        [TestCase(true, "OsloIpsumOsmosisDbz", false, "OsloIpsumOsmosisDbz")]
+        [TestCase(false, "IpKind", true, "IpKind")]
+        public void BuildEnumType_NormalizesTypeAcronymCasing(
+            bool isExtensible,
+            string inputName,
+            bool isExactName,
+            string expectedName)
+        {
+            MockHelpers.LoadMockGenerator(createCSharpTypeCore: (inputType) => typeof(string));
+            var input = InputFactory.StringEnum(
+                inputName,
+                [("Value", "value")],
+                isExtensible: isExtensible,
+                isExactName: isExactName);
+
+            var enumType = EnumProvider.Create(input);
+
+            Assert.AreEqual(expectedName, enumType.Name);
+        }
+
+        [Test]
+        public async Task BuildEnumType_BackCompatTakesPrecedenceOverAcronymNormalization()
+        {
+            await MockHelpers.LoadMockGeneratorAsync(
+                createCSharpTypeCore: (inputType) => typeof(string),
+                lastContractCompilation: async () => await Helpers.GetCompilationFromDirectoryAsync());
+            var input = InputFactory.StringEnum("IpKind", [("Value", "value")]);
+
+            var enumType = EnumProvider.Create(input);
+
+            Assert.AreEqual("IpKind", enumType.Name);
         }
 
         // Validates the api version enum
@@ -1207,6 +1245,49 @@ namespace Microsoft.TypeSpec.Generator.Tests.Providers
             Assert.AreEqual(2, properties.Count);
             Assert.AreEqual("One", properties[0].Name);
             Assert.AreEqual("snake_case_value", properties[1].Name);
+        }
+
+        [TestCase(false, "CallbackUrl", false, "CallbackUri")]
+        [TestCase(true, "CallbackUrl", false, "CallbackUri")]
+        [TestCase(false, "CallbackUrlValue", false, "CallbackUrlValue")]
+        [TestCase(true, "CallbackUrls", false, "CallbackUrls")]
+        [TestCase(false, "CallbackUrl", true, "CallbackUrl")]
+        [TestCase(true, "CallbackUrl", true, "CallbackUrl")]
+        public void BuildEnumType_ReplacesCompleteUrlSuffixOnValues(
+            bool isExtensible,
+            string valueName,
+            bool isExactName,
+            string expectedName)
+        {
+            MockHelpers.LoadMockGenerator(createCSharpTypeCore: (inputType) => typeof(string));
+            var enumValues = new List<InputEnumTypeValue>();
+            var enumType = InputFactory.Enum(
+                "mockInputEnum",
+                InputPrimitiveType.String,
+                enumValues,
+                isExtensible: isExtensible);
+            enumValues.Add(InputFactory.EnumMember.String(valueName, "value", enumType, isExactName: isExactName));
+
+            var enumProvider = EnumProvider.Create(enumType);
+
+            Assert.AreEqual(expectedName, enumProvider.EnumValues.Single().Name);
+        }
+
+        [TestCase(false, "Fixed")]
+        [TestCase(true, "Extensible")]
+        public async Task BuildEnumType_PreservesUrlSuffixFromLastContract(bool isExtensible, string testData)
+        {
+            await MockHelpers.LoadMockGeneratorAsync(
+                createCSharpTypeCore: (inputType) => typeof(string),
+                lastContractCompilation: async () => await Helpers.GetCompilationFromDirectoryAsync(parameters: testData));
+            var input = InputFactory.StringEnum(
+                "mockInputEnum",
+                [("CallbackUrl", "value")],
+                isExtensible: isExtensible);
+
+            var enumProvider = EnumProvider.Create(input);
+
+            Assert.AreEqual("CallbackUrl", enumProvider.EnumValues.Single().Name);
         }
 
         private static void ValidateGetHashCodeMethod(EnumProvider enumType)

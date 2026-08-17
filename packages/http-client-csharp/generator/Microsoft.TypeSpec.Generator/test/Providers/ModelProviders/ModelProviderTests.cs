@@ -1,6 +1,8 @@
 // Copyright (c) Microsoft Corporation. All rights reserved.
 // Licensed under the MIT License.
 
+// cspell:ignore DBOS IPDBOSIP
+
 using System;
 using System.Collections.Generic;
 using System.IO;
@@ -56,6 +58,51 @@ namespace Microsoft.TypeSpec.Generator.Tests.Providers.ModelProviders
             var prop1Field = baseModelProvider.Fields.FirstOrDefault(f => f.Name == "_prop1");
             Assert.NotNull(prop1Field);
             Assert.AreEqual(FieldModifiers.Private | FieldModifiers.Protected, prop1Field!.Modifiers);
+        }
+
+        [TestCase("IpAddress", false, "IPAddress")]
+        [TestCase("CosmosDbAccount", false, "CosmosDBAccount")]
+        [TestCase("OsProfile", false, "OSProfile")]
+        [TestCase("IpDbOsIpAddressDb", false, "IPDBOSIPAddressDB")]
+        [TestCase("IPAddressCosmosDBOSProfile", false, "IPAddressCosmosDBOSProfile")]
+        [TestCase("Ipv4AddressIpv6", false, "IPv4AddressIPv6")]
+        [TestCase("IpV4AddressIpV6", false, "IPv4AddressIPv6")]
+        [TestCase("Ipv4address", false, "Ipv4address")]
+        [TestCase("Ipv42Address", false, "Ipv42Address")]
+        [TestCase("IPV4AddressIPV6", false, "IPV4AddressIPV6")]
+        [TestCase("OsloIpsumOsmosisDbz", false, "OsloIpsumOsmosisDbz")]
+        [TestCase("IpAddress", true, "IpAddress")]
+        public void TestBuildName_NormalizesAcronymCasing(string inputName, bool isExactName, string expectedName)
+        {
+            var inputModel = InputFactory.Model(inputName, isExactName: isExactName);
+
+            var modelProvider = new ModelProvider(inputModel);
+
+            Assert.AreEqual(expectedName, modelProvider.Name);
+        }
+
+        [Test]
+        public async Task TestBuildName_BackCompatTakesPrecedenceOverAcronymNormalization()
+        {
+            var inputModel = InputFactory.Model(
+                "IpAddress",
+                properties:
+                [
+                    InputFactory.Property("dbName", InputPrimitiveType.String),
+                    InputFactory.Property("osProfile", InputPrimitiveType.String),
+                    InputFactory.Property("IpAddress", InputPrimitiveType.String)
+                ]);
+            await MockHelpers.LoadMockGeneratorAsync(
+                inputModelTypes: [inputModel],
+                lastContractCompilation: async () => await Helpers.GetCompilationFromDirectoryAsync());
+
+            var modelProvider = CodeModelGenerator.Instance.TypeFactory.CreateModel(inputModel);
+
+            Assert.IsNotNull(modelProvider);
+            Assert.AreEqual("IpAddress", modelProvider!.Name);
+            Assert.IsNotNull(modelProvider.Properties.SingleOrDefault(p => p.Name == "DbName"));
+            Assert.IsNotNull(modelProvider.Properties.SingleOrDefault(p => p.Name == "OSProfile"));
+            Assert.IsNotNull(modelProvider.Properties.SingleOrDefault(p => p.Name == "IpAddressProperty"));
         }
 
         // Validates that the property body's setter is correctly set based on the property type
@@ -1791,7 +1838,7 @@ namespace Microsoft.TypeSpec.Generator.Tests.Providers.ModelProviders
             Assert.IsNotNull(modelProvider);
 
             // The property with external type should be resolved
-            var ipAddressProp = modelProvider!.Properties.FirstOrDefault(p => p.Name == "IpAddress");
+            var ipAddressProp = modelProvider!.Properties.FirstOrDefault(p => p.Name == "IPAddress");
             Assert.IsNotNull(ipAddressProp);
             Assert.IsNotNull(ipAddressProp!.Type.FrameworkType);
 
@@ -2347,6 +2394,207 @@ namespace Microsoft.TypeSpec.Generator.Tests.Providers.ModelProviders
         }
 
         [Test]
+        public async Task BackCompat_ConstructorParameterSwapRestoredBySignatureMatch()
+        {
+            var inputModel = InputFactory.Model(
+                "MockInputModel",
+                usage: InputModelTypeUsage.Input,
+                properties:
+                [
+                    InputFactory.Property("vmSkuName", InputPrimitiveType.String, isRequired: true),
+                    InputFactory.Property("name", InputPrimitiveType.String, isRequired: true),
+                ]);
+
+            await MockHelpers.LoadMockGeneratorAsync(
+                inputModelTypes: [inputModel],
+                lastContractCompilation: async () => await Helpers.GetCompilationFromDirectoryAsync());
+
+            var modelProvider = CodeModelGenerator.Instance.OutputLibrary.TypeProviders
+                .OfType<ModelProvider>()
+                .Single(t => t.Name == "MockInputModel");
+
+            modelProvider.ProcessTypeForBackCompatibility();
+
+            var constructor = modelProvider.Constructors.Single(c =>
+                c.Signature.Modifiers.HasFlag(MethodSignatureModifiers.Public));
+            Assert.That(constructor.Signature.Parameters.Select(p => p.Name), Is.EqualTo(new[] { "name", "vmSkuName" }));
+            Assert.That(constructor.Signature.Parameters.Select(p => p.Property?.Name), Is.EqualTo(new[] { "Name", "VmSkuName" }));
+
+            var content = new TypeProviderWriter(modelProvider).Write().Content;
+            Assert.AreEqual(Helpers.GetExpectedFromFile(), content);
+        }
+
+        [Test]
+        public async Task BackCompat_ConstructorParameterRenameRestoredBySignatureMatch()
+        {
+            var inputModel = InputFactory.Model(
+                "MockInputModel",
+                usage: InputModelTypeUsage.Input,
+                properties:
+                [
+                    InputFactory.Property("unchanged", InputPrimitiveType.String, isRequired: true),
+                    InputFactory.Property("newName", InputPrimitiveType.String, isRequired: true),
+                ]);
+
+            await MockHelpers.LoadMockGeneratorAsync(
+                inputModelTypes: [inputModel],
+                lastContractCompilation: async () => await Helpers.GetCompilationFromDirectoryAsync());
+
+            var modelProvider = CodeModelGenerator.Instance.OutputLibrary.TypeProviders
+                .OfType<ModelProvider>()
+                .Single(t => t.Name == "MockInputModel");
+
+            modelProvider.ProcessTypeForBackCompatibility();
+
+            var constructor = modelProvider.Constructors.Single(c =>
+                c.Signature.Modifiers.HasFlag(MethodSignatureModifiers.Public));
+            Assert.That(constructor.Signature.Parameters.Select(p => p.Name), Is.EqualTo(new[] { "unchanged", "oldName" }));
+            Assert.That(constructor.Signature.Parameters.Select(p => p.Property?.Name), Is.EqualTo(new[] { "Unchanged", "NewName" }));
+
+            var content = new TypeProviderWriter(modelProvider).Write().Content;
+            Assert.AreEqual(Helpers.GetExpectedFromFile(), content);
+        }
+
+        [Test]
+        public async Task BackCompat_ConstructorParameterCasingAndRotationRestoredBySignatureMatch()
+        {
+            var casingModel = InputFactory.Model(
+                "CasingModel",
+                usage: InputModelTypeUsage.Input,
+                properties:
+                [
+                    InputFactory.Property("vMwareSiteId", InputPrimitiveType.String, isRequired: true),
+                ]);
+            var rotationModel = InputFactory.Model(
+                "RotationModel",
+                usage: InputModelTypeUsage.Input,
+                properties:
+                [
+                    InputFactory.Property("third", InputPrimitiveType.String, isRequired: true),
+                    InputFactory.Property("first", InputPrimitiveType.String, isRequired: true),
+                    InputFactory.Property("second", InputPrimitiveType.String, isRequired: true),
+                ]);
+
+            await MockHelpers.LoadMockGeneratorAsync(
+                inputModelTypes: [casingModel, rotationModel],
+                lastContractCompilation: async () => await Helpers.GetCompilationFromDirectoryAsync());
+
+            var models = CodeModelGenerator.Instance.OutputLibrary.TypeProviders
+                .OfType<ModelProvider>()
+                .Where(t => t.Name is "CasingModel" or "RotationModel")
+                .ToDictionary(t => t.Name);
+
+            foreach (var model in models.Values)
+            {
+                model.ProcessTypeForBackCompatibility();
+            }
+
+            var casingContent = new TypeProviderWriter(models["CasingModel"]).Write().Content;
+            var rotationContent = new TypeProviderWriter(models["RotationModel"]).Write().Content;
+            Assert.AreEqual(Helpers.GetExpectedFromFile("Casing"), casingContent);
+            Assert.AreEqual(Helpers.GetExpectedFromFile("Rotation"), rotationContent);
+        }
+
+        [Test]
+        public async Task BackCompat_ConstructorParameterChainedRenameRestoredBySignatureMatch()
+        {
+            // Current ctor is (skuName, name); the last contract was (name, vmName). Restoring position 0 to
+            // "name" transiently collides with position 1's current "name", which is itself restored to
+            // "vmName" - so both names must still be preserved rather than skipped on the intermediate clash.
+            var inputModel = InputFactory.Model(
+                "MockInputModel",
+                usage: InputModelTypeUsage.Input,
+                properties:
+                [
+                    InputFactory.Property("skuName", InputPrimitiveType.String, isRequired: true),
+                    InputFactory.Property("name", InputPrimitiveType.String, isRequired: true),
+                ]);
+
+            await MockHelpers.LoadMockGeneratorAsync(
+                inputModelTypes: [inputModel],
+                lastContractCompilation: async () => await Helpers.GetCompilationFromDirectoryAsync());
+
+            var modelProvider = CodeModelGenerator.Instance.OutputLibrary.TypeProviders
+                .OfType<ModelProvider>()
+                .Single(t => t.Name == "MockInputModel");
+
+            modelProvider.ProcessTypeForBackCompatibility();
+
+            var constructor = modelProvider.Constructors.Single(c =>
+                c.Signature.Modifiers.HasFlag(MethodSignatureModifiers.Public));
+            Assert.That(constructor.Signature.Parameters.Select(p => p.Name), Is.EqualTo(new[] { "name", "vmName" }));
+            Assert.That(constructor.Signature.Parameters.Select(p => p.Property?.Name), Is.EqualTo(new[] { "SkuName", "Name" }));
+
+            var content = new TypeProviderWriter(modelProvider).Write().Content;
+            Assert.AreEqual(Helpers.GetExpectedFromFile(), content);
+        }
+
+        [Test]
+        public async Task BackCompat_ConstructorNotRestoredWhenNoChainTarget()
+        {
+            // The last contract published `MockInputModel(string beta, string alpha, int gamma)`. The current
+            // generation reorders the required properties so the public `(alpha, beta)` constructor is not an
+            // in-order subsequence to chain to. A standalone constructor would bypass the current
+            // constructor's initialization, so the previous constructor is not restored.
+            var inputModel = InputFactory.Model(
+                "MockInputModel",
+                usage: InputModelTypeUsage.Input | InputModelTypeUsage.Json,
+                properties:
+                [
+                    InputFactory.Property("alpha", InputPrimitiveType.String, isRequired: true),
+                    InputFactory.Property("beta", InputPrimitiveType.String, isRequired: true),
+                    InputFactory.Property("gamma", InputPrimitiveType.Int32, isRequired: false),
+                ]);
+
+            await MockHelpers.LoadMockGeneratorAsync(
+                inputModelTypes: [inputModel],
+                lastContractCompilation: async () => await Helpers.GetCompilationFromDirectoryAsync());
+
+            var modelProvider = CodeModelGenerator.Instance.OutputLibrary.TypeProviders
+                .OfType<ModelProvider>()
+                .Single(t => t.Name == "MockInputModel");
+
+            modelProvider.ProcessTypeForBackCompatibility();
+
+            Assert.IsFalse(
+                modelProvider.Constructors.Any(c => c.Signature.Parameters.Count == 3),
+                "Expected the previous constructor not to be restored without a chain target.");
+        }
+
+        [Test]
+        public async Task BackCompat_ConstructorNotRestoredWhenNewRequiredPropertyPreventsChaining()
+        {
+            // The last contract published `MockInputModel(string workloadProfileType, int minimumCount, int maximumCount)`.
+            // The current generation adds a required `name` property, so the current public constructor
+            // `(name, workloadProfileType)` is not an in-order subsequence of the previous signature and there
+            // is no chain target. A standalone constructor would bypass initialization, so it is not restored.
+            var inputModel = InputFactory.Model(
+                "MockInputModel",
+                usage: InputModelTypeUsage.Input | InputModelTypeUsage.Output | InputModelTypeUsage.Json,
+                properties:
+                [
+                    InputFactory.Property("name", InputPrimitiveType.String, isRequired: true),
+                    InputFactory.Property("workloadProfileType", InputPrimitiveType.String, isRequired: true),
+                    InputFactory.Property("minimumCount", InputPrimitiveType.Int32, isRequired: false),
+                    InputFactory.Property("maximumCount", InputPrimitiveType.Int32, isRequired: false),
+                ]);
+
+            await MockHelpers.LoadMockGeneratorAsync(
+                inputModelTypes: [inputModel],
+                lastContractCompilation: async () => await Helpers.GetCompilationFromDirectoryAsync());
+
+            var modelProvider = CodeModelGenerator.Instance.OutputLibrary.TypeProviders
+                .OfType<ModelProvider>()
+                .Single(t => t.Name == "MockInputModel");
+
+            modelProvider.ProcessTypeForBackCompatibility();
+
+            Assert.IsFalse(
+                modelProvider.Constructors.Any(c => c.Signature.Parameters.Count == 3),
+                "Expected the previous constructor not to be restored without a chain target.");
+        }
+
+        [Test]
         public async Task BackCompat_ParameterlessConstructorRestored()
         {
             // The last contract published a parameterless `protected BaseModel()`. The current generation
@@ -2657,6 +2905,54 @@ namespace Microsoft.TypeSpec.Generator.Tests.Providers.ModelProviders
             var writer = new TypeProviderWriter(modelProvider);
             var file = writer.Write();
             Assert.AreEqual(Helpers.GetExpectedFromFile(), file.Content);
+        }
+
+        [Test]
+        public async Task BackCompat_RenamedAbstractBaseConstructorNotRestoredWhenRemovalAcceptedInBaseline()
+        {
+            // The last contract published a public `BaseModel(string createdOn)` on an abstract base. The
+            // current generation produces a `private protected BaseModel(string kind)`. Without the baseline
+            // filter, the rename pass would restore the previous "createdOn" name and the base promotion would
+            // re-publish the constructor - but its removal is accepted in the ApiCompat baseline, so it must
+            // not be resurrected, and the current parameter must keep its name.
+            var baseline = Helpers.GetApiCompatBaselineFromFile();
+
+            var derivedInputModel = InputFactory.Model(
+                "DerivedModel",
+                discriminatedKind: "one",
+                properties:
+                [
+                    InputFactory.Property("kind", InputPrimitiveType.String, isRequired: true, isDiscriminator: true)
+                ]);
+            var inputModel = InputFactory.Model(
+                "BaseModel",
+                properties:
+                [
+                    InputFactory.Property("kind", InputPrimitiveType.String, isRequired: true, isDiscriminator: true)
+                ],
+                discriminatedModels: new Dictionary<string, InputModelType>() { { "one", derivedInputModel } });
+
+            await MockHelpers.LoadMockGeneratorAsync(
+                inputModelTypes: [inputModel],
+                lastContractCompilation: async () => await Helpers.GetCompilationFromDirectoryAsync(),
+                apiCompatBaseline: baseline);
+
+            var modelProvider = CodeModelGenerator.Instance.OutputLibrary.TypeProviders.SingleOrDefault(t => t.Name == "BaseModel") as ModelProvider;
+            Assert.IsNotNull(modelProvider);
+
+            modelProvider!.ProcessTypeForBackCompatibility();
+
+            // The baseline-accepted removal must not be promoted back to a public constructor.
+            Assert.IsFalse(
+                modelProvider.Constructors.Any(c =>
+                    c.Signature.Modifiers.HasFlag(MethodSignatureModifiers.Public) && c.Signature.Parameters.Count == 1),
+                "The abstract-base constructor should not be promoted to public when its removal is accepted in the baseline.");
+
+            // The current initialization constructor must keep its parameter name (not renamed to "createdOn").
+            var initConstructor = modelProvider.Constructors.Single(c =>
+                c.Signature.Modifiers.HasFlag(MethodSignatureModifiers.Private)
+                && c.Signature.Modifiers.HasFlag(MethodSignatureModifiers.Protected));
+            Assert.AreEqual("kind", initConstructor.Signature.Parameters[0].Name);
         }
 
         [Test]
