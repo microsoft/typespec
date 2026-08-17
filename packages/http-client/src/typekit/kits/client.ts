@@ -9,8 +9,14 @@ import { createDiagnosable, defineKit } from "@typespec/compiler/typekit";
 import type { HttpOperation, HttpServer, HttpServiceAuthentication } from "@typespec/http";
 import { getHttpService, getServers, resolveAuthentication } from "@typespec/http";
 import "@typespec/http/experimental/typekit";
-import type { GetFeatureLifecycleOptions } from "../../decorators/experimental.js";
-import { getClientFeatureLifecycle } from "../../decorators/experimental.js";
+import type {
+  FeatureLifecycleDetails,
+  GetFeatureLifecycleOptions,
+} from "../../decorators/experimental.js";
+import {
+  getClientFeatureLifecycle,
+  getClientFeatureLifecycleDetails,
+} from "../../decorators/experimental.js";
 import type { InternalClient } from "../../interfaces.js";
 import { reportDiagnostic } from "../../lib.js";
 import { createBaseConstructor, getConstructors } from "../../utils/client-helpers.js";
@@ -25,6 +31,14 @@ interface ClientKit extends NameKit<InternalClient> {
    */
   getFeatureLifecycle: Diagnosable<
     (type: Type, options?: GetFeatureLifecycleOptions) => string | undefined
+  >;
+  /**
+   * Get the feature lifecycle details for a given type.
+   * @param type The type to get the feature lifecycle details for
+   * @param options The options to use when getting the feature lifecycle details
+   */
+  getFeatureLifecycleDetails: Diagnosable<
+    (type: Type, options?: GetFeatureLifecycleOptions) => FeatureLifecycleDetails | undefined
   >;
   /**
    * Get the parent of a client
@@ -102,6 +116,9 @@ defineKit<TypekitExtension>({
   client: {
     getFeatureLifecycle: createDiagnosable(function (type, options) {
       return getClientFeatureLifecycle(this.program, type, options);
+    }),
+    getFeatureLifecycleDetails: createDiagnosable(function (type, options) {
+      return getClientFeatureLifecycleDetails(this.program, type, options);
     }),
     getParent(client) {
       const type = client.kind === "Client" ? client.type : client;
