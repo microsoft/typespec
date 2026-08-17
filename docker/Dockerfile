@@ -14,11 +14,11 @@ COPY . /app
 WORKDIR /app
 
 # Install exact version of pnpm to avoid problems with private registries
-RUN --mount=type=secret,id=npmrc,required=true \
+RUN --mount=type=secret,id=npmrc \
     NPM_CONFIG_USERCONFIG=/run/secrets/npmrc \
     npm install -g $(node -p "require('./package.json').packageManager")
 
-RUN --mount=type=secret,id=npmrc,required=true \
+RUN --mount=type=secret,id=npmrc \
     NPM_CONFIG_USERCONFIG=/run/secrets/npmrc \
     pnpm install --filter "@typespec/compiler..."
 
@@ -34,7 +34,7 @@ FROM mcr.microsoft.com/azurelinux/base/nodejs:24
 
 COPY --from=builder /app/packages/compiler/*.tgz /tmp/compiler.tgz
 
-RUN --mount=type=secret,id=npmrc,required=true \
+RUN --mount=type=secret,id=npmrc \
     NPM_CONFIG_USERCONFIG=/run/secrets/npmrc \
     npm install --verbose -g /tmp/compiler.tgz && rm /tmp/compiler.tgz && rm /tmp/.npmrc
 
