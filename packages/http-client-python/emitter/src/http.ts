@@ -47,11 +47,26 @@ type EmittedType = ReturnType<typeof getType>;
 
 interface StructuredStreamEvent {
   eventType: string | undefined;
+  /**
+   * Payload type for this one SSE event. Together with {@link eventType} these form the
+   * runtime dispatch table (wire event name -> model to deserialize) inside the generated
+   * `_callback`. This is a narrower type than {@link StructuredStreamingInfo.itemType}.
+   */
   itemType: EmittedType;
 }
 
 interface StructuredStreamingInfo {
   kind: StructuredStreamKind;
+  /**
+   * The aggregate stream element type used for the `Stream[T]` / `AsyncStream[T]` return
+   * annotation (a single type expression). For homogeneous JSONL this is the one model; for
+   * heterogeneous SSE this is the union of every event payload.
+   *
+   * Note the deliberate overlap with the per-event {@link StructuredStreamEvent.itemType}: for
+   * heterogeneous SSE this union is exactly the sum of the `events[]` payload types. Both are
+   * carried because the union alone cannot recover the wire-name -> member mapping needed for
+   * dispatch, and the events list alone is not a single valid type expression for the annotation.
+   */
   itemType: EmittedType;
   events?: StructuredStreamEvent[];
   terminalEvent?: string;

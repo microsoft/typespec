@@ -15,11 +15,3 @@ stream: Stream[Thing] = client.receive()
 for thing in stream:
     ...
 ```
-
-```python
-from your_sdk import Stream
-
-stream: Stream[Thing] = client.receive()
-for thing in stream:
-    ...
-```
