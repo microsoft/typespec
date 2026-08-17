@@ -33,6 +33,7 @@ namespace Microsoft.TypeSpec.Generator.SourceInput
         private const string TypeMustExistDiagnostic = "CP0001";
         private const string MemberMustExistDiagnostic = "CP0002";
         private const string EnumValueMustMatchDiagnostic = "CP0011";
+        private const string ParameterNameChangedDiagnostic = "CP0017";
 
         private readonly HashSet<string> _suppressedTypes;
         private readonly HashSet<MemberKey> _suppressedMembers;
@@ -186,6 +187,13 @@ namespace Microsoft.TypeSpec.Generator.SourceInput
                             {
                                 suppressedMethods.Add(methodKey.Value);
                             }
+                        }
+                        break;
+                    case ParameterNameChangedDiagnostic:
+                        if (TryParseXmlMember(target, out _, out var suppressedMethodKey)
+                            && suppressedMethodKey.HasValue)
+                        {
+                            suppressedMethods.Add(suppressedMethodKey.Value);
                         }
                         break;
                 }
@@ -412,15 +420,16 @@ namespace Microsoft.TypeSpec.Generator.SourceInput
             var symbol = target.Substring(2);
             if (symbolKind == 'M')
             {
-                var parenIndex = symbol.IndexOf('(');
-                if (parenIndex >= 0 && !symbol.EndsWith(")", StringComparison.Ordinal))
+                var methodSymbol = TrimParameterRenameSuffix(symbol, out var returnTypeName);
+                var parenIndex = methodSymbol.IndexOf('(');
+                if (parenIndex >= 0 && !methodSymbol.EndsWith(")", StringComparison.Ordinal))
                 {
                     return false;
                 }
 
-                var memberPath = parenIndex >= 0 ? symbol.Substring(0, parenIndex) : symbol;
+                var memberPath = parenIndex >= 0 ? methodSymbol.Substring(0, parenIndex) : methodSymbol;
                 var parameterList = parenIndex >= 0
-                    ? symbol.Substring(parenIndex + 1, symbol.Length - parenIndex - 2)
+                    ? methodSymbol.Substring(parenIndex + 1, methodSymbol.Length - parenIndex - 2)
                     : string.Empty;
 
                 if (!TrySplitXmlMemberPath(memberPath, out var declaringTypeFullName, out var memberName))
@@ -429,6 +438,12 @@ namespace Microsoft.TypeSpec.Generator.SourceInput
                 }
 
                 memberName = NormalizeXmlMemberName(memberName);
+                if ((memberName == "op_Explicit" || memberName == "op_Implicit")
+                    && !string.IsNullOrEmpty(returnTypeName))
+                {
+                    memberName = GetSimpleTypeName(returnTypeName);
+                }
+
                 var normalizedParameters = NormalizeXmlParameterList(parameterList);
                 memberKey = new MemberKey(declaringTypeFullName, memberName, CountParameters(normalizedParameters));
                 methodKey = new MethodKey(declaringTypeFullName, memberName, normalizedParameters);
@@ -443,6 +458,53 @@ namespace Microsoft.TypeSpec.Generator.SourceInput
             }
 
             return false;
+        }
+
+        private static string TrimParameterRenameSuffix(string symbol, out string? returnTypeName)
+        {
+            returnTypeName = null;
+
+            var index = symbol.IndexOf('~');
+            if (index < 0)
+            {
+                return TrimParameterRenameIndexSuffix(symbol);
+            }
+
+            returnTypeName = TrimParameterRenameIndexSuffix(symbol.Substring(index + 1));
+            return TrimParameterRenameIndexSuffix(symbol.Substring(0, index));
+        }
+
+        private static string TrimParameterRenameIndexSuffix(string value)
+        {
+            var dollarIndex = value.LastIndexOf('$');
+            if (dollarIndex < 0 || dollarIndex == value.Length - 1)
+            {
+                return value;
+            }
+
+            for (int i = dollarIndex + 1; i < value.Length; i++)
+            {
+                if (!char.IsDigit(value[i]))
+                {
+                    return value;
+                }
+            }
+
+            return value.Substring(0, dollarIndex);
+        }
+
+        private static string GetSimpleTypeName(string typeName)
+        {
+            var normalized = NormalizeXmlTypeName(typeName);
+            var genericStart = normalized.IndexOf('<');
+            if (genericStart >= 0)
+            {
+                normalized = normalized.Substring(0, genericStart);
+            }
+
+            normalized = RemoveGenericArity(normalized).Replace('+', '.');
+            var lastDot = normalized.LastIndexOf('.');
+            return lastDot >= 0 ? normalized.Substring(lastDot + 1) : normalized;
         }
 
         private static bool TrySplitXmlMemberPath(
@@ -484,6 +546,12 @@ namespace Microsoft.TypeSpec.Generator.SourceInput
 
         private static string NormalizeXmlParameterList(string parameterList)
             => NormalizeParameterList(parameterList)
+                .Replace('{', '<')
+                .Replace('}', '>')
+                .Replace('+', '.');
+
+        private static string NormalizeXmlTypeName(string typeName)
+            => RemoveGenericArity(typeName)
                 .Replace('{', '<')
                 .Replace('}', '>')
                 .Replace('+', '.');

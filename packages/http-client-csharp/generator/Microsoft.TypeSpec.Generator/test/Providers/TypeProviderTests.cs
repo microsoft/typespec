@@ -1030,7 +1030,7 @@ namespace Microsoft.TypeSpec.Generator.Tests.Providers
         [Test]
         public async Task BuildMethodsForBackCompatibilitySkipsExplicitOperatorParameterRestoreWhenRemovalAcceptedInBaseline()
         {
-            var baseline = Helpers.GetApiCompatBaselineFromFile();
+            var baseline = Helpers.GetApiCompatBaselineFromFile(fileExtension: ".xml");
 
             await MockHelpers.LoadMockGeneratorAsync(
                 lastContractCompilation: async () => await Helpers.GetCompilationFromDirectoryAsync(),
@@ -1062,7 +1062,7 @@ namespace Microsoft.TypeSpec.Generator.Tests.Providers
         [Test]
         public async Task BuildMethodsForBackCompatibilitySkipsImplicitOperatorParameterRestoreWhenRemovalAcceptedInBaseline()
         {
-            var baseline = Helpers.GetApiCompatBaselineFromFile();
+            var baseline = Helpers.GetApiCompatBaselineFromFile(fileExtension: ".xml");
 
             await MockHelpers.LoadMockGeneratorAsync(
                 lastContractCompilation: async () => await Helpers.GetCompilationFromDirectoryAsync(),
