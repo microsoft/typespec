@@ -7,8 +7,8 @@
 # This file is vendored from azure-core (azure.core.streaming). It provides the
 # Stream / AsyncStream helpers (plus the JSONL / SSE decoders and event types)
 # used by generated structured-streaming operations, so the generated package
-# does not take a hard dependency on an azure-core version that ships
-# azure.core.streaming. Do not edit by hand.
+# does not take a hard dependency on a core runtime that ships the streaming
+# helpers. Do not edit by hand.
 # --------------------------------------------------------------------------
 import codecs
 import json
@@ -32,7 +32,7 @@ from typing import (
 
 from typing_extensions import Self
 
-from azure.core.rest import AsyncHttpResponse, HttpResponse
+from {{ code_model.core_library }}.rest import AsyncHttpResponse, HttpResponse
 
 DecodedType = TypeVar("DecodedType")
 ReturnType_co = TypeVar("ReturnType_co", covariant=True)
@@ -544,13 +544,13 @@ class Stream(Iterator[ReturnType_co]):
     """Stream class for consuming a decoded event stream (e.g. JSONL or SSE).
 
     :keyword response: The response object.
-    :paramtype response: ~azure.core.rest.HttpResponse
+    :paramtype response: ~{{ code_model.core_library }}.rest.HttpResponse
     :keyword decoder: A decoder to use for the stream. If omitted, the decoder is
         inferred from the response ``Content-Type`` header.
     :paramtype decoder: StreamDecoder
     :keyword deserialization_callback: A callback that takes the response and the decoded event and
         returns a deserialized object.
-    :paramtype deserialization_callback: Callable[[~azure.core.rest.HttpResponse, Any], ReturnType]
+    :paramtype deserialization_callback: Callable[[~{{ code_model.core_library }}.rest.HttpResponse, Any], ReturnType]
     :keyword terminal_event: Optional event ``data`` value that terminates the stream (e.g.
         ``"[DONE]"``). When an event's ``data`` equals this value, iteration stops and the
         event is not passed to ``deserialization_callback``.
@@ -612,13 +612,13 @@ class AsyncStream(AsyncIterator[ReturnType_co]):
     """AsyncStream class for asynchronously consuming a decoded event stream (e.g. JSONL or SSE).
 
     :keyword response: The response object.
-    :paramtype response: ~azure.core.rest.AsyncHttpResponse
+    :paramtype response: ~{{ code_model.core_library }}.rest.AsyncHttpResponse
     :keyword decoder: A decoder to use for the stream. If omitted, the decoder is
         inferred from the response ``Content-Type`` header.
     :paramtype decoder: AsyncStreamDecoder
     :keyword deserialization_callback: A callback that takes the response and the decoded event and
         returns a deserialized object.
-    :paramtype deserialization_callback: Callable[[~azure.core.rest.AsyncHttpResponse, Any], ReturnType]
+    :paramtype deserialization_callback: Callable[[~{{ code_model.core_library }}.rest.AsyncHttpResponse, Any], ReturnType]
     :keyword terminal_event: Optional event ``data`` value that terminates the stream (e.g.
         ``"[DONE]"``). When an event's ``data`` equals this value, iteration stops and the
         event is not passed to ``deserialization_callback``.

@@ -25,4 +25,5 @@ async def test_basic_send(client: JsonlClient):
 
 @pytest.mark.asyncio
 async def test_basic_recv(client: JsonlClient):
-    assert b"".join([d async for d in (await client.basic.receive())]) == JSONL
+    stream = await client.basic.receive()
+    assert [item.desc async for item in stream] == ["one", "two", "three"]

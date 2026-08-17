@@ -22,4 +22,4 @@ def test_basic_send(client: JsonlClient):
 
 
 def test_basic_recv(client: JsonlClient):
-    assert b"".join(client.basic.receive()) == JSONL
+    assert [item.desc for item in client.basic.receive()] == ["one", "two", "three"]
