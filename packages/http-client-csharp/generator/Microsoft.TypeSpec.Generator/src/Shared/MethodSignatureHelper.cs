@@ -123,8 +123,8 @@ namespace Microsoft.TypeSpec.Generator
                 var previousType = previousMethodSignature.Parameters[i].Type;
                 var currentType = currentMethodSignature.Parameters[i].Type;
                 if (!previousType.AreNamesEqual(currentType)
-                    || previousType.IsNullable != currentType.IsNullable
-                        && (previousType.IsValueType || currentType.IsValueType))
+                    || (previousType.IsNullable != currentType.IsNullable
+                        && (previousType.IsValueType || currentType.IsValueType)))
                 {
                     return i + 1;
                 }
