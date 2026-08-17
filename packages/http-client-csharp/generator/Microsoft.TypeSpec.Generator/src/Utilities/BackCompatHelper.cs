@@ -195,8 +195,7 @@ namespace Microsoft.TypeSpec.Generator.Utilities
                         preservedName = FindPreviousParameterName(lastContractView, inputParameter.OriginalName, method.Signature.Name);
                     }
 
-                    // Fall back to a positional match for synthesized parameters, including content parameters
-                    // whose input metadata describes the body parameter rather than the public parameter.
+                    // Fall back to a positional match for synthesized parameters
                     if (string.IsNullOrEmpty(preservedName))
                     {
                         preservedName = matchingPrevious?.Signature.Parameters[i].Name;

@@ -1021,19 +1021,18 @@ namespace Microsoft.TypeSpec.Generator.Tests.Providers
             Assert.AreEqual(Helpers.GetExpectedFromFile(), actual);
         }
 
-        // Validates that synthesized content parameters retain the positional fallback even when their
-        // source input name belongs to another overload in the last contract.
+        // Validates that synthesized parameters retain the positional fallback even when their public name
+        // differs from the InputParameter they originated from.
         [Test]
         public async Task BuildMethodsForBackCompatibilityRestoresSynthesizedParameterNameBySignatureMatch()
         {
             await MockHelpers.LoadMockGeneratorAsync(lastContractCompilation: async () => await Helpers.GetCompilationFromDirectoryAsync());
 
-            var inputParameter = InputFactory.BodyParameter("param1", InputPrimitiveType.String, isRequired: true);
+            var inputParameter = InputFactory.QueryParameter("wireName", InputPrimitiveType.String, isRequired: true);
             var parameter = new ParameterProvider(
-                "content",
+                "default",
                 $"",
                 new CSharpType(typeof(string)),
-                location: ParameterLocation.Body,
                 inputParameter: inputParameter);
             var fooMethod = new MethodProvider(
                 new MethodSignature("Foo", $"", MethodSignatureModifiers.Public, new CSharpType(typeof(string)), $"", [parameter]),
