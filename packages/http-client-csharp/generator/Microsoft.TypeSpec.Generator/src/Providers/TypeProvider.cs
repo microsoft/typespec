@@ -63,7 +63,8 @@ namespace Microsoft.TypeSpec.Generator.Providers
             }
 
             var originalName = _inputType.Name.ToIdentifierName();
-            if (typeName != originalName.NormalizeCSharpAcronyms())
+            var normalizedOriginalName = originalName.NormalizeCSharpAcronyms();
+            if (normalizedOriginalName == originalName || typeName != normalizedOriginalName)
             {
                 return null;
             }

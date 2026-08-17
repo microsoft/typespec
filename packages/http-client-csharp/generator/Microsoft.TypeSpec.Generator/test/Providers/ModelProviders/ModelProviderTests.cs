@@ -119,8 +119,7 @@ namespace Microsoft.TypeSpec.Generator.Tests.Providers.ModelProviders
                 ]);
             await MockHelpers.LoadMockGeneratorAsync(
                 inputModelTypes: [inputModel],
-                lastContractCompilation: async () => await Helpers.GetCompilationFromDirectoryAsync(
-                    method: nameof(TestBuildName_BackCompatTakesPrecedenceOverAcronymNormalization)));
+                lastContractCompilation: async () => await Helpers.GetCompilationFromDirectoryAsync());
 
             var modelProvider = CodeModelGenerator.Instance.TypeFactory.CreateModel(inputModel);
 

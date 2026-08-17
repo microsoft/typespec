@@ -133,8 +133,7 @@ namespace Microsoft.TypeSpec.Generator.Tests.Providers
         {
             await MockHelpers.LoadMockGeneratorAsync(
                 createCSharpTypeCore: (inputType) => typeof(string),
-                lastContractCompilation: async () => await Helpers.GetCompilationFromDirectoryAsync(
-                    method: nameof(BuildEnumType_BackCompatTakesPrecedenceOverAcronymNormalization)));
+                lastContractCompilation: async () => await Helpers.GetCompilationFromDirectoryAsync());
             var input = InputFactory.StringEnum(
                 "IpKind",
                 [("Value", "value")],
