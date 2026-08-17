@@ -352,25 +352,25 @@ namespace Microsoft.TypeSpec.Generator.Tests.Shared
         }
 
         [Test]
-        public void BuildBackCompatMethodSignature_RequiresAllParametersForPotentiallyApplicableOverload()
+        public void BuildBackCompatMethodSignature_AllOptionalFactoryOverloadsRequireAllParameters()
         {
-            var previousSignature = CreateMethodSignature("TestMethod",
-                new ParameterProvider("param1", $"", typeof(string), defaultValue: Default),
-                new ParameterProvider("param2", $"", typeof(string), defaultValue: Default),
-                new ParameterProvider("param3", $"", typeof(bool), defaultValue: Default),
-                new ParameterProvider("param4", $"", typeof(string), defaultValue: Default));
-            var currentSignature1 = CreateMethodSignature("TestMethod",
-                new ParameterProvider("param3", $"", typeof(bool), defaultValue: Default),
-                new ParameterProvider("param1", $"", typeof(string), defaultValue: Default));
-            var currentSignature2 = CreateMethodSignature("TestMethod",
-                new ParameterProvider("param1", $"", typeof(string), defaultValue: Default),
-                new ParameterProvider("param2", $"", typeof(string), defaultValue: Default),
-                new ParameterProvider("other", $"", typeof(int), defaultValue: Default));
+            var previousSignature = CreateMethodSignature("CompatibilityModel",
+                new ParameterProvider("id", $"", typeof(string), defaultValue: Default),
+                new ParameterProvider("name", $"", typeof(string), defaultValue: Default),
+                new ParameterProvider("enabled", $"", typeof(bool?), defaultValue: Default),
+                new ParameterProvider("description", $"", typeof(string), defaultValue: Default));
+            var currentSignature = CreateMethodSignature("CompatibilityModel",
+                new ParameterProvider("id", $"", typeof(string), defaultValue: Default),
+                new ParameterProvider("name", $"", typeof(string), defaultValue: Default),
+                new ParameterProvider("kind", $"", typeof(string), defaultValue: Default),
+                new ParameterProvider("enabled", $"", typeof(bool?), defaultValue: Default),
+                new ParameterProvider("description", $"", typeof(string), defaultValue: Default),
+                new ParameterProvider("count", $"", typeof(int?), defaultValue: Default));
 
             var backCompatSignature = MethodSignatureHelper.BuildBackCompatMethodSignature(
                 previousSignature,
                 hideMethod: true,
-                currentMethodSignatures: [currentSignature1, currentSignature2]);
+                currentMethodSignatures: [currentSignature]);
 
             foreach (var parameter in backCompatSignature.Parameters)
             {

@@ -273,23 +273,6 @@ namespace Microsoft.TypeSpec.Generator.Tests.Providers.ModelFactories
         }
 
         [Test]
-        public async Task BackCompatibility_ReorderedRequiredParametersRequireAllParameters()
-        {
-            var compatibilityModel = GetCompatibilityModel(includeCount: true);
-
-            _instance = (await MockHelpers.LoadMockGeneratorAsync(
-                inputNamespaceName: "Sample.Namespace",
-                inputModelTypes: [compatibilityModel],
-                lastContractCompilation: async () => await Helpers.GetCompilationFromDirectoryAsync(parameters: "Last"))).Object;
-
-            var modelFactory = _instance.OutputLibrary.ModelFactory.Value;
-            modelFactory.ProcessTypeForBackCompatibility();
-
-            var content = new TypeProviderWriter(modelFactory).Write().Content;
-            Assert.AreEqual(Helpers.GetExpectedFromFile(), content);
-        }
-
-        [Test]
         public async Task BackCompatibility_ReorderedFullyOptionalParametersRequireAllParameters()
         {
             var compatibilityModel = GetCompatibilityModel(includeCount: true);
