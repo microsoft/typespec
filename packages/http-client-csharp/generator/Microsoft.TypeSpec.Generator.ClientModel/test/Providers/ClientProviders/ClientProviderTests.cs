@@ -2844,14 +2844,14 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers.ClientProvide
 
             clientProvider!.ProcessTypeForBackCompatibility();
 
-            var protocolMethod = clientProvider.Methods
-                .Single(m => m.Signature.Name == "TestMethod" && m is ScmMethodProvider { Kind: ScmMethodKind.Protocol });
-            var convenienceMethod = clientProvider.Methods
-                .Single(m => m.Signature.Name == "TestMethod" && m is ScmMethodProvider { Kind: ScmMethodKind.Convenience });
-
             using var writer = new CodeWriter();
-            writer.WriteMethod(protocolMethod);
-            writer.WriteMethod(convenienceMethod);
+            foreach (var methodName in new[] { "TestMethod", "TestMethodAsync" })
+            {
+                writer.WriteMethod(clientProvider.Methods
+                    .Single(m => m.Signature.Name == methodName && m is ScmMethodProvider { Kind: ScmMethodKind.Protocol }));
+                writer.WriteMethod(clientProvider.Methods
+                    .Single(m => m.Signature.Name == methodName && m is ScmMethodProvider { Kind: ScmMethodKind.Convenience }));
+            }
 
             Assert.AreEqual(Helpers.GetExpectedFromFile(), writer.ToString(false));
         }
