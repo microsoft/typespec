@@ -1555,6 +1555,99 @@ namespace Microsoft.TypeSpec.Generator.Tests.Providers.ModelProviders
         }
 
         [Test]
+        public async Task BackCompat_ConcreteDiscriminatorBaseDoesNotExposeDiscriminatorConstructorParameter()
+        {
+            var discriminatorEnum = InputFactory.StringEnum("kindEnum", [("One", "one"), ("Two", "two")]);
+            var leafInputModel = InputFactory.Model(
+                "LeafModel",
+                discriminatedKind: "two",
+                properties:
+                [
+                    InputFactory.Property("kind", InputFactory.EnumMember.String("Two", "two", discriminatorEnum), isRequired: true, isDiscriminator: true),
+                    InputFactory.Property("leafProp", InputPrimitiveType.Boolean, isRequired: true)
+                ]);
+            var derivedInputModel = InputFactory.Model(
+                "DerivedModel",
+                discriminatedKind: "one",
+                properties:
+                [
+                    InputFactory.Property("kind", InputFactory.EnumMember.String("One", "one", discriminatorEnum), isRequired: true, isDiscriminator: true),
+                    InputFactory.Property("derivedProp", InputPrimitiveType.Int32, isRequired: true)
+                ],
+                discriminatedModels: new Dictionary<string, InputModelType>() { { "two", leafInputModel } });
+            var inputModel = InputFactory.Model(
+                "BaseModel",
+                properties:
+                [
+                    InputFactory.Property("kind", discriminatorEnum, isRequired: true, isDiscriminator: true),
+                    InputFactory.Property("baseProp", InputPrimitiveType.String, isRequired: true)
+                ],
+                discriminatedModels: new Dictionary<string, InputModelType>() { { "one", derivedInputModel } });
+
+            await MockHelpers.LoadMockGeneratorAsync(
+                inputModelTypes: [inputModel, derivedInputModel, leafInputModel],
+                lastContractCompilation: async () => await Helpers.GetCompilationFromDirectoryAsync());
+
+            var modelProvider = CodeModelGenerator.Instance.OutputLibrary.TypeProviders.SingleOrDefault(t => t.Name == "BaseModel") as ModelProvider;
+
+            Assert.IsNotNull(modelProvider);
+            Assert.IsFalse(modelProvider!.DeclarationModifiers.HasFlag(TypeSignatureModifiers.Abstract));
+
+            modelProvider.ProcessTypeForBackCompatibility();
+
+            var publicConstructors = modelProvider.Constructors
+                .Where(c => c.Signature.Modifiers.HasFlag(MethodSignatureModifiers.Public))
+                .ToArray();
+            Assert.AreEqual(1, publicConstructors.Length);
+            Assert.AreEqual(1, publicConstructors[0].Signature.Parameters.Count);
+            Assert.AreEqual("baseProp", publicConstructors[0].Signature.Parameters[0].Name);
+            Assert.IsFalse(publicConstructors[0].Signature.Parameters.Any(p => p.Property?.IsDiscriminator == true));
+
+            var derivedModelProvider = CodeModelGenerator.Instance.OutputLibrary.TypeProviders
+                .SingleOrDefault(t => t.Name == "DerivedModel") as ModelProvider;
+            Assert.IsNotNull(derivedModelProvider);
+
+            var derivedPublicConstructor = derivedModelProvider!.Constructors
+                .Single(c => c.Signature.Modifiers.HasFlag(MethodSignatureModifiers.Public));
+            Assert.AreEqual(2, derivedPublicConstructor.Signature.Parameters.Count);
+            Assert.AreEqual("baseProp", derivedPublicConstructor.Signature.Parameters[0].Name);
+            Assert.AreEqual("derivedProp", derivedPublicConstructor.Signature.Parameters[1].Name);
+            Assert.IsNotNull(derivedPublicConstructor.Signature.Initializer);
+            Assert.AreEqual(1, derivedPublicConstructor.Signature.Initializer!.Arguments.Count);
+            Assert.AreEqual("baseProp", derivedPublicConstructor.Signature.Initializer.Arguments[0].ToDisplayString());
+            Assert.IsTrue(derivedPublicConstructor.BodyStatements!.ToDisplayString().Contains("Kind = global::Sample.Models.KindEnum.One;"));
+
+            var derivedInternalConstructor = derivedModelProvider.Constructors
+                .Single(c => c.Signature.Modifiers.HasFlag(MethodSignatureModifiers.Internal));
+            Assert.IsNotNull(derivedInternalConstructor.Signature.Initializer);
+            Assert.AreEqual("kind", derivedInternalConstructor.Signature.Initializer!.Arguments[0].ToDisplayString());
+            var baseInternalConstructor = modelProvider.Constructors
+                .Single(c => c.Signature.Modifiers.HasFlag(MethodSignatureModifiers.Internal));
+            Assert.AreEqual(
+                baseInternalConstructor.Signature.Parameters.Count,
+                derivedInternalConstructor.Signature.Initializer.Arguments.Count);
+
+            var derivedProtectedConstructor = derivedModelProvider.Constructors
+                .Single(c => c.Signature.Modifiers.HasFlag(MethodSignatureModifiers.Private) &&
+                    c.Signature.Modifiers.HasFlag(MethodSignatureModifiers.Protected));
+            Assert.IsNotNull(derivedProtectedConstructor.Signature.Initializer);
+            Assert.AreEqual(1, derivedProtectedConstructor.Signature.Initializer!.Arguments.Count);
+            Assert.AreEqual("baseProp", derivedProtectedConstructor.Signature.Initializer.Arguments[0].ToDisplayString());
+            Assert.IsTrue(derivedProtectedConstructor.BodyStatements!.ToDisplayString().Contains("Kind = kind;"));
+
+            var leafModelProvider = CodeModelGenerator.Instance.OutputLibrary.TypeProviders
+                .SingleOrDefault(t => t.Name == "LeafModel") as ModelProvider;
+            Assert.IsNotNull(leafModelProvider);
+            var leafPublicConstructor = leafModelProvider!.Constructors
+                .Single(c => c.Signature.Modifiers.HasFlag(MethodSignatureModifiers.Public));
+            Assert.IsNotNull(leafPublicConstructor.Signature.Initializer);
+            Assert.AreEqual(3, leafPublicConstructor.Signature.Initializer!.Arguments.Count);
+            Assert.AreEqual("\"two\"", leafPublicConstructor.Signature.Initializer.Arguments[0].ToDisplayString());
+            Assert.AreEqual("baseProp", leafPublicConstructor.Signature.Initializer.Arguments[1].ToDisplayString());
+            Assert.AreEqual("derivedProp", leafPublicConstructor.Signature.Initializer.Arguments[2].ToDisplayString());
+        }
+
+        [Test]
         public async Task BackCompat_NonAbstractTypeIsRespected_NamespaceChangedInVisitor()
         {
             var discriminatorEnum = InputFactory.StringEnum("kindEnum", [("One", "one"), ("Two", "two")]);
