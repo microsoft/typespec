@@ -426,7 +426,8 @@ All packaged artifacts are stored in the `debug` folder at the root of the unbra
 - `Microsoft.TypeSpec.Generator.{version}.nupkg` - Core generator NuGet package
 - `Microsoft.TypeSpec.Generator.Input.{version}.nupkg` - Input models NuGet package
 - `Microsoft.TypeSpec.Generator.ClientModel.{version}.nupkg` - Client model NuGet package
-- `regen-report.json` - Detailed JSON report of regeneration results
+- `regen-report.json` - Detailed JSON report of regeneration results (written to the ADO artifact staging
+  directory during CI runs)
 
 ### Console Output
 
@@ -462,6 +463,8 @@ FAILED LIBRARIES:
 =============================================================
 Detailed report saved to: C:\...\debug\regen-report.json
 ```
+
+In ADO CI runs, the detailed JSON report is written to the artifact staging directory instead.
 
 ## Common Scenarios
 

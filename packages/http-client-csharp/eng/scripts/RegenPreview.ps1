@@ -485,6 +485,14 @@ try {
     }
     
     Write-Host "Debug folder: $debugFolder" -ForegroundColor Gray
+    $regenerationReportPath = Join-Path $debugFolder 'regen-report.json'
+    if ($env:TF_BUILD -and $env:BUILD_ARTIFACTSTAGINGDIRECTORY) {
+        $regenerationReportPath = Join-Path $env:BUILD_ARTIFACTSTAGINGDIRECTORY 'regen-report.json'
+        $reportFolder = Split-Path $regenerationReportPath -Parent
+        if (-not (Test-Path $reportFolder)) {
+            New-Item -ItemType Directory -Path $reportFolder -Force | Out-Null
+        }
+    }
     Write-Host ""
     
     # Step 1: Build the unbranded generator
@@ -605,7 +613,7 @@ try {
         $scriptEndTime = Get-Date
         $elapsedTime = $scriptEndTime - $scriptStartTime
         
-        Write-RegenerationReport -Results @($result) -ElapsedTime $elapsedTime -ReportPath (Join-Path $debugFolder 'regen-report.json')
+        Write-RegenerationReport -Results @($result) -ElapsedTime $elapsedTime -ReportPath $regenerationReportPath
         
         # Exit with appropriate code
         if ($result.Success) {
@@ -653,7 +661,7 @@ try {
         $scriptEndTime = Get-Date
         $elapsedTime = $scriptEndTime - $scriptStartTime
         
-        Write-RegenerationReport -Results @($result) -ElapsedTime $elapsedTime -ReportPath (Join-Path $debugFolder 'regen-report.json')
+        Write-RegenerationReport -Results @($result) -ElapsedTime $elapsedTime -ReportPath $regenerationReportPath
         
         if ($result.Success) {
             Write-Host "`nScript completed successfully." -ForegroundColor Cyan
@@ -881,7 +889,7 @@ try {
         $scriptEndTime = Get-Date
         $elapsedTime = $scriptEndTime - $scriptStartTime
 
-        Write-RegenerationReport -Results $results -ElapsedTime $elapsedTime -ReportPath (Join-Path $debugFolder 'regen-report.json')
+        Write-RegenerationReport -Results $results -ElapsedTime $elapsedTime -ReportPath $regenerationReportPath
 
         # Check if any libraries failed
         $failedLibraries = @($results | Where-Object { -not $_.Success })
