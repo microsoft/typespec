@@ -7,6 +7,8 @@ import pytest
 import pytest_asyncio
 
 from streaming.jsonl.aio import JsonlClient
+from streaming.jsonl._utils.streaming_base import AsyncStream
+from streaming.jsonl.basic.models import Info
 
 
 @pytest_asyncio.fixture
@@ -26,4 +28,7 @@ async def test_basic_send(client: JsonlClient):
 @pytest.mark.asyncio
 async def test_basic_recv(client: JsonlClient):
     stream = await client.basic.receive()
-    assert [item.desc async for item in stream] == ["one", "two", "three"]
+    assert isinstance(stream, AsyncStream)
+    items = [item async for item in stream]
+    assert all(isinstance(item, Info) for item in items)
+    assert [item.desc for item in items] == ["one", "two", "three"]

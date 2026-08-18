@@ -6,6 +6,7 @@
 import pytest
 
 from streaming.sse import SseClient
+from streaming.sse._utils.streaming_base import Stream
 from streaming.sse.named.models import ResponseCreated, ResponseDelta
 from streaming.sse.retrieve.models import FinalResult, PartialResult, RetrievalRequest
 from streaming.sse.unnamed.models import Info
@@ -18,13 +19,17 @@ def client():
 
 
 def test_unnamed_receive(client: SseClient):
-    items = list(client.unnamed.receive())
+    stream = client.unnamed.receive()
+    assert isinstance(stream, Stream)
+    items = list(stream)
     assert all(isinstance(item, Info) for item in items)
     assert [item.desc for item in items] == ["one", "two", "three"]
 
 
 def test_named_receive(client: SseClient):
-    items = list(client.named.receive())
+    stream = client.named.receive()
+    assert isinstance(stream, Stream)
+    items = list(stream)
     # The terminal "[DONE]" event stops iteration and is not yielded.
     assert len(items) == 3
     assert isinstance(items[0], ResponseCreated) and items[0].id == "resp_1"
@@ -33,7 +38,9 @@ def test_named_receive(client: SseClient):
 
 
 def test_retrieve_stream(client: SseClient):
-    items = list(client.retrieve.stream(RetrievalRequest(query="what is typespec?")))
+    stream = client.retrieve.stream(RetrievalRequest(query="what is typespec?"))
+    assert isinstance(stream, Stream)
+    items = list(stream)
     # The terminal "[DONE]" event stops iteration and is not yielded.
     assert len(items) == 3
     assert isinstance(items[0], PartialResult) and items[0].text == "partial one"

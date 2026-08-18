@@ -6,6 +6,8 @@
 import pytest
 
 from streaming.jsonl import JsonlClient
+from streaming.jsonl._utils.streaming_base import Stream
+from streaming.jsonl.basic.models import Info
 
 
 @pytest.fixture
@@ -22,4 +24,8 @@ def test_basic_send(client: JsonlClient):
 
 
 def test_basic_recv(client: JsonlClient):
-    assert [item.desc for item in client.basic.receive()] == ["one", "two", "three"]
+    stream = client.basic.receive()
+    assert isinstance(stream, Stream)
+    items = list(stream)
+    assert all(isinstance(item, Info) for item in items)
+    assert [item.desc for item in items] == ["one", "two", "three"]
