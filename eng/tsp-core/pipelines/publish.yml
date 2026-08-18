@@ -98,8 +98,11 @@ extends:
                   azureContainerRegistry: azsdkengsys.azurecr.io
                   command: login
 
+              - template: /eng/common/pipelines/templates/steps/create-authenticated-npmrc.yml
+
               - script: |
                   docker build -f ./docker/Dockerfile \
+                    --secret id=npmrc,src="$HOME/.npmrc" \
                     -t $(imageName):latest \
                     .
                 displayName: "Build"
