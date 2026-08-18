@@ -676,7 +676,8 @@ namespace Microsoft.TypeSpec.Generator.Utilities
             }
             else
             {
-                arguments.Add(PositionalReference(currentParam.Name.ToVariableName(), value));
+                var argumentName = currentParam.AsVariable().Declaration.RequestedName;
+                arguments.Add(PositionalReference(argumentName, value));
             }
         }
 

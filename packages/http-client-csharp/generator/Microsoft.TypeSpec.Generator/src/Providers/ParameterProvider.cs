@@ -199,7 +199,7 @@ namespace Microsoft.TypeSpec.Generator.Providers
             {
                 var variableName = parameter.InputParameter?.IsExactName == true
                     ? parameter.Name
-                    : parameter.Property is not null
+                    : parameter.Name.Length > 0 && char.IsLower(parameter.Name[0])
                         ? parameter.Name.ToVariableName(preserveUnderscores: false, normalizeAcronyms: false)
                         : parameter.Name.ToVariableName();
 

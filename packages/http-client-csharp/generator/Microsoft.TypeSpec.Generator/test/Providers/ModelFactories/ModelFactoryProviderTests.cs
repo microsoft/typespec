@@ -708,6 +708,35 @@ namespace Microsoft.TypeSpec.Generator.Tests.Providers.ModelFactories
         }
 
         [Test]
+        public async Task BackCompatibility_AcronymParameterNameIsPreservedInForwardingCall()
+        {
+            var model = InputFactory.Model(
+                "AggregateRouteConfiguration",
+                properties:
+                [
+                    InputFactory.Property("Ipv4Routes", InputFactory.Array(InputPrimitiveType.String)),
+                    InputFactory.Property("NewProperty", InputPrimitiveType.String),
+                ]);
+
+            _instance = (await MockHelpers.LoadMockGeneratorAsync(
+                inputNamespaceName: "Sample.Namespace",
+                inputModelTypes: [model],
+                lastContractCompilation: async () => await Helpers.GetCompilationFromDirectoryAsync())).Object;
+
+            var modelFactory = _instance.OutputLibrary.ModelFactory.Value;
+            modelFactory.ProcessTypeForBackCompatibility();
+
+            var backCompatMethod = modelFactory.Methods.Single(m =>
+                m.Signature.Name == "AggregateRouteConfiguration"
+                && m.Signature.Parameters.Count == 1);
+
+            Assert.AreEqual("iPv4Routes", backCompatMethod.Signature.Parameters[0].Name);
+            Assert.AreEqual(
+                "return AggregateRouteConfiguration(iPv4Routes: iPv4Routes, newProperty: default);\n",
+                backCompatMethod.BodyStatements!.ToDisplayString());
+        }
+
+        [Test]
         public async Task BackCompatibility_SkipsMethodWithUnavailableParameterType()
         {
             var externalTool = InputFactory.Model(
