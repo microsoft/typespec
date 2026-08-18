@@ -1258,7 +1258,7 @@ function Invoke-SdkLibraryRegeneration {
             $batchThrottle = $batch.Throttle
             Write-Host "Dispatching $($batchLibraries.Count) regeneration jobs ($batchThrottle at a time)..." -ForegroundColor Cyan
             # Run regeneration in parallel
-            $results += $batchLibraries | ForEach-Object -ThrottleLimit $batchThrottle -Parallel {
+            $batchResults = @($batchLibraries | ForEach-Object -ThrottleLimit $batchThrottle -Parallel {
                 $library = $_
                 $azureSdkPath = $using:SdkRepoPath
                 $completedBag = $using:completed
@@ -1322,6 +1322,11 @@ function Invoke-SdkLibraryRegeneration {
                     Error     = if ($result.ContainsKey('Error')) { $result.Error } else { "" }
                     Output    = if ($result.ContainsKey('Output')) { $result.Output } else { "" }
                 }
+            })
+            $results += $batchResults
+
+            if (@($batchResults | Where-Object { -not $_.Success }).Count -gt 0) {
+                break
             }
         }
     }
@@ -1367,13 +1372,24 @@ function Write-RegenerationReport {
     $passed = @($Results | Where-Object { $_.Success -eq $true })
     $failed = @($Results | Where-Object { $_.Success -eq $false })
 
+    $elapsedFormatted = if ($ElapsedTime) { "{0:hh\:mm\:ss}" -f $ElapsedTime } else { $null }
+    $report = [ordered]@{
+        Summary = [ordered]@{
+            TotalLibraries = $Results.Count
+            Passed         = $passed.Count
+            Failed         = $failed.Count
+            ExecutionTime  = $elapsedFormatted
+        }
+        Results = @($Results)
+    }
+    $reportJson = $report | ConvertTo-Json -Depth 10
+
     Write-Host "`n==================== REGENERATION REPORT ====================" -ForegroundColor Cyan
     Write-Host "Total Libraries: $($Results.Count)" -ForegroundColor White
     Write-Host "Passed: $($passed.Count)" -ForegroundColor Green
     Write-Host "Failed: $($failed.Count)" -ForegroundColor Red
 
     if ($ElapsedTime) {
-        $elapsedFormatted = "{0:hh\:mm\:ss}" -f $ElapsedTime
         Write-Host "Execution Time: $elapsedFormatted" -ForegroundColor Cyan
     }
     Write-Host ""
@@ -1402,9 +1418,13 @@ function Write-RegenerationReport {
 
     # Save detailed report
     if ($ReportPath) {
-        $Results | ConvertTo-Json -Depth 10 | Set-Content $ReportPath -Encoding utf8
+        $reportJson | Set-Content $ReportPath -Encoding utf8
         Write-Host "Detailed report saved to: $ReportPath" -ForegroundColor Gray
     }
+
+    Write-Host ""
+    Write-Host "REGENERATION REPORT JSON:" -ForegroundColor Cyan
+    Write-Host $reportJson
 }
 
 Export-ModuleMember -Function "Update-MgmtGenerator", "Update-AzureGenerator", "Filter-LibrariesByGenerator", "Filter-LibrariesByName", "Update-OpenAIGenerator", "Add-LocalNuGetSource", "Update-AzureSpectorScenarios", "Get-SdkLibrariesToRegenerate", "Invoke-SdkLibraryRegeneration", "Write-RegenerationReport"

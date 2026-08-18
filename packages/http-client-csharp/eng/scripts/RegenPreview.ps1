@@ -893,8 +893,7 @@ try {
     }
     
     if ($failedCount -gt 0) {
-        Write-Host "`nValidation completed with warnings: $failedCount libraries failed to regenerate" -ForegroundColor Yellow
-        Write-Host "Check the detailed report above for error information" -ForegroundColor Yellow
+        throw "Validation failed: $failedCount libraries failed to regenerate. Check the detailed report above for error information."
     } else {
         Write-Host "`nValidation completed successfully! All libraries regenerated without errors." -ForegroundColor Green
         

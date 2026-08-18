@@ -630,24 +630,20 @@ try {
                     $regeneratedServiceCount = @($librariesToRegenerate | ForEach-Object { $_.Service } | Sort-Object -Unique).Count
                     Write-Host "Regenerating $($librariesToRegenerate.Count) libraries across $regeneratedServiceCount service directories"
                     $regenerationStartTime = Get-Date
-                    $previousErrorAction = $ErrorActionPreference
-                    $ErrorActionPreference = "Continue"
-                    try {
-                        $regenerationResults = @(Invoke-SdkLibraryRegeneration `
-                            -SdkRepoPath $tempDir `
-                            -Libraries $librariesToRegenerate `
-                            -AdditionalBuildArgs @("/p:Trace=true") `
-                            -SerialServiceDirectories $serialCodeGenServiceDirectories)
+                    $regenerationResults = @(Invoke-SdkLibraryRegeneration `
+                        -SdkRepoPath $tempDir `
+                        -Libraries $librariesToRegenerate `
+                        -AdditionalBuildArgs @("/p:Trace=true") `
+                        -SerialServiceDirectories $serialCodeGenServiceDirectories)
 
-                        Write-RegenerationReport -Results $regenerationResults -ElapsedTime ((Get-Date) - $regenerationStartTime)
+                    Write-RegenerationReport -Results $regenerationResults -ElapsedTime ((Get-Date) - $regenerationStartTime)
 
-                        foreach ($failedLibrary in @($regenerationResults | Where-Object { -not $_.Success })) {
-                            Register-StepFailure "Code generation failed for $($failedLibrary.Path): $($failedLibrary.Error)"
-                        }
-                    } catch {
-                        Register-StepFailure "Parallel code generation failed: $($_.Exception.Message). Continuing with PR creation."
-                    } finally {
-                        $ErrorActionPreference = $previousErrorAction
+                    $failedLibraries = @($regenerationResults | Where-Object { -not $_.Success })
+                    foreach ($failedLibrary in $failedLibraries) {
+                        Register-StepFailure "Code generation failed for $($failedLibrary.Path): $($failedLibrary.Error)"
+                    }
+                    if ($failedLibraries.Count -gt 0) {
+                        throw "Parallel code generation failed for $($failedLibraries.Count) libraries."
                     }
                 }
             } else {
