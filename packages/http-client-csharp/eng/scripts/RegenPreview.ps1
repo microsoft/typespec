@@ -486,7 +486,7 @@ try {
     
     Write-Host "Debug folder: $debugFolder" -ForegroundColor Gray
     $regenerationReportPath = Join-Path $debugFolder 'regen-report.json'
-    if ($env:TF_BUILD -and $env:BUILD_ARTIFACTSTAGINGDIRECTORY) {
+    if ($env:BUILD_ARTIFACTSTAGINGDIRECTORY) {
         $regenerationReportPath = Join-Path $env:BUILD_ARTIFACTSTAGINGDIRECTORY 'regen-report.json'
     }
     Write-Host ""
