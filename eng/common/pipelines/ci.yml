@@ -25,10 +25,10 @@ extends:
           - job: InitJob
             displayName: Initialize
             steps:
-              - task: NodeTool@0
+              - task: UseNode@1
                 displayName: Install Node.js
                 inputs:
-                  versionSpec: 22.x
+                  version: 22.x
 
               - template: /eng/common/pipelines/templates/steps/create-authenticated-npmrc.yml
 

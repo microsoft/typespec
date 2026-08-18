@@ -66,12 +66,11 @@ steps:
     artifact: ${{ parameters.BuildArtifactName }}
     displayName: Download build artifacts
 
-  - task: NodeTool@0
+  - task: UseNode@1
     displayName: Install Node.js
     retryCountOnTaskFailure: 3
     inputs:
-      versionSpec: ${{ parameters.NodeVersion }}
-      checkLatest: true
+      version: ${{ parameters.NodeVersion }}
 
   - ${{ if eq(parameters.LanguageShortName, 'python') }}:
       - task: UsePythonVersion@0

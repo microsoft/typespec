@@ -381,11 +381,10 @@ stages:
                   LanguageShortName: ${{ parameters.LanguageShortName }}
 
               - ${{ if parameters.UploadPlaygroundBundle }}:
-                  - task: NodeTool@0
+                  - task: UseNode@1
                     displayName: Use Node 22.x for playground bundle
                     inputs:
-                      versionSpec: "22.x"
-                      checkLatest: true
+                      version: "22.x"
                   - template: /eng/common/pipelines/templates/steps/create-authenticated-npmrc.yml
                   - script: npm ci
                     displayName: Install emitter dependencies for playground bundle
