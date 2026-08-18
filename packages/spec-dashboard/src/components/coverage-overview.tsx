@@ -81,27 +81,61 @@ export const CoverageOverview: FunctionComponent<CoverageOverviewProps> = ({
     >();
 
     for (const summary of coverageSummaries) {
+      const summaryGroupMap = new Map<
+        string,
+        {
+          scenarioNames: Set<string>;
+          coveredScenarioNames: Set<string>;
+        }
+      >();
+
       for (const [emitterName, report] of Object.entries(summary.generatorReports)) {
         const groupKey = getEmitterOverviewKey(emitterName, report, emitterDisplayNames);
+        if (!summaryGroupMap.has(groupKey)) {
+          summaryGroupMap.set(groupKey, {
+            scenarioNames: new Set(),
+            coveredScenarioNames: new Set(),
+          });
+        }
+
+        const entry = summaryGroupMap.get(groupKey)!;
+        for (const scenario of summary.manifest.scenarios) {
+          entry.scenarioNames.add(scenario.name);
+          const status = report?.results[scenario.name];
+          if (
+            report &&
+            (status === "pass" || status === "not-applicable" || status === "not-supported")
+          ) {
+            entry.coveredScenarioNames.add(scenario.name);
+          }
+        }
+      }
+
+      for (const [groupKey, data] of summaryGroupMap) {
         if (!emitterMap.has(groupKey)) {
+          const firstReport = Object.entries(summary.generatorReports).find(
+            ([emitterName, report]) =>
+              getEmitterOverviewKey(emitterName, report, emitterDisplayNames) === groupKey,
+          )?.[1];
+
           emitterMap.set(groupKey, {
             totalScenarios: 0,
             coveredScenarios: 0,
-            report,
-            displayName: getEmitterDisplayName(emitterName, report, emitterDisplayNames),
+            report: firstReport,
+            displayName: getEmitterDisplayName(
+              Object.entries(summary.generatorReports).find(
+                ([emitterName, report]) =>
+                  getEmitterOverviewKey(emitterName, report, emitterDisplayNames) === groupKey,
+              )?.[0] ?? groupKey,
+              firstReport,
+              emitterDisplayNames,
+            ),
           });
         }
+
         const entry = emitterMap.get(groupKey)!;
-        const scenarios = summary.manifest.scenarios;
-        entry.totalScenarios += scenarios.length;
-        if (report) {
-          for (const scenario of scenarios) {
-            const status = report.results[scenario.name];
-            if (status === "pass" || status === "not-applicable" || status === "not-supported") {
-              entry.coveredScenarios++;
-            }
-          }
-        }
+        entry.totalScenarios += data.scenarioNames.size;
+        entry.coveredScenarios += data.coveredScenarioNames.size;
       }
     }
 

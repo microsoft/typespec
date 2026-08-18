@@ -273,7 +273,7 @@ it("should group overview coverage by logical display name across emitter packag
   );
 
   const cSharpMatches = html.match(/C#/g) ?? [];
-  expect(cSharpMatches.length).toBeGreaterThanOrEqual(1);
+  expect(cSharpMatches).toHaveLength(1);
   expect(html).not.toContain("@azure-typespec/http-client-csharp-mgmt");
 });
 
