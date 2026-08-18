@@ -1447,12 +1447,7 @@ function Write-RegenerationReport {
 
     # Save detailed report
     if ($ReportPath) {
-        $jsonToWrite = if ($PrintJson) {
-            $reportJson
-        } else {
-            $Results | ConvertTo-Json -Depth 10
-        }
-        $jsonToWrite | Set-Content $ReportPath -Encoding utf8
+        $reportJson | Set-Content $ReportPath -Encoding utf8
         Write-Host "Detailed report saved to: $ReportPath" -ForegroundColor Gray
     }
 
