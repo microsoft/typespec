@@ -73,6 +73,7 @@ param(
 # false positive to reviewers. For automated (scheduled/CI) runs, keep the existing
 # behavior of reporting SucceededWithIssues and continuing.
 $FailOnError = $BuildReason -eq 'Manual'
+$isCiRun = [bool]$env:BUILD_ARTIFACTSTAGINGDIRECTORY
 
 # Tracks non-fatal step failures that were downgraded to warnings so a manual run can
 # fail before creating a pull request.
@@ -634,9 +635,10 @@ try {
                         -SdkRepoPath $tempDir `
                         -Libraries $librariesToRegenerate `
                         -AdditionalBuildArgs @("/p:Trace=true") `
-                        -SerialServiceDirectories $serialCodeGenServiceDirectories)
+                        -SerialServiceDirectories $serialCodeGenServiceDirectories `
+                        -StopOnFailure:$isCiRun)
 
-                    Write-RegenerationReport -Results $regenerationResults -ElapsedTime ((Get-Date) - $regenerationStartTime)
+                    Write-RegenerationReport -Results $regenerationResults -ElapsedTime ((Get-Date) - $regenerationStartTime) -PrintJson:$isCiRun
 
                     $failedLibraries = @($regenerationResults | Where-Object { -not $_.Success })
                     foreach ($failedLibrary in $failedLibraries) {

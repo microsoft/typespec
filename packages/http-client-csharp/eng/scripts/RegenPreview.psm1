@@ -1157,6 +1157,9 @@ function Invoke-SdkLibraryRegeneration {
     .PARAMETER SerialServiceDirectories
         Optional. Names of service directories whose libraries share a code generation plugin and therefore
         must be regenerated one at a time. Those libraries are regenerated serially after the parallel batch.
+
+    .PARAMETER StopOnFailure
+        Optional. Stops dispatching later regeneration batches after a batch reports any failures.
     #>
     param(
         [Parameter(Mandatory = $true)]
@@ -1175,7 +1178,10 @@ function Invoke-SdkLibraryRegeneration {
         [string[]]$AdditionalBuildArgs = @(),
 
         [Parameter(Mandatory = $false)]
-        [string[]]$SerialServiceDirectories = @()
+        [string[]]$SerialServiceDirectories = @(),
+
+        [Parameter(Mandatory = $false)]
+        [switch]$StopOnFailure
     )
 
     $ErrorActionPreference = 'Stop'
@@ -1326,7 +1332,7 @@ function Invoke-SdkLibraryRegeneration {
             })
             $results += $batchResults
 
-            if (@($batchResults | Where-Object { -not $_.Success }).Count -gt 0) {
+            if ($StopOnFailure -and @($batchResults | Where-Object { -not $_.Success }).Count -gt 0) {
                 $remainingLibraries = @()
                 for ($remainingBatchIndex = $batchIndex + 1; $remainingBatchIndex -lt $batches.Count; $remainingBatchIndex++) {
                     $remainingLibraries += $batches[$remainingBatchIndex].Libraries
@@ -1374,6 +1380,9 @@ function Write-RegenerationReport {
 
     .PARAMETER ReportPath
         Optional. When specified, the detailed results are also written as JSON to this path.
+
+    .PARAMETER PrintJson
+        Optional. Prints the detailed report as human-readable JSON.
     #>
     param(
         [Parameter(Mandatory = $true)]
@@ -1383,7 +1392,10 @@ function Write-RegenerationReport {
         [TimeSpan]$ElapsedTime,
 
         [Parameter(Mandatory = $false)]
-        [string]$ReportPath
+        [string]$ReportPath,
+
+        [Parameter(Mandatory = $false)]
+        [switch]$PrintJson
     )
 
     $passed = @($Results | Where-Object { $_.Success -eq $true })
@@ -1435,13 +1447,20 @@ function Write-RegenerationReport {
 
     # Save detailed report
     if ($ReportPath) {
-        $reportJson | Set-Content $ReportPath -Encoding utf8
+        $jsonToWrite = if ($PrintJson) {
+            $reportJson
+        } else {
+            $Results | ConvertTo-Json -Depth 10
+        }
+        $jsonToWrite | Set-Content $ReportPath -Encoding utf8
         Write-Host "Detailed report saved to: $ReportPath" -ForegroundColor Gray
     }
 
-    Write-Host ""
-    Write-Host "REGENERATION REPORT JSON:" -ForegroundColor Cyan
-    Write-Host $reportJson
+    if ($PrintJson) {
+        Write-Host ""
+        Write-Host "REGENERATION REPORT JSON:" -ForegroundColor Cyan
+        Write-Host $reportJson
+    }
 }
 
 Export-ModuleMember -Function "Update-MgmtGenerator", "Update-AzureGenerator", "Filter-LibrariesByGenerator", "Filter-LibrariesByName", "Update-OpenAIGenerator", "Add-LocalNuGetSource", "Update-AzureSpectorScenarios", "Get-SdkLibrariesToRegenerate", "Invoke-SdkLibraryRegeneration", "Write-RegenerationReport"

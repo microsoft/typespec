@@ -396,11 +396,11 @@ If all libraries regenerate successfully, the script restores modified files:
 
 The library discovery and parallel regeneration logic lives in `RegenPreview.psm1` so it can be reused outside of local validation runs:
 
-| Function                        | Description                                                                                                                                                                                                                                                                                                                        |
-| ------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| `Get-SdkLibrariesToRegenerate`  | Scans `sdk/` in azure-sdk-for-net and returns the libraries whose `tsp-location.yaml` references one of the TypeSpec C# emitter package json artifacts. Supports filtering by emitter (`-EmitterPackageJsonPaths`).                                                                                                                |
-| `Invoke-SdkLibraryRegeneration` | Pre-installs tsp-client, pre-builds the code generation plugin, and then regenerates the given libraries in parallel with `dotnet build /t:GenerateCode`. Supports `-ThrottleLimit`, `-NpmRegistry`, `-AdditionalBuildArgs`, and `-SerialServiceDirectories` (service directories that must be regenerated one library at a time). |
-| `Write-RegenerationReport`      | Prints the pass/fail summary and a human-readable JSON report, and optionally writes the detailed JSON report.                                                                                                                                                                                                                     |
+| Function                        | Description                                                                                                                                                                                                                                                                                                                                          |
+| ------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `Get-SdkLibrariesToRegenerate`  | Scans `sdk/` in azure-sdk-for-net and returns the libraries whose `tsp-location.yaml` references one of the TypeSpec C# emitter package json artifacts. Supports filtering by emitter (`-EmitterPackageJsonPaths`).                                                                                                                                  |
+| `Invoke-SdkLibraryRegeneration` | Pre-installs tsp-client, pre-builds the code generation plugin, and then regenerates the given libraries in parallel with `dotnet build /t:GenerateCode`. Supports `-ThrottleLimit`, `-NpmRegistry`, `-AdditionalBuildArgs`, `-SerialServiceDirectories` (service directories that must be regenerated one library at a time), and `-StopOnFailure`. |
+| `Write-RegenerationReport`      | Prints the pass/fail summary and optionally writes the detailed JSON report. In CI mode, it also prints a human-readable JSON report.                                                                                                                                                                                                                |
 
 `Submit-AzureSdkForNetPr.ps1` uses these helpers when it is invoked with `-UseParallelRegeneration`, which the
 `packages/http-client-csharp/eng/pipeline/publish.yml` pipeline only passes for **manual** runs. Automated (CI and
@@ -442,7 +442,7 @@ The script provides colored console output with:
 
 ### Regeneration Report
 
-After regeneration completes, a summary report is displayed, followed by the same report in human-readable JSON:
+After regeneration completes, a summary report is displayed:
 
 ```
 ==================== REGENERATION REPORT ====================
@@ -462,32 +462,13 @@ FAILED LIBRARIES:
 
 =============================================================
 Detailed report saved to: C:\...\debug\regen-report.json
-
-REGENERATION REPORT JSON:
-{
-  "Summary": {
-    "TotalLibraries": 3,
-    "Passed": 2,
-    "Failed": 1,
-    "ExecutionTime": "00:02:45"
-  },
-  "Results": [
-    {
-      "Service": "ai",
-      "Library": "Azure.AI.VoiceLive",
-      "Path": "sdk/ai/Azure.AI.VoiceLive",
-      "Generator": "@azure-typespec/http-client-csharp",
-      "Success": true,
-      "Error": "",
-      "Output": "..."
-    }
-  ]
-}
 ```
 
-In ADO CI runs, the detailed JSON report is written to the artifact staging directory instead. If any
-library fails to regenerate, later regeneration batches are marked as skipped and the script exits with an
-error after printing the report.
+In ADO CI runs, the detailed JSON report is written to the artifact staging directory instead and is
+also printed to the console in human-readable JSON. If any library fails to regenerate, later regeneration
+batches are marked as skipped and the script exits with an error after printing the report. Local runs keep
+the existing behavior: all regeneration batches run, and any library failures are reported as warnings at
+the end.
 
 ## Common Scenarios
 

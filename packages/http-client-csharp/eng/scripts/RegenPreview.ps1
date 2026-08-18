@@ -485,8 +485,9 @@ try {
     }
     
     Write-Host "Debug folder: $debugFolder" -ForegroundColor Gray
+    $isCiRun = [bool]$env:BUILD_ARTIFACTSTAGINGDIRECTORY
     $regenerationReportPath = Join-Path $debugFolder 'regen-report.json'
-    if ($env:BUILD_ARTIFACTSTAGINGDIRECTORY) {
+    if ($isCiRun) {
         $regenerationReportPath = Join-Path $env:BUILD_ARTIFACTSTAGINGDIRECTORY 'regen-report.json'
     }
     Write-Host ""
@@ -609,7 +610,7 @@ try {
         $scriptEndTime = Get-Date
         $elapsedTime = $scriptEndTime - $scriptStartTime
         
-        Write-RegenerationReport -Results @($result) -ElapsedTime $elapsedTime -ReportPath $regenerationReportPath
+        Write-RegenerationReport -Results @($result) -ElapsedTime $elapsedTime -ReportPath $regenerationReportPath -PrintJson:$isCiRun
         
         # Exit with appropriate code
         if ($result.Success) {
@@ -657,7 +658,7 @@ try {
         $scriptEndTime = Get-Date
         $elapsedTime = $scriptEndTime - $scriptStartTime
         
-        Write-RegenerationReport -Results @($result) -ElapsedTime $elapsedTime -ReportPath $regenerationReportPath
+        Write-RegenerationReport -Results @($result) -ElapsedTime $elapsedTime -ReportPath $regenerationReportPath -PrintJson:$isCiRun
         
         if ($result.Success) {
             Write-Host "`nScript completed successfully." -ForegroundColor Cyan
@@ -879,13 +880,14 @@ try {
         $results = @(Invoke-SdkLibraryRegeneration `
             -SdkRepoPath $sdkRepoPath `
             -Libraries $librariesToRegenerate `
-            -NpmRegistry $artifactFeedRegistry)
+            -NpmRegistry $artifactFeedRegistry `
+            -StopOnFailure:$isCiRun)
 
         # Generate final report
         $scriptEndTime = Get-Date
         $elapsedTime = $scriptEndTime - $scriptStartTime
 
-        Write-RegenerationReport -Results $results -ElapsedTime $elapsedTime -ReportPath $regenerationReportPath
+        Write-RegenerationReport -Results $results -ElapsedTime $elapsedTime -ReportPath $regenerationReportPath -PrintJson:$isCiRun
 
         # Check if any libraries failed
         $failedLibraries = @($results | Where-Object { -not $_.Success })
@@ -893,7 +895,12 @@ try {
     }
     
     if ($failedCount -gt 0) {
-        throw "Validation failed: $failedCount libraries failed to regenerate. Check the detailed report above for error information."
+        if ($isCiRun) {
+            throw "Validation failed: $failedCount libraries failed to regenerate. Check the detailed report above for error information."
+        }
+
+        Write-Host "`nValidation completed with warnings: $failedCount libraries failed to regenerate" -ForegroundColor Yellow
+        Write-Host "Check the detailed report above for error information" -ForegroundColor Yellow
     } else {
         Write-Host "`nValidation completed successfully! All libraries regenerated without errors." -ForegroundColor Green
         
