@@ -1023,18 +1023,13 @@ function Get-SdkLibrariesToRegenerate {
         Optional. Restricts the results to libraries referencing the specified emitter package json paths
         (for example 'eng/http-client-csharp-emitter-package.json'). When omitted, all known emitters match.
 
-    .PARAMETER AzureLibrariesOnly
-        Optional. When specified, only libraries whose directory name starts with 'Azure.' are returned.
     #>
     param(
         [Parameter(Mandatory = $true)]
         [string]$SdkRepoPath,
 
         [Parameter(Mandatory = $false)]
-        [string[]]$EmitterPackageJsonPaths,
-
-        [Parameter(Mandatory = $false)]
-        [switch]$AzureLibrariesOnly
+        [string[]]$EmitterPackageJsonPaths
     )
 
     $ErrorActionPreference = 'Stop'
@@ -1102,10 +1097,6 @@ function Get-SdkLibrariesToRegenerate {
         foreach ($libraryDir in $libraryDirs) {
             # Skip directories that don't look like libraries
             if ($libraryDir.Name -in @("tests", "samples", "perf", "assets", "docs")) {
-                continue
-            }
-
-            if ($AzureLibrariesOnly -and -not $libraryDir.Name.StartsWith("Azure.")) {
                 continue
             }
 

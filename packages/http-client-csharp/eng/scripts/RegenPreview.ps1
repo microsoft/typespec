@@ -444,7 +444,7 @@ try {
     if ($Select -and -not $isOpenAIMode) {
         Write-Host "`n[1/5] Loading TypeSpec libraries from repository..." -ForegroundColor Cyan
         
-        $allLibraries = Get-SdkLibrariesToRegenerate -SdkRepoPath $sdkRepoPath -AzureLibrariesOnly
+        $allLibraries = Get-SdkLibrariesToRegenerate -SdkRepoPath $sdkRepoPath
         
         # Apply generator filter before interactive selection
         $filteredLibraries = @(Filter-LibrariesByGenerator `
@@ -687,7 +687,7 @@ try {
         $librariesToAnalyze = $librariesToRegenerate
     } else {
         # Load all libraries and apply filters to determine what would be regenerated
-        $allLibraries = Get-SdkLibrariesToRegenerate -SdkRepoPath $sdkRepoPath -AzureLibrariesOnly
+        $allLibraries = Get-SdkLibrariesToRegenerate -SdkRepoPath $sdkRepoPath
         $librariesToAnalyze = Filter-LibrariesByGenerator `
             -Libraries $allLibraries `
             -Azure:$Azure `
@@ -832,7 +832,7 @@ try {
     
     if (-not $Select) {
         # Load all libraries if not using -Select flag
-        $allLibraries = Get-SdkLibrariesToRegenerate -SdkRepoPath $sdkRepoPath -AzureLibrariesOnly
+        $allLibraries = Get-SdkLibrariesToRegenerate -SdkRepoPath $sdkRepoPath
         
         # Apply generator filter
         $librariesToRegenerate = Filter-LibrariesByGenerator `

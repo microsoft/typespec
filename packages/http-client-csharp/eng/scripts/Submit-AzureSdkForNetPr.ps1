@@ -617,7 +617,12 @@ try {
                 # Manual runs regenerate each library directly (in parallel) instead of building an
                 # entire service directory at a time, which is significantly faster.
                 Write-Host "##[section]Regenerating SDK libraries in parallel..."
-                $librariesToRegenerate = @(Get-SdkLibrariesToRegenerate -SdkRepoPath $tempDir -EmitterPackageJsonPaths $emitterPatterns)
+                $allLibraries = @(Get-SdkLibrariesToRegenerate -SdkRepoPath $tempDir)
+                $librariesToRegenerate = @(Filter-LibrariesByGenerator `
+                    -Libraries $allLibraries `
+                    -Azure:$RegenerateAzureLibraries `
+                    -Unbranded `
+                    -Mgmt:$RegenerateMgmtLibraries)
 
                 if ($librariesToRegenerate.Count -eq 0) {
                     Write-Host "No SDK libraries found matching emitter patterns. Skipping SDK regeneration."
