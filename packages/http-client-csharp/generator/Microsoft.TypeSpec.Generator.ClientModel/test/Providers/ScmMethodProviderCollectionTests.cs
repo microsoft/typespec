@@ -651,9 +651,11 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers
             var asyncConvenienceMethod = methodCollection.Single(m =>
                 m.Signature.Name.EndsWith("Async")
                 && m.Signature.Parameters.Any(p => p.Type.Equals(typeof(CancellationToken))));
+            using var writer = new CodeWriter();
+            writer.WriteMethod(asyncConvenienceMethod);
             Assert.AreEqual(
                 Helpers.GetExpectedFromFile(),
-                asyncConvenienceMethod.BodyStatements!.ToDisplayString());
+                writer.ToString(false));
         }
 
         [Test]
