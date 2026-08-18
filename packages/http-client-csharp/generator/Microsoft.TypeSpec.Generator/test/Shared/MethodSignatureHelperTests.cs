@@ -380,6 +380,33 @@ namespace Microsoft.TypeSpec.Generator.Tests.Shared
         }
 
         [Test]
+        public void BuildBackCompatMethodSignature_RequiredFactoryParametersPreserveTrailingDefaults()
+        {
+            var previousSignature = CreateMethodSignature("CompatibilityModel",
+                new ParameterProvider("id", $"", typeof(string)),
+                new ParameterProvider("name", $"", typeof(string)),
+                new ParameterProvider("enabled", $"", typeof(bool?), defaultValue: Default),
+                new ParameterProvider("description", $"", typeof(string), defaultValue: Default));
+            var currentSignature = CreateMethodSignature("CompatibilityModel",
+                new ParameterProvider("id", $"", typeof(string), defaultValue: Default),
+                new ParameterProvider("name", $"", typeof(string), defaultValue: Default),
+                new ParameterProvider("kind", $"", typeof(string), defaultValue: Default),
+                new ParameterProvider("enabled", $"", typeof(bool?), defaultValue: Default),
+                new ParameterProvider("description", $"", typeof(string), defaultValue: Default),
+                new ParameterProvider("count", $"", typeof(int?), defaultValue: Default));
+
+            var backCompatSignature = MethodSignatureHelper.BuildBackCompatMethodSignature(
+                previousSignature,
+                hideMethod: true,
+                currentMethodSignatures: [currentSignature]);
+
+            Assert.IsNull(backCompatSignature.Parameters[0].DefaultValue);
+            Assert.IsNull(backCompatSignature.Parameters[1].DefaultValue);
+            Assert.IsNotNull(backCompatSignature.Parameters[2].DefaultValue);
+            Assert.IsNotNull(backCompatSignature.Parameters[3].DefaultValue);
+        }
+
+        [Test]
         public void BuildBackCompatMethodSignature_WithOverloads_HideMethodFalse_RemovesDefaultsWithoutEditorBrowsable()
         {
             var previousSignature = CreateMethodSignature("TestMethod",

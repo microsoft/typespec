@@ -141,7 +141,9 @@ namespace Microsoft.TypeSpec.Generator
 
             return Math.Max(previousMinimumArgumentCount, currentMinimumArgumentCount) <=
                 Math.Min(previousMethodSignature.Parameters.Count, currentMaximumArgumentCount)
-                ? previousMethodSignature.Parameters.Count
+                ? previousMinimumArgumentCount == 0
+                    ? previousMethodSignature.Parameters.Count
+                    : previousMinimumArgumentCount
                 : 0;
         }
 
