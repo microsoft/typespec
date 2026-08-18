@@ -627,7 +627,8 @@ try {
                 if ($librariesToRegenerate.Count -eq 0) {
                     Write-Host "No SDK libraries found matching emitter patterns. Skipping SDK regeneration."
                 } else {
-                    Write-Host "Regenerating $($librariesToRegenerate.Count) libraries across $($serviceDirectories.Count) service directories"
+                    $regeneratedServiceCount = @($librariesToRegenerate | ForEach-Object { $_.Service } | Sort-Object -Unique).Count
+                    Write-Host "Regenerating $($librariesToRegenerate.Count) libraries across $regeneratedServiceCount service directories"
                     $regenerationStartTime = Get-Date
                     $previousErrorAction = $ErrorActionPreference
                     $ErrorActionPreference = "Continue"
