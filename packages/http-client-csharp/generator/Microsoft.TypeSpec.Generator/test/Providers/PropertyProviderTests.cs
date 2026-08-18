@@ -149,6 +149,7 @@ namespace Microsoft.TypeSpec.Generator.Tests.Providers
             var property = new PropertyProvider(inputProperty, new TestTypeProvider());
 
             Assert.AreEqual(expectedName, property.AsParameter.AsVariable().Declaration.RequestedName);
+            Assert.AreEqual(expectedName, property.AsVariableExpression.Declaration.RequestedName);
         }
 
         [TestCaseSource(nameof(CollectionPropertyTestCases))]

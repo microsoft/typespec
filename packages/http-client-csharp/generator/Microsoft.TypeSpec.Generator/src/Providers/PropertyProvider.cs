@@ -195,7 +195,7 @@ namespace Microsoft.TypeSpec.Generator.Providers
                 property: this));
         }
 
-        public VariableExpression AsVariableExpression => _variable ??= new(Type, Name.ToVariableName());
+        public VariableExpression AsVariableExpression => _variable ??= AsParameter;
 
         private static bool IsDiscriminatorProperty(InputProperty inputProperty)
         {
