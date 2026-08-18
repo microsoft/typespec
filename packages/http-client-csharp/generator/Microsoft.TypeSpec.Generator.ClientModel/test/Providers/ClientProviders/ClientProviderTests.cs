@@ -2805,6 +2805,57 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers.ClientProvide
             }
         }
 
+        // Date parameter names are normalized (requestDate -> requestOn) on both the protocol and the
+        // convenience surface, so the previously published name is restored consistently for both and the
+        // convenience method forwards every argument positionally. When only one surface is normalized, the
+        // date argument is dropped (passed as null) and the remaining arguments are passed by name.
+        [Test]
+        public async Task BackCompatibility_DateParameterNameIsPreservedInConvenienceCall()
+        {
+            var dateType = new InputDateTimeType(
+                DateTimeKnownEncoding.Rfc7231,
+                "utcDateTime",
+                "TypeSpec.utcDateTime",
+                InputPrimitiveType.String);
+            var operation = InputFactory.Operation(
+                "TestMethod",
+                parameters:
+                [
+                    InputFactory.HeaderParameter("requestDate", dateType),
+                    InputFactory.HeaderParameter("ifMatch", InputPrimitiveType.String)
+                ]);
+            var method = InputFactory.BasicServiceMethod(
+                "TestMethod",
+                operation,
+                parameters:
+                [
+                    InputFactory.MethodParameter("requestDate", dateType, location: InputRequestLocation.Header),
+                    InputFactory.MethodParameter("ifMatch", InputPrimitiveType.String, location: InputRequestLocation.Header)
+                ]);
+            var client = InputFactory.Client(TestClientName, methods: [method]);
+
+            var generator = await MockHelpers.LoadMockGeneratorAsync(
+                clients: () => [client],
+                lastContractCompilation: async () => await Helpers.GetCompilationFromDirectoryAsync());
+
+            var clientProvider = generator.Object.OutputLibrary.TypeProviders.OfType<ClientProvider>().FirstOrDefault();
+            Assert.IsNotNull(clientProvider);
+            Assert.IsNotNull(clientProvider!.LastContractView);
+
+            clientProvider!.ProcessTypeForBackCompatibility();
+
+            var protocolMethod = clientProvider.Methods
+                .Single(m => m.Signature.Name == "TestMethod" && m is ScmMethodProvider { Kind: ScmMethodKind.Protocol });
+            var convenienceMethod = clientProvider.Methods
+                .Single(m => m.Signature.Name == "TestMethod" && m is ScmMethodProvider { Kind: ScmMethodKind.Convenience });
+
+            using var writer = new CodeWriter();
+            writer.WriteMethod(protocolMethod);
+            writer.WriteMethod(convenienceMethod);
+
+            Assert.AreEqual(Helpers.GetExpectedFromFile(), writer.ToString(false));
+        }
+
         [Test]
         public async Task BackCompatibility_ProtocolMethodParamOrderChanged()
         {
