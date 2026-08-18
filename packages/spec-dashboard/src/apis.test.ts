@@ -1,7 +1,10 @@
 import type { ScenarioManifest } from "@typespec/spec-coverage-sdk";
+import { createElement } from "react";
+import { renderToStaticMarkup } from "react-dom/server";
 import { expect, it } from "vitest";
 import type { TableDefinition } from "./apis.js";
 import { splitManifestByTables } from "./apis.js";
+import { CoverageOverview } from "./components/coverage-overview.js";
 
 const createManifest = (
   packageName: string,
@@ -223,6 +226,55 @@ it("should not duplicate scenarios across tables", () => {
   const defaultTable = result.find((r) => r.tableName === "Display Name");
   expect(defaultTable!.manifest.scenarios).toHaveLength(1);
   expect(defaultTable!.manifest.scenarios[0].name).toBe("unique_scenario");
+});
+
+it("should group overview coverage by logical display name across emitter packages", () => {
+  const coverageSummaries = [
+    {
+      manifest: {
+        packageName: "azure-test",
+        displayName: "Azure Test",
+        commit: "abc123",
+        version: "1.0.0",
+        scenarios: [
+          {
+            name: "scenario_1",
+            scenarioDoc: "Doc",
+            location: {
+              path: "x",
+              start: { line: 1, character: 1 },
+              end: { line: 2, character: 1 },
+            },
+          },
+        ],
+      },
+      tableName: "Azure Test",
+      generatorReports: {
+        "@azure-typespec/http-client-csharp": {
+          generatorMetadata: { name: "C#", version: "1.0.0" },
+          results: { scenario_1: "pass" },
+        },
+        "@azure-typespec/http-client-csharp-mgmt": {
+          generatorMetadata: { name: "C#", version: "1.0.0" },
+          results: { scenario_1: "pass" },
+        },
+      },
+    },
+  ] as any;
+
+  const html = renderToStaticMarkup(
+    createElement(CoverageOverview, {
+      coverageSummaries,
+      emitterDisplayNames: {
+        "@azure-typespec/http-client-csharp": "C#",
+        "@azure-typespec/http-client-csharp-mgmt": "C#",
+      },
+    }),
+  );
+
+  const cSharpMatches = html.match(/C#/g) ?? [];
+  expect(cSharpMatches.length).toBeGreaterThanOrEqual(1);
+  expect(html).not.toContain("@azure-typespec/http-client-csharp-mgmt");
 });
 
 it("should include emitterNames from table definition", () => {

@@ -39,6 +39,14 @@ function getEmitterDisplayName(
   return emitterName;
 }
 
+function getEmitterOverviewKey(
+  emitterName: string,
+  report: CoverageSummary["generatorReports"][string],
+  emitterDisplayNames?: Record<string, string>,
+): string {
+  return getEmitterDisplayName(emitterName, report, emitterDisplayNames);
+}
+
 /**
  * Gets the accent color for a coverage ratio using the same thresholds as the coverage tables.
  */
@@ -59,22 +67,31 @@ export const CoverageOverview: FunctionComponent<CoverageOverviewProps> = ({
   emitterDisplayNames,
 }) => {
   const emitterOverviews = useMemo(() => {
-    // Aggregate scenarios per emitter across all summaries
+    // Aggregate scenarios per logical emitter language across all summaries.
+    // This keeps emitters that share the same display name (for example C# data-plane
+    // and management-plane emitters) grouped into a single overview card.
     const emitterMap = new Map<
       string,
       {
         totalScenarios: number;
         coveredScenarios: number;
         report: CoverageSummary["generatorReports"][string];
+        displayName: string;
       }
     >();
 
     for (const summary of coverageSummaries) {
       for (const [emitterName, report] of Object.entries(summary.generatorReports)) {
-        if (!emitterMap.has(emitterName)) {
-          emitterMap.set(emitterName, { totalScenarios: 0, coveredScenarios: 0, report });
+        const groupKey = getEmitterOverviewKey(emitterName, report, emitterDisplayNames);
+        if (!emitterMap.has(groupKey)) {
+          emitterMap.set(groupKey, {
+            totalScenarios: 0,
+            coveredScenarios: 0,
+            report,
+            displayName: getEmitterDisplayName(emitterName, report, emitterDisplayNames),
+          });
         }
-        const entry = emitterMap.get(emitterName)!;
+        const entry = emitterMap.get(groupKey)!;
         const scenarios = summary.manifest.scenarios;
         entry.totalScenarios += scenarios.length;
         if (report) {
@@ -89,10 +106,10 @@ export const CoverageOverview: FunctionComponent<CoverageOverviewProps> = ({
     }
 
     const overviews: EmitterOverview[] = [];
-    for (const [emitterName, data] of emitterMap) {
+    for (const [groupKey, data] of emitterMap) {
       overviews.push({
-        name: emitterName,
-        displayName: getEmitterDisplayName(emitterName, data.report, emitterDisplayNames),
+        name: groupKey,
+        displayName: data.displayName,
         coverageRatio: data.totalScenarios > 0 ? data.coveredScenarios / data.totalScenarios : 0,
       });
     }
