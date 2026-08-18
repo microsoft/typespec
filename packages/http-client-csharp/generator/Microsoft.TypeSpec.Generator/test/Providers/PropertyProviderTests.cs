@@ -129,15 +129,15 @@ namespace Microsoft.TypeSpec.Generator.Tests.Providers
             Assert.AreEqual(expectedName, property.Name);
         }
 
-        [TestCase("Ipv4", false, "ipv4")]
-        [TestCase("Ipv6", false, "ipv6")]
+        [TestCase("Ipv4", false, "iPv4")]
+        [TestCase("Ipv6", false, "iPv6")]
         [TestCase("IpAddress", false, "ipAddress")]
         [TestCase("DbAccount", false, "dbAccount")]
         [TestCase("OsProfile", false, "osProfile")]
         [TestCase("RegularName", false, "regularName")]
         [TestCase("MiniPv4", false, "miniPv4")]
         [TestCase("Ipv4", true, "ipv4")]
-        public void TestPropertyParameterDeclarationNormalizesAcronymCasing(string inputName, bool isExactName, string expectedName)
+        public void TestPropertyParameterDeclarationPreservesAcronymCasing(string inputName, bool isExactName, string expectedName)
         {
             var inputProperty = InputFactory.Property(
                 inputName,
@@ -149,6 +149,7 @@ namespace Microsoft.TypeSpec.Generator.Tests.Providers
             var property = new PropertyProvider(inputProperty, new TestTypeProvider());
 
             Assert.AreEqual(expectedName, property.AsParameter.AsVariable().Declaration.RequestedName);
+            Assert.AreEqual(expectedName, property.AsVariableExpression.Declaration.RequestedName);
         }
 
         [TestCaseSource(nameof(CollectionPropertyTestCases))]
