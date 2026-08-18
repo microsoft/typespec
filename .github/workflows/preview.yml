@@ -33,10 +33,10 @@ jobs:
       - uses: ./.github/actions/setup
 
       - name: Install dependencies
-        run: npx tsx eng/tsp-core/tpm/cli.ts install --since origin/main
+        run: node eng/tsp-core/tpm/cli.ts install --since origin/main
 
       - name: Build
-        run: npx tsx eng/tsp-core/tpm/cli.ts build --since origin/main
+        run: node eng/tsp-core/tpm/cli.ts build --since origin/main
 
       - name: Bump version to prerelease targets
         run: pnpm chronus version --prerelease "{nextVersion}-pr.${{ github.event.pull_request.number }}.${{ github.run_number }}"
@@ -47,4 +47,4 @@ jobs:
       # for the remainder of the job since the mismatch is expected here.
       - run: pnpm config set verifyDepsBeforeRun false --location project
 
-      - run: pnpm tsx eng/tsp-core/pkg-pr-new.ts
+      - run: node eng/tsp-core/pkg-pr-new.ts

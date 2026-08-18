@@ -1,4 +1,5 @@
-import { isArrayModelType, Model, ModelProperty, Program, Type, Value } from "@typespec/compiler";
+import type { Model, ModelProperty, Program, Type, Value } from "@typespec/compiler";
+import { isArrayModelType } from "@typespec/compiler";
 import { useStateMap } from "@typespec/compiler/utils";
 import { HttpStateKeys } from "../../lib.js";
 

@@ -165,6 +165,9 @@ public class TemplateUtil {
             && settings.isAzureV1()
             && clientMethods.stream().anyMatch(m -> m.getMethodPageDetails() != null)) {
             writePagingHelperMethods(classBlock);
+            if (clientMethods.stream().anyMatch(TemplateUtil::isXmlPagingMethod)) {
+                writeXmlPagingHelperMethods(classBlock);
+            }
         }
     }
 
@@ -246,19 +249,95 @@ public class TemplateUtil {
      * @param classBlock Java class block
      */
     private static void writePagingHelperMethods(JavaClass classBlock) {
-        classBlock.privateMethod("List<BinaryData> getValues(BinaryData binaryData, String path)", block -> {
+        classBlock.privateMethod("List<BinaryData> getValues(BinaryData binaryData, String... path)", block -> {
             block.line("try {");
-            block.line("Map<?, ?> obj = binaryData.toObject(Map.class);");
-            block.line("List<?> values = (List<?>) obj.get(path);");
+            block.line("Object value = binaryData.toObject(Map.class);");
+            block.line("for (String segment : path) {");
+            block.indent(() -> block.line("value = ((Map<?, ?>) value).get(segment);"));
+            block.line("}");
+            block.line("List<?> values = (List<?>) value;");
             block.line("return values.stream().map(BinaryData::fromObject).collect(Collectors.toList());");
             block.line("} catch (RuntimeException e) { return null; }");
         });
-        classBlock.privateMethod("String getNextLink(BinaryData binaryData, String path)", block -> {
+        classBlock.privateMethod("String getNextLink(BinaryData binaryData, String... path)", block -> {
             block.line("try {");
-            block.line("Map<?, ?> obj = binaryData.toObject(Map.class);");
-            block.line("return (String) obj.get(path);");
+            block.line("Object value = binaryData.toObject(Map.class);");
+            block.line("for (String segment : path) {");
+            block.indent(() -> block.line("value = ((Map<?, ?>) value).get(segment);"));
+            block.line("}");
+            block.line("return (String) value;");
             block.line("} catch (RuntimeException e) { return null; }");
         });
+    }
+
+    private static boolean isXmlPagingMethod(ClientMethod clientMethod) {
+        return clientMethod.getMethodPageDetails() != null
+            && clientMethod.getProxyMethod().getRawResponseBodyType().isUsedInXml();
+    }
+
+    private static void writeXmlPagingHelperMethods(JavaClass classBlock) {
+        classBlock.privateStaticFinalVariable(
+            "com.azure.core.util.serializer.ObjectSerializer XML_SERIALIZER = XmlSerializerProviders.createInstance()");
+        classBlock.privateMethod(
+            "List<BinaryData> getXmlValues(BinaryData binaryData, "
+                + "java.util.function.Function<com.azure.xml.XmlReader, BinaryData> valueReader, String... path)",
+            block -> {
+                block.line(
+                    "try (com.azure.xml.XmlReader reader = com.azure.xml.XmlReader.fromStream(binaryData.toStream())) {");
+                block.indent(() -> {
+                    block.line("reader.nextElement();");
+                    block.line("return getXmlValues(reader, valueReader, path, 0);");
+                });
+                block.line("} catch (javax.xml.stream.XMLStreamException e) {");
+                block.indent(
+                    () -> block.line("throw new IllegalStateException(\"Failed to read XML pageable response.\", e);"));
+                block.line("}");
+            });
+        classBlock.privateMethod("List<BinaryData> getXmlValues(com.azure.xml.XmlReader reader, "
+            + "java.util.function.Function<com.azure.xml.XmlReader, BinaryData> valueReader, String[] path, "
+            + "int pathIndex) throws javax.xml.stream.XMLStreamException", block -> {
+                block.line("List<BinaryData> values = new java.util.ArrayList<>();");
+                block.line("while (reader.nextElement() != com.azure.xml.XmlToken.END_ELEMENT) {");
+                block.indent(() -> {
+                    block.line("if (!reader.elementNameMatches(path[pathIndex])) {");
+                    block.indent(() -> block.line("reader.skipElement();"));
+                    block.line("} else if (pathIndex == path.length - 1) {");
+                    block.indent(() -> block.line("values.add(valueReader.apply(reader));"));
+                    block.line("} else {");
+                    block.indent(
+                        () -> block.line("values.addAll(getXmlValues(reader, valueReader, path, pathIndex + 1));"));
+                    block.line("}");
+                });
+                block.line("}");
+                block.line("return values;");
+            });
+        classBlock.privateMethod("String getXmlNextLink(BinaryData binaryData, String... path)", block -> {
+            block.line(
+                "try (com.azure.xml.XmlReader reader = com.azure.xml.XmlReader.fromStream(binaryData.toStream())) {");
+            block.indent(() -> {
+                block.line("reader.nextElement();");
+                block.line("return getXmlNextLink(reader, path, 0);");
+            });
+            block.line("} catch (javax.xml.stream.XMLStreamException e) {");
+            block.indent(
+                () -> block.line("throw new IllegalStateException(\"Failed to read XML pageable response.\", e);"));
+            block.line("}");
+        });
+        classBlock.privateMethod("String getXmlNextLink(com.azure.xml.XmlReader reader, String[] path, int pathIndex) "
+            + "throws javax.xml.stream.XMLStreamException", block -> {
+                block.line("while (reader.nextElement() != com.azure.xml.XmlToken.END_ELEMENT) {");
+                block.indent(() -> {
+                    block.line("if (!reader.elementNameMatches(path[pathIndex])) {");
+                    block.indent(() -> block.line("reader.skipElement();"));
+                    block.line("} else if (pathIndex == path.length - 1) {");
+                    block.indent(() -> block.line("return reader.getStringElement();"));
+                    block.line("} else {");
+                    block.indent(() -> block.line("return getXmlNextLink(reader, path, pathIndex + 1);"));
+                    block.line("}");
+                });
+                block.line("}");
+                block.line("return null;");
+            });
     }
 
     /**

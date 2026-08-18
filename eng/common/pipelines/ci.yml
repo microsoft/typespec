@@ -37,10 +37,10 @@ extends:
               - script: pnpm install
                 displayName: Install JavaScript Dependencies
 
-              - script: node $(Build.SourcesDirectory)/eng/common/scripts/resolve-target-branch.js
+              - script: node $(Build.SourcesDirectory)/eng/common/scripts/resolve-target-branch.ts
                 displayName: Resolve target branch
 
-              - script: pnpm tsx ./eng/common/scripts/dispatch-area-triggers.ts --target-branch $(TARGET_BRANCH)
+              - script: node ./eng/common/scripts/dispatch-area-triggers.ts --target-branch $(TARGET_BRANCH)
                 displayName: "Analyze PR changes"
                 name: InitStep
 

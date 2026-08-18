@@ -18,7 +18,7 @@ When making changes to the TypeSpec HTTP Client C# generator, it may be helpful 
 
 1. Building local versions of the generator packages
 2. Updating the Azure SDK for .NET repository to use these local packages
-3. Regenerating all libraries (or selected libraries if `-Select` is specified)
+3. Regenerating all libraries (or specific libraries if `-Select` or `-Libraries` is specified)
 4. Cleaning up all modifications after validation
 
 ### OpenAI Mode
@@ -93,7 +93,7 @@ This will:
 - Regenerate the OpenAI library
 - Restore all modified generator metadata files on success
 
-**Note**: OpenAI mode is automatically detected when the repository path contains "openai-dotnet". The `-Select`, `-Azure`, `-Unbranded`, and `-Mgmt` parameters are not applicable in OpenAI mode.
+**Note**: OpenAI mode is automatically detected when the repository path contains "openai-dotnet". The `-Select`, `-Azure`, `-Unbranded`, `-Mgmt`, and `-Libraries` parameters are not applicable in OpenAI mode.
 
 ### Parameters
 
@@ -164,11 +164,23 @@ Not applicable in OpenAI mode.
 .\RegenPreview.ps1 -SdkLibraryRepoPath "C:\repos\azure-sdk-for-net" -Mgmt
 ```
 
+#### `-Libraries` (Optional)
+
+**Azure SDK Mode only.** A comma-separated list of library names to regenerate. This parameter can be combined with `-Select` and generator filters (`-Azure`, `-Unbranded`, `-Mgmt`), but not with `-Spector`.
+
+Not applicable in OpenAI mode.
+
+**Example:**
+
+```powershell
+.\RegenPreview.ps1 -SdkLibraryRepoPath "C:\repos\azure-sdk-for-net" -Libraries "Azure.ResourceManager.AppContainers, Azure.Data.AppConfig"
+```
+
 #### `-Spector` (Optional)
 
 **Azure SDK Mode only.** When specified, regenerates the Azure spector test scenarios in azure-sdk-for-net instead of regenerating SDK libraries. This builds the local unbranded generator, wires it into the Azure generator, and runs the Azure generator's Generate.ps1 to regenerate spector test projects.
 
-Mutually exclusive with `-Select`, `-Azure`, `-Unbranded`, and `-Mgmt`.
+Mutually exclusive with `-Select`, `-Azure`, `-Unbranded`, `-Mgmt`, and `-Libraries`.
 
 Not applicable in OpenAI mode.
 
@@ -282,7 +294,7 @@ When the repository path contains "openai-dotnet", the script switches to OpenAI
 - **On failure**, leaves all modified artifacts in place for debugging
 - Displays success message and exits
 
-**Note:** Filter parameters (`-Azure`, `-Unbranded`, `-Mgmt`, `-Select`) are not applicable in OpenAI mode and will cause an error if specified.
+**Note:** Filter parameters (`-Azure`, `-Unbranded`, `-Mgmt`, `-Select`, `-Libraries`) are not applicable in OpenAI mode and will cause an error if specified.
 
 ---
 
@@ -335,6 +347,7 @@ In Azure SDK mode, the script continues with additional steps after Step 2.5:
 ### Step 7: Prepare Library List
 
 - Confirms the list of libraries to regenerate
+- Applies the `-Libraries` filter when specified
 - When no `-Select` flag, loads all libraries from `Library_Inventory.md` including:
   - Data plane libraries using `@azure-typespec/http-client-csharp`
   - Data plane libraries using `@typespec/http-client-csharp`
@@ -449,10 +462,7 @@ Detailed report saved to: C:\...\debug\regen-report.json
 
 ```powershell
 # You want to test Azure generator changes on specific libraries only
-.\RegenPreview.ps1 -SdkLibraryRepoPath "C:\repos\azure-sdk-for-net" -Select
-
-# Select just one or two libraries when prompted
-# Selection: 1,5
+.\RegenPreview.ps1 -SdkLibraryRepoPath "C:\repos\azure-sdk-for-net" -Libraries "Azure.ResourceManager.AppContainers, Azure.Data.AppConfig"
 ```
 
 ### Scenario: Full Validation Before PR

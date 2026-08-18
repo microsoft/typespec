@@ -7,8 +7,8 @@ using System.Linq;
 using System.Reflection;
 using System.Threading.Tasks;
 using Microsoft.CodeAnalysis;
-using Microsoft.TypeSpec.Generator.Expressions;
 using Microsoft.TypeSpec.Generator.ClientModel.Providers;
+using Microsoft.TypeSpec.Generator.Expressions;
 using Microsoft.TypeSpec.Generator.Input;
 using Microsoft.TypeSpec.Generator.Input.Extensions;
 using Microsoft.TypeSpec.Generator.Primitives;
@@ -698,6 +698,41 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers.RestClientPro
         }
 
         [Test]
+        public async Task ParameterNamePreservedFromInternalLastContractMethod()
+        {
+            var queryParam = InputFactory.QueryParameter("oldParam", InputPrimitiveType.String, isRequired: true);
+            queryParam.Update(name: "newParam");
+
+            var operation = InputFactory.Operation("GetSomething", parameters: [queryParam]);
+            var serviceMethod = InputFactory.BasicServiceMethod("GetSomething", operation);
+            var client = InputFactory.Client("TestClient", methods: [serviceMethod]);
+
+            var generator = await MockHelpers.LoadMockGeneratorAsync(
+                clients: () => [client],
+                lastContractCompilation: async () => await Helpers.GetCompilationFromDirectoryAsync());
+
+            var clientProvider = generator.Object.OutputLibrary.TypeProviders.OfType<ClientProvider>().FirstOrDefault();
+            Assert.IsNotNull(clientProvider);
+            Assert.IsNotNull(clientProvider!.LastContractView);
+
+            var protocolParams = RestClientProvider.GetMethodParameters(serviceMethod, ScmMethodKind.Protocol, clientProvider!);
+
+            // Preserving a previously-published parameter name only renames an existing parameter (it never
+            // adds members), so the last contract is respected regardless of the owning method's accessibility.
+            Assert.IsNotNull(
+                protocolParams.FirstOrDefault(p => string.Equals(p.Name, "oldParam", StringComparison.Ordinal)),
+                "Parameter name should be restored from the previously-published name even on internal last-contract methods.");
+            Assert.IsNull(
+                protocolParams.FirstOrDefault(p => string.Equals(p.Name, "newParam", StringComparison.Ordinal)),
+                "When 'oldParam' is preserved, the renamed 'newParam' must not appear.");
+
+            var restClientProvider = new MockClientProvider(client, clientProvider!);
+            var writer = new TypeProviderWriter(restClientProvider);
+            var file = writer.Write();
+            Assert.AreEqual(Helpers.GetExpectedFromFile(parameters: "Generated"), file.Content);
+        }
+
+        [Test]
         public void ExactNameMethodParameterPreservedInRestClient()
         {
             var queryParam = InputFactory.QueryParameter(
@@ -1054,6 +1089,10 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers.RestClientPro
             var inputStringEnum = InputFactory.StringEnum(
                 "foo",
                 stringEnumValues);
+            var inputExtensibleStringEnum = InputFactory.StringEnum(
+                "extensibleFoo",
+                stringEnumValues,
+                isExtensible: true);
             var inputIntEnum = InputFactory.Int32Enum(
                 "intFoo",
                 intEnumValues);
@@ -1078,6 +1117,10 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers.RestClientPro
                 InputFactory.QueryParameter("p7Explode", InputFactory.Dictionary(inputIntEnum), isRequired: true, explode: true),
                 InputFactory.QueryParameter("p8Explode", InputFactory.Array(inputFloatEnum), isRequired: true, explode: true),
                 InputFactory.QueryParameter("p9Explode", InputFactory.Array(inputDoubleEnum), isRequired: true, explode: true),
+                InputFactory.QueryParameter("p10Explode", InputFactory.Array(inputExtensibleStringEnum), isRequired: true, explode: true),
+                InputFactory.QueryParameter("p11Explode", InputFactory.Dictionary(inputExtensibleStringEnum), isRequired: true, explode: true),
+                InputFactory.QueryParameter("p12", inputExtensibleStringEnum, isRequired: true),
+                InputFactory.QueryParameter("p13", new InputNullableType(inputExtensibleStringEnum), isRequired: false),
             ];
             var operation = InputFactory.Operation(
                 "sampleOp",

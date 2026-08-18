@@ -1,9 +1,10 @@
 import { deepStrictEqual, ok, strictEqual } from "assert";
 import { describe, it } from "vitest";
 import type { FunctionParameterNode } from "../../src/ast/index.js";
-import { Diagnostic, Model, Type, definePackageFlags } from "../../src/index.js";
+import type { Diagnostic, Model, Type } from "../../src/index.js";
+import { definePackageFlags } from "../../src/index.js";
+import type { DiagnosticMatch } from "../../src/testing/index.js";
 import {
-  DiagnosticMatch,
   expectDiagnosticEmpty,
   expectDiagnostics,
   extractCursor,

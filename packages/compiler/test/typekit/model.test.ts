@@ -1,5 +1,5 @@
 import { assert, expect, it } from "vitest";
-import { Operation } from "../../src/index.js";
+import type { Operation } from "../../src/index.js";
 import { expectDiagnostics, t } from "../../src/testing/index.js";
 import { $ } from "../../src/typekit/index.js";
 import { Tester } from "../tester.js";

@@ -1,6 +1,7 @@
 import { ok, strictEqual } from "assert";
 import { describe, it } from "vitest";
-import { SyntaxKind, TypeSpecScriptNode, parse } from "../../src/ast/index.js";
+import type { TypeSpecScriptNode } from "../../src/ast/index.js";
+import { SyntaxKind, parse } from "../../src/ast/index.js";
 import type { PositionDetail } from "../../src/index.js";
 import { formatFatalError, writeServerFatalError } from "../../src/server/fatal-error.js";
 import { getCompletionNodeAtPosition } from "../../src/server/serverlib.js";

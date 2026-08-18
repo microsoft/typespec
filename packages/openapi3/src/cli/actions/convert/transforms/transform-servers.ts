@@ -1,5 +1,5 @@
-import { OpenAPI3Server, OpenAPI3ServerVariable } from "../../../../types.js";
-import { TypeSpecServer, TypeSpecServerVariable } from "../interfaces.js";
+import type { OpenAPI3Server, OpenAPI3ServerVariable } from "../../../../types.js";
+import type { TypeSpecServer, TypeSpecServerVariable } from "../interfaces.js";
 
 function transformServerVariables(
   variables?: Record<string, OpenAPI3ServerVariable>,

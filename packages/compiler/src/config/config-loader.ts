@@ -9,14 +9,15 @@ import {
 } from "../core/path-utils.js";
 import { createJSONSchemaValidator } from "../core/schema-validator.js";
 import { createSourceFile } from "../core/source-file.js";
-import { Diagnostic, NoTarget, SourceFile, SystemHost } from "../core/types.js";
+import type { Diagnostic, SourceFile, SystemHost } from "../core/types.js";
+import { NoTarget } from "../core/types.js";
 import { doIO } from "../utils/io.js";
 import { deepFreeze, omitUndefined } from "../utils/misc.js";
 import { getLocationInYamlScript } from "../yaml/index.js";
 import { parseYaml } from "../yaml/parser.js";
-import { YamlScript } from "../yaml/types.js";
+import type { YamlScript } from "../yaml/types.js";
 import { TypeSpecConfigJsonSchema } from "./config-schema.js";
-import { TypeSpecConfig, TypeSpecRawConfig } from "./types.js";
+import type { TypeSpecConfig, TypeSpecRawConfig } from "./types.js";
 
 export const TypeSpecConfigFilename = "tspconfig.yaml";
 

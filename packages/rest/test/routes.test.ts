@@ -1,4 +1,4 @@
-import { ModelProperty, Operation } from "@typespec/compiler";
+import type { ModelProperty, Operation } from "@typespec/compiler";
 import { expectDiagnostics, t } from "@typespec/compiler/testing";
 import { isSharedRoute } from "@typespec/http";
 import { deepStrictEqual, strictEqual } from "assert";

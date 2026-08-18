@@ -9,6 +9,7 @@ import com.microsoft.typespec.http.client.generator.core.extension.model.codemod
 import com.microsoft.typespec.http.client.generator.core.extension.model.codemodel.Parameter;
 import com.microsoft.typespec.http.client.generator.core.mapper.Mappers;
 import com.microsoft.typespec.http.client.generator.core.mapper.ServiceClientMapper;
+import com.microsoft.typespec.http.client.generator.core.model.clientmodel.ApiMetadata;
 import com.microsoft.typespec.http.client.generator.core.model.clientmodel.ClientAccessorMethod;
 import com.microsoft.typespec.http.client.generator.core.model.clientmodel.EnumType;
 import com.microsoft.typespec.http.client.generator.core.model.clientmodel.IType;
@@ -86,7 +87,9 @@ public class TypeSpecServiceClientMapper extends ServiceClientMapper {
 
         processPipelinePolicyDetails(builder, client);
 
-        builder.crossLanguageDefinitionId(SchemaUtil.getCrossLanguageDefinitionId(client));
+        builder.apiMetadata(
+            new ApiMetadata.Builder().crossLanguageDefinitionId(SchemaUtil.getCrossLanguageDefinitionId(client))
+                .build());
 
         List<ClientAccessorMethod> clientAccessorMethods = new ArrayList<>();
         for (Client subClient : client.getSubClients()) {
@@ -122,9 +125,9 @@ public class TypeSpecServiceClientMapper extends ServiceClientMapper {
     }
 
     @Override
-    protected boolean isRemoveModelFromParameter(Parameter parameter, IType type) {
+    protected boolean isRemoveModelFromClientType(Parameter parameter, IType type) {
         boolean isEnumType = type instanceof EnumType;
         boolean isClientParameter = Parameter.ImplementationLocation.CLIENT.equals(parameter.getImplementation());
-        return super.isRemoveModelFromParameter(parameter, type) && !(isEnumType && isClientParameter);
+        return super.isRemoveModelFromClientType(parameter, type) && !(isEnumType && isClientParameter);
     }
 }

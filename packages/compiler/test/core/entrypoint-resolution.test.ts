@@ -43,3 +43,41 @@ it("defaults to main.tsp when neither tspconfig entrypoint nor package.json tspM
   const entrypoint = await resolveTypeSpecEntrypointForDir(host, dir, () => {});
   expect(entrypoint).toBe(resolveVirtualPath("my-lib/main.tsp"));
 });
+
+it("uses package.json exports['.']['typespec'] when there is no tspMain", async () => {
+  fs.add(
+    "my-lib/package.json",
+    JSON.stringify({
+      name: "my-lib",
+      exports: { ".": { typespec: "./lib/main.tsp", default: "./dist/index.js" } },
+    }),
+  );
+  const entrypoint = await resolveTypeSpecEntrypointForDir(host, dir, () => {});
+  expect(entrypoint).toBe(resolveVirtualPath("my-lib/lib/main.tsp"));
+});
+
+it("exports['.']['typespec'] takes precedence over tspMain", async () => {
+  fs.add(
+    "my-lib/package.json",
+    JSON.stringify({
+      name: "my-lib",
+      tspMain: "lib/main.tsp",
+      exports: { ".": { typespec: "./lib/other.tsp", default: "./dist/index.js" } },
+    }),
+  );
+  const entrypoint = await resolveTypeSpecEntrypointForDir(host, dir, () => {});
+  expect(entrypoint).toBe(resolveVirtualPath("my-lib/lib/other.tsp"));
+});
+
+it("an explicit entrypoint in tspconfig.yaml takes precedence over exports['.']['typespec']", async () => {
+  fs.add(
+    "my-lib/package.json",
+    JSON.stringify({
+      name: "my-lib",
+      exports: { ".": { typespec: "./lib/main.tsp", default: "./dist/index.js" } },
+    }),
+  );
+  fs.add("my-lib/tspconfig.yaml", `kind: project\nentrypoint: other.tsp`);
+  const entrypoint = await resolveTypeSpecEntrypointForDir(host, dir, () => {});
+  expect(entrypoint).toBe(resolveVirtualPath("my-lib/other.tsp"));
+});

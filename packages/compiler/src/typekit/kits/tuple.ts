@@ -1,4 +1,4 @@
-import { Entity, Tuple, Type } from "../../core/types.js";
+import type { Entity, Tuple, Type } from "../../core/types.js";
 import { defineKit } from "../define-kit.js";
 
 /**

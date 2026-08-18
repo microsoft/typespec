@@ -1,4 +1,5 @@
-import { getSourceLocation, SourceLocation, Type } from "@typespec/compiler";
+import type { SourceLocation, Type } from "@typespec/compiler";
+import { getSourceLocation } from "@typespec/compiler";
 import pc from "picocolors";
 import { logger } from "../logger.js";
 

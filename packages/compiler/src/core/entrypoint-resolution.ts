@@ -1,9 +1,12 @@
 import { loadTypeSpecConfigForPath } from "../config/config-loader.js";
+import { resolvePackageExports } from "../module-resolver/esm/resolve-package-exports.js";
+import { NoMatchingConditionsError } from "../module-resolver/esm/utils.js";
+import { fileURLToPath, pathToFileURL } from "../module-resolver/utils.js";
 import { doIO, loadFile } from "../utils/io.js";
 import { resolveTspMain } from "../utils/misc.js";
-import { DiagnosticHandler } from "./diagnostics.js";
+import type { DiagnosticHandler } from "./diagnostics.js";
 import { resolvePath } from "./path-utils.js";
-import { CompilerHost } from "./types.js";
+import type { CompilerHost } from "./types.js";
 
 /**
  * Resolve the path to the main file
@@ -39,12 +42,40 @@ export async function resolveTypeSpecEntrypointForDir(
     return resolvePath(dir, config.entrypoint);
   }
 
-  // Otherwise fall back to the `tspMain` declared in package.json. A `tspconfig.yaml`
-  // without an explicit `entrypoint` must not override `tspMain`.
   const pkgJsonPath = resolvePath(dir, "package.json");
   const [pkg] = await loadFile(host, pkgJsonPath, JSON.parse, reportDiagnostic, {
     allowFileNotFound: true,
   });
+
+  // Try exports["."]["typespec"] first using the existing ESM package exports resolver.
+  if (pkg?.exports) {
+    try {
+      const match = await resolvePackageExports(
+        {
+          packageUrl: pathToFileURL(dir),
+          specifier: ".",
+          moduleDirs: ["node_modules"],
+          conditions: ["typespec"],
+          ignoreDefaultCondition: true,
+          resolveId: () => {
+            throw new Error("not supported");
+          },
+        },
+        ".",
+        pkg.exports,
+      );
+      if (match) {
+        return fileURLToPath(match);
+      }
+    } catch (e) {
+      if (!(e instanceof NoMatchingConditionsError)) {
+        throw e;
+      }
+      // No matching typespec condition — fall through to tspMain / main.tsp
+    }
+  }
+
+  // Fall back to the legacy `tspMain` declared in package.json.
   const tspMain = resolveTspMain(pkg);
   if (tspMain !== undefined) {
     return resolvePath(dir, tspMain);
