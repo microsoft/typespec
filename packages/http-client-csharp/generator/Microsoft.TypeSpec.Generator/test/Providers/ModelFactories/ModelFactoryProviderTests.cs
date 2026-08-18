@@ -257,10 +257,6 @@ namespace Microsoft.TypeSpec.Generator.Tests.Providers.ModelFactories
             Assert.AreEqual("modelProp", parameters[0].Name);
             Assert.AreEqual("stringProp", parameters[1].Name);
             Assert.AreEqual("listProp", parameters[2].Name);
-            foreach (var parameter in parameters)
-            {
-                Assert.IsNull(parameter.DefaultValue);
-            }
 
             // validate the previous method body uses named arguments to ensure correct mapping
             // even though the parameter order differs between the previous and current methods
@@ -297,6 +293,22 @@ namespace Microsoft.TypeSpec.Generator.Tests.Providers.ModelFactories
             _instance = (await MockHelpers.LoadMockGeneratorAsync(
                 inputNamespaceName: "Sample.Namespace",
                 inputModelTypes: [compatibilityModel],
+                compilation: async () => await Helpers.GetCompilationFromDirectoryAsync(parameters: "Custom"),
+                lastContractCompilation: async () => await Helpers.GetCompilationFromDirectoryAsync(parameters: "Last"))).Object;
+
+            var modelFactory = _instance.OutputLibrary.ModelFactory.Value;
+            modelFactory.ProcessTypeForBackCompatibility();
+
+            var content = new TypeProviderWriter(modelFactory).Write().Content;
+            Assert.AreEqual(Helpers.GetExpectedFromFile(), content);
+        }
+
+        [Test]
+        public async Task BackCompatibility_CustomOverloadsPreserveTrailingOptionalParameters()
+        {
+            _instance = (await MockHelpers.LoadMockGeneratorAsync(
+                inputNamespaceName: "Sample.Namespace",
+                inputModelTypes: [GetCompatibilityModel(includeCount: false)],
                 compilation: async () => await Helpers.GetCompilationFromDirectoryAsync(parameters: "Custom"),
                 lastContractCompilation: async () => await Helpers.GetCompilationFromDirectoryAsync(parameters: "Last"))).Object;
 

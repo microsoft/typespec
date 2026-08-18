@@ -111,10 +111,12 @@ namespace Microsoft.TypeSpec.Generator.Providers
             // property is renamed via @@clientName, spec rename, or naming-rule change).
             BackCompatHelper.RestorePreviousParameterNames(this, factoryMethods);
 
-            HashSet<MethodSignature> currentMethodSignatures = factoryMethods
+            var allFactoryMethods = factoryMethods
                .Concat(customFactoryMethods)
-               .Select(m => m.Signature)
-               .ToHashSet(MethodSignature.MethodSignatureComparer);
+               .ToList();
+            HashSet<MethodSignature> currentMethodSignatures = allFactoryMethods
+                .Select(m => m.Signature)
+                .ToHashSet(MethodSignature.MethodSignatureComparer);
 
             var compatiblePreviousMethods = new List<MethodProvider>();
             foreach (var previousMethod in LastContractView.Methods)
@@ -149,13 +151,8 @@ namespace Microsoft.TypeSpec.Generator.Providers
                 List<MethodSignature> currentOverloads = [];
                 bool foundCompatibleOverload = false;
                 var currentOverloadSignatures = GetCurrentOverloadSignatures(
-                    factoryMethods.Concat(customFactoryMethods),
+                    allFactoryMethods,
                     previousMethod.Signature.Name);
-                var compatibilityOverloadSignatures = GetCompatibilityOverloadSignatures(
-                    currentOverloadSignatures,
-                    compatiblePreviousMethods,
-                    previousMethod);
-                bool previousMethodHasOptionalParameters = previousMethod.Signature.Parameters.Any(p => p.DefaultValue is not null);
 
                 // Attempt to find an updated method in the current contract to call
                 foreach (var currentMethodSignature in currentOverloadSignatures)
@@ -174,6 +171,11 @@ namespace Microsoft.TypeSpec.Generator.Providers
                     continue;
                 }
 
+                var compatibilityOverloadSignatures = GetCompatibilityOverloadSignatures(
+                    currentOverloadSignatures,
+                    compatiblePreviousMethods,
+                    previousMethod);
+
                 foreach (var currentOverload in currentOverloads)
                 {
                     // If the parameter ordering is the only difference, just use the previous method
@@ -182,7 +184,7 @@ namespace Microsoft.TypeSpec.Generator.Providers
                         var factoryMethodToRemove = factoryMethods
                             .FirstOrDefault(m => MethodSignature.MethodSignatureComparer.Equals(m.Signature, currentOverload));
                         var coexistingOverloads = GetCurrentOverloadSignatures(
-                            factoryMethods.Concat(customFactoryMethods),
+                            allFactoryMethods,
                             previousMethod.Signature.Name,
                             factoryMethodToRemove);
                         var coexistingCompatibilityOverloads = GetCompatibilityOverloadSignatures(
@@ -203,7 +205,6 @@ namespace Microsoft.TypeSpec.Generator.Providers
                                 factoryMethods.Remove(factoryMethodToRemove);
                             }
 
-                            ReportPotentialCompatibilitySourceBreak(previousMethod, replacedMethod, previousMethodHasOptionalParameters);
                             CodeModelGenerator.Instance.Emitter.Debug(
                                 $"Replaced model factory method '{Name}.{currentOverload.Name}' with previous parameter order from last contract.",
                                 BackCompatibilityChangeCategory.ModelFactoryMethodReplaced);
@@ -220,7 +221,6 @@ namespace Microsoft.TypeSpec.Generator.Providers
                         out var hiddenMethod))
                     {
                         factoryMethods.Add(hiddenMethod);
-                        ReportPotentialCompatibilitySourceBreak(previousMethod, hiddenMethod, previousMethodHasOptionalParameters);
                         CodeModelGenerator.Instance.Emitter.Debug(
                             $"Added back-compat overload for model factory method '{Name}.{previousMethod.Signature.Name}' delegating to '{currentOverload.Name}'.",
                             BackCompatibilityChangeCategory.ModelFactoryMethodAdded);
@@ -243,7 +243,6 @@ namespace Microsoft.TypeSpec.Generator.Providers
                     out var builtMethod))
                 {
                     factoryMethods.Add(builtMethod);
-                    ReportPotentialCompatibilitySourceBreak(previousMethod, builtMethod, previousMethodHasOptionalParameters);
                     CodeModelGenerator.Instance.Emitter.Debug(
                         $"Added back-compat model factory method '{Name}.{previousMethod.Signature.Name}' from last contract.",
                         BackCompatibilityChangeCategory.ModelFactoryMethodAdded);
@@ -286,21 +285,6 @@ namespace Microsoft.TypeSpec.Generator.Providers
                 .Where(m => (methodToExclude is null || !ReferenceEquals(m, methodToExclude)) && m.Signature.Name == methodName)
                 .Select(m => m.Signature)
                 .ToList();
-        }
-
-        private void ReportPotentialCompatibilitySourceBreak(
-            MethodProvider previousMethod,
-            MethodProvider compatibilityMethod,
-            bool previousMethodHasOptionalParameters)
-        {
-            if (!previousMethodHasOptionalParameters || compatibilityMethod.Signature.Parameters.Any(p => p.DefaultValue is not null))
-            {
-                return;
-            }
-
-            CodeModelGenerator.Instance.Emitter.Info(
-                $"Back-compat model factory method '{Name}.{previousMethod.Signature.Name}' requires all parameters because of coexisting overloads; some calls accepted by the last contract may no longer compile.",
-                BackCompatibilityChangeCategory.ModelFactoryMethodAdded);
         }
 
         internal static IReadOnlyList<string> GetUnavailableSignatureTypes(MethodSignature signature)
