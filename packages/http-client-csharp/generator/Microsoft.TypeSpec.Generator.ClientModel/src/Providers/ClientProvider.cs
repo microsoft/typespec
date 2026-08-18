@@ -243,7 +243,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
                 return operationName;
             }
 
-            var lastContractMethods = BackCompatProvider.LastContractView?.Methods;
+            var lastContractMethods = BackCompatProvider.LastContractView?.Methods ?? LastContractView?.Methods;
             if (lastContractMethods?.Any(m =>
                 m.Signature.Name == operationName ||
                 m.Signature.Name == $"{operationName}Async") == true)
