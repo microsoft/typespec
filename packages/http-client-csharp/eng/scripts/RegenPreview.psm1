@@ -1253,7 +1253,8 @@ function Invoke-SdkLibraryRegeneration {
     $results = @()
 
     try {
-        foreach ($batch in $batches) {
+        for ($batchIndex = 0; $batchIndex -lt $batches.Count; $batchIndex++) {
+            $batch = $batches[$batchIndex]
             $batchLibraries = $batch.Libraries
             $batchThrottle = $batch.Throttle
             Write-Host "Dispatching $($batchLibraries.Count) regeneration jobs ($batchThrottle at a time)..." -ForegroundColor Cyan
@@ -1326,6 +1327,22 @@ function Invoke-SdkLibraryRegeneration {
             $results += $batchResults
 
             if (@($batchResults | Where-Object { -not $_.Success }).Count -gt 0) {
+                $remainingLibraries = @()
+                for ($remainingBatchIndex = $batchIndex + 1; $remainingBatchIndex -lt $batches.Count; $remainingBatchIndex++) {
+                    $remainingLibraries += $batches[$remainingBatchIndex].Libraries
+                }
+                foreach ($library in $remainingLibraries) {
+                    $results += @{
+                        Service   = $library.Service
+                        Library   = $library.Library
+                        Path      = $library.Path
+                        Generator = $library.Generator
+                        Success   = $false
+                        Error     = "Skipped because an earlier regeneration batch failed"
+                        Output    = ""
+                        Skipped   = $true
+                    }
+                }
                 break
             }
         }

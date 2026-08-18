@@ -486,7 +486,8 @@ REGENERATION REPORT JSON:
 ```
 
 In ADO CI runs, the detailed JSON report is written to the artifact staging directory instead. If any
-library fails to regenerate, the script exits with an error after printing the report.
+library fails to regenerate, later regeneration batches are marked as skipped and the script exits with an
+error after printing the report.
 
 ## Common Scenarios
 
