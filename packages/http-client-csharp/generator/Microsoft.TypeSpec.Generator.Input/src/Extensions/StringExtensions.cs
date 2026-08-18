@@ -83,10 +83,11 @@ namespace Microsoft.TypeSpec.Generator.Input.Extensions
         }
 
         [return: NotNullIfNotNull(nameof(name))]
-        public static string ToVariableName(
-            this string name,
-            bool preserveUnderscores = false,
-            bool normalizeAcronyms = true)
+        public static string ToVariableName(this string name, bool preserveUnderscores = false)
+            => name.ToVariableName(preserveUnderscores, normalizeAcronyms: true);
+
+        [return: NotNullIfNotNull(nameof(name))]
+        public static string ToVariableName(this string name, bool preserveUnderscores, bool normalizeAcronyms)
         {
             var variableName = name.ToIdentifierName(useCamelCase: true, preserveUnderscores: preserveUnderscores);
             if (normalizeAcronyms &&
