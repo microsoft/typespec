@@ -139,12 +139,31 @@ namespace Microsoft.TypeSpec.Generator
                 ? int.MaxValue
                 : currentMethodSignature.Parameters.Count;
 
-            return Math.Max(previousMinimumArgumentCount, currentMinimumArgumentCount) <=
-                Math.Min(previousMethodSignature.Parameters.Count, currentMaximumArgumentCount)
-                ? previousMinimumArgumentCount == 0
-                    ? previousMethodSignature.Parameters.Count
-                    : previousMinimumArgumentCount
-                : 0;
+            // No argument count can reach both overloads, so the previous signature is already
+            // unambiguous and keeps the optionality it was published with.
+            if (Math.Max(previousMinimumArgumentCount, currentMinimumArgumentCount) >
+                Math.Min(previousMethodSignature.Parameters.Count, currentMaximumArgumentCount))
+            {
+                return 0;
+            }
+
+            // Require only the prefix up to and including the first position whose parameter type
+            // differs. Any call supplying that many arguments can no longer bind to the current
+            // overload, so every trailing parameter keeps the optionality it had previously.
+            int overlappingParameterCount = Math.Min(
+                previousMethodSignature.Parameters.Count,
+                currentMethodSignature.Parameters.Count);
+            for (int i = 0; i < overlappingParameterCount; i++)
+            {
+                if (!previousMethodSignature.Parameters[i].Type.AreNamesEqual(currentMethodSignature.Parameters[i].Type))
+                {
+                    return Math.Max(i + 1, previousMinimumArgumentCount);
+                }
+            }
+
+            // The shorter signature is a positional prefix of the other, so no argument count
+            // distinguishes them. Fall back to requiring every parameter.
+            return previousMethodSignature.Parameters.Count;
         }
 
         private static int GetMinimumArgumentCount(MethodSignature methodSignature)

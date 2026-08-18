@@ -269,7 +269,7 @@ namespace Microsoft.TypeSpec.Generator.Tests.Providers.ModelFactories
         }
 
         [Test]
-        public async Task BackCompatibility_ReorderedFullyOptionalParametersRequireAllParameters()
+        public async Task BackCompatibility_ReorderedFullyOptionalParametersRequireMinimumPrefix()
         {
             var compatibilityModel = GetCompatibilityModel(includeCount: true);
 
@@ -303,7 +303,7 @@ namespace Microsoft.TypeSpec.Generator.Tests.Providers.ModelFactories
         }
 
         [Test]
-        public async Task BackCompatibility_ReorderedCustomOverloadRequiresAllParameters()
+        public async Task BackCompatibility_ReorderedCustomOverloadRequiresMinimumPrefix()
         {
             var compatibilityModel = GetCompatibilityModel(includeCount: false);
 
@@ -327,6 +327,59 @@ namespace Microsoft.TypeSpec.Generator.Tests.Providers.ModelFactories
                 inputNamespaceName: "Sample.Namespace",
                 inputModelTypes: [GetCompatibilityModel(includeCount: false)],
                 compilation: async () => await Helpers.GetCompilationFromDirectoryAsync(parameters: "Custom"),
+                lastContractCompilation: async () => await Helpers.GetCompilationFromDirectoryAsync(parameters: "Last"))).Object;
+
+            var modelFactory = _instance.OutputLibrary.ModelFactory.Value;
+            modelFactory.ProcessTypeForBackCompatibility();
+
+            var content = new TypeProviderWriter(modelFactory).Write().Content;
+            Assert.AreEqual(Helpers.GetExpectedFromFile(), content);
+        }
+
+        // Mirrors the reported Azure.ResourceManager.AppService regression: the last contract
+        // contains both the overload matching today's natural parameter order and a previously
+        // shipped overload with the discriminating parameter moved to the end. The first overload
+        // must be kept (removing it would be breaking) and the second must only require the
+        // parameter prefix needed to disambiguate it, preserving its trailing optional parameters.
+        [Test]
+        public async Task BackCompatibility_ReorderedOverloadKeptWhenStillInLastContract()
+        {
+            InputModelType model = InputFactory.Model("CompatibilityModel", properties:
+            [
+                InputFactory.Property("Id", InputPrimitiveType.String),
+                InputFactory.Property("Kind", InputPrimitiveType.String),
+                InputFactory.Property("Image", InputPrimitiveType.String),
+                InputFactory.Property("IsMain", new InputNullableType(InputPrimitiveType.Boolean)),
+            ]);
+
+            _instance = (await MockHelpers.LoadMockGeneratorAsync(
+                inputNamespaceName: "Sample.Namespace",
+                inputModelTypes: [model],
+                lastContractCompilation: async () => await Helpers.GetCompilationFromDirectoryAsync(parameters: "Last"))).Object;
+
+            var modelFactory = _instance.OutputLibrary.ModelFactory.Value;
+            modelFactory.ProcessTypeForBackCompatibility();
+
+            var content = new TypeProviderWriter(modelFactory).Write().Content;
+            Assert.AreEqual(Helpers.GetExpectedFromFile(), content);
+        }
+
+        // A previous signature that is a positional prefix of the current overload cannot be
+        // disambiguated by argument count, so every parameter must become required. C# then prefers
+        // the compatibility overload for an exact argument list because it needs no optional defaults.
+        [Test]
+        public async Task BackCompatibility_PositionalPrefixOverloadRequiresAllParameters()
+        {
+            InputModelType model = InputFactory.Model("CompatibilityModel", properties:
+            [
+                InputFactory.Property("Id", InputPrimitiveType.String),
+                InputFactory.Property("Name", InputPrimitiveType.String),
+                InputFactory.Property("Count", new InputNullableType(InputPrimitiveType.Int32)),
+            ]);
+
+            _instance = (await MockHelpers.LoadMockGeneratorAsync(
+                inputNamespaceName: "Sample.Namespace",
+                inputModelTypes: [model],
                 lastContractCompilation: async () => await Helpers.GetCompilationFromDirectoryAsync(parameters: "Last"))).Object;
 
             var modelFactory = _instance.OutputLibrary.ModelFactory.Value;

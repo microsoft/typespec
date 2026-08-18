@@ -119,10 +119,19 @@ namespace Microsoft.TypeSpec.Generator.Providers
                 .ToHashSet(MethodSignature.MethodSignatureComparer);
 
             var compatiblePreviousMethods = new List<MethodProvider>();
+            HashSet<MethodSignature> previousPublicSignatures = new(MethodSignature.MethodSignatureComparer);
             foreach (var previousMethod in LastContractView.Methods)
             {
-                if (!MethodSignatureHelper.IsPublicApi(previousMethod.Signature.Modifiers) ||
-                    currentMethodSignatures.Contains(previousMethod.Signature))
+                if (!MethodSignatureHelper.IsPublicApi(previousMethod.Signature.Modifiers))
+                {
+                    continue;
+                }
+
+                // Record every public previous signature, including the ones skipped below, because
+                // a current overload that still matches one of them must never be removed.
+                previousPublicSignatures.Add(previousMethod.Signature);
+
+                if (currentMethodSignatures.Contains(previousMethod.Signature))
                 {
                     continue;
                 }
@@ -178,8 +187,9 @@ namespace Microsoft.TypeSpec.Generator.Providers
 
                 foreach (var currentOverload in currentOverloads)
                 {
-                    // If the parameter ordering is the only difference, just use the previous method
-                    if (MethodSignatureHelper.ContainsSameParameters(previousMethod.Signature, currentOverload))
+                    // If the parameter ordering is the only difference, just use the previous method.
+                    if (MethodSignatureHelper.ContainsSameParameters(previousMethod.Signature, currentOverload)
+                        && !previousPublicSignatures.Contains(currentOverload))
                     {
                         var factoryMethodToRemove = factoryMethods
                             .FirstOrDefault(m => MethodSignature.MethodSignatureComparer.Equals(m.Signature, currentOverload));

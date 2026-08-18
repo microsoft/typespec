@@ -352,7 +352,7 @@ namespace Microsoft.TypeSpec.Generator.Tests.Shared
         }
 
         [Test]
-        public void BuildBackCompatMethodSignature_AllOptionalFactoryOverloadsRequireAllParameters()
+        public void BuildBackCompatMethodSignature_AllOptionalFactoryOverloadsRequireMinimumPrefix()
         {
             var previousSignature = CreateMethodSignature("CompatibilityModel",
                 new ParameterProvider("id", $"", typeof(string), defaultValue: Default),
@@ -372,10 +372,13 @@ namespace Microsoft.TypeSpec.Generator.Tests.Shared
                 hideMethod: true,
                 currentMethodSignatures: [currentSignature]);
 
-            foreach (var parameter in backCompatSignature.Parameters)
-            {
-                Assert.IsNull(parameter.DefaultValue);
-            }
+            // 'enabled' is the first position whose type differs from the current overload
+            // ('bool?' versus 'kind'), so supplying three arguments already disambiguates the
+            // call and 'description' keeps the optionality it was published with.
+            Assert.IsNull(backCompatSignature.Parameters[0].DefaultValue);
+            Assert.IsNull(backCompatSignature.Parameters[1].DefaultValue);
+            Assert.IsNull(backCompatSignature.Parameters[2].DefaultValue);
+            Assert.IsNotNull(backCompatSignature.Parameters[3].DefaultValue);
             Assert.IsTrue(backCompatSignature.Attributes.Any(a => a.Type.Equals(typeof(System.ComponentModel.EditorBrowsableAttribute))));
         }
 
@@ -402,7 +405,7 @@ namespace Microsoft.TypeSpec.Generator.Tests.Shared
 
             Assert.IsNull(backCompatSignature.Parameters[0].DefaultValue);
             Assert.IsNull(backCompatSignature.Parameters[1].DefaultValue);
-            Assert.IsNotNull(backCompatSignature.Parameters[2].DefaultValue);
+            Assert.IsNull(backCompatSignature.Parameters[2].DefaultValue);
             Assert.IsNotNull(backCompatSignature.Parameters[3].DefaultValue);
         }
 
