@@ -200,24 +200,11 @@ class GeneralSerializer(BaseSerializer):
 
     def serialize_init_file(self, clients: list[Client]) -> str:
         template = self.env.get_template("init.py.jinja2")
-        expose_streaming_types = (
-            not self.async_mode
-            and self.code_model.need_streaming_base
-            and self.code_model.is_top_namespace(self.client_namespace)
-        )
         return template.render(
             code_model=self.code_model,
             clients=clients,
             async_mode=self.async_mode,
             serialize_namespace=self.serialize_namespace,
-            streaming_import_path=(
-                self.code_model.get_relative_import_path(
-                    self.serialize_namespace,
-                    module_name="_utils.streaming_base",
-                )
-                if expose_streaming_types
-                else None
-            ),
         )
 
     def serialize_service_client_file(self, clients: list[Client]) -> str:
