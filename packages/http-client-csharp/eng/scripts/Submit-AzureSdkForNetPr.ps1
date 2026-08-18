@@ -25,8 +25,6 @@ The URL of the pipeline run that triggered this PR. When provided, it is include
 The reason the pipeline was triggered (for example, 'Manual', 'Schedule', or 'IndividualCI'). When set to 'Manual', step failures fail the pipeline instead of being downgraded to warnings and opening a PR.
 .PARAMETER UseParallelRegeneration
 When specified, SDK libraries are regenerated per library in parallel using the shared RegenPreview helpers instead of running 'dotnet msbuild service.proj /t:GenerateCode' once per service directory. This is intended for manual pipeline runs where turnaround time matters.
-.PARAMETER RegenerationThrottleLimit
-Optional. The number of concurrent library regenerations when -UseParallelRegeneration is specified. Defaults to (logical processors - 2), clamped between 1 and 8.
 #>
 [CmdletBinding(SupportsShouldProcess = $true)]
 param(
@@ -67,10 +65,7 @@ param(
   [string]$BuildReason,
 
   [Parameter(Mandatory = $false)]
-  [switch]$UseParallelRegeneration,
-
-  [Parameter(Mandatory = $false)]
-  [int]$RegenerationThrottleLimit = 0
+  [switch]$UseParallelRegeneration
 )
 
 # When the pipeline is triggered manually, failures should fail the pipeline with an
@@ -636,7 +631,6 @@ try {
                         $regenerationResults = @(Invoke-SdkLibraryRegeneration `
                             -SdkRepoPath $tempDir `
                             -Libraries $librariesToRegenerate `
-                            -ThrottleLimit $RegenerationThrottleLimit `
                             -AdditionalBuildArgs @("/p:Trace=true") `
                             -SerialServiceDirectories $serialCodeGenServiceDirectories)
 
