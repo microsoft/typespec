@@ -687,6 +687,12 @@ class _OwnedWireValue:
         self.value = value
 
 
+def _construct_from_wire(cls: type, data: typing.Any) -> typing.Any:
+    # ET.Element payloads are passed through as-is; JSON payloads are wrapped in
+    # _OwnedWireValue so the constructed model takes zero-copy ownership of the wire data.
+    return cls(data) if isinstance(data, ET.Element) else cls(_OwnedWireValue(data))
+
+
 def _create_value_from_wire(rf: typing.Optional["_RestField"], value: typing.Any) -> typing.Any:
     """Build a stored value from an already-serialized (wire/JSON) payload.
 
@@ -1165,10 +1171,10 @@ class Model(_MyMutableMapping):
     @classmethod
     def _deserialize(cls, data, exist_discriminators):
         if not hasattr(cls, "__mapping__"):
-            return cls(data) if isinstance(data, ET.Element) else cls(_OwnedWireValue(data))
+            return _construct_from_wire(cls, data)
         discriminator = cls._get_discriminator(exist_discriminators)
         if discriminator is None:
-            return cls(data) if isinstance(data, ET.Element) else cls(_OwnedWireValue(data))
+            return _construct_from_wire(cls, data)
         exist_discriminators.append(discriminator._rest_name)
         if isinstance(data, ET.Element):
             model_meta = getattr(cls, "_xml", {})
