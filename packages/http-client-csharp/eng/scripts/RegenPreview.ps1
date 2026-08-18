@@ -877,10 +877,25 @@ try {
         Write-Host "No libraries selected for regeneration" -ForegroundColor Yellow
         $failedCount = 0
     } else {
+        $regenerationThrottleLimit = 0
+        if (-not $isCiRun) {
+            # Determine parallel execution throttle limit: (CPU cores - 2), min 1, max 8
+            $cpuCores = if ($IsWindows -or $PSVersionTable.PSVersion.Major -lt 6) {
+                (Get-CimInstance -ClassName Win32_Processor | Measure-Object -Property NumberOfLogicalProcessors -Sum).Sum
+            } elseif ($IsMacOS) {
+                [int](sysctl -n hw.ncpu)
+            } else {
+                [int](nproc)
+            }
+
+            $regenerationThrottleLimit = [Math]::Max(1, [Math]::Min(8, $cpuCores - 2))
+        }
+
         $results = @(Invoke-SdkLibraryRegeneration `
             -SdkRepoPath $sdkRepoPath `
             -Libraries $librariesToRegenerate `
             -NpmRegistry $artifactFeedRegistry `
+            -ThrottleLimit $regenerationThrottleLimit `
             -StopOnFailure:$isCiRun)
 
         # Generate final report

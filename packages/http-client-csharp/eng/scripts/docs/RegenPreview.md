@@ -402,11 +402,6 @@ The library discovery and parallel regeneration logic lives in `RegenPreview.psm
 | `Invoke-SdkLibraryRegeneration` | Pre-installs tsp-client, pre-builds the code generation plugin, and then regenerates the given libraries in parallel with `dotnet build /t:GenerateCode`. Supports `-ThrottleLimit`, `-NpmRegistry`, `-AdditionalBuildArgs`, `-SerialServiceDirectories` (service directories that must be regenerated one library at a time), and `-StopOnFailure`. |
 | `Write-RegenerationReport`      | Prints the pass/fail summary and optionally writes the detailed JSON report. In CI mode, it also prints a human-readable JSON report.                                                                                                                                                                                                                |
 
-`Submit-AzureSdkForNetPr.ps1` uses these helpers when it is invoked with `-UseParallelRegeneration`, which the
-`packages/http-client-csharp/eng/pipeline/publish.yml` pipeline only passes for **manual** runs. Automated (CI and
-scheduled) runs continue to regenerate one service directory at a time with
-`dotnet msbuild eng/service.proj /t:GenerateCode`.
-
 ### Error Handling
 
 If the script encounters an error during pre-requisite steps (Steps 1-6), it will:
