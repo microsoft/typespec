@@ -224,7 +224,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
                 return serviceMethod.Operation.Name;
             }
 
-            var operationName = serviceMethod.Operation.Name.ToIdentifierName();
+            var operationName = (serviceMethod.Operation.OriginalName ?? serviceMethod.Operation.Name).ToIdentifierName();
             // Replace List with Get as .NET convention is to use Get for list operations.
             if (operationName == "List")
             {
@@ -243,7 +243,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
                 return operationName;
             }
 
-            var lastContractMethods = LastContractView?.Methods;
+            var lastContractMethods = BackCompatProvider.LastContractView?.Methods;
             if (lastContractMethods?.Any(m =>
                 m.Signature.Name == operationName ||
                 m.Signature.Name == $"{operationName}Async") == true)
@@ -1173,6 +1173,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
                 if (_backCompatProvider != backCompatProvider)
                 {
                     _backCompatProvider = backCompatProvider;
+                    CleanOperationNames(_inputClient);
                     // Only reset the cached methods (and the underlying RestClient methods)
                     // so they are rebuilt with the new backcompat provider. Do NOT call full
                     // Reset() — that would discard properties/constructors/fields applied by
@@ -1186,6 +1187,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
             else if (_backCompatProvider != null)
             {
                 _backCompatProvider = null;
+                CleanOperationNames(_inputClient);
                 ResetMethods();
                 _restClient?.ResetMethods();
                 _methodCache = null;
