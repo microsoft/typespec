@@ -1376,7 +1376,7 @@ def _get_deserialize_callable_from_annotation(
         return _resolve_deserialize_callable_from_annotation(annotation, module, rf)
     try:
         return _deserialize_callable_from_annotation_cached(annotation, module)
-    except TypeError:  # unhashable annotation
+    except TypeError:  # annotation can't be hashed, so it can't be used as a cache key
         return _resolve_deserialize_callable_from_annotation(annotation, module, None)
 
 
