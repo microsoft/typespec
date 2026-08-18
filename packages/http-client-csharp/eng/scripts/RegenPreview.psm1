@@ -1145,7 +1145,7 @@ function Invoke-SdkLibraryRegeneration {
         The libraries to regenerate, as returned by Get-SdkLibrariesToRegenerate.
 
     .PARAMETER ThrottleLimit
-        Optional. Number of concurrent regeneration jobs. Defaults to (logical processors - 2), clamped to 1-8.
+        Optional. Number of concurrent regeneration jobs. Defaults to 8.
 
     .PARAMETER NpmRegistry
         Optional. When specified, a temporary .env file is written to the repository root so tsp-client
@@ -1184,21 +1184,10 @@ function Invoke-SdkLibraryRegeneration {
         return @()
     }
 
-    # Determine parallel execution throttle limit: (CPU cores - 2), min 1, max 8
     if ($ThrottleLimit -le 0) {
-        $cpuCores = if ($IsWindows -or $PSVersionTable.PSVersion.Major -lt 6) {
-            (Get-CimInstance -ClassName Win32_Processor | Measure-Object -Property NumberOfLogicalProcessors -Sum).Sum
-        } elseif ($IsMacOS) {
-            [int](sysctl -n hw.ncpu)
-        } else {
-            [int](nproc)
-        }
-
-        $ThrottleLimit = [Math]::Max(1, [Math]::Min(8, $cpuCores - 2))
-        Write-Host "Using $ThrottleLimit concurrent jobs (detected $cpuCores logical processors)" -ForegroundColor Gray
-    } else {
-        Write-Host "Using $ThrottleLimit concurrent jobs" -ForegroundColor Gray
+        $ThrottleLimit = 8
     }
+    Write-Host "Using $ThrottleLimit concurrent jobs" -ForegroundColor Gray
     Write-Host ""
 
     $engFolder = Join-Path $SdkRepoPath "eng"
