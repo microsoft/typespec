@@ -392,6 +392,21 @@ If all libraries regenerate successfully, the script restores modified files:
 
 **Note:** If any libraries fail, artifacts are NOT restored, allowing you to debug the issue with the modified configuration intact.
 
+## Shared Regeneration Helpers
+
+The library discovery and parallel regeneration logic lives in `RegenPreview.psm1` so it can be reused outside of local validation runs:
+
+| Function | Description |
+| --- | --- |
+| `Get-SdkLibrariesToRegenerate` | Scans `sdk/` in azure-sdk-for-net and returns the libraries whose `tsp-location.yaml` references one of the TypeSpec C# emitter package json artifacts. Supports filtering by emitter (`-EmitterPackageJsonPaths`) and to `Azure.*` libraries only (`-AzureLibrariesOnly`). |
+| `Invoke-SdkLibraryRegeneration` | Pre-installs tsp-client, pre-builds the code generation plugin, and then regenerates the given libraries in parallel with `dotnet build /t:GenerateCode`. Supports `-ThrottleLimit`, `-NpmRegistry`, `-AdditionalBuildArgs`, and `-SerialServiceDirectories` (service directories that must be regenerated one library at a time). |
+| `Write-RegenerationReport` | Prints the pass/fail summary and optionally writes the detailed JSON report. |
+
+`Submit-AzureSdkForNetPr.ps1` uses these helpers when it is invoked with `-UseParallelRegeneration`, which the
+`packages/http-client-csharp/eng/pipeline/publish.yml` pipeline only passes for **manual** runs. Automated (CI and
+scheduled) runs continue to regenerate one service directory at a time with
+`dotnet msbuild eng/service.proj /t:GenerateCode`.
+
 ### Error Handling
 
 If the script encounters an error during pre-requisite steps (Steps 1-6), it will:

@@ -23,6 +23,10 @@ Path to the build artifacts directory containing the published .tgz and .nupkg f
 The URL of the pipeline run that triggered this PR. When provided, it is included in the PR description for traceability.
 .PARAMETER BuildReason
 The reason the pipeline was triggered (for example, 'Manual', 'Schedule', or 'IndividualCI'). When set to 'Manual', step failures fail the pipeline instead of being downgraded to warnings and opening a PR.
+.PARAMETER UseParallelRegeneration
+When specified, SDK libraries are regenerated per library in parallel using the shared RegenPreview helpers instead of running 'dotnet msbuild service.proj /t:GenerateCode' once per service directory. This is intended for manual pipeline runs where turnaround time matters.
+.PARAMETER RegenerationThrottleLimit
+Optional. The number of concurrent library regenerations when -UseParallelRegeneration is specified. Defaults to (logical processors - 2), clamped between 1 and 8.
 #>
 [CmdletBinding(SupportsShouldProcess = $true)]
 param(
@@ -60,7 +64,13 @@ param(
   [switch]$UseTypeSpecNext,
 
   [Parameter(Mandatory = $false)]
-  [string]$BuildReason
+  [string]$BuildReason,
+
+  [Parameter(Mandatory = $false)]
+  [switch]$UseParallelRegeneration,
+
+  [Parameter(Mandatory = $false)]
+  [int]$RegenerationThrottleLimit = 0
 )
 
 # When the pipeline is triggered manually, failures should fail the pipeline with an
@@ -580,6 +590,11 @@ try {
                 }
             }
             
+            # Service directories whose libraries share a single code generator plugin that each
+            # library's generation builds into a common output folder. These services are regenerated
+            # serially since they share a common plugin project that shouldn't be built in parallel.
+            $serialCodeGenServiceDirectories = @("ai")
+
             # Discover service directories with tsp-location.yaml referencing any of the matched emitter patterns
             $tspLocations = Get-ChildItem -Path (Join-Path $tempDir "sdk") -Filter "tsp-location.yaml" -Recurse
             $serviceDirectories = @()
@@ -603,13 +618,40 @@ try {
 
             if ($serviceDirectories.Count -eq 0) {
                 Write-Host "No SDK libraries found matching emitter patterns. Skipping SDK regeneration."
+            } elseif ($UseParallelRegeneration) {
+                # Manual runs regenerate each library directly (in parallel) instead of building an
+                # entire service directory at a time, which is significantly faster.
+                Write-Host "##[section]Regenerating SDK libraries in parallel..."
+                $librariesToRegenerate = @(Get-SdkLibrariesToRegenerate -SdkRepoPath $tempDir -EmitterPackageJsonPaths $emitterPatterns)
+
+                if ($librariesToRegenerate.Count -eq 0) {
+                    Write-Host "No SDK libraries found matching emitter patterns. Skipping SDK regeneration."
+                } else {
+                    Write-Host "Regenerating $($librariesToRegenerate.Count) libraries across $($serviceDirectories.Count) service directories"
+                    $regenerationStartTime = Get-Date
+                    $previousErrorAction = $ErrorActionPreference
+                    $ErrorActionPreference = "Continue"
+                    try {
+                        $regenerationResults = @(Invoke-SdkLibraryRegeneration `
+                            -SdkRepoPath $tempDir `
+                            -Libraries $librariesToRegenerate `
+                            -ThrottleLimit $RegenerationThrottleLimit `
+                            -AdditionalBuildArgs @("/p:Trace=true") `
+                            -SerialServiceDirectories $serialCodeGenServiceDirectories)
+
+                        Write-RegenerationReport -Results $regenerationResults -ElapsedTime ((Get-Date) - $regenerationStartTime)
+
+                        foreach ($failedLibrary in @($regenerationResults | Where-Object { -not $_.Success })) {
+                            Register-StepFailure "Code generation failed for $($failedLibrary.Path): $($failedLibrary.Error)"
+                        }
+                    } catch {
+                        Register-StepFailure "Parallel code generation failed: $($_.Exception.Message). Continuing with PR creation."
+                    } finally {
+                        $ErrorActionPreference = $previousErrorAction
+                    }
+                }
             } else {
                 $serviceProj = Join-Path $tempDir "eng/service.proj"
-
-                # Service directories whose libraries share a single code generator plugin that each
-                # library's generation builds into a common output folder. These services are regenerated
-                # serially since they share a common plugin project that shouldn't be built in parallel.
-                $serialCodeGenServiceDirectories = @("ai")
 
                 foreach ($serviceDirectory in $serviceDirectories) {
                     Write-Host "Regenerating code for service directory: $serviceDirectory"
