@@ -63,8 +63,7 @@ namespace Microsoft.TypeSpec.Generator.Providers
         public ParameterProvider(InputParameter inputParameter)
         {
             InputParameter = inputParameter;
-            Name = inputParameter is InputMethodParameter && !inputParameter.IsExactName
-                && inputParameter.Type.IsDateTimeInputType()
+            Name = !inputParameter.IsExactName && inputParameter.Type.IsDateTimeInputType()
                 ? inputParameter.Name.NormalizeDateTimeSuffix()
                 : inputParameter.Name;
             Description = DocHelpers.GetFormattableDescription(inputParameter.Summary, inputParameter.Doc) ?? FormattableStringHelpers.Empty;
