@@ -488,10 +488,6 @@ try {
     $regenerationReportPath = Join-Path $debugFolder 'regen-report.json'
     if ($env:TF_BUILD -and $env:BUILD_ARTIFACTSTAGINGDIRECTORY) {
         $regenerationReportPath = Join-Path $env:BUILD_ARTIFACTSTAGINGDIRECTORY 'regen-report.json'
-        $reportFolder = Split-Path $regenerationReportPath -Parent
-        if (-not (Test-Path $reportFolder)) {
-            New-Item -ItemType Directory -Path $reportFolder -Force | Out-Null
-        }
     }
     Write-Host ""
     
