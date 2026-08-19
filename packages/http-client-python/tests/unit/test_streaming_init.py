@@ -34,24 +34,27 @@ def _render_init(*, has_structured_stream: bool, async_mode: bool = False) -> st
     return GeneralSerializer(code_model=code_model, env=_env(), async_mode=async_mode).serialize_init_file([client])
 
 
-def test_exports_stream_types_from_base_namespace():
-    init_file = _render_init(has_structured_stream=True)
-
-    assert "from ._utils.streaming_base import AsyncStream, Stream" in init_file
-    assert '"AsyncStream",' in init_file
-    assert '"Stream",' in init_file
-
-
 @pytest.mark.parametrize(
     "has_structured_stream,async_mode",
     [
         (False, False),
+        (False, True),
+        (True, False),
         (True, True),
     ],
 )
-def test_does_not_export_stream_types_outside_structured_base_namespace(has_structured_stream, async_mode):
+def test_does_not_export_stream_types(has_structured_stream, async_mode):
+    # Stream / AsyncStream are an internal implementation detail (vendored in
+    # _utils/streaming_base.py) and must never be part of the generated package's
+    # public API -- even when a structured stream is present in the sync base
+    # namespace. This guards against reintroducing a public export that would
+    # become a breaking change once the runtime moves to the core library.
     init_file = _render_init(has_structured_stream=has_structured_stream, async_mode=async_mode)
 
-    assert "streaming_base import" not in init_file
-    assert '"AsyncStream",' not in init_file
-    assert '"Stream",' not in init_file
+    # No public export of the streaming types -- neither an import line nor an
+    # __all__ entry, regardless of quote style.
+    assert "streaming_base" not in init_file
+    assert "AsyncStream" not in init_file
+    assert "Stream" not in init_file
+    # Sanity check: the client itself is still imported/exported as normal.
+    assert "from ._client import SampleClient" in init_file

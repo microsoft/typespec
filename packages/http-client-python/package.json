@@ -132,8 +132,5 @@
     "typescript-eslint": "^8.49.0",
     "vitest": "^4.0.15",
     "prettier": "^3.9.5"
-  },
-  "overrides": {
-    "@typespec/compiler": "$@typespec/compiler"
   }
 }
