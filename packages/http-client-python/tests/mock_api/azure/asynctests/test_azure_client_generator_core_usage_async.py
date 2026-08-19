@@ -34,12 +34,15 @@ async def test_model_usage(client: UsageClient):
 
 @pytest.mark.asyncio
 async def test_orphan_model_serializable(client: UsageClient):
-    await client.model_in_operation.orphan_model_serializable(
-        body=models.OrphanModel(model_name="name", description="desc")
+    assert (
+        await client.model_in_operation.orphan_model_serializable(
+            body=models.OrphanModel(model_name="name", description="desc")
+        )
+        is None
     )
 
 
 @pytest.mark.asyncio
 async def test_namespace_model_serializable(client: UsageClient):
     namespace_model = models.NamespaceModel(name="test")
-    await client.namespace_usage.namespace_model_serializable(body=namespace_model)
+    assert await client.namespace_usage.namespace_model_serializable(body=namespace_model) is None

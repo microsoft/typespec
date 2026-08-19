@@ -29,12 +29,18 @@ def test_model_usage(client: UsageClient):
 
 
 def test_orphan_model_serializable(client: UsageClient):
-    client.model_in_operation.orphan_model_serializable(body=models.OrphanModel(model_name="name", description="desc"))
+    assert (
+        client.model_in_operation.orphan_model_serializable(
+            body=models.OrphanModel(model_name="name", description="desc")
+        )
+        is None
+    )
 
 
 def test_namespace_model_serializable(client: UsageClient):
     namespace_model = models.NamespaceModel(name="test")
-    client.namespace_usage.namespace_model_serializable(body=namespace_model)
+    assert client.namespace_usage.namespace_model_serializable(body=namespace_model) is None
+
 
 def test_import():
     # NestedNamespaceModel shall be exposed
