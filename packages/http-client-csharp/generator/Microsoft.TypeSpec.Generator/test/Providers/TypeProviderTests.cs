@@ -945,6 +945,33 @@ namespace Microsoft.TypeSpec.Generator.Tests.Providers
             Assert.AreEqual(Helpers.GetExpectedFromFile(), actual);
         }
 
+        [Test]
+        public async Task BuildMethodsForBackCompatibilityExactNameTakesPrecedence()
+        {
+            await MockHelpers.LoadMockGeneratorAsync(
+                lastContractCompilation: async () => await Helpers.GetCompilationFromDirectoryAsync(
+                    parameters: "Last"));
+
+            var inputParameter = InputFactory.QueryParameter(
+                "oldParam",
+                InputPrimitiveType.String,
+                isRequired: true,
+                isExactName: true);
+            inputParameter.Update(name: "exact_param");
+
+            var parameter = new ParameterProvider(inputParameter);
+            var fooMethod = new MethodProvider(
+                new MethodSignature("Foo", $"", MethodSignatureModifiers.Public, new CSharpType(typeof(string)), $"", [parameter]),
+                Snippet.Return(parameter),
+                new TestTypeProvider());
+            var typeProvider = new TestTypeProvider(name: "TestClient", methods: [fooMethod]);
+
+            typeProvider.ProcessTypeForBackCompatibility();
+
+            var actual = new TypeProviderWriter(typeProvider).Write().Content;
+            Assert.AreEqual(Helpers.GetExpectedFromFile(), actual);
+        }
+
         // Validates that a parameter is not positionally restored when no last-contract method matches
         // the current method's signature (here the last-contract Foo takes an int, the current takes a string).
         [Test]

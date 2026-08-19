@@ -578,16 +578,13 @@ namespace Microsoft.TypeSpec.Generator.Tests.Providers.ModelFactories
                 inputNamespaceName: "Sample.Namespace",
                 inputModelTypes: inputModels,
                 lastContractCompilation: async () => await Helpers.GetCompilationFromDirectoryAsync(
-                    method: nameof(BackCompatibility_OnlyParamNameChanged)))).Object;
+                    parameters: "Last"))).Object;
 
             var modelFactory = _instance!.OutputLibrary.ModelFactory.Value;
             modelFactory.ProcessTypeForBackCompatibility();
 
-            var parameters = modelFactory.Methods
-                .Single(m => m.Signature.Name == "PublicModel1")
-                .Signature.Parameters;
-            Assert.AreEqual("stringProp", parameters[0].Name);
-            Assert.AreEqual("oldModelProp", parameters[1].Name);
+            var actual = new TypeProviderWriter(modelFactory).Write().Content;
+            Assert.AreEqual(Helpers.GetExpectedFromFile(), actual);
         }
 
         // Validates that when ALL parameters in a factory method are renamed in the previous

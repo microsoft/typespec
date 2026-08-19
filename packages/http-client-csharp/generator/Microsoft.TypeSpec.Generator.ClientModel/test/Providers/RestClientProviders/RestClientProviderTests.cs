@@ -714,13 +714,12 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers.RestClientPro
             var generator = await MockHelpers.LoadMockGeneratorAsync(
                 clients: () => [client],
                 lastContractCompilation: async () => await Helpers.GetCompilationFromDirectoryAsync(
-                    method: nameof(ParameterNamePreservedFromLastContractView)));
+                    parameters: "Last"));
 
             var clientProvider = generator.Object.OutputLibrary.TypeProviders.OfType<ClientProvider>().First();
-            var protocolParams = RestClientProvider.GetMethodParameters(serviceMethod, ScmMethodKind.Protocol, clientProvider);
-
-            Assert.IsNotNull(protocolParams.SingleOrDefault(p => p.Name == "exact_param"));
-            Assert.IsNull(protocolParams.SingleOrDefault(p => p.Name == "oldParam"));
+            var restClientProvider = new MockClientProvider(client, clientProvider);
+            var actual = new TypeProviderWriter(restClientProvider).Write().Content;
+            Assert.AreEqual(Helpers.GetExpectedFromFile(), actual);
         }
 
         [Test]
