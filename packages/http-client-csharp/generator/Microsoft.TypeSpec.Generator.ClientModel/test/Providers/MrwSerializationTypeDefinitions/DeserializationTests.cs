@@ -129,8 +129,8 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers.MrwSerializat
             Assert.IsNotNull(deserializationMethod);
 
             var methodBody = deserializationMethod!.BodyStatements!.ToDisplayString();
-            Assert.That(methodBody, Does.Contain("iPv4Address"));
-            Assert.That(methodBody, Does.Not.Contain("ipv4Address ="));
+            Assert.That(methodBody, Does.Contain("ipv4Address ="));
+            Assert.That(methodBody, Does.Not.Contain("iPv4Address"));
         }
 
         // Validates that duration properties encoded as integer milliseconds are deserialized

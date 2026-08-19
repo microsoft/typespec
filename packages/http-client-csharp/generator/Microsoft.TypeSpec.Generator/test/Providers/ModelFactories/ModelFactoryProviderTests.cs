@@ -685,7 +685,7 @@ namespace Microsoft.TypeSpec.Generator.Tests.Providers.ModelFactories
         }
 
         [Test]
-        public void AcronymParameterNameIsNotNormalized()
+        public void NewAcronymParameterNameIsNormalized()
         {
             var model = InputFactory.Model(
                 "AggregateRouteConfiguration",
@@ -704,11 +704,11 @@ namespace Microsoft.TypeSpec.Generator.Tests.Providers.ModelFactories
 
             Assert.That(
                 method.Signature.Parameters.Select(p => p.Name),
-                Is.EqualTo(new[] { "iPv4Routes" }));
+                Is.EqualTo(new[] { "ipv4Routes" }));
         }
 
         [Test]
-        public async Task BackCompatibility_AcronymParameterNameIsPreservedInForwardingCall()
+        public async Task BackCompatibility_AcronymParameterNameIsPreservedAlongsideNormalizedCurrentMethod()
         {
             var model = InputFactory.Model(
                 "AggregateRouteConfiguration",
@@ -721,19 +721,23 @@ namespace Microsoft.TypeSpec.Generator.Tests.Providers.ModelFactories
             _instance = (await MockHelpers.LoadMockGeneratorAsync(
                 inputNamespaceName: "Sample.Namespace",
                 inputModelTypes: [model],
-                lastContractCompilation: async () => await Helpers.GetCompilationFromDirectoryAsync())).Object;
+                lastContractCompilation: async () => await Helpers.GetCompilationFromDirectoryAsync(
+                    method: "BackCompatibility_AcronymParameterNameIsPreservedInForwardingCall"))).Object;
 
             var modelFactory = _instance.OutputLibrary.ModelFactory.Value;
             modelFactory.ProcessTypeForBackCompatibility();
 
+            var currentMethod = modelFactory.Methods.Single(m =>
+                m.Signature.Name == "AggregateRouteConfiguration"
+                && m.Signature.Parameters.Count == 2);
             var backCompatMethod = modelFactory.Methods.Single(m =>
                 m.Signature.Name == "AggregateRouteConfiguration"
                 && m.Signature.Parameters.Count == 1);
 
+            Assert.AreEqual("ipv4Routes", currentMethod.Signature.Parameters[0].Name);
             Assert.AreEqual("iPv4Routes", backCompatMethod.Signature.Parameters[0].Name);
-            Assert.AreEqual(
-                "return AggregateRouteConfiguration(iPv4Routes: iPv4Routes, newProperty: default);\n",
-                backCompatMethod.BodyStatements!.ToDisplayString());
+            Assert.That(backCompatMethod.BodyStatements!.ToDisplayString(), Does.Contain("iPv4Routes"));
+            Assert.That(backCompatMethod.BodyStatements!.ToDisplayString(), Does.Not.Contain("ipv4Routes"));
         }
 
         [Test]

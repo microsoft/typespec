@@ -189,7 +189,7 @@ namespace Microsoft.TypeSpec.Generator.Providers
         private void InitializeParameter(FormattableString description)
         {
             _parameter = new(() => new ParameterProvider(
-                Name.ToVariableName(preserveUnderscores: false, normalizeAcronyms: false),
+                Name.ToVariableName(),
                 description,
                 Type,
                 property: this));
