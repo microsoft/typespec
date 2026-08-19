@@ -2,6 +2,7 @@
 // Licensed under the MIT License.
 
 using System;
+using System.Collections.Generic;
 using System.Diagnostics.CodeAnalysis;
 using System.Text;
 using Microsoft.TypeSpec.Generator.Input;
@@ -72,7 +73,7 @@ namespace Microsoft.TypeSpec.Generator.Utilities
                 return name;
             }
 
-            var prefix = name[..^suffixLength];
+            var prefix = DateTimeNameRules.ToVerbForm(name[..^suffixLength]);
             var onSuffix = prefix.Length == 0 && char.IsLower(name[0])
                 ? DateTimeNameRules.LowercaseOnSuffix
                 : DateTimeNameRules.OnSuffix;
@@ -92,6 +93,27 @@ namespace Microsoft.TypeSpec.Generator.Utilities
             private const string TimeSuffix = "Time";
             private const string TimestampSuffix = "Timestamp";
             private const string ToName = "To";
+
+            // Nouns that read better as verbs when combined with the "On" suffix, e.g. "ExpirationDate" -> "ExpireOn".
+            private static readonly Dictionary<string, string> _nounToVerbMap = new(StringComparer.OrdinalIgnoreCase)
+            {
+                ["Creation"] = "Created",
+                ["Deletion"] = "Deleted",
+                ["Expiration"] = "Expire",
+                ["Modification"] = "Modified"
+            };
+
+            internal static string ToVerbForm(string prefix)
+            {
+                if (!_nounToVerbMap.TryGetValue(prefix, out var verb))
+                {
+                    return prefix;
+                }
+
+                return char.IsLower(prefix[0])
+                    ? char.ToLowerInvariant(verb[0]) + verb[1..]
+                    : verb;
+            }
 
             internal static bool HasExcludedComponent(string name)
             {
