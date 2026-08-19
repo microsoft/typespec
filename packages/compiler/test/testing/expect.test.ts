@@ -35,6 +35,29 @@ it("matches overlapping expectations without depending on greedy order", () => {
   });
 });
 
+it("matches stateful regular expressions consistently", () => {
+  const diagnostics = [diagnostic("first", "Shared one"), diagnostic("second", "Shared two")];
+  const message = /shared/gi;
+
+  expectDiagnostics(diagnostics, [{ message }, { message }], { fixedOrder: false });
+  expect(message.lastIndex).toBe(0);
+  expectDiagnostics(diagnostics, [{ message }, { message }], { fixedOrder: false });
+});
+
+it("includes unmatched expectations in unordered failure messages", () => {
+  const diagnostics = [diagnostic("actual", "Actual diagnostic")];
+
+  expect(() =>
+    expectDiagnostics(
+      diagnostics,
+      { code: "expected", message: /missing/i },
+      { fixedOrder: false },
+    ),
+  ).toThrow(
+    'Expected diagnostics:\n0: {"code":"expected","message":"/missing/i"}\nDiagnostics found:',
+  );
+});
+
 it("allows unmatched diagnostics in non-strict unordered mode", () => {
   const diagnostics = [diagnostic("first", "First"), diagnostic("second", "Second")];
 

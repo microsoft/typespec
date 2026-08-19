@@ -1,4 +1,4 @@
-import { fail, match, strictEqual } from "assert";
+import { fail, strictEqual } from "assert";
 import { getSourceLocation } from "../core/diagnostics.js";
 import { formatDiagnostic } from "../core/logger/console-sink.js";
 import { NoTarget, type Diagnostic } from "../core/types.js";
@@ -62,8 +62,12 @@ export interface ExpectDiagnosticsOptions {
 }
 
 /**
- * Validate the diagnostic array contains exactly the given diagnostics.
- * @param diagnostics Array of the diagnostics
+ * Validate diagnostics against the given expectations. By default, the count and order must match
+ * exactly. Set `strict` to false to allow additional diagnostics, or `fixedOrder` to false to match
+ * expectations regardless of diagnostic order.
+ * @param diagnostics Array of diagnostics.
+ * @param match Expected diagnostic properties.
+ * @param options Options controlling count and order matching.
  */
 export function expectDiagnostics(
   diagnostics: readonly Diagnostic[],
@@ -85,9 +89,9 @@ export function expectDiagnostics(
   if (!fixedOrder) {
     if (!hasUnorderedMatch(diagnostics, array)) {
       fail(
-        `Could not match the expected diagnostics regardless of order:\n${formatDiagnostics(
-          diagnostics,
-        )}`,
+        `Could not match the expected diagnostics regardless of order:\nExpected diagnostics:\n${formatDiagnosticMatches(
+          array,
+        )}\nDiagnostics found:\n${formatDiagnostics(diagnostics)}`,
       );
     }
     return;
@@ -157,6 +161,17 @@ export function expectDiagnostics(
       }
     }
   }
+}
+
+function formatDiagnosticMatches(expectations: readonly DiagnosticMatch[]): string {
+  return expectations
+    .map(
+      (expectation, index) =>
+        `${index}: ${JSON.stringify(expectation, (_, value) =>
+          value instanceof RegExp ? value.toString() : value,
+        )}`,
+    )
+    .join("\n");
 }
 
 function hasUnorderedMatch(
@@ -249,9 +264,7 @@ function strOrRegexMatches(value: string, expectation: string | RegExp): boolean
 }
 
 function matchStrOrRegex(value: string, expectation: string | RegExp, assertMessage: string) {
-  if (typeof expectation === "string") {
-    strictEqual(value, expectation, assertMessage);
-  } else {
-    match(value, expectation, assertMessage);
+  if (!strOrRegexMatches(value, expectation)) {
+    fail(assertMessage);
   }
 }
