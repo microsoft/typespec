@@ -61,34 +61,51 @@ namespace Microsoft.TypeSpec.Generator
             MethodSignature previousMethodSignature,
             bool hideMethod,
             bool shouldNotBeAsync = false)
-            => BuildBackCompatMethodSignature(
-                previousMethodSignature,
-                hideMethod,
-                shouldNotBeAsync,
-                hideMethod ? previousMethodSignature.Parameters.Count : 0);
+        {
+            if (hideMethod)
+            {
+                RequireMinimumParameterPrefix(previousMethodSignature);
+            }
+
+            return CreateBackCompatSignature(previousMethodSignature, hideMethod, shouldNotBeAsync);
+        }
 
         internal static MethodSignature BuildBackCompatMethodSignature(
             MethodSignature previousMethodSignature,
             bool hideMethod,
             IReadOnlyList<MethodSignature> currentMethodSignatures,
             bool shouldNotBeAsync = false)
-            => BuildBackCompatMethodSignature(
-                previousMethodSignature,
-                hideMethod,
-                shouldNotBeAsync,
-                GetMinimumRequiredParameterCount(previousMethodSignature, currentMethodSignatures));
-
-        private static MethodSignature BuildBackCompatMethodSignature(
-            MethodSignature previousMethodSignature,
-            bool hideMethod,
-            bool shouldNotBeAsync,
-            int requiredParameterCount)
         {
+            RequireMinimumParameterPrefix(previousMethodSignature, currentMethodSignatures);
+
+            return CreateBackCompatSignature(previousMethodSignature, hideMethod, shouldNotBeAsync);
+        }
+
+        /// <summary>
+        /// Removes the default values from the leading parameters of <paramref name="signature"/> so it
+        /// can no longer be called with fewer arguments than the prefix that distinguishes it from
+        /// <paramref name="currentMethodSignatures"/>. When no overloads are supplied there is nothing to
+        /// compare against and every parameter becomes required.
+        /// </summary>
+        internal static void RequireMinimumParameterPrefix(
+            MethodSignature signature,
+            IReadOnlyList<MethodSignature>? currentMethodSignatures = null)
+        {
+            int requiredParameterCount = currentMethodSignatures is null
+                ? signature.Parameters.Count
+                : GetMinimumRequiredParameterCount(signature, currentMethodSignatures);
+
             for (int i = 0; i < requiredParameterCount; i++)
             {
-                previousMethodSignature.Parameters[i].DefaultValue = null;
+                signature.Parameters[i].DefaultValue = null;
             }
+        }
 
+        private static MethodSignature CreateBackCompatSignature(
+            MethodSignature previousMethodSignature,
+            bool hideMethod,
+            bool shouldNotBeAsync)
+        {
             var modifiers = shouldNotBeAsync
                 ? previousMethodSignature.Modifiers & ~MethodSignatureModifiers.Async
                 : previousMethodSignature.Modifiers;

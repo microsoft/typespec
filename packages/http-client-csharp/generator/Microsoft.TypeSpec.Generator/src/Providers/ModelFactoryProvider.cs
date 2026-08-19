@@ -133,6 +133,23 @@ namespace Microsoft.TypeSpec.Generator.Providers
 
                 if (currentMethodSignatures.Contains(previousMethod.Signature))
                 {
+                    // A method with this signature is already present, but it may have been restored
+                    // from the last contract by a library visitor before this pass ran.
+                    var restoredOverload = factoryMethods.FirstOrDefault(m =>
+                        MethodSignature.MethodSignatureComparer.Equals(m.Signature, previousMethod.Signature)
+                        && m.Signature.Attributes.Any(a =>
+                            a.Type is { IsFrameworkType: true }
+                            && a.Type.FrameworkType == typeof(System.ComponentModel.EditorBrowsableAttribute)));
+                    if (restoredOverload is not null)
+                    {
+                        MethodSignatureHelper.RequireMinimumParameterPrefix(
+                            restoredOverload.Signature,
+                            GetCurrentOverloadSignatures(
+                                allFactoryMethods,
+                                restoredOverload.Signature.Name,
+                                restoredOverload));
+                    }
+
                     continue;
                 }
 

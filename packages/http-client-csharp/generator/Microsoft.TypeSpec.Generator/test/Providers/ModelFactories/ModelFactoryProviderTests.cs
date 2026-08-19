@@ -3,12 +3,15 @@
 
 using System;
 using System.Collections.Generic;
+using System.ComponentModel;
 using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.TypeSpec.Generator.Input;
 using Microsoft.TypeSpec.Generator.Input.Extensions;
 using Microsoft.TypeSpec.Generator.Primitives;
 using Microsoft.TypeSpec.Generator.Providers;
+using Microsoft.TypeSpec.Generator.Snippets;
+using Microsoft.TypeSpec.Generator.Statements;
 using Microsoft.TypeSpec.Generator.Tests.Common;
 using NUnit.Framework;
 
@@ -383,6 +386,51 @@ namespace Microsoft.TypeSpec.Generator.Tests.Providers.ModelFactories
                 lastContractCompilation: async () => await Helpers.GetCompilationFromDirectoryAsync(parameters: "Last"))).Object;
 
             var modelFactory = _instance.OutputLibrary.ModelFactory.Value;
+            modelFactory.ProcessTypeForBackCompatibility();
+
+            var content = new TypeProviderWriter(modelFactory).Write().Content;
+            Assert.AreEqual(Helpers.GetExpectedFromFile(), content);
+        }
+
+        // The management generator's ModelFactoryVisitor restores last-contract methods verbatim during
+        // the visitor pass, which runs before back-compatibility processing. Those overloads keep every
+        // optional default they shipped with, so they can make a previously valid call ambiguous against
+        // the current method. Back-compatibility processing must reshape them just like the overloads it
+        // synthesizes itself. The restored overload is added directly here to model that visitor.
+        [Test]
+        public async Task BackCompatibility_VisitorAddedOverloadRequiresMinimumPrefix()
+        {
+            InputModelType model = InputFactory.Model("CompatibilityModel", properties:
+            [
+                InputFactory.Property("Id", InputPrimitiveType.String),
+                InputFactory.Property("Name", InputPrimitiveType.String),
+                InputFactory.Property("Image", InputPrimitiveType.String),
+                InputFactory.Property("TargetPort", InputPrimitiveType.String),
+                InputFactory.Property("IsMain", new InputNullableType(InputPrimitiveType.Boolean)),
+                InputFactory.Property("Kind", InputPrimitiveType.String),
+            ]);
+
+            _instance = (await MockHelpers.LoadMockGeneratorAsync(
+                inputNamespaceName: "Sample.Namespace",
+                inputModelTypes: [model],
+                lastContractCompilation: async () => await Helpers.GetCompilationFromDirectoryAsync(parameters: "Last"))).Object;
+
+            var modelFactory = _instance.OutputLibrary.ModelFactory.Value;
+
+            var previous = modelFactory.LastContractView!.Methods[0];
+            var restored = new MethodProvider(
+                new MethodSignature(
+                    previous.Signature.Name,
+                    previous.Signature.Description,
+                    previous.Signature.Modifiers,
+                    previous.Signature.ReturnType,
+                    previous.Signature.ReturnDescription,
+                    previous.Signature.Parameters,
+                    [.. previous.Signature.Attributes, new AttributeStatement(typeof(EditorBrowsableAttribute), Snippet.FrameworkEnumValue(EditorBrowsableState.Never))]),
+                Snippet.Throw(Snippet.Null),
+                modelFactory);
+            modelFactory.Update(methods: [.. modelFactory.Methods, restored]);
+
             modelFactory.ProcessTypeForBackCompatibility();
 
             var content = new TypeProviderWriter(modelFactory).Write().Content;
