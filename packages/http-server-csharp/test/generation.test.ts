@@ -157,7 +157,7 @@ it("generates standard scalar properties", async () => {
     "Foo.cs",
     [
       "public partial class Foo",
-      "public byte[] BytesProp { get; set; }",
+      "public byte[]? BytesProp { get; set; }",
       "public SByte? SignedByteProp { get; set; }",
       "public Byte? ByteProp { get; set; }",
       "public Int16? Int16Prop { get; set; }",
@@ -175,10 +175,10 @@ it("generates standard scalar properties", async () => {
       "public TimeSpan? DurationProp { get; set; }",
       "public DateTimeOffset? UtcDateTimeProp { get; set; }",
       "public DateTimeOffset? OffsetDateTimeProp { get; set; }",
-      "public string StringProp { get; set; }",
+      "public string? StringProp { get; set; }",
       "[JsonConverter(typeof(UnixEpochDateTimeOffsetConverter))]",
       "public DateTimeOffset? TimestampProp { get; set; }",
-      "public string UrlProp { get; set; }",
+      "public string? UrlProp { get; set; }",
       "public long? SafeIntProp { get; set; }",
       "public decimal? DecimalProp { get; set; }",
       "public decimal? Decimal128Prop { get; set; }",
@@ -236,7 +236,7 @@ it("generates string constraints", async () => {
     [
       "public partial class Foo",
       "[StringConstraint(MinLength = 3, MaxLength = 72)]",
-      "public string StringProp { get; set; }",
+      "public string? StringProp { get; set; }",
     ],
   );
 });
@@ -342,7 +342,7 @@ it("generates literal properties", async () => {
     "Foo.cs",
     [
       "public partial class Foo",
-      `public string StringLiteralProp { get; } = "This is a string literal";`,
+      `public string? StringLiteralProp { get; } = "This is a string literal";`,
       "public bool? BoolLiteralProp { get; } = true;",
       "public int? NumericLiteralProp { get; } = 17",
     ],
@@ -366,7 +366,7 @@ it("generates default values in properties", async () => {
     "Foo.cs",
     [
       "public partial class Foo",
-      `public string StringLiteralProp { get; set; } = "This is a string literal";`,
+      `public string? StringLiteralProp { get; set; } = "This is a string literal";`,
       "public bool? BoolLiteralProp { get; set; } = true;",
       "public int? NumericLiteralProp { get; set; } = 17;",
     ],
@@ -630,7 +630,7 @@ it("handles enum, complex type properties, and circular references", async () =>
         [
           "public partial class Foo",
           `public SimpleBar? BarProp { get; set; }`,
-          `public Baz BazProp { get; set; }`,
+          `public Baz? BazProp { get; set; }`,
         ],
       ],
       [
@@ -670,8 +670,8 @@ it("handles enum, complex type properties, and circular references", async () =>
         "Baz.cs",
         [
           "public partial class Baz",
-          `public Foo FooProp { get; set; }`,
-          `public Baz NextBazProp { get; set; }`,
+          `public Foo? FooProp { get; set; }`,
+          `public Baz? NextBazProp { get; set; }`,
         ],
       ],
     ],
@@ -896,7 +896,7 @@ it("processes sub-namespaces of a service", async () => {
     "Foo.cs",
     [
       "public partial class Foo",
-      `public string InvalidName { get; set; } = "This is a string literal";`,
+      `public string? InvalidName { get; set; } = "This is a string literal";`,
     ],
   );
 });
@@ -917,7 +917,7 @@ it("creates Valid Identifiers", async () => {
     [
       "public partial class Foo",
       `[JsonPropertyName("**()invalid~~Name")]`,
-      `public string InvalidName { get; set; } = "This is a string literal";`,
+      `public string? InvalidName { get; set; } = "This is a string literal";`,
     ],
   );
 });
@@ -1133,9 +1133,9 @@ interface Widgets {
         "WidgetMergePatchUpdate.cs",
         [
           "namespace Contoso;",
-          "public string Id { get; set; }",
+          "public string? Id { get; set; }",
           "public int? Weight { get; set; }",
-          "public string Color { get; set; }",
+          "public string? Color { get; set; }",
         ],
       ],
     ],
@@ -1170,7 +1170,7 @@ interface Widgets {
         "WidgetMergePatchUpdate.cs",
         [
           "namespace Contoso;",
-          "public string Id { get; set; }",
+          "public string? Id { get; set; }",
           "public int? Weight { get; set; }",
           "public WidgetColor? Color { get; set; }",
         ],
@@ -1212,7 +1212,7 @@ interface Widgets {
         "WidgetMergePatchUpdate.cs",
         [
           "namespace Contoso;",
-          "public string Id { get; set; }",
+          "public string? Id { get; set; }",
           "WidgetColor? Color { get; set; }",
           "WidgetSize? Size { get; set; }",
         ],
@@ -1280,7 +1280,7 @@ interface Widgets {
         "WidgetMergePatchUpdate.cs",
         [
           "namespace Contoso;",
-          "public string Id { get; set; }",
+          "public string? Id { get; set; }",
           "public WidgetColor? Color { get; set; }",
         ],
       ],
@@ -1316,7 +1316,7 @@ interface Widgets {
     [
       [
         "WidgetMergePatchUpdate.cs",
-        ["namespace Contoso;", "public string Id { get; set; }", "Color { get; set; }"],
+        ["namespace Contoso;", "public string? Id { get; set; }", "Color { get; set; }"],
       ],
     ],
   );
@@ -1350,8 +1350,8 @@ interface Widgets {
         "WidgetMergePatchUpdate.cs",
         [
           "namespace Contoso;",
-          "public string Id { get; set; }",
-          "TagMergePatchUpdateReplaceOnly[] Tags { get; set; }",
+          "public string? Id { get; set; }",
+          "TagMergePatchUpdateReplaceOnly[]? Tags { get; set; }",
         ],
       ],
     ],
@@ -1796,7 +1796,7 @@ it("generates appropriate types for arrays", async () => {
           "namespace TypeName.Array",
           "public partial class InnerModel",
           "public string Property { get; set; }",
-          "public InnerModel[] Children { get; set; }",
+          "public InnerModel[]? Children { get; set; }",
         ],
       ],
       [
@@ -2003,10 +2003,10 @@ it("handles nullable types correctly", async () => {
         [
           "public partial class Foo",
           "public int? IntProp { get; set; }",
-          "public string StringProp { get; set; }",
-          "public Model0 ModelProp { get; set; }",
+          "public string? StringProp { get; set; }",
+          "public Model0? ModelProp { get; set; }",
           "public Model1 AnotherModelProp { get; set; }",
-          "public Model0 YetAnother { get; set; }",
+          "public Model0? YetAnother { get; set; }",
         ],
       ],
       ["ContosoOperationsController.cs", [`public virtual async Task<IActionResult> Foo()`]],
@@ -2679,7 +2679,7 @@ it("generates one line `@doc` decorator comments", async () => {
       "/// <summary>",
       "/// Pet name in the format of a string",
       "/// </summary>",
-      "public string Name { get; set; }",
+      "public string? Name { get; set; }",
     ],
   );
 });
@@ -2705,7 +2705,7 @@ it("generates multiline jsdoc comments", async () => {
       "/// The name will be the main identifier for the dog. It is suggested to keep it short and simple.",
       "/// Pets have a difficult time understanding and learning complex names.",
       "/// </summary>",
-      "public string Name { get; set; }",
+      "public string? Name { get; set; }",
     ],
   );
 });
@@ -2729,7 +2729,7 @@ it("generates multiline jsdoc comments with long non-space words", async () => {
       "/// Pet name in the format of a string.",
       "/// Visit example.funnamesforpets.com/bestowners/popularnames/let-your-best-friend-have-the-best-name where you can find many unique names.",
       "/// </summary>",
-      "public string Name { get; set; }",
+      "public string? Name { get; set; }",
     ],
   );
 });
@@ -2771,7 +2771,7 @@ it("generates correct (awkward) multiline jsdoc comments without multiline aster
       "///         The name will be the main identifier for the dog. It is suggested to keep it short and simple.",
       "///         Pets have a difficult time understanding and learning complex names.",
       "/// </summary>",
-      "public string Name { get; set; }",
+      "public string? Name { get; set; }",
     ],
   );
 });
@@ -2870,7 +2870,7 @@ it("generates correct (awkward) multiline jsdoc comments with long non-space wor
       "/// Pet name in the format of a string.",
       "///         Visit example.funnamesforpets.com/bestowners/popularnames/let-your-best-friend-have-the-best-name where you can find many unique names.",
       "/// </summary>",
-      "public string Name { get; set; }",
+      "public string? Name { get; set; }",
     ],
   );
 });
@@ -2896,7 +2896,7 @@ it("generates multiline `@doc` decorator comments", async () => {
       "/// The name will be the main identifier for the dog. It is suggested to keep it short and simple.",
       "/// Pets have a difficult time understanding and learning complex names.",
       "/// </summary>",
-      "public string Name { get; set; }",
+      "public string? Name { get; set; }",
     ],
   );
 });
@@ -2920,7 +2920,7 @@ it("generates multiline `@doc` decorator comments with long non-space words", as
       "/// Pet name in the format of a string.",
       "/// Visit example.funnamesforpets.com/bestowners/popularnames/let-your-best-friend-have-the-best-name where you can find many unique names.",
       "/// </summary>",
-      "public string Name { get; set; }",
+      "public string? Name { get; set; }",
     ],
   );
 });
@@ -2940,7 +2940,7 @@ it("generates single line `@doc` decorator comments", async () => {
       "/// <summary>",
       "/// Pet name in the format of a string",
       "/// </summary>",
-      "public string Name { get; set; }",
+      "public string? Name { get; set; }",
     ],
   );
 });
@@ -2962,7 +2962,7 @@ it("generates jsdoc comments", async () => {
       "/// <summary>",
       "/// Pet name in the format of a string",
       "/// </summary>",
-      "public string Name { get; set; }",
+      "public string? Name { get; set; }",
     ],
   );
 });

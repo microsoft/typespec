@@ -9,6 +9,7 @@ import {
   type Namespace as TspNamespace,
 } from "@typespec/compiler";
 import { useTsp } from "@typespec/emitter-framework";
+import { getNullableUnionInnerType } from "@typespec/emitter-framework/csharp";
 import { isStatusCode } from "@typespec/http";
 import { getUniqueItems } from "@typespec/json-schema";
 import { useEmitterOptions } from "../../context/emitter-options-context.js";
@@ -17,7 +18,11 @@ import { JsonSerialization } from "../../utils/csharp-libs.jsx";
 import { getDocComments } from "../../utils/doc-comments.jsx";
 import { getSubNamespaceParts } from "../../utils/namespace-utils.js";
 import { CSharpFile } from "../csharp-file.jsx";
-import { efRefkey, TypeExpression } from "../type-expression/type-expression.jsx";
+import {
+  efRefkey,
+  getNullableValueTypeUnionInnerType,
+  TypeExpression,
+} from "../type-expression/type-expression.jsx";
 import { getErrorConstructor } from "./error-models.jsx";
 import {
   getDefaultValueString,
@@ -29,7 +34,6 @@ import {
   hasNonIntegerValues,
   hasPropertyInChain,
   isDuplicateExceptionName,
-  isValueType,
   modelNeedsJsonNodes,
 } from "./model-helpers.js";
 
@@ -96,7 +100,6 @@ interface ServerClassDeclarationProps {
  * Server-specific class declaration that matches the old emitter output:
  * - No `required` keyword
  * - No `[JsonPropertyName]` attributes
- * - No nullable `?` suffix on reference types (string, byte[], etc.)
  */
 function ServerClassDeclaration(props: ServerClassDeclarationProps): Children {
   const { $ } = useTsp();
@@ -175,7 +178,7 @@ interface ServerPropertyProps {
 
 /**
  * Server-specific property that matches old emitter output.
- * No `required`, no `[JsonPropertyName]`, no nullable `?` for reference types.
+ * No `required` and no `[JsonPropertyName]` unless the C# name differs.
  */
 function ServerProperty(props: ServerPropertyProps): Children {
   const { $ } = useTsp();
@@ -237,7 +240,13 @@ function ServerProperty(props: ServerPropertyProps): Children {
   // But not for union variant types — those should resolve to the enum type
   const resolveToScalar = (isLiteralOnly && !unionVariantInit) || isErrorProp;
   const resolvedType = resolveToScalar ? getScalarForLiteral(propType) : propType;
-  const needsNullable = props.type.optional && (isFloatEnum || isValueType($, resolvedType));
+  const nullableUnionInnerType =
+    resolvedType.kind === "Union" ? getNullableUnionInnerType(resolvedType) : undefined;
+  const typeExpressionIncludesNullable =
+    getNullableValueTypeUnionInnerType($, resolvedType) !== undefined;
+  const needsNullable =
+    !typeExpressionIncludesNullable &&
+    (props.type.optional || nullableUnionInnerType !== undefined);
 
   // Check if this is a @uniqueItems array → ISet<T>
   const isUniqueItems = getUniqueItems($.program, props.type);
