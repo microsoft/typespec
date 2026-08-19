@@ -1145,7 +1145,7 @@ function Invoke-SdkLibraryRegeneration {
         The libraries to regenerate, as returned by Get-SdkLibrariesToRegenerate.
 
     .PARAMETER ThrottleLimit
-        Optional. Number of concurrent regeneration jobs. Defaults to 1.5x the logical processors, clamped to 4-8,
+        Optional. Number of concurrent regeneration jobs. Defaults to 3x the logical processors, clamped to 4-12,
         since each job is dominated by child process and IO wait rather than CPU work.
 
     .PARAMETER NpmRegistry
@@ -1193,9 +1193,9 @@ function Invoke-SdkLibraryRegeneration {
 
     # Determine parallel execution throttle limit. Each regeneration job spends most of its time
     # waiting on child processes (tsp-client spec sync, NuGet/npm restore, file IO), so the machine
-    # can run more jobs than it has cores without saturating the CPU. Oversubscribe by 1.5x the
+    # can run more jobs than it has cores without saturating the CPU. Oversubscribe by 3x the
     # logical processors, with a floor of 4 so low-core CI agents still get useful concurrency and a
-    # cap of 8 to avoid thrashing memory on those same agents.
+    # cap of 12 to keep memory usage on those same agents bounded.
     if ($ThrottleLimit -le 0) {
         $cpuCores = if ($IsWindows -or $PSVersionTable.PSVersion.Major -lt 6) {
             (Get-CimInstance -ClassName Win32_Processor | Measure-Object -Property NumberOfLogicalProcessors -Sum).Sum
@@ -1205,7 +1205,7 @@ function Invoke-SdkLibraryRegeneration {
             [int](nproc)
         }
 
-        $ThrottleLimit = [Math]::Max(4, [Math]::Min(8, [int][Math]::Ceiling($cpuCores * 1.5)))
+        $ThrottleLimit = [Math]::Max(4, [Math]::Min(12, $cpuCores * 3))
         Write-Host "Using $ThrottleLimit concurrent jobs (detected $cpuCores logical processors)" -ForegroundColor Gray
     } else {
         Write-Host "Using $ThrottleLimit concurrent jobs" -ForegroundColor Gray
@@ -1289,6 +1289,7 @@ function Invoke-SdkLibraryRegeneration {
                 $extraArgs = $using:buildArgs
 
                 Write-Host "  -> Starting $($library.Library) ($($library.Service))" -ForegroundColor DarkGray
+                $libraryStopwatch = [System.Diagnostics.Stopwatch]::StartNew()
 
                 # Determine build path (check for src subdirectory)
                 $libraryPath = Join-Path $azureSdkPath $library.Path
@@ -1325,6 +1326,8 @@ function Invoke-SdkLibraryRegeneration {
                 }
 
                 # Update progress counter
+                $libraryStopwatch.Stop()
+                $durationSeconds = [Math]::Round($libraryStopwatch.Elapsed.TotalSeconds, 1)
                 $completedBag.Add(1)
                 $currentCount = $completedBag.Count
 
@@ -1332,18 +1335,19 @@ function Invoke-SdkLibraryRegeneration {
                 $status = if ($result.Success) { "✓" } else { "✗" }
                 $color = if ($result.Success) { "Green" } else { "White" }
 
-                $progressMsg = "[$currentCount/$total] $status $($library.Library)"
+                $progressMsg = "[$currentCount/$total] $status $($library.Library) ($($durationSeconds)s)"
                 Write-Host $progressMsg -ForegroundColor $color
 
                 # Return result with library metadata
                 return @{
-                    Service   = $library.Service
-                    Library   = $library.Library
-                    Path      = $library.Path
-                    Generator = $library.Generator
-                    Success   = if ($result.ContainsKey('Success')) { $result.Success } else { $false }
-                    Error     = if ($result.ContainsKey('Error')) { $result.Error } else { "" }
-                    Output    = if ($result.ContainsKey('Output')) { $result.Output } else { "" }
+                    Service         = $library.Service
+                    Library         = $library.Library
+                    Path            = $library.Path
+                    Generator       = $library.Generator
+                    DurationSeconds = $durationSeconds
+                    Success         = if ($result.ContainsKey('Success')) { $result.Success } else { $false }
+                    Error           = if ($result.ContainsKey('Error')) { $result.Error } else { "" }
+                    Output          = if ($result.ContainsKey('Output')) { $result.Output } else { "" }
                 }
             })
             $results += $batchResults
@@ -1355,14 +1359,15 @@ function Invoke-SdkLibraryRegeneration {
                 }
                 foreach ($library in $remainingLibraries) {
                     $results += @{
-                        Service   = $library.Service
-                        Library   = $library.Library
-                        Path      = $library.Path
-                        Generator = $library.Generator
-                        Success   = $false
-                        Error     = "Skipped because an earlier regeneration batch failed"
-                        Output    = ""
-                        Skipped   = $true
+                        Service         = $library.Service
+                        Library         = $library.Library
+                        Path            = $library.Path
+                        Generator       = $library.Generator
+                        DurationSeconds = 0
+                        Success         = $false
+                        Error           = "Skipped because an earlier regeneration batch failed"
+                        Output          = ""
+                        Skipped         = $true
                     }
                 }
                 break
@@ -1442,7 +1447,17 @@ function Write-RegenerationReport {
     if ($passed.Count -gt 0) {
         Write-Host "PASSED LIBRARIES:" -ForegroundColor Green
         foreach ($result in $passed) {
-            Write-Host "  ✓ $($result.Library) ($($result.Service))" -ForegroundColor Green
+            $duration = if ($result.DurationSeconds) { " - $($result.DurationSeconds)s" } else { "" }
+            Write-Host "  ✓ $($result.Library) ($($result.Service))$duration" -ForegroundColor Green
+        }
+        Write-Host ""
+    }
+
+    $timed = @($Results | Where-Object { $_.DurationSeconds } | Sort-Object -Property DurationSeconds -Descending | Select-Object -First 5)
+    if ($timed.Count -gt 0) {
+        Write-Host "SLOWEST LIBRARIES:" -ForegroundColor Cyan
+        foreach ($result in $timed) {
+            Write-Host "  $($result.Library) ($($result.Service)) - $($result.DurationSeconds)s" -ForegroundColor Gray
         }
         Write-Host ""
     }
