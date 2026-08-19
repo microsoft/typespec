@@ -5,6 +5,7 @@ using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Diagnostics.CodeAnalysis;
+using System.Linq;
 using System.Reflection.Metadata;
 using Microsoft.TypeSpec.Generator.Expressions;
 using Microsoft.TypeSpec.Generator.Input;
@@ -102,6 +103,16 @@ namespace Microsoft.TypeSpec.Generator.Providers
             var hasOutputUsage = inputProperty.EnclosingType?.Usage.HasFlag(InputModelTypeUsage.Output) ?? false;
             Modifiers = IsDiscriminator || (!hasOutputUsage && _isRequiredNonNullableConstant) ? MethodSignatureModifiers.Internal : MethodSignatureModifiers.Public;
             var identifierName = inputProperty.IsExactName ? inputProperty.Name : inputProperty.Name.ToIdentifierName();
+            var lastContractProperties = enclosingType.LastContractView?.Properties;
+            var legacyName = identifierName == enclosingType.Name
+                ? $"{identifierName}Property"
+                : identifierName;
+            if (!inputProperty.IsExactName &&
+                (lastContractProperties is null ||
+                 !lastContractProperties.Any(p => p.Name == legacyName)))
+            {
+                identifierName = identifierName.NormalizeCSharpAcronyms();
+            }
             Name = identifierName == enclosingType.Name
                 ? $"{identifierName}Property"
                 : identifierName;
@@ -177,10 +188,14 @@ namespace Microsoft.TypeSpec.Generator.Providers
         [MemberNotNull(nameof(_parameter))]
         private void InitializeParameter(FormattableString description)
         {
-            _parameter = new(() => new ParameterProvider(Name.ToVariableName(), description, Type, property: this));
+            _parameter = new(() => new ParameterProvider(
+                Name.ToVariableName(),
+                description,
+                Type,
+                property: this));
         }
 
-        public VariableExpression AsVariableExpression => _variable ??= new(Type, Name.ToVariableName());
+        public VariableExpression AsVariableExpression => _variable ??= AsParameter;
 
         private static bool IsDiscriminatorProperty(InputProperty inputProperty)
         {

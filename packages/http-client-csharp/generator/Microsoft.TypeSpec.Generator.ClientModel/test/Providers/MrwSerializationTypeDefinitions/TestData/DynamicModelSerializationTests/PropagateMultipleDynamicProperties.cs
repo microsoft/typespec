@@ -36,7 +36,7 @@ namespace Sample
                 {
                     return TryResolveP2Array(out value);
                 }
-                if (!currentSlice.TryGetIndex(out int index, out int bytesConsumed))
+                if ((!currentSlice.TryGetIndex(out int index, out int bytesConsumed) || (index >= P2.Count)))
                 {
                     return false;
                 }
@@ -50,7 +50,7 @@ namespace Sample
                 {
                     return TryResolveP3Array(out value);
                 }
-                if (!currentSlice.TryGetIndex(out int index, out int bytesConsumed))
+                if ((!currentSlice.TryGetIndex(out int index, out int bytesConsumed) || (index >= P3.Count)))
                 {
                     return false;
                 }
@@ -60,12 +60,12 @@ namespace Sample
             {
                 int propertyLength = "p4"u8.Length;
                 global::System.ReadOnlySpan<byte> currentSlice = local.Slice(propertyLength);
-                if (!currentSlice.TryGetIndex(out int index, out int bytesConsumed))
+                if ((!currentSlice.TryGetIndex(out int index, out int bytesConsumed) || (index >= P4.Count)))
                 {
                     return false;
                 }
                 currentSlice = currentSlice.Slice(bytesConsumed);
-                if (!currentSlice.TryGetIndex(out int index0, out int bytesConsumed0))
+                if ((!currentSlice.TryGetIndex(out int index0, out int bytesConsumed0) || (index0 >= P4[index].Count)))
                 {
                     return false;
                 }
@@ -75,17 +75,17 @@ namespace Sample
             {
                 int propertyLength = "p5"u8.Length;
                 global::System.ReadOnlySpan<byte> currentSlice = local.Slice(propertyLength);
-                if (!currentSlice.TryGetIndex(out int index, out int bytesConsumed))
+                if ((!currentSlice.TryGetIndex(out int index, out int bytesConsumed) || (index >= P5.Count)))
                 {
                     return false;
                 }
                 currentSlice = currentSlice.Slice(bytesConsumed);
-                if (!currentSlice.TryGetIndex(out int index0, out int bytesConsumed0))
+                if ((!currentSlice.TryGetIndex(out int index0, out int bytesConsumed0) || (index0 >= P5[index].Count)))
                 {
                     return false;
                 }
                 currentSlice = currentSlice.Slice(bytesConsumed0);
-                if (!currentSlice.TryGetIndex(out int index1, out int bytesConsumed1))
+                if ((!currentSlice.TryGetIndex(out int index1, out int bytesConsumed1) || (index1 >= P5[index][index0].Count)))
                 {
                     return false;
                 }
@@ -101,7 +101,7 @@ namespace Sample
                     return false;
                 }
                 currentSlice = currentSlice.GetRemainder(i);
-                if (!currentSlice.TryGetIndex(out int index, out int bytesConsumed))
+                if ((!currentSlice.TryGetIndex(out int index, out int bytesConsumed) || (index >= item.Count)))
                 {
                     return false;
                 }
@@ -132,7 +132,7 @@ namespace Sample
             {
                 int propertyLength = "p2"u8.Length;
                 global::System.ReadOnlySpan<byte> currentSlice = local.Slice(propertyLength);
-                if (!currentSlice.TryGetIndex(out int index, out int bytesConsumed))
+                if ((!currentSlice.TryGetIndex(out int index, out int bytesConsumed) || (index >= P2.Count)))
                 {
                     return false;
                 }
@@ -143,7 +143,7 @@ namespace Sample
             {
                 int propertyLength = "p3"u8.Length;
                 global::System.ReadOnlySpan<byte> currentSlice = local.Slice(propertyLength);
-                if (!currentSlice.TryGetIndex(out int index, out int bytesConsumed))
+                if ((!currentSlice.TryGetIndex(out int index, out int bytesConsumed) || (index >= P3.Count)))
                 {
                     return false;
                 }
@@ -154,12 +154,12 @@ namespace Sample
             {
                 int propertyLength = "p4"u8.Length;
                 global::System.ReadOnlySpan<byte> currentSlice = local.Slice(propertyLength);
-                if (!currentSlice.TryGetIndex(out int index, out int bytesConsumed))
+                if ((!currentSlice.TryGetIndex(out int index, out int bytesConsumed) || (index >= P4.Count)))
                 {
                     return false;
                 }
                 currentSlice = currentSlice.Slice(bytesConsumed);
-                if (!currentSlice.TryGetIndex(out int index0, out int bytesConsumed0))
+                if ((!currentSlice.TryGetIndex(out int index0, out int bytesConsumed0) || (index0 >= P4[index].Count)))
                 {
                     return false;
                 }
@@ -170,17 +170,17 @@ namespace Sample
             {
                 int propertyLength = "p5"u8.Length;
                 global::System.ReadOnlySpan<byte> currentSlice = local.Slice(propertyLength);
-                if (!currentSlice.TryGetIndex(out int index, out int bytesConsumed))
+                if ((!currentSlice.TryGetIndex(out int index, out int bytesConsumed) || (index >= P5.Count)))
                 {
                     return false;
                 }
                 currentSlice = currentSlice.Slice(bytesConsumed);
-                if (!currentSlice.TryGetIndex(out int index0, out int bytesConsumed0))
+                if ((!currentSlice.TryGetIndex(out int index0, out int bytesConsumed0) || (index0 >= P5[index].Count)))
                 {
                     return false;
                 }
                 currentSlice = currentSlice.Slice(bytesConsumed0);
-                if (!currentSlice.TryGetIndex(out int index1, out int bytesConsumed1))
+                if ((!currentSlice.TryGetIndex(out int index1, out int bytesConsumed1) || (index1 >= P5[index][index0].Count)))
                 {
                     return false;
                 }
@@ -197,7 +197,7 @@ namespace Sample
                     return false;
                 }
                 currentSlice = currentSlice.GetRemainder(i);
-                if (!currentSlice.TryGetIndex(out int index, out int bytesConsumed))
+                if ((!currentSlice.TryGetIndex(out int index, out int bytesConsumed) || (index >= item.Count)))
                 {
                     return false;
                 }

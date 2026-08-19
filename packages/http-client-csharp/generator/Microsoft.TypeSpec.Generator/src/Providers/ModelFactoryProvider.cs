@@ -328,8 +328,8 @@ namespace Microsoft.TypeSpec.Generator.Providers
                     continue;
                 }
 
-                var model = GetModelToInstantiateForFactoryMethod(modelProvider);
-                if (model != null && previousMethodReturnType.AreNamesEqual(model.Type))
+                var model = GetModelToInstantiateForPreviousReturnType(modelProvider, previousMethodReturnType);
+                if (model != null)
                 {
                     modelToInstantiate = model;
                     break;
@@ -523,6 +523,26 @@ namespace Microsoft.TypeSpec.Generator.Providers
             return modelProvider.DeclarationModifiers.HasFlag(TypeSignatureModifiers.Abstract)
                 ? modelProvider.DerivedModels.FirstOrDefault(m => m.IsUnknownDiscriminatorModel)
                 : modelProvider;
+        }
+
+        private static ModelProvider? GetModelToInstantiateForPreviousReturnType(ModelProvider modelProvider, CSharpType returnType)
+        {
+            var model = GetModelToInstantiateForFactoryMethod(modelProvider);
+            if (model is null)
+            {
+                return null;
+            }
+
+            if (modelProvider.DeclarationModifiers.HasFlag(TypeSignatureModifiers.Abstract))
+            {
+                return returnType.AreNamesEqual(modelProvider.Type) || returnType.AreNamesEqual(model.Type)
+                    ? model
+                    : null;
+            }
+
+            return returnType.AreNamesEqual(model.Type)
+                ? model
+                : null;
         }
 
         private static (ParameterProvider? BinaryDataParam, ConstructorProvider FullCtor) GetBinaryDataParamAndFullCtorForFactoryMethod(

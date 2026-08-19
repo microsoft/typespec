@@ -202,6 +202,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers.ClientProvide
             }
         }
 
+
         [TestCaseSource(nameof(BuildOAuth2FlowsFieldTestCases))]
         public void TestBuildOAuth2FlowsField(IEnumerable<InputOAuth2Flow> inputFlows)
         {
@@ -4663,6 +4664,82 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers.ClientProvide
             Assert.AreEqual("snake_case_op", inputServiceMethod.Operation.Name);
         }
 
+        [TestCase("GetUrl", false, "GetUri")]
+        [TestCase("ListUrl", false, "GetUri")]
+        [TestCase("GetUrlValue", false, "GetUrlValue")]
+        [TestCase("GetUrls", false, "GetUrls")]
+        [TestCase("GetUrl", true, "GetUrl")]
+        public void TestOperationNameReplacesCompleteUrlSuffix(string operationName, bool isExactName, string expectedName)
+        {
+            var inputOperation = InputFactory.Operation(operationName, isExactName: isExactName);
+            var inputServiceMethod = InputFactory.BasicServiceMethod(operationName, inputOperation, isExactName: isExactName);
+            var client = InputFactory.Client("TestClient", methods: [inputServiceMethod]);
+
+            _ = new ClientProvider(client);
+
+            Assert.AreEqual(expectedName, inputServiceMethod.Name);
+            Assert.AreEqual(expectedName, inputServiceMethod.Operation.Name);
+        }
+
+        [Test]
+        public async Task TestOperationNamePreservesUrlSuffixFromLastContract()
+        {
+            var inputOperation = InputFactory.Operation("GetUrl");
+            var inputServiceMethod = InputFactory.BasicServiceMethod("GetUrl", inputOperation);
+            var client = InputFactory.Client("TestClient", methods: [inputServiceMethod]);
+            await MockHelpers.LoadMockGeneratorAsync(
+                clients: () => [client],
+                lastContractCompilation: async () => await Helpers.GetCompilationFromDirectoryAsync());
+
+            _ = new ClientProvider(client);
+
+            Assert.AreEqual("GetUrl", inputServiceMethod.Name);
+            Assert.AreEqual("GetUrl", inputServiceMethod.Operation.Name);
+        }
+
+        [Test]
+        public async Task TestOperationNamePreservesUrlSuffixFromBackCompatProvider()
+        {
+            var inputOperation = InputFactory.Operation("GetUrl");
+            var inputServiceMethod = InputFactory.BasicServiceMethod("GetUrl", inputOperation);
+            var client = InputFactory.Client("TestClient", methods: [inputServiceMethod]);
+            var generator = await MockHelpers.LoadMockGeneratorAsync(
+                clients: () => [client],
+                lastContractCompilation: async () => await Helpers.GetCompilationFromDirectoryAsync());
+            var clientProvider = generator.Object.OutputLibrary.TypeProviders.OfType<ClientProvider>().Single();
+
+            Assert.AreEqual("GetUri", inputServiceMethod.Name);
+
+            var backCompatProvider = new BackCompatTypeProvider("MockableTestResource", "Sample");
+            var methods = clientProvider.GetMethodCollectionByOperation(inputOperation, backCompatProvider);
+
+            Assert.AreEqual("GetUrl", inputServiceMethod.Name);
+            Assert.AreEqual("GetUrl", inputServiceMethod.Operation.Name);
+            Assert.IsTrue(methods.Any(m => m.Signature.Name == "GetUrl"));
+        }
+
+        [Test]
+        public async Task TestOperationNameFallsBackToClientLastContractWhenBackCompatProviderHasNoLastContract()
+        {
+            var inputOperation = InputFactory.Operation("GetUrl");
+            var inputServiceMethod = InputFactory.BasicServiceMethod("GetUrl", inputOperation);
+            var client = InputFactory.Client("TestClient", methods: [inputServiceMethod]);
+            var generator = await MockHelpers.LoadMockGeneratorAsync(
+                clients: () => [client],
+                lastContractCompilation: async () => await Helpers.GetCompilationFromDirectoryAsync());
+            var clientProvider = generator.Object.OutputLibrary.TypeProviders.OfType<ClientProvider>().Single();
+
+            Assert.AreEqual("GetUrl", inputServiceMethod.Name);
+
+            var backCompatProvider = new BackCompatTypeProvider("MissingWrapper", "Sample");
+            var methods = clientProvider.GetMethodCollectionByOperation(inputOperation, backCompatProvider);
+
+            Assert.IsNull(backCompatProvider.LastContractView);
+            Assert.AreEqual("GetUrl", inputServiceMethod.Name);
+            Assert.AreEqual("GetUrl", inputServiceMethod.Operation.Name);
+            Assert.IsTrue(methods.Any(m => m.Signature.Name == "GetUrl"));
+        }
+
         [Test]
         public void TestIsExactNameServiceMethodSkipsListToGetRename()
         {
@@ -4689,6 +4766,23 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers.ClientProvide
             Assert.AreEqual("GetAll", inputServiceMethod.Name);
             Assert.AreEqual("GetAll", inputServiceMethod.Operation.Name);
         }
+
+        private sealed class BackCompatTypeProvider : TypeProvider
+        {
+            private readonly string _name;
+            private readonly string _namespace;
+
+            public BackCompatTypeProvider(string name, string ns)
+            {
+                _name = name;
+                _namespace = ns;
+            }
+
+            protected override string BuildRelativeFilePath() => $"{_name}.cs";
+            protected override string BuildName() => _name;
+            protected override string BuildNamespace() => _namespace;
+        }
+
         private static ClientProvider BuildMultipartClient(InputModelType bodyModel, bool bodyIsRequired = true)
         {
             var body = InputFactory.MethodParameter(
@@ -4810,4 +4904,3 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers.ClientProvide
 
     }
 }
-

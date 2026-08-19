@@ -67,6 +67,16 @@ namespace Microsoft.TypeSpec.Generator.Tests.Providers
             Assert.IsTrue(parameter.ToPublicInputParameter().Type.Equals(typeof(IEnumerable<string>)));
         }
 
+        [TestCase("IPv4Routes", "ipv4Routes")]
+        [TestCase("iPv4Routes", "iPv4Routes")]
+        [TestCase("regularName", "regularName")]
+        public void VariableNamePreservesExistingCamelCase(string name, string expected)
+        {
+            var parameter = new ParameterProvider(name, $"Description", typeof(string));
+
+            Assert.AreEqual(expected, parameter.AsVariable().Declaration.RequestedName);
+        }
+
         private static IEnumerable<InputType> ValueInputTypes()
         {
             yield return InputPrimitiveType.Int32;

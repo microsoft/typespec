@@ -187,6 +187,28 @@ namespace Microsoft.TypeSpec.Generator.Tests.Providers.ModelProviders
         }
 
         [Test]
+        public async Task CustomCodeWinsOverAcronymNormalizationOnModel()
+        {
+            await MockHelpers.LoadMockGeneratorAsync(compilation: async () => await Helpers.GetCompilationFromDirectoryAsync());
+
+            var inputModel = InputFactory.Model("IpAddress");
+            var modelProvider = new ModelProvider(inputModel);
+
+            AssertCommon(modelProvider, "NewNamespace.Models", "CustomizedModel");
+        }
+
+        [Test]
+        public async Task CustomCodeWinsOverAcronymNormalizationOnEnum()
+        {
+            await MockHelpers.LoadMockGeneratorAsync(compilation: async () => await Helpers.GetCompilationFromDirectoryAsync());
+
+            var inputEnum = InputFactory.StringEnum("IpKind", [("value", "value")]);
+            var enumProvider = new FixedEnumProvider(inputEnum, null);
+
+            AssertCommon(enumProvider, "NewNamespace.Models", "CustomizedEnum");
+        }
+
+        [Test]
         public async Task CanChangePropertyType()
         {
             var props = new[]
