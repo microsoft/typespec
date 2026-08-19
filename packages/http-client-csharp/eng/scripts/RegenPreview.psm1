@@ -1145,7 +1145,8 @@ function Invoke-SdkLibraryRegeneration {
         The libraries to regenerate, as returned by Get-SdkLibrariesToRegenerate.
 
     .PARAMETER ThrottleLimit
-        Optional. Number of concurrent regeneration jobs. Defaults to (logical processors - 2), clamped to 1-8.
+        Optional. Number of concurrent regeneration jobs. Defaults to 1.5x the logical processors, clamped to 4-8,
+        since each job is dominated by child process and IO wait rather than CPU work.
 
     .PARAMETER NpmRegistry
         Optional. When specified, a temporary .env file is written to the repository root so tsp-client
@@ -1190,7 +1191,11 @@ function Invoke-SdkLibraryRegeneration {
         return @()
     }
 
-    # Determine parallel execution throttle limit: (CPU cores - 2), min 1, max 8
+    # Determine parallel execution throttle limit. Each regeneration job spends most of its time
+    # waiting on child processes (tsp-client spec sync, NuGet/npm restore, file IO), so the machine
+    # can run more jobs than it has cores without saturating the CPU. Oversubscribe by 1.5x the
+    # logical processors, with a floor of 4 so low-core CI agents still get useful concurrency and a
+    # cap of 8 to avoid thrashing memory on those same agents.
     if ($ThrottleLimit -le 0) {
         $cpuCores = if ($IsWindows -or $PSVersionTable.PSVersion.Major -lt 6) {
             (Get-CimInstance -ClassName Win32_Processor | Measure-Object -Property NumberOfLogicalProcessors -Sum).Sum
@@ -1200,7 +1205,7 @@ function Invoke-SdkLibraryRegeneration {
             [int](nproc)
         }
 
-        $ThrottleLimit = [Math]::Max(1, [Math]::Min(8, $cpuCores - 2))
+        $ThrottleLimit = [Math]::Max(4, [Math]::Min(8, [int][Math]::Ceiling($cpuCores * 1.5)))
         Write-Host "Using $ThrottleLimit concurrent jobs (detected $cpuCores logical processors)" -ForegroundColor Gray
     } else {
         Write-Host "Using $ThrottleLimit concurrent jobs" -ForegroundColor Gray
