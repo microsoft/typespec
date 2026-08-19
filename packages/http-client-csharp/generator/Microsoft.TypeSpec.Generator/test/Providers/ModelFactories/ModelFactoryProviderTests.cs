@@ -437,6 +437,34 @@ namespace Microsoft.TypeSpec.Generator.Tests.Providers.ModelFactories
             Assert.AreEqual(Helpers.GetExpectedFromFile(), content);
         }
 
+        // Two previous overloads compete with the same current method and with each other, so each
+        // needs its own prefix. The first is a positional prefix of the current method, so no argument
+        // count distinguishes them and it must become fully required; the second moved a parameter
+        // earlier, so a shorter prefix is enough and its trailing parameter stays optional.
+        [Test]
+        public async Task BackCompatibility_MultiplePreviousOverloadsRequireIndependentPrefixes()
+        {
+            InputModelType model = InputFactory.Model("CompatibilityModel", properties:
+            [
+                InputFactory.Property("Id", InputPrimitiveType.String),
+                InputFactory.Property("Name", InputPrimitiveType.String),
+                InputFactory.Property("Count", new InputNullableType(InputPrimitiveType.Int32)),
+                InputFactory.Property("Flag", new InputNullableType(InputPrimitiveType.Boolean)),
+                InputFactory.Property("Kind", InputPrimitiveType.String),
+            ]);
+
+            _instance = (await MockHelpers.LoadMockGeneratorAsync(
+                inputNamespaceName: "Sample.Namespace",
+                inputModelTypes: [model],
+                lastContractCompilation: async () => await Helpers.GetCompilationFromDirectoryAsync(parameters: "Last"))).Object;
+
+            var modelFactory = _instance.OutputLibrary.ModelFactory.Value;
+            modelFactory.ProcessTypeForBackCompatibility();
+
+            var content = new TypeProviderWriter(modelFactory).Write().Content;
+            Assert.AreEqual(Helpers.GetExpectedFromFile(), content);
+        }
+
         // This test validates that only the previous model factory methods are generated when only the parameter ordering is changed
         // in the current library version.
         [Test]
