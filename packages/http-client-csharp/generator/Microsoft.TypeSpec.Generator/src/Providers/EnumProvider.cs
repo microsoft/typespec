@@ -95,8 +95,16 @@ namespace Microsoft.TypeSpec.Generator.Providers
         private protected string GetBackCompatibleName(
             string generatedName,
             IReadOnlyList<string> generatedNames,
-            IReadOnlyList<string> lastContractNames)
+            IReadOnlyList<string> lastContractNames,
+            bool isExactName = false)
         {
+            // An explicitly configured name must be used verbatim, even when the last contract
+            // published a different spelling for the same member.
+            if (isExactName)
+            {
+                return generatedName;
+            }
+
             if (lastContractNames.Count == 0)
             {
                 return generatedName;

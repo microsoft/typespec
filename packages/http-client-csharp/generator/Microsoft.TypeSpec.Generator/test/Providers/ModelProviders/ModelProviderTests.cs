@@ -2456,6 +2456,36 @@ namespace Microsoft.TypeSpec.Generator.Tests.Providers.ModelProviders
         }
 
         [Test]
+        public async Task BackCompat_ConstructorParameterExactNameNotRenamed()
+        {
+            var inputModel = InputFactory.Model(
+                "MockInputModel",
+                usage: InputModelTypeUsage.Input,
+                properties:
+                [
+                    InputFactory.Property("unchanged", InputPrimitiveType.String, isRequired: true),
+                    InputFactory.Property("new_name", InputPrimitiveType.String, isRequired: true, isExactName: true),
+                ]);
+
+            await MockHelpers.LoadMockGeneratorAsync(
+                inputModelTypes: [inputModel],
+                lastContractCompilation: async () => await Helpers.GetCompilationFromDirectoryAsync());
+
+            var modelProvider = CodeModelGenerator.Instance.OutputLibrary.TypeProviders
+                .OfType<ModelProvider>()
+                .Single(t => t.Name == "MockInputModel");
+
+            modelProvider.ProcessTypeForBackCompatibility();
+
+            var constructor = modelProvider.Constructors.Single(c =>
+                c.Signature.Modifiers.HasFlag(MethodSignatureModifiers.Public));
+            Assert.That(constructor.Signature.Parameters.Select(p => p.Name), Is.EqualTo(new[] { "unchanged", "newName" }));
+
+            var content = new TypeProviderWriter(modelProvider).Write().Content;
+            Assert.AreEqual(Helpers.GetExpectedFromFile(), content);
+        }
+
+        [Test]
         public async Task BackCompat_ConstructorParameterCasingAndRotationRestoredBySignatureMatch()
         {
             var casingModel = InputFactory.Model(

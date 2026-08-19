@@ -56,9 +56,10 @@ namespace Microsoft.TypeSpec.Generator.Providers
         /// </summary>
         public InputParameter? InputParameter { get; private set; }
 
-        internal bool IsExactName =>
-            InputParameter?.IsExactName == true ||
-            Property?.InputProperty?.IsExactName == true;
+        /// <summary>
+        /// Indicates that the name of this parameter was explicitly configured and must be used verbatim.
+        /// </summary>
+        internal bool IsExactName { get; private init; }
 
         /// <summary>
         /// Creates a <see cref="ParameterProvider"/> from an <see cref="InputParameter"/>.
@@ -84,6 +85,7 @@ namespace Microsoft.TypeSpec.Generator.Providers
             WireInfo = new WireInformation(CodeModelGenerator.Instance.TypeFactory.GetSerializationFormat(inputParameter.Type), inputParameter.SerializedName);
             Location = inputParameter.ToParameterLocation();
             Attributes = [];
+            IsExactName = inputParameter.IsExactName;
         }
 
         public ParameterProvider(
@@ -122,6 +124,7 @@ namespace Microsoft.TypeSpec.Generator.Providers
             WireInfo = wireInfo ?? new WireInformation(SerializationFormat.Default, name);
             Location = location ?? ParameterLocation.Unknown;
             InputParameter = inputParameter;
+            IsExactName = inputParameter?.IsExactName == true || property?.InputProperty?.IsExactName == true;
         }
 
         private ParameterProvider? _inputParameter;
@@ -152,7 +155,8 @@ namespace Microsoft.TypeSpec.Generator.Providers
             {
                 _asVariable = _asVariable,
                 SpreadSource = SpreadSource,
-                InputParameter = InputParameter
+                InputParameter = InputParameter,
+                IsExactName = IsExactName
             };
         }
 
@@ -286,6 +290,7 @@ namespace Microsoft.TypeSpec.Generator.Providers
                 validation: Validation)
             {
                 _asVariable = _asVariable,
+                IsExactName = IsExactName,
             };
         }
 

@@ -1290,6 +1290,28 @@ namespace Microsoft.TypeSpec.Generator.Tests.Providers
             Assert.AreEqual("CallbackUrl", enumProvider.EnumValues.Single().Name);
         }
 
+        // An explicitly configured (exact) member name must win over the name published in the last
+        // contract, otherwise the naming override would be silently reverted by back compatibility.
+        [TestCase(false, "Fixed")]
+        [TestCase(true, "Extensible")]
+        public async Task BuildEnumType_ExactValueNameTakesPrecedenceOverLastContract(bool isExtensible, string testData)
+        {
+            await MockHelpers.LoadMockGeneratorAsync(
+                createCSharpTypeCore: (inputType) => typeof(string),
+                lastContractCompilation: async () => await Helpers.GetCompilationFromDirectoryAsync(parameters: testData));
+            var enumValues = new List<InputEnumTypeValue>();
+            var input = InputFactory.Enum(
+                "mockInputEnum",
+                InputPrimitiveType.String,
+                enumValues,
+                isExtensible: isExtensible);
+            enumValues.Add(InputFactory.EnumMember.String("api_key", "value", input, isExactName: true));
+
+            var enumProvider = EnumProvider.Create(input);
+
+            Assert.AreEqual("api_key", enumProvider.EnumValues.Single().Name);
+        }
+
         private static void ValidateGetHashCodeMethod(EnumProvider enumType)
         {
             var getHashCodeMethod = enumType.Methods.Single(m => m.Signature.Name == "GetHashCode");
