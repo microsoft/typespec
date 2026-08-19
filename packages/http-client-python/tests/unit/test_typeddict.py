@@ -981,6 +981,42 @@ def test_public_enum_types_file_imports_from_models_package():
     assert not any(module.endswith(code_model.enums_filename) for module in modules), modules
 
 
+def test_cross_namespace_internal_enum_types_file_import_path_is_dotted():
+    """A cross-namespace internal enum import must keep the dot between the relative path and ``models``.
+
+    Regression for a string-concatenation bug: ``get_relative_import_path`` returns values like
+    ``..indexes`` (no trailing dot) for a sibling namespace, so ``f"{relative_path}models..."`` would
+    produce an invalid ``..indexesmodels._enums`` path. Building the path with ``module_name=`` keeps
+    it valid: ``..indexes.models._enums``.
+    """
+    code_model = _make_code_model(models_mode="dpg")
+    enum = _make_enum_type(code_model, "KnowledgeSourceKind", internal=True, client_namespace="namespace.indexes")
+    modules = _local_import_modules(
+        enum.imports(
+            serialize_namespace="namespace.knowledgebases",
+            serialize_namespace_type=NamespaceType.TYPES_FILE,
+        )
+    )
+    expected = f"..indexes.models.{code_model.enums_filename}"
+    assert expected in modules, modules
+    # The mangled (dot-less) form must never appear.
+    assert not any("indexesmodels" in module for module in modules), modules
+
+
+def test_cross_namespace_public_enum_types_file_import_path_is_dotted():
+    """A cross-namespace public enum import must keep the dot before ``models`` (``..indexes.models``)."""
+    code_model = _make_code_model(models_mode="dpg")
+    enum = _make_enum_type(code_model, "PublicEnum", internal=False, client_namespace="namespace.indexes")
+    modules = _local_import_modules(
+        enum.imports(
+            serialize_namespace="namespace.knowledgebases",
+            serialize_namespace_type=NamespaceType.TYPES_FILE,
+        )
+    )
+    assert "..indexes.models" in modules, modules
+    assert not any("indexesmodels" in module for module in modules), modules
+
+
 def test_internal_enum_property_types_file_serialize_is_consistent():
     """End-to-end: the internal enum annotation and its import agree in generated types.py."""
     code_model = _make_code_model(models_mode="dpg")

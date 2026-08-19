@@ -314,14 +314,10 @@ class EnumType(BaseType):
                     # package, so import them from the private ``_enums`` submodule instead — the
                     # bare-symbol import (rather than the ``_enums`` module) also avoids name
                     # collisions when internal enums come from several sibling namespaces.
-                    if self.internal:
-                        enums_module = (
-                            f"{relative_path}models.{self.code_model.enums_filename}"
-                            if relative_path != "."
-                            else f".models.{self.code_model.enums_filename}"
-                        )
-                    else:
-                        enums_module = f"{relative_path}models" if relative_path != "." else ".models"
+                    module_name = f"models.{self.code_model.enums_filename}" if self.internal else "models"
+                    enums_module = self.code_model.get_relative_import_path(
+                        serialize_namespace, self.client_namespace, module_name=module_name
+                    )
                     file_import.add_submodule_import(
                         enums_module,
                         self.name,
