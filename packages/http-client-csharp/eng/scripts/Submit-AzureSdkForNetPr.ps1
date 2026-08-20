@@ -23,6 +23,8 @@ Path to the build artifacts directory containing the published .tgz and .nupkg f
 The URL of the pipeline run that triggered this PR. When provided, it is included in the PR description for traceability.
 .PARAMETER BuildReason
 The reason the pipeline was triggered (for example, 'Manual', 'Schedule', or 'IndividualCI'). When set to 'Manual', step failures fail the pipeline instead of being downgraded to warnings and opening a PR.
+.PARAMETER UseParallelRegeneration
+When specified, SDK libraries are regenerated per library in parallel using the shared RegenPreview helpers instead of running 'dotnet msbuild service.proj /t:GenerateCode' once per service directory. This is intended for manual pipeline runs where turnaround time matters.
 #>
 [CmdletBinding(SupportsShouldProcess = $true)]
 param(
@@ -60,7 +62,10 @@ param(
   [switch]$UseTypeSpecNext,
 
   [Parameter(Mandatory = $false)]
-  [string]$BuildReason
+  [string]$BuildReason,
+
+  [Parameter(Mandatory = $false)]
+  [switch]$UseParallelRegeneration
 )
 
 # When the pipeline is triggered manually, failures should fail the pipeline with an
@@ -68,6 +73,7 @@ param(
 # false positive to reviewers. For automated (scheduled/CI) runs, keep the existing
 # behavior of reporting SucceededWithIssues and continuing.
 $FailOnError = $BuildReason -eq 'Manual'
+$isCiRun = [bool]$env:BUILD_ARTIFACTSTAGINGDIRECTORY
 
 # Tracks non-fatal step failures that were downgraded to warnings so a manual run can
 # fail before creating a pull request.
@@ -580,6 +586,11 @@ try {
                 }
             }
             
+            # Service directories whose libraries share a single code generator plugin that each
+            # library's generation builds into a common output folder. These services are regenerated
+            # serially since they share a common plugin project that shouldn't be built in parallel.
+            $serialCodeGenServiceDirectories = @("ai")
+
             # Discover service directories with tsp-location.yaml referencing any of the matched emitter patterns
             $tspLocations = Get-ChildItem -Path (Join-Path $tempDir "sdk") -Filter "tsp-location.yaml" -Recurse
             $serviceDirectories = @()
@@ -603,13 +614,42 @@ try {
 
             if ($serviceDirectories.Count -eq 0) {
                 Write-Host "No SDK libraries found matching emitter patterns. Skipping SDK regeneration."
+            } elseif ($UseParallelRegeneration) {
+                # Manual runs regenerate each library directly (in parallel) instead of building an
+                # entire service directory at a time, which is significantly faster.
+                Write-Host "##[section]Regenerating SDK libraries in parallel..."
+                $allLibraries = @(Get-SdkLibrariesToRegenerate -SdkRepoPath $tempDir)
+                $librariesToRegenerate = @(Filter-LibrariesByGenerator `
+                    -Libraries $allLibraries `
+                    -Azure:$RegenerateAzureLibraries `
+                    -Unbranded `
+                    -Mgmt:$RegenerateMgmtLibraries)
+
+                if ($librariesToRegenerate.Count -eq 0) {
+                    Write-Host "No SDK libraries found matching emitter patterns. Skipping SDK regeneration."
+                } else {
+                    $regeneratedServiceCount = @($librariesToRegenerate | ForEach-Object { $_.Service } | Sort-Object -Unique).Count
+                    Write-Host "Regenerating $($librariesToRegenerate.Count) libraries across $regeneratedServiceCount service directories"
+                    $regenerationStartTime = Get-Date
+                    $regenerationResults = @(Invoke-SdkLibraryRegeneration `
+                        -SdkRepoPath $tempDir `
+                        -Libraries $librariesToRegenerate `
+                        -AdditionalBuildArgs @("/p:Trace=true") `
+                        -SerialServiceDirectories $serialCodeGenServiceDirectories `
+                        -StopOnFailure:$isCiRun)
+
+                    Write-RegenerationReport -Results $regenerationResults -ElapsedTime ((Get-Date) - $regenerationStartTime) -PrintJson:$isCiRun
+
+                    $failedLibraries = @($regenerationResults | Where-Object { -not $_.Success })
+                    foreach ($failedLibrary in $failedLibraries) {
+                        Register-StepFailure "Code generation failed for $($failedLibrary.Path): $($failedLibrary.Error)"
+                    }
+                    if ($failedLibraries.Count -gt 0) {
+                        throw "Parallel code generation failed for $($failedLibraries.Count) libraries."
+                    }
+                }
             } else {
                 $serviceProj = Join-Path $tempDir "eng/service.proj"
-
-                # Service directories whose libraries share a single code generator plugin that each
-                # library's generation builds into a common output folder. These services are regenerated
-                # serially since they share a common plugin project that shouldn't be built in parallel.
-                $serialCodeGenServiceDirectories = @("ai")
 
                 foreach ($serviceDirectory in $serviceDirectories) {
                     Write-Host "Regenerating code for service directory: $serviceDirectory"
