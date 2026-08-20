@@ -831,9 +831,27 @@ namespace Microsoft.TypeSpec.Generator.Providers
             _declarationModifiers = null;
             // constructors might change based on declaration modifier changes
             _constructors = null;
+            // constructor instances cached separately by derived types are part of the constructor
+            // list, so they must be invalidated alongside it
+            ResetCachedConstructors();
             // serialization providers need to reflect the new type name/namespace
             _serializationProviders = null;
             Type.Update(name: name, @namespace: @namespace);
+        }
+
+        /// <summary>
+        /// Clears any individual constructor instances that this type provider caches outside of
+        /// <see cref="Constructors"/>.
+        /// </summary>
+        /// <remarks>
+        /// <see cref="BuildConstructors"/> may return cached constructor instances, and callers are free to
+        /// mutate the constructors they receive. If <see cref="Constructors"/> is invalidated without also
+        /// invalidating those caches, a subsequent rebuild reuses the same instances and re-applies any
+        /// mutation, producing duplicated members. <see cref="Reset"/> already clears both; this hook keeps
+        /// the identity-change path consistent with it.
+        /// </remarks>
+        protected virtual void ResetCachedConstructors()
+        {
         }
 
         public IReadOnlyList<EnumTypeMember> EnumValues => _enumValues ??= BuildEnumValues();

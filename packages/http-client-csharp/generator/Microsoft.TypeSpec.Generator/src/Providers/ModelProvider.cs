@@ -192,6 +192,15 @@ namespace Microsoft.TypeSpec.Generator.Providers
             _isMultiLevelDiscriminator = null;
         }
 
+        /// <inheritdoc/>
+        protected override void ResetCachedConstructors()
+        {
+            base.ResetCachedConstructors();
+            // BuildConstructors returns the cached FullConstructor instance, so it has to be invalidated
+            // together with the constructor list.
+            _fullConstructor = null;
+        }
+
         protected FieldProvider? RawDataField
         {
             get
