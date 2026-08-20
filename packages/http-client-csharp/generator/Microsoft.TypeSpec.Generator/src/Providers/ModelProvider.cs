@@ -193,7 +193,7 @@ namespace Microsoft.TypeSpec.Generator.Providers
         }
 
         /// <inheritdoc/>
-        protected override void ResetCachedConstructors()
+        private protected override void ResetCachedConstructors()
         {
             base.ResetCachedConstructors();
             // BuildConstructors returns the cached FullConstructor instance, so it has to be invalidated
