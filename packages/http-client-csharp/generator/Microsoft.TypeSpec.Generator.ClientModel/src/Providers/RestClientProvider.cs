@@ -8,6 +8,7 @@ using System.IO;
 using System.Linq;
 using Microsoft.TypeSpec.Generator.ClientModel.Primitives;
 using Microsoft.TypeSpec.Generator.ClientModel.Snippets;
+using Microsoft.TypeSpec.Generator.ClientModel.Utilities;
 using Microsoft.TypeSpec.Generator.EmitterRpc;
 using Microsoft.TypeSpec.Generator.Expressions;
 using Microsoft.TypeSpec.Generator.Input;
@@ -239,13 +240,15 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
             // Build message and all request modifications
             var messageStatements = BuildMessage(serviceMethod, signature, isNextLinkRequest);
 
-            return new ScmMethodProvider(
+            var method = new ScmMethodProvider(
                 signature,
                 messageStatements,
                 this,
                 ScmMethodKind.CreateRequest,
                 xmlDocProvider: XmlDocProvider.Empty,
                 serviceMethod: serviceMethod);
+            ExperimentalApiHelpers.AddDependencySuppressions(method, operation);
+            return method;
         }
 
         private MethodBodyStatements BuildMessage(

@@ -1768,6 +1768,66 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers
         }
 
         [Test]
+        public void ExperimentalOperationGeneratesAttributeAndDependencySuppressions()
+        {
+            MockHelpers.LoadMockGenerator();
+
+            var inputOperation = InputFactory.Operation(
+                "Bar",
+                experimental: new InputExperimentalDetails("C", ["A", "B"]));
+            var inputServiceMethod = InputFactory.BasicServiceMethod("Bar", inputOperation);
+            var inputClient = InputFactory.Client("TestClient", methods: [inputServiceMethod]);
+            var client = ScmCodeModelGenerator.Instance.TypeFactory.CreateClient(inputClient);
+
+            var methodCollection = new ScmMethodProviderCollection(inputServiceMethod, client!);
+
+            foreach (var method in methodCollection)
+            {
+                using var writer = new CodeWriter();
+                writer.WriteMethod(method);
+                var code = writer.ToString(false);
+
+                StringAssert.Contains(
+                    "[global::System.Diagnostics.CodeAnalysis.ExperimentalAttribute(\"C\")]",
+                    code);
+                StringAssert.Contains("#pragma warning disable A", code);
+                StringAssert.Contains("#pragma warning disable B", code);
+                StringAssert.Contains("#pragma warning restore A", code);
+                StringAssert.Contains("#pragma warning restore B", code);
+            }
+
+            using var createRequestWriter = new CodeWriter();
+            createRequestWriter.WriteMethod(client!.RestClient.GetCreateRequestMethod(inputOperation));
+            var createRequestCode = createRequestWriter.ToString(false);
+            StringAssert.DoesNotContain("ExperimentalAttribute", createRequestCode);
+            StringAssert.Contains("#pragma warning disable A", createRequestCode);
+            StringAssert.Contains("#pragma warning disable B", createRequestCode);
+        }
+
+        [Test]
+        public void OperationWithoutExperimentalMetadataDoesNotGenerateExperimentalCode()
+        {
+            MockHelpers.LoadMockGenerator();
+
+            var inputOperation = InputFactory.Operation("Bar");
+            var inputServiceMethod = InputFactory.BasicServiceMethod("Bar", inputOperation);
+            var inputClient = InputFactory.Client("TestClient", methods: [inputServiceMethod]);
+            var client = ScmCodeModelGenerator.Instance.TypeFactory.CreateClient(inputClient);
+
+            var methodCollection = new ScmMethodProviderCollection(inputServiceMethod, client!);
+
+            foreach (var method in methodCollection)
+            {
+                using var writer = new CodeWriter();
+                writer.WriteMethod(method);
+                var code = writer.ToString(false);
+
+                StringAssert.DoesNotContain("ExperimentalAttribute", code);
+                StringAssert.DoesNotContain("#pragma warning disable A", code);
+            }
+        }
+
+        [Test]
         public async Task CollectionResultDefinitionAddedEvenWhenPagingMethodsCustomized()
         {
             var pagingMetadata = InputFactory.PagingMetadata(
