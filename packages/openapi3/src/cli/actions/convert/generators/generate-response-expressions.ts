@@ -41,7 +41,11 @@ type GenerateReturnTypeForStatusCodeProps = {
 function generateReturnTypeForStatusCode(props: GenerateReturnTypeForStatusCodeProps): string[] {
   const { statusCode, context } = props;
 
-  if ("$ref" in props.response && props.response.$ref.startsWith("#/components/responses/")) {
+  if (
+    "$ref" in props.response &&
+    props.response.$ref.startsWith("#/components/responses/") &&
+    context.getComponentResponseStatusCode(props.response.$ref) === statusCode
+  ) {
     return [context.getRefName(props.response.$ref, props.operationScope)];
   }
 

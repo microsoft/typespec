@@ -73,6 +73,16 @@ export interface Context {
   isErrorResponseSchema(ref: string): boolean;
 
   /**
+   * Register the status code a component response model was generated for.
+   */
+  registerComponentResponseStatusCode(ref: string, statusCode: string): void;
+
+  /**
+   * Get the status code a component response model was generated for, if any.
+   */
+  getComponentResponseStatusCode(ref: string): string | undefined;
+
+  /**
    * Mark that SSE features are being used, which will trigger including SSE-related imports.
    */
   markSSEUsage(): void;
@@ -101,6 +111,9 @@ export function createContext(
 
   // Track schemas that are used as error response bodies
   const errorResponseSchemas = new Set<string>();
+
+  // Track the status code each generated component response model was created for
+  const componentResponseStatusCodes = new Map<string, string>();
 
   // Track if SSE features are used
   let sseUsed = false;
@@ -204,6 +217,12 @@ export function createContext(
     },
     isErrorResponseSchema(ref: string): boolean {
       return errorResponseSchemas.has(ref);
+    },
+    registerComponentResponseStatusCode(ref: string, statusCode: string) {
+      componentResponseStatusCodes.set(ref, statusCode);
+    },
+    getComponentResponseStatusCode(ref: string): string | undefined {
+      return componentResponseStatusCodes.get(ref);
     },
     markSSEUsage() {
       sseUsed = true;

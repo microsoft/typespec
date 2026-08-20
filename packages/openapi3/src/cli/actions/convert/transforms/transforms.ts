@@ -350,6 +350,11 @@ export function transformComponentResponses(
         const componentResponse = context.getByRef<OpenAPI3Response>(ref);
         if (!componentResponse) continue;
 
+        // The generated model bakes in the status code of the operation response it was
+        // first encountered with. Record it so responses using the same component under a
+        // different status code can be generated inline instead of reusing this model.
+        context.registerComponentResponseStatusCode(ref, statusCode);
+
         const { name, scope } = getScopeAndName(ref.slice("#/components/responses/".length));
         const namespace = [...scope];
         namespace.unshift("Responses");
