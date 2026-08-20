@@ -54,6 +54,28 @@ namespace Microsoft.TypeSpec.Generator.Tests.Utilities
             yield return new TestCaseData("expiresAt", dateTime, "expiresOn");
             yield return new TestCaseData("deletedTime", dateTime, "deletedOn");
             yield return new TestCaseData("finishedTime", dateTime, "finishedOn");
+            yield return new TestCaseData("CreationTime", dateTime, "CreatedOn");
+            yield return new TestCaseData("creationTime", dateTime, "createdOn");
+            yield return new TestCaseData("ExpirationDateTime", dateTime, "ExpireOn");
+            yield return new TestCaseData("expirationDateTime", dateTime, "expireOn");
+            yield return new TestCaseData("AccountExpirationDate", dateTime, "AccountExpirationOn");
+            yield return new TestCaseData("accountExpirationDate", dateTime, "accountExpirationOn");
+            yield return new TestCaseData("RecreationTime", dateTime, "RecreationOn");
+            yield return new TestCaseData("recreationTime", dateTime, "recreationOn");
+            yield return new TestCaseData("TotalTime", dateTime, "TotalTime");
+            yield return new TestCaseData("totalTime", dateTime, "totalTime");
+            yield return new TestCaseData("TopicTimestamp", dateTime, "TopicTimestamp");
+            yield return new TestCaseData("topicTimestamp", dateTime, "topicTimestamp");
+            yield return new TestCaseData("TokenExpirationDate", dateTime, "TokenExpirationDate");
+            yield return new TestCaseData("tokenExpirationDate", dateTime, "tokenExpirationDate");
+            yield return new TestCaseData("FromageTime", dateTime, "FromageTime");
+            yield return new TestCaseData("fromageTime", dateTime, "fromageTime");
+            yield return new TestCaseData("StatusTimestamp", dateTime, "StatusTimestamp");
+            yield return new TestCaseData("statusTimestamp", dateTime, "statusTimestamp");
+            yield return new TestCaseData("StatusTimeStamp", dateTime, "StatusTimeStamp");
+            yield return new TestCaseData("statusTimeStamp", dateTime, "statusTimeStamp");
+            yield return new TestCaseData("LastSyncTimestamp", dateTime, "LastSyncOn");
+            yield return new TestCaseData("lastSyncTimestamp", dateTime, "lastSyncOn");
             yield return new TestCaseData("stateTransitionTime", dateTime, "stateTransitionOn");
             yield return new TestCaseData("notBefore", dateTime, "notBefore");
         }

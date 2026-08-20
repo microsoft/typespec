@@ -89,12 +89,14 @@ namespace Microsoft.TypeSpec.Generator.Utilities
             internal const string LowercaseOnSuffix = "on";
             internal const string OnSuffix = "On";
             private const string PointInTimeName = "PointInTime";
+            private const string StatusTimeStampName = "StatusTimeStamp";
+            private const string StatusTimestampName = "StatusTimestamp";
             private const string TimeStampSuffix = "TimeStamp";
             private const string TimeSuffix = "Time";
             private const string TimestampSuffix = "Timestamp";
             private const string ToName = "To";
 
-            // Nouns that read better as verbs when combined with the "On" suffix, e.g. "ExpirationDate" -> "ExpireOn".
+            // Complete prefixes that read better as verbs when combined with the "On" suffix.
             private static readonly Dictionary<string, string> _nounToVerbMap = new(StringComparer.OrdinalIgnoreCase)
             {
                 ["Creation"] = "Created",
@@ -117,9 +119,13 @@ namespace Microsoft.TypeSpec.Generator.Utilities
 
             internal static bool HasExcludedComponent(string name)
             {
+                // StatusTimestamp is a semantic compound. Keep the exclusion exact so names such as
+                // LastSyncTimestamp continue to normalize.
                 return name.StartsWith(FromName, StringComparison.OrdinalIgnoreCase) ||
                     name.StartsWith(ToName, StringComparison.OrdinalIgnoreCase) ||
-                    name.EndsWith(PointInTimeName, StringComparison.OrdinalIgnoreCase);
+                    name.EndsWith(PointInTimeName, StringComparison.OrdinalIgnoreCase) ||
+                    name.Equals(StatusTimestampName, StringComparison.OrdinalIgnoreCase) ||
+                    name.Equals(StatusTimeStampName, StringComparison.OrdinalIgnoreCase);
             }
 
             internal static int GetSuffixLength(string name)

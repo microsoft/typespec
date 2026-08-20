@@ -287,11 +287,17 @@ namespace Microsoft.TypeSpec.Generator.Tests.Providers
             yield return new TestCaseData("Timestamp", dateTime, false, "On");
             yield return new TestCaseData("ExpirationDate", dateTime, false, "ExpireOn");
             yield return new TestCaseData("CreationDate", dateTime, false, "CreatedOn");
+            yield return new TestCaseData("CreationTime", dateTime, false, "CreatedOn");
+            yield return new TestCaseData("ExpirationDateTime", dateTime.WithNullable(true), false, "ExpireOn");
             yield return new TestCaseData("DeletionDateTime", dateTime, false, "DeletedOn");
             yield return new TestCaseData("AccountExpirationDate", dateTime, false, "AccountExpirationOn");
             yield return new TestCaseData("RecordedAt", InputPrimitiveType.String, false, "RecordedAt");
             yield return new TestCaseData("Date", InputPrimitiveType.PlainDate, false, "On");
             yield return new TestCaseData("SnapshotTimestamp", dateTime.WithNullable(true), false, "SnapshotOn");
+            yield return new TestCaseData("StatusTimestamp", dateTime.WithNullable(true), false, "StatusTimestamp");
+            yield return new TestCaseData("LastSyncTimestamp", dateTime, false, "LastSyncOn");
+            yield return new TestCaseData("TotalTime", dateTime, false, "TotalTime");
+            yield return new TestCaseData("TopicTimestamp", dateTime.WithNullable(true), false, "TopicTimestamp");
             yield return new TestCaseData("FromTime", dateTime, false, "FromTime");
             yield return new TestCaseData("ToDate", dateTime, false, "ToDate");
             yield return new TestCaseData("RecoveryPointInTime", dateTime, false, "RecoveryPointInTime");
