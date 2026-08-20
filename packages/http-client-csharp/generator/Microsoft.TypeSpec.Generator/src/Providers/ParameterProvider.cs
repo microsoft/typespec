@@ -6,6 +6,7 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.Diagnostics.CodeAnalysis;
 using System.Linq;
+using System.Text;
 using Microsoft.TypeSpec.Generator.Expressions;
 using Microsoft.TypeSpec.Generator.Input;
 using Microsoft.TypeSpec.Generator.Input.Extensions;
@@ -67,7 +68,20 @@ namespace Microsoft.TypeSpec.Generator.Providers
                 ? inputParameter.Name.NormalizeDateTimeSuffix()
                 : inputParameter.Name;
             Description = DocHelpers.GetFormattableDescription(inputParameter.Summary, inputParameter.Doc) ?? FormattableStringHelpers.Empty;
-            var type = CodeModelGenerator.Instance.TypeFactory.CreateCSharpType(inputParameter.Type) ?? throw new InvalidOperationException($"Failed to create CSharpType for {inputParameter.Type}");
+            var type = CodeModelGenerator.Instance.TypeFactory.CreateCSharpType(inputParameter.Type);
+            if (type is null)
+            {
+                StringBuilder sbError = new($"Failed to create CSharpType for {inputParameter.Type}, named in TypeSpec as \"{inputParameter.Name}\".");
+                if (inputParameter.EnclosingType is not null)
+                {
+                    sbError.Append($"\nEnclosing type: {inputParameter.EnclosingType.Name}");
+                }
+                if (Description is not null)
+                {
+                    sbError.Append($"\nDescription: {Description}");
+                }
+                throw new InvalidOperationException(sbError.ToString());
+            }
             if (!inputParameter.IsRequired)
             {
                 type = !type.IsCollection ? type.WithNullable(true) : type;
