@@ -98,10 +98,6 @@ class OperationBase(  # pylint: disable=too-many-public-methods,too-many-instanc
 
     @property
     def stream_value(self) -> Union[str, bool]:
-        # Structured streams (JSONL / SSE) must always run the pipeline with
-        # stream=True so the body can be consumed incrementally by Stream/AsyncStream.
-        if self.has_structured_stream_response:
-            return True
         return (
             f'kwargs.pop("stream", {self.has_stream_response})'
             if self.expose_stream_keyword and self.has_response_body and "stream" not in self.exact_name_params
@@ -515,7 +511,7 @@ class OperationBase(  # pylint: disable=too-many-public-methods,too-many-instanc
 
     @property
     def has_stream_response(self) -> bool:
-        return any(r.is_stream_response for r in self.responses)
+        return any(r.is_stream_response or getattr(r, "is_structured_stream", False) for r in self.responses)
 
     @classmethod
     def get_request_builder(cls, yaml_data: dict[str, Any], client: "Client"):
