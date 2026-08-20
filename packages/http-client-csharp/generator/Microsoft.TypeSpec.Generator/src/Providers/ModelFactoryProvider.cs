@@ -114,12 +114,14 @@ namespace Microsoft.TypeSpec.Generator.Providers
             var allFactoryMethods = factoryMethods
                .Concat(customFactoryMethods)
                .ToList();
-            HashSet<MethodSignature> currentMethodSignatures = allFactoryMethods
+            List<MethodSignature> currentMethodSignatures = allFactoryMethods
                 .Select(m => m.Signature)
-                .ToHashSet(MethodSignature.MethodSignatureComparer);
+                .ToList();
 
             var compatiblePreviousMethods = new List<MethodProvider>();
-            HashSet<MethodSignature> previousPublicSignatures = new(MethodSignature.MethodSignatureComparer);
+            List<MethodSignature> previousPublicSignatures = [];
+            List<MethodSignature> preservedPreviousSignatures = [];
+
             foreach (var previousMethod in LastContractView.Methods)
             {
                 if (!MethodSignatureHelper.IsPublicApi(previousMethod.Signature.Modifiers))
@@ -131,23 +133,22 @@ namespace Microsoft.TypeSpec.Generator.Providers
                 // a current overload that still matches one of them must never be removed.
                 previousPublicSignatures.Add(previousMethod.Signature);
 
-                if (currentMethodSignatures.Contains(previousMethod.Signature))
+                if (currentMethodSignatures.Any(current =>
+                    MethodSignature.MethodSignatureComparer.Equals(current, previousMethod.Signature)))
                 {
-                    // A method with this signature is already present, but it may have been restored
-                    // from the last contract by a library visitor before this pass ran.
-                    var restoredOverload = factoryMethods.FirstOrDefault(m =>
-                        MethodSignature.MethodSignatureComparer.Equals(m.Signature, previousMethod.Signature)
-                        && m.Signature.Attributes.Any(a =>
-                            a.Type is { IsFrameworkType: true }
-                            && a.Type.FrameworkType == typeof(System.ComponentModel.EditorBrowsableAttribute)));
-                    if (restoredOverload is not null)
+                    preservedPreviousSignatures.Add(previousMethod.Signature);
+
+                    // The current model shape may have regenerated a previously published signature
+                    // with different defaults. Restore its published required/optional boundary.
+                    var matchingCurrentMethod = factoryMethods.FirstOrDefault(m =>
+                        MethodSignature.MethodSignatureComparer.Equals(m.Signature, previousMethod.Signature));
+                    if (matchingCurrentMethod is not null)
                     {
-                        MethodSignatureHelper.RequireMinimumParameterPrefix(
-                            restoredOverload.Signature,
-                            GetCurrentOverloadSignatures(
-                                allFactoryMethods,
-                                restoredOverload.Signature.Name,
-                                restoredOverload));
+                        for (int i = 0; i < previousMethod.Signature.Parameters.Count; i++)
+                        {
+                            matchingCurrentMethod.Signature.Parameters[i].DefaultValue =
+                                previousMethod.Signature.Parameters[i].DefaultValue;
+                        }
                     }
 
                     continue;
@@ -170,6 +171,27 @@ namespace Microsoft.TypeSpec.Generator.Providers
                 }
 
                 compatiblePreviousMethods.Add(previousMethod);
+                preservedPreviousSignatures.Add(previousMethod.Signature);
+            }
+
+            // Preserve every published signature as-is and constrain only newly generated overloads.
+            // Unlike a compatibility signature, a new overload has no existing callers whose minimum
+            // argument count must be retained.
+            foreach (var currentMethod in factoryMethods)
+            {
+                if (previousPublicSignatures.Any(previous =>
+                    MethodSignature.MethodSignatureComparer.Equals(previous, currentMethod.Signature)))
+                {
+                    continue;
+                }
+
+                var previousOverloads = preservedPreviousSignatures
+                    .Where(signature => signature.Name == currentMethod.Signature.Name)
+                    .ToList();
+                MethodSignatureHelper.RequireMinimumParameterPrefix(
+                    currentMethod.Signature,
+                    previousOverloads,
+                    preservePublishedMinimumArgumentCount: false);
             }
 
             foreach (var previousMethod in compatiblePreviousMethods)
@@ -197,27 +219,29 @@ namespace Microsoft.TypeSpec.Generator.Providers
                     continue;
                 }
 
-                var compatibilityOverloadSignatures = GetCompatibilityOverloadSignatures(
-                    currentOverloadSignatures,
-                    compatiblePreviousMethods,
-                    previousMethod);
+                // Generated overloads were constrained above, so only immutable custom overloads can
+                // still force a compatibility signature to change its published optionality.
+                var compatibilityOverloadSignatures = customFactoryMethods
+                    .Select(method => method.Signature)
+                    .Where(signature =>
+                        signature.Name == previousMethod.Signature.Name
+                        && !previousPublicSignatures.Any(previous =>
+                            MethodSignature.MethodSignatureComparer.Equals(previous, signature)))
+                    .ToList();
 
                 foreach (var currentOverload in currentOverloads)
                 {
                     // If the parameter ordering is the only difference, just use the previous method.
                     if (MethodSignatureHelper.ContainsSameParameters(previousMethod.Signature, currentOverload)
-                        && !previousPublicSignatures.Contains(currentOverload))
+                        && !previousPublicSignatures.Any(previous =>
+                            MethodSignature.MethodSignatureComparer.Equals(previous, currentOverload)))
                     {
                         var factoryMethodToRemove = factoryMethods
                             .FirstOrDefault(m => MethodSignature.MethodSignatureComparer.Equals(m.Signature, currentOverload));
-                        var coexistingOverloads = GetCurrentOverloadSignatures(
+                        var coexistingCompatibilityOverloads = GetCurrentOverloadSignatures(
                             allFactoryMethods,
                             previousMethod.Signature.Name,
                             factoryMethodToRemove);
-                        var coexistingCompatibilityOverloads = GetCompatibilityOverloadSignatures(
-                            coexistingOverloads,
-                            compatiblePreviousMethods,
-                            previousMethod);
                         if (TryBuildCompatibleMethodForPreviousContract(
                             previousMethod,
                             currentOverload,
@@ -281,26 +305,7 @@ namespace Microsoft.TypeSpec.Generator.Providers
                         BackCompatibilityChangeCategory.ModelFactoryMethodSkipped);
                 }
             }
-
             return [.. factoryMethods];
-        }
-
-        private static IReadOnlyList<MethodSignature> GetCompatibilityOverloadSignatures(
-            IReadOnlyList<MethodSignature> currentOverloadSignatures,
-            IReadOnlyList<MethodProvider> compatiblePreviousMethods,
-            MethodProvider previousMethod)
-        {
-            HashSet<MethodSignature> overloadSignatures = new(MethodSignature.MethodSignatureComparer);
-            foreach (var compatiblePreviousMethod in compatiblePreviousMethods)
-            {
-                if (!ReferenceEquals(compatiblePreviousMethod, previousMethod))
-                {
-                    overloadSignatures.Add(compatiblePreviousMethod.Signature);
-                }
-            }
-
-            overloadSignatures.UnionWith(currentOverloadSignatures);
-            return [.. overloadSignatures];
         }
 
         private IReadOnlyList<MethodSignature> GetCurrentOverloadSignatures(

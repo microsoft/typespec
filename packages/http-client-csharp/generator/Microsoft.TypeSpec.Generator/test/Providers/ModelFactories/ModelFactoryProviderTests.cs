@@ -201,7 +201,7 @@ namespace Microsoft.TypeSpec.Generator.Tests.Providers.ModelFactories
             Assert.AreEqual("listProp", parameters[2].Name);
             foreach (var param in parameters)
             {
-                Assert.IsNull(param.DefaultValue);
+                Assert.IsNotNull(param.DefaultValue);
             }
 
             var currentParameters = currentOverloadMethod!.Signature.Parameters;
@@ -212,7 +212,7 @@ namespace Microsoft.TypeSpec.Generator.Tests.Providers.ModelFactories
             Assert.AreEqual("dictProp", currentParameters[3].Name);
             foreach (var param in currentParameters)
             {
-                Assert.IsNotNull(param.DefaultValue);
+                Assert.IsNull(param.DefaultValue);
             }
 
             Assert.IsTrue(parameters[0].Type.AreNamesEqual(currentParameters[0].Type));
@@ -339,11 +339,8 @@ namespace Microsoft.TypeSpec.Generator.Tests.Providers.ModelFactories
             Assert.AreEqual(Helpers.GetExpectedFromFile(), content);
         }
 
-        // Mirrors the reported Azure.ResourceManager.AppService regression: the last contract
-        // contains both the overload matching today's natural parameter order and a previously
-        // shipped overload with the discriminating parameter moved to the end. The first overload
-        // must be kept (removing it would be breaking) and the second must only require the
-        // parameter prefix needed to disambiguate it, preserving its trailing optional parameters.
+        // Mirrors the reported Azure.ResourceManager.AppService regression: both overloads already
+        // existed in the last contract, so each must retain its published optionality.
         [Test]
         public async Task BackCompatibility_ReorderedOverloadKeptWhenStillInLastContract()
         {
@@ -367,9 +364,8 @@ namespace Microsoft.TypeSpec.Generator.Tests.Providers.ModelFactories
             Assert.AreEqual(Helpers.GetExpectedFromFile(), content);
         }
 
-        // A previous signature that is a positional prefix of the current overload cannot be
-        // disambiguated by argument count, so every parameter must become required. C# then prefers
-        // the compatibility overload for an exact argument list because it needs no optional defaults.
+        // A previous signature that is a positional prefix of a new current overload cannot be
+        // disambiguated by argument count, so every parameter on the new overload must be required.
         [Test]
         public async Task BackCompatibility_PositionalPrefixOverloadRequiresAllParameters()
         {
@@ -393,10 +389,8 @@ namespace Microsoft.TypeSpec.Generator.Tests.Providers.ModelFactories
         }
 
         // The management generator's ModelFactoryVisitor restores last-contract methods verbatim during
-        // the visitor pass, which runs before back-compatibility processing. Those overloads keep every
-        // optional default they shipped with, so they can make a previously valid call ambiguous against
-        // the current method. Back-compatibility processing must reshape them just like the overloads it
-        // synthesizes itself. The restored overload is added directly here to model that visitor.
+        // the visitor pass, which runs before back-compatibility processing. The restored overload must
+        // keep its published defaults while the new generated overload acquires the required prefix.
         [Test]
         public async Task BackCompatibility_VisitorAddedOverloadRequiresMinimumPrefix()
         {
@@ -437,10 +431,8 @@ namespace Microsoft.TypeSpec.Generator.Tests.Providers.ModelFactories
             Assert.AreEqual(Helpers.GetExpectedFromFile(), content);
         }
 
-        // Two previous overloads compete with the same current method and with each other, so each
-        // needs its own prefix. The first is a positional prefix of the current method, so no argument
-        // count distinguishes them and it must become fully required; the second moved a parameter
-        // earlier, so a shorter prefix is enough and its trailing parameter stays optional.
+        // Two previous overloads compete with the same new current method. Both retain their published
+        // defaults while the new overload acquires the longest prefix needed to avoid both.
         [Test]
         public async Task BackCompatibility_MultiplePreviousOverloadsRequireIndependentPrefixes()
         {
@@ -463,6 +455,148 @@ namespace Microsoft.TypeSpec.Generator.Tests.Providers.ModelFactories
 
             var content = new TypeProviderWriter(modelFactory).Write().Content;
             Assert.AreEqual(Helpers.GetExpectedFromFile(), content);
+        }
+
+        // Overloads that shipped together in the published contract already coexisted there, so they
+        // are not new competitors for one another; only a surviving current or custom overload can
+        // introduce ambiguity that was not already present. Here 'id, count' is a positional prefix
+        // of the wider overload, so treating them as competitors would make the wider one fully
+        // required and break the previously valid call 'CompatibilityModel("i", 1, "e")'.
+        [Test]
+        public async Task BackCompatibility_CoexistingPreviousOverloadsKeepPublishedOptionality()
+        {
+            InputModelType model = InputFactory.Model("CompatibilityModel", properties:
+            [
+                InputFactory.Property("Id", InputPrimitiveType.String),
+                InputFactory.Property("Description", InputPrimitiveType.String),
+                InputFactory.Property("Name", InputPrimitiveType.String),
+            ]);
+
+            _instance = (await MockHelpers.LoadMockGeneratorAsync(
+                inputNamespaceName: "Sample.Namespace",
+                inputModelTypes: [model],
+                lastContractCompilation: async () => await Helpers.GetCompilationFromDirectoryAsync(parameters: "Last"))).Object;
+
+            var modelFactory = _instance.OutputLibrary.ModelFactory.Value;
+            modelFactory.ProcessTypeForBackCompatibility();
+            var content = new TypeProviderWriter(modelFactory).Write().Content;
+            Assert.AreEqual(Helpers.GetExpectedFromFile(), content);
+        }
+
+        // Same last-contract overloads as above but declared in the opposite order. Signatures are
+        // mutated in place, so this pins that the result does not depend on declaration order.
+        [Test]
+        public async Task BackCompatibility_CoexistingPreviousOverloadsKeepPublishedOptionalityReversed()
+        {
+            InputModelType model = InputFactory.Model("CompatibilityModel", properties:
+            [
+                InputFactory.Property("Id", InputPrimitiveType.String),
+                InputFactory.Property("Description", InputPrimitiveType.String),
+                InputFactory.Property("Name", InputPrimitiveType.String),
+            ]);
+
+            _instance = (await MockHelpers.LoadMockGeneratorAsync(
+                inputNamespaceName: "Sample.Namespace",
+                inputModelTypes: [model],
+                lastContractCompilation: async () => await Helpers.GetCompilationFromDirectoryAsync(parameters: "Last"))).Object;
+
+            var modelFactory = _instance.OutputLibrary.ModelFactory.Value;
+            modelFactory.ProcessTypeForBackCompatibility();
+
+            var content = new TypeProviderWriter(modelFactory).Write().Content;
+            Assert.AreEqual(Helpers.GetExpectedFromFile(), content);
+        }
+
+        // An all-required previous overload is only callable at exactly its own argument count, so it
+        // cannot be reached by shorter calls to a coexisting all-optional overload. Promoting the
+        // all-optional overload against it would raise its published minimum argument count and break
+        // previously valid low-arity calls, so the published optionality must be preserved. This
+        // mirrors the shipped Azure.ResourceManager.AppService 'SiteConfigProperties' shape.
+        [Test]
+        public async Task BackCompatibility_AllRequiredPreviousOverloadKeepsPublishedOptionality()
+        {
+            InputModelType model = InputFactory.Model("CompatibilityModel", properties:
+            [
+                InputFactory.Property("Id", InputPrimitiveType.String),
+                InputFactory.Property("Name", InputPrimitiveType.String),
+                InputFactory.Property("Count", new InputNullableType(InputPrimitiveType.Int32)),
+                InputFactory.Property("Kind", InputPrimitiveType.String),
+            ]);
+
+            _instance = (await MockHelpers.LoadMockGeneratorAsync(
+                inputNamespaceName: "Sample.Namespace",
+                inputModelTypes: [model],
+                lastContractCompilation: async () => await Helpers.GetCompilationFromDirectoryAsync(parameters: "Last"))).Object;
+
+            var modelFactory = _instance.OutputLibrary.ModelFactory.Value;
+            modelFactory.ProcessTypeForBackCompatibility();
+
+            var content = new TypeProviderWriter(modelFactory).Write().Content;
+            Assert.AreEqual(Helpers.GetExpectedFromFile(), content);
+        }
+
+        // A current generated overload can have the same signature as a previously published overload
+        // while acquiring different defaults from the current model shape. Preserve the published
+        // required boundary on that overload and the published optionality on its reordered companion
+        // rather than swapping their callability.
+        [Test]
+        public async Task BackCompatibility_PublishedOverloadBoundariesArePreserved()
+        {
+            InputModelType model = InputFactory.Model("CompatibilityModel", properties:
+            [
+                InputFactory.Property("Id", InputPrimitiveType.String),
+                InputFactory.Property("Allow", new InputNullableType(InputPrimitiveType.Boolean)),
+                InputFactory.Property("Kind", InputPrimitiveType.String),
+            ]);
+
+            _instance = (await MockHelpers.LoadMockGeneratorAsync(
+                inputNamespaceName: "Sample.Namespace",
+                inputModelTypes: [model],
+                lastContractCompilation: async () => await Helpers.GetCompilationFromDirectoryAsync(parameters: "Last"))).Object;
+
+            var modelFactory = _instance.OutputLibrary.ModelFactory.Value;
+            modelFactory.ProcessTypeForBackCompatibility();
+
+            var currentOverload = modelFactory.Methods.Single(m =>
+                m.Signature.Name == "CompatibilityModel"
+                && m.Signature.Parameters[1].Name == "allow");
+            var compatibilityOverload = modelFactory.Methods.Single(m =>
+                m.Signature.Name == "CompatibilityModel"
+                && m.Signature.Parameters[1].Name == "kind");
+
+            Assert.IsTrue(currentOverload.Signature.Parameters.All(p => p.DefaultValue is null));
+            Assert.IsTrue(compatibilityOverload.Signature.Parameters.All(p => p.DefaultValue is not null));
+        }
+
+        // The newly generated overload did not exist in the previous contract, so it can acquire the
+        // required prefix needed for disambiguation. The previous overload must remain fully optional
+        // so calls using its unique parameter names continue to compile.
+        [Test]
+        public async Task BackCompatibility_NewOverloadIsConstrainedToPreservePublishedNamedArguments()
+        {
+            InputModelType model = InputFactory.Model("CompatibilityModel", properties:
+            [
+                InputFactory.Property("Id", InputPrimitiveType.String),
+                InputFactory.Property("Properties", new InputNullableType(InputPrimitiveType.Int32)),
+            ]);
+
+            _instance = (await MockHelpers.LoadMockGeneratorAsync(
+                inputNamespaceName: "Sample.Namespace",
+                inputModelTypes: [model],
+                lastContractCompilation: async () => await Helpers.GetCompilationFromDirectoryAsync(parameters: "Last"))).Object;
+
+            var modelFactory = _instance.OutputLibrary.ModelFactory.Value;
+            modelFactory.ProcessTypeForBackCompatibility();
+
+            var currentOverload = modelFactory.Methods.Single(m =>
+                m.Signature.Name == "CompatibilityModel"
+                && m.Signature.Parameters.Count == 2);
+            var compatibilityOverload = modelFactory.Methods.Single(m =>
+                m.Signature.Name == "CompatibilityModel"
+                && m.Signature.Parameters.Count == 3);
+
+            Assert.IsTrue(currentOverload.Signature.Parameters.All(p => p.DefaultValue is null));
+            Assert.IsTrue(compatibilityOverload.Signature.Parameters.All(p => p.DefaultValue is not null));
         }
 
         // This test validates that only the previous model factory methods are generated when only the parameter ordering is changed
@@ -860,8 +994,10 @@ namespace Microsoft.TypeSpec.Generator.Tests.Providers.ModelFactories
             Assert.AreEqual("listProp", parameters[2].Name);
             foreach (var param in parameters)
             {
-                Assert.IsNull(param.DefaultValue);
+                Assert.IsNotNull(param.DefaultValue);
             }
+
+            Assert.IsTrue(currentParameters.All(p => p.DefaultValue is null));
 
             // The backcompat overload's body instantiates the model directly because the previous
             // parameter names (oldStringProp, oldModelProp) do not match any current property name.

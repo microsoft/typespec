@@ -15,7 +15,7 @@ namespace Sample.Namespace
         }
 
         [global::System.ComponentModel.EditorBrowsableAttribute(global::System.ComponentModel.EditorBrowsableState.Never)]
-        public static global::Sample.Models.CompatibilityModel CompatibilityModel(string id, string image, bool? isMain, string kind = default)
+        public static global::Sample.Models.CompatibilityModel CompatibilityModel(string id = default, string image = default, bool? isMain = default, string kind = default)
         {
             return new global::Sample.Models.CompatibilityModel(id, kind, image, isMain, additionalBinaryDataProperties: null);
         }

@@ -89,11 +89,15 @@ namespace Microsoft.TypeSpec.Generator
         /// </summary>
         internal static void RequireMinimumParameterPrefix(
             MethodSignature signature,
-            IReadOnlyList<MethodSignature>? currentMethodSignatures = null)
+            IReadOnlyList<MethodSignature>? currentMethodSignatures = null,
+            bool preservePublishedMinimumArgumentCount = true)
         {
             int requiredParameterCount = currentMethodSignatures is null
                 ? signature.Parameters.Count
-                : GetMinimumRequiredParameterCount(signature, currentMethodSignatures);
+                : GetMinimumRequiredParameterCount(
+                    signature,
+                    currentMethodSignatures,
+                    preservePublishedMinimumArgumentCount);
 
             for (int i = 0; i < requiredParameterCount; i++)
             {
@@ -124,17 +128,21 @@ namespace Microsoft.TypeSpec.Generator
         }
 
         private static int GetMinimumRequiredParameterCount(
-            MethodSignature previousMethodSignature,
-            IReadOnlyList<MethodSignature> currentMethodSignatures)
+            MethodSignature targetMethodSignature,
+            IReadOnlyList<MethodSignature> competingMethodSignatures,
+            bool preservePublishedMinimumArgumentCount)
         {
             int requiredParameterCount = 0;
-            foreach (var currentMethodSignature in currentMethodSignatures)
+            foreach (var competingMethodSignature in competingMethodSignatures)
             {
-                if (currentMethodSignature.Name == previousMethodSignature.Name)
+                if (competingMethodSignature.Name == targetMethodSignature.Name)
                 {
                     requiredParameterCount = Math.Max(
                         requiredParameterCount,
-                        GetMinimumRequiredParameterCount(previousMethodSignature, currentMethodSignature));
+                        GetMinimumRequiredParameterCount(
+                            targetMethodSignature,
+                            competingMethodSignature,
+                            preservePublishedMinimumArgumentCount));
                 }
             }
 
@@ -142,45 +150,54 @@ namespace Microsoft.TypeSpec.Generator
         }
 
         private static int GetMinimumRequiredParameterCount(
-            MethodSignature previousMethodSignature,
-            MethodSignature currentMethodSignature)
+            MethodSignature targetMethodSignature,
+            MethodSignature competingMethodSignature,
+            bool preservePublishedMinimumArgumentCount)
         {
-            if (currentMethodSignature.Parameters.Any(p => p.IsRef || p.IsOut))
+            if (competingMethodSignature.Parameters.Any(p => p.IsRef || p.IsOut))
             {
                 return 0;
             }
 
-            int previousMinimumArgumentCount = GetMinimumArgumentCount(previousMethodSignature);
-            int currentMinimumArgumentCount = GetMinimumArgumentCount(currentMethodSignature);
-            int currentMaximumArgumentCount = currentMethodSignature.Parameters.Any(p => p.IsParams)
+            int targetMinimumArgumentCount = GetMinimumArgumentCount(targetMethodSignature);
+            int competingMinimumArgumentCount = GetMinimumArgumentCount(competingMethodSignature);
+            int competingMaximumArgumentCount = competingMethodSignature.Parameters.Any(p => p.IsParams)
                 ? int.MaxValue
-                : currentMethodSignature.Parameters.Count;
+                : competingMethodSignature.Parameters.Count;
 
-            // No argument count can reach both overloads, so the previous signature is already
-            // unambiguous and keeps the optionality it was published with.
-            if (Math.Max(previousMinimumArgumentCount, currentMinimumArgumentCount) >
-                Math.Min(previousMethodSignature.Parameters.Count, currentMaximumArgumentCount))
+            // No argument count can reach both overloads, so the target needs no additional
+            // required parameters.
+            if (Math.Max(targetMinimumArgumentCount, competingMinimumArgumentCount) >
+                Math.Min(targetMethodSignature.Parameters.Count, competingMaximumArgumentCount))
+            {
+                return 0;
+            }
+
+            // When the target is a published signature, do not raise its minimum argument count to
+            // address overlap with a competitor that cannot apply to its shorter calls.
+            if (preservePublishedMinimumArgumentCount &&
+                competingMinimumArgumentCount > targetMinimumArgumentCount)
             {
                 return 0;
             }
 
             // Require only the prefix up to and including the first position whose parameter type
-            // differs. Any call supplying that many arguments can no longer bind to the current
+            // differs. Any call supplying that many arguments can no longer bind to the competing
             // overload, so every trailing parameter keeps the optionality it had previously.
             int overlappingParameterCount = Math.Min(
-                previousMethodSignature.Parameters.Count,
-                currentMethodSignature.Parameters.Count);
+                targetMethodSignature.Parameters.Count,
+                competingMethodSignature.Parameters.Count);
             for (int i = 0; i < overlappingParameterCount; i++)
             {
-                if (!previousMethodSignature.Parameters[i].Type.AreNamesEqual(currentMethodSignature.Parameters[i].Type))
+                if (!targetMethodSignature.Parameters[i].Type.AreNamesEqual(competingMethodSignature.Parameters[i].Type))
                 {
-                    return Math.Max(i + 1, previousMinimumArgumentCount);
+                    return Math.Max(i + 1, targetMinimumArgumentCount);
                 }
             }
 
             // The shorter signature is a positional prefix of the other, so no argument count
             // distinguishes them. Fall back to requiring every parameter.
-            return previousMethodSignature.Parameters.Count;
+            return targetMethodSignature.Parameters.Count;
         }
 
         private static int GetMinimumArgumentCount(MethodSignature methodSignature)

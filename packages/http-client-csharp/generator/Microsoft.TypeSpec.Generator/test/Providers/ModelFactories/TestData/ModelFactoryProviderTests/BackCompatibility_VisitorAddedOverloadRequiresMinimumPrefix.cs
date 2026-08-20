@@ -9,7 +9,7 @@ namespace Sample.Namespace
 {
     public static partial class SampleNamespaceModelFactory
     {
-        public static global::Sample.Models.CompatibilityModel CompatibilityModel(string id = default, string name = default, string image = default, string targetPort = default, bool? isMain = default, string kind = default)
+        public static global::Sample.Models.CompatibilityModel CompatibilityModel(string id, string name, string image, string targetPort, bool? isMain, string kind = default)
         {
             return new global::Sample.Models.CompatibilityModel(
                 id,
@@ -22,7 +22,7 @@ namespace Sample.Namespace
         }
 
         [global::System.ComponentModel.EditorBrowsableAttribute(global::System.ComponentModel.EditorBrowsableState.Never)]
-        public static global::Sample.Models.CompatibilityModel CompatibilityModel(string id, string name, string kind, string image, string targetPort, bool? isMain = default)
+        public static global::Sample.Models.CompatibilityModel CompatibilityModel(string id = default, string name = default, string kind = default, string image = default, string targetPort = default, bool? isMain = default)
         {
             throw null;
         }

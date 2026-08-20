@@ -409,6 +409,36 @@ namespace Microsoft.TypeSpec.Generator.Tests.Shared
             Assert.IsNotNull(backCompatSignature.Parameters[3].DefaultValue);
         }
 
+        // A competitor that cannot be called with as few arguments as the previous signature only
+        // overlaps it at higher argument counts. Promotion raises the previous signature's minimum
+        // callable argument count, so it would break previously valid calls that were never
+        // ambiguous. Keep the published optionality instead.
+        [Test]
+        public void BuildBackCompatMethodSignature_AllRequiredCompetitorPreservesPublishedOptionality()
+        {
+            var previousSignature = CreateMethodSignature("CompatibilityModel",
+                new ParameterProvider("id", $"", typeof(string), defaultValue: Default),
+                new ParameterProvider("name", $"", typeof(string), defaultValue: Default),
+                new ParameterProvider("count", $"", typeof(int?), defaultValue: Default),
+                new ParameterProvider("kind", $"", typeof(string), defaultValue: Default));
+            // Every parameter is required, so this overload is only callable with exactly three
+            // arguments and can never be reached by a shorter call.
+            var currentSignature = CreateMethodSignature("CompatibilityModel",
+                new ParameterProvider("id", $"", typeof(string)),
+                new ParameterProvider("flag", $"", typeof(bool?)),
+                new ParameterProvider("count", $"", typeof(int?)));
+
+            var backCompatSignature = MethodSignatureHelper.BuildBackCompatMethodSignature(
+                previousSignature,
+                hideMethod: true,
+                currentMethodSignatures: [currentSignature]);
+
+            foreach (var parameter in backCompatSignature.Parameters)
+            {
+                Assert.IsNotNull(parameter.DefaultValue);
+            }
+        }
+
         [Test]
         public void BuildBackCompatMethodSignature_WithOverloads_HideMethodFalse_RemovesDefaultsWithoutEditorBrowsable()
         {
