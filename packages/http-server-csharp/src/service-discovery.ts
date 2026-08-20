@@ -1,5 +1,6 @@
 import type { Interface } from "@typespec/compiler";
 import {
+  getNamespaceFullName,
   isStdNamespace,
   isTemplateDeclaration,
   listServices,
@@ -104,29 +105,22 @@ export function getServiceInterfaces(
 }
 
 /**
- * Gets the full service namespace name from the program (e.g., "Microsoft.Contoso").
+ * Gets the service namespace declared with `@service`.
+ *
+ * For programs without an explicit service, falls back to the first non-standard
+ * namespace with content to preserve standalone model-emission behavior.
  */
-export function getServiceNamespaceName(
+export function getServiceNamespace(
   program: ReturnType<typeof useTsp>["$"]["program"],
-): string | undefined {
+): TspNamespace | undefined {
+  const service = listServices(program)[0];
+  if (service) return service.type;
+
   const globalNs = program.getGlobalNamespaceType();
 
-  function getFullName(ns: TspNamespace): string {
-    const parts: string[] = [];
-    let current: TspNamespace | undefined = ns;
-    while (current && current !== globalNs) {
-      parts.unshift(current.name);
-      current = current.namespace;
-    }
-    return parts.join(".");
-  }
-
-  // Find the service namespace (deepest non-std namespace in the first branch)
   function findServiceNs(ns: TspNamespace): TspNamespace | undefined {
     for (const child of ns.namespaces.values()) {
       if (isStdNamespace(child)) continue;
-      // If this namespace has content (models, interfaces, operations, enums), use it
-      // Otherwise, recurse deeper
       const hasContent =
         child.models.size > 0 ||
         child.interfaces.size > 0 ||
@@ -140,8 +134,17 @@ export function getServiceNamespaceName(
     return undefined;
   }
 
-  const serviceNs = findServiceNs(globalNs);
+  return findServiceNs(globalNs);
+}
+
+/**
+ * Gets the full service namespace name from the program (e.g., "Microsoft.Contoso").
+ */
+export function getServiceNamespaceName(
+  program: ReturnType<typeof useTsp>["$"]["program"],
+): string | undefined {
+  const serviceNs = getServiceNamespace(program);
   if (!serviceNs) return undefined;
-  const fullName = getFullName(serviceNs);
+  const fullName = getNamespaceFullName(serviceNs);
   return getCSharpIdentifier(fullName, NameCasingType.Namespace);
 }

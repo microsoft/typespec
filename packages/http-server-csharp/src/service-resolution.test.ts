@@ -34,6 +34,25 @@ it("excludes models declared outside the service namespace that are not referenc
   expect(resolution.models.map((m) => m.name).sort()).toEqual(["Used", "Widget"]);
 });
 
+it("uses the declared service namespace instead of imported namespaces with content", async () => {
+  const resolution = await resolve(`
+    namespace Azure.ClientGenerator.Core {
+      model ClientOptions {}
+      enum Usage { input, output }
+    }
+
+    @service
+    namespace Azure.AI.Projects {
+      model Widget { id: string; }
+      op read(): Widget;
+    }
+  `);
+
+  expect(resolution.serviceNamespace?.name).toBe("Projects");
+  expect(resolution.serviceNamespaceName).toBe("Azure.Ai.Projects");
+  expect(resolution.models.map((m) => m.name)).toEqual(["Widget"]);
+});
+
 it("excludes enums and union enums declared outside the service namespace that are not referenced", async () => {
   const resolution = await resolve(`
     namespace Other {

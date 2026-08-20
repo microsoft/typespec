@@ -25,13 +25,13 @@ import {
 import {
   getDeclarationNamespaces,
   getServiceInterfaces,
+  getServiceNamespace,
   getServiceNamespaceName,
 } from "./service-discovery.js";
-import { findServiceNamespace } from "./utils/namespace-utils.js";
 
 /** All resolved service types, computed once before rendering. */
 export interface ServiceTypeResolution {
-  /** The service namespace (first non-std namespace with content). */
+  /** The namespace declared with `@service`, or the standalone namespace fallback. */
   serviceNamespace: TspNamespace | undefined;
   /** The C#-normalized service namespace name. */
   serviceNamespaceName: string | undefined;
@@ -79,10 +79,8 @@ export function resolveServiceTypes(
 ): ServiceTypeResolution {
   resetAnonymousModels();
 
-  const globalNs = program.getGlobalNamespaceType();
-
   // Phase 1: Service namespace
-  const serviceNamespace = findServiceNamespace(globalNs);
+  const serviceNamespace = getServiceNamespace(program);
   const serviceNamespaceName = getServiceNamespaceName(program);
   const declarationNamespaces = getDeclarationNamespaces(program);
 

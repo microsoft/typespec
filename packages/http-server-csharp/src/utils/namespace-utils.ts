@@ -1,4 +1,4 @@
-import { isStdNamespace, type Namespace as TspNamespace } from "@typespec/compiler";
+import type { Namespace as TspNamespace } from "@typespec/compiler";
 
 /**
  * Gets the sub-namespace path of a type's namespace relative to the service namespace.
@@ -37,26 +37,4 @@ export function getSubNamespaceParts(
   }
 
   return typeParts.slice(serviceParts.length).map((ns) => ns.name);
-}
-
-/**
- * Finds the service namespace (the first namespace with content).
- */
-export function findServiceNamespace(globalNs: TspNamespace): TspNamespace | undefined {
-  function findServiceNs(ns: TspNamespace): TspNamespace | undefined {
-    for (const child of ns.namespaces.values()) {
-      if (isStdNamespace(child)) continue;
-      const hasContent =
-        child.models.size > 0 ||
-        child.interfaces.size > 0 ||
-        child.operations.size > 0 ||
-        child.enums.size > 0;
-      if (hasContent) return child;
-      const deeper = findServiceNs(child);
-      if (deeper) return deeper;
-      return child;
-    }
-    return undefined;
-  }
-  return findServiceNs(globalNs);
 }

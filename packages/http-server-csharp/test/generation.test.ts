@@ -1451,13 +1451,13 @@ it("Handles user-defined model templates", async () => {
     [
       [
         "IMyServiceOperations.cs",
-        ["interface IMyServiceOperations", "Task<ResponsePageToy> FooAsync();"],
+        ["interface IMyServiceOperations", "Task<MyService.ResponsePageToy> FooAsync();"],
       ],
       [
         "MyServiceOperationsController.cs",
         [
           "public partial class MyServiceOperationsController : ControllerBase",
-          "[ProducesResponseType((int)HttpStatusCode.OK, Type = typeof(ResponsePageToy))]",
+          "[ProducesResponseType((int)HttpStatusCode.OK, Type = typeof(MyService.ResponsePageToy))]",
           "public virtual async Task<IActionResult> Foo()",
         ],
       ],
