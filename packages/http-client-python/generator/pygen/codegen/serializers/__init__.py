@@ -526,7 +526,7 @@ class JinjaSerializer(ReaderAndWriter):
             )
 
         # write _utils/streaming_base.py (vendored Stream/AsyncStream + JSONL/SSE decoders)
-        if self.code_model.need_streaming_base:
+        if self.code_model.has_structured_stream:
             self.write_file(
                 utils_folder_path / Path("streaming_base.py"),
                 general_serializer.serialize_streaming_base_file(),
