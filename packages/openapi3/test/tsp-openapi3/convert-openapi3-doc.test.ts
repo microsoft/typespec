@@ -105,6 +105,16 @@ describe.each(versions)("convertOpenAPI3Document v%s", (version) => {
             },
           },
         },
+        "/other-endpoint": {
+          get: {
+            operationId: "otherEndpoint",
+            responses: {
+              "429": {
+                $ref: "#/components/responses/TooManyRequests",
+              },
+            },
+          },
+        },
       },
       components: {
         responses: {
@@ -143,16 +153,38 @@ describe.each(versions)("convertOpenAPI3Document v%s", (version) => {
       },
     } as any);
 
-    strictEqual(tsp.includes("namespace Responses"), true, "Expected generated response namespace: " + tsp);
+    strictEqual(
+      tsp.includes("namespace Responses"),
+      true,
+      "Expected generated response namespace: " + tsp,
+    );
     strictEqual(tsp.includes("model TooManyRequests {"), true, "Expected response model: " + tsp);
-    strictEqual(tsp.includes("@statusCode statusCode"), true, "Expected status code property: " + tsp);
-    strictEqual(tsp.includes('@header("Retry-After")'), true, "Expected retry-after header: " + tsp);
+    strictEqual(
+      tsp.includes("@statusCode statusCode"),
+      true,
+      "Expected status code property: " + tsp,
+    );
+    strictEqual(
+      tsp.includes('@header("Retry-After")'),
+      true,
+      "Expected retry-after header: " + tsp,
+    );
     strictEqual(tsp.includes("@body body:"), true, "Expected response body property: " + tsp);
     strictEqual(tsp.includes("ErrorResponse"), true, "Expected body schema reference: " + tsp);
     strictEqual(
       tsp.includes("op endpoint(): Responses.TooManyRequests;"),
       true,
       "Expected operation to use the generated response model: " + tsp,
+    );
+    strictEqual(
+      tsp.includes("op otherEndpoint(): Responses.TooManyRequests;"),
+      true,
+      "Expected second operation to use the generated response model: " + tsp,
+    );
+    strictEqual(
+      tsp.split("model TooManyRequests {").length - 1,
+      1,
+      "Expected the shared component response model to be generated once: " + tsp,
     );
   });
 
