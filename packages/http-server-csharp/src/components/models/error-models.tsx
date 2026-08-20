@@ -3,8 +3,12 @@ import type { ParameterProps } from "@alloy-js/csharp";
 import * as cs from "@alloy-js/csharp";
 import { isErrorModel, type Model, type Program } from "@typespec/compiler";
 import { $ } from "@typespec/compiler/typekit";
+import { getNullableUnionInnerType } from "@typespec/emitter-framework/csharp";
 import { getHeaderFieldName, isHeader, isStatusCode } from "@typespec/http";
-import { TypeExpression } from "../type-expression/type-expression.jsx";
+import {
+  getNullableValueTypeUnionInnerType,
+  TypeExpression,
+} from "../type-expression/type-expression.jsx";
 import {
   getAllProperties,
   getCSharpTypeString,
@@ -65,10 +69,23 @@ export function getErrorConstructor(program: Program, model: Model, className: s
     ) : (
       getCSharpTypeString(program, prop.type)
     );
+    const nullableUnionInnerType =
+      prop.type.kind === "Union" ? getNullableUnionInnerType(prop.type) : undefined;
+    const typeExpressionIncludesNullable =
+      getNullableValueTypeUnionInnerType(tk, prop.type) !== undefined;
+    const needsNullable =
+      !typeExpressionIncludesNullable && (prop.optional || nullableUnionInnerType !== undefined);
+    const parameterType = needsNullable ? (
+      <>
+        {csharpType}?
+      </>
+    ) : (
+      csharpType
+    );
     const defaultStr = defaultValue ? defaultValue : prop.optional ? "default" : undefined;
     parameters.push({
       name: prop.name,
-      type: csharpType,
+      type: parameterType,
       default: defaultStr,
     });
     bodyParts.push(`${propName} = ${prop.name};`);

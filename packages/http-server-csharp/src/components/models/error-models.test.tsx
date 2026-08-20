@@ -50,11 +50,13 @@ it("maps structured error constructor parameters to their property types", async
     @error
     model ${t.model("ApiError")} {
       message: string;
+      context: string | null;
       param?: string;
       details?: ApiError[];
       additionalInfo?: Record<unknown>;
       counts?: Record<int32>;
       pair?: [string, string];
+      count?: int32;
       retryAfter?: int32 | null;
     }
   `);
@@ -70,23 +72,27 @@ it("maps structured error constructor parameters to their property types", async
     {
         public ApiError(
             string message,
-            string param = default,
-            ApiError[] details = default,
-            JsonObject additionalInfo = default,
-            IDictionary<string, int> counts = default,
-            string[] pair = default,
+            string? context,
+            string? param = default,
+            ApiError[]? details = default,
+            JsonObject? additionalInfo = default,
+            IDictionary<string, int>? counts = default,
+            string[]? pair = default,
+            int? count = default,
             int? retryAfter = default
         ) : base(
             400,
-            value: new { message = message, param = param, details = details, additionalInfo = additionalInfo, counts = counts, pair = pair, retryAfter = retryAfter }
+            value: new { message = message, context = context, param = param, details = details, additionalInfo = additionalInfo, counts = counts, pair = pair, count = count, retryAfter = retryAfter }
         )
         {
             MessageProp = message;
+            Context = context;
             Param = param;
             Details = details;
             AdditionalInfo = additionalInfo;
             Counts = counts;
             Pair = pair;
+            Count = count;
             RetryAfter = retryAfter;
         }
     }
@@ -117,5 +123,5 @@ it("adds the JsonObject using for inherited record error constructor parameters"
 
   expect(apiErrorFile).toBeDefined();
   expect(apiErrorFile).toContain("using System.Text.Json.Nodes;");
-  expect(apiErrorFile).toContain("IDictionary<string, JsonObject> nestedData = default");
+  expect(apiErrorFile).toContain("IDictionary<string, JsonObject>? nestedData = default");
 });

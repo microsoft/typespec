@@ -3113,7 +3113,7 @@ describe("emit correct code for `@error` models", () => {
         `public Error(`,
         `string code,`,
         `string message,`,
-        `string optionalMessage = default,`,
+        `string? optionalMessage = default,`,
         `string defined = "default message"`,
         `) : base(200, value: new { code = code, message = message, optionalMessage = optionalMessage, defined = defined })`,
       ],
