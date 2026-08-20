@@ -195,8 +195,16 @@ namespace Microsoft.TypeSpec.Generator
                 }
             }
 
-            // The shorter signature is a positional prefix of the other, so no argument count
-            // distinguishes them. Fall back to requiring every parameter.
+            // The competitor is a strict positional prefix of the target. Requiring one parameter
+            // beyond the competitor's maximum arity makes their applicable argument counts disjoint
+            // while preserving every remaining trailing default on the target.
+            if (targetMethodSignature.Parameters.Count > competingMaximumArgumentCount)
+            {
+                return Math.Max(competingMaximumArgumentCount + 1, targetMinimumArgumentCount);
+            }
+
+            // The target is a positional prefix of the competitor, so it cannot require one more
+            // argument than the competitor accepts. Fall back to requiring every target parameter.
             return targetMethodSignature.Parameters.Count;
         }
 

@@ -388,6 +388,32 @@ namespace Microsoft.TypeSpec.Generator.Tests.Providers.ModelFactories
             Assert.AreEqual(Helpers.GetExpectedFromFile(), content);
         }
 
+        // When the previous signature is a strict positional prefix of a longer new overload,
+        // requiring one parameter beyond the previous signature makes their applicable argument
+        // counts disjoint. Parameters after that boundary must retain their optionality.
+        [Test]
+        public async Task BackCompatibility_LongPositionalPrefixOverloadPreservesTrailingOptionality()
+        {
+            InputModelType model = InputFactory.Model("CompatibilityModel", properties:
+            [
+                InputFactory.Property("Id", InputPrimitiveType.String),
+                InputFactory.Property("Name", InputPrimitiveType.String),
+                InputFactory.Property("Count", new InputNullableType(InputPrimitiveType.Int32)),
+                InputFactory.Property("Description", InputPrimitiveType.String),
+            ]);
+
+            _instance = (await MockHelpers.LoadMockGeneratorAsync(
+                inputNamespaceName: "Sample.Namespace",
+                inputModelTypes: [model],
+                lastContractCompilation: async () => await Helpers.GetCompilationFromDirectoryAsync(parameters: "Last"))).Object;
+
+            var modelFactory = _instance.OutputLibrary.ModelFactory.Value;
+            modelFactory.ProcessTypeForBackCompatibility();
+
+            var content = new TypeProviderWriter(modelFactory).Write().Content;
+            Assert.AreEqual(Helpers.GetExpectedFromFile(), content);
+        }
+
         // The management generator's ModelFactoryVisitor restores last-contract methods verbatim during
         // the visitor pass, which runs before back-compatibility processing. The restored overload must
         // keep its published defaults while the new generated overload acquires the required prefix.
