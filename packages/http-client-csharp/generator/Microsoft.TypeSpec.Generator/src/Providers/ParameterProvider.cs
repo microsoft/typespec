@@ -69,14 +69,14 @@ namespace Microsoft.TypeSpec.Generator.Providers
             var type = CodeModelGenerator.Instance.TypeFactory.CreateCSharpType(inputParameter.Type);
             if (type is null)
             {
-                StringBuilder sbError = new($"Failed to create CSharpType for {inputParameter.Type}, named in a TypeSpec as \"{inputParameter.Name}\".");
+                StringBuilder sbError = new($"Failed to create CSharpType for {inputParameter.Type}, named in TypeSpec as \"{inputParameter.Name}\".");
                 if (inputParameter.EnclosingType is not null)
                 {
-                    sbError.Append($"Enclosing type: {inputParameter.EnclosingType.Name}");
+                    sbError.Append($"\nEnclosing type: {inputParameter.EnclosingType.Name}");
                 }
                 if (Description is not null)
                 {
-                    sbError.Append($"Description: {Description}");
+                    sbError.Append($"\nDescription: {Description}");
                 }
                 throw new InvalidOperationException(sbError.ToString());
             }
