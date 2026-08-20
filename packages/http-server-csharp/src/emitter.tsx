@@ -31,13 +31,18 @@ export async function $onEmit(context: EmitContext<CSharpServiceEmitterOptions>)
   const scalarOverrides = createServerScalarOverrides(tk);
   const options = context.options;
   const collectionType = options["collection-type"] ?? "array";
+  const modelsOnly = options["output-type"] === "models";
   const emitMocks =
-    options["emit-mocks"] === "mocks-only" || options["emit-mocks"] === "mocks-and-project-files";
-  const emitProjectFiles = options["emit-mocks"] === "mocks-and-project-files";
-  const useSwaggerUI = options["use-swaggerui"] ?? false;
+    !modelsOnly &&
+    (options["emit-mocks"] === "mocks-only" ||
+      options["emit-mocks"] === "mocks-and-project-files");
+  const emitProjectFiles = !modelsOnly && options["emit-mocks"] === "mocks-and-project-files";
+  const useSwaggerUI = !modelsOnly && (options["use-swaggerui"] ?? false);
 
   // Resolve all service types in a single pass
-  const resolution = resolveServiceTypes(context.program, tk, canonicalizer);
+  const resolution = resolveServiceTypes(context.program, tk, canonicalizer, {
+    canonicalizeOperations: !modelsOnly,
+  });
   const serviceName = resolution.serviceNamespaceName ?? "ServiceProject";
   const projectName = options["project-name"] ?? "ServiceProject";
 
@@ -84,16 +89,20 @@ export async function $onEmit(context: EmitContext<CSharpServiceEmitterOptions>)
                       serviceNamespace={resolution.serviceNamespace}
                     />
                   </SourceDirectory>
-                  <ControllersAndInterfaces
-                    interfaces={resolution.interfaces}
-                    canonicalOpsMap={resolution.canonicalOpsMap}
-                  />
+                  <Show when={!modelsOnly}>
+                    <ControllersAndInterfaces
+                      interfaces={resolution.interfaces}
+                      canonicalOpsMap={resolution.canonicalOpsMap}
+                    />
+                  </Show>
                 </SourceDirectory>
-                <ProgramCs
-                  hasMocks={emitMocks}
-                  useSwaggerUI={effectiveUseSwaggerUI}
-                  openApiPath={openApiPath}
-                />
+                <Show when={!modelsOnly}>
+                  <ProgramCs
+                    hasMocks={emitMocks}
+                    useSwaggerUI={effectiveUseSwaggerUI}
+                    openApiPath={openApiPath}
+                  />
+                </Show>
                 <Show when={emitMocks}>
                   <MockImplementations
                     interfaces={resolution.interfaces}
@@ -105,10 +114,12 @@ export async function $onEmit(context: EmitContext<CSharpServiceEmitterOptions>)
                   <LaunchSettings httpPort={httpPort} httpsPort={httpsPort} />
                   <AppSettings />
                 </Show>
-                <Documentation
-                  interfaceNames={emitMocks ? interfaceNames : []}
-                  useSwaggerUI={useSwaggerUI}
-                />
+                <Show when={!modelsOnly}>
+                  <Documentation
+                    interfaceNames={emitMocks ? interfaceNames : []}
+                    useSwaggerUI={useSwaggerUI}
+                  />
+                </Show>
               </Namespace>
               <SourceDirectory path="generated">
                 <JsonConverters />

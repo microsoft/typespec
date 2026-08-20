@@ -2,7 +2,7 @@ import { Tester } from "#test/tester.js";
 import { t, type TesterInstance } from "@typespec/compiler/testing";
 import { $ } from "@typespec/compiler/typekit";
 import { HttpCanonicalizer } from "@typespec/http-canonicalization";
-import { beforeEach, expect, it } from "vitest";
+import { beforeEach, expect, it, vi } from "vitest";
 import { resolveServiceTypes, type ServiceTypeResolution } from "./service-resolution.js";
 
 let runner: TesterInstance;
@@ -131,6 +131,29 @@ it("tracks the exact source operation for each canonical operation", async () =>
   expect(canonicalOperation).toBeDefined();
   expect(resolution.canonicalOperationSourceMap.get(canonicalOperation!)).toBe(read);
   expect([...resolution.canonicalOpsMap.values()].flat()).toContain(canonicalOperation);
+});
+
+it("skips operation canonicalization when it is disabled", async () => {
+  await runner.compile(`
+    @service
+    namespace Contoso {
+      model Widget { id: string; }
+      op read(): Widget;
+    }
+  `);
+  const tk = $(runner.program);
+  const canonicalizer = new HttpCanonicalizer(tk);
+  const canonicalize = vi.spyOn(canonicalizer, "canonicalize");
+
+  const resolution = resolveServiceTypes(runner.program, tk, canonicalizer, {
+    canonicalizeOperations: false,
+  });
+
+  expect(resolution.models.map((m) => m.name)).toContain("Widget");
+  expect(resolution.interfaces).toHaveLength(1);
+  expect(resolution.canonicalOpsMap).toEqual(new Map());
+  expect(resolution.canonicalOperationSourceMap).toEqual(new Map());
+  expect(canonicalize).not.toHaveBeenCalled();
 });
 
 it("discovers the payload type of an HttpPart", async () => {

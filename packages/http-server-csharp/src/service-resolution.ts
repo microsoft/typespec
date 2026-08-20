@@ -51,6 +51,11 @@ export interface ServiceTypeResolution {
   declarationNamespaces: Set<TspNamespace>;
 }
 
+export interface ServiceTypeResolutionOptions {
+  /** Whether to canonicalize HTTP operations for controller and interface generation. */
+  canonicalizeOperations?: boolean;
+}
+
 /**
  * Resolves all service types in a single pass, eliminating redundant
  * namespace traversals that previously occurred in individual components.
@@ -70,6 +75,7 @@ export function resolveServiceTypes(
   program: Program,
   $: Typekit,
   canonicalizer: HttpCanonicalizer,
+  options: ServiceTypeResolutionOptions = {},
 ): ServiceTypeResolution {
   resetAnonymousModels();
 
@@ -98,11 +104,14 @@ export function resolveServiceTypes(
     authModels,
   );
 
-  // Phase 5: Canonicalize all HTTP operations
-  const { canonicalOpsMap, canonicalOperationSourceMap } = canonicalizeAllInterfaces(
-    canonicalizer,
-    interfaces,
-  );
+  // Phase 5: Canonicalize HTTP operations only when operation artifacts are emitted.
+  const { canonicalOpsMap, canonicalOperationSourceMap } =
+    options.canonicalizeOperations === false
+      ? {
+          canonicalOpsMap: new Map<string, OperationHttpCanonicalization[]>(),
+          canonicalOperationSourceMap: new Map<OperationHttpCanonicalization, Operation>(),
+        }
+      : canonicalizeAllInterfaces(canonicalizer, interfaces);
 
   return {
     serviceNamespace,
