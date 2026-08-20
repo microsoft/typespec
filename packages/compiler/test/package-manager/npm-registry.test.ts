@@ -1,30 +1,54 @@
+import { mkdtemp, rm, writeFile } from "fs/promises";
 import * as http from "http";
 import type { AddressInfo } from "net";
+import { tmpdir } from "os";
+import { join } from "path";
 import { afterEach, beforeEach, expect, it } from "vitest";
-import { fetchPackageManifest } from "../../src/package-manger/npm-registry.js";
+import { loadNpmRegistryConfig } from "../../src/package-manger/npm-registry-config.js";
+import {
+  fetchPackageManifest,
+  getNpmRequestHeaders,
+} from "../../src/package-manger/npm-registry.js";
 
 let server: http.Server;
 let registryUrl: string;
 let lastRequestUrl: string | undefined;
+let lastAuthorization: string | undefined;
+let responseStatus: number;
+let tempDirectory: string | undefined;
+const originalHome = process.env["HOME"];
+const originalUserProfile = process.env["USERPROFILE"];
 
 beforeEach(async () => {
   lastRequestUrl = undefined;
+  lastAuthorization = undefined;
+  responseStatus = 200;
   server = http.createServer((req, res) => {
     lastRequestUrl = req.url ?? "";
-    res.writeHead(200, { "Content-Type": "application/json" });
+    lastAuthorization = req.headers.authorization;
+    res.writeHead(responseStatus, { "Content-Type": "application/json" });
+    const manifest = {
+      name: "test-pkg",
+      version: "1.0.0",
+      dependencies: {},
+      optionalDependencies: {},
+      devDependencies: {},
+      peerDependencies: {},
+      bundleDependencies: false,
+      dist: { shasum: "abc", tarball: "http://example.com/test.tgz" },
+      bin: null,
+      _shrinkwrap: null,
+    };
     res.end(
-      JSON.stringify({
-        name: "test-pkg",
-        version: "1.0.0",
-        dependencies: {},
-        optionalDependencies: {},
-        devDependencies: {},
-        peerDependencies: {},
-        bundleDependencies: false,
-        dist: { shasum: "abc", tarball: "http://example.com/test.tgz" },
-        bin: null,
-        _shrinkwrap: null,
-      }),
+      JSON.stringify(
+        lastRequestUrl.includes("/_packaging/")
+          ? {
+              name: "test-pkg",
+              "dist-tags": { latest: "1.0.0" },
+              versions: { "1.0.0": manifest },
+            }
+          : manifest,
+      ),
     );
   });
   await new Promise<void>((resolve) => server.listen(0, "127.0.0.1", resolve));
@@ -34,6 +58,13 @@ beforeEach(async () => {
 
 afterEach(async () => {
   delete process.env["TYPESPEC_NPM_REGISTRY"];
+  delete process.env["NPM_CONFIG_USERCONFIG"];
+  restoreEnvironmentVariable("HOME", originalHome);
+  restoreEnvironmentVariable("USERPROFILE", originalUserProfile);
+  if (tempDirectory !== undefined) {
+    await rm(tempDirectory, { recursive: true, force: true });
+    tempDirectory = undefined;
+  }
   await new Promise<void>((resolve) => server.close(() => resolve()));
 });
 
@@ -41,6 +72,7 @@ it("uses the registry URL from TYPESPEC_NPM_REGISTRY when set", async () => {
   process.env["TYPESPEC_NPM_REGISTRY"] = registryUrl;
   const manifest = await fetchPackageManifest("test-pkg", "latest");
   expect(manifest.name).toBe("test-pkg");
+  expect(manifest.version).toBe("1.0.0");
   expect(lastRequestUrl).toBe("/test-pkg/latest");
 });
 
@@ -48,5 +80,105 @@ it("strips trailing slash from TYPESPEC_NPM_REGISTRY", async () => {
   process.env["TYPESPEC_NPM_REGISTRY"] = `${registryUrl}/`;
   const manifest = await fetchPackageManifest("test-pkg", "1.0.0");
   expect(manifest.name).toBe("test-pkg");
+  expect(manifest.version).toBe("1.0.0");
   expect(lastRequestUrl).toBe("/test-pkg/1.0.0");
 });
+
+it("resolves package versions from the packument for Azure DevOps feeds", async () => {
+  process.env["TYPESPEC_NPM_REGISTRY"] = `${registryUrl}/_packaging/test/npm/registry`;
+
+  const manifest = await fetchPackageManifest("test-pkg", "latest");
+
+  expect(manifest.version).toBe("1.0.0");
+  expect(lastRequestUrl).toBe("/_packaging/test/npm/registry/test-pkg");
+});
+
+it("reports registry errors before reading the manifest", async () => {
+  process.env["TYPESPEC_NPM_REGISTRY"] = registryUrl;
+  responseStatus = 401;
+
+  await expect(fetchPackageManifest("test-pkg", "1.0.0")).rejects.toThrow(
+    `Request to ${registryUrl}/test-pkg/1.0.0 failed with status 401.`,
+  );
+});
+
+it("reports a missing package version", async () => {
+  process.env["TYPESPEC_NPM_REGISTRY"] = `${registryUrl}/_packaging/test/npm/registry`;
+
+  await expect(fetchPackageManifest("test-pkg", "2.0.0")).rejects.toThrow(
+    `Package "test-pkg" does not have a version or tag "2.0.0".`,
+  );
+});
+
+it("loads registry and bearer authentication from NPM_CONFIG_USERCONFIG", async () => {
+  const npmrcPath = await writeNpmrc(`
+registry=${registryUrl}/
+//${new URL(registryUrl).host}/:_authToken=test-token
+`);
+  process.env["NPM_CONFIG_USERCONFIG"] = npmrcPath;
+
+  const config = await loadNpmRegistryConfig();
+  const manifest = await fetchPackageManifest("test-pkg", "latest", config);
+
+  expect(manifest.name).toBe("test-pkg");
+  expect(lastAuthorization).toBe("Bearer test-token");
+});
+
+it("loads authentication from the default user npmrc", async () => {
+  tempDirectory ??= await mkdtemp(join(tmpdir(), "typespec-npmrc-test-"));
+  process.env["HOME"] = tempDirectory;
+  process.env["USERPROFILE"] = tempDirectory;
+  await writeFile(
+    join(tempDirectory, ".npmrc"),
+    `registry=${registryUrl}/\n//${new URL(registryUrl).host}/:_authToken=test-token\n`,
+  );
+
+  const config = await loadNpmRegistryConfig();
+  await fetchPackageManifest("test-pkg", "latest", config);
+
+  expect(lastAuthorization).toBe("Bearer test-token");
+});
+
+it("loads Azure DevOps basic authentication from NPM_CONFIG_USERCONFIG", async () => {
+  const password = Buffer.from("test-password").toString("base64");
+  const npmrcPath = await writeNpmrc(`
+registry=${registryUrl}/
+//${new URL(registryUrl).host}/:username=test-user
+//${new URL(registryUrl).host}/:_password=${password}
+`);
+  process.env["NPM_CONFIG_USERCONFIG"] = npmrcPath;
+
+  const config = await loadNpmRegistryConfig();
+  await fetchPackageManifest("test-pkg", "latest", config);
+
+  expect(lastAuthorization).toBe(
+    `Basic ${Buffer.from("test-user:test-password").toString("base64")}`,
+  );
+});
+
+it("does not send authentication outside its configured registry scope", async () => {
+  const config = {
+    authentication: [{ scope: "//registry.example.com/private/", authorization: "Bearer secret" }],
+  };
+
+  expect(getNpmRequestHeaders("https://registry.example.com/private/test", config)).toEqual({
+    Authorization: "Bearer secret",
+  });
+  expect(getNpmRequestHeaders("https://registry.example.com/public/test", config)).toBeUndefined();
+  expect(getNpmRequestHeaders("https://example.com/package.tgz", config)).toBeUndefined();
+});
+
+async function writeNpmrc(contents: string): Promise<string> {
+  tempDirectory ??= await mkdtemp(join(tmpdir(), "typespec-npmrc-test-"));
+  const npmrcPath = join(tempDirectory, ".npmrc");
+  await writeFile(npmrcPath, contents);
+  return npmrcPath;
+}
+
+function restoreEnvironmentVariable(name: string, value: string | undefined): void {
+  if (value === undefined) {
+    delete process.env[name];
+  } else {
+    process.env[name] = value;
+  }
+}

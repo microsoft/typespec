@@ -26,7 +26,7 @@ export interface NpmManifest {
 export interface NpmPackument {
   readonly name: string;
   readonly "dist-tags": { latest: string } & Record<string, string>;
-  readonly versions: Record<string, NpmPackageVersion>;
+  readonly versions: Record<string, NpmManifest>;
 
   readonly [key: string]: unknown;
 }
@@ -84,24 +84,69 @@ export interface NpmHuman {
 
 const defaultRegistry = `https://registry.npmjs.org`;
 
+export interface NpmRegistryConfig {
+  readonly registry?: string;
+  readonly authentication?: readonly NpmRegistryAuthentication[];
+}
+
+export interface NpmRegistryAuthentication {
+  readonly scope: string;
+  readonly authorization: string;
+}
+
 /**
  * Returns the npm registry URL to use for fetching packages.
  * Uses the `TYPESPEC_NPM_REGISTRY` environment variable if set,
  * otherwise falls back to the default npm registry.
  */
-export function getNpmRegistry(): string {
-  return (process.env["TYPESPEC_NPM_REGISTRY"] ?? defaultRegistry).replace(/\/$/, "");
+export function getNpmRegistry(config: NpmRegistryConfig = {}): string {
+  return (process.env["TYPESPEC_NPM_REGISTRY"] ?? config.registry ?? defaultRegistry).replace(
+    /\/$/,
+    "",
+  );
 }
 
 export async function fetchPackageManifest(
   packageName: string,
   version: string,
+  config: NpmRegistryConfig = {},
 ): Promise<NpmManifest> {
-  const url = `${getNpmRegistry()}/${packageName}/${version}`;
-  const res = await fetch(url);
-  return await res.json();
+  const registry = getNpmRegistry(config);
+  const isAzureDevOpsFeed = /\/_packaging\/[^/]+\/npm\/registry$/i.test(new URL(registry).pathname);
+  const url = `${registry}/${packageName}${isAzureDevOpsFeed ? "" : `/${version}`}`;
+  const res = await fetch(url, { headers: getNpmRequestHeaders(url, config) });
+  if (!res.ok) {
+    throw new Error(`Request to ${url} failed with status ${res.status}.`);
+  }
+
+  if (!isAzureDevOpsFeed) {
+    return await res.json();
+  }
+
+  const packument = (await res.json()) as NpmPackument;
+  const resolvedVersion = packument["dist-tags"][version] ?? version;
+  const manifest = packument.versions[resolvedVersion];
+  if (manifest === undefined) {
+    throw new Error(`Package "${packageName}" does not have a version or tag "${version}".`);
+  }
+  return manifest;
 }
 
-export function fetchLatestPackageManifest(packageName: string): Promise<NpmManifest> {
-  return fetchPackageManifest(packageName, "latest");
+export function fetchLatestPackageManifest(
+  packageName: string,
+  config: NpmRegistryConfig = {},
+): Promise<NpmManifest> {
+  return fetchPackageManifest(packageName, "latest", config);
+}
+
+export function getNpmRequestHeaders(
+  url: string,
+  config: NpmRegistryConfig,
+): HeadersInit | undefined {
+  const requestUrl = new URL(url);
+  const requestScope = `//${requestUrl.host}${requestUrl.pathname}`;
+  const authentication = config.authentication
+    ?.filter(({ scope }) => requestScope.startsWith(scope))
+    .sort((left, right) => right.scope.length - left.scope.length)[0];
+  return authentication === undefined ? undefined : { Authorization: authentication.authorization };
 }
