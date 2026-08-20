@@ -511,7 +511,7 @@ class OperationBase(  # pylint: disable=too-many-public-methods,too-many-instanc
 
     @property
     def has_stream_response(self) -> bool:
-        return any(r.is_stream_response or getattr(r, "is_structured_stream", False) for r in self.responses)
+        return any(r.is_stream_response or r.is_structured_stream for r in self.responses)
 
     @classmethod
     def get_request_builder(cls, yaml_data: dict[str, Any], client: "Client"):
