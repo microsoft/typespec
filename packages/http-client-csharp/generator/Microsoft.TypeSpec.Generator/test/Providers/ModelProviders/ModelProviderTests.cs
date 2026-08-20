@@ -2805,6 +2805,58 @@ namespace Microsoft.TypeSpec.Generator.Tests.Providers.ModelProviders
         }
 
         [Test]
+        public void ConstructorParameterNormalizesDateTimeSuffix()
+        {
+            var dateTime = new InputDateTimeType(
+                DateTimeKnownEncoding.Rfc3339,
+                "utcDateTime",
+                "TypeSpec.utcDateTime",
+                InputPrimitiveType.String);
+            var inputModel = InputFactory.Model(
+                "DateTimeModel",
+                usage: InputModelTypeUsage.Input,
+                properties: [InputFactory.Property("StartTime", dateTime, isRequired: true)]);
+
+            MockHelpers.LoadMockGenerator(inputModelTypes: [inputModel]);
+
+            var modelProvider = CodeModelGenerator.Instance.OutputLibrary.TypeProviders.OfType<ModelProvider>().Single();
+            var constructor = modelProvider.Constructors.Single(c => c.Signature.Modifiers.HasFlag(MethodSignatureModifiers.Public));
+            Assert.AreEqual("startOn", constructor.Signature.Parameters.Single().Name);
+
+            var writer = new TypeProviderWriter(modelProvider);
+            var file = writer.Write();
+            Assert.AreEqual(Helpers.GetExpectedFromFile(), file.Content);
+        }
+
+        [Test]
+        public async Task BackCompat_ConstructorParameterPreservesDateTimeSuffix()
+        {
+            var dateTime = new InputDateTimeType(
+                DateTimeKnownEncoding.Rfc3339,
+                "utcDateTime",
+                "TypeSpec.utcDateTime",
+                InputPrimitiveType.String);
+            var inputModel = InputFactory.Model(
+                "DateTimeModel",
+                usage: InputModelTypeUsage.Input,
+                properties: [InputFactory.Property("StartTime", dateTime, isRequired: true)]);
+
+            await MockHelpers.LoadMockGeneratorAsync(
+                inputModelTypes: [inputModel],
+                lastContractCompilation: async () => await Helpers.GetCompilationFromDirectoryAsync());
+
+            var modelProvider = CodeModelGenerator.Instance.OutputLibrary.TypeProviders.OfType<ModelProvider>().Single();
+            modelProvider.ProcessTypeForBackCompatibility();
+
+            var constructor = modelProvider.Constructors.Single(c => c.Signature.Modifiers.HasFlag(MethodSignatureModifiers.Public));
+            Assert.AreEqual("startTime", constructor.Signature.Parameters.Single().Name);
+
+            var writer = new TypeProviderWriter(modelProvider);
+            var file = writer.Write();
+            Assert.AreEqual(Helpers.GetExpectedFromFile(), file.Content);
+        }
+
+        [Test]
         public async Task BackCompat_ConstructorNotRestoredWhenLastContractMissing()
         {
             // No last contract exists for the model, so nothing should be restored.

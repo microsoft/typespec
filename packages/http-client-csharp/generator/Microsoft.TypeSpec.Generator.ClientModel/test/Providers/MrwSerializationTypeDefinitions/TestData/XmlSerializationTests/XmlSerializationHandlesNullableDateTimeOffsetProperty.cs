@@ -63,10 +63,10 @@ namespace Sample.Models
                 throw new global::System.FormatException($"The model {nameof(global::Sample.Models.TestXmlModel)} does not support writing '{format}' format.");
             }
 
-            if (global::Sample.Optional.IsDefined(Timestamp))
+            if (global::Sample.Optional.IsDefined(On))
             {
                 writer.WriteStartElement("timestamp");
-                writer.WriteStringValue(Timestamp.Value, "O");
+                writer.WriteStringValue(On.Value, "O");
                 writer.WriteEndElement();
             }
         }
