@@ -45,6 +45,10 @@ type GenerateReturnTypeForStatusCodeProps = {
 function generateReturnTypeForStatusCode(props: GenerateReturnTypeForStatusCodeProps): string[] {
   const { statusCode, context } = props;
 
+  if ("$ref" in props.response && props.response.$ref.startsWith("#/components/responses/")) {
+    return [context.getRefName(props.response.$ref, props.operationScope)];
+  }
+
   const response =
     "$ref" in props.response
       ? context.getByRef<OpenAPI3Response>(props.response.$ref)
