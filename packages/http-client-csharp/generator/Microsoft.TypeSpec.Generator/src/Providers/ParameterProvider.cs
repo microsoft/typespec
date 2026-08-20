@@ -65,7 +65,7 @@ namespace Microsoft.TypeSpec.Generator.Providers
             InputParameter = inputParameter;
             Name = inputParameter.Name;
             Description = DocHelpers.GetFormattableDescription(inputParameter.Summary, inputParameter.Doc) ?? FormattableStringHelpers.Empty;
-            var type = CodeModelGenerator.Instance.TypeFactory.CreateCSharpType(inputParameter.Type) ?? throw new InvalidOperationException($"Failed to create CSharpType for {inputParameter.Type}");
+            var type = CodeModelGenerator.Instance.TypeFactory.CreateCSharpType(inputParameter.Type) ?? throw new InvalidOperationException($"Failed to create CSharpType for {inputParameter.Type}, named in a typespec as \"{inputParameter.Name}\"; Description: {Description}");
             if (!inputParameter.IsRequired)
             {
                 type = !type.IsCollection ? type.WithNullable(true) : type;
