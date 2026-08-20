@@ -11,6 +11,7 @@ using System.Threading.Tasks;
 using Microsoft.TypeSpec.Generator.Input;
 using Microsoft.TypeSpec.Generator.Primitives;
 using Microsoft.TypeSpec.Generator.Providers;
+using Microsoft.TypeSpec.Generator.Snippets;
 using Microsoft.TypeSpec.Generator.Statements;
 using Microsoft.TypeSpec.Generator.Tests.Common;
 using Microsoft.TypeSpec.Generator.Utilities;
@@ -2419,7 +2420,7 @@ namespace Microsoft.TypeSpec.Generator.Tests.Providers.ModelProviders
                 {
                     if (ReferenceEquals(constructor, FullConstructor))
                     {
-                        var suppression = new SuppressionStatement(null, Generator.Snippets.Snippet.Literal("TEST0001"), "Test suppression.");
+                        var suppression = new SuppressionStatement(null, Snippet.Literal("TEST0001"), "Test suppression.");
                         constructor.Update(suppressions: [suppression, .. constructor.Suppressions]);
                     }
                 }
