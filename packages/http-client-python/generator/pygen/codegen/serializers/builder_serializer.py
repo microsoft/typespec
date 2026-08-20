@@ -1261,7 +1261,7 @@ class _OperationSerializer(_BuilderBaseSerializer[OperationType]):
         Produces a per-event deserialization callback and returns a ``Stream`` /
         ``AsyncStream`` wrapping the streamed HTTP response.
         """
-        response = next(r for r in builder.responses if getattr(r, "is_structured_stream", False))
+        response = next(r for r in builder.responses if r.is_structured_stream)
         item_annotation = response.type.type_annotation(  # type: ignore[union-attr]
             is_operation_file=True, serialize_namespace=self.serialize_namespace
         )
@@ -1287,14 +1287,26 @@ class _OperationSerializer(_BuilderBaseSerializer[OperationType]):
                     )
                     keyword = "if" if index == 0 else "elif"
                     retval.append(f"    {keyword} _event.event == {event_type!r}:")
-                    retval.append(f"        deserialized = _deserialize({event_annotation}, _event_json)")
+                    if self.code_model.options["models-mode"] == "msrest":
+                        retval.append("        deserialized = self._deserialize(")
+                        retval.append(f"            '{event_annotation}',")
+                        retval.append("            _http_response")
+                        retval.append("        )")
+                    else:
+                        retval.append(f"        deserialized = _deserialize({event_annotation}, _event_json)")
                 retval.append("    else:")
                 if len(unnamed_events) == 1:
                     event_annotation = unnamed_events[0].type_annotation(
                         is_operation_file=True,
                         serialize_namespace=self.serialize_namespace,
                     )
-                    retval.append(f"        deserialized = _deserialize({event_annotation}, _event_json)")
+                    if self.code_model.options["models-mode"] == "msrest":
+                        retval.append("        deserialized = self._deserialize(")
+                        retval.append(f"            '{event_annotation}',")
+                        retval.append("            _http_response")
+                        retval.append("        )")
+                    else:
+                        retval.append(f"        deserialized = _deserialize({event_annotation}, _event_json)")
                 else:
                     retval.append("        deserialized = _event_json")
             elif len(unnamed_events) == 1:
@@ -1302,12 +1314,30 @@ class _OperationSerializer(_BuilderBaseSerializer[OperationType]):
                     is_operation_file=True,
                     serialize_namespace=self.serialize_namespace,
                 )
-                retval.append(f"    deserialized = _deserialize({event_annotation}, _event_json)")
+                if self.code_model.options["models-mode"] == "msrest":
+                    retval.append("    deserialized = self._deserialize(")
+                    retval.append(f"        '{event_annotation}',")
+                    retval.append("        _http_response")
+                    retval.append("    )")
+                else:
+                    retval.append(f"    deserialized = _deserialize({event_annotation}, _event_json)")
             else:
-                retval.append(f"    deserialized = _deserialize({item_annotation}, _event_json)")
+                if self.code_model.options["models-mode"] == "msrest":
+                    retval.append("    deserialized = self._deserialize(")
+                    retval.append(f"        '{item_annotation}',")
+                    retval.append("        _http_response")
+                    retval.append("    )")
+                else:
+                    retval.append(f"    deserialized = _deserialize({item_annotation}, _event_json)")
         else:
             retval.append("    _event_json = _event.json()")
-            retval.append(f"    deserialized = _deserialize({item_annotation}, _event_json)")
+            if self.code_model.options["models-mode"] == "msrest":
+                retval.append("    deserialized = self._deserialize(")
+                retval.append(f"        '{item_annotation}',")
+                retval.append("        _http_response")
+                retval.append("    )")
+            else:
+                retval.append(f"    deserialized = _deserialize({item_annotation}, _event_json)")
         retval.append("    if cls:")
         retval.append("        return cls(pipeline_response, deserialized, {})  # type: ignore")
         retval.append("    return deserialized")
