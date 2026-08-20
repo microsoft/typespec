@@ -3,6 +3,8 @@
 # Licensed under the MIT License. See License.txt in the project root for
 # license information.
 # --------------------------------------------------------------------------
+import json
+
 import pytest
 import pytest_asyncio
 
@@ -50,3 +52,81 @@ async def test_retrieve_stream(client: SseClient):
     assert isinstance(items[0], PartialResult) and items[0].text == "partial one"
     assert isinstance(items[1], PartialResult) and items[1].text == "partial two"
     assert isinstance(items[2], FinalResult) and items[2].references == ["doc1", "doc2"]
+
+
+# ---------------------------------------------------------------------------
+# Named / model terminal events (yield-then-stop) -- see the sync test module
+# for the rationale. Driven through the generated ``AsyncStream`` with a fake
+# response because no published Spector spec produces named-model terminals.
+# ---------------------------------------------------------------------------
+
+
+class _FakeAsyncResponse:
+    """A minimal AsyncHttpResponse-shaped stand-in that replays SSE bytes."""
+
+    def __init__(self, body: bytes):
+        self.headers = {"Content-Type": "text/event-stream"}
+        self._body = body
+        self.closed = False
+
+    def iter_bytes(self):
+        async def gen():
+            for index in range(0, len(self._body), 8):
+                yield self._body[index : index + 8]
+
+        return gen()
+
+    async def close(self):
+        self.closed = True
+
+
+def _event_kind(_response, event):
+    return (event.event, json.loads(event.data))
+
+
+_NAMED_TERMINAL_SSE = (
+    b'event: response.partial\ndata: {"text": "one"}\n\n'
+    b'event: response.delta\ndata: {"delta": "hi"}\n\n'
+    b'event: response.completed\ndata: {"references": []}\n\n'
+    b'event: response.delta\ndata: {"delta": "AFTER-TERMINAL"}\n\n'
+)
+
+_TERMINAL_EVENT_NAMES = ["response.completed", "error"]
+
+
+@pytest.mark.asyncio
+async def test_named_terminal_event_yields_then_stops():
+    response = _FakeAsyncResponse(_NAMED_TERMINAL_SSE)
+    stream = AsyncStream(
+        response=response,
+        deserialization_callback=_event_kind,
+        terminal_event_names=_TERMINAL_EVENT_NAMES,
+    )
+    items = [item async for item in stream]
+    # The named terminal `response.completed` IS yielded, then iteration stops.
+    assert items == [
+        ("response.partial", {"text": "one"}),
+        ("response.delta", {"delta": "hi"}),
+        ("response.completed", {"references": []}),
+    ]
+    assert response.closed
+
+
+@pytest.mark.asyncio
+async def test_sentinel_and_named_terminal_coexist():
+    body = (
+        b'event: response.delta\ndata: {"delta": "a"}\n\n'
+        b"data: [DONE]\n\n"
+        b'event: response.delta\ndata: {"delta": "AFTER-DONE"}\n\n'
+    )
+    response = _FakeAsyncResponse(body)
+    stream = AsyncStream(
+        response=response,
+        deserialization_callback=_event_kind,
+        terminal_event="[DONE]",
+        terminal_event_names=_TERMINAL_EVENT_NAMES,
+    )
+    items = [item async for item in stream]
+    # The bare `[DONE]` sentinel stops iteration WITHOUT being yielded.
+    assert items == [("response.delta", {"delta": "a"})]
+    assert response.closed

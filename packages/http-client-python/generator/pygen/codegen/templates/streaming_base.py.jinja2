@@ -24,6 +24,7 @@ from typing import (
     List,
     Optional,
     Protocol,
+    Sequence,
     Type,
     TypeVar,
     cast,
@@ -555,6 +556,10 @@ class Stream(Iterator[ReturnType_co]):
         ``"[DONE]"``). When an event's ``data`` equals this value, iteration stops and the
         event is not passed to ``deserialization_callback``.
     :paramtype terminal_event: str or None
+    :keyword terminal_event_names: Optional event names (the SSE ``event`` field) that terminate
+        the stream. Unlike ``terminal_event``, such an event carries a payload: it is passed to
+        ``deserialization_callback`` and yielded, and iteration stops immediately afterwards.
+    :paramtype terminal_event_names: ~typing.Sequence[str] or None
     """
 
     def __init__(
@@ -564,6 +569,7 @@ class Stream(Iterator[ReturnType_co]):
         deserialization_callback: Callable[[HttpResponse, DecodedType], ReturnType_co],
         decoder: Optional[StreamDecoder[DecodedType]] = None,
         terminal_event: Optional[str] = None,
+        terminal_event_names: Optional[Sequence[str]] = None,
     ) -> None:
         self._response = response
         content_type = response.headers.get("Content-Type", "").split(";", 1)[0].strip().lower()
@@ -572,6 +578,7 @@ class Stream(Iterator[ReturnType_co]):
         )
         self._deserialization_callback = deserialization_callback
         self._terminal_event = terminal_event
+        self._terminal_event_names = frozenset(terminal_event_names or ())
         self._iterator = self._iter_results()
 
     def __next__(self) -> ReturnType_co:
@@ -587,6 +594,8 @@ class Stream(Iterator[ReturnType_co]):
                     break
                 result = self._deserialization_callback(self._response, event)
                 yield result
+                if self._terminal_event_names and getattr(event, "event", None) in self._terminal_event_names:
+                    break
         finally:
             self._response.close()
 
@@ -623,6 +632,10 @@ class AsyncStream(AsyncIterator[ReturnType_co]):
         ``"[DONE]"``). When an event's ``data`` equals this value, iteration stops and the
         event is not passed to ``deserialization_callback``.
     :paramtype terminal_event: str or None
+    :keyword terminal_event_names: Optional event names (the SSE ``event`` field) that terminate
+        the stream. Unlike ``terminal_event``, such an event carries a payload: it is passed to
+        ``deserialization_callback`` and yielded, and iteration stops immediately afterwards.
+    :paramtype terminal_event_names: ~typing.Sequence[str] or None
     """
 
     def __init__(
@@ -632,6 +645,7 @@ class AsyncStream(AsyncIterator[ReturnType_co]):
         deserialization_callback: Callable[[AsyncHttpResponse, DecodedType], ReturnType_co],
         decoder: Optional[AsyncStreamDecoder[DecodedType]] = None,
         terminal_event: Optional[str] = None,
+        terminal_event_names: Optional[Sequence[str]] = None,
     ) -> None:
         self._response = response
         content_type = response.headers.get("Content-Type", "").split(";", 1)[0].strip().lower()
@@ -642,6 +656,7 @@ class AsyncStream(AsyncIterator[ReturnType_co]):
         )
         self._deserialization_callback = deserialization_callback
         self._terminal_event = terminal_event
+        self._terminal_event_names = frozenset(terminal_event_names or ())
         self._iterator = self._iter_results()
 
     async def __anext__(self) -> ReturnType_co:
@@ -658,6 +673,8 @@ class AsyncStream(AsyncIterator[ReturnType_co]):
                     break
                 result = self._deserialization_callback(self._response, event)
                 yield result
+                if self._terminal_event_names and getattr(event, "event", None) in self._terminal_event_names:
+                    break
         finally:
             aclose = getattr(events, "aclose", None)
             if aclose is not None:

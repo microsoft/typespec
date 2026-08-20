@@ -1267,6 +1267,7 @@ class _OperationSerializer(_BuilderBaseSerializer[OperationType]):
         )
         stream_class = response.stream_class_name(self.async_mode)  # type: ignore[attr-defined]
         terminal_event = getattr(response, "terminal_event", None)
+        terminal_event_names = getattr(response, "terminal_event_names", [])
         streaming_events = getattr(response, "streaming_events", [])
         retval: list[str] = []
         retval.append("def _callback(_http_response, _event):")
@@ -1311,15 +1312,12 @@ class _OperationSerializer(_BuilderBaseSerializer[OperationType]):
         retval.append("        return cls(pipeline_response, deserialized, {})  # type: ignore")
         retval.append("    return deserialized")
         retval.append("")
+        stream_kwargs = ["response=response", "deserialization_callback=_callback"]
         if terminal_event is not None:
-            retval.append(
-                f"return {stream_class}(response=response, deserialization_callback=_callback, "
-                f"terminal_event={terminal_event!r})  # type: ignore"
-            )
-        else:
-            retval.append(
-                f"return {stream_class}(response=response, deserialization_callback=_callback)  # type: ignore"
-            )
+            stream_kwargs.append(f"terminal_event={terminal_event!r}")
+        if terminal_event_names:
+            stream_kwargs.append(f"terminal_event_names={terminal_event_names!r}")
+        retval.append(f"return {stream_class}({', '.join(stream_kwargs)})  # type: ignore")
         return retval
 
     def _handle_response_body(self, builder: OperationType) -> list[str]:

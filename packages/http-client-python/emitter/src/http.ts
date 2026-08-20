@@ -53,6 +53,13 @@ interface StructuredStreamEvent {
    * `_callback`. This is a narrower type than {@link StructuredStreamingInfo.itemType}.
    */
   itemType: EmittedType;
+  /**
+   * True when this event is a `@terminalEvent` that carries a payload (a named / model event,
+   * not a bare string-constant sentinel). Such events are deserialized and yielded like any
+   * other event, and iteration stops immediately after one is yielded. Contrast with
+   * {@link StructuredStreamingInfo.terminalEvent}, the sentinel that stops without yielding.
+   */
+  isTerminal?: boolean;
 }
 
 interface StructuredStreamingInfo {
@@ -69,6 +76,11 @@ interface StructuredStreamingInfo {
    */
   itemType: EmittedType;
   events?: StructuredStreamEvent[];
+  /**
+   * A bare string-constant `@terminalEvent` with no event name (e.g. `"[DONE]"`). Iteration
+   * stops when an event's `data` equals this value, and the sentinel is NOT yielded. Named /
+   * model terminal events are carried in {@link events} with `isTerminal: true` instead.
+   */
   terminalEvent?: string;
 }
 
@@ -104,6 +116,56 @@ function getStringConstantValue(type: SdkType): string | undefined {
   return type.kind === "constant" && typeof type.value === "string" ? type.value : undefined;
 }
 
+/** The subset of an {@link SdkSseMetadata} event that terminal-event partitioning depends on. */
+interface SseEventLike {
+  eventType?: string | undefined;
+  isTerminalEvent: boolean;
+  type: SdkType;
+  payloadType: SdkType;
+}
+
+/**
+ * Split the SSE events into the runtime dispatch table and a bare string-constant sentinel.
+ *
+ * A `@terminalEvent` comes in two shapes:
+ *   * a nameless string constant (e.g. `"[DONE]"`) -> a pure sentinel: iteration stops when an
+ *     event's `data` equals this value and the event is NOT yielded. Returned as `terminalEvent`.
+ *   * a named / model event (e.g. `error`, `response.completed`) -> carries a payload the consumer
+ *     needs, so it is deserialized and yielded like any other event, then iteration stops. Returned
+ *     in `events` with `isTerminal: true`.
+ *
+ * `toItemType` maps an event payload to its emitted type; it is injected so this partitioning stays
+ * a pure function that can be unit-tested without a full emitter context.
+ */
+export function partitionSseEvents(
+  events: readonly SseEventLike[],
+  toItemType: (payloadType: SdkType) => EmittedType,
+): { events: StructuredStreamEvent[]; terminalEvent?: string } {
+  const dispatch: StructuredStreamEvent[] = [];
+  let terminalEvent: string | undefined;
+  for (const event of events) {
+    if (event.isTerminalEvent) {
+      const sentinelValue =
+        event.eventType === undefined
+          ? (getStringConstantValue(event.payloadType) ?? getStringConstantValue(event.type))
+          : undefined;
+      if (sentinelValue !== undefined) {
+        // Keep the first sentinel; no current spec defines more than one.
+        terminalEvent ??= sentinelValue;
+        continue;
+      }
+      dispatch.push({
+        eventType: event.eventType,
+        itemType: toItemType(event.payloadType),
+        isTerminal: true,
+      });
+      continue;
+    }
+    dispatch.push({ eventType: event.eventType, itemType: toItemType(event.payloadType) });
+  }
+  return terminalEvent !== undefined ? { events: dispatch, terminalEvent } : { events: dispatch };
+}
+
 function emitStructuredStreamingInfo(
   context: PythonSdkContext,
   response: SdkHttpResponse | SdkHttpErrorResponse,
@@ -122,21 +184,11 @@ function emitStructuredStreamingInfo(
   const sseMetadata = response.sseMetadata;
   if (!sseMetadata) return streaming;
 
-  const events = sseMetadata.events
-    .filter((event) => !event.isTerminalEvent)
-    .map((event) => ({
-      eventType: event.eventType,
-      itemType: getType(context, event.payloadType),
-    }));
+  const { events, terminalEvent } = partitionSseEvents(sseMetadata.events, (payloadType) =>
+    getType(context, payloadType),
+  );
   if (events.length > 0) streaming.events = events;
-
-  const terminalEvent = sseMetadata.events.find((event) => event.isTerminalEvent);
-  if (terminalEvent) {
-    const terminalEventValue =
-      getStringConstantValue(terminalEvent.payloadType) ??
-      getStringConstantValue(terminalEvent.type);
-    if (terminalEventValue !== undefined) streaming.terminalEvent = terminalEventValue;
-  }
+  if (terminalEvent !== undefined) streaming.terminalEvent = terminalEvent;
 
   return streaming;
 }

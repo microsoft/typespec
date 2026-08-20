@@ -62,10 +62,19 @@ class Response(BaseModel):
         self.streaming_kind: Optional[str] = streaming["kind"] if streaming else None
         self.streaming_events: list[tuple[Optional[str], BaseType]] = []
         self._streaming_terminal_event: Optional[str] = streaming.get("terminalEvent") if streaming else None
+        # Named / model ``@terminalEvent`` events: deserialized and yielded like any other event,
+        # then iteration stops. The bare string-constant sentinel (``_streaming_terminal_event``)
+        # stops WITHOUT yielding and is matched on event ``data`` instead of the event name.
+        self.terminal_event_names: list[str] = []
         if streaming:
             self.streaming_events = [
                 (event.get("eventType"), self.code_model.lookup_type(id(event["itemType"])))
                 for event in streaming.get("events", [])
+            ]
+            self.terminal_event_names = [
+                event["eventType"]
+                for event in streaming.get("events", [])
+                if event.get("isTerminal") and event.get("eventType") is not None
             ]
 
     @property
