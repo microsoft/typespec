@@ -188,6 +188,68 @@ describe.each(versions)("convertOpenAPI3Document v%s", (version) => {
     );
   });
 
+  it("does not reuse a component response model for a different status code", async () => {
+    const tsp = await convertOpenAPI3Document({
+      openapi: version,
+      info: {
+        title: "Example API",
+        version: "1.0.0",
+      },
+      paths: {
+        "/endpoint": {
+          get: {
+            operationId: "endpoint",
+            responses: {
+              "429": {
+                $ref: "#/components/responses/Rejected",
+              },
+            },
+          },
+        },
+        "/other-endpoint": {
+          get: {
+            operationId: "otherEndpoint",
+            responses: {
+              "503": {
+                $ref: "#/components/responses/Rejected",
+              },
+            },
+          },
+        },
+      },
+      components: {
+        responses: {
+          Rejected: {
+            description: "The request was rejected.",
+            content: {
+              "application/json": {
+                schema: {
+                  type: "string",
+                },
+              },
+            },
+          },
+        },
+      },
+    } as any);
+
+    strictEqual(
+      tsp.includes("op endpoint(): Responses.Rejected;"),
+      true,
+      "Expected first operation to use the generated response model: " + tsp,
+    );
+    strictEqual(
+      tsp.includes("op otherEndpoint(): Responses.Rejected;"),
+      false,
+      "Expected second operation to not reuse the 429 response model: " + tsp,
+    );
+    strictEqual(
+      tsp.includes("@statusCode statusCode: 503;"),
+      true,
+      "Expected second operation to be generated inline with its own status code: " + tsp,
+    );
+  });
+
   describe("Union types with multiple defaults", () => {
     it("should select first default for union types with multiple defaults", async () => {
       const tsp = await convertOpenAPI3Document({
