@@ -87,6 +87,169 @@ describe.each(versions)("convertOpenAPI3Document v%s", (version) => {
     );
   });
 
+  it("creates reusable response models for referenced component responses", async () => {
+    const tsp = await convertOpenAPI3Document({
+      openapi: version,
+      info: {
+        title: "Example API",
+        version: "1.0.0",
+      },
+      paths: {
+        "/endpoint": {
+          get: {
+            operationId: "endpoint",
+            responses: {
+              "429": {
+                $ref: "#/components/responses/TooManyRequests",
+              },
+            },
+          },
+        },
+        "/other-endpoint": {
+          get: {
+            operationId: "otherEndpoint",
+            responses: {
+              "429": {
+                $ref: "#/components/responses/TooManyRequests",
+              },
+            },
+          },
+        },
+      },
+      components: {
+        responses: {
+          TooManyRequests: {
+            description: "The request was rejected because a rate limit was exceeded.",
+            headers: {
+              "Retry-After": {
+                description: "Retry delay seconds.",
+                required: false,
+                schema: {
+                  type: "integer",
+                  minimum: 1,
+                },
+              },
+            },
+            content: {
+              "application/json": {
+                schema: {
+                  $ref: "#/components/schemas/ErrorResponse",
+                },
+              },
+            },
+          },
+        },
+        schemas: {
+          ErrorResponse: {
+            type: "object",
+            properties: {
+              message: {
+                type: "string",
+                description: "A human-readable message.",
+              },
+            },
+          },
+        },
+      },
+    } as any);
+
+    strictEqual(
+      tsp.includes("namespace Responses"),
+      true,
+      "Expected generated response namespace: " + tsp,
+    );
+    strictEqual(tsp.includes("model TooManyRequests {"), true, "Expected response model: " + tsp);
+    strictEqual(
+      tsp.includes("@statusCode statusCode"),
+      true,
+      "Expected status code property: " + tsp,
+    );
+    strictEqual(
+      tsp.includes('@header("Retry-After")'),
+      true,
+      "Expected retry-after header: " + tsp,
+    );
+    strictEqual(tsp.includes("@body body:"), true, "Expected response body property: " + tsp);
+    strictEqual(tsp.includes("ErrorResponse"), true, "Expected body schema reference: " + tsp);
+    strictEqual(
+      tsp.includes("op endpoint(): Responses.TooManyRequests;"),
+      true,
+      "Expected operation to use the generated response model: " + tsp,
+    );
+    strictEqual(
+      tsp.includes("op otherEndpoint(): Responses.TooManyRequests;"),
+      true,
+      "Expected second operation to use the generated response model: " + tsp,
+    );
+    strictEqual(
+      tsp.split("model TooManyRequests {").length - 1,
+      1,
+      "Expected the shared component response model to be generated once: " + tsp,
+    );
+  });
+
+  it("does not reuse a component response model for a different status code", async () => {
+    const tsp = await convertOpenAPI3Document({
+      openapi: version,
+      info: {
+        title: "Example API",
+        version: "1.0.0",
+      },
+      paths: {
+        "/endpoint": {
+          get: {
+            operationId: "endpoint",
+            responses: {
+              "429": {
+                $ref: "#/components/responses/Rejected",
+              },
+            },
+          },
+        },
+        "/other-endpoint": {
+          get: {
+            operationId: "otherEndpoint",
+            responses: {
+              "503": {
+                $ref: "#/components/responses/Rejected",
+              },
+            },
+          },
+        },
+      },
+      components: {
+        responses: {
+          Rejected: {
+            description: "The request was rejected.",
+            content: {
+              "application/json": {
+                schema: {
+                  type: "string",
+                },
+              },
+            },
+          },
+        },
+      },
+    } as any);
+
+    strictEqual(
+      tsp.includes("op endpoint(): Responses.Rejected;"),
+      true,
+      "Expected first operation to use the generated response model: " + tsp,
+    );
+    strictEqual(
+      tsp.includes("op otherEndpoint(): Responses.Rejected;"),
+      false,
+      "Expected second operation to not reuse the 429 response model: " + tsp,
+    );
+    strictEqual(
+      tsp.includes("@statusCode statusCode: 503;"),
+      true,
+      "Expected second operation to be generated inline with its own status code: " + tsp,
+    );
+  });
+
   describe("Union types with multiple defaults", () => {
     it("should select first default for union types with multiple defaults", async () => {
       const tsp = await convertOpenAPI3Document({

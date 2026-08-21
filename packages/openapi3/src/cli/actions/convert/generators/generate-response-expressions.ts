@@ -1,17 +1,13 @@
-import type {
-  OpenAPI3Header,
-  OpenAPI3MediaType,
-  OpenAPI3Response,
-  OpenAPI3Schema,
-  Refable,
-} from "../../../../types.js";
-import type { TypeSpecDecorator, TypeSpecModelProperty, TypeSpecOperation } from "../interfaces.js";
+import type { OpenAPI3MediaType, OpenAPI3Response, Refable } from "../../../../types.js";
+import type { TypeSpecModelProperty, TypeSpecOperation } from "../interfaces.js";
 import type { Context } from "../utils/context.js";
-import { convertHeaderName } from "../utils/convert-header-name.js";
-import { getDecoratorsForSchema } from "../utils/decorators.js";
+import type { StatusCodes } from "../utils/response-properties.js";
+import {
+  convertHeaderToProperty,
+  convertStatusCodeToProperty,
+  isValidLiteralStatusCode,
+} from "../utils/response-properties.js";
 import { generateModelExpression } from "./generate-model.js";
-
-type StatusCodes = string | "1XX" | "2XX" | "3XX" | "4XX" | "5XX" | "default";
 
 /**
  * Generates a union expression of all possible responses for an operation
@@ -44,6 +40,14 @@ type GenerateReturnTypeForStatusCodeProps = {
 
 function generateReturnTypeForStatusCode(props: GenerateReturnTypeForStatusCodeProps): string[] {
   const { statusCode, context } = props;
+
+  if (
+    "$ref" in props.response &&
+    props.response.$ref.startsWith("#/components/responses/") &&
+    context.getComponentResponseStatusCode(props.response.$ref) === statusCode
+  ) {
+    return [context.getRefName(props.response.$ref, props.operationScope)];
+  }
 
   const response =
     "$ref" in props.response
@@ -316,74 +320,6 @@ function generateDefaultResponse({
   const body = props.body ? `Body = ${props.body}, ` : "";
 
   return `GeneratedHelpers.DefaultResponse<${description}${headers}${body}>`;
-}
-
-function convertStatusCodeToProperty(
-  statusCode: Exclude<StatusCodes, "default">,
-): TypeSpecModelProperty {
-  const schema: OpenAPI3Schema = { type: "integer", format: "int32" };
-  if (statusCode === "1XX") {
-    schema.minimum = 100;
-    schema.maximum = 199;
-  } else if (statusCode === "2XX") {
-    schema.minimum = 200;
-    schema.maximum = 299;
-  } else if (statusCode === "3XX") {
-    schema.minimum = 300;
-    schema.maximum = 399;
-  } else if (statusCode === "4XX") {
-    schema.minimum = 400;
-    schema.maximum = 499;
-  } else if (statusCode === "5XX") {
-    schema.minimum = 500;
-    schema.maximum = 599;
-  } else if (isValidLiteralStatusCode(statusCode)) {
-    const literalStatusCode = parseInt(statusCode, 10);
-    schema.enum = [literalStatusCode];
-  }
-  return {
-    name: "statusCode",
-    schema,
-    decorators: [{ name: "statusCode", args: [] }],
-    isOptional: false,
-  };
-}
-
-function isValidLiteralStatusCode(statusCode: StatusCodes): boolean {
-  if (statusCode === "default" || statusCode.endsWith("X")) return false;
-
-  const literalStatusCode = parseInt(statusCode, 10);
-  return isFinite(literalStatusCode) && literalStatusCode >= 100 && literalStatusCode <= 599;
-}
-
-type ConvertHeaderToPropertyProps = {
-  name: string;
-  header: Refable<OpenAPI3Header>;
-  context: Context;
-};
-function convertHeaderToProperty(
-  props: ConvertHeaderToPropertyProps,
-): TypeSpecModelProperty | undefined {
-  const { name, context } = props;
-  const header =
-    "$ref" in props.header ? context.getByRef<OpenAPI3Header>(props.header.$ref) : props.header;
-
-  if (!header) return;
-
-  const normalizedName = convertHeaderName(name);
-  // TODO: handle style
-  const headerDecorator: TypeSpecDecorator = { name: "header", args: [] };
-  if (normalizedName !== name) {
-    headerDecorator.args.push(name);
-  }
-
-  return {
-    name: normalizedName,
-    decorators: [headerDecorator, ...(header.schema ? getDecoratorsForSchema(header.schema) : [])],
-    doc: props.header.description ?? header.description ?? header.schema?.description,
-    isOptional: !header.required,
-    schema: header.schema ?? {},
-  };
 }
 
 // Map of statusCodes to their Response
