@@ -16,10 +16,38 @@ it("sets streamOf, contentType ('text/event-stream'), and body", async () => {
     model ${t.model("Foo")} is SSEStream<TestEvents>;
   `);
   expect(getStreamOf(program, Foo)).toBe(TestEvents);
-  expect(getContentTypes(Foo.properties.get("contentType")!)[0]).toEqual(["text/event-stream"]);
+  expect(getContentTypes(Foo.properties.get("contentType")!)[0]).toEqual([
+    "text/event-stream",
+  ]);
   expect(Foo.properties.get("body")!.type).toMatchObject({
     kind: "Scalar",
     name: "string",
+  });
+});
+
+it("supports @data event envelopes in SSE streams", async () => {
+  const { MixedEvents, MixedStream, program } = await Tester.compile(t.code`
+    @events
+    union ${t.union("MixedEvents")} {
+      withEnvelope: {
+        metadata: Record<string>,
+        @data contents: string,
+      },
+      withoutEnvelope: {
+        metadata: Record<string>,
+        contents: string,
+      },
+
+    model ${t.model("MixedStream")} is SSEStream<MixedEvents>;
+  `);
+
+  expect(getStreamOf(program, MixedStream)).toBe(MixedEvents);
+  const withEnvelope = MixedEvents.variants.get("withEnvelope")!.type;
+  expect(withEnvelope.kind).toBe("Model");
+  if (withEnvelope.kind !== "Model") return;
+  expect(withEnvelope.properties.get("contents")).toMatchObject({
+    name: "contents",
+    type: { kind: "Scalar", name: "string" },
   });
 });
 
