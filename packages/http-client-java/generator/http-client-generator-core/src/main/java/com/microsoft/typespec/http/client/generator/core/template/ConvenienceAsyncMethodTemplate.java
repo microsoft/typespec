@@ -70,6 +70,16 @@ public class ConvenienceAsyncMethodTemplate extends ConvenienceMethodTemplateBas
         IType protocolResponseBodyType = getConvenienceResponseBodyType(protocolMethod);
         IType rawResponseBodyType = convenienceMethod.getProxyMethod().getRawResponseBodyType();
 
+        if (convenienceMethod.getType() == ClientMethodType.SimpleAsync
+            && isResponseHeadersAsModel(convenienceMethod)) {
+            // The convenience method returns the strongly-typed response-headers model, built from the response
+            // headers of the protocol method (which returns Mono<Response<Void>>).
+            methodBlock.methodReturn(
+                String.format("%1$s(%2$s).map(protocolMethodResponse -> new %3$s(protocolMethodResponse.getHeaders()))",
+                    getMethodName(protocolMethod), invocationExpression, responseBodyType));
+            return;
+        }
+
         if (methodType == ClientMethodType.PagingAsync) {
             String expressionMapFromBinaryData = expressionMapFromBinaryData(responseBodyType, rawResponseBodyType,
                 protocolMethod.getProxyMethod().getResponseContentTypes(), typeReferenceStaticClasses);

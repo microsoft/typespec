@@ -113,8 +113,11 @@ model QueryOptions {
  */
 extern dec query(target: ModelProperty, queryNameOrOptions?: valueof string | QueryOptions);
 
+/**
+ * Options for configuring how a path parameter is serialized into the URI template.
+ */
 model PathOptions {
-  /** Name of the parameter in the uri template. */
+  /** Name of the parameter in the URI template. */
   name?: string;
 
   /**
@@ -143,7 +146,7 @@ model PathOptions {
 /**
  * Explicitly specify that this property is to be interpolated as a path parameter.
  *
- * @param paramNameOrOptions Optional name of the parameter in the uri template or options.
+ * @param paramNameOrOptions Optional name of the parameter in the URI template or options.
  *
  * @example
  *
@@ -195,15 +198,20 @@ extern dec bodyRoot(target: ModelProperty);
 extern dec bodyIgnore(target: ModelProperty);
 
 /**
+ * Specify that the target property is the body of a multipart request or response.
+ *
+ * The property type must be a model or tuple whose members are all `HttpPart`, each describing one
+ * part of the payload.
+ *
  * @example
  *
  * ```tsp
  * op upload(
  *   @header `content-type`: "multipart/form-data",
  *   @multipartBody body: {
- *     fullName: HttpPart<string>,
- *     headShots: HttpPart<Image>[]
- *   }
+ *     fullName: HttpPart<string>;
+ *     headShots: HttpPart<Image>[];
+ *   },
  * ): void;
  * ```
  */
@@ -267,11 +275,11 @@ model PatchOptions {
    * If set to `false`, disables the implicit transform that makes the body of a
    * PATCH operation deeply optional.
    *
-   * @deprecated `implicitOptionality` is deprecated and will be removed.
-   *   To preserve the previous behavior, define and use an explicit patch model
-   *   with optional properties for your `@body` parameter.
-   *   For actual JSON Merge Patch behavior, use `MergePatchUpdate<T>` as the
-   *   `@body` type (for example: `@patch op update(@body pet: MergePatchUpdate<Pet>): void;`).
+   * **Deprecated:** `implicitOptionality` is deprecated and will be removed.
+   * To preserve the previous behavior, define and use an explicit patch model
+   * with optional properties for your `@body` parameter.
+   * For actual JSON Merge Patch behavior, use `MergePatchUpdate<T>` as the
+   * `@body` type (for example: `@patch op update(@body pet: MergePatchUpdate<Pet>): void;`).
    */
   implicitOptionality?: boolean;
 }
@@ -384,7 +392,7 @@ extern dec useAuth(target: Namespace | Interface | Operation, auth: {} | Union |
  *
  * `@route` can only be applied to operations, namespaces, and interfaces.
  *
- * @param uriTemplate Uri template for this operation.
+ * @param path URI template for this operation.
  *
  * @example Simple path parameter
  *

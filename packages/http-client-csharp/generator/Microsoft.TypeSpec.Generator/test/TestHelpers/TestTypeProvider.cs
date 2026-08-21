@@ -16,6 +16,8 @@ namespace Microsoft.TypeSpec.Generator.Tests
         private readonly ConstructorProvider[] _constructors;
         private readonly string _name;
         private readonly string _namespace;
+        private readonly CSharpType[]? _implements;
+        private readonly CSharpType? _baseType;
         protected override string BuildRelativeFilePath() => $"{Name}.cs";
 
         protected override string BuildName() => _name;
@@ -27,6 +29,10 @@ namespace Microsoft.TypeSpec.Generator.Tests
         protected internal override MethodProvider[] BuildMethods() => _methods;
 
         protected internal override ConstructorProvider[] BuildConstructors() => _constructors;
+
+        protected internal override CSharpType[] BuildImplements() => _implements ?? base.BuildImplements();
+
+        protected override CSharpType? BuildBaseType() => _baseType ?? base.BuildBaseType();
         protected override TypeProvider[] BuildNestedTypes() => NestedTypesInternal ?? base.BuildNestedTypes();
 
         public static readonly TypeProvider Empty = new TestTypeProvider();
@@ -37,7 +43,9 @@ namespace Microsoft.TypeSpec.Generator.Tests
             IEnumerable<MethodProvider>? methods = null,
             IEnumerable<PropertyProvider>? properties = null,
             string? ns = null,
-            IEnumerable<ConstructorProvider>? constructors = null)
+            IEnumerable<ConstructorProvider>? constructors = null,
+            IEnumerable<CSharpType>? implements = null,
+            CSharpType? baseType = null)
         {
             _declarationModifiers = declarationModifiers;
             _methods = methods?.ToArray() ?? [];
@@ -45,6 +53,8 @@ namespace Microsoft.TypeSpec.Generator.Tests
             _constructors = constructors?.ToArray() ?? [];
             _name = name ?? "TestName";
             _namespace = ns ?? "Test";
+            _implements = implements?.ToArray();
+            _baseType = baseType;
         }
 
         internal TypeProvider[]? NestedTypesInternal { get; set; }

@@ -1,5 +1,6 @@
 import { assert, expect, it } from "vitest";
-import { Enum, getDoc, StringLiteral, Union } from "../../src/index.js";
+import type { Enum, StringLiteral, Union } from "../../src/index.js";
+import { getDoc } from "../../src/index.js";
 import { expectDiagnostics, t } from "../../src/testing/index.js";
 import { $ } from "../../src/typekit/index.js";
 import { Tester } from "../tester.js";

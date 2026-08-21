@@ -2,8 +2,9 @@ import { dereference } from "@scalar/openapi-parser";
 import { formatTypeSpec } from "@typespec/compiler";
 import { strictEqual } from "node:assert";
 import { beforeAll, describe, it } from "vitest";
-import { Context, createContext } from "../../src/cli/actions/convert/utils/context.js";
-import { OpenAPI3Document, OpenAPI3Schema } from "../../src/types.js";
+import type { Context } from "../../src/cli/actions/convert/utils/context.js";
+import { createContext } from "../../src/cli/actions/convert/utils/context.js";
+import type { OpenAPI3Document, OpenAPI3Schema } from "../../src/types.js";
 
 /**
  * Unit tests for the new HTTP part generation methods in SchemaToExpressionGenerator:

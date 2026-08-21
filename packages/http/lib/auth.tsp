@@ -232,5 +232,6 @@ model OpenIdConnectAuth<ConnectUrl extends string, Scopes extends string[] = []>
  */
 @doc("")
 model NoAuth {
+  /** No authentication. */
   type: AuthType.noAuth;
 }

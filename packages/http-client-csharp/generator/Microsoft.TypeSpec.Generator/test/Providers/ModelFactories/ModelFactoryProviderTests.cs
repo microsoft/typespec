@@ -408,6 +408,30 @@ namespace Microsoft.TypeSpec.Generator.Tests.Providers.ModelFactories
         }
 
         [Test]
+        public async Task BackCompatibility_SkipsNonPublicPreviousMethod()
+        {
+            _instance = (await MockHelpers.LoadMockGeneratorAsync(
+                inputNamespaceName: "Sample.Namespace",
+                inputModelTypes: ModelList,
+                lastContractCompilation: async () => await Helpers.GetCompilationFromDirectoryAsync())).Object;
+
+            var modelFactory = _instance!.OutputLibrary.ModelFactory.Value;
+
+            // The last contract exposes an internal factory method that no longer exists in the current
+            // contract. It is surfaced in the last-contract view (metadata import includes non-public members)
+            // but is not part of the public compatibility surface.
+            Assert.IsTrue(modelFactory.LastContractView!.Methods.Any(m =>
+                m.Signature.Name == "PublicModel1OldName"
+                && m.Signature.Modifiers.HasFlag(MethodSignatureModifiers.Internal)));
+
+            modelFactory.ProcessTypeForBackCompatibility();
+
+            // No back-compat shim is generated for the internal previous method.
+            var content = new TypeProviderWriter(modelFactory).Write().Content;
+            Assert.AreEqual(Helpers.GetExpectedFromFile(), content);
+        }
+
+        [Test]
         public async Task BackCompatibility_SuppressedByApiCompatBaselineNotRegenerated()
         {
             // The previous contract contains a "PublicModel1OldName" factory method that no longer
@@ -597,6 +621,31 @@ namespace Microsoft.TypeSpec.Generator.Tests.Providers.ModelFactories
             Assert.AreEqual("previousDictProp", docParams[3].Parameter.Name);
         }
 
+        [Test]
+        public async Task BackCompatibility_ModelFactoryParameterPreservesDateTimeSuffix()
+        {
+            var dateTime = new InputDateTimeType(
+                DateTimeKnownEncoding.Rfc3339,
+                "utcDateTime",
+                "TypeSpec.utcDateTime",
+                InputPrimitiveType.String);
+            var model = InputFactory.Model(
+                "DateTimeModel",
+                properties: [InputFactory.Property("StartTime", dateTime, isRequired: true)]);
+
+            _instance = (await MockHelpers.LoadMockGeneratorAsync(
+                inputNamespaceName: "Sample.Namespace",
+                inputModelTypes: [model],
+                lastContractCompilation: async () => await Helpers.GetCompilationFromDirectoryAsync())).Object;
+
+            var modelFactory = _instance.OutputLibrary.ModelFactory.Value;
+            modelFactory.ProcessTypeForBackCompatibility();
+
+            var method = modelFactory.Methods.Single(m => m.Signature.Name == "DateTimeModel");
+            Assert.AreEqual("startTime", method.Signature.Parameters.Single().Name);
+            StringAssert.Contains("DateTimeModel(startTime", method.BodyStatements!.ToDisplayString());
+        }
+
         // Validates that when a new property is added AND the previous contract used different
         // names for some of the surviving parameters, the rename-only fast path does NOT apply
         // (parameter counts differ). Instead the standard "new property added" backcompat overload
@@ -658,6 +707,208 @@ namespace Microsoft.TypeSpec.Generator.Tests.Providers.ModelFactories
             var bodyString = body!.ToDisplayString();
             StringAssert.Contains("listProp ??= new global::Sample.Namespace.ChangeTrackingList<string>();", bodyString);
             StringAssert.Contains("return new global::Sample.Models.PublicModel1(default, default, listProp.ToList(), default, additionalBinaryDataProperties: null);", bodyString);
+        }
+
+        [Test]
+        public void NewAcronymParameterNameIsNormalized()
+        {
+            var model = InputFactory.Model(
+                "AggregateRouteConfiguration",
+                properties:
+                [
+                    InputFactory.Property("Ipv4Routes", InputFactory.Array(InputPrimitiveType.String)),
+                ]);
+
+            _instance = MockHelpers.LoadMockGenerator(
+                inputNamespaceName: "Sample.Namespace",
+                inputModelTypes: [model]).Object;
+
+            var modelFactory = _instance.OutputLibrary.ModelFactory.Value;
+            var method = modelFactory.Methods.Single(m =>
+                m.Signature.Name == "AggregateRouteConfiguration");
+
+            Assert.That(
+                method.Signature.Parameters.Select(p => p.Name),
+                Is.EqualTo(new[] { "ipv4Routes" }));
+        }
+
+        [Test]
+        public async Task BackCompatibility_AcronymParameterNameIsPreservedAlongsideNormalizedCurrentMethod()
+        {
+            var model = InputFactory.Model(
+                "AggregateRouteConfiguration",
+                properties:
+                [
+                    InputFactory.Property("Ipv4Routes", InputFactory.Array(InputPrimitiveType.String)),
+                    InputFactory.Property("NewProperty", InputPrimitiveType.String),
+                ]);
+
+            _instance = (await MockHelpers.LoadMockGeneratorAsync(
+                inputNamespaceName: "Sample.Namespace",
+                inputModelTypes: [model],
+                lastContractCompilation: async () => await Helpers.GetCompilationFromDirectoryAsync(
+                    method: "BackCompatibility_AcronymParameterNameIsPreservedInForwardingCall"))).Object;
+
+            var modelFactory = _instance.OutputLibrary.ModelFactory.Value;
+            modelFactory.ProcessTypeForBackCompatibility();
+
+            var currentMethod = modelFactory.Methods.Single(m =>
+                m.Signature.Name == "AggregateRouteConfiguration"
+                && m.Signature.Parameters.Count == 2);
+            var backCompatMethod = modelFactory.Methods.Single(m =>
+                m.Signature.Name == "AggregateRouteConfiguration"
+                && m.Signature.Parameters.Count == 1);
+
+            Assert.AreEqual("ipv4Routes", currentMethod.Signature.Parameters[0].Name);
+            Assert.AreEqual("iPv4Routes", backCompatMethod.Signature.Parameters[0].Name);
+            Assert.That(backCompatMethod.BodyStatements!.ToDisplayString(), Does.Contain("iPv4Routes"));
+            Assert.That(backCompatMethod.BodyStatements!.ToDisplayString(), Does.Not.Contain("ipv4Routes"));
+        }
+
+        [Test]
+        public async Task BackCompatibility_SkipsMethodWithUnavailableParameterType()
+        {
+            var externalTool = InputFactory.Model(
+                "Tool",
+                external: new InputExternalTypeMetadata("System.Uri", null, null));
+            var hostedAgentDefinition = InputFactory.Model(
+                "HostedAgentDefinition",
+                properties:
+                [
+                    InputFactory.Property("Tool", externalTool)
+                ]);
+
+            _instance = (await MockHelpers.LoadMockGeneratorAsync(
+                inputNamespaceName: "Sample.Namespace",
+                inputModelTypes: [externalTool, hostedAgentDefinition],
+                lastContractCompilation: async () => await Helpers.GetCompilationFromDirectoryAsync())).Object;
+
+            var modelFactory = _instance.OutputLibrary.ModelFactory.Value;
+            modelFactory.ProcessTypeForBackCompatibility();
+
+            var methods = modelFactory.Methods
+                .Where(method => method.Signature.Name == "HostedAgentDefinition")
+                .ToList();
+            Assert.AreEqual(1, methods.Count);
+            Assert.AreEqual(typeof(Uri), methods[0].Signature.Parameters.Single().Type.FrameworkType);
+
+            var content = new TypeProviderWriter(modelFactory).Write().Content;
+            StringAssert.DoesNotContain("ProjectsAgentTool", content);
+        }
+
+        [Test]
+        public async Task BackCompatibility_SkipsMethodWithUnavailableGenericParameterType()
+        {
+            var externalTool = InputFactory.Model(
+                "Tool",
+                external: new InputExternalTypeMetadata("System.Uri", null, null));
+            var hostedAgentDefinition = InputFactory.Model(
+                "HostedAgentDefinition",
+                properties:
+                [
+                    InputFactory.Property("Tools", InputFactory.Array(externalTool))
+                ]);
+
+            _instance = (await MockHelpers.LoadMockGeneratorAsync(
+                inputNamespaceName: "Sample.Namespace",
+                inputModelTypes: [externalTool, hostedAgentDefinition],
+                lastContractCompilation: async () => await Helpers.GetCompilationFromDirectoryAsync())).Object;
+
+            var modelFactory = _instance.OutputLibrary.ModelFactory.Value;
+            modelFactory.ProcessTypeForBackCompatibility();
+
+            var methods = modelFactory.Methods
+                .Where(method => method.Signature.Name == "HostedAgentDefinition")
+                .ToList();
+            Assert.AreEqual(1, methods.Count);
+
+            var toolsParameter = methods[0].Signature.Parameters.Single();
+            Assert.AreEqual(typeof(IEnumerable<>), toolsParameter.Type.FrameworkType);
+            Assert.AreEqual(typeof(Uri), toolsParameter.Type.Arguments.Single().FrameworkType);
+
+            var content = new TypeProviderWriter(modelFactory).Write().Content;
+            StringAssert.DoesNotContain("ProjectsAgentTool", content);
+        }
+
+        [Test]
+        public async Task BackCompatibility_PreservesMethodWithAvailableArrayParameterType()
+        {
+            var tool = InputFactory.Model("Tool");
+            var hostedAgentDefinition = InputFactory.Model(
+                "HostedAgentDefinition",
+                properties:
+                [
+                    InputFactory.Property("Tools", InputFactory.Array(tool))
+                ]);
+
+            _instance = (await MockHelpers.LoadMockGeneratorAsync(
+                inputNamespaceName: "Sample.Namespace",
+                inputModelTypes: [tool, hostedAgentDefinition],
+                lastContractCompilation: async () => await Helpers.GetCompilationFromDirectoryAsync())).Object;
+
+            var modelFactory = _instance.OutputLibrary.TypeProviders.OfType<ModelFactoryProvider>().Single();
+            var previousMethod = modelFactory.LastContractView!.Methods
+                .Single(method => method.Signature.Name == "HostedAgentDefinition");
+            Assert.IsEmpty(ModelFactoryProvider.GetUnavailableSignatureTypes(previousMethod.Signature));
+        }
+
+        [Test]
+        public async Task BackCompatibility_SkipsMethodWithUnavailableArrayParameterType()
+        {
+            var externalTool = InputFactory.Model(
+                "Tool",
+                external: new InputExternalTypeMetadata("System.Uri", null, null));
+            var hostedAgentDefinition = InputFactory.Model(
+                "HostedAgentDefinition",
+                properties:
+                [
+                    InputFactory.Property("Tools", InputFactory.Array(externalTool))
+                ]);
+
+            _instance = (await MockHelpers.LoadMockGeneratorAsync(
+                inputNamespaceName: "Sample.Namespace",
+                inputModelTypes: [externalTool, hostedAgentDefinition],
+                lastContractCompilation: async () => await Helpers.GetCompilationFromDirectoryAsync())).Object;
+
+            var modelFactory = _instance.OutputLibrary.TypeProviders.OfType<ModelFactoryProvider>().Single();
+            var previousMethod = modelFactory.LastContractView!.Methods
+                .Single(method => method.Signature.Name == "HostedAgentDefinition");
+            CollectionAssert.AreEqual(
+                new[] { "Sample.Models.ProjectsAgentTool" },
+                ModelFactoryProvider.GetUnavailableSignatureTypes(previousMethod.Signature));
+
+            modelFactory.ProcessTypeForBackCompatibility();
+
+            var methods = modelFactory.Methods
+                .Where(method => method.Signature.Name == "HostedAgentDefinition")
+                .ToList();
+            Assert.AreEqual(1, methods.Count);
+
+            var content = new TypeProviderWriter(modelFactory).Write().Content;
+            StringAssert.DoesNotContain("ProjectsAgentTool", content);
+        }
+
+        [Test]
+        public async Task BackCompatibility_SkipsMethodWithUnavailableReturnType()
+        {
+            var hostedAgentDefinition = InputFactory.Model("HostedAgentDefinition");
+
+            _instance = (await MockHelpers.LoadMockGeneratorAsync(
+                inputNamespaceName: "Sample.Namespace",
+                inputModelTypes: [hostedAgentDefinition],
+                lastContractCompilation: async () => await Helpers.GetCompilationFromDirectoryAsync())).Object;
+
+            var modelFactory = _instance.OutputLibrary.ModelFactory.Value;
+            modelFactory.ProcessTypeForBackCompatibility();
+
+            var methods = modelFactory.Methods
+                .Where(method => method.Signature.Name == "HostedAgentDefinition")
+                .ToList();
+            Assert.AreEqual(1, methods.Count);
+            Assert.AreEqual("HostedAgentDefinition", methods[0].Signature.ReturnType?.Name);
+
+            var content = new TypeProviderWriter(modelFactory).Write().Content;
+            StringAssert.DoesNotContain("ProjectsAgentTool", content);
         }
 
         [Test]
@@ -845,11 +1096,12 @@ namespace Microsoft.TypeSpec.Generator.Tests.Providers.ModelFactories
                 result);
         }
 
-        // Regression test for a model factory parameter SWAP bug: when the previous contract
-        // contained the same-typed parameters in a different order from the current contract,
-        // a naive positional rename would swap which parameter feeds which constructor field
-        // via name-based lookup in GetCtorArgs, producing semantically wrong (and
-        // source-breaking) generated code. Verify no rename occurs in this collision case.
+        // Regression test for a model factory parameter SWAP: when the previous contract contained
+        // the same-typed parameters in a different order from the current contract, the signature
+        // comparer (which ignores names) hid the reorder, leaving a source-breaking CP0017
+        // parameter-name change. The generator now realigns the existing parameter objects to the
+        // previous order, restoring the published signature without corrupting the body's name-based
+        // constructor-argument lookup.
         [Test]
         public async Task BackCompatibility_SwapTypeParamsDoesNotCorrupt()
         {
@@ -877,26 +1129,75 @@ namespace Microsoft.TypeSpec.Generator.Tests.Providers.ModelFactories
 
             var method = swapMethods[0];
             var parameters = method.Signature.Parameters;
-            // The current method should keep its parameters in the order/names derived from the
-            // current spec: eventId, itemId. A positional rename to the previous contract names
-            // (which were swapped: itemId, eventId) would corrupt the body, so we explicitly
-            // skip the rename when it would create a name collision with another parameter.
+            // The parameters are realigned to the previous contract's order (itemId, eventId) so the
+            // published signature is preserved. The parameter objects keep their names, so no CP0017
+            // parameter-name change is emitted.
             Assert.AreEqual(2, parameters.Count);
-            Assert.AreEqual("eventId", parameters[0].Name);
-            Assert.AreEqual("itemId", parameters[1].Name);
+            Assert.AreEqual("itemId", parameters[0].Name);
+            Assert.AreEqual("eventId", parameters[1].Name);
 
             // No EditorBrowsable hidden overload — there's a single visible method.
             Assert.AreEqual(0, method.Signature.Attributes.Count);
 
-            // The body must reference the parameters in their original positions so that
-            // eventId continues to feed the eventId constructor field and itemId continues
-            // to feed the itemId constructor field.
+            // The body still references the parameters by their original objects, so eventId continues
+            // to feed the eventId constructor field and itemId continues to feed the itemId field.
             var body = method.BodyStatements;
             Assert.IsNotNull(body);
             var result = body!.ToDisplayString();
             Assert.AreEqual(
                 "return new global::Sample.Models.SwapModel(eventId, itemId, additionalBinaryDataProperties: null);\n",
                 result);
+        }
+
+        [Test]
+        public async Task BackCompatibility_AbstractReturnTypeOverloadIsGenerated()
+        {
+            var derived = InputFactory.Model("DerivedModel", discriminatedKind: "derived");
+            var baseModel = InputFactory.Model(
+                "AbstractModel",
+                properties:
+                [
+                    InputFactory.Property("kind", InputPrimitiveType.String, isRequired: true, isDiscriminator: true),
+                    InputFactory.Property("prop1", InputPrimitiveType.String),
+                    InputFactory.Property("prop2", InputPrimitiveType.String),
+                ],
+                derivedModels: [derived]);
+
+            _instance = (await MockHelpers.LoadMockGeneratorAsync(
+                inputNamespaceName: "Sample.Namespace",
+                inputModelTypes: [baseModel, derived],
+                lastContractCompilation: async () => await Helpers.GetCompilationFromDirectoryAsync())).Object;
+
+            var modelFactory = _instance!.OutputLibrary.ModelFactory.Value;
+            modelFactory.ProcessTypeForBackCompatibility();
+
+            var content = new TypeProviderWriter(modelFactory).Write().Content;
+            Assert.AreEqual(Helpers.GetExpectedFromFile(), content);
+        }
+
+        [Test]
+        public async Task BackCompatibility_UnknownDiscriminatorReturnTypeOverloadIsGenerated()
+        {
+            var derived = InputFactory.Model("DerivedModel", discriminatedKind: "derived");
+            var baseModel = InputFactory.Model(
+                "AbstractModel",
+                properties:
+                [
+                    InputFactory.Property("kind", InputPrimitiveType.String, isRequired: true, isDiscriminator: true),
+                    InputFactory.Property("prop1", InputPrimitiveType.String),
+                ],
+                derivedModels: [derived]);
+
+            _instance = (await MockHelpers.LoadMockGeneratorAsync(
+                inputNamespaceName: "Sample.Namespace",
+                inputModelTypes: [baseModel, derived],
+                lastContractCompilation: async () => await Helpers.GetCompilationFromDirectoryAsync())).Object;
+
+            var modelFactory = _instance!.OutputLibrary.ModelFactory.Value;
+            modelFactory.ProcessTypeForBackCompatibility();
+
+            var content = new TypeProviderWriter(modelFactory).Write().Content;
+            Assert.AreEqual(Helpers.GetExpectedFromFile(), content);
         }
 
         [Test]

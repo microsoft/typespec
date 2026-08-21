@@ -1,7 +1,7 @@
 // Copyright (c) Microsoft Corporation
 // Licensed under the MIT license.
 
-import { DeclarationType, JsContext, Module } from "../ctx.js";
+import type { DeclarationType, JsContext, Module } from "../ctx.js";
 import { emitEnum } from "./enum.js";
 import { emitInterface } from "./interface.js";
 import { emitModel } from "./model.js";

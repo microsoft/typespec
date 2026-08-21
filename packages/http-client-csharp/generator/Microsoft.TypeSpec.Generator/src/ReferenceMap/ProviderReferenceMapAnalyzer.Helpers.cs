@@ -311,17 +311,6 @@ namespace Microsoft.TypeSpec.Generator
             }
         }
 
-        private static void AddMatchingNamesWithSimpleNameSuffix(HashSet<string> target, string suffix, HashSet<string> nodes)
-        {
-            foreach (var node in nodes)
-            {
-                if (GetSimpleName(node).EndsWith(suffix, StringComparison.Ordinal))
-                {
-                    target.Add(node);
-                }
-            }
-        }
-
         private static Dictionary<string, string[]> BuildSimpleNameLookup(HashSet<string> nodes)
             => BuildSimpleNameLookup(nodes, ignoreGenericArity: true);
 

@@ -5,6 +5,7 @@
     "outDir": "dist",
     "rootDir": ".",
     "tsBuildInfoFile": "temp/tsconfig.tsbuildinfo",
-    "verbatimModuleSyntax": true
+    "allowImportingTsExtensions": true,
+    "noEmit": true
   }
 }

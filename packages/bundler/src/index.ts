@@ -1,8 +1,8 @@
 export {
-  BundleManifest,
-  CreateTypeSpecBundleOptions,
-  TypeSpecBundle,
-  TypeSpecBundleDefinition,
-  TypeSpecBundleFile,
   createTypeSpecBundle,
+  type BundleManifest,
+  type CreateTypeSpecBundleOptions,
+  type TypeSpecBundle,
+  type TypeSpecBundleDefinition,
+  type TypeSpecBundleFile,
 } from "./bundler.js";

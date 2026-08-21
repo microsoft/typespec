@@ -103,21 +103,16 @@ class TypesSerializer(BaseSerializer):
 
         TypedDicts (and discriminated-base union aliases) in ``types.py`` describe request-body
         (*input*) shapes. Output-only models already render as classes in ``models/`` and are
-        referenced via ``_models.*``, so a response-only model that nothing input references would be
-        dead code. A model seeds the input surface when it is:
-
-        * a typeddict copy (``base == "typeddict"``) — these only exist as input body overloads
-          (their ``usage`` may carry ``Spread``/``Json`` rather than ``Input``), or
-        * ``is_typed_dict_only`` — includes every model in full ``typeddict`` mode (responses too),
-          and input-only anonymous bodies, or
-        * used as input (``is_usage_input``) — e.g. a model shared between request and response.
+        referenced via ``_models.*``, so a model that no operation references through ``types.py``
+        would be dead code. TypedDict copies and models in full TypedDict mode volunteer through
+        ``is_used_in_operations_via_types``.
 
         The full set rendered in types.py is the transitive closure of these seeds over base
         classes, discriminated subtypes and property types (see :attr:`_types_file_model_names`), so
         an output-only model that *is* referenced by an input model (e.g. ARM ``SystemData`` on
         ``Resource``) is still rendered.
         """
-        return m.base == "typeddict" or m.is_typed_dict_only or m.is_usage_input
+        return m.is_used_in_operations_via_types
 
     @staticmethod
     def _iter_referenced_models(base_type: Any):
@@ -189,9 +184,7 @@ class TypesSerializer(BaseSerializer):
         property — are kept, ensuring no forward reference is left undefined.
         """
         needed = self._types_file_model_names
-        candidates = [
-            m for m in self._models if m.base != "json" and not m.discriminated_subtypes and m.name in needed
-        ]
+        candidates = [m for m in self._models if m.base != "json" and not m.discriminated_subtypes and m.name in needed]
         seen_names: dict[str, "ModelType"] = {}
         result: list["ModelType"] = []
         for m in candidates:

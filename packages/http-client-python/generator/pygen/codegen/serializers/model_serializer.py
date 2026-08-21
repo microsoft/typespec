@@ -23,7 +23,7 @@ from ..models.primitive_types import (
 )
 from .import_serializer import FileImportSerializer
 from .base_serializer import BaseSerializer
-from ..models.utils import NamespaceType, add_to_pylint_disable
+from ..models.utils import NamespaceType, add_to_pylint_disable, escape_sphinx_field_name
 
 
 def _get_xml_deserializer_name(prop: Property) -> Optional[str]:  # pylint: disable=too-many-return-statements
@@ -77,7 +77,13 @@ def _documentation_string(
     prop: Property, description_keyword: str, docstring_type_keyword: str, **kwargs: Any
 ) -> list[str]:
     retval: list[str] = []
-    sphinx_prefix = f":{description_keyword} {prop.client_name}:"
+    doc_name = (
+        prop.wire_name if kwargs.get("serialize_namespace_type") == NamespaceType.TYPES_FILE else prop.client_name
+    )
+    # Escape names that Sphinx would otherwise misinterpret in the info field target
+    # (e.g. a wire name with a leading "@" such as "@search.facets").
+    doc_name = escape_sphinx_field_name(doc_name)
+    sphinx_prefix = f":{description_keyword} {doc_name}:"
     description = prop.description(is_operation_file=False).replace("\\", "\\\\")
     retval.append(f"{sphinx_prefix} {description}" if description else sphinx_prefix)
     # In the types file, use type_annotation (the serialized form) for docstrings
@@ -85,7 +91,7 @@ def _documentation_string(
         doc_type = prop.type.type_annotation(**kwargs)
     else:
         doc_type = prop.type.docstring_type(**kwargs)
-    retval.append(f":{docstring_type_keyword} {prop.client_name}: {doc_type}")
+    retval.append(f":{docstring_type_keyword} {doc_name}: {doc_type}")
     return retval
 
 

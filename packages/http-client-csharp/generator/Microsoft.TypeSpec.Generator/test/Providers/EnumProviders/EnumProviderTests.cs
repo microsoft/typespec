@@ -1,7 +1,7 @@
 // Copyright (c) Microsoft Corporation. All rights reserved.
 // Licensed under the MIT License.
 
-// cspell:ignore readded
+// cspell:ignore DBOSIP IPDBOS readded
 
 using System;
 using System.Collections.Generic;
@@ -88,6 +88,64 @@ namespace Microsoft.TypeSpec.Generator.Tests.Providers
             // non-int based enum does not initialization values.
             Assert.IsNull(fields[0].InitializationValue);
             Assert.IsNull(fields[1].InitializationValue);
+        }
+
+        [TestCase(false, "CosmosDbOsIpKind", false, "CosmosDBOSIPKind")]
+        [TestCase(true, "IpDbOsValue", false, "IPDBOSValue")]
+        [TestCase(false, "Ipv4AddressIpv6", false, "IPv4AddressIPv6")]
+        [TestCase(true, "IpV4AddressIpV6", false, "IPv4AddressIPv6")]
+        [TestCase(false, "IPV4AddressIPV6", false, "IPV4AddressIPV6")]
+        [TestCase(true, "OsloIpsumOsmosisDbz", false, "OsloIpsumOsmosisDbz")]
+        [TestCase(false, "IpKind", true, "IpKind")]
+        public void BuildEnumType_NormalizesTypeAcronymCasing(
+            bool isExtensible,
+            string inputName,
+            bool isExactName,
+            string expectedName)
+        {
+            MockHelpers.LoadMockGenerator(createCSharpTypeCore: (inputType) => typeof(string));
+            var input = InputFactory.StringEnum(
+                inputName,
+                [("Value", "value")],
+                isExtensible: isExtensible,
+                isExactName: isExactName);
+
+            var enumType = EnumProvider.Create(input);
+
+            Assert.AreEqual(expectedName, enumType.Name);
+        }
+
+        [Test]
+        public async Task BuildEnumType_BackCompatTakesPrecedenceOverAcronymNormalization()
+        {
+            await MockHelpers.LoadMockGeneratorAsync(
+                createCSharpTypeCore: (inputType) => typeof(string),
+                lastContractCompilation: async () => await Helpers.GetCompilationFromDirectoryAsync());
+            var input = InputFactory.StringEnum("IpKind", [("Value", "value")]);
+
+            var enumType = EnumProvider.Create(input);
+
+            Assert.AreEqual("IpKind", enumType.Name);
+        }
+
+        [Test]
+        public async Task BuildEnumType_BackCompatTakesPrecedenceAfterNamespaceUpdate()
+        {
+            await MockHelpers.LoadMockGeneratorAsync(
+                createCSharpTypeCore: (inputType) => typeof(string),
+                lastContractCompilation: async () => await Helpers.GetCompilationFromDirectoryAsync());
+            var input = InputFactory.StringEnum(
+                "IpKind",
+                [("Value", "value")],
+                clientNamespace: "Sample");
+
+            var enumType = EnumProvider.Create(input);
+            Assert.AreEqual("IPKind", enumType.Name);
+
+            enumType.Update(@namespace: "Sample.Models");
+
+            Assert.AreEqual("IpKind", enumType.Name);
+            Assert.IsNotNull(enumType.LastContractView);
         }
 
         // Validates the api version enum
@@ -650,6 +708,203 @@ namespace Microsoft.TypeSpec.Generator.Tests.Providers
             Assert.IsNull(fields[1].InitializationValue);
         }
 
+        // Validates that a member removed from an extensible (string-backed) enum is re-added from the
+        // last contract. Unlike fixed string enums, an extensible enum stores its wire value in a private
+        // const `<Member>Value` field, so the value is recoverable (even from a compiled assembly's
+        // metadata) and the previously shipped member can be restored to avoid a source-breaking removal.
+        [Test]
+        public async Task BackCompat_ExtensibleEnumRemovedValueReadded()
+        {
+            await MockHelpers.LoadMockGeneratorAsync(
+                createCSharpTypeCore: (inputType) => typeof(string),
+                lastContractCompilation: async () => await Helpers.GetCompilationFromDirectoryAsync());
+
+            // Last contract: Default, Recover, Third. Current input removes "Third".
+            var input = InputFactory.StringEnum("mockInputEnum", [
+                ("Default", "default"),
+                ("Recover", "recover"),
+            ], isExtensible: true);
+
+            var enumType = EnumProvider.Create(input);
+            Assert.IsFalse(enumType is ApiVersionEnumProvider);
+
+            enumType.EnsureBuilt();
+            enumType.ProcessTypeForBackCompatibility();
+
+            // "Third" is re-added (appended after the current members) as a public static property.
+            var properties = enumType.Properties;
+            Assert.AreEqual(3, properties.Count);
+            Assert.AreEqual("Default", properties[0].Name);
+            Assert.AreEqual("Recover", properties[1].Name);
+            Assert.AreEqual("Third", properties[2].Name);
+
+            // The corresponding enum value carries the wire value recovered from the last contract.
+            var thirdMember = enumType.EnumValues.SingleOrDefault(v => v.Name == "Third");
+            Assert.IsNotNull(thirdMember);
+            Assert.AreEqual("third", thirdMember!.Value);
+
+            // Validate the full generated output, including the restored const `<Member>Value` field
+            // and the preserved backing `_value` field.
+            var content = new TypeProviderWriter(enumType).Write().Content;
+            Assert.AreEqual(Helpers.GetExpectedFromFile(), content);
+        }
+
+        // Validates that a removed extensible enum member that was NON-public in the last contract is not
+        // re-added: only public members are part of the compatibility surface, and the last-contract view
+        // also surfaces non-public members (e.g. an internal member added via custom code).
+        [Test]
+        public async Task BackCompat_ExtensibleEnumNonPublicValueNotReadded()
+        {
+            await MockHelpers.LoadMockGeneratorAsync(
+                createCSharpTypeCore: (inputType) => typeof(string),
+                lastContractCompilation: async () => await Helpers.GetCompilationFromDirectoryAsync());
+
+            // Last contract: Default, Recover (public), Internal (internal). Current input removes "Internal".
+            var input = InputFactory.StringEnum("mockInputEnum", [
+                ("Default", "default"),
+                ("Recover", "recover"),
+            ], isExtensible: true);
+
+            var enumType = EnumProvider.Create(input);
+            Assert.IsFalse(enumType is ApiVersionEnumProvider);
+
+            enumType.EnsureBuilt();
+            enumType.ProcessTypeForBackCompatibility();
+
+            // The non-public "Internal" member is not part of the public contract, so it is not re-added.
+            var properties = enumType.Properties;
+            Assert.AreEqual(2, properties.Count);
+            Assert.IsFalse(properties.Any(p => p.Name == "Internal"));
+            Assert.AreEqual("Default", properties[0].Name);
+            Assert.AreEqual("Recover", properties[1].Name);
+            Assert.IsFalse(enumType.Fields.Any(f => f.Name == "InternalValue"));
+
+            // Validate the full generated output; "Internal" (property and its const `InternalValue` field) is absent.
+            var content = new TypeProviderWriter(enumType).Write().Content;
+            Assert.AreEqual(Helpers.GetExpectedFromFile(), content);
+        }
+
+        // Validates that a removed extensible enum member is NOT re-added when its removal is accepted in
+        // the ApiCompat baseline (recorded as a MembersMustExist suppression), so the generator honors the
+        // intentional removal instead of resurrecting it. Runs against both the text and XML baseline
+        // formats to ensure either representation of the accepted removal is honored.
+        [TestCase(".txt")]
+        [TestCase(".xml")]
+        public async Task BackCompat_ExtensibleEnumRemovedValueNotReaddedWhenBaselineAccepts(string baselineExtension)
+        {
+            var baseline = Helpers.GetApiCompatBaselineFromFile(fileExtension: baselineExtension);
+
+            await MockHelpers.LoadMockGeneratorAsync(
+                createCSharpTypeCore: (inputType) => typeof(string),
+                lastContractCompilation: async () => await Helpers.GetCompilationFromDirectoryAsync(),
+                apiCompatBaseline: baseline);
+
+            // Last contract: Default, Recover, Third. Current input removes "Third", but the baseline
+            // accepts that removal, so it must NOT be re-added.
+            var input = InputFactory.StringEnum("mockInputEnum", [
+                ("Default", "default"),
+                ("Recover", "recover"),
+            ], isExtensible: true);
+
+            var enumType = EnumProvider.Create(input);
+            Assert.IsFalse(enumType is ApiVersionEnumProvider);
+
+            enumType.EnsureBuilt();
+            enumType.ProcessTypeForBackCompatibility();
+
+            var properties = enumType.Properties;
+            Assert.AreEqual(2, properties.Count);
+            Assert.IsFalse(properties.Any(p => p.Name == "Third"));
+            Assert.AreEqual("Default", properties[0].Name);
+            Assert.AreEqual("Recover", properties[1].Name);
+            Assert.IsFalse(enumType.Fields.Any(f => f.Name == "ThirdValue"));
+
+            // Validate the full generated output; "Third" (property and its const `ThirdValue` field)
+            // must be absent regardless of which baseline format recorded the accepted removal.
+            var content = new TypeProviderWriter(enumType).Write().Content;
+            Assert.AreEqual(Helpers.GetExpectedFromFile(), content);
+        }
+
+        // Validates that when custom code already provides a member that the current spec removed (and
+        // that the last contract still declares), back-compat does NOT re-add it. The custom code is left
+        // as the single source of truth for that member so the generated member does not collide with it.
+        [Test]
+        public async Task BackCompat_ExtensibleEnumRemovedValueNotReaddedWhenProvidedByCustomCode()
+        {
+            await MockHelpers.LoadMockGeneratorAsync(
+                createCSharpTypeCore: (inputType) => typeof(string),
+                compilation: async () => await Helpers.GetCompilationFromDirectoryAsync(parameters: "Custom"),
+                lastContractCompilation: async () => await Helpers.GetCompilationFromDirectoryAsync(parameters: "Last"));
+
+            // Last contract: Default, Recover, Third. Current spec removes "Third", but custom code
+            // provides it, so back-compat must NOT re-add "Third".
+            var input = InputFactory.StringEnum("mockInputEnum", [
+                ("Default", "default"),
+                ("Recover", "recover"),
+            ], isExtensible: true);
+
+            var enumType = EnumProvider.Create(input);
+            Assert.IsFalse(enumType is ApiVersionEnumProvider);
+            Assert.IsNotNull(enumType.CustomCodeView);
+            Assert.IsTrue(enumType.CustomCodeView!.Properties.Any(p => p.Name == "Third"));
+
+            enumType.EnsureBuilt();
+            enumType.ProcessTypeForBackCompatibility();
+
+            // The generated provider must not re-add the custom-owned "Third" member (property or const
+            // `ThirdValue` field); only the two current members remain in generated code.
+            var properties = enumType.Properties;
+            Assert.AreEqual(2, properties.Count);
+            Assert.AreEqual("Default", properties[0].Name);
+            Assert.AreEqual("Recover", properties[1].Name);
+            Assert.IsFalse(properties.Any(p => p.Name == "Third"));
+            Assert.IsFalse(enumType.Fields.Any(f => f.Name == "ThirdValue"));
+
+            // Validate the full generated output as well.
+            var content = new TypeProviderWriter(enumType).Write().Content;
+            Assert.AreEqual(Helpers.GetExpectedFromFile(), content);
+        }
+
+        // Validates that when custom code re-declares a member that both the current spec and the last
+        // contract still contain, back-compat leaves the member to the custom code (no duplicate generated
+        // member) while other removed last-contract members are still restored.
+        [Test]
+        public async Task BackCompat_ExtensibleEnumCustomCodeMemberPreservedWhileOtherMemberRestored()
+        {
+            await MockHelpers.LoadMockGeneratorAsync(
+                createCSharpTypeCore: (inputType) => typeof(string),
+                compilation: async () => await Helpers.GetCompilationFromDirectoryAsync(parameters: "Custom"),
+                lastContractCompilation: async () => await Helpers.GetCompilationFromDirectoryAsync(parameters: "Last"));
+
+            // Last contract: Default, Recover, Third. Current spec keeps Default (customized) and Recover
+            // but removes "Third". Custom code owns "Default", so it must not be regenerated, while the
+            // removed "Third" is restored from the last contract.
+            var input = InputFactory.StringEnum("mockInputEnum", [
+                ("Default", "default"),
+                ("Recover", "recover"),
+            ], isExtensible: true);
+
+            var enumType = EnumProvider.Create(input);
+            Assert.IsFalse(enumType is ApiVersionEnumProvider);
+            Assert.IsNotNull(enumType.CustomCodeView);
+            Assert.IsTrue(enumType.CustomCodeView!.Properties.Any(p => p.Name == "Default"));
+
+            enumType.EnsureBuilt();
+            enumType.ProcessTypeForBackCompatibility();
+
+            var properties = enumType.Properties;
+            // "Default" is owned by custom code so it is filtered out of generated code; "Recover" stays
+            // and "Third" is restored from the last contract, appended after the current members.
+            Assert.IsFalse(properties.Any(p => p.Name == "Default"));
+            Assert.IsTrue(properties.Any(p => p.Name == "Recover"));
+            Assert.IsTrue(properties.Any(p => p.Name == "Third"));
+
+            var thirdMember = enumType.EnumValues.SingleOrDefault(v => v.Name == "Third");
+            Assert.IsNotNull(thirdMember);
+            Assert.AreEqual("third", thirdMember!.Value);
+            Assert.IsTrue(enumType.Fields.Any(f => f.Name == "ThirdValue"));
+        }
+
         // Validates that a removed integer enum member is NOT re-added when its removal is accepted
         // in the ApiCompat baseline (here recorded as an EnumValuesMustMatch suppression), so the
         // generator honors the intentional removal instead of resurrecting it.
@@ -1010,6 +1265,49 @@ namespace Microsoft.TypeSpec.Generator.Tests.Providers
             Assert.AreEqual(2, properties.Count);
             Assert.AreEqual("One", properties[0].Name);
             Assert.AreEqual("snake_case_value", properties[1].Name);
+        }
+
+        [TestCase(false, "CallbackUrl", false, "CallbackUri")]
+        [TestCase(true, "CallbackUrl", false, "CallbackUri")]
+        [TestCase(false, "CallbackUrlValue", false, "CallbackUrlValue")]
+        [TestCase(true, "CallbackUrls", false, "CallbackUrls")]
+        [TestCase(false, "CallbackUrl", true, "CallbackUrl")]
+        [TestCase(true, "CallbackUrl", true, "CallbackUrl")]
+        public void BuildEnumType_ReplacesCompleteUrlSuffixOnValues(
+            bool isExtensible,
+            string valueName,
+            bool isExactName,
+            string expectedName)
+        {
+            MockHelpers.LoadMockGenerator(createCSharpTypeCore: (inputType) => typeof(string));
+            var enumValues = new List<InputEnumTypeValue>();
+            var enumType = InputFactory.Enum(
+                "mockInputEnum",
+                InputPrimitiveType.String,
+                enumValues,
+                isExtensible: isExtensible);
+            enumValues.Add(InputFactory.EnumMember.String(valueName, "value", enumType, isExactName: isExactName));
+
+            var enumProvider = EnumProvider.Create(enumType);
+
+            Assert.AreEqual(expectedName, enumProvider.EnumValues.Single().Name);
+        }
+
+        [TestCase(false, "Fixed")]
+        [TestCase(true, "Extensible")]
+        public async Task BuildEnumType_PreservesUrlSuffixFromLastContract(bool isExtensible, string testData)
+        {
+            await MockHelpers.LoadMockGeneratorAsync(
+                createCSharpTypeCore: (inputType) => typeof(string),
+                lastContractCompilation: async () => await Helpers.GetCompilationFromDirectoryAsync(parameters: testData));
+            var input = InputFactory.StringEnum(
+                "mockInputEnum",
+                [("CallbackUrl", "value")],
+                isExtensible: isExtensible);
+
+            var enumProvider = EnumProvider.Create(input);
+
+            Assert.AreEqual("CallbackUrl", enumProvider.EnumValues.Single().Name);
         }
 
         private static void ValidateGetHashCodeMethod(EnumProvider enumType)

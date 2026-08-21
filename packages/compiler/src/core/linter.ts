@@ -1,5 +1,8 @@
 import { isPromise } from "../utils/misc.js";
-import { DiagnosticCollector, compilerAssert, createDiagnosticCollector } from "./diagnostics.js";
+import type { DiagnosticCodeResolver } from "./diagnostic-code.js";
+import { formatShortNameCandidates } from "./diagnostic-code.js";
+import type { DiagnosticCollector } from "./diagnostics.js";
+import { compilerAssert, createDiagnosticCollector } from "./diagnostics.js";
 import { getLocationContext } from "./helpers/location-context.js";
 import { defineLinter } from "./library.js";
 import { createUnusedTemplateParameterLinterRule } from "./linter-rules/unused-template-parameter.rule.js";
@@ -9,7 +12,7 @@ import { perf } from "./perf.js";
 import type { Program } from "./program.js";
 import { createJSONSchemaValidator } from "./schema-validator.js";
 import { EventEmitter, mapEventEmitterToNodeListener, navigateProgram } from "./semantic-walker.js";
-import {
+import type {
   Diagnostic,
   DiagnosticMessages,
   LinterDefinition,
@@ -19,10 +22,10 @@ import {
   LinterRuleDiagnosticReport,
   LinterRuleEnableValue,
   LinterRuleSet,
-  NoTarget,
   RuleRef,
   SemanticNodeListener,
 } from "./types.js";
+import { NoTarget } from "./types.js";
 
 type LinterLibraryInstance = { linter: LinterResolvedDefinition };
 
@@ -74,8 +77,33 @@ export function resolveLinterDefinition(
 export function createLinter(
   program: Program,
   loadLibrary: (name: string) => Promise<LinterLibraryInstance | undefined>,
+  codeResolver?: DiagnosticCodeResolver,
 ): Linter {
   const tracer = program.tracer.sub("linter");
+
+  const resolveCode = (ref: string): string => (codeResolver ? codeResolver.resolveCode(ref) : ref);
+
+  /**
+   * Report a warning when `ref` uses an ambiguous short name. Returns `true` if it was
+   * ambiguous so the caller can skip processing that entry.
+   */
+  const reportIfAmbiguous = (ref: string, diagnostics: DiagnosticCollector): boolean => {
+    const conflict = codeResolver?.getAmbiguousShortName(ref);
+    if (conflict) {
+      diagnostics.add(
+        createDiagnostic({
+          code: "ambiguous-short-name",
+          format: {
+            shortName: conflict.shortName,
+            candidates: formatShortNameCandidates(conflict.candidates),
+          },
+          target: NoTarget,
+        }),
+      );
+      return true;
+    }
+    return false;
+  };
 
   const ruleMap = new Map<string, LinterRule<string, any, any>>();
   const enabledRules = new Map<
@@ -95,7 +123,12 @@ export function createLinter(
     const diagnostics = createDiagnosticCollector();
     if (ruleSet.extends) {
       for (const extendingRuleSetName of ruleSet.extends) {
-        const ref = diagnostics.pipe(parseRuleReference(extendingRuleSetName));
+        if (reportIfAmbiguous(extendingRuleSetName, diagnostics)) {
+          continue;
+        }
+        const ref = diagnostics.pipe(
+          parseRuleReference(resolveCode(extendingRuleSetName) as RuleRef),
+        );
         if (ref) {
           const library = await resolveLibrary(ref.libraryName);
           const libLinterDefinition = library?.linter;
@@ -117,10 +150,14 @@ export function createLinter(
 
     const enabledInThisRuleSet = new Set<string>();
     if (ruleSet.enable) {
-      for (const [ruleName, enableValue] of Object.entries(ruleSet.enable)) {
+      for (const [rawRuleName, enableValue] of Object.entries(ruleSet.enable)) {
         if (enableValue === false) {
           continue;
         }
+        if (reportIfAmbiguous(rawRuleName, diagnostics)) {
+          continue;
+        }
+        const ruleName = resolveCode(rawRuleName);
         const ref = diagnostics.pipe(parseRuleReference(ruleName as RuleRef));
         if (ref) {
           await resolveLibrary(ref.libraryName);
@@ -148,7 +185,11 @@ export function createLinter(
     }
 
     if (ruleSet.disable) {
-      for (const ruleName of Object.keys(ruleSet.disable)) {
+      for (const rawRuleName of Object.keys(ruleSet.disable)) {
+        if (reportIfAmbiguous(rawRuleName, diagnostics)) {
+          continue;
+        }
+        const ruleName = resolveCode(rawRuleName);
         if (enabledInThisRuleSet.has(ruleName)) {
           diagnostics.add(
             createDiagnostic({

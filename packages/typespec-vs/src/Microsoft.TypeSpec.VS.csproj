@@ -11,7 +11,7 @@
     <!-- https://learn.microsoft.com/en-us/dotnet/core/compatibility/sdk/9.0/nugetaudit-transitive-packages -->
     <NuGetAuditMode>all</NuGetAuditMode>
     <TreatWarningsAsErrors>true</TreatWarningsAsErrors>
-    <!-- Official build will pass in the real version from package.json, see scripts/build.js -->
+    <!-- Official build will pass in the real version from package.json, see scripts/build.ts -->
     <Version>42.42.42</Version>
     <!-- Only deploy extension when building inside Visual Studio-->
     <DeployExtension>false</DeployExtension>

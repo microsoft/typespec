@@ -435,6 +435,18 @@ linter:
     "@typespec/best-practices/no-y": "This rule cannot be applied in this project because X"
 ```
 
+You can also reference rules and rulesets using their **short name**, where the package scope is stripped (`@typespec/<name>` &rarr; `<name>`, `@<scope>/typespec-<name>` &rarr; `<name>`) or replaced by a library-declared `alias`. The library must be loaded (imported) for its short name to be resolved. The full name is always accepted.
+
+```yaml
+linter:
+  extends:
+    - "best-practices/recommended"
+  enable:
+    "best-practices/no-x": true
+```
+
+If two loaded libraries would resolve to the same short name, that short name is ambiguous: using it reports a warning and the entry is skipped, so the full name must be used for those libraries.
+
 #### Configuring rule options
 
 Some rules accept options to customize their behavior. To pass options, use an object instead of `true` when enabling the rule:

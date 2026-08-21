@@ -1529,6 +1529,16 @@ export interface UsingStatementNode extends BaseNode {
   readonly kind: SyntaxKind.UsingStatement;
   readonly name: IdentifierNode | MemberExpressionNode;
   readonly parent?: TypeSpecScriptNode | NamespaceStatementNode;
+
+  /**
+   * Namespace this using statement is scoped to.
+   * Set by the binder.
+   *
+   * This is the enclosing namespace for a using declared inside a namespace block, or the file(blockless) namespace
+   * if the using is declared after it. It is `undefined` when the using is declared at the file level, before any
+   * blockless namespace declaration, in which case its name resolves from the global namespace.
+   */
+  readonly scopeNamespace?: NamespaceStatementNode;
 }
 
 export interface OperationSignatureDeclarationNode extends BaseNode {
@@ -2481,6 +2491,14 @@ export interface TypeSpecLibraryDef<
    * Library name. MUST match package.json name.
    */
   readonly name: string;
+
+  /**
+   * Optional short alias for this library used in diagnostic and linter rule codes.
+   * When provided, diagnostic/linter codes can be referenced as `${alias}/${code}`
+   * in addition to the full `${name}/${code}` form (e.g. `tcgc/no-foo`).
+   * Overrides the automatically scope-stripped short name.
+   */
+  readonly alias?: string;
 
   /** Optional registration of capabilities the library/emitter provides */
   readonly capabilities?: TypeSpecLibraryCapabilities;
