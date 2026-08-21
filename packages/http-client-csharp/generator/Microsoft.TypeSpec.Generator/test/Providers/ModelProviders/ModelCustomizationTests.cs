@@ -183,7 +183,7 @@ namespace Microsoft.TypeSpec.Generator.Tests.Providers.ModelProviders
         {
             var inputModel = InputFactory.Model(
                 "mockInputModel",
-                properties: [InputFactory.Property("ipAddress", InputPrimitiveType.String, isRequired: true)]);
+                properties: [InputFactory.Property("ipFoo", InputPrimitiveType.String, isRequired: true)]);
 
             var mockGenerator = await MockHelpers.LoadMockGeneratorAsync(
                 inputModelTypes: [inputModel],
@@ -192,14 +192,14 @@ namespace Microsoft.TypeSpec.Generator.Tests.Providers.ModelProviders
             var modelTypeProvider = mockGenerator.Object.OutputLibrary.TypeProviders.Single(t => t.Name == "MockInputModel");
 
             Assert.AreEqual(1, modelTypeProvider.CustomCodeView!.Properties.Count);
-            Assert.AreEqual("Address", modelTypeProvider.CustomCodeView.Properties[0].Name);
+            Assert.AreEqual("Foo", modelTypeProvider.CustomCodeView.Properties[0].Name);
             Assert.AreEqual(0, modelTypeProvider.Properties.Count);
             Assert.AreEqual(1, modelTypeProvider.CanonicalView!.Properties.Count);
-            Assert.AreEqual("Address", modelTypeProvider.CanonicalView.Properties[0].Name);
+            Assert.AreEqual("Foo", modelTypeProvider.CanonicalView.Properties[0].Name);
         }
 
         [Test]
-        public async Task DateNormalizedCodeGenMemberDoesNotSuppressExactNameProperty()
+        public async Task ExactNameCodeGenMemberReplacesProperty()
         {
             var dateTime = new InputDateTimeType(
                 DateTimeKnownEncoding.Rfc3339,
@@ -208,7 +208,7 @@ namespace Microsoft.TypeSpec.Generator.Tests.Providers.ModelProviders
                 InputPrimitiveType.String);
             var inputModel = InputFactory.Model(
                 "mockInputModel",
-                properties: [InputFactory.Property("CreatedOn", dateTime, isRequired: true, isExactName: true)]);
+                properties: [InputFactory.Property("CreatedFoo", dateTime, isRequired: true, isExactName: true)]);
 
             var mockGenerator = await MockHelpers.LoadMockGeneratorAsync(
                 inputModelTypes: [inputModel],
@@ -218,8 +218,9 @@ namespace Microsoft.TypeSpec.Generator.Tests.Providers.ModelProviders
 
             Assert.AreEqual(1, modelTypeProvider.CustomCodeView!.Properties.Count);
             Assert.AreEqual("Created", modelTypeProvider.CustomCodeView.Properties[0].Name);
-            Assert.AreEqual(1, modelTypeProvider.Properties.Count);
-            Assert.AreEqual("CreatedOn", modelTypeProvider.Properties[0].Name);
+            Assert.AreEqual(0, modelTypeProvider.Properties.Count);
+            Assert.AreEqual(1, modelTypeProvider.CanonicalView!.Properties.Count);
+            Assert.AreEqual("Created", modelTypeProvider.CanonicalView.Properties[0].Name);
         }
 
         [Test]

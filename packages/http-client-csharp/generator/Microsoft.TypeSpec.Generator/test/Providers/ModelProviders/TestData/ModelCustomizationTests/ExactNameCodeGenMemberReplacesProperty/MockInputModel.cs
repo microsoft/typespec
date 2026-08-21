@@ -8,7 +8,7 @@ namespace Sample.Models
 {
     public partial class MockInputModel
     {
-        [CodeGenMember("CreatedAt")]
+        [CodeGenMember("CreatedFoo")]
         public System.DateTimeOffset Created { get; set; }
     }
 }

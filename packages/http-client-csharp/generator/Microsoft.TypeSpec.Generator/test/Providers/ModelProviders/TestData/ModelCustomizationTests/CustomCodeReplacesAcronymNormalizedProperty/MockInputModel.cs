@@ -8,7 +8,7 @@ namespace Sample.Models
 {
     public partial class MockInputModel
     {
-        [CodeGenMember("IpAddress")]
-        public string Address { get; set; }
+        [CodeGenMember("IPFoo")]
+        public string Foo { get; set; }
     }
 }
