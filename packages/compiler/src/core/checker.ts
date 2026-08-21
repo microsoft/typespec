@@ -5257,6 +5257,16 @@ export function createChecker(program: Program, resolver: NameResolver): Checker
           parentModel,
         );
 
+        if (isArrayModelType(parentModel) && (newProperties.length > 0 || additionalIndexer !== undefined)) {
+          reportCheckerDiagnostic(
+            createDiagnostic({
+              code: "no-array-properties",
+              target: prop.target,
+            }),
+          );
+          continue;
+        }
+
         if (additionalIndexer) {
           if (spreadIndexers) {
             spreadIndexers.push(additionalIndexer);
