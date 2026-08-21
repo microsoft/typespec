@@ -285,12 +285,13 @@ namespace Microsoft.TypeSpec.Generator.Tests.Providers
             yield return new TestCaseData("DeletionTimestamp", dateTime, false, "DeletedOn");
             yield return new TestCaseData("ModificationTimeStamp", dateTime, false, "ModifiedOn");
             yield return new TestCaseData("Timestamp", dateTime, false, "Timestamp");
-            yield return new TestCaseData("ExpirationDate", dateTime, false, "ExpireOn");
+            yield return new TestCaseData("ExpirationDate", dateTime, false, "ExpiresOn");
             yield return new TestCaseData("CreationDate", dateTime, false, "CreatedOn");
             yield return new TestCaseData("CreationTime", dateTime, false, "CreatedOn");
-            yield return new TestCaseData("ExpirationDateTime", dateTime.WithNullable(true), false, "ExpireOn");
+            yield return new TestCaseData("ExpirationDateTime", dateTime.WithNullable(true), false, "ExpiresOn");
             yield return new TestCaseData("DeletionDateTime", dateTime, false, "DeletedOn");
-            yield return new TestCaseData("AccountExpirationDate", dateTime, false, "AccountExpirationOn");
+            yield return new TestCaseData("modelExpirationDate", dateTime, false, "ModelExpiresOn");
+            yield return new TestCaseData("AccountExpirationDate", dateTime, false, "AccountExpiresOn");
             yield return new TestCaseData("RecordedAt", InputPrimitiveType.String, false, "RecordedAt");
             yield return new TestCaseData("Date", InputPrimitiveType.PlainDate, false, "Date");
             yield return new TestCaseData("SnapshotTimestamp", dateTime.WithNullable(true), false, "SnapshotOn");

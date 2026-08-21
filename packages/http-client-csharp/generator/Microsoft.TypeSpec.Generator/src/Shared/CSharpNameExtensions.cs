@@ -101,20 +101,28 @@ namespace Microsoft.TypeSpec.Generator.Utilities
             {
                 ["Creation"] = "Created",
                 ["Deletion"] = "Deleted",
-                ["Expiration"] = "Expire",
+                ["Expiration"] = "Expires",
                 ["Modification"] = "Modified"
             };
 
             internal static string ToVerbForm(string prefix)
             {
-                if (!_nounToVerbMap.TryGetValue(prefix, out var verb))
+                if (_nounToVerbMap.TryGetValue(prefix, out var verb))
                 {
-                    return prefix;
+                    return char.IsLower(prefix[0])
+                        ? char.ToLowerInvariant(verb[0]) + verb[1..]
+                        : verb;
                 }
 
-                return char.IsLower(prefix[0])
-                    ? char.ToLowerInvariant(verb[0]) + verb[1..]
-                    : verb;
+                const string expiration = "Expiration";
+                if (prefix.Length > expiration.Length &&
+                    prefix.EndsWith(expiration, StringComparison.OrdinalIgnoreCase) &&
+                    char.IsUpper(prefix[^expiration.Length]))
+                {
+                    return prefix[..^expiration.Length] + "Expires";
+                }
+
+                return prefix;
             }
 
             internal static bool HasExcludedComponent(string name)
