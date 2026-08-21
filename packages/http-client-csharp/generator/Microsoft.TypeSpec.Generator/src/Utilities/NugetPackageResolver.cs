@@ -10,6 +10,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using NuGet.Configuration;
 using NuGet.Frameworks;
+using NuGet.Packaging;
 using NuGet.Protocol;
 using NuGet.Protocol.Core.Types;
 using NuGet.Repositories;
@@ -200,6 +201,21 @@ namespace Microsoft.TypeSpec.Generator.Utilities
                 }
             }
             return null;
+        }
+
+        public static async Task<IList<NuGetVersion>> GetAllVersions(string packageName, ISettings nugetSettings, bool allowPrerelease)
+        {
+            List<NuGetVersion> versions = [];
+            var sources = SettingsUtility.GetEnabledSources(nugetSettings);
+            using var cacheContext = new SourceCacheContext();
+            foreach (var source in sources)
+            {
+                var repository = Repository.Factory.GetCoreV3(source.Source);
+                var resource = await repository.GetResourceAsync<FindPackageByIdResource>();
+                IEnumerable<NuGetVersion> versionsFromOneRepo = (await resource.GetAllVersionsAsync(packageName, cacheContext, NuGet.Common.NullLogger.Instance, CancellationToken.None)).Where(v => !v.IsPrerelease || allowPrerelease);
+                versions.AddRange(versionsFromOneRepo);
+            }
+            return versions;
         }
 
         /// <summary>
