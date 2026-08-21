@@ -68,7 +68,7 @@ namespace Microsoft.TypeSpec.Generator.Utilities
             }
 
             var suffixLength = DateTimeNameRules.GetSuffixLength(name);
-            if (suffixLength == 0)
+            if (suffixLength == 0 || suffixLength == name.Length)
             {
                 return name;
             }
