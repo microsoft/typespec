@@ -164,6 +164,39 @@ namespace Protocol {
     message: Info,
   }
 
+  @events
+  union MixedEvents {
+    withEnvelope: {
+      metadata: Record<string>,
+      @data contents: string,
+    },
+
+    withoutEnvelope: {
+      metadata: Record<string>,
+      contents: string,
+    },
+  }
+
+  @scenario
+  @scenarioDoc("""
+    SSE events with and without an explicit `@data` payload. The `withEnvelope`
+    event keeps `metadata` in the event envelope and sends only `contents` in
+    the SSE `data` field. The `withoutEnvelope` event sends the complete model
+    in the `data` field.
+
+    Expected response body (content type `text/event-stream`):
+    ```
+    event: withEnvelope
+    data: hello
+
+    event: withoutEnvelope
+    data: {"metadata": {"source": "test"}, "contents": "world"}
+
+    ```
+    """)
+  @route("data")
+  op data(): SSEStream<MixedEvents>;
+
   @scenario
   @scenarioDoc("""
     An SSE event with an `id` field. The event ID is envelope metadata and is

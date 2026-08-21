@@ -5401,6 +5401,26 @@ data: {"message": "hello"}
 
 ```
 
+### Streaming_Sse_Protocol_data
+
+- Endpoint: `get /streaming/sse/protocol/data`
+
+SSE events with and without an explicit `@data` payload. The `withEnvelope`
+event keeps `metadata` in the event envelope and sends only `contents` in
+the SSE `data` field. The `withoutEnvelope` event sends the complete model
+in the `data` field.
+
+Expected response body (content type `text/event-stream`):
+
+```
+event: withEnvelope
+data: hello
+
+event: withoutEnvelope
+data: {"metadata": {"source": "test"}, "contents": "world"}
+
+```
+
 ### Streaming_Sse_Protocol_invalidId
 
 - Endpoint: `get /streaming/sse/protocol/invalid-id`
