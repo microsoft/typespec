@@ -33,7 +33,6 @@ namespace Microsoft.TypeSpec.Generator.Providers
             foreach (var property in _specProperties)
             {
                 var name = property.IsExactName ? property.Name : property.Name.ToIdentifierName();
-                _specPropertiesMap.TryAdd(property.Name, property);
                 _specPropertiesMap.TryAdd(name, property);
                 if (!property.IsExactName)
                 {
@@ -189,7 +188,7 @@ namespace Microsoft.TypeSpec.Generator.Providers
                 {
                     // Check if custom property is in spec
                     if (_specPropertiesMap.TryGetValue(prop.Name, out var specProp) ||
-                        (prop.OriginalName != null && _specPropertiesMap.TryGetValue(prop.OriginalName, out specProp)))
+                        (prop.OriginalName != null && TryGetSpecProperty(prop.OriginalName, out specProp)))
                     {
                         inputProperties.Add(specProp);
                     }
@@ -291,7 +290,7 @@ namespace Microsoft.TypeSpec.Generator.Providers
             PropertyProvider customProperty,
             [NotNullWhen(true)] out InputModelProperty? candidateSpecProperty)
         {
-            if (customProperty.OriginalName != null && _specPropertiesMap.TryGetValue(customProperty.OriginalName, out candidateSpecProperty))
+            if (customProperty.OriginalName != null && TryGetSpecProperty(customProperty.OriginalName, out candidateSpecProperty))
             {
                 return true;
             }
@@ -309,7 +308,7 @@ namespace Microsoft.TypeSpec.Generator.Providers
 
         private bool TryGetSpecProperty(FieldProvider customField, [NotNullWhen(true)] out InputModelProperty? candidateSpecProperty)
         {
-            if (customField.OriginalName != null && _specPropertiesMap.TryGetValue(customField.OriginalName, out candidateSpecProperty))
+            if (customField.OriginalName != null && TryGetSpecProperty(customField.OriginalName, out candidateSpecProperty))
             {
                 return true;
             }
@@ -322,6 +321,16 @@ namespace Microsoft.TypeSpec.Generator.Providers
 
             candidateSpecProperty = null;
             return false;
+        }
+
+        private bool TryGetSpecProperty(string name, [NotNullWhen(true)] out InputModelProperty? candidateSpecProperty)
+        {
+            if (_specPropertiesMap.TryGetValue(name, out candidateSpecProperty))
+            {
+                return true;
+            }
+
+            return _specPropertiesMap.TryGetValue(name.ToIdentifierName(), out candidateSpecProperty);
         }
 
         private Dictionary<string, string?> BuildSerializationNameMap()
