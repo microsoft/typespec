@@ -213,6 +213,11 @@ repository = "https://github.com/Azure/azure-sdk-for-python-custom"
 """
 
 
+def test_render_requires_patched_setuptools():
+    parsed = _render_pyproject("", _EXISTING)
+    assert parsed["build-system"]["requires"] == ["setuptools>=83.0.0", "wheel"]
+
+
 def test_render_keeps_selected_fields():
     parsed = _render_pyproject("authors,description", _EXISTING)["project"]
     # Selected fields are preserved from the existing file.
