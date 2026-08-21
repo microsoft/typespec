@@ -13,7 +13,7 @@ import { ControllersAndInterfaces } from "./components/render-root.jsx";
 import { Documentation } from "./components/scaffolding/documentation.jsx";
 import { MockHelpers, MockImplementations } from "./components/scaffolding/mock-scaffolding.jsx";
 import { JsonConverters } from "./components/serialization/json-converters.jsx";
-import { createServerScalarOverrides } from "./components/type-expression/type-expression.jsx";
+import { createServerOverrides } from "./components/type-expression/type-expression.jsx";
 import { EmitterOptions } from "./context/emitter-options-context.js";
 import { reportEmitterDiagnostics } from "./diagnostics.js";
 import type { CSharpServiceEmitterOptions } from "./lib.js";
@@ -27,7 +27,7 @@ import { resolveServiceTypes } from "./service-resolution.js";
 export async function $onEmit(context: EmitContext<CSharpServiceEmitterOptions>) {
   const tk = $(context.program);
   const canonicalizer = new HttpCanonicalizer(tk);
-  const scalarOverrides = createServerScalarOverrides(tk);
+  const serverOverrides = createServerOverrides(tk);
   const options = context.options;
   const collectionType = options["collection-type"] ?? "array";
   const emitMocks =
@@ -66,7 +66,7 @@ export async function $onEmit(context: EmitContext<CSharpServiceEmitterOptions>)
 
   const output = (
     <Output program={context.program} namePolicy={createCSharpNamePolicy()}>
-      <Experimental_ComponentOverrides overrides={scalarOverrides}>
+      <Experimental_ComponentOverrides overrides={serverOverrides}>
         <EmitterOptions.Provider value={{ collectionType, serviceNamespace: serviceName }}>
           <SourceDirectory path=".">
             <Namespace name={serviceName}>
