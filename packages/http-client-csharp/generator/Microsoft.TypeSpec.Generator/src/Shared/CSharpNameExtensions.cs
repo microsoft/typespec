@@ -114,12 +114,14 @@ namespace Microsoft.TypeSpec.Generator.Utilities
                         : verb;
                 }
 
-                const string expiration = "Expiration";
-                if (prefix.Length > expiration.Length &&
-                    prefix.EndsWith(expiration, StringComparison.OrdinalIgnoreCase) &&
-                    char.IsUpper(prefix[^expiration.Length]))
+                foreach (var (noun, compoundVerb) in _nounToVerbMap)
                 {
-                    return prefix[..^expiration.Length] + "Expires";
+                    if (prefix.Length > noun.Length &&
+                        prefix.EndsWith(noun, StringComparison.OrdinalIgnoreCase) &&
+                        char.IsUpper(prefix[^noun.Length]))
+                    {
+                        return prefix[..^noun.Length] + compoundVerb;
+                    }
                 }
 
                 return prefix;
