@@ -176,6 +176,7 @@ namespace Microsoft.TypeSpec.Generator.Tests.Providers.ModelProviders
             Assert.AreEqual(0, modelTypeProvider.Properties.Count);
             Assert.AreEqual(1, modelTypeProvider.CanonicalView!.Properties.Count);
             Assert.AreEqual("Created", modelTypeProvider.CanonicalView.Properties[0].Name);
+            Assert.AreEqual($"{Helpers.GetExpectedFromFile("Expected")}\n", new TypeProviderWriter(modelTypeProvider).Write().Content);
         }
 
         [Test]
@@ -196,6 +197,7 @@ namespace Microsoft.TypeSpec.Generator.Tests.Providers.ModelProviders
             Assert.AreEqual(0, modelTypeProvider.Properties.Count);
             Assert.AreEqual(1, modelTypeProvider.CanonicalView!.Properties.Count);
             Assert.AreEqual("Foo", modelTypeProvider.CanonicalView.Properties[0].Name);
+            Assert.AreEqual($"{Helpers.GetExpectedFromFile("Expected")}\n", new TypeProviderWriter(modelTypeProvider).Write().Content);
         }
 
         [Test]
@@ -221,6 +223,7 @@ namespace Microsoft.TypeSpec.Generator.Tests.Providers.ModelProviders
             Assert.AreEqual(0, modelTypeProvider.Properties.Count);
             Assert.AreEqual(1, modelTypeProvider.CanonicalView!.Properties.Count);
             Assert.AreEqual("Created", modelTypeProvider.CanonicalView.Properties[0].Name);
+            Assert.AreEqual($"{Helpers.GetExpectedFromFile("Expected")}\n", new TypeProviderWriter(modelTypeProvider).Write().Content);
         }
 
         [Test]
