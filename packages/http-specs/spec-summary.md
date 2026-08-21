@@ -5385,23 +5385,30 @@ data: [DONE]
 
 ```
 
-### Streaming_Sse_Protocol_data
+### Streaming_Sse_Protocol_Data_withEnvelope
 
-- Endpoint: `get /streaming/sse/protocol/data`
+- Endpoint: `get /streaming/sse/protocol/data/with-envelope`
 
-SSE events with and without an explicit `@data` payload. The `withEnvelope`
-event sends only the `contents` property in the SSE `data` field. The
-`withoutEnvelope` event sends the complete model in the `data` field.
-
+SSE event with an explicit `@data` payload. The `withEnvelope` event sends
+only the `contents` property in the SSE `data` field.
 Expected response body (content type `text/event-stream`):
 
 ```
 event: withEnvelope
 data: hello
+```
 
+### Streaming_Sse_Protocol_Data_withoutEnvelope
+
+- Endpoint: `get /streaming/sse/protocol/data/without-envelope`
+
+SSE event without an explicit `@data` payload. The `withoutEnvelope` event
+sends the complete model in the SSE `data` field.
+Expected response body (content type `text/event-stream`):
+
+```
 event: withoutEnvelope
 data: {"metadata": {"source": "test"}, "contents": "world"}
-
 ```
 
 ### Streaming_Sse_Protocol_id

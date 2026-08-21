@@ -164,37 +164,47 @@ namespace Protocol {
     message: Info,
   }
 
-  @events
-  union MixedEvents {
-    withEnvelope: {
-      @Events.contentType("text/plain")
-      @data
-      contents: string,
-    },
-    withoutEnvelope: {
-      metadata: Record<string>,
-      contents: string,
-    },
-  }
-
-  @scenario
-  @scenarioDoc("""
-    SSE events with and without an explicit `@data` payload. The `withEnvelope`
-    event sends only the `contents` property in the SSE `data` field. The
-    `withoutEnvelope` event sends the complete model in the `data` field.
-    
-    Expected response body (content type `text/event-stream`):
-    ```
-    event: withEnvelope
-    data: hello
-    
-    event: withoutEnvelope
-    data: {"metadata": {"source": "test"}, "contents": "world"}
-    
-    ```
-    """)
   @route("data")
-  op data(): SSEStream<MixedEvents>;
+  namespace Data {
+    @events
+    union DataEvents {
+      withEnvelope: {
+        @Events.contentType("text/plain")
+        @data
+        contents: string,
+      },
+      withoutEnvelope: {
+        metadata: Record<string>,
+        contents: string,
+      },
+    }
+
+    @scenario
+    @scenarioDoc("""
+      SSE event with an explicit `@data` payload. The `withEnvelope` event sends
+      only the `contents` property in the SSE `data` field.
+      Expected response body (content type `text/event-stream`):
+      ```
+      event: withEnvelope
+      data: hello
+      ```
+      """)
+    @route("with-envelope")
+    op withEnvelope(): SSEStream<DataEvents>;
+
+    @scenario
+    @scenarioDoc("""
+      SSE event without an explicit `@data` payload. The `withoutEnvelope` event
+      sends the complete model in the SSE `data` field.
+      Expected response body (content type `text/event-stream`):
+      ```
+      event: withoutEnvelope
+      data: {"metadata": {"source": "test"}, "contents": "world"}
+      ```
+      """)
+    @route("without-envelope")
+    op withoutEnvelope(): SSEStream<DataEvents>;
+  }
 
   @scenario
   @scenarioDoc("""

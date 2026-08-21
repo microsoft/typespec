@@ -73,24 +73,31 @@ Scenarios.Streaming_Sse_Retrieve_stream = passOnSuccess({
 
 const protocolEvent = (fields: string[]) => Buffer.from(`${fields.join("\n")}\n\n`);
 
-Scenarios.Streaming_Sse_Protocol_data = passOnSuccess({
-  uri: "/streaming/sse/protocol/data",
+Scenarios.Streaming_Sse_Protocol_Data_withEnvelope = passOnSuccess({
+  uri: "/streaming/sse/protocol/data/with-envelope",
   method: "get",
   request: {},
   response: {
     status: 200,
     body: {
-      rawContent: Buffer.from(
-        [
-          "event: withEnvelope",
-          "data: hello",
-          "",
-          "event: withoutEnvelope",
-          'data: {"metadata": {"source": "test"}, "contents": "world"}',
-          "",
-          "",
-        ].join("\n"),
-      ),
+      rawContent: protocolEvent(["event: withEnvelope", "data: hello"]),
+      contentType: "text/event-stream",
+    },
+  },
+  kind: "MockApiDefinition",
+});
+
+Scenarios.Streaming_Sse_Protocol_Data_withoutEnvelope = passOnSuccess({
+  uri: "/streaming/sse/protocol/data/without-envelope",
+  method: "get",
+  request: {},
+  response: {
+    status: 200,
+    body: {
+      rawContent: protocolEvent([
+        "event: withoutEnvelope",
+        'data: {"metadata": {"source": "test"}, "contents": "world"}',
+      ]),
       contentType: "text/event-stream",
     },
   },
