@@ -111,7 +111,8 @@ namespace Microsoft.TypeSpec.Generator.Providers
                 (lastContractProperties is null ||
                  !lastContractProperties.Any(p => p.Name == legacyName)))
             {
-                identifierName = identifierName.NormalizeCSharpAcronyms();
+                identifierName = identifierName
+                    .NormalizeCSharpAcronyms(inputProperty.Type.IsDateTimeInputType());
             }
             Name = identifierName == enclosingType.Name
                 ? $"{identifierName}Property"
@@ -188,10 +189,14 @@ namespace Microsoft.TypeSpec.Generator.Providers
         [MemberNotNull(nameof(_parameter))]
         private void InitializeParameter(FormattableString description)
         {
-            _parameter = new(() => new ParameterProvider(Name.ToVariableName(), description, Type, property: this));
+            _parameter = new(() => new ParameterProvider(
+                Name.ToVariableName(),
+                description,
+                Type,
+                property: this));
         }
 
-        public VariableExpression AsVariableExpression => _variable ??= new(Type, Name.ToVariableName());
+        public VariableExpression AsVariableExpression => _variable ??= AsParameter;
 
         private static bool IsDiscriminatorProperty(InputProperty inputProperty)
         {
