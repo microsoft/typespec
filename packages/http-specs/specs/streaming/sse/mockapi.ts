@@ -1,9 +1,13 @@
-import type { ScenarioMockApi } from "@typespec/spec-api";
+import type { MockRequest, ScenarioMockApi } from "@typespec/spec-api";
 import { passOnSuccess } from "@typespec/spec-api";
 
 export const Scenarios: Record<string, ScenarioMockApi> = {};
 
-const unnamedStream = ['data: {"desc": "one"}', 'data: {"desc": "two"}', 'data: {"desc": "three"}']
+const unnamedStream = [
+  'data: {"desc": "one"}',
+  'data: {"desc": "two"}',
+  'data: {"desc": "three"}',
+]
   .map((event) => `${event}\n\n`)
   .join("");
 
@@ -71,7 +75,8 @@ Scenarios.Streaming_Sse_Retrieve_stream = passOnSuccess({
   kind: "MockApiDefinition",
 });
 
-const protocolEvent = (fields: string[]) => Buffer.from(`${fields.join("\n")}\n\n`);
+const protocolEvent = (fields: string[]) =>
+  Buffer.from(`${fields.join("\n")}\n\n`);
 
 Scenarios.Streaming_Sse_Protocol_id = passOnSuccess({
   uri: "/streaming/sse/protocol/id",
@@ -94,7 +99,10 @@ Scenarios.Streaming_Sse_Protocol_invalidId = passOnSuccess({
   response: {
     status: 200,
     body: {
-      rawContent: protocolEvent(["id: invalid\u0000id", 'data: {"message": "hello"}']),
+      rawContent: protocolEvent([
+        "id: invalid\u0000id",
+        'data: {"message": "hello"}',
+      ]),
       contentType: "text/event-stream",
     },
   },
@@ -122,7 +130,10 @@ Scenarios.Streaming_Sse_Protocol_invalidRetry = passOnSuccess({
   response: {
     status: 200,
     body: {
-      rawContent: protocolEvent(["retry: not-a-number", 'data: {"message": "hello"}']),
+      rawContent: protocolEvent([
+        "retry: not-a-number",
+        'data: {"message": "hello"}',
+      ]),
       contentType: "text/event-stream",
     },
   },
@@ -132,17 +143,49 @@ Scenarios.Streaming_Sse_Protocol_invalidRetry = passOnSuccess({
 Scenarios.Streaming_Sse_Protocol_reconnect = passOnSuccess({
   uri: "/streaming/sse/protocol/reconnect",
   method: "get",
-  request: {
-    headers: {
-      "last-event-id": "event-1",
-    },
-  },
+  request: {},
   response: {
     status: 200,
     body: {
-      rawContent: protocolEvent(["id: event-2", 'data: {"message": "world"}']),
+      rawContent: protocolEvent([
+        "id: event-1",
+        "event: message",
+        'data: {"message": "hello"}',
+      ]),
       contentType: "text/event-stream",
     },
   },
+  handler: (() => {
+    let reconnected = false;
+    return (req: MockRequest) => {
+      if (reconnected) {
+        req.expect.containsHeader("last-event-id", "event-1");
+        return {
+          status: 200,
+          body: {
+            rawContent: protocolEvent([
+              "id: event-2",
+              "event: message",
+              'data: {"message": "world"}',
+            ]),
+            contentType: "text/event-stream",
+          },
+        };
+      }
+
+      reconnected = true;
+      return {
+        status: 200,
+        body: {
+          rawContent: protocolEvent([
+            "id: event-1",
+            "event: message",
+            'data: {"message": "hello"}',
+          ]),
+          contentType: "text/event-stream",
+        },
+      };
+    };
+  })(),
   kind: "MockApiDefinition",
 });

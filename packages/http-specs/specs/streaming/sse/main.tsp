@@ -161,7 +161,7 @@ namespace Protocol {
   @events
   union ProtocolEvents {
     @Events.contentType("application/json")
-    Info,
+    message: Info,
   }
 
   @scenario
@@ -172,6 +172,7 @@ namespace Protocol {
     Expected response body (content type `text/event-stream`):
     ```
     id: event-1
+    event: message
     data: {"message": "hello"}
     
     ```
@@ -187,6 +188,7 @@ namespace Protocol {
     Expected response body (content type `text/event-stream`):
     ```
     id: invalid<U+0000 NULL>id
+    event: message
     data: {"message": "hello"}
     
     ```
@@ -203,6 +205,7 @@ namespace Protocol {
     Expected response body (content type `text/event-stream`):
     ```
     retry: 1000
+    event: message
     data: {"message": "hello"}
     
     ```
@@ -218,6 +221,7 @@ namespace Protocol {
     Expected response body (content type `text/event-stream`):
     ```
     retry: not-a-number
+    event: message
     data: {"message": "hello"}
     
     ```
@@ -227,10 +231,11 @@ namespace Protocol {
 
   @scenario
   @scenarioDoc("""
-    An SSE stream that resumes after a reconnect. The client sends the most
-    recently received event ID in the `Last-Event-ID` request header.
-    
-    Expected request header:
+    An SSE stream that resumes after a reconnect. The first response closes after
+    sending `event-1`. On reconnect, the client sends the most recently received
+    event ID in the `Last-Event-ID` request header.
+
+    Expected request header on reconnect:
     ```
     Last-Event-ID: event-1
     ```
@@ -238,6 +243,7 @@ namespace Protocol {
     Expected response body (content type `text/event-stream`):
     ```
     id: event-2
+    event: message
     data: {"message": "world"}
     
     ```
