@@ -68,7 +68,7 @@ namespace Microsoft.TypeSpec.Generator.Utilities
             }
 
             var suffixLength = DateTimeNameRules.GetSuffixLength(name);
-            if (suffixLength == 0)
+            if (suffixLength == 0 || suffixLength == name.Length)
             {
                 return name;
             }
@@ -101,20 +101,30 @@ namespace Microsoft.TypeSpec.Generator.Utilities
             {
                 ["Creation"] = "Created",
                 ["Deletion"] = "Deleted",
-                ["Expiration"] = "Expire",
+                ["Expiration"] = "Expires",
                 ["Modification"] = "Modified"
             };
 
             internal static string ToVerbForm(string prefix)
             {
-                if (!_nounToVerbMap.TryGetValue(prefix, out var verb))
+                if (_nounToVerbMap.TryGetValue(prefix, out var verb))
                 {
-                    return prefix;
+                    return char.IsLower(prefix[0])
+                        ? char.ToLowerInvariant(verb[0]) + verb[1..]
+                        : verb;
                 }
 
-                return char.IsLower(prefix[0])
-                    ? char.ToLowerInvariant(verb[0]) + verb[1..]
-                    : verb;
+                foreach (var (noun, compoundVerb) in _nounToVerbMap)
+                {
+                    if (prefix.Length > noun.Length &&
+                        prefix.EndsWith(noun, StringComparison.OrdinalIgnoreCase) &&
+                        char.IsUpper(prefix[^noun.Length]))
+                    {
+                        return prefix[..^noun.Length] + compoundVerb;
+                    }
+                }
+
+                return prefix;
             }
 
             internal static bool HasExcludedComponent(string name)
