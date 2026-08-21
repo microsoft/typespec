@@ -444,6 +444,7 @@ namespace Microsoft.TypeSpec.Generator.Providers
                 if (customProperty.OriginalName != null)
                 {
                     customProperties.Add(customProperty.OriginalName);
+                    customProperties.Add(customProperty.OriginalName.NormalizeCSharpAcronyms(normalizeDateTimeSuffix: true));
                 }
             }
 
@@ -453,6 +454,7 @@ namespace Microsoft.TypeSpec.Generator.Providers
                 if (customField.OriginalName != null)
                 {
                     customProperties.Add(customField.OriginalName);
+                    customProperties.Add(customField.OriginalName.NormalizeCSharpAcronyms(normalizeDateTimeSuffix: true));
                 }
             }
 
