@@ -339,6 +339,80 @@ namespace Microsoft.TypeSpec.Generator.Tests.Providers.ModelFactories
             Assert.AreEqual(Helpers.GetExpectedFromFile(), content);
         }
 
+        [Test]
+        public async Task BackCompatibility_CustomPublishedSignatureDoesNotRequireLongerCurrentOverload()
+        {
+            InputModelType model = InputFactory.Model("CompatibilityModel", properties:
+            [
+                InputFactory.Property("Id", InputPrimitiveType.String),
+                InputFactory.Property("Description", InputPrimitiveType.String),
+                InputFactory.Property("Text", InputPrimitiveType.String),
+                InputFactory.Property("IsRegex", new InputNullableType(InputPrimitiveType.Boolean)),
+            ]);
+
+            _instance = (await MockHelpers.LoadMockGeneratorAsync(
+                inputNamespaceName: "Sample.Namespace",
+                inputModelTypes: [model],
+                compilation: async () => await Helpers.GetCompilationFromDirectoryAsync(parameters: "Custom"),
+                lastContractCompilation: async () => await Helpers.GetCompilationFromDirectoryAsync(parameters: "Last"))).Object;
+
+            var modelFactory = _instance.OutputLibrary.ModelFactory.Value;
+            modelFactory.ProcessTypeForBackCompatibility();
+
+            var currentMethod = modelFactory.Methods.Single(m =>
+                m.Signature.Name == "CompatibilityModel" &&
+                m.Signature.Parameters.Count == 4);
+            Assert.That(currentMethod.Signature.Parameters, Has.All.Property("DefaultValue").Not.Null);
+        }
+
+        [Test]
+        public async Task BackCompatibility_OptionalCustomPublishedSignatureRequiresLongerCurrentOverload()
+        {
+            InputModelType model = InputFactory.Model("CompatibilityModel", properties:
+            [
+                InputFactory.Property("Id", InputPrimitiveType.String),
+                InputFactory.Property("Description", InputPrimitiveType.String),
+                InputFactory.Property("Text", InputPrimitiveType.String),
+                InputFactory.Property("IsRegex", new InputNullableType(InputPrimitiveType.Boolean)),
+            ]);
+
+            _instance = (await MockHelpers.LoadMockGeneratorAsync(
+                inputNamespaceName: "Sample.Namespace",
+                inputModelTypes: [model],
+                compilation: async () => await Helpers.GetCompilationFromDirectoryAsync(parameters: "Custom"),
+                lastContractCompilation: async () => await Helpers.GetCompilationFromDirectoryAsync(parameters: "Last"))).Object;
+
+            var modelFactory = _instance.OutputLibrary.ModelFactory.Value;
+            modelFactory.ProcessTypeForBackCompatibility();
+
+            var currentMethod = modelFactory.Methods.Single(m =>
+                m.Signature.Name == "CompatibilityModel" &&
+                m.Signature.Parameters.Count == 4);
+            Assert.That(currentMethod.Signature.Parameters, Has.All.Property("DefaultValue").Null);
+        }
+
+        [Test]
+        public async Task BackCompatibility_PreservesDefaultKeyword()
+        {
+            InputModelType model = InputFactory.Model("CompatibilityModel", properties:
+            [
+                InputFactory.Property("Value", InputPrimitiveType.Float32, isRequired: true),
+                InputFactory.Property("Kind", InputPrimitiveType.String, isRequired: true),
+            ]);
+
+            _instance = (await MockHelpers.LoadMockGeneratorAsync(
+                inputNamespaceName: "Sample.Namespace",
+                inputModelTypes: [model],
+                lastContractCompilation: async () => await Helpers.GetCompilationFromDirectoryAsync(parameters: "Last"))).Object;
+
+            var modelFactory = _instance.OutputLibrary.ModelFactory.Value;
+            modelFactory.ProcessTypeForBackCompatibility();
+
+            var content = new TypeProviderWriter(modelFactory).Write().Content;
+            Assert.That(content, Does.Contain(
+                "float value = default, string kind = \"Unknown\")"));
+        }
+
         // Mirrors the reported Azure.ResourceManager.AppService regression: both overloads already
         // existed in the last contract, so each must retain its published optionality.
         [Test]

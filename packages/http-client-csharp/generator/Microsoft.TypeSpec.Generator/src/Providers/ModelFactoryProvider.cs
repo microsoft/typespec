@@ -114,9 +114,6 @@ namespace Microsoft.TypeSpec.Generator.Providers
             var allFactoryMethods = factoryMethods
                .Concat(customFactoryMethods)
                .ToList();
-            List<MethodSignature> currentMethodSignatures = allFactoryMethods
-                .Select(m => m.Signature)
-                .ToList();
 
             var compatiblePreviousMethods = new List<MethodProvider>();
             List<MethodSignature> previousPublicSignatures = [];
@@ -133,22 +130,34 @@ namespace Microsoft.TypeSpec.Generator.Providers
                 // a current overload that still matches one of them must never be removed.
                 previousPublicSignatures.Add(previousMethod.Signature);
 
-                if (currentMethodSignatures.Any(current =>
-                    MethodSignature.MethodSignatureComparer.Equals(current, previousMethod.Signature)))
+                var matchingCurrentMethod = allFactoryMethods.FirstOrDefault(m =>
+                    MethodSignature.MethodSignatureComparer.Equals(m.Signature, previousMethod.Signature));
+                if (matchingCurrentMethod is not null)
                 {
-                    preservedPreviousSignatures.Add(previousMethod.Signature);
-
-                    // The current model shape may have regenerated a previously published signature
-                    // with different defaults. Restore its published required/optional boundary.
-                    var matchingCurrentMethod = factoryMethods.FirstOrDefault(m =>
-                        MethodSignature.MethodSignatureComparer.Equals(m.Signature, previousMethod.Signature));
-                    if (matchingCurrentMethod is not null)
+                    if (factoryMethods.Any(method => ReferenceEquals(method, matchingCurrentMethod)))
                     {
+                        // The current model shape may have regenerated a previously published signature
+                        // with different defaults. Restore its published required/optional boundary.
                         for (int i = 0; i < previousMethod.Signature.Parameters.Count; i++)
                         {
                             matchingCurrentMethod.Signature.Parameters[i].DefaultValue =
                                 previousMethod.Signature.Parameters[i].DefaultValue;
                         }
+                    }
+
+                    // A method can retain the published CLR signature while requiring more arguments.
+                    // In that case, a longer generated overload may be the only method that preserves
+                    // the published omitted-argument calls, so do not constrain it against optionality
+                    // that the matching method no longer provides.
+                    int previousMinimumArgumentCount = previousMethod.Signature.Parameters
+                        .TakeWhile(p => p.DefaultValue is null && !p.IsParams)
+                        .Count();
+                    int currentMinimumArgumentCount = matchingCurrentMethod.Signature.Parameters
+                        .TakeWhile(p => p.DefaultValue is null && !p.IsParams)
+                        .Count();
+                    if (currentMinimumArgumentCount == previousMinimumArgumentCount)
+                    {
+                        preservedPreviousSignatures.Add(previousMethod.Signature);
                     }
 
                     continue;
