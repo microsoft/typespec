@@ -47,24 +47,6 @@ namespace TypeSpec.SSE;
  *
  * op subscribeToChannel(): SSEStream<ChannelEvents>;
  * ```
- *
- * @example Event envelopes with a separate `@data` payload
- *
- * ```typespec
- * @TypeSpec.Events.events
- * union MixedEvents {
- *   withEnvelope: {
- *     metadata: Record<string>,
- *     @TypeSpec.Events.data contents: string,
- *   },
- *   withoutEnvelope: {
- *     metadata: Record<string>,
- *     contents: string,
- *   },
- * }
- *
- * op subscribeToMixedEvents(): SSEStream<MixedEvents>;
- * ```
  */
 @doc("")
 model SSEStream<Type extends TypeSpec.Reflection.Union> is HttpStream<Type, "text/event-stream">;
