@@ -5390,9 +5390,8 @@ data: [DONE]
 - Endpoint: `get /streaming/sse/protocol/data`
 
 SSE events with and without an explicit `@data` payload. The `withEnvelope`
-event keeps `metadata` in the event envelope and sends only `contents` in
-the SSE `data` field. The `withoutEnvelope` event sends the complete model
-in the `data` field.
+event sends only the `contents` property in the SSE `data` field. The
+`withoutEnvelope` event sends the complete model in the `data` field.
 
 Expected response body (content type `text/event-stream`):
 
@@ -5461,13 +5460,21 @@ An SSE stream that resumes after a reconnect. The first response closes after
 sending `event-1`. On reconnect, the client sends the most recently received
 event ID in the `Last-Event-ID` request header.
 
+Expected initial response body (content type `text/event-stream`):
+
+```
+id: event-1
+event: message
+data: {"message": "hello"}
+```
+
 Expected request header on reconnect:
 
 ```
 Last-Event-ID: event-1
 ```
 
-Expected response body (content type `text/event-stream`):
+Expected reconnect response body (content type `text/event-stream`):
 
 ```
 id: event-2

@@ -172,39 +172,31 @@ Scenarios.Streaming_Sse_Protocol_reconnect = withServiceKeys(["initial", "reconn
       contentType: "text/event-stream",
     },
   },
-  handler: (() => {
-    let reconnected = false;
-    return (req: MockRequest) => {
-      if (reconnected) {
-        req.expect.containsHeader("last-event-id", "event-1");
-        return {
-          pass: "reconnect",
-          status: 200,
-          body: {
-            rawContent: protocolEvent([
-              "id: event-2",
-              "event: message",
-              'data: {"message": "world"}',
-            ]),
-            contentType: "text/event-stream",
-          },
-        };
-      }
-
-      reconnected = true;
+  handler: (req: MockRequest) => {
+    if (req.headers["last-event-id"] !== undefined) {
+      req.expect.containsHeader("last-event-id", "event-1");
       return {
-        pass: "initial",
+        pass: "reconnect",
         status: 200,
         body: {
           rawContent: protocolEvent([
-            "id: event-1",
+            "id: event-2",
             "event: message",
-            'data: {"message": "hello"}',
+            'data: {"message": "world"}',
           ]),
           contentType: "text/event-stream",
         },
       };
+    }
+
+    return {
+      pass: "initial",
+      status: 200,
+      body: {
+        rawContent: protocolEvent(["id: event-1", "event: message", 'data: {"message": "hello"}']),
+        contentType: "text/event-stream",
+      },
     };
-  })(),
+  },
   kind: "MockApiDefinition",
 });
