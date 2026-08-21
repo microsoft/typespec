@@ -98,8 +98,6 @@ namespace Microsoft.TypeSpec.Generator.Providers
             IReadOnlyList<string> lastContractNames,
             bool isExactName = false)
         {
-            // An explicitly configured name must be used verbatim, even when the last contract
-            // published a different spelling for the same member.
             if (isExactName)
             {
                 return generatedName;

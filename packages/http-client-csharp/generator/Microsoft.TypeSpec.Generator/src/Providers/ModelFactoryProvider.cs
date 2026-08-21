@@ -146,8 +146,8 @@ namespace Microsoft.TypeSpec.Generator.Providers
                 {
                     if (currentMethodSignature.Name.Equals(previousMethod.Signature.Name))
                     {
-                        if (MethodSignatureHelper.HaveSameParametersInSameOrder(currentMethodSignature, previousMethod.Signature) ||
-                            HasMatchingExactParameterNames(currentMethodSignature, previousMethod.Signature))
+                        if (MethodSignatureHelper.HaveSameParametersInSameOrder(currentMethodSignature, previousMethod.Signature)
+                            || HasMatchingExactParameterNames(currentMethodSignature, previousMethod.Signature))
                         {
                             foundCompatibleOverload = true;
                             break;
