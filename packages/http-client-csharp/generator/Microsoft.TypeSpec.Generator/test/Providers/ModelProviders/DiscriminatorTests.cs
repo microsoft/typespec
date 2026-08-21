@@ -177,6 +177,101 @@ namespace Microsoft.TypeSpec.Generator.Tests.Providers.ModelProviders
             Assert.IsTrue(serializationCtor!.Signature.Modifiers.HasFlag(MethodSignatureModifiers.Internal));
         }
 
+        [TestCase(false)]
+        [TestCase(true)]
+        public void RebasedDiscriminatedBaseConstructorForwardsDeclaredParameter(bool useMultiLevelBase)
+        {
+            var rootModel = InputFactory.Model(
+                "conversationItem",
+                properties:
+                [
+                    InputFactory.Property(
+                        "type",
+                        InputPrimitiveType.String,
+                        isRequired: true,
+                        isDiscriminator: true)
+                ]);
+            var rebasedModel = rootModel;
+
+            if (useMultiLevelBase)
+            {
+                rebasedModel = InputFactory.Model(
+                    "realtimeConversationItem",
+                    properties:
+                    [
+                        InputFactory.Property(
+                            "type",
+                            InputPrimitiveType.String,
+                            isRequired: true,
+                            isDiscriminator: true)
+                    ],
+                    baseModel: rootModel,
+                    discriminatedKind: "realtime");
+            }
+
+            var voiceModel = InputFactory.Model(
+                "voiceConversationItem",
+                properties:
+                [
+                    InputFactory.Property(
+                        "type",
+                        InputPrimitiveType.String,
+                        isRequired: true,
+                        isDiscriminator: true)
+                ],
+                baseModel: rebasedModel);
+
+            MockHelpers.LoadMockGenerator(inputModelTypes: [rootModel, rebasedModel, voiceModel]);
+            var model = CodeModelGenerator.Instance.TypeFactory.CreateModel(voiceModel);
+
+            Assert.IsNotNull(model);
+            var constructor = model!.Constructors.Single(c =>
+                c.Signature.Modifiers.HasFlag(MethodSignatureModifiers.Private)
+                && c.Signature.Modifiers.HasFlag(MethodSignatureModifiers.Protected));
+            Assert.AreEqual(1, constructor.Signature.Parameters.Count);
+            Assert.AreEqual("type", constructor.Signature.Parameters[0].Name);
+            Assert.IsNotNull(constructor.Signature.Initializer);
+            Assert.AreEqual(1, constructor.Signature.Initializer!.Arguments.Count);
+            Assert.AreEqual("@type", constructor.Signature.Initializer.Arguments[0].ToDisplayString());
+        }
+
+        [Test]
+        public void RebasedDiscriminatedBaseWritesDeclaredConstructorParameter()
+        {
+            var rootModel = InputFactory.Model(
+                "conversationItem",
+                properties:
+                [
+                    InputFactory.Property(
+                        "type",
+                        InputPrimitiveType.String,
+                        isRequired: true,
+                        isDiscriminator: true)
+                ]);
+            var voiceModel = InputFactory.Model(
+                "voiceConversationItem",
+                properties:
+                [
+                    InputFactory.Property(
+                        "type",
+                        InputPrimitiveType.String,
+                        isRequired: true,
+                        isDiscriminator: true)
+                ],
+                baseModel: rootModel);
+
+            MockHelpers.LoadMockGenerator(inputModelTypes: [rootModel, voiceModel]);
+            var model = CodeModelGenerator.Instance.TypeFactory.CreateModel(voiceModel);
+
+            Assert.IsNotNull(model);
+            var content = new TypeProviderWriter(model!).Write().Content;
+
+            // The base call must only forward parameters that the constructor actually declares.
+            StringAssert.Contains(
+                "private protected VoiceConversationItem(string @type) : base(@type)",
+                content);
+        }
+
         [Test]
         public void DerivedPublicCtorShouldSetDiscriminator()
         {

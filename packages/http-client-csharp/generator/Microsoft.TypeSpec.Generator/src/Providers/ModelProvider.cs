@@ -67,6 +67,7 @@ namespace Microsoft.TypeSpec.Generator.Providers
         private List<PropertyProvider>? _additionalPropertyProperties;
         private ModelProvider? _baseModelProvider;
         private ConstructorProvider? _fullConstructor;
+        private (string Name, string Namespace)? _fullConstructorIdentity;
         internal PropertyProvider? DiscriminatorProperty { get; private set; }
 
         private readonly bool _isDiscriminatedBaseType;
@@ -189,6 +190,7 @@ namespace Microsoft.TypeSpec.Generator.Providers
             _additionalPropertyFields = null;
             _additionalPropertyProperties = null;
             _fullConstructor = null;
+            _fullConstructorIdentity = null;
             _isMultiLevelDiscriminator = null;
         }
 
@@ -230,7 +232,29 @@ namespace Microsoft.TypeSpec.Generator.Providers
         protected internal bool SupportsBinaryDataAdditionalProperties => AdditionalPropertyProperties.Any(p =>
             p.Type.ElementType.Equals(_additionalPropsUnknownType) ||
             (p.Type.ElementType.IsFrameworkType && p.Type.ElementType.FrameworkType == typeof(object)));
-        public ConstructorProvider FullConstructor => _fullConstructor ??= BuildFullConstructor();
+        /// <summary>
+        /// The constructor that takes every serializable property.
+        /// </summary>
+        /// <remarks>
+        /// This instance is also returned as part of <see cref="TypeProvider.Constructors"/>, and callers are free to
+        /// mutate the constructors they receive. An identity change invalidates the constructor list, so the cached
+        /// instance is rebuilt alongside it; otherwise a rebuild would reuse the same instance and re-apply any
+        /// mutation, producing duplicated members.
+        /// </remarks>
+        public ConstructorProvider FullConstructor
+        {
+            get
+            {
+                var identity = (Type.Name, Type.Namespace);
+                if (_fullConstructor is null || _fullConstructorIdentity != identity)
+                {
+                    _fullConstructor = BuildFullConstructor();
+                    _fullConstructorIdentity = identity;
+                }
+
+                return _fullConstructor;
+            }
+        }
 
         protected override string BuildNamespace() => string.IsNullOrEmpty(_inputModel.Namespace) ?
             // TODO remove null check once https://github.com/Azure/typespec-azure/issues/2209 is fixed.
@@ -760,7 +784,11 @@ namespace Microsoft.TypeSpec.Generator.Providers
                 : _inputModel.Usage.HasFlag(InputModelTypeUsage.Input)
                     ? MethodSignatureModifiers.Public
                     : MethodSignatureModifiers.Internal;
-            var (constructorParameters, constructorInitializer) = BuildConstructorParameters(true);
+            var includeDiscriminatorParameter = _isDiscriminatedBaseType
+                && BaseModelProvider?._inputModel.DiscriminatorProperty is not null;
+            var (constructorParameters, constructorInitializer) = BuildConstructorParameters(
+                true,
+                includeDiscriminatorParameter);
 
             var constructor = new ConstructorProvider(
                 signature: new ConstructorSignature(
@@ -1311,7 +1339,7 @@ namespace Microsoft.TypeSpec.Generator.Providers
                 ? baseParameters
                 : baseParameters.Where(p =>
                     p.Property is null
-                    || (!overriddenProperties.Contains(p.Property!) && (!p.Property.IsDiscriminator || !isInitializationConstructor || (includeDiscriminatorParameter && IsMultiLevelDiscriminator)))));
+                    || (!overriddenProperties.Contains(p.Property!) && (!p.Property.IsDiscriminator || !isInitializationConstructor || includeDiscriminatorParameter))));
 
             // construct the initializer using the parameters from base signature
             ConstructorInitializer? constructorInitializer = null;
@@ -1323,9 +1351,8 @@ namespace Microsoft.TypeSpec.Generator.Providers
                     if (isInitializationConstructor && (IsMultiLevelDiscriminator || BaseModelProvider.IsMultiLevelDiscriminator))
                     {
                         var baseDiscriminatorParam = baseParameters.FirstOrDefault(p => p.Property?.IsDiscriminator == true);
-                        var hasDiscriminatorProperty = BaseModelProvider.CanonicalView.Properties.Any(p => p.IsDiscriminator);
 
-                        ValueExpression discriminatorExpression = (hasDiscriminatorProperty && baseDiscriminatorParam is not null && includeDiscriminatorParameter)
+                        ValueExpression discriminatorExpression = (baseDiscriminatorParam is not null && includeDiscriminatorParameter)
                             ? constructorParameters.FirstOrDefault(p => p.Property?.IsDiscriminator == true) ?? baseDiscriminatorParam
                             : DiscriminatorLiteral;
 

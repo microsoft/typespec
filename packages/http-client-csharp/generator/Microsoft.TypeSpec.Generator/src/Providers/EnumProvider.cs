@@ -29,7 +29,7 @@ namespace Microsoft.TypeSpec.Generator.Providers
             return input.IsExtensible ? extensibleEnumProvider : fixedEnumProvider;
         }
 
-        protected EnumProvider(InputEnumType? input)
+        protected EnumProvider(InputEnumType? input) : base(input)
         {
             _inputType = input;
             _deprecated = input?.Deprecation;

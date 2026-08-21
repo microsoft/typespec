@@ -69,11 +69,7 @@ export interface BuildTaskGroupsOptions {
 
 // ---- Public constants ----
 
-export const SKIP_SPECS: string[] = [
-  "type/file",
-  // LroPaging.postPagingLroWithBody generates begin_post_paging_lro_with_body with pylint R0915 (52/50).
-  "azure/resource-manager/operation-templates",
-];
+export const SKIP_SPECS: string[] = ["type/file"];
 
 export const SpecialFlags: Record<string, Record<string, any>> = {
   azure: {

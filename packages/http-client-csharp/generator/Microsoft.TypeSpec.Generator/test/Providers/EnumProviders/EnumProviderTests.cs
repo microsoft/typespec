@@ -128,6 +128,26 @@ namespace Microsoft.TypeSpec.Generator.Tests.Providers
             Assert.AreEqual("IpKind", enumType.Name);
         }
 
+        [Test]
+        public async Task BuildEnumType_BackCompatTakesPrecedenceAfterNamespaceUpdate()
+        {
+            await MockHelpers.LoadMockGeneratorAsync(
+                createCSharpTypeCore: (inputType) => typeof(string),
+                lastContractCompilation: async () => await Helpers.GetCompilationFromDirectoryAsync());
+            var input = InputFactory.StringEnum(
+                "IpKind",
+                [("Value", "value")],
+                clientNamespace: "Sample");
+
+            var enumType = EnumProvider.Create(input);
+            Assert.AreEqual("IPKind", enumType.Name);
+
+            enumType.Update(@namespace: "Sample.Models");
+
+            Assert.AreEqual("IpKind", enumType.Name);
+            Assert.IsNotNull(enumType.LastContractView);
+        }
+
         // Validates the api version enum
         [TestCase]
         public void BuildEnumType_ValidateApiVersionEnum()
