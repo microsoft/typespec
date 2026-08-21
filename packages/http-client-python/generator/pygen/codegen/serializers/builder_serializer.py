@@ -1262,7 +1262,7 @@ class _OperationSerializer(_BuilderBaseSerializer[OperationType]):
         ``AsyncStream`` wrapping the streamed HTTP response.
         """
         response = next(r for r in builder.responses if r.is_structured_stream)
-        item_annotation = response.type.type_annotation(  # type: ignore[union-attr]
+        item_annotation = response.stream_item_annotation(
             is_operation_file=True, serialize_namespace=self.serialize_namespace
         )
         stream_class = response.stream_class_name(self.async_mode)  # type: ignore[attr-defined]
@@ -1288,9 +1288,12 @@ class _OperationSerializer(_BuilderBaseSerializer[OperationType]):
                     keyword = "if" if index == 0 else "elif"
                     retval.append(f"    {keyword} _event.event == {event_type!r}:")
                     if self.code_model.options["models-mode"] == "msrest":
+                        serialization_type = event_item_type.serialization_type(
+                            serialize_namespace=self.serialize_namespace
+                        )
                         retval.append("        deserialized = self._deserialize(")
-                        retval.append(f"            '{event_annotation}',")
-                        retval.append("            _http_response")
+                        retval.append(f"            '{serialization_type}',")
+                        retval.append("            _event_json")
                         retval.append("        )")
                     else:
                         retval.append(f"        deserialized = _deserialize({event_annotation}, _event_json)")
@@ -1301,9 +1304,12 @@ class _OperationSerializer(_BuilderBaseSerializer[OperationType]):
                         serialize_namespace=self.serialize_namespace,
                     )
                     if self.code_model.options["models-mode"] == "msrest":
+                        serialization_type = unnamed_events[0].serialization_type(
+                            serialize_namespace=self.serialize_namespace
+                        )
                         retval.append("        deserialized = self._deserialize(")
-                        retval.append(f"            '{event_annotation}',")
-                        retval.append("            _http_response")
+                        retval.append(f"            '{serialization_type}',")
+                        retval.append("            _event_json")
                         retval.append("        )")
                     else:
                         retval.append(f"        deserialized = _deserialize({event_annotation}, _event_json)")
@@ -1315,26 +1321,35 @@ class _OperationSerializer(_BuilderBaseSerializer[OperationType]):
                     serialize_namespace=self.serialize_namespace,
                 )
                 if self.code_model.options["models-mode"] == "msrest":
+                    serialization_type = unnamed_events[0].serialization_type(
+                        serialize_namespace=self.serialize_namespace
+                    )
                     retval.append("    deserialized = self._deserialize(")
-                    retval.append(f"        '{event_annotation}',")
-                    retval.append("        _http_response")
+                    retval.append(f"        '{serialization_type}',")
+                    retval.append("        _event_json")
                     retval.append("    )")
                 else:
                     retval.append(f"    deserialized = _deserialize({event_annotation}, _event_json)")
             else:
                 if self.code_model.options["models-mode"] == "msrest":
+                    serialization_type = response.stream_item_type.serialization_type(
+                        serialize_namespace=self.serialize_namespace
+                    )
                     retval.append("    deserialized = self._deserialize(")
-                    retval.append(f"        '{item_annotation}',")
-                    retval.append("        _http_response")
+                    retval.append(f"        '{serialization_type}',")
+                    retval.append("        _event_json")
                     retval.append("    )")
                 else:
                     retval.append(f"    deserialized = _deserialize({item_annotation}, _event_json)")
         else:
             retval.append("    _event_json = _event.json()")
             if self.code_model.options["models-mode"] == "msrest":
+                serialization_type = response.stream_item_type.serialization_type(
+                    serialize_namespace=self.serialize_namespace
+                )
                 retval.append("    deserialized = self._deserialize(")
-                retval.append(f"        '{item_annotation}',")
-                retval.append("        _http_response")
+                retval.append(f"        '{serialization_type}',")
+                retval.append("        _event_json")
                 retval.append("    )")
             else:
                 retval.append(f"    deserialized = _deserialize({item_annotation}, _event_json)")
