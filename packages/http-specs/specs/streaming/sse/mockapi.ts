@@ -1,5 +1,5 @@
 import type { MockRequest, ScenarioMockApi } from "@typespec/spec-api";
-import { passOnSuccess } from "@typespec/spec-api";
+import { passOnSuccess, withServiceKeys } from "@typespec/spec-api";
 
 export const Scenarios: Record<string, ScenarioMockApi> = {};
 
@@ -85,7 +85,11 @@ Scenarios.Streaming_Sse_Protocol_id = passOnSuccess({
   response: {
     status: 200,
     body: {
-      rawContent: protocolEvent(["id: event-1", 'data: {"message": "hello"}']),
+      rawContent: protocolEvent([
+        "id: event-1",
+        "event: message",
+        'data: {"message": "hello"}',
+      ]),
       contentType: "text/event-stream",
     },
   },
@@ -101,6 +105,7 @@ Scenarios.Streaming_Sse_Protocol_invalidId = passOnSuccess({
     body: {
       rawContent: protocolEvent([
         "id: invalid\u0000id",
+        "event: message",
         'data: {"message": "hello"}',
       ]),
       contentType: "text/event-stream",
@@ -116,7 +121,11 @@ Scenarios.Streaming_Sse_Protocol_retry = passOnSuccess({
   response: {
     status: 200,
     body: {
-      rawContent: protocolEvent(["retry: 1000", 'data: {"message": "hello"}']),
+      rawContent: protocolEvent([
+        "retry: 1000",
+        "event: message",
+        'data: {"message": "hello"}',
+      ]),
       contentType: "text/event-stream",
     },
   },
@@ -132,6 +141,7 @@ Scenarios.Streaming_Sse_Protocol_invalidRetry = passOnSuccess({
     body: {
       rawContent: protocolEvent([
         "retry: not-a-number",
+        "event: message",
         'data: {"message": "hello"}',
       ]),
       contentType: "text/event-stream",
@@ -140,7 +150,10 @@ Scenarios.Streaming_Sse_Protocol_invalidRetry = passOnSuccess({
   kind: "MockApiDefinition",
 });
 
-Scenarios.Streaming_Sse_Protocol_reconnect = passOnSuccess({
+Scenarios.Streaming_Sse_Protocol_reconnect = withServiceKeys([
+  "initial",
+  "reconnect",
+]).pass({
   uri: "/streaming/sse/protocol/reconnect",
   method: "get",
   request: {},
@@ -161,6 +174,7 @@ Scenarios.Streaming_Sse_Protocol_reconnect = passOnSuccess({
       if (reconnected) {
         req.expect.containsHeader("last-event-id", "event-1");
         return {
+          pass: "reconnect",
           status: 200,
           body: {
             rawContent: protocolEvent([
@@ -175,6 +189,7 @@ Scenarios.Streaming_Sse_Protocol_reconnect = passOnSuccess({
 
       reconnected = true;
       return {
+        pass: "initial",
         status: 200,
         body: {
           rawContent: protocolEvent([

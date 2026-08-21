@@ -5,3 +5,7 @@ packages:
 ---
 
 Add SSE protocol coverage for event IDs, retry fields, and reconnection
+
+```tsp
+op reconnect(): SSEStream<ProtocolEvents>;
+```
