@@ -22,6 +22,11 @@
       "import": "./dist/src/components/index.js"
     }
   },
+  "files": [
+    "lib/*.tsp",
+    "dist/**",
+    "!dist/test/**"
+  ],
   "peerDependencies": {
     "@alloy-js/core": "catalog:",
     "@alloy-js/typescript": "catalog:",
