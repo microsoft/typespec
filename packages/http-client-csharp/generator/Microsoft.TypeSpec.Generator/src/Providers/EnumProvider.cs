@@ -95,8 +95,14 @@ namespace Microsoft.TypeSpec.Generator.Providers
         private protected string GetBackCompatibleName(
             string generatedName,
             IReadOnlyList<string> generatedNames,
-            IReadOnlyList<string> lastContractNames)
+            IReadOnlyList<string> lastContractNames,
+            bool isExactName = false)
         {
+            if (isExactName)
+            {
+                return generatedName;
+            }
+
             if (lastContractNames.Count == 0)
             {
                 return generatedName;

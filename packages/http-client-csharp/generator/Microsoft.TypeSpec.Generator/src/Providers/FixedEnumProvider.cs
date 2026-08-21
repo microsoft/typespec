@@ -86,7 +86,7 @@ namespace Microsoft.TypeSpec.Generator.Providers
                 var inputValue = AllowedValues[i];
                 var modifiers = FieldModifiers.Public | FieldModifiers.Static;
                 // the fields for fixed enums are just its members (we use fields to represent the values in a system `enum` type), we just use the name for this field
-                var name = GetBackCompatibleName(generatedNames[i], generatedNames, lastContractNames);
+                var name = GetBackCompatibleName(generatedNames[i], generatedNames, lastContractNames, inputValue.IsExactName);
 
                 // check if the enum member was renamed in custom code
                 string? customMemberName = null;
@@ -216,7 +216,7 @@ namespace Microsoft.TypeSpec.Generator.Providers
                 if (customOriginalNames.Contains(generatedNames[i]))
                 {
                     customMemberLastContractNames.Add(
-                        GetBackCompatibleName(generatedNames[i], generatedNames, lastContractNames));
+                        GetBackCompatibleName(generatedNames[i], generatedNames, lastContractNames, AllowedValues[i].IsExactName));
                 }
             }
 

@@ -958,7 +958,8 @@ namespace Microsoft.TypeSpec.Generator.Providers
                 for (int i = 0; i < restoredParameters.Count; i++)
                 {
                     var restoredName = previousParameters[i].Name;
-                    if (string.Equals(restoredParameters[i].Name, restoredName, StringComparison.Ordinal))
+                    if (string.Equals(restoredParameters[i].Name, restoredName, StringComparison.Ordinal)
+                        || restoredParameters[i].IsExactName)
                     {
                         continue;
                     }
