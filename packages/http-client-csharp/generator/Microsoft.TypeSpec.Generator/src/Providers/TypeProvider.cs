@@ -475,7 +475,10 @@ namespace Microsoft.TypeSpec.Generator.Providers
             customNames.Add(originalName);
             if (specPropertiesByName.TryGetValue(originalName, out var inputProperty) && !inputProperty.IsExactName)
             {
-                customNames.Add(originalName.NormalizeCSharpAcronyms(inputProperty.Type.IsDateTimeInputType()));
+                customNames.Add(
+                    originalName
+                        .ToIdentifierName()
+                        .NormalizeCSharpAcronyms(inputProperty.Type.IsDateTimeInputType()));
             }
         }
 

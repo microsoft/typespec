@@ -33,6 +33,7 @@ namespace Microsoft.TypeSpec.Generator.Providers
             foreach (var property in _specProperties)
             {
                 var name = property.IsExactName ? property.Name : property.Name.ToIdentifierName();
+                _specPropertiesMap.TryAdd(property.Name, property);
                 _specPropertiesMap.TryAdd(name, property);
                 if (!property.IsExactName)
                 {
