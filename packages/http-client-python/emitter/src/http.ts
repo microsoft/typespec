@@ -42,6 +42,157 @@ export enum ReferredByOperationTypes {
   NonPagingOnly = 2,
 }
 
+type StructuredStreamKind = "jsonl" | "sse";
+type EmittedType = ReturnType<typeof getType>;
+
+interface StructuredStreamEvent {
+  eventType: string | undefined;
+  /**
+   * Payload type for this one SSE event. Together with {@link eventType} these form the
+   * runtime dispatch table (wire event name -> model to deserialize) inside the generated
+   * `_callback`. This is a narrower type than {@link StructuredStreamingInfo.itemType}.
+   */
+  itemType: EmittedType;
+  /**
+   * True when this event is a `@terminalEvent` that carries a payload (a named / model event,
+   * not a bare string-constant sentinel). Such events are deserialized and yielded like any
+   * other event, and iteration stops immediately after one is yielded. Contrast with
+   * {@link StructuredStreamingInfo.terminalEvent}, the sentinel that stops without yielding.
+   */
+  isTerminal?: boolean;
+}
+
+interface StructuredStreamingInfo {
+  kind: StructuredStreamKind;
+  /**
+   * The aggregate stream element type used for the `Stream[T]` / `AsyncStream[T]` return
+   * annotation (a single type expression). For homogeneous JSONL this is the one model; for
+   * heterogeneous SSE this is the union of every event payload.
+   *
+   * Note the deliberate overlap with the per-event {@link StructuredStreamEvent.itemType}: for
+   * heterogeneous SSE this union is exactly the sum of the `events[]` payload types. Both are
+   * carried because the union alone cannot recover the wire-name -> member mapping needed for
+   * dispatch, and the events list alone is not a single valid type expression for the annotation.
+   */
+  itemType: EmittedType;
+  events?: StructuredStreamEvent[];
+  /**
+   * A bare string-constant `@terminalEvent` with no event name (e.g. `"[DONE]"`). Iteration
+   * stops when an event's `data` equals this value, and the sentinel is NOT yielded. Named /
+   * model terminal events are carried in {@link events} with `isTerminal: true` instead.
+   */
+  terminalEvent?: string;
+}
+
+/** Whether pygen can deserialize the stream item type. */
+export function isStructuredStreamType(type: SdkType): boolean {
+  switch (type.kind) {
+    case "model":
+    case "union":
+      return true;
+    case "nullable":
+      return isStructuredStreamType(type.type);
+    default:
+      return false;
+  }
+}
+
+export function getStructuredStreamKind(
+  response: SdkHttpResponse | SdkHttpErrorResponse,
+): StructuredStreamKind | undefined {
+  if (response.sseMetadata) return "sse";
+
+  const contentTypes = response.streamMetadata?.contentTypes ?? response.contentTypes ?? [];
+  for (const contentType of contentTypes) {
+    const mediaType = contentType.split(";", 1)[0].trim().toLowerCase();
+    if (mediaType === "text/event-stream") return "sse";
+    if (mediaType === "application/jsonl") return "jsonl";
+  }
+  return undefined;
+}
+
+function getStringConstantValue(type: SdkType): string | undefined {
+  if (type.kind === "nullable") return getStringConstantValue(type.type);
+  return type.kind === "constant" && typeof type.value === "string" ? type.value : undefined;
+}
+
+/** The subset of an {@link SdkSseMetadata} event that terminal-event partitioning depends on. */
+interface SseEventLike {
+  eventType?: string | undefined;
+  isTerminalEvent: boolean;
+  type: SdkType;
+  payloadType: SdkType;
+}
+
+/**
+ * Split the SSE events into the runtime dispatch table and a bare string-constant sentinel.
+ *
+ * A `@terminalEvent` comes in two shapes:
+ *   * a nameless string constant (e.g. `"[DONE]"`) -> a pure sentinel: iteration stops when an
+ *     event's `data` equals this value and the event is NOT yielded. Returned as `terminalEvent`.
+ *   * a named / model event (e.g. `error`, `response.completed`) -> carries a payload the consumer
+ *     needs, so it is deserialized and yielded like any other event, then iteration stops. Returned
+ *     in `events` with `isTerminal: true`.
+ *
+ * `toItemType` maps an event payload to its emitted type; it is injected so this partitioning stays
+ * a pure function that can be unit-tested without a full emitter context.
+ */
+export function partitionSseEvents(
+  events: readonly SseEventLike[],
+  toItemType: (payloadType: SdkType) => EmittedType,
+): { events: StructuredStreamEvent[]; terminalEvent?: string } {
+  const dispatch: StructuredStreamEvent[] = [];
+  let terminalEvent: string | undefined;
+  for (const event of events) {
+    if (event.isTerminalEvent) {
+      const sentinelValue =
+        event.eventType === undefined
+          ? (getStringConstantValue(event.payloadType) ?? getStringConstantValue(event.type))
+          : undefined;
+      if (sentinelValue !== undefined) {
+        // Keep the first sentinel; no current spec defines more than one.
+        terminalEvent ??= sentinelValue;
+        continue;
+      }
+      dispatch.push({
+        eventType: event.eventType,
+        itemType: toItemType(event.payloadType),
+        isTerminal: true,
+      });
+      continue;
+    }
+    dispatch.push({ eventType: event.eventType, itemType: toItemType(event.payloadType) });
+  }
+  return terminalEvent !== undefined ? { events: dispatch, terminalEvent } : { events: dispatch };
+}
+
+function emitStructuredStreamingInfo(
+  context: PythonSdkContext,
+  response: SdkHttpResponse | SdkHttpErrorResponse,
+): StructuredStreamingInfo | undefined {
+  const streamMetadata = response.streamMetadata;
+  if (!streamMetadata || !isStructuredStreamType(streamMetadata.streamType)) return undefined;
+
+  const kind = getStructuredStreamKind(response);
+  if (!kind) return undefined;
+
+  const streaming: StructuredStreamingInfo = {
+    kind,
+    itemType: getType(context, streamMetadata.streamType),
+  };
+
+  const sseMetadata = response.sseMetadata;
+  if (!sseMetadata) return streaming;
+
+  const { events, terminalEvent } = partitionSseEvents(sseMetadata.events, (payloadType) =>
+    getType(context, payloadType),
+  );
+  if (events.length > 0) streaming.events = events;
+  if (terminalEvent !== undefined) streaming.terminalEvent = terminalEvent;
+
+  return streaming;
+}
+
 function isEtagType(type: SdkType): boolean {
   if (type.kind === "nullable") return isEtagType(type.type);
   const raw = type.__raw;
@@ -682,6 +833,7 @@ function emitHttpResponse(
       "invalid-lro-result",
       method,
     ),
+    streaming: isException ? undefined : emitStructuredStreamingInfo(context, response),
   };
 }
 

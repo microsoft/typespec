@@ -5,13 +5,19 @@ dictionaries:
   - node
   - typescript
 words:
+  - aclose
+  - aclosing
   - Ablack
   - Adoptium
+  - aenter
+  - aexit
   - agentic
   - agentics
   - aiohttp
+  - aiter
   - alzimmer
   - amqp
+  - anext
   - AQID
   - Arize
   - arizeaiobservabilityeval
@@ -120,6 +126,7 @@ words:
   - intrinsics
   - ints
   - IOHTTP
+  - isascii
   - isdigit
   - isinstance
   - issecret
