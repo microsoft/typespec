@@ -41,4 +41,15 @@ public final class EmitterOptionsTests {
         Assertions.assertEquals(1, options.getRemoveInner().split(",").length);
         Assertions.assertEquals("NginxConfigurationResponse", options.getRemoveInner());
     }
+
+    @ParameterizedTest
+    @ValueSource(
+        strings = {
+            "{\"remove-model\":[\"VirtualMachineExtensionImage\",\"VirtualMachineImage\"]}",
+            "{\"remove-model\":\"VirtualMachineExtensionImage,VirtualMachineImage\"}" })
+    public void testRemoveModel(String json) throws IOException {
+        EmitterOptions options = EmitterOptions.fromJson(JsonReader.fromString(json));
+        Assertions.assertEquals(2, options.getRemoveModel().split(",").length);
+        Assertions.assertEquals("VirtualMachineExtensionImage,VirtualMachineImage", options.getRemoveModel());
+    }
 }

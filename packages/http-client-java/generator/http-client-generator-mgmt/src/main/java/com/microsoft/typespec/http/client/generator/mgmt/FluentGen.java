@@ -241,7 +241,9 @@ public class FluentGen extends Javagen {
 
         // Enum
         for (EnumType enumType : client.getEnums()) {
-            javaPackage.addEnum(enumType.getPackage(), enumType.getName(), enumType);
+            if (!getFluentJavaSettings().getJavaNamesForRemoveModel().contains(enumType.getName())) {
+                javaPackage.addEnum(enumType.getPackage(), enumType.getName(), enumType);
+            }
         }
 
         // XML sequence wrapper

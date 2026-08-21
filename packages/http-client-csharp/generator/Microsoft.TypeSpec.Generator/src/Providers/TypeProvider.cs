@@ -9,6 +9,7 @@ using Microsoft.CodeAnalysis.CSharp;
 using Microsoft.TypeSpec.Generator.EmitterRpc;
 using Microsoft.TypeSpec.Generator.Expressions;
 using Microsoft.TypeSpec.Generator.Input;
+using Microsoft.TypeSpec.Generator.Input.Extensions;
 using Microsoft.TypeSpec.Generator.Primitives;
 using Microsoft.TypeSpec.Generator.SourceInput;
 using Microsoft.TypeSpec.Generator.Statements;
@@ -49,10 +50,30 @@ namespace Microsoft.TypeSpec.Generator.Providers
                 _declaringTypeName.Value);
 
         private protected virtual TypeProvider? BuildLastContractView(string? generatedTypeName = null, string? generatedTypeNamespace = null)
-            => CodeModelGenerator.Instance.SourceInputModel.FindForTypeInLastContract(
-                generatedTypeNamespace ?? CustomCodeView?.Type.Namespace ?? BuildNamespace(),
-                generatedTypeName ?? CustomCodeView?.Name ?? BuildName(),
+        {
+            var typeNamespace = generatedTypeNamespace ?? CustomCodeView?.Type.Namespace ?? BuildNamespace();
+            var typeName = generatedTypeName ?? CustomCodeView?.Name ?? BuildName();
+            var lastContractView = CodeModelGenerator.Instance.SourceInputModel.FindForTypeInLastContract(
+                typeNamespace,
+                typeName,
                 _declaringTypeName.Value);
+            if (lastContractView is not null || _inputType is null || _inputType.IsExactName)
+            {
+                return lastContractView;
+            }
+
+            var originalName = _inputType.Name.ToIdentifierName();
+            var normalizedOriginalName = originalName.NormalizeCSharpAcronyms();
+            if (normalizedOriginalName == originalName || typeName != normalizedOriginalName)
+            {
+                return null;
+            }
+
+            return CodeModelGenerator.Instance.SourceInputModel.FindForTypeInLastContract(
+                typeNamespace,
+                originalName,
+                _declaringTypeName.Value);
+        }
 
         private static string? GetDeclaringTypeName(TypeProvider? declaringTypeProvider)
         {
@@ -624,6 +645,31 @@ namespace Microsoft.TypeSpec.Generator.Providers
         protected abstract string BuildRelativeFilePath();
         protected abstract string BuildName();
 
+        protected string NormalizeTypeNameForNewContract(string name)
+        {
+            var typeNamespace = BuildNamespace();
+            var currentType = CodeModelGenerator.Instance.SourceInputModel.FindForTypeInCurrentCompilation(
+                typeNamespace,
+                name,
+                _declaringTypeName.Value);
+            if (currentType is not null)
+            {
+                return name;
+            }
+
+            var normalizedName = name.NormalizeCSharpAcronyms();
+            if (normalizedName == name)
+            {
+                return name;
+            }
+
+            var lastContractType = CodeModelGenerator.Instance.SourceInputModel.FindForTypeInLastContract(
+                typeNamespace,
+                name,
+                _declaringTypeName.Value);
+            return lastContractType is null ? normalizedName : name;
+        }
+
         /// <summary>
         /// Resets only the cached methods so they are rebuilt on next access.
         /// Use this instead of <see cref="Reset"/> when you need to force a method
@@ -776,9 +822,11 @@ namespace Microsoft.TypeSpec.Generator.Providers
             _customCodeView = new(BuildCustomCodeView(name ?? Type.Name, @namespace ?? Type.Namespace));
             name = _customCodeView.Value?.Name ?? name ?? Type.Name;
             @namespace = _customCodeView.Value?.Type.Namespace ?? @namespace ?? Type.Namespace;
-            _lastContractView = new(BuildLastContractView(
+            var lastContractView = BuildLastContractView(
                 name,
-                @namespace));
+                @namespace);
+            _lastContractView = new(lastContractView);
+            name = _customCodeView.Value?.Name ?? lastContractView?.Name ?? name;
             // recalculate declaration modifiers and constructors
             _declarationModifiers = null;
             // constructors might change based on declaration modifier changes
@@ -1071,6 +1119,11 @@ namespace Microsoft.TypeSpec.Generator.Providers
             foreach (var previousConstructor in LastContractView.Constructors)
             {
                 if (!previousConstructor.Signature.Modifiers.HasFlag(MethodSignatureModifiers.Public))
+                {
+                    continue;
+                }
+
+                if (BackCompatHelper.IsConstructorRemovalAcceptedInBaseline(this, previousConstructor.Signature))
                 {
                     continue;
                 }

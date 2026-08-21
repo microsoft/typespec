@@ -12,8 +12,16 @@ COPY . /app
 #   && tdnf clean all
 
 WORKDIR /app
-RUN npm install -g pnpm
-RUN pnpm install --filter "@typespec/compiler..."
+
+# Install exact version of pnpm to avoid problems with private registries
+RUN --mount=type=secret,id=npmrc \
+  NPM_CONFIG_USERCONFIG=/run/secrets/npmrc \
+  npm install -g $(node -p "require('./package.json').packageManager")
+
+RUN --mount=type=secret,id=npmrc \
+  NPM_CONFIG_USERCONFIG=/run/secrets/npmrc \
+  pnpm install --filter "@typespec/compiler..."
+
 RUN pnpm --filter "@typespec/compiler..." run build
 
 WORKDIR /app/packages/compiler
@@ -26,6 +34,8 @@ FROM mcr.microsoft.com/azurelinux/base/nodejs:24
 
 COPY --from=builder /app/packages/compiler/*.tgz /tmp/compiler.tgz
 
-RUN npm install -g /tmp/compiler.tgz && rm /tmp/compiler.tgz
+RUN --mount=type=secret,id=npmrc \
+  NPM_CONFIG_USERCONFIG=/run/secrets/npmrc \
+  npm install --verbose -g /tmp/compiler.tgz && rm /tmp/compiler.tgz
 
 ENTRYPOINT ["tsp"]

@@ -1,10 +1,13 @@
 // Copyright (c) Microsoft Corporation. All rights reserved.
 // Licensed under the MIT License.
 
+// cspell:ignore DBOS IPDBOSIP
+
 using System;
 using System.Collections.Generic;
 using System.Diagnostics.CodeAnalysis;
 using System.Linq;
+using System.Threading.Tasks;
 using Microsoft.TypeSpec.Generator.Input;
 using Microsoft.TypeSpec.Generator.Input.Extensions;
 using Microsoft.TypeSpec.Generator.Primitives;
@@ -103,6 +106,99 @@ namespace Microsoft.TypeSpec.Generator.Tests.Providers
             Assert.AreEqual("my_model", modelProvider.Name);
         }
 
+        [TestCase("IpAddress", false, "IPAddress")]
+        [TestCase("CosmosDbAccount", false, "CosmosDBAccount")]
+        [TestCase("OsProfile", false, "OSProfile")]
+        [TestCase("IpDbOsIpAddressDb", false, "IPDBOSIPAddressDB")]
+        [TestCase("IPAddressCosmosDBOSProfile", false, "IPAddressCosmosDBOSProfile")]
+        [TestCase("Ipv4AddressIpv6", false, "IPv4AddressIPv6")]
+        [TestCase("IpV4AddressIpV6", false, "IPv4AddressIPv6")]
+        [TestCase("IPV4AddressIPV6", false, "IPV4AddressIPV6")]
+        [TestCase("OsloIpsumOsmosisDbz", false, "OsloIpsumOsmosisDbz")]
+        [TestCase("IpAddress", true, "IpAddress")]
+        public void TestPropertyNameNormalizesAcronymCasing(string inputName, bool isExactName, string expectedName)
+        {
+            var inputProperty = InputFactory.Property(
+                inputName,
+                InputPrimitiveType.String,
+                isRequired: true,
+                isExactName: isExactName);
+            InputFactory.Model("TestModel", properties: [inputProperty]);
+
+            var property = new PropertyProvider(inputProperty, new TestTypeProvider());
+
+            Assert.AreEqual(expectedName, property.Name);
+        }
+
+        [TestCaseSource(nameof(DateTimePropertyNameTestCases))]
+        public void TestPropertyNameNormalizesDateTimeSuffix(
+            string inputName,
+            InputType inputType,
+            bool isExactName,
+            string expectedName)
+        {
+            var inputProperty = InputFactory.Property(
+                inputName,
+                inputType,
+                isRequired: true,
+                isExactName: isExactName);
+            InputFactory.Model("TestModel", properties: [inputProperty]);
+
+            var property = new PropertyProvider(inputProperty, new TestTypeProvider());
+
+            Assert.AreEqual(expectedName, property.Name);
+            Assert.AreEqual(inputName.ToVariableName(), property.WireInfo?.SerializedName);
+        }
+
+        [TestCase("Ipv4", false, "ipv4")]
+        [TestCase("Ipv6", false, "ipv6")]
+        [TestCase("IpAddress", false, "ipAddress")]
+        [TestCase("DbAccount", false, "dbAccount")]
+        [TestCase("OsProfile", false, "osProfile")]
+        [TestCase("RegularName", false, "regularName")]
+        [TestCase("MiniPv4", false, "miniPv4")]
+        [TestCase("Ipv4", true, "ipv4")]
+        public void TestPropertyParameterDeclarationNormalizesAcronymCasing(string inputName, bool isExactName, string expectedName)
+        {
+            var inputProperty = InputFactory.Property(
+                inputName,
+                InputPrimitiveType.String,
+                isRequired: true,
+                isExactName: isExactName);
+            InputFactory.Model("TestModel", properties: [inputProperty]);
+
+            var property = new PropertyProvider(inputProperty, new TestTypeProvider());
+
+            Assert.AreEqual(expectedName, property.AsParameter.AsVariable().Declaration.RequestedName);
+            Assert.AreEqual(expectedName, property.AsVariableExpression.Declaration.RequestedName);
+        }
+
+        [Test]
+        public async Task TestPropertyNamePreservesLastContractDateTimeSuffix()
+        {
+            await MockHelpers.LoadMockGeneratorAsync(lastContractCompilation: async () => await Helpers.GetCompilationFromDirectoryAsync());
+
+            var inputModel = InputFactory.Model(
+                "TestModel",
+                @namespace: "Test",
+                properties:
+                [
+                    InputFactory.Property(
+                        "StartTime",
+                        new InputDateTimeType(
+                    DateTimeKnownEncoding.Rfc3339,
+                    "utcDateTime",
+                    "TypeSpec.utcDateTime",
+                    InputPrimitiveType.String),
+                        isRequired: true)
+                ]);
+
+            var modelProvider = new ModelProvider(inputModel);
+            var actual = new TypeProviderWriter(modelProvider).Write().Content;
+
+            Assert.AreEqual(Helpers.GetExpectedFromFile("Expected"), actual);
+        }
+
         [TestCaseSource(nameof(CollectionPropertyTestCases))]
         public void CollectionProperty(CSharpType coreType, InputModelProperty collectionProperty, CSharpType expectedType)
         {
@@ -165,6 +261,53 @@ namespace Microsoft.TypeSpec.Generator.Tests.Providers
         }
 
         [Test]
+        public void TestPropertyNameConflictsWithTypeNameAfterAcronymNormalization()
+        {
+            var testTypeProvider = new TestTypeProvider(name: "IPAddress");
+            InputModelProperty inputModelProperty = InputFactory.Property("IpAddress", InputPrimitiveType.String);
+            InputFactory.Model("IPAddress", properties: [inputModelProperty]);
+
+            var property = new PropertyProvider(inputModelProperty, testTypeProvider);
+
+            Assert.AreEqual("IPAddressProperty", property.Name);
+        }
+
+        private static IEnumerable<TestCaseData> DateTimePropertyNameTestCases()
+        {
+            var dateTime = new InputDateTimeType(
+                DateTimeKnownEncoding.Rfc3339,
+                "utcDateTime",
+                "TypeSpec.utcDateTime",
+                InputPrimitiveType.String);
+
+            yield return new TestCaseData("StartTime", dateTime, false, "StartOn");
+            yield return new TestCaseData("CreatedAt", dateTime, false, "CreatedOn");
+            yield return new TestCaseData("DeletionTimestamp", dateTime, false, "DeletedOn");
+            yield return new TestCaseData("ModificationTimeStamp", dateTime, false, "ModifiedOn");
+            yield return new TestCaseData("Timestamp", dateTime, false, "On");
+            yield return new TestCaseData("ExpirationDate", dateTime, false, "ExpireOn");
+            yield return new TestCaseData("CreationDate", dateTime, false, "CreatedOn");
+            yield return new TestCaseData("CreationTime", dateTime, false, "CreatedOn");
+            yield return new TestCaseData("ExpirationDateTime", dateTime.WithNullable(true), false, "ExpireOn");
+            yield return new TestCaseData("DeletionDateTime", dateTime, false, "DeletedOn");
+            yield return new TestCaseData("AccountExpirationDate", dateTime, false, "AccountExpirationOn");
+            yield return new TestCaseData("RecordedAt", InputPrimitiveType.String, false, "RecordedAt");
+            yield return new TestCaseData("Date", InputPrimitiveType.PlainDate, false, "On");
+            yield return new TestCaseData("SnapshotTimestamp", dateTime.WithNullable(true), false, "SnapshotOn");
+            yield return new TestCaseData("StatusTimestamp", dateTime.WithNullable(true), false, "StatusTimestamp");
+            yield return new TestCaseData("LastSyncTimestamp", dateTime, false, "LastSyncOn");
+            yield return new TestCaseData("TotalTime", dateTime, false, "TotalTime");
+            yield return new TestCaseData("TopicTimestamp", dateTime.WithNullable(true), false, "TopicTimestamp");
+            yield return new TestCaseData("FromTime", dateTime, false, "FromTime");
+            yield return new TestCaseData("ToDate", dateTime, false, "ToDate");
+            yield return new TestCaseData("RecoveryPointInTime", dateTime, false, "RecoveryPointInTime");
+            yield return new TestCaseData("StartTime", InputPrimitiveType.String, false, "StartTime");
+            yield return new TestCaseData("CreationTimestamp", InputPrimitiveType.String, false, "CreationTimestamp");
+            yield return new TestCaseData("CreationTimestamp", dateTime, true, "CreationTimestamp");
+        }
+
+
+        [Test]
         public void CanUpdatePropertyProvider()
         {
             var propertyProvider = new PropertyProvider(
@@ -189,7 +332,7 @@ namespace Microsoft.TypeSpec.Generator.Tests.Providers
             };
 
             propertyProvider.Update(
-                modifiers: propertyProvider.Modifiers &~ MethodSignatureModifiers.Virtual,
+                modifiers: propertyProvider.Modifiers & ~MethodSignatureModifiers.Virtual,
                 type: new CSharpType(typeof(int)),
                 name: "newName",
                 body: new AutoPropertyBody(HasSetter: true),

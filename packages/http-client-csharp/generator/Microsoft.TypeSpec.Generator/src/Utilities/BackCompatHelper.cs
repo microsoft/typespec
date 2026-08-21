@@ -7,6 +7,7 @@ using System.ComponentModel;
 using System.Linq;
 using Microsoft.TypeSpec.Generator.EmitterRpc;
 using Microsoft.TypeSpec.Generator.Expressions;
+using Microsoft.TypeSpec.Generator.Input;
 using Microsoft.TypeSpec.Generator.Input.Extensions;
 using Microsoft.TypeSpec.Generator.Primitives;
 using Microsoft.TypeSpec.Generator.Providers;
@@ -175,8 +176,13 @@ namespace Microsoft.TypeSpec.Generator.Utilities
                 }
 
                 var currentParameters = method.Signature.Parameters;
-                MethodProvider? matchingPrevious = null;
-                bool matchingPreviousResolved = false;
+                var matchingPrevious = FindMethodWithSameSignatureIgnoringNames(previousMethods, method.Signature);
+
+                if (matchingPrevious != null
+                    && TryRestorePreviousParameterOrder(method, matchingPrevious.Signature))
+                {
+                    currentParameters = method.Signature.Parameters;
+                }
 
                 for (int i = 0; i < currentParameters.Count; i++)
                 {
@@ -184,29 +190,14 @@ namespace Microsoft.TypeSpec.Generator.Utilities
                     string? preservedName = null;
 
                     var inputParameter = parameter.InputParameter;
-                    if (inputParameter is not null)
+                    if (inputParameter is not null && !parameter.IsContentParameter)
                     {
-                        if (!string.Equals(parameter.Name, inputParameter.Name, StringComparison.Ordinal))
-                        {
-                            continue;
-                        }
-
-                        var originalName = inputParameter.OriginalName;
-                        if (!string.IsNullOrEmpty(originalName))
-                        {
-                            preservedName = FindPreviousParameterName(lastContractView, originalName, method.Signature.Name);
-                        }
+                        preservedName = FindPreviousParameterName(lastContractView, inputParameter.OriginalName, method.Signature.Name);
                     }
 
                     // Fall back to a positional match for synthesized parameters
                     if (string.IsNullOrEmpty(preservedName))
                     {
-                        if (!matchingPreviousResolved)
-                        {
-                            matchingPrevious = FindMethodWithSameSignatureIgnoringNames(previousMethods, method.Signature);
-                            matchingPreviousResolved = true;
-                        }
-
                         preservedName = matchingPrevious?.Signature.Parameters[i].Name;
                     }
 
@@ -682,7 +673,8 @@ namespace Microsoft.TypeSpec.Generator.Utilities
             }
             else
             {
-                arguments.Add(PositionalReference(currentParam.Name.ToVariableName(), value));
+                var argumentName = currentParam.AsVariable().Declaration.RequestedName;
+                arguments.Add(PositionalReference(argumentName, value));
             }
         }
 
