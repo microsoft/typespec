@@ -179,6 +179,26 @@ namespace Microsoft.TypeSpec.Generator.Tests.Providers.ModelProviders
         }
 
         [Test]
+        public async Task CustomCodeReplacesAcronymNormalizedProperty()
+        {
+            var inputModel = InputFactory.Model(
+                "mockInputModel",
+                properties: [InputFactory.Property("ipAddress", InputPrimitiveType.String, isRequired: true)]);
+
+            var mockGenerator = await MockHelpers.LoadMockGeneratorAsync(
+                inputModelTypes: [inputModel],
+                compilation: async () => await Helpers.GetCompilationFromDirectoryAsync());
+
+            var modelTypeProvider = mockGenerator.Object.OutputLibrary.TypeProviders.Single(t => t.Name == "MockInputModel");
+
+            Assert.AreEqual(1, modelTypeProvider.CustomCodeView!.Properties.Count);
+            Assert.AreEqual("Address", modelTypeProvider.CustomCodeView.Properties[0].Name);
+            Assert.AreEqual(0, modelTypeProvider.Properties.Count);
+            Assert.AreEqual(1, modelTypeProvider.CanonicalView!.Properties.Count);
+            Assert.AreEqual("Address", modelTypeProvider.CanonicalView.Properties[0].Name);
+        }
+
+        [Test]
         public async Task DateNormalizedCodeGenMemberDoesNotSuppressExactNameProperty()
         {
             var dateTime = new InputDateTimeType(
