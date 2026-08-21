@@ -43,8 +43,10 @@ namespace Microsoft.TypeSpec.Generator.Tests.Utilities
                 InputPrimitiveType.String);
 
             yield return new TestCaseData("startTime", dateTime, "startOn");
-            yield return new TestCaseData("Date", InputPrimitiveType.PlainDate, "On");
-            yield return new TestCaseData("date", InputPrimitiveType.PlainDate, "on");
+            yield return new TestCaseData("Date", InputPrimitiveType.PlainDate, "Date");
+            yield return new TestCaseData("date", InputPrimitiveType.PlainDate, "date");
+            yield return new TestCaseData("Timestamp", dateTime, "Timestamp");
+            yield return new TestCaseData("timestamp", dateTime, "timestamp");
             yield return new TestCaseData("fromTime", dateTime, "fromTime");
             yield return new TestCaseData("toDate", dateTime, "toDate");
             yield return new TestCaseData("pointInTime", dateTime, "pointInTime");

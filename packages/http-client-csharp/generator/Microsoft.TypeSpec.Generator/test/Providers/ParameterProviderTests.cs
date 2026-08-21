@@ -117,8 +117,8 @@ namespace Microsoft.TypeSpec.Generator.Tests.Providers
             {
                 ("startTime", dateTime, "startOn"),
                 ("createdAt", dateTime, "createdOn"),
-                ("timestamp", dateTime, "on"),
-                ("date", InputPrimitiveType.PlainDate, "on"),
+                ("timestamp", dateTime, "timestamp"),
+                ("date", InputPrimitiveType.PlainDate, "date"),
                 ("modifiedAt", dateTime.WithNullable(true), "modifiedOn"),
                 ("expirationDate", dateTime, "expireOn"),
                 ("creationDate", dateTime, "createdOn"),
