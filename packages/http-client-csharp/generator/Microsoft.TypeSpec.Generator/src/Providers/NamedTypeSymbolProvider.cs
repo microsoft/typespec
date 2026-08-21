@@ -1001,6 +1001,16 @@ namespace Microsoft.TypeSpec.Generator.Providers
                 return null;
             }
 
+            if (parameterSymbol.DeclaringSyntaxReferences.FirstOrDefault()?.GetSyntax() is ParameterSyntax
+                {
+                    Default.Value: { } defaultValueSyntax
+                }
+                && (defaultValueSyntax.IsKind(SyntaxKind.DefaultLiteralExpression)
+                    || defaultValueSyntax is DefaultExpressionSyntax))
+            {
+                return Default;
+            }
+
             var explicitDefaultValue = parameterSymbol.ExplicitDefaultValue;
             if (explicitDefaultValue == null)
             {

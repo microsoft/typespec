@@ -291,6 +291,27 @@ namespace Microsoft.TypeSpec.Generator.Tests.Providers.NamedTypeSymbolProviders
             }
         }
 
+        [Test]
+        public async Task ValidateParameterDefaultSyntax()
+        {
+            var compilation = await Helpers.GetCompilationFromDirectoryAsync();
+            var symbol = CompilationHelper.GetSymbol(
+                compilation.Assembly.Modules.First().GlobalNamespace,
+                "ParameterDefaults");
+            Assert.IsNotNull(symbol);
+
+            var provider = new NamedTypeSymbolProvider(symbol!, compilation);
+            var parameters = provider.Methods
+                .Single(method => method.Signature.Name == "Method")
+                .Signature.Parameters
+                .ToDictionary(parameter => parameter.Name);
+
+            Assert.AreEqual(Default, parameters["defaultLiteral"].DefaultValue);
+            Assert.AreEqual(Default, parameters["defaultExpression"].DefaultValue);
+            Assert.AreEqual(Float(0), parameters["explicitZero"].DefaultValue);
+            Assert.AreEqual(Literal("Unknown"), parameters["discriminator"].DefaultValue);
+        }
+
         [TestCase(true)]
         [TestCase(false)]
         public void ValidateParameterIsIn(bool isIn)
