@@ -1,0 +1,26 @@
+{
+  "name": "{{name}}",
+  "version": "0.1.0",
+  "type": "module",
+  "tspMain": "lib/main.tsp",
+  "exports": {
+    ".": {
+      "typespec": "./lib/main.tsp"
+    }
+  },
+  "peerDependencies": {
+    "@typespec/compiler": "latest"
+  },
+  "devDependencies": {
+    "@typespec/compiler": "latest",
+    "@typespec/library-linter": "latest",
+    "@typespec/prettier-plugin-typespec": "latest",
+    "prettier": "^3.3.3"
+  },
+  "scripts": {
+    "build": "tsp compile . --warn-as-error --import @typespec/library-linter --no-emit",
+    "format": "prettier .  --write",
+    "format:check": "prettier --check ."
+  },
+  "private": true
+}
