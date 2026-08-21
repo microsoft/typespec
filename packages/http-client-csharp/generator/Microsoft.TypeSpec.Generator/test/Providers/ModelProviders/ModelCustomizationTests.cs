@@ -163,7 +163,7 @@ namespace Microsoft.TypeSpec.Generator.Tests.Providers.ModelProviders
                 InputPrimitiveType.String);
             var inputModel = InputFactory.Model(
                 "mockInputModel",
-                properties: [InputFactory.Property("createdAt", dateTime, isRequired: true)]);
+                properties: [InputFactory.Property("creationDate", dateTime, isRequired: true)]);
 
             var mockGenerator = await MockHelpers.LoadMockGeneratorAsync(
                 inputModelTypes: [inputModel],
@@ -176,6 +176,30 @@ namespace Microsoft.TypeSpec.Generator.Tests.Providers.ModelProviders
             Assert.AreEqual(0, modelTypeProvider.Properties.Count);
             Assert.AreEqual(1, modelTypeProvider.CanonicalView!.Properties.Count);
             Assert.AreEqual("Created", modelTypeProvider.CanonicalView.Properties[0].Name);
+        }
+
+        [Test]
+        public async Task DateNormalizedCodeGenMemberDoesNotSuppressExactNameProperty()
+        {
+            var dateTime = new InputDateTimeType(
+                DateTimeKnownEncoding.Rfc3339,
+                "utcDateTime",
+                "TypeSpec.utcDateTime",
+                InputPrimitiveType.String);
+            var inputModel = InputFactory.Model(
+                "mockInputModel",
+                properties: [InputFactory.Property("CreatedOn", dateTime, isRequired: true, isExactName: true)]);
+
+            var mockGenerator = await MockHelpers.LoadMockGeneratorAsync(
+                inputModelTypes: [inputModel],
+                compilation: async () => await Helpers.GetCompilationFromDirectoryAsync());
+
+            var modelTypeProvider = mockGenerator.Object.OutputLibrary.TypeProviders.Single(t => t.Name == "MockInputModel");
+
+            Assert.AreEqual(1, modelTypeProvider.CustomCodeView!.Properties.Count);
+            Assert.AreEqual("Created", modelTypeProvider.CustomCodeView.Properties[0].Name);
+            Assert.AreEqual(1, modelTypeProvider.Properties.Count);
+            Assert.AreEqual("CreatedOn", modelTypeProvider.Properties[0].Name);
         }
 
         [Test]

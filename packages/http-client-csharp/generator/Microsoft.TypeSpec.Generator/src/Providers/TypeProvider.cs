@@ -435,27 +435,18 @@ namespace Microsoft.TypeSpec.Generator.Providers
 
         internal PropertyProvider[] FilterCustomizedProperties(IEnumerable<PropertyProvider> specProperties)
         {
+            var dateNormalizedSpecPropertyNames = BuildDateNormalizedSpecPropertyNames(specProperties);
             var properties = new List<PropertyProvider>();
             var customProperties = new HashSet<string>();
 
             foreach (var customProperty in BuildAllCustomProperties())
             {
-                customProperties.Add(customProperty.Name);
-                if (customProperty.OriginalName != null)
-                {
-                    customProperties.Add(customProperty.OriginalName);
-                    customProperties.Add(customProperty.OriginalName.NormalizeCSharpAcronyms(normalizeDateTimeSuffix: true));
-                }
+                AddCustomName(customProperties, customProperty.Name, customProperty.OriginalName, dateNormalizedSpecPropertyNames);
             }
 
             foreach (var customField in BuildAllCustomFields())
             {
-                customProperties.Add(customField.Name);
-                if (customField.OriginalName != null)
-                {
-                    customProperties.Add(customField.OriginalName);
-                    customProperties.Add(customField.OriginalName.NormalizeCSharpAcronyms(normalizeDateTimeSuffix: true));
-                }
+                AddCustomName(customProperties, customField.Name, customField.OriginalName, dateNormalizedSpecPropertyNames);
             }
 
             foreach (var property in specProperties)
@@ -467,6 +458,50 @@ namespace Microsoft.TypeSpec.Generator.Providers
             }
 
             return [.. properties];
+        }
+
+        private static void AddCustomName(
+            HashSet<string> customNames,
+            string name,
+            string? originalName,
+            IReadOnlyDictionary<string, string> dateNormalizedSpecPropertyNames)
+        {
+            customNames.Add(name);
+            if (originalName is null)
+            {
+                return;
+            }
+
+            customNames.Add(originalName);
+            if (dateNormalizedSpecPropertyNames.TryGetValue(originalName, out var normalizedName))
+            {
+                customNames.Add(normalizedName);
+            }
+        }
+
+        private static IReadOnlyDictionary<string, string> BuildDateNormalizedSpecPropertyNames(IEnumerable<PropertyProvider> specProperties)
+        {
+            var normalizedSpecPropertyNames = new Dictionary<string, string>(StringComparer.Ordinal);
+
+            foreach (var specProperty in specProperties)
+            {
+                var inputProperty = specProperty.InputProperty;
+                if (inputProperty is null || inputProperty.IsExactName || !inputProperty.Type.IsDateTimeInputType())
+                {
+                    continue;
+                }
+
+                var identifierName = inputProperty.Name.ToIdentifierName();
+                if (specProperty.Name == identifierName)
+                {
+                    continue;
+                }
+
+                normalizedSpecPropertyNames.TryAdd(inputProperty.Name, specProperty.Name);
+                normalizedSpecPropertyNames.TryAdd(identifierName, specProperty.Name);
+            }
+
+            return normalizedSpecPropertyNames;
         }
 
         internal FieldProvider[] FilterCustomizedFields(IEnumerable<FieldProvider> specFields)
