@@ -1255,6 +1255,7 @@ class _OperationSerializer(_BuilderBaseSerializer[OperationType]):
         )
         return retval
 
+    # pylint: disable=too-many-statements
     def handle_structured_stream_response(self, builder: OperationType) -> list[str]:
         """Emit the body for an operation returning a structured (JSONL / SSE) stream.
 
