@@ -11,12 +11,14 @@ namespace Sample.Models
     {
         private protected readonly global::System.Collections.Generic.IDictionary<string, global::System.BinaryData> _additionalBinaryDataProperties;
 
-        public MockInputModel()
+        public MockInputModel(global::System.DateTimeOffset created)
         {
+            Created = created;
         }
 
-        internal MockInputModel(global::System.Collections.Generic.IDictionary<string, global::System.BinaryData> additionalBinaryDataProperties)
+        internal MockInputModel(global::System.DateTimeOffset created, global::System.Collections.Generic.IDictionary<string, global::System.BinaryData> additionalBinaryDataProperties)
         {
+            Created = created;
             _additionalBinaryDataProperties = additionalBinaryDataProperties;
         }
     }

@@ -4,6 +4,7 @@
 
 using System;
 using System.Collections.Generic;
+using Sample;
 
 namespace Sample.Models
 {
@@ -11,12 +12,16 @@ namespace Sample.Models
     {
         private protected readonly global::System.Collections.Generic.IDictionary<string, global::System.BinaryData> _additionalBinaryDataProperties;
 
-        public MockInputModel()
+        public MockInputModel(string foo)
         {
+            global::Sample.Argument.AssertNotNull(foo, nameof(foo));
+
+            Foo = foo;
         }
 
-        internal MockInputModel(global::System.Collections.Generic.IDictionary<string, global::System.BinaryData> additionalBinaryDataProperties)
+        internal MockInputModel(string foo, global::System.Collections.Generic.IDictionary<string, global::System.BinaryData> additionalBinaryDataProperties)
         {
+            Foo = foo;
             _additionalBinaryDataProperties = additionalBinaryDataProperties;
         }
     }

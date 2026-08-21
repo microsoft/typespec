@@ -29,7 +29,16 @@ namespace Microsoft.TypeSpec.Generator.Providers
             _generatedTypeProvider = generatedTypeProvider;
             var inputModel = inputType as InputModelType;
             _specProperties = inputModel?.Properties ?? [];
-            _specPropertiesMap = _specProperties.ToDictionary(p => p.IsExactName ? p.Name : p.Name.ToIdentifierName(), p => p);
+            _specPropertiesMap = [];
+            foreach (var property in _specProperties)
+            {
+                var name = property.IsExactName ? property.Name : property.Name.ToIdentifierName();
+                _specPropertiesMap.TryAdd(name, property);
+                if (!property.IsExactName)
+                {
+                    _specPropertiesMap.TryAdd(name.NormalizeCSharpAcronyms(property.Type.IsDateTimeInputType()), property);
+                }
+            }
             _serializedNameMap = BuildSerializationNameMap();
             _renamedProperties = (_generatedTypeProvider.CustomCodeView?.Properties ?? [])
                 .Where(p => p.OriginalName != null).Select(p => p.OriginalName!).ToHashSet();

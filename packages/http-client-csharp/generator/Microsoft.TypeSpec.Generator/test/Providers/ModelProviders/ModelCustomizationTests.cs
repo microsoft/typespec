@@ -197,6 +197,12 @@ namespace Microsoft.TypeSpec.Generator.Tests.Providers.ModelProviders
             Assert.AreEqual(0, modelTypeProvider.Properties.Count);
             Assert.AreEqual(1, modelTypeProvider.CanonicalView!.Properties.Count);
             Assert.AreEqual("Foo", modelTypeProvider.CanonicalView.Properties[0].Name);
+            Assert.IsTrue(modelTypeProvider.CanonicalView.Properties[0].WireInfo!.IsRequired);
+            Assert.IsFalse(modelTypeProvider.CanonicalView.Properties[0].WireInfo!.IsReadOnly);
+            Assert.IsTrue(modelTypeProvider.CanonicalView.Properties[0].Body.HasSetter);
+            CollectionAssert.AreEqual(
+                new[] { "foo" },
+                modelTypeProvider.Constructors.Single(c => c.Signature.Modifiers == MethodSignatureModifiers.Public).Signature.Parameters.Select(p => p.Name));
             Assert.AreEqual($"{Helpers.GetExpectedFromFile("Expected")}\n", new TypeProviderWriter(modelTypeProvider).Write().Content);
         }
 
