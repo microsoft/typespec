@@ -5385,22 +5385,6 @@ data: [DONE]
 
 ```
 
-### Streaming_Sse_Protocol_id
-
-- Endpoint: `get /streaming/sse/protocol/id`
-
-An SSE event with an `id` field. The event ID is envelope metadata and is
-not part of the typed event data.
-
-Expected response body (content type `text/event-stream`):
-
-```
-id: event-1
-event: message
-data: {"message": "hello"}
-
-```
-
 ### Streaming_Sse_Protocol_data
 
 - Endpoint: `get /streaming/sse/protocol/data`
@@ -5418,6 +5402,22 @@ data: hello
 
 event: withoutEnvelope
 data: {"metadata": {"source": "test"}, "contents": "world"}
+
+```
+
+### Streaming_Sse_Protocol_id
+
+- Endpoint: `get /streaming/sse/protocol/id`
+
+An SSE event with an `id` field. The event ID is envelope metadata and is
+not part of the typed event data.
+
+Expected response body (content type `text/event-stream`):
+
+```
+id: event-1
+event: message
+data: {"message": "hello"}
 
 ```
 

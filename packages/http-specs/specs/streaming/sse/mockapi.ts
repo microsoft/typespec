@@ -3,11 +3,7 @@ import { passOnSuccess, withServiceKeys } from "@typespec/spec-api";
 
 export const Scenarios: Record<string, ScenarioMockApi> = {};
 
-const unnamedStream = [
-  'data: {"desc": "one"}',
-  'data: {"desc": "two"}',
-  'data: {"desc": "three"}',
-]
+const unnamedStream = ['data: {"desc": "one"}', 'data: {"desc": "two"}', 'data: {"desc": "three"}']
   .map((event) => `${event}\n\n`)
   .join("");
 
@@ -75,8 +71,7 @@ Scenarios.Streaming_Sse_Retrieve_stream = passOnSuccess({
   kind: "MockApiDefinition",
 });
 
-const protocolEvent = (fields: string[]) =>
-  Buffer.from(`${fields.join("\n")}\n\n`);
+const protocolEvent = (fields: string[]) => Buffer.from(`${fields.join("\n")}\n\n`);
 
 Scenarios.Streaming_Sse_Protocol_data = passOnSuccess({
   uri: "/streaming/sse/protocol/data",
@@ -109,11 +104,7 @@ Scenarios.Streaming_Sse_Protocol_id = passOnSuccess({
   response: {
     status: 200,
     body: {
-      rawContent: protocolEvent([
-        "id: event-1",
-        "event: message",
-        'data: {"message": "hello"}',
-      ]),
+      rawContent: protocolEvent(["id: event-1", "event: message", 'data: {"message": "hello"}']),
       contentType: "text/event-stream",
     },
   },
@@ -145,11 +136,7 @@ Scenarios.Streaming_Sse_Protocol_retry = passOnSuccess({
   response: {
     status: 200,
     body: {
-      rawContent: protocolEvent([
-        "retry: 1000",
-        "event: message",
-        'data: {"message": "hello"}',
-      ]),
+      rawContent: protocolEvent(["retry: 1000", "event: message", 'data: {"message": "hello"}']),
       contentType: "text/event-stream",
     },
   },
@@ -174,21 +161,14 @@ Scenarios.Streaming_Sse_Protocol_invalidRetry = passOnSuccess({
   kind: "MockApiDefinition",
 });
 
-Scenarios.Streaming_Sse_Protocol_reconnect = withServiceKeys([
-  "initial",
-  "reconnect",
-]).pass({
+Scenarios.Streaming_Sse_Protocol_reconnect = withServiceKeys(["initial", "reconnect"]).pass({
   uri: "/streaming/sse/protocol/reconnect",
   method: "get",
   request: {},
   response: {
     status: 200,
     body: {
-      rawContent: protocolEvent([
-        "id: event-1",
-        "event: message",
-        'data: {"message": "hello"}',
-      ]),
+      rawContent: protocolEvent(["id: event-1", "event: message", 'data: {"message": "hello"}']),
       contentType: "text/event-stream",
     },
   },

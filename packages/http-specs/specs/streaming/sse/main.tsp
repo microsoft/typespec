@@ -30,15 +30,15 @@ namespace Unnamed {
     `message` events, each carrying a JSON `Info` payload, then closes the
     connection. Since the union variant is unnamed, no `event:` field is emitted
     and each event defaults to the `message` type.
-    
+
     Expected response body (content type `text/event-stream`):
     ```
     data: {"desc": "one"}
-    
+
     data: {"desc": "two"}
-    
+
     data: {"desc": "three"}
-    
+
     ```
     """)
   @route("receive")
@@ -168,9 +168,11 @@ namespace Protocol {
   union MixedEvents {
     withEnvelope: {
       metadata: Record<string>,
-      @data contents: string,
-    },
 
+      @Events.contentType("text/plain")
+      @data
+      contents: string,
+    },
     withoutEnvelope: {
       metadata: Record<string>,
       contents: string,
