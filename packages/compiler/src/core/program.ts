@@ -627,8 +627,12 @@ async function createProgram(
     const emitFunction = entrypoint.esmExports.$onEmit;
     const libDefinition = library.definition;
 
+    // Prefer the specifier from tspconfig so subpath exports get matching options.
+    // Fall back to package.json name for file emitters and older configs.
     let { "emitter-output-dir": emitterOutputDir, ...emitterOptions } =
-      emittersOptions[metadata.name ?? emitterNameOrPath] ?? {};
+      emittersOptions[emitterNameOrPath] ??
+      (metadata.name !== undefined ? emittersOptions[metadata.name] : undefined) ??
+      {};
     if (emitterOutputDir === undefined) {
       emitterOutputDir = [options.outputDir, metadata.name].filter(isDefined).join("/");
     }
