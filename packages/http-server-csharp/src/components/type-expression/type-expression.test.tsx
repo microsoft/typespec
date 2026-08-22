@@ -7,7 +7,7 @@ import { t, type TesterInstance } from "@typespec/compiler/testing";
 import { $ } from "@typespec/compiler/typekit";
 import { Experimental_ComponentOverrides, Output } from "@typespec/emitter-framework";
 import { beforeEach, describe, expect, it } from "vitest";
-import { createServerScalarOverrides, efRefkey, TypeExpression } from "./type-expression.jsx";
+import { createServerOverrides, efRefkey, TypeExpression } from "./type-expression.jsx";
 
 let runner: TesterInstance;
 
@@ -17,7 +17,7 @@ beforeEach(async () => {
 
 function Wrapper(props: { children: Children }) {
   const policy = createCSharpNamePolicy();
-  const overrides = createServerScalarOverrides($(runner.program));
+  const overrides = createServerOverrides($(runner.program));
   return (
     <Output program={runner.program} namePolicy={policy}>
       <Experimental_ComponentOverrides overrides={overrides}>
