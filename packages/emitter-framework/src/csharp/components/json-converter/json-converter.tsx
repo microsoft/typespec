@@ -8,10 +8,31 @@ import { type Type } from "@typespec/compiler";
 import { capitalize } from "@typespec/compiler/casing";
 import { TypeExpression } from "../type-expression.jsx";
 
-interface JsonConverterProps {
+export interface JsonConverterProps {
   name: string | Namekey;
-  type: Type;
+  /** The TypeSpec type being converted. Required unless {@link csharpType} is set. */
+  type?: Type;
+  /**
+   * The C# type being converted. Defaults to the C# expression for {@link type}. Set this
+   * for converters of types that have no TypeSpec equivalent (e.g. `DateTimeOffset`).
+   */
+  csharpType?: Children;
   refkey?: Refkey;
+  /** Doc comment for the generated class. */
+  doc?: Children;
+  /** Emit the class as `public`. Defaults to `internal`. */
+  public?: boolean;
+  /** Emit the class as `internal`. Defaults to `true` unless {@link public} is set. */
+  internal?: boolean;
+  /** Emit the class as `sealed`. Defaults to `true`. */
+  sealed?: boolean;
+  /** Extra class members rendered before `Read` and `Write`. */
+  children?: Children;
+  /**
+   * Return type of `Read`. Defaults to the converted type. Set this to make the converter
+   * return a nullable value.
+   */
+  readReturns?: Children;
   /** Decode and return value from reader*/
   decodeAndReturn: (reader: Namekey, typeToConvert: Namekey, options: Namekey) => Children;
   /** Encode the given value and send to writer*/
@@ -29,16 +50,22 @@ export function JsonConverter(props: JsonConverterProps) {
   const writeParamWriter: Namekey = namekey("writer");
   const writeParamValue: Namekey = namekey("value");
   const writeParamOptions: Namekey = namekey("options");
-  const propTypeExpression = code`${(<TypeExpression type={props.type} />)}`;
+  if (!props.type && !props.csharpType) {
+    throw new Error("JsonConverter requires either a `type` or a `csharpType`.");
+  }
+  const propTypeExpression = props.csharpType ?? code`${(<TypeExpression type={props.type!} />)}`;
   return (
     <ClassDeclaration
       refkey={props.refkey}
-      sealed
-      internal
+      sealed={props.sealed ?? true}
+      internal={props.internal ?? !props.public}
+      public={props.public}
+      doc={props.doc}
       name={props.name}
       baseType={code`${Serialization.JsonConverter}<${propTypeExpression}>`}
     >
       <List doubleHardline>
+        {props.children}
         <Method
           name={"Read"}
           public
@@ -55,7 +82,7 @@ export function JsonConverter(props: JsonConverterProps) {
               type: code`${Json.JsonSerializerOptions}`,
             },
           ]}
-          returns={propTypeExpression}
+          returns={props.readReturns ?? propTypeExpression}
         >
           {code`${props.decodeAndReturn(readParamReader, readParamTypeToConvert, readParamOptions)}`}
         </Method>
