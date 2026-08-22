@@ -629,10 +629,17 @@ async function createProgram(
 
     // Prefer the specifier from tspconfig so subpath exports get matching options.
     // Fall back to package.json name for file emitters and older configs.
+    const optionsFromSpecifier = emittersOptions[emitterNameOrPath];
+    const optionsFromPackageName =
+      metadata.name !== undefined ? emittersOptions[metadata.name] : undefined;
+    const emitterOptionsKey =
+      optionsFromSpecifier !== undefined
+        ? emitterNameOrPath
+        : optionsFromPackageName !== undefined && metadata.name !== undefined
+          ? metadata.name
+          : emitterNameOrPath;
     let { "emitter-output-dir": emitterOutputDir, ...emitterOptions } =
-      emittersOptions[emitterNameOrPath] ??
-      (metadata.name !== undefined ? emittersOptions[metadata.name] : undefined) ??
-      {};
+      optionsFromSpecifier ?? optionsFromPackageName ?? {};
     if (emitterOutputDir === undefined) {
       emitterOutputDir = [options.outputDir, metadata.name].filter(isDefined).join("/");
     }
@@ -648,7 +655,7 @@ async function createProgram(
           options.configFile?.file
             ? {
                 kind: "path-target",
-                path: ["options", emitterNameOrPath],
+                path: ["options", emitterOptionsKey],
                 script: options.configFile.file,
               }
             : NoTarget,
