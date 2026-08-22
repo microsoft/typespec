@@ -15,6 +15,7 @@ import { MockHelpers, MockImplementations } from "./components/scaffolding/mock-
 import { JsonConverters } from "./components/serialization/json-converters.jsx";
 import { createServerScalarOverrides } from "./components/type-expression/type-expression.jsx";
 import { EmitterOptions } from "./context/emitter-options-context.js";
+import { OperationSources } from "./context/operation-source-context.js";
 import { reportEmitterDiagnostics } from "./diagnostics.js";
 import type { CSharpServiceEmitterOptions } from "./lib.js";
 import { resolveOpenApiPath, writeOutputWithOverwrite } from "./output-writer.js";
@@ -68,53 +69,55 @@ export async function $onEmit(context: EmitContext<CSharpServiceEmitterOptions>)
     <Output program={context.program} namePolicy={createCSharpNamePolicy()}>
       <Experimental_ComponentOverrides overrides={scalarOverrides}>
         <EmitterOptions.Provider value={{ collectionType, serviceNamespace: serviceName }}>
-          <SourceDirectory path=".">
-            <Namespace name={serviceName}>
-              <SourceDirectory path="generated">
-                <SourceDirectory path="models">
-                  <Models
-                    models={resolution.models}
-                    serviceNamespace={resolution.serviceNamespace}
-                  />
-                  <Enums
-                    enums={resolution.enums}
-                    unionEnums={resolution.unionEnums}
-                    serviceNamespace={resolution.serviceNamespace}
+          <OperationSources.Provider value={resolution.canonicalOperationSourceMap}>
+            <SourceDirectory path=".">
+              <Namespace name={serviceName}>
+                <SourceDirectory path="generated">
+                  <SourceDirectory path="models">
+                    <Models
+                      models={resolution.models}
+                      serviceNamespace={resolution.serviceNamespace}
+                    />
+                    <Enums
+                      enums={resolution.enums}
+                      unionEnums={resolution.unionEnums}
+                      serviceNamespace={resolution.serviceNamespace}
+                    />
+                  </SourceDirectory>
+                  <ControllersAndInterfaces
+                    interfaces={resolution.interfaces}
+                    canonicalOpsMap={resolution.canonicalOpsMap}
                   />
                 </SourceDirectory>
-                <ControllersAndInterfaces
-                  interfaces={resolution.interfaces}
-                  canonicalOpsMap={resolution.canonicalOpsMap}
+                <ProgramCs
+                  hasMocks={emitMocks}
+                  useSwaggerUI={effectiveUseSwaggerUI}
+                  openApiPath={openApiPath}
                 />
+                <Show when={emitMocks}>
+                  <MockImplementations
+                    interfaces={resolution.interfaces}
+                    canonicalOpsMap={resolution.canonicalOpsMap}
+                  />
+                </Show>
+                <Show when={emitProjectFiles}>
+                  <Csproj projectName={projectName} useSwaggerUI={useSwaggerUI} />
+                  <LaunchSettings httpPort={httpPort} httpsPort={httpsPort} />
+                  <AppSettings />
+                </Show>
+                <Documentation
+                  interfaceNames={emitMocks ? interfaceNames : []}
+                  useSwaggerUI={useSwaggerUI}
+                />
+              </Namespace>
+              <SourceDirectory path="generated">
+                <JsonConverters />
               </SourceDirectory>
-              <ProgramCs
-                hasMocks={emitMocks}
-                useSwaggerUI={effectiveUseSwaggerUI}
-                openApiPath={openApiPath}
-              />
               <Show when={emitMocks}>
-                <MockImplementations
-                  interfaces={resolution.interfaces}
-                  canonicalOpsMap={resolution.canonicalOpsMap}
-                />
+                <MockHelpers interfaceRegistrations={interfaceRegistrations} />
               </Show>
-              <Show when={emitProjectFiles}>
-                <Csproj projectName={projectName} useSwaggerUI={useSwaggerUI} />
-                <LaunchSettings httpPort={httpPort} httpsPort={httpsPort} />
-                <AppSettings />
-              </Show>
-              <Documentation
-                interfaceNames={emitMocks ? interfaceNames : []}
-                useSwaggerUI={useSwaggerUI}
-              />
-            </Namespace>
-            <SourceDirectory path="generated">
-              <JsonConverters />
             </SourceDirectory>
-            <Show when={emitMocks}>
-              <MockHelpers interfaceRegistrations={interfaceRegistrations} />
-            </Show>
-          </SourceDirectory>
+          </OperationSources.Provider>
         </EmitterOptions.Provider>
       </Experimental_ComponentOverrides>
     </Output>

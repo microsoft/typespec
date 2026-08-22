@@ -1,9 +1,10 @@
 import { Tester } from "#test/tester.js";
 import { type Children } from "@alloy-js/core";
-import { createCSharpNamePolicy, SourceFile } from "@alloy-js/csharp";
+import { createCSharpNamePolicy, EnumDeclaration, SourceFile } from "@alloy-js/csharp";
 import { t, type TesterInstance } from "@typespec/compiler/testing";
 import { Output } from "@typespec/emitter-framework";
 import { beforeEach, expect, it } from "vitest";
+import { efRefkey } from "../type-expression/type-expression.jsx";
 import { BusinessLogicInterface } from "./interfaces.jsx";
 
 let runner: TesterInstance;
@@ -58,6 +59,69 @@ it("renders an interface with void return type", async () => {
     public interface IPetStore
     {
         Task DeletePetAsync(string petId);
+    }
+  `);
+});
+
+it("renders one nullable suffix for optional nullable value parameters", async () => {
+  const { Choice, PetStore } = await runner.compile(t.code`
+    enum ${t.enum("Choice")} {
+      one,
+    }
+
+    interface ${t.interface("PetStore")} {
+      update(value?: int32 | null, choice?: Choice | null): void;
+    }
+  `);
+
+  expect(
+    <Wrapper>
+      <EnumDeclaration name="Choice" refkey={efRefkey(Choice)}>
+        One
+      </EnumDeclaration>
+      <hbr />
+      <BusinessLogicInterface type={PetStore} />
+    </Wrapper>,
+  ).toRenderTo(`
+    enum Choice
+    {
+        One
+    }
+    public interface IPetStore
+    {
+        Task UpdateAsync(int? value, Choice? choice);
+    }
+  `);
+});
+
+it("falls back to multipart decorators when canonicalization is unavailable", async () => {
+  const { PetStore } = await runner.compile(t.code`
+    model MultipartParts {
+      metadata: HttpPart<string>;
+      code: HttpPart<bytes>;
+    }
+
+    model DerivedMultipartParts {
+      ...MultipartParts;
+    }
+
+    interface ${t.interface("PetStore")} {
+      @post upload(
+        @header contentType: "multipart/form-data",
+        @header checksum: string,
+        @multipartBody content: DerivedMultipartParts,
+      ): void;
+    }
+  `);
+
+  expect(
+    <Wrapper>
+      <BusinessLogicInterface type={PetStore} />
+    </Wrapper>,
+  ).toRenderTo(`
+    public interface IPetStore
+    {
+        Task UploadAsync(string checksum, MultipartReader reader);
     }
   `);
 });
