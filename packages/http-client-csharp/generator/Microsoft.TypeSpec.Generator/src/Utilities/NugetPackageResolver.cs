@@ -205,17 +205,24 @@ namespace Microsoft.TypeSpec.Generator.Utilities
 
         public static async Task<IList<NuGetVersion>> GetAllVersions(string packageName, ISettings nugetSettings, bool allowPrerelease)
         {
-            List<NuGetVersion> versions = [];
+            HashSet<NuGetVersion> versions = [];
             var sources = SettingsUtility.GetEnabledSources(nugetSettings);
             using var cacheContext = new SourceCacheContext();
             foreach (var source in sources)
             {
-                var repository = Repository.Factory.GetCoreV3(source.Source);
-                var resource = await repository.GetResourceAsync<FindPackageByIdResource>();
-                IEnumerable<NuGetVersion> versionsFromOneRepo = (await resource.GetAllVersionsAsync(packageName, cacheContext, NuGet.Common.NullLogger.Instance, CancellationToken.None)).Where(v => !v.IsPrerelease || allowPrerelease);
-                versions.AddRange(versionsFromOneRepo);
+                try
+                {
+                    var repository = Repository.Factory.GetCoreV3(source.Source);
+                    var resource = await repository.GetResourceAsync<FindPackageByIdResource>();
+                    IEnumerable<NuGetVersion> versionsFromOneRepo = (await resource.GetAllVersionsAsync(packageName, cacheContext, NuGet.Common.NullLogger.Instance, CancellationToken.None)).Where(v => !v.IsPrerelease || allowPrerelease);
+                    versions.AddRange(versionsFromOneRepo);
+                }
+                catch
+                {
+                    // Skip failed source.
+                }
             }
-            return versions;
+            return [..versions];
         }
 
         /// <summary>
