@@ -281,3 +281,62 @@ describe("jsonAttributes", () => {
     `);
   });
 });
+
+describe("overriding the framework defaults", () => {
+  it("uses an alternative name", async () => {
+    const { prop1 } = await tester.compile(t.code`
+      model TestModel {
+        ${t.modelProperty("prop1")}: string;
+      }
+    `);
+
+    expect(
+      <Wrapper>
+        <Property type={prop1} name="Renamed" />
+      </Wrapper>,
+    ).toRenderTo(`
+      class Test
+      {
+          public required string Renamed { get; set; }
+      }
+    `);
+  });
+
+  it("uses an alternative C# type", async () => {
+    const { prop1 } = await tester.compile(t.code`
+      model TestModel {
+        ${t.modelProperty("prop1")}: string[];
+      }
+    `);
+
+    expect(
+      <Wrapper>
+        <Property type={prop1} csharpType="ISet<string>" />
+      </Wrapper>,
+    ).toRenderTo(`
+      class Test
+      {
+          public required ISet<string> Prop1 { get; set; }
+      }
+    `);
+  });
+
+  it("forwards Alloy property props and lets them win over the defaults", async () => {
+    const { prop1 } = await tester.compile(t.code`
+      model TestModel {
+        ${t.modelProperty("prop1")}: string;
+      }
+    `);
+
+    expect(
+      <Wrapper>
+        <Property type={prop1} required={false} set={false} initializer={`"fixed"`} />
+      </Wrapper>,
+    ).toRenderTo(`
+      class Test
+      {
+          public string Prop1 { get; } = "fixed";
+      }
+    `);
+  });
+});
