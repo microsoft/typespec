@@ -690,7 +690,7 @@ namespace Microsoft.TypeSpec.Generator.Providers
             _methods = null;
             _properties = null;
             _fields = null;
-            _constructors = null;
+            ResetConstructors();
             _implements = null;
             _serializationProviders = null;
             _nestedTypes = null;
@@ -710,6 +710,11 @@ namespace Microsoft.TypeSpec.Generator.Providers
             _description = null;
             _type = null;
             _arguments = null;
+        }
+
+        private protected virtual void ResetConstructors()
+        {
+            _constructors = null;
         }
 
         /// <summary>
@@ -830,7 +835,7 @@ namespace Microsoft.TypeSpec.Generator.Providers
             // recalculate declaration modifiers and constructors
             _declarationModifiers = null;
             // constructors might change based on declaration modifier changes
-            _constructors = null;
+            ResetConstructors();
             // serialization providers need to reflect the new type name/namespace
             _serializationProviders = null;
             Type.Update(name: name, @namespace: @namespace);
