@@ -72,6 +72,79 @@ it("pass options", async () => {
   strictEqual(context.options["max-files"], 10);
 });
 
+describe("subpath export emitters", () => {
+  const subpathLib = createTypeSpecLibrary({
+    name: "@org/fake-emitter/typescript",
+    diagnostics: {},
+    emitter: {
+      options: {
+        type: "object",
+        properties: {
+          "asset-dir": { type: "string", format: "absolute-path", nullable: true },
+          "max-files": { type: "number", nullable: true },
+        },
+        additionalProperties: false,
+      },
+    },
+  });
+
+  async function runSubpathEmitter(options: Record<string, Record<string, unknown>>) {
+    let emitContext: EmitContext | undefined;
+    const diagnostics = await Tester.files({
+      "node_modules/@org/fake-emitter/package.json": JSON.stringify({
+        name: "@org/fake-emitter",
+        exports: {
+          ".": "./index.js",
+          "./typescript": "./typescript/index.js",
+        },
+      }),
+      "node_modules/@org/fake-emitter/index.js": mockFile.js({
+        $lib: createTypeSpecLibrary({ name: "@org/fake-emitter", diagnostics: {} }),
+      }),
+      "node_modules/@org/fake-emitter/typescript/index.js": mockFile.js({
+        $lib: subpathLib,
+        $onEmit: (ctx: EmitContext) => {
+          emitContext = ctx;
+        },
+      }),
+    }).diagnose("", {
+      compilerOptions: {
+        emit: ["@org/fake-emitter/typescript"],
+        options,
+      },
+    });
+    return [emitContext, diagnostics] as const;
+  }
+
+  it("resolves options keyed by the subpath specifier", async () => {
+    const [context, diagnostics] = await runSubpathEmitter({
+      "@org/fake-emitter/typescript": {
+        "emitter-output-dir": "/out",
+        "asset-dir": "/assets",
+        "max-files": 10,
+      },
+    });
+    expectDiagnosticEmpty(diagnostics);
+    ok(context, "Emit context should have been set.");
+    strictEqual(context.emitterOutputDir, "/out");
+    strictEqual(context.options["asset-dir"], "/assets");
+    strictEqual(context.options["max-files"], 10);
+  });
+
+  it("falls back to package.json name when the subpath key is missing", async () => {
+    const [context, diagnostics] = await runSubpathEmitter({
+      "@org/fake-emitter": {
+        "emitter-output-dir": "/from-pkg",
+        "asset-dir": "/pkg-assets",
+      },
+    });
+    expectDiagnosticEmpty(diagnostics);
+    ok(context, "Emit context should have been set.");
+    strictEqual(context.emitterOutputDir, "/from-pkg");
+    strictEqual(context.options["asset-dir"], "/pkg-assets");
+  });
+});
+
 it("emit diagnostic if passing unknown option", async () => {
   const diagnostics = await diagnoseEmitterOptions({
     "invalid-option": "abc",
