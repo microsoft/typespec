@@ -143,6 +143,25 @@ describe("subpath export emitters", () => {
     strictEqual(context.emitterOutputDir, "/from-pkg");
     strictEqual(context.options["asset-dir"], "/pkg-assets");
   });
+
+  it("targets the package-name options key when validating fallback options", async () => {
+    const [, diagnostics] = await runSubpathEmitter({
+      "@org/fake-emitter": {
+        "invalid-option": "abc",
+      },
+    });
+    expectDiagnostics(diagnostics, {
+      code: "invalid-schema",
+      message: [
+        "Schema violation: must NOT have additional properties (/)",
+        "  additionalProperty: invalid-option",
+      ].join("\n"),
+    });
+    const target = diagnostics[0]?.target;
+    if (target && typeof target === "object" && "path" in target) {
+      strictEqual((target as { path: string[] }).path.join("."), "options.@org/fake-emitter");
+    }
+  });
 });
 
 it("emit diagnostic if passing unknown option", async () => {
