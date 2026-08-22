@@ -830,6 +830,29 @@ describe("compiler: checker: decorators", () => {
           );
           deepStrictEqual(arg, { name: { other: "foo" } });
         });
+
+        // Regression tests for https://github.com/microsoft/typespec/issues/11743
+        it("keeps a member named __proto__ holding a string as an own property", async () => {
+          const arg = await testCallDecorator("valueof unknown", `#{__proto__: "written", ok: 1}`);
+          ok(Object.prototype.hasOwnProperty.call(arg, "__proto__"));
+          strictEqual(arg.__proto__, "written");
+          strictEqual(arg.ok, 1);
+          deepStrictEqual(Object.keys(arg), ["__proto__", "ok"]);
+          strictEqual(Object.getPrototypeOf(arg), Object.prototype);
+        });
+
+        it("keeps a member named __proto__ holding an object as an own property", async () => {
+          const arg = await testCallDecorator(
+            "valueof unknown",
+            `#{__proto__: #{polluted: true}, ok: 1}`,
+          );
+          ok(Object.prototype.hasOwnProperty.call(arg, "__proto__"));
+          deepStrictEqual(arg.__proto__, { polluted: true });
+          strictEqual(arg.ok, 1);
+          deepStrictEqual(Object.keys(arg), ["__proto__", "ok"]);
+          strictEqual(Object.getPrototypeOf(arg), Object.prototype);
+          strictEqual(arg.polluted, undefined);
+        });
       });
 
       describe("passing an array value", () => {
