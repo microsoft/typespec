@@ -419,7 +419,10 @@ describe("mutator validation", () => {
     const resource = getNonNullableType(related.type);
     ok(resource);
     deepStrictEqual(resource.kind, "Model");
-    const valueResource = $(runner.program).record.getElementType(resource);
+    const recordValue = $(runner.program).record.getElementType(resource);
+    ok(recordValue);
+    expect(checkNullableUnion(runner.program, recordValue)).toBe(true);
+    const valueResource = getNonNullableType(recordValue);
     ok(valueResource);
     deepStrictEqual(valueResource.kind, "Model");
     validateResource(valueResource);
@@ -710,7 +713,10 @@ describe("visibility transforms", () => {
     deepStrictEqual(envelope.kind, "Model");
     const record = checkProperty(envelope, "subject", true, "Model").type;
     deepStrictEqual(record.kind, "Model");
-    const innerEnvelope = record.indexer?.value;
+    const value = record.indexer?.value;
+    ok(value);
+    expect(checkNullableUnion(runner.program, value)).toBe(true);
+    const innerEnvelope = getNonNullableType(value);
     ok(innerEnvelope);
     deepStrictEqual(innerEnvelope.kind, "Model");
     checkProperty(innerEnvelope, "id", true, "Scalar", "string");
@@ -964,7 +970,10 @@ describe("visibility transforms", () => {
     deepStrictEqual(envelope.kind, "Model");
     const record = checkProperty(envelope, "subject", true, "Model").type;
     deepStrictEqual(record.kind, "Model");
-    const innerEnvelope = record.indexer?.value;
+    const value = record.indexer?.value;
+    ok(value);
+    expect(checkNullableUnion(runner.program, value)).toBe(true);
+    const innerEnvelope = getNonNullableType(value);
     ok(innerEnvelope);
     deepStrictEqual(innerEnvelope.kind, "Model");
     checkProperty(innerEnvelope, "id", true, "Scalar", "string");
@@ -972,6 +981,55 @@ describe("visibility transforms", () => {
     isNullableUnion(checkProperty(innerEnvelope, "createOnly", true, "Union"));
     isNullableUnion(checkProperty(innerEnvelope, "updateOnly", true, "Union"));
     expect(innerEnvelope.properties.size).toBe(4);
+  });
+
+  it("allows null record values to delete individual keys", async () => {
+    const [typeGraph, diag] = await compileAndDiagnoseWithRunner(
+      runner,
+      `
+      model Foo {
+        tags?: Record<string>;
+        values?: Record<string | int32>;
+        nullableValues?: Record<string | null>;
+      }
+
+      @patch op update(@body body: MergePatchUpdate<Foo>): Foo;`,
+    );
+    expectDiagnosticEmpty(diag);
+    const envelope = typeGraph[0].parameters?.body?.type;
+    ok(envelope);
+    deepStrictEqual(envelope.kind, "Model");
+    const tags = getNonNullableType(checkProperty(envelope, "tags", true, "Union").type);
+    ok(tags);
+    deepStrictEqual(tags.kind, "Model");
+    const value = tags.indexer?.value;
+    ok(value);
+    expect(checkNullableUnion(runner.program, value)).toBe(true);
+    const stringValue = getNonNullableType(value);
+    ok(stringValue);
+    deepStrictEqual(stringValue.kind, "Scalar");
+    expect(stringValue.name).toBe("string");
+
+    for (const [name, expectedVariants] of [
+      ["values", 3],
+      ["nullableValues", 2],
+    ] as const) {
+      const record = getNonNullableType(checkProperty(envelope, name, true, "Union").type);
+      ok(record);
+      deepStrictEqual(record.kind, "Model");
+      const recordValue = record.indexer?.value;
+      ok(recordValue);
+      deepStrictEqual(recordValue.kind, "Union");
+      expect(recordValue.variants.size).toBe(expectedVariants);
+      expect(
+        [...recordValue.variants.values()].filter(
+          (variant) => variant.type === $(runner.program).intrinsic.null,
+        ),
+      ).toHaveLength(1);
+      expect(
+        [...recordValue.variants.values()].every((variant) => variant.type.kind !== "Union"),
+      ).toBe(true);
+    }
   });
   it("handles complex (required) model property visibility for MergePatchCreateOrUpdate", async () => {
     const [typeGraph, diag] = await compileAndDiagnoseWithRunner(
