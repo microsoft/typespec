@@ -1,5 +1,5 @@
 import { expectDiagnostics, t } from "@typespec/compiler/testing";
-import { deepStrictEqual } from "assert";
+import { deepStrictEqual, ok, strictEqual } from "assert";
 import { describe, it } from "vitest";
 import {
   getExtensions,
@@ -36,6 +36,34 @@ describe("@extension", () => {
     deepStrictEqual(Object.fromEntries(getExtensions(program, Foo)), {
       "x-custom": { foo: 123, bar: "string" },
     });
+  });
+
+  // Regression tests for https://github.com/microsoft/typespec/issues/11743
+  it("keeps a member named __proto__ holding a string as an own property", async () => {
+    const { program, Foo } = await Tester.compile(t.code`
+      @extension("x-custom", #{__proto__: "written", ok: 1})
+      model ${t.model("Foo")} {}
+    `);
+
+    const value = getExtensions(program, Foo).get("x-custom");
+    ok(Object.prototype.hasOwnProperty.call(value, "__proto__"));
+    deepStrictEqual(Object.keys(value), ["__proto__", "ok"]);
+    strictEqual(value.__proto__, "written");
+    strictEqual(Object.getPrototypeOf(value), Object.prototype);
+  });
+
+  it("keeps a member named __proto__ holding an object as an own property", async () => {
+    const { program, Foo } = await Tester.compile(t.code`
+      @extension("x-custom", #{__proto__: #{polluted: true}, ok: 1})
+      model ${t.model("Foo")} {}
+    `);
+
+    const value = getExtensions(program, Foo).get("x-custom");
+    ok(Object.prototype.hasOwnProperty.call(value, "__proto__"));
+    deepStrictEqual(Object.keys(value), ["__proto__", "ok"]);
+    deepStrictEqual(value.__proto__, { polluted: true });
+    strictEqual(Object.getPrototypeOf(value), Object.prototype);
+    strictEqual(value.polluted, undefined);
   });
 
   it.each([
