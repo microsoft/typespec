@@ -627,21 +627,25 @@ async function createProgram(
     const emitFunction = entrypoint.esmExports.$onEmit;
     const libDefinition = library.definition;
 
-    // Prefer the specifier from tspconfig so subpath exports get matching options.
-    // Fall back to package.json name for file emitters and older configs.
-    const optionsFromSpecifier = emittersOptions[emitterNameOrPath];
-    const optionsFromPackageName =
-      metadata.name !== undefined ? emittersOptions[metadata.name] : undefined;
-    const emitterOptionsKey =
-      optionsFromSpecifier !== undefined
-        ? emitterNameOrPath
-        : optionsFromPackageName !== undefined && metadata.name !== undefined
-          ? metadata.name
-          : emitterNameOrPath;
+    // Prefer the emit specifier so subpath exports get matching options.
+    // Fall back to the library name ($lib.name for file emitters, package.json
+    // name for module emitters) for older configs and file-based emitters.
+    const libraryName = metadata.name;
+    let emitterOptionsKey = emitterNameOrPath;
+    if (
+      !Object.hasOwn(emittersOptions, emitterNameOrPath) &&
+      libraryName !== undefined &&
+      Object.hasOwn(emittersOptions, libraryName)
+    ) {
+      emitterOptionsKey = libraryName;
+    }
     let { "emitter-output-dir": emitterOutputDir, ...emitterOptions } =
-      optionsFromSpecifier ?? optionsFromPackageName ?? {};
+      emittersOptions[emitterOptionsKey] ?? {};
     if (emitterOutputDir === undefined) {
-      emitterOutputDir = [options.outputDir, metadata.name].filter(isDefined).join("/");
+      // Module emitters use the emit specifier so multiple subpath exports from
+      // the same package do not share one default output directory.
+      const defaultDirName = metadata.type === "module" ? emitterNameOrPath : libraryName;
+      emitterOutputDir = [options.outputDir, defaultDirName].filter(isDefined).join("/");
     }
     if (libDefinition?.requireImports) {
       for (const lib of libDefinition.requireImports) {
