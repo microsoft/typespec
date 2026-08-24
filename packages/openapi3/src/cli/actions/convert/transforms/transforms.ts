@@ -321,6 +321,7 @@ export function transformComponentResponses(
   if (!responses) return;
 
   const seenResponseRefs = new Set<string>();
+  const componentResponseNames = new Set<string>();
 
   for (const path of Object.values(context.openApi3Doc.paths ?? {})) {
     if (!path) continue;
@@ -344,26 +345,35 @@ export function transformComponentResponses(
         }
 
         const ref = responseObject.$ref as string;
-        if (seenResponseRefs.has(ref)) continue;
-        seenResponseRefs.add(ref);
+        const responseKey = `${ref}:${statusCode}`;
+        if (seenResponseRefs.has(responseKey)) continue;
+        seenResponseRefs.add(responseKey);
 
         const componentResponse = context.getByRef<OpenAPI3Response>(ref);
         if (!componentResponse) continue;
 
-        // The generated model bakes in the status code of the operation response it was
-        // first encountered with. Record it so responses using the same component under a
-        // different status code can be generated inline instead of reusing this model.
-        context.registerComponentResponseStatusCode(ref, statusCode);
-
         const { name, scope } = getScopeAndName(ref.slice("#/components/responses/".length));
         const namespace = [...scope];
         namespace.unshift("Responses");
+        const nameSuffix = statusCode === "default" ? "Default" : statusCode;
+        let componentResponseName = name;
+        let index = 1;
+        while (componentResponseNames.has([...namespace, componentResponseName].join("."))) {
+          componentResponseName = `${name}${nameSuffix}${index === 1 ? "" : index}`;
+          index++;
+        }
+        componentResponseNames.add([...namespace, componentResponseName].join("."));
+        context.registerComponentResponse(
+          ref,
+          statusCode,
+          [...namespace, componentResponseName].join("."),
+        );
 
         dataTypes.push({
           kind: "model",
-          name,
+          name: componentResponseName,
           scope: namespace,
-          decorators: [],
+          decorators: statusCode === "default" ? [{ name: "error", args: [] }] : [],
           doc: componentResponse.description,
           properties: getResponseProperties(statusCode, componentResponse, context),
         });
@@ -392,17 +402,24 @@ function getResponseProperties(
   }
 
   const contentEntries = Object.entries(response.content ?? {});
-  const preferredBodySchema = [
+  const preferredContent = [
     contentEntries.find(([mediaType]) => mediaType === "application/json"),
     contentEntries[0],
-  ].find((entry): entry is [string, any] => !!entry)?.[1];
+  ].find((entry): entry is [string, any] => !!entry);
 
   const bodySchema =
-    preferredBodySchema &&
-    typeof preferredBodySchema === "object" &&
-    "schema" in preferredBodySchema
-      ? (preferredBodySchema.schema as Refable<SupportedOpenAPISchema>)
+    preferredContent && typeof preferredContent[1] === "object" && "schema" in preferredContent[1]
+      ? (preferredContent[1].schema as Refable<SupportedOpenAPISchema>)
       : undefined;
+
+  if (preferredContent && preferredContent[0] !== "application/json") {
+    properties.push({
+      name: "contentType",
+      decorators: [{ name: "header", args: [] }],
+      isOptional: false,
+      schema: { type: "string", enum: [preferredContent[0]] },
+    });
+  }
 
   if (bodySchema) {
     properties.push({

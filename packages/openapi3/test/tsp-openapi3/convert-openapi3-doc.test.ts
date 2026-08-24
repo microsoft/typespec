@@ -188,7 +188,7 @@ describe.each(versions)("convertOpenAPI3Document v%s", (version) => {
     );
   });
 
-  it("does not reuse a component response model for a different status code", async () => {
+  it("creates reusable component response models for all status code kinds", async () => {
     const tsp = await convertOpenAPI3Document({
       openapi: version,
       info: {
@@ -210,6 +210,26 @@ describe.each(versions)("convertOpenAPI3Document v%s", (version) => {
           get: {
             operationId: "otherEndpoint",
             responses: {
+              "4XX": {
+                $ref: "#/components/responses/Rejected",
+              },
+            },
+          },
+        },
+        "/default-endpoint": {
+          get: {
+            operationId: "defaultEndpoint",
+            responses: {
+              default: {
+                $ref: "#/components/responses/Rejected",
+              },
+            },
+          },
+        },
+        "/unavailable-endpoint": {
+          get: {
+            operationId: "unavailableEndpoint",
+            responses: {
               "503": {
                 $ref: "#/components/responses/Rejected",
               },
@@ -222,7 +242,7 @@ describe.each(versions)("convertOpenAPI3Document v%s", (version) => {
           Rejected: {
             description: "The request was rejected.",
             content: {
-              "application/json": {
+              "application/xml": {
                 schema: {
                   type: "string",
                 },
@@ -239,14 +259,34 @@ describe.each(versions)("convertOpenAPI3Document v%s", (version) => {
       "Expected first operation to use the generated response model: " + tsp,
     );
     strictEqual(
-      tsp.includes("op otherEndpoint(): Responses.Rejected;"),
-      false,
-      "Expected second operation to not reuse the 429 response model: " + tsp,
+      tsp.includes("op otherEndpoint(): Responses.Rejected4XX;"),
+      true,
+      "Expected range response to use a generated component response model: " + tsp,
     );
     strictEqual(
-      tsp.includes("@statusCode statusCode: 503;"),
+      tsp.includes("op defaultEndpoint(): Responses.RejectedDefault;"),
       true,
-      "Expected second operation to be generated inline with its own status code: " + tsp,
+      "Expected default response to use a generated component response model: " + tsp,
+    );
+    strictEqual(
+      tsp.includes("op unavailableEndpoint(): Responses.Rejected503;"),
+      true,
+      "Expected literal response to use a generated component response model: " + tsp,
+    );
+    strictEqual(
+      tsp.includes("@statusCode\n    @minValue(400)\n    @maxValue(499)"),
+      true,
+      "Expected range model to retain its status code: " + tsp,
+    );
+    strictEqual(
+      tsp.includes("@error\n  model RejectedDefault"),
+      true,
+      "Expected default response model to be marked as an error: " + tsp,
+    );
+    strictEqual(
+      tsp.includes('@header contentType: "application/xml";'),
+      true,
+      "Expected component response models to retain the content type: " + tsp,
     );
   });
 

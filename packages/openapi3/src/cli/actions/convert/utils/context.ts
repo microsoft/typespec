@@ -73,14 +73,14 @@ export interface Context {
   isErrorResponseSchema(ref: string): boolean;
 
   /**
-   * Register the status code a component response model was generated for.
+   * Register a generated component response model.
    */
-  registerComponentResponseStatusCode(ref: string, statusCode: string): void;
+  registerComponentResponse(ref: string, statusCode: string, name: string): void;
 
   /**
-   * Get the status code a component response model was generated for, if any.
+   * Get the generated model name for a component response and status code, if any.
    */
-  getComponentResponseStatusCode(ref: string): string | undefined;
+  getComponentResponseName(ref: string, statusCode: string): string | undefined;
 
   /**
    * Mark that SSE features are being used, which will trigger including SSE-related imports.
@@ -112,8 +112,8 @@ export function createContext(
   // Track schemas that are used as error response bodies
   const errorResponseSchemas = new Set<string>();
 
-  // Track the status code each generated component response model was created for
-  const componentResponseStatusCodes = new Map<string, string>();
+  // Track generated component response models by response reference and status code
+  const componentResponseNames = new Map<string, string>();
 
   // Track if SSE features are used
   let sseUsed = false;
@@ -218,11 +218,11 @@ export function createContext(
     isErrorResponseSchema(ref: string): boolean {
       return errorResponseSchemas.has(ref);
     },
-    registerComponentResponseStatusCode(ref: string, statusCode: string) {
-      componentResponseStatusCodes.set(ref, statusCode);
+    registerComponentResponse(ref: string, statusCode: string, name: string) {
+      componentResponseNames.set(`${ref}:${statusCode}`, name);
     },
-    getComponentResponseStatusCode(ref: string): string | undefined {
-      return componentResponseStatusCodes.get(ref);
+    getComponentResponseName(ref: string, statusCode: string): string | undefined {
+      return componentResponseNames.get(`${ref}:${statusCode}`);
     },
     markSSEUsage() {
       sseUsed = true;
