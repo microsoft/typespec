@@ -203,28 +203,6 @@ namespace Microsoft.TypeSpec.Generator.Utilities
             return null;
         }
 
-        public static async Task<IList<NuGetVersion>> GetAllVersions(string packageName, ISettings nugetSettings, bool allowPrerelease)
-        {
-            HashSet<NuGetVersion> versions = [];
-            var sources = SettingsUtility.GetEnabledSources(nugetSettings);
-            using var cacheContext = new SourceCacheContext();
-            foreach (var source in sources)
-            {
-                try
-                {
-                    var repository = Repository.Factory.GetCoreV3(source.Source);
-                    var resource = await repository.GetResourceAsync<FindPackageByIdResource>();
-                    IEnumerable<NuGetVersion> versionsFromOneRepo = (await resource.GetAllVersionsAsync(packageName, cacheContext, NuGet.Common.NullLogger.Instance, CancellationToken.None)).Where(v => !v.IsPrerelease || allowPrerelease);
-                    versions.AddRange(versionsFromOneRepo);
-                }
-                catch
-                {
-                    // Skip failed source.
-                }
-            }
-            return [..versions];
-        }
-
         /// <summary>
         /// Queries the configured NuGet feeds for the latest stable version of <paramref name="packageName"/>.
         /// When <paramref name="minVersion"/> is provided, the latest stable version greater than or equal to it

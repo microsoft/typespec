@@ -282,7 +282,7 @@ namespace Microsoft.TypeSpec.Generator
                 UseShellExecute = false,
                 WindowStyle = ProcessWindowStyle.Hidden,
                 FileName = "dotnet",
-                Arguments = $"restore {projectFilePath}",
+                ArgumentList = {"restore", projectFilePath},
                 RedirectStandardOutput = true,
                 RedirectStandardError = true,
             };
