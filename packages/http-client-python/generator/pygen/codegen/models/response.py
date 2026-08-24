@@ -60,7 +60,7 @@ class Response(BaseModel):
         self.default_content_type = yaml_data.get("defaultContentType")
         streaming = yaml_data.get("streaming")
         self.streaming_kind: Optional[str] = streaming["kind"] if streaming else None
-        self.streaming_events: list[tuple[Optional[str], BaseType]] = []
+        self.streaming_events: list[tuple[Optional[str], BaseType, bool, Optional[str]]] = []
         self._streaming_terminal_event: Optional[str] = streaming.get("terminalEvent") if streaming else None
         # Named / model ``@terminalEvent`` events: deserialized and yielded like any other event,
         # then iteration stops. The bare string-constant sentinel (``_streaming_terminal_event``)
@@ -68,7 +68,12 @@ class Response(BaseModel):
         self.terminal_event_names: list[str] = []
         if streaming:
             self.streaming_events = [
-                (event.get("eventType"), self.code_model.lookup_type(id(event["itemType"])))
+                (
+                    event.get("eventType"),
+                    self.code_model.lookup_type(id(event["itemType"])),
+                    event.get("isEventEnvelope", False),
+                    event.get("payloadContentType"),
+                )
                 for event in streaming.get("events", [])
             ]
             self.terminal_event_names = [
@@ -235,7 +240,7 @@ class Response(BaseModel):
             file_import.add_submodule_import(relative_path, stream_class, ImportType.LOCAL)
             if self.streaming_kind == "sse":
                 file_import.add_import("json", ImportType.STDLIB)
-                for _event_type, event_item_type in self.streaming_events:
+                for _event_type, event_item_type, _is_envelope, _content_type in self.streaming_events:
                     file_import.merge(event_item_type.imports(**kwargs))
         return file_import
 

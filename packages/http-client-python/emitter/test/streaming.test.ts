@@ -131,5 +131,25 @@ describe("typespec-python: structured streaming", () => {
       strictEqual(events[1].eventType, "response.completed");
       strictEqual(events[1].isTerminal, true);
     });
+
+    it("preserves event envelope and payload content metadata", () => {
+      const envelope = model("Envelope");
+      const payload = { kind: "string" };
+      const { events } = partitionSseEvents(
+        [
+          {
+            eventType: "withEnvelope",
+            isTerminalEvent: false,
+            type: envelope,
+            payloadType: payload,
+            isEventEnvelope: true,
+            payloadContentType: "text/plain",
+          },
+        ] as any,
+        identity,
+      );
+      strictEqual(events[0].isEventEnvelope, true);
+      strictEqual(events[0].payloadContentType, "text/plain");
+    });
   });
 });

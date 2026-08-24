@@ -141,3 +141,64 @@ def test_sentinel_and_named_terminal_coexist():
     # The bare `[DONE]` sentinel stops iteration WITHOUT being yielded.
     assert items == [("response.delta", {"delta": "a"})]
     assert response.closed
+
+
+def test_sse_protocol_metadata_is_available_for_reconnect():
+    body = b'id: event-1\nretry: 1000\nevent: message\ndata: {"message": "hello"}\n\n'
+    response = _FakeResponse(body)
+    stream = Stream(response=response, deserialization_callback=lambda _response, event: event.data)
+
+    assert list(stream) == ['{"message": "hello"}']
+    assert stream.last_event_id == "event-1"
+    assert stream.retry == 1000
+
+
+def test_sse_protocol_invalid_metadata_is_ignored():
+    body = b"id: invalid\x00id\nretry: not-a-number\nevent: message\ndata: hello\n\n"
+    response = _FakeResponse(body)
+    stream = Stream(response=response, deserialization_callback=lambda _response, event: event.data)
+
+    assert list(stream) == ["hello"]
+    assert stream.last_event_id == ""
+    assert stream.retry is None
+
+
+def test_sse_reconnects_on_eof_using_latest_metadata():
+    responses = [
+        _FakeResponse(b"id: first\nretry: 0\ndata: one\n\n"),
+        _FakeResponse(b"id: second\ndata: two\n\ndata: [DONE]\n\n"),
+    ]
+    reconnect_ids = []
+
+    def reconnect(last_event_id):
+        reconnect_ids.append(last_event_id)
+        return responses.pop(0)
+
+    stream = Stream(
+        response=responses.pop(0),
+        deserialization_callback=lambda _response, event: event.data,
+        terminal_event="[DONE]",
+        reconnect_callback=reconnect,
+    )
+
+    assert list(stream) == ["one", "two"]
+    assert reconnect_ids == ["first"]
+    assert stream.last_event_id == "second"
+
+
+def test_sse_does_not_reconnect_without_retry_or_after_terminal():
+    response = _FakeResponse(b"id: first\ndata: one\n\n")
+    reconnect = lambda _last_event_id: pytest.fail("unexpected reconnect")
+    stream = Stream(
+        response=response, deserialization_callback=lambda _response, event: event.data, reconnect_callback=reconnect
+    )
+    assert list(stream) == ["one"]
+
+    response = _FakeResponse(b"retry: 0\ndata: one\n\ndata: [DONE]\n\n")
+    stream = Stream(
+        response=response,
+        deserialization_callback=lambda _response, event: event.data,
+        terminal_event="[DONE]",
+        reconnect_callback=reconnect,
+    )
+    assert list(stream) == ["one"]

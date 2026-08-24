@@ -10,8 +10,10 @@
 # structured-streaming operations, so the generated package does not take a hard
 # dependency on a core runtime that ships the streaming helpers. Do not edit by hand.
 # --------------------------------------------------------------------------
+import asyncio
 import codecs
 import json
+import time
 from contextlib import aclosing
 from types import TracebackType
 from typing import (
@@ -570,6 +572,7 @@ class Stream(Iterator[ReturnType_co]):
         decoder: Optional[StreamDecoder[DecodedType]] = None,
         terminal_event: Optional[str] = None,
         terminal_event_names: Optional[Sequence[str]] = None,
+        reconnect_callback: Optional[Callable[[Optional[str]], HttpResponse]] = None,
     ) -> None:
         self._response = response
         content_type = response.headers.get("Content-Type", "").split(";", 1)[0].strip().lower()
@@ -579,7 +582,20 @@ class Stream(Iterator[ReturnType_co]):
         self._deserialization_callback = deserialization_callback
         self._terminal_event = terminal_event
         self._terminal_event_names = frozenset(terminal_event_names or ())
+        self._reconnect_callback = reconnect_callback
+        self._last_event_id: Optional[str] = None
+        self._retry: Optional[int] = None
         self._iterator = self._iter_results()
+
+    @property
+    def last_event_id(self) -> Optional[str]:
+        """The most recently received SSE event ID, if one was provided."""
+        return self._last_event_id
+
+    @property
+    def retry(self) -> Optional[int]:
+        """The most recently received valid SSE retry value, if one was provided."""
+        return self._retry
 
     def __next__(self) -> ReturnType_co:
         return self._iterator.__next__()
@@ -588,14 +604,28 @@ class Stream(Iterator[ReturnType_co]):
         return self
 
     def _iter_results(self) -> Generator[ReturnType_co, None, None]:
+        terminal = False
         try:
-            for event in self._decoder.iter_events(self._response.iter_bytes()):
-                if self._terminal_event is not None and getattr(event, "data", None) == self._terminal_event:
+            while True:
+                for event in self._decoder.iter_events(self._response.iter_bytes()):
+                    if isinstance(event, ServerSentEvent):
+                        self._last_event_id = event.id
+                        if event.retry is not None:
+                            self._retry = event.retry
+                    if self._terminal_event is not None and getattr(event, "data", None) == self._terminal_event:
+                        terminal = True
+                        break
+                    result = self._deserialization_callback(self._response, event)
+                    yield result
+                    if self._terminal_event_names and getattr(event, "event", None) in self._terminal_event_names:
+                        terminal = True
+                        break
+                self._response.close()
+                if terminal or self._reconnect_callback is None or self._retry is None:
                     break
-                result = self._deserialization_callback(self._response, event)
-                yield result
-                if self._terminal_event_names and getattr(event, "event", None) in self._terminal_event_names:
-                    break
+                time.sleep(self._retry / 1000)
+                self._response = self._reconnect_callback(self._last_event_id)
+                self._decoder = type(self._decoder)()
         finally:
             self._response.close()
 
@@ -646,6 +676,7 @@ class AsyncStream(AsyncIterator[ReturnType_co]):
         decoder: Optional[AsyncStreamDecoder[DecodedType]] = None,
         terminal_event: Optional[str] = None,
         terminal_event_names: Optional[Sequence[str]] = None,
+        reconnect_callback: Optional[Callable[[Optional[str]], Any]] = None,
     ) -> None:
         self._response = response
         content_type = response.headers.get("Content-Type", "").split(";", 1)[0].strip().lower()
@@ -657,7 +688,20 @@ class AsyncStream(AsyncIterator[ReturnType_co]):
         self._deserialization_callback = deserialization_callback
         self._terminal_event = terminal_event
         self._terminal_event_names = frozenset(terminal_event_names or ())
+        self._reconnect_callback = reconnect_callback
+        self._last_event_id: Optional[str] = None
+        self._retry: Optional[int] = None
         self._iterator = self._iter_results()
+
+    @property
+    def last_event_id(self) -> Optional[str]:
+        """The most recently received SSE event ID, if one was provided."""
+        return self._last_event_id
+
+    @property
+    def retry(self) -> Optional[int]:
+        """The most recently received valid SSE retry value, if one was provided."""
+        return self._retry
 
     async def __anext__(self) -> ReturnType_co:
         return await self._iterator.__anext__()
@@ -666,19 +710,35 @@ class AsyncStream(AsyncIterator[ReturnType_co]):
         return self
 
     async def _iter_results(self) -> AsyncGenerator[ReturnType_co, None]:
-        events = self._decoder.aiter_events(self._response.iter_bytes())
+        terminal = False
         try:
-            async for event in events:
-                if self._terminal_event is not None and getattr(event, "data", None) == self._terminal_event:
+            while True:
+                events = self._decoder.aiter_events(self._response.iter_bytes())
+                try:
+                    async for event in events:
+                        if isinstance(event, ServerSentEvent):
+                            self._last_event_id = event.id
+                            if event.retry is not None:
+                                self._retry = event.retry
+                        if self._terminal_event is not None and getattr(event, "data", None) == self._terminal_event:
+                            terminal = True
+                            break
+                        result = self._deserialization_callback(self._response, event)
+                        yield result
+                        if self._terminal_event_names and getattr(event, "event", None) in self._terminal_event_names:
+                            terminal = True
+                            break
+                finally:
+                    aclose = getattr(events, "aclose", None)
+                    if aclose is not None:
+                        await aclose()
+                if terminal or self._reconnect_callback is None or self._retry is None:
                     break
-                result = self._deserialization_callback(self._response, event)
-                yield result
-                if self._terminal_event_names and getattr(event, "event", None) in self._terminal_event_names:
-                    break
+                await self._response.close()
+                await asyncio.sleep(self._retry / 1000)
+                self._response = await self._reconnect_callback(self._last_event_id)
+                self._decoder = type(self._decoder)()
         finally:
-            aclose = getattr(events, "aclose", None)
-            if aclose is not None:
-                await aclose()
             await self._response.close()
 
     async def __aexit__(

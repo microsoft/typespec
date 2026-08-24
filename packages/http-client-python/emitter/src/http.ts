@@ -60,6 +60,8 @@ interface StructuredStreamEvent {
    * {@link StructuredStreamingInfo.terminalEvent}, the sentinel that stops without yielding.
    */
   isTerminal?: boolean;
+  isEventEnvelope?: boolean;
+  payloadContentType?: string;
 }
 
 interface StructuredStreamingInfo {
@@ -122,6 +124,8 @@ interface SseEventLike {
   isTerminalEvent: boolean;
   type: SdkType;
   payloadType: SdkType;
+  isEventEnvelope?: boolean;
+  payloadContentType?: string;
 }
 
 /**
@@ -158,10 +162,17 @@ export function partitionSseEvents(
         eventType: event.eventType,
         itemType: toItemType(event.payloadType),
         isTerminal: true,
+        isEventEnvelope: event.isEventEnvelope,
+        payloadContentType: event.payloadContentType,
       });
       continue;
     }
-    dispatch.push({ eventType: event.eventType, itemType: toItemType(event.payloadType) });
+    dispatch.push({
+      eventType: event.eventType,
+      itemType: toItemType(event.payloadType),
+      isEventEnvelope: event.isEventEnvelope,
+      payloadContentType: event.payloadContentType,
+    });
   }
   return terminalEvent !== undefined ? { events: dispatch, terminalEvent } : { events: dispatch };
 }

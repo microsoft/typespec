@@ -1021,7 +1021,19 @@ class _OperationSerializer(_BuilderBaseSerializer[OperationType]):
         return retval
 
     def call_request_builder(self, builder: OperationType, is_paging: bool = False) -> list[str]:
-        return self._call_request_builder_helper(builder, builder.request_builder, is_paging=is_paging)
+        retval = self._call_request_builder_helper(builder, builder.request_builder, is_paging=is_paging)
+        if builder.has_structured_stream_response and any(
+            response.streaming_kind == "sse" for response in builder.responses
+        ):
+            retval.insert(0, '_last_event_id = kwargs.pop("last_event_id", None)')
+            retval.extend(
+                [
+                    "",
+                    "if _last_event_id is not None:",
+                    '    _request.headers["Last-Event-ID"] = _last_event_id',
+                ]
+            )
+        return retval
 
     def response_headers_and_deserialization(
         self,
@@ -1273,21 +1285,26 @@ class _OperationSerializer(_BuilderBaseSerializer[OperationType]):
         retval: list[str] = []
         retval.append("def _callback(_http_response, _event):")
         if response.streaming_kind == "sse":  # type: ignore[attr-defined]
-            retval.append("    _event_json = json.loads(_event.data)")
             named_events = [
-                (event_type, event_item_type)
-                for event_type, event_item_type in streaming_events
+                (event_type, event_item_type, is_envelope, payload_content_type)
+                for event_type, event_item_type, is_envelope, payload_content_type in streaming_events
                 if event_type is not None
             ]
-            unnamed_events = [event_item_type for event_type, event_item_type in streaming_events if event_type is None]
+            unnamed_events = [
+                (event_item_type, is_envelope, payload_content_type)
+                for event_type, event_item_type, is_envelope, payload_content_type in streaming_events
+                if event_type is None
+            ]
             if named_events:
-                for index, (event_type, event_item_type) in enumerate(named_events):
+                for index, (event_type, event_item_type, _is_envelope, payload_content_type) in enumerate(named_events):
                     event_annotation = event_item_type.type_annotation(
                         is_operation_file=True,
                         serialize_namespace=self.serialize_namespace,
                     )
                     keyword = "if" if index == 0 else "elif"
                     retval.append(f"    {keyword} _event.event == {event_type!r}:")
+                    event_json = "_event.data" if payload_content_type == "text/plain" else "json.loads(_event.data)"
+                    retval.append(f"        _event_json = {event_json}")
                     if self.code_model.options["models-mode"] == "msrest":
                         serialization_type = event_item_type.serialization_type(
                             serialize_namespace=self.serialize_namespace
@@ -1300,12 +1317,15 @@ class _OperationSerializer(_BuilderBaseSerializer[OperationType]):
                         retval.append(f"        deserialized = _deserialize({event_annotation}, _event_json)")
                 retval.append("    else:")
                 if len(unnamed_events) == 1:
-                    event_annotation = unnamed_events[0].type_annotation(
+                    event_item_type, _is_envelope, payload_content_type = unnamed_events[0]
+                    event_annotation = event_item_type.type_annotation(
                         is_operation_file=True,
                         serialize_namespace=self.serialize_namespace,
                     )
+                    event_json = "_event.data" if payload_content_type == "text/plain" else "json.loads(_event.data)"
+                    retval.append(f"        _event_json = {event_json}")
                     if self.code_model.options["models-mode"] == "msrest":
-                        serialization_type = unnamed_events[0].serialization_type(
+                        serialization_type = event_item_type.serialization_type(
                             serialize_namespace=self.serialize_namespace
                         )
                         retval.append("        deserialized = self._deserialize(")
@@ -1315,14 +1335,18 @@ class _OperationSerializer(_BuilderBaseSerializer[OperationType]):
                     else:
                         retval.append(f"        deserialized = _deserialize({event_annotation}, _event_json)")
                 else:
+                    retval.append("        _event_json = json.loads(_event.data)")
                     retval.append("        deserialized = _event_json")
             elif len(unnamed_events) == 1:
-                event_annotation = unnamed_events[0].type_annotation(
+                event_item_type, _is_envelope, payload_content_type = unnamed_events[0]
+                event_annotation = event_item_type.type_annotation(
                     is_operation_file=True,
                     serialize_namespace=self.serialize_namespace,
                 )
+                event_json = "_event.data" if payload_content_type == "text/plain" else "json.loads(_event.data)"
+                retval.append(f"    _event_json = {event_json}")
                 if self.code_model.options["models-mode"] == "msrest":
-                    serialization_type = unnamed_events[0].serialization_type(
+                    serialization_type = event_item_type.serialization_type(
                         serialize_namespace=self.serialize_namespace
                     )
                     retval.append("    deserialized = self._deserialize(")
@@ -1332,6 +1356,7 @@ class _OperationSerializer(_BuilderBaseSerializer[OperationType]):
                 else:
                     retval.append(f"    deserialized = _deserialize({event_annotation}, _event_json)")
             else:
+                retval.append("    _event_json = json.loads(_event.data)")
                 if self.code_model.options["models-mode"] == "msrest":
                     serialization_type = response.stream_item_type.serialization_type(
                         serialize_namespace=self.serialize_namespace
@@ -1363,6 +1388,20 @@ class _OperationSerializer(_BuilderBaseSerializer[OperationType]):
             stream_kwargs.append(f"terminal_event={terminal_event!r}")
         if terminal_event_names:
             stream_kwargs.append(f"terminal_event_names={terminal_event_names!r}")
+        if response.streaming_kind == "sse":  # type: ignore[attr-defined]
+            retval.append("")
+            retval.append("async def _reconnect(_last_event_id):" if self.async_mode else "def _reconnect(_last_event_id):")
+            retval.append("    if _last_event_id is not None:")
+            retval.append('        _request.headers["Last-Event-ID"] = _last_event_id')
+            if self.async_mode:
+                retval.append(
+                    f"    return (await self._client.{self.pipeline_name}.run(_request, stream=True, **kwargs)).http_response"
+                )
+            else:
+                retval.append(
+                    f"    return self._client.{self.pipeline_name}.run(_request, stream=True, **kwargs).http_response"
+                )
+            stream_kwargs.append("reconnect_callback=_reconnect")
         retval.append(f"return {stream_class}({', '.join(stream_kwargs)})  # type: ignore")
         return retval
 
