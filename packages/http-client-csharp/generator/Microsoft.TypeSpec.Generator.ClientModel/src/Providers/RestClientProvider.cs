@@ -956,7 +956,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
                 }
                 else
                 {
-                    valueExpression = type?.Equals(typeof(string)) == true
+                    var serializedValueExpression = type?.Equals(typeof(string)) == true
                         ? valueExpression
                         : valueExpression.Invoke(nameof(ToString), toStringParams);
                     MethodBodyStatement statement;
@@ -964,8 +964,8 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
                     {
                         bool shouldPrependWithPathSeparator = separatorDeferred || (path.Length > 0 && path[^1] != '/');
                         List<MethodBodyStatement> appendPathStatements = shouldPrependWithPathSeparator
-                            ? [uri.AppendPath(Literal("/"), false).Terminate(), uri.AppendPath(valueExpression, escape).Terminate()]
-                            : [uri.AppendPath(valueExpression, escape).Terminate()];
+                            ? [uri.AppendPath(Literal("/"), false).Terminate(), uri.AppendPath(serializedValueExpression, escape).Terminate()]
+                            : [uri.AppendPath(serializedValueExpression, escape).Terminate()];
                         statement = BuildQueryOrHeaderOrPathParameterNullCheck(
                             type,
                             valueExpression,
@@ -973,7 +973,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
                     }
                     else
                     {
-                        statement = uri.AppendPath(valueExpression, escape).Terminate();
+                        statement = uri.AppendPath(serializedValueExpression, escape).Terminate();
                     }
                     statements.Add(statement);
                 }

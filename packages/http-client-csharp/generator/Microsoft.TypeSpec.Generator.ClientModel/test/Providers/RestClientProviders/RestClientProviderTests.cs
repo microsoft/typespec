@@ -1786,8 +1786,9 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers.RestClientPro
                     ScmCodeModelGenerator.Instance.PipelineRequestHeadersExtensionsDefinition.Type));
         }
 
-        [Test]
-        public void NormalizedDateParameterIsSerializedInCreateRequestMethod()
+        [TestCase(true)]
+        [TestCase(false)]
+        public void NormalizedDateParameterIsSerializedInCreateRequestMethod(bool isRequired)
         {
             var dateType = CreateRfc7231DateType();
             var operation = InputFactory.Operation(
@@ -1797,7 +1798,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers.RestClientPro
                     InputFactory.HeaderParameter(
                         "requestDate",
                         dateType,
-                        isRequired: true,
+                        isRequired: isRequired,
                         serializedName: "ocp-date")
                 ]);
             var serviceMethod = InputFactory.BasicServiceMethod(
@@ -1808,7 +1809,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers.RestClientPro
                     InputFactory.MethodParameter(
                         "requestDate",
                         dateType,
-                        isRequired: true,
+                        isRequired: isRequired,
                         serializedName: "ocp-date",
                         location: InputRequestLocation.Header)
                 ]);
@@ -1816,11 +1817,12 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers.RestClientPro
             var restClient = new ClientProvider(client).RestClient;
 
             var file = new TypeProviderWriter(restClient).Write();
-            Assert.AreEqual(Helpers.GetExpectedFromFile(), file.Content);
+            Assert.AreEqual(Helpers.GetExpectedFromFile(parameters: isRequired.ToString()), file.Content);
         }
 
-        [Test]
-        public void NormalizedDateQueryParameterIsSerializedInCreateRequestMethod()
+        [TestCase(true)]
+        [TestCase(false)]
+        public void NormalizedDateQueryParameterIsSerializedInCreateRequestMethod(bool isRequired)
         {
             var dateType = CreateRfc7231DateType();
             var operation = InputFactory.Operation(
@@ -1830,7 +1832,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers.RestClientPro
                     InputFactory.QueryParameter(
                         "requestDate",
                         dateType,
-                        isRequired: true,
+                        isRequired: isRequired,
                         serializedName: "request-date")
                 ]);
             var serviceMethod = InputFactory.BasicServiceMethod(
@@ -1841,7 +1843,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers.RestClientPro
                     InputFactory.MethodParameter(
                         "requestDate",
                         dateType,
-                        isRequired: true,
+                        isRequired: isRequired,
                         serializedName: "request-date",
                         location: InputRequestLocation.Query)
                 ]);
@@ -1849,11 +1851,12 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers.RestClientPro
             var restClient = new ClientProvider(client).RestClient;
 
             var file = new TypeProviderWriter(restClient).Write();
-            Assert.AreEqual(Helpers.GetExpectedFromFile(), file.Content);
+            Assert.AreEqual(Helpers.GetExpectedFromFile(parameters: isRequired.ToString()), file.Content);
         }
 
-        [Test]
-        public void NormalizedDatePathParameterIsSerializedInCreateRequestMethod()
+        [TestCase(true)]
+        [TestCase(false)]
+        public void NormalizedDatePathParameterIsSerializedInCreateRequestMethod(bool isRequired)
         {
             var dateType = CreateRfc7231DateType();
             var operation = InputFactory.Operation(
@@ -1863,7 +1866,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers.RestClientPro
                     InputFactory.PathParameter(
                         "requestDate",
                         dateType,
-                        isRequired: true)
+                        isRequired: isRequired)
                 ],
                 path: "/things/{requestDate}");
             var serviceMethod = InputFactory.BasicServiceMethod(
@@ -1874,30 +1877,31 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers.RestClientPro
                     InputFactory.MethodParameter(
                         "requestDate",
                         dateType,
-                        isRequired: true,
+                        isRequired: isRequired,
                         location: InputRequestLocation.Path)
                 ]);
             var client = InputFactory.Client("TestClient", methods: [serviceMethod]);
             var restClient = new ClientProvider(client).RestClient;
 
             var file = new TypeProviderWriter(restClient).Write();
-            Assert.AreEqual(Helpers.GetExpectedFromFile(), file.Content);
+            Assert.AreEqual(Helpers.GetExpectedFromFile(parameters: isRequired.ToString()), file.Content);
         }
 
-        [Test]
-        public void NormalizedDateClientParameterIsSerializedInCreateRequestMethod()
+        [TestCase(true)]
+        [TestCase(false)]
+        public void NormalizedDateClientParameterIsSerializedInCreateRequestMethod(bool isRequired)
         {
             var dateType = CreateRfc7231DateType();
             var operationParameter = InputFactory.QueryParameter(
                 "requestDate",
                 dateType,
-                isRequired: true,
+                isRequired: isRequired,
                 serializedName: "request-date",
                 scope: InputParameterScope.Client);
             var clientParameter = InputFactory.MethodParameter(
                 "clientDate",
                 dateType,
-                isRequired: true,
+                isRequired: isRequired,
                 serializedName: "request-date",
                 location: InputRequestLocation.Query,
                 scope: InputParameterScope.Client,
@@ -1912,7 +1916,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers.RestClientPro
             var restClient = new ClientProvider(client).RestClient;
 
             var file = new TypeProviderWriter(restClient).Write();
-            Assert.AreEqual(Helpers.GetExpectedFromFile(), file.Content);
+            Assert.AreEqual(Helpers.GetExpectedFromFile(parameters: isRequired.ToString()), file.Content);
         }
 
         private static InputDateTimeType CreateRfc7231DateType() => new(
