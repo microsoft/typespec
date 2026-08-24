@@ -5,7 +5,6 @@ using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.IO;
-using System.Linq;
 using System.Reflection;
 using System.Runtime.CompilerServices;
 using System.Threading;
@@ -13,7 +12,6 @@ using System.Threading.Tasks;
 using Microsoft.CodeAnalysis;
 using Microsoft.TypeSpec.Generator.Input;
 using NuGet.Configuration;
-using NuGet.Versioning;
 
 namespace Microsoft.TypeSpec.Generator.Utilities
 {
@@ -235,52 +233,6 @@ namespace Microsoft.TypeSpec.Generator.Utilities
 
             string? assemblyPath = NugetPackageResolver.FindPackageAssembly(
                 globalPackagesFolder, external.Package!, external.MinVersion);
-
-            if (assemblyPath == null)
-            {
-                try
-                {
-                    string? resolvedVersion;
-                    // Search for the compatible version.
-                    if (!string.IsNullOrEmpty(external.MinVersion))
-                    {
-                        // If min version was provided, we
-                        // 1. Search if it is in our repositories;
-                        // 2. Get the latest one if it is not.
-                        // 3. If our version is a pre release, include pre released versions in our search.
-                        NuGetVersion minVersion = new(external.MinVersion);
-                        IList<NuGetVersion> versions = await NugetPackageResolver.GetAllVersions(external.Package!, nugetSettings, allowPrerelease: minVersion.IsPrerelease);
-                        if (versions.Any(x => x == minVersion))
-                        {
-                            resolvedVersion = external.MinVersion;
-                        }
-                        else
-                        {
-                            resolvedVersion = versions.Max()?.ToString();
-                        }
-                    }
-                    else
-                    {
-                        // If min version was not provided, get the latest stable version.
-                        resolvedVersion = await NugetPackageResolver.ResolveLatestPackageVersion(external.Package!, nugetSettings);
-                    }
-                    if (!string.IsNullOrEmpty(resolvedVersion))
-                    {
-                        var downloader = new NugetPackageDownloader(external.Package!, resolvedVersion!, null, nugetSettings);
-                        var downloadedPath = await downloader.DownloadAndInstallPackage();
-                        var downloadedAssembly = Path.Combine(downloadedPath, $"{external.Package}.dll");
-                        if (File.Exists(downloadedAssembly))
-                        {
-                            assemblyPath = downloadedAssembly;
-                        }
-                    }
-                }
-                catch (Exception ex)
-                {
-                    generator.Emitter?.Debug(
-                        $"Could not download package '{external.Package}' for external type '{external.Identity}': {ex.Message}");
-                }
-            }
 
             if (assemblyPath == null || !File.Exists(assemblyPath))
             {

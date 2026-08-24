@@ -275,9 +275,38 @@ namespace Microsoft.TypeSpec.Generator
             {
                 return;
             }
-
+            // Use the dotnet restore mechanism to get all the dependent packages.
+            Process restore = new();
+            ProcessStartInfo info = new()
+            {
+                UseShellExecute = false,
+                WindowStyle = ProcessWindowStyle.Hidden,
+                FileName = "dotnet",
+                Arguments = $"restore {projectFilePath}",
+                RedirectStandardOutput = true,
+                RedirectStandardError = true,
+            };
+            restore.StartInfo = info;
+            if (restore.Start())
+            {
+                await restore.WaitForExitAsync();
+                if (restore.ExitCode != 0)
+                {
+                    string output = await restore.StandardOutput.ReadToEndAsync();
+                    string error = await restore.StandardError.ReadToEndAsync();
+                    CodeModelGenerator.Instance.Emitter.Debug(
+                        $"The dotnet restore {projectFilePath} command exited with {restore.ExitCode}.]\n" +
+                        $"Standard output: {output}\n" +
+                        $"Error output: {error}"
+                        );
+                }
+            }
+            else
+            {
+                CodeModelGenerator.Instance.Emitter.Debug(
+                            $"Unable to run dotnet restore on the project {projectFilePath}");
+            }
             var projectRoot = ProjectRootElement.Open(projectFilePath, new MSBuildProjectCollection());
-
             var nugetSettings = Settings.LoadDefaultSettings(projectFilePath);
             var globalPackagesFolder = SettingsUtility.GetGlobalPackagesFolder(nugetSettings);
 
