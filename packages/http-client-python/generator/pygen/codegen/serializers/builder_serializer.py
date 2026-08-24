@@ -1379,8 +1379,6 @@ class _OperationSerializer(_BuilderBaseSerializer[OperationType]):
                 retval.append("    )")
             else:
                 retval.append(f"    deserialized = _deserialize({item_annotation}, _event_json)")
-        retval.append("    if cls:")
-        retval.append("        return cls(pipeline_response, deserialized, {})  # type: ignore")
         retval.append("    return deserialized")
         retval.append("")
         stream_kwargs = ["response=response", "deserialization_callback=_callback"]
@@ -1402,7 +1400,10 @@ class _OperationSerializer(_BuilderBaseSerializer[OperationType]):
                     f"    return self._client.{self.pipeline_name}.run(_request, stream=True, **kwargs).http_response"
                 )
             stream_kwargs.append("reconnect_callback=_reconnect")
-        retval.append(f"return {stream_class}({', '.join(stream_kwargs)})  # type: ignore")
+        retval.append(f"deserialized = {stream_class}({', '.join(stream_kwargs)})  # type: ignore")
+        retval.append("if cls:")
+        retval.append("    return cls(pipeline_response, deserialized, {})  # type: ignore")
+        retval.append("return deserialized")
         return retval
 
     def _handle_response_body(self, builder: OperationType) -> list[str]:
