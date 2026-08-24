@@ -156,21 +156,18 @@ Emit YAML code model only, without running Python generator. For batch processin
 
 ## Structured streaming (JSONL / SSE)
 
-Operations whose HTTP response is a JSONL (`application/jsonl`) or SSE (`text/event-stream`) stream generate client methods that return `Stream[T]` (sync) / `AsyncStream[T]` (async), yielding deserialized model instances instead of raw bytes. This is driven by the TCGC response stream metadata (the response stream type) — there is no opt-in emitter option. This applies to both the Azure and unbranded flavors.
+Operations whose HTTP response is a JSONL (`application/jsonl`) or SSE (`text/event-stream`) stream generate client methods that return an iterable stream object, yielding deserialized model instances instead of raw bytes. This is driven by the TCGC response stream metadata (the response stream type) — there is no opt-in emitter option. This applies to both the Azure and unbranded flavors.
 
-For an operation returning `JsonlStream<Thing>`, the generated method returns `Stream[Thing]` (sync) / `AsyncStream[Thing]` (async), yielding deserialized `Thing` instances as each JSONL line arrives. Similarly, `SSEStream<Events>` produces a `Stream` / `AsyncStream` over the SSE event payloads.
-
-Generated packages re-export `Stream` and `AsyncStream` from their base namespace:
+For an operation returning `JsonlStream<Thing>`, the generated method returns a stream that iterates deserialized `Thing` instances as each JSONL line arrives. Similarly, `SSEStream<Events>` produces a stream over the SSE event payloads.
 
 ```python
-from your_sdk import Stream
 from your_sdk.models import Thing
 
-stream: Stream[Thing] = client.receive()
+stream = client.receive()
 for thing in stream:
     ...
 ```
 
-The `Stream` / `AsyncStream` runtime (plus the JSONL and SSE decoders) is **vendored** into the generated package at `_utils/streaming_base.py` (alongside `_utils/model_base.py`). It depends only on the released core runtime for the flavor — `azure.core.rest` for the Azure flavor and `corehttp.rest` for the unbranded flavor — so no unreleased `azure.core.streaming` dependency is required at runtime.
+The underlying `Stream` / `AsyncStream` runtime (plus the JSONL and SSE decoders) is **vendored** into the generated package at `_utils/streaming_base.py` (alongside `_utils/model_base.py`) and is an internal implementation detail — it is not part of the package's public API and is not re-exported from the base namespace. It depends only on the released core runtime for the flavor — `azure.core.rest` for the Azure flavor and `corehttp.rest` for the unbranded flavor — so no unreleased `azure.core.streaming` dependency is required at runtime.
 
 SSE `@events` unions use TCGC event metadata to deserialize each named event into its corresponding generated model. Events marked with `@terminalEvent` stop iteration without being yielded.
