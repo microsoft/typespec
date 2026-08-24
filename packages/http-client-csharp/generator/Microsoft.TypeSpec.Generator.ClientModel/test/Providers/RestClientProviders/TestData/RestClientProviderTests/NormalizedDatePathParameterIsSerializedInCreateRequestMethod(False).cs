@@ -18,7 +18,7 @@ namespace Sample
             global::Sample.ClientUriBuilder uri = new global::Sample.ClientUriBuilder();
             uri.Reset(_endpoint);
             uri.AppendPath("/things", false);
-            if ((requestOn != null))
+            if ((requestOn.ToString("R") != null))
             {
                 uri.AppendPath("/", false);
                 uri.AppendPath(requestOn.ToString("R"), true);
