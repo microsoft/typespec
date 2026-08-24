@@ -34,8 +34,7 @@ export async function $onEmit(context: EmitContext<CSharpServiceEmitterOptions>)
   const modelsOnly = options["output-type"] === "models";
   const emitMocks =
     !modelsOnly &&
-    (options["emit-mocks"] === "mocks-only" ||
-      options["emit-mocks"] === "mocks-and-project-files");
+    (options["emit-mocks"] === "mocks-only" || options["emit-mocks"] === "mocks-and-project-files");
   const emitProjectFiles = !modelsOnly && options["emit-mocks"] === "mocks-and-project-files";
   const useSwaggerUI = !modelsOnly && (options["use-swaggerui"] ?? false);
 

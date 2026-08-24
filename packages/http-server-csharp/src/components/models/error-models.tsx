@@ -75,13 +75,7 @@ export function getErrorConstructor(program: Program, model: Model, className: s
       getNullableValueTypeUnionInnerType(tk, prop.type) !== undefined;
     const needsNullable =
       !typeExpressionIncludesNullable && (prop.optional || nullableUnionInnerType !== undefined);
-    const parameterType = needsNullable ? (
-      <>
-        {csharpType}?
-      </>
-    ) : (
-      csharpType
-    );
+    const parameterType = needsNullable ? <>{csharpType}?</> : csharpType;
     const defaultStr = defaultValue ? defaultValue : prop.optional ? "default" : undefined;
     parameters.push({
       name: prop.name,

@@ -37,16 +37,12 @@ it("emits only models and their support files when output-type is models", async
     @post
     op create(name: string): Pet;
   `);
-  const [result] = await compileAndDiagnose(
-    tester,
-    service,
-    {
-      "emit-mocks": "mocks-and-project-files",
-      "output-type": "models",
-      "skip-format": true,
-      "use-swaggerui": true,
-    },
-  );
+  const [result] = await compileAndDiagnose(tester, service, {
+    "emit-mocks": "mocks-and-project-files",
+    "output-type": "models",
+    "skip-format": true,
+    "use-swaggerui": true,
+  });
 
   const paths = [...result.fs.fs.keys()];
   const hasPathEndingWith = (suffix: string) => paths.some((path) => path.endsWith(suffix));
