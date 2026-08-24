@@ -6,18 +6,16 @@ import { getDecoratorsForSchema } from "./decorators.js";
 
 export type LiteralStatusCode = `${number}`;
 export type WildcardStatusCode = "1XX" | "2XX" | "3XX" | "4XX" | "5XX";
-export type StatusCodes = LiteralStatusCode | WildcardStatusCode | "default";
+export type StatusCodes = LiteralStatusCode | WildcardStatusCode | "default" | (string & {});
 
-export function isValidLiteralStatusCode(statusCode: StatusCodes): boolean {
+export function isValidLiteralStatusCode(statusCode: string): statusCode is LiteralStatusCode {
   if (statusCode === "default" || statusCode.endsWith("X")) return false;
 
   const literalStatusCode = parseInt(statusCode, 10);
   return isFinite(literalStatusCode) && literalStatusCode >= 100 && literalStatusCode <= 599;
 }
 
-export function convertStatusCodeToProperty(
-  statusCode: Exclude<StatusCodes, "default">,
-): TypeSpecModelProperty {
+export function convertStatusCodeToProperty(statusCode: string): TypeSpecModelProperty {
   const schema: OpenAPI3Schema = { type: "integer", format: "int32" };
   if (statusCode === "1XX") {
     schema.minimum = 100;
