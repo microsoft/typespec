@@ -2385,6 +2385,13 @@ namespace Microsoft.TypeSpec.Generator.Tests.Providers.ModelProviders
             var newerFullConstructor = modelProvider.FullConstructor;
             Assert.AreNotSame(newFullConstructor, newerFullConstructor);
             Assert.IsTrue(modelProvider.Constructors.Contains(newerFullConstructor));
+
+            // Re-applying the current identity also invalidates the constructor list because
+            // customization metadata and declaration modifiers may have changed.
+            modelProvider.Update(name: modelProvider.Name);
+            var sameIdentityFullConstructor = modelProvider.FullConstructor;
+            Assert.AreNotSame(newerFullConstructor, sameIdentityFullConstructor);
+            Assert.IsTrue(modelProvider.Constructors.Contains(sameIdentityFullConstructor));
         }
 
         // Regression coverage for the duplication that the stale FullConstructor caused: a generator that
@@ -2401,6 +2408,11 @@ namespace Microsoft.TypeSpec.Generator.Tests.Providers.ModelProviders
             Assert.AreEqual(1, modelProvider.FullConstructor.Suppressions.Count);
 
             modelProvider.Update(name: "NewName");
+            _ = modelProvider.Constructors;
+
+            Assert.AreEqual(1, modelProvider.FullConstructor.Suppressions.Count);
+
+            modelProvider.Update(name: modelProvider.Name);
             _ = modelProvider.Constructors;
 
             Assert.AreEqual(1, modelProvider.FullConstructor.Suppressions.Count);
