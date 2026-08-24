@@ -2147,11 +2147,35 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers.Definitions
         }
 
         [Test]
-        public async Task LastContractBuildableAttributesForObsoleteCustomTypeHaveSuppression()
+        public async Task LastContractBuildableAttributesForObsoleteTypesAreNotRestored()
+        {
+            var regularModel = InputFactory.Model("RegularModel", properties:
+            [
+                InputFactory.Property("Property1", InputPrimitiveType.String)
+            ]);
+
+            await MockHelpers.LoadMockGeneratorAsync(
+                inputModels: () => [regularModel],
+                compilation: async () => await Helpers.GetCompilationFromDirectoryAsync("Custom"),
+                lastContractCompilation: async () => await Helpers.GetCompilationFromDirectoryAsync());
+
+            var contextDefinition = new ModelReaderWriterContextDefinition();
+            var buildableAttributes = GetBuildableAttributes(contextDefinition);
+
+            Assert.AreEqual(1, buildableAttributes
+                .Count(a => a.Arguments.First().ToDisplayString().Contains("ActiveCustomModel")),
+                "The active model remains available and must be restored for back-compat");
+            Assert.AreEqual(0, buildableAttributes
+                .Count(a => a.Arguments.First().ToDisplayString().Contains("ObsoleteCustomModel")),
+                "The obsolete model must not be restored from the last contract");
+        }
+
+        [Test]
+        public async Task LastContractBuildableAttributesForObsoleteCustomTypeAreNotRestored()
         {
             // The last contract declared a buildable attribute for ObsoleteCustomModel. The type is defined
             // only in the customization layer (not produced by the current generation) with [Obsolete].
-            // The restored attribute must be wrapped in #pragma warning disable CS0618 suppressions.
+            // Obsolete types have been intentionally retired and must not be restored.
             var regularModel = InputFactory.Model("RegularModel", properties:
             [
                 InputFactory.Property("Property1", InputPrimitiveType.String)
@@ -2168,9 +2192,9 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers.Definitions
             Assert.AreEqual(1, buildableAttributes
                 .Count(a => a.Arguments.First().ToDisplayString().Contains("RegularModel")),
                 "RegularModel is produced by the current generation and must appear exactly once");
-            Assert.AreEqual(1, buildableAttributes
+            Assert.AreEqual(0, buildableAttributes
                 .Count(a => a.Arguments.First().ToDisplayString().Contains("ObsoleteCustomModel")),
-                "ObsoleteCustomModel is in the customization layer and must be restored for back-compat");
+                "ObsoleteCustomModel must not be restored from the last contract");
 
             var writer = new TypeProviderWriter(contextDefinition);
             var file = writer.Write();
@@ -2209,12 +2233,11 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers.Definitions
         }
 
         [Test]
-        public async Task LastContractBuildableAttributesForExperimentalAndObsoleteCustomTypeHaveSuppression()
+        public async Task LastContractBuildableAttributesForExperimentalAndObsoleteCustomTypeAreNotRestored()
         {
             // The last contract declared a buildable attribute for ExperimentalObsoleteModel. The type is defined
             // only in the customization layer with both [Experimental] and [Obsolete].
-            // When both attributes are present, [Experimental] (declared first) takes precedence and the
-            // restored attribute must be wrapped in experimental suppressions.
+            // Obsolete types must not be restored even when [Experimental] appears first.
             var regularModel = InputFactory.Model("RegularModel", properties:
             [
                 InputFactory.Property("Property1", InputPrimitiveType.String)
@@ -2231,9 +2254,9 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers.Definitions
             Assert.AreEqual(1, buildableAttributes
                 .Count(a => a.Arguments.First().ToDisplayString().Contains("RegularModel")),
                 "RegularModel is produced by the current generation and must appear exactly once");
-            Assert.AreEqual(1, buildableAttributes
+            Assert.AreEqual(0, buildableAttributes
                 .Count(a => a.Arguments.First().ToDisplayString().Contains("ExperimentalObsoleteModel")),
-                "ExperimentalObsoleteModel is in the customization layer and must be restored for back-compat");
+                "ExperimentalObsoleteModel must not be restored from the last contract");
 
             var writer = new TypeProviderWriter(contextDefinition);
             var file = writer.Write();
