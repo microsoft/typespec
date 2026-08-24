@@ -1388,16 +1388,20 @@ class _OperationSerializer(_BuilderBaseSerializer[OperationType]):
             stream_kwargs.append(f"terminal_event_names={terminal_event_names!r}")
         if response.streaming_kind == "sse":  # type: ignore[attr-defined]
             retval.append("")
-            retval.append("async def _reconnect(_last_event_id):" if self.async_mode else "def _reconnect(_last_event_id):")
+            retval.append(
+                "async def _reconnect(_last_event_id):" if self.async_mode else "def _reconnect(_last_event_id):"
+            )
             retval.append("    if _last_event_id is not None:")
             retval.append('        _request.headers["Last-Event-ID"] = _last_event_id')
             if self.async_mode:
                 retval.append(
-                    f"    return (await self._client.{self.pipeline_name}.run(_request, stream=True, **kwargs)).http_response"
+                    f"    return (await self._client.{self.pipeline_name}.run("
+                    "_request, stream=True, **kwargs)).http_response  # pylint: disable=protected-access"
                 )
             else:
                 retval.append(
-                    f"    return self._client.{self.pipeline_name}.run(_request, stream=True, **kwargs).http_response"
+                    f"    return self._client.{self.pipeline_name}.run("
+                    "_request, stream=True, **kwargs).http_response  # pylint: disable=protected-access"
                 )
             stream_kwargs.append("reconnect_callback=_reconnect")
         retval.append(f"deserialized = {stream_class}({', '.join(stream_kwargs)})  # type: ignore")

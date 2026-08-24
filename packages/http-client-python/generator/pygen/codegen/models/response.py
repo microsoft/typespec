@@ -145,8 +145,11 @@ class Response(BaseModel):
 
     @property
     def stream_item_type(self) -> Optional[BaseType]:
-        if len(self.streaming_events) == 1:
-            return self.streaming_events[0][1]
+        event_item_types = list(dict.fromkeys(event[1] for event in self.streaming_events))
+        if len(event_item_types) == 1:
+            return event_item_types[0]
+        if event_item_types:
+            return CombinedType({"type": "combined"}, self.code_model, event_item_types)
         return self.type
 
     def serialization_type(self, **kwargs: Any) -> str:
