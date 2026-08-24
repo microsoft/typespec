@@ -284,7 +284,7 @@ describe.each(versions)("convertOpenAPI3Document v%s", (version) => {
       "Expected default response model to be marked as an error: " + tsp,
     );
     strictEqual(
-      tsp.includes('@header contentType: "application/xml";'),
+      tsp.includes('@header("Content-Type") contentType: "application/xml";'),
       true,
       "Expected component response models to retain the content type: " + tsp,
     );

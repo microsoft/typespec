@@ -415,7 +415,7 @@ function getResponseProperties(
   if (preferredContent && preferredContent[0] !== "application/json") {
     properties.push({
       name: "contentType",
-      decorators: [{ name: "header", args: [] }],
+      decorators: [{ name: "header", args: ["Content-Type"] }],
       isOptional: false,
       schema: { type: "string", enum: [preferredContent[0]] },
     });
