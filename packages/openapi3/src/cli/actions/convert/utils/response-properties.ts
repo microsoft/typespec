@@ -4,7 +4,9 @@ import type { Context } from "./context.js";
 import { convertHeaderName } from "./convert-header-name.js";
 import { getDecoratorsForSchema } from "./decorators.js";
 
-export type StatusCodes = string | "1XX" | "2XX" | "3XX" | "4XX" | "5XX" | "default";
+export type LiteralStatusCode = `${number}`;
+export type WildcardStatusCode = "1XX" | "2XX" | "3XX" | "4XX" | "5XX";
+export type StatusCodes = LiteralStatusCode | WildcardStatusCode | "default";
 
 export function isValidLiteralStatusCode(statusCode: StatusCodes): boolean {
   if (statusCode === "default" || statusCode.endsWith("X")) return false;
