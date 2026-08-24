@@ -274,7 +274,7 @@ describe.each(versions)("convertOpenAPI3Document v%s", (version) => {
       "Expected literal response to use a generated component response model: " + tsp,
     );
     strictEqual(
-      tsp.includes("@statusCode\n    @minValue(400)\n    @maxValue(499)"),
+      /@statusCode\s+@minValue\(400\)\s+@maxValue\(499\)/.test(tsp),
       true,
       "Expected range model to retain its status code: " + tsp,
     );
