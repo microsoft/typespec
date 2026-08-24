@@ -289,11 +289,13 @@ namespace Microsoft.TypeSpec.Generator
             restore.StartInfo = info;
             if (restore.Start())
             {
+                Task<string> outputTask = restore.StandardOutput.ReadToEndAsync();
+                Task<string> errorTask = restore.StandardError.ReadToEndAsync();
                 await restore.WaitForExitAsync();
+                string output = await outputTask;
+                string error = await errorTask;
                 if (restore.ExitCode != 0)
                 {
-                    string output = await restore.StandardOutput.ReadToEndAsync();
-                    string error = await restore.StandardError.ReadToEndAsync();
                     CodeModelGenerator.Instance.Emitter.Debug(
                         $"The dotnet restore {projectFilePath} command exited with {restore.ExitCode}.]\n" +
                         $"Standard output: {output}\n" +
@@ -339,25 +341,8 @@ namespace Microsoft.TypeSpec.Generator
                 // If not found in cache, download the latest version from NuGet feeds
                 if (resolvedAssemblyPath == null)
                 {
-                    try
-                    {
-                        var latestVersion = await NugetPackageResolver.ResolveLatestPackageVersion(refPackageName, nugetSettings);
-                        if (latestVersion != null)
-                        {
-                            var downloader = new NugetPackageDownloader(refPackageName, latestVersion, null, nugetSettings);
-                            var downloadedPath = await downloader.DownloadAndInstallPackage();
-                            var downloadedAssembly = Path.Combine(downloadedPath, $"{refPackageName}.dll");
-                            if (File.Exists(downloadedAssembly))
-                            {
-                                resolvedAssemblyPath = downloadedAssembly;
-                            }
-                        }
-                    }
-                    catch (Exception ex)
-                    {
-                        CodeModelGenerator.Instance.Emitter.Debug(
-                            $"Could not download package {refPackageName}: {ex.Message}");
-                    }
+                    CodeModelGenerator.Instance.Emitter.Debug(
+                        $"The package {refPackageName} was not restored.");
                 }
 
                 if (resolvedAssemblyPath != null)
