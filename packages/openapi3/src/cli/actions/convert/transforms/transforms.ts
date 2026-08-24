@@ -357,9 +357,9 @@ export function transformComponentResponses(
         namespace.unshift("Responses");
         const nameSuffix = statusCode === "default" ? "Default" : statusCode;
         let componentResponseName = name;
-        let index = 1;
+        let index = 0;
         while (componentResponseNames.has([...namespace, componentResponseName].join("."))) {
-          componentResponseName = `${name}${nameSuffix}${index === 1 ? "" : index}`;
+          componentResponseName = `${name}${nameSuffix}${index || ""}`;
           index++;
         }
         componentResponseNames.add([...namespace, componentResponseName].join("."));
