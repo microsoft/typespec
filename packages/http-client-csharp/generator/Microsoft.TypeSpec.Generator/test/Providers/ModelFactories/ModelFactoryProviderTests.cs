@@ -621,6 +621,31 @@ namespace Microsoft.TypeSpec.Generator.Tests.Providers.ModelFactories
             Assert.AreEqual("previousDictProp", docParams[3].Parameter.Name);
         }
 
+        [Test]
+        public async Task BackCompatibility_ModelFactoryParameterPreservesDateTimeSuffix()
+        {
+            var dateTime = new InputDateTimeType(
+                DateTimeKnownEncoding.Rfc3339,
+                "utcDateTime",
+                "TypeSpec.utcDateTime",
+                InputPrimitiveType.String);
+            var model = InputFactory.Model(
+                "DateTimeModel",
+                properties: [InputFactory.Property("StartTime", dateTime, isRequired: true)]);
+
+            _instance = (await MockHelpers.LoadMockGeneratorAsync(
+                inputNamespaceName: "Sample.Namespace",
+                inputModelTypes: [model],
+                lastContractCompilation: async () => await Helpers.GetCompilationFromDirectoryAsync())).Object;
+
+            var modelFactory = _instance.OutputLibrary.ModelFactory.Value;
+            modelFactory.ProcessTypeForBackCompatibility();
+
+            var method = modelFactory.Methods.Single(m => m.Signature.Name == "DateTimeModel");
+            Assert.AreEqual("startTime", method.Signature.Parameters.Single().Name);
+            StringAssert.Contains("DateTimeModel(startTime", method.BodyStatements!.ToDisplayString());
+        }
+
         // Validates that when a new property is added AND the previous contract used different
         // names for some of the surviving parameters, the rename-only fast path does NOT apply
         // (parameter counts differ). Instead the standard "new property added" backcompat overload
@@ -682,6 +707,62 @@ namespace Microsoft.TypeSpec.Generator.Tests.Providers.ModelFactories
             var bodyString = body!.ToDisplayString();
             StringAssert.Contains("listProp ??= new global::Sample.Namespace.ChangeTrackingList<string>();", bodyString);
             StringAssert.Contains("return new global::Sample.Models.PublicModel1(default, default, listProp.ToList(), default, additionalBinaryDataProperties: null);", bodyString);
+        }
+
+        [Test]
+        public void NewAcronymParameterNameIsNormalized()
+        {
+            var model = InputFactory.Model(
+                "AggregateRouteConfiguration",
+                properties:
+                [
+                    InputFactory.Property("Ipv4Routes", InputFactory.Array(InputPrimitiveType.String)),
+                ]);
+
+            _instance = MockHelpers.LoadMockGenerator(
+                inputNamespaceName: "Sample.Namespace",
+                inputModelTypes: [model]).Object;
+
+            var modelFactory = _instance.OutputLibrary.ModelFactory.Value;
+            var method = modelFactory.Methods.Single(m =>
+                m.Signature.Name == "AggregateRouteConfiguration");
+
+            Assert.That(
+                method.Signature.Parameters.Select(p => p.Name),
+                Is.EqualTo(new[] { "ipv4Routes" }));
+        }
+
+        [Test]
+        public async Task BackCompatibility_AcronymParameterNameIsPreservedAlongsideNormalizedCurrentMethod()
+        {
+            var model = InputFactory.Model(
+                "AggregateRouteConfiguration",
+                properties:
+                [
+                    InputFactory.Property("Ipv4Routes", InputFactory.Array(InputPrimitiveType.String)),
+                    InputFactory.Property("NewProperty", InputPrimitiveType.String),
+                ]);
+
+            _instance = (await MockHelpers.LoadMockGeneratorAsync(
+                inputNamespaceName: "Sample.Namespace",
+                inputModelTypes: [model],
+                lastContractCompilation: async () => await Helpers.GetCompilationFromDirectoryAsync(
+                    method: "BackCompatibility_AcronymParameterNameIsPreservedInForwardingCall"))).Object;
+
+            var modelFactory = _instance.OutputLibrary.ModelFactory.Value;
+            modelFactory.ProcessTypeForBackCompatibility();
+
+            var currentMethod = modelFactory.Methods.Single(m =>
+                m.Signature.Name == "AggregateRouteConfiguration"
+                && m.Signature.Parameters.Count == 2);
+            var backCompatMethod = modelFactory.Methods.Single(m =>
+                m.Signature.Name == "AggregateRouteConfiguration"
+                && m.Signature.Parameters.Count == 1);
+
+            Assert.AreEqual("ipv4Routes", currentMethod.Signature.Parameters[0].Name);
+            Assert.AreEqual("iPv4Routes", backCompatMethod.Signature.Parameters[0].Name);
+            Assert.That(backCompatMethod.BodyStatements!.ToDisplayString(), Does.Contain("iPv4Routes"));
+            Assert.That(backCompatMethod.BodyStatements!.ToDisplayString(), Does.Not.Contain("ipv4Routes"));
         }
 
         [Test]

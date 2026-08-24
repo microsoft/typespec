@@ -7,6 +7,7 @@ using System.ComponentModel;
 using System.Linq;
 using Microsoft.TypeSpec.Generator.EmitterRpc;
 using Microsoft.TypeSpec.Generator.Expressions;
+using Microsoft.TypeSpec.Generator.Input;
 using Microsoft.TypeSpec.Generator.Input.Extensions;
 using Microsoft.TypeSpec.Generator.Primitives;
 using Microsoft.TypeSpec.Generator.Providers;
@@ -189,13 +190,9 @@ namespace Microsoft.TypeSpec.Generator.Utilities
                     string? preservedName = null;
 
                     var inputParameter = parameter.InputParameter;
-                    if (inputParameter is not null && string.Equals(parameter.Name, inputParameter.Name, StringComparison.Ordinal))
+                    if (inputParameter is not null && !parameter.IsContentParameter)
                     {
-                        var originalName = inputParameter.OriginalName;
-                        if (!string.IsNullOrEmpty(originalName))
-                        {
-                            preservedName = FindPreviousParameterName(lastContractView, originalName, method.Signature.Name);
-                        }
+                        preservedName = FindPreviousParameterName(lastContractView, inputParameter.OriginalName, method.Signature.Name);
                     }
 
                     // Fall back to a positional match for synthesized parameters
@@ -676,7 +673,8 @@ namespace Microsoft.TypeSpec.Generator.Utilities
             }
             else
             {
-                arguments.Add(PositionalReference(currentParam.Name.ToVariableName(), value));
+                var argumentName = currentParam.AsVariable().Declaration.RequestedName;
+                arguments.Add(PositionalReference(argumentName, value));
             }
         }
 

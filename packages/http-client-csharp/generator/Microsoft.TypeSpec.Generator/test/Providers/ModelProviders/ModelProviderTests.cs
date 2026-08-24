@@ -11,6 +11,7 @@ using System.Threading.Tasks;
 using Microsoft.TypeSpec.Generator.Input;
 using Microsoft.TypeSpec.Generator.Primitives;
 using Microsoft.TypeSpec.Generator.Providers;
+using Microsoft.TypeSpec.Generator.Snippets;
 using Microsoft.TypeSpec.Generator.Statements;
 using Microsoft.TypeSpec.Generator.Tests.Common;
 using Microsoft.TypeSpec.Generator.Utilities;
@@ -2357,6 +2358,76 @@ namespace Microsoft.TypeSpec.Generator.Tests.Providers.ModelProviders
             Assert.AreEqual(1, newerSerializationProviders.Count);
         }
 
+        // BuildConstructors returns the cached FullConstructor instance, so invalidating the constructor
+        // list on an identity change without invalidating FullConstructor left the stale instance in the
+        // rebuilt list. Derived generators mutate the constructors they get back from BuildConstructors,
+        // and reusing the same instance caused those mutations to be applied more than once.
+        [Test]
+        public void TestUpdate_ResetsFullConstructor()
+        {
+            MockHelpers.LoadMockGenerator();
+            var inputModel = InputFactory.Model("TestModel", properties: [InputFactory.Property("prop1", InputPrimitiveType.String)]);
+            var modelProvider = new ModelProvider(inputModel);
+
+            var fullConstructor = modelProvider.FullConstructor;
+            Assert.IsTrue(modelProvider.Constructors.Contains(fullConstructor));
+
+            // Change name
+            modelProvider.Update(name: "NewName");
+            var newFullConstructor = modelProvider.FullConstructor;
+            Assert.AreNotSame(fullConstructor, newFullConstructor);
+            // The rebuilt constructor list must contain the rebuilt full constructor, not the stale one
+            Assert.IsTrue(modelProvider.Constructors.Contains(newFullConstructor));
+            Assert.IsFalse(modelProvider.Constructors.Contains(fullConstructor));
+
+            // Change namespace
+            modelProvider.Update(@namespace: "NewNamespace");
+            var newerFullConstructor = modelProvider.FullConstructor;
+            Assert.AreNotSame(newFullConstructor, newerFullConstructor);
+            Assert.IsTrue(modelProvider.Constructors.Contains(newerFullConstructor));
+        }
+
+        // Regression coverage for the duplication that the stale FullConstructor caused: a generator that
+        // adds a suppression to the full constructor every time it builds the constructor list must not see
+        // its additions accumulate when an identity change triggers a rebuild.
+        [Test]
+        public void TestUpdate_DoesNotReapplyConstructorMutationsAfterIdentityChange()
+        {
+            MockHelpers.LoadMockGenerator();
+            var inputModel = InputFactory.Model("TestModel", properties: [InputFactory.Property("prop1", InputPrimitiveType.String)]);
+            var modelProvider = new MutatingModelProvider(inputModel);
+
+            _ = modelProvider.Constructors;
+            Assert.AreEqual(1, modelProvider.FullConstructor.Suppressions.Count);
+
+            modelProvider.Update(name: "NewName");
+            _ = modelProvider.Constructors;
+
+            Assert.AreEqual(1, modelProvider.FullConstructor.Suppressions.Count);
+        }
+
+        // Mimics how ScmModelProvider post-processes the constructors returned from the base implementation.
+        private class MutatingModelProvider : ModelProvider
+        {
+            public MutatingModelProvider(InputModelType inputModel) : base(inputModel)
+            {
+            }
+
+            protected internal override ConstructorProvider[] BuildConstructors()
+            {
+                var constructors = base.BuildConstructors();
+                foreach (var constructor in constructors)
+                {
+                    if (ReferenceEquals(constructor, FullConstructor))
+                    {
+                        var suppression = new SuppressionStatement(null, Snippet.Literal("TEST0001"), "Test suppression.");
+                        constructor.Update(suppressions: [suppression, .. constructor.Suppressions]);
+                    }
+                }
+                return constructors;
+            }
+        }
+
         private class TestModelProvider : ModelProvider
         {
             private readonly string? _name;
@@ -2483,6 +2554,32 @@ namespace Microsoft.TypeSpec.Generator.Tests.Providers.ModelProviders
 
             var content = new TypeProviderWriter(modelProvider).Write().Content;
             Assert.AreEqual(Helpers.GetExpectedFromFile(), content);
+        }
+
+        [Test]
+        public async Task BackCompat_ConstructorAcronymParameterNameIsPreserved()
+        {
+            var inputModel = InputFactory.Model(
+                "MockInputModel",
+                usage: InputModelTypeUsage.Input,
+                properties:
+                [
+                    InputFactory.Property("ipv4Address", InputPrimitiveType.String, isRequired: true),
+                ]);
+
+            await MockHelpers.LoadMockGeneratorAsync(
+                inputModelTypes: [inputModel],
+                lastContractCompilation: async () => await Helpers.GetCompilationFromDirectoryAsync());
+
+            var modelProvider = CodeModelGenerator.Instance.OutputLibrary.TypeProviders
+                .OfType<ModelProvider>()
+                .Single(t => t.Name == "MockInputModel");
+
+            modelProvider.ProcessTypeForBackCompatibility();
+
+            var constructor = modelProvider.Constructors.Single(c =>
+                c.Signature.Modifiers.HasFlag(MethodSignatureModifiers.Public));
+            Assert.That(constructor.Signature.Parameters.Select(p => p.Name), Is.EqualTo(new[] { "iPv4Address" }));
         }
 
         [Test]
@@ -2772,6 +2869,58 @@ namespace Microsoft.TypeSpec.Generator.Tests.Providers.ModelProviders
                 c.Signature.Modifiers.HasFlag(MethodSignatureModifiers.Public)
                 && c.Signature.Parameters.Count == 2);
             Assert.IsNull(twoParamPublicCtor, "The constructor should not be restored when a property was removed");
+
+            var writer = new TypeProviderWriter(modelProvider);
+            var file = writer.Write();
+            Assert.AreEqual(Helpers.GetExpectedFromFile(), file.Content);
+        }
+
+        [Test]
+        public void ConstructorParameterNormalizesDateTimeSuffix()
+        {
+            var dateTime = new InputDateTimeType(
+                DateTimeKnownEncoding.Rfc3339,
+                "utcDateTime",
+                "TypeSpec.utcDateTime",
+                InputPrimitiveType.String);
+            var inputModel = InputFactory.Model(
+                "DateTimeModel",
+                usage: InputModelTypeUsage.Input,
+                properties: [InputFactory.Property("StartTime", dateTime, isRequired: true)]);
+
+            MockHelpers.LoadMockGenerator(inputModelTypes: [inputModel]);
+
+            var modelProvider = CodeModelGenerator.Instance.OutputLibrary.TypeProviders.OfType<ModelProvider>().Single();
+            var constructor = modelProvider.Constructors.Single(c => c.Signature.Modifiers.HasFlag(MethodSignatureModifiers.Public));
+            Assert.AreEqual("startOn", constructor.Signature.Parameters.Single().Name);
+
+            var writer = new TypeProviderWriter(modelProvider);
+            var file = writer.Write();
+            Assert.AreEqual(Helpers.GetExpectedFromFile(), file.Content);
+        }
+
+        [Test]
+        public async Task BackCompat_ConstructorParameterPreservesDateTimeSuffix()
+        {
+            var dateTime = new InputDateTimeType(
+                DateTimeKnownEncoding.Rfc3339,
+                "utcDateTime",
+                "TypeSpec.utcDateTime",
+                InputPrimitiveType.String);
+            var inputModel = InputFactory.Model(
+                "DateTimeModel",
+                usage: InputModelTypeUsage.Input,
+                properties: [InputFactory.Property("StartTime", dateTime, isRequired: true)]);
+
+            await MockHelpers.LoadMockGeneratorAsync(
+                inputModelTypes: [inputModel],
+                lastContractCompilation: async () => await Helpers.GetCompilationFromDirectoryAsync());
+
+            var modelProvider = CodeModelGenerator.Instance.OutputLibrary.TypeProviders.OfType<ModelProvider>().Single();
+            modelProvider.ProcessTypeForBackCompatibility();
+
+            var constructor = modelProvider.Constructors.Single(c => c.Signature.Modifiers.HasFlag(MethodSignatureModifiers.Public));
+            Assert.AreEqual("startTime", constructor.Signature.Parameters.Single().Name);
 
             var writer = new TypeProviderWriter(modelProvider);
             var file = writer.Write();
