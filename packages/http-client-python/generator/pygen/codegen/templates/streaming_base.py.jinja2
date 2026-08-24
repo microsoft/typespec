@@ -2,7 +2,7 @@
 {% if code_model.license_header %}
 {{ code_model.license_header }}
 {% endif %}
-# pylint: disable=line-too-long,useless-suppression,unnecessary-ellipsis
+# pylint: disable=line-too-long,useless-suppression,unnecessary-ellipsis,do-not-import-asyncio
 # --------------------------------------------------------------------------
 # This file is vendored from the core streaming runtime
 # ({{ code_model.core_library }}.streaming). It provides the Stream / AsyncStream
@@ -562,6 +562,11 @@ class Stream(Iterator[ReturnType_co]):
         the stream. Unlike ``terminal_event``, such an event carries a payload: it is passed to
         ``deserialization_callback`` and yielded, and iteration stops immediately afterwards.
     :paramtype terminal_event_names: ~typing.Sequence[str] or None
+    :keyword reconnect_callback: Optional callback used to re-establish the underlying response
+        when the stream disconnects before a terminal event is seen and the server has provided
+        an SSE ``retry`` value. It is called with the last-seen SSE event ID (or ``None``) and
+        must return a new response to resume iterating from.
+    :paramtype reconnect_callback: Callable[[str or None], ~{{ code_model.core_library }}.rest.HttpResponse] or None
     """
 
     def __init__(
@@ -608,10 +613,12 @@ class Stream(Iterator[ReturnType_co]):
         try:
             while True:
                 for event in self._decoder.iter_events(self._response.iter_bytes()):
-                    if isinstance(event, ServerSentEvent):
-                        self._last_event_id = event.id
-                        if event.retry is not None:
-                            self._retry = event.retry
+                    event_id = getattr(event, "id", None)
+                    if event_id is not None:
+                        self._last_event_id = event_id
+                    event_retry = getattr(event, "retry", None)
+                    if event_retry is not None:
+                        self._retry = event_retry
                     if self._terminal_event is not None and getattr(event, "data", None) == self._terminal_event:
                         terminal = True
                         break
@@ -666,6 +673,11 @@ class AsyncStream(AsyncIterator[ReturnType_co]):
         the stream. Unlike ``terminal_event``, such an event carries a payload: it is passed to
         ``deserialization_callback`` and yielded, and iteration stops immediately afterwards.
     :paramtype terminal_event_names: ~typing.Sequence[str] or None
+    :keyword reconnect_callback: Optional callback used to re-establish the underlying response
+        when the stream disconnects before a terminal event is seen and the server has provided
+        an SSE ``retry`` value. It is called with the last-seen SSE event ID (or ``None``) and
+        must return (or resolve to) a new response to resume iterating from.
+    :paramtype reconnect_callback: Callable[[str or None], Any] or None
     """
 
     def __init__(
@@ -716,10 +728,12 @@ class AsyncStream(AsyncIterator[ReturnType_co]):
                 events = self._decoder.aiter_events(self._response.iter_bytes())
                 try:
                     async for event in events:
-                        if isinstance(event, ServerSentEvent):
-                            self._last_event_id = event.id
-                            if event.retry is not None:
-                                self._retry = event.retry
+                        event_id = getattr(event, "id", None)
+                        if event_id is not None:
+                            self._last_event_id = event_id
+                        event_retry = getattr(event, "retry", None)
+                        if event_retry is not None:
+                            self._retry = event_retry
                         if self._terminal_event is not None and getattr(event, "data", None) == self._terminal_event:
                             terminal = True
                             break
