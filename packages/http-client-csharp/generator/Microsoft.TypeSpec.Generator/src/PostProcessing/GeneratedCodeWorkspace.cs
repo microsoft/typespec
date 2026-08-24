@@ -297,7 +297,7 @@ namespace Microsoft.TypeSpec.Generator
                 if (restore.ExitCode != 0)
                 {
                     CodeModelGenerator.Instance.Emitter.Debug(
-                        $"The dotnet restore {projectFilePath} command exited with {restore.ExitCode}.]\n" +
+                        $"The dotnet restore {projectFilePath} command exited with {restore.ExitCode}.\n" +
                         $"Standard output: {output}\n" +
                         $"Error output: {error}"
                         );
@@ -306,7 +306,7 @@ namespace Microsoft.TypeSpec.Generator
             else
             {
                 CodeModelGenerator.Instance.Emitter.Debug(
-                            $"Unable to run dotnet restore on the project {projectFilePath}");
+                    $"Unable to run dotnet restore on the project {projectFilePath}");
             }
             var projectRoot = ProjectRootElement.Open(projectFilePath, new MSBuildProjectCollection());
             var nugetSettings = Settings.LoadDefaultSettings(projectFilePath);
