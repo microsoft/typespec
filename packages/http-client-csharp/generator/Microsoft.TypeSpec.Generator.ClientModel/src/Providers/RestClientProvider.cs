@@ -259,20 +259,34 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
             var operation = serviceMethod.Operation;
             var classifier = GetClassifier(operation);
 
-            var paramMap = signature.Parameters.ToDictionary(p => p.Name, StringComparer.OrdinalIgnoreCase);
-            foreach (var param in ClientProvider.ClientParameters)
+            var parameters = signature.Parameters.Concat(ClientProvider.ClientParameters).ToArray();
+            var paramMap = new Dictionary<string, ParameterProvider>(StringComparer.OrdinalIgnoreCase);
+            foreach (var parameter in parameters)
             {
-                paramMap[param.Name] = param;
+                paramMap[parameter.Name] = parameter;
             }
 
-            // Register client parameters under their paramAlias names so that operation parameters
-            // (which use the original name) can find the corresponding client parameter.
-            foreach (var inputParam in _inputClient.Parameters)
+            foreach (var parameter in parameters)
             {
-                if (inputParam is InputMethodParameter { ParamAlias: string alias } &&
-                    paramMap.TryGetValue(inputParam.Name, out var aliasedParam))
+                if (parameter.InputParameter is not { } inputParameter)
                 {
-                    paramMap[alias] = aliasedParam;
+                    continue;
+                }
+
+                paramMap.TryAdd(inputParameter.Name, parameter);
+                paramMap.TryAdd(inputParameter.OriginalName, parameter);
+                if (inputParameter is InputMethodParameter { ParamAlias: string alias })
+                {
+                    paramMap.TryAdd(alias, parameter);
+                }
+            }
+
+            foreach (var inputParameter in _inputClient.Parameters)
+            {
+                if (inputParameter is InputMethodParameter { ParamAlias: string alias } &&
+                    paramMap.TryGetValue(inputParameter.Name, out var parameter))
+                {
+                    paramMap[alias] = parameter;
                 }
             }
 

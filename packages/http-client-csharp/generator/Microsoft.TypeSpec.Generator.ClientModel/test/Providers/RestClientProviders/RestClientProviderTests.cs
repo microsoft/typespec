@@ -1786,6 +1786,50 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers.RestClientPro
                     ScmCodeModelGenerator.Instance.PipelineRequestHeadersExtensionsDefinition.Type));
         }
 
+        [Test]
+        public void NormalizedDateParameterIsSerializedInCreateRequestMethod()
+        {
+            var dateType = new InputDateTimeType(
+                DateTimeKnownEncoding.Rfc7231,
+                "utcDateTime",
+                "TypeSpec.utcDateTime",
+                InputPrimitiveType.String);
+            var operation = InputFactory.Operation(
+                "GetThing",
+                parameters:
+                [
+                    InputFactory.HeaderParameter(
+                        "requestDate",
+                        dateType,
+                        isRequired: true,
+                        serializedName: "ocp-date")
+                ]);
+            var serviceMethod = InputFactory.BasicServiceMethod(
+                "GetThing",
+                operation,
+                parameters:
+                [
+                    InputFactory.MethodParameter(
+                        "requestDate",
+                        dateType,
+                        isRequired: true,
+                        serializedName: "ocp-date",
+                        location: InputRequestLocation.Header)
+                ]);
+            var client = InputFactory.Client("TestClient", methods: [serviceMethod]);
+            var restClient = new ClientProvider(client).RestClient;
+
+            var createRequestMethod = restClient.Methods.Single(m =>
+                m.Signature.Name == "CreateGetThingRequest");
+            Assert.That(createRequestMethod.Signature.Parameters, Has.Some.Property("Name").EqualTo("requestOn"));
+
+            var file = new TypeProviderWriter(restClient).Write();
+            Assert.That(
+                file.Content,
+                Does.Contain(
+                    "request.Headers.Set(\"ocp-date\", global::Sample.TypeFormatters.ConvertToString(requestOn, global::Sample.SerializationFormat.DateTime_RFC7231));"));
+        }
+
 
         private static void ValidateResponseClassifier(MethodBodyStatements bodyStatements, string parsedStatusCodes)
         {
