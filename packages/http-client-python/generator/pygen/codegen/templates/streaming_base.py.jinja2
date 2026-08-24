@@ -627,9 +627,9 @@ class Stream(Iterator[ReturnType_co]):
                     if self._terminal_event_names and getattr(event, "event", None) in self._terminal_event_names:
                         terminal = True
                         break
-                self._response.close()
                 if terminal or self._reconnect_callback is None or self._retry is None:
                     break
+                self._response.close()
                 time.sleep(self._retry / 1000)
                 self._response = self._reconnect_callback(self._last_event_id)
                 self._decoder = type(self._decoder)()
