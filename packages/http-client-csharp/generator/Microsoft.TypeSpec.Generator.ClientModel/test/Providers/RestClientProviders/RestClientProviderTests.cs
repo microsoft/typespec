@@ -1164,6 +1164,37 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers.RestClientPro
             Assert.AreEqual(Helpers.GetExpectedFromFile(), file.Content);
         }
 
+        [TestCase(true)]
+        [TestCase(false)]
+        public void NullableDatePathParameterIsGuardedBeforeFormatting(bool isRequired)
+        {
+            var dateType = new InputDateTimeType(
+                DateTimeKnownEncoding.Rfc7231,
+                "utcDateTime",
+                "TypeSpec.utcDateTime",
+                InputPrimitiveType.String);
+            var operation = InputFactory.Operation(
+                "GetThing",
+                parameters: [InputFactory.PathParameter("requestOn", dateType, isRequired: isRequired)],
+                path: "/things/{requestOn}");
+            var serviceMethod = InputFactory.BasicServiceMethod(
+                "GetThing",
+                operation,
+                parameters:
+                [
+                    InputFactory.MethodParameter(
+                        "requestOn",
+                        dateType,
+                        isRequired: isRequired,
+                        location: InputRequestLocation.Path)
+                ]);
+            var client = InputFactory.Client("TestClient", methods: [serviceMethod]);
+            var restClient = new ClientProvider(client).RestClient;
+
+            var file = new TypeProviderWriter(restClient).Write();
+            Assert.AreEqual(Helpers.GetExpectedFromFile(parameters: isRequired.ToString()), file.Content);
+        }
+
         // An optional trailing path parameter must not emit a dangling separator when null.
         // e.g. "/certificates/{certificateName}/{certificateVersion}" with a null version
         // should produce "/certificates/{name}", not "/certificates/{name}/".

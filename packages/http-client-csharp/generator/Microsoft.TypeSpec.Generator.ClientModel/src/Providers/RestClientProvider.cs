@@ -942,6 +942,11 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
                 }
                 else
                 {
+                    var nullCheckExpression = valueExpression;
+                    if (type is { IsNullable: true, IsValueType: true })
+                    {
+                        valueExpression = valueExpression.Property(nameof(Nullable<int>.Value));
+                    }
                     valueExpression = type?.Equals(typeof(string)) == true
                         ? valueExpression
                         : valueExpression.Invoke(nameof(ToString), toStringParams);
@@ -954,7 +959,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
                             : [uri.AppendPath(valueExpression, escape).Terminate()];
                         statement = BuildQueryOrHeaderOrPathParameterNullCheck(
                             type,
-                            valueExpression,
+                            nullCheckExpression,
                             appendPathStatements);
                     }
                     else
