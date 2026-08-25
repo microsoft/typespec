@@ -48,11 +48,12 @@ type EmittedType = ReturnType<typeof getType>;
 interface StructuredStreamEvent {
   eventType: string | undefined;
   /**
-   * Payload type for this one SSE event. Together with {@link eventType} these form the
+   * Payload type for this one SSE event. For an event envelope, this is the type of the property
+   * marked `@Events.data`. Together with {@link eventType} these form the
    * runtime dispatch table (wire event name -> model to deserialize) inside the generated
    * `_callback`. This is a narrower type than {@link StructuredStreamingInfo.itemType}.
    */
-  itemType: EmittedType;
+  payloadType: EmittedType;
   /**
    * True when this event is a `@terminalEvent` that carries a payload (a named / model event,
    * not a bare string-constant sentinel). Such events are deserialized and yielded like any
@@ -60,7 +61,7 @@ interface StructuredStreamEvent {
    * {@link StructuredStreamingInfo.terminalEvent}, the sentinel that stops without yielding.
    */
   isTerminal?: boolean;
-  isEventEnvelope?: boolean;
+  /** Content type of the payload, not the enclosing event. */
   payloadContentType?: string;
 }
 
@@ -71,7 +72,7 @@ interface StructuredStreamingInfo {
    * annotation (a single type expression). For homogeneous JSONL this is the one model; for
    * heterogeneous SSE this is the union of every event payload.
    *
-   * Note the deliberate overlap with the per-event {@link StructuredStreamEvent.itemType}: for
+   * Note the deliberate overlap with the per-event {@link StructuredStreamEvent.payloadType}: for
    * heterogeneous SSE this union is exactly the sum of the `events[]` payload types. Both are
    * carried because the union alone cannot recover the wire-name -> member mapping needed for
    * dispatch, and the events list alone is not a single valid type expression for the annotation.
@@ -124,7 +125,6 @@ interface SseEventLike {
   isTerminalEvent: boolean;
   type: SdkType;
   payloadType: SdkType;
-  isEventEnvelope?: boolean;
   payloadContentType?: string;
 }
 
@@ -138,12 +138,12 @@ interface SseEventLike {
  *     needs, so it is deserialized and yielded like any other event, then iteration stops. Returned
  *     in `events` with `isTerminal: true`.
  *
- * `toItemType` maps an event payload to its emitted type; it is injected so this partitioning stays
+ * `toPayloadType` maps event payloads to emitted types; it is injected so this partitioning stays
  * a pure function that can be unit-tested without a full emitter context.
  */
 export function partitionSseEvents(
   events: readonly SseEventLike[],
-  toItemType: (payloadType: SdkType) => EmittedType,
+  toPayloadType: (type: SdkType) => EmittedType,
 ): { events: StructuredStreamEvent[]; terminalEvent?: string } {
   const dispatch: StructuredStreamEvent[] = [];
   let terminalEvent: string | undefined;
@@ -160,17 +160,15 @@ export function partitionSseEvents(
       }
       dispatch.push({
         eventType: event.eventType,
-        itemType: toItemType(event.payloadType),
+        payloadType: toPayloadType(event.payloadType),
         isTerminal: true,
-        isEventEnvelope: event.isEventEnvelope,
         payloadContentType: event.payloadContentType,
       });
       continue;
     }
     dispatch.push({
       eventType: event.eventType,
-      itemType: toItemType(event.payloadType),
-      isEventEnvelope: event.isEventEnvelope,
+      payloadType: toPayloadType(event.payloadType),
       payloadContentType: event.payloadContentType,
     });
   }
@@ -195,8 +193,8 @@ function emitStructuredStreamingInfo(
   const sseMetadata = response.sseMetadata;
   if (!sseMetadata) return streaming;
 
-  const { events, terminalEvent } = partitionSseEvents(sseMetadata.events, (payloadType) =>
-    getType(context, payloadType),
+  const { events, terminalEvent } = partitionSseEvents(sseMetadata.events, (type) =>
+    getType(context, type),
   );
   if (events.length > 0) streaming.events = events;
   if (terminalEvent !== undefined) streaming.terminalEvent = terminalEvent;

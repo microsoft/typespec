@@ -100,10 +100,14 @@ def test_protocol_invalid_retry(client: SseClient):
 def test_protocol_reconnect(client: SseClient):
     with client.protocol.reconnect() as stream:
         first = next(stream)
-        second = next(stream)
         assert isinstance(first, ProtocolInfo)
+        assert first.message == "hello"
+        assert stream.last_event_id == "event-1"
+
+    with client.protocol.reconnect(last_event_id="event-1") as stream:
+        second = next(stream)
         assert isinstance(second, ProtocolInfo)
-        assert [first.message, second.message] == ["hello", "world"]
+        assert second.message == "world"
         assert stream.last_event_id == "event-2"
 
 
@@ -181,6 +185,35 @@ def test_named_terminal_event_first_stops_immediately():
     assert response.closed
 
 
+def test_unnamed_terminal_event_yields_then_stops():
+    body = b'data: {"status": "done"}\n\n' b'data: {"status": "AFTER-TERMINAL"}\n\n'
+    response = _FakeResponse(body)
+    stream = Stream(
+        response=response,
+        deserialization_callback=_event_kind,
+        terminal_event_names=["message"],
+    )
+
+    assert list(stream) == [("message", {"status": "done"})]
+    assert response.closed
+
+
+def test_unnamed_terminal_predicate_preserves_service_event_type():
+    body = b'data: {"kind": "progress"}\n\n' b'data: {"kind": "complete"}\n\n' b'data: {"kind": "after"}\n\n'
+    response = _FakeResponse(body)
+    stream = Stream(
+        response=response,
+        deserialization_callback=_event_kind,
+        terminal_event_predicate=lambda event: json.loads(event.data).get("kind") == "complete",
+    )
+
+    assert list(stream) == [
+        ("message", {"kind": "progress"}),
+        ("message", {"kind": "complete"}),
+    ]
+    assert response.closed
+
+
 def test_sentinel_and_named_terminal_coexist():
     body = (
         b'event: response.delta\ndata: {"delta": "a"}\n\n'
@@ -200,7 +233,7 @@ def test_sentinel_and_named_terminal_coexist():
     assert response.closed
 
 
-def test_sse_protocol_metadata_is_available_for_reconnect():
+def test_sse_protocol_metadata_is_available():
     body = b'id: event-1\nretry: 1000\nevent: message\ndata: {"message": "hello"}\n\n'
     response = _FakeResponse(body)
     stream = Stream(response=response, deserialization_callback=lambda _response, event: event.data)
@@ -218,38 +251,3 @@ def test_sse_protocol_invalid_metadata_is_ignored():
     assert list(stream) == ["hello"]
     assert stream.last_event_id == ""
     assert stream.retry is None
-
-
-def test_sse_reconnects_on_eof_using_latest_metadata():
-    responses = [
-        _FakeResponse(b"id: first\nretry: 0\ndata: one\n\n"),
-        _FakeResponse(b"id: second\ndata: two\n\ndata: [DONE]\n\n"),
-    ]
-    reconnect_ids = []
-
-    def reconnect(last_event_id):
-        reconnect_ids.append(last_event_id)
-        return responses.pop(0)
-
-    stream = Stream(
-        response=responses.pop(0),
-        deserialization_callback=lambda _response, event: event.data,
-        terminal_event="[DONE]",
-        reconnect_callback=reconnect,
-    )
-
-    assert list(stream) == ["one", "two"]
-    assert reconnect_ids == ["first"]
-    assert stream.last_event_id == "second"
-
-
-def test_sse_does_not_reconnect_after_terminal():
-    response = _FakeResponse(b"retry: 0\ndata: one\n\ndata: [DONE]\n\n")
-    reconnect = lambda _last_event_id: pytest.fail("unexpected reconnect")
-    stream = Stream(
-        response=response,
-        deserialization_callback=lambda _response, event: event.data,
-        terminal_event="[DONE]",
-        reconnect_callback=reconnect,
-    )
-    assert list(stream) == ["one"]

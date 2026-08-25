@@ -3,6 +3,7 @@
 # Licensed under the MIT License. See License.txt in the project root for
 # license information.
 # --------------------------------------------------------------------------
+from dataclasses import dataclass
 from typing import Optional, Any, TYPE_CHECKING, Union
 
 from .base import BaseModel
@@ -16,6 +17,53 @@ from .combined_type import CombinedType
 
 if TYPE_CHECKING:
     from .code_model import CodeModel
+
+DEFAULT_SSE_EVENT_TYPE = "message"
+
+
+@dataclass(frozen=True)
+class StreamingEvent:
+    event_type: Optional[str]
+    payload_type: BaseType
+    payload_content_type: Optional[str]
+    is_terminal: bool
+
+
+def get_streaming_event_discriminator(
+    events: list[StreamingEvent],
+) -> Optional[tuple[str, list[tuple[str, StreamingEvent]]]]:
+    discriminator_name: Optional[str] = None
+    variants: list[tuple[str, StreamingEvent]] = []
+    values: set[str] = set()
+    for event in events:
+        discriminator_property = getattr(event.payload_type, "discriminator_property", None)
+        discriminator_value = getattr(event.payload_type, "discriminator_value", None)
+        if discriminator_property is None or discriminator_value is None:
+            return None
+        if discriminator_name is None:
+            discriminator_name = discriminator_property.wire_name
+        elif discriminator_property.wire_name != discriminator_name:
+            return None
+        if discriminator_value in values:
+            return None
+        values.add(discriminator_value)
+        variants.append((discriminator_value, event))
+    if discriminator_name is None:
+        return None
+    return discriminator_name, variants
+
+
+def _get_terminal_event_names(events: list[StreamingEvent]) -> list[str]:
+    unnamed_events = [event for event in events if event.event_type is None]
+    terminal_event_names: list[str] = []
+    for event in events:
+        if not event.is_terminal:
+            continue
+        if event.event_type is not None:
+            terminal_event_names.append(event.event_type)
+        elif len(unnamed_events) == 1:
+            terminal_event_names.append(DEFAULT_SSE_EVENT_TYPE)
+    return list(dict.fromkeys(terminal_event_names))
 
 
 class ResponseHeader(BaseModel):
@@ -60,7 +108,7 @@ class Response(BaseModel):
         self.default_content_type = yaml_data.get("defaultContentType")
         streaming = yaml_data.get("streaming")
         self.streaming_kind: Optional[str] = streaming["kind"] if streaming else None
-        self.streaming_events: list[tuple[Optional[str], BaseType, bool, Optional[str]]] = []
+        self.streaming_events: list[StreamingEvent] = []
         self._streaming_terminal_event: Optional[str] = streaming.get("terminalEvent") if streaming else None
         # Named / model ``@terminalEvent`` events: deserialized and yielded like any other event,
         # then iteration stops. The bare string-constant sentinel (``_streaming_terminal_event``)
@@ -68,19 +116,15 @@ class Response(BaseModel):
         self.terminal_event_names: list[str] = []
         if streaming:
             self.streaming_events = [
-                (
-                    event.get("eventType"),
-                    self.code_model.lookup_type(id(event["itemType"])),
-                    event.get("isEventEnvelope", False),
-                    event.get("payloadContentType"),
+                StreamingEvent(
+                    event_type=event.get("eventType"),
+                    payload_type=self.code_model.lookup_type(id(event["payloadType"])),
+                    payload_content_type=event.get("payloadContentType"),
+                    is_terminal=event.get("isTerminal", False),
                 )
                 for event in streaming.get("events", [])
             ]
-            self.terminal_event_names = [
-                event["eventType"]
-                for event in streaming.get("events", [])
-                if event.get("isTerminal") and event.get("eventType") is not None
-            ]
+            self.terminal_event_names = _get_terminal_event_names(self.streaming_events)
 
     @property
     def result_property(self) -> str:
@@ -145,7 +189,7 @@ class Response(BaseModel):
 
     @property
     def stream_item_type(self) -> Optional[BaseType]:
-        event_item_types = list(dict.fromkeys(event[1] for event in self.streaming_events))
+        event_item_types = list(dict.fromkeys(event.payload_type for event in self.streaming_events))
         if len(event_item_types) == 1:
             return event_item_types[0]
         if event_item_types:
@@ -243,8 +287,8 @@ class Response(BaseModel):
             file_import.add_submodule_import(relative_path, stream_class, ImportType.LOCAL)
             if self.streaming_kind == "sse":
                 file_import.add_import("json", ImportType.STDLIB)
-                for _event_type, event_item_type, _is_envelope, _content_type in self.streaming_events:
-                    file_import.merge(event_item_type.imports(**kwargs))
+                for event in self.streaming_events:
+                    file_import.merge(event.payload_type.imports(**kwargs))
         return file_import
 
     def _get_import_type(self, input_path: str) -> ImportType:

@@ -102,10 +102,10 @@ describe("typespec-python: structured streaming", () => {
       strictEqual(events[0].isTerminal, undefined);
       strictEqual(events[1].eventType, "response.completed");
       strictEqual(events[1].isTerminal, true);
-      strictEqual(events[1].itemType, completed);
+      strictEqual(events[1].payloadType, completed);
       strictEqual(events[2].eventType, "error");
       strictEqual(events[2].isTerminal, true);
-      strictEqual(events[2].itemType, errored);
+      strictEqual(events[2].payloadType, errored);
     });
 
     it("supports a sentinel and named terminals together", () => {
@@ -132,7 +132,7 @@ describe("typespec-python: structured streaming", () => {
       strictEqual(events[1].isTerminal, true);
     });
 
-    it("preserves event envelope and payload content metadata", () => {
+    it("emits the payload metadata for event envelopes", () => {
       const envelope = model("Envelope");
       const payload = { kind: "string" };
       const { events } = partitionSseEvents(
@@ -148,7 +148,7 @@ describe("typespec-python: structured streaming", () => {
         ] as any,
         identity,
       );
-      strictEqual(events[0].isEventEnvelope, true);
+      strictEqual(events[0].payloadType, payload);
       strictEqual(events[0].payloadContentType, "text/plain");
     });
   });

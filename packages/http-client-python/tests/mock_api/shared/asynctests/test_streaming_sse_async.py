@@ -111,10 +111,14 @@ async def test_protocol_invalid_retry(client: SseClient):
 async def test_protocol_reconnect(client: SseClient):
     async with await client.protocol.reconnect() as stream:
         first = await stream.__anext__()
-        second = await stream.__anext__()
         assert isinstance(first, ProtocolInfo)
+        assert first.message == "hello"
+        assert stream.last_event_id == "event-1"
+
+    async with await client.protocol.reconnect(last_event_id="event-1") as stream:
+        second = await stream.__anext__()
         assert isinstance(second, ProtocolInfo)
-        assert [first.message, second.message] == ["hello", "world"]
+        assert second.message == "world"
         assert stream.last_event_id == "event-2"
 
 
@@ -142,6 +146,28 @@ class _FakeAsyncResponse:
 
     async def close(self):
         self.closed = True
+
+
+class _FailingCloseAsyncResponse(_FakeAsyncResponse):
+    def iter_bytes(self):
+        class _Chunks:
+            def __init__(self, body):
+                self._body = body
+                self._done = False
+
+            def __aiter__(self):
+                return self
+
+            async def __anext__(self):
+                if self._done:
+                    raise StopAsyncIteration
+                self._done = True
+                return self._body
+
+            async def aclose(self):
+                raise RuntimeError("iterator cleanup failed")
+
+        return _Chunks(self._body)
 
 
 def _event_kind(_response, event):
@@ -177,6 +203,51 @@ async def test_named_terminal_event_yields_then_stops():
 
 
 @pytest.mark.asyncio
+async def test_unnamed_terminal_event_yields_then_stops():
+    body = b'data: {"status": "done"}\n\n' b'data: {"status": "AFTER-TERMINAL"}\n\n'
+    response = _FakeAsyncResponse(body)
+    stream = AsyncStream(
+        response=response,
+        deserialization_callback=_event_kind,
+        terminal_event_names=["message"],
+    )
+
+    assert [item async for item in stream] == [("message", {"status": "done"})]
+    assert response.closed
+
+
+@pytest.mark.asyncio
+async def test_unnamed_terminal_predicate_preserves_service_event_type():
+    body = b'data: {"kind": "progress"}\n\n' b'data: {"kind": "complete"}\n\n' b'data: {"kind": "after"}\n\n'
+    response = _FakeAsyncResponse(body)
+    stream = AsyncStream(
+        response=response,
+        deserialization_callback=_event_kind,
+        terminal_event_predicate=lambda event: json.loads(event.data).get("kind") == "complete",
+    )
+
+    assert [item async for item in stream] == [
+        ("message", {"kind": "progress"}),
+        ("message", {"kind": "complete"}),
+    ]
+    assert response.closed
+
+
+@pytest.mark.asyncio
+async def test_response_closes_when_async_iterator_cleanup_fails():
+    response = _FailingCloseAsyncResponse(b"data: first\n\n")
+    stream = AsyncStream(
+        response=response,
+        deserialization_callback=lambda _response, event: event.data,
+    )
+
+    assert await stream.__anext__() == "first"
+    with pytest.raises(RuntimeError, match="iterator cleanup failed"):
+        await stream.__anext__()
+    assert response.closed
+
+
+@pytest.mark.asyncio
 async def test_sentinel_and_named_terminal_coexist():
     body = (
         b'event: response.delta\ndata: {"delta": "a"}\n\n'
@@ -197,7 +268,7 @@ async def test_sentinel_and_named_terminal_coexist():
 
 
 @pytest.mark.asyncio
-async def test_sse_protocol_metadata_is_available_for_reconnect():
+async def test_sse_protocol_metadata_is_available():
     body = b'id: event-1\nretry: 1000\nevent: message\ndata: {"message": "hello"}\n\n'
     response = _FakeAsyncResponse(body)
     stream = AsyncStream(response=response, deserialization_callback=lambda _response, event: event.data)
@@ -216,42 +287,3 @@ async def test_sse_protocol_invalid_metadata_is_ignored():
     assert [item async for item in stream] == ["hello"]
     assert stream.last_event_id == ""
     assert stream.retry is None
-
-
-@pytest.mark.asyncio
-async def test_sse_reconnects_on_eof_using_latest_metadata():
-    responses = [
-        _FakeAsyncResponse(b"id: first\nretry: 0\ndata: one\n\n"),
-        _FakeAsyncResponse(b"id: second\ndata: two\n\ndata: [DONE]\n\n"),
-    ]
-    reconnect_ids = []
-
-    async def reconnect(last_event_id):
-        reconnect_ids.append(last_event_id)
-        return responses.pop(0)
-
-    stream = AsyncStream(
-        response=responses.pop(0),
-        deserialization_callback=lambda _response, event: event.data,
-        terminal_event="[DONE]",
-        reconnect_callback=reconnect,
-    )
-
-    assert [item async for item in stream] == ["one", "two"]
-    assert reconnect_ids == ["first"]
-    assert stream.last_event_id == "second"
-
-
-@pytest.mark.asyncio
-async def test_sse_does_not_reconnect_after_terminal():
-    async def reconnect(_last_event_id):
-        pytest.fail("unexpected reconnect")
-
-    response = _FakeAsyncResponse(b"retry: 0\ndata: one\n\ndata: [DONE]\n\n")
-    stream = AsyncStream(
-        response=response,
-        deserialization_callback=lambda _response, event: event.data,
-        terminal_event="[DONE]",
-        reconnect_callback=reconnect,
-    )
-    assert [item async for item in stream] == ["one"]

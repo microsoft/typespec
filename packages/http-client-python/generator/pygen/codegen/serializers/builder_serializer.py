@@ -35,11 +35,32 @@ from ..models import (
 from ..models.utils import NamespaceType, escape_sphinx_field_name
 from .parameter_serializer import ParameterSerializer, PopKwargType, check_body_optional
 from ..models.parameter_list import ParameterType
+from ..models.response import (
+    DEFAULT_SSE_EVENT_TYPE,
+    StreamingEvent,
+    get_streaming_event_discriminator,
+)
 from . import utils
 from ...utils import xml_serializable, json_serializable
 
 T = TypeVar("T")
 OrderedSet = dict[T, None]
+
+
+def _sse_event_data_expression(payload_content_type: Optional[str]) -> str:
+    """Return the generated expression that decodes an SSE event's UTF-8 data field."""
+    media_type = payload_content_type.split(";", 1)[0].strip().lower() if payload_content_type else None
+    is_json = media_type is None or media_type == "application/json" or media_type.endswith("+json")
+    return "json.loads(_event.data)" if is_json else "_event.data"
+
+
+def _sse_fallback_data_expression(events: list[StreamingEvent]) -> str:
+    """Decode fallback events only when every candidate payload is JSON."""
+    if not events:
+        return "_event.data"
+    expressions = {_sse_event_data_expression(event.payload_content_type) for event in events}
+    return "json.loads(_event.data)" if expressions == {"json.loads(_event.data)"} else "_event.data"
+
 
 BuilderType = TypeVar(
     "BuilderType",
@@ -1282,91 +1303,79 @@ class _OperationSerializer(_BuilderBaseSerializer[OperationType]):
         terminal_event = getattr(response, "terminal_event", None)
         terminal_event_names = getattr(response, "terminal_event_names", [])
         streaming_events = getattr(response, "streaming_events", [])
+        unnamed_events = [event for event in streaming_events if event.event_type is None]
+        unnamed_discriminator = get_streaming_event_discriminator(unnamed_events)
         retval: list[str] = []
         retval.append("def _callback(_http_response, _event):")
         if response.streaming_kind == "sse":  # type: ignore[attr-defined]
-            named_events = [
-                (event_type, event_item_type, is_envelope, payload_content_type)
-                for event_type, event_item_type, is_envelope, payload_content_type in streaming_events
-                if event_type is not None
-            ]
-            unnamed_events = [
-                (event_item_type, is_envelope, payload_content_type)
-                for event_type, event_item_type, is_envelope, payload_content_type in streaming_events
-                if event_type is None
-            ]
-            if named_events:
-                for index, (event_type, event_item_type, _is_envelope, payload_content_type) in enumerate(named_events):
-                    event_annotation = event_item_type.type_annotation(
-                        is_operation_file=True,
-                        serialize_namespace=self.serialize_namespace,
-                    )
-                    keyword = "if" if index == 0 else "elif"
-                    retval.append(f"    {keyword} _event.event == {event_type!r}:")
-                    event_json = "_event.data" if payload_content_type == "text/plain" else "json.loads(_event.data)"
-                    retval.append(f"        _event_json = {event_json}")
-                    if self.code_model.options["models-mode"] == "msrest":
-                        serialization_type = event_item_type.serialization_type(
-                            serialize_namespace=self.serialize_namespace
-                        )
-                        retval.append("        deserialized = self._deserialize(")
-                        retval.append(f"            '{serialization_type}',")
-                        retval.append("            _event_json")
-                        retval.append("        )")
-                    else:
-                        retval.append(f"        deserialized = _deserialize({event_annotation}, _event_json)")
-                retval.append("    else:")
-                if len(unnamed_events) == 1:
-                    event_item_type, _is_envelope, payload_content_type = unnamed_events[0]
-                    event_annotation = event_item_type.type_annotation(
-                        is_operation_file=True,
-                        serialize_namespace=self.serialize_namespace,
-                    )
-                    event_json = "_event.data" if payload_content_type == "text/plain" else "json.loads(_event.data)"
-                    retval.append(f"        _event_json = {event_json}")
-                    if self.code_model.options["models-mode"] == "msrest":
-                        serialization_type = event_item_type.serialization_type(
-                            serialize_namespace=self.serialize_namespace
-                        )
-                        retval.append("        deserialized = self._deserialize(")
-                        retval.append(f"            '{serialization_type}',")
-                        retval.append("            _event_json")
-                        retval.append("        )")
-                    else:
-                        retval.append(f"        deserialized = _deserialize({event_annotation}, _event_json)")
-                else:
-                    retval.append("        _event_json = json.loads(_event.data)")
-                    retval.append("        deserialized = _event_json")
-            elif len(unnamed_events) == 1:
-                event_item_type, _is_envelope, payload_content_type = unnamed_events[0]
+            named_events = [event for event in streaming_events if event.event_type is not None]
+
+            def emit_deserialized_event(event: StreamingEvent, indent: str) -> None:
+                event_item_type = event.payload_type
                 event_annotation = event_item_type.type_annotation(
                     is_operation_file=True,
                     serialize_namespace=self.serialize_namespace,
                 )
-                event_json = "_event.data" if payload_content_type == "text/plain" else "json.loads(_event.data)"
-                retval.append(f"    _event_json = {event_json}")
                 if self.code_model.options["models-mode"] == "msrest":
                     serialization_type = event_item_type.serialization_type(
                         serialize_namespace=self.serialize_namespace
                     )
-                    retval.append("    deserialized = self._deserialize(")
-                    retval.append(f"        '{serialization_type}',")
-                    retval.append("        _event_json")
-                    retval.append("    )")
+                    retval.append(f"{indent}deserialized = self._deserialize(")
+                    retval.append(f"{indent}    '{serialization_type}',")
+                    retval.append(f"{indent}    _event_json")
+                    retval.append(f"{indent})")
                 else:
-                    retval.append(f"    deserialized = _deserialize({event_annotation}, _event_json)")
-            else:
-                retval.append("    _event_json = json.loads(_event.data)")
-                if self.code_model.options["models-mode"] == "msrest":
-                    serialization_type = response.stream_item_type.serialization_type(
-                        serialize_namespace=self.serialize_namespace
+                    retval.append(f"{indent}deserialized = _deserialize({event_annotation}, _event_json)")
+
+            def emit_typed_event(event: StreamingEvent, indent: str) -> None:
+                event_json = _sse_event_data_expression(event.payload_content_type)
+                retval.append(f"{indent}_event_json = {event_json}")
+                emit_deserialized_event(event, indent)
+
+            def emit_fallback(indent: str) -> None:
+                retval.append(f"{indent}_event_json = _event.data")
+                retval.append(f"{indent}deserialized = _event_json")
+
+            def emit_multiple_unnamed_events(events: list[StreamingEvent], indent: str) -> None:
+                event_json = _sse_fallback_data_expression(events)
+                retval.append(f"{indent}_event_json = {event_json}")
+                if unnamed_discriminator is None or event_json != "json.loads(_event.data)":
+                    retval.append(f"{indent}deserialized = _event_json")
+                    return
+                discriminator_name, variants = unnamed_discriminator
+                for index, (discriminator_value, event) in enumerate(variants):
+                    keyword = "if" if index == 0 else "elif"
+                    retval.append(
+                        f"{indent}{keyword} isinstance(_event_json, dict) "
+                        f"and _event_json.get({discriminator_name!r}) == {discriminator_value!r}:"
                     )
-                    retval.append("    deserialized = self._deserialize(")
-                    retval.append(f"        '{serialization_type}',")
-                    retval.append("        _event_json")
-                    retval.append("    )")
+                    emit_deserialized_event(event, indent + "    ")
+                retval.append(f"{indent}else:")
+                retval.append(f"{indent}    deserialized = _event_json")
+
+            def emit_message_branch(keyword: str) -> None:
+                retval.append(f"    {keyword} _event.event == {DEFAULT_SSE_EVENT_TYPE!r}:")
+                if len(unnamed_events) == 1:
+                    emit_typed_event(unnamed_events[0], "        ")
                 else:
-                    retval.append(f"    deserialized = _deserialize({item_annotation}, _event_json)")
+                    emit_multiple_unnamed_events(unnamed_events, "        ")
+
+            if named_events:
+                for index, event in enumerate(named_events):
+                    event_type = event.event_type
+                    keyword = "if" if index == 0 else "elif"
+                    retval.append(f"    {keyword} _event.event == {event_type!r}:")
+                    emit_typed_event(event, "        ")
+                if unnamed_events:
+                    emit_message_branch("elif")
+            elif unnamed_events:
+                emit_message_branch("if")
+
+            if named_events or unnamed_events:
+                retval.append("    else:")
+                emit_fallback("        ")
+            else:
+                emit_fallback("    ")
         else:
             retval.append("    _event_json = _event.json()")
             if self.code_model.options["models-mode"] == "msrest":
@@ -1386,25 +1395,30 @@ class _OperationSerializer(_BuilderBaseSerializer[OperationType]):
             stream_kwargs.append(f"terminal_event={terminal_event!r}")
         if terminal_event_names:
             stream_kwargs.append(f"terminal_event_names={terminal_event_names!r}")
-        if response.streaming_kind == "sse":  # type: ignore[attr-defined]
+        unnamed_terminal_values = (
+            [discriminator_value for discriminator_value, event in unnamed_discriminator[1] if event.is_terminal]
+            if unnamed_discriminator is not None
+            else []
+        )
+        if unnamed_terminal_values:
+            discriminator_name = unnamed_discriminator[0]  # type: ignore[index]
             retval.append("")
+            retval.append("def _is_terminal_event(_event):")
+            retval.append(f"    if _event.event != {DEFAULT_SSE_EVENT_TYPE!r}:")
+            retval.append("        return False")
+            retval.append("    try:")
+            retval.append("        _event_json = json.loads(_event.data)")
+            retval.append("    except (TypeError, ValueError):")
+            retval.append("        return False")
             retval.append(
-                "async def _reconnect(_last_event_id):" if self.async_mode else "def _reconnect(_last_event_id):"
+                f"    return isinstance(_event_json, dict) "
+                f"and _event_json.get({discriminator_name!r}) in {unnamed_terminal_values!r}"
             )
-            retval.append("    if _last_event_id is not None:")
-            retval.append('        _request.headers["Last-Event-ID"] = _last_event_id')
-            if self.async_mode:
-                retval.append(
-                    f"    return (await self._client.{self.pipeline_name}.run("
-                    "_request, stream=True, **kwargs)).http_response  # pylint: disable=protected-access"
-                )
-            else:
-                retval.append(
-                    f"    return self._client.{self.pipeline_name}.run("
-                    "_request, stream=True, **kwargs).http_response  # pylint: disable=protected-access"
-                )
-            stream_kwargs.append("reconnect_callback=_reconnect")
-        retval.append(f"deserialized = {stream_class}({', '.join(stream_kwargs)})  # type: ignore")
+            stream_kwargs.append("terminal_event_predicate=_is_terminal_event")
+        retval.append(
+            f"deserialized: {stream_class}[{item_annotation}] = "
+            f"{stream_class}({', '.join(stream_kwargs)})  # type: ignore"
+        )
         retval.append("if cls:")
         retval.append("    return cls(pipeline_response, deserialized, {})  # type: ignore")
         retval.append("return deserialized")

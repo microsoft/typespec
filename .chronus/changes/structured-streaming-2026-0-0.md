@@ -14,4 +14,4 @@ for thing in stream:
     ...
 ```
 
-For SSE streams, the most recently received event `id` and `retry` value (if provided by the server) are exposed via `stream.last_event_id` / `stream.retry`, event payloads may be plain text as well as JSON, and the stream automatically reconnects after an unexpected disconnect using a default three-second delay (or the server-provided `retry` interval) while sending `Last-Event-ID`.
+For SSE streams, the most recently received event `id` and `retry` value (if provided by the server) are exposed via `stream.last_event_id` / `stream.retry`. Event envelopes yield the `@Events.data` payload using its payload type and content type. JSON payload media types (`application/json` and `+json`) are decoded as JSON, while other SSE payload media types remain UTF-8 text for type-specific deserialization. Pass `last_event_id=` to an SSE operation to send `Last-Event-ID` when manually resuming a stream.
