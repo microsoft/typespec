@@ -1677,6 +1677,36 @@ namespace Microsoft.TypeSpec.Generator.Tests.Providers.ModelProviders
         }
 
         [Test]
+        public async Task GeneratesSpecBasePropertiesMissingFromNarrowerCustomBase()
+        {
+            var specBaseModel = InputFactory.Model(
+                "trackedResource",
+                properties: [
+                    InputFactory.Property("id", InputPrimitiveType.String),
+                    InputFactory.Property("location", InputPrimitiveType.String),
+                    InputFactory.Property("tags", InputFactory.Dictionary(InputPrimitiveType.String)),
+                ],
+                usage: InputModelTypeUsage.Json);
+            var childModel = InputFactory.Model(
+                "mockInputModel",
+                properties: [InputFactory.Property("childProp", InputPrimitiveType.String)],
+                baseModel: specBaseModel,
+                usage: InputModelTypeUsage.Json);
+
+            var mockGenerator = await MockHelpers.LoadMockGeneratorAsync(
+                inputModelTypes: [childModel, specBaseModel],
+                compilation: async () => await Helpers.GetCompilationFromDirectoryAsync());
+
+            var modelProvider = mockGenerator.Object.OutputLibrary.TypeProviders
+                .Single(t => t.Name == "MockInputModel");
+
+            Assert.IsNotNull(modelProvider.BaseType);
+            Assert.AreEqual("ResourceData", modelProvider.BaseType!.Name);
+            Assert.That(modelProvider.BaseTypeProvider!.Properties.Select(p => p.Name), Does.Contain("Id"));
+            Assert.That(modelProvider.Properties.Select(p => p.Name), Is.EquivalentTo(new[] { "Location", "Tags", "ChildProp" }));
+        }
+
+        [Test]
         public async Task CanAddPropertyReferencingGeneratedType()
         {
             // Create Bar model that will be referenced by the custom property
