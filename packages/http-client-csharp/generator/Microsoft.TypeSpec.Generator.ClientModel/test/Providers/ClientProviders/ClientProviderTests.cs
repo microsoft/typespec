@@ -4792,6 +4792,30 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers.ClientProvide
         }
 
         [Test]
+        public async Task TestBackCompatProviderDoesNotRenameRestRequestMethod()
+        {
+            var inputOperation = InputFactory.Operation("GetUrl");
+            var inputServiceMethod = InputFactory.BasicServiceMethod("GetUrl", inputOperation);
+            var client = InputFactory.Client("TestClient", methods: [inputServiceMethod]);
+            var generator = await MockHelpers.LoadMockGeneratorAsync(
+                clients: () => [client],
+                lastContractCompilation: async () => await Helpers.GetCompilationFromDirectoryAsync());
+            var clientProvider = generator.Object.OutputLibrary.TypeProviders.OfType<ClientProvider>().Single();
+            var requestMethodName = clientProvider.RestClient.GetCreateRequestMethod(inputOperation).Signature.Name;
+
+            Assert.AreEqual("CreateGetUriRequest", requestMethodName);
+
+            var backCompatProvider = new BackCompatTypeProvider("MockableTestResource", "Sample");
+            var methods = clientProvider.GetMethodCollectionByOperation(inputOperation, backCompatProvider);
+
+            Assert.IsTrue(methods.Any(m => m.Signature.Name == "GetUrl"));
+            Assert.AreEqual(
+                requestMethodName,
+                clientProvider.RestClient.GetCreateRequestMethod(inputOperation).Signature.Name,
+                "Resolving a wrapper-specific public method name must not rename an already generated REST request method.");
+        }
+
+        [Test]
         public void TestIsExactNameServiceMethodSkipsListToGetRename()
         {
             // The normal CleanOperationNames behavior renames "List" -> "GetAll" and "ListFoo" -> "GetFoo".
