@@ -188,8 +188,13 @@ namespace Microsoft.TypeSpec.Generator.Providers
             _rawDataField = null;
             _additionalPropertyFields = null;
             _additionalPropertyProperties = null;
-            _fullConstructor = null;
             _isMultiLevelDiscriminator = null;
+        }
+
+        private protected override void ResetConstructors()
+        {
+            base.ResetConstructors();
+            _fullConstructor = null;
         }
 
         protected FieldProvider? RawDataField
@@ -230,6 +235,9 @@ namespace Microsoft.TypeSpec.Generator.Providers
         protected internal bool SupportsBinaryDataAdditionalProperties => AdditionalPropertyProperties.Any(p =>
             p.Type.ElementType.Equals(_additionalPropsUnknownType) ||
             (p.Type.ElementType.IsFrameworkType && p.Type.ElementType.FrameworkType == typeof(object)));
+        /// <summary>
+        /// The constructor that takes every serializable property.
+        /// </summary>
         public ConstructorProvider FullConstructor => _fullConstructor ??= BuildFullConstructor();
 
         protected override string BuildNamespace() => string.IsNullOrEmpty(_inputModel.Namespace) ?
