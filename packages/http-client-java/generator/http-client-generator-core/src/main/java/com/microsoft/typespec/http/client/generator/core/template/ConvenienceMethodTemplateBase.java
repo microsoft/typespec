@@ -372,7 +372,10 @@ abstract class ConvenienceMethodTemplateBase {
                 return writeParameterConversionExpressionWithJsonMergePatchEnabled(methodBlock,
                     rootParentModelType.toString(), parameterName, expression);
             } else {
-                return expression == null ? parameterName : expression;
+                if (expression != null) {
+                    return expression;
+                }
+                return p.isRequired() || "requestOptions".equals(parameterName) ? parameterName : "null";
             }
         }).collect(Collectors.joining(", "));
 
@@ -440,14 +443,19 @@ abstract class ConvenienceMethodTemplateBase {
         ClientMethodParameter requestBodyClientParameter = null;
 
         if (transformation.isGroupBy()) {
+            final ClientMethodParameter sourceParameter = transformation.getGroupByInParameter();
+            if (protocolMethod.getMethodInputParameters()
+                .stream()
+                .anyMatch(parameter -> Objects.equals(parameter.getName(), sourceParameter.getName()))) {
+                return null;
+            }
+
             // parameter grouping
             /*
              * sample code:
              * String id = options.getId();
              * String header = options.getHeader();
              */
-            final ClientMethodParameter sourceParameter = transformation.getGroupByInParameter();
-
             boolean sourceParameterInMethod = false;
             for (MethodParameter parameter : parametersMap.keySet()) {
                 if (parameter.clientMethodParameter != null
@@ -753,9 +761,13 @@ abstract class ConvenienceMethodTemplateBase {
         }
     }
 
-    private static void writeHeader(MethodParameter parameter, JavaBlock methodBlock) {
+    protected static void writeHeader(MethodParameter parameter, JavaBlock methodBlock) {
+        writeHeader(parameter, methodBlock, "requestOptions");
+    }
+
+    protected static void writeHeader(MethodParameter parameter, JavaBlock methodBlock, String requestOptionsName) {
         Consumer<JavaBlock> writeLine
-            = javaBlock -> javaBlock.line(String.format("requestOptions.setHeader(%1$s, %2$s);",
+            = javaBlock -> javaBlock.line(String.format("%1$s.setHeader(%2$s, %3$s);", requestOptionsName,
                 ModelTemplateHeaderHelper.getHttpHeaderNameInstanceExpression(parameter.getSerializedName()),
                 expressionConvertToString(parameter.getName(), parameter.getClientMethodParameter().getWireType(),
                     parameter.getProxyMethodParameter())));
@@ -767,6 +779,10 @@ abstract class ConvenienceMethodTemplateBase {
     }
 
     protected void writeQueryParam(MethodParameter parameter, JavaBlock methodBlock) {
+        writeQueryParam(parameter, methodBlock, "requestOptions");
+    }
+
+    protected void writeQueryParam(MethodParameter parameter, JavaBlock methodBlock, String requestOptionsName) {
         Consumer<JavaBlock> writeLine;
         if (parameter.proxyMethodParameter.getExplode()
             && parameter.getClientMethodParameter().getWireType() instanceof IterableType) {
@@ -775,7 +791,8 @@ abstract class ConvenienceMethodTemplateBase {
             String elementTypeExpression
                 = expressionConvertToString("paramItemValue", elementType, parameter.getProxyMethodParameter());
             writeLine = javaBlock -> {
-                String addQueryParamLine = getAddQueryParamExpression(parameter, elementTypeExpression);
+                String addQueryParamLine
+                    = getAddQueryParamExpression(parameter, elementTypeExpression, requestOptionsName);
 
                 javaBlock.line(String.format("for (%1$s paramItemValue : %2$s) {", elementType, parameter.getName()));
                 javaBlock.indent(() -> {
@@ -788,9 +805,10 @@ abstract class ConvenienceMethodTemplateBase {
                 javaBlock.line("}");
             };
         } else {
-            writeLine = javaBlock -> javaBlock
-                .line(getAddQueryParamExpression(parameter, expressionConvertToString(parameter.getName(),
-                    parameter.getClientMethodParameter().getWireType(), parameter.getProxyMethodParameter())));
+            writeLine = javaBlock -> javaBlock.line(getAddQueryParamExpression(
+                parameter, expressionConvertToString(parameter.getName(),
+                    parameter.getClientMethodParameter().getWireType(), parameter.getProxyMethodParameter()),
+                requestOptionsName));
         }
         if (!parameter.getClientMethodParameter().isRequired()) {
             methodBlock.ifBlock(String.format("%s != null", parameter.getName()), writeLine);
@@ -800,7 +818,11 @@ abstract class ConvenienceMethodTemplateBase {
     }
 
     protected String getAddQueryParamExpression(MethodParameter parameter, String variable) {
-        return String.format("requestOptions.addQueryParam(%1$s, %2$s, %3$s);",
+        return getAddQueryParamExpression(parameter, variable, "requestOptions");
+    }
+
+    protected String getAddQueryParamExpression(MethodParameter parameter, String variable, String requestOptionsName) {
+        return String.format("%1$s.addQueryParam(%2$s, %3$s, %4$s);", requestOptionsName,
             ClassType.STRING.defaultValueExpression(parameter.getSerializedName()), variable,
             parameter.getProxyMethodParameter().getAlreadyEncoded());
     }
@@ -995,7 +1017,9 @@ abstract class ConvenienceMethodTemplateBase {
             .collect(Collectors.toMap(key -> key.getSerializedName() == null ? key.getName() : key.getSerializedName(),
                 Function.identity()));
         for (MethodParameter convenienceParameter : convenienceParameters) {
-            String name = convenienceParameter.getSerializedName();
+            String name = convenienceParameter.getSerializedName() == null
+                ? convenienceParameter.getName()
+                : convenienceParameter.getSerializedName();
             parameterMap.put(convenienceParameter, clientParameters.get(name));
         }
         if (convenienceMethod.isPageStreamingType()) {
@@ -1010,7 +1034,9 @@ abstract class ConvenienceMethodTemplateBase {
         ClientMethod protocolMethod) {
         List<MethodParameter> protocolParameters = getParameters(protocolMethod, false);
         return protocolParameters.stream()
-            .filter(p -> Objects.equals(parameter.getSerializedName(), p.getSerializedName()))
+            .filter(p -> Objects.equals(
+                parameter.getSerializedName() == null ? parameter.getName() : parameter.getSerializedName(),
+                p.getSerializedName() == null ? p.getName() : p.getSerializedName()))
             .findFirst()
             .orElse(null);
     }

@@ -26,6 +26,7 @@ import tsptest.methodoverride.implementation.models.GroupPartETagRequest;
 import tsptest.methodoverride.implementation.models.GroupPartRequest;
 import tsptest.methodoverride.models.GroupAllOptions;
 import tsptest.methodoverride.models.GroupExcludeBodyModel;
+import tsptest.methodoverride.models.GroupHeaderOptions;
 import tsptest.methodoverride.models.GroupPartETagOptions;
 import tsptest.methodoverride.models.GroupPartOptions;
 import tsptest.methodoverride.models.GroupQueryOptions;
@@ -56,9 +57,11 @@ public final class MethodOverrideClient {
      * <tr><th>Name</th><th>Type</th><th>Required</th><th>Description</th></tr>
      * <tr><td>foo</td><td>String</td><td>No</td><td>The foo parameter</td></tr>
      * <tr><td>bar</td><td>String</td><td>No</td><td>The bar parameter</td></tr>
+     * <tr><td>kind</td><td>String</td><td>No</td><td>The kind parameter. Allowed values: "first", "second".</td></tr>
      * </table>
      * You can add these to a request with {@link RequestOptions#addQueryParam}
      * 
+     * @param options The options parameter.
      * @param requestOptions The options to configure the HTTP request before HTTP client sends it.
      * @throws HttpResponseException thrown if the request is rejected by server.
      * @throws ClientAuthenticationException thrown if the request is rejected by server on status code 401.
@@ -68,8 +71,33 @@ public final class MethodOverrideClient {
      */
     @Generated
     @ServiceMethod(returns = ReturnType.SINGLE)
-    public Response<Void> groupQueryWithResponse(RequestOptions requestOptions) {
-        return this.serviceClient.groupQueryWithResponse(requestOptions);
+    public Response<Void> groupQueryWithResponse(GroupQueryOptions options, RequestOptions requestOptions) {
+        return this.serviceClient.groupQueryWithResponse(options, requestOptions);
+    }
+
+    /**
+     * A remote procedure call (RPC) operation.
+     * <p><strong>Header Parameters</strong></p>
+     * <table border="1">
+     * <caption>Header Parameters</caption>
+     * <tr><th>Name</th><th>Type</th><th>Required</th><th>Description</th></tr>
+     * <tr><td>x-foo</td><td>String</td><td>No</td><td>The foo parameter</td></tr>
+     * <tr><td>x-bar</td><td>String</td><td>No</td><td>The bar parameter</td></tr>
+     * </table>
+     * You can add these to a request with {@link RequestOptions#addHeader}
+     *
+     * @param options The options parameter.
+     * @param requestOptions The options to configure the HTTP request before HTTP client sends it.
+     * @throws HttpResponseException thrown if the request is rejected by server.
+     * @throws ClientAuthenticationException thrown if the request is rejected by server on status code 401.
+     * @throws ResourceNotFoundException thrown if the request is rejected by server on status code 404.
+     * @throws ResourceModifiedException thrown if the request is rejected by server on status code 409.
+     * @return the {@link Response}.
+     */
+    @Generated
+    @ServiceMethod(returns = ReturnType.SINGLE)
+    public Response<Void> groupHeaderWithResponse(GroupHeaderOptions options, RequestOptions requestOptions) {
+        return this.serviceClient.groupHeaderWithResponse(options, requestOptions);
     }
 
     /**
@@ -195,6 +223,7 @@ public final class MethodOverrideClient {
      * <tr><th>Name</th><th>Type</th><th>Required</th><th>Description</th></tr>
      * <tr><td>foo</td><td>String</td><td>No</td><td>The foo parameter</td></tr>
      * <tr><td>bar</td><td>String</td><td>No</td><td>The bar parameter</td></tr>
+     * <tr><td>kind</td><td>String</td><td>No</td><td>The kind parameter. Allowed values: "first", "second".</td></tr>
      * </table>
      * You can add these to a request with {@link RequestOptions#addQueryParam}
      * <p><strong>Request Body Schema</strong></p>
@@ -209,6 +238,7 @@ public final class MethodOverrideClient {
      * </pre>
      * 
      * @param body The body parameter.
+     * @param options The options parameter.
      * @param requestOptions The options to configure the HTTP request before HTTP client sends it.
      * @throws HttpResponseException thrown if the request is rejected by server.
      * @throws ClientAuthenticationException thrown if the request is rejected by server on status code 401.
@@ -218,8 +248,9 @@ public final class MethodOverrideClient {
      */
     @Generated
     @ServiceMethod(returns = ReturnType.SINGLE)
-    public Response<Void> groupExcludeBodyWithResponse(BinaryData body, RequestOptions requestOptions) {
-        return this.serviceClient.groupExcludeBodyWithResponse(body, requestOptions);
+    public Response<Void> groupExcludeBodyWithResponse(BinaryData body, GroupQueryOptions options,
+        RequestOptions requestOptions) {
+        return this.serviceClient.groupExcludeBodyWithResponse(body, options, requestOptions);
     }
 
     /**
@@ -283,15 +314,7 @@ public final class MethodOverrideClient {
     public void groupQuery(GroupQueryOptions options) {
         // Generated convenience method for groupQueryWithResponse
         RequestOptions requestOptions = new RequestOptions();
-        String foo = options == null ? null : options.getFoo();
-        String bar = options == null ? null : options.getBar();
-        if (foo != null) {
-            requestOptions.addQueryParam("foo", foo, false);
-        }
-        if (bar != null) {
-            requestOptions.addQueryParam("bar", bar, false);
-        }
-        groupQueryWithResponse(requestOptions).getValue();
+        groupQueryWithResponse(options, requestOptions).getValue();
     }
 
     /**
@@ -308,7 +331,43 @@ public final class MethodOverrideClient {
     public void groupQuery() {
         // Generated convenience method for groupQueryWithResponse
         RequestOptions requestOptions = new RequestOptions();
-        groupQueryWithResponse(requestOptions).getValue();
+        groupQueryWithResponse(null, requestOptions).getValue();
+    }
+
+    /**
+     * A remote procedure call (RPC) operation.
+     *
+     * @param options The options parameter.
+     * @throws IllegalArgumentException thrown if parameters fail the validation.
+     * @throws HttpResponseException thrown if the request is rejected by server.
+     * @throws ClientAuthenticationException thrown if the request is rejected by server on status code 401.
+     * @throws ResourceNotFoundException thrown if the request is rejected by server on status code 404.
+     * @throws ResourceModifiedException thrown if the request is rejected by server on status code 409.
+     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
+     */
+    @Generated
+    @ServiceMethod(returns = ReturnType.SINGLE)
+    public void groupHeader(GroupHeaderOptions options) {
+        // Generated convenience method for groupHeaderWithResponse
+        RequestOptions requestOptions = new RequestOptions();
+        groupHeaderWithResponse(options, requestOptions).getValue();
+    }
+
+    /**
+     * A remote procedure call (RPC) operation.
+     *
+     * @throws HttpResponseException thrown if the request is rejected by server.
+     * @throws ClientAuthenticationException thrown if the request is rejected by server on status code 401.
+     * @throws ResourceNotFoundException thrown if the request is rejected by server on status code 404.
+     * @throws ResourceModifiedException thrown if the request is rejected by server on status code 409.
+     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
+     */
+    @Generated
+    @ServiceMethod(returns = ReturnType.SINGLE)
+    public void groupHeader() {
+        // Generated convenience method for groupHeaderWithResponse
+        RequestOptions requestOptions = new RequestOptions();
+        groupHeaderWithResponse(null, requestOptions).getValue();
     }
 
     /**
@@ -479,15 +538,7 @@ public final class MethodOverrideClient {
     public void groupExcludeBody(GroupExcludeBodyModel body, GroupQueryOptions options) {
         // Generated convenience method for groupExcludeBodyWithResponse
         RequestOptions requestOptions = new RequestOptions();
-        String foo = options == null ? null : options.getFoo();
-        String bar = options == null ? null : options.getBar();
-        if (foo != null) {
-            requestOptions.addQueryParam("foo", foo, false);
-        }
-        if (bar != null) {
-            requestOptions.addQueryParam("bar", bar, false);
-        }
-        groupExcludeBodyWithResponse(BinaryData.fromObject(body), requestOptions).getValue();
+        groupExcludeBodyWithResponse(BinaryData.fromObject(body), options, requestOptions).getValue();
     }
 
     /**
@@ -506,7 +557,7 @@ public final class MethodOverrideClient {
     public void groupExcludeBody(GroupExcludeBodyModel body) {
         // Generated convenience method for groupExcludeBodyWithResponse
         RequestOptions requestOptions = new RequestOptions();
-        groupExcludeBodyWithResponse(BinaryData.fromObject(body), requestOptions).getValue();
+        groupExcludeBodyWithResponse(BinaryData.fromObject(body), null, requestOptions).getValue();
     }
 
     /**

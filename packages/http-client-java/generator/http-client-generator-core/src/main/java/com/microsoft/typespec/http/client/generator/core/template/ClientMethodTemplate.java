@@ -43,6 +43,7 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
+import java.util.Objects;
 import java.util.Optional;
 import java.util.Set;
 import java.util.function.Consumer;
@@ -656,6 +657,8 @@ public class ClientMethodTemplate extends ClientMethodTemplateBase {
         // logic only works for DPG, protocol API, on RequestOptions
 
         boolean requestOptionsLocal = false;
+        final List<ConvenienceMethodTemplateBase.MethodParameter> groupedOptionalParameters
+            = getGroupedOptionalRequestParameters(clientMethod);
 
         final boolean repeatabilityRequestHeaders
             = MethodUtil.isMethodIncludeRepeatableRequestHeaders(clientMethod.getProxyMethod());
@@ -680,7 +683,7 @@ public class ClientMethodTemplate extends ClientMethodTemplateBase {
         final boolean contentTypeRequestHeaders = bodyParameterOptional && singleContentType;
 
         // need a "final" variable for RequestOptions
-        if (repeatabilityRequestHeaders || contentTypeRequestHeaders) {
+        if (repeatabilityRequestHeaders || contentTypeRequestHeaders || !groupedOptionalParameters.isEmpty()) {
             requestOptionsLocal = true;
             function.line(
                 "RequestOptions requestOptionsLocal = requestOptions == null ? new RequestOptions() : requestOptions;");
@@ -709,7 +712,43 @@ public class ClientMethodTemplate extends ClientMethodTemplateBase {
             function.line("});");
         }
 
+        for (ConvenienceMethodTemplateBase.MethodParameter parameter : groupedOptionalParameters) {
+            RequestParameterLocation location = parameter.getProxyMethodParameter().getRequestParameterLocation();
+            if (location == RequestParameterLocation.QUERY) {
+                ConvenienceSyncMethodTemplate.getInstance().writeQueryParam(parameter, function, "requestOptionsLocal");
+            } else if (location == RequestParameterLocation.HEADER) {
+                ConvenienceMethodTemplateBase.writeHeader(parameter, function, "requestOptionsLocal");
+            }
+        }
+
         return requestOptionsLocal;
+    }
+
+    private static List<ConvenienceMethodTemplateBase.MethodParameter>
+        getGroupedOptionalRequestParameters(ClientMethod clientMethod) {
+        List<ProxyMethodParameter> proxyMethodParameters = clientMethod.getProxyMethod().getParameters();
+        List<ProxyMethodParameter> allProxyMethodParameters = clientMethod.getProxyMethod().getAllParameters();
+
+        return clientMethod.getParameterTransformations()
+            .asStream()
+            .filter(ParameterTransformation::isGroupBy)
+            .map(ParameterTransformation::getOutParameter)
+            .map(clientParameter -> {
+                ProxyMethodParameter proxyParameter = allProxyMethodParameters.stream()
+                    .filter(parameter -> clientParameter.getName()
+                        .equals(CodeNamer.getEscapedReservedClientMethodParameterName(parameter.getName())))
+                    .findFirst()
+                    .orElse(null);
+                return proxyParameter == null || proxyMethodParameters.contains(proxyParameter)
+                    ? null
+                    : new ConvenienceMethodTemplateBase.MethodParameter(proxyParameter, clientParameter);
+            })
+            .filter(Objects::nonNull)
+            .filter(parameter -> {
+                RequestParameterLocation location = parameter.getProxyMethodParameter().getRequestParameterLocation();
+                return location == RequestParameterLocation.QUERY || location == RequestParameterLocation.HEADER;
+            })
+            .collect(Collectors.toList());
     }
 
     private static void requestOptionsSetHeaderIfAbsent(JavaBlock function, String expression, String headerName) {

@@ -28,6 +28,7 @@ import tsptest.methodoverride.implementation.models.GroupPartETagRequest;
 import tsptest.methodoverride.implementation.models.GroupPartRequest;
 import tsptest.methodoverride.models.GroupAllOptions;
 import tsptest.methodoverride.models.GroupExcludeBodyModel;
+import tsptest.methodoverride.models.GroupHeaderOptions;
 import tsptest.methodoverride.models.GroupPartETagOptions;
 import tsptest.methodoverride.models.GroupPartOptions;
 import tsptest.methodoverride.models.GroupQueryOptions;
@@ -58,9 +59,11 @@ public final class MethodOverrideAsyncClient {
      * <tr><th>Name</th><th>Type</th><th>Required</th><th>Description</th></tr>
      * <tr><td>foo</td><td>String</td><td>No</td><td>The foo parameter</td></tr>
      * <tr><td>bar</td><td>String</td><td>No</td><td>The bar parameter</td></tr>
+     * <tr><td>kind</td><td>String</td><td>No</td><td>The kind parameter. Allowed values: "first", "second".</td></tr>
      * </table>
      * You can add these to a request with {@link RequestOptions#addQueryParam}
      * 
+     * @param options The options parameter.
      * @param requestOptions The options to configure the HTTP request before HTTP client sends it.
      * @throws HttpResponseException thrown if the request is rejected by server.
      * @throws ClientAuthenticationException thrown if the request is rejected by server on status code 401.
@@ -70,8 +73,33 @@ public final class MethodOverrideAsyncClient {
      */
     @Generated
     @ServiceMethod(returns = ReturnType.SINGLE)
-    public Mono<Response<Void>> groupQueryWithResponse(RequestOptions requestOptions) {
-        return this.serviceClient.groupQueryWithResponseAsync(requestOptions);
+    public Mono<Response<Void>> groupQueryWithResponse(GroupQueryOptions options, RequestOptions requestOptions) {
+        return this.serviceClient.groupQueryWithResponseAsync(options, requestOptions);
+    }
+
+    /**
+     * A remote procedure call (RPC) operation.
+     * <p><strong>Header Parameters</strong></p>
+     * <table border="1">
+     * <caption>Header Parameters</caption>
+     * <tr><th>Name</th><th>Type</th><th>Required</th><th>Description</th></tr>
+     * <tr><td>x-foo</td><td>String</td><td>No</td><td>The foo parameter</td></tr>
+     * <tr><td>x-bar</td><td>String</td><td>No</td><td>The bar parameter</td></tr>
+     * </table>
+     * You can add these to a request with {@link RequestOptions#addHeader}
+     *
+     * @param options The options parameter.
+     * @param requestOptions The options to configure the HTTP request before HTTP client sends it.
+     * @throws HttpResponseException thrown if the request is rejected by server.
+     * @throws ClientAuthenticationException thrown if the request is rejected by server on status code 401.
+     * @throws ResourceNotFoundException thrown if the request is rejected by server on status code 404.
+     * @throws ResourceModifiedException thrown if the request is rejected by server on status code 409.
+     * @return the {@link Response} on successful completion of {@link Mono}.
+     */
+    @Generated
+    @ServiceMethod(returns = ReturnType.SINGLE)
+    public Mono<Response<Void>> groupHeaderWithResponse(GroupHeaderOptions options, RequestOptions requestOptions) {
+        return this.serviceClient.groupHeaderWithResponseAsync(options, requestOptions);
     }
 
     /**
@@ -198,6 +226,7 @@ public final class MethodOverrideAsyncClient {
      * <tr><th>Name</th><th>Type</th><th>Required</th><th>Description</th></tr>
      * <tr><td>foo</td><td>String</td><td>No</td><td>The foo parameter</td></tr>
      * <tr><td>bar</td><td>String</td><td>No</td><td>The bar parameter</td></tr>
+     * <tr><td>kind</td><td>String</td><td>No</td><td>The kind parameter. Allowed values: "first", "second".</td></tr>
      * </table>
      * You can add these to a request with {@link RequestOptions#addQueryParam}
      * <p><strong>Request Body Schema</strong></p>
@@ -212,6 +241,7 @@ public final class MethodOverrideAsyncClient {
      * </pre>
      * 
      * @param body The body parameter.
+     * @param options The options parameter.
      * @param requestOptions The options to configure the HTTP request before HTTP client sends it.
      * @throws HttpResponseException thrown if the request is rejected by server.
      * @throws ClientAuthenticationException thrown if the request is rejected by server on status code 401.
@@ -221,8 +251,9 @@ public final class MethodOverrideAsyncClient {
      */
     @Generated
     @ServiceMethod(returns = ReturnType.SINGLE)
-    public Mono<Response<Void>> groupExcludeBodyWithResponse(BinaryData body, RequestOptions requestOptions) {
-        return this.serviceClient.groupExcludeBodyWithResponseAsync(body, requestOptions);
+    public Mono<Response<Void>> groupExcludeBodyWithResponse(BinaryData body, GroupQueryOptions options,
+        RequestOptions requestOptions) {
+        return this.serviceClient.groupExcludeBodyWithResponseAsync(body, options, requestOptions);
     }
 
     /**
@@ -287,15 +318,7 @@ public final class MethodOverrideAsyncClient {
     public Mono<Void> groupQuery(GroupQueryOptions options) {
         // Generated convenience method for groupQueryWithResponse
         RequestOptions requestOptions = new RequestOptions();
-        String foo = options == null ? null : options.getFoo();
-        String bar = options == null ? null : options.getBar();
-        if (foo != null) {
-            requestOptions.addQueryParam("foo", foo, false);
-        }
-        if (bar != null) {
-            requestOptions.addQueryParam("bar", bar, false);
-        }
-        return groupQueryWithResponse(requestOptions).flatMap(FluxUtil::toMono);
+        return groupQueryWithResponse(options, requestOptions).flatMap(FluxUtil::toMono);
     }
 
     /**
@@ -313,7 +336,45 @@ public final class MethodOverrideAsyncClient {
     public Mono<Void> groupQuery() {
         // Generated convenience method for groupQueryWithResponse
         RequestOptions requestOptions = new RequestOptions();
-        return groupQueryWithResponse(requestOptions).flatMap(FluxUtil::toMono);
+        return groupQueryWithResponse(null, requestOptions).flatMap(FluxUtil::toMono);
+    }
+
+    /**
+     * A remote procedure call (RPC) operation.
+     *
+     * @param options The options parameter.
+     * @throws IllegalArgumentException thrown if parameters fail the validation.
+     * @throws HttpResponseException thrown if the request is rejected by server.
+     * @throws ClientAuthenticationException thrown if the request is rejected by server on status code 401.
+     * @throws ResourceNotFoundException thrown if the request is rejected by server on status code 404.
+     * @throws ResourceModifiedException thrown if the request is rejected by server on status code 409.
+     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
+     * @return A {@link Mono} that completes when a successful response is received.
+     */
+    @Generated
+    @ServiceMethod(returns = ReturnType.SINGLE)
+    public Mono<Void> groupHeader(GroupHeaderOptions options) {
+        // Generated convenience method for groupHeaderWithResponse
+        RequestOptions requestOptions = new RequestOptions();
+        return groupHeaderWithResponse(options, requestOptions).flatMap(FluxUtil::toMono);
+    }
+
+    /**
+     * A remote procedure call (RPC) operation.
+     *
+     * @throws HttpResponseException thrown if the request is rejected by server.
+     * @throws ClientAuthenticationException thrown if the request is rejected by server on status code 401.
+     * @throws ResourceNotFoundException thrown if the request is rejected by server on status code 404.
+     * @throws ResourceModifiedException thrown if the request is rejected by server on status code 409.
+     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
+     * @return A {@link Mono} that completes when a successful response is received.
+     */
+    @Generated
+    @ServiceMethod(returns = ReturnType.SINGLE)
+    public Mono<Void> groupHeader() {
+        // Generated convenience method for groupHeaderWithResponse
+        RequestOptions requestOptions = new RequestOptions();
+        return groupHeaderWithResponse(null, requestOptions).flatMap(FluxUtil::toMono);
     }
 
     /**
@@ -490,15 +551,8 @@ public final class MethodOverrideAsyncClient {
     public Mono<Void> groupExcludeBody(GroupExcludeBodyModel body, GroupQueryOptions options) {
         // Generated convenience method for groupExcludeBodyWithResponse
         RequestOptions requestOptions = new RequestOptions();
-        String foo = options == null ? null : options.getFoo();
-        String bar = options == null ? null : options.getBar();
-        if (foo != null) {
-            requestOptions.addQueryParam("foo", foo, false);
-        }
-        if (bar != null) {
-            requestOptions.addQueryParam("bar", bar, false);
-        }
-        return groupExcludeBodyWithResponse(BinaryData.fromObject(body), requestOptions).flatMap(FluxUtil::toMono);
+        return groupExcludeBodyWithResponse(BinaryData.fromObject(body), options, requestOptions)
+            .flatMap(FluxUtil::toMono);
     }
 
     /**
@@ -518,7 +572,8 @@ public final class MethodOverrideAsyncClient {
     public Mono<Void> groupExcludeBody(GroupExcludeBodyModel body) {
         // Generated convenience method for groupExcludeBodyWithResponse
         RequestOptions requestOptions = new RequestOptions();
-        return groupExcludeBodyWithResponse(BinaryData.fromObject(body), requestOptions).flatMap(FluxUtil::toMono);
+        return groupExcludeBodyWithResponse(BinaryData.fromObject(body), null, requestOptions)
+            .flatMap(FluxUtil::toMono);
     }
 
     /**
