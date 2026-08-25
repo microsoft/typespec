@@ -27,11 +27,11 @@ namespace Microsoft.TypeSpec.Generator.Providers
         public CanonicalTypeProvider(
             TypeProvider generatedTypeProvider,
             InputType? inputType,
-            IReadOnlyList<InputModelProperty>? specProperties = null)
+            IReadOnlyList<InputModelProperty>? canonicalInputProperties = null)
         {
             _generatedTypeProvider = generatedTypeProvider;
             var inputModel = inputType as InputModelType;
-            _specProperties = specProperties ?? inputModel?.Properties ?? [];
+            _specProperties = canonicalInputProperties ?? inputModel?.Properties ?? [];
             _specPropertiesMap = [];
             foreach (var property in _specProperties)
             {

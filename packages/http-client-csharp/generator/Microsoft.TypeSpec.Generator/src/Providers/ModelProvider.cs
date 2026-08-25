@@ -81,7 +81,7 @@ namespace Microsoft.TypeSpec.Generator.Providers
         }
 
         private protected override CanonicalTypeProvider BuildCanonicalView()
-            => new(this, _inputModel, GetPropertiesToBuild());
+            => new(this, _inputModel, canonicalInputProperties: GetPropertiesToBuild());
 
         public bool IsUnknownDiscriminatorModel => _inputModel.IsUnknownDiscriminatorModel;
 
