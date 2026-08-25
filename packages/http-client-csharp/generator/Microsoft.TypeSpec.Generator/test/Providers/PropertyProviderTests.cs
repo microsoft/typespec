@@ -282,6 +282,8 @@ namespace Microsoft.TypeSpec.Generator.Tests.Providers
 
             yield return new TestCaseData("StartTime", dateTime, false, "StartsOn");
             yield return new TestCaseData("EndTime", dateTime, false, "EndsOn");
+            yield return new TestCaseData("StartOn", dateTime, false, "StartsOn");
+            yield return new TestCaseData("EndOn", dateTime, false, "EndsOn");
             yield return new TestCaseData("FirstTimestamp", dateTime, false, "FirstTimestamp");
             yield return new TestCaseData("LastTimestamp", dateTime, false, "LastTimestamp");
             yield return new TestCaseData("CreatedAt", dateTime, false, "CreatedOn");

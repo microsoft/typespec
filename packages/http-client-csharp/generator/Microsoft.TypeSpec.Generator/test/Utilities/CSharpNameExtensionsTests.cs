@@ -44,10 +44,18 @@ namespace Microsoft.TypeSpec.Generator.Tests.Utilities
 
             yield return new TestCaseData("startTime", dateTime, "startsOn");
             yield return new TestCaseData("StartDate", dateTime, "StartsOn");
+            yield return new TestCaseData("startOn", dateTime, "startsOn");
+            yield return new TestCaseData("EndOn", dateTime, "EndsOn");
+            yield return new TestCaseData("startsOn", dateTime, "startsOn");
+            yield return new TestCaseData("endsOn", dateTime, "endsOn");
             yield return new TestCaseData("endTimestamp", dateTime, "endsOn");
             yield return new TestCaseData("EndAt", dateTime, "EndsOn");
             yield return new TestCaseData("leaseStartDateTime", dateTime, "leaseStartsOn");
             yield return new TestCaseData("MaintenanceEndTime", dateTime, "MaintenanceEndsOn");
+            yield return new TestCaseData("createdOn", dateTime, "createdOn");
+            yield return new TestCaseData("turnOn", dateTime, "turnOn");
+            yield return new TestCaseData("firstOn", dateTime, "firstOn");
+            yield return new TestCaseData("lastOn", dateTime, "lastOn");
             yield return new TestCaseData("firstTimestamp", dateTime, "firstTimestamp");
             yield return new TestCaseData("FirstTime", dateTime, "FirstTime");
             yield return new TestCaseData("lastDateTime", dateTime, "lastDateTime");
@@ -61,6 +69,7 @@ namespace Microsoft.TypeSpec.Generator.Tests.Utilities
             yield return new TestCaseData("pointInTime", dateTime, "pointInTime");
             yield return new TestCaseData("recoveryPointInTime", dateTime, "recoveryPointInTime");
             yield return new TestCaseData("startTime", InputPrimitiveType.String, "startTime");
+            yield return new TestCaseData("startOn", InputPrimitiveType.String, "startOn");
             yield return new TestCaseData("createdAt", dateTime, "createdOn");
             yield return new TestCaseData("expiresAt", dateTime, "expiresOn");
             yield return new TestCaseData("deletedTime", dateTime, "deletedOn");

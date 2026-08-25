@@ -218,7 +218,9 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
                 // Only filter if there are reinjected parameters specified
                 if (reinjectedParamNames.Count > 0)
                 {
-                    parameters = parameters.Where(p => reinjectedParamNames.Contains(p.Name)).ToList();
+                    parameters = parameters
+                        .Where(p => reinjectedParamNames.Contains(p.InputParameter?.Name ?? p.Name))
+                        .ToList();
                 }
 
                 parameters = [ScmKnownParameters.NextPage, .. parameters];
@@ -373,8 +375,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
             {
                 foreach (var param in nextLink.ReInjectedParameters)
                 {
-                    var reinjectedParameter = ScmCodeModelGenerator.Instance.TypeFactory.CreateParameter(param);
-                    if (reinjectedParameter != null && paramMap.TryGetValue(reinjectedParameter.Name, out var paramInSignature))
+                    if (paramMap.TryGetValue(param.Name, out var paramInSignature))
                     {
                         reinjectedParamsMap[param.Name] = paramInSignature;
                     }
@@ -389,8 +390,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
                 var pageSizeParameter = operation.Parameters.FirstOrDefault(p => p.Name.Equals(pageSizeParameterName, StringComparison.OrdinalIgnoreCase));
                 if (pageSizeParameter != null)
                 {
-                    var pageSizeParam = ScmCodeModelGenerator.Instance.TypeFactory.CreateParameter(pageSizeParameter);
-                    if (pageSizeParam != null && paramMap.TryGetValue(pageSizeParam.Name, out var paramInSignature))
+                    if (paramMap.TryGetValue(pageSizeParameter.Name, out var paramInSignature))
                     {
                         reinjectedParamsMap[pageSizeParameter.Name] = paramInSignature;
                     }
@@ -401,8 +401,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
             var apiVersionParam = operation.Parameters.FirstOrDefault(p => p.IsApiVersion);
             if (apiVersionParam != null && !reinjectedParamsMap.ContainsKey(apiVersionParam.Name))
             {
-                var createdParam = ScmCodeModelGenerator.Instance.TypeFactory.CreateParameter(apiVersionParam);
-                if (createdParam != null && paramMap.TryGetValue(createdParam.Name, out var paramInSignature))
+                if (paramMap.TryGetValue(apiVersionParam.Name, out var paramInSignature))
                 {
                     reinjectedParamsMap[apiVersionParam.Name] = paramInSignature;
                 }

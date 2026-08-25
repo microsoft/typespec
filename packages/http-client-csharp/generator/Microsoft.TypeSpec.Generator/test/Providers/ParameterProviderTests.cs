@@ -117,6 +117,8 @@ namespace Microsoft.TypeSpec.Generator.Tests.Providers
             {
                 ("startTime", dateTime, "startsOn"),
                 ("endTime", dateTime, "endsOn"),
+                ("startOn", dateTime, "startsOn"),
+                ("endOn", dateTime, "endsOn"),
                 ("firstTimestamp", dateTime, "firstTimestamp"),
                 ("lastTimestamp", dateTime, "lastTimestamp"),
                 ("createdAt", dateTime, "createdOn"),

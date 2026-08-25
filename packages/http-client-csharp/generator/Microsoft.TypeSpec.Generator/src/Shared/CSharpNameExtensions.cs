@@ -167,6 +167,11 @@ namespace Microsoft.TypeSpec.Generator.Utilities
                     return DateSuffix.Length;
                 }
 
+                if (name.Length > OnSuffix.Length && name.EndsWith(OnSuffix, StringComparison.Ordinal))
+                {
+                    return OnSuffix.Length;
+                }
+
                 return name.Length > AtSuffix.Length && name.EndsWith(AtSuffix, StringComparison.Ordinal)
                     ? AtSuffix.Length
                     : 0;

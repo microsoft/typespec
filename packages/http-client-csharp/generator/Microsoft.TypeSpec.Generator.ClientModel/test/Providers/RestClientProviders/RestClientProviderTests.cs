@@ -1455,6 +1455,74 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers.RestClientPro
             Assert.AreEqual(Helpers.GetExpectedFromFile(), file.Content);
         }
 
+        [TestCase(false)]
+        [TestCase(true)]
+        public void NormalizedDateTimeNextLinkReinjectedParametersAreSerialized(bool includeCollision)
+        {
+            var dateType = new InputDateTimeType(
+                DateTimeKnownEncoding.Rfc7231,
+                "utcDateTime",
+                "TypeSpec.utcDateTime",
+                InputPrimitiveType.String);
+            var startTime = InputFactory.QueryParameter(
+                "startTime",
+                dateType,
+                isRequired: true,
+                serializedName: "start-time");
+            var startsOn = InputFactory.QueryParameter(
+                "startsOn",
+                InputPrimitiveType.String,
+                isRequired: true,
+                serializedName: "starts-on");
+            var pagingMetadata = InputFactory.NextLinkPagingMetadata(
+                ["cats"],
+                ["nextCat"],
+                InputResponseLocation.Header,
+                includeCollision ? [startTime, startsOn] : [startTime]);
+            var response = InputFactory.OperationResponse(
+                [200],
+                InputFactory.Model(
+                    "page",
+                    properties:
+                    [
+                        InputFactory.Property(
+                            "cats",
+                            InputFactory.Array(InputPrimitiveType.String)),
+                        InputFactory.Property("nextCat", InputPrimitiveType.Url)
+                    ]));
+            var operation = InputFactory.Operation(
+                "getCats",
+                responses: [response],
+                parameters: [startTime, startsOn]);
+            var inputServiceMethod = InputFactory.PagingServiceMethod(
+                "getCats",
+                operation,
+                pagingMetadata: pagingMetadata,
+                parameters:
+                [
+                    InputFactory.MethodParameter(
+                        "startTime",
+                        dateType,
+                        isRequired: true,
+                        location: InputRequestLocation.Query),
+                    InputFactory.MethodParameter(
+                        "startsOn",
+                        InputPrimitiveType.String,
+                        isRequired: true,
+                        location: InputRequestLocation.Query)
+                ]);
+            var client = InputFactory.Client("TestClient", methods: [inputServiceMethod]);
+
+            var method = new ClientProvider(client).RestClient.Methods.Single(
+                method => method.Signature.Name == "CreateNextGetCatsRequest");
+            Assert.AreEqual(includeCollision ? 4 : 3, method.Signature.Parameters.Count);
+            using var writer = new CodeWriter();
+            writer.WriteMethod(method);
+            Assert.AreEqual(
+                Helpers.GetExpectedFromFile(parameters: includeCollision.ToString()).ReplaceLineEndings("\n"),
+                writer.ToString(false));
+        }
+
         [Test]
         public void TestPageSizeParameterReinjectedInCreateNextRequestMethod()
         {
