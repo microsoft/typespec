@@ -214,6 +214,9 @@ namespace Microsoft.TypeSpec.Generator.Providers
                     attributes: propertySymbol.GetAttributes().Select(a => new AttributeStatement(a)).ToArray())
                 {
                     OriginalName = GetOriginalName(propertySymbol),
+                    GetterModifiers = propertySymbol.GetMethod is null
+                        ? MethodSignatureModifiers.Private
+                        : GetAccessModifier(propertySymbol.GetMethod.DeclaredAccessibility),
                     CustomProvider = new(() => propertySymbol.Type is INamedTypeSymbol propertyNamedTypeSymbol
                         ? new NamedTypeSymbolProvider(propertyNamedTypeSymbol, _compilation)
                         : null)
@@ -992,8 +995,13 @@ namespace Microsoft.TypeSpec.Generator.Providers
             Accessibility.Protected => FieldModifiers.Protected,
             Accessibility.Internal => FieldModifiers.Internal,
             Accessibility.Public => FieldModifiers.Public,
-            _ => FieldModifiers.Public
+            Accessibility.ProtectedOrInternal => FieldModifiers.Protected | FieldModifiers.Internal,
+            Accessibility.ProtectedAndInternal => FieldModifiers.Protected | FieldModifiers.Private,
+            _ => 0
         };
+
+        internal bool IsInCurrentCompilation
+            => SymbolEqualityComparer.Default.Equals(_namedTypeSymbol.ContainingAssembly, _compilation.Assembly);
 
         private CSharpType? GetNullableCSharpType(ITypeSymbol typeSymbol)
         {

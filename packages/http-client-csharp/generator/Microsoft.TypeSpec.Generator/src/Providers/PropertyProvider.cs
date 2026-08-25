@@ -29,6 +29,7 @@ namespace Microsoft.TypeSpec.Generator.Providers
 
         public FormattableString? Description { get; private set; }
         public MethodSignatureModifiers Modifiers { get; internal set; }
+        internal MethodSignatureModifiers GetterModifiers { get; set; }
         public CSharpType Type { get; internal set; }
         public string Name { get; internal set; }
         public PropertyBody Body { get; internal set; }

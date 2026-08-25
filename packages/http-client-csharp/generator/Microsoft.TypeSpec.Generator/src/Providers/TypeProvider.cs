@@ -485,7 +485,9 @@ namespace Microsoft.TypeSpec.Generator.Providers
                             property.Type,
                             property.Modifiers.HasFlag(MethodSignatureModifiers.Public) &&
                                 !property.Modifiers.HasFlag(MethodSignatureModifiers.Static),
+                            CanReadInheritedProperty(property),
                             CanWriteInheritedProperty(property),
+                            baseTypeProvider,
                             specPropertyList,
                             specPropertiesByName);
                     }
@@ -498,7 +500,9 @@ namespace Microsoft.TypeSpec.Generator.Providers
                             field.OriginalName,
                             field.Type,
                             field.Modifiers.HasFlag(FieldModifiers.Public) && !field.Modifiers.HasFlag(FieldModifiers.Static),
+                            true,
                             !field.Modifiers.HasFlag(FieldModifiers.ReadOnly) && !field.Modifiers.HasFlag(FieldModifiers.Const),
+                            baseTypeProvider,
                             specPropertyList,
                             specPropertiesByName);
                     }
@@ -515,7 +519,9 @@ namespace Microsoft.TypeSpec.Generator.Providers
                             property.Type,
                             property.Modifiers.HasFlag(MethodSignatureModifiers.Public) &&
                                 !property.Modifiers.HasFlag(MethodSignatureModifiers.Static),
+                            CanReadInheritedProperty(property),
                             CanWriteInheritedProperty(property),
+                            baseTypeProvider,
                             specPropertyList,
                             specPropertiesByName);
                     }
@@ -528,7 +534,9 @@ namespace Microsoft.TypeSpec.Generator.Providers
                             field.OriginalName,
                             field.Type,
                             field.Modifiers.HasFlag(FieldModifiers.Public) && !field.Modifiers.HasFlag(FieldModifiers.Static),
+                            true,
                             !field.Modifiers.HasFlag(FieldModifiers.ReadOnly) && !field.Modifiers.HasFlag(FieldModifiers.Const),
+                            baseTypeProvider,
                             specPropertyList,
                             specPropertiesByName);
                     }
@@ -538,17 +546,19 @@ namespace Microsoft.TypeSpec.Generator.Providers
             }
         }
 
-        private static void AddInheritedCustomMemberName(
+        private void AddInheritedCustomMemberName(
             HashSet<string> customNames,
             string name,
             string? originalName,
             CSharpType type,
             bool isInheritable,
+            bool isReadable,
             bool isWritable,
+            TypeProvider memberEnclosingType,
             IReadOnlyList<PropertyProvider> specProperties,
             IReadOnlyDictionary<string, InputProperty> specPropertiesByName)
         {
-            if (!isInheritable)
+            if (!isInheritable || !isReadable)
             {
                 return;
             }
@@ -557,12 +567,21 @@ namespace Microsoft.TypeSpec.Generator.Providers
             AddCustomName(candidateNames, name, originalName, specPropertiesByName);
             if (specProperties.Any(property =>
                 candidateNames.Contains(property.Name) &&
-                property.Type.AreNamesEqual(type) &&
-                (!property.Body.HasSetter || isWritable)))
+                property.Type.Equals(type) &&
+                IsInheritedMemberUsable(property, isWritable, memberEnclosingType)))
             {
                 customNames.UnionWith(candidateNames);
             }
         }
+
+        private protected virtual bool IsInheritedMemberUsable(
+            PropertyProvider property,
+            bool isWritable,
+            TypeProvider memberEnclosingType)
+            => !property.Body.HasSetter || isWritable;
+
+        private static bool CanReadInheritedProperty(PropertyProvider property)
+            => IsAccessorAccessible(property.GetterModifiers, property.EnclosingType);
 
         private static bool CanWriteInheritedProperty(PropertyProvider property)
         {
@@ -578,9 +597,25 @@ namespace Microsoft.TypeSpec.Generator.Providers
                 _ => MethodSignatureModifiers.None
             };
 
-            return setterModifiers == MethodSignatureModifiers.None ||
-                setterModifiers.HasFlag(MethodSignatureModifiers.Public) ||
-                setterModifiers.HasFlag(MethodSignatureModifiers.Protected);
+            return IsAccessorAccessible(setterModifiers, property.EnclosingType);
+        }
+
+        private static bool IsAccessorAccessible(MethodSignatureModifiers modifiers, TypeProvider enclosingType)
+        {
+            if (modifiers == MethodSignatureModifiers.None || modifiers.HasFlag(MethodSignatureModifiers.Public))
+            {
+                return true;
+            }
+
+            var isInCurrentCompilation = enclosingType is not NamedTypeSymbolProvider symbolProvider ||
+                symbolProvider.IsInCurrentCompilation;
+            if (modifiers.HasFlag(MethodSignatureModifiers.Private))
+            {
+                return modifiers.HasFlag(MethodSignatureModifiers.Protected) && isInCurrentCompilation;
+            }
+
+            return modifiers.HasFlag(MethodSignatureModifiers.Protected) ||
+                (modifiers.HasFlag(MethodSignatureModifiers.Internal) && isInCurrentCompilation);
         }
 
         private static void AddCustomName(

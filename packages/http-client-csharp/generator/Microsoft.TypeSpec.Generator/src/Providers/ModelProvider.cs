@@ -228,6 +228,17 @@ namespace Microsoft.TypeSpec.Generator.Providers
             }
         }
         protected virtual bool ShouldSkipDerivedModelProperties => false;
+        private protected override bool IsInheritedMemberUsable(
+            PropertyProvider property,
+            bool isWritable,
+            TypeProvider memberEnclosingType)
+        {
+            var requiresInitialization = _inputModel.Usage.HasFlag(InputModelTypeUsage.Input) &&
+                property.InputProperty?.IsReadOnly != true;
+            // ModelProvider bases participate in constructor generation. A symbol-only base does not, so
+            // suppressing an input property would also lose its constructor parameter and initialization.
+            return !requiresInitialization || memberEnclosingType is ModelProvider;
+        }
         private protected virtual bool ShouldUseFullConstructorInDerivedTypes => true;
         /// <summary>
         /// Gets whether derived models should skip overriding serialization methods from this base model.
@@ -616,11 +627,10 @@ namespace Microsoft.TypeSpec.Generator.Providers
             var inputBaseModel = _inputModel.BaseModel;
             while (inputBaseModel is not null)
             {
-                var baseModelProvider = CodeModelGenerator.Instance.TypeFactory.CreateModel(inputBaseModel);
                 var properties = new List<InputModelProperty>();
                 foreach (var property in inputBaseModel.Properties)
                 {
-                    if (claimedPropertyNames.Add(property.Name) && baseModelProvider?.ShouldSkipDerivedModelProperties != true)
+                    if (claimedPropertyNames.Add(property.Name))
                     {
                         properties.Add(property);
                     }
