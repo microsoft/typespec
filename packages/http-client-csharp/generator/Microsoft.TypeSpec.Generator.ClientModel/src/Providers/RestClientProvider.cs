@@ -263,11 +263,9 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
 
             var parameters = signature.Parameters.Concat(ClientProvider.ClientParameters).ToArray();
             var paramMap = new ParameterProviderMap();
-            foreach (var parameter in parameters)
-            {
-                paramMap[parameter.Name] = parameter;
-            }
 
+            // Register the input model names first so that they win over the normalized C# names, which may collide
+            // with the raw name of a different parameter.
             foreach (var parameter in parameters)
             {
                 if (parameter.InputParameter is not { } inputParameter)
@@ -275,12 +273,18 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
                     continue;
                 }
 
-                paramMap.TryAdd(inputParameter.Name, parameter);
-                paramMap.TryAdd(inputParameter.OriginalName, parameter);
+                paramMap.AddInputName(inputParameter.Name, parameter);
+                paramMap.AddInputName(inputParameter.OriginalName, parameter);
                 if (inputParameter is InputMethodParameter { ParamAlias: string alias })
                 {
-                    paramMap.TryAdd(alias, parameter);
+                    paramMap.AddInputName(alias, parameter);
                 }
+            }
+
+            // The generated names act as fallback aliases for lookups without a matching input parameter.
+            foreach (var parameter in parameters)
+            {
+                paramMap.SetGeneratedName(parameter.Name, parameter);
             }
 
             foreach (var inputParameter in _inputClient.Parameters)
@@ -288,7 +292,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
                 if (inputParameter is InputMethodParameter { ParamAlias: string alias } &&
                     paramMap.TryGetValue(inputParameter.Name, out var parameter))
                 {
-                    paramMap[alias] = parameter;
+                    paramMap.SetInputName(alias, parameter);
                 }
             }
 
@@ -404,7 +408,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
 
             // Add API version parameters that need to be preserved across pagination requests
             var apiVersionParam = operation.Parameters.FirstOrDefault(p => p.IsApiVersion);
-            if (apiVersionParam != null && !reinjectedParamsMap.ContainsExactKey(apiVersionParam.Name))
+            if (apiVersionParam != null && !reinjectedParamsMap.ContainsExactInputName(apiVersionParam.Name))
             {
                 if (paramMap.TryGetValue(apiVersionParam.Name, out var paramInSignature))
                 {
@@ -1644,37 +1648,60 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
             throw new InvalidOperationException($"inputParam `{inputParam.Name}` is `Spread` but not a model type");
         }
 
+        /// <summary>
+        /// Maps names used by the input model to the parameters of the generated method. Names coming from the input
+        /// model (wire names, original names and aliases) take precedence over the normalized C# names of the generated
+        /// parameters, because normalization can produce a C# name that collides with the raw name of another parameter.
+        /// The generated names are kept as a fallback for lookups that have no corresponding input parameter, such as
+        /// URI template segments and client parameters like the endpoint.
+        /// </summary>
         private sealed class ParameterProviderMap
         {
-            private readonly Dictionary<string, ParameterProvider> _exact = new(StringComparer.Ordinal);
-            private readonly Dictionary<string, ParameterProvider> _caseInsensitive = new(StringComparer.OrdinalIgnoreCase);
+            private readonly Dictionary<string, ParameterProvider> _inputExact = new(StringComparer.Ordinal);
+            private readonly Dictionary<string, ParameterProvider> _inputIgnoreCase = new(StringComparer.OrdinalIgnoreCase);
+            private readonly Dictionary<string, ParameterProvider> _generatedExact = new(StringComparer.Ordinal);
+            private readonly Dictionary<string, ParameterProvider> _generatedIgnoreCase = new(StringComparer.OrdinalIgnoreCase);
 
-            public int Count => _exact.Count;
+            public int Count => _inputExact.Count + _generatedExact.Count;
 
             public ParameterProvider this[string name]
             {
                 get => TryGetValue(name, out var parameter)
                     ? parameter
                     : throw new KeyNotFoundException($"No parameter named '{name}' was found.");
-                set
-                {
-                    _exact[name] = value;
-                    _caseInsensitive[name] = value;
-                }
+                set => SetInputName(name, value);
             }
 
-            public bool TryAdd(string name, ParameterProvider parameter)
+            /// <summary>
+            /// Registers an input model name if it is not already mapped. The first registration wins so that the
+            /// parameter's own name takes precedence over its original name and alias.
+            /// </summary>
+            public bool AddInputName(string name, ParameterProvider parameter)
             {
-                var added = _exact.TryAdd(name, parameter);
-                _caseInsensitive.TryAdd(name, parameter);
+                var added = _inputExact.TryAdd(name, parameter);
+                _inputIgnoreCase.TryAdd(name, parameter);
                 return added;
             }
 
-            public bool ContainsExactKey(string name) => _exact.ContainsKey(name);
+            public void SetInputName(string name, ParameterProvider parameter)
+            {
+                _inputExact[name] = parameter;
+                _inputIgnoreCase[name] = parameter;
+            }
+
+            public void SetGeneratedName(string name, ParameterProvider parameter)
+            {
+                _generatedExact[name] = parameter;
+                _generatedIgnoreCase[name] = parameter;
+            }
+
+            public bool ContainsExactInputName(string name) => _inputExact.ContainsKey(name);
 
             public bool TryGetValue(string name, [NotNullWhen(true)] out ParameterProvider? parameter)
-                => _exact.TryGetValue(name, out parameter) ||
-                    _caseInsensitive.TryGetValue(name, out parameter);
+                => _inputExact.TryGetValue(name, out parameter) ||
+                    _generatedExact.TryGetValue(name, out parameter) ||
+                    _inputIgnoreCase.TryGetValue(name, out parameter) ||
+                    _generatedIgnoreCase.TryGetValue(name, out parameter);
         }
 
         private class StatusCodesComparer : IEqualityComparer<List<int>>

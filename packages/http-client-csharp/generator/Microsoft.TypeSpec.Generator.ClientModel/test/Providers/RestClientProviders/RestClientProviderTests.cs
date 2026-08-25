@@ -156,6 +156,45 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers.RestClientPro
         }
 
         [Test]
+        public void ReversedCollidingNormalizedDateTimeOperationParametersAreSerialized()
+        {
+            var dateType = new InputDateTimeType(
+                DateTimeKnownEncoding.Rfc7231,
+                "utcDateTime",
+                "TypeSpec.utcDateTime",
+                InputPrimitiveType.String);
+            var operation = InputFactory.Operation(
+                "GetThing",
+                parameters:
+                [
+                    // The raw name of this parameter matches the normalized name of the date-time
+                    // parameter that follows it, so registration order must not decide the mapping.
+                    InputFactory.QueryParameter(
+                        "startsOn",
+                        InputPrimitiveType.String,
+                        isRequired: true,
+                        serializedName: "starts-on"),
+                    InputFactory.QueryParameter(
+                        "startTime",
+                        dateType,
+                        isRequired: true,
+                        serializedName: "start-time")
+                ],
+                responses: [InputFactory.OperationResponse([204])]);
+            var inputClient = InputFactory.Client(
+                "TestClient",
+                methods: [InputFactory.BasicServiceMethod("GetThing", operation)]);
+            MockHelpers.LoadMockGenerator(clients: () => [inputClient]);
+
+            var method = new ClientProvider(inputClient).RestClient.Methods.Single();
+            using var writer = new CodeWriter();
+            writer.WriteMethod(method);
+            Assert.AreEqual(
+                Helpers.GetExpectedFromFile().ReplaceLineEndings("\n"),
+                writer.ToString(false));
+        }
+
+        [Test]
         public void CaseCollidingDateTimeOperationParametersAreSerialized()
         {
             var dateType = new InputDateTimeType(
