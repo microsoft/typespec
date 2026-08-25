@@ -299,13 +299,18 @@ namespace My.External.Library
         }
 
         [Test]
-        public async Task AddPackageReferencesFromProject_AddsMultiplePackageReferences()
+        [TestCase(true)]
+        [TestCase(false)]
+        public async Task AddPackageReferencesFromProject_AddsMultiplePackageReferences(bool badPackage)
         {
             var ns = "TestNamespace";
             var nugetCacheDir = Path.Combine(_tempDirectory!, "NuGetCache");
 
             // Create two fake packages in the cache
-            CreateFakeNuGetPackage(nugetCacheDir, "First.Package", "1.0.0");
+            if (!badPackage)
+            {
+                CreateFakeNuGetPackage(nugetCacheDir, "First.Package", "1.0.0");
+            }
             CreateFakeNuGetPackage(nugetCacheDir, "Second.Package", "3.5.0");
 
             var csprojContent = @"<Project Sdk=""Microsoft.NET.Sdk"">
@@ -331,8 +336,14 @@ namespace My.External.Library
             var refCountBefore = CodeModelGenerator.Instance.AdditionalMetadataReferences.Count;
             await GeneratedCodeWorkspace.AddPackageReferencesFromProject();
             var refCountAfter = CodeModelGenerator.Instance.AdditionalMetadataReferences.Count;
-
-            Assert.AreEqual(refCountBefore + 2, refCountAfter, "Should have added two metadata references");
+            if (badPackage)
+            {
+                Assert.AreEqual(refCountBefore + 1, refCountAfter, "Should have added one metadata reference as the second one was intentionally broken");
+            }
+            else
+            {
+                Assert.AreEqual(refCountBefore + 2, refCountAfter, "Should have added two metadata references");
+            }
         }
 
         /// <summary>

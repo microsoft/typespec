@@ -6,6 +6,9 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
 using System.Linq;
+using System.Reflection;
+using System.Runtime.Versioning;
+using System.Text.Json;
 using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.Build.Construction;
@@ -18,6 +21,7 @@ using Microsoft.TypeSpec.Generator.Providers;
 using Microsoft.TypeSpec.Generator.SourceInput;
 using Microsoft.TypeSpec.Generator.Utilities;
 using NuGet.Configuration;
+using NuGet.Versioning;
 using MSBuildProjectCollection = Microsoft.Build.Evaluation.ProjectCollection;
 
 namespace Microsoft.TypeSpec.Generator
@@ -296,29 +300,73 @@ namespace Microsoft.TypeSpec.Generator
                 string error = await errorTask;
                 if (restore.ExitCode != 0)
                 {
-                    CodeModelGenerator.Instance.Emitter.Debug(
-                        $"The dotnet restore {projectFilePath} command exited with {restore.ExitCode}.\n" +
+                    CodeModelGenerator.Instance.Emitter.ReportDiagnostic(
+                        code: "unable-to-restore-target-package",
+                        message: $"The dotnet restore {projectFilePath} command exited with {restore.ExitCode}.\n" +
                         $"Standard output: {output}\n" +
-                        $"Error output: {error}"
-                        );
+                        $"Error output: {error}",
+                        severity: EmitterRpc.EmitterDiagnosticSeverity.Error
+                );
                 }
             }
             else
             {
-                CodeModelGenerator.Instance.Emitter.Debug(
-                    $"Unable to run dotnet restore on the project {projectFilePath}");
+                CodeModelGenerator.Instance.Emitter.ReportDiagnostic(
+                    code: "unable-to-run-dotnet-restore",
+                    message: $"Unable to run dotnet restore on the project {projectFilePath}",
+                    severity: EmitterRpc.EmitterDiagnosticSeverity.Error
+                );
             }
             var projectRoot = ProjectRootElement.Open(projectFilePath, new MSBuildProjectCollection());
             var nugetSettings = Settings.LoadDefaultSettings(projectFilePath);
             var globalPackagesFolder = SettingsUtility.GetGlobalPackagesFolder(nugetSettings);
 
+            // Read in the resolved direct dependencies
+            DirectoryInfo? directory = (new DirectoryInfo(CodeModelGenerator.Instance.Configuration.OutputDirectory)).Parent?.Parent?.Parent;
+            Dictionary<string, string> hshNameVersion = [];
+            string framework = NugetPackageResolver.CurrentFramework.GetShortFolderName();
+            if (directory != null)
+            {
+                string assetsJson = Path.Combine(directory.FullName, "artifacts", "obj", CodeModelGenerator.Instance.Configuration.PackageName, "project.assets.json");
+                if (!File.Exists(assetsJson))
+                {
+                    // Try to get file from the project directory.
+                    assetsJson = Path.Combine(CodeModelGenerator.Instance.Configuration.ProjectDirectory, "obj", "project.assets.json");
+                }
+                if (File.Exists(assetsJson))
+                {
+                    Utf8JsonReader reader = new Utf8JsonReader(File.ReadAllBytes(assetsJson));
+                    using JsonDocument document = JsonDocument.ParseValue(ref reader);
+                    foreach (JsonProperty prop in document.RootElement.EnumerateObject())
+                    {
+                        if (prop.Value.ValueKind == JsonValueKind.Object && prop.NameEquals("targets"))
+                        {
+                            foreach (JsonProperty targetFramework in prop.Value.EnumerateObject())
+                            {
+                                if (targetFramework.Value.ValueKind == JsonValueKind.Object && string.Equals(targetFramework.Name, framework, StringComparison.InvariantCultureIgnoreCase))
+                                {
+                                    // Parse dependencies. They are structured as SomePackage/package.version
+                                    foreach (JsonProperty packageAndVersion in targetFramework.Value.EnumerateObject())
+                                    {
+                                        string[] nameAndVersion = packageAndVersion.Name.Split('/');
+                                        if (nameAndVersion.Length == 2)
+                                        {
+                                            hshNameVersion[nameAndVersion[0]] = nameAndVersion[1];
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            }
             // Build a set of assembly names already registered so we can skip them
             var existingRefs = new HashSet<string>(
-                CodeModelGenerator.Instance.AdditionalMetadataReferences
-                    .Where(r => r.Display is not null)
-                    .Select(r => Path.GetFileNameWithoutExtension(r.Display!))
-                    .Where(n => !string.IsNullOrEmpty(n)),
-                StringComparer.OrdinalIgnoreCase);
+            CodeModelGenerator.Instance.AdditionalMetadataReferences
+                .Where(r => r.Display is not null)
+                .Select(r => Path.GetFileNameWithoutExtension(r.Display!))
+                .Where(n => !string.IsNullOrEmpty(n)),
+            StringComparer.OrdinalIgnoreCase);
 
             foreach (var item in projectRoot.Items.Where(i => i.ItemType == "PackageReference"))
             {
@@ -336,13 +384,28 @@ namespace Microsoft.TypeSpec.Generator
                 }
 
                 // Search the NuGet global packages folder for any cached version of this package.
-                string? resolvedAssemblyPath = NugetPackageResolver.FindPackageAssembly(globalPackagesFolder, refPackageName);
-
-                // If not found in cache, download the latest version from NuGet feeds
+                string? version = default;
+                hshNameVersion.TryGetValue(refPackageName, out version);
+                string? resolvedAssemblyPath = version is null
+                     ? NugetPackageResolver.FindPackageAssembly(globalPackagesFolder, refPackageName)
+                     : NugetPackageResolver.FindPackageAssemblyInVersion(globalPackagesFolder, refPackageName, version);
                 if (resolvedAssemblyPath == null)
                 {
                     CodeModelGenerator.Instance.Emitter.Debug(
-                        $"The package {refPackageName} was not restored.");
+                        $"The package {refPackageName}{(version != null ? "v. "+ version : "")} was not restored.");
+                }
+                else if (version is null)
+                {
+                    string packageDir = Path.Combine(globalPackagesFolder, refPackageName.ToLowerInvariant());
+                    string[] allDirs = Directory.GetDirectories(packageDir);
+                    NuGetVersion? maxVersion = allDirs.Select(dir => NuGetVersion.TryParse(Path.GetFileName(dir), out var v) ? v : null)
+                                                      .Where(t => t != null)
+                                                      .Max();
+                    if (maxVersion != null)
+                    {
+                        CodeModelGenerator.Instance.Emitter.Debug(
+                            $"Using cached {refPackageName} v. {maxVersion.Version}.");
+                    }
                 }
 
                 if (resolvedAssemblyPath != null)
