@@ -259,12 +259,13 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
             var operation = serviceMethod.Operation;
             var classifier = GetClassifier(operation);
 
-            var paramMap = signature.Parameters.ToDictionary(p => p.Name, StringComparer.OrdinalIgnoreCase);
+            var paramMap = new Dictionary<string, ParameterProvider>(StringComparer.OrdinalIgnoreCase);
             foreach (var parameter in signature.Parameters)
             {
+                paramMap.TryAdd(parameter.Name, parameter);
                 if (parameter.InputParameter is { } inputParameter)
                 {
-                    paramMap.TryAdd(inputParameter.Name, parameter);
+                    paramMap[inputParameter.Name] = parameter;
                 }
             }
 
