@@ -3,7 +3,7 @@ import { describe, it } from "vitest";
 import {
   getStructuredStreamKind,
   isStructuredStreamType,
-  partitionSseEvents,
+  partitionSSEEvents,
 } from "../src/http.js";
 
 describe("typespec-python: structured streaming", () => {
@@ -55,7 +55,7 @@ describe("typespec-python: structured streaming", () => {
     it("keeps a nameless string-constant `[DONE]` as a drop-and-stop sentinel", () => {
       const created = model("ResponseCreated");
       const done = constant("[DONE]");
-      const { events, terminalEvent } = partitionSseEvents(
+      const { events, terminalEvent } = partitionSSEEvents(
         [
           {
             eventType: "response.created",
@@ -78,7 +78,7 @@ describe("typespec-python: structured streaming", () => {
       const created = model("ResponseCreated");
       const completed = model("ResponseCompleted");
       const errored = model("StreamError");
-      const { events, terminalEvent } = partitionSseEvents(
+      const { events, terminalEvent } = partitionSSEEvents(
         [
           {
             eventType: "response.created",
@@ -112,7 +112,7 @@ describe("typespec-python: structured streaming", () => {
       const delta = model("ResponseDelta");
       const completed = model("ResponseCompleted");
       const done = constant("[DONE]");
-      const { events, terminalEvent } = partitionSseEvents(
+      const { events, terminalEvent } = partitionSSEEvents(
         [
           { eventType: "response.delta", isTerminalEvent: false, type: delta, payloadType: delta },
           {
@@ -135,7 +135,7 @@ describe("typespec-python: structured streaming", () => {
     it("emits the payload metadata for event envelopes", () => {
       const envelope = model("Envelope");
       const payload = { kind: "string" };
-      const { events } = partitionSseEvents(
+      const { events } = partitionSSEEvents(
         [
           {
             eventType: "withEnvelope",

@@ -109,9 +109,9 @@ class Response(BaseModel):
         streaming = yaml_data.get("streaming")
         self.streaming_kind: Optional[str] = streaming["kind"] if streaming else None
         self.streaming_events: list[StreamingEvent] = []
-        self._streaming_terminal_event: Optional[str] = streaming.get("terminalEvent") if streaming else None
+        self.terminal_event: Optional[str] = streaming.get("terminalEvent") if streaming else None
         # Named / model ``@terminalEvent`` events: deserialized and yielded like any other event,
-        # then iteration stops. The bare string-constant sentinel (``_streaming_terminal_event``)
+        # then iteration stops. The bare string-constant sentinel (``terminal_event``)
         # stops WITHOUT yielding and is matched on event ``data`` instead of the event name.
         self.terminal_event_names: list[str] = []
         if streaming:
@@ -163,26 +163,6 @@ class Response(BaseModel):
     def is_structured_stream(self) -> bool:
         """Is the response a structured (JSONL / SSE) stream rendered as Stream[T] / AsyncStream[T]."""
         return self.streaming_kind is not None
-
-    @property
-    def terminal_event(self) -> Optional[str]:
-        """Terminal event marker for a heterogeneous SSE stream, if any.
-
-        TCGC ``sseMetadata`` supplies this marker directly. For compatibility with
-        older metadata, a string-literal member of the item union is used as a fallback.
-        """
-        if self.streaming_kind != "sse":
-            return None
-        if self._streaming_terminal_event is not None:
-            return self._streaming_terminal_event
-        if not isinstance(self.type, CombinedType):
-            return None
-        from .constant_type import ConstantType
-
-        for member in self.type.types:
-            if isinstance(member, ConstantType) and isinstance(member.value, str):
-                return member.value
-        return None
 
     def stream_class_name(self, async_mode: bool) -> str:
         return "AsyncStream" if async_mode else "Stream"

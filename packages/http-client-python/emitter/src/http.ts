@@ -18,6 +18,7 @@ import type {
   SdkQueryParameter,
   SdkServiceMethod,
   SdkServiceResponseHeader,
+  SdkSseEventMetadata,
   SdkType,
 } from "@azure-tools/typespec-client-generator-core";
 import { getHttpOperationParameter, UsageFlags } from "@azure-tools/typespec-client-generator-core";
@@ -119,15 +120,6 @@ function getStringConstantValue(type: SdkType): string | undefined {
   return type.kind === "constant" && typeof type.value === "string" ? type.value : undefined;
 }
 
-/** The subset of an {@link SdkSseMetadata} event that terminal-event partitioning depends on. */
-interface SseEventLike {
-  eventType?: string | undefined;
-  isTerminalEvent: boolean;
-  type: SdkType;
-  payloadType: SdkType;
-  payloadContentType?: string;
-}
-
 /**
  * Split the SSE events into the runtime dispatch table and a bare string-constant sentinel.
  *
@@ -141,8 +133,8 @@ interface SseEventLike {
  * `toPayloadType` maps event payloads to emitted types; it is injected so this partitioning stays
  * a pure function that can be unit-tested without a full emitter context.
  */
-export function partitionSseEvents(
-  events: readonly SseEventLike[],
+export function partitionSSEEvents(
+  events: readonly SdkSseEventMetadata[],
   toPayloadType: (type: SdkType) => EmittedType,
 ): { events: StructuredStreamEvent[]; terminalEvent?: string } {
   const dispatch: StructuredStreamEvent[] = [];
@@ -193,7 +185,7 @@ function emitStructuredStreamingInfo(
   const sseMetadata = response.sseMetadata;
   if (!sseMetadata) return streaming;
 
-  const { events, terminalEvent } = partitionSseEvents(sseMetadata.events, (type) =>
+  const { events, terminalEvent } = partitionSSEEvents(sseMetadata.events, (type) =>
     getType(context, type),
   );
   if (events.length > 0) streaming.events = events;
