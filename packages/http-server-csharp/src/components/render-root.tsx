@@ -2,11 +2,12 @@ import { For, SourceDirectory, type Children } from "@alloy-js/core";
 import * as cs from "@alloy-js/csharp";
 import { Namespace } from "@alloy-js/csharp";
 import type { Interface } from "@typespec/compiler";
+import { useTsp } from "@typespec/emitter-framework";
 import type { OperationHttpCanonicalization } from "@typespec/http-canonicalization";
 import { useEmitterOptions } from "../context/emitter-options-context.js";
 import { Controller } from "./controllers/controllers.jsx";
 import { CSharpFile } from "./csharp-file.jsx";
-import { BusinessLogicInterface } from "./interfaces/interfaces.jsx";
+import { BusinessLogicInterface, operationHasMultipartBody } from "./interfaces/interfaces.jsx";
 import { RequestModels, type RequestModelInfo } from "./request-models.jsx";
 
 export interface ControllersAndInterfacesProps {
@@ -21,6 +22,7 @@ export interface ControllersAndInterfacesProps {
  */
 export function ControllersAndInterfaces(props: ControllersAndInterfacesProps): Children {
   const namePolicy = cs.useCSharpNamePolicy();
+  const { $ } = useTsp();
   const { serviceNamespace: parentNamespace } = useEmitterOptions();
 
   const interfaceOps = props.interfaces.map((iface) => ({
@@ -61,9 +63,11 @@ export function ControllersAndInterfaces(props: ControllersAndInterfacesProps): 
       <SourceDirectory path="operations">
         <For each={interfaceOps}>
           {({ iface, ops }) => {
-            const hasMultipart = ops.some(
-              (op) => op.requestParameters.body?.bodyKind === "multipart",
-            );
+            const hasMultipart =
+              ops.some((op) => op.requestParameters.body?.bodyKind === "multipart") ||
+              Array.from(iface.operations.values()).some((op) =>
+                operationHasMultipartBody($.program, op),
+              );
             return (
               <CSharpFile
                 path={`I${iface.name}.cs`}

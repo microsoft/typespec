@@ -182,14 +182,34 @@ export function isValueType($: ReturnType<typeof useTsp>["$"], type: Type): bool
   return false;
 }
 
-/** Returns true if any property of the model uses Record<T> (mapped to JsonObject). */
-export function modelNeedsJsonNodes($: ReturnType<typeof useTsp>["$"], model: Model): boolean {
-  for (const prop of model.properties.values()) {
-    if (prop.type.kind === "Model" && $.record.is(prop.type)) {
-      // Only need JsonNodes for Record<unknown> (maps to JsonObject)
-      const valueType = prop.type.indexer?.value;
-      if (valueType?.kind === "Intrinsic" && valueType.name === "unknown") return true;
+/** Returns true if a model property uses Record<unknown> (mapped to JsonObject). */
+export function modelNeedsJsonNodes(
+  $: ReturnType<typeof useTsp>["$"],
+  model: Model,
+  includeInherited = false,
+): boolean {
+  const typeNeedsJsonNodes = (type: Type): boolean => {
+    if (type.kind === "Tuple") return type.values.some(typeNeedsJsonNodes);
+    if (type.kind !== "Model") return false;
+    if ($.record.is(type)) {
+      const valueType = type.indexer?.value;
+      return (
+        (valueType?.kind === "Intrinsic" && valueType.name === "unknown") ||
+        (valueType !== undefined && typeNeedsJsonNodes(valueType))
+      );
     }
+    if ($.array.is(type) && type.indexer?.value) {
+      return typeNeedsJsonNodes(type.indexer.value);
+    }
+    return false;
+  };
+
+  let current: Model | undefined = model;
+  while (current) {
+    for (const prop of current.properties.values()) {
+      if (typeNeedsJsonNodes(prop.type)) return true;
+    }
+    current = includeInherited ? current.baseModel : undefined;
   }
   return false;
 }
