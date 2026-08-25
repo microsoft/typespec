@@ -75,7 +75,6 @@ export const CoverageOverview: FunctionComponent<CoverageOverviewProps> = ({
       {
         totalScenarios: number;
         coveredScenarios: number;
-        report: CoverageSummary["generatorReports"][string];
         displayName: string;
       }
     >();
@@ -113,23 +112,10 @@ export const CoverageOverview: FunctionComponent<CoverageOverviewProps> = ({
 
       for (const [groupKey, data] of summaryGroupMap) {
         if (!emitterMap.has(groupKey)) {
-          const firstReport = Object.entries(summary.generatorReports).find(
-            ([emitterName, report]) =>
-              getEmitterOverviewKey(emitterName, report, emitterDisplayNames) === groupKey,
-          )?.[1];
-
           emitterMap.set(groupKey, {
             totalScenarios: 0,
             coveredScenarios: 0,
-            report: firstReport,
-            displayName: getEmitterDisplayName(
-              Object.entries(summary.generatorReports).find(
-                ([emitterName, report]) =>
-                  getEmitterOverviewKey(emitterName, report, emitterDisplayNames) === groupKey,
-              )?.[0] ?? groupKey,
-              firstReport,
-              emitterDisplayNames,
-            ),
+            displayName: groupKey,
           });
         }
 
