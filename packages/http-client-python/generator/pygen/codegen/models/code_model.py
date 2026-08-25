@@ -405,22 +405,26 @@ class CodeModel:  # pylint: disable=too-many-public-methods, disable=too-many-in
     def _sort_model_types_helper(
         self,
         current: ModelType,
-        seen_schema_names: set[str],
+        seen_schema_keys: set[tuple[str, str]],
         seen_schema_yaml_ids: set[int],
     ):
         if current.id in seen_schema_yaml_ids:
             return []
-        if current.name in seen_schema_names:
-            raise ValueError(f"We have already generated a schema with name {current.name}")
+        current_schema_key = (current.client_namespace, current.name)
+        if current_schema_key in seen_schema_keys:
+            raise ValueError(
+                f"We have already generated a schema with name {current.name} "
+                f"in namespace {current.client_namespace}"
+            )
         ancestors = [current]
         if current.parents:
             for parent in current.parents:
                 if parent.id in seen_schema_yaml_ids:
                     continue
-                seen_schema_names.add(current.name)
+                seen_schema_keys.add(current_schema_key)
                 seen_schema_yaml_ids.add(current.id)
-                ancestors = self._sort_model_types_helper(parent, seen_schema_names, seen_schema_yaml_ids) + ancestors
-        seen_schema_names.add(current.name)
+                ancestors = self._sort_model_types_helper(parent, seen_schema_keys, seen_schema_yaml_ids) + ancestors
+        seen_schema_keys.add(current_schema_key)
         seen_schema_yaml_ids.add(current.id)
         return ancestors
 
@@ -430,11 +434,11 @@ class CodeModel:  # pylint: disable=too-many-public-methods, disable=too-many-in
         :return: None
         :rtype: None
         """
-        seen_schema_names: set[str] = set()
+        seen_schema_keys: set[tuple[str, str]] = set()
         seen_schema_yaml_ids: set[int] = set()
         sorted_object_schemas: list[ModelType] = []
         for schema in sorted(self.model_types, key=lambda x: x.name.lower()):
-            sorted_object_schemas.extend(self._sort_model_types_helper(schema, seen_schema_names, seen_schema_yaml_ids))
+            sorted_object_schemas.extend(self._sort_model_types_helper(schema, seen_schema_keys, seen_schema_yaml_ids))
         self.model_types = sorted_object_schemas
 
     @property

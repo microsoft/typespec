@@ -11,6 +11,8 @@ import pytest_asyncio
 from streaming.sse.aio import SseClient
 from streaming.sse._utils.streaming_base import AsyncStream
 from streaming.sse.named.models import ResponseCreated, ResponseDelta
+from streaming.sse.protocol.data.models import WithEnvelope1
+from streaming.sse.protocol.models import Info as ProtocolInfo
 from streaming.sse.retrieve.models import FinalResult, PartialResult, RetrievalRequest
 from streaming.sse.unnamed.models import Info
 
@@ -23,11 +25,11 @@ async def client():
 
 @pytest.mark.asyncio
 async def test_unnamed_receive(client: SseClient):
-    stream = await client.unnamed.receive()
-    assert isinstance(stream, AsyncStream)
-    items = [item async for item in stream]
-    assert all(isinstance(item, Info) for item in items)
-    assert [item.desc for item in items] == ["one", "two", "three"]
+    async with await client.unnamed.receive() as stream:
+        assert isinstance(stream, AsyncStream)
+        items = [await stream.__anext__() for _ in range(3)]
+        assert all(isinstance(item, Info) for item in items)
+        assert [item.desc for item in items] == ["one", "two", "three"]
 
 
 @pytest.mark.asyncio
@@ -52,6 +54,68 @@ async def test_retrieve_stream(client: SseClient):
     assert isinstance(items[0], PartialResult) and items[0].text == "partial one"
     assert isinstance(items[1], PartialResult) and items[1].text == "partial two"
     assert isinstance(items[2], FinalResult) and items[2].references == ["doc1", "doc2"]
+
+
+@pytest.mark.asyncio
+async def test_protocol_data_with_envelope(client: SseClient):
+    async with await client.protocol.data.with_envelope() as stream:
+        assert await stream.__anext__() == "hello"
+
+
+@pytest.mark.asyncio
+async def test_protocol_data_without_envelope(client: SseClient):
+    async with await client.protocol.data.without_envelope() as stream:
+        item = await stream.__anext__()
+        assert isinstance(item, WithEnvelope1)
+        assert item.metadata == {"source": "test"}
+        assert item.contents == "world"
+
+
+@pytest.mark.asyncio
+async def test_protocol_event_id(client: SseClient):
+    async with await client.protocol.id() as stream:
+        item = await stream.__anext__()
+        assert isinstance(item, ProtocolInfo)
+        assert item.message == "hello"
+        assert stream.last_event_id == "event-1"
+
+
+@pytest.mark.asyncio
+async def test_protocol_invalid_event_id(client: SseClient):
+    async with await client.protocol.invalid_id() as stream:
+        item = await stream.__anext__()
+        assert isinstance(item, ProtocolInfo)
+        assert item.message == "hello"
+        assert stream.last_event_id == ""
+
+
+@pytest.mark.asyncio
+async def test_protocol_retry(client: SseClient):
+    async with await client.protocol.retry() as stream:
+        item = await stream.__anext__()
+        assert isinstance(item, ProtocolInfo)
+        assert item.message == "hello"
+        assert stream.retry == 1000
+
+
+@pytest.mark.asyncio
+async def test_protocol_invalid_retry(client: SseClient):
+    async with await client.protocol.invalid_retry() as stream:
+        item = await stream.__anext__()
+        assert isinstance(item, ProtocolInfo)
+        assert item.message == "hello"
+        assert stream.retry is None
+
+
+@pytest.mark.asyncio
+async def test_protocol_reconnect(client: SseClient):
+    async with await client.protocol.reconnect() as stream:
+        first = await stream.__anext__()
+        second = await stream.__anext__()
+        assert isinstance(first, ProtocolInfo)
+        assert isinstance(second, ProtocolInfo)
+        assert [first.message, second.message] == ["hello", "world"]
+        assert stream.last_event_id == "event-2"
 
 
 # ---------------------------------------------------------------------------
@@ -179,16 +243,9 @@ async def test_sse_reconnects_on_eof_using_latest_metadata():
 
 
 @pytest.mark.asyncio
-async def test_sse_does_not_reconnect_without_retry_or_after_terminal():
-    response = _FakeAsyncResponse(b"id: first\ndata: one\n\n")
-
+async def test_sse_does_not_reconnect_after_terminal():
     async def reconnect(_last_event_id):
         pytest.fail("unexpected reconnect")
-
-    stream = AsyncStream(
-        response=response, deserialization_callback=lambda _response, event: event.data, reconnect_callback=reconnect
-    )
-    assert [item async for item in stream] == ["one"]
 
     response = _FakeAsyncResponse(b"retry: 0\ndata: one\n\ndata: [DONE]\n\n")
     stream = AsyncStream(

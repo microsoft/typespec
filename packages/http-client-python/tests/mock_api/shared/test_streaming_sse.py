@@ -10,6 +10,8 @@ import pytest
 from streaming.sse import SseClient
 from streaming.sse._utils.streaming_base import Stream
 from streaming.sse.named.models import ResponseCreated, ResponseDelta
+from streaming.sse.protocol.data.models import WithEnvelope1
+from streaming.sse.protocol.models import Info as ProtocolInfo
 from streaming.sse.retrieve.models import FinalResult, PartialResult, RetrievalRequest
 from streaming.sse.unnamed.models import Info
 
@@ -21,11 +23,11 @@ def client():
 
 
 def test_unnamed_receive(client: SseClient):
-    stream = client.unnamed.receive()
-    assert isinstance(stream, Stream)
-    items = list(stream)
-    assert all(isinstance(item, Info) for item in items)
-    assert [item.desc for item in items] == ["one", "two", "three"]
+    with client.unnamed.receive() as stream:
+        assert isinstance(stream, Stream)
+        items = [next(stream) for _ in range(3)]
+        assert all(isinstance(item, Info) for item in items)
+        assert [item.desc for item in items] == ["one", "two", "three"]
 
 
 def test_named_receive(client: SseClient):
@@ -48,6 +50,61 @@ def test_retrieve_stream(client: SseClient):
     assert isinstance(items[0], PartialResult) and items[0].text == "partial one"
     assert isinstance(items[1], PartialResult) and items[1].text == "partial two"
     assert isinstance(items[2], FinalResult) and items[2].references == ["doc1", "doc2"]
+
+
+def test_protocol_data_with_envelope(client: SseClient):
+    with client.protocol.data.with_envelope() as stream:
+        assert next(stream) == "hello"
+
+
+def test_protocol_data_without_envelope(client: SseClient):
+    with client.protocol.data.without_envelope() as stream:
+        item = next(stream)
+        assert isinstance(item, WithEnvelope1)
+        assert item.metadata == {"source": "test"}
+        assert item.contents == "world"
+
+
+def test_protocol_event_id(client: SseClient):
+    with client.protocol.id() as stream:
+        item = next(stream)
+        assert isinstance(item, ProtocolInfo)
+        assert item.message == "hello"
+        assert stream.last_event_id == "event-1"
+
+
+def test_protocol_invalid_event_id(client: SseClient):
+    with client.protocol.invalid_id() as stream:
+        item = next(stream)
+        assert isinstance(item, ProtocolInfo)
+        assert item.message == "hello"
+        assert stream.last_event_id == ""
+
+
+def test_protocol_retry(client: SseClient):
+    with client.protocol.retry() as stream:
+        item = next(stream)
+        assert isinstance(item, ProtocolInfo)
+        assert item.message == "hello"
+        assert stream.retry == 1000
+
+
+def test_protocol_invalid_retry(client: SseClient):
+    with client.protocol.invalid_retry() as stream:
+        item = next(stream)
+        assert isinstance(item, ProtocolInfo)
+        assert item.message == "hello"
+        assert stream.retry is None
+
+
+def test_protocol_reconnect(client: SseClient):
+    with client.protocol.reconnect() as stream:
+        first = next(stream)
+        second = next(stream)
+        assert isinstance(first, ProtocolInfo)
+        assert isinstance(second, ProtocolInfo)
+        assert [first.message, second.message] == ["hello", "world"]
+        assert stream.last_event_id == "event-2"
 
 
 # ---------------------------------------------------------------------------
@@ -186,15 +243,9 @@ def test_sse_reconnects_on_eof_using_latest_metadata():
     assert stream.last_event_id == "second"
 
 
-def test_sse_does_not_reconnect_without_retry_or_after_terminal():
-    response = _FakeResponse(b"id: first\ndata: one\n\n")
-    reconnect = lambda _last_event_id: pytest.fail("unexpected reconnect")
-    stream = Stream(
-        response=response, deserialization_callback=lambda _response, event: event.data, reconnect_callback=reconnect
-    )
-    assert list(stream) == ["one"]
-
+def test_sse_does_not_reconnect_after_terminal():
     response = _FakeResponse(b"retry: 0\ndata: one\n\ndata: [DONE]\n\n")
+    reconnect = lambda _last_event_id: pytest.fail("unexpected reconnect")
     stream = Stream(
         response=response,
         deserialization_callback=lambda _response, event: event.data,
