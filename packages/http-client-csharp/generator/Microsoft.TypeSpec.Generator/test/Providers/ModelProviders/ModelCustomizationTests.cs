@@ -1697,13 +1697,18 @@ namespace Microsoft.TypeSpec.Generator.Tests.Providers.ModelProviders
                 inputModelTypes: [childModel, specBaseModel],
                 compilation: async () => await Helpers.GetCompilationFromDirectoryAsync());
 
-            var modelProvider = mockGenerator.Object.OutputLibrary.TypeProviders
+            var modelProvider = (ModelProvider)mockGenerator.Object.OutputLibrary.TypeProviders
                 .Single(t => t.Name == "MockInputModel");
 
             Assert.IsNotNull(modelProvider.BaseType);
             Assert.AreEqual("ResourceData", modelProvider.BaseType!.Name);
-            Assert.That(modelProvider.BaseTypeProvider!.Properties.Select(p => p.Name), Does.Contain("Id"));
+            Assert.That(modelProvider.BaseTypeProvider!.Properties.Select(p => p.Name), Does.Contain("ResourceId"));
             Assert.That(modelProvider.Properties.Select(p => p.Name), Is.EquivalentTo(new[] { "Location", "Tags", "ChildProp" }));
+            Assert.That(modelProvider.Properties.Where(p => p.Name is "Location" or "Tags").Select(p => p.EnclosingType),
+                Has.All.SameAs(modelProvider));
+            Assert.That(modelProvider.CanonicalView.Properties.Select(p => p.Name), Is.EquivalentTo(new[] { "Location", "Tags", "ChildProp" }));
+            Assert.That(modelProvider.FullConstructor.Signature.Parameters.Select(p => p.Name), Does.Contain("location"));
+            Assert.That(modelProvider.FullConstructor.Signature.Parameters.Select(p => p.Name), Does.Contain("tags"));
         }
 
         [Test]

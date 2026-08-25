@@ -24,11 +24,14 @@ namespace Microsoft.TypeSpec.Generator.Providers
         private readonly HashSet<string> _renamedFields;
         private readonly IReadOnlyList<InputModelProperty> _specProperties;
 
-        public CanonicalTypeProvider(TypeProvider generatedTypeProvider, InputType? inputType)
+        public CanonicalTypeProvider(
+            TypeProvider generatedTypeProvider,
+            InputType? inputType,
+            IReadOnlyList<InputModelProperty>? specProperties = null)
         {
             _generatedTypeProvider = generatedTypeProvider;
             var inputModel = inputType as InputModelType;
-            _specProperties = inputModel?.Properties ?? [];
+            _specProperties = specProperties ?? inputModel?.Properties ?? [];
             _specPropertiesMap = [];
             foreach (var property in _specProperties)
             {

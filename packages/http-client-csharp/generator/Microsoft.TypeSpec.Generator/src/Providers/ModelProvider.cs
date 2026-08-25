@@ -80,6 +80,9 @@ namespace Microsoft.TypeSpec.Generator.Providers
             _useObjectAdditionalProperties = new Lazy<bool>(ShouldUseObjectAdditionalProperties);
         }
 
+        private protected override CanonicalTypeProvider BuildCanonicalView()
+            => new(this, _inputModel, GetPropertiesToBuild());
+
         public bool IsUnknownDiscriminatorModel => _inputModel.IsUnknownDiscriminatorModel;
 
         // Whether this model is reused from another shipped package (linked via an `external` block)
@@ -379,7 +382,7 @@ namespace Microsoft.TypeSpec.Generator.Providers
                 fields.AddRange(AdditionalPropertyFields);
             }
 
-            foreach (var property in _inputModel.Properties)
+            foreach (var property in GetPropertiesToBuild())
             {
                 if (IsDiscriminator(property))
                 {
@@ -597,10 +600,49 @@ namespace Microsoft.TypeSpec.Generator.Providers
             }
         }
 
+        private IReadOnlyList<InputModelProperty> GetPropertiesToBuild()
+        {
+            if (CustomCodeView?.BaseType is null || _inputModel.BaseModel is null)
+            {
+                return _inputModel.Properties;
+            }
+
+            // A custom CLR base replaces the TypeSpec base in the effective inheritance hierarchy. Preserve
+            // properties from the original TypeSpec hierarchy here so those not supplied by the custom base
+            // can be materialized on this model. The normal customization filter later removes properties
+            // represented by the effective CLR base, including properties matched through CodeGenMember names.
+            var propertiesByModel = new List<IReadOnlyList<InputModelProperty>>();
+            var claimedPropertyNames = _inputModel.Properties.Select(p => p.Name).ToHashSet();
+            var inputBaseModel = _inputModel.BaseModel;
+            while (inputBaseModel is not null)
+            {
+                var baseModelProvider = CodeModelGenerator.Instance.TypeFactory.CreateModel(inputBaseModel);
+                var properties = new List<InputModelProperty>();
+                foreach (var property in inputBaseModel.Properties)
+                {
+                    if (claimedPropertyNames.Add(property.Name) && baseModelProvider?.ShouldSkipDerivedModelProperties != true)
+                    {
+                        properties.Add(property);
+                    }
+                }
+
+                propertiesByModel.Add(properties);
+                inputBaseModel = inputBaseModel.BaseModel;
+            }
+
+            var result = new List<InputModelProperty>(claimedPropertyNames.Count);
+            for (int i = propertiesByModel.Count - 1; i >= 0; i--)
+            {
+                result.AddRange(propertiesByModel[i]);
+            }
+            result.AddRange(_inputModel.Properties);
+            return result;
+        }
+
         protected internal override PropertyProvider[] BuildProperties()
         {
-            var propertiesCount = _inputModel.Properties.Count;
-            var properties = new List<PropertyProvider>(propertiesCount + 1);
+            var propertiesToBuild = GetPropertiesToBuild();
+            var properties = new List<PropertyProvider>(propertiesToBuild.Count + 1);
             Dictionary<string, InputModelProperty> baseProperties = [];
             HashSet<string> skippedBasePropertyNames = [];
             foreach (var baseModelProvider in EnumerateBaseModelProviders())
@@ -629,9 +671,8 @@ namespace Microsoft.TypeSpec.Generator.Providers
                 .Where(p => p.IsDiscriminator && p.SerializedName is not null)
                 .Select(p => p.SerializedName)
                 .ToHashSet();
-            for (int i = 0; i < propertiesCount; i++)
+            foreach (var property in propertiesToBuild)
             {
-                var property = _inputModel.Properties[i];
                 var isDiscriminator = IsDiscriminator(property);
 
                 // Skip discriminator properties that already exist in the base class

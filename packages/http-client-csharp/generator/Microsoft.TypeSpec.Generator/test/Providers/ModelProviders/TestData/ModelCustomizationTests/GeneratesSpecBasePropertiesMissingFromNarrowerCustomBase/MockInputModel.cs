@@ -1,5 +1,7 @@
 #nullable disable
 
+using Microsoft.TypeSpec.Generator.Customizations;
+
 namespace Sample.Models
 {
     public partial class MockInputModel : ResourceData
@@ -8,6 +10,7 @@ namespace Sample.Models
 
     public class ResourceData
     {
-        public string Id { get; }
+        [CodeGenMember("id")]
+        public string ResourceId { get; }
     }
 }
