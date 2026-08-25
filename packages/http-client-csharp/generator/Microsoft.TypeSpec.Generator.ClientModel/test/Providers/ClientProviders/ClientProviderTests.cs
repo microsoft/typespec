@@ -4816,6 +4816,29 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers.ClientProvide
         }
 
         [Test]
+        public async Task TestRestRequestNamesRemainDistinctForUrlAndUriOperations()
+        {
+            var getUrlOperation = InputFactory.Operation("GetUrl");
+            var getUrlMethod = InputFactory.BasicServiceMethod("GetUrl", getUrlOperation);
+            var getUriOperation = InputFactory.Operation("GetUri");
+            var getUriMethod = InputFactory.BasicServiceMethod("GetUri", getUriOperation);
+            var client = InputFactory.Client("TestClient", methods: [getUrlMethod, getUriMethod]);
+            var generator = await MockHelpers.LoadMockGeneratorAsync(
+                clients: () => [client],
+                lastContractCompilation: async () => await Helpers.GetCompilationFromDirectoryAsync());
+            var clientProvider = generator.Object.OutputLibrary.TypeProviders.OfType<ClientProvider>().Single();
+            var backCompatProvider = new BackCompatTypeProvider("MockableTestResource", "Sample");
+
+            var getUrlMethods = clientProvider.GetMethodCollectionByOperation(getUrlOperation, backCompatProvider);
+            var getUriMethods = clientProvider.GetMethodCollectionByOperation(getUriOperation, backCompatProvider);
+
+            Assert.IsTrue(getUrlMethods.Any(m => m.Signature.Name == "GetUrl"));
+            Assert.IsTrue(getUriMethods.Any(m => m.Signature.Name == "GetUri"));
+            Assert.AreEqual("CreateGetUrlRequest", clientProvider.RestClient.GetCreateRequestMethod(getUrlOperation).Signature.Name);
+            Assert.AreEqual("CreateGetUriRequest", clientProvider.RestClient.GetCreateRequestMethod(getUriOperation).Signature.Name);
+        }
+
+        [Test]
         public void TestIsExactNameServiceMethodSkipsListToGetRename()
         {
             // The normal CleanOperationNames behavior renames "List" -> "GetAll" and "ListFoo" -> "GetFoo".

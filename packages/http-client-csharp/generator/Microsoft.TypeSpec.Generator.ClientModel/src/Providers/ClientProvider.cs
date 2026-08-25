@@ -242,7 +242,24 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
             return normalizedName;
         }
 
-        internal static string GetRestOperationName(InputServiceMethod serviceMethod)
+        internal string GetRestOperationName(InputServiceMethod serviceMethod)
+        {
+            var operationName = GetOperationName(serviceMethod);
+            if (serviceMethod.IsExactName)
+            {
+                return operationName;
+            }
+
+            var normalizedName = operationName.NormalizeCSharpUrlSuffix();
+            var hasCollision = _inputClient.Methods.Any(otherMethod =>
+                !ReferenceEquals(otherMethod, serviceMethod) &&
+                GetNormalizedRestOperationName(otherMethod) == normalizedName &&
+                GetOperationName(otherMethod) != operationName);
+
+            return hasCollision ? operationName : normalizedName;
+        }
+
+        private static string GetNormalizedRestOperationName(InputServiceMethod serviceMethod)
         {
             var operationName = GetOperationName(serviceMethod);
             return serviceMethod.IsExactName ? operationName : operationName.NormalizeCSharpUrlSuffix();
