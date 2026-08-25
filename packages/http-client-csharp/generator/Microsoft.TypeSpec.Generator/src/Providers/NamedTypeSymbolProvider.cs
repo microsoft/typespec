@@ -167,6 +167,14 @@ namespace Microsoft.TypeSpec.Generator.Providers
                     {
                         modifiers |= FieldModifiers.Static;
                     }
+                    if (fieldSymbol.IsReadOnly)
+                    {
+                        modifiers |= FieldModifiers.ReadOnly;
+                    }
+                    if (fieldSymbol.IsConst)
+                    {
+                        modifiers |= FieldModifiers.Const;
+                    }
 
                     var fieldProvider = new FieldProvider(
                         modifiers,
@@ -198,6 +206,9 @@ namespace Microsoft.TypeSpec.Generator.Providers
                     propertySymbol.Name,
                     new AutoPropertyBody(
                         propertySymbol.SetMethod is not null,
+                        propertySymbol.SetMethod is null
+                            ? MethodSignatureModifiers.None
+                            : GetAccessModifier(propertySymbol.SetMethod.DeclaredAccessibility),
                         InitializationExpression: GetPropertyInitializer(propertySymbol)),
                     this,
                     attributes: propertySymbol.GetAttributes().Select(a => new AttributeStatement(a)).ToArray())

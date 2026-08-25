@@ -1687,13 +1687,14 @@ namespace Microsoft.TypeSpec.Generator.Tests.Providers.ModelProviders
                     InputFactory.Property("id", InputPrimitiveType.String),
                     InputFactory.Property("location", InputPrimitiveType.String),
                     InputFactory.Property("tags", InputFactory.Dictionary(InputPrimitiveType.String)),
+                    InputFactory.Property("sku", InputPrimitiveType.String),
                 ],
-                usage: InputModelTypeUsage.Json);
+                usage: InputModelTypeUsage.Input | InputModelTypeUsage.Json);
             var childModel = InputFactory.Model(
                 "mockInputModel",
                 properties: [InputFactory.Property("childProp", InputPrimitiveType.String)],
                 baseModel: specBaseModel,
-                usage: InputModelTypeUsage.Json);
+                usage: InputModelTypeUsage.Input | InputModelTypeUsage.Json);
 
             var mockGenerator = await MockHelpers.LoadMockGeneratorAsync(
                 inputModelTypes: [childModel, specBaseModel],
@@ -1705,10 +1706,10 @@ namespace Microsoft.TypeSpec.Generator.Tests.Providers.ModelProviders
             Assert.IsNotNull(modelProvider.BaseType);
             Assert.AreEqual("ResourceData", modelProvider.BaseType!.Name);
             Assert.That(modelProvider.BaseTypeProvider!.Properties.Select(p => p.Name), Does.Contain("ResourceId"));
-            Assert.That(modelProvider.Properties.Select(p => p.Name), Is.EquivalentTo(new[] { "Location", "Tags", "ChildProp" }));
-            Assert.That(modelProvider.Properties.Where(p => p.Name is "Location" or "Tags").Select(p => p.EnclosingType),
+            Assert.That(modelProvider.Properties.Select(p => p.Name), Is.EquivalentTo(new[] { "Location", "Tags", "Sku", "ChildProp" }));
+            Assert.That(modelProvider.Properties.Where(p => p.Name is "Location" or "Tags" or "Sku").Select(p => p.EnclosingType),
                 Has.All.SameAs(modelProvider));
-            Assert.That(modelProvider.CanonicalView.Properties.Select(p => p.Name), Is.EquivalentTo(new[] { "Location", "Tags", "ChildProp" }));
+            Assert.That(modelProvider.CanonicalView.Properties.Select(p => p.Name), Is.EquivalentTo(new[] { "Location", "Tags", "Sku", "ChildProp" }));
             Assert.That(modelProvider.FullConstructor.Signature.Parameters.Select(p => p.Name), Does.Contain("location"));
             Assert.That(modelProvider.FullConstructor.Signature.Parameters.Select(p => p.Name), Does.Contain("tags"));
         }

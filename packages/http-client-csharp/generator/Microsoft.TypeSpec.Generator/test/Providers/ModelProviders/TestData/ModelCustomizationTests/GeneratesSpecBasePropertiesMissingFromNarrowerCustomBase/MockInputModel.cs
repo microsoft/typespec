@@ -11,12 +11,15 @@ namespace Sample.Models
     public class ResourceData
     {
         [CodeGenMember("id")]
-        public string ResourceId { get; }
+        public string ResourceId { get; set; }
 
         [CodeGenMember("location")]
-        private int HiddenLocation { get; }
+        public string ReadOnlyLocation { get; }
 
         [CodeGenMember("tags")]
-        public int IncompatibleTags { get; }
+        public int IncompatibleTags { get; set; }
+
+        [CodeGenMember("sku")]
+        public readonly string ReadOnlySku;
     }
 }
