@@ -943,9 +943,9 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
                 else
                 {
                     var nullCheckExpression = valueExpression;
-                    if (type is { IsNullable: true, IsValueType: true })
+                    if (type is { IsNullable: true, IsValueType: true, IsEnum: false })
                     {
-                        valueExpression = valueExpression.Property(nameof(Nullable<int>.Value));
+                        valueExpression = valueExpression.NullConditional();
                     }
                     valueExpression = type?.Equals(typeof(string)) == true
                         ? valueExpression

@@ -1195,6 +1195,27 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers.RestClientPro
             Assert.AreEqual(Helpers.GetExpectedFromFile(parameters: isRequired.ToString()), file.Content);
         }
 
+        [Test]
+        public void OptionalEnumPathParameterIsNotUnwrapped()
+        {
+            var enumType = InputFactory.StringEnum(
+                "Color",
+                [("Red", "red"), ("Blue", "blue")],
+                isExtensible: true);
+            var operation = InputFactory.Operation(
+                "GetThing",
+                parameters: [InputFactory.PathParameter("color", enumType, isRequired: false, scope: InputParameterScope.Client)],
+                path: "/things/{color}");
+            var serviceMethod = InputFactory.BasicServiceMethod(
+                "GetThing",
+                operation);
+            var client = InputFactory.Client("TestClient", methods: [serviceMethod]);
+            var restClient = new ClientProvider(client).RestClient;
+
+            var file = new TypeProviderWriter(restClient).Write();
+            Assert.AreEqual(Helpers.GetExpectedFromFile(), file.Content);
+        }
+
         // An optional trailing path parameter must not emit a dangling separator when null.
         // e.g. "/certificates/{certificateName}/{certificateVersion}" with a null version
         // should produce "/certificates/{name}", not "/certificates/{name}/".

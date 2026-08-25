@@ -2,7 +2,6 @@
 
 #nullable disable
 
-using System;
 using System.ClientModel.Primitives;
 
 namespace Sample
@@ -13,16 +12,12 @@ namespace Sample
 
         private static global::System.ClientModel.Primitives.PipelineMessageClassifier PipelineMessageClassifier200 => _pipelineMessageClassifier200 ??= global::System.ClientModel.Primitives.PipelineMessageClassifier.Create(stackalloc ushort[] { 200 });
 
-        internal global::System.ClientModel.Primitives.PipelineMessage CreateGetThingRequest(global::System.DateTimeOffset? requestOn, global::System.ClientModel.Primitives.RequestOptions options)
+        internal global::System.ClientModel.Primitives.PipelineMessage CreateGetThingRequest(global::System.ClientModel.Primitives.RequestOptions options)
         {
             global::Sample.ClientUriBuilder uri = new global::Sample.ClientUriBuilder();
             uri.Reset(_endpoint);
             uri.AppendPath("/things", false);
-            if ((requestOn != null))
-            {
-                uri.AppendPath("/", false);
-                uri.AppendPath(requestOn?.ToString("R"), true);
-            }
+            uri.AppendPath(_color?.ToString().ToString(), true);
             global::System.ClientModel.Primitives.PipelineMessage message = Pipeline.CreateMessage(uri.ToUri(), "GET", PipelineMessageClassifier200);
             global::System.ClientModel.Primitives.PipelineRequest request = message.Request;
             message.Apply(options);
