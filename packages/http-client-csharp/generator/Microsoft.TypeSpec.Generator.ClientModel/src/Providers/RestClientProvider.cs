@@ -261,7 +261,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
             var operation = serviceMethod.Operation;
             var classifier = GetClassifier(operation);
 
-            var paramMap = new Dictionary<string, ParameterProvider>(StringComparer.OrdinalIgnoreCase);
+            var paramMap = new ParameterProviderMap();
             foreach (var parameter in signature.Parameters)
             {
                 paramMap.TryAdd(parameter.Name, parameter);
@@ -362,13 +362,13 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
             return new MethodBodyStatements(statements);
         }
 
-        private Dictionary<string, ParameterProvider> GetReinjectedParametersMap(
+        private ParameterProviderMap GetReinjectedParametersMap(
             InputNextLink nextLink,
             InputPagingServiceMethod? pagingServiceMethod,
             InputOperation operation,
-            Dictionary<string, ParameterProvider> paramMap)
+            ParameterProviderMap paramMap)
         {
-            var reinjectedParamsMap = new Dictionary<string, ParameterProvider>(StringComparer.OrdinalIgnoreCase);
+            var reinjectedParamsMap = new ParameterProviderMap();
 
             // Add parameters from nextLink.ReInjectedParameters
             if (nextLink.ReInjectedParameters?.Count > 0)
@@ -399,7 +399,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
 
             // Add API version parameters that need to be preserved across pagination requests
             var apiVersionParam = operation.Parameters.FirstOrDefault(p => p.IsApiVersion);
-            if (apiVersionParam != null && !reinjectedParamsMap.ContainsKey(apiVersionParam.Name))
+            if (apiVersionParam != null && !reinjectedParamsMap.ContainsExactKey(apiVersionParam.Name))
             {
                 if (paramMap.TryGetValue(apiVersionParam.Name, out var paramInSignature))
                 {
@@ -467,7 +467,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
             throw new InvalidOperationException($"Unexpected status codes for operation {operation.Name}");
         }
 
-        private IEnumerable<MethodBodyStatement> AppendHeaderParameters(HttpRequestApi request, InputOperation operation, Dictionary<string, ParameterProvider> paramMap, bool isNextLink = false, ParameterProvider? contentParam = null)
+        private IEnumerable<MethodBodyStatement> AppendHeaderParameters(HttpRequestApi request, InputOperation operation, ParameterProviderMap paramMap, bool isNextLink = false, ParameterProvider? contentParam = null)
         {
             List<MethodBodyStatement> statements = new(operation.Parameters.Count);
 
@@ -535,7 +535,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
             return statements;
         }
 
-        private List<MethodBodyStatement> AppendQueryParameters(ScopedApi uri, InputOperation operation, Dictionary<string, ParameterProvider> paramMap, bool isNextLinkRequest = false)
+        private List<MethodBodyStatement> AppendQueryParameters(ScopedApi uri, InputOperation operation, ParameterProviderMap paramMap, bool isNextLinkRequest = false)
         {
             List<MethodBodyStatement> statements = new(operation.Parameters.Count);
 
@@ -559,7 +559,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
         private MethodBodyStatement? BuildQueryParameterStatement(
             ScopedApi uri,
             InputQueryParameter inputQueryParameter,
-            Dictionary<string, ParameterProvider> paramMap,
+            ParameterProviderMap paramMap,
             InputOperation operation,
             bool isNextLinkRequest = false)
         {
@@ -814,7 +814,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
             return new IfStatement(valueExpression.NotEqual(Null)) { originalStatement };
         }
 
-        private IReadOnlyList<MethodBodyStatement> AppendPathParameters(ScopedApi uri, InputOperation operation, Dictionary<string, ParameterProvider> paramMap)
+        private IReadOnlyList<MethodBodyStatement> AppendPathParameters(ScopedApi uri, InputOperation operation, ParameterProviderMap paramMap)
         {
             Dictionary<string, InputParameter> inputParamMap = operation.Parameters.ToDictionary(p => p.SerializedName);
             List<MethodBodyStatement> statements = new(operation.Parameters.Count);
@@ -876,7 +876,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
             ScopedApi uri,
             List<MethodBodyStatement> statements,
             Dictionary<string, InputParameter> inputParamMap,
-            Dictionary<string, ParameterProvider> paramMap,
+            ParameterProviderMap paramMap,
             InputOperation operation)
         {
             var pathSpan = segments.AsSpan().Slice(offset);
@@ -1014,7 +1014,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
             }
         }
 
-        private void GetParamInfo(Dictionary<string, ParameterProvider> paramMap, InputOperation operation, InputParameter inputParam, out CSharpType? type, out SerializationFormat? serializationFormat, out ValueExpression? valueExpression)
+        private void GetParamInfo(ParameterProviderMap paramMap, InputOperation operation, InputParameter inputParam, out CSharpType? type, out SerializationFormat? serializationFormat, out ValueExpression? valueExpression)
         {
             type = IsContentTypeParameter(inputParam, includeInputHeaderParameter: false)
                 ? null
@@ -1637,6 +1637,39 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
             }
 
             throw new InvalidOperationException($"inputParam `{inputParam.Name}` is `Spread` but not a model type");
+        }
+
+        private sealed class ParameterProviderMap
+        {
+            private readonly Dictionary<string, ParameterProvider> _exact = new(StringComparer.Ordinal);
+            private readonly Dictionary<string, ParameterProvider> _caseInsensitive = new(StringComparer.OrdinalIgnoreCase);
+
+            public int Count => _exact.Count;
+
+            public ParameterProvider this[string name]
+            {
+                get => TryGetValue(name, out var parameter)
+                    ? parameter
+                    : throw new KeyNotFoundException($"No parameter named '{name}' was found.");
+                set
+                {
+                    _exact[name] = value;
+                    _caseInsensitive[name] = value;
+                }
+            }
+
+            public bool TryAdd(string name, ParameterProvider parameter)
+            {
+                var added = _exact.TryAdd(name, parameter);
+                _caseInsensitive.TryAdd(name, parameter);
+                return added;
+            }
+
+            public bool ContainsExactKey(string name) => _exact.ContainsKey(name);
+
+            public bool TryGetValue(string name, [NotNullWhen(true)] out ParameterProvider? parameter)
+                => _exact.TryGetValue(name, out parameter) ||
+                    _caseInsensitive.TryGetValue(name, out parameter);
         }
 
         private class StatusCodesComparer : IEqualityComparer<List<int>>
