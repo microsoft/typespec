@@ -224,7 +224,6 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
                 parameters = [ScmKnownParameters.NextPage, .. parameters];
             }
 
-            var operation = serviceMethod.Operation;
             var operationName = ClientProvider.GetRestOperationName(serviceMethod);
             var methodName = isNextLinkRequest
                 ? $"CreateNext{operationName}Request"
