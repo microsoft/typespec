@@ -136,8 +136,13 @@ namespace Microsoft.TypeSpec.Generator
                 // if isLiteral - put in formatBuilder
                 if (isLiteral)
                 {
-                    var normalized = NormalizeLineTerminators(span);
-                    var normalizedSpan = normalized.AsSpan();
+                    string? normalized = null;
+                    var normalizedSpan = span;
+                    if (ContainsAdditionalLineTerminator(span))
+                    {
+                        normalized = NormalizeLineTerminators(span);
+                        normalizedSpan = normalized.AsSpan();
+                    }
                     var numSplits = normalizedSpan.Split(splitIndices, '\n');
                     for (int i = 0; i < numSplits; i++)
                     {
@@ -204,8 +209,12 @@ namespace Microsoft.TypeSpec.Generator
 
             static void BreakLinesCoreForString(ReadOnlySpan<char> span, StringBuilder formatBuilder, List<object?> args, List<FormattableString> result)
             {
-                var normalized = NormalizeLineTerminators(span);
-                span = normalized.AsSpan();
+                string? normalized = null;
+                if (ContainsAdditionalLineTerminator(span))
+                {
+                    normalized = NormalizeLineTerminators(span);
+                    span = normalized.AsSpan();
+                }
                 int start = 0, end = 0;
                 bool isLast = false;
                 // go into the loop when there are characters left
@@ -243,12 +252,31 @@ namespace Microsoft.TypeSpec.Generator
         private static bool IsLineTerminator(char value)
             => value is '\r' or '\n' or '\u0085' or '\u2028' or '\u2029';
 
+        private static bool ContainsAdditionalLineTerminator(ReadOnlySpan<char> value)
+        {
+            foreach (var character in value)
+            {
+                if (character is '\r' or '\u0085' or '\u2028' or '\u2029')
+                {
+                    return true;
+                }
+            }
+            return false;
+        }
+
         private static string NormalizeLineTerminators(ReadOnlySpan<char> value)
-            => value.ToString()
-                .Replace("\r\n", "\n", StringComparison.Ordinal)
-                .Replace('\r', '\n')
-                .Replace('\u0085', '\n')
-                .Replace('\u2028', '\n')
-                .Replace('\u2029', '\n');
+        {
+            var normalized = new StringBuilder(value.Length);
+            for (int i = 0; i < value.Length; i++)
+            {
+                var character = value[i];
+                if (character == '\r' && i + 1 < value.Length && value[i + 1] == '\n')
+                {
+                    i++;
+                }
+                normalized.Append(IsLineTerminator(character) ? '\n' : character);
+            }
+            return normalized.ToString();
+        }
     }
 }
