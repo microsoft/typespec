@@ -7,6 +7,8 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using Microsoft.CodeAnalysis;
+using Microsoft.CodeAnalysis.CSharp;
 using Microsoft.TypeSpec.Generator.Expressions;
 using Microsoft.TypeSpec.Generator.Input;
 using Microsoft.TypeSpec.Generator.Primitives;
@@ -45,6 +47,35 @@ namespace Microsoft.TypeSpec.Generator.Tests.Providers
             var value2 = fields[1].InitializationValue as LiteralExpression;
             Assert.IsNotNull(value2);
             Assert.AreEqual(2, value2?.Literal);
+        }
+
+        [Test]
+        public void BuildEnumType_NormalizesLineTerminatorsInMemberDocumentation()
+        {
+            MockHelpers.LoadMockGenerator(createCSharpTypeCore: (inputType) => typeof(int), includeXmlDocs: true);
+            var values = new List<InputEnumTypeValue>();
+            var input = InputFactory.Enum("mockInputEnum", InputPrimitiveType.Int32, values);
+            values.Add(new InputEnumTypeValue(
+                "One",
+                1,
+                InputPrimitiveType.Int32,
+                "",
+                "Line one\rLine two\nLine three\r\nLine four\u0085Line five\u2028Line six\u2029Line seven",
+                input));
+
+            var enumType = EnumProvider.Create(input);
+            var generatedCode = new TypeProviderWriter(enumType).Write().Content;
+
+            StringAssert.Contains(
+                "/// Line one\n        /// Line two\n        /// Line three\n        /// Line four\n        /// Line five\n        /// Line six\n        /// Line seven\n",
+                generatedCode);
+
+            var compilation = CSharpCompilation.Create(
+                "LineTerminatorEnum",
+                [CSharpSyntaxTree.ParseText(generatedCode)],
+                [MetadataReference.CreateFromFile(typeof(object).Assembly.Location)],
+                new CSharpCompilationOptions(OutputKind.DynamicallyLinkedLibrary));
+            Assert.IsFalse(compilation.GetDiagnostics().Any(x => x.Severity == DiagnosticSeverity.Error));
         }
 
         // Validates the float based fixed enum

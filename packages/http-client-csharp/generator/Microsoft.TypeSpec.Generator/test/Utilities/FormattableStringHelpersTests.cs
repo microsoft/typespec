@@ -43,7 +43,8 @@ namespace Microsoft.TypeSpec.Generator.Tests.Utilities
                 yield return new TestCaseData(
                     (FormattableString)$"A timestamp indicating \rthe last modified time\nclient. The operation will be performed only\nbeen modified since the specified time.",
                     new List<FormattableString> {
-                        $"A timestamp indicating \rthe last modified time",
+                        $"A timestamp indicating ",
+                        $"the last modified time",
                         $"client. The operation will be performed only",
                         $"been modified since the specified time."
                     }).SetName("TestBreakLines_AllLiteralsNoArgsWithCR");
@@ -75,7 +76,8 @@ namespace Microsoft.TypeSpec.Generator.Tests.Utilities
                 yield return new TestCaseData(
                     (FormattableString)$"{"A timestamp indicating \rthe last modified time\nclient. The operation will be performed only\nbeen modified since the specified time."}",
                     new List<FormattableString> {
-                        $"{"A timestamp indicating \rthe last modified time"}",
+                        $"{"A timestamp indicating "}",
+                        $"{"the last modified time"}",
                         $"{"client. The operation will be performed only"}",
                         $"{"been modified since the specified time."}"
                     }).SetName("TestBreakLines_OneArgOnlyWithCR");
@@ -83,7 +85,10 @@ namespace Microsoft.TypeSpec.Generator.Tests.Utilities
                 yield return new TestCaseData(
                     (FormattableString)$"{"A timestamp indicating \rthe last modified time\r\r\r\nclient. The operation will be performed only\nbeen modified since the specified time."}",
                     new List<FormattableString> {
-                        $"{"A timestamp indicating \rthe last modified time\r\r"}",
+                        $"{"A timestamp indicating "}",
+                        $"{"the last modified time"}",
+                        $"{""}",
+                        $"{""}",
                         $"{"client. The operation will be performed only"}",
                         $"{"been modified since the specified time."}"
                     }).SetName("TestBreakLines_OneArgOnlyWithMultipleCRs");

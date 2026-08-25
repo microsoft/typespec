@@ -136,10 +136,12 @@ namespace Microsoft.TypeSpec.Generator
                 // if isLiteral - put in formatBuilder
                 if (isLiteral)
                 {
-                    var numSplits = span.SplitAny(splitIndices, ["\r\n", "\n"]);
+                    var normalized = NormalizeLineTerminators(span);
+                    var normalizedSpan = normalized.AsSpan();
+                    var numSplits = normalizedSpan.Split(splitIndices, '\n');
                     for (int i = 0; i < numSplits; i++)
                     {
-                        var part = span[splitIndices[i]];
+                        var part = normalizedSpan[splitIndices[i]];
                         // the literals could contain { and }, but they are unescaped. Since we are putting them back into the format, we need to escape them again.
                         var startsWithCurlyBrace = part.Length > 0 && (part[0] == '{' || part[0] == '}');
                         var start = startsWithCurlyBrace ? 1 : 0;
@@ -198,10 +200,12 @@ namespace Microsoft.TypeSpec.Generator
                 }
             }
 
-            return formatSpan[^1] == '\n';
+            return IsLineTerminator(formatSpan[^1]);
 
             static void BreakLinesCoreForString(ReadOnlySpan<char> span, StringBuilder formatBuilder, List<object?> args, List<FormattableString> result)
             {
+                var normalized = NormalizeLineTerminators(span);
+                span = normalized.AsSpan();
                 int start = 0, end = 0;
                 bool isLast = false;
                 // go into the loop when there are characters left
@@ -219,17 +223,10 @@ namespace Microsoft.TypeSpec.Generator
                     {
                         end = start + indexOfLF;
                     }
-                    // omit \r if there is one before the \n to include the case that line breaks are using \r\n
-                    int partEnd = end;
-                    if (end > 0 && span[end - 1] == '\r')
-                    {
-                        partEnd--;
-                    }
-
                     formatBuilder.Append('{')
                         .Append(args.Count)
                         .Append('}');
-                    args.Add(span[start..partEnd].ToString());
+                    args.Add(span[start..end].ToString());
                     start = end + 1; // goes to the next char after the \n we found
 
                     if (!isLast)
@@ -242,5 +239,16 @@ namespace Microsoft.TypeSpec.Generator
                 }
             }
         }
+
+        private static bool IsLineTerminator(char value)
+            => value is '\r' or '\n' or '\u0085' or '\u2028' or '\u2029';
+
+        private static string NormalizeLineTerminators(ReadOnlySpan<char> value)
+            => value.ToString()
+                .Replace("\r\n", "\n", StringComparison.Ordinal)
+                .Replace('\r', '\n')
+                .Replace('\u0085', '\n')
+                .Replace('\u2028', '\n')
+                .Replace('\u2029', '\n');
     }
 }
