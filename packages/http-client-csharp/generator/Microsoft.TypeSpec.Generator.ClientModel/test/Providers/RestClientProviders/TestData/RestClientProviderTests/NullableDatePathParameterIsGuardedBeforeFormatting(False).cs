@@ -21,7 +21,7 @@ namespace Sample
             if ((requestOn != null))
             {
                 uri.AppendPath("/", false);
-                uri.AppendPath(requestOn?.ToString("R"), true);
+                uri.AppendPath(requestOn.Value.ToString("R"), true);
             }
             global::System.ClientModel.Primitives.PipelineMessage message = Pipeline.CreateMessage(uri.ToUri(), "GET", PipelineMessageClassifier200);
             global::System.ClientModel.Primitives.PipelineRequest request = message.Request;

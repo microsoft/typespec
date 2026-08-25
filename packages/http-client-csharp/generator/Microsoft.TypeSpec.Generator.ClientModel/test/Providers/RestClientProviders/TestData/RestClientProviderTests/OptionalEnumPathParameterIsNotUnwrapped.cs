@@ -17,7 +17,11 @@ namespace Sample
             global::Sample.ClientUriBuilder uri = new global::Sample.ClientUriBuilder();
             uri.Reset(_endpoint);
             uri.AppendPath("/things", false);
-            uri.AppendPath(_color?.ToString().ToString(), true);
+            if ((_color != null))
+            {
+                uri.AppendPath("/", false);
+                uri.AppendPath(_color.Value.ToString(), true);
+            }
             global::System.ClientModel.Primitives.PipelineMessage message = Pipeline.CreateMessage(uri.ToUri(), "GET", PipelineMessageClassifier200);
             global::System.ClientModel.Primitives.PipelineRequest request = message.Request;
             message.Apply(options);

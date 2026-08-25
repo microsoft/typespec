@@ -908,6 +908,9 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
                  */
                 var isClientParameter = ClientProvider.ClientParameters.Any(p => string.Equals(p.Name, paramName, StringComparison.OrdinalIgnoreCase))
                     || _inputClient.Parameters.Any(p => p is InputMethodParameter { ParamAlias: string alias } && string.Equals(alias, paramName, StringComparison.OrdinalIgnoreCase));
+                bool willEmitNullGuard = inputParamMap.TryGetValue(paramName, out var pathParamForGuard)
+                    && pathParamForGuard.IsRequired == false
+                    && (pathParamForGuard is InputPathParameter || pathParamForGuard is InputEndpointParameter);
                 CSharpType? type;
                 SerializationFormat? serializationFormat;
                 ValueExpression? valueExpression;
@@ -942,16 +945,32 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
                 }
                 else
                 {
+                    // The null check must always be performed against the raw, still-nullable value:
+                    // for enums, GetParamInfo has already serialized valueExpression (e.g. via a
+                    // null-conditional ToString call), so capture the check subject before any further
+                    // unwrapping below could make it unconditionally dereference a null value.
                     var nullCheckExpression = valueExpression;
                     if (type is { IsNullable: true, IsValueType: true, IsEnum: false })
                     {
-                        valueExpression = valueExpression.NullConditional();
+                        valueExpression = willEmitNullGuard
+                            ? valueExpression.Property(nameof(Nullable<int>.Value))
+                            : valueExpression.NullConditional();
                     }
-                    valueExpression = type?.Equals(typeof(string)) == true
+                    else if (type is { IsNullable: true, IsEnum: true } && willEmitNullGuard && paramMap.TryGetValue(paramName, out var enumParamProvider))
+                    {
+                        // Already inside a null guard: check the raw nullable field directly (instead of
+                        // repeating the null-conditional serialized expression) and unwrap it via .Value
+                        // before serializing, avoiding both a redundant guard invocation and a duplicate
+                        // ToString call.
+                        ValueExpression rawEnumVariable = enumParamProvider.Field is null ? enumParamProvider : enumParamProvider.Field;
+                        nullCheckExpression = rawEnumVariable;
+                        valueExpression = type.ToSerial(rawEnumVariable.Property(nameof(Nullable<int>.Value)));
+                    }
+                    valueExpression = type?.Equals(typeof(string)) == true || type?.IsEnum == true
                         ? valueExpression
                         : valueExpression.Invoke(nameof(ToString), toStringParams);
                     MethodBodyStatement statement;
-                    if (inputParam?.IsRequired == false)
+                    if (willEmitNullGuard)
                     {
                         bool shouldPrependWithPathSeparator = separatorDeferred || (path.Length > 0 && path[^1] != '/');
                         List<MethodBodyStatement> appendPathStatements = shouldPrependWithPathSeparator
