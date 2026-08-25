@@ -128,6 +128,7 @@ namespace Microsoft.TypeSpec.Generator.Tests.Providers
                 ("modificationTime", dateTime, "modifiedOn"),
                 ("modelExpirationDate", dateTime, "modelExpiresOn"),
                 ("accountExpirationDate", dateTime, "accountExpiresOn"),
+                ("accessTierChangeTime", dateTime, "accessTierChangedOn"),
                 ("statusTimestamp", dateTime.WithNullable(true), "statusTimestamp"),
                 ("lastSyncTimestamp", dateTime, "lastSyncOn"),
                 ("totalTime", dateTime, "totalTime"),
