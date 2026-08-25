@@ -84,6 +84,8 @@ namespace Microsoft.TypeSpec.Generator.Tests.Utilities
             yield return new TestCaseData("AccountExpirationDate", dateTime, "AccountExpiresOn");
             yield return new TestCaseData("accountExpirationDate", dateTime, "accountExpiresOn");
             yield return new TestCaseData("AccountCreationDate", dateTime, "AccountCreatedOn");
+            yield return new TestCaseData("AccessTierChangeTime", dateTime, "AccessTierChangedOn");
+            yield return new TestCaseData("accessTierChangeTime", dateTime, "accessTierChangedOn");
             yield return new TestCaseData("RecreationTime", dateTime, "RecreationOn");
             yield return new TestCaseData("recreationTime", dateTime, "recreationOn");
             yield return new TestCaseData("TotalTime", dateTime, "TotalTime");

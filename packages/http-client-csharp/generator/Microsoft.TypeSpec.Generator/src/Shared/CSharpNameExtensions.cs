@@ -98,6 +98,7 @@ namespace Microsoft.TypeSpec.Generator.Utilities
             // Complete prefixes that read better as verbs when combined with the "On" suffix.
             private static readonly Dictionary<string, string> _nounToVerbMap = new(StringComparer.OrdinalIgnoreCase)
             {
+                ["Change"] = "Changed",
                 ["Creation"] = "Created",
                 ["Deletion"] = "Deleted",
                 ["End"] = "Ends",

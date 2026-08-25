@@ -261,29 +261,34 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
             var operation = serviceMethod.Operation;
             var classifier = GetClassifier(operation);
 
+            var parameters = signature.Parameters.Concat(ClientProvider.ClientParameters).ToArray();
             var paramMap = new ParameterProviderMap();
-            foreach (var parameter in signature.Parameters)
+            foreach (var parameter in parameters)
             {
-                paramMap.TryAdd(parameter.Name, parameter);
-                if (parameter.InputParameter is { } inputParameter)
+                paramMap[parameter.Name] = parameter;
+            }
+
+            foreach (var parameter in parameters)
+            {
+                if (parameter.InputParameter is not { } inputParameter)
                 {
-                    paramMap[inputParameter.Name] = parameter;
+                    continue;
+                }
+
+                paramMap.TryAdd(inputParameter.Name, parameter);
+                paramMap.TryAdd(inputParameter.OriginalName, parameter);
+                if (inputParameter is InputMethodParameter { ParamAlias: string alias })
+                {
+                    paramMap.TryAdd(alias, parameter);
                 }
             }
 
-            foreach (var param in ClientProvider.ClientParameters)
+            foreach (var inputParameter in _inputClient.Parameters)
             {
-                paramMap[param.Name] = param;
-            }
-
-            // Register client parameters under their paramAlias names so that operation parameters
-            // (which use the original name) can find the corresponding client parameter.
-            foreach (var inputParam in _inputClient.Parameters)
-            {
-                if (inputParam is InputMethodParameter { ParamAlias: string alias } &&
-                    paramMap.TryGetValue(inputParam.Name, out var aliasedParam))
+                if (inputParameter is InputMethodParameter { ParamAlias: string alias } &&
+                    paramMap.TryGetValue(inputParameter.Name, out var parameter))
                 {
-                    paramMap[alias] = aliasedParam;
+                    paramMap[alias] = parameter;
                 }
             }
 

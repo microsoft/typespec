@@ -1980,6 +1980,143 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers.RestClientPro
                     ScmCodeModelGenerator.Instance.PipelineRequestHeadersExtensionsDefinition.Type));
         }
 
+        [TestCase(true)]
+        [TestCase(false)]
+        public void NormalizedDateParameterIsSerializedInCreateRequestMethod(bool isRequired)
+        {
+            var dateType = CreateRfc7231DateType();
+            var operation = InputFactory.Operation(
+                "GetThing",
+                parameters:
+                [
+                    InputFactory.HeaderParameter(
+                        "requestDate",
+                        dateType,
+                        isRequired: isRequired,
+                        serializedName: "ocp-date")
+                ]);
+            var serviceMethod = InputFactory.BasicServiceMethod(
+                "GetThing",
+                operation,
+                parameters:
+                [
+                    InputFactory.MethodParameter(
+                        "requestDate",
+                        dateType,
+                        isRequired: isRequired,
+                        serializedName: "ocp-date",
+                        location: InputRequestLocation.Header)
+                ]);
+            var client = InputFactory.Client("TestClient", methods: [serviceMethod]);
+            var restClient = new ClientProvider(client).RestClient;
+
+            var file = new TypeProviderWriter(restClient).Write();
+            Assert.AreEqual(Helpers.GetExpectedFromFile(parameters: isRequired.ToString()), file.Content);
+        }
+
+        [TestCase(true)]
+        [TestCase(false)]
+        public void NormalizedDateQueryParameterIsSerializedInCreateRequestMethod(bool isRequired)
+        {
+            var dateType = CreateRfc7231DateType();
+            var operation = InputFactory.Operation(
+                "GetThing",
+                parameters:
+                [
+                    InputFactory.QueryParameter(
+                        "requestDate",
+                        dateType,
+                        isRequired: isRequired,
+                        serializedName: "request-date")
+                ]);
+            var serviceMethod = InputFactory.BasicServiceMethod(
+                "GetThing",
+                operation,
+                parameters:
+                [
+                    InputFactory.MethodParameter(
+                        "requestDate",
+                        dateType,
+                        isRequired: isRequired,
+                        serializedName: "request-date",
+                        location: InputRequestLocation.Query)
+                ]);
+            var client = InputFactory.Client("TestClient", methods: [serviceMethod]);
+            var restClient = new ClientProvider(client).RestClient;
+
+            var file = new TypeProviderWriter(restClient).Write();
+            Assert.AreEqual(Helpers.GetExpectedFromFile(parameters: isRequired.ToString()), file.Content);
+        }
+
+        [Test]
+        public void NormalizedDatePathParameterIsSerializedInCreateRequestMethod()
+        {
+            var dateType = CreateRfc7231DateType();
+            var operation = InputFactory.Operation(
+                "GetThing",
+                parameters:
+                [
+                    InputFactory.PathParameter(
+                        "requestDate",
+                        dateType,
+                        isRequired: true)
+                ],
+                path: "/things/{requestDate}");
+            var serviceMethod = InputFactory.BasicServiceMethod(
+                "GetThing",
+                operation,
+                parameters:
+                [
+                    InputFactory.MethodParameter(
+                        "requestDate",
+                        dateType,
+                        isRequired: true,
+                        location: InputRequestLocation.Path)
+                ]);
+            var client = InputFactory.Client("TestClient", methods: [serviceMethod]);
+            var restClient = new ClientProvider(client).RestClient;
+
+            var file = new TypeProviderWriter(restClient).Write();
+            Assert.AreEqual(Helpers.GetExpectedFromFile(), file.Content);
+        }
+
+        [TestCase(true)]
+        [TestCase(false)]
+        public void NormalizedDateClientParameterIsSerializedInCreateRequestMethod(bool isRequired)
+        {
+            var dateType = CreateRfc7231DateType();
+            var operationParameter = InputFactory.QueryParameter(
+                "requestDate",
+                dateType,
+                isRequired: isRequired,
+                serializedName: "request-date",
+                scope: InputParameterScope.Client);
+            var clientParameter = InputFactory.MethodParameter(
+                "clientDate",
+                dateType,
+                isRequired: isRequired,
+                serializedName: "request-date",
+                location: InputRequestLocation.Query,
+                scope: InputParameterScope.Client,
+                paramAlias: "requestDate");
+            var operation = InputFactory.Operation(
+                "GetThing",
+                parameters: [operationParameter]);
+            var client = InputFactory.Client(
+                "TestClient",
+                methods: [InputFactory.BasicServiceMethod("GetThing", operation)],
+                parameters: [clientParameter]);
+            var restClient = new ClientProvider(client).RestClient;
+
+            var file = new TypeProviderWriter(restClient).Write();
+            Assert.AreEqual(Helpers.GetExpectedFromFile(parameters: isRequired.ToString()), file.Content);
+        }
+
+        private static InputDateTimeType CreateRfc7231DateType() => new(
+            DateTimeKnownEncoding.Rfc7231,
+            "utcDateTime",
+            "TypeSpec.utcDateTime",
+            InputPrimitiveType.String);
 
         private static void ValidateResponseClassifier(MethodBodyStatements bodyStatements, string parsedStatusCodes)
         {
