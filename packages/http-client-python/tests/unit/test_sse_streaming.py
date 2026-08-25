@@ -115,6 +115,7 @@ def test_generated_unnamed_discriminator_dispatch_and_terminal_predicate(async_m
     assert f"deserialized: {stream_class}[" in generated
     assert "terminal_event_predicate=_is_terminal_event" in generated
     assert generated.count("return cls(pipeline_response, deserialized, {})") == 1
+    assert 'raise ValueError(f"Unknown SSE event type: {_event.event!r}")' in generated
     assert not any(line.strip().startswith("_event.event =") for line in generated.splitlines())
 
 

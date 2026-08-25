@@ -181,9 +181,10 @@ function emitStructuredStreamingInfo(
     kind,
     itemType: getType(context, streamMetadata.streamType),
   };
+  if (kind !== "sse") return streaming;
 
   const sseMetadata = response.sseMetadata;
-  if (!sseMetadata) return streaming;
+  if (!sseMetadata || sseMetadata.events.length === 0) return undefined;
 
   const { events, terminalEvent } = partitionSSEEvents(sseMetadata.events, (type) =>
     getType(context, type),

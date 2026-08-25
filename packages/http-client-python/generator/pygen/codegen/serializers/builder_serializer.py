@@ -1332,10 +1332,6 @@ class _OperationSerializer(_BuilderBaseSerializer[OperationType]):
                 retval.append(f"{indent}_event_json = {event_json}")
                 emit_deserialized_event(event, indent)
 
-            def emit_fallback(indent: str) -> None:
-                retval.append(f"{indent}_event_json = _event.data")
-                retval.append(f"{indent}deserialized = _event_json")
-
             def emit_multiple_unnamed_events(events: list[StreamingEvent], indent: str) -> None:
                 event_json = _sse_fallback_data_expression(events)
                 retval.append(f"{indent}_event_json = {event_json}")
@@ -1373,9 +1369,9 @@ class _OperationSerializer(_BuilderBaseSerializer[OperationType]):
 
             if named_events or unnamed_events:
                 retval.append("    else:")
-                emit_fallback("        ")
+                retval.append('        raise ValueError(f"Unknown SSE event type: {_event.event!r}")')
             else:
-                emit_fallback("    ")
+                retval.append('    raise ValueError(f"Unknown SSE event type: {_event.event!r}")')
         else:
             retval.append("    _event_json = _event.json()")
             if self.code_model.options["models-mode"] == "msrest":
