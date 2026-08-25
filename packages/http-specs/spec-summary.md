@@ -3977,6 +3977,35 @@ Expected error response body:
 </XmlErrorBody>
 ```
 
+### Response_BodyOrNoContent_getBody
+
+- Endpoint: `get /response/body-or-no-content/body`
+
+Operation that returns a successful response with a status code of 200 and a `BlobLayout` body.
+
+Both `200` and `204` are declared as successful responses, but this route always returns `200`.
+Expected response status code is 200 with body:
+
+```json
+{ "content": "hello" }
+```
+
+Expected response header `x-ms-request-id: body-request`.
+Verify that the `200` response is deserialized normally and that the raw response status and
+headers remain available.
+
+### Response_BodyOrNoContent_getNoContent
+
+- Endpoint: `get /response/body-or-no-content/no-content`
+
+Operation that returns a successful response with a status code of 204 and no content.
+
+Both `200` and `204` are declared as successful responses, but this route always returns `204`.
+Expected response status code is 204 with no body.
+Expected response header `x-ms-request-id: no-content-request`.
+Verify that the `204` response is classified as successful, that it does not attempt body
+deserialization, and that the raw response status and headers remain available.
+
 ### Response_StatusCodeRange_errorResponseStatusCode404
 
 - Endpoint: `get /response/status-code-range/error-response-status-code-404`
@@ -5353,6 +5382,128 @@ event: responseDelta
 data: {"delta": " world"}
 
 data: [DONE]
+
+```
+
+### Streaming_Sse_Protocol_Data_withEnvelope
+
+- Endpoint: `get /streaming/sse/protocol/data/with-envelope`
+
+SSE event with an explicit `@data` payload. The `withEnvelope` event sends
+only the `contents` property in the SSE `data` field.
+Expected response body (content type `text/event-stream`):
+
+```
+event: withEnvelope
+data: hello
+```
+
+### Streaming_Sse_Protocol_Data_withoutEnvelope
+
+- Endpoint: `get /streaming/sse/protocol/data/without-envelope`
+
+SSE event without an explicit `@data` payload. The `withoutEnvelope` event
+sends the complete model in the SSE `data` field.
+Expected response body (content type `text/event-stream`):
+
+```
+event: withoutEnvelope
+data: {"metadata": {"source": "test"}, "contents": "world"}
+```
+
+### Streaming_Sse_Protocol_id
+
+- Endpoint: `get /streaming/sse/protocol/id`
+
+An SSE event with an `id` field. The event ID is envelope metadata and is
+not part of the typed event data.
+
+Expected response body (content type `text/event-stream`):
+
+```
+id: event-1
+event: message
+data: {"message": "hello"}
+
+```
+
+### Streaming_Sse_Protocol_invalidId
+
+- Endpoint: `get /streaming/sse/protocol/invalid-id`
+
+An SSE event with an `id` field containing U+0000 NULL. The field is
+ignored according to the SSE parsing rules.
+
+Expected response body (content type `text/event-stream`):
+
+```
+id: invalid<U+0000 NULL>id
+event: message
+data: {"message": "hello"}
+
+```
+
+### Streaming_Sse_Protocol_invalidRetry
+
+- Endpoint: `get /streaming/sse/protocol/invalid-retry`
+
+An SSE event with an invalid `retry` field. Since the value contains
+non-ASCII-digit characters, the field is ignored.
+
+Expected response body (content type `text/event-stream`):
+
+```
+retry: not-a-number
+event: message
+data: {"message": "hello"}
+
+```
+
+### Streaming_Sse_Protocol_reconnect
+
+- Endpoint: `get /streaming/sse/protocol/reconnect`
+
+An SSE stream that resumes after a reconnect. The first response closes after
+sending `event-1`. On reconnect, the client sends the most recently received
+event ID in the `Last-Event-ID` request header.
+
+Expected initial response body (content type `text/event-stream`):
+
+```
+id: event-1
+event: message
+data: {"message": "hello"}
+```
+
+Expected request header on reconnect:
+
+```
+Last-Event-ID: event-1
+```
+
+Expected reconnect response body (content type `text/event-stream`):
+
+```
+id: event-2
+event: message
+data: {"message": "world"}
+
+```
+
+### Streaming_Sse_Protocol_retry
+
+- Endpoint: `get /streaming/sse/protocol/retry`
+
+An SSE event with a valid `retry` field containing only ASCII digits. The
+field sets the client's reconnection delay and is not part of the typed
+event data.
+
+Expected response body (content type `text/event-stream`):
+
+```
+retry: 1000
+event: message
+data: {"message": "hello"}
 
 ```
 

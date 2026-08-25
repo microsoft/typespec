@@ -68,6 +68,7 @@ words:
   - Declipse
   - dedented
   - dedup
+  - dedupe
   - Dedupes
   - deps
   - deser
@@ -247,6 +248,7 @@ words:
   - reactivex
   - recase
   - recorda
+  - redef
   - regen
   - rehype
   - reinjected
