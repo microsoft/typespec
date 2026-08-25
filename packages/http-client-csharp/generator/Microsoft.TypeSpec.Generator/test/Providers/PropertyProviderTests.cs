@@ -292,6 +292,7 @@ namespace Microsoft.TypeSpec.Generator.Tests.Providers
             yield return new TestCaseData("DeletionDateTime", dateTime, false, "DeletedOn");
             yield return new TestCaseData("modelExpirationDate", dateTime, false, "ModelExpiresOn");
             yield return new TestCaseData("AccountExpirationDate", dateTime, false, "AccountExpiresOn");
+            yield return new TestCaseData("AccessTierChangeTime", dateTime, false, "AccessTierChangedOn");
             yield return new TestCaseData("RecordedAt", InputPrimitiveType.String, false, "RecordedAt");
             yield return new TestCaseData("Date", InputPrimitiveType.PlainDate, false, "Date");
             yield return new TestCaseData("SnapshotTimestamp", dateTime.WithNullable(true), false, "SnapshotOn");
