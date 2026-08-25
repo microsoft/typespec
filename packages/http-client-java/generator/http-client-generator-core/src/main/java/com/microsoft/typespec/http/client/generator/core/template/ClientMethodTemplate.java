@@ -744,6 +744,7 @@ public class ClientMethodTemplate extends ClientMethodTemplateBase {
                     : new ConvenienceMethodTemplateBase.MethodParameter(proxyParameter, clientParameter);
             })
             .filter(Objects::nonNull)
+            .filter(parameter -> !parameter.getProxyMethodParameter().isRequired())
             .filter(parameter -> {
                 RequestParameterLocation location = parameter.getProxyMethodParameter().getRequestParameterLocation();
                 return location == RequestParameterLocation.QUERY || location == RequestParameterLocation.HEADER;

@@ -4,6 +4,7 @@
 
 package azure.clientgenerator.core.methodoverride.implementation;
 
+import azure.clientgenerator.core.methodoverride.models.GroupParametersOptions;
 import com.azure.core.annotation.ExpectedResponses;
 import com.azure.core.annotation.Get;
 import com.azure.core.annotation.Host;
@@ -78,8 +79,7 @@ public final class GroupParametersImpl {
     /**
      * The group operation.
      * 
-     * @param param1 The param1 parameter.
-     * @param param2 The param2 parameter.
+     * @param options The options parameter.
      * @param requestOptions The options to configure the HTTP request before HTTP client sends it.
      * @throws HttpResponseException thrown if the request is rejected by server.
      * @throws ClientAuthenticationException thrown if the request is rejected by server on status code 401.
@@ -88,7 +88,9 @@ public final class GroupParametersImpl {
      * @return the {@link Response} on successful completion of {@link Mono}.
      */
     @ServiceMethod(returns = ReturnType.SINGLE)
-    public Mono<Response<Void>> groupWithResponseAsync(String param1, String param2, RequestOptions requestOptions) {
+    public Mono<Response<Void>> groupWithResponseAsync(GroupParametersOptions options, RequestOptions requestOptions) {
+        String param1 = options.getParam1();
+        String param2 = options.getParam2();
         return FluxUtil
             .withContext(context -> service.group(this.client.getEndpoint(), param1, param2, requestOptions, context));
     }
@@ -96,8 +98,7 @@ public final class GroupParametersImpl {
     /**
      * The group operation.
      * 
-     * @param param1 The param1 parameter.
-     * @param param2 The param2 parameter.
+     * @param options The options parameter.
      * @param requestOptions The options to configure the HTTP request before HTTP client sends it.
      * @throws HttpResponseException thrown if the request is rejected by server.
      * @throws ClientAuthenticationException thrown if the request is rejected by server on status code 401.
@@ -106,7 +107,9 @@ public final class GroupParametersImpl {
      * @return the {@link Response}.
      */
     @ServiceMethod(returns = ReturnType.SINGLE)
-    public Response<Void> groupWithResponse(String param1, String param2, RequestOptions requestOptions) {
+    public Response<Void> groupWithResponse(GroupParametersOptions options, RequestOptions requestOptions) {
+        String param1 = options.getParam1();
+        String param2 = options.getParam2();
         return service.groupSync(this.client.getEndpoint(), param1, param2, requestOptions, Context.NONE);
     }
 }

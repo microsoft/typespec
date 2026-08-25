@@ -19,12 +19,15 @@ import com.azure.core.exception.HttpResponseException;
 import com.azure.core.exception.ResourceModifiedException;
 import com.azure.core.exception.ResourceNotFoundException;
 import com.azure.core.http.HttpHeaderName;
+import com.azure.core.http.RequestConditions;
 import com.azure.core.http.rest.RequestOptions;
 import com.azure.core.http.rest.Response;
 import com.azure.core.http.rest.RestProxy;
 import com.azure.core.util.BinaryData;
 import com.azure.core.util.Context;
+import com.azure.core.util.DateTimeRfc1123;
 import com.azure.core.util.FluxUtil;
+import java.time.OffsetDateTime;
 import reactor.core.publisher.Mono;
 import tsptest.specialheaders.SpecialHeadersServiceVersion;
 
@@ -143,6 +146,7 @@ public final class EtagHeadersOptionalBodiesImpl {
      * </pre>
      * 
      * @param format The format parameter.
+     * @param requestConditions Specifies HTTP options for conditional requests based on modification time.
      * @param requestOptions The options to configure the HTTP request before HTTP client sends it.
      * @throws HttpResponseException thrown if the request is rejected by server.
      * @throws ClientAuthenticationException thrown if the request is rejected by server on status code 401.
@@ -152,14 +156,48 @@ public final class EtagHeadersOptionalBodiesImpl {
      */
     @ServiceMethod(returns = ReturnType.SINGLE)
     public Mono<Response<BinaryData>> putWithOptionalBodyWithResponseAsync(String format,
-        RequestOptions requestOptions) {
+        RequestConditions requestConditions, RequestOptions requestOptions) {
         final String accept = "application/json";
+        String ifMatchInternal = null;
+        if (requestConditions != null) {
+            ifMatchInternal = requestConditions.getIfMatch();
+        }
+        String ifMatch = ifMatchInternal;
+        String ifNoneMatchInternal = null;
+        if (requestConditions != null) {
+            ifNoneMatchInternal = requestConditions.getIfNoneMatch();
+        }
+        String ifNoneMatch = ifNoneMatchInternal;
+        OffsetDateTime ifUnmodifiedSinceInternal = null;
+        if (requestConditions != null) {
+            ifUnmodifiedSinceInternal = requestConditions.getIfUnmodifiedSince();
+        }
+        OffsetDateTime ifUnmodifiedSince = ifUnmodifiedSinceInternal;
+        OffsetDateTime ifModifiedSinceInternal = null;
+        if (requestConditions != null) {
+            ifModifiedSinceInternal = requestConditions.getIfModifiedSince();
+        }
+        OffsetDateTime ifModifiedSince = ifModifiedSinceInternal;
         RequestOptions requestOptionsLocal = requestOptions == null ? new RequestOptions() : requestOptions;
         requestOptionsLocal.addRequestCallback(requestLocal -> {
             if (requestLocal.getBody() != null && requestLocal.getHeaders().get(HttpHeaderName.CONTENT_TYPE) == null) {
                 requestLocal.getHeaders().set(HttpHeaderName.CONTENT_TYPE, "application/json");
             }
         });
+        if (ifMatch != null) {
+            requestOptionsLocal.setHeader(HttpHeaderName.IF_MATCH, ifMatch);
+        }
+        if (ifNoneMatch != null) {
+            requestOptionsLocal.setHeader(HttpHeaderName.IF_NONE_MATCH, ifNoneMatch);
+        }
+        if (ifUnmodifiedSince != null) {
+            requestOptionsLocal.setHeader(HttpHeaderName.IF_UNMODIFIED_SINCE,
+                String.valueOf(new DateTimeRfc1123(ifUnmodifiedSince)));
+        }
+        if (ifModifiedSince != null) {
+            requestOptionsLocal.setHeader(HttpHeaderName.IF_MODIFIED_SINCE,
+                String.valueOf(new DateTimeRfc1123(ifModifiedSince)));
+        }
         return FluxUtil.withContext(context -> service.putWithOptionalBody(this.client.getEndpoint(), format, accept,
             requestOptionsLocal, context));
     }
@@ -217,6 +255,7 @@ public final class EtagHeadersOptionalBodiesImpl {
      * </pre>
      * 
      * @param format The format parameter.
+     * @param requestConditions Specifies HTTP options for conditional requests based on modification time.
      * @param requestOptions The options to configure the HTTP request before HTTP client sends it.
      * @throws HttpResponseException thrown if the request is rejected by server.
      * @throws ClientAuthenticationException thrown if the request is rejected by server on status code 401.
@@ -225,14 +264,49 @@ public final class EtagHeadersOptionalBodiesImpl {
      * @return the response body along with {@link Response}.
      */
     @ServiceMethod(returns = ReturnType.SINGLE)
-    public Response<BinaryData> putWithOptionalBodyWithResponse(String format, RequestOptions requestOptions) {
+    public Response<BinaryData> putWithOptionalBodyWithResponse(String format, RequestConditions requestConditions,
+        RequestOptions requestOptions) {
         final String accept = "application/json";
+        String ifMatchInternal = null;
+        if (requestConditions != null) {
+            ifMatchInternal = requestConditions.getIfMatch();
+        }
+        String ifMatch = ifMatchInternal;
+        String ifNoneMatchInternal = null;
+        if (requestConditions != null) {
+            ifNoneMatchInternal = requestConditions.getIfNoneMatch();
+        }
+        String ifNoneMatch = ifNoneMatchInternal;
+        OffsetDateTime ifUnmodifiedSinceInternal = null;
+        if (requestConditions != null) {
+            ifUnmodifiedSinceInternal = requestConditions.getIfUnmodifiedSince();
+        }
+        OffsetDateTime ifUnmodifiedSince = ifUnmodifiedSinceInternal;
+        OffsetDateTime ifModifiedSinceInternal = null;
+        if (requestConditions != null) {
+            ifModifiedSinceInternal = requestConditions.getIfModifiedSince();
+        }
+        OffsetDateTime ifModifiedSince = ifModifiedSinceInternal;
         RequestOptions requestOptionsLocal = requestOptions == null ? new RequestOptions() : requestOptions;
         requestOptionsLocal.addRequestCallback(requestLocal -> {
             if (requestLocal.getBody() != null && requestLocal.getHeaders().get(HttpHeaderName.CONTENT_TYPE) == null) {
                 requestLocal.getHeaders().set(HttpHeaderName.CONTENT_TYPE, "application/json");
             }
         });
+        if (ifMatch != null) {
+            requestOptionsLocal.setHeader(HttpHeaderName.IF_MATCH, ifMatch);
+        }
+        if (ifNoneMatch != null) {
+            requestOptionsLocal.setHeader(HttpHeaderName.IF_NONE_MATCH, ifNoneMatch);
+        }
+        if (ifUnmodifiedSince != null) {
+            requestOptionsLocal.setHeader(HttpHeaderName.IF_UNMODIFIED_SINCE,
+                String.valueOf(new DateTimeRfc1123(ifUnmodifiedSince)));
+        }
+        if (ifModifiedSince != null) {
+            requestOptionsLocal.setHeader(HttpHeaderName.IF_MODIFIED_SINCE,
+                String.valueOf(new DateTimeRfc1123(ifModifiedSince)));
+        }
         return service.putWithOptionalBodySync(this.client.getEndpoint(), format, accept, requestOptionsLocal,
             Context.NONE);
     }

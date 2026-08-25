@@ -13,6 +13,7 @@ import com.microsoft.typespec.http.client.generator.core.model.clientmodel.Metho
 import com.microsoft.typespec.http.client.generator.core.model.clientmodel.ParameterTransformations;
 import com.microsoft.typespec.http.client.generator.core.model.clientmodel.ProxyMethodParameter;
 import com.microsoft.typespec.http.client.generator.core.util.MethodUtil;
+import com.microsoft.typespec.http.client.generator.core.util.SchemaUtil;
 import java.util.ArrayList;
 import java.util.LinkedHashMap;
 import java.util.LinkedHashSet;
@@ -141,13 +142,22 @@ final class ClientMethodParameterProcessor {
     }
 
     private static boolean isSameParameterGroup(Parameter left, Parameter right) {
-        return left != null
-            && right != null
-            && Objects.equals(left.getSchema().getLanguage().getJava().getName(),
-                right.getSchema().getLanguage().getJava().getName())
+        if (left == null || right == null || left.getSchema() == null || right.getSchema() == null) {
+            return false;
+        }
+
+        String leftSchemaName = SchemaUtil.getJavaName(left.getSchema());
+        String rightSchemaName = SchemaUtil.getJavaName(right.getSchema());
+        String leftParameterName = SchemaUtil.getJavaName(left);
+        String rightParameterName = SchemaUtil.getJavaName(right);
+        return leftSchemaName != null
+            && rightSchemaName != null
+            && leftParameterName != null
+            && rightParameterName != null
+            && Objects.equals(leftSchemaName, rightSchemaName)
             && Objects.equals(left.getSchema().getLanguage().getJava().getNamespace(),
                 right.getSchema().getLanguage().getJava().getNamespace())
-            && Objects.equals(left.getLanguage().getJava().getName(), right.getLanguage().getJava().getName());
+            && Objects.equals(leftParameterName, rightParameterName);
     }
 
     private static boolean isQueryOrHeaderParameter(Parameter parameter) {
