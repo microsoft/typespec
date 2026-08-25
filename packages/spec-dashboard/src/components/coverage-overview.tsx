@@ -3,6 +3,7 @@ import type { FunctionComponent } from "react";
 import { useMemo } from "react";
 import type { CoverageSummary } from "../apis.js";
 import { GroupRatioColors, GroupRatios } from "../constants.js";
+import { getEmitterDisplayName } from "../utils/emitter-display-name.js";
 import style from "./coverage-overview.module.css";
 
 interface EmitterOverview {
@@ -14,29 +15,6 @@ interface EmitterOverview {
 export interface CoverageOverviewProps {
   coverageSummaries: CoverageSummary[];
   emitterDisplayNames?: Record<string, string>;
-}
-
-/**
- * Extracts a display-friendly name from a full emitter package name.
- * e.g. "@typespec/http-client-python" → "Python"
- */
-function getEmitterDisplayName(
-  emitterName: string,
-  report: CoverageSummary["generatorReports"][string],
-  emitterDisplayNames?: Record<string, string>,
-): string {
-  if (emitterDisplayNames?.[emitterName]) {
-    return emitterDisplayNames[emitterName];
-  }
-  if (report?.generatorMetadata?.name) {
-    return report.generatorMetadata.name;
-  }
-  // Strip common prefix patterns
-  const match = emitterName.match(/http-client-(\w+)$/);
-  if (match) {
-    return match[1].charAt(0).toUpperCase() + match[1].slice(1);
-  }
-  return emitterName;
 }
 
 function getEmitterOverviewKey(

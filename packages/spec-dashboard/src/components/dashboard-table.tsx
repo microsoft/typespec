@@ -5,6 +5,7 @@ import type { FunctionComponent } from "react";
 import { useCallback, useMemo, useState } from "react";
 import type { CoverageSummary, GeneratorCoverageSuiteReport } from "../apis.js";
 import { getCompletedRatio } from "../utils/coverage-utils.js";
+import { getEmitterDisplayName } from "../utils/emitter-display-name.js";
 import style from "./dashboard-table.module.css";
 import { GeneratorInformation } from "./generator-information.js";
 import { ScenarioGroupRatioStatusBox } from "./scenario-group-status.js";
@@ -175,7 +176,7 @@ const DashboardHeaderRow: FunctionComponent<DashboardHeaderRowProps> = ({
           status={status}
           report={report}
           language={lang}
-          displayName={emitterDisplayNames?.[lang as string]}
+          displayName={getEmitterDisplayName(lang, report, emitterDisplayNames)}
         />
       ))}
     </tr>
