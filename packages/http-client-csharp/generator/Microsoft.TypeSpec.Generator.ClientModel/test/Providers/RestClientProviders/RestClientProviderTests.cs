@@ -1216,6 +1216,83 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers.RestClientPro
             Assert.AreEqual(Helpers.GetExpectedFromFile(), file.Content);
         }
 
+        [Test]
+        public void OptionalMethodEnumPathParameterIsSerializedOnce()
+        {
+            var enumType = InputFactory.StringEnum(
+                "Color",
+                [("Red", "red"), ("Blue", "blue")],
+                isExtensible: true);
+            var operation = InputFactory.Operation(
+                "GetThing",
+                parameters: [InputFactory.PathParameter("color", enumType, isRequired: false)],
+                path: "/things/{color}");
+            var serviceMethod = InputFactory.BasicServiceMethod(
+                "GetThing",
+                operation,
+                parameters:
+                [
+                    InputFactory.MethodParameter(
+                        "color",
+                        enumType,
+                        isRequired: false,
+                        location: InputRequestLocation.Path)
+                ]);
+            var client = InputFactory.Client("TestClient", methods: [serviceMethod]);
+            var restClient = new ClientProvider(client).RestClient;
+
+            var file = new TypeProviderWriter(restClient).Write();
+            Assert.AreEqual(Helpers.GetExpectedFromFile(), file.Content);
+        }
+
+        [Test]
+        public void RequiredNullableStringPathParameterIsGuarded()
+        {
+            var nullableString = new InputNullableType(InputPrimitiveType.String);
+            var operation = InputFactory.Operation(
+                "GetThing",
+                parameters: [InputFactory.PathParameter("name", nullableString, isRequired: true)],
+                path: "/things/{name}");
+            var serviceMethod = InputFactory.BasicServiceMethod(
+                "GetThing",
+                operation,
+                parameters:
+                [
+                    InputFactory.MethodParameter(
+                        "name",
+                        nullableString,
+                        isRequired: true,
+                        location: InputRequestLocation.Path)
+                ]);
+            var client = InputFactory.Client("TestClient", methods: [serviceMethod]);
+            var restClient = new ClientProvider(client).RestClient;
+
+            var file = new TypeProviderWriter(restClient).Write();
+            Assert.AreEqual(Helpers.GetExpectedFromFile(), file.Content);
+        }
+
+        [Test]
+        public void OptionalClientDatePathParameterIsGuardedBeforeFormatting()
+        {
+            var dateType = new InputDateTimeType(
+                DateTimeKnownEncoding.Rfc7231,
+                "utcDateTime",
+                "TypeSpec.utcDateTime",
+                InputPrimitiveType.String);
+            var operation = InputFactory.Operation(
+                "GetThing",
+                parameters: [InputFactory.PathParameter("requestOn", dateType, isRequired: false, scope: InputParameterScope.Client)],
+                path: "/things/{requestOn}");
+            var serviceMethod = InputFactory.BasicServiceMethod(
+                "GetThing",
+                operation);
+            var client = InputFactory.Client("TestClient", methods: [serviceMethod]);
+            var restClient = new ClientProvider(client).RestClient;
+
+            var file = new TypeProviderWriter(restClient).Write();
+            Assert.AreEqual(Helpers.GetExpectedFromFile(), file.Content);
+        }
+
         // An optional trailing path parameter must not emit a dangling separator when null.
         // e.g. "/certificates/{certificateName}/{certificateVersion}" with a null version
         // should produce "/certificates/{name}", not "/certificates/{name}/".

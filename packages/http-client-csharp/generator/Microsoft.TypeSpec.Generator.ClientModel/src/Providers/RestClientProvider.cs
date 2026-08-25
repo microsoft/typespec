@@ -897,7 +897,8 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
                 bool separatorDeferred = false;
                 if (pathLiteral.EndsWith('/')
                     && inputParamMap.TryGetValue(paramName, out var optionalCheckParam)
-                    && optionalCheckParam is InputPathParameter { IsRequired: false })
+                    && optionalCheckParam is InputPathParameter or InputEndpointParameter
+                    && (optionalCheckParam.IsRequired == false || optionalCheckParam.Type is InputNullableType))
                 {
                     pathLiteral = pathLiteral.Substring(0, pathLiteral.Length - 1);
                     separatorDeferred = true;
