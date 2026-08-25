@@ -45,5 +45,48 @@ namespace Microsoft.TypeSpec.Generator.Tests.Statements
             statement.Write(writer);
             Assert.AreEqual("/// <tag> &lt;|endoftext|&gt;. </tag>\n", writer.ToString(false));
         }
+
+        [TestCase("\r")]
+        [TestCase("\r\n")]
+        [TestCase("\n")]
+        [TestCase("\u0085")]
+        [TestCase("\u2028")]
+        [TestCase("\u2029")]
+        public void LineTerminatorsInLiteralAreNormalized(string terminator)
+        {
+            var statement = new XmlDocStatement($"<tag>", $"</tag>", [$"first{terminator}second"]);
+            using var writer = new CodeWriter();
+            statement.Write(writer);
+            Assert.AreEqual("/// <tag>\n/// first\n/// second\n/// </tag>\n", writer.ToString(false));
+        }
+
+        [TestCase("\r")]
+        [TestCase("\r\n")]
+        [TestCase("\n")]
+        [TestCase("\u0085")]
+        [TestCase("\u2028")]
+        [TestCase("\u2029")]
+        public void LineTerminatorsInArgumentAreNormalized(string terminator)
+        {
+            var text = $"first{terminator}second";
+            var statement = new XmlDocStatement($"<tag>", $"</tag>", [$"{text}"]);
+            using var writer = new CodeWriter();
+            statement.Write(writer);
+            Assert.AreEqual("/// <tag>\n/// first\n/// second\n/// </tag>\n", writer.ToString(false));
+        }
+
+        [Test]
+        public void AllLineTerminatorsAreNormalized()
+        {
+            var statement = new XmlDocStatement(
+                $"<tag>",
+                $"</tag>",
+                [$"first\rsecond\r\nthird\u0085fourth\u2028fifth\u2029sixth\nseventh"]);
+            using var writer = new CodeWriter();
+            statement.Write(writer);
+            Assert.AreEqual(
+                "/// <tag>\n/// first\n/// second\n/// third\n/// fourth\n/// fifth\n/// sixth\n/// seventh\n/// </tag>\n",
+                writer.ToString(false));
+        }
     }
 }

@@ -246,6 +246,97 @@ namespace Microsoft.TypeSpec.Generator.Tests.Utilities
                         $"first{"x\ny":L}second",
                         $"third{null}"
                     }).SetName("TestBreakLines_FormatSpecifierInArg");
+
+                yield return new TestCaseData(
+                    (FormattableString)$"first\u0085second\u0085third",
+                    new List<FormattableString> {
+                        $"first",
+                        $"second",
+                        $"third"
+                    }).SetName("TestBreakLines_AllLiteralsNoArgsWithNextLine");
+
+                yield return new TestCaseData(
+                    (FormattableString)$"first\u2028second\u2028third",
+                    new List<FormattableString> {
+                        $"first",
+                        $"second",
+                        $"third"
+                    }).SetName("TestBreakLines_AllLiteralsNoArgsWithLineSeparator");
+
+                yield return new TestCaseData(
+                    (FormattableString)$"first\u2029second\u2029third",
+                    new List<FormattableString> {
+                        $"first",
+                        $"second",
+                        $"third"
+                    }).SetName("TestBreakLines_AllLiteralsNoArgsWithParagraphSeparator");
+
+                yield return new TestCaseData(
+                    (FormattableString)$"first\rsecond\r\nthird\u0085fourth\u2028fifth\u2029sixth\nseventh",
+                    new List<FormattableString> {
+                        $"first",
+                        $"second",
+                        $"third",
+                        $"fourth",
+                        $"fifth",
+                        $"sixth",
+                        $"seventh"
+                    }).SetName("TestBreakLines_AllLiteralsNoArgsWithAllTerminators");
+
+                yield return new TestCaseData(
+                    (FormattableString)$"{"first\rsecond\r\nthird\u0085fourth\u2028fifth\u2029sixth\nseventh"}",
+                    new List<FormattableString> {
+                        $"{"first"}",
+                        $"{"second"}",
+                        $"{"third"}",
+                        $"{"fourth"}",
+                        $"{"fifth"}",
+                        $"{"sixth"}",
+                        $"{"seventh"}"
+                    }).SetName("TestBreakLines_OneArgOnlyWithAllTerminators");
+
+                yield return new TestCaseData(
+                    (FormattableString)$"first\r\u0085\u2028\u2029second",
+                    new List<FormattableString> {
+                        $"first",
+                        $"",
+                        $"",
+                        $"",
+                        $"second"
+                    }).SetName("TestBreakLines_ConsecutiveMixedTerminators");
+
+                yield return new TestCaseData(
+                    (FormattableString)$"first\u2028",
+                    new List<FormattableString> {
+                        $"first",
+                        $""
+                    }).SetName("TestBreakLines_LiteralEndingWithLineSeparator");
+
+                yield return new TestCaseData(
+                    (FormattableString)$"first{"x"}second\u0085third{"y\u2029"}",
+                    new List<FormattableString> {
+                        $"first{"x"}second",
+                        $"third{"y"}",
+                        $"{""}"
+                    }).SetName("TestBreakLines_TerminatorsAtEndOfArgument");
+
+                inner = $"{"x"}\u0085{"y"}z";
+                outter = $"first{inner}Second\u2029third{null}";
+                yield return new TestCaseData(
+                    outter,
+                    new List<FormattableString> {
+                        $"first{"x"}",
+                        $"{"y"}zSecond",
+                        $"third{null}"
+                    }).SetName("TestBreakLines_RecursiveFormattableStringsWithAllTerminators");
+
+                // format specifiers are still ignored when the argument contains other line terminators.
+                yield return new TestCaseData(
+                    (FormattableString)$"first{"x\u2028y":L}second\u0085third{null}",
+                    new List<FormattableString> {
+                        $"first{"x\u2028y":L}second",
+                        $"third{null}"
+                    }).SetName("TestBreakLines_FormatSpecifierInArgWithTerminators");
             }
         }
     }
