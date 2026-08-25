@@ -219,22 +219,10 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
 
         private string GetCleanOperationName(InputServiceMethod serviceMethod)
         {
+            var operationName = GetOperationName(serviceMethod);
             if (serviceMethod.IsExactName)
             {
-                return serviceMethod.Operation.Name;
-            }
-
-            var operationName = (serviceMethod.Operation.OriginalName ?? serviceMethod.Operation.Name).ToIdentifierName();
-            // Replace List with Get as .NET convention is to use Get for list operations.
-            if (operationName == "List")
-            {
-                operationName = "GetAll";
-            }
-            else if (operationName.StartsWith("List", StringComparison.Ordinal) &&
-                operationName.Length > 4 && char.IsUpper(operationName[4]))
-            {
-                // If the operation name starts with List and has a capital letter after it, we replace List with Get.
-                operationName = $"Get{operationName.Substring(4)}";
+                return operationName;
             }
 
             var normalizedName = operationName.NormalizeCSharpUrlSuffix();
@@ -252,6 +240,36 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
             }
 
             return normalizedName;
+        }
+
+        internal static string GetRestOperationName(InputServiceMethod serviceMethod)
+        {
+            var operationName = GetOperationName(serviceMethod);
+            return serviceMethod.IsExactName ? operationName : operationName.NormalizeCSharpUrlSuffix();
+        }
+
+        private static string GetOperationName(InputServiceMethod serviceMethod)
+        {
+            var operationName = serviceMethod.Operation.OriginalName ?? serviceMethod.Operation.Name;
+            if (serviceMethod.IsExactName)
+            {
+                return operationName;
+            }
+
+            operationName = operationName.ToIdentifierName();
+            // Replace List with Get as .NET convention is to use Get for list operations.
+            if (operationName == "List")
+            {
+                operationName = "GetAll";
+            }
+            else if (operationName.StartsWith("List", StringComparison.Ordinal) &&
+                operationName.Length > 4 && char.IsUpper(operationName[4]))
+            {
+                // If the operation name starts with List and has a capital letter after it, we replace List with Get.
+                operationName = $"Get{operationName.Substring(4)}";
+            }
+
+            return operationName;
         }
 
         private string? _namespace;

@@ -225,9 +225,10 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
             }
 
             var operation = serviceMethod.Operation;
+            var operationName = ClientProvider.GetRestOperationName(serviceMethod);
             var methodName = isNextLinkRequest
-                ? $"CreateNext{operation.Name.ToIdentifierName()}Request"
-                : $"Create{operation.Name.ToIdentifierName()}Request";
+                ? $"CreateNext{operationName}Request"
+                : $"Create{operationName}Request";
             var signature = new MethodSignature(
                 methodName,
                 null,
