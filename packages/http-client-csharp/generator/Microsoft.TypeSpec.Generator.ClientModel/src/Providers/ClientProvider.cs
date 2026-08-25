@@ -270,7 +270,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
             var operationName = serviceMethod.Operation.OriginalName ?? serviceMethod.Operation.Name;
             if (serviceMethod.IsExactName)
             {
-                return operationName;
+                return serviceMethod.Operation.Name;
             }
 
             operationName = operationName.ToIdentifierName();

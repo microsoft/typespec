@@ -4715,6 +4715,27 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers.ClientProvide
             Assert.AreEqual("snake_case_op", inputServiceMethod.Operation.Name);
         }
 
+        [Test]
+        public void TestIsExactNameServiceMethodPreservesUpdatedOperationName()
+        {
+            var inputOperation = InputFactory.Operation("Original", isExactName: true);
+            inputOperation.Update(name: "Renamed");
+            var inputServiceMethod = InputFactory.BasicServiceMethod("Original", inputOperation, isExactName: true);
+            var client = InputFactory.Client("TestClient", methods: [inputServiceMethod]);
+            var clientProvider = new ClientProvider(client);
+
+            Assert.AreEqual("Renamed", inputServiceMethod.Name);
+            Assert.AreEqual("Renamed", inputOperation.Name);
+            Assert.AreEqual("CreateRenamedRequest", clientProvider.RestClient.GetCreateRequestMethod(inputOperation).Signature.Name);
+
+            var backCompatProvider = new BackCompatTypeProvider("MissingWrapper", "Sample");
+            _ = clientProvider.GetMethodCollectionByOperation(inputOperation, backCompatProvider);
+
+            Assert.AreEqual("Renamed", inputServiceMethod.Name);
+            Assert.AreEqual("Renamed", inputOperation.Name);
+            Assert.AreEqual("CreateRenamedRequest", clientProvider.RestClient.GetCreateRequestMethod(inputOperation).Signature.Name);
+        }
+
         [TestCase("GetUrl", false, "GetUri")]
         [TestCase("ListUrl", false, "GetUri")]
         [TestCase("GetUrlValue", false, "GetUrlValue")]
