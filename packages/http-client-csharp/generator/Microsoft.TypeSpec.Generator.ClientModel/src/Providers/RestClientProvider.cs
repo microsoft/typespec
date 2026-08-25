@@ -197,7 +197,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
                 // For next link requests, filter parameters to only include reinjected ones
                 var pagingServiceMethod = serviceMethod as InputPagingServiceMethod;
                 var nextLink = pagingServiceMethod?.PagingMetadata.NextLink;
-                var reinjectedParamNames = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
+                var reinjectedParamNames = new HashSet<string>(StringComparer.Ordinal);
 
                 // Add parameters from nextLink.ReInjectedParameters
                 if (nextLink?.ReInjectedParameters != null)
@@ -208,18 +208,22 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
                     }
                 }
 
-                // Add maxPageSize parameter if PageSizeParameterSegments is specified
                 var pageSizeParameterName = GetPageSizeParameterName(pagingServiceMethod);
-                if (pageSizeParameterName != null)
-                {
-                    reinjectedParamNames.Add(pageSizeParameterName);
-                }
 
                 // Only filter if there are reinjected parameters specified
-                if (reinjectedParamNames.Count > 0)
+                if (reinjectedParamNames.Count > 0 || pageSizeParameterName != null)
                 {
                     parameters = parameters
-                        .Where(p => reinjectedParamNames.Contains(p.InputParameter?.Name ?? p.Name))
+                        .Where(p =>
+                        {
+                            var name = p.InputParameter?.Name ?? p.Name;
+                            // Reinjected names must match exactly so that parameters differing only by casing are
+                            // not conflated. The page size name is matched case-insensitively because the operation
+                            // and method parameters intentionally differ in casing.
+                            return reinjectedParamNames.Contains(name) ||
+                                (pageSizeParameterName != null &&
+                                    name.Equals(pageSizeParameterName, StringComparison.OrdinalIgnoreCase));
+                        })
                         .ToList();
                 }
 
@@ -377,7 +381,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
             InputOperation operation,
             ParameterProviderMap paramMap)
         {
-            var reinjectedParamsMap = new ParameterProviderMap();
+            var reinjectedParamsMap = new ParameterProviderMap(allowCaseInsensitiveFallback: false);
 
             // Add parameters from nextLink.ReInjectedParameters
             if (nextLink.ReInjectedParameters?.Count > 0)
@@ -1661,6 +1665,18 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
             private readonly Dictionary<string, ParameterProvider> _inputIgnoreCase = new(StringComparer.OrdinalIgnoreCase);
             private readonly Dictionary<string, ParameterProvider> _generatedExact = new(StringComparer.Ordinal);
             private readonly Dictionary<string, ParameterProvider> _generatedIgnoreCase = new(StringComparer.OrdinalIgnoreCase);
+            private readonly bool _allowCaseInsensitiveFallback;
+
+            /// <param name="allowCaseInsensitiveFallback">
+            /// Whether lookups may fall back to a case-insensitive match. This must be disabled for maps that hold a
+            /// subset of the operation's parameters, such as the parameters reinjected into a next link request.
+            /// Otherwise a parameter that was left out of the subset would resolve to another parameter whose name
+            /// differs only by casing.
+            /// </param>
+            public ParameterProviderMap(bool allowCaseInsensitiveFallback = true)
+            {
+                _allowCaseInsensitiveFallback = allowCaseInsensitiveFallback;
+            }
 
             public int Count => _inputExact.Count + _generatedExact.Count;
 
@@ -1698,10 +1714,22 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
             public bool ContainsExactInputName(string name) => _inputExact.ContainsKey(name);
 
             public bool TryGetValue(string name, [NotNullWhen(true)] out ParameterProvider? parameter)
-                => _inputExact.TryGetValue(name, out parameter) ||
-                    _generatedExact.TryGetValue(name, out parameter) ||
-                    _inputIgnoreCase.TryGetValue(name, out parameter) ||
+            {
+                if (_inputExact.TryGetValue(name, out parameter) ||
+                    _generatedExact.TryGetValue(name, out parameter))
+                {
+                    return true;
+                }
+
+                if (!_allowCaseInsensitiveFallback)
+                {
+                    parameter = null;
+                    return false;
+                }
+
+                return _inputIgnoreCase.TryGetValue(name, out parameter) ||
                     _generatedIgnoreCase.TryGetValue(name, out parameter);
+            }
         }
 
         private class StatusCodesComparer : IEqualityComparer<List<int>>

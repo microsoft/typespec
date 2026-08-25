@@ -1600,6 +1600,75 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers.RestClientPro
         }
 
         [Test]
+        public void CaseCollidingNextLinkReinjectedParametersAreSerialized()
+        {
+            var dateType = new InputDateTimeType(
+                DateTimeKnownEncoding.Rfc7231,
+                "utcDateTime",
+                "TypeSpec.utcDateTime",
+                InputPrimitiveType.String);
+            var startTime = InputFactory.QueryParameter(
+                "startTime",
+                dateType,
+                isRequired: true,
+                serializedName: "start-time");
+            var pascalStartTime = InputFactory.QueryParameter(
+                "StartTime",
+                InputPrimitiveType.String,
+                isRequired: true,
+                serializedName: "Start-Time");
+            // Only the camel-cased parameter is reinjected into the next link request.
+            var pagingMetadata = InputFactory.NextLinkPagingMetadata(
+                ["cats"],
+                ["nextCat"],
+                InputResponseLocation.Header,
+                [startTime]);
+            var response = InputFactory.OperationResponse(
+                [200],
+                InputFactory.Model(
+                    "page",
+                    properties:
+                    [
+                        InputFactory.Property(
+                            "cats",
+                            InputFactory.Array(InputPrimitiveType.String)),
+                        InputFactory.Property("nextCat", InputPrimitiveType.Url)
+                    ]));
+            var operation = InputFactory.Operation(
+                "getCats",
+                responses: [response],
+                parameters: [startTime, pascalStartTime]);
+            var inputServiceMethod = InputFactory.PagingServiceMethod(
+                "getCats",
+                operation,
+                pagingMetadata: pagingMetadata,
+                parameters:
+                [
+                    InputFactory.MethodParameter(
+                        "startTime",
+                        dateType,
+                        isRequired: true,
+                        location: InputRequestLocation.Query),
+                    InputFactory.MethodParameter(
+                        "StartTime",
+                        InputPrimitiveType.String,
+                        isRequired: true,
+                        location: InputRequestLocation.Query)
+                ]);
+            var client = InputFactory.Client("TestClient", methods: [inputServiceMethod]);
+
+            var method = new ClientProvider(client).RestClient.Methods.Single(
+                method => method.Signature.Name == "CreateNextGetCatsRequest");
+            // nextPage, the reinjected startTime parameter and options.
+            Assert.AreEqual(3, method.Signature.Parameters.Count);
+            using var writer = new CodeWriter();
+            writer.WriteMethod(method);
+            Assert.AreEqual(
+                Helpers.GetExpectedFromFile().ReplaceLineEndings("\n"),
+                writer.ToString(false));
+        }
+
+        [Test]
         public void TestPageSizeParameterReinjectedInCreateNextRequestMethod()
         {
             var p1 = InputFactory.QueryParameter("p1", InputPrimitiveType.String, isRequired: true);
