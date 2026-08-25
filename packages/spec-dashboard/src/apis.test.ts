@@ -5,7 +5,6 @@ import { expect, it } from "vitest";
 import type { TableDefinition } from "./apis.js";
 import { splitManifestByTables } from "./apis.js";
 import { CoverageOverview } from "./components/coverage-overview.js";
-import { getEmitterDisplayName } from "./utils/emitter-display-name.js";
 
 const createManifest = (
   packageName: string,
@@ -268,6 +267,7 @@ it("should group overview coverage by logical display name across emitter packag
       coverageSummaries,
       emitterDisplayNames: {
         "@azure-typespec/http-client-csharp": "C#",
+        "@azure-typespec/http-client-csharp-mgmt": "C#",
       },
     }),
   );
@@ -275,14 +275,6 @@ it("should group overview coverage by logical display name across emitter packag
   const cSharpMatches = html.match(/C#/g) ?? [];
   expect(cSharpMatches).toHaveLength(1);
   expect(html).not.toContain("@azure-typespec/http-client-csharp-mgmt");
-});
-
-it("should use the base emitter display name for a management-plane emitter", () => {
-  expect(
-    getEmitterDisplayName("@azure-typespec/http-client-csharp-mgmt", undefined, {
-      "@azure-typespec/http-client-csharp": "C#",
-    }),
-  ).toBe("C#");
 });
 
 it("should include emitterNames from table definition", () => {
