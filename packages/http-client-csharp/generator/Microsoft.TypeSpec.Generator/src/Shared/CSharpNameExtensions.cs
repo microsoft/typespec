@@ -62,13 +62,10 @@ namespace Microsoft.TypeSpec.Generator.Utilities
 
         public static string NormalizeDateTimeSuffix(this string name)
         {
-            if (DateTimeNameRules.HasExcludedComponent(name))
-            {
-                return name;
-            }
-
             var suffixLength = DateTimeNameRules.GetSuffixLength(name);
-            if (suffixLength == 0 || suffixLength == name.Length)
+            if (suffixLength == 0 ||
+                suffixLength == name.Length ||
+                DateTimeNameRules.HasExcludedComponent(name, suffixLength))
             {
                 return name;
             }
@@ -85,7 +82,9 @@ namespace Microsoft.TypeSpec.Generator.Utilities
             private const string AtSuffix = "At";
             private const string DateSuffix = "Date";
             private const string DateTimeSuffix = "DateTime";
+            private const string FirstName = "First";
             private const string FromName = "From";
+            private const string LastName = "Last";
             internal const string LowercaseOnSuffix = "on";
             internal const string OnSuffix = "On";
             private const string PointInTimeName = "PointInTime";
@@ -101,8 +100,10 @@ namespace Microsoft.TypeSpec.Generator.Utilities
             {
                 ["Creation"] = "Created",
                 ["Deletion"] = "Deleted",
+                ["End"] = "Ends",
                 ["Expiration"] = "Expires",
-                ["Modification"] = "Modified"
+                ["Modification"] = "Modified",
+                ["Start"] = "Starts"
             };
 
             internal static string ToVerbForm(string prefix)
@@ -127,11 +128,14 @@ namespace Microsoft.TypeSpec.Generator.Utilities
                 return prefix;
             }
 
-            internal static bool HasExcludedComponent(string name)
+            internal static bool HasExcludedComponent(string name, int suffixLength)
             {
                 // StatusTimestamp is a semantic compound. Keep the exclusion exact so names such as
                 // LastSyncTimestamp continue to normalize.
-                return name.StartsWith(FromName, StringComparison.OrdinalIgnoreCase) ||
+                var prefix = name.AsSpan(0, name.Length - suffixLength);
+                return prefix.Equals(FirstName, StringComparison.OrdinalIgnoreCase) ||
+                    prefix.Equals(LastName, StringComparison.OrdinalIgnoreCase) ||
+                    name.StartsWith(FromName, StringComparison.OrdinalIgnoreCase) ||
                     name.StartsWith(ToName, StringComparison.OrdinalIgnoreCase) ||
                     name.EndsWith(PointInTimeName, StringComparison.OrdinalIgnoreCase) ||
                     name.Equals(StatusTimestampName, StringComparison.OrdinalIgnoreCase) ||

@@ -31,7 +31,7 @@ namespace Microsoft.TypeSpec.Generator.Tests.Utilities
         [Test]
         public void NormalizeCSharpAcronymsNormalizesDateTimeSuffixInSinglePass()
         {
-            Assert.AreEqual("IPStartOn", "IpStartTime".NormalizeCSharpAcronyms(normalizeDateTimeSuffix: true));
+            Assert.AreEqual("IPStartsOn", "IpStartTime".NormalizeCSharpAcronyms(normalizeDateTimeSuffix: true));
         }
 
         private static IEnumerable<TestCaseData> DateTimeNameTestCases()
@@ -42,7 +42,16 @@ namespace Microsoft.TypeSpec.Generator.Tests.Utilities
                 "TypeSpec.utcDateTime",
                 InputPrimitiveType.String);
 
-            yield return new TestCaseData("startTime", dateTime, "startOn");
+            yield return new TestCaseData("startTime", dateTime, "startsOn");
+            yield return new TestCaseData("StartDate", dateTime, "StartsOn");
+            yield return new TestCaseData("endTimestamp", dateTime, "endsOn");
+            yield return new TestCaseData("EndAt", dateTime, "EndsOn");
+            yield return new TestCaseData("leaseStartDateTime", dateTime, "leaseStartsOn");
+            yield return new TestCaseData("MaintenanceEndTime", dateTime, "MaintenanceEndsOn");
+            yield return new TestCaseData("firstTimestamp", dateTime, "firstTimestamp");
+            yield return new TestCaseData("FirstTime", dateTime, "FirstTime");
+            yield return new TestCaseData("lastDateTime", dateTime, "lastDateTime");
+            yield return new TestCaseData("LastAt", dateTime, "LastAt");
             yield return new TestCaseData("Date", InputPrimitiveType.PlainDate, "Date");
             yield return new TestCaseData("date", InputPrimitiveType.PlainDate, "date");
             yield return new TestCaseData("Timestamp", dateTime, "Timestamp");

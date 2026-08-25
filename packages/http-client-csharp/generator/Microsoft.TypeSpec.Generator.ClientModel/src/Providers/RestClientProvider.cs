@@ -260,6 +260,14 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
             var classifier = GetClassifier(operation);
 
             var paramMap = signature.Parameters.ToDictionary(p => p.Name, StringComparer.OrdinalIgnoreCase);
+            foreach (var parameter in signature.Parameters)
+            {
+                if (parameter.InputParameter is { } inputParameter)
+                {
+                    paramMap.TryAdd(inputParameter.Name, parameter);
+                }
+            }
+
             foreach (var param in ClientProvider.ClientParameters)
             {
                 paramMap[param.Name] = param;

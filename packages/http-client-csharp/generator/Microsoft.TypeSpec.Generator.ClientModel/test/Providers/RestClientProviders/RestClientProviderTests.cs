@@ -66,6 +66,58 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers.RestClientPro
             }
         }
 
+        [TestCase(InputRequestLocation.Header, "request.Headers.Set(\"ocp-date\"")]
+        [TestCase(
+            InputRequestLocation.Query,
+            "uri.AppendQuery(\"request-date\", global::Sample.TypeFormatters.ConvertToString(requestOn")]
+        [TestCase(InputRequestLocation.Path, "uri.AppendPath(requestOn")]
+        public void NormalizedDateTimeOperationParameterIsSerialized(
+            InputRequestLocation location,
+            string expectedSerialization)
+        {
+            var dateType = new InputDateTimeType(
+                DateTimeKnownEncoding.Rfc7231,
+                "utcDateTime",
+                "TypeSpec.utcDateTime",
+                InputPrimitiveType.String);
+            InputParameter parameter = location switch
+            {
+                InputRequestLocation.Header => InputFactory.HeaderParameter(
+                    "requestDate",
+                    dateType,
+                    isRequired: false,
+                    serializedName: "ocp-date"),
+                InputRequestLocation.Query => InputFactory.QueryParameter(
+                    "requestDate",
+                    dateType,
+                    isRequired: false,
+                    serializedName: "request-date"),
+                InputRequestLocation.Path => InputFactory.PathParameter(
+                    "requestDate",
+                    dateType,
+                    isRequired: true,
+                    serializedName: "request-date"),
+                _ => throw new InvalidOperationException($"Unsupported test location: {location}")
+            };
+            var operation = InputFactory.Operation(
+                "GetThing",
+                parameters: [parameter],
+                uri: location == InputRequestLocation.Path ? "/things/{request-date}" : "",
+                responses: [InputFactory.OperationResponse([204])]);
+            var inputClient = InputFactory.Client(
+                "TestClient",
+                methods: [InputFactory.BasicServiceMethod("GetThing", operation)]);
+            MockHelpers.LoadMockGenerator(clients: () => [inputClient]);
+
+            var method = new ClientProvider(inputClient).RestClient.Methods.Single();
+            Assert.IsTrue(method.Signature.Parameters.Any(parameter => parameter.Name == "requestOn"));
+
+            using var writer = new CodeWriter();
+            writer.WriteMethod(method);
+            var methodText = writer.ToString(false);
+            StringAssert.Contains(expectedSerialization, methodText);
+        }
+
         [Test]
         public void ValidateFields()
         {

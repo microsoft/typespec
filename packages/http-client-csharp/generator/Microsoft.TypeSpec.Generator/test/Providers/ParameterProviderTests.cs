@@ -115,7 +115,10 @@ namespace Microsoft.TypeSpec.Generator.Tests.Providers
 
             var testCases = new (string Name, InputType Type, string NormalizedName)[]
             {
-                ("startTime", dateTime, "startOn"),
+                ("startTime", dateTime, "startsOn"),
+                ("endTime", dateTime, "endsOn"),
+                ("firstTimestamp", dateTime, "firstTimestamp"),
+                ("lastTimestamp", dateTime, "lastTimestamp"),
                 ("createdAt", dateTime, "createdOn"),
                 ("timestamp", dateTime, "timestamp"),
                 ("date", InputPrimitiveType.PlainDate, "date"),
