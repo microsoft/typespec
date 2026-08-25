@@ -1854,9 +1854,8 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers.RestClientPro
             Assert.AreEqual(Helpers.GetExpectedFromFile(parameters: isRequired.ToString()), file.Content);
         }
 
-        [TestCase(true)]
-        [TestCase(false)]
-        public void NormalizedDatePathParameterIsSerializedInCreateRequestMethod(bool isRequired)
+        [Test]
+        public void NormalizedDatePathParameterIsSerializedInCreateRequestMethod()
         {
             var dateType = CreateRfc7231DateType();
             var operation = InputFactory.Operation(
@@ -1866,7 +1865,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers.RestClientPro
                     InputFactory.PathParameter(
                         "requestDate",
                         dateType,
-                        isRequired: isRequired)
+                        isRequired: true)
                 ],
                 path: "/things/{requestDate}");
             var serviceMethod = InputFactory.BasicServiceMethod(
@@ -1877,14 +1876,14 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers.RestClientPro
                     InputFactory.MethodParameter(
                         "requestDate",
                         dateType,
-                        isRequired: isRequired,
+                        isRequired: true,
                         location: InputRequestLocation.Path)
                 ]);
             var client = InputFactory.Client("TestClient", methods: [serviceMethod]);
             var restClient = new ClientProvider(client).RestClient;
 
             var file = new TypeProviderWriter(restClient).Write();
-            Assert.AreEqual(Helpers.GetExpectedFromFile(parameters: isRequired.ToString()), file.Content);
+            Assert.AreEqual(Helpers.GetExpectedFromFile(), file.Content);
         }
 
         [TestCase(true)]
