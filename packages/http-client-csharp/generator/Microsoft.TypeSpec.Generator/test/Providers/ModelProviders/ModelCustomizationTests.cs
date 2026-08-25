@@ -1056,10 +1056,10 @@ namespace Microsoft.TypeSpec.Generator.Tests.Providers.ModelProviders
             Assert.IsTrue(customCodeView.Properties[0].Body.HasSetter);
         }
 
-        // Validates that if a custom property is added to the base model, and a property with the same name exists in the derived model,
-        // then the derived model property is not generated and the custom property is used instead.
+        // Validates that a non-public custom property on the base model does not suppress a public property
+        // with the same name on the derived model.
         [Test]
-        public async Task DoesNotGenerateCustomPropertyFromBase()
+        public async Task GeneratesPropertyWhenCustomizedBasePropertyIsNotPublic()
         {
             var baseModel = InputFactory.Model(
                 "baseModel",
@@ -1097,14 +1097,16 @@ namespace Microsoft.TypeSpec.Generator.Tests.Providers.ModelProviders
             Assert.AreEqual(new CSharpType(typeof(int)), baseModelTypeProvider.Properties[0].Type);
             Assert.AreEqual(1, customCodeView!.Properties.Count);
             Assert.AreEqual("Prop1", customCodeView.Properties[0].Name);
-            // the spec property shouldn't be added to the model provider since a custom property with the same name exists
-            Assert.AreEqual(0, modelTypeProvider.Properties.Count);
+            Assert.AreEqual(MethodSignatureModifiers.Internal, customCodeView.Properties[0].Modifiers);
 
-            // the custom property should not be parameters of the model's ctor
+            var property = modelTypeProvider.Properties.Single();
+            Assert.AreEqual("Prop1", property.Name);
+            Assert.AreEqual(MethodSignatureModifiers.Public, property.Modifiers);
+
             var modelCtors = modelTypeProvider.Constructors;
             foreach (var ctor in modelCtors)
             {
-                Assert.IsFalse(ctor.Signature.Parameters.Any(p => p.Name == "prop1"));
+                Assert.IsTrue(ctor.Signature.Parameters.Any(p => p.Name == "prop1"));
             }
         }
 

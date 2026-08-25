@@ -439,15 +439,17 @@ namespace Microsoft.TypeSpec.Generator.Providers
             var properties = new List<PropertyProvider>();
             var customProperties = new HashSet<string>();
 
-            foreach (var customProperty in BuildAllCustomProperties())
+            foreach (var customProperty in CustomCodeView?.Properties ?? [])
             {
                 AddCustomName(customProperties, customProperty.Name, customProperty.OriginalName, specPropertiesByName);
             }
 
-            foreach (var customField in BuildAllCustomFields())
+            foreach (var customField in CustomCodeView?.Fields ?? [])
             {
                 AddCustomName(customProperties, customField.Name, customField.OriginalName, specPropertiesByName);
             }
+
+            AddInheritedCustomMemberNames(customProperties, specProperties, specPropertiesByName);
 
             foreach (var property in specProperties)
             {
@@ -458,6 +460,100 @@ namespace Microsoft.TypeSpec.Generator.Providers
             }
 
             return [.. properties];
+        }
+
+        private void AddInheritedCustomMemberNames(
+            HashSet<string> customNames,
+            IEnumerable<PropertyProvider> specProperties,
+            IReadOnlyDictionary<string, InputProperty> specPropertiesByName)
+        {
+            var specPropertyList = specProperties as IReadOnlyList<PropertyProvider> ?? [.. specProperties];
+            var baseTypeProvider = BaseTypeProvider;
+            var includeBaseProviderMembers = CustomCodeView?.BaseType != null;
+            var visited = new HashSet<TypeProvider>();
+
+            while (baseTypeProvider != null && visited.Add(baseTypeProvider))
+            {
+                if (includeBaseProviderMembers)
+                {
+                    foreach (var property in baseTypeProvider.Properties)
+                    {
+                        AddInheritedCustomMemberName(
+                            customNames,
+                            property.Name,
+                            property.OriginalName,
+                            property.Type,
+                            property.Modifiers.HasFlag(MethodSignatureModifiers.Public) &&
+                                !property.Modifiers.HasFlag(MethodSignatureModifiers.Static),
+                            specPropertyList,
+                            specPropertiesByName);
+                    }
+
+                    foreach (var field in baseTypeProvider.Fields)
+                    {
+                        AddInheritedCustomMemberName(
+                            customNames,
+                            field.Name,
+                            field.OriginalName,
+                            field.Type,
+                            field.Modifiers.HasFlag(FieldModifiers.Public) && !field.Modifiers.HasFlag(FieldModifiers.Static),
+                            specPropertyList,
+                            specPropertiesByName);
+                    }
+                }
+
+                if (baseTypeProvider.CustomCodeView is { } customCodeView)
+                {
+                    foreach (var property in customCodeView.Properties)
+                    {
+                        AddInheritedCustomMemberName(
+                            customNames,
+                            property.Name,
+                            property.OriginalName,
+                            property.Type,
+                            property.Modifiers.HasFlag(MethodSignatureModifiers.Public) &&
+                                !property.Modifiers.HasFlag(MethodSignatureModifiers.Static),
+                            specPropertyList,
+                            specPropertiesByName);
+                    }
+
+                    foreach (var field in customCodeView.Fields)
+                    {
+                        AddInheritedCustomMemberName(
+                            customNames,
+                            field.Name,
+                            field.OriginalName,
+                            field.Type,
+                            field.Modifiers.HasFlag(FieldModifiers.Public) && !field.Modifiers.HasFlag(FieldModifiers.Static),
+                            specPropertyList,
+                            specPropertiesByName);
+                    }
+                }
+
+                baseTypeProvider = baseTypeProvider.BaseTypeProvider;
+            }
+        }
+
+        private static void AddInheritedCustomMemberName(
+            HashSet<string> customNames,
+            string name,
+            string? originalName,
+            CSharpType type,
+            bool isInheritable,
+            IReadOnlyList<PropertyProvider> specProperties,
+            IReadOnlyDictionary<string, InputProperty> specPropertiesByName)
+        {
+            if (!isInheritable)
+            {
+                return;
+            }
+
+            var candidateNames = new HashSet<string>();
+            AddCustomName(candidateNames, name, originalName, specPropertiesByName);
+            if (specProperties.Any(property => candidateNames.Contains(property.Name) && property.Type.AreNamesEqual(type)))
+            {
+                customNames.UnionWith(candidateNames);
+            }
         }
 
         private static void AddCustomName(

@@ -12,5 +12,11 @@ namespace Sample.Models
     {
         [CodeGenMember("id")]
         public string ResourceId { get; }
+
+        [CodeGenMember("location")]
+        private int HiddenLocation { get; }
+
+        [CodeGenMember("tags")]
+        public int IncompatibleTags { get; }
     }
 }
