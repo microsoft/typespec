@@ -2625,7 +2625,7 @@ namespace Microsoft.TypeSpec.Generator.Tests.Providers.ModelProviders
         }
 
         [Test]
-        public async Task BackCompat_ConstructorParameterExactRenameAndReorderDoNotMisbind()
+        public async Task BackCompat_ConstructorParameterExactRenameAndReorderDoNotBindIncorrectly()
         {
             var inputModel = InputFactory.Model(
                 "MockInputModel",
