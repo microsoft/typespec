@@ -224,10 +224,10 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
                 parameters = [ScmKnownParameters.NextPage, .. parameters];
             }
 
-            var operationName = ClientProvider.GetRestOperationName(serviceMethod);
+            var operation = serviceMethod.Operation;
             var methodName = isNextLinkRequest
-                ? $"CreateNext{operationName}Request"
-                : $"Create{operationName}Request";
+                ? $"CreateNext{operation.Name.ToIdentifierName()}Request"
+                : $"Create{operation.Name.ToIdentifierName()}Request";
             var signature = new MethodSignature(
                 methodName,
                 null,

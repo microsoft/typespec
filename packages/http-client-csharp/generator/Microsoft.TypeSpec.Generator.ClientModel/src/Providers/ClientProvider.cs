@@ -254,9 +254,6 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
             return normalizedName;
         }
 
-        internal static string GetRestOperationName(InputServiceMethod serviceMethod)
-            => serviceMethod.Operation.Name.ToIdentifierName();
-
         private string? _namespace;
         // This `BuildNamespace` method has been called twice - one when building the `Type`, the other is trying to find the CustomCodeView, both of them are required.
         // therefore here to avoid this being called twice because this method now reports a diagnostic, we cache the result.
