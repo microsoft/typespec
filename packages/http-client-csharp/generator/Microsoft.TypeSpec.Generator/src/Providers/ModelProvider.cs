@@ -983,16 +983,23 @@ namespace Microsoft.TypeSpec.Generator.Providers
             public static CSharpTypeNameComparer Instance { get; } = new();
 
             public bool Equals(CSharpType? x, CSharpType? y)
-                => ReferenceEquals(x, y) || (x is not null && x.AreNamesEqual(y));
+            {
+                if (x is null && y is null)
+                {
+                    return true;
+                }
+                if (x is null || y is null)
+                {
+                    return false;
+                }
+                return x.Namespace == y.Namespace && x.Name == y.Name;
+            }
 
             public int GetHashCode(CSharpType obj)
             {
-                var hashCode = new HashCode();
+                HashCode hashCode = new HashCode();
+                hashCode.Add(obj.Namespace);
                 hashCode.Add(obj.Name);
-                foreach (var argument in obj.Arguments)
-                {
-                    hashCode.Add(GetHashCode(argument));
-                }
                 return hashCode.ToHashCode();
             }
         }

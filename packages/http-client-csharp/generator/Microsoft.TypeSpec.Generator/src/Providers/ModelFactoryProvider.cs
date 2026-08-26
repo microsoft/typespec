@@ -229,8 +229,8 @@ namespace Microsoft.TypeSpec.Generator.Providers
 
             for (int i = 0; i < current.Parameters.Count; i++)
             {
-                if (current.Parameters[i].Name != previous.Parameters[i].Name &&
-                    !current.Parameters[i].IsExactName)
+                if (!current.Parameters[i].IsExactName &&
+                    current.Parameters[i].Name != previous.Parameters[i].Name)
                 {
                     return false;
                 }
