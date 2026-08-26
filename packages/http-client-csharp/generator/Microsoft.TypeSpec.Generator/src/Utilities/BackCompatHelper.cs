@@ -267,15 +267,17 @@ namespace Microsoft.TypeSpec.Generator.Utilities
             return mismatchIndices;
         }
 
-        internal static bool HasExactParameterNameMismatchAtSamePosition(
+        internal static bool HasExactParameterNameMismatchWithSameType(
             IReadOnlyList<ParameterProvider> currentParameters,
-            IReadOnlyList<ParameterProvider> previousParameters)
+            IReadOnlyList<ParameterProvider> previousParameters,
+            ParameterProvider parameter)
         {
             var parameterCount = Math.Min(currentParameters.Count, previousParameters.Count);
             for (int i = 0; i < parameterCount; i++)
             {
                 if (currentParameters[i].IsExactName
-                    && !string.Equals(currentParameters[i].Name, previousParameters[i].Name, StringComparison.Ordinal))
+                    && !string.Equals(currentParameters[i].Name, previousParameters[i].Name, StringComparison.Ordinal)
+                    && currentParameters[i].Type.AreNamesEqual(parameter.Type))
                 {
                     return true;
                 }

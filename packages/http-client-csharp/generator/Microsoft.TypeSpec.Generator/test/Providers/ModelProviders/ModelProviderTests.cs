@@ -2599,6 +2599,32 @@ namespace Microsoft.TypeSpec.Generator.Tests.Providers.ModelProviders
         }
 
         [Test]
+        public async Task BackCompat_ConstructorNonExactParameterIsRestoredWithExactRename()
+        {
+            var inputModel = InputFactory.Model(
+                "MockInputModel",
+                usage: InputModelTypeUsage.Input,
+                properties:
+                [
+                    InputFactory.Property("new_name", InputPrimitiveType.String, isRequired: true, isExactName: true),
+                    InputFactory.Property("newCount", InputPrimitiveType.Int32, isRequired: true),
+                ]);
+
+            await MockHelpers.LoadMockGeneratorAsync(
+                inputModelTypes: [inputModel],
+                lastContractCompilation: async () => await Helpers.GetCompilationFromDirectoryAsync());
+
+            var modelProvider = CodeModelGenerator.Instance.OutputLibrary.TypeProviders
+                .OfType<ModelProvider>()
+                .Single(t => t.Name == "MockInputModel");
+
+            modelProvider.ProcessTypeForBackCompatibility();
+
+            var content = new TypeProviderWriter(modelProvider).Write().Content;
+            Assert.AreEqual(Helpers.GetExpectedFromFile(), content);
+        }
+
+        [Test]
         public async Task BackCompat_ConstructorParameterExactRenameAndReorderDoNotMisbind()
         {
             var inputModel = InputFactory.Model(
