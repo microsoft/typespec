@@ -1,7 +1,8 @@
 // Copyright (c) Microsoft Corporation
 // Licensed under the MIT license.
 
-import { JSONSchemaType, createTypeSpecLibrary, paramMessage } from "@typespec/compiler";
+import type { JSONSchemaType } from "@typespec/compiler";
+import { createTypeSpecLibrary, paramMessage } from "@typespec/compiler";
 
 export interface JsEmitterOptions {
   /** If set to `true`, the emitter will generate a router that exposes an Express.js middleware function in addition to the ordinary Node.js HTTP server router.

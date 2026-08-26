@@ -26,6 +26,7 @@ namespace Microsoft.TypeSpec.Generator
     {
         private List<LibraryVisitor> _visitors = [];
         private List<MetadataReference> _additionalMetadataReferences = [];
+        private readonly Dictionary<string, List<TypeProvider>> _customCodeMethodDependencies = new(StringComparer.Ordinal);
         private static CodeModelGenerator? _instance;
         private List<string> _sharedSourceDirectories = [];
         public const string GeneratorMetadataName = "GeneratorName";
@@ -99,7 +100,13 @@ namespace Microsoft.TypeSpec.Generator
 
         public IReadOnlyList<string> SharedSourceDirectories => _sharedSourceDirectories;
 
-        internal IReadOnlyList<TypeProvider> CustomCodeAttributeProviders { get; } =
+        /// <summary>
+        /// The list of <see cref="CustomCodeAttributeDefinition"/> instances that define custom-code attributes. These attribute
+        /// definitions are generated into the SDK project and are made available to the compiler while it compiles
+        /// custom code. Derived generators can contribute additional providers via
+        /// <see cref="AddCustomCodeAttributeProvider(CustomCodeAttributeDefinition)"/>.
+        /// </summary>
+        internal List<CustomCodeAttributeDefinition> CustomCodeAttributeProviders { get; } =
         [
             new CodeGenTypeAttributeDefinition(),
             new CodeGenMemberAttributeDefinition(),
@@ -155,9 +162,39 @@ namespace Microsoft.TypeSpec.Generator
             _additionalMetadataReferences.Add(reference);
         }
 
+        /// <summary>
+        /// Registers a generated provider required by an unresolved custom-code method invocation.
+        /// </summary>
+        /// <param name="methodName">The invoked method name.</param>
+        /// <param name="provider">The generated provider that defines the method.</param>
+        protected void AddCustomCodeMethodDependency(string methodName, TypeProvider provider)
+        {
+            if (!_customCodeMethodDependencies.TryGetValue(methodName, out var providers))
+            {
+                providers = [];
+                _customCodeMethodDependencies.Add(methodName, providers);
+            }
+
+            providers.Add(provider);
+        }
+
+        internal IReadOnlyList<TypeProvider> GetCustomCodeMethodDependencies(string methodName) =>
+            _customCodeMethodDependencies.TryGetValue(methodName, out var providers) ? providers : [];
+
         public virtual void AddSharedSourceDirectory(string sharedSourceDirectory)
         {
             _sharedSourceDirectories.Add(sharedSourceDirectory);
+        }
+
+        /// <summary>
+        /// Adds a custom-code attribute provider that derived generators can use to contribute
+        /// generator-specific attribute definitions. The provider's attribute definition is generated into
+        /// the SDK project and made available to the compiler while it compiles custom code.
+        /// </summary>
+        /// <param name="provider">The <see cref="CustomCodeAttributeDefinition"/> that defines the custom-code attribute.</param>
+        protected void AddCustomCodeAttributeProvider(CustomCodeAttributeDefinition provider)
+        {
+            CustomCodeAttributeProviders.Add(provider);
         }
 
         private record KeptTypesInfo(HashSet<string> TypeNames, HashSet<TypeProvider> TypeProviders);
@@ -225,7 +262,7 @@ namespace Microsoft.TypeSpec.Generator
         /// </summary>
         /// <remarks>
         /// The provider's fully qualified name is resolved lazily, when the keep list is consumed during
-        /// post-processing. This makes it safe to call this method from a <see cref="TypeProvider"/>
+        /// reference-map analysis. This makes it safe to call this method from a <see cref="TypeProvider"/>
         /// constructor (including base constructors that run before the derived constructor body), since
         /// it does not force evaluation of <see cref="TypeProvider.Type"/> — which would dispatch virtual
         /// <c>Build*</c> methods on a not-yet-fully-constructed instance.

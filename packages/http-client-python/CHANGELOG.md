@@ -1,5 +1,150 @@
 # Change Log - @typespec/http-client-python
 
+## 0.36.0
+
+### Features
+
+- [#11372](https://github.com/microsoft/typespec/pull/11372) Add a `generate-typeddict` emitter option (default `true`) that controls `TypedDict` generation independently of `models-mode`. `models-mode` now toggles just `dpg` and `none`; the `typeddict` value is deprecated.
+
+### Bug Fixes
+
+- [#11622](https://github.com/microsoft/typespec/pull/11622) Wrap wire names containing `@` (e.g. `@search.facets`) in double backticks when they are used as Sphinx docstring field targets (`:ivar`/`:vartype`/`:keyword`/`:paramtype`/`:param`/`:type`) across models, TypedDicts, operations, and clients, so the generated docstrings render correctly without introducing an invalid escape sequence in the generated code.
+- [#11637](https://github.com/microsoft/typespec/pull/11637) Preserve Python boolean, integer, and bytes client types when using supported string, base64, or base64url wire encodings.
+- [#11507](https://github.com/microsoft/typespec/pull/11507) Only boot the Pyodide runtime in the browser on the first emit instead of when the emitter module is imported. Hosts such as the TypeSpec playground import every available emitter up front, so the eager bootstrap downloaded a full CPython WebAssembly runtime and its wheels on every page load, which prevented the page from loading on mobile browsers.
+- [#11639](https://github.com/microsoft/typespec/pull/11639) Only generate `TypedDict` definitions in `types.py` when they are referenced by operation inputs or required by those input models, omitting unused response-only models.
+
+
+## 0.35.1
+
+### Bug Fixes
+
+- [#11371](https://github.com/microsoft/typespec/pull/11371) Use wire names in TypedDict docstrings
+- [#11392](https://github.com/microsoft/typespec/pull/11392) Fix the generated `_validation.py` `@api_version_validation` decorator so it reads the correct client config attribute for the API version. It previously hardcoded `client._config.api_version`, but the attribute name is derived from the API-version parameter's `client_name`. For specs that name the versioning parameter something other than `apiVersion` (e.g. `self.version`), the lookup raised `AttributeError` that the decorator silently swallowed, disabling all API-version validation for those clients. The emitter now bakes the real attribute name into the generated decorator so it reads `config.<name>` directly.
+- [#11272](https://github.com/microsoft/typespec/pull/11272) Fix generated request builders serializing a `None` `content-type` header for an
+  operation with an optional body whose content-type is required/constant. The
+  `content-type` kwarg is now declared `Optional[str]` and the header is omitted
+  when it is `None`, instead of raising `ValueError: No value for given attribute`.
+
+
+## 0.35.0
+
+### Features
+
+- [#11087](https://github.com/microsoft/typespec/pull/11087) Add mock API test coverage for `@encode(string)` on boolean properties (`encode/boolean` Spector scenarios). Fix Python generator to correctly serialize and deserialize boolean values encoded as strings (case-insensitive `true`/`false`)
+
+### Bug Fixes
+
+- [#11268](https://github.com/microsoft/typespec/pull/11268) Fix a bug where a TypedDict literal value that coincides with a Python builtin type name (e.g. `type: "type"`) was corrupted into `Literal["builtins.type"]` in the generated `types.py`. The builtin-shadowing workaround now ignores identifiers inside string literals (literal values and quoted forward references are left untouched) and detects shadowing against the actually-emitted annotation, so genuine sibling-builtin shadowing is still qualified while spurious `import builtins` statements are no longer emitted.
+- [#11233](https://github.com/microsoft/typespec/pull/11233) Add an `IO[bytes]` overload alongside `bytes` for binary `bytes` bodies, keeping backward compatibility for services migrating from swagger whose binary bodies were typed as `IO`.
+- [#11289](https://github.com/microsoft/typespec/pull/11289) [Python] Fix duplicate `:keyword:`/`:paramtype:` lines in generated DPG model docstrings that duplicated the existing `:ivar:`/`:vartype:` entries
+- [#11197](https://github.com/microsoft/typespec/pull/11197) [Python] Generate model/client/config docstrings and targeted pylint suppressions that satisfy the updated `azure-pylint-guidelines-checker` docstring checks (`docstring-keyword-should-match-keyword-only`, `docstring-missing-param`)
+
+
+## 0.34.2
+
+### Bug Fixes
+
+- [#11216](https://github.com/microsoft/typespec/pull/11216) Clarify docstrings in the generated `_MyMutableMapping` base class in `_model_base.py` so they no longer use the ambiguous `D` placeholder (e.g. `Remove all items from D.` is now `Remove all items from the dictionary.`)
+- [#11229](https://github.com/microsoft/typespec/pull/11229) Fix crash when generating with `models-mode=none`. Options passed to the `OptionsDict` constructor are now normalized through the same validation/transform path as `__setitem__`, so `models-mode=none` is correctly treated as falsy and a modelless client is produced instead of crashing.
+- [#11212](https://github.com/microsoft/typespec/pull/11212) Fix constant enum values referencing the nonexistent `_enums` module in `models-mode: typeddict`. In typeddict mode enums are emitted as `Literal` aliases in `types.py` and `_enums.py` is never generated, so a single constant enum value now annotates with its literal value (e.g. `Literal["red"]`) and no longer imports from `_enums`.
+
+
+## 0.34.1
+
+### Bug Fixes
+
+- [#11177](https://github.com/microsoft/typespec/pull/11177) Fix Python SDK generation failure when `package-pprint-name` contains spaces. The shell-escaping quotes were baked into the option value and leaked into the Pyodide runtime, producing an invalid `setup.py` (e.g. `PACKAGE_PPRINT_NAME = ""Azure Web PubSub Chat Service""`) that `black` could not parse. Quoting is now applied only when building the native Python shell command.
+- [#11162](https://github.com/microsoft/typespec/pull/11162) Fix enum member names derived from date-like TypeSpec labels (e.g. `` `2020-01-01` ``) being corrupted by the js-yaml (YAML 1.2) to PyYAML (YAML 1.1) boundary. String scalars are now force-quoted when serializing the code model so names such as `2020_01_01` round-trip as strings instead of being read back as integers
+- [#11161](https://github.com/microsoft/typespec/pull/11161) Fix dangling `_types.X` references when template-instantiated models (e.g. `ResourceUpdateModel<Foo, FooProperties>`) share a `crossLanguageDefinitionId`. The TypedDict deduplication now pairs each model with its own copy by name, so distinct models such as `CacheUpdate` and `VolumeUpdate` are all rendered in `types.py`.
+  
+  Also stop emitting unused TypedDicts for response-only models in `types.py`. Output-only models already render as classes in `models/` and are referenced via `_models.X`, so their TypedDict copies (e.g. `GetResponse`) were dead code. The set of TypedDicts (and discriminated-base union aliases) rendered in `types.py` is now the transitive closure of the request-body input models over their base classes, discriminated subtypes and property types. Input body overloads (including spread bodies whose usage lacks the `Input` flag) are still emitted, and any output-only model reachable from an input model — such as a discriminated subtype or an ARM `SystemData` property — is kept so no forward reference is left undefined. This fixes a `NameError` at import time when an output-only union alias (e.g. `Dinosaur = Union[TRex]`) referenced an excluded subtype, and a pyright `reportUndefinedVariable` error when an input model referenced an excluded property type (e.g. `SystemData`).
+
+
+## 0.34.0
+
+### Features
+
+- [#10439](https://github.com/microsoft/typespec/pull/10439) [python] Always generate `TypedDict` typing hints for input models in the `types.py` file, and named union aliases in the `_unions.py` file
+
+### Bug Fixes
+
+- [#10439](https://github.com/microsoft/typespec/pull/10439) Fix invalid lone `@overload` generated for body parameters in `models-mode: typeddict`. When the binary and JSON overloads are omitted, the single remaining body variant is now emitted as a plain parameter instead of a single `@overload`, which mypy rejects with "Single overload definition, multiple required".
+
+
+## 0.33.0
+
+### Features
+
+- [#10987](https://github.com/microsoft/typespec/pull/10987) Add a `keep-pyproject-fields` emitter option that selects which `[project]` fields to preserve in an existing `pyproject.toml` instead of overwriting them on regeneration. Supported fields: `authors`, `description`, `classifiers`, `urls`.
+  
+  ```yaml
+  # tspconfig.yaml
+  options:
+    "@typespec/http-client-python":
+      keep-pyproject-fields:
+        authors: true
+        description: true
+  ```
+
+### Bug Fixes
+
+- [#11013](https://github.com/microsoft/typespec/pull/11013) Place docstring annotations such as `Required.` in front of the description when it ends with an RST code block, and stop appending a sentence period inside the block. Previously the period landed on the code block's last line (e.g. `].`) and `Required.` was appended after the block (`]. Required.`), both of which broke Sphinx rendering.
+
+
+## 0.32.0
+
+### Features
+
+- [#10947](https://github.com/microsoft/typespec/pull/10947) Support `datetime.timedelta` for `duration` types encoded as `seconds` or `milliseconds`. SDK users can now pass a `datetime.timedelta` (instead of a raw `int`/`float`) and responses are deserialized back into `datetime.timedelta`.
+
+### Bug Fixes
+
+- [#10957](https://github.com/microsoft/typespec/pull/10957) Fix `UnboundLocalError` for paging operations with a flattened JSON model body. The request body is now constructed once outside the `prepare_request` callback (and before the body is serialized into the request content) instead of inside the closure, where assigning `body` made it an unbound local on every page fetch.
+- [#10955](https://github.com/microsoft/typespec/pull/10955) Fix Sphinx docstring rendering when a `Required.` (or other) annotation followed a code block. The annotation is now inserted into the prose before the code block instead of being appended after it.
+
+
+## 0.31.1
+
+### Bump dependencies
+
+-  Bump dependencies of `@typespec/*` and `@azure-tools/*` to latest versions
+
+## 0.31.0
+
+### Features
+
+- [#10246](https://github.com/microsoft/typespec/pull/10246) Add Python 3.14 classifier to generated pyproject.toml
+
+### Bug Fixes
+
+- [#10920](https://github.com/microsoft/typespec/pull/10920) Support `exact` client names for enum members and operations
+
+
+## 0.30.1
+
+### Bug Fixes
+
+- [#10843](https://github.com/microsoft/typespec/pull/10843) Synthesize filename in multipart Content-Disposition for bare file inputs. When callers pass bare bytes/str/IO instead of a (filename, content) tuple for multipart file fields, the `prepare_multipart_form_data` helper now wraps them with a synthesized filename so servers that require `filename=` in the Content-Disposition header no longer reject the upload.
+- [#10816](https://github.com/microsoft/typespec/pull/10816) Fix `etag`/`match_condition` clientName collision when an operation has more than one `Azure.Core.eTag`-typed header (e.g. Storage's `copyFromUrl`, which has both `If-Match`/`If-None-Match` and `x-ms-source-if-match`/`x-ms-source-if-none-match`). The standard `If-Match`/`If-None-Match` pair is now preferred for the `etag`/`match_condition` slot, and any additional etag-typed headers retain their natural client name (e.g. `source_if_match`).
+
+## 0.30.0
+
+### Features
+
+- [#10750](https://github.com/microsoft/typespec/pull/10750) add support for `exact` client names
+
+### Bug Fixes
+
+- [#10804](https://github.com/microsoft/typespec/pull/10804) Lower `black` version to `24.4.0` to be consistent with what's in main
+
+
+## 0.29.2
+
+### Bug Fixes
+
+- [#10698](https://github.com/microsoft/typespec/pull/10698) Improve generated XML deserialization performance in Python by avoiding unnecessary parent traversal during field lookup.
+
+
 ## 0.29.1
 
 ### Bump dependencies

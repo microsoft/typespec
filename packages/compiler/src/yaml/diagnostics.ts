@@ -1,7 +1,8 @@
-import { Node, isCollection, isMap, isScalar } from "yaml";
+import type { Node } from "yaml";
+import { isCollection, isMap, isScalar } from "yaml";
 import { findPair } from "yaml/util";
-import { SourceLocation } from "../core/types.js";
-import { YamlDiagnosticTargetType, YamlScript } from "./types.js";
+import type { SourceLocation } from "../core/types.js";
+import type { YamlDiagnosticTargetType, YamlScript } from "./types.js";
 
 export function getLocationInYamlScript(
   file: YamlScript,

@@ -7,7 +7,7 @@ using OpenAPI;
 
 @service(#{ title: "Widget Service" })
 @info(#{ version: "0.0.0" })
-@tagMetadata("Widgets")
+@tagMetadata(#[#{ name: "Widgets" }])
 namespace WidgetService;
 
 model Error {

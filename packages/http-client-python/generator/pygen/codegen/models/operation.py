@@ -33,7 +33,7 @@ from .parameter import (
 )
 from .parameter_list import ParameterList
 from .model_type import ModelType
-from .primitive_types import BinaryIteratorType, BinaryType
+from .primitive_types import BinaryIteratorType, BinaryType, ByteArraySchema
 from .base import BaseType
 from .combined_type import CombinedType
 from .request_builder import OverloadedRequestBuilder, RequestBuilder
@@ -92,10 +92,15 @@ class OperationBase(  # pylint: disable=too-many-public-methods,too-many-instanc
         self.cross_language_definition_id: Optional[str] = self.yaml_data.get("crossLanguageDefinitionId")
 
     @property
+    def exact_name_params(self) -> set[str]:
+        """Return the set of client names for parameters with isExactName."""
+        return {p.client_name for p in self.parameters.method if p.is_exact_name}
+
+    @property
     def stream_value(self) -> Union[str, bool]:
         return (
             f'kwargs.pop("stream", {self.has_stream_response})'
-            if self.expose_stream_keyword and self.has_response_body
+            if self.expose_stream_keyword and self.has_response_body and "stream" not in self.exact_name_params
             else self.has_stream_response
         )
 
@@ -219,7 +224,15 @@ class OperationBase(  # pylint: disable=too-many-public-methods,too-many-instanc
 
     @property
     def need_import_iobase(self) -> bool:
-        return self.parameters.has_body and isinstance(self.parameters.body_parameter.type, CombinedType)
+        if not (self.parameters.has_body and isinstance(self.parameters.body_parameter.type, CombinedType)):
+            return False
+        # For a binary `bytes` body the combined type is `bytes` + `IO[bytes]`. Both overloads
+        # serialize to raw content, so the body serialization collapses to a single assignment
+        # without an `isinstance` branch. In that case `IOBase` is never referenced, so avoid
+        # importing it to prevent an unused-import lint error in the generated code.
+        if any(isinstance(t, ByteArraySchema) for t in self.parameters.body_parameter.type.types):
+            return False
+        return True
 
     @staticmethod
     def has_kwargs_to_pop_with_default(
@@ -321,7 +334,7 @@ class OperationBase(  # pylint: disable=too-many-public-methods,too-many-instanc
             file_import.merge(
                 response.imports(async_mode=async_mode, need_import_iobase=self.need_import_iobase, **kwargs)
             )
-        if self.code_model.options["models-mode"]:
+        if self.code_model.options["models-mode"] or self.code_model.generate_typeddict_only:
             for exception in self.exceptions:
                 file_import.merge(exception.imports(async_mode=async_mode, **kwargs))
 
@@ -453,6 +466,7 @@ class OperationBase(  # pylint: disable=too-many-public-methods,too-many-instanc
                 r.type
                 and not isinstance(r.type, BinaryIteratorType)
                 and not xml_serializable(str(r.default_content_type))
+                and not (isinstance(r.type, ModelType) and r.type.is_typed_dict_only)
                 for r in self.responses
             ):
                 file_import.add_submodule_import(relative_path, "_deserialize", ImportType.LOCAL)
@@ -538,7 +552,12 @@ class Operation(OperationBase[Response]):
                 "distributed_trace_async",
                 ImportType.SDKCORE,
             )
-        if self.has_response_body and not self.has_optional_return_type and not self.code_model.options["models-mode"]:
+        if (
+            self.has_response_body
+            and not self.has_optional_return_type
+            and not self.code_model.options["models-mode"]
+            and not self.code_model.generate_typeddict_only
+        ):
             file_import.add_submodule_import("typing", "cast", ImportType.STDLIB)
 
         return file_import

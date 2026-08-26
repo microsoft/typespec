@@ -1,6 +1,6 @@
 {
   "name": "@typespec/compiler",
-  "version": "1.12.0",
+  "version": "1.15.0",
   "description": "TypeSpec compiler and standard library",
   "author": "Microsoft Corporation",
   "license": "MIT",
@@ -60,9 +60,13 @@
     "./internals/prettier-formatter": {
       "import": "./dist/src/internals/prettier-formatter.js"
     },
+    "./internals/standalone": {
+      "import": "./dist/src/internals/standalone.js"
+    },
     "./casing": {
       "import": "./dist/src/casing/index.js"
-    }
+    },
+    "./package.json": "./package.json"
   },
   "browser": {
     "./dist/src/core/node-host.js": "./dist/src/core/node-host.browser.js",
@@ -84,25 +88,25 @@
   ],
   "scripts": {
     "clean": "rimraf ./dist ./temp",
-    "build:init-templates-index": "tsx ./.scripts/build-init-templates.ts",
+    "build:init-templates-index": "node ./.scripts/build-init-templates.ts",
     "build": "pnpm gen-manifest && pnpm build:init-templates-index && pnpm compile && pnpm generate-tmlanguage",
     "api-extractor": "api-extractor run --local --verbose",
     "compile": "tsc -p tsconfig.build.json",
     "watch": "tsc -p tsconfig.build.json --watch",
-    "watch-tmlanguage": "node scripts/watch-tmlanguage.js",
-    "generate-tmlanguage": "node scripts/generate-tmlanguage.js",
-    "gen-extern-signature": "tsx ./.scripts/gen-extern-signature.ts",
-    "dogfood": "node scripts/dogfood.js",
+    "watch-tmlanguage": "node scripts/watch-tmlanguage.ts",
+    "generate-tmlanguage": "node scripts/generate-tmlanguage.ts",
+    "gen-extern-signature": "node ./.scripts/gen-extern-signature.ts",
+    "dogfood": "node scripts/dogfood.ts",
     "test": "vitest run",
     "test:ui": "vitest --ui",
     "test:watch": "vitest -w",
     "test:ci": "vitest run --coverage --reporter=junit --reporter=default",
     "test:e2e": "vitest run --config ./vitest.config.e2e.ts",
-    "gen-manifest": "node scripts/generate-manifest.js",
-    "regen-nonascii": "node scripts/regen-nonascii.js",
+    "gen-manifest": "node scripts/generate-manifest.ts",
+    "regen-nonascii": "node scripts/regen-nonascii.ts",
     "fuzz": "node dist/test/manual/fuzz.js run",
-    "lint": "eslint . --max-warnings=0",
-    "lint:fix": "eslint . --fix"
+    "lint": "oxlint . --deny-warnings",
+    "lint:fix": "oxlint . --fix"
   },
   "dependencies": {
     "@babel/code-frame": "catalog:",
@@ -133,7 +137,6 @@
     "@vitest/ui": "catalog:",
     "pathe": "catalog:",
     "rimraf": "catalog:",
-    "source-map-support": "catalog:",
     "tmlanguage-generator": "workspace:^",
     "typescript": "catalog:",
     "vitest": "catalog:",

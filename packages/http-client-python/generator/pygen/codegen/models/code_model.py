@@ -17,6 +17,7 @@ from .operation_group import OperationGroup
 from .utils import NamespaceType
 from .._utils import DEFAULT_HEADER_TEXT, DEFAULT_LICENSE_DESCRIPTION
 from ... import OptionsDict
+from ...utils import is_typeddict_only
 
 
 def _is_legacy(options) -> bool:
@@ -89,7 +90,7 @@ class CodeModel:  # pylint: disable=too-many-public-methods, disable=too-many-in
         self.clients: list[Client] = [
             Client.from_yaml(client_yaml_data, self) for client_yaml_data in yaml_data["clients"]
         ]
-        if self.options["models-mode"] and self.model_types:
+        if (self.options["models-mode"] or self.generate_typeddict_only) and self.model_types:
             self.sort_model_types()
         self.named_unions: list[CombinedType] = [
             t for t in self.types_map.values() if isinstance(t, CombinedType) and t.name
@@ -152,15 +153,32 @@ class CodeModel:  # pylint: disable=too-many-public-methods, disable=too-many-in
             return result
         return f"{result}{module_name}" if result.endswith(".") else f"{result}.{module_name}"
 
-    def get_unique_models_alias(self, serialize_namespace: str, imported_namespace: str) -> str:
+    def _get_unique_import_alias(self, serialize_namespace: str, imported_namespace: str, module_name: str) -> str:
         if not self.has_subnamespace:
-            return "_models"
+            return f"_{module_name}"
         relative_path = self.get_relative_import_path(
             serialize_namespace, self.get_imported_namespace_for_model(imported_namespace)
         )
         dot_num = max(relative_path.count(".") - 1, 0)
-        parts = [""] + ([p for p in relative_path.split(".") if p] or ["models"])
+        path_parts = [p for p in relative_path.split(".") if p]
+        # For "models", keep existing format: _<path_parts><dot_num> (e.g. _models1, _firstnamespace_models2)
+        # For other modules like "types", prefix with module name: _types_<path_parts><dot_num>
+        if module_name == "models":
+            parts = [""] + (path_parts or [module_name])
+        else:
+            parts = [f"_{module_name}"] + (path_parts or [])
         return "_".join(parts) + (str(dot_num) if dot_num > 0 else "")
+
+    def get_unique_models_alias(self, serialize_namespace: str, imported_namespace: str) -> str:
+        return self._get_unique_import_alias(serialize_namespace, imported_namespace, "models")
+
+    def get_unique_types_alias(self, serialize_namespace: str, imported_namespace: str) -> str:
+        return self._get_unique_import_alias(serialize_namespace, imported_namespace, "types")
+
+    @property
+    def generate_typeddict_only(self) -> bool:
+        """Whether this is TypedDict-only generation ('models-mode: none' + TypedDicts)."""
+        return is_typeddict_only(self.options)
 
     @property
     def client_namespace_types(self) -> dict[str, ClientNamespaceType]:
@@ -174,6 +192,14 @@ class CodeModel:  # pylint: disable=too-many-public-methods, disable=too-many-in
                 if model.client_namespace not in self._client_namespace_types:
                     self._client_namespace_types[model.client_namespace] = ClientNamespaceType()
                 self._client_namespace_types[model.client_namespace].models.append(model)
+            # TypedDict copies (base="typeddict") are excluded from model_types to keep
+            # them out of _models.py, but they need to be in the namespace model list
+            # so the TypesSerializer can render them in types.py.
+            for t in self.types_map.values():
+                if isinstance(t, ModelType) and t.base == "typeddict" and t.usage != UsageFlags.Default.value:
+                    if t.client_namespace not in self._client_namespace_types:
+                        self._client_namespace_types[t.client_namespace] = ClientNamespaceType()
+                    self._client_namespace_types[t.client_namespace].models.append(t)
             for enum in self.enums:
                 if enum.client_namespace not in self._client_namespace_types:
                     self._client_namespace_types[enum.client_namespace] = ClientNamespaceType()
@@ -339,7 +365,9 @@ class CodeModel:  # pylint: disable=too-many-public-methods, disable=too-many-in
         """All of the model types in this class"""
         if not self._model_types:
             self._model_types = [
-                t for t in self.types_map.values() if isinstance(t, ModelType) and t.usage != UsageFlags.Default.value
+                t
+                for t in self.types_map.values()
+                if isinstance(t, ModelType) and t.usage != UsageFlags.Default.value and t.base != "typeddict"
             ]
         return self._model_types
 
@@ -349,7 +377,7 @@ class CodeModel:  # pylint: disable=too-many-public-methods, disable=too-many-in
 
     @staticmethod
     def get_public_model_types(models: list[ModelType]) -> list[ModelType]:
-        return [m for m in models if not m.internal and not m.base == "json"]
+        return [m for m in models if not m.internal and not m.base == "json" and not m.is_typed_dict_only]
 
     @property
     def public_model_types(self) -> list[ModelType]:

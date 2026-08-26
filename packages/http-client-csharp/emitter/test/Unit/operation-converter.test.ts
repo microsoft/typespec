@@ -1,8 +1,8 @@
-import { TestHost } from "@typespec/compiler/testing";
+import type { TestHost } from "@typespec/compiler/testing";
 import { ok, strictEqual } from "assert";
 import { beforeEach, describe, it } from "vitest";
 import { createModel } from "../../src/lib/client-model-builder.js";
-import { InputEnumType } from "../../src/type/input-type.js";
+import type { InputEnumType } from "../../src/type/input-type.js";
 import { RequestLocation } from "../../src/type/request-location.js";
 import {
   createCSharpSdkContext,
@@ -215,6 +215,95 @@ describe("Operation Converter", () => {
   });
 
   describe("Operation response type conversion", () => {
+    it("preserves JSONL stream item types", async () => {
+      const program = await typeSpecCompile(
+        `
+          model Info {
+            desc: string;
+          }
+
+          @post op send(stream: JsonlStream<Info>): void;
+          op receive(): JsonlStream<Info>;
+        `,
+        runner,
+      );
+      const context = createEmitterContext(program);
+      const sdkContext = await createCSharpSdkContext(context);
+      const [root] = createModel(sdkContext);
+
+      const send = root.clients[0].methods.find((method) => method.name === "send");
+      ok(send);
+      const sendParameter = send.parameters.find((parameter) => parameter.name === "stream");
+      ok(sendParameter);
+      ok(sendParameter.type.kind === "streaming");
+      ok(sendParameter.type.valueType.kind === "model");
+      strictEqual(sendParameter.type.valueType.name, "Info");
+
+      const bodyParameter = send.operation.parameters.find(
+        (parameter) => parameter.kind === "body",
+      );
+      ok(bodyParameter);
+      ok(bodyParameter.type.kind === "streaming");
+      ok(bodyParameter.type.valueType.kind === "model");
+      strictEqual(bodyParameter.type.valueType.name, "Info");
+
+      const receive = root.clients[0].methods.find((method) => method.name === "receive");
+      ok(receive);
+      ok(receive.response.type?.kind === "streaming");
+      ok(receive.response.type.valueType.kind === "model");
+      strictEqual(receive.response.type.valueType.name, "Info");
+      ok(receive.operation.responses[0].bodyType?.kind === "streaming");
+      ok(receive.operation.responses[0].bodyType.valueType.kind === "model");
+      strictEqual(receive.operation.responses[0].bodyType.valueType.name, "Info");
+      strictEqual(receive.operation.bufferResponse, false);
+    });
+
+    it("preserves SSE event unions and terminal events", async () => {
+      const program = await typeSpecCompile(
+        `
+          model ResponseCreated {
+            id: string;
+          }
+
+          model ResponseDelta {
+            delta: string;
+          }
+
+          @events
+          union ResponseEvents {
+            @Events.contentType("application/json")
+            responseCreated: ResponseCreated,
+
+            @Events.contentType("application/json")
+            responseDelta: ResponseDelta,
+
+            @Events.contentType("text/plain")
+            @terminalEvent
+            "[DONE]",
+          }
+
+          op receive(): SSEStream<ResponseEvents>;
+        `,
+        runner,
+        { IsSseNeeded: true },
+      );
+      const context = createEmitterContext(program);
+      const sdkContext = await createCSharpSdkContext(context);
+      const [root] = createModel(sdkContext);
+
+      const receive = root.clients[0].methods.find((method) => method.name === "receive");
+      ok(receive);
+      ok(receive.response.type?.kind === "streaming");
+      strictEqual(receive.response.type.streamKind, "sse");
+      ok(receive.response.type.valueType.kind === "union");
+      strictEqual(receive.response.type.valueType.name, "ResponseEvents");
+      strictEqual(receive.response.type.terminalEventType, undefined);
+      strictEqual(receive.response.type.terminalEventValue, "[DONE]");
+      ok(receive.operation.responses[0].bodyType?.kind === "streaming");
+      strictEqual(receive.operation.responses[0].bodyType.streamKind, "sse");
+      strictEqual(receive.operation.bufferResponse, false);
+    });
+
     describe("With anonymous union enum response type", () => {
       it("should convert anonymous union enum response type to value type", async () => {
         const program = await typeSpecCompile(
@@ -498,5 +587,203 @@ describe("Operation Converter", () => {
         );
       });
     });
+  });
+});
+
+describe("Test isExactName propagation on operations and parameters", () => {
+  let runner: TestHost;
+
+  beforeEach(async () => {
+    runner = await createEmitterTestHost();
+  });
+
+  it("propagates isExactName from @clientName decorator with exact() on a method parameter", async () => {
+    const program = await typeSpecCompile(
+      `
+        op test(@clientName(Azure.ClientGenerator.Core.exact("snake_case_param"), "csharp") regularName: string): void;
+      `,
+      runner,
+      { IsTCGCNeeded: true },
+    );
+    const context = createEmitterContext(program);
+    const sdkContext = await createCSharpSdkContext(context);
+    const [root] = createModel(sdkContext);
+    const methodParams = root.clients[0].methods[0].parameters;
+    const param = methodParams.find((p) => p.name === "snake_case_param");
+    ok(param);
+    strictEqual(param.kind, "method");
+    strictEqual(param.isExactName, true);
+  });
+
+  it("propagates isExactName from @clientName decorator with exact() on a query parameter", async () => {
+    const program = await typeSpecCompile(
+      `
+        op test(@query @clientName(Azure.ClientGenerator.Core.exact("snake_case_query"), "csharp") regularName: string): void;
+      `,
+      runner,
+      { IsTCGCNeeded: true },
+    );
+    const context = createEmitterContext(program);
+    const sdkContext = await createCSharpSdkContext(context);
+    const [root] = createModel(sdkContext);
+    const params = root.clients[0].methods[0].operation.parameters;
+    const param = params.find((p) => p.name === "snake_case_query");
+    ok(param);
+    strictEqual(param.kind, "query");
+    strictEqual(param.isExactName, true);
+  });
+
+  it("propagates isExactName from @clientName decorator with exact() on a header parameter", async () => {
+    const program = await typeSpecCompile(
+      `
+        op test(@header @clientName(Azure.ClientGenerator.Core.exact("snake_case_header"), "csharp") regularName: string): void;
+      `,
+      runner,
+      { IsTCGCNeeded: true },
+    );
+    const context = createEmitterContext(program);
+    const sdkContext = await createCSharpSdkContext(context);
+    const [root] = createModel(sdkContext);
+    const params = root.clients[0].methods[0].operation.parameters;
+    const param = params.find((p) => p.name === "snake_case_header");
+    ok(param);
+    strictEqual(param.kind, "header");
+    strictEqual(param.isExactName, true);
+  });
+
+  it("propagates isExactName from @clientName decorator with exact() on a path parameter", async () => {
+    const program = await typeSpecCompile(
+      `
+        @route("/{regularName}")
+        op test(@path @clientName(Azure.ClientGenerator.Core.exact("snake_case_path"), "csharp") regularName: string): void;
+      `,
+      runner,
+      { IsTCGCNeeded: true },
+    );
+    const context = createEmitterContext(program);
+    const sdkContext = await createCSharpSdkContext(context);
+    const [root] = createModel(sdkContext);
+    const params = root.clients[0].methods[0].operation.parameters;
+    const param = params.find((p) => p.name === "snake_case_path");
+    ok(param);
+    strictEqual(param.kind, "path");
+    strictEqual(param.isExactName, true);
+  });
+
+  it("propagates isExactName from @clientName decorator with exact() on a body parameter", async () => {
+    const program = await typeSpecCompile(
+      `
+        model Book {
+          name: string;
+        }
+        op test(@body @clientName(Azure.ClientGenerator.Core.exact("snake_case_body"), "csharp") regularName: Book): void;
+      `,
+      runner,
+      { IsTCGCNeeded: true },
+    );
+    const context = createEmitterContext(program);
+    const sdkContext = await createCSharpSdkContext(context);
+    const [root] = createModel(sdkContext);
+    const bodyParam = root.clients[0].methods[0].operation.parameters.find(
+      (p) => p.name === "snake_case_body",
+    );
+    ok(bodyParam);
+    strictEqual(bodyParam.kind, "body");
+    strictEqual(bodyParam.isExactName, true);
+  });
+
+  it("propagates isExactName from @clientName decorator with exact() on an operation", async () => {
+    const program = await typeSpecCompile(
+      `
+        @clientName(Azure.ClientGenerator.Core.exact("snake_case_op"), "csharp")
+        op test(): void;
+      `,
+      runner,
+      { IsTCGCNeeded: true },
+    );
+    const context = createEmitterContext(program);
+    const sdkContext = await createCSharpSdkContext(context);
+    const [root] = createModel(sdkContext);
+    const method = root.clients[0].methods.find((m) => m.name === "snake_case_op");
+    ok(method);
+    strictEqual(method.isExactName, true);
+    strictEqual(method.operation.name, "snake_case_op");
+    strictEqual(method.operation.isExactName, true);
+  });
+});
+
+describe("Multipart convenience method generation", () => {
+  let runner: TestHost;
+
+  beforeEach(async () => {
+    runner = await createEmitterTestHost();
+  });
+
+  it("disables convenience method for multipart/mixed and reports a diagnostic", async () => {
+    const program = await typeSpecCompile(
+      `
+        model MultipartRequest {
+          id: HttpPart<string>;
+          profileImage: HttpPart<File>;
+        }
+
+        @post
+        @route("/upload")
+        op upload(
+          @header contentType: "multipart/mixed",
+          @multipartBody body: MultipartRequest,
+        ): NoContentResponse;
+      `,
+      runner,
+      { IsTCGCNeeded: true },
+    );
+    const context = createEmitterContext(program);
+    const sdkContext = await createCSharpSdkContext(context);
+    const [root, diagnostics] = createModel(sdkContext);
+
+    const operation = root.clients[0].methods[0].operation;
+    ok(operation);
+    ok(operation.requestMediaTypes?.includes("multipart/mixed"));
+    // Protocol methods are still generated, but convenience methods are turned off.
+    strictEqual(operation.generateProtocolMethod, true);
+    strictEqual(operation.generateConvenienceMethod, false);
+
+    const diagnostic = diagnostics.find(
+      (d) => d.code === "@typespec/http-client-csharp/unsupported-multipart-convenience-method",
+    );
+    ok(diagnostic);
+    strictEqual(diagnostic.severity, "warning");
+  });
+
+  it("keeps convenience method for multipart/form-data without a diagnostic", async () => {
+    const program = await typeSpecCompile(
+      `
+        model MultipartRequest {
+          profileImage: HttpPart<File>;
+        }
+
+        @post
+        @route("/upload")
+        op upload(
+          @header contentType: "multipart/form-data",
+          @multipartBody body: MultipartRequest,
+        ): NoContentResponse;
+      `,
+      runner,
+      { IsTCGCNeeded: true },
+    );
+    const context = createEmitterContext(program);
+    const sdkContext = await createCSharpSdkContext(context);
+    const [root, diagnostics] = createModel(sdkContext);
+
+    const operation = root.clients[0].methods[0].operation;
+    ok(operation);
+    ok(operation.requestMediaTypes?.includes("multipart/form-data"));
+    strictEqual(operation.generateConvenienceMethod, true);
+
+    const diagnostic = diagnostics.find(
+      (d) => d.code === "@typespec/http-client-csharp/unsupported-multipart-convenience-method",
+    );
+    strictEqual(diagnostic, undefined);
   });
 });

@@ -12,6 +12,7 @@ from specialwords._utils.model_base import (
     rest_field,
     rest_discriminator,
     _deserialize_xml,
+    _xml_deser_str,
 )
 
 
@@ -1237,3 +1238,218 @@ class TestXmlSerialization:
             message_count_details=MessageCountDetails(active_message_count=12),
         )
         assert_xml_equals(_get_element(xml_model), basic_xml)
+
+
+class TestXmlDeserializerAttribute:
+    """Tests for the rest_field(deserializer=...) fast-path deserialization."""
+
+    def test_scalar_deserializers(self):
+        """Test that explicit deserializer functions work for scalar types."""
+        from specialwords._utils.model_base import (
+            _xml_deser_str,
+            _xml_deser_int,
+            _xml_deser_float,
+            _xml_deser_bool,
+        )
+
+        basic_xml = """<?xml version="1.0"?>
+            <Data country="france">
+                <Name>test</Name>
+                <Count>42</Count>
+                <Price>12.34</Price>
+                <Active>true</Active>
+            </Data>"""
+
+        class XmlModel(Model):
+            name: str = rest_field(name="Name", xml={"name": "Name"}, deserializer=_xml_deser_str)
+            count: int = rest_field(name="Count", xml={"name": "Count"}, deserializer=_xml_deser_int)
+            price: float = rest_field(name="Price", xml={"name": "Price"}, deserializer=_xml_deser_float)
+            active: bool = rest_field(name="Active", xml={"name": "Active"}, deserializer=_xml_deser_bool)
+            country: str = rest_field(
+                name="country", xml={"name": "country", "attribute": True}, deserializer=_xml_deser_str
+            )
+
+            def __init__(self, *args, **kwargs):
+                super().__init__(*args, **kwargs)
+
+            _xml = {"name": "Data"}
+
+        result = _deserialize_xml(XmlModel, basic_xml)
+        assert result.name == "test"
+        assert result.count == 42
+        assert result.price == 12.34
+        assert result.active is True
+        assert result.country == "france"
+
+    def test_datetime_deserializers(self):
+        """Test datetime deserializer variants."""
+        from specialwords._utils.model_base import (
+            _xml_deser_datetime,
+            _xml_deser_datetime_rfc7231,
+        )
+
+        basic_xml = """<?xml version="1.0"?>
+            <Data>
+                <Created>2023-01-15T10:30:00Z</Created>
+                <Modified>Sun, 15 Jan 2023 10:30:00 GMT</Modified>
+            </Data>"""
+
+        class XmlModel(Model):
+            created: str = rest_field(name="Created", xml={"name": "Created"}, deserializer=_xml_deser_datetime)
+            modified: str = rest_field(
+                name="Modified", xml={"name": "Modified"}, deserializer=_xml_deser_datetime_rfc7231
+            )
+
+            def __init__(self, *args, **kwargs):
+                super().__init__(*args, **kwargs)
+
+            _xml = {"name": "Data"}
+
+        import datetime
+
+        result = _deserialize_xml(XmlModel, basic_xml)
+        assert isinstance(result.created, datetime.datetime)
+        assert result.created.year == 2023
+        assert isinstance(result.modified, datetime.datetime)
+        assert result.modified.year == 2023
+
+    def test_field_plan_with_deserializers(self):
+        """Test that field plan is built and used when _xml is present."""
+        from specialwords._utils.model_base import _xml_deser_str, _xml_deser_int
+
+        basic_xml = """<?xml version="1.0"?>
+            <Item>
+                <Name>widget</Name>
+                <Qty>100</Qty>
+            </Item>"""
+
+        class Item(Model):
+            name: str = rest_field(name="Name", xml={"name": "Name"}, deserializer=_xml_deser_str)
+            qty: int = rest_field(name="Qty", xml={"name": "Qty"}, deserializer=_xml_deser_int)
+
+            def __init__(self, *args, **kwargs):
+                super().__init__(*args, **kwargs)
+
+            _xml = {"name": "Item"}
+
+        result = _deserialize_xml(Item, basic_xml)
+        assert hasattr(Item, "_xml_field_plan")
+        assert len(Item._xml_field_plan) == 2
+        assert result.name == "widget"
+        assert result.qty == 100
+
+    def test_mixed_deserializer_and_model_fields(self):
+        """Test models with both scalar deserializers and nested model fields."""
+        from specialwords._utils.model_base import _xml_deser_str, _xml_deser_int
+
+        basic_xml = """<?xml version="1.0"?>
+            <Container>
+                <Name>my-container</Name>
+                <Item>
+                    <Name>widget</Name>
+                    <Count>5</Count>
+                </Item>
+            </Container>"""
+
+        class Item(Model):
+            name: str = rest_field(name="Name", xml={"name": "Name"}, deserializer=_xml_deser_str)
+            count: int = rest_field(name="Count", xml={"name": "Count"}, deserializer=_xml_deser_int)
+
+            def __init__(self, *args, **kwargs):
+                super().__init__(*args, **kwargs)
+
+            _xml = {"name": "Item"}
+
+        class Container(Model):
+            name: str = rest_field(name="Name", xml={"name": "Name"}, deserializer=_xml_deser_str)
+            item: Item = rest_field(name="Item", xml={"name": "Item"})
+
+            def __init__(self, *args, **kwargs):
+                super().__init__(*args, **kwargs)
+
+            _xml = {"name": "Container"}
+
+        result = _deserialize_xml(Container, basic_xml)
+        assert result.name == "my-container"
+        assert result.item.name == "widget"
+        assert result.item.count == 5
+
+    def test_no_field_plan_without_xml(self):
+        """Non-XML models should not get _xml_field_plan."""
+
+        class JsonModel(Model):
+            name: str = rest_field(name="name")
+            count: int = rest_field(name="count")
+
+            def __init__(self, *args, **kwargs):
+                super().__init__(*args, **kwargs)
+
+        m = JsonModel({"name": "test", "count": 42})
+        assert not hasattr(JsonModel, "_xml_field_plan")
+        assert m.name == "test"
+        assert m.count == 42
+
+    def test_enum_deserializer(self):
+        """Test that _xml_deser_enum_or_str works for enum fields."""
+        import functools
+        from enum import Enum
+        from specialwords._utils.model_base import _xml_deser_enum_or_str
+
+        class BlobType(str, Enum):
+            BLOCK_BLOB = "BlockBlob"
+            PAGE_BLOB = "PageBlob"
+            APPEND_BLOB = "AppendBlob"
+
+        class BlobItem(Model):
+            _xml = {"name": "Blob"}
+
+            name: str = rest_field(
+                name="Name",
+                xml={"name": "Name"},
+                deserializer=_xml_deser_str,
+            )
+            blob_type: str = rest_field(
+                name="BlobType",
+                xml={"name": "BlobType"},
+                deserializer=functools.partial(_xml_deser_enum_or_str, BlobType),
+            )
+
+        xml = """<?xml version="1.0"?>
+            <Blob>
+                <Name>myblob</Name>
+                <BlobType>BlockBlob</BlobType>
+            </Blob>"""
+        root = ET.fromstring(xml)
+        blob = BlobItem._deserialize(root, [])
+        assert blob.name == "myblob"
+        assert blob.blob_type == BlobType.BLOCK_BLOB
+        assert isinstance(blob.blob_type, BlobType)
+
+    def test_enum_deserializer_unknown_value(self):
+        """Test that _xml_deser_enum_or_str falls back to str for unknown values."""
+        import functools
+        from enum import Enum
+        from specialwords._utils.model_base import _xml_deser_enum_or_str
+
+        class Status(str, Enum):
+            ACTIVE = "active"
+            INACTIVE = "inactive"
+
+        class Item(Model):
+            _xml = {"name": "Item"}
+
+            status: str = rest_field(
+                name="Status",
+                xml={"name": "Status"},
+                deserializer=functools.partial(_xml_deser_enum_or_str, Status),
+            )
+
+        xml = """<?xml version="1.0"?>
+            <Item>
+                <Status>unknown_value</Status>
+            </Item>"""
+        root = ET.fromstring(xml)
+        item = Item._deserialize(root, [])
+        assert item.status == "unknown_value"
+        assert isinstance(item.status, str)
+        assert not isinstance(item.status, Status)

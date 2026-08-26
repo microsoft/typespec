@@ -1,5 +1,30 @@
 # @typespec/spec-api
 
+## 0.1.0-alpha.16
+
+### Features
+
+- [#11239](https://github.com/microsoft/typespec/pull/11239) Add `streamChunks` support to `MockBody` for chunked SSE streaming in mock responses
+
+### Bug Fixes
+
+- [#11313](https://github.com/microsoft/typespec/pull/11313) XML declarations no longer affect semantic body equality in `validateXmlBodyEquals`; both actual and expected XML declarations are ignored during comparison.
+
+
+## 0.1.0-alpha.15
+
+### Features
+
+- [#10875](https://github.com/microsoft/typespec/pull/10875) Allow `@encode(string)` on boolean targets, define case-insensitive `true`/`false` string semantics, and add shared case-insensitive string matcher support with encode/boolean Spector coverage.
+  
+  ```tsp
+  model FeatureFlags {
+    @encode(string)
+    enabled: boolean;
+  }
+  ```
+
+
 ## 0.1.0-alpha.14
 
 ### Features

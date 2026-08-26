@@ -1,5 +1,20 @@
 # Change Log - @typespec/rest
 
+## 0.85.0
+
+No changes, version bump only.
+
+## 0.84.0
+
+### Deprecations
+
+- [#10964](https://github.com/microsoft/typespec/pull/10964) Deprecate old testing framework (`createTestHost`, `createTestRunner`, `createTestWrapper`, `createTestLibrary`, `BasicTestRunner`, `TypeSpecTestLibrary`, etc.). Use `createTester` from `@typespec/compiler/testing` instead.
+
+
+## 0.83.0
+
+No changes, version bump only.
+
 ## 0.82.0
 
 No changes, version bump only.

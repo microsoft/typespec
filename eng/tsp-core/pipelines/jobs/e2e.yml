@@ -18,15 +18,18 @@ jobs:
 
     steps:
       - template: /eng/tsp-core/pipelines/templates/install.yml
+        parameters:
+          nodeVersion: 26.x
       - template: /eng/tsp-core/pipelines/templates/install-browsers.yml
       - template: /eng/tsp-core/pipelines/templates/setup-linux-ui.yml
       - template: /eng/tsp-core/pipelines/templates/build.yml
 
       - ${{ if parameters.azLogin }}:
-          - task: AzureCLI@1
+          - task: AzureCLI@2
             displayName: E2E Tests
             inputs:
               azureSubscription: "Azure SDK Engineering System"
+              scriptType: bash
               scriptLocation: inlineScript
               inlineScript: pnpm run test:e2e
       - ${{ else }}:
@@ -54,5 +57,5 @@ jobs:
         displayName: Publish trace results
         condition: ne(variables['Agent.OS'], 'Windows_NT')
 
-      - script: node eng/common/scripts/check-for-changed-files.js
+      - script: node eng/common/scripts/check-for-changed-files.ts
         displayName: Check Git Status For Changed Files

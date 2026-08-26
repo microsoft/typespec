@@ -2,14 +2,12 @@
 import { strictEqual } from "assert";
 import { resolve } from "path";
 import prettier from "prettier";
-import { describe, it } from "vitest";
+import { it } from "vitest";
 
-describe("prettier-plugin: smoke test", () => {
-  it("loads and formats", async () => {
-    const result = await prettier.format("alias   Foo   =   string;", {
-      parser: "typespec",
-      plugins: [resolve(__dirname, "../dist/index.js")],
-    });
-    strictEqual(result, "alias Foo = string;\n");
+it("loads and formats", async () => {
+  const result = await prettier.format("alias   Foo   =   string;", {
+    parser: "typespec",
+    plugins: [resolve(__dirname, "../dist/index.js")],
   });
+  strictEqual(result, "alias Foo = string;\n");
 });

@@ -43,8 +43,8 @@ import { getDeprecationDetails } from "../core/deprecation.js";
 import { compilerAssert, ignoreDiagnostics } from "../core/diagnostics.js";
 import { getDiscriminatedUnion } from "../core/helpers/discriminator-utils.js";
 import { getTypeName } from "../core/helpers/type-name-utils.js";
+import type { DocData } from "../core/intrinsic-type-state.js";
 import {
-  DocData,
   getDocDataInternal,
   getMaxItemsAsNumeric,
   getMaxLengthAsNumeric,
@@ -68,10 +68,11 @@ import {
 } from "../core/intrinsic-type-state.js";
 import { reportDiagnostic } from "../core/messages.js";
 import { parseMimeType } from "../core/mime-type.js";
-import { isNumeric, Numeric } from "../core/numeric.js";
-import { Program } from "../core/program.js";
+import type { Numeric } from "../core/numeric.js";
+import { isNumeric } from "../core/numeric.js";
+import type { Program } from "../core/program.js";
 import { isArrayModelType, isValue } from "../core/type-utils.js";
-import {
+import type {
   AugmentDecoratorStatementNode,
   DecoratorContext,
   DecoratorExpressionNode,
@@ -88,12 +89,12 @@ import {
   Scalar,
   ScalarValue,
   StdTypeName,
-  SyntaxKind,
   Type,
   Union,
   UnionVariant,
   Value,
 } from "../core/types.js";
+import { SyntaxKind } from "../core/types.js";
 import { Realm } from "../experimental/realm.js";
 import { $ } from "../typekit/index.js";
 import { useStateMap, useStateSet } from "../utils/index.js";
@@ -109,7 +110,7 @@ export { serializeValueAsJson } from "./examples.js";
 export { getPagingOperation, isList, type PagingOperation, type PagingProperty } from "./paging.js";
 export * from "./service.js";
 export * from "./visibility.js";
-export { ExampleOptions };
+export type { ExampleOptions };
 
 export const namespace = "TypeSpec";
 
@@ -873,7 +874,9 @@ export type BytesKnownEncoding = "base64" | "base64url";
 export interface EncodeData {
   /**
    * Known encoding key.
-   * Can be undefined when `@encode(string)` is used on a numeric type. In that case it just means using the base10 decimal representation of the number.
+   * Can be undefined when `@encode(string)` is used on a numeric or boolean type.
+   * For numeric this means using the base10 decimal representation of the number.
+   * For boolean this means using `true` or `false`.
    */
   encoding?: DateTimeKnownEncoding | DurationKnownEncoding | BytesKnownEncoding | string;
   type: Scalar;
@@ -995,7 +998,7 @@ function validateEncodeData(context: DecoratorContext, target: Type, encodeData:
     case "base64url":
       return check(["bytes"], ["string"]);
     case undefined:
-      return check(["numeric"], ["string"]);
+      return check(["numeric", "boolean"], ["string"]);
   }
 }
 

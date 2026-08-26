@@ -1,12 +1,8 @@
 // Copyright (c) Microsoft Corporation. All rights reserved.
 // Licensed under the MIT License. See License.txt in the project root for license information.
 
-import {
-  createTypeSpecLibrary,
-  DiagnosticDefinition,
-  DiagnosticMessages,
-  paramMessage,
-} from "@typespec/compiler";
+import type { DiagnosticDefinition, DiagnosticMessages } from "@typespec/compiler";
+import { createTypeSpecLibrary, paramMessage } from "@typespec/compiler";
 import { CSharpEmitterOptionsSchema } from "../options.js";
 
 export type DiagnosticMessagesMap = {
@@ -95,6 +91,12 @@ const diags: { [code: string]: DiagnosticDefinition<DiagnosticMessages> } = {
       default: paramMessage`Convenience method is not supported for PATCH method, it will be turned off. Please set the '@convenientAPI' to false for operation ${"methodCrossLanguageDefinitionId"}.`,
     },
   },
+  "unsupported-multipart-convenience-method": {
+    severity: "warning",
+    messages: {
+      default: paramMessage`Convenience method is not supported for multipart content types other than 'multipart/form-data', it will be turned off. Please set the '@convenientAPI' to false for operation ${"methodCrossLanguageDefinitionId"}.`,
+    },
+  },
   "unsupported-service-method": {
     severity: "warning",
     messages: {
@@ -105,6 +107,12 @@ const diags: { [code: string]: DiagnosticDefinition<DiagnosticMessages> } = {
     severity: "error",
     messages: {
       default: paramMessage`Unsupported continuation location for operation ${"crossLanguageDefinitionId"}.`,
+    },
+  },
+  "unresolved-client-namespace": {
+    severity: "error",
+    messages: {
+      default: `Unable to determine a namespace for the generated client. Ensure the spec defines a service namespace (using the \`@service\` decorator) or set the \`package-name\` emitter option.`,
     },
   },
 };

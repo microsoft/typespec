@@ -15,6 +15,9 @@ export interface DecoratorSignature {
   typeName: string;
 
   decorator: Decorator;
+
+  /** Whether this is an auto decorator (declared with `auto dec`). */
+  isAuto: boolean;
 }
 
 export interface FunctionSignature {

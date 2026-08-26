@@ -1,5 +1,150 @@
 # Change Log - @typespec/openapi3
 
+## 1.15.0
+
+### Features
+
+- [#11309](https://github.com/microsoft/typespec/pull/11309) Add `identifier` field to the `License` model in `@typespec/openapi`. This is an SPDX license expression for the API (e.g. `"MIT"`, `"Apache-2.0"`). The `identifier` and `url` fields are mutually exclusive. For OpenAPI 3.1+, `identifier` is emitted as-is; for OpenAPI 3.0, it is emitted as the `x-oai-license-identifier` extension. Importing an OpenAPI document also supports reading back `identifier` (or `x-oai-license-identifier` for 3.0 documents).
+  
+  ```typespec
+  @info(#{
+    license: #{ name: "MIT", identifier: "MIT" },
+  })
+  namespace MyService;
+  ```
+- [#11154](https://github.com/microsoft/typespec/pull/11154) Extend the `enum-strategy: annotated` emitter option to unions of literals. When set to `annotated`, a union whose variants are literals is emitted as a `oneOf`/`anyOf` of `const` subschemas with per-variant `title`/`description` taken from `@summary` and `@doc`, instead of collapsing to a single lossy `enum`. Supported for OpenAPI 3.1.0 and above; emitting with OpenAPI 3.0.0 falls back to the default form and reports a warning.
+  
+  For example, the following TypeSpec:
+  
+  ```typespec
+  /** Set of known error types. */
+  union ErrorType {
+    /** Common error for a bad request. */
+    @summary("CommonBadRequest")
+    commonBadRequest: "https://example.com/errors/bad-request",
+  
+    /** The request body could not be parsed. */
+    @summary("InvalidBody")
+    invalidBody: "https://example.com/errors/invalid-body",
+  }
+  ```
+  
+  emits:
+  
+  ```yaml
+  ErrorType:
+    description: Set of known error types.
+    anyOf:
+      - const: https://example.com/errors/bad-request
+        title: CommonBadRequest
+        description: Common error for a bad request.
+      - const: https://example.com/errors/invalid-body
+        title: InvalidBody
+        description: The request body could not be parsed.
+  ```
+  
+  Use `@oneOf` on the union to emit `oneOf` instead of `anyOf`.
+- [#11153](https://github.com/microsoft/typespec/pull/11153) Add scope support to `OpenIdConnectAuth`. The model now accepts an optional `Scopes` template parameter (`OpenIdConnectAuth<ConnectUrl, Scopes>`) and the OpenAPI3 emitter emits those scopes on each operation's `openIdConnect` security requirement. The scheme object itself remains unchanged (scopes are discovered via the `openIdConnectUrl`). Existing `OpenIdConnectAuth<Url>` usages are unaffected.
+
+### Bug Fixes
+
+- [#11427](https://github.com/microsoft/typespec/pull/11427) Fix duplicate type name error when a model with a `@visibility(Lifecycle.Create, Lifecycle.Update)` property extends another model.
+- [#11538](https://github.com/microsoft/typespec/pull/11538) [converter] Convert query parameters using `spaceDelimited`/`pipeDelimited` styles to `@encode(ArrayEncoding.spaceDelimited)`/`@encode(ArrayEncoding.pipeDelimited)` instead of dropping them, including when `explode: true` is set
+
+
+## 1.14.0
+
+### Deprecations
+
+- [#10964](https://github.com/microsoft/typespec/pull/10964) Deprecate old testing framework (`createTestHost`, `createTestRunner`, `createTestWrapper`, `createTestLibrary`, `BasicTestRunner`, `TypeSpecTestLibrary`, etc.). Use `createTester` from `@typespec/compiler/testing` instead.
+
+### Features
+
+- [#10892](https://github.com/microsoft/typespec/pull/10892) Add opt-in `enum-strategy` emitter option to emit TypeSpec enums as [annotated enumerations](https://spec.openapis.org/oas/v3.1.1.html#annotated-enumerations) (a `oneOf` of `const` subschemas with per-member `title`/`description`). Supported for OpenAPI 3.1.0 and above; emitting with OpenAPI 3.0.0 falls back to the default form and reports a warning.
+  
+  ```yaml
+  options:
+    "@typespec/openapi3":
+      enum-strategy: annotated
+  ```
+  
+  For example, the following TypeSpec:
+  
+  ```typespec
+  /** Type of pet. */
+  enum PetType {
+    /** A loyal canine companion. */
+    @summary("Dog")
+    Dog: "dog",
+  
+    /** A self-sufficient feline. */
+    @summary("Cat")
+    Cat: "cat",
+  }
+  ```
+  
+  emits:
+  
+  ```yaml
+  PetType:
+    description: Type of pet.
+    oneOf:
+      - const: dog
+        title: Dog
+        description: A loyal canine companion.
+      - const: cat
+        title: Cat
+        description: A self-sufficient feline.
+  ```
+- [#11185](https://github.com/microsoft/typespec/pull/11185) Stop wrapping `$ref` in an unnecessary `allOf` when emitting OpenAPI 3.1 (and 3.2). When a referenced schema carries sibling keywords (for example `description`, `default`, `readOnly`, or `externalDocs`), those keywords are now placed directly next to the `$ref`, as allowed by JSON Schema 2020-12. OpenAPI 3.0 output is unchanged, since it does not permit sibling keywords next to a `$ref`.
+
+### Bug Fixes
+
+- [#10995](https://github.com/microsoft/typespec/pull/10995) Fix OpenAPI import to emit `@cookie` decorators for cookie parameters, including nullable and type-null schema variants.
+- [#11204](https://github.com/microsoft/typespec/pull/11204) Fix `@extension` being duplicated on both the parameter object and its `schema` in OpenAPI output. Parameter extensions are now emitted only on the parameter object.
+- [#11203](https://github.com/microsoft/typespec/pull/11203) Fix stray `items` being emitted on a property whose array type is encoded to a scalar via `@encode` (e.g. `ArrayEncoding.commaDelimited`).
+
+
+## 1.13.0
+
+### Features
+
+- [#10769](https://github.com/microsoft/typespec/pull/10769) Add `summary` and `kind` fields to `@tagMetadata` decorator.
+  
+  For OpenAPI 3.2, these fields are emitted as native tag object fields. For OpenAPI 3.0/3.1, they are emitted as `x-oai-summary` and `x-oai-kind` extensions. The OpenAPI converter also supports importing `x-oai-summary`, `x-oai-kind` (from 3.0/3.1) and native `summary`, `kind` (from 3.2) back to TypeSpec.
+  
+  ```typespec
+  @tagMetadata("foo", #{ summary: "all operations that allow doing Foo", kind: "FooGroup" })
+  ```
+- [#10770](https://github.com/microsoft/typespec/pull/10770) Add array form for `@tagMetadata` decorator to allow explicit control of tag declaration order.
+  
+  ```typespec
+  @service
+  @tagMetadata(#[
+    #{ name: "First Tag", description: "First tag description" },
+    #{ name: "Second Tag", description: "Second tag description" },
+  ])
+  namespace PetStore {}
+  ```
+  
+  Using `@tagMetadata(#[...])` and `@tagMetadata("name", #{...})` on the same namespace is a diagnostic error.
+
+### Bug Fixes
+
+- [#10786](https://github.com/microsoft/typespec/pull/10786) Mark models as `@error` when imported from 4xx/5xx response body schema references.
+- [#10901](https://github.com/microsoft/typespec/pull/10901) Fix import of `deprecated: true` on OpenAPI3 operations to generate `#deprecated "deprecated"` directive in converted TypeSpec output.
+- [#10677](https://github.com/microsoft/typespec/pull/10677) Fix custom auth scheme models leaking into `components.schemas` when declared inside the service namespace. They are now emitted only under `components.securitySchemes` as expected.
+- [#10656](https://github.com/microsoft/typespec/pull/10656) Propagate `@JsonSchema.uniqueItems` to query, path and header parameter schemas. The decorator was only applied to body model property schemas; for HTTP parameter schemas (which go through `applyIntrinsicDecorators`) it was silently dropped, so arrays declared on operation parameters never emitted `uniqueItems: true` even when the decorator was present.
+  
+  ```tsp
+  op listUsers(
+    @query
+    @JsonSchema.uniqueItems
+    $select?: ("id" | "displayName")[],
+  ): User[];
+  ```
+
+
 ## 1.12.0
 
 ### Bug Fixes

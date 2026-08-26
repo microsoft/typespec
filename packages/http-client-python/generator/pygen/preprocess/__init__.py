@@ -22,6 +22,7 @@ from ..utils import (
     get_body_type_for_description,
     JSON_REGEXP,
     KNOWN_TYPES,
+    description_ends_with_code_block,
 )
 
 
@@ -80,8 +81,17 @@ def add_overload(yaml_data: dict[str, Any], body_type: dict[str, Any], for_flatt
     return overload
 
 
-def add_overloads_for_body_param(yaml_data: dict[str, Any]) -> None:
-    """If we added a body parameter type, add overloads for that type"""
+def add_overloads_for_body_param(yaml_data: dict[str, Any], skip_single_body_json: bool = False) -> None:
+    """If we added a body parameter type, add overloads for that type.
+
+    ``skip_single_body_json`` is the authoritative signal, computed by
+    ``add_body_param_type``, for whether a TypedDict-style overload was inserted
+    to replace the single-body raw-JSON overload on the spread (``base: json``)
+    path. It is True for both models-mode: dpg (generate-typeddict on) and
+    the TypedDict-only mode (models-mode: none with generate-typeddict on), and
+    False when TypedDict generation is disabled (in which case the single-body
+    raw-JSON overload is kept, matching pre-TypedDict behavior).
+    """
     body_parameter = yaml_data["bodyParameter"]
     if not (
         body_parameter["type"]["type"] == "combined"
@@ -93,6 +103,8 @@ def add_overloads_for_body_param(yaml_data: dict[str, Any]) -> None:
             continue
         if body_type.get("type") == "model" and body_type.get("base") == "json":
             yaml_data["overloads"].append(add_overload(yaml_data, body_type, for_flatten_params=True))
+            if skip_single_body_json:
+                continue
         yaml_data["overloads"].append(add_overload(yaml_data, body_type))
     content_type_param = next(p for p in yaml_data["parameters"] if p["wireName"].lower() == "content-type")
     content_type_param["inOverload"] = False
@@ -108,7 +120,9 @@ def update_description(description: Optional[str], default_description: str = ""
     if not description:
         description = default_description
     description.rstrip(" ")
-    if description and description[-1] != ".":
+    # Don't append a trailing period when the description ends with a code block: the
+    # period would land inside the rendered literal block (e.g. "]." ) and break Sphinx.
+    if description and description[-1] != "." and not description_ends_with_code_block(description):
         description += "."
     return description
 
@@ -158,6 +172,8 @@ CLOUD_SETTING = {
         "isTypingOnly": True,
     },
 }
+STANDARD_IF_MATCH_WIRE_NAME = "if-match"
+STANDARD_IF_NONE_MATCH_WIRE_NAME = "if-none-match"
 
 
 def get_wire_name_lower(parameter: dict[str, Any]) -> str:
@@ -167,6 +183,103 @@ def get_wire_name_lower(parameter: dict[str, Any]) -> str:
 def _get_etag_role(parameter: dict[str, Any]) -> Optional[str]:
     """Return 'ifMatch', 'ifNoneMatch', or None for this header parameter."""
     return parameter.get("etagRole")
+
+
+def _pick_etag_slot(candidates: list[dict[str, Any]], standard_wire_name: str) -> Optional[dict[str, Any]]:
+    """Choose which etag-typed header should be promoted to the etag/match_condition slot.
+
+    When more than one etag-typed header is present in an operation, prefer the
+    standard If-Match/If-None-Match header (matched on wireName). Otherwise
+    fall back to the first candidate. Returns None if there are no candidates.
+    """
+    if not candidates:
+        return None
+    for c in candidates:
+        if get_wire_name_lower(c) == standard_wire_name:
+            return c
+    return candidates[0]
+
+
+def _resolve_etag_pair(
+    if_match_candidates: list[dict[str, Any]],
+    if_none_match_candidates: list[dict[str, Any]],
+) -> tuple[Optional[dict[str, Any]], Optional[dict[str, Any]]]:
+    """Select and reconcile the etag header pair for an operation.
+
+    When multiple etag-typed headers are present, prefer the standard
+    If-Match / If-None-Match pair.  Synthesize a missing partner when only
+    one side is present, and strip etagRole from non-selected candidates.
+
+    Returns (property_if_match, property_if_none_match) — both None when
+    there are no etag candidates.
+    """
+    property_if_match = _pick_etag_slot(if_match_candidates, STANDARD_IF_MATCH_WIRE_NAME)
+    property_if_none_match = _pick_etag_slot(if_none_match_candidates, STANDARD_IF_NONE_MATCH_WIRE_NAME)
+
+    # Ensure the promoted pair come from the same family.  When one slot is
+    # standard and the other custom (cross-family), replace the custom slot
+    # with a synthetic standard partner.  Also synthesize the missing partner
+    # when only one side is present.
+    if property_if_match and property_if_none_match:
+        match_is_std = get_wire_name_lower(property_if_match) == STANDARD_IF_MATCH_WIRE_NAME
+        none_match_is_std = get_wire_name_lower(property_if_none_match) == STANDARD_IF_NONE_MATCH_WIRE_NAME
+        if match_is_std and not none_match_is_std:
+            property_if_none_match = property_if_match.copy()
+            property_if_none_match["wireName"] = STANDARD_IF_NONE_MATCH_WIRE_NAME
+            property_if_none_match["etagRole"] = "ifNoneMatch"
+        elif none_match_is_std and not match_is_std:
+            property_if_match = property_if_none_match.copy()
+            property_if_match["wireName"] = STANDARD_IF_MATCH_WIRE_NAME
+            property_if_match["etagRole"] = "ifMatch"
+    elif not property_if_match and property_if_none_match:
+        property_if_match = property_if_none_match.copy()
+        property_if_match["wireName"] = STANDARD_IF_MATCH_WIRE_NAME
+        property_if_match["etagRole"] = "ifMatch"
+    elif property_if_match and not property_if_none_match:
+        property_if_none_match = property_if_match.copy()
+        property_if_none_match["wireName"] = STANDARD_IF_NONE_MATCH_WIRE_NAME
+        property_if_none_match["etagRole"] = "ifNoneMatch"
+
+    for c in if_match_candidates:
+        if c is not property_if_match:
+            c.pop("etagRole", None)
+    for c in if_none_match_candidates:
+        if c is not property_if_none_match:
+            c.pop("etagRole", None)
+
+    return property_if_match, property_if_none_match
+
+
+def _process_operation_etag_headers(
+    operation: dict[str, Any],
+    client: dict[str, Any],
+    version_tolerant: bool,
+) -> None:
+    """Collect etag candidates from *operation*, resolve the promoted pair,
+    and update *operation* / *client* accordingly."""
+    if_match_candidates: list[dict[str, Any]] = []
+    if_none_match_candidates: list[dict[str, Any]] = []
+    for p in operation["parameters"]:
+        wire_name_lower = get_wire_name_lower(p)
+        if p["location"] == "header" and wire_name_lower == "client-request-id":
+            client["requestIdHeaderName"] = wire_name_lower
+        if version_tolerant and p["location"] == "header":
+            role = _get_etag_role(p)
+            if role == "ifMatch":
+                if_match_candidates.append(p)
+            elif role == "ifNoneMatch":
+                if_none_match_candidates.append(p)
+
+    property_if_match, property_if_none_match = _resolve_etag_pair(if_match_candidates, if_none_match_candidates)
+
+    if property_if_match and property_if_none_match:
+        etag_params = {id(property_if_match), id(property_if_none_match)}
+        operation["parameters"] = [item for item in operation["parameters"] if id(item) not in etag_params] + [
+            property_if_match,
+            property_if_none_match,
+        ]
+        operation["hasEtag"] = True
+        client["hasEtag"] = True
 
 
 def headers_convert(yaml_data: dict[str, Any], replace_data: Any) -> None:
@@ -202,11 +315,150 @@ class PreProcessPlugin(YamlUpdatePlugin):
     def is_tsp(self) -> bool:
         return self.options.get("tsp_file", False)
 
+    @property
+    def generate_typeddict(self) -> bool:
+        return self.options.get("generate-typeddict", True)
+
+    @staticmethod
+    def _find_existing_typeddict(
+        code_model: dict[str, Any],
+        cross_lang_id: Optional[str],
+        name: Optional[str] = None,
+    ) -> Optional[dict[str, Any]]:
+        """Find an existing typeddict copy for the given model.
+
+        Matches on both ``crossLanguageDefinitionId`` and ``name``. The name is required because
+        template-instantiated models (e.g. ``ResourceUpdateModel<Foo, FooProperties>``) all share
+        the template's cross-language id, so matching on the id alone would reuse one model's copy
+        (e.g. ``CacheUpdate``) for a different model (e.g. ``VolumeUpdate``).
+        """
+        if not cross_lang_id:
+            return None
+        return next(
+            (
+                t
+                for t in code_model["types"]
+                if t.get("type") == "model"
+                and t.get("base") == "typeddict"
+                and t.get("crossLanguageDefinitionId") == cross_lang_id
+                and (name is None or t.get("name") == name)
+            ),
+            None,
+        )
+
+    @staticmethod
+    def _find_spread_original(code_model: dict[str, Any], json_model: dict[str, Any]) -> Optional[dict[str, Any]]:
+        """Recover the dpg model that a spread (json) body was cloned from.
+
+        When a spread body type is also used elsewhere, the emitter clones it, renames the clone to
+        ``<Method>Request`` and sets ``base = "json"`` while keeping the original
+        ``crossLanguageDefinitionId``. To reference the real model's TypedDict we look the clone up
+        by that id.
+
+        Distinct template-instantiated models share a single ``crossLanguageDefinitionId``, so an id
+        match alone is ambiguous. We only reuse an original when the choice is unambiguous:
+
+        * a dpg candidate whose ``name`` equals the json model's name (the body was not renamed), or
+        * exactly one dpg candidate carries the id.
+
+        Otherwise we return ``None`` so the caller falls back to the json model itself, avoiding a
+        reference to the wrong model's TypedDict.
+        """
+        cross_lang_id = json_model.get("crossLanguageDefinitionId")
+        if not cross_lang_id:
+            return None
+        candidates = [
+            t
+            for t in code_model["types"]
+            if t.get("type") == "model"
+            and t.get("base") == "dpg"
+            and t.get("crossLanguageDefinitionId") == cross_lang_id
+            and t is not json_model
+        ]
+        if not candidates:
+            return None
+        name = json_model.get("name")
+        for candidate in candidates:
+            if candidate.get("name") == name:
+                return candidate
+        if len(candidates) == 1:
+            return candidates[0]
+        return None
+
+    @staticmethod
+    def _insert_typeddict_overload(
+        code_model: dict[str, Any],
+        body_parameter: dict[str, Any],
+        source: dict[str, Any],
+        origin_type: str,
+        existing_td: Optional[dict[str, Any]],
+    ) -> None:
+        """Insert a typeddict type into the body parameter's combined types."""
+        if origin_type == "model":
+            td_type = existing_td or {**source, "base": "typeddict"}
+            body_parameter["type"]["types"].insert(1, td_type)
+            if not existing_td:
+                code_model["types"].append(td_type)
+        else:
+            td_list_or_dict = copy.deepcopy(body_parameter["type"]["types"][0])
+            td_elem = existing_td or {**source, "base": "typeddict"}
+            td_list_or_dict["elementType"] = td_elem
+            body_parameter["type"]["types"].insert(1, td_list_or_dict)
+            if not existing_td:
+                code_model["types"].append(td_elem)
+
+    @staticmethod
+    def _insert_json_overload(
+        body_parameter: dict[str, Any],
+        origin_type: str,
+    ) -> None:
+        """Insert a raw-JSON (any-object) type into the body parameter's combined types.
+
+        This restores the pre-TypedDict dict-body overload used when TypedDict
+        generation is disabled.
+        """
+        if origin_type == "model":
+            body_parameter["type"]["types"].insert(1, KNOWN_TYPES["any-object"])
+        else:
+            # dict or list: copy the original container type and swap its element
+            # type for the raw-JSON any-object.
+            any_obj_list_or_dict = copy.deepcopy(body_parameter["type"]["types"][0])
+            any_obj_list_or_dict["elementType"] = KNOWN_TYPES["any-object"]
+            body_parameter["type"]["types"].insert(1, any_obj_list_or_dict)
+
     def add_body_param_type(
         self,
         code_model: dict[str, Any],
         body_parameter: dict[str, Any],
-    ):
+    ) -> bool:
+        """Build the combined body-parameter type and its overload variants.
+
+        Returns whether a TypedDict-style overload was inserted in place of the
+        single-body raw-JSON overload on the spread (``base: json``) path. The
+        caller passes this to ``add_overloads_for_body_param`` as
+        ``skip_single_body_json``. It is False when TypedDict generation is
+        disabled, so the pre-TypedDict single-body raw-JSON overload is kept.
+        """
+        skip_single_body_json = False
+        # For a binary `bytes` body (e.g. content type application/octet-stream or a custom
+        # binary media type), add an IO overload alongside the `bytes` one. This keeps backward
+        # compatibility for services migrating from swagger, whose binary bodies were typed as IO.
+        is_multipart = self.is_tsp and has_multi_part_content_type(body_parameter)
+        is_binary_body = not has_json_content_type(body_parameter) and not is_multipart
+        if (
+            body_parameter
+            and body_parameter["type"]["type"] == "bytes"
+            and is_binary_body
+            and not self.options.generate_typeddict_only
+            and not any(t for t in ["flattened", "groupedBy"] if body_parameter.get(t))
+        ):
+            body_parameter["type"] = {
+                "type": "combined",
+                "types": [body_parameter["type"], KNOWN_TYPES["binary"]],
+            }
+            code_model["types"].append(body_parameter["type"])
+            return skip_single_body_json
+
         # only add overload for special content type
         if (  # pylint: disable=too-many-boolean-expressions
             body_parameter
@@ -220,24 +472,62 @@ class PreProcessPlugin(YamlUpdatePlugin):
                 body_parameter["type"] if origin_type == "model" else body_parameter["type"].get("elementType", {})
             )
             is_dpg_model = model_type.get("base") == "dpg"
+            is_json_model = model_type.get("base") == "json"
+            is_typeddict_only = self.options.generate_typeddict_only
+
             body_parameter["type"] = {
                 "type": "combined",
                 "types": [body_parameter["type"]],
             }
-            # don't add binary overload for multipart content type
-            if not (self.is_tsp and has_multi_part_content_type(body_parameter)):
+            # don't add binary overload for multipart content type or typeddict-only mode
+            if not (self.is_tsp and has_multi_part_content_type(body_parameter)) and not is_typeddict_only:
                 body_parameter["type"]["types"].append(KNOWN_TYPES["binary"])
 
+            # Add the dict-body overload for non-spread dpg models: a TypedDict when
+            # enabled, otherwise the raw-JSON overload (pre-TypedDict behavior).
             if self.options["models-mode"] == "dpg" and is_dpg_model:
-                if origin_type == "model":
-                    body_parameter["type"]["types"].insert(1, KNOWN_TYPES["any-object"])
+                if self.generate_typeddict:
+                    cross_lang_id = model_type.get("crossLanguageDefinitionId")
+                    existing_td = self._find_existing_typeddict(code_model, cross_lang_id, model_type.get("name"))
+                    self._insert_typeddict_overload(code_model, body_parameter, model_type, origin_type, existing_td)
+                    skip_single_body_json = True
                 else:
-                    # dict or list
-                    # copy the original dict / list type
-                    any_obj_list_or_dict = copy.deepcopy(body_parameter["type"]["types"][0])
-                    any_obj_list_or_dict["elementType"] = KNOWN_TYPES["any-object"]
-                    body_parameter["type"]["types"].insert(1, any_obj_list_or_dict)
+                    self._insert_json_overload(body_parameter, origin_type)
+
+            # For spread bodies (json base), add a typeddict overload that references
+            # the original model. This replaces the JSON single-body overload.
+            if is_json_model:
+                cross_lang_id = model_type.get("crossLanguageDefinitionId")
+                original = self._find_spread_original(code_model, model_type)
+
+                if is_typeddict_only and original:
+                    # In typeddict-only mode, the original dpg model already renders
+                    # as a TypedDict — reference it directly, no copy needed. It also
+                    # replaces the single-body JSON overload.
+                    skip_single_body_json = True
+                    if origin_type == "model":
+                        body_parameter["type"]["types"].insert(1, original)
+                    else:
+                        td_list_or_dict = copy.deepcopy(body_parameter["type"]["types"][0])
+                        td_list_or_dict["elementType"] = original
+                        body_parameter["type"]["types"].insert(1, td_list_or_dict)
+                elif self.generate_typeddict:
+                    source = original or model_type
+                    existing_td = self._find_existing_typeddict(code_model, cross_lang_id, source.get("name"))
+                    self._insert_typeddict_overload(code_model, body_parameter, source, origin_type, existing_td)
+                    skip_single_body_json = True
+
+            if len(body_parameter["type"]["types"]) == 1:
+                # Only one body variant remains (e.g. typeddict-only mode where the
+                # binary and JSON overloads are omitted). Collapse the combined
+                # wrapper back to the single type so we don't emit a lone
+                # ``@overload`` (mypy rejects a single overload definition).
+                body_parameter["type"] = body_parameter["type"]["types"][0]
+                return skip_single_body_json
+
             code_model["types"].append(body_parameter["type"])
+
+        return skip_single_body_json
 
     def pad_reserved_words(self, name: str, pad_type: PadType, yaml_type: dict[str, Any]) -> str:
         # we want to pad hidden variables as well
@@ -264,9 +554,10 @@ class PreProcessPlugin(YamlUpdatePlugin):
         for type in yaml_data:
             for property in type.get("properties", []):
                 property["description"] = update_description(property.get("description", ""))
-                property["clientName"] = self.pad_reserved_words(
-                    property["clientName"].lower(), PadType.PROPERTY, property
-                )
+                if not property.get("isExactName", False):
+                    property["clientName"] = self.pad_reserved_words(
+                        property["clientName"].lower(), PadType.PROPERTY, property
+                    )
                 add_redefined_builtin_info(property["clientName"], property)
             if type.get("name"):
                 pad_type = PadType.MODEL if type["type"] == "model" else PadType.ENUM_CLASS
@@ -278,6 +569,8 @@ class PreProcessPlugin(YamlUpdatePlugin):
             if type.get("values"):
                 # we're enums - enum values are UPPER_CASE so no padding needed for reserved words
                 for value in type["values"]:
+                    if value.get("isExactName", False):
+                        continue
                     upper_name = value["name"].upper()
                     if upper_name[0] in "0123456789":
                         upper_name = "ENUM_" + upper_name
@@ -312,40 +605,7 @@ class PreProcessPlugin(YamlUpdatePlugin):
         yaml_data["builderPadName"] = to_snake_case(prop_name)
         for og in yaml_data.get("operationGroups", []):
             for o in og["operations"]:
-                property_if_match = None
-                property_if_none_match = None
-                for p in o["parameters"]:
-                    wire_name_lower = get_wire_name_lower(p)
-                    if p["location"] == "header" and wire_name_lower == "client-request-id":
-                        yaml_data["requestIdHeaderName"] = wire_name_lower
-                    if self.version_tolerant and p["location"] == "header":
-                        role = _get_etag_role(p)
-                        if role == "ifMatch" and not property_if_match:
-                            property_if_match = p
-                        elif role == "ifNoneMatch" and not property_if_none_match:
-                            property_if_none_match = p
-                # pylint: disable=line-too-long
-                # some service(e.g. https://github.com/Azure/azure-rest-api-specs/blob/main/specification/cosmos-db/data-plane/Microsoft.Tables/preview/2019-02-02/table.json)
-                # only has one, so we need to add "if-none-match" or "if-match" if it's missing
-                if not property_if_match and property_if_none_match:
-                    property_if_match = property_if_none_match.copy()
-                    property_if_match["wireName"] = "if-match"
-                    property_if_match["etagRole"] = "ifMatch"
-                if not property_if_none_match and property_if_match:
-                    property_if_none_match = property_if_match.copy()
-                    property_if_none_match["wireName"] = "if-none-match"
-                    property_if_none_match["etagRole"] = "ifNoneMatch"
-
-                if property_if_match and property_if_none_match:
-                    # arrange if-match and if-none-match to the end of parameters
-                    etag_params = {id(property_if_match), id(property_if_none_match)}
-                    o["parameters"] = [item for item in o["parameters"] if id(item) not in etag_params] + [
-                        property_if_match,
-                        property_if_none_match,
-                    ]
-
-                    o["hasEtag"] = True
-                    yaml_data["hasEtag"] = True
+                _process_operation_etag_headers(o, yaml_data, self.version_tolerant)
 
         # add client signature cloud_setting for arm
         if self.azure_arm and yaml_data["parameters"]:
@@ -362,14 +622,25 @@ class PreProcessPlugin(YamlUpdatePlugin):
 
     def update_parameter(self, yaml_data: dict[str, Any]) -> None:
         yaml_data["description"] = update_description(yaml_data.get("description", ""))
-        if not (yaml_data["location"] == "header" and yaml_data["clientName"] in ("content_type", "accept")):
+        if not yaml_data.get("isExactName", False) and not (
+            yaml_data["location"] == "header" and yaml_data["clientName"] in ("content_type", "accept")
+        ):
             yaml_data["clientName"] = self.pad_reserved_words(
                 yaml_data["clientName"].lower(), PadType.PARAMETER, yaml_data
             )
         if yaml_data.get("propertyToParameterName"):
             # need to create a new one with padded values (but NOT keys, since keys are wire names)
+            # build a lookup of exact-name properties from the body type's properties
+            exact_name_props = set()
+            for prop in yaml_data.get("type", {}).get("properties", []):
+                if prop.get("isExactName", False):
+                    exact_name_props.add(prop.get("wireName", ""))
             yaml_data["propertyToParameterName"] = {
-                prop: self.pad_reserved_words(param_name, PadType.PARAMETER, yaml_data).lower()
+                prop: (
+                    param_name
+                    if prop in exact_name_props
+                    else self.pad_reserved_words(param_name, PadType.PARAMETER, yaml_data).lower()
+                )
                 for prop, param_name in yaml_data["propertyToParameterName"].items()
             }
         wire_name_lower = (yaml_data.get("wireName") or "").lower()
@@ -395,15 +666,25 @@ class PreProcessPlugin(YamlUpdatePlugin):
     ) -> None:
         yaml_data["groupName"] = self.pad_reserved_words(yaml_data["groupName"], PadType.OPERATION_GROUP, yaml_data)
         yaml_data["groupName"] = to_snake_case(yaml_data["groupName"])
-        yaml_data["name"] = yaml_data["name"].lower()
-        if yaml_data.get("isLroInitialOperation") is True:
-            yaml_data["name"] = (
-                "_"
-                + self.pad_reserved_words(extract_original_name(yaml_data["name"]), PadType.METHOD, yaml_data)
-                + "_initial"
-            )
+        if yaml_data.get("isExactName", False):
+            # exact() client name: keep the operation name as-is without lowercasing,
+            # snake-casing, or padding reserved words.
+            if yaml_data.get("isLroInitialOperation") is True:
+                yaml_data["name"] = "_" + extract_original_name(yaml_data["name"]) + "_initial"
         else:
-            yaml_data["name"] = self.pad_reserved_words(yaml_data["name"], PadType.METHOD, yaml_data)
+            yaml_data["name"] = yaml_data["name"].lower()
+            if yaml_data.get("isLroInitialOperation") is True:
+                yaml_data["name"] = (
+                    "_"
+                    + self.pad_reserved_words(
+                        extract_original_name(yaml_data["name"]),
+                        PadType.METHOD,
+                        yaml_data,
+                    )
+                    + "_initial"
+                )
+            else:
+                yaml_data["name"] = self.pad_reserved_words(yaml_data["name"], PadType.METHOD, yaml_data)
         yaml_data["description"] = update_description(yaml_data["description"], yaml_data["name"])
         yaml_data["summary"] = update_description(yaml_data.get("summary", ""))
         body_parameter = yaml_data.get("bodyParameter")
@@ -419,8 +700,8 @@ class PreProcessPlugin(YamlUpdatePlugin):
             response["discriminator"] = "operation"
         if body_parameter and not is_overload:
             # if we have a JSON body, we add a binary overload
-            self.add_body_param_type(code_model, body_parameter)
-            add_overloads_for_body_param(yaml_data)
+            skip_single_body_json = self.add_body_param_type(code_model, body_parameter)
+            add_overloads_for_body_param(yaml_data, skip_single_body_json=skip_single_body_json)
 
     def _update_lro_operation_helper(self, yaml_data: dict[str, Any]) -> None:
         for response in yaml_data.get("responses", []):
@@ -490,7 +771,9 @@ class PreProcessPlugin(YamlUpdatePlugin):
         item_type = item_type or yaml_data["itemType"]["elementType"]
         if yaml_data.get("nextOperation"):
             yaml_data["nextOperation"]["groupName"] = self.pad_reserved_words(
-                yaml_data["nextOperation"]["groupName"], PadType.OPERATION_GROUP, yaml_data["nextOperation"]
+                yaml_data["nextOperation"]["groupName"],
+                PadType.OPERATION_GROUP,
+                yaml_data["nextOperation"],
             )
             yaml_data["nextOperation"]["groupName"] = to_snake_case(yaml_data["nextOperation"]["groupName"])
             for response in yaml_data["nextOperation"].get("responses", []):
@@ -512,7 +795,9 @@ class PreProcessPlugin(YamlUpdatePlugin):
             )
             operation_group["identifyName"] = to_snake_case(operation_group["identifyName"])
             operation_group["propertyName"] = self.pad_reserved_words(
-                operation_group["propertyName"], PadType.OPERATION_GROUP, operation_group
+                operation_group["propertyName"],
+                PadType.OPERATION_GROUP,
+                operation_group,
             )
             operation_group["propertyName"] = to_snake_case(operation_group["propertyName"])
             operation_group["className"] = update_operation_group_class_name(

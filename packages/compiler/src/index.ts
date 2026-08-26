@@ -1,12 +1,17 @@
-export { resolveCompilerOptions, ResolveCompilerOptionsOptions } from "./config/index.js";
+export { resolveCompilerOptions } from "./config/index.js";
+export type { ResolveCompilerOptionsOptions } from "./config/index.js";
 export {
-  Checker,
-  CreateTypeProps,
-  // TODO: feels like all of those should move to a separate file
+  getAutoDecoratorTargets,
+  getAutoDecoratorValue,
+  hasAutoDecorator,
+  setAutoDecorator,
+} from "./core/auto-decorator.js";
+export {
   filterModelProperties,
   getEffectiveModelType,
   walkPropertiesInherited,
 } from "./core/checker.js";
+export type { Checker, CreateTypeProps } from "./core/checker.js";
 export {
   getPropertyType,
   isTypeSpecValueTypeOf,
@@ -41,10 +46,9 @@ export {
   type WriteLine,
 } from "./core/diagnostics.js";
 export { emitFile, type EmitFileOptions, type NewLine } from "./core/emitter-utils.js";
+export { fileRef, isFileRef, type FileRef } from "./core/file-ref.js";
 export { checkFormatTypeSpec, formatTypeSpec } from "./core/formatter.js";
 export {
-  DiscriminatedUnion,
-  DiscriminatedUnionLegacy,
   explainStringTemplateNotSerializable,
   printIdentifier as formatIdentifier,
   getDiscriminatedUnion,
@@ -58,12 +62,16 @@ export {
   listOperationsIn,
   printIdentifier,
   resolveUsages,
-  TypeNameOptions,
   UsageFlags,
-  type ListOperationOptions,
-  type OperationContainer,
-  type TrackableType,
-  type UsageTracker,
+} from "./core/helpers/index.js";
+export type {
+  DiscriminatedUnion,
+  DiscriminatedUnionLegacy,
+  ListOperationOptions,
+  OperationContainer,
+  TrackableType,
+  TypeNameOptions,
+  UsageTracker,
 } from "./core/helpers/index.js";
 export {
   getDiscriminatedTypes,
@@ -184,22 +192,24 @@ export {
   isService,
   isStringType,
   listServices,
+  resolveEncodedName,
+  serializeValueAsJson,
+  setMediaTypeHint,
+} from "./lib/decorators.js";
+export type {
+  BytesKnownEncoding,
+  DateTimeKnownEncoding,
+  DurationKnownEncoding,
+  EncodeData,
+  Example,
+  ExampleOptions,
+  OpExample,
   PagingOperation,
   PagingProperty,
   PatternData,
-  resolveEncodedName,
-  serializeValueAsJson,
   Service,
   ServiceDetails,
-  setMediaTypeHint,
   VisibilityProvider,
-  type BytesKnownEncoding,
-  type DateTimeKnownEncoding,
-  type DurationKnownEncoding,
-  type EncodeData,
-  type Example,
-  type ExampleOptions,
-  type OpExample,
 } from "./lib/decorators.js";
 export { UnserializableValueError, UnsupportedScalarConstructorError } from "./lib/examples.js";
 export { MANIFEST, type TypeSpecManifest } from "./manifest.js";
@@ -209,26 +219,25 @@ export {
   type ResolveModuleHost,
   type ResolveModuleOptions,
 } from "./module-resolver/index.js";
-export {
+export { createServer, TypeSpecLanguageConfiguration } from "./server/index.js";
+export type {
   CompileResult,
-  createServer,
-  TypeSpecLanguageConfiguration,
-  type CustomRequestName,
-  type InitProjectConfig,
-  type InitProjectContext,
-  type InitProjectTemplate,
-  type InitProjectTemplateEmitterTemplate,
-  type InitProjectTemplateLibrarySpec,
-  type SemanticToken,
-  type SemanticTokenKind,
-  type Server,
-  type ServerCustomCapacities,
-  type ServerHost,
-  type ServerInitializeResult,
-  type ServerLog,
-  type ServerLogLevel,
-  type ServerSourceFile,
-  type ServerWorkspaceFolder,
+  CustomRequestName,
+  InitProjectConfig,
+  InitProjectContext,
+  InitProjectTemplate,
+  InitProjectTemplateEmitterTemplate,
+  InitProjectTemplateLibrarySpec,
+  SemanticToken,
+  SemanticTokenKind,
+  Server,
+  ServerCustomCapacities,
+  ServerHost,
+  ServerInitializeResult,
+  ServerLog,
+  ServerLogLevel,
+  ServerSourceFile,
+  ServerWorkspaceFolder,
 } from "./server/index.js";
 export type { PackageJson } from "./types/package-json.js";
 
@@ -367,6 +376,7 @@ export type {
   FunctionContext,
   FunctionParameter,
   FunctionParameterBase,
+  FunctionType,
   FunctionValue,
   IdentifierContext,
   IdentifierKind,

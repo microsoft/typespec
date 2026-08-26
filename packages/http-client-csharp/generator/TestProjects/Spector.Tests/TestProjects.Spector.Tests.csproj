@@ -39,12 +39,14 @@
     <ProjectReference Include="$(RepoRoot)\TestProjects\Spector\http\encode\duration\src\Encode.Duration.csproj" />
     <ProjectReference Include="$(RepoRoot)\TestProjects\Spector\http\encode\numeric\src\Encode.Numeric.csproj" />
     <ProjectReference Include="$(RepoRoot)\TestProjects\Spector\http\parameters\basic\src\Parameters.Basic.csproj" />
+    <ProjectReference Include="$(RepoRoot)\TestProjects\Spector\http\parameters\body-root\src\Parameters.BodyRoot.csproj" />
     <ProjectReference Include="$(RepoRoot)\TestProjects\Spector\http\parameters\body-optionality\src\Parameters.BodyOptionality.csproj" />
     <ProjectReference Include="$(RepoRoot)\TestProjects\Spector\http\parameters\collection-format\src\Parameters.CollectionFormat.csproj" />
     <ProjectReference Include="$(RepoRoot)\TestProjects\Spector\http\parameters\spread\src\Parameters.Spread.csproj" />
     <ProjectReference Include="$(RepoRoot)\TestProjects\Spector\http\parameters\path\src\Parameters.Path.csproj" />
     <ProjectReference Include="$(RepoRoot)\TestProjects\Spector\http\parameters\query\src\Parameters.Query.csproj" />
     <ProjectReference Include="$(RepoRoot)\TestProjects\Spector\http\payload\content-negotiation\src\Payload.ContentNegotiation.csproj" />
+    <ProjectReference Include="$(RepoRoot)\TestProjects\Spector\http\payload\head\src\Payload.Head.csproj" />
     <ProjectReference Include="$(RepoRoot)\TestProjects\Spector\http\payload\json-merge-patch\src\Payload.JsonMergePatch.csproj" />
     <ProjectReference Include="$(RepoRoot)\TestProjects\Spector\http\payload\media-type\src\Payload.MediaType.csproj" />
     <ProjectReference Include="$(RepoRoot)\TestProjects\Spector\http\payload\multipart\src\Payload.MultiPart.csproj" />
@@ -52,6 +54,7 @@
     <ProjectReference Include="$(RepoRoot)\TestProjects\Spector\http\payload\xml\src\Payload.Xml.csproj" />
     <ProjectReference Include="$(RepoRoot)\TestProjects\Spector\http\resiliency\srv-driven\v1\src\Resiliency.SrvDriven.V1.csproj" Aliases="SrvDrivenV1" />
     <ProjectReference Include="$(RepoRoot)\TestProjects\Spector\http\resiliency\srv-driven\v2\src\Resiliency.SrvDriven.V2.csproj" Aliases="SrvDrivenV2" />
+    <ProjectReference Include="$(RepoRoot)\TestProjects\Spector\http\service\multiple-services\src\Service.MultipleServices.csproj" />
     <ProjectReference Include="$(RepoRoot)\TestProjects\Spector\http\response\status-code-range\src\Response.StatusCodeRange.csproj" />
     <ProjectReference Include="$(RepoRoot)\TestProjects\Spector\http\routes\src\Routes.csproj" />
     <ProjectReference Include="$(RepoRoot)\TestProjects\Spector\http\serialization\encoded-name\json\src\Serialization.EncodedName.Json.csproj" />
@@ -60,6 +63,8 @@
     <ProjectReference Include="$(RepoRoot)\TestProjects\Spector\http\server\path\single\src\Server.Path.Single.csproj" />
     <ProjectReference Include="$(RepoRoot)\TestProjects\Spector\http\server\versions\not-versioned\src\Server.Versions.NotVersioned.csproj" />
     <ProjectReference Include="$(RepoRoot)\TestProjects\Spector\http\server\versions\versioned\src\Server.Versions.Versioned.csproj" />
+    <ProjectReference Include="$(RepoRoot)\TestProjects\Spector\http\streaming\jsonl\src\Streaming.Jsonl.csproj" />
+    <ProjectReference Include="$(RepoRoot)\TestProjects\Spector\http\streaming\sse\src\Streaming.Sse.csproj" />
     <ProjectReference Include="$(RepoRoot)\TestProjects\Spector\http\special-headers\conditional-request\src\SpecialHeaders.ConditionalRequest.csproj" />
     <ProjectReference Include="$(RepoRoot)\TestProjects\Spector\http\special-headers\repeatability\src\SpecialHeaders.Repeatability.csproj" />
     <ProjectReference Include="$(RepoRoot)\TestProjects\Spector\http\special-words\src\SpecialWords.csproj" />

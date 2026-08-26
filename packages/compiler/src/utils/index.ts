@@ -4,5 +4,6 @@
 // ---------------------------------------
 export { createPerfReporter, perf } from "../core/perf.js";
 export { DuplicateTracker } from "./duplicate-tracker.js";
+// eslint-disable-next-line @typescript-eslint/no-deprecated
 export { Queue, TwoLevelMap, createRekeyableMap, deepClone, deepEquals } from "./misc.js";
 export { useStateMap, useStateSet } from "./state-accessor.js";

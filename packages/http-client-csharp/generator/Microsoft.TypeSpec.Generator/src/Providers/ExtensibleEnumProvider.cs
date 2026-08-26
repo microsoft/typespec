@@ -4,8 +4,10 @@
 using System;
 using System.Collections.Generic;
 using System.ComponentModel;
+using System.Diagnostics.CodeAnalysis;
 using System.Globalization;
 using System.Linq;
+using Microsoft.TypeSpec.Generator.EmitterRpc;
 using Microsoft.TypeSpec.Generator.Expressions;
 using Microsoft.TypeSpec.Generator.Input;
 using Microsoft.TypeSpec.Generator.Input.Extensions;
@@ -48,6 +50,10 @@ namespace Microsoft.TypeSpec.Generator.Providers
 
         protected override IReadOnlyList<EnumTypeMember> BuildEnumValues()
         {
+            var lastContractNames = LastContractView?.Properties.Select(p => p.Name).ToArray() ?? [];
+            var generatedNames = _allowedValues
+                .Select(v => GetGeneratedValueName(v, lastContractNames))
+                .ToArray();
             var values = new EnumTypeMember[_allowedValues.Count];
 
             for (int i = 0; i < _allowedValues.Count; i++)
@@ -56,7 +62,7 @@ namespace Microsoft.TypeSpec.Generator.Providers
                 // build the field
                 var modifiers = FieldModifiers.Private | FieldModifiers.Const;
                 // the fields for extensible enums are private and const, storing the underlying values, therefore we need to append the word `Value` to the name
-                var valueName = inputValue.Name.ToIdentifierName();
+                var valueName = GetBackCompatibleName(generatedNames[i], generatedNames, lastContractNames);
                 var name = $"{valueName}Value";
                 // for initializationValue, if the enum is extensible, we always need it
                 var initializationValue = Literal(inputValue.Value);
@@ -270,5 +276,83 @@ namespace Microsoft.TypeSpec.Generator.Providers
             return CodeModelGenerator.Instance.TypeFactory.CreateSerializations(_inputType, this).ToArray();
         }
         protected override bool GetIsEnum() => true;
+
+        protected internal override IReadOnlyList<EnumTypeMember>? BuildEnumValuesForBackCompatibility(IReadOnlyList<EnumTypeMember> currentValues)
+        {
+            var lastContractProperties = LastContractView?.Properties
+                .Where(p => MethodSignatureHelper.IsPublicApi(p.Modifiers));
+
+            if (lastContractProperties == null || !lastContractProperties.Any())
+            {
+                return null;
+            }
+
+            var currentNames = new HashSet<string>(currentValues.Select(v => v.Name), StringComparer.OrdinalIgnoreCase);
+            var lastContractValueFields = new Dictionary<string, FieldProvider>(StringComparer.Ordinal);
+            foreach (var field in LastContractView!.Fields)
+            {
+                lastContractValueFields.TryAdd(field.Name, field);
+            }
+
+            List<EnumTypeMember>? restoredMembers = null;
+            foreach (var property in lastContractProperties)
+            {
+                // Members that still exist in the current spec or are provided by custom code are left untouched.
+                if (currentNames.Contains(property.Name) || CustomMemberNames.Contains(property.Name))
+                {
+                    continue;
+                }
+
+                // Honor an intentional removal recorded in the ApiCompat baseline.
+                if (CodeModelGenerator.Instance.SourceInputModel?.ApiCompatBaseline.IsMemberSuppressed(Type.FullyQualifiedName, property.Name, 0) == true)
+                {
+                    CodeModelGenerator.Instance.Emitter.Debug(
+                        $"Skipping re-add of enum member '{Name}.{property.Name}'; the removal is accepted in the ApiCompat baseline.",
+                        BackCompatibilityChangeCategory.BaselineAcceptedRemovalSkipped);
+                    continue;
+                }
+
+                if (TryResurrectRemovedMember(property, lastContractValueFields, out var resurrectedMember))
+                {
+                    (restoredMembers ??= []).Add(resurrectedMember);
+                    CodeModelGenerator.Instance.Emitter.Debug(
+                        $"Re-added enum member '{property.Name}' to enum '{Name}' to preserve a member from the last contract.",
+                        BackCompatibilityChangeCategory.EnumMemberAddedFromLastContract);
+                }
+            }
+
+            if (restoredMembers == null)
+            {
+                return null;
+            }
+
+            // Preserve the current spec order and append the restored members at the end.
+            return [.. currentValues, .. restoredMembers];
+        }
+
+        private bool TryResurrectRemovedMember(
+            PropertyProvider lastContractProperty,
+            IReadOnlyDictionary<string, FieldProvider> lastContractValueFields,
+            [NotNullWhen(true)] out EnumTypeMember? member)
+        {
+            member = null;
+
+            // The wire value lives in the private const `<Member>Value` field.
+            var valueFieldName = $"{lastContractProperty.Name}Value";
+            if (!lastContractValueFields.TryGetValue(valueFieldName, out var valueField)
+                || valueField.InitializationValue is not LiteralExpression { Literal: { } literalValue })
+            {
+                return false;
+            }
+
+            var field = new FieldProvider(
+                FieldModifiers.Private | FieldModifiers.Const,
+                EnumUnderlyingType,
+                valueFieldName,
+                this,
+                initializationValue: Literal(literalValue));
+            member = new EnumTypeMember(lastContractProperty.Name, field, literalValue);
+            return true;
+        }
     }
 }

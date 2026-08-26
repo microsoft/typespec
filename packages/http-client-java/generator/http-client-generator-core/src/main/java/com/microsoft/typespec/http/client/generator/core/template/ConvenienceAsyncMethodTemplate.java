@@ -66,9 +66,19 @@ public class ConvenienceAsyncMethodTemplate extends ConvenienceMethodTemplateBas
 
         ClientMethodType methodType = protocolMethod.getType();
 
-        IType responseBodyType = getResponseBodyType(convenienceMethod);
-        IType protocolResponseBodyType = getResponseBodyType(protocolMethod);
+        IType responseBodyType = getConvenienceResponseBodyType(convenienceMethod);
+        IType protocolResponseBodyType = getConvenienceResponseBodyType(protocolMethod);
         IType rawResponseBodyType = convenienceMethod.getProxyMethod().getRawResponseBodyType();
+
+        if (convenienceMethod.getType() == ClientMethodType.SimpleAsync
+            && isResponseHeadersAsModel(convenienceMethod)) {
+            // The convenience method returns the strongly-typed response-headers model, built from the response
+            // headers of the protocol method (which returns Mono<Response<Void>>).
+            methodBlock.methodReturn(
+                String.format("%1$s(%2$s).map(protocolMethodResponse -> new %3$s(protocolMethodResponse.getHeaders()))",
+                    getMethodName(protocolMethod), invocationExpression, responseBodyType));
+            return;
+        }
 
         if (methodType == ClientMethodType.PagingAsync) {
             String expressionMapFromBinaryData = expressionMapFromBinaryData(responseBodyType, rawResponseBodyType,
@@ -120,17 +130,6 @@ public class ConvenienceAsyncMethodTemplate extends ConvenienceMethodTemplateBas
         }
     }
 
-    private IType getResponseBodyType(ClientMethod method) {
-        // no need to care about LRO
-        // Mono<T> / PagedFlux<T>
-        IType type = ((GenericType) method.getReturnValue().getType()).getTypeArguments()[0];
-        if (type instanceof GenericType && ClassType.RESPONSE.getName().equals(((GenericType) type).getName())) {
-            // Mono<Response<T>>
-            type = ((GenericType) type).getTypeArguments()[0];
-        }
-        return type;
-    }
-
     private String expressionConvertFromBinaryData(IType responseBodyType, IType rawType, Set<String> mediaTypes,
         Set<GenericType> typeReferenceStaticClasses) {
         String expressionMapFromBinaryData
@@ -146,7 +145,7 @@ public class ConvenienceAsyncMethodTemplate extends ConvenienceMethodTemplateBas
     private String expressionMapFromBinaryData(IType responseBodyType, IType rawType, Set<String> mediaTypes,
         Set<GenericType> typeReferenceStaticClasses) {
         SupportedMimeType mimeType = SupportedMimeType.getResponseKnownMimeType(mediaTypes);
-        // TODO (weidxu): support XML etc.
+        String serializerArgument = xmlSerializerArgument(mimeType, responseBodyType);
         switch (mimeType) {
             case TEXT:
                 String baseHandling = "protocolMethodData.toString()";
@@ -161,16 +160,17 @@ public class ConvenienceAsyncMethodTemplate extends ConvenienceMethodTemplateBas
                 return null;
 
             default:
-                // JSON etc.
+                // JSON, XML etc.
                 if (responseBodyType instanceof EnumType) {
                     // enum
-                    return String.format("protocolMethodData -> %1$s.from%2$s(protocolMethodData.toObject(%2$s.class))",
-                        responseBodyType, ((EnumType) responseBodyType).getElementType());
+                    return String.format(
+                        "protocolMethodData -> %1$s.from%2$s(protocolMethodData.toObject(%2$s.class%3$s))",
+                        responseBodyType, ((EnumType) responseBodyType).getElementType(), serializerArgument);
                 } else if (responseBodyType instanceof GenericType) {
                     // generic, e.g. list, map
                     typeReferenceStaticClasses.add((GenericType) responseBodyType);
-                    return String.format("protocolMethodData -> protocolMethodData.toObject(%1$s)",
-                        TemplateUtil.getTypeReferenceCreation(responseBodyType));
+                    return String.format("protocolMethodData -> protocolMethodData.toObject(%1$s%2$s)",
+                        TemplateUtil.getTypeReferenceCreation(responseBodyType), serializerArgument);
                 } else if (responseBodyType == ClassType.BINARY_DATA) {
                     // BinaryData, no need to do the map in expressionConvertFromBinaryData
                     return null;
@@ -178,14 +178,15 @@ public class ConvenienceAsyncMethodTemplate extends ConvenienceMethodTemplateBas
                     // byte[]
                     if (rawType == ClassType.BASE_64_URL) {
                         return "protocolMethodData -> protocolMethodData.toObject(" + ClassType.BASE_64_URL.getName()
-                            + ".class).decodedBytes()";
+                            + ".class" + serializerArgument + ").decodedBytes()";
                     } else {
-                        return "protocolMethodData -> protocolMethodData.toObject(byte[].class)";
+                        return "protocolMethodData -> protocolMethodData.toObject(byte[].class" + serializerArgument
+                            + ")";
                     }
                 } else {
                     // default, treat as class
                     return "protocolMethodData -> protocolMethodData.toObject(" + responseBodyType.asNullable()
-                        + ".class)";
+                        + ".class" + serializerArgument + ")";
                 }
         }
     }

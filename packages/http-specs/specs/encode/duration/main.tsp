@@ -729,3 +729,43 @@ namespace Header {
     duration: Int32MillisecondsDuration[],
   ): NoContentResponse;
 }
+
+/**
+ * Lossy encode scenarios.
+ *
+ * These scenarios cover the case where the source `duration` carries more precision than the
+ * target encoding can represent (e.g. a sub-second value encoded as integer seconds). The client
+ * must still serialize the value using the target number type (an integer), discarding the extra
+ * precision, rather than emitting a floating point number. This is distinct from arbitrary type
+ * mismatches, which are already covered by the round-trip scenarios above.
+ */
+@route("/lossy")
+interface Lossy {
+  @route("/int32-seconds")
+  @scenario
+  @scenarioDoc("""
+    Test int32 seconds encode for a duration query parameter whose value has a fractional (sub-second) component.
+    The duration is 36.25 seconds, e.g. TimeSpan.FromSeconds(36.25) in C#.
+    The client must serialize the value as an integer (not a floating point number such as `36.25`), discarding the sub-second precision.
+    Because emitters may floor, round, or ceil when discarding that precision, the expected query parameter is `input=36` or `input=37`.
+    """)
+  intSeconds(
+    @query
+    @encode(DurationKnownEncoding.seconds, int32)
+    input: duration,
+  ): NoContentResponse;
+
+  @route("/int32-milliseconds")
+  @scenario
+  @scenarioDoc("""
+    Test int32 milliseconds encode for a duration query parameter whose value has a sub-millisecond fractional component.
+    The duration is 36250.25 milliseconds, e.g. TimeSpan.FromMilliseconds(36250.25) in C#.
+    The client must serialize the value as an integer (not a floating point number such as `36250.25`), discarding the sub-millisecond precision.
+    Because emitters may floor, round, or ceil when discarding that precision, the expected query parameter is `input=36250` or `input=36251`.
+    """)
+  intMilliseconds(
+    @query
+    @encode(DurationKnownEncoding.milliseconds, int32)
+    input: duration,
+  ): NoContentResponse;
+}

@@ -38,6 +38,7 @@ namespace Microsoft.TypeSpec.Generator.Input
         }
 
         public string Name { get; internal set; }
+        public bool IsExactName { get; internal set; }
         public string? Accessibility { get; internal set; }
         public string[] ApiVersions { get; internal set; }
         public string? Documentation { get; internal set; }

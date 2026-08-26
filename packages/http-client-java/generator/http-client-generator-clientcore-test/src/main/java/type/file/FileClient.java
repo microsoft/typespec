@@ -10,6 +10,7 @@ import io.clientcore.core.http.models.RequestContext;
 import io.clientcore.core.http.models.Response;
 import io.clientcore.core.instrumentation.Instrumentation;
 import io.clientcore.core.models.binarydata.BinaryData;
+import type.file.body.UploadFileMultipleContentTypesContentType;
 import type.file.implementation.BodiesImpl;
 
 /**

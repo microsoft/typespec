@@ -264,6 +264,30 @@ class NullableReferencedModelMutation extends SimpleModelMutation<SimpleMutation
 
 Mutation nodes also have a `replace` method. Returning a new mutation from MutationInfo makes the resulting Mutations look "as if" the source type graph were shaped differently. This is useful for doing things like normalizations of the type graph. The structure of the Mutations mimic this new structure. When you `replace` on a mutation node, the Mutation stays the same, but the mutated type graph is changed. This is useful for doing things like renaming things or swapping scalars in situations where you want to see both the source type and the mutated type in order to compare them.
 
+#### Replacing a member's underlying type from `mutationInfo`
+
+When `replaceAndMutateReference` is called from a member's `mutationInfo` (e.g.
+a `ModelProperty` or `UnionVariant` overriding `mutationInfo`), the parent's
+half-edge expects a member-kind tail (`ModelProperty` / `UnionVariant`) but
+`newType` is typically a different kind such as `Model`, `Union`, or `Scalar`.
+
+The engine detects this mismatch (via `MutationHalfEdge.expectedTailKind`,
+declared by the built-in `Simple*Mutation` member-yielding edges) and wraps
+`newType` in a synthetic member of the expected kind named after the original
+reference. The synthetic member's normal mutation flow then mutates `newType`
+recursively through its own type edge, so:
+
+- `parentMutation.properties.get("prop")` still returns a `ModelProperty`
+  mutation (the synthetic), keeping the parent's slot kind-correct.
+- `propMutation.mutatedType.type` points at the mutated `newType`.
+- Nested replacements (e.g. an alternate model whose own properties are also
+  replaced) compose naturally because each level wraps independently.
+
+If the half-edge does not declare `expectedTailKind` (the default for "type"
+edges and any user-defined half-edge), `newType` is mutated directly through
+the half-edge — useful for routing alternate types to a separate edge in
+custom engines.
+
 ## Mutation Caching
 
 Mutations are automatically cached and reused. When you call `engine.mutate()`

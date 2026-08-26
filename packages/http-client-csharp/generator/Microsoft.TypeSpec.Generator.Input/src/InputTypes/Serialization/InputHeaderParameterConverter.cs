@@ -67,6 +67,7 @@ namespace Microsoft.TypeSpec.Generator.Input
             string? collectionFormat = null;
             IReadOnlyList<InputDecoratorInfo>? decorators = null;
             IReadOnlyList<InputMethodParameter>? methodParameterSegments = null;
+            bool isExactName = false;
 
             while (reader.TokenType != JsonTokenType.EndObject)
             {
@@ -87,7 +88,8 @@ namespace Microsoft.TypeSpec.Generator.Input
                     || reader.TryReadBoolean("isContentType", ref isContentType)
                     || reader.TryReadString("collectionHeaderPrefix", ref collectionHeaderPrefix)
                     || reader.TryReadComplexType("decorators", options, ref decorators)
-                    || reader.TryReadComplexType("methodParameterSegments", options, ref methodParameterSegments);
+                    || reader.TryReadComplexType("methodParameterSegments", options, ref methodParameterSegments)
+                    || reader.TryReadBoolean("isExactName", ref isExactName);
 
                 if (!isKnownProperty)
                 {
@@ -112,6 +114,7 @@ namespace Microsoft.TypeSpec.Generator.Input
             parameter.IsContentType = isContentType;
             parameter.CollectionHeaderPrefix = collectionHeaderPrefix;
             parameter.MethodParameterSegments = methodParameterSegments;
+            parameter.IsExactName = isExactName;
 
             return parameter;
         }

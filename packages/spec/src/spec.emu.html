@@ -30,6 +30,7 @@ Token :
 Trivia :
     Comment
     WhiteSpace
+    LineTerminatorSequence
 
 Keyword :
     BooleanLiteral
@@ -207,21 +208,12 @@ Punctuator : one of
     `|` `?` `=` `&`  `:` `,` `;` `.` `<` `>` `(` `)` `{` `}` `[` `]` `@` `...` `#`
 
 ///
-// Note that whitespace could also be specified equivalently as "Any Unicode
-// code point with property value Pattern_White_Space=True"
-//
-// However, see http://www.unicode.org/reports/tr31/#Stability
-//
-// "The [...] Pattern_White_Space characters are immutable and will not
-// change over successive versions of Unicode". This is therefore a fixed set
-// of characters, which are simply listed below to serve as a more direct
-// reference:
+// WhiteSpace covers non-line-terminator whitespace characters. The
+// Pattern_White_Space property from Unicode TR31 defines the full set:
 //
 //    - U+0009  TAB   HORIZONTAL TAB
-//    - U+000A  LF    LINE FEED
 //    - U+000B  VT    VERTICAL TAB
 //    - U+000C  FF    FORM FEED
-//    - U+000D  CR    CARRIAGE RETURN
 //    - U+0020  SP    SPACE
 //    - U+0085  NEL   NEXT LINE
 //    - U+200E  LRM   LEFT-TO-RIGHT MARK
@@ -229,25 +221,30 @@ Punctuator : one of
 //    - U+2028  LS    LINE SEPARATOR
 //    - U+2029  PS    PARAGRAPH SEPARATOR
 //
-// It is deliberately left unspecified which whitespace sequences are
-// considered newlines as no language semantics are impacted by that choice.
-// Only line and column numbers associated with diagnostics are impacted. In
-// practice, only CR ("MAC"), LF ("UNIX"), and CRLF ("DOS") line endings are
-// currently recognized by our implementation. Additional line endings may be 
-// recognized in the future.
+// Note: U+000A (LF), U+000D (CR), and the CR+LF sequence are line terminators
+// and are covered by LineTerminatorSequence instead of WhiteSpace.
 ///
 WhiteSpace :
     <TAB>
-    <LF>
     <VT>
     <FF>
-    <CR>
     <SP>
     <NEL>
     <LRM>
     <RLM>
     <LS>
     <PS>
+
+///
+// LineTerminatorSequence covers the three sequences recognized as line endings:
+// a lone LF (U+000A), a lone CR (U+000D) not followed by LF, or the CRLF pair.
+// Unlike WhiteSpace, line terminators are syntactically significant: they
+// terminate directive expressions (see DirectiveExpression).
+///
+LineTerminatorSequence :
+    <LF>
+    <CR> [lookahead != <LF>]
+    <CR> <LF>
 
 Comment :
     MultiLineComment
@@ -298,7 +295,7 @@ TypeSpecScriptItem :
     Statement
 
 BlocklessNamespaceStatement :
-    DecoratorList? `namespace` IdentifierOrMemberExpression `;`
+    DirectiveList? DecoratorList? `namespace` IdentifierOrMemberExpression `;`
 
 ImportStatement :
     `import` StringLiteral `;`
@@ -325,15 +322,15 @@ UsingStatement :
     `using` IdentifierOrMemberExpression `;`
 
 ModelStatement :
-    DecoratorList? `model` Identifier TemplateParameters? IsModelHeritage `;`
-    DecoratorList? `model` Identifier TemplateParameters? ModelHeritage? `{` ModelBody? `}`
+    DirectiveList? DecoratorList? `model` Identifier TemplateParameters? IsModelHeritage `;`
+    DirectiveList? DecoratorList? `model` Identifier TemplateParameters? ModelHeritage? `{` ModelBody? `}`
 
 IsModelHeritage :
     `is` Expression
 
 ScalarStatement :
-    DecoratorList? `scalar` Identifier TemplateParameters? ScalarExtends? `;`
-    DecoratorList? `scalar` Identifier TemplateParameters? ScalarExtends? `{` ScalarBody? `}`
+    DirectiveList? DecoratorList? `scalar` Identifier TemplateParameters? ScalarExtends? `;`
+    DirectiveList? DecoratorList? `scalar` Identifier TemplateParameters? ScalarExtends? `{` ScalarBody? `}`
 
 ScalarExtends :
     `extends` Expression
@@ -366,14 +363,14 @@ ModelPropertyList :
 
 ModelProperty :
     ModelSpreadProperty
-    DecoratorList? Identifier `?`? `:` Expression
-    DecoratorList? StringLiteral `?`? `:` Expression
+    DirectiveList? DecoratorList? Identifier `?`? `:` Expression
+    DirectiveList? DecoratorList? StringLiteral `?`? `:` Expression
 
 ModelSpreadProperty :
     `...` ReferenceExpression
 
 InterfaceStatement :
-    DecoratorList? `interface` Identifier TemplateParameters? InterfaceHeritage? `{` InterfaceBody? `}`
+    DirectiveList? DecoratorList? `interface` Identifier TemplateParameters? InterfaceHeritage? `{` InterfaceBody? `}`
 
 InterfaceHeritage :
     `extends` ReferenceExpressionList;
@@ -386,11 +383,11 @@ InterfaceMemberList :
     InterfaceMemberList `;` InterfaceMember
 
 InterfaceMember :
-    `op`? Identifier OperationSignature
+    DirectiveList? DecoratorList? `op`? Identifier OperationSignature
 
 
 UnionStatement :
-    DecoratorList? `union` Identifier TemplateParameters? `{` UnionBody? `}`
+    DirectiveList? DecoratorList? `union` Identifier TemplateParameters? `{` UnionBody? `}`
 
 UnionBody :
     UnionVariantList `;`? 
@@ -400,12 +397,12 @@ UnionVariantList :
     UnionVariantList `;` UnionVariant
 
 UnionVariant :
-    DecoratorList? Identifier `:` Expression
-    DecoratorList? StringLiteral `:` Expression
-    DecoratorList? Expression
+    DirectiveList? DecoratorList? Identifier `:` Expression
+    DirectiveList? DecoratorList? StringLiteral `:` Expression
+    DirectiveList? DecoratorList? Expression
 
 EnumStatement :
-    DecoratorList? `enum` Identifier `{` EnumBody? `}`
+    DirectiveList? DecoratorList? `enum` Identifier `{` EnumBody? `}`
 
 EnumBody :
     EnumMemberList `,`?
@@ -418,8 +415,8 @@ EnumMemberList :
 
 EnumMember :
     EnumSpreadMember
-    DecoratorList? Identifier EnumMemberValue?
-    DecoratorList? StringLiteral EnumMemberValue?
+    DirectiveList? DecoratorList? Identifier EnumMemberValue?
+    DirectiveList? DecoratorList? StringLiteral EnumMemberValue?
 
 EnumSpreadMember :
     `...` ReferenceExpression
@@ -457,7 +454,7 @@ IdentifierList :
     IdentifierList `,` Identifier
 
 NamespaceStatement : 
-    DecoratorList? `namespace` IdentifierOrMemberExpression `{` StatementList? `}`
+    DirectiveList? DecoratorList? `namespace` IdentifierOrMemberExpression `{` StatementList? `}`
 
 OperationSignatureDeclaration :
   `(` ModelPropertyList? `)` `:` Expression
@@ -470,7 +467,7 @@ OperationSignature :
   OperationSignatureReference
 
 OperationStatement :
-    DecoratorList? `op` Identifier TemplateParameters? OperationSignature `;`
+    DirectiveList? DecoratorList? `op` Identifier TemplateParameters? OperationSignature `;`
 
 Expression :
     UnionExpressionOrHigher
@@ -587,6 +584,34 @@ Decorator :
 
 DecoratorArguments :
     `(` ExpressionList? `)`
+
+///
+// DirectiveExpression covers the #suppress and #deprecated directives.
+// A directive is terminated by a line terminator (CR, LF, or CRLF) or end of
+// input. Because line terminators are classified as Trivia and are normally
+// transparent to the syntactic grammar, the termination rule is enforced
+// contextually by the parser rather than expressed as a formal production: all
+// DirectiveArguments must appear on the same source line as the `#` token.
+//
+// Currently recognized directive names are `suppress` and `deprecated`.
+//   #suppress <rule-code> <message>   -- suppresses a specific diagnostic (2 arguments)
+//   #deprecated <message>             -- marks a declaration as deprecated (1 argument)
+//
+// The number of required arguments is validated during semantic analysis, not
+// by this grammar.
+///
+DirectiveList :
+    DirectiveList? DirectiveExpression
+
+DirectiveExpression :
+    `#` Identifier DirectiveArguments?
+
+DirectiveArguments :
+    DirectiveArgument DirectiveArguments?
+
+DirectiveArgument :
+    StringLiteral
+    Identifier
 
 CallExpression :
     IdentifierOrMemberExpression `(` ExpressionList? `)`

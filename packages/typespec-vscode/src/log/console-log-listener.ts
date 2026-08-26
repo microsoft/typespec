@@ -1,5 +1,5 @@
 /* eslint-disable no-console */
-import { LogItem, LogListener } from "./logger.js";
+import type { LogItem, LogListener } from "./logger.js";
 
 export class ConsoleLogLogger implements LogListener {
   Log(log: LogItem) {

@@ -1,11 +1,11 @@
 // Copyright (c) Microsoft Corporation. All rights reserved.
 // Licensed under the MIT License. See License.txt in the project root for license information.
 
-import { InputOperation } from "./input-operation.js";
-import { InputMethodParameter, InputParameter, InputType } from "./input-type.js";
-import { OperationFinalStateVia } from "./operation-final-state-via.js";
-import { OperationResponse } from "./operation-response.js";
-import { ResponseLocation } from "./response-location.js";
+import type { InputOperation } from "./input-operation.js";
+import type { InputMethodParameter, InputParameter, InputType } from "./input-type.js";
+import type { OperationFinalStateVia } from "./operation-final-state-via.js";
+import type { OperationResponse } from "./operation-response.js";
+import type { ResponseLocation } from "./response-location.js";
 
 export type InputServiceMethod =
   | InputBasicServiceMethod
@@ -16,6 +16,7 @@ export type InputServiceMethod =
 interface InputServiceMethodBase {
   kind: string;
   name: string;
+  isExactName?: boolean;
   accessibility?: string;
   apiVersions: string[];
   doc?: string;

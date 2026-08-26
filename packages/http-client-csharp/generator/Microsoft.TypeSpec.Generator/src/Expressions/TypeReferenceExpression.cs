@@ -25,7 +25,9 @@ namespace Microsoft.TypeSpec.Generator.Expressions
         internal static TypeReferenceExpression FromType(CSharpType? type)
         {
             if (type is null)
+            {
                 return _nullType;
+            }
 
             if (!_typeCache.TryGetValue(type, out var result))
             {

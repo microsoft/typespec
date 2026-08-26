@@ -1,22 +1,15 @@
-import { TextDocument } from "vscode-languageserver-textdocument";
-import {
+import type {
   CodeAction,
-  CodeActionKind,
   CodeActionParams,
-  CompletionList,
   CompletionParams,
   CreateFile,
   DefinitionParams,
-  DiagnosticSeverity,
-  DiagnosticTag,
   DidChangeWatchedFilesParams,
   DocumentFormattingParams,
   DocumentHighlight,
-  DocumentHighlightKind,
   DocumentHighlightParams,
   DocumentSymbol,
   DocumentSymbolParams,
-  FileChangeType,
   FoldingRange,
   FoldingRangeParams,
   Hover,
@@ -26,15 +19,12 @@ import {
   InitializeResult,
   Location,
   MarkupContent,
-  MarkupKind,
   ParameterInformation,
   PrepareRenameParams,
-  Range,
   ReferenceParams,
   RenameFilesParams,
   RenameParams,
   SemanticTokens,
-  SemanticTokensBuilder,
   SemanticTokensLegend,
   SemanticTokensParams,
   ServerCapabilities,
@@ -43,12 +33,25 @@ import {
   TextDocumentChangeEvent,
   TextDocumentEdit,
   TextDocumentIdentifier,
-  TextDocumentSyncKind,
-  TextEdit,
   Diagnostic as VSDiagnostic,
   WorkspaceEdit,
   WorkspaceFoldersChangeEvent,
-} from "vscode-languageserver/node.js";
+} from "vscode-languageserver";
+import {
+  CodeActionKind,
+  CompletionList,
+  DiagnosticSeverity,
+  DiagnosticTag,
+  DocumentHighlightKind,
+  FileChangeType,
+  FoldingRangeKind,
+  MarkupKind,
+  Range,
+  SemanticTokensBuilder,
+  TextDocumentSyncKind,
+  TextEdit,
+} from "vscode-languageserver";
+import type { TextDocument } from "vscode-languageserver-textdocument";
 import { getSymNode } from "../core/binder.js";
 import { CharCode } from "../core/charcode.js";
 import { resolveCodeFix } from "../core/code-fixes.js";
@@ -59,7 +62,7 @@ import { builtInLinterRule_UnusedTemplateParameter } from "../core/linter-rules/
 import { builtInLinterRule_UnusedUsing } from "../core/linter-rules/unused-using.rule.js";
 import { builtInLinterLibraryName } from "../core/linter.js";
 import { formatLog } from "../core/logger/index.js";
-import { CompilerOptions } from "../core/options.js";
+import type { CompilerOptions } from "../core/options.js";
 import { getPositionBeforeTrivia } from "../core/parser-utils.js";
 import { getNodeAtPosition, getNodeAtPositionDetail, visitChildren } from "../core/parser.js";
 import {
@@ -69,10 +72,11 @@ import {
   normalizePath,
   resolvePath,
 } from "../core/path-utils.js";
-import { type Program } from "../core/program.js";
+import type { Program } from "../core/program.js";
 import { skipTrivia, skipWhiteSpace } from "../core/scanner.js";
 import { createSourceFile, getSourceFileKindFromExt } from "../core/source-file.js";
-import {
+import { createRemoveUnusedSuppressionCodeFix } from "../core/suppression-tracking.js";
+import type {
   AugmentDecoratorStatementNode,
   CodeFixEdit,
   CompilerHost,
@@ -82,25 +86,25 @@ import {
   DiagnosticTarget,
   IdentifierNode,
   Node,
-  NoTarget,
   PositionDetail,
   ProcessedLog,
   SourceFile,
-  SyntaxKind,
   TextRange,
   TypeReferenceNode,
   TypeSpecScriptNode,
 } from "../core/types.js";
+import { NoTarget, SyntaxKind } from "../core/types.js";
 import { getTypeSpecCoreTemplates } from "../init/core-templates.js";
 import { validateTemplateDefinitions } from "../init/init-template-validate.js";
-import { InitTemplate } from "../init/init-template.js";
+import type { InitTemplate } from "../init/init-template.js";
 import { scaffoldNewProject } from "../init/scaffold.js";
 import { typespecVersion } from "../manifest.js";
-import { resolveModule, ResolveModuleHost } from "../module-resolver/index.js";
+import type { ResolveModuleHost } from "../module-resolver/index.js";
+import { resolveModule } from "../module-resolver/index.js";
 import { listAllFilesInDir } from "../utils/fs-utils.js";
 import { getNormalizedRealPath, resolveTspMain } from "../utils/misc.js";
 import { getSemanticTokens } from "./classify.js";
-import { ClientConfigProvider } from "./client-config-provider.js";
+import type { ClientConfigProvider } from "./client-config-provider.js";
 import { createCompileService } from "./compile-service.js";
 import { resolveCompletion } from "./completion.js";
 import { convertDiagnosticToLsp } from "./diagnostics.js";
@@ -109,7 +113,7 @@ import { createFileSystemCache } from "./file-system-cache.js";
 import { LibraryProvider } from "./lib-provider.js";
 import { NpmPackageProvider } from "./npm-package-provider.js";
 import { getRenameImportEdit, getUpdatedImportValue } from "./rename-file.js";
-import { ServerCompileOptions } from "./server-compile-manager.js";
+import type { ServerCompileOptions } from "./server-compile-manager.js";
 import { getSymbolStructure } from "./symbol-structure.js";
 import { provideTspconfigCompletionItems } from "./tspconfig/completion.js";
 import {
@@ -117,12 +121,11 @@ import {
   getSymbolDetails,
   getTemplateParameterDocumentation,
 } from "./type-details.js";
-import {
+import type {
   CompileResult,
   InitProjectConfig,
   InitProjectContext,
   InternalCompileResult,
-  SemanticTokenKind,
   Server,
   ServerCustomCapacities,
   ServerDiagnostic,
@@ -132,6 +135,7 @@ import {
   ServerSourceFile,
   ServerWorkspaceFolder,
 } from "./types.js";
+import { SemanticTokenKind } from "./types.js";
 import { UpdateManager } from "./update-manager.js";
 
 export function createServer(
@@ -175,12 +179,71 @@ export function createServer(
     log,
     clientConfigsProvider,
   });
-  let currentDiagnosticIndex = new Map<number, Diagnostic>();
+  interface DiagnosticIndexEntry {
+    readonly diagnostic: Diagnostic;
+    readonly fileUri: string;
+  }
+  let currentDiagnosticIndex = new Map<number, DiagnosticIndexEntry>();
   let diagnosticIdCounter = 0;
 
   let workspaceFolders: ServerWorkspaceFolder[] = [];
   let isInitialized = false;
   let pendingMessages: ServerLog[] = [];
+
+  /**
+   * Wraps an LSP handler to preserve the server-side error details when it crashes.
+   *
+   * By default, the JSON-RPC layer (vscode-languageserver) catches handler errors and
+   * creates a new ResponseError using only `error.message`, discarding the original stack
+   * trace. On the client side, the telemetry framework then captures this as an unhandled
+   * error, but the `unhandled_error_stack` only shows the client-side message handling code:
+   *
+   * ```
+   * Error: Request textDocument/hover failed with message: Cannot read properties of undefined (reading 'kind')
+   *     at handleResponse (extension.cjs:2104:40)         // <-- client-side LSP message handler
+   *     at handleMessage (extension.cjs:1914:11)
+   *     at processMessageQueue (extension.cjs:1929:13)
+   *     at Immediate.<anonymous> (extension.cjs:1905:11)
+   * ```
+   *
+   * The actual server-side crash location (e.g., in the checker or parser) is completely lost.
+   *
+   * This wrapper catches the error first and re-throws a new Error whose message includes
+   * the full original error details (stack trace for Error instances, String() for others).
+   * The JSON-RPC layer then forwards this enriched message to the client, so the
+   * telemetry `unhandled_error_message` will contain the server-side crash location:
+   *
+   * ```
+   * [getHover] TypeError: Cannot read properties of undefined (reading 'kind')
+   *     at Checker.getTypeForNode (checker.ts:1234:15)    // <-- actual crash location
+   *     at getHover (serverlib.ts:826:52)
+   *     ...
+   * ```
+   */
+  function wrapUnhandledError<T extends (...args: any[]) => any>(fn: T): T {
+    const name = fn.name || "anonymous";
+    return (async (...args: any[]) => {
+      try {
+        return await fn(...args);
+      } catch (e) {
+        if (e instanceof Error) {
+          const detail = e.stack ? `${e.message}\n${e.stack}` : e.message;
+          throw new Error(`[${name}] ${detail}`, { cause: e });
+        } else if (typeof e === "string") {
+          throw new Error(`[${name}] ${e}`, { cause: e });
+        } else if (typeof e === "object" && e !== null) {
+          let detail: string;
+          try {
+            detail = JSON.stringify(e);
+          } catch {
+            throw e;
+          }
+          throw new Error(`[${name}] ${detail}`, { cause: e });
+        }
+        throw e;
+      }
+    }) as T;
+  }
 
   return {
     get pendingMessages() {
@@ -189,37 +252,37 @@ export function createServer(
     get workspaceFolders() {
       return workspaceFolders;
     },
-    compile,
-    initialize,
-    initialized,
-    workspaceFoldersChanged,
-    watchedFilesChanged,
-    formatDocument,
-    gotoDefinition,
-    documentClosed,
-    documentOpened,
-    complete,
-    findReferences,
-    findDocumentHighlight,
-    prepareRename,
-    rename,
-    renameFiles,
-    getSemanticTokens: getSemanticTokensForDocument,
-    buildSemanticTokens,
-    checkChange,
-    getFoldingRanges,
-    getHover,
-    getSignatureHelp,
-    getDocumentSymbols,
-    getCodeActions,
-    resolveCodeAction,
+    compile: wrapUnhandledError(compile),
+    initialize: wrapUnhandledError(initialize),
+    initialized: wrapUnhandledError(initialized),
+    workspaceFoldersChanged: wrapUnhandledError(workspaceFoldersChanged),
+    watchedFilesChanged: wrapUnhandledError(watchedFilesChanged),
+    formatDocument: wrapUnhandledError(formatDocument),
+    gotoDefinition: wrapUnhandledError(gotoDefinition),
+    documentClosed: wrapUnhandledError(documentClosed),
+    documentOpened: wrapUnhandledError(documentOpened),
+    complete: wrapUnhandledError(complete),
+    findReferences: wrapUnhandledError(findReferences),
+    findDocumentHighlight: wrapUnhandledError(findDocumentHighlight),
+    prepareRename: wrapUnhandledError(prepareRename),
+    rename: wrapUnhandledError(rename),
+    renameFiles: wrapUnhandledError(renameFiles),
+    getSemanticTokens: wrapUnhandledError(getSemanticTokensForDocument),
+    buildSemanticTokens: wrapUnhandledError(buildSemanticTokens),
+    checkChange: wrapUnhandledError(checkChange),
+    getFoldingRanges: wrapUnhandledError(getFoldingRanges),
+    getHover: wrapUnhandledError(getHover),
+    getSignatureHelp: wrapUnhandledError(getSignatureHelp),
+    getDocumentSymbols: wrapUnhandledError(getDocumentSymbols),
+    getCodeActions: wrapUnhandledError(getCodeActions),
+    resolveCodeAction: wrapUnhandledError(resolveCodeAction),
     log,
-    reportDiagnostics,
+    reportDiagnostics: wrapUnhandledError(reportDiagnostics),
 
-    getInitProjectContext,
-    validateInitProjectTemplate,
-    initProject,
-    internalCompile,
+    getInitProjectContext: wrapUnhandledError(getInitProjectContext),
+    validateInitProjectTemplate: wrapUnhandledError(validateInitProjectTemplate),
+    initProject: wrapUnhandledError(initProject),
+    internalCompile: wrapUnhandledError(internalCompile),
   };
 
   async function initialize(params: InitializeParams): Promise<InitializeResult> {
@@ -613,13 +676,29 @@ export function createServer(
           rangeStartSingleLines = comment.pos;
         }
       } else if (rangeStartSingleLines !== -1) {
-        addRange(rangeStartSingleLines, comment.end);
+        addRange(rangeStartSingleLines, comment.end, FoldingRangeKind.Comment);
         rangeStartSingleLines = -1;
       } else {
-        addRange(comment.pos, comment.end);
+        addRange(comment.pos, comment.end, FoldingRangeKind.Comment);
       }
     }
+    addRangesForImports();
     visitChildren(ast, addRangesForNode);
+    function addRangesForImports() {
+      const statements = ast!.statements;
+      let runStart = -1;
+      for (let i = 0; i <= statements.length; i++) {
+        const isImport = i < statements.length && statements[i].kind === SyntaxKind.ImportStatement;
+        if (isImport) {
+          if (runStart === -1) {
+            runStart = i;
+          }
+        } else if (runStart !== -1) {
+          addRange(statements[runStart].pos, statements[i - 1].end, FoldingRangeKind.Imports);
+          runStart = -1;
+        }
+      }
+    }
     function addRangesForNode(node: Node) {
       if (node.kind === SyntaxKind.Doc) {
         return; // fold doc comments as regular comments
@@ -635,16 +714,20 @@ export function createServer(
       visitChildren(node, addRangesForNode);
     }
     return ranges;
-    function addRange(startPos: number, endPos: number) {
+    function addRange(startPos: number, endPos: number, kind?: FoldingRangeKind) {
       const start = file.getLineAndCharacterOfPosition(startPos);
       const end = file.getLineAndCharacterOfPosition(endPos);
       if (start.line !== end.line) {
-        ranges.push({
+        const range: FoldingRange = {
           startLine: start.line,
           startCharacter: start.character,
           endLine: end.line,
           endCharacter: end.character,
-        });
+        };
+        if (kind !== undefined) {
+          range.kind = kind;
+        }
+        ranges.push(range);
       }
     }
   }
@@ -712,7 +795,7 @@ export function createServer(
     if (!document) return undefined;
     if (isTspConfigFile(document)) return undefined;
 
-    const newDiagnosticIndex = new Map<number, Diagnostic>();
+    const newDiagnosticIndex = new Map<number, DiagnosticIndexEntry>();
     // Group diagnostics by file.
     //
     // Initialize diagnostics for all source files in program to empty array
@@ -785,7 +868,42 @@ export function createServer(
           "Diagnostic reported against a source file that was not added to the program.",
         );
         diagnostics.push(diagnostic);
-        newDiagnosticIndex.set(diagnostic.data.id, each);
+        newDiagnosticIndex.set(diagnostic.data.id, { diagnostic: each, fileUri: diagDocument.uri });
+      }
+    }
+
+    // Report unused suppressions as hints with faded-out styling
+    for (const { directive } of program.suppressionTracker?.getUnusedSuppressions() ?? []) {
+      const unusedSuppressionDiagnostic: Diagnostic = {
+        code: "unused-suppression",
+        severity: "warning",
+        message: `Suppression for "${directive.code}" is unused.`,
+        target: directive.node,
+        codefixes: [createRemoveUnusedSuppressionCodeFix(directive.node)],
+      };
+      const results = convertDiagnosticToLsp(
+        fileService,
+        program,
+        document,
+        unusedSuppressionDiagnostic,
+      );
+      for (const [diagnostic, diagDocument] of results) {
+        diagnostic.tags = [DiagnosticTag.Unnecessary];
+        diagnostic.severity = DiagnosticSeverity.Hint;
+        diagnostic.data = {
+          id: diagnosticIdCounter++,
+          file: diagDocument.uri,
+        };
+        const diagnostics = diagnosticMap.get(diagDocument);
+        compilerAssert(
+          diagnostics,
+          "Diagnostic reported against a source file that was not added to the program.",
+        );
+        diagnostics.push(diagnostic);
+        newDiagnosticIndex.set(diagnostic.data.id, {
+          diagnostic: unusedSuppressionDiagnostic,
+          fileUri: diagDocument.uri,
+        });
       }
     }
 
@@ -1302,12 +1420,17 @@ export function createServer(
   async function getCodeActions(params: CodeActionParams): Promise<CodeAction[]> {
     if (isTspConfigFile(params.textDocument)) return [];
 
-    const actions = [];
-    for (const vsDiag of params.context.diagnostics) {
-      const tspDiag = currentDiagnosticIndex.get(vsDiag.data?.id);
-      if (tspDiag === undefined || tspDiag.codefixes === undefined) continue;
+    const fileUri = params.textDocument.uri;
+    const actions: CodeAction[] = [];
 
-      for (const fix of tspDiag.codefixes ?? []) {
+    // Track fix IDs seen in the current selection to generate "Fix all" actions
+    const fixIdsInSelection = new Set<string>();
+
+    for (const vsDiag of params.context.diagnostics) {
+      const entry = currentDiagnosticIndex.get(vsDiag.data?.id);
+      if (entry === undefined || entry.diagnostic.codefixes === undefined) continue;
+
+      for (const fix of entry.diagnostic.codefixes) {
         const codeAction: CodeAction = {
           title: fix.label,
           kind: CodeActionKind.QuickFix,
@@ -1315,6 +1438,35 @@ export function createServer(
           data: { diagId: vsDiag.data?.id, fixId: fix.id },
         };
         actions.push(codeAction);
+        fixIdsInSelection.add(fix.id);
+      }
+    }
+
+    // Build a map of fixId -> { count, label } for all diagnostics in the current file
+    const fixIdInfoInFile = new Map<string, { count: number; label: string }>();
+    for (const entry of currentDiagnosticIndex.values()) {
+      if (entry.fileUri !== fileUri) continue;
+      for (const fix of entry.diagnostic.codefixes ?? []) {
+        const existing = fixIdInfoInFile.get(fix.id);
+        if (existing) {
+          existing.count++;
+        } else {
+          fixIdInfoInFile.set(fix.id, { count: 1, label: fix.label });
+        }
+      }
+    }
+
+    // Add "Fix all: X" actions for codefixes that appear multiple times in the file
+    const addedFixAllIds = new Set<string>();
+    for (const fixId of fixIdsInSelection) {
+      const info = fixIdInfoInFile.get(fixId);
+      if (info && info.count > 1 && !addedFixAllIds.has(fixId)) {
+        addedFixAllIds.add(fixId);
+        actions.push({
+          title: `Fix all: ${info.label}`,
+          kind: CodeActionKind.QuickFix,
+          data: { fixAllInFile: { fixId, fileUri } },
+        });
       }
     }
 
@@ -1322,13 +1474,30 @@ export function createServer(
   }
 
   async function resolveCodeAction(codeAction: CodeAction): Promise<CodeAction> {
-    const { diagId, fixId } = codeAction.data ?? {};
-    if (diagId !== undefined && fixId) {
-      const diag = currentDiagnosticIndex.get(diagId);
-      const codeFix = diag?.codefixes?.find((x) => x.id === fixId);
-      if (codeFix) {
-        const edits = await resolveCodeFix(codeFix);
-        codeAction.edit = { documentChanges: convertCodeFixEdits(edits) };
+    const data = codeAction.data ?? {};
+    if (data.fixAllInFile !== undefined) {
+      const { fixId, fileUri } = data.fixAllInFile;
+      const allEdits: CodeFixEdit[] = [];
+      for (const entry of currentDiagnosticIndex.values()) {
+        if (entry.fileUri !== fileUri) continue;
+        const codeFix = entry.diagnostic.codefixes?.find((x) => x.id === fixId);
+        if (codeFix) {
+          const edits = await resolveCodeFix(codeFix);
+          allEdits.push(...edits);
+        }
+      }
+      if (allEdits.length > 0) {
+        codeAction.edit = { documentChanges: convertCodeFixEdits(allEdits) };
+      }
+    } else {
+      const { diagId, fixId } = data;
+      if (diagId !== undefined && fixId) {
+        const entry = currentDiagnosticIndex.get(diagId);
+        const codeFix = entry?.diagnostic.codefixes?.find((x) => x.id === fixId);
+        if (codeFix) {
+          const edits = await resolveCodeFix(codeFix);
+          codeAction.edit = { documentChanges: convertCodeFixEdits(edits) };
+        }
       }
     }
     return codeAction;
@@ -1500,9 +1669,7 @@ export function createServer(
 }
 
 type SignatureHelpNode =
-  | DecoratorExpressionNode
-  | AugmentDecoratorStatementNode
-  | TypeReferenceNode;
+  DecoratorExpressionNode | AugmentDecoratorStatementNode | TypeReferenceNode;
 
 function getSignatureHelpNodeAtPosition(
   script: TypeSpecScriptNode,

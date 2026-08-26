@@ -1,6 +1,6 @@
 {
   "name": "@typespec/emitter-framework",
-  "version": "0.17.0",
+  "version": "0.20.0",
   "type": "module",
   "main": "dist/index.js",
   "repository": {
@@ -16,25 +16,30 @@
     "test:ui": "vitest --ui",
     "test:watch": "vitest -w",
     "test:ci": "vitest run --coverage --reporter=junit --reporter=default",
-    "prepack": "tsx ../../eng/tsp-core/scripts/strip-dev-import-exports.ts",
-    "postpack": "tsx ../../eng/tsp-core/scripts/strip-dev-import-exports.ts --restore",
-    "lint": "eslint . --max-warnings=0",
-    "lint:fix": "eslint . --fix"
+    "prepack": "node ../../eng/tsp-core/scripts/strip-dev-import-exports.ts",
+    "postpack": "node ../../eng/tsp-core/scripts/strip-dev-import-exports.ts --restore",
+    "lint": "oxlint . --deny-warnings",
+    "lint:fix": "oxlint . --fix"
   },
   "exports": {
     ".": {
+      "development": "./src/core/index.ts",
       "import": "./dist/src/core/index.js"
     },
     "./csharp": {
+      "development": "./src/csharp/index.ts",
       "import": "./dist/src/csharp/index.js"
     },
     "./typescript": {
+      "development": "./src/typescript/index.ts",
       "import": "./dist/src/typescript/index.js"
     },
     "./python": {
+      "development": "./src/python/index.ts",
       "import": "./dist/src/python/index.js"
     },
     "./testing": {
+      "development": "./src/testing/index.ts",
       "import": "./dist/src/testing/index.js"
     }
   },
@@ -75,6 +80,7 @@
     "@alloy-js/rollup-plugin": "catalog:",
     "@alloy-js/typescript": "catalog:",
     "@typespec/compiler": "workspace:^",
+    "@types/node": "catalog:",
     "concurrently": "catalog:",
     "pathe": "catalog:",
     "prettier": "catalog:",

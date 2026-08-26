@@ -1,20 +1,18 @@
-import {
+import type {
   DecoratorContext,
   DiagnosticTarget,
   IndeterminateEntity,
   Model,
   ModelProperty,
   Namespace,
-  NoTarget,
   Program,
   Type,
   Value,
-  getProperty,
-  getTypeName,
-  walkPropertiesInherited,
 } from "@typespec/compiler";
-import { Node, SyntaxKind, TemplateableNode } from "@typespec/compiler/ast";
-import {
+import { NoTarget, getProperty, getTypeName, walkPropertiesInherited } from "@typespec/compiler";
+import type { Node, TemplateableNode } from "@typespec/compiler/ast";
+import { SyntaxKind } from "@typespec/compiler/ast";
+import type {
   HttpFileDecorator,
   HttpPartDecorator,
   HttpPartOptions,
@@ -31,7 +29,7 @@ import {
   isStatusCode,
 } from "./decorators.js";
 import { HttpStateKeys, reportDiagnostic } from "./lib.js";
-import { HttpOperationFileBody } from "./types.js";
+import type { HttpOperationFileBody } from "./types.js";
 
 export const $plainData: PlainDataDecorator = (context: DecoratorContext, entity: Model) => {
   const { program } = context;
@@ -91,16 +89,12 @@ export const $httpFile: HttpFileDecorator = (context: DecoratorContext, target: 
   // Validate the `ContentType` type is `TypeSpec.string`, a string literal, or a union of string literals
   const contentType = target.properties.get("contentType")!.type;
 
-  if (
-    !(
-      (
-        contentType.kind === "String" || // is string literal
-        context.program.checker.isStdType(contentType, "string") || // is TypeSpec.string
-        (contentType.kind === "Union" &&
-          [...contentType.variants.values()].every((v) => v.type.kind === "String"))
-      ) // is union of string literals
-    )
-  ) {
+  if (!(
+    contentType.kind === "String" || // is string literal
+    context.program.checker.isStdType(contentType, "string") || // is TypeSpec.string
+    (contentType.kind === "Union" &&
+      [...contentType.variants.values()].every((v) => v.type.kind === "String")) // is union of string literals
+  )) {
     const contentTypeDiagnosticTarget =
       getTemplateArgumentTarget(templateMapper?.source, "ContentType", 0) ??
       templateMetadata?.contentTypeArg;

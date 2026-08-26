@@ -16,8 +16,7 @@
 import { compile, NodeHost } from "@typespec/compiler";
 import { execSync } from "child_process";
 import { existsSync, rmSync } from "fs";
-import { access, cp, mkdir, mkdtemp, readdir, writeFile } from "fs/promises";
-import { tmpdir } from "os";
+import { access, mkdir, readdir, writeFile } from "fs/promises";
 import { dirname, join, relative, resolve } from "path";
 import pc from "picocolors";
 
@@ -70,11 +69,7 @@ export interface BuildTaskGroupsOptions {
 
 // ---- Public constants ----
 
-export const SKIP_SPECS: string[] = [
-  "type/file",
-  "service/multiple-services",
-  "azure/client-generator-core/response-as-bool",
-];
+export const SKIP_SPECS: string[] = ["type/file"];
 
 export const SpecialFlags: Record<string, Record<string, any>> = {
   azure: {
@@ -176,11 +171,20 @@ export const AZURE_EMITTER_OPTIONS: Record<
     "package-name": "client-structure-twooperationgroup",
     namespace: "client.structure.twooperationgroup",
   },
-  "client/naming": {
-    namespace: "client.naming.main",
-  },
+  "client/naming": [
+    {
+      namespace: "client.naming.main",
+    },
+    {
+      "package-name": "client-naming-typeddict",
+      namespace: "client.naming.typeddict",
+    },
+  ],
   "client/overload": {
     namespace: "client.overload",
+  },
+  "encode/boolean": {
+    namespace: "encode.boolean",
   },
   "encode/duration": {
     namespace: "encode.duration",
@@ -275,14 +279,26 @@ export const EMITTER_OPTIONS: Record<string, Record<string, string> | Record<str
     "package-name": "typetest-model-nesteddiscriminator",
     namespace: "typetest.model.nesteddiscriminator",
   },
-  "type/model/inheritance/not-discriminated": {
-    "package-name": "typetest-model-notdiscriminated",
-    namespace: "typetest.model.notdiscriminated",
-  },
-  "type/model/inheritance/single-discriminator": {
-    "package-name": "typetest-model-singlediscriminator",
-    namespace: "typetest.model.singlediscriminator",
-  },
+  "type/model/inheritance/not-discriminated": [
+    {
+      "package-name": "typetest-model-notdiscriminated",
+      namespace: "typetest.model.notdiscriminated",
+    },
+    {
+      "package-name": "typetest-model-notdiscriminated-typeddict",
+      namespace: "typetest.model.notdiscriminated.typeddict",
+    },
+  ],
+  "type/model/inheritance/single-discriminator": [
+    {
+      "package-name": "typetest-model-singlediscriminator",
+      namespace: "typetest.model.singlediscriminator",
+    },
+    {
+      "package-name": "typetest-model-singlediscriminator-typeddict",
+      namespace: "typetest.model.singlediscriminator.typeddict",
+    },
+  ],
   "type/model/inheritance/recursive": [
     {
       "package-name": "typetest-model-recursive",
@@ -296,10 +312,17 @@ export const EMITTER_OPTIONS: Record<string, Record<string, string> | Record<str
       "clear-output-folder": "true",
     },
   ],
-  "type/model/usage": {
-    "package-name": "typetest-model-usage",
-    namespace: "typetest.model.usage",
-  },
+  "type/model/usage": [
+    {
+      "package-name": "typetest-model-usage",
+      namespace: "typetest.model.usage",
+    },
+    {
+      "package-name": "typetest-model-usage-typeddictonly",
+      namespace: "typetest.model.usage.typeddictonly",
+      "models-mode": "none",
+    },
+  ],
   "type/model/visibility": [
     {
       "package-name": "typetest-model-visibility",
@@ -632,6 +655,28 @@ export async function runParallel(
 }
 
 /**
+ * Removes every generated file under `tests/generated`, keeping only the
+ * hand-authored files that are tracked in git. `git clean -xdf` deletes ignored
+ * and untracked files but never tracked ones, so `.gitignore` stays the single
+ * source of truth for which fixtures survive regeneration (each exception there
+ * documents why it cannot be regenerated).
+ */
+export async function cleanGeneratedCode(generatedFolder: string): Promise<void> {
+  const repoDir = resolve(generatedFolder, "..");
+  const testsGeneratedDir = resolve(repoDir, "tests/generated");
+  if (!existsSync(testsGeneratedDir)) return;
+
+  console.log(pc.cyan(`\n${"=".repeat(60)}`));
+  console.log(pc.cyan(`Cleaning generated test packages`));
+  console.log(pc.cyan(`${"=".repeat(60)}\n`));
+
+  execSync(`git clean -x -d -f -q -- "${testsGeneratedDir}"`, {
+    cwd: repoDir,
+    stdio: ["ignore", "inherit", "inherit"],
+  });
+}
+
+/**
  * Pre-create the marker files that the test harness expects to find before
  * regeneration so it can verify they're cleared/preserved correctly.
  */
@@ -673,82 +718,4 @@ export async function preprocess(flavor: string, generatedFolder: string): Promi
       await writeFile(join(targetFolder, file), content);
     }),
   );
-}
-
-/**
- * Resets the `tests/generated/{azure,unbranded}` baseline by sparse-checking-out
- * `eng/tools/emitter/gen` from the Azure/azure-sdk-for-python repo, then
- * deleting a couple of fully-generated package folders so regeneration has to
- * recreate them from scratch (smoke test of full-emit path).
- *
- * `generatedFolder` is the per-repo `generator/` directory; baseline lands at
- * `<generatedFolder>/../tests/generated`.
- */
-export async function prepareBaselineOfGeneratedCode(generatedFolder: string): Promise<void> {
-  const repoUrl = "https://github.com/Azure/azure-sdk-for-python.git";
-  const branch = "main";
-  const sourceSubdir = "eng/tools/emitter/gen";
-  const testsGeneratedDir = resolve(generatedFolder, "../tests/generated");
-
-  console.log(pc.cyan(`\n${"=".repeat(60)}`));
-  console.log(pc.cyan(`Resetting baseline from ${repoUrl} (${branch}/${sourceSubdir})`));
-  console.log(pc.cyan(`${"=".repeat(60)}\n`));
-
-  // Wipe tests/generated
-  if (existsSync(testsGeneratedDir)) {
-    console.log(pc.dim(`Removing ${testsGeneratedDir}`));
-    rmSync(testsGeneratedDir, { recursive: true, force: true });
-  }
-
-  // Sparse-checkout the baseline folder into a temp directory
-  const tempDir = await mkdtemp(join(tmpdir(), "azsdk-baseline-"));
-  try {
-    console.log(pc.dim(`Cloning into ${tempDir}`));
-    const run = (cmd: string) =>
-      execSync(cmd, { cwd: tempDir, stdio: ["ignore", "ignore", "inherit"] });
-
-    run(`git init`);
-    run(`git remote add origin ${repoUrl}`);
-    run(`git config core.sparseCheckout true`);
-    run(`git sparse-checkout init --cone`);
-    run(`git sparse-checkout set ${sourceSubdir}`);
-    run(`git fetch --depth 1 origin ${branch}`);
-    run(`git checkout FETCH_HEAD`);
-
-    const sourceRoot = join(tempDir, ...sourceSubdir.split("/"));
-    for (const flavor of ["azure", "unbranded"]) {
-      const src = join(sourceRoot, flavor);
-      const dest = join(testsGeneratedDir, flavor);
-      if (!existsSync(src)) {
-        console.warn(pc.yellow(`Baseline folder not found: ${src}`));
-        continue;
-      }
-      console.log(pc.dim(`Copying ${flavor}/ -> ${dest}`));
-      await cp(src, dest, { recursive: true });
-    }
-
-    console.log(pc.green(`Baseline reset complete.\n`));
-  } finally {
-    rmSync(tempDir, { recursive: true, force: true });
-  }
-
-  // Smoke test the full-emit path: delete a couple of fully-generated package
-  // folders and every README.md so regeneration has to recreate them.
-  const deleteIfExists = (path: string) => {
-    if (!existsSync(path)) return;
-    console.log(pc.dim(`Deleting ${path}`));
-    rmSync(path, { recursive: true, force: true });
-  };
-
-  deleteIfExists(join(testsGeneratedDir, "azure", "authentication-http-custom"));
-  deleteIfExists(join(testsGeneratedDir, "unbranded", "encode-array"));
-
-  if (existsSync(testsGeneratedDir)) {
-    const entries = await readdir(testsGeneratedDir, { recursive: true, withFileTypes: true });
-    for (const entry of entries) {
-      if (entry.isFile() && entry.name === "README.md") {
-        deleteIfExists(join(entry.parentPath, entry.name));
-      }
-    }
-  }
 }

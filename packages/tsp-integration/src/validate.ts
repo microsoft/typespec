@@ -21,10 +21,10 @@ export async function validateSpecs(
   suite: IntegrationTestSuite,
   options: ValidateSpecsOptions = {},
 ): Promise<void> {
-  const tspConfigDirs = await findTspProjects(dir, suite.pattern ?? "**/tspconfig.yaml");
+  const tspConfigDirs = await findTspProjects(dir, suite);
 
   if (tspConfigDirs.length === 0) {
-    log("No tspconfig.yaml files found in specification directory");
+    log("No TypeSpec projects found in specification directory");
     return;
   }
 
@@ -191,10 +191,15 @@ async function runValidation(
   return { successCount, failureCount, skippedCount, failedProjects };
 }
 
-async function findTspProjects(wd: string, pattern: string): Promise<string[]> {
+async function findTspProjects(wd: string, suite: IntegrationTestSuite): Promise<string[]> {
   const result: string[] = [];
-  for await (const file of glob(pattern, { cwd: wd })) {
-    result.push(dirname(resolve(wd, file)));
+  const pattern = suite.pattern ?? "**/tspconfig.yaml";
+  for await (const file of glob(pattern, { cwd: wd, exclude: suite.exclude })) {
+    const projectDir = dirname(resolve(wd, file));
+    const entrypoints = await findTspEntrypoints(projectDir, suite);
+    if (entrypoints.length > 0) {
+      result.push(projectDir);
+    }
   }
   return result;
 }

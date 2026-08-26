@@ -1,6 +1,4 @@
 import { ok } from "assert";
-import { describe, it } from "vitest";
+import { it } from "vitest";
 
-describe("internal-build-utils", () => {
-  it("todo", () => ok(true));
-});
+it("todo", () => ok(true));

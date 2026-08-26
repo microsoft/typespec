@@ -68,7 +68,12 @@ class Response(BaseModel):
 
     def get_polymorphic_subtypes(self, polymorphic_subtypes: list["ModelType"]) -> None:
         if self.type:
-            self.type.get_polymorphic_subtypes(polymorphic_subtypes)
+            if isinstance(self.type, CombinedType):
+                target = self.type.target_model_subtype((ModelType,))
+                if target:
+                    target.get_polymorphic_subtypes(polymorphic_subtypes)
+            else:
+                self.type.get_polymorphic_subtypes(polymorphic_subtypes)
 
     def get_json_template_representation(self) -> Any:
         if not self.type:
@@ -95,6 +100,7 @@ class Response(BaseModel):
     def type_annotation(self, **kwargs: Any) -> str:
         if self.type:
             kwargs["is_operation_file"] = True
+            kwargs["is_response"] = True
             type_annotation = self.type.type_annotation(**kwargs)
             if self.nullable:
                 return f"Optional[{type_annotation}]"
@@ -102,11 +108,13 @@ class Response(BaseModel):
         return "None"
 
     def docstring_text(self, **kwargs: Any) -> str:
+        kwargs["is_response"] = True
         if self.nullable and self.type:
             return f"{self.type.docstring_text(**kwargs)} or None"
         return self.type.docstring_text(**kwargs) if self.type else "None"
 
     def docstring_type(self, **kwargs: Any) -> str:
+        kwargs["is_response"] = True
         if self.nullable and self.type:
             return f"{self.type.docstring_type(**kwargs)} or None"
         return self.type.docstring_type(**kwargs) if self.type else "None"
@@ -121,7 +129,7 @@ class Response(BaseModel):
             serialize_namespace = kwargs.get("serialize_namespace", self.code_model.namespace)
             file_import.add_submodule_import(
                 self.code_model.get_relative_import_path(serialize_namespace),
-                "_types",
+                "_unions",
                 ImportType.LOCAL,
                 TypingSection.TYPING,
             )
@@ -165,7 +173,12 @@ class PagingResponse(Response):
         )
 
     def get_polymorphic_subtypes(self, polymorphic_subtypes: list["ModelType"]) -> None:
-        return self.item_type.get_polymorphic_subtypes(polymorphic_subtypes)
+        if isinstance(self.item_type, CombinedType):
+            target = self.item_type.target_model_subtype((ModelType,))
+            if target:
+                target.get_polymorphic_subtypes(polymorphic_subtypes)
+        else:
+            self.item_type.get_polymorphic_subtypes(polymorphic_subtypes)
 
     def get_json_template_representation(self) -> Any:
         return self.item_type.get_json_template_representation()

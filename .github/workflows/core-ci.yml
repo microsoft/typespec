@@ -15,7 +15,7 @@ jobs:
       fail-fast: false
       matrix:
         os: [ubuntu-latest, windows-latest]
-        node-version: ["22.x", "24.x"]
+        node-version: ["22.x", "24.x", "26.x"]
 
     env:
       TYPESPEC_VS_CI_BUILD: true
@@ -26,13 +26,13 @@ jobs:
         if: runner.os == 'Windows'
         run: git config --global core.longpaths true
 
-      - uses: actions/checkout@v6
+      - uses: actions/checkout@v7
 
       - uses: ./.github/actions/setup
         with:
           node-version: ${{ matrix.node-version }}
 
-      - uses: actions/setup-dotnet@v5
+      - uses: actions/setup-dotnet@v6
         with:
           dotnet-version: 8.0.x
 
@@ -58,14 +58,14 @@ jobs:
           retention-days: 5
 
       - name: Check for changed files
-        run: node eng/common/scripts/check-for-changed-files.js
+        run: node eng/common/scripts/check-for-changed-files.ts
 
   website:
     name: Website
     runs-on: ubuntu-latest
 
     steps:
-      - uses: actions/checkout@v6
+      - uses: actions/checkout@v7
 
       - uses: ./.github/actions/setup
 
@@ -79,7 +79,7 @@ jobs:
         run: pnpm --filter "@typespec/website..." run build
 
       - name: Check for changed files
-        run: node eng/common/scripts/check-for-changed-files.js
+        run: node eng/common/scripts/check-for-changed-files.ts
 
   e2e:
     name: E2E Tests
@@ -91,9 +91,11 @@ jobs:
       DISPLAY: ":99"
 
     steps:
-      - uses: actions/checkout@v6
+      - uses: actions/checkout@v7
 
       - uses: ./.github/actions/setup
+        with:
+          node-version: 26.x
 
       - name: Install dependencies
         run: pnpm install
@@ -139,14 +141,14 @@ jobs:
           retention-days: 5
 
       - name: Check for changed files
-        run: node eng/common/scripts/check-for-changed-files.js
+        run: node eng/common/scripts/check-for-changed-files.ts
 
   docker:
     name: Docker Build
     runs-on: ubuntu-latest
 
     steps:
-      - uses: actions/checkout@v6
+      - uses: actions/checkout@v7
 
       - name: Build Docker image
         run: docker build -f ./docker/Dockerfile .

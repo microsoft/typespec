@@ -54,7 +54,7 @@ namespace SampleTypeSpec
 
         /// <param name="data"> The data to parse. </param>
         /// <param name="options"> The client options for reading and writing models. </param>
-        Pet IPersistableModel<Pet>.Create(BinaryData data, ModelReaderWriterOptions options) => (UnknownPet)PersistableModelCreateCore(data, options);
+        Pet IPersistableModel<Pet>.Create(BinaryData data, ModelReaderWriterOptions options) => (Pet)PersistableModelCreateCore(data, options);
 
         /// <param name="options"> The client options for reading and writing models. </param>
         string IPersistableModel<Pet>.GetFormatFromOptions(ModelReaderWriterOptions options) => "J";
@@ -82,7 +82,7 @@ namespace SampleTypeSpec
 
         /// <param name="reader"> The JSON reader. </param>
         /// <param name="options"> The client options for reading and writing models. </param>
-        Pet IJsonModel<Pet>.Create(ref Utf8JsonReader reader, ModelReaderWriterOptions options) => (UnknownPet)JsonModelCreateCore(ref reader, options);
+        Pet IJsonModel<Pet>.Create(ref Utf8JsonReader reader, ModelReaderWriterOptions options) => (Pet)JsonModelCreateCore(ref reader, options);
 
         /// <param name="reader"> The JSON reader. </param>
         /// <param name="options"> The client options for reading and writing models. </param>

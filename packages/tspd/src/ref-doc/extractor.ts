@@ -1,21 +1,11 @@
-import {
-  compile,
-  compilerAssert,
-  createDiagnosticCollector,
+import type {
   Decorator,
   Diagnostic,
+  DiagnosticDefinition,
   DocContent,
   Enum,
   EnumMember,
-  getDeprecated,
-  getDoc,
-  getLocationContext,
-  getSourceLocation,
-  getTypeName,
   Interface,
-  isDeclaredType,
-  isTemplateDeclaration,
-  joinPaths,
   JSONSchemaType,
   LinterResolvedDefinition,
   LinterRuleDefinition,
@@ -23,29 +13,46 @@ import {
   Model,
   ModelProperty,
   Namespace,
-  navigateProgram,
-  navigateTypesInNamespace,
-  NodeHost,
-  NoTarget,
   Operation,
   Program,
-  resolveLinterDefinition,
-  resolvePath,
   Scalar,
   TemplatedType,
   Type,
   TypeSpecLibrary,
   Union,
+  UnionVariant,
+} from "@typespec/compiler";
+import {
+  compile,
+  compilerAssert,
+  createDiagnosticCollector,
+  getDeprecated,
+  getDoc,
+  getLocationContext,
+  getSourceLocation,
+  getTypeName,
+  isDeclaredType,
+  isTemplateDeclaration,
+  joinPaths,
+  navigateProgram,
+  navigateTypesInNamespace,
+  NodeHost,
+  NoTarget,
+  resolveLinterDefinition,
+  resolvePath,
+  type FileRef,
   type PackageJson,
 } from "@typespec/compiler";
 import { SyntaxKind, type DocUnknownTagNode } from "@typespec/compiler/ast";
 import { readFile } from "fs/promises";
 import { pathToFileURL } from "url";
-import { reportDiagnostic } from "./lib.js";
-import {
+import { createDiagnostic, reportDiagnostic } from "./lib.js";
+import type {
   DecoratorRefDoc,
   DeprecationNotice,
+  DiagnosticRefDoc,
   EmitterOptionRefDoc,
+  EmitterOptionVariantRefDoc,
   EnumMemberRefDoc,
   EnumRefDoc,
   ExampleRefDoc,
@@ -61,9 +68,11 @@ import {
   RefDocEntity,
   ReferencableElement,
   ScalarRefDoc,
+  SubExportRefDoc,
   TypeSpecLibraryRefDoc,
   TypeSpecRefDocBase,
   UnionRefDoc,
+  UnionVariantRefDoc,
 } from "./types.js";
 import { getQualifier, getTypeSignature } from "./utils/type-signature.js";
 
@@ -96,11 +105,13 @@ export async function extractLibraryRefDocs(
     getNamedTypeRefDoc: (type) => undefined,
   };
   const tspMain = getExport(pkgJson, ".", "typespec");
+  let mainSourceFiles: Set<string> | undefined;
   if (tspMain) {
     const main = resolvePath(libraryPath, tspMain);
     const program = await compile(NodeHost, main, {
       parseOptions: { comments: true, docs: true },
     });
+    mainSourceFiles = new Set(program.sourceFiles.keys());
     const tspEmitter = diagnostics.pipe(extractRefDocs(program));
     Object.assign(refDoc, tspEmitter);
     for (const diag of program.diagnostics ?? []) {
@@ -119,8 +130,46 @@ export async function extractLibraryRefDocs(
     }
     const linter = entrypoint.$linter;
     if (lib && linter) {
-      refDoc.linter = extractLinterRefDoc(lib.name, resolveLinterDefinition(lib.name, linter));
+      const resolved = resolveLinterDefinition(lib.name, linter);
+      refDoc.linter = await extractLinterRefDoc(lib.name, resolved, libraryPath);
+      for (const r of refDoc.linter.rules) {
+        if (!r.doc) {
+          diagnostics.add(
+            createDiagnostic({
+              code: "documentation-missing",
+              messageId: "rule",
+              format: { name: r.id },
+              target: NoTarget,
+            }),
+          );
+        }
+      }
     }
+    if (lib?.diagnostics) {
+      refDoc.diagnostics = await extractDiagnosticsRefDoc(
+        lib.name,
+        lib.diagnostics as Record<string, DiagnosticDefinition<any>>,
+        libraryPath,
+      );
+      for (const diag of refDoc.diagnostics) {
+        if (!diag.doc) {
+          diagnostics.add(
+            createDiagnostic({
+              code: "documentation-missing",
+              messageId: "diagnostic",
+              format: { name: diag.id },
+              target: NoTarget,
+            }),
+          );
+        }
+      }
+    }
+  }
+
+  // Extract sub-exports
+  const subExports = await extractSubExports(libraryPath, pkgJson, diagnostics, mainSourceFiles);
+  if (subExports.size > 0) {
+    refDoc.subExports = subExports;
   }
 
   return diagnostics.wrap(refDoc);
@@ -131,11 +180,66 @@ async function readPackageJson(libraryPath: string): Promise<PackageJson> {
   return JSON.parse(buffer.toString());
 }
 
+async function extractSubExports(
+  libraryPath: string,
+  pkgJson: PackageJson,
+  diagnostics: { pipe: <T>(result: [T, readonly Diagnostic[]]) => T; add: (d: Diagnostic) => void },
+  mainSourceFiles?: Set<string>,
+): Promise<Map<string, SubExportRefDoc>> {
+  const subExports = new Map<string, SubExportRefDoc>();
+  const exports = (pkgJson as any).exports;
+  if (!exports || typeof exports !== "object") {
+    return subExports;
+  }
+
+  for (const [exportPath, exportValue] of Object.entries<any>(exports)) {
+    // Skip the main export — already handled
+    if (exportPath === ".") continue;
+
+    // Only process exports that have a typespec condition
+    const tspEntry = exportValue?.typespec;
+    if (!tspEntry) continue;
+
+    const main = resolvePath(libraryPath, tspEntry);
+    try {
+      const program = await compile(NodeHost, main, {
+        parseOptions: { comments: true, docs: true },
+      });
+      const subRefDoc = diagnostics.pipe(
+        extractRefDocs(program, {
+          sourceFilter: mainSourceFiles
+            ? (sourcePath) => !mainSourceFiles.has(sourcePath)
+            : undefined,
+        }),
+      );
+      // Only include if it actually has content
+      if (subRefDoc.namespaces.length > 0) {
+        subExports.set(exportPath, {
+          path: exportPath,
+          ...subRefDoc,
+        });
+      }
+      for (const diag of program.diagnostics ?? []) {
+        diagnostics.add(diag);
+      }
+    } catch {
+      // Skip sub-exports that fail to compile
+    }
+  }
+
+  return subExports;
+}
+
 export interface ExtractRefDocOptions {
   namespaces?: {
     include?: string[];
     exclude?: string[];
   };
+  /**
+   * Filter to restrict which types are included based on their source file path.
+   * When provided, only types declared in files for which this returns true will be included.
+   */
+  sourceFilter?: (sourcePath: string) => boolean;
 }
 
 function resolveNamespaces(
@@ -158,6 +262,12 @@ function resolveNamespaces(
       }
       if (namespace.name === "Private") {
         return;
+      }
+      if (options.sourceFilter && namespace.node) {
+        const loc = getSourceLocation(namespace.node);
+        if (!loc.isSynthetic && !options.sourceFilter(loc.file.path)) {
+          return;
+        }
       }
       namespaceTypes.push(namespace);
     },
@@ -200,11 +310,20 @@ export function extractRefDocs(
       typeMapping.set(type, refDoc);
       (array as any).push(refDoc);
     }
+
+    function isIncludedBySourceFilter(type: Type): boolean {
+      if (!options.sourceFilter) return true;
+      const loc = getSourceLocation(type);
+      if (loc.isSynthetic) return true;
+      return options.sourceFilter(loc.file.path);
+    }
+
     navigateTypesInNamespace(
       namespace,
       {
         decorator(dec) {
           if (hasInternalModifier(dec)) return;
+          if (!isIncludedBySourceFilter(dec)) return;
           collectType(dec, extractDecoratorRefDoc(program, dec), namespaceDoc.decorators);
         },
         operation(operation) {
@@ -212,6 +331,7 @@ export function extractRefDocs(
           if (!isDeclaredType(operation)) {
             return;
           }
+          if (!isIncludedBySourceFilter(operation)) return;
 
           if (operation.interface === undefined) {
             collectType(
@@ -226,6 +346,7 @@ export function extractRefDocs(
           if (!isDeclaredType(iface)) {
             return;
           }
+          if (!isIncludedBySourceFilter(iface)) return;
           collectType(iface, extractInterfaceRefDocs(program, iface), namespaceDoc.interfaces);
         },
         model(model) {
@@ -236,6 +357,7 @@ export function extractRefDocs(
           if (model.name === "") {
             return;
           }
+          if (!isIncludedBySourceFilter(model)) return;
           collectType(model, extractModelRefDocs(program, model), namespaceDoc.models);
         },
         enum(e) {
@@ -243,6 +365,7 @@ export function extractRefDocs(
           if (!isDeclaredType(e)) {
             return;
           }
+          if (!isIncludedBySourceFilter(e)) return;
           collectType(e, extractEnumRefDoc(program, e), namespaceDoc.enums);
         },
         union(union) {
@@ -251,11 +374,13 @@ export function extractRefDocs(
             return;
           }
           if (union.name !== undefined) {
+            if (!isIncludedBySourceFilter(union)) return;
             collectType(union, extractUnionRefDocs(program, union as any), namespaceDoc.unions);
           }
         },
         scalar(scalar) {
           if (hasInternalModifier(scalar)) return;
+          if (!isIncludedBySourceFilter(scalar)) return;
           collectType(scalar, extractScalarRefDocs(program, scalar), namespaceDoc.scalars);
         },
       },
@@ -263,8 +388,20 @@ export function extractRefDocs(
     );
   }
 
-  sort(namespaces);
-  for (const namespace of namespaces) {
+  // Remove namespaces that have no content after filtering
+  const filteredNamespaces = namespaces.filter(
+    (ns) =>
+      ns.decorators.length > 0 ||
+      ns.operations.length > 0 ||
+      ns.interfaces.length > 0 ||
+      ns.models.length > 0 ||
+      ns.enums.length > 0 ||
+      ns.unions.length > 0 ||
+      ns.scalars.length > 0,
+  );
+
+  sort(filteredNamespaces);
+  for (const namespace of filteredNamespaces) {
     sort(namespace.decorators);
     sort(namespace.enums);
     sort(namespace.interfaces);
@@ -279,7 +416,7 @@ export function extractRefDocs(
   }
 
   return diagnostics.wrap({
-    namespaces,
+    namespaces: filteredNamespaces,
     getNamedTypeRefDoc: (type) => typeMapping.get(type),
   });
 }
@@ -525,6 +662,25 @@ function extractUnionRefDocs(program: Program, type: Union & { name: string }): 
     templateParameters: extractTemplateParameterDocs(program, type),
     doc: doc,
     examples: extractExamples(type),
+    variants: new Map(
+      [...type.variants.values()]
+        .filter((v): v is UnionVariant & { name: string } => typeof v.name === "string")
+        .map((v) => [v.name, extractUnionVariantRefDocs(program, v)]),
+    ),
+  };
+}
+
+function extractUnionVariantRefDocs(
+  program: Program,
+  type: UnionVariant & { name: string },
+): UnionVariantRefDoc {
+  const doc = extractMainDoc(program, type);
+  return {
+    ...extractBase(program, type),
+    signature: getTypeSignature(type),
+    type,
+    doc: doc,
+    examples: extractExamples(type),
   };
 }
 
@@ -658,21 +814,172 @@ function extractEmitterOptionsRefDoc(
   options: JSONSchemaType<Record<string, never>>,
 ): EmitterOptionRefDoc[] {
   return Object.entries(options.properties).map(([name, value]: [string, any]) => {
-    return {
-      name,
-      type: value.enum
-        ? value.enum.map((x: string | number) => (typeof x === "string" ? `"${x}"` : x)).join(" | ")
-        : value.type,
-      doc: value.description ?? "",
-    };
+    return extractEmitterOptionInfo(name, value);
   });
 }
 
-function extractLinterRefDoc(libName: string, linter: LinterResolvedDefinition): LinterRefDoc {
+function extractEmitterOptionInfo(name: string, prop: any): EmitterOptionRefDoc {
+  // Handle oneOf: extract variants
+  if (prop.oneOf) {
+    return extractOneOfEmitterOption(name, prop);
+  }
+
+  const option: Mutable<EmitterOptionRefDoc> = {
+    name,
+    type: resolveEmitterOptionType(prop),
+    doc: resolveDescription(prop.description),
+  };
+
+  if (prop.enum) {
+    option.allowedValues = prop.enum.map((x: string | number) =>
+      typeof x === "string" ? `"${x}"` : String(x),
+    );
+  } else if (prop.type === "array" && prop.items?.enum) {
+    option.allowedValues = prop.items.enum.map((x: string | number) =>
+      typeof x === "string" ? `"${x}"` : String(x),
+    );
+  }
+
+  if (prop.default !== undefined) {
+    option.default = JSON.stringify(prop.default);
+  }
+
+  if (prop.deprecated !== undefined) {
+    option.deprecated = typeof prop.deprecated === "string" ? prop.deprecated : "";
+  }
+  if (prop.type === "object" && prop.properties) {
+    option.nestedOptions = Object.entries(prop.properties).map(
+      ([subName, subProp]: [string, any]) => extractEmitterOptionInfo(subName, subProp),
+    );
+  }
+
+  return option;
+}
+
+function extractOneOfEmitterOption(name: string, prop: any): EmitterOptionRefDoc {
+  const rawVariants: any[] = prop.oneOf;
+
+  const variants: EmitterOptionVariantRefDoc[] = [];
+
+  for (const variant of rawVariants) {
+    const v: Mutable<EmitterOptionVariantRefDoc> = {
+      type: resolveEmitterOptionType(variant),
+    };
+
+    if (variant.enum) {
+      v.allowedValues = variant.enum.map((x: string | number) =>
+        typeof x === "string" ? `"${x}"` : String(x),
+      );
+    }
+
+    if (variant.default !== undefined) {
+      v.default = JSON.stringify(variant.default);
+    }
+
+    if (variant.description) {
+      v.doc = resolveDescription(variant.description);
+    }
+
+    if (variant.type === "object" && variant.properties) {
+      v.nestedOptions = Object.entries(variant.properties).map(
+        ([subName, subProp]: [string, any]) => extractEmitterOptionInfo(subName, subProp),
+      );
+    }
+
+    variants.push(v);
+  }
+
+  const option: Mutable<EmitterOptionRefDoc> = {
+    name,
+    type: rawVariants.map((v: any) => resolveEmitterOptionType(v)).join(" | "),
+    doc: resolveDescription(prop.description),
+    variants,
+  };
+
+  if (prop.default !== undefined) {
+    option.default = JSON.stringify(prop.default);
+  }
+
+  return option;
+}
+
+function resolveEmitterOptionType(prop: any): string {
+  if (prop.oneOf) {
+    return prop.oneOf.map((s: any) => resolveEmitterOptionType(s)).join(" | ");
+  }
+
+  if (prop.type === "array") {
+    if (prop.items) {
+      if (prop.items.enum) {
+        const values = prop.items.enum
+          .map((x: string | number) => (typeof x === "string" ? `"${x}"` : String(x)))
+          .join(" | ");
+        return `(${values})[]`;
+      }
+      const itemType = prop.items.type ?? "unknown";
+      return `${itemType}[]`;
+    }
+    return "array";
+  }
+
+  if (prop.type === "object" && prop.properties) {
+    const keys = Object.keys(prop.properties);
+    return `object { ${keys.join(", ")} }`;
+  }
+
+  if (prop.enum) {
+    return prop.enum
+      .map((x: string | number) => (typeof x === "string" ? `"${x}"` : String(x)))
+      .join(" | ");
+  }
+
+  return prop.type ?? "unknown";
+}
+
+function resolveDescription(description: string | string[] | undefined): string {
+  if (description === undefined) return "";
+  return Array.isArray(description) ? description.join("\n") : description;
+}
+
+async function resolveDoc(
+  doc: string | FileRef | undefined,
+  libraryPath: string,
+): Promise<string | undefined> {
+  if (doc === undefined) return undefined;
+  if (typeof doc === "string") return doc;
+  try {
+    return await readFile(joinPaths(libraryPath, doc.path), "utf-8");
+  } catch {
+    return undefined;
+  }
+}
+
+async function extractLinterRefDoc(
+  libName: string,
+  linter: LinterResolvedDefinition,
+  libraryPath: string,
+): Promise<LinterRefDoc> {
   return {
     ruleSets: linter.ruleSets && extractLinterRuleSetsRefDoc(libName, linter.ruleSets),
-    rules: linter.rules.map((rule) => extractLinterRuleRefDoc(libName, rule)),
+    rules: await Promise.all(
+      linter.rules.map((rule) => extractLinterRuleRefDoc(libName, rule, libraryPath)),
+    ),
   };
+}
+
+async function extractDiagnosticsRefDoc(
+  libName: string,
+  diagnostics: Record<string, DiagnosticDefinition<any>>,
+  libraryPath: string,
+): Promise<DiagnosticRefDoc[]> {
+  return Promise.all(
+    Object.entries(diagnostics).map(async ([name, def]) => ({
+      id: `${libName}/${name}`,
+      name,
+      severity: def.severity,
+      doc: await resolveDoc(def.docs, libraryPath),
+    })),
+  );
 }
 
 function extractLinterRuleSetsRefDoc(
@@ -689,15 +996,17 @@ function extractLinterRuleSetsRefDoc(
     };
   });
 }
-function extractLinterRuleRefDoc(
+async function extractLinterRuleRefDoc(
   libName: string,
   rule: LinterRuleDefinition<any, any>,
-): LinterRuleRefDoc {
+  libraryPath: string,
+): Promise<LinterRuleRefDoc> {
   const fullName = `${libName}/${rule.name}`;
   return {
     kind: "rule",
     id: fullName,
     name: fullName,
     rule,
+    doc: await resolveDoc(rule.docs, libraryPath),
   };
 }

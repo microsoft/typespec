@@ -6,6 +6,7 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.Diagnostics.CodeAnalysis;
 using System.Linq;
+using System.Text;
 using Microsoft.TypeSpec.Generator.Expressions;
 using Microsoft.TypeSpec.Generator.Input;
 using Microsoft.TypeSpec.Generator.Input.Extensions;
@@ -63,9 +64,24 @@ namespace Microsoft.TypeSpec.Generator.Providers
         public ParameterProvider(InputParameter inputParameter)
         {
             InputParameter = inputParameter;
-            Name = inputParameter.Name;
+            Name = !inputParameter.IsExactName && inputParameter.Type.IsDateTimeInputType()
+                ? inputParameter.Name.NormalizeDateTimeSuffix()
+                : inputParameter.Name;
             Description = DocHelpers.GetFormattableDescription(inputParameter.Summary, inputParameter.Doc) ?? FormattableStringHelpers.Empty;
-            var type = CodeModelGenerator.Instance.TypeFactory.CreateCSharpType(inputParameter.Type) ?? throw new InvalidOperationException($"Failed to create CSharpType for {inputParameter.Type}");
+            var type = CodeModelGenerator.Instance.TypeFactory.CreateCSharpType(inputParameter.Type);
+            if (type is null)
+            {
+                StringBuilder sbError = new($"Failed to create CSharpType for {inputParameter.Type}, named in TypeSpec as \"{inputParameter.Name}\".");
+                if (inputParameter.EnclosingType is not null)
+                {
+                    sbError.Append($"\nEnclosing type: {inputParameter.EnclosingType.Name}");
+                }
+                if (Description is not null)
+                {
+                    sbError.Append($"\nDescription: {Description}");
+                }
+                throw new InvalidOperationException(sbError.ToString());
+            }
             if (!inputParameter.IsRequired)
             {
                 type = !type.IsCollection ? type.WithNullable(true) : type;
@@ -191,87 +207,75 @@ namespace Microsoft.TypeSpec.Generator.Providers
         // TODO test case for changing the parameter name via the visitor to see if the variable expression is updated
         // Same for properties and fields
         // https://github.com/microsoft/typespec/issues/3813
-        public static implicit operator VariableExpression(ParameterProvider parameter) => GetVariableExpression(parameter, includeModifiers: false);
+        public static implicit operator VariableExpression(ParameterProvider parameter) => GetVariableExpression(parameter);
 
-        internal static VariableExpression GetVariableExpression(ParameterProvider parameter, bool includeModifiers)
+        internal static VariableExpression GetVariableExpression(ParameterProvider parameter)
         {
-            CodeWriterDeclaration? declaration = parameter._asVariable?.Declaration ?? parameter._asArgument?.Declaration;
-
-            if (includeModifiers)
-            {
-                if (parameter._asArgument == null)
-                {
-                    if (declaration != null)
-                    {
-                        parameter._asArgument = new VariableExpression(
-                            parameter.Type,
-                            declaration,
-                            parameter.IsRef,
-                            parameter.IsOut);
-                    }
-                    else
-                    {
-                        parameter._asArgument = new VariableExpression(
-                            parameter.Type,
-                            parameter.Name.ToVariableName(),
-                            parameter.IsRef,
-                            parameter.IsOut);
-                    }
-                }
-                return parameter._asArgument;
-            }
-
             if (parameter._asVariable == null)
             {
-                if (declaration != null)
-                {
-                    parameter._asVariable = new VariableExpression(
-                        parameter.Type,
-                        declaration,
-                        parameter.IsRef,
-                        parameter.IsOut);
-                }
-                else
-                {
-                    parameter._asVariable = new VariableExpression(
-                        parameter.Type,
-                        parameter.Name.ToVariableName(),
-                        includeModifiers && parameter.IsRef,
-                        includeModifiers && parameter.IsOut);
-                }
+                var variableName = parameter.InputParameter?.IsExactName == true
+                    ? parameter.Name
+                    : parameter.Name.Length > 0 && char.IsLower(parameter.Name[0])
+                        ? parameter.Name.ToVariableName(preserveUnderscores: false, normalizeAcronyms: false)
+                        : parameter.Name.ToVariableName();
+
+                parameter._asVariable = new VariableExpression(
+                    parameter.Type,
+                    variableName);
             }
 
             return parameter._asVariable;
         }
 
+        internal static ValueExpression GetArgumentExpression(ParameterProvider parameter)
+        {
+            var variable = GetVariableExpression(parameter);
+            if (parameter.IsRef || parameter.IsOut)
+            {
+                return new ArgumentExpression(variable, parameter.IsRef, parameter.IsOut);
+            }
+            return variable;
+        }
+
         private VariableExpression? _asVariable;
-        private VariableExpression? _asArgument;
 
         public TypeProvider? SpreadSource { get; set; }
 
         private ParameterValidationType GetParameterValidation()
         {
             if (Field is not null && !Field.Type.IsNullable)
+            {
                 return ParameterValidationType.AssertNotNull;
+            }
 
             if (Property is null || Property.WireInfo is null)
+            {
                 return ParameterValidationType.None;
+            }
 
             // We do not validate a parameter when it is a value type (struct or int, etc)
             if (Property.Type.IsValueType)
+            {
                 return ParameterValidationType.None;
+            }
 
             // or it is readonly
             if (Property.WireInfo.IsReadOnly)
+            {
                 return ParameterValidationType.None;
+            }
 
             // or it is optional
             if (!Property.WireInfo.IsRequired)
+            {
                 return ParameterValidationType.None;
+            }
 
             // or it is nullable
             if (Property.Type.IsNullable)
+            {
                 return ParameterValidationType.None;
+            }
 
             return ParameterValidationType.AssertNotNull;
         }
@@ -296,7 +300,6 @@ namespace Microsoft.TypeSpec.Generator.Providers
                 validation: Validation)
             {
                 _asVariable = _asVariable,
-                _asArgument = _asArgument,
             };
         }
 
@@ -324,7 +327,6 @@ namespace Microsoft.TypeSpec.Generator.Providers
             {
                 Name = name;
                 _asVariable?.Update(name: name);
-                _asArgument?.Update(name: name);
             }
 
             if (description is not null)
@@ -346,15 +348,11 @@ namespace Microsoft.TypeSpec.Generator.Providers
             if (isRef is not null)
             {
                 IsRef = isRef.Value;
-                _asVariable?.Update(isRef: IsRef);
-                _asArgument?.Update(isRef: IsRef);
             }
 
             if (isOut is not null)
             {
                 IsOut = isOut.Value;
-                _asVariable?.Update(isOut: IsOut);
-                _asArgument?.Update(isOut: IsOut);
             }
 
             if (isIn is not null)

@@ -2,8 +2,14 @@ import { dereference } from "@scalar/openapi-parser";
 import { formatTypeSpec } from "@typespec/compiler";
 import { strictEqual } from "node:assert";
 import { beforeAll, describe, it } from "vitest";
-import { Context, createContext } from "../../src/cli/actions/convert/utils/context.js";
-import { OpenAPI3Document, OpenAPI3Schema, OpenAPISchema3_1, Refable } from "../../src/types.js";
+import type { Context } from "../../src/cli/actions/convert/utils/context.js";
+import { createContext } from "../../src/cli/actions/convert/utils/context.js";
+import type {
+  OpenAPI3Document,
+  OpenAPI3Schema,
+  OpenAPISchema3_1,
+  Refable,
+} from "../../src/types.js";
 
 interface TestScenario {
   schema: Refable<OpenAPI3Schema | OpenAPISchema3_1>;
@@ -329,7 +335,7 @@ describe("tsp-openapi: generate-type", () => {
     if (!specification) {
       throw new Error("Failed to dereference OpenAPI document");
     }
-    context = createContext(specification as OpenAPI3Document);
+    context = createContext(specification as unknown as OpenAPI3Document);
   });
   testScenarios.forEach((t) =>
     it(`${generateScenarioName(t)}`, async () => {

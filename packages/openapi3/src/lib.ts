@@ -1,8 +1,10 @@
-import { createTypeSpecLibrary, JSONSchemaType, paramMessage } from "@typespec/compiler";
+import type { JSONSchemaType } from "@typespec/compiler";
+import { createTypeSpecLibrary, fileRef, paramMessage } from "@typespec/compiler";
 
 export type FileType = "yaml" | "json";
 export type OpenAPIVersion = "3.0.0" | "3.1.0" | "3.2.0";
 export type ExperimentalParameterExamplesStrategy = "data" | "serialized";
+export type EnumStrategy = "default" | "annotated";
 export interface OpenAPI3EmitterOptions {
   /**
    * If the content should be serialized as YAML or JSON. Can be a single value or an array to emit multiple file types.
@@ -108,6 +110,20 @@ export interface OpenAPI3EmitterOptions {
         /** Separator used to join segment in the operation name. */
         separator?: string;
       };
+
+  /**
+   * How to emit TypeSpec enums.
+   *
+   *  - `default`: Emit as a single schema using the `enum` keyword.
+   *  - `annotated`: Emit as a `oneOf` of `const` subschemas, each annotated with `title` and `description`
+   *    when the corresponding enum member has `@summary` or `@doc`. This follows the OpenAPI 3.1.1
+   *    [annotated enumerations](https://spec.openapis.org/oas/v3.1.1.html#annotated-enumerations) pattern.
+   *    Only supported by OpenAPI 3.1.0 and above. When emitting OpenAPI 3.0.0, a warning will be reported
+   *    and the `default` style will be used instead.
+   *
+   * @default "default"
+   */
+  "enum-strategy"?: EnumStrategy;
 }
 
 export type OperationIdStrategy = "parent-container" | "fqn" | "explicit-only";
@@ -268,6 +284,19 @@ const EmitterOptionsSchema: JSONSchemaType<OpenAPI3EmitterOptions> = {
         },
       ],
     } as any,
+    "enum-strategy": {
+      type: "string",
+      enum: ["default", "annotated"],
+      nullable: true,
+      default: "default",
+      description: [
+        "How to emit TypeSpec enums and unions of literals. Options are:",
+        " - `default`: Emit as a single schema using the `enum` keyword.",
+        " - `annotated`: Emit as a `oneOf` of `const` subschemas annotated with `title` and `description`",
+        "   from each member's/variant's `@summary` and `@doc`. Follows the OpenAPI 3.1.1 annotated enumerations pattern.",
+        "   Only supported by OpenAPI 3.1.0 and above; on 3.0.0 the `default` style is used and a warning is reported.",
+      ].join("\n"),
+    },
   },
   required: [],
 };
@@ -293,6 +322,7 @@ export const $lib = createTypeSpecLibrary({
     },
     "invalid-server-variable": {
       severity: "error",
+      docs: fileRef.fromPackageRoot("src/diagnostics/invalid-server-variable.md"),
       messages: {
         default: paramMessage`Server variable '${"propName"}' must be assignable to 'string'. It must either be a string, enum of string or union of strings.`,
       },
@@ -324,12 +354,14 @@ export const $lib = createTypeSpecLibrary({
     },
     "path-query": {
       severity: "error",
+      docs: fileRef.fromPackageRoot("src/diagnostics/path-query.md"),
       messages: {
         default: `OpenAPI does not allow paths containing a query string.`,
       },
     },
     "duplicate-header": {
       severity: "error",
+      docs: fileRef.fromPackageRoot("src/diagnostics/duplicate-header.md"),
       messages: {
         default: paramMessage`The header ${"header"} is defined across multiple content types`,
       },
@@ -343,12 +375,14 @@ export const $lib = createTypeSpecLibrary({
 
     "invalid-schema": {
       severity: "error",
+      docs: fileRef.fromPackageRoot("src/diagnostics/invalid-schema.md"),
       messages: {
         default: paramMessage`Couldn't get schema for type ${"type"}`,
       },
     },
     "union-null": {
       severity: "error",
+      docs: fileRef.fromPackageRoot("src/diagnostics/union-null.md"),
       messages: {
         default: "Cannot have a union containing only null types.",
       },
@@ -375,6 +409,7 @@ export const $lib = createTypeSpecLibrary({
     },
     "inline-cycle": {
       severity: "error",
+      docs: fileRef.fromPackageRoot("src/diagnostics/inline-cycle.md"),
       messages: {
         default: paramMessage`Cycle detected in '${"type"}'. Use @friendlyName decorator to assign an OpenAPI definition name and make it non-inline.`,
       },
@@ -426,6 +461,13 @@ export const $lib = createTypeSpecLibrary({
       severity: "warning",
       messages: {
         default: paramMessage`Default value is not supported in OpenAPI 3.0 ${"message"}`,
+      },
+    },
+    "enum-strategy-not-supported": {
+      severity: "warning",
+      messages: {
+        default:
+          "`enum-strategy: annotated` is only supported for OpenAPI 3.1.0 and above. The default enum strategy will be used for OpenAPI 3.0.0.",
       },
     },
   },

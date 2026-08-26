@@ -1,11 +1,7 @@
 import { deepStrictEqual, equal, ok, strictEqual } from "assert";
 import { describe, it } from "vitest";
-import {
-  CompletionItem,
-  CompletionItemKind,
-  CompletionList,
-  MarkupKind,
-} from "vscode-languageserver/node.js";
+import type { CompletionItem, CompletionList } from "vscode-languageserver";
+import { CompletionItemKind, MarkupKind } from "vscode-languageserver";
 import { extractCursor, extractSquiggles } from "../../src/testing/source-utils.js";
 import { createTestServerHost } from "../../src/testing/test-server-host.js";
 
@@ -713,6 +709,33 @@ describe("identifiers", () => {
     ]);
   });
 
+  it("completes in the middle of an identifier replacing the full token", async () => {
+    const completions = await complete(
+      `
+      model M {
+        s: st┆r
+      }
+      `,
+    );
+    check(completions, [
+      {
+        label: "string",
+        kind: CompletionItemKind.Unit,
+        documentation: {
+          kind: MarkupKind.Markdown,
+          value: "```typespec\nscalar string\n```",
+        },
+        textEdit: {
+          newText: "string",
+          range: {
+            start: { line: 2, character: 11 },
+            end: { line: 2, character: 14 },
+          },
+        },
+      },
+    ]);
+  });
+
   it("completes partial backticked identifiers", async () => {
     const completions = await complete(
       `
@@ -732,6 +755,52 @@ describe("identifiers", () => {
         documentation: {
           kind: MarkupKind.Markdown,
           value: "(enum member)\n```typespec\n`enum`.`foo-bar`\n```",
+        },
+      },
+    ]);
+  });
+
+  it("completes keyword property name in member expression without backticks", async () => {
+    const completions = await complete(
+      `
+      model Test {
+        auto: string;
+      }
+      alias A = Test.au┆
+      `,
+    );
+    check(completions, [
+      {
+        label: "auto",
+        insertText: "auto",
+        kind: CompletionItemKind.Field,
+        documentation: {
+          kind: MarkupKind.Markdown,
+          value: "(model property)\n```typespec\nTest.auto: string\n```",
+        },
+      },
+    ]);
+  });
+
+  it("completes keyword property name in model body without backticks", async () => {
+    const completions = await complete(
+      `
+      model Base {
+        auto: string;
+      }
+      model Child extends Base {
+        au┆
+      }
+      `,
+    );
+    check(completions, [
+      {
+        label: "auto",
+        insertText: "auto",
+        kind: CompletionItemKind.Field,
+        documentation: {
+          kind: MarkupKind.Markdown,
+          value: "(model property)\n```typespec\nBase.auto: string\n```",
         },
       },
     ]);
@@ -1279,6 +1348,54 @@ describe("identifiers", () => {
       {
         allowAdditionalCompletions: false,
       },
+    );
+  });
+
+  it("does not complete file namespace members in a using declared before the file namespace", async () => {
+    const completions = await complete(
+      `
+      import "./lib.tsp";
+      using ┆M;
+      namespace MyOrg.Svc;
+      `,
+      undefined,
+      {
+        "test/lib.tsp": `
+        namespace MyOrg.Models { model M {} }
+        namespace Standalone { model S {} }
+        `,
+      },
+    );
+
+    ok(
+      completions.items.some((x) => x.label === "Standalone"),
+      "Should complete global namespaces",
+    );
+    ok(
+      !completions.items.some((x) => x.label === "Models"),
+      "Should not complete `Models` as usings before the file namespace resolve from the global namespace",
+    );
+  });
+
+  it("completes file namespace members in a using declared after the file namespace", async () => {
+    const completions = await complete(
+      `
+      import "./lib.tsp";
+      namespace MyOrg.Svc;
+      using ┆M;
+      `,
+      undefined,
+      {
+        "test/lib.tsp": `
+        namespace MyOrg.Models { model M {} }
+        namespace Standalone { model S {} }
+        `,
+      },
+    );
+
+    ok(
+      completions.items.some((x) => x.label === "Models"),
+      "Should complete `Models` as usings after the file namespace resolve relative to it",
     );
   });
 
@@ -2795,7 +2912,21 @@ function check(
       actual,
       `Expected completion item not found: '${expected.label}'. Available: ${list.items.map((x) => x.label).join(", ")}`,
     );
-    deepStrictEqual(actual, expected);
+
+    // If expected uses insertText but actual uses textEdit, normalize for comparison.
+    // This allows tests to verify completion text content without hardcoding cursor positions.
+    const normalizedActual = { ...actual };
+    if (
+      expected.insertText !== undefined &&
+      expected.textEdit === undefined &&
+      normalizedActual.textEdit !== undefined &&
+      "newText" in normalizedActual.textEdit
+    ) {
+      normalizedActual.insertText = normalizedActual.textEdit.newText;
+      delete (normalizedActual as any).textEdit;
+    }
+
+    deepStrictEqual(normalizedActual, expected);
     actualMap.delete(actual.label);
     expectedMap.delete(expected.label);
   }

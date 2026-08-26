@@ -9,6 +9,7 @@ using Microsoft.CodeAnalysis.CSharp;
 using Microsoft.TypeSpec.Generator.EmitterRpc;
 using Microsoft.TypeSpec.Generator.Expressions;
 using Microsoft.TypeSpec.Generator.Input;
+using Microsoft.TypeSpec.Generator.Input.Extensions;
 using Microsoft.TypeSpec.Generator.Primitives;
 using Microsoft.TypeSpec.Generator.SourceInput;
 using Microsoft.TypeSpec.Generator.Statements;
@@ -22,6 +23,7 @@ namespace Microsoft.TypeSpec.Generator.Providers
         private Lazy<TypeProvider?> _lastContractView;
         private Lazy<CanonicalTypeProvider> _canonicalView;
         private Lazy<TypeProvider> _specView;
+        private Lazy<string?> _declaringTypeName;
         private readonly InputType? _inputType;
 
         protected TypeProvider(InputType? inputType = default)
@@ -30,6 +32,7 @@ namespace Microsoft.TypeSpec.Generator.Providers
             _canonicalView = new(BuildCanonicalView);
             _lastContractView = new(() => BuildLastContractView());
             _specView = new(BuildSpecView);
+            _declaringTypeName = new(() => GetDeclaringTypeName(DeclaringTypeProvider));
             _inputType = inputType;
         }
 
@@ -41,17 +44,49 @@ namespace Microsoft.TypeSpec.Generator.Providers
         }
 
         private protected virtual TypeProvider? BuildCustomCodeView(string? generatedTypeName = null, string? generatedTypeNamespace = null)
-            => CodeModelGenerator.Instance.SourceInputModel.FindForTypeInCustomization(
+            => CodeModelGenerator.Instance.SourceInputModel.FindForTypeInCurrentCompilation(
                 generatedTypeNamespace ?? BuildNamespace(),
                 generatedTypeName ?? BuildName(),
-                // Use the Type.Name so that any customizations to the declaring type are applied for the lookup.
-                DeclaringTypeProvider?.Type.Name);
+                _declaringTypeName.Value);
 
         private protected virtual TypeProvider? BuildLastContractView(string? generatedTypeName = null, string? generatedTypeNamespace = null)
-            => CodeModelGenerator.Instance.SourceInputModel.FindForTypeInLastContract(
-                generatedTypeNamespace ?? CustomCodeView?.Type.Namespace ?? BuildNamespace(),
-                generatedTypeName ?? CustomCodeView?.Name ?? BuildName(),
-                DeclaringTypeProvider?.Type.Name);
+        {
+            var typeNamespace = generatedTypeNamespace ?? CustomCodeView?.Type.Namespace ?? BuildNamespace();
+            var typeName = generatedTypeName ?? CustomCodeView?.Name ?? BuildName();
+            var lastContractView = CodeModelGenerator.Instance.SourceInputModel.FindForTypeInLastContract(
+                typeNamespace,
+                typeName,
+                _declaringTypeName.Value);
+            if (lastContractView is not null || _inputType is null || _inputType.IsExactName)
+            {
+                return lastContractView;
+            }
+
+            var originalName = _inputType.Name.ToIdentifierName();
+            var normalizedOriginalName = originalName.NormalizeCSharpAcronyms();
+            if (normalizedOriginalName == originalName || typeName != normalizedOriginalName)
+            {
+                return null;
+            }
+
+            return CodeModelGenerator.Instance.SourceInputModel.FindForTypeInLastContract(
+                typeNamespace,
+                originalName,
+                _declaringTypeName.Value);
+        }
+
+        private static string? GetDeclaringTypeName(TypeProvider? declaringTypeProvider)
+        {
+            if (declaringTypeProvider is null)
+            {
+                return null;
+            }
+
+            var parentName = GetDeclaringTypeName(declaringTypeProvider.DeclaringTypeProvider);
+            return parentName is null
+                ? declaringTypeProvider.Type.Name
+                : $"{parentName}+{declaringTypeProvider.Type.Name}";
+        }
 
         private protected virtual TypeProvider BuildSpecView() => new SpecTypeProvider(this);
 
@@ -64,13 +99,23 @@ namespace Microsoft.TypeSpec.Generator.Providers
             var allCustomProperties = CustomCodeView?.Properties != null
                 ? new List<PropertyProvider>(CustomCodeView.Properties)
                 : [];
-            var baseTypeCustomCodeView = BaseTypeProvider?.CustomCodeView;
+            var baseTypeProvider = BaseTypeProvider;
+            var includeBaseProviderMembers = CustomCodeView?.BaseType != null;
+            var visited = new HashSet<TypeProvider>();
 
             // add all custom properties from base types
-            while (baseTypeCustomCodeView != null)
+            while (baseTypeProvider != null && visited.Add(baseTypeProvider))
             {
-                allCustomProperties.AddRange(baseTypeCustomCodeView.Properties);
-                baseTypeCustomCodeView = baseTypeCustomCodeView.BaseTypeProvider?.CustomCodeView;
+                if (includeBaseProviderMembers)
+                {
+                    allCustomProperties.AddRange(baseTypeProvider.Properties);
+                }
+
+                if (baseTypeProvider.CustomCodeView is { } customCodeView)
+                {
+                    allCustomProperties.AddRange(customCodeView.Properties);
+                }
+                baseTypeProvider = baseTypeProvider.BaseTypeProvider;
             }
 
             return allCustomProperties;
@@ -81,13 +126,23 @@ namespace Microsoft.TypeSpec.Generator.Providers
             var allCustomFields = CustomCodeView?.Fields != null
                 ? new List<FieldProvider>(CustomCodeView.Fields)
                 : [];
-            var baseTypeCustomCodeView = BaseTypeProvider?.CustomCodeView;
+            var baseTypeProvider = BaseTypeProvider;
+            var includeBaseProviderMembers = CustomCodeView?.BaseType != null;
+            var visited = new HashSet<TypeProvider>();
 
             // add all custom fields from base types
-            while (baseTypeCustomCodeView != null)
+            while (baseTypeProvider != null && visited.Add(baseTypeProvider))
             {
-                allCustomFields.AddRange(baseTypeCustomCodeView.Fields);
-                baseTypeCustomCodeView = baseTypeCustomCodeView.BaseTypeProvider?.CustomCodeView;
+                if (includeBaseProviderMembers)
+                {
+                    allCustomFields.AddRange(baseTypeProvider.Fields);
+                }
+
+                if (baseTypeProvider.CustomCodeView is { } customCodeView)
+                {
+                    allCustomFields.AddRange(customCodeView.Fields);
+                }
+                baseTypeProvider = baseTypeProvider.BaseTypeProvider;
             }
 
             return allCustomFields;
@@ -121,6 +176,17 @@ namespace Microsoft.TypeSpec.Generator.Providers
         {
             get => _xmlDocs ??= BuildXmlDocs();
             private set => _xmlDocs = value;
+        }
+
+        internal bool PreserveTypeXmlDocs { get; private set; }
+
+        protected internal virtual bool ShouldWriteTypeXmlDocs => false;
+
+        protected internal virtual bool IsClientProvider => false;
+
+        internal void PreserveXmlDocs()
+        {
+            PreserveTypeXmlDocs = true;
         }
 
         public string? Deprecated
@@ -195,6 +261,16 @@ namespace Microsoft.TypeSpec.Generator.Providers
                    severity: EmitterDiagnosticSeverity.Warning);
             }
 
+            // Back-compat: a type that the last contract published as non-abstract must not become
+            // abstract, which would be a source-breaking change for existing derived types and
+            // callers. Preserve the previously-published non-abstract shape.
+            if (modifiers.HasFlag(TypeSignatureModifiers.Abstract) &&
+                LastContractView is { } lastContractView &&
+                !lastContractView.DeclarationModifiers.HasFlag(TypeSignatureModifiers.Abstract))
+            {
+                modifiers &= ~TypeSignatureModifiers.Abstract;
+            }
+
             // we always add partial when possible
             if (!modifiers.HasFlag(TypeSignatureModifiers.Enum) && DeclaringTypeProvider is null)
             {
@@ -207,6 +283,9 @@ namespace Microsoft.TypeSpec.Generator.Providers
         internal virtual TypeProvider? BaseTypeProvider => null;
 
         protected virtual CSharpType? BuildBaseType() => null;
+
+        private IReadOnlyList<SuppressionStatement>? _disabledFileWarnings;
+        public IReadOnlyList<SuppressionStatement> DisabledFileWarnings => _disabledFileWarnings ??= BuildDisabledFileWarnings();
 
         private protected virtual bool FilterCustomizedMembers => true;
 
@@ -267,9 +346,26 @@ namespace Microsoft.TypeSpec.Generator.Providers
 
         private IReadOnlyList<TypeProvider>? _serializationProviders;
 
-        public IReadOnlyList<TypeProvider> SerializationProviders => _serializationProviders ??= BuildSerializationProviders();
+        public IReadOnlyList<TypeProvider> SerializationProviders => _serializationProviders ??= BuildSerializationProvidersInternal();
+
+        internal TypeProvider? SerializationProviderOwner { get; private set; }
+
+        private IReadOnlyList<CSharpType>? _helperDependencyTypes;
+        internal IReadOnlyList<CSharpType> HelperDependencyTypes => _helperDependencyTypes ??= BuildHelperDependencyTypes();
+        protected internal virtual IReadOnlyList<CSharpType> BuildHelperDependencyTypes() => [];
+
+        private IReadOnlyList<CSharpType>? _bodyDependencyTypes;
+        public IReadOnlyList<CSharpType> BodyDependencyTypes => _bodyDependencyTypes ??= BuildBodyDependencyTypes();
+        protected internal virtual IReadOnlyList<CSharpType> BuildBodyDependencyTypes() => [];
+
+        private IReadOnlyList<CSharpType>? _signatureDependencyTypes;
+        public IReadOnlyList<CSharpType> SignatureDependencyTypes => _signatureDependencyTypes ??= BuildSignatureDependencyTypes();
+        protected internal virtual IReadOnlyList<CSharpType> BuildSignatureDependencyTypes() => [];
 
         private IReadOnlyList<MethodBodyStatement>? _attributes;
+
+        // Snapshot of the attributes as they were before the first Update call
+        private HashSet<MethodBodyStatement>? _originalAttributes;
 
         public IReadOnlyList<AttributeStatement> Attributes
         {
@@ -288,31 +384,69 @@ namespace Microsoft.TypeSpec.Generator.Providers
             }
         }
 
-        internal IReadOnlyList<MethodBodyStatement> GetAttributes() => _attributes ??= BuildAttributes();
+        /// <summary>
+        /// Indicates whether this provider's attributes are stable enough to be cached and analyzed by the
+        /// reference map. Providers whose generated attributes depend on final generation decisions return
+        /// <c>false</c> so their attributes are rebuilt at write time.
+        /// </summary>
+        protected internal virtual bool ShouldAnalyzeAttributesInReferenceMap => true;
+
+        internal IReadOnlyList<MethodBodyStatement> GetAttributesForWrite()
+        {
+            if (ShouldAnalyzeAttributesInReferenceMap)
+            {
+                return _attributes ??= BuildAttributes();
+            }
+
+            return RebuildAttributes();
+        }
+
+        // Rebuilds the generated attributes (including any back-compatibility additions) from the finalized
+        // generation state and re-attaches the attributes a visitor contributed on top of the previously
+        // generated set. Providers whose attributes depend on final generation decisions may have cached a
+        // value during reference-map analysis, so the generated portion is always recomputed here.
+        private IReadOnlyList<MethodBodyStatement> RebuildAttributes()
+        {
+            var visitorAdditions = _attributes is null || _originalAttributes is null
+                ? []
+                : _attributes.Where(a => !_originalAttributes.Contains(a)).ToList();
+
+            var result = BuildAttributesForBackCompatibility([.. BuildAttributes(), .. visitorAdditions]);
+
+            // Exclude the visitor additions from the snapshot so they stay identifiable when the generated set is rebuilt.
+            var visitorSet = new HashSet<MethodBodyStatement>(visitorAdditions);
+            _originalAttributes = [.. result.Where(a => !visitorSet.Contains(a))];
+            return _attributes = result;
+        }
+
+        /// <summary>
+        /// Determines whether a provider remains in the generated output after reference-map analysis.
+        /// </summary>
+        protected static bool ShouldWriteProvider(TypeProvider provider) =>
+            ProviderReferenceMapAnalyzer.ShouldWriteProvider(provider);
+
+        /// <summary>
+        /// Determines whether a type remains resolvable after reference-map analysis.
+        /// </summary>
+        protected static bool IsResolvableBuildableType(CSharpType type) =>
+            ProviderReferenceMapAnalyzer.IsResolvableBuildableType(type);
 
         protected virtual CSharpType[] GetTypeArguments() => [];
 
         internal PropertyProvider[] FilterCustomizedProperties(IEnumerable<PropertyProvider> specProperties)
         {
+            var specPropertiesByName = BuildSpecPropertiesByName(specProperties);
             var properties = new List<PropertyProvider>();
             var customProperties = new HashSet<string>();
 
             foreach (var customProperty in BuildAllCustomProperties())
             {
-                customProperties.Add(customProperty.Name);
-                if (customProperty.OriginalName != null)
-                {
-                    customProperties.Add(customProperty.OriginalName);
-                }
+                AddCustomName(customProperties, customProperty.Name, customProperty.OriginalName, specPropertiesByName);
             }
 
             foreach (var customField in BuildAllCustomFields())
             {
-                customProperties.Add(customField.Name);
-                if (customField.OriginalName != null)
-                {
-                    customProperties.Add(customField.OriginalName);
-                }
+                AddCustomName(customProperties, customField.Name, customField.OriginalName, specPropertiesByName);
             }
 
             foreach (var property in specProperties)
@@ -324,6 +458,48 @@ namespace Microsoft.TypeSpec.Generator.Providers
             }
 
             return [.. properties];
+        }
+
+        private static void AddCustomName(
+            HashSet<string> customNames,
+            string name,
+            string? originalName,
+            IReadOnlyDictionary<string, InputProperty> specPropertiesByName)
+        {
+            customNames.Add(name);
+            if (originalName is null)
+            {
+                return;
+            }
+
+            customNames.Add(originalName);
+            if (specPropertiesByName.TryGetValue(originalName, out var inputProperty) && !inputProperty.IsExactName)
+            {
+                customNames.Add(
+                    originalName
+                        .ToIdentifierName()
+                        .NormalizeCSharpAcronyms(inputProperty.Type.IsDateTimeInputType()));
+            }
+        }
+
+        private static IReadOnlyDictionary<string, InputProperty> BuildSpecPropertiesByName(IEnumerable<PropertyProvider> specProperties)
+        {
+            var specPropertiesByName = new Dictionary<string, InputProperty>(StringComparer.Ordinal);
+
+            foreach (var specProperty in specProperties)
+            {
+                var inputProperty = specProperty.InputProperty;
+                if (inputProperty is null)
+                {
+                    continue;
+                }
+
+                var identifierName = inputProperty.Name.ToIdentifierName();
+                specPropertiesByName.TryAdd(inputProperty.Name, inputProperty);
+                specPropertiesByName.TryAdd(identifierName, inputProperty);
+            }
+
+            return specPropertiesByName;
         }
 
         internal FieldProvider[] FilterCustomizedFields(IEnumerable<FieldProvider> specFields)
@@ -410,12 +586,17 @@ namespace Microsoft.TypeSpec.Generator.Providers
         private static MethodProvider CreatePartialMethodFromCustomSignature(MethodSignature customSignature, MethodProvider generatedMethod)
         {
             // Partial method implementations require all parameters to be required (no default values).
+            // The generator's parameters carry the metadata and the declarations referenced by the
+            // method body and XML docs; the custom signature only supplies the parameter names.
             var requiredParameters = PartialMethodCustomization.RenameAndCloneParameters(
-                customSignature.Parameters,
+                generatedMethod.Signature.Parameters,
                 customSignature.Parameters,
                 removeDefaults: true);
 
-            var partialSignature = PartialMethodCustomization.BuildPartialSignature(customSignature, requiredParameters);
+            var partialSignature = PartialMethodCustomization.BuildPartialSignature(
+                customSignature,
+                requiredParameters,
+                generatedMethod.Signature.ReturnType);
 
             MethodProvider partialMethod = generatedMethod.BodyExpression != null
                 ? new MethodProvider(partialSignature, generatedMethod.BodyExpression, generatedMethod.EnclosingType, generatedMethod.XmlDocs, generatedMethod.Suppressions)
@@ -461,10 +642,25 @@ namespace Microsoft.TypeSpec.Generator.Providers
         protected internal virtual MethodProvider[] BuildMethods() => [];
 
         protected internal virtual ConstructorProvider[] BuildConstructors() => [];
+        protected internal virtual SuppressionStatement[] BuildDisabledFileWarnings() => [];
 
         protected virtual TypeProvider[] BuildNestedTypes() => [];
 
         protected virtual TypeProvider[] BuildSerializationProviders() => [];
+
+        private IReadOnlyList<TypeProvider> BuildSerializationProvidersInternal()
+            => AssignSerializationProviderOwners(BuildSerializationProviders());
+
+        private IReadOnlyList<TypeProvider> AssignSerializationProviderOwners(IEnumerable<TypeProvider> serializationProviders)
+        {
+            var providers = (serializationProviders as IReadOnlyList<TypeProvider>) ?? [.. serializationProviders];
+            foreach (var serializationProvider in providers)
+            {
+                serializationProvider.SerializationProviderOwner = this;
+            }
+
+            return providers;
+        }
 
         protected virtual CSharpType BuildEnumUnderlyingType() => throw new InvalidOperationException("Not an EnumProvider type");
 
@@ -483,6 +679,31 @@ namespace Microsoft.TypeSpec.Generator.Providers
 
         protected abstract string BuildRelativeFilePath();
         protected abstract string BuildName();
+
+        protected string NormalizeTypeNameForNewContract(string name)
+        {
+            var typeNamespace = BuildNamespace();
+            var currentType = CodeModelGenerator.Instance.SourceInputModel.FindForTypeInCurrentCompilation(
+                typeNamespace,
+                name,
+                _declaringTypeName.Value);
+            if (currentType is not null)
+            {
+                return name;
+            }
+
+            var normalizedName = name.NormalizeCSharpAcronyms();
+            if (normalizedName == name)
+            {
+                return name;
+            }
+
+            var lastContractType = CodeModelGenerator.Instance.SourceInputModel.FindForTypeInLastContract(
+                typeNamespace,
+                name,
+                _declaringTypeName.Value);
+            return lastContractType is null ? normalizedName : name;
+        }
 
         /// <summary>
         /// Resets only the cached methods so they are rebuilt on next access.
@@ -504,23 +725,31 @@ namespace Microsoft.TypeSpec.Generator.Providers
             _methods = null;
             _properties = null;
             _fields = null;
-            _constructors = null;
+            ResetConstructors();
             _implements = null;
             _serializationProviders = null;
             _nestedTypes = null;
             _xmlDocs = null;
+            PreserveTypeXmlDocs = false;
             _declarationModifiers = null;
             _relativeFilePath = null;
+            _declaringTypeName = new(() => GetDeclaringTypeName(DeclaringTypeProvider));
             _customCodeView = new(() => BuildCustomCodeView());
             _canonicalView = new(BuildCanonicalView);
             _lastContractView = new(() => BuildLastContractView());
             _enumValues = null;
             _enumUnderlyingType = null;
             _attributes = null;
+            _originalAttributes = null;
             _deprecated = null;
             _description = null;
             _type = null;
             _arguments = null;
+        }
+
+        private protected virtual void ResetConstructors()
+        {
+            _constructors = null;
         }
 
         /// <summary>
@@ -583,7 +812,7 @@ namespace Microsoft.TypeSpec.Generator.Providers
             }
             if (serializations != null)
             {
-                _serializationProviders = (serializations as IReadOnlyList<TypeProvider>) ?? serializations.ToList();
+                _serializationProviders = AssignSerializationProviderOwners(serializations);
             }
             if (nestedTypes != null)
             {
@@ -603,7 +832,13 @@ namespace Microsoft.TypeSpec.Generator.Providers
             }
             if (attributes != null)
             {
-                _attributes = (attributes as IReadOnlyList<AttributeStatement>) ?? [.. attributes];
+                // For providers whose generated attributes are rebuilt at write time, remember the attributes
+                // as they were before the first update so GetAttributesForWrite can preserve the additions.
+                if (!ShouldAnalyzeAttributesInReferenceMap)
+                {
+                    _originalAttributes ??= [.. Attributes];
+                }
+                _attributes = [.. attributes];
             }
 
             if (name != null)
@@ -622,17 +857,20 @@ namespace Microsoft.TypeSpec.Generator.Providers
 
         private void ResetMembersBasedOnIdentityChange(string? name = null, string? @namespace = null)
         {
+            _declaringTypeName = new(() => GetDeclaringTypeName(DeclaringTypeProvider));
             // Reset the custom code view to reflect the new namespace
             _customCodeView = new(BuildCustomCodeView(name ?? Type.Name, @namespace ?? Type.Namespace));
             name = _customCodeView.Value?.Name ?? name ?? Type.Name;
             @namespace = _customCodeView.Value?.Type.Namespace ?? @namespace ?? Type.Namespace;
-            _lastContractView = new(BuildLastContractView(
+            var lastContractView = BuildLastContractView(
                 name,
-                @namespace));
+                @namespace);
+            _lastContractView = new(lastContractView);
+            name = _customCodeView.Value?.Name ?? lastContractView?.Name ?? name;
             // recalculate declaration modifiers and constructors
             _declarationModifiers = null;
             // constructors might change based on declaration modifier changes
-            _constructors = null;
+            ResetConstructors();
             // serialization providers need to reflect the new type name/namespace
             _serializationProviders = null;
             Type.Update(name: name, @namespace: @namespace);
@@ -675,7 +913,8 @@ namespace Microsoft.TypeSpec.Generator.Providers
 
             IReadOnlyList<EnumTypeMember>? updatedEnumValues = null;
             IEnumerable<FieldProvider>? newFields = null;
-            if (this is EnumProvider)
+            IEnumerable<PropertyProvider>? newProperties = null;
+            if (this is EnumProvider enumProvider)
             {
                 var hasFields = LastContractView?.Fields != null && LastContractView.Fields.Count > 0;
                 if (hasFields)
@@ -698,7 +937,39 @@ namespace Microsoft.TypeSpec.Generator.Providers
                             updatedEnumValues = newEnumValues;
                         }
 
-                        newFields = filteredFields;
+                        // Sync the enum values before rebuilding the member collections from them.
+                        if (updatedEnumValues != null)
+                        {
+                            _enumValues = updatedEnumValues;
+                        }
+
+                        if (enumProvider.IsExtensible)
+                        {
+                            // Extensible enums carry an extra backing `_value` field and surface members
+                            // as properties, so rebuild both from the updated members. Reuse the
+                            // already-visited field and property instances for members that still exist so
+                            // any visitor mutations are preserved and only the restored members are
+                            // (re)visited below.
+                            var existingFields = new Dictionary<string, FieldProvider>(StringComparer.Ordinal);
+                            foreach (var field in Fields)
+                            {
+                                existingFields.TryAdd(field.Name, field);
+                            }
+                            newFields = ApplyCustomizationFilter(
+                                BuildFields().Select(f => existingFields.TryGetValue(f.Name, out var existing) ? existing : f));
+
+                            var existingProperties = new Dictionary<string, PropertyProvider>(StringComparer.Ordinal);
+                            foreach (var property in Properties)
+                            {
+                                existingProperties.TryAdd(property.Name, property);
+                            }
+                            newProperties = ApplyCustomizationFilter(
+                                BuildProperties().Select(p => existingProperties.TryGetValue(p.Name, out var existing) ? existing : p));
+                        }
+                        else
+                        {
+                            newFields = filteredFields;
+                        }
                     }
                 }
             }
@@ -706,24 +977,221 @@ namespace Microsoft.TypeSpec.Generator.Providers
             var newMethods = hasMethods ? BuildMethodsForBackCompatibility(Methods) : null;
             var newConstructors = hasConstructors ? BuildConstructorsForBackCompatibility(Constructors) : null;
 
-            if (newFields != null || newMethods != null || newConstructors != null)
+            if (newFields != null || newProperties != null || newMethods != null || newConstructors != null)
             {
-                if (updatedEnumValues != null)
+                // Back-compatibility processing intentionally runs after the library visitor pass so
+                // that the contract comparison uses the final, post-visitor member signatures (otherwise
+                // we could incorrectly decide whether a back-compat member is needed). As a result, any
+                // members synthesized above (e.g. back-compat overloads) have not been visited yet. Run
+                // only those newly-added members through the visitors now so visitor transforms apply to
+                // them as well, without re-visiting members that were already visited during the main pass.
+                if (newMethods != null)
                 {
-                    _enumValues = updatedEnumValues;
+                    newMethods = VisitNewMembers(newMethods, Methods, static (member, visitor) => member.Accept(visitor));
                 }
-                Update(fields: newFields, methods: newMethods, constructors: newConstructors);
+                if (newConstructors != null)
+                {
+                    newConstructors = VisitNewMembers(newConstructors, Constructors, static (member, visitor) => visitor.VisitConstructor(member));
+                }
+                if (newProperties != null)
+                {
+                    newProperties = VisitNewMembers(newProperties, Properties, static (member, visitor) => visitor.VisitProperty(member));
+                }
+                if (newFields != null)
+                {
+                    newFields = VisitNewMembers(newFields, Fields, static (member, visitor) => visitor.VisitField(member));
+                }
+
+                Update(fields: newFields, properties: newProperties, methods: newMethods, constructors: newConstructors);
             }
+
+            // Providers whose attributes depend on final generation decisions build their attributes at write
+            // time; materialize them here (applying attribute back-compatibility) so reads before the write
+            // reflect the result. The generated portion is refreshed again at write against the final state.
+            if (!ShouldAnalyzeAttributesInReferenceMap)
+            {
+                RebuildAttributes();
+            }
+        }
+
+        // Runs newly-added back-compatibility members through every registered visitor while leaving
+        // members that were already visited during the main visitor pass untouched. Membership in the
+        // already-visited set is determined by reference identity against the pre-Update collection.
+        private static IReadOnlyList<T> VisitNewMembers<T>(
+            IEnumerable<T> allMembers,
+            IReadOnlyList<T> alreadyVisited,
+            Func<T, LibraryVisitor, T?> visit)
+            where T : class
+        {
+            var visitors = CodeModelGenerator.Instance.Visitors;
+            var materialized = allMembers as IReadOnlyList<T> ?? [.. allMembers];
+            if (visitors.Count == 0)
+            {
+                return materialized;
+            }
+
+            var alreadyVisitedSet = new HashSet<T>(alreadyVisited, ReferenceEqualityComparer.Instance);
+            var result = new List<T>(materialized.Count);
+            foreach (var member in materialized)
+            {
+                if (alreadyVisitedSet.Contains(member))
+                {
+                    result.Add(member);
+                    continue;
+                }
+
+                T? visited = member;
+                foreach (var visitor in visitors)
+                {
+                    visited = visit(visited, visitor);
+                    if (visited == null)
+                    {
+                        break;
+                    }
+                }
+
+                if (visited != null)
+                {
+                    result.Add(visited);
+                }
+            }
+
+            return result;
         }
 
         protected internal virtual IReadOnlyList<EnumTypeMember>? BuildEnumValuesForBackCompatibility(IReadOnlyList<EnumTypeMember> originalEnumValues)
             => null;
 
-        protected internal virtual IReadOnlyList<MethodProvider> BuildMethodsForBackCompatibility(IEnumerable<MethodProvider> originalMethods)
-            => [.. originalMethods];
+        /// <summary>
+        /// Returns this type's attributes with backward compatibility applied against
+        /// <see cref="LastContractView"/>. The default implementation applies no back-compatibility and
+        /// returns the attributes unchanged. Override to restore attributes that were present in the last contract.
+        /// </summary>
+        protected internal virtual IReadOnlyList<MethodBodyStatement> BuildAttributesForBackCompatibility(IReadOnlyList<MethodBodyStatement> originalAttributes)
+            => originalAttributes;
 
+        /// <summary>
+        /// Returns this type's methods with backward compatibility applied against
+        /// <see cref="LastContractView"/>. The default implementation restores the previous
+        /// parameter order on a current method when it matches a last-contract method by name and
+        /// return type with the same parameter set but in a different order. Reordering is done in
+        /// place, so a method's body (which references its parameters by object) remains valid.
+        /// Override and call <c>base</c> to extend this behavior; override without calling
+        /// <c>base</c> to replace it.
+        /// </summary>
+        protected internal virtual IReadOnlyList<MethodProvider> BuildMethodsForBackCompatibility(IEnumerable<MethodProvider> originalMethods)
+        {
+            var methods = new List<MethodProvider>(originalMethods);
+
+            if (LastContractView?.Methods is not { Count: > 0 } previousMethods)
+            {
+                return methods;
+            }
+
+            var currentMethodSignatures = BuildCurrentMethodSignatureMap(methods);
+
+            foreach (var previousMethod in previousMethods)
+            {
+                if (currentMethodSignatures.ContainsKey(previousMethod.Signature)
+                    || !MethodSignatureHelper.IsPublicApi(previousMethod.Signature.Modifiers)
+                    || BackCompatHelper.IsMethodRemovalAcceptedInBaseline(this, previousMethod.Signature))
+                {
+                    continue;
+                }
+
+                var methodToReorder = BackCompatHelper.FindMethodWithSameParametersDifferentOrder(previousMethod.Signature, currentMethodSignatures);
+                if (methodToReorder != null && BackCompatHelper.TryRestorePreviousParameterOrder(methodToReorder, previousMethod.Signature))
+                {
+                    CodeModelGenerator.Instance.Emitter.Debug(
+                        $"Reordered parameters of '{Name}.{methodToReorder.Signature.Name}' to match last contract.",
+                        BackCompatibilityChangeCategory.MethodParameterReordering);
+                }
+            }
+
+            BackCompatHelper.RestorePreviousParameterNames(this, methods);
+            BackCompatHelper.AddBackCompatOverloads(this, methods);
+
+            return methods;
+        }
+
+        /// <summary>
+        /// Builds a lookup of the type's current method signatures (including custom code methods)
+        /// used to match against last-contract methods.
+        /// </summary>
+        private Dictionary<MethodSignature, MethodProvider> BuildCurrentMethodSignatureMap(IEnumerable<MethodProvider> methods)
+        {
+            var allMethods = CustomCodeView?.Methods != null
+                ? methods.Concat(CustomCodeView.Methods)
+                : methods;
+
+            var result = new Dictionary<MethodSignature, MethodProvider>(MethodSignature.MethodSignatureComparer);
+            foreach (var method in allMethods)
+            {
+                result.TryAdd(method.Signature, method);
+            }
+            return result;
+        }
+
+        /// <summary>
+        /// Returns this type's constructors with backward compatibility applied against
+        /// <see cref="LastContractView"/>. The default implementation preserves a previously-published
+        /// public constructor on an abstract base type: when the current generation would emit a
+        /// <c>private protected</c> constructor whose parameters match a <c>public</c> constructor in
+        /// the last contract, the modifier is promoted back to <c>public</c>. Override and call
+        /// <c>base</c> to extend this behavior.
+        /// </summary>
         protected internal virtual IReadOnlyList<ConstructorProvider> BuildConstructorsForBackCompatibility(IEnumerable<ConstructorProvider> originalConstructors)
-            => [.. originalConstructors];
+        {
+            // Only handle the case of changing modifiers on abstract base types.
+            if (!DeclarationModifiers.HasFlag(TypeSignatureModifiers.Abstract))
+            {
+                return [.. originalConstructors];
+            }
+
+            if (LastContractView?.Constructors == null || LastContractView.Constructors.Count == 0)
+            {
+                return [.. originalConstructors];
+            }
+
+            List<ConstructorProvider> constructors = [.. originalConstructors];
+
+            // Check if the last contract had a public constructor with matching parameters
+            foreach (var previousConstructor in LastContractView.Constructors)
+            {
+                if (!previousConstructor.Signature.Modifiers.HasFlag(MethodSignatureModifiers.Public))
+                {
+                    continue;
+                }
+
+                if (BackCompatHelper.IsConstructorRemovalAcceptedInBaseline(this, previousConstructor.Signature))
+                {
+                    continue;
+                }
+
+                // Find a matching constructor in the current version by parameter signature
+                for (int i = 0; i < constructors.Count; i++)
+                {
+                    var currentConstructor = constructors[i];
+                    if (!currentConstructor.Signature.Modifiers.HasFlag(MethodSignatureModifiers.Private) ||
+                        !currentConstructor.Signature.Modifiers.HasFlag(MethodSignatureModifiers.Protected))
+                    {
+                        continue;
+                    }
+
+                    // Check if parameters match (same count and types)
+                    if (BackCompatHelper.ParametersMatch(currentConstructor.Signature.Parameters, previousConstructor.Signature.Parameters))
+                    {
+                        // Change the modifier from private protected to public
+                        currentConstructor.Signature.Update(modifiers: MethodSignatureModifiers.Public);
+                        CodeModelGenerator.Instance.Emitter.Debug(
+                            $"Promoted constructor '{Name}({string.Join(", ", currentConstructor.Signature.Parameters.Select(p => p.Type.ToString()))})' from 'private protected' to 'public' to match last contract.",
+                            BackCompatibilityChangeCategory.ConstructorModifierPreserved);
+                    }
+                }
+            }
+
+            return [.. constructors];
+        }
 
         private IReadOnlyList<EnumTypeMember>? _enumValues;
 
@@ -779,7 +1247,10 @@ namespace Microsoft.TypeSpec.Generator.Providers
                     continue;
                 }
 
-                if (MethodSignatureBase.SignatureComparer.Equals(customMethod.Signature, method.Signature))
+                // A custom method suppresses the generated one when their signatures match — treating
+                // optional value-type parameters that differ only by nullability as equal, since emitting
+                // both would be a CS0121-ambiguous coexistence.
+                if (MethodSignatureBase.SignatureComparerIgnoringOptionalValueTypeNullability.Equals(customMethod.Signature, method.Signature))
                 {
                     return false;
                 }
@@ -828,7 +1299,11 @@ namespace Microsoft.TypeSpec.Generator.Providers
             return name == fieldProvider.Name;
         }
 
-        private static bool IsMatch(TypeProvider enclosingType, MethodSignatureBase signature, AttributeData attribute)
+        /// <summary>
+        /// Determines whether the method with the given <paramref name="signature"/> on <paramref name="enclosingType"/>
+        /// matches the given <c>CodeGenSuppress</c> <paramref name="attribute"/>.
+        /// </summary>
+        internal static bool IsMatch(TypeProvider enclosingType, MethodSignatureBase signature, AttributeData attribute)
         {
             ValidateArguments(enclosingType, attribute);
             var name = attribute.ConstructorArguments[0].Value as string;
@@ -988,7 +1463,7 @@ namespace Microsoft.TypeSpec.Generator.Providers
         private static FileLinePositionSpan GetFileLinePosition(SyntaxReference? syntaxReference)
             => syntaxReference?.SyntaxTree.GetLocation(syntaxReference.Span).GetLineSpan() ?? default;
 
-        private IEnumerable<AttributeData> GetMemberSuppressionAttributes()
+        internal IEnumerable<AttributeData> GetMemberSuppressionAttributes()
             => CustomCodeView?.Attributes.Where(a => a.Data?.AttributeClass?.Name == CodeGenAttributes.CodeGenSuppressAttributeName).
                 Select(a => a.Data!).ToList() ?? [];
     }

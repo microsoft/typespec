@@ -17,11 +17,13 @@ import {
   utf16CodeUnits,
 } from "./charcode.js";
 import { createTripleQuoteIndentCodeFix } from "./compiler-code-fixes/triple-quote-indent.codefix.js";
-import { DiagnosticHandler, compilerAssert } from "./diagnostics.js";
-import { CompilerDiagnostics, createDiagnostic } from "./messages.js";
+import type { DiagnosticHandler } from "./diagnostics.js";
+import { compilerAssert } from "./diagnostics.js";
+import type { CompilerDiagnostics } from "./messages.js";
+import { createDiagnostic } from "./messages.js";
 import { getCommentAtPosition } from "./parser-utils.js";
 import { createSourceFile } from "./source-file.js";
-import { DiagnosticReport, SourceFile, TextRange, TypeSpecScriptNode } from "./types.js";
+import type { DiagnosticReport, SourceFile, TextRange, TypeSpecScriptNode } from "./types.js";
 
 // All conflict markers consist of the same character repeated seven times.  If it is
 // a <<<<<<< or >>>>>>> marker then it is also followed by a space.
@@ -139,6 +141,7 @@ export enum Token {
 
   ExternKeyword = __StartModifierKeyword,
   InternalKeyword,
+  AutoKeyword,
 
   /** @internal */ __EndModifierKeyword,
   ///////////////////////////////////////////////////////////////
@@ -194,7 +197,6 @@ export enum Token {
   ImplKeyword,
   SatisfiesKeyword,
   FlagKeyword,
-  AutoKeyword,
   PartialKeyword,
   PrivateKeyword,
   PublicKeyword,
@@ -224,9 +226,7 @@ export type DocToken =
   | Token.EndOfFile;
 
 export type StringTemplateToken =
-  | Token.StringTemplateHead
-  | Token.StringTemplateMiddle
-  | Token.StringTemplateTail;
+  Token.StringTemplateHead | Token.StringTemplateMiddle | Token.StringTemplateTail;
 
 /** @internal */
 export const TokenDisplay = getTokenDisplayTable([
@@ -310,6 +310,7 @@ export const TokenDisplay = getTokenDisplayTable([
   [Token.NeverKeyword, "'never'"],
   [Token.UnknownKeyword, "'unknown'"],
   [Token.ExternKeyword, "'extern'"],
+  [Token.AutoKeyword, "'auto'"],
 
   // Reserved keywords
   [Token.StatemachineKeyword, "'statemachine'"],
@@ -342,7 +343,6 @@ export const TokenDisplay = getTokenDisplayTable([
   [Token.ImplKeyword, "'impl'"],
   [Token.SatisfiesKeyword, "'satisfies'"],
   [Token.FlagKeyword, "'flag'"],
-  [Token.AutoKeyword, "'auto'"],
   [Token.PartialKeyword, "'partial'"],
   [Token.PrivateKeyword, "'private'"],
   [Token.PublicKeyword, "'public'"],
@@ -383,6 +383,7 @@ export const Keywords: ReadonlyMap<string, Token> = new Map([
   ["never", Token.NeverKeyword],
   ["unknown", Token.UnknownKeyword],
   ["extern", Token.ExternKeyword],
+  ["auto", Token.AutoKeyword],
   ["internal", Token.InternalKeyword],
 
   // Reserved keywords
@@ -416,7 +417,6 @@ export const Keywords: ReadonlyMap<string, Token> = new Map([
   ["impl", Token.ImplKeyword],
   ["satisfies", Token.SatisfiesKeyword],
   ["flag", Token.FlagKeyword],
-  ["auto", Token.AutoKeyword],
   ["partial", Token.PartialKeyword],
   ["private", Token.PrivateKeyword],
   ["public", Token.PublicKeyword],
@@ -455,7 +455,6 @@ export const ReservedKeywords: ReadonlyMap<string, Token> = new Map([
   ["impl", Token.ImplKeyword],
   ["satisfies", Token.SatisfiesKeyword],
   ["flag", Token.FlagKeyword],
-  ["auto", Token.AutoKeyword],
   ["partial", Token.PartialKeyword],
   ["private", Token.PrivateKeyword],
   ["public", Token.PublicKeyword],

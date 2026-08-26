@@ -1,11 +1,12 @@
 import { deepStrictEqual, ok, strictEqual } from "assert";
 import { beforeEach, describe, it } from "vitest";
 import { stringify } from "yaml";
-import { TypeSpecRawConfig } from "../src/config/types.js";
-import { CompileCliArgs, getCompilerOptions } from "../src/core/cli/actions/compile/args.js";
-import { CompilerOptions } from "../src/core/options.js";
+import type { TypeSpecRawConfig } from "../src/config/types.js";
+import type { CompileCliArgs } from "../src/core/cli/actions/compile/args.js";
+import { getCompilerOptions } from "../src/core/cli/actions/compile/args.js";
+import type { CompilerOptions } from "../src/core/options.js";
+import type { TestHost } from "../src/testing/index.js";
 import {
-  TestHost,
   createTestHost,
   expectDiagnosticEmpty,
   expectDiagnostics,
@@ -287,6 +288,80 @@ describe("compiler: cli", () => {
     testUnifiedOptions("trace", "trace", {
       default: undefined,
       set: [{ in: ["one", "two"], expected: ["one", "two"], alt: ["three"] }],
+    });
+  });
+
+  describe("project config validation with --config", () => {
+    it("errors when --config points to a project config", async () => {
+      host.addTypeSpecFile(
+        "ws/configs/tspconfig.yaml",
+        stringify({ kind: "project", emit: ["openapi"] }),
+      );
+      const [_, diagnostics] = await getCompilerOptions(
+        host.compilerHost,
+        "ws/main.tsp",
+        cwd,
+        { config: "configs/tspconfig.yaml" },
+        {},
+      );
+      expectDiagnostics(diagnostics, {
+        code: "config-project-not-as-cli-config",
+      });
+    });
+
+    it("auto-inherits entrypoint from project tspconfig when using --config", async () => {
+      host.addTypeSpecFile(
+        "ws/tspconfig.yaml",
+        stringify({ kind: "project", entrypoint: "src/service.tsp" }),
+      );
+      host.addTypeSpecFile("ws/src/service.tsp", "");
+      host.addTypeSpecFile("ws/tspconfig.build.yaml", stringify({ emit: ["openapi"] }));
+      const [options, diagnostics] = await getCompilerOptions(
+        host.compilerHost,
+        "ws/main.tsp",
+        cwd,
+        { config: "tspconfig.build.yaml" },
+        {},
+      );
+      expectDiagnosticEmpty(diagnostics);
+      ok(options, "Options should have been set.");
+      strictEqual(options.configFile?.entrypoint, "src/service.tsp");
+    });
+
+    it("auto-inherits features from project tspconfig when using --config", async () => {
+      host.addTypeSpecFile(
+        "ws/tspconfig.yaml",
+        stringify({ kind: "project", features: ["function-declarations"] }),
+      );
+      host.addTypeSpecFile("ws/tspconfig.build.yaml", stringify({ emit: ["openapi"] }));
+      const [options, diagnostics] = await getCompilerOptions(
+        host.compilerHost,
+        "ws/main.tsp",
+        cwd,
+        { config: "tspconfig.build.yaml" },
+        {},
+      );
+      expectDiagnosticEmpty(diagnostics);
+      ok(options, "Options should have been set.");
+      deepStrictEqual(options.configFile?.features, ["function-declarations"]);
+    });
+
+    it("does not auto-inherit build config from project tspconfig", async () => {
+      host.addTypeSpecFile(
+        "ws/tspconfig.yaml",
+        stringify({ kind: "project", emit: ["should-not-inherit"] }),
+      );
+      host.addTypeSpecFile("ws/tspconfig.build.yaml", stringify({ emit: ["openapi"] }));
+      const [options, diagnostics] = await getCompilerOptions(
+        host.compilerHost,
+        "ws/main.tsp",
+        cwd,
+        { config: "tspconfig.build.yaml" },
+        {},
+      );
+      expectDiagnosticEmpty(diagnostics);
+      ok(options, "Options should have been set.");
+      deepStrictEqual(options.emit, ["openapi"]);
     });
   });
 });

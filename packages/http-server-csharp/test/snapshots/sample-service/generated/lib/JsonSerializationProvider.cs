@@ -18,7 +18,7 @@ namespace TypeSpec.Helpers
         public virtual JsonSerializerOptions Options { get; } = new JsonSerializerOptions
         {
             PropertyNamingPolicy = JsonNamingPolicy.CamelCase,
-            DefaultIgnoreCondition = JsonIgnoreCondition.WhenWritingNull
+            DefaultIgnoreCondition = JsonIgnoreCondition.WhenWritingNull,
         };
 
         /// <summary>

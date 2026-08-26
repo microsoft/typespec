@@ -150,6 +150,11 @@ public class FluentClientMethodMapper extends ClientMethodMapper {
 
         // LRO '[Operation]' sync or async method overloads with versioning (for management).
         createOverloadForVersioning(methods, lroGetFinalResultMethod, clientMethodWithContext,
-            methodWithContextVisibility, null, isProtocolMethod);
+            methodWithContextVisibility, null, isProtocolMethod, true);
+        // async method without Context parameter
+        if (!isSync) {
+            createOverloadForVersioning(methods, lroGetFinalResultMethod, lroGetFinalResultMethod, methodVisibility,
+                null, isProtocolMethod, false);
+        }
     }
 }

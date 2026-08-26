@@ -1,5 +1,32 @@
 # Change Log - @typespec/playground
 
+## 0.17.0
+
+### Features
+
+- [#11468](https://github.com/microsoft/typespec/pull/11468) Add support for the `Fix all: X` code action in the playground, allowing a codefix that appears multiple times in a file to be applied to all instances at once.
+
+### Bug Fixes
+
+- [#11508](https://github.com/microsoft/typespec/pull/11508) Add support for deferring the loading of emitter libraries until they are selected. Configure with the new `deferredEmitters` option to avoid downloading and evaluating large emitters on startup.
+
+
+## 0.16.0
+
+### Features
+
+- [#11016](https://github.com/microsoft/typespec/pull/11016) Make the raw `tspconfig.yaml` editor the source of truth so manual edits (comments, `output-dir`, `warn-as-error`, ordering and any unknown fields) are preserved instead of being reverted, compile by resolving the written `tspconfig.yaml` natively, and add language-server completion to the config editor.
+
+
+## 0.15.1
+
+### Bug Fixes
+
+- [#10697](https://github.com/microsoft/typespec/pull/10697) Don't show file tree view in output when there is only a single file
+- [#10455](https://github.com/microsoft/typespec/pull/10455) Retain the emitter query parameter in the URL when a sample is selected
+- [#10815](https://github.com/microsoft/typespec/pull/10815) Fix unused `using` statements not being dimmed in the playground editor
+
+
 ## 0.15.0
 
 ### Breaking Changes

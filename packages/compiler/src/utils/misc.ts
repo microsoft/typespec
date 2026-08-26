@@ -31,9 +31,12 @@ export function deepFreeze<T>(value: T): T {
  *
  * Does not support cycles. Intended to be used only on plain data that can
  * be directly represented in JSON.
+ *
+ * @deprecated Use `structuredClone` instead.
  */
 export function deepClone<T>(value: T): T {
   if (Array.isArray(value)) {
+    // eslint-disable-next-line @typescript-eslint/no-deprecated
     return value.map(deepClone) as any;
   }
 
@@ -44,6 +47,7 @@ export function deepClone<T>(value: T): T {
   if (typeof value === "object") {
     const obj: any = {};
     for (const prop in value) {
+      // eslint-disable-next-line @typescript-eslint/no-deprecated
       obj[prop] = deepClone(value[prop]);
     }
     return obj;
@@ -215,9 +219,8 @@ export function omitUndefined<T extends Record<string, unknown>>(data: T): T {
 }
 
 /**
- * Extract package.json's tspMain entry point in a given path.
- * @param path Path that contains package.json
- * @param reportDiagnostic optional diagnostic handler.
+ * Extract package.json's tspMain entry point.
+ * @param packageJson Parsed package.json object.
  */
 export function resolveTspMain(packageJson: any): string | undefined {
   if (packageJson?.tspMain !== undefined) {

@@ -7,20 +7,45 @@ from typing import TypeVar
 
 from enum import Enum
 
+from ...utils import description_ends_with_code_block
+
 T = TypeVar("T")
 OrderedSet = dict[T, None]
 
 
 def add_to_description(description: str, entry: str) -> str:
-    if description:
-        return f"{description} {entry}"
-    return entry
+    if not description:
+        return entry
+    if not entry:
+        return description
+    # When the description ends with a code block, prepend the entry (e.g. "Required.") so
+    # it appears before the prose instead of after the block. Appending inline (e.g.
+    # "]. Required.") would land it inside the rendered literal block and break Sphinx, and a
+    # trailing paragraph reads awkwardly. The code block stays at the very end where it renders
+    # cleanly. (Code-block descriptions only ever carry a single annotation in practice.)
+    if description_ends_with_code_block(description):
+        return f"{entry} {description.lstrip()}"
+    return f"{description} {entry}"
 
 
 def add_to_pylint_disable(curr_str: str, entry: str) -> str:
     if curr_str:
         return f"{curr_str},{entry}"
     return f"  # pylint: disable={entry}"
+
+
+def escape_sphinx_field_name(name: str) -> str:
+    """Escape a name used as the target of a Sphinx info field (``:ivar``, ``:vartype``,
+    ``:keyword``, ``:paramtype``, ``:param``, ``:type``).
+
+    A name containing ``@`` (e.g. a wire name such as ``@search.facets``) is wrapped in
+    double backticks so it is treated as an inline literal. This renders cleanly in Sphinx
+    without a leading ``@`` being misinterpreted, and — unlike a ``\\@`` escape — introduces
+    no invalid escape sequence into the generated Python docstring.
+    """
+    if "@" in name:
+        return f"``{name}``"
+    return name
 
 
 class NamespaceType(str, Enum):
@@ -30,6 +55,7 @@ class NamespaceType(str, Enum):
     OPERATION = "operation"
     CLIENT = "client"
     TYPES_FILE = "types_file"
+    UNIONS_FILE = "unions_file"
 
 
 LOCALS_LENGTH_LIMIT = 25

@@ -65,6 +65,7 @@ namespace Microsoft.TypeSpec.Generator.Input
             IReadOnlyList<InputDecoratorInfo>? decorators = null;
             InputSerializationOptions? serializationOptions = null;
             string? encodeString = null;
+            bool isExactName = false;
 
             while (reader.TokenType != JsonTokenType.EndObject)
             {
@@ -84,7 +85,8 @@ namespace Microsoft.TypeSpec.Generator.Input
                     || reader.TryReadBoolean("isApiVersion", ref isApiVersion)
                     || reader.TryReadComplexType("defaultValue", options, ref defaultValue)
                     || reader.TryReadComplexType("serializationOptions", options, ref serializationOptions)
-                    || reader.TryReadString("encode", ref encodeString);
+                    || reader.TryReadString("encode", ref encodeString)
+                    || reader.TryReadBoolean("isExactName", ref isExactName);
 
                 if (!isKnownProperty)
                 {
@@ -107,6 +109,7 @@ namespace Microsoft.TypeSpec.Generator.Input
             property.IsApiVersion = isApiVersion;
             property.DefaultValue = defaultValue;
             property.Encode = Enum.TryParse<ArrayKnownEncoding>(encodeString, ignoreCase: true, out var encode) ? encode : null;
+            property.IsExactName = isExactName;
 
             return property;
         }

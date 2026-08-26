@@ -31,7 +31,7 @@ import parameters.query.implementation.QueryClientImpl;
 /**
  * A builder for creating a new instance of the QueryClient type.
  */
-@ServiceClientBuilder(serviceClients = { QueryClient.class })
+@ServiceClientBuilder(serviceClients = { ConstantClient.class, SpecialCharClient.class })
 public final class QueryClientBuilder implements HttpTrait<QueryClientBuilder>, ProxyTrait<QueryClientBuilder>,
     ConfigurationTrait<QueryClientBuilder>, EndpointTrait<QueryClientBuilder> {
     @Metadata(properties = { MetadataProperties.GENERATED })
@@ -223,13 +223,24 @@ public final class QueryClientBuilder implements HttpTrait<QueryClientBuilder>, 
     }
 
     /**
-     * Builds an instance of QueryClient class.
+     * Builds an instance of ConstantClient class.
      * 
-     * @return an instance of QueryClient.
+     * @return an instance of ConstantClient.
      */
     @Metadata(properties = { MetadataProperties.GENERATED })
-    public QueryClient buildQueryClient() {
+    public ConstantClient buildConstantClient() {
         QueryClientImpl innerClient = buildInnerClient();
-        return new QueryClient(innerClient.getConstants(), innerClient.getInstrumentation());
+        return new ConstantClient(innerClient.getConstants(), innerClient.getInstrumentation());
+    }
+
+    /**
+     * Builds an instance of SpecialCharClient class.
+     * 
+     * @return an instance of SpecialCharClient.
+     */
+    @Metadata(properties = { MetadataProperties.GENERATED })
+    public SpecialCharClient buildSpecialCharClient() {
+        QueryClientImpl innerClient = buildInnerClient();
+        return new SpecialCharClient(innerClient.getSpecialChars(), innerClient.getInstrumentation());
     }
 }

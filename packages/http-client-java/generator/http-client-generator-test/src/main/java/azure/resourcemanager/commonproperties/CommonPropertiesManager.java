@@ -5,9 +5,11 @@
 package azure.resourcemanager.commonproperties;
 
 import azure.resourcemanager.commonproperties.fluent.CommonPropertiesClient;
+import azure.resourcemanager.commonproperties.implementation.ArmResourceIdentifiersImpl;
 import azure.resourcemanager.commonproperties.implementation.CommonPropertiesClientBuilder;
 import azure.resourcemanager.commonproperties.implementation.ErrorsImpl;
 import azure.resourcemanager.commonproperties.implementation.ManagedIdentitiesImpl;
+import azure.resourcemanager.commonproperties.models.ArmResourceIdentifiers;
 import azure.resourcemanager.commonproperties.models.Errors;
 import azure.resourcemanager.commonproperties.models.ManagedIdentities;
 import com.azure.core.credential.TokenCredential;
@@ -46,6 +48,8 @@ public final class CommonPropertiesManager {
     private ManagedIdentities managedIdentities;
 
     private Errors errors;
+
+    private ArmResourceIdentifiers armResourceIdentifiers;
 
     private final CommonPropertiesClient clientObject;
 
@@ -284,6 +288,19 @@ public final class CommonPropertiesManager {
             this.errors = new ErrorsImpl(clientObject.getErrors(), this);
         }
         return errors;
+    }
+
+    /**
+     * Gets the resource collection API of ArmResourceIdentifiers. It manages ArmResourceIdentifierResource.
+     * 
+     * @return Resource collection API of ArmResourceIdentifiers.
+     */
+    public ArmResourceIdentifiers armResourceIdentifiers() {
+        if (this.armResourceIdentifiers == null) {
+            this.armResourceIdentifiers
+                = new ArmResourceIdentifiersImpl(clientObject.getArmResourceIdentifiers(), this);
+        }
+        return armResourceIdentifiers;
     }
 
     /**

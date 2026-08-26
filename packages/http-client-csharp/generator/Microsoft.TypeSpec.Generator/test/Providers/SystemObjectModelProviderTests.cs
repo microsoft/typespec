@@ -4,6 +4,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Threading.Tasks;
 using Microsoft.TypeSpec.Generator.Input;
 using Microsoft.TypeSpec.Generator.Primitives;
 using Microsoft.TypeSpec.Generator.Providers;
@@ -29,9 +30,9 @@ namespace Microsoft.TypeSpec.Generator.Tests.Providers
         /// Creates a non-framework CSharpType with the given name and namespace.
         /// Uses the internal constructor accessible via InternalsVisibleTo.
         /// </summary>
-        private static CSharpType CreateSystemCSharpType(string name, string ns)
+        private static CSharpType CreateSystemCSharpType(string name, string ns, CSharpType? baseType = null)
             => new(name, ns, isValueType: false, isNullable: false, declaringType: null,
-                   args: Array.Empty<CSharpType>(), isPublic: true, isStruct: false);
+                   args: Array.Empty<CSharpType>(), isPublic: true, isStruct: false, baseType: baseType);
 
         [SetUp]
         public void Setup()
@@ -51,6 +52,46 @@ namespace Microsoft.TypeSpec.Generator.Tests.Providers
             var provider = new SystemObjectModelProvider(systemType, inputModel);
 
             Assert.IsInstanceOf<ModelProvider>(provider);
+        }
+
+        [Test]
+        public void FrameworkInterfacesArePopulated()
+        {
+            var inputModel = InputFactory.Model("Resource", properties: []);
+            var provider = new SystemObjectModelProvider(new CSharpType(typeof(List<string>)), inputModel);
+
+            Assert.That(
+                provider.Implements,
+                Has.Some.EqualTo(new CSharpType(typeof(IEnumerable<string>))));
+        }
+
+        [Test]
+        public void FrameworkInterfacesUseGeneratedTypeArguments()
+        {
+            var inputModel = InputFactory.Model("Resource", properties: []);
+            var generatedType = CreateSystemCSharpType("GeneratedModel", "Sample.Models");
+            var provider = new SystemObjectModelProvider(
+                new CSharpType(typeof(List<>), generatedType),
+                inputModel);
+
+            Assert.That(
+                provider.Implements,
+                Has.Some.EqualTo(new CSharpType(typeof(IEnumerable<>), generatedType)));
+        }
+
+        [Test]
+        public async Task ReferencedInterfacesArePopulated()
+        {
+            await MockHelpers.LoadMockGeneratorAsync(
+                compilation: async () => await Helpers.GetCompilationFromDirectoryAsync());
+            var inputModel = InputFactory.Model("Resource", properties: []);
+            var provider = new SystemObjectModelProvider(
+                CreateSystemCSharpType("ReferencedModel", "TestFramework"),
+                inputModel);
+
+            Assert.That(
+                provider.Implements,
+                Has.Some.EqualTo(new CSharpType(typeof(IDisposable))));
         }
 
         [Test]
@@ -83,7 +124,10 @@ namespace Microsoft.TypeSpec.Generator.Tests.Providers
                 createModelCore: (model) =>
                 {
                     if (model.Name == "Resource")
+                    {
                         return new SystemObjectModelProvider(systemType, model);
+                    }
+
                     return new ModelProvider(model);
                 });
 
@@ -93,6 +137,55 @@ namespace Microsoft.TypeSpec.Generator.Tests.Providers
             // The base should be a SystemObjectModelProvider — impossible with SystemObjectTypeProvider
             Assert.IsNotNull(derivedProvider!.BaseModelProvider);
             Assert.IsInstanceOf<SystemObjectModelProvider>(derivedProvider.BaseModelProvider);
+        }
+
+        [Test]
+        public void CanRepresentExternalBaseChainWithoutSeparateInheritedProperties()
+        {
+            var baseSystemType = CreateSystemCSharpType("ResourceData", "TestFramework");
+            var baseInputModel = InputFactory.Model("Resource", properties: []);
+            var baseProvider = new SystemObjectModelProvider(baseSystemType, baseInputModel);
+
+            var inputModel = InputFactory.Model(
+                "TrackedResource",
+                properties: [InputFactory.Property("resourceType", InputPrimitiveType.String, wireName: "type")]);
+            var systemTypeWithBase = CreateSystemCSharpType("TrackedResourceData", "TestFramework", baseSystemType);
+            CodeModelGenerator.Instance.TypeFactory.CSharpTypeMap[baseSystemType] = baseProvider;
+
+            var provider = new SystemObjectModelProvider(systemTypeWithBase, inputModel, skipDerivedConstructorParameters: true);
+
+            Assert.AreSame(baseProvider, provider.BaseModelProvider);
+            Assert.AreEqual(baseProvider.Type, provider.Type.BaseType);
+            Assert.AreEqual(1, provider.Properties.Count);
+            Assert.AreEqual("ResourceType", provider.Properties[0].Name);
+        }
+
+        [Test]
+        public void BaseSystemProviderIsCreatedFromInputModelHierarchy()
+        {
+            var baseInputModel = InputFactory.Model(
+                "SystemException",
+                properties: [InputFactory.Property("message", InputPrimitiveType.String)]);
+            var derivedInputModel = InputFactory.Model(
+                "ArgumentException",
+                properties: [InputFactory.Property("paramName", InputPrimitiveType.String)],
+                baseModel: baseInputModel);
+
+            var baseSystemType = new CSharpType(typeof(SystemException));
+            var derivedSystemType = new CSharpType(typeof(ArgumentException));
+            MockHelpers.LoadMockGenerator(
+                inputModelTypes: [baseInputModel, derivedInputModel],
+                createModelCore: model => model == baseInputModel
+                    ? new SystemObjectModelProvider(baseSystemType, model)
+                    : new SystemObjectModelProvider(derivedSystemType, model));
+
+            var provider = CodeModelGenerator.Instance.TypeFactory.CreateModel(derivedInputModel);
+
+            Assert.IsNotNull(provider);
+            Assert.IsNotNull(provider!.BaseModelProvider);
+            Assert.IsInstanceOf<SystemObjectModelProvider>(provider.BaseModelProvider);
+            Assert.AreEqual("SystemException", provider.BaseModelProvider!.Name);
+            Assert.AreEqual("Message", provider.BaseModelProvider.Properties.Single().Name);
         }
 
         // -------------------------------------------------------------------
@@ -119,7 +212,10 @@ namespace Microsoft.TypeSpec.Generator.Tests.Providers
                 createModelCore: (model) =>
                 {
                     if (model.Name == "Resource")
+                    {
                         return new SystemObjectModelProvider(systemType, model);
+                    }
+
                     return new ModelProvider(model);
                 });
 
@@ -158,7 +254,10 @@ namespace Microsoft.TypeSpec.Generator.Tests.Providers
                 createModelCore: (model) =>
                 {
                     if (model.Name == "Resource")
+                    {
                         return new SystemObjectModelProvider(systemType, model);
+                    }
+
                     return new ModelProvider(model);
                 });
 
@@ -229,7 +328,10 @@ namespace Microsoft.TypeSpec.Generator.Tests.Providers
                 createModelCore: (model) =>
                 {
                     if (model.Name == "Resource")
+                    {
                         return new SystemObjectModelProvider(systemType, model);
+                    }
+
                     return new ModelProvider(model);
                 });
 
@@ -369,6 +471,179 @@ namespace Microsoft.TypeSpec.Generator.Tests.Providers
         {
             var inputModel = InputFactory.Model("Resource", properties: []);
             Assert.Throws<ArgumentNullException>(() => new SystemObjectModelProvider(null!, inputModel));
+        }
+
+        // -------------------------------------------------------------------
+        // 9. A derived discriminated model forwards its discriminator value to a
+        //    SystemObjectModelProvider base constructor. This is impossible with
+        //    SystemObjectTypeProvider because it cannot serve as a BaseModelProvider.
+        // -------------------------------------------------------------------
+
+        [Test]
+        public void DerivedDiscriminatedModel_ForwardsDiscriminatorToSystemObjectModelProviderBase()
+        {
+            var baseInputModel = InputFactory.Model(
+                "BaseModel",
+                properties:
+                [
+                    InputFactory.Property("kind", InputPrimitiveType.String, isRequired: true, isDiscriminator: true),
+                    InputFactory.Property("name", InputPrimitiveType.String, isRequired: true),
+                ]);
+            var derivedInputModel = InputFactory.Model(
+                "DerivedModel",
+                baseModel: baseInputModel,
+                discriminatedKind: "one",
+                properties:
+                [
+                    InputFactory.Property("kind", InputPrimitiveType.String, isRequired: true, isDiscriminator: true),
+                    InputFactory.Property("color", InputPrimitiveType.String, isRequired: true),
+                ]);
+
+            var systemType = CreateSystemCSharpType("BaseModelData", "TestFramework");
+            MockHelpers.LoadMockGenerator(
+                inputModelTypes: [baseInputModel, derivedInputModel],
+                createModelCore: (model) =>
+                    model.Name == "BaseModel"
+                        ? new SystemObjectModelProvider(systemType, model)
+                        : new ModelProvider(model));
+
+            var derivedProvider = CodeModelGenerator.Instance.TypeFactory.CreateModel(derivedInputModel) as ModelProvider;
+            Assert.IsNotNull(derivedProvider);
+            Assert.IsInstanceOf<SystemObjectModelProvider>(derivedProvider!.BaseModelProvider);
+
+            var publicCtor = derivedProvider.Constructors.FirstOrDefault(
+                c => c.Signature.Modifiers.HasFlag(MethodSignatureModifiers.Public));
+            Assert.IsNotNull(publicCtor);
+
+            var initializer = publicCtor!.Signature.Initializer;
+            Assert.IsNotNull(initializer);
+            Assert.IsTrue(initializer!.IsBase);
+
+            // The base constructor call must forward the discriminator literal "one".
+            Assert.IsTrue(
+                initializer.Arguments.Any(a => a.ToDisplayString() == "\"one\""),
+                "Expected the base constructor call to forward the discriminator value \"one\". " +
+                "Actual arguments: " + string.Join(", ", initializer.Arguments.Select(a => a.ToDisplayString())));
+        }
+
+        // -------------------------------------------------------------------
+        // 10. End-to-end: a base model marked external (External metadata) is mapped to a
+        //     SystemObjectModelProvider by the default factory, is not emitted, and a derived
+        //     discriminated model forwards its discriminator value to the external base.
+        // -------------------------------------------------------------------
+
+        [Test]
+        public void ExternalBaseModel_MapsToSystemObjectModelProvider_AndForwardsDiscriminator()
+        {
+            var baseInputModel = InputFactory.Model(
+                "BaseModel",
+                properties:
+                [
+                    InputFactory.Property("kind", InputPrimitiveType.String, isRequired: true, isDiscriminator: true),
+                    InputFactory.Property("name", InputPrimitiveType.String, isRequired: true),
+                ],
+                external: new InputExternalTypeMetadata("System.Exception", null, null));
+            var derivedInputModel = InputFactory.Model(
+                "DerivedModel",
+                baseModel: baseInputModel,
+                discriminatedKind: "one",
+                properties:
+                [
+                    InputFactory.Property("kind", InputPrimitiveType.String, isRequired: true, isDiscriminator: true),
+                    InputFactory.Property("color", InputPrimitiveType.String, isRequired: true),
+                ]);
+
+            // No createModelCore override: the default (real) CreateModelCore must perform the mapping.
+            var mockGenerator = MockHelpers.LoadMockGenerator(
+                inputModelTypes: [baseInputModel, derivedInputModel]);
+
+            // The external base maps to a SystemObjectModelProvider rather than a generated model.
+            var baseProvider = CodeModelGenerator.Instance.TypeFactory.CreateModel(baseInputModel);
+            Assert.IsInstanceOf<SystemObjectModelProvider>(baseProvider);
+
+            // The derived model uses it as its base model provider.
+            var derivedProvider = CodeModelGenerator.Instance.TypeFactory.CreateModel(derivedInputModel) as ModelProvider;
+            Assert.IsNotNull(derivedProvider);
+            Assert.IsInstanceOf<SystemObjectModelProvider>(derivedProvider!.BaseModelProvider);
+
+            // The derived constructor forwards the discriminator value to the external base.
+            var publicCtor = derivedProvider.Constructors.FirstOrDefault(
+                c => c.Signature.Modifiers.HasFlag(MethodSignatureModifiers.Public));
+            Assert.IsNotNull(publicCtor);
+            var initializer = publicCtor!.Signature.Initializer;
+            Assert.IsNotNull(initializer);
+            Assert.IsTrue(initializer!.IsBase);
+            Assert.IsTrue(
+                initializer.Arguments.Any(a => a.ToDisplayString() == "\"one\""),
+                "Expected the base constructor call to forward the discriminator value \"one\". " +
+                "Actual arguments: " + string.Join(", ", initializer.Arguments.Select(a => a.ToDisplayString())));
+
+            // The external base is not emitted as a generated type.
+            Assert.IsFalse(
+                CodeModelGenerator.Instance.OutputLibrary.TypeProviders.Any(t => t is SystemObjectModelProvider),
+                "External base models should not be emitted as generated types.");
+        }
+
+        // -------------------------------------------------------------------
+        // 11. Fallback: an external model whose type cannot be resolved is generated
+        //     normally (as a regular ModelProvider) rather than being dropped.
+        // -------------------------------------------------------------------
+
+        [Test]
+        public void ExternalModel_ThatCannotBeResolved_FallsBackToNormalGeneration()
+        {
+            var inputModel = InputFactory.Model(
+                "Widget",
+                properties: [InputFactory.Property("name", InputPrimitiveType.String, isRequired: true)],
+                // Not a real framework type and no package metadata, so resolution fails.
+                external: new InputExternalTypeMetadata("Some.Unresolvable.ExternalType", null, null));
+
+            MockHelpers.LoadMockGenerator(inputModelTypes: [inputModel]);
+
+            var provider = CodeModelGenerator.Instance.TypeFactory.CreateModel(inputModel);
+
+            // Unresolvable external metadata: no SystemObjectModelProvider mapping; generate normally.
+            Assert.IsNotNull(provider);
+            Assert.IsNotInstanceOf<SystemObjectModelProvider>(provider);
+
+            // And the model is still emitted as a generated type.
+            Assert.IsTrue(
+                CodeModelGenerator.Instance.OutputLibrary.TypeProviders.Any(t => t == provider),
+                "An external model that cannot be resolved should still be generated.");
+        }
+
+        // -------------------------------------------------------------------
+        // 12. A property typed as an external model resolves to the external type, and the
+        //     external model itself is not generated.
+        // -------------------------------------------------------------------
+
+        [Test]
+        public void PropertyTypedAsExternalModel_ResolvesToExternalType_AndExternalModelIsNotGenerated()
+        {
+            var externalModel = InputFactory.Model(
+                "ExternalThing",
+                properties: [InputFactory.Property("name", InputPrimitiveType.String, isRequired: true)],
+                external: new InputExternalTypeMetadata("System.Exception", null, null));
+            var containerModel = InputFactory.Model(
+                "Container",
+                properties: [InputFactory.Property("thing", externalModel, isRequired: true)]);
+
+            MockHelpers.LoadMockGenerator(inputModelTypes: [externalModel, containerModel]);
+
+            // The external model maps to a SystemObjectModelProvider and is not emitted.
+            var externalProvider = CodeModelGenerator.Instance.TypeFactory.CreateModel(externalModel);
+            Assert.IsInstanceOf<SystemObjectModelProvider>(externalProvider);
+            Assert.IsFalse(
+                CodeModelGenerator.Instance.OutputLibrary.TypeProviders.Any(t => t is SystemObjectModelProvider),
+                "External models must not be emitted as generated types.");
+
+            // A property typed as the external model resolves to the external framework type.
+            var container = CodeModelGenerator.Instance.TypeFactory.CreateModel(containerModel) as ModelProvider;
+            Assert.IsNotNull(container);
+            var thingProperty = container!.Properties.FirstOrDefault(p => p.Name == "Thing");
+            Assert.IsNotNull(thingProperty);
+            Assert.AreEqual("Exception", thingProperty!.Type.Name);
+            Assert.AreEqual("System", thingProperty.Type.Namespace);
         }
     }
 }

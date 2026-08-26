@@ -7,8 +7,19 @@
     { "path": "../versioning/tsconfig.json" }
   ],
   "compilerOptions": {
+    "module": "NodeNext",
+    "moduleResolution": "NodeNext",
+    "target": "es2022",
+    "skipLibCheck": true,
+    "isolatedModules": true,
+    "jsx": "preserve",
+    "jsxImportSource": "@alloy-js/core",
+    "emitDeclarationOnly": true,
     "outDir": "dist",
     "rootDir": ".",
-    "tsBuildInfoFile": "temp/tsconfig.tsbuildinfo"
-  }
+    "tsBuildInfoFile": "temp/tsconfig.tsbuildinfo",
+    "types": ["@alloy-js/core/testing/matchers"]
+  },
+  "include": ["src/**/*.ts", "src/**/*.tsx", "test/**/*.ts", "test/**/*.tsx"],
+  "exclude": ["node_modules", "dist"]
 }

@@ -159,13 +159,7 @@ export type AssetTagFactory = {
 };
 
 export type TypeSpecDeclaration =
-  | Model
-  | Interface
-  | Union
-  | Operation
-  | Enum
-  | Scalar
-  | IntrinsicType;
+  Model | Interface | Union | Operation | Enum | Scalar | IntrinsicType;
 
 export interface ContextState {
   lexicalContext: Record<string, any>;

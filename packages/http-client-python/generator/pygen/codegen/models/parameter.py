@@ -87,6 +87,7 @@ class _ParameterBase(BaseModel, abc.ABC):  # pylint: disable=too-many-instance-a
         self.default_to_unset_sentinel: bool = self.yaml_data.get("defaultToUnsetSentinel", False)
         self.hide_in_method: bool = self.yaml_data.get("hideInMethod", False)
         self.is_continuation_token: bool = bool(self.yaml_data.get("isContinuationToken"))
+        self.is_exact_name: bool = self.yaml_data.get("isExactName", False)
 
     def get_declaration(self, value: Any = None) -> Any:
         return self.type.get_declaration(value)
@@ -179,7 +180,7 @@ class _ParameterBase(BaseModel, abc.ABC):  # pylint: disable=too-many-instance-a
         if isinstance(self.type, CombinedType) and self.type.name:
             file_import.add_submodule_import(
                 self.code_model.get_relative_import_path(serialize_namespace),
-                "_types",
+                "_unions",
                 ImportType.LOCAL,
                 TypingSection.TYPING,
             )
@@ -337,7 +338,9 @@ class Parameter(_ParameterBase):
     ) -> ParameterMethodLocation:
         if not self.in_method_signature:
             raise ValueError(f"Parameter '{self.client_name}' is not in the method.")
-        if self.code_model.options["models-mode"] == "dpg" and self.in_flattened_body:
+        if (
+            self.code_model.options["models-mode"] == "dpg" or self.code_model.generate_typeddict_only
+        ) and self.in_flattened_body:
             return ParameterMethodLocation.KEYWORD_ONLY
         if self.grouper:
             return ParameterMethodLocation.POSITIONAL

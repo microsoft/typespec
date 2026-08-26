@@ -7,14 +7,16 @@ import { Editor, useMonacoModel } from "../editor.js";
 import type { PlaygroundEditorsOptions } from "../playground.js";
 import { CompilerSettings } from "../settings/compiler-settings.js";
 import style from "./config-panel.module.css";
-import { compilerOptionsToTspConfig, parseTspConfigYaml } from "./tspconfig-utils.js";
 
 export interface ConfigPanelProps {
   host: BrowserHost;
   selectedEmitter: string;
   compilerOptions: CompilerOptions;
+  /** Raw tspconfig.yaml content (source of truth). */
+  tspconfig: string;
   onCompilerOptionsChange: (options: CompilerOptions) => void;
   onSelectedEmitterChange: (emitter: string) => void;
+  onTspconfigChange: (tspconfig: string) => void;
   editorOptions?: PlaygroundEditorsOptions;
 }
 
@@ -24,70 +26,56 @@ export const ConfigPanel: FunctionComponent<ConfigPanelProps> = ({
   host,
   selectedEmitter,
   compilerOptions,
+  tspconfig,
   onCompilerOptionsChange,
   onSelectedEmitterChange,
+  onTspconfigChange,
   editorOptions,
 }) => {
   const [mode, setMode] = useState<ConfigMode>("form");
   const yamlModel = useMonacoModel("inmemory://test/tspconfig.yaml", "yaml");
 
-  // Tracks whether the last state change originated from the YAML editor.
-  // Persists across the render cycle so the sync-back effect can see it.
+  // Tracks whether the last model change originated from the YAML editor itself so the
+  // state → model sync effect doesn't clobber in-flight edits (state updates are debounced).
   const changeFromYamlRef = useRef(false);
 
-  // Sync external changes (e.g. emitter dropdown) → YAML model when in yaml mode.
-  // Skips when the change originated from the YAML editor itself.
-  useEffect(() => {
-    if (mode !== "yaml") return;
-    if (changeFromYamlRef.current) {
-      changeFromYamlRef.current = false;
-      return;
-    }
-    const yaml = compilerOptionsToTspConfig(selectedEmitter, compilerOptions);
-    const current = yamlModel.getValue();
-    if (current !== yaml) {
-      yamlModel.setValue(yaml);
-    }
-  }, [selectedEmitter, compilerOptions, mode, yamlModel]);
-
-  // Debounced YAML → CompilerOptions parsing
-  const parseAndSync = useMemo(
+  // Debounced YAML → state propagation. The raw text is the source of truth so it is
+  // stored verbatim (comments, ordering and unknown fields are all preserved).
+  const propagateChange = useMemo(
     () =>
       debounce((content: string) => {
-        const parsed = parseTspConfigYaml(content);
-        if (!parsed) return; // Invalid YAML — don't touch state
-        changeFromYamlRef.current = true;
-        if (parsed.selectedEmitter && parsed.selectedEmitter !== selectedEmitter) {
-          onSelectedEmitterChange(parsed.selectedEmitter);
-        }
-        onCompilerOptionsChange(parsed.compilerOptions);
+        onTspconfigChange(content);
       }, 200),
-    [selectedEmitter, onCompilerOptionsChange, onSelectedEmitterChange],
+    [onTspconfigChange],
   );
 
   // Listen for YAML model changes
   useEffect(() => {
     const disposable = yamlModel.onDidChangeContent(() => {
-      parseAndSync(yamlModel.getValue());
+      changeFromYamlRef.current = true;
+      propagateChange(yamlModel.getValue());
     });
     return () => {
-      parseAndSync.clear();
+      propagateChange.clear();
       disposable.dispose();
     };
-  }, [yamlModel, parseAndSync]);
+  }, [yamlModel, propagateChange]);
 
-  // Populate YAML model when switching to yaml mode
-  const handleModeChange = useCallback<SelectTabEventHandler>(
-    (_, data) => {
-      const newMode = data.value as ConfigMode;
-      if (newMode === "yaml") {
-        const yaml = compilerOptionsToTspConfig(selectedEmitter, compilerOptions);
-        yamlModel.setValue(yaml);
-      }
-      setMode(newMode);
-    },
-    [selectedEmitter, compilerOptions, yamlModel],
-  );
+  // Sync state → YAML model (initial load, visual-form edits, samples, external changes).
+  // Skips when the change originated from the YAML editor to avoid reverting live edits.
+  useEffect(() => {
+    if (changeFromYamlRef.current) {
+      changeFromYamlRef.current = false;
+      return;
+    }
+    if (yamlModel.getValue() !== tspconfig) {
+      yamlModel.setValue(tspconfig);
+    }
+  }, [tspconfig, yamlModel]);
+
+  const handleModeChange = useCallback<SelectTabEventHandler>((_, data) => {
+    setMode(data.value as ConfigMode);
+  }, []);
 
   return (
     <div className={style["config-panel"]}>

@@ -125,15 +125,26 @@ extends:
               npm_config_cache: $(Agent.TempDirectory)/npm-cache
             steps:
               - checkout: self
+
+              - template: /eng/common/pipelines/templates/steps/create-authenticated-npmrc.yml
+
               - pwsh: |
                   # Determine the TypeSpec PR URL 
                   $repoUrl = '$(Build.Repository.Uri)'.TrimEnd('/')
                   $commitSha = '$(Build.SourceVersion)'
                   $typeSpecCommitUrl = "$repoUrl/commit/$commitSha"
 
+                  # Compute the URL to this pipeline run for inclusion in the generated PR
+                  $collectionUri = '$(System.CollectionUri)'.TrimEnd('/')
+                  $teamProject = '$(System.TeamProject)'
+                  $buildId = '$(Build.BuildId)'
+                  $pipelineRunUrl = "$collectionUri/$teamProject/_build/results?buildId=$buildId&view=results"
+
                   Write-Host "Commit SHA: $commitSha"
                   Write-Host "TypeSpec Commit URL: $typeSpecCommitUrl"
+                  Write-Host "Pipeline Run URL: $pipelineRunUrl"
                   Write-Host "##vso[task.setvariable variable=TypeSpecCommitUrl]$typeSpecCommitUrl"
+                  Write-Host "##vso[task.setvariable variable=PipelineRunUrl]$pipelineRunUrl"
                 displayName: Set variables for PR creation
 
               - task: UseNode@1
@@ -158,11 +169,9 @@ extends:
                   Write-Host "##[section].npmrc file created successfully. Contents:"
                   Get-Content '$(Build.SourcesDirectory)/packages/http-client-csharp/.npmrc' | ForEach-Object { Write-Host "  $_" }
                 displayName: "Create .npmrc"
-                condition: eq('${{replace(replace('True',eq(variables['Build.SourceBranchName'], 'main'), 'public'),'True','internal')}}', 'internal')
 
               - task: npmAuthenticate@0
                 displayName: Authenticate npm for Azure Artifacts
-                condition: eq('${{replace(replace('True',eq(variables['Build.SourceBranchName'], 'main'), 'public'),'True','internal')}}', 'internal')
                 inputs:
                   workingFile: $(Build.SourcesDirectory)/packages/http-client-csharp/.npmrc
 
@@ -223,21 +232,28 @@ extends:
                   TokenOwners:
                     - Azure
 
-              - task: PowerShell@2
+              - task: AzureCLI@2
                 displayName: Generate emitter-package.json files & create PR in azure-sdk-for-net
                 inputs:
-                  pwsh: true
-                  filePath: $(Build.SourcesDirectory)/packages/http-client-csharp/eng/scripts/Submit-AzureSdkForNetPr.ps1
+                  azureSubscription: "AzureSDKEngKeyVault Secrets"
+                  scriptType: pscore
+                  scriptLocation: scriptPath
+                  scriptPath: $(Build.SourcesDirectory)/packages/http-client-csharp/eng/scripts/Submit-AzureSdkForNetPr.ps1
                   arguments: >
                     -PackageVersion '$(PackageVersion)'
                     -TypeSpecCommitUrl '$(TypeSpecCommitUrl)'
                     -AuthToken '$(GH_TOKEN)'
                     -TypeSpecSourcePackageJsonPath '$(Build.SourcesDirectory)/packages/http-client-csharp/package.json'
+                    -PipelineRunUrl '$(PipelineRunUrl)'
                     ${{ replace(replace('True', eq(variables['Build.SourceBranchName'], 'main'), ''), 'True', '-Internal') }}
                     ${{ replace(replace('True', eq(parameters.RegenerateAzureLibraries, false), ''), 'True', '-RegenerateAzureLibraries') }}
                     ${{ replace(replace('True', eq(parameters.RegenerateMgmtLibraries, false), ''), 'True', '-RegenerateMgmtLibraries') }}
+                    ${{ replace(replace('True', ne(variables['Build.Reason'], 'Manual'), ''), 'True', '-UseParallelRegeneration') }}
                     -BuildArtifactsPath '$(Pipeline.Workspace)/build_artifacts_csharp/packages'
                     -UseTypeSpecNext:$${{ parameters.UseTypeSpecNext }}
+                    -BuildReason '$(Build.Reason)'
+                env:
+                  autorest_registry: "https://pkgs.dev.azure.com/azure-sdk/public/_packaging/azure-sdk-for-js/npm/registry/"
 
               - pwsh: |
                   $npmrcPath = "$(Build.SourcesDirectory)/packages/http-client-csharp/.npmrc"

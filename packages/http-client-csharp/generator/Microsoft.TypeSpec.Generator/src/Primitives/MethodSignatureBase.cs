@@ -88,9 +88,18 @@ namespace Microsoft.TypeSpec.Generator.Primitives
         }
 
         public static readonly IEqualityComparer<MethodSignatureBase> SignatureComparer = new MethodSignatureBaseEqualityComparer();
+        internal static readonly IEqualityComparer<MethodSignatureBase> SignatureComparerIgnoringOptionalValueTypeNullability
+            = new MethodSignatureBaseEqualityComparer(ignoreOptionalValueTypeParameterNullability: true);
 
         private class MethodSignatureBaseEqualityComparer : IEqualityComparer<MethodSignatureBase>
         {
+            private readonly bool _ignoreOptionalValueTypeParameterNullability;
+
+            public MethodSignatureBaseEqualityComparer(bool ignoreOptionalValueTypeParameterNullability = false)
+            {
+                _ignoreOptionalValueTypeParameterNullability = ignoreOptionalValueTypeParameterNullability;
+            }
+
             public bool Equals(MethodSignatureBase? x, MethodSignatureBase? y)
             {
                 if (ReferenceEquals(x, y))
@@ -129,10 +138,14 @@ namespace Microsoft.TypeSpec.Generator.Primitives
                         return false;
                     }
 
-                    // For operators, the return type is crucial for matching
+                    // For operators, the return type is crucial for matching.
+                    // Nullability is part of the conversion-operator signature in C#
+                    // (e.g., `implicit operator T(string)` and `implicit operator T?(string)`
+                    // are distinct), so we compare both the type name and the nullability.
                     if (x.ReturnType != null && y.ReturnType != null)
                     {
-                        if (!x.ReturnType.AreNamesEqual(y.ReturnType))
+                        if (!x.ReturnType.AreNamesEqual(y.ReturnType)
+                            || x.ReturnType.IsNullable != y.ReturnType.IsNullable)
                         {
                             return false;
                         }
@@ -156,7 +169,19 @@ namespace Microsoft.TypeSpec.Generator.Primitives
 
                 for (int i = 0; i < x.Parameters.Count; i++)
                 {
-                    if (!x.Parameters[i].Type.AreNamesEqual(y.Parameters[i].Type))
+                    var xType = x.Parameters[i].Type;
+                    var yType = y.Parameters[i].Type;
+                    if (!xType.AreNamesEqual(yType))
+                    {
+                        return false;
+                    }
+
+                    // Value-type T and T? are distinct overloads, so their nullability matters; reference-type
+                    // nullability is annotation-only and never affects overload identity.
+                    if (xType.IsNullable != yType.IsNullable && (xType.IsValueType || yType.IsValueType)
+                        && !(_ignoreOptionalValueTypeParameterNullability
+                            && x.Parameters[i].DefaultValue is not null
+                            && y.Parameters[i].DefaultValue is not null))
                     {
                         return false;
                     }

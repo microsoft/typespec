@@ -6,6 +6,7 @@ export interface IntegrationTestSuite {
   repo: string;
   branch: string;
   pattern?: string;
+  exclude?: string[];
   entrypoints?: Entrypoint[];
 }
 

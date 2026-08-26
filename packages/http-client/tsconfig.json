@@ -12,7 +12,8 @@
     "declarationMap": true,
     "jsx": "preserve",
     "jsxImportSource": "@alloy-js/core",
-    "outDir": "dist"
+    "outDir": "dist",
+    "types": ["node"]
   },
   "include": ["src/**/*.ts", "src/**/*.tsx", "test/**/*.ts", "test/**/*.tsx"],
   "exclude": ["node_modules", "dist"]

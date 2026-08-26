@@ -92,15 +92,6 @@ The `internal` modifier can be combined with the `extern` modifier on decorator 
 internal extern dec myInternalDecorator(target: unknown);
 ```
 
-### Suppressing the experimental warning
-
-Since access modifiers are currently experimental, using `internal` will emit a warning. You can suppress this warning with a `#suppress` directive:
-
-```typespec
-#suppress "experimental-feature"
-internal model MyInternalModel {}
-```
-
 ## Why not `namespace`?
 
 The `internal` modifier is not supported on namespaces because namespaces in TypeSpec are **open and merged** across files. A namespace declared in one file can be extended in another file — potentially across library boundaries. Applying `internal` to a namespace would create ambiguity about which parts of the namespace are internal and which are public. Instead, mark individual declarations within a namespace as `internal`.
