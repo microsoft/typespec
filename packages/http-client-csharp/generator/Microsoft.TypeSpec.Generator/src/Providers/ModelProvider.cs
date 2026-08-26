@@ -938,6 +938,10 @@ namespace Microsoft.TypeSpec.Generator.Providers
                 {
                     continue;
                 }
+                if (BackCompatHelper.HasExactParameterNameMismatchAtSamePosition(restoredParameters, previousParameters))
+                {
+                    continue;
+                }
 
                 for (int i = 0; i < restoredParameters.Count; i++)
                 {

@@ -838,6 +838,29 @@ namespace Microsoft.TypeSpec.Generator.Tests.Providers
         }
 
         [Test]
+        public async Task RestorePreviousParameterNamesSkipsPositionalFallbackForExactRenameMismatch()
+        {
+            await MockHelpers.LoadMockGeneratorAsync(lastContractCompilation: async () => await Helpers.GetCompilationFromDirectoryAsync());
+
+            // Current generation declares Foo(other, new_exact), while the previous contract published
+            // Foo(oldExact, other). The exact rename means positional fallback cannot safely map oldExact.
+            var foo = new MethodProvider(
+                new MethodSignature("Foo", $"", MethodSignatureModifiers.Public, new CSharpType(typeof(string)), $"",
+                [
+                    new ParameterProvider(InputFactory.MethodParameter("other", InputPrimitiveType.String, isRequired: true)),
+                    new ParameterProvider(InputFactory.MethodParameter("new_exact", InputPrimitiveType.String, isRequired: true, isExactName: true)),
+                ]),
+                Snippet.Return(Snippet.Null),
+                new TestTypeProvider());
+
+            var typeProvider = new TestTypeProvider(name: "TestClient", ns: "Test", methods: [foo]);
+            BackCompatHelper.RestorePreviousParameterNames(typeProvider, typeProvider.Methods);
+
+            var actual = new TypeProviderWriter(typeProvider).Write().Content;
+            Assert.AreEqual(Helpers.GetExpectedFromFile(), actual);
+        }
+
+        [Test]
         public async Task TryRestorePreviousParameterOrderMatchesNonCanonicalParameterNames()
         {
             await MockHelpers.LoadMockGeneratorAsync();

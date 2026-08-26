@@ -183,6 +183,8 @@ namespace Microsoft.TypeSpec.Generator.Utilities
                 {
                     currentParameters = method.Signature.Parameters;
                 }
+                var usePositionalFallback = matchingPrevious != null
+                    && !HasExactParameterNameMismatchAtSamePosition(currentParameters, matchingPrevious.Signature.Parameters);
 
                 for (int i = 0; i < currentParameters.Count; i++)
                 {
@@ -201,7 +203,7 @@ namespace Microsoft.TypeSpec.Generator.Utilities
                     }
 
                     // Fall back to a positional match for synthesized parameters
-                    if (string.IsNullOrEmpty(preservedName))
+                    if (string.IsNullOrEmpty(preservedName) && usePositionalFallback)
                     {
                         preservedName = matchingPrevious?.Signature.Parameters[i].Name;
                     }
@@ -238,6 +240,22 @@ namespace Microsoft.TypeSpec.Generator.Utilities
                     parameter.Update(name: preservedName);
                 }
             }
+        }
+
+        internal static bool HasExactParameterNameMismatchAtSamePosition(
+            IReadOnlyList<ParameterProvider> currentParameters,
+            IReadOnlyList<ParameterProvider> previousParameters)
+        {
+            for (int i = 0; i < currentParameters.Count && i < previousParameters.Count; i++)
+            {
+                if (currentParameters[i].IsExactName
+                    && !string.Equals(currentParameters[i].Name.ToVariableName(), previousParameters[i].Name.ToVariableName(), StringComparison.Ordinal))
+                {
+                    return true;
+                }
+            }
+
+            return false;
         }
 
         /// <summary>
