@@ -382,6 +382,14 @@ namespace Microsoft.TypeSpec.Generator.Tests.Utilities
                         $"first{"x"}",
                         $"second"
                     }).SetName("TestBreakLines_CRLFAcrossNestedFormattableStringBoundary");
+
+                // an empty string argument emits nothing, so it must not break up a CRLF pair that spans it.
+                yield return new TestCaseData(
+                    (FormattableString)$"first\r{""}\nsecond",
+                    new List<FormattableString> {
+                        $"first",
+                        $"second"
+                    }).SetName("TestBreakLines_CRLFAcrossEmptyArgument");
             }
         }
     }

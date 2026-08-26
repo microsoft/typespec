@@ -206,6 +206,12 @@ namespace Microsoft.TypeSpec.Generator
                     {
                         case string str when indexOfFormatSpecifier < 0:
                             {
+                                if (str.Length == 0)
+                                {
+                                    // an empty argument emits nothing, so it must not affect the pending CRLF state
+                                    // nor the trailing empty line state of the surrounding parts.
+                                    break;
+                                }
                                 bool hadPendingCR = pendingCR;
                                 var strSpan = str.AsSpan();
                                 if (hadPendingCR && strSpan.Length > 0 && strSpan[0] == '\n')
@@ -214,7 +220,7 @@ namespace Microsoft.TypeSpec.Generator
                                     strSpan = strSpan[1..];
                                 }
                                 pendingCR = strSpan.Length > 0 && strSpan[^1] == '\r';
-                                if (hadPendingCR && strSpan.Length == 0 && str.Length > 0)
+                                if (hadPendingCR && strSpan.Length == 0)
                                 {
                                     // the entire argument was the other half of a cross-boundary CRLF pair.
                                     break;
