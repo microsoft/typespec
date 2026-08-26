@@ -6,9 +6,8 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
 using System.Linq;
-using System.Reflection;
-using System.Runtime.Versioning;
 using System.Text.Json;
+using System.Text.RegularExpressions;
 using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.Build.Construction;
@@ -21,6 +20,7 @@ using Microsoft.TypeSpec.Generator.Providers;
 using Microsoft.TypeSpec.Generator.SourceInput;
 using Microsoft.TypeSpec.Generator.Utilities;
 using NuGet.Configuration;
+using NuGet.Frameworks;
 using NuGet.Versioning;
 using MSBuildProjectCollection = Microsoft.Build.Evaluation.ProjectCollection;
 
@@ -265,6 +265,93 @@ namespace Microsoft.TypeSpec.Generator
             return project;
         }
 
+        internal static Dictionary<string, Dictionary<string, string>> ReadProjectAssetsMayBe()
+        {
+            Dictionary<string, Dictionary<string, string>> hshFrameworks = [];
+            // Read in the resolved direct dependencies
+            DirectoryInfo? directory = (new DirectoryInfo(CodeModelGenerator.Instance.Configuration.OutputDirectory)).Parent?.Parent?.Parent;
+            if (directory == null)
+            {
+                return hshFrameworks;
+            }
+            string assetsJson = Path.Combine(directory.FullName, "artifacts", "obj", CodeModelGenerator.Instance.Configuration.PackageName, "project.assets.json");
+            if (!File.Exists(assetsJson))
+            {
+                // Try to get file from the project directory.
+                assetsJson = Path.Combine(CodeModelGenerator.Instance.Configuration.ProjectDirectory, "obj", "project.assets.json");
+            }
+            if (!File.Exists(assetsJson))
+            {
+                return hshFrameworks;
+            }
+            Utf8JsonReader reader = new Utf8JsonReader(File.ReadAllBytes(assetsJson));
+            using JsonDocument document = JsonDocument.ParseValue(ref reader);
+            foreach (JsonProperty prop in document.RootElement.EnumerateObject())
+            {
+                if (prop.Value.ValueKind == JsonValueKind.Object && prop.NameEquals("projectFileDependencyGroups"))
+                {
+                    foreach (JsonProperty targetFramework in prop.Value.EnumerateObject())
+                    {
+                        NuGetFramework currentFramework = new(targetFramework.Name);
+                        if (!hshFrameworks.ContainsKey(currentFramework.Framework))
+                        {
+                            hshFrameworks[currentFramework.Framework] = [];
+                        }
+                        if (targetFramework.Value.ValueKind == JsonValueKind.Array)
+                        {
+                            // Parse dependencies. They are structured as SomePackage/package.version
+                            foreach (JsonElement packageAndVersion in targetFramework.Value.EnumerateArray())
+                            {
+                                if (packageAndVersion.ValueKind == JsonValueKind.String)
+                                {
+                                    string[] packageVersionRelation = (packageAndVersion.GetString() ?? "").Split();
+                                    // We only support moreor greater relation.
+                                    // Example: "Azure.Core >= 1.62.0"
+                                    if (packageVersionRelation.Length == 3 && string.Equals(packageVersionRelation[1], ">="))
+                                    {
+                                        hshFrameworks[currentFramework.Framework][packageVersionRelation[0].ToLower()] = packageVersionRelation[2];
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+            return hshFrameworks;
+        }
+
+        internal static string GetLatestTargetFramework(IEnumerable<string> shortNames)
+        {
+            //NuGetFramework? maxFramework = shortNames.Select(x => new NuGetFramework(x)).Max();
+            // Assume framework order as follows:
+            // netstandardX.X, net462, netX.X
+            double maxFramework=0.0;
+            string maxFrameworkName = string.Empty;
+            foreach (string name in shortNames)
+            {
+                double current=0.0;
+                Match numeral = Regex.Match(name, "\\d+[.]*\\d*$");
+                if (numeral.Success)
+                {
+                    current = double.Parse(numeral.Value);
+                }
+                if (string.Equals(name, "net462", StringComparison.InvariantCultureIgnoreCase))
+                {
+                    current += 1000.0;
+                }
+                else if (!name.StartsWith("netstandard", StringComparison.InvariantCultureIgnoreCase))
+                {
+                    current += 2000.0;
+                }
+                if (current >= maxFramework)
+                {
+                    maxFramework = current;
+                    maxFrameworkName = name;
+                }
+            }
+            return maxFrameworkName;
+        }
+
         /// <summary>
         /// Resolves PackageReference items from the project's .csproj file and adds their assemblies
         /// as metadata references so that custom code referencing external NuGet types compiles correctly.
@@ -321,44 +408,13 @@ namespace Microsoft.TypeSpec.Generator
             var nugetSettings = Settings.LoadDefaultSettings(projectFilePath);
             var globalPackagesFolder = SettingsUtility.GetGlobalPackagesFolder(nugetSettings);
 
-            // Read in the resolved direct dependencies
-            DirectoryInfo? directory = (new DirectoryInfo(CodeModelGenerator.Instance.Configuration.OutputDirectory)).Parent?.Parent?.Parent;
+            // Read in the resolved direct dependencies for all frameworks
+            Dictionary<string, Dictionary<string, string>> hshFrameworks = ReadProjectAssetsMayBe();
+            // Get the latestr framework.
             Dictionary<string, string> hshNameVersion = [];
-            string framework = NugetPackageResolver.CurrentFramework.GetShortFolderName();
-            if (directory != null)
+            if (hshFrameworks.Count > 0)
             {
-                string assetsJson = Path.Combine(directory.FullName, "artifacts", "obj", CodeModelGenerator.Instance.Configuration.PackageName, "project.assets.json");
-                if (!File.Exists(assetsJson))
-                {
-                    // Try to get file from the project directory.
-                    assetsJson = Path.Combine(CodeModelGenerator.Instance.Configuration.ProjectDirectory, "obj", "project.assets.json");
-                }
-                if (File.Exists(assetsJson))
-                {
-                    Utf8JsonReader reader = new Utf8JsonReader(File.ReadAllBytes(assetsJson));
-                    using JsonDocument document = JsonDocument.ParseValue(ref reader);
-                    foreach (JsonProperty prop in document.RootElement.EnumerateObject())
-                    {
-                        if (prop.Value.ValueKind == JsonValueKind.Object && prop.NameEquals("targets"))
-                        {
-                            foreach (JsonProperty targetFramework in prop.Value.EnumerateObject())
-                            {
-                                if (targetFramework.Value.ValueKind == JsonValueKind.Object && string.Equals(targetFramework.Name, framework, StringComparison.InvariantCultureIgnoreCase))
-                                {
-                                    // Parse dependencies. They are structured as SomePackage/package.version
-                                    foreach (JsonProperty packageAndVersion in targetFramework.Value.EnumerateObject())
-                                    {
-                                        string[] nameAndVersion = packageAndVersion.Name.Split('/');
-                                        if (nameAndVersion.Length == 2)
-                                        {
-                                            hshNameVersion[nameAndVersion[0]] = nameAndVersion[1];
-                                        }
-                                    }
-                                }
-                            }
-                        }
-                    }
-                }
+                hshNameVersion = hshFrameworks[GetLatestTargetFramework(hshFrameworks.Keys.AsEnumerable())];
             }
             // Build a set of assembly names already registered so we can skip them
             var existingRefs = new HashSet<string>(
@@ -385,7 +441,7 @@ namespace Microsoft.TypeSpec.Generator
 
                 // Search the NuGet global packages folder for any cached version of this package.
                 string? version = default;
-                hshNameVersion.TryGetValue(refPackageName, out version);
+                hshNameVersion.TryGetValue(refPackageName.ToLower(), out version);
                 string? resolvedAssemblyPath = version is null
                      ? NugetPackageResolver.FindPackageAssembly(globalPackagesFolder, refPackageName)
                      : NugetPackageResolver.FindPackageAssemblyInVersion(globalPackagesFolder, refPackageName, version);
