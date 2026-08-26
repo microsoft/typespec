@@ -190,8 +190,7 @@ public abstract class ClientMethodTemplateBase implements IJavaTemplate<ClientMe
         javadocTable("Response Headers", List.of("Name", "Type", "Description"), rows, commentBlock);
     }
 
-    // package-private for testing
-    static void javadocTable(String title, List<String> columns, List<List<String>> rows,
+    private static void javadocTable(String title, List<String> columns, List<List<String>> rows,
         JavaJavadocComment commentBlock) {
         commentBlock.line(String.format("<p><strong>%s</strong></p>", title));
         commentBlock.line("<table border=\"1\">");
