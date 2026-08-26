@@ -4792,7 +4792,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers.ClientProvide
         }
 
         [Test]
-        public async Task TestBackCompatProviderRestRequestUsesPublicMethodName()
+        public async Task TestEarlierWrapperRequestExistsAfterLaterBackCompatProvider()
         {
             var inputOperation = InputFactory.Operation("GetUrl");
             var inputServiceMethod = InputFactory.BasicServiceMethod("GetUrl", inputOperation);
@@ -4801,14 +4801,23 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers.ClientProvide
                 clients: () => [client],
                 lastContractCompilation: async () => await Helpers.GetCompilationFromDirectoryAsync());
             var clientProvider = generator.Object.OutputLibrary.TypeProviders.OfType<ClientProvider>().Single();
-            var backCompatProvider = new BackCompatTypeProvider("MockableTestResource", "Sample");
+            var shippedWrapper = new BackCompatTypeProvider("MockableTestResource", "Sample");
 
-            var methods = clientProvider.GetMethodCollectionByOperation(inputOperation, backCompatProvider);
-            var publicMethodName = methods[^2].Signature.Name;
-            var requestMethodName = clientProvider.RestClient.GetCreateRequestMethod(inputOperation).Signature.Name;
+            var shippedWrapperMethods = clientProvider.GetMethodCollectionByOperation(inputOperation, shippedWrapper);
+            var publicMethodName = shippedWrapperMethods[^2].Signature.Name;
+            var capturedRequestMethodName = clientProvider.RestClient.GetCreateRequestMethod(inputOperation).Signature.Name;
 
             Assert.AreEqual("GetUrl", publicMethodName);
-            Assert.AreEqual($"Create{publicMethodName}Request", requestMethodName);
+            Assert.AreEqual($"Create{publicMethodName}Request", capturedRequestMethodName);
+
+            var newWrapper = new BackCompatTypeProvider("MissingWrapper", "Sample");
+            _ = clientProvider.GetMethodCollectionByOperation(inputOperation, newWrapper);
+
+            var emittedRestClient = new TypeProviderWriter(clientProvider.RestClient).Write().Content;
+            StringAssert.Contains(
+                $"{capturedRequestMethodName}(",
+                emittedRestClient,
+                "The final REST client must emit the request method captured by an earlier wrapper projection.");
         }
 
         [Test]
