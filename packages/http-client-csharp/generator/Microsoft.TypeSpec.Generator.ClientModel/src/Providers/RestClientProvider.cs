@@ -967,7 +967,19 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
                 bool escape = !inputPathParameter?.SkipUrlEncoding ?? true;
                 if (type?.OutputType.IsCollection == true)
                 {
-                    statements.Add(uri.AppendPathDelimited(valueExpression, GetFormatEnumValue(serializationFormat), escape).Terminate());
+                    MethodBodyStatement collectionStatement = uri.AppendPathDelimited(valueExpression, GetFormatEnumValue(serializationFormat), escape).Terminate();
+                    if (willEmitNullGuard)
+                    {
+                        bool shouldPrependWithPathSeparator = separatorDeferred || (path.Length > 0 && path[^1] != '/');
+                        List<MethodBodyStatement> appendPathStatements = shouldPrependWithPathSeparator
+                            ? [uri.AppendPath(Literal("/"), false).Terminate(), collectionStatement]
+                            : [collectionStatement];
+                        collectionStatement = BuildQueryOrHeaderOrPathParameterNullCheck(
+                            type,
+                            valueExpression,
+                            appendPathStatements);
+                    }
+                    statements.Add(collectionStatement);
                 }
                 else
                 {

@@ -1437,6 +1437,32 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers.RestClientPro
         }
 
         [Test]
+        public void RequiredNullableCollectionPathParameterIsGuarded()
+        {
+            var nullableArray = new InputNullableType(InputFactory.Array(InputPrimitiveType.String));
+            var operation = InputFactory.Operation(
+                "GetThing",
+                parameters: [InputFactory.PathParameter("ids", nullableArray, isRequired: true)],
+                path: "/things/{ids}");
+            var serviceMethod = InputFactory.BasicServiceMethod(
+                "GetThing",
+                operation,
+                parameters:
+                [
+                    InputFactory.MethodParameter(
+                        "ids",
+                        nullableArray,
+                        isRequired: true,
+                        location: InputRequestLocation.Path)
+                ]);
+            var client = InputFactory.Client("TestClient", methods: [serviceMethod]);
+            var restClient = new ClientProvider(client).RestClient;
+
+            var file = new TypeProviderWriter(restClient).Write();
+            Assert.AreEqual(Helpers.GetExpectedFromFile(), file.Content);
+        }
+
+        [Test]
         public void OptionalClientDatePathParameterIsGuardedBeforeFormatting()
         {
             var dateType = new InputDateTimeType(
