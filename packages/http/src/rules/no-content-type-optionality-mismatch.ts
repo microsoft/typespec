@@ -1,4 +1,4 @@
-import { createRule, fileRef, Operation } from "@typespec/compiler";
+import { type Operation, createRule, fileRef } from "@typespec/compiler";
 import { resolvePayloadProperties } from "../http-property.js";
 import { Visibility } from "../metadata.js";
 import { HttpPayloadDisposition } from "../payload.js";
