@@ -183,8 +183,7 @@ namespace Microsoft.TypeSpec.Generator.Utilities
                 {
                     currentParameters = method.Signature.Parameters;
                 }
-                var usePositionalFallback = matchingPrevious != null
-                    && !HasExactParameterNameMismatchAtSamePosition(currentParameters, matchingPrevious.Signature.Parameters);
+                List<int>? exactMismatchIndices = null;
 
                 for (int i = 0; i < currentParameters.Count; i++)
                 {
@@ -202,10 +201,18 @@ namespace Microsoft.TypeSpec.Generator.Utilities
                         preservedName = FindPreviousParameterName(lastContractView, inputParameter.OriginalName, method.Signature.Name);
                     }
 
-                    // Fall back to a positional match for synthesized parameters
-                    if (string.IsNullOrEmpty(preservedName) && usePositionalFallback)
+                    // Fall back to a positional match for synthesized parameters. Skip the fallback only
+                    // when a same-typed parameter elsewhere in the signature has an exact-name mismatch:
+                    // that indicates the previous and current parameters at that shared type may have been
+                    // reordered, so position alone can no longer be trusted to identify the same parameter.
+                    if (string.IsNullOrEmpty(preservedName) && matchingPrevious != null)
                     {
-                        preservedName = matchingPrevious?.Signature.Parameters[i].Name;
+                        exactMismatchIndices ??= FindExactParameterNameMismatchIndices(currentParameters, matchingPrevious.Signature.Parameters);
+                        var isAmbiguous = exactMismatchIndices.Exists(j => currentParameters[j].Type.AreNamesEqual(parameter.Type));
+                        if (!isAmbiguous)
+                        {
+                            preservedName = matchingPrevious.Signature.Parameters[i].Name;
+                        }
                     }
 
                     // A casing-only difference is still a source-breaking rename for named arguments,
@@ -240,6 +247,24 @@ namespace Microsoft.TypeSpec.Generator.Utilities
                     parameter.Update(name: preservedName);
                 }
             }
+        }
+
+        private static List<int> FindExactParameterNameMismatchIndices(
+            IReadOnlyList<ParameterProvider> currentParameters,
+            IReadOnlyList<ParameterProvider> previousParameters)
+        {
+            var mismatchIndices = new List<int>();
+            var parameterCount = Math.Min(currentParameters.Count, previousParameters.Count);
+            for (int i = 0; i < parameterCount; i++)
+            {
+                if (currentParameters[i].IsExactName
+                    && !string.Equals(currentParameters[i].Name, previousParameters[i].Name, StringComparison.Ordinal))
+                {
+                    mismatchIndices.Add(i);
+                }
+            }
+
+            return mismatchIndices;
         }
 
         internal static bool HasExactParameterNameMismatchAtSamePosition(

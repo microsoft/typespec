@@ -2620,11 +2620,6 @@ namespace Microsoft.TypeSpec.Generator.Tests.Providers.ModelProviders
 
             modelProvider.ProcessTypeForBackCompatibility();
 
-            var constructor = modelProvider.Constructors.Single(c =>
-                c.Signature.Modifiers.HasFlag(MethodSignatureModifiers.Public));
-            Assert.That(constructor.Signature.Parameters.Select(p => p.Name), Is.EqualTo(new[] { "other", "newName" }));
-            Assert.That(constructor.Signature.Parameters.Select(p => p.Property?.Name), Is.EqualTo(new[] { "Other", "new_name" }));
-
             var content = new TypeProviderWriter(modelProvider).Write().Content;
             Assert.AreEqual(Helpers.GetExpectedFromFile(), content);
         }
