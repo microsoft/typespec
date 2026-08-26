@@ -982,7 +982,8 @@ namespace Microsoft.TypeSpec.Generator.Providers
         {
             public static CSharpTypeNameComparer Instance { get; } = new();
 
-            public bool Equals(CSharpType? x, CSharpType? y) => x?.AreNamesEqual(y) == true;
+            public bool Equals(CSharpType? x, CSharpType? y)
+                => ReferenceEquals(x, y) || (x is not null && x.AreNamesEqual(y));
 
             public int GetHashCode(CSharpType obj)
             {
