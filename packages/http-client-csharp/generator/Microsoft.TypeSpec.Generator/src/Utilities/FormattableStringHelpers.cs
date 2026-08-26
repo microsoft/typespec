@@ -116,7 +116,7 @@ namespace Microsoft.TypeSpec.Generator
             // has not been observed yet, so a CRLF split across an interpolation boundary is still treated as
             // a single line terminator instead of two.
             bool pendingCR = false;
-            var hasEmptyLastLine = BreakLinesCore(input, formatBuilder, args, result, ref pendingCR);
+            var hasEmptyLastLine = BreakLinesCore(input, formatBuilder, args, result, ref pendingCR, out _);
 
             // if formatBuilder is not empty at end, add it to result
             // or when the last char is line break, we should also construct one and add it into the result
@@ -128,7 +128,7 @@ namespace Microsoft.TypeSpec.Generator
             return result;
         }
 
-        private static bool BreakLinesCore(FormattableString input, StringBuilder formatBuilder, List<object?> args, List<FormattableString> result, ref bool pendingCR)
+        private static bool BreakLinesCore(FormattableString input, StringBuilder formatBuilder, List<object?> args, List<FormattableString> result, ref bool pendingCR, out bool emittedContent)
         {
             // stackalloc cannot be used in a loop, we must allocate it here. The buffer is sized from the pre-normalization
             // format length because normalization must not expand the input. A format containing only line feeds produces
@@ -136,6 +136,7 @@ namespace Microsoft.TypeSpec.Generator
             Span<Range> splitIndices = stackalloc Range[input.Format.Length + 1];
             ReadOnlySpan<char> formatSpan = input.Format.AsSpan();
             bool hasEmptyLastLine = false;
+            emittedContent = false;
             foreach ((ReadOnlySpan<char> span, bool isLiteral, int index) in StringExtensions.GetFormattableStringFormatParts(formatSpan))
             {
                 // if isLiteral - put in formatBuilder
@@ -191,6 +192,7 @@ namespace Microsoft.TypeSpec.Generator
                         }
                     }
                     hasEmptyLastLine = normalizedSpan.Length > 0 && normalizedSpan[^1] == '\n';
+                    emittedContent |= normalizedSpan.Length > 0;
                 }
                 // if not Literal, is Args - recurse through Args and check if args has breaklines
                 else
@@ -227,11 +229,21 @@ namespace Microsoft.TypeSpec.Generator
                                 }
                                 BreakLinesCoreForString(strSpan, formatBuilder, args, result);
                                 hasEmptyLastLine = false;
+                                emittedContent = true;
                                 break;
                             }
                         case FormattableString fs when indexOfFormatSpecifier < 0:
-                            hasEmptyLastLine = BreakLinesCore(fs, formatBuilder, args, result, ref pendingCR);
-                            break;
+                            {
+                                var nestedHasEmptyLastLine = BreakLinesCore(fs, formatBuilder, args, result, ref pendingCR, out bool nestedEmittedContent);
+                                if (nestedEmittedContent)
+                                {
+                                    // a nested value that renders nothing must leave the surrounding trailing empty
+                                    // line state alone, otherwise a trailing terminator on the outer format is lost.
+                                    hasEmptyLastLine = nestedHasEmptyLastLine;
+                                    emittedContent = true;
+                                }
+                                break;
+                            }
                         default:
                             // if not a string or FormattableString, add to args because we cannot parse it
                             // add to FormatBuilder to maintain equal count between args and formatBuilder
@@ -243,7 +255,15 @@ namespace Microsoft.TypeSpec.Generator
                             }
                             formatBuilder.Append('}');
                             args.Add(arg);
-                            hasEmptyLastLine = false;
+                            // a null argument without a format specifier renders no characters, so it must preserve the
+                            // surrounding state. Anything else renders its own text, which separates a preceding '\r'
+                            // from a following '\n' so that they are no longer a single CRLF terminator.
+                            if (arg is not null || indexOfFormatSpecifier >= 0)
+                            {
+                                pendingCR = false;
+                                hasEmptyLastLine = false;
+                                emittedContent = true;
+                            }
                             break;
                     }
                 }

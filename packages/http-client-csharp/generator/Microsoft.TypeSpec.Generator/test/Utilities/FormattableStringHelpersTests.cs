@@ -390,6 +390,27 @@ namespace Microsoft.TypeSpec.Generator.Tests.Utilities
                         $"first",
                         $"second"
                     }).SetName("TestBreakLines_CRLFAcrossEmptyArgument");
+
+                // an argument that renders content separates the '\r' from the '\n', so they are two terminators
+                // and the rendered argument forms its own line between them.
+                yield return new TestCaseData(
+                    (FormattableString)$"first\r{1}\nsecond",
+                    new List<FormattableString> {
+                        $"first",
+                        $"{1}",
+                        $"second"
+                    }).SetName("TestBreakLines_CRAndLFSeparatedByRenderedArgument");
+
+                // a nested formattable string that renders nothing must not discard the trailing empty line
+                // produced by the terminator that follows it.
+                inner = $"";
+                outer = $"first\r{inner}\n";
+                yield return new TestCaseData(
+                    outer,
+                    new List<FormattableString> {
+                        $"first",
+                        $""
+                    }).SetName("TestBreakLines_EmptyNestedFormattableStringKeepsTrailingLine");
             }
         }
     }
