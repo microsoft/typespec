@@ -120,6 +120,34 @@ namespace Microsoft.TypeSpec.Generator.Tests.Providers.ModelProviders
             Assert.AreEqual(expectedSummary, baseModel.XmlDocs.Summary!.ToDisplayString());
         }
 
+        [TestCase(true, "Please note this is the abstract base class. The derived classes available for instantiation are: <see cref=\"Sample.Models.Cat\"/>, <see cref=\"Sample.Models.Dog\"/>, and <see cref=\"Sample.Models.AnotherAnimal\"/>.")]
+        [TestCase(false, "Please note this is the base class. The derived classes available for instantiation are: <see cref=\"Sample.Models.Cat\"/>, <see cref=\"Sample.Models.Dog\"/>, and <see cref=\"Sample.Models.AnotherAnimal\"/>.")]
+        public void DiscriminatedBaseDescriptionReflectsAbstractness(bool isAbstract, string expectedDescription)
+        {
+            MockHelpers.LoadMockGenerator();
+            // When not abstract, simulate a downstream emitter that does not model the discriminated base type as abstract.
+            var baseModel = isAbstract
+                ? CodeModelGenerator.Instance.TypeFactory.CreateModel(_baseModel)!
+                : new NonAbstractModelProvider(_baseModel);
+            Assert.AreEqual(isAbstract, baseModel.DeclarationModifiers.HasFlag(TypeSignatureModifiers.Abstract));
+
+            // The discriminated base description should reference derived models regardless of abstractness.
+            Assert.IsNotNull(baseModel.XmlDocs.Summary);
+            StringAssert.Contains(expectedDescription, baseModel.XmlDocs.Summary!.ToDisplayString());
+        }
+
+        private class NonAbstractModelProvider : ModelProvider
+        {
+            public NonAbstractModelProvider(InputModelType inputModel) : base(inputModel)
+            {
+            }
+
+            protected override TypeSignatureModifiers BuildDeclarationModifiers()
+            {
+                return base.BuildDeclarationModifiers() & ~TypeSignatureModifiers.Abstract;
+            }
+        }
+
         [Test]
         public void DiscriminatorPropertyShouldBeInternal()
         {
@@ -147,6 +175,101 @@ namespace Microsoft.TypeSpec.Generator.Tests.Providers.ModelProviders
             Assert.IsTrue(initCtor.Signature.Modifiers.HasFlag(MethodSignatureModifiers.Private));
             Assert.IsNotNull(serializationCtor);
             Assert.IsTrue(serializationCtor!.Signature.Modifiers.HasFlag(MethodSignatureModifiers.Internal));
+        }
+
+        [TestCase(false)]
+        [TestCase(true)]
+        public void RebasedDiscriminatedBaseConstructorForwardsDeclaredParameter(bool useMultiLevelBase)
+        {
+            var rootModel = InputFactory.Model(
+                "conversationItem",
+                properties:
+                [
+                    InputFactory.Property(
+                        "type",
+                        InputPrimitiveType.String,
+                        isRequired: true,
+                        isDiscriminator: true)
+                ]);
+            var rebasedModel = rootModel;
+
+            if (useMultiLevelBase)
+            {
+                rebasedModel = InputFactory.Model(
+                    "realtimeConversationItem",
+                    properties:
+                    [
+                        InputFactory.Property(
+                            "type",
+                            InputPrimitiveType.String,
+                            isRequired: true,
+                            isDiscriminator: true)
+                    ],
+                    baseModel: rootModel,
+                    discriminatedKind: "realtime");
+            }
+
+            var voiceModel = InputFactory.Model(
+                "voiceConversationItem",
+                properties:
+                [
+                    InputFactory.Property(
+                        "type",
+                        InputPrimitiveType.String,
+                        isRequired: true,
+                        isDiscriminator: true)
+                ],
+                baseModel: rebasedModel);
+
+            MockHelpers.LoadMockGenerator(inputModelTypes: [rootModel, rebasedModel, voiceModel]);
+            var model = CodeModelGenerator.Instance.TypeFactory.CreateModel(voiceModel);
+
+            Assert.IsNotNull(model);
+            var constructor = model!.Constructors.Single(c =>
+                c.Signature.Modifiers.HasFlag(MethodSignatureModifiers.Private)
+                && c.Signature.Modifiers.HasFlag(MethodSignatureModifiers.Protected));
+            Assert.AreEqual(1, constructor.Signature.Parameters.Count);
+            Assert.AreEqual("type", constructor.Signature.Parameters[0].Name);
+            Assert.IsNotNull(constructor.Signature.Initializer);
+            Assert.AreEqual(1, constructor.Signature.Initializer!.Arguments.Count);
+            Assert.AreEqual("@type", constructor.Signature.Initializer.Arguments[0].ToDisplayString());
+        }
+
+        [Test]
+        public void RebasedDiscriminatedBaseWritesDeclaredConstructorParameter()
+        {
+            var rootModel = InputFactory.Model(
+                "conversationItem",
+                properties:
+                [
+                    InputFactory.Property(
+                        "type",
+                        InputPrimitiveType.String,
+                        isRequired: true,
+                        isDiscriminator: true)
+                ]);
+            var voiceModel = InputFactory.Model(
+                "voiceConversationItem",
+                properties:
+                [
+                    InputFactory.Property(
+                        "type",
+                        InputPrimitiveType.String,
+                        isRequired: true,
+                        isDiscriminator: true)
+                ],
+                baseModel: rootModel);
+
+            MockHelpers.LoadMockGenerator(inputModelTypes: [rootModel, voiceModel]);
+            var model = CodeModelGenerator.Instance.TypeFactory.CreateModel(voiceModel);
+
+            Assert.IsNotNull(model);
+            var content = new TypeProviderWriter(model!).Write().Content;
+
+            // The base call must only forward parameters that the constructor actually declares.
+            StringAssert.Contains(
+                "private protected VoiceConversationItem(string @type) : base(@type)",
+                content);
         }
 
         [Test]

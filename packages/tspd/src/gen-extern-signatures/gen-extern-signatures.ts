@@ -1,12 +1,16 @@
-import { OutputFile, traverseOutput } from "@alloy-js/core";
-import {
+import type { OutputFile } from "@alloy-js/core";
+import { traverseOutput } from "@alloy-js/core";
+import type {
   CompilerHost,
   Decorator,
   Diagnostic,
   Namespace,
-  type PackageJson,
   Program,
   SemanticNodeListener,
+} from "@typespec/compiler";
+import {
+  type FunctionValue,
+  type PackageJson,
   type SourceLocation,
   compile,
   createDiagnosticCollector,
@@ -19,10 +23,9 @@ import {
   resolvePath,
 } from "@typespec/compiler";
 import prettier from "prettier";
-import { FunctionValue } from "../../../compiler/src/core/types.js";
 import { createDiagnostic } from "../ref-doc/lib.js";
 import { generateSignatures } from "./components/entity-signatures.js";
-import { DecoratorSignature, EntitySignature, FunctionSignature } from "./types.js";
+import type { DecoratorSignature, EntitySignature, FunctionSignature } from "./types.js";
 
 function createSourceLocation(path: string): SourceLocation {
   return { file: createSourceFile("", path), pos: 0, end: 0 };
@@ -194,6 +197,7 @@ function resolveDecoratorSignature(decorator: Decorator): DecoratorSignature {
     name: decorator.name,
     jsName: "$" + decorator.name.slice(1),
     typeName: decorator.name[1].toUpperCase() + decorator.name.slice(2) + "Decorator",
+    isAuto: decorator.declarationKind === "auto",
   };
 }
 

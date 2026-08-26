@@ -1,0 +1,166 @@
+---
+slug: release-notes/typespec-1-13-0
+title: "1.13.0"
+releaseDate: 2026-06-09
+version: "1.13.0"
+---
+
+TypeSpec 1.13.0 introduces project-level configuration capabilities, expands compiler and OpenAPI authoring features, and includes a broad set of compiler, OpenAPI, and IDE fixes.
+
+## Deprecations
+
+### @typespec/compiler
+
+- Deprecated `deepClone` utility in favor of `structuredClone`. All internal usages have been replaced with the native `structuredClone` API.
+
+## Features
+
+### @typespec/compiler
+
+- `ApplyCodeFixExpect.toEqual` now accepts `Record<string, string>` to assert on multiple files after a code fix is applied. This enables testing code fixes that write to a different file (e.g., adding augment decorators to a `client.tsp`).
+
+  ```ts
+  await ruleTester
+    .expect({
+      "main.tsp": `import "./client.tsp";\nmodel Foo { name: string; }`,
+      "client.tsp": ``,
+    })
+    .applyCodeFix("add-client-override")
+    .toEqual({
+      "client.tsp": `@@override(Foo.name, "clientName");\n`,
+    });
+  ```
+
+- Add `kind: project` and `entrypoint` support to `tspconfig.yaml` for defining project boundaries and entrypoint resolution. See [Project Configuration](https://typespec.io/docs/handbook/configuration/configuration#project-configuration) for more details.
+
+  ```yaml title=tspconfig.yaml
+  kind: project
+  entrypoint: src/service.tsp
+  emit:
+    - "@typespec/openapi3"
+  ```
+
+- Added support for accessing late-bound members on models that use template spreads or `is` bases.
+
+  Previously, accessing a member that was introduced via a template instantiation would fail with an `invalid-ref` error:
+
+  ```typespec
+  model Template<T> {
+    ...T;
+  }
+  model User
+    is Template<{
+      name: string;
+    }>;
+
+  alias UserName = User.name; // ❌ previously: "Model doesn't have member name"
+  ```
+
+  Now, the compiler will force-evaluate the container type when a member lookup fails on a model with unknown members (from template spreads or `is`), making late-bound members accessible:
+
+  ```typespec
+  model Template<T> {
+    ...T;
+  }
+  model User
+    is Template<{
+      name: string;
+    }>;
+
+  alias UserName = User.name; // ✅ now resolves correctly
+  ```
+
+  This also works with:
+  - Forward references to the template definition
+  - Spread-based patterns (`model A { ...Template<{x: int32}> }`)
+  - Members added by augment decorators
+  - Circular references between models with late-bound members
+
+- The `internal` modifier is no longer experimental. Using `internal` will no longer emit an `experimental-feature` warning, and `#suppress "experimental-feature"` directives are no longer needed.
+- Add project-scoped compiler feature flags to `tspconfig.yaml`. Compiler feature definitions are tracked internally with descriptions and can be listed with `tsp info features`.
+
+  ```yaml title=tspconfig.yaml
+  kind: project
+  features:
+    - function-declarations
+  ```
+
+- Enabled resolution of member properties and metaproperties through template parameters based on constraints.
+
+  ```tsp
+  model Resource {
+    id: string;
+  }
+
+  model Read<R extends Resource> {
+    id: R.id;
+  }
+  ```
+
+### @typespec/openapi
+
+- Add `summary` and `kind` fields to `@tagMetadata` decorator.
+
+  For OpenAPI 3.2, these fields are emitted as native tag object fields. For OpenAPI 3.0/3.1, they are emitted as `x-oai-summary` and `x-oai-kind` extensions. The OpenAPI converter also supports importing `x-oai-summary`, `x-oai-kind` (from 3.0/3.1) and native `summary`, `kind` (from 3.2) back to TypeSpec.
+
+  ```typespec
+  @tagMetadata("foo", #{ summary: "all operations that allow doing Foo", kind: "FooGroup" })
+  ```
+
+- Add array form for `@tagMetadata` decorator to allow explicit control of tag declaration order.
+
+  ```typespec
+  @service
+  @tagMetadata(#[
+    #{ name: "First Tag", description: "First tag description" },
+    #{ name: "Second Tag", description: "Second tag description" }
+  ])
+  namespace PetStore {
+
+  }
+  ```
+
+  Using `@tagMetadata(#[...])` and `@tagMetadata("name", #{...})` on the same namespace is a diagnostic error.
+
+- Added a warning diagnostic when `@defaultResponse` is used on a model that already has a `@statusCode` property or is marked with `@error`.
+
+### @typespec/openapi3
+
+- `@typespec/openapi3` includes the same `@tagMetadata` enhancements listed above for `@typespec/openapi`: support for `summary`/`kind` metadata and array-form tag declarations with validation for mixed usage.
+
+## Bug Fixes
+
+### @typespec/compiler
+
+- Fix spurious circular-base-type diagnostics after invalid 'model is' declarations.
+- Fixed the compiler to correctly detect circular model spread chains while preserving support for recursive model-expression aliases.
+- Fix wrongly detected circular reference with alias and model properties
+- Completion in the middle of an identifier now replaces the full token instead of inserting and leaving trailing characters
+- Language server fatal errors now write pending logs and the fatal stack trace directly to stderr so crash details remain visible.
+- Report an error when a function is declared in the `$functions` map in a JS file but has no corresponding `extern fn` declaration in TypeSpec. Previously this would silently have no effect.
+- [Language Server] Wrapped LSP server handlers with `wrapUnhandledError` to preserve server-side stack traces in error messages forwarded to the client. Previously, the JSON-RPC layer discarded the original stack trace, making unhandled errors in telemetry opaque.
+- Validate function rest arguments and report function call argument count diagnostics at call sites.
+
+### @typespec/openapi
+
+- Reject duplicate tag names in @tagMetadata array form.
+- Fix tagMetadata extension diagnostic targets
+
+### @typespec/openapi3
+
+- Mark models as `@error` when imported from 4xx/5xx response body schema references.
+- Fix import of `deprecated: true` on OpenAPI3 operations to generate `#deprecated "deprecated"` directive in converted TypeSpec output.
+- Fix custom auth scheme models leaking into `components.schemas` when declared inside the service namespace. They are now emitted only under `components.securitySchemes` as expected.
+- Propagate `@JsonSchema.uniqueItems` to query, path and header parameter schemas. The decorator was only applied to body model property schemas; for HTTP parameter schemas (which go through `applyIntrinsicDecorators`) it was silently dropped, so arrays declared on operation parameters never emitted `uniqueItems: true` even when the decorator was present.
+
+  ```tsp
+  op listUsers(
+    @query
+    @JsonSchema.uniqueItems
+    $select?: ("id" | "displayName")[],
+  ): User[];
+  ```
+
+### typespec-vscode
+
+- Improved telemetry instrumentation for `install-global-compiler-cli`, `preview-openapi3`, `start-server`, and `server-path-changed` events by adding missing `lastStep` tracking and error detail logging. Added actionable error message when compiler is found but neither `node` nor `tsp` is available on PATH, guiding users to fix common nvm/fnm/volta configuration issues.

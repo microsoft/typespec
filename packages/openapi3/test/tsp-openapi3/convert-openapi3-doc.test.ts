@@ -1,7 +1,8 @@
 import { formatTypeSpec } from "@typespec/compiler";
 import { strictEqual } from "node:assert";
 import { describe, it } from "vitest";
-import { OpenAPITag3_2, convertOpenAPI3Document } from "../../src/index.js";
+import type { OpenAPITag3_2 } from "../../src/index.js";
+import { convertOpenAPI3Document } from "../../src/index.js";
 
 const versions = ["3.0.0", "3.1.0", "3.2.0"] as const;
 
@@ -941,6 +942,116 @@ def grade(sample: dict, item: dict) -> float:
       ),
     );
   });
+
+  it("should convert deprecated operation without description to #deprecated directive", async () => {
+    const tsp = await convertOpenAPI3Document({
+      openapi: version,
+      info: {
+        title: "(title)",
+        version: "0.0.0",
+      },
+      tags: [],
+      paths: {
+        "/foo": {
+          get: {
+            operationId: "Foo_get",
+            deprecated: true,
+            tags: ["Foo"],
+            responses: {
+              "200": {
+                description: "OK",
+              },
+            },
+          },
+        },
+      },
+    } as any);
+
+    strictEqual(
+      tsp,
+      await formatTypeSpec(
+        `
+        import "@typespec/http";
+        import "@typespec/openapi";
+        import "@typespec/openapi3";
+
+        using Http;
+        using OpenAPI;
+
+        @service(#{
+          title: "(title)",
+        })
+        @info(#{
+          version: "0.0.0",
+        })
+        namespace title;
+
+        #deprecated "deprecated"
+        @tag("Foo")
+        @route("/foo")
+        @get
+        op Foo_get(): OkResponse;
+        `,
+        { printWidth: 100, tabWidth: 2 },
+      ),
+    );
+  });
+
+  it("should convert deprecated operation with description to #deprecated directive", async () => {
+    const tsp = await convertOpenAPI3Document({
+      openapi: version,
+      info: {
+        title: "(title)",
+        version: "0.0.0",
+      },
+      tags: [],
+      paths: {
+        "/foo": {
+          get: {
+            operationId: "Foo_get",
+            description: "Get foo",
+            deprecated: true,
+            tags: ["Foo"],
+            responses: {
+              "200": {
+                description: "OK",
+              },
+            },
+          },
+        },
+      },
+    } as any);
+
+    strictEqual(
+      tsp,
+      await formatTypeSpec(
+        `
+        import "@typespec/http";
+        import "@typespec/openapi";
+        import "@typespec/openapi3";
+
+        using Http;
+        using OpenAPI;
+
+        @service(#{
+          title: "(title)",
+        })
+        @info(#{
+          version: "0.0.0",
+        })
+        namespace title;
+
+        /** Get foo */
+        #deprecated "deprecated"
+        @tag("Foo")
+        @route("/foo")
+        @get
+        op Foo_get(): OkResponse;
+        `,
+        { printWidth: 100, tabWidth: 2 },
+      ),
+    );
+  });
 });
 
 describe("convertOpenAPI3Document tag metadata", () => {
@@ -1035,5 +1146,73 @@ describe("convertOpenAPI3Document tag metadata", () => {
         ),
       );
     }
+  });
+
+  it("converts OpenAPI 3.1 license with identifier field", async () => {
+    const tsp = await convertOpenAPI3Document({
+      info: {
+        title: "My API",
+        version: "1.0.0",
+        license: {
+          name: "MIT",
+          identifier: "MIT",
+        },
+      },
+      openapi: "3.1.0",
+      paths: {},
+    });
+
+    strictEqual(
+      tsp,
+      await formatTypeSpec(
+        `
+        import "@typespec/http";
+        import "@typespec/openapi";
+        import "@typespec/openapi3";
+
+        using Http;
+        using OpenAPI;
+
+        @service(#{ title: "My API" })
+        @info(#{ version: "1.0.0", license: #{ name: "MIT", identifier: "MIT" } })
+        namespace MyAPI;
+        `,
+        { printWidth: 100, tabWidth: 2 },
+      ),
+    );
+  });
+
+  it("converts OpenAPI 3.0 license with x-oai-license-identifier extension to identifier field", async () => {
+    const tsp = await convertOpenAPI3Document({
+      info: {
+        title: "My API",
+        version: "1.0.0",
+        license: {
+          name: "MIT",
+          "x-oai-license-identifier": "MIT",
+        } as any,
+      },
+      openapi: "3.0.0",
+      paths: {},
+    });
+
+    strictEqual(
+      tsp,
+      await formatTypeSpec(
+        `
+        import "@typespec/http";
+        import "@typespec/openapi";
+        import "@typespec/openapi3";
+
+        using Http;
+        using OpenAPI;
+
+        @service(#{ title: "My API" })
+        @info(#{ version: "1.0.0", license: #{ name: "MIT", identifier: "MIT" } })
+        namespace MyAPI;
+        `,
+        { printWidth: 100, tabWidth: 2 },
+      ),
+    );
   });
 });

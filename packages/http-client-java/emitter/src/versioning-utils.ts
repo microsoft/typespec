@@ -1,7 +1,8 @@
 import { isPreviewVersion } from "@azure-tools/typespec-azure-core";
-import { SdkClientType, SdkHttpOperation } from "@azure-tools/typespec-client-generator-core";
-import { Namespace, Program } from "@typespec/compiler";
-import { findVersionedNamespace, getVersions, Version } from "@typespec/versioning";
+import type { SdkClientType, SdkHttpOperation } from "@azure-tools/typespec-client-generator-core";
+import type { Namespace, Program } from "@typespec/compiler";
+import type { Version } from "@typespec/versioning";
+import { findVersionedNamespace, getVersions } from "@typespec/versioning";
 
 /**
  * Sentinel values that describe a client that not have consistent api-versions.
@@ -185,6 +186,29 @@ export function isVersionEarlierThan(version: string, compareTo: string): boolea
 
   // Versions are identical
   return false;
+}
+
+/**
+ * Resolves the emitter "api-version" option to a single string.
+ *
+ * TCGC supports a per-service api-version map (`Record<string, string>`), but the Java
+ * emitter currently only supports a single api-version, "latest", or "all". A map value
+ * is therefore treated as undefined.
+ *
+ * TODO(xiaofei): support the per-service api-version map in a future PR.
+ *
+ * @param apiVersion the api-version option from TCGC, a string, a per-service map, or undefined
+ * @returns the api-version string, or undefined when not set or a per-service map
+ */
+export function resolveApiVersionOption(
+  apiVersion: string | Record<string, string> | undefined,
+): string | undefined {
+  if (apiVersion !== undefined && typeof apiVersion !== "string") {
+    // There is a possibility that the overall package contains multiple api-versions, but this
+    // specific client only includes a single api-version. For this case we will need refinement.
+    return undefined;
+  }
+  return apiVersion;
 }
 
 function isSdkClientVersioned(client: SdkClientType<SdkHttpOperation>): boolean {

@@ -2,12 +2,19 @@ import type { CompilerOptions } from "@typespec/compiler";
 import { useControllableValue } from "@typespec/react-components";
 import { useCallback, useEffect, useMemo, useRef } from "react";
 import type { PlaygroundSample } from "../types.js";
+import {
+  compilerOptionsToTspConfig,
+  parseTspConfigYaml,
+  updateTspConfigYaml,
+} from "./editor-panel/tspconfig-utils.js";
 
 export interface PlaygroundState {
   /** Emitter to use */
   emitter?: string;
   /** Emitter options */
   compilerOptions?: CompilerOptions;
+  /** Raw tspconfig.yaml content. Source of truth for the compiler configuration. */
+  tspconfig?: string;
   /** Sample to use */
   sampleName?: string;
   /** Selected viewer */
@@ -46,6 +53,8 @@ export interface PlaygroundStateResult {
   // State values
   selectedEmitter: string;
   compilerOptions: CompilerOptions;
+  /** Raw tspconfig.yaml content (source of truth for the configuration). */
+  tspconfig: string;
   selectedSampleName: string;
   selectedViewer?: string;
   viewerState: Record<string, any>;
@@ -54,6 +63,7 @@ export interface PlaygroundStateResult {
   // State setters
   onSelectedEmitterChange: (emitter: string) => void;
   onCompilerOptionsChange: (compilerOptions: CompilerOptions) => void;
+  onTspconfigChange: (tspconfig: string) => void;
   onSelectedSampleNameChange: (sampleName: string) => void;
   onSelectedViewerChange: (selectedViewer: string) => void;
   onViewerStateChange: (viewerState: Record<string, any>) => void;
@@ -96,12 +106,27 @@ export function usePlaygroundState({
     onPlaygroundStateChange,
   );
 
-  // Extract individual values from the consolidated state with proper defaults
-  const selectedEmitter = playgroundState.emitter as any;
-  const compilerOptions = useMemo(
-    () => playgroundState.compilerOptions ?? {},
-    [playgroundState.compilerOptions],
+  // Extract individual values from the consolidated state with proper defaults.
+  // The raw tspconfig.yaml is the source of truth for the compiler configuration.
+  // For backwards compatibility (older shared links / samples that only provide the
+  // structured `emitter` + `compilerOptions`), synthesize the YAML when none is stored.
+  const tspconfig = useMemo(
+    () =>
+      playgroundState.tspconfig ??
+      compilerOptionsToTspConfig(
+        playgroundState.emitter ?? "",
+        playgroundState.compilerOptions ?? {},
+      ),
+    [playgroundState.tspconfig, playgroundState.emitter, playgroundState.compilerOptions],
   );
+
+  const parsedConfig = useMemo(
+    () => parseTspConfigYaml(tspconfig) ?? { compilerOptions: {} },
+    [tspconfig],
+  );
+
+  const selectedEmitter = (parsedConfig.selectedEmitter ?? "") as any;
+  const compilerOptions = parsedConfig.compilerOptions;
   const selectedSampleName = playgroundState.sampleName ?? "";
   const selectedViewer = playgroundState.selectedViewer;
   const content = playgroundState.content ?? "";
@@ -114,14 +139,23 @@ export function usePlaygroundState({
     [playgroundState, setPlaygroundState],
   );
 
-  // Simple one-liner change handlers
-  const onSelectedEmitterChange = useCallback(
-    (emitter: string) => updateState({ emitter }),
+  // Raw YAML edits are persisted directly — this is the source of truth.
+  const onTspconfigChange = useCallback(
+    (tspconfig: string) => updateState({ tspconfig }),
     [updateState],
   );
+
+  // Visual form changes are written back into the YAML, preserving comments and any
+  // fields the form doesn't manage.
+  const onSelectedEmitterChange = useCallback(
+    (emitter: string) =>
+      updateState({ tspconfig: updateTspConfigYaml(tspconfig, emitter, compilerOptions) }),
+    [updateState, tspconfig, compilerOptions],
+  );
   const onCompilerOptionsChange = useCallback(
-    (compilerOptions: CompilerOptions) => updateState({ compilerOptions }),
-    [updateState],
+    (newOptions: CompilerOptions) =>
+      updateState({ tspconfig: updateTspConfigYaml(tspconfig, selectedEmitter, newOptions) }),
+    [updateState, tspconfig, selectedEmitter],
   );
   const onSelectedSampleNameChange = useCallback(
     (sampleName: string) => updateState({ sampleName }),
@@ -147,11 +181,13 @@ export function usePlaygroundState({
       if (config?.content) {
         lastProcessedSample.current = selectedSampleName;
         const updates: Partial<PlaygroundState> = { content: config.content };
-        if (config.preferredEmitter) {
-          updates.emitter = config.preferredEmitter;
-        }
-        if (config.compilerOptions) {
-          updates.compilerOptions = config.compilerOptions;
+        // Samples are authored with structured emitter/options — convert them into the
+        // raw tspconfig.yaml which is the playground's source of truth.
+        if (config.preferredEmitter || config.compilerOptions) {
+          updates.tspconfig = compilerOptionsToTspConfig(
+            config.preferredEmitter ?? "",
+            config.compilerOptions ?? {},
+          );
         }
         updateState(updates);
       }
@@ -162,6 +198,7 @@ export function usePlaygroundState({
     // State values
     selectedEmitter,
     compilerOptions,
+    tspconfig,
     selectedSampleName,
     selectedViewer,
     viewerState: playgroundState.viewerState ?? {},
@@ -170,6 +207,7 @@ export function usePlaygroundState({
     // State setters
     onSelectedEmitterChange,
     onCompilerOptionsChange,
+    onTspconfigChange,
     onSelectedSampleNameChange,
     onSelectedViewerChange,
     onViewerStateChange,

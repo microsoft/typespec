@@ -1,6 +1,6 @@
 {
   "name": "@typespec/http-canonicalization",
-  "version": "0.16.1",
+  "version": "0.16.3",
   "type": "module",
   "main": "dist/src/index.js",
   "repository": {
@@ -16,10 +16,10 @@
     "test:ui": "vitest --ui",
     "test:watch": "vitest -w",
     "test:ci": "vitest run --coverage --reporter=junit --reporter=default",
-    "prepack": "tsx ../../eng/tsp-core/scripts/strip-dev-import-exports.ts",
-    "postpack": "tsx ../../eng/tsp-core/scripts/strip-dev-import-exports.ts --restore",
-    "lint": "eslint . --max-warnings=0",
-    "lint:fix": "eslint . --fix"
+    "prepack": "node ../../eng/tsp-core/scripts/strip-dev-import-exports.ts",
+    "postpack": "node ../../eng/tsp-core/scripts/strip-dev-import-exports.ts --restore",
+    "lint": "oxlint . --deny-warnings",
+    "lint:fix": "oxlint . --fix"
   },
   "exports": {
     ".": {
@@ -41,6 +41,8 @@
   "devDependencies": {
     "@alloy-js/rollup-plugin": "catalog:",
     "@types/node": "catalog:",
+    "@typespec/compiler": "workspace:^",
+    "@typespec/http": "workspace:^",
     "concurrently": "catalog:",
     "prettier": "catalog:"
   }

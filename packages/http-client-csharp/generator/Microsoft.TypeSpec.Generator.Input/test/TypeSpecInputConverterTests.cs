@@ -186,6 +186,50 @@ namespace Microsoft.TypeSpec.Generator.Input.Tests
         }
 
         [Test]
+        public void LoadsInputStreamingType()
+        {
+            const string content = """
+                {
+                  "$id": "1",
+                  "kind": "streaming",
+                  "name": "Events",
+                  "crossLanguageDefinitionId": "Test.Events",
+                  "valueType": {
+                    "$id": "2",
+                    "kind": "string",
+                    "name": "string",
+                    "crossLanguageDefinitionId": "TypeSpec.string",
+                    "decorators": []
+                  },
+                  "contentTypes": ["text/event-stream"],
+                  "streamKind": "sse",
+                  "terminalEventType": "done",
+                  "terminalEventValue": "[DONE]"
+                }
+                """;
+            var referenceHandler = new TypeSpecReferenceHandler();
+            var options = new JsonSerializerOptions
+            {
+                Converters =
+                {
+                    new InputTypeConverter(referenceHandler),
+                    new InputPrimitiveTypeConverter(referenceHandler),
+                },
+            };
+
+            var streamingType = JsonSerializer.Deserialize<InputType>(content, options) as InputStreamingType;
+
+            Assert.IsNotNull(streamingType);
+            Assert.AreEqual("Events", streamingType!.Name);
+            Assert.AreEqual("Test.Events", streamingType.CrossLanguageDefinitionId);
+            Assert.AreEqual(InputPrimitiveTypeKind.String, ((InputPrimitiveType)streamingType.ValueType).Kind);
+            CollectionAssert.AreEqual(new[] { "text/event-stream" }, streamingType.ContentTypes);
+            Assert.AreEqual("sse", streamingType.StreamKind);
+            Assert.AreEqual("done", streamingType.TerminalEventType);
+            Assert.AreEqual("[DONE]", streamingType.TerminalEventValue);
+        }
+
+        [Test]
         public void LoadsDynamicModel()
         {
             var directory = Helpers.GetAssetFileOrDirectoryPath(false);
@@ -565,6 +609,42 @@ namespace Microsoft.TypeSpec.Generator.Input.Tests
         }
 
         [Test]
+        public void DeserializeModelWithExternalUsagePreservesInputAndOutput()
+        {
+            // TCGC emits the External usage flag (UsageFlags.External) for models that are also
+            // referenced by external types. The C# InputModelTypeUsage enum must recognize it so
+            // that Enum.TryParse does not fail on the unknown token and collapse the whole usage to
+            // None, which would strip Input/Output and make every property get-only.
+            var json = @"{
+                ""$id"": ""1"",
+                ""kind"": ""model"",
+                ""name"": ""TestModel"",
+                ""namespace"": ""Test.Models"",
+                ""crossLanguageDefinitionId"": ""Test.Models.TestModel"",
+                ""usage"": ""Input,Output,External"",
+                ""properties"": []
+            }";
+
+            var referenceHandler = new TypeSpecReferenceHandler();
+            var options = new JsonSerializerOptions
+            {
+                AllowTrailingCommas = true,
+                Converters =
+                {
+                    new InputTypeConverter(referenceHandler),
+                    new InputModelTypeConverter(referenceHandler),
+                    new InputExternalTypeMetadataConverter()
+                }
+            };
+
+            var model = JsonSerializer.Deserialize<InputModelType>(json, options);
+            Assert.IsNotNull(model);
+            Assert.IsTrue(model!.Usage.HasFlag(InputModelTypeUsage.Input), "Model should retain Input usage flag");
+            Assert.IsTrue(model.Usage.HasFlag(InputModelTypeUsage.Output), "Model should retain Output usage flag");
+            Assert.IsTrue(model.Usage.HasFlag(InputModelTypeUsage.External), "Model should have External usage flag");
+        }
+
+        [Test]
         public void DeserializeArrayWithExternalMetadata()
         {
             var json = @"{
@@ -766,6 +846,39 @@ namespace Microsoft.TypeSpec.Generator.Input.Tests
 
             Assert.IsTrue(inputModel!.Usage.HasFlag(InputModelTypeUsage.Xml), "Model should have Xml usage flag");
             Assert.IsFalse(inputModel.Usage.HasFlag(InputModelTypeUsage.Json), "XML-only model should NOT have Json usage flag added");
+            Assert.IsTrue(inputModel.Usage.HasFlag(InputModelTypeUsage.Input), "Model should retain Input usage flag");
+        }
+
+        [Test]
+        public void LoadsMultipartOnlyModelDoesNotAddJsonUsage()
+        {
+            var directory = Helpers.GetAssetFileOrDirectoryPath(false);
+            var content = File.ReadAllText(Path.Combine(directory, "tspCodeModel.json"));
+            var referenceHandler = new TypeSpecReferenceHandler();
+            var options = new JsonSerializerOptions
+            {
+                AllowTrailingCommas = true,
+                Converters =
+                {
+                    new JsonStringEnumConverter(JsonNamingPolicy.CamelCase),
+                    new InputTypeConverter(referenceHandler),
+                    new InputDecoratorInfoConverter(),
+                    new InputModelTypeConverter(referenceHandler),
+                    new InputModelPropertyConverter(referenceHandler),
+                    new InputSerializationOptionsConverter(),
+                    new InputJsonSerializationOptionsConverter(),
+                    new InputXmlSerializationOptionsConverter(),
+                },
+            };
+            var inputType = JsonSerializer.Deserialize<InputType>(content, options);
+
+            Assert.IsNotNull(inputType);
+
+            var inputModel = inputType as InputModelType;
+            Assert.IsNotNull(inputModel);
+
+            Assert.IsTrue(inputModel!.Usage.HasFlag(InputModelTypeUsage.MultipartFormData), "Model should have MultipartFormData usage flag");
+            Assert.IsFalse(inputModel.Usage.HasFlag(InputModelTypeUsage.Json), "Multipart-only model should NOT have Json usage flag added");
             Assert.IsTrue(inputModel.Usage.HasFlag(InputModelTypeUsage.Input), "Model should retain Input usage flag");
         }
 

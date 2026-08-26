@@ -1,19 +1,18 @@
 import { For, join, List, refkey } from "@alloy-js/core";
 import * as ts from "@alloy-js/typescript";
-import {
+import type {
   Entity,
-  getSourceLocation,
   IntrinsicScalarName,
-  isArrayModelType,
   MixedParameterConstraint,
   Model,
   Program,
   Scalar,
-  type Type,
 } from "@typespec/compiler";
-import { DocNode, DocTag, SyntaxKind } from "@typespec/compiler/ast";
+import { getSourceLocation, isArrayModelType, type Type } from "@typespec/compiler";
+import type { DocNode, DocTag } from "@typespec/compiler/ast";
+import { SyntaxKind } from "@typespec/compiler/ast";
 import { typespecCompiler } from "../external-packages/compiler.js";
-import { FunctionSignature } from "../types.js";
+import type { FunctionSignature } from "../types.js";
 import { useTspd } from "./tspd-context.js";
 
 export interface FunctionSignatureProps {
@@ -29,24 +28,22 @@ export function FunctionSignatureType(props: Readonly<FunctionSignatureProps>) {
       name: "context",
       type: typespecCompiler.FunctionContext,
     },
-    ...func.parameters.map(
-      (param): ts.ParameterDescriptor => ({
-        // https://github.com/alloy-framework/alloy/issues/144
-        name: param.rest ? `...${param.name}` : param.name,
-        type: param.rest ? (
-          <>
-            (
-            {param.type ? (
-              <ParameterTsType constraint={extractRestParamConstraint(program, param.type)!} />
-            ) : undefined}
-            )[]
-          </>
-        ) : (
-          <ParameterTsType constraint={param.type} />
-        ),
-        optional: param.optional,
-      }),
-    ),
+    ...func.parameters.map((param): ts.ParameterDescriptor => ({
+      // https://github.com/alloy-framework/alloy/issues/144
+      name: param.rest ? `...${param.name}` : param.name,
+      type: param.rest ? (
+        <>
+          (
+          {param.type ? (
+            <ParameterTsType constraint={extractRestParamConstraint(program, param.type)!} />
+          ) : undefined}
+          )[]
+        </>
+      ) : (
+        <ParameterTsType constraint={param.type} />
+      ),
+      optional: param.optional,
+    })),
   ];
 
   const returnType = <ParameterTsType constraint={func.returnType} />;
@@ -301,8 +298,6 @@ function getDocComment(entity: Entity & { node?: { docs?: readonly DocNode[] } }
       }
     }
     for (const tag of doc.tags) {
-      tagLines.push();
-
       let first = true;
       const hasContentFirstLine = checkIfTagHasDocOnSameLine(tag);
       const tagStart =

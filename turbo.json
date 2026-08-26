@@ -23,7 +23,7 @@
       "outputs": ["coverage/**"]
     },
     "lint": {
-      "inputs": ["src/**", "test/**", "eslint.config.*", "package.json"],
+      "inputs": ["src/**", "test/**", "oxlint.config.*", "package.json"],
       "outputs": []
     },
     "clean": {
@@ -51,6 +51,10 @@
     },
     "test:e2e": {
       "dependsOn": ["build"],
+      "cache": false
+    },
+    "@typespec/http-client-js#test:e2e": {
+      "dependsOn": ["build", "@typespec/http-specs#test:e2e"],
       "cache": false
     }
   }

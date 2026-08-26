@@ -1,10 +1,8 @@
-import {
-  compilerAssert,
+import type {
   Decorator,
   EnumMember,
   FunctionParameter,
-  getEntityName,
-  getTypeName,
+  FunctionType,
   Interface,
   Model,
   ModelProperty,
@@ -13,8 +11,8 @@ import {
   Type,
   UnionVariant,
 } from "@typespec/compiler";
-import { TemplateParameterDeclarationNode } from "@typespec/compiler/ast";
-import { FunctionType } from "../../../../compiler/src/core/types.js";
+import { compilerAssert, getEntityName, getTypeName } from "@typespec/compiler";
+import type { TemplateParameterDeclarationNode } from "@typespec/compiler/ast";
 
 /** @internal */
 export function getTypeSignature(type: Type): string {
@@ -97,7 +95,7 @@ function getDecoratorSignature(type: Decorator) {
 
 function getFunctionSignature(type: FunctionType) {
   const parameters = [...type.parameters].map((x) => getFunctionParameterSignature(x));
-  return `(${parameters.join(", ")}): ${getEntityName(type.returnType)}`;
+  return `fn (${parameters.join(", ")}) => ${getEntityName(type.returnType)}`;
 }
 
 function getInterfaceSignature(type: Interface) {

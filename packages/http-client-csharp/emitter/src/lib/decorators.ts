@@ -1,8 +1,8 @@
 // Copyright (c) Microsoft Corporation. All rights reserved.
 // Licensed under the MIT License. See License.txt in the project root for license information.
 
-import { SdkContext } from "@azure-tools/typespec-client-generator-core";
-import {
+import type { SdkContext } from "@azure-tools/typespec-client-generator-core";
+import type {
   DecoratedType,
   DecoratorContext,
   Model,
@@ -10,10 +10,10 @@ import {
   Operation,
   Program,
   Type,
-  setTypeSpecNamespace,
 } from "@typespec/compiler";
+import { setTypeSpecNamespace } from "@typespec/compiler";
 import type { DynamicModelDecorator } from "../../../generated-defs/TypeSpec.HttpClient.CSharp.js";
-import { ExternalDocs } from "../type/external-docs.js";
+import type { ExternalDocs } from "../type/external-docs.js";
 
 /**
  * The fully qualified decorator name pattern for the dynamicModel decorator.

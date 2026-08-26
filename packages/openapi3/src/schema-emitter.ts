@@ -1,19 +1,21 @@
-import {
-  ArrayBuilder,
+import type {
   AssetEmitter,
   Context,
   Declaration,
   EmitEntity,
   EmitterOutput,
-  ObjectBuilder,
-  Placeholder,
   ReferenceCycle,
   Scope,
   SourceFileScope,
+} from "@typespec/asset-emitter";
+import {
+  ArrayBuilder,
+  ObjectBuilder,
+  Placeholder,
   TypeEmitter,
   setProperty,
 } from "@typespec/asset-emitter";
-import {
+import type {
   BooleanLiteral,
   DiscriminatedUnion,
   Enum,
@@ -31,6 +33,8 @@ import {
   TypeNameOptions,
   Union,
   UnionVariant,
+} from "@typespec/compiler";
+import {
   compilerAssert,
   explainStringTemplateNotSerializable,
   getDeprecated,
@@ -54,7 +58,8 @@ import {
 } from "@typespec/compiler";
 import { capitalize } from "@typespec/compiler/casing";
 import { $ } from "@typespec/compiler/typekit";
-import { MetadataInfo, Visibility, getVisibilitySuffix } from "@typespec/http";
+import type { MetadataInfo } from "@typespec/http";
+import { Visibility, getVisibilitySuffix } from "@typespec/http";
 import {
   checkDuplicateTypeName,
   getExtensions,
@@ -65,21 +70,22 @@ import {
 } from "@typespec/openapi";
 import { attachExtensions } from "./attach-extensions.js";
 import { getOneOf, getRef } from "./decorators.js";
-import { JsonSchemaModule } from "./json-schema.js";
-import { OpenAPI3EmitterOptions, reportDiagnostic } from "./lib.js";
-import { ResolvedOpenAPI3EmitterOptions } from "./openapi.js";
+import type { JsonSchemaModule } from "./json-schema.js";
+import type { OpenAPI3EmitterOptions } from "./lib.js";
+import { reportDiagnostic } from "./lib.js";
+import type { ResolvedOpenAPI3EmitterOptions } from "./openapi.js";
 import { getMaxValueAsJson, getMinValueAsJson } from "./range.js";
-import { SSEModule } from "./sse-module.js";
+import type { SSEModule } from "./sse-module.js";
 import { getSchemaForStdScalars } from "./std-scalar-schemas.js";
-import { CommonOpenAPI3Schema, OpenAPI3Schema, OpenAPISchema3_1, Refable } from "./types.js";
+import type { CommonOpenAPI3Schema, OpenAPI3Schema, OpenAPISchema3_1, Refable } from "./types.js";
 import {
   ensureValidComponentFixedFieldKey,
   getDefaultValue,
   includeDerivedModel,
   isStdType,
 } from "./util.js";
-import { VisibilityUsageTracker } from "./visibility-usage.js";
-import { XmlModule } from "./xml-module.js";
+import type { VisibilityUsageTracker } from "./visibility-usage.js";
+import type { XmlModule } from "./xml-module.js";
 
 /**
  * Base OpenAPI3 schema emitter. Deals with emitting content of `components/schemas` section.
@@ -222,7 +228,13 @@ export class OpenAPI3SchemaEmitterBase<
     const derivedModels = model.derivedModels.filter(includeDerivedModel);
     // getSchemaOrRef on all children to push them into components.schemas
     for (const child of derivedModels) {
-      this.emitter.emitTypeReference(child);
+      if (this._visibilityUsage.isUnreachable(child)) {
+        // Unreachable derived models will be emitted by processUnreferencedSchemas with
+        // Visibility.All context. Force the same context here to avoid a duplicate declaration.
+        this.emitter.emitTypeReference(child, { referenceContext: { visibility: Visibility.All } });
+      } else {
+        this.emitter.emitTypeReference(child);
+      }
     }
 
     this.applyDiscriminator(model, schema as any);
@@ -462,10 +474,7 @@ export class OpenAPI3SchemaEmitterBase<
         if (additionalProps.xml?.attribute) {
           return additionalProps;
         } else {
-          return {
-            allOf: [schema],
-            ...additionalProps,
-          };
+          return this.combineRefWithConstraints(schema, additionalProps);
         }
       }
     } else {
@@ -481,6 +490,22 @@ export class OpenAPI3SchemaEmitterBase<
 
       return merged;
     }
+  }
+
+  /**
+   * Combine a referenced schema (`$ref`) with additional sibling constraints such as
+   * `description`, `default`, or `readOnly`.
+   *
+   * OpenAPI 3.0 does not allow keywords alongside a `$ref`, so the reference is nested
+   * in an `allOf` and the constraints are emitted as siblings of that `allOf`. Emitters
+   * for spec versions that allow `$ref` siblings (OpenAPI 3.1, following JSON Schema
+   * 2020-12) override this to place the constraints directly next to the `$ref`.
+   */
+  protected combineRefWithConstraints(refSchema: any, constraints: Partial<Schema>): any {
+    return {
+      allOf: [refSchema],
+      ...constraints,
+    };
   }
 
   booleanLiteral(boolean: BooleanLiteral): EmitterOutput<object> {

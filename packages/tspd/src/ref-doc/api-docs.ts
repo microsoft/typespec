@@ -1,12 +1,15 @@
 import { joinPaths } from "@typespec/compiler";
 import { writeFile } from "fs/promises";
-import { Application, PageEvent, Reflection, ReflectionKind } from "typedoc";
-import { PluginOptions, load } from "typedoc-plugin-markdown";
+import type { Reflection } from "typedoc";
+import { Application, PageEvent, ReflectionKind } from "typedoc";
+import type { PluginOptions } from "typedoc-plugin-markdown";
+import { load } from "typedoc-plugin-markdown";
 import { stringify } from "yaml";
 export async function generateJsApiDocs(libraryPath: string, outputDir: string) {
   const markdownPluginOptions: Partial<PluginOptions> = {
     entryFileName: "index.md",
-    propertiesFormat: "table",
+    interfacePropertiesFormat: "table",
+    classPropertiesFormat: "table",
     parametersFormat: "table",
     enumMembersFormat: "table",
     typeDeclarationFormat: "table",

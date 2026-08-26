@@ -6,31 +6,30 @@ import type {
   InitProjectTemplate,
   ServerInitializeResult,
 } from "@typespec/compiler";
-import { InternalCompileResult } from "@typespec/compiler/internals";
+import type { InternalCompileResult } from "@typespec/compiler/internals";
 import { inspect } from "util";
-import { commands, ExtensionContext, LogOutputChannel, RelativePattern, workspace } from "vscode";
-import {
-  CloseAction,
+import type { ExtensionContext, LogOutputChannel } from "vscode";
+import { commands, RelativePattern, workspace } from "vscode";
+import type {
   CloseHandlerResult,
-  ErrorAction,
   ErrorHandlerResult,
   Executable,
-  LanguageClient,
   LanguageClientOptions,
   TextDocumentIdentifier,
-} from "vscode-languageclient/node.js";
+} from "vscode-languageclient/node";
+import { CloseAction, ErrorAction, LanguageClient } from "vscode-languageclient/node";
 import { TspConfigFileName } from "./const.js";
 import { sendLmChatRequest } from "./lm/language-model.js";
 import logger from "./log/logger.js";
 import telemetryClient from "./telemetry/telemetry-client.js";
 import { resolveTypeSpecServer } from "./tsp-executable-resolver.js";
-import {
-  CommandName,
+import type {
   LspClientCustomRequest_ChatComplete_Name,
   LspClientCustomRequest_ChatCompletion_Params,
 } from "./types.js";
+import { CommandName } from "./types.js";
+import type { ExecOutput } from "./utils.js";
 import {
-  ExecOutput,
   isWhitespaceStringOrUndefined,
   listParentFolder,
   spawnExecutionAndLogToOutput,

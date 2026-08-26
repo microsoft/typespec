@@ -19,16 +19,6 @@ Write-Host "Parallelization: $Parallelization"
 $generateScript = {
   $tspFile = $_
 
-  if ((($tspFile -match "payload[\\/]pageable[\\/]main\.tsp") -and (-not ($tspFile -match "azure[\\/]payload[\\/]pageable[\\/]main\.tsp"))) -or ($tspFile -match "payload[\\/]xml[\\/]main\.tsp")) {
-    Write-Host "
-    SKIPPED
-    $tspFile
-    "
-    # xml is not supported
-    # nested pageItems/nextLink/continuationToken is not supported
-    return
-  }
-
   $tspClientFile = $tspFile -replace 'main.tsp', 'client.tsp'
   if (($tspClientFile -match 'client.tsp$') -and (Test-Path $tspClientFile)) {
     $tspFile = $tspClientFile
@@ -57,11 +47,9 @@ $generateScript = {
     $tspOptions += " --option ""@typespec/http-client-java.namespace=resiliency.servicedriven.v1"""
     # enable advanced versioning for resiliency test
     $tspOptions += " --option ""@typespec/http-client-java.advanced-versioning=true"""
-    $tspOptions += " --option ""@typespec/http-client-java.api-version=all"""
   } elseif ($tspFile -match "resiliency[\\/]srv-driven[\\/]main\.tsp") {
     # enable advanced versioning for resiliency test
     $tspOptions += " --option ""@typespec/http-client-java.advanced-versioning=true"""
-    $tspOptions += " --option ""@typespec/http-client-java.api-version=all"""
   } elseif ($tspFile -match "azure[\\/]resource-manager[\\/].*[\\/]main\.tsp") {
     # for mgmt, do not generate tests due to random mock values
     $tspOptions += " --option ""@typespec/http-client-java.generate-tests=false"""
@@ -108,6 +96,8 @@ $generateScript = {
   } elseif ($tspFile -match "tsp[\\/]arm-versioned.tsp") {
     # enable advanced versioning for resiliency test
     $tspOptions += " --option ""@typespec/http-client-java.advanced-versioning=true"""
+    $tspOptions += " --option ""@typespec/http-client-java.generate-async-methods=true"""
+    $tspOptions += " --option ""@typespec/http-client-java.enable-sync-stack=false"""
   } elseif ($tspFile -match "tsp[\\/]subclient.tsp") {
     $tspOptions += " --option ""@typespec/http-client-java.enable-subclient=true"""
     # test for include-api-view-properties

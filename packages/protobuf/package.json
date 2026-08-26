@@ -1,6 +1,6 @@
 {
   "name": "@typespec/protobuf",
-  "version": "0.82.0",
+  "version": "0.85.0",
   "author": "Microsoft Corporation",
   "description": "TypeSpec library and emitter for Protobuf (gRPC)",
   "homepage": "https://github.com/microsoft/typespec",
@@ -31,13 +31,14 @@
   "tspMain": "lib/proto.tsp",
   "scripts": {
     "clean": "rimraf ./dist ./temp",
-    "build": "pnpm gen-extern-signature && tsc -p tsconfig.build.json",
+    "build": "pnpm gen-extern-signature && tsc -p tsconfig.build.json && pnpm lint-typespec-library",
+    "lint-typespec-library": "tsp compile . --warn-as-error --import @typespec/library-linter --no-emit",
     "watch": "tsc -p tsconfig.build.json --watch",
     "gen-extern-signature": "tspd --enable-experimental gen-extern-signature .",
     "test": "vitest run",
     "test:ci": "vitest run --coverage --reporter=junit --reporter=default",
-    "lint": "eslint . --max-warnings=0",
-    "lint:fix": "eslint . --fix",
+    "lint": "oxlint . --deny-warnings",
+    "lint:fix": "oxlint . --fix",
     "regen-docs": "tspd doc .  --enable-experimental --llmstxt --output-dir ../../website/src/content/docs/docs/emitters/protobuf/reference"
   },
   "peerDependencies": {
@@ -47,6 +48,7 @@
     "@types/micromatch": "catalog:",
     "@types/node": "catalog:",
     "@typespec/compiler": "workspace:^",
+    "@typespec/library-linter": "workspace:^",
     "@typespec/tspd": "workspace:^",
     "@vitest/coverage-v8": "catalog:",
     "@vitest/ui": "catalog:",

@@ -1,0 +1,10 @@
+import "../dist/src/tsp-index.js";
+import "./interface.tsp";
+import "./input-type.tsp";
+import "./nullable.tsp";
+import "./one-of.tsp";
+import "./operation-fields.tsp";
+import "./operation-kind.tsp";
+import "./scalars.tsp";
+import "./schema.tsp";
+import "./specified-by.tsp";

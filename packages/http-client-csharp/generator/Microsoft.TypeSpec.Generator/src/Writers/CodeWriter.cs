@@ -288,7 +288,9 @@ namespace Microsoft.TypeSpec.Generator
         internal void WriteXmlDocsNoScope(XmlDocProvider? docs)
         {
             if (CodeModelGenerator.Instance.Configuration.DisableXmlDocs || docs is null)
+            {
                 return;
+            }
 
             if (docs.Inherit is not null)
             {
@@ -334,10 +336,11 @@ namespace Microsoft.TypeSpec.Generator
 
             var modifiers = property.Modifiers;
             AppendRawIf("public ", modifiers.HasFlag(MethodSignatureModifiers.Public))
+                .AppendRawIf("private ", modifiers.HasFlag(MethodSignatureModifiers.Private))
                 .AppendRawIf("protected ", modifiers.HasFlag(MethodSignatureModifiers.Protected))
                 .AppendRawIf("internal ", modifiers.HasFlag(MethodSignatureModifiers.Internal))
-                .AppendRawIf("private ", modifiers.HasFlag(MethodSignatureModifiers.Private))
                 .AppendRawIf("new ", modifiers.HasFlag(MethodSignatureModifiers.New))
+                .AppendRawIf("sealed ", modifiers.HasFlag(MethodSignatureModifiers.Sealed))
                 .AppendRawIf("override ", modifiers.HasFlag(MethodSignatureModifiers.Override))
                 .AppendRawIf("static ", modifiers.HasFlag(MethodSignatureModifiers.Static))
                 .AppendRawIf("virtual ", modifiers.HasFlag(MethodSignatureModifiers.Virtual));
@@ -571,6 +574,14 @@ namespace Microsoft.TypeSpec.Generator
 
         private void AppendTypeForCRef(CSharpType type)
         {
+            if (ProviderReferenceMapAnalyzer.IsRemovedTypeReference(type))
+            {
+                AppendRaw("<c>");
+                AppendType(type, false, false);
+                AppendRaw("</c>");
+                return;
+            }
+
             // Because of the limitations of type cref in XmlDoc
             // we add "?" nullability operator after `cref` block
             var isNullable = type is { IsNullable: true, IsValueType: true };
@@ -628,7 +639,9 @@ namespace Microsoft.TypeSpec.Generator
                     }
 
                     if (i < arguments.Count - 1)
+                    {
                         AppendRaw(",");
+                    }
                 }
             }
         }
@@ -666,7 +679,10 @@ namespace Microsoft.TypeSpec.Generator
                 AppendRaw(type.Namespace);
                 AppendRaw(".");
                 if (type.DeclaringType is not null)
+                {
                     AppendRaw($"{type.DeclaringType.Name}.");
+                }
+
                 AppendRaw(type.Name);
             }
 
@@ -719,7 +735,9 @@ namespace Microsoft.TypeSpec.Generator
         private CodeWriter AppendRaw(ReadOnlySpan<char> span)
         {
             if (span.Length == 0 )
+            {
                 return this;
+            }
 
             AddSpaces(span);
 
@@ -741,7 +759,9 @@ namespace Microsoft.TypeSpec.Generator
 
             int spaces = _atBeginningOfLine ? (_scopes.Peek().Depth) * 4 : 0;
             if (spaces == 0)
+            {
                 return;
+            }
 
             var destination = _builder.GetSpan(spaces);
             destination.Slice(0, spaces).Fill(_space);
@@ -826,6 +846,7 @@ namespace Microsoft.TypeSpec.Generator
             {
                 AppendRawIf("virtual ", methodBase.Modifiers.HasFlag(MethodSignatureModifiers.Virtual))
                     .AppendRawIf("abstract ", methodBase.Modifiers.HasFlag(MethodSignatureModifiers.Abstract))
+                    .AppendRawIf("sealed ", methodBase.Modifiers.HasFlag(MethodSignatureModifiers.Sealed))
                     .AppendRawIf("override ", methodBase.Modifiers.HasFlag(MethodSignatureModifiers.Override))
                     .AppendRawIf("new ", methodBase.Modifiers.HasFlag(MethodSignatureModifiers.New))
                     .AppendRawIf("async ", methodBase.Modifiers.HasFlag(MethodSignatureModifiers.Async));
@@ -954,7 +975,9 @@ namespace Microsoft.TypeSpec.Generator
             var reader = _builder.ExtractReader();
             var totalLength = reader.Length;
             if (totalLength == 0)
+            {
                 return string.Empty;
+            }
 
             var builder = new StringBuilder((int)totalLength);
             IEnumerable<string> namespaces = _usingNamespaces

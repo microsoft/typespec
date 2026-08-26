@@ -1,5 +1,23 @@
 # Change Log - @typespec/json-schema
 
+## 1.15.0
+
+### Bug Fixes
+
+- [#11505](https://github.com/microsoft/typespec/pull/11505) Use explicit `@id` values for bundled $defs keys to avoid silent overwrites.
+
+
+## 1.14.0
+
+### Deprecations
+
+- [#10964](https://github.com/microsoft/typespec/pull/10964) Deprecate old testing framework (`createTestHost`, `createTestRunner`, `createTestWrapper`, `createTestLibrary`, `BasicTestRunner`, `TypeSpecTestLibrary`, etc.). Use `createTester` from `@typespec/compiler/testing` instead.
+
+
+## 1.13.0
+
+No changes, version bump only.
+
 ## 1.12.0
 
 No changes, version bump only.

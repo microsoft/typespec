@@ -1,6 +1,6 @@
 import { expectDiagnostics } from "@typespec/compiler/testing";
 import assert from "assert";
-import { describe, it } from "vitest";
+import { describe, expect, it } from "vitest";
 import { emitSchema, emitSchemaWithDiagnostics } from "./utils.js";
 
 describe("implicit ids", () => {
@@ -90,6 +90,29 @@ describe("explicit ids with $id", () => {
       { bundleId: "types.json" },
     );
 
-    assert.strictEqual(schemas["types.json"].$defs.Foo.$id, "http://example.org/bar");
+    assert.strictEqual(schemas["types.json"].$defs.bar.$id, "http://example.org/bar");
+  });
+
+  it("uses explicit id values as $defs keys in bundle mode", async () => {
+    const schemas = await emitSchema(
+      `
+      @jsonSchema
+      namespace StringExpressions {
+        @id("StringEquals")
+        model Equals { equals: string; }
+      }
+
+      @jsonSchema
+      namespace IntegerExpressions {
+        @id("IntegerEquals")
+        model Equals { equals: integer; }
+      }
+      `,
+      { bundleId: "types.json" },
+      { emitNamespace: false },
+    );
+
+    expect(schemas["types.json"].$defs.StringEquals.properties.equals.type).toBe("string");
+    expect(schemas["types.json"].$defs.IntegerEquals.properties.equals.type).toBe("integer");
   });
 });

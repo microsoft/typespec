@@ -1,6 +1,6 @@
 {
   "name": "@typespec/http-server-js",
-  "version": "0.58.0-alpha.26",
+  "version": "0.58.0-alpha.28",
   "author": "Microsoft Corporation",
   "description": "TypeSpec HTTP server code generator for JavaScript",
   "homepage": "https://github.com/microsoft/typespec",
@@ -35,18 +35,18 @@
     "clean": "rimraf ./dist ./temp",
     "build": "pnpm build:helpers && pnpm build:src",
     "build:src": "tsc -p ./tsconfig.json",
-    "build:helpers": "tsx ./build-helpers.ts",
+    "build:helpers": "node ./build-helpers.ts",
     "watch": "tsc -p tsconfig.build.json --watch",
     "test": "vitest run",
     "test:watch": "vitest -w",
     "test:ui": "vitest --ui",
     "test:ci": "vitest run --coverage --reporter=junit --reporter=default",
-    "lint": "eslint . --max-warnings=0",
-    "lint:fix": "eslint . --fix",
+    "lint": "oxlint . --deny-warnings",
+    "lint:fix": "oxlint . --fix",
     "regen-docs": "tspd doc . --enable-experimental  --output-dir ../../website/src/content/docs/docs/emitters/servers/http-server-js/reference --skip-js",
     "test:e2e": "pnpm emit:e2e && pnpm run:e2e",
-    "emit:e2e": "node eng/scripts/emit-e2e.js",
-    "run:e2e": "vitest run --config ./vitest.config.e2e.js"
+    "emit:e2e": "node eng/scripts/emit-e2e.ts",
+    "run:e2e": "vitest run --config ./vitest.config.e2e.ts"
   },
   "peerDependencies": {
     "@typespec/compiler": "workspace:^",
@@ -86,7 +86,6 @@
     "picocolors": "catalog:",
     "swagger-ui-express": "catalog:",
     "temporal-polyfill": "catalog:",
-    "tsx": "catalog:",
     "typescript": "catalog:",
     "vitest": "catalog:",
     "yargs": "catalog:"

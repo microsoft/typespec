@@ -21,6 +21,12 @@ export interface TypeSpecConfig {
    */
   entrypoint?: string;
 
+  /**
+   * Compiler features enabled for this project.
+   * Only meaningful when `kind` is `"project"`.
+   */
+  features?: string[];
+
   /** Yaml file used in this configuration. */
   file?: YamlScript;
 
@@ -98,6 +104,12 @@ export interface TypeSpecRawConfig {
    * Only meaningful when `kind` is `"project"`. Defaults to `"main.tsp"`.
    */
   entrypoint?: string;
+
+  /**
+   * Compiler features enabled for this project.
+   * Only meaningful when `kind` is `"project"`.
+   */
+  features?: string[];
 
   "environment-variables"?: Record<string, ConfigEnvironmentVariable>;
   parameters?: Record<string, ConfigParameter>;

@@ -6,7 +6,9 @@
 #nullable disable
 
 using System;
+using System.ClientModel;
 using System.Collections.Generic;
+using System.Diagnostics.CodeAnalysis;
 using System.Linq;
 using SampleTypeSpec.Models.Custom;
 
@@ -268,7 +270,7 @@ namespace SampleTypeSpec
         /// <param name="nestedModel"> A nested model property. </param>
         /// <param name="optionalNestedModel"> An optional nested model. </param>
         /// <param name="metadata"> A dictionary property. </param>
-        /// <param name="createdAt"> A date-time property. </param>
+        /// <param name="createdOn"> A date-time property. </param>
         /// <param name="duration"> A duration property. </param>
         /// <param name="data"> A bytes property. </param>
         /// <param name="optionalRecordUnknown"> optional record of unknown. </param>
@@ -288,7 +290,7 @@ namespace SampleTypeSpec
         /// <param name="dictionaryListFoo"></param>
         /// <param name="listOfDictionaryFoo"></param>
         /// <returns> A new <see cref="SampleTypeSpec.XmlAdvancedModel"/> instance for mocking. </returns>
-        public static XmlAdvancedModel XmlAdvancedModel(string name = default, int age = default, bool enabled = default, float score = default, string optionalString = default, int? optionalInt = default, string nullableString = default, string id = default, int version = default, bool isActive = default, string originalName = default, string xmlIdentifier = default, string content = default, IEnumerable<string> unwrappedStrings = default, IEnumerable<int> unwrappedCounts = default, IEnumerable<XmlItem> unwrappedItems = default, IEnumerable<string> wrappedColors = default, IEnumerable<XmlItem> items = default, XmlNestedModel nestedModel = default, XmlNestedModel optionalNestedModel = default, IDictionary<string, string> metadata = default, DateTimeOffset createdAt = default, TimeSpan duration = default, BinaryData data = default, IDictionary<string, BinaryData> optionalRecordUnknown = default, StringFixedEnum fixedEnum = default, StringExtensibleEnum extensibleEnum = default, IntFixedEnum? optionalFixedEnum = default, IntExtensibleEnum? optionalExtensibleEnum = default, string label = default, int daysUsed = default, IEnumerable<string> fooItems = default, XmlNestedModel anotherModel = default, IEnumerable<XmlModelWithNamespace> modelsWithNamespaces = default, IEnumerable<XmlModelWithNamespace> unwrappedModelsWithNamespaces = default, IEnumerable<IList<XmlItem>> listOfListFoo = default, IDictionary<string, XmlItem> dictionaryFoo = default, IDictionary<string, IDictionary<string, XmlItem>> dictionaryOfDictionaryFoo = default, IDictionary<string, IList<XmlItem>> dictionaryListFoo = default, IEnumerable<IDictionary<string, XmlItem>> listOfDictionaryFoo = default)
+        public static XmlAdvancedModel XmlAdvancedModel(string name = default, int age = default, bool enabled = default, float score = default, string optionalString = default, int? optionalInt = default, string nullableString = default, string id = default, int version = default, bool isActive = default, string originalName = default, string xmlIdentifier = default, string content = default, IEnumerable<string> unwrappedStrings = default, IEnumerable<int> unwrappedCounts = default, IEnumerable<XmlItem> unwrappedItems = default, IEnumerable<string> wrappedColors = default, IEnumerable<XmlItem> items = default, XmlNestedModel nestedModel = default, XmlNestedModel optionalNestedModel = default, IDictionary<string, string> metadata = default, DateTimeOffset createdOn = default, TimeSpan duration = default, BinaryData data = default, IDictionary<string, BinaryData> optionalRecordUnknown = default, StringFixedEnum fixedEnum = default, StringExtensibleEnum extensibleEnum = default, IntFixedEnum? optionalFixedEnum = default, IntExtensibleEnum? optionalExtensibleEnum = default, string label = default, int daysUsed = default, IEnumerable<string> fooItems = default, XmlNestedModel anotherModel = default, IEnumerable<XmlModelWithNamespace> modelsWithNamespaces = default, IEnumerable<XmlModelWithNamespace> unwrappedModelsWithNamespaces = default, IEnumerable<IList<XmlItem>> listOfListFoo = default, IDictionary<string, XmlItem> dictionaryFoo = default, IDictionary<string, IDictionary<string, XmlItem>> dictionaryOfDictionaryFoo = default, IDictionary<string, IList<XmlItem>> dictionaryListFoo = default, IEnumerable<IDictionary<string, XmlItem>> listOfDictionaryFoo = default)
         {
             unwrappedStrings ??= new ChangeTrackingList<string>();
             unwrappedCounts ??= new ChangeTrackingList<int>();
@@ -328,7 +330,7 @@ namespace SampleTypeSpec
                 nestedModel,
                 optionalNestedModel,
                 metadata,
-                createdAt,
+                createdOn,
                 duration,
                 data,
                 optionalRecordUnknown,
@@ -374,6 +376,66 @@ namespace SampleTypeSpec
         public static XmlModelWithNamespace XmlModelWithNamespace(string foo = default)
         {
             return new XmlModelWithNamespace(foo);
+        }
+
+        /// <summary> The Cat. </summary>
+        /// <param name="id"></param>
+        /// <param name="boolPart"></param>
+        /// <param name="int32Part"></param>
+        /// <param name="int64Part"></param>
+        /// <param name="float32Part"></param>
+        /// <param name="float64Part"></param>
+        /// <param name="decimalPart"></param>
+        /// <param name="int8Part"></param>
+        /// <param name="uint8Part"></param>
+        /// <param name="dictionaryPart"></param>
+        /// <param name="dictionaryModelPart"></param>
+        /// <param name="listPart"></param>
+        /// <param name="listModelPart"></param>
+        /// <param name="multipleListPart"></param>
+        /// <param name="profileImage"></param>
+        /// <param name="extensibleEnumPart"></param>
+        /// <param name="fixedEnumPart"></param>
+        /// <param name="intExtensibleEnumPart"></param>
+        /// <param name="intFixedEnumPart"></param>
+        /// <returns> A new <see cref="SampleTypeSpec.Cat"/> instance for mocking. </returns>
+        [Experimental("SCME0004")]
+        public static Cat Cat(string id = default, bool boolPart = default, int int32Part = default, long int64Part = default, float float32Part = default, double float64Part = default, decimal decimalPart = default, sbyte int8Part = default, byte uint8Part = default, IDictionary<string, string> dictionaryPart = default, IDictionary<string, Thing> dictionaryModelPart = default, IEnumerable<string> listPart = default, IEnumerable<Thing> listModelPart = default, IEnumerable<string> multipleListPart = default, FileBinaryContent profileImage = default, StringExtensibleEnum extensibleEnumPart = default, StringFixedEnum fixedEnumPart = default, IntExtensibleEnum intExtensibleEnumPart = default, IntFixedEnum intFixedEnumPart = default)
+        {
+            dictionaryPart ??= new ChangeTrackingDictionary<string, string>();
+            dictionaryModelPart ??= new ChangeTrackingDictionary<string, Thing>();
+            listPart ??= new ChangeTrackingList<string>();
+            listModelPart ??= new ChangeTrackingList<Thing>();
+            multipleListPart ??= new ChangeTrackingList<string>();
+
+            return new Cat(
+                id,
+                boolPart,
+                int32Part,
+                int64Part,
+                float32Part,
+                float64Part,
+                decimalPart,
+                int8Part,
+                uint8Part,
+                dictionaryPart,
+                dictionaryModelPart,
+                listPart.ToList(),
+                listModelPart.ToList(),
+                multipleListPart.ToList(),
+                profileImage,
+                extensibleEnumPart,
+                fixedEnumPart,
+                intExtensibleEnumPart,
+                intFixedEnumPart);
+        }
+
+        /// <summary> The StreamingItem. </summary>
+        /// <param name="message"></param>
+        /// <returns> A new <see cref="SampleTypeSpec.StreamingItem"/> instance for mocking. </returns>
+        public static StreamingItem StreamingItem(string message = default)
+        {
+            return new StreamingItem(message, additionalBinaryDataProperties: null);
         }
 
         /// <summary>

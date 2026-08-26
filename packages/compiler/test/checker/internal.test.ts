@@ -50,11 +50,6 @@ describe("modifier validation", () => {
       },
     ]);
   });
-
-  it("does not emit experimental warning without 'internal' modifier", async () => {
-    const diagnostics = await Tester.diagnose(`model Foo {}`);
-    expectDiagnosticEmpty(diagnostics);
-  });
 });
 
 describe("access control", () => {

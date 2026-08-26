@@ -1,7 +1,8 @@
 /* eslint-disable @typescript-eslint/no-unsafe-declaration-merging */
-import { ComplexSchema, ObjectSchema, Schema, SchemaType } from "@autorest/codemodel";
-import { DeepPartial } from "@azure-tools/codegen";
-import { SchemaUsage } from "./usage.js";
+import type { ComplexSchema, ObjectSchema } from "@autorest/codemodel";
+import { Schema, SchemaType } from "@autorest/codemodel";
+import type { DeepPartial } from "@azure-tools/codegen";
+import type { SchemaUsage } from "./usage.js";
 
 /** an OR relationship between several schemas
  *

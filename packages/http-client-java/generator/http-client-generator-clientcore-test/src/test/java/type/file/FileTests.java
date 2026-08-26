@@ -11,6 +11,7 @@ import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 import org.utils.FileUtils;
+import type.file.body.UploadFileMultipleContentTypesContentType;
 
 public class FileTests {
 

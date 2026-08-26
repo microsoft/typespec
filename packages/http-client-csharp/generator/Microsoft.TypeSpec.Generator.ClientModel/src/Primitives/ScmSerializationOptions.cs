@@ -16,10 +16,15 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Primitives
             Xml = inputSerializationOptions.Xml != null
                 ? new(inputSerializationOptions.Xml)
                 : null;
+            Multipart = inputSerializationOptions.Multipart != null
+                ? new(inputSerializationOptions.Multipart)
+                : null;
         }
 
         public JsonSerialization? Json { get; }
 
         public XmlSerialization? Xml { get; }
+
+        public MultipartSerialization? Multipart { get; }
     }
 }

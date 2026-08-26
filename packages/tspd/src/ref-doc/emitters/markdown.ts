@@ -1,16 +1,12 @@
-import {
-  Entity,
-  MixedParameterConstraint,
-  getEntityName,
-  isType,
-  resolvePath,
-} from "@typespec/compiler";
+import type { Entity, MixedParameterConstraint } from "@typespec/compiler";
+import { getEntityName, isType, resolvePath } from "@typespec/compiler";
 import { readFile } from "fs/promises";
 import { stringify } from "yaml";
-import {
+import type {
   DecoratorRefDoc,
   DeprecationNotice,
   EmitterOptionRefDoc,
+  EmitterOptionVariantRefDoc,
   EnumRefDoc,
   ExampleRefDoc,
   InterfaceRefDoc,
@@ -28,8 +24,8 @@ import {
   TypeSpecRefDocBase,
   UnionRefDoc,
 } from "../types.js";
+import type { MarkdownDoc } from "../utils/markdown.js";
 import {
-  MarkdownDoc,
   codeblock,
   inlinecode,
   link,
@@ -268,9 +264,20 @@ export class MarkdownRenderer {
       content.push(this.templateParameters(union.templateParameters));
     }
 
+    if (union.variants.size > 0) {
+      content.push(this.unionVariants(union));
+    }
+
     content.push(this.examples(union.examples));
 
     return this.typeSection(union, content);
+  }
+
+  unionVariants(union: UnionRefDoc): MarkdownDoc {
+    const rows = [...union.variants.values()].map((v) => {
+      return [v.name, this.ref(v.type.type), v.doc];
+    });
+    return section("Variants", [table([["Name", "Type", "Description"], ...rows])]);
   }
 
   scalar(scalar: ScalarRefDoc): MarkdownDoc {
@@ -401,15 +408,98 @@ export class MarkdownRenderer {
       ]),
     );
     for (const option of options) {
-      content.push(
-        section(`${inlinecode(option.name)}`, [
-          `**Type:** ${inlinecode(option.type)}`,
-          "",
-          option.doc,
-        ]),
-      );
+      content.push(this.emitterOption(option));
     }
     return section("Emitter options", content);
+  }
+
+  emitterOptionTypeDisplay(option: { type: string; allowedValues?: readonly string[] }): string {
+    if (option.allowedValues && option.allowedValues.length > 0) {
+      return inlinecode(option.allowedValues.join(" | "));
+    }
+    return inlinecode(option.type);
+  }
+
+  emitterOption(option: EmitterOptionRefDoc): MarkdownDoc {
+    const content: MarkdownDoc = [];
+
+    // Deprecation notice
+    if (option.deprecated !== undefined) {
+      const message = option.deprecated || "This option is deprecated.";
+      content.push(this.deprecationNotice({ message }), "");
+    }
+
+    // Type line
+    content.push(`**Type:** ${this.emitterOptionTypeDisplay(option)}`);
+
+    // Default value
+    if (option.default !== undefined) {
+      content.push("", `**Default:** ${inlinecode(option.default)}`);
+    }
+
+    // Description
+    if (option.doc) {
+      content.push("", option.doc);
+    }
+
+    // Variants (oneOf)
+    if (option.variants && option.variants.length > 0) {
+      content.push("", "**Options:**", "");
+      for (const variant of option.variants) {
+        content.push(this.emitterOptionVariant(variant));
+      }
+    }
+
+    // Nested options
+    if (option.nestedOptions && option.nestedOptions.length > 0) {
+      content.push("", "**Properties:**", "");
+      const rows: string[][] = [["Name", "Type", "Default", "Description"]];
+      for (const nested of option.nestedOptions) {
+        rows.push([
+          inlinecode(nested.name),
+          this.emitterOptionTypeDisplay(nested),
+          nested.default !== undefined ? inlinecode(nested.default) : "",
+          nested.doc,
+        ]);
+      }
+      content.push(table(rows));
+    }
+
+    return section(`${inlinecode(option.name)}`, content);
+  }
+
+  emitterOptionVariant(variant: EmitterOptionVariantRefDoc): MarkdownDoc {
+    const content: MarkdownDoc = [];
+
+    // Variant type/values
+    const typeDisplay = this.emitterOptionTypeDisplay(variant);
+
+    let header = `- ${typeDisplay}`;
+    if (variant.default !== undefined) {
+      header += ` (default: ${inlinecode(variant.default)})`;
+    }
+    content.push(header);
+
+    if (variant.doc) {
+      content.push("", `  ${variant.doc}`);
+    }
+
+    // Nested options for object variants
+    if (variant.nestedOptions && variant.nestedOptions.length > 0) {
+      content.push("");
+      const rows: string[][] = [["Name", "Type", "Default", "Description"]];
+      for (const nested of variant.nestedOptions) {
+        rows.push([
+          inlinecode(nested.name),
+          this.emitterOptionTypeDisplay(nested),
+          nested.default !== undefined ? inlinecode(nested.default) : "",
+          nested.doc,
+        ]);
+      }
+      content.push("  ", table(rows));
+    }
+
+    return content;
   }
 
   linterUsage(refDoc: TypeSpecRefDoc) {

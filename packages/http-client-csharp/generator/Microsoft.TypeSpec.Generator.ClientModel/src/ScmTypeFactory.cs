@@ -2,6 +2,7 @@
 // Licensed under the MIT License.
 
 using System;
+using System.ClientModel;
 using System.ClientModel.Primitives;
 using System.Collections.Generic;
 using System.Linq;
@@ -128,6 +129,9 @@ namespace Microsoft.TypeSpec.Generator.ClientModel
                 case InputNullableType nullableType:
                     PopulateRootOutputModelsFromTypeRecursive(nullableType.Type, targetSet, visited);
                     break;
+                case InputStreamingType streamingType:
+                    PopulateRootOutputModelsFromTypeRecursive(streamingType.ValueType, targetSet, visited);
+                    break;
                 case InputUnionType unionType:
                     foreach (var variantType in unionType.VariantTypes)
                     {
@@ -146,12 +150,17 @@ namespace Microsoft.TypeSpec.Generator.ClientModel
         {
             switch (inputType)
             {
-                case InputModelType inputModel when (inputModel.Usage & (InputModelTypeUsage.Json | InputModelTypeUsage.Xml)) != 0:
-                    if (typeProvider is ModelProvider modelProvider)
+                case InputModelType inputModel when typeProvider is ModelProvider modelProvider:
+                    var providers = new List<TypeProvider>();
+                    if ((inputModel.Usage & (InputModelTypeUsage.Json | InputModelTypeUsage.Xml)) != 0)
                     {
-                        return [new MrwSerializationTypeDefinition(inputModel, modelProvider)];
+                        providers.Add(new MrwSerializationTypeDefinition(inputModel, modelProvider));
                     }
-                    return [];
+                    if (inputModel.Usage.HasFlag(InputModelTypeUsage.MultipartFormData))
+                    {
+                        providers.Add(new MultipartFormDataSerializationDefinition(inputModel, modelProvider));
+                    }
+                    return providers;
                 case InputEnumType inputEnumType:
                     switch (typeProvider.CustomCodeView)
                     {
@@ -265,7 +274,27 @@ namespace Microsoft.TypeSpec.Generator.ClientModel
 
         protected override ModelProvider? CreateModelCore(InputModelType model) => new ScmModelProvider(model);
 
+        protected override ModelFactoryProvider CreateModelFactoryCore(IEnumerable<InputModelType> models)
+            => new ScmModelFactoryProvider(models);
+
+        protected override CSharpType? CreateCSharpTypeCore(InputType inputType) => inputType switch
+        {
+#pragma warning disable SCME0004
+            InputModelType { IsFileType: true } => typeof(FileBinaryContent),
+            InputPrimitiveType { IsFileType: true } => typeof(FileBinaryContent),
+#pragma warning restore SCME0004
+            _ => base.CreateCSharpTypeCore(inputType),
+        };
+
         protected override ScmSerializationOptions? CreateSerializationOptionsCore(InputSerializationOptions inputSerializationOptions)
             => new(inputSerializationOptions);
+
+        /// <inheritdoc/>
+        protected override Type? CreateFrameworkType(string fullyQualifiedTypeName)
+            // The base implementation falls back to Type.GetType, which only probes corlib and the assembly that
+            // declares it (Microsoft.TypeSpec.Generator). System.ClientModel is referenced by this assembly instead,
+            // so its types have to be resolved explicitly or they would be treated as non-framework types.
+            => base.CreateFrameworkType(fullyQualifiedTypeName)
+                ?? typeof(BinaryContent).Assembly.GetType(fullyQualifiedTypeName);
     }
 }

@@ -27,7 +27,9 @@ namespace Microsoft.TypeSpec.Generator.Expressions
                 {
                     Elements[i].Write(writer);
                     if (i < Elements.Count - 1)
+                    {
                         writer.AppendRaw(", ");
+                    }
                 }
                 writer.AppendRaw(" }");
             }
@@ -40,9 +42,13 @@ namespace Microsoft.TypeSpec.Generator.Expressions
                     {
                         Elements[i].Write(writer);
                         if (i < Elements.Count - 1)
+                        {
                             writer.WriteRawLine(",");
+                        }
                         else
+                        {
                             writer.WriteLine();
+                        }
                     }
                 }
             }

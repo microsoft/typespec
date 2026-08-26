@@ -192,7 +192,7 @@ Specify how to encode the target type.
 #### Parameters
 | Name | Type | Description |
 |------|------|-------------|
-| encodingOrEncodeAs | `Scalar` \| `valueof string \| EnumMember` | Known name of an encoding or a scalar type to encode as(Only for numeric types to encode as string). |
+| encodingOrEncodeAs | `Scalar` \| `valueof string \| EnumMember` | Known name of an encoding or a scalar type to encode as(Only for numeric and boolean types to encode as string). |
 | encodedAs | `Scalar` | What target type is this being encoded as. Default to string. |
 
 #### Examples
@@ -218,6 +218,17 @@ scalar myDateTime extends unixTimestamp;
 ```tsp
 model Pet {
   @encode(string) id: int64;
+}
+```
+
+##### encode boolean type to string
+
+
+`@encode(string)` on boolean uses case-insensitive `true` / `false` values.
+
+```tsp
+model FeatureFlags {
+  @encode(string) enabled: boolean;
 }
 ```
 

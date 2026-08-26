@@ -3,9 +3,11 @@
 
 using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using System.Reflection;
 using System.Threading.Tasks;
+using Microsoft.TypeSpec.Generator.EmitterRpc;
 using Microsoft.TypeSpec.Generator.ClientModel.Providers;
 using Microsoft.TypeSpec.Generator.Input;
 using Microsoft.TypeSpec.Generator.Primitives;
@@ -924,7 +926,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers
                 compilation: async () => await Helpers.GetCompilationFromDirectoryAsync());
 
             var typeProvider = CodeModelGenerator.Instance.SourceInputModel
-                .FindForTypeInCustomization("SampleNamespace", "CustomAudience");
+                .FindForTypeInCurrentCompilation("SampleNamespace", "CustomAudience");
             Assert.IsNotNull(typeProvider, "CustomAudience should be found in custom code");
 
             var body = new List<MethodBodyStatement>();
@@ -954,7 +956,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers
                 compilation: async () => await Helpers.GetCompilationFromDirectoryAsync());
 
             var typeProvider = CodeModelGenerator.Instance.SourceInputModel
-                .FindForTypeInCustomization("SampleNamespace", "CustomPriority");
+                .FindForTypeInCurrentCompilation("SampleNamespace", "CustomPriority");
             Assert.IsNotNull(typeProvider, "CustomPriority should be found in custom code");
 
             var body = new List<MethodBodyStatement>();
@@ -985,7 +987,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers
                 compilation: async () => await Helpers.GetCompilationFromDirectoryAsync());
 
             var typeProvider = CodeModelGenerator.Instance.SourceInputModel
-                .FindForTypeInCustomization("SampleNamespace", "CustomComplex");
+                .FindForTypeInCurrentCompilation("SampleNamespace", "CustomComplex");
             Assert.IsNotNull(typeProvider, "CustomComplex should be found in custom code");
 
             var body = new List<MethodBodyStatement>();
@@ -1047,6 +1049,46 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers
             var bodyString = bindCoreMethod!.BodyStatements!.ToDisplayString();
             Assert.IsTrue(bodyString.Contains("ConnectionString"),
                 "BindCore should bind the custom constructor parameter 'ConnectionString' from configuration");
+        }
+
+        [Test]
+        public async Task TestSettings_ExcludesUnsupportedFrameworkConstructorParameters()
+        {
+            using var diagnosticStream = new MemoryStream();
+            using var emitter = new Emitter(diagnosticStream);
+            var generator = await MockHelpers.LoadMockGeneratorAsync(
+                compilation: async () => await Helpers.GetCompilationFromDirectoryAsync());
+            generator.SetupGet(g => g.Emitter).Returns(emitter);
+
+            var client = InputFactory.Client("TestClient", clientNamespace: "SampleNamespace");
+            var clientProvider = ScmCodeModelGenerator.Instance.TypeFactory.CreateClient(client);
+            Assert.IsNotNull(clientProvider);
+
+            var settings = clientProvider!.ClientSettings;
+            Assert.IsNotNull(settings);
+            Assert.IsNull(settings!.Properties.FirstOrDefault(p => p.Name == "ClientCertificate"),
+                "Settings should not include custom constructor parameters that cannot be bound from configuration");
+            Assert.IsNotNull(settings.Properties.FirstOrDefault(p => p.Name == "TenantId"),
+                "Settings should continue to include bindable parameters from the same custom constructor");
+
+            var bindCoreMethod = settings.Methods.FirstOrDefault(m => m.Signature.Name == "BindCore");
+            Assert.IsNotNull(bindCoreMethod);
+            var bodyString = bindCoreMethod!.BodyStatements!.ToDisplayString();
+            Assert.IsFalse(bodyString.Contains("ClientCertificate"),
+                "BindCore should not bind custom constructor parameters that cannot be constructed from IConfigurationSection");
+            Assert.IsTrue(bodyString.Contains("TenantId"),
+                "BindCore should continue to bind supported parameters from the same custom constructor");
+
+            diagnosticStream.Position = 0;
+            using var reader = new StreamReader(diagnosticStream, leaveOpen: true);
+            var diagnostics = reader.ReadToEnd();
+            Assert.That(diagnostics, Does.Contain("\"code\":\"unsupported-client-settings-parameter\""));
+            Assert.That(diagnostics, Does.Contain("omitted custom constructor parameter"));
+            Assert.That(diagnostics, Does.Contain("clientCertificate"));
+            Assert.That(diagnostics, Does.Contain("X509Certificate2"));
+            Assert.That(diagnostics, Does.Contain("\"severity\":\"warning\""));
+            Assert.AreEqual(1, diagnostics.Split("unsupported-client-settings-parameter").Length - 1,
+                "The warning should only be emitted once when both properties and methods are built");
         }
 
         [Test]
@@ -1139,6 +1181,83 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers
                 "BindCore should NOT bind a credential-derived parameter");
             Assert.IsTrue(bodyString.Contains("TenantId"),
                 "BindCore should bind the non-credential parameter 'TenantId'");
+        }
+
+        [Test]
+        public async Task TestBindCoreMethod_HonorsCustomPropertyRename()
+        {
+            // Custom code renames the generated 'Endpoint' settings property to 'ServiceUri'
+            // via [CodeGenMember("Endpoint")]. BindCore should assign to the renamed property
+            // while still reading from the original configuration key.
+            await MockHelpers.LoadMockGeneratorAsync(
+                compilation: async () => await Helpers.GetCompilationFromDirectoryAsync());
+
+            var inputParameters = new[]
+            {
+                InputFactory.EndpointParameter(
+                    "endpoint",
+                    InputPrimitiveType.Url,
+                    scope: InputParameterScope.Client,
+                    isEndpoint: true)
+            };
+            var client = InputFactory.Client("TestClient", clientNamespace: "SampleNamespace", parameters: inputParameters);
+            var clientProvider = ScmCodeModelGenerator.Instance.TypeFactory.CreateClient(client);
+            Assert.IsNotNull(clientProvider);
+
+            var settingsProvider = clientProvider!.ClientSettings;
+            Assert.IsNotNull(settingsProvider);
+            Assert.IsNotNull(settingsProvider!.CustomCodeView,
+                "CustomCodeView should be available from the compilation");
+
+            // The generated 'Endpoint' property should be replaced by the custom 'ServiceUri' property.
+            Assert.IsNull(settingsProvider.Properties.FirstOrDefault(p => p.Name == "Endpoint"),
+                "Generated 'Endpoint' property should be replaced by the custom code rename");
+
+            var bindCoreMethod = settingsProvider.Methods.FirstOrDefault(m => m.Signature.Name == "BindCore");
+            Assert.IsNotNull(bindCoreMethod);
+
+            // Validate full generated output: BindCore should assign to the renamed 'ServiceUri'
+            // property while still reading from the original 'Endpoint' configuration key.
+            var writer = new TypeProviderWriter(settingsProvider);
+            var file = writer.Write();
+            Assert.AreEqual(Helpers.GetExpectedFromFile(), file.Content);
+        }
+
+        [Test]
+        public async Task TestGeneratedSettings_WithCustomizedBindCore()
+        {
+            await MockHelpers.LoadMockGeneratorAsync(
+                compilation: async () => await Helpers.GetCompilationFromDirectoryAsync(),
+                configuration: "{\"disable-xml-docs\": false, \"package-name\": \"Sample.Namespace\"}");
+
+            var inputParameters = new[]
+            {
+                InputFactory.EndpointParameter(
+                    "endpoint",
+                    InputPrimitiveType.Url,
+                    scope: InputParameterScope.Client,
+                    isEndpoint: true)
+            };
+            var client = InputFactory.Client("TestClient", clientNamespace: "SampleNamespace", parameters: inputParameters);
+            var clientProvider = ScmCodeModelGenerator.Instance.TypeFactory.CreateClient(client);
+            Assert.IsNotNull(clientProvider);
+
+            var settingsProvider = clientProvider!.ClientSettings;
+            Assert.IsNotNull(settingsProvider);
+
+            // BindCore is overridden in custom code, so it should not be generated.
+            var bindCoreMethod = settingsProvider!.Methods.FirstOrDefault(m => m.Signature.Name == "BindCore");
+            Assert.IsNull(bindCoreMethod, "BindCore should not be generated when it is overridden in custom code");
+
+            var writer = new TypeProviderWriter(settingsProvider);
+            var file = writer.Write();
+
+            // Validate the full generated output. Even though BindCore (the only other
+            // reference to IConfigurationSection) is removed via custom code, the type
+            // description still references IConfigurationSection, so the
+            // Microsoft.Extensions.Configuration using must still be emitted.
+            Assert.AreEqual(Helpers.GetExpectedFromFile(), file.Content);
+            StringAssert.Contains("using Microsoft.Extensions.Configuration;", file.Content);
         }
     }
 }

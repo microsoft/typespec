@@ -1,20 +1,20 @@
 import { deepStrictEqual, fail, ok, strictEqual } from "assert";
 import { beforeEach, describe, expect, it } from "vitest";
-import {
+import type {
   Diagnostic,
   FunctionContext,
   IndeterminateEntity,
   Model,
   Namespace,
-  SyntaxKind,
   Type,
   Value,
 } from "../../src/core/types.js";
+import type { DiagnosticMatch } from "../../src/testing/index.js";
 import {
-  DiagnosticMatch,
   type Tester,
   expectDiagnosticEmpty,
   expectDiagnostics,
+  extractSquiggles,
   mockFile,
   t,
 } from "../../src/testing/index.js";
@@ -330,21 +330,40 @@ describe("usage", () => {
   });
 
   it("errors if not enough args", async () => {
-    const v = await expectFunctionValueUsage(
-      "extern fn testFn(a: valueof string, b: valueof string): valueof string",
-      'testFn("one")',
-      [
-        {
-          code: "invalid-argument-count",
-          message: "Expected at least 2 arguments, but got 1.",
-        },
-      ],
+    const { source, pos, end } = extractSquiggles(
+      `
+      import "./test.js";
+      using TypeSpec.Reflection;
+
+      extern fn testFn(a: valueof string, b: valueof string): valueof string;
+
+      model Observer {
+        p: unknown = ┆testFn("one")┆;
+      }
+    `,
+      "┆",
     );
+    const [, diagnostics] = await BaseTester.files({
+      "test.js": mockFile.js({
+        $functions: {
+          "": {
+            testFn(ctx: FunctionContext, a: any, b: any, ...rest: any[]) {
+              calledArgs = [ctx, a, b, ...rest];
+              return a;
+            },
+          },
+        },
+      }),
+    }).compileAndDiagnose(source);
+
+    expectFunctionDiagnostics(diagnostics, {
+      code: "invalid-argument-count",
+      message: "Expected at least 2 arguments, but got 1.",
+      pos,
+      end,
+    });
 
     expectNotCalled();
-
-    // Because the const is invalid (transposed to null in the checker), we expect no default value.
-    strictEqual(v, undefined);
   });
 
   it("errors if too many args", async () => {
@@ -366,23 +385,6 @@ describe("usage", () => {
     strictEqual(v.value, "one");
   });
 
-  it("reports invalid-argument-count error at call site, not function declaration", async () => {
-    const fnTester = createTesterForFn("testFn", testFnImpl);
-    const [, diagnostics] = await fnTester.compileAndDiagnose(`
-      extern fn testFn(a: valueof string): valueof string;
-      const X = testFn("one", "two");
-    `);
-
-    const argCountDiag = diagnostics.find((d) => d.code === "invalid-argument-count");
-    ok(argCountDiag, "Expected invalid-argument-count diagnostic");
-    ok(argCountDiag.target !== undefined, "Expected diagnostic to have a target");
-    strictEqual(
-      (argCountDiag.target as any).kind,
-      SyntaxKind.CallExpression,
-      "Diagnostic should target the call expression, not the function declaration",
-    );
-  });
-
   it("errors if too few with rest", async () => {
     const t = await expectFunctionTypeUsage(
       "extern fn testFn(a: string, ...rest: string[])",
@@ -398,6 +400,24 @@ describe("usage", () => {
     expectNotCalled();
 
     // In this case, we did not call the function, so we expect the constraint.
+    strictEqual(t.kind, "Intrinsic");
+    strictEqual(t.name, "unknown");
+  });
+
+  it("errors if rest argument type mismatches", async () => {
+    const t = await expectFunctionTypeUsage(
+      "extern fn testFn(a: string, ...rest: string[])",
+      'testFn("a", 123)',
+      [
+        {
+          code: "unassignable",
+          message: "Type '123' is not assignable to type 'string'",
+        },
+      ],
+    );
+
+    expectNotCalled();
+
     strictEqual(t.kind, "Intrinsic");
     strictEqual(t.name, "unknown");
   });
@@ -1553,6 +1573,23 @@ describe("assignability of functions to fn types", () => {
       code: "unassignable",
       message:
         "Type 'fn (a: string) => string' is not assignable to type 'fn (arg: never) => int32'\n  Type 'string' is not assignable to type 'int32'",
+    });
+  });
+
+  it("reports non-function assignability errors at the assignment expression", async () => {
+    const { source, pos, end } = extractSquiggles(
+      `
+      const f: fn() => unknown = ┆123┆;
+    `,
+      "┆",
+    );
+    const diagnostics = await BaseTester.diagnose(source);
+
+    expectDiagnostics(diagnostics, {
+      code: "unassignable",
+      message: "Type '123' is not assignable to type 'fn () => unknown'",
+      pos,
+      end,
     });
   });
 });

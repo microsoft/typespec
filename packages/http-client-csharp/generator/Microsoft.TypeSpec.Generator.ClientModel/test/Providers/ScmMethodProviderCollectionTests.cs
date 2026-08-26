@@ -6,6 +6,7 @@ using System.ClientModel;
 using System.ClientModel.Primitives;
 using System.Collections.Generic;
 using System.Linq;
+using System.Net.ServerSentEvents;
 using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.CodeAnalysis;
@@ -20,6 +21,7 @@ using NUnit.Framework;
 
 namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers
 {
+#pragma warning disable SCME0005 // Type is for evaluation purposes only and is subject to change or removal in future updates.
     internal class ScmMethodProviderCollectionTests
     {
         private static readonly InputModelType _spreadModel = InputFactory.Model(
@@ -29,6 +31,300 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers
             [
                 InputFactory.Property("p2", InputPrimitiveType.String, isRequired: true),
             ]);
+
+        [Test]
+        public void JsonLinesRequestGeneratesAsyncStreamingConvenienceMethod()
+        {
+            var itemType = InputFactory.Model(
+                "Info",
+                properties: [InputFactory.Property("desc", InputPrimitiveType.String, isRequired: true)]);
+            var streamType = new InputStreamingType(
+                "JsonlStream",
+                "Streaming.Jsonl.JsonlStream",
+                itemType,
+                ["application/jsonl"]);
+            var operation = InputFactory.Operation(
+                "Send",
+                parameters: [InputFactory.BodyParameter("stream", streamType, isRequired: true)],
+                responses: [InputFactory.OperationResponse([204])],
+                requestMediaTypes: ["application/jsonl"],
+                httpMethod: "POST");
+            var serviceMethod = InputFactory.BasicServiceMethod(
+                "Send",
+                operation,
+                parameters:
+                [
+                    InputFactory.MethodParameter(
+                        "stream",
+                        streamType,
+                        location: InputRequestLocation.Body,
+                        isRequired: true)
+                ]);
+            var inputClient = InputFactory.Client("TestClient", methods: [serviceMethod]);
+
+            MockHelpers.LoadMockGenerator(inputModels: () => [itemType], clients: () => [inputClient]);
+            var jsonLinesContent = ScmCodeModelGenerator.Instance.OutputLibrary.TypeProviders
+                .OfType<JsonLinesBinaryContentDefinition>()
+                .Single();
+            Assert.IsFalse(jsonLinesContent.Methods.Any(
+                method => method.Signature.Name is "DeserializeModel" or "DeserializeValue"));
+            var writeToAsyncMethod = jsonLinesContent.Methods.Single(
+                method => method.Signature.Name == "WriteToAsync");
+            using var writer = new CodeWriter();
+            writer.WriteMethod(writeToAsyncMethod);
+            Assert.AreEqual(
+                Helpers.GetExpectedFromFile("WriteToAsyncStj"),
+                writer.ToString(false));
+            var client = ScmCodeModelGenerator.Instance.TypeFactory.CreateClient(inputClient);
+            Assert.IsNotNull(client);
+
+            var methodCollection = new ScmMethodProviderCollection(serviceMethod, client!);
+            Assert.AreEqual(3, methodCollection.Count);
+            Assert.IsFalse(methodCollection.Any(method =>
+                method.Signature.Name == "Send" &&
+                method.Signature.Parameters.All(parameter => parameter.Name != "content")));
+
+            var convenienceMethod = methodCollection.Single(method =>
+                method.Signature.Name == "SendAsync" &&
+                method.Signature.Parameters.All(parameter => parameter.Name != "content"));
+            Assert.IsTrue(convenienceMethod.Signature.Parameters[0].Type.IsIAsyncEnumerableOfT);
+            StringAssert.Contains(
+                "using global::System.ClientModel.BinaryContent content = new global::Sample.JsonLinesBinaryContent<global::Sample.Models.Info>(stream);",
+                convenienceMethod.BodyStatements!.ToDisplayString());
+            StringAssert.Contains(
+                "return await this.SendAsync(content, cancellationToken.ToRequestOptions()).ConfigureAwait(false);",
+                convenienceMethod.BodyStatements!.ToDisplayString());
+        }
+
+        [Test]
+        public void JsonLinesResponseGeneratesUnbufferedAsyncStreamingResult()
+        {
+            var itemType = InputFactory.Model(
+                "Info",
+                properties: [InputFactory.Property("desc", InputPrimitiveType.String, isRequired: true)]);
+            var streamType = new InputStreamingType(
+                "JsonlStream",
+                "Streaming.Jsonl.JsonlStream",
+                itemType,
+                ["application/jsonl"]);
+            var operation = InputFactory.Operation(
+                "Receive",
+                responses: [InputFactory.OperationResponse([200], streamType)],
+                bufferResponse: false);
+            var serviceMethod = InputFactory.BasicServiceMethod(
+                "Receive",
+                operation,
+                response: InputFactory.ServiceMethodResponse(streamType, null));
+            var inputClient = InputFactory.Client("TestClient", methods: [serviceMethod]);
+
+            MockHelpers.LoadMockGenerator(inputModels: () => [itemType], clients: () => [inputClient]);
+            Assert.IsFalse(ScmCodeModelGenerator.Instance.OutputLibrary.TypeProviders.Any(
+                type => type is JsonLinesBinaryContentDefinition));
+            var client = ScmCodeModelGenerator.Instance.TypeFactory.CreateClient(inputClient);
+            Assert.IsNotNull(client);
+            Assert.IsEmpty(client!.DisabledFileWarnings);
+
+            var methodCollection = new ScmMethodProviderCollection(serviceMethod, client);
+            Assert.AreEqual(2, methodCollection.Count);
+            Assert.IsFalse(methodCollection.Any(method =>
+                method.Signature.Name == "Receive" &&
+                method.Signature.Parameters.Any(parameter => parameter.Name == "options")));
+
+            var rawProtocolMethod = methodCollection.Single(method =>
+                method.Signature.Name == "ReceiveAsync" &&
+                method.Signature.Parameters.Any(parameter => parameter.Name == "options"));
+            var expectedProtocolReturnType = new CSharpType(
+                typeof(Task<>),
+                new CSharpType(typeof(AsyncStreamingClientResult<>), typeof(BinaryData)));
+            Assert.IsTrue(rawProtocolMethod.Signature.ReturnType!.Equals(expectedProtocolReturnType));
+            StringAssert.Contains(
+                "return global::System.ClientModel.AsyncStreamingClientResult.CreateJsonLines",
+                rawProtocolMethod.BodyStatements!.ToDisplayString());
+
+            var convenienceMethod = methodCollection.Single(method =>
+                method.Signature.Name == "ReceiveAsync" &&
+                method.Signature.Parameters.All(parameter => parameter.Name != "options"));
+            var expectedReturnType = new CSharpType(
+                typeof(Task<>),
+                new CSharpType(
+                    typeof(AsyncStreamingClientResult<>),
+                    ScmCodeModelGenerator.Instance.TypeFactory.CreateCSharpType(itemType)!));
+            Assert.IsTrue(convenienceMethod.Signature.ReturnType!.Equals(expectedReturnType));
+            StringAssert.Contains(
+                "return global::System.ClientModel.AsyncStreamingClientResult.CreateJsonLines",
+                convenienceMethod.BodyStatements!.ToDisplayString());
+            StringAssert.Contains(
+                "global::Sample.SampleContext.Default",
+                convenienceMethod.BodyStatements!.ToDisplayString());
+            StringAssert.DoesNotContain(
+                "JsonLinesBinaryContent",
+                convenienceMethod.BodyStatements!.ToDisplayString());
+            using var writer = new CodeWriter();
+            writer.WriteMethod(convenienceMethod);
+            Assert.AreEqual(
+                Helpers.GetExpectedFromFile(method: "JsonLinesStreamingMethodSuppressionIsScoped"),
+                writer.ToString(false));
+
+            foreach (var protocolMethod in methodCollection.Where(method =>
+                method.Signature.Parameters.Any(parameter => parameter.Name == "options")))
+            {
+                StringAssert.Contains(
+                    "message.BufferResponse = false;",
+                    protocolMethod.BodyStatements!.ToDisplayString());
+            }
+        }
+
+        [Test]
+        public void SseResponseGeneratesUnbufferedAsyncStreamingResult()
+        {
+            var eventType = InputFactory.Model(
+                "Info",
+                properties: [InputFactory.Property("desc", InputPrimitiveType.String, isRequired: true)]);
+            var eventUnion = InputFactory.Union([eventType], "SseEvents");
+            var streamType = new InputStreamingType(
+                "SseStream",
+                "Streaming.Sse.SseStream",
+                eventUnion,
+                ["text/event-stream"],
+                streamKind: "sse",
+                terminalEventValue: "[DONE]");
+            var operation = InputFactory.Operation(
+                "Receive",
+                responses: [InputFactory.OperationResponse([200], streamType)],
+                bufferResponse: false);
+            var serviceMethod = InputFactory.BasicServiceMethod(
+                "Receive",
+                operation,
+                response: InputFactory.ServiceMethodResponse(streamType, null));
+            var inputClient = InputFactory.Client("TestClient", methods: [serviceMethod]);
+            MockHelpers.LoadMockGenerator(inputModels: () => [eventType], clients: () => [inputClient]);
+            Assert.IsFalse(ScmCodeModelGenerator.Instance.OutputLibrary.TypeProviders.Any(
+                type => type is JsonLinesBinaryContentDefinition));
+            var client = ScmCodeModelGenerator.Instance.TypeFactory.CreateClient(inputClient);
+            Assert.IsNotNull(client);
+
+            var methodCollection = new ScmMethodProviderCollection(serviceMethod, client!);
+            Assert.AreEqual(2, methodCollection.Count);
+            Assert.IsFalse(methodCollection.Any(method => method.Signature.Name == "Receive"));
+
+            var rawProtocolMethod = methodCollection.Single(method =>
+                method.Signature.Name == "ReceiveAsync" &&
+                method.Signature.Parameters.Any(parameter => parameter.Name == "options"));
+            var expectedProtocolReturnType = new CSharpType(
+                typeof(Task<>),
+                new CSharpType(
+                    typeof(AsyncStreamingClientResult<>),
+                    new CSharpType(typeof(SseItem<>), typeof(BinaryData))));
+            Assert.IsTrue(rawProtocolMethod.Signature.ReturnType!.Equals(expectedProtocolReturnType));
+            StringAssert.Contains(
+                "return global::System.ClientModel.AsyncStreamingClientResult.CreateSse",
+                rawProtocolMethod.BodyStatements!.ToDisplayString());
+
+            var convenienceMethod = methodCollection.Single(method =>
+                method.Signature.Name == "ReceiveAsync" &&
+                method.Signature.Parameters.All(parameter => parameter.Name != "options"));
+            var expectedReturnType = new CSharpType(
+                typeof(Task<>),
+                new CSharpType(
+                    typeof(AsyncStreamingClientResult<>),
+                    new CSharpType(
+                        typeof(SseItem<>),
+                        ScmCodeModelGenerator.Instance.TypeFactory.CreateCSharpType(eventType)!)));
+            Assert.IsTrue(convenienceMethod.Signature.ReturnType!.Equals(expectedReturnType));
+            var body = convenienceMethod.BodyStatements!.ToDisplayString();
+            StringAssert.Contains(
+                "return global::System.ClientModel.AsyncStreamingClientResult.CreateSse",
+                body);
+            StringAssert.Contains(
+                "global::Sample.SampleContext.Default",
+                body);
+            StringAssert.DoesNotContain("JsonLinesBinaryContent", body);
+            StringAssert.Contains(
+                "item.Data.ToString() == \"[DONE]\"",
+                body);
+
+            foreach (var protocolMethod in methodCollection.Where(method =>
+                method.Signature.Parameters.Any(parameter => parameter.Name == "options")))
+            {
+                StringAssert.Contains(
+                    "message.BufferResponse = false;",
+                    protocolMethod.BodyStatements!.ToDisplayString());
+            }
+        }
+
+        [Test]
+        public void JsonLinesPrimitiveResponseUsesValueDeserializer()
+        {
+            var streamType = new InputStreamingType(
+                "JsonlStream",
+                "Streaming.Jsonl.JsonlStream",
+                InputPrimitiveType.String,
+                ["application/jsonl"]);
+            var operation = InputFactory.Operation(
+                "Receive",
+                responses: [InputFactory.OperationResponse([200], streamType)],
+                bufferResponse: false);
+            var serviceMethod = InputFactory.BasicServiceMethod(
+                "Receive",
+                operation,
+                response: InputFactory.ServiceMethodResponse(streamType, null));
+            var inputClient = InputFactory.Client("TestClient", methods: [serviceMethod]);
+
+            MockHelpers.LoadMockGenerator(clients: () => [inputClient]);
+            var client = ScmCodeModelGenerator.Instance.TypeFactory.CreateClient(inputClient);
+            Assert.IsNotNull(client);
+
+            var methodCollection = new ScmMethodProviderCollection(serviceMethod, client!);
+            var convenienceMethod = methodCollection.Single(method =>
+                method.Signature.Name == "ReceiveAsync" &&
+                method.Signature.Parameters.All(parameter => parameter.Name != "options"));
+            StringAssert.Contains(
+                "global::Sample.SampleContext.Default",
+                convenienceMethod.BodyStatements!.ToDisplayString());
+            StringAssert.DoesNotContain(
+                "ToObjectFromJson",
+                convenienceMethod.BodyStatements!.ToDisplayString());
+        }
+
+        [Test]
+        public void OptionalJsonLinesRequestPreservesNullBody()
+        {
+            var streamType = new InputStreamingType(
+                "JsonlStream",
+                "Streaming.Jsonl.JsonlStream",
+                InputPrimitiveType.String,
+                ["application/jsonl"]);
+            var operation = InputFactory.Operation(
+                "Send",
+                parameters: [InputFactory.BodyParameter("stream", streamType, isRequired: false)],
+                responses: [InputFactory.OperationResponse([204])],
+                requestMediaTypes: ["application/jsonl"],
+                httpMethod: "POST");
+            var serviceMethod = InputFactory.BasicServiceMethod(
+                "Send",
+                operation,
+                parameters:
+                [
+                    InputFactory.MethodParameter(
+                        "stream",
+                        streamType,
+                        location: InputRequestLocation.Body,
+                        isRequired: false)
+                ]);
+            var inputClient = InputFactory.Client("TestClient", methods: [serviceMethod]);
+
+            MockHelpers.LoadMockGenerator(clients: () => [inputClient]);
+            var client = ScmCodeModelGenerator.Instance.TypeFactory.CreateClient(inputClient);
+            Assert.IsNotNull(client);
+
+            var methodCollection = new ScmMethodProviderCollection(serviceMethod, client!);
+            var convenienceMethod = methodCollection.Single(method =>
+                method.Signature.Name == "SendAsync" &&
+                method.Signature.Parameters.All(parameter => parameter.Name != "content"));
+            StringAssert.Contains(
+                "(stream == null) ? null : new global::Sample.JsonLinesBinaryContent<string>(stream)",
+                convenienceMethod.BodyStatements!.ToDisplayString());
+        }
 
         // Validate that the default method collection consists of the expected method kind(s)
         [TestCaseSource(nameof(DefaultCSharpMethodCollectionTestCases))]
@@ -118,6 +414,56 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers
         }
 
         [Test]
+        public void ProtocolMethodIsInternalWhenGenerateProtocolMethodIsFalse()
+        {
+            var operation = InputFactory.Operation(
+                "CreateMessage",
+                generateProtocolMethod: false,
+                parameters:
+                [
+                    InputFactory.BodyParameter("message", InputPrimitiveType.Boolean, isRequired: true)
+                ]);
+            var serviceMethod = InputFactory.BasicServiceMethod(
+                "CreateMessage",
+                operation,
+                parameters:
+                [
+                    InputFactory.MethodParameter("message", InputPrimitiveType.Boolean, isRequired: true)
+                ]);
+            var inputClient = InputFactory.Client("TestClient", methods: [serviceMethod]);
+
+            MockHelpers.LoadMockGenerator(
+                createCSharpTypeCore: (inputType) => new CSharpType(typeof(bool)));
+
+            var client = ScmCodeModelGenerator.Instance.TypeFactory.CreateClient(inputClient);
+            Assert.IsNotNull(client);
+            var methodCollection = new ScmMethodProviderCollection(serviceMethod, client!);
+            Assert.IsNotNull(methodCollection);
+
+            // Protocol methods (the RequestContent-based overloads) should be generated as internal, not omitted.
+            var protocolMethods = methodCollection.Where(m
+                => m.Signature.Parameters.Any(p => p.Name == "content")).ToList();
+            Assert.AreEqual(2, protocolMethods.Count);
+            foreach (var protocolMethod in protocolMethods)
+            {
+                Assert.IsTrue(protocolMethod.Signature.Modifiers.HasFlag(MethodSignatureModifiers.Internal),
+                    $"Protocol method '{protocolMethod.Signature.Name}' should be internal when generateProtocolMethod is false.");
+                Assert.IsFalse(protocolMethod.Signature.Modifiers.HasFlag(MethodSignatureModifiers.Public),
+                    $"Protocol method '{protocolMethod.Signature.Name}' should not be public when generateProtocolMethod is false.");
+            }
+
+            // Convenience methods should remain public.
+            var convenienceMethods = methodCollection.Where(m
+                => !m.Signature.Parameters.Any(p => p.Name == "content")).ToList();
+            Assert.AreEqual(2, convenienceMethods.Count);
+            foreach (var convenienceMethod in convenienceMethods)
+            {
+                Assert.IsTrue(convenienceMethod.Signature.Modifiers.HasFlag(MethodSignatureModifiers.Public),
+                    $"Convenience method '{convenienceMethod.Signature.Name}' should remain public.");
+            }
+        }
+
+        [Test]
         public async Task SpreadModelCanonicalViewIsUsedToFindConstructor()
         {
             var serviceMethod = InputFactory.BasicServiceMethod(
@@ -167,6 +513,55 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers
 
         }
 
+        [Test]
+        public async Task SpreadListUsesCanonicalPropertyWhenCustomConstructorParameterHasNoProperty()
+        {
+            var spreadModel = InputFactory.Model(
+                "listSpreadModel",
+                usage: InputModelTypeUsage.Spread,
+                properties:
+                [
+                    InputFactory.Property("items", InputFactory.Array(InputPrimitiveType.String), isRequired: true),
+                ]);
+            var serviceMethod = InputFactory.BasicServiceMethod(
+                "CreateMessage",
+                InputFactory.Operation(
+                    "CreateMessage",
+                    parameters:
+                    [
+                        InputFactory.BodyParameter(
+                            "spread",
+                            spreadModel,
+                            isRequired: true,
+                            scope: InputParameterScope.Spread),
+                    ]),
+                parameters:
+                [
+                    InputFactory.MethodParameter(
+                        "items",
+                        InputFactory.Array(InputPrimitiveType.String),
+                        isRequired: true,
+                        scope: InputParameterScope.Spread),
+                ]);
+            var inputClient = InputFactory.Client("TestClient", methods: [serviceMethod]);
+            await MockHelpers.LoadMockGeneratorAsync(
+                clients: () => [inputClient],
+                compilation: async () => await Helpers.GetCompilationFromDirectoryAsync());
+
+            var client = ScmCodeModelGenerator.Instance.TypeFactory.CreateClient(inputClient);
+            Assert.IsNotNull(client);
+            var methodCollection = new ScmMethodProviderCollection(serviceMethod, client!);
+
+            var convenienceMethods = methodCollection.Where(m => m.Signature.Parameters.All(p => p.Name != "content")).ToList();
+            Assert.AreEqual(2, convenienceMethods.Count);
+            foreach (var method in convenienceMethods)
+            {
+                StringAssert.Contains(
+                    "global::Sample.Models.ListSpreadModel spreadModel = new global::Sample.Models.ListSpreadModel((items?.ToList() as global::System.Collections.Generic.IList<string> ?? new global::Sample.ChangeTrackingList<string>()), default);",
+                    method.BodyStatements!.ToDisplayString());
+            }
+        }
+
         // Validate that spread model correctly instantiates optional dictionary properties
         [Test]
         public async Task SpreadModelWithOptionalDictionaryIsNotNull()
@@ -214,6 +609,53 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers
 
             var methodBody = asyncConvenienceMethod!.BodyStatements!.ToDisplayString();
             Assert.AreEqual(Helpers.GetExpectedFromFile(), methodBody);
+        }
+
+        [Test]
+        public async Task ConvenienceMethodForwardsNormalizedDateParameter()
+        {
+            var dateType = new InputDateTimeType(
+                DateTimeKnownEncoding.Rfc7231,
+                "utcDateTime",
+                "TypeSpec.utcDateTime",
+                InputPrimitiveType.String);
+            var operation = InputFactory.Operation(
+                "GetThing",
+                parameters: [InputFactory.HeaderParameter("requestDate", dateType, isRequired: true)],
+                responses: [InputFactory.OperationResponse([204])]);
+            var serviceMethod = InputFactory.BasicServiceMethod(
+                "GetThing",
+                operation,
+                parameters:
+                [
+                    InputFactory.MethodParameter(
+                        "requestDate",
+                        dateType,
+                        isRequired: true,
+                        location: InputRequestLocation.Header)
+                ]);
+            var inputClient = InputFactory.Client("TestClient", methods: [serviceMethod]);
+            await MockHelpers.LoadMockGeneratorAsync(clients: () => [inputClient]);
+
+            var client = ScmCodeModelGenerator.Instance.TypeFactory.CreateClient(inputClient);
+            Assert.IsNotNull(client);
+            var methodCollection = new ScmMethodProviderCollection(serviceMethod, client!);
+
+            // Both the protocol and convenience methods use the normalized name so that the
+            // convenience method still forwards the value to the protocol method.
+            foreach (var method in methodCollection)
+            {
+                Assert.IsTrue(method.Signature.Parameters.Any(p => p.Name == "requestOn"));
+            }
+
+            var asyncConvenienceMethod = methodCollection.Single(m =>
+                m.Signature.Name.EndsWith("Async")
+                && m.Signature.Parameters.Any(p => p.Type.Equals(typeof(CancellationToken))));
+            using var writer = new CodeWriter();
+            writer.WriteMethod(asyncConvenienceMethod);
+            Assert.AreEqual(
+                Helpers.GetExpectedFromFile(),
+                writer.ToString(false));
         }
 
         [Test]
@@ -290,6 +732,87 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers
             var signature = listMethod!.Signature;
             var expectedReturnType = new CSharpType(typeof(CollectionResult));
             Assert.IsTrue(signature.ReturnType!.Equals(expectedReturnType));
+        }
+
+        [Test]
+        public void ListMethodWithInheritedPageItems()
+        {
+            var pagingMetadata = InputFactory.PagingMetadata(
+                ["value"],
+                null,
+                null);
+            var itemModel = InputFactory.Model("cat");
+            var basePageModel = InputFactory.Model(
+                "basePage",
+                properties: [InputFactory.Property("value", InputFactory.Array(itemModel))]);
+            var responseModel = InputFactory.Model(
+                "page",
+                properties: [InputFactory.Property("summary", InputPrimitiveType.String)],
+                baseModel: basePageModel);
+            var response = InputFactory.OperationResponse([200], responseModel);
+            var operation = InputFactory.Operation("getCats", responses: [response]);
+            var inputServiceMethod = InputFactory.PagingServiceMethod(
+                "Test",
+                operation,
+                response: InputFactory.ServiceMethodResponse(responseModel, null),
+                pagingMetadata: pagingMetadata);
+            var inputClient = InputFactory.Client("TestClient", methods: [inputServiceMethod]);
+
+            MockHelpers.LoadMockGenerator(
+                inputModels: () => [itemModel, basePageModel, responseModel],
+                clients: () => [inputClient]);
+            var client = ScmCodeModelGenerator.Instance.TypeFactory.CreateClient(inputClient);
+            Assert.IsNotNull(client);
+            var itemModelType = ScmCodeModelGenerator.Instance.TypeFactory.CreateCSharpType(itemModel);
+
+            var methodCollection = new ScmMethodProviderCollection(inputClient.Methods.First(), client!);
+            var listMethod = methodCollection.FirstOrDefault(
+                m => !m.Signature.Parameters.Any(p => p.Name == "options") && m.Signature.Name == "GetCats");
+            Assert.IsNotNull(listMethod);
+
+            var expectedReturnType = new CSharpType(typeof(CollectionResult<>), itemModelType!);
+            Assert.IsTrue(listMethod!.Signature.ReturnType!.Equals(expectedReturnType));
+        }
+
+        [Test]
+        public void ListMethodWithRedeclaredPageItemsUsesDerivedProperty()
+        {
+            var pagingMetadata = InputFactory.PagingMetadata(
+                ["value"],
+                null,
+                null);
+            var baseItemModel = InputFactory.Model("baseCat");
+            var derivedItemModel = InputFactory.Model("derivedCat");
+            var basePageModel = InputFactory.Model(
+                "basePage",
+                properties: [InputFactory.Property("value", InputFactory.Array(baseItemModel))]);
+            var responseModel = InputFactory.Model(
+                "page",
+                properties: [InputFactory.Property("value", InputFactory.Array(derivedItemModel))],
+                baseModel: basePageModel);
+            var response = InputFactory.OperationResponse([200], responseModel);
+            var operation = InputFactory.Operation("getCats", responses: [response]);
+            var inputServiceMethod = InputFactory.PagingServiceMethod(
+                "Test",
+                operation,
+                response: InputFactory.ServiceMethodResponse(responseModel, null),
+                pagingMetadata: pagingMetadata);
+            var inputClient = InputFactory.Client("TestClient", methods: [inputServiceMethod]);
+
+            MockHelpers.LoadMockGenerator(
+                inputModels: () => [baseItemModel, derivedItemModel, basePageModel, responseModel],
+                clients: () => [inputClient]);
+            var client = ScmCodeModelGenerator.Instance.TypeFactory.CreateClient(inputClient);
+            Assert.IsNotNull(client);
+            var derivedItemModelType = ScmCodeModelGenerator.Instance.TypeFactory.CreateCSharpType(derivedItemModel);
+
+            var methodCollection = new ScmMethodProviderCollection(inputClient.Methods.First(), client!);
+            var listMethod = methodCollection.FirstOrDefault(
+                m => !m.Signature.Parameters.Any(p => p.Name == "options") && m.Signature.Name == "GetCats");
+            Assert.IsNotNull(listMethod);
+
+            var expectedReturnType = new CSharpType(typeof(CollectionResult<>), derivedItemModelType!);
+            Assert.IsTrue(listMethod!.Signature.ReturnType!.Equals(expectedReturnType));
         }
 
         [TestCase(true, InputRequestLocation.Header)]
@@ -378,14 +901,81 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers
             {
                 if (isExtensible)
                 {
-                    StringAssert.Contains("BinaryData.FromObjectAsJson(color.ToString())", convenienceMethod.BodyStatements!.ToDisplayString());
+                    StringAssert.Contains("content.JsonWriter.WriteStringValue(color.ToString())", convenienceMethod.BodyStatements!.ToDisplayString());
                 }
                 else
                 {
-                    StringAssert.Contains("BinaryData.FromObjectAsJson(color.ToSerialString())",
+                    StringAssert.Contains("content.JsonWriter.WriteStringValue(color.ToSerialString())",
                         convenienceMethod.BodyStatements!.ToDisplayString());
                 }
             }
+        #pragma warning restore SCME0005
+        }
+
+        // Enum bodies must be serialized via Utf8JsonWriter (not BinaryData.FromObjectAsJson<T>) to stay AOT/trim safe (IL2026/IL3050).
+        [TestCase(false, false, "content.JsonWriter.WriteStringValue(color.ToSerialString())")]
+        [TestCase(true, false, "content.JsonWriter.WriteStringValue(color.ToString())")]
+        [TestCase(false, true, "content.JsonWriter.WriteNumberValue(((int)color))")]
+        [TestCase(true, true, "content.JsonWriter.WriteNumberValue(color.ToSerialInt32())")]
+        public void EnumBodySerializedWithUtf8JsonWriter(bool isExtensible, bool useInt, string expectedWriteExpression)
+        {
+            InputType enumType = useInt
+                ? InputFactory.Int32Enum("color", [("red", 1), ("green", 2)], isExtensible: isExtensible)
+                : InputFactory.StringEnum("color", [("red", "red"), ("green", "green")], isExtensible: isExtensible);
+
+            var inputOperation = InputFactory.Operation(
+                "PutColor",
+                parameters: [InputFactory.BodyParameter("color", enumType, isRequired: true)],
+                responses: [InputFactory.OperationResponse([200])]);
+            var inputServiceMethod = InputFactory.BasicServiceMethod(
+                "PutColor",
+                inputOperation,
+                parameters: [InputFactory.MethodParameter("color", enumType, location: InputRequestLocation.Body, isRequired: true)]);
+            var inputClient = InputFactory.Client("TestClient", methods: [inputServiceMethod]);
+
+            MockHelpers.LoadMockGenerator(clients: () => [inputClient]);
+            var client = ScmCodeModelGenerator.Instance.TypeFactory.CreateClient(inputClient);
+            Assert.IsNotNull(client);
+
+            var methodCollection = new ScmMethodProviderCollection(inputServiceMethod, client!);
+            var convenienceMethod = methodCollection.FirstOrDefault(
+                m => !m.Signature.Parameters.Any(p => p.Name == "options") && m.Signature.Name == "PutColor");
+            Assert.IsNotNull(convenienceMethod);
+
+            var statements = convenienceMethod!.BodyStatements!.ToDisplayString();
+            StringAssert.Contains("new global::Sample.Utf8JsonBinaryContent()", statements);
+            StringAssert.Contains(expectedWriteExpression, statements);
+            StringAssert.DoesNotContain("FromObjectAsJson", statements);
+        }
+
+        // String bodies with a JSON media type must be serialized via Utf8JsonWriter (not BinaryData.FromObjectAsJson<T>) to stay AOT/trim safe (IL2026/IL3050).
+        [Test]
+        public void JsonStringBodySerializedWithUtf8JsonWriter()
+        {
+            var inputOperation = InputFactory.Operation(
+                "PutString",
+                parameters: [InputFactory.BodyParameter("value", InputPrimitiveType.String, isRequired: true)],
+                responses: [InputFactory.OperationResponse([200])],
+                requestMediaTypes: ["application/json"]);
+            var inputServiceMethod = InputFactory.BasicServiceMethod(
+                "PutString",
+                inputOperation,
+                parameters: [InputFactory.MethodParameter("value", InputPrimitiveType.String, location: InputRequestLocation.Body, isRequired: true)]);
+            var inputClient = InputFactory.Client("TestClient", methods: [inputServiceMethod]);
+
+            MockHelpers.LoadMockGenerator();
+            var client = ScmCodeModelGenerator.Instance.TypeFactory.CreateClient(inputClient);
+            Assert.IsNotNull(client);
+
+            var methodCollection = new ScmMethodProviderCollection(inputServiceMethod, client!);
+            var convenienceMethod = methodCollection.FirstOrDefault(
+                m => !m.Signature.Parameters.Any(p => p.Name == "options") && m.Signature.Name == "PutString");
+            Assert.IsNotNull(convenienceMethod);
+
+            var statements = convenienceMethod!.BodyStatements!.ToDisplayString();
+            StringAssert.Contains("new global::Sample.Utf8JsonBinaryContent()", statements);
+            StringAssert.Contains("content.JsonWriter.WriteStringValue(value)", statements);
+            StringAssert.DoesNotContain("FromObjectAsJson", statements);
         }
 
         [TestCase(true, false, true)]
@@ -609,6 +1199,76 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers
                 var optionsParameter = protocolMethodParameters.Single(p => p.Name == "options");
                 Assert.IsNotNull(optionsParameter.DefaultValue, "RequestOptions should be optional");
             }
+        }
+
+        // Regression test for https://github.com/Azure/azure-sdk-for-net/issues/60160.
+        // When an optional parameter appears before a required body parameter in the operation
+        // (e.g. an optional path version followed by the required body), the protocol method
+        // reorders its parameters required-first, which differs from the CreateRequest method's
+        // declaration order. The call site must still pass the arguments in the CreateRequest
+        // method's parameter order, not the protocol method's order.
+        [Test]
+        public void ProtocolMethodCallsCreateRequestWithArgumentsInBuilderOrder()
+        {
+            MockHelpers.LoadMockGenerator();
+            List<InputParameter> parameters =
+            [
+                InputFactory.PathParameter(
+                    "name",
+                    InputPrimitiveType.String,
+                    isRequired: true),
+                InputFactory.PathParameter(
+                    "version",
+                    InputPrimitiveType.String,
+                    isRequired: false),
+                InputFactory.BodyParameter(
+                    "body",
+                    InputPrimitiveType.String,
+                    isRequired: true),
+            ];
+            List<InputMethodParameter> methodParameters =
+            [
+                InputFactory.MethodParameter(
+                    "name",
+                    InputPrimitiveType.String,
+                    isRequired: true,
+                    location: InputRequestLocation.Path),
+                InputFactory.MethodParameter(
+                    "version",
+                    InputPrimitiveType.String,
+                    isRequired: false,
+                    location: InputRequestLocation.Path),
+                InputFactory.MethodParameter(
+                    "body",
+                    InputPrimitiveType.String,
+                    isRequired: true,
+                    location: InputRequestLocation.Body),
+            ];
+            var inputOperation = InputFactory.Operation(
+                "TestOperation",
+                parameters: parameters);
+            var inputServiceMethod = InputFactory.BasicServiceMethod("Test", inputOperation, parameters: methodParameters);
+            var inputClient = InputFactory.Client("TestClient", methods: [inputServiceMethod]);
+            var client = ScmCodeModelGenerator.Instance.TypeFactory.CreateClient(inputClient);
+            var methodCollection = new ScmMethodProviderCollection(inputServiceMethod, client!);
+
+            var protocolMethod = methodCollection.Single(m =>
+                m.Signature.Parameters.Any(p => p.Name == "options")
+                && m.Signature.Name == "TestOperation");
+
+            // The protocol method orders parameters required-first: (name, content, version, options).
+            var protocolParameterOrder = string.Join(", ", protocolMethod.Signature.Parameters.Select(p => p.Name));
+            Assert.AreEqual("name, content, version, options", protocolParameterOrder);
+
+            // The CreateRequest builder keeps declaration order: (name, version, content, options).
+            var createRequestMethod = client!.RestClient.GetCreateRequestMethod(inputOperation);
+            var expectedArguments = string.Join(", ", createRequestMethod.Signature.Parameters.Select(p => p.Name));
+            Assert.AreEqual("name, version, content, options", expectedArguments);
+
+            // The call site must use the CreateRequest builder's order, not the protocol method's order.
+            var body = protocolMethod.BodyStatements!.ToDisplayString();
+            StringAssert.Contains($"{createRequestMethod.Signature.Name}({expectedArguments})", body);
+            StringAssert.DoesNotContain($"{createRequestMethod.Signature.Name}(name, content, version, options)", body);
         }
 
         [Test]
@@ -1436,6 +2096,512 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers
         }
 
         [Test]
+        public async Task MethodParameterSegments_RenamedGroupedQueryParam_MapsByClientName()
+        {
+            // Options-bag override where a grouped query property has a client name ("bandIndex")
+            // that differs from its wire name ("band_index"), e.g. @query("band_index") bandIndex.
+            // The convenience body must still resolve the property; otherwise the emitter throws
+            // "Property with name 'bandIndex' not found in model 'GetPointOptions'".
+            var optionsModel = InputFactory.Model(
+                "GetPointOptions",
+                properties:
+                [
+                    InputFactory.Property(
+                        "bandIndex",
+                        InputPrimitiveType.String,
+                        isRequired: false,
+                        isHttpMetadata: true,
+                        wireName: "band_index"),
+                ]);
+
+            var collectionIdParam = InputFactory.PathParameter("collectionId", InputPrimitiveType.String, isRequired: true);
+            var bandIndexParam = InputFactory.QueryParameter("bandIndex", InputPrimitiveType.String, isRequired: false, serializedName: "band_index");
+            bandIndexParam.Update(methodParameterSegments:
+            [
+                InputFactory.MethodParameter("options", optionsModel, isRequired: true, location: InputRequestLocation.Query),
+                // Segments carry the client name ("bandIndex"); the property's wire name is "band_index".
+                InputFactory.MethodParameter("bandIndex", InputPrimitiveType.String, isRequired: false),
+            ]);
+
+            var serviceMethod = InputFactory.BasicServiceMethod(
+                "GetPoint",
+                InputFactory.Operation(
+                    "GetPoint",
+                    parameters: [collectionIdParam, bandIndexParam],
+                    responses: [InputFactory.OperationResponse([200])]),
+                parameters:
+                [
+                    InputFactory.MethodParameter("collectionId", InputPrimitiveType.String, isRequired: true, location: InputRequestLocation.Path),
+                    InputFactory.MethodParameter("options", optionsModel, isRequired: true, location: InputRequestLocation.Query),
+                ]);
+
+            var inputClient = InputFactory.Client("TestClient", methods: [serviceMethod]);
+            await MockHelpers.LoadMockGeneratorAsync(clients: () => [inputClient], inputModels: () => [optionsModel]);
+
+            var client = ScmCodeModelGenerator.Instance.TypeFactory.CreateClient(inputClient);
+            Assert.IsNotNull(client);
+
+            var methodCollection = new ScmMethodProviderCollection(serviceMethod, client!);
+            Assert.IsNotNull(methodCollection);
+
+            var convenienceMethod = methodCollection.FirstOrDefault(m =>
+                m.Signature.Name == "GetPoint" &&
+                m.Signature.Parameters.Any(p => p.Type.Name == "CancellationToken"));
+            Assert.IsNotNull(convenienceMethod);
+
+            // Before the fix, building the body threw because the grouped query property was
+            // looked up only by wire name ("band_index") while the segment carried the client
+            // name ("bandIndex").
+            var methodBody = convenienceMethod!.BodyStatements!.ToDisplayString();
+            Assert.AreEqual(Helpers.GetExpectedFromFile(), methodBody);
+
+            // The protocol method takes the same options bag, so the client-name lookup now happens
+            // when it expands the bag for the CreateRequest call.
+            var protocolMethod = methodCollection.FirstOrDefault(m =>
+                m.Signature.Name == "GetPoint" &&
+                m.Signature.Parameters.All(p => p.Type.Name != "CancellationToken"));
+            Assert.IsNotNull(protocolMethod);
+            Assert.That(protocolMethod!.BodyStatements!.ToDisplayString(), Does.Contain("options.BandIndex"));
+        }
+
+        [Test]
+        public async Task MethodParameterSegments_EnumGroupedQueryParam_SerializesToProtocol()
+        {
+            // Options-bag override where a grouped query property is an (extensible) enum, while the
+            // protocol method flattens that parameter to string. The convenience body must serialize
+            // the enum (options.Resampling?.ToString(), null-conditional because the property is optional)
+            // before passing it to the protocol method; otherwise the generated code passes the enum
+            // where a string is expected and won't compile.
+            var resamplingEnum = InputFactory.StringEnum(
+                "Resampling",
+                [("Nearest", "nearest"), ("Bilinear", "bilinear")],
+                isExtensible: true);
+
+            var optionsModel = InputFactory.Model(
+                "GetPointOptions",
+                properties:
+                [
+                    InputFactory.Property(
+                        "resampling",
+                        resamplingEnum,
+                        isRequired: false,
+                        isHttpMetadata: true,
+                        wireName: "resampling"),
+                ]);
+
+            var collectionIdParam = InputFactory.PathParameter("collectionId", InputPrimitiveType.String, isRequired: true);
+            // Protocol flattens the enum query parameter to string.
+            var resamplingParam = InputFactory.QueryParameter("resampling", InputPrimitiveType.String, isRequired: false, serializedName: "resampling");
+            resamplingParam.Update(methodParameterSegments:
+            [
+                InputFactory.MethodParameter("options", optionsModel, isRequired: true, location: InputRequestLocation.Query),
+                InputFactory.MethodParameter("resampling", resamplingEnum, isRequired: false),
+            ]);
+
+            var serviceMethod = InputFactory.BasicServiceMethod(
+                "GetPoint",
+                InputFactory.Operation(
+                    "GetPoint",
+                    parameters: [collectionIdParam, resamplingParam],
+                    responses: [InputFactory.OperationResponse([200])]),
+                parameters:
+                [
+                    InputFactory.MethodParameter("collectionId", InputPrimitiveType.String, isRequired: true, location: InputRequestLocation.Path),
+                    InputFactory.MethodParameter("options", optionsModel, isRequired: true, location: InputRequestLocation.Query),
+                ]);
+
+            var inputClient = InputFactory.Client("TestClient", methods: [serviceMethod]);
+            await MockHelpers.LoadMockGeneratorAsync(clients: () => [inputClient], inputModels: () => [optionsModel]);
+
+            var client = ScmCodeModelGenerator.Instance.TypeFactory.CreateClient(inputClient);
+            Assert.IsNotNull(client);
+
+            var methodCollection = new ScmMethodProviderCollection(serviceMethod, client!);
+            Assert.IsNotNull(methodCollection);
+
+            var convenienceMethod = methodCollection.FirstOrDefault(m =>
+                m.Signature.Name == "GetPoint" &&
+                m.Signature.Parameters.Any(p => p.Type.Name == "CancellationToken"));
+            Assert.IsNotNull(convenienceMethod);
+
+            var methodBody = convenienceMethod!.BodyStatements!.ToDisplayString();
+            Assert.AreEqual(Helpers.GetExpectedFromFile(), methodBody);
+
+            // The protocol method takes the same options bag, so the enum serialization now happens
+            // when it expands the bag for the CreateRequest call, which still takes a string.
+            var protocolMethod = methodCollection.FirstOrDefault(m =>
+                m.Signature.Name == "GetPoint" &&
+                m.Signature.Parameters.All(p => p.Type.Name != "CancellationToken"));
+            Assert.IsNotNull(protocolMethod);
+            Assert.That(protocolMethod!.BodyStatements!.ToDisplayString(), Does.Contain("options.Resampling?.ToString()"));
+        }
+
+        [Test]
+        public async Task OptionsBagOverride_AppliesToProtocolMethod()
+        {
+            // https://github.com/microsoft/typespec/issues/11214
+            // When @@override groups an operation's parameters into an options bag, the protocol
+            // method should adopt the same grouped shape instead of listing every parameter.
+            var optionsModel = InputFactory.Model(
+                "GetWidgetOptions",
+                properties:
+                [
+                    InputFactory.Property("id", InputPrimitiveType.String, isRequired: true, isHttpMetadata: true, wireName: "id"),
+                    InputFactory.Property("filter", InputPrimitiveType.String, isRequired: false, isHttpMetadata: true, wireName: "filter"),
+                    InputFactory.Property("top", InputPrimitiveType.Int32, isRequired: false, isHttpMetadata: true, wireName: "top"),
+                ]);
+
+            var optionsMethodParameter = InputFactory.MethodParameter(
+                "options",
+                optionsModel,
+                isRequired: true,
+                location: InputRequestLocation.Query);
+
+            var idParam = InputFactory.PathParameter("id", InputPrimitiveType.String, isRequired: true);
+            idParam.Update(methodParameterSegments:
+            [
+                optionsMethodParameter,
+                InputFactory.MethodParameter("id", InputPrimitiveType.String, isRequired: true),
+            ]);
+            var filterParam = InputFactory.QueryParameter("filter", InputPrimitiveType.String, isRequired: false, serializedName: "filter");
+            filterParam.Update(methodParameterSegments:
+            [
+                optionsMethodParameter,
+                InputFactory.MethodParameter("filter", InputPrimitiveType.String, isRequired: false),
+            ]);
+            var topParam = InputFactory.QueryParameter("top", InputPrimitiveType.Int32, isRequired: false, serializedName: "top");
+            topParam.Update(methodParameterSegments:
+            [
+                optionsMethodParameter,
+                InputFactory.MethodParameter("top", InputPrimitiveType.Int32, isRequired: false),
+            ]);
+
+            var serviceMethod = InputFactory.BasicServiceMethod(
+                "GetWidget",
+                InputFactory.Operation(
+                    "GetWidget",
+                    parameters: [idParam, filterParam, topParam],
+                    responses: [InputFactory.OperationResponse([200])]),
+                parameters: [optionsMethodParameter]);
+
+            var inputClient = InputFactory.Client("TestClient", methods: [serviceMethod]);
+            await MockHelpers.LoadMockGeneratorAsync(clients: () => [inputClient], inputModels: () => [optionsModel]);
+
+            var client = ScmCodeModelGenerator.Instance.TypeFactory.CreateClient(inputClient);
+            Assert.IsNotNull(client);
+
+            var methodCollection = new ScmMethodProviderCollection(serviceMethod, client!);
+            var protocolMethod = methodCollection.FirstOrDefault(
+                m => m.Kind == ScmMethodKind.Protocol && !m.Signature.Name.EndsWith("Async"));
+            Assert.IsNotNull(protocolMethod);
+
+            var parameters = protocolMethod!.Signature.Parameters;
+            var actual = string.Join(", ", parameters.Select(p => $"{p.Type.Name} {p.Name}"));
+
+            // Expected shape: (GetWidgetOptions options, RequestOptions <requestOptions>)
+            Assert.AreEqual(2, parameters.Count, $"protocol method should take the options bag, but was: ({actual})");
+            Assert.AreEqual("GetWidgetOptions", parameters[0].Type.Name, $"actual: ({actual})");
+
+            // The trailing request options parameter must not collide with the options bag name.
+            Assert.AreNotEqual(parameters[0].Name, parameters[1].Name, $"actual: ({actual})");
+
+            // The protocol method expands the bag when calling CreateRequest, which still takes the
+            // individual wire parameters.
+            var protocolBody = protocolMethod.BodyStatements!.ToDisplayString();
+            Assert.AreEqual(Helpers.GetExpectedFromFile("Protocol"), protocolBody);
+
+            // The convenience method forwards the bag straight through rather than unpacking it.
+            var convenienceMethod = methodCollection.FirstOrDefault(
+                m => m.Kind == ScmMethodKind.Convenience && !m.Signature.Name.EndsWith("Async"));
+            Assert.IsNotNull(convenienceMethod);
+            Assert.AreEqual(
+                Helpers.GetExpectedFromFile("Convenience"),
+                convenienceMethod!.BodyStatements!.ToDisplayString());
+
+            // The bag now carries parameters that used to be required method parameters, so its public
+            // constructor must still force callers to supply the required ones.
+            var optionsProvider = ScmCodeModelGenerator.Instance.TypeFactory.CreateModel(optionsModel);
+            Assert.IsNotNull(optionsProvider);
+            var publicCtor = optionsProvider!.Constructors.FirstOrDefault(
+                c => c.Signature.Modifiers.HasFlag(MethodSignatureModifiers.Public));
+            Assert.IsNotNull(publicCtor, "options bag should expose a public constructor");
+            var ctorParams = publicCtor!.Signature.Parameters.Select(p => p.Name).ToList();
+            Assert.That(ctorParams, Does.Contain("id"), $"required property must be a required ctor arg, but ctor was: ({string.Join(", ", ctorParams)})");
+            Assert.That(ctorParams, Does.Not.Contain("filter"), $"optional property must not be a ctor arg, but ctor was: ({string.Join(", ", ctorParams)})");
+            Assert.That(ctorParams, Does.Not.Contain("top"), $"optional property must not be a ctor arg, but ctor was: ({string.Join(", ", ctorParams)})");
+        }
+
+        [Test]
+        public async Task OptionsBagOverride_PagingMethodExpandsBagForCollectionResult()
+        {
+            var optionsModel = InputFactory.Model(
+                "GetWidgetsOptions",
+                properties:
+                [
+                    InputFactory.Property("id", InputPrimitiveType.String, isRequired: true, isHttpMetadata: true, wireName: "id"),
+                    InputFactory.Property("filter", InputPrimitiveType.String, isRequired: false, isHttpMetadata: true, wireName: "filter"),
+                ]);
+            var itemModel = InputFactory.Model(
+                "Widget",
+                properties: [InputFactory.Property("name", InputPrimitiveType.String, isRequired: true)]);
+            var optionsMethodParameter = InputFactory.MethodParameter(
+                "options",
+                optionsModel,
+                isRequired: true,
+                location: InputRequestLocation.Query);
+
+            var idParam = InputFactory.PathParameter("id", InputPrimitiveType.String, isRequired: true);
+            idParam.Update(methodParameterSegments:
+            [
+                optionsMethodParameter,
+                InputFactory.MethodParameter("id", InputPrimitiveType.String, isRequired: true),
+            ]);
+            var filterParam = InputFactory.QueryParameter("filter", InputPrimitiveType.String, isRequired: false, serializedName: "filter");
+            filterParam.Update(methodParameterSegments:
+            [
+                optionsMethodParameter,
+                InputFactory.MethodParameter("filter", InputPrimitiveType.String, isRequired: false),
+            ]);
+
+            var response = InputFactory.OperationResponse(
+                [200],
+                InputFactory.Model(
+                    "Page",
+                    properties: [InputFactory.Property("items", InputFactory.Array(itemModel))]));
+            var serviceMethod = InputFactory.PagingServiceMethod(
+                "GetWidgets",
+                InputFactory.Operation("GetWidgets", parameters: [idParam, filterParam], responses: [response]),
+                parameters: [optionsMethodParameter],
+                pagingMetadata: InputFactory.PagingMetadata(["items"], null, null));
+
+            var inputClient = InputFactory.Client("TestClient", methods: [serviceMethod]);
+            await MockHelpers.LoadMockGeneratorAsync(
+                clients: () => [inputClient],
+                inputModels: () => [optionsModel, itemModel]);
+
+            var client = ScmCodeModelGenerator.Instance.TypeFactory.CreateClient(inputClient);
+            Assert.IsNotNull(client);
+
+            var methodCollection = new ScmMethodProviderCollection(serviceMethod, client!);
+            var protocolMethod = methodCollection.FirstOrDefault(
+                m => m.Kind == ScmMethodKind.Protocol && !m.Signature.Name.EndsWith("Async"));
+            var convenienceMethod = methodCollection.FirstOrDefault(
+                m => m.Kind == ScmMethodKind.Convenience && !m.Signature.Name.EndsWith("Async"));
+            Assert.IsNotNull(protocolMethod);
+            Assert.IsNotNull(convenienceMethod);
+            Assert.IsTrue(protocolMethod!.Signature.Parameters.Any(p => p.Type.Name == "GetWidgetsOptions"));
+
+            Assert.AreEqual(
+                Helpers.GetExpectedFromFile("Protocol"),
+                protocolMethod.BodyStatements!.ToDisplayString());
+            Assert.AreEqual(
+                Helpers.GetExpectedFromFile("Convenience"),
+                convenienceMethod!.BodyStatements!.ToDisplayString());
+        }
+
+        [Test]
+        public async Task OptionsBagOverride_CustomProtocolParameterNamesPreserveGroupedMapping()
+        {
+            var optionsModel = InputFactory.Model(
+                "GetWidgetOptions",
+                properties:
+                [
+                    InputFactory.Property("id", InputPrimitiveType.String, isRequired: true, isHttpMetadata: true, wireName: "id"),
+                    InputFactory.Property("filter", InputPrimitiveType.String, isRequired: false, isHttpMetadata: true, wireName: "filter"),
+                ]);
+            var optionsMethodParameter = InputFactory.MethodParameter(
+                "options",
+                optionsModel,
+                isRequired: true,
+                location: InputRequestLocation.Query);
+
+            var idParam = InputFactory.PathParameter("id", InputPrimitiveType.String, isRequired: true);
+            idParam.Update(methodParameterSegments:
+            [
+                optionsMethodParameter,
+                InputFactory.MethodParameter("id", InputPrimitiveType.String, isRequired: true),
+            ]);
+            var filterParam = InputFactory.QueryParameter("filter", InputPrimitiveType.String, isRequired: false, serializedName: "filter");
+            filterParam.Update(methodParameterSegments:
+            [
+                optionsMethodParameter,
+                InputFactory.MethodParameter("filter", InputPrimitiveType.String, isRequired: false),
+            ]);
+
+            var serviceMethod = InputFactory.BasicServiceMethod(
+                "GetWidget",
+                InputFactory.Operation(
+                    "GetWidget",
+                    parameters: [idParam, filterParam],
+                    responses: [InputFactory.OperationResponse([200])]),
+                parameters: [optionsMethodParameter]);
+            var inputClient = InputFactory.Client("TestClient", methods: [serviceMethod]);
+            await MockHelpers.LoadMockGeneratorAsync(
+                clients: () => [inputClient],
+                inputModels: () => [optionsModel],
+                compilation: async () => await Helpers.GetCompilationFromDirectoryAsync());
+
+            var client = ScmCodeModelGenerator.Instance.TypeFactory.CreateClient(inputClient);
+            Assert.IsNotNull(client);
+
+            var methodCollection = new ScmMethodProviderCollection(serviceMethod, client!);
+            var protocolMethod = methodCollection.FirstOrDefault(
+                m => m.Kind == ScmMethodKind.Protocol
+                    && m.IsPartialMethod
+                    && !m.Signature.Name.EndsWith("Async"));
+            Assert.IsNotNull(protocolMethod);
+            Assert.AreEqual("renamedOptions", protocolMethod!.Signature.Parameters[0].Name);
+            Assert.AreEqual("renamedRequestOptions", protocolMethod.Signature.Parameters[1].Name);
+            Assert.AreEqual(
+                Helpers.GetExpectedFromFile(),
+                protocolMethod.BodyStatements!.ToDisplayString());
+        }
+
+        [Test]
+        public async Task OptionsBagOverride_RequiredParamOptionalInBag_ProtocolStaysFlattened()
+        {
+            // https://github.com/microsoft/typespec/issues/11214
+            // TCGC does not validate that a required wire parameter maps to a required bag property, so
+            // the bag's constructor would not force callers to supply it. Grouping the protocol method
+            // would drop the compile-time guarantee the flattened signature provides, so it stays flat.
+            var optionsModel = InputFactory.Model(
+                "GetWidgetOptions",
+                properties:
+                [
+                    InputFactory.Property("id", InputPrimitiveType.String, isRequired: false, isHttpMetadata: true, wireName: "id"),
+                ]);
+
+            var optionsMethodParameter = InputFactory.MethodParameter("options", optionsModel, isRequired: true, location: InputRequestLocation.Query);
+
+            var idParam = InputFactory.PathParameter("id", InputPrimitiveType.String, isRequired: true);
+            idParam.Update(methodParameterSegments: [optionsMethodParameter, InputFactory.MethodParameter("id", InputPrimitiveType.String, isRequired: false)]);
+
+            var serviceMethod = InputFactory.BasicServiceMethod(
+                "GetWidget",
+                InputFactory.Operation("GetWidget", parameters: [idParam], responses: [InputFactory.OperationResponse([200])]),
+                parameters: [optionsMethodParameter]);
+
+            var inputClient = InputFactory.Client("TestClient", methods: [serviceMethod]);
+            await MockHelpers.LoadMockGeneratorAsync(clients: () => [inputClient], inputModels: () => [optionsModel]);
+
+            var client = ScmCodeModelGenerator.Instance.TypeFactory.CreateClient(inputClient);
+            var methodCollection = new ScmMethodProviderCollection(serviceMethod, client!);
+            var protocolMethod = methodCollection.FirstOrDefault(
+                m => m.Kind == ScmMethodKind.Protocol && !m.Signature.Name.EndsWith("Async"));
+            Assert.IsNotNull(protocolMethod);
+
+            var parameters = protocolMethod!.Signature.Parameters;
+            var actual = string.Join(", ", parameters.Select(p => $"{p.Type.Name} {p.Name}"));
+
+            // The bag's constructor cannot force `id`, so the protocol method must keep requiring it directly.
+            var publicCtor = ScmCodeModelGenerator.Instance.TypeFactory.CreateModel(optionsModel)!.Constructors
+                .FirstOrDefault(c => c.Signature.Modifiers.HasFlag(MethodSignatureModifiers.Public));
+            Assert.That(publicCtor!.Signature.Parameters.Select(p => p.Name), Does.Not.Contain("id"));
+
+            Assert.IsFalse(parameters.Any(p => p.Type.Name == "GetWidgetOptions"), $"protocol must stay flattened, but was: ({actual})");
+            Assert.IsTrue(parameters.Any(p => p.Name == "id"), $"required parameter must stay on the signature, but was: ({actual})");
+            Assert.AreEqual(
+                Helpers.GetExpectedFromFile(),
+                protocolMethod.BodyStatements!.ToDisplayString());
+        }
+
+        [Test]
+        public async Task OptionsBagOverride_BodyOutsideBag_ProtocolKeepsRequestContent()
+        {
+            // https://github.com/microsoft/typespec/issues/11214
+            // The bag only groups non-body parameters, so the protocol method can adopt it while still
+            // taking the raw request content.
+            var bodyModel = InputFactory.Model("Widget", properties: [InputFactory.Property("data", InputPrimitiveType.String, isRequired: true)]);
+            var optionsModel = InputFactory.Model(
+                "CreateWidgetOptions",
+                properties:
+                [
+                    InputFactory.Property("filter", InputPrimitiveType.String, isRequired: false, isHttpMetadata: true, wireName: "filter"),
+                    InputFactory.Property("top", InputPrimitiveType.Int32, isRequired: false, isHttpMetadata: true, wireName: "top"),
+                ]);
+
+            var optionsMethodParameter = InputFactory.MethodParameter("options", optionsModel, isRequired: true, location: InputRequestLocation.Query);
+
+            var bodyParam = InputFactory.BodyParameter("body", bodyModel, isRequired: true);
+            var filterParam = InputFactory.QueryParameter("filter", InputPrimitiveType.String, isRequired: false, serializedName: "filter");
+            filterParam.Update(methodParameterSegments: [optionsMethodParameter, InputFactory.MethodParameter("filter", InputPrimitiveType.String, isRequired: false)]);
+            var topParam = InputFactory.QueryParameter("top", InputPrimitiveType.Int32, isRequired: false, serializedName: "top");
+            topParam.Update(methodParameterSegments: [optionsMethodParameter, InputFactory.MethodParameter("top", InputPrimitiveType.Int32, isRequired: false)]);
+
+            var serviceMethod = InputFactory.BasicServiceMethod(
+                "CreateWidget",
+                InputFactory.Operation("CreateWidget", parameters: [bodyParam, filterParam, topParam], responses: [InputFactory.OperationResponse([200])]),
+                parameters:
+                [
+                    InputFactory.MethodParameter("body", bodyModel, isRequired: true, location: InputRequestLocation.Body),
+                    optionsMethodParameter,
+                ]);
+
+            var inputClient = InputFactory.Client("TestClient", methods: [serviceMethod]);
+            await MockHelpers.LoadMockGeneratorAsync(clients: () => [inputClient], inputModels: () => [bodyModel, optionsModel]);
+
+            var client = ScmCodeModelGenerator.Instance.TypeFactory.CreateClient(inputClient);
+            var methodCollection = new ScmMethodProviderCollection(serviceMethod, client!);
+            var protocolMethod = methodCollection.FirstOrDefault(
+                m => m.Kind == ScmMethodKind.Protocol && !m.Signature.Name.EndsWith("Async"));
+            Assert.IsNotNull(protocolMethod);
+
+            var parameters = protocolMethod!.Signature.Parameters;
+            var actual = string.Join(", ", parameters.Select(p => $"{p.Type.Name} {p.Name}"));
+
+            Assert.AreEqual(3, parameters.Count, $"actual: ({actual})");
+            Assert.IsTrue(parameters.Any(p => p.IsContentParameter), $"raw body must be preserved, but was: ({actual})");
+            Assert.IsTrue(parameters.Any(p => p.Type.Name == "CreateWidgetOptions"), $"actual: ({actual})");
+            Assert.AreEqual(
+                Helpers.GetExpectedFromFile(),
+                protocolMethod.BodyStatements!.ToDisplayString());
+        }
+
+        [Test]
+        public async Task OptionsBagOverride_BodyInsideBag_ProtocolStaysFlattened()
+        {
+            // https://github.com/microsoft/typespec/issues/11214
+            // When the request body itself was folded into the bag, grouping the protocol method would
+            // remove its only way to send a raw payload, so it stays flattened.
+            var requestModel = InputFactory.Model(
+                "RequestModel",
+                properties:
+                [
+                    InputFactory.Property("data", InputPrimitiveType.String, isRequired: true, isHttpMetadata: false),
+                    InputFactory.Property("filter", InputPrimitiveType.String, isRequired: false, isHttpMetadata: true, wireName: "filter"),
+                ]);
+
+            var requestMethodParameter = InputFactory.MethodParameter("request", requestModel, isRequired: true, location: InputRequestLocation.Body);
+
+            var bodyParam = InputFactory.BodyParameter("body", requestModel, isRequired: true);
+            var filterParam = InputFactory.QueryParameter("filter", InputPrimitiveType.String, isRequired: false, serializedName: "filter");
+            filterParam.Update(methodParameterSegments: [requestMethodParameter, InputFactory.MethodParameter("filter", InputPrimitiveType.String, isRequired: false)]);
+
+            var serviceMethod = InputFactory.BasicServiceMethod(
+                "CreateWidget",
+                InputFactory.Operation("CreateWidget", parameters: [bodyParam, filterParam], responses: [InputFactory.OperationResponse([200])]),
+                parameters: [requestMethodParameter]);
+
+            var inputClient = InputFactory.Client("TestClient", methods: [serviceMethod]);
+            await MockHelpers.LoadMockGeneratorAsync(clients: () => [inputClient], inputModels: () => [requestModel]);
+
+            var client = ScmCodeModelGenerator.Instance.TypeFactory.CreateClient(inputClient);
+            var methodCollection = new ScmMethodProviderCollection(serviceMethod, client!);
+            var protocolMethod = methodCollection.FirstOrDefault(
+                m => m.Kind == ScmMethodKind.Protocol && !m.Signature.Name.EndsWith("Async"));
+            Assert.IsNotNull(protocolMethod);
+
+            var parameters = protocolMethod!.Signature.Parameters;
+            var actual = string.Join(", ", parameters.Select(p => $"{p.Type.Name} {p.Name}"));
+
+            Assert.IsTrue(parameters.Any(p => p.IsContentParameter), $"raw body must be preserved, but was: ({actual})");
+            Assert.IsFalse(parameters.Any(p => p.Type.Name == "RequestModel"), $"protocol must stay flattened, but was: ({actual})");
+            Assert.AreEqual(
+                Helpers.GetExpectedFromFile(),
+                protocolMethod.BodyStatements!.ToDisplayString());
+        }
+
+        [Test]
         public async Task MethodParameterSegments_BodyParameterSerialization()
         {
             // Test scenario: Body parameter with MethodParameterSegments should be serialized
@@ -2000,6 +3166,144 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers
             Assert.IsTrue(methodBody.Contains("BinaryContentHelper.FromEnumerable(body)"));
             Assert.IsFalse(methodBody.Contains("rootNameHint"));
             Assert.IsFalse(methodBody.Contains("childNameHint"));
+        }
+
+        [Test]
+        public void ConvenienceMethod_WithInternalParameterType_IsInternal()
+        {
+            // A model that is customized to be internal via client.tsp (an access override) results in a
+            // convenience method parameter whose type is internal. The convenience method must be
+            // generated as internal to avoid an inconsistent accessibility compilation error.
+            var internalModel = InputFactory.Model(
+                "InternalModel",
+                access: "internal",
+                usage: InputModelTypeUsage.Input | InputModelTypeUsage.Json,
+                properties: [InputFactory.Property("Name", InputPrimitiveType.String)]);
+
+            var bodyParam = InputFactory.BodyParameter("body", internalModel, isRequired: true);
+            var methodBodyParam = InputFactory.MethodParameter(
+                "body",
+                internalModel,
+                isRequired: true,
+                location: InputRequestLocation.Body);
+
+            var operation = InputFactory.Operation(
+                "Foo",
+                httpMethod: "POST",
+                parameters: [bodyParam],
+                responses: [InputFactory.OperationResponse([200])]);
+
+            var serviceMethod = InputFactory.BasicServiceMethod("Foo", operation, parameters: [methodBodyParam]);
+            var inputClient = InputFactory.Client("TestClient", methods: [serviceMethod]);
+
+            MockHelpers.LoadMockGenerator(clients: () => [inputClient], inputModels: () => [internalModel]);
+
+            var client = ScmCodeModelGenerator.Instance.TypeFactory.CreateClient(inputClient);
+
+            var convenienceMethods = client!.Methods.Where(m =>
+                m.Signature.Parameters.All(p => p.Name != "content") &&
+                m.Signature.Name.StartsWith("Foo")).ToList();
+            Assert.AreEqual(2, convenienceMethods.Count);
+
+            foreach (var convenienceMethod in convenienceMethods)
+            {
+                // The parameter type is internal.
+                Assert.IsTrue(convenienceMethod.Signature.Parameters.Any(p => !p.Type.IsPublic));
+                // The convenience method should therefore be internal, not public.
+                Assert.IsTrue(convenienceMethod.Signature.Modifiers.HasFlag(MethodSignatureModifiers.Internal));
+                Assert.IsFalse(convenienceMethod.Signature.Modifiers.HasFlag(MethodSignatureModifiers.Public));
+            }
+        }
+
+        [Test]
+        public async Task ConvenienceMethod_WithCustomCodeInternalParameterType_IsInternal()
+        {
+            // A model that is customized to be internal via custom code (an internal partial class)
+            // results in a convenience method parameter whose type is internal. The convenience method
+            // must be generated as internal to avoid an inconsistent accessibility compilation error.
+            var customInternalModel = InputFactory.Model(
+                "CustomInternalModel",
+                usage: InputModelTypeUsage.Input | InputModelTypeUsage.Json,
+                properties: [InputFactory.Property("Name", InputPrimitiveType.String)]);
+
+            var bodyParam = InputFactory.BodyParameter("body", customInternalModel, isRequired: true);
+            var methodBodyParam = InputFactory.MethodParameter(
+                "body",
+                customInternalModel,
+                isRequired: true,
+                location: InputRequestLocation.Body);
+
+            var operation = InputFactory.Operation(
+                "Foo",
+                httpMethod: "POST",
+                parameters: [bodyParam],
+                responses: [InputFactory.OperationResponse([200])]);
+
+            var serviceMethod = InputFactory.BasicServiceMethod("Foo", operation, parameters: [methodBodyParam]);
+            var inputClient = InputFactory.Client("TestClient", methods: [serviceMethod]);
+
+            await MockHelpers.LoadMockGeneratorAsync(
+                compilation: async () => await Helpers.GetCompilationFromDirectoryAsync(),
+                clients: () => [inputClient],
+                inputModels: () => [customInternalModel]);
+
+            var client = ScmCodeModelGenerator.Instance.TypeFactory.CreateClient(inputClient);
+
+            var convenienceMethods = client!.Methods.Where(m =>
+                m.Signature.Parameters.All(p => p.Name != "content") &&
+                m.Signature.Name.StartsWith("Foo")).ToList();
+            Assert.AreEqual(2, convenienceMethods.Count);
+
+            foreach (var convenienceMethod in convenienceMethods)
+            {
+                // The parameter type is internal because it was customized via custom code.
+                Assert.IsTrue(convenienceMethod.Signature.Parameters.Any(p => !p.Type.IsPublic));
+                // The convenience method should therefore be internal, not public.
+                Assert.IsTrue(convenienceMethod.Signature.Modifiers.HasFlag(MethodSignatureModifiers.Internal));
+                Assert.IsFalse(convenienceMethod.Signature.Modifiers.HasFlag(MethodSignatureModifiers.Public));
+            }
+        }
+
+        [Test]
+        public void ConvenienceMethod_WithPublicParameterType_IsPublic()
+        {
+            // When all convenience method parameter types are public, the method should remain public.
+            var publicModel = InputFactory.Model(
+                "PublicModel",
+                usage: InputModelTypeUsage.Input | InputModelTypeUsage.Json,
+                properties: [InputFactory.Property("Name", InputPrimitiveType.String)]);
+
+            var bodyParam = InputFactory.BodyParameter("body", publicModel, isRequired: true);
+            var methodBodyParam = InputFactory.MethodParameter(
+                "body",
+                publicModel,
+                isRequired: true,
+                location: InputRequestLocation.Body);
+
+            var operation = InputFactory.Operation(
+                "Foo",
+                httpMethod: "POST",
+                parameters: [bodyParam],
+                responses: [InputFactory.OperationResponse([200])]);
+
+            var serviceMethod = InputFactory.BasicServiceMethod("Foo", operation, parameters: [methodBodyParam]);
+            var inputClient = InputFactory.Client("TestClient", methods: [serviceMethod]);
+
+            MockHelpers.LoadMockGenerator(clients: () => [inputClient], inputModels: () => [publicModel]);
+
+            var client = ScmCodeModelGenerator.Instance.TypeFactory.CreateClient(inputClient);
+
+            var convenienceMethods = client!.Methods.Where(m =>
+                m.Signature.Parameters.All(p => p.Name != "content") &&
+                m.Signature.Name.StartsWith("Foo")).ToList();
+            Assert.AreEqual(2, convenienceMethods.Count);
+
+            foreach (var convenienceMethod in convenienceMethods)
+            {
+                Assert.IsTrue(convenienceMethod.Signature.Parameters.All(p => p.Type.IsPublic));
+                Assert.IsTrue(convenienceMethod.Signature.Modifiers.HasFlag(MethodSignatureModifiers.Public));
+                Assert.IsFalse(convenienceMethod.Signature.Modifiers.HasFlag(MethodSignatureModifiers.Internal));
+            }
         }
     }
 }

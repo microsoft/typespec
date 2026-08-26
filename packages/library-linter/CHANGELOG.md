@@ -1,5 +1,40 @@
 # Change Log - @typespec/library-linter
 
+## 0.85.0
+
+### Features
+
+- [#11543](https://github.com/microsoft/typespec/pull/11543) Add `missing-documentation` and `extraneous-documentation` rules
+  
+  `missing-documentation` reports public declarations and members of a library that have no doc
+  comment or `@doc`, so gaps in the generated reference documentation are caught at build time.
+  
+  `extraneous-documentation` reports doc comments that document something that doesn't exist, such as
+  a `@param` naming a parameter the operation doesn't have, a `@template` copied from an enclosing
+  interface, or an unescaped code reference the parser mistook for a tag:
+  
+  ```typespec
+  /**
+   * Creates or updates an instance of the resource.
+   * @template Resource The resource model.  // `create` is not templated: the interface is
+   */
+  create(resource: Resource): Resource;
+  ```
+  
+  Declarations in a `Private` namespace and declarations marked `internal` are excluded.
+
+
+## 0.84.0
+
+### Deprecations
+
+- [#10964](https://github.com/microsoft/typespec/pull/10964) Deprecate old testing framework (`createTestHost`, `createTestRunner`, `createTestWrapper`, `createTestLibrary`, `BasicTestRunner`, `TypeSpecTestLibrary`, etc.). Use `createTester` from `@typespec/compiler/testing` instead.
+
+
+## 0.83.0
+
+No changes, version bump only.
+
 ## 0.82.0
 
 No changes, version bump only.

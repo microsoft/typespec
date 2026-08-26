@@ -10,6 +10,7 @@ import com.microsoft.typespec.http.client.generator.core.extension.model.codemod
 import com.microsoft.typespec.http.client.generator.core.extension.model.codemodel.Schema;
 import com.microsoft.typespec.http.client.generator.core.extension.model.codemodel.SchemaContext;
 import com.microsoft.typespec.http.client.generator.core.extension.plugin.JavaSettings;
+import com.microsoft.typespec.http.client.generator.core.model.clientmodel.ApiMetadata;
 import com.microsoft.typespec.http.client.generator.core.model.clientmodel.ClassType;
 import com.microsoft.typespec.http.client.generator.core.model.clientmodel.ClientEnumValue;
 import com.microsoft.typespec.http.client.generator.core.model.clientmodel.EnumType;
@@ -91,7 +92,9 @@ public final class MapperUtils {
                 .implementationDetails(
                     new ImplementationDetails.Builder().usages(SchemaUtil.mapSchemaContext(enumType.getUsage()))
                         .build())
-                .crossLanguageDefinitionId(SchemaUtil.getCrossLanguageDefinitionId(enumType))
+                .apiMetadata(new ApiMetadata.Builder()
+                    .crossLanguageDefinitionId(SchemaUtil.getCrossLanguageDefinitionId(enumType))
+                    .build())
                 .fromMethodName(deserializationMethodName)
                 .toMethodName(serializationMethodName)
                 .build();
@@ -104,10 +107,13 @@ public final class MapperUtils {
         for (ChoiceValue enumValue : enumType.getChoices()) {
             String enumName = enumValue.getValue();
             String enumDescription = null;
+            boolean useExactJavaName = false;
             if (useCodeModelNameForEnumMember) {
                 if (enumValue.getLanguage() != null
                     && enumValue.getLanguage().getJava() != null
                     && enumValue.getLanguage().getJava().getName() != null) {
+                    // when language.java.name exists, use this name as variable name, without escaping or case change
+                    useExactJavaName = true;
                     enumName = enumValue.getLanguage().getJava().getName();
                     enumDescription = enumValue.getLanguage().getJava().getDescription();
                 } else if (enumValue.getLanguage() != null
@@ -117,7 +123,7 @@ public final class MapperUtils {
                     enumDescription = enumValue.getLanguage().getDefault().getDescription();
                 }
             }
-            final String memberName = CodeNamer.getEnumMemberName(enumName);
+            final String memberName = useExactJavaName ? enumName : CodeNamer.getEnumMemberName(enumName);
             long counter = enumValues.stream().filter(v -> v.getName().equals(memberName)).count();
             if (counter > 0) {
                 enumValues.add(new ClientEnumValue(memberName + "_" + counter, enumValue.getValue(), enumDescription));

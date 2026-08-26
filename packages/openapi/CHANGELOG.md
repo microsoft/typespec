@@ -1,5 +1,57 @@
 # Change Log - @typespec/openapi
 
+## 1.15.0
+
+### Features
+
+- [#11309](https://github.com/microsoft/typespec/pull/11309) Add `identifier` field to the `License` model in `@typespec/openapi`. This is an SPDX license expression for the API (e.g. `"MIT"`, `"Apache-2.0"`). The `identifier` and `url` fields are mutually exclusive. For OpenAPI 3.1+, `identifier` is emitted as-is; for OpenAPI 3.0, it is emitted as the `x-oai-license-identifier` extension. Importing an OpenAPI document also supports reading back `identifier` (or `x-oai-license-identifier` for 3.0 documents).
+  
+  ```typespec
+  @info(#{
+    license: #{ name: "MIT", identifier: "MIT" },
+  })
+  namespace MyService;
+  ```
+
+
+## 1.14.0
+
+### Deprecations
+
+- [#10964](https://github.com/microsoft/typespec/pull/10964) Deprecate old testing framework (`createTestHost`, `createTestRunner`, `createTestWrapper`, `createTestLibrary`, `BasicTestRunner`, `TypeSpecTestLibrary`, etc.). Use `createTester` from `@typespec/compiler/testing` instead.
+
+
+## 1.13.0
+
+### Features
+
+- [#10769](https://github.com/microsoft/typespec/pull/10769) Add `summary` and `kind` fields to `@tagMetadata` decorator.
+  
+  For OpenAPI 3.2, these fields are emitted as native tag object fields. For OpenAPI 3.0/3.1, they are emitted as `x-oai-summary` and `x-oai-kind` extensions. The OpenAPI converter also supports importing `x-oai-summary`, `x-oai-kind` (from 3.0/3.1) and native `summary`, `kind` (from 3.2) back to TypeSpec.
+  
+  ```typespec
+  @tagMetadata("foo", #{ summary: "all operations that allow doing Foo", kind: "FooGroup" })
+  ```
+- [#10770](https://github.com/microsoft/typespec/pull/10770) Add array form for `@tagMetadata` decorator to allow explicit control of tag declaration order.
+  
+  ```typespec
+  @service
+  @tagMetadata(#[
+    #{ name: "First Tag", description: "First tag description" },
+    #{ name: "Second Tag", description: "Second tag description" },
+  ])
+  namespace PetStore {}
+  ```
+  
+  Using `@tagMetadata(#[...])` and `@tagMetadata("name", #{...})` on the same namespace is a diagnostic error.
+- [#10555](https://github.com/microsoft/typespec/pull/10555) Added a warning diagnostic when `@defaultResponse` is used on a model that already has a `@statusCode` property or is marked with `@error`.
+
+### Bug Fixes
+
+- [#10919](https://github.com/microsoft/typespec/pull/10919) Reject duplicate tag names in @tagMetadata array form.
+- [#10776](https://github.com/microsoft/typespec/pull/10776) Fix tagMetadata extension diagnostic targets
+
+
 ## 1.12.0
 
 No changes, version bump only.

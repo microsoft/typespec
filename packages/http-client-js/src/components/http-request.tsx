@@ -1,7 +1,8 @@
-import { Children, code, List, refkey, Refkey, StatementList } from "@alloy-js/core";
+import type { Children, Refkey } from "@alloy-js/core";
+import { code, List, refkey, StatementList } from "@alloy-js/core";
 import * as ts from "@alloy-js/typescript";
 import { Reference } from "@alloy-js/typescript";
-import { HttpOperation } from "@typespec/http";
+import type { HttpOperation } from "@typespec/http";
 import { EncodingProvider } from "./encoding-provider.jsx";
 import { uriTemplateLib } from "./external-packages/uri-template.js";
 import { HttpRequestOptions } from "./http-request-options.js";

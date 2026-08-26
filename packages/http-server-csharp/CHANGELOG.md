@@ -1,5 +1,41 @@
 # Change Log - @typespec/http-server-csharp
 
+## 0.58.0-alpha.31
+
+### Features
+
+- [#11568](https://github.com/microsoft/typespec/pull/11568) Support running `@typespec/http-server-csharp` in browser environments, making C# server generation available in the TypeSpec playground.
+  
+  ```tsp
+  @service
+  namespace Demo;
+  
+  op ping(): string;
+  ```
+
+### Bug Fixes
+
+- [#11457](https://github.com/microsoft/typespec/pull/11457) Add missing default values (`false` for `skip-format`, `null` for `http-port` and `https-port`) to emitter options schema and documentation.
+- [#11458](https://github.com/microsoft/typespec/pull/11458) Fix generated controllers failing to compile when the service namespace starts with `Microsoft.` (as ARM resource providers do). `ControllerBase` and `IActionResult` are now emitted as `Microsoft.AspNetCore.Mvc` library references so they resolve in every namespace instead of being unresolved bare identifiers.
+- [#11466](https://github.com/microsoft/typespec/pull/11466) Do not generate C# model classes for authentication scheme models (e.g. models referenced by `@useAuth`), aligning with the OpenAPI3 emitter which treats them as security metadata. Also fix a property typed as an enum member (e.g. `kind: Color.red`) rendering as an unresolved symbol; it now uses the parent enum type.
+- [#11477](https://github.com/microsoft/typespec/pull/11477) Fix model file name for `@friendlyName` ARM-style template patterns (e.g. `@friendlyName("{name}TagsUpdate", Resource)` on `TagsUpdate<Resource>`). The instantiation now correctly receives the substituted name (e.g. `FooResourceTagsUpdate.cs`) from the compiler.
+- [#11520](https://github.com/microsoft/typespec/pull/11520) Only emit types that belong to the service. Types declared outside the service namespace, for example in an imported library, are now emitted only when the service references them, directly or transitively.
+
+
+## 0.58.0-alpha.30
+
+### Bug Fixes
+
+- [#10999](https://github.com/microsoft/typespec/pull/10999) Update the union definition to include unnamed string literals and null
+
+
+## 0.58.0-alpha.29
+
+### Features
+
+- [#10372](https://github.com/microsoft/typespec/pull/10372) Rewrite using emitter framework and alloy engine
+
+
 ## 0.58.0-alpha.28
 
 ### Bug Fixes

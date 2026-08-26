@@ -1,5 +1,5 @@
 import { getPackageJson, getCommit } from "../utils/misc-utils.js";
-import { ScenariosMetadata } from "@typespec/spec-coverage-sdk";
+import type { ScenariosMetadata } from "@typespec/spec-coverage-sdk";
 
 export async function getScenarioMetadata(scenariosPath: string): Promise<ScenariosMetadata> {
   const pkg = await getPackageJson(scenariosPath);

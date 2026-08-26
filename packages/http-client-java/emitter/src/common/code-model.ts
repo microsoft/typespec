@@ -1,7 +1,9 @@
 /* eslint-disable @typescript-eslint/no-unsafe-declaration-merging */
-import { Info, Metadata, OperationGroup, Parameter, Schemas, Security } from "@autorest/codemodel";
-import { DeepPartial, enableSourceTracking } from "@azure-tools/codegen";
-import { Client } from "./client.js";
+import type { Parameter } from "@autorest/codemodel";
+import { Info, Metadata, OperationGroup, Schemas, Security } from "@autorest/codemodel";
+import type { DeepPartial } from "@azure-tools/codegen";
+import { enableSourceTracking } from "@azure-tools/codegen";
+import type { Client } from "./client.js";
 
 /** the model that contains all the information required to generate a service api */
 export interface CodeModel extends Metadata {

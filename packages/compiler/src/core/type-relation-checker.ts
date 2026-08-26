@@ -1,5 +1,6 @@
 import { MultiKeyMap } from "../utils/misc.js";
-import { Checker, walkPropertiesInherited } from "./checker.js";
+import type { Checker } from "./checker.js";
+import { walkPropertiesInherited } from "./checker.js";
 import { compilerAssert } from "./diagnostics.js";
 import { getEntityName, getTypeName } from "./helpers/type-name-utils.js";
 import {
@@ -12,12 +13,13 @@ import {
   getMinValueAsNumeric,
   getMinValueExclusiveAsNumeric,
 } from "./intrinsic-type-state.js";
-import { CompilerDiagnostics, createDiagnostic } from "./messages.js";
+import type { CompilerDiagnostics } from "./messages.js";
+import { createDiagnostic } from "./messages.js";
 import { numericRanges } from "./numeric-ranges.js";
-import { Numeric } from "./numeric.js";
-import { Program } from "./program.js";
+import type { Numeric } from "./numeric.js";
+import type { Program } from "./program.js";
 import { isArrayModelType, isNeverType, isUnknownType, isValue, isVoidType } from "./type-utils.js";
-import {
+import type {
   ArrayModelType,
   ArrayValue,
   Diagnostic,
@@ -33,17 +35,16 @@ import {
   ModelProperty,
   Namespace,
   Node,
-  NoTarget,
   NumericLiteral,
   Scalar,
   StringLiteral,
   StringTemplate,
-  SyntaxKind,
   Tuple,
   Type,
   Union,
   Value,
 } from "./types.js";
+import { NoTarget, SyntaxKind } from "./types.js";
 
 export interface TypeRelation {
   isTypeAssignableTo(
@@ -551,7 +552,7 @@ export function createTypeRelationChecker(program: Program, checker: Checker): T
     relationCache: MultiKeyMap<[Entity, Entity], Related>,
   ): [Related, readonly TypeRelationError[]] {
     if (source.kind !== "FunctionType") {
-      return [Related.false, [createUnassignableDiagnostic(source, target, source)]];
+      return [Related.false, [createUnassignableDiagnostic(source, target, diagnosticTarget)]];
     }
 
     const { parameters: sourceParameters, returnType: sourceReturnType } = source;

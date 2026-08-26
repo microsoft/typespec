@@ -1,12 +1,21 @@
-import { AssetEmitter, EmitEntity } from "@typespec/asset-emitter";
-import {
-  compilerAssert,
-  createDiagnosticCollector,
+import type { AssetEmitter, EmitEntity } from "@typespec/asset-emitter";
+import type {
   Diagnostic,
   DiagnosticCollector,
   EmitContext,
-  emitFile,
   Example,
+  ModelProperty,
+  Namespace,
+  NewLine,
+  Program,
+  Service,
+  Type,
+  TypeNameOptions,
+} from "@typespec/compiler";
+import {
+  compilerAssert,
+  createDiagnosticCollector,
+  emitFile,
   getAllTags,
   getAnyExtensionFromPath,
   getDoc,
@@ -29,29 +38,17 @@ import {
   isSecret,
   isVoidType,
   listServices,
-  ModelProperty,
-  Namespace,
   navigateTypesInNamespace,
-  NewLine,
-  Program,
+  NoTarget,
   resolvePath,
-  Service,
-  Type,
-  TypeNameOptions,
 } from "@typespec/compiler";
-import {
-  unsafe_mutateSubgraphWithNamespace,
-  unsafe_MutatorWithNamespace,
-} from "@typespec/compiler/experimental";
+import type { unsafe_MutatorWithNamespace } from "@typespec/compiler/experimental";
+import { unsafe_mutateSubgraphWithNamespace } from "@typespec/compiler/experimental";
 import { $ } from "@typespec/compiler/typekit";
 import { createPerfReporter, perf } from "@typespec/compiler/utils";
-import {
+import type {
   AuthenticationOptionReference,
   AuthenticationReference,
-  createMetadataInfo,
-  getHttpService,
-  getServers,
-  getStatusCodeDescription,
   HttpAuth,
   HttpOperation,
   HttpOperationMultipartBody,
@@ -62,9 +59,15 @@ import {
   HttpProperty,
   HttpServer,
   HttpServiceAuthentication,
+  MetadataInfo,
+} from "@typespec/http";
+import {
+  createMetadataInfo,
+  getHttpService,
+  getServers,
+  getStatusCodeDescription,
   isOrExtendsHttpFile,
   isOverloadSameEndpoint,
-  MetadataInfo,
   reportIfNoRoutes,
   resolveAuthentication,
   resolveRequestVisibility,
@@ -82,23 +85,26 @@ import {
 } from "@typespec/openapi";
 import { stringify } from "yaml";
 import { getRef } from "./decorators.js";
-import { getExampleOrExamples, OperationExamples, resolveOperationExamples } from "./examples.js";
-import { JsonSchemaModule, resolveJsonSchemaModule } from "./json-schema.js";
-import {
-  createDiagnostic,
+import type { OperationExamples } from "./examples.js";
+import { getExampleOrExamples, resolveOperationExamples } from "./examples.js";
+import type { JsonSchemaModule } from "./json-schema.js";
+import { resolveJsonSchemaModule } from "./json-schema.js";
+import type {
+  EnumStrategy,
   FileType,
   OpenAPI3EmitterOptions,
   OpenAPIVersion,
   OperationIdStrategy,
-  reportDiagnostic,
 } from "./lib.js";
+import { createDiagnostic, reportDiagnostic } from "./lib.js";
 import { getOpenApiSpecProps } from "./openapi-spec-mappings.js";
 import { OperationIdResolver } from "./operation-id-resolver/operation-id-resolver.js";
 import { getParameterStyle } from "./parameters.js";
 import { getMaxValueAsJson, getMinValueAsJson } from "./range.js";
-import { resolveSSEModule, SSEModule } from "./sse-module.js";
+import type { SSEModule } from "./sse-module.js";
+import { resolveSSEModule } from "./sse-module.js";
 import { getOpenAPI3StatusCodes } from "./status-codes.js";
-import {
+import type {
   OpenAPI3Encoding,
   OpenAPI3Header,
   OpenAPI3MediaType,
@@ -121,18 +127,19 @@ import {
   Refable,
   SupportedOpenAPIDocuments,
 } from "./types.js";
+import type { HttpParameterProperties, SharedHttpOperation } from "./util.js";
 import {
   deepEquals,
   ensureValidComponentFixedFieldKey,
   getDefaultValue,
-  HttpParameterProperties,
   isBytesKeptRaw,
   isSharedHttpOperation,
-  SharedHttpOperation,
 } from "./util.js";
 import { resolveVersioningModule } from "./versioning-module.js";
-import { resolveVisibilityUsage, VisibilityUsageTracker } from "./visibility-usage.js";
-import { resolveXmlModule, XmlModule } from "./xml-module.js";
+import type { VisibilityUsageTracker } from "./visibility-usage.js";
+import { resolveVisibilityUsage } from "./visibility-usage.js";
+import type { XmlModule } from "./xml-module.js";
+import { resolveXmlModule } from "./xml-module.js";
 
 const defaultFileType: FileType = "yaml";
 const defaultOptions = {
@@ -219,6 +226,11 @@ export function resolveOptions(
 
   const openapiVersions = resolvedOptions["openapi-versions"] ?? ["3.0.0"];
 
+  const enumStrategy: EnumStrategy = resolvedOptions["enum-strategy"] ?? "default";
+  if (enumStrategy === "annotated" && openapiVersions.includes("3.0.0")) {
+    reportDiagnostic(context.program, { code: "enum-strategy-not-supported", target: NoTarget });
+  }
+
   const specDir = openapiVersions.length > 1 ? "{openapi-version}" : "";
   return {
     fileTypes,
@@ -231,6 +243,7 @@ export function resolveOptions(
     sealObjectSchemas: resolvedOptions["seal-object-schemas"],
     parameterExamplesStrategy: resolvedOptions["experimental-parameter-examples"],
     operationIdStrategy: resolveOperationIdStrategy(resolvedOptions["operation-id-strategy"]),
+    enumStrategy,
   };
 }
 
@@ -272,6 +285,7 @@ export interface ResolvedOpenAPI3EmitterOptions {
   sealObjectSchemas: boolean;
   parameterExamplesStrategy?: "data" | "serialized";
   operationIdStrategy: { kind: OperationIdStrategy; separator: string };
+  enumStrategy: EnumStrategy;
 }
 
 function createOAPIEmitter(
@@ -1623,6 +1637,15 @@ function createOAPIEmitter(
     // Description is already provided in the parameter itself.
     delete schema.description;
 
+    const extensions = getExtensions(program, param);
+    if (extensions && !("$ref" in schema)) {
+      for (const key of extensions.keys()) {
+        if (key in schema) {
+          delete schema[key];
+        }
+      }
+    }
+
     const oaiParam: OpenAPI3ParameterBase = {
       required: !param.optional,
       description: getDoc(program, param),
@@ -1976,7 +1999,9 @@ function createOAPIEmitter(
             securityOption[httpAuthRef.auth.id] = httpAuthRef.scopes;
             continue;
           default:
-            securityOption[httpAuthRef.auth.id] = [];
+            // Requirement scopes for any scheme that carries them (e.g.
+            // openIdConnect). Schemes without scopes resolve to an empty array.
+            securityOption[httpAuthRef.auth.id] = httpAuthRef.scopes;
         }
       }
       return securityOption;

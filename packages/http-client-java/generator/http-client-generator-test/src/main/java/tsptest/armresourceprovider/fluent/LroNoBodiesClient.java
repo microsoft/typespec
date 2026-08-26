@@ -129,7 +129,7 @@ public interface LroNoBodiesClient {
         Context context);
 
     /**
-     * A long-running resource action.
+     * The action operation.
      * 
      * @param resourceGroupName The name of the resource group. The name is case insensitive.
      * @param resourceLroNoBodyName The name of the ResourceLroNoBody.
@@ -142,7 +142,7 @@ public interface LroNoBodiesClient {
     Mono<Response<Flux<ByteBuffer>>> actionWithResponseAsync(String resourceGroupName, String resourceLroNoBodyName);
 
     /**
-     * A long-running resource action.
+     * The action operation.
      * 
      * @param resourceGroupName The name of the resource group. The name is case insensitive.
      * @param resourceLroNoBodyName The name of the ResourceLroNoBody.
@@ -156,7 +156,7 @@ public interface LroNoBodiesClient {
         String resourceLroNoBodyName);
 
     /**
-     * A long-running resource action.
+     * The action operation.
      * 
      * @param resourceGroupName The name of the resource group. The name is case insensitive.
      * @param resourceLroNoBodyName The name of the ResourceLroNoBody.
@@ -170,7 +170,7 @@ public interface LroNoBodiesClient {
         String resourceLroNoBodyName);
 
     /**
-     * A long-running resource action.
+     * The action operation.
      * 
      * @param resourceGroupName The name of the resource group. The name is case insensitive.
      * @param resourceLroNoBodyName The name of the ResourceLroNoBody.
@@ -185,7 +185,7 @@ public interface LroNoBodiesClient {
         String resourceLroNoBodyName, Context context);
 
     /**
-     * A long-running resource action.
+     * The action operation.
      * 
      * @param resourceGroupName The name of the resource group. The name is case insensitive.
      * @param resourceLroNoBodyName The name of the ResourceLroNoBody.
@@ -198,7 +198,7 @@ public interface LroNoBodiesClient {
     Mono<ActionFinalResult> actionAsync(String resourceGroupName, String resourceLroNoBodyName);
 
     /**
-     * A long-running resource action.
+     * The action operation.
      * 
      * @param resourceGroupName The name of the resource group. The name is case insensitive.
      * @param resourceLroNoBodyName The name of the ResourceLroNoBody.
@@ -211,7 +211,7 @@ public interface LroNoBodiesClient {
     ActionFinalResult action(String resourceGroupName, String resourceLroNoBodyName);
 
     /**
-     * A long-running resource action.
+     * The action operation.
      * 
      * @param resourceGroupName The name of the resource group. The name is case insensitive.
      * @param resourceLroNoBodyName The name of the ResourceLroNoBody.

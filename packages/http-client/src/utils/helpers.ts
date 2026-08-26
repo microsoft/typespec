@@ -1,4 +1,4 @@
-import { StringValue, Type } from "@typespec/compiler";
+import type { StringValue, Type } from "@typespec/compiler";
 import { type Typekit } from "@typespec/compiler/typekit";
 
 /**

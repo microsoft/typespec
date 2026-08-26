@@ -18,6 +18,7 @@ import com.azure.core.util.BinaryData;
 import type.model.inheritance.singlediscriminator.implementation.SingleDiscriminatorClientImpl;
 import type.model.inheritance.singlediscriminator.models.Bird;
 import type.model.inheritance.singlediscriminator.models.Dinosaur;
+import type.model.inheritance.singlediscriminator.models.Fish;
 
 /**
  * Initializes a new instance of the synchronous SingleDiscriminatorClient type.
@@ -226,6 +227,59 @@ public final class SingleDiscriminatorClient {
     }
 
     /**
+     * The getNoSubtypesModel operation.
+     * <p><strong>Response Body Schema</strong></p>
+     * 
+     * <pre>
+     * {@code
+     * {
+     *     kind: String (Required)
+     *     size: int (Required)
+     * }
+     * }
+     * </pre>
+     * 
+     * @param requestOptions The options to configure the HTTP request before HTTP client sends it.
+     * @throws HttpResponseException thrown if the request is rejected by server.
+     * @throws ClientAuthenticationException thrown if the request is rejected by server on status code 401.
+     * @throws ResourceNotFoundException thrown if the request is rejected by server on status code 404.
+     * @throws ResourceModifiedException thrown if the request is rejected by server on status code 409.
+     * @return a discriminated model with no defined subtypes along with {@link Response}.
+     */
+    @Generated
+    @ServiceMethod(returns = ReturnType.SINGLE)
+    public Response<BinaryData> getNoSubtypesModelWithResponse(RequestOptions requestOptions) {
+        return this.serviceClient.getNoSubtypesModelWithResponse(requestOptions);
+    }
+
+    /**
+     * The putNoSubtypesModel operation.
+     * <p><strong>Request Body Schema</strong></p>
+     * 
+     * <pre>
+     * {@code
+     * {
+     *     kind: String (Required)
+     *     size: int (Required)
+     * }
+     * }
+     * </pre>
+     * 
+     * @param input The input parameter.
+     * @param requestOptions The options to configure the HTTP request before HTTP client sends it.
+     * @throws HttpResponseException thrown if the request is rejected by server.
+     * @throws ClientAuthenticationException thrown if the request is rejected by server on status code 401.
+     * @throws ResourceNotFoundException thrown if the request is rejected by server on status code 404.
+     * @throws ResourceModifiedException thrown if the request is rejected by server on status code 409.
+     * @return the {@link Response}.
+     */
+    @Generated
+    @ServiceMethod(returns = ReturnType.SINGLE)
+    public Response<Void> putNoSubtypesModelWithResponse(BinaryData input, RequestOptions requestOptions) {
+        return this.serviceClient.putNoSubtypesModelWithResponse(input, requestOptions);
+    }
+
+    /**
      * The getModel operation.
      * 
      * @throws HttpResponseException thrown if the request is rejected by server.
@@ -351,5 +405,42 @@ public final class SingleDiscriminatorClient {
         // Generated convenience method for getLegacyModelWithResponse
         RequestOptions requestOptions = new RequestOptions();
         return getLegacyModelWithResponse(requestOptions).getValue().toObject(Dinosaur.class);
+    }
+
+    /**
+     * The getNoSubtypesModel operation.
+     * 
+     * @throws HttpResponseException thrown if the request is rejected by server.
+     * @throws ClientAuthenticationException thrown if the request is rejected by server on status code 401.
+     * @throws ResourceNotFoundException thrown if the request is rejected by server on status code 404.
+     * @throws ResourceModifiedException thrown if the request is rejected by server on status code 409.
+     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
+     * @return a discriminated model with no defined subtypes.
+     */
+    @Generated
+    @ServiceMethod(returns = ReturnType.SINGLE)
+    public Fish getNoSubtypesModel() {
+        // Generated convenience method for getNoSubtypesModelWithResponse
+        RequestOptions requestOptions = new RequestOptions();
+        return getNoSubtypesModelWithResponse(requestOptions).getValue().toObject(Fish.class);
+    }
+
+    /**
+     * The putNoSubtypesModel operation.
+     * 
+     * @param input The input parameter.
+     * @throws IllegalArgumentException thrown if parameters fail the validation.
+     * @throws HttpResponseException thrown if the request is rejected by server.
+     * @throws ClientAuthenticationException thrown if the request is rejected by server on status code 401.
+     * @throws ResourceNotFoundException thrown if the request is rejected by server on status code 404.
+     * @throws ResourceModifiedException thrown if the request is rejected by server on status code 409.
+     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
+     */
+    @Generated
+    @ServiceMethod(returns = ReturnType.SINGLE)
+    public void putNoSubtypesModel(Fish input) {
+        // Generated convenience method for putNoSubtypesModelWithResponse
+        RequestOptions requestOptions = new RequestOptions();
+        putNoSubtypesModelWithResponse(BinaryData.fromObject(input), requestOptions).getValue();
     }
 }

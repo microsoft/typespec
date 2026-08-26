@@ -1,12 +1,5 @@
-import {
-  CompletionItem,
-  CompletionItemKind,
-  CompletionList,
-  CompletionParams,
-  MarkupKind,
-  Range,
-  TextEdit,
-} from "vscode-languageserver";
+import type { CompletionItem, CompletionList, CompletionParams } from "vscode-languageserver";
+import { CompletionItemKind, MarkupKind, Range, TextEdit } from "vscode-languageserver";
 import { getSymNode } from "../core/binder.js";
 import { getDeprecationDetails } from "../core/deprecation.js";
 import { compilerAssert, getSourceLocation } from "../core/diagnostics.js";
@@ -20,22 +13,20 @@ import {
   hasTrailingDirectorySeparator,
   resolvePath,
 } from "../core/path-utils.js";
-import { Program } from "../core/program.js";
-import {
+import type { Program } from "../core/program.js";
+import type {
   CompilerHost,
   IdentifierNode,
   Node,
-  NodeFlags,
   PositionDetail,
   StringLiteralNode,
   Sym,
-  SymbolFlags,
-  SyntaxKind,
   Type,
   TypeSpecScriptNode,
 } from "../core/types.js";
+import { NodeFlags, SymbolFlags, SyntaxKind } from "../core/types.js";
 
-import { PackageJson } from "../types/package-json.js";
+import type { PackageJson } from "../types/package-json.js";
 import { findProjectRoot, loadFile } from "../utils/io.js";
 import { resolveTspMain } from "../utils/misc.js";
 import { getSymbolDetails } from "./type-details.js";
@@ -460,7 +451,8 @@ async function addIdentifierCompletion(
       continue;
     }
 
-    const insertionText = printIdentifier(key) + (suffix ?? "");
+    const identifierContext = getIdentifierPrintContext(node);
+    const insertionText = printIdentifier(key, identifierContext) + (suffix ?? "");
     if (node.pos === node.end) {
       // Synthetic/missing identifier node — just use insertText
       item.insertText = insertionText;
@@ -508,6 +500,22 @@ async function addIdentifierCompletion(
 
       return declLocation === sourceLocation;
     });
+  }
+}
+
+/**
+ * Determine the print context for an identifier in completion.
+ * In certain positions (model property names, object literal property names, member expressions),
+ * keywords can be used as identifiers without backticks.
+ */
+function getIdentifierPrintContext(node: IdentifierNode): "allow-reserved" | "disallow-reserved" {
+  switch (node.parent?.kind) {
+    case SyntaxKind.MemberExpression:
+    case SyntaxKind.ModelProperty:
+    case SyntaxKind.ObjectLiteralProperty:
+      return "allow-reserved";
+    default:
+      return "disallow-reserved";
   }
 }
 

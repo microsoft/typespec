@@ -29,7 +29,7 @@ VERSION_MAP = {
 }
 
 MIN_PYTHON_VERSION = "3.10"
-MAX_PYTHON_VERSION = "3.13"
+MAX_PYTHON_VERSION = "3.14"
 
 
 class GeneralSerializer(BaseSerializer):
@@ -66,7 +66,26 @@ class GeneralSerializer(BaseSerializer):
         if dep_version > default_version:
             version_map[dep_name] = str(dep_version)
 
-    def external_lib_version_map(self, file_content: str, additional_version_map: dict[str, str]) -> dict:
+    # Project-level pyproject.toml fields that may be preserved across regeneration
+    # via the "keep-pyproject-fields" option.
+    KEEPABLE_PROJECT_FIELDS = ("authors", "description", "classifiers", "urls")
+
+    @staticmethod
+    def _parse_keep_pyproject_fields(value: Any) -> tuple[str, ...]:
+        # The "keep-pyproject-fields" option may be a comma-separated string (e.g.
+        # "authors,description") or an already-parsed sequence of field names.
+        if not value:
+            return ()
+        if isinstance(value, str):
+            return tuple(field.strip() for field in value.split(",") if field.strip())
+        return tuple(value)
+
+    def external_lib_version_map(
+        self,
+        file_content: str,
+        additional_version_map: dict[str, str],
+        keep_pyproject_fields: tuple[str, ...] = (),
+    ) -> dict:
         # Load the pyproject.toml file if it exists and extract fields to keep.
         result: dict = {"KEEP_FIELDS": {}}
         try:
@@ -85,6 +104,14 @@ class GeneralSerializer(BaseSerializer):
 
         # Process dependencies
         if "project" in loaded_pyproject_toml:
+            project = loaded_pyproject_toml["project"]
+
+            # Keep manually customized project fields the emitter would otherwise overwrite.
+            # Only the fields explicitly listed in the "keep-pyproject-fields" option are preserved.
+            for field in keep_pyproject_fields:
+                if field in self.KEEPABLE_PROJECT_FIELDS and field in project:
+                    result["KEEP_FIELDS"][f"project.{field}"] = project[field]
+
             # Handle main dependencies
             if "dependencies" in loaded_pyproject_toml["project"]:
                 kept_deps = []
@@ -127,7 +154,10 @@ class GeneralSerializer(BaseSerializer):
 
         # Add fields to keep from an existing pyproject.toml
         if template_name == "pyproject.toml.jinja2":
-            params = self.external_lib_version_map(file_content, additional_version_map)
+            keep_pyproject_fields = self._parse_keep_pyproject_fields(
+                self.code_model.options.get("keep-pyproject-fields")
+            )
+            params = self.external_lib_version_map(file_content, additional_version_map, keep_pyproject_fields)
         else:
             params = {}
 
@@ -290,7 +320,27 @@ class GeneralSerializer(BaseSerializer):
 
     def serialize_validation_file(self) -> str:
         template = self.env.get_template("validation.py.jinja2")
-        return template.render(code_model=self.code_model)
+        return template.render(
+            code_model=self.code_model,
+            client_api_version_name=self._api_version_config_attr_name(),
+        )
+
+    def _api_version_config_attr_name(self) -> str:
+        """Name of the config attribute that stores the API version.
+
+        The attribute name is derived from the API-version parameter's ``client_name``
+        (e.g. ``apiVersion`` -> ``api_version``, or Storage's ``version`` -> ``version``).
+        ``_validation.py`` holds a single shared decorator for the whole package, so when
+        every client agrees on the name we bake it in directly; otherwise we fall back to
+        the conventional ``api_version``.
+        """
+        names = {
+            parameter.client_name
+            for client in self.code_model.clients
+            for parameter in client.config.parameters.parameters
+            if parameter.is_api_version
+        }
+        return next(iter(names)) if len(names) == 1 else "api_version"
 
     def serialize_cross_language_definition_file(self) -> str:
         cross_langauge_def_dict = {

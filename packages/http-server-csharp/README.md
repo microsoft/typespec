@@ -46,11 +46,15 @@ See [Configuring output directory for more info](https://typespec.io/docs/handbo
 
 **Type:** `boolean`
 
+**Default:** `false`
+
 Skips formatting of generated C# Types. By default, C# files are formatted using 'dotnet format'.
 
 ### `output-type`
 
 **Type:** `"models" | "all"`
+
+**Default:** `"all"`
 
 Chooses which service artifacts to emit. choices include 'models' or 'all' artifacts.
 
@@ -58,11 +62,15 @@ Chooses which service artifacts to emit. choices include 'models' or 'all' artif
 
 **Type:** `"mocks-and-project-files" | "mocks-only" | "none"`
 
+**Default:** `"none"`
+
 Emits mock implementations of business logic, setup code, and project files, enabling the service to respond to requests before a real implementation is provided
 
 ### `use-swaggerui`
 
 **Type:** `boolean`
+
+**Default:** `false`
 
 Configure a Swagger UI endpoint in the development configuration
 
@@ -70,11 +78,15 @@ Configure a Swagger UI endpoint in the development configuration
 
 **Type:** `string`
 
+**Default:** `null`
+
 Use openapi at the given path for generating SwaggerUI endpoints. By default, this will be 'openapi/openapi.yaml' if the 'use-swaggerui' option is enabled.
 
 ### `overwrite`
 
 **Type:** `boolean`
+
+**Default:** `false`
 
 When generating mock and project files, overwrite any existing files with the same name.
 
@@ -82,11 +94,15 @@ When generating mock and project files, overwrite any existing files with the sa
 
 **Type:** `string`
 
+**Default:** `"ServiceProject"`
+
 The name of the generated project.
 
 ### `http-port`
 
 **Type:** `number`
+
+**Default:** `null`
 
 The service http port when hosting the project locally.
 
@@ -94,10 +110,14 @@ The service http port when hosting the project locally.
 
 **Type:** `number`
 
+**Default:** `null`
+
 The service https port when hosting the project locally.
 
 ### `collection-type`
 
 **Type:** `"array" | "enumerable"`
+
+**Default:** `"array"`
 
 Specifies the collection type to use: 'array' or 'enumerable'. The default is 'array'.

@@ -2,7 +2,9 @@ import { Realm } from "../experimental/realm.js";
 import { docFromCommentDecorator, getIndexer } from "../lib/intrinsic/decorators.js";
 import { $ } from "../typekit/index.js";
 import { DuplicateTracker } from "../utils/duplicate-tracker.js";
-import { MultiKeyMap, Mutable, createRekeyableMap, isArray, mutate } from "../utils/misc.js";
+import type { Mutable } from "../utils/misc.js";
+import { MultiKeyMap, createRekeyableMap, isArray, mutate } from "../utils/misc.js";
+import { createAutoDecoratorImplementation } from "./auto-decorator.js";
 import { createSymbol, getSymNode } from "./binder.js";
 import { createChangeIdentifierCodeFix } from "./compiler-code-fixes/change-identifier.codefix.js";
 import {
@@ -16,6 +18,7 @@ import {
   ignoreDiagnostics,
   reportDeprecated,
 } from "./diagnostics.js";
+import { isCompilerFeatureEnabled } from "./features.js";
 import { validateInheritanceDiscriminatedUnions } from "./helpers/discriminator-utils.js";
 import { getLocationContext } from "./helpers/location-context.js";
 import { explainStringTemplateNotSerializable } from "./helpers/string-template-utils.js";
@@ -28,7 +31,7 @@ import { getEntityName, getTypeName } from "./helpers/type-name-utils.js";
 import { marshalTypeForJs, unmarshalJsToValue } from "./js-marshaller.js";
 import { createDiagnostic } from "./messages.js";
 import { checkModifiers } from "./modifiers.js";
-import { NameResolver } from "./name-resolver.js";
+import type { NameResolver } from "./name-resolver.js";
 import { Numeric } from "./numeric.js";
 import {
   exprIsBareIdentifier,
@@ -49,7 +52,7 @@ import {
   isType,
   isValue,
 } from "./type-utils.js";
-import {
+import type {
   AliasStatementNode,
   ArrayExpressionNode,
   ArrayLiteralNode,
@@ -87,7 +90,6 @@ import {
   FunctionType,
   FunctionTypeExpressionNode,
   FunctionValue,
-  IdentifierKind,
   IdentifierNode,
   IndeterminateEntity,
   Interface,
@@ -127,7 +129,6 @@ import {
   ObjectValuePropertyDescriptor,
   Operation,
   OperationStatementNode,
-  ResolutionResultFlags,
   Scalar,
   ScalarConstructor,
   ScalarConstructorNode,
@@ -144,14 +145,13 @@ import {
   StringTemplateMiddleNode,
   StringTemplateSpan,
   StringTemplateSpanLiteral,
+  StringTemplateSpanNode,
   StringTemplateSpanValue,
   StringTemplateTailNode,
   StringValue,
   Sym,
-  SymbolFlags,
   SymbolLinks,
   SymbolTable,
-  SyntaxKind,
   TemplateArgumentNode,
   TemplateParameter,
   TemplateParameterAccess,
@@ -178,6 +178,13 @@ import {
   Value,
   ValueWithTemplate,
   VoidType,
+} from "./types.js";
+import {
+  IdentifierKind,
+  ModifierFlags,
+  ResolutionResultFlags,
+  SymbolFlags,
+  SyntaxKind,
 } from "./types.js";
 
 export type CreateTypeProps = Omit<Type, "isFinished" | "entityKind" | keyof TypePrototype>;
@@ -351,10 +358,10 @@ export interface Checker {
   resolveRelatedSymbols(node: IdentifierNode): Sym[] | undefined;
   /** @internal */
   resolveCompletions(node: IdentifierNode): Map<string, TypeSpecCompletionItem>;
-  createType<T extends Type extends any ? CreateTypeProps : never>(
+  createType<T extends (Type extends any ? CreateTypeProps : never)>(
     typeDef: T,
   ): T & TypePrototype & { isFinished: boolean; readonly entityKind: "Type" };
-  createAndFinishType<T extends Type extends any ? CreateTypeProps : never>(
+  createAndFinishType<T extends (Type extends any ? CreateTypeProps : never)>(
     typeDef: T,
   ): T & TypePrototype;
   finishType<T extends Type>(typeDef: T): T;
@@ -2117,8 +2124,19 @@ export function createChecker(program: Program, resolver: NameResolver): Checker
     );
     const name = node.id.sv;
 
-    const implementation = symbol.value;
-    if (implementation === undefined) {
+    const isAuto = (node.modifierFlags & ModifierFlags.Auto) !== 0;
+    if (isAuto && !isCompilerFeatureEnabled(program, "auto-decorators", node)) {
+      reportCheckerDiagnostic(
+        createDiagnostic({
+          code: "auto-decorator-disabled",
+          target: node,
+        }),
+      );
+    }
+    let implementation = symbol.value;
+    if (isAuto) {
+      implementation = createAutoDecoratorImplementation(symbol, node);
+    } else if (implementation === undefined) {
       reportCheckerDiagnostic(createDiagnostic({ code: "missing-implementation", target: node }));
     }
     const decoratorType: Decorator = createType({
@@ -2129,6 +2147,7 @@ export function createChecker(program: Program, resolver: NameResolver): Checker
       target: checkFunctionParameter(ctx, node.target, true),
       parameters: node.parameters.map((param) => checkFunctionParameter(ctx, param, true)),
       implementation: implementation ?? (() => {}),
+      declarationKind: isAuto ? "auto" : "extern",
     });
 
     namespace.decoratorDeclarations.set(name, decoratorType);
@@ -2151,13 +2170,15 @@ export function createChecker(program: Program, resolver: NameResolver): Checker
 
     checkModifiers(program, node);
 
-    reportCheckerDiagnostic(
-      createDiagnostic({
-        code: "experimental-feature",
-        messageId: "functionDeclarations",
-        target: node,
-      }),
-    );
+    if (!isCompilerFeatureEnabled(program, "function-declarations", node)) {
+      reportCheckerDiagnostic(
+        createDiagnostic({
+          code: "experimental-feature",
+          messageId: "functionDeclarations",
+          target: node,
+        }),
+      );
+    }
 
     const namespace = getParentNamespaceType(node);
     compilerAssert(
@@ -2611,6 +2632,16 @@ export function createChecker(program: Program, resolver: NameResolver): Checker
         node.parent,
       );
     }
+    // Enter the template declaration scope before checking the template declaration itself.
+    // `checkTemplateDeclaration` resolves template parameter defaults (e.g.
+    // `Properties extends {} = TagsUpdateModel<Resource>`), which can instantiate types and run
+    // their decorators. Those instantiations still reference the enclosing template parameters, so
+    // they must be treated as being in a template declaration (skipDecorators) to avoid running
+    // decorators with unresolved template parameters. This mirrors what `checkModelStatement` does.
+    if (ctx.mapper === undefined && node.templateParameters.length > 0) {
+      ctx = ctx.withFlags(CheckFlags.InTemplateDeclaration);
+    }
+
     checkTemplateDeclaration(ctx, node);
 
     // If we are instantating operation inside of interface
@@ -2618,7 +2649,7 @@ export function createChecker(program: Program, resolver: NameResolver): Checker
       ctx = ctx.withMapper({ ...ctx.mapper, partial: true });
     }
 
-    if ((ctx.mapper === undefined || ctx.mapper.partial) && node.templateParameters.length > 0) {
+    if (ctx.mapper?.partial && node.templateParameters.length > 0) {
       ctx = ctx.withFlags(CheckFlags.InTemplateDeclaration);
     }
 
@@ -3300,10 +3331,13 @@ export function createChecker(program: Program, resolver: NameResolver): Checker
       }
 
       if (scope && scope.kind === SyntaxKind.TypeSpecScript) {
-        // check any blockless namespace decls
-        for (const ns of scope.inScopeNamespaces) {
-          const mergedSymbol = getMergedSymbol(ns.symbol)!;
-          addCompletions(mergedSymbol.exports);
+        // The name of a `using` declared before the file namespace resolves from the global namespace only.
+        if (!isUsingBeforeFileNamespace(identifier)) {
+          // check any blockless namespace decls
+          for (const ns of scope.inScopeNamespaces) {
+            const mergedSymbol = getMergedSymbol(ns.symbol)!;
+            addCompletions(mergedSymbol.exports);
+          }
         }
 
         // check "global scope" declarations
@@ -4674,31 +4708,42 @@ export function createChecker(program: Program, resolver: NameResolver): Checker
   ): IndeterminateEntity | StringValue | null {
     let hasType = false;
     let hasValue = false;
-    const spanTypeOrValues = node.spans.map(
-      (span) => [span, checkNode(ctx, span.expression)] as const,
-    );
+    const spanTypeOrValues: (readonly [
+      StringTemplateSpanNode,
+      Type | Value | IndeterminateEntity,
+    ])[] = [];
+    for (const span of node.spans) {
+      const typeOrValue = checkNode(ctx, span.expression);
+      // A null span is the value-world equivalent of `errorType`: the expression couldn't
+      // produce a usable value (e.g. an already-reported error, or a function call that can't
+      // be evaluated yet in a template declaration). Like `checkArrayValue`/`checkObjectValue`,
+      // propagate the null up so the whole template resolves to null instead of fabricating a
+      // partial string. It is re-evaluated against the real value when the template is instantiated.
+      if (typeOrValue === null) {
+        return null;
+      }
+      spanTypeOrValues.push([span, typeOrValue]);
+    }
+
     for (const [_, typeOrValue] of spanTypeOrValues) {
-      if (typeOrValue !== null) {
-        if (isValue(typeOrValue)) {
-          hasValue = true;
-        } else if (
-          "kind" in typeOrValue &&
-          (typeOrValue.kind === "TemplateParameter" ||
-            typeOrValue.kind === "TemplateParameterAccess")
-        ) {
-          if (typeOrValue.constraint) {
-            if (typeOrValue.constraint.valueType) {
-              hasValue = true;
-            }
-            if (typeOrValue.constraint.type) {
-              hasType = true;
-            }
-          } else {
+      if (isValue(typeOrValue)) {
+        hasValue = true;
+      } else if (
+        "kind" in typeOrValue &&
+        (typeOrValue.kind === "TemplateParameter" || typeOrValue.kind === "TemplateParameterAccess")
+      ) {
+        if (typeOrValue.constraint) {
+          if (typeOrValue.constraint.valueType) {
+            hasValue = true;
+          }
+          if (typeOrValue.constraint.type) {
             hasType = true;
           }
         } else {
           hasType = true;
         }
+      } else {
+        hasType = true;
       }
     }
 
@@ -4716,12 +4761,11 @@ export function createChecker(program: Program, resolver: NameResolver): Checker
       let str = node.head.value;
       for (const [span, typeOrValue] of spanTypeOrValues) {
         if (
-          typeOrValue !== null &&
-          (!("kind" in typeOrValue) ||
-            (typeOrValue.kind !== "TemplateParameter" &&
-              typeOrValue.kind !== "TemplateParameterAccess"))
+          !("kind" in typeOrValue) ||
+          (typeOrValue.kind !== "TemplateParameter" &&
+            typeOrValue.kind !== "TemplateParameterAccess")
         ) {
-          compilerAssert(typeOrValue !== null && isValue(typeOrValue), "Expected value.");
+          compilerAssert(isValue(typeOrValue), "Expected value.");
           str += stringifyValueForTemplate(typeOrValue);
         }
         str += span.literal.value;
@@ -4734,7 +4778,7 @@ export function createChecker(program: Program, resolver: NameResolver): Checker
       const spans: StringTemplateSpan[] = [createTemplateSpanLiteral(node.head)];
 
       for (const [span, typeOrValue] of spanTypeOrValues) {
-        compilerAssert(typeOrValue !== null && !isValue(typeOrValue), "Expected type.");
+        compilerAssert(!isValue(typeOrValue), "Expected type.");
 
         const type = typeOrValue.entityKind === "Indeterminate" ? typeOrValue.type : typeOrValue;
         const spanValue = createTemplateSpanValue(span.expression, type);
@@ -5914,7 +5958,7 @@ export function createChecker(program: Program, resolver: NameResolver): Checker
     ctx: CheckContext,
     args: Expression[],
     target: FunctionValue,
-    callNode: CallExpressionNode,
+    diagnosticTarget: Node,
   ): [boolean, any[]] {
     let satisfied = true;
     const minArgs = target.parameters.filter((p) => !p.optional && !p.rest).length;
@@ -5928,7 +5972,7 @@ export function createChecker(program: Program, resolver: NameResolver): Checker
           code: "invalid-argument-count",
           messageId: "atLeast",
           format: { actual: args.length.toString(), expected: minArgs.toString() },
-          target: callNode,
+          target: diagnosticTarget,
         }),
       );
       return [false, []];
@@ -5937,7 +5981,7 @@ export function createChecker(program: Program, resolver: NameResolver): Checker
         createDiagnostic({
           code: "invalid-argument-count",
           format: { actual: args.length.toString(), expected: maxArgs.toString() },
-          target: callNode,
+          target: diagnosticTarget,
         }),
       );
       // This error doesn't actually prevent us from checking the arguments and evaluating the function.
@@ -5969,11 +6013,21 @@ export function createChecker(program: Program, resolver: NameResolver): Checker
           continue;
         }
 
-        resolvedArgs.push(
-          ...restArgs.map((v, idx) =>
-            v !== null && isValue(v) ? marshalTypeForJs(v, undefined) : v,
-          ),
-        );
+        for (const [idx, restArg] of restArgs.entries()) {
+          const resolved = collector.pipe(
+            checkEntityAssignableToConstraint(restArg!, constraint, restArgExpressions[idx]),
+          );
+
+          satisfied &&= !!resolved;
+
+          resolvedArgs.push(
+            resolved
+              ? isValue(resolved)
+                ? marshalTypeForJs(resolved, undefined)
+                : resolved
+              : undefined,
+          );
+        }
       } else {
         const arg = args[idx++];
 
@@ -6894,9 +6948,10 @@ export function createChecker(program: Program, resolver: NameResolver): Checker
       return undefined;
     }
 
+    const impl = sym.value ?? symbolLinks.declaredType?.implementation;
     return {
       definition: symbolLinks.declaredType,
-      decorator: sym.value ?? ((...args: any[]) => {}),
+      decorator: impl ?? ((...args: any[]) => {}),
       node: decNode,
       args,
     };
@@ -7205,6 +7260,19 @@ export function createChecker(program: Program, resolver: NameResolver): Checker
     // If this was used to get a type this is invalid, only used for validation.
     return errorType;
   }
+
+  /**
+   * Check whether the given identifier is part of the name of a `using` statement declared at the file level,
+   * before the blockless namespace declaration.
+   */
+  function isUsingBeforeFileNamespace(identifier: IdentifierNode): boolean {
+    let node: Node | undefined = identifier.parent;
+    while (node?.kind === SyntaxKind.MemberExpression) {
+      node = node.parent;
+    }
+    return node?.kind === SyntaxKind.UsingStatement && node.scopeNamespace === undefined;
+  }
+
   function checkDecorators(
     ctx: CheckContext,
     targetType: Type,
@@ -7920,7 +7988,7 @@ export function createChecker(program: Program, resolver: NameResolver): Checker
 
   // the types here aren't ideal and could probably be refactored.
 
-  function createAndFinishType<T extends Type extends any ? CreateTypeProps : never>(
+  function createAndFinishType<T extends (Type extends any ? CreateTypeProps : never)>(
     typeDef: T,
   ): T & TypePrototype & { isFinished: boolean; readonly entityKind: "Type" } {
     createType(typeDef);
@@ -7944,7 +8012,7 @@ export function createChecker(program: Program, resolver: NameResolver): Checker
   /**
    * Given the own-properties of a type, returns a fully-initialized type.
    */
-  function createType<T extends Type extends any ? CreateTypeProps : never>(
+  function createType<T extends (Type extends any ? CreateTypeProps : never)>(
     typeDef: T,
   ): T & TypePrototype & { isFinished: boolean; entityKind: "Type" } {
     stats.createdTypes++;
