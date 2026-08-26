@@ -397,14 +397,20 @@ namespace Microsoft.TypeSpec.Generator
         /// <param name="property">The input property.</param>
         /// <returns>The property provider.</returns>
         public PropertyProvider? CreateProperty(InputProperty property, TypeProvider enclosingType)
+            => CreateProperty(property, enclosingType, cache: true);
+
+        internal PropertyProvider? CreateProperty(InputProperty property, TypeProvider enclosingType, bool cache)
         {
-            if (PropertyCache.TryGetValue(property, out var propertyProvider))
+            if (cache && PropertyCache.TryGetValue(property, out var propertyProvider))
             {
                 return propertyProvider;
             }
 
             propertyProvider = CreatePropertyCore(property, enclosingType);
-            PropertyCache.Add(property, propertyProvider);
+            if (cache)
+            {
+                PropertyCache.Add(property, propertyProvider);
+            }
             return propertyProvider;
         }
 

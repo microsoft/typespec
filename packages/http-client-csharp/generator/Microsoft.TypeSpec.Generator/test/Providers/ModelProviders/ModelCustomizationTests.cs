@@ -1714,6 +1714,47 @@ namespace Microsoft.TypeSpec.Generator.Tests.Providers.ModelProviders
             Assert.That(factoryMethod.Signature.Parameters.Select(p => p.Name), Does.Contain("tags"));
         }
 
+        [TestCase(true)]
+        [TestCase(false)]
+        public async Task ScopesReconciledPropertyProviderToDerivedModel(bool buildDerivedFirst)
+        {
+            var specBaseModel = InputFactory.Model(
+                "trackedResource",
+                properties: [InputFactory.Property("mockInputModel", InputPrimitiveType.String)],
+                usage: InputModelTypeUsage.Json);
+            var childModel = InputFactory.Model(
+                "mockInputModel",
+                properties: [InputFactory.Property("childProp", InputPrimitiveType.String)],
+                baseModel: specBaseModel,
+                usage: InputModelTypeUsage.Json);
+
+            var mockGenerator = await MockHelpers.LoadMockGeneratorAsync(
+                inputModelTypes: [childModel, specBaseModel],
+                compilation: async () => await Helpers.GetCompilationFromDirectoryAsync());
+
+            var derivedProvider = (ModelProvider)mockGenerator.Object.OutputLibrary.TypeProviders
+                .Single(t => t.Name == "MockInputModel");
+            var specBaseProvider = (ModelProvider)mockGenerator.Object.OutputLibrary.TypeProviders
+                .Single(t => t.Name == "TrackedResource");
+
+            PropertyProvider reconciledProperty;
+            PropertyProvider originalProperty;
+            if (buildDerivedFirst)
+            {
+                reconciledProperty = derivedProvider.Properties.Single(p => p.Name == "MockInputModelProperty");
+                originalProperty = specBaseProvider.Properties.Single(p => p.Name == "MockInputModel");
+            }
+            else
+            {
+                originalProperty = specBaseProvider.Properties.Single(p => p.Name == "MockInputModel");
+                reconciledProperty = derivedProvider.Properties.Single(p => p.Name == "MockInputModelProperty");
+            }
+
+            Assert.AreNotSame(reconciledProperty, originalProperty);
+            Assert.AreSame(derivedProvider, reconciledProperty.EnclosingType);
+            Assert.AreSame(specBaseProvider, originalProperty.EnclosingType);
+        }
+
         [Test]
         public async Task CanAddPropertyReferencingGeneratedType()
         {

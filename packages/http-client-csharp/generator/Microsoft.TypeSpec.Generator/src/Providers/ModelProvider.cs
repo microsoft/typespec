@@ -682,7 +682,10 @@ namespace Microsoft.TypeSpec.Generator.Providers
                     continue;
                 }
 
-                var outputProperty = CodeModelGenerator.Instance.TypeFactory.CreateProperty(property, this);
+                var outputProperty = CodeModelGenerator.Instance.TypeFactory.CreateProperty(
+                    property,
+                    this,
+                    cache: _inputModel.Properties.Contains(property));
 
                 if (_inputModel.DiscriminatorProperty == property)
                 {
