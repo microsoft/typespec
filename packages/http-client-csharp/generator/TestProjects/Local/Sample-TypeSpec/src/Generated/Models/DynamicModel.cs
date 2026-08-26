@@ -35,6 +35,7 @@ namespace SampleTypeSpec
         /// <param name="dictionaryListFoo"></param>
         /// <param name="listOfDictionaryFoo"></param>
         /// <exception cref="ArgumentNullException"> <paramref name="name"/>, <paramref name="primitiveDictionary"/>, <paramref name="foo"/>, <paramref name="listFoo"/>, <paramref name="listOfListFoo"/>, <paramref name="dictionaryFoo"/>, <paramref name="dictionaryOfDictionaryFoo"/>, <paramref name="dictionaryListFoo"/> or <paramref name="listOfDictionaryFoo"/> is null. </exception>
+#pragma warning disable SCME0001 // Type is for evaluation purposes only and is subject to change or removal in future updates.
         public DynamicModel(string name, IEnumerable<int> requiredNullableList, IDictionary<string, int> requiredNullableDictionary, IDictionary<string, int> primitiveDictionary, AnotherDynamicModel foo, IEnumerable<AnotherDynamicModel> listFoo, IEnumerable<IList<AnotherDynamicModel>> listOfListFoo, IDictionary<string, AnotherDynamicModel> dictionaryFoo, IDictionary<string, IDictionary<string, AnotherDynamicModel>> dictionaryOfDictionaryFoo, IDictionary<string, IList<AnotherDynamicModel>> dictionaryListFoo, IEnumerable<IDictionary<string, AnotherDynamicModel>> listOfDictionaryFoo)
         {
             Argument.AssertNotNull(name, nameof(name));
@@ -60,7 +61,9 @@ namespace SampleTypeSpec
             DictionaryOfDictionaryFoo = dictionaryOfDictionaryFoo;
             DictionaryListFoo = dictionaryListFoo;
             ListOfDictionaryFoo = listOfDictionaryFoo.ToList();
+            _patch.SetPropagators(PropagateSet, PropagateGet);
         }
+#pragma warning restore SCME0001 // Type is for evaluation purposes only and is subject to change or removal in future updates.
 
         /// <summary> Initializes a new instance of <see cref="DynamicModel"/>. </summary>
         /// <param name="name"></param>

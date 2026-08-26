@@ -1,5 +1,5 @@
 import { describe } from "vitest";
-import { OpenAPIVersion } from "../src/lib.js";
+import type { OpenAPIVersion } from "../src/lib.js";
 import {
   diagnoseOpenApiFor,
   emitOpenApiWithDiagnostics,

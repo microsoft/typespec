@@ -59,7 +59,8 @@ versionPolicies:
       - "@typespec/sse"
       - "@typespec/streams"
       - "@typespec/xml"
-      - "@typespec/standalone-cli"
+      - "@typespec/http-specs"
+      - "@typespec/graphql"
 
   - name: standalone
     type: independent

@@ -1,5 +1,5 @@
 import { defineCodeFix, getSourceLocation } from "../../diagnostics.js";
-import { CodeFix, DiagnosticTarget } from "../../types.js";
+import type { CodeFix, DiagnosticTarget } from "../../types.js";
 import { findLineStartAndIndent } from "../utils.js";
 
 /**

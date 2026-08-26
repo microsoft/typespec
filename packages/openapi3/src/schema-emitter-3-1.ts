@@ -1,22 +1,17 @@
-import {
-  ArrayBuilder,
+import type {
   AssetEmitter,
-  createAssetEmitter,
   EmitterOutput,
-  ObjectBuilder,
   Placeholder,
-  setProperty,
   TypeEmitter,
 } from "@typespec/asset-emitter";
 import {
-  compilerAssert,
+  ArrayBuilder,
+  createAssetEmitter,
+  ObjectBuilder,
+  setProperty,
+} from "@typespec/asset-emitter";
+import type {
   Enum,
-  getDiscriminatedUnion,
-  getDoc,
-  getExamples,
-  getMaxValueExclusive,
-  getMinValueExclusive,
-  getSummary,
   IntrinsicScalarName,
   IntrinsicType,
   Model,
@@ -26,20 +21,31 @@ import {
   Tuple,
   Type,
   Union,
+  UnionVariant,
 } from "@typespec/compiler";
-import { MetadataInfo } from "@typespec/http";
+import {
+  compilerAssert,
+  getDiscriminatedUnion,
+  getDoc,
+  getExamples,
+  getMaxValueExclusive,
+  getMinValueExclusive,
+  getSummary,
+} from "@typespec/compiler";
+import type { MetadataInfo } from "@typespec/http";
 import { getOneOf } from "./decorators.js";
 import { serializeExample } from "./examples.js";
-import { JsonSchemaModule } from "./json-schema.js";
-import { OpenAPI3EmitterOptions, reportDiagnostic } from "./lib.js";
+import type { JsonSchemaModule } from "./json-schema.js";
+import type { OpenAPI3EmitterOptions } from "./lib.js";
+import { reportDiagnostic } from "./lib.js";
 import { applyEncoding, getRawBinarySchema } from "./openapi-helpers-3-1.js";
-import { CreateSchemaEmitter } from "./openapi-spec-mappings.js";
-import { ResolvedOpenAPI3EmitterOptions } from "./openapi.js";
+import type { CreateSchemaEmitter } from "./openapi-spec-mappings.js";
+import type { ResolvedOpenAPI3EmitterOptions } from "./openapi.js";
 import { OpenAPI3SchemaEmitterBase } from "./schema-emitter.js";
-import { JsonType, OpenAPISchema3_1 } from "./types.js";
+import type { JsonType, OpenAPISchema3_1 } from "./types.js";
 import { isBytesKeptRaw, isLiteralType, literalType } from "./util.js";
-import { VisibilityUsageTracker } from "./visibility-usage.js";
-import { XmlModule } from "./xml-module.js";
+import type { VisibilityUsageTracker } from "./visibility-usage.js";
+import type { XmlModule } from "./xml-module.js";
 
 function createWrappedSchemaEmitterClass(
   metadataInfo: MetadataInfo,
@@ -245,6 +251,26 @@ export class OpenAPI31SchemaEmitter extends OpenAPI3SchemaEmitterBase<OpenAPISch
     return merged;
   }
 
+  // Builds an annotated `const` subschema for a single literal union variant,
+  // mirroring `#annotatedEnumSchema`'s per-member handling: the variant value
+  // becomes `const`, `@summary` becomes `title`, and the doc comment/`@doc`
+  // becomes `description`. Title/description are omitted when absent. Like the
+  // enum case, the variant name is NOT used as a title fallback.
+  #annotatedVariantSchema(variant: UnionVariant): OpenAPISchema3_1 {
+    const program = this.emitter.getProgram();
+    compilerAssert(isLiteralType(variant.type), "Expected a literal union variant");
+    const subschema: OpenAPISchema3_1 = { const: variant.type.value };
+    const title = getSummary(program, variant);
+    if (title !== undefined) {
+      subschema.title = title;
+    }
+    const description = getDoc(program, variant);
+    if (description !== undefined) {
+      subschema.description = description;
+    }
+    return subschema;
+  }
+
   unionSchema(union: Union): ObjectBuilder<OpenAPISchema3_1> {
     const program = this.emitter.getProgram();
     const [discriminated] = getDiscriminatedUnion(program, union);
@@ -271,6 +297,15 @@ export class OpenAPI31SchemaEmitter extends OpenAPI3SchemaEmitterBase<OpenAPISch
 
       // 3.a. Literal types are actual values (though not Value types)
       if (isLiteralType(variant.type)) {
+        // With the annotated enum strategy, emit each literal variant as its own
+        // `const` subschema carrying per-variant `title`/`description` (from
+        // `@summary`/`@doc`), following the OpenAPI 3.1.1 annotated enumerations
+        // pattern. This preserves the variant-level documentation that the
+        // default `enum`-merge form below discards. See `#annotatedVariantSchema`.
+        if (this._options.enumStrategy === "annotated") {
+          schemaMembers.push({ schema: this.#annotatedVariantSchema(variant), type: null });
+          continue;
+        }
         // Create schemas grouped by kind (boolean, string, numeric)
         // and add the literals seen to each respective `enum` array
         if (!literalVariantEnumByType[variant.type.kind]) {

@@ -1,5 +1,12 @@
 # Changelog - @typespec/emitter-framework
 
+## 0.20.0
+
+### Features
+
+- [#11243](https://github.com/microsoft/typespec/pull/11243) Add Python Pydantic helpers to the emitter framework: `PydanticClassDeclaration`, `PydanticSettingsClassDeclaration`, and `PydanticRootModelDeclaration` components, along with `field_validator`, `model_validator`, `field_serializer`, and `computed_field` decorator helpers.
+
+
 ## 0.19.0
 
 ### Deprecations
@@ -29,13 +36,11 @@
 
 - [#9879](https://github.com/microsoft/typespec/pull/9879) Add the missing export in index for extensible-enum in csharp
 
-
 ## 0.16.0
 
 ### Bump dependencies
 
 - [#9446](https://github.com/microsoft/typespec/pull/9446) Upgrade dependencies
-
 
 ## 0.15.0
 
@@ -48,7 +53,6 @@
 
 - [#9202](https://github.com/microsoft/typespec/pull/9202) Update to alloy 0.22
 - [#9223](https://github.com/microsoft/typespec/pull/9223) Upgrade dependencies
-
 
 ## 0.14.0
 

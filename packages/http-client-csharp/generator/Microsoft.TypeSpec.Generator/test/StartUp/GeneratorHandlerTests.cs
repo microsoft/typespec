@@ -5,8 +5,10 @@ using System;
 using System.Collections.Generic;
 using System.ComponentModel.Composition;
 using System.ComponentModel.Composition.Hosting;
+using System.Diagnostics;
 using System.IO;
 using System.Linq;
+using System.Threading.Tasks;
 using Microsoft.TypeSpec.Generator.EmitterRpc;
 using Moq;
 using NUnit.Framework;
@@ -219,6 +221,80 @@ namespace TestPlugin
                 // The plugin is built into a process-isolated directory, not under the project.
                 StringAssert.DoesNotContain(testDir, result,
                     "Plugin output should be redirected to an isolated directory, not the project directory");
+            }
+            finally
+            {
+                try { Directory.Delete(testDir, true); } catch { }
+            }
+        }
+
+        [Test]
+        public void ReadProcessOutput_DrainsStandardOutputAndErrorConcurrently()
+        {
+            var testDir = Path.Combine(Path.GetTempPath(), "typespec-test-process-output-" + Guid.NewGuid().ToString("N")[..8]);
+            try
+            {
+                Directory.CreateDirectory(testDir);
+                var projectPath = Path.Combine(testDir, "OutputFlood.csproj");
+                File.WriteAllText(projectPath, """
+                    <Project Sdk="Microsoft.NET.Sdk">
+                      <PropertyGroup>
+                        <OutputType>Exe</OutputType>
+                        <TargetFramework>net10.0</TargetFramework>
+                      </PropertyGroup>
+                    </Project>
+                    """);
+                File.WriteAllText(Path.Combine(testDir, "Program.cs"), """
+                    using System;
+
+                    Console.Error.Write(new string('e', 1_000_000));
+                    Console.Out.Write("stdout");
+                    """);
+
+                var buildStartInfo = new ProcessStartInfo("dotnet")
+                {
+                    UseShellExecute = false,
+                    ArgumentList =
+                    {
+                        "build",
+                        projectPath,
+                        "-c",
+                        "Release",
+                        "--nologo",
+                        "--verbosity",
+                        "quiet"
+                    }
+                };
+                AppendMsBuildPropertyIfSet(buildStartInfo.ArgumentList, "RestoreConfigFile", "RestoreConfigFile");
+                AppendMsBuildPropertyIfSet(buildStartInfo.ArgumentList, "NuGetAudit", "NuGetAudit");
+
+                using var buildProcess = Process.Start(buildStartInfo);
+                Assert.IsNotNull(buildProcess);
+                buildProcess!.WaitForExit();
+                Assert.AreEqual(0, buildProcess.ExitCode);
+
+                using var process = Process.Start(new ProcessStartInfo("dotnet")
+                {
+                    RedirectStandardOutput = true,
+                    RedirectStandardError = true,
+                    UseShellExecute = false,
+                    ArgumentList =
+                    {
+                        Path.Combine(testDir, "bin", "Release", "net10.0", "OutputFlood.dll")
+                    }
+                });
+                Assert.IsNotNull(process);
+
+                var readTask = Task.Run(() => GeneratorHandler.ReadProcessOutput(process!));
+                if (!readTask.Wait(TimeSpan.FromSeconds(10)))
+                {
+                    process!.Kill(entireProcessTree: true);
+                    Assert.Fail("Reading redirected output deadlocked when stderr filled its pipe before stdout closed.");
+                }
+
+                var (stdout, stderr) = readTask.Result;
+                Assert.AreEqual("stdout", stdout);
+                Assert.AreEqual(1_000_000, stderr.Length);
             }
             finally
             {
@@ -868,6 +944,18 @@ namespace Isolated { public class Dummy { } }");
   </PropertyGroup>
 </Project>";
 
+                private static void AppendMsBuildPropertyIfSet(
+                        System.Collections.ObjectModel.Collection<string> argumentList,
+                        string envVarName,
+                        string propertyName)
+                {
+                        var value = Environment.GetEnvironmentVariable(envVarName, EnvironmentVariableTarget.Process);
+                        if (!string.IsNullOrWhiteSpace(value))
+                        {
+                                argumentList.Add($"-p:{propertyName}={value}");
+                        }
+                }
+
         /// <summary>Creates a unique temp directory and removes it on dispose.</summary>
         private sealed class TempDirectory : IDisposable
         {
@@ -888,4 +976,3 @@ namespace Isolated { public class Dummy { } }");
         }
     }
 }
-

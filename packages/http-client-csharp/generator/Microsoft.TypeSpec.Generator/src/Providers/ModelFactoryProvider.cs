@@ -12,6 +12,7 @@ using Microsoft.TypeSpec.Generator.Input;
 using Microsoft.TypeSpec.Generator.Primitives;
 using Microsoft.TypeSpec.Generator.Snippets;
 using Microsoft.TypeSpec.Generator.Statements;
+using Microsoft.TypeSpec.Generator.Utilities;
 using static Microsoft.TypeSpec.Generator.Snippets.Snippet;
 
 namespace Microsoft.TypeSpec.Generator.Providers
@@ -28,6 +29,8 @@ namespace Microsoft.TypeSpec.Generator.Providers
         {
             _models = models;
         }
+
+        internal bool PreserveLeadingMethodSeparator { get; set; }
 
         protected override string BuildName() => string.Concat(CodeModelGenerator.Instance.TypeFactory.ServiceName, ModelFactorySuffix);
 
@@ -105,7 +108,7 @@ namespace Microsoft.TypeSpec.Generator.Providers
             // change between the previous and current contract is a parameter rename. This
             // avoids source-breaking changes for callers using named arguments (e.g. when a
             // property is renamed via @@clientName, spec rename, or naming-rule change).
-            PreservePreviousParameterNames(factoryMethods);
+            BackCompatHelper.RestorePreviousParameterNames(this, factoryMethods);
 
             HashSet<MethodSignature> currentMethodSignatures = new List<MethodProvider>([.. factoryMethods, .. CustomCodeView?.Methods ?? []])
                .Select(m => m.Signature)
@@ -113,21 +116,25 @@ namespace Microsoft.TypeSpec.Generator.Providers
 
             foreach (var previousMethod in LastContractView.Methods)
             {
-                if (currentMethodSignatures.Contains(previousMethod.Signature))
+                if (!MethodSignatureHelper.IsPublicApi(previousMethod.Signature.Modifiers) ||
+                    currentMethodSignatures.Contains(previousMethod.Signature))
                 {
                     continue;
                 }
 
                 // If the removal of this factory method has already been accepted in the ApiCompat
                 // baseline, honor that decision and do not resurrect a compatibility shim for it.
-                if (CodeModelGenerator.Instance.SourceInputModel?.ApiCompatBaseline.IsMemberSuppressed(
-                        Type.FullyQualifiedName,
-                        previousMethod.Signature.Name,
-                        previousMethod.Signature.Parameters.Count) == true)
+                if (BackCompatHelper.IsMethodRemovalAcceptedInBaseline(this, previousMethod.Signature))
                 {
-                    CodeModelGenerator.Instance.Emitter.Info(
-                        $"Skipping back-compat shim for '{Type.FullyQualifiedName}.{previousMethod.Signature.Name}'; removal is accepted in the ApiCompat baseline.",
-                        BackCompatibilityChangeCategory.BaselineAcceptedRemovalSkipped);
+                    continue;
+                }
+
+                var unavailableTypes = GetUnavailableSignatureTypes(previousMethod.Signature);
+                if (unavailableTypes.Count > 0)
+                {
+                    CodeModelGenerator.Instance.Emitter.ReportDiagnostic(
+                        DiagnosticCodes.UnavailableBackcompatType,
+                        $"Skipped backward compatible model factory method '{previousMethod.Signature.FullMethodName}' because its signature references unavailable type(s): {string.Join(", ", unavailableTypes)}.");
                     continue;
                 }
 
@@ -212,83 +219,91 @@ namespace Microsoft.TypeSpec.Generator.Providers
             return [.. factoryMethods];
         }
 
-        // Preserve original parameter names from the previous contract when a current factory
-        // method matches a previous one by name + parameter types/order but differs only in
-        // parameter names. The rename is applied in-place via ParameterProvider.Update which
-        // also updates the cached variable/argument expressions used by the method body and
-        // XML docs, so the body and docs serialize with the preserved names automatically.
-        private void PreservePreviousParameterNames(List<MethodProvider> currentFactoryMethods)
+        internal static IReadOnlyList<string> GetUnavailableSignatureTypes(MethodSignature signature)
         {
-            if (LastContractView?.Methods == null)
+            var unavailableTypes = new HashSet<string>(StringComparer.Ordinal);
+            if (signature.ReturnType != null)
+            {
+                CollectUnavailableTypes(signature.ReturnType, unavailableTypes);
+            }
+
+            foreach (var parameter in signature.Parameters)
+            {
+                CollectUnavailableTypes(parameter.Type, unavailableTypes);
+            }
+
+            return [.. unavailableTypes.OrderBy(type => type, StringComparer.Ordinal)];
+        }
+
+        private static void CollectUnavailableTypes(CSharpType type, ISet<string> unavailableTypes)
+        {
+            foreach (var argument in type.Arguments)
+            {
+                CollectUnavailableTypes(argument, unavailableTypes);
+            }
+
+            if (type.IsFrameworkType)
             {
                 return;
             }
 
-            foreach (var previousMethod in LastContractView.Methods)
+            if (TryGetArrayElementName(type, out var elementName))
             {
-                MethodProvider? matchingCurrent = null;
-                foreach (var current in currentFactoryMethods)
+                if (!IsTypeAvailable(type.Namespace, elementName, type.DeclaringType?.Name))
                 {
-                    // MethodSignatureComparer matches on method name + parameter count + parameter
-                    // types (positional); it does not consider parameter names. So a previous
-                    // method whose only difference from a current method is parameter names will
-                    // still match here.
-                    if (MethodSignature.MethodSignatureComparer.Equals(current.Signature, previousMethod.Signature))
-                    {
-                        matchingCurrent = current;
-                        break;
-                    }
+                    unavailableTypes.Add(string.IsNullOrEmpty(type.Namespace) ? elementName : $"{type.Namespace}.{elementName}");
                 }
-
-                if (matchingCurrent is null)
-                {
-                    continue;
-                }
-
-                var previousParameters = previousMethod.Signature.Parameters;
-                var currentParameters = matchingCurrent.Signature.Parameters;
-                if (previousParameters.Count != currentParameters.Count)
-                {
-                    continue;
-                }
-
-                for (int i = 0; i < previousParameters.Count; i++)
-                {
-                    var previousName = previousParameters[i].Name;
-                    var currentParam = currentParameters[i];
-                    if (string.IsNullOrEmpty(previousName) || currentParam.Name == previousName)
-                    {
-                        continue;
-                    }
-
-                    // Skip the rename when applying it would create a name collision with another
-                    // current parameter (e.g. two same-typed parameters in swapped order between
-                    // the previous and current contracts). A positional rename in that case would
-                    // silently swap which parameter feeds which constructor field via name-based
-                    // lookup in GetCtorArgs, producing semantically wrong (and source-breaking) code.
-                    var previousNameToApply = previousName;
-                    bool wouldCollide = false;
-                    for (int j = 0; j < currentParameters.Count; j++)
-                    {
-                        if (j != i && string.Equals(currentParameters[j].Name, previousNameToApply, StringComparison.Ordinal))
-                        {
-                            wouldCollide = true;
-                            break;
-                        }
-                    }
-
-                    if (wouldCollide)
-                    {
-                        continue;
-                    }
-
-                    CodeModelGenerator.Instance.Emitter.Debug(
-                        $"Preserved parameter name '{previousName}' on '{Name}.{matchingCurrent.Signature.Name}' from last contract (instead of '{currentParam.Name}').",
-                        BackCompatibilityChangeCategory.ParameterNamePreserved);
-
-                    currentParam.Update(name: previousName);
-                }
+                return;
             }
+
+            var typeFactory = CodeModelGenerator.Instance.TypeFactory;
+            if (typeFactory.CSharpTypeMap.Keys.Any(type.AreNamesEqual))
+            {
+                return;
+            }
+
+            var declaringTypeName = type.DeclaringType?.Name;
+            if (CodeModelGenerator.Instance.SourceInputModel.FindForTypeInCurrentCompilation(
+                type.Namespace,
+                type.Name,
+                declaringTypeName,
+                includeReferencedAssemblies: true) != null)
+            {
+                return;
+            }
+
+            unavailableTypes.Add(type.FullyQualifiedName);
+        }
+
+        private static bool TryGetArrayElementName(CSharpType type, [NotNullWhen(true)] out string? elementName)
+        {
+            var bracketIndex = type.Name.IndexOf('[');
+            if (bracketIndex <= 0)
+            {
+                elementName = null;
+                return false;
+            }
+
+            elementName = type.Name[..bracketIndex];
+            return true;
+        }
+
+        private static bool IsTypeAvailable(string ns, string name, string? declaringTypeName)
+        {
+            var typeFactory = CodeModelGenerator.Instance.TypeFactory;
+            if (typeFactory.CSharpTypeMap.Keys.Any(
+                type => type.Name == name &&
+                    (string.IsNullOrEmpty(ns) || type.Namespace == ns) &&
+                    type.DeclaringType?.Name == declaringTypeName))
+            {
+                return true;
+            }
+
+            return CodeModelGenerator.Instance.SourceInputModel.FindForTypeInCurrentCompilation(
+                ns,
+                name,
+                declaringTypeName,
+                includeReferencedAssemblies: true) != null;
         }
 
         private bool TryBuildCompatibleMethodForPreviousContract(
@@ -313,8 +328,8 @@ namespace Microsoft.TypeSpec.Generator.Providers
                     continue;
                 }
 
-                var model = GetModelToInstantiateForFactoryMethod(modelProvider);
-                if (model != null && previousMethodReturnType.AreNamesEqual(model.Type))
+                var model = GetModelToInstantiateForPreviousReturnType(modelProvider, previousMethodReturnType);
+                if (model != null)
                 {
                     modelToInstantiate = model;
                     break;
@@ -508,6 +523,26 @@ namespace Microsoft.TypeSpec.Generator.Providers
             return modelProvider.DeclarationModifiers.HasFlag(TypeSignatureModifiers.Abstract)
                 ? modelProvider.DerivedModels.FirstOrDefault(m => m.IsUnknownDiscriminatorModel)
                 : modelProvider;
+        }
+
+        private static ModelProvider? GetModelToInstantiateForPreviousReturnType(ModelProvider modelProvider, CSharpType returnType)
+        {
+            var model = GetModelToInstantiateForFactoryMethod(modelProvider);
+            if (model is null)
+            {
+                return null;
+            }
+
+            if (modelProvider.DeclarationModifiers.HasFlag(TypeSignatureModifiers.Abstract))
+            {
+                return returnType.AreNamesEqual(modelProvider.Type) || returnType.AreNamesEqual(model.Type)
+                    ? model
+                    : null;
+            }
+
+            return returnType.AreNamesEqual(model.Type)
+                ? model
+                : null;
         }
 
         private static (ParameterProvider? BinaryDataParam, ConstructorProvider FullCtor) GetBinaryDataParamAndFullCtorForFactoryMethod(

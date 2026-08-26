@@ -28,6 +28,21 @@ def description_ends_with_code_block(description: str) -> bool:
     return all(not line.strip() or line.startswith((" ", "\t")) for line in lines[directives[-1] + 1 :])
 
 
+def is_typeddict_only(options: Any) -> bool:
+    """Whether generation is TypedDict-only.
+
+    True for TypeSpec input where no concrete models mode is selected (``models-mode: none``,
+    normalized to a falsy value by :class:`OptionsDict`) and ``generate-typeddict`` is enabled.
+    Swagger ``models-mode: none`` is left as a plain no-models mode because it never sets
+    ``tsp_file``.
+    """
+    return (
+        bool(options.get("tsp_file"))
+        and not options.get("models-mode")
+        and bool(options.get("generate-typeddict", True))
+    )
+
+
 def update_enum_value(name: str, value: Any, description: str, enum_type: dict[str, Any]) -> dict[str, Any]:
     return {
         "name": name,
@@ -109,7 +124,7 @@ def parse_args(
 
 
 def get_body_type_for_description(body_parameter: dict[str, Any]) -> str:
-    if body_parameter["type"]["type"] == "binary":
+    if body_parameter["type"]["type"] in ("binary", "bytes"):
         return "binary"
     if body_parameter["type"]["type"] == "string":
         return "string"

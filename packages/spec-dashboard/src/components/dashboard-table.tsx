@@ -1,25 +1,29 @@
 import { mergeClasses, Popover, PopoverSurface, PopoverTrigger } from "@fluentui/react-components";
 import { CodeBlock16Filled, Print16Filled } from "@fluentui/react-icons";
-import { ScenarioManifest } from "@typespec/spec-coverage-sdk";
-import { FunctionComponent, useCallback, useMemo, useState } from "react";
-import { CoverageSummary, GeneratorCoverageSuiteReport } from "../apis.js";
+import type { ScenarioManifest } from "@typespec/spec-coverage-sdk";
+import type { FunctionComponent } from "react";
+import { useCallback, useMemo, useState } from "react";
+import type { CoverageSummary, GeneratorCoverageSuiteReport } from "../apis.js";
 import { getCompletedRatio } from "../utils/coverage-utils.js";
 import style from "./dashboard-table.module.css";
 import { GeneratorInformation } from "./generator-information.js";
 import { ScenarioGroupRatioStatusBox } from "./scenario-group-status.js";
 import { ScenarioStatusBox } from "./scenario-status.js";
 import { RowLabelCell } from "./tree-table/row-label-cell.js";
-import { ManifestTreeNode, TreeTableRow } from "./tree-table/types.js";
+import type { ManifestTreeNode, TreeTableRow } from "./tree-table/types.js";
 
 export interface DashboardTableProps {
   coverageSummary: CoverageSummary;
   emitterDisplayNames?: Record<string, string>;
+  /** When true, all tree rows are expanded regardless of user toggles. */
+  expandAll?: boolean;
 }
 
 function buildTreeRows(
   node: ManifestTreeNode,
   expandedRows: Record<string, boolean>,
   toggleExpand: (key: string) => void,
+  expandAll = false,
   depth = 0,
 ): TreeTableRow[] {
   const rows: TreeTableRow[] = [];
@@ -30,7 +34,7 @@ function buildTreeRows(
     const hasChildren = Boolean(child.children && Object.keys(child.children).length > 0);
     const key = child.fullName;
 
-    const expanded = expandedRows[key] ?? false;
+    const expanded = expandAll || (expandedRows[key] ?? false);
     rows.push({
       key,
       item: child,
@@ -41,7 +45,7 @@ function buildTreeRows(
       toggleExpand: () => toggleExpand(key),
     });
     if (hasChildren && expanded) {
-      for (const row of buildTreeRows(child, expandedRows, toggleExpand, depth + 1)) {
+      for (const row of buildTreeRows(child, expandedRows, toggleExpand, expandAll, depth + 1)) {
         rows.push(row);
       }
     }
@@ -56,6 +60,7 @@ function buildTreeRows(
 export const DashboardTable: FunctionComponent<DashboardTableProps> = ({
   coverageSummary,
   emitterDisplayNames,
+  expandAll,
 }) => {
   const languages: string[] = Object.keys(coverageSummary.generatorReports) as any;
   const tree = useMemo(() => createTree(coverageSummary.manifest), [coverageSummary.manifest]);
@@ -70,8 +75,8 @@ export const DashboardTable: FunctionComponent<DashboardTableProps> = ({
     [setExpandedRows],
   );
   const treeRows = useMemo(() => {
-    return buildTreeRows(tree, expandedRows, toggleExpand);
-  }, [tree, expandedRows, toggleExpand]);
+    return buildTreeRows(tree, expandedRows, toggleExpand, expandAll);
+  }, [tree, expandedRows, toggleExpand, expandAll]);
 
   const rows = treeRows.map((x) => {
     return (

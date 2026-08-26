@@ -16,10 +16,25 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers.ScmModelProvi
 {
     public class ScmModelProviderTests
     {
+        private sealed class DerivedScmModelProvider : ScmModel
+        {
+            public DerivedScmModelProvider(InputModelType inputModel) : base(inputModel)
+            {
+            }
+        }
+
         [SetUp]
         public void SetUp()
         {
             MockHelpers.LoadMockGenerator();
+        }
+
+        [Test]
+        public void CanBeInherited()
+        {
+            var provider = new DerivedScmModelProvider(InputFactory.Model("model"));
+
+            Assert.IsInstanceOf<ScmModel>(provider);
         }
 
         [Test]
@@ -203,6 +218,75 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers.ScmModelProvi
             var file = writer.Write();
 
             Assert.AreEqual(Helpers.GetExpectedFromFile(), file.Content);
+        }
+
+        [Test]
+        public async Task BackCompat_ParameterlessConstructorRestoredRemovesMockingConstructor()
+        {
+            // The last contract published a parameterless `protected BaseModel()`. The current generation
+            // makes the discriminator required, so the abstract base's initialization constructor now takes a
+            // parameter and the parameterless constructor is dropped. It is restored, and the generated
+            // parameterless mocking constructor on the serialization partial is removed to avoid a duplicate.
+            var derivedInputModel = InputFactory.Model(
+                "derivedModel",
+                discriminatedKind: "one",
+                properties:
+                [
+                    InputFactory.Property("kind", InputPrimitiveType.String, isRequired: true, isDiscriminator: true)
+                ]);
+            var inputModel = InputFactory.Model(
+                "baseModel",
+                properties:
+                [
+                    InputFactory.Property("kind", InputPrimitiveType.String, isRequired: true, isDiscriminator: true)
+                ],
+                discriminatedModels: new Dictionary<string, InputModelType>() { { "one", derivedInputModel } });
+
+            await MockHelpers.LoadMockGeneratorAsync(
+                lastContractCompilation: async () => await Helpers.GetCompilationFromDirectoryAsync(),
+                inputModels: () => [inputModel]);
+
+            var model = ScmCodeModelGenerator.Instance.OutputLibrary.TypeProviders
+                .OfType<ScmModel>().Single(t => t.Name == "BaseModel");
+
+            model.ProcessTypeForBackCompatibility();
+
+            // The model gains the restored standalone parameterless constructor.
+            var modelContent = new TypeProviderWriter(model).Write().Content;
+            Assert.AreEqual(Helpers.GetExpectedFromFile("Model"), modelContent);
+
+            // The serialization partial no longer carries the parameterless mocking constructor (avoids CS0111).
+            var serializationContent = new TypeProviderWriter(model.SerializationProviders.Single()).Write().Content;
+            Assert.AreEqual(Helpers.GetExpectedFromFile("Serialization"), serializationContent);
+        }
+
+        [Test]
+        public async Task BackCompat_StructParameterlessConstructorNotMovedFromSerialization()
+        {
+            // A struct always exposes a public parameterless constructor via its serialization (mocking)
+            // constructor, so the last contract's parameterless constructor is already present. It must not
+            // be moved onto the model partial, which would be pointless churn with no public API change.
+            var inputModel = InputFactory.Model(
+                "structModel",
+                modelAsStruct: true,
+                properties:
+                [
+                    InputFactory.Property("prop", InputPrimitiveType.String, isRequired: true)
+                ]);
+
+            await MockHelpers.LoadMockGeneratorAsync(
+                lastContractCompilation: async () => await Helpers.GetCompilationFromDirectoryAsync(),
+                inputModels: () => [inputModel]);
+
+            var model = ScmCodeModelGenerator.Instance.OutputLibrary.TypeProviders
+                .OfType<ScmModel>().Single(t => t.Name == "StructModel");
+
+            model.ProcessTypeForBackCompatibility();
+
+            Assert.IsFalse(model.Constructors.Any(c => c.Signature.Parameters.Count == 0),
+                "Struct model must not gain a parameterless constructor on the model partial.");
+            Assert.IsTrue(model.SerializationProviders.Single().Constructors.Any(c => c.Signature.Parameters.Count == 0),
+                "Struct serialization partial must retain its parameterless constructor.");
         }
 
         [Test]
@@ -636,6 +720,34 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers.ScmModelProvi
             Assert.IsFalse(
                 file.Content.Contains("FileBinaryContent"),
                 $"Customized file property should not produce FileBinaryContent constructors.\n{file.Content}");
+        }
+
+        [Test]
+        public async Task TestMultipartFormDataModel_LastContractFileType_KeepsFileBinaryContentFrameworkType()
+        {
+            // The last contract already ships `public FileBinaryContent ProfileImage { get; }`. The
+            // back-compat property type preservation must recognize the symbol-backed
+            // `System.ClientModel.FileBinaryContent` as the same type as the generated framework type,
+            // otherwise the model loses its convenience constructors and [Experimental] attributes.
+            var inputModel = MultipartModel(
+                "MultiPartRequest",
+                [
+                    NonFilePartProperty("id", InputPrimitiveType.String),
+                    FilePartProperty("profileImage"),
+                ]);
+
+            var mockGenerator = await MockHelpers.LoadMockGeneratorAsync(
+                inputModels: () => [inputModel],
+                lastContractCompilation: async () => await Helpers.GetCompilationFromDirectoryAsync());
+
+            var model = mockGenerator.Object.OutputLibrary.TypeProviders.OfType<ScmModel>().Single(t => t.Name == "MultiPartRequest");
+
+            var profileImage = model.Properties.Single(p => p.Name == "ProfileImage");
+            Assert.IsTrue(profileImage.Type.IsFrameworkType, "The file property must remain the FileBinaryContent framework type.");
+            Assert.IsTrue(ScmModel.IsFileBinaryContentType(profileImage.Type));
+
+            var file = new TypeProviderWriter(model).Write();
+            Assert.AreEqual(Helpers.GetExpectedFromFile(), file.Content);
         }
 
         [Test]

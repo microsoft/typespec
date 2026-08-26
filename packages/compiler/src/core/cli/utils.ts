@@ -1,16 +1,19 @@
-import { SpawnSyncOptionsWithStringEncoding, spawnSync } from "child_process";
+import type { SpawnSyncOptionsWithStringEncoding } from "child_process";
+import { spawnSync } from "child_process";
 import pc from "picocolors";
 import { inspect } from "util";
 import { logDiagnostics } from "../diagnostics.js";
-import { Colors, ExternalError } from "../external-error.js";
+import type { Colors } from "../external-error.js";
+import { ExternalError } from "../external-error.js";
 import { createConsoleSink } from "../logger/console-sink.js";
 import { createLogger } from "../logger/logger.js";
 import { createTracer } from "../logger/tracer.js";
 import { createDiagnostic } from "../messages.js";
 import { NodeHost } from "../node-host.js";
 import { getBaseFileName } from "../path-utils.js";
-import { Diagnostic, NoTarget } from "../types.js";
-import { CliCompilerHost } from "./types.js";
+import type { CompilerHost, Diagnostic } from "../types.js";
+import { NoTarget } from "../types.js";
+import type { CliCompilerHost } from "./types.js";
 
 // ENOENT checking and handles spaces poorly in some cases.
 const isCmdOnWindows = ["code", "code-insiders", "npm"];
@@ -48,10 +51,11 @@ export interface CliHostArgs {
 }
 
 export function withCliHost<T extends CliHostArgs>(
+  baseHost: CompilerHost,
   fn: (host: CliCompilerHost, args: T) => Promise<void>,
 ): (args: T) => Promise<void> {
   return withFailsafe((args: T) => {
-    const host = createCLICompilerHost(args);
+    const host = createCLICompilerHost(args, baseHost);
     return fn(host, args);
   });
 }
@@ -72,10 +76,11 @@ function withFailsafe<T extends unknown[], R>(
  * Resolve Cli host automatically using cli args and handle diagnostics returned by the action.
  */
 export function withCliHostAndDiagnostics<T extends CliHostArgs>(
+  baseHost: CompilerHost,
   fn: (host: CliCompilerHost, args: T) => readonly Diagnostic[] | Promise<readonly Diagnostic[]>,
 ): (args: T) => void | Promise<void> {
   return withFailsafe(async (args: T) => {
-    const host = createCLICompilerHost(args);
+    const host = createCLICompilerHost(args, baseHost);
     const diagnostics = await fn(host, args);
     logDiagnostics(diagnostics, host.logSink);
     logDiagnosticCount(diagnostics);
@@ -85,7 +90,10 @@ export function withCliHostAndDiagnostics<T extends CliHostArgs>(
   });
 }
 
-export function createCLICompilerHost(options: CliHostArgs): CliCompilerHost {
+export function createCLICompilerHost(
+  options: CliHostArgs,
+  baseHost: CompilerHost = NodeHost,
+): CliCompilerHost {
   const logSink = createConsoleSink({
     pretty: options.pretty,
     pathRelativeTo: process.cwd(),
@@ -96,7 +104,7 @@ export function createCLICompilerHost(options: CliHostArgs): CliCompilerHost {
     filter: options.trace ?? (options.debug ? ["*"] : undefined),
   });
   tracer.trace("cli.args", `CLI args: ${inspect(options, { depth: null })}`);
-  return { ...NodeHost, logSink, logger, tracer, debug: options.debug ?? false };
+  return { ...baseHost, logSink, logger, tracer, debug: options.debug ?? false };
 }
 
 export function run(

@@ -1,7 +1,7 @@
 import { expectDiagnosticEmpty, expectDiagnostics } from "@typespec/compiler/testing";
 import { deepStrictEqual, ok, strictEqual } from "assert";
 import { describe, it } from "vitest";
-import { HttpOperationMultipartBody } from "../src/types.js";
+import type { HttpOperationMultipartBody } from "../src/types.js";
 import { getOperationsWithServiceNamespace } from "./test-host.js";
 
 it("emit diagnostic when using invalid content type for multipart ", async () => {

@@ -29,7 +29,16 @@ namespace Microsoft.TypeSpec.Generator.Providers
             _generatedTypeProvider = generatedTypeProvider;
             var inputModel = inputType as InputModelType;
             _specProperties = inputModel?.Properties ?? [];
-            _specPropertiesMap = _specProperties.ToDictionary(p => p.IsExactName ? p.Name : p.Name.ToIdentifierName(), p => p);
+            _specPropertiesMap = [];
+            foreach (var property in _specProperties)
+            {
+                var name = property.IsExactName ? property.Name : property.Name.ToIdentifierName();
+                _specPropertiesMap.TryAdd(name, property);
+                if (!property.IsExactName)
+                {
+                    _specPropertiesMap.TryAdd(name.NormalizeCSharpAcronyms(property.Type.IsDateTimeInputType()), property);
+                }
+            }
             _serializedNameMap = BuildSerializationNameMap();
             _renamedProperties = (_generatedTypeProvider.CustomCodeView?.Properties ?? [])
                 .Where(p => p.OriginalName != null).Select(p => p.OriginalName!).ToHashSet();
@@ -48,7 +57,25 @@ namespace Microsoft.TypeSpec.Generator.Providers
 
         protected override IReadOnlyList<MethodBodyStatement> BuildAttributes()
         {
-            return [.. _generatedTypeProvider.Attributes, .. _generatedTypeProvider.CustomCodeView?.Attributes ?? []];
+            // TODO https://github.com/microsoft/typespec/issues/11232: Move this generated/custom attribute merge into a shared TypeProvider API.
+            return DeduplicateAttributes(
+                _generatedTypeProvider.Attributes,
+                _generatedTypeProvider.CustomCodeView?.Attributes);
+        }
+
+        private static IReadOnlyList<AttributeStatement> DeduplicateAttributes(params IEnumerable<AttributeStatement>?[] attributeSets)
+        {
+            var seen = new HashSet<string>();
+            var attributes = new List<AttributeStatement>();
+            foreach (var attribute in attributeSets.SelectMany(static attributeSet => attributeSet ?? []))
+            {
+                if (seen.Add(attribute.ToDisplayString()))
+                {
+                    attributes.Add(attribute);
+                }
+            }
+
+            return attributes;
         }
 
         private protected override CanonicalTypeProvider BuildCanonicalView() => this;
@@ -161,7 +188,7 @@ namespace Microsoft.TypeSpec.Generator.Providers
                 {
                     // Check if custom property is in spec
                     if (_specPropertiesMap.TryGetValue(prop.Name, out var specProp) ||
-                        (prop.OriginalName != null && _specPropertiesMap.TryGetValue(prop.OriginalName, out specProp)))
+                        (prop.OriginalName != null && TryGetSpecProperty(prop.OriginalName, out specProp)))
                     {
                         inputProperties.Add(specProp);
                     }
@@ -263,7 +290,7 @@ namespace Microsoft.TypeSpec.Generator.Providers
             PropertyProvider customProperty,
             [NotNullWhen(true)] out InputModelProperty? candidateSpecProperty)
         {
-            if (customProperty.OriginalName != null && _specPropertiesMap.TryGetValue(customProperty.OriginalName, out candidateSpecProperty))
+            if (customProperty.OriginalName != null && TryGetSpecProperty(customProperty.OriginalName, out candidateSpecProperty))
             {
                 return true;
             }
@@ -281,7 +308,7 @@ namespace Microsoft.TypeSpec.Generator.Providers
 
         private bool TryGetSpecProperty(FieldProvider customField, [NotNullWhen(true)] out InputModelProperty? candidateSpecProperty)
         {
-            if (customField.OriginalName != null && _specPropertiesMap.TryGetValue(customField.OriginalName, out candidateSpecProperty))
+            if (customField.OriginalName != null && TryGetSpecProperty(customField.OriginalName, out candidateSpecProperty))
             {
                 return true;
             }
@@ -294,6 +321,16 @@ namespace Microsoft.TypeSpec.Generator.Providers
 
             candidateSpecProperty = null;
             return false;
+        }
+
+        private bool TryGetSpecProperty(string name, [NotNullWhen(true)] out InputModelProperty? candidateSpecProperty)
+        {
+            if (_specPropertiesMap.TryGetValue(name, out candidateSpecProperty))
+            {
+                return true;
+            }
+
+            return _specPropertiesMap.TryGetValue(name.ToIdentifierName(), out candidateSpecProperty);
         }
 
         private Dictionary<string, string?> BuildSerializationNameMap()

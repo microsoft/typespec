@@ -1,6 +1,7 @@
-import { AnyObject, dereference } from "@scalar/openapi-parser";
+import type { AnyObject } from "@scalar/openapi-parser";
+import { dereference } from "@scalar/openapi-parser";
 import { formatTypeSpec } from "@typespec/compiler";
-import { SupportedOpenAPIDocuments } from "../../../types.js";
+import type { SupportedOpenAPIDocuments } from "../../../types.js";
 import { generateMain } from "./generators/generate-main.js";
 import { transform } from "./transforms/transforms.js";
 import { createContext } from "./utils/context.js";

@@ -40,9 +40,9 @@ model Widget is Extern<"path/to/test.proto", "test.Widget">;
 
 #### Properties
 
-| Name     | Type    | Description |
-| -------- | ------- | ----------- |
-| \_extern | `never` |             |
+| Name    | Type    | Description                                                                                                                                                                                                                                                 |
+| ------- | ------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| _extern | `never` | Never present. This property exists only so that `getEffectiveModelType` has something to look<br />up: without it, an `Extern` model spread into an operation parameter yields an empty model that<br />cannot be related back to its original definition. |
 
 ### `Map` {#TypeSpec.Protobuf.Map}
 
@@ -69,7 +69,7 @@ None
 
 ### `PackageDetails` {#TypeSpec.Protobuf.PackageDetails}
 
-Details applied to a package definition by the [`@package`](./decorators#
+Details applied to a package definition by the [`@package`](./decorators#%40TypeSpec.Protobuf.package) decorator.
 
 ```typespec
 model TypeSpec.Protobuf.PackageDetails
@@ -91,7 +91,7 @@ The streaming mode of an operation. One of:
 - `Out`: the output of the operation is streaming.
 - `None`: neither the input nor the output are streaming.
 
-See the [`@stream`](./decorators#
+See the [`@stream`](./decorators#%40TypeSpec.Protobuf.stream) decorator.
 
 ```typespec
 enum TypeSpec.Protobuf.StreamMode
@@ -190,9 +190,9 @@ model TypeSpec.Protobuf.WellKnown.Any
 
 #### Properties
 
-| Name     | Type    | Description |
-| -------- | ------- | ----------- |
-| \_extern | `never` |             |
+| Name    | Type    | Description                                                                                                                                                                                                                                                 |
+| ------- | ------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| _extern | `never` | Never present. This property exists only so that `getEffectiveModelType` has something to look<br />up: without it, an `Extern` model spread into an operation parameter yields an empty model that<br />cannot be related back to its original definition. |
 
 ### `Empty` {#TypeSpec.Protobuf.WellKnown.Empty}
 
@@ -206,9 +206,9 @@ model TypeSpec.Protobuf.WellKnown.Empty
 
 #### Properties
 
-| Name     | Type    | Description |
-| -------- | ------- | ----------- |
-| \_extern | `never` |             |
+| Name    | Type    | Description                                                                                                                                                                                                                                                 |
+| ------- | ------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| _extern | `never` | Never present. This property exists only so that `getEffectiveModelType` has something to look<br />up: without it, an `Extern` model spread into an operation parameter yields an empty model that<br />cannot be related back to its original definition. |
 
 ### `LatLng` {#TypeSpec.Protobuf.WellKnown.LatLng}
 
@@ -222,9 +222,9 @@ model TypeSpec.Protobuf.WellKnown.LatLng
 
 #### Properties
 
-| Name     | Type    | Description |
-| -------- | ------- | ----------- |
-| \_extern | `never` |             |
+| Name    | Type    | Description                                                                                                                                                                                                                                                 |
+| ------- | ------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| _extern | `never` | Never present. This property exists only so that `getEffectiveModelType` has something to look<br />up: without it, an `Extern` model spread into an operation parameter yields an empty model that<br />cannot be related back to its original definition. |
 
 ### `Timestamp` {#TypeSpec.Protobuf.WellKnown.Timestamp}
 
@@ -238,6 +238,6 @@ model TypeSpec.Protobuf.WellKnown.Timestamp
 
 #### Properties
 
-| Name     | Type    | Description |
-| -------- | ------- | ----------- |
-| \_extern | `never` |             |
+| Name    | Type    | Description                                                                                                                                                                                                                                                 |
+| ------- | ------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| _extern | `never` | Never present. This property exists only so that `getEffectiveModelType` has something to look<br />up: without it, an `Extern` model spread into an operation parameter yields an empty model that<br />cannot be related back to its original definition. |

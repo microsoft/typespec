@@ -32,7 +32,7 @@ from ..models import (
     ParameterListType,
     ByteArraySchema,
 )
-from ..models.utils import NamespaceType
+from ..models.utils import NamespaceType, escape_sphinx_field_name
 from .parameter_serializer import ParameterSerializer, PopKwargType, check_body_optional
 from ..models.parameter_list import ParameterType
 from . import utils
@@ -311,16 +311,15 @@ class _BuilderBaseSerializer(Generic[BuilderType]):
                 or param.method_location == ParameterMethodLocation.KWARG
             ):
                 continue
+            escaped_name = escape_sphinx_field_name(param.client_name)
             description_list.extend(
-                f":{param.description_keyword} {param.client_name}: {param.description}".replace("\n", "\n ").split(
-                    "\n"
-                )
+                f":{param.description_keyword} {escaped_name}: {param.description}".replace("\n", "\n ").split("\n")
             )
             docstring_type = param.docstring_type(
                 async_mode=self.async_mode,
                 serialize_namespace=self.serialize_namespace,
             )
-            description_list.append(f":{param.docstring_type_keyword} {param.client_name}: {docstring_type}")
+            description_list.append(f":{param.docstring_type_keyword} {escaped_name}: {docstring_type}")
         return description_list
 
     def param_description_and_response_docstring(self, builder: BuilderType) -> list[str]:
@@ -462,6 +461,7 @@ class RequestBuilderSerializer(_BuilderBaseSerializer[RequestBuilderType]):
             check_kwarg_dict=True,
             pop_headers_kwarg=(PopKwargType.CASE_INSENSITIVE if bool(builder.parameters.headers) else PopKwargType.NO),
             pop_params_kwarg=(PopKwargType.CASE_INSENSITIVE if bool(builder.parameters.query) else PopKwargType.NO),
+            is_body_optional=builder.parameters.has_body and builder.parameters.body_parameter.optional,
         )
 
     @staticmethod
@@ -491,6 +491,7 @@ class RequestBuilderSerializer(_BuilderBaseSerializer[RequestBuilderType]):
             for h in builder.parameters.headers
             if not builder.has_form_data_body or h.wire_name.lower() != "content-type"
         ]
+        is_body_optional = builder.parameters.has_body and builder.parameters.body_parameter.optional
         retval = ["# Construct headers"] if headers else []
         for header in headers:
             retval.extend(
@@ -499,6 +500,7 @@ class RequestBuilderSerializer(_BuilderBaseSerializer[RequestBuilderType]):
                     "headers",
                     self.serializer_name,
                     self.code_model.is_legacy,
+                    is_body_optional=is_body_optional,
                 )
             )
         return retval
@@ -712,7 +714,9 @@ class _OperationSerializer(_BuilderBaseSerializer[OperationType]):
         send_xml = builder.parameters.body_parameter.type.is_xml
         xml_serialization_ctxt = body_param.type.xml_serialization_ctxt if send_xml else None
         ser_ctxt_name = "serialization_ctxt"
-        if xml_serialization_ctxt and self.code_model.options["models-mode"]:
+        if xml_serialization_ctxt and (
+            self.code_model.options["models-mode"] or self.code_model.generate_typeddict_only
+        ):
             retval.append(f'{ser_ctxt_name} = {{"xml": {{{xml_serialization_ctxt}}}}}')
         if self.code_model.options["models-mode"] == "msrest":
             is_xml_cmd = _xml_config(send_xml, builder.parameters.body_parameter.content_types)
@@ -722,7 +726,7 @@ class _OperationSerializer(_BuilderBaseSerializer[OperationType]):
                 f"_{body_kwarg_name} = self._serialize.body({body_param.client_name}, "
                 f"'{serialization_type}'{is_xml_cmd}{serialization_ctxt_cmd})"
             )
-        elif self.code_model.options["models-mode"] == "typeddict":
+        elif self.code_model.generate_typeddict_only:
             # TypedDict-only models are plain dicts — no serialization needed
             create_body_call = f"_{body_kwarg_name} = {body_param.client_name}"
         elif self.code_model.options["models-mode"] == "dpg":
@@ -793,6 +797,34 @@ class _OperationSerializer(_BuilderBaseSerializer[OperationType]):
             retval.extend(self._serialize_body_parameter(builder))
         return retval
 
+    @staticmethod
+    def _collapsed_binary_bytes_overload(builder: OperationType) -> Optional[OperationType]:
+        """Return the binary overload of a binary ``bytes`` body, or ``None``.
+
+        A binary ``bytes`` body pairs a ``bytes`` overload (binary content type) with the added
+        ``IO[bytes]`` overload. Both serialize to raw content on the same content kwarg, so body
+        serialization collapses to a single unconditional assignment. This returns the binary
+        overload to serialize in that case, or ``None`` when the isinstance branch is needed.
+        """
+        if not builder.overloads:
+            return None
+        binary_ov = next(
+            (o for o in builder.overloads if isinstance(o.parameters.body_parameter.type, BinaryType)), None
+        )
+        other_ov = next(
+            (o for o in builder.overloads if not isinstance(o.parameters.body_parameter.type, BinaryType)), None
+        )
+        if (
+            binary_ov is not None
+            and other_ov is not None
+            and isinstance(other_ov.parameters.body_parameter.type, ByteArraySchema)
+            and other_ov.parameters.body_parameter.default_content_type != "application/json"
+            and binary_ov.request_builder.parameters.body_parameter.client_name
+            == other_ov.request_builder.parameters.body_parameter.client_name
+        ):
+            return cast(OperationType, binary_ov)
+        return None
+
     def _initialize_overloads(self, builder: OperationType, is_paging: bool = False) -> list[str]:
         retval: list[str] = []
         # For paging, we put body parameter in local place outside `prepare_request`
@@ -813,13 +845,32 @@ class _OperationSerializer(_BuilderBaseSerializer[OperationType]):
             overload.request_builder.parameters.body_parameter.client_name for overload in builder.overloads
         ]
         all_dpg_model_overloads = False
-        if self.code_model.options["models-mode"] in ("dpg", "typeddict") and builder.overloads:
+        if (
+            self.code_model.options["models-mode"] == "dpg" or self.code_model.generate_typeddict_only
+        ) and builder.overloads:
             all_dpg_model_overloads = all(
                 _is_dpg_or_typeddict_body(o.parameters.body_parameter) for o in builder.overloads
             )
-        if not all_dpg_model_overloads:
+        # A binary `bytes` body pairs a `bytes` overload (binary content type) with the added
+        # `IO[bytes]` overload. Both serialize to raw content on the same content kwarg, so we
+        # emit a single unconditional assignment instead of an `isinstance` branch (which would be
+        # redundant and confuse mypy's type narrowing). Since the assignment is unconditional, the
+        # `_<body> = None` pre-init below is skipped for this case as well.
+        collapsed_binary_bytes_overload = self._collapsed_binary_bytes_overload(builder)
+
+        if not all_dpg_model_overloads and collapsed_binary_bytes_overload is None:
             for v in sorted(set(client_names), key=client_names.index):
                 retval.append(f"_{v} = None")
+
+        if collapsed_binary_bytes_overload is not None:
+            collapsed_body_param = collapsed_binary_bytes_overload.parameters.body_parameter
+            if collapsed_body_param.default_content_type and not same_content_type:
+                retval.append(
+                    f'content_type = content_type or "{collapsed_body_param.default_content_type}"{check_body_suffix}'
+                )
+            retval.extend(self._create_body_parameter(collapsed_binary_bytes_overload))
+            return retval
+
         try:
             # if there is a binary overload, we do a binary check first.
             binary_overload = cast(
@@ -827,6 +878,10 @@ class _OperationSerializer(_BuilderBaseSerializer[OperationType]):
                 next((o for o in builder.overloads if isinstance(o.parameters.body_parameter.type, BinaryType))),
             )
             binary_body_param = binary_overload.parameters.body_parameter
+            other_overload = cast(
+                OperationType,
+                next((o for o in builder.overloads if not isinstance(o.parameters.body_parameter.type, BinaryType))),
+            )
             retval.append(f"if {binary_body_param.type.instance_check_template.format(binary_body_param.client_name)}:")
             if binary_body_param.default_content_type and not same_content_type:
                 retval.append(
@@ -834,10 +889,6 @@ class _OperationSerializer(_BuilderBaseSerializer[OperationType]):
                 )
             retval.extend(f"    {l}" for l in self._create_body_parameter(binary_overload))
             retval.append("else:")
-            other_overload = cast(
-                OperationType,
-                next((o for o in builder.overloads if not isinstance(o.parameters.body_parameter.type, BinaryType))),
-            )
             retval.extend(f"    {l}" for l in self._create_body_parameter(other_overload))
             if other_overload.parameters.body_parameter.default_content_type and not same_content_type:
                 retval.append(
@@ -1083,8 +1134,8 @@ class _OperationSerializer(_BuilderBaseSerializer[OperationType]):
             retval.extend([f"    {l}" for l in response_read])
         retval.append("    map_error(status_code=response.status_code, response=response, error_map=error_map)")
         error_model = ""
-        if (  # pylint: disable=too-many-nested-blocks
-            builder.non_default_errors and self.code_model.options["models-mode"]
+        if builder.non_default_errors and (  # pylint: disable=too-many-nested-blocks
+            self.code_model.options["models-mode"] or self.code_model.generate_typeddict_only
         ):
             error_model = ", model=error"
             condition = "if"
@@ -1153,7 +1204,9 @@ class _OperationSerializer(_BuilderBaseSerializer[OperationType]):
                     condition = "elif"
         # default error handling
         default_error_deserialization = builder.default_error_deserialization(self.serialize_namespace)
-        if default_error_deserialization and self.code_model.options["models-mode"]:
+        if default_error_deserialization and (
+            self.code_model.options["models-mode"] or self.code_model.generate_typeddict_only
+        ):
             error_model = ", model=error"
             indent = "        " if builder.non_default_errors else "    "
             if builder.non_default_errors:
@@ -1232,7 +1285,11 @@ class _OperationSerializer(_BuilderBaseSerializer[OperationType]):
             else:
                 retval.extend(self.response_headers_and_deserialization(builder, builder.responses[0]))
                 retval.append("")
-        if builder.has_optional_return_type or self.code_model.options["models-mode"]:
+        if (
+            builder.has_optional_return_type
+            or self.code_model.options["models-mode"]
+            or self.code_model.generate_typeddict_only
+        ):
             deserialized = "deserialized"
         else:
             deserialized = f"cast({builder.response_type_annotation(async_mode=self.async_mode)}, deserialized)"
@@ -1613,7 +1670,7 @@ class _LROOperationSerializer(_OperationSerializer[LROOperationType]):
             if builder.lro_response.headers:
                 retval.append("    response_headers = {}")
             if (
-                not self.code_model.options["models-mode"]
+                (not self.code_model.options["models-mode"] and not self.code_model.generate_typeddict_only)
                 or self.code_model.options["models-mode"] == "dpg"
                 or builder.lro_response.headers
             ):

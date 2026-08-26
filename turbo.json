@@ -52,6 +52,10 @@
     "test:e2e": {
       "dependsOn": ["build"],
       "cache": false
+    },
+    "@typespec/http-client-js#test:e2e": {
+      "dependsOn": ["build", "@typespec/http-specs#test:e2e"],
+      "cache": false
     }
   }
 }

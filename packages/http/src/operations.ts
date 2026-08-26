@@ -1,30 +1,35 @@
-import {
-  createDiagnosticCollector,
+import type {
   Diagnostic,
   DiagnosticCollector,
+  Namespace,
+  Operation,
+  Program,
+} from "@typespec/compiler";
+import {
+  createDiagnosticCollector,
   getLocationContext,
   getOverloadedOperation,
   getOverloads,
   listOperationsIn,
   listServices,
-  Namespace,
   navigateProgram,
-  Operation,
-  Program,
 } from "@typespec/compiler";
+import { unsafe_useCache as useCache } from "@typespec/compiler/experimental";
 import { getAuthenticationForOperation } from "./auth.js";
 import { getAuthentication } from "./decorators.js";
 import { isSharedRoute } from "./decorators/shared-route.js";
 import { createDiagnostic, reportDiagnostic } from "./lib.js";
 import { getResponsesForOperation } from "./responses.js";
 import { resolvePathAndParameters } from "./route.js";
-import {
+import type {
   HttpOperation,
   HttpService,
   HttpVerb,
   OperationContainer,
   RouteResolutionOptions,
 } from "./types.js";
+
+const httpOperationCacheKey = Symbol.for("@typespec/http.httpOperationCache");
 
 /**
  * Return the Http Operation details for a given TypeSpec operation.
@@ -36,6 +41,11 @@ export function getHttpOperation(
   operation: Operation,
   options?: RouteResolutionOptions,
 ): [HttpOperation, readonly Diagnostic[]] {
+  if (!options) {
+    return useCache(program, httpOperationCacheKey, operation, () =>
+      getHttpOperationInternal(program, operation, options, new Map()),
+    );
+  }
   return getHttpOperationInternal(program, operation, options, new Map());
 }
 

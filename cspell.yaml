@@ -61,6 +61,8 @@ words:
   - debugpy
   - Declipse
   - dedented
+  - dedup
+  - dedupe
   - Dedupes
   - deps
   - deser
@@ -155,6 +157,7 @@ words:
   - MACVMIMAGEM
   - marshal
   - mday
+  - Menlo
   - methodsubscriptionid
   - mgmt
   - mgmtplane
@@ -200,6 +203,7 @@ words:
   - onigasm
   - onwarn
   - openapi
+  - opfields
   - oxlint
   - openapiv
   - Packument
@@ -218,6 +222,7 @@ words:
   - ptvsd
   - pwsh
   - pycache
+  - pydantic
   - pyexpat
   - pygen
   - pygments
@@ -225,6 +230,7 @@ words:
   - pylint
   - pylintrc
   - pyodide
+  - pypi
   - pyproject
   - pyright
   - pyrightconfig
@@ -235,6 +241,7 @@ words:
   - reactivex
   - recase
   - recorda
+  - redef
   - regen
   - rehype
   - reinjected
@@ -323,6 +330,7 @@ words:
   - Vsts
   - vswhere
   - wday
+  - WCAG
   - weidxu
   - westus
   - WHATWG
@@ -366,6 +374,7 @@ ignorePaths:
   - "**/*.plist"
   - .git/**
   - .gitignore
+  - .claude/**
   - .vscode/**
   - .editorconfig
   - .github/CODEOWNERS

@@ -11,6 +11,12 @@ using Microsoft.TypeSpec.Generator.Providers;
 
 namespace Microsoft.TypeSpec.Generator.Primitives
 {
+    internal enum UnionItemTypeReferenceKind
+    {
+        PublicSurface,
+        MetadataOnly
+    }
+
     /// <summary>
     /// CSharpType represents the C# type of an input type.
     /// It is constructed from a <see cref="Type"/> and its properties.
@@ -21,6 +27,7 @@ namespace Microsoft.TypeSpec.Generator.Primitives
         private object? _literal;
         private Type? _underlyingType;
         private IReadOnlyList<CSharpType>? _unionItemTypes;
+        private UnionItemTypeReferenceKind _unionItemTypeReferenceKind;
 
         private bool? _isReadOnlyMemory;
         private bool? _isList;
@@ -35,6 +42,7 @@ namespace Microsoft.TypeSpec.Generator.Primitives
         private bool? _isIAsyncEnumerableOfT;
         private bool? _containsBinaryData;
         private int? _hashCode;
+        private string? _clrMetadataName;
         private CSharpType? _propertyInitializationType;
         private CSharpType? _elementType;
         private CSharpType? _inputType;
@@ -48,7 +56,7 @@ namespace Microsoft.TypeSpec.Generator.Primitives
         public bool IsReadOnlyDictionary => _isReadOnlyDictionary ??= TypeIsReadOnlyDictionary();
         internal bool IsReadWriteDictionary => _isReadWriteDictionary ??= TypeIsReadWriteDictionary();
         internal bool IsIEnumerableOfT => _isIEnumerableOfT ??= TypeIsIEnumerableOfT();
-        internal bool IsIAsyncEnumerableOfT => _isIAsyncEnumerableOfT ??= TypeIsIAsyncEnumerableOfT();
+        public bool IsIAsyncEnumerableOfT => _isIAsyncEnumerableOfT ??= TypeIsIAsyncEnumerableOfT();
         internal bool ContainsBinaryData => _containsBinaryData ??= TypeContainsBinaryData();
 
         /// <summary>
@@ -174,6 +182,22 @@ namespace Microsoft.TypeSpec.Generator.Primitives
             ? $"{Namespace}.{Name}"
             : $"{Namespace}.{DeclaringType.Name}.{Name}";
         public CSharpType? DeclaringType { get; private init; }
+
+        /// <summary>
+        /// Gets the CLR metadata name for this type, including the arity suffix for generic types
+        /// (e.g., <c>Type`1</c>) and the <c>+</c>-separated declaring-type chain for nested types
+        /// (e.g., <c>Outer`1+Inner</c>). This format is compatible with
+        /// <see cref="Microsoft.CodeAnalysis.Compilation.GetTypeByMetadataName"/>.
+        /// </summary>
+        public string ClrMetadataName => _clrMetadataName ??= BuildClrMetadataName();
+
+        private string BuildClrMetadataName()
+        {
+            var simpleName = Arguments.Count > 0 ? $"{Name}`{Arguments.Count}" : Name;
+            return DeclaringType is null
+                ? simpleName
+                : $"{DeclaringType.ClrMetadataName}+{simpleName}";
+        }
         public bool IsValueType { get; private init; }
         public bool IsEnum => _underlyingType is not null;
         public bool IsLiteral => _literal is not null;
@@ -221,6 +245,7 @@ namespace Microsoft.TypeSpec.Generator.Primitives
         public CSharpType InputType => _inputType ??= GetInputType();
         public CSharpType OutputType => _outputType ??= GetOutputType();
         public IReadOnlyList<CSharpType> UnionItemTypes => _unionItemTypes ?? throw new InvalidOperationException("Not a union type");
+        internal UnionItemTypeReferenceKind UnionItemTypeReferenceKind => _unionItemTypeReferenceKind;
 
         private bool TypeIsReadOnlyMemory()
             => IsFrameworkType && _type == typeof(ReadOnlyMemory<>);
@@ -559,6 +584,7 @@ namespace Microsoft.TypeSpec.Generator.Primitives
 
             type._literal = _literal;
             type._unionItemTypes = _unionItemTypes;
+            type._unionItemTypeReferenceKind = _unionItemTypeReferenceKind;
 
             return type;
         }
@@ -582,6 +608,7 @@ namespace Microsoft.TypeSpec.Generator.Primitives
             type._underlyingType = underlyingEnumType;
             type._literal = _literal;
             type._unionItemTypes = _unionItemTypes;
+            type._unionItemTypeReferenceKind = _unionItemTypeReferenceKind;
 
             return type;
         }
@@ -652,16 +679,6 @@ namespace Microsoft.TypeSpec.Generator.Primitives
             return FullyQualifiedName == other.FullyQualifiedName;
         }
 
-        // TO-DO: Implement this once SystemObjectType is implemented: https://github.com/Azure/autorest.csharp/issues/4198
-        // internal static CSharpType FromSystemType(Type type, string defaultNamespace, SourceInputModel? sourceInputModel, IEnumerable<ObjectTypeProperty>? backingProperties = null)
-        // {
-        //     var systemObjectType = SystemObjectType.Create(type, defaultNamespace, sourceInputModel, backingProperties);
-        //     return systemObjectType.Type;
-        // }
-
-        // internal static CSharpType FromSystemType(BuildContext context, Type type, IEnumerable<ObjectTypeProperty>? backingProperties = null)
-        //     => FromSystemType(type, context.DefaultNamespace, context.SourceInputModel, backingProperties);
-
         /// <summary>
         /// This function is used to create a new CSharpType instance with a literal value.
         /// If the type is a framework type, the CSharpType will be created with the literal value Constant
@@ -701,9 +718,16 @@ namespace Microsoft.TypeSpec.Generator.Primitives
         /// <param name="isNullable">Flag used to determine if a type is nullable.</param>
         /// <returns>A <see cref="CSharpType"/> instance representing those unioned types.</returns>
         public static CSharpType FromUnion(IReadOnlyList<CSharpType> unionItemTypes, bool isNullable = false)
+            => FromUnion(unionItemTypes, isNullable, UnionItemTypeReferenceKind.PublicSurface);
+
+        internal static CSharpType FromUnion(
+            IReadOnlyList<CSharpType> unionItemTypes,
+            bool isNullable,
+            UnionItemTypeReferenceKind referenceKind)
         {
             var type = new CSharpType(typeof(BinaryData), isNullable);
             type._unionItemTypes = unionItemTypes;
+            type._unionItemTypeReferenceKind = referenceKind;
 
             return type;
         }

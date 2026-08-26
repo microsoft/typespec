@@ -1,36 +1,36 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT license.
 
-import {
-  compilerAssert,
+import type {
   DiagnosticTarget,
   Enum,
-  formatDiagnostic,
-  getDoc,
-  getEffectiveModelType,
-  getFriendlyName,
-  getTypeName,
   Interface,
   IntrinsicType,
-  isDeclaredInNamespace,
-  isTemplateInstance,
-  isType,
   Model,
   ModelProperty,
   Namespace,
   Operation,
   Program,
-  resolvePath,
   Scalar,
   StringLiteral,
   Type,
   Union,
 } from "@typespec/compiler";
+import {
+  compilerAssert,
+  formatDiagnostic,
+  getDoc,
+  getEffectiveModelType,
+  getFriendlyName,
+  getTypeName,
+  isDeclaredInNamespace,
+  isTemplateInstance,
+  isType,
+  resolvePath,
+} from "@typespec/compiler";
 import { SyntaxKind } from "@typespec/compiler/ast";
 import { capitalize } from "@typespec/compiler/casing";
-import {
-  map,
-  matchType,
+import type {
   ProtoEnumDeclaration,
   ProtoEnumVariantDeclaration,
   ProtoFieldDeclaration,
@@ -43,14 +43,13 @@ import {
   ProtoScalar,
   ProtoTopLevelDeclaration,
   ProtoType,
-  ref,
-  scalar,
   ScalarIntegralName,
-  StreamingMode,
-  unreachable,
 } from "../ast.js";
-import { ProtobufEmitterOptions, reportDiagnostic, state } from "../lib.js";
-import { $field, isMap, Reservation } from "../proto.js";
+import { map, matchType, ref, scalar, StreamingMode, unreachable } from "../ast.js";
+import type { ProtobufEmitterOptions } from "../lib.js";
+import { reportDiagnostic, state } from "../lib.js";
+import type { Reservation } from "../proto.js";
+import { $field, isMap } from "../proto.js";
 import { writeProtoFile } from "../write.js";
 
 // Cache for scalar -> ProtoScalar map
@@ -203,8 +202,7 @@ function tspToProto(program: Program, emitterOptions: ProtobufEmitterOptions): P
     return {
       package: (
         (details?.properties.get("name") as ModelProperty | undefined)?.type as
-          | StringLiteral
-          | undefined
+          StringLiteral | undefined
       )?.value,
 
       options: Object.fromEntries(packageOptions),
@@ -886,26 +884,18 @@ function tspToProto(program: Program, emitterOptions: ProtobufEmitterOptions): P
       kind: "enum",
       name: e.name,
       allowAlias: needsAlias,
-      variants: [...e.members.values()].map(
-        (variant): ProtoEnumVariantDeclaration => ({
-          kind: "variant",
-          name: variant.name,
-          value: variant.value as number,
-          doc: getDoc(program, variant),
-        }),
-      ),
+      variants: [...e.members.values()].map((variant): ProtoEnumVariantDeclaration => ({
+        kind: "variant",
+        name: variant.name,
+        value: variant.value as number,
+        doc: getDoc(program, variant),
+      })),
       doc: getDoc(program, e),
     };
   }
 
   type NamespaceTraversable =
-    | Enum
-    | Model
-    | Interface
-    | Union
-    | Operation
-    | Namespace
-    | IntrinsicType;
+    Enum | Model | Interface | Union | Operation | Namespace | IntrinsicType;
 
   function getPackageOfType(program: Program, t: NamespaceTraversable): Namespace | null {
     /* c8 ignore start */
@@ -990,8 +980,7 @@ function tspToProto(program: Program, emitterOptions: ProtobufEmitterOptions): P
             ? (map(
                 k,
                 addImportSourceForProtoIfNeeded(program, v, mapInfo[0], mapInfo[1]) as
-                  | ProtoRef
-                  | ProtoScalar,
+                  ProtoRef | ProtoScalar,
                 // Anything else is unreachable by construction.
               ) as T)
             : pt;
@@ -1013,8 +1002,7 @@ function tspToProto(program: Program, emitterOptions: ProtobufEmitterOptions): P
             return pt;
 
           const dependencyDetails = program.stateMap(state.package).get(dependencyPackage) as
-            | Model
-            | undefined;
+            Model | undefined;
 
           const dependencyPackageName = (
             dependencyDetails?.properties.get("name")?.type as StringLiteral | undefined

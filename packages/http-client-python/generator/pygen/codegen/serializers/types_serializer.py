@@ -40,13 +40,38 @@ _BUILTIN_TYPE_NAMES = frozenset(
 )
 
 
+# Matches a single- or double-quoted string literal (escape-aware). Used to split an
+# annotation so that bare-identifier rewriting/detection skips text inside string literals
+# such as ``Literal["type"]`` values or quoted forward references like ``"SomeModel"``.
+_STRING_LITERAL_RE = re.compile(r"""('(?:[^'\\]|\\.)*'|"(?:[^"\\]|\\.)*")""")
+
+
+def _annotation_references_builtin(annotation: str, name: str) -> bool:
+    """Whether ``name`` appears as a bare (non-dotted) identifier outside any string literal."""
+    pattern = re.compile(rf"(?<!\.)\b{name}\b")
+    # re.split with a single capturing group yields code/string/code/string/... segments.
+    for index, segment in enumerate(_STRING_LITERAL_RE.split(annotation)):
+        if index % 2 == 0 and pattern.search(segment):
+            return True
+    return False
+
+
 def _qualify_shadowed_builtins(annotation: str, shadowed: frozenset[str]) -> str:
-    """Replace bare builtin type references with builtins.X when shadowed by a field name."""
+    """Replace bare builtin type references with builtins.X when shadowed by a field name.
+
+    Only bare identifiers in real type-expression positions are rewritten; identifiers
+    inside string literals (e.g. ``Literal["type"]`` values, quoted forward references)
+    and already-dotted names are left untouched.
+    """
     if not shadowed:
         return annotation
-    for name in shadowed:
-        annotation = re.sub(rf"\b{name}\b", f"builtins.{name}", annotation)
-    return annotation
+    segments = _STRING_LITERAL_RE.split(annotation)
+    for index in range(0, len(segments), 2):  # even indices are code, odd are string literals
+        segment = segments[index]
+        for name in shadowed:
+            segment = re.sub(rf"(?<!\.)\b{name}\b", f"builtins.{name}", segment)
+        segments[index] = segment
+    return "".join(segments)
 
 
 class TypesSerializer(BaseSerializer):
@@ -78,21 +103,16 @@ class TypesSerializer(BaseSerializer):
 
         TypedDicts (and discriminated-base union aliases) in ``types.py`` describe request-body
         (*input*) shapes. Output-only models already render as classes in ``models/`` and are
-        referenced via ``_models.*``, so a response-only model that nothing input references would be
-        dead code. A model seeds the input surface when it is:
-
-        * a typeddict copy (``base == "typeddict"``) — these only exist as input body overloads
-          (their ``usage`` may carry ``Spread``/``Json`` rather than ``Input``), or
-        * ``is_typed_dict_only`` — includes every model in full ``typeddict`` mode (responses too),
-          and input-only anonymous bodies, or
-        * used as input (``is_usage_input``) — e.g. a model shared between request and response.
+        referenced via ``_models.*``, so a model that no operation references through ``types.py``
+        would be dead code. TypedDict copies and models in full TypedDict mode volunteer through
+        ``is_used_in_operations_via_types``.
 
         The full set rendered in types.py is the transitive closure of these seeds over base
         classes, discriminated subtypes and property types (see :attr:`_types_file_model_names`), so
         an output-only model that *is* referenced by an input model (e.g. ARM ``SystemData`` on
         ``Resource``) is still rendered.
         """
-        return m.base == "typeddict" or m.is_typed_dict_only or m.is_usage_input
+        return m.is_used_in_operations_via_types
 
     @staticmethod
     def _iter_referenced_models(base_type: Any):
@@ -164,9 +184,7 @@ class TypesSerializer(BaseSerializer):
         property — are kept, ensuring no forward reference is left undefined.
         """
         needed = self._types_file_model_names
-        candidates = [
-            m for m in self._models if m.base != "json" and not m.discriminated_subtypes and m.name in needed
-        ]
+        candidates = [m for m in self._models if m.base != "json" and not m.discriminated_subtypes and m.name in needed]
         seen_names: dict[str, "ModelType"] = {}
         result: list["ModelType"] = []
         for m in candidates:
@@ -226,21 +244,59 @@ class TypesSerializer(BaseSerializer):
         return any(keyword.iskeyword(p.wire_name) or not p.wire_name.isidentifier() for p in model.properties)
 
     @staticmethod
-    def get_shadowed_builtins(model: ModelType) -> frozenset[str]:
+    def needs_flat_typeddict(model: ModelType) -> bool:
+        """Whether a TypedDict must be emitted in flat (non-inheriting) form.
+
+        PEP 589 forbids changing an inherited TypedDict field's requiredness in a subclass. When a
+        child redeclares an inherited field with a different requiredness (e.g. the parent renders it
+        as optional via ``total=False`` while the child needs ``Required[...]``), subclassing would
+        emit an illegal ``Overwriting TypedDict field ... while extending`` construct. Such models are
+        instead rendered as a flat TypedDict that lists every field (inherited + own) directly.
+
+        Models with keyword wire_names already flatten all fields via the functional form, so they
+        never hit this path.
+        """
+        if TypesSerializer.has_keyword_wire_names(model):
+            return False
+        non_discriminated_parents = [p for p in model.parents if not p.discriminated_subtypes]
+        if not non_discriminated_parents:
+            return False
+        for parent in non_discriminated_parents:
+            for parent_prop in parent.properties:
+                child_prop = next(
+                    (p for p in model.properties if p.client_name == parent_prop.client_name),
+                    None,
+                )
+                if child_prop is None or child_prop is parent_prop:
+                    # Not overridden by the child (same object is reused when inherited unchanged).
+                    continue
+                parent_required = not (parent_prop.optional or parent_prop.client_default_value is not None)
+                child_required = not (child_prop.optional or child_prop.client_default_value is not None)
+                if parent_required != child_required:
+                    return True
+        return False
+
+    def get_shadowed_builtins(self, model: ModelType) -> frozenset[str]:
         """Return the set of builtin type names shadowed by property wire_names in this model.
 
-        Only includes a builtin if it is both used as a wire_name AND referenced
-        in a type annotation within the same model (otherwise no shadowing occurs).
+        Only includes a builtin if it is both used as a wire_name AND referenced as a bare
+        type in an annotation within the same model (otherwise no shadowing occurs). Detection
+        uses the exact ``TYPES_FILE`` annotation emitted for each property so that types which
+        change under the types-file serialization (e.g. ``bytes``/``datetime`` -> ``str``,
+        ``decimal`` -> ``float``) are evaluated as they actually appear in the output.
         """
         wire_builtins = {p.wire_name for p in model.properties if p.wire_name in _BUILTIN_TYPE_NAMES}
         if not wire_builtins:
             return frozenset()
-        # Check which of these builtins actually appear in type annotations
+        # Check which of these builtins actually appear in emitted type annotations
         used = set()
         for prop in model.properties:
-            annotation = prop.type_annotation()
+            annotation = prop.type_annotation(
+                serialize_namespace=self.serialize_namespace,
+                serialize_namespace_type=NamespaceType.TYPES_FILE,
+            )
             for name in wire_builtins:
-                if re.search(rf"\b{name}\b", annotation):
+                if _annotation_references_builtin(annotation, name):
                     used.add(name)
         return frozenset(used)
 
@@ -280,7 +336,11 @@ class TypesSerializer(BaseSerializer):
                 if self.get_shadowed_builtins(model):
                     needs_builtins = True
                 for parent in model.parents:
-                    if parent.client_namespace != model.client_namespace and not parent.discriminated_subtypes:
+                    if (
+                        parent.client_namespace != model.client_namespace
+                        and not parent.discriminated_subtypes
+                        and not self.needs_flat_typeddict(model)
+                    ):
                         # Import parent class from sibling namespace's types module
                         file_import.add_submodule_import(
                             self.code_model.get_relative_import_path(
@@ -306,7 +366,7 @@ class TypesSerializer(BaseSerializer):
         if self.has_keyword_wire_names(model):
             return ""  # functional form is rendered separately
         non_discriminated_parents = [p for p in model.parents if not p.discriminated_subtypes]
-        if non_discriminated_parents:
+        if non_discriminated_parents and not self.needs_flat_typeddict(model):
             basename = ", ".join([m.name for m in non_discriminated_parents])
             return f"class {model.name}({basename}):{model.pylint_disable()}"
         return f"class {model.name}(TypedDict, total=False):{model.pylint_disable()}"
@@ -339,7 +399,7 @@ class TypesSerializer(BaseSerializer):
         if TypesSerializer.has_keyword_wire_names(model):
             return []  # functional form handles all properties
         non_discriminated_parents = [p for p in model.parents if not p.discriminated_subtypes]
-        if non_discriminated_parents:
+        if non_discriminated_parents and not TypesSerializer.needs_flat_typeddict(model):
             parent_properties = [p for bm in non_discriminated_parents for p in bm.properties]
             return [
                 p

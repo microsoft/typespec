@@ -1,21 +1,11 @@
-import {
-  compile,
-  compilerAssert,
-  createDiagnosticCollector,
+import type {
   Decorator,
   Diagnostic,
+  DiagnosticDefinition,
   DocContent,
   Enum,
   EnumMember,
-  getDeprecated,
-  getDoc,
-  getLocationContext,
-  getSourceLocation,
-  getTypeName,
   Interface,
-  isDeclaredType,
-  isTemplateDeclaration,
-  joinPaths,
   JSONSchemaType,
   LinterResolvedDefinition,
   LinterRuleDefinition,
@@ -23,29 +13,44 @@ import {
   Model,
   ModelProperty,
   Namespace,
-  navigateProgram,
-  navigateTypesInNamespace,
-  NodeHost,
-  NoTarget,
   Operation,
   Program,
-  resolveLinterDefinition,
-  resolvePath,
   Scalar,
   TemplatedType,
   Type,
   TypeSpecLibrary,
   Union,
   UnionVariant,
+} from "@typespec/compiler";
+import {
+  compile,
+  compilerAssert,
+  createDiagnosticCollector,
+  getDeprecated,
+  getDoc,
+  getLocationContext,
+  getSourceLocation,
+  getTypeName,
+  isDeclaredType,
+  isTemplateDeclaration,
+  joinPaths,
+  navigateProgram,
+  navigateTypesInNamespace,
+  NodeHost,
+  NoTarget,
+  resolveLinterDefinition,
+  resolvePath,
+  type FileRef,
   type PackageJson,
 } from "@typespec/compiler";
 import { SyntaxKind, type DocUnknownTagNode } from "@typespec/compiler/ast";
 import { readFile } from "fs/promises";
 import { pathToFileURL } from "url";
-import { reportDiagnostic } from "./lib.js";
-import {
+import { createDiagnostic, reportDiagnostic } from "./lib.js";
+import type {
   DecoratorRefDoc,
   DeprecationNotice,
+  DiagnosticRefDoc,
   EmitterOptionRefDoc,
   EmitterOptionVariantRefDoc,
   EnumMemberRefDoc,
@@ -125,7 +130,39 @@ export async function extractLibraryRefDocs(
     }
     const linter = entrypoint.$linter;
     if (lib && linter) {
-      refDoc.linter = extractLinterRefDoc(lib.name, resolveLinterDefinition(lib.name, linter));
+      const resolved = resolveLinterDefinition(lib.name, linter);
+      refDoc.linter = await extractLinterRefDoc(lib.name, resolved, libraryPath);
+      for (const r of refDoc.linter.rules) {
+        if (!r.doc) {
+          diagnostics.add(
+            createDiagnostic({
+              code: "documentation-missing",
+              messageId: "rule",
+              format: { name: r.id },
+              target: NoTarget,
+            }),
+          );
+        }
+      }
+    }
+    if (lib?.diagnostics) {
+      refDoc.diagnostics = await extractDiagnosticsRefDoc(
+        lib.name,
+        lib.diagnostics as Record<string, DiagnosticDefinition<any>>,
+        libraryPath,
+      );
+      for (const diag of refDoc.diagnostics) {
+        if (!diag.doc) {
+          diagnostics.add(
+            createDiagnostic({
+              code: "documentation-missing",
+              messageId: "diagnostic",
+              format: { name: diag.id },
+              target: NoTarget,
+            }),
+          );
+        }
+      }
     }
   }
 
@@ -904,11 +941,45 @@ function resolveDescription(description: string | string[] | undefined): string 
   return Array.isArray(description) ? description.join("\n") : description;
 }
 
-function extractLinterRefDoc(libName: string, linter: LinterResolvedDefinition): LinterRefDoc {
+async function resolveDoc(
+  doc: string | FileRef | undefined,
+  libraryPath: string,
+): Promise<string | undefined> {
+  if (doc === undefined) return undefined;
+  if (typeof doc === "string") return doc;
+  try {
+    return await readFile(joinPaths(libraryPath, doc.path), "utf-8");
+  } catch {
+    return undefined;
+  }
+}
+
+async function extractLinterRefDoc(
+  libName: string,
+  linter: LinterResolvedDefinition,
+  libraryPath: string,
+): Promise<LinterRefDoc> {
   return {
     ruleSets: linter.ruleSets && extractLinterRuleSetsRefDoc(libName, linter.ruleSets),
-    rules: linter.rules.map((rule) => extractLinterRuleRefDoc(libName, rule)),
+    rules: await Promise.all(
+      linter.rules.map((rule) => extractLinterRuleRefDoc(libName, rule, libraryPath)),
+    ),
   };
+}
+
+async function extractDiagnosticsRefDoc(
+  libName: string,
+  diagnostics: Record<string, DiagnosticDefinition<any>>,
+  libraryPath: string,
+): Promise<DiagnosticRefDoc[]> {
+  return Promise.all(
+    Object.entries(diagnostics).map(async ([name, def]) => ({
+      id: `${libName}/${name}`,
+      name,
+      severity: def.severity,
+      doc: await resolveDoc(def.docs, libraryPath),
+    })),
+  );
 }
 
 function extractLinterRuleSetsRefDoc(
@@ -925,15 +996,17 @@ function extractLinterRuleSetsRefDoc(
     };
   });
 }
-function extractLinterRuleRefDoc(
+async function extractLinterRuleRefDoc(
   libName: string,
   rule: LinterRuleDefinition<any, any>,
-): LinterRuleRefDoc {
+  libraryPath: string,
+): Promise<LinterRuleRefDoc> {
   const fullName = `${libName}/${rule.name}`;
   return {
     kind: "rule",
     id: fullName,
     name: fullName,
     rule,
+    doc: await resolveDoc(rule.docs, libraryPath),
   };
 }
