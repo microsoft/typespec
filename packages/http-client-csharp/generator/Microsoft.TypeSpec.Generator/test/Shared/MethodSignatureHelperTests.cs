@@ -352,7 +352,7 @@ namespace Microsoft.TypeSpec.Generator.Tests.Shared
         }
 
         [Test]
-        public void BuildBackCompatMethodSignature_AllOptionalFactoryOverloadsRequireMinimumPrefix()
+        public void BuildBackCompatMethodSignature_NullLiteralOverlapRequiresAllParameters()
         {
             var previousSignature = CreateMethodSignature("CompatibilityModel",
                 new ParameterProvider("id", $"", typeof(string), defaultValue: Default),
@@ -372,18 +372,37 @@ namespace Microsoft.TypeSpec.Generator.Tests.Shared
                 hideMethod: true,
                 currentMethodSignatures: [currentSignature]);
 
-            // 'enabled' is the first position whose type differs from the current overload
-            // ('bool?' versus 'kind'), so supplying three arguments already disambiguates the
-            // call and 'description' keeps the optionality it was published with.
-            Assert.IsNull(backCompatSignature.Parameters[0].DefaultValue);
-            Assert.IsNull(backCompatSignature.Parameters[1].DefaultValue);
-            Assert.IsNull(backCompatSignature.Parameters[2].DefaultValue);
-            Assert.IsNotNull(backCompatSignature.Parameters[3].DefaultValue);
+            // Both differing positions accept null, so requiring only three parameters would leave
+            // CompatibilityModel("id", "name", null) ambiguous.
+            Assert.That(backCompatSignature.Parameters, Has.All.Property("DefaultValue").Null);
             Assert.IsTrue(backCompatSignature.Attributes.Any(a => a.Type.Equals(typeof(System.ComponentModel.EditorBrowsableAttribute))));
         }
 
         [Test]
-        public void BuildBackCompatMethodSignature_RequiredFactoryParametersPreserveTrailingDefaults()
+        public void BuildBackCompatMethodSignature_NullableValueTypeDifferencePreservesTrailingDefault()
+        {
+            var previousSignature = CreateMethodSignature("CompatibilityModel",
+                new ParameterProvider("id", $"", typeof(string), defaultValue: Default),
+                new ParameterProvider("count", $"", typeof(int?), defaultValue: Default),
+                new ParameterProvider("description", $"", typeof(string), defaultValue: Default));
+            var currentSignature = CreateMethodSignature("CompatibilityModel",
+                new ParameterProvider("id", $"", typeof(string), defaultValue: Default),
+                new ParameterProvider("count", $"", typeof(int), defaultValue: Default),
+                new ParameterProvider("description", $"", typeof(string), defaultValue: Default),
+                new ParameterProvider("kind", $"", typeof(string), defaultValue: Default));
+
+            var backCompatSignature = MethodSignatureHelper.BuildBackCompatMethodSignature(
+                previousSignature,
+                hideMethod: true,
+                currentMethodSignatures: [currentSignature]);
+
+            Assert.IsNull(backCompatSignature.Parameters[0].DefaultValue);
+            Assert.IsNull(backCompatSignature.Parameters[1].DefaultValue);
+            Assert.IsNotNull(backCompatSignature.Parameters[2].DefaultValue);
+        }
+
+        [Test]
+        public void BuildBackCompatMethodSignature_RequiredFactoryParametersRespectNullLiteralOverlap()
         {
             var previousSignature = CreateMethodSignature("CompatibilityModel",
                 new ParameterProvider("id", $"", typeof(string)),
@@ -406,7 +425,7 @@ namespace Microsoft.TypeSpec.Generator.Tests.Shared
             Assert.IsNull(backCompatSignature.Parameters[0].DefaultValue);
             Assert.IsNull(backCompatSignature.Parameters[1].DefaultValue);
             Assert.IsNull(backCompatSignature.Parameters[2].DefaultValue);
-            Assert.IsNotNull(backCompatSignature.Parameters[3].DefaultValue);
+            Assert.IsNull(backCompatSignature.Parameters[3].DefaultValue);
         }
 
         // A competitor that cannot be called with as few arguments as the previous signature only

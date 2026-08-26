@@ -181,15 +181,19 @@ namespace Microsoft.TypeSpec.Generator
                 return 0;
             }
 
-            // Require only the prefix up to and including the first position whose parameter type
-            // differs. Any call supplying that many arguments can no longer bind to the competing
-            // overload, so every trailing parameter keeps the optionality it had previously.
+            // Require only the prefix up to and including the first position whose parameter types
+            // distinguish the overloads. A type-name difference alone is insufficient because a
+            // null literal is applicable to any reference or nullable value type.
             int overlappingParameterCount = Math.Min(
                 targetMethodSignature.Parameters.Count,
                 competingMethodSignature.Parameters.Count);
             for (int i = 0; i < overlappingParameterCount; i++)
             {
-                if (!targetMethodSignature.Parameters[i].Type.AreNamesEqual(competingMethodSignature.Parameters[i].Type))
+                CSharpType targetType = targetMethodSignature.Parameters[i].Type;
+                CSharpType competingType = competingMethodSignature.Parameters[i].Type;
+                bool sameType = targetType.IsNullable == competingType.IsNullable
+                    && targetType.AreNamesEqual(competingType);
+                if (!sameType && (!CanAcceptNull(targetType) || !CanAcceptNull(competingType)))
                 {
                     return Math.Max(i + 1, targetMinimumArgumentCount);
                 }
@@ -207,6 +211,8 @@ namespace Microsoft.TypeSpec.Generator
             // argument than the competitor accepts. Fall back to requiring every target parameter.
             return targetMethodSignature.Parameters.Count;
         }
+
+        private static bool CanAcceptNull(CSharpType type) => !type.IsValueType || type.IsNullable;
 
         private static int GetMinimumArgumentCount(MethodSignature methodSignature)
         {

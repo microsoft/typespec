@@ -9,7 +9,7 @@ namespace Sample.Namespace
 {
     public static partial class SampleNamespaceModelFactory
     {
-        public static global::Sample.Models.CompatibilityModel CompatibilityModel(string id, string name, int? count, bool? flag, string kind = default)
+        public static global::Sample.Models.CompatibilityModel CompatibilityModel(string id, string name, int? count, bool? flag, string kind)
         {
             return new global::Sample.Models.CompatibilityModel(
                 id,
