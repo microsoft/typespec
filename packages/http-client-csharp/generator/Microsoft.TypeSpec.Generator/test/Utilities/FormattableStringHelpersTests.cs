@@ -353,6 +353,34 @@ namespace Microsoft.TypeSpec.Generator.Tests.Utilities
                         $"{"y":L}second",
                         $"third{null}"
                     }).SetName("TestBreakLines_FormatSpecifierInArgWithTerminators");
+
+                // a literal ending in a lone '\r' followed by a string argument starting with '\n' is a single
+                // CRLF split across the interpolation boundary and must produce one line break, not two.
+                yield return new TestCaseData(
+                    (FormattableString)$"first\r{"\nsecond"}",
+                    new List<FormattableString> {
+                        $"first",
+                        $"{"second"}"
+                    }).SetName("TestBreakLines_CRLFAcrossLiteralAndArgumentBoundary");
+
+                // same as above but the '\r' half is the string argument and the '\n' half starts the following literal.
+                // BreakLinesCoreForString always wraps the text following the last '\n' in an argument placeholder
+                // (even when empty), so the merged line keeps that placeholder ahead of the literal text.
+                yield return new TestCaseData(
+                    (FormattableString)$"{"first\r"}\nsecond",
+                    new List<FormattableString> {
+                        $"{"first"}",
+                        $"{""}second"
+                    }).SetName("TestBreakLines_CRLFAcrossArgumentAndLiteralBoundary");
+
+                inner = $"{"x"}\r";
+                outer = $"first{inner}\nsecond";
+                yield return new TestCaseData(
+                    outer,
+                    new List<FormattableString> {
+                        $"first{"x"}",
+                        $"second"
+                    }).SetName("TestBreakLines_CRLFAcrossNestedFormattableStringBoundary");
             }
         }
     }

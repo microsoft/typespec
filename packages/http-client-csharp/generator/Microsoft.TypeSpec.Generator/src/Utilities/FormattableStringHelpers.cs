@@ -112,7 +112,11 @@ namespace Microsoft.TypeSpec.Generator
             var args = new List<object?>();
             List<FormattableString> result = new List<FormattableString>();
 
-            var hasEmptyLastLine = BreakLinesCore(input, formatBuilder, args, result);
+            // tracks whether the previously processed part ended with a lone '\r' whose matching '\n' (if any)
+            // has not been observed yet, so a CRLF split across an interpolation boundary is still treated as
+            // a single line terminator instead of two.
+            bool pendingCR = false;
+            var hasEmptyLastLine = BreakLinesCore(input, formatBuilder, args, result, ref pendingCR);
 
             // if formatBuilder is not empty at end, add it to result
             // or when the last char is line break, we should also construct one and add it into the result
@@ -124,7 +128,7 @@ namespace Microsoft.TypeSpec.Generator
             return result;
         }
 
-        private static bool BreakLinesCore(FormattableString input, StringBuilder formatBuilder, List<object?> args, List<FormattableString> result)
+        private static bool BreakLinesCore(FormattableString input, StringBuilder formatBuilder, List<object?> args, List<FormattableString> result, ref bool pendingCR)
         {
             // stackalloc cannot be used in a loop, we must allocate it here. The buffer is sized from the pre-normalization
             // format length because normalization must not expand the input. A format containing only line feeds produces
@@ -137,10 +141,24 @@ namespace Microsoft.TypeSpec.Generator
                 // if isLiteral - put in formatBuilder
                 if (isLiteral)
                 {
-                    var normalizedSpan = span;
-                    if (RequiresNormalization(span))
+                    bool hadPendingCR = pendingCR;
+                    var literalSpan = span;
+                    if (hadPendingCR && literalSpan.Length > 0 && literalSpan[0] == '\n')
                     {
-                        normalizedSpan = NormalizeLineTerminators(span).AsSpan();
+                        // this '\n' completes a CRLF pair whose '\r' ended the previous part; it was already
+                        // accounted for as a line break, so it must not also be counted here.
+                        literalSpan = literalSpan[1..];
+                    }
+                    pendingCR = literalSpan.Length > 0 && literalSpan[^1] == '\r';
+                    if (hadPendingCR && literalSpan.Length == 0 && span.Length > 0)
+                    {
+                        // the entire part was the other half of a cross-boundary CRLF pair; nothing new to emit.
+                        continue;
+                    }
+                    var normalizedSpan = literalSpan;
+                    if (RequiresNormalization(literalSpan))
+                    {
+                        normalizedSpan = NormalizeLineTerminators(literalSpan).AsSpan();
                     }
                     Debug.Assert(normalizedSpan.Length <= input.Format.Length);
                     var numSplits = normalizedSpan.Split(splitIndices, '\n');
@@ -183,16 +201,31 @@ namespace Microsoft.TypeSpec.Generator
                     switch (arg)
                     {
                         case string str when indexOfFormatSpecifier < 0 || ContainsLineTerminator(str):
-                            BreakLinesCoreForString(
-                                str.AsSpan(),
-                                indexOfFormatSpecifier >= 0 ? span[indexOfFormatSpecifier..] : ReadOnlySpan<char>.Empty,
-                                formatBuilder,
-                                args,
-                                result);
-                            hasEmptyLastLine = false;
-                            break;
+                            {
+                                bool hadPendingCR = pendingCR;
+                                var strSpan = str.AsSpan();
+                                if (hadPendingCR && strSpan.Length > 0 && strSpan[0] == '\n')
+                                {
+                                    // this '\n' completes a CRLF pair whose '\r' ended the previous part.
+                                    strSpan = strSpan[1..];
+                                }
+                                pendingCR = strSpan.Length > 0 && strSpan[^1] == '\r';
+                                if (hadPendingCR && strSpan.Length == 0 && str.Length > 0)
+                                {
+                                    // the entire argument was the other half of a cross-boundary CRLF pair.
+                                    break;
+                                }
+                                BreakLinesCoreForString(
+                                    strSpan,
+                                    indexOfFormatSpecifier >= 0 ? span[indexOfFormatSpecifier..] : ReadOnlySpan<char>.Empty,
+                                    formatBuilder,
+                                    args,
+                                    result);
+                                hasEmptyLastLine = false;
+                                break;
+                            }
                         case FormattableString fs when indexOfFormatSpecifier < 0:
-                            hasEmptyLastLine = BreakLinesCore(fs, formatBuilder, args, result);
+                            hasEmptyLastLine = BreakLinesCore(fs, formatBuilder, args, result, ref pendingCR);
                             break;
                         default:
                             // if not a string or FormattableString, add to args because we cannot parse it
