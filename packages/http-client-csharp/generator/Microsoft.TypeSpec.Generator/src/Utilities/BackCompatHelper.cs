@@ -249,7 +249,7 @@ namespace Microsoft.TypeSpec.Generator.Utilities
             for (int i = 0; i < currentParameters.Count && i < previousParameters.Count; i++)
             {
                 if (currentParameters[i].IsExactName
-                    && !string.Equals(currentParameters[i].Name.ToVariableName(), previousParameters[i].Name.ToVariableName(), StringComparison.Ordinal))
+                    && !string.Equals(currentParameters[i].Name, previousParameters[i].Name, StringComparison.Ordinal))
                 {
                     return true;
                 }
