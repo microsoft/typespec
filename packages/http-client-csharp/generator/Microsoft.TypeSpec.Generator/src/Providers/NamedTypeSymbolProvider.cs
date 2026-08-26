@@ -167,14 +167,6 @@ namespace Microsoft.TypeSpec.Generator.Providers
                     {
                         modifiers |= FieldModifiers.Static;
                     }
-                    if (fieldSymbol.IsReadOnly)
-                    {
-                        modifiers |= FieldModifiers.ReadOnly;
-                    }
-                    if (fieldSymbol.IsConst)
-                    {
-                        modifiers |= FieldModifiers.Const;
-                    }
 
                     var fieldProvider = new FieldProvider(
                         modifiers,
@@ -206,17 +198,11 @@ namespace Microsoft.TypeSpec.Generator.Providers
                     propertySymbol.Name,
                     new AutoPropertyBody(
                         propertySymbol.SetMethod is not null,
-                        propertySymbol.SetMethod is null
-                            ? MethodSignatureModifiers.None
-                            : GetAccessModifier(propertySymbol.SetMethod.DeclaredAccessibility),
                         InitializationExpression: GetPropertyInitializer(propertySymbol)),
                     this,
                     attributes: propertySymbol.GetAttributes().Select(a => new AttributeStatement(a)).ToArray())
                 {
                     OriginalName = GetOriginalName(propertySymbol),
-                    GetterModifiers = propertySymbol.GetMethod is null
-                        ? MethodSignatureModifiers.Private
-                        : GetAccessModifier(propertySymbol.GetMethod.DeclaredAccessibility),
                     CustomProvider = new(() => propertySymbol.Type is INamedTypeSymbol propertyNamedTypeSymbol
                         ? new NamedTypeSymbolProvider(propertyNamedTypeSymbol, _compilation)
                         : null)
@@ -995,13 +981,8 @@ namespace Microsoft.TypeSpec.Generator.Providers
             Accessibility.Protected => FieldModifiers.Protected,
             Accessibility.Internal => FieldModifiers.Internal,
             Accessibility.Public => FieldModifiers.Public,
-            Accessibility.ProtectedOrInternal => FieldModifiers.Protected | FieldModifiers.Internal,
-            Accessibility.ProtectedAndInternal => FieldModifiers.Protected | FieldModifiers.Private,
-            _ => 0
+            _ => FieldModifiers.Public
         };
-
-        internal bool IsInCurrentCompilation
-            => SymbolEqualityComparer.Default.Equals(_namedTypeSymbol.ContainingAssembly, _compilation.Assembly);
 
         private CSharpType? GetNullableCSharpType(ITypeSymbol typeSymbol)
         {

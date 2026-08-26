@@ -439,17 +439,15 @@ namespace Microsoft.TypeSpec.Generator.Providers
             var properties = new List<PropertyProvider>();
             var customProperties = new HashSet<string>();
 
-            foreach (var customProperty in CustomCodeView?.Properties ?? [])
+            foreach (var customProperty in BuildAllCustomProperties())
             {
                 AddCustomName(customProperties, customProperty.Name, customProperty.OriginalName, specPropertiesByName);
             }
 
-            foreach (var customField in CustomCodeView?.Fields ?? [])
+            foreach (var customField in BuildAllCustomFields())
             {
                 AddCustomName(customProperties, customField.Name, customField.OriginalName, specPropertiesByName);
             }
-
-            AddInheritedCustomMemberNames(customProperties, specProperties, specPropertiesByName);
 
             foreach (var property in specProperties)
             {
@@ -460,162 +458,6 @@ namespace Microsoft.TypeSpec.Generator.Providers
             }
 
             return [.. properties];
-        }
-
-        private void AddInheritedCustomMemberNames(
-            HashSet<string> customNames,
-            IEnumerable<PropertyProvider> specProperties,
-            IReadOnlyDictionary<string, InputProperty> specPropertiesByName)
-        {
-            var specPropertyList = specProperties as IReadOnlyList<PropertyProvider> ?? [.. specProperties];
-            var baseTypeProvider = BaseTypeProvider;
-            var includeBaseProviderMembers = CustomCodeView?.BaseType != null;
-            var visited = new HashSet<TypeProvider>();
-
-            while (baseTypeProvider != null && visited.Add(baseTypeProvider))
-            {
-                if (includeBaseProviderMembers)
-                {
-                    foreach (var property in baseTypeProvider.Properties)
-                    {
-                        AddInheritedCustomMemberName(
-                            customNames,
-                            property.Name,
-                            property.OriginalName,
-                            property.Type,
-                            property.Modifiers.HasFlag(MethodSignatureModifiers.Public) &&
-                                !property.Modifiers.HasFlag(MethodSignatureModifiers.Static),
-                            CanReadInheritedProperty(property),
-                            CanWriteInheritedProperty(property),
-                            baseTypeProvider,
-                            specPropertyList,
-                            specPropertiesByName);
-                    }
-
-                    foreach (var field in baseTypeProvider.Fields)
-                    {
-                        AddInheritedCustomMemberName(
-                            customNames,
-                            field.Name,
-                            field.OriginalName,
-                            field.Type,
-                            field.Modifiers.HasFlag(FieldModifiers.Public) && !field.Modifiers.HasFlag(FieldModifiers.Static),
-                            true,
-                            !field.Modifiers.HasFlag(FieldModifiers.ReadOnly) && !field.Modifiers.HasFlag(FieldModifiers.Const),
-                            baseTypeProvider,
-                            specPropertyList,
-                            specPropertiesByName);
-                    }
-                }
-
-                if (baseTypeProvider.CustomCodeView is { } customCodeView)
-                {
-                    foreach (var property in customCodeView.Properties)
-                    {
-                        AddInheritedCustomMemberName(
-                            customNames,
-                            property.Name,
-                            property.OriginalName,
-                            property.Type,
-                            property.Modifiers.HasFlag(MethodSignatureModifiers.Public) &&
-                                !property.Modifiers.HasFlag(MethodSignatureModifiers.Static),
-                            CanReadInheritedProperty(property),
-                            CanWriteInheritedProperty(property),
-                            baseTypeProvider,
-                            specPropertyList,
-                            specPropertiesByName);
-                    }
-
-                    foreach (var field in customCodeView.Fields)
-                    {
-                        AddInheritedCustomMemberName(
-                            customNames,
-                            field.Name,
-                            field.OriginalName,
-                            field.Type,
-                            field.Modifiers.HasFlag(FieldModifiers.Public) && !field.Modifiers.HasFlag(FieldModifiers.Static),
-                            true,
-                            !field.Modifiers.HasFlag(FieldModifiers.ReadOnly) && !field.Modifiers.HasFlag(FieldModifiers.Const),
-                            baseTypeProvider,
-                            specPropertyList,
-                            specPropertiesByName);
-                    }
-                }
-
-                baseTypeProvider = baseTypeProvider.BaseTypeProvider;
-            }
-        }
-
-        private void AddInheritedCustomMemberName(
-            HashSet<string> customNames,
-            string name,
-            string? originalName,
-            CSharpType type,
-            bool isInheritable,
-            bool isReadable,
-            bool isWritable,
-            TypeProvider memberEnclosingType,
-            IReadOnlyList<PropertyProvider> specProperties,
-            IReadOnlyDictionary<string, InputProperty> specPropertiesByName)
-        {
-            if (!isInheritable || !isReadable)
-            {
-                return;
-            }
-
-            var candidateNames = new HashSet<string>();
-            AddCustomName(candidateNames, name, originalName, specPropertiesByName);
-            if (specProperties.Any(property =>
-                candidateNames.Contains(property.Name) &&
-                property.Type.Equals(type) &&
-                IsInheritedMemberUsable(property, isWritable, memberEnclosingType)))
-            {
-                customNames.UnionWith(candidateNames);
-            }
-        }
-
-        private protected virtual bool IsInheritedMemberUsable(
-            PropertyProvider property,
-            bool isWritable,
-            TypeProvider memberEnclosingType)
-            => !property.Body.HasSetter || isWritable;
-
-        private static bool CanReadInheritedProperty(PropertyProvider property)
-            => IsAccessorAccessible(property.GetterModifiers, property.EnclosingType);
-
-        private static bool CanWriteInheritedProperty(PropertyProvider property)
-        {
-            if (!property.Body.HasSetter)
-            {
-                return false;
-            }
-
-            var setterModifiers = property.Body switch
-            {
-                AutoPropertyBody autoProperty => autoProperty.SetterModifiers,
-                MethodPropertyBody methodProperty => methodProperty.SetterModifiers,
-                _ => MethodSignatureModifiers.None
-            };
-
-            return IsAccessorAccessible(setterModifiers, property.EnclosingType);
-        }
-
-        private static bool IsAccessorAccessible(MethodSignatureModifiers modifiers, TypeProvider enclosingType)
-        {
-            if (modifiers == MethodSignatureModifiers.None || modifiers.HasFlag(MethodSignatureModifiers.Public))
-            {
-                return true;
-            }
-
-            var isInCurrentCompilation = enclosingType is not NamedTypeSymbolProvider symbolProvider ||
-                symbolProvider.IsInCurrentCompilation;
-            if (modifiers.HasFlag(MethodSignatureModifiers.Private))
-            {
-                return modifiers.HasFlag(MethodSignatureModifiers.Protected) && isInCurrentCompilation;
-            }
-
-            return modifiers.HasFlag(MethodSignatureModifiers.Protected) ||
-                (modifiers.HasFlag(MethodSignatureModifiers.Internal) && isInCurrentCompilation);
         }
 
         private static void AddCustomName(

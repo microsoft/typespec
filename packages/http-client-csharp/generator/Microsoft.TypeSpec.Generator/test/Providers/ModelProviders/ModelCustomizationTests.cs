@@ -1056,10 +1056,10 @@ namespace Microsoft.TypeSpec.Generator.Tests.Providers.ModelProviders
             Assert.IsTrue(customCodeView.Properties[0].Body.HasSetter);
         }
 
-        // Validates that a non-public custom property on the base model does not suppress a public property
-        // with the same name on the derived model.
+        // Validates that if a custom property is added to the base model, and a property with the same name exists in the derived model,
+        // then the derived model property is not generated and the custom property is used instead.
         [Test]
-        public async Task GeneratesPropertyWhenCustomizedBasePropertyIsNotPublic()
+        public async Task DoesNotGenerateCustomPropertyFromBase()
         {
             var baseModel = InputFactory.Model(
                 "baseModel",
@@ -1097,16 +1097,14 @@ namespace Microsoft.TypeSpec.Generator.Tests.Providers.ModelProviders
             Assert.AreEqual(new CSharpType(typeof(int)), baseModelTypeProvider.Properties[0].Type);
             Assert.AreEqual(1, customCodeView!.Properties.Count);
             Assert.AreEqual("Prop1", customCodeView.Properties[0].Name);
-            Assert.AreEqual(MethodSignatureModifiers.Internal, customCodeView.Properties[0].Modifiers);
+            // the spec property shouldn't be added to the model provider since a custom property with the same name exists
+            Assert.AreEqual(0, modelTypeProvider.Properties.Count);
 
-            var property = modelTypeProvider.Properties.Single();
-            Assert.AreEqual("Prop1", property.Name);
-            Assert.AreEqual(MethodSignatureModifiers.Public, property.Modifiers);
-
+            // the custom property should not be parameters of the model's ctor
             var modelCtors = modelTypeProvider.Constructors;
             foreach (var ctor in modelCtors)
             {
-                Assert.IsTrue(ctor.Signature.Parameters.Any(p => p.Name == "prop1"));
+                Assert.IsFalse(ctor.Signature.Parameters.Any(p => p.Name == "prop1"));
             }
         }
 
@@ -1684,20 +1682,16 @@ namespace Microsoft.TypeSpec.Generator.Tests.Providers.ModelProviders
             var specBaseModel = InputFactory.Model(
                 "trackedResource",
                 properties: [
-                    InputFactory.Property("id", InputPrimitiveType.String, isRequired: true, isReadOnly: true),
-                    InputFactory.Property("location", InputPrimitiveType.String, isRequired: true),
+                    InputFactory.Property("id", InputPrimitiveType.String),
+                    InputFactory.Property("location", InputPrimitiveType.String),
                     InputFactory.Property("tags", InputFactory.Dictionary(InputPrimitiveType.String)),
-                    InputFactory.Property("sku", InputPrimitiveType.String, isRequired: true),
-                    InputFactory.Property("tier", InputPrimitiveType.String, isRequired: true, isReadOnly: true),
-                    InputFactory.Property("capacity", new InputNullableType(InputPrimitiveType.Int32)),
-                    InputFactory.Property("status", InputPrimitiveType.String, isRequired: true, isReadOnly: true),
                 ],
-                usage: InputModelTypeUsage.Input | InputModelTypeUsage.Json);
+                usage: InputModelTypeUsage.Json);
             var childModel = InputFactory.Model(
                 "mockInputModel",
                 properties: [InputFactory.Property("childProp", InputPrimitiveType.String)],
                 baseModel: specBaseModel,
-                usage: InputModelTypeUsage.Input | InputModelTypeUsage.Json);
+                usage: InputModelTypeUsage.Json);
 
             var mockGenerator = await MockHelpers.LoadMockGeneratorAsync(
                 inputModelTypes: [childModel, specBaseModel],
@@ -1708,23 +1702,11 @@ namespace Microsoft.TypeSpec.Generator.Tests.Providers.ModelProviders
 
             Assert.IsNotNull(modelProvider.BaseType);
             Assert.AreEqual("ResourceData", modelProvider.BaseType!.Name);
-            var customBaseProvider = (NamedTypeSymbolProvider)modelProvider.BaseTypeProvider!;
-            Assert.IsTrue(customBaseProvider.IsInCurrentCompilation);
-            Assert.That(customBaseProvider.Properties.Select(p => p.Name), Does.Contain("ResourceId"));
-            Assert.That(customBaseProvider.Properties.Single(p => p.Name == "UnreadableTier").GetterModifiers,
-                Is.EqualTo(MethodSignatureModifiers.Private));
-            Assert.IsTrue(customBaseProvider.Fields.Single(f => f.Name == "ReadOnlySku").Modifiers.HasFlag(FieldModifiers.ReadOnly));
-            Assert.That(customBaseProvider.Fields.Single(f => f.Name == "Status").Modifiers,
-                Is.EqualTo(FieldModifiers.Protected | FieldModifiers.Internal));
-            Assert.That(modelProvider.Properties.Select(p => p.Name), Is.EquivalentTo(new[] { "Location", "Tags", "Sku", "Tier", "Capacity", "Status", "ChildProp" }));
-            Assert.That(modelProvider.Properties.Where(p => p.Name is "Location" or "Tags" or "Sku" or "Tier" or "Capacity" or "Status").Select(p => p.EnclosingType),
-                Has.All.SameAs(modelProvider));
-            Assert.That(modelProvider.CanonicalView.Properties.Select(p => p.Name), Is.EquivalentTo(new[] { "Location", "Tags", "Sku", "Tier", "Capacity", "Status", "ChildProp" }));
+            Assert.That(modelProvider.BaseTypeProvider!.Properties.Select(p => p.Name), Does.Contain("ResourceId"));
+            Assert.That(modelProvider.Properties.Select(p => p.Name), Is.EquivalentTo(new[] { "Location", "Tags", "ChildProp" }));
+            Assert.That(modelProvider.CanonicalView.Properties.Select(p => p.Name), Is.EquivalentTo(new[] { "Location", "Tags", "ChildProp" }));
             Assert.That(modelProvider.FullConstructor.Signature.Parameters.Select(p => p.Name), Does.Contain("location"));
             Assert.That(modelProvider.FullConstructor.Signature.Parameters.Select(p => p.Name), Does.Contain("tags"));
-            var publicConstructor = modelProvider.Constructors.Single(c => c.Signature.Modifiers == MethodSignatureModifiers.Public);
-            Assert.That(publicConstructor.Signature.Parameters.Select(p => p.Name), Does.Contain("location"));
-            Assert.That(publicConstructor.Signature.Parameters.Select(p => p.Name), Does.Contain("sku"));
         }
 
         [Test]
@@ -1980,12 +1962,14 @@ namespace Microsoft.TypeSpec.Generator.Tests.Providers.ModelProviders
             Assert.AreEqual("System", modelProvider.BaseType!.Namespace);
             Assert.IsNull(modelProvider.BaseModelProvider, "The TypeSpec base model should not be used when custom code declares a system base type.");
             Assert.IsInstanceOf<NamedTypeSymbolProvider>(modelProvider.BaseTypeProvider);
-            Assert.That(modelProvider.Properties.Select(p => p.Name), Is.EquivalentTo(new[] { "SpecBaseProp", "Message", "ChildProp" }));
+            Assert.That(modelProvider.Properties.Select(p => p.Name), Does.Not.Contain("Message"));
+            Assert.That(modelProvider.Properties.Select(p => p.Name), Does.Contain("SpecBaseProp"));
+            Assert.That(modelProvider.Properties.Select(p => p.Name), Does.Contain("ChildProp"));
 
             var modelContent = new TypeProviderWriter(modelProvider).Write().Content;
             Assert.That(modelContent, Does.Contain("public partial class MockInputModel : global::System.Exception"));
             Assert.That(modelContent, Does.Not.Contain("SpecBaseModel"));
-            Assert.That(modelContent, Does.Contain("public string Message"));
+            Assert.That(modelContent, Does.Not.Contain("public string Message"));
         }
 
         [Test]
