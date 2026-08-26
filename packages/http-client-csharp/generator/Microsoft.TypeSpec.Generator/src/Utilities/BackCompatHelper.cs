@@ -246,12 +246,8 @@ namespace Microsoft.TypeSpec.Generator.Utilities
             IReadOnlyList<ParameterProvider> currentParameters,
             IReadOnlyList<ParameterProvider> previousParameters)
         {
-            if (currentParameters.Count != previousParameters.Count)
-            {
-                return false;
-            }
-
-            for (int i = 0; i < currentParameters.Count; i++)
+            var parameterCount = Math.Min(currentParameters.Count, previousParameters.Count);
+            for (int i = 0; i < parameterCount; i++)
             {
                 if (currentParameters[i].IsExactName
                     && !string.Equals(currentParameters[i].Name, previousParameters[i].Name, StringComparison.Ordinal))
