@@ -907,13 +907,6 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
                 var paramEndIndex = pathSpan.IndexOf('}');
                 var paramName = pathSpan.Slice(0, paramEndIndex).ToString();
 
-                /* An optional path parameter that is null must not leave a dangling
-                 * path separator behind. For example "/foo/{bar}/{baz}" with an absent
-                 * optional "baz" should produce "/foo/{bar}", not "/foo/{bar}/". When the
-                 * upcoming parameter is optional, defer the trailing '/' of the preceding
-                 * literal so it is only written together with the parameter value inside
-                 * the null check below.
-                 */
                 bool hasPathOrEndpointParam = inputParamMap.TryGetValue(paramName, out var pathParamForGuard)
                     && pathParamForGuard is InputPathParameter or InputEndpointParameter;
                 bool willEmitNullGuard = hasPathOrEndpointParam
@@ -927,9 +920,6 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
                     separatorDeferred = true;
                 }
                 AppendLiteralSegment(uri, pathLiteral, statements);
-                /* when the parameter is in operation.uri, it is client parameter
-                 * It is not operation parameter and not in inputParamHash list.
-                 */
                 var isClientParameter = ClientProvider.ClientParameters.Any(p => string.Equals(p.Name, paramName, StringComparison.OrdinalIgnoreCase))
                     || _inputClient.Parameters.Any(p => p is InputMethodParameter { ParamAlias: string alias } && string.Equals(alias, paramName, StringComparison.OrdinalIgnoreCase));
                 CSharpType? type;
