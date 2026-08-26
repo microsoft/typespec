@@ -212,9 +212,9 @@ namespace Microsoft.TypeSpec.Generator.Tests.Utilities
                     }).SetName("TestBreakLines_LiteralOpenAndCloseBraceWithLineBreaksAndArgsContainingLineBreaks");
 
                 FormattableString inner = $"{"x"}\n{"y"}z";
-                FormattableString outter = $"first{inner}Second\nthird{null}";
+                FormattableString outer = $"first{inner}Second\nthird{null}";
                 yield return new TestCaseData(
-                    outter,
+                    outer,
                     new List<FormattableString> {
                         $"first{"x"}",
                         $"{"y"}zSecond",
@@ -222,9 +222,9 @@ namespace Microsoft.TypeSpec.Generator.Tests.Utilities
                     }).SetName("TestBreakLines_RecursiveFormattableStrings");
 
                 inner = $"\n\n\n\n";
-                outter = $"first{inner}second\nthird{null}";
+                outer = $"first{inner}second\nthird{null}";
                 yield return new TestCaseData(
-                    outter,
+                    outer,
                     new List<FormattableString> {
                         $"first",
                         $"",
@@ -328,9 +328,9 @@ namespace Microsoft.TypeSpec.Generator.Tests.Utilities
                     }).SetName("TestBreakLines_TerminatorsAtEndOfArgument");
 
                 inner = $"{"x"}\u0085{"y"}z";
-                outter = $"first{inner}Second\u2029third{null}";
+                outer = $"first{inner}Second\u2029third{null}";
                 yield return new TestCaseData(
-                    outter,
+                    outer,
                     new List<FormattableString> {
                         $"first{"x"}",
                         $"{"y"}zSecond",
@@ -338,9 +338,9 @@ namespace Microsoft.TypeSpec.Generator.Tests.Utilities
                     }).SetName("TestBreakLines_RecursiveFormattableStringsWithAllTerminators");
 
                 inner = $"{"x"}\u2028";
-                outter = $"first{inner}";
+                outer = $"first{inner}";
                 yield return new TestCaseData(
-                    outter,
+                    outer,
                     new List<FormattableString> {
                         $"first{"x"}",
                         $""
