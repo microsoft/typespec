@@ -280,7 +280,12 @@ namespace Microsoft.TypeSpec.Generator.Tests.Providers
                 "TypeSpec.utcDateTime",
                 InputPrimitiveType.String);
 
-            yield return new TestCaseData("StartTime", dateTime, false, "StartOn");
+            yield return new TestCaseData("StartTime", dateTime, false, "StartsOn");
+            yield return new TestCaseData("EndTime", dateTime, false, "EndsOn");
+            yield return new TestCaseData("StartOn", dateTime, false, "StartsOn");
+            yield return new TestCaseData("EndOn", dateTime, false, "EndsOn");
+            yield return new TestCaseData("FirstTimestamp", dateTime, false, "FirstTimestamp");
+            yield return new TestCaseData("LastTimestamp", dateTime, false, "LastTimestamp");
             yield return new TestCaseData("CreatedAt", dateTime, false, "CreatedOn");
             yield return new TestCaseData("DeletionTimestamp", dateTime, false, "DeletedOn");
             yield return new TestCaseData("ModificationTimeStamp", dateTime, false, "ModifiedOn");
@@ -292,6 +297,7 @@ namespace Microsoft.TypeSpec.Generator.Tests.Providers
             yield return new TestCaseData("DeletionDateTime", dateTime, false, "DeletedOn");
             yield return new TestCaseData("modelExpirationDate", dateTime, false, "ModelExpiresOn");
             yield return new TestCaseData("AccountExpirationDate", dateTime, false, "AccountExpiresOn");
+            yield return new TestCaseData("AccessTierChangeTime", dateTime, false, "AccessTierChangedOn");
             yield return new TestCaseData("RecordedAt", InputPrimitiveType.String, false, "RecordedAt");
             yield return new TestCaseData("Date", InputPrimitiveType.PlainDate, false, "Date");
             yield return new TestCaseData("SnapshotTimestamp", dateTime.WithNullable(true), false, "SnapshotOn");
