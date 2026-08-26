@@ -208,7 +208,7 @@ namespace Microsoft.TypeSpec.Generator.Utilities
                     if (string.IsNullOrEmpty(preservedName) && matchingPrevious != null)
                     {
                         exactMismatchIndices ??= FindExactParameterNameMismatchIndices(currentParameters, matchingPrevious.Signature.Parameters);
-                        var isAmbiguous = exactMismatchIndices.Exists(j => currentParameters[j].Type.AreNamesEqual(parameter.Type));
+                        var isAmbiguous = exactMismatchIndices.Exists(j => currentParameters[j].Type.Equals(parameter.Type));
                         if (!isAmbiguous)
                         {
                             preservedName = matchingPrevious.Signature.Parameters[i].Name;
