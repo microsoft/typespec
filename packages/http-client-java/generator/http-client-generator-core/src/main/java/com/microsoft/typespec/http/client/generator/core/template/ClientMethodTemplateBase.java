@@ -190,7 +190,8 @@ public abstract class ClientMethodTemplateBase implements IJavaTemplate<ClientMe
         javadocTable("Response Headers", List.of("Name", "Type", "Description"), rows, commentBlock);
     }
 
-    private static void javadocTable(String title, List<String> columns, List<List<String>> rows,
+    // package-private for testing
+    static void javadocTable(String title, List<String> columns, List<List<String>> rows,
         JavaJavadocComment commentBlock) {
         commentBlock.line(String.format("<p><strong>%s</strong></p>", title));
         commentBlock.line("<table border=\"1\">");
@@ -198,8 +199,9 @@ public abstract class ClientMethodTemplateBase implements IJavaTemplate<ClientMe
         commentBlock.line("    <tr>"
             + columns.stream().map(column -> "<th>" + column + "</th>").collect(Collectors.joining()) + "</tr>");
         for (List<String> row : rows) {
-            commentBlock.line("    <tr>"
-                + row.stream().map(value -> "<td>" + value + "</td>").collect(Collectors.joining()) + "</tr>");
+            commentBlock.line("    <tr>" + row.stream()
+                .map(value -> "<td>" + CodeNamer.escapeComment(value) + "</td>")
+                .collect(Collectors.joining()) + "</tr>");
         }
         commentBlock.line("</table>");
     }
@@ -329,7 +331,7 @@ public abstract class ClientMethodTemplateBase implements IJavaTemplate<ClientMe
         if (CoreUtils.isNullOrEmpty(paramJavadoc)) {
             paramJavadoc = String.format("The %1$s parameter", parameter.getName());
         }
-        String description = CodeNamer.escapeComment(CodeNamer.escapeXmlComment(paramJavadoc));
+        String description = CodeNamer.escapeXmlComment(paramJavadoc);
         // query with array, add additional description
         if (parameter.getRequestParameterLocation() == RequestParameterLocation.QUERY
             && parameter.getCollectionFormat() != null) {
