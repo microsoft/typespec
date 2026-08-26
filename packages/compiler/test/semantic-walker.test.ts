@@ -1,17 +1,20 @@
 import { deepStrictEqual, ok, strictEqual } from "assert";
 import { describe, expect, it } from "vitest";
+import type { NavigationOptions } from "../src/core/semantic-walker.js";
 import {
-  NavigationOptions,
   getProperty,
   navigateProgram,
   navigateType,
   navigateTypesInNamespace,
 } from "../src/core/semantic-walker.js";
-import { FunctionValue, TemplateParameter, TemplateParameterAccess } from "../src/core/types.js";
-import {
+import type {
+  FunctionValue,
+  TemplateParameter,
+  TemplateParameterAccess,
+} from "../src/core/types.js";
+import type {
   Enum,
   Interface,
-  ListenerFlow,
   Model,
   ModelProperty,
   Namespace,
@@ -20,8 +23,8 @@ import {
   Tuple,
   Union,
   UnionVariant,
-  getNamespaceFullName,
 } from "../src/index.js";
+import { ListenerFlow, getNamespaceFullName } from "../src/index.js";
 import { mockFile, t } from "../src/testing/index.js";
 import { Tester } from "./tester.js";
 

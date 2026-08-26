@@ -1,15 +1,7 @@
-import {
-  isErrorType,
-  isVoidType,
-  LiteralType,
-  Model,
-  ModelProperty,
-  Scalar,
-  Type,
-  Union,
-} from "@typespec/compiler";
+import type { LiteralType, Model, ModelProperty, Scalar, Type, Union } from "@typespec/compiler";
+import { isErrorType, isVoidType } from "@typespec/compiler";
 import { $ } from "@typespec/compiler/typekit";
-import { JsContext, Module } from "../../ctx.js";
+import type { JsContext, Module } from "../../ctx.js";
 import { isUnspeakable, parseCase } from "../../util/case.js";
 
 import { KEYWORDS } from "../../util/keywords.js";

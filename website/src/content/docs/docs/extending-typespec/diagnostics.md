@@ -66,6 +66,26 @@ This will represent three different diagnostics with the full names of:
 - `@typespec/my-lib/duplicate-route`
 - `@typespec/my-lib/duplicate-name`
 
+These diagnostics (and the library's linter rules) can also be referenced by a **short name** where the package scope is stripped — for example `my-lib/no-array` — when suppressing or configuring them. The full name is always accepted.
+
+#### Custom alias
+
+By default the short name is the package name with the scope stripped (`@typespec/my-lib` &rarr; `my-lib`, `@<scope>/typespec-<name>` &rarr; `<name>`). A library can provide a custom `alias` used instead:
+
+```ts
+export const $lib = createTypeSpecLibrary({
+  name: "@azure-tools/typespec-client-generator-core",
+  alias: "tcgc",
+  diagnostics: {/* ... */},
+} as const);
+```
+
+With the alias above, diagnostics and linter rules can be referenced as `tcgc/<code>` (e.g. `#suppress "tcgc/no-foo"`).
+
+An `alias` must be kebab-case: lowercase letters, digits, and hyphens only (e.g. `tcgc`, `my-lib-2`).
+
+If two loaded libraries would resolve to the same short name (auto-stripped or aliased), that short name is **ambiguous**: referencing it reports a warning and the full name must be used for those libraries.
+
 ### Report diagnostics
 
 ```ts

@@ -1,6 +1,6 @@
 import { type Children } from "@alloy-js/core";
-import { Program } from "@typespec/compiler";
-import { unsafe_Mutator } from "@typespec/compiler/experimental";
+import type { Program } from "@typespec/compiler";
+import type { unsafe_Mutator } from "@typespec/compiler/experimental";
 import { createClientLibrary } from "../client-library.js";
 import { ClientLibraryContext } from "../context/client-library-context.js";
 

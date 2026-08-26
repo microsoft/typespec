@@ -178,3 +178,87 @@ def test_lro_paging_begin_post_paging_lro(client):
     assert items[1].name == "product2"
     assert items[1].properties.product_id == "product2"
     assert items[1].properties.provisioning_state == "Succeeded"
+
+
+def test_lro_paging_begin_post_paging_lro_with_body(client):
+    result = client.lro_paging.begin_post_paging_lro_with_body(
+        resource_group_name=RESOURCE_GROUP_NAME,
+        product_name="default",
+        body=models.VnetProfile(vnet_id="vnet1"),
+    ).result()
+    items = list(result)
+    assert len(items) == 2
+    assert items[0].name == "product1"
+    assert items[0].properties.product_id == "product1"
+    assert items[0].properties.provisioning_state == "Succeeded"
+    assert items[1].name == "product2"
+    assert items[1].properties.product_id == "product2"
+    assert items[1].properties.provisioning_state == "Succeeded"
+
+
+def test_lro_begin_get_lro(client):
+    result = client.lro.begin_get_lro(
+        scope=f"subscriptions/{SUBSCRIPTION_ID}/resourceGroups/{RESOURCE_GROUP_NAME}",
+        operation_id="report1",
+    ).result()
+    assert result.name == "report1"
+    assert result.properties.download_url == "https://storage.blob.core.windows.net/reports/report1.csv"
+    assert result.properties.provisioning_state == "Succeeded"
+
+
+def test_paging_post_action_paging(client):
+    result = client.paging.post_action_paging(
+        resource_group_name=RESOURCE_GROUP_NAME,
+        monitor_name="monitor1",
+        body=models.LogStatusRequest(filter="status eq 'active'"),
+    )
+    items = list(result)
+    assert items[0].id.endswith("/Microsoft.Compute/virtualMachines/vm1")
+    assert items[0].sending_metrics == True
+
+
+def test_paging_mark_as_pageable(client):
+    result = client.paging.mark_as_pageable(
+        resource_group_name=RESOURCE_GROUP_NAME,
+        monitor_name="monitor1",
+    )
+    items = list(result)
+    assert len(items) == 2
+    assert items[0].name == "collection1"
+    assert items[0].properties.display_name == "Test Collection"
+    assert items[1].name == "collection2"
+    assert items[1].properties.display_name == "Another Collection"
+
+
+def test_legacy_routed_get(client):
+    result = client.legacy.routed_get(
+        resource_group_name=RESOURCE_GROUP_NAME,
+        name="default",
+        diagnostic_name="memory",
+    )
+    assert result.name == "memory"
+    assert result.status == "healthy"
+
+
+def test_legacy_create_or_replace_optional_body_with_body(client):
+    result = client.legacy.create_or_replace_optional_body(
+        resource_group_name=RESOURCE_GROUP_NAME,
+        configuration_name="default",
+        resource=models.Configuration(
+            location="eastus",
+            properties=models.ConfigurationProperties(config_value="custom-value"),
+        ),
+    )
+    assert result.name == "default"
+    assert result.properties.config_value == "custom-value"
+    assert result.properties.provisioning_state == "Succeeded"
+
+
+def test_legacy_create_or_replace_optional_body_without_body(client):
+    result = client.legacy.create_or_replace_optional_body(
+        resource_group_name=RESOURCE_GROUP_NAME,
+        configuration_name="default",
+    )
+    assert result.name == "default"
+    assert result.properties.config_value == "default-value"
+    assert result.properties.provisioning_state == "Succeeded"

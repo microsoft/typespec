@@ -1,12 +1,14 @@
-import { Namespace, Program, Type } from "@typespec/compiler";
+import type { Namespace, Program, Type } from "@typespec/compiler";
 import { SyntaxKind } from "@typespec/compiler/ast";
 import { reportDiagnostic } from "./lib.js";
+import { validateDocumentation } from "./validate-docs.js";
 
 export function $onValidate(program: Program) {
   const root = program.getGlobalNamespaceType();
 
   validateNoExportAtRoot(program, root);
   validateDecoratorSignature(program);
+  validateDocumentation(program);
 }
 
 function validateNoExportAtRoot(program: Program, root: Namespace) {

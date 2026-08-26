@@ -49,6 +49,7 @@ public class EmitterOptions implements JsonSerializable<EmitterOptions> {
     private String renameModel;
     private String addInner;
     private String removeInner;
+    private String removeModel;
     private String preserveModel;
     private Boolean generateAsyncMethods;
     private String propertyIncludeAlways;
@@ -190,6 +191,10 @@ public class EmitterOptions implements JsonSerializable<EmitterOptions> {
         return removeInner;
     }
 
+    public String getRemoveModel() {
+        return removeModel;
+    }
+
     public String getPreserveModel() {
         return preserveModel;
     }
@@ -278,6 +283,8 @@ public class EmitterOptions implements JsonSerializable<EmitterOptions> {
                 options.addInner = reader.getNullable(EmitterOptions::getStringOrList);
             } else if ("remove-inner".equals(fieldName)) {
                 options.removeInner = reader.getNullable(EmitterOptions::getStringOrList);
+            } else if ("remove-model".equals(fieldName)) {
+                options.removeModel = reader.getNullable(EmitterOptions::getStringOrList);
             } else if ("preserve-model".equals(fieldName)) {
                 options.preserveModel = reader.getNullable(EmitterOptions::getStringOrList);
             } else if ("generate-async-methods".equals(fieldName)) {

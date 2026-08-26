@@ -1,6 +1,6 @@
 import { For } from "@alloy-js/core";
 import { useTransformNamePolicy, useTsp } from "@typespec/emitter-framework";
-import { HttpOperationMultipartBody } from "@typespec/http";
+import type { HttpOperationMultipartBody } from "@typespec/http";
 import { reportDiagnostic } from "../../../lib.js";
 import { HttpPartTransform } from "./part-transform.jsx";
 

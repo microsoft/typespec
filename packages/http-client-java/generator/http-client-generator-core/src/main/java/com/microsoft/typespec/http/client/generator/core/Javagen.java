@@ -72,7 +72,7 @@ public class Javagen extends NewPlugin {
             Client client = Mappers.getClientMapper().map(codeModel);
 
             // Step 3: Write to templates
-            JavaPackage javaPackage = writeToTemplates(codeModel, client, settings, true);
+            JavaPackage javaPackage = writeToTemplates(codeModel, client, settings);
 
             // Step 4: Print to files
             // Then for each formatted file write the file. This is done synchronously as there is potential race
@@ -100,8 +100,7 @@ public class Javagen extends NewPlugin {
         return true;
     }
 
-    protected JavaPackage writeToTemplates(CodeModel codeModel, Client client, JavaSettings settings,
-        boolean generateSwaggerMarkdown) {
+    protected JavaPackage writeToTemplates(CodeModel codeModel, Client client, JavaSettings settings) {
         JavaPackage javaPackage = new JavaPackage(this);
         if (client.getServiceClient() != null || !CoreUtils.isNullOrEmpty(client.getServiceClients())) {
             // Service client
@@ -282,9 +281,6 @@ public class Javagen extends NewPlugin {
                 javaPackage.addReadmeMarkdown(project);
 
                 if (!settings.isUnbranded()) {
-                    if (generateSwaggerMarkdown) {
-                        javaPackage.addSwaggerReadmeMarkdown(project);
-                    }
                     javaPackage.addChangelogMarkdown(project);
 
                     // test proxy asserts.json

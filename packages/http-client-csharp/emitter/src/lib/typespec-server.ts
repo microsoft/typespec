@@ -2,19 +2,14 @@
 // Licensed under the MIT License. See License.txt in the project root for license information.
 
 import { getClientType } from "@azure-tools/typespec-client-generator-core";
-import {
-  createDiagnosticCollector,
-  Diagnostic,
-  getDoc,
-  getSummary,
-  Value,
-} from "@typespec/compiler";
-import { HttpServer } from "@typespec/http";
+import type { Diagnostic, Value } from "@typespec/compiler";
+import { createDiagnosticCollector, getDoc, getSummary } from "@typespec/compiler";
+import type { HttpServer } from "@typespec/http";
 import { getExtensions } from "@typespec/openapi";
-import { CSharpEmitterContext } from "../sdk-context.js";
-import { InputConstant } from "../type/input-constant.js";
+import type { CSharpEmitterContext } from "../sdk-context.js";
+import type { InputConstant } from "../type/input-constant.js";
 import { InputParameterScope } from "../type/input-parameter-scope.js";
-import { InputEndpointParameter, InputType } from "../type/input-type.js";
+import type { InputEndpointParameter, InputType } from "../type/input-type.js";
 import { fromSdkType } from "./type-converter.js";
 
 export interface TypeSpecServer {

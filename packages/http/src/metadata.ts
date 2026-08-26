@@ -1,18 +1,20 @@
-import {
-  compilerAssert,
+import type {
   EnumMember,
-  getEffectiveModelType,
-  getLifecycleVisibilityEnum,
-  getParameterVisibilityFilter,
-  isVisible as isVisibleCore,
   Model,
   ModelProperty,
   Operation,
   Program,
   Type,
   Union,
-  type VisibilityFilter,
   VisibilityProvider,
+} from "@typespec/compiler";
+import {
+  compilerAssert,
+  getEffectiveModelType,
+  getLifecycleVisibilityEnum,
+  getParameterVisibilityFilter,
+  isVisible as isVisibleCore,
+  type VisibilityFilter,
 } from "@typespec/compiler";
 import { TwoLevelMap } from "@typespec/compiler/utils";
 import {
@@ -28,7 +30,7 @@ import {
   isQueryParam,
   isStatusCode,
 } from "./decorators.js";
-import { HttpVerb, OperationParameterOptions } from "./types.js";
+import type { HttpVerb, OperationParameterOptions } from "./types.js";
 
 // Used in @link JsDoc tag.
 // eslint-disable-next-line @typescript-eslint/no-unused-vars

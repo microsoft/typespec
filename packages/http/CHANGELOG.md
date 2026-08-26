@@ -1,5 +1,13 @@
 # Change Log - @typespec/http
 
+## 1.15.0
+
+### Features
+
+- [#11318](https://github.com/microsoft/typespec/pull/11318) Cache `getHttpOperation` results during linting and emitting stages using `program.useCache()`. This eliminates redundant route resolution when multiple linter rules inspect the same operations, improving linter performance on large specs.
+- [#11153](https://github.com/microsoft/typespec/pull/11153) Add scope support to `OpenIdConnectAuth`. The model now accepts an optional `Scopes` template parameter (`OpenIdConnectAuth<ConnectUrl, Scopes>`) and the OpenAPI3 emitter emits those scopes on each operation's `openIdConnect` security requirement. The scheme object itself remains unchanged (scopes are discovered via the `openIdConnectUrl`). Existing `OpenIdConnectAuth<Url>` usages are unaffected.
+
+
 ## 1.14.0
 
 ### Deprecations

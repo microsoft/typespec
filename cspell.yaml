@@ -62,6 +62,7 @@ words:
   - Declipse
   - dedented
   - dedup
+  - dedupe
   - Dedupes
   - deps
   - deser
@@ -229,6 +230,7 @@ words:
   - pylint
   - pylintrc
   - pyodide
+  - pypi
   - pyproject
   - pyright
   - pyrightconfig
@@ -239,6 +241,7 @@ words:
   - reactivex
   - recase
   - recorda
+  - redef
   - regen
   - rehype
   - reinjected
@@ -327,6 +330,7 @@ words:
   - Vsts
   - vswhere
   - wday
+  - WCAG
   - weidxu
   - westus
   - WHATWG

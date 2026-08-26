@@ -6,7 +6,8 @@
 import type { EmitContext } from "@typespec/compiler";
 import { NoTarget } from "@typespec/compiler";
 import type { PyodideInterface } from "pyodide";
-import { PythonEmitterOptions, reportDiagnostic } from "./lib.js";
+import type { PythonEmitterOptions } from "./lib.js";
+import { reportDiagnostic } from "./lib.js";
 
 export interface RunNodeEmitArgs {
   context: EmitContext<PythonEmitterOptions>;

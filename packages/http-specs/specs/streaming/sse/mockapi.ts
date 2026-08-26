@@ -1,4 +1,5 @@
-import { passOnSuccess, ScenarioMockApi } from "@typespec/spec-api";
+import type { MockRequest, ScenarioMockApi } from "@typespec/spec-api";
+import { passOnSuccess, withServiceKeys } from "@typespec/spec-api";
 
 export const Scenarios: Record<string, ScenarioMockApi> = {};
 
@@ -66,6 +67,143 @@ Scenarios.Streaming_Sse_Retrieve_stream = passOnSuccess({
       rawContent: Buffer.from(retrieveStream),
       contentType: "text/event-stream",
     },
+  },
+  kind: "MockApiDefinition",
+});
+
+const protocolEvent = (fields: string[]) => Buffer.from(`${fields.join("\n")}\n\n`);
+
+Scenarios.Streaming_Sse_Protocol_Data_withEnvelope = passOnSuccess({
+  uri: "/streaming/sse/protocol/data/with-envelope",
+  method: "get",
+  request: {},
+  response: {
+    status: 200,
+    body: {
+      rawContent: protocolEvent(["event: withEnvelope", "data: hello"]),
+      contentType: "text/event-stream",
+    },
+  },
+  kind: "MockApiDefinition",
+});
+
+Scenarios.Streaming_Sse_Protocol_Data_withoutEnvelope = passOnSuccess({
+  uri: "/streaming/sse/protocol/data/without-envelope",
+  method: "get",
+  request: {},
+  response: {
+    status: 200,
+    body: {
+      rawContent: protocolEvent([
+        "event: withoutEnvelope",
+        'data: {"metadata": {"source": "test"}, "contents": "world"}',
+      ]),
+      contentType: "text/event-stream",
+    },
+  },
+  kind: "MockApiDefinition",
+});
+
+Scenarios.Streaming_Sse_Protocol_id = passOnSuccess({
+  uri: "/streaming/sse/protocol/id",
+  method: "get",
+  request: {},
+  response: {
+    status: 200,
+    body: {
+      rawContent: protocolEvent(["id: event-1", "event: message", 'data: {"message": "hello"}']),
+      contentType: "text/event-stream",
+    },
+  },
+  kind: "MockApiDefinition",
+});
+
+Scenarios.Streaming_Sse_Protocol_invalidId = passOnSuccess({
+  uri: "/streaming/sse/protocol/invalid-id",
+  method: "get",
+  request: {},
+  response: {
+    status: 200,
+    body: {
+      rawContent: protocolEvent([
+        "id: invalid\u0000id",
+        "event: message",
+        'data: {"message": "hello"}',
+      ]),
+      contentType: "text/event-stream",
+    },
+  },
+  kind: "MockApiDefinition",
+});
+
+Scenarios.Streaming_Sse_Protocol_retry = passOnSuccess({
+  uri: "/streaming/sse/protocol/retry",
+  method: "get",
+  request: {},
+  response: {
+    status: 200,
+    body: {
+      rawContent: protocolEvent(["retry: 1000", "event: message", 'data: {"message": "hello"}']),
+      contentType: "text/event-stream",
+    },
+  },
+  kind: "MockApiDefinition",
+});
+
+Scenarios.Streaming_Sse_Protocol_invalidRetry = passOnSuccess({
+  uri: "/streaming/sse/protocol/invalid-retry",
+  method: "get",
+  request: {},
+  response: {
+    status: 200,
+    body: {
+      rawContent: protocolEvent([
+        "retry: not-a-number",
+        "event: message",
+        'data: {"message": "hello"}',
+      ]),
+      contentType: "text/event-stream",
+    },
+  },
+  kind: "MockApiDefinition",
+});
+
+Scenarios.Streaming_Sse_Protocol_reconnect = withServiceKeys(["initial", "reconnect"]).pass({
+  uri: "/streaming/sse/protocol/reconnect",
+  method: "get",
+  request: {},
+  response: {
+    status: 200,
+    body: {
+      rawContent: protocolEvent(["id: event-1", "event: message", 'data: {"message": "hello"}']),
+      contentType: "text/event-stream",
+    },
+  },
+  handler: (req: MockRequest) => {
+    if (req.headers["last-event-id"] !== undefined) {
+      req.expect.containsHeader("last-event-id", "event-1");
+      return {
+        pass: "reconnect",
+        status: 200,
+        body: {
+          rawContent: protocolEvent([
+            "id: event-2",
+            "event: message",
+            'data: {"message": "world"}',
+          ]),
+          contentType: "text/event-stream",
+        },
+      };
+    }
+
+    return {
+      pass: "initial",
+      status: 200,
+      body: {
+        rawContent: protocolEvent(["id: event-1", "event: message", 'data: {"message": "hello"}']),
+        contentType: "text/event-stream",
+      },
+    };
   },
   kind: "MockApiDefinition",
 });

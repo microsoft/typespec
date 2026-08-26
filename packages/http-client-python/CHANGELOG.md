@@ -1,5 +1,31 @@
 # Change Log - @typespec/http-client-python
 
+## 0.36.0
+
+### Features
+
+- [#11372](https://github.com/microsoft/typespec/pull/11372) Add a `generate-typeddict` emitter option (default `true`) that controls `TypedDict` generation independently of `models-mode`. `models-mode` now toggles just `dpg` and `none`; the `typeddict` value is deprecated.
+
+### Bug Fixes
+
+- [#11622](https://github.com/microsoft/typespec/pull/11622) Wrap wire names containing `@` (e.g. `@search.facets`) in double backticks when they are used as Sphinx docstring field targets (`:ivar`/`:vartype`/`:keyword`/`:paramtype`/`:param`/`:type`) across models, TypedDicts, operations, and clients, so the generated docstrings render correctly without introducing an invalid escape sequence in the generated code.
+- [#11637](https://github.com/microsoft/typespec/pull/11637) Preserve Python boolean, integer, and bytes client types when using supported string, base64, or base64url wire encodings.
+- [#11507](https://github.com/microsoft/typespec/pull/11507) Only boot the Pyodide runtime in the browser on the first emit instead of when the emitter module is imported. Hosts such as the TypeSpec playground import every available emitter up front, so the eager bootstrap downloaded a full CPython WebAssembly runtime and its wheels on every page load, which prevented the page from loading on mobile browsers.
+- [#11639](https://github.com/microsoft/typespec/pull/11639) Only generate `TypedDict` definitions in `types.py` when they are referenced by operation inputs or required by those input models, omitting unused response-only models.
+
+
+## 0.35.1
+
+### Bug Fixes
+
+- [#11371](https://github.com/microsoft/typespec/pull/11371) Use wire names in TypedDict docstrings
+- [#11392](https://github.com/microsoft/typespec/pull/11392) Fix the generated `_validation.py` `@api_version_validation` decorator so it reads the correct client config attribute for the API version. It previously hardcoded `client._config.api_version`, but the attribute name is derived from the API-version parameter's `client_name`. For specs that name the versioning parameter something other than `apiVersion` (e.g. `self.version`), the lookup raised `AttributeError` that the decorator silently swallowed, disabling all API-version validation for those clients. The emitter now bakes the real attribute name into the generated decorator so it reads `config.<name>` directly.
+- [#11272](https://github.com/microsoft/typespec/pull/11272) Fix generated request builders serializing a `None` `content-type` header for an
+  operation with an optional body whose content-type is required/constant. The
+  `content-type` kwarg is now declared `Optional[str]` and the header is omitted
+  when it is `None`, instead of raising `ValueError: No value for given attribute`.
+
+
 ## 0.35.0
 
 ### Features

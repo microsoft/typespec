@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+  The Third extensible-enum member was intentionally removed during migration; suppress the difference
+  so the back-compat system honors the removal instead of re-adding it. ApiCompat reports a removed
+  extensible-enum member (a public static property) as a MembersMustExist (CP0002) difference on its getter.
+-->
+<Suppressions>
+  <Suppression>
+    <DiagnosticId>CP0002</DiagnosticId>
+    <Target>M:Sample.Models.MockInputEnum.get_Third</Target>
+  </Suppression>
+</Suppressions>
