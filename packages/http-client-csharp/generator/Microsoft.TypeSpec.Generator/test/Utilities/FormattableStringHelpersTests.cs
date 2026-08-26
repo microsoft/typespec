@@ -245,12 +245,12 @@ namespace Microsoft.TypeSpec.Generator.Tests.Utilities
                         $"third{null}"
                     }).SetName("TestBreakLines_MultipleLineBreaks");
 
-                // current solution of format specifier in argument is that we ignore them during the process of line breaking.
+                // formatted arguments (e.g. ":L") are rendered through a custom formatter that safely escapes any
+                // embedded line terminators, so they are left intact and are not split during line breaking.
                 yield return new TestCaseData(
                     (FormattableString)$"first{"x\ny":L}second\nthird{null}",
                     new List<FormattableString> {
-                        $"first{"x":L}",
-                        $"{"y":L}second",
+                        $"first{"x\ny":L}second",
                         $"third{null}"
                     }).SetName("TestBreakLines_FormatSpecifierInArg");
 
@@ -346,11 +346,12 @@ namespace Microsoft.TypeSpec.Generator.Tests.Utilities
                         $""
                     }).SetName("TestBreakLines_RecursiveFormattableStringEndingWithTerminator");
 
+                // a terminator embedded in a formatted (":L") argument is left intact - only unformatted literal text
+                // around it (here the trailing \u0085) causes a line break.
                 yield return new TestCaseData(
                     (FormattableString)$"first{"x\u2028y":L}second\u0085third{null}",
                     new List<FormattableString> {
-                        $"first{"x":L}",
-                        $"{"y":L}second",
+                        $"first{"x\u2028y":L}second",
                         $"third{null}"
                     }).SetName("TestBreakLines_FormatSpecifierInArgWithTerminators");
 

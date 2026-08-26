@@ -86,19 +86,22 @@ namespace Microsoft.TypeSpec.Generator.Tests.Statements
             Assert.AreEqual("/// <tag>\n/// first\n/// second\n/// </tag>\n", writer.ToString(false));
         }
 
-        [TestCase("\r")]
-        [TestCase("\r\n")]
-        [TestCase("\n")]
-        [TestCase("\u0085")]
-        [TestCase("\u2028")]
-        [TestCase("\u2029")]
-        public void LineTerminatorsInFormattedArgumentAreNormalized(string terminator)
+        [TestCase("\r", "\\r")]
+        [TestCase("\r\n", "\\r\\n")]
+        [TestCase("\n", "\\n")]
+        [TestCase("\u0085", "\\u0085")]
+        [TestCase("\u2028", "\\u2028")]
+        [TestCase("\u2029", "\\u2029")]
+        public void LineTerminatorsInFormattedArgumentAreNotSplit(string terminator, string escapedTerminator)
         {
+            // formatted arguments (":L") are rendered through SyntaxFactory.Literal, which escapes any embedded line
+            // terminator into a textual C# escape sequence rather than emitting the raw character. Since no raw
+            // terminator reaches the generated file, the argument is kept intact as a single `///` line.
             var text = $"first{terminator}second";
             var statement = new XmlDocStatement($"<tag>", $"</tag>", [$"{text:L}"]);
             using var writer = new CodeWriter();
             statement.Write(writer);
-            Assert.AreEqual("/// <tag>\n/// \"first\"\n/// \"second\"\n/// </tag>\n", writer.ToString(false));
+            Assert.AreEqual($"/// <tag> \"first{escapedTerminator}second\". </tag>\n", writer.ToString(false));
         }
 
         [Test]

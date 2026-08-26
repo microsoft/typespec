@@ -196,11 +196,15 @@ namespace Microsoft.TypeSpec.Generator
                 else
                 {
                     var arg = input.GetArgument(index);
-                    // String arguments retain their format specifier on each line. Other formatted arguments are left unchanged.
+                    // Only plain (unformatted) string arguments are split on line terminators, because those are
+                    // written to the output as raw text. Formatted arguments (e.g. ":L") are rendered through a
+                    // custom formatter (e.g. SyntaxFactory.Literal) that safely escapes any embedded terminators
+                    // into a single C# literal, so splitting them would change the value the documentation represents
+                    // without preventing any raw terminator from reaching the output.
                     var indexOfFormatSpecifier = span.IndexOf(':');
                     switch (arg)
                     {
-                        case string str when indexOfFormatSpecifier < 0 || ContainsLineTerminator(str):
+                        case string str when indexOfFormatSpecifier < 0:
                             {
                                 bool hadPendingCR = pendingCR;
                                 var strSpan = str.AsSpan();
@@ -215,12 +219,7 @@ namespace Microsoft.TypeSpec.Generator
                                     // the entire argument was the other half of a cross-boundary CRLF pair.
                                     break;
                                 }
-                                BreakLinesCoreForString(
-                                    strSpan,
-                                    indexOfFormatSpecifier >= 0 ? span[indexOfFormatSpecifier..] : ReadOnlySpan<char>.Empty,
-                                    formatBuilder,
-                                    args,
-                                    result);
+                                BreakLinesCoreForString(strSpan, formatBuilder, args, result);
                                 hasEmptyLastLine = false;
                                 break;
                             }
@@ -248,7 +247,6 @@ namespace Microsoft.TypeSpec.Generator
 
             static void BreakLinesCoreForString(
                 ReadOnlySpan<char> span,
-                ReadOnlySpan<char> formatSpecifier,
                 StringBuilder formatBuilder,
                 List<object?> args,
                 List<FormattableString> result)
@@ -276,7 +274,6 @@ namespace Microsoft.TypeSpec.Generator
                     }
                     formatBuilder.Append('{')
                         .Append(args.Count);
-                    formatBuilder.Append(formatSpecifier);
                     formatBuilder.Append('}');
                     args.Add(span[start..end].ToString());
                     start = end + 1; // goes to the next char after the \n we found
@@ -294,18 +291,6 @@ namespace Microsoft.TypeSpec.Generator
 
         private static bool IsLineTerminator(char value)
             => value is '\r' or '\n' or '\u0085' or '\u2028' or '\u2029';
-
-        private static bool ContainsLineTerminator(ReadOnlySpan<char> value)
-        {
-            foreach (var character in value)
-            {
-                if (IsLineTerminator(character))
-                {
-                    return true;
-                }
-            }
-            return false;
-        }
 
         private static bool RequiresNormalization(ReadOnlySpan<char> value)
         {
