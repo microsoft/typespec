@@ -2904,7 +2904,7 @@ namespace Microsoft.TypeSpec.Generator.Tests.Providers.ModelProviders
 
             var modelProvider = CodeModelGenerator.Instance.OutputLibrary.TypeProviders.OfType<ModelProvider>().Single();
             var constructor = modelProvider.Constructors.Single(c => c.Signature.Modifiers.HasFlag(MethodSignatureModifiers.Public));
-            Assert.AreEqual("startOn", constructor.Signature.Parameters.Single().Name);
+            Assert.AreEqual("startsOn", constructor.Signature.Parameters.Single().Name);
 
             var writer = new TypeProviderWriter(modelProvider);
             var file = writer.Write();
