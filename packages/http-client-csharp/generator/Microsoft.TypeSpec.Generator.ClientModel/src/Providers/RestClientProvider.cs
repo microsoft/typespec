@@ -914,12 +914,14 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
                  * literal so it is only written together with the parameter value inside
                  * the null check below.
                  */
+                bool hasPathOrEndpointParam = inputParamMap.TryGetValue(paramName, out var pathParamForGuard)
+                    && pathParamForGuard is InputPathParameter or InputEndpointParameter;
+                bool willEmitNullGuard = hasPathOrEndpointParam
+                    && (pathParamForGuard!.IsRequired == false || pathParamForGuard.Type is InputNullableType);
                 var pathLiteral = path.ToString();
                 bool separatorDeferred = false;
                 if (pathLiteral.EndsWith('/')
-                    && inputParamMap.TryGetValue(paramName, out var optionalCheckParam)
-                    && optionalCheckParam is InputPathParameter or InputEndpointParameter
-                    && (optionalCheckParam.IsRequired == false || optionalCheckParam.Type is InputNullableType))
+                    && willEmitNullGuard)
                 {
                     pathLiteral = pathLiteral.Substring(0, pathLiteral.Length - 1);
                     separatorDeferred = true;
@@ -930,8 +932,6 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
                  */
                 var isClientParameter = ClientProvider.ClientParameters.Any(p => string.Equals(p.Name, paramName, StringComparison.OrdinalIgnoreCase))
                     || _inputClient.Parameters.Any(p => p is InputMethodParameter { ParamAlias: string alias } && string.Equals(alias, paramName, StringComparison.OrdinalIgnoreCase));
-                bool isPathOrEndpointParam = inputParamMap.TryGetValue(paramName, out var pathParamForGuard)
-                    && (pathParamForGuard is InputPathParameter || pathParamForGuard is InputEndpointParameter);
                 CSharpType? type;
                 SerializationFormat? serializationFormat;
                 ValueExpression? valueExpression;
@@ -956,11 +956,6 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
                         throw new InvalidOperationException($"The location of parameter {inputParam.Name} should be path or uri");
                     }
                 }
-                // A guard is needed whenever the value can be null at runtime: either the parameter
-                // is optional, or its type is nullable even though the parameter itself is required
-                // (e.g. a required-but-nullable path parameter).
-                bool willEmitNullGuard = isPathOrEndpointParam
-                    && (pathParamForGuard!.IsRequired == false || type?.IsNullable == true);
                 string? format = serializationFormat?.ToFormatSpecifier();
                 ValueExpression[] toStringParams = format is null ? [] : [Literal(format)];
                 InputPathParameter? inputPathParameter = inputParam as InputPathParameter;
