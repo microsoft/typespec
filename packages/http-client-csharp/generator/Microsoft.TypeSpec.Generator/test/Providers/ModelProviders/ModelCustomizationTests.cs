@@ -1707,6 +1707,11 @@ namespace Microsoft.TypeSpec.Generator.Tests.Providers.ModelProviders
             Assert.That(modelProvider.CanonicalView.Properties.Select(p => p.Name), Is.EquivalentTo(new[] { "Location", "Tags", "ChildProp" }));
             Assert.That(modelProvider.FullConstructor.Signature.Parameters.Select(p => p.Name), Does.Contain("location"));
             Assert.That(modelProvider.FullConstructor.Signature.Parameters.Select(p => p.Name), Does.Contain("tags"));
+
+            var modelFactory = mockGenerator.Object.OutputLibrary.ModelFactory.Value;
+            var factoryMethod = modelFactory.Methods.Single(m => m.Signature.Name == "MockInputModel");
+            Assert.That(factoryMethod.Signature.Parameters.Select(p => p.Name), Does.Contain("location"));
+            Assert.That(factoryMethod.Signature.Parameters.Select(p => p.Name), Does.Contain("tags"));
         }
 
         [Test]

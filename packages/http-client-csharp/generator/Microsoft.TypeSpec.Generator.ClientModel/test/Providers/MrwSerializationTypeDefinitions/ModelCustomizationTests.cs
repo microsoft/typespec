@@ -86,6 +86,39 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers.MrwSerializat
         }
 
         [Test]
+        public async Task SerializesSpecBasePropertiesMissingFromNarrowerCustomBase()
+        {
+            var specBaseModel = InputFactory.Model(
+                "trackedResource",
+                properties: [
+                    InputFactory.Property("id", InputPrimitiveType.String),
+                    InputFactory.Property("location", InputPrimitiveType.String),
+                    InputFactory.Property("tags", InputFactory.Dictionary(InputPrimitiveType.String)),
+                ],
+                usage: InputModelTypeUsage.Json);
+            var childModel = InputFactory.Model(
+                "mockInputModel",
+                properties: [InputFactory.Property("childProp", InputPrimitiveType.String)],
+                baseModel: specBaseModel,
+                usage: InputModelTypeUsage.Json);
+
+            var mockGenerator = await MockHelpers.LoadMockGeneratorAsync(
+                inputModels: () => [childModel, specBaseModel],
+                compilation: async () => await Helpers.GetCompilationFromDirectoryAsync());
+
+            var modelProvider = mockGenerator.Object.OutputLibrary.TypeProviders
+                .Single(t => t is ModelProvider && t.Name == "MockInputModel");
+            var serializationProvider = modelProvider.SerializationProviders
+                .Single(t => t is MrwSerializationTypeDefinition);
+            var content = new TypeProviderWriter(serializationProvider).Write().Content;
+
+            Assert.That(content, Does.Contain("writer.WritePropertyName(\"location\"u8);"));
+            Assert.That(content, Does.Contain("writer.WritePropertyName(\"tags\"u8);"));
+            Assert.That(content, Does.Contain("if (prop.NameEquals(\"location\"u8))"));
+            Assert.That(content, Does.Contain("if (prop.NameEquals(\"tags\"u8))"));
+        }
+
+        [Test]
         public async Task CanCustomizePropertyUsingField()
         {
             var props = new[]
