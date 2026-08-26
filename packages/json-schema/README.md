@@ -26,7 +26,7 @@ model Car {
 }
 ```
 
-## Usage
+## Emitter usage
 
 1. Via the command line
 
@@ -52,6 +52,13 @@ options:
 ```
 
 ## Emitter options
+
+### `emitter-output-dir`
+
+**Type:** `absolutePath`
+
+Defines the emitter output directory. Defaults to `{output-dir}/@typespec/json-schema`
+See [Configuring output directory for more info](https://typespec.io/docs/handbook/configuration/configuration/#configuring-output-directory)
 
 ### `file-type`
 
@@ -90,9 +97,27 @@ When true, emit all references as json schema files, even if the referenced type
 
 **Type:** `boolean`
 
+**Default:** `false`
+
 If true, then for models emitted as object schemas we default `unevaluatedProperties` to `{ not: {} }`,
 if not explicitly specified elsewhere.
 Default: `false`
+
+### `polymorphic-models-strategy`
+
+**Type:** `"ignore" | "oneOf" | "anyOf"`
+
+**Default:** `"ignore"`
+
+Strategy for emitting models with the @discriminator decorator:
+
+- ignore: Emit as regular object schema (default). Derived models use allOf to reference their base model.
+- oneOf: Emit a oneOf schema with references to all derived models (closed union)
+- anyOf: Emit an anyOf schema with references to all derived models (open union)
+
+When using oneOf or anyOf, derived models will inline all properties from their base model
+instead of using allOf references. This avoids circular references in the generated schemas,
+since the base model references derived models via oneOf/anyOf.
 
 ## Decorators
 

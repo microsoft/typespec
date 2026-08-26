@@ -1,20 +1,239 @@
 import type { CompilerOptions } from "../core/options.js";
 import type { Program } from "../core/program.js";
-import type { CompilerHost, Diagnostic, Type } from "../core/types.js";
+import type { CompilerHost, Diagnostic, Entity, Type } from "../core/types.js";
+import { Typekit } from "../typekit/define-kit.js";
+import { PositionedMarker } from "./fourslash.js";
+import { GetMarkedEntities, TemplateWithMarkers } from "./marked-template.js";
+
+// #region Test file system
+
+/** Represent a mock file. Use `mockFile` function to construct */
+export type MockFile = string | JsFile;
+
+export interface JsFile {
+  readonly kind: "js";
+  readonly exports: Record<string, any>;
+}
 
 export interface TestFileSystem {
-  readonly compilerHost: CompilerHost;
+  /** Raw files */
   readonly fs: Map<string, string>;
+  /** Compiler host */
+  readonly compilerHost: CompilerHost;
 
+  /**
+   * Add a mock test file
+   * @example
+   * ```ts
+   * fs.add("foo.tsp", "model Foo {}");
+   * fs.add("foo.js", mockFile.js({ Foo: { bar: 1 } }));
+   * ```
+   */
+  add(path: string, content: MockFile): void;
+
+  /** Prefer using {@link add} */
   addTypeSpecFile(path: string, contents: string): void;
+  /** Prefer using {@link add} */
   addJsFile(path: string, contents: Record<string, any>): void;
   addRealTypeSpecFile(path: string, realPath: string): Promise<void>;
   addRealJsFile(path: string, realPath: string): Promise<void>;
   addRealFolder(path: string, realPath: string): Promise<void>;
+  // eslint-disable-next-line @typescript-eslint/no-deprecated
   addTypeSpecLibrary(testLibrary: TypeSpecTestLibrary): Promise<void>;
+
+  /** @internal */
+  freeze(): void;
+
+  /** @internal */
+  clone(): TestFileSystem;
 }
 
-export interface TestHost extends TestFileSystem {
+//#endregion
+
+// #region Tester
+export type TestCompileResult<T extends Record<string, Entity>> = T & {
+  /** The program created in this test compilation. */
+  readonly program: Program;
+
+  /** The typekit for this compilation. */
+  readonly $: Typekit;
+
+  /** File system */
+  readonly fs: TestFileSystem;
+
+  /** Position of all markers */
+  readonly pos: Record<keyof T | string, PositionedMarkerInFile>;
+} & Record<string, Entity>;
+
+export interface TestCompileOptions {
+  /** Optional compiler options */
+  readonly compilerOptions?: CompilerOptions;
+}
+
+interface Testable {
+  /**
+   * Compile the given code and validate no diagnostics(error or warnings) are present.
+   * Use {@link compileAndDiagnose} to get the compiler result and manage diagnostics yourself.
+   *
+   * @param code Can be the content of the `main.tsp` file or a record of files(MUST contains a main.tsp).
+   * @param options Optional test options.
+   * @returns {@link TestCompileResult} with the program and collected entities.
+   *
+   * @example
+   * ```ts
+   * const result = await tester.compile(t.code`model ${t.model("Foo")} { bar: string }`);
+   * // result.program is the program created
+   * // result.Foo is the model Foo created
+   * ```
+   */
+  compile<
+    T extends string | TemplateWithMarkers<any> | Record<string, string | TemplateWithMarkers<any>>,
+  >(
+    code: T,
+    options?: TestCompileOptions,
+  ): Promise<TestCompileResult<GetMarkedEntities<T>>>;
+  /**
+   * Compile the given code and return the list of diagnostics emitted.
+   * @param code Can be the content of the `main.tsp` file or a record of files(MUST contains a main.tsp).
+   * @param options Optional test options.
+   * @returns List of diagnostics emitted.
+   *
+   * @example
+   * ```ts
+   * const diagnostics = await tester.diagnose("model Foo {}");
+   * expectDiagnostics(diagnostics, {
+   *   code: "no-foo",
+   *   message: "Do not use Foo as a model name",
+   * });
+   * ```
+   */
+  diagnose(main: string, options?: TestCompileOptions): Promise<readonly Diagnostic[]>;
+
+  /**
+   * Compile the given code and return the collected entities and diagnostics.
+   *
+   * @param code Can be the content of the `main.tsp` file or a record of files(MUST contains a main.tsp).
+   * @param options Optional test options.
+   * @returns {@link TestCompileResult} with the program and collected entities with the list of diagnostics emitted.
+   *
+   * @example
+   * ```ts
+   * const [result, diagnostics] = await tester.compileAndDiagnose(t.code`model ${t.model("Foo")} { bar: string }`);
+   * // result.program is the program created
+   * // result.Foo is the model Foo created
+   * ```
+   */
+  compileAndDiagnose<
+    T extends string | TemplateWithMarkers<any> | Record<string, string | TemplateWithMarkers<any>>,
+  >(
+    code: T,
+    options?: TestCompileOptions,
+  ): Promise<[TestCompileResult<GetMarkedEntities<T>>, readonly Diagnostic[]]>;
+}
+
+export interface TesterBuilder<T> {
+  /** Extend with the given list of files */
+  files(files: Record<string, MockFile>): T;
+  /** Auto import all libraries defined in this tester. */
+  importLibraries(): T;
+  /** Import the given paths */
+  import(...imports: string[]): T;
+  /** Add using statement for the given namespaces. */
+  using(...names: string[]): T;
+  /** Wrap the code of the `main.tsp` file */
+  wrap(fn: (x: string) => string): T;
+}
+
+// Immutable structure meant to be reused
+export interface Tester extends Testable, TesterBuilder<Tester> {
+  /**
+   * Create an emitter tester
+   * @param options - Options to pass to the emitter
+   */
+  emit(emitter: string, options?: Record<string, unknown>): EmitterTester;
+  /** Create an instance of the tester */
+  createInstance(): Promise<TesterInstance>;
+}
+
+export interface TestEmitterCompileResult {
+  /** The program created in this test compilation. */
+  readonly program: Program;
+
+  /** Files written to the emitter output dir. */
+  readonly outputs: Record<string, string>;
+}
+
+export interface OutputTestable<Result> {
+  compile(code: string | Record<string, string>, options?: TestCompileOptions): Promise<Result>;
+  compileAndDiagnose(
+    code: string | Record<string, string>,
+    options?: TestCompileOptions,
+  ): Promise<[Result, readonly Diagnostic[]]>;
+  diagnose(
+    code: string | Record<string, string>,
+    options?: TestCompileOptions,
+  ): Promise<readonly Diagnostic[]>;
+}
+
+/** Alternate version of the tester which runs the configured emitter */
+export interface EmitterTester<Result = TestEmitterCompileResult>
+  extends OutputTestable<Result>, TesterBuilder<EmitterTester<Result>> {
+  /**
+   * Pipe the output of the emitter into a different structure
+   *
+   * @example
+   * ```ts
+   * const MyTester = Tester.emit("my-emitter").pipe((result) => {
+   *  return JSON.parse(result.outputs["output.json"]);
+   * });
+   *
+   * const result = await MyTester.compile("model Foo { bar: string }");
+   * // result is the parsed JSON from the output.json file
+   * ```
+   */
+  pipe<O>(cb: (result: Result) => O): EmitterTester<O>;
+
+  /** Create a mutable instance of the tester */
+  createInstance(): Promise<EmitterTesterInstance<Result>>;
+}
+
+export interface TesterInstanceBase {
+  /** Program created. Only available after calling `compile`, `diagnose` or `compileAndDiagnose` */
+  get program(): Program;
+
+  /** The typekit for this compilation. Only available after calling `compile`, `diagnose` or `compileAndDiagnose` */
+  get $(): Typekit;
+
+  /** File system used */
+  readonly fs: TestFileSystem;
+}
+/** Instance of a tester.  */
+export interface TesterInstance extends TesterInstanceBase, Testable {}
+
+/** Instance of an emitter tester */
+export interface EmitterTesterInstance<Result> extends TesterInstanceBase, OutputTestable<Result> {}
+
+export interface PositionedMarkerInFile extends PositionedMarker {
+  /** The file where the marker is located */
+  readonly filename: string;
+}
+
+// #endregion
+
+// #region Legacy Test host
+/* eslint-disable @typescript-eslint/no-deprecated -- defining deprecated APIs for backward compatibility */
+/** @deprecated Use {@link Tester} */
+export interface TestHost extends Pick<
+  TestFileSystem,
+  | "addTypeSpecFile"
+  | "addJsFile"
+  | "addRealTypeSpecFile"
+  | "addRealJsFile"
+  | "addRealFolder"
+  | "addTypeSpecLibrary"
+  | "compilerHost"
+  | "fs"
+> {
   program: Program;
   libraries: TypeSpecTestLibrary[];
   testTypes: Record<string, Type>;
@@ -27,12 +246,14 @@ export interface TestHost extends TestFileSystem {
   ): Promise<[Record<string, Type>, readonly Diagnostic[]]>;
 }
 
+/** @deprecated Use {@link Tester} */
 export interface TestFiles {
   realDir: string;
   pattern: string;
   virtualPath: string;
 }
 
+/** @deprecated Use {@link Tester} */
 export interface TypeSpecTestLibraryInit {
   name: string;
   packageRoot: string;
@@ -47,16 +268,19 @@ export interface TypeSpecTestLibraryInit {
   jsFileFolder?: string;
 }
 
+/** @deprecated Use {@link Tester} */
 export interface TypeSpecTestLibrary {
   name: string;
   packageRoot: string;
   files: TestFiles[];
 }
 
+/** @deprecated Use {@link Tester} */
 export interface TestHostConfig {
   libraries?: TypeSpecTestLibrary[];
 }
 
+/** @deprecated Use {@link Tester} */
 export class TestHostError extends Error {
   constructor(
     message: string,
@@ -66,6 +290,7 @@ export class TestHostError extends Error {
   }
 }
 
+/** @deprecated Use {@link TesterInstance} */
 export interface BasicTestRunner {
   readonly program: Program;
   readonly fs: Map<string, string>;
@@ -93,3 +318,5 @@ export interface BasicTestRunner {
     options?: CompilerOptions,
   ): Promise<[Record<string, Type>, readonly Diagnostic[]]>;
 }
+/* eslint-enable @typescript-eslint/no-deprecated */
+// #endregion

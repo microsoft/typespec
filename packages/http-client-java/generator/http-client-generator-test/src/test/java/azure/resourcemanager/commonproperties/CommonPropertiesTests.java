@@ -4,11 +4,14 @@
 package azure.resourcemanager.commonproperties;
 
 import azure.resourcemanager.commonproperties.models.ApiErrorException;
+import azure.resourcemanager.commonproperties.models.ArmResourceIdentifierResource;
+import azure.resourcemanager.commonproperties.models.ArmResourceIdentifierResourceProperties;
 import azure.resourcemanager.commonproperties.models.ConfidentialResourceProperties;
 import azure.resourcemanager.commonproperties.models.ManagedIdentityTrackedResource;
 import azure.resourcemanager.commonproperties.models.ManagedIdentityTrackedResourceProperties;
 import azure.resourcemanager.commonproperties.models.ManagedServiceIdentity;
 import azure.resourcemanager.commonproperties.models.ManagedServiceIdentityType;
+import azure.resourcemanager.commonproperties.models.ResourceProvisioningState;
 import azure.resourcemanager.commonproperties.models.UserAssignedIdentity;
 import com.azure.core.management.Region;
 import com.azure.core.management.exception.ManagementException;
@@ -90,5 +93,43 @@ public class CommonPropertiesTests {
         }
         Assertions.assertNotNull(exception);
         Assertions.assertEquals("ResourceNotFound", exception.getValue().getCode());
+    }
+
+    @Test
+    public void testArmResourceIdentifiers() {
+        final String subscriptionId = "00000000-0000-0000-0000-000000000000";
+        final String resourceGroup = "test-rg";
+        final String simpleArmId = "/subscriptions/" + subscriptionId + "/resourceGroups/" + resourceGroup
+            + "/providers/Microsoft.Network/virtualNetworks/myVnet";
+        final String armIdWithAllScopes = "/subscriptions/" + subscriptionId + "/resourceGroups/" + resourceGroup
+            + "/providers/Microsoft.Compute/virtualMachines/myVm";
+
+        // Create
+        ArmResourceIdentifierResource resource = manager.armResourceIdentifiers()
+            .define("armId")
+            .withRegion(Region.US_EAST)
+            .withExistingResourceGroup(resourceGroup)
+            .withProperties(new ArmResourceIdentifierResourceProperties().withSimpleArmId(simpleArmId)
+                .withArmIdWithType(simpleArmId)
+                .withArmIdWithTypeAndScope(simpleArmId)
+                .withArmIdWithAllScopes(armIdWithAllScopes))
+            .create();
+        Assertions.assertNotNull(resource);
+        Assertions.assertEquals("armId", resource.name());
+        Assertions.assertNotNull(resource.properties());
+        Assertions.assertEquals(ResourceProvisioningState.SUCCEEDED, resource.properties().provisioningState());
+        Assertions.assertEquals(simpleArmId, resource.properties().simpleArmId());
+        Assertions.assertEquals(simpleArmId, resource.properties().armIdWithType());
+        Assertions.assertEquals(simpleArmId, resource.properties().armIdWithTypeAndScope());
+        Assertions.assertEquals(armIdWithAllScopes, resource.properties().armIdWithAllScopes());
+
+        // Get
+        resource = manager.armResourceIdentifiers().getByResourceGroup(resourceGroup, "armId");
+        Assertions.assertNotNull(resource);
+        Assertions.assertEquals("armId", resource.name());
+        Assertions.assertNotNull(resource.properties());
+        Assertions.assertEquals(ResourceProvisioningState.SUCCEEDED, resource.properties().provisioningState());
+        Assertions.assertEquals(simpleArmId, resource.properties().simpleArmId());
+        Assertions.assertEquals(armIdWithAllScopes, resource.properties().armIdWithAllScopes());
     }
 }

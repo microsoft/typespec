@@ -52,6 +52,12 @@ public final class DataResponse implements JsonSerializable<DataResponse> {
     private final DataStatus status;
 
     /*
+     * The domain{@code \}username data
+     */
+    @Generated
+    private final String domainUsername;
+
+    /*
      * The anonymous property.
      */
     @Generated
@@ -64,14 +70,17 @@ public final class DataResponse implements JsonSerializable<DataResponse> {
      * @param data the data value to set.
      * @param dataType the dataType value to set.
      * @param status the status value to set.
+     * @param domainUsername the domainUsername value to set.
      * @param anonymous the anonymous value to set.
      */
     @Generated
-    private DataResponse(String name, BinaryData data, TypesModel dataType, DataStatus status, RunObject anonymous) {
+    private DataResponse(String name, BinaryData data, TypesModel dataType, DataStatus status, String domainUsername,
+        RunObject anonymous) {
         this.name = name;
         this.data = data;
         this.dataType = dataType;
         this.status = status;
+        this.domainUsername = domainUsername;
         this.anonymous = anonymous;
     }
 
@@ -124,6 +133,16 @@ public final class DataResponse implements JsonSerializable<DataResponse> {
     }
 
     /**
+     * Get the domainUsername property: The domain{@code \}username data.
+     * 
+     * @return the domainUsername value.
+     */
+    @Generated
+    public String getDomainUsername() {
+        return this.domainUsername;
+    }
+
+    /**
      * Get the anonymous property: The anonymous property.
      * 
      * @return the anonymous value.
@@ -144,6 +163,7 @@ public final class DataResponse implements JsonSerializable<DataResponse> {
         jsonWriter.writeJsonField("data", this.data);
         jsonWriter.writeStringField("type", this.dataType == null ? null : this.dataType.toString());
         jsonWriter.writeStringField("status", this.status == null ? null : this.status.toString());
+        jsonWriter.writeStringField("domainUsername", this.domainUsername);
         jsonWriter.writeJsonField("anonymous", this.anonymous);
         return jsonWriter.writeEndObject();
     }
@@ -164,6 +184,7 @@ public final class DataResponse implements JsonSerializable<DataResponse> {
             BinaryData data = null;
             TypesModel dataType = null;
             DataStatus status = null;
+            String domainUsername = null;
             RunObject anonymous = null;
             while (reader.nextToken() != JsonToken.END_OBJECT) {
                 String fieldName = reader.getFieldName();
@@ -177,13 +198,15 @@ public final class DataResponse implements JsonSerializable<DataResponse> {
                     dataType = TypesModel.fromString(reader.getString());
                 } else if ("status".equals(fieldName)) {
                     status = DataStatus.fromString(reader.getString());
+                } else if ("domainUsername".equals(fieldName)) {
+                    domainUsername = reader.getString();
                 } else if ("anonymous".equals(fieldName)) {
                     anonymous = RunObject.fromJson(reader);
                 } else {
                     reader.skipChildren();
                 }
             }
-            return new DataResponse(name, data, dataType, status, anonymous);
+            return new DataResponse(name, data, dataType, status, domainUsername, anonymous);
         });
     }
 }

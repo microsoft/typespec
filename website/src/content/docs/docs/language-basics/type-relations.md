@@ -1,6 +1,8 @@
 ---
 id: type-relations
 title: Type Relations
+description: Language basics - type relations
+llmstxt: true
 ---
 
 ## Type hierarchy

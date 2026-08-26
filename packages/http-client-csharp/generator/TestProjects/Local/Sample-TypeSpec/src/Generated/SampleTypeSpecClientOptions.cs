@@ -7,6 +7,8 @@
 
 using System;
 using System.ClientModel.Primitives;
+using System.Diagnostics.CodeAnalysis;
+using Microsoft.Extensions.Configuration;
 
 namespace SampleTypeSpec
 {
@@ -25,6 +27,22 @@ namespace SampleTypeSpec
                 ServiceVersion.V2024_08_16_Preview => "2024-08-16-preview",
                 _ => throw new NotSupportedException()
             };
+        }
+
+        /// <summary> Initializes a new instance of SampleTypeSpecClientOptions from configuration. </summary>
+        /// <param name="section"> The configuration section. </param>
+        [Experimental("SCME0002")]
+        internal SampleTypeSpecClientOptions(IConfigurationSection section) : base(section)
+        {
+            Version = "2024-08-16-preview";
+            if (section is null || !section.Exists())
+            {
+                return;
+            }
+            if (section["Version"] is string version)
+            {
+                Version = version;
+            }
         }
 
         /// <summary> Gets the Version. </summary>

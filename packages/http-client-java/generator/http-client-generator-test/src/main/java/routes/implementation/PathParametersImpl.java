@@ -54,7 +54,7 @@ public final class PathParametersImpl {
      * REST calls.
      */
     @Host("{endpoint}")
-    @ServiceInterface(name = "RoutesClientPathPara")
+    @ServiceInterface(name = "RoutesClientPathParameters")
     public interface PathParametersService {
         @Get("/routes/path/template-only/{param}")
         @ExpectedResponses({ 204 })

@@ -1,5 +1,96 @@
 # Change Log - @typespec/internal-build-utils
 
+## 0.84.0
+
+No changes, version bump only.
+
+## 0.83.0
+
+No changes, version bump only.
+
+## 0.82.0
+
+No changes, version bump only.
+
+## 0.81.0
+
+No changes, version bump only.
+
+## 0.80.0
+
+### Bump dependencies
+
+- [#9838](https://github.com/microsoft/typespec/pull/9838) Upgrade dependencies
+
+
+## 0.79.0
+
+No changes, version bump only.
+
+## 0.78.0
+
+### Bump dependencies
+
+- [#9223](https://github.com/microsoft/typespec/pull/9223) Upgrade dependencies
+
+
+## 0.77.0
+
+### Bump dependencies
+
+- [#9046](https://github.com/microsoft/typespec/pull/9046) Upgrade dependencies
+
+
+## 0.76.0
+
+### Bump dependencies
+
+- [#8823](https://github.com/microsoft/typespec/pull/8823) Upgrade dependencies
+
+
+## 0.75.0
+
+No changes, version bump only.
+
+## 0.74.0
+
+### Bump dependencies
+
+- [#8317](https://github.com/microsoft/typespec/pull/8317) Upgrade dependencies
+
+
+## 0.73.0
+
+### Bump dependencies
+
+- [#7978](https://github.com/microsoft/typespec/pull/7978) Upgrade dependencies
+
+
+## 0.72.0
+
+### Bump dependencies
+
+- [#7674](https://github.com/microsoft/typespec/pull/7674) Upgrade dependencies
+
+
+## 0.71.0
+
+### Bump dependencies
+
+- [#7323](https://github.com/microsoft/typespec/pull/7323) Upgrade dependencies
+
+
+## 0.70.0
+
+No changes, version bump only.
+
+## 0.69.0
+
+### Bug Fixes
+
+- [#6676](https://github.com/microsoft/typespec/pull/6676) Fix third party resolution getting duplicate entries
+
+
 ## 0.68.0
 
 ### Bump dependencies

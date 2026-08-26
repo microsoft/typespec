@@ -9,7 +9,7 @@ namespace Microsoft.TypeSpec.Generator.Statements
     public sealed class XmlDocParamStatement : XmlDocStatement
     {
         public XmlDocParamStatement(ParameterProvider parameter)
-            : base($"<param name=\"{parameter.AsExpression().Declaration}\">", $"</param>", [parameter.Description])
+            : base($"<param name=\"{parameter.AsVariable().Declaration}\">", $"</param>", [parameter.Description])
         {
             Parameter = parameter;
         }

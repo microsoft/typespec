@@ -1,5 +1,103 @@
 # Change Log - @typespec/protobuf
 
+## 0.84.0
+
+No changes, version bump only.
+
+## 0.83.0
+
+No changes, version bump only.
+
+## 0.82.0
+
+### Features
+
+- [#10598](https://github.com/microsoft/typespec/pull/10598) Map TypeSpec optionality (`?`) to protobuf `optional` where appropriate.
+  
+  - `optional` is applied to fields with protobuf scalar types to set explicit presence.
+  - `optional` is _not_ applied to fields with message types, because they _always_ have explicit presence.
+  - Attempting to convert a TypeSpec optional property where the type is an array or `Protobuf.Map` instance produces a warning, because protobuf cannot differentiate between "empty" and "unset" `repeated`/`map`-typed fields.
+
+
+## 0.81.0
+
+No changes, version bump only.
+
+## 0.80.0
+
+### Bump dependencies
+
+- [#9838](https://github.com/microsoft/typespec/pull/9838) Upgrade dependencies
+
+
+## 0.79.0
+
+No changes, version bump only.
+
+## 0.78.0
+
+### Bump dependencies
+
+- [#9223](https://github.com/microsoft/typespec/pull/9223) Upgrade dependencies
+
+
+## 0.77.0
+
+### Bump dependencies
+
+- [#9046](https://github.com/microsoft/typespec/pull/9046) Upgrade dependencies
+
+
+## 0.76.0
+
+### Bump dependencies
+
+- [#8823](https://github.com/microsoft/typespec/pull/8823) Upgrade dependencies
+
+
+## 0.75.0
+
+No changes, version bump only.
+
+## 0.74.0
+
+### Bump dependencies
+
+- [#8317](https://github.com/microsoft/typespec/pull/8317) Upgrade dependencies
+
+
+## 0.73.0
+
+### Bump dependencies
+
+- [#7978](https://github.com/microsoft/typespec/pull/7978) Upgrade dependencies
+
+
+## 0.72.0
+
+### Bump dependencies
+
+- [#7674](https://github.com/microsoft/typespec/pull/7674) Upgrade dependencies
+
+
+## 0.71.0
+
+No changes, version bump only.
+
+## 0.70.0
+
+### Features
+
+- [#7199](https://github.com/microsoft/typespec/pull/7199) Add "capitalize" string helper to compiler
+
+
+## 0.69.0
+
+### Bug Fixes
+
+- [#7069](https://github.com/microsoft/typespec/pull/7069) Handle types without node
+
+
 ## 0.68.0
 
 ### Bump dependencies

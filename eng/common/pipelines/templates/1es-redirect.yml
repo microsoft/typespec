@@ -31,10 +31,13 @@ extends:
       codeql:
         compiled:
           enabled: false
-          justificationForDisabling: CodeQL times our pipelines out by running for 2+ hours before being force canceled.
+          justificationForDisabling: "To reduce redundant CG runs across all our pipeline jobs we are disabling and only running in our main build job."
+      componentgovernance:
+        enabled: false
+        justificationForDisabling: "To reduce redundant CG runs across all our pipeline jobs we are disabling and only running in our main build job."
       sourceAnalysisPool:
-        name: azsdk-pool-mms-win-2022-general
-        image: azsdk-pool-mms-win-2022-1espt
+        name: azsdk-pool
+        image: windows-2022
         os: windows
       credscan:
         suppressionsFile: $(Build.SourcesDirectory)/eng/common/CredScanSuppression.json

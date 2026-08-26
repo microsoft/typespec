@@ -1,31 +1,3 @@
-# Following scenarios are skipped due to compilation errors
-routes/main.tsp
-special-words/main.tsp
-parameters/collection-format/main.tsp
-payload/multipart/main.tsp
-payload/pageable/main.tsp
-special-headers/conditional-request/main.tsp
-type/array/main.tsp
-type/dictionary/main.tsp
-type/scalar/main.tsp
-type/union/main.tsp
-server/endpoint/not-defined/main.tsp
-server/versions/not-versioned/main.tsp
-type/enum/extensible/main.tsp
-server/path/single/main.tsp
-type/enum/fixed/main.tsp
-type/model/empty/main.tsp
-type/model/visibility/main.tsp
-type/property/additional-properties/main.tsp
-type/model/usage/main.tsp
-type/property/optionality/main.tsp
-type/property/nullable/main.tsp
-type/property/value-types/main.tsp
-type/model/inheritance/enum-discriminator/main.tsp
-type/model/inheritance/nested-discriminator/main.tsp
-type/model/inheritance/single-discriminator/main.tsp
-type/model/inheritance/not-discriminated/main.tsp
-type/model/inheritance/recursive/main.tsp
 # Following scenarios are skipped due to test failures. Likely need to update with custom mock files.
 authentication/api-key/main.tsp
 authentication/http/custom/main.tsp

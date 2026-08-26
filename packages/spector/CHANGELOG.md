@@ -1,5 +1,129 @@
 # Change Log - @typespec/spector
 
+## 0.1.0-alpha.26
+
+### Bug Fixes
+
+- [#11117](https://github.com/microsoft/typespec/pull/11117) Ensure the coverage file's parent directory is created before writing so `tsp-spector serve --coverageFile <path>` no longer silently drops the report when the directory is missing
+- [#10978](https://github.com/microsoft/typespec/pull/10978) `validate-mock-apis` now verifies that every route defined in a scenario's `main.tsp` is served by at least one of the scenario's mock API `uri`s, so a mismatch between the spec route and the mock api uri (which would make a generated client get a 404 from the mock server) is detected by CI.
+
+
+## 0.1.0-alpha.25
+
+### Features
+
+- [#10011](https://github.com/microsoft/typespec/pull/10011) Add matcher framework for flexible value comparison in scenarios. `match.dateTime()` enables semantic datetime comparison that handles precision and timezone differences across languages.
+
+### Bug Fixes
+
+- [#10259](https://github.com/microsoft/typespec/pull/10259) Fix query parameter matcher handling: use `resolveMatchers: false` so matcher objects (e.g. `match.dateTime`) are checked semantically instead of being serialized to plain strings before comparison.
+
+
+## 0.1.0-alpha.24
+
+### Bump dependencies
+
+- [#9838](https://github.com/microsoft/typespec/pull/9838) Upgrade dependencies
+
+### Bug Fixes
+
+- [#9752](https://github.com/microsoft/typespec/pull/9752) Update to how coverage manifest are managed. The manifest upload each individual one as a single file
+
+
+## 0.1.0-alpha.23
+
+### Bump dependencies
+
+- [#9446](https://github.com/microsoft/typespec/pull/9446) Upgrade dependencies
+
+
+## 0.1.0-alpha.22
+
+### Bump dependencies
+
+- [#9223](https://github.com/microsoft/typespec/pull/9223) Upgrade dependencies
+
+
+## 0.1.0-alpha.21
+
+### Bump dependencies
+
+- [#9046](https://github.com/microsoft/typespec/pull/9046) Upgrade dependencies
+
+### Bug Fixes
+
+- [#8985](https://github.com/microsoft/typespec/pull/8985) Add new `sourceUrl` handling for the go to source navigation
+- [#9016](https://github.com/microsoft/typespec/pull/9016) Switch `js-yaml` to `yaml` library
+
+
+## 0.1.0-alpha.20
+
+### Features
+
+- [#8938](https://github.com/microsoft/typespec/pull/8938) Resolve packageName and spec display name from spec set package.json
+
+### Bump dependencies
+
+- [#8823](https://github.com/microsoft/typespec/pull/8823) Upgrade dependencies
+
+
+## 0.1.0-alpha.19
+
+### Bump dependencies
+
+- [#8437](https://github.com/microsoft/typespec/pull/8437) Upgrade dependencies
+
+
+## 0.1.0-alpha.18
+
+### Bump dependencies
+
+- [#8317](https://github.com/microsoft/typespec/pull/8317) Upgrade dependencies
+
+
+## 0.1.0-alpha.17
+
+### Bump dependencies
+
+- [#7978](https://github.com/microsoft/typespec/pull/7978) Upgrade dependencies
+
+
+## 0.1.0-alpha.16
+
+### Bump dependencies
+
+- [#7674](https://github.com/microsoft/typespec/pull/7674) Upgrade dependencies
+
+
+## 0.1.0-alpha.15
+
+### Bump dependencies
+
+- [#7477](https://github.com/microsoft/typespec/pull/7477) Update multer dependency
+- [#7323](https://github.com/microsoft/typespec/pull/7323) Upgrade dependencies
+
+
+## 0.1.0-alpha.14
+
+### Bug Fixes
+
+- [#7270](https://github.com/microsoft/typespec/pull/7270) Fix specs using `dyn` when using port `0`
+
+
+## 0.1.0-alpha.13
+
+### Features
+
+- [#7066](https://github.com/microsoft/typespec/pull/7066) Add dynamic value resolution in spector mock apis with a new `dyn` string template builder
+
+
+## 0.1.0-alpha.12
+
+### Features
+
+- [#6926](https://github.com/microsoft/typespec/pull/6926) Upgrade to express v5
+
+
 ## 0.1.0-alpha.10
 
 No changes, version bump only.

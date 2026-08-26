@@ -3,18 +3,12 @@
 
 package com.microsoft.typespec.http.client.generator.core.extension.model.codemodel;
 
-import com.azure.json.JsonReader;
-import com.azure.json.JsonSerializable;
-import com.azure.json.JsonWriter;
-import com.microsoft.typespec.http.client.generator.core.extension.base.util.JsonUtils;
-import java.io.IOException;
-
 /**
  * Represents the metadata for long-running operations.
  */
-public class LongRunningMetadata implements JsonSerializable<LongRunningMetadata> {
-    private ObjectSchema pollResultType;
-    private ObjectSchema finalResultType;
+public class LongRunningMetadata {
+    private Schema pollResultType;
+    private Schema finalResultType;
     private Metadata pollingStrategy;
     private String finalResultPropertySerializedName;
 
@@ -29,7 +23,7 @@ public class LongRunningMetadata implements JsonSerializable<LongRunningMetadata
      *
      * @return The poll result type.
      */
-    public ObjectSchema getPollResultType() {
+    public Schema getPollResultType() {
         return pollResultType;
     }
 
@@ -38,7 +32,7 @@ public class LongRunningMetadata implements JsonSerializable<LongRunningMetadata
      *
      * @param pollResultType The poll result type.
      */
-    public void setPollResultType(ObjectSchema pollResultType) {
+    public void setPollResultType(Schema pollResultType) {
         this.pollResultType = pollResultType;
     }
 
@@ -47,7 +41,7 @@ public class LongRunningMetadata implements JsonSerializable<LongRunningMetadata
      *
      * @return The final result type.
      */
-    public ObjectSchema getFinalResultType() {
+    public Schema getFinalResultType() {
         return finalResultType;
     }
 
@@ -56,7 +50,7 @@ public class LongRunningMetadata implements JsonSerializable<LongRunningMetadata
      *
      * @param finalResultType The final result type.
      */
-    public void setFinalResultType(ObjectSchema finalResultType) {
+    public void setFinalResultType(Schema finalResultType) {
         this.finalResultType = finalResultType;
     }
 
@@ -94,38 +88,5 @@ public class LongRunningMetadata implements JsonSerializable<LongRunningMetadata
      */
     public void setFinalResultPropertySerializedName(String finalResultPropertySerializedName) {
         this.finalResultPropertySerializedName = finalResultPropertySerializedName;
-    }
-
-    @Override
-    public JsonWriter toJson(JsonWriter jsonWriter) throws IOException {
-        return jsonWriter.writeStartObject()
-            .writeJsonField("pollResultType", pollResultType)
-            .writeJsonField("finalResultType", finalResultType)
-            .writeJsonField("pollingStrategy", pollingStrategy)
-            .writeStringField("finalResultPropertySerializedName", finalResultPropertySerializedName)
-            .writeEndObject();
-    }
-
-    /**
-     * Deserializes a LongRunningMetadata instance from the JSON data.
-     *
-     * @param jsonReader The JSON reader to deserialize from.
-     * @return A LongRunningMetadata instance deserialized from the JSON data.
-     * @throws IOException If an error occurs during deserialization.
-     */
-    public static LongRunningMetadata fromJson(JsonReader jsonReader) throws IOException {
-        return JsonUtils.readObject(jsonReader, LongRunningMetadata::new, (lroMetadata, fieldName, reader) -> {
-            if ("pollResultType".equals(fieldName)) {
-                lroMetadata.pollResultType = ObjectSchema.fromJson(reader);
-            } else if ("finalResultType".equals(fieldName)) {
-                lroMetadata.finalResultType = ObjectSchema.fromJson(reader);
-            } else if ("pollingStrategy".equals(fieldName)) {
-                lroMetadata.pollingStrategy = Metadata.fromJson(reader);
-            } else if ("finalResultPropertySerializedName".equals(fieldName)) {
-                lroMetadata.finalResultPropertySerializedName = reader.getFieldName();
-            } else {
-                reader.skipChildren();
-            }
-        });
     }
 }

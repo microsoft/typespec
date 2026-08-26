@@ -1,5 +1,7 @@
 ---
 title: TypeSpec for OpenAPI Developers
+description: Getting started with TypeSpec for Open API developers
+llmstxt: true
 ---
 
 This guide introduces TypeSpec using concepts familiar to developers who build or use API definitions in OpenAPI v2 or v3.
@@ -483,13 +485,16 @@ To get multiple `content` entries with different schemas, use a union type.
 @tag("Response Content")
 @route("/response-content")
 namespace ResponseContent {
-  @get op read(@path id: string): Widget | {
-    @header contentType: "text/html";
-    @body _: string;
-  } | {
-    @header contentType: "image/jpeg";
-    @body _: bytes;
-  };
+  @get op read(@path id: string):
+    | Widget
+    | {
+        @header contentType: "text/html";
+        @body _: string;
+      }
+    | {
+        @header contentType: "image/jpeg";
+        @body _: bytes;
+      };
 }
 ```
 

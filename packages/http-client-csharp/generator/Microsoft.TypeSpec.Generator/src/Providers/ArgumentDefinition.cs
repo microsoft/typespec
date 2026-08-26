@@ -11,6 +11,7 @@ using Microsoft.TypeSpec.Generator.Snippets;
 using Microsoft.TypeSpec.Generator.Statements;
 using static Microsoft.TypeSpec.Generator.Snippets.ArgumentSnippets;
 using static Microsoft.TypeSpec.Generator.Snippets.Snippet;
+using static Microsoft.TypeSpec.Generator.Snippets.StringSnippets;
 
 namespace Microsoft.TypeSpec.Generator.Providers
 {
@@ -21,6 +22,8 @@ namespace Microsoft.TypeSpec.Generator.Providers
         private const string AssertNotNullMethodName = "AssertNotNull";
         private const string AssertNotNullOrEmptyMethodName = "AssertNotNullOrEmpty";
         private const string AssertNotNullOrWhiteSpaceMethodName = "AssertNotNullOrWhiteSpace";
+        private const string AssertInRangeMethodName = "AssertInRange";
+        private const string CheckNotNullOrEmptyMethodName = "CheckNotNullOrEmpty";
 
         private readonly CSharpType _t = typeof(Template<>).GetGenericArguments()[0];
         private readonly ParameterProvider _nameParam = new ParameterProvider("name", $"The name.", typeof(string));
@@ -58,7 +61,7 @@ namespace Microsoft.TypeSpec.Generator.Providers
 
         protected override string BuildName() => "Argument";
 
-        protected override MethodProvider[] BuildMethods()
+        protected internal override MethodProvider[] BuildMethods()
         {
             return
             [
@@ -67,109 +70,9 @@ namespace Microsoft.TypeSpec.Generator.Providers
                 BuildAssertNotNullOrEmptyCollection(),
                 BuildAssertNotNullOrEmptyString(),
                 BuildAssertNotNullOrWhiteSpace(),
-                BuildAssertNotDefault(),
                 BuildAssertInRange(),
-                BuildAssertEnumDefined(),
-                BuildCheckNotNull(),
-                BuildCheckNotNullOrEmptyString(),
-                BuildAssertNull(),
+                BuildCheckNotNullOrEmpty(),
             ];
-        }
-
-        private MethodProvider BuildAssertNull()
-        {
-            var value = new ParameterProvider("value", $"The value.", _t);
-            var message = new ParameterProvider("message", $"The message.", typeof(string), DefaultOf(new CSharpType(typeof(string), true)));
-            var signature = GetSignature("AssertNull", [value, _nameParam, message], [_t]);
-            return new MethodProvider(signature, new MethodBodyStatement[]
-            {
-                new IfStatement(value.NotEqual(Null))
-                {
-                    ThrowArgumentException(message.NullCoalesce(Literal("Value must be null.")))
-                }
-            },
-            this);
-        }
-
-        private MethodProvider BuildCheckNotNullOrEmptyString()
-        {
-            var value = new ParameterProvider("value", $"The value.", typeof(string));
-            var signature = GetSignature("CheckNotNullOrEmpty", [value, _nameParam], returnType: typeof(string));
-            return new MethodProvider(signature, new MethodBodyStatement[]
-            {
-                AssertNotNullOrEmpty(value, _nameParam),
-                Return(value)
-            },
-            this);
-        }
-
-        private MethodProvider BuildCheckNotNull()
-        {
-            var value = new ParameterProvider("value", $"The value.", _t);
-            var signature = GetSignature("CheckNotNull", [value, _nameParam], new[] { _t }, new[] { Where.Class(_t) }, _t);
-            return new MethodProvider(signature, new MethodBodyStatement[]
-            {
-                AssertNotNull(value, _nameParam),
-                Return(value)
-            },
-            this);
-        }
-
-        private MethodProvider BuildAssertEnumDefined()
-        {
-            var value = new ParameterProvider("value", $"The value.", typeof(object), null);
-            var enumType = new ParameterProvider("enumType", $"The enum value.", typeof(Type));
-            var signature = GetSignature("AssertEnumDefined", [enumType, value, _nameParam]);
-            return new MethodProvider(signature, new MethodBodyStatement[]
-            {
-                new IfStatement(Not(Static<Enum>().Invoke("IsDefined", [enumType, value])))
-                {
-                    ThrowArgumentException(new FormattableStringExpression("Value not defined for {0}.", [new MemberExpression(enumType, "FullName")]))
-                }
-            },
-            this);
-        }
-
-        private MethodProvider BuildAssertInRange()
-        {
-            var value = new ParameterProvider("value", $"The value.", _t);
-            var min = new ParameterProvider("minimum", $"The minimum value.", _t);
-            var max = new ParameterProvider("maximum", $"The maximum value.", _t);
-            var whereExpressions = new WhereExpression[] { Where.NotNull(_t).And(new CSharpType(typeof(IComparable<>), _t)) };
-            var signature = GetSignature("AssertInRange", new[] { value, min, max, _nameParam }, new[] { _t }, whereExpressions);
-            return new MethodProvider(signature, new MethodBodyStatement[]
-            {
-                new IfStatement(GetCompareToExpression(min, value).GreaterThan(Literal(0)))
-                {
-                    Throw(New.ArgumentOutOfRangeException(_nameParam, "Value is less than the minimum allowed.", false))
-                },
-                new IfStatement(GetCompareToExpression(max, value).LessThan(Literal(0)))
-                {
-                    Throw(New.ArgumentOutOfRangeException(_nameParam, "Value is greater than the maximum allowed.", false))
-                }
-            },
-            this);
-        }
-
-        private ValueExpression GetCompareToExpression(ValueExpression left, ValueExpression right)
-        {
-            return left.Invoke("CompareTo", right);
-        }
-
-        private MethodProvider BuildAssertNotDefault()
-        {
-            var value = new ParameterProvider("value", $"The value.", _t);
-            var valueParamWithRef = value.WithRef(); ;
-            var whereExpressions = new WhereExpression[] { Where.Struct(_t).And(new CSharpType(typeof(IEquatable<>), _t)) };
-            var signature = GetSignature("AssertNotDefault", [valueParamWithRef, _nameParam], [_t], whereExpressions);
-            return new MethodProvider(signature, new MethodBodyStatement[]
-            {
-                new IfStatement(value.Invoke("Equals", Default))
-                {
-                    ThrowArgumentException("Value cannot be empty.")
-                }
-            },
-            this);
         }
 
         private MethodProvider BuildAssertNotNullOrWhiteSpace()
@@ -179,10 +82,43 @@ namespace Microsoft.TypeSpec.Generator.Providers
             return new MethodProvider(signature, new MethodBodyStatement[]
             {
                 AssertNotNullSnippet(valueParam),
-                new IfStatement(StringSnippets.IsNullOrWhiteSpace(valueParam.As<string>()))
+                new IfStatement(IsNullOrWhiteSpace(valueParam.As<string>()))
                 {
                     ThrowArgumentException("Value cannot be empty or contain only white-space characters.")
                 }
+            },
+            this);
+        }
+
+        private MethodProvider BuildAssertInRange()
+        {
+            var valueParam = new ParameterProvider("value", $"The value.", _t);
+            var minimumParam = new ParameterProvider("minimum", $"The minimum value.", _t);
+            var maximumParam = new ParameterProvider("maximum", $"The maximum value.", _t);
+            var whereExpression = Where.NotNull(_t).And(new CSharpType(typeof(IComparable<>), _t));
+            var signature = GetSignature(AssertInRangeMethodName, [valueParam, minimumParam, maximumParam, _nameParam], [_t], [whereExpression]);
+            return new MethodProvider(signature, new MethodBodyStatement[]
+            {
+                new IfStatement(minimumParam.Invoke("CompareTo", valueParam).GreaterThan(Literal(0)))
+                {
+                    Throw(New.ArgumentOutOfRangeException(_nameParam, "Value is less than the minimum allowed.", false))
+                },
+                new IfStatement(maximumParam.Invoke("CompareTo", valueParam).LessThan(Literal(0)))
+                {
+                    Throw(New.ArgumentOutOfRangeException(_nameParam, "Value is greater than the maximum allowed.", false))
+                }
+            },
+            this);
+        }
+
+        private MethodProvider BuildCheckNotNullOrEmpty()
+        {
+            var valueParam = new ParameterProvider("value", $"The value.", typeof(string));
+            var signature = GetSignature(CheckNotNullOrEmptyMethodName, [valueParam, _nameParam], returnType: typeof(string));
+            return new MethodProvider(signature, new MethodBodyStatement[]
+            {
+                Static<ArgumentDefinition>().Invoke(AssertNotNullOrEmptyMethodName, [valueParam, _nameParam]).Terminate(),
+                Return(valueParam)
             },
             this);
         }

@@ -12,8 +12,7 @@ import { SchemaUsage } from "./usage.js";
 
 /** a schema that represents a choice of several values (ie, an 'enum') */
 export interface ChoiceSchema<ChoiceType extends PrimitiveSchema = StringSchema>
-  extends ValueSchema,
-    SchemaUsage {
+  extends ValueSchema, SchemaUsage {
   /** the schema type  */
   type: SchemaType.Choice;
   /** the primitive type for the choices */
@@ -40,8 +39,7 @@ export class ChoiceSchema<ChoiceType extends PrimitiveSchema = StringSchema>
 
 /** a schema that represents a choice of several values (ie, an 'enum') */
 export interface SealedChoiceSchema<ChoiceType extends PrimitiveSchema = StringSchema>
-  extends ValueSchema,
-    SchemaUsage {
+  extends ValueSchema, SchemaUsage {
   /** the schema type  */
   type: SchemaType.SealedChoice;
 

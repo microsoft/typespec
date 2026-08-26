@@ -1,17 +1,12 @@
-import { defineConfig } from "vitest/config";
+import { defineConfig, mergeConfig } from "vitest/config";
+import { defaultTypeSpecVitestConfig } from "../../vitest.config.js";
 
-export default defineConfig({
-  test: {
-    environment: "node",
-    testTimeout: 90_000,
-    isolate: false,
-    coverage: {
-      reporter: ["cobertura", "json", "text"],
+export default mergeConfig(
+  defaultTypeSpecVitestConfig,
+  defineConfig({
+    test: {
+      testTimeout: 90_000,
+      include: ["test/**/*.e2e.ts"],
     },
-    outputFile: {
-      junit: "./test-results.xml",
-    },
-
-    include: ["test/**/*.e2e.ts"],
-  },
-});
+  }),
+);

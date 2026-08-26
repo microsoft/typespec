@@ -7,10 +7,8 @@ using System.Collections.Generic;
 
 namespace Sample.Models
 {
-    /// <summary> mockInputModel description. </summary>
     public partial class MockInputModel
     {
-        /// <summary> Keeps track of any properties unknown to the library. </summary>
         private protected readonly global::System.Collections.Generic.IDictionary<string, global::System.BinaryData> _additionalBinaryDataProperties;
 
         internal MockInputModel()

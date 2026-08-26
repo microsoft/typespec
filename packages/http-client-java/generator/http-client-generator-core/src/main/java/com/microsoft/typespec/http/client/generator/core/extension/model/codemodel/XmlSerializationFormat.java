@@ -3,10 +3,6 @@
 
 package com.microsoft.typespec.http.client.generator.core.extension.model.codemodel;
 
-import com.azure.json.JsonReader;
-import com.azure.json.JsonWriter;
-import com.microsoft.typespec.http.client.generator.core.extension.base.util.JsonUtils;
-import java.io.IOException;
 import java.util.Objects;
 
 /**
@@ -19,6 +15,9 @@ public class XmlSerializationFormat extends SerializationFormat {
     private boolean attribute;
     private boolean wrapped;
     private boolean text;
+    private String itemsName;
+    private String itemsNamespace;
+    private String itemsPrefix;
 
     /**
      * Creates a new instance of the XmlSerializationFormat class.
@@ -134,17 +133,73 @@ public class XmlSerializationFormat extends SerializationFormat {
         this.text = text;
     }
 
+    /**
+     * Gets the name of the XML items element.
+     *
+     * @return The name of the XML items element.
+     */
+    public String getItemsName() {
+        return itemsName;
+    }
+
+    /**
+     * Sets the name of the XML items element.
+     *
+     * @param itemsName The name of the XML items element.
+     */
+    public void setItemsName(String itemsName) {
+        this.itemsName = itemsName;
+    }
+
+    /**
+     * Gets the namespace of the XML items element.
+     *
+     * @return The namespace of the XML items element.
+     */
+    public String getItemsNamespace() {
+        return itemsNamespace;
+    }
+
+    /**
+     * Sets the namespace of the XML items element.
+     *
+     * @param itemsNamespace The namespace of the XML items element.
+     */
+    public void setItemsNamespace(String itemsNamespace) {
+        this.itemsNamespace = itemsNamespace;
+    }
+
+    /**
+     * Gets the prefix of the XML items element.
+     *
+     * @return The prefix of the XML items element.
+     */
+    public String getItemsPrefix() {
+        return itemsPrefix;
+    }
+
+    /**
+     * Sets the prefix of the XML items element.
+     *
+     * @param itemsPrefix The prefix of the XML items element.
+     */
+    public void setItemsPrefix(String itemsPrefix) {
+        this.itemsPrefix = itemsPrefix;
+    }
+
     @Override
     public String toString() {
         return XmlSerializationFormat.class.getName() + "@" + Integer.toHexString(System.identityHashCode(this))
             + "[name=" + Objects.toString(name, "<null>") + ",namespace=" + Objects.toString(namespace, "<null>")
             + ",prefix=" + Objects.toString(prefix, "<null>") + ",attribute=" + attribute + ",wrapped=" + wrapped
-            + ",text=" + text + "]";
+            + ",itemsName=" + Objects.toString(itemsName, "<null>") + ",itemsNamespace="
+            + Objects.toString(itemsNamespace, "<null>") + ",itemsPrefix=" + Objects.toString(itemsPrefix, "<null>")
+            + "]";
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(name, namespace, attribute, wrapped, prefix, text);
+        return Objects.hash(name, namespace, attribute, wrapped, prefix, text, itemsName, itemsNamespace, itemsPrefix);
     }
 
     @Override
@@ -162,48 +217,9 @@ public class XmlSerializationFormat extends SerializationFormat {
             && attribute == rhs.attribute
             && wrapped == rhs.wrapped
             && Objects.equals(prefix, rhs.prefix)
-            && text == rhs.text;
-    }
-
-    @Override
-    public JsonWriter toJson(JsonWriter jsonWriter) throws IOException {
-        return jsonWriter.writeStartObject()
-            .writeJsonField("extensions", getExtensions())
-            .writeStringField("name", name)
-            .writeStringField("namespace", namespace)
-            .writeStringField("prefix", prefix)
-            .writeBooleanField("attribute", attribute)
-            .writeBooleanField("wrapped", wrapped)
-            .writeBooleanField("text", text)
-            .writeEndObject();
-    }
-
-    /**
-     * Deserializes a XmlSerializationFormat instance from the JSON data.
-     *
-     * @param jsonReader The JSON reader to deserialize from.
-     * @return A XmlSerializationFormat instance deserialized from the JSON data.
-     * @throws IOException If an error occurs during deserialization.
-     */
-    public static XmlSerializationFormat fromJson(JsonReader jsonReader) throws IOException {
-        return JsonUtils.readObject(jsonReader, XmlSerializationFormat::new, (format, fieldName, reader) -> {
-            if ("extensions".equals(fieldName)) {
-                format.setExtensions(DictionaryAny.fromJson(reader));
-            } else if ("name".equals(fieldName)) {
-                format.name = reader.getString();
-            } else if ("namespace".equals(fieldName)) {
-                format.namespace = reader.getString();
-            } else if ("prefix".equals(fieldName)) {
-                format.prefix = reader.getString();
-            } else if ("attribute".equals(fieldName)) {
-                format.attribute = reader.getBoolean();
-            } else if ("wrapped".equals(fieldName)) {
-                format.wrapped = reader.getBoolean();
-            } else if ("text".equals(fieldName)) {
-                format.text = reader.getBoolean();
-            } else {
-                reader.skipChildren();
-            }
-        });
+            && text == rhs.text
+            && Objects.equals(itemsName, rhs.itemsName)
+            && Objects.equals(itemsNamespace, rhs.itemsNamespace)
+            && Objects.equals(itemsPrefix, rhs.itemsPrefix);
     }
 }

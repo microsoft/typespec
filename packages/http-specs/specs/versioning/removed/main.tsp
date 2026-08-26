@@ -149,7 +149,7 @@ interface InterfaceV1 {
 /** This operation will pass different paths and different request bodies based on different versions. */
 @scenario
 @scenarioDoc("""
-  path: "/versioning/removed/api-version[:]v1/v3"
+  path: "/versioning/removed/api-version:v1/v3"
   Expected request body:
   ```json
   { "id": "123", "enumProp": "enumMemberV1" }
@@ -160,7 +160,7 @@ interface InterfaceV1 {
   { "id": "123", "enumProp": "enumMemberV1" }
   ```
   
-  path: "/versioning/removed/api-version[:]v2preview/v3"
+  path: "/versioning/removed/api-version:v2preview/v3"
   Expected request body:
   ```json
   { "id": "123"}
@@ -171,7 +171,7 @@ interface InterfaceV1 {
   { "id": "123"}
   ```
   
-  path: "/versioning/removed/api-version[:]v2/v3"
+  path: "/versioning/removed/api-version:v2/v3"
   Expected request body:
   ```json
   { "id": "123", "enumProp": "enumMemberV1" }

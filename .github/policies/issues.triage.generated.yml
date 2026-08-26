@@ -20,7 +20,7 @@ configuration:
                 - hasLabel:
                     label: compiler:core
                 - hasLabel:
-                    label: compiler:emitter-framework
+                    label: emitter-framework
                 - hasLabel:
                     label: ide
                 - hasLabel:
@@ -86,7 +86,7 @@ configuration:
               - labelAdded:
                   label: compiler:core
               - labelAdded:
-                  label: compiler:emitter-framework
+                  label: emitter-framework
               - labelAdded:
                   label: ide
               - labelAdded:
@@ -153,7 +153,7 @@ configuration:
               - labelRemoved:
                   label: compiler:core
               - labelRemoved:
-                  label: compiler:emitter-framework
+                  label: emitter-framework
               - labelRemoved:
                   label: ide
               - labelRemoved:
@@ -211,7 +211,7 @@ configuration:
                 - hasLabel:
                     label: compiler:core
                 - hasLabel:
-                    label: compiler:emitter-framework
+                    label: emitter-framework
                 - hasLabel:
                     label: ide
                 - hasLabel:

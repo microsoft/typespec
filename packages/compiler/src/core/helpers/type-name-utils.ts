@@ -3,6 +3,7 @@ import { isTemplateInstance, isType, isValue } from "../type-utils.js";
 import type {
   Entity,
   Enum,
+  FunctionType,
   Interface,
   Model,
   ModelProperty,
@@ -15,11 +16,13 @@ import type {
   Union,
   Value,
 } from "../types.js";
+import { getCachedRawText } from "./raw-text-cache.js";
 import { printIdentifier } from "./syntax-utils.js";
 
 export interface TypeNameOptions {
   namespaceFilter?: (ns: Namespace) => boolean;
   printable?: boolean;
+  nameOnly?: boolean;
 }
 
 export function getTypeName(type: Type, options?: TypeNameOptions): string {
@@ -28,6 +31,8 @@ export function getTypeName(type: Type, options?: TypeNameOptions): string {
       return getNamespaceFullName(type, options);
     case "TemplateParameter":
       return getIdentifierName(type.node.id.sv, options);
+    case "TemplateParameterAccess":
+      return type.path;
     case "Scalar":
       return getScalarName(type, options);
     case "Model":
@@ -58,9 +63,20 @@ export function getTypeName(type: Type, options?: TypeNameOptions): string {
       return type.value.toString();
     case "Intrinsic":
       return type.name;
+    case "FunctionType":
+      return getFunctionSignature(type);
     default:
       return `(unnamed type)`;
   }
+}
+
+function getFunctionSignature(type: FunctionType) {
+  const parameters = [...type.parameters].map((x) => {
+    const rest = x.rest ? "..." : "";
+    const optional = x.optional ? "?" : "";
+    return `${rest}${x.name}${optional}: ${getEntityName(x.type)}`;
+  });
+  return `fn (${parameters.join(", ")}) => ${getEntityName(type.returnType)}`;
 }
 
 function getValuePreview(value: Value, options?: TypeNameOptions): string {
@@ -81,6 +97,9 @@ function getValuePreview(value: Value, options?: TypeNameOptions): string {
       return "null";
     case "ScalarValue":
       return `${getTypeName(value.type, options)}.${value.value.name}(${value.value.args.map((x) => getValuePreview(x, options)).join(", ")}})`;
+    case "Function": {
+      return `fn ${value.name ?? "<anonymous>"}`;
+    }
   }
 }
 
@@ -135,7 +154,7 @@ export function getNamespaceFullName(type: Namespace, options?: TypeNameOptions)
 }
 
 function getNamespacePrefix(type: Namespace | undefined, options?: TypeNameOptions) {
-  if (type === undefined || isStdNamespace(type)) {
+  if (type === undefined || isStdNamespace(type) || options?.nameOnly === true) {
     return "";
   }
   const namespaceFullName = getNamespaceFullName(type, options);
@@ -177,9 +196,10 @@ function getModelName(model: Model, options: TypeNameOptions | undefined) {
     return `${modelName}<${args.join(", ")}>`;
   } else if ((model.node as ModelStatementNode)?.templateParameters?.length > 0) {
     // template
-    const params = (model.node as ModelStatementNode).templateParameters.map((t) =>
-      getIdentifierName(t.id.sv, options),
-    );
+    const params = (model.node as ModelStatementNode).templateParameters.map((t) => {
+      const cachedRawText = getCachedRawText(t);
+      return getIdentifierName(t.id.sv, options, cachedRawText);
+    });
     return `${modelName}<${params.join(", ")}>`;
   } else {
     // regular old model.
@@ -188,7 +208,7 @@ function getModelName(model: Model, options: TypeNameOptions | undefined) {
 }
 
 function getUnionName(type: Union, options: TypeNameOptions | undefined): string {
-  const nsPrefix = getNamespacePrefix(type.namespace, options);
+  const nsPrefix = type.expression ? "" : getNamespacePrefix(type.namespace, options);
   const typeName = type.name
     ? getIdentifierName(type.name, options)
     : [...type.variants.values()].map((x) => getTypeName(x.type, options)).join(" | ");
@@ -212,6 +232,9 @@ function isInTypeSpecNamespace(type: Type & { namespace?: Namespace }): boolean 
 }
 
 function getModelPropertyName(prop: ModelProperty, options: TypeNameOptions | undefined) {
+  if (options?.nameOnly === true) {
+    return prop.name;
+  }
   const modelName = prop.model ? getModelName(prop.model, options) : undefined;
 
   return `${modelName ?? "(anonymous model)"}.${prop.name}`;
@@ -223,25 +246,39 @@ function getInterfaceName(iface: Interface, options: TypeNameOptions | undefined
     interfaceName += `<${iface.templateMapper.args
       .map((x) => getEntityName(x, options))
       .join(", ")}>`;
+  } else if (iface.node && iface.node.templateParameters.length > 0) {
+    const params = iface.node.templateParameters.map((t) => {
+      const cachedRawText = getCachedRawText(t);
+      return getIdentifierName(t.id.sv, options, cachedRawText);
+    });
+    interfaceName += `<${params.join(", ")}>`;
   }
   return `${getNamespacePrefix(iface.namespace, options)}${interfaceName}`;
 }
 
 function getOperationName(op: Operation, options: TypeNameOptions | undefined) {
   let opName = getIdentifierName(op.name, options);
-  if (op.node.templateParameters.length > 0) {
+  if (op.node && op.node.templateParameters.length > 0) {
     // template
     const params = op.node.templateParameters.map((t) => getIdentifierName(t.id.sv, options));
     opName += `<${params.join(", ")}>`;
   }
-  const prefix = op.interface
-    ? getInterfaceName(op.interface, options) + "."
-    : getNamespacePrefix(op.namespace, options);
-  return `${prefix}${opName}`;
+  if (options?.nameOnly === true) {
+    return opName;
+  } else {
+    const prefix = op.interface
+      ? getInterfaceName(op.interface, options) + "."
+      : getNamespacePrefix(op.namespace, options);
+    return `${prefix}${opName}`;
+  }
 }
 
-function getIdentifierName(name: string, options: TypeNameOptions | undefined) {
-  return options?.printable ? printIdentifier(name) : name;
+function getIdentifierName(
+  name: string,
+  options: TypeNameOptions | undefined,
+  nodeIncludeRawText?: string,
+) {
+  return nodeIncludeRawText ?? (options?.printable ? printIdentifier(name) : name);
 }
 
 function getStringTemplateName(type: StringTemplate): string {

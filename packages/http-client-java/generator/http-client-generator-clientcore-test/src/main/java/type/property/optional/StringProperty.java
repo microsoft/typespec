@@ -1,7 +1,7 @@
 package type.property.optional;
 
 import io.clientcore.core.annotations.Metadata;
-import io.clientcore.core.annotations.TypeConditions;
+import io.clientcore.core.annotations.MetadataProperties;
 import io.clientcore.core.serialization.json.JsonReader;
 import io.clientcore.core.serialization.json.JsonSerializable;
 import io.clientcore.core.serialization.json.JsonToken;
@@ -11,18 +11,18 @@ import java.io.IOException;
 /**
  * Template type for testing models with optional property. Pass in the type of the property you are looking for.
  */
-@Metadata(conditions = { TypeConditions.FLUENT })
+@Metadata(properties = { MetadataProperties.FLUENT })
 public final class StringProperty implements JsonSerializable<StringProperty> {
     /*
      * Property
      */
-    @Metadata(generated = true)
+    @Metadata(properties = { MetadataProperties.GENERATED })
     private String property;
 
     /**
      * Creates an instance of StringProperty class.
      */
-    @Metadata(generated = true)
+    @Metadata(properties = { MetadataProperties.GENERATED })
     public StringProperty() {
     }
 
@@ -31,7 +31,7 @@ public final class StringProperty implements JsonSerializable<StringProperty> {
      * 
      * @return the property value.
      */
-    @Metadata(generated = true)
+    @Metadata(properties = { MetadataProperties.GENERATED })
     public String getProperty() {
         return this.property;
     }
@@ -42,7 +42,7 @@ public final class StringProperty implements JsonSerializable<StringProperty> {
      * @param property the property value to set.
      * @return the StringProperty object itself.
      */
-    @Metadata(generated = true)
+    @Metadata(properties = { MetadataProperties.GENERATED })
     public StringProperty setProperty(String property) {
         this.property = property;
         return this;
@@ -51,7 +51,7 @@ public final class StringProperty implements JsonSerializable<StringProperty> {
     /**
      * {@inheritDoc}
      */
-    @Metadata(generated = true)
+    @Metadata(properties = { MetadataProperties.GENERATED })
     @Override
     public JsonWriter toJson(JsonWriter jsonWriter) throws IOException {
         jsonWriter.writeStartObject();
@@ -67,7 +67,7 @@ public final class StringProperty implements JsonSerializable<StringProperty> {
      * pointing to JSON null.
      * @throws IOException If an error occurs while reading the StringProperty.
      */
-    @Metadata(generated = true)
+    @Metadata(properties = { MetadataProperties.GENERATED })
     public static StringProperty fromJson(JsonReader jsonReader) throws IOException {
         return jsonReader.readObject(reader -> {
             StringProperty deserializedStringProperty = new StringProperty();

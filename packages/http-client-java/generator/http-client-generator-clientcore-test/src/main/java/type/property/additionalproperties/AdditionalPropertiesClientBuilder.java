@@ -1,6 +1,7 @@
 package type.property.additionalproperties;
 
 import io.clientcore.core.annotations.Metadata;
+import io.clientcore.core.annotations.MetadataProperties;
 import io.clientcore.core.annotations.ServiceClientBuilder;
 import io.clientcore.core.http.client.HttpClient;
 import io.clientcore.core.http.models.ProxyOptions;
@@ -13,14 +14,17 @@ import io.clientcore.core.http.pipeline.HttpRedirectOptions;
 import io.clientcore.core.http.pipeline.HttpRedirectPolicy;
 import io.clientcore.core.http.pipeline.HttpRetryOptions;
 import io.clientcore.core.http.pipeline.HttpRetryPolicy;
-import io.clientcore.core.instrumentation.logging.ClientLogger;
+import io.clientcore.core.instrumentation.Instrumentation;
+import io.clientcore.core.instrumentation.SdkInstrumentationOptions;
 import io.clientcore.core.traits.ConfigurationTrait;
 import io.clientcore.core.traits.EndpointTrait;
 import io.clientcore.core.traits.HttpTrait;
 import io.clientcore.core.traits.ProxyTrait;
+import io.clientcore.core.utils.CoreUtils;
 import io.clientcore.core.utils.configuration.Configuration;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 import java.util.Objects;
 import type.property.additionalproperties.implementation.AdditionalPropertiesClientImpl;
 
@@ -63,52 +67,37 @@ import type.property.additionalproperties.implementation.AdditionalPropertiesCli
 public final class AdditionalPropertiesClientBuilder
     implements HttpTrait<AdditionalPropertiesClientBuilder>, ProxyTrait<AdditionalPropertiesClientBuilder>,
     ConfigurationTrait<AdditionalPropertiesClientBuilder>, EndpointTrait<AdditionalPropertiesClientBuilder> {
-    @Metadata(generated = true)
+    @Metadata(properties = { MetadataProperties.GENERATED })
     private static final String SDK_NAME = "name";
 
-    @Metadata(generated = true)
+    @Metadata(properties = { MetadataProperties.GENERATED })
     private static final String SDK_VERSION = "version";
 
-    @Metadata(generated = true)
+    @Metadata(properties = { MetadataProperties.GENERATED })
+    private static final Map<String, String> PROPERTIES
+        = CoreUtils.getProperties("type-property-additionalproperties.properties");
+
+    @Metadata(properties = { MetadataProperties.GENERATED })
     private final List<HttpPipelinePolicy> pipelinePolicies;
 
     /**
      * Create an instance of the AdditionalPropertiesClientBuilder.
      */
-    @Metadata(generated = true)
+    @Metadata(properties = { MetadataProperties.GENERATED })
     public AdditionalPropertiesClientBuilder() {
         this.pipelinePolicies = new ArrayList<>();
     }
 
     /*
-     * The HTTP pipeline to send requests through.
-     */
-    @Metadata(generated = true)
-    private HttpPipeline pipeline;
-
-    /**
-     * {@inheritDoc}.
-     */
-    @Metadata(generated = true)
-    @Override
-    public AdditionalPropertiesClientBuilder httpPipeline(HttpPipeline pipeline) {
-        if (this.pipeline != null && pipeline == null) {
-            LOGGER.atInfo().log("HttpPipeline is being set to 'null' when it was previously configured.");
-        }
-        this.pipeline = pipeline;
-        return this;
-    }
-
-    /*
      * The HTTP client used to send the request.
      */
-    @Metadata(generated = true)
+    @Metadata(properties = { MetadataProperties.GENERATED })
     private HttpClient httpClient;
 
     /**
      * {@inheritDoc}.
      */
-    @Metadata(generated = true)
+    @Metadata(properties = { MetadataProperties.GENERATED })
     @Override
     public AdditionalPropertiesClientBuilder httpClient(HttpClient httpClient) {
         this.httpClient = httpClient;
@@ -116,32 +105,15 @@ public final class AdditionalPropertiesClientBuilder
     }
 
     /*
-     * The logging configuration for HTTP requests and responses.
-     */
-    @Metadata(generated = true)
-    private HttpInstrumentationOptions httpInstrumentationOptions;
-
-    /**
-     * {@inheritDoc}.
-     */
-    @Metadata(generated = true)
-    @Override
-    public AdditionalPropertiesClientBuilder
-        httpInstrumentationOptions(HttpInstrumentationOptions httpInstrumentationOptions) {
-        this.httpInstrumentationOptions = httpInstrumentationOptions;
-        return this;
-    }
-
-    /*
      * The retry options to configure retry policy for failed requests.
      */
-    @Metadata(generated = true)
+    @Metadata(properties = { MetadataProperties.GENERATED })
     private HttpRetryOptions retryOptions;
 
     /**
      * {@inheritDoc}.
      */
-    @Metadata(generated = true)
+    @Metadata(properties = { MetadataProperties.GENERATED })
     @Override
     public AdditionalPropertiesClientBuilder httpRetryOptions(HttpRetryOptions retryOptions) {
         this.retryOptions = retryOptions;
@@ -151,7 +123,7 @@ public final class AdditionalPropertiesClientBuilder
     /**
      * {@inheritDoc}.
      */
-    @Metadata(generated = true)
+    @Metadata(properties = { MetadataProperties.GENERATED })
     @Override
     public AdditionalPropertiesClientBuilder addHttpPipelinePolicy(HttpPipelinePolicy customPolicy) {
         Objects.requireNonNull(customPolicy, "'customPolicy' cannot be null.");
@@ -162,13 +134,13 @@ public final class AdditionalPropertiesClientBuilder
     /*
      * The redirect options to configure redirect policy
      */
-    @Metadata(generated = true)
+    @Metadata(properties = { MetadataProperties.GENERATED })
     private HttpRedirectOptions redirectOptions;
 
     /**
      * {@inheritDoc}.
      */
-    @Metadata(generated = true)
+    @Metadata(properties = { MetadataProperties.GENERATED })
     @Override
     public AdditionalPropertiesClientBuilder httpRedirectOptions(HttpRedirectOptions redirectOptions) {
         this.redirectOptions = redirectOptions;
@@ -176,15 +148,32 @@ public final class AdditionalPropertiesClientBuilder
     }
 
     /*
+     * The instrumentation configuration for HTTP requests and responses.
+     */
+    @Metadata(properties = { MetadataProperties.GENERATED })
+    private HttpInstrumentationOptions httpInstrumentationOptions;
+
+    /**
+     * {@inheritDoc}.
+     */
+    @Metadata(properties = { MetadataProperties.GENERATED })
+    @Override
+    public AdditionalPropertiesClientBuilder
+        httpInstrumentationOptions(HttpInstrumentationOptions httpInstrumentationOptions) {
+        this.httpInstrumentationOptions = httpInstrumentationOptions;
+        return this;
+    }
+
+    /*
      * The proxy options used during construction of the service client.
      */
-    @Metadata(generated = true)
+    @Metadata(properties = { MetadataProperties.GENERATED })
     private ProxyOptions proxyOptions;
 
     /**
      * {@inheritDoc}.
      */
-    @Metadata(generated = true)
+    @Metadata(properties = { MetadataProperties.GENERATED })
     @Override
     public AdditionalPropertiesClientBuilder proxyOptions(ProxyOptions proxyOptions) {
         this.proxyOptions = proxyOptions;
@@ -194,13 +183,13 @@ public final class AdditionalPropertiesClientBuilder
     /*
      * The configuration store that is used during construction of the service client.
      */
-    @Metadata(generated = true)
+    @Metadata(properties = { MetadataProperties.GENERATED })
     private Configuration configuration;
 
     /**
      * {@inheritDoc}.
      */
-    @Metadata(generated = true)
+    @Metadata(properties = { MetadataProperties.GENERATED })
     @Override
     public AdditionalPropertiesClientBuilder configuration(Configuration configuration) {
         this.configuration = configuration;
@@ -210,13 +199,13 @@ public final class AdditionalPropertiesClientBuilder
     /*
      * The service endpoint
      */
-    @Metadata(generated = true)
+    @Metadata(properties = { MetadataProperties.GENERATED })
     private String endpoint;
 
     /**
      * {@inheritDoc}.
      */
-    @Metadata(generated = true)
+    @Metadata(properties = { MetadataProperties.GENERATED })
     @Override
     public AdditionalPropertiesClientBuilder endpoint(String endpoint) {
         this.endpoint = endpoint;
@@ -228,22 +217,31 @@ public final class AdditionalPropertiesClientBuilder
      * 
      * @return an instance of AdditionalPropertiesClientImpl.
      */
-    @Metadata(generated = true)
+    @Metadata(properties = { MetadataProperties.GENERATED })
     private AdditionalPropertiesClientImpl buildInnerClient() {
         this.validateClient();
-        HttpPipeline localPipeline = (pipeline != null) ? pipeline : createHttpPipeline();
         String localEndpoint = (endpoint != null) ? endpoint : "http://localhost:3000";
-        AdditionalPropertiesClientImpl client = new AdditionalPropertiesClientImpl(localPipeline, localEndpoint);
+        HttpInstrumentationOptions localHttpInstrumentationOptions = this.httpInstrumentationOptions == null
+            ? new HttpInstrumentationOptions()
+            : this.httpInstrumentationOptions;
+        SdkInstrumentationOptions sdkInstrumentationOptions
+            = new SdkInstrumentationOptions(PROPERTIES.getOrDefault(SDK_NAME, "UnknownName"))
+                .setSdkVersion(PROPERTIES.get(SDK_VERSION))
+                .setEndpoint(localEndpoint);
+        Instrumentation instrumentation
+            = Instrumentation.create(localHttpInstrumentationOptions, sdkInstrumentationOptions);
+        AdditionalPropertiesClientImpl client
+            = new AdditionalPropertiesClientImpl(createHttpPipeline(), instrumentation, localEndpoint);
         return client;
     }
 
-    @Metadata(generated = true)
+    @Metadata(properties = { MetadataProperties.GENERATED })
     private void validateClient() {
         // This method is invoked from 'buildInnerClient'/'buildClient' method.
         // Developer can customize this method, to validate that the necessary conditions are met for the new client.
     }
 
-    @Metadata(generated = true)
+    @Metadata(properties = { MetadataProperties.GENERATED })
     private HttpPipeline createHttpPipeline() {
         Configuration buildConfiguration
             = (configuration == null) ? Configuration.getGlobalConfiguration() : configuration;
@@ -257,7 +255,7 @@ public final class AdditionalPropertiesClientBuilder
         this.pipelinePolicies.stream().forEach(p -> policies.add(p));
         policies.add(new HttpInstrumentationPolicy(localHttpInstrumentationOptions));
         policies.forEach(httpPipelineBuilder::addPolicy);
-        return httpPipelineBuilder.build();
+        return httpPipelineBuilder.httpClient(httpClient).build();
     }
 
     /**
@@ -265,9 +263,10 @@ public final class AdditionalPropertiesClientBuilder
      * 
      * @return an instance of ExtendsUnknownClient.
      */
-    @Metadata(generated = true)
+    @Metadata(properties = { MetadataProperties.GENERATED })
     public ExtendsUnknownClient buildExtendsUnknownClient() {
-        return new ExtendsUnknownClient(buildInnerClient().getExtendsUnknowns());
+        AdditionalPropertiesClientImpl innerClient = buildInnerClient();
+        return new ExtendsUnknownClient(innerClient.getExtendsUnknowns(), innerClient.getInstrumentation());
     }
 
     /**
@@ -275,9 +274,11 @@ public final class AdditionalPropertiesClientBuilder
      * 
      * @return an instance of ExtendsUnknownDerivedClient.
      */
-    @Metadata(generated = true)
+    @Metadata(properties = { MetadataProperties.GENERATED })
     public ExtendsUnknownDerivedClient buildExtendsUnknownDerivedClient() {
-        return new ExtendsUnknownDerivedClient(buildInnerClient().getExtendsUnknownDeriveds());
+        AdditionalPropertiesClientImpl innerClient = buildInnerClient();
+        return new ExtendsUnknownDerivedClient(innerClient.getExtendsUnknownDeriveds(),
+            innerClient.getInstrumentation());
     }
 
     /**
@@ -285,9 +286,11 @@ public final class AdditionalPropertiesClientBuilder
      * 
      * @return an instance of ExtendsUnknownDiscriminatedClient.
      */
-    @Metadata(generated = true)
+    @Metadata(properties = { MetadataProperties.GENERATED })
     public ExtendsUnknownDiscriminatedClient buildExtendsUnknownDiscriminatedClient() {
-        return new ExtendsUnknownDiscriminatedClient(buildInnerClient().getExtendsUnknownDiscriminateds());
+        AdditionalPropertiesClientImpl innerClient = buildInnerClient();
+        return new ExtendsUnknownDiscriminatedClient(innerClient.getExtendsUnknownDiscriminateds(),
+            innerClient.getInstrumentation());
     }
 
     /**
@@ -295,9 +298,10 @@ public final class AdditionalPropertiesClientBuilder
      * 
      * @return an instance of IsUnknownClient.
      */
-    @Metadata(generated = true)
+    @Metadata(properties = { MetadataProperties.GENERATED })
     public IsUnknownClient buildIsUnknownClient() {
-        return new IsUnknownClient(buildInnerClient().getIsUnknowns());
+        AdditionalPropertiesClientImpl innerClient = buildInnerClient();
+        return new IsUnknownClient(innerClient.getIsUnknowns(), innerClient.getInstrumentation());
     }
 
     /**
@@ -305,9 +309,10 @@ public final class AdditionalPropertiesClientBuilder
      * 
      * @return an instance of IsUnknownDerivedClient.
      */
-    @Metadata(generated = true)
+    @Metadata(properties = { MetadataProperties.GENERATED })
     public IsUnknownDerivedClient buildIsUnknownDerivedClient() {
-        return new IsUnknownDerivedClient(buildInnerClient().getIsUnknownDeriveds());
+        AdditionalPropertiesClientImpl innerClient = buildInnerClient();
+        return new IsUnknownDerivedClient(innerClient.getIsUnknownDeriveds(), innerClient.getInstrumentation());
     }
 
     /**
@@ -315,9 +320,11 @@ public final class AdditionalPropertiesClientBuilder
      * 
      * @return an instance of IsUnknownDiscriminatedClient.
      */
-    @Metadata(generated = true)
+    @Metadata(properties = { MetadataProperties.GENERATED })
     public IsUnknownDiscriminatedClient buildIsUnknownDiscriminatedClient() {
-        return new IsUnknownDiscriminatedClient(buildInnerClient().getIsUnknownDiscriminateds());
+        AdditionalPropertiesClientImpl innerClient = buildInnerClient();
+        return new IsUnknownDiscriminatedClient(innerClient.getIsUnknownDiscriminateds(),
+            innerClient.getInstrumentation());
     }
 
     /**
@@ -325,9 +332,10 @@ public final class AdditionalPropertiesClientBuilder
      * 
      * @return an instance of ExtendsStringClient.
      */
-    @Metadata(generated = true)
+    @Metadata(properties = { MetadataProperties.GENERATED })
     public ExtendsStringClient buildExtendsStringClient() {
-        return new ExtendsStringClient(buildInnerClient().getExtendsStrings());
+        AdditionalPropertiesClientImpl innerClient = buildInnerClient();
+        return new ExtendsStringClient(innerClient.getExtendsStrings(), innerClient.getInstrumentation());
     }
 
     /**
@@ -335,9 +343,10 @@ public final class AdditionalPropertiesClientBuilder
      * 
      * @return an instance of IsStringClient.
      */
-    @Metadata(generated = true)
+    @Metadata(properties = { MetadataProperties.GENERATED })
     public IsStringClient buildIsStringClient() {
-        return new IsStringClient(buildInnerClient().getIsStrings());
+        AdditionalPropertiesClientImpl innerClient = buildInnerClient();
+        return new IsStringClient(innerClient.getIsStrings(), innerClient.getInstrumentation());
     }
 
     /**
@@ -345,9 +354,10 @@ public final class AdditionalPropertiesClientBuilder
      * 
      * @return an instance of SpreadStringClient.
      */
-    @Metadata(generated = true)
+    @Metadata(properties = { MetadataProperties.GENERATED })
     public SpreadStringClient buildSpreadStringClient() {
-        return new SpreadStringClient(buildInnerClient().getSpreadStrings());
+        AdditionalPropertiesClientImpl innerClient = buildInnerClient();
+        return new SpreadStringClient(innerClient.getSpreadStrings(), innerClient.getInstrumentation());
     }
 
     /**
@@ -355,9 +365,10 @@ public final class AdditionalPropertiesClientBuilder
      * 
      * @return an instance of ExtendsFloatClient.
      */
-    @Metadata(generated = true)
+    @Metadata(properties = { MetadataProperties.GENERATED })
     public ExtendsFloatClient buildExtendsFloatClient() {
-        return new ExtendsFloatClient(buildInnerClient().getExtendsFloats());
+        AdditionalPropertiesClientImpl innerClient = buildInnerClient();
+        return new ExtendsFloatClient(innerClient.getExtendsFloats(), innerClient.getInstrumentation());
     }
 
     /**
@@ -365,9 +376,10 @@ public final class AdditionalPropertiesClientBuilder
      * 
      * @return an instance of IsFloatClient.
      */
-    @Metadata(generated = true)
+    @Metadata(properties = { MetadataProperties.GENERATED })
     public IsFloatClient buildIsFloatClient() {
-        return new IsFloatClient(buildInnerClient().getIsFloats());
+        AdditionalPropertiesClientImpl innerClient = buildInnerClient();
+        return new IsFloatClient(innerClient.getIsFloats(), innerClient.getInstrumentation());
     }
 
     /**
@@ -375,9 +387,10 @@ public final class AdditionalPropertiesClientBuilder
      * 
      * @return an instance of SpreadFloatClient.
      */
-    @Metadata(generated = true)
+    @Metadata(properties = { MetadataProperties.GENERATED })
     public SpreadFloatClient buildSpreadFloatClient() {
-        return new SpreadFloatClient(buildInnerClient().getSpreadFloats());
+        AdditionalPropertiesClientImpl innerClient = buildInnerClient();
+        return new SpreadFloatClient(innerClient.getSpreadFloats(), innerClient.getInstrumentation());
     }
 
     /**
@@ -385,9 +398,10 @@ public final class AdditionalPropertiesClientBuilder
      * 
      * @return an instance of ExtendsModelClient.
      */
-    @Metadata(generated = true)
+    @Metadata(properties = { MetadataProperties.GENERATED })
     public ExtendsModelClient buildExtendsModelClient() {
-        return new ExtendsModelClient(buildInnerClient().getExtendsModels());
+        AdditionalPropertiesClientImpl innerClient = buildInnerClient();
+        return new ExtendsModelClient(innerClient.getExtendsModels(), innerClient.getInstrumentation());
     }
 
     /**
@@ -395,9 +409,10 @@ public final class AdditionalPropertiesClientBuilder
      * 
      * @return an instance of IsModelClient.
      */
-    @Metadata(generated = true)
+    @Metadata(properties = { MetadataProperties.GENERATED })
     public IsModelClient buildIsModelClient() {
-        return new IsModelClient(buildInnerClient().getIsModels());
+        AdditionalPropertiesClientImpl innerClient = buildInnerClient();
+        return new IsModelClient(innerClient.getIsModels(), innerClient.getInstrumentation());
     }
 
     /**
@@ -405,9 +420,10 @@ public final class AdditionalPropertiesClientBuilder
      * 
      * @return an instance of SpreadModelClient.
      */
-    @Metadata(generated = true)
+    @Metadata(properties = { MetadataProperties.GENERATED })
     public SpreadModelClient buildSpreadModelClient() {
-        return new SpreadModelClient(buildInnerClient().getSpreadModels());
+        AdditionalPropertiesClientImpl innerClient = buildInnerClient();
+        return new SpreadModelClient(innerClient.getSpreadModels(), innerClient.getInstrumentation());
     }
 
     /**
@@ -415,9 +431,10 @@ public final class AdditionalPropertiesClientBuilder
      * 
      * @return an instance of ExtendsModelArrayClient.
      */
-    @Metadata(generated = true)
+    @Metadata(properties = { MetadataProperties.GENERATED })
     public ExtendsModelArrayClient buildExtendsModelArrayClient() {
-        return new ExtendsModelArrayClient(buildInnerClient().getExtendsModelArrays());
+        AdditionalPropertiesClientImpl innerClient = buildInnerClient();
+        return new ExtendsModelArrayClient(innerClient.getExtendsModelArrays(), innerClient.getInstrumentation());
     }
 
     /**
@@ -425,9 +442,10 @@ public final class AdditionalPropertiesClientBuilder
      * 
      * @return an instance of IsModelArrayClient.
      */
-    @Metadata(generated = true)
+    @Metadata(properties = { MetadataProperties.GENERATED })
     public IsModelArrayClient buildIsModelArrayClient() {
-        return new IsModelArrayClient(buildInnerClient().getIsModelArrays());
+        AdditionalPropertiesClientImpl innerClient = buildInnerClient();
+        return new IsModelArrayClient(innerClient.getIsModelArrays(), innerClient.getInstrumentation());
     }
 
     /**
@@ -435,9 +453,10 @@ public final class AdditionalPropertiesClientBuilder
      * 
      * @return an instance of SpreadModelArrayClient.
      */
-    @Metadata(generated = true)
+    @Metadata(properties = { MetadataProperties.GENERATED })
     public SpreadModelArrayClient buildSpreadModelArrayClient() {
-        return new SpreadModelArrayClient(buildInnerClient().getSpreadModelArrays());
+        AdditionalPropertiesClientImpl innerClient = buildInnerClient();
+        return new SpreadModelArrayClient(innerClient.getSpreadModelArrays(), innerClient.getInstrumentation());
     }
 
     /**
@@ -445,9 +464,11 @@ public final class AdditionalPropertiesClientBuilder
      * 
      * @return an instance of SpreadDifferentStringClient.
      */
-    @Metadata(generated = true)
+    @Metadata(properties = { MetadataProperties.GENERATED })
     public SpreadDifferentStringClient buildSpreadDifferentStringClient() {
-        return new SpreadDifferentStringClient(buildInnerClient().getSpreadDifferentStrings());
+        AdditionalPropertiesClientImpl innerClient = buildInnerClient();
+        return new SpreadDifferentStringClient(innerClient.getSpreadDifferentStrings(),
+            innerClient.getInstrumentation());
     }
 
     /**
@@ -455,9 +476,10 @@ public final class AdditionalPropertiesClientBuilder
      * 
      * @return an instance of SpreadDifferentFloatClient.
      */
-    @Metadata(generated = true)
+    @Metadata(properties = { MetadataProperties.GENERATED })
     public SpreadDifferentFloatClient buildSpreadDifferentFloatClient() {
-        return new SpreadDifferentFloatClient(buildInnerClient().getSpreadDifferentFloats());
+        AdditionalPropertiesClientImpl innerClient = buildInnerClient();
+        return new SpreadDifferentFloatClient(innerClient.getSpreadDifferentFloats(), innerClient.getInstrumentation());
     }
 
     /**
@@ -465,9 +487,10 @@ public final class AdditionalPropertiesClientBuilder
      * 
      * @return an instance of SpreadDifferentModelClient.
      */
-    @Metadata(generated = true)
+    @Metadata(properties = { MetadataProperties.GENERATED })
     public SpreadDifferentModelClient buildSpreadDifferentModelClient() {
-        return new SpreadDifferentModelClient(buildInnerClient().getSpreadDifferentModels());
+        AdditionalPropertiesClientImpl innerClient = buildInnerClient();
+        return new SpreadDifferentModelClient(innerClient.getSpreadDifferentModels(), innerClient.getInstrumentation());
     }
 
     /**
@@ -475,9 +498,11 @@ public final class AdditionalPropertiesClientBuilder
      * 
      * @return an instance of SpreadDifferentModelArrayClient.
      */
-    @Metadata(generated = true)
+    @Metadata(properties = { MetadataProperties.GENERATED })
     public SpreadDifferentModelArrayClient buildSpreadDifferentModelArrayClient() {
-        return new SpreadDifferentModelArrayClient(buildInnerClient().getSpreadDifferentModelArrays());
+        AdditionalPropertiesClientImpl innerClient = buildInnerClient();
+        return new SpreadDifferentModelArrayClient(innerClient.getSpreadDifferentModelArrays(),
+            innerClient.getInstrumentation());
     }
 
     /**
@@ -485,9 +510,11 @@ public final class AdditionalPropertiesClientBuilder
      * 
      * @return an instance of ExtendsDifferentSpreadStringClient.
      */
-    @Metadata(generated = true)
+    @Metadata(properties = { MetadataProperties.GENERATED })
     public ExtendsDifferentSpreadStringClient buildExtendsDifferentSpreadStringClient() {
-        return new ExtendsDifferentSpreadStringClient(buildInnerClient().getExtendsDifferentSpreadStrings());
+        AdditionalPropertiesClientImpl innerClient = buildInnerClient();
+        return new ExtendsDifferentSpreadStringClient(innerClient.getExtendsDifferentSpreadStrings(),
+            innerClient.getInstrumentation());
     }
 
     /**
@@ -495,9 +522,11 @@ public final class AdditionalPropertiesClientBuilder
      * 
      * @return an instance of ExtendsDifferentSpreadFloatClient.
      */
-    @Metadata(generated = true)
+    @Metadata(properties = { MetadataProperties.GENERATED })
     public ExtendsDifferentSpreadFloatClient buildExtendsDifferentSpreadFloatClient() {
-        return new ExtendsDifferentSpreadFloatClient(buildInnerClient().getExtendsDifferentSpreadFloats());
+        AdditionalPropertiesClientImpl innerClient = buildInnerClient();
+        return new ExtendsDifferentSpreadFloatClient(innerClient.getExtendsDifferentSpreadFloats(),
+            innerClient.getInstrumentation());
     }
 
     /**
@@ -505,9 +534,11 @@ public final class AdditionalPropertiesClientBuilder
      * 
      * @return an instance of ExtendsDifferentSpreadModelClient.
      */
-    @Metadata(generated = true)
+    @Metadata(properties = { MetadataProperties.GENERATED })
     public ExtendsDifferentSpreadModelClient buildExtendsDifferentSpreadModelClient() {
-        return new ExtendsDifferentSpreadModelClient(buildInnerClient().getExtendsDifferentSpreadModels());
+        AdditionalPropertiesClientImpl innerClient = buildInnerClient();
+        return new ExtendsDifferentSpreadModelClient(innerClient.getExtendsDifferentSpreadModels(),
+            innerClient.getInstrumentation());
     }
 
     /**
@@ -515,9 +546,11 @@ public final class AdditionalPropertiesClientBuilder
      * 
      * @return an instance of ExtendsDifferentSpreadModelArrayClient.
      */
-    @Metadata(generated = true)
+    @Metadata(properties = { MetadataProperties.GENERATED })
     public ExtendsDifferentSpreadModelArrayClient buildExtendsDifferentSpreadModelArrayClient() {
-        return new ExtendsDifferentSpreadModelArrayClient(buildInnerClient().getExtendsDifferentSpreadModelArrays());
+        AdditionalPropertiesClientImpl innerClient = buildInnerClient();
+        return new ExtendsDifferentSpreadModelArrayClient(innerClient.getExtendsDifferentSpreadModelArrays(),
+            innerClient.getInstrumentation());
     }
 
     /**
@@ -525,9 +558,10 @@ public final class AdditionalPropertiesClientBuilder
      * 
      * @return an instance of MultipleSpreadClient.
      */
-    @Metadata(generated = true)
+    @Metadata(properties = { MetadataProperties.GENERATED })
     public MultipleSpreadClient buildMultipleSpreadClient() {
-        return new MultipleSpreadClient(buildInnerClient().getMultipleSpreads());
+        AdditionalPropertiesClientImpl innerClient = buildInnerClient();
+        return new MultipleSpreadClient(innerClient.getMultipleSpreads(), innerClient.getInstrumentation());
     }
 
     /**
@@ -535,9 +569,10 @@ public final class AdditionalPropertiesClientBuilder
      * 
      * @return an instance of SpreadRecordUnionClient.
      */
-    @Metadata(generated = true)
+    @Metadata(properties = { MetadataProperties.GENERATED })
     public SpreadRecordUnionClient buildSpreadRecordUnionClient() {
-        return new SpreadRecordUnionClient(buildInnerClient().getSpreadRecordUnions());
+        AdditionalPropertiesClientImpl innerClient = buildInnerClient();
+        return new SpreadRecordUnionClient(innerClient.getSpreadRecordUnions(), innerClient.getInstrumentation());
     }
 
     /**
@@ -545,9 +580,11 @@ public final class AdditionalPropertiesClientBuilder
      * 
      * @return an instance of SpreadRecordNonDiscriminatedUnionClient.
      */
-    @Metadata(generated = true)
+    @Metadata(properties = { MetadataProperties.GENERATED })
     public SpreadRecordNonDiscriminatedUnionClient buildSpreadRecordNonDiscriminatedUnionClient() {
-        return new SpreadRecordNonDiscriminatedUnionClient(buildInnerClient().getSpreadRecordNonDiscriminatedUnions());
+        AdditionalPropertiesClientImpl innerClient = buildInnerClient();
+        return new SpreadRecordNonDiscriminatedUnionClient(innerClient.getSpreadRecordNonDiscriminatedUnions(),
+            innerClient.getInstrumentation());
     }
 
     /**
@@ -555,10 +592,11 @@ public final class AdditionalPropertiesClientBuilder
      * 
      * @return an instance of SpreadRecordNonDiscriminatedUnion2Client.
      */
-    @Metadata(generated = true)
+    @Metadata(properties = { MetadataProperties.GENERATED })
     public SpreadRecordNonDiscriminatedUnion2Client buildSpreadRecordNonDiscriminatedUnion2Client() {
-        return new SpreadRecordNonDiscriminatedUnion2Client(
-            buildInnerClient().getSpreadRecordNonDiscriminatedUnion2s());
+        AdditionalPropertiesClientImpl innerClient = buildInnerClient();
+        return new SpreadRecordNonDiscriminatedUnion2Client(innerClient.getSpreadRecordNonDiscriminatedUnion2s(),
+            innerClient.getInstrumentation());
     }
 
     /**
@@ -566,11 +604,10 @@ public final class AdditionalPropertiesClientBuilder
      * 
      * @return an instance of SpreadRecordNonDiscriminatedUnion3Client.
      */
-    @Metadata(generated = true)
+    @Metadata(properties = { MetadataProperties.GENERATED })
     public SpreadRecordNonDiscriminatedUnion3Client buildSpreadRecordNonDiscriminatedUnion3Client() {
-        return new SpreadRecordNonDiscriminatedUnion3Client(
-            buildInnerClient().getSpreadRecordNonDiscriminatedUnion3s());
+        AdditionalPropertiesClientImpl innerClient = buildInnerClient();
+        return new SpreadRecordNonDiscriminatedUnion3Client(innerClient.getSpreadRecordNonDiscriminatedUnion3s(),
+            innerClient.getInstrumentation());
     }
-
-    private static final ClientLogger LOGGER = new ClientLogger(AdditionalPropertiesClientBuilder.class);
 }

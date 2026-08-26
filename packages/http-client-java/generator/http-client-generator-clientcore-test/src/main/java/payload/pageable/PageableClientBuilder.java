@@ -1,6 +1,7 @@
 package payload.pageable;
 
 import io.clientcore.core.annotations.Metadata;
+import io.clientcore.core.annotations.MetadataProperties;
 import io.clientcore.core.annotations.ServiceClientBuilder;
 import io.clientcore.core.http.client.HttpClient;
 import io.clientcore.core.http.models.ProxyOptions;
@@ -13,14 +14,17 @@ import io.clientcore.core.http.pipeline.HttpRedirectOptions;
 import io.clientcore.core.http.pipeline.HttpRedirectPolicy;
 import io.clientcore.core.http.pipeline.HttpRetryOptions;
 import io.clientcore.core.http.pipeline.HttpRetryPolicy;
-import io.clientcore.core.instrumentation.logging.ClientLogger;
+import io.clientcore.core.instrumentation.Instrumentation;
+import io.clientcore.core.instrumentation.SdkInstrumentationOptions;
 import io.clientcore.core.traits.ConfigurationTrait;
 import io.clientcore.core.traits.EndpointTrait;
 import io.clientcore.core.traits.HttpTrait;
 import io.clientcore.core.traits.ProxyTrait;
+import io.clientcore.core.utils.CoreUtils;
 import io.clientcore.core.utils.configuration.Configuration;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 import java.util.Objects;
 import payload.pageable.implementation.PageableClientImpl;
 
@@ -28,55 +32,44 @@ import payload.pageable.implementation.PageableClientImpl;
  * A builder for creating a new instance of the PageableClient type.
  */
 @ServiceClientBuilder(
-    serviceClients = { ServerDrivenPaginationClient.class, ServerDrivenPaginationContinuationTokenClient.class })
+    serviceClients = {
+        ServerDrivenPaginationClient.class,
+        ServerDrivenPaginationAlternateInitialVerbClient.class,
+        ServerDrivenPaginationContinuationTokenClient.class,
+        PageSizeClient.class,
+        XmlPaginationClient.class })
 public final class PageableClientBuilder implements HttpTrait<PageableClientBuilder>, ProxyTrait<PageableClientBuilder>,
     ConfigurationTrait<PageableClientBuilder>, EndpointTrait<PageableClientBuilder> {
-    @Metadata(generated = true)
+    @Metadata(properties = { MetadataProperties.GENERATED })
     private static final String SDK_NAME = "name";
 
-    @Metadata(generated = true)
+    @Metadata(properties = { MetadataProperties.GENERATED })
     private static final String SDK_VERSION = "version";
 
-    @Metadata(generated = true)
+    @Metadata(properties = { MetadataProperties.GENERATED })
+    private static final Map<String, String> PROPERTIES = CoreUtils.getProperties("payload-pageable.properties");
+
+    @Metadata(properties = { MetadataProperties.GENERATED })
     private final List<HttpPipelinePolicy> pipelinePolicies;
 
     /**
      * Create an instance of the PageableClientBuilder.
      */
-    @Metadata(generated = true)
+    @Metadata(properties = { MetadataProperties.GENERATED })
     public PageableClientBuilder() {
         this.pipelinePolicies = new ArrayList<>();
     }
 
     /*
-     * The HTTP pipeline to send requests through.
-     */
-    @Metadata(generated = true)
-    private HttpPipeline pipeline;
-
-    /**
-     * {@inheritDoc}.
-     */
-    @Metadata(generated = true)
-    @Override
-    public PageableClientBuilder httpPipeline(HttpPipeline pipeline) {
-        if (this.pipeline != null && pipeline == null) {
-            LOGGER.atInfo().log("HttpPipeline is being set to 'null' when it was previously configured.");
-        }
-        this.pipeline = pipeline;
-        return this;
-    }
-
-    /*
      * The HTTP client used to send the request.
      */
-    @Metadata(generated = true)
+    @Metadata(properties = { MetadataProperties.GENERATED })
     private HttpClient httpClient;
 
     /**
      * {@inheritDoc}.
      */
-    @Metadata(generated = true)
+    @Metadata(properties = { MetadataProperties.GENERATED })
     @Override
     public PageableClientBuilder httpClient(HttpClient httpClient) {
         this.httpClient = httpClient;
@@ -84,31 +77,15 @@ public final class PageableClientBuilder implements HttpTrait<PageableClientBuil
     }
 
     /*
-     * The logging configuration for HTTP requests and responses.
-     */
-    @Metadata(generated = true)
-    private HttpInstrumentationOptions httpInstrumentationOptions;
-
-    /**
-     * {@inheritDoc}.
-     */
-    @Metadata(generated = true)
-    @Override
-    public PageableClientBuilder httpInstrumentationOptions(HttpInstrumentationOptions httpInstrumentationOptions) {
-        this.httpInstrumentationOptions = httpInstrumentationOptions;
-        return this;
-    }
-
-    /*
      * The retry options to configure retry policy for failed requests.
      */
-    @Metadata(generated = true)
+    @Metadata(properties = { MetadataProperties.GENERATED })
     private HttpRetryOptions retryOptions;
 
     /**
      * {@inheritDoc}.
      */
-    @Metadata(generated = true)
+    @Metadata(properties = { MetadataProperties.GENERATED })
     @Override
     public PageableClientBuilder httpRetryOptions(HttpRetryOptions retryOptions) {
         this.retryOptions = retryOptions;
@@ -118,7 +95,7 @@ public final class PageableClientBuilder implements HttpTrait<PageableClientBuil
     /**
      * {@inheritDoc}.
      */
-    @Metadata(generated = true)
+    @Metadata(properties = { MetadataProperties.GENERATED })
     @Override
     public PageableClientBuilder addHttpPipelinePolicy(HttpPipelinePolicy customPolicy) {
         Objects.requireNonNull(customPolicy, "'customPolicy' cannot be null.");
@@ -129,13 +106,13 @@ public final class PageableClientBuilder implements HttpTrait<PageableClientBuil
     /*
      * The redirect options to configure redirect policy
      */
-    @Metadata(generated = true)
+    @Metadata(properties = { MetadataProperties.GENERATED })
     private HttpRedirectOptions redirectOptions;
 
     /**
      * {@inheritDoc}.
      */
-    @Metadata(generated = true)
+    @Metadata(properties = { MetadataProperties.GENERATED })
     @Override
     public PageableClientBuilder httpRedirectOptions(HttpRedirectOptions redirectOptions) {
         this.redirectOptions = redirectOptions;
@@ -143,15 +120,31 @@ public final class PageableClientBuilder implements HttpTrait<PageableClientBuil
     }
 
     /*
+     * The instrumentation configuration for HTTP requests and responses.
+     */
+    @Metadata(properties = { MetadataProperties.GENERATED })
+    private HttpInstrumentationOptions httpInstrumentationOptions;
+
+    /**
+     * {@inheritDoc}.
+     */
+    @Metadata(properties = { MetadataProperties.GENERATED })
+    @Override
+    public PageableClientBuilder httpInstrumentationOptions(HttpInstrumentationOptions httpInstrumentationOptions) {
+        this.httpInstrumentationOptions = httpInstrumentationOptions;
+        return this;
+    }
+
+    /*
      * The proxy options used during construction of the service client.
      */
-    @Metadata(generated = true)
+    @Metadata(properties = { MetadataProperties.GENERATED })
     private ProxyOptions proxyOptions;
 
     /**
      * {@inheritDoc}.
      */
-    @Metadata(generated = true)
+    @Metadata(properties = { MetadataProperties.GENERATED })
     @Override
     public PageableClientBuilder proxyOptions(ProxyOptions proxyOptions) {
         this.proxyOptions = proxyOptions;
@@ -161,13 +154,13 @@ public final class PageableClientBuilder implements HttpTrait<PageableClientBuil
     /*
      * The configuration store that is used during construction of the service client.
      */
-    @Metadata(generated = true)
+    @Metadata(properties = { MetadataProperties.GENERATED })
     private Configuration configuration;
 
     /**
      * {@inheritDoc}.
      */
-    @Metadata(generated = true)
+    @Metadata(properties = { MetadataProperties.GENERATED })
     @Override
     public PageableClientBuilder configuration(Configuration configuration) {
         this.configuration = configuration;
@@ -177,13 +170,13 @@ public final class PageableClientBuilder implements HttpTrait<PageableClientBuil
     /*
      * The service endpoint
      */
-    @Metadata(generated = true)
+    @Metadata(properties = { MetadataProperties.GENERATED })
     private String endpoint;
 
     /**
      * {@inheritDoc}.
      */
-    @Metadata(generated = true)
+    @Metadata(properties = { MetadataProperties.GENERATED })
     @Override
     public PageableClientBuilder endpoint(String endpoint) {
         this.endpoint = endpoint;
@@ -195,22 +188,30 @@ public final class PageableClientBuilder implements HttpTrait<PageableClientBuil
      * 
      * @return an instance of PageableClientImpl.
      */
-    @Metadata(generated = true)
+    @Metadata(properties = { MetadataProperties.GENERATED })
     private PageableClientImpl buildInnerClient() {
         this.validateClient();
-        HttpPipeline localPipeline = (pipeline != null) ? pipeline : createHttpPipeline();
         String localEndpoint = (endpoint != null) ? endpoint : "http://localhost:3000";
-        PageableClientImpl client = new PageableClientImpl(localPipeline, localEndpoint);
+        HttpInstrumentationOptions localHttpInstrumentationOptions = this.httpInstrumentationOptions == null
+            ? new HttpInstrumentationOptions()
+            : this.httpInstrumentationOptions;
+        SdkInstrumentationOptions sdkInstrumentationOptions
+            = new SdkInstrumentationOptions(PROPERTIES.getOrDefault(SDK_NAME, "UnknownName"))
+                .setSdkVersion(PROPERTIES.get(SDK_VERSION))
+                .setEndpoint(localEndpoint);
+        Instrumentation instrumentation
+            = Instrumentation.create(localHttpInstrumentationOptions, sdkInstrumentationOptions);
+        PageableClientImpl client = new PageableClientImpl(createHttpPipeline(), instrumentation, localEndpoint);
         return client;
     }
 
-    @Metadata(generated = true)
+    @Metadata(properties = { MetadataProperties.GENERATED })
     private void validateClient() {
         // This method is invoked from 'buildInnerClient'/'buildClient' method.
         // Developer can customize this method, to validate that the necessary conditions are met for the new client.
     }
 
-    @Metadata(generated = true)
+    @Metadata(properties = { MetadataProperties.GENERATED })
     private HttpPipeline createHttpPipeline() {
         Configuration buildConfiguration
             = (configuration == null) ? Configuration.getGlobalConfiguration() : configuration;
@@ -224,7 +225,7 @@ public final class PageableClientBuilder implements HttpTrait<PageableClientBuil
         this.pipelinePolicies.stream().forEach(p -> policies.add(p));
         policies.add(new HttpInstrumentationPolicy(localHttpInstrumentationOptions));
         policies.forEach(httpPipelineBuilder::addPolicy);
-        return httpPipelineBuilder.build();
+        return httpPipelineBuilder.httpClient(httpClient).build();
     }
 
     /**
@@ -232,9 +233,23 @@ public final class PageableClientBuilder implements HttpTrait<PageableClientBuil
      * 
      * @return an instance of ServerDrivenPaginationClient.
      */
-    @Metadata(generated = true)
+    @Metadata(properties = { MetadataProperties.GENERATED })
     public ServerDrivenPaginationClient buildServerDrivenPaginationClient() {
-        return new ServerDrivenPaginationClient(buildInnerClient().getServerDrivenPaginations());
+        PageableClientImpl innerClient = buildInnerClient();
+        return new ServerDrivenPaginationClient(innerClient.getServerDrivenPaginations(),
+            innerClient.getInstrumentation());
+    }
+
+    /**
+     * Builds an instance of ServerDrivenPaginationAlternateInitialVerbClient class.
+     * 
+     * @return an instance of ServerDrivenPaginationAlternateInitialVerbClient.
+     */
+    @Metadata(properties = { MetadataProperties.GENERATED })
+    public ServerDrivenPaginationAlternateInitialVerbClient buildServerDrivenPaginationAlternateInitialVerbClient() {
+        PageableClientImpl innerClient = buildInnerClient();
+        return new ServerDrivenPaginationAlternateInitialVerbClient(
+            innerClient.getServerDrivenPaginationAlternateInitialVerbs(), innerClient.getInstrumentation());
     }
 
     /**
@@ -242,11 +257,32 @@ public final class PageableClientBuilder implements HttpTrait<PageableClientBuil
      * 
      * @return an instance of ServerDrivenPaginationContinuationTokenClient.
      */
-    @Metadata(generated = true)
+    @Metadata(properties = { MetadataProperties.GENERATED })
     public ServerDrivenPaginationContinuationTokenClient buildServerDrivenPaginationContinuationTokenClient() {
+        PageableClientImpl innerClient = buildInnerClient();
         return new ServerDrivenPaginationContinuationTokenClient(
-            buildInnerClient().getServerDrivenPaginationContinuationTokens());
+            innerClient.getServerDrivenPaginationContinuationTokens(), innerClient.getInstrumentation());
     }
 
-    private static final ClientLogger LOGGER = new ClientLogger(PageableClientBuilder.class);
+    /**
+     * Builds an instance of PageSizeClient class.
+     * 
+     * @return an instance of PageSizeClient.
+     */
+    @Metadata(properties = { MetadataProperties.GENERATED })
+    public PageSizeClient buildPageSizeClient() {
+        PageableClientImpl innerClient = buildInnerClient();
+        return new PageSizeClient(innerClient.getPageSizes(), innerClient.getInstrumentation());
+    }
+
+    /**
+     * Builds an instance of XmlPaginationClient class.
+     * 
+     * @return an instance of XmlPaginationClient.
+     */
+    @Metadata(properties = { MetadataProperties.GENERATED })
+    public XmlPaginationClient buildXmlPaginationClient() {
+        PageableClientImpl innerClient = buildInnerClient();
+        return new XmlPaginationClient(innerClient.getXmlPaginations(), innerClient.getInstrumentation());
+    }
 }

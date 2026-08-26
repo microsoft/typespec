@@ -4,13 +4,17 @@
     <AssemblyTitle>SDK Code Generation Client.Structure.Service.Multi.Client</AssemblyTitle>
     <Version>1.0.0-beta.1</Version>
     <PackageTags>Client.Structure.Service.Multi.Client</PackageTags>
-    <TargetFramework>netstandard2.0</TargetFramework>
+    <TargetFrameworks>netstandard2.0;net8.0</TargetFrameworks>
     <LangVersion>latest</LangVersion>
     <GenerateDocumentationFile>true</GenerateDocumentationFile>
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="System.ClientModel" Version="1.3.0" />
-    <PackageReference Include="System.Text.Json" Version="8.0.5" />
+    <PackageReference Include="System.ClientModel" Version="1.14.0" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <None Include="Generated\schema\ConfigurationSchema.json" Pack="true" PackagePath="\" />
+    <None Include="..\Client.Structure.Service.Multi.Client.NuGet.targets" Pack="true" PackagePath="buildTransitive\netstandard2.0\Client.Structure.Service.Multi.Client.targets" />
   </ItemGroup>
 </Project>

@@ -1,0 +1,20 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <Description>This is the Payload.Head client library for developing .NET applications with rich experience.</Description>
+    <AssemblyTitle>SDK Code Generation Payload.Head</AssemblyTitle>
+    <Version>1.0.0-beta.1</Version>
+    <PackageTags>Payload.Head</PackageTags>
+    <TargetFrameworks>netstandard2.0;net8.0</TargetFrameworks>
+    <LangVersion>latest</LangVersion>
+    <GenerateDocumentationFile>true</GenerateDocumentationFile>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="System.ClientModel" Version="1.14.0" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <None Include="Generated\schema\ConfigurationSchema.json" Pack="true" PackagePath="\" />
+    <None Include="..\Payload.Head.NuGet.targets" Pack="true" PackagePath="buildTransitive\netstandard2.0\Payload.Head.targets" />
+  </ItemGroup>
+</Project>

@@ -5,6 +5,7 @@
 using System;
 using System.ClientModel;
 using System.ClientModel.Primitives;
+using System.Diagnostics.CodeAnalysis;
 using System.Threading;
 using System.Threading.Tasks;
 
@@ -14,7 +15,12 @@ namespace SpecialHeaders.Repeatability
     {
         public RepeatabilityClient() : this(new Uri("http://localhost:3000"), new RepeatabilityClientOptions()) => throw null;
 
-        public RepeatabilityClient(Uri endpoint, RepeatabilityClientOptions options) => throw null;
+        internal RepeatabilityClient(AuthenticationPolicy authenticationPolicy, Uri endpoint, RepeatabilityClientOptions options) => throw null;
+
+        public RepeatabilityClient(Uri endpoint, RepeatabilityClientOptions options) : this(null, endpoint, options) => throw null;
+
+        [Experimental("SCME0002")]
+        public RepeatabilityClient(RepeatabilityClientSettings settings) : this(AuthenticationPolicy.Create(settings), settings?.Endpoint, settings?.Options) => throw null;
 
         public ClientPipeline Pipeline => throw null;
 

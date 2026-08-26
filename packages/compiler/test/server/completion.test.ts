@@ -5,7 +5,7 @@ import {
   CompletionItemKind,
   CompletionList,
   MarkupKind,
-} from "vscode-languageserver/node.js";
+} from "vscode-languageserver";
 import { extractCursor, extractSquiggles } from "../../src/testing/source-utils.js";
 import { createTestServerHost } from "../../src/testing/test-server-host.js";
 
@@ -20,7 +20,9 @@ describe("complete statement keywords", () => {
     ["model", true],
     ["op", true],
     ["extern", true],
+    ["internal", true],
     ["dec", true],
+    ["fn", true],
     ["alias", true],
     ["namespace", true],
     ["import", true],
@@ -455,6 +457,60 @@ describe("identifiers", () => {
     );
   });
 
+  it("completes internal functions in the same project", async () => {
+    const completions = await complete(`
+      internal fn inScopeInternal(): valueof string;
+      fn inScopePublic(): valueof string;
+
+      const x = inS┆();
+    `);
+
+    deepStrictEqual(
+      ["inScopeInternal", "inScopePublic"],
+      completions.items
+        .filter((c) => c.label === "inScopeInternal" || c.label === "inScopePublic")
+        .map((c) => c.label)
+        .sort(),
+    );
+  });
+
+  it("does not complete internal functions from another package", async () => {
+    const completions = await complete(
+      `
+      import "@typespec/internal-lib";
+      using InternalLib;
+
+      const x = libFn┆();
+      `,
+      undefined,
+      {
+        "test/package.json": JSON.stringify({
+          dependencies: {
+            "@typespec/internal-lib": "~0.1.0",
+          },
+        }),
+        "test/node_modules/@typespec/internal-lib/package.json": JSON.stringify({
+          name: "@typespec/internal-lib",
+          version: "0.1.0",
+          tspMain: "./main.tsp",
+        }),
+        "test/node_modules/@typespec/internal-lib/main.tsp": `
+          namespace InternalLib;
+          internal fn libFnInternal(): valueof string;
+          fn libFnPublic(): valueof string;
+        `,
+      },
+    );
+
+    deepStrictEqual(
+      ["libFnPublic"],
+      completions.items
+        .filter((c) => c.label === "libFnInternal" || c.label === "libFnPublic")
+        .map((c) => c.label)
+        .sort(),
+    );
+  });
+
   it("completes decorators on models", async () => {
     const completions = await complete(
       `
@@ -567,6 +623,75 @@ describe("identifiers", () => {
     ]);
   });
 
+  it("completes model members from template parameter constraints", async () => {
+    const completions = await complete(
+      `
+      model X {
+        a: string;
+        b: int32;
+      }
+      model Y<M extends X> {
+        p: M.┆
+      }
+      `,
+    );
+
+    ok(completions.items.find((item) => item.label === "a"));
+    ok(completions.items.find((item) => item.label === "b"));
+  });
+
+  it("completes meta property '::type' from Reflection.ModelProperty-constrained template parameters", async () => {
+    const completions = await complete(
+      `
+      model Wrapper<P extends Reflection.ModelProperty> {
+        value: P::┆
+      }
+      `,
+    );
+
+    ok(completions.items.find((item) => item.label === "type"));
+  });
+
+  it("completes operation meta properties from Reflection.Operation-constrained template parameters", async () => {
+    const completions = await complete(
+      `
+      model Wrapper<O extends Reflection.Operation> {
+        value: O::┆
+      }
+      `,
+    );
+
+    ok(completions.items.find((item) => item.label === "parameters"));
+    ok(completions.items.find((item) => item.label === "returnType"));
+  });
+
+  it("does not complete model members for unconstrained template parameters", async () => {
+    const completions = await complete(
+      `
+      model Wrapper<M> {
+        value: M.┆
+      }
+      `,
+    );
+
+    ok(!completions.items.find((item) => item.label === "a"));
+    ok(!completions.items.find((item) => item.label === "b"));
+  });
+
+  it("does not complete meta properties for unconstrained template parameters", async () => {
+    const completions = await complete(
+      `
+      model Wrapper<M> {
+        value: M::┆
+      }
+      `,
+    );
+
+    ok(!completions.items.find((item) => item.label === "type"));
+    ok(!completions.items.find((item) => item.label === "parameters"));
+    ok(!completions.items.find((item) => item.label === "returnType"));
+  });
+
   it("completes partial identifiers", async () => {
     const completions = await complete(
       `
@@ -583,6 +708,33 @@ describe("identifiers", () => {
         documentation: {
           kind: MarkupKind.Markdown,
           value: "```typespec\nscalar string\n```",
+        },
+      },
+    ]);
+  });
+
+  it("completes in the middle of an identifier replacing the full token", async () => {
+    const completions = await complete(
+      `
+      model M {
+        s: st┆r
+      }
+      `,
+    );
+    check(completions, [
+      {
+        label: "string",
+        kind: CompletionItemKind.Unit,
+        documentation: {
+          kind: MarkupKind.Markdown,
+          value: "```typespec\nscalar string\n```",
+        },
+        textEdit: {
+          newText: "string",
+          range: {
+            start: { line: 2, character: 11 },
+            end: { line: 2, character: 14 },
+          },
         },
       },
     ]);
@@ -2670,7 +2822,21 @@ function check(
       actual,
       `Expected completion item not found: '${expected.label}'. Available: ${list.items.map((x) => x.label).join(", ")}`,
     );
-    deepStrictEqual(actual, expected);
+
+    // If expected uses insertText but actual uses textEdit, normalize for comparison.
+    // This allows tests to verify completion text content without hardcoding cursor positions.
+    const normalizedActual = { ...actual };
+    if (
+      expected.insertText !== undefined &&
+      expected.textEdit === undefined &&
+      normalizedActual.textEdit !== undefined &&
+      "newText" in normalizedActual.textEdit
+    ) {
+      normalizedActual.insertText = normalizedActual.textEdit.newText;
+      delete (normalizedActual as any).textEdit;
+    }
+
+    deepStrictEqual(normalizedActual, expected);
     actualMap.delete(actual.label);
     expectedMap.delete(expected.label);
   }

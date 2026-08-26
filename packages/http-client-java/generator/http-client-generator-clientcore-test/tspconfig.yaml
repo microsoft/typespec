@@ -7,3 +7,4 @@ options:
       generate-code-model: true
       loglevel: info
       debug: false
+      profile: false

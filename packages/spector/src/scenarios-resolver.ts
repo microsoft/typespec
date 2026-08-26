@@ -1,4 +1,4 @@
-import { Operation } from "@typespec/compiler";
+import type { Operation } from "@typespec/compiler";
 import { isSharedRoute } from "@typespec/http";
 import { ScenarioMockApi } from "@typespec/spec-api";
 import { dirname, join, relative, resolve } from "path";

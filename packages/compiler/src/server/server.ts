@@ -1,9 +1,8 @@
-import { Console } from "console";
 import { mkdir, writeFile } from "fs/promises";
 import inspector from "inspector";
 import { join } from "path";
 import { fileURLToPath } from "url";
-import { inspect } from "util";
+import { format, inspect } from "util";
 import { TextDocument } from "vscode-languageserver-textdocument";
 import {
   ApplyWorkspaceEditParams,
@@ -12,19 +11,23 @@ import {
   TextDocuments,
   WorkspaceEdit,
   createConnection,
-} from "vscode-languageserver/node.js";
+} from "vscode-languageserver/node";
 import { NodeHost } from "../core/node-host.js";
 import { typespecVersion } from "../manifest.js";
+import { createClientConfigProvider } from "./client-config-provider.js";
+import { writeServerFatalError } from "./fatal-error.js";
 import { createServer } from "./serverlib.js";
 import { CustomRequestName, Server, ServerHost, ServerLog } from "./types.js";
 
 let server: Server | undefined = undefined;
+const writeStderr = process.stderr.write.bind(process.stderr) as (message: string) => void;
 
 const profileDir = process.env.TYPESPEC_SERVER_PROFILE_DIR;
 const logTiming = process.env.TYPESPEC_SERVER_LOG_TIMING === "true";
 let profileSession: inspector.Session | undefined;
 
 process.on("unhandledRejection", fatalError);
+process.on("uncaughtException", fatalError);
 try {
   main();
 } catch (e) {
@@ -32,14 +35,20 @@ try {
 }
 
 function main() {
-  // Redirect all console stdout output to stderr since LSP pipe uses stdout
-  // and writing to stdout for anything other than LSP protocol will break
-  // things badly.
-  global.console = new Console(process.stderr, process.stderr);
-
   let clientHasWorkspaceFolderCapability = false;
   const connection = createConnection(ProposedFeatures.all);
   const documents = new TextDocuments(TextDocument);
+
+  // eslint-disable-next-line no-console
+  console.log = (data: any, ...args: any[]) => connection.console.info(format(data, ...args));
+  // eslint-disable-next-line no-console
+  console.info = (data: any, ...args: any[]) => connection.console.info(format(data, ...args));
+  // eslint-disable-next-line no-console
+  console.debug = (data: any, ...args: any[]) => connection.console.debug(format(data, ...args));
+  // eslint-disable-next-line no-console
+  console.warn = (data: any, ...args: any[]) => connection.console.warn(format(data, ...args));
+  // eslint-disable-next-line no-console
+  console.error = (data: any, ...args: any[]) => connection.console.error(format(data, ...args));
 
   const host: ServerHost = {
     compilerHost: NodeHost,
@@ -86,7 +95,8 @@ function main() {
     },
   };
 
-  const s = createServer(host);
+  const clientConfigProvider = createClientConfigProvider();
+  const s = createServer(host, clientConfigProvider);
   server = s;
   s.log({ level: `info`, message: `TypeSpec language server v${typespecVersion}` });
   s.log({ level: `info`, message: `Module: ${fileURLToPath(import.meta.url)}` });
@@ -106,10 +116,13 @@ function main() {
     return await s.initialize(params);
   });
 
-  connection.onInitialized((params) => {
+  connection.onInitialized(async (params) => {
     if (clientHasWorkspaceFolderCapability) {
       connection.workspace.onDidChangeWorkspaceFolders(s.workspaceFoldersChanged);
     }
+
+    // Initialize client configurations
+    await clientConfigProvider.initialize(connection, host);
     s.initialized(params);
   });
 
@@ -126,8 +139,9 @@ function main() {
   connection.onHover(profile(s.getHover));
   connection.onSignatureHelp(profile(s.getSignatureHelp));
   connection.onCodeAction(profile(s.getCodeActions));
-  connection.onExecuteCommand(profile(s.executeCommand));
+  connection.onCodeActionResolve(profile(s.resolveCodeAction));
   connection.languages.semanticTokens.on(profile(s.buildSemanticTokens));
+  connection.workspace.onDidRenameFiles(profile(s.renameFiles));
 
   const validateInitProjectTemplate: CustomRequestName = "typespec/validateInitProjectTemplate";
   connection.onRequest(validateInitProjectTemplate, profile(s.validateInitProjectTemplate));
@@ -135,9 +149,14 @@ function main() {
   connection.onRequest(getInitProjectContextRequestName, profile(s.getInitProjectContext));
   const initProjectRequestName: CustomRequestName = "typespec/initProject";
   connection.onRequest(initProjectRequestName, profile(s.initProject));
+  const compileProjectRequestName: CustomRequestName = "typespec/internalCompile";
+  connection.onRequest(compileProjectRequestName, profile(s.internalCompile));
 
   documents.onDidChangeContent(profile(s.checkChange));
   documents.onDidClose(profile(s.documentClosed));
+  documents.onDidOpen(profile(s.documentOpened));
+
+  (globalThis as any).lspConnection = connection;
 
   documents.listen(connection);
   connection.listen();
@@ -146,12 +165,7 @@ function main() {
 function fatalError(e: unknown) {
   // If we failed to send any log messages over LSP pipe, send them to
   // stderr before exiting.
-  for (const pending of server?.pendingMessages ?? []) {
-    // eslint-disable-next-line no-console
-    console.error(pending);
-  }
-  // eslint-disable-next-line no-console
-  console.error(e);
+  writeServerFatalError(writeStderr, server?.pendingMessages ?? [], e);
   process.exit(1);
 }
 

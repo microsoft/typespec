@@ -1,6 +1,8 @@
 ---
 id: decorators
 title: Decorators
+description: "Language basics - using decorators"
+llmstxt: true
 ---
 
 Decorators in TypeSpec allow developers to attach metadata to types within a TypeSpec program. They can also be used to compute types based on their inputs. Decorators form the core of TypeSpec's extensibility, providing the flexibility to describe a wide variety of APIs and associated metadata such as documentation, constraints, samples, and more.
@@ -60,3 +62,9 @@ model Dog {
 ## Creating decorators
 
 For more information on creating decorators, see [Creating Decorators](../extending-typespec/create-decorators.md).
+
+For decorators that simply attach metadata without custom logic, TypeSpec provides [auto decorators](../extending-typespec/create-decorators.md#auto-decorators) which require no JavaScript implementation:
+
+```typespec
+auto dec label(target: Model, value: valueof string);
+```

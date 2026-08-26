@@ -13,8 +13,8 @@ import com.azure.json.JsonWriter;
 import java.io.IOException;
 
 /**
- * An object containing more specific information about the error. As per Microsoft One API guidelines -
- * https://github.com/Microsoft/api-guidelines/blob/vNext/Guidelines.md#7102-error-condition-responses.
+ * An object containing more specific information about the error. As per Azure REST API guidelines -
+ * https://aka.ms/AzureRestApiGuidelines#handling-errors.
  */
 @Immutable
 public final class InnerError implements JsonSerializable<InnerError> {

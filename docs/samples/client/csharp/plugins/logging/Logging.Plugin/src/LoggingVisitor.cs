@@ -2,18 +2,18 @@
 // Licensed under the MIT License.
 
 using Microsoft.TypeSpec.Generator.ClientModel;
+using Microsoft.TypeSpec.Generator.ClientModel.Providers;
 using Microsoft.TypeSpec.Generator.Input;
-using Microsoft.TypeSpec.Generator.Providers;
 
 namespace Logging.Plugin
 {
     public class LoggingVisitor : ScmLibraryVisitor
     {
-        protected override MethodProviderCollection Visit(InputOperation operation,
-            TypeProvider enclosingType,
-            MethodProviderCollection methodProvider)
+        protected override ScmMethodProviderCollection Visit(InputServiceMethod serviceMethod,
+            ClientProvider clientProvider,
+            ScmMethodProviderCollection methodProvider)
         {
-            return new LoggingMethodProviderCollection(operation, enclosingType);
+            return new LoggingMethodProviderCollection(serviceMethod, clientProvider);
         }
     }
 }

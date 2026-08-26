@@ -4,6 +4,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using Microsoft.TypeSpec.Generator.Input;
 using Microsoft.TypeSpec.Generator.Providers;
 
 namespace Microsoft.TypeSpec.Generator
@@ -17,7 +18,7 @@ namespace Microsoft.TypeSpec.Generator
             internal set => _typeProviders = value;
         }
 
-        internal Lazy<ModelFactoryProvider> ModelFactory { get; } = new(() => new ModelFactoryProvider(CodeModelGenerator.Instance.InputLibrary.InputNamespace.Models));
+        internal Lazy<ModelFactoryProvider> ModelFactory { get; } = new(() => CodeModelGenerator.Instance.TypeFactory.CreateModelFactory(CodeModelGenerator.Instance.InputLibrary.InputNamespace.Models));
 
         private static TypeProvider[] BuildEnums()
         {
@@ -25,8 +26,11 @@ namespace Microsoft.TypeSpec.Generator
             var enums = new List<TypeProvider>(input.Enums.Count);
             foreach (var inputEnum in input.Enums)
             {
-                if (inputEnum.Usage.HasFlag(Input.InputModelTypeUsage.ApiVersionEnum))
+                if (inputEnum.Usage.HasFlag(InputModelTypeUsage.ApiVersionEnum))
+                {
                     continue;
+                }
+
                 var outputEnum = CodeModelGenerator.Instance.TypeFactory.CreateEnum(inputEnum);
 
                 // If there is a custom code view for a fixed enum, then we should not emit the generated enum as the custom code will have
@@ -51,7 +55,7 @@ namespace Microsoft.TypeSpec.Generator
             foreach (var inputModel in input.Models)
             {
                 var outputModel = CodeModelGenerator.Instance.TypeFactory.CreateModel(inputModel);
-                if (outputModel != null)
+                if (outputModel != null && outputModel is not SystemObjectModelProvider)
                 {
                     models.Add(outputModel);
                     var unknownVariant = inputModel.DiscriminatedSubtypes.Values.FirstOrDefault(m => m.IsUnknownDiscriminatorModel);

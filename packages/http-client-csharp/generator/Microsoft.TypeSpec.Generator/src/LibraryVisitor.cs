@@ -2,8 +2,11 @@
 // Licensed under the MIT License.
 
 using System.Collections.Generic;
+using Microsoft.TypeSpec.Generator.Expressions;
 using Microsoft.TypeSpec.Generator.Input;
 using Microsoft.TypeSpec.Generator.Providers;
+using Microsoft.TypeSpec.Generator.Snippets;
+using Microsoft.TypeSpec.Generator.Statements;
 
 namespace Microsoft.TypeSpec.Generator
 {
@@ -12,14 +15,8 @@ namespace Microsoft.TypeSpec.Generator
     /// </summary>
     public abstract class LibraryVisitor
     {
-        internal virtual void Visit(OutputLibrary library)
+        protected internal virtual void VisitLibrary(OutputLibrary library)
         {
-            // Ensure all types are built before visiting them
-            foreach (var type in library.TypeProviders)
-            {
-                type.EnsureBuilt();
-            }
-
             var types = new List<TypeProvider>();
             foreach (var typeProvider in library.TypeProviders)
             {
@@ -40,7 +37,7 @@ namespace Microsoft.TypeSpec.Generator
                 var methods = new List<MethodProvider>();
                 foreach (var methodProvider in typeProvider.Methods)
                 {
-                    var method = VisitMethod(methodProvider);
+                    var method = methodProvider.Accept(this);
                     if (method != null)
                     {
                         methods.Add(method);
@@ -97,7 +94,13 @@ namespace Microsoft.TypeSpec.Generator
                     }
                 }
 
-                type.Update(methods, constructors, properties, fields, serializations, nestedTypes);
+                type.Update(
+                    methods,
+                    constructors,
+                    properties,
+                    fields,
+                    serializations,
+                    nestedTypes);
                 type = PostVisitType(type);
             }
             return type;
@@ -122,7 +125,7 @@ namespace Microsoft.TypeSpec.Generator
         /// <param name="property">The original input model property.</param>
         /// <param name="propertyProvider">The current conversion.</param>
         /// <returns>Null if it should be removed otherwise the modified version of the <see cref="PropertyProvider"/>.</returns>
-        protected internal virtual PropertyProvider? PreVisitProperty(InputModelProperty property, PropertyProvider? propertyProvider)
+        protected internal virtual PropertyProvider? PreVisitProperty(InputProperty property, PropertyProvider? propertyProvider)
         {
             return propertyProvider;
         }
@@ -165,7 +168,7 @@ namespace Microsoft.TypeSpec.Generator
         /// </summary>
         /// <param name="constructor">The original <see cref="ConstructorProvider"/>.</param>
         /// <returns>Null if it should be removed otherwise the modified version of the <see cref="ConstructorProvider"/>.</returns>
-        protected virtual ConstructorProvider? VisitConstructor(ConstructorProvider constructor)
+        protected internal virtual ConstructorProvider? VisitConstructor(ConstructorProvider constructor)
         {
             return constructor;
         }
@@ -175,9 +178,118 @@ namespace Microsoft.TypeSpec.Generator
         /// </summary>
         /// <param name="method">The original <see cref="MethodProvider"/>.</param>
         /// <returns>Null if it should be removed otherwise the modified version of the <see cref="MethodProvider"/>.</returns>
-        protected virtual MethodProvider? VisitMethod(MethodProvider method)
+        protected internal virtual MethodProvider? VisitMethod(MethodProvider method)
         {
             return method;
+        }
+
+        protected internal virtual MethodBodyStatement? VisitStatements(MethodBodyStatements statements, MethodProvider method)
+        {
+            return statements;
+        }
+
+        protected internal virtual MethodBodyStatement? VisitExpressionStatement(ExpressionStatement statement, MethodProvider method)
+        {
+            return statement;
+        }
+
+        protected internal virtual MethodBodyStatement? VisitIfStatement(IfStatement statement, MethodProvider method)
+        {
+            return statement;
+        }
+
+        protected internal virtual ValueExpression? VisitScopedApiExpression(ScopedApi expression, MethodProvider method)
+        {
+            return expression;
+        }
+
+        protected internal virtual MethodBodyStatement? VisitIfElseStatement(IfElseStatement statement, MethodProvider method)
+        {
+            return statement;
+        }
+
+        protected internal virtual MethodBodyStatement? VisitIfElsePreprocessorStatement(IfElsePreprocessorStatement statement, MethodProvider method)
+        {
+            return statement;
+        }
+
+        protected internal virtual MethodBodyStatement? VisitTryCatchFinallyStatement(TryCatchFinallyStatement statement, MethodProvider method)
+        {
+            return statement;
+        }
+
+        protected internal virtual MethodBodyStatement? VisitForStatement(ForStatement statement, MethodProvider method)
+        {
+            return statement;
+        }
+
+        protected internal virtual MethodBodyStatement? VisitForEachStatement(ForEachStatement statement, MethodProvider method)
+        {
+            return statement;
+        }
+
+        protected internal virtual MethodBodyStatement? VisitWhileStatement(WhileStatement statement, MethodProvider method)
+        {
+            return statement;
+        }
+
+        protected internal virtual MethodBodyStatement? VisitSwitchStatement(SwitchStatement statement, MethodProvider method)
+        {
+            return statement;
+        }
+
+        protected internal virtual SwitchCaseStatement? VisitSwitchCaseStatement(SwitchCaseStatement statement, MethodProvider method)
+        {
+            return statement;
+        }
+
+        protected internal virtual MethodBodyStatement? VisitXmlDocInheritStatement(XmlDocInheritStatement statement, MethodProvider method)
+        {
+            return statement;
+        }
+
+        protected internal virtual ValueExpression? VisitMemberExpression(MemberExpression expression, MethodProvider method)
+        {
+            return expression;
+        }
+        protected internal virtual ValueExpression? VisitKeywordExpression(KeywordExpression expression, MethodProvider method)
+        {
+            return expression;
+        }
+        protected internal virtual ValueExpression? VisitDeclarationExpression(DeclarationExpression expression, MethodProvider method)
+        {
+            return expression;
+        }
+        protected internal virtual ValueExpression? VisitInvokeMethodExpression(InvokeMethodExpression expression, MethodProvider method)
+        {
+            return expression;
+        }
+
+        protected internal virtual ValueExpression? VisitArgumentExpression(ArgumentExpression expression, MethodProvider method)
+        {
+            return expression;
+        }
+
+        protected internal virtual VariableExpression VisitVariableExpression(VariableExpression expression, MethodProvider method)
+        {
+            return expression;
+        }
+
+        protected internal virtual ValueExpression? VisitAssignmentExpression(AssignmentExpression expression, MethodProvider method)
+        {
+            return expression;
+        }
+        protected internal virtual TryExpression VisitTryExpression(TryExpression expression, MethodProvider method)
+        {
+            return expression;
+        }
+        protected internal virtual CatchExpression VisitCatchExpression(CatchExpression expression, MethodProvider method)
+        {
+            return expression;
+        }
+        protected internal virtual FinallyExpression VisitFinallyExpression(FinallyExpression expression, MethodProvider method)
+        {
+            return expression;
         }
 
         /// <summary>
@@ -195,7 +307,7 @@ namespace Microsoft.TypeSpec.Generator
         /// </summary>
         /// <param name="field">The original <see cref="FieldProvider"/>.</param>
         /// <returns>Null if it should be removed otherwise the modified version of the <see cref="FieldProvider"/>.</returns>
-        protected virtual FieldProvider? VisitField(FieldProvider field)
+        protected internal virtual FieldProvider? VisitField(FieldProvider field)
         {
             return field;
         }

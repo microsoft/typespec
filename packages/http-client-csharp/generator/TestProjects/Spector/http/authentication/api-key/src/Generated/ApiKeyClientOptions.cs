@@ -3,10 +3,16 @@
 #nullable disable
 
 using System.ClientModel.Primitives;
+using System.Diagnostics.CodeAnalysis;
+using Microsoft.Extensions.Configuration;
 
 namespace Authentication.ApiKey
 {
     public partial class ApiKeyClientOptions : ClientPipelineOptions
     {
+        public ApiKeyClientOptions() => throw null;
+
+        [Experimental("SCME0002")]
+        internal ApiKeyClientOptions(IConfigurationSection section) : base(section) => throw null;
     }
 }

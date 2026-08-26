@@ -2,14 +2,14 @@ import { d } from "@alloy-js/core/testing";
 import { beforeEach, describe, expect, it } from "vitest";
 import {
   createCSharpExtractorConfig,
-  createSnipperExtractor,
-  SnippetExtractor,
+  createSnippetExtractor,
+  type SnippetExtractor,
 } from "../../src/testing/index.js";
 describe("C# Snippet Extractor", () => {
   let extractor: SnippetExtractor;
 
-  beforeEach(() => {
-    extractor = createSnipperExtractor(createCSharpExtractorConfig());
+  beforeEach(async () => {
+    extractor = createSnippetExtractor(await createCSharpExtractorConfig());
   });
 
   it("should extract a class", () => {
@@ -65,8 +65,8 @@ describe("C# Snippet Extractor", () => {
 describe("C# Snippet Extractor - Enums", () => {
   let extractor: SnippetExtractor;
 
-  beforeEach(() => {
-    extractor = createSnipperExtractor(createCSharpExtractorConfig());
+  beforeEach(async () => {
+    extractor = createSnippetExtractor(await createCSharpExtractorConfig());
   });
 
   it("should extract a basic enum", async () => {

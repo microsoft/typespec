@@ -3,6 +3,7 @@
 using System;
 using System.ComponentModel;
 using SampleTypeSpec;
+using Microsoft.TypeSpec.Generator.Customizations;
 
 namespace Sample.Models;
 

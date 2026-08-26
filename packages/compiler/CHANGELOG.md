@@ -1,5 +1,556 @@
 # Change Log - @typespec/compiler
 
+## 1.14.0
+
+### Deprecations
+
+- [#11169](https://github.com/microsoft/typespec/pull/11169) `tsp code install` and `tsp vs install` now install the editor extensions from the marketplace instead of downloading the `typespec-vscode`/`typespec-vs` npm packages. `tsp code install` delegates to `code --install-extension microsoft.typespec-vscode`, and `tsp vs install` downloads the latest vsix from the Visual Studio Marketplace.
+  
+  The `tsp code` and `tsp vs` commands (`install`/`uninstall`) are now deprecated. They keep working but emit a deprecation warning; install and manage the extensions directly from the marketplace instead.
+- [#10964](https://github.com/microsoft/typespec/pull/10964) Deprecate old testing framework (`createTestHost`, `createTestRunner`, `createTestWrapper`, `createTestLibrary`, `BasicTestRunner`, `TypeSpecTestLibrary`, etc.). Use `createTester` from `@typespec/compiler/testing` instead.
+
+### Features
+
+- [#11247](https://github.com/microsoft/typespec/pull/11247) Add `setAutoDecorator` API to programmatically apply an `auto` decorator to a target, mirroring what the synthesized `auto dec` implementation does when the decorator is written in source. This lets emitters and mutators mark synthetic types without reaching into the program state map directly.
+  
+  ```ts
+  import { setAutoDecorator } from "@typespec/compiler";
+  
+  setAutoDecorator(program, "MyLib.myFlag", target);
+  ```
+- [#10875](https://github.com/microsoft/typespec/pull/10875) Allow `@encode(string)` on boolean targets, define case-insensitive `true`/`false` string semantics, and add shared case-insensitive string matcher support with encode/boolean Spector coverage.
+  
+  ```tsp
+  model FeatureFlags {
+    @encode(string)
+    enabled: boolean;
+  }
+  ```
+- [#10956](https://github.com/microsoft/typespec/pull/10956) Support importing .ts decorator modules from TypeSpec source files.
+- [#10197](https://github.com/microsoft/typespec/pull/10197) Added `auto` decorator modifier for declaring decorators that auto-store their arguments as metadata without requiring a JavaScript implementation.
+  
+  ```typespec
+  auto dec label(target: Model, value: valueof string);
+  
+  @label("my-model")
+  model Foo {}
+  ```
+  
+  Added compiler API `hasAutoDecorator`, `getAutoDecoratorValue`, and `getAutoDecoratorTargets` for reading auto decorator values by FQN.
+- [#11247](https://github.com/microsoft/typespec/pull/11247) `createTester` now mounts each discovered library's `tspconfig.yaml` into the virtual file system, so experimental features a library opts into (e.g. `auto-decorators`) are honored when compiling against the tester.
+- [#10805](https://github.com/microsoft/typespec/pull/10805) Dim unused `#suppress` directives for available compiler and library diagnostics in editor scenarios.
+  
+  ```typespec
+  #suppress "deprecated" "old suppression"
+  model Widget {}
+  ```
+
+### Bug Fixes
+
+- [#11113](https://github.com/microsoft/typespec/pull/11113) Warn on duplicate `#suppress` directives on the same node.
+- [#10921](https://github.com/microsoft/typespec/pull/10921) Fix diagnostic target node mapping for value entities.
+- [#11235](https://github.com/microsoft/typespec/pull/11235) Fix directory entrypoint resolution ignoring `package.json` `tspMain` when a `tspconfig.yaml` with `kind: project` is present but does not specify an `entrypoint`. The resolution order is now: explicit config `entrypoint`, then `package.json` `tspMain`, then `main.tsp`.
+- [#11011](https://github.com/microsoft/typespec/pull/11011) Keep the `is`/`extends` keyword on the declaration line when the base is a template reference with multiple arguments. The template argument list now controls the line breaking instead of the keyword being pushed onto its own indented line.
+- [#11010](https://github.com/microsoft/typespec/pull/11010) Fix formatter inserting a blank line and over-indenting a `union` expression used directly as one of multiple template arguments (e.g. `PickProperties<Source, "a" | "b">`)
+- [#11235](https://github.com/microsoft/typespec/pull/11235) Fix compiler feature flags (e.g. `auto-decorators`) not being enabled for library code. A library can now opt into a feature via its own `tspconfig.yaml` `features`, enabling it only for that library's source files without requiring the consuming project to enable it.
+- [#11121](https://github.com/microsoft/typespec/pull/11121) Fix memory leak in the experimental mutator engine where a module-level `seen` cache pinned the type graph of every mutated program in memory for the lifetime of the process. The cache is now scoped per `Program` (via a `WeakMap`), so it is released once the program is garbage collected while still being shared across the nested mutations required for recursive type graphs to terminate.
+- [#11056](https://github.com/microsoft/typespec/pull/11056) Fix `Expected type.` internal compiler error when a string template interpolates a function call that references a template parameter on a template declaration (e.g. `@doc("${myFn(T)}") model Crud<T extends Reflection.Model> {}`). The deferred function call now defers the whole template, which is evaluated at instantiation.
+
+
+## 1.13.0
+
+### Deprecations
+
+- [#10876](https://github.com/microsoft/typespec/pull/10876) Deprecated `deepClone` utility in favor of `structuredClone`. All internal usages have been replaced with the native `structuredClone` API.
+
+### Features
+
+- [#10897](https://github.com/microsoft/typespec/pull/10897) `ApplyCodeFixExpect.toEqual` now accepts `Record<string, string>` to assert on multiple files after a code fix is applied. This enables testing code fixes that write to a different file (e.g., adding augment decorators to a `client.tsp`).
+  
+  ```ts
+  await ruleTester
+    .expect({
+      "main.tsp": `import "./client.tsp";\nmodel Foo { name: string; }`,
+      "client.tsp": ``,
+    })
+    .applyCodeFix("add-client-override")
+    .toEqual({
+      "client.tsp": `@@override(Foo.name, "clientName");\n`,
+    });
+  ```
+- [#10548](https://github.com/microsoft/typespec/pull/10548) Add `kind: project` and `entrypoint` support to `tspconfig.yaml` for defining project boundaries and entrypoint resolution. See [Project Configuration](https://typespec.io/docs/handbook/configuration/configuration#project-configuration) for more details.
+  
+  ```yaml title=tspconfig.yaml
+  kind: project
+  entrypoint: src/service.tsp
+  emit:
+    - "@typespec/openapi3"
+  ```
+- [#10694](https://github.com/microsoft/typespec/pull/10694) Added support for accessing late-bound members on models that use template spreads or `is` bases.
+  
+  Previously, accessing a member that was introduced via a template instantiation would fail with an `invalid-ref` error:
+  
+  ```typespec
+  model Template<T> {
+    ...T;
+  }
+  model User is Template<{name: string}>;
+  
+  alias UserName = User.name; // ❌ previously: "Model doesn't have member name"
+  ```
+  
+  Now, the compiler will force-evaluate the container type when a member lookup fails on a model with unknown members (from template spreads or `is`), making late-bound members accessible:
+  
+  ```typespec
+  model Template<T> {
+    ...T;
+  }
+  model User is Template<{name: string}>;
+  
+  alias UserName = User.name; // ✅ now resolves correctly
+  ```
+  
+  This also works with:
+  - Forward references to the template definition
+  - Spread-based patterns (`model A { ...Template<{x: int32}> }`)
+  - Members added by augment decorators
+  - Circular references between models with late-bound members
+- [#10855](https://github.com/microsoft/typespec/pull/10855) The `internal` modifier is no longer experimental. Using `internal` will no longer emit an `experimental-feature` warning, and `#suppress "experimental-feature"` directives are no longer needed.
+- [#10826](https://github.com/microsoft/typespec/pull/10826) Add project-scoped compiler feature flags to `tspconfig.yaml`. Compiler feature definitions
+  are tracked internally with descriptions and can be listed with `tsp info features`.
+  
+  ```yaml title=tspconfig.yaml
+  kind: project
+  features:
+    - function-declarations
+  ```
+- [#9868](https://github.com/microsoft/typespec/pull/9868) Enabled resolution of member properties and metaproperties through template parameters based on constraints.
+  
+  ```tsp
+  model Resource {
+    id: string;
+  }
+  
+  model Read<R extends Resource> {
+    id: R.id;
+  }
+  ```
+
+### Bug Fixes
+
+- [#10692](https://github.com/microsoft/typespec/pull/10692) Fix spurious circular-base-type diagnostics after invalid 'model is' declarations.
+- [#10684](https://github.com/microsoft/typespec/pull/10684) Fixed the compiler to correctly detect circular model spread chains while preserving support for recursive model-expression aliases.
+- [#10687](https://github.com/microsoft/typespec/pull/10687) Fix wrongly detected circular reference with alias and model properties
+- [#10643](https://github.com/microsoft/typespec/pull/10643) Completion in the middle of an identifier now replaces the full token instead of inserting and leaving trailing characters
+- [#10827](https://github.com/microsoft/typespec/pull/10827) Language server fatal errors now write pending logs and the fatal stack trace directly to stderr so crash details remain visible.
+- [#10773](https://github.com/microsoft/typespec/pull/10773) Report an error when a function is declared in the `$functions` map in a JS file but has no corresponding `extern fn` declaration in TypeSpec. Previously this would silently have no effect.
+- [#10847](https://github.com/microsoft/typespec/pull/10847) [Language Server] Wrapped LSP server handlers with `wrapUnhandledError` to preserve server-side stack traces in error messages forwarded to the client. Previously, the JSON-RPC layer discarded the original stack trace, making unhandled errors in telemetry opaque.
+- [#10880](https://github.com/microsoft/typespec/pull/10880) Validate function rest arguments and report function call argument count diagnostics at call sites.
+
+
+## 1.12.0
+
+### Features
+
+- [#10558](https://github.com/microsoft/typespec/pull/10558) Improve formatting of union expressions
+- [#10352](https://github.com/microsoft/typespec/pull/10352) Add support for configurable options on linter rules
+  
+  Linter rules can now define typed options with defaults using `defaultOptions`, and users can pass options when enabling rules in `tspconfig.yaml` or rulesets.
+  
+  **Defining a rule with options:**
+  
+  ```ts
+  const myRule = createRule({
+    name: "no-model-with-name",
+    severity: "warning",
+    description: "Bans models with a specific name",
+    messages: { default: "This model name is not allowed" },
+    defaultOptions: { bannedName: "Foo" },
+    create(context) {
+      return {
+        model: (target) => {
+          if (target.name === context.options.bannedName) {
+            context.reportDiagnostic({ target });
+          }
+        },
+      };
+    },
+  });
+  ```
+  
+  **Configuring options in `tspconfig.yaml`:**
+  
+  ```yaml
+  linter:
+    enable:
+      # Enable with default options
+      "@typespec/my-lib/no-model-with-name": true
+      # Enable with custom options
+      "@typespec/my-lib/no-model-with-name":
+        bannedName: "Bar"
+  ```
+- [#10431](https://github.com/microsoft/typespec/pull/10431) [init] Package dependencies are now populated with the actual latest version at the time (e.g. `^1.11.0`)
+- [#10581](https://github.com/microsoft/typespec/pull/10581) Added warnings for duplicate imports and self-imports in the same file
+  
+  The compiler now warns when a file imports itself or contains duplicate import statements. These are likely mistakes and while they don't cause errors, they add unnecessary noise.
+  
+  ```tsp
+  import "./main.tsp"; // Warning: A file cannot import itself.
+  
+  import "./other.tsp";
+  import "./other.tsp"; // Warning: Duplicate import of "./other.tsp"
+  ```
+
+### Bug Fixes
+
+- [#10618](https://github.com/microsoft/typespec/pull/10618) [LSP] Fix code fixes often not running when selected
+- [#10567](https://github.com/microsoft/typespec/pull/10567) Fix server crashes caused by undefined symbol declarations: add null checks for `getSymNode()` in hover, completion, type-details, and type-signature handlers, and use fallback name for empty DocumentSymbol names
+- [#10351](https://github.com/microsoft/typespec/pull/10351) Fix formatter crash when an operation's parameter list contains only a block comment (e.g. `op find(/* conditions */): unknown;`). Dangling comments in empty parameter lists are now preserved instead of being dropped.
+- [#10556](https://github.com/microsoft/typespec/pull/10556) Fix formatting of decorators on operations and augment decorators. Decorators on operations now break to separate lines when the total line exceeds the print width. Augment decorator arguments are now consistently indented when the line breaks, matching TypeScript/prettier function call formatting.
+- [#10580](https://github.com/microsoft/typespec/pull/10580) Hide cursor during spinner animation to prevent flicker on Windows
+
+
+## 1.11.0
+
+### Features
+
+- [#9893](https://github.com/microsoft/typespec/pull/9893) Added a new template `FilterVisibility` to support more accurate visibility transforms. This replaces the `@withVisibilityFilter` decorator, which is now deprecated and slated for removal in a future version of TypeSpec.
+
+### Bug Fixes
+
+- [#10196](https://github.com/microsoft/typespec/pull/10196) Include model name in `duplicate-property` error message
+- [#10199](https://github.com/microsoft/typespec/pull/10199) [invalid-discriminated-union-variant] `duplicateDefaultVariant` diagnostic now includes the union type name
+- [#10183](https://github.com/microsoft/typespec/pull/10183) Do not interpolate non primitive values in config automatically
+    ```yaml
+        file-type: ["json", "yaml"]
+        output-file: "openapi.{file-type}"
+    ```
+    Will not be interpolated as `openapi.json,yaml` but keep the placeholder `{file-type}` intact for the emitter to handle.
+- [#9893](https://github.com/microsoft/typespec/pull/9893) Fixed a bug that would prevent template parameters from assigning to values in some cases.
+
+
+## 1.10.0
+
+### Features
+
+- [#9819](https://github.com/microsoft/typespec/pull/9819) Export `resolveCodeFix` function to allow resolving a `CodeFix` into `CodeFixEdit[]` without the LSP layer.
+- [#9829](https://github.com/microsoft/typespec/pull/9829) `tsp info` now accepts an optional `<libName>` argument to display detailed information about a specific library or emitter, including all available options.
+- [#9060](https://github.com/microsoft/typespec/pull/9060) Added support for Functions, a new type graph entity and language feature. Functions enable library authors to provide input-output style transforms that operate on types and values. See [the Functions Documentation](https://typespec.io/docs/language-basics/functions/) for more information about the use and implementation of functions.
+- [#9762](https://github.com/microsoft/typespec/pull/9762) Added experimental support for `internal` modifiers on type declarations. Any type _except `namespace`_ can be declared `internal`. An `internal` symbol can only be accessed from within the same package where it was declared.
+
+### Bump dependencies
+
+- [#9838](https://github.com/microsoft/typespec/pull/9838) Upgrade dependencies
+
+### Bug Fixes
+
+- [#9939](https://github.com/microsoft/typespec/pull/9939) Fix `@overload` interface validation failing when the enclosing namespace is versioned
+- [#9641](https://github.com/microsoft/typespec/pull/9641) Don't report `non-literal-string-template` diagnostic when interpolating an invalid reference
+- [#9803](https://github.com/microsoft/typespec/pull/9803) Support `TYPESPEC_NPM_REGISTRY` environment variable to configure the npm registry used by `tsp init` and `tsp install` when fetching package manifests and downloading packages.
+- [#9804](https://github.com/microsoft/typespec/pull/9804) Fix crash when using custom scalar initializer in examples or default values
+    [API] Fix crash in `serializeValueAsJson` when a custom scalar initializer has no recognized constructor (e.g. `S.i()` with no args). Now returns `undefined` instead of crashing.
+- [#9670](https://github.com/microsoft/typespec/pull/9670) Fixed an issue where referencing a member of a templated alias with defaultable parameters would fail to instantiate the alias, leaking template parameters.
+
+
+## 1.9.0
+
+### Deprecations
+
+- [#9336](https://github.com/microsoft/typespec/pull/9336) Deprecate `program` parameter in `isArrayModelType` and `isRecordModelType` functions. Use the new single-argument overload instead: `isArrayModelType(type)` and `isRecordModelType(type)`.
+
+### Features
+
+- [#9078](https://github.com/microsoft/typespec/pull/9078) Remove type constraints from `@continuationToken` decorator
+- [#9512](https://github.com/microsoft/typespec/pull/9512) [API] Add performance reporting utilities for emitters [See docs for more info](https://typespec.io/docs/extending-typespec/performance-reporting/)
+- [#9475](https://github.com/microsoft/typespec/pull/9475) [API] `serializeValueAsJson` throws a `UnsupportedScalarConstructorError` for unsupported scalar constructor instead of crashing
+
+### Bump dependencies
+
+- [#9446](https://github.com/microsoft/typespec/pull/9446) Upgrade dependencies
+
+### Bug Fixes
+
+- [#9320](https://github.com/microsoft/typespec/pull/9320) Fix `--list-files` not working when multiple instance of compiler are loaded
+- [#9607](https://github.com/microsoft/typespec/pull/9607) Fix stack overflow for specs with large number of circular references
+- [#9342](https://github.com/microsoft/typespec/pull/9342) Ensuring ignore-deprecated gets resolved.
+- [#9588](https://github.com/microsoft/typespec/pull/9588) Fixed several checking errors around template instantiations that could cause TemplateParameter instances to leak into decorator calls.
+
+
+## 1.8.0
+
+### Features
+
+- [#9295](https://github.com/microsoft/typespec/pull/9295) Add `now()` initializer to date/time scalars (`plainDate`, `plainTime`, `utcDateTime`, `offsetDateTime`) for indicating current date/time at runtime. Emitters should interpret this as the appropriate runtime value (e.g., database `CURRENT_TIMESTAMP`, JavaScript `Date.now()`, etc.).
+- [#9104](https://github.com/microsoft/typespec/pull/9104) [API] Introduction of decorator validator callbacks. A decorator can define some callbacks to achieve some deferred validation (After the type is finished or the whole graph is)
+- [#9288](https://github.com/microsoft/typespec/pull/9288) [api] Expose `createSuppressCodeFixes` method to generate multiple code fixes from diagnostics
+- [#9262](https://github.com/microsoft/typespec/pull/9262) Add support for OpenAPI 3.2.0 `defaultMapping` in discriminated unions. When a discriminated union has a default variant (unnamed variant), it is now properly emitted:
+  - For OpenAPI 3.2.0: The default variant is included in `oneOf` array and referenced via `discriminator.defaultMapping` property
+  - For OpenAPI 3.0 and 3.1: The default variant is included in `oneOf` array and its discriminator value is added to the `discriminator.mapping` object
+- [#9300](https://github.com/microsoft/typespec/pull/9300) Add typekit to tester instances and test compile result"
+
+### Bump dependencies
+
+- [#9223](https://github.com/microsoft/typespec/pull/9223) Upgrade dependencies
+
+### Bug Fixes
+
+- [#9280](https://github.com/microsoft/typespec/pull/9280) suppress - a extends/is inner statement suppress should be generated on the parent model node
+- [#9293](https://github.com/microsoft/typespec/pull/9293) compiler - suppression node selection for operation response bodies
+- [#9308](https://github.com/microsoft/typespec/pull/9308) Fixed mutation of decorator's argument values
+
+
+## 1.7.1
+
+### Bug Fixes
+
+- [#9210](https://github.com/microsoft/typespec/pull/9210) Fix crash in `tsp init` introduced in `1.7.0`
+
+
+## 1.7.0
+
+### Features
+
+- [#9002](https://github.com/microsoft/typespec/pull/9002) Add `commaDelimited` and `newlineDelimited` values to `ArrayEncoding` enum for serializing arrays with comma and newline delimiters
+- [#8942](https://github.com/microsoft/typespec/pull/8942) - Add 'exit' final event for linter rules
+  - Support 'async' in linter definition and async function as callback for 'exit' event.
+- [#9024](https://github.com/microsoft/typespec/pull/9024) [API] Add `node` to `SourceModel` type
+- [#8619](https://github.com/microsoft/typespec/pull/8619) Add support for escaping param like tags(`@param`, `@prop`, etc.) identifier with backtick in doc comments to allow special characters
+
+### Bump dependencies
+
+- [#9046](https://github.com/microsoft/typespec/pull/9046) Upgrade dependencies
+
+### Bug Fixes
+
+- [#8917](https://github.com/microsoft/typespec/pull/8917) Add security warning to tsp init CLI documentation for external templates (#8916)
+- [#8997](https://github.com/microsoft/typespec/pull/8997) UnusedUsing Diagnostics are reported as warning instead of hint when there are linters defined in tspconfig.yaml
+
+
+## 1.6.0
+
+### Features
+
+- [#8868](https://github.com/microsoft/typespec/pull/8868) [API] Add new `createAddDecoratorCodeFix` function to help generating a codefix to add a decorator to a target node.
+- [#8580](https://github.com/microsoft/typespec/pull/8580) Add support for `@minValue`, `@maxValue` and their exclusive variant for datetime and duration types.
+  Expose as well the following APIs
+  - `getMinValueForScalar`
+  - `getMaxValueForScalar`
+  - `getMinValueExclusiveForScalar`
+  - `getMaxValueExclusiveForScalar`
+- [#8938](https://github.com/microsoft/typespec/pull/8938) [API] Add `repository` field to `PackageJson` type
+
+### Bump dependencies
+
+- [#8823](https://github.com/microsoft/typespec/pull/8823) Upgrade dependencies
+
+### Bug Fixes
+
+- [#8792](https://github.com/microsoft/typespec/pull/8792) Compiler internal decorators shouldn't be listed in autocomplete
+- [#8733](https://github.com/microsoft/typespec/pull/8733) Fix issue where namespace with same name but different parent would get merged together when under a file namespace scope.
+- [#8698](https://github.com/microsoft/typespec/pull/8698) [TM Grammar] Fix issue with directive used after decorators
+- [#8751](https://github.com/microsoft/typespec/pull/8751) Correctly report error when trying to reference member of template without using the arguments
+- [#8780](https://github.com/microsoft/typespec/pull/8780) Fix missing examples in OpenAPI when response uses union of unions
+- [#8676](https://github.com/microsoft/typespec/pull/8676) Addressed an issue where applying the `Update` visibility transform would not correctly rename nested models.
+- [#8687](https://github.com/microsoft/typespec/pull/8687) Fix go to definition for directory imports
+- [#8681](https://github.com/microsoft/typespec/pull/8681) Addressed a bug that could cause duplicate `@encodedName` applications to be detected when none actually exist.
+
+
+## 1.5.0
+
+### Features
+
+- [#8549](https://github.com/microsoft/typespec/pull/8549) [Testing API] Expose marker position in Tester
+- [#8491](https://github.com/microsoft/typespec/pull/8491) Add milliseconds to DurationKnownEncoding
+- [#7929](https://github.com/microsoft/typespec/pull/7929) [LSP] Allow configuring which file names to use as entrypoints
+- [#8525](https://github.com/microsoft/typespec/pull/8525) [API] Expose `applyCodeFix` and `createSuppressCodeFix`
+- [#8652](https://github.com/microsoft/typespec/pull/8652) [API] Export `getNodeForTarget` in `@typespec/compiler/ast` exports
+- [#8542](https://github.com/microsoft/typespec/pull/8542) [API] Expose `applyCodeFixEdits`, `resolveCodeFix`
+- [#8544](https://github.com/microsoft/typespec/pull/8544) [api] adds the ability to pass the suppression message
+- [#8632](https://github.com/microsoft/typespec/pull/8632) [API] Allow using union in emitter schemas
+- [#8586](https://github.com/microsoft/typespec/pull/8586) Widen target types for the `@secret` decorator to include Model, Union, and Enum types, in addition to existing Scalar and ModelProperty targets. This allows marking any data type as secret for comprehensive data sensitivity handling.
+- [#8055](https://github.com/microsoft/typespec/pull/8055) Show template parameters default in hover signature
+- [#8234](https://github.com/microsoft/typespec/pull/8234) Support codefix on different file and creating file when needed
+- [#8670](https://github.com/microsoft/typespec/pull/8670) [Tester] Support sub exports without having them being defined as separate libraries
+
+### Bug Fixes
+
+- [#8506](https://github.com/microsoft/typespec/pull/8506) Fix issue when the 'entrypoint' setting is default to null
+- [#8462](https://github.com/microsoft/typespec/pull/8462) Fix grammar error in TypeSpec unused-using warning message by removing incorrect word "be" from "never be used"
+- [#8548](https://github.com/microsoft/typespec/pull/8548) Linter rule tester not passing parseDocs option to new tester instance
+- [#8578](https://github.com/microsoft/typespec/pull/8578) Add suppression codefix looks up for the first valid parent
+- [#8452](https://github.com/microsoft/typespec/pull/8452) [Tester] Fix issue that could cause some timeout
+- [#8573](https://github.com/microsoft/typespec/pull/8573) LSP connection failure after dynamically loading a certain library in the package
+- [#8670](https://github.com/microsoft/typespec/pull/8670) Allow importing of self (e.g. `@typespec/openapi/some/path` when in `@typespec/openapi`) respecting ESM spec.
+
+
+## 1.4.0
+
+### Features
+
+- [#4383](https://github.com/microsoft/typespec/pull/4383) Expose `createSourceLoader` via `@typespec/compiler/ast`
+
+### Bump dependencies
+
+- [#8317](https://github.com/microsoft/typespec/pull/8317) Upgrade dependencies
+
+### Bug Fixes
+
+- [#8386](https://github.com/microsoft/typespec/pull/8386) fixed a bug where max/min Items could not be used in combination with a nullable type
+- [#8152](https://github.com/microsoft/typespec/pull/8152) Remove incorrect example of service option model from documents
+
+
+## 1.3.0
+
+### Features
+
+- [#7830](https://github.com/microsoft/typespec/pull/7830) [API] `resolveCompilerOptions` now only takes a `SystemHost` instead of `CompilerHost`
+- [#7912](https://github.com/microsoft/typespec/pull/7912) Updates the `tsp init` command to support passing in more options via CLI flags. The `-y` option can also be used to auto accept prompts.
+
+### Bump dependencies
+
+- [#7978](https://github.com/microsoft/typespec/pull/7978) Upgrade dependencies
+
+### Bug Fixes
+
+- [#7721](https://github.com/microsoft/typespec/pull/7721) Make the `console.*` methods usable in the compiler and display them in the vscode output.
+- [#8012](https://github.com/microsoft/typespec/pull/8012) Fix `tsp format --check` incorrectly validating needs format
+- [#7957](https://github.com/microsoft/typespec/pull/7957) Fix incorrectly reported `incompatible-compiler-version` in some cases when using symlinks
+- [#7947](https://github.com/microsoft/typespec/pull/7947) [API] [Testing] Ignore test files in legacy library definition
+- [#7899](https://github.com/microsoft/typespec/pull/7899) Ensure model that are spread, intersected or used as the base are fully checked before trying to copy the properties
+- [#8002](https://github.com/microsoft/typespec/pull/8002) Union expression are correctly attached to the namespace they were declared in
+
+
+## 1.2.0
+
+### Features
+
+- [#7576](https://github.com/microsoft/typespec/pull/7576) Allow LSP to configure which emitters to include for live checks
+- [#7151](https://github.com/microsoft/typespec/pull/7151) [API] Addition of a new testing framework. See https://typespec.io/docs/extending-typespec/testing
+
+### Bump dependencies
+
+- [#7674](https://github.com/microsoft/typespec/pull/7674) Upgrade dependencies
+
+### Bug Fixes
+
+- [#7586](https://github.com/microsoft/typespec/pull/7586) Improved the error message for the `@pattern` decorator when applied to a `union` type. The new message is more descriptive and helps users understand how to correctly define string-compatible union types.
+- [#7740](https://github.com/microsoft/typespec/pull/7740) Config interpolation is more flexible in interpolating variables in any order as long as no circular reference occur. For example using `{output-dir}` in parameters.
+- [#7731](https://github.com/microsoft/typespec/pull/7731) Fix literal typekits `$.literal.create`, `$.literal.createString`, etc. use right checker api that include caching
+- [#7906](https://github.com/microsoft/typespec/pull/7906) Corrected some logic around the detection of array types in visibility calculation.
+
+
+## 1.1.0
+
+### Features
+
+- [#7377](https://github.com/microsoft/typespec/pull/7377) Add a `--stats` flag to `tsp compile` to log some performance and complexity statistics
+- [#7530](https://github.com/microsoft/typespec/pull/7530) Show the full definition of model and interface when it has 'extends' and 'is' relationship in the hover text
+- [#6923](https://github.com/microsoft/typespec/pull/6923) Init templates can define a project kind which decide if dependencies are added to peer or regular dependencies
+- [#6783](https://github.com/microsoft/typespec/pull/6783) Install packages for unrecognized import via npm command
+- [#7239](https://github.com/microsoft/typespec/pull/7239) [LSP] Expose new compile project command
+- [#7137](https://github.com/microsoft/typespec/pull/7137) Allow passing template parameters as property defaults
+- [#7256](https://github.com/microsoft/typespec/pull/7256) Expose `VisibilityFilter.toCacheKey` to allow caching results based on visibility filters.
+
+### Bump dependencies
+
+- [#7323](https://github.com/microsoft/typespec/pull/7323) Upgrade dependencies
+
+### Bug Fixes
+
+- [#7421](https://github.com/microsoft/typespec/pull/7421) Fix hanging when using `::returnType` meta accessor on operation defined with `op is`
+- [#7507](https://github.com/microsoft/typespec/pull/7507) Fix empty string emitting error when used in string interpolation in a template
+- [#7524](https://github.com/microsoft/typespec/pull/7524) Fixes an error where reported diagnostics had invalid relative paths on Windows
+- [#7508](https://github.com/microsoft/typespec/pull/7508) Allow extends of array expression for not just template (`model MyStrings extends string[]`)
+- [#7473](https://github.com/microsoft/typespec/pull/7473) Mutator were not mutating tuple values
+- [#7485](https://github.com/microsoft/typespec/pull/7485) Fix paging operations to correctly detect the `@pageItems` decorator on base models.
+- [#7461](https://github.com/microsoft/typespec/pull/7461) Remove non documented `templateArguments` property on types
+- [#7480](https://github.com/microsoft/typespec/pull/7480) Fix infinite recursion when navigating paging properties by detecting and handling circular model references.
+- [#7137](https://github.com/microsoft/typespec/pull/7137) Allow passing tempalate parameter values in object and array values used inside the template
+- [#7295](https://github.com/microsoft/typespec/pull/7295) Corrected visibility filtering logic to even more aggressively deduplicate the models it visits when the applied visibility transform does not actually remove any properties from a model.
+
+
+## 1.0.0
+
+### Features
+
+- [#7199](https://github.com/microsoft/typespec/pull/7199) Add "capitalize" string helper to compiler
+- [#7180](https://github.com/microsoft/typespec/pull/7180) Add support for formatting `tspconfig.yaml` with `tsp format`
+- [#7180](https://github.com/microsoft/typespec/pull/7180) `tsp format` only formats files it knows about and ignores other. Allowing a more generic glob pattern `tsp format .` or `tsp format "**/*"`
+- [#5674](https://github.com/microsoft/typespec/pull/5674) [LSP] Update imports when renaming typespec files
+- [#7125](https://github.com/microsoft/typespec/pull/7125) Adds typekits for getting intrinsic types via `$.intrinsic.<type>`
+- [#7204](https://github.com/microsoft/typespec/pull/7204) Update typekits `is*` methods to accept `Entity` instead of just `Type` or `Value`
+- [#7108](https://github.com/microsoft/typespec/pull/7108) Adds support for nesting typekits
+- [#7202](https://github.com/microsoft/typespec/pull/7202) Replaces `$.model.getSpreadType` with `$.model.getIndexType` to better reflect what it actually being returned. `getSpreadType` did not actually return a list of spread types, but the model's indexer type instead.
+- [#7090](https://github.com/microsoft/typespec/pull/7090) Adds TypeKit support for type.inNamespace to check namespace membership
+- [#7167](https://github.com/microsoft/typespec/pull/7167) Adds `$.value.resolve` and `$.type.resolve` typekits, and updated `$.resolve` to return values or types, instead of just types
+- [#7106](https://github.com/microsoft/typespec/pull/7106) Adds `$.type.isAssignableTo`, `$.value.isAssignableTo` and `$.entity.isAssignableTo` typekits. Also registers `$.resolve` typekit
+- [#7193](https://github.com/microsoft/typespec/pull/7193) Typekits have been moved out of experimental and can now be accessed via the `@typespec/compiler/typekit` submodule.
+  This also removed the `$.type.getDiscriminator` typekit in favor of the `$.model.getDiscriminatedUnion` and `$.union.getDiscriminatedUnion`
+  typkits.
+  
+  ```diff
+  -import { $ } from "@typespec/compiler/experimental/typekit";
+  +import { $ } from "@typespec/compiler/typekit";
+  ```
+- [#7105](https://github.com/microsoft/typespec/pull/7105) Add typekit support for creating a union from an array of children
+- [#7207](https://github.com/microsoft/typespec/pull/7207) Exposed experimental function `isMutableType` as `unsafe_isMutableType`.
+- [#7200](https://github.com/microsoft/typespec/pull/7200) Added an optional `nameTemplate` argument to `@withVisibilityFilter`, allowing the visibility filters to rename models as they are transformed. This template is applied by default in the `Create`, `Read`, `Update`, `Delete`, and `Query` visibility transform templates. This allows for more flexible renaming than simply using the `@friendlyName` decorator, as it will change the primary name of the transformed type, reducing the incidence of naming conflicts.
+  
+  Cached the result of applying visibility filters to types. If the same visibility filter is applied to the same type with the same configuration, the model instance produced by the visibility filter will be object-identical. This should reduce the incidence of multiple models that are structurally equivalent in visibility filters and conflicts over the name of models.
+
+### Bug Fixes
+
+- [#7183](https://github.com/microsoft/typespec/pull/7183) Fix decorators on model properties getting wrongly called when checking the template declaration in the following cases
+   - inside a union expression
+   - under an non templated operation under a templated interface
+- [#6938](https://github.com/microsoft/typespec/pull/6938) Fixes template argument resolution when a default template parameter value is resolved by a parent container (e.g. interface)
+  For example:
+  ```tsp
+  interface Resource<T> {
+    read<U = T>(): U;
+  }
+  
+  model Foo {
+    type: "foo";
+  }
+  
+  alias FooResource = Resource<Foo>;
+  
+  op readFoo is FooResource.read;
+  ```
+  The `returnType` for `readFoo` would be model `Foo`. Previously the `returnType` resolved to a `TemplateParameter`.
+- [#7153](https://github.com/microsoft/typespec/pull/7153) Fixes handling of nested templates in getPlausibleName
+- [#6883](https://github.com/microsoft/typespec/pull/6883) Realm handle multiple instance of compiler loaded at once
+- [#7222](https://github.com/microsoft/typespec/pull/7222) Remove `version` property on `ServiceOptions` passed to `@service` decorator. That handling of that option was removed in `1.0.0-rc.0` where it was previously deprecated.
+  If wanting to specify version in an OpenAPI document use the `@OpenAPI.info` decorator from the `@typespec/openapi` library
+- [#7155](https://github.com/microsoft/typespec/pull/7155) Mark `TemplateParameter` type as an experimental type
+- [#7106](https://github.com/microsoft/typespec/pull/7106) Removes `program.checker.isTypeAssignableTo`. Use one of the following typekits instead:
+  - `$(program).type.isAssignableTo`
+  - `$(program).value.isAssignableTo`
+  - `$(program).entity.isAssignableTo`
+- [#7207](https://github.com/microsoft/typespec/pull/7207) Weakened rules around `@mediaTypeHint` decorator, allowing media type hints with suffixes like "application/merge-patch+json".
+- [#7200](https://github.com/microsoft/typespec/pull/7200) Fixed an error in Model visibility filtering where the indexer of a model was ignored. This prevented the value of Array/Record instances from being transformed correctly, as they now should be.
+
+
+## 1.0.0-rc.1
+
+### Features
+
+- [#7067](https://github.com/microsoft/typespec/pull/7067) Adding support for nested paging properties.
+- [#6862](https://github.com/microsoft/typespec/pull/6862) `--trace` cli option applies to all commands now
+- [#7065](https://github.com/microsoft/typespec/pull/7065) Adds a TypeKit for Tuple types
+- [#7049](https://github.com/microsoft/typespec/pull/7049) Adds a new createDiagnosable typekit helper for APIs that return diagnostics
+- [#7018](https://github.com/microsoft/typespec/pull/7018) Removes the default typekit in favor of always instantiating typekits with either a `program` or `realm`.
+- [#7047](https://github.com/microsoft/typespec/pull/7047) Adds typekit support for creating unions from enums
+
+### Bug Fixes
+
+- [#6897](https://github.com/microsoft/typespec/pull/6897) Improve errors when loading libraries with invalid exports/main fields
+- [#7069](https://github.com/microsoft/typespec/pull/7069) Mark `node` property on all typespec types as optional
+- [#7063](https://github.com/microsoft/typespec/pull/7063) Fixes an issue where isError was checking for error types instead of error models.
+- [#7047](https://github.com/microsoft/typespec/pull/7047) Preserve API documentation when calling `$.enum.createFromUnion`
+
+
 ## 1.0.0-rc.0
 
 ### Breaking Changes

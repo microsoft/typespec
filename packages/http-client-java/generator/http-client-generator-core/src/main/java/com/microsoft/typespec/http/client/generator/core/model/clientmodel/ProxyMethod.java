@@ -3,14 +3,13 @@
 
 package com.microsoft.typespec.http.client.generator.core.model.clientmodel;
 
-import com.azure.core.http.ContentType;
-import com.azure.core.http.HttpMethod;
 import com.microsoft.typespec.http.client.generator.core.extension.base.util.HttpExceptionType;
 import com.microsoft.typespec.http.client.generator.core.extension.plugin.JavaSettings;
 import com.microsoft.typespec.http.client.generator.core.mapper.CollectionUtil;
 import com.microsoft.typespec.http.client.generator.core.util.ClientModelUtil;
 import com.microsoft.typespec.http.client.generator.core.util.CodeNamer;
 import com.microsoft.typespec.http.client.generator.core.util.MethodNamer;
+import io.clientcore.core.http.models.HttpMethod;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
@@ -25,6 +24,7 @@ public class ProxyMethod {
      * Get the Content-Type of the request.
      */
     private final String requestContentType;
+    private String implementation;
     /**
      * The value that is returned from this method.
      */
@@ -127,6 +127,7 @@ public class ProxyMethod {
             .specialHeaders(specialHeaders)
             .operationId(operationId)
             .isSync(isSync)
+            .implementation(implementation)
             .customHeaderIgnored(customHeaderIgnored);
     }
 
@@ -159,7 +160,8 @@ public class ProxyMethod {
         List<ProxyMethodParameter> parameters, List<ProxyMethodParameter> allParameters, String description,
         IType returnValueWireType, IType responseBodyType, IType rawResponseBodyType, boolean isResumable,
         Set<String> responseContentTypes, String operationId, Map<String, ProxyMethodExample> examples,
-        List<String> specialHeaders, boolean isSync, String baseName, boolean customHeaderIgnored) {
+        List<String> specialHeaders, boolean isSync, String baseName, boolean customHeaderIgnored,
+        String implementation) {
         this.requestContentType = requestContentType;
         this.returnType = returnType;
         this.httpMethod = httpMethod;
@@ -183,6 +185,7 @@ public class ProxyMethod {
         this.isSync = isSync;
         this.baseName = baseName;
         this.customHeaderIgnored = customHeaderIgnored;
+        this.implementation = implementation;
     }
 
     public final String getRequestContentType() {
@@ -249,6 +252,10 @@ public class ProxyMethod {
         return rawResponseBodyType;
     }
 
+    public IType getResponseType() {
+        return rawResponseBodyType != null ? rawResponseBodyType : responseBodyType;
+    }
+
     public final boolean isResumable() {
         return isResumable;
     }
@@ -297,6 +304,24 @@ public class ProxyMethod {
         return customHeaderIgnored;
     }
 
+    /**
+     * Check if this method has a parameter of the given type.
+     *
+     * @param type the type to check.
+     * @return true if this method has a parameter of the given type, false otherwise.
+     */
+    public boolean hasParameterOfType(IType type) {
+        return parameters.stream().anyMatch(p -> p.getClientType() == type);
+    }
+
+    public String getImplementation() {
+        return implementation;
+    }
+
+    public void updateImplementation(String implementation) {
+        this.implementation = implementation;
+    }
+
     public ProxyMethod toSync() {
         if (isSync) {
             return this;
@@ -312,9 +337,11 @@ public class ProxyMethod {
         List<ProxyMethodParameter> allSyncParams
             = this.getAllParameters().stream().map(this::mapToSyncParam).collect(Collectors.toList());
 
+        String syncMethodName = this.getName()
+            + (JavaSettings.getInstance().isAzureV2() || !JavaSettings.getInstance().isAzureV1() ? "" : "Sync");
         this.syncProxy = new ProxyMethod.Builder().parameters(syncParams)
             .httpMethod(this.getHttpMethod())
-            .name(this.getName() + "Sync")
+            .name(syncMethodName)
             .baseName(this.getName())
             .description(this.getDescription())
             .baseURL(this.getBaseUrl())
@@ -349,7 +376,9 @@ public class ProxyMethod {
 
     private IType mapToSyncType(IType type) {
         if (type == GenericType.FLUX_BYTE_BUFFER) {
-            return ClassType.BINARY_DATA;
+            return JavaSettings.getInstance().isInputStreamForBinary()
+                ? GenericType.response(ClassType.INPUT_STREAM)
+                : GenericType.response(ClassType.BINARY_DATA);
         }
 
         if (type instanceof GenericType) {
@@ -359,33 +388,34 @@ public class ProxyMethod {
                     GenericType innerGenericType = (GenericType) genericType.getTypeArguments()[0];
                     if (innerGenericType.getName().equals("ResponseBase")
                         && innerGenericType.getTypeArguments()[1] == GenericType.FLUX_BYTE_BUFFER) {
-                        return GenericType.RestResponse(innerGenericType.getTypeArguments()[0],
+                        return GenericType.restResponse(innerGenericType.getTypeArguments()[0],
                             JavaSettings.getInstance().isInputStreamForBinary()
                                 ? ClassType.INPUT_STREAM
                                 : ClassType.BINARY_DATA);
-                    } else if (innerGenericType.getName().equals("Response")
-                        && innerGenericType.getTypeArguments()[0] == GenericType.FLUX_BYTE_BUFFER
-                        && JavaSettings.getInstance().isFluent()) {
-                        return GenericType.Response(ClassType.BINARY_DATA);
+                    } else if ((innerGenericType.getName().equals("Response")
+                        && innerGenericType.getTypeArguments()[0] == GenericType.FLUX_BYTE_BUFFER)) {
+                        return JavaSettings.getInstance().isInputStreamForBinary()
+                            ? GenericType.response(ClassType.INPUT_STREAM)
+                            : GenericType.response(ClassType.BINARY_DATA);
                     }
                 }
 
                 if (genericType.getTypeArguments()[0] == ClassType.STREAM_RESPONSE) {
                     return JavaSettings.getInstance().isInputStreamForBinary()
-                        ? GenericType.Response(ClassType.INPUT_STREAM)
-                        : GenericType.Response(ClassType.BINARY_DATA);
+                        ? GenericType.response(ClassType.INPUT_STREAM)
+                        : GenericType.response(ClassType.BINARY_DATA);
                 }
                 return genericType.getTypeArguments()[0];
             }
             if (genericType.getName().equals("PagedFlux")) {
                 IType pageType = genericType.getTypeArguments()[0];
-                return GenericType.PagedIterable(pageType);
+                return GenericType.pagedIterable(pageType);
             }
             if (genericType.getName().equals("PollerFlux")) {
                 IType[] typeArguments = genericType.getTypeArguments();
                 IType pollType = typeArguments[0];
                 IType resultType = typeArguments[1];
-                return GenericType.SyncPoller(pollType, resultType);
+                return GenericType.syncPoller(pollType, resultType);
             }
         }
         return type;
@@ -407,7 +437,7 @@ public class ProxyMethod {
                 Annotation.UNEXPECTED_RESPONSE_EXCEPTION_TYPE.addImportsTo(imports);
                 getUnexpectedResponseExceptionType().addImportsTo(imports, includeImplementationImports);
 
-                if (!settings.isBranded()) {
+                if (!settings.isAzureV1()) {
                     ClientModel errorModel
                         = ClientModelUtil.getErrorModelFromException(getUnexpectedResponseExceptionType());
                     if (errorModel != null) {
@@ -420,7 +450,7 @@ public class ProxyMethod {
                 getUnexpectedResponseExceptionTypes().keySet()
                     .forEach(e -> e.addImportsTo(imports, includeImplementationImports));
 
-                if (!settings.isBranded()) {
+                if (!settings.isAzureV1()) {
                     for (ClassType exceptionType : getUnexpectedResponseExceptionTypes().keySet()) {
                         ClientModel errorModel = ClientModelUtil.getErrorModelFromException(exceptionType);
                         if (errorModel != null) {
@@ -447,11 +477,11 @@ public class ProxyMethod {
 
             returnType.addImportsTo(imports, includeImplementationImports);
 
-            if (ContentType.APPLICATION_X_WWW_FORM_URLENCODED.equals(this.requestContentType)) {
+            if ("application/x-www-form-urlencoded".equals(this.requestContentType)) {
                 Annotation.FORM_PARAM.addImportsTo(imports);
             }
 
-            for (ProxyMethodParameter parameter : parameters) {
+            for (ProxyMethodParameter parameter : allParameters) {
                 parameter.addImportsTo(imports, includeImplementationImports, settings);
             }
         }
@@ -499,6 +529,7 @@ public class ProxyMethod {
         protected boolean isSync;
         protected String baseName;
         protected boolean customHeaderIgnored;
+        protected String implementation;
 
         /*
          * Sets the Content-Type of the request.
@@ -745,6 +776,11 @@ public class ProxyMethod {
             return this;
         }
 
+        public Builder implementation(String implementation) {
+            this.implementation = implementation;
+            return this;
+        }
+
         /**
          * @return an immutable ProxyMethod instance with the configurations on this builder.
          */
@@ -755,7 +791,7 @@ public class ProxyMethod {
                 CollectionUtil.toImmutableList(parameters), CollectionUtil.toImmutableList(allParameters), description,
                 returnValueWireType, responseBodyType, rawResponseBodyType, isResumable,
                 CollectionUtil.toImmutableSet(responseContentTypes), operationId, examples,
-                CollectionUtil.toImmutableList(specialHeaders), isSync, baseName, customHeaderIgnored);
+                CollectionUtil.toImmutableList(specialHeaders), isSync, baseName, customHeaderIgnored, implementation);
         }
     }
 }

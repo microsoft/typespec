@@ -30,7 +30,7 @@ public final class ClientInitializationAsyncClient {
      * Gets an instance of SubAsyncClient class.
      * 
      * @param name The name parameter.
-     * @return an instance of SubAsyncClientclass.
+     * @return an instance of SubAsyncClient class.
      */
     public SubAsyncClient getSubAsyncClient(String name) {
         return new SubAsyncClient(serviceClient.getSubClient(name));

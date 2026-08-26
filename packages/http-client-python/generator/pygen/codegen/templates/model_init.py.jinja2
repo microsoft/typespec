@@ -11,6 +11,9 @@ from .{{ code_model.models_filename }} import (  # type: ignore
     {{ schema }},
     {% endfor %}
 )
+{% elif has_models %}
+
+from . import _models
 {% endif %}
 {% if enums %}
 
@@ -19,6 +22,9 @@ from .{{ code_model.enums_filename }} import (  # type: ignore
     {{ enum }},
 {% endfor %}
 )
+{% elif has_enums %}
+
+from . import _enums
 {% endif %}
 {{ keywords.patch_imports() }}
 __all__ = [

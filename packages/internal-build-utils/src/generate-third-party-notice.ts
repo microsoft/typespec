@@ -59,12 +59,12 @@ async function findThirdPartyPackages() {
       if (!packages.has(packageRoot)) {
         let pkg = JSON.parse(await readFile(join(packageRoot, "package.json"), "utf-8"));
 
-        if (!pkg.name) {
+        while (!pkg.name) {
           packageRoot = await getPackageRoot(packageRoot);
-          while (!pkg.name && packageRoot) {
-            pkg = JSON.parse(await readFile(join(packageRoot, "package.json"), "utf-8"));
-            packageRoot = await getPackageRoot(packageRoot);
+          if (!packageRoot) {
+            break;
           }
+          pkg = JSON.parse(await readFile(join(packageRoot, "package.json"), "utf-8"));
         }
         if (!pkg.name || pkg.name === rootName || /microsoft/i.test(JSON.stringify(pkg.author))) {
           continue;
@@ -158,7 +158,16 @@ async function downloadLicenseForKnownPackages(packageName: string): Promise<str
 }
 
 async function getLicense(packageName: string, packageRoot: string) {
-  for (const licenseName of ["LICENSE", "LICENSE.txt", "LICENSE.md", "LICENSE-MIT"]) {
+  for (const licenseName of [
+    "license",
+    "license.txt",
+    "license.md",
+    "license-mit",
+    "LICENSE",
+    "LICENSE.txt",
+    "LICENSE.md",
+    "LICENSE-MIT",
+  ]) {
     const licensePath = join(packageRoot, licenseName);
     try {
       const text = await readFile(licensePath, "utf-8");

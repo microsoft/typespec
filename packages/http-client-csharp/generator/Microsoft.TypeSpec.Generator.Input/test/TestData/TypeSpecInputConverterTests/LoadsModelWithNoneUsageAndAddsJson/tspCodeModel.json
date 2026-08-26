@@ -1,0 +1,34 @@
+{
+    "$id": "1",
+    "kind": "model",
+    "name": "Friend",
+    "namespace": "SampleTypeSpec",
+    "crossLanguageDefinitionId": "SampleTypeSpec.NotFriend",
+    "usage": "None",
+    "doc": "this is not a friendly model but with a friendly name",
+    "decorators": [
+    ],
+    "properties": [
+      {
+        "$id": "229",
+        "kind": "property",
+        "name": "name",
+        "serializedName": "name",
+        "doc": "name of the NotFriend",
+        "type": {
+          "$id": "230",
+          "kind": "string",
+          "name": "string",
+          "crossLanguageDefinitionId": "TypeSpec.string",
+          "decorators": []
+        },
+        "optional": false,
+        "readOnly": false,
+        "discriminator": false,
+        "flatten": false,
+        "decorators": [],
+        "crossLanguageDefinitionId": "SampleTypeSpec.NotFriend.name",
+        "isHttpMetadata": false
+      }
+    ]
+}

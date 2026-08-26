@@ -11,6 +11,7 @@ import {
   IdentifierNode,
   JsSourceFileNode,
   MemberExpressionNode,
+  ModifierFlags,
   Node,
   NodeFlags,
   ResolutionResult,
@@ -715,36 +716,117 @@ describe("interfaces", () => {
 
 describe("operations", () => {
   describe("resolution", () => {
-    it("resolves parameters meta property", () => {
-      const { "Foo::parameters.x::type": x, Bar: Bar } = getResolutions(
-        [
-          `
+    describe("resolves ::parameters meta property", () => {
+      it("in operation signature", () => {
+        const { "Foo::parameters.x::type": x, Bar: Bar } = getResolutions(
+          [
+            `
             model Bar { }
             op Foo(x: Bar): void;
           `,
-        ],
-        "Foo::parameters.x::type",
-        "Bar",
-      );
+          ],
+          "Foo::parameters.x::type",
+          "Bar",
+        );
 
-      ok(x.finalSymbol === Bar.finalSymbol, "Should resolve to Bar");
-    });
+        ok(x.finalSymbol === Bar.finalSymbol, "Should resolve to Bar");
+      });
 
-    it("resolves parameters meta property with is ops", () => {
-      const { "Baz::parameters.x::type": x, Bar: Bar } = getResolutions(
-        [
-          `
+      it("in op is", () => {
+        const { "Foo::parameters.x::type": x, Bar: Bar } = getResolutions(
+          [
+            `
             model Bar { }
-            op Foo(x: Bar): void;
-            op Baz is Foo;
+            op Base(x: Bar): void;
+            op Foo is Base;
           `,
-        ],
-        "Baz::parameters.x::type",
-        "Bar",
-      );
+          ],
+          "Foo::parameters.x::type",
+          "Bar",
+        );
 
-      ok(x.finalSymbol === Bar.finalSymbol, "Should resolve to Bar");
+        ok(x.finalSymbol === Bar.finalSymbol, "Should resolve to Bar");
+      });
     });
+
+    describe("resolves ::returnType meta property", () => {
+      it("in operation signature", () => {
+        const { "Foo::returnType": x, Bar: Bar } = getResolutions(
+          [
+            `
+            model Bar { }
+            op Foo(): Bar;
+          `,
+          ],
+          "Foo::returnType",
+          "Bar",
+        );
+
+        ok(x.finalSymbol === Bar.finalSymbol, "Should resolve to Bar");
+      });
+
+      it("in op is", () => {
+        const { "Foo::returnType": x, Bar: Bar } = getResolutions(
+          [
+            `
+            model Bar { }
+            op Base(): Bar;
+            op Foo is Base;
+          `,
+          ],
+          "Foo::returnType",
+          "Bar",
+        );
+
+        ok(x.finalSymbol === Bar.finalSymbol, "Should resolve to Bar");
+      });
+    });
+  });
+});
+
+describe("meta-member helper APIs", () => {
+  it("list Reflection meta-members without resolving projection-backed symbols directly", () => {
+    const {
+      ReflectionModelProperty: reflectionModelProperty,
+      ReflectionOperation: reflectionOperation,
+    } = getResolutions(
+      [
+        `
+          namespace TypeSpec.Reflection {
+            model ModelProperty {}
+            model Operation {}
+          }
+
+          alias ReflectionModelProperty = TypeSpec.Reflection.ModelProperty;
+          alias ReflectionOperation = TypeSpec.Reflection.Operation;
+        `,
+      ],
+      "ReflectionModelProperty",
+      "ReflectionOperation",
+    );
+
+    ok(reflectionModelProperty.finalSymbol);
+    ok(reflectionOperation.finalSymbol);
+
+    ok(resolver.getMetaMemberNames(reflectionModelProperty.finalSymbol).includes("type"));
+    ok(resolver.getMetaMemberNames(reflectionOperation.finalSymbol).includes("parameters"));
+    ok(resolver.getMetaMemberNames(reflectionOperation.finalSymbol).includes("returnType"));
+
+    strictEqual(
+      resolver.resolveMetaMemberByName(reflectionModelProperty.finalSymbol, "type")
+        .resolutionResult,
+      ResolutionResultFlags.NotFound,
+    );
+    strictEqual(
+      resolver.resolveMetaMemberByName(reflectionOperation.finalSymbol, "parameters")
+        .resolutionResult,
+      ResolutionResultFlags.NotFound,
+    );
+    strictEqual(
+      resolver.resolveMetaMemberByName(reflectionOperation.finalSymbol, "returnType")
+        .resolutionResult,
+      ResolutionResultFlags.NotFound,
+    );
   });
 });
 
@@ -1216,6 +1298,28 @@ describe("aliases", () => {
   });
 });
 
+describe("functions", () => {
+  it("resolves function return types", () => {
+    const { Baz: returnType } = getResolutions(
+      [
+        `
+          extern fn f(): { a: string };
+          alias Baz = f();
+        `,
+      ],
+      "Baz",
+    );
+
+    assertSymbol(returnType, {
+      members: {
+        a: {
+          flags: SymbolFlags.Member,
+        },
+      },
+    });
+  });
+});
+
 describe("usings", () => {
   describe("binding", () => {
     it("binds usings to locals", () => {
@@ -1485,5 +1589,7 @@ function createJsSourceFile(exports: any): JsSourceFileNode {
     pos: 0,
     end: 0,
     flags: NodeFlags.None,
+    modifiers: [],
+    modifierFlags: ModifierFlags.None,
   };
 }

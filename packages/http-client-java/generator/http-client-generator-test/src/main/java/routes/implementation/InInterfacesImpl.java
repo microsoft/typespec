@@ -53,7 +53,7 @@ public final class InInterfacesImpl {
      * REST calls.
      */
     @Host("{endpoint}")
-    @ServiceInterface(name = "RoutesClientInInterf")
+    @ServiceInterface(name = "RoutesClientInInterfaces")
     public interface InInterfacesService {
         @Get("/routes/in-interface/fixed")
         @ExpectedResponses({ 204 })

@@ -3,7 +3,7 @@
 # Licensed under the MIT License. See License.txt in the project root for
 # license information.
 # --------------------------------------------------------------------------
-from typing import Any, Dict, List, Optional, TYPE_CHECKING, Type, Tuple, Union
+from typing import Any, Optional, TYPE_CHECKING, Type, Union
 import re
 from .imports import FileImport, ImportType, TypingSection
 from .base import BaseType
@@ -23,9 +23,9 @@ class CombinedType(BaseType):
 
     def __init__(
         self,
-        yaml_data: Dict[str, Any],
+        yaml_data: dict[str, Any],
         code_model: "CodeModel",
-        types: List[BaseType],
+        types: list[BaseType],
     ) -> None:
         super().__init__(yaml_data, code_model)
         self.types = types  # the types that this type is combining
@@ -66,7 +66,7 @@ class CombinedType(BaseType):
 
     def type_annotation(self, **kwargs: Any) -> str:
         if self.name:
-            return f'"_types.{self.name}"'
+            return f'"_unions.{self.name}"'
         return self.type_definition(**kwargs)
 
     def type_definition(self, **kwargs: Any) -> str:
@@ -104,7 +104,7 @@ class CombinedType(BaseType):
             client_default_value_declaration=client_default_value_declaration,
         )
 
-    def get_polymorphic_subtypes(self, polymorphic_subtypes: List["ModelType"]) -> None:
+    def get_polymorphic_subtypes(self, polymorphic_subtypes: list["ModelType"]) -> None:
         raise ValueError("You shouldn't get polymorphic subtypes of multiple types")
 
     @property
@@ -116,10 +116,10 @@ class CombinedType(BaseType):
         file_import = FileImport(self.code_model)
         serialize_namespace = kwargs.get("serialize_namespace", self.code_model.namespace)
         serialize_namespace_type = kwargs.get("serialize_namespace_type")
-        if self.name and serialize_namespace_type != NamespaceType.TYPES_FILE:
+        if self.name and serialize_namespace_type != NamespaceType.UNIONS_FILE:
             file_import.add_submodule_import(
                 self.code_model.get_relative_import_path(serialize_namespace),
-                "_types",
+                "_unions",
                 ImportType.LOCAL,
                 TypingSection.TYPING,
             )
@@ -131,7 +131,7 @@ class CombinedType(BaseType):
         return file_import
 
     @classmethod
-    def from_yaml(cls, yaml_data: Dict[str, Any], code_model: "CodeModel") -> "BaseType":
+    def from_yaml(cls, yaml_data: dict[str, Any], code_model: "CodeModel") -> "BaseType":
         from . import build_type
 
         return cls(
@@ -143,8 +143,8 @@ class CombinedType(BaseType):
     def target_model_subtype(
         self,
         target_types: Union[
-            Tuple[Type[ModelType]],
-            Tuple[Type[ModelType], Type[ModelType]],
+            tuple[Type[ModelType]],
+            tuple[Type[ModelType], Type[ModelType]],
         ],
     ) -> Optional[ModelType]:
         for sub_t in self.types:

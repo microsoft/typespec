@@ -143,4 +143,8 @@ interface FlattenOp {
   ): {
     @body response: TodoItem;
   };
+
+  @route("optional-body")
+  @post
+  sendOptionalBody(name?: string): OkResponse;
 }

@@ -1,9 +1,9 @@
 import { expectDiagnosticEmpty, expectDiagnostics } from "@typespec/compiler/testing";
 import { deepStrictEqual, ok, strictEqual } from "assert";
 import { describe, expect, it } from "vitest";
-import { worksFor } from "./works-for.js";
+import { supportedVersions, worksFor } from "./works-for.js";
 
-worksFor(["3.0.0", "3.1.0"], ({ checkFor, openApiFor, objectSchemaIndexer }) => {
+worksFor(supportedVersions, ({ checkFor, openApiFor, objectSchemaIndexer }) => {
   it("model used with @body and without shouldn't conflict if it contains no metadata", async () => {
     const res = await openApiFor(
       `
@@ -218,6 +218,32 @@ worksFor(["3.0.0", "3.1.0"], ({ checkFor, openApiFor, objectSchemaIndexer }) => 
     ok(res.components.schemas.Error);
     deepStrictEqual(res.paths["/"].get.responses["default"].content["application/json"].schema, {
       $ref: "#/components/schemas/Error",
+    });
+  });
+
+  it("defines single responses for a discriminated union return type", async () => {
+    const res = await openApiFor(
+      `
+      model HeavyWidget {
+        heavy: string;
+      }
+
+      model LightWidget {
+        light: string;
+      }
+
+      @discriminated
+      union Widget {
+        heavy: HeavyWidget,
+        light: LightWidget,
+      }
+      @get op read(): Widget;
+      `,
+    );
+    ok(res.paths["/"].get.responses["200"]);
+    ok(res.components.schemas.Widget);
+    deepStrictEqual(res.paths["/"].get.responses["200"].content["application/json"].schema, {
+      $ref: "#/components/schemas/Widget",
     });
   });
 

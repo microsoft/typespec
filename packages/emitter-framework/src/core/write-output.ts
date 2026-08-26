@@ -1,21 +1,32 @@
-import { Children, OutputDirectory, render } from "@alloy-js/core";
-import { emitFile, joinPaths } from "@typespec/compiler";
-import { unsafe_$ as $ } from "@typespec/compiler/experimental";
+import { renderAsync, type Children, type OutputDirectory } from "@alloy-js/core";
+import { emitFile, joinPaths, type Program } from "@typespec/compiler";
 
-export async function writeOutput(rootComponent: Children, emitterOutputDir: string) {
-  const tree = render(rootComponent);
-  await writeOutputDirectory(tree, emitterOutputDir);
+export async function writeOutput(
+  program: Program,
+  rootComponent: Children,
+  emitterOutputDir: string,
+) {
+  const tree = await renderAsync(rootComponent);
+  await writeOutputDirectory(program, tree, emitterOutputDir);
 }
 
-async function writeOutputDirectory(dir: OutputDirectory, emitterOutputDir: string) {
+async function writeOutputDirectory(
+  program: Program,
+  dir: OutputDirectory,
+  emitterOutputDir: string,
+) {
   for (const sub of dir.contents) {
-    if (Array.isArray(sub.contents)) {
-      await writeOutputDirectory(sub as OutputDirectory, emitterOutputDir);
+    if ("contents" in sub) {
+      if (Array.isArray(sub.contents)) {
+        await writeOutputDirectory(program, sub as OutputDirectory, emitterOutputDir);
+      } else {
+        await emitFile(program, {
+          content: sub.contents as string,
+          path: joinPaths(emitterOutputDir, sub.path),
+        });
+      }
     } else {
-      await emitFile($.program, {
-        content: sub.contents as string,
-        path: joinPaths(emitterOutputDir, sub.path),
-      });
+      // TODO: support copy file
     }
   }
 }

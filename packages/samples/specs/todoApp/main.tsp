@@ -176,9 +176,10 @@ namespace Users {
 
   @route("/users")
   @post
-  op create(
-    @body user: User,
-  ): WithStandardErrors<UserCreatedResponse | UserExistsResponse | InvalidUserResponse>;
+  op create(@body user: User): WithStandardErrors<
+    | UserCreatedResponse
+    | UserExistsResponse
+    | InvalidUserResponse>;
 }
 
 @route("items")
@@ -260,20 +261,16 @@ namespace TodoItems {
   ): WithStandardErrors<TodoItem | InvalidTodoItem>;
 
   @get op get(@path id: TodoItem.id): TodoItem | NotFoundErrorResponse;
-  @patch op update(
-    @header contentType: "application/merge-patch+json",
-    @path id: TodoItem.id,
-    @body patch: TodoItemPatch,
-  ): TodoItem;
-  @delete op delete(
-    @path id: TodoItem.id,
-  ): WithStandardErrors<NoContentResponse | NotFoundErrorResponse>;
+  @patch op update(@path id: TodoItem.id, @body patch: MergePatchUpdate<TodoItem>): TodoItem;
+  @delete op delete(@path id: TodoItem.id): WithStandardErrors<
+    | NoContentResponse
+    | NotFoundErrorResponse>;
 
   @route("{itemId}/attachments")
   namespace Attachments {
-    @list op list(
-      @path itemId: TodoItem.id,
-    ): WithStandardErrors<Page<TodoAttachment> | NotFoundErrorResponse>;
+    @list op list(@path itemId: TodoItem.id): WithStandardErrors<
+      | Page<TodoAttachment>
+      | NotFoundErrorResponse>;
 
     @sharedRoute
     @post

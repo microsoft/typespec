@@ -1,5 +1,4 @@
 import { RequestExt } from "@typespec/spec-api";
-import bodyParser from "body-parser";
 import express, { ErrorRequestHandler, RequestHandler, Response } from "express";
 import { Server, ServerResponse } from "http";
 import morgan from "morgan";
@@ -56,20 +55,20 @@ export class MockApiServer {
   constructor(private config: MockApiServerConfig) {
     this.app = express();
     this.app.use(morgan("dev", { stream: loggerstream }));
-    this.app.use(bodyParser.json({ verify: rawBodySaver, strict: false }));
+    this.app.use(express.json({ verify: rawBodySaver, strict: false }));
     this.app.use(
-      bodyParser.json({
+      express.json({
         type: "application/merge-patch+json",
         verify: rawBodySaver,
         strict: false,
       }),
     );
-    this.app.use(bodyParser.urlencoded({ verify: rawBodySaver, extended: true }));
-    this.app.use(bodyParser.text({ type: "*/xml", verify: rawBodySaver }));
-    this.app.use(bodyParser.text({ type: "*/pdf", verify: rawBodySaver }));
-    this.app.use(bodyParser.text({ type: "text/plain" }));
+    this.app.use(express.urlencoded({ verify: rawBodySaver, extended: true }));
+    this.app.use(express.text({ type: "*/xml", verify: rawBodySaver }));
+    this.app.use(express.text({ type: "*/pdf", verify: rawBodySaver }));
+    this.app.use(express.text({ type: "text/plain" }));
     this.app.use(
-      bodyParser.raw({
+      express.raw({
         type: ["application/octet-stream", "image/png", "application/jsonl"],
         limit: "10mb",
         verify: rawBinaryBodySaver,
@@ -82,18 +81,32 @@ export class MockApiServer {
     this.app.use(route, ...handlers);
   }
 
-  public start(): void {
+  public start(): Promise<number> {
     this.app.use(errorHandler);
 
-    const server = this.app.listen(this.config.port, () => {
-      logger.info(`Started server on ${getAddress(server)}`);
+    return new Promise((resolve, reject) => {
+      const server = this.app.listen(this.config.port, () => {
+        const resolvedPort = getPort(server);
+        if (!resolvedPort) {
+          logger.error("Failed to resolve port");
+          reject(new Error("Failed to resolve port"));
+          return;
+        }
+        logger.info(`Started server on ${resolvedPort}`);
+        resolve(resolvedPort);
+      });
+
+      server.on("error", (err) => {
+        logger.error("Error starting server", err);
+        reject(err);
+      });
     });
   }
 }
 
 export type ServerRequestHandler = (request: RequestExt, response: Response) => void;
 
-const getAddress = (server: Server): string => {
+const getPort = (server: Server): number | undefined | null => {
   const address = server?.address();
-  return typeof address === "string" ? "pipe " + address : "port " + address?.port;
+  return typeof address === "string" ? null : address?.port;
 };

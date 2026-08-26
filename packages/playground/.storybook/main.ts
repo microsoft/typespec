@@ -13,7 +13,7 @@ const config: StorybookConfig = {
   typescript: {
     reactDocgen: false,
   },
-  addons: ["@storybook/addon-actions"],
+  addons: [],
 };
 
 export default config;

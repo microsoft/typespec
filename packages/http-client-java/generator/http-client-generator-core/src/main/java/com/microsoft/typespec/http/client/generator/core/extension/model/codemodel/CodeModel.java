@@ -3,10 +3,6 @@
 
 package com.microsoft.typespec.http.client.generator.core.extension.model.codemodel;
 
-import com.azure.json.JsonReader;
-import com.azure.json.JsonWriter;
-import com.microsoft.typespec.http.client.generator.core.extension.base.util.JsonUtils;
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -20,6 +16,9 @@ public class CodeModel extends Client {
     private Schemas schemas;
     private List<Client> clients = new ArrayList<>();
     private TestModel testModel;
+
+    private String crossLanguagePackageId;
+    private String crossLanguageVersion;
 
     /**
      * Creates a new instance of the CodeModel class.
@@ -92,47 +91,47 @@ public class CodeModel extends Client {
     }
 
     /**
+     * Gets the cross-language package ID.
+     *
+     * @return The cross-language package ID.
+     */
+    public String getCrossLanguagePackageId() {
+        return crossLanguagePackageId;
+    }
+
+    /**
+     * Sets the cross-language package ID.
+     *
+     * @param crossLanguagePackageId The cross-language package ID.
+     */
+    public void setCrossLanguagePackageId(String crossLanguagePackageId) {
+        this.crossLanguagePackageId = crossLanguagePackageId;
+    }
+
+    /**
+     * Gets the cross-language version.
+     *
+     * @return The cross-language version.
+     */
+    public String getCrossLanguageVersion() {
+        return crossLanguageVersion;
+    }
+
+    /**
+     * Sets the cross-language version.
+     *
+     * @param crossLanguageVersion The cross-language version.
+     */
+    public void setCrossLanguageVersion(String crossLanguageVersion) {
+        this.crossLanguageVersion = crossLanguageVersion;
+    }
+
+    /**
      * Sets the test model definition.
      *
      * @param testModel The test model definition.
      */
     public void setTestModel(TestModel testModel) {
         this.testModel = testModel;
-    }
-
-    @Override
-    public JsonWriter toJson(JsonWriter jsonWriter) throws IOException {
-        return super.writeParentProperties(jsonWriter.writeStartObject()).writeJsonField("info", info)
-            .writeJsonField("schemas", schemas)
-            .writeArrayField("clients", clients, JsonWriter::writeJson)
-            .writeJsonField("testModel", testModel)
-            .writeEndObject();
-    }
-
-    /**
-     * Deserializes a CodeModel instance from the JSON data.
-     *
-     * @param jsonReader The JSON reader to deserialize from.
-     * @return A CodeModel instance deserialized from the JSON data.
-     * @throws IOException If an error occurs during deserialization.
-     */
-    public static CodeModel fromJson(JsonReader jsonReader) throws IOException {
-        return JsonUtils.readObject(jsonReader, CodeModel::new, (codeModel, fieldName, reader) -> {
-            if (codeModel.tryConsumeParentProperties(codeModel, fieldName, reader)) {
-                return;
-            }
-
-            if ("info".equals(fieldName)) {
-                codeModel.info = Info.fromJson(reader);
-            } else if ("schemas".equals(fieldName)) {
-                codeModel.schemas = Schemas.fromJson(reader);
-            } else if ("clients".equals(fieldName)) {
-                codeModel.clients = reader.readArray(Client::fromJson);
-            } else if ("testModel".equals(fieldName)) {
-                codeModel.testModel = TestModel.fromJson(reader);
-            } else {
-                reader.skipChildren();
-            }
-        });
     }
 }

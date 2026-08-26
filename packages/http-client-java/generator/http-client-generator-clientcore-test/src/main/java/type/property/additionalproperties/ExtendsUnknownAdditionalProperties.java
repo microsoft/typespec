@@ -1,7 +1,7 @@
 package type.property.additionalproperties;
 
 import io.clientcore.core.annotations.Metadata;
-import io.clientcore.core.annotations.TypeConditions;
+import io.clientcore.core.annotations.MetadataProperties;
 import io.clientcore.core.models.binarydata.BinaryData;
 import io.clientcore.core.serialization.json.JsonReader;
 import io.clientcore.core.serialization.json.JsonSerializable;
@@ -14,18 +14,18 @@ import java.util.Map;
 /**
  * The model extends from Record&lt;unknown&gt; type.
  */
-@Metadata(conditions = { TypeConditions.FLUENT })
+@Metadata(properties = { MetadataProperties.FLUENT })
 public class ExtendsUnknownAdditionalProperties implements JsonSerializable<ExtendsUnknownAdditionalProperties> {
     /*
      * The name property
      */
-    @Metadata(generated = true)
+    @Metadata(properties = { MetadataProperties.GENERATED })
     private final String name;
 
     /*
      * The model extends from Record<unknown> type.
      */
-    @Metadata(generated = true)
+    @Metadata(properties = { MetadataProperties.GENERATED })
     private Map<String, BinaryData> additionalProperties;
 
     /**
@@ -33,7 +33,7 @@ public class ExtendsUnknownAdditionalProperties implements JsonSerializable<Exte
      * 
      * @param name the name value to set.
      */
-    @Metadata(generated = true)
+    @Metadata(properties = { MetadataProperties.GENERATED })
     public ExtendsUnknownAdditionalProperties(String name) {
         this.name = name;
     }
@@ -43,7 +43,7 @@ public class ExtendsUnknownAdditionalProperties implements JsonSerializable<Exte
      * 
      * @return the name value.
      */
-    @Metadata(generated = true)
+    @Metadata(properties = { MetadataProperties.GENERATED })
     public String getName() {
         return this.name;
     }
@@ -53,7 +53,7 @@ public class ExtendsUnknownAdditionalProperties implements JsonSerializable<Exte
      * 
      * @return the additionalProperties value.
      */
-    @Metadata(generated = true)
+    @Metadata(properties = { MetadataProperties.GENERATED })
     public Map<String, BinaryData> getAdditionalProperties() {
         return this.additionalProperties;
     }
@@ -64,7 +64,7 @@ public class ExtendsUnknownAdditionalProperties implements JsonSerializable<Exte
      * @param additionalProperties the additionalProperties value to set.
      * @return the ExtendsUnknownAdditionalProperties object itself.
      */
-    @Metadata(generated = true)
+    @Metadata(properties = { MetadataProperties.GENERATED })
     public ExtendsUnknownAdditionalProperties setAdditionalProperties(Map<String, BinaryData> additionalProperties) {
         this.additionalProperties = additionalProperties;
         return this;
@@ -73,7 +73,7 @@ public class ExtendsUnknownAdditionalProperties implements JsonSerializable<Exte
     /**
      * {@inheritDoc}
      */
-    @Metadata(generated = true)
+    @Metadata(properties = { MetadataProperties.GENERATED })
     @Override
     public JsonWriter toJson(JsonWriter jsonWriter) throws IOException {
         jsonWriter.writeStartObject();
@@ -100,7 +100,7 @@ public class ExtendsUnknownAdditionalProperties implements JsonSerializable<Exte
      * @throws IllegalStateException If the deserialized JSON object was missing any required properties.
      * @throws IOException If an error occurs while reading the ExtendsUnknownAdditionalProperties.
      */
-    @Metadata(generated = true)
+    @Metadata(properties = { MetadataProperties.GENERATED })
     public static ExtendsUnknownAdditionalProperties fromJson(JsonReader jsonReader) throws IOException {
         return jsonReader.readObject(reader -> {
             String name = null;

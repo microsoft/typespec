@@ -8,6 +8,8 @@ TypeSpec is excellent for generating many different API description formats, cli
 
 Using TypeSpec, you can create reusable patterns for all aspects of an API and package those reusable patterns into libraries. These patterns establish "guardrails" for API designers and make it easier to follow best practices than to deviate from them. TypeSpec also has a rich linter framework with the ability to flag anti-patterns as well as an emitter framework that lets you control the output to ensure it follows the patterns you want.
 
+TypeSpec is a Microsoft-built, community-supported project. Your ideas, feedbacks, and code make all the difference and we deeply appreciate the support from the community.
+
 ## [Installation](https://typespec.io/docs)
 
 ```

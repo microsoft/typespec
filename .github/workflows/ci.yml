@@ -1,0 +1,63 @@
+name: CI
+
+on:
+  push:
+    branches:
+      - main
+  pull_request:
+    branches:
+      - main
+      - release/*
+  merge_group:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  changes:
+    name: Detect Changes
+    runs-on: ubuntu-slim
+    outputs:
+      core: ${{ steps.filter.outputs.core }}
+    steps:
+      - uses: actions/checkout@v7
+      # cspell:ignore dorny
+      - uses: dorny/paths-filter@7b450fff21473bca461d4b92ce414b9d0420d706 # v4
+        id: filter
+        with:
+          predicate-quantifier: "every"
+          filters: |
+            core:
+              - '**'
+              - '!.prettierignore'
+              - '!.prettierrc.json'
+              - '!cspell.yaml'
+              - '!eslint.config.json'
+              - '!.chronus/**'
+              - '!eng/emitters/**'
+              - '!packages/http-client-csharp/**'
+              - '!packages/http-client-java/**'
+              - '!packages/http-client-python/**'
+
+  core:
+    needs: changes
+    if: needs.changes.outputs.core == 'true'
+    uses: ./.github/workflows/core-ci.yml
+
+  ci-gate:
+    name: CI Gate
+    runs-on: ubuntu-slim
+    if: "!cancelled() || needs.core.result == 'cancelled'"
+    needs: [core]
+    steps:
+      - name: Validate CI results
+        run: |
+          if [[ "${{ needs.core.result }}" == "failure" || "${{ needs.core.result }}" == "cancelled" ]]; then
+            echo "Core CI failed or was cancelled"
+            exit 1
+          fi
+          echo "All CI checks passed or were appropriately skipped"

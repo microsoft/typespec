@@ -1,4 +1,4 @@
-const AZP_USERID = "azure-pipelines[bot]";
+const KNOWN_BOT_USERIDS = ["azure-sdk-automation[bot]", "azure-pipelines[bot]"];
 const TRY_ID_COMMENT_IDENTIFIER = "_TSP_TRYIT_COMMENT_";
 main().catch((e) => {
   console.error(e);
@@ -25,7 +25,7 @@ async function main() {
 
   console.log("Looking for comments in", { repo, prNumber });
   const data = await listComments(repo, prNumber, ghAuth);
-  const azoComments = data.filter((x) => x.user?.login === AZP_USERID);
+  const azoComments = data.filter((x) => KNOWN_BOT_USERIDS.includes(x.user?.login));
   console.log(`Found ${azoComments.length} comment(s) from Azure Pipelines.`);
 
   const tryItComments = data.filter((x) => x.body.includes(TRY_ID_COMMENT_IDENTIFIER));

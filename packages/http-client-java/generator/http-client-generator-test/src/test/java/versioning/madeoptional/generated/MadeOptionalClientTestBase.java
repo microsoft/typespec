@@ -15,7 +15,6 @@ import com.azure.core.test.TestProxyTestBase;
 import com.azure.core.util.Configuration;
 import versioning.madeoptional.MadeOptionalClient;
 import versioning.madeoptional.MadeOptionalClientBuilder;
-import versioning.madeoptional.models.Versions;
 
 class MadeOptionalClientTestBase extends TestProxyTestBase {
     protected MadeOptionalClient madeOptionalClient;
@@ -24,7 +23,6 @@ class MadeOptionalClientTestBase extends TestProxyTestBase {
     protected void beforeTest() {
         MadeOptionalClientBuilder madeOptionalClientbuilder = new MadeOptionalClientBuilder()
             .endpoint(Configuration.getGlobalConfiguration().get("ENDPOINT", "endpoint"))
-            .version(Versions.fromString(Configuration.getGlobalConfiguration().get("VERSION", "version")))
             .httpClient(getHttpClientOrUsePlayback(getHttpClients().findFirst().orElse(null)))
             .httpLogOptions(new HttpLogOptions().setLogLevel(HttpLogDetailLevel.BASIC));
         if (getTestMode() == TestMode.RECORD) {

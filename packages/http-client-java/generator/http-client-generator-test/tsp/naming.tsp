@@ -33,13 +33,18 @@ model Response {
   @doc("description of status property")
   status: StatusModel;
 
+  @doc("The domain\\username data")
+  domainUsername: string;
+
   anonymous: RunObject;
 }
 
 model RunObject {
-  last_error: {
-    code: "server_error" | "rate_limit_exceeded" | "invalid_prompt";
-  } | null;
+  last_error:
+    | {
+        code: "server_error" | "rate_limit_exceeded" | "invalid_prompt";
+      }
+    | null;
 }
 
 @summary("summary of Data")

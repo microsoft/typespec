@@ -19,15 +19,20 @@ function checkForDuplicateResourceKeyNames(program: Program) {
     if (model.name === "") {
       return;
     }
+    const visited = new Set<Model>();
     let currentType: Model | undefined = model;
     const keyProperties = new DuplicateTracker<string, ResourceKey>();
     while (currentType) {
+      if (visited.has(currentType)) {
+        break;
+      } else {
+        visited.add(currentType);
+      }
       const resourceKey = getResourceTypeKey(program, currentType);
       if (resourceKey) {
         const keyName = getKeyName(program, resourceKey.keyProperty)!;
         keyProperties.track(keyName, resourceKey);
       }
-
       currentType = getParentResource(program, currentType);
     }
 

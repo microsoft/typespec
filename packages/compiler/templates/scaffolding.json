@@ -2,13 +2,16 @@
   "rest": {
     "title": "Generic REST API",
     "description": "Create a project representing a generic REST API service.",
-    "compilerVersion": "1.0.0-rc.0",
+    "compilerVersion": "1.14.0",
     "libraries": [
       "@typespec/http",
       "@typespec/rest",
       "@typespec/openapi",
       "@typespec/openapi3"
     ],
+    "config": {
+      "kind": "project"
+    },
     "emitters": {
       "@typespec/openapi3": {
         "selected": true,
@@ -67,9 +70,10 @@
     ]
   },
   "library-ts": {
+    "target": "library",
     "title": "TypeSpec library",
     "description": "Build your own TypeSpec library with custom types, decorators or linters.",
-    "compilerVersion": "1.0.0-rc.0",
+    "compilerVersion": "1.14.0",
     "libraries": [],
     "files": [
       {
@@ -121,10 +125,6 @@
         "destination": "src/rules/no-interfaces.rule.ts"
       },
       {
-        "path": "library-ts/src/testing/index.ts.mu",
-        "destination": "src/testing/index.ts"
-      },
-      {
         "path": "library-ts/test/decorators.test.ts.mu",
         "destination": "test/decorators.test.ts"
       },
@@ -143,9 +143,10 @@
     ]
   },
   "emitter-ts": {
+    "target": "library",
     "title": "TypeSpec emitter",
     "description": "Create a new package that emits artifacts from TypeSpec.",
-    "compilerVersion": "1.0.0-rc.0",
+    "compilerVersion": "1.14.0",
     "libraries": [],
     "files": [
       {
@@ -179,10 +180,6 @@
       {
         "path": "emitter-ts/src/lib.ts",
         "destination": "src/lib.ts"
-      },
-      {
-        "path": "emitter-ts/src/testing/index.ts.mu",
-        "destination": "src/testing/index.ts"
       },
       {
         "path": "emitter-ts/test/hello.test.ts",

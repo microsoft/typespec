@@ -57,7 +57,7 @@ public final class SpreadDifferentStringsImpl {
      * proxy service to perform REST calls.
      */
     @Host("{endpoint}")
-    @ServiceInterface(name = "AdditionalProperties")
+    @ServiceInterface(name = "AdditionalPropertiesClientSpreadDifferentStrings")
     public interface SpreadDifferentStringsService {
         @Get("/type/property/additionalProperties/spreadDifferentRecordString")
         @ExpectedResponses({ 200 })

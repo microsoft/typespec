@@ -25,6 +25,7 @@ export const Editor: FunctionComponent<EditorProps> = ({ model, options, actions
     editorRef.current = editor.create(editorContainerRef.current!, {
       model,
       automaticLayout: true,
+      fixedOverflowWidgets: true,
       ...options,
     });
     onMount?.({ editor: editorRef.current });

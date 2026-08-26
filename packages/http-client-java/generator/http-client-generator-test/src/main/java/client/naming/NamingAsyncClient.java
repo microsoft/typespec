@@ -5,9 +5,6 @@
 package client.naming;
 
 import client.naming.implementation.NamingClientImpl;
-import client.naming.property.models.ClientNameAndJsonEncodedNameModel;
-import client.naming.property.models.ClientNameModel;
-import client.naming.property.models.LanguageClientNameModel;
 import com.azure.core.annotation.Generated;
 import com.azure.core.annotation.ReturnType;
 import com.azure.core.annotation.ServiceClient;
@@ -18,7 +15,6 @@ import com.azure.core.exception.ResourceModifiedException;
 import com.azure.core.exception.ResourceNotFoundException;
 import com.azure.core.http.rest.RequestOptions;
 import com.azure.core.http.rest.Response;
-import com.azure.core.util.BinaryData;
 import com.azure.core.util.FluxUtil;
 import reactor.core.publisher.Mono;
 
@@ -74,117 +70,6 @@ public final class NamingAsyncClient {
     }
 
     /**
-     * The client operation.
-     * <p><strong>Request Body Schema</strong></p>
-     * 
-     * <pre>
-     * {@code
-     * {
-     *     defaultName: boolean (Required)
-     * }
-     * }
-     * </pre>
-     * 
-     * @param body The body parameter.
-     * @param requestOptions The options to configure the HTTP request before HTTP client sends it.
-     * @throws HttpResponseException thrown if the request is rejected by server.
-     * @throws ClientAuthenticationException thrown if the request is rejected by server on status code 401.
-     * @throws ResourceNotFoundException thrown if the request is rejected by server on status code 404.
-     * @throws ResourceModifiedException thrown if the request is rejected by server on status code 409.
-     * @return the {@link Response} on successful completion of {@link Mono}.
-     */
-    @Generated
-    @ServiceMethod(returns = ReturnType.SINGLE)
-    public Mono<Response<Void>> clientWithResponse(BinaryData body, RequestOptions requestOptions) {
-        return this.serviceClient.clientWithResponseAsync(body, requestOptions);
-    }
-
-    /**
-     * The language operation.
-     * <p><strong>Request Body Schema</strong></p>
-     * 
-     * <pre>
-     * {@code
-     * {
-     *     defaultName: boolean (Required)
-     * }
-     * }
-     * </pre>
-     * 
-     * @param body The body parameter.
-     * @param requestOptions The options to configure the HTTP request before HTTP client sends it.
-     * @throws HttpResponseException thrown if the request is rejected by server.
-     * @throws ClientAuthenticationException thrown if the request is rejected by server on status code 401.
-     * @throws ResourceNotFoundException thrown if the request is rejected by server on status code 404.
-     * @throws ResourceModifiedException thrown if the request is rejected by server on status code 409.
-     * @return the {@link Response} on successful completion of {@link Mono}.
-     */
-    @Generated
-    @ServiceMethod(returns = ReturnType.SINGLE)
-    public Mono<Response<Void>> languageWithResponse(BinaryData body, RequestOptions requestOptions) {
-        return this.serviceClient.languageWithResponseAsync(body, requestOptions);
-    }
-
-    /**
-     * The compatibleWithEncodedName operation.
-     * <p><strong>Request Body Schema</strong></p>
-     * 
-     * <pre>
-     * {@code
-     * {
-     *     wireName: boolean (Required)
-     * }
-     * }
-     * </pre>
-     * 
-     * @param body The body parameter.
-     * @param requestOptions The options to configure the HTTP request before HTTP client sends it.
-     * @throws HttpResponseException thrown if the request is rejected by server.
-     * @throws ClientAuthenticationException thrown if the request is rejected by server on status code 401.
-     * @throws ResourceNotFoundException thrown if the request is rejected by server on status code 404.
-     * @throws ResourceModifiedException thrown if the request is rejected by server on status code 409.
-     * @return the {@link Response} on successful completion of {@link Mono}.
-     */
-    @Generated
-    @ServiceMethod(returns = ReturnType.SINGLE)
-    public Mono<Response<Void>> compatibleWithEncodedNameWithResponse(BinaryData body, RequestOptions requestOptions) {
-        return this.serviceClient.compatibleWithEncodedNameWithResponseAsync(body, requestOptions);
-    }
-
-    /**
-     * The request operation.
-     * 
-     * @param clientName The clientName parameter.
-     * @param requestOptions The options to configure the HTTP request before HTTP client sends it.
-     * @throws HttpResponseException thrown if the request is rejected by server.
-     * @throws ClientAuthenticationException thrown if the request is rejected by server on status code 401.
-     * @throws ResourceNotFoundException thrown if the request is rejected by server on status code 404.
-     * @throws ResourceModifiedException thrown if the request is rejected by server on status code 409.
-     * @return the {@link Response} on successful completion of {@link Mono}.
-     */
-    @Generated
-    @ServiceMethod(returns = ReturnType.SINGLE)
-    public Mono<Response<Void>> requestWithResponse(String clientName, RequestOptions requestOptions) {
-        return this.serviceClient.requestWithResponseAsync(clientName, requestOptions);
-    }
-
-    /**
-     * The response operation.
-     * 
-     * @param requestOptions The options to configure the HTTP request before HTTP client sends it.
-     * @throws HttpResponseException thrown if the request is rejected by server.
-     * @throws ClientAuthenticationException thrown if the request is rejected by server on status code 401.
-     * @throws ResourceNotFoundException thrown if the request is rejected by server on status code 404.
-     * @throws ResourceModifiedException thrown if the request is rejected by server on status code 409.
-     * @return the {@link Response} on successful completion of {@link Mono}.
-     */
-    @Generated
-    @ServiceMethod(returns = ReturnType.SINGLE)
-    public Mono<Response<Void>> responseWithResponse(RequestOptions requestOptions) {
-        return this.serviceClient.responseWithResponseAsync(requestOptions);
-    }
-
-    /**
      * The clientName operation.
      * 
      * @throws HttpResponseException thrown if the request is rejected by server.
@@ -220,104 +105,5 @@ public final class NamingAsyncClient {
         // Generated convenience method for parameterWithResponse
         RequestOptions requestOptions = new RequestOptions();
         return parameterWithResponse(clientName, requestOptions).flatMap(FluxUtil::toMono);
-    }
-
-    /**
-     * The client operation.
-     * 
-     * @param body The body parameter.
-     * @throws IllegalArgumentException thrown if parameters fail the validation.
-     * @throws HttpResponseException thrown if the request is rejected by server.
-     * @throws ClientAuthenticationException thrown if the request is rejected by server on status code 401.
-     * @throws ResourceNotFoundException thrown if the request is rejected by server on status code 404.
-     * @throws ResourceModifiedException thrown if the request is rejected by server on status code 409.
-     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
-     * @return A {@link Mono} that completes when a successful response is received.
-     */
-    @Generated
-    @ServiceMethod(returns = ReturnType.SINGLE)
-    public Mono<Void> client(ClientNameModel body) {
-        // Generated convenience method for clientWithResponse
-        RequestOptions requestOptions = new RequestOptions();
-        return clientWithResponse(BinaryData.fromObject(body), requestOptions).flatMap(FluxUtil::toMono);
-    }
-
-    /**
-     * The language operation.
-     * 
-     * @param body The body parameter.
-     * @throws IllegalArgumentException thrown if parameters fail the validation.
-     * @throws HttpResponseException thrown if the request is rejected by server.
-     * @throws ClientAuthenticationException thrown if the request is rejected by server on status code 401.
-     * @throws ResourceNotFoundException thrown if the request is rejected by server on status code 404.
-     * @throws ResourceModifiedException thrown if the request is rejected by server on status code 409.
-     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
-     * @return A {@link Mono} that completes when a successful response is received.
-     */
-    @Generated
-    @ServiceMethod(returns = ReturnType.SINGLE)
-    public Mono<Void> language(LanguageClientNameModel body) {
-        // Generated convenience method for languageWithResponse
-        RequestOptions requestOptions = new RequestOptions();
-        return languageWithResponse(BinaryData.fromObject(body), requestOptions).flatMap(FluxUtil::toMono);
-    }
-
-    /**
-     * The compatibleWithEncodedName operation.
-     * 
-     * @param body The body parameter.
-     * @throws IllegalArgumentException thrown if parameters fail the validation.
-     * @throws HttpResponseException thrown if the request is rejected by server.
-     * @throws ClientAuthenticationException thrown if the request is rejected by server on status code 401.
-     * @throws ResourceNotFoundException thrown if the request is rejected by server on status code 404.
-     * @throws ResourceModifiedException thrown if the request is rejected by server on status code 409.
-     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
-     * @return A {@link Mono} that completes when a successful response is received.
-     */
-    @Generated
-    @ServiceMethod(returns = ReturnType.SINGLE)
-    public Mono<Void> compatibleWithEncodedName(ClientNameAndJsonEncodedNameModel body) {
-        // Generated convenience method for compatibleWithEncodedNameWithResponse
-        RequestOptions requestOptions = new RequestOptions();
-        return compatibleWithEncodedNameWithResponse(BinaryData.fromObject(body), requestOptions)
-            .flatMap(FluxUtil::toMono);
-    }
-
-    /**
-     * The request operation.
-     * 
-     * @param clientName The clientName parameter.
-     * @throws IllegalArgumentException thrown if parameters fail the validation.
-     * @throws HttpResponseException thrown if the request is rejected by server.
-     * @throws ClientAuthenticationException thrown if the request is rejected by server on status code 401.
-     * @throws ResourceNotFoundException thrown if the request is rejected by server on status code 404.
-     * @throws ResourceModifiedException thrown if the request is rejected by server on status code 409.
-     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
-     * @return A {@link Mono} that completes when a successful response is received.
-     */
-    @Generated
-    @ServiceMethod(returns = ReturnType.SINGLE)
-    public Mono<Void> request(String clientName) {
-        // Generated convenience method for requestWithResponse
-        RequestOptions requestOptions = new RequestOptions();
-        return requestWithResponse(clientName, requestOptions).flatMap(FluxUtil::toMono);
-    }
-
-    /**
-     * The response operation.
-     * 
-     * @throws HttpResponseException thrown if the request is rejected by server.
-     * @throws ClientAuthenticationException thrown if the request is rejected by server on status code 401.
-     * @throws ResourceNotFoundException thrown if the request is rejected by server on status code 404.
-     * @throws ResourceModifiedException thrown if the request is rejected by server on status code 409.
-     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
-     * @return A {@link Mono} that completes when a successful response is received.
-     */
-    @Generated
-    @ServiceMethod(returns = ReturnType.SINGLE)
-    public Mono<Void> response() {
-        // Generated convenience method for responseWithResponse
-        RequestOptions requestOptions = new RequestOptions();
-        return responseWithResponse(requestOptions).flatMap(FluxUtil::toMono);
     }
 }

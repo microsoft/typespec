@@ -57,7 +57,7 @@ public final class StringOperationsImpl {
      * perform REST calls.
      */
     @Host("{endpoint}")
-    @ServiceInterface(name = "ExtensibleClientStri")
+    @ServiceInterface(name = "ExtensibleClientStringOperations")
     public interface StringOperationsService {
         @Get("/type/enum/extensible/string/known-value")
         @ExpectedResponses({ 200 })

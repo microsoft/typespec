@@ -4,8 +4,10 @@
 
 package tsptest.armresourceprovider.implementation;
 
+import com.azure.core.http.rest.Response;
 import com.azure.core.management.Region;
 import com.azure.core.management.SystemData;
+import com.azure.core.util.BinaryData;
 import com.azure.core.util.Context;
 import java.time.OffsetDateTime;
 import java.util.Collections;
@@ -75,6 +77,10 @@ public final class TopLevelArmResourceImpl
 
     public OffsetDateTime startTimeStamp() {
         return this.innerModel().startTimeStamp();
+    }
+
+    public Float size() {
+        return this.innerModel().size();
     }
 
     public ProvisioningState provisioningState() {
@@ -187,6 +193,15 @@ public final class TopLevelArmResourceImpl
             .action(resourceGroupName, topLevelArmResourceName, context);
     }
 
+    public Response<BinaryData> publishXmlWithResponse(Context context) {
+        return serviceManager.topLevelArmResourceInterfaces()
+            .publishXmlWithResponse(resourceGroupName, topLevelArmResourceName, context);
+    }
+
+    public BinaryData publishXml() {
+        return serviceManager.topLevelArmResourceInterfaces().publishXml(resourceGroupName, topLevelArmResourceName);
+    }
+
     public TopLevelArmResourceImpl withRegion(Region location) {
         this.innerModel().withLocation(location.toString());
         return this;
@@ -243,6 +258,6 @@ public final class TopLevelArmResourceImpl
     }
 
     private boolean isInCreateMode() {
-        return this.innerModel().id() == null;
+        return this.innerModel() == null || this.innerModel().id() == null;
     }
 }

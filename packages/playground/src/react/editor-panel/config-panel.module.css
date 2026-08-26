@@ -1,0 +1,25 @@
+.config-panel {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  overflow: hidden;
+}
+
+.config-toggle {
+  display: flex;
+  align-items: center;
+  padding: 4px 8px;
+  border-bottom: 1px solid var(--colorNeutralStroke1);
+  gap: 8px;
+  flex-shrink: 0;
+}
+
+.config-content {
+  flex: 1;
+  min-height: 0;
+  overflow: auto;
+}
+
+.form-content {
+  padding: 12px;
+}

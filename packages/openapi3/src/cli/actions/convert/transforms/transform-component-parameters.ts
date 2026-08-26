@@ -1,5 +1,5 @@
 import { printIdentifier } from "@typespec/compiler";
-import { OpenAPI3Parameter } from "../../../../types.js";
+import { OpenAPI3Parameter, OpenAPIParameter3_2 } from "../../../../types.js";
 import { TypeSpecDataTypes, TypeSpecModelProperty } from "../interfaces.js";
 import { Context } from "../utils/context.js";
 import { getParameterDecorators } from "../utils/decorators.js";
@@ -22,14 +22,16 @@ export function transformComponentParameters(
 
   for (const name of Object.keys(parameters)) {
     const parameter = parameters[name];
-    transformComponentParameter(dataTypes, name, parameter);
+    if ("$ref" in parameter) continue;
+    transformComponentParameter(context, dataTypes, name, parameter);
   }
 }
 
 function transformComponentParameter(
+  context: Context,
   dataTypes: TypeSpecDataTypes[],
   key: string,
-  parameter: OpenAPI3Parameter,
+  parameter: OpenAPI3Parameter | OpenAPIParameter3_2,
 ): void {
   const { name, scope } = getScopeAndName(key);
   // Parameters should live in the root Parameters namespace
@@ -40,16 +42,20 @@ function transformComponentParameter(
     scope,
     name,
     decorators: [],
-    properties: [getModelPropertyFromParameter(parameter)],
+    properties: [getModelPropertyFromParameter(context, parameter)],
   });
 }
 
-function getModelPropertyFromParameter(parameter: OpenAPI3Parameter): TypeSpecModelProperty {
+function getModelPropertyFromParameter(
+  context: Context,
+  parameter: OpenAPI3Parameter | OpenAPIParameter3_2,
+): TypeSpecModelProperty {
+  const parameterSchema = "schema" in parameter ? (parameter.schema ?? {}) : {};
   return {
     name: printIdentifier(parameter.name),
     isOptional: !parameter.required,
-    doc: parameter.description ?? parameter.schema.description,
-    decorators: getParameterDecorators(parameter),
-    schema: parameter.schema,
+    doc: parameter.description ?? parameterSchema.description,
+    decorators: getParameterDecorators(parameter, context),
+    schema: parameterSchema,
   };
 }

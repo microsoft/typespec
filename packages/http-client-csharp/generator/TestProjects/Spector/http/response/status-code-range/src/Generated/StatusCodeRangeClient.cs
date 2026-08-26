@@ -5,6 +5,7 @@
 using System;
 using System.ClientModel;
 using System.ClientModel.Primitives;
+using System.Diagnostics.CodeAnalysis;
 using System.Threading;
 using System.Threading.Tasks;
 
@@ -14,7 +15,12 @@ namespace Response.StatusCodeRange
     {
         public StatusCodeRangeClient() : this(new Uri("http://localhost:3000"), new StatusCodeRangeClientOptions()) => throw null;
 
-        public StatusCodeRangeClient(Uri endpoint, StatusCodeRangeClientOptions options) => throw null;
+        internal StatusCodeRangeClient(AuthenticationPolicy authenticationPolicy, Uri endpoint, StatusCodeRangeClientOptions options) => throw null;
+
+        public StatusCodeRangeClient(Uri endpoint, StatusCodeRangeClientOptions options) : this(null, endpoint, options) => throw null;
+
+        [Experimental("SCME0002")]
+        public StatusCodeRangeClient(StatusCodeRangeClientSettings settings) : this(AuthenticationPolicy.Create(settings), settings?.Endpoint, settings?.Options) => throw null;
 
         public ClientPipeline Pipeline => throw null;
 

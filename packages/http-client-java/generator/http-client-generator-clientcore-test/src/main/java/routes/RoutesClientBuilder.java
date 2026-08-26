@@ -1,6 +1,7 @@
 package routes;
 
 import io.clientcore.core.annotations.Metadata;
+import io.clientcore.core.annotations.MetadataProperties;
 import io.clientcore.core.annotations.ServiceClientBuilder;
 import io.clientcore.core.http.client.HttpClient;
 import io.clientcore.core.http.models.ProxyOptions;
@@ -13,14 +14,17 @@ import io.clientcore.core.http.pipeline.HttpRedirectOptions;
 import io.clientcore.core.http.pipeline.HttpRedirectPolicy;
 import io.clientcore.core.http.pipeline.HttpRetryOptions;
 import io.clientcore.core.http.pipeline.HttpRetryPolicy;
-import io.clientcore.core.instrumentation.logging.ClientLogger;
+import io.clientcore.core.instrumentation.Instrumentation;
+import io.clientcore.core.instrumentation.SdkInstrumentationOptions;
 import io.clientcore.core.traits.ConfigurationTrait;
 import io.clientcore.core.traits.EndpointTrait;
 import io.clientcore.core.traits.HttpTrait;
 import io.clientcore.core.traits.ProxyTrait;
+import io.clientcore.core.utils.CoreUtils;
 import io.clientcore.core.utils.configuration.Configuration;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 import java.util.Objects;
 import routes.implementation.RoutesClientImpl;
 
@@ -48,52 +52,36 @@ import routes.implementation.RoutesClientImpl;
         InInterfaceClient.class })
 public final class RoutesClientBuilder implements HttpTrait<RoutesClientBuilder>, ProxyTrait<RoutesClientBuilder>,
     ConfigurationTrait<RoutesClientBuilder>, EndpointTrait<RoutesClientBuilder> {
-    @Metadata(generated = true)
+    @Metadata(properties = { MetadataProperties.GENERATED })
     private static final String SDK_NAME = "name";
 
-    @Metadata(generated = true)
+    @Metadata(properties = { MetadataProperties.GENERATED })
     private static final String SDK_VERSION = "version";
 
-    @Metadata(generated = true)
+    @Metadata(properties = { MetadataProperties.GENERATED })
+    private static final Map<String, String> PROPERTIES = CoreUtils.getProperties("routes.properties");
+
+    @Metadata(properties = { MetadataProperties.GENERATED })
     private final List<HttpPipelinePolicy> pipelinePolicies;
 
     /**
      * Create an instance of the RoutesClientBuilder.
      */
-    @Metadata(generated = true)
+    @Metadata(properties = { MetadataProperties.GENERATED })
     public RoutesClientBuilder() {
         this.pipelinePolicies = new ArrayList<>();
     }
 
     /*
-     * The HTTP pipeline to send requests through.
-     */
-    @Metadata(generated = true)
-    private HttpPipeline pipeline;
-
-    /**
-     * {@inheritDoc}.
-     */
-    @Metadata(generated = true)
-    @Override
-    public RoutesClientBuilder httpPipeline(HttpPipeline pipeline) {
-        if (this.pipeline != null && pipeline == null) {
-            LOGGER.atInfo().log("HttpPipeline is being set to 'null' when it was previously configured.");
-        }
-        this.pipeline = pipeline;
-        return this;
-    }
-
-    /*
      * The HTTP client used to send the request.
      */
-    @Metadata(generated = true)
+    @Metadata(properties = { MetadataProperties.GENERATED })
     private HttpClient httpClient;
 
     /**
      * {@inheritDoc}.
      */
-    @Metadata(generated = true)
+    @Metadata(properties = { MetadataProperties.GENERATED })
     @Override
     public RoutesClientBuilder httpClient(HttpClient httpClient) {
         this.httpClient = httpClient;
@@ -101,31 +89,15 @@ public final class RoutesClientBuilder implements HttpTrait<RoutesClientBuilder>
     }
 
     /*
-     * The logging configuration for HTTP requests and responses.
-     */
-    @Metadata(generated = true)
-    private HttpInstrumentationOptions httpInstrumentationOptions;
-
-    /**
-     * {@inheritDoc}.
-     */
-    @Metadata(generated = true)
-    @Override
-    public RoutesClientBuilder httpInstrumentationOptions(HttpInstrumentationOptions httpInstrumentationOptions) {
-        this.httpInstrumentationOptions = httpInstrumentationOptions;
-        return this;
-    }
-
-    /*
      * The retry options to configure retry policy for failed requests.
      */
-    @Metadata(generated = true)
+    @Metadata(properties = { MetadataProperties.GENERATED })
     private HttpRetryOptions retryOptions;
 
     /**
      * {@inheritDoc}.
      */
-    @Metadata(generated = true)
+    @Metadata(properties = { MetadataProperties.GENERATED })
     @Override
     public RoutesClientBuilder httpRetryOptions(HttpRetryOptions retryOptions) {
         this.retryOptions = retryOptions;
@@ -135,7 +107,7 @@ public final class RoutesClientBuilder implements HttpTrait<RoutesClientBuilder>
     /**
      * {@inheritDoc}.
      */
-    @Metadata(generated = true)
+    @Metadata(properties = { MetadataProperties.GENERATED })
     @Override
     public RoutesClientBuilder addHttpPipelinePolicy(HttpPipelinePolicy customPolicy) {
         Objects.requireNonNull(customPolicy, "'customPolicy' cannot be null.");
@@ -146,13 +118,13 @@ public final class RoutesClientBuilder implements HttpTrait<RoutesClientBuilder>
     /*
      * The redirect options to configure redirect policy
      */
-    @Metadata(generated = true)
+    @Metadata(properties = { MetadataProperties.GENERATED })
     private HttpRedirectOptions redirectOptions;
 
     /**
      * {@inheritDoc}.
      */
-    @Metadata(generated = true)
+    @Metadata(properties = { MetadataProperties.GENERATED })
     @Override
     public RoutesClientBuilder httpRedirectOptions(HttpRedirectOptions redirectOptions) {
         this.redirectOptions = redirectOptions;
@@ -160,15 +132,31 @@ public final class RoutesClientBuilder implements HttpTrait<RoutesClientBuilder>
     }
 
     /*
+     * The instrumentation configuration for HTTP requests and responses.
+     */
+    @Metadata(properties = { MetadataProperties.GENERATED })
+    private HttpInstrumentationOptions httpInstrumentationOptions;
+
+    /**
+     * {@inheritDoc}.
+     */
+    @Metadata(properties = { MetadataProperties.GENERATED })
+    @Override
+    public RoutesClientBuilder httpInstrumentationOptions(HttpInstrumentationOptions httpInstrumentationOptions) {
+        this.httpInstrumentationOptions = httpInstrumentationOptions;
+        return this;
+    }
+
+    /*
      * The proxy options used during construction of the service client.
      */
-    @Metadata(generated = true)
+    @Metadata(properties = { MetadataProperties.GENERATED })
     private ProxyOptions proxyOptions;
 
     /**
      * {@inheritDoc}.
      */
-    @Metadata(generated = true)
+    @Metadata(properties = { MetadataProperties.GENERATED })
     @Override
     public RoutesClientBuilder proxyOptions(ProxyOptions proxyOptions) {
         this.proxyOptions = proxyOptions;
@@ -178,13 +166,13 @@ public final class RoutesClientBuilder implements HttpTrait<RoutesClientBuilder>
     /*
      * The configuration store that is used during construction of the service client.
      */
-    @Metadata(generated = true)
+    @Metadata(properties = { MetadataProperties.GENERATED })
     private Configuration configuration;
 
     /**
      * {@inheritDoc}.
      */
-    @Metadata(generated = true)
+    @Metadata(properties = { MetadataProperties.GENERATED })
     @Override
     public RoutesClientBuilder configuration(Configuration configuration) {
         this.configuration = configuration;
@@ -194,13 +182,13 @@ public final class RoutesClientBuilder implements HttpTrait<RoutesClientBuilder>
     /*
      * The service endpoint
      */
-    @Metadata(generated = true)
+    @Metadata(properties = { MetadataProperties.GENERATED })
     private String endpoint;
 
     /**
      * {@inheritDoc}.
      */
-    @Metadata(generated = true)
+    @Metadata(properties = { MetadataProperties.GENERATED })
     @Override
     public RoutesClientBuilder endpoint(String endpoint) {
         this.endpoint = endpoint;
@@ -212,22 +200,30 @@ public final class RoutesClientBuilder implements HttpTrait<RoutesClientBuilder>
      * 
      * @return an instance of RoutesClientImpl.
      */
-    @Metadata(generated = true)
+    @Metadata(properties = { MetadataProperties.GENERATED })
     private RoutesClientImpl buildInnerClient() {
         this.validateClient();
-        HttpPipeline localPipeline = (pipeline != null) ? pipeline : createHttpPipeline();
         String localEndpoint = (endpoint != null) ? endpoint : "http://localhost:3000";
-        RoutesClientImpl client = new RoutesClientImpl(localPipeline, localEndpoint);
+        HttpInstrumentationOptions localHttpInstrumentationOptions = this.httpInstrumentationOptions == null
+            ? new HttpInstrumentationOptions()
+            : this.httpInstrumentationOptions;
+        SdkInstrumentationOptions sdkInstrumentationOptions
+            = new SdkInstrumentationOptions(PROPERTIES.getOrDefault(SDK_NAME, "UnknownName"))
+                .setSdkVersion(PROPERTIES.get(SDK_VERSION))
+                .setEndpoint(localEndpoint);
+        Instrumentation instrumentation
+            = Instrumentation.create(localHttpInstrumentationOptions, sdkInstrumentationOptions);
+        RoutesClientImpl client = new RoutesClientImpl(createHttpPipeline(), instrumentation, localEndpoint);
         return client;
     }
 
-    @Metadata(generated = true)
+    @Metadata(properties = { MetadataProperties.GENERATED })
     private void validateClient() {
         // This method is invoked from 'buildInnerClient'/'buildClient' method.
         // Developer can customize this method, to validate that the necessary conditions are met for the new client.
     }
 
-    @Metadata(generated = true)
+    @Metadata(properties = { MetadataProperties.GENERATED })
     private HttpPipeline createHttpPipeline() {
         Configuration buildConfiguration
             = (configuration == null) ? Configuration.getGlobalConfiguration() : configuration;
@@ -241,7 +237,7 @@ public final class RoutesClientBuilder implements HttpTrait<RoutesClientBuilder>
         this.pipelinePolicies.stream().forEach(p -> policies.add(p));
         policies.add(new HttpInstrumentationPolicy(localHttpInstrumentationOptions));
         policies.forEach(httpPipelineBuilder::addPolicy);
-        return httpPipelineBuilder.build();
+        return httpPipelineBuilder.httpClient(httpClient).build();
     }
 
     /**
@@ -249,9 +245,10 @@ public final class RoutesClientBuilder implements HttpTrait<RoutesClientBuilder>
      * 
      * @return an instance of RoutesClient.
      */
-    @Metadata(generated = true)
+    @Metadata(properties = { MetadataProperties.GENERATED })
     public RoutesClient buildClient() {
-        return new RoutesClient(buildInnerClient());
+        RoutesClientImpl innerClient = buildInnerClient();
+        return new RoutesClient(innerClient, innerClient.getInstrumentation());
     }
 
     /**
@@ -259,9 +256,10 @@ public final class RoutesClientBuilder implements HttpTrait<RoutesClientBuilder>
      * 
      * @return an instance of PathParametersClient.
      */
-    @Metadata(generated = true)
+    @Metadata(properties = { MetadataProperties.GENERATED })
     public PathParametersClient buildPathParametersClient() {
-        return new PathParametersClient(buildInnerClient().getPathParameters());
+        RoutesClientImpl innerClient = buildInnerClient();
+        return new PathParametersClient(innerClient.getPathParameters(), innerClient.getInstrumentation());
     }
 
     /**
@@ -269,9 +267,11 @@ public final class RoutesClientBuilder implements HttpTrait<RoutesClientBuilder>
      * 
      * @return an instance of PathParametersReservedExpansionClient.
      */
-    @Metadata(generated = true)
+    @Metadata(properties = { MetadataProperties.GENERATED })
     public PathParametersReservedExpansionClient buildPathParametersReservedExpansionClient() {
-        return new PathParametersReservedExpansionClient(buildInnerClient().getPathParametersReservedExpansions());
+        RoutesClientImpl innerClient = buildInnerClient();
+        return new PathParametersReservedExpansionClient(innerClient.getPathParametersReservedExpansions(),
+            innerClient.getInstrumentation());
     }
 
     /**
@@ -279,10 +279,11 @@ public final class RoutesClientBuilder implements HttpTrait<RoutesClientBuilder>
      * 
      * @return an instance of PathParametersSimpleExpansionStandardClient.
      */
-    @Metadata(generated = true)
+    @Metadata(properties = { MetadataProperties.GENERATED })
     public PathParametersSimpleExpansionStandardClient buildPathParametersSimpleExpansionStandardClient() {
-        return new PathParametersSimpleExpansionStandardClient(
-            buildInnerClient().getPathParametersSimpleExpansionStandards());
+        RoutesClientImpl innerClient = buildInnerClient();
+        return new PathParametersSimpleExpansionStandardClient(innerClient.getPathParametersSimpleExpansionStandards(),
+            innerClient.getInstrumentation());
     }
 
     /**
@@ -290,10 +291,11 @@ public final class RoutesClientBuilder implements HttpTrait<RoutesClientBuilder>
      * 
      * @return an instance of PathParametersSimpleExpansionExplodeClient.
      */
-    @Metadata(generated = true)
+    @Metadata(properties = { MetadataProperties.GENERATED })
     public PathParametersSimpleExpansionExplodeClient buildPathParametersSimpleExpansionExplodeClient() {
-        return new PathParametersSimpleExpansionExplodeClient(
-            buildInnerClient().getPathParametersSimpleExpansionExplodes());
+        RoutesClientImpl innerClient = buildInnerClient();
+        return new PathParametersSimpleExpansionExplodeClient(innerClient.getPathParametersSimpleExpansionExplodes(),
+            innerClient.getInstrumentation());
     }
 
     /**
@@ -301,10 +303,11 @@ public final class RoutesClientBuilder implements HttpTrait<RoutesClientBuilder>
      * 
      * @return an instance of PathParametersPathExpansionStandardClient.
      */
-    @Metadata(generated = true)
+    @Metadata(properties = { MetadataProperties.GENERATED })
     public PathParametersPathExpansionStandardClient buildPathParametersPathExpansionStandardClient() {
-        return new PathParametersPathExpansionStandardClient(
-            buildInnerClient().getPathParametersPathExpansionStandards());
+        RoutesClientImpl innerClient = buildInnerClient();
+        return new PathParametersPathExpansionStandardClient(innerClient.getPathParametersPathExpansionStandards(),
+            innerClient.getInstrumentation());
     }
 
     /**
@@ -312,10 +315,11 @@ public final class RoutesClientBuilder implements HttpTrait<RoutesClientBuilder>
      * 
      * @return an instance of PathParametersPathExpansionExplodeClient.
      */
-    @Metadata(generated = true)
+    @Metadata(properties = { MetadataProperties.GENERATED })
     public PathParametersPathExpansionExplodeClient buildPathParametersPathExpansionExplodeClient() {
-        return new PathParametersPathExpansionExplodeClient(
-            buildInnerClient().getPathParametersPathExpansionExplodes());
+        RoutesClientImpl innerClient = buildInnerClient();
+        return new PathParametersPathExpansionExplodeClient(innerClient.getPathParametersPathExpansionExplodes(),
+            innerClient.getInstrumentation());
     }
 
     /**
@@ -323,10 +327,11 @@ public final class RoutesClientBuilder implements HttpTrait<RoutesClientBuilder>
      * 
      * @return an instance of PathParametersLabelExpansionStandardClient.
      */
-    @Metadata(generated = true)
+    @Metadata(properties = { MetadataProperties.GENERATED })
     public PathParametersLabelExpansionStandardClient buildPathParametersLabelExpansionStandardClient() {
-        return new PathParametersLabelExpansionStandardClient(
-            buildInnerClient().getPathParametersLabelExpansionStandards());
+        RoutesClientImpl innerClient = buildInnerClient();
+        return new PathParametersLabelExpansionStandardClient(innerClient.getPathParametersLabelExpansionStandards(),
+            innerClient.getInstrumentation());
     }
 
     /**
@@ -334,10 +339,11 @@ public final class RoutesClientBuilder implements HttpTrait<RoutesClientBuilder>
      * 
      * @return an instance of PathParametersLabelExpansionExplodeClient.
      */
-    @Metadata(generated = true)
+    @Metadata(properties = { MetadataProperties.GENERATED })
     public PathParametersLabelExpansionExplodeClient buildPathParametersLabelExpansionExplodeClient() {
-        return new PathParametersLabelExpansionExplodeClient(
-            buildInnerClient().getPathParametersLabelExpansionExplodes());
+        RoutesClientImpl innerClient = buildInnerClient();
+        return new PathParametersLabelExpansionExplodeClient(innerClient.getPathParametersLabelExpansionExplodes(),
+            innerClient.getInstrumentation());
     }
 
     /**
@@ -345,10 +351,11 @@ public final class RoutesClientBuilder implements HttpTrait<RoutesClientBuilder>
      * 
      * @return an instance of PathParametersMatrixExpansionStandardClient.
      */
-    @Metadata(generated = true)
+    @Metadata(properties = { MetadataProperties.GENERATED })
     public PathParametersMatrixExpansionStandardClient buildPathParametersMatrixExpansionStandardClient() {
-        return new PathParametersMatrixExpansionStandardClient(
-            buildInnerClient().getPathParametersMatrixExpansionStandards());
+        RoutesClientImpl innerClient = buildInnerClient();
+        return new PathParametersMatrixExpansionStandardClient(innerClient.getPathParametersMatrixExpansionStandards(),
+            innerClient.getInstrumentation());
     }
 
     /**
@@ -356,10 +363,11 @@ public final class RoutesClientBuilder implements HttpTrait<RoutesClientBuilder>
      * 
      * @return an instance of PathParametersMatrixExpansionExplodeClient.
      */
-    @Metadata(generated = true)
+    @Metadata(properties = { MetadataProperties.GENERATED })
     public PathParametersMatrixExpansionExplodeClient buildPathParametersMatrixExpansionExplodeClient() {
-        return new PathParametersMatrixExpansionExplodeClient(
-            buildInnerClient().getPathParametersMatrixExpansionExplodes());
+        RoutesClientImpl innerClient = buildInnerClient();
+        return new PathParametersMatrixExpansionExplodeClient(innerClient.getPathParametersMatrixExpansionExplodes(),
+            innerClient.getInstrumentation());
     }
 
     /**
@@ -367,9 +375,10 @@ public final class RoutesClientBuilder implements HttpTrait<RoutesClientBuilder>
      * 
      * @return an instance of QueryParametersClient.
      */
-    @Metadata(generated = true)
+    @Metadata(properties = { MetadataProperties.GENERATED })
     public QueryParametersClient buildQueryParametersClient() {
-        return new QueryParametersClient(buildInnerClient().getQueryParameters());
+        RoutesClientImpl innerClient = buildInnerClient();
+        return new QueryParametersClient(innerClient.getQueryParameters(), innerClient.getInstrumentation());
     }
 
     /**
@@ -377,10 +386,11 @@ public final class RoutesClientBuilder implements HttpTrait<RoutesClientBuilder>
      * 
      * @return an instance of QueryParametersQueryExpansionStandardClient.
      */
-    @Metadata(generated = true)
+    @Metadata(properties = { MetadataProperties.GENERATED })
     public QueryParametersQueryExpansionStandardClient buildQueryParametersQueryExpansionStandardClient() {
-        return new QueryParametersQueryExpansionStandardClient(
-            buildInnerClient().getQueryParametersQueryExpansionStandards());
+        RoutesClientImpl innerClient = buildInnerClient();
+        return new QueryParametersQueryExpansionStandardClient(innerClient.getQueryParametersQueryExpansionStandards(),
+            innerClient.getInstrumentation());
     }
 
     /**
@@ -388,10 +398,11 @@ public final class RoutesClientBuilder implements HttpTrait<RoutesClientBuilder>
      * 
      * @return an instance of QueryParametersQueryExpansionExplodeClient.
      */
-    @Metadata(generated = true)
+    @Metadata(properties = { MetadataProperties.GENERATED })
     public QueryParametersQueryExpansionExplodeClient buildQueryParametersQueryExpansionExplodeClient() {
-        return new QueryParametersQueryExpansionExplodeClient(
-            buildInnerClient().getQueryParametersQueryExpansionExplodes());
+        RoutesClientImpl innerClient = buildInnerClient();
+        return new QueryParametersQueryExpansionExplodeClient(innerClient.getQueryParametersQueryExpansionExplodes(),
+            innerClient.getInstrumentation());
     }
 
     /**
@@ -399,10 +410,11 @@ public final class RoutesClientBuilder implements HttpTrait<RoutesClientBuilder>
      * 
      * @return an instance of QueryParametersQueryContinuationStandardClient.
      */
-    @Metadata(generated = true)
+    @Metadata(properties = { MetadataProperties.GENERATED })
     public QueryParametersQueryContinuationStandardClient buildQueryParametersQueryContinuationStandardClient() {
+        RoutesClientImpl innerClient = buildInnerClient();
         return new QueryParametersQueryContinuationStandardClient(
-            buildInnerClient().getQueryParametersQueryContinuationStandards());
+            innerClient.getQueryParametersQueryContinuationStandards(), innerClient.getInstrumentation());
     }
 
     /**
@@ -410,10 +422,11 @@ public final class RoutesClientBuilder implements HttpTrait<RoutesClientBuilder>
      * 
      * @return an instance of QueryParametersQueryContinuationExplodeClient.
      */
-    @Metadata(generated = true)
+    @Metadata(properties = { MetadataProperties.GENERATED })
     public QueryParametersQueryContinuationExplodeClient buildQueryParametersQueryContinuationExplodeClient() {
+        RoutesClientImpl innerClient = buildInnerClient();
         return new QueryParametersQueryContinuationExplodeClient(
-            buildInnerClient().getQueryParametersQueryContinuationExplodes());
+            innerClient.getQueryParametersQueryContinuationExplodes(), innerClient.getInstrumentation());
     }
 
     /**
@@ -421,10 +434,9 @@ public final class RoutesClientBuilder implements HttpTrait<RoutesClientBuilder>
      * 
      * @return an instance of InInterfaceClient.
      */
-    @Metadata(generated = true)
+    @Metadata(properties = { MetadataProperties.GENERATED })
     public InInterfaceClient buildInInterfaceClient() {
-        return new InInterfaceClient(buildInnerClient().getInInterfaces());
+        RoutesClientImpl innerClient = buildInnerClient();
+        return new InInterfaceClient(innerClient.getInInterfaces(), innerClient.getInstrumentation());
     }
-
-    private static final ClientLogger LOGGER = new ClientLogger(RoutesClientBuilder.class);
 }

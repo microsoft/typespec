@@ -28,12 +28,12 @@ public class JavaJavadocComment {
     private static String processText(String value) {
         String text = CodeNamer.escapeXmlComment(ensurePeriod(trim(value)));
         if (text != null) {
-            // escape the "@"
+            // escape "@" that isn't prefixed with "{"
             text = ESCAPE_AT.matcher(text).replaceAll("&#064;");
             // escape tab
             text = text.replace("\t", " ");
         }
-        return CodeNamer.escapeComment(text);
+        return CodeNamer.escapeIllegalUnicodeEscape(CodeNamer.escapeComment(text));
     }
 
     private void addExpectedLineSeparator() {

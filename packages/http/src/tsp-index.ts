@@ -1,5 +1,8 @@
 import { TypeSpecHttpDecorators } from "../generated-defs/TypeSpec.Http.js";
-import { TypeSpecHttpPrivateDecorators } from "../generated-defs/TypeSpec.Http.Private.js";
+import {
+  TypeSpecHttpPrivateDecorators,
+  TypeSpecHttpPrivateFunctions,
+} from "../generated-defs/TypeSpec.Http.Private.js";
 import {
   $body,
   $bodyIgnore,
@@ -15,12 +18,18 @@ import {
   $post,
   $put,
   $query,
-  $route,
   $server,
-  $sharedRoute,
   $statusCode,
   $useAuth,
 } from "./decorators.js";
+import { $route } from "./decorators/route.js";
+import { $sharedRoute } from "./decorators/shared-route.js";
+import {
+  $applyMergePatch,
+  $mergePatchModel,
+  $mergePatchProperty,
+  applyMergePatchTransform,
+} from "./merge-patch.js";
 import {
   $httpFile,
   $httpPart,
@@ -59,5 +68,14 @@ export const $decorators = {
     httpPart: $httpPart,
     plainData: $plainData,
     includeInapplicableMetadataInPayload: $includeInapplicableMetadataInPayload,
+    applyMergePatch: $applyMergePatch,
+    mergePatchModel: $mergePatchModel,
+    mergePatchProperty: $mergePatchProperty,
   } satisfies TypeSpecHttpPrivateDecorators,
+};
+
+export const $functions = {
+  "TypeSpec.Http.Private": {
+    applyMergePatchTransform,
+  } satisfies TypeSpecHttpPrivateFunctions,
 };

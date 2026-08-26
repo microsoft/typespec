@@ -1,7 +1,7 @@
 package type.model.inheritance.notdiscriminated;
 
 import io.clientcore.core.annotations.Metadata;
-import io.clientcore.core.annotations.TypeConditions;
+import io.clientcore.core.annotations.MetadataProperties;
 import io.clientcore.core.serialization.json.JsonReader;
 import io.clientcore.core.serialization.json.JsonToken;
 import io.clientcore.core.serialization.json.JsonWriter;
@@ -10,12 +10,12 @@ import java.io.IOException;
 /**
  * The second level model in the normal multiple levels inheritance.
  */
-@Metadata(conditions = { TypeConditions.IMMUTABLE })
+@Metadata(properties = { MetadataProperties.IMMUTABLE })
 public class Cat extends Pet {
     /*
      * The age property.
      */
-    @Metadata(generated = true)
+    @Metadata(properties = { MetadataProperties.GENERATED })
     private final int age;
 
     /**
@@ -24,7 +24,7 @@ public class Cat extends Pet {
      * @param name the name value to set.
      * @param age the age value to set.
      */
-    @Metadata(generated = true)
+    @Metadata(properties = { MetadataProperties.GENERATED })
     public Cat(String name, int age) {
         super(name);
         this.age = age;
@@ -35,7 +35,7 @@ public class Cat extends Pet {
      * 
      * @return the age value.
      */
-    @Metadata(generated = true)
+    @Metadata(properties = { MetadataProperties.GENERATED })
     public int getAge() {
         return this.age;
     }
@@ -43,7 +43,7 @@ public class Cat extends Pet {
     /**
      * {@inheritDoc}
      */
-    @Metadata(generated = true)
+    @Metadata(properties = { MetadataProperties.GENERATED })
     @Override
     public JsonWriter toJson(JsonWriter jsonWriter) throws IOException {
         jsonWriter.writeStartObject();
@@ -61,7 +61,7 @@ public class Cat extends Pet {
      * @throws IllegalStateException If the deserialized JSON object was missing any required properties.
      * @throws IOException If an error occurs while reading the Cat.
      */
-    @Metadata(generated = true)
+    @Metadata(properties = { MetadataProperties.GENERATED })
     public static Cat fromJson(JsonReader jsonReader) throws IOException {
         return jsonReader.readObject(reader -> {
             String name = null;

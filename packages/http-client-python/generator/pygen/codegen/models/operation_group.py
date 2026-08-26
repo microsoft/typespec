@@ -3,7 +3,7 @@
 # Licensed under the MIT License. See License.txt in the project root for
 # license information.
 # --------------------------------------------------------------------------
-from typing import Dict, List, Any, TYPE_CHECKING
+from typing import Any, TYPE_CHECKING
 
 from .utils import OrderedSet
 
@@ -26,21 +26,20 @@ class OperationGroup(BaseModel):
 
     def __init__(
         self,
-        yaml_data: Dict[str, Any],
+        yaml_data: dict[str, Any],
         code_model: "CodeModel",
         client: "Client",
-        operations: List["OperationType"],
-        api_versions: List[str],
+        operations: list["OperationType"],
+        api_versions: list[str],
     ) -> None:
         super().__init__(yaml_data, code_model)
         self.client = client
-        self.class_name: str = yaml_data["className"]
         self.identify_name: str = yaml_data["identifyName"]
         self.property_name: str = yaml_data["propertyName"]
         self.operations = operations
         self.api_versions = api_versions
-        self.operation_groups: List[OperationGroup] = []
-        if self.code_model.options["show_operations"]:
+        self.operation_groups: list[OperationGroup] = []
+        if self.code_model.options["show-operations"]:
             self.operation_groups = [
                 OperationGroup.from_yaml(op_group, code_model, client)
                 for op_group in self.yaml_data.get("operationGroups", [])
@@ -50,6 +49,13 @@ class OperationGroup(BaseModel):
         self.has_parent_operation_group: bool = False
         for og in self.operation_groups:
             og.has_parent_operation_group = True
+
+    @property
+    def class_name(self) -> str:
+        """The class name of the operation group."""
+        if self.is_mixin:
+            return "_" + self.yaml_data["className"]
+        return self.yaml_data["className"]
 
     @property
     def has_abstract_operations(self) -> bool:
@@ -63,23 +69,14 @@ class OperationGroup(BaseModel):
             operation_group.has_non_abstract_operations for operation_group in self.operation_groups
         )
 
-    @property
-    def base_class(self) -> str:
-        base_classes: List[str] = []
+    def base_class(self, async_mode: bool) -> str:
+        pipeline_client = (
+            f"{'Async' if async_mode else ''}PipelineClient[HttpRequest, {'Async' if async_mode else ''}HttpResponse]"
+        )
+        base_classes: list[str] = []
         if self.is_mixin:
-            base_classes.append(f"{self.client.name}MixinABC")
+            base_classes.append(f"ClientMixinABC[{pipeline_client}, {self.client.name}Configuration]")
         return ", ".join(base_classes)
-
-    def imports_for_multiapi(self, async_mode: bool, **kwargs) -> FileImport:
-        file_import = FileImport(self.code_model)
-        relative_path = ".." if async_mode else "."
-        for operation in self.operations:
-            file_import.merge(operation.imports_for_multiapi(async_mode, **kwargs))
-        if (self.code_model.model_types or self.code_model.enums) and self.code_model.options[
-            "models_mode"
-        ] == "msrest":
-            file_import.add_submodule_import(relative_path, "models", ImportType.LOCAL, alias="_models")
-        return file_import
 
     def pylint_disable(self) -> str:
         retval: str = ""
@@ -87,7 +84,7 @@ class OperationGroup(BaseModel):
             retval = add_to_pylint_disable(retval, "abstract-class-instantiated")
         if len(self.operations) > 20:
             retval = add_to_pylint_disable(retval, "too-many-public-methods")
-        if len(self.class_name) > NAME_LENGTH_LIMIT:
+        if len(self.class_name) > NAME_LENGTH_LIMIT and self.class_name[0] != "_":
             retval = add_to_pylint_disable(retval, "name-too-long")
         if len(self.operation_groups) > 6:
             retval = add_to_pylint_disable(retval, "too-many-instance-attributes")
@@ -96,15 +93,21 @@ class OperationGroup(BaseModel):
     @property
     def need_validation(self) -> bool:
         """Whether any of its operations need validation"""
-        return any(o for o in self.operations if o.need_validation)
+        return any(o for o in self.operations if o.need_validation) or any(
+            og for og in self.operation_groups if og.need_validation
+        )
 
     def imports(self, async_mode: bool, **kwargs: Any) -> FileImport:
         file_import = FileImport(self.code_model)
-
         serialize_namespace = kwargs.get("serialize_namespace", self.code_model.namespace)
+        utils_path = self.code_model.get_relative_import_path(
+            serialize_namespace,
+            f"{self.code_model.namespace}._utils.utils",
+        )
+
         for operation in self.operations:
             file_import.merge(operation.imports(async_mode, **kwargs))
-        if not self.code_model.options["combine_operation_files"]:
+        if not self.code_model.options["combine-operation-files"]:
             for og in self.operation_groups:
                 file_import.add_submodule_import(
                     self.code_model.get_relative_import_path(
@@ -129,10 +132,10 @@ class OperationGroup(BaseModel):
                         og.class_name,
                         ImportType.LOCAL,
                     )
-        # for multiapi
+        # shared code for imports
         if (
             (self.code_model.public_model_types)
-            and self.code_model.options["models_mode"] == "msrest"
+            and self.code_model.options["models-mode"] == "msrest"
             and not self.is_mixin
         ):
             file_import.add_submodule_import(
@@ -141,32 +144,38 @@ class OperationGroup(BaseModel):
                 ImportType.LOCAL,
                 alias="_models",
             )
+        file_import.add_submodule_import(
+            self.code_model.get_relative_import_path(
+                serialize_namespace,
+                self.code_model.get_imported_namespace_for_client(self.client.client_namespace, async_mode),
+                module_name="_configuration",
+            ),
+            f"{self.client.name}Configuration",
+            ImportType.LOCAL,
+        )
+        file_import.add_submodule_import(
+            "" if self.code_model.is_azure_flavor else "runtime",
+            f"{'Async' if async_mode else ''}PipelineClient",
+            ImportType.SDKCORE,
+        )
         if self.is_mixin:
             file_import.add_submodule_import(
-                # XxxMixinABC is always defined in _vendor of client namespace
-                self.code_model.get_relative_import_path(
-                    serialize_namespace,
-                    self.code_model.get_imported_namespace_for_client(self.client.client_namespace, async_mode),
-                    module_name="_vendor",
-                ),
-                f"{self.client.name}MixinABC",
+                # XxxMixinABC is always defined in _utils of client namespace
+                utils_path,
+                "ClientMixinABC",
                 ImportType.LOCAL,
             )
-        else:
             file_import.add_submodule_import(
-                "" if self.code_model.is_azure_flavor else "runtime",
-                f"{'Async' if async_mode else ''}PipelineClient",
+                "rest",
+                "HttpRequest",
                 ImportType.SDKCORE,
             )
             file_import.add_submodule_import(
-                self.code_model.get_relative_import_path(
-                    serialize_namespace,
-                    self.code_model.get_imported_namespace_for_client(self.client.client_namespace, async_mode),
-                    module_name="_configuration",
-                ),
-                f"{self.client.name}Configuration",
-                ImportType.LOCAL,
+                "rest",
+                f"{'Async' if async_mode else ''}HttpResponse",
+                ImportType.SDKCORE,
             )
+        else:
             file_import.add_msrest_import(
                 serialize_namespace=kwargs.get("serialize_namespace", self.code_model.namespace),
                 msrest_import_type=MsrestImportType.Serializer,
@@ -179,20 +188,16 @@ class OperationGroup(BaseModel):
             )
         if self.has_abstract_operations:
             file_import.add_submodule_import(
-                # raise_if_not_implemented is always defined in _vendor of top namespace
-                self.code_model.get_relative_import_path(
-                    serialize_namespace,
-                    self.code_model.get_imported_namespace_for_client(self.code_model.namespace, async_mode),
-                    module_name="_vendor",
-                ),
+                # raise_if_not_implemented is always defined in _utils of top namespace
+                utils_path,
                 "raise_if_not_implemented",
                 ImportType.LOCAL,
             )
         if all(o.abstract for o in self.operations):
             return file_import
-        file_import.add_submodule_import("typing", "TypeVar", ImportType.STDLIB, TypingSection.CONDITIONAL)
+        file_import.add_submodule_import("typing", "TypeVar", ImportType.STDLIB, TypingSection.REGULAR)
         file_import.define_mypy_type("T", "TypeVar('T')")
-        type_value = "Optional[Callable[[PipelineResponse[HttpRequest, {}HttpResponse], T, Dict[str, Any]], Any]]"
+        type_value = "Optional[Callable[[PipelineResponse[HttpRequest, {}HttpResponse], T, dict[str, Any]], Any]]"
         file_import.define_mypy_type("ClsType", type_value.format(""), type_value.format("Async"))
         return file_import
 
@@ -219,7 +224,7 @@ class OperationGroup(BaseModel):
             raise KeyError(f"No operation with id {operation_id} found.") from exc
 
     @property
-    def lro_operations(self) -> List["OperationType"]:
+    def lro_operations(self) -> list["OperationType"]:
         return [operation for operation in self.operations if operation.operation_type in ("lro", "lropaging")] + [
             operation for operation_group in self.operation_groups for operation in operation_group.lro_operations
         ]
@@ -236,7 +241,7 @@ class OperationGroup(BaseModel):
     @classmethod
     def from_yaml(
         cls,
-        yaml_data: Dict[str, Any],
+        yaml_data: dict[str, Any],
         code_model: "CodeModel",
         client: "Client",
     ) -> "OperationGroup":

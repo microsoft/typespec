@@ -2,9 +2,14 @@
 // Licensed under the MIT License.
 
 using System;
+using System.ClientModel;
 using System.ClientModel.Primitives;
 using System.Collections.Generic;
+using System.Linq;
 using System.Text.Json;
+using System.Xml;
+using System.Xml.Linq;
+using Microsoft.TypeSpec.Generator.ClientModel.Primitives;
 using Microsoft.TypeSpec.Generator.ClientModel.Providers;
 using Microsoft.TypeSpec.Generator.Expressions;
 using Microsoft.TypeSpec.Generator.Input;
@@ -38,6 +43,101 @@ namespace Microsoft.TypeSpec.Generator.ClientModel
 
         public virtual IRequestContentApi RequestContentApi => BinaryContentProvider.Instance;
 
+        internal HashSet<InputModelType> RootInputModels
+        {
+            get
+            {
+                if (_rootInputModels == null)
+                {
+                    PopulateRootModels();
+                }
+                return _rootInputModels!;
+            }
+        }
+
+        internal bool HasDynamicModels
+            => _hasDynamicModels ??= ScmCodeModelGenerator.Instance.InputLibrary.InputNamespace.Models.Any(m => m.IsDynamicModel);
+        private bool? _hasDynamicModels;
+
+        private HashSet<InputModelType>? _rootInputModels;
+
+        internal HashSet<InputModelType> RootOutputModels
+        {
+            get
+            {
+                if (_rootOutputModels == null)
+                {
+                    PopulateRootModels();
+                }
+                return _rootOutputModels!;
+            }
+        }
+        private HashSet<InputModelType>? _rootOutputModels;
+
+        private void PopulateRootModels()
+        {
+            _rootInputModels = new HashSet<InputModelType>();
+            _rootOutputModels = new HashSet<InputModelType>();
+            foreach (var client in ScmCodeModelGenerator.Instance.InputLibrary.InputNamespace.Clients)
+            {
+                foreach (var method in client.Methods)
+                {
+                    var operation = method.Operation;
+                    var response = operation.Responses.FirstOrDefault(r => !r.IsErrorResponse);
+                    // Include both service method and operation responses for output types
+                    // Service methods will have the public response type for things like LROs, while operation responses
+                    // will have the internal response types for paging operations
+                    if (response?.BodyType is InputModelType inputModelType)
+                    {
+                        _rootOutputModels.Add(inputModelType);
+                    }
+
+                    PopulateRootOutputModelsFromTypeRecursive(method.Response.Type, _rootOutputModels, []);
+
+                    if (operation.GenerateConvenienceMethod)
+                    {
+                        // For parameters, the operation parameters are sufficient.
+                        foreach (var parameter in operation.Parameters)
+                        {
+                            if (parameter.Type is InputModelType modelType)
+                            {
+                                _rootInputModels.Add(modelType);
+                            }
+                        }
+                    }
+                }
+            }
+        }
+
+        private static void PopulateRootOutputModelsFromTypeRecursive(InputType? type, HashSet<InputModelType> targetSet, HashSet<InputType> visited)
+        {
+            if (type == null)
+            {
+                return;
+            }
+
+            if (!visited.Add(type))
+            {
+                return;
+            }
+
+            switch (type)
+            {
+                case InputModelType modelType:
+                    targetSet.Add(modelType);
+                    break;
+                case InputNullableType nullableType:
+                    PopulateRootOutputModelsFromTypeRecursive(nullableType.Type, targetSet, visited);
+                    break;
+                case InputUnionType unionType:
+                    foreach (var variantType in unionType.VariantTypes)
+                    {
+                        PopulateRootOutputModelsFromTypeRecursive(variantType, targetSet, visited);
+                    }
+                    break;
+            }
+        }
+
         /// <summary>
         /// Returns the serialization type providers for the given input type.
         /// </summary>
@@ -47,12 +147,17 @@ namespace Microsoft.TypeSpec.Generator.ClientModel
         {
             switch (inputType)
             {
-                case InputModelType inputModel when inputModel.Usage.HasFlag(InputModelTypeUsage.Json):
-                    if (typeProvider is ModelProvider modelProvider)
+                case InputModelType inputModel when typeProvider is ModelProvider modelProvider:
+                    var providers = new List<TypeProvider>();
+                    if ((inputModel.Usage & (InputModelTypeUsage.Json | InputModelTypeUsage.Xml)) != 0)
                     {
-                        return [new MrwSerializationTypeDefinition(inputModel, modelProvider)];
+                        providers.Add(new MrwSerializationTypeDefinition(inputModel, modelProvider));
                     }
-                    return [];
+                    if (inputModel.Usage.HasFlag(InputModelTypeUsage.MultipartFormData))
+                    {
+                        providers.Add(new MultipartFormDataSerializationDefinition(inputModel, modelProvider));
+                    }
+                    return providers;
                 case InputEnumType inputEnumType:
                     switch (typeProvider.CustomCodeView)
                     {
@@ -99,43 +204,86 @@ namespace Microsoft.TypeSpec.Generator.ClientModel
             }
 
             ClientCache[inputClient] = client;
+
+            if (client != null)
+            {
+                CSharpTypeMap[client.Type] = client;
+            }
+
             return client;
         }
 
         protected virtual ClientProvider? CreateClientCore(InputClient inputClient) => new ClientProvider(inputClient);
 
         /// <summary>
-        /// Factory method for creating a <see cref="MethodProviderCollection"/> based on an input operation <paramref name="operation"/>.
+        /// Factory method for creating a <see cref="ScmMethodProviderCollection"/> based on an input method <paramref name="serviceMethod"/>.
         /// </summary>
-        /// <param name="operation">The <see cref="InputOperation"/> to convert.</param>
+        /// <param name="serviceMethod">The <see cref="InputServiceMethod"/> to convert.</param>
         /// <param name="enclosingType">The <see cref="TypeProvider"/> that will contain the methods.</param>
-        /// <returns>An instance of <see cref="MethodProviderCollection"/> containing the chain of methods
-        /// associated with the input operation, or <c>null</c> if no methods are constructed.
+        /// <returns>An instance of <see cref="ScmMethodProviderCollection"/> containing the chain of methods
+        /// associated with the input service method, or <c>null</c> if no methods are constructed.
         /// </returns>
-        internal MethodProviderCollection? CreateMethods(InputOperation operation, TypeProvider enclosingType)
+        internal ScmMethodProviderCollection? CreateMethods(InputServiceMethod serviceMethod, ClientProvider enclosingType)
         {
-            MethodProviderCollection? methods = new ScmMethodProviderCollection(operation, enclosingType);
+            ScmMethodProviderCollection? methods = new ScmMethodProviderCollection(serviceMethod, enclosingType);
             var visitors = ScmCodeModelGenerator.Instance.Visitors;
 
             foreach (var visitor in visitors)
             {
                 if (visitor is ScmLibraryVisitor scmVisitor)
                 {
-                    methods = scmVisitor.Visit(operation, enclosingType, methods);
+                    methods = scmVisitor.Visit(serviceMethod, enclosingType, methods);
                 }
             }
             return methods;
         }
 
-        public virtual ValueExpression DeserializeJsonValue(Type valueType, ScopedApi<JsonElement> element, SerializationFormat format)
-            => MrwSerializationTypeDefinition.DeserializeJsonValueCore(valueType, element, format);
+        public virtual ValueExpression DeserializeJsonValue(
+            CSharpType valueType,
+            ScopedApi<JsonElement> element,
+            ScopedApi<BinaryData> data,
+            ScopedApi<ModelReaderWriterOptions> mrwOptionsParameter,
+            SerializationFormat format)
+            => MrwSerializationTypeDefinition.DeserializeJsonValueCore(valueType, element, data, mrwOptionsParameter, format);
 
         public virtual MethodBodyStatement SerializeJsonValue(
-            Type valueType,
+            CSharpType valueType,
             ValueExpression value,
             ScopedApi<Utf8JsonWriter> utf8JsonWriter,
             ScopedApi<ModelReaderWriterOptions> mrwOptionsParameter,
             SerializationFormat serializationFormat)
             => MrwSerializationTypeDefinition.SerializeJsonValueCore(valueType, value, utf8JsonWriter, mrwOptionsParameter, serializationFormat);
+
+        public virtual ValueExpression DeserializeXmlValue(
+            CSharpType valueType,
+            ScopedApi<XElement> element,
+            ScopedApi<ModelReaderWriterOptions> mrwOptionsParameter,
+            SerializationFormat format)
+                => MrwSerializationTypeDefinition.DeserializeXmlValueCore(valueType, element, mrwOptionsParameter, format);
+
+        public virtual MethodBodyStatement SerializeXmlValue(
+            CSharpType valueType,
+            ValueExpression value,
+            ScopedApi<XmlWriter> xmlWriter,
+            ScopedApi<ModelReaderWriterOptions> mrwOptionsParameter,
+            SerializationFormat format)
+                => MrwSerializationTypeDefinition.SerializeXmlValueCore(valueType, value, xmlWriter, mrwOptionsParameter, format);
+
+        protected override ModelProvider? CreateModelCore(InputModelType model) => new ScmModelProvider(model);
+
+        protected override ModelFactoryProvider CreateModelFactoryCore(IEnumerable<InputModelType> models)
+            => new ScmModelFactoryProvider(models);
+
+        protected override CSharpType? CreateCSharpTypeCore(InputType inputType) => inputType switch
+        {
+#pragma warning disable SCME0004
+            InputModelType { IsFileType: true } => typeof(FileBinaryContent),
+            InputPrimitiveType { IsFileType: true } => typeof(FileBinaryContent),
+#pragma warning restore SCME0004
+            _ => base.CreateCSharpTypeCore(inputType),
+        };
+
+        protected override ScmSerializationOptions? CreateSerializationOptionsCore(InputSerializationOptions inputSerializationOptions)
+            => new(inputSerializationOptions);
     }
 }

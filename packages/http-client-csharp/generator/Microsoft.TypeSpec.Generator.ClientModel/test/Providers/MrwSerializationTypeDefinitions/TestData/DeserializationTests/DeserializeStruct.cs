@@ -10,7 +10,6 @@ using Sample;
 
 namespace Sample.Models
 {
-    /// <summary></summary>
     public readonly partial struct TestModel : global::System.ClientModel.Primitives.IJsonModel<global::Sample.Models.TestModel>, global::System.ClientModel.Primitives.IJsonModel<object>
     {
         internal static global::Sample.Models.TestModel DeserializeTestModel(global::System.Text.Json.JsonElement element, global::System.ClientModel.Primitives.ModelReaderWriterOptions options)

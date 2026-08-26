@@ -3,8 +3,6 @@
 
 package com.microsoft.typespec.http.client.generator.core.template;
 
-import com.azure.json.JsonProviders;
-import com.azure.json.JsonWriter;
 import com.microsoft.typespec.http.client.generator.core.extension.plugin.JavaSettings;
 import com.microsoft.typespec.http.client.generator.core.model.clientmodel.ClassType;
 import com.microsoft.typespec.http.client.generator.core.model.clientmodel.ClientModel;
@@ -15,14 +13,15 @@ import com.microsoft.typespec.http.client.generator.core.template.example.ModelE
 import com.microsoft.typespec.http.client.generator.core.util.ConstantStringTooLongException;
 import com.microsoft.typespec.http.client.generator.core.util.ModelExampleUtil;
 import com.microsoft.typespec.http.client.generator.core.util.ModelTestCaseUtil;
+import io.clientcore.core.serialization.json.JsonWriter;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
-import java.util.HashSet;
+import java.util.LinkedHashSet;
 import java.util.Map;
 import java.util.Set;
 
-public class ModelTestTemplate implements IJavaTemplate<ClientModel, JavaFile> {
+public class ModelTestTemplate implements IJavaTemplate<ModelTestTemplate.ModelUnitTestInfo, JavaFile> {
 
     private static final ModelTestTemplate INSTANCE = new ModelTestTemplate();
 
@@ -33,10 +32,20 @@ public class ModelTestTemplate implements IJavaTemplate<ClientModel, JavaFile> {
         return INSTANCE;
     }
 
+    public static final class ModelUnitTestInfo {
+        private final String className;
+        private final ClientModel model;
+
+        public ModelUnitTestInfo(String className, ClientModel model) {
+            this.className = className;
+            this.model = model;
+        }
+    }
+
     /**
      * Write the JSON serialization / de-serialization unit test for the model.
      *
-     * @param model the client model to test.
+     * @param testInfo the info, which include the client model to test.
      * @param javaFile the java file.
      * @throws com.microsoft.typespec.http.client.generator.core.util.PossibleCredentialException
      * thrown when there is possible mock value to a secret property.
@@ -46,20 +55,23 @@ public class ModelTestTemplate implements IJavaTemplate<ClientModel, JavaFile> {
      * Constant string of that size would cause compiler "constant string too long" error.
      */
     @Override
-    public void write(ClientModel model, JavaFile javaFile) {
+    public void write(ModelUnitTestInfo testInfo, JavaFile javaFile) {
+
+        String className = testInfo.className;
+        ClientModel model = testInfo.model;
 
         final boolean immutableOutputModel = JavaSettings.getInstance().isOutputModelImmutable()
             && model.getImplementationDetails() != null
             && !model.getImplementationDetails().isInput();
 
-        Set<String> imports = new HashSet<>();
+        Set<String> imports = new LinkedHashSet<>();
         model.addImportsTo(imports, JavaSettings.getInstance());
         ClassType.BINARY_DATA.addImportsTo(imports, false);
 
         String jsonStr;
         ExampleNode exampleNode;
         try (ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
-            JsonWriter jsonWriter = JsonProviders.createWriter(outputStream)) {
+            JsonWriter jsonWriter = JsonWriter.toStream(outputStream)) {
             Map<String, Object> jsonObject = ModelTestCaseUtil.jsonFromModel(model);
             jsonWriter.writeMap(jsonObject, JsonWriter::writeUntyped).flush();
             jsonStr = outputStream.toString(StandardCharsets.UTF_8);
@@ -82,7 +94,7 @@ public class ModelTestTemplate implements IJavaTemplate<ClientModel, JavaFile> {
             throw new ConstantStringTooLongException();
         }
 
-        javaFile.publicFinalClass(model.getName() + "Tests", classBlock -> {
+        javaFile.publicFinalClass(className, classBlock -> {
             // testDeserialize
             classBlock.annotation("org.junit.jupiter.api.Test");
             classBlock.publicMethod("void testDeserialize() throws Exception", methodBlock -> {

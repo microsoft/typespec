@@ -1,5 +1,13 @@
 import { getNamespaceFullName, type Namespace, type Program, type Type } from "@typespec/compiler";
-import { createContext, useCallback, useContext, useMemo, useState, type ReactNode } from "react";
+import {
+  createContext,
+  useCallback,
+  useContext,
+  useEffect,
+  useMemo,
+  useState,
+  type ReactNode,
+} from "react";
 import { isMapLike, type NamedType } from "../utils.js";
 import { TypeConfig } from "./type-config.js";
 
@@ -49,16 +57,43 @@ export function useTreeNavigator(): TreeNavigator {
 export interface TypeGraphNavigatorProvider {
   program: Program;
   children: ReactNode;
+  onNavigationChange?: (path: string) => void;
+  currentPath?: string;
 }
-export const TypeGraphNavigatorProvider = ({ program, children }: TypeGraphNavigatorProvider) => {
-  const treeNavigator = useTreeNavigatorInternal(program);
+export const TypeGraphNavigatorProvider = ({
+  program,
+  children,
+  onNavigationChange,
+  currentPath,
+}: TypeGraphNavigatorProvider) => {
+  const treeNavigator = useTreeNavigatorInternal(program, onNavigationChange, currentPath);
   return (
     <TreeNavigatorContext.Provider value={treeNavigator}>{children}</TreeNavigatorContext.Provider>
   );
 };
 
-function useTreeNavigatorInternal(program: Program): TreeNavigator {
-  const [selectedPath, selectPath] = useState<string>("");
+function useTreeNavigatorInternal(
+  program: Program,
+  onNavigationChange?: (path: string) => void,
+  currentPath?: string,
+): TreeNavigator {
+  const [selectedPath, setSelectedPath] = useState<string>(currentPath || "");
+
+  // Update internal state when currentPath prop changes
+  const selectPath = useCallback(
+    (path: string) => {
+      setSelectedPath(path);
+      onNavigationChange?.(path);
+    },
+    [onNavigationChange],
+  );
+
+  // Sync with external currentPath changes
+  useEffect(() => {
+    if (currentPath !== undefined && currentPath !== selectedPath) {
+      setSelectedPath(currentPath);
+    }
+  }, [currentPath, selectedPath]);
 
   const tree = useMemo(() => computeTree(program), [program]);
   const { pathToNode, typeToPath } = useMemo(() => computeReferences(tree), [tree]);
@@ -117,7 +152,7 @@ function computeTypeNode(parentPath: string, type: NamedType, name?: string): Ty
 function computeTypeNodeProps(path: string, type: NamedType, name?: string): TypeGraphTypeNode {
   const typeRendering = (TypeConfig as any)[type.kind];
   const children: TypeGraphNode[] = Object.entries(type)
-    .filter(([key]) => typeRendering?.[key] === "nested")
+    .filter(([key]) => typeRendering?.[key]?.kind === "nested-items")
     .map(([key, value]): TypeGraphNode => {
       const propPath = path + "." + key;
       if (isMapLike(value)) {

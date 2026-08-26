@@ -3,7 +3,7 @@
 # Licensed under the MIT License. See License.txt in the project root for
 # license information.
 # --------------------------------------------------------------------------
-from typing import Any, List, Union
+from typing import Any, Union
 from .imports import FileImport
 from .lro_operation import LROOperationBase
 from .paging_operation import PagingOperationBase
@@ -12,7 +12,7 @@ from .response import LROPagingResponse, Response
 
 class LROPagingOperation(LROOperationBase[LROPagingResponse], PagingOperationBase[LROPagingResponse]):
     @property
-    def success_status_codes(self) -> List[Union[int, str, List[int]]]:
+    def success_status_codes(self) -> list[Union[int, str, list[int]]]:
         """The list of all successfull status code."""
         return [200]
 

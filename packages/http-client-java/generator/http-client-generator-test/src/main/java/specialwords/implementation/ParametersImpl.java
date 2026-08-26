@@ -54,7 +54,7 @@ public final class ParametersImpl {
      * perform REST calls.
      */
     @Host("{endpoint}")
-    @ServiceInterface(name = "SpecialWordsClientPa")
+    @ServiceInterface(name = "SpecialWordsClientParameters")
     public interface ParametersService {
         @Get("/special-words/parameters/and")
         @ExpectedResponses({ 204 })

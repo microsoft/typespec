@@ -21,6 +21,9 @@ op foo(): Widget;
 ```ts src/models/models.ts interface Widget
 export interface Widget {
   name: string;
-  subWidget: { location: string; age?: number };
+  subWidget: {
+    location: string;
+    age?: number;
+  };
 }
 ```

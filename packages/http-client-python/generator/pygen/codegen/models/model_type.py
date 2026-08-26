@@ -5,19 +5,13 @@
 # --------------------------------------------------------------------------
 from enum import Enum
 from collections import OrderedDict
-from typing import Any, Dict, List, Optional, TYPE_CHECKING, cast
-import sys
-from .utils import add_to_pylint_disable, NamespaceType
+from typing import Any, Literal, Optional, TYPE_CHECKING, cast
+from .utils import add_to_pylint_disable, NamespaceType, LOCALS_LENGTH_LIMIT
 from .base import BaseType
 from .constant_type import ConstantType
 from .property import Property
 from .imports import FileImport, ImportType, TypingSection
 from ...utils import NAME_LENGTH_LIMIT
-
-if sys.version_info >= (3, 8):
-    from typing import Literal
-else:
-    from typing_extensions import Literal  # type: ignore
 
 if TYPE_CHECKING:
     from .code_model import CodeModel
@@ -36,7 +30,7 @@ class UsageFlags(Enum):
     Xml = 512
 
 
-def _get_properties(type: "ModelType", properties: List[Property]) -> List[Property]:
+def _get_properties(type: "ModelType", properties: list[Property]) -> list[Property]:
     for parent in type.parents:
         # here we're adding the properties from our parents
 
@@ -61,12 +55,12 @@ class ModelType(BaseType):  # pylint: disable=too-many-instance-attributes, too-
 
     def __init__(
         self,
-        yaml_data: Dict[str, Any],
+        yaml_data: dict[str, Any],
         code_model: "CodeModel",
         *,
-        properties: Optional[List[Property]] = None,
-        parents: Optional[List["ModelType"]] = None,
-        discriminated_subtypes: Optional[Dict[str, "ModelType"]] = None,
+        properties: Optional[list[Property]] = None,
+        parents: Optional[list["ModelType"]] = None,
+        discriminated_subtypes: Optional[dict[str, "ModelType"]] = None,
     ) -> None:
         super().__init__(yaml_data=yaml_data, code_model=code_model)
         self.name: str = self.yaml_data["name"]
@@ -83,10 +77,22 @@ class ModelType(BaseType):  # pylint: disable=too-many-instance-attributes, too-
         self.cross_language_definition_id: Optional[str] = self.yaml_data.get("crossLanguageDefinitionId")
         self.usage: int = self.yaml_data.get("usage", UsageFlags.Input.value | UsageFlags.Output.value)
         self.client_namespace: str = self.yaml_data.get("clientNamespace", code_model.namespace)
+        self.is_typed_dict_only: bool = (
+            self.yaml_data.get("typedDictOnly", False) or code_model.options["models-mode"] == "typeddict"
+        )
 
     @property
     def is_usage_output(self) -> bool:
         return bool(self.usage & UsageFlags.Output.value)
+
+    @property
+    def is_usage_input(self) -> bool:
+        return bool(self.usage & UsageFlags.Input.value)
+
+    @property
+    def is_used_in_operations_via_types(self) -> bool:
+        """Whether this model would be imported from types.py (not models) in operations."""
+        return False
 
     @property
     def flattened_property(self) -> Optional[Property]:
@@ -96,7 +102,7 @@ class ModelType(BaseType):  # pylint: disable=too-many-instance-attributes, too-
             return None
 
     @property
-    def flattened_items(self) -> List[str]:
+    def flattened_items(self) -> list[str]:
         return [
             item.client_name
             for prop in self.properties
@@ -141,7 +147,7 @@ class ModelType(BaseType):  # pylint: disable=too-many-instance-attributes, too-
         return super().xml_serialization_ctxt
 
     @property
-    def discriminated_subtypes_name_mapping(self) -> Dict[str, str]:
+    def discriminated_subtypes_name_mapping(self) -> dict[str, str]:
         return {k: v.name for k, v in self.discriminated_subtypes.items()}
 
     def get_json_template_representation(
@@ -181,7 +187,7 @@ class ModelType(BaseType):  # pylint: disable=too-many-instance-attributes, too-
             )
         )
 
-    def get_polymorphic_subtypes(self, polymorphic_subtypes: List["ModelType"]) -> None:
+    def get_polymorphic_subtypes(self, polymorphic_subtypes: list["ModelType"]) -> None:
         is_polymorphic_subtype = self.discriminator_value and not self.discriminated_subtypes
         if self._got_polymorphic_subtypes:
             return
@@ -195,13 +201,13 @@ class ModelType(BaseType):  # pylint: disable=too-many-instance-attributes, too-
         self._got_polymorphic_subtypes = False
 
     @classmethod
-    def from_yaml(cls, yaml_data: Dict[str, Any], code_model: "CodeModel") -> "ModelType":
+    def from_yaml(cls, yaml_data: dict[str, Any], code_model: "CodeModel") -> "ModelType":
         raise ValueError(
             "You shouldn't call from_yaml for ModelType to avoid recursion. "
             "Please initial a blank ModelType, then call .fill_instance_from_yaml on the created type."
         )
 
-    def fill_instance_from_yaml(self, yaml_data: Dict[str, Any], code_model: "CodeModel") -> None:
+    def fill_instance_from_yaml(self, yaml_data: dict[str, Any], code_model: "CodeModel") -> None:
         from . import build_type
 
         self.parents = [cast(ModelType, build_type(bm, code_model)) for bm in yaml_data.get("parents", [])]
@@ -244,7 +250,7 @@ class ModelType(BaseType):  # pylint: disable=too-many-instance-attributes, too-
     @property
     def init_pylint_disable(self) -> str:
         retval: str = ""
-        if len(self.properties) > 23:
+        if len(self.properties) > LOCALS_LENGTH_LIMIT:
             retval = add_to_pylint_disable(retval, "too-many-locals")
         return retval
 
@@ -270,7 +276,7 @@ class JSONModelType(ModelType):
 
     def imports(self, **kwargs: Any) -> FileImport:
         file_import = FileImport(self.code_model)
-        file_import.add_submodule_import("typing", "Any", ImportType.STDLIB, TypingSection.CONDITIONAL)
+        file_import.add_submodule_import("typing", "Any", ImportType.STDLIB, TypingSection.REGULAR)
         file_import.define_mutable_mapping_type()
         if self.is_xml:
             file_import.add_submodule_import("xml.etree", "ElementTree", ImportType.STDLIB, alias="ET")
@@ -281,18 +287,29 @@ class GeneratedModelType(ModelType):
     def type_annotation(self, **kwargs: Any) -> str:
         is_operation_file = kwargs.pop("is_operation_file", False)
         skip_quote = kwargs.get("skip_quote", False)
+        serialize_namespace_type = kwargs.get("serialize_namespace_type")
         module_name = ""
-        if kwargs.get("need_model_alias", True):
+        # In types.py, use bare name to avoid pyright "variable in type expression" errors
+        if serialize_namespace_type == NamespaceType.TYPES_FILE:
+            pass  # no module prefix, no internal file prefix
+        elif kwargs.get("need_model_alias", True):
             serialize_namespace = kwargs.get("serialize_namespace", self.code_model.namespace)
             model_alias = self.code_model.get_unique_models_alias(serialize_namespace, self.client_namespace)
             module_name = f"{model_alias}."
-        file_name = f"{self.code_model.models_filename}." if self.internal else ""
+        file_name = (
+            f"{self.code_model.models_filename}."
+            if self.internal and serialize_namespace_type != NamespaceType.TYPES_FILE
+            else ""
+        )
         retval = module_name + file_name + self.name
         return retval if is_operation_file or skip_quote else f'"{retval}"'
 
     def docstring_type(self, **kwargs: Any) -> str:
         type_annotation = self.type_annotation(need_model_alias=False, skip_quote=True, **kwargs)
-        return f"~{self.code_model.namespace}.models.{type_annotation}"
+        client_namespace = self.client_namespace
+        if self.code_model.options.get("generation-subdir"):
+            client_namespace += f".{self.code_model.options['generation-subdir']}"
+        return f"~{client_namespace}.models.{type_annotation}"
 
     def docstring_text(self, **kwargs: Any) -> str:
         return self.name
@@ -308,7 +325,7 @@ class GeneratedModelType(ModelType):
         alias = self.code_model.get_unique_models_alias(serialize_namespace, self.client_namespace)
         serialize_namespace_type = kwargs.get("serialize_namespace_type")
         called_by_property = kwargs.get("called_by_property", False)
-        # add import for models in operations or _types file
+        # add import for models in operations, types, or unions file
         if serialize_namespace_type in [NamespaceType.OPERATION, NamespaceType.CLIENT]:
             file_import.add_submodule_import(
                 relative_path,
@@ -318,11 +335,38 @@ class GeneratedModelType(ModelType):
             )
             if self.is_form_data:
                 file_import.add_submodule_import(
-                    self.code_model.get_relative_import_path(serialize_namespace),
-                    "_model_base",
+                    self.code_model.get_relative_import_path(serialize_namespace, module_name="_utils.model_base"),
+                    "Model",
                     ImportType.LOCAL,
+                    alias="_Model",
                 )
-        elif serialize_namespace_type == NamespaceType.TYPES_FILE or (
+        elif serialize_namespace_type == NamespaceType.TYPES_FILE:
+            # Don't import models that will be defined in this namespace's types.py —
+            # either as TypedDict classes (non-discriminated) or as Union aliases (discriminated bases).
+            # Only same-namespace non-json models are in the same types.py file.
+            same_namespace = relative_path == "."
+            will_be_in_types_file = self.base != "json" and same_namespace
+            if not will_be_in_types_file:
+                if same_namespace:
+                    # json models from same namespace — import from .models (or .models._models for internal)
+                    import_path = f".models.{self.code_model.models_filename}" if self.internal else ".models"
+                    file_import.add_submodule_import(
+                        import_path,
+                        self.name,
+                        ImportType.LOCAL,
+                        typing_section=TypingSection.TYPING,
+                    )
+                else:
+                    # Cross-namespace model — import from sibling namespace's types module
+                    file_import.add_submodule_import(
+                        self.code_model.get_relative_import_path(
+                            serialize_namespace, self.client_namespace, module_name="types"
+                        ),
+                        self.name,
+                        ImportType.LOCAL,
+                        typing_section=TypingSection.TYPING,
+                    )
+        elif serialize_namespace_type == NamespaceType.UNIONS_FILE or (
             serialize_namespace_type == NamespaceType.MODEL and called_by_property
         ):
             file_import.add_submodule_import(
@@ -347,12 +391,39 @@ class MsrestModelType(GeneratedModelType):
 
     def imports(self, **kwargs: Any) -> FileImport:
         file_import = super().imports(**kwargs)
-        file_import.add_submodule_import("typing", "Any", ImportType.STDLIB, TypingSection.CONDITIONAL)
+        file_import.add_submodule_import("typing", "Any", ImportType.STDLIB, TypingSection.REGULAR)
         return file_import
 
 
 class DPGModelType(GeneratedModelType):
     base = "dpg"
+
+    @property
+    def is_used_in_operations_via_types(self) -> bool:
+        return self.is_typed_dict_only
+
+    def type_annotation(self, **kwargs: Any) -> str:
+        if self.is_typed_dict_only:
+            is_operation_file = kwargs.pop("is_operation_file", False)
+            skip_quote = kwargs.get("skip_quote", False)
+            serialize_namespace_type = kwargs.get("serialize_namespace_type")
+            # Within types.py, use bare name (no module prefix)
+            if serialize_namespace_type == NamespaceType.TYPES_FILE:
+                retval = self.name
+            else:
+                serialize_namespace = kwargs.get("serialize_namespace", self.code_model.namespace)
+                types_alias = self.code_model.get_unique_types_alias(serialize_namespace, self.client_namespace)
+                retval = f"{types_alias}.{self.name}"
+            return retval if is_operation_file or skip_quote else f'"{retval}"'
+        return super().type_annotation(**kwargs)
+
+    def docstring_type(self, **kwargs: Any) -> str:
+        if self.is_typed_dict_only:
+            client_namespace = self.client_namespace
+            if self.code_model.options.get("generation-subdir"):
+                client_namespace += f".{self.code_model.options['generation-subdir']}"
+            return f"~{client_namespace}.types.{self.name}"
+        return super().docstring_type(**kwargs)
 
     def serialization_type(self, **kwargs: Any) -> str:
         return (
@@ -366,7 +437,79 @@ class DPGModelType(GeneratedModelType):
         return "isinstance({}, " + f"_models.{self.name})"
 
     def imports(self, **kwargs: Any) -> FileImport:
+        if self.is_typed_dict_only:
+            file_import = FileImport(self.code_model)
+            serialize_namespace_type = kwargs.get("serialize_namespace_type")
+            serialize_namespace = kwargs.get("serialize_namespace", self.code_model.namespace)
+            relative_path = self.code_model.get_relative_import_path(serialize_namespace, self.client_namespace)
+            alias = self.code_model.get_unique_types_alias(serialize_namespace, self.client_namespace)
+            same_namespace = relative_path == "."
+            if serialize_namespace_type in [NamespaceType.OPERATION, NamespaceType.CLIENT]:
+                file_import.add_submodule_import(
+                    relative_path,
+                    "types",
+                    ImportType.LOCAL,
+                    alias=alias,
+                )
+            elif serialize_namespace_type == NamespaceType.TYPES_FILE and same_namespace:
+                pass  # model is defined in this types.py — no import needed
+            elif serialize_namespace_type in [NamespaceType.TYPES_FILE, NamespaceType.UNIONS_FILE] or (
+                serialize_namespace_type == NamespaceType.MODEL and kwargs.get("called_by_property", False)
+            ):
+                file_import.add_submodule_import(
+                    relative_path,
+                    "types",
+                    ImportType.LOCAL,
+                    alias=alias,
+                    typing_section=TypingSection.TYPING,
+                )
+            return file_import
         file_import = super().imports(**kwargs)
         if self.flattened_property:
             file_import.add_submodule_import("typing", "Any", ImportType.STDLIB)
+        return file_import
+
+
+class TypedDictModelType(DPGModelType):
+    base = "typeddict"
+
+    @property
+    def is_used_in_operations_via_types(self) -> bool:
+        return True
+
+    def type_annotation(self, **kwargs: Any) -> str:
+        is_operation_file = kwargs.pop("is_operation_file", False)
+        skip_quote = kwargs.get("skip_quote", False)
+        serialize_namespace_type = kwargs.get("serialize_namespace_type")
+        if serialize_namespace_type == NamespaceType.TYPES_FILE:
+            retval = self.name
+        else:
+            serialize_namespace = kwargs.get("serialize_namespace", self.code_model.namespace)
+            types_alias = self.code_model.get_unique_types_alias(serialize_namespace, self.client_namespace)
+            retval = f"{types_alias}.{self.name}"
+        return retval if is_operation_file or skip_quote else f'"{retval}"'
+
+    def docstring_type(self, **kwargs: Any) -> str:
+        client_namespace = self.client_namespace
+        if self.code_model.options.get("generation-subdir"):
+            client_namespace += f".{self.code_model.options['generation-subdir']}"
+        return f"~{client_namespace}.types.{self.name}"
+
+    @property
+    def instance_check_template(self) -> str:
+        return "isinstance({}, MutableMapping)"
+
+    def imports(self, **kwargs: Any) -> FileImport:
+        file_import = FileImport(self.code_model)
+        serialize_namespace_type = kwargs.get("serialize_namespace_type")
+        serialize_namespace = kwargs.get("serialize_namespace", self.code_model.namespace)
+        relative_path = self.code_model.get_relative_import_path(serialize_namespace, self.client_namespace)
+        alias = self.code_model.get_unique_types_alias(serialize_namespace, self.client_namespace)
+        if serialize_namespace_type in [NamespaceType.OPERATION, NamespaceType.CLIENT]:
+            file_import.add_submodule_import(
+                relative_path,
+                "types",
+                ImportType.LOCAL,
+                alias=alias,
+            )
         return file_import

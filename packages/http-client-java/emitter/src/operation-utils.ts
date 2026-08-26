@@ -1,13 +1,20 @@
-import { Parameter } from "@autorest/codemodel";
+import { ObjectSchema, Parameter, Property, SchemaResponse } from "@autorest/codemodel";
 import {
+  SdkCookieParameter,
+  SdkHeaderParameter,
   SdkHttpOperation,
   SdkLroServiceMetadata,
+  SdkModelPropertyType,
+  SdkPathParameter,
+  SdkQueryParameter,
+  SdkServiceResponseHeader,
 } from "@azure-tools/typespec-client-generator-core";
 import { Operation, Program, Type, Union } from "@typespec/compiler";
 import { HttpOperation } from "@typespec/http";
 import { Client as CodeModelClient, ServiceVersion } from "./common/client.js";
 import { CodeModel } from "./common/code-model.js";
-import { modelIs, unionReferredByType } from "./type-utils.js";
+import { Operation as CodeModelOperation } from "./common/operation.js";
+import { getPropertySerializedName, modelIs, unionReferredByType } from "./type-utils.js";
 import { getNamespace, pascalCase } from "./utils.js";
 
 export const SPECIAL_HEADER_NAMES = new Set([
@@ -16,11 +23,13 @@ export const SPECIAL_HEADER_NAMES = new Set([
   "x-ms-client-request-id",
   "client-request-id",
   "return-client-request-id",
+  "x-ms-authorization-auxiliary",
 ]);
 
 export const ORIGIN_API_VERSION = "modelerfour:synthesized/api-version";
 
-export const CONTENT_TYPE_KEY = "content-type";
+const CONTENT_TYPE_KEY = "content-type";
+const CONTENT_TYPE_NAME = "contentType";
 
 // azure-core SerializerEncoding.SUPPORTED_MIME_TYPES
 const SUPPORTED_MIME_TYPES = new Set<string>([
@@ -35,6 +44,21 @@ const SUPPORTED_MIME_TYPES = new Set<string>([
   // not in azure-core
   "application/merge-patch+json",
 ]);
+
+export function isContentTypeHeader(
+  header:
+    | SdkPathParameter
+    | SdkQueryParameter
+    | SdkHeaderParameter
+    | SdkCookieParameter
+    | SdkServiceResponseHeader,
+): boolean {
+  return (
+    (header.serializedName && header.serializedName.toLowerCase() === CONTENT_TYPE_KEY) ||
+    // TODO: remove after TCGC bug fix
+    (!header.serializedName && header.name === CONTENT_TYPE_NAME)
+  );
+}
 
 export function isKnownContentType(contentTypes: string[]): boolean {
   return contentTypes
@@ -181,6 +205,56 @@ export function cloneOperationParameter(parameter: Parameter): Parameter {
       extensions: parameter.extensions,
     },
   );
+}
+
+/**
+ * Constructs a list of property path (json path) from the response schema based on the provided property segments.
+ *
+ * @param op the code model operation
+ * @param propertySegments the segments of the property path (json path) to find in the response schema
+ * @returns the list of property path (json path)
+ */
+export function findResponsePropertySegments(
+  op: CodeModelOperation,
+  propertySegments: (SdkServiceResponseHeader | SdkModelPropertyType)[] | undefined,
+): Property[] | undefined {
+  if (op.responses && op.responses.length > 0) {
+    const schema = op.responses.find((r) => r instanceof SchemaResponse)?.schema;
+    if (propertySegments && schema instanceof ObjectSchema && schema.properties) {
+      const propertyArray: Property[] = [];
+
+      let currentSchemaProperties: Property[] | undefined = schema.properties;
+      if (currentSchemaProperties && schema.parents && schema.parents.all) {
+        for (const parent of schema.parents.all) {
+          if (parent instanceof ObjectSchema && parent.properties) {
+            currentSchemaProperties = currentSchemaProperties.concat(parent.properties);
+          }
+        }
+      }
+      for (const propertySegment of propertySegments) {
+        // abort if no properties in current schema. this should not happen though
+        if (!currentSchemaProperties) {
+          break;
+        }
+
+        // skip non-property segments. again, this should not happen
+        if (propertySegment.kind === "property") {
+          const serializedName = getPropertySerializedName(propertySegment);
+          for (const property of currentSchemaProperties) {
+            if (property.serializedName === serializedName) {
+              propertyArray.push(property);
+
+              currentSchemaProperties =
+                property.schema instanceof ObjectSchema ? property.schema.properties : undefined;
+            }
+          }
+        }
+      }
+
+      return propertyArray.length > 0 ? propertyArray : undefined;
+    }
+  }
+  return undefined;
 }
 
 function operationIs(

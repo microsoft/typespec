@@ -3,17 +3,12 @@
 
 package com.microsoft.typespec.http.client.generator.core.extension.model.extensionmodel;
 
-import com.azure.json.JsonReader;
-import com.azure.json.JsonSerializable;
-import com.azure.json.JsonWriter;
-import com.microsoft.typespec.http.client.generator.core.extension.base.util.JsonUtils;
-import java.io.IOException;
 import java.util.List;
 
 /**
  * Represents the x-ms-extensions of a model.
  */
-public class XmsExtensions implements JsonSerializable<XmsExtensions> {
+public class XmsExtensions {
     private XmsEnum xmsEnum;
     private String xmsClientName;
     private XmsPageable xmsPageable;
@@ -324,74 +319,5 @@ public class XmsExtensions implements JsonSerializable<XmsExtensions> {
      */
     public void setXmsVersioningAdded(List<String> xmsVersioningAdded) {
         this.xmsVersioningAdded = xmsVersioningAdded;
-    }
-
-    @Override
-    public JsonWriter toJson(JsonWriter jsonWriter) throws IOException {
-        return jsonWriter.writeStartObject()
-            .writeJsonField("xmsEnum", xmsEnum)
-            .writeStringField("xmsClientName", xmsClientName)
-            .writeJsonField("xmsPageable", xmsPageable)
-            .writeBooleanField("xmsSkipUrlEncoding", xmsSkipUrlEncoding)
-            .writeBooleanField("xmsClientFlatten", xmsClientFlatten)
-            .writeBooleanField("xmsLongRunningOperation", xmsLongRunningOperation)
-            .writeJsonField("xmsLongRunningOperationOptions", xmsLongRunningOperationOptions)
-            .writeBooleanField("xmsFlattened", xmsFlattened)
-            .writeBooleanField("xmsAzureResource", xmsAzureResource)
-            .writeArrayField("xmsMutability", xmsMutability, JsonWriter::writeString)
-            .writeStringField("xmsHeaderCollectionPrefix", xmsHeaderCollectionPrefix)
-            .writeJsonField("xmsInternalAutorestAnonymousSchema", xmsInternalAutorestAnonymousSchema)
-            .writeJsonField("xmsArmIdDetails", xmsArmIdDetails)
-            .writeJsonField("xmsExamples", xmsExamples)
-            .writeBooleanField("xmsSecret", xmsSecret)
-            .writeArrayField("xmsVersioningAdded", xmsVersioningAdded, JsonWriter::writeString)
-            .writeEndObject();
-    }
-
-    /**
-     * Deserializes an XmsExtensions instance from the JSON data.
-     *
-     * @param jsonReader The JSON reader to deserialize from.
-     * @return An XmsExtensions instance deserialized from the JSON data.
-     * @throws IOException If an error occurs during deserialization.
-     */
-    public static XmsExtensions fromJson(JsonReader jsonReader) throws IOException {
-        return JsonUtils.readObject(jsonReader, XmsExtensions::new, (extensions, fieldName, reader) -> {
-            if ("xmsEnum".equals(fieldName)) {
-                extensions.xmsEnum = XmsEnum.fromJson(reader);
-            } else if ("xmsClientName".equals(fieldName)) {
-                extensions.xmsClientName = reader.getString();
-            } else if ("xmsPageable".equals(fieldName)) {
-                extensions.xmsPageable = XmsPageable.fromJson(reader);
-            } else if ("xmsSkipUrlEncoding".equals(fieldName)) {
-                extensions.xmsSkipUrlEncoding = reader.getBoolean();
-            } else if ("xmsClientFlatten".equals(fieldName)) {
-                extensions.xmsClientFlatten = reader.getBoolean();
-            } else if ("xmsLongRunningOperation".equals(fieldName)) {
-                extensions.xmsLongRunningOperation = reader.getBoolean();
-            } else if ("xmsLongRunningOperationOptions".equals(fieldName)) {
-                extensions.xmsLongRunningOperationOptions = XmsLongRunningOperationOptions.fromJson(reader);
-            } else if ("xmsFlattened".equals(fieldName)) {
-                extensions.xmsFlattened = reader.getBoolean();
-            } else if ("xmsAzureResource".equals(fieldName)) {
-                extensions.xmsAzureResource = reader.getBoolean();
-            } else if ("xmsMutability".equals(fieldName)) {
-                extensions.xmsMutability = reader.readArray(JsonReader::getString);
-            } else if ("xmsHeaderCollectionPrefix".equals(fieldName)) {
-                extensions.xmsHeaderCollectionPrefix = reader.getString();
-            } else if ("xmsInternalAutorestAnonymousSchema".equals(fieldName)) {
-                extensions.xmsInternalAutorestAnonymousSchema = XmsInternalAutorestAnonymousSchema.fromJson(reader);
-            } else if ("xmsArmIdDetails".equals(fieldName)) {
-                extensions.xmsArmIdDetails = XmsArmIdDetails.fromJson(reader);
-            } else if ("xmsExamples".equals(fieldName)) {
-                extensions.xmsExamples = XmsExamples.fromJson(reader);
-            } else if ("xmsSecret".equals(fieldName)) {
-                extensions.xmsSecret = reader.getNullable(JsonReader::getBoolean);
-            } else if ("xmsVersioningAdded".equals(fieldName)) {
-                extensions.xmsVersioningAdded = reader.readArray(JsonReader::getString);
-            } else {
-                reader.skipChildren();
-            }
-        });
     }
 }

@@ -1,11 +1,12 @@
 import { defineConfig, mergeConfig } from "vitest/config";
-import { defaultTypeSpecVitestConfig } from "../../vitest.workspace.js";
+import { defaultTypeSpecVitestConfig } from "../../vitest.config.js";
 
 export default mergeConfig(
   defaultTypeSpecVitestConfig,
   defineConfig({
     test: {
-      include: ["test/**/*.test.ts"],
+      exclude: [...defaultTypeSpecVitestConfig.test!.exclude!, "templates/**"],
+      testTimeout: 10_000,
     },
   }),
 );

@@ -3,7 +3,6 @@
 
 package com.microsoft.typespec.http.client.generator.mgmt.template;
 
-import com.azure.core.util.CoreUtils;
 import com.microsoft.typespec.http.client.generator.core.model.clientmodel.ClassType;
 import com.microsoft.typespec.http.client.generator.core.model.clientmodel.IType;
 import com.microsoft.typespec.http.client.generator.core.model.clientmodel.PrimitiveType;
@@ -18,7 +17,9 @@ import com.microsoft.typespec.http.client.generator.mgmt.model.clientmodel.examp
 import com.microsoft.typespec.http.client.generator.mgmt.model.clientmodel.examplemodel.FluentResourceCreateExample;
 import com.microsoft.typespec.http.client.generator.mgmt.model.clientmodel.examplemodel.FluentResourceUpdateExample;
 import com.microsoft.typespec.http.client.generator.mgmt.model.clientmodel.examplemodel.ParameterExample;
+import io.clientcore.core.utils.CoreUtils;
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
@@ -44,12 +45,19 @@ public class FluentExampleTemplate {
         Set<ExampleHelperFeature> helperFeatures
             = exampleMethods.stream().flatMap(em -> em.getHelperFeatures().stream()).collect(Collectors.toSet());
 
-        javaFile.javadocComment(commentBlock -> {
-            commentBlock
-                .description(String.format("Samples for %1$s %2$s", example.getGroupName(), example.getMethodName()));
-        });
+        javaFile.javadocComment(commentBlock -> commentBlock
+            .description(String.format("Samples for %1$s %2$s", example.getGroupName(), example.getMethodName())));
         javaFile.publicFinalClass(className, classBlock -> {
+            Set<String> methodSignatureWritten = new HashSet<>();
             for (ExampleMethod exampleMethod : exampleMethods) {
+                String methodSignature = exampleMethod.getMethodSignature();
+                if (methodSignatureWritten.contains(methodSignature)) {
+                    // skip this method, as it duplicate with method already written to the class
+                    // this usually happen on "advanced-versioning: true", where we have overload on the SDK method
+                    continue;
+                }
+                methodSignatureWritten.add(methodSignature);
+
                 if (!CoreUtils.isNullOrEmpty(exampleMethod.getExample().getOriginalFileName())) {
                     classBlock.blockComment(getExampleTag(exampleMethod.getExample()));
                 }
@@ -59,13 +67,11 @@ public class FluentExampleTemplate {
                     commentBlock.param(exampleMethod.getExample().getEntryName(),
                         exampleMethod.getExample().getEntryDescription());
                 });
-                String methodSignature = exampleMethod.getMethodSignature();
                 if (exampleMethod.getHelperFeatures().contains(ExampleHelperFeature.ThrowsIOException)) {
                     methodSignature += " throws IOException";
                 }
-                classBlock.publicStaticMethod(methodSignature, methodBlock -> {
-                    methodBlock.line(exampleMethod.getMethodContent());
-                });
+                classBlock.publicStaticMethod(methodSignature,
+                    methodBlock -> methodBlock.line(exampleMethod.getMethodContent()));
             }
 
             if (helperFeatures.contains(ExampleHelperFeature.MapOfMethod)) {
@@ -107,13 +113,12 @@ public class FluentExampleTemplate {
         String snippet = String.format("%1$s.%2$s.%3$s(%4$s);", managerName, methodExample.getMethodReference(),
             methodExample.getMethodName(), parameterInvocations);
 
-        ExampleMethod exampleMethod = new ExampleMethod().setExample(methodExample)
+        return new ExampleMethod().setExample(methodExample)
             .setImports(visitor.getImports())
             .setMethodSignature(String.format("void %1$s(%2$s %3$s)", methodName,
                 methodExample.getEntryType().getFullName(), managerName))
             .setMethodContent(snippet)
             .setHelperFeatures(visitor.getHelperFeatures());
-        return exampleMethod;
     }
 
     public ExampleMethod generateExampleMethod(FluentResourceCreateExample resourceCreateExample) {
@@ -147,13 +152,12 @@ public class FluentExampleTemplate {
         }
         sb.append(".create();");
 
-        ExampleMethod exampleMethod = new ExampleMethod().setExample(resourceCreateExample)
+        return new ExampleMethod().setExample(resourceCreateExample)
             .setImports(visitor.getImports())
             .setMethodSignature(String.format("void %1$s(%2$s %3$s)", methodName,
                 FluentStatic.getFluentManager().getType().getFullName(), managerName))
             .setMethodContent(sb.toString())
             .setHelperFeatures(visitor.getHelperFeatures());
-        return exampleMethod;
     }
 
     public ExampleMethod generateExampleMethod(FluentResourceUpdateExample resourceUpdateExample) {
@@ -191,21 +195,20 @@ public class FluentExampleTemplate {
             .getInterfaceType()
             .addImportsTo(visitor.getImports(), false);
 
-        ExampleMethod exampleMethod = new ExampleMethod().setExample(resourceUpdateExample)
+        return new ExampleMethod().setExample(resourceUpdateExample)
             .setImports(visitor.getImports())
             .setMethodSignature(String.format("void %1$s(%2$s %3$s)", methodName,
                 FluentStatic.getFluentManager().getType().getFullName(), managerName))
             .setMethodContent(sb.toString())
             .setHelperFeatures(visitor.getHelperFeatures());
-        return exampleMethod;
     }
 
     private static class ExampleNodeVisitor extends ModelExampleWriter.ExampleNodeModelInitializationVisitor {
 
         @Override
         protected String codeDeserializeJsonString(String jsonStr) {
-            imports.add(com.azure.core.management.serializer.SerializerFactory.class.getName());
-            imports.add(com.azure.core.util.serializer.SerializerEncoding.class.getName());
+            imports.add(ClassType.SERIALIZER_FACTORY.getFullName());
+            imports.add(ClassType.SERIALIZER_ENCODING.getFullName());
             imports.add(java.io.IOException.class.getName());
 
             return String.format(

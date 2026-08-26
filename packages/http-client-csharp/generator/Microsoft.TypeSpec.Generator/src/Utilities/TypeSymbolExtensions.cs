@@ -13,13 +13,17 @@ namespace Microsoft.TypeSpec.Generator
     {
         private const string GlobalPrefix = "global::";
         private const string NullableTypeName = "System.Nullable";
+        private const string TupleTypeName = "System.ValueTuple";
 
         public static bool IsSameType(this INamedTypeSymbol symbol, CSharpType type)
         {
             if (type.IsValueType && type.IsNullable)
             {
                 if (symbol.ConstructedFrom.SpecialType != SpecialType.System_Nullable_T)
+                {
                     return false;
+                }
+
                 return IsSameType((INamedTypeSymbol)symbol.TypeArguments.Single(), type.WithNullable(false));
             }
 
@@ -43,10 +47,21 @@ namespace Microsoft.TypeSpec.Generator
             var fullyQualifiedName = GetFullyQualifiedName(typeSymbol);
             var namedTypeSymbol = typeSymbol as INamedTypeSymbol;
 
-            Type? type = LoadFrameworkType(fullyQualifiedName);
+            Type? type = CodeModelGenerator.Instance.TypeFactory.CreateFrameworkType(fullyQualifiedName);
 
             if (type is null)
             {
+                // Resolve Nullable<T> of a known framework type to a nullable framework CSharpType.
+                if (namedTypeSymbol?.ConstructedFrom.SpecialType == SpecialType.System_Nullable_T &&
+                    namedTypeSymbol.TypeArguments.Length == 1)
+                {
+                    var underlying = GetCSharpType(namedTypeSymbol.TypeArguments[0]);
+                    if (underlying.IsFrameworkType)
+                    {
+                        return underlying.WithNullable(true);
+                    }
+                }
+
                 return ConstructCSharpTypeFromSymbol(typeSymbol, fullyQualifiedName, namedTypeSymbol);
             }
 
@@ -105,38 +120,46 @@ namespace Microsoft.TypeSpec.Generator
             {
                 return GetFullyQualifiedName(arrayTypeSymbol.ElementType) + "[]";
             }
-
-            // Handle generic types
-            if (typeSymbol is INamedTypeSymbol namedTypeSymbol && namedTypeSymbol.IsGenericType)
+            // Handle tuples & generic types
+            if (typeSymbol is INamedTypeSymbol namedTypeSymbol)
             {
-                // Handle nullable types
-                if (typeSymbol.NullableAnnotation == NullableAnnotation.Annotated && !IsCollectionType(namedTypeSymbol))
+                if (typeSymbol.IsTupleType)
                 {
-                    var argTypeSymbol = namedTypeSymbol.TypeArguments.FirstOrDefault();
+                    string[] elementTypes = [.. namedTypeSymbol.TupleElements.Select(e => GetFullyQualifiedName(e.Type))];
+                    return $"{TupleTypeName}`{elementTypes.Length}[{string.Join(", ", elementTypes)}]";
+                }
 
-                    if (argTypeSymbol != null)
+                if (namedTypeSymbol.IsGenericType)
+                {
+                    // Handle nullable types
+                    if (typeSymbol.NullableAnnotation == NullableAnnotation.Annotated && !IsCollectionType(namedTypeSymbol))
                     {
-                        // If the argument type is an error type, then fall back to using the ToString of the arg type symbol. This means that the
-                        // arg may not be fully qualified, but it is better than not having any type information at all.
-                        if (argTypeSymbol.TypeKind == TypeKind.Error)
+                        var argTypeSymbol = namedTypeSymbol.TypeArguments.FirstOrDefault();
+
+                        if (argTypeSymbol != null)
                         {
-                            return $"{NullableTypeName}`1[{argTypeSymbol}]";
+                            // If the argument type is an error type, then fall back to using the ToString of the arg type symbol. This means that the
+                            // arg may not be fully qualified, but it is better than not having any type information at all.
+                            if (argTypeSymbol.TypeKind == TypeKind.Error)
+                            {
+                                return $"{NullableTypeName}`1[{argTypeSymbol}]";
+                            }
+
+                            string[] typeArguments = [.. namedTypeSymbol.TypeArguments.Select(arg => "[" + GetFullyQualifiedName(arg) + "]")];
+                            return $"{NullableTypeName}`{namedTypeSymbol.TypeArguments.Length}[{string.Join(", ", typeArguments)}]";
                         }
-
-                        string[] typeArguments = [.. namedTypeSymbol.TypeArguments.Select(arg => "[" + GetFullyQualifiedName(arg) + "]")];
-                        return $"{NullableTypeName}`{namedTypeSymbol.TypeArguments.Length}[{string.Join(", ", typeArguments)}]";
                     }
-                }
-                else if (namedTypeSymbol.TypeArguments.Length > 0 && !IsCollectionType(namedTypeSymbol))
-                {
-                    return GetNonNullableGenericTypeName(namedTypeSymbol);
-                }
+                    else if (namedTypeSymbol.TypeArguments.Length > 0 && !IsCollectionType(namedTypeSymbol))
+                    {
+                        return GetNonNullableGenericTypeName(namedTypeSymbol);
+                    }
 
-                var typeNameSpan = namedTypeSymbol.ConstructedFrom.ToDisplayString(SymbolDisplayFormat.FullyQualifiedFormat).AsSpan();
-                var start = typeNameSpan.IndexOf(':') + 2;
-                var end = typeNameSpan.IndexOf('<');
-                typeNameSpan = typeNameSpan.Slice(start, end - start);
-                return $"{typeNameSpan}`{namedTypeSymbol.TypeArguments.Length}";
+                    var typeNameSpan = namedTypeSymbol.ConstructedFrom.ToDisplayString(SymbolDisplayFormat.FullyQualifiedFormat).AsSpan();
+                    var start = typeNameSpan.IndexOf(':') + 2;
+                    var end = typeNameSpan.IndexOf('<');
+                    typeNameSpan = typeNameSpan.Slice(start, end - start);
+                    return $"{typeNameSpan}`{namedTypeSymbol.TypeArguments.Length}";
+                }
             }
 
             // Default to fully qualified name
@@ -147,17 +170,6 @@ namespace Microsoft.TypeSpec.Generator
         {
             var fullyQualifiedName = typeSymbol.ToDisplayString(SymbolDisplayFormat.FullyQualifiedFormat);
             return fullyQualifiedName.StartsWith(GlobalPrefix, StringComparison.Ordinal) ? fullyQualifiedName.Substring(GlobalPrefix.Length) : fullyQualifiedName;
-        }
-
-        private static Type? LoadFrameworkType(string fullyQualifiedName)
-        {
-            return fullyQualifiedName switch
-            {
-                // Special case for types that would not be defined in corlib, but should still be considered framework types.
-                "System.BinaryData" => typeof(BinaryData),
-                "System.Uri" => typeof(Uri),
-                _ => Type.GetType(fullyQualifiedName)
-            };
         }
 
         private static CSharpType ConstructCSharpTypeFromSymbol(
@@ -192,21 +204,48 @@ namespace Microsoft.TypeSpec.Generator
                 pieces = GetFullyQualifiedName(typeArg).Split('.');
             }
 
+            string ns = string.Join('.', pieces.Take(pieces.Length - 1));
+            CSharpType? containingType = null;
+
+            if (typeSymbol.ContainingType != null)
+            {
+                containingType = GetCSharpType(typeSymbol.ContainingType);
+                ns = string.Join('.', pieces.Take(pieces.Length - 2));
+            }
+
+            CSharpType? baseType = null;
+            if (typeSymbol.BaseType is not null &&
+                typeSymbol.BaseType.TypeKind != TypeKind.Error &&
+                !isNullableUnknownType &&
+                !ContainsTypeAsArgument(typeSymbol.BaseType, typeSymbol))
+            {
+                baseType = GetCSharpType(typeSymbol.BaseType);
+            }
+
             return new CSharpType(
                 name,
-                string.Join('.', pieces.Take(pieces.Length - 1)),
+                ns,
                 isValueType,
                 isNullable,
-                typeSymbol.ContainingType is not null ? GetCSharpType(typeSymbol.ContainingType) : null,
+                containingType,
                 arguments,
                 typeSymbol.DeclaredAccessibility == Accessibility.Public,
                 isValueType && !isEnum,
-                baseType: typeSymbol.BaseType is not null && typeSymbol.BaseType.TypeKind != TypeKind.Error && !isNullableUnknownType
-                    ? GetCSharpType(typeSymbol.BaseType)
-                    : null,
+                baseType: baseType,
                 underlyingEnumType: enumUnderlyingType != null
                     ? GetCSharpType(enumUnderlyingType).FrameworkType
                     : null);
+        }
+
+        internal static bool ContainsTypeAsArgument(ITypeSymbol potentialGenericType, ITypeSymbol targetType)
+        {
+            if (potentialGenericType is not INamedTypeSymbol namedType || !namedType.IsGenericType)
+            {
+                return false;
+            }
+
+            return namedType.TypeArguments.Any(arg =>
+                SymbolEqualityComparer.Default.Equals(arg, targetType));
         }
 
         private static bool IsCollectionType(INamedTypeSymbol typeSymbol)

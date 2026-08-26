@@ -5,6 +5,10 @@ title: Cli usage
 
 See full usage documentation by typing `tsp --help`:
 
+:::warning
+When using `tsp init` with an external template URL, be aware that downloading or using an untrusted template may contain malicious packages that can compromise your system and data. Proceed with caution and verify the source.
+:::
+
 ```bash
 >tsp --help
 TypeSpec compiler v0.36.1
@@ -27,3 +31,15 @@ Options:
              s easier to read.                         [boolean] [default: true]
   --version  Show version number                                       [boolean]
 ```
+
+## Environment Variables
+
+### `TYPESPEC_NPM_REGISTRY`
+
+Set the npm registry URL used by `tsp init` and `tsp install` when downloading the package manager and resolving package manifests. This is useful in corporate environments where a private npm registry is required.
+
+```bash
+TYPESPEC_NPM_REGISTRY=https://my-corp-registry.example.com tsp init
+```
+
+If this variable is not set, TypeSpec defaults to `https://registry.npmjs.org`.

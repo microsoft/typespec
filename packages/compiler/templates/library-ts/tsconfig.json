@@ -9,6 +9,7 @@
     "outDir": "dist",
     "sourceMap": true,
     "declaration": true,
+    "skipLibCheck": true,
 
     /* Linting */
     "strict": true

@@ -1,9 +1,9 @@
 import { deepStrictEqual, ok, strictEqual } from "assert";
 import { describe, it } from "vitest";
 import { OpenAPI3Schema } from "../src/types.js";
-import { worksFor } from "./works-for.js";
+import { supportedVersions, worksFor } from "./works-for.js";
 
-worksFor(["3.0.0", "3.1.0"], ({ oapiForModel, openApiFor }) => {
+worksFor(supportedVersions, ({ oapiForModel, openApiFor }) => {
   describe("handle TypeSpec intrinsic types", () => {
     const cases = [
       ["unknown", {}],
@@ -53,7 +53,6 @@ worksFor(["3.0.0", "3.1.0"], ({ oapiForModel, openApiFor }) => {
         `
       model Pet { name: safeint };
       `,
-        undefined,
         { "safeint-strategy": "double-int" },
       );
 
@@ -66,7 +65,6 @@ worksFor(["3.0.0", "3.1.0"], ({ oapiForModel, openApiFor }) => {
         `
       model Pet { name: safeint };
       `,
-        undefined,
         { "safeint-strategy": "int64" },
       );
 

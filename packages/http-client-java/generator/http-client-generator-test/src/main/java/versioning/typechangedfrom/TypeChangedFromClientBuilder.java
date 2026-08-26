@@ -36,7 +36,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import versioning.typechangedfrom.implementation.TypeChangedFromClientImpl;
-import versioning.typechangedfrom.models.Versions;
 
 /**
  * A builder for creating a new instance of the TypeChangedFromClient type.
@@ -66,6 +65,22 @@ public final class TypeChangedFromClientBuilder implements HttpTrait<TypeChanged
     }
 
     /*
+     * The HTTP client used to send the request.
+     */
+    @Generated
+    private HttpClient httpClient;
+
+    /**
+     * {@inheritDoc}.
+     */
+    @Generated
+    @Override
+    public TypeChangedFromClientBuilder httpClient(HttpClient httpClient) {
+        this.httpClient = httpClient;
+        return this;
+    }
+
+    /*
      * The HTTP pipeline to send requests through.
      */
     @Generated
@@ -81,22 +96,6 @@ public final class TypeChangedFromClientBuilder implements HttpTrait<TypeChanged
             LOGGER.atInfo().log("HttpPipeline is being set to 'null' when it was previously configured.");
         }
         this.pipeline = pipeline;
-        return this;
-    }
-
-    /*
-     * The HTTP client used to send the request.
-     */
-    @Generated
-    private HttpClient httpClient;
-
-    /**
-     * {@inheritDoc}.
-     */
-    @Generated
-    @Override
-    public TypeChangedFromClientBuilder httpClient(HttpClient httpClient) {
-        this.httpClient = httpClient;
         return this;
     }
 
@@ -192,24 +191,6 @@ public final class TypeChangedFromClientBuilder implements HttpTrait<TypeChanged
     }
 
     /*
-     * Need to be set as 'v1' or 'v2' in client.
-     */
-    @Generated
-    private Versions version;
-
-    /**
-     * Sets Need to be set as 'v1' or 'v2' in client.
-     * 
-     * @param version the version value.
-     * @return the TypeChangedFromClientBuilder.
-     */
-    @Generated
-    public TypeChangedFromClientBuilder version(Versions version) {
-        this.version = version;
-        return this;
-    }
-
-    /*
      * Service version
      */
     @Generated
@@ -257,7 +238,7 @@ public final class TypeChangedFromClientBuilder implements HttpTrait<TypeChanged
         TypeChangedFromServiceVersion localServiceVersion
             = (serviceVersion != null) ? serviceVersion : TypeChangedFromServiceVersion.getLatest();
         TypeChangedFromClientImpl client = new TypeChangedFromClientImpl(localPipeline,
-            JacksonAdapter.createDefaultSerializerAdapter(), this.endpoint, this.version, localServiceVersion);
+            JacksonAdapter.createDefaultSerializerAdapter(), this.endpoint, localServiceVersion);
         return client;
     }
 
@@ -266,7 +247,6 @@ public final class TypeChangedFromClientBuilder implements HttpTrait<TypeChanged
         // This method is invoked from 'buildInnerClient'/'buildClient' method.
         // Developer can customize this method, to validate that the necessary conditions are met for the new client.
         Objects.requireNonNull(endpoint, "'endpoint' cannot be null.");
-        Objects.requireNonNull(version, "'version' cannot be null.");
     }
 
     @Generated

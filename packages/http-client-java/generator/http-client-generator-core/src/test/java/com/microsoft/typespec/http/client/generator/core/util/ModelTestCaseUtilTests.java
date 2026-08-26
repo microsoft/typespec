@@ -20,7 +20,7 @@ public class ModelTestCaseUtilTests {
             .build();
 
         Object jsonObject = ModelTestCaseUtil.jsonFromType(0, type);
-        Assertions.assertTrue(jsonObject instanceof String);
+        Assertions.assertInstanceOf(String.class, jsonObject);
         Assertions.assertTrue(Objects.equals("200", jsonObject) || Objects.equals("404", jsonObject));
 
         type = new EnumType.Builder().elementType(ClassType.INTEGER)
@@ -28,7 +28,7 @@ public class ModelTestCaseUtilTests {
             .build();
 
         jsonObject = ModelTestCaseUtil.jsonFromType(0, type);
-        Assertions.assertTrue(jsonObject instanceof Integer);
+        Assertions.assertInstanceOf(Integer.class, jsonObject);
         Assertions.assertTrue(Objects.equals(200, jsonObject) || Objects.equals(404, jsonObject));
     }
 }

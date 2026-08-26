@@ -29,8 +29,10 @@ extends:
                 displayName: Install Node.js
                 inputs:
                   versionSpec: 22.x
-              - script: npm install -g pnpm # Pnpm manage-package-manager-versions will respect packageManager field
-                displayName: Install pnpm
+
+              - template: /eng/common/pipelines/templates/steps/create-authenticated-npmrc.yml
+
+              - template: /eng/common/pipelines/templates/steps/install-pnpm.yml
 
               - script: pnpm install
                 displayName: Install JavaScript Dependencies
@@ -59,9 +61,3 @@ extends:
         parameters:
           DependsOn: InitStage
           Condition: eq('true', stageDependencies.InitStage.outputs['InitJob.InitStep.RunPython'])
-
-      # Run core stages if RunCore == true
-      - template: /eng/tsp-core/pipelines/stages/ci-stages.yml
-        parameters:
-          DependsOn: InitStage
-          Condition: eq('true', stageDependencies.InitStage.outputs['InitJob.InitStep.RunCore'])

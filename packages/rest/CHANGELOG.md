@@ -1,5 +1,103 @@
 # Change Log - @typespec/rest
 
+## 0.84.0
+
+### Deprecations
+
+- [#10964](https://github.com/microsoft/typespec/pull/10964) Deprecate old testing framework (`createTestHost`, `createTestRunner`, `createTestWrapper`, `createTestLibrary`, `BasicTestRunner`, `TypeSpecTestLibrary`, etc.). Use `createTester` from `@typespec/compiler/testing` instead.
+
+
+## 0.83.0
+
+No changes, version bump only.
+
+## 0.82.0
+
+No changes, version bump only.
+
+## 0.81.0
+
+No changes, version bump only.
+
+## 0.80.0
+
+### Bump dependencies
+
+- [#9838](https://github.com/microsoft/typespec/pull/9838) Upgrade dependencies
+
+
+## 0.79.0
+
+### Bug Fixes
+
+- [#8609](https://github.com/microsoft/typespec/pull/8609) Fix `@actionSeparator` decorator to only accept Operation, Interface, and Namespace targets
+
+
+## 0.78.0
+
+### Bump dependencies
+
+- [#9223](https://github.com/microsoft/typespec/pull/9223) Upgrade dependencies
+
+
+## 0.77.0
+
+### Bump dependencies
+
+- [#9046](https://github.com/microsoft/typespec/pull/9046) Upgrade dependencies
+
+
+## 0.76.0
+
+### Bump dependencies
+
+- [#8823](https://github.com/microsoft/typespec/pull/8823) Upgrade dependencies
+
+
+## 0.75.0
+
+### Bug Fixes
+
+- [#8644](https://github.com/microsoft/typespec/pull/8644) Fix crash when resource would recursively reference itself via `@parentResource`
+
+
+## 0.74.0
+
+### Bump dependencies
+
+- [#8317](https://github.com/microsoft/typespec/pull/8317) Upgrade dependencies
+
+
+## 0.73.0
+
+### Bump dependencies
+
+- [#7978](https://github.com/microsoft/typespec/pull/7978) Upgrade dependencies
+
+
+## 0.72.0
+
+### Bump dependencies
+
+- [#7674](https://github.com/microsoft/typespec/pull/7674) Upgrade dependencies
+
+
+## 0.71.0
+
+No changes, version bump only.
+
+## 0.70.0
+
+### Bug Fixes
+
+- [#7230](https://github.com/microsoft/typespec/pull/7230) Handle new behavior of `@patch` keeping old behavior
+- [#7168](https://github.com/microsoft/typespec/pull/7168) Do not add a leading `/` in front of autoRoute optional parameter already using path expansion.
+
+
+## 0.69.0
+
+No changes, version bump only.
+
 ## 0.68.0
 
 ### Bump dependencies

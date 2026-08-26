@@ -1,5 +1,6 @@
 import {
   Button,
+  mergeClasses,
   Popover,
   PopoverSurface,
   PopoverTrigger,
@@ -12,16 +13,18 @@ import {
   ChevronDown20Filled,
   ChevronRight20Filled,
 } from "@fluentui/react-icons";
-import { ScenarioData } from "@typespec/spec-coverage-sdk";
+import { ScenarioData, ScenarioManifest } from "@typespec/spec-coverage-sdk";
 import { FunctionComponent, useMemo } from "react";
 import ReactMarkdown from "react-markdown";
+import style from "./row-label-cell.module.css";
 import { ManifestTreeNode, TreeTableRow } from "./types.js";
 
 export interface RowLabelCellProps {
+  manifest: ScenarioManifest;
   row: TreeTableRow;
 }
 const INDENT_SIZE = 14;
-export const RowLabelCell: FunctionComponent<RowLabelCellProps> = ({ row }) => {
+export const RowLabelCell: FunctionComponent<RowLabelCellProps> = ({ row, manifest }) => {
   const caret = row.hasChildren ? (
     row.expanded ? (
       <ChevronDown20Filled />
@@ -33,34 +36,17 @@ export const RowLabelCell: FunctionComponent<RowLabelCellProps> = ({ row }) => {
   const rowLabel = getLabelForRow(row);
   return (
     <td
-      css={[
-        {
-          minWidth: 260,
-          padding: "0 5px",
-        },
-        row.hasChildren ? { cursor: "pointer" } : undefined,
-      ]}
+      className={mergeClasses(style["cell"], row.hasChildren && style["cell-expandable"])}
       onClick={row.toggleExpand}
     >
-      <div style={{ marginLeft, display: "flex", alignItems: "center" }}>
-        <div
-          css={{
-            transition: "transform 0.2s linear",
-          }}
-        >
-          {caret}
-        </div>
-        <div
-          css={{
-            marginLeft: "10px",
-            flex: 1,
-          }}
-        >
-          {rowLabel}
-        </div>
-        <div css={{}}>
+      <div className={style["content"]} style={{ marginLeft }}>
+        <div className={style["caret"]}>{caret}</div>
+        <div className={style["label"]}>{rowLabel}</div>
+        <div>
           {row.item.scenario && <ScenarioInfoButton scenario={row.item.scenario} />}
-          {row.item.scenario && <GotoSourceButton scenario={row.item.scenario} />}
+          {row.item.scenario && manifest.sourceUrl && (
+            <GotoSourceButton sourceUrl={manifest.sourceUrl} scenario={row.item.scenario} />
+          )}
         </div>
       </div>
     </td>
@@ -92,13 +78,13 @@ const ScenarioInfoButton: FunctionComponent<ScenarioInfoButtonProps> = ({ scenar
 };
 
 type ShowSourceButtonProps = {
+  sourceUrl: string;
   scenario: ScenarioData;
 };
-const GotoSourceButton: FunctionComponent<ShowSourceButtonProps> = ({ scenario }) => {
-  const baseUrl = "https://github.com/Microsoft/typespec/tree/main/packages/http-specs/specs/";
+const GotoSourceButton: FunctionComponent<ShowSourceButtonProps> = ({ sourceUrl, scenario }) => {
   const start = getGithubLineNumber(scenario.location.start.line);
   const end = getGithubLineNumber(scenario.location.end.line);
-  const url = `${baseUrl}/${scenario.location.path}#${start}-${end}`;
+  const url = `${sourceUrl.replaceAll("{scenarioPath}", scenario.location.path)}#${start}-${end}`;
   return (
     <Tooltip content="Go to source" relationship="label">
       <Button

@@ -3,9 +3,6 @@
 
 package com.microsoft.typespec.http.client.generator.core.preprocessor;
 
-import com.azure.json.JsonProviders;
-import com.azure.json.JsonReader;
-import com.azure.json.ReadValueCallback;
 import com.microsoft.typespec.http.client.generator.core.extension.base.util.FileUtils;
 import com.microsoft.typespec.http.client.generator.core.extension.jsonrpc.Connection;
 import com.microsoft.typespec.http.client.generator.core.extension.model.Message;
@@ -22,12 +19,12 @@ import com.microsoft.typespec.http.client.generator.core.extension.plugin.NewPlu
 import com.microsoft.typespec.http.client.generator.core.extension.plugin.PluginLogger;
 import com.microsoft.typespec.http.client.generator.core.preprocessor.tranformer.Transformer;
 import com.microsoft.typespec.http.client.generator.core.util.ClientModelUtil;
+import io.clientcore.core.utils.IOExceptionCheckedFunction;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.HashSet;
+import java.util.LinkedHashMap;
+import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -87,14 +84,8 @@ public class Preprocessor extends NewPlugin {
 
         CodeModel codeModel;
         try {
-            if (!file.startsWith("{")) {
-                // YAML
-                codeModel = yamlMapper.loadAs(file, CodeModel.class);
-            } else {
-                try (JsonReader jsonReader = JsonProviders.createReader(file)) {
-                    codeModel = CodeModel.fromJson(jsonReader);
-                }
-            }
+            // YAML
+            codeModel = yamlMapper.loadAs(file, CodeModel.class);
         } catch (Exception e) {
             System.err.println("Got an error " + e.getMessage());
             connection.sendError(1, 500, "Cannot parse input into code model: " + e.getMessage());
@@ -152,9 +143,9 @@ public class Preprocessor extends NewPlugin {
         Function<ConstantSchema, Boolean> schemaIsConstantWithChoice
             = schema -> schema.getValueType() instanceof ChoiceSchema;
 
-        Set<ConstantSchema> constantSchemas = new HashSet<>(codeModel.getSchemas().getConstants());
+        Set<ConstantSchema> constantSchemas = new LinkedHashSet<>(codeModel.getSchemas().getConstants());
         if (!constantSchemas.isEmpty()) {
-            Map<ConstantSchema, SealedChoiceSchema> convertedChoiceSchemas = new HashMap<>();
+            Map<ConstantSchema, SealedChoiceSchema> convertedChoiceSchemas = new LinkedHashMap<>();
             ClientModelUtil.getAllOperationGroups(codeModel)
                 .stream()
                 .flatMap(og -> og.getOperations().stream())
@@ -246,7 +237,7 @@ public class Preprocessor extends NewPlugin {
         ChoiceValue choice = new ChoiceValue();
         choice.setValue(constantSchema.getValue().getValue().toString());
         choice.setLanguage(constantSchema.getValue().getLanguage());
-        sealedChoiceSchema.setChoices(Collections.singletonList(choice));
+        sealedChoiceSchema.setChoices(List.of(choice));
         return sealedChoiceSchema;
     }
 
@@ -256,7 +247,7 @@ public class Preprocessor extends NewPlugin {
     }
 
     @Override
-    public <T> T getValue(String key, ReadValueCallback<String, T> converter) {
+    public <T> T getValue(String key, IOExceptionCheckedFunction<String, T> converter) {
         return wrappedPlugin.getValue(key, converter);
     }
 

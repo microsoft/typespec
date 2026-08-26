@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using SampleTypeSpec;
+using Microsoft.TypeSpec.Generator.Customizations;
 
 #nullable disable
 

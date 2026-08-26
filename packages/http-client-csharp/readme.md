@@ -10,12 +10,16 @@ npm install @typespec/http-client-csharp
 
 ## Usage
 
-# Prerequisite
+### Prerequisite
 
 - Install [Node.js](https://nodejs.org/download/) 20 or above. (Verify by running `node --version`)
 - Install [**.NET 8.0 SDK**](https://dotnet.microsoft.com/download/dotnet/8.0) for your specific platform. (or a higher version)
 
-## Usage
+### Customizing Generated Code
+
+For detailed instructions on how to customize the generated C# code, see the [Customization Guide](https://github.com/microsoft/typespec/blob/main/packages/http-client-csharp/.tspd/docs/customization.md).
+
+## Emitter usage
 
 1. Via the command line
 
@@ -42,19 +46,35 @@ options:
 
 ## Emitter options
 
+### `emitter-output-dir`
+
+**Type:** `absolutePath`
+
+Defines the emitter output directory. Defaults to `{output-dir}/@typespec/http-client-csharp`
+See [Configuring output directory for more info](https://typespec.io/docs/handbook/configuration/configuration/#configuring-output-directory)
+
 ### `api-version`
 
-**Type:** `string`
+**Type:** `string | object`
 
-For TypeSpec files using the [`@versioned`](https://typespec.io/docs/libraries/versioning/reference/decorators/#@TypeSpec.Versioning.versioned) decorator, set this option to the version that should be used to generate against.
+Use this flag if you would like to generate the sdk only for a specific version. Default value is the latest version. Also accepts values `latest` and `all`. For multi-service packages, provide a map from each service namespace's full name to its desired version; services not listed default to their latest version.
+
+**Options:**
+
+- `string`
+- `object`
 
 ### `generate-protocol-methods`
 
 **Type:** `boolean`
 
+Set to `false` to skip generation of protocol methods. The default value is `true`.
+
 ### `generate-convenience-methods`
 
 **Type:** `boolean`
+
+Set to `false` to skip generation of convenience methods. The default value is `true`.
 
 ### `unreferenced-types-handling`
 
@@ -67,12 +87,6 @@ Defines the strategy on how to handle unreferenced types. The default value is `
 **Type:** `boolean`
 
 Set to `true` to overwrite the csproj if it already exists. The default value is `false`.
-
-### `clear-output-folder`
-
-**Type:** `boolean`
-
-Indicates if you want to clear the output folder before generating. The default value is `true`.
 
 ### `save-inputs`
 
@@ -96,13 +110,19 @@ Set to `true` to automatically attempt to attach to a debugger when executing th
 
 **Type:** `"info" | "debug" | "verbose"`
 
-Set the log level. The default value is `info`.
+Set the log level for which to collect traces. The default value is `info`.
 
 ### `disable-xml-docs`
 
 **Type:** `boolean`
 
 Set to `true` to disable XML documentation generation. The default value is `false`.
+
+### `disable-roslyn-reduce`
+
+**Type:** `boolean`
+
+Set to `true` to skip the Roslyn reduce (simplification) post-processing step. This speeds up generation and is useful when iterating quickly. The default value is `false`.
 
 ### `generator-name`
 
@@ -116,20 +136,79 @@ The name of the generator. By default this is set to `ScmCodeModelGenerator`. Ge
 
 Allows emitter authors to specify the path to a custom emitter package, allowing you to extend the emitter behavior. This should be set to `import.meta.url` if you are using a custom emitter.
 
-### `update-code-model`
+### `plugins`
 
-**Type:** `object`
+**Type:** `string[]`
 
-Allows emitter authors to specify a custom function to modify the generated code model before emitting. This is useful for modifying the code model before it is passed to the generator.
+Paths to generator plugin assemblies (DLLs) or directories containing plugin assemblies. Each plugin must contain a class that extends `GeneratorPlugin`. Paths may be absolute or relative to the resolved `emitter-output-dir`. For example, to load plugins that live in a `codegen` folder under the output directory:
+
+```yaml
+options:
+  "@typespec/http-client-csharp":
+    plugins:
+      - "codegen/MyPlugin.dll" # file relative to emitter-output-dir
+      - "codegen" # directory containing plugin assemblies
+      - "/abs/path/to/MyPlugin.dll" # absolute path used as-is
+```
 
 ### `license`
 
-**Type:** `object`
+**Type:** `object { name, company, link, header, description }`
 
 License information for the generated client code.
+
+**Properties:**
+
+| Name          | Type     | Default | Description |
+| ------------- | -------- | ------- | ----------- |
+| `name`        | `string` |         |             |
+| `company`     | `string` |         |             |
+| `link`        | `string` |         |             |
+| `header`      | `string` |         |             |
+| `description` | `string` |         |             |
 
 ### `sdk-context-options`
 
 **Type:** `object`
 
 The SDK context options that implement the `CreateSdkContextOptions` interface from the [`@azure-tools/typespec-client-generator-core`](https://www.npmjs.com/package/@azure-tools/typespec-client-generator-core) package to be used by the CSharp emitter.
+
+## Decorators
+
+### TypeSpec.HttpClient.CSharp
+
+- [`@dynamicModel`](#@dynamicmodel)
+
+#### `@dynamicModel`
+
+Marks a model or namespace as dynamic, indicating it should generate dynamic model code.
+Can be applied to Model or Namespace types.
+
+```typespec
+@TypeSpec.HttpClient.CSharp.dynamicModel
+```
+
+##### Target
+
+`Model | Namespace`
+
+##### Parameters
+
+None
+
+##### Examples
+
+```tsp
+@dynamicModel
+model Pet {
+  name: string;
+  kind: string;
+}
+
+@dynamicModel
+namespace PetStore {
+  model Dog extends Pet {
+    breed: string;
+  }
+}
+```

@@ -1,4 +1,7 @@
+export type { CommandBarItem } from "../react/responsive-command-bar/index.js";
 export { usePlaygroundContext } from "./context/index.js";
+export { DiagnosticList } from "./diagnostic-list/diagnostic-list.js";
+export type { DiagnosticListProps } from "./diagnostic-list/diagnostic-list.js";
 export { Editor, useMonacoModel, type EditorProps } from "./editor.js";
 export {
   Footer,
@@ -11,7 +14,11 @@ export {
   type VersionSelectorVersion,
 } from "./footer/index.js";
 export { Playground } from "./playground.js";
-export type { PlaygroundProps, PlaygroundSaveData } from "./playground.js";
+export type {
+  PlaygroundEmitterOptions,
+  PlaygroundProps,
+  PlaygroundSaveData,
+} from "./playground.js";
 export {
   StandalonePlayground,
   createReactPlayground,
@@ -19,3 +26,4 @@ export {
   renderReactPlayground,
 } from "./standalone.js";
 export type * from "./types.js";
+export { usePlaygroundState, type PlaygroundState } from "./use-playground-state.js";

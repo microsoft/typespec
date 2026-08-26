@@ -69,7 +69,7 @@ public final class AzureLocationScalarsImpl {
      * perform REST calls.
      */
     @Host("{endpoint}")
-    @ServiceInterface(name = "ScalarClientAzureLoc")
+    @ServiceInterface(name = "ScalarClientAzureLocationScalars")
     public interface AzureLocationScalarsService {
         @Get("/azure/core/scalar/azureLocation")
         @ExpectedResponses({ 200 })

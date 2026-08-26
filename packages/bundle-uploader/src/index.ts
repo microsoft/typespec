@@ -1,7 +1,8 @@
 import { AzureCliCredential } from "@azure/identity";
 import { findWorkspacePackagesNoCheck } from "@pnpm/workspace.find-packages";
 import { createTypeSpecBundle } from "@typespec/bundler";
-import { resolve } from "path";
+import { glob, readFile } from "fs/promises";
+import { relative, resolve } from "path";
 import { join as joinUnix } from "path/posix";
 import pc from "picocolors";
 import { parse } from "semver";
@@ -14,6 +15,140 @@ function logInfo(...args: any[]) {
 
 function logSuccess(message: string) {
   logInfo(pc.green(`✔ ${message}`));
+}
+
+export interface PlaygroundAssetConfig {
+  /** Glob pattern relative to the package root (e.g. "generator/dist/pygen-*.whl"). */
+  path: string;
+  /** MIME content type for the blob upload. */
+  contentType: string;
+}
+
+export interface PlaygroundConfig {
+  /** Static files to upload as binary blobs. Paths support simple glob patterns. */
+  assets?: PlaygroundAssetConfig[];
+  /** Peer dependencies that should be bundled and uploaded. */
+  bundlePeerDependencies?: string[];
+}
+
+export interface BundleAndUploadStandalonePackageOptions {
+  /**
+   * Absolute path to the package directory.
+   */
+  packagePath: string;
+}
+
+/**
+ * Bundle and upload a standalone package that is not part of the pnpm workspace.
+ * Uploads the bundle files and writes a `latest.json` under the package's blob directory
+ * (e.g. `@typespec/http-client-csharp/latest.json`).
+ *
+ * If the package's `package.json` contains a `playgroundConfig` section, this function
+ * will also upload static assets (resolved via glob patterns) and bundle peer dependencies.
+ */
+export async function bundleAndUploadStandalonePackage({
+  packagePath,
+}: BundleAndUploadStandalonePackageOptions) {
+  const pkgJsonPath = resolve(packagePath, "package.json");
+  const pkgJson = JSON.parse(await readFile(pkgJsonPath, "utf-8"));
+  const playgroundConfig: PlaygroundConfig | undefined = pkgJson.playgroundConfig;
+
+  const bundle = await createTypeSpecBundle(packagePath);
+  const manifest = bundle.manifest;
+  logInfo(`Bundling standalone package: ${manifest.name}@${manifest.version}`);
+
+  const uploader = new TypeSpecBundledPackageUploader(new AzureCliCredential());
+  await uploader.createIfNotExists();
+
+  const result = await uploader.upload(bundle);
+  if (result.status === "uploaded") {
+    logSuccess(`Bundle for package ${manifest.name}@${manifest.version} uploaded.`);
+  } else {
+    logInfo(`Bundle for package ${manifest.name} already exists for version ${manifest.version}.`);
+  }
+
+  const importMap: Record<string, string> = {};
+  for (const [key, value] of Object.entries(result.imports)) {
+    importMap[joinUnix(manifest.name, key)] = value;
+  }
+
+  await uploadPlaygroundAssets(uploader, packagePath, manifest, importMap, playgroundConfig);
+
+  await uploader.updatePackageLatest(manifest.name, {
+    version: manifest.version,
+    imports: importMap,
+  });
+  logSuccess(`Updated ${manifest.name}/latest.json for version ${manifest.version}.`);
+}
+
+/**
+ * Upload playground assets and bundle peer dependencies based on the provided config.
+ */
+async function uploadPlaygroundAssets(
+  uploader: TypeSpecBundledPackageUploader,
+  packagePath: string,
+  manifest: { name: string; version: string },
+  importMap: Record<string, string>,
+  config: PlaygroundConfig | undefined,
+) {
+  if (!config) {
+    return;
+  }
+
+  // Upload static assets (e.g. .whl files)
+  if (config.assets) {
+    for (const asset of config.assets) {
+      const matchedFiles: string[] = [];
+      for await (const file of glob(asset.path, { cwd: packagePath })) {
+        matchedFiles.push(resolve(packagePath, file));
+      }
+      if (matchedFiles.length === 0) {
+        logInfo(pc.yellow(`⚠ No files matched asset pattern: ${asset.path}`));
+        continue;
+      }
+      for (const filePath of matchedFiles) {
+        const relativePath = relative(packagePath, filePath).replace(/\\/g, "/");
+        const blobPath = joinUnix(manifest.name, manifest.version, relativePath);
+        const content = await readFile(filePath);
+        const assetResult = await uploader.uploadBinaryAsset(blobPath, content, asset.contentType);
+        const importKey = joinUnix(manifest.name, relativePath);
+        importMap[importKey] = assetResult.url;
+        if (assetResult.status === "uploaded") {
+          logSuccess(`Uploaded asset: ${relativePath}`);
+        } else {
+          logInfo(`Asset already exists: ${relativePath}`);
+        }
+      }
+    }
+  }
+
+  // Bundle and upload peer dependencies
+  if (config.bundlePeerDependencies) {
+    for (const depName of config.bundlePeerDependencies) {
+      const depPath = resolve(packagePath, "node_modules", depName);
+      try {
+        const depBundle = await createTypeSpecBundle(depPath);
+        const depResult = await uploader.upload(depBundle);
+        if (depResult.status === "uploaded") {
+          logSuccess(
+            `Bundle for peer dep ${depBundle.manifest.name}@${depBundle.manifest.version} uploaded.`,
+          );
+        } else {
+          logInfo(
+            `Bundle for peer dep ${depBundle.manifest.name} already exists for version ${depBundle.manifest.version}.`,
+          );
+        }
+        for (const [key, value] of Object.entries(depResult.imports)) {
+          importMap[joinUnix(depBundle.manifest.name, key)] = value;
+        }
+      } catch (e: unknown) {
+        throw new Error(
+          `Failed to bundle peer dependency ${depName}: ${e instanceof Error ? e.message : e}`,
+          { cause: e },
+        );
+      }
+    }
+  }
 }
 
 export interface BundleAndUploadPackagesOptions {
@@ -85,9 +220,12 @@ export async function bundleAndUploadPackages({
     }
   }
   logInfo(`Import map for ${indexVersion}:`, importMap);
-  await uploader.updateIndex(indexName, {
+  const index = {
     version: indexVersion,
     imports: importMap,
-  });
+  };
+  await uploader.updateIndex(indexName, index);
   logSuccess(`Updated index for version ${indexVersion}.`);
+  await uploader.updateLatestIndex(indexName, index);
+  logSuccess(`Updated latest index for version ${indexVersion}.`);
 }

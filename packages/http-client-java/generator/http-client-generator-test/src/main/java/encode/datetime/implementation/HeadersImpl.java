@@ -59,7 +59,7 @@ public final class HeadersImpl {
      * calls.
      */
     @Host("{endpoint}")
-    @ServiceInterface(name = "DatetimeClientHeader")
+    @ServiceInterface(name = "DatetimeClientHeaders")
     public interface HeadersService {
         @Get("/encode/datetime/header/default")
         @ExpectedResponses({ 204 })

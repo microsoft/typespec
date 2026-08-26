@@ -1,22 +1,22 @@
-import * as ay from "@alloy-js/core";
+import { code, For, Refkey, refkey, StatementList } from "@alloy-js/core";
 import * as ts from "@alloy-js/typescript";
 import { ModelProperty } from "@typespec/compiler";
 import { useTransformNamePolicy } from "@typespec/emitter-framework";
 import { getDefaultValue } from "../../utils/parameters.jsx";
 
 export interface ParametrizedEndpointProps {
-  refkey: ay.Refkey;
+  refkey: Refkey;
   template: string;
   params: ModelProperty[];
 }
 
 export function ParametrizedEndpoint(props: ParametrizedEndpointProps) {
   const propNamer = useTransformNamePolicy();
-  const paramsRef = ay.refkey();
+  const paramsRef = refkey();
   const params = (
     <ts.VarDeclaration name="params" type={"Record<string, any>"} refkey={paramsRef}>
       <ts.ObjectExpression>
-        <ay.For each={props.params} joiner="," line>
+        <For each={props.params} joiner="," line>
           {(p) => {
             const applicationName = propNamer.getApplicationName(p);
             const transportName = propNamer.getTransportName(p);
@@ -26,14 +26,14 @@ export function ParametrizedEndpoint(props: ParametrizedEndpointProps) {
               : applicationName;
             return <ts.ObjectProperty name={transportName} value={itemRef} />;
           }}
-        </ay.For>
+        </For>
       </ts.ObjectExpression>
     </ts.VarDeclaration>
   );
 
   const resolvedEndpoint = (
     <ts.VarDeclaration name="resolvedEndpoint" refkey={props.refkey}>
-      {ay.code`
+      {code`
       "${props.template}".replace(/{([^}]+)}/g, (_, key) =>
         key in ${paramsRef} ? String(params[key]) : (() => { throw new Error(\`Missing parameter: $\{key}\`); })()
       );
@@ -42,9 +42,9 @@ export function ParametrizedEndpoint(props: ParametrizedEndpointProps) {
   );
 
   return (
-    <ay.StatementList>
+    <StatementList>
       {params}
       {resolvedEndpoint}
-    </ay.StatementList>
+    </StatementList>
   );
 }

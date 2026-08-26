@@ -4,6 +4,7 @@
 
 using System;
 using System.ClientModel.Primitives;
+using System.Diagnostics.CodeAnalysis;
 
 namespace _Type.Property.Nullable
 {
@@ -11,7 +12,12 @@ namespace _Type.Property.Nullable
     {
         public NullableClient() : this(new Uri("http://localhost:3000"), new NullableClientOptions()) => throw null;
 
-        public NullableClient(Uri endpoint, NullableClientOptions options) => throw null;
+        internal NullableClient(AuthenticationPolicy authenticationPolicy, Uri endpoint, NullableClientOptions options) => throw null;
+
+        public NullableClient(Uri endpoint, NullableClientOptions options) : this(null, endpoint, options) => throw null;
+
+        [Experimental("SCME0002")]
+        public NullableClient(NullableClientSettings settings) : this(AuthenticationPolicy.Create(settings), settings?.Endpoint, settings?.Options) => throw null;
 
         public ClientPipeline Pipeline => throw null;
 

@@ -3,6 +3,7 @@
 
 using System;
 using System.Collections.Generic;
+using Microsoft.TypeSpec.Generator.Utilities;
 
 namespace Microsoft.TypeSpec.Generator.Expressions
 {
@@ -54,7 +55,9 @@ namespace Microsoft.TypeSpec.Generator.Expressions
             foreach (var (_, isLiteral) in StringExtensions.GetFormattableStringFormatParts(format))
             {
                 if (!isLiteral)
+                {
                     count++;
+                }
             }
 
             if (count != args.Count)

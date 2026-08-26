@@ -8,6 +8,7 @@ using System.Diagnostics.CodeAnalysis;
 using System.Linq;
 using Microsoft.TypeSpec.Generator.Expressions;
 using Microsoft.TypeSpec.Generator.Input;
+using Microsoft.TypeSpec.Generator.Input.Extensions;
 using Microsoft.TypeSpec.Generator.Primitives;
 using Microsoft.TypeSpec.Generator.Snippets;
 using Microsoft.TypeSpec.Generator.Statements;
@@ -18,28 +19,31 @@ namespace Microsoft.TypeSpec.Generator.Providers
     [DebuggerDisplay("{GetDebuggerDisplay(),nq}")]
     public sealed class ParameterProvider : IEquatable<ParameterProvider>
     {
-        public string Name { get; }
-        public FormattableString Description { get; }
+        public string Name { get; private set; }
+        public FormattableString Description { get; private set; }
         public CSharpType Type { get; set; }
 
         /// <summary>
         /// The default value of the parameter.
         /// </summary>
         public ValueExpression? DefaultValue { get; set; }
-        public ValueExpression? InitializationValue { get; init; }
-        public ParameterValidationType Validation { get; init; } = ParameterValidationType.None;
-        public bool IsRef { get; }
-        public bool IsOut { get; }
-        public bool IsParams { get; }
+        public ValueExpression? InitializationValue { get; private set; }
+        public ParameterValidationType Validation { get; set; } = ParameterValidationType.None;
+        public bool IsRef { get; private set; }
+        public bool IsIn { get; private set; }
+        public bool IsOut { get; private set; }
+        public bool IsParams { get; private set; }
 
-        internal IReadOnlyList<AttributeStatement> Attributes { get; } = [];
-        public WireInformation WireInfo { get; }
-        public ParameterLocation Location { get; }
+        public bool IsContentParameter => Name == "content" && Location == ParameterLocation.Body;
+
+        public IReadOnlyList<AttributeStatement> Attributes { get; private set; }
+        public WireInformation WireInfo { get; private set; }
+        public ParameterLocation Location { get; private set; }
 
         /// <summary>
         /// This property tracks which property this parameter is constructed from.
         /// </summary>
-        public PropertyProvider? Property { get; }
+        public PropertyProvider? Property { get; private set; }
 
         /// <summary>
         /// This property tracks which field this parameter is constructed from.
@@ -47,25 +51,35 @@ namespace Microsoft.TypeSpec.Generator.Providers
         public FieldProvider? Field { get; set; }
 
         /// <summary>
+        /// This property stores the InputParameter that this ParameterProvider was created from.
+        /// Used to access metadata like MethodParameterSegments for override scenarios.
+        /// </summary>
+        public InputParameter? InputParameter { get; private set; }
+
+        /// <summary>
         /// Creates a <see cref="ParameterProvider"/> from an <see cref="InputParameter"/>.
         /// </summary>
         /// <param name="inputParameter">The <see cref="InputParameter"/> to convert.</param>
         public ParameterProvider(InputParameter inputParameter)
         {
+            InputParameter = inputParameter;
             Name = inputParameter.Name;
             Description = DocHelpers.GetFormattableDescription(inputParameter.Summary, inputParameter.Doc) ?? FormattableStringHelpers.Empty;
             var type = CodeModelGenerator.Instance.TypeFactory.CreateCSharpType(inputParameter.Type) ?? throw new InvalidOperationException($"Failed to create CSharpType for {inputParameter.Type}");
-            if (!inputParameter.IsRequired && !type.IsCollection)
+            if (!inputParameter.IsRequired)
             {
-                type = type.WithNullable(true);
-                DefaultValue = Snippet.Null;
+                type = !type.IsCollection ? type.WithNullable(true) : type;
+                DefaultValue = Snippet.Default;
             }
             Type = type;
-            Validation = inputParameter.IsRequired && !Type.IsValueType && !Type.IsNullable
-                ? ParameterValidationType.AssertNotNull
+            Validation = inputParameter.IsRequired && Type is { IsValueType: false, IsNullable: false }
+                ? inputParameter.Type is InputPrimitiveType { Kind: InputPrimitiveTypeKind.String } ?
+                    ParameterValidationType.AssertNotNullOrEmpty :
+                    ParameterValidationType.AssertNotNull
                 : ParameterValidationType.None;
-            WireInfo = new WireInformation(CodeModelGenerator.Instance.TypeFactory.GetSerializationFormat(inputParameter.Type), inputParameter.NameInRequest);
-            Location = inputParameter.Location.ToParameterLocation();
+            WireInfo = new WireInformation(CodeModelGenerator.Instance.TypeFactory.GetSerializationFormat(inputParameter.Type), inputParameter.SerializedName);
+            Location = inputParameter.ToParameterLocation();
+            Attributes = [];
         }
 
         public ParameterProvider(
@@ -75,14 +89,16 @@ namespace Microsoft.TypeSpec.Generator.Providers
             ValueExpression? defaultValue = null,
             bool isRef = false,
             bool isOut = false,
+            bool isIn = false,
             bool isParams = false,
-            IReadOnlyList<AttributeStatement>? attributes = null,
+            IEnumerable<AttributeStatement>? attributes = null,
             PropertyProvider? property = null,
             FieldProvider? field = null,
             ValueExpression? initializationValue = null,
             ParameterLocation? location = null,
             WireInformation? wireInfo = null,
-            ParameterValidationType? validation = null)
+            ParameterValidationType? validation = null,
+            InputParameter? inputParameter = null)
         {
             Debug.Assert(!(property is not null && field is not null), "A parameter cannot be both a property and a field");
 
@@ -91,15 +107,17 @@ namespace Microsoft.TypeSpec.Generator.Providers
             Description = description;
             IsRef = isRef;
             IsOut = isOut;
+            IsIn = isIn;
             IsParams = isParams;
             DefaultValue = defaultValue;
-            Attributes = attributes ?? Array.Empty<AttributeStatement>();
+            Attributes = (attributes as IReadOnlyList<AttributeStatement>) ?? [];
             Property = property;
             Field = field;
             Validation = validation ?? GetParameterValidation();
             InitializationValue = initializationValue;
             WireInfo = wireInfo ?? new WireInformation(SerializationFormat.Default, name);
             Location = location ?? ParameterLocation.Unknown;
+            InputParameter = inputParameter;
         }
 
         private ParameterProvider? _inputParameter;
@@ -118,6 +136,7 @@ namespace Microsoft.TypeSpec.Generator.Providers
                 DefaultValue,
                 IsRef,
                 IsOut,
+                IsIn,
                 IsParams,
                 Attributes,
                 Property,
@@ -127,8 +146,9 @@ namespace Microsoft.TypeSpec.Generator.Providers
                 wireInfo: WireInfo,
                 validation: Validation)
             {
-                _asVariable = AsExpression,
-                SpreadSource = SpreadSource
+                _asVariable = _asVariable,
+                SpreadSource = SpreadSource,
+                InputParameter = InputParameter
             };
         }
 
@@ -173,44 +193,71 @@ namespace Microsoft.TypeSpec.Generator.Providers
         // https://github.com/microsoft/typespec/issues/3813
         public static implicit operator VariableExpression(ParameterProvider parameter) => GetVariableExpression(parameter);
 
-        private static VariableExpression GetVariableExpression(ParameterProvider parameter)
+        internal static VariableExpression GetVariableExpression(ParameterProvider parameter)
         {
             if (parameter._asVariable == null)
             {
-                parameter._asVariable = new VariableExpression(parameter.Type, parameter.Name.ToVariableName(), parameter.IsRef);
+                var variableName = parameter.InputParameter?.IsExactName == true
+                    ? parameter.Name
+                    : parameter.Name.ToVariableName();
+
+                parameter._asVariable = new VariableExpression(
+                    parameter.Type,
+                    variableName);
             }
 
             return parameter._asVariable;
         }
 
+        internal static ValueExpression GetArgumentExpression(ParameterProvider parameter)
+        {
+            var variable = GetVariableExpression(parameter);
+            if (parameter.IsRef || parameter.IsOut)
+            {
+                return new ArgumentExpression(variable, parameter.IsRef, parameter.IsOut);
+            }
+            return variable;
+        }
+
         private VariableExpression? _asVariable;
-        private VariableExpression AsExpression => _asVariable ??= this;
 
         public TypeProvider? SpreadSource { get; set; }
 
         private ParameterValidationType GetParameterValidation()
         {
             if (Field is not null && !Field.Type.IsNullable)
+            {
                 return ParameterValidationType.AssertNotNull;
+            }
 
             if (Property is null || Property.WireInfo is null)
+            {
                 return ParameterValidationType.None;
+            }
 
             // We do not validate a parameter when it is a value type (struct or int, etc)
             if (Property.Type.IsValueType)
+            {
                 return ParameterValidationType.None;
+            }
 
             // or it is readonly
             if (Property.WireInfo.IsReadOnly)
+            {
                 return ParameterValidationType.None;
+            }
 
             // or it is optional
             if (!Property.WireInfo.IsRequired)
+            {
                 return ParameterValidationType.None;
+            }
 
             // or it is nullable
             if (Property.Type.IsNullable)
+            {
                 return ParameterValidationType.None;
+            }
 
             return ParameterValidationType.AssertNotNull;
         }
@@ -225,6 +272,7 @@ namespace Microsoft.TypeSpec.Generator.Providers
                 true,
                 false,
                 false,
+                false,
                 Attributes,
                 Property,
                 Field,
@@ -233,8 +281,106 @@ namespace Microsoft.TypeSpec.Generator.Providers
                 wireInfo: WireInfo,
                 validation: Validation)
             {
-                _asVariable = AsExpression,
+                _asVariable = _asVariable,
             };
+        }
+
+        /// <summary>
+        /// Updates the parameter with the given name.
+        /// </summary>
+        public void Update(
+            string? name = null,
+            FormattableString? description = null,
+            CSharpType? type = null,
+            ValueExpression? defaultValue = null,
+            bool? isRef = null,
+            bool? isOut = null,
+            bool? isIn = null,
+            bool? isParams = null,
+            IEnumerable<AttributeStatement>? attributes = null,
+            PropertyProvider? property = null,
+            FieldProvider? field = null,
+            ValueExpression? initializationValue = null,
+            ParameterLocation? location = null,
+            WireInformation? wireInfo = null,
+            ParameterValidationType? validation = null)
+        {
+            if (name is not null)
+            {
+                Name = name;
+                _asVariable?.Update(name: name);
+            }
+
+            if (description is not null)
+            {
+                Description = description;
+            }
+
+            if (type is not null)
+            {
+                Type = type;
+                _asVariable?.Update(type: type);
+            }
+
+            if (defaultValue is not null)
+            {
+                DefaultValue = defaultValue;
+            }
+
+            if (isRef is not null)
+            {
+                IsRef = isRef.Value;
+            }
+
+            if (isOut is not null)
+            {
+                IsOut = isOut.Value;
+            }
+
+            if (isIn is not null)
+            {
+                IsIn = isIn.Value;
+            }
+
+            if (isParams is not null)
+            {
+                IsParams = isParams.Value;
+            }
+
+            if (attributes is not null)
+            {
+                Attributes = (attributes as IReadOnlyList<AttributeStatement>) ?? [];
+            }
+
+            if (property is not null)
+            {
+                Property = property;
+            }
+
+            if (field is not null)
+            {
+                Field = field;
+            }
+
+            if (initializationValue is not null)
+            {
+                InitializationValue = initializationValue;
+            }
+
+            if (location is not null)
+            {
+                Location = location.Value;
+            }
+
+            if (wireInfo is not null)
+            {
+                WireInfo = wireInfo;
+            }
+
+            if (validation is not null)
+            {
+                Validation = validation.Value;
+            }
         }
     }
 }

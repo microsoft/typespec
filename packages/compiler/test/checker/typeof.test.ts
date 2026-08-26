@@ -1,26 +1,31 @@
 import { ok, strictEqual } from "assert";
-import { beforeEach, describe, it } from "vitest";
+import { describe, it } from "vitest";
 import { expectDiagnostics } from "../../src/testing/expect.js";
+import { mockFile, t } from "../../src/testing/index.js";
 import { extractSquiggles } from "../../src/testing/source-utils.js";
-import { createTestHost, createTestRunner } from "../../src/testing/test-host.js";
-import { BasicTestRunner } from "../../src/testing/types.js";
-import { defineTest } from "../test-utils.js";
+import { Tester } from "../tester.js";
 
-const { compile: compileTypeOf, diagnose: diagnoseTypeOf } = defineTest(
-  async (typeofCode: string, commonCode?: string) => {
-    const runner = await createTestRunner();
+async function compileTypeOf(typeofCode: string, commonCode?: string) {
+  const { target } = await Tester.compile(t.code`
+    ${commonCode ?? ""}
+    model Test {
+      ${t.modelProperty("target")}: ${typeofCode};
+    }
+  `);
+  ok(target, `Expected a property tagged with @test("target")`);
+  strictEqual(target.kind, "ModelProperty");
+  return target.type;
+}
 
-    const [{ target }, diagnostics] = await runner.compileAndDiagnose(`
-      ${commonCode ?? ""}
-      model Test {
-        @test target: ${typeofCode};
-      }
-    `);
-    ok(target, `Expected a property tagged with @test("target")`);
-    strictEqual(target.kind, "ModelProperty");
-    return [target.type, diagnostics];
-  },
-);
+async function diagnoseTypeOf(typeofCode: string, commonCode?: string) {
+  const diagnostics = await Tester.diagnose(`
+    ${commonCode ?? ""}
+    model Test {
+      target: ${typeofCode};
+    }
+  `);
+  return diagnostics;
+}
 
 describe("get the type of a const", () => {
   it("const without an explicit type return the precise type of the value", async () => {
@@ -59,13 +64,12 @@ describe("emit error if trying to typeof a template parameter that accept types"
     ["constrained to only types", "extends string"],
     ["constrained with types and value", "extends string | valueof string"],
   ])("%s", async (label, constraint) => {
-    const runner = await createTestRunner();
     const { pos, end, source } = extractSquiggles(`
       model A<T ${constraint}> {
         prop: typeof ~~~T~~~;
       }
     `);
-    const diagnostics = await runner.diagnose(source);
+    const diagnostics = await Tester.diagnose(source);
     expectDiagnostics(diagnostics, {
       code: "expect-value",
       pos,
@@ -75,23 +79,19 @@ describe("emit error if trying to typeof a template parameter that accept types"
 });
 
 describe("typeof can be used to force sending a type to a decorator that accept both", () => {
-  let runner: BasicTestRunner;
-  let called: any;
-
-  beforeEach(async () => {
-    called = undefined;
-    const host = await createTestHost();
-    host.addJsFile("dec.js", {
+  const tester = Tester.files({
+    "dec.js": mockFile.js({
       $foo: (_ctx: any, _target: any, value: any) => {
         called = value;
       },
-    });
-    runner = await createTestRunner(host);
-  });
+    }),
+  }).import("./dec.js");
+
+  let called: any;
 
   it("directly to decorator", async () => {
-    await runner.compile(`
-    import "./dec.js";
+    called = undefined;
+    await tester.compile(`
     extern dec foo(target, value: string | valueof string);
 
     @foo(typeof "abc")
@@ -103,8 +103,8 @@ describe("typeof can be used to force sending a type to a decorator that accept 
   });
 
   it("via template", async () => {
-    await runner.compile(`
-    import "./dec.js";
+    called = undefined;
+    await tester.compile(`
     extern dec foo(target, value: string | valueof string);
 
     alias T = A<typeof "abc">;

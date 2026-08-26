@@ -6,22 +6,34 @@ import { isType } from "../core/type-utils.js";
 import { DocContent, Node, Sym, SyntaxKind, TemplateDeclarationNode, Type } from "../core/types.js";
 import { getSymbolSignature } from "./type-signature.js";
 
+interface GetSymbolDetailsOptions {
+  includeSignature: boolean;
+  includeParameterTags: boolean;
+  /**
+   * Whether to include the final expended definition of the symbol
+   * For Model and Interface, it's body with expended members will be included. Otherwise, it will be the same as signature. (Support for other type may be added in the future as needed)
+   * This is useful for models and interfaces with complex 'extends' and 'is' relationship when user wants to know the final expended definition.
+   */
+  includeExpandedDefinition?: boolean;
+}
+
 /**
  * Get the detailed documentation for a symbol.
  * @param program The program
  * @internal
  */
-export function getSymbolDetails(
+export async function getSymbolDetails(
   program: Program,
   symbol: Sym,
-  options = {
+  options: GetSymbolDetailsOptions = {
     includeSignature: true,
     includeParameterTags: true,
+    includeExpandedDefinition: false,
   },
-): string {
+): Promise<string> {
   const lines = [];
   if (options.includeSignature) {
-    lines.push(getSymbolSignature(program, symbol));
+    lines.push(await getSymbolSignature(program, symbol));
   }
   const doc = getSymbolDocumentation(program, symbol);
   if (doc) {
@@ -43,6 +55,15 @@ export function getSymbolDetails(
       }
     }
   }
+  if (options.includeExpandedDefinition) {
+    lines.push(`*Full Definition:*`);
+    lines.push(
+      await getSymbolSignature(program, symbol, {
+        includeBody: true,
+      }),
+    );
+  }
+
   return lines.join("\n\n");
 }
 
@@ -59,9 +80,12 @@ function getSymbolDocumentation(program: Program, symbol: Sym) {
   // Add @doc(...) API docs
   let type = symbol.type;
   if (!type) {
-    const entity = program.checker.getTypeOrValueForNode(getSymNode(symbol));
-    if (entity && isType(entity)) {
-      type = entity;
+    const symNode = getSymNode(symbol);
+    if (symNode) {
+      const entity = program.checker.getTypeOrValueForNode(symNode);
+      if (entity && isType(entity)) {
+        type = entity;
+      }
     }
   }
   if (type) {

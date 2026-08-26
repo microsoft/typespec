@@ -5,13 +5,12 @@
 package tsptest.armresourceprovider.fluent.models;
 
 import com.azure.core.annotation.Fluent;
-import com.azure.core.util.logging.ClientLogger;
 import com.azure.json.JsonReader;
 import com.azure.json.JsonSerializable;
 import com.azure.json.JsonToken;
 import com.azure.json.JsonWriter;
 import java.io.IOException;
-import tsptest.armresourceprovider.models.CustomTemplateResourcePropertiesAnonymousEmptyModel;
+import tsptest.armresourceprovider.models.AnonymousEmptyModel;
 import tsptest.armresourceprovider.models.Dog;
 import tsptest.armresourceprovider.models.EmptyModel;
 import tsptest.armresourceprovider.models.PriorityModel;
@@ -40,7 +39,7 @@ public final class CustomTemplateResourceProperties implements JsonSerializable<
     /*
      * The anonymousEmptyModel property.
      */
-    private CustomTemplateResourcePropertiesAnonymousEmptyModel anonymousEmptyModel;
+    private AnonymousEmptyModel anonymousEmptyModel;
 
     /*
      * The priority property.
@@ -107,7 +106,7 @@ public final class CustomTemplateResourceProperties implements JsonSerializable<
      * 
      * @return the anonymousEmptyModel value.
      */
-    public CustomTemplateResourcePropertiesAnonymousEmptyModel anonymousEmptyModel() {
+    public AnonymousEmptyModel anonymousEmptyModel() {
         return this.anonymousEmptyModel;
     }
 
@@ -117,8 +116,7 @@ public final class CustomTemplateResourceProperties implements JsonSerializable<
      * @param anonymousEmptyModel the anonymousEmptyModel value to set.
      * @return the CustomTemplateResourceProperties object itself.
      */
-    public CustomTemplateResourceProperties
-        withAnonymousEmptyModel(CustomTemplateResourcePropertiesAnonymousEmptyModel anonymousEmptyModel) {
+    public CustomTemplateResourceProperties withAnonymousEmptyModel(AnonymousEmptyModel anonymousEmptyModel) {
         this.anonymousEmptyModel = anonymousEmptyModel;
         return this;
     }
@@ -142,42 +140,6 @@ public final class CustomTemplateResourceProperties implements JsonSerializable<
         this.priority = priority;
         return this;
     }
-
-    /**
-     * Validates the instance.
-     * 
-     * @throws IllegalArgumentException thrown if the instance is not valid.
-     */
-    public void validate() {
-        if (dog() == null) {
-            throw LOGGER.atError()
-                .log(new IllegalArgumentException(
-                    "Missing required property dog in model CustomTemplateResourceProperties"));
-        } else {
-            dog().validate();
-        }
-        if (namedEmptyModel() == null) {
-            throw LOGGER.atError()
-                .log(new IllegalArgumentException(
-                    "Missing required property namedEmptyModel in model CustomTemplateResourceProperties"));
-        } else {
-            namedEmptyModel().validate();
-        }
-        if (anonymousEmptyModel() == null) {
-            throw LOGGER.atError()
-                .log(new IllegalArgumentException(
-                    "Missing required property anonymousEmptyModel in model CustomTemplateResourceProperties"));
-        } else {
-            anonymousEmptyModel().validate();
-        }
-        if (priority() == null) {
-            throw LOGGER.atError()
-                .log(new IllegalArgumentException(
-                    "Missing required property priority in model CustomTemplateResourceProperties"));
-        }
-    }
-
-    private static final ClientLogger LOGGER = new ClientLogger(CustomTemplateResourceProperties.class);
 
     /**
      * {@inheritDoc}
@@ -215,7 +177,7 @@ public final class CustomTemplateResourceProperties implements JsonSerializable<
                     deserializedCustomTemplateResourceProperties.namedEmptyModel = EmptyModel.fromJson(reader);
                 } else if ("anonymousEmptyModel".equals(fieldName)) {
                     deserializedCustomTemplateResourceProperties.anonymousEmptyModel
-                        = CustomTemplateResourcePropertiesAnonymousEmptyModel.fromJson(reader);
+                        = AnonymousEmptyModel.fromJson(reader);
                 } else if ("priority".equals(fieldName)) {
                     deserializedCustomTemplateResourceProperties.priority = PriorityModel.fromValue(reader.getInt());
                 } else if ("provisioningState".equals(fieldName)) {

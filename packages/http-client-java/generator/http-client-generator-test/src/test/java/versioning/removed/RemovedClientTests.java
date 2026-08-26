@@ -9,18 +9,20 @@ import versioning.removed.models.EnumV2;
 import versioning.removed.models.EnumV3;
 import versioning.removed.models.ModelV2;
 import versioning.removed.models.ModelV3;
-import versioning.removed.models.Versions;
 
 public class RemovedClientTests {
 
-    private final RemovedClient removedClientV1
-        = new RemovedClientBuilder().endpoint("http://localhost:3000").version(Versions.V1).buildClient();
+    private final RemovedClient removedClientV1 = new RemovedClientBuilder().endpoint("http://localhost:3000")
+        .serviceVersion(RemovedServiceVersion.V1)
+        .buildClient();
 
-    private final RemovedClient removedClientV2
-        = new RemovedClientBuilder().endpoint("http://localhost:3000").version(Versions.V2).buildClient();
+    private final RemovedClient removedClientV2 = new RemovedClientBuilder().endpoint("http://localhost:3000")
+        .serviceVersion(RemovedServiceVersion.V2)
+        .buildClient();
 
-    private final RemovedClient removedClientV2Preview
-        = new RemovedClientBuilder().endpoint("http://localhost:3000").version(Versions.V2PREVIEW).buildClient();
+    private final RemovedClient removedClientV2Preview = new RemovedClientBuilder().endpoint("http://localhost:3000")
+        .serviceVersion(RemovedServiceVersion.V2PREVIEW)
+        .buildClient();
 
     @Test
     public void tesRemovedClient() {

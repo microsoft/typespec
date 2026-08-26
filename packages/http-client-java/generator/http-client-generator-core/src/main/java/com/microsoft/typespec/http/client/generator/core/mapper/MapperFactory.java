@@ -52,4 +52,6 @@ public interface MapperFactory {
     UnionModelMapper getUnionModelMapper();
 
     GraalVmConfigMapper getGraalVmConfigMapper();
+
+    PomMapper getPomMapper();
 }

@@ -2,10 +2,11 @@
 
 using Sample;
 using SampleTypeSpec;
+using Microsoft.TypeSpec.Generator.Customizations;
 
 namespace NewNamespace.Models
 {
-    [CodeGenType("MockInputModel")
+    [CodeGenType("MockInputModel")]
     public enum CustomizedEnum
     {
     }

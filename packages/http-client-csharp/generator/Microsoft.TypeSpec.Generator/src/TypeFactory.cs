@@ -4,38 +4,41 @@
 using System;
 using System.Collections.Generic;
 using System.IO;
+using System.Linq;
+using System.Net;
+using System.Text.Json;
 using Microsoft.TypeSpec.Generator.Input;
+using Microsoft.TypeSpec.Generator.Input.Extensions;
 using Microsoft.TypeSpec.Generator.Primitives;
 using Microsoft.TypeSpec.Generator.Providers;
+using Microsoft.TypeSpec.Generator.Utilities;
 
 namespace Microsoft.TypeSpec.Generator
 {
     public class TypeFactory
     {
-        private ChangeTrackingListDefinition? _changeTrackingListProvider;
-        private ChangeTrackingListDefinition ChangeTrackingListProvider => _changeTrackingListProvider ??= new();
+        private ChangeTrackingListDefinition ChangeTrackingListProvider { get; } = new();
 
-        private ChangeTrackingDictionaryDefinition? _changeTrackingDictionaryProvider;
-        private ChangeTrackingDictionaryDefinition ChangeTrackingDictionaryProvider => _changeTrackingDictionaryProvider ??= new();
+        private ChangeTrackingDictionaryDefinition ChangeTrackingDictionaryProvider { get; } = new();
 
-        private Dictionary<InputModelType, ModelProvider?>? _csharpToModelProvider;
-        private Dictionary<InputModelType, ModelProvider?> CSharpToModelProvider => _csharpToModelProvider ??= [];
+        private Dictionary<InputModelType, ModelProvider?> InputTypeToModelProvider { get; } = [];
 
-        private Dictionary<EnumCacheKey, EnumProvider?>? _enumCache;
-        private Dictionary<EnumCacheKey, EnumProvider?> EnumCache => _enumCache ??= [];
+        public IDictionary<CSharpType, TypeProvider?> CSharpTypeMap { get; } = new Dictionary<CSharpType, TypeProvider?>(CSharpType.IgnoreNullableComparer);
 
-        private Dictionary<InputType, CSharpType?>? _typeCache;
-        private Dictionary<InputType, CSharpType?> TypeCache => _typeCache ??= [];
+        // Maps C# type names to TypeProviders for efficient lookup when resolving types by name
+        internal IDictionary<string, TypeProvider> TypeProvidersByName { get; } = new Dictionary<string, TypeProvider>();
 
-        private Dictionary<InputModelProperty, PropertyProvider?>? _propertyCache;
-        private Dictionary<InputModelProperty, PropertyProvider?> PropertyCache => _propertyCache ??= [];
+        private Dictionary<EnumCacheKey, EnumProvider?> EnumCache { get; } = [];
 
-        private Dictionary<InputType, IReadOnlyList<TypeProvider>>? _serializationsCache;
+        private Dictionary<InputType, CSharpType?> TypeCache { get; } = [];
+        private Dictionary<InputSerializationOptions, SerializationOptions?> SerializationOptionsCache { get; } = [];
+
+        private Dictionary<InputProperty, PropertyProvider?> PropertyCache { get; } = [];
+
         private IReadOnlyList<LibraryVisitor> Visitors => CodeModelGenerator.Instance.Visitors;
-        private Dictionary<InputType, IReadOnlyList<TypeProvider>> SerializationsCache => _serializationsCache ??= [];
+        private Dictionary<InputType, IReadOnlyList<TypeProvider>> SerializationsCache { get; } = [];
 
-        private HashSet<string>? _unionTypes;
-        internal HashSet<string> UnionTypes => _unionTypes ??= [];
+        internal HashSet<string> UnionVariantTypesToKeep { get; } = [];
 
         protected internal TypeFactory()
         {
@@ -49,18 +52,42 @@ namespace Microsoft.TypeSpec.Generator
             }
 
             type = CreateCSharpTypeCore(inputType);
-            TypeCache.Add(inputType, type);
+            TypeCache[inputType] = type;
             return type;
+        }
+
+        protected internal virtual Type? CreateFrameworkType(string fullyQualifiedTypeName)
+        {
+            return fullyQualifiedTypeName switch
+            {
+                // Special case for types that would not be defined in corlib, but should still be considered framework types.
+                "System.BinaryData" => typeof(BinaryData),
+                "System.Uri" => typeof(Uri),
+                "System.Text.Json.JsonElement" => typeof(JsonElement),
+                "System.Net.IPAddress" => typeof(IPAddress),
+                _ => Type.GetType(fullyQualifiedTypeName)
+            };
         }
 
         protected virtual CSharpType? CreateCSharpTypeCore(InputType inputType)
         {
+            // Check if this type has external type information
+            if (inputType.External != null)
+            {
+                return CreateExternalType(inputType.External, inputType);
+            }
+
             CSharpType? type;
             switch (inputType)
             {
                 case InputLiteralType literalType:
                     var input = CreateCSharpType(literalType.ValueType);
                     type = input != null ? CSharpType.FromLiteral(input, literalType.Value) : null;
+                    break;
+                case InputEnumTypeValue enumValueType:
+                    // for enum value, we redirect to its corresponding enum type as a literal
+                    var enumValue = CreateCSharpType(enumValueType.EnumType);
+                    type = enumValue != null ? CSharpType.FromLiteral(enumValue, enumValueType.Value) : null;
                     break;
                 case InputUnionType unionType:
                     var unionInputs = new List<CSharpType>();
@@ -70,7 +97,11 @@ namespace Microsoft.TypeSpec.Generator
                         if (unionInput != null)
                         {
                             unionInputs.Add(unionInput);
-                            UnionTypes.Add(unionInput.Name);
+                            // we only keep the type if it is not framework type and not literal
+                            if (!unionInput.IsFrameworkType && !unionInput.IsLiteral)
+                            {
+                                UnionVariantTypesToKeep.Add(unionInput.Name);
+                            }
                         }
                     }
                     type = CSharpType.FromUnion(unionInputs);
@@ -143,21 +174,74 @@ namespace Microsoft.TypeSpec.Generator
         /// <returns>An instance of <see cref="TypeProvider"/>.</returns>
         public ModelProvider? CreateModel(InputModelType model)
         {
-            if (CSharpToModelProvider.TryGetValue(model, out var modelProvider))
+            if (InputTypeToModelProvider.TryGetValue(model, out var modelProvider))
+            {
                 return modelProvider;
+            }
 
-            modelProvider = CreateModelCore(model);
+            // Add sentinel before construction to prevent re-entrant creation of the same model
+            // (e.g., when BuildBaseModelProvider triggers CreateModel for all input models).
+            InputTypeToModelProvider[model] = null;
+
+            // A model marked as external maps to a type that already exists in a framework or
+            // referenced assembly, so it must not be generated. Represent it with a
+            // SystemObjectModelProvider so that generated models deriving from it still get a
+            // ModelProvider base (enabling constructor chaining and discriminator forwarding)
+            // rather than a bare TypeProvider that cannot serve as a base model. This is handled
+            // here, before the overridable CreateModelCore, so all generators share the behavior.
+            modelProvider = CreateExternalModel(model) ?? CreateModelCore(model);
 
             foreach (var visitor in Visitors)
             {
                 modelProvider = visitor.PreVisitModel(model, modelProvider);
             }
 
-            CSharpToModelProvider.Add(model, modelProvider);
+            InputTypeToModelProvider[model] = modelProvider;
+
+            if (modelProvider != null)
+            {
+                if (model.Access == "public")
+                {
+                    CodeModelGenerator.Instance.AddTypeToKeep(modelProvider);
+                }
+
+                CSharpTypeMap[modelProvider.Type] = modelProvider;
+                TypeProvidersByName[modelProvider.Type.Name] = modelProvider;
+            }
             return modelProvider;
         }
 
-        protected virtual ModelProvider? CreateModelCore(InputModelType model) => new ModelProvider(model);
+        protected virtual ModelProvider? CreateModelCore(InputModelType model)
+            => new ModelProvider(model);
+
+        /// <summary>
+        /// Maps an external <see cref="InputModelType"/> (one marked via <c>@alternateType</c>) to a
+        /// <see cref="SystemObjectModelProvider"/> that wraps the resolved framework/referenced type.
+        /// Returns <c>null</c> when the model is not external or the external type cannot be resolved,
+        /// in which case normal model creation proceeds.
+        /// </summary>
+        private SystemObjectModelProvider? CreateExternalModel(InputModelType model)
+        {
+            if (model.External == null)
+            {
+                return null;
+            }
+
+            var externalType = CreateExternalType(model.External);
+            return externalType != null ? new SystemObjectModelProvider(externalType, model) : null;
+        }
+
+        /// <summary>
+        /// Factory method for creating the <see cref="ModelFactoryProvider"/> that emits the
+        /// generated <c>ModelFactory</c> for the current output library.
+        /// </summary>
+        /// <param name="models">The input models to generate factory methods for.</param>
+        /// <returns>An instance of <see cref="ModelFactoryProvider"/>.</returns>
+        public ModelFactoryProvider CreateModelFactory(IEnumerable<InputModelType> models)
+            => CreateModelFactoryCore(models);
+
+        protected virtual ModelFactoryProvider CreateModelFactoryCore(IEnumerable<InputModelType> models)
+            => new ModelFactoryProvider(models);
 
         /// <summary>
         /// Factory method for creating a <see cref="TypeProvider"/> based on an <see cref="InputEnumType"> <paramref name="enumType"/>.
@@ -169,16 +253,65 @@ namespace Microsoft.TypeSpec.Generator
         {
             var enumCacheKey = new EnumCacheKey(enumType, declaringType);
             if (EnumCache.TryGetValue(enumCacheKey, out var enumProvider))
+            {
                 return enumProvider;
+            }
+
+            // An enum marked as external maps to a type that already exists in a framework or
+            // referenced assembly, so it must not be generated. Unlike models there is no derived-type
+            // scenario for enums, so we simply skip generation; callers use the resolved external
+            // CSharpType produced by CreateCSharpType (which short-circuits on InputType.External)
+            // instead of a generated provider. This is handled here, before the overridable
+            // CreateEnumCore, so all generators share the behavior and mirror CreateExternalModel.
+            if (enumType.External != null)
+            {
+                EnumCache.TryAdd(enumCacheKey, null);
+                return null;
+            }
 
             enumProvider = CreateEnumCore(enumType, declaringType);
 
             foreach (var visitor in Visitors)
             {
                 enumProvider = visitor.PreVisitEnum(enumType, enumProvider);
+                // visit the linked enum variants
+                if (enumProvider is FixedEnumProvider)
+                {
+                    enumProvider.ExtensibleEnumView = visitor.PreVisitEnum(enumType, enumProvider.ExtensibleEnumView);
+                }
+                else if (enumProvider is ExtensibleEnumProvider)
+                {
+                    enumProvider.FixedEnumView = visitor.PreVisitEnum(enumType, enumProvider.FixedEnumView);
+                }
+            }
+
+            if (enumProvider == null)
+            {
+                EnumCache.TryAdd(enumCacheKey, null);
+                return null;
+            }
+
+            // Check to see if there is custom code that customizes the enum
+            enumProvider = enumProvider.CustomCodeView switch
+            {
+                { Type: { IsValueType: true, IsStruct: true } } => enumProvider.ExtensibleEnumView ?? enumProvider,
+                { Type: { IsValueType: true, IsStruct: false } } => enumProvider.FixedEnumView ?? enumProvider,
+                _ => enumProvider,
+            };
+
+            if (enumType.Access == "public")
+            {
+                CodeModelGenerator.Instance.AddTypeToKeep(enumProvider);
             }
 
             EnumCache.Add(enumCacheKey, enumProvider);
+
+            if (enumProvider != null)
+            {
+                CSharpTypeMap[enumProvider.Type] = enumProvider;
+                TypeProvidersByName[enumProvider.Type.Name] = enumProvider;
+            }
+
             return enumProvider;
         }
 
@@ -186,14 +319,69 @@ namespace Microsoft.TypeSpec.Generator
             => EnumProvider.Create(enumType, declaringType);
 
         /// <summary>
+        /// Factory method for creating a <see cref="CSharpType"/> based on external type properties.
+        /// </summary>
+        /// <param name="externalProperties">The <see cref="InputExternalTypeMetadata"/> to convert.</param>
+        /// <param name="inputType">The originating <see cref="InputType"/>, when available, used to preserve
+        /// semantics (such as extensible-enum backing) that reflection alone cannot recover from the resolved type.</param>
+        /// <returns>A <see cref="CSharpType"/> representing the external type, or null if the type cannot be resolved.</returns>
+        private CSharpType? CreateExternalType(InputExternalTypeMetadata externalProperties, InputType? inputType = null)
+        {
+            // Resolve the type: first as a framework type from the fully qualified name (free, no I/O, and the
+            // source of truth for BCL types), then, on a miss, dynamically from the NuGet package named in the
+            // metadata. ExternalTypeReferenceResolver consults a process-wide cache populated by the eager
+            // pre-walk in CSharpGen.ExecuteAsync, resolving on-demand when the cache misses.
+            var resolvedType = CreateFrameworkType(externalProperties.Identity);
+            if (resolvedType == null && !string.IsNullOrEmpty(externalProperties.Package))
+            {
+                resolvedType = ExternalTypeReferenceResolver.TryResolve(externalProperties);
+            }
+
+            if (resolvedType != null)
+            {
+                var externalType = new CSharpType(resolvedType);
+
+                // A referenced extensible enum is implemented as a value-type struct, so the resolved
+                // framework type is not recognized as an enum via reflection and loses its enum semantics.
+                // Rebuild it preserving the underlying enum type so downstream serialization emits inline
+                // construction (e.g. new Kind(value)) instead of a broken ModelReaderWriter.Read<T> fallback.
+                if (inputType is InputEnumType { IsExtensible: true } externalEnum)
+                {
+                    var underlyingType = CreateCSharpType(externalEnum.ValueType);
+                    if (underlyingType is { IsFrameworkType: true })
+                    {
+                        externalType = externalType.WithUnderlyingEnumType(underlyingType.FrameworkType);
+                    }
+                }
+
+                return externalType;
+            }
+
+            // Neither path resolved the type — emit a diagnostic that explains what was attempted.
+            // Each branch is a self-contained sentence so the final message reads naturally and
+            // doesn't repeat "could not be resolved".
+            var details = string.IsNullOrEmpty(externalProperties.Package)
+                ? "no package metadata was provided"
+                : string.IsNullOrEmpty(externalProperties.MinVersion)
+                    ? $"package '{externalProperties.Package}' was not found in the NuGet cache or any configured feed"
+                    : $"package '{externalProperties.Package}' (>= {externalProperties.MinVersion}) was not found in the NuGet cache or any configured feed";
+
+            CodeModelGenerator.Instance.Emitter.ReportDiagnostic(
+                "unsupported-external-type",
+                $"External type '{externalProperties.Identity}' could not be resolved: {details}.");
+
+            return null;
+        }
+
+        /// <summary>
         /// Factory method for creating a <see cref="ParameterProvider"/> based on an input parameter <paramref name="parameter"/>.
         /// </summary>
         /// <param name="parameter">The <see cref="InputParameter"/> to convert.</param>
         /// <returns>An instance of <see cref="ParameterProvider"/>.</returns>
-        public ParameterProvider CreateParameter(InputParameter parameter)
+        public ParameterProvider? CreateParameter(InputParameter parameter)
             => CreateParameterCore(parameter);
 
-        protected virtual ParameterProvider CreateParameterCore(InputParameter parameter)
+        protected virtual ParameterProvider? CreateParameterCore(InputParameter parameter)
             => new ParameterProvider(parameter);
 
         /// <summary>
@@ -201,10 +389,12 @@ namespace Microsoft.TypeSpec.Generator
         /// </summary>
         /// <param name="property">The input property.</param>
         /// <returns>The property provider.</returns>
-        public PropertyProvider? CreateProperty(InputModelProperty property, TypeProvider enclosingType)
+        public PropertyProvider? CreateProperty(InputProperty property, TypeProvider enclosingType)
         {
             if (PropertyCache.TryGetValue(property, out var propertyProvider))
+            {
                 return propertyProvider;
+            }
 
             propertyProvider = CreatePropertyCore(property, enclosingType);
             PropertyCache.Add(property, propertyProvider);
@@ -217,7 +407,7 @@ namespace Microsoft.TypeSpec.Generator
         /// <param name="property">The input model property.</param>
         /// <param name="enclosingType">The enclosing type.</param>
         /// <returns>An instance of <see cref="PropertyProvider"/>.</returns>
-        protected virtual PropertyProvider? CreatePropertyCore(InputModelProperty property, TypeProvider enclosingType)
+        protected virtual PropertyProvider? CreatePropertyCore(InputProperty property, TypeProvider enclosingType)
         {
             PropertyProvider.TryCreate(property, enclosingType, out var propertyProvider);
             if (Visitors.Count == 0)
@@ -244,23 +434,35 @@ namespace Microsoft.TypeSpec.Generator
             InputNullableType nullableType => GetSerializationFormat(nullableType.Type),
             InputDateTimeType dateTimeType => dateTimeType.Encode switch
             {
-                DateTimeKnownEncoding.Rfc3339 => SerializationFormat.DateTime_RFC3339,
-                DateTimeKnownEncoding.Rfc7231 => SerializationFormat.DateTime_RFC7231,
-                DateTimeKnownEncoding.UnixTimestamp => SerializationFormat.DateTime_Unix,
-                _ => throw new IndexOutOfRangeException($"unknown encode {dateTimeType.Encode}"),
+                var e when e == DateTimeKnownEncoding.Rfc3339 => SerializationFormat.DateTime_RFC3339,
+                var e when e == DateTimeKnownEncoding.Rfc7231 => SerializationFormat.DateTime_RFC7231,
+                var e when e == DateTimeKnownEncoding.UnixTimestamp => SerializationFormat.DateTime_Unix,
+                _ => SerializationFormat.Default, // Custom encoding formats use default serialization
             },
             InputDurationType durationType => durationType.Encode switch
             {
                 // there is no such thing as `DurationConstant`
-                DurationKnownEncoding.Iso8601 => SerializationFormat.Duration_ISO8601,
-                DurationKnownEncoding.Seconds => durationType.WireType.Kind switch
+                var e when e == DurationKnownEncoding.Iso8601 => SerializationFormat.Duration_ISO8601,
+                var e when e == DurationKnownEncoding.Seconds => durationType.WireType.Kind switch
                 {
-                    InputPrimitiveTypeKind.Int32 => SerializationFormat.Duration_Seconds,
+                    InputPrimitiveTypeKind.Int8 or InputPrimitiveTypeKind.Int16 or InputPrimitiveTypeKind.Int32
+                        or InputPrimitiveTypeKind.UInt8 or InputPrimitiveTypeKind.UInt16 => SerializationFormat.Duration_Seconds,
+                    InputPrimitiveTypeKind.Integer or InputPrimitiveTypeKind.Int64 or InputPrimitiveTypeKind.UInt32
+                        or InputPrimitiveTypeKind.UInt64 or InputPrimitiveTypeKind.SafeInt => SerializationFormat.Duration_Seconds_Int64,
                     InputPrimitiveTypeKind.Float or InputPrimitiveTypeKind.Float32 => SerializationFormat.Duration_Seconds_Float,
                     _ => SerializationFormat.Duration_Seconds_Double
                 },
-                DurationKnownEncoding.Constant => SerializationFormat.Duration_Constant,
-                _ => throw new IndexOutOfRangeException($"unknown encode {durationType.Encode}")
+                var e when e == DurationKnownEncoding.Milliseconds => durationType.WireType.Kind switch
+                {
+                    InputPrimitiveTypeKind.Int8 or InputPrimitiveTypeKind.Int16 or InputPrimitiveTypeKind.Int32
+                        or InputPrimitiveTypeKind.UInt8 or InputPrimitiveTypeKind.UInt16 => SerializationFormat.Duration_Milliseconds,
+                    InputPrimitiveTypeKind.Integer or InputPrimitiveTypeKind.Int64 or InputPrimitiveTypeKind.UInt32
+                        or InputPrimitiveTypeKind.UInt64 or InputPrimitiveTypeKind.SafeInt => SerializationFormat.Duration_Milliseconds_Int64,
+                    InputPrimitiveTypeKind.Float or InputPrimitiveTypeKind.Float32 => SerializationFormat.Duration_Milliseconds_Float,
+                    _ => SerializationFormat.Duration_Milliseconds_Double
+                },
+                var e when e == DurationKnownEncoding.Constant => SerializationFormat.Duration_Constant,
+                _ => SerializationFormat.Default // Custom encoding formats use default serialization
             },
             InputPrimitiveType primitiveType => primitiveType.Kind switch
             {
@@ -282,6 +484,25 @@ namespace Microsoft.TypeSpec.Generator
         };
 
         /// <summary>
+        /// Retrieves the serialization format for a given input property. For array-typed properties
+        /// this checks the property-level <see cref="InputModelProperty.Encode"/> before falling
+        /// back to <see cref="GetSerializationFormat(InputType)"/>.
+        /// </summary>
+        /// <param name="inputProperty">The <see cref="InputProperty"/> to retrieve the serialization format for.</param>
+        /// <returns>The <see cref="SerializationFormat"/> for the input property.</returns>
+        internal SerializationFormat GetSerializationFormat(InputProperty inputProperty)
+        {
+            if (inputProperty is InputModelProperty modelProperty &&
+                inputProperty.Type is InputArrayType &&
+                modelProperty.Encode.HasValue)
+            {
+                return modelProperty.Encode.Value.ToSerializationFormat();
+            }
+
+            return GetSerializationFormat(inputProperty.Type);
+        }
+
+        /// <summary>
         /// The initialization type of list properties. This type should implement both <see cref="IList{T}"/> and <see cref="IReadOnlyList{T}"/>.
         /// </summary>
         public virtual CSharpType ListInitializationType => ChangeTrackingListProvider.Type;
@@ -299,7 +520,9 @@ namespace Microsoft.TypeSpec.Generator
         public IReadOnlyList<TypeProvider> CreateSerializations(InputType inputType, TypeProvider typeProvider)
         {
             if (SerializationsCache.TryGetValue(inputType, out var serializations))
+            {
                 return serializations;
+            }
 
             serializations = CreateSerializationsCore(inputType, typeProvider);
             SerializationsCache.Add(inputType, serializations);
@@ -316,6 +539,34 @@ namespace Microsoft.TypeSpec.Generator
             return new NewProjectScaffolding();
         }
 
+        /// <summary>
+        /// Creates serialization options for the given input serialization options.
+        /// </summary>
+        /// <param name="inputSerializationOptions">The input serialization options.</param>
+        /// <returns>The serialization options, or <c>null</c> if not applicable.</returns>
+        public SerializationOptions? CreateSerializationOptions(InputSerializationOptions inputSerializationOptions)
+        {
+            if (SerializationOptionsCache.TryGetValue(inputSerializationOptions, out var options))
+            {
+                return options;
+            }
+
+            options = CreateSerializationOptionsCore(inputSerializationOptions);
+            SerializationOptionsCache.Add(inputSerializationOptions, options);
+
+            return options;
+        }
+
+        /// <summary>
+        /// Factory method for creating <see cref="SerializationOptions"/> for the given input serialization options.
+        /// </summary>
+        /// <param name="inputSerializationOptions">The input serialization options.</param>
+        /// <returns>The serialization options, or <c>null</c> if not applicable.</returns>
+        protected virtual SerializationOptions? CreateSerializationOptionsCore(InputSerializationOptions inputSerializationOptions)
+        {
+            return null;
+        }
+
         private readonly struct EnumCacheKey
         {
             public InputEnumType EnumType { get; }
@@ -330,6 +581,35 @@ namespace Microsoft.TypeSpec.Generator
         private string? _primaryNamespace;
         public string PrimaryNamespace => _primaryNamespace ??= GetCleanNameSpace(CodeModelGenerator.Instance.InputLibrary.InputNamespace.Name);
 
+        public string ServiceName => _serviceName ??= BuildServiceName();
+        private string? _serviceName;
+
+        /// <summary>
+        /// Builds the service name which is used as the base name for various types.
+        /// </summary>
+        protected virtual string BuildServiceName()
+        {
+            var span = CodeModelGenerator.Instance.InputLibrary.InputNamespace.Name;
+            if (span.IndexOf('.') == -1)
+            {
+                return CodeModelGenerator.Instance.InputLibrary.InputNamespace.Name;
+            }
+
+            Span<char> dest = stackalloc char[span.Length];
+            int j = 0;
+
+            for (int i = 0; i < span.Length; i++)
+            {
+                if (span[i] != '.')
+                {
+                    dest[j] = span[i];
+                    j++;
+                }
+            }
+
+            return dest[..j].ToString();
+        }
+
         public string GetCleanNameSpace(string clientNamespace)
         {
             Span<char> dest = stackalloc char[clientNamespace.Length + GetSegmentCount(clientNamespace)];
@@ -339,25 +619,27 @@ namespace Microsoft.TypeSpec.Generator
             while (nextDot != -1)
             {
                 var segment = source.Slice(0, nextDot);
-                if (IsSpecialSegment(segment))
+                var segmentStr = segment.ToString();
+                var cleanedSegment = segmentStr.ToIdentifierName();
+                if (IsSpecialSegment(cleanedSegment))
                 {
-                    dest[destIndex] = '_';
-                    destIndex++;
+                    cleanedSegment = "_" + cleanedSegment;
                 }
-                segment.CopyTo(dest.Slice(destIndex));
-                destIndex += segment.Length;
+                cleanedSegment.AsSpan().CopyTo(dest.Slice(destIndex));
+                destIndex += cleanedSegment.Length;
                 dest[destIndex] = '.';
                 destIndex++;
                 source = source.Slice(nextDot + 1);
                 nextDot = source.IndexOf('.');
             }
-            if (IsSpecialSegment(source))
+            var lastSegmentStr = source.ToString();
+            var cleanedLastSegment = lastSegmentStr.ToIdentifierName();
+            if (IsSpecialSegment(cleanedLastSegment))
             {
-                dest[destIndex] = '_';
-                destIndex++;
+                cleanedLastSegment = "_" + cleanedLastSegment;
             }
-            source.CopyTo(dest.Slice(destIndex));
-            destIndex += source.Length;
+            cleanedLastSegment.AsSpan().CopyTo(dest.Slice(destIndex));
+            destIndex += cleanedLastSegment.Length;
             return dest.Slice(0, destIndex).ToString();
         }
 
@@ -373,6 +655,8 @@ namespace Microsoft.TypeSpec.Generator
             }
             return false;
         }
+
+        private bool IsSpecialSegment(string segment) => IsSpecialSegment(segment.AsSpan());
 
         private static int GetSegmentCount(string clientNamespace)
         {

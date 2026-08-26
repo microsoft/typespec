@@ -4,6 +4,7 @@
 
 using System;
 using System.ClientModel.Primitives;
+using System.Diagnostics.CodeAnalysis;
 using Parameters.Basic._ExplicitBody;
 using Parameters.Basic._ImplicitBody;
 
@@ -13,7 +14,12 @@ namespace Parameters.Basic
     {
         public BasicClient() : this(new Uri("http://localhost:3000"), new BasicClientOptions()) => throw null;
 
-        public BasicClient(Uri endpoint, BasicClientOptions options) => throw null;
+        internal BasicClient(AuthenticationPolicy authenticationPolicy, Uri endpoint, BasicClientOptions options) => throw null;
+
+        public BasicClient(Uri endpoint, BasicClientOptions options) : this(null, endpoint, options) => throw null;
+
+        [Experimental("SCME0002")]
+        public BasicClient(BasicClientSettings settings) : this(AuthenticationPolicy.Create(settings), settings?.Endpoint, settings?.Options) => throw null;
 
         public ClientPipeline Pipeline => throw null;
 

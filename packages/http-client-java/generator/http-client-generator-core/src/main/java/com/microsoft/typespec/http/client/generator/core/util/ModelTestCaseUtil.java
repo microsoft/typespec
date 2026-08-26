@@ -3,23 +3,22 @@
 
 package com.microsoft.typespec.http.client.generator.core.util;
 
-import com.azure.core.util.CoreUtils;
-import com.azure.core.util.DateTimeRfc1123;
 import com.microsoft.typespec.http.client.generator.core.model.clientmodel.ClassType;
 import com.microsoft.typespec.http.client.generator.core.model.clientmodel.ClientEnumValue;
 import com.microsoft.typespec.http.client.generator.core.model.clientmodel.ClientModel;
 import com.microsoft.typespec.http.client.generator.core.model.clientmodel.ClientModelProperty;
 import com.microsoft.typespec.http.client.generator.core.model.clientmodel.EnumType;
 import com.microsoft.typespec.http.client.generator.core.model.clientmodel.IType;
-import com.microsoft.typespec.http.client.generator.core.model.clientmodel.ListType;
+import com.microsoft.typespec.http.client.generator.core.model.clientmodel.IterableType;
 import com.microsoft.typespec.http.client.generator.core.model.clientmodel.MapType;
+import io.clientcore.core.utils.CoreUtils;
+import io.clientcore.core.utils.DateTimeRfc1123;
 import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
 import java.time.Duration;
 import java.time.OffsetDateTime;
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Collections;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Locale;
@@ -109,7 +108,8 @@ public class ModelTestCaseUtil {
         } else if (type == ClassType.STRING) {
             return randomString();
         } else if (type.asNullable() == ClassType.UNIX_TIME_LONG) {
-            return RANDOM.nextLong() & Long.MAX_VALUE;
+            // use nextInt to avoid exceeding unixTime limit
+            return RANDOM.nextInt() & Integer.MAX_VALUE;
         } else if (type == ClassType.DATE_TIME) {
             return randomDateTime().toString();
         } else if (type == ClassType.DATE_TIME_RFC_1123) {
@@ -122,13 +122,17 @@ public class ModelTestCaseUtil {
             return RANDOM.nextLong() & Long.MAX_VALUE;
         } else if (type.asNullable() == ClassType.DURATION_DOUBLE) {
             return Math.abs(RANDOM.nextDouble() * 10);
+        } else if (type.asNullable() == ClassType.DURATION_MILLISECONDS_LONG) {
+            return RANDOM.nextLong() & Long.MAX_VALUE;
+        } else if (type.asNullable() == ClassType.DURATION_MILLISECONDS_DOUBLE) {
+            return Math.abs(RANDOM.nextDouble() * 10000);
         } else if (type == ClassType.UUID) {
             return UUID.randomUUID().toString();
         } else if (type == ClassType.URL) {
             return "http://example.org/" + URLEncoder.encode(randomString(), StandardCharsets.UTF_8);
-        } else if (type == ClassType.OBJECT) {
+        } else if (type == ClassType.OBJECT || type == ClassType.BINARY_DATA) {
             // unknown type, use a simple string
-            return "data" + randomString();
+            return ClassType.STRING.defaultValueExpression("data" + randomString());
         } else if (type instanceof EnumType) {
             IType elementType = ((EnumType) type).getElementType();
             List<String> values
@@ -152,10 +156,10 @@ public class ModelTestCaseUtil {
             } else if (elementType == ClassType.STRING) {
                 return value;
             }
-        } else if (type instanceof ListType) {
+        } else if (type instanceof IterableType) {
             List<Object> list = new ArrayList<>();
             if (depth <= CONFIGURATION.maxDepth) {
-                IType elementType = ((ListType) type).getElementType();
+                IType elementType = ((IterableType) type).getElementType();
                 int count = RANDOM.nextInt(CONFIGURATION.maxList - 1) + 1;
                 for (int i = 0; i < count; ++i) {
                     Object element = jsonFromType(depth + 1, elementType);
@@ -200,27 +204,28 @@ public class ModelTestCaseUtil {
         return value;
     }
 
+    @SuppressWarnings("unchecked")
     private static void addForProperty(int depth, Map<String, Object> jsonObject, ClientModelProperty property,
         boolean modelNeedsFlatten) {
         final boolean maxDepthReached = depth > CONFIGURATION.maxDepth;
-
-        Object value = null;
-        if (property.isConstant()) {
-            // TODO (weidxu): skip for now, as the property.getDefaultValue() is the code, not the raw data
-            // value = property.getDefaultValue();
-            return;
-        } else {
-            if (property.isRequired()
-                // required property must be generated
-                // optional property only be generated when still have depth remains
-                // we assume here that there is no infinitely nested required properties
-                || (!maxDepthReached && RANDOM.nextFloat() > CONFIGURATION.nullableProbability)) {
-                value = jsonFromType(depth, property.getWireType());
+        // TODO (weidxu): skip constant property for now, as the property.getDefaultValue() is the code, not the raw
+        // data
+        if (!property.isConstant() && (
+        // required property must be generated
+        property.isRequired()
+            // optional property only be generated when still have depth remains
+            // we assume here that there is no infinitely nested required properties
+            || (!maxDepthReached && RANDOM.nextFloat() > CONFIGURATION.nullableProbability))) {
+            Object value = jsonFromType(depth, property.getWireType());
+            if (property.isAdditionalProperties()) {
+                if (value != null) {
+                    ((Map<String, Object>) value).forEach(jsonObject::putIfAbsent);
+                }
+            } else {
+                addForProperty(jsonObject, property.getSerializedName(),
+                    modelNeedsFlatten || property.getNeedsFlatten(), value);
             }
         }
-
-        addForProperty(jsonObject, property.getSerializedName(), modelNeedsFlatten || property.getNeedsFlatten(),
-            value);
     }
 
     private static void addForProperty(Map<String, Object> jsonObject, String serializedName, boolean modelNeedsFlatten,
@@ -230,7 +235,7 @@ public class ModelTestCaseUtil {
             if (modelNeedsFlatten) {
                 serializedNames = ClientModelUtil.splitFlattenedSerializedName(serializedName);
             } else {
-                serializedNames = Collections.singletonList(serializedName);
+                serializedNames = List.of(serializedName);
             }
             addToJsonObject(jsonObject, serializedNames, value);
         }

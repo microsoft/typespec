@@ -1,5 +1,5 @@
-import { LogLevel } from "rollup";
 import vscode from "vscode";
+import type { LogLevel } from "./log/logger.js";
 import { normalizePath } from "./path-utils.js";
 import { RawTelemetryEvent } from "./telemetry/telemetry-event.js";
 

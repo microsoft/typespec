@@ -3,6 +3,7 @@
 
 package com.microsoft.typespec.http.client.generator.mgmt.model.clientmodel;
 
+import com.microsoft.typespec.http.client.generator.core.extension.model.codemodel.RequestParameterLocation;
 import com.microsoft.typespec.http.client.generator.core.extension.plugin.JavaSettings;
 import com.microsoft.typespec.http.client.generator.core.model.clientmodel.ClassType;
 import com.microsoft.typespec.http.client.generator.core.model.clientmodel.ClientMethod;
@@ -20,7 +21,7 @@ import com.microsoft.typespec.http.client.generator.mgmt.model.clientmodel.fluen
 import com.microsoft.typespec.http.client.generator.mgmt.util.FluentUtils;
 import com.microsoft.typespec.http.client.generator.mgmt.util.Utils;
 import java.util.ArrayList;
-import java.util.HashSet;
+import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
@@ -103,7 +104,11 @@ public class FluentResourceCollection {
             if (WellKnownMethodName.DELETE.getMethodName().equals(methodName)
                 && (methodType == ClientMethodType.SimpleSync || methodType == ClientMethodType.LongRunningSync)
                 && !existingMethodNames.contains(WellKnownMethodName.DELETE_BY_RESOURCE_GROUP.getMethodName())
-                && methodParameters.size() == 2
+                // TODO(xiaofei) in mgmt on core-v2, also rename 2 params + Context method:
+                // https://github.com/Azure/azure-sdk-for-java/issues/45687
+                && methodParameters.stream()
+                    .filter(param -> param.getRequestParameterLocation() != RequestParameterLocation.HEADER)
+                    .count() == 2
                 && methodParameters.get(0).getClientType() == ClassType.STRING
                 && methodParameters.get(1).getClientType() == ClassType.STRING) {
                 // Transform "delete(String, String)" into "deleteByResourceGroup(String, String)"
@@ -115,7 +120,9 @@ public class FluentResourceCollection {
                 && methodType == ClientMethodType.SimpleSyncRestResponse
                 && !existingMethodNames.contains(
                     WellKnownMethodName.DELETE_BY_RESOURCE_GROUP.getMethodName() + Utils.METHOD_POSTFIX_WITH_RESPONSE)
-                && methodParameters.size() == 3
+                && methodParameters.stream()
+                    .filter(param -> param.getRequestParameterLocation() != RequestParameterLocation.HEADER)
+                    .count() == 3
                 && methodParameters.get(0).getClientType() == ClassType.STRING
                 && methodParameters.get(1).getClientType() == ClassType.STRING) {
                 // Transform "deleteWithResponse(String, String, ?)" into "deleteByResourceGroupWithResponse(String,
@@ -146,15 +153,15 @@ public class FluentResourceCollection {
     public List<FluentCollectionMethod> getMethodsForTemplate() {
         List<FluentCollectionMethod> fluentMethods = new ArrayList<>(methods);
 
-        Set<FluentCollectionMethod> excludeMethods = new HashSet<>();
-        excludeMethods.addAll(this.getResourceCreates()
+        Set<FluentCollectionMethod> excludeMethods = new LinkedHashSet<>();
+        this.getResourceCreates()
             .stream()
             .flatMap(rc -> rc.getMethodReferences().stream())
-            .collect(Collectors.toSet()));
-        excludeMethods.addAll(this.getResourceUpdates()
+            .forEach(excludeMethods::add);
+        this.getResourceUpdates()
             .stream()
             .flatMap(ru -> ru.getMethodReferences().stream())
-            .collect(Collectors.toSet()));
+            .forEach(excludeMethods::add);
         fluentMethods.removeAll(excludeMethods);
 
         return fluentMethods;

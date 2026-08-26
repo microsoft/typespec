@@ -57,7 +57,7 @@ public final class DictionaryStringsImpl {
      * perform REST calls.
      */
     @Host("{endpoint}")
-    @ServiceInterface(name = "ValueTypesClientDict")
+    @ServiceInterface(name = "ValueTypesClientDictionaryStrings")
     public interface DictionaryStringsService {
         @Get("/type/property/value-types/dictionary/string")
         @ExpectedResponses({ 200 })

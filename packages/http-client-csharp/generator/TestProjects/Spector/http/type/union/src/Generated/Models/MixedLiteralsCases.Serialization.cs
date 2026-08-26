@@ -3,7 +3,6 @@
 #nullable disable
 
 using System;
-using System.ClientModel;
 using System.ClientModel.Primitives;
 using System.Text.Json;
 
@@ -11,6 +10,18 @@ namespace _Type.Union
 {
     public partial class MixedLiteralsCases : IJsonModel<MixedLiteralsCases>
     {
+        internal MixedLiteralsCases() => throw null;
+
+        protected virtual MixedLiteralsCases PersistableModelCreateCore(BinaryData data, ModelReaderWriterOptions options) => throw null;
+
+        protected virtual BinaryData PersistableModelWriteCore(ModelReaderWriterOptions options) => throw null;
+
+        BinaryData IPersistableModel<MixedLiteralsCases>.Write(ModelReaderWriterOptions options) => throw null;
+
+        MixedLiteralsCases IPersistableModel<MixedLiteralsCases>.Create(BinaryData data, ModelReaderWriterOptions options) => throw null;
+
+        string IPersistableModel<MixedLiteralsCases>.GetFormatFromOptions(ModelReaderWriterOptions options) => throw null;
+
         void IJsonModel<MixedLiteralsCases>.Write(Utf8JsonWriter writer, ModelReaderWriterOptions options) => throw null;
 
         protected virtual void JsonModelWriteCore(Utf8JsonWriter writer, ModelReaderWriterOptions options) => throw null;
@@ -18,19 +29,5 @@ namespace _Type.Union
         MixedLiteralsCases IJsonModel<MixedLiteralsCases>.Create(ref Utf8JsonReader reader, ModelReaderWriterOptions options) => throw null;
 
         protected virtual MixedLiteralsCases JsonModelCreateCore(ref Utf8JsonReader reader, ModelReaderWriterOptions options) => throw null;
-
-        BinaryData IPersistableModel<MixedLiteralsCases>.Write(ModelReaderWriterOptions options) => throw null;
-
-        protected virtual BinaryData PersistableModelWriteCore(ModelReaderWriterOptions options) => throw null;
-
-        MixedLiteralsCases IPersistableModel<MixedLiteralsCases>.Create(BinaryData data, ModelReaderWriterOptions options) => throw null;
-
-        protected virtual MixedLiteralsCases PersistableModelCreateCore(BinaryData data, ModelReaderWriterOptions options) => throw null;
-
-        string IPersistableModel<MixedLiteralsCases>.GetFormatFromOptions(ModelReaderWriterOptions options) => throw null;
-
-        public static implicit operator BinaryContent(MixedLiteralsCases mixedLiteralsCases) => throw null;
-
-        public static explicit operator MixedLiteralsCases(ClientResult result) => throw null;
     }
 }

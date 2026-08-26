@@ -65,6 +65,7 @@ function getDiscriminatedUnionForUnion(
           createDiagnostic({
             code: "invalid-discriminated-union-variant",
             messageId: "duplicateDefaultVariant",
+            format: { unionName: type.name ?? "(anonymous)" },
             target: variant,
           }),
         );
@@ -114,6 +115,7 @@ function getDiscriminatedUnionForUnion(
       type,
       options,
       variants,
+      defaultVariant,
     },
     diagnostics,
   ];

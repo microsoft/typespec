@@ -107,6 +107,12 @@ export const $lib = createTypeSpecLibrary({
         default: "Unexpected non-scalar type when trying to extract Scalar data",
       },
     },
+    "client-not-found": {
+      severity: "error",
+      messages: {
+        default: "Client for operation not found",
+      },
+    },
   },
 });
 

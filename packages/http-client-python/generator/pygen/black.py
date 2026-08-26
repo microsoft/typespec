@@ -21,7 +21,7 @@ _BLACK_MODE.line_length = 120
 class BlackScriptPlugin(Plugin):
     def __init__(self, **kwargs):
         super().__init__(**kwargs)
-        output_folder = self.options.get("output_folder", str(self.output_folder))
+        output_folder = self.options.get("output-folder", str(self.output_folder))
         if output_folder.startswith("file:"):
             output_folder = output_folder[5:]
         if os.name == "nt" and output_folder.startswith("///"):
@@ -69,9 +69,9 @@ class BlackScriptPlugin(Plugin):
                 pylint_disables.append("too-many-lines")
             if pylint_disables:
                 file_content = (
-                    "\n".join([lines[0] + ",".join([""] + pylint_disables)] + lines[1:])
+                    os.linesep.join([lines[0] + ",".join([""] + pylint_disables)] + lines[1:])
                     if "pylint: disable=" in lines[0]
-                    else f"# pylint: disable={','.join(pylint_disables)}\n" + file_content
+                    else f"# pylint: disable={','.join(pylint_disables)}{os.linesep}" + file_content
                 )
         self.write_file(file, file_content)
 

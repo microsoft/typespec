@@ -4,9 +4,7 @@
 package type.dictionary;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
-import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import io.clientcore.core.models.binarydata.BinaryData;
 import java.util.HashMap;
 import java.util.Map;
 import org.junit.jupiter.api.Assertions;
@@ -37,14 +35,7 @@ public class NullableFloatValueClientTests {
         model.map.put("k2", 0.5);
         model.map.put("k3", null);
 
-        // Map as request does not work
-        // Model contains Map works, if "@JsonInclude(value = JsonInclude.Include.NON_NULL)" on that Map
-        // see tsp/builtin.tsp and its generated code
-        BinaryData requestAsModel = BinaryData.fromObject(model);
-        JsonNode node = MAPPER.readTree(requestAsModel.toString()).get("map");
-        BinaryData request = BinaryData.fromObject(node);
-
-        client.putWithResponse(request, null);
+        client.putWithResponse(model.map, null);
     }
 
     public static class MapModel {

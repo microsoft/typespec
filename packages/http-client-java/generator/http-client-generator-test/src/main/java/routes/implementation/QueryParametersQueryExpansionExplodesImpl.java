@@ -58,7 +58,7 @@ public final class QueryParametersQueryExpansionExplodesImpl {
      * proxy service to perform REST calls.
      */
     @Host("{endpoint}")
-    @ServiceInterface(name = "RoutesClientQueryPar")
+    @ServiceInterface(name = "RoutesClientQueryParametersQueryExpansionExplodes")
     public interface QueryParametersQueryExpansionExplodesService {
         @Get("/routes/query/query-expansion/explode/primitive")
         @ExpectedResponses({ 204 })

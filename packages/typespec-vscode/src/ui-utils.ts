@@ -11,7 +11,7 @@ import logger from "./log/logger.js";
 import { Result, ResultCode } from "./types.js";
 import { createPromiseWithCancelAndTimeout, tryReadDir } from "./utils.js";
 
-interface QuickPickOptionsWithExternalLink extends QuickPickItem {
+export interface QuickPickOptionsWithExternalLink extends QuickPickItem {
   externalLink?: string;
 }
 

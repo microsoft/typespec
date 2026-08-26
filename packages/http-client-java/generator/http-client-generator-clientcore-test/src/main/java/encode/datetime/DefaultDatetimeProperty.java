@@ -1,7 +1,7 @@
 package encode.datetime;
 
 import io.clientcore.core.annotations.Metadata;
-import io.clientcore.core.annotations.TypeConditions;
+import io.clientcore.core.annotations.MetadataProperties;
 import io.clientcore.core.serialization.json.JsonReader;
 import io.clientcore.core.serialization.json.JsonSerializable;
 import io.clientcore.core.serialization.json.JsonToken;
@@ -13,12 +13,12 @@ import java.time.format.DateTimeFormatter;
 /**
  * The DefaultDatetimeProperty model.
  */
-@Metadata(conditions = { TypeConditions.IMMUTABLE })
+@Metadata(properties = { MetadataProperties.IMMUTABLE })
 public final class DefaultDatetimeProperty implements JsonSerializable<DefaultDatetimeProperty> {
     /*
      * The value property.
      */
-    @Metadata(generated = true)
+    @Metadata(properties = { MetadataProperties.GENERATED })
     private final OffsetDateTime value;
 
     /**
@@ -26,7 +26,7 @@ public final class DefaultDatetimeProperty implements JsonSerializable<DefaultDa
      * 
      * @param value the value value to set.
      */
-    @Metadata(generated = true)
+    @Metadata(properties = { MetadataProperties.GENERATED })
     public DefaultDatetimeProperty(OffsetDateTime value) {
         this.value = value;
     }
@@ -36,7 +36,7 @@ public final class DefaultDatetimeProperty implements JsonSerializable<DefaultDa
      * 
      * @return the value value.
      */
-    @Metadata(generated = true)
+    @Metadata(properties = { MetadataProperties.GENERATED })
     public OffsetDateTime getValue() {
         return this.value;
     }
@@ -44,7 +44,7 @@ public final class DefaultDatetimeProperty implements JsonSerializable<DefaultDa
     /**
      * {@inheritDoc}
      */
-    @Metadata(generated = true)
+    @Metadata(properties = { MetadataProperties.GENERATED })
     @Override
     public JsonWriter toJson(JsonWriter jsonWriter) throws IOException {
         jsonWriter.writeStartObject();
@@ -62,7 +62,7 @@ public final class DefaultDatetimeProperty implements JsonSerializable<DefaultDa
      * @throws IllegalStateException If the deserialized JSON object was missing any required properties.
      * @throws IOException If an error occurs while reading the DefaultDatetimeProperty.
      */
-    @Metadata(generated = true)
+    @Metadata(properties = { MetadataProperties.GENERATED })
     public static DefaultDatetimeProperty fromJson(JsonReader jsonReader) throws IOException {
         return jsonReader.readObject(reader -> {
             OffsetDateTime value = null;

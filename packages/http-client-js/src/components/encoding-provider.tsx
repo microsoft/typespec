@@ -1,4 +1,4 @@
-import { Children } from "@alloy-js/core";
+import { type Children } from "@alloy-js/core";
 import { EncodingContext } from "../context/encoding/encoding-context.jsx";
 import { EncodingDefaults } from "../context/encoding/types.js";
 export interface EncodingProviderProps {

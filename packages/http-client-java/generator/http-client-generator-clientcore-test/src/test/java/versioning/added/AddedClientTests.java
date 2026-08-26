@@ -7,10 +7,12 @@ import io.clientcore.core.models.binarydata.BinaryData;
 import org.junit.jupiter.api.Test;
 
 public class AddedClientTests {
-    private final AddedClient addedClient
-        = new AddedClientBuilder().endpoint("http://localhost:3000").version(Versions.V2).buildClient();
-    private final InterfaceV2Client interfaceV2Client
-        = new AddedClientBuilder().endpoint("http://localhost:3000").version(Versions.V2).buildInterfaceV2Client();
+    private final AddedClient addedClient = new AddedClientBuilder().endpoint("http://localhost:3000")
+        .serviceVersion(AddedServiceVersion.V2)
+        .buildClient();
+    private final InterfaceV2Client interfaceV2Client = new AddedClientBuilder().endpoint("http://localhost:3000")
+        .serviceVersion(AddedServiceVersion.V2)
+        .buildInterfaceV2Client();
 
     @Test
     public void testAddedClient() {

@@ -16,18 +16,31 @@ import {
   type VersionMap,
 } from "./decorators.js";
 import type { Version, VersionResolution } from "./types.js";
+import { getCachedNamespaceDependencies } from "./validate.js";
 import { TimelineMoment, VersioningTimeline } from "./versioning-timeline.js";
 
 export function getVersionDependencies(
   program: Program,
   namespace: Namespace,
 ): Map<Namespace, Map<Version, Version> | Version> | undefined {
-  const useDeps = getUseDependencies(program, namespace);
-  if (useDeps) {
-    return useDeps;
+  const explicit = getUseDependencies(program, namespace);
+  const base = getCachedNamespaceDependencies(program);
+  const usage = base?.get(namespace);
+  if (usage === undefined) {
+    return explicit;
   }
+  const result = new Map<Namespace, Map<Version, Version> | Version>(explicit);
 
-  return undefined;
+  for (const dep of usage) {
+    if (!explicit?.has(dep)) {
+      const version = getVersion(program, dep);
+      if (version) {
+        const depVersions = version.getVersions();
+        result.set(dep, depVersions[depVersions.length - 1]);
+      }
+    }
+  }
+  return result;
 }
 
 /**
@@ -48,14 +61,8 @@ function resolveDependencyVersions(
         continue; // Already resolved.
       }
 
-      if (!(versionMap instanceof Map)) {
-        const rootNsName = getNamespaceFullName(current);
-        const dependencyNsName = getNamespaceFullName(dependencyNs);
-        throw new Error(
-          `Unexpected error: Namespace ${rootNsName} version dependency to ${dependencyNsName} should be a mapping of version.`,
-        );
-      }
-      const dependencyVersion = versionMap.get(currentVersion);
+      const dependencyVersion =
+        versionMap instanceof Map ? versionMap.get(currentVersion) : versionMap;
       namespacesToCheck.push([dependencyNs, dependencyVersion]);
       resolutions.set(dependencyNs, dependencyVersion);
     }
@@ -215,6 +222,26 @@ function getParentAddedVersion(
   return undefined;
 }
 
+function getParentRemovedVersion(
+  program: Program,
+  type: Type,
+  versions: Version[],
+): Version | undefined {
+  let parentMap: Map<string, Availability> | undefined = undefined;
+  if (type.kind === "ModelProperty" && type.model !== undefined) {
+    parentMap = getAvailabilityMap(program, type.model);
+  } else if (type.kind === "Operation" && type.interface !== undefined) {
+    parentMap = getAvailabilityMap(program, type.interface);
+  }
+  if (parentMap === undefined) return undefined;
+  for (const [key, value] of parentMap.entries()) {
+    if (value === Availability.Removed) {
+      return versions.find((x) => x.name === key);
+    }
+  }
+  return undefined;
+}
+
 function getParentAddedVersionInTimeline(
   program: Program,
   type: Type,
@@ -275,6 +302,20 @@ function resolveWhenFirstAdded(
   return added;
 }
 
+function resolveRemoved(added: Version[], removed: Version[], parentRemoved?: Version): Version[] {
+  if (removed.length) {
+    return removed;
+  }
+
+  const implicitlyRemoved =
+    !added.length || (parentRemoved && added[0].index < parentRemoved.index);
+  if (parentRemoved && implicitlyRemoved) {
+    return [parentRemoved];
+  }
+
+  return [];
+}
+
 export function getAvailabilityMap(
   program: Program,
   type: Type,
@@ -287,8 +328,9 @@ export function getAvailabilityMap(
 
   const firstVersion = allVersions[0];
   const parentAdded = getParentAddedVersion(program, type, allVersions) ?? firstVersion;
+  const parentRemoved = getParentRemovedVersion(program, type, allVersions);
   let added = getAddedOnVersions(program, type) ?? [];
-  const removed = getRemovedOnVersions(program, type) ?? [];
+  let removed = getRemovedOnVersions(program, type) ?? [];
   const typeChanged = getTypeChangedFrom(program, type);
   const returnTypeChanged = getReturnTypeChangedFrom(program, type);
   // if there's absolutely no versioning information, return undefined
@@ -303,6 +345,7 @@ export function getAvailabilityMap(
     return undefined;
 
   added = resolveWhenFirstAdded(added, removed, parentAdded);
+  removed = resolveRemoved(added, removed, parentRemoved);
 
   // something isn't available by default
   let isAvail = false;
@@ -348,13 +391,30 @@ export function getAvailabilityMapInTimeline(
   )
     return undefined;
 
-  added = resolveWhenFirstAdded(added, removed, parentAdded);
+  // Only keep versioning info related to this timeline
+  const timelineAdded = added.filter((x) => timeline.getIndex(x) !== -1);
+  const timelineRemoved = removed.filter((x) => timeline.getIndex(x) !== -1);
+  const hasTypeChangedInTimeline =
+    typeChanged !== undefined && [...typeChanged.keys()].some((v) => timeline.getIndex(v) !== -1);
+  const hasReturnTypeChangedInTimeline =
+    returnTypeChanged !== undefined &&
+    [...returnTypeChanged.keys()].some((v) => timeline.getIndex(v) !== -1);
+
+  if (
+    !timelineAdded.length &&
+    !timelineRemoved.length &&
+    !hasTypeChangedInTimeline &&
+    !hasReturnTypeChangedInTimeline
+  )
+    return undefined;
+
+  added = resolveWhenFirstAdded(timelineAdded, timelineRemoved, parentAdded);
 
   // something isn't available by default
   let isAvail = false;
   for (const [index, moment] of timeline.entries()) {
     const add = added.find((x) => timeline.getIndex(x) === index);
-    const rem = removed.find((x) => timeline.getIndex(x) === index);
+    const rem = timelineRemoved.find((x) => timeline.getIndex(x) === index);
     if (rem) {
       isAvail = false;
       avail.set(moment, Availability.Removed);

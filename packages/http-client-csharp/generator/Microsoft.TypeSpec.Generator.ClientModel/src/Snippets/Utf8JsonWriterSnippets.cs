@@ -63,7 +63,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Snippets
             return writer.Invoke(nameof(Utf8JsonWriter.FlushAsync), arguments, true);
         }
 
-        internal static MethodBodyStatement WriteObjectValue(this ScopedApi<Utf8JsonWriter> writer, ScopedApi value, ValueExpression? options = null)
+        public static MethodBodyStatement WriteObjectValue(this ScopedApi<Utf8JsonWriter> writer, ScopedApi value, ValueExpression? options = null)
              => ModelSerializationExtensionsSnippets.WriteObjectValue(writer, value, options: options);
 
         internal static MethodBodyStatement WriteStringValue(this ScopedApi<Utf8JsonWriter> writer, ValueExpression value, string? format)

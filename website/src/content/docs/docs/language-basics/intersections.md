@@ -1,6 +1,8 @@
 ---
 id: intersections
 title: Intersections
+description: "Language basics - composing models with intersections"
+llmstxt: true
 ---
 
 Intersections in programming define a type that must encompass all the constituents of the intersection. You can declare an intersection using the `&` operator.

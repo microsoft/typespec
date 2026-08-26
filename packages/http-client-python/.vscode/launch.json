@@ -10,7 +10,7 @@
       "cwd": "${workspaceFolder}",
       "args": [
         "compile",
-        "${workspaceFolder}/DocumentIntelligence",
+        "${workspaceFolder}/node_modules/@typespec/http-specs/specs/type/array",
         "--emit=${workspaceFolder}",
         "--option=@typespec/http-client-python.debug=true"
       ],
@@ -35,7 +35,7 @@
       "cwd": "${workspaceFolder}",
       "args": [
         "compile",
-        "${workspaceFolder}/alpha/main.tsp",
+        "${workspaceFolder}/alpha/client.tsp",
         "--emit=${workspaceFolder}",
         "--option=@typespec/http-client-python.flavor=azure"
       ],

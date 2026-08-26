@@ -1,9 +1,12 @@
 import {
+  expandDyns,
+  isMatcher,
   MockApiDefinition,
   MockBody,
   MockMultipartBody,
   MockRequest,
   RequestExt,
+  ResolverConfig,
   ScenarioMockApi,
 } from "@typespec/spec-api";
 import { ScenariosMetadata } from "@typespec/spec-coverage-sdk";
@@ -26,6 +29,7 @@ export class MockApiApp {
   private router = Router();
   private server: MockApiServer;
   private coverageTracker: CoverageTracker;
+  private resolverConfig!: ResolverConfig;
 
   constructor(private config: ApiMockAppConfig) {
     this.server = new MockApiServer({ port: config.port });
@@ -61,27 +65,41 @@ export class MockApiApp {
     });
 
     this.server.use("/", this.router);
-    this.server.start();
+    // Getting the resolved port as setting 0 in the config will have express resolve on of the available ports
+    const port = await this.server.start();
+    this.resolverConfig = {
+      baseUrl: `http://localhost:${port}`,
+    };
   }
 
   private registerScenario(name: string, scenario: ScenarioMockApi) {
     for (const endpoint of scenario.apis) {
       if (!endpoint.handler) {
-        endpoint.handler = createHandler(endpoint);
+        endpoint.handler = createHandler(endpoint, this.resolverConfig);
       }
       this.router.route(endpoint.uri)[endpoint.method]((req: RequestExt, res: Response) => {
-        processRequest(this.coverageTracker, name, endpoint.uri, req, res, endpoint.handler!).catch(
-          (e) => {
-            logger.error("Unexpected request error", e);
-            res.status(500).end();
-          },
-        );
+        processRequest(
+          this.coverageTracker,
+          name,
+          endpoint.uri,
+          req,
+          res,
+          endpoint.handler!,
+          this.resolverConfig,
+        ).catch((e) => {
+          logger.error("Unexpected request error", e);
+          res.status(500).end();
+        });
       });
     }
   }
 }
 
-function validateBody(req: MockRequest, body: MockBody | MockMultipartBody) {
+function validateBody(
+  req: MockRequest,
+  body: MockBody | MockMultipartBody,
+  config: ResolverConfig,
+) {
   if ("kind" in body) {
     // custom handler for now.
   } else {
@@ -89,34 +107,49 @@ function validateBody(req: MockRequest, body: MockBody | MockMultipartBody) {
       req.expect.rawBodyEquals(body.rawContent);
     } else {
       switch (body.contentType) {
-        case "application/json":
-          req.expect.coercedBodyEquals(JSON.parse(body.rawContent as any));
+        case "application/json": {
+          const expected =
+            typeof body.rawContent === "string"
+              ? JSON.parse(body.rawContent)
+              : body.rawContent?.resolve(config);
+          req.expect.coercedBodyEquals(expected);
           break;
-        case "application/xml":
-          req.expect.xmlBodyEquals(
-            (body.rawContent as any).replace(`<?xml version='1.0' encoding='UTF-8'?>`, ""),
-          );
+        }
+        case "application/xml": {
+          if (typeof body.rawContent === "string") {
+            const xmlStr = body.rawContent.replace(`<?xml version='1.0' encoding='UTF-8'?>`, "");
+            req.expect.xmlBodyEquals(xmlStr);
+          } else if (body.rawContent) {
+            req.expect.xmlBodyEquals(body.rawContent, config);
+          }
           break;
-        default:
-          req.expect.rawBodyEquals(body.rawContent);
+        }
+        default: {
+          const raw =
+            typeof body.rawContent === "string"
+              ? body.rawContent
+              : body.rawContent?.serialize(config);
+          req.expect.rawBodyEquals(raw);
+        }
       }
     }
   }
 }
 
-function createHandler(apiDefinition: MockApiDefinition) {
+function createHandler(apiDefinition: MockApiDefinition, config: ResolverConfig) {
   return (req: MockRequest) => {
     const body = apiDefinition.request?.body;
     // Validate body if present in the request
     if (body) {
-      validateBody(req, body);
+      validateBody(req, body, config);
     }
 
     // Validate headers if present in the request
     if (apiDefinition.request?.headers) {
-      Object.entries(apiDefinition.request.headers).forEach(([key, value]) => {
+      const headers = expandDyns(apiDefinition.request.headers, config, { resolveMatchers: false });
+      Object.entries(headers).forEach(([key, value]) => {
         if (key.toLowerCase() !== "content-type") {
-          if (Array.isArray(value)) {
+          if (isMatcher(value) || Array.isArray(value)) {
             req.expect.deepEqual(req.headers[key], value);
           } else {
             req.expect.containsHeader(key.toLowerCase(), String(value));
@@ -126,8 +159,9 @@ function createHandler(apiDefinition: MockApiDefinition) {
     }
 
     if (apiDefinition.request?.query) {
-      Object.entries(apiDefinition.request.query).forEach(([key, value]) => {
-        if (Array.isArray(value)) {
+      const query = expandDyns(apiDefinition.request.query, config, { resolveMatchers: false });
+      Object.entries(query).forEach(([key, value]) => {
+        if (isMatcher(value) || Array.isArray(value)) {
           req.expect.deepEqual(req.query[key], value);
         } else {
           req.expect.containsQueryParam(key, String(value));

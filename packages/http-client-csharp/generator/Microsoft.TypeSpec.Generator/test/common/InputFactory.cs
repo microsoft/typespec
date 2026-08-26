@@ -3,7 +3,10 @@
 
 using System.Collections.Generic;
 using System.Linq;
+using System.Reflection;
 using Microsoft.TypeSpec.Generator.Input;
+using Microsoft.TypeSpec.Generator.Input.Extensions;
+using Microsoft.TypeSpec.Generator.Primitives;
 
 namespace Microsoft.TypeSpec.Generator.Tests.Common
 {
@@ -11,37 +14,47 @@ namespace Microsoft.TypeSpec.Generator.Tests.Common
     {
         public static class EnumMember
         {
-            public static InputEnumTypeValue Int32(string name, int value)
+            public static InputEnumTypeValue Int32(string name, int value, InputEnumType enumType, bool isExactName = false)
             {
-                return new InputEnumTypeValue(name, value, InputPrimitiveType.Int32, "", $"{name} description");
+                return new InputEnumTypeValue(name, value, InputPrimitiveType.Int32, "", $"{name} description", enumType) { IsExactName = isExactName };
             }
 
-            public static InputEnumTypeValue Float32(string name, float value)
+            public static InputEnumTypeValue Int64(string name, long value, InputEnumType enumType, bool isExactName = false)
             {
-                return new InputEnumTypeValue(name, value, InputPrimitiveType.Float32, "", $"{name} description");
+                return new InputEnumTypeValue(name, value, InputPrimitiveType.Int64, "", $"{name} description", enumType) { IsExactName = isExactName };
             }
 
-            public static InputEnumTypeValue String(string name, string value)
+            public static InputEnumTypeValue Float32(string name, float value, InputEnumType enumType, bool isExactName = false)
             {
-                return new InputEnumTypeValue(name, value, InputPrimitiveType.String, "", $"{name} description");
+                return new InputEnumTypeValue(name, value, InputPrimitiveType.Float32, "", $"{name} description", enumType) { IsExactName = isExactName };
+            }
+
+            public static InputEnumTypeValue Float64(string name, double value, InputEnumType enumType, bool isExactName = false)
+            {
+                return new InputEnumTypeValue(name, value, InputPrimitiveType.Float64, "", $"{name} description", enumType) { IsExactName = isExactName };
+            }
+
+            public static InputEnumTypeValue String(string name, string value, InputEnumType enumType, bool isExactName = false)
+            {
+                return new InputEnumTypeValue(name, value, InputPrimitiveType.String, "", $"{name} description", enumType) { IsExactName = isExactName };
             }
         }
 
         public static class Literal
         {
-            public static InputLiteralType String(string value)
+            public static InputLiteralType String(string value, string? name = null, string? @namespace = null)
             {
-                return new InputLiteralType(InputPrimitiveType.String, value);
+                return new InputLiteralType(name ?? string.Empty, @namespace ?? string.Empty, InputPrimitiveType.String, value);
             }
 
-            public static InputLiteralType Any(object value)
+            public static InputLiteralType Int32(int value, string? name = null, string? @namespace = null)
             {
-                return new InputLiteralType(InputPrimitiveType.Any, value);
+                return new InputLiteralType(name ?? string.Empty, @namespace ?? string.Empty, InputPrimitiveType.Int32, value);
             }
 
-            public static InputLiteralType Enum(InputEnumType enumType, object value)
+            public static InputLiteralType Bool(bool value, string? name = null, string? @namespace = null)
             {
-                return new InputLiteralType(enumType, value);
+                return new InputLiteralType(name ?? string.Empty, @namespace ?? string.Empty, InputPrimitiveType.Boolean, value);
             }
         }
 
@@ -58,75 +71,248 @@ namespace Microsoft.TypeSpec.Generator.Tests.Common
             }
         }
 
-        public static InputParameter ContentTypeParameter(string contentType)
-            => Parameter(
+        public static class Serialization
+        {
+            public static InputSerializationOptions Options(
+                InputJsonSerializationOptions? json = null,
+                InputXmlSerializationOptions? xml = null,
+                InputMultipartOptions? multipart = null)
+            {
+                return new InputSerializationOptions(json, xml, multipart);
+            }
+
+            public static InputJsonSerializationOptions Json(string name)
+            {
+                return new InputJsonSerializationOptions(name);
+            }
+
+            public static InputXmlSerializationOptions Xml(
+                string name,
+                bool? attribute = null,
+                InputXmlNamespaceOptions? @namespace = null,
+                bool? unwrapped = null,
+                string? itemsName = null,
+                InputXmlNamespaceOptions? itemsNamespace = null)
+            {
+                return new InputXmlSerializationOptions(name, attribute, @namespace, unwrapped, itemsName, itemsNamespace);
+            }
+
+            public static InputXmlNamespaceOptions XmlNamespace(string ns, string prefix)
+            {
+                return new InputXmlNamespaceOptions(ns, prefix);
+            }
+
+            public static InputMultipartOptions Multipart(
+                string name,
+                bool isFilePart = true,
+                bool isMulti = false,
+                IReadOnlyList<string>? defaultContentTypes = null,
+                InputModelProperty? filename = null,
+                InputModelProperty? contentType = null)
+            {
+                return new InputMultipartOptions(
+                    name,
+                    isFilePart,
+                    isMulti,
+                    defaultContentTypes ?? ["application/octet-stream"],
+                    filename,
+                    contentType);
+            }
+        }
+
+        /// <summary>
+        /// Creates an <see cref="InputPrimitiveType"/> representing a file (HttpPart-like) input,
+        /// which the ClientModel type factory maps to <c>System.ClientModel.FileBinaryContent</c>.
+        /// </summary>
+        public static InputPrimitiveType FileType()
+        {
+            return new InputPrimitiveType(InputPrimitiveTypeKind.Bytes, "bytes", "TypeSpec.bytes")
+            {
+                IsFileType = true
+            };
+        }
+
+        public static InputHeaderParameter ContentTypeParameter(string contentType)
+            => HeaderParameter(
                 "contentType",
                 Literal.String(contentType),
-                location: InputRequestLocation.Header,
                 isRequired: true,
                 defaultValue: Constant.String(contentType),
-                nameInRequest: "Content-Type",
+                serializedName: "Content-Type",
                 isContentType: true,
-                kind: InputOperationParameterKind.Constant);
-
-        public static InputParameter Parameter(
-            string name,
-            InputType type,
-            string? nameInRequest = null,
-            InputConstant? defaultValue = null,
-            InputRequestLocation location = InputRequestLocation.Body,
-            bool isRequired = false,
-            InputOperationParameterKind kind = InputOperationParameterKind.Method,
-            bool isEndpoint = false,
-            bool isContentType = false,
-            bool isApiVersion = false,
-            bool explode = false,
-            string? delimiter = null)
-        {
-            return new InputParameter(
-                name,
-                nameInRequest ?? name,
-                "",
-                $"{name} description",
-                type,
-                location,
-                defaultValue,
-                kind,
-                isRequired,
-                isApiVersion,
-                isContentType,
-                isEndpoint,
-                false,
-                explode,
-                delimiter,
-                null);
-        }
+                scope: InputParameterScope.Constant);
 
         public static InputNamespace Namespace(
             string name,
             IEnumerable<InputModelType>? models = null,
             IEnumerable<InputEnumType>? enums = null,
-            IEnumerable<InputClient>? clients = null)
+            IEnumerable<InputClient>? clients = null,
+            IEnumerable<InputLiteralType>? constants = null)
         {
             return new InputNamespace(
                 name,
                 [],
+                constants is null ? [] : [.. constants],
                 enums is null ? [] : [.. enums],
                 models is null ? [] : [.. models],
                 clients is null ? [] : [.. clients],
                 new InputAuth());
         }
 
+        public static InputEnumType StringEnum(
+            string name,
+            IEnumerable<(string Name, string Value)> values,
+            string access = "public",
+            InputModelTypeUsage usage = InputModelTypeUsage.Input | InputModelTypeUsage.Output,
+            bool isExtensible = false,
+            string clientNamespace = "Sample.Models",
+            InputExternalTypeMetadata? external = null,
+            bool isExactName = false)
+        {
+            var enumValues = new List<InputEnumTypeValue>();
+            var enumType = Enum(
+                name,
+                InputPrimitiveType.String,
+                enumValues,
+                access: access,
+                usage: usage,
+                isExtensible: isExtensible,
+                clientNamespace: clientNamespace,
+                external: external,
+                isExactName: isExactName);
+
+            foreach (var (valueName, value) in values)
+            {
+                enumValues.Add(EnumMember.String(valueName, value, enumType));
+            }
+
+            return enumType;
+        }
+
+        public static InputEnumType Int32Enum(
+            string name,
+            IEnumerable<(string Name, int Value)> values,
+            string access = "public",
+            InputModelTypeUsage usage = InputModelTypeUsage.Input | InputModelTypeUsage.Output,
+            bool isExtensible = false,
+            string clientNamespace = "Sample.Models",
+            InputExternalTypeMetadata? external = null)
+        {
+            var enumValues = new List<InputEnumTypeValue>();
+            var enumType = Enum(
+                name,
+                InputPrimitiveType.Int32,
+                enumValues,
+                access: access,
+                usage: usage,
+                isExtensible: isExtensible,
+                clientNamespace: clientNamespace,
+                external: external);
+
+            foreach (var (valueName, value) in values)
+            {
+                enumValues.Add(EnumMember.Int32(valueName, value, enumType));
+            }
+
+            return enumType;
+        }
+
+        public static InputEnumType Int64Enum(
+            string name,
+            IEnumerable<(string Name, long Value)> values,
+            string access = "public",
+            InputModelTypeUsage usage = InputModelTypeUsage.Input | InputModelTypeUsage.Output,
+            bool isExtensible = false,
+            string clientNamespace = "Sample.Models",
+            InputExternalTypeMetadata? external = null)
+        {
+            var enumValues = new List<InputEnumTypeValue>();
+            var enumType = Enum(
+                name,
+                InputPrimitiveType.Int64,
+                enumValues,
+                access: access,
+                usage: usage,
+                isExtensible: isExtensible,
+                clientNamespace: clientNamespace,
+                external: external);
+
+            foreach (var (valueName, value) in values)
+            {
+                enumValues.Add(EnumMember.Int64(valueName, value, enumType));
+            }
+
+            return enumType;
+        }
+
+        public static InputEnumType Float32Enum(
+            string name,
+            IEnumerable<(string Name, float Value)> values,
+            string access = "public",
+            InputModelTypeUsage usage = InputModelTypeUsage.Input | InputModelTypeUsage.Output,
+            bool isExtensible = false,
+            string clientNamespace = "Sample.Models",
+            InputExternalTypeMetadata? external = null)
+        {
+            var enumValues = new List<InputEnumTypeValue>();
+            var enumType = Enum(
+                name,
+                InputPrimitiveType.Float32,
+                enumValues,
+                access: access,
+                usage: usage,
+                isExtensible: isExtensible,
+                clientNamespace: clientNamespace,
+                external: external);
+
+            foreach (var (valueName, value) in values)
+            {
+                enumValues.Add(EnumMember.Float32(valueName, value, enumType));
+            }
+
+            return enumType;
+        }
+
+        public static InputEnumType Float64Enum(
+            string name,
+            IEnumerable<(string Name, double Value)> values,
+            string access = "public",
+            InputModelTypeUsage usage = InputModelTypeUsage.Input | InputModelTypeUsage.Output,
+            bool isExtensible = false,
+            string clientNamespace = "Sample.Models",
+            InputExternalTypeMetadata? external = null)
+        {
+            var enumValues = new List<InputEnumTypeValue>();
+            var enumType = Enum(
+                name,
+                InputPrimitiveType.Float64,
+                enumValues,
+                access: access,
+                usage: usage,
+                isExtensible: isExtensible,
+                clientNamespace: clientNamespace,
+                external: external);
+
+            foreach (var (valueName, value) in values)
+            {
+                enumValues.Add(EnumMember.Float64(valueName, value, enumType));
+            }
+
+            return enumType;
+        }
+
         public static InputEnumType Enum(
             string name,
             InputPrimitiveType underlyingType,
+            IReadOnlyList<InputEnumTypeValue> values,
             string access = "public",
             InputModelTypeUsage usage = InputModelTypeUsage.Output | InputModelTypeUsage.Input,
-            IEnumerable<InputEnumTypeValue>? values = null,
             bool isExtensible = false,
-            string clientNamespace = "Sample.Models")
+            string clientNamespace = "Sample.Models",
+            InputExternalTypeMetadata? external = null,
+            bool isExactName = false)
         {
-            return new InputEnumType(
+            var enumType = new InputEnumType(
                 name,
                 clientNamespace,
                 name,
@@ -136,8 +322,16 @@ namespace Microsoft.TypeSpec.Generator.Tests.Common
                 $"{name} description",
                 usage,
                 underlyingType,
-                values is null ? [new InputEnumTypeValue("Value", 1, InputPrimitiveType.Int32, "", "Value description")] : [.. values],
-                isExtensible);
+                values,
+                isExtensible)
+            {
+                IsExactName = isExactName,
+            };
+            if (external != null)
+            {
+                enumType.External = external;
+            }
+            return enumType;
         }
 
         public static InputModelProperty Property(
@@ -146,21 +340,239 @@ namespace Microsoft.TypeSpec.Generator.Tests.Common
             bool isRequired = false,
             bool isReadOnly = false,
             bool isDiscriminator = false,
+            bool isHttpMetadata = false,
+            bool isApiVersion = false,
+            InputConstant? defaultValue = null,
             string? wireName = null,
             string? summary = null,
-            string? doc = null)
+            string? serializedName = null,
+            string? doc = null,
+            InputSerializationOptions? serializationOptions = null,
+            ArrayKnownEncoding? encode = null,
+            bool isExactName = false)
         {
+            serializationOptions ??= new InputSerializationOptions();
             return new InputModelProperty(
-                name,
-                summary,
-                doc ?? $"Description for {name}",
-                type,
-                isRequired,
-                isReadOnly,
-                isDiscriminator,
-                new(json: new(wireName ?? name.ToVariableName())));
+                name: name,
+                summary: summary,
+                doc: doc ?? $"Description for {name}",
+                type: type,
+                isRequired: isRequired,
+                isReadOnly: isReadOnly,
+                isApiVersion: isApiVersion,
+                defaultValue: defaultValue,
+                isHttpMetadata: isHttpMetadata,
+                access: null,
+                isDiscriminator: isDiscriminator,
+                serializedName: serializedName ?? wireName ?? name.ToVariableName(),
+                serializationOptions: serializationOptions,
+                encode: encode)
+            {
+                IsExactName = isExactName,
+            };
         }
 
+        public static InputHeaderParameter HeaderParameter(
+            string name,
+            InputType type,
+            bool isRequired = false,
+            bool isReadOnly = false,
+            bool isApiVersion = false,
+            bool isContentType = false,
+            string? summary = null,
+            string? doc = null,
+            string? collectionFormat = null,
+            string? serializedName = null,
+            InputConstant? defaultValue = null,
+            InputParameterScope scope = InputParameterScope.Method,
+            string? collectionHeaderPrefix = null)
+        {
+            return new InputHeaderParameter(
+                name: name,
+                summary: summary,
+                doc: doc ?? $"{name} description",
+                type: type,
+                isRequired: isRequired,
+                isReadOnly: isReadOnly,
+                isApiVersion: isApiVersion,
+                isContentType: isContentType,
+                access: null,
+                defaultValue: defaultValue,
+                collectionFormat: collectionFormat,
+                scope: scope,
+                arraySerializationDelimiter: null,
+                serializedName: serializedName ?? name,
+                collectionHeaderPrefix: collectionHeaderPrefix);
+        }
+
+        public static InputQueryParameter QueryParameter(
+            string name,
+            InputType type,
+            bool isRequired = false,
+            bool isReadOnly = false,
+            bool isApiVersion = false,
+            InputConstant? defaultValue = null,
+            string? summary = null,
+            string? doc = null,
+            string? collectionFormat = null,
+            string? serializedName = null,
+            bool explode = false,
+            InputParameterScope scope = InputParameterScope.Method,
+            string? delimiter = null,
+            bool isExactName = false)
+        {
+            return new InputQueryParameter(
+                name: name,
+                summary: summary,
+                doc: doc ?? $"{name} description",
+                type: type,
+                isRequired: isRequired,
+                isReadOnly: isReadOnly,
+                isApiVersion: isApiVersion,
+                defaultValue: defaultValue,
+                scope: scope,
+                arraySerializationDelimiter: delimiter,
+                access: null,
+                serializedName: serializedName ?? name,
+                collectionFormat: collectionFormat,
+                explode: explode)
+            {
+                IsExactName = isExactName
+            };
+        }
+
+        public static InputPathParameter PathParameter(
+            string name,
+            InputType type,
+            bool isRequired = false,
+            bool isReadOnly = false,
+            bool isApiVersion = false,
+            InputConstant? defaultValue = null,
+            string? summary = null,
+            string? doc = null,
+            string? serializedName = null,
+            bool allowReserved = false,
+            bool explode = false,
+            bool skipUrlEncoding = false,
+            string? serverUrlTemplate = null,
+            InputParameterScope scope = InputParameterScope.Method)
+        {
+            return new InputPathParameter(
+                name: name,
+                summary: summary,
+                doc: doc ?? $"{name} description",
+                type: type,
+                isRequired: isRequired,
+                isReadOnly: isReadOnly,
+                isApiVersion: isApiVersion,
+                explode: explode,
+                defaultValue: defaultValue,
+                scope: scope,
+                skipUrlEncoding: skipUrlEncoding,
+                serverUrlTemplate: serverUrlTemplate,
+                access: null,
+                serializedName: serializedName ?? name,
+                allowReserved: allowReserved);
+        }
+
+        public static InputEndpointParameter EndpointParameter(
+            string name,
+            InputType type,
+            bool isRequired = false,
+            bool isReadOnly = false,
+            bool isApiVersion = false,
+            InputConstant? defaultValue = null,
+            string? summary = null,
+            string? doc = null,
+            string? serializedName = null,
+            bool skipUrlEncoding = false,
+            bool isEndpoint = true,
+            string? serverUrlTemplate = null,
+            InputParameterScope scope = InputParameterScope.Client)
+        {
+            return new InputEndpointParameter(
+                name: name,
+                summary: summary,
+                doc: doc ?? $"{name} description",
+                type: type,
+                isRequired: isRequired,
+                isReadOnly: isReadOnly,
+                isApiVersion: isApiVersion,
+                defaultValue: defaultValue,
+                scope: scope,
+                skipUrlEncoding: skipUrlEncoding,
+                serverUrlTemplate: serverUrlTemplate,
+                isEndpoint: isEndpoint,
+                access: null,
+                serializedName: serializedName ?? name);
+        }
+
+        public static InputBodyParameter BodyParameter(
+            string name,
+            InputType type,
+            bool isRequired = false,
+            bool isReadOnly = false,
+            bool isApiVersion = false,
+            InputConstant? defaultValue = null,
+            string? summary = null,
+            string? doc = null,
+            string? serializedName = null,
+            string[]? contentTypes = null,
+            string? defaultContentType = null,
+            InputParameterScope scope = InputParameterScope.Method)
+        {
+            return new InputBodyParameter(
+                name: name,
+                summary: summary,
+                doc: doc ?? $"{name} description",
+                type: type,
+                isRequired: isRequired,
+                isReadOnly: isReadOnly,
+                isApiVersion: isApiVersion,
+                defaultValue: defaultValue,
+                defaultContentType: defaultContentType ?? "application/json",
+                contentTypes: contentTypes ?? ["application/json"],
+                scope: scope,
+                access: null,
+                serializedName: serializedName ?? name);
+        }
+
+        public static InputMethodParameter MethodParameter(
+            string name,
+            InputType type,
+            bool isRequired = false,
+            bool isReadOnly = false,
+            bool isApiVersion = false,
+            InputConstant? defaultValue = null,
+            string? summary = null,
+            string? doc = null,
+            string? serializedName = null,
+            InputRequestLocation location = InputRequestLocation.Body,
+            InputParameterScope scope = InputParameterScope.Method,
+            string? paramAlias = null,
+            bool isExactName = false)
+        {
+            return new InputMethodParameter(
+                name: name,
+                summary: summary,
+                doc: doc ?? $"{name} description",
+                type: type,
+                isRequired: isRequired,
+                isReadOnly: isReadOnly,
+                isApiVersion: isApiVersion,
+                defaultValue: defaultValue,
+                scope: scope,
+                access: null,
+                location: location,
+                serializedName: serializedName ?? name)
+            {
+                ParamAlias = paramAlias,
+                IsExactName = isExactName
+            };
+        }
+
+        // Replace reflection with InternalsVisibleTo after fixing https://github.com/microsoft/typespec/issues/7075")]
+        private static MethodInfo _addDerivedModelMethod = typeof(InputModelType).GetMethod("AddDerivedModel", BindingFlags.NonPublic | BindingFlags.Instance)!;
         public static InputModelType Model(
             string name,
             string @namespace = "Sample.Models",
@@ -172,10 +584,16 @@ namespace Microsoft.TypeSpec.Generator.Tests.Common
             string? discriminatedKind = null,
             InputType? additionalProperties = null,
             IDictionary<string, InputModelType>? discriminatedModels = null,
-            IEnumerable<InputModelType>? derivedModels = null)
+            IEnumerable<InputModelType>? derivedModels = null,
+            InputModelProperty? discriminatorProperty = null,
+            bool isDynamicModel = false,
+            InputExternalTypeMetadata? external = null,
+            InputSerializationOptions? serializationOptions = null,
+            bool isExactName = false)
         {
             IEnumerable<InputModelProperty> propertiesList = properties ?? [Property("StringProperty", InputPrimitiveType.String)];
-            return new InputModelType(
+
+            var model = new InputModelType(
                 name,
                 @namespace,
                 name,
@@ -188,26 +606,118 @@ namespace Microsoft.TypeSpec.Generator.Tests.Common
                 baseModel,
                 derivedModels is null ? [] : [.. derivedModels],
                 discriminatedKind,
-                propertiesList.FirstOrDefault(p => p.IsDiscriminator),
-                discriminatedModels is null ? new Dictionary<string, InputModelType>() : discriminatedModels.AsReadOnly(),
+                discriminatorProperty ?? propertiesList.FirstOrDefault(p =>
+                    p is InputModelProperty modelProperty && modelProperty.IsDiscriminator),
+                discriminatedModels is null
+                    ? new Dictionary<string, InputModelType>()
+                    : discriminatedModels.AsReadOnly(),
                 additionalProperties,
                 modelAsStruct,
-                new());
+                serializationOptions ?? new(),
+                isDynamicModel)
+            {
+                IsExactName = isExactName,
+            };
+            if (baseModel is not null)
+            {
+                _addDerivedModelMethod.Invoke(baseModel, new object[] { model });
+            }
+
+            if (external != null)
+            {
+                model.External = external;
+            }
+
+            return model;
         }
 
-        public static InputType Array(InputType elementType)
+        public static InputType Array(InputType elementType, InputExternalTypeMetadata? external = null)
         {
-            return new InputArrayType("list", "list", elementType);
+            var array = new InputArrayType("list", "list", elementType);
+            if (external != null)
+            {
+                array.External = external;
+            }
+            return array;
         }
 
-        public static InputType Dictionary(InputType valueType, InputType? keyType = null)
+        public static InputType Dictionary(InputType valueType, InputType? keyType = null, InputExternalTypeMetadata? external = null)
         {
-            return new InputDictionaryType("dictionary", keyType ?? InputPrimitiveType.String, valueType);
+            var dictionary = new InputDictionaryType("dictionary", keyType ?? InputPrimitiveType.String, valueType);
+            if (external != null)
+            {
+                dictionary.External = external;
+            }
+            return dictionary;
         }
 
-        public static InputType Union(IList<InputType> types)
+        public static InputType Union(IList<InputType> types, string name = "union", InputExternalTypeMetadata? external = null)
         {
-            return new InputUnionType("union", [.. types]);
+            var union = new InputUnionType(name, [.. types]);
+            if (external != null)
+            {
+                union.External = external;
+            }
+            return union;
+        }
+
+        public static InputBasicServiceMethod BasicServiceMethod(
+            string name,
+            InputOperation operation,
+            string access = "public",
+            IReadOnlyList<InputMethodParameter>? parameters = null,
+            InputServiceMethodResponse? response = null,
+            InputServiceMethodResponse? exception = null,
+            bool isExactName = false)
+        {
+            return new InputBasicServiceMethod(
+                name,
+                access,
+                [],
+                null,
+                null,
+                operation,
+                parameters ?? [],
+                response ?? ServiceMethodResponse(null, null),
+                exception,
+                false,
+                true,
+                true,
+                string.Empty)
+            {
+                IsExactName = isExactName,
+            };
+        }
+
+        public static InputPagingServiceMethod PagingServiceMethod(
+           string name,
+           InputOperation operation,
+           string access = "public",
+           IReadOnlyList<InputMethodParameter>? parameters = null,
+           InputServiceMethodResponse? response = null,
+           InputServiceMethodResponse? exception = null,
+           InputPagingServiceMetadata? pagingMetadata = null)
+        {
+            return new InputPagingServiceMethod(
+                name,
+                access,
+                [],
+                null,
+                null,
+                operation,
+                parameters ?? [],
+                response ?? ServiceMethodResponse(null, null),
+                exception,
+                false,
+                true,
+                true,
+                string.Empty,
+                pagingMetadata ?? PagingMetadata([], null, null));
+        }
+
+        public static InputPagingServiceMetadata PagingMetadata(IReadOnlyList<string> itemPropertySegments, InputNextLink? nextLink, InputContinuationToken? continuationToken)
+        {
+            return new InputPagingServiceMetadata(itemPropertySegments, nextLink, continuationToken);
         }
 
         public static InputOperation Operation(
@@ -219,9 +729,12 @@ namespace Microsoft.TypeSpec.Generator.Tests.Common
             string uri = "",
             string path = "",
             string httpMethod = "GET",
-            InputOperationPaging? paging = null)
+            bool generateConvenienceMethod = true,
+            string? ns = null,
+            bool isExactName = false,
+            bool generateProtocolMethod = true)
         {
-            return new InputOperation(
+            var operation = new InputOperation(
                 name,
                 null,
                 "",
@@ -236,42 +749,65 @@ namespace Microsoft.TypeSpec.Generator.Tests.Common
                 null,
                 requestMediaTypes is null ? null : [.. requestMediaTypes],
                 false,
-                null,
-                paging,
-                true,
-                true,
-                name);
+                generateProtocolMethod,
+                generateConvenienceMethod,
+                name,
+                ns);
+            operation.OriginalName = name;
+            operation.IsExactName = isExactName;
+            return operation;
         }
 
-        public static InputOperationPaging NextLinkOperationPaging(string itemPropertyName, string nextLinkName, InputResponseLocation nextLinkLocation)
+        public static InputPagingServiceMetadata NextLinkPagingMetadata(
+            IReadOnlyList<string> itemSegments,
+            IReadOnlyList<string> nextLinkSegments,
+            InputResponseLocation nextLinkLocation,
+            IReadOnlyList<InputParameter>? reinjectedParameters = null)
         {
-            return new InputOperationPaging(
-                [itemPropertyName],
-                new InputNextLink(null, [nextLinkName], nextLinkLocation),
+            return PagingMetadata(
+                itemSegments,
+                new InputNextLink(null, nextLinkSegments, nextLinkLocation, reinjectedParameters),
                 null);
         }
 
-        public static InputOperationPaging ContinuationTokenOperationPaging(InputParameter parameter, string itemPropertyName, string continuationTokenName, InputResponseLocation continuationTokenLocation)
+        public static InputPagingServiceMetadata ContinuationTokenPagingMetadata(
+            InputParameter parameter,
+            IReadOnlyList<string> itemSegments,
+            IReadOnlyList<string> continuationTokenSegments,
+            InputResponseLocation continuationTokenLocation,
+            IReadOnlyList<string>? pageSizeParameterSegments = null)
         {
-            return new InputOperationPaging(
-                [itemPropertyName],
+            return new InputPagingServiceMetadata(
+                itemSegments,
                 null,
-                continuationToken: new InputContinuationToken(parameter, [continuationTokenName], continuationTokenLocation));
+                continuationToken: new InputContinuationToken(parameter, continuationTokenSegments, continuationTokenLocation),
+                pageSizeParameterSegments: pageSizeParameterSegments);
         }
 
-        public static InputOperationResponse OperationResponse(IEnumerable<int>? statusCodes = null, InputType? bodytype = null)
+        public static InputOperationResponse OperationResponse(
+            IEnumerable<int>? statusCodes = null,
+            InputType? bodytype = null,
+            IReadOnlyList<InputOperationResponseHeader>? headers = null,
+            IReadOnlyList<string>? contentTypes = null,
+            InputSerializationOptions? serializationOptions = null)
         {
             return new InputOperationResponse(
                 statusCodes is null ? [200] : [.. statusCodes],
                 bodytype,
-                [],
+                headers ?? [],
                 false,
-                ["application/json"]);
+                contentTypes ?? ["application/json"],
+                serializationOptions);
+        }
+
+        public static InputServiceMethodResponse ServiceMethodResponse(InputType? type, IReadOnlyList<string>? resultSegments)
+        {
+            return new InputServiceMethodResponse(type, resultSegments);
         }
 
         private static readonly Dictionary<InputClient, IList<InputClient>> _childClientsCache = new();
 
-        public static InputClient Client(string name, string clientNamespace = "Sample", string? doc = null, IEnumerable<InputOperation>? operations = null, IEnumerable<InputParameter>? parameters = null, InputClient? parent = null, string? crossLanguageDefinitionId = null)
+        public static InputClient Client(string name, string clientNamespace = "Sample", string? doc = null, IEnumerable<InputServiceMethod>? methods = null, IEnumerable<InputParameter>? parameters = null, InputClient? parent = null, string? crossLanguageDefinitionId = null, IEnumerable<string>? apiVersions = null, InputClientInitializedBy initializedBy = InputClientInitializedBy.Individually, bool? isMultiServiceClient = false, bool isExactName = false)
         {
             // when this client has parent, we add the constructed client into the `children` list of the parent
             var clientChildren = new List<InputClient>();
@@ -281,10 +817,14 @@ namespace Microsoft.TypeSpec.Generator.Tests.Common
                 crossLanguageDefinitionId ?? $"{clientNamespace}.{name}",
                 string.Empty,
                 doc ?? $"{name} description",
-                operations is null ? [] : [.. operations],
+                isMultiServiceClient ?? false,
+                methods is null ? [] : [.. methods],
                 parameters is null ? [] : [.. parameters],
                 parent,
-                clientChildren);
+                clientChildren,
+                apiVersions is null ? [] : [.. apiVersions]);
+            client.InitializedBy = initializedBy;
+            client.IsExactName = isExactName;
             _childClientsCache[client] = clientChildren;
             // when we have a parent, we need to find the children list of this parent client and update accordingly.
             if (parent != null && _childClientsCache.TryGetValue(parent, out var children))

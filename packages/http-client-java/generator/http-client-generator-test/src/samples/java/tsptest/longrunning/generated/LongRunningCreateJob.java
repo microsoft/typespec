@@ -19,10 +19,10 @@ public class LongRunningCreateJob {
         LongRunningClient longRunningClient
             = new LongRunningClientBuilder().endpoint(Configuration.getGlobalConfiguration().get("ENDPOINT"))
                 .buildClient();
-        // BEGIN:tsptest.longrunning.generated.createjob.longrunningcreatejob
+        // BEGIN:tsptest.longrunning.generated.create-job.long-running-create-job
         SyncPoller<JobResult, JobResultResult> response = longRunningClient
             .beginCreateJob(new JobData(mapOf("max", 15.0D, "min", 14.0D, "average", 14.3D)).setConfiguration("{}"));
-        // END:tsptest.longrunning.generated.createjob.longrunningcreatejob
+        // END:tsptest.longrunning.generated.create-job.long-running-create-job
     }
 
     // Use "Map.of" if available

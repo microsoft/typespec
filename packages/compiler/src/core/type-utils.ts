@@ -11,6 +11,7 @@ import {
   Node,
   NullType,
   Operation,
+  RecordModelType,
   Sym,
   SymbolFlags,
   SyntaxKind,
@@ -51,17 +52,36 @@ export function isValue(entity: Entity): entity is Value {
 }
 
 /**
+ * Check if a model is an array type.
+ * @param program Program (unused)
  * @param type Model type
+ * @deprecated Use `isArrayModelType(type)` instead. The `program` parameter is unused.
  */
-export function isArrayModelType(program: Program, type: Model): type is ArrayModelType {
-  return Boolean(type.indexer && type.indexer.key.name === "integer");
-}
-
+export function isArrayModelType(program: Program, type: Model): type is ArrayModelType;
 /**
  * Check if a model is an array type.
  * @param type Model type
  */
-export function isRecordModelType(program: Program, type: Model): type is ArrayModelType {
+export function isArrayModelType(type: Model): type is ArrayModelType;
+export function isArrayModelType(programOrType: Program | Model, maybeType?: Model): boolean {
+  const type = maybeType ?? (programOrType as Model);
+  return Boolean(type.indexer && type.indexer.key.name === "integer");
+}
+
+/**
+ * Check if a model is a record type.
+ * @param program Program (unused)
+ * @param type Model type
+ * @deprecated Use `isRecordModelType(type)` instead. The `program` parameter is unused.
+ */
+export function isRecordModelType(program: Program, type: Model): type is RecordModelType;
+/**
+ * Check if a model is a record type.
+ * @param type Model type
+ */
+export function isRecordModelType(type: Model): type is RecordModelType;
+export function isRecordModelType(programOrType: Program | Model, maybeType?: Model): boolean {
+  const type = maybeType ?? (programOrType as Model);
   return Boolean(type.indexer && type.indexer.key.name === "string");
 }
 
@@ -74,13 +94,22 @@ export function getParentTemplateNode(node: Node): (Node & TemplateDeclarationNo
   switch (node.kind) {
     case SyntaxKind.ModelStatement:
     case SyntaxKind.ScalarStatement:
-    case SyntaxKind.OperationStatement:
     case SyntaxKind.UnionStatement:
     case SyntaxKind.InterfaceStatement:
       return node.templateParameters.length > 0 ? node : undefined;
+    case SyntaxKind.OperationStatement:
+      return node.templateParameters.length > 0
+        ? node
+        : node.parent?.kind === SyntaxKind.InterfaceStatement
+          ? node.parent.templateParameters.length > 0
+            ? node.parent
+            : undefined
+          : undefined;
     case SyntaxKind.OperationSignatureDeclaration:
     case SyntaxKind.ModelProperty:
+    case SyntaxKind.UnionVariant:
     case SyntaxKind.ModelExpression:
+    case SyntaxKind.UnionExpression:
       return node.parent ? getParentTemplateNode(node.parent) : undefined;
     default:
       return undefined;

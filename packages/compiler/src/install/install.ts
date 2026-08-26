@@ -4,14 +4,10 @@ import { mkdir, rename, rm } from "fs/promises";
 import type { CliCompilerHost } from "../core/cli/types.js";
 import { DiagnosticError } from "../core/diagnostic-error.js";
 import { createDiagnosticCollector } from "../core/diagnostics.js";
-import { createTracer } from "../core/logger/tracer.js";
 import { getDirectoryPath, joinPaths } from "../core/path-utils.js";
 import { NoTarget, type Diagnostic, type Tracer } from "../core/types.js";
-import {
-  downloadAndExtractPackage,
-  fetchPackageManifest,
-  NpmManifest,
-} from "../package-manger/npm-registry-utils.js";
+import { downloadAndExtractPackage } from "../package-manger/npm-package-download.js";
+import { fetchPackageManifest, type NpmManifest } from "../package-manger/npm-registry.js";
 import { mkTempDir } from "../utils/fs-utils.js";
 import {
   getPackageManagerConfig,
@@ -165,7 +161,7 @@ export async function installTypeSpecDependencies(
 ): Promise<readonly Diagnostic[]> {
   const { directory, stdio = "inherit", savePackageManager } = options;
   const diagnostics = createDiagnosticCollector();
-  const tracer = createTracer(host.logger).sub("install");
+  const tracer = host.tracer.sub("install");
   try {
     const { spec, path: packageJsonPath } = diagnostics.pipe(
       await resolvePackageManagerSpecOrFail(host, tracer, options),

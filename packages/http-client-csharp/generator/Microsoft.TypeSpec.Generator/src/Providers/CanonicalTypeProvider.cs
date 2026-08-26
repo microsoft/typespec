@@ -6,8 +6,11 @@ using System.Collections.Generic;
 using System.Diagnostics.CodeAnalysis;
 using System.Linq;
 using Microsoft.TypeSpec.Generator.Input;
+using Microsoft.TypeSpec.Generator.Input.Extensions;
 using Microsoft.TypeSpec.Generator.Primitives;
 using Microsoft.TypeSpec.Generator.SourceInput;
+using Microsoft.TypeSpec.Generator.Statements;
+using Microsoft.TypeSpec.Generator.Utilities;
 
 namespace Microsoft.TypeSpec.Generator.Providers
 {
@@ -16,15 +19,17 @@ namespace Microsoft.TypeSpec.Generator.Providers
         private readonly TypeProvider _generatedTypeProvider;
         private readonly Dictionary<string, InputModelProperty> _specPropertiesMap;
         private readonly Dictionary<string, string?> _serializedNameMap;
+        private readonly Dictionary<InputModelProperty, PropertyProvider> _propertyProviderMap = new();
         private readonly HashSet<string> _renamedProperties;
         private readonly HashSet<string> _renamedFields;
+        private readonly IReadOnlyList<InputModelProperty> _specProperties;
 
         public CanonicalTypeProvider(TypeProvider generatedTypeProvider, InputType? inputType)
         {
             _generatedTypeProvider = generatedTypeProvider;
             var inputModel = inputType as InputModelType;
-            var specProperties = inputModel?.Properties ?? [];
-            _specPropertiesMap = specProperties.ToDictionary(p => p.Name.ToCleanName(), p => p);
+            _specProperties = inputModel?.Properties ?? [];
+            _specPropertiesMap = _specProperties.ToDictionary(p => p.IsExactName ? p.Name : p.Name.ToIdentifierName(), p => p);
             _serializedNameMap = BuildSerializationNameMap();
             _renamedProperties = (_generatedTypeProvider.CustomCodeView?.Properties ?? [])
                 .Where(p => p.OriginalName != null).Select(p => p.OriginalName!).ToHashSet();
@@ -39,22 +44,26 @@ namespace Microsoft.TypeSpec.Generator.Providers
 
         protected override TypeSignatureModifiers BuildDeclarationModifiers() => _generatedTypeProvider.DeclarationModifiers;
 
-        private protected override PropertyProvider[] FilterCustomizedProperties(PropertyProvider[] canonicalProperties) => canonicalProperties;
-        private protected override FieldProvider[] FilterCustomizedFields(FieldProvider[] canonicalFields) => canonicalFields;
+        private protected override bool FilterCustomizedMembers => false;
+
+        protected override IReadOnlyList<MethodBodyStatement> BuildAttributes()
+        {
+            return [.. _generatedTypeProvider.Attributes, .. _generatedTypeProvider.CustomCodeView?.Attributes ?? []];
+        }
 
         private protected override CanonicalTypeProvider BuildCanonicalView() => this;
 
-        protected override ConstructorProvider[] BuildConstructors()
+        protected internal override ConstructorProvider[] BuildConstructors()
         {
-            return [.. _generatedTypeProvider.Constructors, .. _generatedTypeProvider.CustomCodeView?.Constructors ?? []];
+            return [.. FilterCustomizedConstructors(_generatedTypeProvider.Constructors), .. _generatedTypeProvider.CustomCodeView?.Constructors ?? []];
         }
 
-        protected override MethodProvider[] BuildMethods()
+        protected internal override MethodProvider[] BuildMethods()
         {
-            return [.. _generatedTypeProvider.Methods, .. _generatedTypeProvider.CustomCodeView?.Methods ?? []];
+            return [.. FilterCustomizedMethods(_generatedTypeProvider.Methods), .. _generatedTypeProvider.CustomCodeView?.Methods ?? []];
         }
 
-        protected override PropertyProvider[] BuildProperties()
+        protected internal override PropertyProvider[] BuildProperties()
         {
             var generatedProperties = _generatedTypeProvider.Properties;
             var customProperties = _generatedTypeProvider.CustomCodeView?.Properties ?? [];
@@ -66,17 +75,25 @@ namespace Microsoft.TypeSpec.Generator.Providers
                 {
                     generatedProperty.WireInfo!.SerializedName = serializedName;
                 }
+
+                if (generatedProperty.InputProperty is InputModelProperty specProperty)
+                {
+                    _propertyProviderMap[specProperty] = generatedProperty;
+                }
             }
 
             foreach (var customProperty in customProperties)
             {
                 InputModelProperty? specProperty = null;
 
-                if (TryGetCandidateSpecProperty(customProperty, out var candidateSpecProperty))
+                if (TryGetSpecProperty(customProperty, out var candidateSpecProperty))
                 {
                     specProperty = candidateSpecProperty;
-                    customProperty.IsDiscriminator = specProperty.IsDiscriminator;
                     customProperty.WireInfo = new PropertyWireInformation(specProperty);
+                    customProperty.IsDiscriminator = customProperty.WireInfo.IsDiscriminator;
+                    customProperty.Update(description: customProperty.WireInfo.Description);
+
+                    _propertyProviderMap[specProperty] = customProperty;
                 }
 
                 string? serializedName = specProperty?.SerializedName;
@@ -102,7 +119,9 @@ namespace Microsoft.TypeSpec.Generator.Providers
                             !customProperty.Body.HasSetter,
                             customProperty.Type.IsNullable,
                             false,
-                            serializedName ?? customProperty.Name.ToVariableName());;
+                            serializedName ?? customProperty.Name.ToVariableName(),
+                            false,
+                            false);
                     }
                     else
                     {
@@ -110,13 +129,72 @@ namespace Microsoft.TypeSpec.Generator.Providers
                     }
                 }
 
-                customProperty.Type = EnsureCorrectTypeRepresentation(specProperty, customProperty.Type);
+                customProperty.Type = customProperty.Type.ApplyInputSpecProperty(specProperty);
+                customProperty.InputProperty = specProperty;
             }
 
-            return [..generatedProperties, ..customProperties];
+            // Filter out generated properties that have been customized to avoid duplicates.
+            // This is needed because EnsureBuilt caches members without applying customization
+            // filtering, so _generatedTypeProvider.Properties may contain unfiltered results.
+            var filteredGeneratedProperties = FilterCustomizedProperties(generatedProperties);
+
+            if (_specProperties.Count > 0)
+            {
+                // Input properties will only contain this types properties, i.e. it won't include base type properties.
+                var inputProperties = new HashSet<InputProperty>(_specProperties.Count);
+                var nonSpecProperties = new List<PropertyProvider>();
+
+                // Process all properties in single pass, categorizing them
+                foreach (var prop in filteredGeneratedProperties)
+                {
+                    if (prop.InputProperty != null)
+                    {
+                        inputProperties.Add(prop.InputProperty);
+                    }
+                    else
+                    {
+                        nonSpecProperties.Add(prop);
+                    }
+                }
+
+                foreach (var prop in customProperties)
+                {
+                    // Check if custom property is in spec
+                    if (_specPropertiesMap.TryGetValue(prop.Name, out var specProp) ||
+                        (prop.OriginalName != null && _specPropertiesMap.TryGetValue(prop.OriginalName, out specProp)))
+                    {
+                        inputProperties.Add(specProp);
+                    }
+                    else
+                    {
+                        nonSpecProperties.Add(prop);
+                    }
+                }
+
+                var specCount = _specProperties.Count(p => inputProperties.Contains(p));
+                var result = new List<PropertyProvider>(specCount + nonSpecProperties.Count);
+
+                // Add spec properties in order
+                foreach (var specProp in _specProperties)
+                {
+                    if (inputProperties.Contains(specProp) &&
+                        _propertyProviderMap.TryGetValue(specProp, out var provider))
+                    {
+                        result.Add(provider);
+                    }
+                }
+
+                // Add non-spec properties
+                result.AddRange(nonSpecProperties);
+
+                return [..result];
+            }
+
+            // For other types, there is no canonical order, so we can just return generated followed by custom properties.
+            return [..filteredGeneratedProperties, ..customProperties];
         }
 
-        protected override FieldProvider[] BuildFields()
+        protected internal override FieldProvider[] BuildFields()
         {
             var generatedFields = _generatedTypeProvider.Fields;
             var customFields = _generatedTypeProvider.CustomCodeView?.Fields ?? [];
@@ -132,12 +210,13 @@ namespace Microsoft.TypeSpec.Generator.Providers
 
             foreach (var customField in customFields)
             {
-                InputModelProperty? specProperty = null;
+                InputProperty? specProperty = null;
 
-                if (TryGetCandidateSpecProperty(customField, out var candidateSpecProperty))
+                if (TryGetSpecProperty(customField, out var candidateSpecProperty))
                 {
                     specProperty = candidateSpecProperty;
                     customField.WireInfo = new PropertyWireInformation(specProperty);
+                    customField.Update(description: customField.WireInfo.Description);
                 }
 
                 string? serializedName = specProperty?.SerializedName;
@@ -163,7 +242,9 @@ namespace Microsoft.TypeSpec.Generator.Providers
                             true,
                             customField.Type.IsNullable,
                             false,
-                            serializedName ?? customField.Name.ToVariableName());;
+                            serializedName ?? customField.Name.ToVariableName(),
+                            false,
+                            false);
                     }
                     else
                     {
@@ -171,96 +252,14 @@ namespace Microsoft.TypeSpec.Generator.Providers
                     }
                 }
 
-                customField.Type = EnsureCorrectTypeRepresentation(specProperty, customField.Type);
+                customField.Type = customField.Type.ApplyInputSpecProperty(specProperty);
             }
 
-            return [..generatedFields, ..customFields];
+            // Order is not important for fields, so we can just return generated followed by custom fields
+            return [..FilterCustomizedFields(generatedFields), ..customFields];
         }
 
-        private static bool IsCustomizedEnumProperty(
-            InputModelProperty? inputProperty,
-            CSharpType customType,
-            [NotNullWhen(true)] out InputType? specValueType)
-        {
-            var enumValueType = GetEnumValueType(inputProperty?.Type);
-            if (enumValueType != null)
-            {
-                specValueType = enumValueType;
-                return true;
-            }
-            if (customType.IsEnum && inputProperty != null)
-            {
-                specValueType = inputProperty.Type is InputNullableType nullableType ? nullableType.Type : inputProperty.Type;
-                return true;
-            }
-            specValueType = null;
-            return false;
-        }
-
-        private static CSharpType EnsureCorrectTypeRepresentation(InputModelProperty? specProperty, CSharpType customType)
-        {
-            if (customType.IsCollection)
-            {
-                var elementType = EnsureCorrectTypeRepresentation(specProperty, customType.ElementType);
-                if (customType.IsList)
-                {
-                    customType = new CSharpType(customType.FrameworkType, [elementType], customType.IsNullable);
-                }
-                else if (customType.IsDictionary)
-                {
-                    customType = new CSharpType(customType.FrameworkType, [customType.Arguments[0], elementType], customType.IsNullable);
-                }
-            }
-
-            // handle customized enums - we need to pull the type information from the spec property
-            customType = EnsureEnum(specProperty, customType);
-            // ensure literal types are correctly represented in the custom field using the info from the spec property
-            return EnsureLiteral(specProperty, customType);
-        }
-
-        private static CSharpType EnsureLiteral(InputModelProperty? specProperty, CSharpType customType)
-        {
-            if (specProperty?.Type is InputLiteralType inputLiteral && (customType.IsFrameworkType || customType.IsEnum))
-            {
-                return CSharpType.FromLiteral(customType, inputLiteral.Value);
-            }
-
-            return customType;
-        }
-
-        private static CSharpType EnsureEnum(InputModelProperty? specProperty, CSharpType customType)
-        {
-            if (!customType.IsFrameworkType && IsCustomizedEnumProperty(specProperty, customType, out var specType))
-            {
-                return new CSharpType(
-                    customType.Name,
-                    customType.Namespace,
-                    customType.IsValueType,
-                    customType.IsNullable,
-                    customType.DeclaringType,
-                    customType.Arguments,
-                    customType.IsPublic,
-                    customType.IsStruct,
-                    customType.BaseType,
-                    TypeFactory.CreatePrimitiveCSharpTypeCore(specType));
-            }
-            return customType;
-        }
-
-        private static InputPrimitiveType? GetEnumValueType(InputType? type)
-        {
-            return type switch
-            {
-                InputNullableType nullableType => GetEnumValueType(nullableType.Type),
-                InputEnumType enumType => enumType.ValueType,
-                InputLiteralType { ValueType: InputEnumType enumTypeFromLiteral } => enumTypeFromLiteral.ValueType,
-                InputArrayType arrayType => GetEnumValueType(arrayType.ValueType),
-                InputDictionaryType dictionaryType => GetEnumValueType(dictionaryType.ValueType),
-                _ => null
-            };
-        }
-
-        private bool TryGetCandidateSpecProperty(
+        private bool TryGetSpecProperty(
             PropertyProvider customProperty,
             [NotNullWhen(true)] out InputModelProperty? candidateSpecProperty)
         {
@@ -280,7 +279,7 @@ namespace Microsoft.TypeSpec.Generator.Providers
             return false;
         }
 
-        private bool TryGetCandidateSpecProperty(FieldProvider customField, [NotNullWhen(true)] out InputModelProperty? candidateSpecProperty)
+        private bool TryGetSpecProperty(FieldProvider customField, [NotNullWhen(true)] out InputModelProperty? candidateSpecProperty)
         {
             if (customField.OriginalName != null && _specPropertiesMap.TryGetValue(customField.OriginalName, out candidateSpecProperty))
             {

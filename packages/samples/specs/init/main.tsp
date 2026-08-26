@@ -5,8 +5,7 @@ using Http;
 namespace DemoService;
 
 model Widget {
-  @visibility(Lifecycle.Read, Lifecycle.Update)
-  @path
+  @visibility(Lifecycle.Read)
   id: string;
 
   weight: int32;
@@ -24,15 +23,18 @@ model Error {
 interface Widgets {
   /** List widgets */
   @get list(): Widget[] | Error;
-  /** Read widgets */
-  @get read(@path id: string): Widget | Error;
-  /** Create a widget */
-  @post create(...Widget): Widget | Error;
-  /** Update a widget */
-  @patch update(...Widget): Widget | Error;
-  /** Delete a widget */
-  @delete delete(@path id: string): void | Error;
 
+  /** Read widgets */
+  @get read(@path id: Widget.id): Widget | Error;
+
+  /** Create a widget */
+  @post create(@body widget: Widget): Widget | Error;
+
+  /** Update a widget */
+  @patch update(@path id: Widget.id, @body widget: MergePatchUpdate<Widget>): Widget | Error;
+
+  /** Delete a widget */
+  @delete delete(@path id: Widget.id): void | Error;
   /** Analyze a widget */
-  @route("{id}/analyze") @post analyze(@path id: string): string | Error;
+  @route("{id}/analyze") @post analyze(@path id: Widget.id): string | Error;
 }

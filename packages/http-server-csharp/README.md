@@ -8,7 +8,7 @@ TypeSpec service code generator for c-sharp
 npm install @typespec/http-server-csharp
 ```
 
-## Usage
+## Emitter usage
 
 1. Via the command line
 
@@ -35,6 +35,13 @@ options:
 
 ## Emitter options
 
+### `emitter-output-dir`
+
+**Type:** `absolutePath`
+
+Defines the emitter output directory. Defaults to `{output-dir}/@typespec/http-server-csharp`
+See [Configuring output directory for more info](https://typespec.io/docs/handbook/configuration/configuration/#configuring-output-directory)
+
 ### `skip-format`
 
 **Type:** `boolean`
@@ -45,11 +52,15 @@ Skips formatting of generated C# Types. By default, C# files are formatted using
 
 **Type:** `"models" | "all"`
 
+**Default:** `"all"`
+
 Chooses which service artifacts to emit. choices include 'models' or 'all' artifacts.
 
 ### `emit-mocks`
 
 **Type:** `"mocks-and-project-files" | "mocks-only" | "none"`
+
+**Default:** `"none"`
 
 Emits mock implementations of business logic, setup code, and project files, enabling the service to respond to requests before a real implementation is provided
 
@@ -57,11 +68,15 @@ Emits mock implementations of business logic, setup code, and project files, ena
 
 **Type:** `boolean`
 
+**Default:** `false`
+
 Configure a Swagger UI endpoint in the development configuration
 
 ### `openapi-path`
 
 **Type:** `string`
+
+**Default:** `null`
 
 Use openapi at the given path for generating SwaggerUI endpoints. By default, this will be 'openapi/openapi.yaml' if the 'use-swaggerui' option is enabled.
 
@@ -69,11 +84,15 @@ Use openapi at the given path for generating SwaggerUI endpoints. By default, th
 
 **Type:** `boolean`
 
+**Default:** `false`
+
 When generating mock and project files, overwrite any existing files with the same name.
 
 ### `project-name`
 
 **Type:** `string`
+
+**Default:** `"ServiceProject"`
 
 The name of the generated project.
 
@@ -88,3 +107,11 @@ The service http port when hosting the project locally.
 **Type:** `number`
 
 The service https port when hosting the project locally.
+
+### `collection-type`
+
+**Type:** `"array" | "enumerable"`
+
+**Default:** `"array"`
+
+Specifies the collection type to use: 'array' or 'enumerable'. The default is 'array'.

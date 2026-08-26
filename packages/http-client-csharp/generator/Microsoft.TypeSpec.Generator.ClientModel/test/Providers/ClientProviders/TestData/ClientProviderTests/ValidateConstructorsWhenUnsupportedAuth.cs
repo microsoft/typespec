@@ -7,19 +7,31 @@ using System.ClientModel.Primitives;
 
 namespace Sample
 {
-    /// <summary> TestClient description. </summary>
     public partial class TestClient
     {
         internal TestClient(global::System.Uri endpoint) : this(endpoint, new global::Sample.TestClientOptions())
         {
         }
 
-        internal TestClient(global::System.Uri endpoint, global::Sample.TestClientOptions options)
+        internal TestClient(global::System.ClientModel.Primitives.AuthenticationPolicy authenticationPolicy, global::System.Uri endpoint, global::Sample.TestClientOptions options)
         {
+            global::Sample.Argument.AssertNotNull(endpoint, nameof(endpoint));
+
             options ??= new global::Sample.TestClientOptions();
 
             _endpoint = endpoint;
-            Pipeline = global::System.ClientModel.Primitives.ClientPipeline.Create(options, Array.Empty<global::System.ClientModel.Primitives.PipelinePolicy>(), Array.Empty<global::System.ClientModel.Primitives.PipelinePolicy>(), Array.Empty<global::System.ClientModel.Primitives.PipelinePolicy>());
+            if ((authenticationPolicy != null))
+            {
+                Pipeline = global::System.ClientModel.Primitives.ClientPipeline.Create(options, Array.Empty<global::System.ClientModel.Primitives.PipelinePolicy>(), new global::System.ClientModel.Primitives.PipelinePolicy[] { new global::System.ClientModel.Primitives.UserAgentPolicy(typeof(global::Sample.TestClient).Assembly), authenticationPolicy }, Array.Empty<global::System.ClientModel.Primitives.PipelinePolicy>());
+            }
+            else
+            {
+                Pipeline = global::System.ClientModel.Primitives.ClientPipeline.Create(options, Array.Empty<global::System.ClientModel.Primitives.PipelinePolicy>(), new global::System.ClientModel.Primitives.PipelinePolicy[] { new global::System.ClientModel.Primitives.UserAgentPolicy(typeof(global::Sample.TestClient).Assembly) }, Array.Empty<global::System.ClientModel.Primitives.PipelinePolicy>());
+            }
+        }
+
+        internal TestClient(global::System.Uri endpoint, global::Sample.TestClientOptions options) : this(null, endpoint, options)
+        {
         }
     }
 }

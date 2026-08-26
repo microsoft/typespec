@@ -1,4 +1,4 @@
-import { Checkbox, type CheckboxOnChangeData } from "@fluentui/react-components";
+import { Checkbox, Text, type CheckboxOnChangeData } from "@fluentui/react-components";
 import type { LinterRuleSet, RuleRef } from "@typespec/compiler";
 import { useCallback, type FunctionComponent } from "react";
 import type { PlaygroundTspLibrary } from "../../types.js";
@@ -19,7 +19,11 @@ export const LinterForm: FunctionComponent<LinterFormProps> = ({
     return Object.keys(linter?.ruleSets ?? {}).map((x) => `${lib.name}/${x}`) as RuleRef[];
   });
   if (rulesets.length === 0) {
-    return <>No ruleset available</>;
+    return (
+      <Text style={{ color: "var(--colorNeutralForeground3)", fontStyle: "italic" }}>
+        No ruleset available
+      </Text>
+    );
   }
 
   const handleChange = (ruleSet: RuleRef, checked: boolean) => {

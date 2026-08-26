@@ -3,33 +3,39 @@
 
 package com.microsoft.typespec.http.client.generator;
 
-import com.azure.core.util.Configuration;
-import com.azure.core.util.CoreUtils;
-import com.azure.json.JsonProviders;
-import com.azure.json.JsonReader;
 import com.microsoft.typespec.http.client.generator.core.extension.model.codemodel.AnnotatedPropertyUtils;
 import com.microsoft.typespec.http.client.generator.core.extension.model.codemodel.CodeModel;
 import com.microsoft.typespec.http.client.generator.core.extension.model.codemodel.CodeModelCustomConstructor;
 import com.microsoft.typespec.http.client.generator.core.extension.plugin.JavaSettings;
 import com.microsoft.typespec.http.client.generator.core.model.clientmodel.Client;
+import com.microsoft.typespec.http.client.generator.core.model.clientmodel.TypeSpecMetadata;
 import com.microsoft.typespec.http.client.generator.core.model.javamodel.JavaFile;
 import com.microsoft.typespec.http.client.generator.core.model.javamodel.JavaPackage;
 import com.microsoft.typespec.http.client.generator.core.postprocessor.Postprocessor;
 import com.microsoft.typespec.http.client.generator.core.util.ClientModelUtil;
 import com.microsoft.typespec.http.client.generator.fluent.TypeSpecFluentPlugin;
+import com.microsoft.typespec.http.client.generator.mgmt.model.clientmodel.FluentStatic;
 import com.microsoft.typespec.http.client.generator.mgmt.model.javamodel.FluentJavaPackage;
 import com.microsoft.typespec.http.client.generator.mgmt.util.FluentUtils;
 import com.microsoft.typespec.http.client.generator.model.EmitterOptions;
+import com.microsoft.typespec.http.client.generator.util.FileUtil;
+import io.clientcore.core.serialization.json.JsonReader;
+import io.clientcore.core.utils.CoreUtils;
+import io.clientcore.core.utils.configuration.Configuration;
+import java.io.BufferedReader;
+import java.io.File;
 import java.io.IOException;
+import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.Arrays;
+import java.util.LinkedHashSet;
+import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 import org.slf4j.Logger;
@@ -92,7 +98,7 @@ public class Main {
 
             // ensure the process exits as expected
             System.exit(0);
-        } catch (Exception e) {
+        } catch (Throwable e) {
             LOGGER.error("Unhandled error.", e);
             System.exit(1);
         }
@@ -100,7 +106,8 @@ public class Main {
 
     private static void handleFluent(CodeModel codeModel, EmitterOptions emitterOptions, boolean sdkIntegration) {
         // initialize plugin
-        TypeSpecFluentPlugin fluentPlugin = new TypeSpecFluentPlugin(emitterOptions, sdkIntegration);
+        TypeSpecFluentPlugin fluentPlugin
+            = new TypeSpecFluentPlugin(emitterOptions, sdkIntegration, codeModel.getInfo().getTitle());
 
         codeModel = fluentPlugin.preProcess(codeModel);
 
@@ -110,26 +117,27 @@ public class Main {
         // template
         FluentJavaPackage javaPackage = fluentPlugin.processTemplates(codeModel, client);
 
-        // write
+        // delete generated Java files
+        deleteGeneratedJavaFiles(emitterOptions.getOutputDir(), javaPackage.getJavaFiles(), JavaSettings.getInstance(),
+            FluentStatic.getFluentJavaSettings().getMetadataSuffix().orElse(null));
 
-        // java files
-        Postprocessor.writeToFiles(
-            javaPackage.getJavaFiles()
-                .stream()
-                .collect(Collectors.toMap(JavaFile::getFilePath, file -> file.getContents().toString())),
-            fluentPlugin, fluentPlugin.getLogger());
+        // write java files
+
+        // handle customization
+        // write output java files
+        new Postprocessor(fluentPlugin).postProcess(javaPackage.getJavaFiles()
+            .stream()
+            .collect(Collectors.toMap(JavaFile::getFilePath, file -> file.getContents().toString())));
 
         // XML include POM
         javaPackage.getXmlFiles()
             .forEach(xmlFile -> fluentPlugin.writeFile(xmlFile.getFilePath(), xmlFile.getContents().toString(), null));
 
         // properties file
-        if (JavaSettings.getInstance().isFluentLite()) {
-            String artifactId = FluentUtils.getArtifactId();
-            if (!CoreUtils.isNullOrEmpty(artifactId)) {
-                fluentPlugin.writeFile("src/main/resources/" + artifactId + ".properties",
-                    "version=${project.version}\n", null);
-            }
+        String artifactId = FluentUtils.getArtifactId();
+        if (!CoreUtils.isNullOrEmpty(artifactId)) {
+            fluentPlugin.writeFile("src/main/resources/" + artifactId + ".properties", "version=${project.version}\n",
+                null);
         }
 
         // Others
@@ -142,6 +150,8 @@ public class Main {
         // initialize plugin
         TypeSpecPlugin typeSpecPlugin = new TypeSpecPlugin(emitterOptions, sdkIntegration);
 
+        JavaSettings settings = JavaSettings.getInstance();
+
         // client
         Client client = typeSpecPlugin.processClient(codeModel);
 
@@ -152,16 +162,16 @@ public class Main {
         LOGGER.info("Count of XML files: {}", javaPackage.getXmlFiles().size());
         LOGGER.info("Count of text files: {}", javaPackage.getTextFiles().size());
 
-        // handle partial update
+        // delete generated Java files
+        deleteGeneratedJavaFiles(outputDir, javaPackage.getJavaFiles(), settings, null);
+
         Map<String, String> javaFiles = new ConcurrentHashMap<>();
-        JavaSettings settings = JavaSettings.getInstance();
         javaPackage.getJavaFiles()
             .parallelStream()
             .forEach(javaFile -> javaFiles.put(javaFile.getFilePath(), javaFile.getContents().toString()));
-
+        // handle partial update
         // handle customization
-        // write output
-        // java files
+        // write output java files
         new Postprocessor(typeSpecPlugin).postProcess(javaFiles);
 
         // XML include POM
@@ -172,38 +182,66 @@ public class Main {
         javaPackage.getTextFiles()
             .forEach(textFile -> typeSpecPlugin.writeFile(textFile.getFilePath(), textFile.getContents(), null));
         // resources
-        String artifactId = ClientModelUtil.getArtifactId();
-        if (settings.isBranded()) {
+        if (settings.isAzureV1()) {
+            String artifactId = ClientModelUtil.getArtifactId();
             if (!CoreUtils.isNullOrEmpty(artifactId)) {
                 typeSpecPlugin.writeFile("src/main/resources/" + artifactId + ".properties",
                     "name=${project.artifactId}\nversion=${project.version}\n", null);
             }
         }
+    }
 
-        boolean includeApiViewProperties
-            = emitterOptions.getIncludeApiViewProperties() != null && emitterOptions.getIncludeApiViewProperties();
-        if (includeApiViewProperties && !CoreUtils.isNullOrEmpty(typeSpecPlugin.getCrossLanguageDefinitionMap())) {
-            String flavor = emitterOptions.getFlavor() == null ? "azure" : emitterOptions.getFlavor();
-            StringBuilder sb
-                = new StringBuilder("{\n  \"flavor\": \"" + flavor + "\", \n  \"CrossLanguageDefinitionId\": {\n");
-            AtomicBoolean first = new AtomicBoolean(true);
-            typeSpecPlugin.getCrossLanguageDefinitionMap().forEach((key, value) -> {
-                if (first.get()) {
-                    first.set(false);
-                } else {
-                    sb.append(",\n");
-                }
-                sb.append("    \"").append(key).append("\": ");
-                if (value == null) {
-                    sb.append("null");
-                } else {
-                    sb.append("\"").append(value).append("\"");
-                }
-            });
-            sb.append("\n  }\n}\n");
+    /**
+     * Deletes generated Java files. It includes "test" and "samples", if these files are to be generated.
+     *
+     * @param outputDir the absolute path of output directory
+     * @param javaFiles the list of Java files to be generated
+     * @param settings the Java settings
+     */
+    private static void deleteGeneratedJavaFiles(String outputDir, List<JavaFile> javaFiles, JavaSettings settings,
+        String suffix) {
+        Set<String> filesToDelete = new LinkedHashSet<>();
 
-            typeSpecPlugin.writeFile("src/main/resources/META-INF/" + artifactId + "_apiview_properties.json",
-                sb.toString(), null);
+        // clean up source code, based on metadata
+        String metadataFilename = "src/main/resources/META-INF/"
+            + (settings.isFluent() ? FluentUtils.getArtifactId() : ClientModelUtil.getArtifactId()) + "_metadata"
+            + (suffix == null ? "" : "_" + suffix) + ".json";
+        Path metadataFilePath = Paths.get(outputDir, metadataFilename).toAbsolutePath();
+        if (Files.isRegularFile(metadataFilePath) && metadataFilePath.toFile().canRead()) {
+            try (BufferedReader reader = Files.newBufferedReader(metadataFilePath, StandardCharsets.UTF_8);
+                JsonReader jsonReader = JsonReader.fromReader(reader)) {
+                TypeSpecMetadata metadata = TypeSpecMetadata.fromJson(jsonReader);
+                if (metadata != null && !CoreUtils.isNullOrEmpty(metadata.getGeneratedFiles())) {
+                    filesToDelete.addAll(metadata.getGeneratedFiles()
+                        .stream()
+                        .filter(filename -> filename.startsWith("src/main/") && filename.endsWith(".java"))
+                        .collect(Collectors.toSet()));
+                }
+            } catch (IOException e) {
+                LOGGER.warn("Unable to read file: {}", metadataFilePath.toAbsolutePath(), e);
+            }
+        }
+
+        if (!CoreUtils.isNullOrEmpty(filesToDelete)) {
+            // these files are either to be replaced, or to be merged during "partial update"
+            // in latter case, we should not delete them
+            filesToDelete.removeAll(javaFiles.stream().map(JavaFile::getFilePath).collect(Collectors.toSet()));
+
+            FileUtil.deleteFiles(outputDir, filesToDelete);
+        }
+
+        if (JavaSettings.getInstance().isGenerateTests()) {
+            // clean up tests
+            String packageName = settings.getPackage("generated");
+            Path path = Paths.get("src", "test", "java", packageName.replace('.', File.separatorChar));
+            FileUtil.deleteFilesInDirectory(Paths.get(outputDir).resolve(path));
+        }
+
+        if (JavaSettings.getInstance().isGenerateSamples()) {
+            // clean up samples
+            String packageName = settings.getPackage("generated");
+            Path path = Paths.get("src", "samples", "java", packageName.replace('.', File.separatorChar));
+            FileUtil.deleteFilesInDirectory(Paths.get(outputDir).resolve(path));
         }
     }
 
@@ -213,7 +251,7 @@ public class Main {
         String emitterOptionsJson = Configuration.getGlobalConfiguration().get("emitterOptions");
 
         if (emitterOptionsJson != null) {
-            try (JsonReader jsonReader = JsonProviders.createReader(emitterOptionsJson)) {
+            try (JsonReader jsonReader = JsonReader.fromString(emitterOptionsJson)) {
                 options = EmitterOptions.fromJson(jsonReader);
                 // namespace
                 if (CoreUtils.isNullOrEmpty(options.getNamespace())) {

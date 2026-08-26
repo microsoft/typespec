@@ -11,7 +11,7 @@ export const AreaLabels = defineLabels({
     color: "453261",
     description: "Issues for @typespec/compiler",
   },
-  "compiler:emitter-framework": {
+  "emitter-framework": {
     color: "453261",
     description: "Issues for the emitter framework",
   },
@@ -210,13 +210,9 @@ export default defineConfig({
     misc: {
       description: "Misc labels",
       labels: {
-        "1_0_E2E": {
-          color: "5319E7",
-          description: "",
-        },
-        "Client Emitter Migration": {
-          color: "FD92F0",
-          description: "",
+        "agentic-workflows": {
+          color: "000000",
+          description: "Issues/PR created by github agentic workflows",
         },
         "good first issue": {
           color: "7057ff",
@@ -225,6 +221,10 @@ export default defineConfig({
         mq: {
           color: "0969da",
           description: "Good candidate for MQ",
+        },
+        "int:azure-specs": {
+          color: "0e8a16",
+          description: "Run integration tests against azure-rest-api-specs",
         },
       },
     },

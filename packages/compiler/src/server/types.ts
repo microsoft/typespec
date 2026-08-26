@@ -12,7 +12,6 @@ import {
   DocumentHighlightParams,
   DocumentSymbol,
   DocumentSymbolParams,
-  ExecuteCommandParams,
   FoldingRange,
   FoldingRangeParams,
   Hover,
@@ -25,6 +24,7 @@ import {
   PublishDiagnosticsParams,
   Range,
   ReferenceParams,
+  RenameFilesParams,
   RenameParams,
   SemanticTokens,
   SemanticTokensParams,
@@ -39,10 +39,18 @@ import {
 import type { TextDocument, TextEdit } from "vscode-languageserver-textdocument";
 import type { CompilerOptions } from "../core/options.js";
 import type { Program } from "../core/program.js";
-import type { CompilerHost, SourceFile, TypeSpecScriptNode } from "../core/types.js";
+import type {
+  CompilerHost,
+  Diagnostic,
+  NoTarget,
+  SourceFile,
+  SourceLocation,
+  TypeSpecScriptNode,
+} from "../core/types.js";
 import { LoadedCoreTemplates } from "../init/core-templates.js";
 import { EmitterTemplate, InitTemplate, InitTemplateLibrarySpec } from "../init/init-template.js";
 import { ScaffoldingConfig } from "../init/scaffold.js";
+import { CompileTracker, ServerCompileOptions } from "./server-compile-manager.js";
 
 export type ServerLogLevel = "trace" | "debug" | "info" | "warning" | "error";
 export interface ServerLog {
@@ -60,19 +68,41 @@ export interface ServerHost {
   readonly applyEdit: (
     paramOrEdit: ApplyWorkspaceEditParams | WorkspaceEdit,
   ) => Promise<ApplyWorkspaceEditResult>;
+  /**
+   * This debounce delay function is designed to reduce the running time of the test and should not be overridden during normal use.
+   * @returns debounce delay in milliseconds
+   * @internal
+   */
+  readonly getDocumentUpdateDebounceDelay?: () => number;
 }
 
 export interface CompileResult {
   readonly program: Program;
-  readonly document: TextDocument;
-  readonly script: TypeSpecScriptNode;
+  readonly document: TextDocument | undefined;
+  readonly script: TypeSpecScriptNode | undefined;
   readonly optionsFromConfig: CompilerOptions;
+  readonly tracker: CompileTracker;
+}
+
+export interface ServerDiagnostic extends Diagnostic {
+  target: (SourceLocation & { position?: { line: number; column: number } }) | typeof NoTarget;
+}
+
+export interface InternalCompileResult {
+  readonly hasError: boolean;
+  readonly diagnostics: ServerDiagnostic[];
+  readonly entrypoint?: string;
+  readonly options?: CompilerOptions;
 }
 
 export interface Server {
   readonly pendingMessages: readonly ServerLog[];
   readonly workspaceFolders: readonly ServerWorkspaceFolder[];
-  compile(document: TextDocument | TextDocumentIdentifier): Promise<CompileResult | undefined>;
+  compile(
+    document: TextDocument | TextDocumentIdentifier,
+    additionalOptions: CompilerOptions | undefined,
+    serverCompileOptions: ServerCompileOptions,
+  ): Promise<CompileResult | undefined>;
   initialize(params: InitializeParams): Promise<InitializeResult>;
   initialized(params: InitializedParams): void;
   workspaceFoldersChanged(e: WorkspaceFoldersChangeEvent): Promise<void>;
@@ -84,16 +114,19 @@ export interface Server {
   findDocumentHighlight(params: DocumentHighlightParams): Promise<DocumentHighlight[]>;
   prepareRename(params: PrepareRenameParams): Promise<Range | undefined>;
   rename(params: RenameParams): Promise<WorkspaceEdit>;
+  renameFiles(params: RenameFilesParams): Promise<void>;
   getSemanticTokens(params: SemanticTokensParams): Promise<SemanticToken[]>;
   buildSemanticTokens(params: SemanticTokensParams): Promise<SemanticTokens>;
-  checkChange(change: TextDocumentChangeEvent<TextDocument>): Promise<void>;
+  checkChange(change: TextDocumentChangeEvent<TextDocument>): void;
   getHover(params: HoverParams): Promise<Hover>;
   getSignatureHelp(params: SignatureHelpParams): Promise<SignatureHelp | undefined>;
   getFoldingRanges(getFoldingRanges: FoldingRangeParams): Promise<FoldingRange[]>;
   getDocumentSymbols(params: DocumentSymbolParams): Promise<DocumentSymbol[]>;
   documentClosed(change: TextDocumentChangeEvent<TextDocument>): void;
+  documentOpened(change: TextDocumentChangeEvent<TextDocument>): void;
   getCodeActions(params: CodeActionParams): Promise<CodeAction[]>;
-  executeCommand(params: ExecuteCommandParams): Promise<void>;
+  resolveCodeAction(codeAction: CodeAction): Promise<CodeAction>;
+  reportDiagnostics({ program, document, optionsFromConfig }: CompileResult): void;
   log(log: ServerLog): void;
 
   // Following custom capacities are added for supporting tsp init project from IDE (vscode for now) so that IDE can trigger compiler
@@ -104,6 +137,10 @@ export interface Server {
   getInitProjectContext(): Promise<InitProjectContext>;
   validateInitProjectTemplate(param: { template: InitTemplate }): Promise<boolean>;
   initProject(param: { config: InitProjectConfig }): Promise<boolean>;
+  internalCompile(param: {
+    doc: TextDocumentIdentifier;
+    options: CompilerOptions;
+  }): Promise<InternalCompileResult>;
 }
 
 export interface ServerSourceFile extends SourceFile {
@@ -154,11 +191,13 @@ export interface SemanticToken {
 export type CustomRequestName =
   | "typespec/getInitProjectContext"
   | "typespec/initProject"
-  | "typespec/validateInitProjectTemplate";
+  | "typespec/validateInitProjectTemplate"
+  | "typespec/internalCompile";
 export interface ServerCustomCapacities {
   getInitProjectContext?: boolean;
   validateInitProjectTemplate?: boolean;
   initProject?: boolean;
+  internalCompile?: boolean;
 }
 
 export interface ServerInitializeResult extends InitializeResult {

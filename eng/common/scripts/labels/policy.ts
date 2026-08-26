@@ -22,10 +22,17 @@ export type PayloadType = {
     | "Pull_Request_Review_Comment";
 };
 
+export type IsActivitySender = {
+  isActivitySender: {
+    user?: string;
+    issueAuthor?: boolean;
+  };
+};
+
 export type IsAction = {
   isAction: {
     action: // Issues
-    | "Opened"
+      | "Opened"
       | "Closed"
       | "Reopened"
       // Issue_Comment
@@ -72,6 +79,7 @@ export type FilesMatchPattern = {
 
 export type Condition =
   | PayloadType
+  | IsActivitySender
   | IsAction
   | LabelAdded
   | HasLabel
@@ -86,6 +94,12 @@ export type Condition =
 export function payloadType(payloadType: PayloadType["payloadType"]): PayloadType {
   return {
     payloadType,
+  };
+}
+
+export function isActivitySender(data: IsActivitySender["isActivitySender"]): IsActivitySender {
+  return {
+    isActivitySender: data,
   };
 }
 

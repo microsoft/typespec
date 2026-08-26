@@ -3,10 +3,10 @@
 
 package com.microsoft.typespec.http.client.generator.model;
 
-import com.azure.json.JsonReader;
-import com.azure.json.JsonSerializable;
-import com.azure.json.JsonWriter;
 import com.microsoft.typespec.http.client.generator.core.extension.base.util.JsonUtils;
+import io.clientcore.core.serialization.json.JsonReader;
+import io.clientcore.core.serialization.json.JsonSerializable;
+import io.clientcore.core.serialization.json.JsonWriter;
 import java.io.IOException;
 
 public class DevOptions implements JsonSerializable<DevOptions> {

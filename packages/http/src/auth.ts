@@ -1,5 +1,5 @@
 import { Operation, Program } from "@typespec/compiler";
-import { deepClone, deepEquals } from "@typespec/compiler/utils";
+import { deepEquals } from "@typespec/compiler/utils";
 import { getAuthentication } from "./decorators.js";
 import {
   Authentication,
@@ -112,11 +112,13 @@ function gatherAuth(
 
 function makeHttpAuthRef(local: HttpAuth, reference: HttpAuth): HttpAuthRef {
   if (reference.type === "oauth2" && local.type === "oauth2") {
-    const scopes: string[] = [];
+    const scopes = new Set<string>();
     for (const flow of local.flows) {
-      scopes.push(...flow.scopes.map((x) => x.value));
+      for (const scope of flow.scopes) {
+        scopes.add(scope.value);
+      }
     }
-    return { kind: "oauth2", auth: reference, scopes: scopes };
+    return { kind: "oauth2", auth: reference, scopes: Array.from(scopes) };
   } else if (reference.type === "noAuth") {
     return { kind: "noAuth", auth: reference };
   } else {
@@ -128,7 +130,7 @@ function mergeOAuthScopes<Flows extends OAuth2Flow[]>(
   scheme1: Oauth2Auth<Flows>,
   scheme2: Oauth2Auth<Flows>,
 ): Oauth2Auth<Flows> {
-  const flows = deepClone(scheme1.flows);
+  const flows = structuredClone(scheme1.flows);
   flows.forEach((flow1, i) => {
     const flow2 = scheme2.flows[i];
     const scopes = Array.from(new Set(flow1.scopes.concat(flow2.scopes)));
@@ -143,7 +145,7 @@ function mergeOAuthScopes<Flows extends OAuth2Flow[]>(
 function ignoreScopes<Flows extends OAuth2Flow[]>(
   scheme: Omit<Oauth2Auth<Flows>, "model">,
 ): Omit<Oauth2Auth<Flows>, "model"> {
-  const flows: Flows = deepClone(scheme.flows);
+  const flows: Flows = structuredClone(scheme.flows);
   flows.forEach((flow) => {
     flow.scopes = [];
   });

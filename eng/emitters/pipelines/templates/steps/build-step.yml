@@ -59,11 +59,14 @@ steps:
 
   - checkout: self
 
+  - template: /eng/common/pipelines/templates/steps/create-authenticated-npmrc.yml
+
   - task: NodeTool@0
     displayName: Install Node.js
     retryCountOnTaskFailure: 3
     inputs:
       versionSpec: ${{ parameters.NodeVersion }}
+      checkLatest: true
 
   - task: UsePythonVersion@0
     displayName: "Use Python ${{ parameters.PythonVersion }}"
@@ -71,6 +74,11 @@ steps:
       versionSpec: ${{ parameters.PythonVersion }}
 
   - ${{ parameters.AdditionalInitializeSteps }}
+
+  - ${{ if parameters.UseTypeSpecNext }}:
+      - script: npx -y @azure-tools/typespec-bump-deps@latest --use-peer-ranges package.json
+        displayName: "Update TypeSpec dependencies to @next"
+        workingDirectory: $(selfRepositoryPath)${{ parameters.PackagePath }}
 
   - task: PowerShell@2
     displayName: "Run initialize script"

@@ -1,7 +1,7 @@
 package payload.jsonmergepatch;
 
 import io.clientcore.core.annotations.Metadata;
-import io.clientcore.core.annotations.TypeConditions;
+import io.clientcore.core.annotations.MetadataProperties;
 import io.clientcore.core.serialization.json.JsonReader;
 import io.clientcore.core.serialization.json.JsonSerializable;
 import io.clientcore.core.serialization.json.JsonToken;
@@ -13,54 +13,54 @@ import java.util.Map;
 /**
  * Details about a resource.
  */
-@Metadata(conditions = { TypeConditions.FLUENT })
+@Metadata(properties = { MetadataProperties.FLUENT })
 public final class Resource implements JsonSerializable<Resource> {
     /*
      * The name property.
      */
-    @Metadata(generated = true)
+    @Metadata(properties = { MetadataProperties.GENERATED })
     private final String name;
 
     /*
      * The description property.
      */
-    @Metadata(generated = true)
+    @Metadata(properties = { MetadataProperties.GENERATED })
     private String description;
 
     /*
      * The map property.
      */
-    @Metadata(generated = true)
+    @Metadata(properties = { MetadataProperties.GENERATED })
     private Map<String, InnerModel> map;
 
     /*
      * The array property.
      */
-    @Metadata(generated = true)
+    @Metadata(properties = { MetadataProperties.GENERATED })
     private List<InnerModel> array;
 
     /*
      * The intValue property.
      */
-    @Metadata(generated = true)
+    @Metadata(properties = { MetadataProperties.GENERATED })
     private Integer intValue;
 
     /*
      * The floatValue property.
      */
-    @Metadata(generated = true)
+    @Metadata(properties = { MetadataProperties.GENERATED })
     private Double floatValue;
 
     /*
      * The innerModel property.
      */
-    @Metadata(generated = true)
+    @Metadata(properties = { MetadataProperties.GENERATED })
     private InnerModel innerModel;
 
     /*
      * The intArray property.
      */
-    @Metadata(generated = true)
+    @Metadata(properties = { MetadataProperties.GENERATED })
     private List<Integer> intArray;
 
     /**
@@ -68,7 +68,7 @@ public final class Resource implements JsonSerializable<Resource> {
      * 
      * @param name the name value to set.
      */
-    @Metadata(generated = true)
+    @Metadata(properties = { MetadataProperties.GENERATED })
     public Resource(String name) {
         this.name = name;
     }
@@ -78,7 +78,7 @@ public final class Resource implements JsonSerializable<Resource> {
      * 
      * @return the name value.
      */
-    @Metadata(generated = true)
+    @Metadata(properties = { MetadataProperties.GENERATED })
     public String getName() {
         return this.name;
     }
@@ -88,7 +88,7 @@ public final class Resource implements JsonSerializable<Resource> {
      * 
      * @return the description value.
      */
-    @Metadata(generated = true)
+    @Metadata(properties = { MetadataProperties.GENERATED })
     public String getDescription() {
         return this.description;
     }
@@ -99,7 +99,7 @@ public final class Resource implements JsonSerializable<Resource> {
      * @param description the description value to set.
      * @return the Resource object itself.
      */
-    @Metadata(generated = true)
+    @Metadata(properties = { MetadataProperties.GENERATED })
     public Resource setDescription(String description) {
         this.description = description;
         return this;
@@ -110,7 +110,7 @@ public final class Resource implements JsonSerializable<Resource> {
      * 
      * @return the map value.
      */
-    @Metadata(generated = true)
+    @Metadata(properties = { MetadataProperties.GENERATED })
     public Map<String, InnerModel> getMap() {
         return this.map;
     }
@@ -121,7 +121,7 @@ public final class Resource implements JsonSerializable<Resource> {
      * @param map the map value to set.
      * @return the Resource object itself.
      */
-    @Metadata(generated = true)
+    @Metadata(properties = { MetadataProperties.GENERATED })
     public Resource setMap(Map<String, InnerModel> map) {
         this.map = map;
         return this;
@@ -132,7 +132,7 @@ public final class Resource implements JsonSerializable<Resource> {
      * 
      * @return the array value.
      */
-    @Metadata(generated = true)
+    @Metadata(properties = { MetadataProperties.GENERATED })
     public List<InnerModel> getArray() {
         return this.array;
     }
@@ -143,7 +143,7 @@ public final class Resource implements JsonSerializable<Resource> {
      * @param array the array value to set.
      * @return the Resource object itself.
      */
-    @Metadata(generated = true)
+    @Metadata(properties = { MetadataProperties.GENERATED })
     public Resource setArray(List<InnerModel> array) {
         this.array = array;
         return this;
@@ -154,7 +154,7 @@ public final class Resource implements JsonSerializable<Resource> {
      * 
      * @return the intValue value.
      */
-    @Metadata(generated = true)
+    @Metadata(properties = { MetadataProperties.GENERATED })
     public Integer getIntValue() {
         return this.intValue;
     }
@@ -165,7 +165,7 @@ public final class Resource implements JsonSerializable<Resource> {
      * @param intValue the intValue value to set.
      * @return the Resource object itself.
      */
-    @Metadata(generated = true)
+    @Metadata(properties = { MetadataProperties.GENERATED })
     public Resource setIntValue(Integer intValue) {
         this.intValue = intValue;
         return this;
@@ -176,7 +176,7 @@ public final class Resource implements JsonSerializable<Resource> {
      * 
      * @return the floatValue value.
      */
-    @Metadata(generated = true)
+    @Metadata(properties = { MetadataProperties.GENERATED })
     public Double getFloatValue() {
         return this.floatValue;
     }
@@ -187,7 +187,7 @@ public final class Resource implements JsonSerializable<Resource> {
      * @param floatValue the floatValue value to set.
      * @return the Resource object itself.
      */
-    @Metadata(generated = true)
+    @Metadata(properties = { MetadataProperties.GENERATED })
     public Resource setFloatValue(Double floatValue) {
         this.floatValue = floatValue;
         return this;
@@ -198,7 +198,7 @@ public final class Resource implements JsonSerializable<Resource> {
      * 
      * @return the innerModel value.
      */
-    @Metadata(generated = true)
+    @Metadata(properties = { MetadataProperties.GENERATED })
     public InnerModel getInnerModel() {
         return this.innerModel;
     }
@@ -209,7 +209,7 @@ public final class Resource implements JsonSerializable<Resource> {
      * @param innerModel the innerModel value to set.
      * @return the Resource object itself.
      */
-    @Metadata(generated = true)
+    @Metadata(properties = { MetadataProperties.GENERATED })
     public Resource setInnerModel(InnerModel innerModel) {
         this.innerModel = innerModel;
         return this;
@@ -220,7 +220,7 @@ public final class Resource implements JsonSerializable<Resource> {
      * 
      * @return the intArray value.
      */
-    @Metadata(generated = true)
+    @Metadata(properties = { MetadataProperties.GENERATED })
     public List<Integer> getIntArray() {
         return this.intArray;
     }
@@ -231,7 +231,7 @@ public final class Resource implements JsonSerializable<Resource> {
      * @param intArray the intArray value to set.
      * @return the Resource object itself.
      */
-    @Metadata(generated = true)
+    @Metadata(properties = { MetadataProperties.GENERATED })
     public Resource setIntArray(List<Integer> intArray) {
         this.intArray = intArray;
         return this;
@@ -240,7 +240,7 @@ public final class Resource implements JsonSerializable<Resource> {
     /**
      * {@inheritDoc}
      */
-    @Metadata(generated = true)
+    @Metadata(properties = { MetadataProperties.GENERATED })
     @Override
     public JsonWriter toJson(JsonWriter jsonWriter) throws IOException {
         jsonWriter.writeStartObject();
@@ -264,7 +264,7 @@ public final class Resource implements JsonSerializable<Resource> {
      * @throws IllegalStateException If the deserialized JSON object was missing any required properties.
      * @throws IOException If an error occurs while reading the Resource.
      */
-    @Metadata(generated = true)
+    @Metadata(properties = { MetadataProperties.GENERATED })
     public static Resource fromJson(JsonReader jsonReader) throws IOException {
         return jsonReader.readObject(reader -> {
             String name = null;

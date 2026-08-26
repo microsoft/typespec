@@ -1,3 +1,13 @@
+export {
+  createMatcher,
+  err,
+  isMatcher,
+  match,
+  matchValues,
+  ok,
+  type MatchResult,
+  type MockValueMatcher,
+} from "./matchers/index.js";
 export { MockRequest } from "./mock-request.js";
 export {
   BODY_EMPTY_ERROR_MESSAGE,
@@ -13,7 +23,7 @@ export {
   validateValueFormat,
   validateXmlBodyEquals,
 } from "./request-validations.js";
-export { json, multipart, xml } from "./response-utils.js";
+export { dyn, dynItem, expandDyns, json, multipart, xml } from "./response-utils.js";
 export {
   WithKeysScenarioExpect,
   passOnCode,
@@ -36,6 +46,8 @@ export {
   PassOnCodeScenario,
   PassOnSuccessScenario,
   RequestExt,
+  Resolver,
+  ResolverConfig,
   ScenarioMockApi,
   ScenarioPassCondition,
   ServiceRequestFile,

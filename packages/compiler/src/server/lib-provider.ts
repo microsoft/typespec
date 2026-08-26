@@ -57,8 +57,11 @@ export class LibraryProvider {
     const data = await pkg.getPackageJsonData();
     // don't add to cache when failing to load package.json which is unexpected
     if (!data) return false;
+    // Only check dependencies and peerDependencies for @typespec/compiler and exclude devDependencies
+    // to further limit the libraries to load and avoid potential issues cause by loading random libraries.
+    // TODO: add more filter condition when needed
     if (
-      (data.devDependencies && data.devDependencies["@typespec/compiler"]) ||
+      (data.peerDependencies && data.peerDependencies["@typespec/compiler"]) ||
       (data.dependencies && data.dependencies["@typespec/compiler"])
     ) {
       const exports = await pkg.getModuleExports();

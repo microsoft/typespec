@@ -1,3 +1,4 @@
+export { createSourceLoader as unsafe_createSourceLoader } from "../core/source-loader.js";
 export {
   MutableType as unsafe_MutableType,
   Mutator as unsafe_Mutator,
@@ -7,8 +8,8 @@ export {
   MutatorRecord as unsafe_MutatorRecord,
   MutatorReplaceFn as unsafe_MutatorReplaceFn,
   MutatorWithNamespace as unsafe_MutatorWithNamespace,
+  isMutableType as unsafe_isMutableType,
   mutateSubgraph as unsafe_mutateSubgraph,
   mutateSubgraphWithNamespace as unsafe_mutateSubgraphWithNamespace,
 } from "./mutators.js";
 export { Realm as unsafe_Realm } from "./realm.js";
-export { $ as unsafe_$ } from "./typekit/index.js";

@@ -1,12 +1,11 @@
 import { render } from "@testing-library/react";
 import { it } from "vitest";
-import { createViewerTestRunner } from "../../test/test-host.js";
+import { Tester } from "../../test/test-host.js";
 import { TypeGraph } from "./index.js";
 
 async function renderTypeGraphFor(code: string) {
-  const runner = await createViewerTestRunner();
-  await runner.compile(code);
-  render(<TypeGraph program={runner.program} />);
+  const { program } = await Tester.compile(code);
+  render(<TypeGraph program={program} />);
 }
 
 it("operation", async () => {

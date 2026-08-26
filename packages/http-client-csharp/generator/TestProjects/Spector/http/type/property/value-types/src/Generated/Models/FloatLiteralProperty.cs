@@ -8,6 +8,6 @@ namespace _Type.Property.ValueTypes
     {
         public FloatLiteralProperty() => throw null;
 
-        public FloatLiteralPropertyProperty Property => throw null;
+        public float Property => throw null;
     }
 }

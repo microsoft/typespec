@@ -123,4 +123,9 @@ public class DefaultMapperFactory implements MapperFactory {
     public GraalVmConfigMapper getGraalVmConfigMapper() {
         return GraalVmConfigMapper.getInstance();
     }
+
+    @Override
+    public PomMapper getPomMapper() {
+        return PomMapper.getInstance();
+    }
 }

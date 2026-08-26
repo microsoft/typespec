@@ -57,7 +57,7 @@ public final class UnionStringLiteralsImpl {
      * to perform REST calls.
      */
     @Host("{endpoint}")
-    @ServiceInterface(name = "ValueTypesClientUnio")
+    @ServiceInterface(name = "ValueTypesClientUnionStringLiterals")
     public interface UnionStringLiteralsService {
         @Get("/type/property/value-types/union/string/literal")
         @ExpectedResponses({ 200 })

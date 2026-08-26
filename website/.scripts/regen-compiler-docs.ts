@@ -1,5 +1,9 @@
 import { NodeHost, joinPaths, logDiagnostics } from "@typespec/compiler";
-import { generateJsApiDocs, resolveLibraryRefDocsBase } from "@typespec/tspd/ref-doc";
+import {
+  generateJsApiDocs,
+  resolveLibraryRefDocsBase,
+  writeTypekitDocs,
+} from "@typespec/tspd/ref-doc";
 import {
   StarlightRenderer,
   renderDataTypes,
@@ -69,6 +73,7 @@ async function generateCompilerDocs() {
   assert(dataTypeContent, "Unexpected data type file shouldn't be empty for compiler.");
   await writeFile(join(outputDir, "built-in-data-types.md"), dataTypeContent);
 
-  await generateJsApiDocs(joinPaths(compilerPath), join(outputDir, "reference/js-api"));
+  await writeTypekitDocs(joinPaths(compilerPath), joinPaths(outputDir, "reference"));
+  await generateJsApiDocs(joinPaths(compilerPath), joinPaths(outputDir, "reference/js-api"));
   return diagnostics;
 }

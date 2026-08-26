@@ -15,6 +15,8 @@ import com.azure.json.JsonWriter;
 import java.io.IOException;
 
 /**
+ * REST API Operation
+ * 
  * Details of a REST API operation, returned from the Resource Provider Operations API.
  */
 @Immutable
@@ -100,17 +102,6 @@ public final class OperationInner implements JsonSerializable<OperationInner> {
      */
     public ActionType actionType() {
         return this.actionType;
-    }
-
-    /**
-     * Validates the instance.
-     * 
-     * @throws IllegalArgumentException thrown if the instance is not valid.
-     */
-    public void validate() {
-        if (display() != null) {
-            display().validate();
-        }
     }
 
     /**

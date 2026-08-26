@@ -3,18 +3,12 @@
 
 package com.microsoft.typespec.http.client.generator.core.model.clientmodel;
 
-import com.azure.core.client.traits.AzureKeyCredentialTrait;
-import com.azure.core.client.traits.EndpointTrait;
-import com.azure.core.client.traits.KeyCredentialTrait;
-import com.azure.core.client.traits.TokenCredentialTrait;
-import com.azure.core.credential.AzureKeyCredential;
-import com.azure.core.credential.TokenCredential;
-import com.azure.core.util.logging.LogLevel;
 import com.microsoft.typespec.http.client.generator.core.extension.plugin.JavaSettings;
 import com.microsoft.typespec.http.client.generator.core.model.javamodel.JavaBlock;
-import com.microsoft.typespec.http.client.generator.core.util.CodeNamer;
 import java.util.ArrayList;
+import java.util.LinkedHashSet;
 import java.util.List;
+import java.util.Set;
 import java.util.function.Consumer;
 
 /**
@@ -76,6 +70,10 @@ public class ClientBuilderTrait {
         this.importPackages = importPackages;
     }
 
+    public void setImportPackages(Set<String> importPackages) {
+        this.importPackages = new ArrayList<>(importPackages);
+    }
+
     /**
      * Returns the list of methods that this trait interface contains.
      * 
@@ -95,7 +93,7 @@ public class ClientBuilderTrait {
     }
 
     private static ClientBuilderTrait createHttpTrait() {
-        boolean isBranded = JavaSettings.getInstance().isBranded();
+        boolean isAzureV1 = JavaSettings.getInstance().isAzureV1();
 
         ClientBuilderTrait httpTrait = new ClientBuilderTrait();
         httpTrait.setTraitInterfaceName("HttpTrait");
@@ -105,31 +103,6 @@ public class ClientBuilderTrait {
         List<ClientBuilderTraitMethod> httpClientBuilderTraitMethods = new ArrayList<>();
         httpTrait.setTraitMethods(httpClientBuilderTraitMethods);
 
-        // pipeline
-        String pipelineMethodName = isBranded ? "pipeline" : "httpPipeline";
-        ServiceClientProperty pipelineProperty = new ServiceClientProperty(
-            "The HTTP pipeline to send requests " + "through.", ClassType.HTTP_PIPELINE, "pipeline", false,
-            JavaSettings.getInstance().isAzureOrFluent()
-                ? "new HttpPipelineBuilder().policies(new UserAgentPolicy(), new RetryPolicy()).build()"
-                : "createHttpPipeline()");
-        importPackages.add(ClassType.LOG_LEVEL.getFullName());
-        Consumer<JavaBlock> pipelineMethodImpl = function -> {
-            final String pipelineVarName = "pipeline";
-            if (JavaSettings.getInstance().isUseClientLogger()) {
-                function.ifBlock(String.format("this.%1$s != null && %1$s == null", pipelineVarName), ifBlock -> {
-                    function.line(addLogging(LogLevel.INFORMATIONAL,
-                        "HttpPipeline is being set to 'null' when it was previously configured."));
-                });
-            }
-            function.line(String.format("this.%1$s = %2$s;", pipelineVarName, pipelineVarName));
-            function.methodReturn("this");
-        };
-        ClientBuilderTraitMethod pipelineMethod = createTraitMethod(pipelineMethodName, "pipeline",
-            ClassType.HTTP_PIPELINE, pipelineProperty, "{@inheritDoc}", pipelineMethodImpl);
-        importPackages.add(ClassType.HTTP_PIPELINE.getFullName());
-
-        httpClientBuilderTraitMethods.add(pipelineMethod);
-
         // httpClient
         ServiceClientProperty httpClientProperty = new ServiceClientProperty(
             "The HTTP client used to send the request.", ClassType.HTTP_CLIENT, "httpClient", false, null);
@@ -138,29 +111,51 @@ public class ClientBuilderTrait {
             function.methodReturn("this");
         };
         ClientBuilderTraitMethod httpClientMethod = createTraitMethod("httpClient", "httpClient", ClassType.HTTP_CLIENT,
-            httpClientProperty, "{@inheritDoc}", httpClientMethodImpl);
+            httpClientProperty, httpClientMethodImpl);
         importPackages.add(ClassType.HTTP_CLIENT.getFullName());
 
         httpClientBuilderTraitMethods.add(httpClientMethod);
 
-        // httpLogOptions
-        String httpLogTraitMethodAndParameterName = CodeNamer.toCamelCase(ClassType.HTTP_LOG_OPTIONS.getName());
-        ServiceClientProperty httpLogOptionsProperty
-            = new ServiceClientProperty("The logging configuration for HTTP " + "requests and responses.",
-                ClassType.HTTP_LOG_OPTIONS, httpLogTraitMethodAndParameterName, false, null);
-        Consumer<JavaBlock> httpLogOptionsMethodImpl = function -> {
-            function.line(String.format("this.%1$s = %1$s;", httpLogTraitMethodAndParameterName));
-            function.methodReturn("this");
-        };
-        ClientBuilderTraitMethod httpLogOptionsMethod
-            = createTraitMethod(httpLogTraitMethodAndParameterName, httpLogTraitMethodAndParameterName,
-                ClassType.HTTP_LOG_OPTIONS, httpLogOptionsProperty, "{@inheritDoc}", httpLogOptionsMethodImpl);
-        importPackages.add(ClassType.HTTP_LOG_OPTIONS.getFullName());
+        if (isAzureV1) {
+            // pipeline
+            String pipelineMethodName = "pipeline";
+            ServiceClientProperty pipelineProperty = new ServiceClientProperty(
+                "The HTTP pipeline to send requests " + "through.", ClassType.HTTP_PIPELINE, "pipeline", false,
+                JavaSettings.getInstance().isFluent()
+                    ? "new HttpPipelineBuilder().policies(new UserAgentPolicy(), new RetryPolicy()).build()"
+                    : "createHttpPipeline()");
+            importPackages.add(ClassType.LOG_LEVEL.getFullName());
+            Consumer<JavaBlock> pipelineMethodImpl = function -> {
+                final String pipelineVarName = "pipeline";
+                if (JavaSettings.getInstance().isUseClientLogger()) {
+                    function.ifBlock(String.format("this.%1$s != null && %1$s == null", pipelineVarName),
+                        ifBlock -> ifBlock.line(
+                            "LOGGER.atInfo().log(\"HttpPipeline is being set to 'null' when it was previously configured.\");"));
+                }
+                function.line(String.format("this.%1$s = %2$s;", pipelineVarName, pipelineVarName));
+                function.methodReturn("this");
+            };
+            ClientBuilderTraitMethod pipelineMethod = createTraitMethod(pipelineMethodName, "pipeline",
+                ClassType.HTTP_PIPELINE, pipelineProperty, pipelineMethodImpl);
+            importPackages.add(ClassType.HTTP_PIPELINE.getFullName());
 
-        httpClientBuilderTraitMethods.add(httpLogOptionsMethod);
+            httpClientBuilderTraitMethods.add(pipelineMethod);
 
-        // clientOptions
-        if (isBranded) {
+            // httpLogOptions
+            ServiceClientProperty httpLogOptionsProperty
+                = new ServiceClientProperty("The logging configuration for HTTP " + "requests and responses.",
+                    ClassType.HTTP_LOG_OPTIONS, "httpLogOptions", false, null);
+            Consumer<JavaBlock> httpLogOptionsMethodImpl = function -> {
+                function.line(String.format("this.%1$s = %2$s;", "httpLogOptions", "httpLogOptions"));
+                function.methodReturn("this");
+            };
+            ClientBuilderTraitMethod httpLogOptionsMethod = createTraitMethod("httpLogOptions", "httpLogOptions",
+                ClassType.HTTP_LOG_OPTIONS, httpLogOptionsProperty, httpLogOptionsMethodImpl);
+            importPackages.add(ClassType.HTTP_LOG_OPTIONS.getFullName());
+
+            httpClientBuilderTraitMethods.add(httpLogOptionsMethod);
+
+            // clientOptions
             ServiceClientProperty clientOptionsProperty = new ServiceClientProperty(
                 "The client options such as application ID and custom headers to set on a request.",
                 ClassType.CLIENT_OPTIONS, "clientOptions", false, null);
@@ -169,7 +164,7 @@ public class ClientBuilderTrait {
                 function.methodReturn("this");
             };
             ClientBuilderTraitMethod clientOptionsMethod = createTraitMethod("clientOptions", "clientOptions",
-                ClassType.CLIENT_OPTIONS, clientOptionsProperty, "{@inheritDoc}", clientOptionsMethodImpl);
+                ClassType.CLIENT_OPTIONS, clientOptionsProperty, clientOptionsMethodImpl);
             importPackages.add(ClassType.CLIENT_OPTIONS.getFullName());
 
             httpClientBuilderTraitMethods.add(clientOptionsMethod);
@@ -183,9 +178,9 @@ public class ClientBuilderTrait {
             function.line(String.format("this.%1$s = %2$s;", "retryOptions", "retryOptions"));
             function.methodReturn("this");
         };
-        String retryOptionsMethodName = isBranded ? "retryOptions" : "httpRetryOptions";
+        String retryOptionsMethodName = isAzureV1 ? "retryOptions" : "httpRetryOptions";
         ClientBuilderTraitMethod retryOptionsMethod = createTraitMethod(retryOptionsMethodName, "retryOptions",
-            ClassType.RETRY_OPTIONS, retryOptionsProperty, "{@inheritDoc}", retryOptionsMethodImpl);
+            ClassType.RETRY_OPTIONS, retryOptionsProperty, retryOptionsMethodImpl);
         importPackages.add(ClassType.RETRY_OPTIONS.getFullName());
         httpClientBuilderTraitMethods.add(retryOptionsMethod);
 
@@ -195,13 +190,13 @@ public class ClientBuilderTrait {
             function.line("pipelinePolicies.add(customPolicy);");
             function.methodReturn("this");
         };
-        String addPolicyMethodName = isBranded ? "addPolicy" : "addHttpPipelinePolicy";
+        String addPolicyMethodName = isAzureV1 ? "addPolicy" : "addHttpPipelinePolicy";
         ClientBuilderTraitMethod addPolicyMethod = createTraitMethod(addPolicyMethodName, "customPolicy",
-            ClassType.HTTP_PIPELINE_POLICY, null, "{@inheritDoc}", addPolicyMethodImpl);
+            ClassType.HTTP_PIPELINE_POLICY, null, addPolicyMethodImpl);
         importPackages.add(ClassType.HTTP_PIPELINE_POLICY.getFullName());
         httpClientBuilderTraitMethods.add(addPolicyMethod);
 
-        if (!isBranded) {
+        if (!isAzureV1 || JavaSettings.getInstance().isAzureV2()) {
             // redirectOptions
             ServiceClientProperty redirectOptionsProperty
                 = new ServiceClientProperty("The redirect options to configure redirect policy",
@@ -211,51 +206,29 @@ public class ClientBuilderTrait {
                 function.methodReturn("this");
             };
             ClientBuilderTraitMethod redirectOptionsMethod = createTraitMethod("httpRedirectOptions", "redirectOptions",
-                ClassType.REDIRECT_OPTIONS, redirectOptionsProperty, "{@inheritDoc}", redirectOptionsMethodImpl);
+                ClassType.REDIRECT_OPTIONS, redirectOptionsProperty, redirectOptionsMethodImpl);
             importPackages.add(ClassType.REDIRECT_OPTIONS.getFullName());
             httpClientBuilderTraitMethods.add(redirectOptionsMethod);
+
+            // instrumentation options
+            ServiceClientProperty httpInstrumentationOptionsProperty
+                = new ServiceClientProperty("The instrumentation configuration for HTTP " + "requests and responses.",
+                    ClassType.HTTP_LOG_OPTIONS, "httpInstrumentationOptions", false, null);
+            importPackages.add(ClassType.HTTP_LOGGING_POLICY.getFullName());
+            Consumer<JavaBlock> httpInstrumentationOptionsMethodImpl = function -> {
+                function.line(
+                    String.format("this.%1$s = %2$s;", "httpInstrumentationOptions", "httpInstrumentationOptions"));
+                function.methodReturn("this");
+            };
+            ClientBuilderTraitMethod httpInstrumentationOptionsMethod = createTraitMethod("httpInstrumentationOptions",
+                "httpInstrumentationOptions", ClassType.HTTP_LOG_OPTIONS, httpInstrumentationOptionsProperty,
+                httpInstrumentationOptionsMethodImpl);
+            importPackages.add(ClassType.HTTP_LOG_OPTIONS.getFullName());
+
+            httpClientBuilderTraitMethods.add(httpInstrumentationOptionsMethod);
         }
 
         return httpTrait;
-    }
-
-    private static String addLogging(LogLevel level, String message) {
-
-        if (JavaSettings.getInstance().isBranded()) {
-            switch (level) {
-                case VERBOSE:
-                    return String.format("LOGGER.atVerbose().log(\"%s\");", message);
-
-                case INFORMATIONAL:
-                    return String.format("LOGGER.atInfo().log(\"%s\");", message);
-
-                case WARNING:
-                    return String.format("LOGGER.atWarning().log(\"%s\");", message);
-
-                case ERROR:
-                    return String.format("LOGGER.atError().log(\"%s\");", message);
-
-                default:
-                    return String.format("LOGGER.atInfo().log(\"%s\");", message);
-            }
-        } else {
-            switch (level) {
-                case VERBOSE:
-                    return String.format("LOGGER.atVerbose().log(\"%s\");", message);
-
-                case INFORMATIONAL:
-                    return String.format("LOGGER.atInfo().log(\"%s\");", message);
-
-                case WARNING:
-                    return String.format("LOGGER.atWarning().log(\"%s\");", message);
-
-                case ERROR:
-                    return String.format("LOGGER.atError().log(\"%s\");", message);
-
-                default:
-                    return String.format("LOGGER.atInfo().log(\"%s\");", message);
-            }
-        }
     }
 
     private static ClientBuilderTrait createConfigurationTrait() {
@@ -278,7 +251,7 @@ public class ClientBuilderTrait {
             function.methodReturn("this");
         };
         ClientBuilderTraitMethod configurationMethod = createTraitMethod(propertyName, propertyName,
-            ClassType.CONFIGURATION, configurationProperty, "{@inheritDoc}", configurationMethodImpl);
+            ClassType.CONFIGURATION, configurationProperty, configurationMethodImpl);
         importPackages.add(ClassType.CONFIGURATION.getFullName());
 
         configurationClientBuilderTraitMethods.add(configurationMethod);
@@ -305,7 +278,7 @@ public class ClientBuilderTrait {
             function.methodReturn("this");
         };
         ClientBuilderTraitMethod proxyMethod = createTraitMethod(propertyName, propertyName, ClassType.PROXY_OPTIONS,
-            proxyOptionsProperty, "{@inheritDoc}", proxyMethodImpl);
+            proxyOptionsProperty, proxyMethodImpl);
         importPackages.add(ClassType.PROXY_OPTIONS.getFullName());
 
         proxyClientBuilderTraitMethods.add(proxyMethod);
@@ -316,7 +289,7 @@ public class ClientBuilderTrait {
         ClientBuilderTrait endpointTrait = ClientBuilderTrait.endpointTrait;
         if (endpointTrait == null) {
             endpointTrait = new ClientBuilderTrait();
-            endpointTrait.setTraitInterfaceName(EndpointTrait.class.getSimpleName());
+            endpointTrait.setTraitInterfaceName(ClassType.ENDPOINT_TRAIT.getName());
 
             List<String> importPackages = new ArrayList<>();
             endpointTrait.setImportPackages(importPackages);
@@ -339,8 +312,8 @@ public class ClientBuilderTrait {
                 function.line(String.format("this.%1$s = %2$s;", propertyName, propertyName));
                 function.methodReturn("this");
             };
-            ClientBuilderTraitMethod endpointMethod = createTraitMethod(propertyName, propertyName, ClassType.STRING,
-                endpointProperty, "{@inheritDoc}", endpointMethodImpl);
+            ClientBuilderTraitMethod endpointMethod
+                = createTraitMethod(propertyName, propertyName, ClassType.STRING, endpointProperty, endpointMethodImpl);
 
             endpointClientBuilderTraitMethods.add(endpointMethod);
             ClientBuilderTrait.endpointTrait = endpointTrait;
@@ -350,10 +323,12 @@ public class ClientBuilderTrait {
 
     private static ClientBuilderTrait createTokenCredentialTrait() {
         ClientBuilderTrait tokenCredentialTrait = new ClientBuilderTrait();
-        tokenCredentialTrait.setTraitInterfaceName(TokenCredentialTrait.class.getSimpleName());
-        List<String> importPackages = new ArrayList<>();
+        tokenCredentialTrait.setTraitInterfaceName(ClassType.TOKEN_CREDENTIAL_TRAIT.getName());
+        Set<String> importPackages = new LinkedHashSet<>();
+        ClassType.TOKEN_CREDENTIAL_TRAIT.addImportsTo(importPackages, false);
+        ClassType.TOKEN_CREDENTIAL.addImportsTo(importPackages, false);
+        ClassType.OAUTH_TOKEN_REQUEST_CONTEXT.addImportsTo(importPackages, false);
         tokenCredentialTrait.setImportPackages(importPackages);
-        importPackages.add(TokenCredentialTrait.class.getName());
 
         List<ClientBuilderTraitMethod> clientBuilderTraitMethods = new ArrayList<>();
         tokenCredentialTrait.setTraitMethods(clientBuilderTraitMethods);
@@ -366,9 +341,8 @@ public class ClientBuilderTrait {
             function.line(String.format("this.%1$s = %2$s;", propertyName, propertyName));
             function.methodReturn("this");
         };
-        ClientBuilderTraitMethod clientMethod = createTraitMethod("credential", propertyName,
-            ClassType.TOKEN_CREDENTIAL, property, "{@inheritDoc}", methodImpl);
-        importPackages.add(TokenCredential.class.getName());
+        ClientBuilderTraitMethod clientMethod
+            = createTraitMethod("credential", propertyName, ClassType.TOKEN_CREDENTIAL, property, methodImpl);
 
         clientBuilderTraitMethods.add(clientMethod);
         return tokenCredentialTrait;
@@ -376,10 +350,10 @@ public class ClientBuilderTrait {
 
     private static ClientBuilderTrait createAzureKeyCredentialTrait() {
         ClientBuilderTrait azureKeyCredentialTrait = new ClientBuilderTrait();
-        azureKeyCredentialTrait.setTraitInterfaceName(AzureKeyCredentialTrait.class.getSimpleName());
+        azureKeyCredentialTrait.setTraitInterfaceName(ClassType.AZURE_KEY_CREDENTIAL_TRAIT.getName());
         List<String> importPackages = new ArrayList<>();
         azureKeyCredentialTrait.setImportPackages(importPackages);
-        importPackages.add(AzureKeyCredentialTrait.class.getName());
+        importPackages.add(ClassType.AZURE_KEY_CREDENTIAL_TRAIT.getFullName());
 
         List<ClientBuilderTraitMethod> clientBuilderTraitMethods = new ArrayList<>();
         azureKeyCredentialTrait.setTraitMethods(clientBuilderTraitMethods);
@@ -392,9 +366,9 @@ public class ClientBuilderTrait {
             function.line(String.format("this.%1$s = %2$s;", propertyName, propertyName));
             function.methodReturn("this");
         };
-        ClientBuilderTraitMethod clientMethod = createTraitMethod("credential", propertyName,
-            ClassType.AZURE_KEY_CREDENTIAL, property, "{@inheritDoc}", methodImpl);
-        importPackages.add(AzureKeyCredential.class.getName());
+        ClientBuilderTraitMethod clientMethod
+            = createTraitMethod("credential", propertyName, ClassType.AZURE_KEY_CREDENTIAL, property, methodImpl);
+        importPackages.add(ClassType.AZURE_KEY_CREDENTIAL.getFullName());
 
         clientBuilderTraitMethods.add(clientMethod);
         return azureKeyCredentialTrait;
@@ -402,7 +376,7 @@ public class ClientBuilderTrait {
 
     private static ClientBuilderTrait createKeyCredentialTrait() {
         ClientBuilderTrait keyCredentialTrait = new ClientBuilderTrait();
-        keyCredentialTrait.setTraitInterfaceName(KeyCredentialTrait.class.getSimpleName());
+        keyCredentialTrait.setTraitInterfaceName(ClassType.KEY_CREDENTIAL_TRAIT.getName());
         List<String> importPackages = new ArrayList<>();
         keyCredentialTrait.setImportPackages(importPackages);
         importPackages.add(ClassType.KEY_CREDENTIAL_TRAIT.getFullName());
@@ -418,8 +392,8 @@ public class ClientBuilderTrait {
             function.line(String.format("this.%1$s = %2$s;", propertyName, propertyName));
             function.methodReturn("this");
         };
-        ClientBuilderTraitMethod clientMethod = createTraitMethod("credential", propertyName, ClassType.KEY_CREDENTIAL,
-            property, "{@inheritDoc}", methodImpl);
+        ClientBuilderTraitMethod clientMethod
+            = createTraitMethod("credential", propertyName, ClassType.KEY_CREDENTIAL, property, methodImpl);
         importPackages.add(ClassType.KEY_CREDENTIAL.getFullName());
 
         clientBuilderTraitMethods.add(clientMethod);
@@ -427,13 +401,13 @@ public class ClientBuilderTrait {
     }
 
     private static ClientBuilderTraitMethod createTraitMethod(String methodName, String methodParamName,
-        ClassType paramType, ServiceClientProperty property, String documentation, Consumer<JavaBlock> methodImpl) {
+        ClassType paramType, ServiceClientProperty property, Consumer<JavaBlock> methodImpl) {
         ClientBuilderTraitMethod pipelineMethod = new ClientBuilderTraitMethod();
         pipelineMethod.setMethodName(methodName);
         pipelineMethod.setMethodParamName(methodParamName);
         pipelineMethod.setMethodParamType(paramType);
         pipelineMethod.setProperty(property);
-        pipelineMethod.setDocumentation(documentation);
+        pipelineMethod.setDocumentation("{@inheritDoc}");
         pipelineMethod.setMethodImpl(methodImpl);
         return pipelineMethod;
     }

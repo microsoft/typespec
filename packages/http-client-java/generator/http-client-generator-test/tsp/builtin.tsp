@@ -1,4 +1,5 @@
 import "@typespec/rest";
+import "@azure-tools/typespec-azure-core";
 import "@azure-tools/typespec-client-generator-core";
 
 using TypeSpec.Http;
@@ -25,6 +26,7 @@ model Builtin {
   url: url;
   nullableFloatDict: Record<float64 | null>;
   encoded: Encoded;
+  uuid: Azure.Core.uuid;
 }
 
 @encode(DurationKnownEncoding.seconds, float32)
@@ -59,6 +61,9 @@ model Encoded {
 
   @encode("unknown-bytes")
   unknownBytes?: bytes;
+
+  @encode(ArrayEncoding.commaDelimited)
+  commaDeliminatedArray?: string[];
 }
 
 model Request {
@@ -87,6 +92,6 @@ interface BuiltinOp {
     @body body: Builtin;
   };
 
-  @convenientAPI(false)
+  @post
   write(@body body: Builtin): OkResponse;
 }

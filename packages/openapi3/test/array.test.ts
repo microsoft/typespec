@@ -1,8 +1,9 @@
 import { deepStrictEqual, ok, strictEqual } from "assert";
-import { it } from "vitest";
-import { worksFor } from "./works-for.js";
+import { expect, it } from "vitest";
+import { openApiFor } from "./test-host.js";
+import { supportedVersions, worksFor } from "./works-for.js";
 
-worksFor(["3.0.0", "3.1.0"], ({ oapiForModel, openApiFor }) => {
+worksFor(supportedVersions, ({ oapiForModel, openApiFor }) => {
   it("defines array inline", async () => {
     const res = await oapiForModel(
       "Pet",
@@ -65,6 +66,37 @@ worksFor(["3.0.0", "3.1.0"], ({ oapiForModel, openApiFor }) => {
     deepStrictEqual(res.schemas.PetNames, {
       type: "array",
       items: { type: "string" },
+    });
+  });
+
+  it("define named arrays with envelope names", async () => {
+    const res = await openApiFor(
+      `
+      @service
+      namespace Sample;
+      namespace One {
+        model PetNames is string[];
+      }
+      namespace Two {
+        model PetNames is string[];
+      }
+      model Pets {
+        one: One.PetNames;
+        two: Two.PetNames;
+      }
+      `,
+    );
+    deepStrictEqual(res.components.schemas["One.PetNames"], {
+      type: "array",
+      items: { type: "string" },
+    });
+    deepStrictEqual(res.components.schemas["Two.PetNames"], {
+      type: "array",
+      items: { type: "string" },
+    });
+    deepStrictEqual(res.components.schemas.Pets.properties, {
+      one: { $ref: "#/components/schemas/One.PetNames" },
+      two: { $ref: "#/components/schemas/Two.PetNames" },
     });
   });
 
@@ -371,4 +403,24 @@ worksFor(["3.1.0"], ({ oapiForModel }) => {
       ],
     });
   });
+});
+
+it("removes array items when an array property is encoded to a scalar", async () => {
+  const res = await openApiFor(
+    `
+    model Bar {
+      @encode(ArrayEncoding.commaDelimited)
+      prop: string[];
+    }
+
+    op getBar(): Bar;
+    `,
+    { "openapi-versions": ["3.1.0"] },
+  );
+
+  const schema = res.components.schemas.Bar.properties.prop;
+  expect(schema.type).toBe("string");
+  expect(schema.format).toBe("ArrayEncoding.commaDelimited");
+  expect(schema.items).toBeUndefined();
+  expect(schema.prefixItems).toBeUndefined();
 });

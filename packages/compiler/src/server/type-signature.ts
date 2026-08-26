@@ -1,5 +1,7 @@
 import { getSymNode } from "../core/binder.js";
 import { compilerAssert } from "../core/diagnostics.js";
+import { printTypeSpecNode } from "../core/formatter.js";
+import { getRawTextWithCache } from "../core/helpers/raw-text-cache.js";
 import { printIdentifier } from "../core/helpers/syntax-utils.js";
 import { getEntityName, getTypeName, isStdNamespace } from "../core/helpers/type-name-utils.js";
 import type { Program } from "../core/program.js";
@@ -9,49 +11,82 @@ import {
   Decorator,
   EnumMember,
   FunctionParameter,
+  Interface,
+  MixedParameterConstraint,
+  Model,
   ModelProperty,
   Operation,
   StringTemplate,
   Sym,
+  SymbolFlags,
   SyntaxKind,
   Type,
   UnionVariant,
   Value,
 } from "../core/types.js";
+import { walkPropertiesInherited } from "../index.js";
+
+interface GetSymbolSignatureOptions {
+  /**
+   * Whether to include the body in the signature. Only support Model and Interface type now
+   */
+  includeBody: boolean;
+}
 
 /** @internal */
-export function getSymbolSignature(program: Program, sym: Sym): string {
+export async function getSymbolSignature(
+  program: Program,
+  sym: Sym,
+  options: GetSymbolSignatureOptions = {
+    includeBody: false,
+  },
+): Promise<string> {
   const decl = getSymNode(sym);
   switch (decl?.kind) {
     case SyntaxKind.AliasStatement:
-      return fence(`alias ${getAliasSignature(decl)}`);
+      return fence(`alias ${await getAliasSignature(decl)}`);
   }
-  const entity = sym.type ?? program.checker.getTypeOrValueForNode(decl);
-  return getEntitySignature(sym, entity);
+  const entity = sym.type ?? (decl ? program.checker.getTypeOrValueForNode(decl) : null);
+  return getEntitySignature(sym, entity, options);
 }
 
-function getEntitySignature(sym: Sym, entity: Type | Value | null): string {
+function getEntitySignature(
+  sym: Sym,
+  entity: Type | Value | null,
+  options: GetSymbolSignatureOptions,
+): string {
   if (entity === null) {
     return "(error)";
   }
   if ("valueKind" in entity) {
+    if (sym.flags & SymbolFlags.Function && entity.valueKind === "Function") {
+      const parameters = [...entity.parameters].map(
+        (x) => `${x.rest ? "..." : ""}${x.name}${x.optional ? "?" : ""}: ${getEntityName(x.type)}`,
+      );
+      return fence(
+        `fn ${entity.name ?? "<anonymous>"}(${parameters.join(", ")}) => ${getEntityName(entity.returnType)}`,
+      );
+    }
+
     return fence(`const ${sym.name}: ${getTypeName(entity.type)}`);
   }
 
-  return getTypeSignature(entity);
+  return getTypeSignature(entity, options);
 }
 
-function getTypeSignature(type: Type): string {
+function getTypeSignature(type: Type, options: GetSymbolSignatureOptions): string {
   switch (type.kind) {
     case "Scalar":
     case "Enum":
     case "Union":
-    case "Interface":
-    case "Model":
     case "Namespace":
       return fence(`${type.kind.toLowerCase()} ${getPrintableTypeName(type)}`);
+    case "Interface":
+      return fence(getInterfaceSignature(type, options.includeBody));
+    case "Model":
+      return fence(getModelSignature(type, options.includeBody));
     case "ScalarConstructor":
-      return fence(`init ${getTypeSignature(type.scalar)}.${type.name}`);
+      return fence(`init ${getTypeSignature(type.scalar, options)}.${type.name}`);
     case "Decorator":
       return fence(getDecoratorSignature(type));
     case "Operation":
@@ -76,15 +111,45 @@ function getTypeSignature(type: Type): string {
     case "EnumMember":
       return `(enum member)\n${fence(getEnumMemberSignature(type))}`;
     case "TemplateParameter":
-      return `(template parameter)\n${fence(type.node.id.sv)}`;
+      return `(template parameter)\n${fence(
+        getTemplateConstraintSignature(type.node.id.sv, type.constraint),
+      )}`;
+    case "TemplateParameterAccess":
+      return `(template access)\n${fence(getTemplateConstraintSignature(type.path, type.constraint))}`;
     case "UnionVariant":
       return `(union variant)\n${fence(getUnionVariantSignature(type))}`;
     case "Tuple":
-      return `(tuple)\n[${fence(type.values.map(getTypeSignature).join(", "))}]`;
+      return `(tuple)\n[${fence(type.values.map((v) => getTypeSignature(v, options)).join(", "))}]`;
+    case "FunctionType":
+      return fence(
+        `fn (${type.parameters.map((p) => getFunctionParameterSignature(p)).join(", ")}) => ${getEntityName(
+          type.returnType,
+        )}`,
+      );
     default:
       const _assertNever: never = type;
       compilerAssert(false, "Unexpected type kind");
   }
+}
+
+/** Format `T extends ...` style signatures for template parameters/access paths. */
+function getTemplateConstraintSignature(
+  nameOrPath: string,
+  constraint?: MixedParameterConstraint,
+): string {
+  if (!constraint) {
+    return nameOrPath;
+  }
+
+  const parts: string[] = [];
+  if (constraint.type) {
+    parts.push(getTypeName(constraint.type, { printable: true }));
+  }
+  if (constraint.valueType) {
+    parts.push(`valueof ${getTypeName(constraint.valueType, { printable: true })}`);
+  }
+
+  return parts.length > 0 ? `${nameOrPath} extends ${parts.join(" | ")}` : nameOrPath;
 }
 
 function getDecoratorSignature(type: Decorator) {
@@ -94,9 +159,61 @@ function getDecoratorSignature(type: Decorator) {
   return `dec ${ns}${name}(${parameters.join(", ")})`;
 }
 
-function getOperationSignature(type: Operation) {
-  const parameters = [...type.parameters.properties.values()].map(getModelPropertySignature);
-  return `op ${getTypeName(type)}(${parameters.join(", ")}): ${getPrintableTypeName(type.returnType)}`;
+function getOperationSignature(type: Operation, includeQualifier: boolean = true) {
+  const parameters = [...type.parameters.properties.values()].map((p) =>
+    getModelPropertySignature(p, false /* includeQualifier */),
+  );
+  return `op ${getTypeName(type, {
+    nameOnly: !includeQualifier,
+  })}(${parameters.join(", ")}): ${getPrintableTypeName(type.returnType)}`;
+}
+
+function getInterfaceSignature(type: Interface, includeBody: boolean): string {
+  if (includeBody) {
+    const INDENT = "  ";
+    const opDesc = Array.from(type.operations).map(
+      ([name, op]) => INDENT + getOperationSignature(op, false /* includeQualifier */) + ";",
+    );
+    return `${type.kind.toLowerCase()} ${getPrintableTypeName(type)} {\n${opDesc.join("\n")}\n}`;
+  } else {
+    if (
+      type.node &&
+      type.node.kind === SyntaxKind.InterfaceStatement &&
+      type.node.templateParameters
+    ) {
+      type.node.templateParameters.forEach((t) => {
+        if (t.default) {
+          getRawTextWithCache(t);
+        }
+      });
+    }
+  }
+
+  return `${type.kind.toLowerCase()} ${getPrintableTypeName(type)}`;
+}
+
+/**
+ * All properties from 'extends' and 'is' will be included if includeBody is true.
+ */
+function getModelSignature(type: Model, includeBody: boolean): string {
+  if (includeBody) {
+    const propDesc = [];
+    const INDENT = "  ";
+    for (const prop of walkPropertiesInherited(type)) {
+      propDesc.push(INDENT + getModelPropertySignature(prop, false /*includeQualifier*/));
+    }
+    return `${type.kind.toLowerCase()} ${getPrintableTypeName(type)}{\n${propDesc.map((d) => `${d};`).join("\n")}\n}`;
+  } else {
+    if (type.node && type.node.kind === SyntaxKind.ModelStatement && type.node.templateParameters) {
+      type.node.templateParameters.forEach((t) => {
+        if (t.default) {
+          getRawTextWithCache(t);
+        }
+      });
+    }
+  }
+
+  return `${type.kind.toLowerCase()} ${getPrintableTypeName(type)}`;
 }
 
 function getFunctionParameterSignature(parameter: FunctionParameter) {
@@ -117,8 +234,8 @@ function getStringTemplateSignature(stringTemplate: StringTemplate) {
   );
 }
 
-function getModelPropertySignature(property: ModelProperty) {
-  const ns = getQualifier(property.model);
+function getModelPropertySignature(property: ModelProperty, includeQualifier: boolean = true) {
+  const ns = includeQualifier ? getQualifier(property.model) : "";
   return `${ns}${printIdentifier(property.name, "allow-reserved")}: ${getPrintableTypeName(property.type)}`;
 }
 
@@ -138,9 +255,17 @@ function getEnumMemberSignature(member: EnumMember) {
     : `${ns}${printIdentifier(member.name, "allow-reserved")}: ${value}`;
 }
 
-function getAliasSignature(alias: AliasStatementNode) {
+async function getAliasSignature(alias: AliasStatementNode): Promise<string> {
   const fullName = getFullyQualifiedSymbolName(alias.symbol);
-  const args = alias.templateParameters.map((t) => t.id.sv);
+  const args = await Promise.all(
+    alias.templateParameters.map(async (t, index) => {
+      if (t.default) {
+        getRawTextWithCache(t.default);
+      }
+      return await printTypeSpecNode(t);
+    }),
+  );
+
   return args.length === 0 ? fullName : `${fullName}<${args.join(", ")}>`;
 }
 
@@ -161,7 +286,7 @@ function getQualifier(parent: (Type & { name?: string | symbol }) | undefined) {
   return parentName + ".";
 }
 
-function getPrintableTypeName(type: Type) {
+function getPrintableTypeName(type: Type): string {
   return getTypeName(type, {
     printable: true,
   });

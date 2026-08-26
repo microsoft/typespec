@@ -4,12 +4,12 @@
 # license information.
 # --------------------------------------------------------------------------
 import sys
-import venv
 import logging
 from pathlib import Path
-from pygen import preprocess, codegen, black
+from pygen import preprocess, codegen
 from pygen.utils import parse_args
 
+# eng/scripts/setup/run_tsp.py -> need to go up 4 levels to get to package root
 _ROOT_DIR = Path(__file__).parent.parent.parent.parent
 
 _LOGGER = logging.getLogger(__name__)
@@ -20,8 +20,8 @@ if __name__ == "__main__":
 
     assert venv_preexists  # Otherwise install was not done
 
-    env_builder = venv.EnvBuilder(with_pip=True)
-    venv_context = env_builder.ensure_directories(venv_path)
+    # Don't use EnvBuilder.ensure_directories() - it causes race conditions
+    # when multiple processes run in parallel. The venv already exists.
 
     if "--debug" in sys.argv or "--debug=true" in sys.argv:
         try:
@@ -34,8 +34,7 @@ if __name__ == "__main__":
         debugpy.wait_for_client()
         breakpoint()  # pylint: disable=undefined-variable
 
-    # pre-process and run black
+    # pre-process
     args, unknown_args = parse_args()
     preprocess.PreProcessPlugin(output_folder=args.output_folder, tsp_file=args.tsp_file, **unknown_args).process()
     codegen.CodeGenerator(output_folder=args.output_folder, tsp_file=args.tsp_file, **unknown_args).process()
-    black.BlackScriptPlugin(output_folder=args.output_folder, **unknown_args).process()

@@ -1,16 +1,19 @@
 import {
   type DecoratorContext,
   type Enum,
+  isTemplateDeclaration,
   isType,
   type Model,
   type Namespace,
   type Program,
   type Scalar,
+  serializeValueAsJson,
   setTypeSpecNamespace,
   type Tuple,
   type Type,
   typespecTypeToJson,
   type Union,
+  type Value,
 } from "@typespec/compiler";
 import { useStateMap, useStateSet } from "@typespec/compiler/utils";
 import type { ValidatesRawJsonDecorator } from "../generated-defs/TypeSpec.JsonSchema.Private.js";
@@ -101,12 +104,46 @@ export function isJsonSchemaDeclaration(program: Program, target: JsonSchemaDecl
   return false;
 }
 
+type JsonSchemaDeclarationType = Model | Union | Enum | Scalar;
 /**
  * Returns types that are annotated with `@jsonSchema` or contained within a namespace that is annoted with `@jsonSchema`.
  * @param program TypeSpec program
  */
-export function getJsonSchemaTypes(program: Program): (Namespace | Model)[] {
-  return [...(program.stateSet(JsonSchemaStateKeys.JsonSchema) || [])] as (Namespace | Model)[];
+export function getJsonSchemaTypes(program: Program): (JsonSchemaDeclarationType | Namespace)[] {
+  const types: (JsonSchemaDeclarationType | Namespace)[] = [];
+
+  function visitNamespace(ns: Namespace) {
+    if (getJsonSchema(program, ns)) {
+      types.push(ns);
+    }
+
+    visitMembers(ns.models.values());
+    visitMembers(ns.enums.values());
+    visitMembers(ns.unions.values());
+    visitMembers(ns.scalars.values());
+    for (const member of ns.namespaces.values()) {
+      visitNamespace(member);
+    }
+  }
+
+  function visitMembers(members: Iterable<JsonSchemaDeclarationType>) {
+    for (const member of members) {
+      visitDeclaration(member);
+    }
+  }
+
+  function visitDeclaration(type: JsonSchemaDeclarationType) {
+    if (
+      !(type.kind !== "Enum" && isTemplateDeclaration(type)) &&
+      isJsonSchemaDeclaration(program, type)
+    ) {
+      types.push(type);
+    }
+  }
+
+  visitNamespace(program.getGlobalNamespaceType());
+
+  return types;
 }
 
 export const [
@@ -170,7 +207,7 @@ export const [
   /** Check if the given array is annotated with `@uniqueItems` decorator */
   getUniqueItems,
   setUniqueItems,
-] = useStateMap(JsonSchemaStateKeys["JsonSchema.uniqueItems"]);
+] = useStateMap<Type, boolean>(JsonSchemaStateKeys["JsonSchema.uniqueItems"]);
 /** {@inheritdoc UniqueItemsDecorator} */
 export const $uniqueItems: UniqueItemsDecorator = (context: DecoratorContext, target: Type) =>
   setUniqueItems(context.program, target, true);
@@ -257,8 +294,52 @@ export const $extension: ExtensionDecorator = (
   key: string,
   value: unknown,
 ) => {
+  if (!isTypeLike(value)) {
+    value = convertRemainingValuesToExtensions(context.program, value);
+  }
   setExtension(context.program, target, key, value);
 };
+
+// Workaround until we have a way to disable arg marshalling and just call serializeValueAsJson
+// https://github.com/microsoft/typespec/issues/3570
+function convertRemainingValuesToExtensions(program: Program, value: unknown): unknown {
+  switch (typeof value) {
+    case "string":
+    case "number":
+    case "boolean":
+      return value;
+    case "object":
+      if (value === null) {
+        return null;
+      }
+      if (Array.isArray(value)) {
+        return value.map((x) => convertRemainingValuesToExtensions(program, x));
+      }
+
+      if (isTypeSpecValue(value)) {
+        return serializeValueAsJson(program, value, value.type);
+      } else {
+        const result: Record<string, unknown> = {};
+        for (const [key, val] of Object.entries(value)) {
+          if (val === undefined) {
+            continue;
+          }
+          result[key] = convertRemainingValuesToExtensions(program, val);
+        }
+        return result;
+      }
+    default:
+      return value;
+  }
+}
+
+function isTypeLike(value: any): value is Type {
+  return typeof value === "object" && value !== null && isType(value);
+}
+
+function isTypeSpecValue(value: object): value is Value {
+  return "entityKind" in value && value.entityKind === "Value";
+}
 
 /**
  * Get extensions set via the `@extension` decorator on the given type

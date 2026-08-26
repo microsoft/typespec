@@ -21,25 +21,38 @@ export function createBrowserHostInternal(options: BrowserHostCreateOptions): Br
   const virtualFs = new Map<string, string>();
   const jsImports = new Map<string, Promise<any>>();
 
-  const libraries = options.libraries;
-  for (const [libName, { _TypeSpecLibrary_ }] of Object.entries(libraries)) {
-    for (const [key, value] of Object.entries<any>(_TypeSpecLibrary_.typespecSourceFiles)) {
+  const libraries: Record<string, PlaygroundTspLibrary & { _TypeSpecLibrary_: any }> = {
+    ...options.libraries,
+  };
+
+  function registerLibraryFiles(
+    libName: string,
+    lib: PlaygroundTspLibrary & { _TypeSpecLibrary_: any },
+  ) {
+    for (const [key, value] of Object.entries<any>(lib._TypeSpecLibrary_.typespecSourceFiles)) {
       virtualFs.set(`/test/node_modules/${libName}/${key}`, value);
     }
-    for (const [key, value] of Object.entries<any>(_TypeSpecLibrary_.jsSourceFiles)) {
+    for (const [key, value] of Object.entries<any>(lib._TypeSpecLibrary_.jsSourceFiles)) {
       addJsImport(`/test/node_modules/${libName}/${key}`, value);
     }
   }
 
-  virtualFs.set(
-    `/test/package.json`,
-    JSON.stringify({
-      name: "playground-pkg",
-      dependencies: Object.fromEntries(
-        Object.values(libraries).map((x) => [x.name, x.packageJson.version]),
-      ),
-    }),
-  );
+  function updatePackageJson() {
+    virtualFs.set(
+      `/test/package.json`,
+      JSON.stringify({
+        name: "playground-pkg",
+        dependencies: Object.fromEntries(
+          Object.values(libraries).map((x) => [x.name, x.packageJson.version]),
+        ),
+      }),
+    );
+  }
+
+  for (const [libName, lib] of Object.entries(libraries)) {
+    registerLibraryFiles(libName, lib);
+  }
+  updatePackageJson();
 
   function addJsImport(path: string, value: any) {
     virtualFs.set(path, "");
@@ -171,6 +184,35 @@ export function createBrowserHostInternal(options: BrowserHostCreateOptions): Br
 }
 
 /**
+ * Load libraries in parallel from the given list.
+ * @param libsToLoad List of library names. Must be available in the webpage importmap.
+ * @param importOptions Import configuration.
+ */
+export async function loadLibraries(
+  libsToLoad: readonly string[],
+  importOptions: LibraryImportOptions = {},
+): Promise<Record<string, PlaygroundTspLibrary & { _TypeSpecLibrary_: any }>> {
+  const entries = await Promise.all(
+    libsToLoad.map(async (libName) => {
+      const { _TypeSpecLibrary_, $lib, $linter } = (await importLibrary(
+        libName,
+        importOptions,
+      )) as any;
+      const lib: PlaygroundTspLibrary & { _TypeSpecLibrary_: any } = {
+        name: libName,
+        isEmitter: $lib?.emitter,
+        definition: $lib,
+        packageJson: JSON.parse(_TypeSpecLibrary_.typespecSourceFiles["package.json"]),
+        linter: $linter,
+        _TypeSpecLibrary_,
+      };
+      return [libName, lib] as const;
+    }),
+  );
+  return Object.fromEntries(entries);
+}
+
+/**
  * Create the browser host from the list of libraries.
  * @param libsToLoad List of libraries to load. Those must be set in the webpage importmap.
  * @param importOptions Import configuration.
@@ -180,23 +222,12 @@ export async function createBrowserHost(
   libsToLoad: readonly string[],
   importOptions: LibraryImportOptions = {},
 ): Promise<BrowserHost> {
-  const libraries: Record<string, PlaygroundTspLibrary & { _TypeSpecLibrary_: any }> = {};
-  for (const libName of libsToLoad) {
-    const { _TypeSpecLibrary_, $lib, $linter } = (await importLibrary(
-      libName,
-      importOptions,
-    )) as any;
-    libraries[libName] = {
-      name: libName,
-      isEmitter: $lib?.emitter,
-      definition: $lib,
-      packageJson: JSON.parse(_TypeSpecLibrary_.typespecSourceFiles["package.json"]),
-      linter: $linter,
-      _TypeSpecLibrary_,
-    };
-  }
+  const [libraries, compiler] = await Promise.all([
+    loadLibraries(libsToLoad, importOptions),
+    importTypeSpecCompiler(importOptions),
+  ]);
   return createBrowserHostInternal({
-    compiler: await importTypeSpecCompiler(importOptions),
+    compiler,
     libraries,
   });
 }

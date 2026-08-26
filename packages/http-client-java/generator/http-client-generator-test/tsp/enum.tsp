@@ -26,6 +26,11 @@ union ColorModelBase {
   Red: "Red",
 }
 
+union ReasoningEffort {
+  "none" | "minimal" | "low" | "medium" | "high" | "xhigh",
+  null,
+}
+
 @access(Access.public)
 @usage(Usage.input | Usage.output)
 union PriorityModel {
@@ -74,6 +79,9 @@ model Operation {
   unitValue?: Unit.Milligram;
   olympicRecord?: OlympicRecordModel;
   olympicRecordValue?: OlympicRecordModel.Olympic_100_Meters;
+
+  // there is 2 level of nullable in this property, one of the type, one in the union
+  reasoning_effort?: ReasoningEffort | null;
 }
 
 @client({
@@ -202,4 +210,12 @@ interface EnumOp {
     @header
     colorArrayOpt?: ColorModel[],
   ): void;
+
+  // The request and response should be `@header contentType: "application/json", @body body: ColorModel`
+  // The test here is to make sure the generated code still compile pass, even if it is not the expected operation definition.
+  @post
+  @route("operation/wrong-body")
+  getWrongBody(@body body: ColorModelBase): {
+    @body body: ColorModelBase;
+  };
 }

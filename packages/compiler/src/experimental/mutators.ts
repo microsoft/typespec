@@ -1,7 +1,8 @@
 import { compilerAssert } from "../core/diagnostics.js";
 import { getLocationContext } from "../core/helpers/location-context.js";
+import { isNumeric } from "../core/numeric.js";
 import { Program } from "../core/program.js";
-import { isTemplateInstance, isType } from "../core/type-utils.js";
+import { isTemplateInstance, isType, isValue } from "../core/type-utils.js";
 import {
   DecoratedType,
   Decorator,
@@ -10,15 +11,18 @@ import {
   IntrinsicType,
   Model,
   Namespace,
+  ObjectValue,
   TemplatedType,
   TemplateParameter,
   Type,
   TypeMapper,
+  Value,
 } from "../core/types.js";
+import { $ } from "../typekit/index.js";
 import { CustomKeyMap } from "../utils/custom-key-map.js";
 import { mutate } from "../utils/misc.js";
+import { useStateMap } from "../utils/state-accessor.js";
 import { Realm } from "./realm.js";
-import { $ } from "./typekit/index.js";
 
 // #region Types
 
@@ -259,16 +263,41 @@ export type MutableTypeWithNamespace = MutableType | Namespace;
 
 // #region Mutator Application
 
+type SeenCache = CustomKeyMap<[MutableTypeWithNamespace, Set<Mutator> | Mutator[]], Type>;
+
+// These keyers assign a stable identity to each type/mutator. They are backed by
+// `WeakMap`s and never strongly retain their keys, so they are safe to keep at
+// module scope and shared across programs.
 const typeId = CustomKeyMap.objectKeyer();
 const mutatorId = CustomKeyMap.objectKeyer();
-const seen = new CustomKeyMap<[MutableTypeWithNamespace, Set<Mutator> | Mutator[]], Type>(
-  ([type, mutators]) => {
-    const key = `${typeId.getKey(type)}-${[...mutators.values()]
-      .map((v) => mutatorId.getKey(v))
-      .join("-")}`;
-    return key;
-  },
-);
+
+// `seen` memoizes mutation results so cyclic and shared types are cloned exactly
+// once. It must be shared across the nested `mutateSubgraph`/
+// `mutateSubgraphWithNamespace` calls a mutator makes while running (each spins
+// up its own engine); this is what lets recursive type graphs terminate instead
+// of recursing forever, and it also lets repeated mutations reuse earlier clones.
+//
+// The cache is scoped per `Program` rather than to the module so that it — and
+// every `Type` it references — becomes eligible for garbage collection once the
+// program does. A module-level cache would instead pin the type graph of every
+// mutated program in memory for the lifetime of the process.
+const seenByProgram = new WeakMap<Program, SeenCache>();
+
+function getSeenCache(program: Program): SeenCache {
+  let seen = seenByProgram.get(program);
+  if (seen === undefined) {
+    seen = new CustomKeyMap<[MutableTypeWithNamespace, Set<Mutator> | Mutator[]], Type>(
+      ([type, mutators]) => {
+        const key = `${typeId.getKey(type)}-${[...mutators.values()]
+          .map((v) => mutatorId.getKey(v))
+          .join("-")}`;
+        return key;
+      },
+    );
+    seenByProgram.set(program, seen);
+  }
+  return seen;
+}
 
 /**
  * Mutate the type graph, allowing namespaces to be mutated.
@@ -357,6 +386,21 @@ interface MutatorWithOptions<T extends MutableTypeWithNamespace> {
   replaceFn: MutatorReplaceFn<T> | null;
 }
 
+const [getAlwaysMutate, _setAlwaysMutate] = useStateMap<Type, boolean>(
+  Symbol.for("TypeSpec.Mutators.alwaysMutate"),
+);
+
+/**
+ * Set to true to always mutate a type, even if filtering logic would exclude it.
+ *
+ * This is a hack to allow core types to be mutated when they are unfinished template instances.
+ *
+ * @internal
+ */
+export function setAlwaysMutate(program: Program, type: Type, alwaysMutate: boolean = true) {
+  _setAlwaysMutate(program, type, alwaysMutate);
+}
+
 function createMutatorEngine(
   program: Program,
   mutators: MutatorAll[],
@@ -364,6 +408,12 @@ function createMutatorEngine(
 ): MutatorEngine {
   const realm = new Realm(program, `Mutator realm ${mutators.map((m) => m.name).join(", ")}`);
   const interstitialFunctions: (() => void)[] = [];
+
+  // Shared across every engine operating on this program (including the nested
+  // engines a mutator spins up via re-entrant `mutateSubgraph` calls), so
+  // recursive type graphs are cloned once and terminate. Scoped to the program
+  // so it is collected once the program is.
+  const seen = getSeenCache(program);
 
   let preparingNamespace = false;
   const muts: Set<MutatorAll> = new Set(mutators);
@@ -402,11 +452,11 @@ function createMutatorEngine(
         continue;
       }
 
-      let mutationFn: MutatorFn<T> | null = null;
+      let mutationFn: MutatorFn<T> | null;
       let replaceFn: MutatorReplaceFn<T> | null = null;
 
-      let mutate = false;
-      let recurse = false;
+      let mutate;
+      let recurse;
 
       if (typeof record === "function") {
         mutationFn = record;
@@ -487,7 +537,12 @@ function createMutatorEngine(
       return existing as T;
     }
     // Mutating compiler types breaks a lot of things in the type checker. It is better to keep any of those as they are.
-    if (getLocationContext(program, type).type === "compiler" && !isTemplateInstance(type)) {
+    const alwaysMutate = getAlwaysMutate(program, type);
+    if (
+      !alwaysMutate &&
+      getLocationContext(program, type).type === "compiler" &&
+      !isTemplateInstance(type)
+    ) {
       return type;
     }
     let clone: MutableTypeWithNamespace | null = null;
@@ -630,6 +685,9 @@ function createMutatorEngine(
           mutateProperty(root, "type", mutating, newMutators);
           mutateProperty(root, "sourceProperty", mutating, newMutators);
           break;
+        case "Tuple":
+          mutateSubArray(root, "values", mutating, newMutators);
+          break;
         case "Operation":
           mutateProperty(root, "parameters", mutating, newMutators);
           mutateProperty(root, "returnType", mutating, newMutators);
@@ -699,26 +757,76 @@ function createMutatorEngine(
     for (const [index, dec] of type.decorators.entries()) {
       const args: DecoratorArgument[] = [];
       for (const arg of dec.args) {
-        const jsValue =
-          typeof arg.jsValue === "object" &&
-          arg.jsValue !== null &&
-          isType(arg.jsValue as any) &&
-          isMutableTypeWithNamespace(arg.jsValue as any)
-            ? mutateSubgraphWorker(arg.jsValue as any, newMutators)
-            : arg.jsValue;
         args.push({
           ...arg,
-          value:
-            isType(arg.value) && isMutableTypeWithNamespace(arg.value)
-              ? mutateSubgraphWorker(arg.value, newMutators)
-              : arg.value,
-          jsValue,
+          value: mutateDecoratorArgumentValue(arg.value, newMutators),
+          jsValue: mutateDecoratorArgumentValue(arg.jsValue, newMutators),
         });
       }
 
       if (mutating) {
         type.decorators[index] = { ...dec, args };
       }
+    }
+  }
+
+  function mutateDecoratorArgumentValue<
+    T extends DecoratorArgument["jsValue"] | DecoratorArgument["value"],
+  >(value: T, newMutators: Set<MutatorAll>): T {
+    if (typeof value === "object" && value !== null) {
+      if (isType(value as any)) {
+        return isMutableTypeWithNamespace(value as any)
+          ? (mutateSubgraphWorker(value as any, newMutators) as T)
+          : value;
+      }
+      if (isValue(value as any)) {
+        return mutateValue(value as any, newMutators) as T;
+      }
+      if (isNumeric(value)) {
+        return value;
+      }
+      if (Array.isArray(value)) {
+        return value.map((item) => mutateDecoratorArgumentValue(item as any, newMutators)) as T;
+      }
+      return Object.entries(value).reduce((acc, [key, val]) => {
+        return {
+          ...acc,
+          [key]: mutateDecoratorArgumentValue(val as any, newMutators),
+        };
+      }, {}) as T;
+    }
+    return value;
+  }
+
+  function mutateValue<T extends Value>(value: T, newMutators: Set<MutatorAll>): T {
+    switch (value.valueKind) {
+      case "ObjectValue":
+        const newObjectValue: ObjectValue = {
+          ...value,
+          properties: new Map(),
+          type: mutateDecoratorArgumentValue(value.type, newMutators),
+        };
+        for (const [key, val] of value.properties.entries()) {
+          newObjectValue.properties.set(key, {
+            ...val,
+            value: mutateValue(val.value, newMutators),
+          });
+        }
+        return newObjectValue as T;
+      case "ArrayValue":
+        return {
+          ...value,
+          type: mutateDecoratorArgumentValue(value.type, newMutators),
+          values: value.values.map((val) => mutateValue(val, newMutators)),
+        } as T;
+      case "EnumValue":
+        return {
+          ...value,
+          type: mutateDecoratorArgumentValue(value.type, newMutators),
+          value: mutateDecoratorArgumentValue(value.value, newMutators),
+        } as T;
+      default:
+        return value;
     }
   }
 

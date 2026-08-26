@@ -1,5 +1,5 @@
 import type { JSONSchemaType as AjvJSONSchemaType } from "ajv";
-import type { ModuleResolutionResult } from "../module-resolver/module-resolver.js";
+import type { ModuleResolutionResult } from "../module-resolver/index.js";
 import type { YamlPathTarget, YamlScript } from "../yaml/types.js";
 import type { Numeric } from "./numeric.js";
 import type { Program } from "./program.js";
@@ -48,16 +48,46 @@ export interface DecoratorApplication {
   node?: DecoratorExpressionNode | AugmentDecoratorStatementNode;
 }
 
+/**
+ * Signature for a decorator JS implementation function.
+ * Use `@typespec/tspd` to generate an accurate signature from the `extern dec`
+ */
 export interface DecoratorFunction {
-  (program: DecoratorContext, target: any, ...customArgs: any[]): void;
+  (
+    context: DecoratorContext,
+    target: any,
+    ...customArgs: any[]
+  ): DecoratorValidatorCallbacks | void;
   namespace?: string;
+}
+
+export type ValidatorFn = () => readonly Diagnostic[];
+
+export interface DecoratorValidatorCallbacks {
+  /**
+   * Run validation after all decorators are run on the same type. Useful if trying to validate this decorator is compatible with other decorators without relying on the order they are applied.
+   * @note This is meant for validation which means the type graph should be treated as readonly in this function.
+   */
+  readonly onTargetFinish?: ValidatorFn;
+
+  /**
+   * Run validation after everything is checked in the type graph. Useful when trying to get an overall view of the program.
+   * @note This is meant for validation which means the type graph should be treated as readonly in this function.
+   */
+  readonly onGraphFinish?: ValidatorFn;
 }
 
 export interface BaseType {
   readonly entityKind: "Type";
   kind: string;
+  /** Node used to construct this type. If the node is undefined it means the type was dynamically built. With typekit for example. */
   node?: Node;
   instantiationParameters?: Type[];
+
+  /**
+   * If the type is currently being created.
+   */
+  creating?: true;
 
   /**
    * Reflect if a type has been finished(Decorators have been called).
@@ -107,6 +137,7 @@ export type Entity = Type | Value | MixedParameterConstraint | IndeterminateEnti
 export type Type =
   | BooleanLiteral
   | Decorator
+  | FunctionType
   | Enum
   | EnumMember
   | FunctionParameter
@@ -123,6 +154,7 @@ export type Type =
   | StringTemplate
   | StringTemplateSpan
   | TemplateParameter
+  | TemplateParameterAccess
   | Tuple
   | Union
   | UnionVariant;
@@ -290,11 +322,14 @@ export interface SourceModel {
   readonly usage: "is" | "spread" | "intersection";
   /** Source model */
   readonly model: Model;
+
+  /** Node where this source model was referenced. */
+  readonly node?: Node;
 }
 
 export interface ModelProperty extends BaseType, DecoratedType {
   kind: "ModelProperty";
-  node: ModelPropertyNode | ModelSpreadPropertyNode | ObjectLiteralPropertyNode;
+  node?: ModelPropertyNode | ModelSpreadPropertyNode | ObjectLiteralPropertyNode;
   name: string;
   type: Type;
   // when spread or intersection operators make new property types,
@@ -314,7 +349,11 @@ export type Value =
   | ObjectValue
   | ArrayValue
   | EnumValue
-  | NullValue;
+  | NullValue
+  | FunctionValue;
+
+/** @internal */
+export type ValueWithTemplate = Value | TemplateValue;
 
 interface BaseValue {
   readonly entityKind: "Value";
@@ -333,19 +372,19 @@ interface BaseValue {
 
 export interface ObjectValue extends BaseValue {
   valueKind: "ObjectValue";
-  node: ObjectLiteralNode;
+  node?: ObjectLiteralNode;
   properties: Map<string, ObjectValuePropertyDescriptor>;
 }
 
 export interface ObjectValuePropertyDescriptor {
-  node: ObjectLiteralPropertyNode;
+  node?: ObjectLiteralPropertyNode;
   name: string;
   value: Value;
 }
 
 export interface ArrayValue extends BaseValue {
   valueKind: "ArrayValue";
-  node: ArrayLiteralNode;
+  node?: ArrayLiteralNode;
   values: Value[];
 }
 
@@ -379,12 +418,21 @@ export interface NullValue extends BaseValue {
   value: null;
 }
 
+/**
+ * This is an internal type that represent a value while in a template declaration.
+ * This type should currently never be exposed on the type graph(unlike TemplateParameter).
+ * @internal
+ */
+export interface TemplateValue extends BaseValue {
+  valueKind: "TemplateValue";
+}
+
 //#endregion Values
 
 export interface Scalar extends BaseType, DecoratedType, TemplatedTypeBase {
   kind: "Scalar";
   name: string;
-  node: ScalarStatementNode;
+  node?: ScalarStatementNode;
   /**
    * Namespace the scalar was defined in.
    */
@@ -410,7 +458,7 @@ export interface Scalar extends BaseType, DecoratedType, TemplatedTypeBase {
 
 export interface ScalarConstructor extends BaseType {
   kind: "ScalarConstructor";
-  node: ScalarConstructorNode;
+  node?: ScalarConstructorNode;
   name: string;
   scalar: Scalar;
   parameters: SignatureFunctionParameter[];
@@ -419,7 +467,7 @@ export interface ScalarConstructor extends BaseType {
 export interface Interface extends BaseType, DecoratedType, TemplatedTypeBase {
   kind: "Interface";
   name: string;
-  node: InterfaceStatementNode;
+  node?: InterfaceStatementNode;
   namespace?: Namespace;
 
   /**
@@ -451,7 +499,7 @@ export interface Interface extends BaseType, DecoratedType, TemplatedTypeBase {
 export interface Enum extends BaseType, DecoratedType {
   kind: "Enum";
   name: string;
-  node: EnumStatementNode;
+  node?: EnumStatementNode;
   namespace?: Namespace;
 
   /**
@@ -473,7 +521,7 @@ export interface EnumMember extends BaseType, DecoratedType {
   kind: "EnumMember";
   name: string;
   enum: Enum;
-  node: EnumMemberNode;
+  node?: EnumMemberNode;
   value?: string | number;
   /**
    * when spread operators make new enum members,
@@ -484,7 +532,7 @@ export interface EnumMember extends BaseType, DecoratedType {
 
 export interface Operation extends BaseType, DecoratedType, TemplatedTypeBase {
   kind: "Operation";
-  node: OperationStatementNode;
+  node?: OperationStatementNode;
   name: string;
   namespace?: Namespace;
   interface?: Interface;
@@ -501,7 +549,7 @@ export interface Namespace extends BaseType, DecoratedType {
   kind: "Namespace";
   name: string;
   namespace?: Namespace;
-  node: NamespaceStatementNode | JsNamespaceDeclarationNode;
+  node?: NamespaceStatementNode | JsNamespaceDeclarationNode;
 
   /**
    * The models in the namespace.
@@ -558,6 +606,13 @@ export interface Namespace extends BaseType, DecoratedType {
    * Order is implementation-defined and may change.
    */
   decoratorDeclarations: Map<string, Decorator>;
+
+  /**
+   * The functions declared in the namespace.
+   *
+   * Order is implementation-defined and may change.
+   */
+  functionDeclarations: Map<string, FunctionValue>;
 }
 
 export type LiteralType = StringLiteral | NumericLiteral | BooleanLiteral;
@@ -586,7 +641,7 @@ export interface StringTemplate extends BaseType {
   kind: "StringTemplate";
   /** If the template can be render as as string this is the string value */
   stringValue?: string;
-  node: StringTemplateExpressionNode;
+  node?: StringTemplateExpressionNode;
   spans: StringTemplateSpan[];
 }
 
@@ -594,28 +649,28 @@ export type StringTemplateSpan = StringTemplateSpanLiteral | StringTemplateSpanV
 
 export interface StringTemplateSpanLiteral extends BaseType {
   kind: "StringTemplateSpan";
-  node: StringTemplateHeadNode | StringTemplateMiddleNode | StringTemplateTailNode;
+  node?: StringTemplateHeadNode | StringTemplateMiddleNode | StringTemplateTailNode;
   isInterpolated: false;
   type: StringLiteral;
 }
 
 export interface StringTemplateSpanValue extends BaseType {
   kind: "StringTemplateSpan";
-  node: Expression;
+  node?: Expression;
   isInterpolated: true;
   type: Type;
 }
 
 export interface Tuple extends BaseType {
   kind: "Tuple";
-  node: TupleExpressionNode | ArrayLiteralNode;
+  node?: TupleExpressionNode | ArrayLiteralNode;
   values: Type[];
 }
 
 export interface Union extends BaseType, DecoratedType, TemplatedTypeBase {
   kind: "Union";
   name?: string;
-  node: UnionExpressionNode | UnionStatementNode;
+  node?: UnionExpressionNode | UnionStatementNode;
   namespace?: Namespace;
 
   /**
@@ -637,46 +692,188 @@ export interface Union extends BaseType, DecoratedType, TemplatedTypeBase {
 export interface UnionVariant extends BaseType, DecoratedType {
   kind: "UnionVariant";
   name: string | symbol;
-  node: UnionVariantNode | undefined;
+  node?: UnionVariantNode | undefined;
   type: Type;
   union: Union;
 }
 
+/**
+ * This is a type you should never see in the program.
+ * If you do you might be missing a `isTemplateDeclaration` check to exclude that type.
+ * Working with template declaration is not something that is currently supported.
+ *
+ * @experimental
+ */
 export interface TemplateParameter extends BaseType {
   kind: "TemplateParameter";
+  /** @internal */
   node: TemplateParameterDeclarationNode;
+  /** @internal */
   constraint?: MixedParameterConstraint;
+  /** @internal */
   default?: Type | Value | IndeterminateEntity;
+}
+
+/**
+ * This is a type you should never see in the program.
+ * If you do you might be missing a `isTemplateDeclaration` check to exclude that type.
+ * Working with template declarations is not something that is currently supported.
+ *
+ * `TemplateParameterAccess` represents a member or meta-member access rooted in a template
+ * parameter inside a template declaration, such as `T.id` or `T::returnType`.
+ *
+ * @experimental
+ */
+export interface TemplateParameterAccess extends BaseType {
+  kind: "TemplateParameterAccess";
+  /** @internal */
+  node: MemberExpressionNode;
+  /**
+   * The base of this template parameter access, which could be another template parameter access for chained accesses like `T.id.name`.
+   *
+   * @internal
+   */
+  base: TemplateParameter | TemplateParameterAccess;
+  /**
+   * Valid source-form access path like `T.id`, `T::returnType`, or `T.\`model\`::type`.
+   *
+   * @internal
+   */
+  path: string;
+  /**
+   * The type or value constraint of this template parameter access.
+   *
+   * The constraint is used to determine assignability in template declarations.
+   *
+   * @internal
+   */
+  constraint?: MixedParameterConstraint;
 }
 
 export interface Decorator extends BaseType {
   kind: "Decorator";
-  node: DecoratorDeclarationStatementNode;
+  node?: DecoratorDeclarationStatementNode;
   name: `@${string}`;
   namespace: Namespace;
   target: MixedFunctionParameter;
   parameters: MixedFunctionParameter[];
-  implementation: (...args: unknown[]) => void;
+  implementation: (ctx: DecoratorContext, target: Type, ...args: unknown[]) => void;
+  /** How this decorator was declared. */
+  declarationKind: "extern" | "auto";
+}
+
+/**
+ * The type of a Function in TypeSpec.
+ */
+export interface FunctionType extends BaseType {
+  kind: "FunctionType";
+
+  /**
+   * The parameter constraints of the function.
+   */
+  parameters: MixedFunctionParameter[];
+
+  /**
+   * The return type constraint of the function.
+   */
+  returnType: MixedParameterConstraint;
+}
+
+/**
+ * A function (`fn`) declared in the TypeSpec program.
+ *
+ * By default, function values have very restrictive types, where the parameters have type `never`, and the return type is `unknown`.
+ *
+ * To call a function, you must assert the type of the parameters. For example, if you have a `FunctionValue` that represents
+ * the following TypeSpec function:
+ *
+ * ```tsp
+ * extern fn example(a: valueof string, b: valueof int32): valueof boolean;
+ * ```
+ *
+ * You can assert the parameter types in TypeScript like this:
+ *
+ * ```ts
+ * const exampleFn: FunctionValue = ...; // however you obtain a reference to the function value, it will be strictly typed.
+ *
+ * const assertedExampleFn = exampleFn as FunctionValue<[a: string, b: number], boolean>;
+ *
+ * // Now you can call assertedExampleFn with the correct types:
+ * ctx.callFunction(assertedExampleFn.implementation, "hello", 10);
+ * ```
+ */
+export interface FunctionValue<
+  Parameters extends unknown[] = never[],
+  ReturnType = unknown,
+> extends BaseValue {
+  valueKind: "Function";
+  node?: FunctionDeclarationStatementNode;
+  /**
+   * The function's name as declared in the TypeSpec source, if any.
+   */
+  name?: string;
+  /**
+   * The namespace in which this function was declared, if any.
+   */
+  namespace?: Namespace;
+  /**
+   * The parameters of the function.
+   */
+  parameters: MixedFunctionParameter[];
+  /**
+   * The return type constraint of the function.
+   */
+  returnType: MixedParameterConstraint;
+  /**
+   * The JavaScript implementation of the function.
+   *
+   * WARNING: Calling the implementation function directly is dangerous. It assumes that you have marshaled the arguments
+   * to JS values correctly and that you will handle the return value appropriately. Constructing the correct context
+   * is your responsibility (use the `call` methods of `FunctionContext` or `DecoratorContext` to create the context for you).
+   *
+   * @param ctx - The FunctionContext providing information about the call site.
+   * @param args - The arguments passed to the function.
+   * @returns The return value of the function, which is arbitrary.
+   */
+  implementation: (ctx: FunctionContext, ...args: Parameters) => ReturnType;
 }
 
 export interface FunctionParameterBase extends BaseType {
   kind: "FunctionParameter";
-  node: FunctionParameterNode;
+  node?: FunctionParameterNode;
+  /**
+   * The name of this function parameter, as declared in the TypeSpec source.
+   */
   name: string;
+  /**
+   * Whether this parameter is optional.
+   */
   optional: boolean;
+  /**
+   * Whether this parameter is a rest parameter (i.e., `...args`).
+   */
   rest: boolean;
 }
 
-/** Represent a function parameter that could accept types or values in the TypeSpec program. */
+/**
+ * A function parameter with a mixed parameter constraint that could accept a value.
+ */
 export interface MixedFunctionParameter extends FunctionParameterBase {
   mixed: true;
   type: MixedParameterConstraint;
 }
-/** Represent a function parameter that represent the parameter signature(i.e the type would be the type of the value passed) */
+
+/**
+ * A function parameter with a simple type constraint.
+ */
 export interface SignatureFunctionParameter extends FunctionParameterBase {
   mixed: false;
   type: Type;
 }
+
+/**
+ * A function parameter.
+ */
 export type FunctionParameter = MixedFunctionParameter | SignatureFunctionParameter;
 
 export interface Sym {
@@ -907,6 +1104,11 @@ export const enum SymbolFlags {
    */
   LateBound = 1 << 22,
 
+  /**
+   * An internal symbol that can only be referenced from a source file in the same package.
+   */
+  Internal = 1 << 23,
+
   ExportContainer = Namespace | SourceFile,
   /**
    * Symbols whose members will be late bound (and stored on the type)
@@ -1011,6 +1213,9 @@ export enum SyntaxKind {
   ConstStatement,
   CallExpression,
   ScalarConstructor,
+  InternalKeyword,
+  AutoKeyword,
+  FunctionTypeExpression,
 }
 
 export const enum NodeFlags {
@@ -1191,8 +1396,9 @@ export interface ParseOptions {
   readonly docs?: boolean;
 }
 
-export interface TypeSpecScriptNode extends DeclarationNode, BaseNode {
+export interface TypeSpecScriptNode extends BaseNode {
   readonly kind: SyntaxKind.TypeSpecScript;
+  readonly id: IdentifierNode;
   readonly statements: readonly Statement[];
   readonly file: SourceFile;
   readonly inScopeNamespaces: readonly NamespaceStatementNode[]; // namespaces that declarations in this file belong to
@@ -1225,22 +1431,23 @@ export type Statement =
   | InvalidStatementNode;
 
 export interface DeclarationNode {
+  /**
+   * Identifier that this node declares.
+   */
   readonly id: IdentifierNode;
+
+  /**
+   * Modifier nodes applied to this declaration.
+   */
+  readonly modifiers: Modifier[];
+
+  /**
+   * Combined modifier flags for this declaration.
+   */
+  readonly modifierFlags: ModifierFlags;
 }
 
-export type Declaration =
-  | ModelStatementNode
-  | ScalarStatementNode
-  | InterfaceStatementNode
-  | UnionStatementNode
-  | NamespaceStatementNode
-  | OperationStatementNode
-  | TemplateParameterDeclarationNode
-  | EnumStatementNode
-  | AliasStatementNode
-  | ConstStatementNode
-  | DecoratorDeclarationStatementNode
-  | FunctionDeclarationStatementNode;
+export type Declaration = Extract<Statement, DeclarationNode>;
 
 export type ScopeNode =
   | NamespaceStatementNode
@@ -1302,7 +1509,10 @@ export type Expression =
   | StringTemplateExpressionNode
   | VoidKeywordNode
   | NeverKeywordNode
-  | AnyKeywordNode;
+  | AnyKeywordNode
+  | FunctionTypeExpressionNode;
+
+export type ParenthesizedExpression = Expression & { readonly parenthesized: true };
 
 export type ReferenceExpression =
   | TypeReferenceNode
@@ -1567,6 +1777,14 @@ export interface ExternKeywordNode extends BaseNode {
   readonly kind: SyntaxKind.ExternKeyword;
 }
 
+export interface InternalKeywordNode extends BaseNode {
+  readonly kind: SyntaxKind.InternalKeyword;
+}
+
+export interface AutoKeywordNode extends BaseNode {
+  readonly kind: SyntaxKind.AutoKeyword;
+}
+
 export interface VoidKeywordNode extends BaseNode {
   readonly kind: SyntaxKind.VoidKeyword;
 }
@@ -1611,19 +1829,24 @@ export interface TemplateArgumentNode extends BaseNode {
   readonly argument: Expression;
 }
 
-export interface TemplateParameterDeclarationNode extends DeclarationNode, BaseNode {
+export interface TemplateParameterDeclarationNode extends BaseNode {
   readonly kind: SyntaxKind.TemplateParameterDeclaration;
   readonly constraint?: Expression;
   readonly default?: Expression;
   readonly parent?: TemplateableNode;
+  readonly id: IdentifierNode;
 }
 
 export const enum ModifierFlags {
   None,
   Extern = 1 << 1,
+  Internal = 1 << 2,
+  Auto = 1 << 3,
+
+  All = Extern | Internal | Auto,
 }
 
-export type Modifier = ExternKeywordNode;
+export type Modifier = ExternKeywordNode | InternalKeywordNode | AutoKeywordNode;
 
 /**
  * Represent a decorator declaration
@@ -1634,8 +1857,6 @@ export type Modifier = ExternKeywordNode;
  */
 export interface DecoratorDeclarationStatementNode extends BaseNode, DeclarationNode {
   readonly kind: SyntaxKind.DecoratorDeclarationStatement;
-  readonly modifiers: readonly Modifier[];
-  readonly modifierFlags: ModifierFlags;
   /**
    * Decorator target. First parameter.
    */
@@ -1665,19 +1886,32 @@ export interface FunctionParameterNode extends BaseNode {
 }
 
 /**
- * Represent a function declaration
+ * The syntax representing a function value declaration.
+ *
  * @example
  * ```typespec
- * extern fn camelCase(value: StringLiteral): StringLiteral;
+ * extern fn camelCase(value: valueof string): valueof string;
  * ```
  */
 export interface FunctionDeclarationStatementNode extends BaseNode, DeclarationNode {
   readonly kind: SyntaxKind.FunctionDeclarationStatement;
-  readonly modifiers: readonly Modifier[];
-  readonly modifierFlags: ModifierFlags;
   readonly parameters: FunctionParameterNode[];
   readonly returnType?: Expression;
   readonly parent?: TypeSpecScriptNode | NamespaceStatementNode;
+}
+
+/**
+ * The syntax representing a function type expression.
+ *
+ * @example
+ * ```typespec
+ * fn(value: valueof string) => valueof string
+ * ```
+ */
+export interface FunctionTypeExpressionNode extends BaseNode {
+  readonly kind: SyntaxKind.FunctionTypeExpression;
+  readonly parameters: FunctionParameterNode[];
+  readonly returnType?: Expression;
 }
 
 export interface IdentifierContext {
@@ -1859,6 +2093,13 @@ export interface LibraryLocationContext {
 
   /** Module definition */
   readonly flags?: PackageFlags;
+
+  /**
+   * Compiler features enabled for this library, as declared in the library's own
+   * `tspconfig.yaml` `features`. Used to gate experimental features (e.g. `auto-decorators`)
+   * for the library's own source files, independently of the consuming project's config.
+   */
+  readonly features?: readonly string[];
 }
 
 export interface LibraryInstance {
@@ -2109,9 +2350,18 @@ type ListenerForType<T extends Type> = T extends Type
 
 export type TypeListeners = UnionToIntersection<ListenerForType<Type>>;
 
+type ValueListener<V> = (context: V) => ListenerFlow | undefined | void;
+type exitValueListener<T extends string | number | symbol> = T extends string ? `exit${T}` : T;
+type ListenerForValue<V extends Value> = V extends Value
+  ? { [k in Uncapitalize<V["valueKind"]> | exitValueListener<V["valueKind"]>]?: ValueListener<V> }
+  : never;
+
+export type ValueListeners = UnionToIntersection<ListenerForValue<Value>>;
+
 export type SemanticNodeListener = {
   root?: (context: Program) => void | undefined;
-} & TypeListeners;
+} & TypeListeners &
+  ValueListeners;
 
 export type DiagnosticReportWithoutTarget<
   T extends { [code: string]: DiagnosticMessages },
@@ -2281,21 +2531,31 @@ export interface DecoratorImplementations {
   };
 }
 
+export interface FunctionImplementations {
+  readonly [namespace: string]: {
+    readonly [name: string]: (ctx: FunctionContext, ...parameters: never[]) => unknown;
+  };
+}
+
 export interface PackageFlags {}
 
 export interface LinterDefinition {
-  rules: LinterRuleDefinition<string, DiagnosticMessages>[];
+  rules: LinterRuleDefinition<string, DiagnosticMessages, any>[];
   ruleSets?: Record<string, LinterRuleSet>;
 }
 
 export interface LinterResolvedDefinition {
-  readonly rules: LinterRule<string, DiagnosticMessages>[];
+  readonly rules: LinterRule<string, DiagnosticMessages, any>[];
   readonly ruleSets: {
     [name: string]: LinterRuleSet;
   };
 }
 
-export interface LinterRuleDefinition<N extends string, DM extends DiagnosticMessages> {
+interface LinterRuleDefinitionBase<
+  N extends string,
+  DM extends DiagnosticMessages,
+  Options extends Record<string, unknown> = Record<string, never>,
+> {
   /** Rule name (without the library name) */
   name: N;
   /** Rule default severity. */
@@ -2306,32 +2566,85 @@ export interface LinterRuleDefinition<N extends string, DM extends DiagnosticMes
   url?: string;
   /** Messages that can be reported with the diagnostic. */
   messages: DM;
-  /** Creator */
-  create(context: LinterRuleContext<DM>): SemanticNodeListener;
+  /**
+   * JSON Schema for the rule options.
+   * When provided, options will be validated against this schema before the rule runs.
+   */
+  optionSchema?: Record<string, unknown>;
+  /** Default options for the rule, used when enabled with `true` and no options are specified. */
+  defaultOptions?: Options;
 }
 
+interface LinterRuleDefinitionSync<
+  N extends string,
+  DM extends DiagnosticMessages,
+  Options extends Record<string, unknown> = Record<string, never>,
+> extends LinterRuleDefinitionBase<N, DM, Options> {
+  /** Whether this is an async rule. Default is false */
+  async?: false;
+  /** Creator */
+  create(
+    context: LinterRuleContext<DM, Options>,
+  ): SemanticNodeListener & { exit?: (context: Program) => void | undefined };
+}
+
+interface LinterRuleDefinitionAsync<
+  N extends string,
+  DM extends DiagnosticMessages,
+  Options extends Record<string, unknown> = Record<string, never>,
+> extends LinterRuleDefinitionBase<N, DM, Options> {
+  /** Whether this is an async rule. Default is false */
+  async: true;
+  /** Creator */
+  create(
+    context: LinterRuleContext<DM, Options>,
+  ): SemanticNodeListener & { exit?: (context: Program) => Promise<void | undefined> };
+}
+
+export type LinterRuleDefinition<
+  N extends string,
+  DM extends DiagnosticMessages,
+  Options extends Record<string, unknown> = Record<string, never>,
+> = LinterRuleDefinitionSync<N, DM, Options> | LinterRuleDefinitionAsync<N, DM, Options>;
+
 /** Resolved instance of a linter rule that will run. */
-export interface LinterRule<N extends string, DM extends DiagnosticMessages>
-  extends LinterRuleDefinition<N, DM> {
+export type LinterRule<
+  N extends string,
+  DM extends DiagnosticMessages,
+  Options extends Record<string, unknown> = Record<string, never>,
+> = LinterRuleDefinition<N, DM, Options> & {
   /** Expanded rule id in format `<library-name>:<rule-name>` */
   id: string;
-}
+};
 
 /** Reference to a rule. In this format `<library name>:<rule/ruleset name>` */
 export type RuleRef = `${string}/${string}`;
+
+/**
+ * Value for enabling a linter rule.
+ * - `true` enables the rule with default options.
+ * - An object enables the rule with the specified options.
+ */
+export type LinterRuleEnableValue = boolean | Record<string, unknown>;
+
 export interface LinterRuleSet {
   /** Other ruleset this ruleset extends */
   extends?: RuleRef[];
 
   /** Rules to enable/configure */
-  enable?: Record<RuleRef, boolean>;
+  enable?: Record<RuleRef, LinterRuleEnableValue>;
 
   /** Rules to disable. A rule CANNOT be in enable and disable map. */
   disable?: Record<RuleRef, string>;
 }
 
-export interface LinterRuleContext<DM extends DiagnosticMessages> {
+export interface LinterRuleContext<
+  DM extends DiagnosticMessages,
+  Options extends Record<string, unknown> = Record<string, never>,
+> {
   readonly program: Program;
+  /** Options configured for this rule. */
+  readonly options: Options;
   reportDiagnostic<M extends keyof DM>(diag: LinterRuleDiagnosticReport<DM, M>): void;
 }
 
@@ -2398,33 +2711,88 @@ export interface TypeSpecLibrary<
  */
 export type EmitOptionsFor<C> = C extends TypeSpecLibrary<infer _T, infer E> ? E : never;
 
-export interface DecoratorContext {
+/**
+ * Base context passed to JavaScript implementations of invocable constructs (decorators, functions).
+ */
+export interface InvocationContext {
+  /**
+   * The current TypeSpec Program.
+   */
   program: Program;
 
   /**
-   * Point to the decorator target
+   * Helper to get the target for a given argument index.
+   *
+   * @param argIndex Argument index in the decorator call.
+   * @example
+   * ```tsp
+   * @dec("hello", 123)
+   * model MyModel { }
+   * ```
+   * - `getArgumentTarget(0)` -> target for "hello"
+   * - `getArgumentTarget(1)` -> target for 123
+   */
+  getArgumentTarget(argIndex: number): DiagnosticTarget | undefined;
+
+  /**
+   * Helper to call a decorator implementation from within another decorator implementation.
+   *
+   * @param decorator The decorator function to call.
+   * @param target The target to which the decorator is applied.
+   * @param args Arguments to pass to the decorator.
+   */
+  callDecorator<T extends Type, A extends any[], R>(
+    decorator: (context: DecoratorContext, target: T, ...args: A) => R,
+    target: T,
+    ...args: A
+  ): R;
+
+  /**
+   * Helper to call a function implementation from within a decorator implementation.
+   * @param func The function implementation to call.
+   * @param args Arguments to pass to the function.
+   */
+  callFunction<A extends any[], R>(
+    func: (context: FunctionContext, ...args: A) => R,
+    ...args: A
+  ): R;
+}
+
+/**
+ * Context passed to decorator implementations.
+ */
+export interface DecoratorContext extends InvocationContext {
+  program: Program;
+
+  /**
+   * The diagnostic target for the decorator application.
    */
   decoratorTarget: DiagnosticTarget;
 
   /**
-   * Function that can be used to retrieve the target for a parameter at the given index.
-   * @param paramIndex Parameter index in the typespec
-   * @example @foo("bar", 123) -> $foo(context, target, arg0: string, arg1: number);
-   *  getArgumentTarget(0) -> target for arg0
-   *  getArgumentTarget(1) -> target for arg1
-   */
-  getArgumentTarget(paramIndex: number): DiagnosticTarget | undefined;
-
-  /**
-   * Helper to call out to another decorator
-   * @param decorator Other decorator function
-   * @param args Args to pass to other decorator function
+   * Helper to call a decorator implementation from within another decorator implementation.
+   *
+   * This function is identical to `callDecorator`.
+   *
+   * @param decorator The decorator function to call.
+   * @param target The target to which the decorator is applied.
+   * @param args Arguments to pass to the decorator.
    */
   call<T extends Type, A extends any[], R>(
     decorator: (context: DecoratorContext, target: T, ...args: A) => R,
     target: T,
     ...args: A
   ): R;
+}
+
+/**
+ * Context passed to function implementations.
+ */
+export interface FunctionContext extends InvocationContext {
+  /**
+   * The function call diagnostic target.
+   */
+  functionCallTarget: DiagnosticTarget;
 }
 
 export interface EmitContext<TOptions extends object = Record<string, never>> {
@@ -2442,6 +2810,55 @@ export interface EmitContext<TOptions extends object = Record<string, never>> {
    * Emitter custom options defined in createTypeSpecLibrary
    */
   options: TOptions;
+
+  /**
+   * Performance measurement utilities.
+   * Use this to report performance of areas of your emitter.
+   * The information will be displayed when the compiler is run with `--stats` flag.
+   */
+  readonly perf: PerfReporter;
+}
+
+export interface Timer {
+  end: () => number;
+}
+
+export interface PerfReporter {
+  /**
+   * Start timer for the given label.
+   *
+   * @example
+   * ```ts
+   * const timer = emitContext.perf.startTimer("my-emitter-task");
+   * // ... do work
+   * const elapsed = timer.end(); // my-emitter-task automatically reported to the compiler
+   * ```
+   */
+  startTimer(label: string): Timer;
+  /** Report a sync function elapsed time.  */
+  time<T>(label: string, callback: () => T): T;
+  /** Report an async function elapsed time.  */
+  timeAsync<T>(label: string, callback: () => Promise<T>): Promise<T>;
+
+  /**
+   * Report a custom elapsed time for the given label.
+   * Can be used with {@link import("./perf.js").perf}
+   * @example
+   * ```ts
+   * import { perf } from "@typespec/compiler";
+   *
+   * // somewhere in your emitter
+   * const start = perf.now();
+   * await doSomething();
+   * const end = perf.now();
+   *
+   * emitContext.perf.report("doSomething", end - start);
+   * ```
+   */
+  report(label: string, milliseconds: number): void;
+
+  /** @internal */
+  readonly measures: Readonly<Record<string, number>>;
 }
 
 export type LogLevel = "trace" | "warning" | "error";

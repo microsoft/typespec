@@ -11,6 +11,20 @@ namespace SpecialWords._Models
 {
     public partial class Assert : IJsonModel<Assert>
     {
+        internal Assert() => throw null;
+
+        protected virtual Assert PersistableModelCreateCore(BinaryData data, ModelReaderWriterOptions options) => throw null;
+
+        protected virtual BinaryData PersistableModelWriteCore(ModelReaderWriterOptions options) => throw null;
+
+        BinaryData IPersistableModel<Assert>.Write(ModelReaderWriterOptions options) => throw null;
+
+        Assert IPersistableModel<Assert>.Create(BinaryData data, ModelReaderWriterOptions options) => throw null;
+
+        string IPersistableModel<Assert>.GetFormatFromOptions(ModelReaderWriterOptions options) => throw null;
+
+        public static implicit operator BinaryContent(Assert assert) => throw null;
+
         void IJsonModel<Assert>.Write(Utf8JsonWriter writer, ModelReaderWriterOptions options) => throw null;
 
         protected virtual void JsonModelWriteCore(Utf8JsonWriter writer, ModelReaderWriterOptions options) => throw null;
@@ -18,19 +32,5 @@ namespace SpecialWords._Models
         Assert IJsonModel<Assert>.Create(ref Utf8JsonReader reader, ModelReaderWriterOptions options) => throw null;
 
         protected virtual Assert JsonModelCreateCore(ref Utf8JsonReader reader, ModelReaderWriterOptions options) => throw null;
-
-        BinaryData IPersistableModel<Assert>.Write(ModelReaderWriterOptions options) => throw null;
-
-        protected virtual BinaryData PersistableModelWriteCore(ModelReaderWriterOptions options) => throw null;
-
-        Assert IPersistableModel<Assert>.Create(BinaryData data, ModelReaderWriterOptions options) => throw null;
-
-        protected virtual Assert PersistableModelCreateCore(BinaryData data, ModelReaderWriterOptions options) => throw null;
-
-        string IPersistableModel<Assert>.GetFormatFromOptions(ModelReaderWriterOptions options) => throw null;
-
-        public static implicit operator BinaryContent(Assert assert) => throw null;
-
-        public static explicit operator Assert(ClientResult result) => throw null;
     }
 }

@@ -13,13 +13,74 @@ using System.Text.Json;
 
 namespace SampleTypeSpec
 {
-    /// <summary></summary>
+    /// <summary> A model with a few properties of literal types. </summary>
     public partial class Thing : IJsonModel<Thing>
     {
+        /// <summary> Initializes a new instance of <see cref="Thing"/> for deserialization. </summary>
         internal Thing()
         {
         }
 
+        /// <param name="data"> The data to parse. </param>
+        /// <param name="options"> The client options for reading and writing models. </param>
+        protected virtual Thing PersistableModelCreateCore(BinaryData data, ModelReaderWriterOptions options)
+        {
+            string format = options.Format == "W" ? ((IPersistableModel<Thing>)this).GetFormatFromOptions(options) : options.Format;
+            switch (format)
+            {
+                case "J":
+                    using (JsonDocument document = JsonDocument.Parse(data, ModelSerializationExtensions.JsonDocumentOptions))
+                    {
+                        return DeserializeThing(document.RootElement, options);
+                    }
+                default:
+                    throw new FormatException($"The model {nameof(Thing)} does not support reading '{options.Format}' format.");
+            }
+        }
+
+        /// <param name="options"> The client options for reading and writing models. </param>
+        protected virtual BinaryData PersistableModelWriteCore(ModelReaderWriterOptions options)
+        {
+            string format = options.Format == "W" ? ((IPersistableModel<Thing>)this).GetFormatFromOptions(options) : options.Format;
+            switch (format)
+            {
+                case "J":
+                    return ModelReaderWriter.Write(this, options, SampleTypeSpecContext.Default);
+                default:
+                    throw new FormatException($"The model {nameof(Thing)} does not support writing '{options.Format}' format.");
+            }
+        }
+
+        /// <param name="options"> The client options for reading and writing models. </param>
+        BinaryData IPersistableModel<Thing>.Write(ModelReaderWriterOptions options) => PersistableModelWriteCore(options);
+
+        /// <param name="data"> The data to parse. </param>
+        /// <param name="options"> The client options for reading and writing models. </param>
+        Thing IPersistableModel<Thing>.Create(BinaryData data, ModelReaderWriterOptions options) => PersistableModelCreateCore(data, options);
+
+        /// <param name="options"> The client options for reading and writing models. </param>
+        string IPersistableModel<Thing>.GetFormatFromOptions(ModelReaderWriterOptions options) => "J";
+
+        /// <param name="thing"> The <see cref="Thing"/> to serialize into <see cref="BinaryContent"/>. </param>
+        public static implicit operator BinaryContent(Thing thing)
+        {
+            if (thing == null)
+            {
+                return null;
+            }
+            return BinaryContent.Create(thing, ModelSerializationExtensions.WireOptions);
+        }
+
+        /// <param name="result"> The <see cref="ClientResult"/> to deserialize the <see cref="Thing"/> from. </param>
+        public static explicit operator Thing(ClientResult result)
+        {
+            PipelineResponse response = result.GetRawResponse();
+            using JsonDocument document = JsonDocument.Parse(response.Content, ModelSerializationExtensions.JsonDocumentOptions);
+            return DeserializeThing(document.RootElement, ModelSerializationExtensions.WireOptions);
+        }
+
+        /// <param name="writer"> The JSON writer. </param>
+        /// <param name="options"> The client options for reading and writing models. </param>
         void IJsonModel<Thing>.Write(Utf8JsonWriter writer, ModelReaderWriterOptions options)
         {
             writer.WriteStartObject();
@@ -36,6 +97,8 @@ namespace SampleTypeSpec
             {
                 throw new FormatException($"The model {nameof(Thing)} does not support writing '{format}' format.");
             }
+            writer.WritePropertyName("name"u8);
+            writer.WriteStringValue(Rename);
             writer.WritePropertyName("requiredUnion"u8);
 #if NET6_0_OR_GREATER
             writer.WriteRawValue(RequiredUnion);
@@ -46,7 +109,7 @@ namespace SampleTypeSpec
             }
 #endif
             writer.WritePropertyName("requiredLiteralString"u8);
-            writer.WriteStringValue(RequiredLiteralString.ToString());
+            writer.WriteStringValue(RequiredLiteralString);
             if (Optional.IsDefined(RequiredNullableString))
             {
                 writer.WritePropertyName("requiredNullableString"u8);
@@ -62,15 +125,24 @@ namespace SampleTypeSpec
                 writer.WriteStringValue(OptionalNullableString);
             }
             writer.WritePropertyName("requiredLiteralInt"u8);
-            writer.WriteNumberValue(RequiredLiteralInt.ToSerialInt32());
+            writer.WriteNumberValue(RequiredLiteralInt);
             writer.WritePropertyName("requiredLiteralFloat"u8);
-            writer.WriteNumberValue(RequiredLiteralFloat.ToSerialSingle());
+            writer.WriteNumberValue(RequiredLiteralFloat);
             writer.WritePropertyName("requiredLiteralBool"u8);
             writer.WriteBooleanValue(RequiredLiteralBool);
             if (Optional.IsDefined(OptionalLiteralString))
             {
                 writer.WritePropertyName("optionalLiteralString"u8);
                 writer.WriteStringValue(OptionalLiteralString.Value.ToString());
+            }
+            if (Optional.IsDefined(RequiredNullableLiteralString))
+            {
+                writer.WritePropertyName("requiredNullableLiteralString"u8);
+                writer.WriteStringValue(RequiredNullableLiteralString.Value.ToString());
+            }
+            else
+            {
+                writer.WriteNull("requiredNullableLiteralString"u8);
             }
             if (Optional.IsDefined(OptionalLiteralInt))
             {
@@ -113,8 +185,8 @@ namespace SampleTypeSpec
             {
                 writer.WriteNull("requiredNullableList"u8);
             }
-            writer.WritePropertyName("name"u8);
-            writer.WriteStringValue(Rename);
+            writer.WritePropertyName("propertyWithSpecialDocs"u8);
+            writer.WriteStringValue(PropertyWithSpecialDocs);
             if (options.Format != "W" && _additionalBinaryDataProperties != null)
             {
                 foreach (var item in _additionalBinaryDataProperties)
@@ -132,6 +204,8 @@ namespace SampleTypeSpec
             }
         }
 
+        /// <param name="reader"> The JSON reader. </param>
+        /// <param name="options"> The client options for reading and writing models. </param>
         Thing IJsonModel<Thing>.Create(ref Utf8JsonReader reader, ModelReaderWriterOptions options) => JsonModelCreateCore(ref reader, options);
 
         /// <param name="reader"> The JSON reader. </param>
@@ -147,30 +221,39 @@ namespace SampleTypeSpec
             return DeserializeThing(document.RootElement, options);
         }
 
+        /// <param name="element"> The JSON element to deserialize. </param>
+        /// <param name="options"> The client options for reading and writing models. </param>
         internal static Thing DeserializeThing(JsonElement element, ModelReaderWriterOptions options)
         {
             if (element.ValueKind == JsonValueKind.Null)
             {
                 return null;
             }
+            string rename = default;
             BinaryData requiredUnion = default;
-            ThingRequiredLiteralString requiredLiteralString = default;
+            string requiredLiteralString = default;
             string requiredNullableString = default;
             string optionalNullableString = default;
-            ThingRequiredLiteralInt requiredLiteralInt = default;
-            ThingRequiredLiteralFloat requiredLiteralFloat = default;
+            int requiredLiteralInt = default;
+            float requiredLiteralFloat = default;
             bool requiredLiteralBool = default;
             ThingOptionalLiteralString? optionalLiteralString = default;
+            ThingRequiredNullableLiteralString1? requiredNullableLiteralString = default;
             ThingOptionalLiteralInt? optionalLiteralInt = default;
             ThingOptionalLiteralFloat? optionalLiteralFloat = default;
             bool? optionalLiteralBool = default;
             string requiredBadDescription = default;
             IList<int> optionalNullableList = default;
             IList<int> requiredNullableList = default;
-            string rename = default;
+            string propertyWithSpecialDocs = default;
             IDictionary<string, BinaryData> additionalBinaryDataProperties = new ChangeTrackingDictionary<string, BinaryData>();
             foreach (var prop in element.EnumerateObject())
             {
+                if (prop.NameEquals("name"u8))
+                {
+                    rename = prop.Value.GetString();
+                    continue;
+                }
                 if (prop.NameEquals("requiredUnion"u8))
                 {
                     requiredUnion = BinaryData.FromString(prop.Value.GetRawText());
@@ -178,7 +261,7 @@ namespace SampleTypeSpec
                 }
                 if (prop.NameEquals("requiredLiteralString"u8))
                 {
-                    requiredLiteralString = new ThingRequiredLiteralString(prop.Value.GetString());
+                    requiredLiteralString = prop.Value.GetString();
                     continue;
                 }
                 if (prop.NameEquals("requiredNullableString"u8))
@@ -203,12 +286,12 @@ namespace SampleTypeSpec
                 }
                 if (prop.NameEquals("requiredLiteralInt"u8))
                 {
-                    requiredLiteralInt = new ThingRequiredLiteralInt(prop.Value.GetInt32());
+                    requiredLiteralInt = prop.Value.GetInt32();
                     continue;
                 }
                 if (prop.NameEquals("requiredLiteralFloat"u8))
                 {
-                    requiredLiteralFloat = new ThingRequiredLiteralFloat(prop.Value.GetSingle());
+                    requiredLiteralFloat = prop.Value.GetSingle();
                     continue;
                 }
                 if (prop.NameEquals("requiredLiteralBool"u8))
@@ -223,6 +306,16 @@ namespace SampleTypeSpec
                         continue;
                     }
                     optionalLiteralString = new ThingOptionalLiteralString(prop.Value.GetString());
+                    continue;
+                }
+                if (prop.NameEquals("requiredNullableLiteralString"u8))
+                {
+                    if (prop.Value.ValueKind == JsonValueKind.Null)
+                    {
+                        requiredNullableLiteralString = null;
+                        continue;
+                    }
+                    requiredNullableLiteralString = new ThingRequiredNullableLiteralString1(prop.Value.GetString());
                     continue;
                 }
                 if (prop.NameEquals("optionalLiteralInt"u8))
@@ -286,9 +379,9 @@ namespace SampleTypeSpec
                     requiredNullableList = array;
                     continue;
                 }
-                if (prop.NameEquals("name"u8))
+                if (prop.NameEquals("propertyWithSpecialDocs"u8))
                 {
-                    rename = prop.Value.GetString();
+                    propertyWithSpecialDocs = prop.Value.GetString();
                     continue;
                 }
                 if (options.Format != "W")
@@ -297,6 +390,7 @@ namespace SampleTypeSpec
                 }
             }
             return new Thing(
+                rename,
                 requiredUnion,
                 requiredLiteralString,
                 requiredNullableString,
@@ -305,68 +399,15 @@ namespace SampleTypeSpec
                 requiredLiteralFloat,
                 requiredLiteralBool,
                 optionalLiteralString,
+                requiredNullableLiteralString,
                 optionalLiteralInt,
                 optionalLiteralFloat,
                 optionalLiteralBool,
                 requiredBadDescription,
                 optionalNullableList ?? new ChangeTrackingList<int>(),
                 requiredNullableList,
-                rename,
+                propertyWithSpecialDocs,
                 additionalBinaryDataProperties);
-        }
-
-        BinaryData IPersistableModel<Thing>.Write(ModelReaderWriterOptions options) => PersistableModelWriteCore(options);
-
-        /// <param name="options"> The client options for reading and writing models. </param>
-        protected virtual BinaryData PersistableModelWriteCore(ModelReaderWriterOptions options)
-        {
-            string format = options.Format == "W" ? ((IPersistableModel<Thing>)this).GetFormatFromOptions(options) : options.Format;
-            switch (format)
-            {
-                case "J":
-                    return ModelReaderWriter.Write(this, options);
-                default:
-                    throw new FormatException($"The model {nameof(Thing)} does not support writing '{options.Format}' format.");
-            }
-        }
-
-        Thing IPersistableModel<Thing>.Create(BinaryData data, ModelReaderWriterOptions options) => PersistableModelCreateCore(data, options);
-
-        /// <param name="data"> The data to parse. </param>
-        /// <param name="options"> The client options for reading and writing models. </param>
-        protected virtual Thing PersistableModelCreateCore(BinaryData data, ModelReaderWriterOptions options)
-        {
-            string format = options.Format == "W" ? ((IPersistableModel<Thing>)this).GetFormatFromOptions(options) : options.Format;
-            switch (format)
-            {
-                case "J":
-                    using (JsonDocument document = JsonDocument.Parse(data))
-                    {
-                        return DeserializeThing(document.RootElement, options);
-                    }
-                default:
-                    throw new FormatException($"The model {nameof(Thing)} does not support reading '{options.Format}' format.");
-            }
-        }
-
-        string IPersistableModel<Thing>.GetFormatFromOptions(ModelReaderWriterOptions options) => "J";
-
-        /// <param name="thing"> The <see cref="Thing"/> to serialize into <see cref="BinaryContent"/>. </param>
-        public static implicit operator BinaryContent(Thing thing)
-        {
-            if (thing == null)
-            {
-                return null;
-            }
-            return BinaryContent.Create(thing, ModelSerializationExtensions.WireOptions);
-        }
-
-        /// <param name="result"> The <see cref="ClientResult"/> to deserialize the <see cref="Thing"/> from. </param>
-        public static explicit operator Thing(ClientResult result)
-        {
-            using PipelineResponse response = result.GetRawResponse();
-            using JsonDocument document = JsonDocument.Parse(response.Content);
-            return DeserializeThing(document.RootElement, ModelSerializationExtensions.WireOptions);
         }
     }
 }

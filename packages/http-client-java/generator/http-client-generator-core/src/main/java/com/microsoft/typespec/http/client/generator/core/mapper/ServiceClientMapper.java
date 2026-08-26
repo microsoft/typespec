@@ -3,7 +3,6 @@
 
 package com.microsoft.typespec.http.client.generator.core.mapper;
 
-import com.azure.core.util.CoreUtils;
 import com.microsoft.typespec.http.client.generator.core.extension.model.codemodel.Client;
 import com.microsoft.typespec.http.client.generator.core.extension.model.codemodel.CodeModel;
 import com.microsoft.typespec.http.client.generator.core.extension.model.codemodel.ConstantSchema;
@@ -30,10 +29,9 @@ import com.microsoft.typespec.http.client.generator.core.util.ClientModelUtil;
 import com.microsoft.typespec.http.client.generator.core.util.CodeNamer;
 import com.microsoft.typespec.http.client.generator.core.util.MethodUtil;
 import com.microsoft.typespec.http.client.generator.core.util.SchemaUtil;
+import io.clientcore.core.utils.CoreUtils;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Collection;
-import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 import java.util.Set;
@@ -78,7 +76,7 @@ public class ServiceClientMapper implements IMapper<CodeModel, ServiceClient> {
         if (!codeModelRestAPIMethods.isEmpty()) {
             proxy = processClientOperations(builder, codeModelRestAPIMethods, serviceClientInterfaceName);
         } else {
-            builder.clientMethods(Collections.emptyList());
+            builder.clientMethods(List.of());
         }
 
         List<ServiceClientProperty> properties = processClientProperties(codeModel,
@@ -132,7 +130,7 @@ public class ServiceClientMapper implements IMapper<CodeModel, ServiceClient> {
 
         if (operations.isEmpty()) {
             // no operation, does not need a Proxy
-            builder.clientMethods(Collections.emptyList());
+            builder.clientMethods(List.of());
             return null;
         }
 
@@ -152,6 +150,7 @@ public class ServiceClientMapper implements IMapper<CodeModel, ServiceClient> {
                 .flatMap(Collection::stream)
                 .collect(Collectors.toList()));
         }
+
         proxyBuilder.methods(restAPIMethods);
         Proxy proxy = proxyBuilder.build();
         builder.proxy(proxy);
@@ -165,7 +164,6 @@ public class ServiceClientMapper implements IMapper<CodeModel, ServiceClient> {
             }
         }
         builder.clientMethods(clientMethods);
-
         return proxy;
     }
 
@@ -187,7 +185,7 @@ public class ServiceClientMapper implements IMapper<CodeModel, ServiceClient> {
         for (Parameter p : clientParameters) {
             String serializedName = p.getLanguage().getDefault().getSerializedName();
 
-            if (settings.isDataPlaneClient()
+            if ((settings.isDataPlaneClient() || !settings.isAzureV1() || settings.isAzureV2())
                 && ParameterSynthesizedOrigin.fromValue(p.getOrigin()) == ParameterSynthesizedOrigin.API_VERSION) {
                 // skip api-version, ServiceVersion will always be added to client for DPG
                 apiVersionSerializedName = serializedName;
@@ -236,7 +234,8 @@ public class ServiceClientMapper implements IMapper<CodeModel, ServiceClient> {
             }
         }
 
-        if (settings.isDataPlaneClient() && serviceVersionClassName != null) {
+        if ((settings.isDataPlaneClient() || !settings.isAzureV1() || settings.isAzureV2())
+            && serviceVersionClassName != null) {
             // Always add a ServiceVersion parameter for DPG
             serviceClientProperties.add(new ServiceClientProperty.Builder().description("Service version")
                 .type(new ClassType.Builder().name(serviceVersionClassName).packageName(settings.getPackage()).build())
@@ -272,7 +271,7 @@ public class ServiceClientMapper implements IMapper<CodeModel, ServiceClient> {
 
         serviceClientProperties.add(new ServiceClientProperty("The HTTP pipeline to send requests through.",
             ClassType.HTTP_PIPELINE, "httpPipeline", true, null));
-        if (settings.isBranded()) {
+        if (settings.isAzureV1()) {
             serviceClientProperties
                 .add(new ServiceClientProperty("The serializer to serialize an object into a string.",
                     ClassType.SERIALIZER_ADAPTER, "serializerAdapter", true, null,
@@ -285,6 +284,11 @@ public class ServiceClientMapper implements IMapper<CodeModel, ServiceClient> {
                     .name("defaultPollInterval")
                     .readOnly(true)
                     .build());
+        }
+
+        if (!settings.isAzureV1()) {
+            serviceClientProperties.add(new ServiceClientProperty("The instance of instrumentation to report telemetry",
+                ClassType.INSTRUMENTATION, "instrumentation", true, null));
         }
 
         builder.properties(serviceClientProperties);
@@ -318,6 +322,18 @@ public class ServiceClientMapper implements IMapper<CodeModel, ServiceClient> {
                 .finalParameter(false)
                 .wireType(ClassType.SERIALIZER_ADAPTER)
                 .name("serializerAdapter")
+                .required(true)
+                .constant(false)
+                .fromClient(true)
+                .defaultValue(null)
+                .annotations(new ArrayList<>())
+                .build();
+
+        ClientMethodParameter instrumentationParameter
+            = new ClientMethodParameter.Builder().description("The instance of instrumentation to report telemetry")
+                .finalParameter(false)
+                .wireType(ClassType.INSTRUMENTATION)
+                .name("instrumentation")
                 .required(true)
                 .constant(false)
                 .fromClient(true)
@@ -425,8 +441,16 @@ public class ServiceClientMapper implements IMapper<CodeModel, ServiceClient> {
 
         List<Constructor> serviceClientConstructors = new ArrayList<>();
 
-        if (!settings.isBranded()) {
-            serviceClientConstructors.add(new Constructor(Collections.singletonList(httpPipelineParameter)));
+        if (!settings.isAzureV1() || settings.isAzureV2()) {
+
+            List<ClientMethodParameter> constructorParameters = new ArrayList<>();
+            constructorParameters.add(httpPipelineParameter);
+
+            if (!settings.isAzureV1()) {
+                constructorParameters.add(instrumentationParameter);
+            }
+
+            serviceClientConstructors.add(new Constructor(constructorParameters));
             builder.tokenCredentialParameter(tokenCredentialParameter)
                 .httpPipelineParameter(httpPipelineParameter)
                 .constructors(serviceClientConstructors);
@@ -455,8 +479,8 @@ public class ServiceClientMapper implements IMapper<CodeModel, ServiceClient> {
                 .annotations(new ArrayList<>())
                 .build();
 
-            serviceClientConstructors.add(new Constructor(Arrays.asList(httpPipelineParameter,
-                serializerAdapterParameter, defaultPollIntervalParameter, azureEnvironmentParameter)));
+            serviceClientConstructors.add(new Constructor(List.of(httpPipelineParameter, serializerAdapterParameter,
+                defaultPollIntervalParameter, azureEnvironmentParameter)));
             builder.tokenCredentialParameter(tokenCredentialParameter)
                 .httpPipelineParameter(httpPipelineParameter)
                 .serializerAdapterParameter(serializerAdapterParameter)
@@ -464,10 +488,9 @@ public class ServiceClientMapper implements IMapper<CodeModel, ServiceClient> {
                 .azureEnvironmentParameter(azureEnvironmentParameter)
                 .constructors(serviceClientConstructors);
         } else {
-            serviceClientConstructors.add(new Constructor(new ArrayList<>()));
-            serviceClientConstructors.add(new Constructor(Collections.singletonList(httpPipelineParameter)));
-            serviceClientConstructors
-                .add(new Constructor(Arrays.asList(httpPipelineParameter, serializerAdapterParameter)));
+            serviceClientConstructors.add(new Constructor(List.of()));
+            serviceClientConstructors.add(new Constructor(List.of(httpPipelineParameter)));
+            serviceClientConstructors.add(new Constructor(List.of(httpPipelineParameter, serializerAdapterParameter)));
             builder.tokenCredentialParameter(tokenCredentialParameter)
                 .httpPipelineParameter(httpPipelineParameter)
                 .serializerAdapterParameter(serializerAdapterParameter)

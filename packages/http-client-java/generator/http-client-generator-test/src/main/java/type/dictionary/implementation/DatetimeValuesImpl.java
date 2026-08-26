@@ -57,7 +57,7 @@ public final class DatetimeValuesImpl {
      * perform REST calls.
      */
     @Host("{endpoint}")
-    @ServiceInterface(name = "DictionaryClientDate")
+    @ServiceInterface(name = "DictionaryClientDatetimeValues")
     public interface DatetimeValuesService {
         @Get("/type/dictionary/datetime")
         @ExpectedResponses({ 200 })

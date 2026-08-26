@@ -16,6 +16,11 @@ import {
   Type,
   TypeNameOptions,
 } from "@typespec/compiler";
+import {
+  SyntaxKind,
+  type ObjectLiteralNode,
+  type ObjectLiteralPropertyNode,
+} from "@typespec/compiler/ast";
 import { getOperationId } from "./decorators.js";
 import { createDiagnostic, reportDiagnostic } from "./lib.js";
 import { ExtensionKey } from "./types.js";
@@ -254,16 +259,29 @@ function checkNoAdditionalProperties(
   target: DiagnosticTarget,
   source: Model,
 ): Diagnostic[] {
+  const targetNode = getObjectLiteralNode(target);
+  return checkNoAdditionalPropertiesInternal(jsonObject, target, source, targetNode);
+}
+
+function checkNoAdditionalPropertiesInternal(
+  jsonObject: any,
+  target: DiagnosticTarget,
+  source: Model,
+  targetNode: ObjectLiteralNode | undefined,
+): Diagnostic[] {
   const diagnostics: Diagnostic[] = [];
 
   for (const name of Object.keys(jsonObject)) {
     const sourceProperty = getProperty(source, name);
+    const propertyNode = getObjectLiteralProperty(targetNode, name);
     if (sourceProperty) {
       if (sourceProperty.type.kind === "Model") {
-        const nestedDiagnostics = checkNoAdditionalProperties(
+        const nestedTarget = getObjectLiteralNode(propertyNode?.value);
+        const nestedDiagnostics = checkNoAdditionalPropertiesInternal(
           jsonObject[name],
-          target,
+          propertyNode?.value ?? target,
           sourceProperty.type,
+          nestedTarget,
         );
         diagnostics.push(...nestedDiagnostics);
       }
@@ -272,11 +290,27 @@ function checkNoAdditionalProperties(
         createDiagnostic({
           code: "invalid-extension-key",
           format: { value: name },
-          target,
+          target: propertyNode?.id ?? target,
         }),
       );
     }
   }
 
   return diagnostics;
+}
+
+function getObjectLiteralNode(target: DiagnosticTarget | undefined): ObjectLiteralNode | undefined {
+  return target !== undefined && "kind" in target && target.kind === SyntaxKind.ObjectLiteral
+    ? target
+    : undefined;
+}
+
+function getObjectLiteralProperty(
+  node: ObjectLiteralNode | undefined,
+  name: string,
+): ObjectLiteralPropertyNode | undefined {
+  return node?.properties.find(
+    (property): property is ObjectLiteralPropertyNode =>
+      property.kind === SyntaxKind.ObjectLiteralProperty && property.id.sv === name,
+  );
 }

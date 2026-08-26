@@ -36,6 +36,7 @@ import {
   checkInstalledNpm,
   checkInstalledTspCli,
   createPromiseWithCancelAndTimeout,
+  distinctArray,
   ExecOutput,
   isFile,
   isWhitespaceStringOrUndefined,
@@ -45,14 +46,18 @@ import {
   tryReadFileOrUrl,
 } from "../utils.js";
 
-type InitTemplatesUrlSetting = {
+export type InitTemplatesUrlSetting = {
   name: string;
   url: string;
 };
 
+type InitTemplateUrlSettingWithSource = InitTemplatesUrlSetting & {
+  source: "config" | "registered";
+};
+
 type InitTemplateInfo = {
   source: string;
-  sourceType: "compiler" | "config";
+  sourceType: "compiler" | "config" | "registered";
   baseUrl: string;
   name: string;
   template: InitProjectTemplate;
@@ -65,6 +70,18 @@ interface TemplateQuickPickItem extends QuickPickItem {
 interface EmitterQuickPickItem extends QuickPickItem {
   name: string;
   emitterTemplate: InitProjectTemplateEmitterTemplate;
+}
+
+const registeredInitTemplatesUrls: InitTemplatesUrlSetting[] = [];
+export function registerInitTemplateUrls(items: InitTemplatesUrlSetting[]): void {
+  for (const item of items) {
+    if (!registeredInitTemplatesUrls.some((x) => x.name === item.name && x.url === item.url)) {
+      registeredInitTemplatesUrls.push(item);
+      logger.debug(`Init template url ${item.url} is registered with name ${item.name}.`);
+    } else {
+      logger.debug(`Init template url ${item.url} is already registered. It will be skipped.`);
+    }
+  }
 }
 
 const COMPILER_CORE_TEMPLATES = "compiler-core-templates";
@@ -234,7 +251,7 @@ export async function createTypeSpecProject(
           }
 
           type nextStepChoice = "Add to workspace" | "Open in New Window" | "Ignore";
-          let nextStep: nextStepChoice = "Ignore";
+          let nextStep: nextStepChoice;
           const normalizedRootFolder = normalizePath(selectedRootFolder);
           const isFolderOpenedInWorkspace =
             vscode.workspace.workspaceFolders?.find(
@@ -272,7 +289,7 @@ export async function createTypeSpecProject(
               {
                 popupMessage,
                 detail: emitterMessage,
-                level: isWhitespaceStringOrUndefined(emitterMessage) ? "info" : "warn",
+                level: isWhitespaceStringOrUndefined(emitterMessage) ? "info" : "warning",
               },
               selectedRootFolder,
             );
@@ -291,7 +308,7 @@ export async function createTypeSpecProject(
             );
             // make sure this is the last one to log so that user can find the message easily to review
             logger.log(
-              isWhitespaceStringOrUndefined(emitterMessage) ? "info" : "warn",
+              isWhitespaceStringOrUndefined(emitterMessage) ? "info" : "warning",
               popupMessage,
               [emitterMessage],
               {
@@ -317,6 +334,11 @@ export async function createTypeSpecProject(
           return ResultCode.Success;
         },
       );
+    },
+    undefined,
+    (e) => {
+      logger.error(`Unexpected error when creating TypeSpec project.`, [e]);
+      return ResultCode.Fail;
     },
   );
 }
@@ -645,13 +667,32 @@ async function loadInitTemplates(
         })),
     );
   }
+  const all: InitTemplateUrlSettingWithSource[] = [];
   const settings = vscode.workspace
     .getConfiguration()
     .get<InitTemplatesUrlSetting[]>(SettingName.InitTemplatesUrls);
-  if (settings) {
-    logger.info("Loading init templates from config...");
+  if (settings && settings.length > 0) {
+    for (const item of settings) {
+      all.push({
+        ...item,
+        source: "config",
+      });
+    }
+  }
+  if (registeredInitTemplatesUrls.length > 0) {
+    for (const item of registeredInitTemplatesUrls) {
+      all.push({
+        ...item,
+        source: "registered",
+      });
+    }
+  }
+  distinctArray(all, (a, b) => a.name === b.name && a.url === b.url);
+
+  if (all.length > 0) {
+    logger.info("Loading configured and registed init templates...");
     const loadFromConfig = async () => {
-      for (const item of settings) {
+      for (const item of all) {
         const { content, url } = (await tryReadFileOrUrl(item.url)) ?? {
           content: undefined,
           url: item.url,
@@ -676,7 +717,7 @@ async function loadInitTemplates(
               if (value !== undefined) {
                 const info: InitTemplateInfo = {
                   source: item.name,
-                  sourceType: "config",
+                  sourceType: item.source,
                   baseUrl: getDirectoryPath(url),
                   name: key,
                   template: value as InitProjectTemplate,
@@ -693,7 +734,7 @@ async function loadInitTemplates(
     await vscode.window.withProgress(
       {
         location: vscode.ProgressLocation.Notification,
-        title: "Loading init templates from config...",
+        title: "Loading configured and registed init templates...",
         cancellable: true,
       },
       async (_progress, token) => {

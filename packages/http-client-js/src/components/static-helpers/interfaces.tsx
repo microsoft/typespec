@@ -1,14 +1,14 @@
-import * as ay from "@alloy-js/core";
+import { code, refkey } from "@alloy-js/core";
 import * as ts from "@alloy-js/typescript";
 import { httpRuntimeTemplateLib } from "../external-packages/ts-http-runtime.js";
 
 export function getOperationOptionsInterfaceRefkey() {
-  return ay.refkey("OperationOptions", "interface");
+  return refkey("OperationOptions", "interface");
 }
 
 export function OperationOptionsInterfaceDeclaration() {
   const declarationRefkey = getOperationOptionsInterfaceRefkey();
-  const onResponseCallback = ay.code`(rawResponse: ${httpRuntimeTemplateLib.PathUncheckedResponse}) => void`;
+  const onResponseCallback = code`(rawResponse: ${httpRuntimeTemplateLib.PathUncheckedResponse}) => void`;
 
   const operationOptions = (
     <ts.InterfaceExpression>

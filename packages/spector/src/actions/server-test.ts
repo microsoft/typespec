@@ -1,5 +1,11 @@
-import { MockApiDefinition, MockBody, ValidationError } from "@typespec/spec-api";
-import deepEqual from "deep-equal";
+import {
+  expandDyns,
+  matchValues,
+  MockApiDefinition,
+  MockBody,
+  ResolverConfig,
+  ValidationError,
+} from "@typespec/spec-api";
 import micromatch from "micromatch";
 import { inspect } from "node:util";
 import pc from "picocolors";
@@ -18,24 +24,31 @@ class ServerTestsGenerator {
   private name: string = "";
   private mockApiDefinition: MockApiDefinition;
   private serverBasePath: string = "";
+  private resolverConfig: ResolverConfig;
 
   constructor(name: string, mockApiDefinition: MockApiDefinition, serverBasePath: string) {
     this.name = name;
     this.mockApiDefinition = mockApiDefinition;
     this.serverBasePath = serverBasePath;
+    this.resolverConfig = {
+      baseUrl: serverBasePath,
+    };
   }
 
   public async executeScenario() {
     log(`Executing ${this.name} endpoint - Method: ${this.mockApiDefinition.method}`);
 
-    const response = await makeServiceCall({
-      method: this.mockApiDefinition.method,
-      url: `${this.serverBasePath}${this.mockApiDefinition.uri}`,
-      body: this.mockApiDefinition.request?.body,
-      headers: this.mockApiDefinition.request?.headers,
-      query: this.mockApiDefinition.request?.query,
-      pathParams: this.mockApiDefinition.request?.pathParams,
-    });
+    const response = await makeServiceCall(
+      {
+        method: this.mockApiDefinition.method,
+        url: `${this.serverBasePath}${this.mockApiDefinition.uri}`,
+        body: this.mockApiDefinition.request?.body,
+        headers: this.mockApiDefinition.request?.headers,
+        query: this.mockApiDefinition.request?.query,
+        pathParams: this.mockApiDefinition.request?.pathParams,
+      },
+      this.resolverConfig,
+    );
 
     if (this.mockApiDefinition.response.status !== response.status) {
       throw new ValidationError(
@@ -50,14 +63,12 @@ class ServerTestsGenerator {
     }
 
     if (this.mockApiDefinition.response.headers) {
-      for (const key in this.mockApiDefinition.response.headers) {
-        if (
-          this.mockApiDefinition.response.headers[key] !==
-          response.headers.get(key)?.replace(this.serverBasePath, "")
-        ) {
+      const headers = expandDyns(this.mockApiDefinition.response.headers, this.resolverConfig);
+      for (const key in headers) {
+        if (headers[key] !== response.headers.get(key)) {
           throw new ValidationError(
             `Response headers mismatch`,
-            this.mockApiDefinition.response.headers[key],
+            headers[key],
             response.headers.get(key),
           );
         }
@@ -68,28 +79,44 @@ class ServerTestsGenerator {
   async #validateBody(response: Response, body: MockBody) {
     if (Buffer.isBuffer(body.rawContent)) {
       const responseData = Buffer.from(await response.arrayBuffer());
-      if (!deepEqual(responseData, body.rawContent)) {
-        throw new ValidationError(`Raw body mismatch`, body.rawContent, responseData);
+      const result = matchValues(responseData, body.rawContent);
+      if (!result.pass) {
+        throw new ValidationError(
+          `Raw body mismatch: ${result.message}`,
+          body.rawContent,
+          responseData,
+        );
       }
     } else {
       const responseData = await response.text();
-      if (typeof body.rawContent !== "string") {
-        throw new Error(` bodyContent should be string`);
-      }
-
       switch (body.contentType) {
         case "application/xml":
-        case "text/plain":
-          if (body.rawContent !== responseData) {
-            throw new ValidationError("Response data mismatch", body.rawContent, responseData);
+        case "text/plain": {
+          const raw =
+            typeof body.rawContent === "string"
+              ? body.rawContent
+              : body.rawContent?.serialize(this.resolverConfig);
+          if (raw !== responseData) {
+            throw new ValidationError("Response data mismatch", raw, responseData);
           }
           break;
-        case "application/json":
-          const expected = JSON.parse(body.rawContent);
+        }
+        case "application/json": {
+          const expected =
+            typeof body.rawContent === "string"
+              ? JSON.parse(body.rawContent)
+              : body.rawContent?.resolve(this.resolverConfig);
           const actual = JSON.parse(responseData);
-          if (!deepEqual(actual, expected, { strict: true })) {
-            throw new ValidationError("Response data mismatch", expected, actual);
+          const result = matchValues(actual, expected);
+          if (!result.pass) {
+            throw new ValidationError(
+              `Response data mismatch: ${result.message}`,
+              expected,
+              actual,
+            );
           }
+          break;
+        }
       }
     }
   }

@@ -1,25 +1,30 @@
-import { CreateSdkContextOptions } from "@azure-tools/typespec-client-generator-core";
-import { EmitContext, JSONSchemaType, resolvePath } from "@typespec/compiler";
+import {
+  CreateSdkContextOptions,
+  UnbrandedSdkEmitterOptions,
+} from "@azure-tools/typespec-client-generator-core";
+import { EmitContext, JSONSchemaType } from "@typespec/compiler";
 import { _defaultGeneratorName } from "./constants.js";
+import { DYNAMIC_MODEL_DECORATOR_PATTERN } from "./lib/decorators.js";
 import { LoggerLevel } from "./lib/logger-level.js";
-import { CodeModel } from "./type/code-model.js";
 
 /**
  * The emitter options for the CSharp emitter.
  * @beta
  */
+type ApiVersionSelection = string | Record<string, string>;
+
 export interface CSharpEmitterOptions {
-  "api-version"?: string;
+  "api-version"?: ApiVersionSelection;
   "unreferenced-types-handling"?: "removeOrInternalize" | "internalize" | "keepAll";
   "new-project"?: boolean;
-  "clear-output-folder"?: boolean;
   "save-inputs"?: boolean;
   debug?: boolean;
   logLevel?: LoggerLevel;
   "disable-xml-docs"?: boolean;
+  "disable-roslyn-reduce"?: boolean;
   "generator-name"?: string;
   "emitter-extension-path"?: string;
-  "update-code-model"?: (model: CodeModel) => CodeModel;
+  plugins?: string[];
   "sdk-context-options"?: CreateSdkContextOptions;
   "generate-protocol-methods"?: boolean;
   "generate-convenience-methods"?: boolean;
@@ -41,15 +46,19 @@ export const CSharpEmitterOptionsSchema: JSONSchemaType<CSharpEmitterOptions> = 
   type: "object",
   additionalProperties: false,
   properties: {
-    "api-version": {
-      type: "string",
+    ...UnbrandedSdkEmitterOptions["api-version"],
+    "generate-protocol-methods": {
+      type: "boolean",
       nullable: true,
       description:
-        "For TypeSpec files using the [`@versioned`](https://typespec.io/docs/libraries/versioning/reference/decorators/#@TypeSpec.Versioning.versioned) decorator, " +
-        "set this option to the version that should be used to generate against.",
+        "Set to `false` to skip generation of protocol methods. The default value is `true`.",
     },
-    "generate-protocol-methods": { type: "boolean", nullable: true },
-    "generate-convenience-methods": { type: "boolean", nullable: true },
+    "generate-convenience-methods": {
+      type: "boolean",
+      nullable: true,
+      description:
+        "Set to `false` to skip generation of convenience methods. The default value is `true`.",
+    },
     "unreferenced-types-handling": {
       type: "string",
       enum: ["removeOrInternalize", "internalize", "keepAll"],
@@ -62,12 +71,6 @@ export const CSharpEmitterOptionsSchema: JSONSchemaType<CSharpEmitterOptions> = 
       nullable: true,
       description:
         "Set to `true` to overwrite the csproj if it already exists. The default value is `false`.",
-    },
-    "clear-output-folder": {
-      type: "boolean",
-      nullable: true,
-      description:
-        "Indicates if you want to clear the output folder before generating. The default value is `true`.",
     },
     "save-inputs": {
       type: "boolean",
@@ -91,13 +94,20 @@ export const CSharpEmitterOptionsSchema: JSONSchemaType<CSharpEmitterOptions> = 
       type: "string",
       enum: [LoggerLevel.INFO, LoggerLevel.DEBUG, LoggerLevel.VERBOSE],
       nullable: true,
-      description: "Set the log level. The default value is `info`.",
+      description: "Set the log level for which to collect traces. The default value is `info`.",
     },
     "disable-xml-docs": {
       type: "boolean",
       nullable: true,
       description:
         "Set to `true` to disable XML documentation generation. The default value is `false`.",
+    },
+    "disable-roslyn-reduce": {
+      type: "boolean",
+      nullable: true,
+      description:
+        "Set to `true` to skip the Roslyn reduce (simplification) post-processing step. " +
+        "This speeds up generation and is useful when iterating quickly. The default value is `false`.",
     },
     "generator-name": {
       type: "string",
@@ -111,11 +121,23 @@ export const CSharpEmitterOptionsSchema: JSONSchemaType<CSharpEmitterOptions> = 
       description:
         "Allows emitter authors to specify the path to a custom emitter package, allowing you to extend the emitter behavior. This should be set to `import.meta.url` if you are using a custom emitter.",
     },
-    "update-code-model": {
-      type: "object",
+    plugins: {
+      type: "array",
+      items: { type: "string" },
       nullable: true,
       description:
-        "Allows emitter authors to specify a custom function to modify the generated code model before emitting. This is useful for modifying the code model before it is passed to the generator.",
+        "Paths to generator plugin assemblies (DLLs) or directories containing plugin assemblies. " +
+        "Each plugin must contain a class that extends `GeneratorPlugin`. " +
+        "Paths may be absolute or relative to the resolved `emitter-output-dir`. " +
+        "For example, to load plugins that live in a `codegen` folder under the output directory:\n\n" +
+        "```yaml\n" +
+        "options:\n" +
+        '  "@typespec/http-client-csharp":\n' +
+        "    plugins:\n" +
+        '      - "codegen/MyPlugin.dll" # file relative to emitter-output-dir\n' +
+        '      - "codegen" # directory containing plugin assemblies\n' +
+        '      - "/abs/path/to/MyPlugin.dll" # absolute path used as-is\n' +
+        "```",
     },
     license: {
       type: "object",
@@ -148,7 +170,6 @@ export const CSharpEmitterOptionsSchema: JSONSchemaType<CSharpEmitterOptions> = 
 export const defaultOptions = {
   "api-version": "latest",
   "new-project": false,
-  "clear-output-folder": false,
   "save-inputs": false,
   "generate-protocol-methods": true,
   "generate-convenience-methods": true,
@@ -156,9 +177,9 @@ export const defaultOptions = {
   debug: undefined,
   logLevel: LoggerLevel.INFO,
   "generator-name": _defaultGeneratorName,
-  "emitter-extension-path": undefined,
-  "update-code-model": (model: CodeModel) => model,
-  "sdk-context-options": undefined,
+  "sdk-context-options": {
+    additionalDecorators: [DYNAMIC_MODEL_DECORATOR_PATTERN],
+  },
 };
 
 /**
@@ -174,14 +195,4 @@ export function resolveOptions(context: EmitContext<CSharpEmitterOptions>) {
   return {
     ...resolvedOptions,
   };
-}
-
-/**
- * Resolves the output folder for the CSharp emitter.
- * @param context - The emit context.
- * @returns The resolved output folder path.
- * @internal
- */
-export function _resolveOutputFolder(context: EmitContext<CSharpEmitterOptions>): string {
-  return resolvePath(context.emitterOutputDir ?? "./tsp-output");
 }

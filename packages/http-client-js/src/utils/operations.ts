@@ -5,14 +5,14 @@ import {
   unsafe_MutatorFlow as MutatorFlow,
   unsafe_MutatorRecord,
 } from "@typespec/compiler/experimental";
-import { $ } from "@typespec/compiler/experimental/typekit";
+import { $, type Typekit } from "@typespec/compiler/typekit";
 
 /**
  * Prepares operation for client representation. This includes adding an options bag for optional parameters.
  * @param operation operation to be prepared
  * @returns the prepared operation
  */
-export function prepareOperation(operation: Operation): Operation {
+export function prepareOperation($: Typekit, operation: Operation): Operation {
   return mutateSubgraph($.program, [httpParamsMutator], operation).type as Operation;
 }
 
@@ -23,9 +23,9 @@ const anonymousMutatorRecord: unsafe_MutatorRecord<Model | Union> = {
   filter(t) {
     return MutatorFlow.MutateAndRecur;
   },
-  mutate(t, clone) {
+  mutate(t, clone, _program, realm) {
     if (!clone.name) {
-      clone.name = $.type.getPlausibleName(clone);
+      clone.name = $(realm).type.getPlausibleName(clone);
     }
   },
 };
@@ -46,10 +46,11 @@ export const httpParamsMutator: Mutator = {
       return MutatorFlow.DoNotRecur;
     },
     mutate(o, clone, _program, realm) {
-      const httpOperation = $.httpOperation.get(o);
-      const returnType = $.httpOperation.getReturnType(httpOperation);
+      const tk = $(realm);
+      const httpOperation = tk.httpOperation.get(o);
+      const returnType = tk.httpOperation.getReturnType(httpOperation);
       clone.returnType = returnType;
-      const params = $.httpRequest.getParameters(httpOperation, [
+      const params = tk.httpRequest.getParameters(httpOperation, [
         "query",
         "header",
         "path",
@@ -73,18 +74,18 @@ export const httpParamsMutator: Mutator = {
           {} as Record<string, ModelProperty>,
         );
 
-      const optionsBag = $.model.create({
+      const optionsBag = tk.model.create({
         properties: optionals,
       });
 
-      const optionsProp = $.modelProperty.create({
+      const optionsProp = tk.modelProperty.create({
         name: "options",
         type: optionsBag,
         optional: true,
       });
 
       for (const [key, prop] of clone.parameters.properties) {
-        if (prop.optional || isConstantHeader(prop)) {
+        if (prop.optional || isConstantHeader(tk, prop)) {
           clone.parameters.properties.delete(key);
         }
       }
@@ -96,7 +97,7 @@ export const httpParamsMutator: Mutator = {
   },
 };
 
-export function isConstantHeader(modelProperty: ModelProperty) {
+export function isConstantHeader($: Typekit, modelProperty: ModelProperty) {
   if (!$.modelProperty.isHttpHeader(modelProperty)) {
     return false;
   }

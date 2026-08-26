@@ -84,7 +84,7 @@ The extension provides the following commands:
 | -------------------------------------------------- | ------------------------------------------------------------------- |
 | `TypeSpec: Create TypeSpec Project`                | Scaffold a new TypeSpec project.                                    |
 | `TypeSpec: Install TypeSpec Compiler/CLI globally` | Install the TypeSpec Compiler/CLI globally.                         |
-| `TypeSpec: Generate From TypeSpec`                 | Compile and generate from TypeSpec files into the specified output. |
+| `TypeSpec: Emit from TypeSpec`                     | Compile and generate from TypeSpec files into the specified output. |
 | `TypeSpec: Restart TypeSpec Server`                | Restart the TypeSpec language server.                               |
 | `TypeSpec: Show Output Channel`                    | Open the TypeSpec output channel to view logs.                      |
 | `TypeSpec: Preview API Documentation`              | Preview API documentation generated from TypeSpec in the workspace. |

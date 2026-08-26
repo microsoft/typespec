@@ -1,7 +1,7 @@
 package type.union;
 
 import io.clientcore.core.annotations.Metadata;
-import io.clientcore.core.annotations.TypeConditions;
+import io.clientcore.core.annotations.MetadataProperties;
 import io.clientcore.core.serialization.json.JsonReader;
 import io.clientcore.core.serialization.json.JsonSerializable;
 import io.clientcore.core.serialization.json.JsonToken;
@@ -11,18 +11,18 @@ import java.io.IOException;
 /**
  * The EnumsOnlyCases model.
  */
-@Metadata(conditions = { TypeConditions.IMMUTABLE })
+@Metadata(properties = { MetadataProperties.IMMUTABLE })
 public final class EnumsOnlyCases implements JsonSerializable<EnumsOnlyCases> {
     /*
      * This should be receive/send the left variant
      */
-    @Metadata(generated = true)
+    @Metadata(properties = { MetadataProperties.GENERATED })
     private final EnumsOnlyCasesLr lr;
 
     /*
      * This should be receive/send the up variant
      */
-    @Metadata(generated = true)
+    @Metadata(properties = { MetadataProperties.GENERATED })
     private final EnumsOnlyCasesUd ud;
 
     /**
@@ -31,7 +31,7 @@ public final class EnumsOnlyCases implements JsonSerializable<EnumsOnlyCases> {
      * @param lr the lr value to set.
      * @param ud the ud value to set.
      */
-    @Metadata(generated = true)
+    @Metadata(properties = { MetadataProperties.GENERATED })
     public EnumsOnlyCases(EnumsOnlyCasesLr lr, EnumsOnlyCasesUd ud) {
         this.lr = lr;
         this.ud = ud;
@@ -42,7 +42,7 @@ public final class EnumsOnlyCases implements JsonSerializable<EnumsOnlyCases> {
      * 
      * @return the lr value.
      */
-    @Metadata(generated = true)
+    @Metadata(properties = { MetadataProperties.GENERATED })
     public EnumsOnlyCasesLr getLr() {
         return this.lr;
     }
@@ -52,7 +52,7 @@ public final class EnumsOnlyCases implements JsonSerializable<EnumsOnlyCases> {
      * 
      * @return the ud value.
      */
-    @Metadata(generated = true)
+    @Metadata(properties = { MetadataProperties.GENERATED })
     public EnumsOnlyCasesUd getUd() {
         return this.ud;
     }
@@ -60,7 +60,7 @@ public final class EnumsOnlyCases implements JsonSerializable<EnumsOnlyCases> {
     /**
      * {@inheritDoc}
      */
-    @Metadata(generated = true)
+    @Metadata(properties = { MetadataProperties.GENERATED })
     @Override
     public JsonWriter toJson(JsonWriter jsonWriter) throws IOException {
         jsonWriter.writeStartObject();
@@ -78,7 +78,7 @@ public final class EnumsOnlyCases implements JsonSerializable<EnumsOnlyCases> {
      * @throws IllegalStateException If the deserialized JSON object was missing any required properties.
      * @throws IOException If an error occurs while reading the EnumsOnlyCases.
      */
-    @Metadata(generated = true)
+    @Metadata(properties = { MetadataProperties.GENERATED })
     public static EnumsOnlyCases fromJson(JsonReader jsonReader) throws IOException {
         return jsonReader.readObject(reader -> {
             EnumsOnlyCasesLr lr = null;

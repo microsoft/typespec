@@ -25,6 +25,7 @@ namespace Microsoft.TypeSpec.Generator.Input
         public string? Encode { get; }
         public string CrossLanguageDefinitionId { get; }
         public InputPrimitiveType? BaseType { get; }
+        public bool IsFileType { get; internal set; }
 
         public static InputPrimitiveType Boolean { get; } = new(InputPrimitiveTypeKind.Boolean, "boolean", "TypeSpec.bool");
         public static InputPrimitiveType Base64 { get; } = new(InputPrimitiveTypeKind.Bytes, "bytes", "TypeSpec.bytes", BytesKnownEncoding.Base64);

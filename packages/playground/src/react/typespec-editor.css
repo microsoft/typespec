@@ -1,0 +1,4 @@
+/* Monaco decoration class (must be a plain global selector) */
+.playground-changed-line {
+  background-color: rgba(0, 180, 0, 0.15);
+}

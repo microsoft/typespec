@@ -3,10 +3,16 @@
 #nullable disable
 
 using System.ClientModel.Primitives;
+using System.Diagnostics.CodeAnalysis;
+using Microsoft.Extensions.Configuration;
 
 namespace Payload.JsonMergePatch
 {
     public partial class JsonMergePatchClientOptions : ClientPipelineOptions
     {
+        public JsonMergePatchClientOptions() => throw null;
+
+        [Experimental("SCME0002")]
+        internal JsonMergePatchClientOptions(IConfigurationSection section) : base(section) => throw null;
     }
 }

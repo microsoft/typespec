@@ -3,12 +3,32 @@
 # Licensed under the MIT License. See License.txt in the project root for
 # license information.
 # --------------------------------------------------------------------------
-from typing import Any, Dict, Tuple, List
+from typing import Any
 import re
 import argparse
 
+SWAGGER_PACKAGE_MODE = ["mgmtplane", "dataplane"]  # for backward compatibility
+TYPESPEC_PACKAGE_MODE = ["azure-mgmt", "azure-dataplane", "generic"]
+VALID_PACKAGE_MODE = SWAGGER_PACKAGE_MODE + TYPESPEC_PACKAGE_MODE
 
-def update_enum_value(name: str, value: Any, description: str, enum_type: Dict[str, Any]) -> Dict[str, Any]:
+CODE_BLOCK_MARKER = ".. code-block::"
+
+
+def description_ends_with_code_block(description: str) -> bool:
+    """Return True when the description's trailing content is an RST ``.. code-block::``.
+
+    True when the last ``.. code-block::`` directive (starting its own line, so inline
+    mentions are ignored) is followed only by blank or indented lines, i.e. the literal
+    block runs to the end of the description.
+    """
+    lines = description.rstrip().splitlines()
+    directives = [i for i, line in enumerate(lines) if line.lstrip().startswith(CODE_BLOCK_MARKER)]
+    if not directives:
+        return False
+    return all(not line.strip() or line.startswith((" ", "\t")) for line in lines[directives[-1] + 1 :])
+
+
+def update_enum_value(name: str, value: Any, description: str, enum_type: dict[str, Any]) -> dict[str, Any]:
     return {
         "name": name,
         "type": "enumvalue",
@@ -45,7 +65,7 @@ def to_snake_case(name: str) -> str:
 
 def parse_args(
     need_tsp_file: bool = True,
-) -> Tuple[argparse.Namespace, Dict[str, Any]]:
+) -> tuple[argparse.Namespace, dict[str, Any]]:
     parser = argparse.ArgumentParser(
         description="Run mypy against target folder. Add a local custom plugin to the path prior to execution. "
     )
@@ -88,7 +108,7 @@ def parse_args(
     return args, unknown_args_ret
 
 
-def get_body_type_for_description(body_parameter: Dict[str, Any]) -> str:
+def get_body_type_for_description(body_parameter: dict[str, Any]) -> str:
     if body_parameter["type"]["type"] == "binary":
         return "binary"
     if body_parameter["type"]["type"] == "string":
@@ -97,7 +117,7 @@ def get_body_type_for_description(body_parameter: Dict[str, Any]) -> str:
 
 
 # used if we want to get a string / binary type etc
-KNOWN_TYPES: Dict[str, Dict[str, Any]] = {
+KNOWN_TYPES: dict[str, dict[str, Any]] = {
     "string": {"type": "string"},
     "binary": {"type": "binary"},
     "anydict": {"type": "dict", "elementType": {"type": "any"}},
@@ -114,7 +134,7 @@ def build_policies(
     *,
     is_azure_flavor: bool = False,
     tracing: bool = True,
-) -> List[str]:
+) -> list[str]:
     if is_azure_flavor:
         # for Azure
         async_prefix = "Async" if async_mode else ""

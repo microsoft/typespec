@@ -2,8 +2,11 @@
 
 #nullable disable
 
+using System;
 using System.ClientModel;
 using System.ClientModel.Primitives;
+using System.Diagnostics.CodeAnalysis;
+using System.Threading;
 using System.Threading.Tasks;
 
 namespace Payload.MultiPart._FormData.HttpParts.NonString
@@ -12,10 +15,18 @@ namespace Payload.MultiPart._FormData.HttpParts.NonString
     {
         protected FormDataHttpPartsNonString() => throw null;
 
+        internal FormDataHttpPartsNonString(ClientPipeline pipeline, Uri endpoint) => throw null;
+
         public ClientPipeline Pipeline => throw null;
 
         public virtual ClientResult Float(BinaryContent content, string contentType, RequestOptions options = null) => throw null;
 
         public virtual Task<ClientResult> FloatAsync(BinaryContent content, string contentType, RequestOptions options = null) => throw null;
+
+        [Experimental("SCME0004")]
+        public virtual ClientResult Float(FloatRequest body, CancellationToken cancellationToken = default) => throw null;
+
+        [Experimental("SCME0004")]
+        public virtual Task<ClientResult> FloatAsync(FloatRequest body, CancellationToken cancellationToken = default) => throw null;
     }
 }

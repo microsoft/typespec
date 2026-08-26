@@ -8,11 +8,10 @@ using System.Globalization;
 
 namespace SampleTypeSpec
 {
-    /// <summary> The Thing_optionalLiteralFloat. </summary>
+    /// <summary></summary>
     public readonly partial struct ThingOptionalLiteralFloat : IEquatable<ThingOptionalLiteralFloat>
     {
         private readonly float _value;
-        /// <summary> 4.56. </summary>
         private const float _456Value = 4.56F;
 
         /// <summary> Initializes a new instance of <see cref="ThingOptionalLiteralFloat"/>. </summary>
@@ -22,7 +21,7 @@ namespace SampleTypeSpec
             _value = value;
         }
 
-        /// <summary> 4.56. </summary>
+        /// <summary> Gets the _456. </summary>
         public static ThingOptionalLiteralFloat _456 { get; } = new ThingOptionalLiteralFloat(_456Value);
 
         /// <summary> Determines if two <see cref="ThingOptionalLiteralFloat"/> values are the same. </summary>
@@ -39,11 +38,11 @@ namespace SampleTypeSpec
         /// <param name="value"> The value. </param>
         public static implicit operator ThingOptionalLiteralFloat(float value) => new ThingOptionalLiteralFloat(value);
 
-        /// <param name="obj"> The object to compare. </param>
+        /// <inheritdoc/>
         [EditorBrowsable(EditorBrowsableState.Never)]
         public override bool Equals(object obj) => obj is ThingOptionalLiteralFloat other && Equals(other);
 
-        /// <param name="other"> The instance to compare. </param>
+        /// <inheritdoc/>
         public bool Equals(ThingOptionalLiteralFloat other) => Equals(_value, other._value);
 
         /// <inheritdoc/>

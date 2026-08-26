@@ -3,17 +3,12 @@
 
 package com.microsoft.typespec.http.client.generator.core.extension.model.codemodel;
 
-import com.azure.json.JsonReader;
-import com.azure.json.JsonSerializable;
-import com.azure.json.JsonWriter;
-import com.microsoft.typespec.http.client.generator.core.extension.base.util.JsonUtils;
-import java.io.IOException;
 import java.util.Objects;
 
 /**
  * Represents a serialization format.
  */
-public class SerializationFormat implements JsonSerializable<SerializationFormat> {
+public class SerializationFormat {
     private DictionaryAny extensions;
 
     /**
@@ -63,27 +58,5 @@ public class SerializationFormat implements JsonSerializable<SerializationFormat
 
         SerializationFormat rhs = ((SerializationFormat) other);
         return Objects.equals(extensions, rhs.extensions);
-    }
-
-    @Override
-    public JsonWriter toJson(JsonWriter jsonWriter) throws IOException {
-        return jsonWriter.writeStartObject().writeJsonField("extensions", extensions).writeEndObject();
-    }
-
-    /**
-     * Deserializes a SerializationFormat instance from the JSON data.
-     *
-     * @param jsonReader The JSON reader to deserialize from.
-     * @return A SerializationFormat instance deserialized from the JSON data.
-     * @throws IOException If an error occurs during deserialization.
-     */
-    public static SerializationFormat fromJson(JsonReader jsonReader) throws IOException {
-        return JsonUtils.readObject(jsonReader, SerializationFormat::new, (format, fieldName, reader) -> {
-            if ("extensions".equals(fieldName)) {
-                format.extensions = DictionaryAny.fromJson(reader);
-            } else {
-                reader.skipChildren();
-            }
-        });
     }
 }

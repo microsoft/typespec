@@ -3,17 +3,12 @@
 
 package com.microsoft.typespec.http.client.generator.core.extension.model.codemodel;
 
-import com.azure.json.JsonReader;
-import com.azure.json.JsonSerializable;
-import com.azure.json.JsonWriter;
-import com.microsoft.typespec.http.client.generator.core.extension.base.util.JsonUtils;
-import java.io.IOException;
 import java.util.Objects;
 
 /**
  * Represents a flag value.
  */
-public class FlagValue implements JsonSerializable<FlagValue> {
+public class FlagValue {
     private Languages language;
     private double value;
     private DictionaryAny extensions;
@@ -104,35 +99,5 @@ public class FlagValue implements JsonSerializable<FlagValue> {
         return value == rhs.value
             && Objects.equals(language, rhs.language)
             && Objects.equals(extensions, rhs.extensions);
-    }
-
-    @Override
-    public JsonWriter toJson(JsonWriter jsonWriter) throws IOException {
-        return jsonWriter.writeStartObject()
-            .writeJsonField("language", language)
-            .writeDoubleField("value", value)
-            .writeJsonField("extensions", extensions)
-            .writeEndObject();
-    }
-
-    /**
-     * Deserializes a FlagValue instance from the JSON data.
-     *
-     * @param jsonReader The JSON reader to deserialize from.
-     * @return A FlagValue instance deserialized from the JSON data.
-     * @throws IOException If an error occurs during deserialization.
-     */
-    public static FlagValue fromJson(JsonReader jsonReader) throws IOException {
-        return JsonUtils.readObject(jsonReader, FlagValue::new, (value, fieldName, reader) -> {
-            if ("language".equals(fieldName)) {
-                value.language = Languages.fromJson(reader);
-            } else if ("value".equals(fieldName)) {
-                value.value = reader.getDouble();
-            } else if ("extensions".equals(fieldName)) {
-                value.extensions = DictionaryAny.fromJson(reader);
-            } else {
-                reader.skipChildren();
-            }
-        });
     }
 }

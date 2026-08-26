@@ -6,8 +6,9 @@ import {
   Namespace,
   NoTarget,
   Operation,
+  Type,
 } from "@typespec/compiler";
-import { $, defineKit } from "@typespec/compiler/experimental/typekit";
+import { createDiagnosable, defineKit, Diagnosable } from "@typespec/compiler/typekit";
 import {
   getHttpService,
   getServers,
@@ -17,6 +18,10 @@ import {
   resolveAuthentication,
 } from "@typespec/http";
 import "@typespec/http/experimental/typekit";
+import {
+  getClientFeatureLifecycle,
+  GetFeatureLifecycleOptions,
+} from "../../decorators/experimental.js";
 import { InternalClient } from "../../interfaces.js";
 import { reportDiagnostic } from "../../lib.js";
 import { createBaseConstructor, getConstructors } from "../../utils/client-helpers.js";
@@ -24,6 +29,14 @@ import { getStringValue } from "../../utils/helpers.js";
 import { NameKit } from "./utils.js";
 
 interface ClientKit extends NameKit<InternalClient> {
+  /**
+   * Get the feature lifecycle value for a given type
+   * @param type The type to get the feature lifecycle for
+   * @param options The options to use when getting the feature lifecycle
+   */
+  getFeatureLifecycle: Diagnosable<
+    (type: Type, options?: GetFeatureLifecycleOptions) => string | undefined
+  >;
   /**
    * Get the parent of a client
    * @param type The client to get the parent of
@@ -85,7 +98,7 @@ interface TypekitExtension {
   client: ClientKit;
 }
 
-declare module "@typespec/compiler/experimental/typekit" {
+declare module "@typespec/compiler/typekit" {
   interface Typekit extends TypekitExtension {}
 }
 
@@ -98,6 +111,9 @@ export const clientOperationCache = new Map<InternalClient, HttpOperation[]>();
 
 defineKit<TypekitExtension>({
   client: {
+    getFeatureLifecycle: createDiagnosable(function (type, options) {
+      return getClientFeatureLifecycle(this.program, type, options);
+    }),
     getParent(client) {
       const type = client.kind === "Client" ? client.type : client;
       if (type.namespace && type.namespace !== this.program.getGlobalNamespaceType()) {
@@ -140,11 +156,11 @@ defineKit<TypekitExtension>({
       return client;
     },
     getConstructor(client) {
-      const constructors = getConstructors(client);
+      const constructors = getConstructors(this, client);
       if (constructors.length === 1) {
         return constructors[0];
       }
-      return createBaseConstructor(client, constructors);
+      return createBaseConstructor(this, client, constructors);
     },
     getName(client) {
       return client.name;
@@ -184,7 +200,11 @@ defineKit<TypekitExtension>({
       const endpointTemplate: { url: string; parameters: ModelProperty[] } = {
         url: "{endpoint}",
         parameters: [
-          this.modelProperty.create({ name: "endpoint", type: $.builtin.string, optional: false }),
+          this.modelProperty.create({
+            name: "endpoint",
+            type: this.builtin.string,
+            optional: false,
+          }),
         ],
       };
 
@@ -222,9 +242,9 @@ defineKit<TypekitExtension>({
               // Add the endpoint parameter as optional since we have a default url
               this.modelProperty.create({
                 name: "endpoint",
-                type: $.builtin.string,
+                type: this.builtin.string,
                 optional: true,
-                defaultValue: getStringValue(server.url),
+                defaultValue: getStringValue(this, server.url),
               }),
             ],
           };

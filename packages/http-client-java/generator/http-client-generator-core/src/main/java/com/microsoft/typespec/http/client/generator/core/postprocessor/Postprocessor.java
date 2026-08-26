@@ -3,7 +3,6 @@
 
 package com.microsoft.typespec.http.client.generator.core.postprocessor;
 
-import com.azure.json.JsonReader;
 import com.microsoft.typespec.http.client.generator.core.customization.Customization;
 import com.microsoft.typespec.http.client.generator.core.customization.implementation.Utils;
 import com.microsoft.typespec.http.client.generator.core.extension.base.util.FileUtils;
@@ -12,8 +11,10 @@ import com.microsoft.typespec.http.client.generator.core.extension.plugin.NewPlu
 import com.microsoft.typespec.http.client.generator.core.extension.plugin.PluginLogger;
 import com.microsoft.typespec.http.client.generator.core.partialupdate.util.PartialUpdateHandler;
 import com.microsoft.typespec.http.client.generator.core.postprocessor.implementation.CodeFormatterUtil;
+import io.clientcore.core.serialization.json.JsonReader;
 import java.io.File;
 import java.io.IOException;
+import java.io.UncheckedIOException;
 import java.net.URI;
 import java.net.URL;
 import java.net.URLClassLoader;
@@ -118,11 +119,7 @@ public class Postprocessor {
             handlePartialUpdate(javaFiles, plugin, logger);
         }
 
-        try {
-            CodeFormatterUtil.formatCode(javaFiles, plugin, logger);
-        } catch (Exception ex) {
-            throw new RuntimeException(ex);
-        }
+        CodeFormatterUtil.formatCode(javaFiles, plugin, logger);
     }
 
     private static String getReadme(NewPlugin plugin) {
@@ -146,6 +143,7 @@ public class Postprocessor {
 
     public static Class<? extends Customization> loadCustomizationClassFromJavaCode(String filePath,
         String baseDirectory, Logger logger) {
+        final Path originCustomizationFile = Paths.get(filePath);
         Path customizationFile = Paths.get(filePath);
         if (!customizationFile.isAbsolute()) {
             if (baseDirectory != null) {
@@ -158,7 +156,7 @@ public class Postprocessor {
             return loadCustomizationClass(customizationFile.getFileName().toString().replace(".java", ""), code);
         } catch (IOException e) {
             logger.error("Cannot read customization from base directory {} and file {}", baseDirectory,
-                customizationFile);
+                originCustomizationFile);
             return null;
         }
     }
@@ -216,9 +214,9 @@ public class Postprocessor {
                         String existingFileContent = Files.readString(existingFilePath);
                         return PartialUpdateHandler.handlePartialUpdateForFile(generatedFileContent,
                             existingFileContent);
-                    } catch (Exception e) {
+                    } catch (IOException e) {
                         logger.error("Unable to get content from file path", e);
-                        throw new RuntimeException(e);
+                        throw new UncheckedIOException(e);
                     }
                 }
             }

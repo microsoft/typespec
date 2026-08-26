@@ -1,4 +1,4 @@
-import type { Model, ModelProperty } from "../core/types.js";
+import type { Model, ModelProperty, Type } from "../core/types.js";
 
 /**
  * Filters the properties of a model by removing them from the model instance if
@@ -24,4 +24,22 @@ export function filterModelPropertiesInPlace(
  */
 export function createStateSymbol(name: string): symbol {
   return Symbol.for(`TypeSpec.${name}`);
+}
+
+/**
+ * Instantiate a NameTemplate string with the properties of a source object.
+ *
+ * @param formatString - The template string to format. It should contain placeholders in the form of {propertyName}.
+ * @param sourceObject - The object containing the properties to replace in the template string.
+ * @returns The formatted string with the placeholders replaced by the corresponding property values from the source object.
+ */
+export function replaceTemplatedStringFromProperties(formatString: string, sourceObject: Type) {
+  // Template parameters are not valid source objects, just skip them
+  if (sourceObject.kind === "TemplateParameter") {
+    return formatString;
+  }
+
+  return formatString.replace(/{(\w+)}/g, (_, propName) => {
+    return (sourceObject as any)[propName];
+  });
 }

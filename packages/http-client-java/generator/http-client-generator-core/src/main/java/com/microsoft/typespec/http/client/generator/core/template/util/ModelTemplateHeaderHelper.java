@@ -3,9 +3,6 @@
 
 package com.microsoft.typespec.http.client.generator.core.template.util;
 
-import com.azure.core.http.HttpHeaderName;
-import com.azure.core.http.HttpHeaders;
-import com.azure.core.util.CoreUtils;
 import com.microsoft.typespec.http.client.generator.core.extension.plugin.JavaSettings;
 import com.microsoft.typespec.http.client.generator.core.model.clientmodel.ArrayType;
 import com.microsoft.typespec.http.client.generator.core.model.clientmodel.ClassType;
@@ -22,6 +19,8 @@ import com.microsoft.typespec.http.client.generator.core.model.javamodel.JavaMod
 import com.microsoft.typespec.http.client.generator.core.model.javamodel.JavaVisibility;
 import com.microsoft.typespec.http.client.generator.core.template.ModelTemplate;
 import com.microsoft.typespec.http.client.generator.core.util.CodeNamer;
+import io.clientcore.core.http.models.HttpHeaderName;
+import io.clientcore.core.utils.CoreUtils;
 import java.lang.reflect.Field;
 import java.lang.reflect.Modifier;
 import java.util.ArrayList;
@@ -31,33 +30,51 @@ import java.util.Map;
 import java.util.TreeMap;
 
 /**
- * Utility class for {@link ModelTemplate} that handles generating {@link HttpHeaders} deserialization to POJOs.
+ * Utility class for {@link ModelTemplate} that handles generating {@code HttpHeaders} deserialization to POJOs.
  */
 public final class ModelTemplateHeaderHelper {
     private static final Map<String, String> HEADER_TO_KNOWN_HTTPHEADERNAME;
+    private static final Map<String, String> CLIENTCORE_HEADER_TO_KNOWN_HTTPHEADERNAME;
 
     static {
         Map<String, String> headerToKnownHttpHeaderName = new TreeMap<>(String::compareToIgnoreCase);
-        for (Field httpHeaderNameConstant : HttpHeaderName.class.getDeclaredFields()) {
-            if (httpHeaderNameConstant.getType() != HttpHeaderName.class
+        Map<String, String> clientCoreHeaderToKnownHttpHeaderName = new TreeMap<>(String::compareToIgnoreCase);
+        for (Field httpHeaderNameConstant : io.clientcore.core.http.models.HttpHeaderName.class.getDeclaredFields()) {
+            if (httpHeaderNameConstant.getType() != io.clientcore.core.http.models.HttpHeaderName.class
                 || !isPublicConstant(httpHeaderNameConstant.getModifiers())) {
                 continue;
             }
 
             try {
-                HttpHeaderName httpHeaderName = (HttpHeaderName) httpHeaderNameConstant.get(null);
+                io.clientcore.core.http.models.HttpHeaderName httpHeaderName
+                    = (io.clientcore.core.http.models.HttpHeaderName) httpHeaderNameConstant.get(null);
                 String constantName = httpHeaderNameConstant.getName();
                 headerToKnownHttpHeaderName.put(httpHeaderName.getCaseInsensitiveName(), constantName);
+                clientCoreHeaderToKnownHttpHeaderName.put(httpHeaderName.getCaseInsensitiveName(), constantName);
             } catch (IllegalAccessException ignored) {
                 // Do nothing.
             }
         }
 
+        // ClientCore and azure-core have the same HttpHeaderNames for the most part, so just use ClientCore's
+        // HttpHeaderNames for both maps. Then add the few extra azure-core headers here.
+        // If HttpHeaderNames are missed from azure-core, they will be handled as unknown headers, which has effectively
+        // no difference from this optimization other than code bloat.
+        headerToKnownHttpHeaderName.put("Azure-AsyncOperation", "AZURE_ASYNCOPERATION");
+        headerToKnownHttpHeaderName.put("Operation-Location", "OPERATION_LOCATION");
+        headerToKnownHttpHeaderName.put("retry-after-ms", "RETRY_AFTER_MS");
+        headerToKnownHttpHeaderName.put("x-ms-client-id", "X_MS_CLIENT_ID");
+        headerToKnownHttpHeaderName.put("x-ms-client-request-id", "X_MS_CLIENT_REQUEST_ID");
+        headerToKnownHttpHeaderName.put("x-ms-date", "X_MS_DATE");
+        headerToKnownHttpHeaderName.put("x-ms-request-id", "X_MS_REQUEST_ID");
+        headerToKnownHttpHeaderName.put("x-ms-retry-after-ms", "X_MS_RETRY_AFTER_MS");
+
         HEADER_TO_KNOWN_HTTPHEADERNAME = Collections.unmodifiableMap(headerToKnownHttpHeaderName);
+        CLIENTCORE_HEADER_TO_KNOWN_HTTPHEADERNAME = Collections.unmodifiableMap(clientCoreHeaderToKnownHttpHeaderName);
     }
 
     /**
-     * Adds an {@link HttpHeaders}-based constructor to a model.
+     * Adds an {@code HttpHeaders}-based constructor to a model.
      *
      * @param classBlock The class block for the model.
      * @param model The model itself.
@@ -107,13 +124,22 @@ public final class ModelTemplateHeaderHelper {
     public static String getHttpHeaderNameInstanceExpression(String headerName) {
         // match the init logic of HEADER_TO_KNOWN_HTTPHEADERNAME
         String caseInsensitiveName = HttpHeaderName.fromString(headerName).getCaseInsensitiveName();
-
-        if (HEADER_TO_KNOWN_HTTPHEADERNAME.containsKey(caseInsensitiveName)) {
-            // known name
-            return "HttpHeaderName." + HEADER_TO_KNOWN_HTTPHEADERNAME.get(caseInsensitiveName);
+        if (JavaSettings.getInstance().isAzureV1()) {
+            if (HEADER_TO_KNOWN_HTTPHEADERNAME.containsKey(caseInsensitiveName)) {
+                // known name
+                return "HttpHeaderName." + HEADER_TO_KNOWN_HTTPHEADERNAME.get(caseInsensitiveName);
+            } else {
+                return "HttpHeaderName.fromString(" + ClassType.STRING.defaultValueExpression(headerName) + ")";
+            }
         } else {
-            return "HttpHeaderName.fromString(" + ClassType.STRING.defaultValueExpression(headerName) + ")";
+            if (CLIENTCORE_HEADER_TO_KNOWN_HTTPHEADERNAME.containsKey(caseInsensitiveName)) {
+                // known name
+                return "HttpHeaderName." + HEADER_TO_KNOWN_HTTPHEADERNAME.get(caseInsensitiveName);
+            } else {
+                return "HttpHeaderName.fromString(" + ClassType.STRING.defaultValueExpression(headerName) + ")";
+            }
         }
+
     }
 
     /**
@@ -130,7 +156,14 @@ public final class ModelTemplateHeaderHelper {
                 continue;
             }
 
-            if (HEADER_TO_KNOWN_HTTPHEADERNAME.containsKey(property.getSerializedName())) {
+            if (JavaSettings.getInstance().isAzureV1()
+                && HEADER_TO_KNOWN_HTTPHEADERNAME.containsKey(property.getSerializedName())) {
+                // Header is a well-known HttpHeaderName, don't need to create a private constant.
+                continue;
+            }
+
+            if (!JavaSettings.getInstance().isAzureV1()
+                && CLIENTCORE_HEADER_TO_KNOWN_HTTPHEADERNAME.containsKey(property.getSerializedName())) {
                 // Header is a well-known HttpHeaderName, don't need to create a private constant.
                 continue;
             }
@@ -152,7 +185,9 @@ public final class ModelTemplateHeaderHelper {
                 || wireType instanceof GenericType);
 
         // No matter the wire type the rawHeaders will need to be accessed.
-        String knownHttpHeaderNameConstant = HEADER_TO_KNOWN_HTTPHEADERNAME.get(property.getSerializedName());
+        String knownHttpHeaderNameConstant = JavaSettings.getInstance().isAzureV1()
+            ? HEADER_TO_KNOWN_HTTPHEADERNAME.get(property.getSerializedName())
+            : CLIENTCORE_HEADER_TO_KNOWN_HTTPHEADERNAME.get(property.getSerializedName());
         String httpHeaderName = knownHttpHeaderNameConstant != null
             ? "HttpHeaderName." + knownHttpHeaderNameConstant
             : CodeNamer.getEnumMemberName(property.getSerializedName());
@@ -209,8 +244,11 @@ public final class ModelTemplateHeaderHelper {
 
         // String is special as the setter is null safe for it, unlike other nullable types.
         if (needsNullGuarding) {
-            javaBlock.ifBlock(property.getName() + " != null",
-                ifBlock -> ifBlock.line("this." + property.getName() + " = " + setter + ";"));
+            javaBlock
+                .ifBlock(property.getName() + " != null",
+                    ifBlock -> ifBlock.line("this." + property.getName() + " = " + setter + ";"))
+                .elseBlock(elseBlock -> elseBlock.line(
+                    "this." + property.getName() + " = " + property.getClientType().defaultValueExpression() + ";"));
         } else {
             javaBlock.line("this." + property.getName() + " = " + setter + ";");
         }
@@ -249,8 +287,12 @@ public final class ModelTemplateHeaderHelper {
 
         block.line();
 
-        block.block("for (HttpHeader header : rawHeaders)", body -> {
-            body.line("String headerName = header.getName();");
+        block.block("rawHeaders.stream().forEach(header -> ", body -> {
+            if (JavaSettings.getInstance().isAzureV1()) {
+                body.line("String headerName = header.getName();");
+            } else {
+                body.line("String headerName = header.getName().getValue();");
+            }
             int propertiesSize = properties.size();
             for (int i = 0; i < propertiesSize; i++) {
                 ClientModelProperty property = properties.get(i);
@@ -259,12 +301,13 @@ public final class ModelTemplateHeaderHelper {
                     ifBlock.line("%sHeaderCollection.put(headerName.substring(%d), header.getValue());",
                         property.getName(), property.getHeaderCollectionPrefix().length());
                     if (needsContinue) {
-                        ifBlock.line("continue;");
+                        ifBlock.line("return;");
                     }
                 });
             }
         });
 
+        block.text(");");
         block.line();
 
         for (ClientModelProperty property : properties) {

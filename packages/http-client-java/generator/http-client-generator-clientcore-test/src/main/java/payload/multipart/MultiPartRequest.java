@@ -1,23 +1,23 @@
 package payload.multipart;
 
 import io.clientcore.core.annotations.Metadata;
-import io.clientcore.core.annotations.TypeConditions;
+import io.clientcore.core.annotations.MetadataProperties;
 
 /**
  * The MultiPartRequest model.
  */
-@Metadata(conditions = { TypeConditions.IMMUTABLE })
+@Metadata(properties = { MetadataProperties.IMMUTABLE })
 public final class MultiPartRequest {
     /*
      * The id property.
      */
-    @Metadata(generated = true)
+    @Metadata(properties = { MetadataProperties.GENERATED })
     private final String id;
 
     /*
      * The profileImage property.
      */
-    @Metadata(generated = true)
+    @Metadata(properties = { MetadataProperties.GENERATED })
     private final ProfileImageFileDetails profileImage;
 
     /**
@@ -26,7 +26,7 @@ public final class MultiPartRequest {
      * @param id the id value to set.
      * @param profileImage the profileImage value to set.
      */
-    @Metadata(generated = true)
+    @Metadata(properties = { MetadataProperties.GENERATED })
     public MultiPartRequest(String id, ProfileImageFileDetails profileImage) {
         this.id = id;
         this.profileImage = profileImage;
@@ -37,7 +37,7 @@ public final class MultiPartRequest {
      * 
      * @return the id value.
      */
-    @Metadata(generated = true)
+    @Metadata(properties = { MetadataProperties.GENERATED })
     public String getId() {
         return this.id;
     }
@@ -47,7 +47,7 @@ public final class MultiPartRequest {
      * 
      * @return the profileImage value.
      */
-    @Metadata(generated = true)
+    @Metadata(properties = { MetadataProperties.GENERATED })
     public ProfileImageFileDetails getProfileImage() {
         return this.profileImage;
     }

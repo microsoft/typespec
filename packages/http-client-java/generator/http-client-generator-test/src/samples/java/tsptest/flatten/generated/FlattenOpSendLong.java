@@ -15,7 +15,7 @@ public class FlattenOpSendLong {
     public static void main(String[] args) {
         FlattenClient flattenClient
             = new FlattenClientBuilder().endpoint(Configuration.getGlobalConfiguration().get("ENDPOINT")).buildClient();
-        // BEGIN:tsptest.flatten.generated.sendlong.flattenopsendlong
+        // BEGIN:tsptest.flatten.generated.send-long.flatten-op-send-long
         flattenClient.sendLong(
             new SendLongOptions("myRequiredId", "myRequiredInput", 11, null, "title", SendLongRequestStatus.NOT_STARTED)
                 .setFilter("name=myName")
@@ -24,6 +24,6 @@ public class FlattenOpSendLong {
                 .setDataLong(13L)
                 .setDataFloat(14.0D)
                 .setDescription("description"));
-        // END:tsptest.flatten.generated.sendlong.flattenopsendlong
+        // END:tsptest.flatten.generated.send-long.flatten-op-send-long
     }
 }

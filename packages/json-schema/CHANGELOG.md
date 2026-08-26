@@ -1,5 +1,126 @@
 # Change Log - @typespec/json-schema
 
+## 1.14.0
+
+### Deprecations
+
+- [#10964](https://github.com/microsoft/typespec/pull/10964) Deprecate old testing framework (`createTestHost`, `createTestRunner`, `createTestWrapper`, `createTestLibrary`, `BasicTestRunner`, `TypeSpecTestLibrary`, etc.). Use `createTester` from `@typespec/compiler/testing` instead.
+
+
+## 1.13.0
+
+No changes, version bump only.
+
+## 1.12.0
+
+No changes, version bump only.
+
+## 1.11.0
+
+No changes, version bump only.
+
+## 1.10.0
+
+### Bump dependencies
+
+- [#9838](https://github.com/microsoft/typespec/pull/9838) Upgrade dependencies
+
+
+## 1.9.0
+
+### Bug Fixes
+
+- [#9580](https://github.com/microsoft/typespec/pull/9580) Fix crash on usage of templates that cannot be named
+
+
+## 1.8.0
+
+### Bump dependencies
+
+- [#9223](https://github.com/microsoft/typespec/pull/9223) Upgrade dependencies
+
+
+## 1.7.0
+
+### Features
+
+- [#9038](https://github.com/microsoft/typespec/pull/9038) Add discriminator support and polymorphic models strategy option
+  
+  - Automatically injects discriminator property into base models with `@discriminator` decorator
+  - Marks discriminator property as required in generated schemas
+  - New `polymorphic-models-strategy` emitter option with three strategies:
+    - `ignore`: Emit as regular object schema (default)
+    - `oneOf`: Emit oneOf schema for closed discriminated unions
+    - `anyOf`: Emit anyOf schema for open discriminated unions
+  - Includes discriminator.mapping in oneOf/anyOf schemas for improved validation
+
+### Bump dependencies
+
+- [#9046](https://github.com/microsoft/typespec/pull/9046) Upgrade dependencies
+
+
+## 1.6.0
+
+### Bump dependencies
+
+- [#8823](https://github.com/microsoft/typespec/pull/8823) Upgrade dependencies
+
+### Bug Fixes
+
+- [#8739](https://github.com/microsoft/typespec/pull/8739) Correctly emit `union`, `enum`, `scalar` when marked with `@jsonSchema`
+
+
+## 1.5.0
+
+### Bug Fixes
+
+- [#8605](https://github.com/microsoft/typespec/pull/8605) Fix crash when using a property called `set`
+
+
+## 1.4.0
+
+### Bump dependencies
+
+- [#8317](https://github.com/microsoft/typespec/pull/8317) Upgrade dependencies
+
+### Bug Fixes
+
+- [#8365](https://github.com/microsoft/typespec/pull/8365) Fix: Json Schema crashing trying to render template declaration
+
+
+## 1.3.0
+
+### Bump dependencies
+
+- [#7978](https://github.com/microsoft/typespec/pull/7978) Upgrade dependencies
+
+
+## 1.2.0
+
+### Bump dependencies
+
+- [#7674](https://github.com/microsoft/typespec/pull/7674) Upgrade dependencies
+
+
+## 1.1.0
+
+### Bug Fixes
+
+- [#7501](https://github.com/microsoft/typespec/pull/7501) Json schema emitter conflict with other emitters
+
+
+## 1.0.0
+
+No changes, version bump only.
+
+## 1.0.0-rc.1
+
+### Bug Fixes
+
+- [#6947](https://github.com/microsoft/typespec/pull/6947) Fix crash when using enum values in extension
+- [#6887](https://github.com/microsoft/typespec/pull/6887) Fix using union templates
+
+
 ## 1.0.0-rc.0
 
 ### Bump dependencies

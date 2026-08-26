@@ -1,6 +1,8 @@
 ---
 id: models
 title: Models
+description: "Language basics - defining schemas with models"
+llmstxt: true
 ---
 
 Models in TypeSpec are utilized to define the structure or schema of data.
@@ -100,7 +102,7 @@ model Person {
 
 When using `is Record<T>`, it indicates that all properties of this model are of type T. This means that each property explicitly defined in the model must also be of type T.
 
-The example above would be invalid
+The example below would be invalid
 
 ```tsp
 model Person is Record<string> {

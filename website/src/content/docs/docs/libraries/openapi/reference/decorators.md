@@ -1,7 +1,9 @@
 ---
 title: "Decorators"
+description: "Decorators exported by @typespec/openapi"
 toc_min_heading_level: 2
 toc_max_heading_level: 3
+llmstxt: true
 ---
 
 ## TypeSpec.OpenAPI
@@ -91,7 +93,7 @@ op listPets(): Pet[];
 ### `@info` {#@TypeSpec.OpenAPI.info}
 
 Specify OpenAPI additional information.
-The service `title` and `version` are already specified using `@service`.
+The service `title` is already specified using `@service`.
 
 ```typespec
 @TypeSpec.OpenAPI.info(additionalInfo: valueof TypeSpec.OpenAPI.AdditionalInfo)
@@ -134,10 +136,13 @@ op read(): string;
 
 ### `@tagMetadata` {#@TypeSpec.OpenAPI.tagMetadata}
 
-Specify OpenAPI additional information.
+Specify OpenAPI tag metadata. Can be used in two forms:
+
+- Inline form: specify a single tag by name with optional metadata.
+- Array form: specify an ordered list of tags with their metadata in a single decorator call.
 
 ```typespec
-@TypeSpec.OpenAPI.tagMetadata(name: valueof string, tagMetadata: valueof TypeSpec.OpenAPI.TagMetadata)
+@TypeSpec.OpenAPI.tagMetadata(name: valueof string | TypeSpec.OpenAPI.TagMetadataWithName[], tagMetadata?: valueof TypeSpec.OpenAPI.TagMetadata)
 ```
 
 #### Target
@@ -146,12 +151,14 @@ Specify OpenAPI additional information.
 
 #### Parameters
 
-| Name        | Type                                                                  | Description            |
-| ----------- | --------------------------------------------------------------------- | ---------------------- |
-| name        | `valueof string`                                                      | tag name               |
-| tagMetadata | [valueof `TagMetadata`](./data-types.md#TypeSpec.OpenAPI.TagMetadata) | Additional information |
+| Name        | Type                                                                  | Description                                                         |
+| ----------- | --------------------------------------------------------------------- | ------------------------------------------------------------------- |
+| name        | `valueof string \| TypeSpec.OpenAPI.TagMetadataWithName[]`            | Tag name (inline form) or array of tags with metadata (array form). |
+| tagMetadata | [valueof `TagMetadata`](./data-types.md#TypeSpec.OpenAPI.TagMetadata) | Additional information for the tag. Only used in inline form.       |
 
 #### Examples
+
+##### Inline form
 
 ```typespec
 @service
@@ -163,6 +170,20 @@ Specify OpenAPI additional information.
     `x-custom`: "string",
   }
 )
+@tagMetadata("Child Tag", #{ description: "Child tag description", parent: "Tag Name" })
+namespace PetStore {
+
+}
+```
+
+##### Array form (preserves explicit tag order)
+
+```typespec
+@service
+@tagMetadata(#[
+  #{ name: "First Tag", description: "First tag description" },
+  #{ name: "Second Tag", description: "Second tag description" }
+])
 namespace PetStore {
 
 }

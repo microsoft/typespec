@@ -3,19 +3,16 @@
 
 package com.microsoft.typespec.http.client.generator.core.model.clientmodel;
 
-import com.azure.core.http.rest.SimpleResponse;
-import com.azure.core.util.CoreUtils;
-import com.azure.core.util.UrlBuilder;
-import com.azure.core.util.polling.PollingStrategyOptions;
-import com.azure.core.util.serializer.TypeReference;
 import com.microsoft.typespec.http.client.generator.core.extension.model.codemodel.RequestParameterLocation;
 import com.microsoft.typespec.http.client.generator.core.extension.plugin.JavaSettings;
+import com.microsoft.typespec.http.client.generator.core.implementation.OperationInstrumentationInfo;
+import com.microsoft.typespec.http.client.generator.core.mapper.CollectionUtil;
 import com.microsoft.typespec.http.client.generator.core.model.javamodel.JavaVisibility;
 import com.microsoft.typespec.http.client.generator.core.util.CodeNamer;
 import com.microsoft.typespec.http.client.generator.core.util.MethodUtil;
+import io.clientcore.core.utils.CoreUtils;
 import java.lang.reflect.ParameterizedType;
 import java.lang.reflect.Type;
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
@@ -27,7 +24,7 @@ import java.util.stream.Collectors;
  * A ClientMethod that exists on a ServiceClient or MethodGroupClient that eventually will call a ProxyMethod.
  */
 public class ClientMethod {
-    private static final List<String> KNOWN_POLLING_STRATEGIES = Arrays.asList("DefaultPollingStrategy",
+    private static final List<String> KNOWN_POLLING_STRATEGIES = List.of("DefaultPollingStrategy",
         "ChainedPollingStrategy", "OperationResourcePollingStrategy", "LocationPollingStrategy",
         "StatusCheckPollingStrategy", "SyncDefaultPollingStrategy", "SyncChainedPollingStrategy",
         "SyncOperationResourcePollingStrategy", "SyncLocationPollingStrategy", "SyncStatusCheckPollingStrategy");
@@ -46,12 +43,22 @@ public class ClientMethod {
      */
     private final String name;
     /**
-     * The parameters of this ClientMethod.
+     * An immutable list containing all parameters defined for the operation-endpoint, including constants, client
+     * and method-scoped parameters.
+     */
+    private final List<ClientMethodParameter> _parameters;
+    /**
+     * A copy of {@code _parameters} returned from the {@link ClientMethod#getParameters()}.
      */
     private final List<ClientMethodParameter> parameters;
+    /**
+     * The subset of parameters in {@code parameters} that are scoped only to the method.
+     */
     private final List<ClientMethodParameter> methodParameters;
+    /**
+     * The subset of parameters in {@code methodParameters} that are required for the method.
+     */
     private final List<ClientMethodParameter> methodRequiredParameters;
-
     /**
      * Whether this ClientMethod has omitted optional parameters.
      */
@@ -106,6 +113,35 @@ public class ClientMethod {
     private final boolean hasWithContextOverload;
     private final String parametersDeclaration;
     private final String argumentList;
+    private final OperationInstrumentationInfo instrumentationInfo;
+
+    private final ClientMethod overloadedClientMethod;
+
+    public ClientMethod.Builder newBuilder() {
+        return new ClientMethod.Builder().description(description)
+            .returnValue(returnValue)
+            .name(name)
+            .parameters(_parameters)
+            .onlyRequiredParameters(onlyRequiredParameters)
+            .type(type)
+            .proxyMethod(proxyMethod)
+            .validateExpressions(validateExpressions)
+            .clientReference(clientReference)
+            .requiredNullableParameterExpressions(requiredNullableParameterExpressions)
+            .groupedParameterRequired(isGroupedParameterRequired)
+            .groupedParameterTypeName(groupedParameterTypeName)
+            .methodPageDetails(methodPageDetails)
+            .parameterTransformations(parameterTransformations)
+            .methodVisibility(methodVisibility)
+            .methodVisibilityInWrapperClient(methodVisibilityInWrapperClient)
+            .implementationDetails(implementationDetails)
+            .methodPollingDetails(methodPollingDetails)
+            .methodDocumentation(externalDocumentation)
+            .operationInstrumentationInfo(instrumentationInfo)
+            .setCrossLanguageDefinitionId(crossLanguageDefinitionId)
+            .hasWithContextOverload(hasWithContextOverload)
+            .overloadedClientMethod(overloadedClientMethod);
+    }
 
     /**
      * Create a new ClientMethod with the provided properties.
@@ -127,6 +163,7 @@ public class ClientMethod {
      * @param parameterTransformations The parameter transformations before calling ProxyMethod.
      * @param externalDocumentation The external documentation.
      * @param hasWithContextOverload Whether this method has a corresponding {@code Context}-based overload.
+     * @param instrumentationInfo The instrumentation information for this ClientMethod.
      */
     protected ClientMethod(String description, ReturnValue returnValue, String name,
         List<ClientMethodParameter> parameters, boolean onlyRequiredParameters, ClientMethodType type,
@@ -136,10 +173,12 @@ public class ClientMethod {
         ParameterTransformations parameterTransformations, JavaVisibility methodVisibility,
         JavaVisibility methodVisibilityInWrapperClient, ImplementationDetails implementationDetails,
         MethodPollingDetails methodPollingDetails, ExternalDocumentation externalDocumentation,
-        String crossLanguageDefinitionId, boolean hasWithContextOverload) {
+        String crossLanguageDefinitionId, boolean hasWithContextOverload,
+        OperationInstrumentationInfo instrumentationInfo, ClientMethod overloadedClientMethod) {
         this.description = description;
         this.returnValue = returnValue;
         this.name = name;
+        this._parameters = parameters;
         this.parameters = List.copyOf(parameters);
         this.methodParameters = parameters.stream()
             .filter(parameter -> !parameter.isFromClient()
@@ -167,11 +206,20 @@ public class ClientMethod {
         this.methodVisibilityInWrapperClient = methodVisibilityInWrapperClient;
         this.crossLanguageDefinitionId = crossLanguageDefinitionId;
         this.hasWithContextOverload = hasWithContextOverload;
-        this.parametersDeclaration = getMethodInputParameters().stream()
-            .map(ClientMethodParameter::getDeclaration)
-            .collect(Collectors.joining(", "));
+        if (isPageStreamingType() && methodPageDetails != null) {
+            this.parametersDeclaration = getMethodInputParameters().stream()
+                .filter(p -> !methodPageDetails.shouldHideParameter(p))
+                .map(ClientMethodParameter::getDeclaration)
+                .collect(Collectors.joining(", "));
+        } else {
+            this.parametersDeclaration = getMethodInputParameters().stream()
+                .map(ClientMethodParameter::getDeclaration)
+                .collect(Collectors.joining(", "));
+        }
         this.argumentList
             = getMethodParameters().stream().map(ClientMethodParameter::getName).collect(Collectors.joining(", "));
+        this.instrumentationInfo = instrumentationInfo;
+        this.overloadedClientMethod = overloadedClientMethod;
     }
 
     @Override
@@ -228,6 +276,16 @@ public class ClientMethod {
         return type;
     }
 
+    /**
+     * Check if this method is page streaming method (i.e. if the method returns PagedIterable&lt;T&gt; or
+     * PagedFlux&lt;T&gt;).
+     *
+     * @return true if this method is a page streaming method, false otherwise.
+     */
+    public final boolean isPageStreamingType() {
+        return type == ClientMethodType.PagingAsync || type == ClientMethodType.PagingSync;
+    }
+
     public final ProxyMethod getProxyMethod() {
         return proxyMethod;
     }
@@ -247,18 +305,15 @@ public class ClientMethod {
         return parametersDeclaration;
     }
 
+    public boolean hasParameterDeclaration() {
+        return parametersDeclaration != null && !parametersDeclaration.isEmpty();
+    }
+
     /**
      * Get the comma-separated list of parameter names for this ClientMethod.
      */
     public final String getArgumentList() {
         return argumentList;
-    }
-
-    public final String getArgumentListWithoutRequestOptions() {
-        return getMethodParameters().stream()
-            .map(ClientMethodParameter::getName)
-            .map(name -> name.equals("requestOptions") ? "null" : name)
-            .collect(Collectors.joining(", "));
     }
 
     /**
@@ -277,6 +332,16 @@ public class ClientMethod {
 
     public final List<ClientMethodParameter> getMethodParameters() {
         return methodParameters;
+    }
+
+    /**
+     * Check if this method has a parameter of the given type.
+     *
+     * @param type the type to check.
+     * @return true if this method has a parameter of the given type, false otherwise.
+     */
+    public boolean hasMethodParameterOfType(IType type) {
+        return methodParameters.stream().anyMatch(p -> type.equals(p.getClientType()));
     }
 
     public final List<ClientMethodParameter> getMethodRequiredParameters() {
@@ -308,7 +373,7 @@ public class ClientMethod {
     }
 
     public final List<String> getProxyMethodArguments(JavaSettings settings) {
-        List<String> restAPIMethodArguments = getProxyMethod().getParameters().stream().map(parameter -> {
+        return getProxyMethod().getParameters().stream().map(parameter -> {
             String parameterName = parameter.getParameterReference();
             IType parameterWireType = parameter.getWireType();
             if (parameter.isNullable()) {
@@ -317,14 +382,9 @@ public class ClientMethod {
             IType parameterClientType = parameter.getClientType();
 
             if (parameterClientType != ClassType.BASE_64_URL
-                && parameter.getRequestParameterLocation() != RequestParameterLocation.BODY /*
-                                                                                             * && parameter.
-                                                                                             * getRequestParameterLocation
-                                                                                             * () !=
-                                                                                             * RequestParameterLocation.
-                                                                                             * FormData
-                                                                                             */
-                && (parameterClientType instanceof ArrayType || parameterClientType instanceof ListType)) {
+                // && parameter.getRequestParameterLocation() != RequestParameterLocation.FormData
+                && parameter.getRequestParameterLocation() != RequestParameterLocation.BODY
+                && (parameterClientType instanceof ArrayType || parameterClientType instanceof IterableType)) {
                 parameterWireType = ClassType.STRING;
             }
 
@@ -340,7 +400,6 @@ public class ClientMethod {
             }
             return result;
         }).collect(Collectors.toList());
-        return restAPIMethodArguments;
     }
 
     public JavaVisibility getMethodVisibility() {
@@ -374,6 +433,24 @@ public class ClientMethod {
     }
 
     /**
+     * Get the instrumentation information for this ClientMethod.
+     *
+     * @return the instrumentation information for this ClientMethod.
+     */
+    public OperationInstrumentationInfo getOperationInstrumentationInfo() {
+        return instrumentationInfo;
+    }
+
+    /**
+     * Get the overloaded client method associated with this ClientMethod.
+     * 
+     * @return the overloaded client method.
+     */
+    public ClientMethod getOverloadedClientMethod() {
+        return overloadedClientMethod;
+    }
+
+    /**
      * Add this ClientMethod's imports to the provided set of imports.
      *
      * @param imports The set of imports to add to.
@@ -390,13 +467,13 @@ public class ClientMethod {
         ClassType.BINARY_DATA.addImportsTo(imports, includeImplementationImports);
         ClassType.RESPONSE.addImportsTo(imports, includeImplementationImports);
         ClassType.SIMPLE_RESPONSE.addImportsTo(imports, includeImplementationImports);
+        ClassType.HTTP_HEADER_NAME.addImportsTo(imports, false);
 
         if (settings.isDataPlaneClient()) {
             // for some processing on RequestOptions (get/set header)
-            ClassType.HTTP_HEADER_NAME.addImportsTo(imports, false);
 
             // for query parameter modification in RequestOptions (UrlBuilder.parse)
-            imports.add(UrlBuilder.class.getName());
+            imports.add(ClassType.URL_BUILDER.getFullName());
             imports.add("io.clientcore.core.utils.UriBuilder");
         }
 
@@ -411,16 +488,6 @@ public class ClientMethod {
 
             if (proxyMethod != null) {
                 proxyMethod.addImportsTo(imports, includeImplementationImports, settings);
-                for (ProxyMethodParameter parameter : proxyMethod.getParameters()) {
-                    parameter.getClientType().addImportsTo(imports, true);
-
-                    if (parameter.getExplode()) {
-                        imports.add("java.util.Optional");
-                        imports.add("java.util.stream.Stream");
-                        imports.add(ArrayList.class.getName());
-                        imports.add("java.util.Collection");
-                    }
-                }
             }
 
             if (getReturnValue().getType() == ClassType.INPUT_STREAM) {
@@ -436,11 +503,11 @@ public class ClientMethod {
                 && !proxyMethod.isSync()
                 && (CoreUtils.isNullOrEmpty(parameters)
                     || parameters.get(parameters.size() - 1) != ClientMethodParameter.CONTEXT_PARAMETER)) {
-                imports.add("com.azure.core.util.FluxUtil");
+                imports.add(ClassType.FLUX_UTIL.getFullName());
             }
 
             if (getMethodPageDetails() != null) {
-                imports.add("com.azure.core.http.rest.PagedResponseBase");
+                imports.add(ClassType.PAGED_RESPONSE_BASE.getFullName());
 
                 if (settings.isDataPlaneClient()) {
                     imports.add("java.util.List");
@@ -455,26 +522,32 @@ public class ClientMethod {
                         .getTypeArguments()[0] instanceof GenericType) {
                         // pageable LRO
                         if (settings.isStreamStyleSerialization()) {
-                            imports.add(TypeReference.class.getName());
+                            imports.add(ClassType.TYPE_REFERENCE.getFullName());
                         } else {
                             imports.add("com.fasterxml.jackson.core.type.TypeReference");
                         }
                     }
                 } else {
-                    imports.add(TypeReference.class.getName());
-                    if (!JavaSettings.getInstance().isBranded()) {
+                    imports.add(ClassType.TYPE_REFERENCE.getFullName());
+                    if (!JavaSettings.getInstance().isAzureV1()) {
                         imports.add(Type.class.getName());
                         imports.add(ParameterizedType.class.getName());
                     }
 
                     imports.add("java.time.Duration");
-                    imports.add(PollingStrategyOptions.class.getName());
+
+                    ClassType.POLLING_STRATEGY_OPTIONS.addImportsTo(imports, false);
 
                     if (getMethodPollingDetails() != null) {
                         for (String pollingStrategy : KNOWN_POLLING_STRATEGIES) {
                             if (getMethodPollingDetails().getPollingStrategy().contains(pollingStrategy)
                                 || getMethodPollingDetails().getSyncPollingStrategy().contains(pollingStrategy)) {
-                                imports.add("com.azure.core.util.polling." + pollingStrategy);
+
+                                if (JavaSettings.getInstance().isAzureV2()) {
+                                    imports.add("com.azure.v2.core.http.polling." + pollingStrategy);
+                                } else {
+                                    imports.add("com.azure.core.util.polling." + pollingStrategy);
+                                }
                             }
                         }
                     }
@@ -501,7 +574,7 @@ public class ClientMethod {
             }
 
             if (type == ClientMethodType.SendRequestAsync || type == ClientMethodType.SendRequestSync) {
-                imports.add(SimpleResponse.class.getName());
+                imports.add(ClassType.SIMPLE_RESPONSE.getFullName());
                 ClassType.BINARY_DATA.addImportsTo(imports, false);
                 ClassType.HTTP_REQUEST.addImportsTo(imports, false);
             }
@@ -509,7 +582,7 @@ public class ClientMethod {
             if (settings.isSyncStackEnabled() && settings.isFluent()) {
                 boolean isLroPageable = (type == ClientMethodType.PagingSyncSinglePage
                     && proxyMethod != null
-                    && GenericType.Response(ClassType.BINARY_DATA).equals(proxyMethod.getReturnType().getClientType()));
+                    && GenericType.response(ClassType.BINARY_DATA).equals(proxyMethod.getReturnType().getClientType()));
                 if (type == ClientMethodType.LongRunningBeginSync || isLroPageable) {
                     ClassType.SYNC_POLLER_FACTORY.addImportsTo(imports, false);
                 }
@@ -526,7 +599,7 @@ public class ClientMethod {
             .type(ClientMethodType.SendRequestAsync)
             .parameters(ClientMethodParameter.HTTP_REQUEST_PARAMETER)
             .returnValue(new ReturnValue("the response body on successful completion of {@link Mono}",
-                GenericType.Mono(GenericType.Response(ClassType.BINARY_DATA))))
+                GenericType.mono(GenericType.response(ClassType.BINARY_DATA))))
             .build();
     }
 
@@ -539,7 +612,7 @@ public class ClientMethod {
             .type(ClientMethodType.SendRequestSync)
             .parameters(ClientMethodParameter.HTTP_REQUEST_PARAMETER, ClientMethodParameter.CONTEXT_PARAMETER)
             .returnValue(new ReturnValue("the response body along with {@link Response}",
-                GenericType.Response(ClassType.BINARY_DATA)))
+                GenericType.response(ClassType.BINARY_DATA)))
             .build();
     }
 
@@ -565,6 +638,9 @@ public class ClientMethod {
         protected ExternalDocumentation externalDocumentation;
         protected String crossLanguageDefinitionId;
         protected boolean hasWithContextOverload;
+        protected boolean hidePageableParams;
+        protected OperationInstrumentationInfo instrumentationInfo;
+        protected ClientMethod overloadedClientMethod;
 
         public Builder setCrossLanguageDefinitionId(String crossLanguageDefinitionId) {
             this.crossLanguageDefinitionId = crossLanguageDefinitionId;
@@ -804,14 +880,38 @@ public class ClientMethod {
         }
 
         /**
+         * Sets the operation associated with this ClientMethod.
+         *
+         * @param instrumentationInfo the operation instrumentation information
+         * @return the Builder itself
+         */
+        public Builder operationInstrumentationInfo(OperationInstrumentationInfo instrumentationInfo) {
+            this.instrumentationInfo = instrumentationInfo;
+            return this;
+        }
+
+        /**
+         * Sets the overloaded client method associated with this ClientMethod.
+         *
+         * @param overloadedClientMethod the overloaded client method
+         * @return the Builder itself
+         */
+        public Builder overloadedClientMethod(ClientMethod overloadedClientMethod) {
+            this.overloadedClientMethod = overloadedClientMethod;
+            return this;
+        }
+
+        /**
          * @return an immutable ClientMethod instance with the configurations on this builder.
          */
         public ClientMethod build() {
-            return new ClientMethod(description, returnValue, name, parameters, onlyRequiredParameters, type,
-                proxyMethod, validateExpressions, clientReference, requiredNullableParameterExpressions,
+            return new ClientMethod(description, returnValue, name, CollectionUtil.toImmutableList(parameters),
+                onlyRequiredParameters, type, proxyMethod, CollectionUtil.toImmutableMap(validateExpressions),
+                clientReference, CollectionUtil.toImmutableList(requiredNullableParameterExpressions),
                 isGroupedParameterRequired, groupedParameterTypeName, methodPageDetails, parameterTransformations,
                 methodVisibility, methodVisibilityInWrapperClient, implementationDetails, methodPollingDetails,
-                externalDocumentation, crossLanguageDefinitionId, hasWithContextOverload);
+                externalDocumentation, crossLanguageDefinitionId, hasWithContextOverload, instrumentationInfo,
+                overloadedClientMethod);
         }
     }
 }

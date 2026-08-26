@@ -3,7 +3,6 @@
 
 package com.microsoft.typespec.http.client.generator.mgmt;
 
-import com.azure.core.util.CoreUtils;
 import com.microsoft.typespec.http.client.generator.core.Javagen;
 import com.microsoft.typespec.http.client.generator.core.extension.jsonrpc.Connection;
 import com.microsoft.typespec.http.client.generator.core.extension.model.codemodel.CodeModel;
@@ -48,8 +47,11 @@ import com.microsoft.typespec.http.client.generator.mgmt.namer.FluentNamerFactor
 import com.microsoft.typespec.http.client.generator.mgmt.template.FluentTemplateFactory;
 import com.microsoft.typespec.http.client.generator.mgmt.util.FluentJavaSettings;
 import com.microsoft.typespec.http.client.generator.mgmt.util.FluentUtils;
+import io.clientcore.core.utils.CoreUtils;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
+import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
 import org.slf4j.Logger;
@@ -89,8 +91,6 @@ public class FluentGen extends Javagen {
         this.clear();
 
         try {
-            JavaSettings settings = JavaSettings.getInstance();
-
             logger.info("Read YAML");
             // Parse yaml to code model
             CodeModel codeModel = new FluentNamer(this, connection, pluginName, sessionId).processCodeModel();
@@ -102,7 +102,7 @@ public class FluentGen extends Javagen {
             FluentJavaPackage javaPackage = this.handleTemplate(client);
 
             // Fluent Lite
-            this.handleFluentLite(codeModel, client, javaPackage);
+            this.handleFluentLite(codeModel, client, javaPackage, null);
 
             // Print to files
             logger.info("Write Java");
@@ -122,15 +122,13 @@ public class FluentGen extends Javagen {
             }
 
             // properties file
-            if (JavaSettings.getInstance().isFluentLite()) {
-                String artifactId = FluentUtils.getArtifactId();
-                if (!CoreUtils.isNullOrEmpty(artifactId)) {
-                    writeFile("src/main/resources/" + artifactId + ".properties", "version=${project.version}\n", null);
-                }
+            String artifactId = FluentUtils.getArtifactId();
+            if (!CoreUtils.isNullOrEmpty(artifactId)) {
+                writeFile("src/main/resources/" + artifactId + ".properties", "version=${project.version}\n", null);
             }
             return true;
         } catch (Exception e) {
-            logger.error("Failed to successfully run fluentgen plugin " + e, e);
+            logger.error("Failed to successfully run fluentgen plugin", e);
             // connection.sendError(1, 500, "Error occurred while running fluentgen plugin: " + e.getMessage());
             return false;
         }
@@ -258,8 +256,8 @@ public class FluentGen extends Javagen {
         // GraalVM config
         if (javaSettings.isGenerateGraalVmConfig()) {
             String artifactId = FluentUtils.getArtifactId();
-            if (fluentJavaSettings.getGraalVmConfigSuffix().isPresent()) {
-                artifactId = artifactId + "_" + fluentJavaSettings.getGraalVmConfigSuffix().get();
+            if (fluentJavaSettings.getMetadataSuffix().isPresent()) {
+                artifactId = artifactId + "_" + fluentJavaSettings.getMetadataSuffix().get();
             }
             javaPackage.addGraalVmConfig("com.azure.resourcemanager", artifactId, client.getGraalVmConfig());
         }
@@ -291,7 +289,8 @@ public class FluentGen extends Javagen {
         }
     }
 
-    protected FluentClient handleFluentLite(CodeModel codeModel, Client client, FluentJavaPackage javaPackage) {
+    protected FluentClient handleFluentLite(CodeModel codeModel, Client client, FluentJavaPackage javaPackage,
+        Map<String, String> apiVersionMap) {
         FluentJavaSettings fluentJavaSettings = this.getFluentJavaSettings();
         JavaSettings javaSettings = JavaSettings.getInstance();
 
@@ -308,7 +307,7 @@ public class FluentGen extends Javagen {
             fluentClient = this.getFluentMapper().map(codeModel, client);
 
             // project
-            FluentProject project = new FluentProject(fluentClient);
+            FluentProject project = new FluentProject(fluentClient, apiVersionMap);
             if (isSdkIntegration) {
                 project.integrateWithSdk();
             }
@@ -344,7 +343,8 @@ public class FluentGen extends Javagen {
             // Samples
             List<JavaFile> sampleJavaFiles = new ArrayList<>();
             for (FluentExample example : fluentClient.getExamples()) {
-                sampleJavaFiles.add(javaPackage.addSample(example));
+                Optional<JavaFile> file = javaPackage.addSample(example);
+                file.ifPresent(sampleJavaFiles::add);
             }
 
             // Readme and Changelog

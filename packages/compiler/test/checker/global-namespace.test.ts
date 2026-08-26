@@ -1,110 +1,83 @@
 import assert, { notStrictEqual } from "assert";
-import { beforeEach, describe, it } from "vitest";
-import { Model } from "../../src/core/types.js";
-import { TestHost, createTestHost } from "../../src/testing/index.js";
+import { describe, it } from "vitest";
+import { t } from "../../src/testing/index.js";
+import { Tester } from "../tester.js";
 
-describe("compiler: global namespace", () => {
-  let testHost: TestHost;
+describe("it adds top level entities to the global namespace", () => {
+  it("adds top-level namespaces", async () => {
+    const { program } = await Tester.compile(`namespace Foo {}`);
 
-  beforeEach(async () => {
-    testHost = await createTestHost();
+    const globalNamespaceType = program.checker.getGlobalNamespaceType();
+    assert(
+      globalNamespaceType?.namespaces.get("Foo"),
+      "Namespace Foo was added to global namespace type",
+    );
   });
 
-  describe("it adds top level entities to the global namespace", () => {
-    it("adds top-level namespaces", async () => {
-      testHost.addTypeSpecFile("main.tsp", `namespace Foo {}`);
+  it("adds top-level models", async () => {
+    const { program } = await Tester.compile(`model MyModel {}`);
 
-      await testHost.compile("./");
-
-      const globalNamespaceType = testHost.program.checker.getGlobalNamespaceType();
-      assert(
-        globalNamespaceType?.namespaces.get("Foo"),
-        "Namespace Foo was added to global namespace type",
-      );
-    });
-
-    it("adds top-level models", async () => {
-      testHost.addTypeSpecFile("main.tsp", `model MyModel {}`);
-
-      await testHost.compile("./");
-
-      const globalNamespaceType = testHost.program.checker.getGlobalNamespaceType();
-      assert(
-        globalNamespaceType?.models.get("MyModel"),
-        "model MyModel was added to global namespace type",
-      );
-    });
-
-    it("adds top-level operations", async () => {
-      testHost.addTypeSpecFile("main.tsp", `op myOperation(): string;`);
-
-      await testHost.compile("./");
-
-      const globalNamespaceType = testHost.program.checker.getGlobalNamespaceType();
-      assert(
-        globalNamespaceType?.operations.get("myOperation"),
-        "operation myOperation was added to global namespace type",
-      );
-    });
+    const globalNamespaceType = program.checker.getGlobalNamespaceType();
+    assert(
+      globalNamespaceType?.models.get("MyModel"),
+      "model MyModel was added to global namespace type",
+    );
   });
 
-  describe("it adds top level entities used in other files to the global namespace", () => {
-    beforeEach(() => {
-      testHost.addTypeSpecFile(
-        "main.tsp",
-        `
-      import "./a.tsp";
+  it("adds top-level operations", async () => {
+    const { program } = await Tester.compile(`op myOperation(): string;`);
 
-      model Base {}
-      `,
-      );
-    });
+    const globalNamespaceType = program.checker.getGlobalNamespaceType();
+    assert(
+      globalNamespaceType?.operations.get("myOperation"),
+      "operation myOperation was added to global namespace type",
+    );
+  });
+});
 
-    it("adds top-level namespaces", async () => {
-      testHost.addTypeSpecFile("a.tsp", `namespace Foo {}`);
+describe("it adds top level entities used in other files to the global namespace", () => {
+  it("adds top-level namespaces", async () => {
+    const { program } = await Tester.files({ "a.tsp": `namespace Foo {}` })
+      .import("./a.tsp")
+      .compile(`model Base {}`);
 
-      await testHost.compile("./");
-
-      const globalNamespaceType = testHost.program.checker.getGlobalNamespaceType();
-      assert(
-        globalNamespaceType?.namespaces.get("Foo"),
-        "Namespace Foo was added to global namespace type",
-      );
-      assert(
-        globalNamespaceType?.models.get("Base"),
-        "Should still reference main file top-level entities",
-      );
-    });
-
-    it("adds top-level models", async () => {
-      testHost.addTypeSpecFile("a.tsp", `model MyModel {}`);
-
-      await testHost.compile("./");
-
-      const globalNamespaceType = testHost.program.checker.getGlobalNamespaceType();
-      assert(
-        globalNamespaceType?.models.get("MyModel"),
-        "model MyModel was added to global namespace type",
-      );
-    });
-
-    it("adds top-level operations", async () => {
-      testHost.addTypeSpecFile("a.tsp", `op myOperation(): string;`);
-
-      await testHost.compile("./");
-
-      const globalNamespaceType = testHost.program.checker.getGlobalNamespaceType();
-      assert(
-        globalNamespaceType?.operations.get("myOperation"),
-        "operation myOperation was added to global namespace type",
-      );
-    });
+    const globalNamespaceType = program.checker.getGlobalNamespaceType();
+    assert(
+      globalNamespaceType?.namespaces.get("Foo"),
+      "Namespace Foo was added to global namespace type",
+    );
+    assert(
+      globalNamespaceType?.models.get("Base"),
+      "Should still reference main file top-level entities",
+    );
   });
 
-  it("can override TypeSpec library things", async () => {
-    testHost.addTypeSpecFile("./main.tsp", `@test model int32 { x: TypeSpec.int32 }`);
+  it("adds top-level models", async () => {
+    const { program } = await Tester.files({ "a.tsp": `model MyModel {}` })
+      .import("./a.tsp")
+      .compile(`model Base {}`);
 
-    const { int32 } = (await testHost.compile("./")) as { int32: Model };
-    notStrictEqual(int32, int32.properties.get("x")!.type);
+    const globalNamespaceType = program.checker.getGlobalNamespaceType();
+    assert(
+      globalNamespaceType?.models.get("MyModel"),
+      "model MyModel was added to global namespace type",
+    );
   });
+
+  it("adds top-level operations", async () => {
+    const { program } = await Tester.files({ "a.tsp": `op myOperation(): string;` })
+      .import("./a.tsp")
+      .compile(`model Base {}`);
+
+    const globalNamespaceType = program.checker.getGlobalNamespaceType();
+    assert(
+      globalNamespaceType?.operations.get("myOperation"),
+      "operation myOperation was added to global namespace type",
+    );
+  });
+});
+
+it("can override TypeSpec library things", async () => {
+  const { int32 } = await Tester.compile(t.code`model ${t.model("int32")} { x: TypeSpec.int32 }`);
+  notStrictEqual(int32, int32.properties.get("x")!.type);
 });

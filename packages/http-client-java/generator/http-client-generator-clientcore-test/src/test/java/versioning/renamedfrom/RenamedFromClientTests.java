@@ -7,11 +7,12 @@ import io.clientcore.core.models.binarydata.BinaryData;
 import org.junit.jupiter.api.Test;
 
 public class RenamedFromClientTests {
-    private final RenamedFromClient renamedFromClient
-        = new RenamedFromClientBuilder().endpoint("http://localhost:3000").version(Versions.V2).buildClient();
+    private final RenamedFromClient renamedFromClient = new RenamedFromClientBuilder().endpoint("http://localhost:3000")
+        .serviceVersion(RenamedFromServiceVersion.V2)
+        .buildClient();
     private final NewInterfaceClient newInterfaceClient
         = new RenamedFromClientBuilder().endpoint("http://localhost:3000")
-            .version(Versions.V2)
+            .serviceVersion(RenamedFromServiceVersion.V2)
             .buildNewInterfaceClient();
 
     @Test

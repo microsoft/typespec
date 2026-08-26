@@ -20,6 +20,7 @@ import reactor.core.publisher.Mono;
 import tsptest.discriminatoredgecases.implementation.DiscriminatorEdgeCasesClientImpl;
 import tsptest.discriminatoredgecases.models.ChildWithAnotherDiscriminator;
 import tsptest.discriminatoredgecases.models.ChildWithRequiredPropertyAsDiscriminator;
+import tsptest.discriminatoredgecases.models.ModelWithDiscriminatorNoSubtypes;
 
 /**
  * Initializes a new instance of the asynchronous DiscriminatorEdgeCasesClient type.
@@ -95,6 +96,32 @@ public final class DiscriminatorEdgeCasesAsyncClient {
     }
 
     /**
+     * The getNoSubtypes operation.
+     * <p><strong>Response Body Schema</strong></p>
+     * 
+     * <pre>
+     * {@code
+     * {
+     *     kind: String (Required)
+     *     name: String (Required)
+     * }
+     * }
+     * </pre>
+     * 
+     * @param requestOptions The options to configure the HTTP request before HTTP client sends it.
+     * @throws HttpResponseException thrown if the request is rejected by server.
+     * @throws ClientAuthenticationException thrown if the request is rejected by server on status code 401.
+     * @throws ResourceNotFoundException thrown if the request is rejected by server on status code 404.
+     * @throws ResourceModifiedException thrown if the request is rejected by server on status code 409.
+     * @return model with along with {@link Response} on successful completion of {@link Mono}.
+     */
+    @Generated
+    @ServiceMethod(returns = ReturnType.SINGLE)
+    public Mono<Response<BinaryData>> getNoSubtypesWithResponse(RequestOptions requestOptions) {
+        return this.serviceClient.getNoSubtypesWithResponseAsync(requestOptions);
+    }
+
+    /**
      * The getChildRequiredDiscrim operation.
      * 
      * @throws HttpResponseException thrown if the request is rejected by server.
@@ -130,5 +157,24 @@ public final class DiscriminatorEdgeCasesAsyncClient {
         RequestOptions requestOptions = new RequestOptions();
         return getChildNewDiscrimWithResponse(requestOptions).flatMap(FluxUtil::toMono)
             .map(protocolMethodData -> protocolMethodData.toObject(ChildWithAnotherDiscriminator.class));
+    }
+
+    /**
+     * The getNoSubtypes operation.
+     * 
+     * @throws HttpResponseException thrown if the request is rejected by server.
+     * @throws ClientAuthenticationException thrown if the request is rejected by server on status code 401.
+     * @throws ResourceNotFoundException thrown if the request is rejected by server on status code 404.
+     * @throws ResourceModifiedException thrown if the request is rejected by server on status code 409.
+     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
+     * @return model with on successful completion of {@link Mono}.
+     */
+    @Generated
+    @ServiceMethod(returns = ReturnType.SINGLE)
+    public Mono<ModelWithDiscriminatorNoSubtypes> getNoSubtypes() {
+        // Generated convenience method for getNoSubtypesWithResponse
+        RequestOptions requestOptions = new RequestOptions();
+        return getNoSubtypesWithResponse(requestOptions).flatMap(FluxUtil::toMono)
+            .map(protocolMethodData -> protocolMethodData.toObject(ModelWithDiscriminatorNoSubtypes.class));
     }
 }

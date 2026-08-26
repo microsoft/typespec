@@ -1,137 +1,54 @@
 package payload.multipart;
 
 import io.clientcore.core.annotations.Metadata;
+import io.clientcore.core.annotations.MetadataProperties;
+import io.clientcore.core.annotations.ReturnType;
 import io.clientcore.core.annotations.ServiceClient;
-import io.clientcore.core.http.exceptions.HttpResponseException;
-import io.clientcore.core.http.models.RequestOptions;
+import io.clientcore.core.annotations.ServiceMethod;
+import io.clientcore.core.http.models.HttpResponseException;
+import io.clientcore.core.http.models.RequestContext;
 import io.clientcore.core.http.models.Response;
-import io.clientcore.core.models.binarydata.BinaryData;
-import java.util.stream.Collectors;
+import io.clientcore.core.instrumentation.Instrumentation;
 import payload.multipart.formdata.AnonymousModelRequest;
 import payload.multipart.implementation.FormDatasImpl;
-import payload.multipart.implementation.MultipartFormDataHelper;
 
 /**
  * Initializes a new instance of the synchronous MultiPartClient type.
  */
 @ServiceClient(builder = MultiPartClientBuilder.class)
 public final class FormDataClient {
-    @Metadata(generated = true)
+    @Metadata(properties = { MetadataProperties.GENERATED })
     private final FormDatasImpl serviceClient;
+
+    private final Instrumentation instrumentation;
 
     /**
      * Initializes an instance of FormDataClient class.
      * 
      * @param serviceClient the service client implementation.
+     * @param instrumentation the instrumentation instance.
      */
-    @Metadata(generated = true)
-    FormDataClient(FormDatasImpl serviceClient) {
+    @Metadata(properties = { MetadataProperties.GENERATED })
+    FormDataClient(FormDatasImpl serviceClient, Instrumentation instrumentation) {
         this.serviceClient = serviceClient;
+        this.instrumentation = instrumentation;
     }
 
     /**
      * Test content-type: multipart/form-data.
      * 
      * @param body The body parameter.
-     * @param requestOptions The options to configure the HTTP request before HTTP client sends it.
+     * @param requestContext The context to configure the HTTP request before HTTP client sends it.
+     * @throws IllegalArgumentException thrown if parameters fail the validation.
      * @throws HttpResponseException thrown if the service returns an error.
-     * @return the response.
+     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
+     * @return the {@link Response}.
      */
-    @Metadata(generated = true)
-    Response<Void> basicWithResponse(BinaryData body, RequestOptions requestOptions) {
-        // Operation 'basic' is of content-type 'multipart/form-data'. Protocol API is not usable and hence not
-        // generated.
-        return this.serviceClient.basicWithResponse(body, requestOptions);
-    }
-
-    /**
-     * Test content-type: multipart/form-data for mixed scenarios.
-     * 
-     * @param body The body parameter.
-     * @param requestOptions The options to configure the HTTP request before HTTP client sends it.
-     * @throws HttpResponseException thrown if the service returns an error.
-     * @return the response.
-     */
-    @Metadata(generated = true)
-    Response<Void> fileArrayAndBasicWithResponse(BinaryData body, RequestOptions requestOptions) {
-        // Operation 'fileArrayAndBasic' is of content-type 'multipart/form-data'. Protocol API is not usable and hence
-        // not generated.
-        return this.serviceClient.fileArrayAndBasicWithResponse(body, requestOptions);
-    }
-
-    /**
-     * Test content-type: multipart/form-data for scenario contains json part and binary part.
-     * 
-     * @param body The body parameter.
-     * @param requestOptions The options to configure the HTTP request before HTTP client sends it.
-     * @throws HttpResponseException thrown if the service returns an error.
-     * @return the response.
-     */
-    @Metadata(generated = true)
-    Response<Void> jsonPartWithResponse(BinaryData body, RequestOptions requestOptions) {
-        // Operation 'jsonPart' is of content-type 'multipart/form-data'. Protocol API is not usable and hence not
-        // generated.
-        return this.serviceClient.jsonPartWithResponse(body, requestOptions);
-    }
-
-    /**
-     * Test content-type: multipart/form-data for scenario contains multi binary parts.
-     * 
-     * @param body The body parameter.
-     * @param requestOptions The options to configure the HTTP request before HTTP client sends it.
-     * @throws HttpResponseException thrown if the service returns an error.
-     * @return the response.
-     */
-    @Metadata(generated = true)
-    Response<Void> binaryArrayPartsWithResponse(BinaryData body, RequestOptions requestOptions) {
-        // Operation 'binaryArrayParts' is of content-type 'multipart/form-data'. Protocol API is not usable and hence
-        // not generated.
-        return this.serviceClient.binaryArrayPartsWithResponse(body, requestOptions);
-    }
-
-    /**
-     * Test content-type: multipart/form-data for scenario contains multi binary parts.
-     * 
-     * @param body The body parameter.
-     * @param requestOptions The options to configure the HTTP request before HTTP client sends it.
-     * @throws HttpResponseException thrown if the service returns an error.
-     * @return the response.
-     */
-    @Metadata(generated = true)
-    Response<Void> multiBinaryPartsWithResponse(BinaryData body, RequestOptions requestOptions) {
-        // Operation 'multiBinaryParts' is of content-type 'multipart/form-data'. Protocol API is not usable and hence
-        // not generated.
-        return this.serviceClient.multiBinaryPartsWithResponse(body, requestOptions);
-    }
-
-    /**
-     * Test content-type: multipart/form-data.
-     * 
-     * @param body The body parameter.
-     * @param requestOptions The options to configure the HTTP request before HTTP client sends it.
-     * @throws HttpResponseException thrown if the service returns an error.
-     * @return the response.
-     */
-    @Metadata(generated = true)
-    Response<Void> checkFileNameAndContentTypeWithResponse(BinaryData body, RequestOptions requestOptions) {
-        // Operation 'checkFileNameAndContentType' is of content-type 'multipart/form-data'. Protocol API is not usable
-        // and hence not generated.
-        return this.serviceClient.checkFileNameAndContentTypeWithResponse(body, requestOptions);
-    }
-
-    /**
-     * Test content-type: multipart/form-data.
-     * 
-     * @param body The body parameter.
-     * @param requestOptions The options to configure the HTTP request before HTTP client sends it.
-     * @throws HttpResponseException thrown if the service returns an error.
-     * @return the response.
-     */
-    @Metadata(generated = true)
-    Response<Void> anonymousModelWithResponse(BinaryData body, RequestOptions requestOptions) {
-        // Operation 'anonymousModel' is of content-type 'multipart/form-data'. Protocol API is not usable and hence not
-        // generated.
-        return this.serviceClient.anonymousModelWithResponse(body, requestOptions);
+    @Metadata(properties = { MetadataProperties.GENERATED })
+    @ServiceMethod(returns = ReturnType.SINGLE)
+    public Response<Void> basicWithResponse(MultiPartRequest body, RequestContext requestContext) {
+        return this.instrumentation.instrumentWithResponse("Payload.MultiPart.FormData.basic", requestContext,
+            updatedContext -> this.serviceClient.basicWithResponse(body, updatedContext));
     }
 
     /**
@@ -142,15 +59,89 @@ public final class FormDataClient {
      * @throws HttpResponseException thrown if the service returns an error.
      * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
      */
-    @Metadata(generated = true)
+    @Metadata(properties = { MetadataProperties.GENERATED })
+    @ServiceMethod(returns = ReturnType.SINGLE)
     public void basic(MultiPartRequest body) {
-        // Generated convenience method for basicWithResponse
-        RequestOptions requestOptions = new RequestOptions();
-        basicWithResponse(new MultipartFormDataHelper(requestOptions).serializeTextField("id", body.getId())
-            .serializeFileField("profileImage", body.getProfileImage().getContent(),
-                body.getProfileImage().getContentType(), body.getProfileImage().getFilename())
-            .end()
-            .getRequestBody(), requestOptions).getValue();
+        basicWithResponse(body, RequestContext.none());
+    }
+
+    /**
+     * Test content-type: multipart/form-data with wire names.
+     * 
+     * @param body The body parameter.
+     * @param requestContext The context to configure the HTTP request before HTTP client sends it.
+     * @throws IllegalArgumentException thrown if parameters fail the validation.
+     * @throws HttpResponseException thrown if the service returns an error.
+     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
+     * @return the {@link Response}.
+     */
+    @Metadata(properties = { MetadataProperties.GENERATED })
+    @ServiceMethod(returns = ReturnType.SINGLE)
+    public Response<Void> withWireNameWithResponse(MultiPartRequestWithWireName body, RequestContext requestContext) {
+        return this.instrumentation.instrumentWithResponse("Payload.MultiPart.FormData.withWireName", requestContext,
+            updatedContext -> this.serviceClient.withWireNameWithResponse(body, updatedContext));
+    }
+
+    /**
+     * Test content-type: multipart/form-data with wire names.
+     * 
+     * @param body The body parameter.
+     * @throws IllegalArgumentException thrown if parameters fail the validation.
+     * @throws HttpResponseException thrown if the service returns an error.
+     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
+     */
+    @Metadata(properties = { MetadataProperties.GENERATED })
+    @ServiceMethod(returns = ReturnType.SINGLE)
+    public void withWireName(MultiPartRequestWithWireName body) {
+        withWireNameWithResponse(body, RequestContext.none());
+    }
+
+    /**
+     * Test content-type: multipart/form-data with optional parts.
+     * 
+     * @param body The body parameter.
+     * @param requestContext The context to configure the HTTP request before HTTP client sends it.
+     * @throws IllegalArgumentException thrown if parameters fail the validation.
+     * @throws HttpResponseException thrown if the service returns an error.
+     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
+     * @return the {@link Response}.
+     */
+    @Metadata(properties = { MetadataProperties.GENERATED })
+    @ServiceMethod(returns = ReturnType.SINGLE)
+    public Response<Void> optionalPartsWithResponse(MultiPartOptionalRequest body, RequestContext requestContext) {
+        return this.instrumentation.instrumentWithResponse("Payload.MultiPart.FormData.optionalParts", requestContext,
+            updatedContext -> this.serviceClient.optionalPartsWithResponse(body, updatedContext));
+    }
+
+    /**
+     * Test content-type: multipart/form-data with optional parts.
+     * 
+     * @param body The body parameter.
+     * @throws IllegalArgumentException thrown if parameters fail the validation.
+     * @throws HttpResponseException thrown if the service returns an error.
+     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
+     */
+    @Metadata(properties = { MetadataProperties.GENERATED })
+    @ServiceMethod(returns = ReturnType.SINGLE)
+    public void optionalParts(MultiPartOptionalRequest body) {
+        optionalPartsWithResponse(body, RequestContext.none());
+    }
+
+    /**
+     * Test content-type: multipart/form-data for mixed scenarios.
+     * 
+     * @param body The body parameter.
+     * @param requestContext The context to configure the HTTP request before HTTP client sends it.
+     * @throws IllegalArgumentException thrown if parameters fail the validation.
+     * @throws HttpResponseException thrown if the service returns an error.
+     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
+     * @return the {@link Response}.
+     */
+    @Metadata(properties = { MetadataProperties.GENERATED })
+    @ServiceMethod(returns = ReturnType.SINGLE)
+    public Response<Void> fileArrayAndBasicWithResponse(ComplexPartsRequest body, RequestContext requestContext) {
+        return this.instrumentation.instrumentWithResponse("Payload.MultiPart.FormData.fileArrayAndBasic",
+            requestContext, updatedContext -> this.serviceClient.fileArrayAndBasicWithResponse(body, updatedContext));
     }
 
     /**
@@ -161,20 +152,27 @@ public final class FormDataClient {
      * @throws HttpResponseException thrown if the service returns an error.
      * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
      */
-    @Metadata(generated = true)
+    @Metadata(properties = { MetadataProperties.GENERATED })
+    @ServiceMethod(returns = ReturnType.SINGLE)
     public void fileArrayAndBasic(ComplexPartsRequest body) {
-        // Generated convenience method for fileArrayAndBasicWithResponse
-        RequestOptions requestOptions = new RequestOptions();
-        fileArrayAndBasicWithResponse(new MultipartFormDataHelper(requestOptions).serializeTextField("id", body.getId())
-            .serializeJsonField("address", body.getAddress())
-            .serializeFileField("profileImage", body.getProfileImage().getContent(),
-                body.getProfileImage().getContentType(), body.getProfileImage().getFilename())
-            .serializeFileFields("pictures",
-                body.getPictures().stream().map(PicturesFileDetails::getContent).collect(Collectors.toList()),
-                body.getPictures().stream().map(PicturesFileDetails::getContentType).collect(Collectors.toList()),
-                body.getPictures().stream().map(PicturesFileDetails::getFilename).collect(Collectors.toList()))
-            .end()
-            .getRequestBody(), requestOptions).getValue();
+        fileArrayAndBasicWithResponse(body, RequestContext.none());
+    }
+
+    /**
+     * Test content-type: multipart/form-data for scenario contains json part and binary part.
+     * 
+     * @param body The body parameter.
+     * @param requestContext The context to configure the HTTP request before HTTP client sends it.
+     * @throws IllegalArgumentException thrown if parameters fail the validation.
+     * @throws HttpResponseException thrown if the service returns an error.
+     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
+     * @return the {@link Response}.
+     */
+    @Metadata(properties = { MetadataProperties.GENERATED })
+    @ServiceMethod(returns = ReturnType.SINGLE)
+    public Response<Void> jsonPartWithResponse(JsonPartRequest body, RequestContext requestContext) {
+        return this.instrumentation.instrumentWithResponse("Payload.MultiPart.FormData.jsonPart", requestContext,
+            updatedContext -> this.serviceClient.jsonPartWithResponse(body, updatedContext));
     }
 
     /**
@@ -185,17 +183,27 @@ public final class FormDataClient {
      * @throws HttpResponseException thrown if the service returns an error.
      * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
      */
-    @Metadata(generated = true)
+    @Metadata(properties = { MetadataProperties.GENERATED })
+    @ServiceMethod(returns = ReturnType.SINGLE)
     public void jsonPart(JsonPartRequest body) {
-        // Generated convenience method for jsonPartWithResponse
-        RequestOptions requestOptions = new RequestOptions();
-        jsonPartWithResponse(
-            new MultipartFormDataHelper(requestOptions).serializeJsonField("address", body.getAddress())
-                .serializeFileField("profileImage", body.getProfileImage().getContent(),
-                    body.getProfileImage().getContentType(), body.getProfileImage().getFilename())
-                .end()
-                .getRequestBody(),
-            requestOptions).getValue();
+        jsonPartWithResponse(body, RequestContext.none());
+    }
+
+    /**
+     * Test content-type: multipart/form-data for scenario contains multi binary parts.
+     * 
+     * @param body The body parameter.
+     * @param requestContext The context to configure the HTTP request before HTTP client sends it.
+     * @throws IllegalArgumentException thrown if parameters fail the validation.
+     * @throws HttpResponseException thrown if the service returns an error.
+     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
+     * @return the {@link Response}.
+     */
+    @Metadata(properties = { MetadataProperties.GENERATED })
+    @ServiceMethod(returns = ReturnType.SINGLE)
+    public Response<Void> binaryArrayPartsWithResponse(BinaryArrayPartsRequest body, RequestContext requestContext) {
+        return this.instrumentation.instrumentWithResponse("Payload.MultiPart.FormData.binaryArrayParts",
+            requestContext, updatedContext -> this.serviceClient.binaryArrayPartsWithResponse(body, updatedContext));
     }
 
     /**
@@ -206,17 +214,27 @@ public final class FormDataClient {
      * @throws HttpResponseException thrown if the service returns an error.
      * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
      */
-    @Metadata(generated = true)
+    @Metadata(properties = { MetadataProperties.GENERATED })
+    @ServiceMethod(returns = ReturnType.SINGLE)
     public void binaryArrayParts(BinaryArrayPartsRequest body) {
-        // Generated convenience method for binaryArrayPartsWithResponse
-        RequestOptions requestOptions = new RequestOptions();
-        binaryArrayPartsWithResponse(new MultipartFormDataHelper(requestOptions).serializeTextField("id", body.getId())
-            .serializeFileFields("pictures",
-                body.getPictures().stream().map(PicturesFileDetails::getContent).collect(Collectors.toList()),
-                body.getPictures().stream().map(PicturesFileDetails::getContentType).collect(Collectors.toList()),
-                body.getPictures().stream().map(PicturesFileDetails::getFilename).collect(Collectors.toList()))
-            .end()
-            .getRequestBody(), requestOptions).getValue();
+        binaryArrayPartsWithResponse(body, RequestContext.none());
+    }
+
+    /**
+     * Test content-type: multipart/form-data for scenario contains multi binary parts.
+     * 
+     * @param body The body parameter.
+     * @param requestContext The context to configure the HTTP request before HTTP client sends it.
+     * @throws IllegalArgumentException thrown if parameters fail the validation.
+     * @throws HttpResponseException thrown if the service returns an error.
+     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
+     * @return the {@link Response}.
+     */
+    @Metadata(properties = { MetadataProperties.GENERATED })
+    @ServiceMethod(returns = ReturnType.SINGLE)
+    public Response<Void> multiBinaryPartsWithResponse(MultiBinaryPartsRequest body, RequestContext requestContext) {
+        return this.instrumentation.instrumentWithResponse("Payload.MultiPart.FormData.multiBinaryParts",
+            requestContext, updatedContext -> this.serviceClient.multiBinaryPartsWithResponse(body, updatedContext));
     }
 
     /**
@@ -227,18 +245,29 @@ public final class FormDataClient {
      * @throws HttpResponseException thrown if the service returns an error.
      * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
      */
-    @Metadata(generated = true)
+    @Metadata(properties = { MetadataProperties.GENERATED })
+    @ServiceMethod(returns = ReturnType.SINGLE)
     public void multiBinaryParts(MultiBinaryPartsRequest body) {
-        // Generated convenience method for multiBinaryPartsWithResponse
-        RequestOptions requestOptions = new RequestOptions();
-        multiBinaryPartsWithResponse(new MultipartFormDataHelper(requestOptions)
-            .serializeFileField("profileImage", body.getProfileImage().getContent(),
-                body.getProfileImage().getContentType(), body.getProfileImage().getFilename())
-            .serializeFileField("picture", body.getPicture() == null ? null : body.getPicture().getContent(),
-                body.getPicture() == null ? null : body.getPicture().getContentType(),
-                body.getPicture() == null ? null : body.getPicture().getFilename())
-            .end()
-            .getRequestBody(), requestOptions).getValue();
+        multiBinaryPartsWithResponse(body, RequestContext.none());
+    }
+
+    /**
+     * Test content-type: multipart/form-data.
+     * 
+     * @param body The body parameter.
+     * @param requestContext The context to configure the HTTP request before HTTP client sends it.
+     * @throws IllegalArgumentException thrown if parameters fail the validation.
+     * @throws HttpResponseException thrown if the service returns an error.
+     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
+     * @return the {@link Response}.
+     */
+    @Metadata(properties = { MetadataProperties.GENERATED })
+    @ServiceMethod(returns = ReturnType.SINGLE)
+    public Response<Void> checkFileNameAndContentTypeWithResponse(MultiPartRequest body,
+        RequestContext requestContext) {
+        return this.instrumentation.instrumentWithResponse("Payload.MultiPart.FormData.checkFileNameAndContentType",
+            requestContext,
+            updatedContext -> this.serviceClient.checkFileNameAndContentTypeWithResponse(body, updatedContext));
     }
 
     /**
@@ -249,17 +278,27 @@ public final class FormDataClient {
      * @throws HttpResponseException thrown if the service returns an error.
      * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
      */
-    @Metadata(generated = true)
+    @Metadata(properties = { MetadataProperties.GENERATED })
+    @ServiceMethod(returns = ReturnType.SINGLE)
     public void checkFileNameAndContentType(MultiPartRequest body) {
-        // Generated convenience method for checkFileNameAndContentTypeWithResponse
-        RequestOptions requestOptions = new RequestOptions();
-        checkFileNameAndContentTypeWithResponse(
-            new MultipartFormDataHelper(requestOptions).serializeTextField("id", body.getId())
-                .serializeFileField("profileImage", body.getProfileImage().getContent(),
-                    body.getProfileImage().getContentType(), body.getProfileImage().getFilename())
-                .end()
-                .getRequestBody(),
-            requestOptions).getValue();
+        checkFileNameAndContentTypeWithResponse(body, RequestContext.none());
+    }
+
+    /**
+     * Test content-type: multipart/form-data.
+     * 
+     * @param body The body parameter.
+     * @param requestContext The context to configure the HTTP request before HTTP client sends it.
+     * @throws IllegalArgumentException thrown if parameters fail the validation.
+     * @throws HttpResponseException thrown if the service returns an error.
+     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
+     * @return the {@link Response}.
+     */
+    @Metadata(properties = { MetadataProperties.GENERATED })
+    @ServiceMethod(returns = ReturnType.SINGLE)
+    public Response<Void> anonymousModelWithResponse(AnonymousModelRequest body, RequestContext requestContext) {
+        return this.instrumentation.instrumentWithResponse("Payload.MultiPart.FormData.anonymousModel", requestContext,
+            updatedContext -> this.serviceClient.anonymousModelWithResponse(body, updatedContext));
     }
 
     /**
@@ -270,16 +309,9 @@ public final class FormDataClient {
      * @throws HttpResponseException thrown if the service returns an error.
      * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
      */
-    @Metadata(generated = true)
+    @Metadata(properties = { MetadataProperties.GENERATED })
+    @ServiceMethod(returns = ReturnType.SINGLE)
     public void anonymousModel(AnonymousModelRequest body) {
-        // Generated convenience method for anonymousModelWithResponse
-        RequestOptions requestOptions = new RequestOptions();
-        anonymousModelWithResponse(
-            new MultipartFormDataHelper(requestOptions)
-                .serializeFileField("profileImage", body.getProfileImage().getContent(),
-                    body.getProfileImage().getContentType(), body.getProfileImage().getFilename())
-                .end()
-                .getRequestBody(),
-            requestOptions).getValue();
+        anonymousModelWithResponse(body, RequestContext.none());
     }
 }

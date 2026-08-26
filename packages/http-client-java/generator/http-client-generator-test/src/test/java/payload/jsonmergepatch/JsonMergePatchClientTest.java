@@ -44,7 +44,7 @@ public class JsonMergePatchClientTest {
         resource.setMap(map);
         resource.setDescription("desc");
         resource.setIntValue(1);
-        resource.setFloatValue(1.1);
+        resource.setFloatValue(1.25);
         resource.setInnerModel(innerModel);
         resource.setIntArray(Arrays.asList(1, 2, 3));
         return resource;

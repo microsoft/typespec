@@ -25,13 +25,6 @@ export function emitUnionType(ctx: JsContext, variants: UnionVariant[], module: 
     const name = emitTypeReference(ctx, v.type, v, module);
 
     variantTypes.push(name);
-
-    // if (isImportableType(ctx, v.type)) {
-    //   module.imports.push({
-    //     binder: [name],
-    //     from: createOrGetModuleForNamespace(ctx, v.type.namespace!),
-    //   });
-    // }
   }
 
   return variantTypes.join(" | ");
@@ -72,5 +65,5 @@ export function* emitUnion(
     }),
   );
 
-  yield `export type ${name} = ${variantTypes.join(" | ")};`;
+  yield `export type ${name} = ${variantTypes.length === 0 ? "never" : variantTypes.join(" | ")};`;
 }

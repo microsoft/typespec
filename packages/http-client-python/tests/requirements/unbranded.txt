@@ -1,0 +1,5 @@
+# === common unbranded dependencies across repos ===
+# Unbranded SDK dependencies
+-r base.txt
+corehttp[requests]
+# === end common unbranded dependencies across repos ===

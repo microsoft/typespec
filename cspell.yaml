@@ -5,11 +5,16 @@ dictionaries:
   - node
   - typescript
 words:
+  - Ablack
   - Adoptium
+  - agentic
+  - agentics
   - aiohttp
   - alzimmer
   - amqp
   - AQID
+  - Arize
+  - arizeaiobservabilityeval
   - arraya
   - astimezone
   - astro
@@ -22,6 +27,9 @@ words:
   - azsdkengsys
   - azurecr
   - azuresdk
+  - azuresdkengkeyvault
+  - azurev
+  - azurevnext
   - bifilter
   - blib
   - blockful
@@ -31,6 +39,11 @@ words:
   - cadleditor
   - cadleng
   - cadlplayground
+  - canidae
+  - canonicalizer
+  - Cblack
+  - Cbrown
+  - clid
   - clsx
   - cobertura
   - codehaus
@@ -39,6 +52,7 @@ words:
   - CORGE
   - createsorreplacesresource
   - createsorupdatesresource
+  - Creds
   - CRUDL
   - ctxt
   - dbaeumer
@@ -46,8 +60,10 @@ words:
   - debouncer
   - debugpy
   - Declipse
+  - dedented
   - Dedupes
   - deps
+  - deser
   - destructures
   - devdiv
   - Diagnoser
@@ -58,6 +74,8 @@ words:
   - Dosgi
   - dotenv
   - Dskip
+  - duplicative
+  - Dyns
   - eastus
   - ecmarkup
   - elif
@@ -71,13 +89,15 @@ words:
   - ESRP
   - etree
   - fastify
+  - felidae
   - fluentui
   - français
+  - freadme
   - fslib
   - genproto
   - getpgid
+  - ghapp
   - giacamo
-  - globby
   - graalvm
   - Gson
   - Hdvcmxk
@@ -101,6 +121,7 @@ words:
   - IOHTTP
   - isdigit
   - isinstance
+  - issecret
   - issubclass
   - itertype
   - itor
@@ -110,9 +131,11 @@ words:
   - jdwp
   - jobject
   - Johan
+  - jquery
   - jsyaml
   - keyer
   - killpg
+  - kwarg
   - kwargs
   - labelledby
   - libc
@@ -122,13 +145,17 @@ words:
   - LINUXOS
   - LINUXVMIMAGE
   - ljust
+  - llms
+  - llmstxt
   - lmazuel
   - lropaging
   - lstrip
   - lzutf
   - MACVMIMAGE
   - MACVMIMAGEM
+  - marshal
   - mday
+  - methodsubscriptionid
   - mgmt
   - mgmtplane
   - mocharc
@@ -140,14 +167,20 @@ words:
   - msrest
   - multis
   - munge
+  - muscidae
+  - myblob
   - mylib
   - myname
   - mypy
   - nanos
+  - ncpu
   - nexted
   - nihao
+  - nint
+  - noauth
   - NODEFS
   - noformat
+  - nologo
   - noopener
   - noreferrer
   - nosec
@@ -156,6 +189,7 @@ words:
   - npath
   - npmjs
   - nspkg
+  - nuint
   - nupkg
   - oapi
   - ODATA
@@ -166,21 +200,27 @@ words:
   - onigasm
   - onwarn
   - openapi
+  - oxlint
   - openapiv
   - Packument
   - Perfolizer
   - picocolors
+  - pkgs
+  - pnpx
   - posargs
   - primitivea
   - prismjs
   - proto
   - protobuf
   - protoc
+  - pscore
   - psscriptanalyzer
   - ptvsd
   - pwsh
+  - pycache
   - pyexpat
   - pygen
+  - pygments
   - pyimport
   - pylint
   - pylintrc
@@ -189,6 +229,7 @@ words:
   - pyright
   - pyrightconfig
   - pytest
+  - pytyped
   - pyyaml
   - rcfile
   - reactivex
@@ -196,21 +237,29 @@ words:
   - recorda
   - regen
   - rehype
+  - reinjected
   - repr
   - respecify
+  - responseasbool
   - rjust
+  - rollup
   - rpaas
   - rsplit
   - rstrip
   - rtype
   - rushx
   - safeint
+  - SCME
   - sdkcore
   - segmentof
   - serde
+  - servicea
+  - serviceb
+  - setuppy
   - sfixed
   - shiki
   - sint
+  - slnx
   - snakeyaml
   - srnagar
   - ssdlrs
@@ -218,9 +267,11 @@ words:
   - ssvs
   - statment
   - strs
+  - stubbed
   - swaggerui
-  - syncpack
   - TCGC
+  - TEAMPROJECTID
+  - terlson
   - timegm
   - tomli
   - triaging
@@ -228,10 +279,12 @@ words:
   - tsconfigs
   - tsdoc
   - TSES
+  - tsgolint
   - tspd
   - tspwebsitepr
   - tsvs
   - typespec
+  - typespecacr
   - typespecvs
   - tzname
   - Uhoh
@@ -239,32 +292,48 @@ words:
   - unassignable
   - Uncapitalize
   - uncollapsed
+  - unconfigure
   - undifferentiable
+  - undoc
   - Ungroup
   - uninstantiated
   - unioned
+  - unionified
+  - unionify
+  - unmarshal
   - unparented
   - unprefixed
   - unprojected
   - unrepresentable
   - unsourced
+  - unstub
+  - unstubbed
   - unversioned
   - venv
   - venvtools
   - VITE
   - vitest
+  - vnet
+  - VNEXT
   - vsix
+  - vsextensions
+  - vsmarketplace
+  - vspackage
   - VSSDK
   - Vsts
   - vswhere
   - wday
   - weidxu
   - westus
+  - WHATWG
   - WINDOWSARMVMIMAGE
   - WINDOWSVMIMAGE
+  - workerid
+  - xdist
   - xiangyan
   - xiaofei
   - xlarge
+  - Xlint
   - xmsclientrequestid
   - xors
   - xplat
@@ -282,11 +351,17 @@ ignorePaths:
   - common/scripts/*
   - "**/ThirdPartyNotices.txt"
   - packages/compiler/test/formatter/scenarios/**
+  - packages/http-client-java/generator/http-client-generator/src/main/resources/PerfAutomation.jfc
   - packages/http-client-java/generator/http-client-generator-test/**
   - packages/http-client-java/generator/http-client-generator-clientcore-test/**
   - packages/http-client-js/test/e2e/**
   - packages/http-client-js/sample/**
+  - packages/mutator-framework/**/*.test.ts
+  - packages/typespec-vscode/test/scenarios/**
   - pnpm-lock.yaml
+  - "**/*.lock.yml"
+  - pnpm-workspace.yaml
+  - "**/dependabot.yml"
   - "**/*.mp4"
   - "**/*.plist"
   - .git/**
@@ -307,6 +382,10 @@ patterns:
   - name: Authorization_Basic
     description: Ignore Base64 authorization tokens
     pattern: "/Authorization: Basic\\s+\\S+/g"
+  - name: Todo
+    description: Ignore TODO comments with usernames
+    pattern: /TODO[\/\s\(][a-zA-Z0-9_-]+/g
 ignoreRegExpList:
   - cursortest
   - Authorization_Basic
+  - Todo

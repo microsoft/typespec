@@ -13,18 +13,23 @@ namespace SampleTypeSpec
         /// <summary> Keeps track of any properties unknown to the library. </summary>
         private protected readonly IDictionary<string, BinaryData> _additionalBinaryDataProperties;
 
-        internal RenamedModel(string name)
+        /// <summary> Initializes a new instance of <see cref="RenamedModel"/>. </summary>
+        /// <param name="otherName"> name of the ModelWithClientName. </param>
+        internal RenamedModel(string otherName)
         {
-            Name = name;
+            OtherName = otherName;
         }
 
-        internal RenamedModel(string name, IDictionary<string, BinaryData> additionalBinaryDataProperties)
+        /// <summary> Initializes a new instance of <see cref="RenamedModel"/>. </summary>
+        /// <param name="otherName"> name of the ModelWithClientName. </param>
+        /// <param name="additionalBinaryDataProperties"> Keeps track of any properties unknown to the library. </param>
+        internal RenamedModel(string otherName, IDictionary<string, BinaryData> additionalBinaryDataProperties)
         {
-            Name = name;
+            OtherName = otherName;
             _additionalBinaryDataProperties = additionalBinaryDataProperties;
         }
 
         /// <summary> name of the ModelWithClientName. </summary>
-        public string Name { get; }
+        public string OtherName { get; }
     }
 }

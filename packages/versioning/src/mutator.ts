@@ -161,6 +161,7 @@ export function createVersionMutator(
         clone.returnType = returnTypeAtVersion;
       }
     },
+    Tuple: (original, clone, p, realm) => {},
     ModelProperty: (original, clone, p, realm) => {
       rename(original, clone);
       clone.optional = versioning.getOptionalAtVersion(original, moment);

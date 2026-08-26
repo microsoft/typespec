@@ -1,5 +1,5 @@
 import io.clientcore.core.http.models.HttpHeaderName;
-import io.clientcore.core.http.models.RequestOptions;
+import io.clientcore.core.http.models.RequestContext;
 import io.clientcore.core.models.binarydata.BinaryData;
 
 import java.io.ByteArrayInputStream;
@@ -43,20 +43,20 @@ public final class MultipartFormDataHelper {
     private InputStream requestDataStream = new ByteArrayInputStream(new byte[0]);
     private long requestLength = 0;
 
-    private RequestOptions requestOptions;
+    private RequestContext requestContext;
     private BinaryData requestBody;
 
     /**
      * Default constructor used in the code. The boundary is a random value.
      *
-     * @param requestOptions the RequestOptions to update
+     * @param requestContext the RequestContext to update
      */
-    public MultipartFormDataHelper(RequestOptions requestOptions) {
-        this(requestOptions, UUID.randomUUID().toString().substring(0, 16));
+    public MultipartFormDataHelper(RequestContext requestContext) {
+        this(requestContext, UUID.randomUUID().toString().substring(0, 16));
     }
 
-    private MultipartFormDataHelper(RequestOptions requestOptions, String boundary) {
-        this.requestOptions = requestOptions;
+    private MultipartFormDataHelper(RequestContext requestContext, String boundary) {
+        this.requestContext = requestContext;
         this.boundary = boundary;
         this.partSeparator = "--" + boundary;
         this.endMarker = this.partSeparator + "--";
@@ -174,9 +174,10 @@ public final class MultipartFormDataHelper {
 
         requestBody = BinaryData.fromStream(requestDataStream, requestLength);
 
-        requestOptions
+        requestContext = requestContext.toBuilder()
                 .setHeader(HttpHeaderName.CONTENT_TYPE, "multipart/form-data; boundary=" + this.boundary)
-                .setHeader(HttpHeaderName.CONTENT_LENGTH, String.valueOf(requestLength));
+                .setHeader(HttpHeaderName.CONTENT_LENGTH, String.valueOf(requestLength))
+                .build();
 
         return this;
     }

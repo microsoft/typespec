@@ -8,6 +8,7 @@ export { getLocationContext } from "./location-context.js";
 export { listOperationsIn, type ListOperationOptions } from "./operation-utils.js";
 export { interpolatePath } from "./path-interpolation.js";
 
+export { cacheRawText, getCachedRawText, getRawTextWithCache } from "./raw-text-cache.js";
 export { explainStringTemplateNotSerializable } from "./string-template-utils.js";
 export { printIdentifier as formatIdentifier, printIdentifier } from "./syntax-utils.js";
 export {

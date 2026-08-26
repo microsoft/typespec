@@ -3,12 +3,12 @@
 # Licensed under the MIT License. See License.txt in the project root for
 # license information.
 # --------------------------------------------------------------------------
-from typing import Any, Dict, List, TYPE_CHECKING, Optional, cast
+from typing import Any, TYPE_CHECKING, Optional, cast
 
 from .base import BaseType
 from .imports import FileImport, ImportType, TypingSection
-from .utils import NamespaceType
-
+from .utils import NamespaceType, add_to_pylint_disable
+from ...utils import NAME_LENGTH_LIMIT
 
 if TYPE_CHECKING:
     from .code_model import CodeModel
@@ -24,7 +24,7 @@ class EnumValue(BaseType):
 
     def __init__(
         self,
-        yaml_data: Dict[str, Any],
+        yaml_data: dict[str, Any],
         code_model: "CodeModel",
         enum_type: "EnumType",
         value_type: BaseType,
@@ -40,6 +40,10 @@ class EnumValue(BaseType):
 
     def type_annotation(self, **kwargs: Any) -> str:
         """The python type used for type annotation"""
+        if self.code_model.options["models-mode"] == "typeddict":
+            # A single constant enum value must be
+            # annotated with its literal value directly (e.g. ``Literal["red"]``).
+            return f"Literal[{self.value_type.get_declaration(self.value)}]"
         return f"Literal[{self.enum_type.name}.{self.name}]"
 
     def get_declaration(self, value=None):
@@ -52,7 +56,10 @@ class EnumValue(BaseType):
         """The python type used for RST syntax input and type annotation."""
 
         type_annotation = self.value_type.type_annotation(**kwargs)
-        enum_type_annotation = f"{self.code_model.namespace}.models.{self.name}"
+        client_namespace = self.enum_type.client_namespace
+        if self.code_model.options.get("generation-subdir"):
+            client_namespace += f".{self.code_model.options['generation-subdir']}"
+        enum_type_annotation = f"{client_namespace}.models.{self.name}"
         return f"{type_annotation} or ~{enum_type_annotation}"
 
     def get_json_template_representation(
@@ -76,6 +83,9 @@ class EnumValue(BaseType):
         file_import = FileImport(self.code_model)
         file_import.merge(self.value_type.imports(**kwargs))
         file_import.add_submodule_import("typing", "Literal", ImportType.STDLIB, TypingSection.REGULAR)
+        if self.code_model.options["models-mode"] == "typeddict":
+            # In typeddict mode the enums module (``_enums.py``) is never generated
+            return file_import
         serialize_namespace = kwargs.get("serialize_namespace", self.code_model.namespace)
         file_import.add_submodule_import(
             self.code_model.get_relative_import_path(
@@ -91,7 +101,7 @@ class EnumValue(BaseType):
         return file_import
 
     @classmethod
-    def from_yaml(cls, yaml_data: Dict[str, Any], code_model: "CodeModel") -> "EnumValue":
+    def from_yaml(cls, yaml_data: dict[str, Any], code_model: "CodeModel") -> "EnumValue":
         """Constructs an EnumValue from yaml data.
 
         :param yaml_data: the yaml data from which we will construct this object
@@ -124,9 +134,9 @@ class EnumType(BaseType):
 
     def __init__(
         self,
-        yaml_data: Dict[str, Any],
+        yaml_data: dict[str, Any],
         code_model: "CodeModel",
-        values: List["EnumValue"],
+        values: list["EnumValue"],
         value_type: BaseType,
     ) -> None:
         super().__init__(yaml_data=yaml_data, code_model=code_model)
@@ -164,16 +174,31 @@ class EnumType(BaseType):
         enum_description = f"Known values are: {possible_values_str}."
         return enum_description
 
+    @property
+    def is_typeddict_mode(self) -> bool:
+        return self.code_model.options["models-mode"] == "typeddict"
+
     def type_annotation(self, **kwargs: Any) -> str:
         """The python type used for type annotation
 
         :return: The type annotation for this schema
         :rtype: str
         """
-        if self.code_model.options["models_mode"]:
+        if self.code_model.options["models-mode"]:
+            if self.is_typeddict_mode:
+                # In typeddict mode, enums are Literal aliases defined in types.py
+                serialize_namespace_type = kwargs.get("serialize_namespace_type")
+                if serialize_namespace_type == NamespaceType.TYPES_FILE:
+                    # Same file — just the name, no module prefix
+                    return self.name
+                # From operation/client files, use types.EnumName (matching model pattern)
+                return f"types.{self.name}"
 
             module_name = ""
-            if kwargs.get("need_model_alias", True):
+            serialize_namespace_type = kwargs.get("serialize_namespace_type")
+            if serialize_namespace_type == NamespaceType.TYPES_FILE:
+                pass  # no module prefix for types.py
+            elif kwargs.get("need_model_alias", True):
                 serialize_namespace = kwargs.get("serialize_namespace", self.code_model.namespace)
                 model_alias = self.code_model.get_unique_models_alias(serialize_namespace, self.client_namespace)
                 module_name = f"{model_alias}."
@@ -186,19 +211,25 @@ class EnumType(BaseType):
             return f"Union[{self.value_type.type_annotation(**kwargs)}, {model_name}]"
         return self.value_type.type_annotation(**kwargs)
 
+    def pylint_disable(self) -> str:
+        retval: str = ""
+        if len(self.name) > NAME_LENGTH_LIMIT:
+            retval = add_to_pylint_disable(retval, "name-too-long")
+        return retval
+
     def get_declaration(self, value: Any) -> str:
         return self.value_type.get_declaration(value)
 
     def docstring_text(self, **kwargs: Any) -> str:
-        if self.code_model.options["models_mode"]:
+        if self.code_model.options["models-mode"]:
             return self.name
         return self.value_type.type_annotation(**kwargs)
 
     def docstring_type(self, **kwargs: Any) -> str:
         """The python type used for RST syntax input and type annotation."""
-        if self.code_model.options["models_mode"]:
+        if self.code_model.options["models-mode"]:
             type_annotation = self.value_type.type_annotation(**kwargs)
-            enum_type_annotation = f"{self.code_model.namespace}.models.{self.name}"
+            enum_type_annotation = f"{self.client_namespace}.models.{self.name}"
             return f"{type_annotation} or ~{enum_type_annotation}"
         return self.value_type.type_annotation(**kwargs)
 
@@ -216,12 +247,12 @@ class EnumType(BaseType):
     def instance_check_template(self) -> str:
         return self.value_type.instance_check_template
 
-    def fill_instance_from_yaml(self, yaml_data: Dict[str, Any], code_model: "CodeModel") -> None:
+    def fill_instance_from_yaml(self, yaml_data: dict[str, Any], code_model: "CodeModel") -> None:
         for value in yaml_data["values"]:
             self.values.append(EnumValue.from_yaml(value, code_model))
 
     @classmethod
-    def from_yaml(cls, yaml_data: Dict[str, Any], code_model: "CodeModel") -> "EnumType":
+    def from_yaml(cls, yaml_data: dict[str, Any], code_model: "CodeModel") -> "EnumType":
         raise ValueError(
             "You shouldn't call from_yaml for EnumType to avoid recursion. "
             "Please initial a blank EnumType, then call .fill_instance_from_yaml on the created type."
@@ -230,32 +261,67 @@ class EnumType(BaseType):
     def imports(self, **kwargs: Any) -> FileImport:
         file_import = FileImport(self.code_model)
         file_import.merge(self.value_type.imports(**kwargs))
-        if self.code_model.options["models_mode"]:
-            file_import.add_submodule_import("typing", "Union", ImportType.STDLIB, TypingSection.CONDITIONAL)
+        if self.code_model.options["models-mode"]:
+            if self.is_typeddict_mode:
+                # In typeddict mode, enums are Literal aliases in types.py — no Union needed
+                serialize_namespace_type = kwargs.get("serialize_namespace_type")
+                if serialize_namespace_type == NamespaceType.TYPES_FILE:
+                    # Same file — no import needed for same-namespace enums
+                    serialize_namespace = kwargs.get("serialize_namespace", self.code_model.namespace)
+                    if self.client_namespace != serialize_namespace:
+                        # Cross-namespace: import from sibling types module
+                        relative_path = self.code_model.get_relative_import_path(
+                            serialize_namespace, self.client_namespace
+                        )
+                        file_import.add_submodule_import(
+                            f"{relative_path}types" if relative_path != "." else ".types",
+                            self.name,
+                            ImportType.LOCAL,
+                            typing_section=TypingSection.REGULAR,
+                        )
+                elif serialize_namespace_type in [NamespaceType.OPERATION, NamespaceType.CLIENT]:
+                    # Import types module directly (matching model pattern)
+                    serialize_namespace = kwargs.get("serialize_namespace", self.code_model.namespace)
+                    relative_path = self.code_model.get_relative_import_path(serialize_namespace, self.client_namespace)
+                    file_import.add_submodule_import(
+                        relative_path,
+                        "types",
+                        ImportType.LOCAL,
+                    )
+            else:
+                file_import.add_submodule_import("typing", "Union", ImportType.STDLIB, TypingSection.REGULAR)
 
-            serialize_namespace = kwargs.get("serialize_namespace", self.code_model.namespace)
-            relative_path = self.code_model.get_relative_import_path(serialize_namespace, self.client_namespace)
-            alias = self.code_model.get_unique_models_alias(serialize_namespace, self.client_namespace)
-            serialize_namespace_type = kwargs.get("serialize_namespace_type")
-            called_by_property = kwargs.get("called_by_property", False)
-            if serialize_namespace_type in [NamespaceType.OPERATION, NamespaceType.CLIENT]:
-                file_import.add_submodule_import(
-                    relative_path,
-                    "models",
-                    ImportType.LOCAL,
-                    alias=alias,
-                    typing_section=TypingSection.REGULAR,
-                )
-            elif serialize_namespace_type == NamespaceType.TYPES_FILE or (
-                serialize_namespace_type == NamespaceType.MODEL and called_by_property
-            ):
-                file_import.add_submodule_import(
-                    relative_path,
-                    "models",
-                    ImportType.LOCAL,
-                    alias=alias,
-                    typing_section=TypingSection.TYPING,
-                )
+                serialize_namespace = kwargs.get("serialize_namespace", self.code_model.namespace)
+                relative_path = self.code_model.get_relative_import_path(serialize_namespace, self.client_namespace)
+                alias = self.code_model.get_unique_models_alias(serialize_namespace, self.client_namespace)
+                serialize_namespace_type = kwargs.get("serialize_namespace_type")
+                called_by_property = kwargs.get("called_by_property", False)
+                if serialize_namespace_type in [NamespaceType.OPERATION, NamespaceType.CLIENT]:
+                    file_import.add_submodule_import(
+                        relative_path,
+                        "models",
+                        ImportType.LOCAL,
+                        alias=alias,
+                        typing_section=TypingSection.REGULAR,
+                    )
+                elif serialize_namespace_type == NamespaceType.TYPES_FILE:
+                    # Import enum name directly to avoid dotted forward refs in TypedDict annotations
+                    file_import.add_submodule_import(
+                        f"{relative_path}models" if relative_path != "." else ".models",
+                        self.name,
+                        ImportType.LOCAL,
+                        typing_section=TypingSection.TYPING,
+                    )
+                elif serialize_namespace_type == NamespaceType.UNIONS_FILE or (
+                    serialize_namespace_type == NamespaceType.MODEL and called_by_property
+                ):
+                    file_import.add_submodule_import(
+                        relative_path,
+                        "models",
+                        ImportType.LOCAL,
+                        alias=alias,
+                        typing_section=TypingSection.TYPING,
+                    )
 
         file_import.merge(self.value_type.imports(**kwargs))
         return file_import

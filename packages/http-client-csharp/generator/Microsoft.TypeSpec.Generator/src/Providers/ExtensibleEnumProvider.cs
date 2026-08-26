@@ -8,6 +8,7 @@ using System.Globalization;
 using System.Linq;
 using Microsoft.TypeSpec.Generator.Expressions;
 using Microsoft.TypeSpec.Generator.Input;
+using Microsoft.TypeSpec.Generator.Input.Extensions;
 using Microsoft.TypeSpec.Generator.Primitives;
 using Microsoft.TypeSpec.Generator.Snippets;
 using Microsoft.TypeSpec.Generator.Statements;
@@ -16,7 +17,7 @@ using static Microsoft.TypeSpec.Generator.Snippets.Snippet;
 
 namespace Microsoft.TypeSpec.Generator.Providers
 {
-    internal sealed class ExtensibleEnumProvider : EnumProvider
+    public class ExtensibleEnumProvider : EnumProvider
     {
         private readonly IReadOnlyList<InputEnumTypeValue> _allowedValues;
         private readonly TypeSignatureModifiers _modifiers;
@@ -28,16 +29,20 @@ namespace Microsoft.TypeSpec.Generator.Providers
             // extensible enums are implemented as readonly structs
             _modifiers = TypeSignatureModifiers.Partial | TypeSignatureModifiers.ReadOnly | TypeSignatureModifiers.Struct;
 
-            if (input.Accessibility == "internal")
+            if (input.Access == "internal")
             {
                 _modifiers |= TypeSignatureModifiers.Internal;
             }
 
             _valueField = new FieldProvider(FieldModifiers.Private | FieldModifiers.ReadOnly, EnumUnderlyingType, "_value", this);
-            DeclaringTypeProvider = declaringType;
+            _declaringType = declaringType;
+            ExtensibleEnumView = this;
         }
 
         private readonly FieldProvider _valueField;
+
+        protected override TypeProvider? BuildDeclaringTypeProvider() => _declaringType;
+        private readonly TypeProvider? _declaringType;
 
         protected override TypeSignatureModifiers BuildDeclarationModifiers() => _modifiers;
 
@@ -51,7 +56,7 @@ namespace Microsoft.TypeSpec.Generator.Providers
                 // build the field
                 var modifiers = FieldModifiers.Private | FieldModifiers.Const;
                 // the fields for extensible enums are private and const, storing the underlying values, therefore we need to append the word `Value` to the name
-                var valueName = inputValue.Name.ToCleanName();
+                var valueName = inputValue.IsExactName ? inputValue.Name : inputValue.Name.ToIdentifierName();
                 var name = $"{valueName}Value";
                 // for initializationValue, if the enum is extensible, we always need it
                 var initializationValue = Literal(inputValue.Value);
@@ -69,13 +74,13 @@ namespace Microsoft.TypeSpec.Generator.Providers
             return values;
         }
 
-        protected override CSharpType[] BuildImplements()
+        protected internal override CSharpType[] BuildImplements()
             => [new CSharpType(typeof(IEquatable<>), Type)]; // extensible enums implement IEquatable<Self>
 
-        protected override FieldProvider[] BuildFields()
+        protected internal override FieldProvider[] BuildFields()
             => [_valueField, .. EnumValues.Select(v => v.Field)];
 
-        protected override PropertyProvider[] BuildProperties()
+        protected internal override PropertyProvider[] BuildProperties()
         {
             var properties = new PropertyProvider[EnumValues.Count];
 
@@ -83,7 +88,6 @@ namespace Microsoft.TypeSpec.Generator.Providers
             foreach (var enumValue in EnumValues)
             {
                 var name = enumValue.Name;
-                var value = enumValue.Value;
                 var field = enumValue.Field;
                 properties[index++] = new PropertyProvider(
                     description: field.Description,
@@ -97,17 +101,17 @@ namespace Microsoft.TypeSpec.Generator.Providers
             return properties;
         }
 
-        protected override ConstructorProvider[] BuildConstructors()
+        protected internal override ConstructorProvider[] BuildConstructors()
         {
             var valueParameter = new ParameterProvider("value", $"The value.", EnumUnderlyingType)
             {
                 Validation = EnumUnderlyingType.IsValueType ? ParameterValidationType.None : ParameterValidationType.AssertNotNull
             };
             var signature = new ConstructorSignature(
-                Type: Type,
-                Description: $"Initializes a new instance of {Type:C}.",
-                Modifiers: MethodSignatureModifiers.Public,
-                Parameters: [valueParameter]);
+                type: Type,
+                description: $"Initializes a new instance of {Type:C}.",
+                modifiers: MethodSignatureModifiers.Public,
+                parameters: [valueParameter]);
 
             var valueField = (ValueExpression)_valueField;
             var body = new MethodBodyStatement[]
@@ -118,7 +122,7 @@ namespace Microsoft.TypeSpec.Generator.Providers
             return [new ConstructorProvider(signature, body, this)];
         }
 
-        protected override MethodProvider[] BuildMethods()
+        protected internal override MethodProvider[] BuildMethods()
         {
             var methods = new List<MethodProvider>();
 
@@ -157,10 +161,31 @@ namespace Microsoft.TypeSpec.Generator.Providers
 
             methods.Add(new(castSignature, New.Instance(Type, valueParameter), this));
 
+            // Add nullable implicit operator for string extensible enums
+            if (IsStringValueType)
+            {
+                var nullableValueParameter = new ParameterProvider("value", $"The value.", EnumUnderlyingType);
+                var nullableCastSignature = new MethodSignature(
+                    Name: string.Empty,
+                    Description: $"Converts a string to a {Type:C}",
+                    Modifiers: MethodSignatureModifiers.Public | MethodSignatureModifiers.Static | MethodSignatureModifiers.Implicit | MethodSignatureModifiers.Operator,
+                    ReturnType: Type.WithNullable(true),
+                    ReturnDescription: null,
+                    Parameters: [nullableValueParameter]);
+
+                // Create method body: if (value == null) return null; return new MyEnum(value);
+                var nullCheck = new TernaryConditionalExpression(
+                    nullableValueParameter.As<bool>().Equal(Null),
+                    Null,
+                    New.Instance(Type, nullableValueParameter));
+
+                methods.Add(new(nullableCastSignature, nullCheck, this));
+            }
+
             var objParameter = new ParameterProvider("obj", $"The object to compare.", typeof(object));
             var equalsSignature = new MethodSignature(
                 Name: nameof(object.Equals),
-                Description: null,
+                Description: FormattableStringHelpers.Empty,
                 Modifiers: MethodSignatureModifiers.Public | MethodSignatureModifiers.Override,
                 ReturnType: typeof(bool),
                 ReturnDescription: null,
@@ -174,12 +199,13 @@ namespace Microsoft.TypeSpec.Generator.Providers
                 objParameter
                     .Is(new DeclarationExpression(Type, "other", out var other))
                     .And(This.Invoke(nameof(Equals), [other])),
-                this));
+                this,
+                XmlDocProvider.InheritDocs));
 
             var otherParameter = new ParameterProvider("other", $"The instance to compare.", Type);
             equalsSignature = new MethodSignature(
                 Name: nameof(object.Equals),
-                Description: null,
+                Description: FormattableStringHelpers.Empty,
                 ReturnType: typeof(bool),
                 ReturnDescription: null,
                 Modifiers: MethodSignatureModifiers.Public,
@@ -195,11 +221,11 @@ namespace Microsoft.TypeSpec.Generator.Providers
             var equalsExpressionBody = IsStringValueType
                             ? Static(EnumUnderlyingType).Invoke(nameof(object.Equals), [valueField, otherValue, FrameworkEnumValue(StringComparison.InvariantCultureIgnoreCase)])
                             : Static(EnumUnderlyingType).Invoke(nameof(object.Equals), [valueField, otherValue]);
-            methods.Add(new(equalsSignature, equalsExpressionBody, this));
+            methods.Add(new(equalsSignature, equalsExpressionBody, this, XmlDocProvider.InheritDocs));
 
             var getHashCodeSignature = new MethodSignature(
                 Name: nameof(object.GetHashCode),
-                Description: null,
+                Description: FormattableStringHelpers.Empty,
                 Modifiers: MethodSignatureModifiers.Public | MethodSignatureModifiers.Override,
                 ReturnType: typeof(int),
                 ReturnDescription: null,
@@ -221,7 +247,7 @@ namespace Microsoft.TypeSpec.Generator.Providers
 
             var toStringSignature = new MethodSignature(
                 Name: nameof(object.ToString),
-                Description: null,
+                Description: FormattableStringHelpers.Empty,
                 Modifiers: MethodSignatureModifiers.Public | MethodSignatureModifiers.Override,
                 ReturnType: typeof(string),
                 ReturnDescription: null,

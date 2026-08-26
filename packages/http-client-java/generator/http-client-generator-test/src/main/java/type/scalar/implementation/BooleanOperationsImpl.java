@@ -57,7 +57,7 @@ public final class BooleanOperationsImpl {
      * perform REST calls.
      */
     @Host("{endpoint}")
-    @ServiceInterface(name = "ScalarClientBooleanO")
+    @ServiceInterface(name = "ScalarClientBooleanOperations")
     public interface BooleanOperationsService {
         @Get("/type/scalar/boolean")
         @ExpectedResponses({ 200 })

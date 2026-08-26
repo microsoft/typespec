@@ -31,12 +31,8 @@ public final class CheckNameAvailabilitiesImpl implements CheckNameAvailabilitie
         Context context) {
         Response<CheckNameAvailabilityResponseInner> inner
             = this.serviceClient().checkGlobalWithResponse(body, context);
-        if (inner != null) {
-            return new SimpleResponse<>(inner.getRequest(), inner.getStatusCode(), inner.getHeaders(),
-                new CheckNameAvailabilityResponseImpl(inner.getValue(), this.manager()));
-        } else {
-            return null;
-        }
+        return new SimpleResponse<>(inner.getRequest(), inner.getStatusCode(), inner.getHeaders(),
+            new CheckNameAvailabilityResponseImpl(inner.getValue(), this.manager()));
     }
 
     public CheckNameAvailabilityResponse checkGlobal(CheckNameAvailabilityRequest body) {
@@ -52,12 +48,8 @@ public final class CheckNameAvailabilitiesImpl implements CheckNameAvailabilitie
         CheckNameAvailabilityRequest body, Context context) {
         Response<CheckNameAvailabilityResponseInner> inner
             = this.serviceClient().checkLocalWithResponse(location, body, context);
-        if (inner != null) {
-            return new SimpleResponse<>(inner.getRequest(), inner.getStatusCode(), inner.getHeaders(),
-                new CheckNameAvailabilityResponseImpl(inner.getValue(), this.manager()));
-        } else {
-            return null;
-        }
+        return new SimpleResponse<>(inner.getRequest(), inner.getStatusCode(), inner.getHeaders(),
+            new CheckNameAvailabilityResponseImpl(inner.getValue(), this.manager()));
     }
 
     public CheckNameAvailabilityResponse checkLocal(String location, CheckNameAvailabilityRequest body) {

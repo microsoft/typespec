@@ -1,23 +1,30 @@
+import { NodeSystemHost, resolveCompilerOptions } from "@typespec/compiler/internals";
 import { createHash } from "crypto";
 import { readFile, writeFile } from "fs/promises";
 import path from "path";
 import { inspect } from "util";
 import vscode, { QuickInputButton, Uri } from "vscode";
-import { Executable } from "vscode-languageclient/node.js";
 import { Document, isScalar, isSeq } from "yaml";
 import { StartFileName, TspConfigFileName } from "../../const.js";
+import { tspLanguageClient } from "../../extension-context.js";
 import logger from "../../log/logger.js";
 import { InstallAction, npmDependencyType, NpmUtil } from "../../npm-utils.js";
 import { getDirectoryPath } from "../../path-utils.js";
 import telemetryClient from "../../telemetry/telemetry-client.js";
 import { OperationTelemetryEvent } from "../../telemetry/telemetry-event.js";
 import { resolveTypeSpecCli } from "../../tsp-executable-resolver.js";
+import { TspLanguageClient } from "../../tsp-language-client.js";
 import { ResultCode } from "../../types.js";
-import { getEntrypointTspFile, TraverseMainTspFileInWorkspace } from "../../typespec-utils.js";
+import {
+  formatDiagnostic,
+  getEntrypointTspFile,
+  loadEmitterOptions,
+  TraverseMainTspFileInWorkspace,
+} from "../../typespec-utils.js";
 import {
   ExecOutput,
+  getVscodeUriFromPath,
   isFile,
-  spawnExecutionAndLogToOutput,
   tryParseYaml,
   tryReadFile,
 } from "../../utils.js";
@@ -31,7 +38,6 @@ import {
   getRegisterEmitterTypes,
   PreDefinedEmitterPickItems,
 } from "./emitter.js";
-
 interface EmitQuickPickButton extends QuickInputButton {
   uri: string;
 }
@@ -366,7 +372,6 @@ async function doEmit(
   }[] = [];
   try {
     for (const emitter of emitters) {
-      let outputDir = defaultEmitOutputDirInConfig;
       /*update emitter in config.yaml. */
       const emitNode = configYaml.get("emit");
       if (emitNode) {
@@ -386,15 +391,32 @@ async function doEmit(
       } else {
         configYaml.set("emit", [emitter.package]);
       }
-      const emitOutputDir = configYaml.getIn(["options", emitter.package, "emitter-output-dir"]);
+
+      const defaultEmitKey = "emitter-output-dir";
+      const emitOutputDir = configYaml.getIn(["options", emitter.package, defaultEmitKey]);
       if (!emitOutputDir) {
         configYaml.setIn(
-          ["options", emitter.package, "emitter-output-dir"],
+          ["options", emitter.package, defaultEmitKey],
           defaultEmitOutputDirInConfig,
         );
-      } else {
-        outputDir = emitOutputDir as string;
+
+        await generateAnnotatedYamlFile(configYaml, emitter.package, baseDir);
       }
+    }
+    const newYamlContent = configYaml.toString();
+    await writeFile(tspConfigFile, newYamlContent);
+
+    const [tspConfigOptions, diagnostics] = await resolveCompilerOptions(NodeSystemHost, {
+      entrypoint: mainTspFile,
+      cwd: baseDir,
+    });
+    if (diagnostics.length > 0) {
+      logger.debug(
+        "TypeSpec config diagnostics:",
+        diagnostics.map((d) => d.message),
+      );
+    }
+    for (const emitter of emitters) {
       let codeInfoStr: string = "code";
       if (emitter.kind !== EmitterKind.Unknown) {
         codeInfoStr = `${emitter.kind} code`;
@@ -402,14 +424,17 @@ async function doEmit(
       if (emitter.language) {
         codeInfoStr += ` for ${emitter.language}`;
       }
-      outputDir = outputDir
-        .replace("{project-root}", baseDir)
-        .replace("{output-dir}", `${baseDir}/tsp-output`)
-        .replace("{emitter-name}", emitter.package);
-      generations.push({ emitter: emitter, outputDir: outputDir, codeInfo: codeInfoStr });
+
+      let outputDir: string | undefined;
+      if (tspConfigOptions.options) {
+        outputDir = tspConfigOptions.options[emitter.package]["emitter-output-dir"];
+      }
+      generations.push({
+        emitter: emitter,
+        outputDir: outputDir ?? `${baseDir}/tsp-output/${emitter.package}`,
+        codeInfo: codeInfoStr,
+      });
     }
-    const newYamlContent = configYaml.toString();
-    await writeFile(tspConfigFile, newYamlContent);
   } catch (error: any) {
     logger.error(error);
   }
@@ -417,7 +442,9 @@ async function doEmit(
   const allCodesToGenerate = generations
     .map((g) => `${g.codeInfo} under directory ${g.outputDir}`)
     .join(", ");
+
   logger.info(`Start to emit ${allCodesToGenerate}...`);
+
   const codeInfoStr = generations.map((g) => g.codeInfo).join(", ");
   return await vscode.window.withProgress<ResultCode>(
     {
@@ -438,21 +465,63 @@ async function doEmit(
             return createHash("sha256").update(packageName).digest("hex");
           }
         };
-        emitters.forEach((e) => {
+        emitters.forEach(async (e) => {
           telemetryClient.logOperationDetailTelemetry(tel.activityId, {
             emitterName: generatePackageNameForTelemetry(e.package),
-            emitterVersion: e.version,
+            emitterVersion: e.version ?? (await npmUtil.loadNpmPackage(e.package))?.version,
           });
         });
-        const compileResult = await compile(
-          cli,
-          mainTspFile,
-          emitters.map((e) => {
-            return { name: e.package, options: {} };
-          }),
-          false,
+
+        telemetryClient.logOperationDetailTelemetry(tel.activityId, {
+          CompileStartTime: new Date().toISOString(), // ISO format: YYYY-MM-DDTHH:mm:ss.sssZ
+        });
+        if (!tspLanguageClient) {
+          logger.error("LSP client is not started.");
+          logger.error(`Emitting ${codeInfoStr}...Failed.`, [], {
+            showOutput: true,
+            showPopup: true,
+          });
+          telemetryClient.logOperationDetailTelemetry(tel.activityId, {
+            error: "LSP client is not started when emitting.",
+          });
+          return ResultCode.Fail;
+        }
+
+        const compileResult = await tspLanguageClient.compileProject(
+          {
+            uri: getVscodeUriFromPath(mainTspFile),
+          },
+          { emit: emitters.map((e) => e.package) },
         );
-        if (compileResult.exitCode !== 0) {
+        if (!compileResult) {
+          logger.error(`Emitting ${codeInfoStr}...Failed.`, [], {
+            showOutput: true,
+            showPopup: true,
+          });
+          telemetryClient.logOperationDetailTelemetry(tel.activityId, {
+            error: "Compile result is empty.",
+          });
+          return ResultCode.Fail;
+        }
+        const addSuffix = (count: number, suffix: string) =>
+          count > 1 ? `${count} ${suffix}s` : count === 1 ? `${count} ${suffix}` : undefined;
+        const warningDiagnostics = compileResult.diagnostics.filter(
+          (d) => d.severity === "warning",
+        );
+        if (warningDiagnostics.length > 0) {
+          logger.warning(`Found ${addSuffix(warningDiagnostics.length, "warning")}`);
+          for (const diag of warningDiagnostics) {
+            logger.warning(formatDiagnostic(diag));
+          }
+        }
+        const errorDiagnostics = compileResult.diagnostics.filter((d) => d.severity === "error");
+        if (errorDiagnostics.length > 0) {
+          logger.error(`Found ${addSuffix(errorDiagnostics.length, "error")}`);
+          for (const diag of errorDiagnostics) {
+            logger.error(formatDiagnostic(diag));
+          }
+        }
+        if (compileResult.hasError) {
           logger.error(`Emitting ${codeInfoStr}...Failed`, [], {
             showOutput: true,
             showPopup: true,
@@ -487,6 +556,10 @@ async function doEmit(
           emitResult: `Emitting code failed: ${inspect(err)}`,
         });
         return ResultCode.Fail;
+      } finally {
+        telemetryClient.logOperationDetailTelemetry(tel.activityId, {
+          CompileEndTime: new Date().toISOString(), // ISO format: YYYY-MM-DDTHH:mm:ss.sssZ
+        });
       }
     },
   );
@@ -497,7 +570,30 @@ export async function emitCode(
   uri: vscode.Uri,
   tel: OperationTelemetryEvent,
 ): Promise<ResultCode> {
-  let tspProjectFile: string = "";
+  if (!tspLanguageClient) {
+    logger.error(
+      `LSP client is not started. Make sure typespec compiler has been installed. Emitting Cancelled.`,
+      [],
+      {
+        showOutput: true,
+        showPopup: true,
+      },
+    );
+    telemetryClient.logOperationDetailTelemetry(tel.activityId, {
+      error: "LSP client is not started.",
+    });
+    tel.lastStep = "Check LSP client";
+    return ResultCode.Cancelled;
+  }
+  const isSupport = await isCompilerSupport(tspLanguageClient);
+  if (!isSupport) {
+    logger.info(
+      "Compiling project via the language server is not supported in the current version of TypeSpec Compiler. Emitting Cancelled.",
+    );
+    tel.lastStep = "Check compiler capability";
+    return ResultCode.Cancelled;
+  }
+  let tspProjectFile: string;
   if (!uri) {
     const targetPathes = await TraverseMainTspFileInWorkspace();
     logger.info(`Found ${targetPathes.length} ${StartFileName} files`);
@@ -755,31 +851,130 @@ export async function emitCode(
   }
 }
 
-async function compile(
-  cli: Executable,
-  startFile: string,
-  emitters: { name: string; options: Record<string, string> }[],
-  logPretty?: boolean,
-): Promise<ExecOutput> {
-  const args: string[] = cli.args ?? [];
-  args.push("compile");
-  args.push(startFile);
-  if (emitters) {
-    for (const emitter of emitters) {
-      args.push("--emit", emitter.name);
-      if (emitter.options) {
-        for (const [key, value] of Object.entries(emitter.options)) {
-          args.push("--option", `${emitter.name}.${key}=${value}`);
-        }
-      }
-    }
+async function isCompilerSupport(client: TspLanguageClient): Promise<boolean> {
+  if (
+    client.initializeResult?.serverInfo?.version === undefined ||
+    client.initializeResult?.customCapacities?.internalCompile !== true
+  ) {
+    logger.error(
+      `Compiling project via the language server is not supported in the current version of TypeSpec Compiler (ver ${client.initializeResult?.serverInfo?.version ?? "<= 1.0.0"}). Please upgrade to a version later than 1.0.0 (by npm install @typespec/compiler) and try again.`,
+      [],
+      {
+        showOutput: true,
+        showPopup: true,
+      },
+    );
+    return false;
   }
-  if (logPretty !== undefined) {
-    args.push("--pretty");
-    args.push(logPretty ? "true" : "false");
+  return true;
+}
+
+function getConfigEntriesFromEmitterOptions(
+  emitterOptions: Record<string, any>,
+): Record<string, { value: string; comment: string }> {
+  const configEntries: Record<string, { value: string; comment: string }> = {};
+  if (!emitterOptions.properties) {
+    return configEntries;
   }
 
-  return await spawnExecutionAndLogToOutput(cli.command, args, getDirectoryPath(startFile), {
-    NO_COLOR: "true",
-  });
+  for (const [propertyName, propertySchema] of Object.entries(emitterOptions.properties)) {
+    const {
+      description = "",
+      type,
+      enum: enumValues,
+      default: defaultValue,
+    } = propertySchema as any;
+
+    const commentParts: string[] = [];
+    if (type) {
+      commentParts.push(`Type: ${type}`);
+    }
+    if (Array.isArray(enumValues)) {
+      commentParts.push(`Options: [${enumValues.join(", ")}]`);
+    }
+    if (description) {
+      commentParts.push(`Description: ${description}`);
+    }
+    const comment = commentParts.join(", ");
+
+    let value = defaultValue;
+    if (value === undefined) {
+      // If there is no default value; provide default values according to the following implementations based on the type.
+      switch (type) {
+        case "string":
+          value = `""`;
+          break;
+        case "int":
+        case "number":
+          value = `0`;
+          break;
+        case "object":
+          value = `{}`;
+          break;
+        case "bool":
+        case "boolean":
+          value = `false`;
+          break;
+        case "array":
+          value = `[]`;
+          break;
+      }
+    }
+
+    configEntries[propertyName] = { value, comment };
+  }
+
+  return configEntries;
+}
+
+async function generateAnnotatedYamlFile(
+  configYaml: Document,
+  packageName: string,
+  baseDir: string,
+): Promise<void> {
+  try {
+    const emitterOptions = await loadEmitterOptions(baseDir, packageName);
+    if (emitterOptions === undefined) {
+      logger.debug(
+        `No emitter options schema found for package ${packageName}, skipping annotation generation`,
+      );
+      return;
+    }
+
+    const configEntries = getConfigEntriesFromEmitterOptions(emitterOptions);
+    if (Object.keys(configEntries).length === 0) {
+      logger.debug(`No configuration entries found for ${packageName}`);
+      return;
+    }
+
+    const packageNodeOptions: { name: string; value: string; comment: string }[] = [];
+    for (const [propertyName, propertyConfig] of Object.entries(configEntries)) {
+      const { value, comment } = propertyConfig as { value: any; comment: string };
+      packageNodeOptions.push({ name: propertyName, value, comment });
+    }
+
+    const parentMap = configYaml.getIn(["options", packageName], true) as any;
+    if (parentMap) {
+      const maxNameLength = Math.max(...packageNodeOptions.map((x) => x.name.length));
+      const maxValueLength = Math.max(...packageNodeOptions.map((x) => String(x.value).length));
+      const commentAlignmentSpacing = 10;
+      const totalPadding = maxNameLength + maxValueLength + 3 + commentAlignmentSpacing; // 3 for ": " and space
+
+      parentMap.comment = packageNodeOptions
+        .map((x) => {
+          const nameValuePart = ` ${x.name}: ${x.value}`;
+          const currentLength = nameValuePart.length;
+          const spacesToAdd = totalPadding - currentLength;
+          const whitespacePadding = " ".repeat(totalPadding);
+
+          // First standardize the behavior of the change \n, then insert aligned spaces and inline "#" for the continuation line
+          const processedComment = x.comment.replaceAll(/\r\n|\r|\n/g, `\n${whitespacePadding}# `);
+          return `${nameValuePart}${" ".repeat(spacesToAdd)}# ${processedComment}`;
+        })
+        .join("\n");
+      configYaml.setIn(["options", packageName], parentMap);
+    }
+  } catch (error) {
+    logger.error(`Error generating annotated yaml file content for ${packageName}:`, [error]);
+  }
 }

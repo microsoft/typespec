@@ -19,8 +19,14 @@ op foo(a: MyDate, b: MyUtcDate, c: MyIsoDate, d: MyUnixDate): void;
 ## TypeScript
 
 ```ts src/models/models.ts
+/**
+ * A sequence of textual characters.
+ */
 export type String = string;
 export type MyDate = Date;
+/**
+ * An instant in coordinated universal time (UTC)"
+ */
 export type UtcDateTime = Date;
 export type MyUtcDate = Date;
 export type MyIsoDate = Date;

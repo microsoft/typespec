@@ -47,7 +47,7 @@ function createStateKeys<T extends string>(
  * @returns Library with utility functions.
  *
  *
- * @tutorial Create the lib object with `as const` to get the full typing.
+ * @remarks Create the lib object with `as const` to get the full typing.
  *
  * @example
  * const libDef = {
@@ -109,9 +109,11 @@ export function defineLinter(def: LinterDefinition): LinterDefinition {
 }
 
 /** Create a new linter rule. */
-export function createLinterRule<const N extends string, const T extends DiagnosticMessages>(
-  definition: LinterRuleDefinition<N, T>,
-) {
+export function createLinterRule<
+  const N extends string,
+  const T extends DiagnosticMessages,
+  const Options extends Record<string, unknown> = Record<string, never>,
+>(definition: LinterRuleDefinition<N, T, Options>) {
   compilerAssert(!definition.name.includes("/"), "Rule name cannot contain a '/'.");
   return definition;
 }

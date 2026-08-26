@@ -1,5 +1,7 @@
 ---
 title: "Data types"
+description: "Data types exported by @typespec/streams"
+llmstxt: true
 ---
 
 ## TypeSpec.Streams

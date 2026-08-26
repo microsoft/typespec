@@ -5,6 +5,7 @@ package org.utils;
 
 import com.azure.core.http.HttpPipeline;
 import com.azure.core.http.HttpPipelineBuilder;
+import com.azure.core.http.HttpPipelinePosition;
 import com.azure.core.http.policy.AddDatePolicy;
 import com.azure.core.http.policy.AddHeadersFromContextPolicy;
 import com.azure.core.http.policy.HttpLogDetailLevel;
@@ -37,6 +38,24 @@ public final class ArmUtils {
         policies.add(new RequestIdPolicy());
         policies.add(new RetryPolicy("Retry-After", ChronoUnit.SECONDS));
         policies.add(new AddDatePolicy());
+        // no ArmChallengeAuthenticationPolicy
+        policies.add(new HttpLoggingPolicy(new HttpLogOptions().setLogLevel(HttpLogDetailLevel.BODY_AND_HEADERS)));
+        return new HttpPipelineBuilder().policies(policies.toArray(new HttpPipelinePolicy[0])).build();
+    }
+
+    public static HttpPipeline createTestHttpPipeline(List<HttpPipelinePolicy> pipelinePolicies) {
+        List<HttpPipelinePolicy> policies = new ArrayList<>();
+        policies.add(new UserAgentPolicy());
+        policies.add(new AddHeadersFromContextPolicy());
+        policies.add(new RequestIdPolicy());
+        pipelinePolicies.stream()
+            .filter(p -> p.getPipelinePosition() == HttpPipelinePosition.PER_CALL)
+            .forEach(policies::add);
+        policies.add(new RetryPolicy("Retry-After", ChronoUnit.SECONDS));
+        policies.add(new AddDatePolicy());
+        pipelinePolicies.stream()
+            .filter(p -> p.getPipelinePosition() == HttpPipelinePosition.PER_RETRY)
+            .forEach(policies::add);
         // no ArmChallengeAuthenticationPolicy
         policies.add(new HttpLoggingPolicy(new HttpLogOptions().setLogLevel(HttpLogDetailLevel.BODY_AND_HEADERS)));
         return new HttpPipelineBuilder().policies(policies.toArray(new HttpPipelinePolicy[0])).build();

@@ -1,9 +1,13 @@
 import {
+  dyn,
+  dynItem,
   json,
+  match,
   MockRequest,
   passOnSuccess,
   ScenarioMockApi,
   ValidationError,
+  xml,
 } from "@typespec/spec-api";
 
 export const Scenarios: Record<string, ScenarioMockApi> = {};
@@ -100,20 +104,10 @@ Scenarios.Payload_Pageable_ServerDrivenPagination_link = passOnSuccess([
     request: {},
     response: {
       status: 200,
-      // TODO: need better way to handle baseUrl
-      // body: json({
-      //   pets: FirstPage,
-      //   next: "/payload/pageable/server-driven-pagination/link/nextPage",
-      // }),
-    },
-    handler: (req: MockRequest) => {
-      return {
-        status: 200,
-        body: json({
-          pets: FirstPage,
-          next: `${req.baseUrl}/payload/pageable/server-driven-pagination/link/nextPage`,
-        }),
-      };
+      body: json({
+        pets: FirstPage,
+        next: dyn`${dynItem("baseUrl")}/payload/pageable/server-driven-pagination/link/nextPage`,
+      }),
     },
     kind: "MockApiDefinition",
   },
@@ -121,6 +115,91 @@ Scenarios.Payload_Pageable_ServerDrivenPagination_link = passOnSuccess([
     uri: "/payload/pageable/server-driven-pagination/link/nextPage",
     method: "get",
     request: {},
+    response: SecondResponse,
+    kind: "MockApiDefinition",
+  },
+]);
+
+Scenarios.Payload_Pageable_ServerDrivenPagination_linkString = passOnSuccess([
+  {
+    uri: "/payload/pageable/server-driven-pagination/link-string",
+    method: "get",
+    request: {},
+    response: {
+      status: 200,
+      body: json({
+        pets: FirstPage,
+        next: dyn`${dynItem("baseUrl")}/payload/pageable/server-driven-pagination/link-string/nextPage`,
+      }),
+    },
+    kind: "MockApiDefinition",
+  },
+  {
+    uri: "/payload/pageable/server-driven-pagination/link-string/nextPage",
+    method: "get",
+    request: {},
+    response: SecondResponse,
+    kind: "MockApiDefinition",
+  },
+]);
+
+Scenarios.Payload_Pageable_ServerDrivenPagination_nestedLink = passOnSuccess([
+  {
+    uri: "/payload/pageable/server-driven-pagination/nested-link",
+    method: "get",
+    request: {},
+    response: {
+      status: 200,
+      body: json({
+        nestedItems: {
+          pets: FirstPage,
+        },
+        nestedNext: {
+          next: dyn`${dynItem("baseUrl")}/payload/pageable/server-driven-pagination/nested-link/nextPage`,
+        },
+      }),
+    },
+    kind: "MockApiDefinition",
+  },
+  {
+    uri: "/payload/pageable/server-driven-pagination/nested-link/nextPage",
+    method: "get",
+    request: {},
+    response: {
+      status: 200,
+      body: json({
+        nestedItems: {
+          pets: SecondPage,
+        },
+      }),
+    },
+    kind: "MockApiDefinition",
+  },
+]);
+
+// POST-THEN-GET LINK PAGINATION
+Scenarios.Payload_Pageable_ServerDrivenPagination_AlternateInitialVerb_post = passOnSuccess([
+  {
+    uri: "/payload/pageable/server-driven-pagination/link/initial-post",
+    method: "post",
+    request: {
+      body: json({ filter: "foo eq bar" }),
+    },
+    response: {
+      status: 200,
+      body: json({
+        pets: FirstPage,
+        next: dyn`${dynItem("baseUrl")}/payload/pageable/server-driven-pagination/link/initial-post/nextPage?token=abc`,
+      }),
+    },
+    kind: "MockApiDefinition",
+  },
+  {
+    uri: "/payload/pageable/server-driven-pagination/link/initial-post/nextPage",
+    method: "get",
+    request: {
+      query: { token: "abc" },
+    },
     response: SecondResponse,
     kind: "MockApiDefinition",
   },
@@ -134,5 +213,497 @@ Scenarios.Payload_Pageable_ServerDrivenPagination_ContinuationToken_requestHeade
 
 Scenarios.Payload_Pageable_ServerDrivenPagination_ContinuationToken_requestQueryResponseHeader =
   createTests("query", "header");
+
 Scenarios.Payload_Pageable_ServerDrivenPagination_ContinuationToken_requestHeaderResponseHeader =
   createTests("header", "header");
+
+Scenarios.Payload_Pageable_PageSize_listWithoutContinuation = passOnSuccess([
+  {
+    uri: "/payload/pageable/pagesize/without-continuation",
+    method: "get",
+    request: {},
+    response: {
+      status: 200,
+      body: json({
+        pets: [
+          { id: "1", name: "dog" },
+          { id: "2", name: "cat" },
+          { id: "3", name: "bird" },
+          { id: "4", name: "fish" },
+        ],
+      }),
+    },
+    kind: "MockApiDefinition",
+  },
+]);
+
+Scenarios.Payload_Pageable_PageSize_listWithPageSize = passOnSuccess([
+  {
+    uri: "/payload/pageable/pagesize/list",
+    method: "get",
+    request: { query: { pageSize: "2" } },
+    response: {
+      status: 200,
+      body: json({
+        pets: [
+          { id: "1", name: "dog" },
+          { id: "2", name: "cat" },
+        ],
+      }),
+    },
+    handler: (req: MockRequest) => {
+      const pageSize = req.query?.pageSize;
+
+      switch (pageSize) {
+        case "2":
+          return {
+            status: 200,
+            body: json({
+              pets: [
+                { id: "1", name: "dog" },
+                { id: "2", name: "cat" },
+              ],
+            }),
+          };
+        case "4":
+          return {
+            status: 200,
+            body: json({
+              pets: [
+                { id: "1", name: "dog" },
+                { id: "2", name: "cat" },
+                { id: "3", name: "bird" },
+                { id: "4", name: "fish" },
+              ],
+            }),
+          };
+        default:
+          throw new ValidationError("Unsupported page size", `"2" | "4"`, pageSize);
+      }
+    },
+    kind: "MockApiDefinition",
+  },
+  {
+    uri: "/payload/pageable/pagesize/list",
+    method: "get",
+    request: { query: { pageSize: "4" } },
+    response: {
+      status: 200,
+      body: json({
+        pets: [
+          { id: "1", name: "dog" },
+          { id: "2", name: "cat" },
+          { id: "3", name: "bird" },
+          { id: "4", name: "fish" },
+        ],
+      }),
+    },
+    handler: (req: MockRequest) => {
+      const pageSize = req.query?.pageSize;
+
+      switch (pageSize) {
+        case "2":
+          return {
+            status: 200,
+            body: json({
+              pets: [
+                { id: "1", name: "dog" },
+                { id: "2", name: "cat" },
+              ],
+            }),
+          };
+        case "4":
+          return {
+            status: 200,
+            body: json({
+              pets: [
+                { id: "1", name: "dog" },
+                { id: "2", name: "cat" },
+                { id: "3", name: "bird" },
+                { id: "4", name: "fish" },
+              ],
+            }),
+          };
+        default:
+          throw new ValidationError("Unsupported page size", `"2" | "4"`, pageSize);
+      }
+    },
+    kind: "MockApiDefinition",
+  },
+]);
+
+Scenarios.Payload_Pageable_ServerDrivenPagination_ContinuationToken_requestQueryNestedResponseBody =
+  passOnSuccess([
+    {
+      uri: "/payload/pageable/server-driven-pagination/continuationtoken/request-query-nested-response-body",
+      method: "get",
+      request: { headers: { foo: "foo" }, query: { bar: "bar" } },
+      response: {
+        status: 200,
+        body: json({
+          nestedItems: {
+            pets: FirstPage,
+          },
+          nestedNext: {
+            nextToken: "page2",
+          },
+        }),
+      },
+      handler: (req: MockRequest) => {
+        req.expect.containsHeader("foo", "foo");
+        req.expect.containsQueryParam("bar", "bar");
+        const token = req.query?.token;
+
+        switch (token) {
+          case undefined:
+            return {
+              status: 200,
+              body: json({
+                nestedItems: {
+                  pets: FirstPage,
+                },
+                nestedNext: {
+                  nextToken: "page2",
+                },
+              }),
+            };
+          case "page2":
+            return {
+              status: 200,
+              body: json({
+                nestedItems: {
+                  pets: SecondPage,
+                },
+              }),
+            };
+          default:
+            throw new ValidationError(
+              "Unsupported continuation token",
+              `"undefined" | "page2"`,
+              token,
+            );
+        }
+      },
+      kind: "MockApiDefinition",
+    },
+    {
+      uri: "/payload/pageable/server-driven-pagination/continuationtoken/request-query-nested-response-body",
+      method: "get",
+      request: RequestTokenInQuery,
+      response: {
+        status: 200,
+        body: json({
+          nestedItems: {
+            pets: SecondPage,
+          },
+        }),
+      },
+      handler: (req: MockRequest) => {
+        req.expect.containsHeader("foo", "foo");
+        req.expect.containsQueryParam("bar", "bar");
+        const token = req.query?.token;
+
+        switch (token) {
+          case undefined:
+            return {
+              status: 200,
+              body: json({
+                nestedItems: {
+                  pets: FirstPage,
+                },
+                nestedNext: {
+                  nextToken: "page2",
+                },
+              }),
+            };
+          case "page2":
+            return {
+              status: 200,
+              body: json({
+                nestedItems: {
+                  pets: SecondPage,
+                },
+              }),
+            };
+          default:
+            throw new ValidationError(
+              "Unsupported continuation token",
+              `"undefined" | "page2"`,
+              token,
+            );
+        }
+      },
+      kind: "MockApiDefinition",
+    },
+  ]);
+
+Scenarios.Payload_Pageable_ServerDrivenPagination_ContinuationToken_requestHeaderNestedResponseBody =
+  passOnSuccess([
+    {
+      uri: "/payload/pageable/server-driven-pagination/continuationtoken/request-header-nested-response-body",
+      method: "get",
+      request: { headers: { foo: "foo" }, query: { bar: "bar" } },
+      response: {
+        status: 200,
+        body: json({
+          nestedItems: {
+            pets: FirstPage,
+          },
+          nestedNext: {
+            nextToken: "page2",
+          },
+        }),
+      },
+      handler: (req: MockRequest) => {
+        req.expect.containsHeader("foo", "foo");
+        req.expect.containsQueryParam("bar", "bar");
+        const token = req.headers?.token;
+
+        switch (token) {
+          case undefined:
+            return {
+              status: 200,
+              body: json({
+                nestedItems: {
+                  pets: FirstPage,
+                },
+                nestedNext: {
+                  nextToken: "page2",
+                },
+              }),
+            };
+          case "page2":
+            return {
+              status: 200,
+              body: json({
+                nestedItems: {
+                  pets: SecondPage,
+                },
+              }),
+            };
+          default:
+            throw new ValidationError(
+              "Unsupported continuation token",
+              `"undefined" | "page2"`,
+              token,
+            );
+        }
+      },
+      kind: "MockApiDefinition",
+    },
+    {
+      uri: "/payload/pageable/server-driven-pagination/continuationtoken/request-header-nested-response-body",
+      method: "get",
+      request: RequestTokenInHeader,
+      response: {
+        status: 200,
+        body: json({
+          nestedItems: {
+            pets: SecondPage,
+          },
+        }),
+      },
+      handler: (req: MockRequest) => {
+        req.expect.containsHeader("foo", "foo");
+        req.expect.containsQueryParam("bar", "bar");
+        const token = req.headers?.token;
+
+        switch (token) {
+          case undefined:
+            return {
+              status: 200,
+              body: json({
+                nestedItems: {
+                  pets: FirstPage,
+                },
+                nestedNext: {
+                  nextToken: "page2",
+                },
+              }),
+            };
+          case "page2":
+            return {
+              status: 200,
+              body: json({
+                nestedItems: {
+                  pets: SecondPage,
+                },
+              }),
+            };
+          default:
+            throw new ValidationError(
+              "Unsupported continuation token",
+              `"undefined" | "page2"`,
+              token,
+            );
+        }
+      },
+      kind: "MockApiDefinition",
+    },
+  ]);
+
+const XmlContTokenFirstPage = `
+<PetListResult>
+  <Pets>
+    <Pet>
+      <Id>1</Id>
+      <Name>dog</Name>
+    </Pet>
+    <Pet>
+      <Id>2</Id>
+      <Name>cat</Name>
+    </Pet>
+  </Pets>
+  <NextMarker>page2</NextMarker>
+</PetListResult>
+`;
+
+const XmlContTokenSecondPage = `
+<PetListResult>
+  <Pets>
+    <Pet>
+      <Id>3</Id>
+      <Name>bird</Name>
+    </Pet>
+    <Pet>
+      <Id>4</Id>
+      <Name>fish</Name>
+    </Pet>
+  </Pets>
+</PetListResult>
+`;
+
+Scenarios.Payload_Pageable_XmlPagination_listWithContinuation = passOnSuccess([
+  {
+    uri: "/payload/pageable/xml/list-with-continuation",
+    method: "get",
+    request: {},
+    response: {
+      status: 200,
+      body: xml(XmlContTokenFirstPage),
+      headers: {
+        "content-type": "application/xml; charset=utf-8",
+      },
+    },
+    handler: (req: MockRequest) => {
+      const marker = req.query?.marker;
+
+      switch (marker) {
+        case undefined:
+          return {
+            status: 200,
+            body: xml(XmlContTokenFirstPage),
+            headers: {
+              "content-type": "application/xml",
+            },
+          };
+        case "page2":
+          return {
+            status: 200,
+            body: xml(XmlContTokenSecondPage),
+            headers: {
+              "content-type": "application/xml",
+            },
+          };
+        default:
+          throw new ValidationError("Unsupported marker", `"undefined" | "page2"`, marker);
+      }
+    },
+    kind: "MockApiDefinition",
+  },
+  {
+    uri: "/payload/pageable/xml/list-with-continuation",
+    method: "get",
+    request: { query: { marker: "page2" } },
+    response: {
+      status: 200,
+      body: xml(XmlContTokenSecondPage),
+      headers: {
+        "content-type": "application/xml; charset=utf-8",
+      },
+    },
+    handler: (req: MockRequest) => {
+      const marker = req.query?.marker;
+
+      switch (marker) {
+        case undefined:
+          return {
+            status: 200,
+            body: xml(XmlContTokenFirstPage),
+            headers: {
+              "content-type": "application/xml",
+            },
+          };
+        case "page2":
+          return {
+            status: 200,
+            body: xml(XmlContTokenSecondPage),
+            headers: {
+              "content-type": "application/xml",
+            },
+          };
+        default:
+          throw new ValidationError("Unsupported marker", `"undefined" | "page2"`, marker);
+      }
+    },
+    kind: "MockApiDefinition",
+  },
+]);
+
+const XmlNextLinkSecondPage = `
+<PetListResult>
+  <Pets>
+    <Pet>
+      <Id>3</Id>
+      <Name>bird</Name>
+    </Pet>
+    <Pet>
+      <Id>4</Id>
+      <Name>fish</Name>
+    </Pet>
+  </Pets>
+</PetListResult>
+`;
+
+Scenarios.Payload_Pageable_XmlPagination_listWithNextLink = passOnSuccess([
+  {
+    uri: "/payload/pageable/xml/list-with-next-link",
+    method: "get",
+    request: {},
+    response: {
+      status: 200,
+      body: xml`
+<PetListResult>
+  <Pets>
+    <Pet>
+      <Id>1</Id>
+      <Name>dog</Name>
+    </Pet>
+    <Pet>
+      <Id>2</Id>
+      <Name>cat</Name>
+    </Pet>
+  </Pets>
+  <NextLink>${match.localUrl("/payload/pageable/xml/list-with-next-link/nextPage")}</NextLink>
+</PetListResult>
+`,
+      headers: {
+        "content-type": "application/xml; charset=utf-8",
+      },
+    },
+    kind: "MockApiDefinition",
+  },
+  {
+    uri: "/payload/pageable/xml/list-with-next-link/nextPage",
+    method: "get",
+    request: {},
+    response: {
+      status: 200,
+      body: xml(XmlNextLinkSecondPage),
+      headers: {
+        "content-type": "application/xml; charset=utf-8",
+      },
+    },
+    kind: "MockApiDefinition",
+  },
+]);

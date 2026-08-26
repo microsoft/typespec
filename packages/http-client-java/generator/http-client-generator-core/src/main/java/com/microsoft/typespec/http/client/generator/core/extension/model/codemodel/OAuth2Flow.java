@@ -3,10 +3,10 @@
 
 package com.microsoft.typespec.http.client.generator.core.extension.model.codemodel;
 
-import com.azure.json.JsonReader;
-import com.azure.json.JsonSerializable;
-import com.azure.json.JsonWriter;
 import com.microsoft.typespec.http.client.generator.core.extension.base.util.JsonUtils;
+import io.clientcore.core.serialization.json.JsonReader;
+import io.clientcore.core.serialization.json.JsonSerializable;
+import io.clientcore.core.serialization.json.JsonWriter;
 import java.io.IOException;
 import java.util.List;
 
@@ -41,11 +41,11 @@ public final class OAuth2Flow implements JsonSerializable<OAuth2Flow> {
         }
 
         public static OAuth2Scope fromJson(JsonReader jsonReader) throws IOException {
-            return JsonUtils.readObject(jsonReader, OAuth2Scope::new, (scheme, fieldName, reader) -> {
+            return JsonUtils.readObject(jsonReader, OAuth2Scope::new, (scope, fieldName, reader) -> {
                 if ("value".equals(fieldName)) {
-                    scheme.value = reader.getString();
+                    scope.value = reader.getString();
                 } else if ("description".equals(fieldName)) {
-                    scheme.description = reader.getString();
+                    scope.description = reader.getString();
                 } else {
                     reader.skipChildren();
                 }
@@ -111,17 +111,17 @@ public final class OAuth2Flow implements JsonSerializable<OAuth2Flow> {
     }
 
     public static OAuth2Flow fromJson(JsonReader jsonReader) throws IOException {
-        return JsonUtils.readObject(jsonReader, OAuth2Flow::new, (scheme, fieldName, reader) -> {
+        return JsonUtils.readObject(jsonReader, OAuth2Flow::new, (flow, fieldName, reader) -> {
             if ("type".equals(fieldName)) {
-                scheme.type = reader.getString();
+                flow.type = reader.getString();
             } else if ("authorizationUrl".equals(fieldName)) {
-                scheme.authorizationUrl = reader.getString();
+                flow.authorizationUrl = reader.getString();
             } else if ("tokenUrl".equals(fieldName)) {
-                scheme.tokenUrl = reader.getString();
+                flow.tokenUrl = reader.getString();
             } else if ("refreshUrl".equals(fieldName)) {
-                scheme.refreshUrl = reader.getString();
+                flow.refreshUrl = reader.getString();
             } else if ("scopes".equals(fieldName)) {
-                scheme.scopes = reader.readArray(OAuth2Scope::fromJson);
+                flow.scopes = reader.readArray(OAuth2Scope::fromJson);
             } else {
                 reader.skipChildren();
             }

@@ -5,6 +5,7 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using System.Xml.Linq;
 using Microsoft.TypeSpec.Generator.Expressions;
 using Microsoft.TypeSpec.Generator.Primitives;
 using Microsoft.TypeSpec.Generator.Providers;
@@ -57,7 +58,7 @@ namespace Microsoft.TypeSpec.Generator.Tests.Statements
             var itemName = "item";
             var enumerable = ValueExpression.Empty;
 
-            var foreachStatement = new ForeachStatement(itemType, itemName, enumerable, isAsync: false, out var itemReference);
+            var foreachStatement = new ForEachStatement(itemType, itemName, enumerable, isAsync: false, out var itemReference);
 
             Assert.NotNull(foreachStatement);
             Assert.AreEqual(itemType, foreachStatement.ItemType);
@@ -72,7 +73,7 @@ namespace Microsoft.TypeSpec.Generator.Tests.Statements
         [Test]
         public void ForeachStatementWithAddMethod()
         {
-            var foreachStatement = new ForeachStatement(new CSharpType(typeof(int)), "item", ValueExpression.Empty, isAsync: false, out var itemReference);
+            var foreachStatement = new ForEachStatement(new CSharpType(typeof(int)), "item", ValueExpression.Empty, isAsync: false, out var itemReference);
             var statementToAdd = MethodBodyStatement.Empty;
 
             foreachStatement.Add(statementToAdd);
@@ -165,6 +166,27 @@ namespace Microsoft.TypeSpec.Generator.Tests.Statements
         }
 
         [Test]
+        public void IfElseStatementWithMultipleElseIfs()
+        {
+            var x = new VariableExpression(typeof(int), "x");
+            var condition1 = new BinaryOperatorExpression("==", x, Literal(1));
+            var condition2 = new BinaryOperatorExpression("==", x, Literal(2));
+            var condition3 = new BinaryOperatorExpression("==", x, Literal(3));
+
+            var ifStatement = new IfStatement(condition1) { Return(Literal("first")) };
+            var elseIfStatement1 = new IfStatement(condition2) { Return(Literal("second")) };
+            var elseIfStatement2 = new IfStatement(condition3) { Return(Literal("third")) };
+            var elseStatement = Return(Literal("default"));
+
+            var ifElseStatement = new IfElseStatement(ifStatement, [elseIfStatement1, elseIfStatement2], elseStatement);
+
+            using var writer = new CodeWriter();
+            ifElseStatement.Write(writer);
+
+            Assert.AreEqual(Helpers.GetExpectedFromFile(), writer.ToString(false));
+        }
+
+        [Test]
         public void SwitchStatementWithSingleCase()
         {
             var matchExpression = ValueExpression.Empty;
@@ -217,7 +239,7 @@ namespace Microsoft.TypeSpec.Generator.Tests.Statements
             }
 
             var enumeratedCases = new List<SwitchCaseStatement>();
-            foreach (var caseItem in switchStatement)
+            foreach (var caseItem in switchStatement.Cases)
             {
                 enumeratedCases.Add(caseItem);
             }
@@ -309,83 +331,82 @@ namespace Microsoft.TypeSpec.Generator.Tests.Statements
         [Test]
         public void TryStatementWithEmptyBody()
         {
-            var tryStatement = new TryStatement();
+            var tryStatement = new TryExpression();
             Assert.IsEmpty(tryStatement.Body);
         }
 
         [Test]
         public void TryStatementWithOneLineBody()
         {
-            var tryStatement = new TryStatement() { Return(True) };
-            Assert.AreEqual(1, tryStatement.Body.Count);
+            var tryStatement = new TryExpression(Return(True));
+            Assert.AreEqual(1, tryStatement.Body.Count());
         }
 
         [Test]
         public void TryStatementWithMultipleLineBody()
         {
-            var tryStatement = new TryStatement
-            {
+            var tryStatement = new TryExpression
+            (
                 Declare(new VariableExpression(typeof(int), "foo"), Literal(5)),
                 Return(True)
-            };
-            Assert.AreEqual(2, tryStatement.Body.Count);
+            );
+            Assert.AreEqual(2, tryStatement.Body.Count());
         }
 
         [Test]
         public void CatchStatementWithEmptyBody()
         {
-            var catchStatement = new CatchStatement(null);
+            var catchStatement = new CatchExpression(null);
             Assert.IsEmpty(catchStatement.Body);
         }
 
         [Test]
         public void CatchStatementWithOneLineBody()
         {
-            var catchStatement = new CatchStatement(null) { Return(True) };
-            Assert.AreEqual(1, catchStatement.Body.Count);
+            var catchStatement = new CatchExpression(null, Return(True));
+            Assert.AreEqual(1, catchStatement.Body.Count());
         }
 
         [Test]
         public void CatchStatementWithMultipleLineBody()
         {
-            var catchStatement = new CatchStatement(null)
-            {
+            var catchStatement = new CatchExpression(
+                null,
                 Declare(new VariableExpression(typeof(int), "foo"), Literal(5)),
-                Return(True)
-            };
-            Assert.AreEqual(2, catchStatement.Body.Count);
+                Return(True));
+            Assert.AreEqual(2, catchStatement.Body.Count());
         }
 
         [Test]
         public void FinallyStatementWithEmptyBody()
         {
-            var finallyStatement = new FinallyStatement();
+            var finallyStatement = new FinallyExpression();
             Assert.IsEmpty(finallyStatement.Body);
         }
 
         [Test]
         public void FinallyStatementWithOneLineBody()
         {
-            var finallyStatement = new FinallyStatement() { Return(True) };
-            Assert.AreEqual(1, finallyStatement.Body.Count);
+            var finallyStatement = new FinallyExpression(Return(True));
+            Assert.AreEqual(1, finallyStatement.Body.Count());
         }
 
         [Test]
         public void FinallyStatementWithMultipleLineBody()
         {
-            var finallyStatement = new FinallyStatement
-            {
+            var finallyStatement = new FinallyExpression
+            (
                 Declare(new VariableExpression(typeof(int), "foo"), Literal(5)),
                 Return(True)
-            };
-            Assert.AreEqual(2, finallyStatement.Body.Count);
+            );
+            Assert.AreEqual(2, finallyStatement.Body.Count());
         }
 
 
         [Test]
         public void TryCatchFinallyStatementWithTryOnly()
         {
-            var tryStatement = new TryStatement();
+            var tryStatement = new TryExpression();
             var tryCatchFinally = new TryCatchFinallyStatement(tryStatement);
 
             Assert.AreEqual(tryStatement, tryCatchFinally.Try);
@@ -396,8 +417,8 @@ namespace Microsoft.TypeSpec.Generator.Tests.Statements
         [Test]
         public void TryCatchFinallyStatementWithTryAndCatch()
         {
-            var tryStatement = new TryStatement();
-            var catchStatement = new CatchStatement(null);
+            var tryStatement = new TryExpression();
+            var catchStatement = new CatchExpression(null);
             var tryCatchFinally = new TryCatchFinallyStatement(tryStatement, catchStatement, null);
 
             Assert.AreEqual(tryStatement, tryCatchFinally.Try);
@@ -409,9 +430,9 @@ namespace Microsoft.TypeSpec.Generator.Tests.Statements
         [Test]
         public void TryCatchFinallyStatementWithTryCatchAndFinally()
         {
-            var tryStatement = new TryStatement();
-            var catchStatement = new CatchStatement(null);
-            var finallyStatement = new FinallyStatement();
+            var tryStatement = new TryExpression();
+            var catchStatement = new CatchExpression(null);
+            var finallyStatement = new FinallyExpression();
             var tryCatchFinally = new TryCatchFinallyStatement(tryStatement, catchStatement, finallyStatement);
 
             Assert.AreEqual(tryStatement, tryCatchFinally.Try);
@@ -423,15 +444,15 @@ namespace Microsoft.TypeSpec.Generator.Tests.Statements
         [Test]
         public void TryCatchFinallyStatementWithMultipleCatches()
         {
-            var tryStatement = new TryStatement();
+            var tryStatement = new TryExpression();
             var var1 = new DeclarationExpression(typeof(UnauthorizedAccessException), "ex1");
             var var2 = new DeclarationExpression(typeof(Exception), "ex2");
             var catchStatements = new[]
             {
-                new CatchStatement(var1),
-                new CatchStatement(var2)
+                new CatchExpression(var1),
+                new CatchExpression(var2)
             };
-            var finallyStatement = new FinallyStatement();
+            var finallyStatement = new FinallyExpression();
             var tryCatchFinally = new TryCatchFinallyStatement(tryStatement, catchStatements, finallyStatement);
 
             Assert.AreEqual(tryStatement, tryCatchFinally.Try);
@@ -455,6 +476,26 @@ namespace Microsoft.TypeSpec.Generator.Tests.Statements
             var expectedResult = Helpers.GetExpectedFromFile();
             var test = writer.ToString(false);
             Assert.AreEqual(expectedResult, test);
+        }
+
+        [Test]
+        public void TryCatchFinallyUpdate()
+        {
+            var tryCatchFinally = new TryCatchFinallyStatement(new TryExpression(), new CatchExpression(null), new FinallyExpression());
+
+            var tryStatement = new TryExpression();
+            var catchStatement = new CatchExpression(null);
+            var finallyStatement = new FinallyExpression();
+
+            tryCatchFinally.Update(
+                @try: tryStatement,
+                catches: [catchStatement],
+                @finally: finallyStatement);
+
+            Assert.AreEqual(tryStatement, tryCatchFinally.Try);
+            Assert.AreEqual(1, tryCatchFinally.Catches.Count);
+            Assert.AreEqual(catchStatement, tryCatchFinally.Catches[0]);
+            Assert.AreEqual(finallyStatement, tryCatchFinally.Finally);
         }
 
         [Test]
@@ -535,18 +576,18 @@ namespace Microsoft.TypeSpec.Generator.Tests.Statements
                 ifFalseStatement
             };
 
-            var flattened = methodBodyStatements.Flatten().ToList();
+            var flattened = methodBodyStatements.ToList();
             Assert.AreEqual(3, flattened.Count);
             Assert.AreEqual(ifTrueStatement, flattened[0]);
             Assert.AreEqual(ifElseStatement, flattened[1]);
             Assert.AreEqual(ifFalseStatement, flattened[2]);
 
             // Test flattening a single statement
-            var singleStatementFlattened = ifTrueStatement.Flatten().ToList();
+            var singleStatementFlattened = ifTrueStatement.ToList();
             Assert.AreEqual(1, singleStatementFlattened.Count);
 
             // flatten the body
-            var body = ifTrueStatement.Body.Flatten().ToList();
+            var body = ifTrueStatement.Body.ToList();
             Assert.AreEqual(1, body.Count);
             Assert.AreEqual(ifTrueStatement.Body.ToDisplayString(), body[0].ToDisplayString());
         }
@@ -569,7 +610,7 @@ namespace Microsoft.TypeSpec.Generator.Tests.Statements
                 statement2
             ]);
 
-            var result = methodBodyStatements.Flatten();
+            var result = methodBodyStatements.ToList();
             var expectedOrder = new List<MethodBodyStatement>
             {
                 statement1,
@@ -585,6 +626,41 @@ namespace Microsoft.TypeSpec.Generator.Tests.Statements
         {
             var comment = new SingleLineCommentStatement("This is a comment");
             Assert.AreEqual("// This is a comment\n", comment.ToDisplayString());
+        }
+
+        [Test]
+        public void PragmaWarningDisableStatementWrite()
+        {
+            var code = Literal("CS1234");
+            var justification = "Test warning suppression";
+            var pragmaStatement = new PragmaWarningDisableStatement(code, justification);
+
+            Assert.AreEqual("#pragma warning disable CS1234 // Test warning suppression\n", pragmaStatement.ToDisplayString());
+        }
+
+        [Test]
+        public void PragmaWarningRestoreStatementWrite()
+        {
+            var code = Literal("CS1234");
+            var justification = "Test warning restoration";
+            var pragmaStatement = new PragmaWarningRestoreStatement(code, justification);
+
+            Assert.AreEqual("#pragma warning restore CS1234 // Test warning restoration\n", pragmaStatement.ToDisplayString());
+        }
+
+        [Test]
+        public void SuppressionStatementWrite()
+        {
+            var code = Literal("CS0618");
+            var justification = "Using obsolete method for backward compatibility";
+            var innerStatement = Return(True);
+            var suppressionStatement = new SuppressionStatement(innerStatement, code, justification);
+
+            var expected = "#pragma warning disable CS0618 // Using obsolete method for backward compatibility\n" +
+                          "return true;\n" +
+                          "#pragma warning restore CS0618 // Using obsolete method for backward compatibility\n";
+
+            Assert.AreEqual(expected, suppressionStatement.ToDisplayString());
         }
     }
 }

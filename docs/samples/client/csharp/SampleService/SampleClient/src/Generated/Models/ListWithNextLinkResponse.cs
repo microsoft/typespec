@@ -14,11 +14,17 @@ namespace SampleTypeSpec
         /// <summary> Keeps track of any properties unknown to the library. </summary>
         private protected readonly IDictionary<string, BinaryData> _additionalBinaryDataProperties;
 
+        /// <summary> Initializes a new instance of <see cref="ListWithNextLinkResponse"/>. </summary>
+        /// <param name="things"></param>
         internal ListWithNextLinkResponse(IEnumerable<Thing> things)
         {
             Things = things.ToList();
         }
 
+        /// <summary> Initializes a new instance of <see cref="ListWithNextLinkResponse"/>. </summary>
+        /// <param name="things"></param>
+        /// <param name="next"></param>
+        /// <param name="additionalBinaryDataProperties"> Keeps track of any properties unknown to the library. </param>
         internal ListWithNextLinkResponse(IList<Thing> things, Uri next, IDictionary<string, BinaryData> additionalBinaryDataProperties)
         {
             Things = things;

@@ -18,7 +18,7 @@ namespace Microsoft.TypeSpec.Generator
         private const string CmdLineOutputDirectoryOptionHelpText = "The path to the directory containing the input files to the generator including the code model file and the configuration file for the generator.";
         private const string CmdLineDebugOptionHelpText = "Attempt to attach the debugger on execute.";
         private const string CmdLineGeneratorOptionHelpText = "The name of the generator to execute.";
-        private const string CmdLineNewProjectOptionHelpText = "Indicates if the generator should create the project files such as csproj, sln, etc.";
+        private const string CmdLineNewProjectOptionHelpText = "Indicates if the generator should create the project files such as csproj, slnx, etc.";
 
         /// <summary>
         /// The command line option to specify the path to the directory containing the input files to the generator.

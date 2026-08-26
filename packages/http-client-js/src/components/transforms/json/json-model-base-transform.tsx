@@ -1,9 +1,9 @@
-import * as ay from "@alloy-js/core";
-import { Model } from "@typespec/compiler";
+import { type Children } from "@alloy-js/core";
+import type { Model } from "@typespec/compiler";
 import { JsonTransform } from "./json-transform.jsx";
 
 export interface JsonModelBaseTransformProps {
-  itemRef: ay.Children;
+  itemRef: Children;
   type: Model;
   target: "transport" | "application";
 }

@@ -12,7 +12,7 @@ changeKinds:
     description: Fixes to existing features
 
   dependencies:
-    versionType: patch
+    versionType: none
     title: Bump dependencies
     description: Bumps dependencies
 
@@ -42,6 +42,7 @@ versionPolicies:
       - "@typespec/openapi3"
       - "@typespec/json-schema"
       - "typespec-vscode"
+      - "@typespec/prettier-plugin-typespec"
 
   - name: typespec-preview
     type: lockstep
@@ -50,8 +51,6 @@ versionPolicies:
       - "@typespec/versioning"
       - "@typespec/rest"
       - "@typespec/protobuf"
-      - "@typespec/prettier-plugin-typespec"
-      - "@typespec/eslint-plugin"
       - "@typespec/html-program-viewer"
       - "@typespec/internal-build-utils"
       - "typespec-vs"
@@ -66,13 +65,17 @@ versionPolicies:
     type: independent
     packages:
       - "@typespec/http-client-python"
+      - "@typespec/http-client-java"
 
 changelog: ["@chronus/github/changelog", { repo: "microsoft/typespec" }]
 
 additionalPackages:
   - packages/http-client-python
+  - packages/http-client-java
 
 changedFiles:
   - "!**/*.md"
   - "!**/*.test.ts"
+  - "!**/*.test.tsx"
+  - "!**/packages/*/test/**/*"
   - "!**/*.e2e.ts"

@@ -1,4 +1,4 @@
-import type { Meta, StoryObj } from "@storybook/react";
+import type { Meta, StoryObj } from "@storybook/react-vite";
 import { Footer, FooterItem } from "../../src/react/footer/index.js";
 
 const meta: Meta<typeof FooterItem> = {

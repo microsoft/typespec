@@ -57,7 +57,7 @@ public final class UnknownDictsImpl {
      * perform REST calls.
      */
     @Host("{endpoint}")
-    @ServiceInterface(name = "ValueTypesClientUnkn")
+    @ServiceInterface(name = "ValueTypesClientUnknownDicts")
     public interface UnknownDictsService {
         @Get("/type/property/value-types/unknown/dict")
         @ExpectedResponses({ 200 })

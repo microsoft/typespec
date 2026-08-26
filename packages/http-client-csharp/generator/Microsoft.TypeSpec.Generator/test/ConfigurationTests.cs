@@ -25,7 +25,7 @@ namespace Microsoft.TypeSpec.Generator.Tests
             var configuration = Configuration.Load(MockHelpers.TestHelpersFolder);
 
             // get the unknown property from the configuration
-            var additionalConfigOptions = configuration.AdditionalConfigOptions;
+            var additionalConfigOptions = configuration.AdditionalConfigurationOptions;
             Assert.IsNotNull(additionalConfigOptions);
             Assert.IsTrue(additionalConfigOptions!.ContainsKey("unknown-string-property"));
             Assert.IsTrue(additionalConfigOptions.ContainsKey("unknown-bool-property"));
@@ -66,18 +66,46 @@ namespace Microsoft.TypeSpec.Generator.Tests
 
         // Validates that the LibraryName field is parsed correctly from the configuration
         [TestCaseSource("ParseConfigLibraryNameTestCases")]
-        public void TestParseConfig_LibraryName(string mockJson, bool throwsError)
+        public void TestParseConfig_LibraryName(string mockJson, string? expected)
         {
-            if (throwsError)
-            {
-                Assert.Throws<InvalidOperationException>(() => MockHelpers.LoadMockGenerator(configuration: mockJson));
-                return;
-            }
+            MockHelpers.LoadMockGenerator(configuration: mockJson);
 
             var library = CodeModelGenerator.Instance.Configuration.PackageName;
-            var expected = "libraryName";
 
             Assert.AreEqual(expected, library);
+        }
+
+        // Validates that when package-name is not specified, Configure() defaults to the PrimaryNamespace
+        [Test]
+        public void TestParseConfig_PackageNameDefaultsToPrimaryNamespace()
+        {
+            var mockJson = @"{
+                ""output-folder"": ""outputFolder""
+            }";
+
+            MockHelpers.LoadMockGenerator(configuration: mockJson, inputNamespaceName: "My.Custom.Namespace");
+
+            // Before Configure, package name should be null
+            Assert.IsNull(CodeModelGenerator.Instance.Configuration.PackageName);
+
+            // After Configure, package name should be resolved from the namespace
+            CodeModelGenerator.Instance.Configure();
+            Assert.AreEqual("My.Custom.Namespace", CodeModelGenerator.Instance.Configuration.PackageName);
+        }
+
+        // Validates that when package-name is explicitly set, Configure() does not override it
+        [Test]
+        public void TestParseConfig_ExplicitPackageNameNotOverridden()
+        {
+            var mockJson = @"{
+                ""output-folder"": ""outputFolder"",
+                ""package-name"": ""ExplicitName""
+            }";
+
+            MockHelpers.LoadMockGenerator(configuration: mockJson, inputNamespaceName: "My.Custom.Namespace");
+
+            CodeModelGenerator.Instance.Configure();
+            Assert.AreEqual("ExplicitName", CodeModelGenerator.Instance.Configuration.PackageName);
         }
 
         // Validates that additional configuration options are parsed correctly
@@ -93,7 +121,7 @@ namespace Microsoft.TypeSpec.Generator.Tests
 
             MockHelpers.LoadMockGenerator(configuration: mockJson);
 
-            var additionalConfigOptions = CodeModelGenerator.Instance.Configuration.AdditionalConfigOptions;
+            var additionalConfigOptions = CodeModelGenerator.Instance.Configuration.AdditionalConfigurationOptions;
             Assert.IsNotNull(additionalConfigOptions);
             Assert.IsTrue(additionalConfigOptions!.ContainsKey("unknown-string-property"));
             Assert.IsTrue(additionalConfigOptions.ContainsKey("unknown-bool-property"));
@@ -215,6 +243,33 @@ namespace Microsoft.TypeSpec.Generator.Tests
         }
 
         [Test]
+        public void DisableRoslynReduce_ParsedFromConfig()
+        {
+            var mockJson = @"{
+                ""output-folder"": ""outputFolder"",
+                ""package-name"": ""libraryName"",
+                ""disable-roslyn-reduce"": true
+                }";
+
+            MockHelpers.LoadMockGenerator(configuration: mockJson);
+
+            Assert.IsTrue(CodeModelGenerator.Instance.Configuration.DisableRoslynReduce);
+        }
+
+        [Test]
+        public void DisableRoslynReduce_DefaultsToFalse()
+        {
+            var mockJson = @"{
+                ""output-folder"": ""outputFolder"",
+                ""package-name"": ""libraryName""
+                }";
+
+            MockHelpers.LoadMockGenerator(configuration: mockJson);
+
+            Assert.IsFalse(CodeModelGenerator.Instance.Configuration.DisableRoslynReduce);
+        }
+
+        [Test]
         public void CanAddLicenseInfo()
         {
             var mockJson = @"{
@@ -253,6 +308,64 @@ namespace Microsoft.TypeSpec.Generator.Tests
             Assert.IsNull(licenseInfo);
         }
 
+        [Test]
+        public void PluginPaths_ParsedFromConfig()
+        {
+            var mockJson = @"{
+                ""output-folder"": ""outputFolder"",
+                ""package-name"": ""libraryName"",
+                ""plugins"": [""/path/to/Plugin.dll"", ""/path/to/plugin-dir""]
+            }";
+
+            MockHelpers.LoadMockGenerator(configuration: mockJson);
+            var pluginPaths = CodeModelGenerator.Instance.Configuration.PluginPaths;
+            Assert.IsNotNull(pluginPaths);
+            Assert.AreEqual(2, pluginPaths!.Count);
+            Assert.AreEqual("/path/to/Plugin.dll", pluginPaths[0]);
+            Assert.AreEqual("/path/to/plugin-dir", pluginPaths[1]);
+        }
+
+        [Test]
+        public void PluginPaths_NullWhenNotInConfig()
+        {
+            var mockJson = @"{
+                ""output-folder"": ""outputFolder"",
+                ""package-name"": ""libraryName""
+            }";
+
+            MockHelpers.LoadMockGenerator(configuration: mockJson);
+            var pluginPaths = CodeModelGenerator.Instance.Configuration.PluginPaths;
+            Assert.IsNull(pluginPaths);
+        }
+
+        [Test]
+        public void PluginPaths_NullWhenEmptyArray()
+        {
+            var mockJson = @"{
+                ""output-folder"": ""outputFolder"",
+                ""package-name"": ""libraryName"",
+                ""plugins"": []
+            }";
+
+            MockHelpers.LoadMockGenerator(configuration: mockJson);
+            var pluginPaths = CodeModelGenerator.Instance.Configuration.PluginPaths;
+            Assert.IsNull(pluginPaths);
+        }
+
+        [Test]
+        public void PluginPaths_NotInAdditionalConfigOptions()
+        {
+            var mockJson = @"{
+                ""output-folder"": ""outputFolder"",
+                ""package-name"": ""libraryName"",
+                ""plugins"": [""/path/to/Plugin.dll""]
+            }";
+
+            MockHelpers.LoadMockGenerator(configuration: mockJson);
+            var additionalOptions = CodeModelGenerator.Instance.Configuration.AdditionalConfigurationOptions;
+            Assert.IsFalse(additionalOptions.ContainsKey("plugins"));
+        }
+
         public static IEnumerable<TestCaseData> ParseConfigOutputFolderTestCases
         {
             get
@@ -273,11 +386,11 @@ namespace Microsoft.TypeSpec.Generator.Tests
             {
                 yield return new TestCaseData(@"{
                     ""output-folder"": ""outputFolder"",
-                    ""package-name"": ""libraryName"",
-                }", false);
+                    ""package-name"": ""libraryName""
+                }", "libraryName");
                 yield return new TestCaseData(@"{
                     ""output-folder"": ""outputFolder""
-                }", true);
+                }", (string?)null);
             }
         }
 

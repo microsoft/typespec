@@ -21,7 +21,9 @@ export function resolveVirtualPath(path: string, ...paths: string[]) {
   return resolvePath(rootDir, path, ...paths);
 }
 
-/** Find the package root from the provided file */
+/** Find the package root from the provided file
+ * @deprecated Use {@link createTester} instead
+ */
 export function findTestPackageRoot(fileUrl: string): Promise<string> {
   return findProjectRoot(NodeHost.stat, fileURLToPath(fileUrl)) as Promise<string>;
 }
@@ -29,7 +31,9 @@ export function findTestPackageRoot(fileUrl: string): Promise<string> {
  * Define a test library defaulting to the most common library structure.
  * @param init Library configuration.
  * @returns TypeSpec Test library.
+ * @deprecated Use {@link createTester} instead
  */
+// eslint-disable-next-line @typescript-eslint/no-deprecated
 export function createTestLibrary(init: TypeSpecTestLibraryInit): TypeSpecTestLibrary {
   const { name } = init;
   const typespecFileFolder = init.typespecFileFolder ?? "lib";
@@ -53,6 +57,7 @@ export function createTestLibrary(init: TypeSpecTestLibraryInit): TypeSpecTestLi
   };
 }
 
+/** @deprecated Use {@link Tester} instead */
 export interface TestWrapperOptions {
   wrapper?: (code: string) => string;
 
@@ -68,6 +73,8 @@ export interface TestWrapperOptions {
 
   compilerOptions?: CompilerOptions;
 }
+/** @deprecated Use {@link createTester} instead */
+/* eslint-disable @typescript-eslint/no-deprecated -- implementing deprecated API for backward compatibility */
 export function createTestWrapper(
   host: TestHost,
   testWrapperOptions: TestWrapperOptions = {},
@@ -111,6 +118,7 @@ export function createTestWrapper(
     },
   };
 }
+/* eslint-enable @typescript-eslint/no-deprecated */
 
 export function trimBlankLines(code: string) {
   let start = 0;

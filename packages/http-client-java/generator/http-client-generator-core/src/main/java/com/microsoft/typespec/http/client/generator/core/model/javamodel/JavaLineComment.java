@@ -13,6 +13,6 @@ public class JavaLineComment {
     }
 
     public final void line(String text) {
-        contents.line(CodeNamer.escapeComment(text));
+        contents.line(CodeNamer.escapeIllegalUnicodeEscape(CodeNamer.escapeComment(text)));
     }
 }

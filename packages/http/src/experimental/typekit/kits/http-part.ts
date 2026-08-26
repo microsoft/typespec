@@ -1,9 +1,10 @@
-import { Type } from "@typespec/compiler";
-import { defineKit } from "@typespec/compiler/experimental/typekit";
+import type { Type } from "@typespec/compiler";
+import { defineKit } from "@typespec/compiler/typekit";
 import { getHttpPart, HttpPart } from "../../../private.decorators.js";
 
 /**
  * Utilities for working with HTTP Parts.
+ * @typekit httpPart
  * @experimental
  */
 export interface HttpPartKit {
@@ -24,11 +25,11 @@ export interface HttpPartKit {
   unpack(type: Type): Type;
 }
 
-export interface TypekitExtension {
+interface TypekitExtension {
   httpPart: HttpPartKit;
 }
 
-declare module "@typespec/compiler/experimental/typekit" {
+declare module "@typespec/compiler/typekit" {
   interface Typekit extends TypekitExtension {}
 }
 

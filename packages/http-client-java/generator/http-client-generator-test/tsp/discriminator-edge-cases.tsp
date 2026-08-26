@@ -32,6 +32,13 @@ model GrandChildWithAnotherDiscriminator extends ChildWithAnotherDiscriminator {
   differentDiscriminator: "anotherValue";
 }
 
+/** Model with @discriminator but no known subtypes. */
+@discriminator("kind")
+model ModelWithDiscriminatorNoSubtypes {
+  kind: string;
+  name: string;
+}
+
 @client({
   service: TspTest.DiscriminatorEdgeCases,
   name: "DiscriminatorEdgeCasesClient",
@@ -48,5 +55,11 @@ interface DiscriminatorEdgeCasesOp {
   @route("/childnewdiscrim")
   getChildNewDiscrim(): {
     @body body: ChildWithAnotherDiscriminator;
+  };
+
+  @get
+  @route("/nosubtypes")
+  getNoSubtypes(): {
+    @body body: ModelWithDiscriminatorNoSubtypes;
   };
 }

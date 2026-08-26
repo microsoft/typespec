@@ -11,6 +11,9 @@ import azure.resourcemanager.operationtemplates.models.ExportResult;
 import azure.resourcemanager.operationtemplates.models.Lroes;
 import com.azure.core.util.Context;
 import com.azure.core.util.logging.ClientLogger;
+import java.util.Collections;
+import java.util.List;
+import java.util.stream.Collectors;
 
 public final class LroesImpl implements Lroes {
     private static final ClientLogger LOGGER = new ClientLogger(LroesImpl.class);
@@ -49,6 +52,28 @@ public final class LroesImpl implements Lroes {
 
     public void delete(String resourceGroupName, String orderName, Context context) {
         this.serviceClient().delete(resourceGroupName, orderName, context);
+    }
+
+    public List<ExportResult> exportArray(ExportRequest body) {
+        List<ExportResultInner> inner = this.serviceClient().exportArray(body);
+        if (inner != null) {
+            return Collections.unmodifiableList(inner.stream()
+                .map(inner1 -> new ExportResultImpl(inner1, this.manager()))
+                .collect(Collectors.toList()));
+        } else {
+            return Collections.emptyList();
+        }
+    }
+
+    public List<ExportResult> exportArray(ExportRequest body, Context context) {
+        List<ExportResultInner> inner = this.serviceClient().exportArray(body, context);
+        if (inner != null) {
+            return Collections.unmodifiableList(inner.stream()
+                .map(inner1 -> new ExportResultImpl(inner1, this.manager()))
+                .collect(Collectors.toList()));
+        } else {
+            return Collections.emptyList();
+        }
     }
 
     public void deleteById(String id) {

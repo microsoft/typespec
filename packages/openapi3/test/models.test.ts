@@ -2,9 +2,14 @@ import { DiagnosticTarget } from "@typespec/compiler";
 import { expectDiagnostics } from "@typespec/compiler/testing";
 import { deepStrictEqual, ok, strictEqual } from "assert";
 import { describe, expect, it } from "vitest";
-import { worksFor } from "./works-for.js";
+import { emitOpenApiWithDiagnostics } from "./test-host.js";
+import { supportedVersions, worksFor } from "./works-for.js";
 
-worksFor(["3.0.0", "3.1.0"], ({ diagnoseOpenApiFor, oapiForModel, openApiFor }) => {
+worksFor(supportedVersions, ({ diagnoseOpenApiFor, oapiForModel, openApiFor, version }) => {
+  // OpenAPI 3.0 does not allow sibling keywords next to a `$ref`, so it is wrapped in an
+  // `allOf`; 3.1+ (JSON Schema 2020-12) places the keywords directly alongside the `$ref`.
+  const refWithSiblings = (ref: string, siblings: Record<string, unknown>) =>
+    version === "3.0.0" ? { allOf: [{ $ref: ref }], ...siblings } : { $ref: ref, ...siblings };
   it("defines models", async () => {
     const res = await oapiForModel(
       "Foo",
@@ -227,10 +232,7 @@ worksFor(["3.0.0", "3.1.0"], ({ diagnoseOpenApiFor, oapiForModel, openApiFor }) 
     deepStrictEqual(res.schemas.Foo, {
       type: "object",
       properties: {
-        optionalEnum: {
-          allOf: [{ $ref: "#/components/schemas/MyEnum" }],
-          default: "a-value",
-        },
+        optionalEnum: refWithSiblings("#/components/schemas/MyEnum", { default: "a-value" }),
       },
     });
   });
@@ -253,15 +255,12 @@ worksFor(["3.0.0", "3.1.0"], ({ diagnoseOpenApiFor, oapiForModel, openApiFor }) 
     deepStrictEqual(res.schemas.Foo, {
       type: "object",
       properties: {
-        optionalUnion: {
-          allOf: [{ $ref: "#/components/schemas/MyUnion" }],
-          default: "a-value",
-        },
+        optionalUnion: refWithSiblings("#/components/schemas/MyUnion", { default: "a-value" }),
       },
     });
   });
 
-  it("scalar used as a default value", async () => {
+  it("scalar with unknown constructor used as a default value produces no default and no diagnostic", async () => {
     const res = await oapiForModel(
       "Pet",
       `
@@ -271,7 +270,35 @@ worksFor(["3.0.0", "3.1.0"], ({ diagnoseOpenApiFor, oapiForModel, openApiFor }) 
       `,
     );
 
-    expect(res.schemas.Pet.properties.name.default).toEqual("Shorty");
+    expect(res.schemas.Pet.properties.name.default).toBeUndefined();
+  });
+
+  it("scalar with no-argument initializer used as a default value does not crash", async () => {
+    const res = await oapiForModel(
+      "M",
+      `
+        scalar S { init i(); }
+
+        model M { p: S = S.i(); }
+      `,
+    );
+
+    expect(res.schemas.M.properties.p.default).toBeUndefined();
+  });
+
+  it("known scalar constructors used as default values produce correct defaults", async () => {
+    const res = await oapiForModel(
+      "Foo",
+      `
+        model Foo {
+          int32Prop: int32 = int32(12);
+          stringProp: string = string("this is the string value");
+        }
+      `,
+    );
+
+    expect(res.schemas.Foo.properties.int32Prop.default).toEqual(12);
+    expect(res.schemas.Foo.properties.stringProp.default).toEqual("this is the string value");
   });
 
   it("encode know scalar as a default value", async () => {
@@ -283,6 +310,19 @@ worksFor(["3.0.0", "3.1.0"], ({ diagnoseOpenApiFor, oapiForModel, openApiFor }) 
     );
 
     expect(res.schemas.Test.properties.minDate.default).toEqual("Mon, 01 Jan 2024 11:32:00 GMT");
+  });
+
+  it("throw warning for scalar constructor that don't have equivalent", async () => {
+    const [res, diagnostics] = await emitOpenApiWithDiagnostics(
+      `model Test { minDate: utcDateTime = utcDateTime.now(); }`,
+    );
+
+    expect((res as any).components?.schemas?.Test?.properties?.minDate.default).toEqual(undefined);
+    expectDiagnostics(diagnostics, {
+      code: "@typespec/openapi3/default-not-supported",
+      message:
+        "Default value is not supported in OpenAPI 3.0 Cannot serialize scalar 'utcDateTime' with constructor 'now'. Supported constructors: fromISO",
+    });
   });
 
   it("object value used as a default value", async () => {
@@ -978,7 +1018,7 @@ worksFor(["3.0.0", "3.1.0"], ({ diagnoseOpenApiFor, oapiForModel, openApiFor }) 
     });
   });
 
-  describe("wraps property $ref in allOf when extra attributes", () => {
+  describe("referenced property with extra attributes", () => {
     it("with doc", async () => {
       const res = await openApiFor(
         `
@@ -989,10 +1029,10 @@ worksFor(["3.0.0", "3.1.0"], ({ diagnoseOpenApiFor, oapiForModel, openApiFor }) 
         `,
       );
 
-      deepStrictEqual(res.components.schemas.Foo.properties.prop, {
-        allOf: [{ $ref: "#/components/schemas/Bar" }],
-        description: "Some doc",
-      });
+      deepStrictEqual(
+        res.components.schemas.Foo.properties.prop,
+        refWithSiblings("#/components/schemas/Bar", { description: "Some doc" }),
+      );
     });
 
     it("circular reference", async () => {
@@ -1004,9 +1044,29 @@ worksFor(["3.0.0", "3.1.0"], ({ diagnoseOpenApiFor, oapiForModel, openApiFor }) 
         `,
       );
 
-      deepStrictEqual(res.components.schemas.Foo.properties.prop, {
-        allOf: [{ $ref: "#/components/schemas/Foo" }],
-        description: "Some doc",
+      deepStrictEqual(
+        res.components.schemas.Foo.properties.prop,
+        refWithSiblings("#/components/schemas/Foo", { description: "Some doc" }),
+      );
+    });
+  });
+
+  describe("can use special words as properties", () => {
+    it.each(["set", "constructor"])("%s", async (property) => {
+      const res = await oapiForModel(
+        "Test",
+        `
+        model Test {
+          before: string;
+          ${property}: string;
+          after: string;
+        };
+        `,
+      );
+      expect(res.schemas.Test.properties).toEqual({
+        before: { type: "string" },
+        [property]: { type: "string" },
+        after: { type: "string" },
       });
     });
   });

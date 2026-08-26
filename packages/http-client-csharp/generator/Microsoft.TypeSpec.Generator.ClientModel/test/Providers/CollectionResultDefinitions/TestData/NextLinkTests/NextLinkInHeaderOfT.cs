@@ -13,40 +13,38 @@ namespace Sample
     internal partial class CatClientGetCatsCollectionResultOfT : global::System.ClientModel.CollectionResult<global::Sample.Models.Cat>
     {
         private readonly global::Sample.CatClient _client;
-        private readonly global::System.Uri _nextPage;
         private readonly global::System.ClientModel.Primitives.RequestOptions _options;
 
-        public CatClientGetCatsCollectionResultOfT(global::Sample.CatClient client, global::System.Uri nextPage, global::System.ClientModel.Primitives.RequestOptions options)
+        public CatClientGetCatsCollectionResultOfT(global::Sample.CatClient client, global::System.ClientModel.Primitives.RequestOptions options)
         {
             _client = client;
-            _nextPage = nextPage;
             _options = options;
         }
 
         public override global::System.Collections.Generic.IEnumerable<global::System.ClientModel.ClientResult> GetRawPages()
         {
-            global::System.ClientModel.Primitives.PipelineMessage message = _client.CreateGetCatsRequest(_nextPage, _options);
+            global::System.ClientModel.Primitives.PipelineMessage message = _client.CreateGetCatsRequest(_options);
             global::System.Uri nextPageUri = null;
             while (true)
             {
-                global::System.ClientModel.ClientResult result = global::System.ClientModel.ClientResult.FromResponse(_client.Pipeline.ProcessMessage(message, _options));
+                global::System.ClientModel.ClientResult result = this.GetNextResponse(message);
                 yield return result;
 
-                if (result.GetRawResponse().Headers.TryGetValue("nextCat", out string value))
+                if ((result.GetRawResponse().Headers.TryGetValue("nextCat", out string value) && !string.IsNullOrEmpty(value)))
                 {
-                    nextPageUri = new global::System.Uri(value);
+                    nextPageUri = new global::System.Uri(value, global::System.UriKind.RelativeOrAbsolute);
                 }
                 else
                 {
                     yield break;
                 }
-                message = _client.CreateGetCatsRequest(nextPageUri, _options);
+                message = _client.CreateNextGetCatsRequest(nextPageUri, _options);
             }
         }
 
         public override global::System.ClientModel.ContinuationToken GetContinuationToken(global::System.ClientModel.ClientResult page)
         {
-            if (page.GetRawResponse().Headers.TryGetValue("nextCat", out string value))
+            if ((page.GetRawResponse().Headers.TryGetValue("nextCat", out string value) && !string.IsNullOrEmpty(value)))
             {
                 return global::System.ClientModel.ContinuationToken.FromBytes(global::System.BinaryData.FromString(value));
             }
@@ -59,6 +57,11 @@ namespace Sample
         protected override global::System.Collections.Generic.IEnumerable<global::Sample.Models.Cat> GetValuesFromPage(global::System.ClientModel.ClientResult page)
         {
             return ((global::Sample.Models.Page)page).Cats;
+        }
+
+        private global::System.ClientModel.ClientResult GetNextResponse(global::System.ClientModel.Primitives.PipelineMessage message)
+        {
+            return global::System.ClientModel.ClientResult.FromResponse(_client.Pipeline.ProcessMessage(message, _options));
         }
     }
 }

@@ -19,6 +19,8 @@ namespace _Type.Property.Optional
 
         public static implicit operator StringLiteralPropertyProperty(string value) => throw null;
 
+        public static implicit operator StringLiteralPropertyProperty?(string value) => throw null;
+
         [EditorBrowsable(EditorBrowsableState.Never)]
         public override bool Equals(object obj) => throw null;
 

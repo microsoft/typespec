@@ -57,7 +57,7 @@ public final class UnknownValuesImpl {
      * perform REST calls.
      */
     @Host("{endpoint}")
-    @ServiceInterface(name = "DictionaryClientUnkn")
+    @ServiceInterface(name = "DictionaryClientUnknownValues")
     public interface UnknownValuesService {
         @Get("/type/dictionary/unknown")
         @ExpectedResponses({ 200 })

@@ -21,7 +21,7 @@ namespace TestProjects.Spector.Tests.Http.Payload.JsonMergePatch
                     Map = { { "key", new InnerModel { Name = "InnerMadge", Description = "innerDesc" } } },
                     Array = { new InnerModel { Name = "InnerMadge", Description = "innerDesc" } },
                     IntValue = 1,
-                    FloatValue = 1.1f,
+                    FloatValue = 1.25f,
                     InnerModel = new InnerModel { Name = "InnerMadge", Description = "innerDesc" },
                     IntArray = { 1, 2, 3 }
                 });

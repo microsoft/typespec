@@ -1,7 +1,7 @@
 package type.property.valuetypes;
 
 import io.clientcore.core.annotations.Metadata;
-import io.clientcore.core.annotations.TypeConditions;
+import io.clientcore.core.annotations.MetadataProperties;
 import io.clientcore.core.serialization.json.JsonReader;
 import io.clientcore.core.serialization.json.JsonSerializable;
 import io.clientcore.core.serialization.json.JsonToken;
@@ -11,12 +11,12 @@ import java.io.IOException;
 /**
  * Model with enum properties.
  */
-@Metadata(conditions = { TypeConditions.IMMUTABLE })
+@Metadata(properties = { MetadataProperties.IMMUTABLE })
 public final class EnumProperty implements JsonSerializable<EnumProperty> {
     /*
      * Property
      */
-    @Metadata(generated = true)
+    @Metadata(properties = { MetadataProperties.GENERATED })
     private final FixedInnerEnum property;
 
     /**
@@ -24,7 +24,7 @@ public final class EnumProperty implements JsonSerializable<EnumProperty> {
      * 
      * @param property the property value to set.
      */
-    @Metadata(generated = true)
+    @Metadata(properties = { MetadataProperties.GENERATED })
     public EnumProperty(FixedInnerEnum property) {
         this.property = property;
     }
@@ -34,7 +34,7 @@ public final class EnumProperty implements JsonSerializable<EnumProperty> {
      * 
      * @return the property value.
      */
-    @Metadata(generated = true)
+    @Metadata(properties = { MetadataProperties.GENERATED })
     public FixedInnerEnum getProperty() {
         return this.property;
     }
@@ -42,7 +42,7 @@ public final class EnumProperty implements JsonSerializable<EnumProperty> {
     /**
      * {@inheritDoc}
      */
-    @Metadata(generated = true)
+    @Metadata(properties = { MetadataProperties.GENERATED })
     @Override
     public JsonWriter toJson(JsonWriter jsonWriter) throws IOException {
         jsonWriter.writeStartObject();
@@ -59,7 +59,7 @@ public final class EnumProperty implements JsonSerializable<EnumProperty> {
      * @throws IllegalStateException If the deserialized JSON object was missing any required properties.
      * @throws IOException If an error occurs while reading the EnumProperty.
      */
-    @Metadata(generated = true)
+    @Metadata(properties = { MetadataProperties.GENERATED })
     public static EnumProperty fromJson(JsonReader jsonReader) throws IOException {
         return jsonReader.readObject(reader -> {
             FixedInnerEnum property = null;

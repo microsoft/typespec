@@ -5,6 +5,7 @@ package com.microsoft.typespec.http.client.generator.mgmt.template;
 
 import com.microsoft.typespec.http.client.generator.core.template.ClientMethodTemplate;
 import com.microsoft.typespec.http.client.generator.core.template.DefaultTemplateFactory;
+import com.microsoft.typespec.http.client.generator.core.template.EnumTemplate;
 import com.microsoft.typespec.http.client.generator.core.template.ModelTemplate;
 import com.microsoft.typespec.http.client.generator.core.template.PomTemplate;
 import com.microsoft.typespec.http.client.generator.core.template.ProxyTemplate;
@@ -47,5 +48,10 @@ public class FluentTemplateFactory extends DefaultTemplateFactory {
     @Override
     public PomTemplate getPomTemplate() {
         return FluentPomTemplate.getInstance();
+    }
+
+    @Override
+    public EnumTemplate getEnumTemplate() {
+        return FluentEnumTemplate.getInstance();
     }
 }

@@ -1,13 +1,11 @@
 // Copyright (c) Microsoft Corporation. All rights reserved.
 // Licensed under the MIT License.
 
+using System;
 using System.ClientModel.Primitives;
 using System.Collections.Generic;
 using Microsoft.TypeSpec.Generator.Expressions;
-using Microsoft.TypeSpec.Generator.ClientModel.Snippets;
-using static Microsoft.TypeSpec.Generator.Snippets.Snippet;
 using Microsoft.TypeSpec.Generator.Statements;
-using System;
 
 namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
 {
@@ -25,17 +23,17 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
         public override ValueExpression Content()
             => Original.Property(nameof(PipelineRequest.Content));
 
+        public override ValueExpression ClientRequestId()
+            => Original.Property(nameof(PipelineRequest.ClientRequestId));
+
         public override HttpRequestApi FromExpression(ValueExpression original)
             => new PipelineRequestProvider(original);
 
         public override MethodBodyStatement SetHeaders(IReadOnlyList<ValueExpression> arguments)
             => Original.Property(nameof(PipelineRequest.Headers)).Invoke(nameof(PipelineRequestHeaders.Set), arguments).Terminate();
 
-        public override MethodBodyStatement SetMethod(string httpMethod)
-            => Original.Property(nameof(PipelineRequest.Method)).Assign(Literal(httpMethod)).Terminate();
-
-        public override MethodBodyStatement SetUri(ValueExpression value)
-            => Original.Property("Uri").Assign(value.As<ClientUriBuilderDefinition>().ToUri()).Terminate();
+        public override MethodBodyStatement AddCollectionHeaders(ValueExpression prefix, ValueExpression headers)
+            => Original.Property(nameof(PipelineRequest.Headers)).Invoke(nameof(PipelineRequestHeaders.Add), [prefix, headers]).Terminate();
 
         public override HttpRequestApi ToExpression() => this;
     }

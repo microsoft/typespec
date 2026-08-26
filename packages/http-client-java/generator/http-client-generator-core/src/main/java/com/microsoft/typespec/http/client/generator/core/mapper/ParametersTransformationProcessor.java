@@ -25,36 +25,36 @@ import java.util.stream.Collectors;
  */
 public final class ParametersTransformationProcessor {
     private final boolean isProtocolMethod;
-    private final List<ParametersTuple> parameters = new ArrayList<>();
+    private final List<ParametersTuple> parametersTuples = new ArrayList<>();
 
-    ParametersTransformationProcessor(boolean isProtocolMethod) {
+    public ParametersTransformationProcessor(boolean isProtocolMethod) {
         this.isProtocolMethod = isProtocolMethod;
     }
 
     /**
-     * Adds a parameter to be processed later by the {@link #process(Request)} method.
+     * Adds a parameter tuple to be processed later by the {@link #process(Request)} method.
      *
-     * @param clientMethodParameter the client method parameter.
-     * @param parameter the source parameter from which {@code clientMethodParameter} was derived.
+     * @param tuple the tuple of code model and client method parameter.
      */
-    void addParameter(ClientMethodParameter clientMethodParameter, Parameter parameter) {
-        if (isProtocolMethod || parameter.getSchema() instanceof ConstantSchema) {
+    void addParameter(ParametersTuple tuple) {
+        final Parameter codeModelParameter = tuple.codeModelParameter;
+        if (isProtocolMethod || codeModelParameter.getSchema() instanceof ConstantSchema) {
             return;
         }
-        if (parameter.getGroupedBy() == null && parameter.getOriginalParameter() == null) {
+        if (codeModelParameter.getGroupedBy() == null && codeModelParameter.getOriginalParameter() == null) {
             return;
         }
-        parameters.add(new ParametersTuple(clientMethodParameter, parameter));
+        parametersTuples.add(tuple);
     }
 
-    ParameterTransformations process(Request request) {
-        final List<Transformation> transformations = new ArrayList<>(this.parameters.size());
+    public ParameterTransformations process(Request request) {
+        final List<Transformation> transformations = new ArrayList<>(this.parametersTuples.size());
 
-        for (ParametersTuple t : parameters) {
+        for (ParametersTuple t : parametersTuples) {
             final ClientMethodParameter clientMethodParameter = t.clientMethodParameter;
-            final Parameter parameter = t.parameter;
-            final InMapping in = processInputMapping(clientMethodParameter, parameter);
-            final OutMapping out = processOutputMapping(clientMethodParameter, parameter);
+            final Parameter codeModelParameter = t.codeModelParameter;
+            final InMapping in = processInputMapping(clientMethodParameter, codeModelParameter);
+            final OutMapping out = processOutputMapping(clientMethodParameter, codeModelParameter);
             final ParameterMapping mapping = new ParameterMapping(in.parameter, in.parameterProperty, out.parameter,
                 out.parameterProperty, out.parameterPropertyName);
             Transformation.createOrUpdate(transformations, out.parameter, mapping);
@@ -70,8 +70,9 @@ public final class ParametersTransformationProcessor {
         return new ParameterTransformations(list);
     }
 
-    private static InMapping processInputMapping(ClientMethodParameter clientMethodParameter, Parameter parameter) {
-        if (parameter.getGroupedBy() != null) {
+    private static InMapping processInputMapping(ClientMethodParameter clientMethodParameter,
+        Parameter codeModelParameter) {
+        if (codeModelParameter.getGroupedBy() != null) {
             final ClientMethodParameter inParameter;
             final ClientModelProperty inParameterProperty;
             // Consider the following example spec:
@@ -115,8 +116,8 @@ public final class ParametersTransformationProcessor {
             //
             // i.e., This method inspect and process "INPUT" (group-by) model that SDK Method takes.
             //
-            inParameter = Mappers.getClientParameterMapper().map(parameter.getGroupedBy(), false);
-            final ObjectSchema groupBySchema = (ObjectSchema) parameter.getGroupedBy().getSchema();
+            inParameter = Mappers.getClientParameterMapper().map(codeModelParameter.getGroupedBy(), false);
+            final ObjectSchema groupBySchema = (ObjectSchema) codeModelParameter.getGroupedBy().getSchema();
             final ClientModel groupByModel = Mappers.getModelMapper().map(groupBySchema);
             //
             // Finds the property in the groupByModel corresponding to the 'parameter'.
@@ -126,12 +127,12 @@ public final class ParametersTransformationProcessor {
             // would be renamed to "#Parameter", but on property it would be renamed to "#Property". Transformer.java
             // have handled above case, but we don't know if there is any other case.
             //
-            final String name = parameter.getLanguage().getJava().getName();
+            final String name = codeModelParameter.getLanguage().getJava().getName();
             final Optional<ClientModelProperty> opt0 = findProperty(groupByModel, p -> name.equals(p.getName()));
             if (opt0.isPresent()) {
                 inParameterProperty = opt0.get();
             } else {
-                final String serializedName = parameter.getLanguage().getDefault().getSerializedName();
+                final String serializedName = codeModelParameter.getLanguage().getDefault().getSerializedName();
                 final Optional<ClientModelProperty> opt1
                     = findProperty(groupByModel, p -> serializedName.equals(p.getSerializedName()));
                 assert opt1.isPresent();
@@ -143,8 +144,9 @@ public final class ParametersTransformationProcessor {
         return new InMapping(inParameter, null);
     }
 
-    private static OutMapping processOutputMapping(ClientMethodParameter clientMethodParameter, Parameter parameter) {
-        if (parameter.getOriginalParameter() != null) {
+    private static OutMapping processOutputMapping(ClientMethodParameter clientMethodParameter,
+        Parameter codeModelParameter) {
+        if (codeModelParameter.getOriginalParameter() != null) {
             final ClientMethodParameter outParameter;
             final ClientModelProperty outParameterProperty;
             final String outParameterPropertyName;
@@ -168,9 +170,9 @@ public final class ParametersTransformationProcessor {
             //
             // i.e., This method inspect and process "OUTPUT" (original-parameter) model send to the service.
             //
-            outParameter = Mappers.getClientParameterMapper().map(parameter.getOriginalParameter());
-            outParameterProperty = Mappers.getModelPropertyMapper().map(parameter.getTargetProperty());
-            outParameterPropertyName = parameter.getTargetProperty().getLanguage().getJava().getName();
+            outParameter = Mappers.getClientParameterMapper().map(codeModelParameter.getOriginalParameter());
+            outParameterProperty = Mappers.getModelPropertyMapper().map(codeModelParameter.getTargetProperty());
+            outParameterPropertyName = codeModelParameter.getTargetProperty().getLanguage().getJava().getName();
             return new OutMapping(outParameter, outParameterProperty, outParameterPropertyName);
         }
         final ClientMethodParameter outParameter = clientMethodParameter;
@@ -180,8 +182,8 @@ public final class ParametersTransformationProcessor {
     private List<Parameter> flattenedParameters(Request request) {
         // build a list of original-parameters those were already been accounted for by process(..) while
         // processing 'this.parameters'.
-        final List<Parameter> originalParameters = parameters.stream()
-            .map(t -> t.parameter)
+        final List<Parameter> originalParameters = parametersTuples.stream()
+            .map(t -> t.codeModelParameter)
             .map(Parameter::getOriginalParameter)
             .filter(Objects::nonNull)
             .collect(Collectors.toList());
@@ -206,19 +208,6 @@ public final class ParametersTransformationProcessor {
     private static Optional<ClientModelProperty> findProperty(ClientModel model,
         Predicate<ClientModelProperty> predicate) {
         return model.getProperties().stream().filter(predicate).findFirst();
-    }
-
-    /**
-     * A tuple of parameters to be processed as a unit by the {@link #process(Request)} method.
-     */
-    private static final class ParametersTuple {
-        final ClientMethodParameter clientMethodParameter;
-        final Parameter parameter;
-
-        ParametersTuple(ClientMethodParameter clientMethodParameter, Parameter parameter) {
-            this.clientMethodParameter = clientMethodParameter;
-            this.parameter = parameter;
-        }
     }
 
     /**

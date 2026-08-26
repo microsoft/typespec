@@ -14,6 +14,9 @@ const builtInTemplates: Record<string, InitTemplate> = {
     description: "Create a project representing a generic REST API service.",
     compilerVersion: minCompilerVersion,
     libraries: ["@typespec/http", "@typespec/rest", "@typespec/openapi", "@typespec/openapi3"],
+    config: {
+      kind: "project",
+    },
     emitters: {
       "@typespec/openapi3": {
         selected: true,
@@ -83,6 +86,7 @@ const builtInTemplates: Record<string, InitTemplate> = {
     files: [...(await localDir("rest"))],
   },
   "library-ts": {
+    target: "library",
     title: "TypeSpec library",
     description: "Build your own TypeSpec library with custom types, decorators or linters.",
     compilerVersion: minCompilerVersion,
@@ -94,6 +98,7 @@ const builtInTemplates: Record<string, InitTemplate> = {
     ],
   },
   "emitter-ts": {
+    target: "library",
     title: "TypeSpec emitter",
     description: "Create a new package that emits artifacts from TypeSpec.",
     compilerVersion: minCompilerVersion,

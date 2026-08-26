@@ -23,26 +23,20 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers.EnumProvider
 
         private static object[] ValidateTypes(bool isExtensible)
         {
-            var intValues = new List<InputEnumTypeValue>
-            {
-                InputFactory.EnumMember.Int32("One", 1),
-                InputFactory.EnumMember.Int32("Two", 2)
-            };
-            var intType = InputFactory.Enum("mockInputEnum", InputPrimitiveType.Int32, isExtensible: isExtensible, values: intValues);
+            var intType = InputFactory.Int32Enum(
+                "mockInputEnum",
+                [("One", 1), ("Two", 2)],
+                isExtensible: isExtensible);
 
-            var floatValues = new List<InputEnumTypeValue>
-            {
-                InputFactory.EnumMember.Float32("One", 1f),
-                InputFactory.EnumMember.Float32("Two", 2f)
-            };
-            var floatType = InputFactory.Enum("mockInputEnum", InputPrimitiveType.Float32, isExtensible: isExtensible, values: floatValues);
+            var floatType = InputFactory.Float32Enum(
+                "mockInputEnum",
+                [("One", 1f), ("Two", 2f)],
+                isExtensible: isExtensible);
 
-            var stringValues = new List<InputEnumTypeValue>
-            {
-                InputFactory.EnumMember.String("One", "1"),
-                InputFactory.EnumMember.String("Two", "2")
-            };
-            var stringType = InputFactory.Enum("mockInputEnum", InputPrimitiveType.String, isExtensible: isExtensible, values: stringValues);
+            var stringType = InputFactory.StringEnum(
+                "mockInputEnum",
+                [("One", "1"), ("Two", "2")],
+                isExtensible: isExtensible);
 
             return [intType, floatType, stringType];
         }
@@ -110,6 +104,30 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers.EnumProvider
                 MethodProvider? method = serialization!.Methods.Where(m => m.Signature.Name.Contains("Enum")).FirstOrDefault();
                 Assert.IsNull(method);
             }
+        }
+
+        // Regression test for the "Not an enum type" crash, guarding the original crash site.
+        //
+        // An enum mapped to an existing external type (via @alternateType, surfaced as
+        // InputType.External) must be skipped during library generation rather than emitted.
+        // Otherwise building the OutputLibrary reaches EnsureBuilt -> BuildSerializationProviders ->
+        // ScmTypeFactory.CreateExtensibleEnumSerializations, which calls CSharpType.UnderlyingEnumType
+        // on the resolved external (non-enum) type and throws InvalidOperationException("Not an enum type").
+        // System.Uri stands in for an external extensible-enum struct such as OpenAI's ResponseToolKind.
+        [Test]
+        public void ExternalExtensibleEnum_NotEmittedFromOutputLibrary()
+        {
+            var externalEnum = InputFactory.StringEnum(
+                "ExternalToolType",
+                [("value1", "value1"), ("value2", "value2")],
+                isExtensible: true,
+                external: new InputExternalTypeMetadata("System.Uri", null, null));
+
+            MockHelpers.LoadMockGenerator(inputEnums: () => [externalEnum]);
+
+            // Building the library must not throw, and the external enum must not be generated.
+            var providers = ScmCodeModelGenerator.Instance.OutputLibrary.TypeProviders;
+            Assert.IsEmpty(providers.OfType<Generator.Providers.EnumProvider>().Where(e => e.Name == "ExternalToolType"));
         }
 
         [TestCaseSource(nameof(ValidateTypes), [true])]

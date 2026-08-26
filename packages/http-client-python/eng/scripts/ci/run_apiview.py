@@ -10,32 +10,38 @@
 
 import os
 import sys
-from subprocess import check_call, CalledProcessError
+from subprocess import run, TimeoutExpired
 import logging
 from util import run_check
 
 logging.getLogger().setLevel(logging.INFO)
 
+# Timeout for each apiview generation (seconds)
+APIVIEW_TIMEOUT = 30
+
 
 def _single_dir_apiview(mod):
-    loop = 0
-    while True:
+    for attempt in range(2):
         try:
-            check_call(
-                [
-                    "apistubgen",
-                    "--pkg-path",
-                    str(mod.absolute()),
-                ]
+            result = run(
+                ["apistubgen", "--pkg-path", str(mod.absolute())],
+                capture_output=True,
+                timeout=APIVIEW_TIMEOUT,
             )
-        except CalledProcessError as e:
-            if loop >= 2:  # retry for maximum 3 times because sometimes the apistubgen has transient failure.
-                logging.error("{} exited with apiview generation error {}".format(mod.stem, e.returncode))
+            if result.returncode == 0:
+                return True
+            if attempt == 1:
+                logging.error(f"{mod.stem} failed: {result.stderr.decode()[:200]}")
                 return False
-            else:
-                loop += 1
-                continue
-        return True
+        except TimeoutExpired:
+            if attempt == 1:
+                logging.error(f"{mod.stem} timed out after {APIVIEW_TIMEOUT}s")
+                return False
+        except Exception as e:
+            if attempt == 1:
+                logging.error(f"{mod.stem} error: {e}")
+                return False
+    return False
 
 
 if __name__ == "__main__":

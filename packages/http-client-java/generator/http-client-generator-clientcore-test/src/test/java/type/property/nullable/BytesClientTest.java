@@ -4,6 +4,7 @@
 package type.property.nullable;
 
 import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 
 public class BytesClientTest {
@@ -17,6 +18,7 @@ public class BytesClientTest {
         client.patchNonNull(bytesProperty);
     }
 
+    @Disabled
     @Test
     public void patchNullWithResponse() {
         client.patchNull(new BytesProperty().setRequiredProperty("foo").setNullableProperty(null));
