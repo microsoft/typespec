@@ -2,6 +2,7 @@
 // Licensed under the MIT License.
 
 using System;
+using System.Runtime.CompilerServices;
 using Microsoft.TypeSpec.Generator.Statements;
 using NUnit.Framework;
 
@@ -54,7 +55,17 @@ namespace Microsoft.TypeSpec.Generator.Tests.Statements
         [TestCase("\u2029")]
         public void LineTerminatorsInLiteralAreNormalized(string terminator)
         {
-            var statement = new XmlDocStatement($"<tag>", $"</tag>", [$"first{terminator}second"]);
+            FormattableString line = terminator switch
+            {
+                "\r" => FormattableStringFactory.Create("first\rsecond"),
+                "\r\n" => FormattableStringFactory.Create("first\r\nsecond"),
+                "\n" => FormattableStringFactory.Create("first\nsecond"),
+                "\u0085" => FormattableStringFactory.Create("first\u0085second"),
+                "\u2028" => FormattableStringFactory.Create("first\u2028second"),
+                "\u2029" => FormattableStringFactory.Create("first\u2029second"),
+                _ => throw new ArgumentOutOfRangeException(nameof(terminator)),
+            };
+            var statement = new XmlDocStatement($"<tag>", $"</tag>", [line]);
             using var writer = new CodeWriter();
             statement.Write(writer);
             Assert.AreEqual("/// <tag>\n/// first\n/// second\n/// </tag>\n", writer.ToString(false));
@@ -73,6 +84,21 @@ namespace Microsoft.TypeSpec.Generator.Tests.Statements
             using var writer = new CodeWriter();
             statement.Write(writer);
             Assert.AreEqual("/// <tag>\n/// first\n/// second\n/// </tag>\n", writer.ToString(false));
+        }
+
+        [TestCase("\r")]
+        [TestCase("\r\n")]
+        [TestCase("\n")]
+        [TestCase("\u0085")]
+        [TestCase("\u2028")]
+        [TestCase("\u2029")]
+        public void LineTerminatorsInFormattedArgumentAreNormalized(string terminator)
+        {
+            var text = $"first{terminator}second";
+            var statement = new XmlDocStatement($"<tag>", $"</tag>", [$"{text:L}"]);
+            using var writer = new CodeWriter();
+            statement.Write(writer);
+            Assert.AreEqual("/// <tag>\n/// \"first\"\n/// \"second\"\n/// </tag>\n", writer.ToString(false));
         }
 
         [Test]

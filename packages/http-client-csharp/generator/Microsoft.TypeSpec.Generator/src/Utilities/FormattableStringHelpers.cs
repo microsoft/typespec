@@ -126,23 +126,23 @@ namespace Microsoft.TypeSpec.Generator
 
         private static bool BreakLinesCore(FormattableString input, StringBuilder formatBuilder, List<object?> args, List<FormattableString> result)
         {
-            // stackalloc cannot be used in a loop, we must allocate it here.
-            // for a format string with length n, the worst case that produces the most segments is when all its content is the char to split.
-            // For instance, when the format string is all \n, it will produce n+1 segments (because we did not omit empty entries).
+            // stackalloc cannot be used in a loop, we must allocate it here. The buffer is sized from the pre-normalization
+            // format length because normalization must not expand the input. A format containing only line feeds produces
+            // the maximum of n+1 segments because empty entries are retained.
             Span<Range> splitIndices = stackalloc Range[input.Format.Length + 1];
             ReadOnlySpan<char> formatSpan = input.Format.AsSpan();
+            bool hasEmptyLastLine = false;
             foreach ((ReadOnlySpan<char> span, bool isLiteral, int index) in StringExtensions.GetFormattableStringFormatParts(formatSpan))
             {
                 // if isLiteral - put in formatBuilder
                 if (isLiteral)
                 {
-                    string? normalized = null;
                     var normalizedSpan = span;
-                    if (ContainsAdditionalLineTerminator(span))
+                    if (RequiresNormalization(span))
                     {
-                        normalized = NormalizeLineTerminators(span);
-                        normalizedSpan = normalized.AsSpan();
+                        normalizedSpan = NormalizeLineTerminators(span).AsSpan();
                     }
+                    Debug.Assert(normalizedSpan.Length <= input.Format.Length);
                     var numSplits = normalizedSpan.Split(splitIndices, '\n');
                     for (int i = 0; i < numSplits; i++)
                     {
@@ -172,22 +172,27 @@ namespace Microsoft.TypeSpec.Generator
                             args.Clear();
                         }
                     }
+                    hasEmptyLastLine = normalizedSpan.Length > 0 && normalizedSpan[^1] == '\n';
                 }
                 // if not Literal, is Args - recurse through Args and check if args has breaklines
                 else
                 {
                     var arg = input.GetArgument(index);
-                    // we only break lines in the arguments if the argument is a string or FormattableString and it does not have a format specifier (indicating by : in span)
-                    // we do nothing if the argument has a format specifier because we do not really know in which form to break them
-                    // considering the chance of having these cases would be very rare, we are leaving the part of "arguments with formatter specifier" empty
+                    // String arguments retain their format specifier on each line. Other formatted arguments are left unchanged.
                     var indexOfFormatSpecifier = span.IndexOf(':');
                     switch (arg)
                     {
-                        case string str when indexOfFormatSpecifier < 0:
-                            BreakLinesCoreForString(str.AsSpan(), formatBuilder, args, result);
+                        case string str when indexOfFormatSpecifier < 0 || ContainsLineTerminator(str):
+                            BreakLinesCoreForString(
+                                str.AsSpan(),
+                                indexOfFormatSpecifier >= 0 ? span[indexOfFormatSpecifier..] : ReadOnlySpan<char>.Empty,
+                                formatBuilder,
+                                args,
+                                result);
+                            hasEmptyLastLine = false;
                             break;
                         case FormattableString fs when indexOfFormatSpecifier < 0:
-                            BreakLinesCore(fs, formatBuilder, args, result);
+                            hasEmptyLastLine = BreakLinesCore(fs, formatBuilder, args, result);
                             break;
                         default:
                             // if not a string or FormattableString, add to args because we cannot parse it
@@ -200,20 +205,24 @@ namespace Microsoft.TypeSpec.Generator
                             }
                             formatBuilder.Append('}');
                             args.Add(arg);
+                            hasEmptyLastLine = false;
                             break;
                     }
                 }
             }
 
-            return IsLineTerminator(formatSpan[^1]);
+            return hasEmptyLastLine;
 
-            static void BreakLinesCoreForString(ReadOnlySpan<char> span, StringBuilder formatBuilder, List<object?> args, List<FormattableString> result)
+            static void BreakLinesCoreForString(
+                ReadOnlySpan<char> span,
+                ReadOnlySpan<char> formatSpecifier,
+                StringBuilder formatBuilder,
+                List<object?> args,
+                List<FormattableString> result)
             {
-                string? normalized = null;
-                if (ContainsAdditionalLineTerminator(span))
+                if (RequiresNormalization(span))
                 {
-                    normalized = NormalizeLineTerminators(span);
-                    span = normalized.AsSpan();
+                    span = NormalizeLineTerminators(span).AsSpan();
                 }
                 int start = 0, end = 0;
                 bool isLast = false;
@@ -233,8 +242,9 @@ namespace Microsoft.TypeSpec.Generator
                         end = start + indexOfLF;
                     }
                     formatBuilder.Append('{')
-                        .Append(args.Count)
-                        .Append('}');
+                        .Append(args.Count);
+                    formatBuilder.Append(formatSpecifier);
+                    formatBuilder.Append('}');
                     args.Add(span[start..end].ToString());
                     start = end + 1; // goes to the next char after the \n we found
 
@@ -252,7 +262,19 @@ namespace Microsoft.TypeSpec.Generator
         private static bool IsLineTerminator(char value)
             => value is '\r' or '\n' or '\u0085' or '\u2028' or '\u2029';
 
-        private static bool ContainsAdditionalLineTerminator(ReadOnlySpan<char> value)
+        private static bool ContainsLineTerminator(ReadOnlySpan<char> value)
+        {
+            foreach (var character in value)
+            {
+                if (IsLineTerminator(character))
+                {
+                    return true;
+                }
+            }
+            return false;
+        }
+
+        private static bool RequiresNormalization(ReadOnlySpan<char> value)
         {
             foreach (var character in value)
             {
@@ -266,17 +288,32 @@ namespace Microsoft.TypeSpec.Generator
 
         private static string NormalizeLineTerminators(ReadOnlySpan<char> value)
         {
-            var normalized = new StringBuilder(value.Length);
+            int normalizedLength = value.Length;
             for (int i = 0; i < value.Length; i++)
             {
-                var character = value[i];
-                if (character == '\r' && i + 1 < value.Length && value[i + 1] == '\n')
+                if (value[i] == '\r' && i + 1 < value.Length && value[i + 1] == '\n')
                 {
+                    normalizedLength--;
                     i++;
                 }
-                normalized.Append(IsLineTerminator(character) ? '\n' : character);
             }
-            return normalized.ToString();
+
+            return string.Create(
+                normalizedLength,
+                value,
+                static (destination, source) =>
+                {
+                    int destinationIndex = 0;
+                    for (int sourceIndex = 0; sourceIndex < source.Length; sourceIndex++)
+                    {
+                        var character = source[sourceIndex];
+                        if (character == '\r' && sourceIndex + 1 < source.Length && source[sourceIndex + 1] == '\n')
+                        {
+                            sourceIndex++;
+                        }
+                        destination[destinationIndex++] = IsLineTerminator(character) ? '\n' : character;
+                    }
+                });
         }
     }
 }

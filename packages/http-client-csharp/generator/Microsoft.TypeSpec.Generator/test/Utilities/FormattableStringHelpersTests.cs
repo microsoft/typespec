@@ -147,6 +147,12 @@ namespace Microsoft.TypeSpec.Generator.Tests.Utilities
                     }).SetName("TestBreakLines_TrivialFormatSpecifier");
 
                 yield return new TestCaseData(
+                    (FormattableString)$"first{"":L}second",
+                    new List<FormattableString> {
+                        $"first{"":L}second"
+                    }).SetName("TestBreakLines_EmptyFormattedString");
+
+                yield return new TestCaseData(
                     (FormattableString)$"first{{",
                     new List<FormattableString> {
                         $"first{{"
@@ -243,7 +249,8 @@ namespace Microsoft.TypeSpec.Generator.Tests.Utilities
                 yield return new TestCaseData(
                     (FormattableString)$"first{"x\ny":L}second\nthird{null}",
                     new List<FormattableString> {
-                        $"first{"x\ny":L}second",
+                        $"first{"x":L}",
+                        $"{"y":L}second",
                         $"third{null}"
                     }).SetName("TestBreakLines_FormatSpecifierInArg");
 
@@ -330,11 +337,20 @@ namespace Microsoft.TypeSpec.Generator.Tests.Utilities
                         $"third{null}"
                     }).SetName("TestBreakLines_RecursiveFormattableStringsWithAllTerminators");
 
-                // format specifiers are still ignored when the argument contains other line terminators.
+                inner = $"{"x"}\u2028";
+                outter = $"first{inner}";
+                yield return new TestCaseData(
+                    outter,
+                    new List<FormattableString> {
+                        $"first{"x"}",
+                        $""
+                    }).SetName("TestBreakLines_RecursiveFormattableStringEndingWithTerminator");
+
                 yield return new TestCaseData(
                     (FormattableString)$"first{"x\u2028y":L}second\u0085third{null}",
                     new List<FormattableString> {
-                        $"first{"x\u2028y":L}second",
+                        $"first{"x":L}",
+                        $"{"y":L}second",
                         $"third{null}"
                     }).SetName("TestBreakLines_FormatSpecifierInArgWithTerminators");
             }
