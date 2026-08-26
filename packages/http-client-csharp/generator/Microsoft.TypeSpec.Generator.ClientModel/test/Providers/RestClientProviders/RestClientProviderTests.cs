@@ -66,6 +66,171 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers.RestClientPro
             }
         }
 
+        [TestCase(InputRequestLocation.Header, "request.Headers.Set(\"ocp-date\"")]
+        [TestCase(
+            InputRequestLocation.Query,
+            "uri.AppendQuery(\"request-date\", global::Sample.TypeFormatters.ConvertToString(requestOn")]
+        [TestCase(InputRequestLocation.Path, "uri.AppendPath(requestOn")]
+        public void NormalizedDateTimeOperationParameterIsSerialized(
+            InputRequestLocation location,
+            string expectedSerialization)
+        {
+            var dateType = new InputDateTimeType(
+                DateTimeKnownEncoding.Rfc7231,
+                "utcDateTime",
+                "TypeSpec.utcDateTime",
+                InputPrimitiveType.String);
+            InputParameter parameter = location switch
+            {
+                InputRequestLocation.Header => InputFactory.HeaderParameter(
+                    "requestDate",
+                    dateType,
+                    isRequired: false,
+                    serializedName: "ocp-date"),
+                InputRequestLocation.Query => InputFactory.QueryParameter(
+                    "requestDate",
+                    dateType,
+                    isRequired: false,
+                    serializedName: "request-date"),
+                InputRequestLocation.Path => InputFactory.PathParameter(
+                    "requestDate",
+                    dateType,
+                    isRequired: true,
+                    serializedName: "request-date"),
+                _ => throw new InvalidOperationException($"Unsupported test location: {location}")
+            };
+            var operation = InputFactory.Operation(
+                "GetThing",
+                parameters: [parameter],
+                uri: location == InputRequestLocation.Path ? "/things/{request-date}" : "",
+                responses: [InputFactory.OperationResponse([204])]);
+            var inputClient = InputFactory.Client(
+                "TestClient",
+                methods: [InputFactory.BasicServiceMethod("GetThing", operation)]);
+            MockHelpers.LoadMockGenerator(clients: () => [inputClient]);
+
+            var method = new ClientProvider(inputClient).RestClient.Methods.Single();
+            Assert.IsTrue(method.Signature.Parameters.Any(parameter => parameter.Name == "requestOn"));
+
+            using var writer = new CodeWriter();
+            writer.WriteMethod(method);
+            var methodText = writer.ToString(false);
+            StringAssert.Contains(expectedSerialization, methodText);
+        }
+
+        [Test]
+        public void CollidingNormalizedDateTimeOperationParametersAreSerialized()
+        {
+            var dateType = new InputDateTimeType(
+                DateTimeKnownEncoding.Rfc7231,
+                "utcDateTime",
+                "TypeSpec.utcDateTime",
+                InputPrimitiveType.String);
+            var operation = InputFactory.Operation(
+                "GetThing",
+                parameters:
+                [
+                    InputFactory.QueryParameter(
+                        "startTime",
+                        dateType,
+                        isRequired: true,
+                        serializedName: "start-time"),
+                    InputFactory.QueryParameter(
+                        "startsOn",
+                        InputPrimitiveType.String,
+                        isRequired: true,
+                        serializedName: "starts-on")
+                ],
+                responses: [InputFactory.OperationResponse([204])]);
+            var inputClient = InputFactory.Client(
+                "TestClient",
+                methods: [InputFactory.BasicServiceMethod("GetThing", operation)]);
+            MockHelpers.LoadMockGenerator(clients: () => [inputClient]);
+
+            var method = new ClientProvider(inputClient).RestClient.Methods.Single();
+            using var writer = new CodeWriter();
+            writer.WriteMethod(method);
+            Assert.AreEqual(
+                Helpers.GetExpectedFromFile().ReplaceLineEndings("\n"),
+                writer.ToString(false));
+        }
+
+        [Test]
+        public void ReversedCollidingNormalizedDateTimeOperationParametersAreSerialized()
+        {
+            var dateType = new InputDateTimeType(
+                DateTimeKnownEncoding.Rfc7231,
+                "utcDateTime",
+                "TypeSpec.utcDateTime",
+                InputPrimitiveType.String);
+            var operation = InputFactory.Operation(
+                "GetThing",
+                parameters:
+                [
+                    // The raw name of this parameter matches the normalized name of the date-time
+                    // parameter that follows it, so registration order must not decide the mapping.
+                    InputFactory.QueryParameter(
+                        "startsOn",
+                        InputPrimitiveType.String,
+                        isRequired: true,
+                        serializedName: "starts-on"),
+                    InputFactory.QueryParameter(
+                        "startTime",
+                        dateType,
+                        isRequired: true,
+                        serializedName: "start-time")
+                ],
+                responses: [InputFactory.OperationResponse([204])]);
+            var inputClient = InputFactory.Client(
+                "TestClient",
+                methods: [InputFactory.BasicServiceMethod("GetThing", operation)]);
+            MockHelpers.LoadMockGenerator(clients: () => [inputClient]);
+
+            var method = new ClientProvider(inputClient).RestClient.Methods.Single();
+            using var writer = new CodeWriter();
+            writer.WriteMethod(method);
+            Assert.AreEqual(
+                Helpers.GetExpectedFromFile().ReplaceLineEndings("\n"),
+                writer.ToString(false));
+        }
+
+        [Test]
+        public void CaseCollidingDateTimeOperationParametersAreSerialized()
+        {
+            var dateType = new InputDateTimeType(
+                DateTimeKnownEncoding.Rfc7231,
+                "utcDateTime",
+                "TypeSpec.utcDateTime",
+                InputPrimitiveType.String);
+            var operation = InputFactory.Operation(
+                "GetThing",
+                parameters:
+                [
+                    InputFactory.QueryParameter(
+                        "startTime",
+                        dateType,
+                        isRequired: true,
+                        serializedName: "start-time"),
+                    InputFactory.QueryParameter(
+                        "StartTime",
+                        dateType,
+                        isRequired: true,
+                        serializedName: "Start-Time")
+                ],
+                responses: [InputFactory.OperationResponse([204])]);
+            var inputClient = InputFactory.Client(
+                "TestClient",
+                methods: [InputFactory.BasicServiceMethod("GetThing", operation)]);
+            MockHelpers.LoadMockGenerator(clients: () => [inputClient]);
+
+            var method = new ClientProvider(inputClient).RestClient.Methods.Single();
+            using var writer = new CodeWriter();
+            writer.WriteMethod(method);
+            Assert.AreEqual(
+                Helpers.GetExpectedFromFile().ReplaceLineEndings("\n"),
+                writer.ToString(false));
+        }
+
         [Test]
         public void ValidateFields()
         {
@@ -1391,6 +1556,143 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers.RestClientPro
             Assert.AreEqual(Helpers.GetExpectedFromFile(), file.Content);
         }
 
+        [TestCase(false)]
+        [TestCase(true)]
+        public void NormalizedDateTimeNextLinkReinjectedParametersAreSerialized(bool includeCollision)
+        {
+            var dateType = new InputDateTimeType(
+                DateTimeKnownEncoding.Rfc7231,
+                "utcDateTime",
+                "TypeSpec.utcDateTime",
+                InputPrimitiveType.String);
+            var startTime = InputFactory.QueryParameter(
+                "startTime",
+                dateType,
+                isRequired: true,
+                serializedName: "start-time");
+            var startsOn = InputFactory.QueryParameter(
+                "startsOn",
+                InputPrimitiveType.String,
+                isRequired: true,
+                serializedName: "starts-on");
+            var pagingMetadata = InputFactory.NextLinkPagingMetadata(
+                ["cats"],
+                ["nextCat"],
+                InputResponseLocation.Header,
+                includeCollision ? [startTime, startsOn] : [startTime]);
+            var response = InputFactory.OperationResponse(
+                [200],
+                InputFactory.Model(
+                    "page",
+                    properties:
+                    [
+                        InputFactory.Property(
+                            "cats",
+                            InputFactory.Array(InputPrimitiveType.String)),
+                        InputFactory.Property("nextCat", InputPrimitiveType.Url)
+                    ]));
+            var operation = InputFactory.Operation(
+                "getCats",
+                responses: [response],
+                parameters: [startTime, startsOn]);
+            var inputServiceMethod = InputFactory.PagingServiceMethod(
+                "getCats",
+                operation,
+                pagingMetadata: pagingMetadata,
+                parameters:
+                [
+                    InputFactory.MethodParameter(
+                        "startTime",
+                        dateType,
+                        isRequired: true,
+                        location: InputRequestLocation.Query),
+                    InputFactory.MethodParameter(
+                        "startsOn",
+                        InputPrimitiveType.String,
+                        isRequired: true,
+                        location: InputRequestLocation.Query)
+                ]);
+            var client = InputFactory.Client("TestClient", methods: [inputServiceMethod]);
+
+            var method = new ClientProvider(client).RestClient.Methods.Single(
+                method => method.Signature.Name == "CreateNextGetCatsRequest");
+            Assert.AreEqual(includeCollision ? 4 : 3, method.Signature.Parameters.Count);
+            using var writer = new CodeWriter();
+            writer.WriteMethod(method);
+            Assert.AreEqual(
+                Helpers.GetExpectedFromFile(parameters: includeCollision.ToString()).ReplaceLineEndings("\n"),
+                writer.ToString(false));
+        }
+
+        [Test]
+        public void CaseCollidingNextLinkReinjectedParametersAreSerialized()
+        {
+            var dateType = new InputDateTimeType(
+                DateTimeKnownEncoding.Rfc7231,
+                "utcDateTime",
+                "TypeSpec.utcDateTime",
+                InputPrimitiveType.String);
+            var startTime = InputFactory.QueryParameter(
+                "startTime",
+                dateType,
+                isRequired: true,
+                serializedName: "start-time");
+            var pascalStartTime = InputFactory.QueryParameter(
+                "StartTime",
+                InputPrimitiveType.String,
+                isRequired: true,
+                serializedName: "Start-Time");
+            // Only the camel-cased parameter is reinjected into the next link request.
+            var pagingMetadata = InputFactory.NextLinkPagingMetadata(
+                ["cats"],
+                ["nextCat"],
+                InputResponseLocation.Header,
+                [startTime]);
+            var response = InputFactory.OperationResponse(
+                [200],
+                InputFactory.Model(
+                    "page",
+                    properties:
+                    [
+                        InputFactory.Property(
+                            "cats",
+                            InputFactory.Array(InputPrimitiveType.String)),
+                        InputFactory.Property("nextCat", InputPrimitiveType.Url)
+                    ]));
+            var operation = InputFactory.Operation(
+                "getCats",
+                responses: [response],
+                parameters: [startTime, pascalStartTime]);
+            var inputServiceMethod = InputFactory.PagingServiceMethod(
+                "getCats",
+                operation,
+                pagingMetadata: pagingMetadata,
+                parameters:
+                [
+                    InputFactory.MethodParameter(
+                        "startTime",
+                        dateType,
+                        isRequired: true,
+                        location: InputRequestLocation.Query),
+                    InputFactory.MethodParameter(
+                        "StartTime",
+                        InputPrimitiveType.String,
+                        isRequired: true,
+                        location: InputRequestLocation.Query)
+                ]);
+            var client = InputFactory.Client("TestClient", methods: [inputServiceMethod]);
+
+            var method = new ClientProvider(client).RestClient.Methods.Single(
+                method => method.Signature.Name == "CreateNextGetCatsRequest");
+            // nextPage, the reinjected startTime parameter and options.
+            Assert.AreEqual(3, method.Signature.Parameters.Count);
+            using var writer = new CodeWriter();
+            writer.WriteMethod(method);
+            Assert.AreEqual(
+                Helpers.GetExpectedFromFile().ReplaceLineEndings("\n"),
+                writer.ToString(false));
+        }
+
         [Test]
         public void TestPageSizeParameterReinjectedInCreateNextRequestMethod()
         {
@@ -1811,6 +2113,143 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers.RestClientPro
                     ScmCodeModelGenerator.Instance.PipelineRequestHeadersExtensionsDefinition.Type));
         }
 
+        [TestCase(true)]
+        [TestCase(false)]
+        public void NormalizedDateParameterIsSerializedInCreateRequestMethod(bool isRequired)
+        {
+            var dateType = CreateRfc7231DateType();
+            var operation = InputFactory.Operation(
+                "GetThing",
+                parameters:
+                [
+                    InputFactory.HeaderParameter(
+                        "requestDate",
+                        dateType,
+                        isRequired: isRequired,
+                        serializedName: "ocp-date")
+                ]);
+            var serviceMethod = InputFactory.BasicServiceMethod(
+                "GetThing",
+                operation,
+                parameters:
+                [
+                    InputFactory.MethodParameter(
+                        "requestDate",
+                        dateType,
+                        isRequired: isRequired,
+                        serializedName: "ocp-date",
+                        location: InputRequestLocation.Header)
+                ]);
+            var client = InputFactory.Client("TestClient", methods: [serviceMethod]);
+            var restClient = new ClientProvider(client).RestClient;
+
+            var file = new TypeProviderWriter(restClient).Write();
+            Assert.AreEqual(Helpers.GetExpectedFromFile(parameters: isRequired.ToString()), file.Content);
+        }
+
+        [TestCase(true)]
+        [TestCase(false)]
+        public void NormalizedDateQueryParameterIsSerializedInCreateRequestMethod(bool isRequired)
+        {
+            var dateType = CreateRfc7231DateType();
+            var operation = InputFactory.Operation(
+                "GetThing",
+                parameters:
+                [
+                    InputFactory.QueryParameter(
+                        "requestDate",
+                        dateType,
+                        isRequired: isRequired,
+                        serializedName: "request-date")
+                ]);
+            var serviceMethod = InputFactory.BasicServiceMethod(
+                "GetThing",
+                operation,
+                parameters:
+                [
+                    InputFactory.MethodParameter(
+                        "requestDate",
+                        dateType,
+                        isRequired: isRequired,
+                        serializedName: "request-date",
+                        location: InputRequestLocation.Query)
+                ]);
+            var client = InputFactory.Client("TestClient", methods: [serviceMethod]);
+            var restClient = new ClientProvider(client).RestClient;
+
+            var file = new TypeProviderWriter(restClient).Write();
+            Assert.AreEqual(Helpers.GetExpectedFromFile(parameters: isRequired.ToString()), file.Content);
+        }
+
+        [Test]
+        public void NormalizedDatePathParameterIsSerializedInCreateRequestMethod()
+        {
+            var dateType = CreateRfc7231DateType();
+            var operation = InputFactory.Operation(
+                "GetThing",
+                parameters:
+                [
+                    InputFactory.PathParameter(
+                        "requestDate",
+                        dateType,
+                        isRequired: true)
+                ],
+                path: "/things/{requestDate}");
+            var serviceMethod = InputFactory.BasicServiceMethod(
+                "GetThing",
+                operation,
+                parameters:
+                [
+                    InputFactory.MethodParameter(
+                        "requestDate",
+                        dateType,
+                        isRequired: true,
+                        location: InputRequestLocation.Path)
+                ]);
+            var client = InputFactory.Client("TestClient", methods: [serviceMethod]);
+            var restClient = new ClientProvider(client).RestClient;
+
+            var file = new TypeProviderWriter(restClient).Write();
+            Assert.AreEqual(Helpers.GetExpectedFromFile(), file.Content);
+        }
+
+        [TestCase(true)]
+        [TestCase(false)]
+        public void NormalizedDateClientParameterIsSerializedInCreateRequestMethod(bool isRequired)
+        {
+            var dateType = CreateRfc7231DateType();
+            var operationParameter = InputFactory.QueryParameter(
+                "requestDate",
+                dateType,
+                isRequired: isRequired,
+                serializedName: "request-date",
+                scope: InputParameterScope.Client);
+            var clientParameter = InputFactory.MethodParameter(
+                "clientDate",
+                dateType,
+                isRequired: isRequired,
+                serializedName: "request-date",
+                location: InputRequestLocation.Query,
+                scope: InputParameterScope.Client,
+                paramAlias: "requestDate");
+            var operation = InputFactory.Operation(
+                "GetThing",
+                parameters: [operationParameter]);
+            var client = InputFactory.Client(
+                "TestClient",
+                methods: [InputFactory.BasicServiceMethod("GetThing", operation)],
+                parameters: [clientParameter]);
+            var restClient = new ClientProvider(client).RestClient;
+
+            var file = new TypeProviderWriter(restClient).Write();
+            Assert.AreEqual(Helpers.GetExpectedFromFile(parameters: isRequired.ToString()), file.Content);
+        }
+
+        private static InputDateTimeType CreateRfc7231DateType() => new(
+            DateTimeKnownEncoding.Rfc7231,
+            "utcDateTime",
+            "TypeSpec.utcDateTime",
+            InputPrimitiveType.String);
 
         private static void ValidateResponseClassifier(MethodBodyStatements bodyStatements, string parsedStatusCodes)
         {

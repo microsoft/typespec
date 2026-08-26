@@ -197,7 +197,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
                 // For next link requests, filter parameters to only include reinjected ones
                 var pagingServiceMethod = serviceMethod as InputPagingServiceMethod;
                 var nextLink = pagingServiceMethod?.PagingMetadata.NextLink;
-                var reinjectedParamNames = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
+                var reinjectedParamNames = new HashSet<string>(StringComparer.Ordinal);
 
                 // Add parameters from nextLink.ReInjectedParameters
                 if (nextLink?.ReInjectedParameters != null)
@@ -208,17 +208,23 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
                     }
                 }
 
-                // Add maxPageSize parameter if PageSizeParameterSegments is specified
                 var pageSizeParameterName = GetPageSizeParameterName(pagingServiceMethod);
-                if (pageSizeParameterName != null)
-                {
-                    reinjectedParamNames.Add(pageSizeParameterName);
-                }
 
                 // Only filter if there are reinjected parameters specified
-                if (reinjectedParamNames.Count > 0)
+                if (reinjectedParamNames.Count > 0 || pageSizeParameterName != null)
                 {
-                    parameters = parameters.Where(p => reinjectedParamNames.Contains(p.Name)).ToList();
+                    parameters = parameters
+                        .Where(p =>
+                        {
+                            var name = p.InputParameter?.Name ?? p.Name;
+                            // Reinjected names must match exactly so that parameters differing only by casing are
+                            // not conflated. The page size name is matched case-insensitively because the operation
+                            // and method parameters intentionally differ in casing.
+                            return reinjectedParamNames.Contains(name) ||
+                                (pageSizeParameterName != null &&
+                                    name.Equals(pageSizeParameterName, StringComparison.OrdinalIgnoreCase));
+                        })
+                        .ToList();
                 }
 
                 parameters = [ScmKnownParameters.NextPage, .. parameters];
@@ -259,20 +265,38 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
             var operation = serviceMethod.Operation;
             var classifier = GetClassifier(operation);
 
-            var paramMap = signature.Parameters.ToDictionary(p => p.Name, StringComparer.OrdinalIgnoreCase);
-            foreach (var param in ClientProvider.ClientParameters)
+            var parameters = signature.Parameters.Concat(ClientProvider.ClientParameters).ToArray();
+            var paramMap = new ParameterProviderMap();
+
+            // Register the input model names first so that they win over the normalized C# names, which may collide
+            // with the raw name of a different parameter.
+            foreach (var parameter in parameters)
             {
-                paramMap[param.Name] = param;
+                if (parameter.InputParameter is not { } inputParameter)
+                {
+                    continue;
+                }
+
+                paramMap.AddInputName(inputParameter.Name, parameter);
+                paramMap.AddInputName(inputParameter.OriginalName, parameter);
+                if (inputParameter is InputMethodParameter { ParamAlias: string alias })
+                {
+                    paramMap.AddInputName(alias, parameter);
+                }
             }
 
-            // Register client parameters under their paramAlias names so that operation parameters
-            // (which use the original name) can find the corresponding client parameter.
-            foreach (var inputParam in _inputClient.Parameters)
+            // The generated names act as fallback aliases for lookups without a matching input parameter.
+            foreach (var parameter in parameters)
             {
-                if (inputParam is InputMethodParameter { ParamAlias: string alias } &&
-                    paramMap.TryGetValue(inputParam.Name, out var aliasedParam))
+                paramMap.SetGeneratedName(parameter.Name, parameter);
+            }
+
+            foreach (var inputParameter in _inputClient.Parameters)
+            {
+                if (inputParameter is InputMethodParameter { ParamAlias: string alias } &&
+                    paramMap.TryGetValue(inputParameter.Name, out var parameter))
                 {
-                    paramMap[alias] = aliasedParam;
+                    paramMap.SetInputName(alias, parameter);
                 }
             }
 
@@ -351,21 +375,20 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
             return new MethodBodyStatements(statements);
         }
 
-        private Dictionary<string, ParameterProvider> GetReinjectedParametersMap(
+        private ParameterProviderMap GetReinjectedParametersMap(
             InputNextLink nextLink,
             InputPagingServiceMethod? pagingServiceMethod,
             InputOperation operation,
-            Dictionary<string, ParameterProvider> paramMap)
+            ParameterProviderMap paramMap)
         {
-            var reinjectedParamsMap = new Dictionary<string, ParameterProvider>(StringComparer.OrdinalIgnoreCase);
+            var reinjectedParamsMap = new ParameterProviderMap(allowCaseInsensitiveFallback: false);
 
             // Add parameters from nextLink.ReInjectedParameters
             if (nextLink.ReInjectedParameters?.Count > 0)
             {
                 foreach (var param in nextLink.ReInjectedParameters)
                 {
-                    var reinjectedParameter = ScmCodeModelGenerator.Instance.TypeFactory.CreateParameter(param);
-                    if (reinjectedParameter != null && paramMap.TryGetValue(reinjectedParameter.Name, out var paramInSignature))
+                    if (paramMap.TryGetValue(param.Name, out var paramInSignature))
                     {
                         reinjectedParamsMap[param.Name] = paramInSignature;
                     }
@@ -380,8 +403,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
                 var pageSizeParameter = operation.Parameters.FirstOrDefault(p => p.Name.Equals(pageSizeParameterName, StringComparison.OrdinalIgnoreCase));
                 if (pageSizeParameter != null)
                 {
-                    var pageSizeParam = ScmCodeModelGenerator.Instance.TypeFactory.CreateParameter(pageSizeParameter);
-                    if (pageSizeParam != null && paramMap.TryGetValue(pageSizeParam.Name, out var paramInSignature))
+                    if (paramMap.TryGetValue(pageSizeParameter.Name, out var paramInSignature))
                     {
                         reinjectedParamsMap[pageSizeParameter.Name] = paramInSignature;
                     }
@@ -390,10 +412,9 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
 
             // Add API version parameters that need to be preserved across pagination requests
             var apiVersionParam = operation.Parameters.FirstOrDefault(p => p.IsApiVersion);
-            if (apiVersionParam != null && !reinjectedParamsMap.ContainsKey(apiVersionParam.Name))
+            if (apiVersionParam != null && !reinjectedParamsMap.ContainsExactInputName(apiVersionParam.Name))
             {
-                var createdParam = ScmCodeModelGenerator.Instance.TypeFactory.CreateParameter(apiVersionParam);
-                if (createdParam != null && paramMap.TryGetValue(createdParam.Name, out var paramInSignature))
+                if (paramMap.TryGetValue(apiVersionParam.Name, out var paramInSignature))
                 {
                     reinjectedParamsMap[apiVersionParam.Name] = paramInSignature;
                 }
@@ -459,7 +480,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
             throw new InvalidOperationException($"Unexpected status codes for operation {operation.Name}");
         }
 
-        private IEnumerable<MethodBodyStatement> AppendHeaderParameters(HttpRequestApi request, InputOperation operation, Dictionary<string, ParameterProvider> paramMap, bool isNextLink = false, ParameterProvider? contentParam = null)
+        private IEnumerable<MethodBodyStatement> AppendHeaderParameters(HttpRequestApi request, InputOperation operation, ParameterProviderMap paramMap, bool isNextLink = false, ParameterProvider? contentParam = null)
         {
             List<MethodBodyStatement> statements = new(operation.Parameters.Count);
 
@@ -527,7 +548,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
             return statements;
         }
 
-        private List<MethodBodyStatement> AppendQueryParameters(ScopedApi uri, InputOperation operation, Dictionary<string, ParameterProvider> paramMap, bool isNextLinkRequest = false)
+        private List<MethodBodyStatement> AppendQueryParameters(ScopedApi uri, InputOperation operation, ParameterProviderMap paramMap, bool isNextLinkRequest = false)
         {
             List<MethodBodyStatement> statements = new(operation.Parameters.Count);
 
@@ -551,7 +572,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
         private MethodBodyStatement? BuildQueryParameterStatement(
             ScopedApi uri,
             InputQueryParameter inputQueryParameter,
-            Dictionary<string, ParameterProvider> paramMap,
+            ParameterProviderMap paramMap,
             InputOperation operation,
             bool isNextLinkRequest = false)
         {
@@ -806,7 +827,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
             return new IfStatement(valueExpression.NotEqual(Null)) { originalStatement };
         }
 
-        private IReadOnlyList<MethodBodyStatement> AppendPathParameters(ScopedApi uri, InputOperation operation, Dictionary<string, ParameterProvider> paramMap)
+        private IReadOnlyList<MethodBodyStatement> AppendPathParameters(ScopedApi uri, InputOperation operation, ParameterProviderMap paramMap)
         {
             Dictionary<string, InputParameter> inputParamMap = operation.Parameters.ToDictionary(p => p.SerializedName);
             List<MethodBodyStatement> statements = new(operation.Parameters.Count);
@@ -868,7 +889,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
             ScopedApi uri,
             List<MethodBodyStatement> statements,
             Dictionary<string, InputParameter> inputParamMap,
-            Dictionary<string, ParameterProvider> paramMap,
+            ParameterProviderMap paramMap,
             InputOperation operation)
         {
             var pathSpan = segments.AsSpan().Slice(offset);
@@ -1006,7 +1027,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
             }
         }
 
-        private void GetParamInfo(Dictionary<string, ParameterProvider> paramMap, InputOperation operation, InputParameter inputParam, out CSharpType? type, out SerializationFormat? serializationFormat, out ValueExpression? valueExpression)
+        private void GetParamInfo(ParameterProviderMap paramMap, InputOperation operation, InputParameter inputParam, out CSharpType? type, out SerializationFormat? serializationFormat, out ValueExpression? valueExpression)
         {
             type = IsContentTypeParameter(inputParam, includeInputHeaderParameter: false)
                 ? null
@@ -1634,6 +1655,86 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
             }
 
             throw new InvalidOperationException($"inputParam `{inputParam.Name}` is `Spread` but not a model type");
+        }
+
+        /// <summary>
+        /// Maps names used by the input model to the parameters of the generated method. Names coming from the input
+        /// model (wire names, original names and aliases) take precedence over the normalized C# names of the generated
+        /// parameters, because normalization can produce a C# name that collides with the raw name of another parameter.
+        /// The generated names are kept as a fallback for lookups that have no corresponding input parameter, such as
+        /// URI template segments and client parameters like the endpoint.
+        /// </summary>
+        private sealed class ParameterProviderMap
+        {
+            private readonly Dictionary<string, ParameterProvider> _inputExact = new(StringComparer.Ordinal);
+            private readonly Dictionary<string, ParameterProvider> _inputIgnoreCase = new(StringComparer.OrdinalIgnoreCase);
+            private readonly Dictionary<string, ParameterProvider> _generatedExact = new(StringComparer.Ordinal);
+            private readonly Dictionary<string, ParameterProvider> _generatedIgnoreCase = new(StringComparer.OrdinalIgnoreCase);
+            private readonly bool _allowCaseInsensitiveFallback;
+
+            /// <param name="allowCaseInsensitiveFallback">
+            /// Whether lookups may fall back to a case-insensitive match. This must be disabled for maps that hold a
+            /// subset of the operation's parameters, such as the parameters reinjected into a next link request.
+            /// Otherwise a parameter that was left out of the subset would resolve to another parameter whose name
+            /// differs only by casing.
+            /// </param>
+            public ParameterProviderMap(bool allowCaseInsensitiveFallback = true)
+            {
+                _allowCaseInsensitiveFallback = allowCaseInsensitiveFallback;
+            }
+
+            public int Count => _inputExact.Count + _generatedExact.Count;
+
+            public ParameterProvider this[string name]
+            {
+                get => TryGetValue(name, out var parameter)
+                    ? parameter
+                    : throw new KeyNotFoundException($"No parameter named '{name}' was found.");
+                set => SetInputName(name, value);
+            }
+
+            /// <summary>
+            /// Registers an input model name if it is not already mapped. The first registration wins so that the
+            /// parameter's own name takes precedence over its original name and alias.
+            /// </summary>
+            public bool AddInputName(string name, ParameterProvider parameter)
+            {
+                var added = _inputExact.TryAdd(name, parameter);
+                _inputIgnoreCase.TryAdd(name, parameter);
+                return added;
+            }
+
+            public void SetInputName(string name, ParameterProvider parameter)
+            {
+                _inputExact[name] = parameter;
+                _inputIgnoreCase[name] = parameter;
+            }
+
+            public void SetGeneratedName(string name, ParameterProvider parameter)
+            {
+                _generatedExact[name] = parameter;
+                _generatedIgnoreCase[name] = parameter;
+            }
+
+            public bool ContainsExactInputName(string name) => _inputExact.ContainsKey(name);
+
+            public bool TryGetValue(string name, [NotNullWhen(true)] out ParameterProvider? parameter)
+            {
+                if (_inputExact.TryGetValue(name, out parameter) ||
+                    _generatedExact.TryGetValue(name, out parameter))
+                {
+                    return true;
+                }
+
+                if (!_allowCaseInsensitiveFallback)
+                {
+                    parameter = null;
+                    return false;
+                }
+
+                return _inputIgnoreCase.TryGetValue(name, out parameter) ||
+                    _generatedIgnoreCase.TryGetValue(name, out parameter);
+            }
         }
 
         private class StatusCodesComparer : IEqualityComparer<List<int>>

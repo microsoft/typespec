@@ -115,7 +115,12 @@ namespace Microsoft.TypeSpec.Generator.Tests.Providers
 
             var testCases = new (string Name, InputType Type, string NormalizedName)[]
             {
-                ("startTime", dateTime, "startOn"),
+                ("startTime", dateTime, "startsOn"),
+                ("endTime", dateTime, "endsOn"),
+                ("startOn", dateTime, "startsOn"),
+                ("endOn", dateTime, "endsOn"),
+                ("firstTimestamp", dateTime, "firstTimestamp"),
+                ("lastTimestamp", dateTime, "lastTimestamp"),
                 ("createdAt", dateTime, "createdOn"),
                 ("timestamp", dateTime, "timestamp"),
                 ("date", InputPrimitiveType.PlainDate, "date"),
@@ -128,6 +133,7 @@ namespace Microsoft.TypeSpec.Generator.Tests.Providers
                 ("modificationTime", dateTime, "modifiedOn"),
                 ("modelExpirationDate", dateTime, "modelExpiresOn"),
                 ("accountExpirationDate", dateTime, "accountExpiresOn"),
+                ("accessTierChangeTime", dateTime, "accessTierChangedOn"),
                 ("statusTimestamp", dateTime.WithNullable(true), "statusTimestamp"),
                 ("lastSyncTimestamp", dateTime, "lastSyncOn"),
                 ("totalTime", dateTime, "totalTime"),
