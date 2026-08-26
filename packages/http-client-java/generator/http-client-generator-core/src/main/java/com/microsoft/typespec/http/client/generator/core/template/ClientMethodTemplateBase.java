@@ -329,7 +329,7 @@ public abstract class ClientMethodTemplateBase implements IJavaTemplate<ClientMe
         if (CoreUtils.isNullOrEmpty(paramJavadoc)) {
             paramJavadoc = String.format("The %1$s parameter", parameter.getName());
         }
-        String description = CodeNamer.escapeXmlComment(paramJavadoc);
+        String description = CodeNamer.escapeComment(CodeNamer.escapeXmlComment(paramJavadoc));
         // query with array, add additional description
         if (parameter.getRequestParameterLocation() == RequestParameterLocation.QUERY
             && parameter.getCollectionFormat() != null) {
