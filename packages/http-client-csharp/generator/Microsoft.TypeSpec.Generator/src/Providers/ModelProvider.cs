@@ -938,15 +938,13 @@ namespace Microsoft.TypeSpec.Generator.Providers
                 {
                     continue;
                 }
+                var exactNameMismatchTypes = FindExactParameterNameMismatchTypes(restoredParameters, previousParameters);
                 for (int i = 0; i < restoredParameters.Count; i++)
                 {
                     var restoredName = previousParameters[i].Name;
                     if (string.Equals(restoredParameters[i].Name, restoredName, StringComparison.Ordinal)
                         || restoredParameters[i].IsExactName
-                        || BackCompatHelper.HasExactParameterNameMismatchWithSameType(
-                            restoredParameters,
-                            previousParameters,
-                            restoredParameters[i]))
+                        || exactNameMismatchTypes.Contains(restoredParameters[i].Type))
                     {
                         continue;
                     }
@@ -959,6 +957,42 @@ namespace Microsoft.TypeSpec.Generator.Providers
 
                 currentConstructor.Signature.Update(parameters: [.. restoredParameters]);
                 currentConstructor.Update(signature: currentConstructor.Signature);
+            }
+        }
+
+        private static HashSet<CSharpType> FindExactParameterNameMismatchTypes(
+            IReadOnlyList<ParameterProvider> currentParameters,
+            IReadOnlyList<ParameterProvider> previousParameters)
+        {
+            var mismatchTypes = new HashSet<CSharpType>(CSharpTypeNameComparer.Instance);
+            var parameterCount = Math.Min(currentParameters.Count, previousParameters.Count);
+            for (int i = 0; i < parameterCount; i++)
+            {
+                if (currentParameters[i].IsExactName
+                    && !string.Equals(currentParameters[i].Name, previousParameters[i].Name, StringComparison.Ordinal))
+                {
+                    mismatchTypes.Add(currentParameters[i].Type);
+                }
+            }
+
+            return mismatchTypes;
+        }
+
+        private sealed class CSharpTypeNameComparer : IEqualityComparer<CSharpType>
+        {
+            public static CSharpTypeNameComparer Instance { get; } = new();
+
+            public bool Equals(CSharpType? x, CSharpType? y) => x?.AreNamesEqual(y) == true;
+
+            public int GetHashCode(CSharpType obj)
+            {
+                var hashCode = new HashCode();
+                hashCode.Add(obj.Name);
+                foreach (var argument in obj.Arguments)
+                {
+                    hashCode.Add(GetHashCode(argument));
+                }
+                return hashCode.ToHashCode();
             }
         }
 

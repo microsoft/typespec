@@ -267,25 +267,6 @@ namespace Microsoft.TypeSpec.Generator.Utilities
             return mismatchIndices;
         }
 
-        internal static bool HasExactParameterNameMismatchWithSameType(
-            IReadOnlyList<ParameterProvider> currentParameters,
-            IReadOnlyList<ParameterProvider> previousParameters,
-            ParameterProvider parameter)
-        {
-            var parameterCount = Math.Min(currentParameters.Count, previousParameters.Count);
-            for (int i = 0; i < parameterCount; i++)
-            {
-                if (currentParameters[i].IsExactName
-                    && !string.Equals(currentParameters[i].Name, previousParameters[i].Name, StringComparison.Ordinal)
-                    && currentParameters[i].Type.AreNamesEqual(parameter.Type))
-                {
-                    return true;
-                }
-            }
-
-            return false;
-        }
-
         /// <summary>
         /// Finds the last-contract method whose signature matches <paramref name="currentSignature"/> on
         /// method name plus parameter count and types (ignoring parameter names), or null when none.
