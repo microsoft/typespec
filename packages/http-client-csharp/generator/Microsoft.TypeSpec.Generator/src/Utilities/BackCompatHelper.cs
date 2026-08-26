@@ -246,10 +246,10 @@ namespace Microsoft.TypeSpec.Generator.Utilities
             IReadOnlyList<ParameterProvider> currentParameters,
             IReadOnlyList<ParameterProvider> previousParameters)
         {
-            for (int i = 0; i < currentParameters.Count && i < previousParameters.Count; i++)
+            for (int i = 0; i < currentParameters.Count; i++)
             {
                 if (currentParameters[i].IsExactName
-                    && !string.Equals(currentParameters[i].Name, previousParameters[i].Name, StringComparison.Ordinal))
+                    && (i >= previousParameters.Count || !string.Equals(currentParameters[i].Name, previousParameters[i].Name, StringComparison.Ordinal)))
                 {
                     return true;
                 }
