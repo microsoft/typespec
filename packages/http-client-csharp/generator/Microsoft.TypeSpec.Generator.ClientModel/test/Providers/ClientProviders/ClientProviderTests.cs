@@ -4708,11 +4708,12 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers.ClientProvide
             var inputOperation = InputFactory.Operation("snake_case_op", isExactName: true);
             var inputServiceMethod = InputFactory.BasicServiceMethod("snake_case_op", inputOperation, isExactName: true);
             var client = InputFactory.Client("TestClient", methods: [inputServiceMethod]);
-            _ = new ClientProvider(client);
+            var clientProvider = new ClientProvider(client);
 
             // After CleanOperationNames runs in the ClientProvider constructor, names should be unchanged.
             Assert.AreEqual("snake_case_op", inputServiceMethod.Name);
             Assert.AreEqual("snake_case_op", inputServiceMethod.Operation.Name);
+            Assert.AreEqual("CreateSnakeCaseOpRequest", clientProvider.RestClient.GetCreateRequestMethod(inputOperation).Signature.Name);
         }
 
         [TestCase("GetUrl", false, "GetUri")]
@@ -4804,11 +4805,13 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers.ClientProvide
             var shippedWrapper = new BackCompatTypeProvider("MockableTestResource", "Sample");
 
             var shippedWrapperMethods = clientProvider.GetMethodCollectionByOperation(inputOperation, shippedWrapper);
-            var publicMethodName = shippedWrapperMethods[^2].Signature.Name;
+            var publicMethodName = shippedWrapperMethods.Single(m =>
+                m.Kind == ScmMethodKind.Convenience &&
+                !m.Signature.Modifiers.HasFlag(MethodSignatureModifiers.Async)).Signature.Name;
             var capturedRequestMethodName = clientProvider.RestClient.GetCreateRequestMethod(inputOperation).Signature.Name;
 
             Assert.AreEqual("GetUrl", publicMethodName);
-            Assert.AreEqual($"Create{publicMethodName}Request", capturedRequestMethodName);
+            Assert.AreEqual("CreateGetUriRequest", capturedRequestMethodName);
 
             var newWrapper = new BackCompatTypeProvider("MissingWrapper", "Sample");
             _ = clientProvider.GetMethodCollectionByOperation(inputOperation, newWrapper);

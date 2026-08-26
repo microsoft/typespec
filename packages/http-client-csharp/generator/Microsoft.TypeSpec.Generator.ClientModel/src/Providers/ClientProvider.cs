@@ -219,6 +219,39 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
 
         private string GetCleanOperationName(InputServiceMethod serviceMethod)
         {
+            var operationName = GetOperationName(serviceMethod);
+            if (serviceMethod.IsExactName)
+            {
+                return operationName;
+            }
+
+            var normalizedName = operationName.NormalizeCSharpUrlSuffix();
+            if (normalizedName == operationName)
+            {
+                return operationName;
+            }
+
+            var lastContractMethods = BackCompatProvider.LastContractView?.Methods ?? LastContractView?.Methods;
+            if (lastContractMethods?.Any(m =>
+                m.Signature.Name == operationName ||
+                m.Signature.Name == $"{operationName}Async") == true)
+            {
+                return operationName;
+            }
+
+            return normalizedName;
+        }
+
+        internal static string GetRestOperationName(InputServiceMethod serviceMethod)
+        {
+            var operationName = GetOperationName(serviceMethod);
+            return serviceMethod.IsExactName
+                ? operationName.ToIdentifierName()
+                : operationName.NormalizeCSharpUrlSuffix();
+        }
+
+        private static string GetOperationName(InputServiceMethod serviceMethod)
+        {
             if (serviceMethod.IsExactName)
             {
                 return serviceMethod.Operation.Name;
@@ -237,21 +270,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
                 operationName = $"Get{operationName.Substring(4)}";
             }
 
-            var normalizedName = operationName.NormalizeCSharpUrlSuffix();
-            if (normalizedName == operationName)
-            {
-                return operationName;
-            }
-
-            var lastContractMethods = BackCompatProvider.LastContractView?.Methods ?? LastContractView?.Methods;
-            if (lastContractMethods?.Any(m =>
-                m.Signature.Name == operationName ||
-                m.Signature.Name == $"{operationName}Async") == true)
-            {
-                return operationName;
-            }
-
-            return normalizedName;
+            return operationName;
         }
 
         private string? _namespace;
