@@ -1361,7 +1361,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers.RestClientPro
         }
 
         [Test]
-        public void OptionalEnumPathParameterIsNotUnwrapped()
+        public void OptionalClientEnumPathParameterIsGuardedThenUnwrapped()
         {
             var enumType = InputFactory.StringEnum(
                 "Color",
@@ -1431,8 +1431,14 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers.RestClientPro
             Assert.AreEqual(Helpers.GetExpectedFromFile(), file.Content);
         }
 
+        /* A required path parameter is never guarded, even when its type is nullable.
+         * Skipping the segment would silently target a different resource
+         * (e.g. "/things" instead of "/things/{name}"), so a null value is deliberately
+         * left to fail loudly inside ClientUriBuilder.AppendPath. Only optional path
+         * parameters are omitted from the URL when absent.
+         */
         [Test]
-        public void RequiredNullableStringPathParameterIsGuarded()
+        public void RequiredNullableStringPathParameterIsNotGuarded()
         {
             var nullableString = new InputNullableType(InputPrimitiveType.String);
             var operation = InputFactory.Operation(
@@ -1458,7 +1464,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers.RestClientPro
         }
 
         [Test]
-        public void RequiredNullableEnumPathParameterIsGuarded()
+        public void RequiredNullableEnumPathParameterIsNotGuarded()
         {
             var enumType = InputFactory.StringEnum(
                 "Color",
@@ -1487,8 +1493,32 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers.RestClientPro
             Assert.AreEqual(Helpers.GetExpectedFromFile(), file.Content);
         }
 
+        // The client-scoped variant resolves to the nullable enum field rather than the
+        // flattened serialized primitive, so it exercises a different code path.
         [Test]
-        public void RequiredNullableCollectionPathParameterIsGuarded()
+        public void RequiredNullableClientEnumPathParameterIsNotGuarded()
+        {
+            var enumType = InputFactory.StringEnum(
+                "Color",
+                [("Red", "red"), ("Blue", "blue")],
+                isExtensible: true);
+            var nullableEnum = new InputNullableType(enumType);
+            var operation = InputFactory.Operation(
+                "GetThing",
+                parameters: [InputFactory.PathParameter("color", nullableEnum, isRequired: true, scope: InputParameterScope.Client)],
+                path: "/things/{color}");
+            var serviceMethod = InputFactory.BasicServiceMethod(
+                "GetThing",
+                operation);
+            var client = InputFactory.Client("TestClient", methods: [serviceMethod]);
+            var restClient = new ClientProvider(client).RestClient;
+
+            var file = new TypeProviderWriter(restClient).Write();
+            Assert.AreEqual(Helpers.GetExpectedFromFile(), file.Content);
+        }
+
+        [Test]
+        public void RequiredNullableCollectionPathParameterIsNotGuarded()
         {
             var nullableArray = new InputNullableType(InputFactory.Array(InputPrimitiveType.String));
             var operation = InputFactory.Operation(
@@ -1504,6 +1534,34 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers.RestClientPro
                         "ids",
                         nullableArray,
                         isRequired: true,
+                        location: InputRequestLocation.Path)
+                ]);
+            var client = InputFactory.Client("TestClient", methods: [serviceMethod]);
+            var restClient = new ClientProvider(client).RestClient;
+
+            var file = new TypeProviderWriter(restClient).Write();
+            Assert.AreEqual(Helpers.GetExpectedFromFile(), file.Content);
+        }
+
+        // An optional collection path parameter previously had its separator deferred
+        // without a matching guard, producing "/thingsa,b" when the value was present.
+        [Test]
+        public void OptionalCollectionPathParameterIsGuarded()
+        {
+            var arrayType = InputFactory.Array(InputPrimitiveType.String);
+            var operation = InputFactory.Operation(
+                "GetThing",
+                parameters: [InputFactory.PathParameter("ids", arrayType, isRequired: false)],
+                path: "/things/{ids}");
+            var serviceMethod = InputFactory.BasicServiceMethod(
+                "GetThing",
+                operation,
+                parameters:
+                [
+                    InputFactory.MethodParameter(
+                        "ids",
+                        arrayType,
+                        isRequired: false,
                         location: InputRequestLocation.Path)
                 ]);
             var client = InputFactory.Client("TestClient", methods: [serviceMethod]);
@@ -1529,6 +1587,42 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers.RestClientPro
                 "GetThing",
                 operation);
             var client = InputFactory.Client("TestClient", methods: [serviceMethod]);
+            var restClient = new ClientProvider(client).RestClient;
+
+            var file = new TypeProviderWriter(restClient).Write();
+            Assert.AreEqual(Helpers.GetExpectedFromFile(), file.Content);
+        }
+
+        // The guard covers InputEndpointParameter as well as InputPathParameter; a missing
+        // or stray separator in a server URL template is especially easy to overlook.
+        [Test]
+        public void OptionalEndpointParameterInServerTemplateIsGuarded()
+        {
+            const string serverTemplate = "{endpoint}/{region}";
+            var regionParameter = InputFactory.EndpointParameter(
+                "region",
+                InputPrimitiveType.String,
+                isRequired: false,
+                isEndpoint: false,
+                serverUrlTemplate: serverTemplate,
+                scope: InputParameterScope.Client);
+            var endpointParameter = InputFactory.EndpointParameter(
+                "endpoint",
+                InputPrimitiveType.String,
+                isRequired: true,
+                serverUrlTemplate: serverTemplate);
+            var operation = InputFactory.Operation(
+                "GetThing",
+                uri: serverTemplate,
+                path: "/things",
+                parameters: [endpointParameter, regionParameter]);
+            var serviceMethod = InputFactory.BasicServiceMethod(
+                "GetThing",
+                operation);
+            var client = InputFactory.Client(
+                "TestClient",
+                methods: [serviceMethod],
+                parameters: [endpointParameter, regionParameter]);
             var restClient = new ClientProvider(client).RestClient;
 
             var file = new TypeProviderWriter(restClient).Write();

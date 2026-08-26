@@ -3,6 +3,7 @@
 #nullable disable
 
 using System.ClientModel.Primitives;
+using System.Collections.Generic;
 
 namespace Sample
 {
@@ -12,16 +13,12 @@ namespace Sample
 
         private static global::System.ClientModel.Primitives.PipelineMessageClassifier PipelineMessageClassifier200 => _pipelineMessageClassifier200 ??= global::System.ClientModel.Primitives.PipelineMessageClassifier.Create(stackalloc ushort[] { 200 });
 
-        internal global::System.ClientModel.Primitives.PipelineMessage CreateGetThingRequest(string color, global::System.ClientModel.Primitives.RequestOptions options)
+        internal global::System.ClientModel.Primitives.PipelineMessage CreateGetThingRequest(global::System.Collections.Generic.IEnumerable<string> ids, global::System.ClientModel.Primitives.RequestOptions options)
         {
             global::Sample.ClientUriBuilder uri = new global::Sample.ClientUriBuilder();
             uri.Reset(_endpoint);
-            uri.AppendPath("/things", false);
-            if ((color != null))
-            {
-                uri.AppendPath("/", false);
-                uri.AppendPath(color, true);
-            }
+            uri.AppendPath("/things/", false);
+            uri.AppendPathDelimited(ids, ",", escape: true);
             global::System.ClientModel.Primitives.PipelineMessage message = Pipeline.CreateMessage(uri.ToUri(), "GET", PipelineMessageClassifier200);
             global::System.ClientModel.Primitives.PipelineRequest request = message.Request;
             message.Apply(options);

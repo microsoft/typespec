@@ -500,7 +500,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
                 CSharpType? type;
                 SerializationFormat? serializationFormat;
                 ValueExpression? valueExpression;
-                GetParamInfo(paramMap, operation, inputHeaderParameter, out type, out serializationFormat, out valueExpression);
+                GetParamInfo(paramMap, operation, inputHeaderParameter, out type, out serializationFormat, out valueExpression, out _, out _);
                 if (valueExpression == null)
                 {
                     continue;
@@ -576,7 +576,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
             InputOperation operation,
             bool isNextLinkRequest = false)
         {
-            GetParamInfo(paramMap, operation, inputQueryParameter, out var paramType, out var serializationFormat, out var valueExpression);
+            GetParamInfo(paramMap, operation, inputQueryParameter, out var paramType, out var serializationFormat, out var valueExpression, out _, out _);
             if (valueExpression == null)
             {
                 return null;
@@ -907,10 +907,9 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
                 var paramEndIndex = pathSpan.IndexOf('}');
                 var paramName = pathSpan.Slice(0, paramEndIndex).ToString();
 
-                bool hasPathOrEndpointParam = inputParamMap.TryGetValue(paramName, out var pathParamForGuard)
-                    && pathParamForGuard is InputPathParameter or InputEndpointParameter;
-                bool willEmitNullGuard = hasPathOrEndpointParam
-                    && (pathParamForGuard!.IsRequired == false || pathParamForGuard.Type is InputNullableType);
+                bool willEmitNullGuard = inputParamMap.TryGetValue(paramName, out var optionalCheckParam)
+                    && optionalCheckParam is InputPathParameter or InputEndpointParameter
+                    && !optionalCheckParam.IsRequired;
                 var pathLiteral = path.ToString();
                 bool separatorDeferred = false;
                 if (pathLiteral.EndsWith('/')
@@ -920,22 +919,27 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
                     separatorDeferred = true;
                 }
                 AppendLiteralSegment(uri, pathLiteral, statements);
+                /* when the parameter is in operation.uri, it is client parameter
+                 * It is not operation parameter and not in inputParamHash list.
+                 */
                 var isClientParameter = ClientProvider.ClientParameters.Any(p => string.Equals(p.Name, paramName, StringComparison.OrdinalIgnoreCase))
                     || _inputClient.Parameters.Any(p => p is InputMethodParameter { ParamAlias: string alias } && string.Equals(alias, paramName, StringComparison.OrdinalIgnoreCase));
                 CSharpType? type;
                 SerializationFormat? serializationFormat;
                 ValueExpression? valueExpression;
+                ValueExpression? rawValueExpression;
+                bool isSerialized;
                 InputParameter? inputParam = null;
                 if (isClientParameter)
                 {
-                    GetParamInfo(paramMap[paramName], out type, out serializationFormat, out valueExpression);
+                    GetParamInfo(paramMap[paramName], out type, out serializationFormat, out valueExpression, out rawValueExpression, out isSerialized);
                 }
                 else
                 {
                     inputParam = inputParamMap[paramName];
-                    if (inputParam is InputPathParameter || inputParam is InputEndpointParameter)
+                    if (inputParam is InputPathParameter or InputEndpointParameter)
                     {
-                        GetParamInfo(paramMap, operation, inputParam, out type, out serializationFormat, out valueExpression);
+                        GetParamInfo(paramMap, operation, inputParam, out type, out serializationFormat, out valueExpression, out rawValueExpression, out isSerialized);
                         if (valueExpression == null)
                         {
                             break;
@@ -950,6 +954,11 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
                 ValueExpression[] toStringParams = format is null ? [] : [Literal(format)];
                 InputPathParameter? inputPathParameter = inputParam as InputPathParameter;
                 bool escape = !inputPathParameter?.SkipUrlEncoding ?? true;
+                /* The null check must always test the raw parameter or field, never the
+                 * serialized form: `x.ToString("R") != null` is vacuously true and
+                 * double-evaluates the serialization.
+                 */
+                ValueExpression nullCheckExpression = rawValueExpression ?? valueExpression;
                 if (type?.OutputType.IsCollection == true)
                 {
                     MethodBodyStatement collectionStatement = uri.AppendPathDelimited(valueExpression, GetFormatEnumValue(serializationFormat), escape).Terminate();
@@ -961,27 +970,29 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
                             : [collectionStatement];
                         collectionStatement = BuildQueryOrHeaderOrPathParameterNullCheck(
                             type,
-                            valueExpression,
+                            nullCheckExpression,
                             appendPathStatements);
                     }
                     statements.Add(collectionStatement);
                 }
                 else
                 {
-                    var nullCheckExpression = valueExpression;
                     if (type is { IsNullable: true, IsValueType: true, IsEnum: false })
                     {
                         valueExpression = willEmitNullGuard
                             ? valueExpression.Property(nameof(Nullable<int>.Value))
                             : valueExpression.NullConditional();
                     }
-                    else if (type is { IsNullable: true, IsEnum: true } && willEmitNullGuard && paramMap.TryGetValue(inputParam?.Name ?? paramName, out var enumParamProvider))
+                    else if (type is { IsNullable: true, IsEnum: true } && willEmitNullGuard)
                     {
-                        ValueExpression rawEnumVariable = enumParamProvider.Field is null ? enumParamProvider : enumParamProvider.Field;
-                        nullCheckExpression = rawEnumVariable;
-                        valueExpression = type.ToSerial(rawEnumVariable.Property(nameof(Nullable<int>.Value)));
+                        /* GetParamInfo serialized the nullable enum through a null-conditional
+                         * access. The guard makes that redundant, so re-serialize from the
+                         * unwrapped value instead.
+                         */
+                        valueExpression = type.ToSerial(nullCheckExpression.Property(nameof(Nullable<int>.Value)));
+                        isSerialized = true;
                     }
-                    valueExpression = type?.Equals(typeof(string)) == true || type?.IsEnum == true
+                    valueExpression = isSerialized || type?.Equals(typeof(string)) == true
                         ? valueExpression
                         : valueExpression.Invoke(nameof(ToString), toStringParams);
                     MethodBodyStatement statement;
@@ -1045,12 +1056,18 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
             }
         }
 
-        private void GetParamInfo(ParameterProviderMap paramMap, InputOperation operation, InputParameter inputParam, out CSharpType? type, out SerializationFormat? serializationFormat, out ValueExpression? valueExpression)
+        /// <param name="rawValueExpression">
+        /// The unformatted parameter or field access backing <paramref name="valueExpression"/>. Null checks must be
+        /// written against this rather than <paramref name="valueExpression"/>, which may already be serialized.
+        /// </param>
+        /// <param name="isSerialized">Whether <paramref name="valueExpression"/> has already had serialization applied.</param>
+        private void GetParamInfo(ParameterProviderMap paramMap, InputOperation operation, InputParameter inputParam, out CSharpType? type, out SerializationFormat? serializationFormat, out ValueExpression? valueExpression, out ValueExpression? rawValueExpression, out bool isSerialized)
         {
             type = IsContentTypeParameter(inputParam, includeInputHeaderParameter: false)
                 ? null
                 : ScmCodeModelGenerator.Instance.TypeFactory.CreateCSharpType(inputParam.Type);
             serializationFormat = null;
+            isSerialized = false;
 
             if (inputParam.IsApiVersion && ClientProvider.IsMultiServiceClient)
             {
@@ -1060,6 +1077,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
                     type = apiVersionField.Type;
                     serializationFormat = apiVersionField.WireInfo?.SerializationFormat;
                     valueExpression = apiVersionField;
+                    rawValueExpression = apiVersionField;
                     return;
                 }
             }
@@ -1067,45 +1085,53 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
             if (inputParam.Scope == InputParameterScope.Constant && !(operation.IsMultipartFormData && inputParam is InputHeaderParameter headerParameter && headerParameter.IsContentType))
             {
                 valueExpression = Literal((inputParam.Type as InputLiteralType)?.Value);
+                rawValueExpression = valueExpression;
                 serializationFormat = ScmCodeModelGenerator.Instance.TypeFactory.GetSerializationFormat(inputParam.Type);
             }
             else if (TryGetAcceptHeaderWithMultipleContentTypes(inputParam, operation, out var contentTypes))
             {
                 string joinedContentTypes = string.Join(", ", contentTypes);
                 valueExpression = Literal(joinedContentTypes);
+                rawValueExpression = valueExpression;
                 serializationFormat = ScmCodeModelGenerator.Instance.TypeFactory.GetSerializationFormat(inputParam.Type);
             }
             else if (TryGetSpecialHeaderParam(inputParam, out var parameterProvider))
             {
                 valueExpression = parameterProvider.DefaultValue!;
+                rawValueExpression = valueExpression;
                 serializationFormat = ScmCodeModelGenerator.Instance.TypeFactory.GetSerializationFormat(inputParam.Type);
             }
             else
             {
                 if (paramMap.TryGetValue(inputParam.Name, out var paramProvider))
                 {
-                    GetParamInfo(paramProvider, out type, out serializationFormat, out valueExpression);
+                    GetParamInfo(paramProvider, out type, out serializationFormat, out valueExpression, out var raw, out isSerialized);
+                    rawValueExpression = raw;
                 }
                 else
                 {
                     type = null;
                     valueExpression = null;
+                    rawValueExpression = null;
                 }
             }
         }
 
-        private static void GetParamInfo(ParameterProvider paramProvider, out CSharpType? type, out SerializationFormat? serializationFormat, out ValueExpression valueExpression)
+        private static void GetParamInfo(ParameterProvider paramProvider, out CSharpType? type, out SerializationFormat? serializationFormat, out ValueExpression valueExpression, out ValueExpression rawValueExpression, out bool isSerialized)
         {
             type = paramProvider.Field is null ? paramProvider.Type : paramProvider.Field.Type;
+            rawValueExpression = paramProvider.Field is null ? paramProvider : paramProvider.Field;
             if (type.IsEnum)
             {
                 valueExpression = type.ToSerial(paramProvider);
                 serializationFormat = SerializationFormat.Default;
+                isSerialized = true;
             }
             else
             {
-                valueExpression = paramProvider.Field is null ? paramProvider : paramProvider.Field;
+                valueExpression = rawValueExpression;
                 serializationFormat = paramProvider.WireInfo.SerializationFormat;
+                isSerialized = false;
             }
         }
 
