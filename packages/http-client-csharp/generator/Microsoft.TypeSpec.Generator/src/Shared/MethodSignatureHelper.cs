@@ -193,7 +193,9 @@ namespace Microsoft.TypeSpec.Generator
                 CSharpType competingType = competingMethodSignature.Parameters[i].Type;
                 bool sameType = targetType.IsNullable == competingType.IsNullable
                     && targetType.AreNamesEqual(competingType);
-                if (!sameType && (!CanAcceptNull(targetType) || !CanAcceptNull(competingType)))
+                if (!sameType
+                    && ((targetType.IsValueType && !targetType.IsNullable)
+                        || (competingType.IsValueType && !competingType.IsNullable)))
                 {
                     return Math.Max(i + 1, targetMinimumArgumentCount);
                 }
@@ -211,8 +213,6 @@ namespace Microsoft.TypeSpec.Generator
             // argument than the competitor accepts. Fall back to requiring every target parameter.
             return targetMethodSignature.Parameters.Count;
         }
-
-        private static bool CanAcceptNull(CSharpType type) => !type.IsValueType || type.IsNullable;
 
         private static int GetMinimumArgumentCount(MethodSignature methodSignature)
         {
