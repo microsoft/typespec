@@ -4811,7 +4811,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers.ClientProvide
             var capturedRequestMethodName = clientProvider.RestClient.GetCreateRequestMethod(inputOperation).Signature.Name;
 
             Assert.AreEqual("GetUrl", publicMethodName);
-            Assert.AreEqual("CreateGetUriRequest", capturedRequestMethodName);
+            Assert.AreEqual("CreateGetUrlRequest", capturedRequestMethodName);
 
             var newWrapper = new BackCompatTypeProvider("MissingWrapper", "Sample");
             _ = clientProvider.GetMethodCollectionByOperation(inputOperation, newWrapper);

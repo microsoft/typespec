@@ -243,12 +243,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
         }
 
         internal static string GetRestOperationName(InputServiceMethod serviceMethod)
-        {
-            var operationName = GetOperationName(serviceMethod);
-            return serviceMethod.IsExactName
-                ? operationName.ToIdentifierName()
-                : operationName.NormalizeCSharpUrlSuffix();
-        }
+            => GetOperationName(serviceMethod).ToIdentifierName();
 
         private static string GetOperationName(InputServiceMethod serviceMethod)
         {
