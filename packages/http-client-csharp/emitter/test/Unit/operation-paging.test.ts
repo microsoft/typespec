@@ -234,7 +234,7 @@ describe("Next link operations", () => {
   it("includes protocol-only response model in code model (issue #9391)", async () => {
     const program = await typeSpecCompile(
       `
-        @convenientAPI(false)
+        @convenientAPI(false, "csharp")
         @list
         op link(): {
           @pageItems
@@ -267,7 +267,7 @@ describe("Next link operations", () => {
   it("includes nested enum from protocol-only response model in code model", async () => {
     const program = await typeSpecCompile(
       `
-        @convenientAPI(false)
+        @convenientAPI(false, "csharp")
         @list
         op link(): {
           @pageItems
@@ -309,7 +309,7 @@ describe("Next link operations", () => {
   it("includes deeply nested enum from protocol-only response model in code model", async () => {
     const program = await typeSpecCompile(
       `
-        @convenientAPI(false)
+        @convenientAPI(false, "csharp")
         @list
         op link(): {
           @pageItems
@@ -359,7 +359,7 @@ describe("Next link operations", () => {
   it("does not deduplicate enums with the same name but different namespaces", async () => {
     const program = await typeSpecCompile(
       `
-        @convenientAPI(false)
+        @convenientAPI(false, "csharp")
         @list
         op link(): {
           @pageItems
@@ -413,7 +413,7 @@ describe("Next link operations", () => {
           };
         }
 
-        @convenientAPI(false)
+        @convenientAPI(false, "csharp")
         @list
         @route("/a")
         op listA(): {
@@ -423,7 +423,7 @@ describe("Next link operations", () => {
           next?: url;
         };
 
-        @convenientAPI(false)
+        @convenientAPI(false, "csharp")
         @list
         @route("/b")
         op listB(): {

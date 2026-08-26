@@ -31,7 +31,7 @@ namespace Microsoft.TypeSpec.Generator.Tests.Utilities
         [Test]
         public void NormalizeCSharpAcronymsNormalizesDateTimeSuffixInSinglePass()
         {
-            Assert.AreEqual("IPStartOn", "IpStartTime".NormalizeCSharpAcronyms(normalizeDateTimeSuffix: true));
+            Assert.AreEqual("IPStartsOn", "IpStartTime".NormalizeCSharpAcronyms(normalizeDateTimeSuffix: true));
         }
 
         private static IEnumerable<TestCaseData> DateTimeNameTestCases()
@@ -42,24 +42,50 @@ namespace Microsoft.TypeSpec.Generator.Tests.Utilities
                 "TypeSpec.utcDateTime",
                 InputPrimitiveType.String);
 
-            yield return new TestCaseData("startTime", dateTime, "startOn");
-            yield return new TestCaseData("Date", InputPrimitiveType.PlainDate, "On");
-            yield return new TestCaseData("date", InputPrimitiveType.PlainDate, "on");
+            yield return new TestCaseData("startTime", dateTime, "startsOn");
+            yield return new TestCaseData("StartDate", dateTime, "StartsOn");
+            yield return new TestCaseData("startOn", dateTime, "startsOn");
+            yield return new TestCaseData("EndOn", dateTime, "EndsOn");
+            yield return new TestCaseData("startsOn", dateTime, "startsOn");
+            yield return new TestCaseData("endsOn", dateTime, "endsOn");
+            yield return new TestCaseData("endTimestamp", dateTime, "endsOn");
+            yield return new TestCaseData("EndAt", dateTime, "EndsOn");
+            yield return new TestCaseData("leaseStartDateTime", dateTime, "leaseStartsOn");
+            yield return new TestCaseData("MaintenanceEndTime", dateTime, "MaintenanceEndsOn");
+            yield return new TestCaseData("createdOn", dateTime, "createdOn");
+            yield return new TestCaseData("turnOn", dateTime, "turnOn");
+            yield return new TestCaseData("firstOn", dateTime, "firstOn");
+            yield return new TestCaseData("lastOn", dateTime, "lastOn");
+            yield return new TestCaseData("firstTimestamp", dateTime, "firstTimestamp");
+            yield return new TestCaseData("FirstTime", dateTime, "FirstTime");
+            yield return new TestCaseData("lastDateTime", dateTime, "lastDateTime");
+            yield return new TestCaseData("LastAt", dateTime, "LastAt");
+            yield return new TestCaseData("Date", InputPrimitiveType.PlainDate, "Date");
+            yield return new TestCaseData("date", InputPrimitiveType.PlainDate, "date");
+            yield return new TestCaseData("Timestamp", dateTime, "Timestamp");
+            yield return new TestCaseData("timestamp", dateTime, "timestamp");
             yield return new TestCaseData("fromTime", dateTime, "fromTime");
             yield return new TestCaseData("toDate", dateTime, "toDate");
             yield return new TestCaseData("pointInTime", dateTime, "pointInTime");
             yield return new TestCaseData("recoveryPointInTime", dateTime, "recoveryPointInTime");
             yield return new TestCaseData("startTime", InputPrimitiveType.String, "startTime");
+            yield return new TestCaseData("startOn", InputPrimitiveType.String, "startOn");
             yield return new TestCaseData("createdAt", dateTime, "createdOn");
             yield return new TestCaseData("expiresAt", dateTime, "expiresOn");
             yield return new TestCaseData("deletedTime", dateTime, "deletedOn");
             yield return new TestCaseData("finishedTime", dateTime, "finishedOn");
             yield return new TestCaseData("CreationTime", dateTime, "CreatedOn");
             yield return new TestCaseData("creationTime", dateTime, "createdOn");
-            yield return new TestCaseData("ExpirationDateTime", dateTime, "ExpireOn");
-            yield return new TestCaseData("expirationDateTime", dateTime, "expireOn");
-            yield return new TestCaseData("AccountExpirationDate", dateTime, "AccountExpirationOn");
-            yield return new TestCaseData("accountExpirationDate", dateTime, "accountExpirationOn");
+            yield return new TestCaseData("ExpirationDate", dateTime, "ExpiresOn");
+            yield return new TestCaseData("expirationDate", dateTime, "expiresOn");
+            yield return new TestCaseData("ExpirationDateTime", dateTime, "ExpiresOn");
+            yield return new TestCaseData("expirationDateTime", dateTime, "expiresOn");
+            yield return new TestCaseData("modelExpirationDate", dateTime, "modelExpiresOn");
+            yield return new TestCaseData("AccountExpirationDate", dateTime, "AccountExpiresOn");
+            yield return new TestCaseData("accountExpirationDate", dateTime, "accountExpiresOn");
+            yield return new TestCaseData("AccountCreationDate", dateTime, "AccountCreatedOn");
+            yield return new TestCaseData("AccessTierChangeTime", dateTime, "AccessTierChangedOn");
+            yield return new TestCaseData("accessTierChangeTime", dateTime, "accessTierChangedOn");
             yield return new TestCaseData("RecreationTime", dateTime, "RecreationOn");
             yield return new TestCaseData("recreationTime", dateTime, "recreationOn");
             yield return new TestCaseData("TotalTime", dateTime, "TotalTime");

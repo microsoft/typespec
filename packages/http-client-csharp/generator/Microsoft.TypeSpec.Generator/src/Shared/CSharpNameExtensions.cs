@@ -62,13 +62,10 @@ namespace Microsoft.TypeSpec.Generator.Utilities
 
         public static string NormalizeDateTimeSuffix(this string name)
         {
-            if (DateTimeNameRules.HasExcludedComponent(name))
-            {
-                return name;
-            }
-
             var suffixLength = DateTimeNameRules.GetSuffixLength(name);
-            if (suffixLength == 0)
+            if (suffixLength == 0 ||
+                suffixLength == name.Length ||
+                DateTimeNameRules.HasExcludedComponent(name, suffixLength))
             {
                 return name;
             }
@@ -85,7 +82,9 @@ namespace Microsoft.TypeSpec.Generator.Utilities
             private const string AtSuffix = "At";
             private const string DateSuffix = "Date";
             private const string DateTimeSuffix = "DateTime";
+            private const string FirstName = "First";
             private const string FromName = "From";
+            private const string LastName = "Last";
             internal const string LowercaseOnSuffix = "on";
             internal const string OnSuffix = "On";
             private const string PointInTimeName = "PointInTime";
@@ -99,29 +98,45 @@ namespace Microsoft.TypeSpec.Generator.Utilities
             // Complete prefixes that read better as verbs when combined with the "On" suffix.
             private static readonly Dictionary<string, string> _nounToVerbMap = new(StringComparer.OrdinalIgnoreCase)
             {
+                ["Change"] = "Changed",
                 ["Creation"] = "Created",
                 ["Deletion"] = "Deleted",
-                ["Expiration"] = "Expire",
-                ["Modification"] = "Modified"
+                ["End"] = "Ends",
+                ["Expiration"] = "Expires",
+                ["Modification"] = "Modified",
+                ["Start"] = "Starts"
             };
 
             internal static string ToVerbForm(string prefix)
             {
-                if (!_nounToVerbMap.TryGetValue(prefix, out var verb))
+                if (_nounToVerbMap.TryGetValue(prefix, out var verb))
                 {
-                    return prefix;
+                    return char.IsLower(prefix[0])
+                        ? char.ToLowerInvariant(verb[0]) + verb[1..]
+                        : verb;
                 }
 
-                return char.IsLower(prefix[0])
-                    ? char.ToLowerInvariant(verb[0]) + verb[1..]
-                    : verb;
+                foreach (var (noun, compoundVerb) in _nounToVerbMap)
+                {
+                    if (prefix.Length > noun.Length &&
+                        prefix.EndsWith(noun, StringComparison.OrdinalIgnoreCase) &&
+                        char.IsUpper(prefix[^noun.Length]))
+                    {
+                        return prefix[..^noun.Length] + compoundVerb;
+                    }
+                }
+
+                return prefix;
             }
 
-            internal static bool HasExcludedComponent(string name)
+            internal static bool HasExcludedComponent(string name, int suffixLength)
             {
                 // StatusTimestamp is a semantic compound. Keep the exclusion exact so names such as
                 // LastSyncTimestamp continue to normalize.
-                return name.StartsWith(FromName, StringComparison.OrdinalIgnoreCase) ||
+                var prefix = name.AsSpan(0, name.Length - suffixLength);
+                return prefix.Equals(FirstName, StringComparison.OrdinalIgnoreCase) ||
+                    prefix.Equals(LastName, StringComparison.OrdinalIgnoreCase) ||
+                    name.StartsWith(FromName, StringComparison.OrdinalIgnoreCase) ||
                     name.StartsWith(ToName, StringComparison.OrdinalIgnoreCase) ||
                     name.EndsWith(PointInTimeName, StringComparison.OrdinalIgnoreCase) ||
                     name.Equals(StatusTimestampName, StringComparison.OrdinalIgnoreCase) ||
@@ -151,6 +166,11 @@ namespace Microsoft.TypeSpec.Generator.Utilities
                     name.EndsWith(DateSuffix, StringComparison.Ordinal))
                 {
                     return DateSuffix.Length;
+                }
+
+                if (name.Length > OnSuffix.Length && name.EndsWith(OnSuffix, StringComparison.Ordinal))
+                {
+                    return OnSuffix.Length;
                 }
 
                 return name.Length > AtSuffix.Length && name.EndsWith(AtSuffix, StringComparison.Ordinal)
