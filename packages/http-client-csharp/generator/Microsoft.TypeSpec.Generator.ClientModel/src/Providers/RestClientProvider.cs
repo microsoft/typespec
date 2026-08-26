@@ -990,7 +990,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
                             ? valueExpression.Property(nameof(Nullable<int>.Value))
                             : valueExpression.NullConditional();
                     }
-                    else if (type is { IsNullable: true, IsEnum: true } && willEmitNullGuard && paramMap.TryGetValue(paramName, out var enumParamProvider))
+                    else if (type is { IsNullable: true, IsEnum: true } && willEmitNullGuard && paramMap.TryGetValue(inputParam?.Name ?? paramName, out var enumParamProvider))
                     {
                         ValueExpression rawEnumVariable = enumParamProvider.Field is null ? enumParamProvider : enumParamProvider.Field;
                         nullCheckExpression = rawEnumVariable;

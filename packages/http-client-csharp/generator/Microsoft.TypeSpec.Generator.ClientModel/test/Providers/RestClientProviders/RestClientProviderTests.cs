@@ -1411,6 +1411,27 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers.RestClientPro
         }
 
         [Test]
+        public void OptionalClientEnumPathParameterWithDistinctSerializedNameIsGuarded()
+        {
+            var enumType = InputFactory.StringEnum(
+                "Color",
+                [("Red", "red"), ("Blue", "blue")],
+                isExtensible: true);
+            var operation = InputFactory.Operation(
+                "GetThing",
+                parameters: [InputFactory.PathParameter("color", enumType, isRequired: false, serializedName: "colour", scope: InputParameterScope.Client)],
+                path: "/things/{colour}");
+            var serviceMethod = InputFactory.BasicServiceMethod(
+                "GetThing",
+                operation);
+            var client = InputFactory.Client("TestClient", methods: [serviceMethod]);
+            var restClient = new ClientProvider(client).RestClient;
+
+            var file = new TypeProviderWriter(restClient).Write();
+            Assert.AreEqual(Helpers.GetExpectedFromFile(), file.Content);
+        }
+
+        [Test]
         public void RequiredNullableStringPathParameterIsGuarded()
         {
             var nullableString = new InputNullableType(InputPrimitiveType.String);
