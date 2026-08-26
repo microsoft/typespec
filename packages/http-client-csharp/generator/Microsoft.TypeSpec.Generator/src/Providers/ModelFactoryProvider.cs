@@ -234,7 +234,7 @@ namespace Microsoft.TypeSpec.Generator.Providers
                     .Select(method => method.Signature)
                     .Where(signature =>
                         signature.Name == previousMethod.Signature.Name
-                        && !previousPublicSignatures.Any(previous =>
+                        && !preservedPreviousSignatures.Any(previous =>
                             MethodSignature.MethodSignatureComparer.Equals(previous, signature)))
                     .ToList();
 
