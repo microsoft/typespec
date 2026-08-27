@@ -11,13 +11,15 @@ namespace Sample.Models
     {
         private protected readonly global::System.Collections.Generic.IDictionary<string, global::System.BinaryData> _additionalBinaryDataProperties;
 
-        public MockInputModel(global::System.DateTimeOffset valueOn)
+        public MockInputModel(global::System.DateTimeOffset valueDate, global::System.DateTimeOffset valueOn)
         {
+            ValueDate = valueDate;
             ValueOn = valueOn;
         }
 
-        internal MockInputModel(global::System.DateTimeOffset valueOn, global::System.Collections.Generic.IDictionary<string, global::System.BinaryData> additionalBinaryDataProperties)
+        internal MockInputModel(global::System.DateTimeOffset valueDate, global::System.DateTimeOffset valueOn, global::System.Collections.Generic.IDictionary<string, global::System.BinaryData> additionalBinaryDataProperties)
         {
+            ValueDate = valueDate;
             ValueOn = valueOn;
             _additionalBinaryDataProperties = additionalBinaryDataProperties;
         }

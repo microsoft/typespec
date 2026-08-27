@@ -195,9 +195,9 @@ namespace Microsoft.TypeSpec.Generator.Providers
 
                 foreach (var prop in customProperties)
                 {
-                    // Check if custom property is in spec
-                    if (_specPropertiesMap.TryGetValue(prop.Name, out var specProp) ||
-                        (prop.OriginalName != null && TryGetSpecProperty(prop.OriginalName, out specProp)))
+                    // Check if custom property is in spec.
+                    if ((prop.OriginalName != null && TryGetSpecProperty(prop.OriginalName, out var specProp)) ||
+                        _specPropertiesMap.TryGetValue(prop.Name, out specProp))
                     {
                         inputProperties.Add(specProp);
                     }

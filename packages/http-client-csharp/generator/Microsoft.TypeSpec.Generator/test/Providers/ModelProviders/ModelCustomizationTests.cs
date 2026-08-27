@@ -292,13 +292,20 @@ namespace Microsoft.TypeSpec.Generator.Tests.Providers.ModelProviders
         }
 
         [Test]
-        public async Task CustomCodeRenameDoesNotSuppressUnrelatedProperty()
+        public async Task CustomCodeRenameWithNameMatchingAnotherSpecPropertyDoesNotSuppressIt()
         {
             var dateTime = new InputDateTimeType(
                 DateTimeKnownEncoding.Rfc3339,
                 "utcDateTime",
                 "TypeSpec.utcDateTime",
                 InputPrimitiveType.String);
+
+            // Two unrelated spec properties. The customization renames "startTime", and the name it renames to
+            // deliberately collides with the identifier form of the *other* spec property, "valueDate".
+            // That collision is the point of this test: a custom member's public name must be matched against
+            // the spec only when it is a raw-name customization with no explicit CodeGenMember target. Without
+            // that distinction the rename also resolves as a customization of "valueDate" and wrongly suppresses
+            // its generated property. A non-colliding rename cannot exercise this at all.
             var inputModel = InputFactory.Model(
                 "mockInputModel",
                 properties:
@@ -313,10 +320,15 @@ namespace Microsoft.TypeSpec.Generator.Tests.Providers.ModelProviders
 
             var modelTypeProvider = mockGenerator.Object.OutputLibrary.TypeProviders.Single(t => t.Name == "MockInputModel");
 
-            // The customization renames "startTime" to "ValueDate". Its public name must not additionally be
-            // resolved as a spec name, or it would also suppress the generated property for "valueDate".
+            // The customization targets only "startTime", so "valueDate" keeps its generated property.
             Assert.AreEqual("ValueDate", modelTypeProvider.CustomCodeView!.Properties.Single().Name);
             Assert.That(modelTypeProvider.Properties.Select(p => p.Name), Is.EqualTo(new[] { "ValueOn" }));
+
+            // Downstream construction and serialization consume the canonical view, which must contain both
+            // the renamed custom member and the untouched generated one.
+            Assert.That(
+                modelTypeProvider.CanonicalView!.Properties.Select(p => p.Name),
+                Is.EquivalentTo(new[] { "ValueDate", "ValueOn" }));
             Assert.AreEqual($"{Helpers.GetExpectedFromFile("Expected")}\n", new TypeProviderWriter(modelTypeProvider).Write().Content);
         }
 
