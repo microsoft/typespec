@@ -62,6 +62,7 @@ export {
   listOperationsIn,
   printIdentifier,
   resolveUsages,
+  sanitizePathSegment,
   UsageFlags,
 } from "./core/helpers/index.js";
 export type {
