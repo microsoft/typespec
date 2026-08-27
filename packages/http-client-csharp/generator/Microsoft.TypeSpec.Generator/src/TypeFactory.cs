@@ -408,6 +408,9 @@ namespace Microsoft.TypeSpec.Generator
             return propertyProvider;
         }
 
+        // A property materialized from another model's input hierarchy must have its own provider because
+        // PropertyProvider construction and later mutations depend on the enclosing type. Do not use or update
+        // PropertyCache here: it is keyed only by InputProperty and must keep representing the property's owner.
         internal PropertyProvider? CreateMaterializedProperty(InputProperty property, TypeProvider enclosingType)
             => CreatePropertyCore(property, enclosingType);
 
