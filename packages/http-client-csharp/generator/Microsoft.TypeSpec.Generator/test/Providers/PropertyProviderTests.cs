@@ -199,6 +199,31 @@ namespace Microsoft.TypeSpec.Generator.Tests.Providers
             Assert.AreEqual(Helpers.GetExpectedFromFile("Expected"), actual);
         }
 
+        [Test]
+        public async Task TestPropertyNamePreservesPreviouslyGeneratedDateTimeSuffixFromLastContract()
+        {
+            await MockHelpers.LoadMockGeneratorAsync(lastContractCompilation: async () => await Helpers.GetCompilationFromDirectoryAsync());
+
+            var inputModel = InputFactory.Model(
+                "TestModel",
+                @namespace: "Test",
+                properties:
+                [
+                    InputFactory.Property(
+                        "StartTime",
+                        new InputDateTimeType(
+                            DateTimeKnownEncoding.Rfc3339,
+                            "utcDateTime",
+                            "TypeSpec.utcDateTime",
+                            InputPrimitiveType.String),
+                        isRequired: true)
+                ]);
+
+            var modelProvider = new ModelProvider(inputModel);
+
+            Assert.AreEqual("StartOn", modelProvider.Properties.Single().Name);
+        }
+
         [TestCaseSource(nameof(CollectionPropertyTestCases))]
         public void CollectionProperty(CSharpType coreType, InputModelProperty collectionProperty, CSharpType expectedType)
         {
