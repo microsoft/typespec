@@ -222,6 +222,7 @@ namespace Microsoft.TypeSpec.Generator.Tests.Providers
             var modelProvider = new ModelProvider(inputModel);
 
             Assert.AreEqual("StartOn", modelProvider.Properties.Single().Name);
+            Assert.AreEqual(Helpers.GetExpectedFromFile("Expected"), new TypeProviderWriter(modelProvider).Write().Content);
         }
 
         [Test]
@@ -253,11 +254,62 @@ namespace Microsoft.TypeSpec.Generator.Tests.Providers
                 @namespace: "Test",
                 properties: [InputFactory.Property("StartTime", dateTime, isRequired: true)]);
 
+            var historicalProvider = new ModelProvider(historicalModel);
+
             Assert.That(
-                new ModelProvider(historicalModel).Properties.Select(p => p.Name),
+                historicalProvider.Properties.Select(p => p.Name),
                 Is.EqualTo(new[] { "EndOn", "ExpireOn", "AccessTierChangeOn", "LastSyncTimestamp" }));
+            Assert.AreEqual(
+                Helpers.GetExpectedFromFile("Expected"),
+                new TypeProviderWriter(historicalProvider).Write().Content);
+
+            // A property absent from the GA contract, and one whose only legacy-looking match is non-public,
+            // both take the new canonical name.
             Assert.That(new ModelProvider(canonicalModel).Properties.Single().Name, Is.EqualTo("StartsOn"));
             Assert.That(new ModelProvider(internalLegacyModel).Properties.Single().Name, Is.EqualTo("StartsOn"));
+        }
+
+        [Test]
+        public async Task TestPropertyNamePreservesDateTimeNameFromProjectedProviderLastContract()
+        {
+            await MockHelpers.LoadMockGeneratorAsync(lastContractCompilation: async () => await Helpers.GetCompilationFromDirectoryAsync());
+
+            var dateTime = new InputDateTimeType(
+                DateTimeKnownEncoding.Rfc3339,
+                "utcDateTime",
+                "TypeSpec.utcDateTime",
+                InputPrimitiveType.String);
+            var timestampProperty = InputFactory.Property("lastKeyRotationTimestamp", dateTime, isRequired: true);
+            var renamedProperty = InputFactory.Property("startTime", dateTime, isRequired: true);
+            InputFactory.Model(
+                "DiskEncryptionSetProperties",
+                @namespace: "Test",
+                properties: [timestampProperty, renamedProperty]);
+
+            // The wire model that declares the properties is not part of the shipped surface. The properties are
+            // projected onto the resource data provider, so the last contract must be consulted through the
+            // provider that actually declares the public members.
+            var projectedProvider = new TestTypeProvider(name: "DiskEncryptionSetData", ns: "Test");
+            var wireProvider = new TestTypeProvider(name: "DiskEncryptionSetProperties", ns: "Test");
+
+            projectedProvider.Update(properties:
+            [
+                new PropertyProvider(timestampProperty, projectedProvider),
+                new PropertyProvider(renamedProperty, projectedProvider)
+            ]);
+
+            Assert.That(
+                projectedProvider.Properties.Select(p => p.Name),
+                Is.EqualTo(new[] { "LastKeyRotationTimestamp", "StartOn" }));
+            Assert.AreEqual(
+                Helpers.GetExpectedFromFile("Expected"),
+                new TypeProviderWriter(projectedProvider).Write().Content);
+
+            // The same spec properties on the wire provider, which has no shipped contract of its own, take the
+            // new canonical names.
+            Assert.That(
+                new[] { timestampProperty, renamedProperty }.Select(p => new PropertyProvider(p, wireProvider).Name),
+                Is.EqualTo(new[] { "LastKeyRotationOn", "StartsOn" }));
         }
 
         [TestCaseSource(nameof(CollectionPropertyTestCases))]

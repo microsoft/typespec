@@ -226,6 +226,69 @@ namespace Microsoft.TypeSpec.Generator.Tests.Providers.ModelProviders
             Assert.AreEqual("ValueDate", modelTypeProvider.CustomCodeView!.Properties.Single().Name);
             Assert.AreEqual(0, modelTypeProvider.Properties.Count);
             Assert.AreEqual("ValueDate", modelTypeProvider.CanonicalView!.Properties.Single().Name);
+            Assert.AreEqual($"{Helpers.GetExpectedFromFile("Expected")}\n", new TypeProviderWriter(modelTypeProvider).Write().Content);
+        }
+
+        [Test]
+        public async Task CustomCodeWithSpecNameReplacesLastContractPreservedProperty()
+        {
+            var dateTime = new InputDateTimeType(
+                DateTimeKnownEncoding.Rfc3339,
+                "utcDateTime",
+                "TypeSpec.utcDateTime",
+                InputPrimitiveType.String);
+            var inputModel = InputFactory.Model(
+                "mockInputModel",
+                properties: [InputFactory.Property("startTime", dateTime, isRequired: true)]);
+
+            var mockGenerator = await MockHelpers.LoadMockGeneratorAsync(
+                inputModelTypes: [inputModel],
+                compilation: async () => await Helpers.GetCompilationFromDirectoryAsync(),
+                lastContractCompilation: async () => await Helpers.GetCompilationFromDirectoryAsync("Last"));
+
+            var modelTypeProvider = mockGenerator.Object.OutputLibrary.TypeProviders.Single(t => t.Name == "MockInputModel");
+
+            // The spec property is generated as the shipped "StartOn" rather than the canonical "StartsOn",
+            // so the raw-name customization must suppress "StartOn".
+            Assert.AreEqual("StartTime", modelTypeProvider.CustomCodeView!.Properties.Single().Name);
+            Assert.AreEqual(0, modelTypeProvider.Properties.Count);
+
+            var canonicalProperty = modelTypeProvider.CanonicalView!.Properties.Single();
+            Assert.AreEqual("StartTime", canonicalProperty.Name);
+            Assert.AreEqual("startTime", canonicalProperty.WireInfo!.SerializedName);
+            Assert.AreEqual($"{Helpers.GetExpectedFromFile("Expected")}\n", new TypeProviderWriter(modelTypeProvider).Write().Content);
+        }
+
+        [Test]
+        public async Task CustomCodeWithLastContractNamePreservesWireInfo()
+        {
+            var dateTime = new InputDateTimeType(
+                DateTimeKnownEncoding.Rfc3339,
+                "utcDateTime",
+                "TypeSpec.utcDateTime",
+                InputPrimitiveType.String);
+            var inputModel = InputFactory.Model(
+                "mockInputModel",
+                properties: [InputFactory.Property("startTime", dateTime, isRequired: true)]);
+
+            var mockGenerator = await MockHelpers.LoadMockGeneratorAsync(
+                inputModelTypes: [inputModel],
+                compilation: async () => await Helpers.GetCompilationFromDirectoryAsync(),
+                lastContractCompilation: async () => await Helpers.GetCompilationFromDirectoryAsync("Last"));
+
+            var modelTypeProvider = mockGenerator.Object.OutputLibrary.TypeProviders.Single(t => t.Name == "MockInputModel");
+
+            // The customization uses the name preserved from the last contract, which is neither the raw spec
+            // name nor the canonical name. Suppression succeeds trivially because the custom name matches the
+            // generated one; what this covers is the reverse lookup, which must still resolve "StartOn" back to
+            // the "startTime" spec property so the canonical property keeps its wire information.
+            Assert.AreEqual("StartOn", modelTypeProvider.CustomCodeView!.Properties.Single().Name);
+            Assert.AreEqual(0, modelTypeProvider.Properties.Count);
+
+            var canonicalProperty = modelTypeProvider.CanonicalView!.Properties.Single();
+            Assert.AreEqual("StartOn", canonicalProperty.Name);
+            Assert.AreEqual("startTime", canonicalProperty.WireInfo!.SerializedName);
+            Assert.AreEqual($"{Helpers.GetExpectedFromFile("Expected")}\n", new TypeProviderWriter(modelTypeProvider).Write().Content);
         }
 
         [Test]

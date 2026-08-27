@@ -95,6 +95,15 @@ namespace Microsoft.TypeSpec.Generator.Providers
             var generatedProperties = _generatedTypeProvider.Properties;
             var customProperties = _generatedTypeProvider.CustomCodeView?.Properties ?? [];
 
+            // Index the spec properties under the names the generator actually produced for them.
+            foreach (var generatedProperty in _generatedTypeProvider.GeneratedPropertiesBySpecName.Values)
+            {
+                if (generatedProperty.InputProperty is InputModelProperty preservedSpecProperty)
+                {
+                    _specPropertiesMap.TryAdd(generatedProperty.Name, preservedSpecProperty);
+                }
+            }
+
             // Update the serializedName of generated properties if necessary
             foreach (var generatedProperty in generatedProperties)
             {

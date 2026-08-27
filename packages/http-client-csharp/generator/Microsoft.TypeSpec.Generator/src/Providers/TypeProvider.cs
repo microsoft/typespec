@@ -435,18 +435,30 @@ namespace Microsoft.TypeSpec.Generator.Providers
 
         internal PropertyProvider[] FilterCustomizedProperties(IEnumerable<PropertyProvider> specProperties)
         {
-            var specPropertiesByName = BuildSpecPropertiesByName(specProperties);
+            _generatedPropertiesBySpecName.Clear();
+            foreach (var specProperty in specProperties)
+            {
+                var inputProperty = specProperty.InputProperty;
+                if (inputProperty is null || inputProperty.IsExactName)
+                {
+                    continue;
+                }
+
+                _generatedPropertiesBySpecName.TryAdd(inputProperty.Name, specProperty);
+                _generatedPropertiesBySpecName.TryAdd(inputProperty.Name.ToIdentifierName(), specProperty);
+            }
+
             var properties = new List<PropertyProvider>();
             var customProperties = new HashSet<string>();
 
             foreach (var customProperty in BuildAllCustomProperties())
             {
-                AddCustomName(customProperties, customProperty.Name, customProperty.OriginalName, specPropertiesByName);
+                AddCustomName(customProperties, customProperty.Name, customProperty.OriginalName, _generatedPropertiesBySpecName);
             }
 
             foreach (var customField in BuildAllCustomFields())
             {
-                AddCustomName(customProperties, customField.Name, customField.OriginalName, specPropertiesByName);
+                AddCustomName(customProperties, customField.Name, customField.OriginalName, _generatedPropertiesBySpecName);
             }
 
             foreach (var property in specProperties)
@@ -464,49 +476,35 @@ namespace Microsoft.TypeSpec.Generator.Providers
             HashSet<string> customNames,
             string name,
             string? originalName,
-            IReadOnlyDictionary<string, InputProperty> specPropertiesByName)
+            IReadOnlyDictionary<string, PropertyProvider> generatedPropertiesBySpecName)
         {
-            AddCustomName(customNames, name, specPropertiesByName);
+            AddCustomName(customNames, name, generatedPropertiesBySpecName);
             if (originalName is not null)
             {
-                AddCustomName(customNames, originalName, specPropertiesByName);
+                AddCustomName(customNames, originalName, generatedPropertiesBySpecName);
             }
         }
 
         private static void AddCustomName(
             HashSet<string> customNames,
             string name,
-            IReadOnlyDictionary<string, InputProperty> specPropertiesByName)
+            IReadOnlyDictionary<string, PropertyProvider> generatedPropertiesBySpecName)
         {
             customNames.Add(name);
-            if (specPropertiesByName.TryGetValue(name, out var inputProperty) && !inputProperty.IsExactName)
+            if (generatedPropertiesBySpecName.TryGetValue(name, out var generatedProperty))
             {
-                customNames.Add(
-                    name
-                        .ToIdentifierName()
-                        .NormalizeCSharpAcronyms(inputProperty.Type.IsDateTimeInputType()));
+                customNames.Add(generatedProperty.Name);
             }
         }
 
-        private static IReadOnlyDictionary<string, InputProperty> BuildSpecPropertiesByName(IEnumerable<PropertyProvider> specProperties)
-        {
-            var specPropertiesByName = new Dictionary<string, InputProperty>(StringComparer.Ordinal);
+        private readonly Dictionary<string, PropertyProvider> _generatedPropertiesBySpecName = new(StringComparer.Ordinal);
 
-            foreach (var specProperty in specProperties)
-            {
-                var inputProperty = specProperty.InputProperty;
-                if (inputProperty is null)
-                {
-                    continue;
-                }
-
-                var identifierName = inputProperty.Name.ToIdentifierName();
-                specPropertiesByName.TryAdd(inputProperty.Name, inputProperty);
-                specPropertiesByName.TryAdd(identifierName, inputProperty);
-            }
-
-            return specPropertiesByName;
-        }
+        /// <summary>
+        /// Maps the spec names a customization can reference to the property the generator built from that spec
+        /// property, as captured by <see cref="FilterCustomizedProperties"/> before the properties replaced by
+        /// custom code were filtered out. Only populated once the properties have been built.
+        /// </summary>
+        internal IReadOnlyDictionary<string, PropertyProvider> GeneratedPropertiesBySpecName => _generatedPropertiesBySpecName;
 
         internal FieldProvider[] FilterCustomizedFields(IEnumerable<FieldProvider> specFields)
         {
