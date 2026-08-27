@@ -435,7 +435,6 @@ namespace Microsoft.TypeSpec.Generator.Providers
 
         internal PropertyProvider[] FilterCustomizedProperties(IEnumerable<PropertyProvider> specProperties)
         {
-            _generatedPropertiesBySpecName.Clear();
             foreach (var specProperty in specProperties)
             {
                 var inputProperty = specProperty.InputProperty;
@@ -478,11 +477,14 @@ namespace Microsoft.TypeSpec.Generator.Providers
             string? originalName,
             IReadOnlyDictionary<string, PropertyProvider> generatedPropertiesBySpecName)
         {
-            AddCustomName(customNames, name, generatedPropertiesBySpecName);
-            if (originalName is not null)
+            if (originalName is null)
             {
-                AddCustomName(customNames, originalName, generatedPropertiesBySpecName);
+                AddCustomName(customNames, name, generatedPropertiesBySpecName);
+                return;
             }
+
+            customNames.Add(name);
+            AddCustomName(customNames, originalName, generatedPropertiesBySpecName);
         }
 
         private static void AddCustomName(
@@ -728,6 +730,7 @@ namespace Microsoft.TypeSpec.Generator.Providers
         {
             _methods = null;
             _properties = null;
+            _generatedPropertiesBySpecName.Clear();
             _fields = null;
             ResetConstructors();
             _implements = null;

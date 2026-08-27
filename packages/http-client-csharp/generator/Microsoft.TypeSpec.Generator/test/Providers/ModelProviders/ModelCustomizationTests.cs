@@ -292,6 +292,72 @@ namespace Microsoft.TypeSpec.Generator.Tests.Providers.ModelProviders
         }
 
         [Test]
+        public async Task CustomCodeRenameDoesNotSuppressUnrelatedProperty()
+        {
+            var dateTime = new InputDateTimeType(
+                DateTimeKnownEncoding.Rfc3339,
+                "utcDateTime",
+                "TypeSpec.utcDateTime",
+                InputPrimitiveType.String);
+            var inputModel = InputFactory.Model(
+                "mockInputModel",
+                properties:
+                [
+                    InputFactory.Property("startTime", dateTime, isRequired: true),
+                    InputFactory.Property("valueDate", dateTime, isRequired: true)
+                ]);
+
+            var mockGenerator = await MockHelpers.LoadMockGeneratorAsync(
+                inputModelTypes: [inputModel],
+                compilation: async () => await Helpers.GetCompilationFromDirectoryAsync());
+
+            var modelTypeProvider = mockGenerator.Object.OutputLibrary.TypeProviders.Single(t => t.Name == "MockInputModel");
+
+            // The customization renames "startTime" to "ValueDate". Its public name must not additionally be
+            // resolved as a spec name, or it would also suppress the generated property for "valueDate".
+            Assert.AreEqual("ValueDate", modelTypeProvider.CustomCodeView!.Properties.Single().Name);
+            Assert.That(modelTypeProvider.Properties.Select(p => p.Name), Is.EqualTo(new[] { "ValueOn" }));
+            Assert.AreEqual($"{Helpers.GetExpectedFromFile("Expected")}\n", new TypeProviderWriter(modelTypeProvider).Write().Content);
+        }
+
+        [Test]
+        public async Task RefilteringPreservesCustomCodeSpecAssociation()
+        {
+            var dateTime = new InputDateTimeType(
+                DateTimeKnownEncoding.Rfc3339,
+                "utcDateTime",
+                "TypeSpec.utcDateTime",
+                InputPrimitiveType.String);
+            var inputModel = InputFactory.Model(
+                "mockInputModel",
+                properties: [InputFactory.Property("startTime", dateTime, isRequired: true)]);
+
+            var mockGenerator = await MockHelpers.LoadMockGeneratorAsync(
+                inputModelTypes: [inputModel],
+                compilation: async () => await Helpers.GetCompilationFromDirectoryAsync(),
+                lastContractCompilation: async () => await Helpers.GetCompilationFromDirectoryAsync("Last"));
+
+            var modelTypeProvider = mockGenerator.Object.OutputLibrary.TypeProviders.Single(t => t.Name == "MockInputModel");
+
+            // Mirrors CSharpGen.FilterCustomizedMembers, which re-applies filtering by passing the already
+            // filtered members back through Update. The generated property suppressed by the customization is
+            // absent from that list, so the spec-name snapshot must survive the second pass.
+            modelTypeProvider.Update(
+                modelTypeProvider.Methods,
+                modelTypeProvider.Constructors,
+                modelTypeProvider.Properties,
+                modelTypeProvider.Fields);
+
+            Assert.That(
+                modelTypeProvider.GeneratedPropertiesBySpecName.Keys,
+                Is.EquivalentTo(new[] { "startTime", "StartTime" }));
+
+            var canonicalProperty = modelTypeProvider.CanonicalView!.Properties.Single();
+            Assert.AreEqual("StartOn", canonicalProperty.Name);
+            Assert.AreEqual("startTime", canonicalProperty.WireInfo!.SerializedName);
+        }
+
+        [Test]
         public async Task CustomCodeReplacesAcronymNormalizedProperty()
         {
             var inputModel = InputFactory.Model(
