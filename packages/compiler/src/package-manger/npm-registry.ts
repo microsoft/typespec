@@ -1,5 +1,6 @@
 // Browser-safe helpers to access the npm registry api
 // https://github.com/npm/registry/blob/main/docs/REGISTRY-API.md#package-endpoints
+import semverMaxSatisfying from "semver/ranges/max-satisfying.js";
 
 /** Manifest of a single package version. */
 export interface NpmManifest {
@@ -26,7 +27,7 @@ export interface NpmManifest {
 export interface NpmPackument {
   readonly name: string;
   readonly "dist-tags": { latest: string } & Record<string, string>;
-  readonly versions: Record<string, NpmPackageVersion>;
+  readonly versions: Record<string, NpmManifest>;
 
   readonly [key: string]: unknown;
 }
@@ -82,6 +83,8 @@ export interface NpmHuman {
   readonly url?: string | undefined;
 }
 
+export class NpmRegistryError extends Error {}
+
 const defaultRegistry = `https://registry.npmjs.org`;
 
 /**
@@ -95,11 +98,36 @@ export function getNpmRegistry(): string {
 
 export async function fetchPackageManifest(
   packageName: string,
-  version: string,
+  versionOrRange: string,
 ): Promise<NpmManifest> {
-  const url = `${getNpmRegistry()}/${packageName}/${version}`;
-  const res = await fetch(url);
-  return await res.json();
+  const encodedPackageName = packageName.startsWith("@")
+    ? packageName.replace("/", "%2F")
+    : packageName;
+  const url = `${getNpmRegistry()}/${encodedPackageName}`;
+  let res: Response;
+  try {
+    res = await fetch(url, {
+      headers: { Accept: "application/vnd.npm.install-v1+json" },
+    });
+  } catch (error) {
+    const message = error instanceof Error ? `: ${error.message}` : "";
+    throw new NpmRegistryError(`Request to ${url} failed${message}`);
+  }
+  if (!res.ok) {
+    throw new NpmRegistryError(`Request to ${url} failed with status ${res.status}.`);
+  }
+
+  const packument = (await res.json()) as NpmPackument;
+  const version =
+    packument["dist-tags"][versionOrRange] ??
+    semverMaxSatisfying(Object.keys(packument.versions), versionOrRange);
+  const manifest = version === null ? undefined : packument.versions[version];
+  if (manifest === undefined) {
+    throw new NpmRegistryError(
+      `Package "${packageName}" does not have a version or tag matching "${versionOrRange}".`,
+    );
+  }
+  return manifest;
 }
 
 export function fetchLatestPackageManifest(packageName: string): Promise<NpmManifest> {

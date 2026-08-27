@@ -10,9 +10,7 @@ import { createTestFileSystem } from "../../src/testing/fs.js";
 import type { TestFileSystem } from "../../src/testing/types.js";
 import { parseYaml as coreParseYaml } from "../../src/yaml/parser.js";
 
-const fetchMock = vi.fn().mockResolvedValue({
-  json: () => Promise.resolve({ name: "mock-pkg", version: "1.0.0" }),
-});
+const fetchMock = vi.fn().mockResolvedValue(createFetchResponse());
 
 beforeEach(() => {
   vi.stubGlobal("fetch", fetchMock);
@@ -20,10 +18,21 @@ beforeEach(() => {
 
 afterEach(() => {
   vi.unstubAllGlobals();
-  fetchMock.mockResolvedValue({
-    json: () => Promise.resolve({ name: "mock-pkg", version: "1.0.0" }),
-  });
+  fetchMock.mockResolvedValue(createFetchResponse());
 });
+
+function createFetchResponse() {
+  const manifest = { name: "mock-pkg", version: "1.0.0" };
+  return {
+    ok: true,
+    json: () =>
+      Promise.resolve({
+        name: manifest.name,
+        "dist-tags": { latest: manifest.version },
+        versions: { [manifest.version]: manifest },
+      }),
+  };
+}
 
 const TEST_SCAFFOLDING = {
   foo: {

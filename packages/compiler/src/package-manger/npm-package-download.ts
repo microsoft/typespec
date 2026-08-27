@@ -4,7 +4,7 @@ import { createHash } from "crypto";
 import { Readable } from "stream";
 import { extract as tarX } from "tar/extract";
 import type { Hash } from "../install/spec.js";
-import { fetchPackageManifest, type NpmManifest } from "./npm-registry.js";
+import { fetchPackageManifest, NpmRegistryError, type NpmManifest } from "./npm-registry.js";
 
 export async function downloadPackageVersion(
   packageName: string,
@@ -32,7 +32,20 @@ async function downloadAndExtractTarball(
   dest: string,
   hashAlgorithm: string = "sha512",
 ): Promise<ExtractedTarballResult> {
-  const res = await fetch(url);
+  let res: Response;
+  try {
+    res = await fetch(url);
+  } catch (error) {
+    const message = error instanceof Error ? `: ${error.message}` : "";
+    throw new NpmRegistryError(`Request to ${url} failed${message}`);
+  }
+  if (!res.ok) {
+    throw new NpmRegistryError(`Request to ${url} failed with status ${res.status}.`);
+  }
+  if (res.body === null) {
+    throw new NpmRegistryError(`Request to ${url} returned an empty response.`);
+  }
+
   const tarballStream = Readable.fromWeb(res.body as any);
   const hash = tarballStream.pipe(createHash(hashAlgorithm));
   const extractor = tarX({

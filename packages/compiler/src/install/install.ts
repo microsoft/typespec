@@ -7,7 +7,11 @@ import { createDiagnosticCollector } from "../core/diagnostics.js";
 import { getDirectoryPath, joinPaths } from "../core/path-utils.js";
 import { NoTarget, type Diagnostic, type Tracer } from "../core/types.js";
 import { downloadAndExtractPackage } from "../package-manger/npm-package-download.js";
-import { fetchPackageManifest, type NpmManifest } from "../package-manger/npm-registry.js";
+import {
+  fetchPackageManifest,
+  NpmRegistryError,
+  type NpmManifest,
+} from "../package-manger/npm-registry.js";
 import { mkTempDir } from "../utils/fs-utils.js";
 import type { SupportedPackageManager } from "./config.js";
 import { getPackageManagerConfig, type PackageManagerConfig } from "./config.js";
@@ -99,7 +103,17 @@ async function installPackageManager(
     "downloading-extracting",
     `Downloading and extracting ${packageManager} at version ${manifest.version} in ${tempDir}`,
   );
-  const extractResult = await downloadAndExtractPackage(manifest, tempDir, spec.hash?.algorithm);
+  let extractResult;
+  try {
+    extractResult = await downloadAndExtractPackage(manifest, tempDir, spec.hash?.algorithm);
+  } catch (error) {
+    if (error instanceof NpmRegistryError) {
+      throw new InstallDependenciesError(
+        `Failed to download package manager ${packageManager}: ${error.message}`,
+      );
+    }
+    throw error;
+  }
   if (spec.hash) {
     if (spec.hash.value !== extractResult.hash.value) {
       throw new InstallDependenciesError(
@@ -165,7 +179,17 @@ export async function installTypeSpecDependencies(
     );
     const packageManager = spec.name;
     const packageManagerConfig = getPackageManagerConfig(packageManager);
-    const manifest = await fetchPackageManifest(packageManager, spec.range);
+    let manifest: NpmManifest;
+    try {
+      manifest = await fetchPackageManifest(packageManager, spec.range);
+    } catch (error) {
+      if (error instanceof NpmRegistryError) {
+        throw new InstallDependenciesError(
+          `Failed to resolve package manager ${packageManager}: ${error.message}`,
+        );
+      }
+      throw error;
+    }
     tracer.trace(
       "fetched-manifest",
       `Resolved manifest for ${packageManager} at version ${manifest.version}`,
