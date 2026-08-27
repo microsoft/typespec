@@ -4,4 +4,4 @@ packages:
   - "@typespec/compiler"
 ---
 
-Resolve package manager versions through registry packuments so `TYPESPEC_NPM_REGISTRY` works with registries that do not support abbreviated manifest endpoints.
+Allow `tsp install` to download package managers from npm-compatible registry mirrors by resolving versions from package metadata instead of version-specific manifest endpoints.

@@ -11,17 +11,22 @@ import {
 let server: http.Server;
 let registryUrl: string;
 let lastRequestUrl: string | undefined;
+let lastAcceptHeader: string | undefined;
 let responseStatus: number;
+let responseBody: NpmPackument | string;
 const originalTypeSpecNpmRegistry = process.env["TYPESPEC_NPM_REGISTRY"];
 const originalNpmConfigRegistry = process.env["NPM_CONFIG_REGISTRY"];
 
 beforeEach(async () => {
   lastRequestUrl = undefined;
+  lastAcceptHeader = undefined;
   responseStatus = 200;
+  responseBody = createPackument();
   server = http.createServer((req, res) => {
     lastRequestUrl = req.url ?? "";
+    lastAcceptHeader = req.headers.accept;
     res.writeHead(responseStatus, { "Content-Type": "application/json" });
-    res.end(JSON.stringify(createPackument()));
+    res.end(typeof responseBody === "string" ? responseBody : JSON.stringify(responseBody));
   });
   await new Promise<void>((resolve) => server.listen(0, "127.0.0.1", resolve));
   const { port } = server.address() as AddressInfo;
@@ -39,6 +44,7 @@ it("uses the registry URL from TYPESPEC_NPM_REGISTRY when set", async () => {
   const manifest = await fetchPackageManifest("test-pkg", "latest");
   expect(manifest.version).toBe("2.0.0");
   expect(lastRequestUrl).toBe("/test-pkg");
+  expect(lastAcceptHeader).toBe("application/vnd.npm.install-v1+json");
 });
 
 it("strips trailing slash from TYPESPEC_NPM_REGISTRY", async () => {
@@ -52,6 +58,14 @@ it("resolves a package version from a semver range", async () => {
   process.env["TYPESPEC_NPM_REGISTRY"] = registryUrl;
 
   const manifest = await fetchPackageManifest("test-pkg", "^1.0.0");
+
+  expect(manifest.version).toBe("1.2.0");
+});
+
+it("resolves a non-latest package tag", async () => {
+  process.env["TYPESPEC_NPM_REGISTRY"] = registryUrl;
+
+  const manifest = await fetchPackageManifest("test-pkg", "next");
 
   expect(manifest.version).toBe("1.2.0");
 });
@@ -78,6 +92,24 @@ it("reports registry request failures", async () => {
 
   await expect(fetchPackageManifest("test-pkg", "latest")).rejects.toThrow(
     `Request to ${registryUrl}/test-pkg failed with status 401.`,
+  );
+});
+
+it("reports invalid JSON responses", async () => {
+  process.env["TYPESPEC_NPM_REGISTRY"] = registryUrl;
+  responseBody = "not JSON";
+
+  await expect(fetchPackageManifest("test-pkg", "latest")).rejects.toThrow(
+    `Request to ${registryUrl}/test-pkg returned invalid JSON.`,
+  );
+});
+
+it("reports invalid package documents", async () => {
+  process.env["TYPESPEC_NPM_REGISTRY"] = registryUrl;
+  responseBody = JSON.stringify({ name: "test-pkg" });
+
+  await expect(fetchPackageManifest("test-pkg", "latest")).rejects.toThrow(
+    `Request to ${registryUrl}/test-pkg returned an invalid package document.`,
   );
 });
 

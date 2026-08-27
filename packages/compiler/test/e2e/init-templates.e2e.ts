@@ -10,7 +10,11 @@ import { getTypeSpecCoreTemplates } from "../../src/init/core-templates.js";
 import { makeScaffoldingConfig, scaffoldNewProject } from "../../src/init/scaffold.js";
 import { defaultInternalTemplateSource } from "../../src/init/template-source/index.js";
 
-const manifest = { name: "mock-pkg", version: "1.0.0" };
+const manifest = {
+  name: "mock-pkg",
+  version: "1.0.0",
+  dist: { shasum: "abc", tarball: "https://example.com/mock-pkg.tgz" },
+};
 const fetchMock = vi.fn().mockResolvedValue({
   ok: true,
   json: () =>

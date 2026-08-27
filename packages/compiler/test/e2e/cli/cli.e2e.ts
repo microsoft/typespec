@@ -133,6 +133,50 @@ describe("install", () => {
       );
     }
   });
+
+  it("reports package manager download failures without an internal compiler error", async () => {
+    let registryUrl: string;
+    const server = http.createServer((req, res) => {
+      if (req.url === "/npm") {
+        const manifest = {
+          name: "npm",
+          version: "99.99.99",
+          dist: { tarball: `${registryUrl}/npm.tgz` },
+          bin: { npm: "bin/npm-cli.js" },
+        };
+        res.writeHead(200, { "Content-Type": "application/json" });
+        res.end(
+          JSON.stringify({
+            name: "npm",
+            "dist-tags": { latest: manifest.version },
+            versions: { [manifest.version]: manifest },
+          }),
+        );
+      } else {
+        res.writeHead(503);
+        res.end();
+      }
+    });
+    await new Promise<void>((resolve) => server.listen(0, "127.0.0.1", resolve));
+    const { port } = server.address() as AddressInfo;
+    registryUrl = `http://127.0.0.1:${port}`;
+
+    try {
+      const result = await execCliFail(["install"], {
+        cwd: getScenarioDir("install"),
+        env: { TYPESPEC_NPM_REGISTRY: registryUrl },
+      });
+
+      expect(result.stdio).toContain("install-package-manager-error");
+      expect(result.stdio).toContain("Failed to download package manager npm");
+      expect(result.stdio).toContain("failed with status 503");
+      expect(result.stdio).not.toContain("Internal compiler error");
+    } finally {
+      await new Promise<void>((resolve, reject) =>
+        server.close((error) => (error ? reject(error) : resolve())),
+      );
+    }
+  });
 });
 
 describe("format", () => {

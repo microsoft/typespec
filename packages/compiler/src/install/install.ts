@@ -6,11 +6,14 @@ import { DiagnosticError } from "../core/diagnostic-error.js";
 import { createDiagnosticCollector } from "../core/diagnostics.js";
 import { getDirectoryPath, joinPaths } from "../core/path-utils.js";
 import { NoTarget, type Diagnostic, type Tracer } from "../core/types.js";
-import { downloadAndExtractPackage } from "../package-manger/npm-package-download.js";
+import {
+  downloadAndExtractPackage,
+  type ExtractedTarballResult,
+} from "../package-manger/npm-package-download.js";
 import {
   fetchPackageManifest,
   NpmRegistryError,
-  type NpmManifest,
+  type NpmPackageVersion,
 } from "../package-manger/npm-registry.js";
 import { mkTempDir } from "../utils/fs-utils.js";
 import type { SupportedPackageManager } from "./config.js";
@@ -94,7 +97,7 @@ async function installPackageManager(
   packageManager: SupportedPackageManager,
   spec: Descriptor,
   installDir: string,
-  manifest: NpmManifest,
+  manifest: NpmPackageVersion,
 ) {
   await rm(installDir, { recursive: true, force: true });
   const tempDir = await mkTempDir(host, pmDir, `tsp-pm-${packageManager}-${manifest.version}`);
@@ -103,7 +106,7 @@ async function installPackageManager(
     "downloading-extracting",
     `Downloading and extracting ${packageManager} at version ${manifest.version} in ${tempDir}`,
   );
-  let extractResult;
+  let extractResult: ExtractedTarballResult;
   try {
     extractResult = await downloadAndExtractPackage(manifest, tempDir, spec.hash?.algorithm);
   } catch (error) {
@@ -179,7 +182,7 @@ export async function installTypeSpecDependencies(
     );
     const packageManager = spec.name;
     const packageManagerConfig = getPackageManagerConfig(packageManager);
-    let manifest: NpmManifest;
+    let manifest: NpmPackageVersion;
     try {
       manifest = await fetchPackageManifest(packageManager, spec.range);
     } catch (error) {
@@ -194,6 +197,12 @@ export async function installTypeSpecDependencies(
       "fetched-manifest",
       `Resolved manifest for ${packageManager} at version ${manifest.version}`,
     );
+    const bin = manifest.bin?.[packageManager];
+    if (bin === undefined) {
+      throw new InstallDependenciesError(
+        `Package manager ${packageManager} does not define a "${packageManager}" executable.`,
+      );
+    }
 
     const installDir = joinPaths(pmDir, packageManager, manifest.version);
     if ((await isDirectory(host, installDir)) && !savePackageManager) {
@@ -216,7 +225,6 @@ export async function installTypeSpecDependencies(
       }
     }
 
-    const bin = manifest.bin![packageManager];
     const binPath = joinPaths(installDir, bin);
     tracer.trace("running-binary", `Running binary ${binPath}`);
 

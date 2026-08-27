@@ -7,7 +7,11 @@ import { makeScaffoldingConfig, scaffoldNewProject } from "../../src/init/scaffo
 import type { TestHost } from "../../src/testing/index.js";
 import { createTestHost, resolveVirtualPath } from "../../src/testing/index.js";
 
-const manifest = { name: "mock-pkg", version: "1.0.0" };
+const manifest = {
+  name: "mock-pkg",
+  version: "1.0.0",
+  dist: { shasum: "abc", tarball: "https://example.com/mock-pkg.tgz" },
+};
 const fetchMock = vi.fn().mockResolvedValue({
   ok: true,
   json: () =>

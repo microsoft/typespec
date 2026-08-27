@@ -4,7 +4,7 @@ import { createHash } from "crypto";
 import { Readable } from "stream";
 import { extract as tarX } from "tar/extract";
 import type { Hash } from "../install/spec.js";
-import { fetchPackageManifest, NpmRegistryError, type NpmManifest } from "./npm-registry.js";
+import { fetchPackageManifest, NpmRegistryError, type NpmPackageVersion } from "./npm-registry.js";
 
 export async function downloadPackageVersion(
   packageName: string,
@@ -16,7 +16,7 @@ export async function downloadPackageVersion(
 }
 
 export async function downloadAndExtractPackage(
-  manifest: NpmManifest,
+  manifest: NpmPackageVersion,
   dest: string,
   hashAlgorithm: string = "sha512",
 ): Promise<ExtractedTarballResult> {
