@@ -17,8 +17,8 @@ namespace Microsoft.TypeSpec.Generator.Utilities
 {
     /// <summary>
     /// Resolves <see cref="InputExternalTypeMetadata"/> entries to <see cref="Type"/> instances by
-    /// looking up the package in the NuGet global cache (or downloading it from configured feeds when
-    /// missing) and loading the assembly via reflection. Used by <c>TypeFactory.CreateExternalType</c>
+    /// looking up the package in the NuGet global cache and loading the assembly via reflection.
+    /// Used by <c>TypeFactory.CreateExternalType</c>
     /// as a fallback after <c>CreateFrameworkType</c> returns <c>null</c>.
     /// </summary>
     /// <remarks>
