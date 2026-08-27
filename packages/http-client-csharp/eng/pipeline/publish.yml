@@ -108,7 +108,7 @@ extends:
         dependsOn:
           - CSharp_Publish
           - CSharp_Build
-        condition: and(ne(variables['Build.Reason'], 'Schedule'), or(and(eq(variables['Build.Reason'], 'Manual'), ${{ parameters.CreateAzureSdkForNetPR }}, not(${{ parameters.UseTypeSpecNext }})), and(succeeded(), or(eq(variables['Build.SourceBranchName'], 'main'), and(eq(variables['Build.Reason'], 'Manual'), ${{ parameters.CreateAzureSdkForNetPR }})))))
+        condition: and(not(or(failed(), canceled())), ne(variables['Build.Reason'], 'Schedule'), or(eq(variables['Build.SourceBranchName'], 'main'), and(eq(variables['Build.Reason'], 'Manual'), ${{ parameters.CreateAzureSdkForNetPR }})))
         variables:
           PackageVersion: $[ stageDependencies.CSharp_Build.Build_linux_${{ split(parameters.PrimaryNodeVersion, '.')[0] }}.outputs['ci_build.emitterVersion'] ]
         pool:
