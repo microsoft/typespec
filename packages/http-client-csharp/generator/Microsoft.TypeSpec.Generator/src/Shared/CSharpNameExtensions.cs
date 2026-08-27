@@ -77,6 +77,52 @@ namespace Microsoft.TypeSpec.Generator.Utilities
             return prefix + onSuffix;
         }
 
+        /// <summary>
+        /// Applies the date-time property naming convention used by the previous Azure management-plane
+        /// generator. This is only used to identify names that may exist in a last contract.
+        /// </summary>
+        public static string NormalizeLegacyDateTimeSuffix(this string name)
+        {
+            if (name.StartsWith("From", StringComparison.Ordinal) ||
+                name.StartsWith("To", StringComparison.Ordinal) ||
+                name.EndsWith("PointInTime", StringComparison.Ordinal))
+            {
+                return name;
+            }
+
+            int suffixLength = 0;
+            if (name.Length > 8 && name.EndsWith("DateTime", StringComparison.Ordinal))
+            {
+                suffixLength = 8;
+            }
+            else if (name.Length > 4 &&
+                (name.EndsWith("Time", StringComparison.Ordinal) ||
+                 name.EndsWith("Date", StringComparison.Ordinal)))
+            {
+                suffixLength = 4;
+            }
+            else if (name.Length > 2 && name.EndsWith("At", StringComparison.Ordinal))
+            {
+                suffixLength = 2;
+            }
+
+            if (suffixLength == 0)
+            {
+                return name;
+            }
+
+            var prefix = name[..^suffixLength];
+            var legacyPrefix = prefix switch
+            {
+                "Creation" => "Created",
+                "Deletion" => "Deleted",
+                "Expiration" => "Expire",
+                "Modification" => "Modified",
+                _ => prefix
+            };
+            return legacyPrefix + "On";
+        }
+
         private static class DateTimeNameRules
         {
             private const string AtSuffix = "At";

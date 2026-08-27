@@ -224,6 +224,37 @@ namespace Microsoft.TypeSpec.Generator.Tests.Providers
             Assert.AreEqual("StartOn", modelProvider.Properties.Single().Name);
         }
 
+        [Test]
+        public async Task TestPropertyNamePreservesHistoricalDateTimeNamesFromLastContract()
+        {
+            await MockHelpers.LoadMockGeneratorAsync(lastContractCompilation: async () => await Helpers.GetCompilationFromDirectoryAsync());
+
+            var dateTime = new InputDateTimeType(
+                DateTimeKnownEncoding.Rfc3339,
+                "utcDateTime",
+                "TypeSpec.utcDateTime",
+                InputPrimitiveType.String);
+            var historicalModel = InputFactory.Model(
+                "TestModel",
+                @namespace: "Test",
+                properties:
+                [
+                    InputFactory.Property("EndTime", dateTime, isRequired: true),
+                    InputFactory.Property("ExpirationTime", dateTime, isRequired: true),
+                    InputFactory.Property("AccessTierChangeTime", dateTime, isRequired: true),
+                    InputFactory.Property("LastSyncTimestamp", dateTime, isRequired: true)
+                ]);
+            var canonicalModel = InputFactory.Model(
+                "CanonicalModel",
+                @namespace: "Test",
+                properties: [InputFactory.Property("StartTime", dateTime, isRequired: true)]);
+
+            Assert.That(
+                new ModelProvider(historicalModel).Properties.Select(p => p.Name),
+                Is.EqualTo(new[] { "EndOn", "ExpireOn", "AccessTierChangeOn", "LastSyncTimestamp" }));
+            Assert.That(new ModelProvider(canonicalModel).Properties.Single().Name, Is.EqualTo("StartsOn"));
+        }
+
         [TestCaseSource(nameof(CollectionPropertyTestCases))]
         public void CollectionProperty(CSharpType coreType, InputModelProperty collectionProperty, CSharpType expectedType)
         {

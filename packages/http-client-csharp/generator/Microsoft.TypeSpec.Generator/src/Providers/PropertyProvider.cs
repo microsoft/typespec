@@ -103,20 +103,24 @@ namespace Microsoft.TypeSpec.Generator.Providers
             var hasOutputUsage = inputProperty.EnclosingType?.Usage.HasFlag(InputModelTypeUsage.Output) ?? false;
             Modifiers = IsDiscriminator || (!hasOutputUsage && _isRequiredNonNullableConstant) ? MethodSignatureModifiers.Internal : MethodSignatureModifiers.Public;
             var identifierName = inputProperty.IsExactName ? inputProperty.Name : inputProperty.Name.ToIdentifierName();
-            var lastContractProperties = enclosingType.LastContractView?.Properties;
-            var legacyName = identifierName == enclosingType.Name
-                ? $"{identifierName}Property"
-                : identifierName;
-            if (!inputProperty.IsExactName &&
-                (lastContractProperties is null ||
-                 !lastContractProperties.Any(p => p.Name == legacyName)))
+            if (!inputProperty.IsExactName)
             {
-                identifierName = identifierName
-                    .NormalizeCSharpAcronyms(inputProperty.Type.IsDateTimeInputType());
+                var isDateTime = inputProperty.Type.IsDateTimeInputType();
+                var canonicalName = identifierName.NormalizeCSharpAcronyms(isDateTime);
+                var previousGeneratedName = isDateTime
+                    ? identifierName.NormalizeCSharpAcronyms().NormalizeLegacyDateTimeSuffix()
+                    : canonicalName;
+                var inputName = AvoidPropertyNameCollision(identifierName, enclosingType.Name);
+                canonicalName = AvoidPropertyNameCollision(canonicalName, enclosingType.Name);
+                previousGeneratedName = AvoidPropertyNameCollision(previousGeneratedName, enclosingType.Name);
+
+                var previousProperty = enclosingType.LastContractView?.Properties.FirstOrDefault(p =>
+                    p.Name == inputName ||
+                    p.Name == canonicalName ||
+                    p.Name == previousGeneratedName);
+                identifierName = previousProperty?.Name ?? canonicalName;
             }
-            Name = identifierName == enclosingType.Name
-                ? $"{identifierName}Property"
-                : identifierName;
+            Name = AvoidPropertyNameCollision(identifierName, enclosingType.Name);
             Body = new AutoPropertyBody(propHasSetter, setterModifier, GetPropertyInitializationValue(propertyType, inputProperty));
 
             WireInfo = new PropertyWireInformation(inputProperty);
@@ -179,6 +183,9 @@ namespace Microsoft.TypeSpec.Generator.Providers
                 }
             }
         }
+
+        private static string AvoidPropertyNameCollision(string propertyName, string enclosingTypeName) =>
+            propertyName == enclosingTypeName ? $"{propertyName}Property" : propertyName;
 
         private static bool IsPropertyPrivate(MethodSignatureModifiers modifiers, TypeSignatureModifiers enclosingTypeModifiers)
         {
