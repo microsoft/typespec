@@ -145,6 +145,7 @@ export {
   $returnTypeVisibility,
   $secret,
   $service,
+  $strictExtends,
   $summary,
   $tag,
   $visibility,

@@ -102,9 +102,9 @@ union Breed extends Dog {
 }
 ```
 
-`@strictExtends` only adds a constraint when the base type is a model: assignability between scalars is already nominal in TypeSpec, so `@strictExtends` on `union Foo extends string {...}` changes nothing.
+`@strictExtends` can only be used when the base type is a model, a scalar or an enum, since those are the only types that can be explicitly extended. Using it on a union whose base type is, for example, another union or `unknown` is an error.
 
-A variant that is itself a union satisfies the constraint when all of its own variants do, so unions can still be composed:
+A variant that is itself a union satisfies the constraint when all of its own variants do, so unions can still be composed. `never`, an empty union and a self referencing union describe no value at all, so they satisfy the constraint vacuously.
 
 ```typespec
 model Pet {

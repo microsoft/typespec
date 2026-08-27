@@ -462,11 +462,12 @@ extern dec discriminated(target: Union, options?: valueof DiscriminatedOptions);
  * with a polymorphic base type, which requires each variant to actually derive from that base
  * type. `@strictExtends` turns that requirement into a compile time error.
  *
- * This only adds a constraint when the base type is a model: assignability between scalars is
- * already nominal in TypeSpec so nothing needs to be enforced for them.
+ * This only adds a constraint when the base type is a model, scalar or enum. Any other base
+ * type (a union, tuple, `unknown`, ...) cannot be explicitly extended and is an error.
  *
  * A variant that is itself a union satisfies the constraint when all of its own variants do,
- * which allows composing unions.
+ * which allows composing unions. `never`, an empty union and a self referencing union describe
+ * no value at all so they satisfy the constraint vacuously.
  *
  * @example
  *

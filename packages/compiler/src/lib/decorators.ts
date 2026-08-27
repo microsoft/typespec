@@ -67,16 +67,18 @@ import {
   setMinValue,
   setMinValueExclusive,
 } from "../core/intrinsic-type-state.js";
-import { reportDiagnostic } from "../core/messages.js";
+import { createDiagnostic, reportDiagnostic } from "../core/messages.js";
 import { parseMimeType } from "../core/mime-type.js";
 import type { Numeric } from "../core/numeric.js";
 import { isNumeric } from "../core/numeric.js";
 import type { Program } from "../core/program.js";
-import { isArrayModelType, isErrorType, isValue } from "../core/type-utils.js";
+import { isArrayModelType, isErrorType, isNeverType, isValue } from "../core/type-utils.js";
 import type {
   AugmentDecoratorStatementNode,
+  BooleanLiteral,
   DecoratorContext,
   DecoratorExpressionNode,
+  Diagnostic,
   DiagnosticTarget,
   Enum,
   EnumValue,
@@ -85,11 +87,13 @@ import type {
   ModelProperty,
   Namespace,
   Node,
+  NumericLiteral,
   ObjectValue,
   Operation,
   Scalar,
   ScalarValue,
   StdTypeName,
+  StringLiteral,
   Type,
   Union,
   UnionVariant,
@@ -1331,77 +1335,198 @@ export const $discriminator: DiscriminatorDecorator = (
 
 // -- @strictExtends --------------------------------------------------------------------------
 
+/** Base types that a variant can nominally derive from. */
+type StrictExtendsBase = Model | Scalar | Enum;
+
 export const $strictExtends: StrictExtendsDecorator = (
   context: DecoratorContext,
   entity: Union,
 ) => {
-  const baseType = entity.baseType;
-  if (baseType === undefined) {
-    reportDiagnostic(context.program, {
-      code: "strict-extends-no-base-type",
-      target: context.decoratorTarget,
-    });
-    return;
-  }
-
-  // Only a model base type needs the extra check: assignability between scalars is already
-  // nominal in TypeSpec, so an unrelated scalar can never satisfy the `extends` clause anyway.
-  if (baseType.kind !== "Model") {
-    return;
-  }
-
-  for (const variant of entity.variants.values()) {
-    if (isErrorType(variant.type)) {
-      continue;
-    }
-    if (!derivesFromModel(variant.type, baseType, new Set())) {
-      reportDiagnostic(context.program, {
-        code: "strict-extends-variant",
-        format: {
-          variantType: getTypeName(variant.type),
-          baseType: getTypeName(baseType),
-        },
-        target: variant.node ?? entity,
-      });
-    }
-  }
+  // Validate once every decorator on the union has been applied: another decorator could
+  // otherwise change the variants after this one ran and silently break the guarantee.
+  return {
+    onTargetFinish: () => validateStrictExtends(context, entity),
+  };
 };
 
+function validateStrictExtends(context: DecoratorContext, entity: Union): Diagnostic[] {
+  const { program } = context;
+  const baseType = entity.baseType;
+  if (baseType === undefined) {
+    // A base type that failed to resolve, or a circular one, was already reported by the checker.
+    if (entity.node?.kind === SyntaxKind.UnionStatement && entity.node.extends !== undefined) {
+      return [];
+    }
+    return [
+      createDiagnostic({
+        code: "strict-extends-no-base-type",
+        target: context.decoratorTarget,
+      }),
+    ];
+  }
+
+  if (!isStrictExtendsBase(baseType)) {
+    return [
+      createDiagnostic({
+        code: "strict-extends-invalid-base-type",
+        format: { baseType: getTypeName(baseType) },
+        target: context.decoratorTarget,
+      }),
+    ];
+  }
+
+  const diagnostics: Diagnostic[] = [];
+  const state: DerivationState = {
+    program,
+    base: baseType,
+    memo: new Map(),
+    path: new Set(),
+    cycleHits: 0,
+  };
+  for (const variant of entity.variants.values()) {
+    // The checker already reported a variant that isn't even assignable to the base type.
+    if (!program.checker.isTypeAssignableTo(variant.type, baseType, variant.type)[0]) {
+      continue;
+    }
+    const offending = findTypeNotDerivedFrom(variant.type, state);
+    if (offending === undefined) {
+      continue;
+    }
+    const target = variant.node?.value ?? variant.node ?? entity;
+    diagnostics.push(
+      offending === variant.type
+        ? createDiagnostic({
+            code: "strict-extends-variant",
+            format: { variantType: getTypeName(variant.type), baseType: getTypeName(baseType) },
+            target,
+          })
+        : createDiagnostic({
+            code: "strict-extends-variant",
+            messageId: "nested",
+            format: {
+              variantType: getTypeName(variant.type),
+              offendingType: getTypeName(offending),
+              baseType: getTypeName(baseType),
+            },
+            target,
+          }),
+    );
+  }
+  return diagnostics;
+}
+
+function isStrictExtendsBase(type: Type): type is StrictExtendsBase {
+  return type.kind === "Model" || type.kind === "Scalar" || type.kind === "Enum";
+}
+
+interface DerivationState {
+  readonly program: Program;
+  readonly base: StrictExtendsBase;
+  /** Settled results, keyed by type. `undefined` means the type derives from the base type. */
+  readonly memo: Map<Type, Type | undefined>;
+  /** Unions currently being walked, to detect cycles. */
+  readonly path: Set<Type>;
+  /** Number of times a cycle was short circuited, used to know what is safe to memoize. */
+  cycleHits: number;
+}
+
 /**
- * Check whether `type` explicitly derives from `baseType` through `extends` declarations.
+ * Find a type reachable from `type` that doesn't explicitly derive from the base type, or
+ * `undefined` when the whole type satisfies the constraint.
  *
- * A union variant that is itself a union derives from the base type when every one of its own
- * variants does, which is what makes composing unions work. `path` guards against a union
- * reaching itself, which is a legal (if unsatisfiable here) type graph.
+ * A variant that is itself a union satisfies the constraint when all of its own variants do,
+ * which is what makes composing unions work. An empty union, a union cycle and `never` are all
+ * uninhabited so they satisfy it vacuously, exactly like the assignability rules do.
  */
-function derivesFromModel(type: Type, baseType: Model, path: Set<Type>): boolean {
+function findTypeNotDerivedFrom(type: Type, state: DerivationState): Type | undefined {
+  if (type === state.base || isErrorType(type) || isNeverType(type)) {
+    return undefined;
+  }
+  const memoized = state.memo.get(type);
+  if (memoized !== undefined || state.memo.has(type)) {
+    return memoized;
+  }
+
+  let result: Type | undefined = type;
+  let memoizable = true;
   switch (type.kind) {
     case "Model":
-      for (let current: Model | undefined = type; current; current = current.baseModel) {
-        if (current === baseType) {
-          return true;
-        }
-      }
-      return false;
-    case "Union": {
-      if (path.has(type) || type.variants.size === 0) {
-        return false;
-      }
-      path.add(type);
-      try {
-        for (const variant of type.variants.values()) {
-          if (!derivesFromModel(variant.type, baseType, path)) {
-            return false;
+      if (state.base.kind === "Model") {
+        for (let current: Model | undefined = type; current; current = current.baseModel) {
+          if (current === state.base) {
+            result = undefined;
+            break;
           }
         }
-        return true;
-      } finally {
-        path.delete(type);
       }
+      break;
+    case "Scalar":
+      if (state.base.kind === "Scalar" && derivesFromScalar(type, state.base)) {
+        result = undefined;
+      }
+      break;
+    case "String":
+    case "Number":
+    case "Boolean":
+      // A literal nominally is its standard scalar type, and nothing else.
+      if (state.base === literalStdScalar(type, state.program)) {
+        result = undefined;
+      }
+      break;
+    case "EnumMember":
+      if (type.enum === state.base) {
+        result = undefined;
+      }
+      break;
+    case "Union": {
+      if (state.path.has(type)) {
+        // A union reaching itself contributes no value of its own.
+        state.cycleHits++;
+        return undefined;
+      }
+      const cycleHitsBefore = state.cycleHits;
+      state.path.add(type);
+      try {
+        result = undefined;
+        for (const variant of type.variants.values()) {
+          const offending = findTypeNotDerivedFrom(variant.type, state);
+          if (offending !== undefined) {
+            result = offending;
+            break;
+          }
+        }
+      } finally {
+        state.path.delete(type);
+      }
+      // A result that relied on short circuiting a cycle is only valid for this walk: the same
+      // union reached from outside the cycle can have a different answer.
+      memoizable = state.cycleHits === cycleHitsBefore;
+      break;
     }
-    default:
-      return false;
   }
+
+  if (memoizable) {
+    state.memo.set(type, result);
+  }
+  return result;
+}
+
+function derivesFromScalar(type: Scalar, base: Scalar): boolean {
+  for (let current: Scalar | undefined = type; current; current = current.baseScalar) {
+    if (current === base) {
+      return true;
+    }
+  }
+  return false;
+}
+
+function literalStdScalar(
+  type: StringLiteral | NumericLiteral | BooleanLiteral,
+  program: Program,
+): Scalar {
+  const name: StdTypeName =
+    type.kind === "String" ? "string" : type.kind === "Number" ? "numeric" : "boolean";
+  return program.checker.getStdType(name);
 }
 
 export interface Example extends ExampleOptions {

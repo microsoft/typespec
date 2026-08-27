@@ -542,10 +542,17 @@ const diagnostics = {
       default: "@strictExtends can only be used on a union declaring a base type with `extends`.",
     },
   },
+  "strict-extends-invalid-base-type": {
+    severity: "error",
+    messages: {
+      default: paramMessage`@strictExtends cannot be used with the base type '${"baseType"}': only a model, scalar or enum base type can be explicitly extended.`,
+    },
+  },
   "strict-extends-variant": {
     severity: "error",
     messages: {
-      default: paramMessage`Variant of type '${"variantType"}' must explicitly extend '${"baseType"}' as required by @strictExtends.`,
+      default: paramMessage`Variant of type '${"variantType"}' must be or extend '${"baseType"}' as required by @strictExtends.`,
+      nested: paramMessage`Variant of type '${"variantType"}' includes '${"offendingType"}' which must be or extend '${"baseType"}' as required by @strictExtends.`,
     },
   },
   "enum-member-duplicate": {
