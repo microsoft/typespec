@@ -536,6 +536,18 @@ const diagnostics = {
       default: paramMessage`Union already has a variant named ${"name"}`,
     },
   },
+  "strict-extends-no-base-type": {
+    severity: "error",
+    messages: {
+      default: "@strictExtends can only be used on a union declaring a base type with `extends`.",
+    },
+  },
+  "strict-extends-variant": {
+    severity: "error",
+    messages: {
+      default: paramMessage`Variant of type '${"variantType"}' must explicitly extend '${"baseType"}' as required by @strictExtends.`,
+    },
+  },
   "enum-member-duplicate": {
     severity: "error",
     messages: {

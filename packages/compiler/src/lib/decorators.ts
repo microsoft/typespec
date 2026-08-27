@@ -27,6 +27,7 @@ import type {
   PatternDecorator,
   ReturnsDocDecorator,
   SecretDecorator,
+  StrictExtendsDecorator,
   SummaryDecorator,
   TagDecorator,
   WithOptionalPropertiesDecorator,
@@ -71,7 +72,7 @@ import { parseMimeType } from "../core/mime-type.js";
 import type { Numeric } from "../core/numeric.js";
 import { isNumeric } from "../core/numeric.js";
 import type { Program } from "../core/program.js";
-import { isArrayModelType, isValue } from "../core/type-utils.js";
+import { isArrayModelType, isErrorType, isValue } from "../core/type-utils.js";
 import type {
   AugmentDecoratorStatementNode,
   DecoratorContext,
@@ -1327,6 +1328,81 @@ export const $discriminator: DiscriminatorDecorator = (
 ) => {
   setDiscriminator(context.program, entity, { propertyName });
 };
+
+// -- @strictExtends --------------------------------------------------------------------------
+
+export const $strictExtends: StrictExtendsDecorator = (
+  context: DecoratorContext,
+  entity: Union,
+) => {
+  const baseType = entity.baseType;
+  if (baseType === undefined) {
+    reportDiagnostic(context.program, {
+      code: "strict-extends-no-base-type",
+      target: context.decoratorTarget,
+    });
+    return;
+  }
+
+  // Only a model base type needs the extra check: assignability between scalars is already
+  // nominal in TypeSpec, so an unrelated scalar can never satisfy the `extends` clause anyway.
+  if (baseType.kind !== "Model") {
+    return;
+  }
+
+  for (const variant of entity.variants.values()) {
+    if (isErrorType(variant.type)) {
+      continue;
+    }
+    if (!derivesFromModel(variant.type, baseType, new Set())) {
+      reportDiagnostic(context.program, {
+        code: "strict-extends-variant",
+        format: {
+          variantType: getTypeName(variant.type),
+          baseType: getTypeName(baseType),
+        },
+        target: variant.node ?? entity,
+      });
+    }
+  }
+};
+
+/**
+ * Check whether `type` explicitly derives from `baseType` through `extends` declarations.
+ *
+ * A union variant that is itself a union derives from the base type when every one of its own
+ * variants does, which is what makes composing unions work. `path` guards against a union
+ * reaching itself, which is a legal (if unsatisfiable here) type graph.
+ */
+function derivesFromModel(type: Type, baseType: Model, path: Set<Type>): boolean {
+  switch (type.kind) {
+    case "Model":
+      for (let current: Model | undefined = type; current; current = current.baseModel) {
+        if (current === baseType) {
+          return true;
+        }
+      }
+      return false;
+    case "Union": {
+      if (path.has(type) || type.variants.size === 0) {
+        return false;
+      }
+      path.add(type);
+      try {
+        for (const variant of type.variants.values()) {
+          if (!derivesFromModel(variant.type, baseType, path)) {
+            return false;
+          }
+        }
+        return true;
+      } finally {
+        path.delete(type);
+      }
+    }
+    default:
+      return false;
+  }
+}
 
 export interface Example extends ExampleOptions {
   readonly value: Value;

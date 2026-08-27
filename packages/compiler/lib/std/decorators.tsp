@@ -454,6 +454,37 @@ model DiscriminatedOptions {
 extern dec discriminated(target: Union, options?: valueof DiscriminatedOptions);
 
 /**
+ * Require every variant of a union to explicitly extend the base type declared by the union
+ * `extends` clause.
+ *
+ * By default a union `extends` clause is a structural constraint: any variant with a compatible
+ * shape satisfies it. Emitters targeting languages without native unions represent such a union
+ * with a polymorphic base type, which requires each variant to actually derive from that base
+ * type. `@strictExtends` turns that requirement into a compile time error.
+ *
+ * This only adds a constraint when the base type is a model: assignability between scalars is
+ * already nominal in TypeSpec so nothing needs to be enforced for them.
+ *
+ * A variant that is itself a union satisfies the constraint when all of its own variants do,
+ * which allows composing unions.
+ *
+ * @example
+ *
+ * ```typespec
+ * model Pet {}
+ * model Cat extends Pet {}
+ * model Rock {}
+ *
+ * @strictExtends
+ * union Pets extends Pet {
+ *   cat: Cat, // ok: `Cat` extends `Pet`
+ *   rock: Rock, // error: `Rock` has the same shape as `Pet` but doesn't extend it
+ * }
+ * ```
+ */
+extern dec strictExtends(target: Union);
+
+/**
  * Specify the property to be used to discriminate this type.
  * @param propertyName The property name to use for discrimination
  *

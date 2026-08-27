@@ -81,6 +81,54 @@ union Breed extends Dog {
 }
 ```
 
+### Requiring explicit inheritance with `@strictExtends`
+
+Emitters targeting languages without native unions represent a union with an `extends` clause as a polymorphic base type. That representation requires every variant to actually derive from the base type, which structural assignability alone doesn't guarantee.
+
+Apply [`@strictExtends`](../standard-library/built-in-decorators.md#@strictExtends) to turn that requirement into a compile time error:
+
+```typespec
+model Dog {
+  name: string;
+}
+model Beagle {
+  name: string;
+  huntingSkill: string;
+}
+
+@strictExtends
+union Breed extends Dog {
+  beagle: Beagle, // error: `Beagle` is assignable to `Dog` but doesn't extend it.
+}
+```
+
+`@strictExtends` only adds a constraint when the base type is a model: assignability between scalars is already nominal in TypeSpec, so `@strictExtends` on `union Foo extends string {...}` changes nothing.
+
+A variant that is itself a union satisfies the constraint when all of its own variants do, so unions can still be composed:
+
+```typespec
+model Pet {
+  name: string;
+}
+model Cat extends Pet {
+  meow: boolean;
+}
+model Dog extends Pet {
+  bark: boolean;
+}
+
+union Cats extends Pet {
+  cat: Cat,
+}
+
+// Ok: every variant of `Cats` extends `Pet`.
+@strictExtends
+union Pets extends Pet {
+  Cats,
+  dog: Dog,
+}
+```
+
 Any type expression can be used as the base type, including scalars, unions and templates.
 
 ```typespec

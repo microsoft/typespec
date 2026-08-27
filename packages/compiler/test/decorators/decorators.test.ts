@@ -1308,6 +1308,259 @@ describe("@discriminated", () => {
   });
 });
 
+describe("@strictExtends", () => {
+  it("emit error if the union has no `extends` clause", async () => {
+    const diagnostics = await Tester.diagnose(`
+        @strictExtends
+        union Pets {}
+      `);
+
+    expectDiagnostics(diagnostics, {
+      code: "strict-extends-no-base-type",
+      message: "@strictExtends can only be used on a union declaring a base type with `extends`.",
+    });
+  });
+
+  it("accepts variants extending the base type", async () => {
+    const diagnostics = await Tester.diagnose(`
+        model Pet { name: string }
+        model Cat extends Pet { meow: boolean }
+        model Dog extends Pet { bark: boolean }
+
+        @strictExtends
+        union Pets extends Pet {
+          cat: Cat,
+          dog: Dog,
+        }
+      `);
+
+    expectDiagnosticEmpty(diagnostics);
+  });
+
+  it("accepts the base type itself as a variant", async () => {
+    const diagnostics = await Tester.diagnose(`
+        model Pet { name: string }
+
+        @strictExtends
+        union Pets extends Pet {
+          pet: Pet,
+        }
+      `);
+
+    expectDiagnosticEmpty(diagnostics);
+  });
+
+  it("accepts variants extending the base type transitively", async () => {
+    const diagnostics = await Tester.diagnose(`
+        model Pet { name: string }
+        model Cat extends Pet { meow: boolean }
+        model Tiger extends Cat { stripes: int32 }
+
+        @strictExtends
+        union Pets extends Pet {
+          tiger: Tiger,
+        }
+      `);
+
+    expectDiagnosticEmpty(diagnostics);
+  });
+
+  it("emit error for a variant that only structurally satisfies the base type", async () => {
+    const diagnostics = await Tester.diagnose(`
+        model Pet { name: string }
+        model Rock { name: string }
+
+        @strictExtends
+        union Pets extends Pet {
+          rock: Rock,
+        }
+      `);
+
+    expectDiagnostics(diagnostics, {
+      code: "strict-extends-variant",
+      message: "Variant of type 'Rock' must explicitly extend 'Pet' as required by @strictExtends.",
+    });
+  });
+
+  it("emit error for an anonymous model variant", async () => {
+    const diagnostics = await Tester.diagnose(`
+        model Pet { name: string }
+
+        @strictExtends
+        union Pets extends Pet {
+          rock: { name: string },
+        }
+      `);
+
+    expectDiagnostics(diagnostics, {
+      code: "strict-extends-variant",
+    });
+  });
+
+  it("reports every offending variant", async () => {
+    const diagnostics = await Tester.diagnose(`
+        model Pet { name: string }
+        model Cat extends Pet { meow: boolean }
+        model Rock { name: string }
+        model Tree { name: string }
+
+        @strictExtends
+        union Pets extends Pet {
+          cat: Cat,
+          rock: Rock,
+          tree: Tree,
+        }
+      `);
+
+    expectDiagnostics(diagnostics, [
+      { code: "strict-extends-variant" },
+      { code: "strict-extends-variant" },
+    ]);
+  });
+
+  it("accepts a union variant when all of its own variants extend the base type", async () => {
+    const diagnostics = await Tester.diagnose(`
+        model Pet { name: string }
+        model Cat extends Pet { meow: boolean }
+        model Tiger extends Cat { stripes: int32 }
+        model Dog extends Pet { bark: boolean }
+
+        union Cats extends Cat {
+          cat: Cat,
+          tiger: Tiger,
+        }
+
+        @strictExtends
+        union Pets extends Pet {
+          Cats,
+          dog: Dog,
+        }
+      `);
+
+    expectDiagnosticEmpty(diagnostics);
+  });
+
+  it("emit error when a union variant contains a type not extending the base type", async () => {
+    const diagnostics = await Tester.diagnose(`
+        model Pet { name: string }
+        model Cat extends Pet { meow: boolean }
+        model Rock { name: string }
+
+        union Others {
+          cat: Cat,
+          rock: Rock,
+        }
+
+        @strictExtends
+        union Pets extends Pet {
+          Others,
+        }
+      `);
+
+    expectDiagnostics(diagnostics, {
+      code: "strict-extends-variant",
+    });
+  });
+
+  it("emit error for an empty union variant", async () => {
+    const diagnostics = await Tester.diagnose(`
+        model Pet { name: string }
+
+        union Empty {}
+
+        @strictExtends
+        union Pets extends Pet {
+          Empty,
+        }
+      `);
+
+    expectDiagnostics(diagnostics, {
+      code: "strict-extends-variant",
+    });
+  });
+
+  it("accepts the same union appearing as multiple variants", async () => {
+    const diagnostics = await Tester.diagnose(`
+        model Pet { name: string }
+        model Cat extends Pet { meow: boolean }
+
+        union Cats extends Pet {
+          cat: Cat,
+        }
+
+        @strictExtends
+        union Pets extends Pet {
+          a: Cats,
+          b: Cats,
+        }
+      `);
+
+    expectDiagnosticEmpty(diagnostics);
+  });
+
+  it("adds no constraint when the base type is a scalar", async () => {
+    const diagnostics = await Tester.diagnose(`
+        scalar myString extends string;
+
+        @strictExtends
+        union Values extends string {
+          a: myString,
+          b: "literal",
+        }
+      `);
+
+    expectDiagnosticEmpty(diagnostics);
+  });
+
+  it("is not applied to an uninstantiated template declaration", async () => {
+    const diagnostics = await Tester.diagnose(`
+        model Pet { name: string }
+        model Cat extends Pet { meow: boolean }
+
+        @strictExtends
+        union Pets<T extends Pet> extends Pet {
+          value: T,
+        }
+
+        alias Instance = Pets<Cat>;
+      `);
+
+    expectDiagnosticEmpty(diagnostics);
+  });
+
+  it("emit error on a template instantiation with an offending argument", async () => {
+    const diagnostics = await Tester.diagnose(`
+        model Pet { name: string }
+        model Rock { name: string }
+
+        @strictExtends
+        union Pets<T> extends Pet {
+          value: T,
+        }
+
+        alias Instance = Pets<Rock>;
+      `);
+
+    expectDiagnostics(diagnostics, {
+      code: "strict-extends-variant",
+    });
+  });
+
+  it("reports both diagnostics for a variant that also fails the base type constraint", async () => {
+    const diagnostics = await Tester.diagnose(`
+        model Pet { name: string }
+        model Rock { size: int32 }
+
+        @strictExtends
+        union Pets extends Pet {
+          rock: Rock,
+        }
+      `);
+
+    expectDiagnostics(diagnostics, [{ code: "unassignable" }, { code: "strict-extends-variant" }]);
+  });
+});
+
 describe("@encodedName", () => {
   it("emit error if passing invalid mime type", async () => {
     const diagnostics = await Tester.diagnose(`
