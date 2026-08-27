@@ -110,7 +110,8 @@ namespace Microsoft.TypeSpec.Generator.Providers
                     identifierName.NormalizeCSharpAcronyms(isDateTime),
                     enclosingType.Name);
                 var inputName = AvoidPropertyNameCollision(identifierName, enclosingType.Name);
-                var lastContractProperties = enclosingType.LastContractView?.Properties;
+                var lastContractProperties = enclosingType.LastContractView?.Properties
+                    .Where(p => MethodSignatureHelper.IsPublicApi(p.Modifiers));
 
                 var previousProperty = lastContractProperties?.FirstOrDefault(p => p.Name == inputName);
                 if (previousProperty is null && isDateTime)

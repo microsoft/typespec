@@ -248,11 +248,16 @@ namespace Microsoft.TypeSpec.Generator.Tests.Providers
                 "CanonicalModel",
                 @namespace: "Test",
                 properties: [InputFactory.Property("StartTime", dateTime, isRequired: true)]);
+            var internalLegacyModel = InputFactory.Model(
+                "InternalLegacyModel",
+                @namespace: "Test",
+                properties: [InputFactory.Property("StartTime", dateTime, isRequired: true)]);
 
             Assert.That(
                 new ModelProvider(historicalModel).Properties.Select(p => p.Name),
                 Is.EqualTo(new[] { "EndOn", "ExpireOn", "AccessTierChangeOn", "LastSyncTimestamp" }));
             Assert.That(new ModelProvider(canonicalModel).Properties.Single().Name, Is.EqualTo("StartsOn"));
+            Assert.That(new ModelProvider(internalLegacyModel).Properties.Single().Name, Is.EqualTo("StartsOn"));
         }
 
         [TestCaseSource(nameof(CollectionPropertyTestCases))]

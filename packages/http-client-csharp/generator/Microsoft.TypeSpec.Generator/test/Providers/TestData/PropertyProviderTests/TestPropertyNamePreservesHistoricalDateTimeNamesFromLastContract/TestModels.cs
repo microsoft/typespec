@@ -12,4 +12,9 @@ namespace Test
     {
         public System.DateTimeOffset StartsOn { get; set; }
     }
+
+    public class InternalLegacyModel
+    {
+        internal System.DateTimeOffset StartOn { get; set; }
+    }
 }
