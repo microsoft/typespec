@@ -66,7 +66,7 @@ export interface DecoratorValidatorCallbacks {
   /**
    * Run validation after everything is checked in the type graph. Useful when trying to get an overall view of the program.
    * @note This is meant for validation which means the type graph should be treated as readonly in this function.
-   * @note For a type created after the type graph was checked, with a mutator for example, there is no graph finish left to wait for and this runs as soon as the type is finished.
+   * @note For a type created after the type graph was checked, with a mutator for example, there is no graph finish left to wait for and this runs as soon as the type is finished. It then only sees the graph as it exists at that point, so it cannot observe types or relationships attached to it afterwards.
    */
   readonly onGraphFinish?: ValidatorFn;
 }
