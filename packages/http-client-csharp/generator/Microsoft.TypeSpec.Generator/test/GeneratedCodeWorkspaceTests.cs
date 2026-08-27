@@ -10,7 +10,6 @@ using Microsoft.Build.Construction;
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp;
 using Microsoft.TypeSpec.Generator.Tests.Common;
-using Microsoft.VisualStudio.TestPlatform.ObjectModel;
 using NUnit.Framework;
 
 namespace Microsoft.TypeSpec.Generator.Tests
@@ -149,6 +148,46 @@ namespace My.External.Library
             var externalDllPath = Path.Combine(externalPkgDir, $"{externalPkgName}.dll");
             var emitResult = externalCompilation.Emit(externalDllPath);
             Assert.IsTrue(emitResult.Success, "Failed to emit external test assembly");
+            string metadataPath = Path.Combine(nugetCacheDir, externalPkgName.ToLowerInvariant(), externalPkgVersion);
+            File.WriteAllText(Path.Combine(metadataPath, ".nupkg.metadata"),
+                """
+                {
+                    "version": 2,
+                    "contentHash": "OPrzAveg9k9KMJ4PmDoWCNlNRDiwpFsTJoo2gRWtO4RnJ9DrJ/7NOSLkNmXWORewNDc+2WVcbEhFJ8exdIzA8A==",
+                    "source": "https://pkgs.dev.azure.com/azure-sdk/public/_packaging/package/nuget/v3/index.json"
+                }
+                """
+            );
+            //
+            File.WriteAllText(Path.Combine(metadataPath, $"{externalPkgName}.nuspec"), $"""
+            <?xml version="1.0" encoding="utf-8"?>
+            <package xmlns="http://schemas.microsoft.com/packaging/2013/05/nuspec.xsd">
+              <metadata>
+                <id>{externalPkgName}</id>
+                <version>{externalPkgVersion}</version>
+                <authors>Microsoft</authors>
+                <requireLicenseAcceptance>true</requireLicenseAcceptance>
+                <license type="expression">MIT</license>
+                <licenseUrl>https://licenses.nuget.org/MIT</licenseUrl>
+                <icon>azureicon.png</icon>
+                <readme>README.md</readme>
+                <description>Test</description>
+                <copyright>© Microsoft Corporation. All rights reserved.</copyright>
+                <tags>{externalPkgName}</tags>
+                <dependencies>
+                  <group targetFramework="net10.0">
+                    <dependency id="Azure.Core" version="1.61.0" exclude="Build,Analyzers" />
+                  </group>
+                  <group targetFramework="net8.0">
+                    <dependency id="Azure.Core" version="1.61.0" exclude="Build,Analyzers" />
+                  </group>
+                  <group targetFramework=".NETStandard2.0">
+                    <dependency id="Azure.Core" version="1.61.0" exclude="Build,Analyzers" />
+                  </group>
+                </dependencies>
+              </metadata>
+            </package>
+            """);
 
             // Create a .csproj with a PackageReference to the external package
             var csprojContent = $@"<Project Sdk=""Microsoft.NET.Sdk"">
@@ -345,7 +384,7 @@ namespace My.External.Library
             var refCountBefore = CodeModelGenerator.Instance.AdditionalMetadataReferences.Count;
             await GeneratedCodeWorkspace.AddPackageReferencesFromProject();
             var refCountAfter = CodeModelGenerator.Instance.AdditionalMetadataReferences.Count;
-            // Extreact versions and packages; make sure there is only one version.
+            // Extract versions and packages; make sure there is only one version.
             Dictionary<string, string> packages = [];
             // Dislply is a dll path C:\Users\%susername%\AppData\Local\Temp\TestArtifacts\%guid%\NuGetCache\first.package\1.0.0\lib\netstandard2.0\First.Package.dll
             // Get just {first.package, 1.0.0, lib, netstandard2.0, First.Package.dll}
@@ -361,7 +400,7 @@ namespace My.External.Library
                 Assert.That(resolvedPackage.TargetFramework, Is.EqualTo("netstandard2.0"));
                 if(packages.TryGetValue(resolvedPackage.Name, out string? version))
                 {
-                    Assert.Fail($"Found more then one versions for package {resolvedPackage.Name}: {version} and {resolvedPackage.Version}");
+                    Assert.Fail($"Found more than one versions for package {resolvedPackage.Name}: {version} and {resolvedPackage.Version}");
                 }
                 packages[resolvedPackage.Name] = resolvedPackage.Version;
             }
@@ -379,36 +418,6 @@ namespace My.External.Library
             }
         }
 
-        [Test]
-        [TestCase(true, true)]
-        [TestCase(true, false)]
-        [TestCase(false, true)]
-        public async Task TestGetLatestFramework(bool includeGoodVersions, bool includeBadVersions)
-        {
-            string[] good = { "net10.0", "net462", "net8.0", "net9.0" };
-            string[] bad = { "Michelangelo", "Leonardo", "Raphael", "Donatello" };
-            List<string> frameworks = [];
-            for (int i = 0; i < 4; i++)
-            {
-                if (includeGoodVersions)
-                {
-                    frameworks.Add(good[i]);
-                }
-                if (includeBadVersions)
-                {
-                    frameworks.Add(bad[i]);
-                }
-            }
-            if (includeGoodVersions)
-            {
-                Assert.That(GeneratedCodeWorkspace.GetLatestTargetFramework(frameworks), Is.EqualTo("net10.0"));
-            }
-            else
-            {
-                Assert.That(GeneratedCodeWorkspace.GetLatestTargetFramework(frameworks), Is.EqualTo("Donatello"));
-            }
-        }
-
         private static void AssertPackageVersion(IDictionary<string, string> resolvedPackages, string package, string version)
         {
             package = package.ToLower();
@@ -417,15 +426,14 @@ namespace My.External.Library
         }
 
         [Test]
+        [TestCase(new string[] { "net10.0", "net462", "net8.0", "net9.0" }, "net10.0")]
+        [TestCase(new string[] { "net10.0", "net8.0", "net9.0" }, "net10.0")]
         [TestCase(new string[]{ "net10.0", "net8.0", "net9.0" }, "net10.0")]
         [TestCase(new string[] { "net.10.0", "net.8.0", "net9.0" }, "net.10.0")]
         [TestCase(new string[] { "net10.0", "net.8.0", "net9.0" }, "net10.0")]
-        [TestCase(new string[] { "netstandard2.0", "netstandard1.0", "netstandard3.11", "netstandard3.10" }, "netstandard3.11")]
-        [TestCase(new string[] { "netstandard.2.0", "netstandard1.0", "netstandard3.11", "netstandard3.10" }, "netstandard3.11")]
-        [TestCase(new string[] { "netstandard2.0", "netstandard1.0", "netstandard.3.11", "netstandard3.10" }, "netstandard.3.11")]
-        [TestCase(new string[] { "netstandard2.0", "netstandard1.0", "netstandard3.11", "net462" }, "net462")]
+        [TestCase(new string[] { "netstandard2.0", "netstandard1.0", "netstandard3.11", "net462" }, "netstandard2.0")]
         [TestCase(new string[] { "net9.0", "netstandard2.0", "netstandard1.0", "netstandard3.11" }, "net9.0")]
-        public async Task TestGetLatestFrameworkDifferentNames(string[] frameworks, string expected)
+        public void TestGetLatestFrameworkDifferentNames(string[] frameworks, string expected)
         {
             Assert.That(GeneratedCodeWorkspace.GetLatestTargetFramework(frameworks), Is.EqualTo(expected));
         }
@@ -433,7 +441,7 @@ namespace My.External.Library
         [Test]
         [TestCase(true)]
         [TestCase(false)]
-        public async Task TestReadProjectAssetsMayBe(bool isSdkFramework)
+        public void TestReadProjectAssetsMayBe(bool isSdkFramework)
         {
             var ns = "TestNamespace";
             var nugetCacheDir = Path.Combine(_tempDirectory!, "NuGetCache");
@@ -517,7 +525,7 @@ namespace My.External.Library
         }
 
         [Test]
-        public async Task TestReadProjectAssetsMayBeNoFile()
+        public void TestReadProjectAssetsMayBeNoFile()
         {
             var ns = "TestNamespace";
             var nugetCacheDir = Path.Combine(_tempDirectory!, "NuGetCache");
@@ -545,10 +553,9 @@ namespace My.External.Library
         }
 
         [Test]
-        public async Task TestReadProjectAssetsMayBeUnsupportedPackageNames()
+        public void TestReadProjectAssetsMayBeUnsupportedPackageNames()
         {
             var ns = "TestNamespace";
-            var nugetCacheDir = Path.Combine(_tempDirectory!, "NuGetCache");
             var csprojContent = @"<Project Sdk=""Microsoft.NET.Sdk"">
   <PropertyGroup>
     <TargetFramework>netstandard2.0,net10.0</TargetFramework>

@@ -305,7 +305,7 @@ namespace Microsoft.TypeSpec.Generator
                                 if (packageAndVersion.ValueKind == JsonValueKind.String)
                                 {
                                     string[] packageVersionRelation = (packageAndVersion.GetString() ?? "").Split();
-                                    // We only support moreor greater relation.
+                                    // We only support the greater-than-or-equal relation.
                                     // Example: "Azure.Core >= 1.62.0"
                                     if (packageVersionRelation.Length == 3 && string.Equals(packageVersionRelation[1], ">="))
                                     {
@@ -322,34 +322,8 @@ namespace Microsoft.TypeSpec.Generator
 
         internal static string GetLatestTargetFramework(IEnumerable<string> shortNames)
         {
-            //NuGetFramework? maxFramework = shortNames.Select(x => new NuGetFramework(x)).Max();
-            // Assume framework order as follows:
-            // netstandardX.X, net462, netX.X
-            double maxFramework=0.0;
-            string maxFrameworkName = string.Empty;
-            foreach (string name in shortNames)
-            {
-                double current=0.0;
-                Match numeral = Regex.Match(name, "\\d+[.]*\\d*$");
-                if (numeral.Success)
-                {
-                    current = double.Parse(numeral.Value);
-                }
-                if (string.Equals(name, "net462", StringComparison.InvariantCultureIgnoreCase))
-                {
-                    current += 1000.0;
-                }
-                else if (!name.StartsWith("netstandard", StringComparison.InvariantCultureIgnoreCase))
-                {
-                    current += 2000.0;
-                }
-                if (current >= maxFramework)
-                {
-                    maxFramework = current;
-                    maxFrameworkName = name;
-                }
-            }
-            return maxFrameworkName;
+            NuGetFramework? maxFramework = shortNames.Select(x => new NuGetFramework(x)).MaxBy(x => x.Version);
+            return maxFramework?.Framework ?? string.Empty;
         }
 
         /// <summary>
@@ -410,7 +384,7 @@ namespace Microsoft.TypeSpec.Generator
 
             // Read in the resolved direct dependencies for all frameworks
             Dictionary<string, Dictionary<string, string>> hshFrameworks = ReadProjectAssetsMayBe();
-            // Get the latestr framework.
+            // Get the latest framework.
             Dictionary<string, string> hshNameVersion = [];
             if (hshFrameworks.Count > 0)
             {
