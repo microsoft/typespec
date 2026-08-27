@@ -25,8 +25,6 @@ The URL of the pipeline run that triggered this PR. When provided, it is include
 The reason the pipeline was triggered (for example, 'Manual', 'Schedule', or 'IndividualCI'). When set to 'Manual', step failures fail the pipeline instead of being downgraded to warnings and opening a PR.
 .PARAMETER UseParallelRegeneration
 When specified, SDK libraries are regenerated per library in parallel using the shared RegenPreview helpers instead of running 'dotnet msbuild service.proj /t:GenerateCode' once per service directory. This is intended for manual pipeline runs where turnaround time matters.
-.PARAMETER UseLocalRegenPreview
-When specified, invokes RegenPreview.ps1 so the manual preview builds packages directly from the checked-out TypeSpec source instead of consuming pipeline artifacts.
 #>
 [CmdletBinding(SupportsShouldProcess = $true)]
 param(
@@ -67,10 +65,7 @@ param(
   [string]$BuildReason,
 
   [Parameter(Mandatory = $false)]
-  [switch]$UseParallelRegeneration,
-
-  [Parameter(Mandatory = $false)]
-  [switch]$UseLocalRegenPreview
+  [switch]$UseParallelRegeneration
 )
 
 # When the pipeline is triggered manually, failures should fail the pipeline with an
@@ -159,18 +154,6 @@ $(if ($RegenerateMgmtLibraries) {
 This is an automated PR created by the TypeSpec publish pipeline.
 "@
 
-if ($UseLocalRegenPreview) {
-    $PRTitle = "[DO NOT MERGE] Regen Preview for $PackageVersion"
-    $PRBody = @"
-This PR previews the SDK changes produced by the TypeSpec C# generator at $TypeSpecCommitUrl.
-
-- Pipeline run: $PipelineRunUrl
-- Local package version: $PackageVersion
-
-Only regenerated SDK files are included. The generator packages were built directly from the checked-out TypeSpec source and were not published.
-"@
-}
-
 Write-Host "Creating PR in $RepoOwner/$RepoName"
 Write-Host "Branch: $PRBranch"
 Write-Host "Title: $PRTitle"
@@ -242,31 +225,6 @@ try {
         throw "Failed to create branch"
     }
 
-    if ($UseLocalRegenPreview) {
-        Write-Host "##[section]Running local regeneration preview..."
-        git sparse-checkout add sdk
-        if ($LASTEXITCODE -ne 0) {
-            throw "Failed to expand sparse checkout for regeneration preview"
-        }
-
-        # Unbranded libraries are the baseline preview scope; Azure and mgmt are additive.
-        $regenPreviewArgs = @(
-            '-SdkLibraryRepoPath', $tempDir,
-            '-Unbranded',
-            '-PackageVersion', $PackageVersion
-        )
-        if ($RegenerateAzureLibraries) {
-            $regenPreviewArgs += '-Azure'
-        }
-        if ($RegenerateMgmtLibraries) {
-            $regenPreviewArgs += '-Mgmt'
-        }
-
-        & (Join-Path $PSScriptRoot 'RegenPreview.ps1') @regenPreviewArgs
-        if (-not $?) {
-            throw "RegenPreview.ps1 failed"
-        }
-    } else {
     # Update the dependency in eng/centralpackagemanagement/Directory.Generation.Packages.props
     Write-Host "Updating dependency version in eng/centralpackagemanagement/Directory.Generation.Packages.props..."
     $propsFilePath = Join-Path $tempDir "eng/centralpackagemanagement/Directory.Generation.Packages.props"
@@ -716,11 +674,10 @@ try {
         }
     }
 
-        # Regenerate the emitter version dashboard
-        Write-Host "Regenerating emitter version dashboard..."
-        $dashboardScript = Join-Path $tempDir "doc/GeneratorVersions/Emitter_Version_Dashboard.ps1"
-        & $dashboardScript -RepoRoot $tempDir
-    }
+    # Regenerate the emitter version dashboard
+    Write-Host "Regenerating emitter version dashboard..."
+    $dashboardScript = Join-Path $tempDir "doc/GeneratorVersions/Emitter_Version_Dashboard.ps1"
+    & $dashboardScript -RepoRoot $tempDir
 
     # For manual runs, fail the pipeline if any step reported a failure instead of
     # opening a pull request that could give reviewers a false positive.
@@ -738,75 +695,69 @@ try {
 
     # Commit the changes
     Write-Host "Committing changes..."
-    if (-not $UseLocalRegenPreview) {
-        git add $propsFilePath
-        git add (Join-Path $tempDir "eng/packages/http-client-csharp/package.json")
-
-        # Only add these files if npm install succeeded
-        if ($installSucceeded) {
-            $packageLockPath = Join-Path $tempDir "eng/packages/http-client-csharp/package-lock.json"
-            if (Test-Path $packageLockPath) {
-                git add $packageLockPath
-            }
-
-            $testProjectsPath = Join-Path $tempDir "eng/packages/http-client-csharp/generator/TestProjects/"
-            if (Test-Path $testProjectsPath) {
-                git add $testProjectsPath
-            }
+    git add $propsFilePath
+    git add (Join-Path $tempDir "eng/packages/http-client-csharp/package.json")
+    
+    # Only add these files if npm install succeeded
+    if ($installSucceeded) {
+        $packageLockPath = Join-Path $tempDir "eng/packages/http-client-csharp/package-lock.json"
+        if (Test-Path $packageLockPath) {
+            git add $packageLockPath
         }
-
-        # Only add emitter files if they were generated
-        $emitterPackageJsonPath = Join-Path $tempDir "eng/http-client-csharp-emitter-package.json"
-        if (Test-Path $emitterPackageJsonPath) {
-            git add $emitterPackageJsonPath
-        }
-
-        $emitterPackageLockPath = Join-Path $tempDir "eng/http-client-csharp-emitter-package-lock.json"
-        if (Test-Path $emitterPackageLockPath) {
-            git add $emitterPackageLockPath
-        }
-
-        # Add Azure and mgmt emitter artifacts if they were updated
-        if ($RegenerateAzureLibraries -or $RegenerateMgmtLibraries) {
-            $azureEmitterFiles = @(
-                "eng/azure-typespec-http-client-csharp-emitter-package.json",
-                "eng/azure-typespec-http-client-csharp-emitter-package-lock.json",
-                "eng/centralpackagemanagement/Directory.Generation.Packages.props",
-                "NuGet.Config"
-            )
-            if ($RegenerateMgmtLibraries) {
-                $azureEmitterFiles += @(
-                    "eng/azure-typespec-http-client-csharp-mgmt-emitter-package.json",
-                    "eng/azure-typespec-http-client-csharp-mgmt-emitter-package-lock.json"
-                )
-            }
-            foreach ($file in $azureEmitterFiles) {
-                $filePath = Join-Path $tempDir $file
-                if (Test-Path $filePath) {
-                    git add $filePath
-                }
-            }
-        }
-
-        # Add the regenerated dashboard
-        $dashboardPath = Join-Path $tempDir "doc/GeneratorVersions/Emitter_Version_Dashboard.md"
-        if (Test-Path $dashboardPath) {
-            git add $dashboardPath
+        
+        $testProjectsPath = Join-Path $tempDir "eng/packages/http-client-csharp/generator/TestProjects/"
+        if (Test-Path $testProjectsPath) {
+            git add $testProjectsPath
         }
     }
-
+    
+    # Only add emitter files if they were generated
+    $emitterPackageJsonPath = Join-Path $tempDir "eng/http-client-csharp-emitter-package.json"
+    if (Test-Path $emitterPackageJsonPath) {
+        git add $emitterPackageJsonPath
+    }
+    
+    $emitterPackageLockPath = Join-Path $tempDir "eng/http-client-csharp-emitter-package-lock.json"
+    if (Test-Path $emitterPackageLockPath) {
+        git add $emitterPackageLockPath
+    }
+    
+    # Add Azure and mgmt emitter artifacts if they were updated
+    if ($RegenerateAzureLibraries -or $RegenerateMgmtLibraries) {
+        $azureEmitterFiles = @(
+            "eng/azure-typespec-http-client-csharp-emitter-package.json",
+            "eng/azure-typespec-http-client-csharp-emitter-package-lock.json",
+            "eng/centralpackagemanagement/Directory.Generation.Packages.props",
+            "NuGet.Config"
+        )
+        if ($RegenerateMgmtLibraries) {
+            $azureEmitterFiles += @(
+                "eng/azure-typespec-http-client-csharp-mgmt-emitter-package.json",
+                "eng/azure-typespec-http-client-csharp-mgmt-emitter-package-lock.json"
+            )
+        }
+        foreach ($file in $azureEmitterFiles) {
+            $filePath = Join-Path $tempDir $file
+            if (Test-Path $filePath) {
+                git add $filePath
+            }
+        }
+    }
+    
     # Add any SDK regeneration changes
     $sdkPath = Join-Path $tempDir "sdk"
     if (Test-Path $sdkPath) {
         git add $sdkPath
     }
+
+    # Add the regenerated dashboard
+    $dashboardPath = Join-Path $tempDir "doc/GeneratorVersions/Emitter_Version_Dashboard.md"
+    if (Test-Path $dashboardPath) {
+        git add $dashboardPath
+    }
     
-    git diff --cached --quiet
-    if ($LASTEXITCODE -eq 0) {
-        Write-Warning "No staged changes detected. Skipping commit and PR creation."
-        return
-    } elseif ($LASTEXITCODE -ne 1) {
-        throw "Failed to inspect staged changes"
+    if ($LASTEXITCODE -ne 0) {
+        throw "Failed to add changes"
     }
 
     # Build commit message based on what was updated
