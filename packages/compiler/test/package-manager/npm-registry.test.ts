@@ -75,7 +75,7 @@ it("encodes scoped package names", async () => {
 
   await fetchPackageManifest("@scope/test-pkg", "latest");
 
-  expect(lastRequestUrl).toBe("/@scope%2Ftest-pkg");
+  expect(lastRequestUrl).toBe(`/@scope${encodeURIComponent("/")}test-pkg`);
 });
 
 it("reports a missing package version or tag", async () => {

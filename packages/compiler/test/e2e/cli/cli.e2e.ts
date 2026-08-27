@@ -135,13 +135,12 @@ describe("install", () => {
   });
 
   it("reports package manager download failures without an internal compiler error", async () => {
-    let registryUrl: string;
     const server = http.createServer((req, res) => {
       if (req.url === "/npm") {
         const manifest = {
           name: "npm",
           version: "99.99.99",
-          dist: { tarball: `${registryUrl}/npm.tgz` },
+          dist: { tarball: `http://${req.headers.host}/npm.tgz` },
           bin: { npm: "bin/npm-cli.js" },
         };
         res.writeHead(200, { "Content-Type": "application/json" });
@@ -159,7 +158,7 @@ describe("install", () => {
     });
     await new Promise<void>((resolve) => server.listen(0, "127.0.0.1", resolve));
     const { port } = server.address() as AddressInfo;
-    registryUrl = `http://127.0.0.1:${port}`;
+    const registryUrl = `http://127.0.0.1:${port}`;
 
     try {
       const result = await execCliFail(["install"], {
