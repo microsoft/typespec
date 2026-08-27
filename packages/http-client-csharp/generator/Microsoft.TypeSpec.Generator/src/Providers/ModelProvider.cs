@@ -80,9 +80,6 @@ namespace Microsoft.TypeSpec.Generator.Providers
             _useObjectAdditionalProperties = new Lazy<bool>(ShouldUseObjectAdditionalProperties);
         }
 
-        private protected override CanonicalTypeProvider BuildCanonicalView()
-            => new(this, _inputModel, canonicalInputProperties: GetPropertiesToBuild());
-
         public bool IsUnknownDiscriminatorModel => _inputModel.IsUnknownDiscriminatorModel;
 
         // Whether this model is reused from another shipped package (linked via an `external` block)
@@ -600,7 +597,7 @@ namespace Microsoft.TypeSpec.Generator.Providers
             }
         }
 
-        private IReadOnlyList<InputModelProperty> GetPropertiesToBuild()
+        internal IReadOnlyList<InputModelProperty> GetPropertiesToBuild()
         {
             if (CustomCodeView?.BaseType is null || _inputModel.BaseModel is null)
             {
@@ -612,21 +609,18 @@ namespace Microsoft.TypeSpec.Generator.Providers
             // can be materialized on this model. The normal customization filter later removes properties
             // represented by the effective CLR base, including properties matched through CodeGenMember names.
             var propertiesByModel = new List<IReadOnlyList<InputModelProperty>>();
-            var claimedPropertyNames = _inputModel.Properties.Select(p => p.Name).ToHashSet();
-            var inputBaseModel = _inputModel.BaseModel;
-            while (inputBaseModel is not null)
+            var claimedPropertyNames = new HashSet<string>();
+            foreach (var inputModel in _inputModel.GetSelfAndBaseModels())
             {
                 var properties = new List<InputModelProperty>();
-                foreach (var property in inputBaseModel.Properties)
+                foreach (var property in inputModel.Properties)
                 {
                     if (claimedPropertyNames.Add(property.Name))
                     {
                         properties.Add(property);
                     }
                 }
-
                 propertiesByModel.Add(properties);
-                inputBaseModel = inputBaseModel.BaseModel;
             }
 
             var result = new List<InputModelProperty>(claimedPropertyNames.Count);
@@ -634,7 +628,6 @@ namespace Microsoft.TypeSpec.Generator.Providers
             {
                 result.AddRange(propertiesByModel[i]);
             }
-            result.AddRange(_inputModel.Properties);
             return result;
         }
 
@@ -682,10 +675,9 @@ namespace Microsoft.TypeSpec.Generator.Providers
                     continue;
                 }
 
-                var outputProperty = CodeModelGenerator.Instance.TypeFactory.CreateProperty(
-                    property,
-                    this,
-                    cache: _inputModel.Properties.Contains(property));
+                var outputProperty = _inputModel.Properties.Contains(property)
+                    ? CodeModelGenerator.Instance.TypeFactory.CreateProperty(property, this)
+                    : CodeModelGenerator.Instance.TypeFactory.CreateMaterializedProperty(property, this);
 
                 if (_inputModel.DiscriminatorProperty == property)
                 {

@@ -397,22 +397,19 @@ namespace Microsoft.TypeSpec.Generator
         /// <param name="property">The input property.</param>
         /// <returns>The property provider.</returns>
         public PropertyProvider? CreateProperty(InputProperty property, TypeProvider enclosingType)
-            => CreateProperty(property, enclosingType, cache: true);
-
-        internal PropertyProvider? CreateProperty(InputProperty property, TypeProvider enclosingType, bool cache)
         {
-            if (cache && PropertyCache.TryGetValue(property, out var propertyProvider))
+            if (PropertyCache.TryGetValue(property, out var propertyProvider))
             {
                 return propertyProvider;
             }
 
             propertyProvider = CreatePropertyCore(property, enclosingType);
-            if (cache)
-            {
-                PropertyCache.Add(property, propertyProvider);
-            }
+            PropertyCache.Add(property, propertyProvider);
             return propertyProvider;
         }
+
+        internal PropertyProvider? CreateMaterializedProperty(InputProperty property, TypeProvider enclosingType)
+            => CreatePropertyCore(property, enclosingType);
 
         /// <summary>
         /// Factory method for creating a <see cref="PropertyProvider"/> based on an input property <paramref name="property"/>.
