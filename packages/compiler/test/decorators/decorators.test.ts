@@ -21,6 +21,8 @@ import {
 } from "../../src/lib/decorators.js";
 import { expectDiagnosticEmpty, expectDiagnostics, t } from "../../src/testing/index.js";
 import { createTestHost } from "../../src/testing/test-host.js";
+import { $ } from "../../src/typekit/index.js";
+import { createRekeyableMap } from "../../src/utils/misc.js";
 import { Tester } from "../tester.js";
 
 describe("dev comment /** */", () => {
@@ -1928,6 +1930,46 @@ describe("@strictExtends", () => {
 
     return host.diagnose("main.tsp");
   }
+
+  it("validates a union cloned after a compilation the checker reported errors for", async () => {
+    // The compilation stops after the checker reported errors, but the program is still used by
+    // tooling like the language server, and the type graph was already checked.
+    const host = await createTestHost();
+    host.addTypeSpecFile(
+      "main.tsp",
+      `
+      model Broken { value: Missing }
+
+      model Pet { name: string }
+      model Cat extends Pet { name: string }
+      model Rock { name: string }
+
+      @strictExtends
+      union Pets extends Pet {
+        cat: Cat,
+      }
+      `,
+    );
+    await host.diagnose("main.tsp");
+
+    const program = host.program;
+    const globalNs = program.getGlobalNamespaceType();
+    const rock = globalNs.models.get("Rock")!;
+    const clone = $(program).type.clone(globalNs.unions.get("Pets")!);
+    clone.variants = createRekeyableMap(
+      [...clone.variants].map(([key, variant]) => {
+        const variantClone = $(program).type.clone(variant);
+        variantClone.type = rock;
+        return [key, variantClone];
+      }),
+    );
+    $(program).type.finishType(clone);
+
+    expectDiagnostics(program.diagnostics, [
+      { code: "invalid-ref" },
+      { code: "strict-extends-variant" },
+    ]);
+  });
 
   it("checks a union graph reachable through many paths only once", async () => {
     // Each union references the previous one twice, so a walk that doesn't remember what it

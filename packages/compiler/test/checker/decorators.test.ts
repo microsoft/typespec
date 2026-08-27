@@ -5,6 +5,7 @@ import { Numeric } from "../../src/core/numeric.js";
 import type { DecoratorContext, DecoratorFunction, Model } from "../../src/index.js";
 import { setTypeSpecNamespace } from "../../src/index.js";
 import { expectDiagnostics, mockFile, t } from "../../src/testing/index.js";
+import { $ } from "../../src/typekit/index.js";
 import { Tester } from "../tester.js";
 
 const DecTester = Tester.files({
@@ -976,5 +977,29 @@ describe("validators", () => {
       `validate(B)`,
       `validate(B)`,
     ]);
+  });
+
+  it("post apply validator when the type is finished if the graph was already checked", async () => {
+    // There is no graph finish left to wait for, so a validator that is only registered then would
+    // never run at all.
+    const order: string[] = [];
+    const tester = await testerForDecorator((_: DecoratorContext, target: Model) => {
+      order.push(`apply(${target.name})`);
+      return {
+        onGraphFinish: () => {
+          order.push(`validate(${target.name})`);
+          return [];
+        },
+      };
+    });
+    const { A, program } = await tester.compile(t.code`
+      @myDecorator
+      model ${t.model("A")} {}  
+    `);
+    deepStrictEqual(order, [`apply(A)`, `validate(A)`]);
+
+    $(program).type.finishType($(program).type.clone(A));
+
+    deepStrictEqual(order, [`apply(A)`, `validate(A)`, `apply(A)`, `validate(A)`]);
   });
 });

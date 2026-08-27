@@ -539,6 +539,11 @@ export function createChecker(program: Program, resolver: NameResolver): Checker
   const pendingResolutions = new PendingResolutions();
   const spreadResolutionAncestors = new Map<Sym, Set<Sym>>();
   const postCheckValidators: ValidatorFn[] = [];
+  /**
+   * Whether {@link postCheckValidators} was already run. Types created after that, with a mutator
+   * for example, have no graph finish left to wait for.
+   */
+  let postCheckValidatorsRan = false;
 
   const typespecNamespaceBinding = resolver.symbols.global.exports!.get("TypeSpec");
   if (typespecNamespaceBinding) {
@@ -4900,6 +4905,7 @@ export function createChecker(program: Program, resolver: NameResolver): Checker
     internalDecoratorValidation();
     assertNoPendingResolutions();
     runPostValidators(postCheckValidators);
+    postCheckValidatorsRan = true;
   }
 
   function assertNoPendingResolutions() {
@@ -8170,7 +8176,13 @@ export function createChecker(program: Program, resolver: NameResolver): Checker
         postSelfValidators.push(validators.onTargetFinish);
       }
       if (validators?.onGraphFinish) {
-        postCheckValidators.push(validators.onGraphFinish);
+        if (postCheckValidatorsRan) {
+          // The type graph was already checked so the validator would never run. Run it as soon as
+          // the type is finished instead.
+          postSelfValidators.push(validators.onGraphFinish);
+        } else {
+          postCheckValidators.push(validators.onGraphFinish);
+        }
       }
     }
     return postSelfValidators;
