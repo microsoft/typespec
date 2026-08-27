@@ -159,7 +159,7 @@ namespace My.External.Library
                 """
             );
             //
-            File.WriteAllText(Path.Combine(metadataPath, $"{externalPkgName}.nuspec"), $"""
+            File.WriteAllText(Path.Combine(metadataPath, $"{externalPkgName.ToLowerInvariant()}.nuspec"), $"""
             <?xml version="1.0" encoding="utf-8"?>
             <package xmlns="http://schemas.microsoft.com/packaging/2013/05/nuspec.xsd">
               <metadata>
@@ -429,7 +429,7 @@ namespace My.External.Library
         [TestCase(true, true)]
         [TestCase(true, false)]
         [TestCase(false, true)]
-        public async Task TestGetLatestFramework(bool includeGoodVersions, bool includeBadVersions)
+        public void TestGetLatestFramework(bool includeGoodVersions, bool includeBadVersions)
         {
             string[] good = { "net10.0", "net462", "net8.0", "net9.0" };
             string[] bad = { "Michelangelo", "Leonardo", "Raphael", "Donatello" };
