@@ -386,7 +386,7 @@ namespace My.External.Library
             var refCountAfter = CodeModelGenerator.Instance.AdditionalMetadataReferences.Count;
             // Extract versions and packages; make sure there is only one version.
             Dictionary<string, string> packages = [];
-            // Dislply is a dll path C:\Users\%susername%\AppData\Local\Temp\TestArtifacts\%guid%\NuGetCache\first.package\1.0.0\lib\netstandard2.0\First.Package.dll
+            // Dislplay is a dll path C:\Users\%username%\AppData\Local\Temp\TestArtifacts\%guid%\NuGetCache\first.package\1.0.0\lib\netstandard2.0\First.Package.dll
             // Get just {first.package, 1.0.0, lib, netstandard2.0, First.Package.dll}
             // Parse as Tuple: (Name: first.package, Version: 1.0.0, TargetFramework: netstandard2.0)
             IEnumerable<(string Name, string Version, string TargetFramework)> resolvedPackages = CodeModelGenerator.Instance.AdditionalMetadataReferences
@@ -484,8 +484,8 @@ namespace My.External.Library
             {
                 Assert.That(_tempDirectory, Is.Not.Null.And.Not.Empty);
                 Directory.CreateDirectory(Path.Combine(_tempDirectory!, "sdk"));
-                Directory.CreateDirectory(Path.Combine(_tempDirectory!, "sdk", "mysvc"));
-                projectDir = Path.Combine(_tempDirectory!, "sdk", "mysvc", "ProjectDir");
+                Directory.CreateDirectory(Path.Combine(_tempDirectory!, "sdk", "my_service"));
+                projectDir = Path.Combine(_tempDirectory!, "sdk", "my_service", "ProjectDir");
                 Directory.CreateDirectory(projectDir);
                 Directory.CreateDirectory(Path.Combine(projectDir, "src"));
                 Directory.CreateDirectory(Path.Combine(_tempDirectory!, "artifacts"));
