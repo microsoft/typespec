@@ -173,12 +173,9 @@ describe("subpath export emitters", () => {
   });
 
   it("reports schema diagnostics against the options key that supplied them", async () => {
-    const yaml = [
-      "options:",
-      '  "@org/fake-emitter":',
-      '    max-files: "not a number"',
-      "",
-    ].join("\n");
+    const yaml = ["options:", '  "@org/fake-emitter":', '    max-files: "not a number"', ""].join(
+      "\n",
+    );
     const [script] = parseYaml(yaml);
     const [_, diagnostics] = await runSubpathEmitter(
       {
