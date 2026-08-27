@@ -560,7 +560,6 @@ namespace My.External.Library
         public void TestReadProjectAssetsMayBeNoFile()
         {
             var ns = "TestNamespace";
-            var nugetCacheDir = Path.Combine(_tempDirectory!, "NuGetCache");
             var csprojContent = @"<Project Sdk=""Microsoft.NET.Sdk"">
   <PropertyGroup>
     <TargetFramework>netstandard2.0,net10.0</TargetFramework>
