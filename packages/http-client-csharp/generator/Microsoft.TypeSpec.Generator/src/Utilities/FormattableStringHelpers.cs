@@ -201,13 +201,13 @@ namespace Microsoft.TypeSpec.Generator
                     var arg = input.GetArgument(index);
                     var indexOfFormatSpecifier = span.IndexOf(':');
                     var formatSpecifier = indexOfFormatSpecifier >= 0 ? span[indexOfFormatSpecifier..] : default;
-                    var isTerminatorEscapingFormat = formatSpecifier.SequenceEqual(":L");
+                    var isLiteralFormat = formatSpecifier.SequenceEqual(":L");
                     switch (arg)
                     {
-                        // Only the literal formatter (":L") guarantees embedded line terminators are rendered as
-                        // escaped text. Other formatters can still write raw text, so those string/formattable
-                        // arguments must continue through line normalization.
-                        case string str when !isTerminatorEscapingFormat:
+                        // Only string arguments formatted with ":L" are guaranteed to escape embedded line
+                        // terminators as text. FormattableString arguments are expanded recursively before the
+                        // formatter branch in CodeWriter.Append, so they must still flow through normalization.
+                        case string str when !isLiteralFormat:
                             {
                                 if (str.Length == 0)
                                 {
@@ -233,7 +233,7 @@ namespace Microsoft.TypeSpec.Generator
                                 emittedContent = true;
                                 break;
                             }
-                        case FormattableString fs when !isTerminatorEscapingFormat:
+                        case FormattableString fs:
                             {
                                 var nestedHasEmptyLastLine = BreakLinesCore(fs, formatBuilder, args, result, ref pendingCR, out bool nestedEmittedContent);
                                 if (nestedEmittedContent)

@@ -104,6 +104,17 @@ namespace Microsoft.TypeSpec.Generator.Tests.Statements
             Assert.AreEqual($"/// <tag> \"first{escapedTerminator}second\". </tag>\n", writer.ToString(false));
         }
 
+        [Test]
+        public void LineTerminatorsInNestedFormattableArgumentWithLiteralFormatAreNormalized()
+        {
+            var nested = FormattableStringFactory.Create("first\u2028second");
+            var line = FormattableStringFactory.Create("{0:L}", nested);
+            var statement = new XmlDocStatement($"<tag>", $"</tag>", [line]);
+            using var writer = new CodeWriter();
+            statement.Write(writer);
+            Assert.AreEqual("/// <tag>\n/// first\n/// second\n/// </tag>\n", writer.ToString(false));
+        }
+
         [TestCase('D', "/// <tag>\n/// first\n/// second\n/// </tag>\n")]
         [TestCase('I', "/// <tag>\n/// first\n/// second\n/// </tag>\n")]
         [TestCase('C', "/// <tag>\n/// <see cref=\"first\"/>\n/// <see cref=\"second\"/>\n/// </tag>\n")]

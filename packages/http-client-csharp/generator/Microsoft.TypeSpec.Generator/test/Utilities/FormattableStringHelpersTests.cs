@@ -367,6 +367,17 @@ namespace Microsoft.TypeSpec.Generator.Tests.Utilities
                         $"third{null}"
                     }).SetName("TestBreakLines_FormatSpecifierInArgWithTerminators");
 
+                // `:L` only escapes string arguments. Nested formattable arguments still expand recursively and
+                // therefore must continue through line normalization.
+                inner = FormattableStringFactory.Create("x\u2028y");
+                outer = FormattableStringFactory.Create("first{0:L}second", inner);
+                yield return new TestCaseData(
+                    outer,
+                    new List<FormattableString> {
+                        $"firstx",
+                        $"ysecond"
+                    }).SetName("TestBreakLines_LiteralFormatSpecifierOnNestedFormattableStringIsNormalized");
+
                 // a literal ending in a lone '\r' followed by a string argument starting with '\n' is a single
                 // CRLF split across the interpolation boundary and must produce one line break, not two.
                 yield return new TestCaseData(
