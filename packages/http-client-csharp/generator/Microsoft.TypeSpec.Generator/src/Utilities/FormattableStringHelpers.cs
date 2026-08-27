@@ -199,15 +199,15 @@ namespace Microsoft.TypeSpec.Generator
                 else
                 {
                     var arg = input.GetArgument(index);
-                    // Only plain (unformatted) string arguments are split on line terminators, because those are
-                    // written to the output as raw text. Formatted arguments (e.g. ":L") are rendered through a
-                    // custom formatter (e.g. SyntaxFactory.Literal) that safely escapes any embedded terminators
-                    // into a single C# literal, so splitting them would change the value the documentation represents
-                    // without preventing any raw terminator from reaching the output.
                     var indexOfFormatSpecifier = span.IndexOf(':');
+                    var formatSpecifier = indexOfFormatSpecifier >= 0 ? span[indexOfFormatSpecifier..] : default;
+                    var isTerminatorEscapingFormat = formatSpecifier.SequenceEqual(":L");
                     switch (arg)
                     {
-                        case string str when indexOfFormatSpecifier < 0:
+                        // Only the literal formatter (":L") guarantees embedded line terminators are rendered as
+                        // escaped text. Other formatters can still write raw text, so those string/formattable
+                        // arguments must continue through line normalization.
+                        case string str when !isTerminatorEscapingFormat:
                             {
                                 if (str.Length == 0)
                                 {
@@ -228,12 +228,12 @@ namespace Microsoft.TypeSpec.Generator
                                     // the entire argument was the other half of a cross-boundary CRLF pair.
                                     break;
                                 }
-                                BreakLinesCoreForString(strSpan, formatBuilder, args, result);
+                                BreakLinesCoreForString(strSpan, formatBuilder, args, result, formatSpecifier);
                                 hasEmptyLastLine = false;
                                 emittedContent = true;
                                 break;
                             }
-                        case FormattableString fs when indexOfFormatSpecifier < 0:
+                        case FormattableString fs when !isTerminatorEscapingFormat:
                             {
                                 var nestedHasEmptyLastLine = BreakLinesCore(fs, formatBuilder, args, result, ref pendingCR, out bool nestedEmittedContent);
                                 if (nestedEmittedContent)
@@ -276,7 +276,8 @@ namespace Microsoft.TypeSpec.Generator
                 ReadOnlySpan<char> span,
                 StringBuilder formatBuilder,
                 List<object?> args,
-                List<FormattableString> result)
+                List<FormattableString> result,
+                ReadOnlySpan<char> formatSpecifier)
             {
                 if (RequiresNormalization(span))
                 {
@@ -301,6 +302,10 @@ namespace Microsoft.TypeSpec.Generator
                     }
                     formatBuilder.Append('{')
                         .Append(args.Count);
+                    if (!formatSpecifier.IsEmpty)
+                    {
+                        formatBuilder.Append(formatSpecifier);
+                    }
                     formatBuilder.Append('}');
                     args.Add(span[start..end].ToString());
                     start = end + 1; // goes to the next char after the \n we found

@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Runtime.CompilerServices;
 using NUnit.Framework;
 
 namespace Microsoft.TypeSpec.Generator.Tests.Utilities
@@ -253,6 +254,17 @@ namespace Microsoft.TypeSpec.Generator.Tests.Utilities
                         $"first{"x\ny":L}second",
                         $"third{null}"
                     }).SetName("TestBreakLines_FormatSpecifierInArg");
+
+                foreach (var formatSpecifier in new[] { ":D", ":I", ":C" })
+                {
+                    yield return new TestCaseData(
+                        FormattableStringFactory.Create($"first{{0{formatSpecifier}}}second", "x\u2028y"),
+                        new List<FormattableString>
+                        {
+                            FormattableStringFactory.Create($"first{{0{formatSpecifier}}}", "x"),
+                            FormattableStringFactory.Create($"{{0{formatSpecifier}}}second", "y"),
+                        }).SetName($"TestBreakLines_NonLiteralFormatSpecifierInArg_{formatSpecifier[1]}");
+                }
 
                 yield return new TestCaseData(
                     (FormattableString)$"first\u0085second\u0085third",
