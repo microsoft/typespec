@@ -2,7 +2,7 @@ namespace Sample.Models
 {
     public partial class MockInputModel
     {
-        public MockInputModel(string oldName, string other)
+        public MockInputModel(string oldUnchanged, string oldName)
         {
         }
     }

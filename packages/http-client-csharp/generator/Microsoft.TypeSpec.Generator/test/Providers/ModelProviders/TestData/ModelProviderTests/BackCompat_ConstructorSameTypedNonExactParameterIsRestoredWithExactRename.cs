@@ -12,23 +12,23 @@ namespace Sample.Models
     {
         private protected readonly global::System.Collections.Generic.IDictionary<string, global::System.BinaryData> _additionalBinaryDataProperties;
 
-        public MockInputModel(string other, string newName)
+        public MockInputModel(string oldUnchanged, string newName)
         {
-            global::Sample.Argument.AssertNotNull(other, nameof(other));
+            global::Sample.Argument.AssertNotNull(oldUnchanged, nameof(oldUnchanged));
             global::Sample.Argument.AssertNotNull(newName, nameof(newName));
 
-            Other = other;
+            Unchanged = oldUnchanged;
             new_name = newName;
         }
 
-        internal MockInputModel(string other, string newName, global::System.Collections.Generic.IDictionary<string, global::System.BinaryData> additionalBinaryDataProperties)
+        internal MockInputModel(string oldUnchanged, string newName, global::System.Collections.Generic.IDictionary<string, global::System.BinaryData> additionalBinaryDataProperties)
         {
-            Other = other;
+            Unchanged = oldUnchanged;
             new_name = newName;
             _additionalBinaryDataProperties = additionalBinaryDataProperties;
         }
 
-        public string Other { get; }
+        public string Unchanged { get; }
 
         public string new_name { get; }
     }

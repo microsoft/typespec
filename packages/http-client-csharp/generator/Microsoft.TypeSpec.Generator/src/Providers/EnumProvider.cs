@@ -96,7 +96,7 @@ namespace Microsoft.TypeSpec.Generator.Providers
             string generatedName,
             IReadOnlyList<string> generatedNames,
             IReadOnlyList<string> lastContractNames,
-            bool isExactName = false)
+            bool isExactName)
         {
             if (isExactName)
             {

@@ -183,7 +183,6 @@ namespace Microsoft.TypeSpec.Generator.Utilities
                 {
                     currentParameters = method.Signature.Parameters;
                 }
-                List<int>? exactMismatchIndices = null;
 
                 for (int i = 0; i < currentParameters.Count; i++)
                 {
@@ -201,18 +200,10 @@ namespace Microsoft.TypeSpec.Generator.Utilities
                         preservedName = FindPreviousParameterName(lastContractView, inputParameter.OriginalName, method.Signature.Name);
                     }
 
-                    // Fall back to a positional match for synthesized parameters. Skip the fallback only
-                    // when a same-typed parameter elsewhere in the signature has an exact-name mismatch:
-                    // that indicates the previous and current parameters at that shared type may have been
-                    // reordered, so position alone can no longer be trusted to identify the same parameter.
-                    if (string.IsNullOrEmpty(preservedName) && matchingPrevious != null)
+                    // Fall back to a positional match for synthesized parameters
+                    if (string.IsNullOrEmpty(preservedName))
                     {
-                        exactMismatchIndices ??= FindExactParameterNameMismatchIndices(currentParameters, matchingPrevious.Signature.Parameters);
-                        var isAmbiguous = exactMismatchIndices.Exists(j => currentParameters[j].Type.Equals(parameter.Type));
-                        if (!isAmbiguous)
-                        {
-                            preservedName = matchingPrevious.Signature.Parameters[i].Name;
-                        }
+                        preservedName = matchingPrevious?.Signature.Parameters[i].Name;
                     }
 
                     // A casing-only difference is still a source-breaking rename for named arguments,
@@ -224,8 +215,9 @@ namespace Microsoft.TypeSpec.Generator.Utilities
 
                     // Skip the rename when applying it would collide with another current parameter's
                     // name (e.g. two same-typed parameters whose order changed between the previous and
-                    // current contracts). A rename in that case would produce a duplicate parameter name
-                    // and, for name-based argument lookups, silently wire the wrong value.
+                    // current contracts, or a parameter whose exact name is retained above). A rename in
+                    // that case would produce a duplicate parameter name and, for name-based argument
+                    // lookups, silently wire the wrong value.
                     bool wouldCollide = false;
                     for (int j = 0; j < currentParameters.Count; j++)
                     {
@@ -247,24 +239,6 @@ namespace Microsoft.TypeSpec.Generator.Utilities
                     parameter.Update(name: preservedName);
                 }
             }
-        }
-
-        private static List<int> FindExactParameterNameMismatchIndices(
-            IReadOnlyList<ParameterProvider> currentParameters,
-            IReadOnlyList<ParameterProvider> previousParameters)
-        {
-            var mismatchIndices = new List<int>();
-            var parameterCount = Math.Min(currentParameters.Count, previousParameters.Count);
-            for (int i = 0; i < parameterCount; i++)
-            {
-                if (currentParameters[i].IsExactName
-                    && !string.Equals(currentParameters[i].Name, previousParameters[i].Name, StringComparison.Ordinal))
-                {
-                    mismatchIndices.Add(i);
-                }
-            }
-
-            return mismatchIndices;
         }
 
         /// <summary>

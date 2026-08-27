@@ -146,6 +146,11 @@ namespace Microsoft.TypeSpec.Generator.Providers
                 {
                     if (currentMethodSignature.Name.Equals(previousMethod.Signature.Name))
                     {
+                        // This block is only reached when the hash lookup above missed, which happens even
+                        // for signatures the comparer considers equal: MethodSignatureBaseEqualityComparer
+                        // ignores ReturnType in Equals but includes it in GetHashCode, and a last-contract
+                        // return type renders with an empty namespace, so equal signatures can land in
+                        // different buckets. Both checks below therefore have to be performed linearly.
                         if (MethodSignatureHelper.HaveSameParametersInSameOrder(currentMethodSignature, previousMethod.Signature)
                             || HasMatchingExactParameterNames(currentMethodSignature, previousMethod.Signature))
                         {

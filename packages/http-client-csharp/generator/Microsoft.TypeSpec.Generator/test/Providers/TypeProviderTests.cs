@@ -838,12 +838,13 @@ namespace Microsoft.TypeSpec.Generator.Tests.Providers
         }
 
         [Test]
-        public async Task RestorePreviousParameterNamesSkipsPositionalFallbackForExactRenameMismatch()
+        public async Task RestorePreviousParameterNamesRestoresNonExactParameterAlongsideExactRename()
         {
             await MockHelpers.LoadMockGeneratorAsync(lastContractCompilation: async () => await Helpers.GetCompilationFromDirectoryAsync());
 
             // Current generation declares Foo(other, new_exact), while the previous contract published
-            // Foo(oldExact, other). The exact rename means positional fallback cannot safely map oldExact.
+            // Foo(oldFirst, oldSecond). The exact parameter keeps its configured name, but the non-exact
+            // one - which shares its type - must still fall back to the previous name at its position.
             var foo = new MethodProvider(
                 new MethodSignature("Foo", $"", MethodSignatureModifiers.Public, new CSharpType(typeof(string)), $"",
                 [

@@ -58,7 +58,10 @@ namespace Microsoft.TypeSpec.Generator.Providers
         public InputParameter? InputParameter { get; private set; }
 
         /// <summary>
-        /// Indicates that the name of this parameter was explicitly configured and must be used verbatim.
+        /// Indicates that the name of this parameter was explicitly configured, so it is exempt from
+        /// back-compat renaming. Note that this only guarantees the configured spelling is not replaced by
+        /// a previously-published name; a parameter derived from a property still goes through
+        /// <c>ToVariableName</c>, so its casing may differ from the property's verbatim declaration name.
         /// </summary>
         internal bool IsExactName { get; private init; }
 

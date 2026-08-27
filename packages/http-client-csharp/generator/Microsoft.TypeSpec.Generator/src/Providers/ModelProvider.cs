@@ -938,14 +938,28 @@ namespace Microsoft.TypeSpec.Generator.Providers
                 {
                     continue;
                 }
-                var exactNameMismatchTypes = FindExactParameterNameMismatchTypes(restoredParameters, previousParameters);
+
+                // Exact-name parameters keep their generated name, so unlike a full permutation - where
+                // every name is replaced and a clash is only transient - restoring another parameter onto
+                // one of those retained names would produce a real duplicate.
+                var retainedExactNames = restoredParameters
+                    .Where(p => p.IsExactName)
+                    .Select(p => p.Name)
+                    .ToHashSet(StringComparer.Ordinal);
                 for (int i = 0; i < restoredParameters.Count; i++)
                 {
                     var restoredName = previousParameters[i].Name;
                     if (string.Equals(restoredParameters[i].Name, restoredName, StringComparison.Ordinal)
-                        || restoredParameters[i].IsExactName
-                        || exactNameMismatchTypes.Contains(restoredParameters[i].Type))
+                        || restoredParameters[i].IsExactName)
                     {
+                        continue;
+                    }
+
+                    if (retainedExactNames.Contains(restoredName))
+                    {
+                        CodeModelGenerator.Instance.Emitter.Info(
+                            $"Could not preserve parameter name '{restoredName}' at position {i} on constructor '{Name}' from the last contract; it collides with the exact name of another parameter.",
+                            BackCompatibilityChangeCategory.ParameterNamePreserved);
                         continue;
                     }
 
@@ -957,50 +971,6 @@ namespace Microsoft.TypeSpec.Generator.Providers
 
                 currentConstructor.Signature.Update(parameters: [.. restoredParameters]);
                 currentConstructor.Update(signature: currentConstructor.Signature);
-            }
-        }
-
-        private static HashSet<CSharpType> FindExactParameterNameMismatchTypes(
-            IReadOnlyList<ParameterProvider> currentParameters,
-            IReadOnlyList<ParameterProvider> previousParameters)
-        {
-            var mismatchTypes = new HashSet<CSharpType>(CSharpTypeNameComparer.Instance);
-            var parameterCount = Math.Min(currentParameters.Count, previousParameters.Count);
-            for (int i = 0; i < parameterCount; i++)
-            {
-                if (currentParameters[i].IsExactName
-                    && !string.Equals(currentParameters[i].Name, previousParameters[i].Name, StringComparison.Ordinal))
-                {
-                    mismatchTypes.Add(currentParameters[i].Type);
-                }
-            }
-
-            return mismatchTypes;
-        }
-
-        private sealed class CSharpTypeNameComparer : IEqualityComparer<CSharpType>
-        {
-            public static CSharpTypeNameComparer Instance { get; } = new();
-
-            public bool Equals(CSharpType? x, CSharpType? y)
-            {
-                if (x is null && y is null)
-                {
-                    return true;
-                }
-                if (x is null || y is null)
-                {
-                    return false;
-                }
-                return x.Namespace == y.Namespace && x.Name == y.Name;
-            }
-
-            public int GetHashCode(CSharpType obj)
-            {
-                HashCode hashCode = new HashCode();
-                hashCode.Add(obj.Namespace);
-                hashCode.Add(obj.Name);
-                return hashCode.ToHashCode();
             }
         }
 

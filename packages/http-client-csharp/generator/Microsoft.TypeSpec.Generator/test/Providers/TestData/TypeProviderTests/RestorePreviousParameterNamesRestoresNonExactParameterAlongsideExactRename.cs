@@ -8,9 +8,9 @@ namespace Test
 {
     public partial class TestClient
     {
-        public string Foo(string other, string new_exact)
+        public string Foo(string oldFirst, string new_exact)
         {
-            global::Sample.Argument.AssertNotNullOrEmpty(other, nameof(other));
+            global::Sample.Argument.AssertNotNullOrEmpty(oldFirst, nameof(oldFirst));
             global::Sample.Argument.AssertNotNullOrEmpty(new_exact, nameof(new_exact));
 
             return null;
