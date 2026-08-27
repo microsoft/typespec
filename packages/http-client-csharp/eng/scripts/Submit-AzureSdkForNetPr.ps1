@@ -530,6 +530,14 @@ try {
                         Push-Location $azureTempDir
                         try {
                             Invoke "npm install `"`"file:$azurePackagePath`"`" --package-lock-only" $azureTempDir
+
+                            # npm install records the temporary local package path in package.json.
+                            # The checked-in descriptor is also used as the approved semantic
+                            # version by the emitter version dashboard.
+                            Update-EmitterPackageDependency `
+                                -PackageJsonPath $tempPackageJson `
+                                -PackageName '@azure-typespec/http-client-csharp' `
+                                -PackageVersion $PackageVersion
                             
                             Copy-Item $tempPackageJson $azureEmitterJson -Force
                             $lockFile = Join-Path $azureTempDir "package-lock.json"
