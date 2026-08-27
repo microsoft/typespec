@@ -939,9 +939,8 @@ namespace Microsoft.TypeSpec.Generator.Providers
                     continue;
                 }
 
-                // Exact-name parameters keep their generated name, so unlike a full permutation - where
-                // every name is replaced and a clash is only transient - restoring another parameter onto
-                // one of those retained names would produce a real duplicate.
+                // A permutation replaces every name, so a clash there is transient. Exact names are
+                // retained, so restoring another parameter onto one would produce a real duplicate.
                 var retainedExactNames = restoredParameters
                     .Where(p => p.IsExactName)
                     .Select(p => p.Name)
