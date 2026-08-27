@@ -120,7 +120,7 @@ namespace Microsoft.TypeSpec.Generator.Providers
                     // directly. Otherwise a retained property matching the shipped name and a new date-time
                     // property normalizing onto it would both be emitted under that name.
                     previousProperty = lastContractProperties?.FirstOrDefault(p =>
-                        !IsClaimedBySiblingProperty(p.Name, inputProperty, enclosingType.Name) &&
+                        !IsClaimedBySiblingProperty(p.Name, inputProperty, enclosingType) &&
                         AvoidPropertyNameCollision(
                             p.Name.NormalizeCSharpAcronyms(normalizeDateTimeSuffix: true),
                             enclosingType.Name) == canonicalName);
@@ -194,23 +194,14 @@ namespace Microsoft.TypeSpec.Generator.Providers
         private static string AvoidPropertyNameCollision(string propertyName, string enclosingTypeName) =>
             propertyName == enclosingTypeName ? $"{propertyName}Property" : propertyName;
 
-        /// <summary>
-        /// Determines whether another property of the same input model maps directly onto
-        /// <paramref name="contractName"/>, meaning that name is already spoken for and cannot be reused to
-        /// preserve a historical name for <paramref name="inputProperty"/>.
-        /// </summary>
         private static bool IsClaimedBySiblingProperty(
             string contractName,
             InputProperty inputProperty,
-            string enclosingTypeName)
+            TypeProvider enclosingType)
         {
-            var siblings = inputProperty.EnclosingType?.Properties;
-            if (siblings is null)
-            {
-                return false;
-            }
+            var enclosingTypeName = enclosingType.Name;
 
-            foreach (var sibling in siblings)
+            foreach (var sibling in inputProperty.EnclosingType?.Properties ?? [])
             {
                 if (ReferenceEquals(sibling, inputProperty))
                 {
@@ -219,6 +210,21 @@ namespace Microsoft.TypeSpec.Generator.Providers
 
                 var siblingName = sibling.IsExactName ? sibling.Name : sibling.Name.ToIdentifierName();
                 if (AvoidPropertyNameCollision(siblingName, enclosingTypeName) == contractName)
+                {
+                    return true;
+                }
+            }
+
+            foreach (var customProperty in enclosingType.CustomCodeView?.Properties ?? [])
+            {
+                if (customProperty.OriginalName is not { } originalName ||
+                    originalName == inputProperty.Name ||
+                    originalName == inputProperty.Name.ToIdentifierName())
+                {
+                    continue;
+                }
+
+                if (customProperty.Name == contractName)
                 {
                     return true;
                 }

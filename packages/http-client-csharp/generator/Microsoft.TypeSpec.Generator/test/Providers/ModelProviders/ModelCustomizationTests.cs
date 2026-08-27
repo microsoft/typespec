@@ -370,6 +370,44 @@ namespace Microsoft.TypeSpec.Generator.Tests.Providers.ModelProviders
         }
 
         [Test]
+        public async Task HistoricalNameClaimedByCustomRenameIsNotReused()
+        {
+            var dateTime = new InputDateTimeType(
+                DateTimeKnownEncoding.Rfc3339,
+                "utcDateTime",
+                "TypeSpec.utcDateTime",
+                InputPrimitiveType.String);
+
+            // The GA contract shipped "StartOn", which "startTime" would normally preserve. Custom code renames
+            // the unrelated "foo" onto that same name, so it is no longer available. Preserving it anyway would
+            // emit two "StartOn" members, and the collision is resolved by dropping the generated property, which
+            // silently loses "startTime" from the output entirely.
+            var inputModel = InputFactory.Model(
+                "mockInputModel",
+                properties:
+                [
+                    InputFactory.Property("startTime", dateTime, isRequired: true),
+                    InputFactory.Property("foo", InputPrimitiveType.String, isRequired: true)
+                ]);
+
+            var mockGenerator = await MockHelpers.LoadMockGeneratorAsync(
+                inputModelTypes: [inputModel],
+                compilation: async () => await Helpers.GetCompilationFromDirectoryAsync(),
+                lastContractCompilation: async () => await Helpers.GetCompilationFromDirectoryAsync("Last"));
+
+            var modelTypeProvider = mockGenerator.Object.OutputLibrary.TypeProviders.Single(t => t.Name == "MockInputModel");
+
+            Assert.AreEqual("StartOn", modelTypeProvider.CustomCodeView!.Properties.Single().Name);
+
+            // "startTime" falls back to the canonical name instead of being dropped.
+            Assert.That(modelTypeProvider.Properties.Select(p => p.Name), Is.EqualTo(new[] { "StartsOn" }));
+            Assert.That(
+                modelTypeProvider.CanonicalView!.Properties.Select(p => p.Name),
+                Is.EquivalentTo(new[] { "StartsOn", "StartOn" }));
+            Assert.AreEqual($"{Helpers.GetExpectedFromFile("Expected")}\n", new TypeProviderWriter(modelTypeProvider).Write().Content);
+        }
+
+        [Test]
         public async Task CustomCodeReplacesAcronymNormalizedProperty()
         {
             var inputModel = InputFactory.Model(
