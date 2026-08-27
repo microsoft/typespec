@@ -1713,6 +1713,142 @@ describe("compiler: checker: type relations", () => {
         await expectTypeAssignable({ source, target });
       });
     });
+
+    describe("recursive types", () => {
+      it("model referencing itself", async () => {
+        await expectTypeAssignable({
+          source: "Source",
+          target: "Target",
+          commonCode: `
+            model Source { self: Source }
+            model Target { self: Target }
+          `,
+        });
+      });
+
+      it("mutually recursive models", async () => {
+        await expectTypeAssignable({
+          source: "SourceA",
+          target: "TargetA",
+          commonCode: `
+            model SourceA { b: SourceB }
+            model SourceB { a: SourceA }
+            model TargetA { b: TargetB }
+            model TargetB { a: TargetA }
+          `,
+        });
+      });
+
+      it("mutually recursive models with a mismatch deep in the cycle", async () => {
+        await expectTypeNotAssignable(
+          {
+            source: "SourceA",
+            target: "TargetA",
+            commonCode: `
+              model SourceA { b: SourceB }
+              model SourceB { a: SourceA, extra: string }
+              model TargetA { b: TargetB }
+              model TargetB { a: TargetA, extra: int32 }
+            `,
+          },
+          { code: "unassignable" },
+        );
+      });
+
+      it("union referencing itself", async () => {
+        // A union whose only variant is itself describes an empty set of values, so like `never`
+        // it is vacuously assignable to anything. What matters here is that it terminates.
+        await expectTypeAssignable({
+          source: "Loop",
+          target: "Target",
+          commonCode: `
+            union Loop { self: Loop }
+            model Target { name: string }
+          `,
+        });
+      });
+
+      it("mutually recursive unions", async () => {
+        await expectTypeAssignable({
+          source: "LoopA",
+          target: "Target",
+          commonCode: `
+            union LoopA { b: LoopB }
+            union LoopB { a: LoopA }
+            model Target { name: string }
+          `,
+        });
+      });
+
+      it("union referencing itself alongside an unassignable variant", async () => {
+        await expectTypeNotAssignable(
+          {
+            source: "Loop",
+            target: "Target",
+            commonCode: `
+              union Loop { self: Loop, other: string }
+              model Target { name: string }
+            `,
+          },
+          { code: "unassignable" },
+        );
+      });
+
+      it("model with a recursive union property", async () => {
+        await expectTypeAssignable({
+          source: "Source",
+          target: "Target",
+          commonCode: `
+            union Loop { self: Loop, name: string }
+            model Source { value: Loop }
+            model Target { value: Loop }
+          `,
+        });
+      });
+
+      it("recursive union as the target", async () => {
+        await expectTypeAssignable({
+          source: "string",
+          target: "Loop",
+          commonCode: `union Loop { self: Loop, s: string }`,
+        });
+      });
+
+      it("recursive union as the target without a matching variant", async () => {
+        await expectTypeNotAssignable(
+          {
+            source: "string",
+            target: "Loop",
+            commonCode: `union Loop { self: Loop }`,
+          },
+          { code: "unassignable" },
+        );
+      });
+
+      it("mutually recursive unions on both sides", async () => {
+        await expectTypeAssignable({
+          source: "SourceA",
+          target: "TargetA",
+          commonCode: `
+            union SourceA { b: SourceB }
+            union SourceB { a: SourceA, s: string }
+            union TargetA { b: TargetB }
+            union TargetB { a: TargetA, s: string }
+          `,
+        });
+      });
+
+      it("model with a recursive array property", async () => {
+        await expectTypeAssignable({
+          source: "Source",
+          target: "Target",
+          commonCode: `
+            model Source { items: Source[] }
+            model Target { items: Target[] }
+          `,
+        });
+      });
+    });
   });
 });
 
