@@ -255,11 +255,11 @@ extends:
 
                     $branch = "typespec/regen-preview-$(Build.BuildId)"
                     $title = "[DO NOT MERGE] Regen preview for $(Build.SourceVersion)"
-                    $body = @"
-                    This PR previews SDK changes generated from $(Build.Repository.Uri)/commit/$(Build.SourceVersion).
-
-                    Pipeline run: $(PipelineRunUrl)
-                    "@
+                    $body = @(
+                      "This PR previews SDK changes generated from $(Build.Repository.Uri)/commit/$(Build.SourceVersion)."
+                      ""
+                      "Pipeline run: $(PipelineRunUrl)"
+                    ) -join [Environment]::NewLine
 
                     git -C '$(AzureSdkRepoPath)' config user.name azure-sdk
                     git -C '$(AzureSdkRepoPath)' config user.email azuresdk@microsoft.com
