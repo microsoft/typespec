@@ -71,7 +71,7 @@ import { createDiagnostic, reportDiagnostic } from "../core/messages.js";
 import { parseMimeType } from "../core/mime-type.js";
 import type { Numeric } from "../core/numeric.js";
 import { isNumeric } from "../core/numeric.js";
-import type { Program } from "../core/program.js";
+import type { CompilationStage, Program } from "../core/program.js";
 import { isArrayModelType, isErrorType, isNeverType, isValue } from "../core/type-utils.js";
 import type {
   AugmentDecoratorStatementNode,
@@ -1353,13 +1353,30 @@ export const $strictExtends: StrictExtendsDecorator = (
   }
   markStrictExtends(context.program, entity);
 
-  // Validate once the whole type graph is checked. Validating earlier would look at a union that
-  // is still being built when the type graph is cyclic, and would let a decorator applied after
-  // this one change the variants and silently break the guarantee.
-  return {
-    onGraphFinish: () => validateStrictExtends(context, entity),
-  };
+  const validate = () => validateStrictExtends(context, entity);
+
+  // While the program is being checked, validate once the whole type graph is checked. Validating
+  // earlier would look at a union that is still being built when the type graph is cyclic, and
+  // would let a decorator applied after this one change the variants and silently break the
+  // guarantee.
+  // Graph finish validators are only run at the end of the checking stage, so a union created
+  // after that, for example a clone a mutator produced during `$onValidate`, has to be validated
+  // as soon as it is finished or it would never be validated at all.
+  return isAfterCheckingStage(context.program)
+    ? { onTargetFinish: validate }
+    : { onGraphFinish: validate };
 };
+
+/** Stages that run after the checker ran, and so after graph finish validators were run. */
+const afterCheckingStages: ReadonlySet<CompilationStage> = new Set<CompilationStage>([
+  "validating",
+  "linting",
+  "emitting",
+]);
+
+function isAfterCheckingStage(program: Program): boolean {
+  return afterCheckingStages.has(program.currentStage);
+}
 
 function validateStrictExtends(context: DecoratorContext, entity: Union): Diagnostic[] {
   const { program } = context;

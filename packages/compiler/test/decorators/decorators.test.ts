@@ -1,5 +1,6 @@
 import { deepStrictEqual, ok, strictEqual } from "assert";
 import { describe, expect, it } from "vitest";
+import { MutatorFlow, mutateSubgraph } from "../../src/experimental/mutators.js";
 import { getDiscriminatedUnion, isSecret } from "../../src/index.js";
 import {
   getDoc,
@@ -1867,6 +1868,66 @@ describe("@strictExtends", () => {
     const diagnostics = await host.diagnose("main.tsp");
     expectDiagnostics(diagnostics, { code: "strict-extends-variant" });
   });
+
+  it("validates a union a mutator cloned after the program was checked", async () => {
+    // Graph finish validators only run at the end of the checking stage, so a union created after
+    // that has to be validated when it is finished instead.
+    const diagnostics = await diagnoseMutatedStrictUnion("Rock");
+    expectDiagnostics(diagnostics, { code: "strict-extends-variant" });
+  });
+
+  it("doesn't report a union a mutator cloned after the program was checked when it is valid", async () => {
+    const diagnostics = await diagnoseMutatedStrictUnion("Dog");
+    expectDiagnosticEmpty(diagnostics);
+  });
+
+  /**
+   * Compile a `@strictExtends` union and then, during the validation stage, mutate a clone of it so
+   * every variant has the given type.
+   */
+  async function diagnoseMutatedStrictUnion(replacementName: string) {
+    const host = await createTestHost();
+    host.addJsFile("mutate.js", {
+      $onValidate(program: any) {
+        const globalNs = program.getGlobalNamespaceType();
+        const replacement = globalNs.models.get(replacementName);
+        mutateSubgraph(
+          program,
+          [
+            {
+              name: "replace-variant",
+              Union: { mutate() {} },
+              UnionVariant: {
+                filter: () => MutatorFlow.DoNotRecur,
+                mutate(_source: any, clone: any) {
+                  clone.type = replacement;
+                },
+              },
+            } as any,
+          ],
+          globalNs.unions.get("Pets"),
+        );
+      },
+    });
+    host.addTypeSpecFile(
+      "main.tsp",
+      `
+      import "./mutate.js";
+
+      model Pet { name: string }
+      model Cat extends Pet { name: string }
+      model Dog extends Pet { name: string }
+      model Rock { name: string }
+
+      @strictExtends
+      union Pets extends Pet {
+        cat: Cat,
+      }
+      `,
+    );
+
+    return host.diagnose("main.tsp");
+  }
 
   it("checks a union graph reachable through many paths only once", async () => {
     // Each union references the previous one twice, so a walk that doesn't remember what it
