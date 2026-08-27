@@ -1,26 +1,5 @@
 Import-Module "$PSScriptRoot\Generation.psm1" -DisableNameChecking -Force -Global
 
-function Update-EmitterPackageDependency {
-    param(
-        [Parameter(Mandatory=$true)]
-        [string]$PackageJsonPath,
-
-        [Parameter(Mandatory=$true)]
-        [string]$PackageName,
-
-        [Parameter(Mandatory=$true)]
-        [string]$PackageVersion
-    )
-
-    $packageJson = Get-Content $PackageJsonPath -Raw | ConvertFrom-Json
-    if (-not $packageJson.dependencies -or -not $packageJson.dependencies.PSObject.Properties[$PackageName]) {
-        throw "$PackageJsonPath does not declare dependency '$PackageName'."
-    }
-
-    $packageJson.dependencies.$PackageName = $PackageVersion
-    $packageJson | ConvertTo-Json -Depth 100 | Set-Content $PackageJsonPath -Encoding utf8
-}
-
 function Update-GeneratorPackage {
     <#
     .SYNOPSIS
@@ -297,13 +276,6 @@ function Update-MgmtGenerator {
         try {
             # Install the mgmt package and regenerate lock file with both dependencies
             Invoke "npm install `"`"file:$mgmtPackagePath`"`" --package-lock-only" $tempDir
-
-            # npm install records the temporary local package path in package.json. Keep the
-            # generated lock file, but commit a portable semantic version in the descriptor.
-            Update-EmitterPackageDependency `
-                -PackageJsonPath $tempPackageJson `
-                -PackageName '@azure-typespec/http-client-csharp-mgmt' `
-                -PackageVersion $LocalVersion
             
             Copy-Item $tempPackageJson $mgmtEmitterJson -Force
             $lockFile = Join-Path $tempDir "package-lock.json"
@@ -1517,4 +1489,4 @@ function Write-RegenerationReport {
     }
 }
 
-Export-ModuleMember -Function "Update-EmitterPackageDependency", "Update-MgmtGenerator", "Update-AzureGenerator", "Filter-LibrariesByGenerator", "Filter-LibrariesByName", "Update-OpenAIGenerator", "Add-LocalNuGetSource", "Update-AzureSpectorScenarios", "Get-SdkLibrariesToRegenerate", "Invoke-SdkLibraryRegeneration", "Write-RegenerationReport"
+Export-ModuleMember -Function "Update-MgmtGenerator", "Update-AzureGenerator", "Filter-LibrariesByGenerator", "Filter-LibrariesByName", "Update-OpenAIGenerator", "Add-LocalNuGetSource", "Update-AzureSpectorScenarios", "Get-SdkLibrariesToRegenerate", "Invoke-SdkLibraryRegeneration", "Write-RegenerationReport"

@@ -530,14 +530,6 @@ try {
                         Push-Location $azureTempDir
                         try {
                             Invoke "npm install `"`"file:$azurePackagePath`"`" --package-lock-only" $azureTempDir
-
-                            # npm install records the temporary local package path in package.json.
-                            # The checked-in descriptor is also used as the approved semantic
-                            # version by the emitter version dashboard.
-                            Update-EmitterPackageDependency `
-                                -PackageJsonPath $tempPackageJson `
-                                -PackageName '@azure-typespec/http-client-csharp' `
-                                -PackageVersion $PackageVersion
                             
                             Copy-Item $tempPackageJson $azureEmitterJson -Force
                             $lockFile = Join-Path $azureTempDir "package-lock.json"
@@ -682,10 +674,13 @@ try {
         }
     }
 
-    # Regenerate the emitter version dashboard
-    Write-Host "Regenerating emitter version dashboard..."
-    $dashboardScript = Join-Path $tempDir "doc/GeneratorVersions/Emitter_Version_Dashboard.ps1"
-    & $dashboardScript -RepoRoot $tempDir
+    if ($BuildReason -eq 'Manual') {
+        Write-Host "Skipping emitter version dashboard regeneration for manual run."
+    } else {
+        Write-Host "Regenerating emitter version dashboard..."
+        $dashboardScript = Join-Path $tempDir "doc/GeneratorVersions/Emitter_Version_Dashboard.ps1"
+        & $dashboardScript -RepoRoot $tempDir
+    }
 
     # For manual runs, fail the pipeline if any step reported a failure instead of
     # opening a pull request that could give reviewers a false positive.
