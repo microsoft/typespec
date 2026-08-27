@@ -386,7 +386,7 @@ namespace My.External.Library
             var refCountAfter = CodeModelGenerator.Instance.AdditionalMetadataReferences.Count;
             // Extract versions and packages; make sure there is only one version.
             Dictionary<string, string> packages = [];
-            // Dislplay is a dll path C:\Users\%username%\AppData\Local\Temp\TestArtifacts\%guid%\NuGetCache\first.package\1.0.0\lib\netstandard2.0\First.Package.dll
+            // Display is a dll path C:\Users\%username%\AppData\Local\Temp\TestArtifacts\%guid%\NuGetCache\first.package\1.0.0\lib\netstandard2.0\First.Package.dll
             // Get just {first.package, 1.0.0, lib, netstandard2.0, First.Package.dll}
             // Parse as Tuple: (Name: first.package, Version: 1.0.0, TargetFramework: netstandard2.0)
             IEnumerable<(string Name, string Version, string TargetFramework)> resolvedPackages = CodeModelGenerator.Instance.AdditionalMetadataReferences
@@ -400,7 +400,7 @@ namespace My.External.Library
                 Assert.That(resolvedPackage.TargetFramework, Is.EqualTo("netstandard2.0"));
                 if(packages.TryGetValue(resolvedPackage.Name, out string? version))
                 {
-                    Assert.Fail($"Found more than one versions for package {resolvedPackage.Name}: {version} and {resolvedPackage.Version}");
+                    Assert.Fail($"Found more than one version for package {resolvedPackage.Name}: {version} and {resolvedPackage.Version}");
                 }
                 packages[resolvedPackage.Name] = resolvedPackage.Version;
             }
@@ -426,13 +426,45 @@ namespace My.External.Library
         }
 
         [Test]
-        [TestCase(new string[] { "net10.0", "net462", "net8.0", "net9.0" }, "net10.0")]
+        [TestCase(true, true)]
+        [TestCase(true, false)]
+        [TestCase(false, true)]
+        public async Task TestGetLatestFramework(bool includeGoodVersions, bool includeBadVersions)
+        {
+            string[] good = { "net10.0", "net462", "net8.0", "net9.0" };
+            string[] bad = { "Michelangelo", "Leonardo", "Raphael", "Donatello" };
+            List<string> frameworks = [];
+            for (int i = 0; i < 4; i++)
+            {
+                if (includeGoodVersions)
+                {
+                    frameworks.Add(good[i]);
+                }
+                if (includeBadVersions)
+                {
+                    frameworks.Add(bad[i]);
+                }
+            }
+            if (includeGoodVersions)
+            {
+                Assert.That(GeneratedCodeWorkspace.GetLatestTargetFramework(frameworks), Is.EqualTo("net10.0"));
+            }
+            else
+            {
+                Assert.That(GeneratedCodeWorkspace.GetLatestTargetFramework(frameworks), Is.EqualTo("Donatello"));
+            }
+        }
+
+        [Test]
         [TestCase(new string[] { "net10.0", "net8.0", "net9.0" }, "net10.0")]
-        [TestCase(new string[]{ "net10.0", "net8.0", "net9.0" }, "net10.0")]
         [TestCase(new string[] { "net.10.0", "net.8.0", "net9.0" }, "net.10.0")]
         [TestCase(new string[] { "net10.0", "net.8.0", "net9.0" }, "net10.0")]
-        [TestCase(new string[] { "netstandard2.0", "netstandard1.0", "netstandard3.11", "net462" }, "netstandard2.0")]
+        [TestCase(new string[] { "netstandard2.0", "netstandard1.0", "netstandard3.11", "netstandard3.10" }, "netstandard3.11")]
+        [TestCase(new string[] { "netstandard.2.0", "netstandard1.0", "netstandard3.11", "netstandard3.10" }, "netstandard3.11")]
+        [TestCase(new string[] { "netstandard2.0", "netstandard1.0", "netstandard.3.11", "netstandard3.10" }, "netstandard.3.11")]
+        [TestCase(new string[] { "netstandard2.0", "netstandard1.0", "netstandard3.11", "net462" }, "net462")]
         [TestCase(new string[] { "net9.0", "netstandard2.0", "netstandard1.0", "netstandard3.11" }, "net9.0")]
+        [TestCase(new string[] { "netstandard2.0", "net472", "net462" }, "net472")]
         public void TestGetLatestFrameworkDifferentNames(string[] frameworks, string expected)
         {
             Assert.That(GeneratedCodeWorkspace.GetLatestTargetFramework(frameworks), Is.EqualTo(expected));

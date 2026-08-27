@@ -322,8 +322,36 @@ namespace Microsoft.TypeSpec.Generator
 
         internal static string GetLatestTargetFramework(IEnumerable<string> shortNames)
         {
-            NuGetFramework? maxFramework = shortNames.Select(x => new NuGetFramework(x)).MaxBy(x => x.Version);
-            return maxFramework?.Framework ?? string.Empty;
+            // Assume framework order as follows:
+            // netstandardX.X, net462, netX.X
+            // Q: Why not to use NuGetFramework object here?
+            // A: Because it does not parse/recognize version and under the hood tries to compare Versions, which are all 0.0.0.
+            double maxFramework = 0.0;
+            string maxFrameworkName = string.Empty;
+            foreach (string name in shortNames)
+            {
+                double current = 0.0;
+                Match numeral = Regex.Match(name, "\\d+[.]*\\d*$");
+                if (numeral.Success)
+                {
+                    current = double.Parse(numeral.Value);
+                }
+                if (name.StartsWith("net4", StringComparison.InvariantCultureIgnoreCase))
+                {
+                    current /= 100;
+                    current += 2000.0;
+                }
+                else if (!name.StartsWith("netstandard", StringComparison.InvariantCultureIgnoreCase))
+                {
+                    current += 2000.0;
+                }
+                if (current >= maxFramework)
+                {
+                    maxFramework = current;
+                    maxFrameworkName = name;
+                }
+            }
+            return maxFrameworkName;
         }
 
         /// <summary>
@@ -422,7 +450,7 @@ namespace Microsoft.TypeSpec.Generator
                 if (resolvedAssemblyPath == null)
                 {
                     CodeModelGenerator.Instance.Emitter.Debug(
-                        $"The package {refPackageName}{(version != null ? "v. "+ version : "")} was not restored.");
+                        $"The package {refPackageName}{(version != null ? " v. "+ version : "")} was not restored.");
                 }
                 else if (version is null)
                 {
