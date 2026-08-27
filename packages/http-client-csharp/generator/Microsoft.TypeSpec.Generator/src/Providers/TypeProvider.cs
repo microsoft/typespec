@@ -466,17 +466,23 @@ namespace Microsoft.TypeSpec.Generator.Providers
             string? originalName,
             IReadOnlyDictionary<string, InputProperty> specPropertiesByName)
         {
-            customNames.Add(name);
-            if (originalName is null)
+            AddCustomName(customNames, name, specPropertiesByName);
+            if (originalName is not null)
             {
-                return;
+                AddCustomName(customNames, originalName, specPropertiesByName);
             }
+        }
 
-            customNames.Add(originalName);
-            if (specPropertiesByName.TryGetValue(originalName, out var inputProperty) && !inputProperty.IsExactName)
+        private static void AddCustomName(
+            HashSet<string> customNames,
+            string name,
+            IReadOnlyDictionary<string, InputProperty> specPropertiesByName)
+        {
+            customNames.Add(name);
+            if (specPropertiesByName.TryGetValue(name, out var inputProperty) && !inputProperty.IsExactName)
             {
                 customNames.Add(
-                    originalName
+                    name
                         .ToIdentifierName()
                         .NormalizeCSharpAcronyms(inputProperty.Type.IsDateTimeInputType()));
             }

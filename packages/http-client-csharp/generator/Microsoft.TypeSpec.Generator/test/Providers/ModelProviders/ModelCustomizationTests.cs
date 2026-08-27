@@ -206,6 +206,29 @@ namespace Microsoft.TypeSpec.Generator.Tests.Providers.ModelProviders
         }
 
         [Test]
+        public async Task CustomCodeWithRawDateTimeNameReplacesNormalizedProperty()
+        {
+            var dateTime = new InputDateTimeType(
+                DateTimeKnownEncoding.Rfc3339,
+                "utcDateTime",
+                "TypeSpec.utcDateTime",
+                InputPrimitiveType.String);
+            var inputModel = InputFactory.Model(
+                "mockInputModel",
+                properties: [InputFactory.Property("valueDate", dateTime)]);
+
+            var mockGenerator = await MockHelpers.LoadMockGeneratorAsync(
+                inputModelTypes: [inputModel],
+                compilation: async () => await Helpers.GetCompilationFromDirectoryAsync());
+
+            var modelTypeProvider = mockGenerator.Object.OutputLibrary.TypeProviders.Single(t => t.Name == "MockInputModel");
+
+            Assert.AreEqual("ValueDate", modelTypeProvider.CustomCodeView!.Properties.Single().Name);
+            Assert.AreEqual(0, modelTypeProvider.Properties.Count);
+            Assert.AreEqual("ValueDate", modelTypeProvider.CanonicalView!.Properties.Single().Name);
+        }
+
+        [Test]
         public async Task CustomCodeReplacesAcronymNormalizedProperty()
         {
             var inputModel = InputFactory.Model(
