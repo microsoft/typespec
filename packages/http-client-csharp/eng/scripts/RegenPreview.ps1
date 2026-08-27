@@ -81,6 +81,9 @@
     Mutually exclusive with Select, Azure, Unbranded, Mgmt, and Libraries parameters.
     Not applicable in OpenAI mode.
 
+.PARAMETER PackageVersion
+    Optional. Version to use for locally built npm and NuGet packages. When omitted, a timestamped version is generated.
+
 .EXAMPLE
     # Azure SDK Mode - Regenerate all libraries
     .\RegenPreview.ps1 -SdkLibraryRepoPath "C:\repos\azure-sdk-for-net"
@@ -142,7 +145,10 @@ param(
     [string]$Libraries,
 
     [Parameter(Mandatory=$false)]
-    [switch]$Spector
+    [switch]$Spector,
+
+    [Parameter(Mandatory=$false)]
+    [string]$PackageVersion
 )
 
 $ErrorActionPreference = 'Stop'
@@ -532,7 +538,7 @@ try {
         Write-Host "`n[2/5] Packaging generators..." -ForegroundColor Cyan
     }
     
-    $localVersion = Get-LocalPackageVersion
+    $localVersion = if ($PackageVersion) { $PackageVersion } else { Get-LocalPackageVersion }
     Write-Host "Local package version: $localVersion" -ForegroundColor Yellow
     
     $unbrandedPackageJson = Join-Path $packageRoot "package.json"

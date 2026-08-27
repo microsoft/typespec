@@ -50,6 +50,7 @@ extends:
           BuildPrereleaseVersion: true
           UseTypeSpecNext: ${{ or(parameters.UseTypeSpecNext, eq(variables['Build.Reason'], 'Schedule')) }}
           Publish: ${{replace(replace('True',eq(variables['Build.SourceBranchName'], 'main'), 'public'),'True','internal')}}
+          Condition: or(ne(variables['Build.Reason'], 'Manual'), not(${{ parameters.CreateAzureSdkForNetPR }}), ${{ parameters.UseTypeSpecNext }})
           PublishDependsOnTest: ${{ parameters.RunTests }}
           PackagePath: /packages/http-client-csharp
           EmitterPackageJsonPath: packages/http-client-csharp/package.json
@@ -107,7 +108,7 @@ extends:
         dependsOn:
           - CSharp_Publish
           - CSharp_Build
-        condition: and(succeeded(), ne(variables['Build.Reason'], 'Schedule'), or(eq(variables['Build.SourceBranchName'], 'main'), and(eq(variables['Build.Reason'], 'Manual'), ${{ parameters.CreateAzureSdkForNetPR }})))
+        condition: and(ne(variables['Build.Reason'], 'Schedule'), or(and(eq(variables['Build.Reason'], 'Manual'), ${{ parameters.CreateAzureSdkForNetPR }}, not(${{ parameters.UseTypeSpecNext }})), and(succeeded(), or(eq(variables['Build.SourceBranchName'], 'main'), and(eq(variables['Build.Reason'], 'Manual'), ${{ parameters.CreateAzureSdkForNetPR }})))))
         variables:
           PackageVersion: $[ stageDependencies.CSharp_Build.Build_linux_${{ split(parameters.PrimaryNodeVersion, '.')[0] }}.outputs['ci_build.emitterVersion'] ]
         pool:
@@ -175,17 +176,27 @@ extends:
                 inputs:
                   workingFile: $(Build.SourcesDirectory)/packages/http-client-csharp/.npmrc
 
+              - pwsh: |
+                  $packageJson = Get-Content '$(Build.SourcesDirectory)/packages/http-client-csharp/package.json' -Raw | ConvertFrom-Json
+                  $packageVersion = "$($packageJson.version)-alpha.$(Build.BuildId)"
+                  Write-Host "##vso[task.setvariable variable=PackageVersion]$packageVersion"
+                displayName: Set regen preview version
+                condition: and(eq(variables['Build.Reason'], 'Manual'), not(${{ parameters.UseTypeSpecNext }}))
+
               - download: current
                 artifact: build_artifacts_csharp
                 displayName: Download pipeline artifacts
+                condition: or(ne(variables['Build.Reason'], 'Manual'), ${{ parameters.UseTypeSpecNext }})
 
               - pwsh: |
                   npm install -g @azure-tools/typespec-client-generator-cli@latest
                 displayName: Install tsp-client
+                condition: or(ne(variables['Build.Reason'], 'Manual'), ${{ parameters.UseTypeSpecNext }})
 
               - pwsh: |
                   npm install -g semver
                 displayName: Install semver
+                condition: or(ne(variables['Build.Reason'], 'Manual'), ${{ parameters.UseTypeSpecNext }})
 
               - task: PowerShell@2
                 displayName: Update package.json with injected dependencies
@@ -196,6 +207,7 @@ extends:
                   arguments: >
                     -PackageVersion '$(PackageVersion)'
                     -PackageJsonPath '$(Build.SourcesDirectory)/packages/http-client-csharp/package.json'
+                condition: or(ne(variables['Build.Reason'], 'Manual'), ${{ parameters.UseTypeSpecNext }})
 
               - pwsh: |
                   Write-Host "##vso[task.setvariable variable=npm_config_force]true"
@@ -249,7 +261,8 @@ extends:
                     ${{ replace(replace('True', eq(parameters.RegenerateAzureLibraries, false), ''), 'True', '-RegenerateAzureLibraries') }}
                     ${{ replace(replace('True', eq(parameters.RegenerateMgmtLibraries, false), ''), 'True', '-RegenerateMgmtLibraries') }}
                     ${{ replace(replace('True', ne(variables['Build.Reason'], 'Manual'), ''), 'True', '-UseParallelRegeneration') }}
-                    -BuildArtifactsPath '$(Pipeline.Workspace)/build_artifacts_csharp/packages'
+                    ${{ replace(replace('True', and(eq(variables['Build.Reason'], 'Manual'), not(parameters.UseTypeSpecNext)), ''), 'True', '-BuildArtifactsPath ''$(Pipeline.Workspace)/build_artifacts_csharp/packages''') }}
+                    ${{ replace(replace('True', or(ne(variables['Build.Reason'], 'Manual'), parameters.UseTypeSpecNext), ''), 'True', '-UseLocalRegenPreview') }}
                     -UseTypeSpecNext:$${{ parameters.UseTypeSpecNext }}
                     -BuildReason '$(Build.Reason)'
                 env:
