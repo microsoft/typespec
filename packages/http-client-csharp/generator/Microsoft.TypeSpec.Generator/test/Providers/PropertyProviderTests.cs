@@ -312,6 +312,37 @@ namespace Microsoft.TypeSpec.Generator.Tests.Providers
                 Is.EqualTo(new[] { "LastKeyRotationOn", "StartsOn" }));
         }
 
+        [Test]
+        public async Task TestPropertyNameDoesNotReuseHistoricalNameClaimedByAnotherProperty()
+        {
+            await MockHelpers.LoadMockGeneratorAsync(lastContractCompilation: async () => await Helpers.GetCompilationFromDirectoryAsync());
+
+            var dateTime = new InputDateTimeType(
+                DateTimeKnownEncoding.Rfc3339,
+                "utcDateTime",
+                "TypeSpec.utcDateTime",
+                InputPrimitiveType.String);
+
+            // The GA contract shipped a string "StartOn". The current spec keeps "startOn" and adds a new
+            // date-time "startTime", whose canonical name normalizes onto the same historical "StartOn".
+            // The historical name is already spoken for, so only the retained property may claim it.
+            var inputModel = InputFactory.Model(
+                "TestModel",
+                @namespace: "Test",
+                properties:
+                [
+                    InputFactory.Property("startOn", InputPrimitiveType.String, isRequired: true),
+                    InputFactory.Property("startTime", dateTime, isRequired: true)
+                ]);
+
+            var modelProvider = new ModelProvider(inputModel);
+
+            Assert.That(modelProvider.Properties.Select(p => p.Name), Is.EqualTo(new[] { "StartOn", "StartsOn" }));
+            Assert.AreEqual(
+                Helpers.GetExpectedFromFile("Expected"),
+                new TypeProviderWriter(modelProvider).Write().Content);
+        }
+
         [TestCaseSource(nameof(CollectionPropertyTestCases))]
         public void CollectionProperty(CSharpType coreType, InputModelProperty collectionProperty, CSharpType expectedType)
         {

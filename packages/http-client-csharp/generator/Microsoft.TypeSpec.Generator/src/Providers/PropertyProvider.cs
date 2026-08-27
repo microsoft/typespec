@@ -116,7 +116,11 @@ namespace Microsoft.TypeSpec.Generator.Providers
                 var previousProperty = lastContractProperties?.FirstOrDefault(p => p.Name == inputName);
                 if (previousProperty is null && isDateTime)
                 {
+                    // A historical name is only available if no other property in the current spec claims it
+                    // directly. Otherwise a retained property matching the shipped name and a new date-time
+                    // property normalizing onto it would both be emitted under that name.
                     previousProperty = lastContractProperties?.FirstOrDefault(p =>
+                        !IsClaimedBySiblingProperty(p.Name, inputProperty, enclosingType.Name) &&
                         AvoidPropertyNameCollision(
                             p.Name.NormalizeCSharpAcronyms(normalizeDateTimeSuffix: true),
                             enclosingType.Name) == canonicalName);
@@ -189,6 +193,39 @@ namespace Microsoft.TypeSpec.Generator.Providers
 
         private static string AvoidPropertyNameCollision(string propertyName, string enclosingTypeName) =>
             propertyName == enclosingTypeName ? $"{propertyName}Property" : propertyName;
+
+        /// <summary>
+        /// Determines whether another property of the same input model maps directly onto
+        /// <paramref name="contractName"/>, meaning that name is already spoken for and cannot be reused to
+        /// preserve a historical name for <paramref name="inputProperty"/>.
+        /// </summary>
+        private static bool IsClaimedBySiblingProperty(
+            string contractName,
+            InputProperty inputProperty,
+            string enclosingTypeName)
+        {
+            var siblings = inputProperty.EnclosingType?.Properties;
+            if (siblings is null)
+            {
+                return false;
+            }
+
+            foreach (var sibling in siblings)
+            {
+                if (ReferenceEquals(sibling, inputProperty))
+                {
+                    continue;
+                }
+
+                var siblingName = sibling.IsExactName ? sibling.Name : sibling.Name.ToIdentifierName();
+                if (AvoidPropertyNameCollision(siblingName, enclosingTypeName) == contractName)
+                {
+                    return true;
+                }
+            }
+
+            return false;
+        }
 
         private static bool IsPropertyPrivate(MethodSignatureModifiers modifiers, TypeSignatureModifiers enclosingTypeModifiers)
         {
