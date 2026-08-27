@@ -13,13 +13,13 @@ namespace Sample
 {
     public partial class MultipartClient
     {
-        public virtual global::System.ClientModel.ClientResult Upload(string contentType, global::System.ClientModel.BinaryContent content, global::System.ClientModel.Primitives.RequestOptions options = null)
+        public virtual global::System.ClientModel.ClientResult Upload(global::System.ClientModel.BinaryContent content, string contentType, global::System.ClientModel.Primitives.RequestOptions options = null)
         {
             using global::System.ClientModel.Primitives.PipelineMessage message = this.CreateUploadRequest(content, contentType, options);
             return global::System.ClientModel.ClientResult.FromResponse(Pipeline.ProcessMessage(message, options));
         }
 
-        public virtual async global::System.Threading.Tasks.Task<global::System.ClientModel.ClientResult> UploadAsync(global::System.ClientModel.BinaryContent content, string contentType, global::System.ClientModel.Primitives.RequestOptions options = null)
+        public virtual async global::System.Threading.Tasks.Task<global::System.ClientModel.ClientResult> UploadAsync(string contentType, global::System.ClientModel.BinaryContent content, global::System.ClientModel.Primitives.RequestOptions options = null)
         {
             using global::System.ClientModel.Primitives.PipelineMessage message = this.CreateUploadRequest(content, contentType, options);
             return global::System.ClientModel.ClientResult.FromResponse(await Pipeline.ProcessMessageAsync(message, options).ConfigureAwait(false));

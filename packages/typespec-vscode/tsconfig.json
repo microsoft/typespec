@@ -2,7 +2,6 @@
   "extends": "../../tsconfig.base.json",
   "references": [{ "path": "../tmlanguage-generator/tsconfig.json" }],
   "compilerOptions": {
-    "verbatimModuleSyntax": true,
     "incremental": false,
     "composite": false,
     "module": "preserve",

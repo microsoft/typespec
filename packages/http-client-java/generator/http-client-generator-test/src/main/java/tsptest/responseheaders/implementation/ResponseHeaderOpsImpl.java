@@ -76,6 +76,14 @@ public final class ResponseHeaderOpsImpl {
 
     /**
      * The getResourceMetadata operation.
+     * <p><strong>Response Headers</strong></p>
+     * <table border="1">
+     * <caption>Response Headers</caption>
+     * <tr><th>Name</th><th>Type</th><th>Description</th></tr>
+     * <tr><td>ETag</td><td>String</td><td>The ETag response header.</td></tr>
+     * <tr><td>x-resource-count</td><td>int</td><td>The x-resource-count response header.</td></tr>
+     * <tr><td>Last-Modified</td><td>OffsetDateTime</td><td>The Last-Modified response header.</td></tr>
+     * </table>
      * 
      * @param requestOptions The options to configure the HTTP request before HTTP client sends it.
      * @throws HttpResponseException thrown if the request is rejected by server.
@@ -92,6 +100,14 @@ public final class ResponseHeaderOpsImpl {
 
     /**
      * The getResourceMetadata operation.
+     * <p><strong>Response Headers</strong></p>
+     * <table border="1">
+     * <caption>Response Headers</caption>
+     * <tr><th>Name</th><th>Type</th><th>Description</th></tr>
+     * <tr><td>ETag</td><td>String</td><td>The ETag response header.</td></tr>
+     * <tr><td>x-resource-count</td><td>int</td><td>The x-resource-count response header.</td></tr>
+     * <tr><td>Last-Modified</td><td>OffsetDateTime</td><td>The Last-Modified response header.</td></tr>
+     * </table>
      * 
      * @param requestOptions The options to configure the HTTP request before HTTP client sends it.
      * @throws HttpResponseException thrown if the request is rejected by server.

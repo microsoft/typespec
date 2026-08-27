@@ -423,12 +423,14 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
                         });
                     }
 
+                    var collection = accessorChain.Last();
+                    string lengthPropertyName = currentType.IsArray ? "Length" : "Count";
                     statements.Add(new IfStatement(Not(currentSlice.Invoke(
                         "TryGetIndex",
                         [
                             new DeclarationExpression(typeof(int), "index", out var indexVariable, isOut: true),
                             new DeclarationExpression(typeof(int), "bytesConsumed", out var bytesConsumedVariable, isOut: true)
-                        ]).As<bool>()))
+                        ]).As<bool>()).Or(indexVariable.GreaterThanOrEqual(collection.Property(lengthPropertyName))))
                     {
                         Return(False)
                     });
@@ -533,11 +535,9 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
                 [valueParameter]);
 
             var dataDeclStatement = Declare("data", typeof(BinaryData),
-                Static(typeof(ModelReaderWriter)).Invoke(nameof(ModelReaderWriter.Write), [
+                ModelReaderWriterSnippets.Write(
                     new InvokeMethodExpression(null, $"Active{property.Name}", []),
-                    ModelReaderWriterOptionsSnippets.JsonFormatProperty,
-                    ModelReaderWriterContextSnippets.Default
-                ]),
+                    ModelReaderWriterOptionsSnippets.JsonFormatProperty),
                 out var dataVar);
 
             var tempPatchDeclStatement = Declare("tempPatch", typeof(JsonPatch), New.Instance(typeof(JsonPatch)), out var tempPatchVar);

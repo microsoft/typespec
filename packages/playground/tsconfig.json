@@ -10,7 +10,6 @@
     "outDir": "dist",
     "rootDir": ".",
     "skipLibCheck": true,
-    "verbatimModuleSyntax": true,
     "jsx": "react-jsx",
     "lib": ["DOM"]
   },

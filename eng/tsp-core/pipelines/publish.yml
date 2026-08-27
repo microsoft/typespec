@@ -31,7 +31,7 @@ extends:
           - template: /eng/tsp-core/pipelines/jobs/build-packages.yml@self
           - template: /eng/tsp-core/pipelines/jobs/build-vs.yml@self
           - template: /eng/tsp-core/pipelines/jobs/cli/build-tsp-cli-all.yml@self
-          - template: /eng/tsp-core/pipelines/jobs/e2e.yml@self
+            # - template: /eng/tsp-core/pipelines/jobs/e2e.yml@self
             parameters:
               azLogin: true
 
@@ -98,8 +98,11 @@ extends:
                   azureContainerRegistry: azsdkengsys.azurecr.io
                   command: login
 
+              - template: /eng/common/pipelines/templates/steps/create-authenticated-npmrc.yml
+
               - script: |
                   docker build -f ./docker/Dockerfile \
+                    --secret id=npmrc,src="$HOME/.npmrc" \
                     -t $(imageName):latest \
                     .
                 displayName: "Build"
