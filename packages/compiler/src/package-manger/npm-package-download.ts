@@ -66,7 +66,12 @@ async function downloadAndExtractTarball(
   });
 
   tarballStream.pipe(extractor);
-  await p;
+  try {
+    await p;
+  } catch (error) {
+    const message = error instanceof Error ? `: ${error.message}` : "";
+    throw new NpmRegistryError(`Failed to extract package from ${url}${message}`);
+  }
 
   return { dest, hash: { algorithm: hashAlgorithm, value: hash.digest("hex") } };
 }

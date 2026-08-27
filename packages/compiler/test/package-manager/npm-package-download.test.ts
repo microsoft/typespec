@@ -1,3 +1,5 @@
+import * as http from "http";
+import type { AddressInfo } from "net";
 import { afterEach, expect, it, vi } from "vitest";
 import { downloadAndExtractPackage } from "../../src/package-manger/npm-package-download.js";
 import type { NpmPackageVersion } from "../../src/package-manger/npm-registry.js";
@@ -38,4 +40,28 @@ it("reports empty tarball responses", async () => {
   await expect(downloadAndExtractPackage(manifest, "/tmp/test")).rejects.toThrow(
     `Request to ${tarballUrl} returned an empty response.`,
   );
+});
+
+it("reports invalid tarball streams", async () => {
+  const server = http.createServer((_req, res) => {
+    res.writeHead(200);
+    res.end();
+  });
+  await new Promise<void>((resolve) => server.listen(0, "127.0.0.1", resolve));
+  const { port } = server.address() as AddressInfo;
+  const url = `http://127.0.0.1:${port}/npm.tgz`;
+  const invalidManifest: NpmPackageVersion = {
+    ...manifest,
+    dist: { ...manifest.dist, tarball: url },
+  };
+
+  try {
+    await expect(downloadAndExtractPackage(invalidManifest, "/tmp")).rejects.toThrow(
+      `Failed to extract package from ${url}`,
+    );
+  } finally {
+    await new Promise<void>((resolve, reject) =>
+      server.close((error) => (error ? reject(error) : resolve())),
+    );
+  }
 });

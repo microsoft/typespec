@@ -153,7 +153,7 @@ describe("install", () => {
           }),
         );
       } else {
-        res.writeHead(503);
+        res.writeHead(200);
         res.end();
       }
     });
@@ -169,7 +169,7 @@ describe("install", () => {
 
       expect(result.stdio).toContain("install-package-manager-error");
       expect(result.stdio).toContain("Failed to download package manager npm");
-      expect(result.stdio).toContain("failed with status 503");
+      expect(result.stdio).toContain("Failed to extract package from");
       expect(result.stdio).not.toContain("Internal compiler error");
     } finally {
       await new Promise<void>((resolve, reject) =>
