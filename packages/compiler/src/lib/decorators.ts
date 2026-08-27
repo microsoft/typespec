@@ -1335,17 +1335,29 @@ export const $discriminator: DiscriminatorDecorator = (
 
 // -- @strictExtends --------------------------------------------------------------------------
 
-/** Base types that a variant can nominally derive from. */
+/** Base types that a union variant can nominally derive from. */
 type StrictExtendsBase = Model | Scalar | Enum;
+
+const [hasStrictExtends, markStrictExtends] = useStateSet<Union>(
+  createStateSymbol("strictExtends"),
+);
 
 export const $strictExtends: StrictExtendsDecorator = (
   context: DecoratorContext,
   entity: Union,
 ) => {
-  // Validate once every decorator on the union has been applied: another decorator could
-  // otherwise change the variants after this one ran and silently break the guarantee.
+  // The decorator is idempotent, so applying it twice, or once directly and once with `@@`,
+  // should not report the same problem twice.
+  if (hasStrictExtends(context.program, entity)) {
+    return;
+  }
+  markStrictExtends(context.program, entity);
+
+  // Validate once the whole type graph is checked. Validating earlier would look at a union that
+  // is still being built when the type graph is cyclic, and would let a decorator applied after
+  // this one change the variants and silently break the guarantee.
   return {
-    onTargetFinish: () => validateStrictExtends(context, entity),
+    onGraphFinish: () => validateStrictExtends(context, entity),
   };
 };
 
@@ -1376,18 +1388,8 @@ function validateStrictExtends(context: DecoratorContext, entity: Union): Diagno
   }
 
   const diagnostics: Diagnostic[] = [];
-  const state: DerivationState = {
-    program,
-    base: baseType,
-    memo: new Map(),
-    path: new Set(),
-    cycleHits: 0,
-  };
+  const state: DerivationState = { program, base: baseType, clean: new Set() };
   for (const variant of entity.variants.values()) {
-    // The checker already reported a variant that isn't even assignable to the base type.
-    if (!program.checker.isTypeAssignableTo(variant.type, baseType, variant.type)[0]) {
-      continue;
-    }
     const offending = findTypeNotDerivedFrom(variant.type, state);
     if (offending === undefined) {
       continue;
@@ -1422,102 +1424,83 @@ function isStrictExtendsBase(type: Type): type is StrictExtendsBase {
 interface DerivationState {
   readonly program: Program;
   readonly base: StrictExtendsBase;
-  /** Settled results, keyed by type. `undefined` means the type derives from the base type. */
-  readonly memo: Map<Type, Type | undefined>;
-  /** Unions currently being walked, to detect cycles. */
-  readonly path: Set<Type>;
-  /** Number of times a cycle was short circuited, used to know what is safe to memoize. */
-  cycleHits: number;
+  /** Types already proven to have nothing offending reachable from them. */
+  readonly clean: Set<Type>;
 }
 
 /**
  * Find a type reachable from `type` that doesn't explicitly derive from the base type, or
  * `undefined` when the whole type satisfies the constraint.
  *
- * A variant that is itself a union satisfies the constraint when all of its own variants do,
- * which is what makes composing unions work. An empty union, a union cycle and `never` are all
- * uninhabited so they satisfy it vacuously, exactly like the assignability rules do.
+ * A union carries no value of its own, so it satisfies the constraint when every type reachable
+ * through its variants does. That makes composing unions work, and makes `never`, an empty union
+ * and a union cycle satisfy it vacuously, exactly like the assignability rules do.
  */
 function findTypeNotDerivedFrom(type: Type, state: DerivationState): Type | undefined {
-  if (type === state.base || isErrorType(type) || isNeverType(type)) {
+  const visited = new Set<Type>();
+  const offending = findTypeNotDerivedFromWorker(type, state, visited);
+  if (offending === undefined) {
+    // Nothing offending is reachable from any of the types just walked, which doesn't depend on
+    // where the walk started, so the whole set can be reused.
+    for (const seen of visited) {
+      state.clean.add(seen);
+    }
+  }
+  return offending;
+}
+
+function findTypeNotDerivedFromWorker(
+  type: Type,
+  state: DerivationState,
+  visited: Set<Type>,
+): Type | undefined {
+  // Reaching a type again, including through a cycle, brings nothing new.
+  if (visited.has(type) || state.clean.has(type)) {
     return undefined;
   }
-  const memoized = state.memo.get(type);
-  if (memoized !== undefined || state.memo.has(type)) {
-    return memoized;
+  visited.add(type);
+
+  if (type.kind === "Union") {
+    for (const variant of type.variants.values()) {
+      const offending = findTypeNotDerivedFromWorker(variant.type, state, visited);
+      if (offending !== undefined) {
+        return offending;
+      }
+    }
+    return undefined;
   }
 
-  let result: Type | undefined = type;
-  let memoizable = true;
+  return derivesFromBase(type, state) ? undefined : type;
+}
+
+function derivesFromBase(type: Type, state: DerivationState): boolean {
+  const { base } = state;
+  if (type === base || isErrorType(type) || isNeverType(type)) {
+    return true;
+  }
   switch (type.kind) {
     case "Model":
-      if (state.base.kind === "Model") {
-        for (let current: Model | undefined = type; current; current = current.baseModel) {
-          if (current === state.base) {
-            result = undefined;
-            break;
-          }
-        }
+      if (base.kind !== "Model") return false;
+      for (let current: Model | undefined = type; current; current = current.baseModel) {
+        if (current === base) return true;
       }
-      break;
+      return false;
     case "Scalar":
-      if (state.base.kind === "Scalar" && derivesFromScalar(type, state.base)) {
-        result = undefined;
+      if (base.kind !== "Scalar") return false;
+      for (let current: Scalar | undefined = type; current; current = current.baseScalar) {
+        if (current === base) return true;
       }
-      break;
+      return false;
     case "String":
     case "Number":
     case "Boolean":
       // A literal nominally is its standard scalar type, and nothing else.
-      if (state.base === literalStdScalar(type, state.program)) {
-        result = undefined;
-      }
-      break;
+      return base === literalStdScalar(type, state.program);
     case "EnumMember":
-      if (type.enum === state.base) {
-        result = undefined;
-      }
-      break;
-    case "Union": {
-      if (state.path.has(type)) {
-        // A union reaching itself contributes no value of its own.
-        state.cycleHits++;
-        return undefined;
-      }
-      const cycleHitsBefore = state.cycleHits;
-      state.path.add(type);
-      try {
-        result = undefined;
-        for (const variant of type.variants.values()) {
-          const offending = findTypeNotDerivedFrom(variant.type, state);
-          if (offending !== undefined) {
-            result = offending;
-            break;
-          }
-        }
-      } finally {
-        state.path.delete(type);
-      }
-      // A result that relied on short circuiting a cycle is only valid for this walk: the same
-      // union reached from outside the cycle can have a different answer.
-      memoizable = state.cycleHits === cycleHitsBefore;
-      break;
-    }
+      return type.enum === base;
+    default:
+      return false;
   }
-
-  if (memoizable) {
-    state.memo.set(type, result);
-  }
-  return result;
-}
-
-function derivesFromScalar(type: Scalar, base: Scalar): boolean {
-  for (let current: Scalar | undefined = type; current; current = current.baseScalar) {
-    if (current === base) {
-      return true;
-    }
-  }
-  return false;
 }
 
 function literalStdScalar(

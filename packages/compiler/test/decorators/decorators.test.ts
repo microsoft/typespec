@@ -1722,7 +1722,7 @@ describe("@strictExtends", () => {
     });
   });
 
-  it("doesn't report a variant that already failed the base type constraint", async () => {
+  it("reports both diagnostics for a variant that also fails the base type constraint", async () => {
     const diagnostics = await Tester.diagnose(`
         model Pet { name: string }
         model Rock { size: int32 }
@@ -1733,7 +1733,63 @@ describe("@strictExtends", () => {
         }
       `);
 
-    expectDiagnostics(diagnostics, { code: "unassignable" });
+    expectDiagnostics(diagnostics, [{ code: "unassignable" }, { code: "strict-extends-variant" }]);
+  });
+
+  it("reports the union only once when the decorator is applied twice", async () => {
+    const diagnostics = await Tester.diagnose(`
+        model Pet { name: string }
+        model Rock { name: string }
+
+        @strictExtends
+        @strictExtends
+        union Pets extends Pet {
+          rock: Rock,
+        }
+      `);
+
+    expectDiagnostics(diagnostics, { code: "strict-extends-variant" });
+  });
+
+  it("reports the union only once when it is also augmented", async () => {
+    const diagnostics = await Tester.diagnose(`
+        model Pet { name: string }
+        model Rock { name: string }
+
+        @strictExtends
+        union Pets extends Pet {
+          rock: Rock,
+        }
+
+        @@strictExtends(Pets);
+      `);
+
+    expectDiagnostics(diagnostics, { code: "strict-extends-variant" });
+  });
+
+  it("doesn't depend on the declaration order of a cyclic union", async () => {
+    // `A` is still being built when `B` finishes, so validating any earlier than the whole type
+    // graph would see `A` as an empty union and accept it.
+    const diagnostics = await Tester.diagnose(`
+        model Pet { name: string }
+        model Rock { name: string }
+
+        union A {
+          b: B,
+          rock: Rock,
+        }
+
+        @strictExtends
+        union B extends Pet {
+          a: A,
+        }
+      `);
+
+    expectDiagnostics(diagnostics, {
+      code: "strict-extends-variant",
+      message:
+        "Variant of type 'A' includes 'Rock' which must be or extend 'Pet' as required by @strictExtends.",
+    });
   });
 
   it("validates the variants after every decorator has been applied", async () => {
@@ -1773,11 +1829,74 @@ describe("@strictExtends", () => {
     expectDiagnostics(diagnostics, { code: "strict-extends-variant" });
   });
 
+  it("validates a variant a decorator replaced with a type unrelated to the base type", async () => {
+    // The checker validated the original variant, so a variant that isn't even assignable to the
+    // base type can't be assumed to have been reported already.
+    const host = await createTestHost();
+    host.addJsFile("mutate.js", {
+      namespace: "Test",
+      $replaceVariants(ctx: any, target: any, replacement: any) {
+        for (const variant of target.variants.values()) {
+          variant.type = replacement;
+        }
+      },
+    });
+    host.addTypeSpecFile(
+      "main.tsp",
+      `
+      import "./mutate.js";
+
+      namespace Test {
+        extern dec replaceVariants(target: TypeSpec.Reflection.Union, replacement: unknown);
+      }
+
+      using Test;
+
+      model Pet { name: string }
+      model Cat extends Pet { name: string }
+      model Bad { size: int32 }
+
+      @replaceVariants(Bad)
+      @strictExtends
+      union Pets extends Pet {
+        cat: Cat,
+      }
+      `,
+    );
+
+    const diagnostics = await host.diagnose("main.tsp");
+    expectDiagnostics(diagnostics, { code: "strict-extends-variant" });
+  });
+
   it("checks a union graph reachable through many paths only once", async () => {
-    // Each union references the previous one twice, so a non memoized walk would visit 2^depth
-    // types.
+    // Each union references the previous one twice, so a walk that doesn't remember what it
+    // already visited would visit 2^depth types.
     const depth = 30;
     const unions = [`union U0 { cat: Cat }`];
+    for (let i = 1; i <= depth; i++) {
+      unions.push(`union U${i} { a: U${i - 1}, b: U${i - 1} }`);
+    }
+
+    const diagnostics = await Tester.diagnose(`
+        model Pet { name: string }
+        model Cat extends Pet { meow: boolean }
+
+        ${unions.join("\n")}
+
+        @strictExtends
+        union Pets extends Pet {
+          all: U${depth},
+        }
+      `);
+
+    expectDiagnosticEmpty(diagnostics);
+  });
+
+  it("checks a cyclic union graph reachable through many paths only once", async () => {
+    // Same shape, but the leaf union is part of a cycle: reaching a cycle must not disable
+    // reusing what the walk already knows.
+    const depth = 30;
+    const unions = [`union U0 { self: U0, cat: Cat }`];
     for (let i = 1; i <= depth; i++) {
       unions.push(`union U${i} { a: U${i - 1}, b: U${i - 1} }`);
     }
