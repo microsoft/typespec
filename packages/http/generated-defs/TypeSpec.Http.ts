@@ -134,7 +134,7 @@ export type QueryDecorator = (
 /**
  * Explicitly specify that this property is to be interpolated as a path parameter.
  *
- * @param paramNameOrOptions Optional name of the parameter in the uri template or options.
+ * @param paramNameOrOptions Optional name of the parameter in the URI template or options.
  * @example
  * ```typespec
  * @route("/read/{explicit}/things/{implicit}")
@@ -178,17 +178,19 @@ export type BodyIgnoreDecorator = (
 ) => DecoratorValidatorCallbacks | void;
 
 /**
+ * Specify that the target property is the body of a multipart request or response.
  *
- *
+ * The property type must be a model or tuple whose members are all `HttpPart`, each describing one
+ * part of the payload.
  *
  * @example
  * ```tsp
  * op upload(
  *   @header `content-type`: "multipart/form-data",
  *   @multipartBody body: {
- *     fullName: HttpPart<string>,
- *     headShots: HttpPart<Image>[]
- *   }
+ *     fullName: HttpPart<string>;
+ *     headShots: HttpPart<Image>[];
+ *   },
  * ): void;
  * ```
  */
@@ -348,7 +350,7 @@ export type UseAuthDecorator = (
  *
  * `@route` can only be applied to operations, namespaces, and interfaces.
  *
- * @param uriTemplate Uri template for this operation.
+ * @param path URI template for this operation.
  * @example Simple path parameter
  *
  * ```typespec

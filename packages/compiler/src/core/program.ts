@@ -636,6 +636,7 @@ async function createProgram(
   async function loadLibrary(
     basedir: string,
     libraryNameOrPath: string,
+    context?: { isEmitter?: boolean },
   ): Promise<LibraryInstance | undefined> {
     const [resolution, diagnostics] = await resolveEmitterModuleAndEntrypoint(
       basedir,
@@ -643,7 +644,17 @@ async function createProgram(
     );
 
     if (resolution === undefined) {
-      program.reportDiagnostics(diagnostics);
+      if (context?.isEmitter && diagnostics.some((d) => d.code === "import-not-found")) {
+        program.reportDiagnostic(
+          createDiagnostic({
+            code: "emitter-not-found",
+            format: { emitterPackage: libraryNameOrPath },
+            target: NoTarget,
+          }),
+        );
+      } else {
+        program.reportDiagnostics(diagnostics);
+      }
       return undefined;
     }
     const { module, entrypoint } = resolution;
@@ -664,7 +675,7 @@ async function createProgram(
     emitterNameOrPath: string,
     emittersOptions: Record<string, EmitterOptions>,
   ): Promise<EmitterRef | undefined> {
-    const library = await loadLibrary(basedir, emitterNameOrPath);
+    const library = await loadLibrary(basedir, emitterNameOrPath, { isEmitter: true });
 
     if (library === undefined) {
       return undefined;

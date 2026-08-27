@@ -95,12 +95,15 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
             var asyncProtocol = BuildProtocolMethod(_createRequestMethod, true, shouldMakeParametersRequired);
             if (_streamingResponse.Value != null)
             {
+                AddStreamingResultSuppression(asyncProtocol);
                 if (_generateConvenienceMethod && ProtocolMethodExists(asyncProtocol))
                 {
+                    var convenienceMethod = BuildConvenienceMethod(asyncProtocol, true);
+                    AddStreamingResultSuppression(convenienceMethod);
                     return
                     [
                         asyncProtocol,
-                        BuildConvenienceMethod(asyncProtocol, true)
+                        convenienceMethod
                     ];
                 }
 
@@ -144,6 +147,16 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
                 asyncProtocol,
             ];
         }
+
+        private static void AddStreamingResultSuppression(MethodProvider method)
+            => method.Update(suppressions:
+            [
+                new SuppressionStatement(
+                    null,
+                    Literal(StreamingResultDiagnosticId),
+                    StreamingResultSuppressionJustification),
+                .. method.Suppressions
+            ]);
 
         private bool ProtocolMethodExists(MethodProvider generatedProtocolMethod)
         {
@@ -1732,7 +1745,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
                         payloadType,
                         streamingType,
                         "Unable to resolve SSE stream item type.");
-                    var parser = CreateSseParser(payloadType, payloadCSharpType);
+                    var parser = CreateSseParser(payloadCSharpType);
                     var arguments = cancellationToken != null
                         ? new ValueExpression[] { response, parser, terminalPredicate, cancellationToken }
                         : [response, parser, terminalPredicate];
@@ -1763,21 +1776,24 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
                 streamingType.ValueType,
                 streamingType,
                 "Unable to resolve JSON Lines stream item type.");
-            var jsonLinesContentType = new JsonLinesBinaryContentDefinition().Type.MakeGenericType([itemType]);
-            var deserializeMethod = streamingType.ValueType is InputModelType
-                ? "DeserializeModel"
-                : "DeserializeValue";
+            var data = new VariableExpression(typeof(BinaryData), "data");
+            var jsonLinesParser = new FuncExpression(
+                [data.Declaration],
+                ModelReaderWriterSnippets.Read(
+                    itemType,
+                    data,
+                    ModelSerializationExtensionsSnippets.Wire));
             var jsonLinesArguments = cancellationToken != null
                 ? new ValueExpression[]
                 {
                     response,
-                    Static(jsonLinesContentType).Property(deserializeMethod),
+                    jsonLinesParser,
                     cancellationToken
                 }
                 :
                 [
                     response,
-                    Static(jsonLinesContentType).Property(deserializeMethod)
+                    jsonLinesParser
                 ];
             return AsyncStreamingClientResultSnippets.CreateJsonLines(
                 response,
@@ -1806,23 +1822,19 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
             return new FuncExpression([item.Declaration], isTerminal);
         }
 
-        private static ValueExpression CreateSseParser(
-            InputType payloadType,
-            CSharpType payloadCSharpType)
+        private static ValueExpression CreateSseParser(CSharpType payloadCSharpType)
         {
             var eventType = new VariableExpression(typeof(string), "_");
             var data = new VariableExpression(typeof(ReadOnlySpan<byte>), "data");
             var binaryData = Static(typeof(BinaryData)).Invoke(
                 "FromBytes",
                 [data.Invoke("ToArray")]);
-            var helperType = new JsonLinesBinaryContentDefinition().Type.MakeGenericType(
-                [payloadCSharpType]);
-            var deserializeMethod = payloadType is InputModelType
-                ? "DeserializeModel"
-                : "DeserializeValue";
             return new FuncExpression(
                 [eventType.Declaration, data.Declaration],
-                Static(helperType).Invoke(deserializeMethod, [binaryData]));
+                ModelReaderWriterSnippets.Read(
+                    payloadCSharpType,
+                    binaryData,
+                    ModelSerializationExtensionsSnippets.Wire));
         }
 
         private CSharpType? GetResponseBodyType(InputType? responseType)
@@ -1838,7 +1850,10 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
 
                 foreach (var segment in _pagingServiceMethod!.PagingMetadata.ItemPropertySegments)
                 {
-                    var property = modelType!.Properties.FirstOrDefault(p => p.SerializedName == segment);
+                    var property = modelType!
+                        .GetSelfAndBaseModels()
+                        .SelectMany(m => m.Properties)
+                        .FirstOrDefault(p => p.SerializedName == segment);
                     var propertyType = property?.Type;
 
                     if (propertyType is InputArrayType arrayType)

@@ -1,0 +1,3 @@
+title: OpenAPI extensions
+description: Attach custom OpenAPI extensions to emitted declarations.
+playground: false
