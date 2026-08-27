@@ -832,27 +832,35 @@ describe("compiler: checker: decorators", () => {
         });
 
         // Regression tests for https://github.com/microsoft/typespec/issues/11743
-        it("keeps a member named __proto__ holding a string as an own property", async () => {
-          const arg = await testCallDecorator("valueof unknown", `#{__proto__: "written", ok: 1}`);
-          ok(Object.prototype.hasOwnProperty.call(arg, "__proto__"));
-          strictEqual(arg.__proto__, "written");
-          strictEqual(arg.ok, 1);
-          deepStrictEqual(Object.keys(arg), ["__proto__", "ok"]);
-          strictEqual(Object.getPrototypeOf(arg), Object.prototype);
-        });
+        describe.each(["__proto__", "constructor", "hasOwnProperty", "toString"])(
+          "a member named %s",
+          (name) => {
+            it("is kept as an own property when it holds a string", async () => {
+              const arg = await testCallDecorator(
+                "valueof unknown",
+                `#{${name}: "written", ok: 1}`,
+              );
+              ok(Object.prototype.hasOwnProperty.call(arg, name));
+              strictEqual(arg[name], "written");
+              strictEqual(arg.ok, 1);
+              deepStrictEqual(Object.keys(arg), [name, "ok"]);
+              strictEqual(Object.getPrototypeOf(arg), Object.prototype);
+            });
 
-        it("keeps a member named __proto__ holding an object as an own property", async () => {
-          const arg = await testCallDecorator(
-            "valueof unknown",
-            `#{__proto__: #{polluted: true}, ok: 1}`,
-          );
-          ok(Object.prototype.hasOwnProperty.call(arg, "__proto__"));
-          deepStrictEqual(arg.__proto__, { polluted: true });
-          strictEqual(arg.ok, 1);
-          deepStrictEqual(Object.keys(arg), ["__proto__", "ok"]);
-          strictEqual(Object.getPrototypeOf(arg), Object.prototype);
-          strictEqual(arg.polluted, undefined);
-        });
+            it("is kept as an own property when it holds an object", async () => {
+              const arg = await testCallDecorator(
+                "valueof unknown",
+                `#{${name}: #{polluted: true}, ok: 1}`,
+              );
+              ok(Object.prototype.hasOwnProperty.call(arg, name));
+              deepStrictEqual(arg[name], { polluted: true });
+              strictEqual(arg.ok, 1);
+              deepStrictEqual(Object.keys(arg), [name, "ok"]);
+              strictEqual(Object.getPrototypeOf(arg), Object.prototype);
+              strictEqual(arg.polluted, undefined);
+            });
+          },
+        );
       });
 
       describe("passing an array value", () => {

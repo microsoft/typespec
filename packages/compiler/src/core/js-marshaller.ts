@@ -86,8 +86,8 @@ function numericValueToJs(type: NumericValue, valueConstraint: Type | undefined)
 }
 
 function objectValueToJs(type: ObjectValue): Record<string, unknown> {
-  // Object.fromEntries defines each member as an own property, so a member named `__proto__`
-  // is kept instead of going through the Object.prototype setter and being dropped.
+  // Object.fromEntries defines every member as an own property, so special names
+  // like `__proto__` or `constructor` never interact with Object.prototype.
   return Object.fromEntries(
     [...type.properties].map(([key, value]) => [key, marshalTypeForJs(value.value, undefined)]),
   );
