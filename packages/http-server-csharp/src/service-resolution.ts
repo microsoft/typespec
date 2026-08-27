@@ -5,6 +5,7 @@ import {
   type Enum,
   type Interface,
   type Model,
+  type Operation,
   type Program,
   type Namespace as TspNamespace,
   type Type,
@@ -24,13 +25,13 @@ import {
 import {
   getDeclarationNamespaces,
   getServiceInterfaces,
+  getServiceNamespace,
   getServiceNamespaceName,
 } from "./service-discovery.js";
-import { findServiceNamespace } from "./utils/namespace-utils.js";
 
 /** All resolved service types, computed once before rendering. */
 export interface ServiceTypeResolution {
-  /** The service namespace (first non-std namespace with content). */
+  /** The namespace declared with `@service`, or the standalone namespace fallback. */
   serviceNamespace: TspNamespace | undefined;
   /** The C#-normalized service namespace name. */
   serviceNamespaceName: string | undefined;
@@ -44,8 +45,15 @@ export interface ServiceTypeResolution {
   unionEnums: Union[];
   /** Canonicalized HTTP operations per interface. */
   canonicalOpsMap: Map<string, OperationHttpCanonicalization[]>;
+  /** Original business operation for each canonicalized HTTP operation. */
+  canonicalOperationSourceMap: Map<OperationHttpCanonicalization, Operation>;
   /** Namespaces whose declarations are emitted without being referenced. */
   declarationNamespaces: Set<TspNamespace>;
+}
+
+export interface ServiceTypeResolutionOptions {
+  /** Whether to canonicalize HTTP operations for controller and interface generation. */
+  canonicalizeOperations?: boolean;
 }
 
 /**
@@ -67,13 +75,12 @@ export function resolveServiceTypes(
   program: Program,
   $: Typekit,
   canonicalizer: HttpCanonicalizer,
+  options: ServiceTypeResolutionOptions = {},
 ): ServiceTypeResolution {
   resetAnonymousModels();
 
-  const globalNs = program.getGlobalNamespaceType();
-
   // Phase 1: Service namespace
-  const serviceNamespace = findServiceNamespace(globalNs);
+  const serviceNamespace = getServiceNamespace(program);
   const serviceNamespaceName = getServiceNamespaceName(program);
   const declarationNamespaces = getDeclarationNamespaces(program);
 
@@ -95,8 +102,14 @@ export function resolveServiceTypes(
     authModels,
   );
 
-  // Phase 5: Canonicalize all HTTP operations
-  const canonicalOpsMap = canonicalizeAllInterfaces(canonicalizer, interfaces);
+  // Phase 5: Canonicalize HTTP operations only when operation artifacts are emitted.
+  const { canonicalOpsMap, canonicalOperationSourceMap } =
+    options.canonicalizeOperations === false
+      ? {
+          canonicalOpsMap: new Map<string, OperationHttpCanonicalization[]>(),
+          canonicalOperationSourceMap: new Map<OperationHttpCanonicalization, Operation>(),
+        }
+      : canonicalizeAllInterfaces(canonicalizer, interfaces);
 
   return {
     serviceNamespace,
@@ -106,6 +119,7 @@ export function resolveServiceTypes(
     enums,
     unionEnums,
     canonicalOpsMap,
+    canonicalOperationSourceMap,
     declarationNamespaces,
   };
 }
@@ -116,20 +130,26 @@ export function resolveServiceTypes(
 function canonicalizeAllInterfaces(
   canonicalizer: HttpCanonicalizer,
   interfaces: Interface[],
-): Map<string, OperationHttpCanonicalization[]> {
-  const result = new Map<string, OperationHttpCanonicalization[]>();
+): {
+  canonicalOpsMap: Map<string, OperationHttpCanonicalization[]>;
+  canonicalOperationSourceMap: Map<OperationHttpCanonicalization, Operation>;
+} {
+  const canonicalOpsMap = new Map<string, OperationHttpCanonicalization[]>();
+  const canonicalOperationSourceMap = new Map<OperationHttpCanonicalization, Operation>();
   for (const iface of interfaces) {
     const ops: OperationHttpCanonicalization[] = [];
     for (const [, op] of iface.operations) {
       try {
-        ops.push(canonicalizer.canonicalize(op) as OperationHttpCanonicalization);
+        const canonicalOp = canonicalizer.canonicalize(op) as OperationHttpCanonicalization;
+        ops.push(canonicalOp);
+        canonicalOperationSourceMap.set(canonicalOp, op);
       } catch {
         // Skip operations that can't be canonicalized
       }
     }
-    result.set(iface.name, ops);
+    canonicalOpsMap.set(iface.name, ops);
   }
-  return result;
+  return { canonicalOpsMap, canonicalOperationSourceMap };
 }
 
 // ── Type discovery ──────────────────────────────────────────────────────

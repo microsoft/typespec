@@ -4,7 +4,14 @@ import type { Interface, Operation, Program } from "@typespec/compiler";
 import { useTsp } from "@typespec/emitter-framework";
 import type { OperationHttpCanonicalization } from "@typespec/http-canonicalization";
 import { CSharpFile } from "../csharp-file.jsx";
-import { TypeExpression } from "../type-expression/type-expression.jsx";
+import {
+  getMultipartProtocolParameterNames,
+  operationHasMultipartBody,
+} from "../interfaces/interfaces.jsx";
+import {
+  getNullableValueTypeUnionInnerType,
+  TypeExpression,
+} from "../type-expression/type-expression.jsx";
 import {
   getGetBodyPropNames,
   getMockReturnStatement,
@@ -55,6 +62,9 @@ function MockImplementation(props: MockImplementationProps): Children {
       canonicalMap.set(cop.name, cop);
     }
   }
+  const hasMultipart =
+    props.canonicalOps?.some((op) => op.requestParameters.body?.bodyKind === "multipart") ||
+    operations.some(([, op]) => operationHasMultipartBody($.program, op));
 
   return (
     <CSharpFile
@@ -66,6 +76,7 @@ function MockImplementation(props: MockImplementationProps): Children {
         "System.Text.Json.Serialization",
         "System.Threading.Tasks",
         "Microsoft.AspNetCore.Mvc",
+        ...(hasMultipart ? ["Microsoft.AspNetCore.WebUtilities"] : []),
       ]}
     >
       {code`
@@ -112,6 +123,7 @@ interface MockMethodsProps {
 
 function MockMethods(props: MockMethodsProps): Children {
   const namePolicy = cs.useCSharpNamePolicy();
+  const { $ } = useTsp();
   return (
     <For each={props.operations} doubleHardline>
       {([name, op]) => {
@@ -126,8 +138,10 @@ function MockMethods(props: MockMethodsProps): Children {
 
         // Check if this is a multipart operation
         const canonicalOp = props.canonicalMap?.get(name);
-        const isMultipart = canonicalOp?.requestParameters.body?.bodyKind === "multipart";
-        const multipartBodyPropNames = new Set<string>();
+        const isMultipart =
+          canonicalOp?.requestParameters.body?.bodyKind === "multipart" ||
+          operationHasMultipartBody(props.program, op);
+        const multipartBodyPropNames = getMultipartProtocolParameterNames(props.program, op);
         if (isMultipart && canonicalOp) {
           for (const p of canonicalOp.requestParameters.properties) {
             if (
@@ -147,11 +161,16 @@ function MockMethods(props: MockMethodsProps): Children {
         const parameters = Array.from(op.parameters.properties.entries())
           .filter(([pName]) => !bodyPropNames.has(pName))
           .filter(([pName]) => !multipartBodyPropNames.has(pName))
-          .map(([pName, prop]) => ({
-            name: namePolicy.getName(pName, "parameter"),
-            type: <TypeExpression type={prop.type} />,
-            optional: prop.optional,
-          }))
+          .map(([pName, prop]) => {
+            const nullableValueType = prop.optional
+              ? getNullableValueTypeUnionInnerType($, prop.type)
+              : undefined;
+            return {
+              name: namePolicy.getName(pName, "parameter"),
+              type: <TypeExpression type={nullableValueType ?? prop.type} />,
+              optional: prop.optional,
+            };
+          })
           // Required parameters must come before optional ones in C#
           .sort((a, b) => (a.optional === b.optional ? 0 : a.optional ? 1 : -1));
 

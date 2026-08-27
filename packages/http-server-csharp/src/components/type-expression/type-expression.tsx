@@ -20,6 +20,12 @@ export interface TypeExpressionProps {
 // Re-export efRefkey for consumers that were using serverRefkey
 export { efRefkey } from "@typespec/emitter-framework/csharp";
 
+export function getNullableValueTypeUnionInnerType($: Typekit, type: Type): Type | undefined {
+  if (type.kind !== "Union" || isUnionEnum(type)) return undefined;
+  const innerType = getNullableUnionInnerType(type);
+  return innerType !== undefined && isValueType($, innerType) ? innerType : undefined;
+}
+
 /**
  * Wrapper around emitter-framework's TypeExpression that handles
  * additional type kinds the server emitter encounters.
@@ -199,10 +205,11 @@ function resolveUnionType($: Typekit, union: import("@typespec/compiler").Union)
       return code`object`;
     }
     // Nullable value type → T?
-    if (isValueType($, innerType)) {
+    const nullableValueType = getNullableValueTypeUnionInnerType($, union);
+    if (nullableValueType) {
       return (
         <>
-          <TypeExpression type={innerType} />?
+          <TypeExpression type={nullableValueType} />?
         </>
       );
     }

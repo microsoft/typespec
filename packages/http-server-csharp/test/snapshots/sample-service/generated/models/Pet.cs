@@ -23,11 +23,11 @@ public partial class Pet
     public string Name { get; set; }
 
     [JsonPropertyName("tag")]
-    public string Tag { get; set; }
+    public string? Tag { get; set; }
 
     [JsonPropertyName("age")]
     public int? Age { get; set; }
 
     [JsonPropertyName("address")]
-    public Address Address { get; set; }
+    public Address? Address { get; set; }
 }

@@ -20,5 +20,5 @@ public partial class PetListResult
     public Pet[] Items { get; set; }
 
     [JsonPropertyName("nextLink")]
-    public string NextLink { get; set; }
+    public string? NextLink { get; set; }
 }

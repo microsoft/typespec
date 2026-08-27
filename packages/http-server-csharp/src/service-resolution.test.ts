@@ -1,8 +1,8 @@
 import { Tester } from "#test/tester.js";
-import type { TesterInstance } from "@typespec/compiler/testing";
+import { t, type TesterInstance } from "@typespec/compiler/testing";
 import { $ } from "@typespec/compiler/typekit";
 import { HttpCanonicalizer } from "@typespec/http-canonicalization";
-import { beforeEach, expect, it } from "vitest";
+import { beforeEach, expect, it, vi } from "vitest";
 import { resolveServiceTypes, type ServiceTypeResolution } from "./service-resolution.js";
 
 let runner: TesterInstance;
@@ -32,6 +32,25 @@ it("excludes models declared outside the service namespace that are not referenc
   `);
 
   expect(resolution.models.map((m) => m.name).sort()).toEqual(["Used", "Widget"]);
+});
+
+it("uses the declared service namespace instead of imported namespaces with content", async () => {
+  const resolution = await resolve(`
+    namespace Azure.ClientGenerator.Core {
+      model ClientOptions {}
+      enum Usage { input, output }
+    }
+
+    @service
+    namespace Azure.AI.Projects {
+      model Widget { id: string; }
+      op read(): Widget;
+    }
+  `);
+
+  expect(resolution.serviceNamespace?.name).toBe("Projects");
+  expect(resolution.serviceNamespaceName).toBe("Azure.Ai.Projects");
+  expect(resolution.models.map((m) => m.name)).toEqual(["Widget"]);
 });
 
 it("excludes enums and union enums declared outside the service namespace that are not referenced", async () => {
@@ -108,6 +127,52 @@ it("does not emit template arguments that the instantiation never exposes", asyn
   `);
 
   expect(resolution.models.map((m) => m.name).sort()).toEqual(["Envelope", "Widget"]);
+});
+
+it("tracks the exact source operation for each canonical operation", async () => {
+  const { read } = await runner.compile(t.code`
+    @service
+    namespace Contoso {
+      interface ${t.interface("PetStore")} {
+        @route("/pets/{id}") @get ${t.op("read")}(
+          @path id: string,
+          @query apiVersion?: string,
+        ): string;
+      }
+    }
+  `);
+  const tk = $(runner.program);
+  const resolution = resolveServiceTypes(runner.program, tk, new HttpCanonicalizer(tk));
+  const canonicalOperation = [...resolution.canonicalOperationSourceMap].find(
+    ([, sourceOperation]) => sourceOperation === read,
+  )?.[0];
+
+  expect(canonicalOperation).toBeDefined();
+  expect(resolution.canonicalOperationSourceMap.get(canonicalOperation!)).toBe(read);
+  expect([...resolution.canonicalOpsMap.values()].flat()).toContain(canonicalOperation);
+});
+
+it("skips operation canonicalization when it is disabled", async () => {
+  await runner.compile(`
+    @service
+    namespace Contoso {
+      model Widget { id: string; }
+      op read(): Widget;
+    }
+  `);
+  const tk = $(runner.program);
+  const canonicalizer = new HttpCanonicalizer(tk);
+  const canonicalize = vi.spyOn(canonicalizer, "canonicalize");
+
+  const resolution = resolveServiceTypes(runner.program, tk, canonicalizer, {
+    canonicalizeOperations: false,
+  });
+
+  expect(resolution.models.map((m) => m.name)).toContain("Widget");
+  expect(resolution.interfaces).toHaveLength(1);
+  expect(resolution.canonicalOpsMap).toEqual(new Map());
+  expect(resolution.canonicalOperationSourceMap).toEqual(new Map());
+  expect(canonicalize).not.toHaveBeenCalled();
 });
 
 it("discovers the payload type of an HttpPart", async () => {

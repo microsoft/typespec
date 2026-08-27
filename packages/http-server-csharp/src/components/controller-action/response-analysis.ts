@@ -1,11 +1,14 @@
-import { isVoidType } from "@typespec/compiler";
+import { isErrorModel, isVoidType, type Program } from "@typespec/compiler";
 import type { OperationHttpCanonicalization } from "@typespec/http-canonicalization";
 
 /**
  * Determines the success HTTP status code and whether the response has a body.
  * Checks the original return type for @statusCode properties.
  */
-export function getSuccessStatusCode(operation: OperationHttpCanonicalization): {
+export function getSuccessStatusCode(
+  program: Program,
+  operation: OperationHttpCanonicalization,
+): {
   statusCode: number | undefined;
   hasBody: boolean;
 } {
@@ -18,15 +21,24 @@ export function getSuccessStatusCode(operation: OperationHttpCanonicalization): 
 
   // Check union responses - find the first non-error success response
   if (returnType.kind === "Union") {
+    let hasVoidSuccess = false;
     for (const variant of returnType.variants.values()) {
       const vt = variant.type;
-      if (isVoidType(vt)) continue;
+      if (isVoidType(vt)) {
+        hasVoidSuccess = true;
+        continue;
+      }
       if (vt.kind === "Model") {
+        if (isErrorModel(program, vt)) continue;
         // Skip models with @error decorator or error-range status codes
         const result = analyzeResponseModel(vt);
         if (result.statusCode !== undefined && result.statusCode >= 400) continue;
         return result;
       }
+      return { statusCode: 200, hasBody: true };
+    }
+    if (hasVoidSuccess) {
+      return { statusCode: 204, hasBody: false };
     }
   }
 
