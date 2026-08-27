@@ -131,8 +131,9 @@ namespace Microsoft.TypeSpec.Generator
         private static bool BreakLinesCore(FormattableString input, StringBuilder formatBuilder, List<object?> args, List<FormattableString> result, ref bool pendingCR, out bool emittedContent)
         {
             // stackalloc cannot be used in a loop, we must allocate it here. The buffer is sized from the pre-normalization
-            // format length because normalization must not expand the input. A format containing only line feeds produces
-            // the maximum of n+1 segments because empty entries are retained.
+            // format length because normalization of all C# line terminators, including Unicode terminators used in
+            // generated docs, must not expand the input. A format containing only line feeds produces the maximum of
+            // n+1 segments because empty entries are retained.
             Span<Range> splitIndices = stackalloc Range[input.Format.Length + 1];
             ReadOnlySpan<char> formatSpan = input.Format.AsSpan();
             bool hasEmptyLastLine = false;
