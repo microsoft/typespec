@@ -97,6 +97,7 @@ public class ClientCoreProxyMethodMapper extends ProxyMethodMapper {
             .sorted()
             .collect(Collectors.toList());
         builder.responseExpectedStatusCodes(expectedStatusCodes);
+        builder.responseHeaders(getResponseHeaders(operation, settings));
 
         IType responseBodyType = MapperUtils.getExpectedResponseBodyType(operation, settings);
         builder.responseBodyType(responseBodyType);

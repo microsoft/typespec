@@ -211,7 +211,7 @@ public class SchemaUtil {
         }
     }
 
-    public static IType removeModelFromParameter(RequestParameterLocation parameterRequestLocation, IType type) {
+    public static IType removeModelFromClientType(RequestParameterLocation parameterRequestLocation, IType type) {
         if (parameterRequestLocation == RequestParameterLocation.BODY) {
             return ClassType.BINARY_DATA;
         }
