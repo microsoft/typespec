@@ -106,18 +106,20 @@ namespace Microsoft.TypeSpec.Generator.Providers
             if (!inputProperty.IsExactName)
             {
                 var isDateTime = inputProperty.Type.IsDateTimeInputType();
-                var canonicalName = identifierName.NormalizeCSharpAcronyms(isDateTime);
-                var previousGeneratedName = isDateTime
-                    ? identifierName.NormalizeCSharpAcronyms().NormalizeLegacyDateTimeSuffix()
-                    : canonicalName;
+                var canonicalName = AvoidPropertyNameCollision(
+                    identifierName.NormalizeCSharpAcronyms(isDateTime),
+                    enclosingType.Name);
                 var inputName = AvoidPropertyNameCollision(identifierName, enclosingType.Name);
-                canonicalName = AvoidPropertyNameCollision(canonicalName, enclosingType.Name);
-                previousGeneratedName = AvoidPropertyNameCollision(previousGeneratedName, enclosingType.Name);
+                var lastContractProperties = enclosingType.LastContractView?.Properties;
 
-                var previousProperty = enclosingType.LastContractView?.Properties.FirstOrDefault(p =>
-                    p.Name == inputName ||
-                    p.Name == canonicalName ||
-                    p.Name == previousGeneratedName);
+                var previousProperty = lastContractProperties?.FirstOrDefault(p => p.Name == inputName);
+                if (previousProperty is null && isDateTime)
+                {
+                    previousProperty = lastContractProperties?.FirstOrDefault(p =>
+                        AvoidPropertyNameCollision(
+                            p.Name.NormalizeCSharpAcronyms(normalizeDateTimeSuffix: true),
+                            enclosingType.Name) == canonicalName);
+                }
                 identifierName = previousProperty?.Name ?? canonicalName;
             }
             Name = AvoidPropertyNameCollision(identifierName, enclosingType.Name);
