@@ -443,8 +443,12 @@ namespace Microsoft.TypeSpec.Generator.Providers
                     continue;
                 }
 
+                var identifierName = inputProperty.Name.ToIdentifierName();
                 _generatedPropertiesBySpecName.TryAdd(inputProperty.Name, specProperty);
-                _generatedPropertiesBySpecName.TryAdd(inputProperty.Name.ToIdentifierName(), specProperty);
+                _generatedPropertiesBySpecName.TryAdd(identifierName, specProperty);
+                _generatedPropertiesBySpecName.TryAdd(
+                    identifierName.NormalizeCSharpAcronyms(inputProperty.Type.IsDateTimeInputType()),
+                    specProperty);
             }
 
             var properties = new List<PropertyProvider>();

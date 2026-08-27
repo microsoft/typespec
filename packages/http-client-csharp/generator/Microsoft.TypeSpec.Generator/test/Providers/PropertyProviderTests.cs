@@ -343,6 +343,114 @@ namespace Microsoft.TypeSpec.Generator.Tests.Providers
                 new TypeProviderWriter(modelProvider).Write().Content);
         }
 
+        [Test]
+        public async Task TestPropertyNamePrefersExactCanonicalNameFromLastContract()
+        {
+            await MockHelpers.LoadMockGeneratorAsync(lastContractCompilation: async () => await Helpers.GetCompilationFromDirectoryAsync());
+
+            // The contract shipped both the historical "StartOn" and the canonical "StartsOn". The exact
+            // canonical match wins, so the result does not depend on their declaration order.
+            var inputModel = InputFactory.Model(
+                "TestModel",
+                @namespace: "Test",
+                properties:
+                [
+                    InputFactory.Property(
+                        "startTime",
+                        new InputDateTimeType(
+                            DateTimeKnownEncoding.Rfc3339,
+                            "utcDateTime",
+                            "TypeSpec.utcDateTime",
+                            InputPrimitiveType.String),
+                        isRequired: true)
+                ]);
+
+            Assert.AreEqual("StartsOn", new ModelProvider(inputModel).Properties.Single().Name);
+        }
+
+        [Test]
+        public async Task TestPropertyNameIgnoresIncompatiblyTypedHistoricalName()
+        {
+            await MockHelpers.LoadMockGeneratorAsync(lastContractCompilation: async () => await Helpers.GetCompilationFromDirectoryAsync());
+
+            // The contract's "StartOn" is a string, so it is a different property that merely normalizes onto
+            // the same canonical name. Claiming it would also let ModelProvider restore the shipped string type
+            // onto this date-time property.
+            var inputModel = InputFactory.Model(
+                "TestModel",
+                @namespace: "Test",
+                properties:
+                [
+                    InputFactory.Property(
+                        "startTime",
+                        new InputDateTimeType(
+                            DateTimeKnownEncoding.Rfc3339,
+                            "utcDateTime",
+                            "TypeSpec.utcDateTime",
+                            InputPrimitiveType.String),
+                        isRequired: true)
+                ]);
+
+            var property = new ModelProvider(inputModel).Properties.Single();
+
+            Assert.AreEqual("StartsOn", property.Name);
+            Assert.AreEqual(new CSharpType(typeof(DateTimeOffset)), property.Type);
+        }
+
+        [Test]
+        public async Task TestPropertyNameDoesNotReuseHistoricalNameClaimedByNormalizedSibling()
+        {
+            await MockHelpers.LoadMockGeneratorAsync(lastContractCompilation: async () => await Helpers.GetCompilationFromDirectoryAsync());
+
+            // The retained "ipStartOn" only claims the shipped "IPStartOn" after acronym normalization, so the
+            // claim has to be detected on the generated name rather than the raw identifier.
+            var inputModel = InputFactory.Model(
+                "TestModel",
+                @namespace: "Test",
+                properties:
+                [
+                    InputFactory.Property("ipStartOn", InputPrimitiveType.String, isRequired: true),
+                    InputFactory.Property(
+                        "ipStartTime",
+                        new InputDateTimeType(
+                            DateTimeKnownEncoding.Rfc3339,
+                            "utcDateTime",
+                            "TypeSpec.utcDateTime",
+                            InputPrimitiveType.String),
+                        isRequired: true)
+                ]);
+
+            Assert.That(
+                new ModelProvider(inputModel).Properties.Select(p => p.Name),
+                Is.EqualTo(new[] { "IPStartOn", "IPStartsOn" }));
+        }
+
+        [Test]
+        public async Task TestPropertyNamePreservesCollisionSuffixedHistoricalName()
+        {
+            await MockHelpers.LoadMockGeneratorAsync(lastContractCompilation: async () => await Helpers.GetCompilationFromDirectoryAsync());
+
+            // The model is named "StartOn", so the shipped member carries the enclosing-type collision suffix
+            // and is named "StartOnProperty". That suffix has to be stripped before the historical name is
+            // matched against the canonical one.
+            var inputModel = InputFactory.Model(
+                "StartOn",
+                @namespace: "Test",
+                properties:
+                [
+                    InputFactory.Property(
+                        "startTime",
+                        new InputDateTimeType(
+                            DateTimeKnownEncoding.Rfc3339,
+                            "utcDateTime",
+                            "TypeSpec.utcDateTime",
+                            InputPrimitiveType.String),
+                        isRequired: true)
+                ]);
+
+            Assert.AreEqual("StartOnProperty", new ModelProvider(inputModel).Properties.Single().Name);
+        }
+
         [TestCaseSource(nameof(CollectionPropertyTestCases))]
         public void CollectionProperty(CSharpType coreType, InputModelProperty collectionProperty, CSharpType expectedType)
         {

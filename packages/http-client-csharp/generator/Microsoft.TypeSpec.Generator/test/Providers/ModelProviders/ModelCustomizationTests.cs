@@ -362,7 +362,7 @@ namespace Microsoft.TypeSpec.Generator.Tests.Providers.ModelProviders
 
             Assert.That(
                 modelTypeProvider.GeneratedPropertiesBySpecName.Keys,
-                Is.EquivalentTo(new[] { "startTime", "StartTime" }));
+                Is.EquivalentTo(new[] { "startTime", "StartTime", "StartsOn" }));
 
             var canonicalProperty = modelTypeProvider.CanonicalView!.Properties.Single();
             Assert.AreEqual("StartOn", canonicalProperty.Name);
@@ -405,6 +405,60 @@ namespace Microsoft.TypeSpec.Generator.Tests.Providers.ModelProviders
                 modelTypeProvider.CanonicalView!.Properties.Select(p => p.Name),
                 Is.EquivalentTo(new[] { "StartsOn", "StartOn" }));
             Assert.AreEqual($"{Helpers.GetExpectedFromFile("Expected")}\n", new TypeProviderWriter(modelTypeProvider).Write().Content);
+        }
+
+        [Test]
+        public async Task CustomCodeWithCanonicalNameReplacesPreservedProperty()
+        {
+            var dateTime = new InputDateTimeType(
+                DateTimeKnownEncoding.Rfc3339,
+                "utcDateTime",
+                "TypeSpec.utcDateTime",
+                InputPrimitiveType.String);
+            var inputModel = InputFactory.Model(
+                "mockInputModel",
+                properties: [InputFactory.Property("startTime", dateTime, isRequired: true)]);
+
+            var mockGenerator = await MockHelpers.LoadMockGeneratorAsync(
+                inputModelTypes: [inputModel],
+                compilation: async () => await Helpers.GetCompilationFromDirectoryAsync(),
+                lastContractCompilation: async () => await Helpers.GetCompilationFromDirectoryAsync("Last"));
+
+            var modelTypeProvider = mockGenerator.Object.OutputLibrary.TypeProviders.Single(t => t.Name == "MockInputModel");
+
+            // The canonical name stays a supported customization target even though the generated property kept
+            // the shipped "StartOn", so the generated property must still be replaced.
+            Assert.AreEqual("MyStart", modelTypeProvider.CustomCodeView!.Properties.Single().Name);
+            Assert.AreEqual(0, modelTypeProvider.Properties.Count);
+        }
+
+        [Test]
+        public async Task HistoricalNameClaimedByRenamedCustomFieldIsNotReused()
+        {
+            var dateTime = new InputDateTimeType(
+                DateTimeKnownEncoding.Rfc3339,
+                "utcDateTime",
+                "TypeSpec.utcDateTime",
+                InputPrimitiveType.String);
+            var inputModel = InputFactory.Model(
+                "mockInputModel",
+                properties:
+                [
+                    InputFactory.Property("startTime", dateTime, isRequired: true),
+                    InputFactory.Property("foo", InputPrimitiveType.String, isRequired: true)
+                ]);
+
+            var mockGenerator = await MockHelpers.LoadMockGeneratorAsync(
+                inputModelTypes: [inputModel],
+                compilation: async () => await Helpers.GetCompilationFromDirectoryAsync(),
+                lastContractCompilation: async () => await Helpers.GetCompilationFromDirectoryAsync("Last"));
+
+            var modelTypeProvider = mockGenerator.Object.OutputLibrary.TypeProviders.Single(t => t.Name == "MockInputModel");
+
+            // A custom field renamed onto the shipped name claims it just as a custom property would, because
+            // customization filtering treats custom fields as claims on property names.
+            Assert.AreEqual("StartOn", modelTypeProvider.CustomCodeView!.Fields.Single().Name);
+            Assert.That(modelTypeProvider.Properties.Select(p => p.Name), Is.EqualTo(new[] { "StartsOn" }));
         }
 
         [Test]
