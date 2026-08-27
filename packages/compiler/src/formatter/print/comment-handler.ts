@@ -19,6 +19,7 @@ export const commentHandler: Printer<Node>["handleComments"] = {
       addEmptyInterfaceComment,
       addEmptyModelComment,
       addEmptyScalarComment,
+      addEmptyUnionComment,
       addCommentBetweenAnnotationsAndNode,
       handleOnlyComments,
     ].some((x) => x({ comment, text, options, ast: ast as TypeSpecScriptNode, isLastComment })),
@@ -144,6 +145,31 @@ function addEmptyScalarComment({ comment }: CommentContext) {
     enclosingNode &&
     enclosingNode.kind === SyntaxKind.ScalarStatement &&
     enclosingNode.members.length === 0 &&
+    precedingNode &&
+    (precedingNode === enclosingNode.id || precedingNode === enclosingNode.extends)
+  ) {
+    util.addDanglingComment(enclosingNode, comment, undefined);
+    return true;
+  }
+  return false;
+}
+
+/**
+ * When a comment is on an empty union make sure it gets added as a dangling comment on it and not on the identifier.
+ *
+ * @example
+ *
+ * union Foo extends Bar {
+ *   // My comment
+ * }
+ */
+function addEmptyUnionComment({ comment }: CommentContext) {
+  const { precedingNode, enclosingNode } = comment;
+
+  if (
+    enclosingNode &&
+    enclosingNode.kind === SyntaxKind.UnionStatement &&
+    enclosingNode.options.length === 0 &&
     precedingNode &&
     (precedingNode === enclosingNode.id || precedingNode === enclosingNode.extends)
   ) {

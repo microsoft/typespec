@@ -1399,6 +1399,8 @@ export function createChecker(program: Program, resolver: NameResolver): Checker
         );
       case SyntaxKind.InterfaceStatement:
         return checkDeprecatedNode(node);
+      case SyntaxKind.UnionStatement:
+        return checkDeprecatedNode(node);
       case SyntaxKind.IntersectionExpression:
       case SyntaxKind.UnionExpression:
       case SyntaxKind.ModelProperty:
@@ -7786,6 +7788,10 @@ export function createChecker(program: Program, resolver: NameResolver): Checker
     });
     linkType(ctx, links, unionType);
 
+    if (node.extends) {
+      unionType.baseType = checkUnionBaseType(ctx, node, unionType, node.extends);
+    }
+
     unionType.decorators = checkDecorators(ctx, unionType, node);
 
     checkUnionVariants(ctx, unionType, node, variants);
@@ -7823,7 +7829,110 @@ export function createChecker(program: Program, resolver: NameResolver): Checker
         continue;
       }
       variants.set(variantType.name as string, variantType);
+      checkUnionVariantAgainstBaseType(ctx, parentUnion, variantNode, variantType);
     }
+  }
+
+  /**
+   * Validate that a union variant satisfies the constraint declared by the union `extends` clause.
+   * Skipped inside of an uninstantiated template declaration where variant types are still
+   * unresolved template parameters. Each instantiation is checked instead.
+   */
+  function checkUnionVariantAgainstBaseType(
+    ctx: CheckContext,
+    parentUnion: Union,
+    variantNode: UnionVariantNode,
+    variantType: UnionVariant,
+  ) {
+    const baseType = parentUnion.baseType;
+    if (baseType === undefined || ctx.hasFlags(CheckFlags.InTemplateDeclaration)) {
+      return;
+    }
+    if (isErrorType(variantType.type)) {
+      return;
+    }
+    checkTypeAssignable(variantType.type, baseType, variantNode.value);
+  }
+
+  /**
+   * Resolve the type referenced by a union `extends` clause.
+   *
+   * The resulting type is only a constraint on the union variants: it doesn't create any
+   * inheritance relationship, it doesn't add anything to the union and it doesn't make the
+   * union extensible.
+   */
+  function checkUnionBaseType(
+    ctx: CheckContext,
+    union: UnionStatementNode,
+    unionType: Union,
+    extendsRef: Expression,
+  ): Type | undefined {
+    const unionSymId = getNodeSym(union);
+    pendingResolutions.start(unionSymId, ResolutionKind.BaseType);
+
+    try {
+      const target = resolver.getNodeLinks(extendsRef).resolvedSymbol;
+      if (target && pendingResolutions.has(target, ResolutionKind.BaseType)) {
+        if (ctx.mapper === undefined) {
+          reportCheckerDiagnostic(
+            createDiagnostic({
+              code: "circular-base-type",
+              format: { typeName: target.name },
+              target: target,
+            }),
+          );
+        }
+        return undefined;
+      }
+
+      const baseType = getTypeForNode(extendsRef, ctx);
+      if (isErrorType(baseType)) {
+        // Should already have reported an error when resolving the expression.
+        return undefined;
+      }
+
+      // `extends` accepts an arbitrary expression so, unlike `model`/`scalar`, the union can
+      // also reference itself through a union expression (e.g. `union a extends a | string` or
+      // `union a extends b` with `alias b = a | string`). Those don't go through a symbol that
+      // `pendingResolutions` can observe so they are detected on the resolved type instead.
+      if (unionExpressionReferences(baseType, unionType)) {
+        if (ctx.mapper === undefined) {
+          reportCheckerDiagnostic(
+            createDiagnostic({
+              code: "circular-base-type",
+              format: { typeName: union.id.sv },
+              target: extendsRef,
+            }),
+          );
+        }
+        return undefined;
+      }
+      return baseType;
+    } finally {
+      pendingResolutions.finish(unionSymId, ResolutionKind.BaseType);
+    }
+  }
+
+  /**
+   * Check whether `target` is reachable from `type` through union expressions only.
+   *
+   * Traversal deliberately stops at anything else (named unions, models, arrays, ...): a union
+   * referencing itself from those positions builds a perfectly valid cyclic type graph, exactly
+   * like `model Foo { foo: Foo }` does, and must not be reported. Only union expressions are
+   * followed, which is a finite syntactic structure, so this always terminates.
+   */
+  function unionExpressionReferences(type: Type, target: Union): boolean {
+    if (type === target) {
+      return true;
+    }
+    if (type.kind === "Union" && type.expression) {
+      for (const variant of type.variants.values()) {
+        if (unionExpressionReferences(variant.type, target)) {
+          return true;
+        }
+      }
+    }
+    return false;
   }
 
   function checkUnionVariant(ctx: CheckContext, variantNode: UnionVariantNode): UnionVariant {

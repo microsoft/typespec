@@ -490,6 +490,18 @@ describe("global graph mutation", () => {
     const barProp: any = MutatedB.properties.get("bar");
     expectTypeEquals(MutatedA, barProp.type.values[0]);
   });
+
+  it("mutate union base type", async () => {
+    const type = await globalMutate(`
+      model PetBase { name: string }
+      model Cat extends PetBase { toy: string }
+      union Pet extends PetBase { cat: Cat };
+    `);
+
+    const MutatedPetBase = type.models.get("PetBase")!;
+    const MutatedPet = type.unions.get("Pet")!;
+    expectTypeEquals(MutatedPet.baseType!, MutatedPetBase);
+  });
 });
 
 describe("decorators", () => {

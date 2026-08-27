@@ -1091,6 +1091,41 @@ function testColorization(description: string, tokenize: Tokenize) {
           Token.punctuation.closeBrace,
         ]);
       });
+
+      it("union with extends", async () => {
+        const tokens = await tokenize("union Foo extends Bar { a: A }");
+        deepStrictEqual(tokens, [
+          Token.keywords.union,
+          Token.identifiers.type("Foo"),
+          Token.keywords.extends,
+          Token.identifiers.type("Bar"),
+          Token.punctuation.openBrace,
+          Token.identifiers.variable("a"),
+          Token.operators.typeAnnotation,
+          Token.identifiers.type("A"),
+          Token.punctuation.closeBrace,
+        ]);
+      });
+
+      it("templated union with extends", async () => {
+        const tokens = await tokenize("union Foo<T extends string> extends Bar { a: T }");
+        deepStrictEqual(tokens, [
+          Token.keywords.union,
+          Token.identifiers.type("Foo"),
+          Token.punctuation.typeParameters.begin,
+          Token.identifiers.type("T"),
+          Token.keywords.extends,
+          Token.identifiers.type("string"),
+          Token.punctuation.typeParameters.end,
+          Token.keywords.extends,
+          Token.identifiers.type("Bar"),
+          Token.punctuation.openBrace,
+          Token.identifiers.variable("a"),
+          Token.operators.typeAnnotation,
+          Token.identifiers.type("T"),
+          Token.punctuation.closeBrace,
+        ]);
+      });
     });
 
     describe("namespaces", () => {

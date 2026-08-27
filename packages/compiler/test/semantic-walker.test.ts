@@ -504,6 +504,24 @@ it("finds unions", async () => {
   strictEqual(result.unionVariants[0].name!, "x");
 });
 
+it("navigates the base type of a union declared with extends", async () => {
+  const result = await runNavigator(`
+      model PetBase { name: string }
+      model Cat extends PetBase { toy: string }
+
+      union Pet extends PetBase {
+        cat: Cat;
+      }
+    `);
+
+  strictEqual(result.unions.length, 1);
+  strictEqual(result.unions[0].name!, "Pet");
+  ok(
+    result.models.some((x) => x.name === "PetBase"),
+    "PetBase should be navigated as the base type of the union",
+  );
+});
+
 it("finds tuples", async () => {
   const result = await runNavigator(`
       model ContainsTuple {
