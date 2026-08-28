@@ -211,16 +211,33 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
         {
             foreach (var serviceMethod in inputClient.Methods)
             {
-                var updatedOperationName = GetCleanOperationName(serviceMethod);
+                var updatedOperationName = GetOperationName(serviceMethod);
                 serviceMethod.Update(name: updatedOperationName);
                 serviceMethod.Operation.Update(name: updatedOperationName);
             }
         }
 
-        private string GetCleanOperationName(InputServiceMethod serviceMethod)
+        private string GetOperationName(InputServiceMethod serviceMethod, bool normalizeUrlSuffix = true)
         {
-            var operationName = GetOperationName(serviceMethod);
             if (serviceMethod.IsExactName)
+            {
+                return serviceMethod.Operation.Name;
+            }
+
+            var operationName = (serviceMethod.Operation.OriginalName ?? serviceMethod.Operation.Name).ToIdentifierName();
+            // Replace List with Get as .NET convention is to use Get for list operations.
+            if (operationName == "List")
+            {
+                operationName = "GetAll";
+            }
+            else if (operationName.StartsWith("List", StringComparison.Ordinal) &&
+                operationName.Length > 4 && char.IsUpper(operationName[4]))
+            {
+                // If the operation name starts with List and has a capital letter after it, we replace List with Get.
+                operationName = $"Get{operationName.Substring(4)}";
+            }
+
+            if (!normalizeUrlSuffix)
             {
                 return operationName;
             }
@@ -242,30 +259,12 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
             return normalizedName;
         }
 
-        internal static string GetRestOperationName(InputServiceMethod serviceMethod)
-            => GetOperationName(serviceMethod).ToIdentifierName();
-
-        private static string GetOperationName(InputServiceMethod serviceMethod)
+        internal string GetRestOperationName(InputServiceMethod serviceMethod)
         {
-            if (serviceMethod.IsExactName)
-            {
-                return serviceMethod.Operation.Name;
-            }
-
-            var operationName = (serviceMethod.Operation.OriginalName ?? serviceMethod.Operation.Name).ToIdentifierName();
-            // Replace List with Get as .NET convention is to use Get for list operations.
-            if (operationName == "List")
-            {
-                operationName = "GetAll";
-            }
-            else if (operationName.StartsWith("List", StringComparison.Ordinal) &&
-                operationName.Length > 4 && char.IsUpper(operationName[4]))
-            {
-                // If the operation name starts with List and has a capital letter after it, we replace List with Get.
-                operationName = $"Get{operationName.Substring(4)}";
-            }
-
-            return operationName;
+            // Request builders follow the public operation naming rules rather than the mutable input service method
+            // name. Preserve the original Url suffix so a projection honoring a previous GA name and a newer
+            // projection normalized to Uri continue to reference the same stable request builder.
+            return GetOperationName(serviceMethod, normalizeUrlSuffix: false).ToIdentifierName();
         }
 
         private string? _namespace;
