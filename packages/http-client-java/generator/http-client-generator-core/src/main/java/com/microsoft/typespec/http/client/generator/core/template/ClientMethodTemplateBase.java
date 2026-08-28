@@ -198,8 +198,9 @@ public abstract class ClientMethodTemplateBase implements IJavaTemplate<ClientMe
         commentBlock.line("    <tr>"
             + columns.stream().map(column -> "<th>" + column + "</th>").collect(Collectors.joining()) + "</tr>");
         for (List<String> row : rows) {
-            commentBlock.line("    <tr>"
-                + row.stream().map(value -> "<td>" + value + "</td>").collect(Collectors.joining()) + "</tr>");
+            commentBlock.line("    <tr>" + row.stream()
+                .map(value -> "<td>" + CodeNamer.escapeComment(value) + "</td>")
+                .collect(Collectors.joining()) + "</tr>");
         }
         commentBlock.line("</table>");
     }
