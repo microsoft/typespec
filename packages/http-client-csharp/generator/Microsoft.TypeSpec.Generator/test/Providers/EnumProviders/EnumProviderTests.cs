@@ -1374,6 +1374,27 @@ namespace Microsoft.TypeSpec.Generator.Tests.Providers
             Assert.AreEqual(Helpers.GetExpectedFromFile(), content);
         }
 
+        [Test]
+        public void ValidateGeneratedEnumWithLineTerminatorsInDocs()
+        {
+            MockHelpers.LoadMockGenerator(createCSharpTypeCore: (inputType) => typeof(int), includeXmlDocs: true);
+
+            var values = new List<InputEnumTypeValue>();
+            var input = InputFactory.Enum("WeatherIconCode", InputPrimitiveType.Int32, values);
+            values.Add(new InputEnumTypeValue(
+                "Sunny",
+                1,
+                InputPrimitiveType.Int32,
+                "",
+                "Line one\rLine two\nLine three\r\nLine four\u0085Line five\u2028Line six\u2029Line seven",
+                input));
+
+            var enumType = EnumProvider.Create(input);
+            var content = new TypeProviderWriter(enumType).Write().Content;
+
+            Assert.AreEqual(Helpers.GetExpectedFromFile(), content);
+        }
+
         [TestCase("byte")]
         [TestCase("sbyte")]
         [TestCase("short")]
