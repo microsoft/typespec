@@ -268,21 +268,24 @@ namespace Microsoft.TypeSpec.Generator
         internal static async Task<Dictionary<string, Dictionary<string, string>>> ReadProjectAssets()
         {
             Dictionary<string, Dictionary<string, string>> hshFrameworks = [];
-            // Read in the resolved direct dependencies
-            DirectoryInfo? directory = (new DirectoryInfo(CodeModelGenerator.Instance.Configuration.OutputDirectory)).Parent?.Parent?.Parent;
-            if (directory == null)
-            {
-                return hshFrameworks;
-            }
-            string assetsJson = Path.Combine(directory.FullName, "artifacts", "obj", CodeModelGenerator.Instance.Configuration.PackageName, "project.assets.json");
+
+            // Read in the resolved direct dependencies.
+            // We first try the default location of project.assets.json, which is %project_dir%/obj/.
+            string assetsJson = Path.Combine(CodeModelGenerator.Instance.Configuration.ProjectDirectory, "obj", "project.assets.json");
             if (!File.Exists(assetsJson))
             {
-                // Try to get file from the project directory.
-                assetsJson = Path.Combine(CodeModelGenerator.Instance.Configuration.ProjectDirectory, "obj", "project.assets.json");
-            }
-            if (!File.Exists(assetsJson))
-            {
-                return hshFrameworks;
+                // If it does not exists, try the artifacts/obj/%project_name%/ three directoreies above projects directory.
+                // If this directory does not extists or does not contain artifacts/obj/%project_name%/roject.assets.json, give up.
+                DirectoryInfo? directory = (new DirectoryInfo(CodeModelGenerator.Instance.Configuration.OutputDirectory)).Parent?.Parent?.Parent;
+                if (directory == null)
+                {
+                    return hshFrameworks;
+                }
+                assetsJson = Path.Combine(directory.FullName, "artifacts", "obj", CodeModelGenerator.Instance.Configuration.PackageName, "project.assets.json");
+                if (!File.Exists(assetsJson))
+                {
+                    return hshFrameworks;
+                }
             }
             Utf8JsonReader reader = new Utf8JsonReader(await File.ReadAllBytesAsync(assetsJson));
             using JsonDocument document = JsonDocument.ParseValue(ref reader);
