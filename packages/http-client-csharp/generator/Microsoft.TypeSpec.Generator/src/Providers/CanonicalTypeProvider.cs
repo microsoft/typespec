@@ -33,11 +33,12 @@ namespace Microsoft.TypeSpec.Generator.Providers
             foreach (var property in _specProperties)
             {
                 var name = property.IsExactName ? property.Name : property.Name.ToIdentifierName();
-                _specPropertiesMap.TryAdd(name, property);
-                if (!property.IsExactName)
-                {
-                    _specPropertiesMap.TryAdd(name.NormalizeCSharpAcronyms(property.Type.IsDateTimeInputType()), property);
-                }
+                _specPropertiesMap[name] = property;
+            }
+            foreach (var property in _specProperties.Where(p => !p.IsExactName))
+            {
+                var name = property.Name.ToIdentifierName();
+                _specPropertiesMap.TryAdd(name.NormalizeCSharpAcronyms(property.Type.IsDateTimeInputType()), property);
             }
             _serializedNameMap = BuildSerializationNameMap();
             _renamedProperties = (_generatedTypeProvider.CustomCodeView?.Properties ?? [])
@@ -95,12 +96,13 @@ namespace Microsoft.TypeSpec.Generator.Providers
             var generatedProperties = _generatedTypeProvider.Properties;
             var customProperties = _generatedTypeProvider.CustomCodeView?.Properties ?? [];
 
-            // Index the spec properties under the names the generator actually produced for them.
+            // Exact emitted names take precedence over canonical aliases. A canonical alias from an earlier
+            // property must not shadow a later property that actually emits that name.
             foreach (var generatedProperty in _generatedTypeProvider.GeneratedPropertiesBySpecName.Values)
             {
                 if (generatedProperty.InputProperty is InputModelProperty preservedSpecProperty)
                 {
-                    _specPropertiesMap.TryAdd(generatedProperty.Name, preservedSpecProperty);
+                    _specPropertiesMap[generatedProperty.Name] = preservedSpecProperty;
                 }
             }
 
@@ -172,7 +174,9 @@ namespace Microsoft.TypeSpec.Generator.Providers
             // Filter out generated properties that have been customized to avoid duplicates.
             // This is needed because EnsureBuilt caches members without applying customization
             // filtering, so _generatedTypeProvider.Properties may contain unfiltered results.
-            var filteredGeneratedProperties = FilterCustomizedProperties(generatedProperties);
+            var filteredGeneratedProperties = FilterCustomizedProperties(
+                generatedProperties,
+                _generatedTypeProvider.GeneratedPropertiesBySpecName);
 
             if (_specProperties.Count > 0)
             {

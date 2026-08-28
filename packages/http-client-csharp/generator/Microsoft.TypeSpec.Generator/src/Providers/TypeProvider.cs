@@ -433,8 +433,19 @@ namespace Microsoft.TypeSpec.Generator.Providers
 
         protected virtual CSharpType[] GetTypeArguments() => [];
 
-        internal PropertyProvider[] FilterCustomizedProperties(IEnumerable<PropertyProvider> specProperties)
+        internal PropertyProvider[] FilterCustomizedProperties(
+            IEnumerable<PropertyProvider> specProperties,
+            IReadOnlyDictionary<string, PropertyProvider>? knownSpecProperties = null)
         {
+            if (knownSpecProperties is not null)
+            {
+                foreach (var (name, property) in knownSpecProperties)
+                {
+                    _generatedPropertiesBySpecName[name] = property;
+                }
+            }
+
+            var normalizedNames = new List<(string Name, PropertyProvider Property)>();
             foreach (var specProperty in specProperties)
             {
                 var inputProperty = specProperty.InputProperty;
@@ -444,11 +455,20 @@ namespace Microsoft.TypeSpec.Generator.Providers
                 }
 
                 var identifierName = inputProperty.Name.ToIdentifierName();
-                _generatedPropertiesBySpecName.TryAdd(inputProperty.Name, specProperty);
-                _generatedPropertiesBySpecName.TryAdd(identifierName, specProperty);
-                _generatedPropertiesBySpecName.TryAdd(
+                // Raw and identifier names are exact spec identities and take precedence over aliases left by
+                // an earlier property or filtering pass.
+                _generatedPropertiesBySpecName[inputProperty.Name] = specProperty;
+                _generatedPropertiesBySpecName[identifierName] = specProperty;
+                normalizedNames.Add((
                     identifierName.NormalizeCSharpAcronyms(inputProperty.Type.IsDateTimeInputType()),
-                    specProperty);
+                    specProperty));
+            }
+
+            // Canonical names are aliases. Add them only after all exact names have been registered so an alias
+            // such as startTime -> StartsOn cannot shadow a separate startsOn property.
+            foreach (var (name, property) in normalizedNames)
+            {
+                _generatedPropertiesBySpecName.TryAdd(name, property);
             }
 
             var properties = new List<PropertyProvider>();

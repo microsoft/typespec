@@ -119,14 +119,16 @@ namespace Microsoft.TypeSpec.Generator.Providers
 
                 if (previousProperty is null && isDateTime)
                 {
-                    // Fall back to a name produced by an earlier date-time naming convention. The candidate has
-                    // to be the same property in all but name, so it must have a compatible type and must not
-                    // already be claimed by another member of this type.
+                    // The previous name is derived from this input property rather than inferred by normalizing
+                    // arbitrary contract members. Date-time normalization is many-to-one, so reverse matching
+                    // could otherwise claim an unrelated removed property such as StartDate for StartTime.
+                    var previousGeneratedName = AvoidPropertyNameCollision(
+                        identifierName.NormalizeCSharpAcronyms().GetPreviousDateTimePropertyName(),
+                        enclosingTypeName);
                     previousProperty = lastContractProperties?.FirstOrDefault(p =>
+                        p.Name == previousGeneratedName &&
                         p.Type.WithNullable(false).Equals(Type.WithNullable(false)) &&
-                        !IsClaimedBySiblingProperty(p.Name, inputProperty, enclosingType) &&
-                        (p.Name == $"{enclosingTypeName}Property" ? enclosingTypeName : p.Name)
-                            .NormalizeCSharpAcronyms(normalizeDateTimeSuffix: true) == canonicalName);
+                        !IsClaimedBySiblingProperty(p.Name, inputProperty, enclosingType));
                 }
                 identifierName = previousProperty?.Name ?? canonicalName;
             }

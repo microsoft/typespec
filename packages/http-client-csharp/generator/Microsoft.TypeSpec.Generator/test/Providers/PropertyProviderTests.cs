@@ -344,6 +344,31 @@ namespace Microsoft.TypeSpec.Generator.Tests.Providers
         }
 
         [Test]
+        public async Task TestPropertyNameDoesNotReuseUnrelatedHistoricalDateTimeName()
+        {
+            await MockHelpers.LoadMockGeneratorAsync(lastContractCompilation: async () => await Helpers.GetCompilationFromDirectoryAsync());
+
+            // StartDate is a removed GA property, not the previous generated name of the new StartTime property.
+            // Although both normalize to StartsOn, the new property must not take the unrelated GA name.
+            var inputModel = InputFactory.Model(
+                "TestModel",
+                @namespace: "Test",
+                properties:
+                [
+                    InputFactory.Property(
+                        "startTime",
+                        new InputDateTimeType(
+                            DateTimeKnownEncoding.Rfc3339,
+                            "utcDateTime",
+                            "TypeSpec.utcDateTime",
+                            InputPrimitiveType.String),
+                        isRequired: true)
+                ]);
+
+            Assert.AreEqual("StartsOn", new ModelProvider(inputModel).Properties.Single().Name);
+        }
+
+        [Test]
         public async Task TestPropertyNamePrefersExactCanonicalNameFromLastContract()
         {
             await MockHelpers.LoadMockGeneratorAsync(lastContractCompilation: async () => await Helpers.GetCompilationFromDirectoryAsync());
