@@ -119,18 +119,20 @@ namespace Microsoft.TypeSpec.Generator.Providers
                         p.Name == AvoidPropertyNameCollision(canonicalName, enclosingTypeName) &&
                         !IsClaimedBySiblingProperty(p.Name, inputProperty, enclosingType));
 
-                if (previousProperty is null && isDateTime)
+                if (previousProperty is null &&
+                    isDateTime &&
+                    !identifierName.EndsWith("On", StringComparison.Ordinal))
                 {
-                    // The previous name is derived from this input property rather than inferred by normalizing
-                    // arbitrary contract members. Date-time normalization is many-to-one, so reverse matching
-                    // could otherwise claim an unrelated removed property such as StartDate for StartTime.
-                    var previousGeneratedName = AvoidPropertyNameCollision(
-                        identifierName.NormalizeCSharpAcronyms().GetPreviousDateTimePropertyName(),
-                        enclosingTypeName);
-                    previousProperty = lastContractProperties?.FirstOrDefault(p =>
-                        p.Name == previousGeneratedName &&
-                        p.Type.WithNullable(false).Equals(Type.WithNullable(false)) &&
-                        !IsClaimedBySiblingProperty(p.Name, inputProperty, enclosingType));
+                    // Both the current and previous conventions render date-time names as <stem>On. Requiring
+                    // that suffix on the contract name prevents a removed property such as StartDate from being
+                    // mistaken for the historical name of StartTime even though both normalize to StartsOn.
+                    var specStem = identifierName.NormalizeCSharpAcronyms().GetDateTimeStem();
+                    previousProperty = specStem is null
+                        ? null
+                        : lastContractProperties?.FirstOrDefault(p =>
+                            HasDateTimeStem(p.Name, specStem, enclosingTypeName) &&
+                            p.Type.WithNullable(false).Equals(Type.WithNullable(false)) &&
+                            !IsClaimedBySiblingProperty(p.Name, inputProperty, enclosingType));
                 }
                 identifierName = previousProperty?.Name ?? canonicalName;
             }
@@ -200,6 +202,17 @@ namespace Microsoft.TypeSpec.Generator.Providers
 
         private static string AvoidPropertyNameCollision(string propertyName, string enclosingTypeName) =>
             propertyName == enclosingTypeName ? $"{propertyName}Property" : propertyName;
+
+        private static bool HasDateTimeStem(string contractName, string specStem, string enclosingTypeName)
+        {
+            if (contractName == AvoidPropertyNameCollision(enclosingTypeName, enclosingTypeName))
+            {
+                contractName = enclosingTypeName;
+            }
+
+            return contractName.EndsWith("On", StringComparison.Ordinal) &&
+                contractName.GetDateTimeStem() == specStem;
+        }
 
         private static bool IsClaimedBySiblingProperty(
             string contractName,

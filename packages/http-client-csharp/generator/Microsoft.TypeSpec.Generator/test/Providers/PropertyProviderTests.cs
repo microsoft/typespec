@@ -344,6 +344,31 @@ namespace Microsoft.TypeSpec.Generator.Tests.Providers
         }
 
         [Test]
+        public async Task TestPropertyNamePreservesHistoricalFirstAndLastDateTimeNames()
+        {
+            await MockHelpers.LoadMockGeneratorAsync(lastContractCompilation: async () => await Helpers.GetCompilationFromDirectoryAsync());
+
+            var dateTime = new InputDateTimeType(
+                DateTimeKnownEncoding.Rfc3339,
+                "utcDateTime",
+                "TypeSpec.utcDateTime",
+                InputPrimitiveType.String);
+            var firstModel = InputFactory.Model(
+                "FirstModel",
+                @namespace: "Test",
+                properties: [InputFactory.Property("firstTime", dateTime, isRequired: true)]);
+            var lastModel = InputFactory.Model(
+                "LastModel",
+                @namespace: "Test",
+                properties: [InputFactory.Property("lastDate", dateTime, isRequired: true)]);
+
+            // First and Last are excluded from canonical normalization, but their GA <stem>On names still
+            // represent the same properties and must remain preserved.
+            Assert.AreEqual("FirstOn", new ModelProvider(firstModel).Properties.Single().Name);
+            Assert.AreEqual("LastOn", new ModelProvider(lastModel).Properties.Single().Name);
+        }
+
+        [Test]
         public async Task TestPropertyNameDoesNotReuseUnrelatedHistoricalDateTimeName()
         {
             await MockHelpers.LoadMockGeneratorAsync(lastContractCompilation: async () => await Helpers.GetCompilationFromDirectoryAsync());

@@ -78,49 +78,14 @@ namespace Microsoft.TypeSpec.Generator.Utilities
         }
 
         /// <summary>
-        /// Gets the property name that the previous date-time naming convention would have produced.
-        /// This is a compatibility candidate only; new properties use
-        /// <see cref="NormalizeDateTimeSuffix(string)"/>.
+        /// Gets the normalized semantic stem of a date-time name by removing its recognized suffix.
         /// </summary>
-        public static string GetPreviousDateTimePropertyName(this string name)
+        public static string? GetDateTimeStem(this string name)
         {
-            if (name.StartsWith("From", StringComparison.Ordinal) ||
-                name.StartsWith("To", StringComparison.Ordinal) ||
-                name.EndsWith("PointInTime", StringComparison.Ordinal))
-            {
-                return name;
-            }
-
-            int suffixLength;
-            if (name.Length > 8 && name.EndsWith("DateTime", StringComparison.Ordinal))
-            {
-                suffixLength = 8;
-            }
-            else if (name.Length > 4 &&
-                (name.EndsWith("Time", StringComparison.Ordinal) ||
-                 name.EndsWith("Date", StringComparison.Ordinal)))
-            {
-                suffixLength = 4;
-            }
-            else if (name.Length > 2 && name.EndsWith("At", StringComparison.Ordinal))
-            {
-                suffixLength = 2;
-            }
-            else
-            {
-                return name;
-            }
-
-            var prefix = name[..^suffixLength];
-            prefix = prefix switch
-            {
-                "Creation" => "Created",
-                "Deletion" => "Deleted",
-                "Expiration" => "Expire",
-                "Modification" => "Modified",
-                _ => prefix
-            };
-            return prefix + "On";
+            var suffixLength = DateTimeNameRules.GetSuffixLength(name);
+            return suffixLength == 0 || suffixLength == name.Length
+                ? null
+                : DateTimeNameRules.ToVerbForm(name[..^suffixLength]);
         }
 
         private static class DateTimeNameRules
