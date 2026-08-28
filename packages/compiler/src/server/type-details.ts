@@ -35,7 +35,8 @@ export async function getSymbolDetails(
   if (options.includeSignature) {
     lines.push(await getSymbolSignature(program, symbol));
   }
-  const doc = getSymbolDocumentation(program, symbol);
+  const type = resolveSymbolType(program, symbol);
+  const doc = getSymbolDocumentation(program, symbol, type);
   if (doc) {
     lines.push(doc);
   }
@@ -64,9 +65,8 @@ export async function getSymbolDetails(
     );
   }
 
-  const infoType = resolveSymbolType(program, symbol);
-  if (infoType) {
-    const info = program.getTypeInfo(infoType);
+  if (type) {
+    const info = program.getTypeInfo(type);
     if (info) {
       // Separate library contributed info from the type's own signature/documentation with a
       // horizontal rule so it is clearly not part of the doc comment.
@@ -95,7 +95,7 @@ function resolveSymbolType(program: Program, symbol: Sym): Type | undefined {
   return undefined;
 }
 
-function getSymbolDocumentation(program: Program, symbol: Sym) {
+function getSymbolDocumentation(program: Program, symbol: Sym, type: Type | undefined) {
   const docs: string[] = [];
 
   for (const node of [...symbol.declarations, ...(symbol.node ? [symbol.node] : [])]) {
@@ -106,16 +106,6 @@ function getSymbolDocumentation(program: Program, symbol: Sym) {
   }
 
   // Add @doc(...) API docs
-  let type = symbol.type;
-  if (!type) {
-    const symNode = getSymNode(symbol);
-    if (symNode) {
-      const entity = program.checker.getTypeOrValueForNode(symNode);
-      if (entity && isType(entity)) {
-        type = entity;
-      }
-    }
-  }
   if (type) {
     const apiDocs = getDocData(program, type);
     // The doc comment is already included above we don't want to duplicate. Only include if it was specificed via `@doc`
