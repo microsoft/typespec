@@ -473,7 +473,7 @@ namespace My.External.Library
         [Test]
         [TestCase(true)]
         [TestCase(false)]
-        public void TestReadProjectAssetsMayBe(bool isSdkFramework)
+        public async Task TestReadProjectAssets(bool isSdkFramework)
         {
             var ns = "TestNamespace";
             var nugetCacheDir = Path.Combine(_tempDirectory!, "NuGetCache");
@@ -539,7 +539,7 @@ namespace My.External.Library
                 inputNamespaceName: ns,
                 outputPath: projectDir,
                 configuration: $"{{\"package-name\": \"{ns}\"}}");
-            Dictionary<string, Dictionary<string, string>> dtFrameworks = GeneratedCodeWorkspace.ReadProjectAssetsMayBe();
+            Dictionary<string, Dictionary<string, string>> dtFrameworks = await GeneratedCodeWorkspace.ReadProjectAssets();
             Assert.That(dtFrameworks, Has.Count.EqualTo(3));
             foreach (string framework in new string[]{ "netstandard2.0", "net10.0", "net462" })
             {
@@ -557,7 +557,7 @@ namespace My.External.Library
         }
 
         [Test]
-        public void TestReadProjectAssetsMayBeNoFile()
+        public async Task TestReadProjectAssetsNoFile()
         {
             var ns = "TestNamespace";
             var csprojContent = @"<Project Sdk=""Microsoft.NET.Sdk"">
@@ -579,12 +579,12 @@ namespace My.External.Library
                 inputNamespaceName: ns,
                 outputPath: _projectDir,
                 configuration: $"{{\"package-name\": \"{ns}\"}}");
-            Dictionary<string, Dictionary<string, string>> dtFrameworks = GeneratedCodeWorkspace.ReadProjectAssetsMayBe();
+            Dictionary<string, Dictionary<string, string>> dtFrameworks = await GeneratedCodeWorkspace.ReadProjectAssets();
             Assert.That(dtFrameworks, Has.Count.EqualTo(0));
         }
 
         [Test]
-        public void TestReadProjectAssetsMayBeUnsupportedPackageNames()
+        public async Task TestReadProjectAssetsUnsupportedPackageNames()
         {
             var ns = "TestNamespace";
             var csprojContent = @"<Project Sdk=""Microsoft.NET.Sdk"">
@@ -628,7 +628,7 @@ namespace My.External.Library
                 inputNamespaceName: ns,
                 outputPath: _projectDir,
                 configuration: $"{{\"package-name\": \"{ns}\"}}");
-            Dictionary<string, Dictionary<string, string>> dtFrameworks = GeneratedCodeWorkspace.ReadProjectAssetsMayBe();
+            Dictionary<string, Dictionary<string, string>> dtFrameworks = await GeneratedCodeWorkspace.ReadProjectAssets();
             Assert.That(dtFrameworks, Has.Count.EqualTo(3));
             foreach (string framework in new string[] { "netstandard2.0", "net10.0", "net462" })
             {

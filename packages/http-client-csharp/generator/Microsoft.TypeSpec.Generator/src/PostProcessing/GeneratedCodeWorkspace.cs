@@ -265,7 +265,7 @@ namespace Microsoft.TypeSpec.Generator
             return project;
         }
 
-        internal static Dictionary<string, Dictionary<string, string>> ReadProjectAssetsMayBe()
+        internal static async Task<Dictionary<string, Dictionary<string, string>>> ReadProjectAssets()
         {
             Dictionary<string, Dictionary<string, string>> hshFrameworks = [];
             // Read in the resolved direct dependencies
@@ -284,7 +284,7 @@ namespace Microsoft.TypeSpec.Generator
             {
                 return hshFrameworks;
             }
-            Utf8JsonReader reader = new Utf8JsonReader(File.ReadAllBytes(assetsJson));
+            Utf8JsonReader reader = new Utf8JsonReader(await File.ReadAllBytesAsync(assetsJson));
             using JsonDocument document = JsonDocument.ParseValue(ref reader);
             foreach (JsonProperty prop in document.RootElement.EnumerateObject())
             {
@@ -306,7 +306,7 @@ namespace Microsoft.TypeSpec.Generator
                                 {
                                     string[] packageVersionRelation = (packageAndVersion.GetString() ?? "").Split();
                                     // We only support the greater-than-or-equal relation.
-                                    // Example: "Azure.Core >= 1.62.0"
+                                    // Example: "My.Package >= 1.1.1"
                                     if (packageVersionRelation.Length == 3 && string.Equals(packageVersionRelation[1], ">="))
                                     {
                                         hshFrameworks[currentFramework.Framework][packageVersionRelation[0].ToLower()] = packageVersionRelation[2];
@@ -411,7 +411,7 @@ namespace Microsoft.TypeSpec.Generator
             var globalPackagesFolder = SettingsUtility.GetGlobalPackagesFolder(nugetSettings);
 
             // Read in the resolved direct dependencies for all frameworks
-            Dictionary<string, Dictionary<string, string>> hshFrameworks = ReadProjectAssetsMayBe();
+            Dictionary<string, Dictionary<string, string>> hshFrameworks = await ReadProjectAssets();
             // Get the latest framework.
             Dictionary<string, string> hshNameVersion = [];
             if (hshFrameworks.Count > 0)
