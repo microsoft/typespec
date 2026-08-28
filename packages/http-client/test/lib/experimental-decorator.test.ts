@@ -32,6 +32,60 @@ it("should get the feature lifecycle for a model property", async () => {
   expect(featureLifecycle).toBe("Experimental");
 });
 
+it("should get experimental lifecycle details", async () => {
+  const { betaProp, program } = await runner.compile(t.code`
+    namespace Test;
+
+    model MyModel {
+       @experimental(#{
+         diagnosticId: "C",
+         dependsOn: #["A", "B"]
+       })
+       ${t.modelProperty("betaProp")}: string;
+    }
+    `);
+
+  const featureLifecycle = $(program).client.getFeatureLifecycle(betaProp);
+  const details = $(program).client.getFeatureLifecycleDetails(betaProp);
+
+  expect(featureLifecycle).toBe("Experimental");
+  expect(details).toEqual({
+    stage: "Experimental",
+    diagnosticId: "C",
+    dependsOn: ["A", "B"],
+  });
+});
+
+it("should filter experimental lifecycle details by emitter scope", async () => {
+  const { betaProp, program } = await runner.compile(t.code`
+    namespace Test;
+
+    model MyModel {
+       @experimental(#{
+         emitterScope: "myEmitter",
+         diagnosticId: "C",
+         dependsOn: #["A", "B"]
+       })
+       ${t.modelProperty("betaProp")}: string;
+    }
+    `);
+
+  expect(
+    $(program).client.getFeatureLifecycleDetails(betaProp, {
+      emitterName: "myEmitter",
+    }),
+  ).toEqual({
+    stage: "Experimental",
+    diagnosticId: "C",
+    dependsOn: ["A", "B"],
+  });
+  expect(
+    $(program).client.getFeatureLifecycleDetails(betaProp, {
+      emitterName: "otherEmitter",
+    }),
+  ).toBeUndefined();
+});
+
 it("should get the feature lifecycle for a model property within scope", async () => {
   const { betaProp, program } = await runner.compile(t.code`
     namespace Test;

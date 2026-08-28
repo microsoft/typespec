@@ -5,7 +5,9 @@
 package azure.resourcemanager.operationtemplates.implementation;
 
 import azure.resourcemanager.operationtemplates.fluent.LroesClient;
+import azure.resourcemanager.operationtemplates.fluent.models.CostReportInner;
 import azure.resourcemanager.operationtemplates.fluent.models.ExportResultInner;
+import azure.resourcemanager.operationtemplates.models.CostReport;
 import azure.resourcemanager.operationtemplates.models.ExportRequest;
 import azure.resourcemanager.operationtemplates.models.ExportResult;
 import azure.resourcemanager.operationtemplates.models.Lroes;
@@ -73,6 +75,24 @@ public final class LroesImpl implements Lroes {
                 .collect(Collectors.toList()));
         } else {
             return Collections.emptyList();
+        }
+    }
+
+    public CostReport getLro(String scope, String operationId) {
+        CostReportInner inner = this.serviceClient().getLro(scope, operationId);
+        if (inner != null) {
+            return new CostReportImpl(inner, this.manager());
+        } else {
+            return null;
+        }
+    }
+
+    public CostReport getLro(String scope, String operationId, Context context) {
+        CostReportInner inner = this.serviceClient().getLro(scope, operationId, context);
+        if (inner != null) {
+            return new CostReportImpl(inner, this.manager());
+        } else {
+            return null;
         }
     }
 

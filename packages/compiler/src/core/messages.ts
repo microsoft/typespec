@@ -805,6 +805,12 @@ const diagnostics = {
       default: paramMessage`onValidate failed with errors. ${"error"}`,
     },
   },
+  "emitter-not-found": {
+    severity: "error",
+    messages: {
+      default: paramMessage`Emitter "${"emitterPackage"}" not found. Make sure to install it with \`npm install ${"emitterPackage"}\`.`,
+    },
+  },
   "invalid-emitter": {
     severity: "error",
     messages: {

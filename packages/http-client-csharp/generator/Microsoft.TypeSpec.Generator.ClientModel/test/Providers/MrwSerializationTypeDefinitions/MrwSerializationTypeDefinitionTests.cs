@@ -1521,6 +1521,19 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers.MrwSerializat
                 $"byte[] property should not use array enumeration. Actual:\n{methodBody}");
         }
 
+        [TestCase(false, "D")]
+        [TestCase(true, "U")]
+        public void TestSerializationOfBinaryDataPropertyAvoidsCopy(bool useBase64Url, string format)
+        {
+            var inputModel = InputFactory.Model("TestModel", properties:
+                [InputFactory.Property("data", useBase64Url ? InputPrimitiveType.Base64Url : InputPrimitiveType.Base64)]);
+            var (_, serialization) = CreateModelAndSerialization(inputModel);
+
+            var methodBody = serialization.BuildJsonModelWriteCoreMethod().BodyStatements!.ToDisplayString();
+
+            Assert.AreEqual(Helpers.GetExpectedFromFile(format), methodBody);
+        }
+
         [Test]
         public void TestDeserializationOfNonBase64ByteArrayPropertyUsesGetRawText()
         {

@@ -20,13 +20,12 @@ import pc from "picocolors";
 import { fileURLToPath } from "url";
 import { parseArgs } from "util";
 
+import type { RegenerateContext, RegenerateFlags } from "./regenerate-common.ts";
 import {
   buildTaskGroups,
   cleanGeneratedCode,
   getSubdirectories,
   preprocess,
-  type RegenerateContext,
-  type RegenerateFlags,
   runParallel,
 } from "./regenerate-common.ts";
 
