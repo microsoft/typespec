@@ -38,6 +38,13 @@ public final class HeadAsyncClient {
 
     /**
      * The contentTypeHeaderInResponse operation.
+     * <p><strong>Response Headers</strong></p>
+     * <table border="1">
+     * <caption>Response Headers</caption>
+     * <tr><th>Name</th><th>Type</th><th>Description</th></tr>
+     * <tr><td>Content-Type</td><td>String</td><td>Content-type.</td></tr>
+     * <tr><td>x-ms-meta</td><td>String</td><td>The metadata headers.</td></tr>
+     * </table>
      * 
      * @param requestOptions The options to configure the HTTP request before HTTP client sends it.
      * @throws HttpResponseException thrown if the request is rejected by server.

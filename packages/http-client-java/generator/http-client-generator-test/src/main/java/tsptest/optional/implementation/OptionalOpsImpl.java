@@ -176,6 +176,14 @@ public final class OptionalOpsImpl {
      * }
      * </pre>
      * 
+     * <p><strong>Response Headers</strong></p>
+     * <table border="1">
+     * <caption>Response Headers</caption>
+     * <tr><th>Name</th><th>Type</th><th>Description</th></tr>
+     * <tr><td>header-required</td><td>String</td><td>The header-required response header.</td></tr>
+     * <tr><td>header-optional</td><td>String</td><td>The header-optional response header.</td></tr>
+     * </table>
+     * 
      * @param requestHeaderRequired The requestHeaderRequired parameter.
      * @param booleanRequired The booleanRequired parameter.
      * @param booleanRequiredNullable The booleanRequiredNullable parameter.
@@ -291,6 +299,14 @@ public final class OptionalOpsImpl {
      * }
      * }
      * </pre>
+     * 
+     * <p><strong>Response Headers</strong></p>
+     * <table border="1">
+     * <caption>Response Headers</caption>
+     * <tr><th>Name</th><th>Type</th><th>Description</th></tr>
+     * <tr><td>header-required</td><td>String</td><td>The header-required response header.</td></tr>
+     * <tr><td>header-optional</td><td>String</td><td>The header-optional response header.</td></tr>
+     * </table>
      * 
      * @param requestHeaderRequired The requestHeaderRequired parameter.
      * @param booleanRequired The booleanRequired parameter.
