@@ -999,6 +999,8 @@ namespace Microsoft.TypeSpec.Generator.Tests.Providers
                 lastContractCompilation: async () => await Helpers.GetCompilationFromDirectoryAsync(
                     parameters: "Last"));
 
+            // Update() records the prior name as OriginalName, so the parameter is named "exact_param"
+            // while still resolving to "oldParam" when looked up against the last contract.
             var inputParameter = InputFactory.QueryParameter(
                 "oldParam",
                 InputPrimitiveType.String,

@@ -146,9 +146,19 @@ namespace Microsoft.TypeSpec.Generator.Providers
                 {
                     if (currentMethodSignature.Name.Equals(previousMethod.Signature.Name))
                     {
-                        if (MethodSignatureHelper.HaveSameParametersInSameOrder(currentMethodSignature, previousMethod.Signature)
-                            || HasMatchingExactParameterNames(currentMethodSignature, previousMethod.Signature))
+                        if (MethodSignatureHelper.HaveSameParametersInSameOrder(currentMethodSignature, previousMethod.Signature))
                         {
+                            foundCompatibleOverload = true;
+                            break;
+                        }
+
+                        if (HasMatchingExactParameterNames(currentMethodSignature, previousMethod.Signature))
+                        {
+                            // An overload cannot be added because the parameter types are identical, so
+                            // callers using named arguments for the renamed parameters will not compile.
+                            CodeModelGenerator.Instance.Emitter.Info(
+                                $"Model factory method '{Name}.{previousMethod.Signature.Name}' keeps its exact parameter name(s) instead of the last contract's; named arguments using the previous name(s) are source breaking.",
+                                BackCompatibilityChangeCategory.ModelFactoryMethodSkipped);
                             foundCompatibleOverload = true;
                             break;
                         }
