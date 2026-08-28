@@ -40,6 +40,16 @@ The above example is equivalent to the `Breed` alias mentioned earlier, with the
 
 A named union can declare a base type with the `extends` keyword. Every variant of the union must be [assignable](./type-relations.md) to that base type, otherwise a diagnostic is reported on the offending variant.
 
+:::caution
+Union `extends` clauses are experimental. Enable the `union-extends` compiler feature in `tspconfig.yaml` to use them without an experimental feature warning:
+
+```yaml
+features:
+  - union-extends
+```
+
+:::
+
 ```typespec
 model Dog {
   name: string;
@@ -81,7 +91,7 @@ union Breed extends Dog {
 }
 ```
 
-Any type expression can be used as the base type, including scalars, unions and templates.
+The base expression must resolve to a model, scalar, enum, or union. This includes union, intersection, array, and template expressions that resolve to one of those data types. Anonymous model expressions cannot be used directly or through an alias.
 
 ```typespec
 union OperationStatus extends string {

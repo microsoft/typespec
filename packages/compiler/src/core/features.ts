@@ -15,6 +15,10 @@ export const compilerFeatures = {
     description:
       "Allows use of auto decorator declarations without experimental warnings in project code.",
   },
+  "union-extends": {
+    description:
+      "Allows use of union `extends` clauses without experimental warnings in project code.",
+  },
 } as const satisfies Record<string, CompilerFeatureDefinition>;
 
 export type CompilerFeatureName = keyof typeof compilerFeatures;

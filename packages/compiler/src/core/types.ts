@@ -677,7 +677,7 @@ export interface Union extends BaseType, DecoratedType, TemplatedTypeBase {
 
   /**
    * Type declared with the `extends` clause of a union statement. Every variant of the
-   * union is guaranteed to be assignable to this type.
+   * union is guaranteed to be assignable to this model, scalar, enum, or union.
    *
    * This is only set for named unions declared with an `extends` clause. It documents a
    * constraint: it does **not** imply a subclassing relationship, it does **not** mean the
@@ -685,8 +685,10 @@ export interface Union extends BaseType, DecoratedType, TemplatedTypeBase {
    *
    * Emitters should not require this to be present: a union with the same variants and no
    * `extends` clause should ideally be handled the same way.
+   *
+   * @experimental
    */
-  baseType?: Type;
+  baseType?: Model | Scalar | Enum | Union;
 
   /**
    * Late-bound symbol of this interface type.
@@ -1618,6 +1620,8 @@ export interface UnionStatementNode extends BaseNode, DeclarationNode, TemplateD
    *
    * This is a constraint only, it does not imply any subtyping relationship between
    * the union and the base type beyond the one that already exists structurally.
+   *
+   * @experimental
    */
   readonly extends?: Expression;
   readonly decorators: readonly DecoratorExpressionNode[];

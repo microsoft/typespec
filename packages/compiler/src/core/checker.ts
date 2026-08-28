@@ -7770,6 +7770,15 @@ export function createChecker(program: Program, resolver: NameResolver): Checker
     }
     if (ctx.mapper === undefined) {
       checkModifiers(program, node);
+      if (node.extends && !isCompilerFeatureEnabled(program, "union-extends", node)) {
+        reportCheckerDiagnostic(
+          createDiagnostic({
+            code: "experimental-feature",
+            messageId: "unionExtends",
+            target: node.extends,
+          }),
+        );
+      }
     }
     checkTemplateDeclaration(ctx, node);
 
@@ -7866,7 +7875,7 @@ export function createChecker(program: Program, resolver: NameResolver): Checker
     union: UnionStatementNode,
     unionType: Union,
     extendsRef: Expression,
-  ): Type | undefined {
+  ): NonNullable<Union["baseType"]> | undefined {
     const unionSymId = getNodeSym(union);
     pendingResolutions.start(unionSymId, ResolutionKind.BaseType);
 
@@ -7907,10 +7916,43 @@ export function createChecker(program: Program, resolver: NameResolver): Checker
         }
         return undefined;
       }
+
+      if (
+        ctx.hasFlags(CheckFlags.InTemplateDeclaration) &&
+        (baseType.kind === "TemplateParameter" || baseType.kind === "TemplateParameterAccess")
+      ) {
+        return undefined;
+      }
+
+      if (baseType.kind === "Model" && baseType.node?.kind === SyntaxKind.ModelExpression) {
+        reportCheckerDiagnostic(
+          createDiagnostic({
+            code: "extend-union",
+            messageId: "modelExpression",
+            target: extendsRef,
+          }),
+        );
+        return undefined;
+      }
+
+      if (!isUnionBaseType(baseType)) {
+        reportCheckerDiagnostic(createDiagnostic({ code: "extend-union", target: extendsRef }));
+        return undefined;
+      }
+
       return baseType;
     } finally {
       pendingResolutions.finish(unionSymId, ResolutionKind.BaseType);
     }
+  }
+
+  function isUnionBaseType(type: Type): type is NonNullable<Union["baseType"]> {
+    return (
+      type.kind === "Model" ||
+      type.kind === "Scalar" ||
+      type.kind === "Enum" ||
+      type.kind === "Union"
+    );
   }
 
   /**

@@ -148,7 +148,16 @@ async function runNavigator(
   options?: NavigationOptions,
 ) {
   const [{ program }] = await NavigatorTester.compileAndDiagnose(typespec, {
-    compilerOptions: { nostdlib: true },
+    compilerOptions: {
+      nostdlib: true,
+      configFile: {
+        projectRoot: ".",
+        kind: "project",
+        features: ["union-extends"],
+        diagnostics: [],
+        outputDir: "tsp-output",
+      },
+    },
   });
 
   const [result, listener] = createCollector(customListener);

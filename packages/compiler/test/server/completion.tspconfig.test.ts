@@ -134,19 +134,19 @@ describe("Test completion items for features", () => {
   it.each([
     {
       config: `features:\n  - ┆`,
-      expected: ['"auto-decorators"', '"function-declarations"'],
+      expected: ['"auto-decorators"', '"function-declarations"', '"union-extends"'],
     },
     {
       config: `features:\n  - "┆"`,
-      expected: ["auto-decorators", "function-declarations"],
+      expected: ["auto-decorators", "function-declarations", "union-extends"],
     },
     {
       config: `features:\n  - "function┆"`,
-      expected: ["auto-decorators", "function-declarations"],
+      expected: ["auto-decorators", "function-declarations", "union-extends"],
     },
     {
       config: `features:\n  - function-declarations\n  - ┆`,
-      expected: ['"auto-decorators"'],
+      expected: ['"auto-decorators"', '"union-extends"'],
     },
   ])("#%# Test features: $config", async ({ config, expected }) => {
     await checkCompletionItems(config, true, expected);
@@ -159,6 +159,7 @@ describe("Test completion items for features", () => {
       [
         "Allows use of auto decorator declarations without experimental warnings in project code.",
         "Allows use of function declarations without experimental warnings in project code.",
+        "Allows use of union `extends` clauses without experimental warnings in project code.",
       ],
       true,
     );

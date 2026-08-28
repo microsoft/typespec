@@ -267,6 +267,8 @@ const diagnostics = {
       default: paramMessage`${"feature"} is an experimental feature. It may change in the future or be removed. Use with caution and consider providing feedback on this feature.`,
       functionDeclarations:
         "Function declarations are an experimental feature that may change in the future. Use with caution and consider providing feedback to the TypeSpec team.",
+      unionExtends:
+        "Union `extends` clauses are an experimental feature that may change in the future. Use with caution and consider providing feedback to the TypeSpec team.",
     },
   },
   "auto-decorator-disabled": {
@@ -380,6 +382,13 @@ const diagnostics = {
     messages: {
       default: "Models must extend other models.",
       modelExpression: "Models cannot extend model expressions.",
+    },
+  },
+  "extend-union": {
+    severity: "error",
+    messages: {
+      default: "Union `extends` must specify a model, scalar, enum, or union.",
+      modelExpression: "Unions cannot extend model expressions.",
     },
   },
   "is-model": {

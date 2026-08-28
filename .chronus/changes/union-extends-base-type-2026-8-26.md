@@ -4,7 +4,9 @@ packages:
   - "@typespec/compiler"
 ---
 
-Add support for an `extends` clause on union statements to constrain every variant to a common base type.
+Add experimental support for an `extends` clause on union statements to constrain every variant to a common data type.
+
+Enable the `union-extends` compiler feature in `tspconfig.yaml` to use the clause without an experimental feature warning.
 
 ```tsp
 model PetBase {

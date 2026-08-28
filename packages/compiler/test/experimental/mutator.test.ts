@@ -405,7 +405,17 @@ describe("global graph mutation", () => {
   };
 
   async function globalMutate(code: string): Promise<Namespace> {
-    const { program } = await Tester.compile(code);
+    const { program } = await Tester.compile(code, {
+      compilerOptions: {
+        configFile: {
+          projectRoot: ".",
+          kind: "project",
+          features: ["union-extends"],
+          diagnostics: [],
+          outputDir: "tsp-output",
+        },
+      },
+    });
 
     const { type } = mutateSubgraphWithNamespace(
       program,
