@@ -115,7 +115,9 @@ namespace Microsoft.TypeSpec.Generator.Providers
                 // against the collision-adjusted form of each name we are looking for.
                 var previousProperty =
                     lastContractProperties?.FirstOrDefault(p => p.Name == AvoidPropertyNameCollision(identifierName, enclosingTypeName))
-                    ?? lastContractProperties?.FirstOrDefault(p => p.Name == AvoidPropertyNameCollision(canonicalName, enclosingTypeName));
+                    ?? lastContractProperties?.FirstOrDefault(p =>
+                        p.Name == AvoidPropertyNameCollision(canonicalName, enclosingTypeName) &&
+                        !IsClaimedBySiblingProperty(p.Name, inputProperty, enclosingType));
 
                 if (previousProperty is null && isDateTime)
                 {

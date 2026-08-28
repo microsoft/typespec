@@ -394,6 +394,32 @@ namespace Microsoft.TypeSpec.Generator.Tests.Providers
         }
 
         [Test]
+        public async Task TestPropertyNameDoesNotReuseCanonicalNameClaimedBySibling()
+        {
+            await MockHelpers.LoadMockGeneratorAsync(lastContractCompilation: async () => await Helpers.GetCompilationFromDirectoryAsync());
+
+            var dateTime = new InputDateTimeType(
+                DateTimeKnownEncoding.Rfc3339,
+                "utcDateTime",
+                "TypeSpec.utcDateTime",
+                InputPrimitiveType.String);
+            var inputModel = InputFactory.Model(
+                "TestModel",
+                @namespace: "Test",
+                properties:
+                [
+                    InputFactory.Property("startTime", dateTime, isRequired: true),
+                    InputFactory.Property("startsOn", dateTime, isRequired: true)
+                ]);
+
+            // The sibling owns the exact canonical StartsOn name, so startTime preserves the still-available
+            // historical StartOn name rather than producing a duplicate StartsOn declaration.
+            Assert.That(
+                new ModelProvider(inputModel).Properties.Select(p => p.Name),
+                Is.EqualTo(new[] { "StartOn", "StartsOn" }));
+        }
+
+        [Test]
         public async Task TestPropertyNameIgnoresIncompatiblyTypedHistoricalName()
         {
             await MockHelpers.LoadMockGeneratorAsync(lastContractCompilation: async () => await Helpers.GetCompilationFromDirectoryAsync());
