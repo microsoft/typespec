@@ -1,5 +1,12 @@
 # Change Log - @typespec/json-schema
 
+## 1.15.0
+
+### Bug Fixes
+
+- [#11505](https://github.com/microsoft/typespec/pull/11505) Use explicit `@id` values for bundled $defs keys to avoid silent overwrites.
+
+
 ## 1.14.0
 
 ### Deprecations

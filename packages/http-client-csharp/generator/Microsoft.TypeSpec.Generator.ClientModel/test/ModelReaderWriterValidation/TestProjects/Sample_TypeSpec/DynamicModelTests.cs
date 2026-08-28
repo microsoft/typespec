@@ -1,6 +1,7 @@
 // Copyright (c) Microsoft Corporation. All rights reserved.
 // Licensed under the MIT License.
 
+using System;
 using System.ClientModel.Primitives;
 using System.Linq;
 using System.Text.Json;
@@ -93,6 +94,53 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.ModelReaderWriterValida
             var foo = document.RootElement.GetProperty("foo");
             Assert.That(foo.GetProperty("bar").GetString(), Is.EqualTo("bar"));
             Assert.That(foo.GetProperty("baz").GetString(), Is.EqualTo("patched"));
+        }
+
+        [Test]
+        public void JsonPatchTryGetValue_CollectionIndexIsBoundsChecked()
+        {
+            var model = ReadDynamicModel();
+
+#pragma warning disable SCME0001 // Type is for evaluation purposes only and is subject to change or removal in future updates.
+            Assert.That(model.Patch.TryGetValue("$.listFoo[0].bar"u8, out string? value), Is.True);
+            Assert.That(value, Is.EqualTo("bar"));
+            Assert.That(model.Patch.TryGetValue("$.listFoo[1].bar"u8, out string? _), Is.False);
+            Assert.That(model.Patch.TryGetValue("$.listOfListFoo[0][0].bar"u8, out string? _), Is.False);
+#pragma warning restore SCME0001 // Type is for evaluation purposes only and is subject to change or removal in future updates.
+        }
+
+        [Test]
+        public void JsonPatchSet_CollectionIndexIsBoundsChecked()
+        {
+            var model = ReadDynamicModel();
+
+#pragma warning disable SCME0001 // Type is for evaluation purposes only and is subject to change or removal in future updates.
+            model.Patch.Set("$.listFoo[1].bar"u8, "\"patched\""u8);
+            model.Patch.Set("$.listOfListFoo[0][0].bar"u8, "\"patched\""u8);
+#pragma warning restore SCME0001 // Type is for evaluation purposes only and is subject to change or removal in future updates.
+        }
+
+        private static DynamicModel ReadDynamicModel()
+        {
+            return ModelReaderWriter.Read<DynamicModel>(
+                BinaryData.FromString(
+                    """
+                    {
+                      "name": "dynamic-model",
+                      "requiredNullableList": [],
+                      "requiredNullableDictionary": {},
+                      "primitiveDictionary": {},
+                      "foo": { "bar": "foo" },
+                      "listFoo": [{ "bar": "bar" }],
+                      "listOfListFoo": [],
+                      "dictionaryFoo": {},
+                      "dictionaryOfDictionaryFoo": {},
+                      "dictionaryListFoo": {},
+                      "listOfDictionaryFoo": []
+                    }
+                    """),
+                ModelReaderWriterOptions.Json,
+                SampleTypeSpecContext.Default)!;
         }
 
         private static int GetRootPropertyCount(JsonElement root, string propertyName) => root.EnumerateObject().Count(property => property.NameEquals(propertyName));
