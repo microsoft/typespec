@@ -1,5 +1,6 @@
 import { code, type Children } from "@alloy-js/core";
-import { Namespace } from "@alloy-js/csharp";
+import { DocSummary, Namespace } from "@alloy-js/csharp";
+import { JsonConverter } from "@typespec/emitter-framework/csharp";
 import { CSharpFile } from "../csharp-file.jsx";
 
 /**
@@ -8,34 +9,27 @@ import { CSharpFile } from "../csharp-file.jsx";
  */
 export function TimeSpanDurationConverter(): Children {
   return (
-    <CSharpFile
-      path="TimeSpanDurationConverter.cs"
-      using={["System.Text.Json", "System.Text.Json.Serialization", "System.Xml"]}
-    >
+    <CSharpFile path="TimeSpanDurationConverter.cs" using={["System.Xml"]}>
       <Namespace name="TypeSpec.Helpers.JsonConverters">
-        {code`
-          /// <summary>
-          /// Converts between Json duration and .Net TimeSpan
-          /// </summary>
-          public class TimeSpanDurationConverter : JsonConverter<TimeSpan>
-          {
-            public override TimeSpan Read(ref Utf8JsonReader reader, Type typeToConvert, JsonSerializerOptions options)
-            {
-              if (typeToConvert != typeof(TimeSpan))
-                throw new ArgumentException($"Cannot apply converter {this.GetType().FullName} to type {typeToConvert.FullName}");
+        <JsonConverter
+          name="TimeSpanDurationConverter"
+          csharpType="TimeSpan"
+          public
+          sealed={false}
+          doc={<DocSummary>Converts between Json duration and .Net TimeSpan</DocSummary>}
+          decodeAndReturn={(reader, typeToConvert) => code`
+            if (${typeToConvert} != typeof(TimeSpan))
+              throw new ArgumentException($"Cannot apply converter {this.GetType().FullName} to type {${typeToConvert}.FullName}");
 
-              var value = reader.GetString();
-              if (string.IsNullOrWhiteSpace(value))
-                return TimeSpan.MinValue;
-              return XmlConvert.ToTimeSpan(value);
-            }
-
-            public override void Write(Utf8JsonWriter writer, TimeSpan value, JsonSerializerOptions options)
-            {
-              writer.WriteStringValue(XmlConvert.ToString(value));
-            }
-          }
-        `}
+            var value = ${reader}.GetString();
+            if (string.IsNullOrWhiteSpace(value))
+              return TimeSpan.MinValue;
+            return XmlConvert.ToTimeSpan(value);
+          `}
+          encodeAndWrite={(writer, value) => code`
+            ${writer}.WriteStringValue(XmlConvert.ToString(${value}));
+          `}
+        />
       </Namespace>
     </CSharpFile>
   );
