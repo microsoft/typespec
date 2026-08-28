@@ -122,6 +122,8 @@ namespace Microsoft.TypeSpec.Generator.Utilities
 
             internal static string ToVerbForm(string prefix)
             {
+                // Resolve all exact rules before considering compound suffixes so an overlapping rule added
+                // later cannot be preempted by an earlier compound match.
                 foreach (var (noun, verb) in _nounToVerbRules)
                 {
                     if (prefix.Equals(noun, StringComparison.OrdinalIgnoreCase))

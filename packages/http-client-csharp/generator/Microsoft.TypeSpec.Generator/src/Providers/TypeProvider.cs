@@ -554,17 +554,9 @@ namespace Microsoft.TypeSpec.Generator.Providers
         /// <summary>
         /// Maps the spec names a customization can reference to the property the generator built from that spec
         /// property, as captured by <see cref="FilterCustomizedProperties"/> before the properties replaced by
-        /// custom code were filtered out. Accessing this map ensures the properties have been built so callers
-        /// do not depend on ordering a separate <see cref="Properties"/> access before this one.
+        /// custom code were filtered out. Callers must build <see cref="Properties"/> before reading this map.
         /// </summary>
-        internal IReadOnlyDictionary<string, PropertyProvider> GeneratedPropertiesBySpecName
-        {
-            get
-            {
-                _ = Properties;
-                return _generatedPropertiesBySpecName;
-            }
-        }
+        internal IReadOnlyDictionary<string, PropertyProvider> GeneratedPropertiesBySpecName => _generatedPropertiesBySpecName;
 
         internal FieldProvider[] FilterCustomizedFields(IEnumerable<FieldProvider> specFields)
         {

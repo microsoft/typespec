@@ -96,12 +96,15 @@ namespace Microsoft.TypeSpec.Generator.Providers
 
         protected internal override PropertyProvider[] BuildProperties()
         {
+            // Building Properties populates GeneratedPropertiesBySpecName as part of customization filtering.
+            // Keep these reads together and in this order so the map is never observed mid-build.
             var generatedProperties = _generatedTypeProvider.Properties;
+            var generatedPropertiesBySpecName = _generatedTypeProvider.GeneratedPropertiesBySpecName;
             var customProperties = _generatedTypeProvider.CustomCodeView?.Properties ?? [];
 
             // Exact emitted names take precedence over canonical aliases. A canonical alias from an earlier
             // property must not shadow a later property that actually emits that name.
-            foreach (var generatedProperty in _generatedTypeProvider.GeneratedPropertiesBySpecName.Values)
+            foreach (var generatedProperty in generatedPropertiesBySpecName.Values)
             {
                 if (generatedProperty.InputProperty is InputModelProperty preservedSpecProperty &&
                     _exactSpecPropertyNames.Add(generatedProperty.Name))
@@ -180,7 +183,7 @@ namespace Microsoft.TypeSpec.Generator.Providers
             // filtering, so _generatedTypeProvider.Properties may contain unfiltered results.
             var filteredGeneratedProperties = FilterCustomizedProperties(
                 generatedProperties,
-                _generatedTypeProvider.GeneratedPropertiesBySpecName);
+                generatedPropertiesBySpecName);
 
             if (_specProperties.Count > 0)
             {
