@@ -1756,6 +1756,92 @@ namespace Microsoft.TypeSpec.Generator.Tests.Providers.ModelProviders
         }
 
         [Test]
+        public async Task UsesReconciledPropertiesWhenMatchingDownstreamBase()
+        {
+            var rootModel = InputFactory.Model(
+                "rootModel",
+                properties: [InputFactory.Property("sharedProp", InputPrimitiveType.String, isRequired: true)],
+                usage: InputModelTypeUsage.Json);
+            var intermediateModel = InputFactory.Model(
+                "intermediateModel",
+                properties: [InputFactory.Property("intermediateProp", InputPrimitiveType.String)],
+                baseModel: rootModel,
+                usage: InputModelTypeUsage.Json);
+            var leafModel = InputFactory.Model(
+                "leafModel",
+                properties: [InputFactory.Property("sharedProp", InputPrimitiveType.String, isRequired: true)],
+                baseModel: intermediateModel,
+                usage: InputModelTypeUsage.Json);
+
+            var mockGenerator = await MockHelpers.LoadMockGeneratorAsync(
+                inputModelTypes: [leafModel, intermediateModel, rootModel],
+                compilation: async () => await Helpers.GetCompilationFromDirectoryAsync());
+
+            var intermediateProvider = (ModelProvider)mockGenerator.Object.OutputLibrary.TypeProviders
+                .Single(t => t.Name == "IntermediateModel");
+            var leafProvider = (ModelProvider)mockGenerator.Object.OutputLibrary.TypeProviders
+                .Single(t => t.Name == "LeafModel");
+
+            Assert.That(intermediateProvider.Properties.Select(p => p.Name), Does.Contain("SharedProp"));
+            var leafProperty = leafProvider.Properties.Single(p => p.Name == "SharedProp");
+            Assert.IsTrue(leafProperty.Modifiers.HasFlag(MethodSignatureModifiers.Override));
+            Assert.That(leafProvider.FullConstructor.Signature.Parameters.Select(p => p.Name).Count(n => n == "sharedProp"), Is.EqualTo(1));
+        }
+
+        [Test]
+        public async Task DeduplicatesReconciledPropertiesByFinalCSharpName()
+        {
+            var specBaseModel = InputFactory.Model(
+                "specBaseModel",
+                properties: [InputFactory.Property("ipStartOn", InputPrimitiveType.String)],
+                usage: InputModelTypeUsage.Json);
+            var childProperty = InputFactory.Property("IPStartOn", InputPrimitiveType.String);
+            var childModel = InputFactory.Model(
+                "mockInputModel",
+                properties: [childProperty],
+                baseModel: specBaseModel,
+                usage: InputModelTypeUsage.Json);
+
+            var mockGenerator = await MockHelpers.LoadMockGeneratorAsync(
+                inputModelTypes: [childModel, specBaseModel],
+                compilation: async () => await Helpers.GetCompilationFromDirectoryAsync());
+
+            var modelProvider = (ModelProvider)mockGenerator.Object.OutputLibrary.TypeProviders
+                .Single(t => t.Name == "MockInputModel");
+            var property = modelProvider.Properties.Single(p => p.Name == "IPStartOn");
+
+            Assert.AreSame(childProperty, property.InputProperty);
+            Assert.That(modelProvider.FullConstructor.Signature.Parameters.Select(p => p.Name).Count(n => n == "ipStartOn"), Is.EqualTo(1));
+        }
+
+        [Test]
+        public async Task PreservesAdditionalPropertiesFromReplacedSpecBase()
+        {
+            var specBaseModel = InputFactory.Model(
+                "specBaseModel",
+                properties: [],
+                additionalProperties: InputPrimitiveType.String,
+                usage: InputModelTypeUsage.Input | InputModelTypeUsage.Output | InputModelTypeUsage.Json);
+            var childModel = InputFactory.Model(
+                "mockInputModel",
+                properties: [InputFactory.Property("childProp", InputPrimitiveType.String)],
+                baseModel: specBaseModel,
+                usage: InputModelTypeUsage.Input | InputModelTypeUsage.Output | InputModelTypeUsage.Json);
+
+            var mockGenerator = await MockHelpers.LoadMockGeneratorAsync(
+                inputModelTypes: [childModel, specBaseModel],
+                compilation: async () => await Helpers.GetCompilationFromDirectoryAsync());
+
+            var modelProvider = (ModelProvider)mockGenerator.Object.OutputLibrary.TypeProviders
+                .Single(t => t.Name == "MockInputModel");
+            var additionalProperties = modelProvider.Properties.Single(p => p.IsAdditionalProperties);
+
+            Assert.AreEqual("AdditionalProperties", additionalProperties.Name);
+            Assert.AreEqual(typeof(string), additionalProperties.Type.ElementType.FrameworkType);
+            Assert.That(modelProvider.FullConstructor.Signature.Parameters.Select(p => p.Name), Does.Contain("additionalProperties"));
+        }
+
+        [Test]
         public async Task CanAddPropertyReferencingGeneratedType()
         {
             // Create Bar model that will be referenced by the custom property

@@ -102,21 +102,7 @@ namespace Microsoft.TypeSpec.Generator.Providers
             IsDiscriminator = IsDiscriminatorProperty(inputProperty);
             var hasOutputUsage = inputProperty.EnclosingType?.Usage.HasFlag(InputModelTypeUsage.Output) ?? false;
             Modifiers = IsDiscriminator || (!hasOutputUsage && _isRequiredNonNullableConstant) ? MethodSignatureModifiers.Internal : MethodSignatureModifiers.Public;
-            var identifierName = inputProperty.IsExactName ? inputProperty.Name : inputProperty.Name.ToIdentifierName();
-            var lastContractProperties = enclosingType.LastContractView?.Properties;
-            var legacyName = identifierName == enclosingType.Name
-                ? $"{identifierName}Property"
-                : identifierName;
-            if (!inputProperty.IsExactName &&
-                (lastContractProperties is null ||
-                 !lastContractProperties.Any(p => p.Name == legacyName)))
-            {
-                identifierName = identifierName
-                    .NormalizeCSharpAcronyms(inputProperty.Type.IsDateTimeInputType());
-            }
-            Name = identifierName == enclosingType.Name
-                ? $"{identifierName}Property"
-                : identifierName;
+            Name = GetPropertyName(inputProperty, enclosingType);
             Body = new AutoPropertyBody(propHasSetter, setterModifier, GetPropertyInitializationValue(propertyType, inputProperty));
 
             WireInfo = new PropertyWireInformation(inputProperty);
@@ -124,6 +110,24 @@ namespace Microsoft.TypeSpec.Generator.Providers
 
             InitializeParameter(DocHelpers.GetFormattableDescription(inputProperty.Summary, inputProperty.Doc) ?? FormattableStringHelpers.Empty);
             BuildDocs();
+        }
+
+        internal static string GetPropertyName(InputProperty inputProperty, TypeProvider enclosingType)
+        {
+            var identifierName = inputProperty.IsExactName ? inputProperty.Name : inputProperty.Name.ToIdentifierName();
+            var legacyName = identifierName == enclosingType.Name
+                ? $"{identifierName}Property"
+                : identifierName;
+            if (!inputProperty.IsExactName &&
+                (enclosingType.LastContractView?.Properties is not { } lastContractProperties ||
+                 !lastContractProperties.Any(p => p.Name == legacyName)))
+            {
+                identifierName = identifierName
+                    .NormalizeCSharpAcronyms(inputProperty.Type.IsDateTimeInputType());
+            }
+            return identifierName == enclosingType.Name
+                ? $"{identifierName}Property"
+                : identifierName;
         }
 
         public PropertyProvider(

@@ -379,7 +379,7 @@ namespace Microsoft.TypeSpec.Generator.Providers
                 fields.AddRange(AdditionalPropertyFields);
             }
 
-            foreach (var property in GetPropertiesToBuild())
+            foreach (var property in CanonicalTypeProvider.GetPropertiesToBuild(this, _inputModel))
             {
                 if (IsDiscriminator(property))
                 {
@@ -448,13 +448,41 @@ namespace Microsoft.TypeSpec.Generator.Providers
             return null;
         }
 
+        private InputType? GetAdditionalPropertiesType()
+        {
+            if (_inputModel.AdditionalProperties is not null)
+            {
+                return _inputModel.AdditionalProperties;
+            }
+
+            if (CustomCodeView?.BaseType is null || _inputModel.BaseModel is null)
+            {
+                return null;
+            }
+
+            var inheritedAdditionalProperties = _inputModel.GetSelfAndBaseModels()
+                .Select(model => model.AdditionalProperties)
+                .FirstOrDefault(type => type is not null);
+            if (inheritedAdditionalProperties is null)
+            {
+                return null;
+            }
+
+            // Do not materialize the open-model contract when the effective CLR base already exposes it.
+            var baseProvidesAdditionalProperties = BaseTypeProvider?.Properties.Any(property =>
+                property.IsAdditionalProperties ||
+                property.Name == AdditionalPropertiesHelper.DefaultAdditionalPropertiesPropertyName) == true;
+            return baseProvidesAdditionalProperties ? null : inheritedAdditionalProperties;
+        }
+
         private List<FieldProvider> BuildAdditionalPropertyFields()
         {
             var fields = new List<FieldProvider>();
+            var additionalPropertiesType = GetAdditionalPropertiesType();
 
-            if (_inputModel.AdditionalProperties != null)
+            if (additionalPropertiesType != null)
             {
-                var valueType = CodeModelGenerator.Instance.TypeFactory.CreateCSharpType(_inputModel.AdditionalProperties);
+                var valueType = CodeModelGenerator.Instance.TypeFactory.CreateCSharpType(additionalPropertiesType);
                 if (valueType != null)
                 {
                     if (valueType.IsUnion)
@@ -520,12 +548,13 @@ namespace Microsoft.TypeSpec.Generator.Providers
                 containsAdditionalTypeProperties = true;
             }
 
-            if (RawDataField == null || _inputModel.AdditionalProperties == null)
+            var additionalPropertiesType = GetAdditionalPropertiesType();
+            if (RawDataField == null || additionalPropertiesType == null)
             {
                 return properties;
             }
 
-            var apValueType = CodeModelGenerator.Instance.TypeFactory.CreateCSharpType(_inputModel.AdditionalProperties);
+            var apValueType = CodeModelGenerator.Instance.TypeFactory.CreateCSharpType(additionalPropertiesType);
             if (apValueType == null)
             {
                 return properties;
@@ -597,49 +626,15 @@ namespace Microsoft.TypeSpec.Generator.Providers
             }
         }
 
-        internal IReadOnlyList<InputModelProperty> GetPropertiesToBuild()
-        {
-            if (CustomCodeView?.BaseType is null || _inputModel.BaseModel is null)
-            {
-                return _inputModel.Properties;
-            }
-
-            // A custom CLR base replaces the TypeSpec base in the effective inheritance hierarchy. Preserve
-            // properties from the original TypeSpec hierarchy here so those not supplied by the custom base
-            // can be materialized on this model. The normal customization filter later removes properties
-            // represented by the effective CLR base, including properties matched through CodeGenMember names.
-            var propertiesByModel = new List<IReadOnlyList<InputModelProperty>>();
-            var claimedPropertyNames = new HashSet<string>();
-            foreach (var inputModel in _inputModel.GetSelfAndBaseModels())
-            {
-                var properties = new List<InputModelProperty>();
-                foreach (var property in inputModel.Properties)
-                {
-                    if (claimedPropertyNames.Add(property.Name))
-                    {
-                        properties.Add(property);
-                    }
-                }
-                propertiesByModel.Add(properties);
-            }
-
-            var result = new List<InputModelProperty>(claimedPropertyNames.Count);
-            for (int i = propertiesByModel.Count - 1; i >= 0; i--)
-            {
-                result.AddRange(propertiesByModel[i]);
-            }
-            return result;
-        }
-
         protected internal override PropertyProvider[] BuildProperties()
         {
-            var propertiesToBuild = GetPropertiesToBuild();
+            var propertiesToBuild = CanonicalTypeProvider.GetPropertiesToBuild(this, _inputModel);
             var properties = new List<PropertyProvider>(propertiesToBuild.Count + 1);
-            Dictionary<string, InputModelProperty> baseProperties = [];
+            Dictionary<string, (InputModelProperty Property, ModelProvider Provider)> baseProperties = [];
             HashSet<string> skippedBasePropertyNames = [];
             foreach (var baseModelProvider in EnumerateBaseModelProviders())
             {
-                foreach (var baseProperty in baseModelProvider._inputModel.Properties)
+                foreach (var baseProperty in CanonicalTypeProvider.GetPropertiesToBuild(baseModelProvider, baseModelProvider._inputModel))
                 {
                     if (baseProperties.ContainsKey(baseProperty.Name) || skippedBasePropertyNames.Contains(baseProperty.Name))
                     {
@@ -652,7 +647,7 @@ namespace Microsoft.TypeSpec.Generator.Providers
                     }
                     else
                     {
-                        baseProperties.Add(baseProperty.Name, baseProperty);
+                        baseProperties.Add(baseProperty.Name, (baseProperty, baseModelProvider));
                     }
                 }
             }
@@ -729,8 +724,9 @@ namespace Microsoft.TypeSpec.Generator.Providers
                         continue;
                     }
 
-                    if (baseProperties.TryGetValue(property.Name, out var baseProperty))
+                    if (baseProperties.TryGetValue(property.Name, out var basePropertyInfo))
                     {
+                        var (baseProperty, basePropertyProvider) = basePropertyInfo;
                         if (DomainEqual(baseProperty, property))
                         {
                             outputProperty.Modifiers |= MethodSignatureModifiers.Override;
@@ -744,7 +740,12 @@ namespace Microsoft.TypeSpec.Generator.Providers
                                 outputProperty.Body.HasSetter ? This.Property(fieldName).Assign(Value) : null);
                             outputProperty.BackingField = BaseModelProvider?.Fields.FirstOrDefault(f => f.Name == fieldName);
                         }
-                        outputProperty.BaseProperty = CodeModelGenerator.Instance.TypeFactory.CreateProperty(baseProperty, BaseModelProvider!);
+
+                        // Reconciled properties have a provider scoped to the model that materialized them. Use that
+                        // provider as the override target instead of consulting the owner-only InputProperty cache.
+                        outputProperty.BaseProperty = basePropertyProvider.CanonicalView.Properties.FirstOrDefault(p =>
+                            ReferenceEquals(p.InputProperty, baseProperty))
+                            ?? CodeModelGenerator.Instance.TypeFactory.CreateProperty(baseProperty, basePropertyProvider);
                     }
                 }
                 properties.Add(outputProperty);
@@ -1783,7 +1784,7 @@ namespace Microsoft.TypeSpec.Generator.Providers
         /// <returns>True if object type should be used for backward compatibility; otherwise false (uses BinaryData).</returns>
         private bool ShouldUseObjectAdditionalProperties()
         {
-            if (LastContractView == null || _inputModel.AdditionalProperties == null)
+            if (LastContractView == null || GetAdditionalPropertiesType() == null)
             {
                 return false;
             }

@@ -119,6 +119,35 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers.MrwSerializat
         }
 
         [Test]
+        public async Task SerializesAdditionalPropertiesFromReplacedSpecBase()
+        {
+            var specBaseModel = InputFactory.Model(
+                "specBaseModel",
+                properties: [],
+                additionalProperties: InputPrimitiveType.String,
+                usage: InputModelTypeUsage.Input | InputModelTypeUsage.Output | InputModelTypeUsage.Json);
+            var childModel = InputFactory.Model(
+                "mockInputModel",
+                properties: [InputFactory.Property("childProp", InputPrimitiveType.String)],
+                baseModel: specBaseModel,
+                usage: InputModelTypeUsage.Input | InputModelTypeUsage.Output | InputModelTypeUsage.Json);
+
+            var mockGenerator = await MockHelpers.LoadMockGeneratorAsync(
+                inputModels: () => [childModel, specBaseModel],
+                compilation: async () => await Helpers.GetCompilationFromDirectoryAsync());
+
+            var modelProvider = mockGenerator.Object.OutputLibrary.TypeProviders
+                .Single(t => t is ModelProvider && t.Name == "MockInputModel");
+            var serializationProvider = modelProvider.SerializationProviders
+                .Single(t => t is MrwSerializationTypeDefinition);
+            var content = new TypeProviderWriter(serializationProvider).Write().Content;
+
+            Assert.That(content, Does.Contain("foreach (var item in AdditionalProperties)"));
+            Assert.That(content, Does.Contain("additionalProperties.Add(prop.Name, prop.Value.GetString())"));
+            Assert.That(content, Does.Contain("new global::Sample.Models.MockInputModel(childProp, additionalProperties,"));
+        }
+
+        [Test]
         public async Task CanCustomizePropertyUsingField()
         {
             var props = new[]

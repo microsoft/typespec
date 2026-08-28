@@ -2688,7 +2688,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
 
         private MethodBodyStatement CreateWriteAdditionalPropertiesStatement()
         {
-            if (_inputModel.AdditionalProperties == null || AdditionalProperties.Length == 0)
+            if (AdditionalProperties.Length == 0)
             {
                 return MethodBodyStatement.Empty;
             }

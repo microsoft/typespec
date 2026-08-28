@@ -28,9 +28,9 @@ namespace Microsoft.TypeSpec.Generator.Providers
         {
             _generatedTypeProvider = generatedTypeProvider;
             var inputModel = inputType as InputModelType;
-            _specProperties = generatedTypeProvider is ModelProvider modelProvider
-                ? modelProvider.GetPropertiesToBuild()
-                : inputModel?.Properties ?? [];
+            _specProperties = inputModel is null
+                ? []
+                : GetPropertiesToBuild(generatedTypeProvider, inputModel);
             _specPropertiesMap = [];
             foreach (var property in _specProperties)
             {
@@ -47,6 +47,44 @@ namespace Microsoft.TypeSpec.Generator.Providers
             _renamedFields = (_generatedTypeProvider.CustomCodeView?.Fields ?? [])
                 .Where(p => p.OriginalName != null).Select(p => p.OriginalName!).ToHashSet();
         }
+
+        internal static IReadOnlyList<InputModelProperty> GetPropertiesToBuild(
+            TypeProvider generatedTypeProvider,
+            InputModelType inputModel)
+        {
+            if (generatedTypeProvider.CustomCodeView?.BaseType is null || inputModel.BaseModel is null)
+            {
+                return inputModel.Properties;
+            }
+
+            // A custom CLR base replaces the TypeSpec base in the effective inheritance hierarchy. Preserve
+            // properties from the original TypeSpec hierarchy so those not supplied by the custom base can be
+            // materialized on this model. Claim final C# names from derived to base so normalization collisions
+            // retain the derived property while the result remains ordered from base to derived.
+            var propertiesByModel = new List<IReadOnlyList<InputModelProperty>>();
+            var claimedPropertyNames = new HashSet<string>();
+            foreach (var model in inputModel.GetSelfAndBaseModels())
+            {
+                var properties = new List<InputModelProperty>();
+                foreach (var property in model.Properties)
+                {
+                    var propertyName = PropertyProvider.GetPropertyName(property, generatedTypeProvider);
+                    if (claimedPropertyNames.Add(propertyName))
+                    {
+                        properties.Add(property);
+                    }
+                }
+                propertiesByModel.Add(properties);
+            }
+
+            var result = new List<InputModelProperty>(claimedPropertyNames.Count);
+            for (int i = propertiesByModel.Count - 1; i >= 0; i--)
+            {
+                result.AddRange(propertiesByModel[i]);
+            }
+            return result;
+        }
+
         protected override string BuildRelativeFilePath() => throw new InvalidOperationException("This type should not be writing in generation");
 
         protected override string BuildName() => _generatedTypeProvider.Name;
@@ -216,11 +254,11 @@ namespace Microsoft.TypeSpec.Generator.Providers
                 // Add non-spec properties
                 result.AddRange(nonSpecProperties);
 
-                return [..result];
+                return [.. result];
             }
 
             // For other types, there is no canonical order, so we can just return generated followed by custom properties.
-            return [..filteredGeneratedProperties, ..customProperties];
+            return [.. filteredGeneratedProperties, .. customProperties];
         }
 
         protected internal override FieldProvider[] BuildFields()
@@ -285,7 +323,7 @@ namespace Microsoft.TypeSpec.Generator.Providers
             }
 
             // Order is not important for fields, so we can just return generated followed by custom fields
-            return [..FilterCustomizedFields(generatedFields), ..customFields];
+            return [.. FilterCustomizedFields(generatedFields), .. customFields];
         }
 
         private bool TryGetSpecProperty(
