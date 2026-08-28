@@ -393,6 +393,38 @@ namespace Microsoft.TypeSpec.Generator.Tests.Providers.ModelProviders
         }
 
         [Test]
+        public async Task RefilteringDoesNotUseStaleAliasToSuppressActiveProperty()
+        {
+            var dateTime = new InputDateTimeType(
+                DateTimeKnownEncoding.Rfc3339,
+                "utcDateTime",
+                "TypeSpec.utcDateTime",
+                InputPrimitiveType.String);
+            var inputModel = InputFactory.Model(
+                "mockInputModel",
+                properties:
+                [
+                    InputFactory.Property("startTime", dateTime),
+                    InputFactory.Property("other", InputPrimitiveType.String)
+                ]);
+
+            var mockGenerator = await MockHelpers.LoadMockGeneratorAsync(
+                inputModelTypes: [inputModel],
+                compilation: async () => await Helpers.GetCompilationFromDirectoryAsync());
+
+            var modelTypeProvider = mockGenerator.Object.OutputLibrary.TypeProviders.Single(t => t.Name == "MockInputModel");
+            var activeProperty = modelTypeProvider.GeneratedPropertiesBySpecName["other"];
+            activeProperty.Update(name: "StartsOn");
+
+            // Simulate a visitor removing the customized startTime property and renaming the remaining property
+            // before CSharpGen re-applies filtering. The stale startTime -> StartsOn alias must not suppress the
+            // active property because its mapped provider is no longer in this filtering pass.
+            modelTypeProvider.Update(properties: [activeProperty]);
+
+            Assert.That(modelTypeProvider.Properties.Select(p => p.Name), Is.EqualTo(new[] { "StartsOn" }));
+        }
+
+        [Test]
         public async Task HistoricalNameClaimedByCustomRenameIsNotReused()
         {
             var dateTime = new InputDateTimeType(

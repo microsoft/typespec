@@ -109,8 +109,11 @@ namespace Microsoft.TypeSpec.Generator.Providers
                 var canonicalName = identifierName.NormalizeCSharpAcronyms(isDateTime);
                 var enclosingTypeName = enclosingType.Name;
                 var lastContractProperties = enclosingType.LastContractView?.Properties
-                    .Where(p => MethodSignatureHelper.IsPublicApi(p.Modifiers));
+                    .Where(p => MethodSignatureHelper.IsPublicApi(p.Modifiers))
+                    .ToList();
 
+                // An exact input-identifier match is authoritative: it is the name this property would have had
+                // before normalization, so it does not need the disambiguation required by normalized candidates.
                 // The shipped member may carry the enclosing-type collision suffix, so candidates are compared
                 // against the collision-adjusted form of each name we are looking for.
                 var previousProperty =

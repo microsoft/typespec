@@ -2,7 +2,6 @@
 // Licensed under the MIT License.
 
 using System;
-using System.Collections.Generic;
 using System.Diagnostics.CodeAnalysis;
 using System.Text;
 using Microsoft.TypeSpec.Generator.Input;
@@ -106,26 +105,31 @@ namespace Microsoft.TypeSpec.Generator.Utilities
             private const string TimestampSuffix = "Timestamp";
             private const string ToName = "To";
 
-            // Complete prefixes that read better as verbs when combined with the "On" suffix.
-            private static readonly Dictionary<string, string> _nounToVerbMap = new(StringComparer.OrdinalIgnoreCase)
-            {
-                ["Change"] = "Changed",
-                ["Creation"] = "Created",
-                ["Deletion"] = "Deleted",
-                ["End"] = "Ends",
-                ["Expiration"] = "Expires",
-                ["Expire"] = "Expires",
-                ["Modification"] = "Modified",
-                ["Start"] = "Starts"
-            };
+            // Complete prefixes that read better as verbs when combined with the "On" suffix. Keep the
+            // collection ordered so adding overlapping suffixes in the future cannot make compound matching
+            // depend on dictionary enumeration order.
+            private static readonly (string Noun, string Verb)[] _nounToVerbMap =
+            [
+                ("Change", "Changed"),
+                ("Creation", "Created"),
+                ("Deletion", "Deleted"),
+                ("End", "Ends"),
+                ("Expiration", "Expires"),
+                ("Expire", "Expires"),
+                ("Modification", "Modified"),
+                ("Start", "Starts")
+            ];
 
             internal static string ToVerbForm(string prefix)
             {
-                if (_nounToVerbMap.TryGetValue(prefix, out var verb))
+                foreach (var (noun, verb) in _nounToVerbMap)
                 {
-                    return char.IsLower(prefix[0])
-                        ? char.ToLowerInvariant(verb[0]) + verb[1..]
-                        : verb;
+                    if (prefix.Equals(noun, StringComparison.OrdinalIgnoreCase))
+                    {
+                        return char.IsLower(prefix[0])
+                            ? char.ToLowerInvariant(verb[0]) + verb[1..]
+                            : verb;
+                    }
                 }
 
                 foreach (var (noun, compoundVerb) in _nounToVerbMap)
