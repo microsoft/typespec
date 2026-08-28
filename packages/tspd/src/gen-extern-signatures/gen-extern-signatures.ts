@@ -71,7 +71,10 @@ export function resolveTypeSpecExports(
     entries.push({
       subpath,
       typespecEntrypoint: resolvePath(libraryPath, value.typespec),
-      hasJsEntrypoint: JS_EXPORT_CONDITIONS.some((condition) => condition in value),
+      hasJsEntrypoint: JS_EXPORT_CONDITIONS.some((condition) => {
+        const target = (value as any)[condition];
+        return typeof target === "string" || (typeof target === "object" && target !== null);
+      }),
     });
   }
 
