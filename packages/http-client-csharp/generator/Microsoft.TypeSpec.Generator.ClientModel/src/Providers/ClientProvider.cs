@@ -261,9 +261,9 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
 
         internal string GetRestOperationName(InputServiceMethod serviceMethod)
         {
-            // Request builders follow the public operation naming rules rather than the mutable input service method
-            // name. Preserve the original Url suffix so a projection honoring a previous GA name and a newer
-            // projection normalized to Uri continue to reference the same stable request builder.
+            // Request builders use the stable input operation identity rather than the mutable public method name.
+            // Preserve the original Url suffix so a projection honoring a previous GA name and a newer projection
+            // normalized to Uri continue to reference the same request builder.
             return GetOperationName(serviceMethod, normalizeUrlSuffix: false).ToIdentifierName();
         }
 
