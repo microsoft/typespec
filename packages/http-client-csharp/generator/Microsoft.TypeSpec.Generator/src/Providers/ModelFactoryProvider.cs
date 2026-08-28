@@ -136,19 +136,20 @@ namespace Microsoft.TypeSpec.Generator.Providers
                 {
                     if (factoryMethods.Any(method => ReferenceEquals(method, matchingCurrentMethod)))
                     {
-                        // The current model shape may have regenerated a previously published signature
-                        // with different defaults. Restore its published required/optional boundary.
                         for (int i = 0; i < previousMethod.Signature.Parameters.Count; i++)
                         {
-                            matchingCurrentMethod.Signature.Parameters[i].DefaultValue =
-                                previousMethod.Signature.Parameters[i].DefaultValue;
+                            var currentParameter = matchingCurrentMethod.Signature.Parameters[i];
+                            if (previousMethod.Signature.Parameters[i].DefaultValue is null)
+                            {
+                                currentParameter.DefaultValue = null;
+                            }
+                            else
+                            {
+                                currentParameter.DefaultValue ??= Default;
+                            }
                         }
                     }
 
-                    // A method can retain the published CLR signature while requiring more arguments.
-                    // In that case, a longer generated overload may be the only method that preserves
-                    // the published omitted-argument calls, so do not constrain it against optionality
-                    // that the matching method no longer provides.
                     int previousMinimumArgumentCount = previousMethod.Signature.Parameters
                         .TakeWhile(p => p.DefaultValue is null && !p.IsParams)
                         .Count();

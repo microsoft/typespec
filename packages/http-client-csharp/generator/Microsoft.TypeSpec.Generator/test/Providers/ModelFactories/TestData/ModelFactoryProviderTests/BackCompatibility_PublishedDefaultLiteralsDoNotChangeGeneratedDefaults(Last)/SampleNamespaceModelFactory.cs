@@ -5,7 +5,7 @@ namespace Sample.Namespace
     public static partial class SampleNamespaceModelFactory
     {
         public static CompatibilityModel CompatibilityModel(
-            float value = default,
+            float value = 0F,
             string kind = "Unknown")
         { }
     }

@@ -418,8 +418,11 @@ namespace Microsoft.TypeSpec.Generator.Tests.Providers.ModelFactories
             Assert.IsNotNull(compatibilityMethod.Signature.Parameters[1].DefaultValue);
         }
 
+        // The last contract is read from metadata, which reports a parameter's default as a constant
+        // rather than as syntax and so cannot tell `= default` apart from `= 0F`. Only optionality is
+        // restored from the published signature, so the generated `default` is kept either way.
         [Test]
-        public async Task BackCompatibility_PreservesDefaultKeyword()
+        public async Task BackCompatibility_PublishedDefaultLiteralsDoNotChangeGeneratedDefaults()
         {
             InputModelType model = InputFactory.Model("CompatibilityModel", properties:
             [
@@ -436,8 +439,9 @@ namespace Microsoft.TypeSpec.Generator.Tests.Providers.ModelFactories
             modelFactory.ProcessTypeForBackCompatibility();
 
             var content = new TypeProviderWriter(modelFactory).Write().Content;
-            Assert.That(content, Does.Contain(
-                "float value = default, string kind = \"Unknown\")"));
+            Assert.That(content, Does.Contain("float value = default, string kind = default)"));
+            Assert.That(content, Does.Not.Contain("0F"));
+            Assert.That(content, Does.Not.Contain("\"Unknown\""));
         }
 
         // Mirrors the reported Azure.ResourceManager.AppService regression: both overloads already
