@@ -256,7 +256,7 @@ namespace Microsoft.TypeSpec.Generator.Providers
             // A raw-name customization is excluded: it has no declared target, so it is intended to replace
             // whichever generated property ends up with that name, including a preserved one. Fields are
             // included because customization filtering treats a custom field as a claim on a property name.
-            foreach (var customName in GetExplicitlyRenamedCustomNames(enclosingType))
+            foreach (var customName in enclosingType.GetExplicitlyRenamedCustomMemberNames())
             {
                 if (customName.OriginalName == inputProperty.Name ||
                     customName.OriginalName == inputProperty.Name.ToIdentifierName())
@@ -271,25 +271,6 @@ namespace Microsoft.TypeSpec.Generator.Providers
             }
 
             return false;
-        }
-
-        private static IEnumerable<(string Name, string OriginalName)> GetExplicitlyRenamedCustomNames(TypeProvider enclosingType)
-        {
-            foreach (var customProperty in enclosingType.CustomCodeView?.Properties ?? [])
-            {
-                if (customProperty.OriginalName is { } propertyOriginalName)
-                {
-                    yield return (customProperty.Name, propertyOriginalName);
-                }
-            }
-
-            foreach (var customField in enclosingType.CustomCodeView?.Fields ?? [])
-            {
-                if (customField.OriginalName is { } fieldOriginalName)
-                {
-                    yield return (customField.Name, fieldOriginalName);
-                }
-            }
         }
 
         private static bool IsPropertyPrivate(MethodSignatureModifiers modifiers, TypeSignatureModifiers enclosingTypeModifiers)
