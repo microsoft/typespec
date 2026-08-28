@@ -7273,13 +7273,18 @@
       "crossLanguageDefinitionId": "SampleTypeSpec.StreamingItem",
       "usage": "Input,Output,Json",
       "decorators": [],
-      "serializationOptions": {},
+      "serializationOptions": {
+        "json": {
+          "name": "StreamingItem"
+        }
+      },
       "isExactName": false,
       "properties": [
         {
           "$id": "560",
           "kind": "property",
           "name": "message",
+          "serializedName": "message",
           "type": {
             "$id": "561",
             "kind": "string",
@@ -7293,7 +7298,11 @@
           "flatten": false,
           "decorators": [],
           "crossLanguageDefinitionId": "SampleTypeSpec.StreamingItem.message",
-          "serializationOptions": {},
+          "serializationOptions": {
+            "json": {
+              "name": "message"
+            }
+          },
           "isHttpMetadata": false,
           "isExactName": false
         }

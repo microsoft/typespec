@@ -2,6 +2,8 @@ import type { DecoratorContext, DecoratorValidatorCallbacks, Type } from "@types
 
 export interface FeatureLifecycleOptions {
   readonly emitterScope?: string;
+  readonly diagnosticId?: string;
+  readonly dependsOn?: readonly string[];
 }
 
 /**

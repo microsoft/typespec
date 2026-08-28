@@ -288,5 +288,13 @@ namespace Microsoft.TypeSpec.Generator.ClientModel
 
         protected override ScmSerializationOptions? CreateSerializationOptionsCore(InputSerializationOptions inputSerializationOptions)
             => new(inputSerializationOptions);
+
+        /// <inheritdoc/>
+        protected override Type? CreateFrameworkType(string fullyQualifiedTypeName)
+            // The base implementation falls back to Type.GetType, which only probes corlib and the assembly that
+            // declares it (Microsoft.TypeSpec.Generator). System.ClientModel is referenced by this assembly instead,
+            // so its types have to be resolved explicitly or they would be treated as non-framework types.
+            => base.CreateFrameworkType(fullyQualifiedTypeName)
+                ?? typeof(BinaryContent).Assembly.GetType(fullyQualifiedTypeName);
     }
 }

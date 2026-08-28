@@ -243,4 +243,65 @@ describe("openapi3: output file", () => {
       for (const outputFile of c.expectedOutputFiles) expectHasOutput(outputFile);
     });
   });
+
+  describe("sanitize spec provided values", () => {
+    it("sanitize path separators and traversal in {version}", async () => {
+      await compileOpenAPI(
+        { "output-file": "openapi.{version}.yaml" },
+        `
+          using Versioning;
+          @versioned(Versions) @service namespace Service1 {
+            enum Versions {v1: "../../../escaped"}
+          }
+        `,
+      );
+      expectHasOutput("openapi..._.._.._escaped.yaml");
+    });
+
+    it("sanitize {version} used as a directory segment", async () => {
+      await compileOpenAPI(
+        { "output-file": "{version}/openapi.yaml" },
+        `
+          using Versioning;
+          @versioned(Versions) @service namespace Service1 {
+            enum Versions {v1: ".."}
+          }
+        `,
+      );
+      expectHasOutput("_/openapi.yaml");
+    });
+
+    it("sanitize path separators in {service-name}", async () => {
+      await compileOpenAPI(
+        { "output-file": "{service-name}.yaml" },
+        "@service namespace `../../escaped` {}",
+      );
+      expectHasOutput(".._.._escaped.yaml");
+    });
+
+    it("sanitize path separators in {service-name-if-multiple}", async () => {
+      await compileOpenAPI(
+        { "output-file": "openapi.{service-name-if-multiple}.yaml" },
+        `
+          @service namespace \`../../escaped\` {}
+          @service namespace Service2 {}
+        `,
+      );
+      expectHasOutput("openapi..._.._escaped.yaml");
+      expectHasOutput("openapi.Service2.yaml");
+    });
+
+    it("keep benign versions and service names untouched", async () => {
+      await compileOpenAPI(
+        { "output-file": "{service-name}.{version}.yaml" },
+        `
+          using Versioning;
+          @versioned(Versions) @service namespace Pet.Store {
+            enum Versions {v1: "2021-10-01-preview"}
+          }
+        `,
+      );
+      expectHasOutput("Pet.Store.2021-10-01-preview.yaml");
+    });
+  });
 });
