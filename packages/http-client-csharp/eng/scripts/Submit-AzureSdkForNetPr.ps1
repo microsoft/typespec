@@ -194,7 +194,7 @@ $RepoName = "azure-sdk-for-net"
 $BaseBranch = "main"
 $PRBranch = $BranchName
 if ($UseLocalRegenPreview) {
-    $PRBranch = "typespec/regen-preview-$env:BUILD_BUILDID"
+    $PRBranch = "typespec/regen-preview-$env:BUILD_BUILDID" # cspell:ignore BUILDID
 }
 
 $PRTitle = "Update UnbrandedGeneratorVersion to $PackageVersion"
