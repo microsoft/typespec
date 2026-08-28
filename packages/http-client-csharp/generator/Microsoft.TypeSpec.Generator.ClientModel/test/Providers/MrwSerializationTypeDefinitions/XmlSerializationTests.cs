@@ -335,7 +335,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers.MrwSerializat
             Assert.IsNotNull(xmlSerializationMethod);
             var methodBody = xmlSerializationMethod!.BodyStatements!.ToDisplayString();
 
-            Assert.IsTrue(methodBody.Contains("WriteStringValue") && methodBody.Contains("Timestamp"),
+            Assert.IsTrue(methodBody.Contains("writer.WriteStringValue(Timestamp.Value, \"O\")"),
                 $"DateTimeOffset property should be serialized with WriteStringValue. Actual:\n{methodBody}");
         }
 

@@ -6,7 +6,6 @@
     { "path": "../openapi/tsconfig.json" }
   ],
   "compilerOptions": {
-    "verbatimModuleSyntax": true,
     "outDir": "dist",
     "rootDir": ".",
     "tsBuildInfoFile": "temp/tsconfig.tsbuildinfo"
