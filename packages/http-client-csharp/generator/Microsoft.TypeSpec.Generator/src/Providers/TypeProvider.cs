@@ -323,9 +323,22 @@ namespace Microsoft.TypeSpec.Generator.Providers
         // Centralizes the FilterCustomizedMembers gate so the property getters and
         // ProcessTypeForBackCompatibility share identical filtering semantics.
         private IReadOnlyList<PropertyProvider> ApplyCustomizationFilter(IEnumerable<PropertyProvider> properties)
-            => FilterCustomizedMembers
-                ? FilterCustomizedProperties(properties)
-                : (properties as IReadOnlyList<PropertyProvider>) ?? [.. properties];
+        {
+            var propertiesToFilter = ReconcilePropertyNames(properties);
+            return FilterCustomizedMembers
+                ? FilterCustomizedProperties(propertiesToFilter)
+                : propertiesToFilter;
+        }
+
+        private static IReadOnlyList<PropertyProvider> ReconcilePropertyNames(IEnumerable<PropertyProvider> properties)
+        {
+            var propertyList = properties as IReadOnlyList<PropertyProvider> ?? [.. properties];
+            foreach (var property in propertyList)
+            {
+                property.ReconcileDateTimeName(propertyList);
+            }
+            return propertyList;
+        }
 
         private IReadOnlyList<MethodProvider> ApplyCustomizationFilter(IEnumerable<MethodProvider> methods)
             => FilterCustomizedMembers
@@ -938,7 +951,7 @@ namespace Microsoft.TypeSpec.Generator.Providers
             // full set of members before customization filtering is applied.
             _methods ??= BuildMethods();
             _constructors ??= BuildConstructors();
-            _properties ??= BuildProperties();
+            _properties ??= ReconcilePropertyNames(BuildProperties());
             _fields ??= BuildFields();
             _ = Implements;
             if (IsEnum)

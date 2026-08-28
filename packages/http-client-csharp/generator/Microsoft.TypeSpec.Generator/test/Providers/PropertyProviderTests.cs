@@ -313,6 +313,56 @@ namespace Microsoft.TypeSpec.Generator.Tests.Providers
         }
 
         [Test]
+        public async Task TestProjectedPropertyIgnoresUnprojectedInputSibling()
+        {
+            await MockHelpers.LoadMockGeneratorAsync(lastContractCompilation: async () => await Helpers.GetCompilationFromDirectoryAsync());
+
+            var dateTime = new InputDateTimeType(
+                DateTimeKnownEncoding.Rfc3339,
+                "utcDateTime",
+                "TypeSpec.utcDateTime",
+                InputPrimitiveType.String);
+            var unprojectedProperty = InputFactory.Property("startOn", InputPrimitiveType.String, isRequired: true);
+            var projectedProperty = InputFactory.Property("startTime", dateTime, isRequired: true);
+            InputFactory.Model(
+                "WireModel",
+                @namespace: "Test",
+                properties: [unprojectedProperty, projectedProperty]);
+
+            var projectedProvider = new TestTypeProvider(name: "ProjectedData", ns: "Test");
+            projectedProvider.Update(properties: [new PropertyProvider(projectedProperty, projectedProvider)]);
+
+            Assert.That(projectedProvider.Properties.Select(p => p.Name), Is.EqualTo(new[] { "StartOn" }));
+        }
+
+        [Test]
+        public async Task TestProjectedPropertiesFromDifferentModelsDoNotReuseClaimedName()
+        {
+            await MockHelpers.LoadMockGeneratorAsync(lastContractCompilation: async () => await Helpers.GetCompilationFromDirectoryAsync());
+
+            var dateTime = new InputDateTimeType(
+                DateTimeKnownEncoding.Rfc3339,
+                "utcDateTime",
+                "TypeSpec.utcDateTime",
+                InputPrimitiveType.String);
+            var normalizedProperty = InputFactory.Property("startTime", dateTime, isRequired: true);
+            var retainedProperty = InputFactory.Property("startOn", InputPrimitiveType.String, isRequired: true);
+            InputFactory.Model("FirstWireModel", @namespace: "Test", properties: [normalizedProperty]);
+            InputFactory.Model("SecondWireModel", @namespace: "Test", properties: [retainedProperty]);
+
+            var projectedProvider = new TestTypeProvider(name: "ProjectedData", ns: "Test");
+            projectedProvider.Update(properties:
+            [
+                new PropertyProvider(normalizedProperty, projectedProvider),
+                new PropertyProvider(retainedProperty, projectedProvider)
+            ]);
+
+            Assert.That(
+                projectedProvider.Properties.Select(p => p.Name),
+                Is.EqualTo(new[] { "StartsOn", "StartOn" }));
+        }
+
+        [Test]
         public async Task TestPropertyNameDoesNotReuseHistoricalNameClaimedByAnotherProperty()
         {
             await MockHelpers.LoadMockGeneratorAsync(lastContractCompilation: async () => await Helpers.GetCompilationFromDirectoryAsync());
