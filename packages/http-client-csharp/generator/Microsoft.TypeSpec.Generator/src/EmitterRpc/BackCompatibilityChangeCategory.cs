@@ -54,5 +54,11 @@ namespace Microsoft.TypeSpec.Generator.EmitterRpc
 
         /// <summary>A fixed enum member was re-added to preserve a member that existed in the last contract but is no longer produced by the current spec.</summary>
         EnumMemberAddedFromLastContract,
+
+        /// <summary>A back-compat model constructor was re-added to preserve a public constructor that existed in the last contract but is no longer produced by the current spec.</summary>
+        ConstructorAddedFromLastContract,
+
+        /// <summary>A back-compat model constructor could not be reconstructed from the last contract and was skipped.</summary>
+        ConstructorAddedFromLastContractSkipped,
     }
 }

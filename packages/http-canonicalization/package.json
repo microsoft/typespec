@@ -1,6 +1,6 @@
 {
   "name": "@typespec/http-canonicalization",
-  "version": "0.16.2",
+  "version": "0.16.3",
   "type": "module",
   "main": "dist/src/index.js",
   "repository": {

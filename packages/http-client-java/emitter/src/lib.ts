@@ -1,14 +1,24 @@
 import { createTypeSpecLibrary, paramMessage } from "@typespec/compiler";
-import { DIAGNOSTIC_DOCS_BASE_URL, EmitterOptionsSchema, LIB_NAME } from "./options.js";
+import {
+  DIAGNOSTIC_DOCS_BASE_PATH,
+  DIAGNOSTIC_DOCS_BASE_URL,
+  DIAGNOSTIC_DOCS_EXCLUDED,
+  EmitterOptionsSchema,
+  LIB_NAME,
+} from "./options.js";
 
 /**
  * Build the source documentation reference and published URL for a diagnostic.
  */
 function doc(code: string) {
+  if (DIAGNOSTIC_DOCS_EXCLUDED.has(code)) {
+    return {};
+  }
+
   return {
     docs: {
       kind: "file-ref" as const,
-      path: `emitter/src/diagnostics/${code}.md`,
+      path: `${DIAGNOSTIC_DOCS_BASE_PATH}/${code}.md`,
     },
     url: `${DIAGNOSTIC_DOCS_BASE_URL}/${code}`,
   };
@@ -98,15 +108,15 @@ export const $lib = createTypeSpecLibrary({
         basicAuthBranded: paramMessage`HTTP auth with '${"scheme"}' scheme is not supported for Azure. Azure service should use Oauth2Auth or ApiKeyAuth.`,
       },
     },
-    "protocol-api-not-generated": {
-      ...doc("protocol-api-not-generated"),
+    "dpg-protocol-api-not-generated": {
+      ...doc("dpg-protocol-api-not-generated"),
       severity: "warning",
       messages: {
         multipartFormData: paramMessage`Operation '${"operationName"}' is of content-type 'multipart/form-data'. Protocol API is not usable and hence not generated.`,
       },
     },
-    "convenience-api-not-generated": {
-      ...doc("convenience-api-not-generated"),
+    "dpg-convenience-api-not-generated": {
+      ...doc("dpg-convenience-api-not-generated"),
       severity: "warning",
       messages: {
         multipleContentType: paramMessage`Operation '${"operationName"}' can be invoked with multiple content-type. It is difficult to form a correct method signature for convenience API, and hence the convenience API is not generated.`,

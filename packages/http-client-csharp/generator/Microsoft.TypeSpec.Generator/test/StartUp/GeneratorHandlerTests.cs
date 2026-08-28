@@ -251,7 +251,7 @@ namespace TestPlugin
                     Console.Out.Write("stdout");
                     """);
 
-                using var buildProcess = Process.Start(new ProcessStartInfo("dotnet")
+                var buildStartInfo = new ProcessStartInfo("dotnet")
                 {
                     UseShellExecute = false,
                     ArgumentList =
@@ -264,7 +264,11 @@ namespace TestPlugin
                         "--verbosity",
                         "quiet"
                     }
-                });
+                };
+                AppendMsBuildPropertyIfSet(buildStartInfo.ArgumentList, "RestoreConfigFile", "RestoreConfigFile");
+                AppendMsBuildPropertyIfSet(buildStartInfo.ArgumentList, "NuGetAudit", "NuGetAudit");
+
+                using var buildProcess = Process.Start(buildStartInfo);
                 Assert.IsNotNull(buildProcess);
                 buildProcess!.WaitForExit();
                 Assert.AreEqual(0, buildProcess.ExitCode);
@@ -939,6 +943,18 @@ namespace Isolated { public class Dummy { } }");
     <TargetFramework>net10.0</TargetFramework>
   </PropertyGroup>
 </Project>";
+
+                private static void AppendMsBuildPropertyIfSet(
+                        System.Collections.ObjectModel.Collection<string> argumentList,
+                        string envVarName,
+                        string propertyName)
+                {
+                        var value = Environment.GetEnvironmentVariable(envVarName, EnvironmentVariableTarget.Process);
+                        if (!string.IsNullOrWhiteSpace(value))
+                        {
+                                argumentList.Add($"-p:{propertyName}={value}");
+                        }
+                }
 
         /// <summary>Creates a unique temp directory and removes it on dispose.</summary>
         private sealed class TempDirectory : IDisposable

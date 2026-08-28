@@ -58,7 +58,8 @@
     "@typespec/rest": "workspace:^",
     "@typespec/sse": "workspace:^",
     "@typespec/streams": "workspace:^",
-    "@typespec/versioning": "workspace:^"
+    "@typespec/versioning": "workspace:^",
+    "yaml": "catalog:"
   },
   "devDependencies": {
     "@types/node": "catalog:",

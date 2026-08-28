@@ -107,9 +107,9 @@ and all of the interfaces' properties must be present and compatible.
 
 ##### Parameters
 
-| Name       | Type      | Description |
-| ---------- | --------- | ----------- |
-| interfaces | `Model[]` |             |
+| Name       | Type      | Description                                                                 |
+| ---------- | --------- | --------------------------------------------------------------------------- |
+| interfaces | `Model[]` | The models to compose into the target, each emitted as a GraphQL interface. |
 
 ##### Examples
 
@@ -199,9 +199,9 @@ The operations become fields on the GraphQL type with their parameters as argume
 
 ##### Parameters
 
-| Name       | Type                       | Description |
-| ---------- | -------------------------- | ----------- |
-| operations | `Operation \| Interface[]` |             |
+| Name       | Type                       | Description                                                                  |
+| ---------- | -------------------------- | ---------------------------------------------------------------------------- |
+| operations | `Operation \| Interface[]` | The operations, or interfaces of operations, to add to the target as fields. |
 
 ##### Examples
 
@@ -252,9 +252,9 @@ All types and operations within the namespace will be emitted to a single GraphQ
 
 ##### Parameters
 
-| Name    | Type                                      | Description |
-| ------- | ----------------------------------------- | ----------- |
-| options | [valueof `SchemaOptions`](#schemaoptions) |             |
+| Name    | Type                                      | Description                               |
+| ------- | ----------------------------------------- | ----------------------------------------- |
+| options | [valueof `SchemaOptions`](#schemaoptions) | Options for the schema, such as its name. |
 
 ##### Examples
 

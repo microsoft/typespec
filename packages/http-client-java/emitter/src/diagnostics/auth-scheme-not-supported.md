@@ -22,12 +22,6 @@ namespace Contoso;
 namespace Contoso;
 ```
 
-```yaml
-options:
-  "@typespec/http-client-java":
-    flavor: azure
-```
-
 ## Diagnostic Message
 
 The message identifies the unsupported scheme, location, or flavor. For example:

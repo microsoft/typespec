@@ -106,7 +106,7 @@ describe("compiling with a deferred emitter", () => {
       emit: [emitterName],
       outputDir: resolveVirtualPath("tsp-output"),
     });
-    expect(before.diagnostics.map((x) => x.code)).toContain("import-not-found");
+    expect(before.diagnostics.map((x) => x.code)).toContain("emitter-not-found");
     expect(emitted).toBe(0);
 
     await host.loadLibrary(emitterName);
