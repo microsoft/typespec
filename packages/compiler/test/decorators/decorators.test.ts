@@ -910,7 +910,7 @@ describe("@overload", () => {
       {
         code: "missing-property",
         message:
-          "Property 'param' is missing on type '{ foo: boolean }' but required in '{ param: string | int32 }'",
+          "Property 'param' is missing on type 'someUnrelatedThing::parameters' but required in 'someThing::parameters'",
         severity: "error",
       },
       {
