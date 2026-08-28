@@ -42,6 +42,79 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers.CollectionRes
         }
 
         [Test]
+        public void NormalizedDateTimeReinjectedParameterFiltersNextLinkArguments()
+        {
+            var inputModel = InputFactory.Model("cat", properties:
+            [
+                InputFactory.Property("color", InputPrimitiveType.String, isRequired: true),
+            ]);
+            var dateType = new InputDateTimeType(
+                DateTimeKnownEncoding.Rfc7231,
+                "utcDateTime",
+                "TypeSpec.utcDateTime",
+                InputPrimitiveType.String);
+            var startTime = InputFactory.QueryParameter(
+                "startTime",
+                dateType,
+                isRequired: true,
+                serializedName: "start-time");
+            var startsOn = InputFactory.QueryParameter(
+                "startsOn",
+                InputPrimitiveType.String,
+                isRequired: true,
+                serializedName: "starts-on");
+            var pagingMetadata = InputFactory.NextLinkPagingMetadata(
+                ["cats"],
+                ["nextCat"],
+                InputResponseLocation.Body,
+                [startTime]);
+            var response = InputFactory.OperationResponse(
+                [200],
+                InputFactory.Model(
+                    "page",
+                    properties:
+                    [
+                        InputFactory.Property("cats", InputFactory.Array(inputModel)),
+                        InputFactory.Property("nextCat", InputPrimitiveType.Url)
+                    ]));
+            var operation = InputFactory.Operation(
+                "getCats",
+                responses: [response],
+                parameters: [startTime, startsOn]);
+            var inputServiceMethod = InputFactory.PagingServiceMethod(
+                "getCats",
+                operation,
+                pagingMetadata: pagingMetadata,
+                parameters:
+                [
+                    InputFactory.MethodParameter(
+                        "startTime",
+                        dateType,
+                        isRequired: true,
+                        location: InputRequestLocation.Query),
+                    InputFactory.MethodParameter(
+                        "startsOn",
+                        InputPrimitiveType.String,
+                        isRequired: true,
+                        location: InputRequestLocation.Query)
+                ]);
+            var client = InputFactory.Client("catClient", methods: [inputServiceMethod]);
+            MockHelpers.LoadMockGenerator(inputModels: () => [inputModel], clients: () => [client]);
+
+            var clientProvider = ScmCodeModelGenerator.Instance.TypeFactory.CreateClient(client);
+            var collectionResultDefinition = new CollectionResultDefinition(
+                clientProvider!,
+                inputServiceMethod,
+                null,
+                false);
+            var writer = new TypeProviderWriter(collectionResultDefinition);
+            var file = writer.Write();
+            Assert.AreEqual(
+                Helpers.GetExpectedFromFile().ReplaceLineEndings("\n"),
+                file.Content);
+        }
+
+        [Test]
         public void NestedNextLinkInBody()
         {
             CreatePagingOperation(InputResponseLocation.Body, isNested: true);

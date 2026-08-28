@@ -3331,10 +3331,13 @@ export function createChecker(program: Program, resolver: NameResolver): Checker
       }
 
       if (scope && scope.kind === SyntaxKind.TypeSpecScript) {
-        // check any blockless namespace decls
-        for (const ns of scope.inScopeNamespaces) {
-          const mergedSymbol = getMergedSymbol(ns.symbol)!;
-          addCompletions(mergedSymbol.exports);
+        // The name of a `using` declared before the file namespace resolves from the global namespace only.
+        if (!isUsingBeforeFileNamespace(identifier)) {
+          // check any blockless namespace decls
+          for (const ns of scope.inScopeNamespaces) {
+            const mergedSymbol = getMergedSymbol(ns.symbol)!;
+            addCompletions(mergedSymbol.exports);
+          }
         }
 
         // check "global scope" declarations
@@ -7257,6 +7260,19 @@ export function createChecker(program: Program, resolver: NameResolver): Checker
     // If this was used to get a type this is invalid, only used for validation.
     return errorType;
   }
+
+  /**
+   * Check whether the given identifier is part of the name of a `using` statement declared at the file level,
+   * before the blockless namespace declaration.
+   */
+  function isUsingBeforeFileNamespace(identifier: IdentifierNode): boolean {
+    let node: Node | undefined = identifier.parent;
+    while (node?.kind === SyntaxKind.MemberExpression) {
+      node = node.parent;
+    }
+    return node?.kind === SyntaxKind.UsingStatement && node.scopeNamespace === undefined;
+  }
+
   function checkDecorators(
     ctx: CheckContext,
     targetType: Type,

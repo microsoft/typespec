@@ -9,6 +9,7 @@ using Microsoft.CodeAnalysis.CSharp;
 using Microsoft.TypeSpec.Generator.EmitterRpc;
 using Microsoft.TypeSpec.Generator.Expressions;
 using Microsoft.TypeSpec.Generator.Input;
+using Microsoft.TypeSpec.Generator.Input.Extensions;
 using Microsoft.TypeSpec.Generator.Primitives;
 using Microsoft.TypeSpec.Generator.SourceInput;
 using Microsoft.TypeSpec.Generator.Statements;
@@ -49,10 +50,30 @@ namespace Microsoft.TypeSpec.Generator.Providers
                 _declaringTypeName.Value);
 
         private protected virtual TypeProvider? BuildLastContractView(string? generatedTypeName = null, string? generatedTypeNamespace = null)
-            => CodeModelGenerator.Instance.SourceInputModel.FindForTypeInLastContract(
-                generatedTypeNamespace ?? CustomCodeView?.Type.Namespace ?? BuildNamespace(),
-                generatedTypeName ?? CustomCodeView?.Name ?? BuildName(),
+        {
+            var typeNamespace = generatedTypeNamespace ?? CustomCodeView?.Type.Namespace ?? BuildNamespace();
+            var typeName = generatedTypeName ?? CustomCodeView?.Name ?? BuildName();
+            var lastContractView = CodeModelGenerator.Instance.SourceInputModel.FindForTypeInLastContract(
+                typeNamespace,
+                typeName,
                 _declaringTypeName.Value);
+            if (lastContractView is not null || _inputType is null || _inputType.IsExactName)
+            {
+                return lastContractView;
+            }
+
+            var originalName = _inputType.Name.ToIdentifierName();
+            var normalizedOriginalName = originalName.NormalizeCSharpAcronyms();
+            if (normalizedOriginalName == originalName || typeName != normalizedOriginalName)
+            {
+                return null;
+            }
+
+            return CodeModelGenerator.Instance.SourceInputModel.FindForTypeInLastContract(
+                typeNamespace,
+                originalName,
+                _declaringTypeName.Value);
+        }
 
         private static string? GetDeclaringTypeName(TypeProvider? declaringTypeProvider)
         {
@@ -414,25 +435,18 @@ namespace Microsoft.TypeSpec.Generator.Providers
 
         internal PropertyProvider[] FilterCustomizedProperties(IEnumerable<PropertyProvider> specProperties)
         {
+            var specPropertiesByName = BuildSpecPropertiesByName(specProperties);
             var properties = new List<PropertyProvider>();
             var customProperties = new HashSet<string>();
 
             foreach (var customProperty in BuildAllCustomProperties())
             {
-                customProperties.Add(customProperty.Name);
-                if (customProperty.OriginalName != null)
-                {
-                    customProperties.Add(customProperty.OriginalName);
-                }
+                AddCustomName(customProperties, customProperty.Name, customProperty.OriginalName, specPropertiesByName);
             }
 
             foreach (var customField in BuildAllCustomFields())
             {
-                customProperties.Add(customField.Name);
-                if (customField.OriginalName != null)
-                {
-                    customProperties.Add(customField.OriginalName);
-                }
+                AddCustomName(customProperties, customField.Name, customField.OriginalName, specPropertiesByName);
             }
 
             foreach (var property in specProperties)
@@ -444,6 +458,48 @@ namespace Microsoft.TypeSpec.Generator.Providers
             }
 
             return [.. properties];
+        }
+
+        private static void AddCustomName(
+            HashSet<string> customNames,
+            string name,
+            string? originalName,
+            IReadOnlyDictionary<string, InputProperty> specPropertiesByName)
+        {
+            customNames.Add(name);
+            if (originalName is null)
+            {
+                return;
+            }
+
+            customNames.Add(originalName);
+            if (specPropertiesByName.TryGetValue(originalName, out var inputProperty) && !inputProperty.IsExactName)
+            {
+                customNames.Add(
+                    originalName
+                        .ToIdentifierName()
+                        .NormalizeCSharpAcronyms(inputProperty.Type.IsDateTimeInputType()));
+            }
+        }
+
+        private static IReadOnlyDictionary<string, InputProperty> BuildSpecPropertiesByName(IEnumerable<PropertyProvider> specProperties)
+        {
+            var specPropertiesByName = new Dictionary<string, InputProperty>(StringComparer.Ordinal);
+
+            foreach (var specProperty in specProperties)
+            {
+                var inputProperty = specProperty.InputProperty;
+                if (inputProperty is null)
+                {
+                    continue;
+                }
+
+                var identifierName = inputProperty.Name.ToIdentifierName();
+                specPropertiesByName.TryAdd(inputProperty.Name, inputProperty);
+                specPropertiesByName.TryAdd(identifierName, inputProperty);
+            }
+
+            return specPropertiesByName;
         }
 
         internal FieldProvider[] FilterCustomizedFields(IEnumerable<FieldProvider> specFields)
@@ -624,6 +680,31 @@ namespace Microsoft.TypeSpec.Generator.Providers
         protected abstract string BuildRelativeFilePath();
         protected abstract string BuildName();
 
+        protected string NormalizeTypeNameForNewContract(string name)
+        {
+            var typeNamespace = BuildNamespace();
+            var currentType = CodeModelGenerator.Instance.SourceInputModel.FindForTypeInCurrentCompilation(
+                typeNamespace,
+                name,
+                _declaringTypeName.Value);
+            if (currentType is not null)
+            {
+                return name;
+            }
+
+            var normalizedName = name.NormalizeCSharpAcronyms();
+            if (normalizedName == name)
+            {
+                return name;
+            }
+
+            var lastContractType = CodeModelGenerator.Instance.SourceInputModel.FindForTypeInLastContract(
+                typeNamespace,
+                name,
+                _declaringTypeName.Value);
+            return lastContractType is null ? normalizedName : name;
+        }
+
         /// <summary>
         /// Resets only the cached methods so they are rebuilt on next access.
         /// Use this instead of <see cref="Reset"/> when you need to force a method
@@ -644,7 +725,7 @@ namespace Microsoft.TypeSpec.Generator.Providers
             _methods = null;
             _properties = null;
             _fields = null;
-            _constructors = null;
+            ResetConstructors();
             _implements = null;
             _serializationProviders = null;
             _nestedTypes = null;
@@ -664,6 +745,11 @@ namespace Microsoft.TypeSpec.Generator.Providers
             _description = null;
             _type = null;
             _arguments = null;
+        }
+
+        private protected virtual void ResetConstructors()
+        {
+            _constructors = null;
         }
 
         /// <summary>
@@ -776,13 +862,15 @@ namespace Microsoft.TypeSpec.Generator.Providers
             _customCodeView = new(BuildCustomCodeView(name ?? Type.Name, @namespace ?? Type.Namespace));
             name = _customCodeView.Value?.Name ?? name ?? Type.Name;
             @namespace = _customCodeView.Value?.Type.Namespace ?? @namespace ?? Type.Namespace;
-            _lastContractView = new(BuildLastContractView(
+            var lastContractView = BuildLastContractView(
                 name,
-                @namespace));
+                @namespace);
+            _lastContractView = new(lastContractView);
+            name = _customCodeView.Value?.Name ?? lastContractView?.Name ?? name;
             // recalculate declaration modifiers and constructors
             _declarationModifiers = null;
             // constructors might change based on declaration modifier changes
-            _constructors = null;
+            ResetConstructors();
             // serialization providers need to reflect the new type name/namespace
             _serializationProviders = null;
             Type.Update(name: name, @namespace: @namespace);
@@ -1071,6 +1159,11 @@ namespace Microsoft.TypeSpec.Generator.Providers
             foreach (var previousConstructor in LastContractView.Constructors)
             {
                 if (!previousConstructor.Signature.Modifiers.HasFlag(MethodSignatureModifiers.Public))
+                {
+                    continue;
+                }
+
+                if (BackCompatHelper.IsConstructorRemovalAcceptedInBaseline(this, previousConstructor.Signature))
                 {
                     continue;
                 }

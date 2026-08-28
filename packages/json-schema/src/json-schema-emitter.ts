@@ -84,6 +84,7 @@ import { includeDerivedModel } from "./utils.js";
 export class JsonSchemaEmitter extends TypeEmitter<Record<string, any>, JSONSchemaEmitterOptions> {
   #idDuplicateTracker = new DuplicateTracker<string, DiagnosticTarget>();
   #typeForSourceFile = new Map<SourceFile<any>, JsonSchemaDeclaration>();
+  #declDefKey = new Map<Declaration<any>, string>();
 
   #applyModelIndexer(schema: ObjectBuilder<unknown>, model: Model) {
     if (model.indexer) {
@@ -733,6 +734,10 @@ export class JsonSchemaEmitter extends TypeEmitter<Record<string, any>, JSONSche
     const decl = this.emitter.result.declaration(name, schema);
     const sf = (decl.scope as SourceFileScope<any>).sourceFile;
     sf.meta.shouldEmit = this.#shouldEmitRootSchema(type);
+    const explicitId = getId(this.emitter.getProgram(), type);
+    if (explicitId) {
+      this.#declDefKey.set(decl, explicitId);
+    }
     return decl;
   }
 
@@ -964,7 +969,8 @@ export class JsonSchemaEmitter extends TypeEmitter<Record<string, any>, JSONSche
       };
       for (const sf of sourceFiles) {
         if (sf.meta.shouldEmit) {
-          content.$defs[sf.globalScope.declarations[0].name] = this.#finalizeSourceFileContent(sf);
+          const decl = sf.globalScope.declarations[0];
+          content.$defs[this.#getDefKey(decl)] = this.#finalizeSourceFileContent(sf);
         }
       }
       await emitFile(this.emitter.getProgram(), {
@@ -1016,7 +1022,7 @@ export class JsonSchemaEmitter extends TypeEmitter<Record<string, any>, JSONSche
           continue;
         }
         bundledDecls.add(decl);
-        content.$defs[decl.name] = decl.value;
+        content.$defs[this.#getDefKey(decl)] = decl.value;
 
         // all scopes are source file scopes in this emitter
         const refSf = (decl.scope as SourceFileScope<any>).sourceFile;
@@ -1080,6 +1086,10 @@ export class JsonSchemaEmitter extends TypeEmitter<Record<string, any>, JSONSche
   #trackId(id: string, target: DiagnosticTarget) {
     this.#idDuplicateTracker.track(id, target);
     return id;
+  }
+
+  #getDefKey(decl: Declaration<any>): string {
+    return this.#declDefKey.get(decl) ?? decl.name;
   }
 
   // #region context emitters

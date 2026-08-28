@@ -37,7 +37,7 @@ public final class LossiesImpl {
 
     /**
      * Initializes an instance of LossiesImpl.
-     *
+     * 
      * @param client the instance of the service client containing this operation class.
      */
     LossiesImpl(DurationClientImpl client) {
@@ -82,7 +82,7 @@ public final class LossiesImpl {
 
     /**
      * The intSeconds operation.
-     *
+     * 
      * @param input The input parameter.
      * @param requestContext The context to configure the HTTP request before HTTP client sends it.
      * @throws IllegalArgumentException thrown if parameters fail the validation.
@@ -101,7 +101,7 @@ public final class LossiesImpl {
 
     /**
      * The intMilliseconds operation.
-     *
+     * 
      * @param input The input parameter.
      * @param requestContext The context to configure the HTTP request before HTTP client sends it.
      * @throws IllegalArgumentException thrown if parameters fail the validation.

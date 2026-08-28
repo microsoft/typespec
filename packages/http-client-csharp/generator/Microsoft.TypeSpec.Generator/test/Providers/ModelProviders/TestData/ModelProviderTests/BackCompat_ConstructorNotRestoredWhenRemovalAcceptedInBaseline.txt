@@ -1,0 +1,1 @@
+MembersMustExist : Member 'public Sample.Models.MockInputModel..ctor(System.String, System.String)' does not exist in the implementation but it does exist in the contract.

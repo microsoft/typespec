@@ -66,6 +66,7 @@ export type GraphqlInterfaceDecorator = (
  *   name: string;
  * }
  * ```
+ * @param interfaces The models to compose into the target, each emitted as a GraphQL interface.
  */
 export type ComposeDecorator = (
   context: DecoratorContext,
@@ -87,6 +88,7 @@ export type ComposeDecorator = (
  * }
  * // Emits: type Person { name: String!; followers(query: String!): [Person!]! }
  * ```
+ * @param operations The operations, or interfaces of operations, to add to the target as fields.
  */
 export type OperationFieldsDecorator = (
   context: DecoratorContext,
@@ -146,6 +148,7 @@ export type SubscriptionDecorator = (
  * }
  * // Emits: MyAPI.graphql
  * ```
+ * @param options Options for the schema, such as its name.
  */
 export type SchemaDecorator = (
   context: DecoratorContext,

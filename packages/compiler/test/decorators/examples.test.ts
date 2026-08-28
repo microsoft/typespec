@@ -477,6 +477,16 @@ describe("json serialization of examples", () => {
             expect: 0.5,
             encode: `@encode("seconds", float32)`,
           },
+          {
+            value: `duration.fromISO("PT5M")`,
+            expect: 300000,
+            encode: `@encode("milliseconds", int32)`,
+          },
+          {
+            value: `duration.fromISO("PT0.5S")`,
+            expect: 500,
+            encode: `@encode("milliseconds", float32)`,
+          },
         ],
       ],
     ];
