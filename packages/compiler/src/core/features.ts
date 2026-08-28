@@ -15,6 +15,10 @@ export const compilerFeatures = {
     description:
       "Allows use of auto decorator declarations without experimental warnings in project code.",
   },
+  "type-info-provider": {
+    description:
+      "Enables the experimental `$provideTypeInfo` provider allowing libraries to contribute extra information about types to IDE hover and tooling (queried via `program.getTypeInfo`).",
+  },
   "union-extends": {
     description:
       "Allows use of union `extends` clauses without experimental warnings in project code.",

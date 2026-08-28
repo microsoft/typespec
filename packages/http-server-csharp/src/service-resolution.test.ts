@@ -141,3 +141,27 @@ it("emits every namespace when no service is declared", async () => {
 
   expect(resolution.models.map((m) => m.name).sort()).toEqual(["Standalone", "Widget"]);
 });
+
+it("pascal-cases each part of the service namespace name", async () => {
+  const resolution = await resolve(`
+    @service
+    namespace my_service.sub_models {
+      model Widget { id: string; }
+      op read(): Widget;
+    }
+  `);
+
+  expect(resolution.serviceNamespaceName).toBe("MyService.SubModels");
+});
+
+it("renames reserved service namespace segments to avoid shadowing BCL types", async () => {
+  const resolution = await resolve(`
+    @service
+    namespace Type {
+      model Widget { id: string; }
+      op read(): Widget;
+    }
+  `);
+
+  expect(resolution.serviceNamespaceName).toBe("TypeName");
+});
