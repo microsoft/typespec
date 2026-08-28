@@ -4,8 +4,11 @@ import { SdkTestLibrary } from "@azure-tools/typespec-client-generator-core/test
 import type { CompilerOptions, EmitContext, Program } from "@typespec/compiler";
 import type { TestHost } from "@typespec/compiler/testing";
 import { createTestHost } from "@typespec/compiler/testing";
+import { EventsTestLibrary } from "@typespec/events/testing";
 import { HttpTestLibrary } from "@typespec/http/testing";
 import { RestTestLibrary } from "@typespec/rest/testing";
+import { SSETestLibrary } from "@typespec/sse/testing";
+import { StreamsTestLibrary } from "@typespec/streams/testing";
 import { VersioningTestLibrary } from "@typespec/versioning/testing";
 import { XmlTestLibrary } from "@typespec/xml/testing";
 import { LoggerLevel } from "../../../src/lib/logger-level.js";
@@ -18,6 +21,9 @@ export async function createEmitterTestHost(): Promise<TestHost> {
     libraries: [
       RestTestLibrary,
       HttpTestLibrary,
+      EventsTestLibrary,
+      SSETestLibrary,
+      StreamsTestLibrary,
       VersioningTestLibrary,
       AzureCoreTestLibrary,
       SdkTestLibrary,
@@ -45,6 +51,7 @@ export interface TypeSpecCompileOptions {
   AuthDecorator?: string;
   NoEmit?: boolean;
   IsVersionNeeded?: boolean;
+  IsSseNeeded?: boolean;
 }
 
 export async function typeSpecCompile(
@@ -57,6 +64,7 @@ export async function typeSpecCompile(
   const needTCGC = options?.IsTCGCNeeded ?? false;
   const needXml = options?.IsXmlNeeded ?? false;
   const needVersion = options?.IsVersionNeeded ?? true;
+  const needSse = options?.IsSseNeeded ?? false;
   const authDecorator =
     options?.AuthDecorator ?? `@useAuth(ApiKeyAuth<ApiKeyLocation.header, "api-key">)`;
   const versions = `enum Versions {
@@ -77,12 +85,16 @@ export async function typeSpecCompile(
   const fileContent = `
     import "@typespec/rest";
     import "@typespec/http";
+    import "@typespec/http/streams";
+    ${needSse ? 'import "@typespec/events";\nimport "@typespec/sse";' : ""}
     import "@typespec/versioning";
     ${needXml ? 'import  "@typespec/xml";' : ""}
     ${needAzureCore ? 'import "@azure-tools/typespec-azure-core";' : ""}
     ${needTCGC ? 'import "@azure-tools/typespec-client-generator-core";' : ""}
     using TypeSpec.Rest; 
     using TypeSpec.Http;
+    using TypeSpec.Http.Streams;
+    ${needSse ? "using TypeSpec.Events;\nusing TypeSpec.SSE;" : ""}
     using TypeSpec.Versioning;
     ${needXml ? "using TypeSpec.Xml;" : ""}
     ${needAzureCore ? "using Azure.Core;\nusing Azure.Core.Traits;" : ""}

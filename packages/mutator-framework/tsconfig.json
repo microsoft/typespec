@@ -11,8 +11,7 @@
     "sourceMap": true,
     "declarationMap": true,
     "outDir": "dist",
-    "rootDir": "./",
-    "verbatimModuleSyntax": true
+    "rootDir": "./"
   },
   "exclude": ["node_modules", "dist"]
 }

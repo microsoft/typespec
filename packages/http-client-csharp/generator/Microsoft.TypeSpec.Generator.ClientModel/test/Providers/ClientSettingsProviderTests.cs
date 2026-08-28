@@ -3,9 +3,11 @@
 
 using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using System.Reflection;
 using System.Threading.Tasks;
+using Microsoft.TypeSpec.Generator.EmitterRpc;
 using Microsoft.TypeSpec.Generator.ClientModel.Providers;
 using Microsoft.TypeSpec.Generator.Input;
 using Microsoft.TypeSpec.Generator.Primitives;
@@ -1047,6 +1049,46 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers
             var bodyString = bindCoreMethod!.BodyStatements!.ToDisplayString();
             Assert.IsTrue(bodyString.Contains("ConnectionString"),
                 "BindCore should bind the custom constructor parameter 'ConnectionString' from configuration");
+        }
+
+        [Test]
+        public async Task TestSettings_ExcludesUnsupportedFrameworkConstructorParameters()
+        {
+            using var diagnosticStream = new MemoryStream();
+            using var emitter = new Emitter(diagnosticStream);
+            var generator = await MockHelpers.LoadMockGeneratorAsync(
+                compilation: async () => await Helpers.GetCompilationFromDirectoryAsync());
+            generator.SetupGet(g => g.Emitter).Returns(emitter);
+
+            var client = InputFactory.Client("TestClient", clientNamespace: "SampleNamespace");
+            var clientProvider = ScmCodeModelGenerator.Instance.TypeFactory.CreateClient(client);
+            Assert.IsNotNull(clientProvider);
+
+            var settings = clientProvider!.ClientSettings;
+            Assert.IsNotNull(settings);
+            Assert.IsNull(settings!.Properties.FirstOrDefault(p => p.Name == "ClientCertificate"),
+                "Settings should not include custom constructor parameters that cannot be bound from configuration");
+            Assert.IsNotNull(settings.Properties.FirstOrDefault(p => p.Name == "TenantId"),
+                "Settings should continue to include bindable parameters from the same custom constructor");
+
+            var bindCoreMethod = settings.Methods.FirstOrDefault(m => m.Signature.Name == "BindCore");
+            Assert.IsNotNull(bindCoreMethod);
+            var bodyString = bindCoreMethod!.BodyStatements!.ToDisplayString();
+            Assert.IsFalse(bodyString.Contains("ClientCertificate"),
+                "BindCore should not bind custom constructor parameters that cannot be constructed from IConfigurationSection");
+            Assert.IsTrue(bodyString.Contains("TenantId"),
+                "BindCore should continue to bind supported parameters from the same custom constructor");
+
+            diagnosticStream.Position = 0;
+            using var reader = new StreamReader(diagnosticStream, leaveOpen: true);
+            var diagnostics = reader.ReadToEnd();
+            Assert.That(diagnostics, Does.Contain("\"code\":\"unsupported-client-settings-parameter\""));
+            Assert.That(diagnostics, Does.Contain("omitted custom constructor parameter"));
+            Assert.That(diagnostics, Does.Contain("clientCertificate"));
+            Assert.That(diagnostics, Does.Contain("X509Certificate2"));
+            Assert.That(diagnostics, Does.Contain("\"severity\":\"warning\""));
+            Assert.AreEqual(1, diagnostics.Split("unsupported-client-settings-parameter").Length - 1,
+                "The warning should only be emitted once when both properties and methods are built");
         }
 
         [Test]

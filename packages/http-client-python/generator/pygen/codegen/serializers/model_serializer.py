@@ -23,7 +23,7 @@ from ..models.primitive_types import (
 )
 from .import_serializer import FileImportSerializer
 from .base_serializer import BaseSerializer
-from ..models.utils import NamespaceType, add_to_pylint_disable
+from ..models.utils import NamespaceType, add_to_pylint_disable, escape_sphinx_field_name
 
 
 def _get_xml_deserializer_name(prop: Property) -> Optional[str]:  # pylint: disable=too-many-return-statements
@@ -80,6 +80,9 @@ def _documentation_string(
     doc_name = (
         prop.wire_name if kwargs.get("serialize_namespace_type") == NamespaceType.TYPES_FILE else prop.client_name
     )
+    # Escape names that Sphinx would otherwise misinterpret in the info field target
+    # (e.g. a wire name with a leading "@" such as "@search.facets").
+    doc_name = escape_sphinx_field_name(doc_name)
     sphinx_prefix = f":{description_keyword} {doc_name}:"
     description = prop.description(is_operation_file=False).replace("\\", "\\\\")
     retval.append(f"{sphinx_prefix} {description}" if description else sphinx_prefix)

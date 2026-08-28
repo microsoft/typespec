@@ -160,6 +160,34 @@ namespace Microsoft.TypeSpec.Generator.Tests.Providers
             Assert.AreEqual("ResourceType", provider.Properties[0].Name);
         }
 
+        [Test]
+        public void BaseSystemProviderIsCreatedFromInputModelHierarchy()
+        {
+            var baseInputModel = InputFactory.Model(
+                "SystemException",
+                properties: [InputFactory.Property("message", InputPrimitiveType.String)]);
+            var derivedInputModel = InputFactory.Model(
+                "ArgumentException",
+                properties: [InputFactory.Property("paramName", InputPrimitiveType.String)],
+                baseModel: baseInputModel);
+
+            var baseSystemType = new CSharpType(typeof(SystemException));
+            var derivedSystemType = new CSharpType(typeof(ArgumentException));
+            MockHelpers.LoadMockGenerator(
+                inputModelTypes: [baseInputModel, derivedInputModel],
+                createModelCore: model => model == baseInputModel
+                    ? new SystemObjectModelProvider(baseSystemType, model)
+                    : new SystemObjectModelProvider(derivedSystemType, model));
+
+            var provider = CodeModelGenerator.Instance.TypeFactory.CreateModel(derivedInputModel);
+
+            Assert.IsNotNull(provider);
+            Assert.IsNotNull(provider!.BaseModelProvider);
+            Assert.IsInstanceOf<SystemObjectModelProvider>(provider.BaseModelProvider);
+            Assert.AreEqual("SystemException", provider.BaseModelProvider!.Name);
+            Assert.AreEqual("Message", provider.BaseModelProvider.Properties.Single().Name);
+        }
+
         // -------------------------------------------------------------------
         // 3. Property deduplication: properties matching framework base are skipped
         // -------------------------------------------------------------------

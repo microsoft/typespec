@@ -318,6 +318,10 @@ class GeneralSerializer(BaseSerializer):
         template = self.env.get_template("model_base.py.jinja2")
         return template.render(code_model=self.code_model, file_import=FileImport(self.code_model))
 
+    def serialize_streaming_base_file(self) -> str:
+        template = self.env.get_template("streaming_base.py.jinja2")
+        return template.render(code_model=self.code_model, file_import=FileImport(self.code_model))
+
     def serialize_validation_file(self) -> str:
         template = self.env.get_template("validation.py.jinja2")
         return template.render(

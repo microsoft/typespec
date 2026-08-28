@@ -9,6 +9,7 @@ function createMockModel(initialValue = "") {
     getValue: vi.fn(() => value),
     setValue: vi.fn((v: string) => {
       value = v;
+      for (const cb of listeners) cb();
     }),
     onDidChangeContent: vi.fn((cb: () => void) => {
       listeners.push(cb);
@@ -120,4 +121,34 @@ it("does not reset model after model-driven content change", () => {
 
   // Should NOT call setValue again since it was model-driven
   expect(model.setValue).not.toHaveBeenCalled();
+});
+
+it("does not report external content changes through a stale callback", () => {
+  const model = createMockModel("initial");
+  const initialOnContentChange = vi.fn();
+  const updatedOnContentChange = vi.fn();
+
+  const { rerender } = renderHook(
+    ({ content, onContentChange }) =>
+      useMonacoSync({
+        typespecModel: model as any,
+        content,
+        onContentChange,
+      }),
+    {
+      initialProps: {
+        content: "initial",
+        onContentChange: initialOnContentChange,
+      },
+    },
+  );
+
+  rerender({
+    content: "sample content",
+    onContentChange: updatedOnContentChange,
+  });
+
+  expect(model.setValue).toHaveBeenCalledWith("sample content");
+  expect(initialOnContentChange).not.toHaveBeenCalled();
+  expect(updatedOnContentChange).not.toHaveBeenCalled();
 });

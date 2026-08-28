@@ -777,7 +777,7 @@ namespace SampleTypeSpec
                 {
                     return TryResolveListFooArray(out value);
                 }
-                if (!currentSlice.TryGetIndex(out int index, out int bytesConsumed))
+                if (!currentSlice.TryGetIndex(out int index, out int bytesConsumed) || index >= ListFoo.Count)
                 {
                     return false;
                 }
@@ -787,12 +787,12 @@ namespace SampleTypeSpec
             {
                 int propertyLength = "listOfListFoo"u8.Length;
                 ReadOnlySpan<byte> currentSlice = local.Slice(propertyLength);
-                if (!currentSlice.TryGetIndex(out int index, out int bytesConsumed))
+                if (!currentSlice.TryGetIndex(out int index, out int bytesConsumed) || index >= ListOfListFoo.Count)
                 {
                     return false;
                 }
                 currentSlice = currentSlice.Slice(bytesConsumed);
-                if (!currentSlice.TryGetIndex(out int index0, out int bytesConsumed0))
+                if (!currentSlice.TryGetIndex(out int index0, out int bytesConsumed0) || index0 >= ListOfListFoo[index].Count)
                 {
                     return false;
                 }
@@ -836,7 +836,7 @@ namespace SampleTypeSpec
                     return false;
                 }
                 currentSlice = currentSlice.GetRemainder(i);
-                if (!currentSlice.TryGetIndex(out int index, out int bytesConsumed))
+                if (!currentSlice.TryGetIndex(out int index, out int bytesConsumed) || index >= item.Count)
                 {
                     return false;
                 }
@@ -846,7 +846,7 @@ namespace SampleTypeSpec
             {
                 int propertyLength = "listOfDictionaryFoo"u8.Length;
                 ReadOnlySpan<byte> currentSlice = local.Slice(propertyLength);
-                if (!currentSlice.TryGetIndex(out int index, out int bytesConsumed))
+                if (!currentSlice.TryGetIndex(out int index, out int bytesConsumed) || index >= ListOfDictionaryFoo.Count)
                 {
                     return false;
                 }
@@ -880,7 +880,7 @@ namespace SampleTypeSpec
             {
                 int propertyLength = "listFoo"u8.Length;
                 ReadOnlySpan<byte> currentSlice = local.Slice(propertyLength);
-                if (!currentSlice.TryGetIndex(out int index, out int bytesConsumed))
+                if (!currentSlice.TryGetIndex(out int index, out int bytesConsumed) || index >= ListFoo.Count)
                 {
                     return false;
                 }
@@ -891,12 +891,12 @@ namespace SampleTypeSpec
             {
                 int propertyLength = "listOfListFoo"u8.Length;
                 ReadOnlySpan<byte> currentSlice = local.Slice(propertyLength);
-                if (!currentSlice.TryGetIndex(out int index, out int bytesConsumed))
+                if (!currentSlice.TryGetIndex(out int index, out int bytesConsumed) || index >= ListOfListFoo.Count)
                 {
                     return false;
                 }
                 currentSlice = currentSlice.Slice(bytesConsumed);
-                if (!currentSlice.TryGetIndex(out int index0, out int bytesConsumed0))
+                if (!currentSlice.TryGetIndex(out int index0, out int bytesConsumed0) || index0 >= ListOfListFoo[index].Count)
                 {
                     return false;
                 }
@@ -943,7 +943,7 @@ namespace SampleTypeSpec
                     return false;
                 }
                 currentSlice = currentSlice.GetRemainder(i);
-                if (!currentSlice.TryGetIndex(out int index, out int bytesConsumed))
+                if (!currentSlice.TryGetIndex(out int index, out int bytesConsumed) || index >= item.Count)
                 {
                     return false;
                 }
@@ -954,7 +954,7 @@ namespace SampleTypeSpec
             {
                 int propertyLength = "listOfDictionaryFoo"u8.Length;
                 ReadOnlySpan<byte> currentSlice = local.Slice(propertyLength);
-                if (!currentSlice.TryGetIndex(out int index, out int bytesConsumed))
+                if (!currentSlice.TryGetIndex(out int index, out int bytesConsumed) || index >= ListOfDictionaryFoo.Count)
                 {
                     return false;
                 }
