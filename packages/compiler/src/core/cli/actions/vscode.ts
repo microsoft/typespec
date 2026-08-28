@@ -1,6 +1,7 @@
 import { createDiagnostic } from "../../messages.js";
-import { Diagnostic, NoTarget } from "../../types.js";
-import { CliCompilerHost } from "../types.js";
+import type { Diagnostic } from "../../types.js";
+import { NoTarget } from "../../types.js";
+import type { CliCompilerHost } from "../types.js";
 import { reportDeprecatedCommand, run } from "../utils.js";
 
 /** Marketplace identifier of the TypeSpec VS Code extension. */

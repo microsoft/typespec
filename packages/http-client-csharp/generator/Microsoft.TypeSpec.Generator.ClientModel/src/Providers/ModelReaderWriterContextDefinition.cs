@@ -183,7 +183,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
                 }
                 else
                 {
-                    resolvedProvider = ScmCodeModelGenerator.Instance.SourceInputModel.FindForTypeInCustomization(
+                    resolvedProvider = ScmCodeModelGenerator.Instance.SourceInputModel.FindForTypeInCurrentCompilation(
                         targetType.Namespace,
                         targetType.ClrMetadataName,
                         null,
@@ -193,6 +193,11 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
                     {
                         continue;
                     }
+                }
+
+                if (resolvedProvider.CanonicalView.Attributes.Any(a => a.Type.Equals(typeof(ObsoleteAttribute))))
+                {
+                    continue;
                 }
 
                 if (attributes.ContainsKey(identity) || customizedBuildableTypes.Contains(identity))

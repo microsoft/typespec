@@ -28,7 +28,7 @@ The caller must provide:
    If not provided, ask the user.
 4. **Additional options** (optional) — any extra `key=value` emitter options the
    user wants applied on top of the tspconfig options. These override tspconfig
-   values if there's a conflict (e.g., `models-mode=typeddict`).
+   values if there's a conflict (e.g., `generate-typeddict=false`).
 
 ## Workflow
 
@@ -191,7 +191,7 @@ After successful compilation:
    find < output-dir > -type d | sort
    ```
 
-2. Verify the output matches expectations (e.g., TypedDict if `models-mode=typeddict`).
+2. Verify the output matches expectations (e.g., TypedDict-only if `models-mode=none`).
 
 3. If the generation overwrote files in an existing package, warn the user and
    offer to revert non-generated files:
@@ -220,8 +220,9 @@ and `--option` flags. The `flavor` option controls branded behavior:
 
 ### Common additional options the user may request
 
-| User request   | Option to add                                                   |
-| -------------- | --------------------------------------------------------------- |
-| TypedDict only | `--option "@typespec/http-client-python.models-mode=typeddict"` |
-| No tests       | `--option "@typespec/http-client-python.generate-test=false"`   |
-| No samples     | `--option "@typespec/http-client-python.generate-sample=false"` |
+| User request   | Option to add                                                      |
+| -------------- | ------------------------------------------------------------------ |
+| TypedDict only | `--option "@typespec/http-client-python.models-mode=none"`         |
+| No TypedDicts  | `--option "@typespec/http-client-python.generate-typeddict=false"` |
+| No tests       | `--option "@typespec/http-client-python.generate-test=false"`      |
+| No samples     | `--option "@typespec/http-client-python.generate-sample=false"`    |

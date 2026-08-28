@@ -1,4 +1,4 @@
-import * as cs from "@alloy-js/csharp";
+import type * as cs from "@alloy-js/csharp";
 import {
   getFriendlyName,
   getMinValue,

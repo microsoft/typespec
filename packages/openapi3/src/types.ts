@@ -1,5 +1,5 @@
-import { Diagnostic, Service } from "@typespec/compiler";
-import { Contact, ExtensionKey, License } from "@typespec/openapi";
+import type { Diagnostic, Service } from "@typespec/compiler";
+import type { Contact, ExtensionKey, License } from "@typespec/openapi";
 
 export type CommonOpenAPI3Schema = OpenAPI3Schema & OpenAPISchema3_1 & OpenAPISchema3_2;
 

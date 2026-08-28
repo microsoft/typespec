@@ -1,5 +1,5 @@
 import type { Request } from "express";
-import { MockRequest } from "./mock-request.js";
+import type { MockRequest } from "./mock-request.js";
 
 /**
  * Extension of the express.js request which include a rawBody.

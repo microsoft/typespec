@@ -1,16 +1,13 @@
 import { afterAll, afterEach, beforeEach, describe, expect, it, vi } from "vitest";
-import { CliCompilerHost } from "../../src/core/cli/types.js";
+import type { CliCompilerHost } from "../../src/core/cli/types.js";
 import { resolvePath } from "../../src/core/path-utils.js";
-import { LogSink } from "../../src/index.js";
-import { InitTemplate } from "../../src/init/init-template.js";
-import {
-  initTypeSpecProject,
-  InitTypeSpecProjectOptions,
-  isTemplateCompatibleWithTspVersion,
-} from "../../src/init/init.js";
+import type { LogSink } from "../../src/index.js";
+import type { InitTemplate } from "../../src/init/init-template.js";
+import type { InitTypeSpecProjectOptions } from "../../src/init/init.js";
+import { initTypeSpecProject, isTemplateCompatibleWithTspVersion } from "../../src/init/init.js";
 import { UriTemplateSource } from "../../src/init/template-source/index.js";
 import { createTestFileSystem } from "../../src/testing/fs.js";
-import { TestFileSystem } from "../../src/testing/types.js";
+import type { TestFileSystem } from "../../src/testing/types.js";
 import { parseYaml as coreParseYaml } from "../../src/yaml/parser.js";
 
 const fetchMock = vi.fn().mockResolvedValue({

@@ -1,4 +1,4 @@
-import {
+import type {
   DeprecationNotice,
   DiagnosticRefDoc,
   LinterRuleRefDoc,
@@ -8,14 +8,8 @@ import {
   TypeSpecLibraryRefDoc,
   TypeSpecRefDoc,
 } from "../types.js";
-import {
-  MarkdownDoc,
-  MarkdownSection,
-  codeblock,
-  inlinecode,
-  renderMarkdowDoc,
-  section,
-} from "../utils/markdown.js";
+import type { MarkdownDoc, MarkdownSection } from "../utils/markdown.js";
+import { codeblock, inlinecode, renderMarkdowDoc, section } from "../utils/markdown.js";
 import { MarkdownRenderer, groupByNamespace } from "./markdown.js";
 
 export interface RenderToStarlightMarkdownOptions {

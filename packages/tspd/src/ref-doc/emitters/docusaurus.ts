@@ -1,4 +1,4 @@
-import {
+import type {
   DeprecationNotice,
   LinterRuleRefDoc,
   NamedTypeRefDoc,
@@ -7,14 +7,8 @@ import {
   TypeSpecRefDoc,
   TypeSpecRefDocBase,
 } from "../types.js";
-import {
-  MarkdownDoc,
-  MarkdownSection,
-  codeblock,
-  inlinecode,
-  renderMarkdowDoc,
-  section,
-} from "../utils/markdown.js";
+import type { MarkdownDoc, MarkdownSection } from "../utils/markdown.js";
+import { codeblock, inlinecode, renderMarkdowDoc, section } from "../utils/markdown.js";
 import { MarkdownRenderer, groupByNamespace } from "./markdown.js";
 
 /**

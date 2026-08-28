@@ -12,6 +12,7 @@ import com.microsoft.typespec.http.client.generator.core.extension.model.codemod
 import com.microsoft.typespec.http.client.generator.core.extension.model.codemodel.Schema;
 import com.microsoft.typespec.http.client.generator.core.extension.model.codemodel.XmlSerializationFormat;
 import com.microsoft.typespec.http.client.generator.core.extension.plugin.JavaSettings;
+import com.microsoft.typespec.http.client.generator.core.model.clientmodel.ApiMetadata;
 import com.microsoft.typespec.http.client.generator.core.model.clientmodel.ClassType;
 import com.microsoft.typespec.http.client.generator.core.model.clientmodel.ClientModel;
 import com.microsoft.typespec.http.client.generator.core.model.clientmodel.ClientModelProperty;
@@ -347,7 +348,9 @@ public class ModelMapper implements IMapper<ObjectSchema, ClientModel>, NeedsPla
 
             builder.properties(properties);
             builder.propertyReferences(propertyReferences);
-            builder.crossLanguageDefinitionId(SchemaUtil.getCrossLanguageDefinitionId(compositeType));
+            builder.apiMetadata(new ApiMetadata.Builder()
+                .crossLanguageDefinitionId(SchemaUtil.getCrossLanguageDefinitionId(compositeType))
+                .build());
 
             result = builder.build();
 

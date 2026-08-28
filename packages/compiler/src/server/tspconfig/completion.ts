@@ -1,12 +1,8 @@
-import {
-  CompletionItem,
-  CompletionItemKind,
-  Position,
-  Range,
-  TextEdit,
-} from "vscode-languageserver";
-import { TextDocument } from "vscode-languageserver-textdocument";
-import { Document, isMap, isPair, Node } from "yaml";
+import type { CompletionItem } from "vscode-languageserver";
+import { CompletionItemKind, Position, Range, TextEdit } from "vscode-languageserver";
+import type { TextDocument } from "vscode-languageserver-textdocument";
+import type { Document, Node } from "yaml";
+import { isMap, isPair } from "yaml";
 import { emitterOptionsSchema, TypeSpecConfigJsonSchema } from "../../config/config-schema.js";
 import { compilerFeatureNames, compilerFeatures } from "../../core/features.js";
 import {
@@ -15,7 +11,7 @@ import {
   joinPaths,
   normalizeSlashes,
 } from "../../core/path-utils.js";
-import {
+import type {
   CompilerHost,
   DiagnosticMessages,
   JSONSchemaType,
@@ -23,9 +19,10 @@ import {
   ServerLog,
 } from "../../index.js";
 import { distinctArray } from "../../utils/misc.js";
-import { FileService } from "../file-service.js";
-import { LibraryProvider } from "../lib-provider.js";
-import { resolveYamlPositionDetail, YamlPositionDetail } from "../yaml-resolver.js";
+import type { FileService } from "../file-service.js";
+import type { LibraryProvider } from "../lib-provider.js";
+import type { YamlPositionDetail } from "../yaml-resolver.js";
+import { resolveYamlPositionDetail } from "../yaml-resolver.js";
 
 type ObjectJSONSchemaType = JSONSchemaType<object>;
 

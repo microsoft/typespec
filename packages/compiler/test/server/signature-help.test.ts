@@ -1,6 +1,7 @@
 import { deepStrictEqual } from "assert";
 import { describe, it } from "vitest";
-import { MarkupKind, SignatureHelp } from "vscode-languageserver";
+import type { SignatureHelp } from "vscode-languageserver";
+import { MarkupKind } from "vscode-languageserver";
 import { extractCursor } from "../../src/testing/source-utils.js";
 import { createTestServerHost } from "../../src/testing/test-server-host.js";
 

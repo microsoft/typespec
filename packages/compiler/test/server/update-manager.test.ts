@@ -1,7 +1,7 @@
 import { beforeEach, expect, it, vi } from "vitest";
-import { TextDocumentIdentifier } from "vscode-languageserver";
-import { TextDocument } from "vscode-languageserver-textdocument";
-import { ServerLog } from "../../src/server/types.js";
+import type { TextDocumentIdentifier } from "vscode-languageserver";
+import type { TextDocument } from "vscode-languageserver-textdocument";
+import type { ServerLog } from "../../src/server/types.js";
 import { UpdateManager } from "../../src/server/update-manager.js";
 
 interface PendingUpdate {

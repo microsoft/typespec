@@ -1,5 +1,5 @@
 import { MANIFEST } from "../manifest.js";
-import { LibraryMetadata } from "./types.js";
+import type { LibraryMetadata } from "./types.js";
 
 // Color functions from picocolors
 export type Colors =

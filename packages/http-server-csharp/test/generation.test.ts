@@ -1,10 +1,11 @@
 // NOTE: This file is LEGACY only. Do NOT add new tests here.
 // Add new tests to the co-located component `*.test.tsx` files (or another dedicated
 // test file) instead.
-import { resolveVirtualPath, TesterInstance, TestFileSystem } from "@typespec/compiler/testing";
+import type { TesterInstance, TestFileSystem } from "@typespec/compiler/testing";
+import { resolveVirtualPath } from "@typespec/compiler/testing";
 import assert, { deepStrictEqual } from "assert";
 import { beforeEach, describe, it } from "vitest";
-import { CSharpServiceEmitterOptions } from "../src/lib.js";
+import type { CSharpServiceEmitterOptions } from "../src/lib.js";
 import { ApiTester, compileAndDiagnose, getStandardService } from "./test-host.js";
 
 function getGeneratedFile(fs: TestFileSystem, fileName: string): [string, string] {
@@ -3447,4 +3448,37 @@ it("emits class for model extending another model with no additional properties"
       ["Baz.cs", ["public partial class Baz : Foo"]],
     ],
   );
+});
+
+it("emits correct file name for @friendlyName template used as a template parameter default (ARM pattern)", async () => {
+  // Regression test for https://github.com/microsoft/typespec/issues/11454
+  // A model decorated with @friendlyName("{name}...", Resource) is used as an operation template
+  // parameter default (the ARM `TagsUpdateModel<Resource>` pattern). The concrete instantiation must
+  // get the substituted friendly name as its file/class name, and no file with an unresolved
+  // `{name}` placeholder should be emitted.
+  const [result] = await compileAndDiagnose(
+    tester,
+    `
+      @service(#{title: "Test"})
+      namespace Test {
+        @friendlyName("{name}TagsUpdate", Resource)
+        model TagsUpdateModel<Resource extends {}> {
+          tags?: string;
+        }
+
+        op armTagsPatch<
+          Resource extends {},
+          Properties extends {} = TagsUpdateModel<Resource>
+        >(...Properties): void;
+
+        model FooResource { id: string; }
+
+        @route("/tags") @patch op patch is armTagsPatch<FooResource>;
+      }
+      `,
+  );
+  const files = [...result.fs.fs.keys()];
+  // No emitted file should contain an unresolved template placeholder.
+  const unresolved = files.filter((f) => f.includes("{") || f.includes("}"));
+  deepStrictEqual(unresolved, [], `Unexpected files with unresolved placeholders: ${unresolved}`);
 });

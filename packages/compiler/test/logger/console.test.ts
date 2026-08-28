@@ -1,6 +1,7 @@
 import { expect, it } from "vitest";
 import { formatDiagnostic } from "../../src/core/logger/console-sink.js";
-import { createSourceFile, Diagnostic } from "../../src/index.js";
+import type { Diagnostic } from "../../src/index.js";
+import { createSourceFile } from "../../src/index.js";
 
 it("handles synthetic sources", async () => {
   const diagnostic: Diagnostic = {

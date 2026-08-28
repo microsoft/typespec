@@ -53,5 +53,7 @@ extern dec graphqlInterface(
  *   name: string;
  * }
  * ```
+ *
+ * @param interfaces The models to compose into the target, each emitted as a GraphQL interface.
  */
 extern dec compose(target: Model, ...interfaces: Model[]);

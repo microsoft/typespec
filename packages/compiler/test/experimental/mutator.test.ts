@@ -1,13 +1,12 @@
 import { strictEqual } from "assert";
 import { describe, expect, it } from "vitest";
+import type { Mutator, MutatorWithNamespace } from "../../src/experimental/mutators.js";
 import {
   mutateSubgraph,
   mutateSubgraphWithNamespace,
-  Mutator,
   MutatorFlow,
-  MutatorWithNamespace,
 } from "../../src/experimental/mutators.js";
-import { Model, ModelProperty, Namespace, Operation } from "../../src/index.js";
+import type { Model, ModelProperty, Namespace, Operation } from "../../src/index.js";
 import { mockFile, t } from "../../src/testing/index.js";
 import { expectTypeEquals } from "../../src/testing/test-utils.js";
 import { Tester } from "../tester.js";

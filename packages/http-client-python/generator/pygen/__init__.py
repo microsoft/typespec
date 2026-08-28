@@ -12,7 +12,7 @@ from abc import ABC, abstractmethod
 from typing import Any, Iterator, Optional, Union
 
 import yaml
-from .utils import TYPESPEC_PACKAGE_MODE, VALID_PACKAGE_MODE
+from .utils import TYPESPEC_PACKAGE_MODE, VALID_PACKAGE_MODE, is_typeddict_only
 
 from ._version import VERSION
 
@@ -36,6 +36,7 @@ class OptionsDict(MutableMapping):
         "low-level-client": False,
         "no-async": False,
         "no-namespace-folders": False,
+        "generate-typeddict": True,
         "polymorphic-examples": 5,
         "validate-versioning": True,
         "version-tolerant": True,
@@ -45,9 +46,19 @@ class OptionsDict(MutableMapping):
 
     def __init__(self, options: Optional[dict[str, Any]] = None) -> None:
         self._data = options.copy() if options else {}
+        # 'models-mode: typeddict' is deprecated. Represent it internally as 'none' models-mode with
+        # TypedDict generation enabled, so the rest of the codebase reasons in terms of models-mode
+        # plus the generate-typeddict flag.
+        if self._data.get("models-mode") == "typeddict":
+            self._data["generate-typeddict"] = True
         for key in list(self._data):
             self._data[key] = self._validate_and_transform(key, self._data[key])
         self._validate_combinations()
+
+    @property
+    def generate_typeddict_only(self) -> bool:
+        """Whether this is TypedDict-only generation ('models-mode: none' + TypedDicts)."""
+        return is_typeddict_only(self)
 
     def __getitem__(self, key: str) -> Any:  # pylint: disable=too-many-return-statements
         if key == "head-as-boolean" and self.get("azure-arm"):
@@ -167,14 +178,22 @@ class OptionsDict(MutableMapping):
         if key == "builders-visibility" and value not in ["public", "hidden", "embedded"]:
             raise ValueError("The value of --builders-visibility must be either 'public', 'hidden', or 'embedded'")
 
+        if key == "models-mode" and value == "typeddict":
+            # Deprecated: keep accepting it for back-compat but store it as 'none' (falsy) with
+            # TypedDict generation enabled (see OptionsDict.__init__ and generate_typeddict_only).
+            _LOGGER.warning(
+                "'models-mode: typeddict' is deprecated. Use 'models-mode: none' with "
+                "'generate-typeddict: true' (the default) instead."
+            )
+            value = False
+
         if key == "models-mode" and value == "none":
             value = False  # switch to falsy value for easier code writing
 
-        if key == "models-mode" and value not in ["msrest", "dpg", "typeddict", False]:
+        if key == "models-mode" and value not in ["msrest", "dpg", False]:
             raise ValueError(
-                "--models-mode can only be 'msrest', 'dpg', 'typeddict', or 'none'. "
-                "Pass in 'msrest' if you want msrest models, 'typeddict' for TypedDict models, or "
-                "'none' if you don't want any."
+                "--models-mode can only be 'dpg' or 'none'. "
+                "Pass in 'dpg' for DPG models, or 'none' if you don't want any."
             )
         if key == "package-mode":
             if (

@@ -1,16 +1,11 @@
 // Copyright (c) Microsoft Corporation
 // Licensed under the MIT license.
 
-import {
-  compilerAssert,
+import type {
   Enum,
   Interface,
-  isArrayModelType,
-  isRecordModelType,
-  listServices,
   Model,
   Namespace,
-  NoTarget,
   Program,
   Scalar,
   Service,
@@ -18,17 +13,26 @@ import {
   Union,
   UnionVariant,
 } from "@typespec/compiler";
+import {
+  compilerAssert,
+  isArrayModelType,
+  isRecordModelType,
+  listServices,
+  NoTarget,
+} from "@typespec/compiler";
 import { emitDeclaration } from "./common/declaration.js";
 import { createOrGetModuleForNamespace } from "./common/namespace.js";
-import { SerializableType } from "./common/serialization/index.js";
+import type { SerializableType } from "./common/serialization/index.js";
 import { emitUnion } from "./common/union.js";
-import { JsEmitterOptions, reportDiagnostic } from "./lib.js";
+import type { JsEmitterOptions } from "./lib.js";
+import { reportDiagnostic } from "./lib.js";
 import { parseCase } from "./util/case.js";
 import { UnimplementedError } from "./util/error.js";
-import { createOnceQueue, OnceQueue } from "./util/once-queue.js";
+import type { OnceQueue } from "./util/once-queue.js";
+import { createOnceQueue } from "./util/once-queue.js";
 
-import { unsafe_Mutator } from "@typespec/compiler/experimental";
-import { MetadataInfo } from "@typespec/http";
+import type { unsafe_Mutator } from "@typespec/compiler/experimental";
+import type { MetadataInfo } from "@typespec/http";
 import { createModule as initializeHelperModule } from "../generated-defs/helpers/index.js";
 
 export type DeclarationType = Model | Enum | Union | Interface | Scalar;

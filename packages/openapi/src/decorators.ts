@@ -1,22 +1,24 @@
+import type {
+  DecoratorContext,
+  Model,
+  Namespace,
+  Operation,
+  Program,
+  Type,
+  Value,
+} from "@typespec/compiler";
 import {
   compilerAssert,
-  DecoratorContext,
   getDoc,
   getService,
   getSummary,
   isErrorModel,
   isType,
-  Model,
-  Namespace,
-  Operation,
-  Program,
   serializeValueAsJson,
-  Type,
-  Value,
 } from "@typespec/compiler";
 import { useStateMap, useStateSet } from "@typespec/compiler/utils";
 import * as http from "@typespec/http";
-import {
+import type {
   DefaultResponseDecorator,
   ExtensionDecorator,
   ExternalDocsDecorator,
@@ -28,7 +30,7 @@ import {
 } from "../generated-defs/TypeSpec.OpenAPI.js";
 import { validateAdditionalInfoModel, validateIsUri } from "./helpers.js";
 import { createDiagnostic, createStateSymbol, OpenAPIKeys, reportDiagnostic } from "./lib.js";
-import { AdditionalInfo, ExtensionKey, ExternalDocs, TagMetadataWithName } from "./types.js";
+import type { AdditionalInfo, ExtensionKey, ExternalDocs, TagMetadataWithName } from "./types.js";
 
 export const [
   /**

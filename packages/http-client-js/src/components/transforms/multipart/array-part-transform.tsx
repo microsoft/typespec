@@ -1,7 +1,7 @@
 import { code } from "@alloy-js/core";
-import { Children } from "@alloy-js/core/jsx-runtime";
+import type { Children } from "@alloy-js/core/jsx-runtime";
 import * as ts from "@alloy-js/typescript";
-import { HttpOperationPart } from "@typespec/http";
+import type { HttpOperationPart } from "@typespec/http";
 import { HttpPartTransform } from "./part-transform.jsx";
 
 export interface ArrayPartTransformProps {

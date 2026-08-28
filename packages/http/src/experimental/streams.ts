@@ -1,5 +1,5 @@
-import { Model, ModelProperty, Program, Type } from "@typespec/compiler";
-import { HttpOperationParameters, HttpOperationResponseContent } from "../types.js";
+import type { Model, ModelProperty, Program, Type } from "@typespec/compiler";
+import type { HttpOperationParameters, HttpOperationResponseContent } from "../types.js";
 let getStreamOf: typeof import("@typespec/streams").getStreamOf;
 try {
   // eslint-disable-next-line @typescript-eslint/ban-ts-comment

@@ -1,5 +1,6 @@
-import { ObjectSchema, Parameter, Property, SchemaResponse } from "@autorest/codemodel";
-import {
+import type { Property } from "@autorest/codemodel";
+import { ObjectSchema, Parameter, SchemaResponse } from "@autorest/codemodel";
+import type {
   SdkCookieParameter,
   SdkHeaderParameter,
   SdkHttpOperation,
@@ -9,11 +10,12 @@ import {
   SdkQueryParameter,
   SdkServiceResponseHeader,
 } from "@azure-tools/typespec-client-generator-core";
-import { Operation, Program, Type, Union } from "@typespec/compiler";
-import { HttpOperation } from "@typespec/http";
-import { Client as CodeModelClient, ServiceVersion } from "./common/client.js";
-import { CodeModel } from "./common/code-model.js";
-import { Operation as CodeModelOperation } from "./common/operation.js";
+import type { Operation, Program, Type, Union } from "@typespec/compiler";
+import type { HttpOperation } from "@typespec/http";
+import type { Client as CodeModelClient } from "./common/client.js";
+import { ServiceVersion } from "./common/client.js";
+import type { CodeModel } from "./common/code-model.js";
+import type { Operation as CodeModelOperation } from "./common/operation.js";
 import { getPropertySerializedName, modelIs, unionReferredByType } from "./type-utils.js";
 import { getNamespace, pascalCase } from "./utils.js";
 

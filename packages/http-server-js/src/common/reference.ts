@@ -1,19 +1,22 @@
 // Copyright (c) Microsoft Corporation
 // Licensed under the MIT license.
 
-import {
+import type {
   DiagnosticTarget,
   IntrinsicType,
   LiteralType,
   Namespace,
-  NoTarget,
   Type,
+} from "@typespec/compiler";
+import {
+  NoTarget,
   compilerAssert,
   getEffectiveModelType,
   getFriendlyName,
   isArrayModelType,
 } from "@typespec/compiler";
-import { JsContext, Module, isImportableType } from "../ctx.js";
+import type { JsContext, Module } from "../ctx.js";
+import { isImportableType } from "../ctx.js";
 import { reportDiagnostic } from "../lib.js";
 import { parseCase } from "../util/case.js";
 import { asArrayType, getArrayElementName } from "../util/pluralism.js";

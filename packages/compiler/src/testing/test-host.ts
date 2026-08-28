@@ -2,14 +2,15 @@ import assert from "assert";
 import { glob } from "fs/promises";
 import { logDiagnostics, logVerboseTestOutput } from "../core/diagnostics.js";
 import { createLogger } from "../core/logger/logger.js";
-import { CompilerOptions } from "../core/options.js";
-import { compile as compileProgram, Program } from "../core/program.js";
+import type { CompilerOptions } from "../core/options.js";
+import type { Program } from "../core/program.js";
+import { compile as compileProgram } from "../core/program.js";
 import type { Diagnostic, Type } from "../core/types.js";
 import { expectDiagnosticEmpty } from "./expect.js";
 import { createTestFileSystem } from "./fs.js";
 import { addTestLib, StandardTestLibrary } from "./test-compiler-host.js";
 import { createTestWrapper, resolveVirtualPath } from "./test-utils.js";
-import { BasicTestRunner, TestHost, TestHostConfig, TypeSpecTestLibrary } from "./types.js";
+import type { BasicTestRunner, TestHost, TestHostConfig, TypeSpecTestLibrary } from "./types.js";
 
 /* eslint-disable @typescript-eslint/no-deprecated -- implementing deprecated APIs for backward compatibility */
 /** @deprecated Use {@link createTester} */

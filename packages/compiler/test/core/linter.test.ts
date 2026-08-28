@@ -1,8 +1,9 @@
 import { describe, expect, it, vi } from "vitest";
 
-import { createDiagnosticCodeResolver } from "../../src/core/diagnostic-code.js";
+import type { createDiagnosticCodeResolver } from "../../src/core/diagnostic-code.js";
 import { createLinterRule, createTypeSpecLibrary } from "../../src/core/library.js";
-import { Linter, createLinter, resolveLinterDefinition } from "../../src/core/linter.js";
+import type { Linter } from "../../src/core/linter.js";
+import { createLinter, resolveLinterDefinition } from "../../src/core/linter.js";
 import {
   type Interface,
   type LibraryInstance,

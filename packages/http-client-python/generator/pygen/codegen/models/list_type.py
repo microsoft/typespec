@@ -38,6 +38,7 @@ class ListType(BaseType):
             self.code_model.options["version-tolerant"]
             and self.element_type.is_xml
             and not self.code_model.options["models-mode"]
+            and not self.code_model.generate_typeddict_only
         ):
             # this means we're version tolerant XML, we just return the XML element
             return self.element_type.type_annotation(**kwargs)

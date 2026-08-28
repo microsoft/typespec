@@ -1,5 +1,5 @@
-import { OpenAPI3Tag, OpenAPITag3_2 } from "../../../../types.js";
-import { TypeSpecTagMetadata } from "../interfaces.js";
+import type { OpenAPI3Tag, OpenAPITag3_2 } from "../../../../types.js";
+import type { TypeSpecTagMetadata } from "../interfaces.js";
 
 export function transformTags(tags: OpenAPI3Tag[]): TypeSpecTagMetadata[] {
   return tags.map((tag) => {

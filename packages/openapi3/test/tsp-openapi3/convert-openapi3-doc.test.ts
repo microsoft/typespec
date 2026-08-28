@@ -1,7 +1,8 @@
 import { formatTypeSpec } from "@typespec/compiler";
 import { strictEqual } from "node:assert";
 import { describe, it } from "vitest";
-import { OpenAPITag3_2, convertOpenAPI3Document } from "../../src/index.js";
+import type { OpenAPITag3_2 } from "../../src/index.js";
+import { convertOpenAPI3Document } from "../../src/index.js";
 
 const versions = ["3.0.0", "3.1.0", "3.2.0"] as const;
 

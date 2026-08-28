@@ -1,4 +1,5 @@
-import { createTypeSpecLibrary, fileRef, JSONSchemaType, paramMessage } from "@typespec/compiler";
+import type { JSONSchemaType } from "@typespec/compiler";
+import { createTypeSpecLibrary, fileRef, paramMessage } from "@typespec/compiler";
 
 export type FileType = "yaml" | "json";
 export type OpenAPIVersion = "3.0.0" | "3.1.0" | "3.2.0";

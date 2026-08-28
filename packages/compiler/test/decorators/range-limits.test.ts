@@ -10,8 +10,8 @@ import {
   getMinValue,
   getMinValueForScalar,
 } from "../../src/core/intrinsic-type-state.js";
-import { Numeric } from "../../src/core/numeric.js";
-import { ScalarValue } from "../../src/core/types.js";
+import type { Numeric } from "../../src/core/numeric.js";
+import type { ScalarValue } from "../../src/core/types.js";
 import { expectDiagnostics, t } from "../../src/testing/index.js";
 import { Tester } from "../tester.js";
 

@@ -1,4 +1,4 @@
-import {
+import type {
   DecoratorContext,
   Diagnostic,
   DiagnosticTarget,
@@ -11,6 +11,8 @@ import {
   Tuple,
   Type,
   Union,
+} from "@typespec/compiler";
+import {
   createDiagnosticCollector,
   getDoc,
   ignoreDiagnostics,
@@ -19,7 +21,7 @@ import {
 } from "@typespec/compiler";
 import { SyntaxKind } from "@typespec/compiler/ast";
 import { useStateMap } from "@typespec/compiler/utils";
-import {
+import type {
   BodyDecorator,
   BodyIgnoreDecorator,
   BodyRootDecorator,
@@ -43,7 +45,7 @@ import {
 } from "../generated-defs/TypeSpec.Http.js";
 import { HttpStateKeys, createDiagnostic, reportDiagnostic } from "./lib.js";
 import { getStatusCodesFromType } from "./status-codes.js";
-import {
+import type {
   Authentication,
   AuthenticationOption,
   CookieParameterOptions,

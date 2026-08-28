@@ -1,5 +1,5 @@
-import { Children, Refkey } from "@alloy-js/core";
-import { EncodeData, ModelProperty, Scalar } from "@typespec/compiler";
+import type { Children, Refkey } from "@alloy-js/core";
+import type { EncodeData, ModelProperty, Scalar } from "@typespec/compiler";
 import { useTsp } from "@typespec/emitter-framework";
 import { reportDiagnostic } from "../../lib.js";
 import { unpackProperty } from "../utils/unpack-model-property.js";

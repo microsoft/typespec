@@ -218,9 +218,9 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
             else
             {
                 // Model element collection: round-trip through ModelReaderWriter and tag the resulting BinaryData.
-                writeCall = Static(typeof(ModelReaderWriter)).Invoke(
-                    nameof(ModelReaderWriter.Write),
-                    [((MemberExpression)prop).CastTo(prop.Type), ModelSerializationExtensionsSnippets.Wire, ModelReaderWriterContextSnippets.Default])
+                writeCall = ModelReaderWriterSnippets.Write(
+                    ((MemberExpression)prop).CastTo(prop.Type),
+                    ModelSerializationExtensionsSnippets.Wire)
                     .As<BinaryData>()
                     .WithMediaType(Literal(contentType ?? "application/json"));
             }

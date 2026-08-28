@@ -1,11 +1,11 @@
 import { printIdentifier } from "@typespec/compiler";
-import {
+import type {
   OpenAPI3Encoding,
   OpenAPISchema3_2,
   Refable,
   SupportedOpenAPISchema,
 } from "../../../../types.js";
-import { Context } from "../utils/context.js";
+import type { Context } from "../utils/context.js";
 import {
   getDecoratorsForSchema,
   normalizeObjectValueToTSValueExpression,

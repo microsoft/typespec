@@ -2,7 +2,8 @@
 // sort-imports-ignore
 import "./pre-extension-activate.js";
 
-import vscode, { commands, ExtensionContext, TabInputText } from "vscode";
+import type { ExtensionContext } from "vscode";
+import vscode, { commands, TabInputText } from "vscode";
 import { State } from "vscode-languageclient";
 import { createCodeActionProvider } from "./code-action-provider.js";
 import { setTspLanguageClient, tspLanguageClient } from "./extension-context.js";
@@ -13,24 +14,22 @@ import { TypeSpecLogOutputChannel } from "./log/typespec-log-output-channel.js";
 import { getDirectoryPath, normalizePath } from "./path-utils.js";
 import { createTaskProvider } from "./task-provider.js";
 import telemetryClient from "./telemetry/telemetry-client.js";
-import { OperationTelemetryEvent, TelemetryEventName } from "./telemetry/telemetry-event.js";
+import type { OperationTelemetryEvent } from "./telemetry/telemetry-event.js";
+import { TelemetryEventName } from "./telemetry/telemetry-event.js";
 import { TspLanguageClient } from "./tsp-language-client.js";
-import {
-  CodeActionCommand,
-  CommandName,
+import type {
   InstallGlobalCliCommandArgs,
   RestartServerCommandArgs,
   RestartServerCommandResult,
   Result,
-  ResultCode,
-  SettingName,
   TypeSpecExtensionApi,
 } from "./types.js";
+import { CodeActionCommand, CommandName, ResultCode, SettingName } from "./types.js";
 import { installCompilerWithUi } from "./typespec-utils.js";
 import { isWhitespaceStringOrUndefined, spawnExecutionAndLogToOutput } from "./utils.js";
+import type { InitTemplatesUrlSetting } from "./vscode-cmd/create-tsp-project.js";
 import {
   createTypeSpecProject,
-  InitTemplatesUrlSetting,
   registerInitTemplateUrls as registerInitTemplateUrlsInternal,
 } from "./vscode-cmd/create-tsp-project.js";
 import { emitCode } from "./vscode-cmd/emit-code/emit-code.js";

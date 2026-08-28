@@ -2,9 +2,10 @@ import type { Entity, Enum, EnumMember, Union } from "../../core/types.js";
 import { $doc, getDoc } from "../../lib/decorators.js";
 import { createRekeyableMap } from "../../utils/misc.js";
 import { defineKit } from "../define-kit.js";
-import { decoratorApplication, DecoratorArgs } from "../utils.js";
+import type { DecoratorArgs } from "../utils.js";
+import { decoratorApplication } from "../utils.js";
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
-import { type UnionKit } from "./union.js";
+import type { UnionKit } from "./union.js";
 
 /**
  * Describes an enum type for creation.

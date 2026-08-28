@@ -5,22 +5,21 @@ import { typespecVersion } from "../../manifest.js";
 import { logDiagnostics } from "../diagnostics.js";
 import { getTypeSpecEngine } from "../engine.js";
 import { NodeHost } from "../node-host.js";
-import { CompilerHost, Diagnostic } from "../types.js";
+import type { CompilerHost, Diagnostic } from "../types.js";
 import { compileAction } from "./actions/compile/compile.js";
 import { formatAction } from "./actions/format.js";
 import { printInfoAction } from "./actions/info.js";
 import { printEmitterOptionsAction } from "./actions/info/emitter-options.js";
 import { initAction } from "./actions/init.js";
 import { installVSExtension, uninstallVSExtension } from "./actions/vs.js";
-import {
+import type {
   InstallVSCodeExtensionOptions,
   UninstallVSCodeExtensionOptions,
-  installVSCodeExtension,
-  uninstallVSCodeExtension,
 } from "./actions/vscode.js";
-import { CliCompilerHost } from "./types.js";
+import { installVSCodeExtension, uninstallVSCodeExtension } from "./actions/vscode.js";
+import type { CliCompilerHost } from "./types.js";
+import type { CliHostArgs } from "./utils.js";
 import {
-  CliHostArgs,
   createCLICompilerHost,
   handleInternalCompilerError,
   logDiagnosticCount,

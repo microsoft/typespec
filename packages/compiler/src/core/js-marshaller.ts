@@ -2,7 +2,7 @@ import { $ } from "../typekit/index.js";
 import { compilerAssert } from "./diagnostics.js";
 import { numericRanges } from "./numeric-ranges.js";
 import { Numeric } from "./numeric.js";
-import { Program } from "./program.js";
+import type { Program } from "./program.js";
 import type {
   ArrayValue,
   MarshalledValue,

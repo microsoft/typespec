@@ -1,28 +1,33 @@
 import { ok, strictEqual } from "assert";
 import { beforeEach, describe, expect, it } from "vitest";
-import { Binder, createBinder } from "../src/core/binder.js";
+import type { Binder } from "../src/core/binder.js";
+import { createBinder } from "../src/core/binder.js";
 import { typeReferenceToString } from "../src/core/helpers/syntax-utils.js";
 import { inspectSymbolFlags } from "../src/core/inspector/symbol.js";
 import { createLogger } from "../src/core/logger/logger.js";
 import { createTracer } from "../src/core/logger/tracer.js";
-import { createResolver, NameResolver } from "../src/core/name-resolver.js";
+import type { NameResolver } from "../src/core/name-resolver.js";
+import { createResolver } from "../src/core/name-resolver.js";
 import { getNodeAtPosition, parse } from "../src/core/parser.js";
-import {
+import type {
   IdentifierNode,
   JsSourceFileNode,
   MemberExpressionNode,
-  ModifierFlags,
   Node,
-  NodeFlags,
   ResolutionResult,
-  ResolutionResultFlags,
   Sym,
-  SymbolFlags,
   SymbolLinks,
-  SyntaxKind,
   TypeReferenceNode,
 } from "../src/core/types.js";
-import { createSourceFile, Program } from "../src/index.js";
+import {
+  ModifierFlags,
+  NodeFlags,
+  ResolutionResultFlags,
+  SymbolFlags,
+  SyntaxKind,
+} from "../src/core/types.js";
+import type { Program } from "../src/index.js";
+import { createSourceFile } from "../src/index.js";
 
 let binder: Binder;
 let resolver: ReturnType<typeof createResolver>;

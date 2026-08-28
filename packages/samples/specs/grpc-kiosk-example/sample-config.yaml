@@ -1,0 +1,3 @@
+title: Advanced gRPC kiosk
+description: Demonstrate a multi-file Protobuf-oriented kiosk service.
+playground: false

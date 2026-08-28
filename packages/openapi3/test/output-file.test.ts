@@ -1,12 +1,9 @@
 import { resolvePath } from "@typespec/compiler";
-import {
-  expectDiagnosticEmpty,
-  resolveVirtualPath,
-  TesterInstance,
-} from "@typespec/compiler/testing";
+import type { TesterInstance } from "@typespec/compiler/testing";
+import { expectDiagnosticEmpty, resolveVirtualPath } from "@typespec/compiler/testing";
 import { ok, strictEqual } from "assert";
 import { beforeEach, describe, it } from "vitest";
-import { OpenAPI3EmitterOptions } from "../src/lib.js";
+import type { OpenAPI3EmitterOptions } from "../src/lib.js";
 import { ApiTester } from "./test-host.js";
 
 describe("openapi3: output file", () => {

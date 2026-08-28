@@ -1,5 +1,4 @@
-import {
-  createDiagnosticCollector,
+import type {
   DecoratorContext,
   DiagnosticResult,
   Interface,
@@ -9,29 +8,33 @@ import {
   Operation,
   Program,
   Scalar,
-  setTypeSpecNamespace,
   Type,
 } from "@typespec/compiler";
+import { createDiagnosticCollector, setTypeSpecNamespace } from "@typespec/compiler";
+import type {
+  HttpOperation,
+  HttpOperationParameter,
+  HttpOperationParameters,
+  HttpVerb,
+} from "@typespec/http";
 import {
   addQueryParamsToUriTemplate,
   getOperationParameters,
   getOperationVerb,
   getRoutePath,
   getUriTemplatePathParam,
-  HttpOperation,
-  HttpOperationParameter,
-  HttpOperationParameters,
-  HttpVerb,
   joinPathSegments,
 } from "@typespec/http";
+import type {
+  unsafe_RouteOptions as RouteOptions,
+  unsafe_RouteProducerResult as RouteProducerResult,
+} from "@typespec/http/experimental";
 import {
   unsafe_DefaultRouteProducer as DefaultRouteProducer,
   unsafe_getRouteProducer as getRouteProducer,
-  unsafe_RouteOptions as RouteOptions,
-  unsafe_RouteProducerResult as RouteProducerResult,
   unsafe_setRouteProducer as setRouteProducer,
 } from "@typespec/http/experimental";
-import {
+import type {
   ActionDecorator,
   ActionSeparatorDecorator,
   AutoRouteDecorator,
@@ -41,7 +44,7 @@ import {
   ResourceDecorator,
   SegmentOfDecorator,
 } from "../generated-defs/TypeSpec.Rest.js";
-import {
+import type {
   ActionSegmentDecorator,
   ResourceLocationDecorator,
 } from "../generated-defs/TypeSpec.Rest.Private.js";

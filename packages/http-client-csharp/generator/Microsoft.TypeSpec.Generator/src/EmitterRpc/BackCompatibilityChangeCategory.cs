@@ -43,10 +43,22 @@ namespace Microsoft.TypeSpec.Generator.EmitterRpc
         /// <summary>A back-compat overload of a client method was added because new optional non-body parameter(s) were introduced relative to the last contract.</summary>
         SvcMethodNewOptionalParameterOverloadAdded,
 
+        /// <summary>A back-compat overload of a client method was added because a value-type parameter's nullability was removed (e.g. <c>T?</c> -&gt; <c>T</c>) relative to the last contract.</summary>
+        SvcMethodParameterNullabilityChangeOverloadAdded,
+
+        /// <summary>A back-compat reduced-arity overload of a client method was added because a nullable parameter changed from optional to required relative to the last contract.</summary>
+        SvcMethodParameterOptionalityRestorationOverloadAdded,
+
         /// <summary>A back-compat change was skipped because the removal was accepted in the ApiCompat baseline.</summary>
         BaselineAcceptedRemovalSkipped,
 
         /// <summary>A fixed enum member was re-added to preserve a member that existed in the last contract but is no longer produced by the current spec.</summary>
         EnumMemberAddedFromLastContract,
+
+        /// <summary>A back-compat model constructor was re-added to preserve a public constructor that existed in the last contract but is no longer produced by the current spec.</summary>
+        ConstructorAddedFromLastContract,
+
+        /// <summary>A back-compat model constructor could not be reconstructed from the last contract and was skipped.</summary>
+        ConstructorAddedFromLastContractSkipped,
     }
 }

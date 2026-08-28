@@ -5,16 +5,19 @@
 // `node-runner.browser.ts` stub is swapped in via the `"browser"` field in
 // `package.json` when bundling with `platform: "browser"`.
 
-import { EmitContext, NoTarget } from "@typespec/compiler";
+import type { EmitContext } from "@typespec/compiler";
+import { NoTarget } from "@typespec/compiler";
 import { execSync } from "child_process";
 import fs from "fs";
 import os from "os";
 import path, { dirname } from "path";
-import { loadPyodide, PyodideInterface } from "pyodide";
+import type { PyodideInterface } from "pyodide";
+import { loadPyodide } from "pyodide";
 import { fileURLToPath } from "url";
 import { blackExcludeDirs, PYGEN_WHEEL_FILENAME } from "./constants.js";
 import { saveCodeModelAsYaml } from "./external-process.js";
-import { PythonEmitterOptions, reportDiagnostic } from "./lib.js";
+import type { PythonEmitterOptions } from "./lib.js";
+import { reportDiagnostic } from "./lib.js";
 import { runPython3 } from "./run-python3.js";
 import { quoteShellArg } from "./utils.js";
 

@@ -1,7 +1,7 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT license.
 
-import {
+import type {
   DecoratorContext,
   EmitContext,
   EmitOptionsFor,
@@ -11,21 +11,22 @@ import {
   Namespace,
   Operation,
   Program,
-  resolvePath,
   StringLiteral,
   Type,
 } from "@typespec/compiler";
+import { resolvePath } from "@typespec/compiler";
 
-import {
+import type {
   FieldDecorator,
   MessageDecorator,
   PackageDecorator,
   ReserveDecorator,
   StreamDecorator,
 } from "../generated-defs/TypeSpec.Protobuf.js";
-import { ExternRefDecorator } from "../generated-defs/TypeSpec.Protobuf.Private.js";
+import type { ExternRefDecorator } from "../generated-defs/TypeSpec.Protobuf.Private.js";
 import { StreamingMode } from "./ast.js";
-import { ProtobufEmitterOptions, reportDiagnostic, state, TypeSpecProtobufLibrary } from "./lib.js";
+import type { ProtobufEmitterOptions, TypeSpecProtobufLibrary } from "./lib.js";
+import { reportDiagnostic, state } from "./lib.js";
 import { createProtobufEmitter } from "./transform/index.js";
 
 /**

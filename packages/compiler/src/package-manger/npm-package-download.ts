@@ -3,7 +3,7 @@
 import { createHash } from "crypto";
 import { Readable } from "stream";
 import { extract as tarX } from "tar/extract";
-import { Hash } from "../install/spec.js";
+import type { Hash } from "../install/spec.js";
 import { fetchPackageManifest, type NpmManifest } from "./npm-registry.js";
 
 export async function downloadPackageVersion(

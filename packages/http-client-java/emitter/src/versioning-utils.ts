@@ -1,7 +1,8 @@
 import { isPreviewVersion } from "@azure-tools/typespec-azure-core";
-import { SdkClientType, SdkHttpOperation } from "@azure-tools/typespec-client-generator-core";
-import { Namespace, Program } from "@typespec/compiler";
-import { findVersionedNamespace, getVersions, Version } from "@typespec/versioning";
+import type { SdkClientType, SdkHttpOperation } from "@azure-tools/typespec-client-generator-core";
+import type { Namespace, Program } from "@typespec/compiler";
+import type { Version } from "@typespec/versioning";
+import { findVersionedNamespace, getVersions } from "@typespec/versioning";
 
 /**
  * Sentinel values that describe a client that not have consistent api-versions.

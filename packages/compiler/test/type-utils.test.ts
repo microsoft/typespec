@@ -1,11 +1,7 @@
 import { ok } from "assert";
 import { describe, it } from "vitest";
+import type { Enum, Interface, Model, Namespace, Operation } from "../src/index.js";
 import {
-  Enum,
-  Interface,
-  Model,
-  Namespace,
-  Operation,
   isDeclaredInNamespace,
   isTemplateDeclaration,
   isTemplateDeclarationOrInstance,

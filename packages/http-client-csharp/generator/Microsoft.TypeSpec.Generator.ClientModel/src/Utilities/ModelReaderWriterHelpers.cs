@@ -107,7 +107,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Utilities
         private static TypeProvider? GetReferencedType(CSharpType type)
             => string.IsNullOrEmpty(type.Namespace)
                 ? null
-                : CodeModelGenerator.Instance.SourceInputModel.FindForTypeInCustomization(
+                : CodeModelGenerator.Instance.SourceInputModel.FindForTypeInCurrentCompilation(
                     type.Namespace,
                     type.Name,
                     declaringTypeName: type.DeclaringType?.Name,

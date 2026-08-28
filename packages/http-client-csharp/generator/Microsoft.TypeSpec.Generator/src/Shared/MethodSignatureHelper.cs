@@ -15,6 +15,10 @@ namespace Microsoft.TypeSpec.Generator
 {
     internal class MethodSignatureHelper
     {
+        internal static bool IsPublicApi(MethodSignatureModifiers modifiers)
+            => (modifiers.HasFlag(MethodSignatureModifiers.Public) || modifiers.HasFlag(MethodSignatureModifiers.Protected))
+                && !modifiers.HasFlag(MethodSignatureModifiers.Private);
+
         internal static bool ContainsSameParameters(MethodSignature method1, MethodSignature method2)
         {
             var count = method1.Parameters.Count;

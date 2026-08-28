@@ -1,7 +1,7 @@
 import type { ServiceDecorator, ServiceOptions } from "../../generated-defs/TypeSpec.js";
 import { validateDecoratorUniqueOnNode } from "../core/decorator-utils.js";
 import type { Program } from "../core/program.js";
-import { DecoratorContext, Namespace } from "../core/types.js";
+import type { DecoratorContext, Namespace } from "../core/types.js";
 import { Realm } from "../experimental/realm.js";
 import { useStateMap } from "../utils/index.js";
 

@@ -154,6 +154,111 @@ namespace Microsoft.TypeSpec.Generator.Tests.Providers.ModelProviders
         }
 
         [Test]
+        public async Task CustomCodeReplacesDateNormalizedProperty()
+        {
+            var dateTime = new InputDateTimeType(
+                DateTimeKnownEncoding.Rfc3339,
+                "utcDateTime",
+                "TypeSpec.utcDateTime",
+                InputPrimitiveType.String);
+            var inputModel = InputFactory.Model(
+                "mockInputModel",
+                properties: [InputFactory.Property("creationDate", dateTime, isRequired: true)]);
+
+            var mockGenerator = await MockHelpers.LoadMockGeneratorAsync(
+                inputModelTypes: [inputModel],
+                compilation: async () => await Helpers.GetCompilationFromDirectoryAsync());
+
+            var modelTypeProvider = mockGenerator.Object.OutputLibrary.TypeProviders.Single(t => t.Name == "MockInputModel");
+
+            Assert.AreEqual(1, modelTypeProvider.CustomCodeView!.Properties.Count);
+            Assert.AreEqual("Created", modelTypeProvider.CustomCodeView.Properties[0].Name);
+            Assert.AreEqual(0, modelTypeProvider.Properties.Count);
+            Assert.AreEqual(1, modelTypeProvider.CanonicalView!.Properties.Count);
+            Assert.AreEqual("Created", modelTypeProvider.CanonicalView.Properties[0].Name);
+            Assert.AreEqual($"{Helpers.GetExpectedFromFile("Expected")}\n", new TypeProviderWriter(modelTypeProvider).Write().Content);
+        }
+
+        [Test]
+        public async Task CustomCodeReplacesDateNormalizedPropertyUsingRawSpecName()
+        {
+            var dateTime = new InputDateTimeType(
+                DateTimeKnownEncoding.Rfc3339,
+                "utcDateTime",
+                "TypeSpec.utcDateTime",
+                InputPrimitiveType.String);
+            var inputModel = InputFactory.Model(
+                "mockInputModel",
+                properties: [InputFactory.Property("creationDate", dateTime, isRequired: true)]);
+
+            var mockGenerator = await MockHelpers.LoadMockGeneratorAsync(
+                inputModelTypes: [inputModel],
+                compilation: async () => await Helpers.GetCompilationFromDirectoryAsync());
+
+            var modelTypeProvider = mockGenerator.Object.OutputLibrary.TypeProviders.Single(t => t.Name == "MockInputModel");
+
+            Assert.AreEqual(1, modelTypeProvider.CustomCodeView!.Properties.Count);
+            Assert.AreEqual("Created", modelTypeProvider.CustomCodeView.Properties[0].Name);
+            Assert.AreEqual(0, modelTypeProvider.Properties.Count);
+            Assert.AreEqual(1, modelTypeProvider.CanonicalView!.Properties.Count);
+            Assert.AreEqual("Created", modelTypeProvider.CanonicalView.Properties[0].Name);
+            Assert.AreEqual($"{Helpers.GetExpectedFromFile("Expected")}\n", new TypeProviderWriter(modelTypeProvider).Write().Content);
+        }
+
+        [Test]
+        public async Task CustomCodeReplacesAcronymNormalizedProperty()
+        {
+            var inputModel = InputFactory.Model(
+                "mockInputModel",
+                properties: [InputFactory.Property("ipFoo", InputPrimitiveType.String, isRequired: true)]);
+
+            var mockGenerator = await MockHelpers.LoadMockGeneratorAsync(
+                inputModelTypes: [inputModel],
+                compilation: async () => await Helpers.GetCompilationFromDirectoryAsync());
+
+            var modelTypeProvider = mockGenerator.Object.OutputLibrary.TypeProviders.Single(t => t.Name == "MockInputModel");
+
+            Assert.AreEqual(1, modelTypeProvider.CustomCodeView!.Properties.Count);
+            Assert.AreEqual("Foo", modelTypeProvider.CustomCodeView.Properties[0].Name);
+            Assert.AreEqual(0, modelTypeProvider.Properties.Count);
+            Assert.AreEqual(1, modelTypeProvider.CanonicalView!.Properties.Count);
+            Assert.AreEqual("Foo", modelTypeProvider.CanonicalView.Properties[0].Name);
+            Assert.IsTrue(modelTypeProvider.CanonicalView.Properties[0].WireInfo!.IsRequired);
+            Assert.IsFalse(modelTypeProvider.CanonicalView.Properties[0].WireInfo!.IsReadOnly);
+            Assert.IsTrue(modelTypeProvider.CanonicalView.Properties[0].Body.HasSetter);
+            CollectionAssert.AreEqual(
+                new[] { "foo" },
+                modelTypeProvider.Constructors.Single(c => c.Signature.Modifiers == MethodSignatureModifiers.Public).Signature.Parameters.Select(p => p.Name));
+            Assert.AreEqual($"{Helpers.GetExpectedFromFile("Expected")}\n", new TypeProviderWriter(modelTypeProvider).Write().Content);
+        }
+
+        [Test]
+        public async Task ExactNameCodeGenMemberReplacesProperty()
+        {
+            var dateTime = new InputDateTimeType(
+                DateTimeKnownEncoding.Rfc3339,
+                "utcDateTime",
+                "TypeSpec.utcDateTime",
+                InputPrimitiveType.String);
+            var inputModel = InputFactory.Model(
+                "mockInputModel",
+                properties: [InputFactory.Property("CreatedFoo", dateTime, isRequired: true, isExactName: true)]);
+
+            var mockGenerator = await MockHelpers.LoadMockGeneratorAsync(
+                inputModelTypes: [inputModel],
+                compilation: async () => await Helpers.GetCompilationFromDirectoryAsync());
+
+            var modelTypeProvider = mockGenerator.Object.OutputLibrary.TypeProviders.Single(t => t.Name == "MockInputModel");
+
+            Assert.AreEqual(1, modelTypeProvider.CustomCodeView!.Properties.Count);
+            Assert.AreEqual("Created", modelTypeProvider.CustomCodeView.Properties[0].Name);
+            Assert.AreEqual(0, modelTypeProvider.Properties.Count);
+            Assert.AreEqual(1, modelTypeProvider.CanonicalView!.Properties.Count);
+            Assert.AreEqual("Created", modelTypeProvider.CanonicalView.Properties[0].Name);
+            Assert.AreEqual($"{Helpers.GetExpectedFromFile("Expected")}\n", new TypeProviderWriter(modelTypeProvider).Write().Content);
+        }
+
+        [Test]
         public async Task CustomCodeWinsOverIsExactNameOnModel()
         {
             // A spec model marked with IsExactName has its exact-cased name preserved.
@@ -181,6 +286,28 @@ namespace Microsoft.TypeSpec.Generator.Tests.Providers.ModelProviders
             await MockHelpers.LoadMockGeneratorAsync(compilation: async () => await Helpers.GetCompilationFromDirectoryAsync());
 
             var inputEnum = InputFactory.StringEnum("snake_case_enum", [("value", "value")], isExactName: true);
+            var enumProvider = new FixedEnumProvider(inputEnum, null);
+
+            AssertCommon(enumProvider, "NewNamespace.Models", "CustomizedEnum");
+        }
+
+        [Test]
+        public async Task CustomCodeWinsOverAcronymNormalizationOnModel()
+        {
+            await MockHelpers.LoadMockGeneratorAsync(compilation: async () => await Helpers.GetCompilationFromDirectoryAsync());
+
+            var inputModel = InputFactory.Model("IpAddress");
+            var modelProvider = new ModelProvider(inputModel);
+
+            AssertCommon(modelProvider, "NewNamespace.Models", "CustomizedModel");
+        }
+
+        [Test]
+        public async Task CustomCodeWinsOverAcronymNormalizationOnEnum()
+        {
+            await MockHelpers.LoadMockGeneratorAsync(compilation: async () => await Helpers.GetCompilationFromDirectoryAsync());
+
+            var inputEnum = InputFactory.StringEnum("IpKind", [("value", "value")]);
             var enumProvider = new FixedEnumProvider(inputEnum, null);
 
             AssertCommon(enumProvider, "NewNamespace.Models", "CustomizedEnum");

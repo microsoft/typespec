@@ -1,19 +1,18 @@
 import { For, join, List, refkey } from "@alloy-js/core";
 import * as ts from "@alloy-js/typescript";
-import {
+import type {
   Entity,
-  getSourceLocation,
   IntrinsicScalarName,
-  isArrayModelType,
   MixedParameterConstraint,
   Model,
   Program,
   Scalar,
-  type Type,
 } from "@typespec/compiler";
-import { DocNode, DocTag, SyntaxKind } from "@typespec/compiler/ast";
+import { getSourceLocation, isArrayModelType, type Type } from "@typespec/compiler";
+import type { DocNode, DocTag } from "@typespec/compiler/ast";
+import { SyntaxKind } from "@typespec/compiler/ast";
 import { typespecCompiler } from "../external-packages/compiler.js";
-import { FunctionSignature } from "../types.js";
+import type { FunctionSignature } from "../types.js";
 import { useTspd } from "./tspd-context.js";
 
 export interface FunctionSignatureProps {

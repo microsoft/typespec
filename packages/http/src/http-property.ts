@@ -1,15 +1,13 @@
+import type { DiagnosticResult, Model, Type } from "@typespec/compiler";
 import {
   compilerAssert,
   createDiagnosticCollector,
-  DiagnosticResult,
-  Model,
-  Type,
   walkPropertiesInherited,
   type Diagnostic,
   type ModelProperty,
   type Program,
 } from "@typespec/compiler";
-import { PathOptions, QueryOptions } from "../generated-defs/TypeSpec.Http.js";
+import type { PathOptions, QueryOptions } from "../generated-defs/TypeSpec.Http.js";
 import {
   getCookieParamOptions,
   getHeaderFieldOptions,
@@ -24,9 +22,10 @@ import {
   resolveQueryOptionsWithDefaults,
 } from "./decorators.js";
 import { createDiagnostic } from "./lib.js";
-import { isVisible, Visibility } from "./metadata.js";
+import type { Visibility } from "./metadata.js";
+import { isVisible } from "./metadata.js";
 import { HttpPayloadDisposition } from "./payload.js";
-import {
+import type {
   CookieParameterOptions,
   HeaderFieldOptions,
   PathParameterOptions,

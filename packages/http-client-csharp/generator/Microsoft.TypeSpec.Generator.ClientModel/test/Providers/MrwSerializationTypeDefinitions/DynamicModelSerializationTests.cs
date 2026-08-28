@@ -91,6 +91,16 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers.MrwSerializat
                 model.Constructors.FirstOrDefault(c => c.Signature.Parameters.Any(p => p.Name == "patch"));
             Assert.IsNotNull(constructor);
             StringAssert.Contains("_patch.SetPropagators(PropagateSet, PropagateGet);", constructor!.BodyStatements!.ToDisplayString());
+
+            // Also validate that the propagate method is called from the public initialization constructor
+            // so that patch propagation behaves consistently regardless of the construction path.
+            var publicConstructor =
+                model.Constructors.FirstOrDefault(c => c.Signature.Modifiers.HasFlag(MethodSignatureModifiers.Public)
+                    && c.Signature.Parameters.All(p => p.Name != "patch"));
+            Assert.IsNotNull(publicConstructor);
+            Assert.AreEqual(
+                Helpers.GetExpectedFromFile("PublicInitializationConstructor"),
+                publicConstructor!.BodyStatements!.ToDisplayString());
         }
 
         [Test]

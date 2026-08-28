@@ -1,9 +1,8 @@
 import { deepStrictEqual, strictEqual } from "assert";
 import { describe, it } from "vitest";
-import { Type } from "../src/core/types.js";
+import type { Type } from "../src/core/types.js";
+import type { DecoratorContext, TypeSpecValue } from "../src/index.js";
 import {
-  DecoratorContext,
-  TypeSpecValue,
   typespecTypeToJson,
   validateDecoratorNotOnType,
   validateDecoratorUniqueOnNode,

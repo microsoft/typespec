@@ -1,4 +1,5 @@
-import { Children, code, refkey, Refkey } from "@alloy-js/core";
+import type { Children, Refkey } from "@alloy-js/core";
+import { code, refkey } from "@alloy-js/core";
 import * as ts from "@alloy-js/typescript";
 import type { Union } from "@typespec/compiler";
 import { useTsp } from "@typespec/emitter-framework";

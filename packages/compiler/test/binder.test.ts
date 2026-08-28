@@ -1,24 +1,22 @@
 import { ok, strictEqual } from "assert";
 import { beforeEach, it } from "vitest";
-import { Binder, createBinder } from "../src/core/binder.js";
+import type { Binder } from "../src/core/binder.js";
+import { createBinder } from "../src/core/binder.js";
 import { createLogger } from "../src/core/logger/logger.js";
 import { createTracer } from "../src/core/logger/tracer.js";
 import { parse } from "../src/core/parser.js";
 import type { Program } from "../src/core/program.js";
 import { createSourceFile } from "../src/core/source-file.js";
-import {
+import type {
   AliasStatementNode,
   InterfaceStatementNode,
   JsSourceFileNode,
   ModelStatementNode,
-  ModifierFlags,
-  NodeFlags,
   Sym,
-  SymbolFlags,
   SymbolTable,
-  SyntaxKind,
   UnionStatementNode,
 } from "../src/core/types.js";
+import { ModifierFlags, NodeFlags, SymbolFlags, SyntaxKind } from "../src/core/types.js";
 import { expectDiagnosticEmpty } from "../src/testing/expect.js";
 
 let binder: Binder;

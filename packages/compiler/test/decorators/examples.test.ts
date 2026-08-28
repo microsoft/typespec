@@ -1,6 +1,7 @@
 import { ok } from "assert";
 import { describe, expect, it } from "vitest";
-import { Operation, getExamples, getOpExamples, serializeValueAsJson } from "../../src/index.js";
+import type { Operation } from "../../src/index.js";
+import { getExamples, getOpExamples, serializeValueAsJson } from "../../src/index.js";
 import { expectDiagnostics } from "../../src/testing/index.js";
 import { Tester } from "../tester.js";
 

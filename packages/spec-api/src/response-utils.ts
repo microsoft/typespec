@@ -1,5 +1,5 @@
 import { isMatcher, type MockValueMatcher } from "./match-engine.js";
-import { MockBody, MockMultipartBody, Resolver, ResolverConfig } from "./types.js";
+import type { MockBody, MockMultipartBody, Resolver, ResolverConfig } from "./types.js";
 
 /**
  * Serialize the provided content as json to use in a MockResponse body.

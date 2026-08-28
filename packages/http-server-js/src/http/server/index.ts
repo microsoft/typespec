@@ -1,37 +1,29 @@
 // Copyright (c) Microsoft Corporation
 // Licensed under the MIT license.
 
-import {
-  ModelProperty,
-  NoTarget,
-  Type,
-  compilerAssert,
-  isArrayModelType,
-  isRecordModelType,
-} from "@typespec/compiler";
+import type { ModelProperty, Type } from "@typespec/compiler";
+import { NoTarget, compilerAssert, isArrayModelType, isRecordModelType } from "@typespec/compiler";
 import { $ } from "@typespec/compiler/typekit";
-import {
+import type {
   HttpOperation,
   HttpOperationFileBody,
   HttpOperationParameter,
   HttpOperationResponseContent,
-  getHeaderFieldName,
-  getHttpOperation,
 } from "@typespec/http";
+import { getHeaderFieldName, getHttpOperation } from "@typespec/http";
 import { createOrGetModuleForNamespace } from "../../common/namespace.js";
 import { emitTypeReference, isValueLiteralType } from "../../common/reference.js";
-import {
-  SerializableType,
-  isSerializationRequired,
-  requireSerialization,
-} from "../../common/serialization/index.js";
-import { Module, completePendingDeclarations, createModule } from "../../ctx.js";
-import { ReCase, isUnspeakable, parseCase } from "../../util/case.js";
+import type { SerializableType } from "../../common/serialization/index.js";
+import { isSerializationRequired, requireSerialization } from "../../common/serialization/index.js";
+import type { Module } from "../../ctx.js";
+import { completePendingDeclarations, createModule } from "../../ctx.js";
+import type { ReCase } from "../../util/case.js";
+import { isUnspeakable, parseCase } from "../../util/case.js";
 import { UnimplementedError } from "../../util/error.js";
 import { getAllProperties } from "../../util/extends.js";
 import { bifilter, indent } from "../../util/iter.js";
 import { keywordSafe } from "../../util/keywords.js";
-import { HttpContext } from "../index.js";
+import type { HttpContext } from "../index.js";
 
 import { module as routerHelpers } from "../../../generated-defs/helpers/router.js";
 import { reportDiagnostic } from "../../lib.js";

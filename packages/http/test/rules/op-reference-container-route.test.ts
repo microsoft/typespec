@@ -1,4 +1,5 @@
-import { createLinterRuleTester, LinterRuleTester } from "@typespec/compiler/testing";
+import type { LinterRuleTester } from "@typespec/compiler/testing";
+import { createLinterRuleTester } from "@typespec/compiler/testing";
 import { beforeEach, it } from "vitest";
 import { opReferenceContainerRouteRule } from "../../src/rules/op-reference-container-route.js";
 import { Tester } from "../test-host.js";

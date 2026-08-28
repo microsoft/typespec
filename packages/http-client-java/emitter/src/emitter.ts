@@ -1,18 +1,14 @@
-import {
-  EmitContext,
-  getNormalizedAbsolutePath,
-  NoTarget,
-  Program,
-  resolvePath,
-} from "@typespec/compiler";
+import type { EmitContext, Program } from "@typespec/compiler";
+import { getNormalizedAbsolutePath, NoTarget, resolvePath } from "@typespec/compiler";
 import { promises } from "fs";
 import { dirname } from "path";
 import { fileURLToPath } from "url";
 import { stringify } from "yaml";
-import { CodeModelBuilder, EmitterOptionsDev } from "./code-model-builder.js";
-import { CodeModel } from "./common/code-model.js";
+import type { EmitterOptionsDev } from "./code-model-builder.js";
+import { CodeModelBuilder } from "./code-model-builder.js";
+import type { CodeModel } from "./common/code-model.js";
 import { LibName, reportDiagnostic } from "./lib.js";
-import { EmitterOptions } from "./options.js";
+import type { EmitterOptions } from "./options.js";
 import { DiagnosticError, spawnAsync, SpawnError, trace } from "./utils.js";
 import { validateDependencies } from "./validate.js";
 

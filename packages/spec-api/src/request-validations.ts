@@ -1,7 +1,7 @@
 import { XMLParser } from "fast-xml-parser";
 import { isDeepStrictEqual } from "node:util";
 import { matchValues, type MockValueMatcher } from "./match-engine.js";
-import { CollectionFormat, RequestExt, Resolver, ResolverConfig } from "./types.js";
+import type { CollectionFormat, RequestExt, Resolver, ResolverConfig } from "./types.js";
 import { ValidationError } from "./validation-error.js";
 
 export const BODY_NOT_EQUAL_ERROR_MESSAGE = "Body provided doesn't match expected body";

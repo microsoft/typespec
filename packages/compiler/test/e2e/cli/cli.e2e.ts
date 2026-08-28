@@ -1,4 +1,5 @@
-import { ChildProcess, SpawnOptions, spawn } from "child_process";
+import type { ChildProcess, SpawnOptions } from "child_process";
+import { spawn } from "child_process";
 import { access, readFile, rm } from "fs/promises";
 import { beforeEach, describe, expect, it } from "vitest";
 import { resolvePath } from "../../../src/index.js";

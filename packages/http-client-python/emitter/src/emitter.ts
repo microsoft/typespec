@@ -1,5 +1,6 @@
 import { createSdkContext } from "@azure-tools/typespec-client-generator-core";
-import { EmitContext, emitFile, joinPaths, NoTarget } from "@typespec/compiler";
+import type { EmitContext } from "@typespec/compiler";
+import { emitFile, joinPaths, NoTarget } from "@typespec/compiler";
 import pkgJson from "../../package.json" with { type: "json" };
 import { emitCodeModel } from "./code-model.js";
 import {
@@ -9,9 +10,11 @@ import {
   PYODIDE_VERSION,
 } from "./constants.js";
 import { dumpCodeModelToYaml } from "./external-process.js";
-import { PythonEmitterOptions, PythonSdkContext, reportDiagnostic } from "./lib.js";
+import type { PythonEmitterOptions, PythonSdkContext } from "./lib.js";
+import { reportDiagnostic } from "./lib.js";
 import { runNodeEmit } from "./node-runner.js";
-import { loadPyodide, PyodideInterface } from "./pyodide-loader.js";
+import type { PyodideInterface } from "./pyodide-loader.js";
+import { loadPyodide } from "./pyodide-loader.js";
 import { getRootNamespace, md2Rst } from "./utils.js";
 
 function getBrowserPygenWheelUrl(): string {
@@ -223,7 +226,7 @@ async function onEmitMain(context: EmitContext<PythonEmitterOptions>) {
 
   if (typeof window !== "undefined") {
     // Running in browser with Pyodide - fileURLToPath and other filesystem operations are browser-incompatible
-    const pyodide = await browserPyodidePromise;
+    const pyodide = await getBrowserPyodide();
 
     if (!pyodide) {
       reportDiagnostic(program, {
@@ -253,8 +256,29 @@ async function onEmitMain(context: EmitContext<PythonEmitterOptions>) {
   }
 }
 
-const browserPyodidePromise: Promise<PyodideInterface> | null =
-  typeof window !== "undefined" ? setupPyodideCallBrowser() : null;
+let browserPyodidePromise: Promise<PyodideInterface> | undefined;
+
+/**
+ * Boot the Pyodide runtime lazily, on the first browser emit.
+ *
+ * This must not happen when the module is imported: hosts like the TypeSpec playground import every
+ * available emitter up front, and booting Pyodide downloads a full CPython WebAssembly runtime plus
+ * its wheels (~10MB, ~290MB of resident memory). Doing that eagerly pushed the playground past the
+ * per-tab memory budget on mobile browsers, which made the page fail to load.
+ */
+function getBrowserPyodide(): Promise<PyodideInterface> | null {
+  if (typeof window === "undefined") {
+    return null;
+  }
+  if (browserPyodidePromise === undefined) {
+    browserPyodidePromise = setupPyodideCallBrowser().catch((error) => {
+      // Clear the cached promise so a later emit can retry after a transient failure.
+      browserPyodidePromise = undefined;
+      throw error;
+    });
+  }
+  return browserPyodidePromise;
+}
 
 function clearMemfsDirectory(pyodide: PyodideInterface, dir: string): void {
   const entries: string[] = pyodide.FS.readdir(dir).filter(

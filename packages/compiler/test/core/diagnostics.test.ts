@@ -2,7 +2,8 @@ import { strictEqual } from "assert";
 import { describe, it } from "vitest";
 import { getNodeForTarget } from "../../src/core/diagnostics.js";
 import { SyntaxKind } from "../../src/core/types.js";
-import { SourceLocationOptions, getSourceLocation } from "../../src/index.js";
+import type { SourceLocationOptions } from "../../src/index.js";
+import { getSourceLocation } from "../../src/index.js";
 import { extractSquiggles } from "../../src/testing/source-utils.js";
 import { Tester } from "../tester.js";
 

@@ -334,7 +334,7 @@ class OperationBase(  # pylint: disable=too-many-public-methods,too-many-instanc
             file_import.merge(
                 response.imports(async_mode=async_mode, need_import_iobase=self.need_import_iobase, **kwargs)
             )
-        if self.code_model.options["models-mode"]:
+        if self.code_model.options["models-mode"] or self.code_model.generate_typeddict_only:
             for exception in self.exceptions:
                 file_import.merge(exception.imports(async_mode=async_mode, **kwargs))
 
@@ -552,7 +552,12 @@ class Operation(OperationBase[Response]):
                 "distributed_trace_async",
                 ImportType.SDKCORE,
             )
-        if self.has_response_body and not self.has_optional_return_type and not self.code_model.options["models-mode"]:
+        if (
+            self.has_response_body
+            and not self.has_optional_return_type
+            and not self.code_model.options["models-mode"]
+            and not self.code_model.generate_typeddict_only
+        ):
             file_import.add_submodule_import("typing", "cast", ImportType.STDLIB)
 
         return file_import

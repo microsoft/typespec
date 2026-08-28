@@ -1,11 +1,7 @@
 import { resolvePath } from "../../core/path-utils.js";
-import { Exports } from "../../types/package-json.js";
-import {
-  EsmResolutionContext,
-  InvalidModuleSpecifierError,
-  InvalidPackageTargetError,
-  isUrl,
-} from "./utils.js";
+import type { Exports } from "../../types/package-json.js";
+import type { EsmResolutionContext } from "./utils.js";
+import { InvalidModuleSpecifierError, InvalidPackageTargetError, isUrl } from "./utils.js";
 
 export interface ResolvePackageTargetOptions {
   readonly target: Exports;

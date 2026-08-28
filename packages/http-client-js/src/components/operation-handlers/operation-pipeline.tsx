@@ -1,7 +1,7 @@
 import { refkey } from "@alloy-js/core";
-import { HttpOperation } from "@typespec/http";
+import type { HttpOperation } from "@typespec/http";
 import { ClientOperation as DefaultOperationComponent } from "../client-operation.jsx";
-import { OperationHandlerPipeline } from "./types.jsx";
+import type { OperationHandlerPipeline } from "./types.jsx";
 
 export interface OperationPipelineProps {
   httpOperation: HttpOperation;

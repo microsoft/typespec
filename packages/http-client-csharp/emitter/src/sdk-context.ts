@@ -1,7 +1,7 @@
 // Copyright (c) Microsoft Corporation. All rights reserved.
 // Licensed under the MIT License. See License.txt in the project root for license information.
 
-import {
+import type {
   SdkClientType,
   SdkConstantType,
   SdkContext,
@@ -14,12 +14,12 @@ import {
   SdkServiceMethod,
   SdkType,
 } from "@azure-tools/typespec-client-generator-core";
-import { Type } from "@typespec/compiler";
-import { Logger } from "./lib/logger.js";
-import { CSharpEmitterOptions } from "./options.js";
-import { InputOperation } from "./type/input-operation.js";
-import { InputServiceMethod } from "./type/input-service-method.js";
-import {
+import type { Type } from "@typespec/compiler";
+import type { Logger } from "./lib/logger.js";
+import type { CSharpEmitterOptions } from "./options.js";
+import type { InputOperation } from "./type/input-operation.js";
+import type { InputServiceMethod } from "./type/input-service-method.js";
+import type {
   InputClient,
   InputHttpParameter,
   InputLiteralType,
@@ -28,7 +28,7 @@ import {
   InputNamespace,
   InputType,
 } from "./type/input-type.js";
-import { OperationResponse } from "./type/operation-response.js";
+import type { OperationResponse } from "./type/operation-response.js";
 
 /**
  * The emitter context for the CSharp emitter.

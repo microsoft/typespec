@@ -1,4 +1,5 @@
-import { Children, code } from "@alloy-js/core";
+import type { Children } from "@alloy-js/core";
+import { code } from "@alloy-js/core";
 
 export interface ClientTestOptions {}
 

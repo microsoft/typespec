@@ -1,9 +1,10 @@
 import { createDiagnosticCollector } from "../../diagnostics.js";
 import { createDiagnostic } from "../../messages.js";
 import { joinPaths } from "../../path-utils.js";
-import { Diagnostic, NoTarget } from "../../types.js";
+import type { Diagnostic } from "../../types.js";
+import { NoTarget } from "../../types.js";
 import { downloadVsixFromMarketplace } from "../download-vsix.js";
-import { CliCompilerHost } from "../types.js";
+import type { CliCompilerHost } from "../types.js";
 import { reportDeprecatedCommand, run } from "../utils.js";
 
 const VSIX_ALREADY_INSTALLED = 1001;

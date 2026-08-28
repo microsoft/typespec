@@ -1,4 +1,4 @@
-import { TypeSpecExternalDocs, TypeSpecTagMetadata } from "../interfaces.js";
+import type { TypeSpecExternalDocs, TypeSpecTagMetadata } from "../interfaces.js";
 
 function generateExternalDocs(externalDocs?: TypeSpecExternalDocs): string {
   if (!externalDocs) {

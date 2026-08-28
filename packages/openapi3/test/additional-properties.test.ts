@@ -1,6 +1,6 @@
 import { deepStrictEqual, ok } from "assert";
 import { describe, it } from "vitest";
-import { OpenAPI3EmitterOptions } from "../src/lib.js";
+import type { OpenAPI3EmitterOptions } from "../src/lib.js";
 import { supportedVersions, worksFor } from "./works-for.js";
 
 worksFor(supportedVersions, ({ oapiForModel, objectSchemaIndexer }) => {

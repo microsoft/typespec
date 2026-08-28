@@ -1,11 +1,11 @@
 vi.resetModules();
 
-import { TestHost } from "@typespec/compiler/testing";
+import type { TestHost } from "@typespec/compiler/testing";
 import { ok, strictEqual } from "assert";
 import { beforeEach, describe, it, vi } from "vitest";
 import { createModel } from "../../src/lib/client-model-builder.js";
 import { containsMultiServiceClient } from "../../src/lib/utils.js";
-import { InputClient } from "../../src/type/input-type.js";
+import type { InputClient } from "../../src/type/input-type.js";
 import {
   createCSharpSdkContext,
   createEmitterContext,

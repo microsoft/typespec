@@ -4,9 +4,9 @@ import { NoMatchingConditionsError } from "../module-resolver/esm/utils.js";
 import { fileURLToPath, pathToFileURL } from "../module-resolver/utils.js";
 import { doIO, loadFile } from "../utils/io.js";
 import { resolveTspMain } from "../utils/misc.js";
-import { DiagnosticHandler } from "./diagnostics.js";
+import type { DiagnosticHandler } from "./diagnostics.js";
 import { resolvePath } from "./path-utils.js";
-import { CompilerHost } from "./types.js";
+import type { CompilerHost } from "./types.js";
 
 /**
  * Resolve the path to the main file

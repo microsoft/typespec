@@ -1,6 +1,8 @@
 import { isPromise } from "../utils/misc.js";
-import { DiagnosticCodeResolver, formatShortNameCandidates } from "./diagnostic-code.js";
-import { DiagnosticCollector, compilerAssert, createDiagnosticCollector } from "./diagnostics.js";
+import type { DiagnosticCodeResolver } from "./diagnostic-code.js";
+import { formatShortNameCandidates } from "./diagnostic-code.js";
+import type { DiagnosticCollector } from "./diagnostics.js";
+import { compilerAssert, createDiagnosticCollector } from "./diagnostics.js";
 import { getLocationContext } from "./helpers/location-context.js";
 import { defineLinter } from "./library.js";
 import { createUnusedTemplateParameterLinterRule } from "./linter-rules/unused-template-parameter.rule.js";
@@ -10,7 +12,7 @@ import { perf } from "./perf.js";
 import type { Program } from "./program.js";
 import { createJSONSchemaValidator } from "./schema-validator.js";
 import { EventEmitter, mapEventEmitterToNodeListener, navigateProgram } from "./semantic-walker.js";
-import {
+import type {
   Diagnostic,
   DiagnosticMessages,
   LinterDefinition,
@@ -20,10 +22,10 @@ import {
   LinterRuleDiagnosticReport,
   LinterRuleEnableValue,
   LinterRuleSet,
-  NoTarget,
   RuleRef,
   SemanticNodeListener,
 } from "./types.js";
+import { NoTarget } from "./types.js";
 
 type LinterLibraryInstance = { linter: LinterResolvedDefinition };
 

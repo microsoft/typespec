@@ -1,20 +1,18 @@
-import {
+import type {
   DecoratorContext,
   DiagnosticTarget,
   IndeterminateEntity,
   Model,
   ModelProperty,
   Namespace,
-  NoTarget,
   Program,
   Type,
   Value,
-  getProperty,
-  getTypeName,
-  walkPropertiesInherited,
 } from "@typespec/compiler";
-import { Node, SyntaxKind, TemplateableNode } from "@typespec/compiler/ast";
-import {
+import { NoTarget, getProperty, getTypeName, walkPropertiesInherited } from "@typespec/compiler";
+import type { Node, TemplateableNode } from "@typespec/compiler/ast";
+import { SyntaxKind } from "@typespec/compiler/ast";
+import type {
   HttpFileDecorator,
   HttpPartDecorator,
   HttpPartOptions,
@@ -31,7 +29,7 @@ import {
   isStatusCode,
 } from "./decorators.js";
 import { HttpStateKeys, reportDiagnostic } from "./lib.js";
-import { HttpOperationFileBody } from "./types.js";
+import type { HttpOperationFileBody } from "./types.js";
 
 export const $plainData: PlainDataDecorator = (context: DecoratorContext, entity: Model) => {
   const { program } = context;

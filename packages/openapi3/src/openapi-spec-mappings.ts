@@ -1,9 +1,9 @@
-import { AssetEmitter } from "@typespec/asset-emitter";
-import { EmitContext, ModelProperty, Namespace, Program, Scalar } from "@typespec/compiler";
-import { MetadataInfo } from "@typespec/http";
+import type { AssetEmitter } from "@typespec/asset-emitter";
+import type { EmitContext, ModelProperty, Namespace, Program, Scalar } from "@typespec/compiler";
+import type { MetadataInfo } from "@typespec/http";
 import { getExternalDocs, resolveInfo } from "@typespec/openapi";
-import { JsonSchemaModule } from "./json-schema.js";
-import { OpenAPI3EmitterOptions, OpenAPIVersion } from "./lib.js";
+import type { JsonSchemaModule } from "./json-schema.js";
+import type { OpenAPI3EmitterOptions, OpenAPIVersion } from "./lib.js";
 import {
   applyEncoding as applyEncoding3_0,
   getRawBinarySchema as getRawBinarySchema3_0,
@@ -14,14 +14,14 @@ import {
   getRawBinarySchema as getRawBinarySchema3_1,
   isRawBinarySchema as isRawBinarySchema3_1,
 } from "./openapi-helpers-3-1.js";
-import { ResolvedOpenAPI3EmitterOptions } from "./openapi.js";
+import type { ResolvedOpenAPI3EmitterOptions } from "./openapi.js";
 import { createSchemaEmitter3_0 } from "./schema-emitter-3-0.js";
 import { createSchemaEmitter3_1 } from "./schema-emitter-3-1.js";
 import { createSchemaEmitter3_2 } from "./schema-emitter-3-2.js";
-import { SSEModule } from "./sse-module.js";
-import { OpenAPI3Schema, OpenAPISchema3_1, SupportedOpenAPIDocuments } from "./types.js";
-import { VisibilityUsageTracker } from "./visibility-usage.js";
-import { XmlModule } from "./xml-module.js";
+import type { SSEModule } from "./sse-module.js";
+import type { OpenAPI3Schema, OpenAPISchema3_1, SupportedOpenAPIDocuments } from "./types.js";
+import type { VisibilityUsageTracker } from "./visibility-usage.js";
+import type { XmlModule } from "./xml-module.js";
 
 export type CreateSchemaEmitter = (props: {
   program: Program;

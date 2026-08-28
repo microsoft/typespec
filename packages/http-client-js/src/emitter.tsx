@@ -1,6 +1,7 @@
-import { Children, SourceDirectory } from "@alloy-js/core";
+import type { Children } from "@alloy-js/core";
+import { SourceDirectory } from "@alloy-js/core";
 import * as ts from "@alloy-js/typescript";
-import { EmitContext } from "@typespec/compiler";
+import type { EmitContext } from "@typespec/compiler";
 import {
   Experimental_ComponentOverrides,
   Experimental_ComponentOverridesConfig,
@@ -17,7 +18,7 @@ import { Interfaces } from "./components/static-helpers/interfaces.jsx";
 import { MultipartHelpers } from "./components/static-helpers/multipart-helpers.jsx";
 import { PagingHelpers } from "./components/static-helpers/paging-helper.jsx";
 import { RestError } from "./components/static-helpers/rest-error.jsx";
-import { JsClientEmitterOptions } from "./lib.js";
+import type { JsClientEmitterOptions } from "./lib.js";
 
 /**
  * Main function to handle the emission process.

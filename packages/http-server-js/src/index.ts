@@ -1,10 +1,11 @@
 // Copyright (c) Microsoft Corporation
 // Licensed under the MIT license.
 
-import { EmitContext, joinPaths } from "@typespec/compiler";
+import type { EmitContext } from "@typespec/compiler";
+import { joinPaths } from "@typespec/compiler";
 import { visitAllTypes } from "./common/namespace.js";
 import { createInitialContext } from "./ctx.js";
-import { JsEmitterOptions } from "./lib.js";
+import type { JsEmitterOptions } from "./lib.js";
 import { writeModuleTree } from "./write.js";
 
 // #region features

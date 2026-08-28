@@ -1,8 +1,9 @@
-import { Children, code, List, refkey } from "@alloy-js/core";
+import type { Children } from "@alloy-js/core";
+import { code, List, refkey } from "@alloy-js/core";
 import * as ts from "@alloy-js/typescript";
 import { useTsp } from "@typespec/emitter-framework";
 import { FunctionDeclaration } from "@typespec/emitter-framework/typescript";
-import { HttpOperation } from "@typespec/http";
+import type { HttpOperation } from "@typespec/http";
 import * as cl from "@typespec/http-client";
 import { reportDiagnostic } from "../../../lib.js";
 import { getClientcontextDeclarationRef } from "../../client-context/client-context-declaration.jsx";
@@ -24,8 +25,9 @@ import {
   getHttpRequestDeserializeRefkey,
   HttpResponseDeserialize,
 } from "../paging/response-deserialize.jsx";
-import { extractPagingDetail, PagingDetail } from "../paging/util.js";
-import { OperationHandler } from "../types.js";
+import type { PagingDetail } from "../paging/util.js";
+import { extractPagingDetail } from "../paging/util.js";
+import type { OperationHandler } from "../types.js";
 
 export const PaginatedOperationHandler: OperationHandler = {
   canHandle(httpOperation: HttpOperation): boolean {

@@ -1,10 +1,11 @@
 namespace Test
 {
     /// <summary>
-    /// Previously-published contract that does not contain the "brandNewParam" parameter.
+    /// Previously-published contract whose Foo overload has a different signature (int, not string),
+    /// so the current Foo(string brandNewParam) has no last-contract method to match positionally.
     /// </summary>
     public class TestClient
     {
-        public string Foo(string oldParam) { return null; }
+        public string Foo(int oldParam) { return null; }
     }
 }

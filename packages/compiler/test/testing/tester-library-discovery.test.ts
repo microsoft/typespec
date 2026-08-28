@@ -1,9 +1,9 @@
 import { expect, it } from "vitest";
-import { CompilerHost } from "../../src/core/types.js";
+import type { CompilerHost } from "../../src/core/types.js";
 import { createTestFileSystem, mockFile } from "../../src/testing/fs.js";
 import { resolveVirtualPath } from "../../src/testing/test-utils.js";
 import { createTester } from "../../src/testing/tester.js";
-import { MockFile } from "../../src/testing/types.js";
+import type { MockFile } from "../../src/testing/types.js";
 
 function mkFs(files: Record<string, string | MockFile>): CompilerHost {
   const fs = createTestFileSystem();

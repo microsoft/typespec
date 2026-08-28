@@ -1,7 +1,7 @@
 /* eslint-disable vitest/valid-describe-callback */
 import { ok, strictEqual } from "assert";
 import { describe, it } from "vitest";
-import { Enum, Interface, Model, Operation, Type } from "../../src/core/types.js";
+import type { Enum, Interface, Model, Operation, Type } from "../../src/core/types.js";
 import { expectDiagnostics, expectTypeEquals, mockFile, t } from "../../src/testing/index.js";
 import { Tester } from "../tester.js";
 

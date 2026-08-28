@@ -1,8 +1,7 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT license.
 
-import {
-  matchType,
+import type {
   ProtoDeclaration,
   ProtoEnumDeclaration,
   ProtoEnumVariantDeclaration,
@@ -13,8 +12,8 @@ import {
   ProtoOneOfDeclaration,
   ProtoServiceDeclaration,
   ProtoType,
-  StreamingMode,
 } from "./ast.js";
+import { matchType, StreamingMode } from "./ast.js";
 
 // This module defines how to emit the text representation of a ProtoFile AST.
 

@@ -2,9 +2,10 @@ import { resolveCompilerOptions } from "../../../../config/config-to-options.js"
 import { omitUndefined } from "../../../../utils/misc.js";
 import { createDiagnosticCollector } from "../../../diagnostics.js";
 import { createDiagnostic } from "../../../messages.js";
-import { CompilerOptions } from "../../../options.js";
+import type { CompilerOptions } from "../../../options.js";
 import { resolvePath } from "../../../path-utils.js";
-import { CompilerHost, Diagnostic, NoTarget } from "../../../types.js";
+import type { CompilerHost, Diagnostic } from "../../../types.js";
+import { NoTarget } from "../../../types.js";
 import { parseCliArgsArgOption } from "../../utils.js";
 
 export interface CompileCliArgs {

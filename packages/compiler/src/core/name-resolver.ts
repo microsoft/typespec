@@ -57,12 +57,13 @@
  * program.
  **/
 
-import { Mutable, mutate } from "../utils/misc.js";
+import type { Mutable } from "../utils/misc.js";
+import { mutate } from "../utils/misc.js";
 import { createSymbol, createSymbolTable, getSymNode } from "./binder.js";
 import { compilerAssert } from "./diagnostics.js";
 import { getFirstAncestor, visitChildren } from "./parser.js";
-import { Program } from "./program.js";
-import {
+import type { Program } from "./program.js";
+import type {
   AliasStatementNode,
   AugmentDecoratorStatementNode,
   DecoratorExpressionNode,
@@ -75,25 +76,27 @@ import {
   ModelExpressionNode,
   ModelPropertyNode,
   ModelStatementNode,
-  ModifierFlags,
   NamespaceStatementNode,
   Node,
-  NodeFlags,
   NodeLinks,
   OperationStatementNode,
   ResolutionResult,
-  ResolutionResultFlags,
   ScalarStatementNode,
   Sym,
-  SymbolFlags,
   SymbolLinks,
   SymbolTable,
-  SyntaxKind,
   TemplateParameterDeclarationNode,
   TypeReferenceNode,
   TypeSpecScriptNode,
   UnionStatementNode,
   UsingStatementNode,
+} from "./types.js";
+import {
+  ModifierFlags,
+  NodeFlags,
+  ResolutionResultFlags,
+  SymbolFlags,
+  SyntaxKind,
 } from "./types.js";
 
 export interface NameResolver {
@@ -159,6 +162,13 @@ export interface NameResolver {
 
 interface ResolveTypReferenceOptions {
   resolveDecorators?: boolean;
+
+  /**
+   * Skip the namespaces the current file is scoped to(via a blockless namespace) when resolving at the file level.
+   * Used to resolve `using` statements declared before the blockless namespace which, like in C#, resolve from the
+   * global namespace instead of the file namespace.
+   */
+  skipFileNamespaces?: boolean;
 }
 
 // This needs to be global to be sure to not reallocate per program.
@@ -1094,11 +1104,13 @@ export function createResolver(program: Program): NameResolver {
 
     if (!binding && scope && scope.kind === SyntaxKind.TypeSpecScript) {
       // check any blockless namespace decls
-      for (const ns of scope.inScopeNamespaces) {
-        const mergedSymbol = getMergedSymbol(ns.symbol);
-        binding = tableLookup(mergedSymbol.exports!, node, options.resolveDecorators);
+      if (!options.skipFileNamespaces) {
+        for (const ns of scope.inScopeNamespaces) {
+          const mergedSymbol = getMergedSymbol(ns.symbol);
+          binding = tableLookup(mergedSymbol.exports!, node, options.resolveDecorators);
 
-        if (binding) return resolvedResult(binding);
+          if (binding) return resolvedResult(binding);
+        }
       }
 
       // check "global scope" declarations
@@ -1242,6 +1254,9 @@ export function createResolver(program: Program): NameResolver {
       const parentNs = using.parent!;
       const { finalSymbol: usedSym, resolutionResult: usedSymResult } = resolveTypeReference(
         using.name,
+        // A using declared before the blockless namespace is not scoped to the file namespace and, like in C#,
+        // resolves from the global namespace.
+        { skipFileNamespaces: using.scopeNamespace === undefined },
       );
       if (~usedSymResult & ResolutionResultFlags.Resolved) {
         continue; // Keep going and count on checker to report those errors.

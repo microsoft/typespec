@@ -1,5 +1,5 @@
 import { RequestExpectation } from "./expectation.js";
-import { RequestExt } from "./types.js";
+import type { RequestExt } from "./types.js";
 
 export class MockRequest {
   public readonly expect: RequestExpectation;

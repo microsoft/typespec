@@ -1,6 +1,7 @@
-import { ScenarioManifest } from "@typespec/spec-coverage-sdk";
+import type { ScenarioManifest } from "@typespec/spec-coverage-sdk";
 import { expect, it } from "vitest";
-import { splitManifestByTables, TableDefinition } from "./apis.js";
+import type { TableDefinition } from "./apis.js";
+import { splitManifestByTables } from "./apis.js";
 
 const createManifest = (
   packageName: string,

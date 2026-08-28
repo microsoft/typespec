@@ -79,6 +79,7 @@ After a compile, inspect `tsp-output/**/code-model.yaml` in the test module to s
 6. Regenerate by compiling a spec. Do NOT hardcode the TypeSpec file name — it varies per feature, and sometimes you must author a new `<scenario>/main.tsp` first. The test module's `tspconfig.yaml` already configures the emitter and its output dir, so a plain compile is enough; output goes to `tsp-output/`:
    `npx tsp compile <path-to-tsp>`
    (Optionally add `--option "@typespec/http-client-java.emitter-output-dir=$PWD/tsp-output/<name>"` to isolate output into a subfolder for an easier diff.)
+   Do NOT run `Generate.ps1` to test one spec. It regenerates every test client, deletes and rebuilds generated source directories, and is reserved for intentional full regeneration (such as a test-spec dependency update).
 7. Verify the generated code under `tsp-output/**/src` is as expected. When the spec corresponds to sources tracked in `src/main/java`, compare against them and, if correct, copy the generated files into `src` (replacing existing files) but EXCLUDE `module-info.java`. Some specs do not map to `src` — in that case just verify the output, without comparing or copying.
 8. When the spec maps to `src` and you copied the generated code in, run the tests (`mvn test`, or a targeted `--define "test=<pkg>.<Class>"`). Restart the Spector server if needed (`npm run spector-stop` then `npm run spector-start`). If the spec does not map to `src`, verifying the generated output (step 7) is sufficient.
 

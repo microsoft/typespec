@@ -1,0 +1,4 @@
+# The Third extensible-enum member was intentionally removed during migration; suppress the difference
+# so the back-compat system honors the removal instead of re-adding it. ApiCompat reports a removed
+# extensible-enum member (a public static property) as a MembersMustExist difference on its getter.
+MembersMustExist : Member 'public static Sample.Models.MockInputEnum Sample.Models.MockInputEnum.Third.get()' does not exist in the implementation but it does exist in the contract.

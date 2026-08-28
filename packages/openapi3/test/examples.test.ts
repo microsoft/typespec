@@ -1,6 +1,6 @@
 import { ok } from "assert/strict";
 import { describe, expect, it } from "vitest";
-import { OpenAPI3Document, OpenAPI3Parameter, OpenAPI3RequestBody } from "../src/types.js";
+import type { OpenAPI3Document, OpenAPI3Parameter, OpenAPI3RequestBody } from "../src/types.js";
 import { openApiFor } from "./test-host.js";
 import { supportedVersions, worksFor } from "./works-for.js";
 

@@ -1,4 +1,4 @@
-import { TspLanguageClient } from "./tsp-language-client";
+import type { TspLanguageClient } from "./tsp-language-client";
 
 export let tspLanguageClient: TspLanguageClient | undefined;
 

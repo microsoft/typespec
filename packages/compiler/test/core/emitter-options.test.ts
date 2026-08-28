@@ -1,6 +1,7 @@
 import { ok, strictEqual } from "assert";
 import { describe, it } from "vitest";
-import { Diagnostic, EmitContext, createTypeSpecLibrary } from "../../src/index.js";
+import type { Diagnostic, EmitContext } from "../../src/index.js";
+import { createTypeSpecLibrary } from "../../src/index.js";
 import { expectDiagnosticEmpty, expectDiagnostics } from "../../src/testing/expect.js";
 import { mockFile } from "../../src/testing/fs.js";
 import { Tester } from "../tester.js";

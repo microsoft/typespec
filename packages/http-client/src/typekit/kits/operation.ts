@@ -1,10 +1,11 @@
-import { ModelProperty, Operation, Type } from "@typespec/compiler";
+import type { ModelProperty, Operation, Type } from "@typespec/compiler";
 import { defineKit } from "@typespec/compiler/typekit";
-import { HttpOperation } from "@typespec/http";
-import { InternalClient as Client } from "../../interfaces.js";
+import type { HttpOperation } from "@typespec/http";
+import type { InternalClient as Client } from "../../interfaces.js";
 import { getConstructors } from "../../utils/client-helpers.js";
 import { clientOperationCache } from "./client.js";
-import { AccessKit, getAccess, getName, NameKit } from "./utils.js";
+import type { AccessKit, NameKit } from "./utils.js";
+import { getAccess, getName } from "./utils.js";
 
 export interface SdkOperationKit extends NameKit<Operation>, AccessKit<Operation> {
   /**

@@ -1,6 +1,7 @@
-import { Operation, createRule, fileRef, paramMessage } from "@typespec/compiler";
+import type { Operation } from "@typespec/compiler";
+import { createRule, fileRef, paramMessage } from "@typespec/compiler";
 import { getRoutePath } from "../route.js";
-import { OperationContainer } from "../types.js";
+import type { OperationContainer } from "../types.js";
 
 export const opReferenceContainerRouteRule = createRule({
   name: "op-reference-container-route",

@@ -1,7 +1,9 @@
 /* eslint-disable @typescript-eslint/no-unsafe-declaration-merging */
-import { Extensions, Languages, Schema, SchemaType } from "@autorest/codemodel";
-import { DeepPartial, Initializer } from "@azure-tools/codegen";
-import { SchemaUsage } from "./usage.js";
+import type { Extensions, Languages } from "@autorest/codemodel";
+import { Schema, SchemaType } from "@autorest/codemodel";
+import type { DeepPartial } from "@azure-tools/codegen";
+import { Initializer } from "@azure-tools/codegen";
+import type { SchemaUsage } from "./usage.js";
 
 /** a container for the actual constant value */
 export interface ConstantValue extends Extensions {

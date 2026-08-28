@@ -1,4 +1,5 @@
-import { createTypeSpecLibrary, JSONSchemaType, paramMessage } from "@typespec/compiler";
+import type { JSONSchemaType } from "@typespec/compiler";
+import { createTypeSpecLibrary, paramMessage } from "@typespec/compiler";
 
 export interface CSharpServiceEmitterOptions {
   /** Skip formatting of output. Default is false (generated c-sharp files are formatted) */

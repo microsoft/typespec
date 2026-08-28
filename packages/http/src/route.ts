@@ -1,5 +1,4 @@
-import {
-  createDiagnosticCollector,
+import type {
   Diagnostic,
   DiagnosticResult,
   Interface,
@@ -7,10 +6,11 @@ import {
   Operation,
   Program,
 } from "@typespec/compiler";
+import { createDiagnosticCollector } from "@typespec/compiler";
 import { isSharedRoute } from "./decorators/shared-route.js";
 import { createDiagnostic, HttpStateKeys } from "./lib.js";
 import { getOperationParameters } from "./parameters.js";
-import {
+import type {
   HttpOperation,
   HttpOperationParameter,
   HttpOperationParameters,
@@ -23,7 +23,8 @@ import {
   RouteProducerResult,
   RouteResolutionOptions,
 } from "./types.js";
-import { parseUriTemplate, UriTemplate } from "./uri-template.js";
+import type { UriTemplate } from "./uri-template.js";
+import { parseUriTemplate } from "./uri-template.js";
 
 // The set of allowed segment separator characters
 const AllowedSegmentSeparators = ["/", ":", "?"];

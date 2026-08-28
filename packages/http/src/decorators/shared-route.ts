@@ -1,6 +1,6 @@
 import type { DecoratorContext, Operation, Program } from "@typespec/compiler";
 import { useStateMap } from "@typespec/compiler/utils";
-import { SharedRouteDecorator } from "../../generated-defs/TypeSpec.Http.js";
+import type { SharedRouteDecorator } from "../../generated-defs/TypeSpec.Http.js";
 import { HttpStateKeys } from "../lib.js";
 
 const [getSharedRoute, setSharedRouteFor] = useStateMap(HttpStateKeys.sharedRoutes);

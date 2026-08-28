@@ -1,5 +1,5 @@
-import { TypeSpecHttpDecorators } from "../generated-defs/TypeSpec.Http.js";
-import {
+import type { TypeSpecHttpDecorators } from "../generated-defs/TypeSpec.Http.js";
+import type {
   TypeSpecHttpPrivateDecorators,
   TypeSpecHttpPrivateFunctions,
 } from "../generated-defs/TypeSpec.Http.Private.js";

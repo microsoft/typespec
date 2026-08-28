@@ -1,5 +1,4 @@
-import {
-  InitializedByFlags,
+import type {
   SdkCredentialParameter,
   SdkEndpointParameter,
   SdkHeaderParameter,
@@ -13,9 +12,11 @@ import {
   SdkServiceResponseHeader,
   SdkType,
 } from "@azure-tools/typespec-client-generator-core";
+import { InitializedByFlags } from "@azure-tools/typespec-client-generator-core";
 import { getNamespaceFullName } from "@typespec/compiler";
-import { marked, Token } from "marked";
-import { PythonSdkContext } from "./lib.js";
+import type { Token } from "marked";
+import { marked } from "marked";
+import type { PythonSdkContext } from "./lib.js";
 import { getSimpleTypeResult, getType } from "./types.js";
 
 function IsFullyUpperCase(identifier: string, maxUppercasePreserve: number) {

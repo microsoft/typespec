@@ -9,6 +9,7 @@ import com.microsoft.typespec.http.client.generator.core.extension.model.codemod
 import com.microsoft.typespec.http.client.generator.core.extension.plugin.JavaSettings;
 import com.microsoft.typespec.http.client.generator.core.extension.plugin.JavaSettings.SyncMethodsGeneration;
 import com.microsoft.typespec.http.client.generator.core.implementation.OperationInstrumentationInfo;
+import com.microsoft.typespec.http.client.generator.core.model.clientmodel.ApiMetadata;
 import com.microsoft.typespec.http.client.generator.core.model.clientmodel.ClassType;
 import com.microsoft.typespec.http.client.generator.core.model.clientmodel.ClientMethod;
 import com.microsoft.typespec.http.client.generator.core.model.clientmodel.ClientMethodParameter;
@@ -131,7 +132,11 @@ public class ClientMethodMapper implements IMapper<Operation, List<ClientMethod>
             .clientReference((operation.getOperationGroup() == null
                 || operation.getOperationGroup().getLanguage().getJava().getName().isEmpty()) ? "this" : "this.client")
             .operationInstrumentationInfo(new OperationInstrumentationInfo(operation))
-            .setCrossLanguageDefinitionId(SchemaUtil.getCrossLanguageDefinitionId(operation));
+            .apiMetadata(new ApiMetadata.Builder()
+                .crossLanguageDefinitionId(SchemaUtil.getCrossLanguageDefinitionId(operation))
+                .devMessage(
+                    operation.getLanguage().getJava() == null ? null : operation.getLanguage().getJava().getComment())
+                .build());
 
         setJavaDoc(builder, operation);
 
@@ -283,13 +288,6 @@ public class ClientMethodMapper implements IMapper<Operation, List<ClientMethod>
             builder.description(String.format("The %s operation.", operation.getLanguage().getJava().getName()));
         } else {
             builder.description(SchemaUtil.mergeSummaryWithDescription(summary, description));
-        }
-
-        if (operation.getLanguage().getJava() != null
-            && !CoreUtils.isNullOrEmpty(operation.getLanguage().getJava().getComment())) {
-            // API comment.
-            builder.implementationDetails(
-                new ImplementationDetails.Builder().comment(operation.getLanguage().getJava().getComment()).build());
         }
 
         if (operation.getExternalDocs() != null) {

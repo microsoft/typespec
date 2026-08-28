@@ -86,6 +86,9 @@ public class TypeSpecFluentPlugin extends FluentGen {
         if (options.getRemoveInner() != null) {
             SETTINGS_MAP.put("remove-inner", options.getRemoveInner());
         }
+        if (options.getRemoveModel() != null) {
+            SETTINGS_MAP.put("remove-model", options.getRemoveModel());
+        }
         if (options.getPreserveModel() != null) {
             SETTINGS_MAP.put("preserve-model", options.getPreserveModel());
         }
@@ -232,18 +235,18 @@ public class TypeSpecFluentPlugin extends FluentGen {
 
         // Client interface
         crossLanguageDefinitionsMap.put(interfacePackage + "." + client.getServiceClient().getInterfaceName(),
-            client.getServiceClient().getCrossLanguageDefinitionId());
+            client.getServiceClient().getApiMetadata().getCrossLanguageDefinitionId());
 
         client.getServiceClient()
             .getMethodGroupClients()
             .forEach(methodGroupClient -> crossLanguageDefinitionsMap.put(
                 interfacePackage + "." + methodGroupClient.getInterfaceName(),
-                methodGroupClient.getCrossLanguageDefinitionId()));
+                methodGroupClient.getApiMetadata().getCrossLanguageDefinitionId()));
 
         client.getClientBuilders()
             .forEach(clientBuilder -> crossLanguageDefinitionsMap.put(
                 clientBuilder.getPackageName() + "." + clientBuilder.getClassName(),
-                clientBuilder.getCrossLanguageDefinitionId()));
+                clientBuilder.getApiMetadata().getCrossLanguageDefinitionId()));
 
         // Methods
         client.getServiceClient()
@@ -252,20 +255,20 @@ public class TypeSpecFluentPlugin extends FluentGen {
                 if (method.getMethodVisibility() == JavaVisibility.Public) {
                     crossLanguageDefinitionsMap.put(
                         interfacePackage + "." + methodGroupClient.getInterfaceName() + "." + method.getName(),
-                        method.getCrossLanguageDefinitionId());
+                        method.getApiMetadata().getCrossLanguageDefinitionId());
                 }
             }));
 
         // Client model
         client.getModels().forEach(model -> {
             crossLanguageDefinitionsMap.put(model.getPackage() + "." + model.getName(),
-                model.getCrossLanguageDefinitionId());
+                model.getApiMetadata().getCrossLanguageDefinitionId());
         });
 
         // Enum
         client.getEnums().forEach(model -> {
             crossLanguageDefinitionsMap.put(model.getPackage() + "." + model.getName(),
-                model.getCrossLanguageDefinitionId());
+                model.getApiMetadata().getCrossLanguageDefinitionId());
         });
 
         return crossLanguageDefinitionsMap;

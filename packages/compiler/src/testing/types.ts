@@ -1,9 +1,9 @@
 import type { CompilerOptions } from "../core/options.js";
 import type { Program } from "../core/program.js";
 import type { CompilerHost, Diagnostic, Entity, Type } from "../core/types.js";
-import { Typekit } from "../typekit/define-kit.js";
-import { PositionedMarker } from "./fourslash.js";
-import { GetMarkedEntities, TemplateWithMarkers } from "./marked-template.js";
+import type { Typekit } from "../typekit/define-kit.js";
+import type { PositionedMarker } from "./fourslash.js";
+import type { GetMarkedEntities, TemplateWithMarkers } from "./marked-template.js";
 
 // #region Test file system
 

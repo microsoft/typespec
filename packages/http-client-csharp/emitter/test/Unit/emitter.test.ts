@@ -1,12 +1,12 @@
 vi.resetModules();
 
-import { EmitContext, Program } from "@typespec/compiler";
-import { TestHost } from "@typespec/compiler/testing";
+import type { EmitContext, Program } from "@typespec/compiler";
+import type { TestHost } from "@typespec/compiler/testing";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 import { generate } from "../../src/emit-generate.js";
 import { execAsync, execCSharpGenerator } from "../../src/lib/exec-utils.js";
-import { CSharpEmitterOptions } from "../../src/options.js";
-import { CodeModel } from "../../src/type/code-model.js";
+import type { CSharpEmitterOptions } from "../../src/options.js";
+import type { CodeModel } from "../../src/type/code-model.js";
 import {
   createEmitterContext,
   createEmitterTestHost,

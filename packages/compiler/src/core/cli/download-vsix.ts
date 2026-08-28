@@ -2,8 +2,9 @@ import { mkdtemp, rm, writeFile } from "fs/promises";
 import os from "os";
 import { createDiagnostic } from "../messages.js";
 import { joinPaths } from "../path-utils.js";
-import { Diagnostic, NoTarget } from "../types.js";
-import { CliCompilerHost } from "./types.js";
+import type { Diagnostic } from "../types.js";
+import { NoTarget } from "../types.js";
+import type { CliCompilerHost } from "./types.js";
 
 const MARKETPLACE_URL = "https://marketplace.visualstudio.com";
 

@@ -1,14 +1,6 @@
-import {
+import type {
   Diagnostic,
   DiagnosticTarget,
-  getFriendlyName,
-  getLifecycleVisibilityEnum,
-  getProperty,
-  getTypeName,
-  getVisibilityForClass,
-  isGlobalNamespace,
-  isService,
-  isTemplateInstance,
   Model,
   ModelProperty,
   Operation,
@@ -17,13 +9,23 @@ import {
   TypeNameOptions,
 } from "@typespec/compiler";
 import {
+  getFriendlyName,
+  getLifecycleVisibilityEnum,
+  getProperty,
+  getTypeName,
+  getVisibilityForClass,
+  isGlobalNamespace,
+  isService,
+  isTemplateInstance,
+} from "@typespec/compiler";
+import {
   SyntaxKind,
   type ObjectLiteralNode,
   type ObjectLiteralPropertyNode,
 } from "@typespec/compiler/ast";
 import { getOperationId } from "./decorators.js";
 import { createDiagnostic, reportDiagnostic } from "./lib.js";
-import { ExtensionKey } from "./types.js";
+import type { ExtensionKey } from "./types.js";
 
 /**
  * Determines whether a type will be inlined in OpenAPI rather than defined

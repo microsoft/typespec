@@ -10,6 +10,7 @@ import com.microsoft.typespec.http.client.generator.core.extension.model.codemod
 import com.microsoft.typespec.http.client.generator.core.extension.model.codemodel.Schema;
 import com.microsoft.typespec.http.client.generator.core.extension.model.codemodel.SchemaContext;
 import com.microsoft.typespec.http.client.generator.core.extension.plugin.JavaSettings;
+import com.microsoft.typespec.http.client.generator.core.model.clientmodel.ApiMetadata;
 import com.microsoft.typespec.http.client.generator.core.model.clientmodel.ClassType;
 import com.microsoft.typespec.http.client.generator.core.model.clientmodel.ClientEnumValue;
 import com.microsoft.typespec.http.client.generator.core.model.clientmodel.EnumType;
@@ -91,7 +92,9 @@ public final class MapperUtils {
                 .implementationDetails(
                     new ImplementationDetails.Builder().usages(SchemaUtil.mapSchemaContext(enumType.getUsage()))
                         .build())
-                .crossLanguageDefinitionId(SchemaUtil.getCrossLanguageDefinitionId(enumType))
+                .apiMetadata(new ApiMetadata.Builder()
+                    .crossLanguageDefinitionId(SchemaUtil.getCrossLanguageDefinitionId(enumType))
+                    .build())
                 .fromMethodName(deserializationMethodName)
                 .toMethodName(serializationMethodName)
                 .build();

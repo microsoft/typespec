@@ -1,8 +1,10 @@
 import { deepStrictEqual } from "assert";
-import { WatchEventType, mkdirSync } from "fs";
+import type { WatchEventType } from "fs";
+import { mkdirSync } from "fs";
 import { appendFile, mkdir, rm } from "fs/promises";
 import { afterEach, beforeAll, it } from "vitest";
-import { ProjectWatcher, createWatcher } from "../../../src/core/cli/actions/compile/watch.js";
+import type { ProjectWatcher } from "../../../src/core/cli/actions/compile/watch.js";
+import { createWatcher } from "../../../src/core/cli/actions/compile/watch.js";
 import { getDirectoryPath, resolvePath } from "../../../src/index.js";
 import { findTestPackageRoot } from "../../../src/testing/test-utils.js";
 

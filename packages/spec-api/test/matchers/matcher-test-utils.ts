@@ -1,5 +1,5 @@
 import { expect } from "vitest";
-import { MatchResult } from "../../src/match-engine.js";
+import type { MatchResult } from "../../src/match-engine.js";
 
 export function expectPass(result: MatchResult) {
   expect(result).toEqual({ pass: true });

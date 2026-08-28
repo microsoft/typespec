@@ -1,15 +1,14 @@
-import { ServerLog, SourceLocation } from "@typespec/compiler";
-import {
-  NodeSystemHost,
-  resolveEntrypointFile,
-  ServerDiagnostic,
-} from "@typespec/compiler/internals";
+import type { ServerLog, SourceLocation } from "@typespec/compiler";
+import type { ServerDiagnostic } from "@typespec/compiler/internals";
+import { NodeSystemHost, resolveEntrypointFile } from "@typespec/compiler/internals";
 import vscode from "vscode";
 import { StartFileName } from "./const.js";
 import logger from "./log/logger.js";
 import { joinPaths, normalizeSlashes } from "./path-utils.js";
-import { Result, ResultCode, SettingName } from "./types.js";
-import { ConfirmOptions, QuickPickOptionsWithExternalLink, tryExecuteWithUi } from "./ui-utils.js";
+import type { Result } from "./types.js";
+import { ResultCode, SettingName } from "./types.js";
+import type { ConfirmOptions, QuickPickOptionsWithExternalLink } from "./ui-utils.js";
+import { tryExecuteWithUi } from "./ui-utils.js";
 import { isFile, loadModule, loadPackageJsonFile, spawnExecutionAndLogToOutput } from "./utils.js";
 
 export async function getEntrypointTspFile(tspPath: string): Promise<string | undefined> {

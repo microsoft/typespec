@@ -494,7 +494,7 @@ namespace Microsoft.TypeSpec.Generator.Tests
                 return constructor;
             }
 
-            protected override PropertyProvider? VisitProperty(PropertyProvider property)
+            protected internal override PropertyProvider? VisitProperty(PropertyProvider property)
             {
                 if (property.Name == "TestProperty")
                 {
