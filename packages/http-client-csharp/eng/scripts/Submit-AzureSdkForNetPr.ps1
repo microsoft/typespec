@@ -674,10 +674,13 @@ try {
         }
     }
 
-    # Regenerate the emitter version dashboard
-    Write-Host "Regenerating emitter version dashboard..."
-    $dashboardScript = Join-Path $tempDir "doc/GeneratorVersions/Emitter_Version_Dashboard.ps1"
-    & $dashboardScript -RepoRoot $tempDir
+    if ($BuildReason -eq 'Manual') {
+        Write-Host "Skipping emitter version dashboard regeneration for manual run."
+    } else {
+        Write-Host "Regenerating emitter version dashboard..."
+        $dashboardScript = Join-Path $tempDir "doc/GeneratorVersions/Emitter_Version_Dashboard.ps1"
+        & $dashboardScript -RepoRoot $tempDir
+    }
 
     # For manual runs, fail the pipeline if any step reported a failure instead of
     # opening a pull request that could give reviewers a false positive.
