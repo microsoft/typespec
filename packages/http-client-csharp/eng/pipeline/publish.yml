@@ -176,6 +176,12 @@ extends:
                 inputs:
                   workingFile: $(Build.SourcesDirectory)/packages/http-client-csharp/.npmrc
 
+              - pwsh: |
+                  $packageJson = Get-Content '$(Build.SourcesDirectory)/packages/http-client-csharp/package.json' -Raw | ConvertFrom-Json
+                  Write-Host "##vso[task.setvariable variable=PackageVersion]$($packageJson.version)"
+                displayName: Set regen preview version
+                condition: and(succeeded(), eq(variables['Build.Reason'], 'Manual'), ${{ parameters.CreateAzureSdkForNetPR }}, not(${{ parameters.UseTypeSpecNext }}))
+
               - download: current
                 artifact: build_artifacts_csharp
                 displayName: Download pipeline artifacts
@@ -215,75 +221,6 @@ extends:
                   workingDirectory: $(Build.SourcesDirectory)/packages/http-client-csharp
 
               - pwsh: |
-                  $tempDir = Join-Path '$(Agent.TempDirectory)' "azure-sdk-for-net-$(Get-Date -Format 'yyyyMMdd-HHmmss')"
-                  git init $tempDir
-                  git -C $tempDir remote add origin https://github.com/Azure/azure-sdk-for-net.git
-                  git -C $tempDir sparse-checkout init --cone
-                  git -C $tempDir sparse-checkout set eng sdk
-                  git -C $tempDir fetch --depth 1 origin main
-                  git -C $tempDir checkout main
-
-                  if ($LASTEXITCODE -ne 0) {
-                    throw "Failed to clone azure-sdk-for-net"
-                  }
-
-                  Write-Host "##vso[task.setvariable variable=AzureSdkRepoPath]$tempDir"
-                displayName: Clone azure-sdk-for-net
-                condition: and(succeeded(), eq(variables['Build.Reason'], 'Manual'), ${{ parameters.CreateAzureSdkForNetPR }}, not(${{ parameters.UseTypeSpecNext }}))
-
-              - task: PowerShell@2
-                displayName: Run regen preview
-                condition: and(succeeded(), eq(variables['Build.Reason'], 'Manual'), ${{ parameters.CreateAzureSdkForNetPR }}, not(${{ parameters.UseTypeSpecNext }}))
-                inputs:
-                  pwsh: true
-                  filePath: $(Build.SourcesDirectory)/packages/http-client-csharp/eng/scripts/RegenPreview.ps1
-                  arguments: >
-                    -SdkLibraryRepoPath '$(AzureSdkRepoPath)'
-                    -Unbranded
-                    ${{ replace(replace('True', eq(parameters.RegenerateAzureLibraries, false), ''), 'True', '-Azure') }}
-                    ${{ replace(replace('True', eq(parameters.RegenerateMgmtLibraries, false), ''), 'True', '-Mgmt') }}
-
-              - task: AzureCLI@2
-                displayName: Create regen preview PR
-                condition: and(succeeded(), eq(variables['Build.Reason'], 'Manual'), ${{ parameters.CreateAzureSdkForNetPR }}, not(${{ parameters.UseTypeSpecNext }}))
-                inputs:
-                  azureSubscription: "AzureSDKEngKeyVault Secrets"
-                  scriptType: pscore
-                  scriptLocation: inlineScript
-                  inlineScript: |
-                    & '$(Build.SourcesDirectory)/eng/common/scripts/login-to-github.ps1' -InstallationTokenOwners Azure
-
-                    $branch = "typespec/regen-preview-$(Build.BuildId)"
-                    $title = "[DO NOT MERGE] Regen preview for $(Build.SourceVersion)"
-                    $body = @(
-                      "This PR previews SDK changes generated from $(Build.Repository.Uri)/commit/$(Build.SourceVersion)."
-                      ""
-                      "Pipeline run: $(PipelineRunUrl)"
-                    ) -join [Environment]::NewLine
-
-                    git -C '$(AzureSdkRepoPath)' config user.name azure-sdk
-                    git -C '$(AzureSdkRepoPath)' config user.email azuresdk@microsoft.com
-                    git -C '$(AzureSdkRepoPath)' checkout -b $branch
-                    git -C '$(AzureSdkRepoPath)' add sdk
-                    git -C '$(AzureSdkRepoPath)' diff --cached --quiet
-                    if ($LASTEXITCODE -eq 0) {
-                      Write-Host "No SDK changes detected. Skipping PR creation."
-                      exit 0
-                    }
-
-                    git -C '$(AzureSdkRepoPath)' commit -m $title
-                    gh auth setup-git
-                    git -C '$(AzureSdkRepoPath)' push origin $branch
-                    if ($LASTEXITCODE -ne 0) {
-                      throw "Failed to push regen preview branch"
-                    }
-
-                    gh pr create --repo Azure/azure-sdk-for-net --title $title --body $body --base main --head $branch --label "Do Not Merge"
-                    if ($LASTEXITCODE -ne 0) {
-                      throw "Failed to create regen preview PR"
-                    }
-
-              - pwsh: |
                   Write-Host "##[section]Checking npm configuration before PR submission..."
                   Write-Host "Current npm registry:"
                   npm config get registry
@@ -308,7 +245,7 @@ extends:
 
               - task: AzureCLI@2
                 displayName: Generate emitter-package.json files & create PR in azure-sdk-for-net
-                condition: and(succeeded(), or(ne(variables['Build.Reason'], 'Manual'), ${{ parameters.UseTypeSpecNext }}))
+                condition: and(succeeded(), or(ne(variables['Build.Reason'], 'Manual'), ${{ parameters.UseTypeSpecNext }}, ${{ parameters.CreateAzureSdkForNetPR }}))
                 inputs:
                   azureSubscription: "AzureSDKEngKeyVault Secrets"
                   scriptType: pscore
@@ -324,7 +261,8 @@ extends:
                     ${{ replace(replace('True', eq(parameters.RegenerateAzureLibraries, false), ''), 'True', '-RegenerateAzureLibraries') }}
                     ${{ replace(replace('True', eq(parameters.RegenerateMgmtLibraries, false), ''), 'True', '-RegenerateMgmtLibraries') }}
                     ${{ replace(replace('True', ne(variables['Build.Reason'], 'Manual'), ''), 'True', '-UseParallelRegeneration') }}
-                    -BuildArtifactsPath '$(Pipeline.Workspace)/build_artifacts_csharp/packages'
+                    ${{ replace(replace('True', and(eq(variables['Build.Reason'], 'Manual'), not(parameters.UseTypeSpecNext)), ''), 'True', '-BuildArtifactsPath ''$(Pipeline.Workspace)/build_artifacts_csharp/packages''') }}
+                    ${{ replace(replace('True', or(ne(variables['Build.Reason'], 'Manual'), parameters.UseTypeSpecNext), ''), 'True', '-UseLocalRegenPreview') }}
                     -UseTypeSpecNext:$${{ parameters.UseTypeSpecNext }}
                     -BuildReason '$(Build.Reason)'
                 env:

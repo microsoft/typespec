@@ -25,6 +25,8 @@ The URL of the pipeline run that triggered this PR. When provided, it is include
 The reason the pipeline was triggered (for example, 'Manual', 'Schedule', or 'IndividualCI'). When set to 'Manual', step failures fail the pipeline instead of being downgraded to warnings and opening a PR.
 .PARAMETER UseParallelRegeneration
 When specified, SDK libraries are regenerated per library in parallel using the shared RegenPreview helpers instead of running 'dotnet msbuild service.proj /t:GenerateCode' once per service directory. This is intended for manual pipeline runs where turnaround time matters.
+.PARAMETER UseLocalRegenPreview
+When specified, runs RegenPreview.ps1 after cloning and creates a PR containing only the regenerated SDK files.
 #>
 [CmdletBinding(SupportsShouldProcess = $true)]
 param(
@@ -65,7 +67,10 @@ param(
   [string]$BuildReason,
 
   [Parameter(Mandatory = $false)]
-  [switch]$UseParallelRegeneration
+  [switch]$UseParallelRegeneration,
+
+  [Parameter(Mandatory = $false)]
+  [switch]$UseLocalRegenPreview
 )
 
 # When the pipeline is triggered manually, failures should fail the pipeline with an
@@ -100,6 +105,9 @@ $RepoOwner = "Azure"
 $RepoName = "azure-sdk-for-net"
 $BaseBranch = "main"
 $PRBranch = $BranchName
+if ($UseLocalRegenPreview) {
+    $PRBranch = "typespec/regen-preview-$env:BUILD_BUILDID"
+}
 
 $PRTitle = "Update UnbrandedGeneratorVersion to $PackageVersion"
 if ($Internal) {
@@ -223,6 +231,69 @@ try {
     git checkout -b $PRBranch
     if ($LASTEXITCODE -ne 0) {
         throw "Failed to create branch"
+    }
+
+    if ($UseLocalRegenPreview) {
+        git sparse-checkout add sdk
+        if ($LASTEXITCODE -ne 0) {
+            throw "Failed to expand sparse checkout for regeneration preview"
+        }
+
+        $regenPreviewArgs = @(
+            '-SdkLibraryRepoPath', $tempDir,
+            '-Unbranded'
+        )
+        if ($RegenerateAzureLibraries) {
+            $regenPreviewArgs += '-Azure'
+        }
+        if ($RegenerateMgmtLibraries) {
+            $regenPreviewArgs += '-Mgmt'
+        }
+
+        & (Join-Path $PSScriptRoot 'RegenPreview.ps1') @regenPreviewArgs
+        if ($LASTEXITCODE -ne 0) {
+            throw "RegenPreview.ps1 failed with exit code $LASTEXITCODE"
+        }
+
+        git add (Join-Path $tempDir "sdk")
+        git diff --cached --quiet
+        if ($LASTEXITCODE -eq 0) {
+            Write-Warning "No SDK changes detected. Skipping commit and PR creation."
+            return
+        } elseif ($LASTEXITCODE -ne 1) {
+            throw "Failed to inspect staged SDK changes"
+        }
+
+        $previewTitle = "[DO NOT MERGE] Regen preview for $TypeSpecCommitUrl"
+        git commit -m $previewTitle
+        if ($LASTEXITCODE -ne 0) {
+            throw "Failed to commit regeneration preview changes"
+        }
+
+        $loginScript = Join-Path $PSScriptRoot "../../../../eng/common/scripts/login-to-github.ps1"
+        & $loginScript -InstallationTokenOwners 'Azure' -VariableNamePrefix 'GH_TOKEN'
+        if ($LASTEXITCODE -ne 0 -or -not $env:GH_TOKEN) {
+            throw "Failed to refresh GitHub token"
+        }
+
+        gh auth setup-git
+        git push origin $PRBranch
+        if ($LASTEXITCODE -ne 0) {
+            throw "Failed to push regeneration preview branch"
+        }
+
+        $previewBody = @(
+            "This PR previews SDK changes generated from $TypeSpecCommitUrl."
+            ""
+            "Pipeline run: $PipelineRunUrl"
+        ) -join [Environment]::NewLine
+        $ghOutput = gh pr create --repo "$RepoOwner/$RepoName" --title $previewTitle --body $previewBody --base $BaseBranch --head $PRBranch --label "Do Not Merge" 2>&1
+        if ($LASTEXITCODE -ne 0) {
+            throw "Failed to create regeneration preview PR: $ghOutput"
+        }
+
+        Write-Host "Successfully created regeneration preview PR: $($ghOutput.Trim())"
+        return
     }
 
     # Update the dependency in eng/centralpackagemanagement/Directory.Generation.Packages.props
