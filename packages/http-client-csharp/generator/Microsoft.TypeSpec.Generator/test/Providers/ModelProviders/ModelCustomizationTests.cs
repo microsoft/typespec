@@ -466,6 +466,40 @@ namespace Microsoft.TypeSpec.Generator.Tests.Providers.ModelProviders
         }
 
         [Test]
+        public async Task ExactNameSpecPropertyTakesPrecedenceOverCanonicalAliasForCustomization()
+        {
+            var dateTime = new InputDateTimeType(
+                DateTimeKnownEncoding.Rfc3339,
+                "utcDateTime",
+                "TypeSpec.utcDateTime",
+                InputPrimitiveType.String);
+            var inputModel = InputFactory.Model(
+                "mockInputModel",
+                properties:
+                [
+                    InputFactory.Property("startTime", dateTime, wireName: "startTime", isRequired: true),
+                    InputFactory.Property("StartsOn", dateTime, wireName: "startsOn", isRequired: true, isExactName: true)
+                ]);
+
+            var mockGenerator = await MockHelpers.LoadMockGeneratorAsync(
+                inputModelTypes: [inputModel],
+                compilation: async () => await Helpers.GetCompilationFromDirectoryAsync(
+                    method: nameof(ExactSpecNameTakesPrecedenceOverCanonicalAliasForCustomization)),
+                lastContractCompilation: async () => await Helpers.GetCompilationFromDirectoryAsync(
+                    "Last",
+                    method: nameof(ExactSpecNameTakesPrecedenceOverCanonicalAliasForCustomization)));
+
+            var modelTypeProvider = mockGenerator.Object.OutputLibrary.TypeProviders.Single(t => t.Name == "MockInputModel");
+
+            Assert.That(modelTypeProvider.Properties.Select(p => p.Name), Is.EqualTo(new[] { "StartOn" }));
+
+            var canonicalProperties = modelTypeProvider.CanonicalView!.Properties.ToDictionary(p => p.Name);
+            Assert.That(canonicalProperties.Keys, Is.EquivalentTo(new[] { "StartOn", "StartsOn" }));
+            Assert.AreEqual("startTime", canonicalProperties["StartOn"].WireInfo!.SerializedName);
+            Assert.AreEqual("startsOn", canonicalProperties["StartsOn"].WireInfo!.SerializedName);
+        }
+
+        [Test]
         public async Task HistoricalNameClaimedByRenamedCustomFieldIsNotReused()
         {
             var dateTime = new InputDateTimeType(

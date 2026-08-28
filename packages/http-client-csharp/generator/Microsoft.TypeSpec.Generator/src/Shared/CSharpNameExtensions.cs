@@ -78,8 +78,8 @@ namespace Microsoft.TypeSpec.Generator.Utilities
         }
 
         /// <summary>
-        /// Gets the property name that the previous Azure management-plane date-time naming convention
-        /// would have produced. This is a compatibility candidate only; new properties use
+        /// Gets the property name that the previous date-time naming convention would have produced.
+        /// This is a compatibility candidate only; new properties use
         /// <see cref="NormalizeDateTimeSuffix(string)"/>.
         /// </summary>
         public static string GetPreviousDateTimePropertyName(this string name)

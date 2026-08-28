@@ -449,8 +449,14 @@ namespace Microsoft.TypeSpec.Generator.Providers
             foreach (var specProperty in specProperties)
             {
                 var inputProperty = specProperty.InputProperty;
-                if (inputProperty is null || inputProperty.IsExactName)
+                if (inputProperty is null)
                 {
+                    continue;
+                }
+
+                if (inputProperty.IsExactName)
+                {
+                    _generatedPropertiesBySpecName[inputProperty.Name] = specProperty;
                     continue;
                 }
 
