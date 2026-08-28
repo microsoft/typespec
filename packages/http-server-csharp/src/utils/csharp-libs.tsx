@@ -7,7 +7,6 @@ import { createLibrary } from "@alloy-js/csharp";
  * imported from `@alloy-js/csharp/global/*`.
  *
  * Using createLibrary ensures proper `using` directive generation and
- * Using createLibrary ensures proper `using` directive generation and
  * attribute name resolution (e.g., stripping "Attribute" suffix).
  */
 export const AspNetMvc = createLibrary("Microsoft.AspNetCore.Mvc", {

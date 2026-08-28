@@ -153,3 +153,15 @@ it("pascal-cases each part of the service namespace name", async () => {
 
   expect(resolution.serviceNamespaceName).toBe("MyService.SubModels");
 });
+
+it("renames reserved service namespace segments to avoid shadowing BCL types", async () => {
+  const resolution = await resolve(`
+    @service
+    namespace Type {
+      model Widget { id: string; }
+      op read(): Widget;
+    }
+  `);
+
+  expect(resolution.serviceNamespaceName).toBe("TypeName");
+});
