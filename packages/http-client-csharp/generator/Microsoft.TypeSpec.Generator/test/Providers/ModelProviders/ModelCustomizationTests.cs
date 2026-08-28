@@ -356,6 +356,37 @@ namespace Microsoft.TypeSpec.Generator.Tests.Providers.ModelProviders
         }
 
         [Test]
+        public async Task DuplicateExactIdentifierCustomizationSuppressesOnlyFirstSpecMatch()
+        {
+            var dateTime = new InputDateTimeType(
+                DateTimeKnownEncoding.Rfc3339,
+                "utcDateTime",
+                "TypeSpec.utcDateTime",
+                InputPrimitiveType.String);
+            var inputModel = InputFactory.Model(
+                "mockInputModel",
+                properties:
+                [
+                    InputFactory.Property("start_time", InputPrimitiveType.String, wireName: "firstWireName"),
+                    InputFactory.Property("startTime", dateTime, wireName: "secondWireName")
+                ]);
+
+            var mockGenerator = await MockHelpers.LoadMockGeneratorAsync(
+                inputModelTypes: [inputModel],
+                compilation: async () => await Helpers.GetCompilationFromDirectoryAsync(
+                    method: nameof(DuplicateExactIdentifierCustomizationKeepsFirstSpecMatch)));
+
+            var modelTypeProvider = mockGenerator.Object.OutputLibrary.TypeProviders.Single(t => t.Name == "MockInputModel");
+
+            // StartTime targets the first exact identifier. It must not resolve to the second property's alias
+            // and suppress that property's distinct StartsOn output as well.
+            Assert.That(modelTypeProvider.Properties.Select(p => p.Name), Is.EqualTo(new[] { "StartsOn" }));
+            Assert.That(
+                modelTypeProvider.CanonicalView!.Properties.Select(p => p.WireInfo!.SerializedName),
+                Is.EquivalentTo(new[] { "firstWireName", "secondWireName" }));
+        }
+
+        [Test]
         public async Task RefilteringPreservesCustomCodeSpecAssociation()
         {
             var dateTime = new InputDateTimeType(

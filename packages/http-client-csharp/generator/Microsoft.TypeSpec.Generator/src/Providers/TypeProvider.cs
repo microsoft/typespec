@@ -456,42 +456,55 @@ namespace Microsoft.TypeSpec.Generator.Providers
 
             if (knownSpecProperties is not null)
             {
+                // The supplied map came from the complete generated property set and already resolved exact-name
+                // precedence. Do not rebuild it from this potentially filtered subset.
                 foreach (var (name, property) in knownSpecProperties)
                 {
                     _generatedPropertiesBySpecName[name] = property;
                 }
             }
-
-            var normalizedNames = new List<(string Name, PropertyProvider Property)>();
-            foreach (var specProperty in propertiesToFilter)
+            else
             {
-                var inputProperty = specProperty.InputProperty;
-                if (inputProperty is null)
+                var exactNames = new HashSet<string>(StringComparer.Ordinal);
+                var normalizedNames = new List<(string Name, PropertyProvider Property)>();
+                foreach (var specProperty in propertiesToFilter)
                 {
-                    continue;
+                    var inputProperty = specProperty.InputProperty;
+                    if (inputProperty is null)
+                    {
+                        continue;
+                    }
+
+                    if (inputProperty.IsExactName)
+                    {
+                        AddExactName(inputProperty.Name, specProperty);
+                        continue;
+                    }
+
+                    var identifierName = inputProperty.Name.ToIdentifierName();
+                    // The first exact identity in this pass replaces any stale alias, while a later exact
+                    // collision keeps the established first-wins behavior.
+                    AddExactName(inputProperty.Name, specProperty);
+                    AddExactName(identifierName, specProperty);
+                    normalizedNames.Add((
+                        identifierName.NormalizeCSharpAcronyms(inputProperty.Type.IsDateTimeInputType()),
+                        specProperty));
                 }
 
-                if (inputProperty.IsExactName)
+                // Canonical names are aliases. Add them only after all exact names have been registered so an
+                // alias such as startTime -> StartsOn cannot shadow a separate startsOn property.
+                foreach (var (name, property) in normalizedNames)
                 {
-                    _generatedPropertiesBySpecName[inputProperty.Name] = specProperty;
-                    continue;
+                    _generatedPropertiesBySpecName.TryAdd(name, property);
                 }
 
-                var identifierName = inputProperty.Name.ToIdentifierName();
-                // Raw and identifier names are exact spec identities and take precedence over aliases left by
-                // an earlier property or filtering pass.
-                _generatedPropertiesBySpecName[inputProperty.Name] = specProperty;
-                _generatedPropertiesBySpecName[identifierName] = specProperty;
-                normalizedNames.Add((
-                    identifierName.NormalizeCSharpAcronyms(inputProperty.Type.IsDateTimeInputType()),
-                    specProperty));
-            }
-
-            // Canonical names are aliases. Add them only after all exact names have been registered so an alias
-            // such as startTime -> StartsOn cannot shadow a separate startsOn property.
-            foreach (var (name, property) in normalizedNames)
-            {
-                _generatedPropertiesBySpecName.TryAdd(name, property);
+                void AddExactName(string name, PropertyProvider property)
+                {
+                    if (exactNames.Add(name))
+                    {
+                        _generatedPropertiesBySpecName[name] = property;
+                    }
+                }
             }
 
             var properties = new List<PropertyProvider>();
