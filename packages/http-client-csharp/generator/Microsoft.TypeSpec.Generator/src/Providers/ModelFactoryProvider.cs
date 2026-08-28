@@ -155,7 +155,7 @@ namespace Microsoft.TypeSpec.Generator.Providers
                         if (HasMatchingExactParameterNames(currentMethodSignature, previousMethod.Signature))
                         {
                             CodeModelGenerator.Instance.Emitter.Info(
-                                $"Model factory method '{Name}.{previousMethod.Signature.Name}' keeps its exact parameter name(s) instead of the last contract's; callers using the previous name(s) as named arguments will not compile.",
+                                $"Model factory method '{Name}.{previousMethod.Signature.Name}' keeps its exact parameter name(s) instead of the last contract's.",
                                 BackCompatibilityChangeCategory.ModelFactoryMethodSkipped);
                             foundCompatibleOverload = true;
                             break;
