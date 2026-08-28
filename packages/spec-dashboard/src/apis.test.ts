@@ -228,35 +228,31 @@ it("should not duplicate scenarios across tables", () => {
   expect(defaultTable!.manifest.scenarios[0].name).toBe("unique_scenario");
 });
 
-it("should group overview coverage by logical display name across emitter packages", () => {
+it("should combine data-plane and management-plane C# coverage in the overview", () => {
   const coverageSummaries = [
     {
-      manifest: {
-        packageName: "azure-test",
-        displayName: "Azure Test",
-        commit: "abc123",
-        version: "1.0.0",
-        scenarios: [
-          {
-            name: "scenario_1",
-            scenarioDoc: "Doc",
-            location: {
-              path: "x",
-              start: { line: 1, character: 1 },
-              end: { line: 2, character: 1 },
-            },
-          },
-        ],
-      },
-      tableName: "Azure Test",
+      manifest: createManifest("azure-test", "Azure Test", ["data_plane_scenario"]),
+      tableName: "Azure Data Plane",
       generatorReports: {
         "@azure-typespec/http-client-csharp": {
-          generatorMetadata: { name: "C#", version: "1.0.0" },
-          results: { scenario_1: "pass" },
+          generatorMetadata: {
+            name: "@azure-typespec/http-client-csharp",
+            version: "1.0.0",
+          },
+          results: { data_plane_scenario: "pass" },
         },
+      },
+    },
+    {
+      manifest: createManifest("azure-test", "Azure Test", ["management_plane_scenario"]),
+      tableName: "Azure Management Plane",
+      generatorReports: {
         "@azure-typespec/http-client-csharp-mgmt": {
-          generatorMetadata: { name: "C#", version: "1.0.0" },
-          results: { scenario_1: "fail" },
+          generatorMetadata: {
+            name: "@azure-typespec/http-client-csharp-mgmt",
+            version: "1.0.0",
+          },
+          results: { management_plane_scenario: "fail" },
         },
       },
     },
@@ -272,10 +268,9 @@ it("should group overview coverage by logical display name across emitter packag
     }),
   );
 
-  const cSharpMatches = html.match(/C#/g) ?? [];
-  expect(cSharpMatches).toHaveLength(1);
-  expect(html).toContain("100%");
-  expect(html).not.toContain("@azure-typespec/http-client-csharp-mgmt");
+  expect(html.match(/C#/g)).toHaveLength(1);
+  expect(html).toContain("50%");
+  expect(html).not.toContain("@azure-typespec/http-client-csharp");
 });
 
 it("should include emitterNames from table definition", () => {
