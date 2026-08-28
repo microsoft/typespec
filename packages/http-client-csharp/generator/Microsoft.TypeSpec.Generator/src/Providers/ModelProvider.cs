@@ -670,9 +670,7 @@ namespace Microsoft.TypeSpec.Generator.Providers
                     continue;
                 }
 
-                var outputProperty = _inputModel.Properties.Contains(property)
-                    ? CodeModelGenerator.Instance.TypeFactory.CreateProperty(property, this)
-                    : CodeModelGenerator.Instance.TypeFactory.CreateMaterializedProperty(property, this);
+                var outputProperty = CodeModelGenerator.Instance.TypeFactory.CreateProperty(property, this);
 
                 if (_inputModel.DiscriminatorProperty == property)
                 {
@@ -742,7 +740,7 @@ namespace Microsoft.TypeSpec.Generator.Providers
                         }
 
                         // Reconciled properties have a provider scoped to the model that materialized them. Use that
-                        // provider as the override target instead of consulting the owner-only InputProperty cache.
+                        // provider as the override target rather than the provider scoped to the input property's owner.
                         outputProperty.BaseProperty = basePropertyProvider.CanonicalView.Properties.FirstOrDefault(p =>
                             ReferenceEquals(p.InputProperty, baseProperty))
                             ?? CodeModelGenerator.Instance.TypeFactory.CreateProperty(baseProperty, basePropertyProvider);

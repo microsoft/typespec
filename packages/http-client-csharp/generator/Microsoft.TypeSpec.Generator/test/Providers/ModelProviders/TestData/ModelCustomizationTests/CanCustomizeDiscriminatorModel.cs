@@ -17,6 +17,6 @@ namespace Sample.Models
         {
         }
 
-        public override virtual global::System.Collections.Generic.IList<int> Prop1 { get; }
+        public override global::System.Collections.Generic.IList<int> Prop1 { get; }
     }
 }

@@ -1753,6 +1753,12 @@ namespace Microsoft.TypeSpec.Generator.Tests.Providers.ModelProviders
             Assert.AreNotSame(reconciledProperty, originalProperty);
             Assert.AreSame(derivedProvider, reconciledProperty.EnclosingType);
             Assert.AreSame(specBaseProvider, originalProperty.EnclosingType);
+            Assert.AreSame(
+                reconciledProperty,
+                CodeModelGenerator.Instance.TypeFactory.CreateProperty(specBaseModel.Properties[0], derivedProvider));
+            Assert.AreSame(
+                originalProperty,
+                CodeModelGenerator.Instance.TypeFactory.CreateProperty(specBaseModel.Properties[0], specBaseProvider));
         }
 
         [Test]

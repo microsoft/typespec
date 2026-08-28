@@ -40,7 +40,7 @@ namespace Microsoft.TypeSpec.Generator
         private Dictionary<InputType, CSharpType?> TypeCache { get; } = [];
         private Dictionary<InputSerializationOptions, SerializationOptions?> SerializationOptionsCache { get; } = [];
 
-        private Dictionary<InputProperty, PropertyProvider?> PropertyCache { get; } = [];
+        private Dictionary<(InputProperty Property, TypeProvider EnclosingType), PropertyProvider?> PropertyCache { get; } = [];
 
         private IReadOnlyList<LibraryVisitor> Visitors => CodeModelGenerator.Instance.Visitors;
         private Dictionary<InputType, IReadOnlyList<TypeProvider>> SerializationsCache { get; } = [];
@@ -398,21 +398,16 @@ namespace Microsoft.TypeSpec.Generator
         /// <returns>The property provider.</returns>
         public PropertyProvider? CreateProperty(InputProperty property, TypeProvider enclosingType)
         {
-            if (PropertyCache.TryGetValue(property, out var propertyProvider))
+            var cacheKey = (property, enclosingType);
+            if (PropertyCache.TryGetValue(cacheKey, out var propertyProvider))
             {
                 return propertyProvider;
             }
 
             propertyProvider = CreatePropertyCore(property, enclosingType);
-            PropertyCache.Add(property, propertyProvider);
+            PropertyCache.Add(cacheKey, propertyProvider);
             return propertyProvider;
         }
-
-        // A property materialized from another model's input hierarchy must have its own provider because
-        // PropertyProvider construction and later mutations depend on the enclosing type. Do not use or update
-        // PropertyCache here: it is keyed only by InputProperty and must keep representing the property's owner.
-        internal PropertyProvider? CreateMaterializedProperty(InputProperty property, TypeProvider enclosingType)
-            => CreatePropertyCore(property, enclosingType);
 
         /// <summary>
         /// Factory method for creating a <see cref="PropertyProvider"/> based on an input property <paramref name="property"/>.
