@@ -95,6 +95,94 @@ function Register-StepFailure {
     Write-Host "##vso[task.complete result=SucceededWithIssues;]"
 }
 
+function Submit-LocalRegenPreview {
+    param(
+        [Parameter(Mandatory = $true)]
+        [string]$SdkRepoPath,
+
+        [Parameter(Mandatory = $true)]
+        [string]$PrBranch,
+
+        [Parameter(Mandatory = $true)]
+        [string]$CommitUrl,
+
+        [Parameter(Mandatory = $true)]
+        [string]$Repository,
+
+        [Parameter(Mandatory = $true)]
+        [string]$Base,
+
+        [Parameter(Mandatory = $false)]
+        [string]$RunUrl,
+
+        [Parameter(Mandatory = $false)]
+        [switch]$Azure,
+
+        [Parameter(Mandatory = $false)]
+        [switch]$Mgmt
+    )
+
+    git sparse-checkout add sdk
+    if ($LASTEXITCODE -ne 0) {
+        throw "Failed to expand sparse checkout for regeneration preview"
+    }
+
+    $regenPreviewArgs = @(
+        '-SdkLibraryRepoPath', $SdkRepoPath,
+        '-Unbranded'
+    )
+    if ($Azure) {
+        $regenPreviewArgs += '-Azure'
+    }
+    if ($Mgmt) {
+        $regenPreviewArgs += '-Mgmt'
+    }
+
+    & (Join-Path $PSScriptRoot 'RegenPreview.ps1') @regenPreviewArgs
+    if ($LASTEXITCODE -ne 0) {
+        throw "RegenPreview.ps1 failed with exit code $LASTEXITCODE"
+    }
+
+    git add (Join-Path $SdkRepoPath "sdk")
+    git diff --cached --quiet
+    if ($LASTEXITCODE -eq 0) {
+        Write-Warning "No SDK changes detected. Skipping commit and PR creation."
+        return
+    } elseif ($LASTEXITCODE -ne 1) {
+        throw "Failed to inspect staged SDK changes"
+    }
+
+    $previewTitle = "[DO NOT MERGE] Regen preview for $CommitUrl"
+    git commit -m $previewTitle
+    if ($LASTEXITCODE -ne 0) {
+        throw "Failed to commit regeneration preview changes"
+    }
+
+    $loginScript = Join-Path $PSScriptRoot "../../../../eng/common/scripts/login-to-github.ps1"
+    & $loginScript -InstallationTokenOwners 'Azure' -VariableNamePrefix 'GH_TOKEN'
+    if ($LASTEXITCODE -ne 0 -or -not $env:GH_TOKEN) {
+        throw "Failed to refresh GitHub token"
+    }
+
+    gh auth setup-git
+    git push origin $PrBranch
+    if ($LASTEXITCODE -ne 0) {
+        throw "Failed to push regeneration preview branch"
+    }
+
+    $previewBody = @(
+        "This PR previews SDK changes generated from $CommitUrl."
+        ""
+        "Pipeline run: $RunUrl"
+    ) -join [Environment]::NewLine
+    $ghOutput = gh pr create --repo $Repository --title $previewTitle --body $previewBody --base $Base --head $PrBranch --label "Do Not Merge" 2>&1
+    if ($LASTEXITCODE -ne 0) {
+        throw "Failed to create regeneration preview PR: $ghOutput"
+    }
+
+    Write-Host "Successfully created regeneration preview PR: $($ghOutput.Trim())"
+}
+
 # Import the Generation module to use the Invoke helper function
 Import-Module (Join-Path $PSScriptRoot "Generation.psm1") -DisableNameChecking -Force
 # Import RegenPreview module for Update-AzureGenerator and Update-MgmtGenerator
@@ -234,65 +322,15 @@ try {
     }
 
     if ($UseLocalRegenPreview) {
-        git sparse-checkout add sdk
-        if ($LASTEXITCODE -ne 0) {
-            throw "Failed to expand sparse checkout for regeneration preview"
-        }
-
-        $regenPreviewArgs = @(
-            '-SdkLibraryRepoPath', $tempDir,
-            '-Unbranded'
-        )
-        if ($RegenerateAzureLibraries) {
-            $regenPreviewArgs += '-Azure'
-        }
-        if ($RegenerateMgmtLibraries) {
-            $regenPreviewArgs += '-Mgmt'
-        }
-
-        & (Join-Path $PSScriptRoot 'RegenPreview.ps1') @regenPreviewArgs
-        if ($LASTEXITCODE -ne 0) {
-            throw "RegenPreview.ps1 failed with exit code $LASTEXITCODE"
-        }
-
-        git add (Join-Path $tempDir "sdk")
-        git diff --cached --quiet
-        if ($LASTEXITCODE -eq 0) {
-            Write-Warning "No SDK changes detected. Skipping commit and PR creation."
-            return
-        } elseif ($LASTEXITCODE -ne 1) {
-            throw "Failed to inspect staged SDK changes"
-        }
-
-        $previewTitle = "[DO NOT MERGE] Regen preview for $TypeSpecCommitUrl"
-        git commit -m $previewTitle
-        if ($LASTEXITCODE -ne 0) {
-            throw "Failed to commit regeneration preview changes"
-        }
-
-        $loginScript = Join-Path $PSScriptRoot "../../../../eng/common/scripts/login-to-github.ps1"
-        & $loginScript -InstallationTokenOwners 'Azure' -VariableNamePrefix 'GH_TOKEN'
-        if ($LASTEXITCODE -ne 0 -or -not $env:GH_TOKEN) {
-            throw "Failed to refresh GitHub token"
-        }
-
-        gh auth setup-git
-        git push origin $PRBranch
-        if ($LASTEXITCODE -ne 0) {
-            throw "Failed to push regeneration preview branch"
-        }
-
-        $previewBody = @(
-            "This PR previews SDK changes generated from $TypeSpecCommitUrl."
-            ""
-            "Pipeline run: $PipelineRunUrl"
-        ) -join [Environment]::NewLine
-        $ghOutput = gh pr create --repo "$RepoOwner/$RepoName" --title $previewTitle --body $previewBody --base $BaseBranch --head $PRBranch --label "Do Not Merge" 2>&1
-        if ($LASTEXITCODE -ne 0) {
-            throw "Failed to create regeneration preview PR: $ghOutput"
-        }
-
-        Write-Host "Successfully created regeneration preview PR: $($ghOutput.Trim())"
+        Submit-LocalRegenPreview `
+            -SdkRepoPath $tempDir `
+            -PrBranch $PRBranch `
+            -CommitUrl $TypeSpecCommitUrl `
+            -Repository "$RepoOwner/$RepoName" `
+            -Base $BaseBranch `
+            -RunUrl $PipelineRunUrl `
+            -Azure:$RegenerateAzureLibraries `
+            -Mgmt:$RegenerateMgmtLibraries
         return
     }
 
