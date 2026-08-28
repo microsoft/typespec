@@ -149,25 +149,6 @@ namespace Microsoft.TypeSpec.Generator.Providers
             return allCustomFields;
         }
 
-        internal IEnumerable<(string Name, string OriginalName)> GetExplicitlyRenamedCustomMemberNames()
-        {
-            foreach (var customProperty in BuildAllCustomProperties())
-            {
-                if (customProperty.OriginalName is { } originalName)
-                {
-                    yield return (customProperty.Name, originalName);
-                }
-            }
-
-            foreach (var customField in BuildAllCustomFields())
-            {
-                if (customField.OriginalName is { } originalName)
-                {
-                    yield return (customField.Name, originalName);
-                }
-            }
-        }
-
         private protected virtual CanonicalTypeProvider BuildCanonicalView() => new CanonicalTypeProvider(this, _inputType);
         public TypeProvider CanonicalView => _canonicalView.Value;
 

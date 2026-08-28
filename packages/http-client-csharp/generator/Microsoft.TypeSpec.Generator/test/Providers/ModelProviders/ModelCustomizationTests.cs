@@ -586,34 +586,6 @@ namespace Microsoft.TypeSpec.Generator.Tests.Providers.ModelProviders
         }
 
         [Test]
-        public async Task HistoricalNameClaimedByInheritedCustomRenameIsNotReused()
-        {
-            var dateTime = new InputDateTimeType(
-                DateTimeKnownEncoding.Rfc3339,
-                "utcDateTime",
-                "TypeSpec.utcDateTime",
-                InputPrimitiveType.String);
-            var baseModel = InputFactory.Model(
-                "baseModel",
-                properties: [InputFactory.Property("foo", InputPrimitiveType.String, isRequired: true)]);
-            var derivedModel = InputFactory.Model(
-                "mockInputModel",
-                properties: [InputFactory.Property("startTime", dateTime, isRequired: true)],
-                baseModel: baseModel);
-
-            var mockGenerator = await MockHelpers.LoadMockGeneratorAsync(
-                inputModelTypes: [derivedModel, baseModel],
-                compilation: async () => await Helpers.GetCompilationFromDirectoryAsync(),
-                lastContractCompilation: async () => await Helpers.GetCompilationFromDirectoryAsync("Last"));
-
-            var modelTypeProvider = mockGenerator.Object.OutputLibrary.TypeProviders.Single(t => t.Name == "MockInputModel");
-
-            // The base customization explicitly renames another spec property to StartOn. Since inherited custom
-            // members participate in filtering, they must also claim names during historical-name selection.
-            Assert.That(modelTypeProvider.Properties.Select(p => p.Name), Is.EqualTo(new[] { "StartsOn" }));
-        }
-
-        [Test]
         public async Task HistoricalNameClaimedByRenamedCustomFieldIsNotReused()
         {
             var dateTime = new InputDateTimeType(
