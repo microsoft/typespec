@@ -439,7 +439,9 @@ namespace Microsoft.TypeSpec.Generator.Providers
             IReadOnlyDictionary<string, PropertyProvider>? knownSpecProperties = null)
         {
             var propertiesToFilter = specProperties as IReadOnlyList<PropertyProvider> ?? [.. specProperties];
-            var activeProperties = new HashSet<PropertyProvider>(propertiesToFilter);
+            var activeProperties = new HashSet<PropertyProvider>(
+                propertiesToFilter,
+                ReferenceEqualityComparer.Instance);
 
             if (knownSpecProperties is not null)
             {

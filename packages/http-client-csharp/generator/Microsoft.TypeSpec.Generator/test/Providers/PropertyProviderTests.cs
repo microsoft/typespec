@@ -445,6 +445,31 @@ namespace Microsoft.TypeSpec.Generator.Tests.Providers
         }
 
         [Test]
+        public async Task TestDateTimeNameAlreadyEndingOnDoesNotUseHistoricalStemMatch()
+        {
+            await MockHelpers.LoadMockGeneratorAsync(lastContractCompilation: async () => await Helpers.GetCompilationFromDirectoryAsync());
+
+            var inputModel = InputFactory.Model(
+                "TestModel",
+                @namespace: "Test",
+                properties:
+                [
+                    InputFactory.Property(
+                        "startsOn",
+                        new InputDateTimeType(
+                            DateTimeKnownEncoding.Rfc3339,
+                            "utcDateTime",
+                            "TypeSpec.utcDateTime",
+                            InputPrimitiveType.String),
+                        isRequired: true)
+                ]);
+
+            // A spec name already in <stem>On form has no earlier spelling to recover. The GA StartOn member
+            // belongs to a different property and must not be selected merely because its stem also normalizes.
+            Assert.AreEqual("StartsOn", new ModelProvider(inputModel).Properties.Single().Name);
+        }
+
+        [Test]
         public async Task TestPropertyNameIgnoresIncompatiblyTypedHistoricalName()
         {
             await MockHelpers.LoadMockGeneratorAsync(lastContractCompilation: async () => await Helpers.GetCompilationFromDirectoryAsync());

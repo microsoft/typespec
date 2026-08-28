@@ -108,7 +108,7 @@ namespace Microsoft.TypeSpec.Generator.Utilities
             // Complete prefixes that read better as verbs when combined with the "On" suffix. Keep the
             // collection ordered so adding overlapping suffixes in the future cannot make compound matching
             // depend on dictionary enumeration order.
-            private static readonly (string Noun, string Verb)[] _nounToVerbMap =
+            private static readonly (string Noun, string Verb)[] _nounToVerbRules =
             [
                 ("Change", "Changed"),
                 ("Creation", "Created"),
@@ -122,7 +122,7 @@ namespace Microsoft.TypeSpec.Generator.Utilities
 
             internal static string ToVerbForm(string prefix)
             {
-                foreach (var (noun, verb) in _nounToVerbMap)
+                foreach (var (noun, verb) in _nounToVerbRules)
                 {
                     if (prefix.Equals(noun, StringComparison.OrdinalIgnoreCase))
                     {
@@ -132,7 +132,7 @@ namespace Microsoft.TypeSpec.Generator.Utilities
                     }
                 }
 
-                foreach (var (noun, compoundVerb) in _nounToVerbMap)
+                foreach (var (noun, compoundVerb) in _nounToVerbRules)
                 {
                     if (prefix.Length > noun.Length &&
                         prefix.EndsWith(noun, StringComparison.OrdinalIgnoreCase) &&
