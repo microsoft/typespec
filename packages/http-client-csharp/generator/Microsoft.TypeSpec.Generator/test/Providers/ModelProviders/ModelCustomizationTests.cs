@@ -333,6 +333,29 @@ namespace Microsoft.TypeSpec.Generator.Tests.Providers.ModelProviders
         }
 
         [Test]
+        public async Task DuplicateExactIdentifierCustomizationKeepsFirstSpecMatch()
+        {
+            var inputModel = InputFactory.Model(
+                "mockInputModel",
+                properties:
+                [
+                    InputFactory.Property("start_time", InputPrimitiveType.String, wireName: "firstWireName"),
+                    InputFactory.Property("startTime", InputPrimitiveType.String, wireName: "secondWireName")
+                ]);
+
+            var mockGenerator = await MockHelpers.LoadMockGeneratorAsync(
+                inputModelTypes: [inputModel],
+                compilation: async () => await Helpers.GetCompilationFromDirectoryAsync());
+
+            var modelTypeProvider = mockGenerator.Object.OutputLibrary.TypeProviders.Single(t => t.Name == "MockInputModel");
+            var canonicalProperty = modelTypeProvider.CanonicalView!.Properties.Single();
+
+            // Both spec names collapse to StartTime. Preserve the existing first-wins behavior when resolving
+            // that exact identifier rather than incidentally changing it while moving aliases to a later pass.
+            Assert.AreEqual("firstWireName", canonicalProperty.WireInfo!.SerializedName);
+        }
+
+        [Test]
         public async Task RefilteringPreservesCustomCodeSpecAssociation()
         {
             var dateTime = new InputDateTimeType(

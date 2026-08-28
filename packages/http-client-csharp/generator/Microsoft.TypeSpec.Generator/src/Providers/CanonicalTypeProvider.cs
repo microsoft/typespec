@@ -18,6 +18,7 @@ namespace Microsoft.TypeSpec.Generator.Providers
     {
         private readonly TypeProvider _generatedTypeProvider;
         private readonly Dictionary<string, InputModelProperty> _specPropertiesMap;
+        private readonly HashSet<string> _exactSpecPropertyNames;
         private readonly Dictionary<string, string?> _serializedNameMap;
         private readonly Dictionary<InputModelProperty, PropertyProvider> _propertyProviderMap = new();
         private readonly HashSet<string> _renamedProperties;
@@ -30,10 +31,12 @@ namespace Microsoft.TypeSpec.Generator.Providers
             var inputModel = inputType as InputModelType;
             _specProperties = inputModel?.Properties ?? [];
             _specPropertiesMap = [];
+            _exactSpecPropertyNames = [];
             foreach (var property in _specProperties)
             {
                 var name = property.IsExactName ? property.Name : property.Name.ToIdentifierName();
-                _specPropertiesMap[name] = property;
+                _specPropertiesMap.TryAdd(name, property);
+                _exactSpecPropertyNames.Add(name);
             }
             foreach (var property in _specProperties.Where(p => !p.IsExactName))
             {
@@ -100,7 +103,8 @@ namespace Microsoft.TypeSpec.Generator.Providers
             // property must not shadow a later property that actually emits that name.
             foreach (var generatedProperty in _generatedTypeProvider.GeneratedPropertiesBySpecName.Values)
             {
-                if (generatedProperty.InputProperty is InputModelProperty preservedSpecProperty)
+                if (generatedProperty.InputProperty is InputModelProperty preservedSpecProperty &&
+                    _exactSpecPropertyNames.Add(generatedProperty.Name))
                 {
                     _specPropertiesMap[generatedProperty.Name] = preservedSpecProperty;
                 }
