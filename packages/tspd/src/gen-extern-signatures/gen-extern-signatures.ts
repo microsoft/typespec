@@ -36,8 +36,7 @@ function createSourceLocation(path: string): SourceLocation {
 const ROOT_EXPORT = ".";
 
 /** JS conditions that could resolve to the module exporting `$decorators`/`$functions`. */
-const JS_EXPORT_CONDITIONS = ["import", "default", "types"];
-
+const JS_EXPORT_CONDITIONS = ["import", "default"];
 /** A `package.json` export entry that defines a TypeSpec entrypoint. */
 export interface TypeSpecExportEntry {
   /** Subpath as defined in the `exports` field. (@example `.` or `./streams`) */
