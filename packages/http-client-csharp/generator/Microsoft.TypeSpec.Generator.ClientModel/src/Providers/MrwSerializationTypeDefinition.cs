@@ -811,20 +811,22 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
 
         private SwitchCaseStatement[] GetDiscriminatorSwitchCases(ModelProvider unknownVariant)
         {
-            SwitchCaseStatement[] cases = new SwitchCaseStatement[_model.DerivedModels.Count - 1];
-            int index = 0;
-            for (int i = 0; i < cases.Length; i++)
+            // Enumerate every derived model rather than the first (Count - 1) entries. The unknown
+            // variant is not guaranteed to be last - rebasing a hierarchy (for example via
+            // hierarchyBuilding) can append derived models after it - which would otherwise leave
+            // unassigned entries in the array.
+            List<SwitchCaseStatement> cases = new(_model.DerivedModels.Count);
+            foreach (var model in _model.DerivedModels)
             {
-                var model = _model.DerivedModels[i];
-                if (ReferenceEquals(model, unknownVariant))
+                if (ReferenceEquals(model, unknownVariant) || model.DiscriminatorValue is null)
                 {
                     continue;
                 }
-                cases[index++] = new SwitchCaseStatement(
-                    Literal(model.DiscriminatorValue!),
-                    Return(GetDeserializationMethodInvocationForType(model, _jsonElementParameterSnippet, _dataParameter, _serializationOptionsParameter)));
+                cases.Add(new SwitchCaseStatement(
+                    Literal(model.DiscriminatorValue),
+                    Return(GetDeserializationMethodInvocationForType(model, _jsonElementParameterSnippet, _dataParameter, _serializationOptionsParameter))));
             }
-            return cases;
+            return [.. cases];
         }
 
         /// <summary>
@@ -1091,7 +1093,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
             {
                 switchCases.Add(new SwitchCaseStatement(
                     ModelReaderWriterOptionsSnippets.JsonFormat,
-                    Return(Static(typeof(ModelReaderWriter)).Invoke(nameof(ModelReaderWriter.Write), [This, _mrwOptionsParameterSnippet, ModelReaderWriterContextSnippets.Default]))));
+                    Return(ModelReaderWriterSnippets.Write(This, _mrwOptionsParameterSnippet))));
             }
 
             if (_supportsXml)
@@ -2523,10 +2525,10 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
                     $"Deserialization of type {valueType.Name} may not be supported using MRW serialization.",
                     severity: EmitterDiagnosticSeverity.Warning);
                 // Fall back to MRW deserialization for framework type
-                return Static(typeof(ModelReaderWriter)).Invoke(
-                    nameof(ModelReaderWriter.Read),
-                    [data, ModelSerializationExtensionsSnippets.Wire, ModelReaderWriterContextSnippets.Default],
-                    [valueType]);
+                return ModelReaderWriterSnippets.Read(
+                    valueType,
+                    data,
+                    ModelSerializationExtensionsSnippets.Wire);
             }
 
             return exp;
@@ -2581,7 +2583,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
         {
             if (serializationFormat is SerializationFormat.Bytes_Base64 or SerializationFormat.Bytes_Base64Url)
             {
-                return utf8JsonWriter.WriteBase64StringValue(value.As<BinaryData>().ToArray(), serializationFormat.ToFormatSpecifier());
+                return utf8JsonWriter.WriteBase64StringValue(value.As<BinaryData>(), serializationFormat.ToFormatSpecifier());
             }
             return utf8JsonWriter.WriteBinaryData(value);
         }

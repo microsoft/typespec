@@ -15,7 +15,6 @@
     "emitDeclarationOnly": true,
     "outDir": "dist",
     "rootDir": "./",
-    "verbatimModuleSyntax": true,
     "types": ["node", "@alloy-js/core/testing/matchers"]
   },
   "include": ["src/**/*.ts", "src/**/*.tsx", "test/**/*.ts", "test/**/*.tsx"],

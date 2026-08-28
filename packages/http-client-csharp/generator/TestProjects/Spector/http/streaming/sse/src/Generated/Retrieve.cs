@@ -9,7 +9,6 @@ using System.Net.ServerSentEvents;
 using System.Threading;
 using System.Threading.Tasks;
 
-#pragma warning disable SCME0005 // Type is for evaluation purposes only and is subject to change or removal in future updates.
 namespace Streaming.Sse._Retrieve
 {
     public partial class Retrieve
@@ -20,9 +19,12 @@ namespace Streaming.Sse._Retrieve
 
         public ClientPipeline Pipeline => throw null;
 
+#pragma warning disable SCME0005 // Type is for evaluation purposes only and is subject to change or removal in future updates.
         public virtual Task<AsyncStreamingClientResult<SseItem<BinaryData>>> StreamAsync(BinaryContent content, RequestOptions options = null) => throw null;
+#pragma warning restore SCME0005 // Type is for evaluation purposes only and is subject to change or removal in future updates.
 
+#pragma warning disable SCME0005 // Type is for evaluation purposes only and is subject to change or removal in future updates.
         public virtual Task<AsyncStreamingClientResult<SseItem<BinaryData>>> StreamAsync(RetrievalRequest request, CancellationToken cancellationToken = default) => throw null;
+#pragma warning restore SCME0005 // Type is for evaluation purposes only and is subject to change or removal in future updates.
     }
 }
-#pragma warning restore SCME0005 // Type is for evaluation purposes only and is subject to change or removal in future updates.
