@@ -121,6 +121,14 @@ namespace Microsoft.TypeSpec.Generator.Providers
             return allCustomProperties;
         }
 
+        internal bool HasCustomMember(string name)
+        {
+            return BuildAllCustomProperties().Any(property =>
+                    property.Name == name || property.OriginalName == name)
+                || BuildAllCustomFields().Any(field =>
+                    field.Name == name || field.OriginalName == name);
+        }
+
         private IReadOnlyList<FieldProvider> BuildAllCustomFields()
         {
             var allCustomFields = CustomCodeView?.Fields != null

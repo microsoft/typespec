@@ -1848,6 +1848,56 @@ namespace Microsoft.TypeSpec.Generator.Tests.Providers.ModelProviders
         }
 
         [Test]
+        public async Task DoesNotMaterializeAdditionalPropertiesProvidedByCustomGrandBase()
+        {
+            var specBaseModel = InputFactory.Model(
+                "specBaseModel",
+                properties: [],
+                additionalProperties: InputPrimitiveType.String,
+                usage: InputModelTypeUsage.Input | InputModelTypeUsage.Output | InputModelTypeUsage.Json);
+            var childModel = InputFactory.Model(
+                "mockInputModel",
+                properties: [InputFactory.Property("childProp", InputPrimitiveType.String)],
+                baseModel: specBaseModel,
+                usage: InputModelTypeUsage.Input | InputModelTypeUsage.Output | InputModelTypeUsage.Json);
+
+            var mockGenerator = await MockHelpers.LoadMockGeneratorAsync(
+                inputModelTypes: [childModel, specBaseModel],
+                compilation: async () => await Helpers.GetCompilationFromDirectoryAsync());
+
+            var modelProvider = (ModelProvider)mockGenerator.Object.OutputLibrary.TypeProviders
+                .Single(t => t.Name == "MockInputModel");
+
+            Assert.IsFalse(modelProvider.Properties.Any(p => p.IsAdditionalProperties));
+            Assert.That(modelProvider.FullConstructor.Signature.Parameters.Select(p => p.Name), Does.Not.Contain("additionalProperties"));
+        }
+
+        [Test]
+        public async Task DoesNotMaterializeAdditionalPropertiesProvidedByCustomBaseField()
+        {
+            var specBaseModel = InputFactory.Model(
+                "specBaseModel",
+                properties: [],
+                additionalProperties: InputPrimitiveType.String,
+                usage: InputModelTypeUsage.Input | InputModelTypeUsage.Output | InputModelTypeUsage.Json);
+            var childModel = InputFactory.Model(
+                "mockInputModel",
+                properties: [InputFactory.Property("childProp", InputPrimitiveType.String)],
+                baseModel: specBaseModel,
+                usage: InputModelTypeUsage.Input | InputModelTypeUsage.Output | InputModelTypeUsage.Json);
+
+            var mockGenerator = await MockHelpers.LoadMockGeneratorAsync(
+                inputModelTypes: [childModel, specBaseModel],
+                compilation: async () => await Helpers.GetCompilationFromDirectoryAsync());
+
+            var modelProvider = (ModelProvider)mockGenerator.Object.OutputLibrary.TypeProviders
+                .Single(t => t.Name == "MockInputModel");
+
+            Assert.IsFalse(modelProvider.Properties.Any(p => p.IsAdditionalProperties));
+            Assert.That(modelProvider.FullConstructor.Signature.Parameters.Select(p => p.Name), Does.Not.Contain("additionalProperties"));
+        }
+
+        [Test]
         public async Task CanAddPropertyReferencingGeneratedType()
         {
             // Create Bar model that will be referenced by the custom property

@@ -468,11 +468,12 @@ namespace Microsoft.TypeSpec.Generator.Providers
                 return null;
             }
 
-            // Do not materialize the open-model contract when the effective CLR base already exposes it.
-            var baseProvidesAdditionalProperties = BaseTypeProvider?.Properties.Any(property =>
-                property.IsAdditionalProperties ||
-                property.Name == AdditionalPropertiesHelper.DefaultAdditionalPropertiesPropertyName) == true;
-            return baseProvidesAdditionalProperties ? null : inheritedAdditionalProperties;
+            // Use the same full custom/base hierarchy scan as normal member filtering. This includes inherited
+            // properties and fields that would otherwise suppress the generated AdditionalProperties property
+            // after its backing state and constructor parameter had already been built.
+            return HasCustomMember(AdditionalPropertiesHelper.DefaultAdditionalPropertiesPropertyName)
+                ? null
+                : inheritedAdditionalProperties;
         }
 
         private List<FieldProvider> BuildAdditionalPropertyFields()
