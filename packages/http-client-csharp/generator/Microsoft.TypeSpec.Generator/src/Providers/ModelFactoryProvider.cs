@@ -154,10 +154,8 @@ namespace Microsoft.TypeSpec.Generator.Providers
 
                         if (HasMatchingExactParameterNames(currentMethodSignature, previousMethod.Signature))
                         {
-                            // An overload cannot be added because the parameter types are identical, so
-                            // callers using named arguments for the renamed parameters will not compile.
                             CodeModelGenerator.Instance.Emitter.Info(
-                                $"Model factory method '{Name}.{previousMethod.Signature.Name}' keeps its exact parameter name(s) instead of the last contract's; named arguments using the previous name(s) are source breaking.",
+                                $"Model factory method '{Name}.{previousMethod.Signature.Name}' keeps its exact parameter name(s) instead of the last contract's; callers using the previous name(s) as named arguments will not compile.",
                                 BackCompatibilityChangeCategory.ModelFactoryMethodSkipped);
                             foundCompatibleOverload = true;
                             break;
