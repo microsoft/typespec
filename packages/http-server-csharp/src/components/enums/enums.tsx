@@ -2,6 +2,7 @@ import type { Refkey } from "@alloy-js/core";
 import { For, type Children } from "@alloy-js/core";
 import * as cs from "@alloy-js/csharp";
 import { Attribute } from "@alloy-js/csharp";
+import { Serialization } from "@alloy-js/csharp/global/System/Text/Json";
 import {
   type Enum,
   type Namespace as TspNamespace,
@@ -9,8 +10,7 @@ import {
   type Union,
 } from "@typespec/compiler";
 import { useTsp } from "@typespec/emitter-framework";
-import { JsonSerialization } from "../../utils/csharp-libs.jsx";
-import { getDocComments } from "../../utils/doc-comments.jsx";
+import { getDocComments } from "@typespec/emitter-framework/csharp";
 import { getSubNamespaceParts } from "../../utils/namespace-utils.js";
 import { CSharpFile } from "../csharp-file.jsx";
 import { efRefkey } from "../type-expression/type-expression.jsx";
@@ -83,17 +83,18 @@ export function Enums(props: EnumsProps): Children {
     <For each={allEnums}>
       {(info) => {
         const namePolicy = cs.useCSharpNamePolicy();
+        const enumName = namePolicy.getName(info.name, "enum");
         const subNsParts = getSubNamespaceParts(info.namespace, props.serviceNamespace);
 
         const enumDecl = (
           <>
             <Attribute
-              name={JsonSerialization.JsonConverterAttribute}
+              name={Serialization.JsonConverterAttribute}
               args={["typeof(JsonStringEnumConverter)"]}
             />
             <hbr />
             <cs.EnumDeclaration
-              name={namePolicy.getName(info.name, "enum")}
+              name={enumName}
               public
               refkey={efRefkey(info.type)}
               doc={getDocComments($, info.type)}
@@ -103,7 +104,7 @@ export function Enums(props: EnumsProps): Children {
                   <>
                     <cs.DocWhen doc={getDocComments($, member.docSource)} />
                     <Attribute
-                      name={JsonSerialization.JsonStringEnumMemberNameAttribute}
+                      name={Serialization.JsonStringEnumMemberNameAttribute}
                       args={[`"${member.serializedValue}"`]}
                     />
                     <hbr />
@@ -124,7 +125,7 @@ export function Enums(props: EnumsProps): Children {
         );
 
         return (
-          <CSharpFile path={`${info.name}.cs`} using={["System.Text.Json"]}>
+          <CSharpFile path={`${enumName}.cs`} using={["System.Text.Json"]}>
             {wrappedContent}
           </CSharpFile>
         );

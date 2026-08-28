@@ -4733,11 +4733,12 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers.ClientProvide
             var inputOperation = InputFactory.Operation("snake_case_op", isExactName: true);
             var inputServiceMethod = InputFactory.BasicServiceMethod("snake_case_op", inputOperation, isExactName: true);
             var client = InputFactory.Client("TestClient", methods: [inputServiceMethod]);
-            _ = new ClientProvider(client);
+            var clientProvider = new ClientProvider(client);
 
             // After CleanOperationNames runs in the ClientProvider constructor, names should be unchanged.
             Assert.AreEqual("snake_case_op", inputServiceMethod.Name);
             Assert.AreEqual("snake_case_op", inputServiceMethod.Operation.Name);
+            Assert.AreEqual("CreateSnakeCaseOpRequest", clientProvider.RestClient.GetCreateRequestMethod(inputOperation).Signature.Name);
         }
 
         [TestCase("GetUrl", false, "GetUri")]
@@ -4814,6 +4815,37 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers.ClientProvide
             Assert.AreEqual("GetUrl", inputServiceMethod.Name);
             Assert.AreEqual("GetUrl", inputServiceMethod.Operation.Name);
             Assert.IsTrue(methods.Any(m => m.Signature.Name == "GetUrl"));
+        }
+
+        [Test]
+        public async Task TestEarlierWrapperRequestExistsAfterLaterBackCompatProvider()
+        {
+            var inputOperation = InputFactory.Operation("GetUrl");
+            var inputServiceMethod = InputFactory.BasicServiceMethod("GetUrl", inputOperation);
+            var client = InputFactory.Client("TestClient", methods: [inputServiceMethod]);
+            var generator = await MockHelpers.LoadMockGeneratorAsync(
+                clients: () => [client],
+                lastContractCompilation: async () => await Helpers.GetCompilationFromDirectoryAsync());
+            var clientProvider = generator.Object.OutputLibrary.TypeProviders.OfType<ClientProvider>().Single();
+            var shippedWrapper = new BackCompatTypeProvider("MockableTestResource", "Sample");
+
+            var shippedWrapperMethods = clientProvider.GetMethodCollectionByOperation(inputOperation, shippedWrapper);
+            var publicMethodName = shippedWrapperMethods.Single(m =>
+                m.Kind == ScmMethodKind.Convenience &&
+                !m.Signature.Modifiers.HasFlag(MethodSignatureModifiers.Async)).Signature.Name;
+            var capturedRequestMethodName = clientProvider.RestClient.GetCreateRequestMethod(inputOperation).Signature.Name;
+
+            Assert.AreEqual("GetUrl", publicMethodName);
+            Assert.AreEqual("CreateGetUrlRequest", capturedRequestMethodName);
+
+            var newWrapper = new BackCompatTypeProvider("MissingWrapper", "Sample");
+            _ = clientProvider.GetMethodCollectionByOperation(inputOperation, newWrapper);
+
+            var emittedRestClient = new TypeProviderWriter(clientProvider.RestClient).Write().Content;
+            StringAssert.Contains(
+                $"{capturedRequestMethodName}(",
+                emittedRestClient,
+                "The final REST client must emit the request method captured by an earlier wrapper projection.");
         }
 
         [Test]

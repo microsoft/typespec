@@ -73,6 +73,9 @@ import type {
   TemplateInstanceTarget,
   Tracer,
   Type,
+  TypeInfo,
+  TypeInfoContext,
+  TypeInfoProvider,
   TypeSpecLibrary,
   TypeSpecScriptNode,
 } from "./types.js";
@@ -114,6 +117,22 @@ export interface Program {
     cb: (program: Program) => void | Promise<void>,
     LibraryMetadata: LibraryMetadata,
   ): void;
+  /**
+   * Register a provider that contributes extra information about types. Libraries wire this up
+   * by exporting a `$provideTypeInfo` function; it is discovered automatically by the compiler.
+   * @internal
+   */
+  registerTypeInfoProvider(provider: TypeInfoProvider, metadata: LibraryMetadata): void;
+  /**
+   * Query the registered `$provideTypeInfo` providers for extra information about the given type. Returns
+   * the merged information contributed by every library, or `undefined` when none contributed.
+   * Providers are run lazily and never mutate the type graph. Used by the language server for
+   * hover docs and by tooling.
+   *
+   * Only libraries that opted into the experimental `type-info-provider` feature in their own
+   * `tspconfig.yaml` contribute; consumers do not need to enable anything.
+   */
+  getTypeInfo(target: Type): TypeInfo | undefined;
   /** @internal */
   getOption(key: string): string | undefined;
   stateSet(key: symbol): Set<Type>;
@@ -171,6 +190,11 @@ interface Validator {
   callback: (
     program: Program,
   ) => void | readonly Diagnostic[] | Promise<void> | Promise<readonly Diagnostic[]>;
+}
+
+interface RegisteredTypeInfoProvider {
+  metadata: LibraryMetadata;
+  callback: TypeInfoProvider;
 }
 
 interface TypeSpecLibraryReference {
@@ -234,6 +258,7 @@ async function createProgram(
 ): Promise<{ program: Program; shouldAbort: boolean }> {
   const runtimeStats: Partial<RuntimeStats> = {};
   const validateCbs: Validator[] = [];
+  const typeInfoProviders: RegisteredTypeInfoProvider[] = [];
   const stateMaps = new Map<symbol, Map<Type, unknown>>();
   const stateSets = new Map<symbol, Set<Type>>();
   const diagnostics: Diagnostic[] = [];
@@ -296,6 +321,39 @@ async function createProgram(
     },
     onValidate(cb, metadata) {
       validateCbs.push({ callback: cb, metadata });
+    },
+    registerTypeInfoProvider(provider, metadata) {
+      typeInfoProviders.push({ callback: provider, metadata });
+    },
+    getTypeInfo(target) {
+      if (typeInfoProviders.length === 0) {
+        return undefined;
+      }
+      const contents: string[] = [];
+      const context: TypeInfoContext = { program, target };
+      for (const provider of typeInfoProviders) {
+        let result: TypeInfo | undefined;
+        try {
+          result = provider.callback(context);
+        } catch (error: any) {
+          // This runs lazily, long after compilation finished, so a crashing provider must not
+          // mutate the program's diagnostics. In a design time build (language server) trace it
+          // and carry on so a broken library cannot take down hover or completion.
+          if (options.designTimeBuild) {
+            trace(
+              "info-provider.crash",
+              `Library "${provider.metadata.name ?? "<unnamed>"}" $provideTypeInfo crashed: ${error.stack}`,
+            );
+            continue;
+          } else {
+            throw new ExternalError({ kind: "info", metadata: provider.metadata, error });
+          }
+        }
+        if (result) {
+          contents.push(result.content);
+        }
+      }
+      return contents.length > 0 ? { content: contents.join("\n\n") } : undefined;
     },
     getGlobalNamespaceType,
     resolveTypeReference,

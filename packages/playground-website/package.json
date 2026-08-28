@@ -70,6 +70,7 @@
     "@typespec/playground": "workspace:^",
     "@typespec/protobuf": "workspace:^",
     "@typespec/rest": "workspace:^",
+    "@typespec/samples": "workspace:^",
     "@typespec/sse": "workspace:^",
     "@typespec/streams": "workspace:^",
     "@typespec/versioning": "workspace:^",
