@@ -5705,7 +5705,7 @@
         {
           "$id": "470",
           "kind": "property",
-          "name": "createdAt",
+          "name": "CreatedOn",
           "serializedName": "createdAt",
           "doc": "A date-time property",
           "type": {
@@ -5737,7 +5737,8 @@
             }
           },
           "isHttpMetadata": false,
-          "isExactName": false
+          "isExactName": false,
+          "originalName": "createdAt"
         },
         {
           "$id": "473",

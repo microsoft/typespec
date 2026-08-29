@@ -180,7 +180,10 @@ function equalsIgnoreCase(left: string, right: string): boolean {
 }
 
 function endsWithIgnoreCase(name: string, suffix: string): boolean {
-  return name.length >= suffix.length && equalsIgnoreCase(name.slice(name.length - suffix.length), suffix);
+  return (
+    name.length >= suffix.length &&
+    equalsIgnoreCase(name.slice(name.length - suffix.length), suffix)
+  );
 }
 
 function startsWithIgnoreCase(name: string, prefix: string): boolean {
