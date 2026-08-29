@@ -14,29 +14,29 @@ namespace Microsoft.TypeSpec.Generator.Tests.Common
     {
         public static class EnumMember
         {
-            public static InputEnumTypeValue Int32(string name, int value, InputEnumType enumType, bool isExactName = false, string? originalName = null)
+            public static InputEnumTypeValue Int32(string name, int value, InputEnumType enumType, bool isExactName = false)
             {
-                return new InputEnumTypeValue(name, value, InputPrimitiveType.Int32, "", $"{name} description", enumType) { IsExactName = isExactName , OriginalName = originalName ?? name };
+                return new InputEnumTypeValue(name, value, InputPrimitiveType.Int32, "", $"{name} description", enumType) { IsExactName = isExactName };
             }
 
-            public static InputEnumTypeValue Int64(string name, long value, InputEnumType enumType, bool isExactName = false, string? originalName = null)
+            public static InputEnumTypeValue Int64(string name, long value, InputEnumType enumType, bool isExactName = false)
             {
-                return new InputEnumTypeValue(name, value, InputPrimitiveType.Int64, "", $"{name} description", enumType) { IsExactName = isExactName , OriginalName = originalName ?? name };
+                return new InputEnumTypeValue(name, value, InputPrimitiveType.Int64, "", $"{name} description", enumType) { IsExactName = isExactName };
             }
 
-            public static InputEnumTypeValue Float32(string name, float value, InputEnumType enumType, bool isExactName = false, string? originalName = null)
+            public static InputEnumTypeValue Float32(string name, float value, InputEnumType enumType, bool isExactName = false)
             {
-                return new InputEnumTypeValue(name, value, InputPrimitiveType.Float32, "", $"{name} description", enumType) { IsExactName = isExactName , OriginalName = originalName ?? name };
+                return new InputEnumTypeValue(name, value, InputPrimitiveType.Float32, "", $"{name} description", enumType) { IsExactName = isExactName };
             }
 
-            public static InputEnumTypeValue Float64(string name, double value, InputEnumType enumType, bool isExactName = false, string? originalName = null)
+            public static InputEnumTypeValue Float64(string name, double value, InputEnumType enumType, bool isExactName = false)
             {
-                return new InputEnumTypeValue(name, value, InputPrimitiveType.Float64, "", $"{name} description", enumType) { IsExactName = isExactName , OriginalName = originalName ?? name };
+                return new InputEnumTypeValue(name, value, InputPrimitiveType.Float64, "", $"{name} description", enumType) { IsExactName = isExactName };
             }
 
-            public static InputEnumTypeValue String(string name, string value, InputEnumType enumType, bool isExactName = false, string? originalName = null)
+            public static InputEnumTypeValue String(string name, string value, InputEnumType enumType, bool isExactName = false)
             {
-                return new InputEnumTypeValue(name, value, InputPrimitiveType.String, "", $"{name} description", enumType) { IsExactName = isExactName , OriginalName = originalName ?? name };
+                return new InputEnumTypeValue(name, value, InputPrimitiveType.String, "", $"{name} description", enumType) { IsExactName = isExactName };
             }
         }
 
@@ -167,8 +167,7 @@ namespace Microsoft.TypeSpec.Generator.Tests.Common
             bool isExtensible = false,
             string clientNamespace = "Sample.Models",
             InputExternalTypeMetadata? external = null,
-            bool isExactName = false,
-            string? originalName = null)
+            bool isExactName = false)
         {
             var enumValues = new List<InputEnumTypeValue>();
             var enumType = Enum(
@@ -180,8 +179,7 @@ namespace Microsoft.TypeSpec.Generator.Tests.Common
                 isExtensible: isExtensible,
                 clientNamespace: clientNamespace,
                 external: external,
-                isExactName: isExactName,
-                originalName: originalName);
+                isExactName: isExactName);
 
             foreach (var (valueName, value) in values)
             {
@@ -312,8 +310,7 @@ namespace Microsoft.TypeSpec.Generator.Tests.Common
             bool isExtensible = false,
             string clientNamespace = "Sample.Models",
             InputExternalTypeMetadata? external = null,
-            bool isExactName = false,
-            string? originalName = null)
+            bool isExactName = false)
         {
             var enumType = new InputEnumType(
                 name,
@@ -329,7 +326,6 @@ namespace Microsoft.TypeSpec.Generator.Tests.Common
                 isExtensible)
             {
                 IsExactName = isExactName,
-                OriginalName = originalName ?? name,
             };
             if (external != null)
             {
@@ -353,8 +349,7 @@ namespace Microsoft.TypeSpec.Generator.Tests.Common
             string? doc = null,
             InputSerializationOptions? serializationOptions = null,
             ArrayKnownEncoding? encode = null,
-            bool isExactName = false,
-            string? originalName = null)
+            bool isExactName = false)
         {
             serializationOptions ??= new InputSerializationOptions();
             return new InputModelProperty(
@@ -369,12 +364,11 @@ namespace Microsoft.TypeSpec.Generator.Tests.Common
                 isHttpMetadata: isHttpMetadata,
                 access: null,
                 isDiscriminator: isDiscriminator,
-                serializedName: serializedName ?? wireName ?? (originalName ?? name).ToVariableName(),
+                serializedName: serializedName ?? wireName ?? name.ToVariableName(),
                 serializationOptions: serializationOptions,
                 encode: encode)
             {
                 IsExactName = isExactName,
-                OriginalName = originalName ?? name,
             };
         }
 
@@ -391,8 +385,7 @@ namespace Microsoft.TypeSpec.Generator.Tests.Common
             string? serializedName = null,
             InputConstant? defaultValue = null,
             InputParameterScope scope = InputParameterScope.Method,
-            string? collectionHeaderPrefix = null,
-            string? originalName = null)
+            string? collectionHeaderPrefix = null)
         {
             return new InputHeaderParameter(
                 name: name,
@@ -408,11 +401,8 @@ namespace Microsoft.TypeSpec.Generator.Tests.Common
                 collectionFormat: collectionFormat,
                 scope: scope,
                 arraySerializationDelimiter: null,
-                serializedName: serializedName ?? originalName ?? name,
-                collectionHeaderPrefix: collectionHeaderPrefix)
-            {
-                OriginalName = originalName ?? name
-            };
+                serializedName: serializedName ?? name,
+                collectionHeaderPrefix: collectionHeaderPrefix);
         }
 
         public static InputQueryParameter QueryParameter(
@@ -429,8 +419,7 @@ namespace Microsoft.TypeSpec.Generator.Tests.Common
             bool explode = false,
             InputParameterScope scope = InputParameterScope.Method,
             string? delimiter = null,
-            bool isExactName = false,
-            string? originalName = null)
+            bool isExactName = false)
         {
             return new InputQueryParameter(
                 name: name,
@@ -444,12 +433,11 @@ namespace Microsoft.TypeSpec.Generator.Tests.Common
                 scope: scope,
                 arraySerializationDelimiter: delimiter,
                 access: null,
-                serializedName: serializedName ?? originalName ?? name,
+                serializedName: serializedName ?? name,
                 collectionFormat: collectionFormat,
                 explode: explode)
             {
-                IsExactName = isExactName,
-                OriginalName = originalName ?? name
+                IsExactName = isExactName
             };
         }
 
@@ -467,8 +455,7 @@ namespace Microsoft.TypeSpec.Generator.Tests.Common
             bool explode = false,
             bool skipUrlEncoding = false,
             string? serverUrlTemplate = null,
-            InputParameterScope scope = InputParameterScope.Method,
-            string? originalName = null)
+            InputParameterScope scope = InputParameterScope.Method)
         {
             return new InputPathParameter(
                 name: name,
@@ -484,11 +471,8 @@ namespace Microsoft.TypeSpec.Generator.Tests.Common
                 skipUrlEncoding: skipUrlEncoding,
                 serverUrlTemplate: serverUrlTemplate,
                 access: null,
-                serializedName: serializedName ?? originalName ?? name,
-                allowReserved: allowReserved)
-            {
-                OriginalName = originalName ?? name
-            };
+                serializedName: serializedName ?? name,
+                allowReserved: allowReserved);
         }
 
         public static InputEndpointParameter EndpointParameter(
@@ -566,8 +550,7 @@ namespace Microsoft.TypeSpec.Generator.Tests.Common
             InputRequestLocation location = InputRequestLocation.Body,
             InputParameterScope scope = InputParameterScope.Method,
             string? paramAlias = null,
-            bool isExactName = false,
-            string? originalName = null)
+            bool isExactName = false)
         {
             return new InputMethodParameter(
                 name: name,
@@ -581,11 +564,10 @@ namespace Microsoft.TypeSpec.Generator.Tests.Common
                 scope: scope,
                 access: null,
                 location: location,
-                serializedName: serializedName ?? originalName ?? name)
+                serializedName: serializedName ?? name)
             {
                 ParamAlias = paramAlias,
-                IsExactName = isExactName,
-                OriginalName = originalName ?? name
+                IsExactName = isExactName
             };
         }
 
@@ -607,8 +589,7 @@ namespace Microsoft.TypeSpec.Generator.Tests.Common
             bool isDynamicModel = false,
             InputExternalTypeMetadata? external = null,
             InputSerializationOptions? serializationOptions = null,
-            bool isExactName = false,
-            string? originalName = null)
+            bool isExactName = false)
         {
             IEnumerable<InputModelProperty> propertiesList = properties ?? [Property("StringProperty", InputPrimitiveType.String)];
 
@@ -636,7 +617,6 @@ namespace Microsoft.TypeSpec.Generator.Tests.Common
                 isDynamicModel)
             {
                 IsExactName = isExactName,
-                OriginalName = originalName ?? name,
             };
             if (baseModel is not null)
             {
@@ -753,8 +733,7 @@ namespace Microsoft.TypeSpec.Generator.Tests.Common
             string? ns = null,
             bool isExactName = false,
             bool generateProtocolMethod = true,
-            bool bufferResponse = true,
-            string? originalName = null)
+            bool bufferResponse = true)
         {
             var operation = new InputOperation(
                 name,
@@ -775,8 +754,7 @@ namespace Microsoft.TypeSpec.Generator.Tests.Common
                 generateConvenienceMethod,
                 name,
                 ns);
-            operation.EmittedName = name;
-            operation.OriginalName = originalName ?? name;
+            operation.OriginalName = name;
             operation.IsExactName = isExactName;
             return operation;
         }

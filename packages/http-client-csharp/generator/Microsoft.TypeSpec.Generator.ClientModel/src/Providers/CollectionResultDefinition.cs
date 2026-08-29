@@ -188,10 +188,10 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
         {
             var operationName = Operation.Name.ToIdentifierName();
             // Check if there is another paging operation in the same client whose name would produce a collision.
-            // If so, use the emitted name to differentiate.
+            // If so, use the OriginalName to differentiate.
             if (HasPagingOperationNameCollision(operationName))
             {
-                operationName = (Operation.EmittedName ?? Operation.Name).ToIdentifierName();
+                operationName = (Operation.OriginalName ?? Operation.Name).ToIdentifierName();
             }
             return $"{Client.Type.Name}{operationName}{(IsAsync ? "Async" : "")}CollectionResult{(ItemModelType == null ? "" : "OfT")}";
         }
@@ -597,39 +597,12 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
 
         private ScopedApi<PipelineMessage> InvokeCreateRequestForNextLink(ValueExpression nextPageUri)
         {
-            var createNextLinkRequestMethod =
-                Client.RestClient.GetCreateNextLinkRequestMethod(Operation);
-            var arguments = createNextLinkRequestMethod.Signature.Parameters
-                .Skip(1)
-                .Select(parameter => GetRequestField(parameter).AsValueExpression);
+            var createNextLinkRequestMethodName =
+                Client.RestClient.GetCreateNextLinkRequestMethod(Operation).Signature.Name;
             return ClientField.Invoke(
-                    createNextLinkRequestMethod.Signature.Name,
-                    [nextPageUri, .. arguments])
+                    createNextLinkRequestMethodName,
+                    [nextPageUri, .. RequestFields])
                 .As<PipelineMessage>();
-        }
-
-        private FieldProvider GetRequestField(ParameterProvider parameter)
-        {
-            for (int i = 0; i < CreateRequestParameters.Count; i++)
-            {
-                var createRequestParameter = CreateRequestParameters[i];
-                if (parameter.InputParameter is { } inputParameter)
-                {
-                    if (ReferenceEquals(inputParameter, createRequestParameter.InputParameter) ||
-                        createRequestParameter.InputParameter is { } createRequestInputParameter &&
-                        string.Equals(inputParameter.OriginalName, createRequestInputParameter.OriginalName, StringComparison.Ordinal))
-                    {
-                        return RequestFields[i];
-                    }
-                }
-                else if (createRequestParameter.InputParameter is null &&
-                    string.Equals(parameter.Name, createRequestParameter.Name, StringComparison.Ordinal))
-                {
-                    return RequestFields[i];
-                }
-            }
-
-            throw new InvalidOperationException($"No initial request field matches next-link parameter '{parameter.Name}'.");
         }
 
         private ScopedApi<PipelineMessage> InvokeCreateRequestForContinuationToken(ValueExpression nextToken)

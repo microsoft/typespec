@@ -9,7 +9,6 @@ using Microsoft.CodeAnalysis.CSharp;
 using Microsoft.TypeSpec.Generator.EmitterRpc;
 using Microsoft.TypeSpec.Generator.Expressions;
 using Microsoft.TypeSpec.Generator.Input;
-using Microsoft.TypeSpec.Generator.Input.Extensions;
 using Microsoft.TypeSpec.Generator.Primitives;
 using Microsoft.TypeSpec.Generator.SourceInput;
 using Microsoft.TypeSpec.Generator.Statements;
@@ -25,7 +24,6 @@ namespace Microsoft.TypeSpec.Generator.Providers
         private Lazy<TypeProvider> _specView;
         private Lazy<string?> _declaringTypeName;
         private readonly InputType? _inputType;
-        private readonly Dictionary<string, PropertyProvider> _generatedPropertiesBySpecName = new(StringComparer.Ordinal);
 
         protected TypeProvider(InputType? inputType = default)
         {
@@ -51,32 +49,10 @@ namespace Microsoft.TypeSpec.Generator.Providers
                 _declaringTypeName.Value);
 
         private protected virtual TypeProvider? BuildLastContractView(string? generatedTypeName = null, string? generatedTypeNamespace = null)
-        {
-            var typeNamespace = generatedTypeNamespace ?? CustomCodeView?.Type.Namespace ?? BuildNamespace();
-            var typeName = generatedTypeName ?? CustomCodeView?.Name ?? BuildName();
-            var lastContractView = CodeModelGenerator.Instance.SourceInputModel.FindForTypeInLastContract(
-                typeNamespace,
-                typeName,
+            => CodeModelGenerator.Instance.SourceInputModel.FindForTypeInLastContract(
+                generatedTypeNamespace ?? CustomCodeView?.Type.Namespace ?? BuildNamespace(),
+                generatedTypeName ?? CustomCodeView?.Name ?? BuildName(),
                 _declaringTypeName.Value);
-            if (lastContractView is not null || _inputType is null || _inputType.IsExactName)
-            {
-                return lastContractView;
-            }
-
-            // The emitter normalizes type names and records the pre-normalization spec name, which is what
-            // a previously shipped contract would have used.
-            var originalName = _inputType.OriginalName.ToIdentifierName();
-            var normalizedName = _inputType.Name.ToIdentifierName();
-            if (normalizedName == originalName || typeName != normalizedName)
-            {
-                return null;
-            }
-
-            return CodeModelGenerator.Instance.SourceInputModel.FindForTypeInLastContract(
-                typeNamespace,
-                originalName,
-                _declaringTypeName.Value);
-        }
 
         private static string? GetDeclaringTypeName(TypeProvider? declaringTypeProvider)
         {
@@ -436,80 +412,30 @@ namespace Microsoft.TypeSpec.Generator.Providers
 
         protected virtual CSharpType[] GetTypeArguments() => [];
 
-        internal PropertyProvider[] FilterCustomizedProperties(
-            IEnumerable<PropertyProvider> specProperties,
-            IReadOnlyDictionary<string, PropertyProvider>? knownSpecProperties = null)
+        internal PropertyProvider[] FilterCustomizedProperties(IEnumerable<PropertyProvider> specProperties)
         {
-            var propertiesToFilter = specProperties as IReadOnlyList<PropertyProvider> ?? [.. specProperties];
-            var activeProperties = new HashSet<PropertyProvider>(
-                propertiesToFilter,
-                ReferenceEqualityComparer.Instance);
-
-            if (knownSpecProperties is not null)
-            {
-                // The supplied map came from the complete generated property set and already resolved exact-name
-                // precedence. Do not rebuild it from this potentially filtered subset.
-                foreach (var (name, property) in knownSpecProperties)
-                {
-                    _generatedPropertiesBySpecName[name] = property;
-                }
-            }
-            else
-            {
-                var exactNames = new HashSet<string>(StringComparer.Ordinal);
-                var normalizedNames = new List<(string Name, PropertyProvider Property)>();
-                foreach (var specProperty in propertiesToFilter)
-                {
-                    var inputProperty = specProperty.InputProperty;
-                    if (inputProperty is null)
-                    {
-                        continue;
-                    }
-
-                    if (inputProperty.IsExactName)
-                    {
-                        AddExactName(inputProperty.Name, specProperty);
-                        continue;
-                    }
-
-                    var specName = inputProperty.OriginalName;
-                    // The first exact identity in this pass replaces any stale alias, while a later exact
-                    // collision keeps the established first-wins behavior.
-                    AddExactName(specName, specProperty);
-                    AddExactName(specName.ToIdentifierName(), specProperty);
-                    normalizedNames.Add((inputProperty.Name.ToIdentifierName(), specProperty));
-                }
-
-                // Canonical names are aliases. Add them only after all exact names have been registered so an
-                // alias such as startTime -> StartsOn cannot shadow a separate startsOn property.
-                foreach (var (name, property) in normalizedNames)
-                {
-                    _generatedPropertiesBySpecName.TryAdd(name, property);
-                }
-
-                void AddExactName(string name, PropertyProvider property)
-                {
-                    if (exactNames.Add(name))
-                    {
-                        _generatedPropertiesBySpecName[name] = property;
-                    }
-                }
-            }
-
             var properties = new List<PropertyProvider>();
             var customProperties = new HashSet<string>();
 
             foreach (var customProperty in BuildAllCustomProperties())
             {
-                AddCustomName(customProperties, customProperty.Name, customProperty.OriginalName, _generatedPropertiesBySpecName, activeProperties);
+                customProperties.Add(customProperty.Name);
+                if (customProperty.OriginalName != null)
+                {
+                    customProperties.Add(customProperty.OriginalName);
+                }
             }
 
             foreach (var customField in BuildAllCustomFields())
             {
-                AddCustomName(customProperties, customField.Name, customField.OriginalName, _generatedPropertiesBySpecName, activeProperties);
+                customProperties.Add(customField.Name);
+                if (customField.OriginalName != null)
+                {
+                    customProperties.Add(customField.OriginalName);
+                }
             }
 
-            foreach (var property in propertiesToFilter)
+            foreach (var property in specProperties)
             {
                 if (ShouldGenerate(property, customProperties))
                 {
@@ -519,44 +445,6 @@ namespace Microsoft.TypeSpec.Generator.Providers
 
             return [.. properties];
         }
-
-        private static void AddCustomName(
-            HashSet<string> customNames,
-            string name,
-            string? originalName,
-            IReadOnlyDictionary<string, PropertyProvider> generatedPropertiesBySpecName,
-            IReadOnlySet<PropertyProvider> activeProperties)
-        {
-            if (originalName is null)
-            {
-                AddCustomName(customNames, name, generatedPropertiesBySpecName, activeProperties);
-                return;
-            }
-
-            customNames.Add(name);
-            AddCustomName(customNames, originalName, generatedPropertiesBySpecName, activeProperties);
-        }
-
-        private static void AddCustomName(
-            HashSet<string> customNames,
-            string name,
-            IReadOnlyDictionary<string, PropertyProvider> generatedPropertiesBySpecName,
-            IReadOnlySet<PropertyProvider> activeProperties)
-        {
-            customNames.Add(name);
-            if (generatedPropertiesBySpecName.TryGetValue(name, out var generatedProperty) &&
-                activeProperties.Contains(generatedProperty))
-            {
-                customNames.Add(generatedProperty.Name);
-            }
-        }
-
-        /// <summary>
-        /// Maps the spec names a customization can reference to the property the generator built from that spec
-        /// property, as captured by <see cref="FilterCustomizedProperties"/> before the properties replaced by
-        /// custom code were filtered out. Callers must build <see cref="Properties"/> before reading this map.
-        /// </summary>
-        internal IReadOnlyDictionary<string, PropertyProvider> GeneratedPropertiesBySpecName => _generatedPropertiesBySpecName;
 
         internal FieldProvider[] FilterCustomizedFields(IEnumerable<FieldProvider> specFields)
         {
@@ -737,35 +625,6 @@ namespace Microsoft.TypeSpec.Generator.Providers
         protected abstract string BuildName();
 
         /// <summary>
-        /// Returns the emitter-normalized <paramref name="normalizedName"/> unless the pre-normalization spec
-        /// name is already part of the current compilation or of the last shipped contract, in which case the
-        /// previously used spelling is kept.
-        /// </summary>
-        protected string NormalizeTypeNameForNewContract(string normalizedName, string originalName)
-        {
-            if (normalizedName == originalName)
-            {
-                return normalizedName;
-            }
-
-            var typeNamespace = BuildNamespace();
-            var currentType = CodeModelGenerator.Instance.SourceInputModel.FindForTypeInCurrentCompilation(
-                typeNamespace,
-                originalName,
-                _declaringTypeName.Value);
-            if (currentType is not null)
-            {
-                return originalName;
-            }
-
-            var lastContractType = CodeModelGenerator.Instance.SourceInputModel.FindForTypeInLastContract(
-                typeNamespace,
-                originalName,
-                _declaringTypeName.Value);
-            return lastContractType is null ? normalizedName : originalName;
-        }
-
-        /// <summary>
         /// Resets only the cached methods so they are rebuilt on next access.
         /// Use this instead of <see cref="Reset"/> when you need to force a method
         /// rebuild without discarding visitor-applied state on properties, fields,
@@ -784,7 +643,6 @@ namespace Microsoft.TypeSpec.Generator.Providers
         {
             _methods = null;
             _properties = null;
-            _generatedPropertiesBySpecName.Clear();
             _fields = null;
             ResetConstructors();
             _implements = null;
@@ -923,11 +781,9 @@ namespace Microsoft.TypeSpec.Generator.Providers
             _customCodeView = new(BuildCustomCodeView(name ?? Type.Name, @namespace ?? Type.Namespace));
             name = _customCodeView.Value?.Name ?? name ?? Type.Name;
             @namespace = _customCodeView.Value?.Type.Namespace ?? @namespace ?? Type.Namespace;
-            var lastContractView = BuildLastContractView(
+            _lastContractView = new(BuildLastContractView(
                 name,
-                @namespace);
-            _lastContractView = new(lastContractView);
-            name = _customCodeView.Value?.Name ?? lastContractView?.Name ?? name;
+                @namespace));
             // recalculate declaration modifiers and constructors
             _declarationModifiers = null;
             // constructors might change based on declaration modifier changes

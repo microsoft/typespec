@@ -67,39 +67,6 @@ namespace Microsoft.TypeSpec.Generator.Tests.Providers
             Assert.IsTrue(parameter.ToPublicInputParameter().Type.Equals(typeof(IEnumerable<string>)));
         }
 
-        [Test]
-        public void MethodParameterUsesTheEmittedName()
-        {
-            // Name normalization is applied by the emitter, so the generator uses the input name as-is.
-            MockHelpers.LoadMockGenerator();
-            var dateTime = new InputDateTimeType(
-                DateTimeKnownEncoding.Rfc3339,
-                "utcDateTime",
-                "TypeSpec.utcDateTime",
-                InputPrimitiveType.String);
-            var inputParameter = InputFactory.MethodParameter(
-                "startsOn",
-                dateTime,
-                isRequired: true,
-                serializedName: "startTime");
-
-            var parameter = CodeModelGenerator.Instance.TypeFactory.CreateParameter(inputParameter);
-
-            Assert.IsNotNull(parameter);
-            Assert.AreEqual("startsOn", parameter!.Name);
-            Assert.AreEqual("startTime", parameter.WireInfo.SerializedName);
-        }
-
-        [TestCase("IPv4Routes", "ipv4Routes")]
-        [TestCase("iPv4Routes", "iPv4Routes")]
-        [TestCase("regularName", "regularName")]
-        public void VariableNamePreservesExistingCamelCase(string name, string expected)
-        {
-            var parameter = new ParameterProvider(name, $"Description", typeof(string));
-
-            Assert.AreEqual(expected, parameter.AsVariable().Declaration.RequestedName);
-        }
-
         private static IEnumerable<InputType> ValueInputTypes()
         {
             yield return InputPrimitiveType.Int32;

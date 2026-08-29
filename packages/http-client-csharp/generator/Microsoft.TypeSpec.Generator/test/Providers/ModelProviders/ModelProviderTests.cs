@@ -1,8 +1,6 @@
 // Copyright (c) Microsoft Corporation. All rights reserved.
 // Licensed under the MIT License.
 
-// cspell:ignore DBOS IPDBOSIP
-
 using System;
 using System.Collections.Generic;
 using System.IO;
@@ -59,62 +57,6 @@ namespace Microsoft.TypeSpec.Generator.Tests.Providers.ModelProviders
             var prop1Field = baseModelProvider.Fields.FirstOrDefault(f => f.Name == "_prop1");
             Assert.NotNull(prop1Field);
             Assert.AreEqual(FieldModifiers.Private | FieldModifiers.Protected, prop1Field!.Modifiers);
-        }
-
-        [Test]
-        public async Task TestBuildName_BackCompatTakesPrecedenceOverAcronymNormalization()
-        {
-            var inputModel = InputFactory.Model(
-                "IPAddress",
-                originalName: "IpAddress",
-                properties:
-                [
-                    InputFactory.Property("DBName", InputPrimitiveType.String, originalName: "dbName"),
-                    InputFactory.Property("OSProfile", InputPrimitiveType.String, originalName: "osProfile"),
-                    InputFactory.Property("IPAddress", InputPrimitiveType.String, originalName: "IpAddress")
-                ]);
-            await MockHelpers.LoadMockGeneratorAsync(
-                inputModelTypes: [inputModel],
-                lastContractCompilation: async () => await Helpers.GetCompilationFromDirectoryAsync());
-
-            var modelProvider = CodeModelGenerator.Instance.TypeFactory.CreateModel(inputModel);
-
-            Assert.IsNotNull(modelProvider);
-            Assert.AreEqual("IpAddress", modelProvider!.Name);
-            Assert.IsNotNull(modelProvider.Properties.SingleOrDefault(p => p.Name == "DbName"));
-            Assert.IsNotNull(modelProvider.Properties.SingleOrDefault(p => p.Name == "OSProfile"));
-            Assert.IsNotNull(modelProvider.Properties.SingleOrDefault(p => p.Name == "IpAddressProperty"));
-        }
-
-        [Test]
-        public async Task TestBuildName_BackCompatTakesPrecedenceAfterNamespaceUpdate()
-        {
-            var inputModel = InputFactory.Model(
-                "IPAddress",
-                originalName: "IpAddress",
-                @namespace: "Sample",
-                properties:
-                [
-                    InputFactory.Property("DBName", InputPrimitiveType.String, originalName: "dbName"),
-                    InputFactory.Property("OSProfile", InputPrimitiveType.String, originalName: "osProfile"),
-                    InputFactory.Property("IPAddress", InputPrimitiveType.String, originalName: "IpAddress")
-                ]);
-            await MockHelpers.LoadMockGeneratorAsync(
-                inputModelTypes: [inputModel],
-                lastContractCompilation: async () => await Helpers.GetCompilationFromDirectoryAsync());
-
-            var modelProvider = CodeModelGenerator.Instance.TypeFactory.CreateModel(inputModel);
-
-            Assert.IsNotNull(modelProvider);
-            Assert.AreEqual("IPAddress", modelProvider!.Name);
-
-            modelProvider.Update(@namespace: "Sample.Models");
-
-            Assert.AreEqual("IpAddress", modelProvider.Name);
-            Assert.IsNotNull(modelProvider.LastContractView);
-            Assert.IsNotNull(modelProvider.Properties.SingleOrDefault(p => p.Name == "DbName"));
-            Assert.IsNotNull(modelProvider.Properties.SingleOrDefault(p => p.Name == "OSProfile"));
-            Assert.IsNotNull(modelProvider.Properties.SingleOrDefault(p => p.Name == "IpAddressProperty"));
         }
 
         // Validates that the property body's setter is correctly set based on the property type
@@ -1838,7 +1780,7 @@ namespace Microsoft.TypeSpec.Generator.Tests.Providers.ModelProviders
                 "ModelWithExternalProperty",
                 properties:
                 [
-                    InputFactory.Property("IPAddress", externalType, originalName: "ipAddress"),
+                    InputFactory.Property("ipAddress", externalType),
                     InputFactory.Property("name", InputPrimitiveType.String)
                 ]);
 
@@ -1850,7 +1792,7 @@ namespace Microsoft.TypeSpec.Generator.Tests.Providers.ModelProviders
             Assert.IsNotNull(modelProvider);
 
             // The property with external type should be resolved
-            var ipAddressProp = modelProvider!.Properties.FirstOrDefault(p => p.Name == "IPAddress");
+            var ipAddressProp = modelProvider!.Properties.FirstOrDefault(p => p.Name == "IpAddress");
             Assert.IsNotNull(ipAddressProp);
             Assert.IsNotNull(ipAddressProp!.Type.FrameworkType);
 
@@ -2662,32 +2604,6 @@ namespace Microsoft.TypeSpec.Generator.Tests.Providers.ModelProviders
         }
 
         [Test]
-        public async Task BackCompat_ConstructorAcronymParameterNameIsPreserved()
-        {
-            var inputModel = InputFactory.Model(
-                "MockInputModel",
-                usage: InputModelTypeUsage.Input,
-                properties:
-                [
-                    InputFactory.Property("ipv4Address", InputPrimitiveType.String, isRequired: true),
-                ]);
-
-            await MockHelpers.LoadMockGeneratorAsync(
-                inputModelTypes: [inputModel],
-                lastContractCompilation: async () => await Helpers.GetCompilationFromDirectoryAsync());
-
-            var modelProvider = CodeModelGenerator.Instance.OutputLibrary.TypeProviders
-                .OfType<ModelProvider>()
-                .Single(t => t.Name == "MockInputModel");
-
-            modelProvider.ProcessTypeForBackCompatibility();
-
-            var constructor = modelProvider.Constructors.Single(c =>
-                c.Signature.Modifiers.HasFlag(MethodSignatureModifiers.Public));
-            Assert.That(constructor.Signature.Parameters.Select(p => p.Name), Is.EqualTo(new[] { "iPv4Address" }));
-        }
-
-        [Test]
         public async Task BackCompat_ConstructorParameterCasingAndRotationRestoredBySignatureMatch()
         {
             var casingModel = InputFactory.Model(
@@ -2974,58 +2890,6 @@ namespace Microsoft.TypeSpec.Generator.Tests.Providers.ModelProviders
                 c.Signature.Modifiers.HasFlag(MethodSignatureModifiers.Public)
                 && c.Signature.Parameters.Count == 2);
             Assert.IsNull(twoParamPublicCtor, "The constructor should not be restored when a property was removed");
-
-            var writer = new TypeProviderWriter(modelProvider);
-            var file = writer.Write();
-            Assert.AreEqual(Helpers.GetExpectedFromFile(), file.Content);
-        }
-
-        [Test]
-        public void ConstructorParameterNormalizesDateTimeSuffix()
-        {
-            var dateTime = new InputDateTimeType(
-                DateTimeKnownEncoding.Rfc3339,
-                "utcDateTime",
-                "TypeSpec.utcDateTime",
-                InputPrimitiveType.String);
-            var inputModel = InputFactory.Model(
-                "DateTimeModel",
-                usage: InputModelTypeUsage.Input,
-                properties: [InputFactory.Property("StartsOn", dateTime, isRequired: true, originalName: "StartTime")]);
-
-            MockHelpers.LoadMockGenerator(inputModelTypes: [inputModel]);
-
-            var modelProvider = CodeModelGenerator.Instance.OutputLibrary.TypeProviders.OfType<ModelProvider>().Single();
-            var constructor = modelProvider.Constructors.Single(c => c.Signature.Modifiers.HasFlag(MethodSignatureModifiers.Public));
-            Assert.AreEqual("startsOn", constructor.Signature.Parameters.Single().Name);
-
-            var writer = new TypeProviderWriter(modelProvider);
-            var file = writer.Write();
-            Assert.AreEqual(Helpers.GetExpectedFromFile(), file.Content);
-        }
-
-        [Test]
-        public async Task BackCompat_ConstructorParameterPreservesDateTimeSuffix()
-        {
-            var dateTime = new InputDateTimeType(
-                DateTimeKnownEncoding.Rfc3339,
-                "utcDateTime",
-                "TypeSpec.utcDateTime",
-                InputPrimitiveType.String);
-            var inputModel = InputFactory.Model(
-                "DateTimeModel",
-                usage: InputModelTypeUsage.Input,
-                properties: [InputFactory.Property("StartsOn", dateTime, isRequired: true, originalName: "StartTime")]);
-
-            await MockHelpers.LoadMockGeneratorAsync(
-                inputModelTypes: [inputModel],
-                lastContractCompilation: async () => await Helpers.GetCompilationFromDirectoryAsync());
-
-            var modelProvider = CodeModelGenerator.Instance.OutputLibrary.TypeProviders.OfType<ModelProvider>().Single();
-            modelProvider.ProcessTypeForBackCompatibility();
-
-            var constructor = modelProvider.Constructors.Single(c => c.Signature.Modifiers.HasFlag(MethodSignatureModifiers.Public));
-            Assert.AreEqual("startTime", constructor.Signature.Parameters.Single().Name);
 
             var writer = new TypeProviderWriter(modelProvider);
             var file = writer.Write();

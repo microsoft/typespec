@@ -92,7 +92,6 @@ namespace Microsoft.TypeSpec.Generator.Input
 
             operation.Name = name ?? throw new JsonException("InputOperation must have name");
             operation.IsExactName = isExactName;
-            operation.EmittedName = name;
             operation.OriginalName = originalName ?? name;
             operation.ResourceName = resourceName;
             operation.Summary = summary;

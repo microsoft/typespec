@@ -80,21 +80,9 @@ namespace Microsoft.TypeSpec.Generator.Input
         public bool IsExactName { get; internal set; }
 
         /// <summary>
-        /// Gets the name of the operation as it was emitted, before any mutations applied by the generator.
+        /// Gets the original name of the operation as defined in the TypeSpec before any mutations.
         /// </summary>
-        public string? EmittedName { get; internal set; }
-
-        private string? _originalName;
-
-        /// <summary>
-        /// Gets the original name of the operation as defined in the spec, prior to any C# name
-        /// normalization applied by the emitter and to any mutation applied by the generator.
-        /// </summary>
-        public string OriginalName
-        {
-            get => _originalName ?? EmittedName ?? Name;
-            internal set => _originalName = value;
-        }
+        public string? OriginalName { get; internal set; }
         public string? ResourceName { get; internal set; }
         public string? Summary { get; internal set; }
         public string? Doc { get; internal set; }

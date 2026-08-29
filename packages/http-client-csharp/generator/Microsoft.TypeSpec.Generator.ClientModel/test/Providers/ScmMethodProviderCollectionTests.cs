@@ -612,54 +612,6 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers
         }
 
         [Test]
-        public async Task ConvenienceMethodForwardsNormalizedDateParameter()
-        {
-            var dateType = new InputDateTimeType(
-                DateTimeKnownEncoding.Rfc7231,
-                "utcDateTime",
-                "TypeSpec.utcDateTime",
-                InputPrimitiveType.String);
-            var operation = InputFactory.Operation(
-                "GetThing",
-                parameters: [InputFactory.HeaderParameter("requestOn", dateType, isRequired: true, originalName: "requestDate")],
-                responses: [InputFactory.OperationResponse([204])]);
-            var serviceMethod = InputFactory.BasicServiceMethod(
-                "GetThing",
-                operation,
-                parameters:
-                [
-                    InputFactory.MethodParameter(
-                        "requestOn",
-                        dateType,
-                        isRequired: true,
-                        location: InputRequestLocation.Header,
-                        originalName: "requestDate")
-                ]);
-            var inputClient = InputFactory.Client("TestClient", methods: [serviceMethod]);
-            await MockHelpers.LoadMockGeneratorAsync(clients: () => [inputClient]);
-
-            var client = ScmCodeModelGenerator.Instance.TypeFactory.CreateClient(inputClient);
-            Assert.IsNotNull(client);
-            var methodCollection = new ScmMethodProviderCollection(serviceMethod, client!);
-
-            // Both the protocol and convenience methods use the normalized name so that the
-            // convenience method still forwards the value to the protocol method.
-            foreach (var method in methodCollection)
-            {
-                Assert.IsTrue(method.Signature.Parameters.Any(p => p.Name == "requestOn"));
-            }
-
-            var asyncConvenienceMethod = methodCollection.Single(m =>
-                m.Signature.Name.EndsWith("Async")
-                && m.Signature.Parameters.Any(p => p.Type.Equals(typeof(CancellationToken))));
-            using var writer = new CodeWriter();
-            writer.WriteMethod(asyncConvenienceMethod);
-            Assert.AreEqual(
-                Helpers.GetExpectedFromFile(),
-                writer.ToString(false));
-        }
-
-        [Test]
         public void ListMethodWithNoPaging()
         {
             MockHelpers.LoadMockGenerator();

@@ -29,7 +29,7 @@ namespace Microsoft.TypeSpec.Generator.Providers
             return input.IsExtensible ? extensibleEnumProvider : fixedEnumProvider;
         }
 
-        protected EnumProvider(InputEnumType? input) : base(input)
+        protected EnumProvider(InputEnumType? input)
         {
             _inputType = input;
             _deprecated = input?.Deprecation;
@@ -53,15 +53,7 @@ namespace Microsoft.TypeSpec.Generator.Providers
 
         protected override string BuildRelativeFilePath() => Path.Combine("src", "Generated", "Models", $"{Name}.cs");
 
-        protected override string BuildName()
-        {
-            if (_inputType!.IsExactName)
-            {
-                return _inputType.Name;
-            }
-
-            return NormalizeTypeNameForNewContract(_inputType.Name.ToIdentifierName(), _inputType.OriginalName.ToIdentifierName());
-        }
+        protected override string BuildName() => _inputType!.IsExactName ? _inputType.Name : _inputType.Name.ToIdentifierName();
         protected override FormattableString BuildDescription() => DocHelpers.GetFormattableDescription(_inputType!.Summary, _inputType.Doc) ?? FormattableStringHelpers.Empty;
 
         protected override TypeProvider[] BuildSerializationProviders()
@@ -140,24 +132,6 @@ namespace Microsoft.TypeSpec.Generator.Providers
             }
 
             return backCompatName;
-        }
-
-        private protected static string GetGeneratedValueName(
-            InputEnumTypeValue inputValue,
-            IReadOnlyList<string> lastContractNames)
-        {
-            if (inputValue.IsExactName)
-            {
-                return inputValue.Name;
-            }
-
-            // The emitter normalizes the value name; keep the previously shipped spelling when it exists.
-            var normalizedName = inputValue.Name.ToIdentifierName();
-            var specName = inputValue.OriginalName.ToIdentifierName();
-            return normalizedName == specName ||
-                !lastContractNames.Contains(specName, StringComparer.Ordinal)
-                    ? normalizedName
-                    : specName;
         }
 
         protected override bool GetIsEnum() => true;
