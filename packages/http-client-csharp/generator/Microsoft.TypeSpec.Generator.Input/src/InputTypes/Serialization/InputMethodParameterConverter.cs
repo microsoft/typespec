@@ -64,6 +64,7 @@ namespace Microsoft.TypeSpec.Generator.Input
             string? location = null;
             string? paramAlias = null;
             bool isExactName = false;
+            string? originalName = null;
 
             while (reader.TokenType != JsonTokenType.EndObject)
             {
@@ -84,7 +85,8 @@ namespace Microsoft.TypeSpec.Generator.Input
                     || reader.TryReadString("location", ref location)
                     || reader.TryReadComplexType("decorators", options, ref decorators)
                     || reader.TryReadString("paramAlias", ref paramAlias)
-                    || reader.TryReadBoolean("isExactName", ref isExactName);
+                    || reader.TryReadBoolean("isExactName", ref isExactName)
+                    || reader.TryReadString("originalName", ref originalName);
 
                 if (!isKnownProperty)
                 {
@@ -105,6 +107,7 @@ namespace Microsoft.TypeSpec.Generator.Input
             parameter.DefaultValue = defaultValue;
             parameter.Scope = InputParameter.ParseScope(type, name, scope);;
             parameter.IsExactName = isExactName;
+            parameter.OriginalName = originalName ?? parameter.Name;
 
             if (location == null)
             {

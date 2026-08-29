@@ -60,7 +60,7 @@ namespace Microsoft.TypeSpec.Generator.Providers
                 return _inputType.Name;
             }
 
-            return NormalizeTypeNameForNewContract(_inputType.Name.ToIdentifierName());
+            return NormalizeTypeNameForNewContract(_inputType.Name.ToIdentifierName(), _inputType.OriginalName.ToIdentifierName());
         }
         protected override FormattableString BuildDescription() => DocHelpers.GetFormattableDescription(_inputType!.Summary, _inputType.Doc) ?? FormattableStringHelpers.Empty;
 
@@ -146,17 +146,18 @@ namespace Microsoft.TypeSpec.Generator.Providers
             InputEnumTypeValue inputValue,
             IReadOnlyList<string> lastContractNames)
         {
-            var generatedName = inputValue.IsExactName ? inputValue.Name : inputValue.Name.ToIdentifierName();
             if (inputValue.IsExactName)
             {
-                return generatedName;
+                return inputValue.Name;
             }
 
-            var normalizedName = generatedName.NormalizeCSharpUrlSuffix();
-            return normalizedName == generatedName ||
-                lastContractNames.Contains(generatedName, StringComparer.Ordinal)
-                    ? generatedName
-                    : normalizedName;
+            // The emitter normalizes the value name; keep the previously shipped spelling when it exists.
+            var normalizedName = inputValue.Name.ToIdentifierName();
+            var specName = inputValue.OriginalName.ToIdentifierName();
+            return normalizedName == specName ||
+                !lastContractNames.Contains(specName, StringComparer.Ordinal)
+                    ? normalizedName
+                    : specName;
         }
 
         protected override bool GetIsEnum() => true;

@@ -14,29 +14,29 @@ namespace Microsoft.TypeSpec.Generator.Tests.Common
     {
         public static class EnumMember
         {
-            public static InputEnumTypeValue Int32(string name, int value, InputEnumType enumType, bool isExactName = false)
+            public static InputEnumTypeValue Int32(string name, int value, InputEnumType enumType, bool isExactName = false, string? originalName = null)
             {
-                return new InputEnumTypeValue(name, value, InputPrimitiveType.Int32, "", $"{name} description", enumType) { IsExactName = isExactName };
+                return new InputEnumTypeValue(name, value, InputPrimitiveType.Int32, "", $"{name} description", enumType) { IsExactName = isExactName , OriginalName = originalName ?? name };
             }
 
-            public static InputEnumTypeValue Int64(string name, long value, InputEnumType enumType, bool isExactName = false)
+            public static InputEnumTypeValue Int64(string name, long value, InputEnumType enumType, bool isExactName = false, string? originalName = null)
             {
-                return new InputEnumTypeValue(name, value, InputPrimitiveType.Int64, "", $"{name} description", enumType) { IsExactName = isExactName };
+                return new InputEnumTypeValue(name, value, InputPrimitiveType.Int64, "", $"{name} description", enumType) { IsExactName = isExactName , OriginalName = originalName ?? name };
             }
 
-            public static InputEnumTypeValue Float32(string name, float value, InputEnumType enumType, bool isExactName = false)
+            public static InputEnumTypeValue Float32(string name, float value, InputEnumType enumType, bool isExactName = false, string? originalName = null)
             {
-                return new InputEnumTypeValue(name, value, InputPrimitiveType.Float32, "", $"{name} description", enumType) { IsExactName = isExactName };
+                return new InputEnumTypeValue(name, value, InputPrimitiveType.Float32, "", $"{name} description", enumType) { IsExactName = isExactName , OriginalName = originalName ?? name };
             }
 
-            public static InputEnumTypeValue Float64(string name, double value, InputEnumType enumType, bool isExactName = false)
+            public static InputEnumTypeValue Float64(string name, double value, InputEnumType enumType, bool isExactName = false, string? originalName = null)
             {
-                return new InputEnumTypeValue(name, value, InputPrimitiveType.Float64, "", $"{name} description", enumType) { IsExactName = isExactName };
+                return new InputEnumTypeValue(name, value, InputPrimitiveType.Float64, "", $"{name} description", enumType) { IsExactName = isExactName , OriginalName = originalName ?? name };
             }
 
-            public static InputEnumTypeValue String(string name, string value, InputEnumType enumType, bool isExactName = false)
+            public static InputEnumTypeValue String(string name, string value, InputEnumType enumType, bool isExactName = false, string? originalName = null)
             {
-                return new InputEnumTypeValue(name, value, InputPrimitiveType.String, "", $"{name} description", enumType) { IsExactName = isExactName };
+                return new InputEnumTypeValue(name, value, InputPrimitiveType.String, "", $"{name} description", enumType) { IsExactName = isExactName , OriginalName = originalName ?? name };
             }
         }
 
@@ -310,7 +310,8 @@ namespace Microsoft.TypeSpec.Generator.Tests.Common
             bool isExtensible = false,
             string clientNamespace = "Sample.Models",
             InputExternalTypeMetadata? external = null,
-            bool isExactName = false)
+            bool isExactName = false,
+            string? originalName = null)
         {
             var enumType = new InputEnumType(
                 name,
@@ -326,6 +327,7 @@ namespace Microsoft.TypeSpec.Generator.Tests.Common
                 isExtensible)
             {
                 IsExactName = isExactName,
+                OriginalName = originalName ?? name,
             };
             if (external != null)
             {
@@ -349,7 +351,8 @@ namespace Microsoft.TypeSpec.Generator.Tests.Common
             string? doc = null,
             InputSerializationOptions? serializationOptions = null,
             ArrayKnownEncoding? encode = null,
-            bool isExactName = false)
+            bool isExactName = false,
+            string? originalName = null)
         {
             serializationOptions ??= new InputSerializationOptions();
             return new InputModelProperty(
@@ -369,6 +372,7 @@ namespace Microsoft.TypeSpec.Generator.Tests.Common
                 encode: encode)
             {
                 IsExactName = isExactName,
+                OriginalName = originalName ?? name,
             };
         }
 
@@ -589,7 +593,8 @@ namespace Microsoft.TypeSpec.Generator.Tests.Common
             bool isDynamicModel = false,
             InputExternalTypeMetadata? external = null,
             InputSerializationOptions? serializationOptions = null,
-            bool isExactName = false)
+            bool isExactName = false,
+            string? originalName = null)
         {
             IEnumerable<InputModelProperty> propertiesList = properties ?? [Property("StringProperty", InputPrimitiveType.String)];
 
@@ -617,6 +622,7 @@ namespace Microsoft.TypeSpec.Generator.Tests.Common
                 isDynamicModel)
             {
                 IsExactName = isExactName,
+                OriginalName = originalName ?? name,
             };
             if (baseModel is not null)
             {
@@ -733,7 +739,8 @@ namespace Microsoft.TypeSpec.Generator.Tests.Common
             string? ns = null,
             bool isExactName = false,
             bool generateProtocolMethod = true,
-            bool bufferResponse = true)
+            bool bufferResponse = true,
+            string? originalName = null)
         {
             var operation = new InputOperation(
                 name,
@@ -754,7 +761,8 @@ namespace Microsoft.TypeSpec.Generator.Tests.Common
                 generateConvenienceMethod,
                 name,
                 ns);
-            operation.OriginalName = name;
+            operation.EmittedName = name;
+            operation.OriginalName = originalName ?? name;
             operation.IsExactName = isExactName;
             return operation;
         }

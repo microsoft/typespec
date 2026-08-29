@@ -78,6 +78,10 @@ import { parseHttpRequestMethod } from "../type/request-method.js";
 import { ResponseLocation } from "../type/response-location.js";
 import { getExternalDocs, getOperationId } from "./decorators.js";
 import { fromSdkHttpExamples } from "./example-converter.js";
+import {
+  normalizeOperationName,
+  normalizeParameterName,
+} from "./csharp-name-normalization.js";
 import { createDiagnostic } from "./lib.js";
 import { fromSdkType } from "./type-converter.js";
 import { getClientNamespaceString, isReadOnly } from "./utils.js";
@@ -254,6 +258,8 @@ export function fromSdkServiceMethodOperation(
       : undefined,
   };
 
+  normalizeOperationName(operation);
+
   sdkContext.__typeCache.updateSdkOperationReferences(method.operation, operation);
 
   return diagnostics.wrap(operation);
@@ -294,7 +300,7 @@ function createServiceMethod<T extends InputServiceMethod>(
 ): [T, readonly Diagnostic[]] {
   const diagnostics = createDiagnosticCollector();
 
-  return diagnostics.wrap({
+  const serviceMethod = {
     kind: method.kind,
     name: method.name,
     isExactName: method.isExactName,
@@ -316,7 +322,11 @@ function createServiceMethod<T extends InputServiceMethod>(
     generateConvenient: method.generateConvenient,
     generateProtocol: method.generateProtocol,
     crossLanguageDefinitionId: method.crossLanguageDefinitionId,
-  } as T);
+  } as T;
+
+  normalizeOperationName(serviceMethod);
+
+  return diagnostics.wrap(serviceMethod);
 }
 
 function getValueType(
@@ -564,6 +574,8 @@ function fromQueryParameter(
     isExactName: p.isExactName,
   };
 
+  normalizeParameterName(retVar);
+
   sdkContext.__typeCache.updateSdkOperationParameterReferences(p, retVar);
   return diagnostics.wrap(retVar);
 }
@@ -599,6 +611,8 @@ function fromPathParameter(
     methodParameterSegments: diagnostics.pipe(getMethodParameterSegments(sdkContext, p)),
     isExactName: p.isExactName,
   };
+
+  normalizeParameterName(retVar);
 
   sdkContext.__typeCache.updateSdkOperationParameterReferences(p, retVar);
   return diagnostics.wrap(retVar);
@@ -636,6 +650,8 @@ function fromHeaderParameter(
     isExactName: p.isExactName,
   };
 
+  normalizeParameterName(retVar);
+
   sdkContext.__typeCache.updateSdkOperationParameterReferences(p, retVar);
   return diagnostics.wrap(retVar);
 }
@@ -669,6 +685,8 @@ function fromBodyParameter(
     isExactName: p.isExactName,
     serializationOptions: p.serializationOptions,
   };
+
+  normalizeParameterName(retVar);
 
   sdkContext.__typeCache.updateSdkOperationParameterReferences(p, retVar);
   return diagnostics.wrap(retVar);
@@ -711,6 +729,8 @@ export function fromMethodParameter(
     paramAlias,
     isExactName: p.isExactName,
   };
+
+  normalizeParameterName(retVar);
 
   sdkContext.__typeCache.updateSdkMethodParameterReferences(p, retVar);
   return diagnostics.wrap(retVar);

@@ -219,44 +219,55 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
 
         private string GetOperationName(InputServiceMethod serviceMethod, bool normalizeUrlSuffix = true)
         {
+            var operation = serviceMethod.Operation;
             if (serviceMethod.IsExactName)
             {
-                return serviceMethod.Operation.Name;
+                return operation.Name;
             }
 
-            var operationName = (serviceMethod.Operation.OriginalName ?? serviceMethod.Operation.Name).ToIdentifierName();
-            // Replace List with Get as .NET convention is to use Get for list operations.
-            if (operationName == "List")
+            // The emitted name is used rather than the current name because the latter is mutated by
+            // CleanOperationNames, and the same input client can be projected more than once.
+            var normalizedName = ApplyListConvention((operation.EmittedName ?? operation.Name).ToIdentifierName());
+            var specName = ApplyListConvention(operation.OriginalName.ToIdentifierName());
+            if (specName == normalizedName)
             {
-                operationName = "GetAll";
-            }
-            else if (operationName.StartsWith("List", StringComparison.Ordinal) &&
-                operationName.Length > 4 && char.IsUpper(operationName[4]))
-            {
-                // If the operation name starts with List and has a capital letter after it, we replace List with Get.
-                operationName = $"Get{operationName.Substring(4)}";
+                return normalizedName;
             }
 
+            // Request builders use the stable input operation identity rather than the mutable public method
+            // name, so they always use the pre-normalization spelling.
             if (!normalizeUrlSuffix)
             {
-                return operationName;
-            }
-
-            var normalizedName = operationName.NormalizeCSharpUrlSuffix();
-            if (normalizedName == operationName)
-            {
-                return operationName;
+                return specName;
             }
 
             var lastContractMethods = BackCompatProvider.LastContractView?.Methods ?? LastContractView?.Methods;
             if (lastContractMethods?.Any(m =>
-                m.Signature.Name == operationName ||
-                m.Signature.Name == $"{operationName}Async") == true)
+                m.Signature.Name == specName ||
+                m.Signature.Name == $"{specName}Async") == true)
             {
-                return operationName;
+                return specName;
             }
 
             return normalizedName;
+        }
+
+        private static string ApplyListConvention(string operationName)
+        {
+            // Replace List with Get as .NET convention is to use Get for list operations.
+            if (operationName == "List")
+            {
+                return "GetAll";
+            }
+
+            if (operationName.StartsWith("List", StringComparison.Ordinal) &&
+                operationName.Length > 4 && char.IsUpper(operationName[4]))
+            {
+                // If the operation name starts with List and has a capital letter after it, we replace List with Get.
+                return $"Get{operationName.Substring(4)}";
+            }
+
+            return operationName;
         }
 
         internal string GetRestOperationName(InputServiceMethod serviceMethod)

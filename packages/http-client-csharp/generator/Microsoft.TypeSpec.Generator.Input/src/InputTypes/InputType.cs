@@ -20,6 +20,18 @@ namespace Microsoft.TypeSpec.Generator.Input
         }
 
         public string Name { get; internal set; }
+
+        private string? _originalName;
+
+        /// <summary>
+        /// Gets the original name specified in the spec, prior to any C# name normalization applied by the emitter.
+        /// </summary>
+        public string OriginalName
+        {
+            get => _originalName ?? Name;
+            internal set => _originalName = value;
+        }
+
         public IReadOnlyList<InputDecoratorInfo> Decorators { get; internal set; } = new List<InputDecoratorInfo>();
         public InputExternalTypeMetadata? External { get; internal set; }
         /// <summary>

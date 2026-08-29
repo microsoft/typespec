@@ -310,7 +310,7 @@ namespace Microsoft.TypeSpec.Generator.Providers
                 return _inputModel.Name;
             }
 
-            return NormalizeTypeNameForNewContract(_inputModel.Name.ToIdentifierName());
+            return NormalizeTypeNameForNewContract(_inputModel.Name.ToIdentifierName(), _inputModel.OriginalName.ToIdentifierName());
         }
 
         protected override TypeSignatureModifiers BuildDeclarationModifiers()

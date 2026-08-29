@@ -63,9 +63,11 @@ namespace Microsoft.TypeSpec.Generator.Providers
                 return lastContractView;
             }
 
-            var originalName = _inputType.Name.ToIdentifierName();
-            var normalizedOriginalName = originalName.NormalizeCSharpAcronyms();
-            if (normalizedOriginalName == originalName || typeName != normalizedOriginalName)
+            // The emitter normalizes type names and records the pre-normalization spec name, which is what
+            // a previously shipped contract would have used.
+            var originalName = _inputType.OriginalName.ToIdentifierName();
+            var normalizedName = _inputType.Name.ToIdentifierName();
+            if (normalizedName == originalName || typeName != normalizedName)
             {
                 return null;
             }
@@ -470,14 +472,12 @@ namespace Microsoft.TypeSpec.Generator.Providers
                         continue;
                     }
 
-                    var identifierName = inputProperty.Name.ToIdentifierName();
+                    var specName = inputProperty.OriginalName;
                     // The first exact identity in this pass replaces any stale alias, while a later exact
                     // collision keeps the established first-wins behavior.
-                    AddExactName(inputProperty.Name, specProperty);
-                    AddExactName(identifierName, specProperty);
-                    normalizedNames.Add((
-                        identifierName.NormalizeCSharpAcronyms(inputProperty.Type.IsDateTimeInputType()),
-                        specProperty));
+                    AddExactName(specName, specProperty);
+                    AddExactName(specName.ToIdentifierName(), specProperty);
+                    normalizedNames.Add((inputProperty.Name.ToIdentifierName(), specProperty));
                 }
 
                 // Canonical names are aliases. Add them only after all exact names have been registered so an
@@ -736,29 +736,33 @@ namespace Microsoft.TypeSpec.Generator.Providers
         protected abstract string BuildRelativeFilePath();
         protected abstract string BuildName();
 
-        protected string NormalizeTypeNameForNewContract(string name)
+        /// <summary>
+        /// Returns the emitter-normalized <paramref name="normalizedName"/> unless the pre-normalization spec
+        /// name is already part of the current compilation or of the last shipped contract, in which case the
+        /// previously used spelling is kept.
+        /// </summary>
+        protected string NormalizeTypeNameForNewContract(string normalizedName, string originalName)
         {
+            if (normalizedName == originalName)
+            {
+                return normalizedName;
+            }
+
             var typeNamespace = BuildNamespace();
             var currentType = CodeModelGenerator.Instance.SourceInputModel.FindForTypeInCurrentCompilation(
                 typeNamespace,
-                name,
+                originalName,
                 _declaringTypeName.Value);
             if (currentType is not null)
             {
-                return name;
-            }
-
-            var normalizedName = name.NormalizeCSharpAcronyms();
-            if (normalizedName == name)
-            {
-                return name;
+                return originalName;
             }
 
             var lastContractType = CodeModelGenerator.Instance.SourceInputModel.FindForTypeInLastContract(
                 typeNamespace,
-                name,
+                originalName,
                 _declaringTypeName.Value);
-            return lastContractType is null ? normalizedName : name;
+            return lastContractType is null ? normalizedName : originalName;
         }
 
         /// <summary>

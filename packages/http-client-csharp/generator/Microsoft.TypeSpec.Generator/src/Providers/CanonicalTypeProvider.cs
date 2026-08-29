@@ -34,14 +34,14 @@ namespace Microsoft.TypeSpec.Generator.Providers
             _exactSpecPropertyNames = [];
             foreach (var property in _specProperties)
             {
-                var name = property.IsExactName ? property.Name : property.Name.ToIdentifierName();
+                var name = property.IsExactName ? property.Name : property.OriginalName.ToIdentifierName();
                 _specPropertiesMap.TryAdd(name, property);
                 _exactSpecPropertyNames.Add(name);
             }
             foreach (var property in _specProperties.Where(p => !p.IsExactName))
             {
-                var name = property.Name.ToIdentifierName();
-                _specPropertiesMap.TryAdd(name.NormalizeCSharpAcronyms(property.Type.IsDateTimeInputType()), property);
+                // The emitter-normalized name is registered as an alias of the spec name.
+                _specPropertiesMap.TryAdd(property.Name.ToIdentifierName(), property);
             }
             _serializedNameMap = BuildSerializationNameMap();
             _renamedProperties = (_generatedTypeProvider.CustomCodeView?.Properties ?? [])

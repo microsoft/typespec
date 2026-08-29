@@ -43,6 +43,11 @@ import type {
   InputType,
   InputUnionType,
 } from "../type/input-type.js";
+import {
+  normalizeEnumValueName,
+  normalizePropertyName,
+  normalizeTypeName,
+} from "./csharp-name-normalization.js";
 import { createDiagnostic } from "./lib.js";
 import { isReadOnly } from "./utils.js";
 
@@ -224,6 +229,8 @@ function fromSdkModelType(
       modelType.crossLanguageDefinitionId === _httpFileCrossLanguageDefinitionId ? true : undefined,
   } as InputModelType;
 
+  normalizeTypeName(inputModelType);
+
   sdkContext.__typeCache.updateSdkTypeReferences(modelType, inputModelType);
 
   inputModelType.additionalProperties = modelType.additionalProperties
@@ -300,6 +307,8 @@ function fromSdkModelProperty(
     isExactName: sdkProperty.isExactName,
   } as InputModelProperty;
 
+  normalizePropertyName(property);
+
   if (sdkProperty.serializationOptions?.multipart?.isFilePart === true) {
     // Mark the part type as a file type. We must NOT mutate the type in place: `fromSdkType`
     // caches and shares a single instance per SDK type (see `__typeCache.types`), so a `model`
@@ -369,6 +378,8 @@ function createEnumType(
     external: fromSdkExternalTypeInfo(sdkType),
     isExactName: sdkType.isExactName,
   };
+
+  normalizeTypeName(inputEnumType);
 
   sdkContext.__typeCache.updateSdkTypeReferences(sdkType, inputEnumType);
 
@@ -499,7 +510,7 @@ function createEnumValueType(
   enumType: InputEnumType,
 ): [InputEnumValueType, readonly Diagnostic[]] {
   const diagnostics = createDiagnosticCollector();
-  return diagnostics.wrap({
+  const inputEnumValueType: InputEnumValueType = {
     kind: "enumvalue",
     name:
       sdkType.kind === "constant"
@@ -517,7 +528,11 @@ function createEnumValueType(
     doc: sdkType.doc,
     decorators: sdkType.decorators,
     isExactName: sdkType.isExactName,
-  });
+  };
+
+  normalizeEnumValueName(inputEnumValueType);
+
+  return diagnostics.wrap(inputEnumValueType);
 }
 
 function fromSdkDictionaryType(

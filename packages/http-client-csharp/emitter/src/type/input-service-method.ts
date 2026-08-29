@@ -17,6 +17,8 @@ interface InputServiceMethodBase {
   kind: string;
   name: string;
   isExactName?: boolean;
+  /** The original name from the spec, set only when the emitter normalized the name. */
+  originalName?: string;
   accessibility?: string;
   apiVersions: string[];
   doc?: string;

@@ -74,6 +74,7 @@ namespace Microsoft.TypeSpec.Generator.Input
             InputSerializationOptions? serializationOptions = null;
             InputExternalTypeMetadata? external = null;
             bool isExactName = false;
+            string? originalName = null;
             bool isFileType = false;
 
             // read all possible properties and throw away the unknown properties
@@ -97,6 +98,7 @@ namespace Microsoft.TypeSpec.Generator.Input
                     || reader.TryReadComplexType("serializationOptions", options, ref serializationOptions)
                     || reader.TryReadComplexType("external", options, ref external)
                     || reader.TryReadBoolean("isExactName", ref isExactName)
+                    || reader.TryReadString("originalName", ref originalName)
                     || reader.TryReadBoolean("isFileType", ref isFileType)
                     || reader.TryReadBoolean(nameof(InputModelType.ModelAsStruct), ref modelAsStruct); // TODO -- change this to fetch from the decorator list instead when the decorator is ready
 
@@ -139,6 +141,7 @@ namespace Microsoft.TypeSpec.Generator.Input
             }
             model.ModelAsStruct = modelAsStruct;
             model.IsExactName = isExactName;
+            model.OriginalName = originalName ?? model.Name;
             if (decorators != null)
             {
                 model.Decorators = decorators;

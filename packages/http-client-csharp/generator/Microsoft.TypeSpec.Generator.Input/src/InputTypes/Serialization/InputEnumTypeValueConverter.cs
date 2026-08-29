@@ -32,6 +32,7 @@ namespace Microsoft.TypeSpec.Generator.Input
             string? doc = null;
             IReadOnlyList<InputDecoratorInfo>? decorators = null;
             bool isExactName = false;
+            string? originalName = null;
             while (reader.TokenType != JsonTokenType.EndObject)
             {
                 var isKnownProperty = reader.TryReadReferenceId(ref id)
@@ -42,7 +43,8 @@ namespace Microsoft.TypeSpec.Generator.Input
                     || reader.TryReadString("summary", ref summary)
                     || reader.TryReadString("doc", ref doc)
                     || reader.TryReadComplexType("decorators", options, ref decorators)
-                    || reader.TryReadBoolean("isExactName", ref isExactName);
+                    || reader.TryReadBoolean("isExactName", ref isExactName)
+                    || reader.TryReadString("originalName", ref originalName);
 
                 if (!isKnownProperty)
                 {
@@ -60,23 +62,23 @@ namespace Microsoft.TypeSpec.Generator.Input
 
             InputEnumTypeValue enumValue = valueType.Kind switch
             {
-                InputPrimitiveTypeKind.String => new InputEnumTypeStringValue(name, rawValue.Value.GetString() ?? throw new JsonException(), valueType, summary, doc, enumType) { Decorators = decorators ?? [], IsExactName = isExactName },
+                InputPrimitiveTypeKind.String => new InputEnumTypeStringValue(name, rawValue.Value.GetString() ?? throw new JsonException(), valueType, summary, doc, enumType) { Decorators = decorators ?? [], IsExactName = isExactName, OriginalName = originalName ?? name },
                 InputPrimitiveTypeKind.Integer or
                 InputPrimitiveTypeKind.Int8 or
                 InputPrimitiveTypeKind.Int16 or
                 InputPrimitiveTypeKind.Int32 or
                 InputPrimitiveTypeKind.UInt8 or
-                InputPrimitiveTypeKind.UInt16 => new InputEnumTypeIntegerValue(name, rawValue.Value.GetInt32(), valueType, summary, doc, enumType) { Decorators = decorators ?? [], IsExactName = isExactName },
+                InputPrimitiveTypeKind.UInt16 => new InputEnumTypeIntegerValue(name, rawValue.Value.GetInt32(), valueType, summary, doc, enumType) { Decorators = decorators ?? [], IsExactName = isExactName, OriginalName = originalName ?? name },
                 InputPrimitiveTypeKind.Int64 or
                 InputPrimitiveTypeKind.UInt32 or
                 InputPrimitiveTypeKind.UInt64 or
-                InputPrimitiveTypeKind.SafeInt => new InputEnumTypeIntegerValue(name, rawValue.Value.GetInt64(), valueType, summary, doc, enumType) { Decorators = decorators ?? [], IsExactName = isExactName },
+                InputPrimitiveTypeKind.SafeInt => new InputEnumTypeIntegerValue(name, rawValue.Value.GetInt64(), valueType, summary, doc, enumType) { Decorators = decorators ?? [], IsExactName = isExactName, OriginalName = originalName ?? name },
                 InputPrimitiveTypeKind.Float or
                 InputPrimitiveTypeKind.Float32 or
                 InputPrimitiveTypeKind.Float64 or
                 InputPrimitiveTypeKind.Numeric or
                 InputPrimitiveTypeKind.Decimal or
-                InputPrimitiveTypeKind.Decimal128 => new InputEnumTypeFloatValue(name, rawValue.Value.GetSingle(), valueType, summary, doc, enumType) { Decorators = decorators ?? [], IsExactName = isExactName },
+                InputPrimitiveTypeKind.Decimal128 => new InputEnumTypeFloatValue(name, rawValue.Value.GetSingle(), valueType, summary, doc, enumType) { Decorators = decorators ?? [], IsExactName = isExactName, OriginalName = originalName ?? name },
                 _ => throw new JsonException($"Unsupported enum valueType kind '{valueType.Kind}' for enum '{enumType.Name}' value '{name}'.")
             };
             if (id != null)

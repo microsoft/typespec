@@ -62,6 +62,7 @@ namespace Microsoft.TypeSpec.Generator.Input
             IReadOnlyList<InputDecoratorInfo>? decorators = null;
             InputExternalTypeMetadata? external = null;
             bool isExactName = false;
+            string? originalName = null;
             while (reader.TokenType != JsonTokenType.EndObject)
             {
                 var isKnownProperty = reader.TryReadString("name", ref name)
@@ -77,7 +78,8 @@ namespace Microsoft.TypeSpec.Generator.Input
                     || reader.TryReadComplexType("values", options, ref values)
                     || reader.TryReadComplexType("decorators", options, ref decorators)
                     || reader.TryReadComplexType("external", options, ref external)
-                    || reader.TryReadBoolean("isExactName", ref isExactName);
+                    || reader.TryReadBoolean("isExactName", ref isExactName)
+                    || reader.TryReadString("originalName", ref originalName);
 
                 if (!isKnownProperty)
                 {
@@ -103,6 +105,7 @@ namespace Microsoft.TypeSpec.Generator.Input
             enumType.Decorators = decorators ?? [];
             enumType.External = external;
             enumType.IsExactName = isExactName;
+            enumType.OriginalName = originalName ?? enumType.Name;
 
             return enumType;
         }

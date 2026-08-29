@@ -2,80 +2,12 @@
 // Licensed under the MIT License.
 
 using System;
-using System.Diagnostics.CodeAnalysis;
-using System.Text;
 using Microsoft.TypeSpec.Generator.Input;
 
 namespace Microsoft.TypeSpec.Generator.Utilities
 {
     internal static class CSharpNameExtensions
     {
-        private static readonly (string Source, string Replacement)[] _acronymRenamingRules =
-        [
-            ("Ipv4", "IPv4"),
-            ("Ipv6", "IPv6"),
-            ("IpV4", "IPv4"),
-            ("IpV6", "IPv6"),
-            ("Ip", "IP"),
-            ("Db", "DB"),
-            ("Os", "OS")
-        ];
-
-        public static string NormalizeCSharpAcronyms(this string name, bool normalizeDateTimeSuffix = false)
-        {
-            name = normalizeDateTimeSuffix ? name.NormalizeDateTimeSuffix() : name;
-            StringBuilder? normalizedName = null;
-            int segmentStart = 0;
-            for (int index = 0; index < name.Length - 1; index++)
-            {
-                foreach (var rule in _acronymRenamingRules)
-                {
-                    if (!name.AsSpan(index).StartsWith(rule.Source, StringComparison.Ordinal))
-                    {
-                        continue;
-                    }
-
-                    int boundaryIndex = index + rule.Source.Length;
-                    if (boundaryIndex < name.Length && !char.IsUpper(name[boundaryIndex]))
-                    {
-                        continue;
-                    }
-
-                    normalizedName ??= new StringBuilder(name.Length);
-                    normalizedName.Append(name, segmentStart, index - segmentStart);
-                    normalizedName.Append(rule.Replacement);
-                    segmentStart = boundaryIndex;
-                    index = boundaryIndex - 1;
-                    break;
-                }
-            }
-
-            if (normalizedName is null)
-            {
-                return name;
-            }
-
-            normalizedName.Append(name, segmentStart, name.Length - segmentStart);
-            return normalizedName.ToString();
-        }
-
-        public static string NormalizeDateTimeSuffix(this string name)
-        {
-            var suffixLength = DateTimeNameRules.GetSuffixLength(name);
-            if (suffixLength == 0 ||
-                suffixLength == name.Length ||
-                DateTimeNameRules.HasExcludedComponent(name, suffixLength))
-            {
-                return name;
-            }
-
-            var prefix = DateTimeNameRules.ToVerbForm(name[..^suffixLength]);
-            var onSuffix = prefix.Length == 0 && char.IsLower(name[0])
-                ? DateTimeNameRules.LowercaseOnSuffix
-                : DateTimeNameRules.OnSuffix;
-            return prefix + onSuffix;
-        }
-
         /// <summary>
         /// Gets the normalized semantic stem of a date-time name by removing its recognized suffix.
         /// </summary>
@@ -92,18 +24,10 @@ namespace Microsoft.TypeSpec.Generator.Utilities
             private const string AtSuffix = "At";
             private const string DateSuffix = "Date";
             private const string DateTimeSuffix = "DateTime";
-            private const string FirstName = "First";
-            private const string FromName = "From";
-            private const string LastName = "Last";
-            internal const string LowercaseOnSuffix = "on";
-            internal const string OnSuffix = "On";
-            private const string PointInTimeName = "PointInTime";
-            private const string StatusTimeStampName = "StatusTimeStamp";
-            private const string StatusTimestampName = "StatusTimestamp";
+            private const string OnSuffix = "On";
             private const string TimeStampSuffix = "TimeStamp";
             private const string TimeSuffix = "Time";
             private const string TimestampSuffix = "Timestamp";
-            private const string ToName = "To";
 
             // Complete prefixes that read better as verbs when combined with the "On" suffix. Keep the
             // collection ordered so adding overlapping suffixes in the future cannot make compound matching
@@ -145,20 +69,6 @@ namespace Microsoft.TypeSpec.Generator.Utilities
                 }
 
                 return prefix;
-            }
-
-            internal static bool HasExcludedComponent(string name, int suffixLength)
-            {
-                // StatusTimestamp is a semantic compound. Keep the exclusion exact so names such as
-                // LastSyncTimestamp continue to normalize.
-                var prefix = name.AsSpan(0, name.Length - suffixLength);
-                return prefix.Equals(FirstName, StringComparison.OrdinalIgnoreCase) ||
-                    prefix.Equals(LastName, StringComparison.OrdinalIgnoreCase) ||
-                    name.StartsWith(FromName, StringComparison.OrdinalIgnoreCase) ||
-                    name.StartsWith(ToName, StringComparison.OrdinalIgnoreCase) ||
-                    name.EndsWith(PointInTimeName, StringComparison.OrdinalIgnoreCase) ||
-                    name.Equals(StatusTimestampName, StringComparison.OrdinalIgnoreCase) ||
-                    name.Equals(StatusTimeStampName, StringComparison.OrdinalIgnoreCase);
             }
 
             internal static int GetSuffixLength(string name)
@@ -204,10 +114,5 @@ namespace Microsoft.TypeSpec.Generator.Utilities
             InputNullableType nullableType => IsDateTimeInputType(nullableType.Type),
             _ => false
         };
-        [return: NotNullIfNotNull(nameof(name))]
-        public static string? NormalizeCSharpUrlSuffix(this string? name)
-            => !string.IsNullOrEmpty(name) && name.EndsWith("Url", StringComparison.Ordinal)
-                ? $"{name.Substring(0, name.Length - 3)}Uri"
-                : name;
     }
 }

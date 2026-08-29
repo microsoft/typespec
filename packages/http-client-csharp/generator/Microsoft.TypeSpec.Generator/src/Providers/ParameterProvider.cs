@@ -72,9 +72,7 @@ namespace Microsoft.TypeSpec.Generator.Providers
         public ParameterProvider(InputParameter inputParameter)
         {
             InputParameter = inputParameter;
-            Name = !inputParameter.IsExactName && inputParameter.Type.IsDateTimeInputType()
-                ? inputParameter.Name.NormalizeDateTimeSuffix()
-                : inputParameter.Name;
+            Name = inputParameter.Name;
             Description = DocHelpers.GetFormattableDescription(inputParameter.Summary, inputParameter.Doc) ?? FormattableStringHelpers.Empty;
             var type = CodeModelGenerator.Instance.TypeFactory.CreateCSharpType(inputParameter.Type);
             if (type is null)

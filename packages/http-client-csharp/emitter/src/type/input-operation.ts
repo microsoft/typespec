@@ -10,6 +10,8 @@ import type { RequestMethod } from "./request-method.js";
 export interface InputOperation {
   name: string;
   isExactName?: boolean;
+  /** The original name from the spec, set only when the emitter normalized the name. */
+  originalName?: string;
   resourceName?: string;
   summary?: string;
   deprecated?: string;

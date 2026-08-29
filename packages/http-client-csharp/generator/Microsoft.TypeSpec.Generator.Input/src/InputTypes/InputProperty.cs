@@ -22,6 +22,24 @@ namespace Microsoft.TypeSpec.Generator.Input
         }
 
         public string Name { get; internal set; }
+
+        private string? _originalName;
+
+        /// <summary>
+        /// Gets the original name specified in the spec, prior to any C# name normalization applied by
+        /// the emitter or to any mutation applied by the generator.
+        /// </summary>
+        public string OriginalName
+        {
+            get => _originalName ?? Name;
+            internal set => _originalName = value;
+        }
+
+        /// <summary>
+        /// Captures the current name as the original name if one has not been recorded yet.
+        /// </summary>
+        private protected void PreserveOriginalName() => _originalName ??= Name;
+
         public string? Summary { get; internal set; }
         public string? Doc { get; internal set; }
         public InputType Type { get; internal set; }

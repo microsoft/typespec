@@ -188,10 +188,10 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
         {
             var operationName = Operation.Name.ToIdentifierName();
             // Check if there is another paging operation in the same client whose name would produce a collision.
-            // If so, use the OriginalName to differentiate.
+            // If so, use the emitted name to differentiate.
             if (HasPagingOperationNameCollision(operationName))
             {
-                operationName = (Operation.OriginalName ?? Operation.Name).ToIdentifierName();
+                operationName = (Operation.EmittedName ?? Operation.Name).ToIdentifierName();
             }
             return $"{Client.Type.Name}{operationName}{(IsAsync ? "Async" : "")}CollectionResult{(ItemModelType == null ? "" : "OfT")}";
         }

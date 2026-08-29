@@ -66,6 +66,7 @@ namespace Microsoft.TypeSpec.Generator.Input
             IReadOnlyList<InputDecoratorInfo>? decorators = null;
             IReadOnlyList<InputMethodParameter>? methodParameterSegments = null;
             bool isExactName = false;
+            string? originalName = null;
 
             while (reader.TokenType != JsonTokenType.EndObject)
             {
@@ -86,7 +87,8 @@ namespace Microsoft.TypeSpec.Generator.Input
                     || reader.TryReadBoolean("isEndpoint", ref isEndpoint)
                     || reader.TryReadComplexType("decorators", options, ref decorators)
                     || reader.TryReadComplexType("methodParameterSegments", options, ref methodParameterSegments)
-                    || reader.TryReadBoolean("isExactName", ref isExactName);
+                    || reader.TryReadBoolean("isExactName", ref isExactName)
+                    || reader.TryReadString("originalName", ref originalName);
 
                 if (!isKnownProperty)
                 {
@@ -111,6 +113,7 @@ namespace Microsoft.TypeSpec.Generator.Input
             parameter.SkipUrlEncoding = skipUrlEncoding;
             parameter.MethodParameterSegments = methodParameterSegments;
             parameter.IsExactName = isExactName;
+            parameter.OriginalName = originalName ?? parameter.Name;
 
             return parameter;
         }

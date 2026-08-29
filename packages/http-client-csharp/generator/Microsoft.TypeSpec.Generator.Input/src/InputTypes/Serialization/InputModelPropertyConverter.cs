@@ -66,6 +66,7 @@ namespace Microsoft.TypeSpec.Generator.Input
             InputSerializationOptions? serializationOptions = null;
             string? encodeString = null;
             bool isExactName = false;
+            string? originalName = null;
 
             while (reader.TokenType != JsonTokenType.EndObject)
             {
@@ -86,7 +87,8 @@ namespace Microsoft.TypeSpec.Generator.Input
                     || reader.TryReadComplexType("defaultValue", options, ref defaultValue)
                     || reader.TryReadComplexType("serializationOptions", options, ref serializationOptions)
                     || reader.TryReadString("encode", ref encodeString)
-                    || reader.TryReadBoolean("isExactName", ref isExactName);
+                    || reader.TryReadBoolean("isExactName", ref isExactName)
+                    || reader.TryReadString("originalName", ref originalName);
 
                 if (!isKnownProperty)
                 {
@@ -110,6 +112,7 @@ namespace Microsoft.TypeSpec.Generator.Input
             property.DefaultValue = defaultValue;
             property.Encode = Enum.TryParse<ArrayKnownEncoding>(encodeString, ignoreCase: true, out var encode) ? encode : null;
             property.IsExactName = isExactName;
+            property.OriginalName = originalName ?? property.Name;
 
             return property;
         }
