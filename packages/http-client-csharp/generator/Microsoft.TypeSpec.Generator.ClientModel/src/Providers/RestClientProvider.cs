@@ -1706,10 +1706,6 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
             }
 
             /// <summary>
-            /// Registers an input model name if it is not already mapped. The first registration wins so that the
-            /// parameter's own name takes precedence over its original name and alias.
-            /// </summary>
-            /// <summary>
             /// Registers the input parameter instance the generated parameter was created from. Names can be
             /// ambiguous when two input parameters normalize onto the same name, so lookups that know which input
             /// parameter they are resolving use this map first.
@@ -1720,6 +1716,10 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
             public bool TryGetValue(InputParameter inputParameter, [NotNullWhen(true)] out ParameterProvider? parameter)
                 => _byInputParameter.TryGetValue(inputParameter, out parameter);
 
+            /// <summary>
+            /// Registers an input model name if it is not already mapped. The first registration wins so that the
+            /// parameter's own name takes precedence over its original name and alias.
+            /// </summary>
             public bool AddInputName(string name, ParameterProvider parameter)
             {
                 var added = _inputExact.TryAdd(name, parameter);
