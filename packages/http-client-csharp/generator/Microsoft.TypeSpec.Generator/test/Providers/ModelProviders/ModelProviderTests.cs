@@ -29,6 +29,24 @@ namespace Microsoft.TypeSpec.Generator.Tests.Providers.ModelProviders
         }
 
         [Test]
+        public void TestBuildDescription_SkipsDerivedClassesTextWhenNoPublicDerivedModels()
+        {
+            var discriminator = InputFactory.Property("kind", InputPrimitiveType.String, isRequired: true, isDiscriminator: true);
+            var internalDerived = InputFactory.Model("InternalDerived", access: "internal");
+            var baseModel = InputFactory.Model(
+                "BaseModel",
+                properties: [discriminator],
+                derivedModels: [internalDerived],
+                discriminatorProperty: discriminator);
+            MockHelpers.LoadMockGenerator(inputModelTypes: [baseModel, internalDerived]);
+
+            var provider = CodeModelGenerator.Instance.TypeFactory.CreateModel(baseModel);
+
+            Assert.IsNotNull(provider);
+            Assert.AreEqual("BaseModel description", provider!.Description.ToString());
+        }
+
+        [Test]
         public void TestBuildProperties_ValidateInheritHierarchyWithOverride()
         {
             var baseProp1 = InputFactory.Property("prop1", InputPrimitiveType.String);
