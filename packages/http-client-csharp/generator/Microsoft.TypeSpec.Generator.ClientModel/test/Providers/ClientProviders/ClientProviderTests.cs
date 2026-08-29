@@ -4716,12 +4716,14 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers.ClientProvide
             Assert.AreEqual("CreateSnakeCaseOpRequest", clientProvider.RestClient.GetCreateRequestMethod(inputOperation).Signature.Name);
         }
 
-        [TestCase("GetUrl", false, "GetUri")]
-        [TestCase("ListUrl", false, "GetUri")]
-        [TestCase("GetUrlValue", false, "GetUrlValue")]
-        [TestCase("GetUrls", false, "GetUrls")]
-        [TestCase("GetUrl", true, "GetUrl")]
-        public void TestOperationNameReplacesCompleteUrlSuffix(string operationName, bool isExactName, string expectedName)
+        // Url to Uri normalization happens in the emitter, so the operation names below are already
+        // normalized. The generator only applies the .NET List to Get convention on top of them.
+        [TestCase("GetUri", false, "GetUri")]
+        [TestCase("ListUri", false, "GetUri")]
+        [TestCase("List", false, "GetAll")]
+        [TestCase("Listing", false, "Listing")]
+        [TestCase("ListUri", true, "ListUri")]
+        public void TestOperationNameAppliesListConvention(string operationName, bool isExactName, string expectedName)
         {
             var inputOperation = InputFactory.Operation(operationName, isExactName: isExactName);
             var inputServiceMethod = InputFactory.BasicServiceMethod(operationName, inputOperation, isExactName: isExactName);
@@ -4736,8 +4738,8 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers.ClientProvide
         [Test]
         public async Task TestOperationNamePreservesUrlSuffixFromLastContract()
         {
-            var inputOperation = InputFactory.Operation("GetUrl");
-            var inputServiceMethod = InputFactory.BasicServiceMethod("GetUrl", inputOperation);
+            var inputOperation = InputFactory.Operation("GetUri", originalName: "GetUrl");
+            var inputServiceMethod = InputFactory.BasicServiceMethod("GetUri", inputOperation);
             var client = InputFactory.Client("TestClient", methods: [inputServiceMethod]);
             await MockHelpers.LoadMockGeneratorAsync(
                 clients: () => [client],
@@ -4752,8 +4754,8 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers.ClientProvide
         [Test]
         public async Task TestOperationNamePreservesUrlSuffixFromBackCompatProvider()
         {
-            var inputOperation = InputFactory.Operation("GetUrl");
-            var inputServiceMethod = InputFactory.BasicServiceMethod("GetUrl", inputOperation);
+            var inputOperation = InputFactory.Operation("GetUri", originalName: "GetUrl");
+            var inputServiceMethod = InputFactory.BasicServiceMethod("GetUri", inputOperation);
             var client = InputFactory.Client("TestClient", methods: [inputServiceMethod]);
             var generator = await MockHelpers.LoadMockGeneratorAsync(
                 clients: () => [client],
@@ -4773,8 +4775,8 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers.ClientProvide
         [Test]
         public async Task TestOperationNameFallsBackToClientLastContractWhenBackCompatProviderHasNoLastContract()
         {
-            var inputOperation = InputFactory.Operation("GetUrl");
-            var inputServiceMethod = InputFactory.BasicServiceMethod("GetUrl", inputOperation);
+            var inputOperation = InputFactory.Operation("GetUri", originalName: "GetUrl");
+            var inputServiceMethod = InputFactory.BasicServiceMethod("GetUri", inputOperation);
             var client = InputFactory.Client("TestClient", methods: [inputServiceMethod]);
             var generator = await MockHelpers.LoadMockGeneratorAsync(
                 clients: () => [client],
@@ -4795,8 +4797,8 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers.ClientProvide
         [Test]
         public async Task TestEarlierWrapperRequestExistsAfterLaterBackCompatProvider()
         {
-            var inputOperation = InputFactory.Operation("GetUrl");
-            var inputServiceMethod = InputFactory.BasicServiceMethod("GetUrl", inputOperation);
+            var inputOperation = InputFactory.Operation("GetUri", originalName: "GetUrl");
+            var inputServiceMethod = InputFactory.BasicServiceMethod("GetUri", inputOperation);
             var client = InputFactory.Client("TestClient", methods: [inputServiceMethod]);
             var generator = await MockHelpers.LoadMockGeneratorAsync(
                 clients: () => [client],

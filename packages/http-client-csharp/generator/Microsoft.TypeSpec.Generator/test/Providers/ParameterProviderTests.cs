@@ -67,25 +67,27 @@ namespace Microsoft.TypeSpec.Generator.Tests.Providers
             Assert.IsTrue(parameter.ToPublicInputParameter().Type.Equals(typeof(IEnumerable<string>)));
         }
 
-        [TestCaseSource(nameof(DateTimeParameterNameTestCases))]
-        public void MethodParameterNameNormalizesDateTimeSuffix(
-            string inputName,
-            InputType inputType,
-            bool isExactName,
-            string expectedName)
+        [Test]
+        public void MethodParameterUsesTheEmittedName()
         {
+            // Name normalization is applied by the emitter, so the generator uses the input name as-is.
             MockHelpers.LoadMockGenerator();
+            var dateTime = new InputDateTimeType(
+                DateTimeKnownEncoding.Rfc3339,
+                "utcDateTime",
+                "TypeSpec.utcDateTime",
+                InputPrimitiveType.String);
             var inputParameter = InputFactory.MethodParameter(
-                inputName,
-                inputType,
+                "startsOn",
+                dateTime,
                 isRequired: true,
-                isExactName: isExactName);
+                serializedName: "startTime");
 
             var parameter = CodeModelGenerator.Instance.TypeFactory.CreateParameter(inputParameter);
 
             Assert.IsNotNull(parameter);
-            Assert.AreEqual(expectedName, parameter!.Name);
-            Assert.AreEqual(inputName, parameter.WireInfo.SerializedName);
+            Assert.AreEqual("startsOn", parameter!.Name);
+            Assert.AreEqual("startTime", parameter.WireInfo.SerializedName);
         }
 
         [TestCase("IPv4Routes", "ipv4Routes")]
@@ -103,55 +105,6 @@ namespace Microsoft.TypeSpec.Generator.Tests.Providers
             yield return InputPrimitiveType.Int32;
             yield return InputPrimitiveType.Float32;
             yield return InputFactory.Int32Enum("inputEnum", [("foo", 1)], isExtensible: true);
-        }
-
-        private static IEnumerable<TestCaseData> DateTimeParameterNameTestCases()
-        {
-            var dateTime = new InputDateTimeType(
-                DateTimeKnownEncoding.Rfc3339,
-                "utcDateTime",
-                "TypeSpec.utcDateTime",
-                InputPrimitiveType.String);
-
-            var testCases = new (string Name, InputType Type, string NormalizedName)[]
-            {
-                ("startTime", dateTime, "startsOn"),
-                ("endTime", dateTime, "endsOn"),
-                ("startOn", dateTime, "startsOn"),
-                ("endOn", dateTime, "endsOn"),
-                ("firstTimestamp", dateTime, "firstTimestamp"),
-                ("lastTimestamp", dateTime, "lastTimestamp"),
-                ("createdAt", dateTime, "createdOn"),
-                ("timestamp", dateTime, "timestamp"),
-                ("date", InputPrimitiveType.PlainDate, "date"),
-                ("modifiedAt", dateTime.WithNullable(true), "modifiedOn"),
-                ("expirationDate", dateTime, "expiresOn"),
-                ("creationDate", dateTime, "createdOn"),
-                ("creationTime", dateTime, "createdOn"),
-                ("expirationDateTime", dateTime.WithNullable(true), "expiresOn"),
-                ("deletionDateTime", dateTime, "deletedOn"),
-                ("modificationTime", dateTime, "modifiedOn"),
-                ("modelExpirationDate", dateTime, "modelExpiresOn"),
-                ("accountExpirationDate", dateTime, "accountExpiresOn"),
-                ("accessTierChangeTime", dateTime, "accessTierChangedOn"),
-                ("statusTimestamp", dateTime.WithNullable(true), "statusTimestamp"),
-                ("lastSyncTimestamp", dateTime, "lastSyncOn"),
-                ("totalTime", dateTime, "totalTime"),
-                ("topicTimestamp", dateTime.WithNullable(true), "topicTimestamp"),
-                ("tokenExpirationDate", dateTime, "tokenExpirationDate"),
-                ("fromTime", dateTime, "fromTime"),
-                ("toDate", dateTime, "toDate"),
-                ("pointInTime", dateTime, "pointInTime"),
-                ("recoveryPointInTime", dateTime, "recoveryPointInTime"),
-                ("startTime", InputPrimitiveType.String, "startTime"),
-                ("creationTimestamp", InputPrimitiveType.String, "creationTimestamp")
-            };
-
-            foreach (var testCase in testCases)
-            {
-                yield return new TestCaseData(testCase.Name, testCase.Type, false, testCase.NormalizedName);
-                yield return new TestCaseData(testCase.Name, testCase.Type, true, testCase.Name);
-            }
         }
 
         private static IEnumerable<TestCaseData> NotEqualsTestCases()

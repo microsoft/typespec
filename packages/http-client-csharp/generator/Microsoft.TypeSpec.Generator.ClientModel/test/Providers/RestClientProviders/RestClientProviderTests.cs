@@ -83,20 +83,23 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers.RestClientPro
             InputParameter parameter = location switch
             {
                 InputRequestLocation.Header => InputFactory.HeaderParameter(
-                    "requestDate",
+                    "requestOn",
                     dateType,
                     isRequired: false,
-                    serializedName: "ocp-date"),
+                    serializedName: "ocp-date",
+                    originalName: "requestDate"),
                 InputRequestLocation.Query => InputFactory.QueryParameter(
-                    "requestDate",
+                    "requestOn",
                     dateType,
                     isRequired: false,
-                    serializedName: "request-date"),
+                    serializedName: "request-date",
+                    originalName: "requestDate"),
                 InputRequestLocation.Path => InputFactory.PathParameter(
-                    "requestDate",
+                    "requestOn",
                     dateType,
                     isRequired: true,
-                    serializedName: "request-date"),
+                    serializedName: "request-date",
+                    originalName: "requestDate"),
                 _ => throw new InvalidOperationException($"Unsupported test location: {location}")
             };
             var operation = InputFactory.Operation(
@@ -131,10 +134,11 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers.RestClientPro
                 parameters:
                 [
                     InputFactory.QueryParameter(
-                        "startTime",
+                        "startsOn",
                         dateType,
                         isRequired: true,
-                        serializedName: "start-time"),
+                        serializedName: "start-time",
+                        originalName: "startTime"),
                     InputFactory.QueryParameter(
                         "startsOn",
                         InputPrimitiveType.String,
@@ -175,10 +179,11 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers.RestClientPro
                         isRequired: true,
                         serializedName: "starts-on"),
                     InputFactory.QueryParameter(
-                        "startTime",
+                        "startsOn",
                         dateType,
                         isRequired: true,
-                        serializedName: "start-time")
+                        serializedName: "start-time",
+                        originalName: "startTime")
                 ],
                 responses: [InputFactory.OperationResponse([204])]);
             var inputClient = InputFactory.Client(
@@ -207,15 +212,17 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers.RestClientPro
                 parameters:
                 [
                     InputFactory.QueryParameter(
-                        "startTime",
+                        "startsOn",
                         dateType,
                         isRequired: true,
-                        serializedName: "start-time"),
+                        serializedName: "start-time",
+                        originalName: "startTime"),
                     InputFactory.QueryParameter(
-                        "StartTime",
+                        "StartsOn",
                         dateType,
                         isRequired: true,
-                        serializedName: "Start-Time")
+                        serializedName: "Start-Time",
+                        originalName: "StartTime")
                 ],
                 responses: [InputFactory.OperationResponse([204])]);
             var inputClient = InputFactory.Client(
@@ -1566,10 +1573,11 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers.RestClientPro
                 "TypeSpec.utcDateTime",
                 InputPrimitiveType.String);
             var startTime = InputFactory.QueryParameter(
-                "startTime",
+                "startsOn",
                 dateType,
                 isRequired: true,
-                serializedName: "start-time");
+                serializedName: "start-time",
+                originalName: "startTime");
             var startsOn = InputFactory.QueryParameter(
                 "startsOn",
                 InputPrimitiveType.String,
@@ -1602,10 +1610,11 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers.RestClientPro
                 parameters:
                 [
                     InputFactory.MethodParameter(
-                        "startTime",
+                        "startsOn",
                         dateType,
                         isRequired: true,
-                        location: InputRequestLocation.Query),
+                        location: InputRequestLocation.Query,
+                        originalName: "startTime"),
                     InputFactory.MethodParameter(
                         "startsOn",
                         InputPrimitiveType.String,
@@ -1633,10 +1642,11 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers.RestClientPro
                 "TypeSpec.utcDateTime",
                 InputPrimitiveType.String);
             var startTime = InputFactory.QueryParameter(
-                "startTime",
+                "startsOn",
                 dateType,
                 isRequired: true,
-                serializedName: "start-time");
+                serializedName: "start-time",
+                originalName: "startTime");
             var pascalStartTime = InputFactory.QueryParameter(
                 "StartTime",
                 InputPrimitiveType.String,
@@ -1670,10 +1680,11 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers.RestClientPro
                 parameters:
                 [
                     InputFactory.MethodParameter(
-                        "startTime",
+                        "startsOn",
                         dateType,
                         isRequired: true,
-                        location: InputRequestLocation.Query),
+                        location: InputRequestLocation.Query,
+                        originalName: "startTime"),
                     InputFactory.MethodParameter(
                         "StartTime",
                         InputPrimitiveType.String,
@@ -2123,10 +2134,11 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers.RestClientPro
                 parameters:
                 [
                     InputFactory.HeaderParameter(
-                        "requestDate",
+                        "requestOn",
                         dateType,
                         isRequired: isRequired,
-                        serializedName: "ocp-date")
+                        serializedName: "ocp-date",
+                        originalName: "requestDate")
                 ]);
             var serviceMethod = InputFactory.BasicServiceMethod(
                 "GetThing",
@@ -2134,11 +2146,12 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers.RestClientPro
                 parameters:
                 [
                     InputFactory.MethodParameter(
-                        "requestDate",
+                        "requestOn",
                         dateType,
                         isRequired: isRequired,
                         serializedName: "ocp-date",
-                        location: InputRequestLocation.Header)
+                        location: InputRequestLocation.Header,
+                        originalName: "requestDate")
                 ]);
             var client = InputFactory.Client("TestClient", methods: [serviceMethod]);
             var restClient = new ClientProvider(client).RestClient;
@@ -2157,10 +2170,11 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers.RestClientPro
                 parameters:
                 [
                     InputFactory.QueryParameter(
-                        "requestDate",
+                        "requestOn",
                         dateType,
                         isRequired: isRequired,
-                        serializedName: "request-date")
+                        serializedName: "request-date",
+                        originalName: "requestDate")
                 ]);
             var serviceMethod = InputFactory.BasicServiceMethod(
                 "GetThing",
@@ -2168,11 +2182,12 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers.RestClientPro
                 parameters:
                 [
                     InputFactory.MethodParameter(
-                        "requestDate",
+                        "requestOn",
                         dateType,
                         isRequired: isRequired,
                         serializedName: "request-date",
-                        location: InputRequestLocation.Query)
+                        location: InputRequestLocation.Query,
+                        originalName: "requestDate")
                 ]);
             var client = InputFactory.Client("TestClient", methods: [serviceMethod]);
             var restClient = new ClientProvider(client).RestClient;
@@ -2190,9 +2205,10 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers.RestClientPro
                 parameters:
                 [
                     InputFactory.PathParameter(
-                        "requestDate",
+                        "requestOn",
                         dateType,
-                        isRequired: true)
+                        isRequired: true,
+                        originalName: "requestDate")
                 ],
                 path: "/things/{requestDate}");
             var serviceMethod = InputFactory.BasicServiceMethod(
@@ -2201,10 +2217,11 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers.RestClientPro
                 parameters:
                 [
                     InputFactory.MethodParameter(
-                        "requestDate",
+                        "requestOn",
                         dateType,
                         isRequired: true,
-                        location: InputRequestLocation.Path)
+                        location: InputRequestLocation.Path,
+                        originalName: "requestDate")
                 ]);
             var client = InputFactory.Client("TestClient", methods: [serviceMethod]);
             var restClient = new ClientProvider(client).RestClient;

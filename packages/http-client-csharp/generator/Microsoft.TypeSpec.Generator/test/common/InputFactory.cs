@@ -167,7 +167,8 @@ namespace Microsoft.TypeSpec.Generator.Tests.Common
             bool isExtensible = false,
             string clientNamespace = "Sample.Models",
             InputExternalTypeMetadata? external = null,
-            bool isExactName = false)
+            bool isExactName = false,
+            string? originalName = null)
         {
             var enumValues = new List<InputEnumTypeValue>();
             var enumType = Enum(
@@ -179,7 +180,8 @@ namespace Microsoft.TypeSpec.Generator.Tests.Common
                 isExtensible: isExtensible,
                 clientNamespace: clientNamespace,
                 external: external,
-                isExactName: isExactName);
+                isExactName: isExactName,
+                originalName: originalName);
 
             foreach (var (valueName, value) in values)
             {
@@ -367,7 +369,7 @@ namespace Microsoft.TypeSpec.Generator.Tests.Common
                 isHttpMetadata: isHttpMetadata,
                 access: null,
                 isDiscriminator: isDiscriminator,
-                serializedName: serializedName ?? wireName ?? name.ToVariableName(),
+                serializedName: serializedName ?? wireName ?? (originalName ?? name).ToVariableName(),
                 serializationOptions: serializationOptions,
                 encode: encode)
             {
@@ -389,7 +391,8 @@ namespace Microsoft.TypeSpec.Generator.Tests.Common
             string? serializedName = null,
             InputConstant? defaultValue = null,
             InputParameterScope scope = InputParameterScope.Method,
-            string? collectionHeaderPrefix = null)
+            string? collectionHeaderPrefix = null,
+            string? originalName = null)
         {
             return new InputHeaderParameter(
                 name: name,
@@ -405,8 +408,11 @@ namespace Microsoft.TypeSpec.Generator.Tests.Common
                 collectionFormat: collectionFormat,
                 scope: scope,
                 arraySerializationDelimiter: null,
-                serializedName: serializedName ?? name,
-                collectionHeaderPrefix: collectionHeaderPrefix);
+                serializedName: serializedName ?? originalName ?? name,
+                collectionHeaderPrefix: collectionHeaderPrefix)
+            {
+                OriginalName = originalName ?? name
+            };
         }
 
         public static InputQueryParameter QueryParameter(
@@ -423,7 +429,8 @@ namespace Microsoft.TypeSpec.Generator.Tests.Common
             bool explode = false,
             InputParameterScope scope = InputParameterScope.Method,
             string? delimiter = null,
-            bool isExactName = false)
+            bool isExactName = false,
+            string? originalName = null)
         {
             return new InputQueryParameter(
                 name: name,
@@ -437,11 +444,12 @@ namespace Microsoft.TypeSpec.Generator.Tests.Common
                 scope: scope,
                 arraySerializationDelimiter: delimiter,
                 access: null,
-                serializedName: serializedName ?? name,
+                serializedName: serializedName ?? originalName ?? name,
                 collectionFormat: collectionFormat,
                 explode: explode)
             {
-                IsExactName = isExactName
+                IsExactName = isExactName,
+                OriginalName = originalName ?? name
             };
         }
 
@@ -459,7 +467,8 @@ namespace Microsoft.TypeSpec.Generator.Tests.Common
             bool explode = false,
             bool skipUrlEncoding = false,
             string? serverUrlTemplate = null,
-            InputParameterScope scope = InputParameterScope.Method)
+            InputParameterScope scope = InputParameterScope.Method,
+            string? originalName = null)
         {
             return new InputPathParameter(
                 name: name,
@@ -475,8 +484,11 @@ namespace Microsoft.TypeSpec.Generator.Tests.Common
                 skipUrlEncoding: skipUrlEncoding,
                 serverUrlTemplate: serverUrlTemplate,
                 access: null,
-                serializedName: serializedName ?? name,
-                allowReserved: allowReserved);
+                serializedName: serializedName ?? originalName ?? name,
+                allowReserved: allowReserved)
+            {
+                OriginalName = originalName ?? name
+            };
         }
 
         public static InputEndpointParameter EndpointParameter(
@@ -554,7 +566,8 @@ namespace Microsoft.TypeSpec.Generator.Tests.Common
             InputRequestLocation location = InputRequestLocation.Body,
             InputParameterScope scope = InputParameterScope.Method,
             string? paramAlias = null,
-            bool isExactName = false)
+            bool isExactName = false,
+            string? originalName = null)
         {
             return new InputMethodParameter(
                 name: name,
@@ -568,10 +581,11 @@ namespace Microsoft.TypeSpec.Generator.Tests.Common
                 scope: scope,
                 access: null,
                 location: location,
-                serializedName: serializedName ?? name)
+                serializedName: serializedName ?? originalName ?? name)
             {
                 ParamAlias = paramAlias,
-                IsExactName = isExactName
+                IsExactName = isExactName,
+                OriginalName = originalName ?? name
             };
         }
 

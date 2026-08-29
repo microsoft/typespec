@@ -61,37 +61,17 @@ namespace Microsoft.TypeSpec.Generator.Tests.Providers.ModelProviders
             Assert.AreEqual(FieldModifiers.Private | FieldModifiers.Protected, prop1Field!.Modifiers);
         }
 
-        [TestCase("IpAddress", false, "IPAddress")]
-        [TestCase("CosmosDbAccount", false, "CosmosDBAccount")]
-        [TestCase("OsProfile", false, "OSProfile")]
-        [TestCase("IpDbOsIpAddressDb", false, "IPDBOSIPAddressDB")]
-        [TestCase("IPAddressCosmosDBOSProfile", false, "IPAddressCosmosDBOSProfile")]
-        [TestCase("Ipv4AddressIpv6", false, "IPv4AddressIPv6")]
-        [TestCase("IpV4AddressIpV6", false, "IPv4AddressIPv6")]
-        [TestCase("Ipv4address", false, "Ipv4address")]
-        [TestCase("Ipv42Address", false, "Ipv42Address")]
-        [TestCase("IPV4AddressIPV6", false, "IPV4AddressIPV6")]
-        [TestCase("OsloIpsumOsmosisDbz", false, "OsloIpsumOsmosisDbz")]
-        [TestCase("IpAddress", true, "IpAddress")]
-        public void TestBuildName_NormalizesAcronymCasing(string inputName, bool isExactName, string expectedName)
-        {
-            var inputModel = InputFactory.Model(inputName, isExactName: isExactName);
-
-            var modelProvider = new ModelProvider(inputModel);
-
-            Assert.AreEqual(expectedName, modelProvider.Name);
-        }
-
         [Test]
         public async Task TestBuildName_BackCompatTakesPrecedenceOverAcronymNormalization()
         {
             var inputModel = InputFactory.Model(
-                "IpAddress",
+                "IPAddress",
+                originalName: "IpAddress",
                 properties:
                 [
-                    InputFactory.Property("dbName", InputPrimitiveType.String),
-                    InputFactory.Property("osProfile", InputPrimitiveType.String),
-                    InputFactory.Property("IpAddress", InputPrimitiveType.String)
+                    InputFactory.Property("DBName", InputPrimitiveType.String, originalName: "dbName"),
+                    InputFactory.Property("OSProfile", InputPrimitiveType.String, originalName: "osProfile"),
+                    InputFactory.Property("IPAddress", InputPrimitiveType.String, originalName: "IpAddress")
                 ]);
             await MockHelpers.LoadMockGeneratorAsync(
                 inputModelTypes: [inputModel],
@@ -110,13 +90,14 @@ namespace Microsoft.TypeSpec.Generator.Tests.Providers.ModelProviders
         public async Task TestBuildName_BackCompatTakesPrecedenceAfterNamespaceUpdate()
         {
             var inputModel = InputFactory.Model(
-                "IpAddress",
+                "IPAddress",
+                originalName: "IpAddress",
                 @namespace: "Sample",
                 properties:
                 [
-                    InputFactory.Property("dbName", InputPrimitiveType.String),
-                    InputFactory.Property("osProfile", InputPrimitiveType.String),
-                    InputFactory.Property("IpAddress", InputPrimitiveType.String)
+                    InputFactory.Property("DBName", InputPrimitiveType.String, originalName: "dbName"),
+                    InputFactory.Property("OSProfile", InputPrimitiveType.String, originalName: "osProfile"),
+                    InputFactory.Property("IPAddress", InputPrimitiveType.String, originalName: "IpAddress")
                 ]);
             await MockHelpers.LoadMockGeneratorAsync(
                 inputModelTypes: [inputModel],
@@ -1857,7 +1838,7 @@ namespace Microsoft.TypeSpec.Generator.Tests.Providers.ModelProviders
                 "ModelWithExternalProperty",
                 properties:
                 [
-                    InputFactory.Property("ipAddress", externalType),
+                    InputFactory.Property("IPAddress", externalType, originalName: "ipAddress"),
                     InputFactory.Property("name", InputPrimitiveType.String)
                 ]);
 
@@ -3010,7 +2991,7 @@ namespace Microsoft.TypeSpec.Generator.Tests.Providers.ModelProviders
             var inputModel = InputFactory.Model(
                 "DateTimeModel",
                 usage: InputModelTypeUsage.Input,
-                properties: [InputFactory.Property("StartTime", dateTime, isRequired: true)]);
+                properties: [InputFactory.Property("StartsOn", dateTime, isRequired: true, originalName: "StartTime")]);
 
             MockHelpers.LoadMockGenerator(inputModelTypes: [inputModel]);
 
@@ -3034,7 +3015,7 @@ namespace Microsoft.TypeSpec.Generator.Tests.Providers.ModelProviders
             var inputModel = InputFactory.Model(
                 "DateTimeModel",
                 usage: InputModelTypeUsage.Input,
-                properties: [InputFactory.Property("StartTime", dateTime, isRequired: true)]);
+                properties: [InputFactory.Property("StartsOn", dateTime, isRequired: true, originalName: "StartTime")]);
 
             await MockHelpers.LoadMockGeneratorAsync(
                 inputModelTypes: [inputModel],

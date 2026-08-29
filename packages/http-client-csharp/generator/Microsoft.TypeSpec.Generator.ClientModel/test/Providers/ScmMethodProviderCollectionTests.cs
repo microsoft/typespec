@@ -621,7 +621,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers
                 InputPrimitiveType.String);
             var operation = InputFactory.Operation(
                 "GetThing",
-                parameters: [InputFactory.HeaderParameter("requestDate", dateType, isRequired: true)],
+                parameters: [InputFactory.HeaderParameter("requestOn", dateType, isRequired: true, originalName: "requestDate")],
                 responses: [InputFactory.OperationResponse([204])]);
             var serviceMethod = InputFactory.BasicServiceMethod(
                 "GetThing",
@@ -629,10 +629,11 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers
                 parameters:
                 [
                     InputFactory.MethodParameter(
-                        "requestDate",
+                        "requestOn",
                         dateType,
                         isRequired: true,
-                        location: InputRequestLocation.Header)
+                        location: InputRequestLocation.Header,
+                        originalName: "requestDate")
                 ]);
             var inputClient = InputFactory.Client("TestClient", methods: [serviceMethod]);
             await MockHelpers.LoadMockGeneratorAsync(clients: () => [inputClient]);

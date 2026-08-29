@@ -163,7 +163,7 @@ namespace Microsoft.TypeSpec.Generator.Tests.Providers.ModelProviders
                 InputPrimitiveType.String);
             var inputModel = InputFactory.Model(
                 "mockInputModel",
-                properties: [InputFactory.Property("creationDate", dateTime, isRequired: true)]);
+                properties: [InputFactory.Property("CreatedOn", dateTime, isRequired: true, originalName: "creationDate")]);
 
             var mockGenerator = await MockHelpers.LoadMockGeneratorAsync(
                 inputModelTypes: [inputModel],
@@ -189,7 +189,7 @@ namespace Microsoft.TypeSpec.Generator.Tests.Providers.ModelProviders
                 InputPrimitiveType.String);
             var inputModel = InputFactory.Model(
                 "mockInputModel",
-                properties: [InputFactory.Property("creationDate", dateTime, isRequired: true)]);
+                properties: [InputFactory.Property("CreatedOn", dateTime, isRequired: true, originalName: "creationDate")]);
 
             var mockGenerator = await MockHelpers.LoadMockGeneratorAsync(
                 inputModelTypes: [inputModel],
@@ -215,7 +215,7 @@ namespace Microsoft.TypeSpec.Generator.Tests.Providers.ModelProviders
                 InputPrimitiveType.String);
             var inputModel = InputFactory.Model(
                 "mockInputModel",
-                properties: [InputFactory.Property("valueDate", dateTime)]);
+                properties: [InputFactory.Property("ValueOn", dateTime, originalName: "valueDate")]);
 
             var mockGenerator = await MockHelpers.LoadMockGeneratorAsync(
                 inputModelTypes: [inputModel],
@@ -239,7 +239,7 @@ namespace Microsoft.TypeSpec.Generator.Tests.Providers.ModelProviders
                 InputPrimitiveType.String);
             var inputModel = InputFactory.Model(
                 "mockInputModel",
-                properties: [InputFactory.Property("startTime", dateTime, isRequired: true)]);
+                properties: [InputFactory.Property("StartsOn", dateTime, isRequired: true, originalName: "startTime")]);
 
             var mockGenerator = await MockHelpers.LoadMockGeneratorAsync(
                 inputModelTypes: [inputModel],
@@ -269,7 +269,7 @@ namespace Microsoft.TypeSpec.Generator.Tests.Providers.ModelProviders
                 InputPrimitiveType.String);
             var inputModel = InputFactory.Model(
                 "mockInputModel",
-                properties: [InputFactory.Property("startTime", dateTime, isRequired: true)]);
+                properties: [InputFactory.Property("StartsOn", dateTime, isRequired: true, originalName: "startTime")]);
 
             var mockGenerator = await MockHelpers.LoadMockGeneratorAsync(
                 inputModelTypes: [inputModel],
@@ -310,8 +310,8 @@ namespace Microsoft.TypeSpec.Generator.Tests.Providers.ModelProviders
                 "mockInputModel",
                 properties:
                 [
-                    InputFactory.Property("startTime", dateTime, isRequired: true),
-                    InputFactory.Property("valueDate", dateTime, isRequired: true)
+                    InputFactory.Property("StartsOn", dateTime, isRequired: true, originalName: "startTime"),
+                    InputFactory.Property("ValueOn", dateTime, isRequired: true, originalName: "valueDate")
                 ]);
 
             var mockGenerator = await MockHelpers.LoadMockGeneratorAsync(
@@ -368,7 +368,7 @@ namespace Microsoft.TypeSpec.Generator.Tests.Providers.ModelProviders
                 properties:
                 [
                     InputFactory.Property("start_time", InputPrimitiveType.String, wireName: "firstWireName"),
-                    InputFactory.Property("startTime", dateTime, wireName: "secondWireName")
+                    InputFactory.Property("StartsOn", dateTime, wireName: "secondWireName", originalName: "startTime")
                 ]);
 
             var mockGenerator = await MockHelpers.LoadMockGeneratorAsync(
@@ -396,7 +396,7 @@ namespace Microsoft.TypeSpec.Generator.Tests.Providers.ModelProviders
                 InputPrimitiveType.String);
             var inputModel = InputFactory.Model(
                 "mockInputModel",
-                properties: [InputFactory.Property("startTime", dateTime, isRequired: true)]);
+                properties: [InputFactory.Property("StartsOn", dateTime, isRequired: true, originalName: "startTime")]);
 
             var mockGenerator = await MockHelpers.LoadMockGeneratorAsync(
                 inputModelTypes: [inputModel],
@@ -435,7 +435,7 @@ namespace Microsoft.TypeSpec.Generator.Tests.Providers.ModelProviders
                 "mockInputModel",
                 properties:
                 [
-                    InputFactory.Property("startTime", dateTime),
+                    InputFactory.Property("StartsOn", dateTime, originalName: "startTime"),
                     InputFactory.Property("other", InputPrimitiveType.String)
                 ]);
 
@@ -472,7 +472,7 @@ namespace Microsoft.TypeSpec.Generator.Tests.Providers.ModelProviders
                 "mockInputModel",
                 properties:
                 [
-                    InputFactory.Property("startTime", dateTime, isRequired: true),
+                    InputFactory.Property("StartsOn", dateTime, isRequired: true, originalName: "startTime"),
                     InputFactory.Property("foo", InputPrimitiveType.String, isRequired: true)
                 ]);
 
@@ -503,7 +503,7 @@ namespace Microsoft.TypeSpec.Generator.Tests.Providers.ModelProviders
                 InputPrimitiveType.String);
             var inputModel = InputFactory.Model(
                 "mockInputModel",
-                properties: [InputFactory.Property("startTime", dateTime, isRequired: true)]);
+                properties: [InputFactory.Property("StartsOn", dateTime, isRequired: true, originalName: "startTime")]);
 
             var mockGenerator = await MockHelpers.LoadMockGeneratorAsync(
                 inputModelTypes: [inputModel],
@@ -530,7 +530,7 @@ namespace Microsoft.TypeSpec.Generator.Tests.Providers.ModelProviders
                 "mockInputModel",
                 properties:
                 [
-                    InputFactory.Property("startTime", dateTime, wireName: "startTime", isRequired: true),
+                    InputFactory.Property("StartsOn", dateTime, wireName: "startTime", isRequired: true, originalName: "startTime"),
                     InputFactory.Property("startsOn", dateTime, wireName: "startsOn", isRequired: true)
                 ]);
 
@@ -563,7 +563,7 @@ namespace Microsoft.TypeSpec.Generator.Tests.Providers.ModelProviders
                 "mockInputModel",
                 properties:
                 [
-                    InputFactory.Property("startTime", dateTime, wireName: "startTime", isRequired: true),
+                    InputFactory.Property("StartsOn", dateTime, wireName: "startTime", isRequired: true, originalName: "startTime"),
                     InputFactory.Property("StartsOn", dateTime, wireName: "startsOn", isRequired: true, isExactName: true)
                 ]);
 
@@ -597,7 +597,7 @@ namespace Microsoft.TypeSpec.Generator.Tests.Providers.ModelProviders
                 "mockInputModel",
                 properties:
                 [
-                    InputFactory.Property("startTime", dateTime, isRequired: true),
+                    InputFactory.Property("StartsOn", dateTime, isRequired: true, originalName: "startTime"),
                     InputFactory.Property("foo", InputPrimitiveType.String, isRequired: true)
                 ]);
 
@@ -619,7 +619,7 @@ namespace Microsoft.TypeSpec.Generator.Tests.Providers.ModelProviders
         {
             var inputModel = InputFactory.Model(
                 "mockInputModel",
-                properties: [InputFactory.Property("ipFoo", InputPrimitiveType.String, isRequired: true)]);
+                properties: [InputFactory.Property("IPFoo", InputPrimitiveType.String, isRequired: true, originalName: "ipFoo")]);
 
             var mockGenerator = await MockHelpers.LoadMockGeneratorAsync(
                 inputModelTypes: [inputModel],

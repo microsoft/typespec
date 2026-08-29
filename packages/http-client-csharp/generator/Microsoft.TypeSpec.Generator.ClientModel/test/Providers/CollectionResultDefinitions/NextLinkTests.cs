@@ -54,10 +54,11 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers.CollectionRes
                 "TypeSpec.utcDateTime",
                 InputPrimitiveType.String);
             var startTime = InputFactory.QueryParameter(
-                "startTime",
+                "startsOn",
                 dateType,
                 isRequired: true,
-                serializedName: "start-time");
+                serializedName: "start-time",
+                originalName: "startTime");
             var startsOn = InputFactory.QueryParameter(
                 "startsOn",
                 InputPrimitiveType.String,
@@ -88,10 +89,11 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers.CollectionRes
                 parameters:
                 [
                     InputFactory.MethodParameter(
-                        "startTime",
+                        "startsOn",
                         dateType,
                         isRequired: true,
-                        location: InputRequestLocation.Query),
+                        location: InputRequestLocation.Query,
+                        originalName: "startTime"),
                     InputFactory.MethodParameter(
                         "startsOn",
                         InputPrimitiveType.String,

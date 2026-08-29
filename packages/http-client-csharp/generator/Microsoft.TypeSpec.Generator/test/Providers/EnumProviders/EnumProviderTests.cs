@@ -90,38 +90,13 @@ namespace Microsoft.TypeSpec.Generator.Tests.Providers
             Assert.IsNull(fields[1].InitializationValue);
         }
 
-        [TestCase(false, "CosmosDbOsIpKind", false, "CosmosDBOSIPKind")]
-        [TestCase(true, "IpDbOsValue", false, "IPDBOSValue")]
-        [TestCase(false, "Ipv4AddressIpv6", false, "IPv4AddressIPv6")]
-        [TestCase(true, "IpV4AddressIpV6", false, "IPv4AddressIPv6")]
-        [TestCase(false, "IPV4AddressIPV6", false, "IPV4AddressIPV6")]
-        [TestCase(true, "OsloIpsumOsmosisDbz", false, "OsloIpsumOsmosisDbz")]
-        [TestCase(false, "IpKind", true, "IpKind")]
-        public void BuildEnumType_NormalizesTypeAcronymCasing(
-            bool isExtensible,
-            string inputName,
-            bool isExactName,
-            string expectedName)
-        {
-            MockHelpers.LoadMockGenerator(createCSharpTypeCore: (inputType) => typeof(string));
-            var input = InputFactory.StringEnum(
-                inputName,
-                [("Value", "value")],
-                isExtensible: isExtensible,
-                isExactName: isExactName);
-
-            var enumType = EnumProvider.Create(input);
-
-            Assert.AreEqual(expectedName, enumType.Name);
-        }
-
         [Test]
         public async Task BuildEnumType_BackCompatTakesPrecedenceOverAcronymNormalization()
         {
             await MockHelpers.LoadMockGeneratorAsync(
                 createCSharpTypeCore: (inputType) => typeof(string),
                 lastContractCompilation: async () => await Helpers.GetCompilationFromDirectoryAsync());
-            var input = InputFactory.StringEnum("IpKind", [("Value", "value")]);
+            var input = InputFactory.StringEnum("IPKind", [("Value", "value")], originalName: "IpKind");
 
             var enumType = EnumProvider.Create(input);
 
@@ -135,9 +110,10 @@ namespace Microsoft.TypeSpec.Generator.Tests.Providers
                 createCSharpTypeCore: (inputType) => typeof(string),
                 lastContractCompilation: async () => await Helpers.GetCompilationFromDirectoryAsync());
             var input = InputFactory.StringEnum(
-                "IpKind",
+                "IPKind",
                 [("Value", "value")],
-                clientNamespace: "Sample");
+                clientNamespace: "Sample",
+                originalName: "IpKind");
 
             var enumType = EnumProvider.Create(input);
             Assert.AreEqual("IPKind", enumType.Name);
@@ -1267,32 +1243,6 @@ namespace Microsoft.TypeSpec.Generator.Tests.Providers
             Assert.AreEqual("snake_case_value", properties[1].Name);
         }
 
-        [TestCase(false, "CallbackUrl", false, "CallbackUri")]
-        [TestCase(true, "CallbackUrl", false, "CallbackUri")]
-        [TestCase(false, "CallbackUrlValue", false, "CallbackUrlValue")]
-        [TestCase(true, "CallbackUrls", false, "CallbackUrls")]
-        [TestCase(false, "CallbackUrl", true, "CallbackUrl")]
-        [TestCase(true, "CallbackUrl", true, "CallbackUrl")]
-        public void BuildEnumType_ReplacesCompleteUrlSuffixOnValues(
-            bool isExtensible,
-            string valueName,
-            bool isExactName,
-            string expectedName)
-        {
-            MockHelpers.LoadMockGenerator(createCSharpTypeCore: (inputType) => typeof(string));
-            var enumValues = new List<InputEnumTypeValue>();
-            var enumType = InputFactory.Enum(
-                "mockInputEnum",
-                InputPrimitiveType.String,
-                enumValues,
-                isExtensible: isExtensible);
-            enumValues.Add(InputFactory.EnumMember.String(valueName, "value", enumType, isExactName: isExactName));
-
-            var enumProvider = EnumProvider.Create(enumType);
-
-            Assert.AreEqual(expectedName, enumProvider.EnumValues.Single().Name);
-        }
-
         [TestCase(false, "Fixed")]
         [TestCase(true, "Extensible")]
         public async Task BuildEnumType_PreservesUrlSuffixFromLastContract(bool isExtensible, string testData)
@@ -1300,10 +1250,13 @@ namespace Microsoft.TypeSpec.Generator.Tests.Providers
             await MockHelpers.LoadMockGeneratorAsync(
                 createCSharpTypeCore: (inputType) => typeof(string),
                 lastContractCompilation: async () => await Helpers.GetCompilationFromDirectoryAsync(parameters: testData));
-            var input = InputFactory.StringEnum(
+            var enumValues = new List<InputEnumTypeValue>();
+            var input = InputFactory.Enum(
                 "mockInputEnum",
-                [("CallbackUrl", "value")],
+                InputPrimitiveType.String,
+                enumValues,
                 isExtensible: isExtensible);
+            enumValues.Add(InputFactory.EnumMember.String("CallbackUri", "value", input, originalName: "CallbackUrl"));
 
             var enumProvider = EnumProvider.Create(input);
 

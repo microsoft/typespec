@@ -106,50 +106,6 @@ namespace Microsoft.TypeSpec.Generator.Tests.Providers
             Assert.AreEqual("my_model", modelProvider.Name);
         }
 
-        [TestCase("IpAddress", false, "IPAddress")]
-        [TestCase("CosmosDbAccount", false, "CosmosDBAccount")]
-        [TestCase("OsProfile", false, "OSProfile")]
-        [TestCase("IpDbOsIpAddressDb", false, "IPDBOSIPAddressDB")]
-        [TestCase("IPAddressCosmosDBOSProfile", false, "IPAddressCosmosDBOSProfile")]
-        [TestCase("Ipv4AddressIpv6", false, "IPv4AddressIPv6")]
-        [TestCase("IpV4AddressIpV6", false, "IPv4AddressIPv6")]
-        [TestCase("IPV4AddressIPV6", false, "IPV4AddressIPV6")]
-        [TestCase("OsloIpsumOsmosisDbz", false, "OsloIpsumOsmosisDbz")]
-        [TestCase("IpAddress", true, "IpAddress")]
-        public void TestPropertyNameNormalizesAcronymCasing(string inputName, bool isExactName, string expectedName)
-        {
-            var inputProperty = InputFactory.Property(
-                inputName,
-                InputPrimitiveType.String,
-                isRequired: true,
-                isExactName: isExactName);
-            InputFactory.Model("TestModel", properties: [inputProperty]);
-
-            var property = new PropertyProvider(inputProperty, new TestTypeProvider());
-
-            Assert.AreEqual(expectedName, property.Name);
-        }
-
-        [TestCaseSource(nameof(DateTimePropertyNameTestCases))]
-        public void TestPropertyNameNormalizesDateTimeSuffix(
-            string inputName,
-            InputType inputType,
-            bool isExactName,
-            string expectedName)
-        {
-            var inputProperty = InputFactory.Property(
-                inputName,
-                inputType,
-                isRequired: true,
-                isExactName: isExactName);
-            InputFactory.Model("TestModel", properties: [inputProperty]);
-
-            var property = new PropertyProvider(inputProperty, new TestTypeProvider());
-
-            Assert.AreEqual(expectedName, property.Name);
-            Assert.AreEqual(inputName.ToVariableName(), property.WireInfo?.SerializedName);
-        }
-
         [TestCase("Ipv4", false, "ipv4")]
         [TestCase("Ipv6", false, "ipv6")]
         [TestCase("IpAddress", false, "ipAddress")]
@@ -184,13 +140,14 @@ namespace Microsoft.TypeSpec.Generator.Tests.Providers
                 properties:
                 [
                     InputFactory.Property(
-                        "StartTime",
+                        "StartsOn",
                         new InputDateTimeType(
                     DateTimeKnownEncoding.Rfc3339,
                     "utcDateTime",
                     "TypeSpec.utcDateTime",
                     InputPrimitiveType.String),
-                        isRequired: true)
+                        isRequired: true,
+                        originalName: "StartTime")
                 ]);
 
             var modelProvider = new ModelProvider(inputModel);
@@ -210,13 +167,14 @@ namespace Microsoft.TypeSpec.Generator.Tests.Providers
                 properties:
                 [
                     InputFactory.Property(
-                        "StartTime",
+                        "StartsOn",
                         new InputDateTimeType(
                             DateTimeKnownEncoding.Rfc3339,
                             "utcDateTime",
                             "TypeSpec.utcDateTime",
                             InputPrimitiveType.String),
-                        isRequired: true)
+                        isRequired: true,
+                        originalName: "StartTime")
                 ]);
 
             var modelProvider = new ModelProvider(inputModel);
@@ -240,19 +198,19 @@ namespace Microsoft.TypeSpec.Generator.Tests.Providers
                 @namespace: "Test",
                 properties:
                 [
-                    InputFactory.Property("EndTime", dateTime, isRequired: true),
-                    InputFactory.Property("ExpirationTime", dateTime, isRequired: true),
-                    InputFactory.Property("AccessTierChangeTime", dateTime, isRequired: true),
-                    InputFactory.Property("LastSyncTimestamp", dateTime, isRequired: true)
+                    InputFactory.Property("EndsOn", dateTime, isRequired: true, originalName: "EndTime"),
+                    InputFactory.Property("ExpiresOn", dateTime, isRequired: true, originalName: "ExpirationTime"),
+                    InputFactory.Property("AccessTierChangedOn", dateTime, isRequired: true, originalName: "AccessTierChangeTime"),
+                    InputFactory.Property("LastSyncOn", dateTime, isRequired: true, originalName: "LastSyncTimestamp")
                 ]);
             var canonicalModel = InputFactory.Model(
                 "CanonicalModel",
                 @namespace: "Test",
-                properties: [InputFactory.Property("StartTime", dateTime, isRequired: true)]);
+                properties: [InputFactory.Property("StartsOn", dateTime, isRequired: true, originalName: "StartTime")]);
             var internalLegacyModel = InputFactory.Model(
                 "InternalLegacyModel",
                 @namespace: "Test",
-                properties: [InputFactory.Property("StartTime", dateTime, isRequired: true)]);
+                properties: [InputFactory.Property("StartsOn", dateTime, isRequired: true, originalName: "StartTime")]);
 
             var historicalProvider = new ModelProvider(historicalModel);
 
@@ -279,8 +237,8 @@ namespace Microsoft.TypeSpec.Generator.Tests.Providers
                 "utcDateTime",
                 "TypeSpec.utcDateTime",
                 InputPrimitiveType.String);
-            var timestampProperty = InputFactory.Property("lastKeyRotationTimestamp", dateTime, isRequired: true);
-            var renamedProperty = InputFactory.Property("startTime", dateTime, isRequired: true);
+            var timestampProperty = InputFactory.Property("LastKeyRotationOn", dateTime, isRequired: true, originalName: "lastKeyRotationTimestamp");
+            var renamedProperty = InputFactory.Property("StartsOn", dateTime, isRequired: true, originalName: "startTime");
             InputFactory.Model(
                 "DiskEncryptionSetProperties",
                 @namespace: "Test",
@@ -332,7 +290,7 @@ namespace Microsoft.TypeSpec.Generator.Tests.Providers
                 properties:
                 [
                     InputFactory.Property("startOn", InputPrimitiveType.String, isRequired: true),
-                    InputFactory.Property("startTime", dateTime, isRequired: true)
+                    InputFactory.Property("StartsOn", dateTime, isRequired: true, originalName: "startTime")
                 ]);
 
             var modelProvider = new ModelProvider(inputModel);
@@ -381,13 +339,14 @@ namespace Microsoft.TypeSpec.Generator.Tests.Providers
                 properties:
                 [
                     InputFactory.Property(
-                        "startTime",
+                        "StartsOn",
                         new InputDateTimeType(
                             DateTimeKnownEncoding.Rfc3339,
                             "utcDateTime",
                             "TypeSpec.utcDateTime",
                             InputPrimitiveType.String),
-                        isRequired: true)
+                        isRequired: true,
+                        originalName: "startTime")
                 ]);
 
             Assert.AreEqual("StartsOn", new ModelProvider(inputModel).Properties.Single().Name);
@@ -406,13 +365,14 @@ namespace Microsoft.TypeSpec.Generator.Tests.Providers
                 properties:
                 [
                     InputFactory.Property(
-                        "startTime",
+                        "StartsOn",
                         new InputDateTimeType(
                             DateTimeKnownEncoding.Rfc3339,
                             "utcDateTime",
                             "TypeSpec.utcDateTime",
                             InputPrimitiveType.String),
-                        isRequired: true)
+                        isRequired: true,
+                        originalName: "startTime")
                 ]);
 
             Assert.AreEqual("StartsOn", new ModelProvider(inputModel).Properties.Single().Name);
@@ -433,7 +393,7 @@ namespace Microsoft.TypeSpec.Generator.Tests.Providers
                 @namespace: "Test",
                 properties:
                 [
-                    InputFactory.Property("startTime", dateTime, isRequired: true),
+                    InputFactory.Property("StartsOn", dateTime, isRequired: true, originalName: "startTime"),
                     InputFactory.Property("startsOn", dateTime, isRequired: true)
                 ]);
 
@@ -483,13 +443,14 @@ namespace Microsoft.TypeSpec.Generator.Tests.Providers
                 properties:
                 [
                     InputFactory.Property(
-                        "startTime",
+                        "StartsOn",
                         new InputDateTimeType(
                             DateTimeKnownEncoding.Rfc3339,
                             "utcDateTime",
                             "TypeSpec.utcDateTime",
                             InputPrimitiveType.String),
-                        isRequired: true)
+                        isRequired: true,
+                        originalName: "startTime")
                 ]);
 
             var property = new ModelProvider(inputModel).Properties.Single();
@@ -510,15 +471,16 @@ namespace Microsoft.TypeSpec.Generator.Tests.Providers
                 @namespace: "Test",
                 properties:
                 [
-                    InputFactory.Property("ipStartOn", InputPrimitiveType.String, isRequired: true),
+                    InputFactory.Property("IPStartOn", InputPrimitiveType.String, isRequired: true, originalName: "ipStartOn"),
                     InputFactory.Property(
-                        "ipStartTime",
+                        "IPStartsOn",
                         new InputDateTimeType(
                             DateTimeKnownEncoding.Rfc3339,
                             "utcDateTime",
                             "TypeSpec.utcDateTime",
                             InputPrimitiveType.String),
-                        isRequired: true)
+                        isRequired: true,
+                        originalName: "ipStartTime")
                 ]);
 
             Assert.That(
@@ -540,13 +502,14 @@ namespace Microsoft.TypeSpec.Generator.Tests.Providers
                 properties:
                 [
                     InputFactory.Property(
-                        "startTime",
+                        "StartsOn",
                         new InputDateTimeType(
                             DateTimeKnownEncoding.Rfc3339,
                             "utcDateTime",
                             "TypeSpec.utcDateTime",
                             InputPrimitiveType.String),
-                        isRequired: true)
+                        isRequired: true,
+                        originalName: "startTime")
                 ]);
 
             Assert.AreEqual("StartOnProperty", new ModelProvider(inputModel).Properties.Single().Name);
@@ -617,55 +580,13 @@ namespace Microsoft.TypeSpec.Generator.Tests.Providers
         public void TestPropertyNameConflictsWithTypeNameAfterAcronymNormalization()
         {
             var testTypeProvider = new TestTypeProvider(name: "IPAddress");
-            InputModelProperty inputModelProperty = InputFactory.Property("IpAddress", InputPrimitiveType.String);
+            InputModelProperty inputModelProperty = InputFactory.Property("IPAddress", InputPrimitiveType.String, originalName: "IpAddress");
             InputFactory.Model("IPAddress", properties: [inputModelProperty]);
 
             var property = new PropertyProvider(inputModelProperty, testTypeProvider);
 
             Assert.AreEqual("IPAddressProperty", property.Name);
         }
-
-        private static IEnumerable<TestCaseData> DateTimePropertyNameTestCases()
-        {
-            var dateTime = new InputDateTimeType(
-                DateTimeKnownEncoding.Rfc3339,
-                "utcDateTime",
-                "TypeSpec.utcDateTime",
-                InputPrimitiveType.String);
-
-            yield return new TestCaseData("StartTime", dateTime, false, "StartsOn");
-            yield return new TestCaseData("EndTime", dateTime, false, "EndsOn");
-            yield return new TestCaseData("StartOn", dateTime, false, "StartsOn");
-            yield return new TestCaseData("EndOn", dateTime, false, "EndsOn");
-            yield return new TestCaseData("FirstTimestamp", dateTime, false, "FirstTimestamp");
-            yield return new TestCaseData("LastTimestamp", dateTime, false, "LastTimestamp");
-            yield return new TestCaseData("CreatedAt", dateTime, false, "CreatedOn");
-            yield return new TestCaseData("DeletionTimestamp", dateTime, false, "DeletedOn");
-            yield return new TestCaseData("ModificationTimeStamp", dateTime, false, "ModifiedOn");
-            yield return new TestCaseData("Timestamp", dateTime, false, "Timestamp");
-            yield return new TestCaseData("ExpirationDate", dateTime, false, "ExpiresOn");
-            yield return new TestCaseData("CreationDate", dateTime, false, "CreatedOn");
-            yield return new TestCaseData("CreationTime", dateTime, false, "CreatedOn");
-            yield return new TestCaseData("ExpirationDateTime", dateTime.WithNullable(true), false, "ExpiresOn");
-            yield return new TestCaseData("DeletionDateTime", dateTime, false, "DeletedOn");
-            yield return new TestCaseData("modelExpirationDate", dateTime, false, "ModelExpiresOn");
-            yield return new TestCaseData("AccountExpirationDate", dateTime, false, "AccountExpiresOn");
-            yield return new TestCaseData("AccessTierChangeTime", dateTime, false, "AccessTierChangedOn");
-            yield return new TestCaseData("RecordedAt", InputPrimitiveType.String, false, "RecordedAt");
-            yield return new TestCaseData("Date", InputPrimitiveType.PlainDate, false, "Date");
-            yield return new TestCaseData("SnapshotTimestamp", dateTime.WithNullable(true), false, "SnapshotOn");
-            yield return new TestCaseData("StatusTimestamp", dateTime.WithNullable(true), false, "StatusTimestamp");
-            yield return new TestCaseData("LastSyncTimestamp", dateTime, false, "LastSyncOn");
-            yield return new TestCaseData("TotalTime", dateTime, false, "TotalTime");
-            yield return new TestCaseData("TopicTimestamp", dateTime.WithNullable(true), false, "TopicTimestamp");
-            yield return new TestCaseData("FromTime", dateTime, false, "FromTime");
-            yield return new TestCaseData("ToDate", dateTime, false, "ToDate");
-            yield return new TestCaseData("RecoveryPointInTime", dateTime, false, "RecoveryPointInTime");
-            yield return new TestCaseData("StartTime", InputPrimitiveType.String, false, "StartTime");
-            yield return new TestCaseData("CreationTimestamp", InputPrimitiveType.String, false, "CreationTimestamp");
-            yield return new TestCaseData("CreationTimestamp", dateTime, true, "CreationTimestamp");
-        }
-
 
         [Test]
         public void CanUpdatePropertyProvider()

@@ -204,7 +204,9 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
                 {
                     foreach (var param in nextLink.ReInjectedParameters)
                     {
-                        reinjectedParamNames.Add(param.Name);
+                        // The spec name is used because normalization can make two parameters share the
+                        // same generated name.
+                        reinjectedParamNames.Add(param.OriginalName);
                     }
                 }
 
@@ -216,7 +218,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
                     parameters = parameters
                         .Where(p =>
                         {
-                            var name = p.InputParameter?.Name ?? p.Name;
+                            var name = p.InputParameter?.OriginalName ?? p.Name;
                             // Reinjected names must match exactly so that parameters differing only by casing are
                             // not conflated. The page size name is matched case-insensitively because the operation
                             // and method parameters intentionally differ in casing.
@@ -277,6 +279,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
                     continue;
                 }
 
+                paramMap.AddInputParameter(inputParameter, parameter);
                 paramMap.AddInputName(inputParameter.Name, parameter);
                 paramMap.AddInputName(inputParameter.OriginalName, parameter);
                 if (inputParameter is InputMethodParameter { ParamAlias: string alias })
@@ -388,9 +391,11 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
             {
                 foreach (var param in nextLink.ReInjectedParameters)
                 {
-                    if (paramMap.TryGetValue(param.Name, out var paramInSignature))
+                    if (paramMap.TryGetValue(param, out var paramInSignature) ||
+                        paramMap.TryGetValue(param.Name, out paramInSignature))
                     {
-                        reinjectedParamsMap[param.Name] = paramInSignature;
+                        reinjectedParamsMap.AddInputParameter(param, paramInSignature);
+                        reinjectedParamsMap[param.OriginalName] = paramInSignature;
                     }
                 }
             }
@@ -403,20 +408,24 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
                 var pageSizeParameter = operation.Parameters.FirstOrDefault(p => p.Name.Equals(pageSizeParameterName, StringComparison.OrdinalIgnoreCase));
                 if (pageSizeParameter != null)
                 {
-                    if (paramMap.TryGetValue(pageSizeParameter.Name, out var paramInSignature))
+                    if (paramMap.TryGetValue(pageSizeParameter, out var paramInSignature) ||
+                        paramMap.TryGetValue(pageSizeParameter.Name, out paramInSignature))
                     {
-                        reinjectedParamsMap[pageSizeParameter.Name] = paramInSignature;
+                        reinjectedParamsMap.AddInputParameter(pageSizeParameter, paramInSignature);
+                        reinjectedParamsMap[pageSizeParameter.OriginalName] = paramInSignature;
                     }
                 }
             }
 
             // Add API version parameters that need to be preserved across pagination requests
             var apiVersionParam = operation.Parameters.FirstOrDefault(p => p.IsApiVersion);
-            if (apiVersionParam != null && !reinjectedParamsMap.ContainsExactInputName(apiVersionParam.Name))
+            if (apiVersionParam != null && !reinjectedParamsMap.ContainsExactInputName(apiVersionParam.OriginalName))
             {
-                if (paramMap.TryGetValue(apiVersionParam.Name, out var paramInSignature))
+                if (paramMap.TryGetValue(apiVersionParam, out var paramInSignature) ||
+                    paramMap.TryGetValue(apiVersionParam.Name, out paramInSignature))
                 {
-                    reinjectedParamsMap[apiVersionParam.Name] = paramInSignature;
+                    reinjectedParamsMap.AddInputParameter(apiVersionParam, paramInSignature);
+                    reinjectedParamsMap[apiVersionParam.OriginalName] = paramInSignature;
                 }
             }
 
@@ -1064,7 +1073,8 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
             }
             else
             {
-                if (paramMap.TryGetValue(inputParam.Name, out var paramProvider))
+                if (paramMap.TryGetValue(inputParam, out var paramProvider) ||
+                    paramMap.TryGetValue(inputParam.Name, out paramProvider))
                 {
                     GetParamInfo(paramProvider, out type, out serializationFormat, out valueExpression);
                 }
@@ -1666,6 +1676,8 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
         /// </summary>
         private sealed class ParameterProviderMap
         {
+            private readonly Dictionary<InputParameter, ParameterProvider> _byInputParameter =
+                new(ReferenceEqualityComparer.Instance);
             private readonly Dictionary<string, ParameterProvider> _inputExact = new(StringComparer.Ordinal);
             private readonly Dictionary<string, ParameterProvider> _inputIgnoreCase = new(StringComparer.OrdinalIgnoreCase);
             private readonly Dictionary<string, ParameterProvider> _generatedExact = new(StringComparer.Ordinal);
@@ -1697,6 +1709,17 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
             /// Registers an input model name if it is not already mapped. The first registration wins so that the
             /// parameter's own name takes precedence over its original name and alias.
             /// </summary>
+            /// <summary>
+            /// Registers the input parameter instance the generated parameter was created from. Names can be
+            /// ambiguous when two input parameters normalize onto the same name, so lookups that know which input
+            /// parameter they are resolving use this map first.
+            /// </summary>
+            public void AddInputParameter(InputParameter inputParameter, ParameterProvider parameter)
+                => _byInputParameter.TryAdd(inputParameter, parameter);
+
+            public bool TryGetValue(InputParameter inputParameter, [NotNullWhen(true)] out ParameterProvider? parameter)
+                => _byInputParameter.TryGetValue(inputParameter, out parameter);
+
             public bool AddInputName(string name, ParameterProvider parameter)
             {
                 var added = _inputExact.TryAdd(name, parameter);
