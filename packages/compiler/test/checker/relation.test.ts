@@ -1715,6 +1715,19 @@ describe("compiler: checker: type relations", () => {
     });
 
     describe("recursive types", () => {
+      it("checks mutually recursive models through a template constraint", async () => {
+        const diagnostics = await Tester.diagnose(`
+          model SourceA { b: SourceB }
+          model SourceB { a: SourceA }
+          model TargetA { b: TargetB }
+          model TargetB { a: TargetA }
+
+          model Constrained<T extends TargetA> {}
+          alias Result = Constrained<SourceA>;
+        `);
+        expectDiagnosticEmpty(diagnostics);
+      });
+
       it("model referencing itself", async () => {
         await expectTypeAssignable({
           source: "Source",
