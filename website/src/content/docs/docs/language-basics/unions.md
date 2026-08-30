@@ -74,7 +74,7 @@ This serves two purposes:
 
 The base type does **not** become a variant of the union. `Breed` above still has exactly two variants.
 
-`extends` is a constraint, not a declaration of inheritance. A variant only needs to be assignable to the base type, it doesn't have to explicitly `extends` it:
+`extends` is a constraint, not a declaration of inheritance. A variant only needs to be assignable to the base type, it doesn't have to explicitly extend it:
 
 ```typespec
 model Dog {
