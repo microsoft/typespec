@@ -127,14 +127,17 @@ namespace Microsoft.TypeSpec.Generator.Utilities
         /// <summary>
         /// Returns the previously-published name of a parameter whose original (spec) name is
         /// <paramref name="originalName"/>, looked up in <paramref name="lastContractView"/>. When
-        /// <paramref name="methodName"/> is supplied, the search is scoped to last-contract methods
+        /// <paramref name="normalizedName"/> is supplied and the last contract already declares it, that
+        /// name is returned so an emitter-normalized parameter is not renamed back to its spec spelling.
+        /// When <paramref name="methodName"/> is supplied, the search is scoped to last-contract methods
         /// whose name matches it (allowing for a sync/async pair) so a parameter name shared across
         /// methods cannot cross-match. Returns null when no match exists.
         /// </summary>
         public static string? FindPreviousParameterName(
             TypeProvider? lastContractView,
             string originalName,
-            string? methodName = null)
+            string? methodName = null,
+            string? normalizedName = null)
         {
             var lastContractMethods = lastContractView?.Methods;
             if (lastContractMethods is null || lastContractMethods.Count == 0)
@@ -151,8 +154,18 @@ namespace Microsoft.TypeSpec.Generator.Utilities
                     string.Equals(m.Signature.Name, methodName + "Async", StringComparison.OrdinalIgnoreCase));
             }
 
-            return scopedMethods
-                .SelectMany(method => method.Signature.Parameters)
+            var shippedNames = scopedMethods.SelectMany(method => method.Signature.Parameters).ToList();
+
+            // The emitter has already applied the C# naming conventions, so a normalized name that the last
+            // contract already declares verbatim is kept; only otherwise do we fall back to the spec spelling.
+            // The match is case-sensitive because a casing-only difference is still a source-breaking rename.
+            if (normalizedName != null &&
+                shippedNames.Any(p => string.Equals(p.Name, normalizedName, StringComparison.Ordinal)))
+            {
+                return normalizedName;
+            }
+
+            return shippedNames
                 .FirstOrDefault(p => string.Equals(p.Name, originalName, StringComparison.OrdinalIgnoreCase))
                 ?.Name;
         }
@@ -197,7 +210,11 @@ namespace Microsoft.TypeSpec.Generator.Utilities
                     var inputParameter = parameter.InputParameter;
                     if (inputParameter is not null && !parameter.IsContentParameter)
                     {
-                        preservedName = FindPreviousParameterName(lastContractView, inputParameter.OriginalName, method.Signature.Name);
+                        preservedName = FindPreviousParameterName(
+                            lastContractView,
+                            inputParameter.OriginalName,
+                            method.Signature.Name,
+                            parameter.Name);
                     }
 
                     // Fall back to a positional match for synthesized parameters

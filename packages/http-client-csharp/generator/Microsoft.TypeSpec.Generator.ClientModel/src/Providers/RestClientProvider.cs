@@ -1152,7 +1152,8 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
                 return;
             }
 
-            // Look up the parameter's original (spec) name in the previous contract.
+            // Look up the parameter in the previous contract, preferring the name it already carries and
+            // falling back to its original (spec) name.
             // When a service method is supplied, scope the search to methods whose name matches
             // the current service method (allowing for sync/async pairing) so that a common
             // parameter name (e.g. "id") on multiple methods can't cross-match.
@@ -1166,11 +1167,17 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
                     string.Equals(m.Signature.Name, serviceMethodName + "Async", StringComparison.OrdinalIgnoreCase));
             }
 
-            // Check if the original wire name exists in LastContractView for backward compatibility.
-            var existingParam = scopedMethods
-                ?.SelectMany(method => method.Signature.Parameters)
-                .FirstOrDefault(p => string.Equals(p.Name, inputParameter.OriginalName, StringComparison.OrdinalIgnoreCase))
-                ?.Name;
+            // The emitter has already applied the C# naming conventions, so a proposed name that the last
+            // contract already declares verbatim is kept as-is; only otherwise do we look up the original wire
+            // name for backward compatibility. The match is case-sensitive because a casing-only difference is
+            // still a source-breaking rename for named arguments.
+            var shippedParameters = scopedMethods?.SelectMany(method => method.Signature.Parameters).ToList();
+            var existingParam = shippedParameters
+                ?.Any(p => string.Equals(p.Name, proposedName, StringComparison.Ordinal)) == true
+                ? proposedName
+                : shippedParameters
+                    ?.FirstOrDefault(p => string.Equals(p.Name, inputParameter.OriginalName, StringComparison.OrdinalIgnoreCase))
+                    ?.Name;
 
             if (existingParam != null)
             {

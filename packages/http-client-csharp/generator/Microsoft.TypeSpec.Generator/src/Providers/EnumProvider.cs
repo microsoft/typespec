@@ -152,10 +152,13 @@ namespace Microsoft.TypeSpec.Generator.Providers
                 return inputValue.Name;
             }
 
-            // The emitter normalizes the value name; keep the previously shipped spelling when it exists.
+            // The emitter has already applied the C# naming conventions, so prefer the normalized name when
+            // the last shipped contract declared it, and only fall back to the pre-normalization spec name
+            // when that is the spelling the contract actually shipped.
             var normalizedName = inputValue.Name.ToIdentifierName();
             var specName = inputValue.OriginalName.ToIdentifierName();
             return normalizedName == specName ||
+                lastContractNames.Contains(normalizedName, StringComparer.Ordinal) ||
                 !lastContractNames.Contains(specName, StringComparer.Ordinal)
                     ? normalizedName
                     : specName;

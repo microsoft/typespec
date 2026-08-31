@@ -737,9 +737,10 @@ namespace Microsoft.TypeSpec.Generator.Providers
         protected abstract string BuildName();
 
         /// <summary>
-        /// Returns the emitter-normalized <paramref name="normalizedName"/> unless the pre-normalization spec
-        /// name is already part of the current compilation or of the last shipped contract, in which case the
-        /// previously used spelling is kept.
+        /// Returns the emitter-normalized <paramref name="normalizedName"/> unless the last shipped contract
+        /// used the pre-normalization spec name instead, in which case that spelling is kept. The normalized
+        /// name wins whenever the last contract already declares it, so a type is only renamed back when the
+        /// spec name is the one that was actually published.
         /// </summary>
         protected string NormalizeTypeNameForNewContract(string normalizedName, string originalName)
         {
@@ -749,21 +750,23 @@ namespace Microsoft.TypeSpec.Generator.Providers
             }
 
             var typeNamespace = BuildNamespace();
-            var currentType = CodeModelGenerator.Instance.SourceInputModel.FindForTypeInCurrentCompilation(
-                typeNamespace,
-                originalName,
-                _declaringTypeName.Value);
-            if (currentType is not null)
+            if (FindShippedType(typeNamespace, normalizedName) is not null)
             {
-                return originalName;
+                return normalizedName;
             }
 
-            var lastContractType = CodeModelGenerator.Instance.SourceInputModel.FindForTypeInLastContract(
-                typeNamespace,
-                originalName,
-                _declaringTypeName.Value);
-            return lastContractType is null ? normalizedName : originalName;
+            return FindShippedType(typeNamespace, originalName) is null ? normalizedName : originalName;
         }
+
+        private TypeProvider? FindShippedType(string typeNamespace, string name) =>
+            CodeModelGenerator.Instance.SourceInputModel.FindForTypeInCurrentCompilation(
+                typeNamespace,
+                name,
+                _declaringTypeName.Value)
+            ?? CodeModelGenerator.Instance.SourceInputModel.FindForTypeInLastContract(
+                typeNamespace,
+                name,
+                _declaringTypeName.Value);
 
         /// <summary>
         /// Resets only the cached methods so they are rebuilt on next access.
