@@ -6,6 +6,7 @@
       "$id": "1",
       "kind": "enum",
       "name": "ExtensibleString",
+      "originalName": "ExtensibleString",
       "crossLanguageDefinitionId": "SpecialWords.ExtensibleStrings.ExtensibleString",
       "valueType": {
         "$id": "2",
@@ -19,6 +20,7 @@
           "$id": "3",
           "kind": "enumvalue",
           "name": "and",
+          "originalName": "and",
           "value": "and",
           "valueType": {
             "$ref": "2"
@@ -33,6 +35,7 @@
           "$id": "4",
           "kind": "enumvalue",
           "name": "as",
+          "originalName": "as",
           "value": "as",
           "valueType": {
             "$ref": "2"
@@ -47,6 +50,7 @@
           "$id": "5",
           "kind": "enumvalue",
           "name": "assert",
+          "originalName": "assert",
           "value": "assert",
           "valueType": {
             "$ref": "2"
@@ -61,6 +65,7 @@
           "$id": "6",
           "kind": "enumvalue",
           "name": "async",
+          "originalName": "async",
           "value": "async",
           "valueType": {
             "$ref": "2"
@@ -75,6 +80,7 @@
           "$id": "7",
           "kind": "enumvalue",
           "name": "await",
+          "originalName": "await",
           "value": "await",
           "valueType": {
             "$ref": "2"
@@ -89,6 +95,7 @@
           "$id": "8",
           "kind": "enumvalue",
           "name": "break",
+          "originalName": "break",
           "value": "break",
           "valueType": {
             "$ref": "2"
@@ -103,6 +110,7 @@
           "$id": "9",
           "kind": "enumvalue",
           "name": "class",
+          "originalName": "class",
           "value": "class",
           "valueType": {
             "$ref": "2"
@@ -117,6 +125,7 @@
           "$id": "10",
           "kind": "enumvalue",
           "name": "constructor",
+          "originalName": "constructor",
           "value": "constructor",
           "valueType": {
             "$ref": "2"
@@ -131,6 +140,7 @@
           "$id": "11",
           "kind": "enumvalue",
           "name": "continue",
+          "originalName": "continue",
           "value": "continue",
           "valueType": {
             "$ref": "2"
@@ -145,6 +155,7 @@
           "$id": "12",
           "kind": "enumvalue",
           "name": "def",
+          "originalName": "def",
           "value": "def",
           "valueType": {
             "$ref": "2"
@@ -159,6 +170,7 @@
           "$id": "13",
           "kind": "enumvalue",
           "name": "del",
+          "originalName": "del",
           "value": "del",
           "valueType": {
             "$ref": "2"
@@ -173,6 +185,7 @@
           "$id": "14",
           "kind": "enumvalue",
           "name": "elif",
+          "originalName": "elif",
           "value": "elif",
           "valueType": {
             "$ref": "2"
@@ -187,6 +200,7 @@
           "$id": "15",
           "kind": "enumvalue",
           "name": "else",
+          "originalName": "else",
           "value": "else",
           "valueType": {
             "$ref": "2"
@@ -201,6 +215,7 @@
           "$id": "16",
           "kind": "enumvalue",
           "name": "except",
+          "originalName": "except",
           "value": "except",
           "valueType": {
             "$ref": "2"
@@ -215,6 +230,7 @@
           "$id": "17",
           "kind": "enumvalue",
           "name": "exec",
+          "originalName": "exec",
           "value": "exec",
           "valueType": {
             "$ref": "2"
@@ -229,6 +245,7 @@
           "$id": "18",
           "kind": "enumvalue",
           "name": "finally",
+          "originalName": "finally",
           "value": "finally",
           "valueType": {
             "$ref": "2"
@@ -243,6 +260,7 @@
           "$id": "19",
           "kind": "enumvalue",
           "name": "for",
+          "originalName": "for",
           "value": "for",
           "valueType": {
             "$ref": "2"
@@ -257,6 +275,7 @@
           "$id": "20",
           "kind": "enumvalue",
           "name": "from",
+          "originalName": "from",
           "value": "from",
           "valueType": {
             "$ref": "2"
@@ -271,6 +290,7 @@
           "$id": "21",
           "kind": "enumvalue",
           "name": "global",
+          "originalName": "global",
           "value": "global",
           "valueType": {
             "$ref": "2"
@@ -285,6 +305,7 @@
           "$id": "22",
           "kind": "enumvalue",
           "name": "if",
+          "originalName": "if",
           "value": "if",
           "valueType": {
             "$ref": "2"
@@ -299,6 +320,7 @@
           "$id": "23",
           "kind": "enumvalue",
           "name": "import",
+          "originalName": "import",
           "value": "import",
           "valueType": {
             "$ref": "2"
@@ -313,6 +335,7 @@
           "$id": "24",
           "kind": "enumvalue",
           "name": "in",
+          "originalName": "in",
           "value": "in",
           "valueType": {
             "$ref": "2"
@@ -327,6 +350,7 @@
           "$id": "25",
           "kind": "enumvalue",
           "name": "is",
+          "originalName": "is",
           "value": "is",
           "valueType": {
             "$ref": "2"
@@ -341,6 +365,7 @@
           "$id": "26",
           "kind": "enumvalue",
           "name": "lambda",
+          "originalName": "lambda",
           "value": "lambda",
           "valueType": {
             "$ref": "2"
@@ -355,6 +380,7 @@
           "$id": "27",
           "kind": "enumvalue",
           "name": "not",
+          "originalName": "not",
           "value": "not",
           "valueType": {
             "$ref": "2"
@@ -369,6 +395,7 @@
           "$id": "28",
           "kind": "enumvalue",
           "name": "or",
+          "originalName": "or",
           "value": "or",
           "valueType": {
             "$ref": "2"
@@ -383,6 +410,7 @@
           "$id": "29",
           "kind": "enumvalue",
           "name": "pass",
+          "originalName": "pass",
           "value": "pass",
           "valueType": {
             "$ref": "2"
@@ -397,6 +425,7 @@
           "$id": "30",
           "kind": "enumvalue",
           "name": "raise",
+          "originalName": "raise",
           "value": "raise",
           "valueType": {
             "$ref": "2"
@@ -411,6 +440,7 @@
           "$id": "31",
           "kind": "enumvalue",
           "name": "return",
+          "originalName": "return",
           "value": "return",
           "valueType": {
             "$ref": "2"
@@ -425,6 +455,7 @@
           "$id": "32",
           "kind": "enumvalue",
           "name": "try",
+          "originalName": "try",
           "value": "try",
           "valueType": {
             "$ref": "2"
@@ -439,6 +470,7 @@
           "$id": "33",
           "kind": "enumvalue",
           "name": "while",
+          "originalName": "while",
           "value": "while",
           "valueType": {
             "$ref": "2"
@@ -453,6 +485,7 @@
           "$id": "34",
           "kind": "enumvalue",
           "name": "with",
+          "originalName": "with",
           "value": "with",
           "valueType": {
             "$ref": "2"
@@ -467,6 +500,7 @@
           "$id": "35",
           "kind": "enumvalue",
           "name": "yield",
+          "originalName": "yield",
           "value": "yield",
           "valueType": {
             "$ref": "2"
@@ -1191,6 +1225,7 @@
       "$id": "118",
       "kind": "model",
       "name": "and",
+      "originalName": "and",
       "namespace": "SpecialWords.Models",
       "crossLanguageDefinitionId": "SpecialWords.Models.and",
       "usage": "Input,Json",
@@ -1206,6 +1241,7 @@
           "$id": "119",
           "kind": "property",
           "name": "name",
+          "originalName": "name",
           "serializedName": "name",
           "type": {
             "$id": "120",
@@ -1234,6 +1270,7 @@
       "$id": "121",
       "kind": "model",
       "name": "as",
+      "originalName": "as",
       "namespace": "SpecialWords.Models",
       "crossLanguageDefinitionId": "SpecialWords.Models.as",
       "usage": "Input,Json",
@@ -1249,6 +1286,7 @@
           "$id": "122",
           "kind": "property",
           "name": "name",
+          "originalName": "name",
           "serializedName": "name",
           "type": {
             "$id": "123",
@@ -1277,6 +1315,7 @@
       "$id": "124",
       "kind": "model",
       "name": "assert",
+      "originalName": "assert",
       "namespace": "SpecialWords.Models",
       "crossLanguageDefinitionId": "SpecialWords.Models.assert",
       "usage": "Input,Json",
@@ -1292,6 +1331,7 @@
           "$id": "125",
           "kind": "property",
           "name": "name",
+          "originalName": "name",
           "serializedName": "name",
           "type": {
             "$id": "126",
@@ -1320,6 +1360,7 @@
       "$id": "127",
       "kind": "model",
       "name": "async",
+      "originalName": "async",
       "namespace": "SpecialWords.Models",
       "crossLanguageDefinitionId": "SpecialWords.Models.async",
       "usage": "Input,Json",
@@ -1335,6 +1376,7 @@
           "$id": "128",
           "kind": "property",
           "name": "name",
+          "originalName": "name",
           "serializedName": "name",
           "type": {
             "$id": "129",
@@ -1363,6 +1405,7 @@
       "$id": "130",
       "kind": "model",
       "name": "await",
+      "originalName": "await",
       "namespace": "SpecialWords.Models",
       "crossLanguageDefinitionId": "SpecialWords.Models.await",
       "usage": "Input,Json",
@@ -1378,6 +1421,7 @@
           "$id": "131",
           "kind": "property",
           "name": "name",
+          "originalName": "name",
           "serializedName": "name",
           "type": {
             "$id": "132",
@@ -1406,6 +1450,7 @@
       "$id": "133",
       "kind": "model",
       "name": "break",
+      "originalName": "break",
       "namespace": "SpecialWords.Models",
       "crossLanguageDefinitionId": "SpecialWords.Models.break",
       "usage": "Input,Json",
@@ -1421,6 +1466,7 @@
           "$id": "134",
           "kind": "property",
           "name": "name",
+          "originalName": "name",
           "serializedName": "name",
           "type": {
             "$id": "135",
@@ -1449,6 +1495,7 @@
       "$id": "136",
       "kind": "model",
       "name": "class",
+      "originalName": "class",
       "namespace": "SpecialWords.Models",
       "crossLanguageDefinitionId": "SpecialWords.Models.class",
       "usage": "Input,Json",
@@ -1464,6 +1511,7 @@
           "$id": "137",
           "kind": "property",
           "name": "name",
+          "originalName": "name",
           "serializedName": "name",
           "type": {
             "$id": "138",
@@ -1492,6 +1540,7 @@
       "$id": "139",
       "kind": "model",
       "name": "constructor",
+      "originalName": "constructor",
       "namespace": "SpecialWords.Models",
       "crossLanguageDefinitionId": "SpecialWords.Models.constructor",
       "usage": "Input,Json",
@@ -1507,6 +1556,7 @@
           "$id": "140",
           "kind": "property",
           "name": "name",
+          "originalName": "name",
           "serializedName": "name",
           "type": {
             "$id": "141",
@@ -1535,6 +1585,7 @@
       "$id": "142",
       "kind": "model",
       "name": "continue",
+      "originalName": "continue",
       "namespace": "SpecialWords.Models",
       "crossLanguageDefinitionId": "SpecialWords.Models.continue",
       "usage": "Input,Json",
@@ -1550,6 +1601,7 @@
           "$id": "143",
           "kind": "property",
           "name": "name",
+          "originalName": "name",
           "serializedName": "name",
           "type": {
             "$id": "144",
@@ -1578,6 +1630,7 @@
       "$id": "145",
       "kind": "model",
       "name": "def",
+      "originalName": "def",
       "namespace": "SpecialWords.Models",
       "crossLanguageDefinitionId": "SpecialWords.Models.def",
       "usage": "Input,Json",
@@ -1593,6 +1646,7 @@
           "$id": "146",
           "kind": "property",
           "name": "name",
+          "originalName": "name",
           "serializedName": "name",
           "type": {
             "$id": "147",
@@ -1621,6 +1675,7 @@
       "$id": "148",
       "kind": "model",
       "name": "del",
+      "originalName": "del",
       "namespace": "SpecialWords.Models",
       "crossLanguageDefinitionId": "SpecialWords.Models.del",
       "usage": "Input,Json",
@@ -1636,6 +1691,7 @@
           "$id": "149",
           "kind": "property",
           "name": "name",
+          "originalName": "name",
           "serializedName": "name",
           "type": {
             "$id": "150",
@@ -1664,6 +1720,7 @@
       "$id": "151",
       "kind": "model",
       "name": "elif",
+      "originalName": "elif",
       "namespace": "SpecialWords.Models",
       "crossLanguageDefinitionId": "SpecialWords.Models.elif",
       "usage": "Input,Json",
@@ -1679,6 +1736,7 @@
           "$id": "152",
           "kind": "property",
           "name": "name",
+          "originalName": "name",
           "serializedName": "name",
           "type": {
             "$id": "153",
@@ -1707,6 +1765,7 @@
       "$id": "154",
       "kind": "model",
       "name": "else",
+      "originalName": "else",
       "namespace": "SpecialWords.Models",
       "crossLanguageDefinitionId": "SpecialWords.Models.else",
       "usage": "Input,Json",
@@ -1722,6 +1781,7 @@
           "$id": "155",
           "kind": "property",
           "name": "name",
+          "originalName": "name",
           "serializedName": "name",
           "type": {
             "$id": "156",
@@ -1750,6 +1810,7 @@
       "$id": "157",
       "kind": "model",
       "name": "except",
+      "originalName": "except",
       "namespace": "SpecialWords.Models",
       "crossLanguageDefinitionId": "SpecialWords.Models.except",
       "usage": "Input,Json",
@@ -1765,6 +1826,7 @@
           "$id": "158",
           "kind": "property",
           "name": "name",
+          "originalName": "name",
           "serializedName": "name",
           "type": {
             "$id": "159",
@@ -1793,6 +1855,7 @@
       "$id": "160",
       "kind": "model",
       "name": "exec",
+      "originalName": "exec",
       "namespace": "SpecialWords.Models",
       "crossLanguageDefinitionId": "SpecialWords.Models.exec",
       "usage": "Input,Json",
@@ -1808,6 +1871,7 @@
           "$id": "161",
           "kind": "property",
           "name": "name",
+          "originalName": "name",
           "serializedName": "name",
           "type": {
             "$id": "162",
@@ -1836,6 +1900,7 @@
       "$id": "163",
       "kind": "model",
       "name": "finally",
+      "originalName": "finally",
       "namespace": "SpecialWords.Models",
       "crossLanguageDefinitionId": "SpecialWords.Models.finally",
       "usage": "Input,Json",
@@ -1851,6 +1916,7 @@
           "$id": "164",
           "kind": "property",
           "name": "name",
+          "originalName": "name",
           "serializedName": "name",
           "type": {
             "$id": "165",
@@ -1879,6 +1945,7 @@
       "$id": "166",
       "kind": "model",
       "name": "for",
+      "originalName": "for",
       "namespace": "SpecialWords.Models",
       "crossLanguageDefinitionId": "SpecialWords.Models.for",
       "usage": "Input,Json",
@@ -1894,6 +1961,7 @@
           "$id": "167",
           "kind": "property",
           "name": "name",
+          "originalName": "name",
           "serializedName": "name",
           "type": {
             "$id": "168",
@@ -1922,6 +1990,7 @@
       "$id": "169",
       "kind": "model",
       "name": "from",
+      "originalName": "from",
       "namespace": "SpecialWords.Models",
       "crossLanguageDefinitionId": "SpecialWords.Models.from",
       "usage": "Input,Json",
@@ -1937,6 +2006,7 @@
           "$id": "170",
           "kind": "property",
           "name": "name",
+          "originalName": "name",
           "serializedName": "name",
           "type": {
             "$id": "171",
@@ -1965,6 +2035,7 @@
       "$id": "172",
       "kind": "model",
       "name": "global",
+      "originalName": "global",
       "namespace": "SpecialWords.Models",
       "crossLanguageDefinitionId": "SpecialWords.Models.global",
       "usage": "Input,Json",
@@ -1980,6 +2051,7 @@
           "$id": "173",
           "kind": "property",
           "name": "name",
+          "originalName": "name",
           "serializedName": "name",
           "type": {
             "$id": "174",
@@ -2008,6 +2080,7 @@
       "$id": "175",
       "kind": "model",
       "name": "if",
+      "originalName": "if",
       "namespace": "SpecialWords.Models",
       "crossLanguageDefinitionId": "SpecialWords.Models.if",
       "usage": "Input,Json",
@@ -2023,6 +2096,7 @@
           "$id": "176",
           "kind": "property",
           "name": "name",
+          "originalName": "name",
           "serializedName": "name",
           "type": {
             "$id": "177",
@@ -2051,6 +2125,7 @@
       "$id": "178",
       "kind": "model",
       "name": "import",
+      "originalName": "import",
       "namespace": "SpecialWords.Models",
       "crossLanguageDefinitionId": "SpecialWords.Models.import",
       "usage": "Input,Json",
@@ -2066,6 +2141,7 @@
           "$id": "179",
           "kind": "property",
           "name": "name",
+          "originalName": "name",
           "serializedName": "name",
           "type": {
             "$id": "180",
@@ -2094,6 +2170,7 @@
       "$id": "181",
       "kind": "model",
       "name": "in",
+      "originalName": "in",
       "namespace": "SpecialWords.Models",
       "crossLanguageDefinitionId": "SpecialWords.Models.in",
       "usage": "Input,Json",
@@ -2109,6 +2186,7 @@
           "$id": "182",
           "kind": "property",
           "name": "name",
+          "originalName": "name",
           "serializedName": "name",
           "type": {
             "$id": "183",
@@ -2137,6 +2215,7 @@
       "$id": "184",
       "kind": "model",
       "name": "is",
+      "originalName": "is",
       "namespace": "SpecialWords.Models",
       "crossLanguageDefinitionId": "SpecialWords.Models.is",
       "usage": "Input,Json",
@@ -2152,6 +2231,7 @@
           "$id": "185",
           "kind": "property",
           "name": "name",
+          "originalName": "name",
           "serializedName": "name",
           "type": {
             "$id": "186",
@@ -2180,6 +2260,7 @@
       "$id": "187",
       "kind": "model",
       "name": "lambda",
+      "originalName": "lambda",
       "namespace": "SpecialWords.Models",
       "crossLanguageDefinitionId": "SpecialWords.Models.lambda",
       "usage": "Input,Json",
@@ -2195,6 +2276,7 @@
           "$id": "188",
           "kind": "property",
           "name": "name",
+          "originalName": "name",
           "serializedName": "name",
           "type": {
             "$id": "189",
@@ -2223,6 +2305,7 @@
       "$id": "190",
       "kind": "model",
       "name": "not",
+      "originalName": "not",
       "namespace": "SpecialWords.Models",
       "crossLanguageDefinitionId": "SpecialWords.Models.not",
       "usage": "Input,Json",
@@ -2238,6 +2321,7 @@
           "$id": "191",
           "kind": "property",
           "name": "name",
+          "originalName": "name",
           "serializedName": "name",
           "type": {
             "$id": "192",
@@ -2266,6 +2350,7 @@
       "$id": "193",
       "kind": "model",
       "name": "or",
+      "originalName": "or",
       "namespace": "SpecialWords.Models",
       "crossLanguageDefinitionId": "SpecialWords.Models.or",
       "usage": "Input,Json",
@@ -2281,6 +2366,7 @@
           "$id": "194",
           "kind": "property",
           "name": "name",
+          "originalName": "name",
           "serializedName": "name",
           "type": {
             "$id": "195",
@@ -2309,6 +2395,7 @@
       "$id": "196",
       "kind": "model",
       "name": "pass",
+      "originalName": "pass",
       "namespace": "SpecialWords.Models",
       "crossLanguageDefinitionId": "SpecialWords.Models.pass",
       "usage": "Input,Json",
@@ -2324,6 +2411,7 @@
           "$id": "197",
           "kind": "property",
           "name": "name",
+          "originalName": "name",
           "serializedName": "name",
           "type": {
             "$id": "198",
@@ -2352,6 +2440,7 @@
       "$id": "199",
       "kind": "model",
       "name": "raise",
+      "originalName": "raise",
       "namespace": "SpecialWords.Models",
       "crossLanguageDefinitionId": "SpecialWords.Models.raise",
       "usage": "Input,Json",
@@ -2367,6 +2456,7 @@
           "$id": "200",
           "kind": "property",
           "name": "name",
+          "originalName": "name",
           "serializedName": "name",
           "type": {
             "$id": "201",
@@ -2395,6 +2485,7 @@
       "$id": "202",
       "kind": "model",
       "name": "return",
+      "originalName": "return",
       "namespace": "SpecialWords.Models",
       "crossLanguageDefinitionId": "SpecialWords.Models.return",
       "usage": "Input,Json",
@@ -2410,6 +2501,7 @@
           "$id": "203",
           "kind": "property",
           "name": "name",
+          "originalName": "name",
           "serializedName": "name",
           "type": {
             "$id": "204",
@@ -2438,6 +2530,7 @@
       "$id": "205",
       "kind": "model",
       "name": "try",
+      "originalName": "try",
       "namespace": "SpecialWords.Models",
       "crossLanguageDefinitionId": "SpecialWords.Models.try",
       "usage": "Input,Json",
@@ -2453,6 +2546,7 @@
           "$id": "206",
           "kind": "property",
           "name": "name",
+          "originalName": "name",
           "serializedName": "name",
           "type": {
             "$id": "207",
@@ -2481,6 +2575,7 @@
       "$id": "208",
       "kind": "model",
       "name": "while",
+      "originalName": "while",
       "namespace": "SpecialWords.Models",
       "crossLanguageDefinitionId": "SpecialWords.Models.while",
       "usage": "Input,Json",
@@ -2496,6 +2591,7 @@
           "$id": "209",
           "kind": "property",
           "name": "name",
+          "originalName": "name",
           "serializedName": "name",
           "type": {
             "$id": "210",
@@ -2524,6 +2620,7 @@
       "$id": "211",
       "kind": "model",
       "name": "with",
+      "originalName": "with",
       "namespace": "SpecialWords.Models",
       "crossLanguageDefinitionId": "SpecialWords.Models.with",
       "usage": "Input,Json",
@@ -2539,6 +2636,7 @@
           "$id": "212",
           "kind": "property",
           "name": "name",
+          "originalName": "name",
           "serializedName": "name",
           "type": {
             "$id": "213",
@@ -2567,6 +2665,7 @@
       "$id": "214",
       "kind": "model",
       "name": "yield",
+      "originalName": "yield",
       "namespace": "SpecialWords.Models",
       "crossLanguageDefinitionId": "SpecialWords.Models.yield",
       "usage": "Input,Json",
@@ -2582,6 +2681,7 @@
           "$id": "215",
           "kind": "property",
           "name": "name",
+          "originalName": "name",
           "serializedName": "name",
           "type": {
             "$id": "216",
@@ -2610,6 +2710,7 @@
       "$id": "217",
       "kind": "model",
       "name": "SameAsModel",
+      "originalName": "SameAsModel",
       "namespace": "SpecialWords.ModelProperties",
       "crossLanguageDefinitionId": "SpecialWords.ModelProperties.SameAsModel",
       "usage": "Input,Json",
@@ -2625,6 +2726,7 @@
           "$id": "218",
           "kind": "property",
           "name": "SameAsModel",
+          "originalName": "SameAsModel",
           "serializedName": "SameAsModel",
           "type": {
             "$id": "219",
@@ -2653,6 +2755,7 @@
       "$id": "220",
       "kind": "model",
       "name": "DictMethods",
+      "originalName": "DictMethods",
       "namespace": "SpecialWords.ModelProperties",
       "crossLanguageDefinitionId": "SpecialWords.ModelProperties.DictMethods",
       "usage": "Input,Json",
@@ -2668,6 +2771,7 @@
           "$id": "221",
           "kind": "property",
           "name": "keys",
+          "originalName": "keys",
           "serializedName": "keys",
           "type": {
             "$id": "222",
@@ -2694,6 +2798,7 @@
           "$id": "223",
           "kind": "property",
           "name": "items",
+          "originalName": "items",
           "serializedName": "items",
           "type": {
             "$id": "224",
@@ -2720,6 +2825,7 @@
           "$id": "225",
           "kind": "property",
           "name": "values",
+          "originalName": "values",
           "serializedName": "values",
           "type": {
             "$id": "226",
@@ -2746,6 +2852,7 @@
           "$id": "227",
           "kind": "property",
           "name": "popitem",
+          "originalName": "popitem",
           "serializedName": "popitem",
           "type": {
             "$id": "228",
@@ -2772,6 +2879,7 @@
           "$id": "229",
           "kind": "property",
           "name": "clear",
+          "originalName": "clear",
           "serializedName": "clear",
           "type": {
             "$id": "230",
@@ -2798,6 +2906,7 @@
           "$id": "231",
           "kind": "property",
           "name": "update",
+          "originalName": "update",
           "serializedName": "update",
           "type": {
             "$id": "232",
@@ -2824,6 +2933,7 @@
           "$id": "233",
           "kind": "property",
           "name": "setdefault",
+          "originalName": "setdefault",
           "serializedName": "setdefault",
           "type": {
             "$id": "234",
@@ -2850,6 +2960,7 @@
           "$id": "235",
           "kind": "property",
           "name": "pop",
+          "originalName": "pop",
           "serializedName": "pop",
           "type": {
             "$id": "236",
@@ -2876,6 +2987,7 @@
           "$id": "237",
           "kind": "property",
           "name": "get",
+          "originalName": "get",
           "serializedName": "get",
           "type": {
             "$id": "238",
@@ -2902,6 +3014,7 @@
           "$id": "239",
           "kind": "property",
           "name": "copy",
+          "originalName": "copy",
           "serializedName": "copy",
           "type": {
             "$id": "240",
@@ -2930,6 +3043,7 @@
       "$id": "241",
       "kind": "model",
       "name": "ModelWithList",
+      "originalName": "ModelWithList",
       "namespace": "SpecialWords.ModelProperties",
       "crossLanguageDefinitionId": "SpecialWords.ModelProperties.ModelWithList",
       "usage": "Input,Json",
@@ -2945,6 +3059,7 @@
           "$id": "242",
           "kind": "property",
           "name": "list",
+          "originalName": "list",
           "serializedName": "list",
           "type": {
             "$id": "243",
@@ -2973,6 +3088,7 @@
       "$id": "244",
       "kind": "model",
       "name": "WithItemsRequest",
+      "originalName": "WithItemsRequest",
       "namespace": "SpecialWords.ReservedOperationBodyParams",
       "crossLanguageDefinitionId": "SpecialWords.ReservedOperationBodyParams.withItems.Request.anonymous",
       "usage": "Spread,Json",
@@ -2988,6 +3104,7 @@
           "$id": "245",
           "kind": "property",
           "name": "items",
+          "originalName": "items",
           "serializedName": "items",
           "type": {
             "$id": "246",
@@ -3079,12 +3196,14 @@
               "$id": "253",
               "kind": "basic",
               "name": "withAnd",
+              "originalName": "withAnd",
               "isExactName": false,
               "accessibility": "public",
               "apiVersions": [],
               "operation": {
                 "$id": "254",
                 "name": "withAnd",
+                "originalName": "withAnd",
                 "isExactName": false,
                 "resourceName": "Models",
                 "accessibility": "public",
@@ -3093,6 +3212,7 @@
                     "$id": "255",
                     "kind": "header",
                     "name": "contentType",
+                    "originalName": "contentType",
                     "serializedName": "Content-Type",
                     "doc": "Body parameter's content type. Known values are application/json",
                     "type": {
@@ -3110,6 +3230,7 @@
                         "$id": "256",
                         "kind": "method",
                         "name": "contentType",
+                        "originalName": "contentType",
                         "serializedName": "Content-Type",
                         "doc": "Body parameter's content type. Known values are application/json",
                         "type": {
@@ -3132,6 +3253,7 @@
                     "$id": "257",
                     "kind": "body",
                     "name": "body",
+                    "originalName": "body",
                     "serializedName": "body",
                     "type": {
                       "$ref": "118"
@@ -3151,6 +3273,7 @@
                         "$id": "258",
                         "kind": "method",
                         "name": "body",
+                        "originalName": "body",
                         "serializedName": "body",
                         "type": {
                           "$ref": "118"
@@ -3215,12 +3338,14 @@
               "$id": "259",
               "kind": "basic",
               "name": "withAs",
+              "originalName": "withAs",
               "isExactName": false,
               "accessibility": "public",
               "apiVersions": [],
               "operation": {
                 "$id": "260",
                 "name": "withAs",
+                "originalName": "withAs",
                 "isExactName": false,
                 "resourceName": "Models",
                 "accessibility": "public",
@@ -3229,6 +3354,7 @@
                     "$id": "261",
                     "kind": "header",
                     "name": "contentType",
+                    "originalName": "contentType",
                     "serializedName": "Content-Type",
                     "doc": "Body parameter's content type. Known values are application/json",
                     "type": {
@@ -3246,6 +3372,7 @@
                         "$id": "262",
                         "kind": "method",
                         "name": "contentType",
+                        "originalName": "contentType",
                         "serializedName": "Content-Type",
                         "doc": "Body parameter's content type. Known values are application/json",
                         "type": {
@@ -3268,6 +3395,7 @@
                     "$id": "263",
                     "kind": "body",
                     "name": "body",
+                    "originalName": "body",
                     "serializedName": "body",
                     "type": {
                       "$ref": "121"
@@ -3287,6 +3415,7 @@
                         "$id": "264",
                         "kind": "method",
                         "name": "body",
+                        "originalName": "body",
                         "serializedName": "body",
                         "type": {
                           "$ref": "121"
@@ -3351,12 +3480,14 @@
               "$id": "265",
               "kind": "basic",
               "name": "withAssert",
+              "originalName": "withAssert",
               "isExactName": false,
               "accessibility": "public",
               "apiVersions": [],
               "operation": {
                 "$id": "266",
                 "name": "withAssert",
+                "originalName": "withAssert",
                 "isExactName": false,
                 "resourceName": "Models",
                 "accessibility": "public",
@@ -3365,6 +3496,7 @@
                     "$id": "267",
                     "kind": "header",
                     "name": "contentType",
+                    "originalName": "contentType",
                     "serializedName": "Content-Type",
                     "doc": "Body parameter's content type. Known values are application/json",
                     "type": {
@@ -3382,6 +3514,7 @@
                         "$id": "268",
                         "kind": "method",
                         "name": "contentType",
+                        "originalName": "contentType",
                         "serializedName": "Content-Type",
                         "doc": "Body parameter's content type. Known values are application/json",
                         "type": {
@@ -3404,6 +3537,7 @@
                     "$id": "269",
                     "kind": "body",
                     "name": "body",
+                    "originalName": "body",
                     "serializedName": "body",
                     "type": {
                       "$ref": "124"
@@ -3423,6 +3557,7 @@
                         "$id": "270",
                         "kind": "method",
                         "name": "body",
+                        "originalName": "body",
                         "serializedName": "body",
                         "type": {
                           "$ref": "124"
@@ -3487,12 +3622,14 @@
               "$id": "271",
               "kind": "basic",
               "name": "withAsync",
+              "originalName": "withAsync",
               "isExactName": false,
               "accessibility": "public",
               "apiVersions": [],
               "operation": {
                 "$id": "272",
                 "name": "withAsync",
+                "originalName": "withAsync",
                 "isExactName": false,
                 "resourceName": "Models",
                 "accessibility": "public",
@@ -3501,6 +3638,7 @@
                     "$id": "273",
                     "kind": "header",
                     "name": "contentType",
+                    "originalName": "contentType",
                     "serializedName": "Content-Type",
                     "doc": "Body parameter's content type. Known values are application/json",
                     "type": {
@@ -3518,6 +3656,7 @@
                         "$id": "274",
                         "kind": "method",
                         "name": "contentType",
+                        "originalName": "contentType",
                         "serializedName": "Content-Type",
                         "doc": "Body parameter's content type. Known values are application/json",
                         "type": {
@@ -3540,6 +3679,7 @@
                     "$id": "275",
                     "kind": "body",
                     "name": "body",
+                    "originalName": "body",
                     "serializedName": "body",
                     "type": {
                       "$ref": "127"
@@ -3559,6 +3699,7 @@
                         "$id": "276",
                         "kind": "method",
                         "name": "body",
+                        "originalName": "body",
                         "serializedName": "body",
                         "type": {
                           "$ref": "127"
@@ -3623,12 +3764,14 @@
               "$id": "277",
               "kind": "basic",
               "name": "withAwait",
+              "originalName": "withAwait",
               "isExactName": false,
               "accessibility": "public",
               "apiVersions": [],
               "operation": {
                 "$id": "278",
                 "name": "withAwait",
+                "originalName": "withAwait",
                 "isExactName": false,
                 "resourceName": "Models",
                 "accessibility": "public",
@@ -3637,6 +3780,7 @@
                     "$id": "279",
                     "kind": "header",
                     "name": "contentType",
+                    "originalName": "contentType",
                     "serializedName": "Content-Type",
                     "doc": "Body parameter's content type. Known values are application/json",
                     "type": {
@@ -3654,6 +3798,7 @@
                         "$id": "280",
                         "kind": "method",
                         "name": "contentType",
+                        "originalName": "contentType",
                         "serializedName": "Content-Type",
                         "doc": "Body parameter's content type. Known values are application/json",
                         "type": {
@@ -3676,6 +3821,7 @@
                     "$id": "281",
                     "kind": "body",
                     "name": "body",
+                    "originalName": "body",
                     "serializedName": "body",
                     "type": {
                       "$ref": "130"
@@ -3695,6 +3841,7 @@
                         "$id": "282",
                         "kind": "method",
                         "name": "body",
+                        "originalName": "body",
                         "serializedName": "body",
                         "type": {
                           "$ref": "130"
@@ -3759,12 +3906,14 @@
               "$id": "283",
               "kind": "basic",
               "name": "withBreak",
+              "originalName": "withBreak",
               "isExactName": false,
               "accessibility": "public",
               "apiVersions": [],
               "operation": {
                 "$id": "284",
                 "name": "withBreak",
+                "originalName": "withBreak",
                 "isExactName": false,
                 "resourceName": "Models",
                 "accessibility": "public",
@@ -3773,6 +3922,7 @@
                     "$id": "285",
                     "kind": "header",
                     "name": "contentType",
+                    "originalName": "contentType",
                     "serializedName": "Content-Type",
                     "doc": "Body parameter's content type. Known values are application/json",
                     "type": {
@@ -3790,6 +3940,7 @@
                         "$id": "286",
                         "kind": "method",
                         "name": "contentType",
+                        "originalName": "contentType",
                         "serializedName": "Content-Type",
                         "doc": "Body parameter's content type. Known values are application/json",
                         "type": {
@@ -3812,6 +3963,7 @@
                     "$id": "287",
                     "kind": "body",
                     "name": "body",
+                    "originalName": "body",
                     "serializedName": "body",
                     "type": {
                       "$ref": "133"
@@ -3831,6 +3983,7 @@
                         "$id": "288",
                         "kind": "method",
                         "name": "body",
+                        "originalName": "body",
                         "serializedName": "body",
                         "type": {
                           "$ref": "133"
@@ -3895,12 +4048,14 @@
               "$id": "289",
               "kind": "basic",
               "name": "withClass",
+              "originalName": "withClass",
               "isExactName": false,
               "accessibility": "public",
               "apiVersions": [],
               "operation": {
                 "$id": "290",
                 "name": "withClass",
+                "originalName": "withClass",
                 "isExactName": false,
                 "resourceName": "Models",
                 "accessibility": "public",
@@ -3909,6 +4064,7 @@
                     "$id": "291",
                     "kind": "header",
                     "name": "contentType",
+                    "originalName": "contentType",
                     "serializedName": "Content-Type",
                     "doc": "Body parameter's content type. Known values are application/json",
                     "type": {
@@ -3926,6 +4082,7 @@
                         "$id": "292",
                         "kind": "method",
                         "name": "contentType",
+                        "originalName": "contentType",
                         "serializedName": "Content-Type",
                         "doc": "Body parameter's content type. Known values are application/json",
                         "type": {
@@ -3948,6 +4105,7 @@
                     "$id": "293",
                     "kind": "body",
                     "name": "body",
+                    "originalName": "body",
                     "serializedName": "body",
                     "type": {
                       "$ref": "136"
@@ -3967,6 +4125,7 @@
                         "$id": "294",
                         "kind": "method",
                         "name": "body",
+                        "originalName": "body",
                         "serializedName": "body",
                         "type": {
                           "$ref": "136"
@@ -4031,12 +4190,14 @@
               "$id": "295",
               "kind": "basic",
               "name": "withConstructor",
+              "originalName": "withConstructor",
               "isExactName": false,
               "accessibility": "public",
               "apiVersions": [],
               "operation": {
                 "$id": "296",
                 "name": "withConstructor",
+                "originalName": "withConstructor",
                 "isExactName": false,
                 "resourceName": "Models",
                 "accessibility": "public",
@@ -4045,6 +4206,7 @@
                     "$id": "297",
                     "kind": "header",
                     "name": "contentType",
+                    "originalName": "contentType",
                     "serializedName": "Content-Type",
                     "doc": "Body parameter's content type. Known values are application/json",
                     "type": {
@@ -4062,6 +4224,7 @@
                         "$id": "298",
                         "kind": "method",
                         "name": "contentType",
+                        "originalName": "contentType",
                         "serializedName": "Content-Type",
                         "doc": "Body parameter's content type. Known values are application/json",
                         "type": {
@@ -4084,6 +4247,7 @@
                     "$id": "299",
                     "kind": "body",
                     "name": "body",
+                    "originalName": "body",
                     "serializedName": "body",
                     "type": {
                       "$ref": "139"
@@ -4103,6 +4267,7 @@
                         "$id": "300",
                         "kind": "method",
                         "name": "body",
+                        "originalName": "body",
                         "serializedName": "body",
                         "type": {
                           "$ref": "139"
@@ -4167,12 +4332,14 @@
               "$id": "301",
               "kind": "basic",
               "name": "withContinue",
+              "originalName": "withContinue",
               "isExactName": false,
               "accessibility": "public",
               "apiVersions": [],
               "operation": {
                 "$id": "302",
                 "name": "withContinue",
+                "originalName": "withContinue",
                 "isExactName": false,
                 "resourceName": "Models",
                 "accessibility": "public",
@@ -4181,6 +4348,7 @@
                     "$id": "303",
                     "kind": "header",
                     "name": "contentType",
+                    "originalName": "contentType",
                     "serializedName": "Content-Type",
                     "doc": "Body parameter's content type. Known values are application/json",
                     "type": {
@@ -4198,6 +4366,7 @@
                         "$id": "304",
                         "kind": "method",
                         "name": "contentType",
+                        "originalName": "contentType",
                         "serializedName": "Content-Type",
                         "doc": "Body parameter's content type. Known values are application/json",
                         "type": {
@@ -4220,6 +4389,7 @@
                     "$id": "305",
                     "kind": "body",
                     "name": "body",
+                    "originalName": "body",
                     "serializedName": "body",
                     "type": {
                       "$ref": "142"
@@ -4239,6 +4409,7 @@
                         "$id": "306",
                         "kind": "method",
                         "name": "body",
+                        "originalName": "body",
                         "serializedName": "body",
                         "type": {
                           "$ref": "142"
@@ -4303,12 +4474,14 @@
               "$id": "307",
               "kind": "basic",
               "name": "withDef",
+              "originalName": "withDef",
               "isExactName": false,
               "accessibility": "public",
               "apiVersions": [],
               "operation": {
                 "$id": "308",
                 "name": "withDef",
+                "originalName": "withDef",
                 "isExactName": false,
                 "resourceName": "Models",
                 "accessibility": "public",
@@ -4317,6 +4490,7 @@
                     "$id": "309",
                     "kind": "header",
                     "name": "contentType",
+                    "originalName": "contentType",
                     "serializedName": "Content-Type",
                     "doc": "Body parameter's content type. Known values are application/json",
                     "type": {
@@ -4334,6 +4508,7 @@
                         "$id": "310",
                         "kind": "method",
                         "name": "contentType",
+                        "originalName": "contentType",
                         "serializedName": "Content-Type",
                         "doc": "Body parameter's content type. Known values are application/json",
                         "type": {
@@ -4356,6 +4531,7 @@
                     "$id": "311",
                     "kind": "body",
                     "name": "body",
+                    "originalName": "body",
                     "serializedName": "body",
                     "type": {
                       "$ref": "145"
@@ -4375,6 +4551,7 @@
                         "$id": "312",
                         "kind": "method",
                         "name": "body",
+                        "originalName": "body",
                         "serializedName": "body",
                         "type": {
                           "$ref": "145"
@@ -4439,12 +4616,14 @@
               "$id": "313",
               "kind": "basic",
               "name": "withDel",
+              "originalName": "withDel",
               "isExactName": false,
               "accessibility": "public",
               "apiVersions": [],
               "operation": {
                 "$id": "314",
                 "name": "withDel",
+                "originalName": "withDel",
                 "isExactName": false,
                 "resourceName": "Models",
                 "accessibility": "public",
@@ -4453,6 +4632,7 @@
                     "$id": "315",
                     "kind": "header",
                     "name": "contentType",
+                    "originalName": "contentType",
                     "serializedName": "Content-Type",
                     "doc": "Body parameter's content type. Known values are application/json",
                     "type": {
@@ -4470,6 +4650,7 @@
                         "$id": "316",
                         "kind": "method",
                         "name": "contentType",
+                        "originalName": "contentType",
                         "serializedName": "Content-Type",
                         "doc": "Body parameter's content type. Known values are application/json",
                         "type": {
@@ -4492,6 +4673,7 @@
                     "$id": "317",
                     "kind": "body",
                     "name": "body",
+                    "originalName": "body",
                     "serializedName": "body",
                     "type": {
                       "$ref": "148"
@@ -4511,6 +4693,7 @@
                         "$id": "318",
                         "kind": "method",
                         "name": "body",
+                        "originalName": "body",
                         "serializedName": "body",
                         "type": {
                           "$ref": "148"
@@ -4575,12 +4758,14 @@
               "$id": "319",
               "kind": "basic",
               "name": "withElif",
+              "originalName": "withElif",
               "isExactName": false,
               "accessibility": "public",
               "apiVersions": [],
               "operation": {
                 "$id": "320",
                 "name": "withElif",
+                "originalName": "withElif",
                 "isExactName": false,
                 "resourceName": "Models",
                 "accessibility": "public",
@@ -4589,6 +4774,7 @@
                     "$id": "321",
                     "kind": "header",
                     "name": "contentType",
+                    "originalName": "contentType",
                     "serializedName": "Content-Type",
                     "doc": "Body parameter's content type. Known values are application/json",
                     "type": {
@@ -4606,6 +4792,7 @@
                         "$id": "322",
                         "kind": "method",
                         "name": "contentType",
+                        "originalName": "contentType",
                         "serializedName": "Content-Type",
                         "doc": "Body parameter's content type. Known values are application/json",
                         "type": {
@@ -4628,6 +4815,7 @@
                     "$id": "323",
                     "kind": "body",
                     "name": "body",
+                    "originalName": "body",
                     "serializedName": "body",
                     "type": {
                       "$ref": "151"
@@ -4647,6 +4835,7 @@
                         "$id": "324",
                         "kind": "method",
                         "name": "body",
+                        "originalName": "body",
                         "serializedName": "body",
                         "type": {
                           "$ref": "151"
@@ -4711,12 +4900,14 @@
               "$id": "325",
               "kind": "basic",
               "name": "withElse",
+              "originalName": "withElse",
               "isExactName": false,
               "accessibility": "public",
               "apiVersions": [],
               "operation": {
                 "$id": "326",
                 "name": "withElse",
+                "originalName": "withElse",
                 "isExactName": false,
                 "resourceName": "Models",
                 "accessibility": "public",
@@ -4725,6 +4916,7 @@
                     "$id": "327",
                     "kind": "header",
                     "name": "contentType",
+                    "originalName": "contentType",
                     "serializedName": "Content-Type",
                     "doc": "Body parameter's content type. Known values are application/json",
                     "type": {
@@ -4742,6 +4934,7 @@
                         "$id": "328",
                         "kind": "method",
                         "name": "contentType",
+                        "originalName": "contentType",
                         "serializedName": "Content-Type",
                         "doc": "Body parameter's content type. Known values are application/json",
                         "type": {
@@ -4764,6 +4957,7 @@
                     "$id": "329",
                     "kind": "body",
                     "name": "body",
+                    "originalName": "body",
                     "serializedName": "body",
                     "type": {
                       "$ref": "154"
@@ -4783,6 +4977,7 @@
                         "$id": "330",
                         "kind": "method",
                         "name": "body",
+                        "originalName": "body",
                         "serializedName": "body",
                         "type": {
                           "$ref": "154"
@@ -4847,12 +5042,14 @@
               "$id": "331",
               "kind": "basic",
               "name": "withExcept",
+              "originalName": "withExcept",
               "isExactName": false,
               "accessibility": "public",
               "apiVersions": [],
               "operation": {
                 "$id": "332",
                 "name": "withExcept",
+                "originalName": "withExcept",
                 "isExactName": false,
                 "resourceName": "Models",
                 "accessibility": "public",
@@ -4861,6 +5058,7 @@
                     "$id": "333",
                     "kind": "header",
                     "name": "contentType",
+                    "originalName": "contentType",
                     "serializedName": "Content-Type",
                     "doc": "Body parameter's content type. Known values are application/json",
                     "type": {
@@ -4878,6 +5076,7 @@
                         "$id": "334",
                         "kind": "method",
                         "name": "contentType",
+                        "originalName": "contentType",
                         "serializedName": "Content-Type",
                         "doc": "Body parameter's content type. Known values are application/json",
                         "type": {
@@ -4900,6 +5099,7 @@
                     "$id": "335",
                     "kind": "body",
                     "name": "body",
+                    "originalName": "body",
                     "serializedName": "body",
                     "type": {
                       "$ref": "157"
@@ -4919,6 +5119,7 @@
                         "$id": "336",
                         "kind": "method",
                         "name": "body",
+                        "originalName": "body",
                         "serializedName": "body",
                         "type": {
                           "$ref": "157"
@@ -4983,12 +5184,14 @@
               "$id": "337",
               "kind": "basic",
               "name": "withExec",
+              "originalName": "withExec",
               "isExactName": false,
               "accessibility": "public",
               "apiVersions": [],
               "operation": {
                 "$id": "338",
                 "name": "withExec",
+                "originalName": "withExec",
                 "isExactName": false,
                 "resourceName": "Models",
                 "accessibility": "public",
@@ -4997,6 +5200,7 @@
                     "$id": "339",
                     "kind": "header",
                     "name": "contentType",
+                    "originalName": "contentType",
                     "serializedName": "Content-Type",
                     "doc": "Body parameter's content type. Known values are application/json",
                     "type": {
@@ -5014,6 +5218,7 @@
                         "$id": "340",
                         "kind": "method",
                         "name": "contentType",
+                        "originalName": "contentType",
                         "serializedName": "Content-Type",
                         "doc": "Body parameter's content type. Known values are application/json",
                         "type": {
@@ -5036,6 +5241,7 @@
                     "$id": "341",
                     "kind": "body",
                     "name": "body",
+                    "originalName": "body",
                     "serializedName": "body",
                     "type": {
                       "$ref": "160"
@@ -5055,6 +5261,7 @@
                         "$id": "342",
                         "kind": "method",
                         "name": "body",
+                        "originalName": "body",
                         "serializedName": "body",
                         "type": {
                           "$ref": "160"
@@ -5119,12 +5326,14 @@
               "$id": "343",
               "kind": "basic",
               "name": "withFinally",
+              "originalName": "withFinally",
               "isExactName": false,
               "accessibility": "public",
               "apiVersions": [],
               "operation": {
                 "$id": "344",
                 "name": "withFinally",
+                "originalName": "withFinally",
                 "isExactName": false,
                 "resourceName": "Models",
                 "accessibility": "public",
@@ -5133,6 +5342,7 @@
                     "$id": "345",
                     "kind": "header",
                     "name": "contentType",
+                    "originalName": "contentType",
                     "serializedName": "Content-Type",
                     "doc": "Body parameter's content type. Known values are application/json",
                     "type": {
@@ -5150,6 +5360,7 @@
                         "$id": "346",
                         "kind": "method",
                         "name": "contentType",
+                        "originalName": "contentType",
                         "serializedName": "Content-Type",
                         "doc": "Body parameter's content type. Known values are application/json",
                         "type": {
@@ -5172,6 +5383,7 @@
                     "$id": "347",
                     "kind": "body",
                     "name": "body",
+                    "originalName": "body",
                     "serializedName": "body",
                     "type": {
                       "$ref": "163"
@@ -5191,6 +5403,7 @@
                         "$id": "348",
                         "kind": "method",
                         "name": "body",
+                        "originalName": "body",
                         "serializedName": "body",
                         "type": {
                           "$ref": "163"
@@ -5255,12 +5468,14 @@
               "$id": "349",
               "kind": "basic",
               "name": "withFor",
+              "originalName": "withFor",
               "isExactName": false,
               "accessibility": "public",
               "apiVersions": [],
               "operation": {
                 "$id": "350",
                 "name": "withFor",
+                "originalName": "withFor",
                 "isExactName": false,
                 "resourceName": "Models",
                 "accessibility": "public",
@@ -5269,6 +5484,7 @@
                     "$id": "351",
                     "kind": "header",
                     "name": "contentType",
+                    "originalName": "contentType",
                     "serializedName": "Content-Type",
                     "doc": "Body parameter's content type. Known values are application/json",
                     "type": {
@@ -5286,6 +5502,7 @@
                         "$id": "352",
                         "kind": "method",
                         "name": "contentType",
+                        "originalName": "contentType",
                         "serializedName": "Content-Type",
                         "doc": "Body parameter's content type. Known values are application/json",
                         "type": {
@@ -5308,6 +5525,7 @@
                     "$id": "353",
                     "kind": "body",
                     "name": "body",
+                    "originalName": "body",
                     "serializedName": "body",
                     "type": {
                       "$ref": "166"
@@ -5327,6 +5545,7 @@
                         "$id": "354",
                         "kind": "method",
                         "name": "body",
+                        "originalName": "body",
                         "serializedName": "body",
                         "type": {
                           "$ref": "166"
@@ -5391,12 +5610,14 @@
               "$id": "355",
               "kind": "basic",
               "name": "withFrom",
+              "originalName": "withFrom",
               "isExactName": false,
               "accessibility": "public",
               "apiVersions": [],
               "operation": {
                 "$id": "356",
                 "name": "withFrom",
+                "originalName": "withFrom",
                 "isExactName": false,
                 "resourceName": "Models",
                 "accessibility": "public",
@@ -5405,6 +5626,7 @@
                     "$id": "357",
                     "kind": "header",
                     "name": "contentType",
+                    "originalName": "contentType",
                     "serializedName": "Content-Type",
                     "doc": "Body parameter's content type. Known values are application/json",
                     "type": {
@@ -5422,6 +5644,7 @@
                         "$id": "358",
                         "kind": "method",
                         "name": "contentType",
+                        "originalName": "contentType",
                         "serializedName": "Content-Type",
                         "doc": "Body parameter's content type. Known values are application/json",
                         "type": {
@@ -5444,6 +5667,7 @@
                     "$id": "359",
                     "kind": "body",
                     "name": "body",
+                    "originalName": "body",
                     "serializedName": "body",
                     "type": {
                       "$ref": "169"
@@ -5463,6 +5687,7 @@
                         "$id": "360",
                         "kind": "method",
                         "name": "body",
+                        "originalName": "body",
                         "serializedName": "body",
                         "type": {
                           "$ref": "169"
@@ -5527,12 +5752,14 @@
               "$id": "361",
               "kind": "basic",
               "name": "withGlobal",
+              "originalName": "withGlobal",
               "isExactName": false,
               "accessibility": "public",
               "apiVersions": [],
               "operation": {
                 "$id": "362",
                 "name": "withGlobal",
+                "originalName": "withGlobal",
                 "isExactName": false,
                 "resourceName": "Models",
                 "accessibility": "public",
@@ -5541,6 +5768,7 @@
                     "$id": "363",
                     "kind": "header",
                     "name": "contentType",
+                    "originalName": "contentType",
                     "serializedName": "Content-Type",
                     "doc": "Body parameter's content type. Known values are application/json",
                     "type": {
@@ -5558,6 +5786,7 @@
                         "$id": "364",
                         "kind": "method",
                         "name": "contentType",
+                        "originalName": "contentType",
                         "serializedName": "Content-Type",
                         "doc": "Body parameter's content type. Known values are application/json",
                         "type": {
@@ -5580,6 +5809,7 @@
                     "$id": "365",
                     "kind": "body",
                     "name": "body",
+                    "originalName": "body",
                     "serializedName": "body",
                     "type": {
                       "$ref": "172"
@@ -5599,6 +5829,7 @@
                         "$id": "366",
                         "kind": "method",
                         "name": "body",
+                        "originalName": "body",
                         "serializedName": "body",
                         "type": {
                           "$ref": "172"
@@ -5663,12 +5894,14 @@
               "$id": "367",
               "kind": "basic",
               "name": "withIf",
+              "originalName": "withIf",
               "isExactName": false,
               "accessibility": "public",
               "apiVersions": [],
               "operation": {
                 "$id": "368",
                 "name": "withIf",
+                "originalName": "withIf",
                 "isExactName": false,
                 "resourceName": "Models",
                 "accessibility": "public",
@@ -5677,6 +5910,7 @@
                     "$id": "369",
                     "kind": "header",
                     "name": "contentType",
+                    "originalName": "contentType",
                     "serializedName": "Content-Type",
                     "doc": "Body parameter's content type. Known values are application/json",
                     "type": {
@@ -5694,6 +5928,7 @@
                         "$id": "370",
                         "kind": "method",
                         "name": "contentType",
+                        "originalName": "contentType",
                         "serializedName": "Content-Type",
                         "doc": "Body parameter's content type. Known values are application/json",
                         "type": {
@@ -5716,6 +5951,7 @@
                     "$id": "371",
                     "kind": "body",
                     "name": "body",
+                    "originalName": "body",
                     "serializedName": "body",
                     "type": {
                       "$ref": "175"
@@ -5735,6 +5971,7 @@
                         "$id": "372",
                         "kind": "method",
                         "name": "body",
+                        "originalName": "body",
                         "serializedName": "body",
                         "type": {
                           "$ref": "175"
@@ -5799,12 +6036,14 @@
               "$id": "373",
               "kind": "basic",
               "name": "withImport",
+              "originalName": "withImport",
               "isExactName": false,
               "accessibility": "public",
               "apiVersions": [],
               "operation": {
                 "$id": "374",
                 "name": "withImport",
+                "originalName": "withImport",
                 "isExactName": false,
                 "resourceName": "Models",
                 "accessibility": "public",
@@ -5813,6 +6052,7 @@
                     "$id": "375",
                     "kind": "header",
                     "name": "contentType",
+                    "originalName": "contentType",
                     "serializedName": "Content-Type",
                     "doc": "Body parameter's content type. Known values are application/json",
                     "type": {
@@ -5830,6 +6070,7 @@
                         "$id": "376",
                         "kind": "method",
                         "name": "contentType",
+                        "originalName": "contentType",
                         "serializedName": "Content-Type",
                         "doc": "Body parameter's content type. Known values are application/json",
                         "type": {
@@ -5852,6 +6093,7 @@
                     "$id": "377",
                     "kind": "body",
                     "name": "body",
+                    "originalName": "body",
                     "serializedName": "body",
                     "type": {
                       "$ref": "178"
@@ -5871,6 +6113,7 @@
                         "$id": "378",
                         "kind": "method",
                         "name": "body",
+                        "originalName": "body",
                         "serializedName": "body",
                         "type": {
                           "$ref": "178"
@@ -5935,12 +6178,14 @@
               "$id": "379",
               "kind": "basic",
               "name": "withIn",
+              "originalName": "withIn",
               "isExactName": false,
               "accessibility": "public",
               "apiVersions": [],
               "operation": {
                 "$id": "380",
                 "name": "withIn",
+                "originalName": "withIn",
                 "isExactName": false,
                 "resourceName": "Models",
                 "accessibility": "public",
@@ -5949,6 +6194,7 @@
                     "$id": "381",
                     "kind": "header",
                     "name": "contentType",
+                    "originalName": "contentType",
                     "serializedName": "Content-Type",
                     "doc": "Body parameter's content type. Known values are application/json",
                     "type": {
@@ -5966,6 +6212,7 @@
                         "$id": "382",
                         "kind": "method",
                         "name": "contentType",
+                        "originalName": "contentType",
                         "serializedName": "Content-Type",
                         "doc": "Body parameter's content type. Known values are application/json",
                         "type": {
@@ -5988,6 +6235,7 @@
                     "$id": "383",
                     "kind": "body",
                     "name": "body",
+                    "originalName": "body",
                     "serializedName": "body",
                     "type": {
                       "$ref": "181"
@@ -6007,6 +6255,7 @@
                         "$id": "384",
                         "kind": "method",
                         "name": "body",
+                        "originalName": "body",
                         "serializedName": "body",
                         "type": {
                           "$ref": "181"
@@ -6071,12 +6320,14 @@
               "$id": "385",
               "kind": "basic",
               "name": "withIs",
+              "originalName": "withIs",
               "isExactName": false,
               "accessibility": "public",
               "apiVersions": [],
               "operation": {
                 "$id": "386",
                 "name": "withIs",
+                "originalName": "withIs",
                 "isExactName": false,
                 "resourceName": "Models",
                 "accessibility": "public",
@@ -6085,6 +6336,7 @@
                     "$id": "387",
                     "kind": "header",
                     "name": "contentType",
+                    "originalName": "contentType",
                     "serializedName": "Content-Type",
                     "doc": "Body parameter's content type. Known values are application/json",
                     "type": {
@@ -6102,6 +6354,7 @@
                         "$id": "388",
                         "kind": "method",
                         "name": "contentType",
+                        "originalName": "contentType",
                         "serializedName": "Content-Type",
                         "doc": "Body parameter's content type. Known values are application/json",
                         "type": {
@@ -6124,6 +6377,7 @@
                     "$id": "389",
                     "kind": "body",
                     "name": "body",
+                    "originalName": "body",
                     "serializedName": "body",
                     "type": {
                       "$ref": "184"
@@ -6143,6 +6397,7 @@
                         "$id": "390",
                         "kind": "method",
                         "name": "body",
+                        "originalName": "body",
                         "serializedName": "body",
                         "type": {
                           "$ref": "184"
@@ -6207,12 +6462,14 @@
               "$id": "391",
               "kind": "basic",
               "name": "withLambda",
+              "originalName": "withLambda",
               "isExactName": false,
               "accessibility": "public",
               "apiVersions": [],
               "operation": {
                 "$id": "392",
                 "name": "withLambda",
+                "originalName": "withLambda",
                 "isExactName": false,
                 "resourceName": "Models",
                 "accessibility": "public",
@@ -6221,6 +6478,7 @@
                     "$id": "393",
                     "kind": "header",
                     "name": "contentType",
+                    "originalName": "contentType",
                     "serializedName": "Content-Type",
                     "doc": "Body parameter's content type. Known values are application/json",
                     "type": {
@@ -6238,6 +6496,7 @@
                         "$id": "394",
                         "kind": "method",
                         "name": "contentType",
+                        "originalName": "contentType",
                         "serializedName": "Content-Type",
                         "doc": "Body parameter's content type. Known values are application/json",
                         "type": {
@@ -6260,6 +6519,7 @@
                     "$id": "395",
                     "kind": "body",
                     "name": "body",
+                    "originalName": "body",
                     "serializedName": "body",
                     "type": {
                       "$ref": "187"
@@ -6279,6 +6539,7 @@
                         "$id": "396",
                         "kind": "method",
                         "name": "body",
+                        "originalName": "body",
                         "serializedName": "body",
                         "type": {
                           "$ref": "187"
@@ -6343,12 +6604,14 @@
               "$id": "397",
               "kind": "basic",
               "name": "withNot",
+              "originalName": "withNot",
               "isExactName": false,
               "accessibility": "public",
               "apiVersions": [],
               "operation": {
                 "$id": "398",
                 "name": "withNot",
+                "originalName": "withNot",
                 "isExactName": false,
                 "resourceName": "Models",
                 "accessibility": "public",
@@ -6357,6 +6620,7 @@
                     "$id": "399",
                     "kind": "header",
                     "name": "contentType",
+                    "originalName": "contentType",
                     "serializedName": "Content-Type",
                     "doc": "Body parameter's content type. Known values are application/json",
                     "type": {
@@ -6374,6 +6638,7 @@
                         "$id": "400",
                         "kind": "method",
                         "name": "contentType",
+                        "originalName": "contentType",
                         "serializedName": "Content-Type",
                         "doc": "Body parameter's content type. Known values are application/json",
                         "type": {
@@ -6396,6 +6661,7 @@
                     "$id": "401",
                     "kind": "body",
                     "name": "body",
+                    "originalName": "body",
                     "serializedName": "body",
                     "type": {
                       "$ref": "190"
@@ -6415,6 +6681,7 @@
                         "$id": "402",
                         "kind": "method",
                         "name": "body",
+                        "originalName": "body",
                         "serializedName": "body",
                         "type": {
                           "$ref": "190"
@@ -6479,12 +6746,14 @@
               "$id": "403",
               "kind": "basic",
               "name": "withOr",
+              "originalName": "withOr",
               "isExactName": false,
               "accessibility": "public",
               "apiVersions": [],
               "operation": {
                 "$id": "404",
                 "name": "withOr",
+                "originalName": "withOr",
                 "isExactName": false,
                 "resourceName": "Models",
                 "accessibility": "public",
@@ -6493,6 +6762,7 @@
                     "$id": "405",
                     "kind": "header",
                     "name": "contentType",
+                    "originalName": "contentType",
                     "serializedName": "Content-Type",
                     "doc": "Body parameter's content type. Known values are application/json",
                     "type": {
@@ -6510,6 +6780,7 @@
                         "$id": "406",
                         "kind": "method",
                         "name": "contentType",
+                        "originalName": "contentType",
                         "serializedName": "Content-Type",
                         "doc": "Body parameter's content type. Known values are application/json",
                         "type": {
@@ -6532,6 +6803,7 @@
                     "$id": "407",
                     "kind": "body",
                     "name": "body",
+                    "originalName": "body",
                     "serializedName": "body",
                     "type": {
                       "$ref": "193"
@@ -6551,6 +6823,7 @@
                         "$id": "408",
                         "kind": "method",
                         "name": "body",
+                        "originalName": "body",
                         "serializedName": "body",
                         "type": {
                           "$ref": "193"
@@ -6615,12 +6888,14 @@
               "$id": "409",
               "kind": "basic",
               "name": "withPass",
+              "originalName": "withPass",
               "isExactName": false,
               "accessibility": "public",
               "apiVersions": [],
               "operation": {
                 "$id": "410",
                 "name": "withPass",
+                "originalName": "withPass",
                 "isExactName": false,
                 "resourceName": "Models",
                 "accessibility": "public",
@@ -6629,6 +6904,7 @@
                     "$id": "411",
                     "kind": "header",
                     "name": "contentType",
+                    "originalName": "contentType",
                     "serializedName": "Content-Type",
                     "doc": "Body parameter's content type. Known values are application/json",
                     "type": {
@@ -6646,6 +6922,7 @@
                         "$id": "412",
                         "kind": "method",
                         "name": "contentType",
+                        "originalName": "contentType",
                         "serializedName": "Content-Type",
                         "doc": "Body parameter's content type. Known values are application/json",
                         "type": {
@@ -6668,6 +6945,7 @@
                     "$id": "413",
                     "kind": "body",
                     "name": "body",
+                    "originalName": "body",
                     "serializedName": "body",
                     "type": {
                       "$ref": "196"
@@ -6687,6 +6965,7 @@
                         "$id": "414",
                         "kind": "method",
                         "name": "body",
+                        "originalName": "body",
                         "serializedName": "body",
                         "type": {
                           "$ref": "196"
@@ -6751,12 +7030,14 @@
               "$id": "415",
               "kind": "basic",
               "name": "withRaise",
+              "originalName": "withRaise",
               "isExactName": false,
               "accessibility": "public",
               "apiVersions": [],
               "operation": {
                 "$id": "416",
                 "name": "withRaise",
+                "originalName": "withRaise",
                 "isExactName": false,
                 "resourceName": "Models",
                 "accessibility": "public",
@@ -6765,6 +7046,7 @@
                     "$id": "417",
                     "kind": "header",
                     "name": "contentType",
+                    "originalName": "contentType",
                     "serializedName": "Content-Type",
                     "doc": "Body parameter's content type. Known values are application/json",
                     "type": {
@@ -6782,6 +7064,7 @@
                         "$id": "418",
                         "kind": "method",
                         "name": "contentType",
+                        "originalName": "contentType",
                         "serializedName": "Content-Type",
                         "doc": "Body parameter's content type. Known values are application/json",
                         "type": {
@@ -6804,6 +7087,7 @@
                     "$id": "419",
                     "kind": "body",
                     "name": "body",
+                    "originalName": "body",
                     "serializedName": "body",
                     "type": {
                       "$ref": "199"
@@ -6823,6 +7107,7 @@
                         "$id": "420",
                         "kind": "method",
                         "name": "body",
+                        "originalName": "body",
                         "serializedName": "body",
                         "type": {
                           "$ref": "199"
@@ -6887,12 +7172,14 @@
               "$id": "421",
               "kind": "basic",
               "name": "withReturn",
+              "originalName": "withReturn",
               "isExactName": false,
               "accessibility": "public",
               "apiVersions": [],
               "operation": {
                 "$id": "422",
                 "name": "withReturn",
+                "originalName": "withReturn",
                 "isExactName": false,
                 "resourceName": "Models",
                 "accessibility": "public",
@@ -6901,6 +7188,7 @@
                     "$id": "423",
                     "kind": "header",
                     "name": "contentType",
+                    "originalName": "contentType",
                     "serializedName": "Content-Type",
                     "doc": "Body parameter's content type. Known values are application/json",
                     "type": {
@@ -6918,6 +7206,7 @@
                         "$id": "424",
                         "kind": "method",
                         "name": "contentType",
+                        "originalName": "contentType",
                         "serializedName": "Content-Type",
                         "doc": "Body parameter's content type. Known values are application/json",
                         "type": {
@@ -6940,6 +7229,7 @@
                     "$id": "425",
                     "kind": "body",
                     "name": "body",
+                    "originalName": "body",
                     "serializedName": "body",
                     "type": {
                       "$ref": "202"
@@ -6959,6 +7249,7 @@
                         "$id": "426",
                         "kind": "method",
                         "name": "body",
+                        "originalName": "body",
                         "serializedName": "body",
                         "type": {
                           "$ref": "202"
@@ -7023,12 +7314,14 @@
               "$id": "427",
               "kind": "basic",
               "name": "withTry",
+              "originalName": "withTry",
               "isExactName": false,
               "accessibility": "public",
               "apiVersions": [],
               "operation": {
                 "$id": "428",
                 "name": "withTry",
+                "originalName": "withTry",
                 "isExactName": false,
                 "resourceName": "Models",
                 "accessibility": "public",
@@ -7037,6 +7330,7 @@
                     "$id": "429",
                     "kind": "header",
                     "name": "contentType",
+                    "originalName": "contentType",
                     "serializedName": "Content-Type",
                     "doc": "Body parameter's content type. Known values are application/json",
                     "type": {
@@ -7054,6 +7348,7 @@
                         "$id": "430",
                         "kind": "method",
                         "name": "contentType",
+                        "originalName": "contentType",
                         "serializedName": "Content-Type",
                         "doc": "Body parameter's content type. Known values are application/json",
                         "type": {
@@ -7076,6 +7371,7 @@
                     "$id": "431",
                     "kind": "body",
                     "name": "body",
+                    "originalName": "body",
                     "serializedName": "body",
                     "type": {
                       "$ref": "205"
@@ -7095,6 +7391,7 @@
                         "$id": "432",
                         "kind": "method",
                         "name": "body",
+                        "originalName": "body",
                         "serializedName": "body",
                         "type": {
                           "$ref": "205"
@@ -7159,12 +7456,14 @@
               "$id": "433",
               "kind": "basic",
               "name": "withWhile",
+              "originalName": "withWhile",
               "isExactName": false,
               "accessibility": "public",
               "apiVersions": [],
               "operation": {
                 "$id": "434",
                 "name": "withWhile",
+                "originalName": "withWhile",
                 "isExactName": false,
                 "resourceName": "Models",
                 "accessibility": "public",
@@ -7173,6 +7472,7 @@
                     "$id": "435",
                     "kind": "header",
                     "name": "contentType",
+                    "originalName": "contentType",
                     "serializedName": "Content-Type",
                     "doc": "Body parameter's content type. Known values are application/json",
                     "type": {
@@ -7190,6 +7490,7 @@
                         "$id": "436",
                         "kind": "method",
                         "name": "contentType",
+                        "originalName": "contentType",
                         "serializedName": "Content-Type",
                         "doc": "Body parameter's content type. Known values are application/json",
                         "type": {
@@ -7212,6 +7513,7 @@
                     "$id": "437",
                     "kind": "body",
                     "name": "body",
+                    "originalName": "body",
                     "serializedName": "body",
                     "type": {
                       "$ref": "208"
@@ -7231,6 +7533,7 @@
                         "$id": "438",
                         "kind": "method",
                         "name": "body",
+                        "originalName": "body",
                         "serializedName": "body",
                         "type": {
                           "$ref": "208"
@@ -7295,12 +7598,14 @@
               "$id": "439",
               "kind": "basic",
               "name": "withWith",
+              "originalName": "withWith",
               "isExactName": false,
               "accessibility": "public",
               "apiVersions": [],
               "operation": {
                 "$id": "440",
                 "name": "withWith",
+                "originalName": "withWith",
                 "isExactName": false,
                 "resourceName": "Models",
                 "accessibility": "public",
@@ -7309,6 +7614,7 @@
                     "$id": "441",
                     "kind": "header",
                     "name": "contentType",
+                    "originalName": "contentType",
                     "serializedName": "Content-Type",
                     "doc": "Body parameter's content type. Known values are application/json",
                     "type": {
@@ -7326,6 +7632,7 @@
                         "$id": "442",
                         "kind": "method",
                         "name": "contentType",
+                        "originalName": "contentType",
                         "serializedName": "Content-Type",
                         "doc": "Body parameter's content type. Known values are application/json",
                         "type": {
@@ -7348,6 +7655,7 @@
                     "$id": "443",
                     "kind": "body",
                     "name": "body",
+                    "originalName": "body",
                     "serializedName": "body",
                     "type": {
                       "$ref": "211"
@@ -7367,6 +7675,7 @@
                         "$id": "444",
                         "kind": "method",
                         "name": "body",
+                        "originalName": "body",
                         "serializedName": "body",
                         "type": {
                           "$ref": "211"
@@ -7431,12 +7740,14 @@
               "$id": "445",
               "kind": "basic",
               "name": "withYield",
+              "originalName": "withYield",
               "isExactName": false,
               "accessibility": "public",
               "apiVersions": [],
               "operation": {
                 "$id": "446",
                 "name": "withYield",
+                "originalName": "withYield",
                 "isExactName": false,
                 "resourceName": "Models",
                 "accessibility": "public",
@@ -7445,6 +7756,7 @@
                     "$id": "447",
                     "kind": "header",
                     "name": "contentType",
+                    "originalName": "contentType",
                     "serializedName": "Content-Type",
                     "doc": "Body parameter's content type. Known values are application/json",
                     "type": {
@@ -7462,6 +7774,7 @@
                         "$id": "448",
                         "kind": "method",
                         "name": "contentType",
+                        "originalName": "contentType",
                         "serializedName": "Content-Type",
                         "doc": "Body parameter's content type. Known values are application/json",
                         "type": {
@@ -7484,6 +7797,7 @@
                     "$id": "449",
                     "kind": "body",
                     "name": "body",
+                    "originalName": "body",
                     "serializedName": "body",
                     "type": {
                       "$ref": "214"
@@ -7503,6 +7817,7 @@
                         "$id": "450",
                         "kind": "method",
                         "name": "body",
+                        "originalName": "body",
                         "serializedName": "body",
                         "type": {
                           "$ref": "214"
@@ -7618,12 +7933,14 @@
               "$id": "455",
               "kind": "basic",
               "name": "sameAsModel",
+              "originalName": "sameAsModel",
               "isExactName": false,
               "accessibility": "public",
               "apiVersions": [],
               "operation": {
                 "$id": "456",
                 "name": "sameAsModel",
+                "originalName": "sameAsModel",
                 "isExactName": false,
                 "resourceName": "ModelProperties",
                 "accessibility": "public",
@@ -7632,6 +7949,7 @@
                     "$id": "457",
                     "kind": "header",
                     "name": "contentType",
+                    "originalName": "contentType",
                     "serializedName": "Content-Type",
                     "doc": "Body parameter's content type. Known values are application/json",
                     "type": {
@@ -7649,6 +7967,7 @@
                         "$id": "458",
                         "kind": "method",
                         "name": "contentType",
+                        "originalName": "contentType",
                         "serializedName": "Content-Type",
                         "doc": "Body parameter's content type. Known values are application/json",
                         "type": {
@@ -7671,6 +7990,7 @@
                     "$id": "459",
                     "kind": "body",
                     "name": "body",
+                    "originalName": "body",
                     "serializedName": "body",
                     "type": {
                       "$ref": "217"
@@ -7690,6 +8010,7 @@
                         "$id": "460",
                         "kind": "method",
                         "name": "body",
+                        "originalName": "body",
                         "serializedName": "body",
                         "type": {
                           "$ref": "217"
@@ -7754,12 +8075,14 @@
               "$id": "461",
               "kind": "basic",
               "name": "dictMethods",
+              "originalName": "dictMethods",
               "isExactName": false,
               "accessibility": "public",
               "apiVersions": [],
               "operation": {
                 "$id": "462",
                 "name": "dictMethods",
+                "originalName": "dictMethods",
                 "isExactName": false,
                 "resourceName": "ModelProperties",
                 "accessibility": "public",
@@ -7768,6 +8091,7 @@
                     "$id": "463",
                     "kind": "header",
                     "name": "contentType",
+                    "originalName": "contentType",
                     "serializedName": "Content-Type",
                     "doc": "Body parameter's content type. Known values are application/json",
                     "type": {
@@ -7785,6 +8109,7 @@
                         "$id": "464",
                         "kind": "method",
                         "name": "contentType",
+                        "originalName": "contentType",
                         "serializedName": "Content-Type",
                         "doc": "Body parameter's content type. Known values are application/json",
                         "type": {
@@ -7807,6 +8132,7 @@
                     "$id": "465",
                     "kind": "body",
                     "name": "body",
+                    "originalName": "body",
                     "serializedName": "body",
                     "type": {
                       "$ref": "220"
@@ -7826,6 +8152,7 @@
                         "$id": "466",
                         "kind": "method",
                         "name": "body",
+                        "originalName": "body",
                         "serializedName": "body",
                         "type": {
                           "$ref": "220"
@@ -7890,12 +8217,14 @@
               "$id": "467",
               "kind": "basic",
               "name": "withList",
+              "originalName": "withList",
               "isExactName": false,
               "accessibility": "public",
               "apiVersions": [],
               "operation": {
                 "$id": "468",
                 "name": "withList",
+                "originalName": "withList",
                 "isExactName": false,
                 "resourceName": "ModelProperties",
                 "accessibility": "public",
@@ -7904,6 +8233,7 @@
                     "$id": "469",
                     "kind": "header",
                     "name": "contentType",
+                    "originalName": "contentType",
                     "serializedName": "Content-Type",
                     "doc": "Body parameter's content type. Known values are application/json",
                     "type": {
@@ -7921,6 +8251,7 @@
                         "$id": "470",
                         "kind": "method",
                         "name": "contentType",
+                        "originalName": "contentType",
                         "serializedName": "Content-Type",
                         "doc": "Body parameter's content type. Known values are application/json",
                         "type": {
@@ -7943,6 +8274,7 @@
                     "$id": "471",
                     "kind": "body",
                     "name": "body",
+                    "originalName": "body",
                     "serializedName": "body",
                     "type": {
                       "$ref": "241"
@@ -7962,6 +8294,7 @@
                         "$id": "472",
                         "kind": "method",
                         "name": "body",
+                        "originalName": "body",
                         "serializedName": "body",
                         "type": {
                           "$ref": "241"
@@ -8077,12 +8410,14 @@
               "$id": "477",
               "kind": "basic",
               "name": "withItems",
+              "originalName": "withItems",
               "isExactName": false,
               "accessibility": "public",
               "apiVersions": [],
               "operation": {
                 "$id": "478",
                 "name": "withItems",
+                "originalName": "withItems",
                 "isExactName": false,
                 "resourceName": "ReservedOperationBodyParams",
                 "accessibility": "public",
@@ -8091,6 +8426,7 @@
                     "$id": "479",
                     "kind": "header",
                     "name": "contentType",
+                    "originalName": "contentType",
                     "serializedName": "Content-Type",
                     "doc": "Body parameter's content type. Known values are application/json",
                     "type": {
@@ -8108,6 +8444,7 @@
                         "$id": "480",
                         "kind": "method",
                         "name": "contentType",
+                        "originalName": "contentType",
                         "serializedName": "Content-Type",
                         "doc": "Body parameter's content type. Known values are application/json",
                         "type": {
@@ -8130,6 +8467,7 @@
                     "$id": "481",
                     "kind": "body",
                     "name": "withItemsRequest",
+                    "originalName": "withItemsRequest",
                     "serializedName": "withItemsRequest",
                     "type": {
                       "$ref": "244"
@@ -8149,6 +8487,7 @@
                         "$id": "482",
                         "kind": "method",
                         "name": "items",
+                        "originalName": "items",
                         "serializedName": "items",
                         "type": {
                           "$ref": "246"
@@ -8264,12 +8603,14 @@
               "$id": "487",
               "kind": "basic",
               "name": "putExtensibleStringValue",
+              "originalName": "putExtensibleStringValue",
               "isExactName": false,
               "accessibility": "public",
               "apiVersions": [],
               "operation": {
                 "$id": "488",
                 "name": "putExtensibleStringValue",
+                "originalName": "putExtensibleStringValue",
                 "isExactName": false,
                 "resourceName": "ExtensibleStrings",
                 "accessibility": "public",
@@ -8278,6 +8619,7 @@
                     "$id": "489",
                     "kind": "header",
                     "name": "contentType",
+                    "originalName": "contentType",
                     "serializedName": "Content-Type",
                     "type": {
                       "$ref": "110"
@@ -8294,6 +8636,7 @@
                         "$id": "490",
                         "kind": "method",
                         "name": "contentType",
+                        "originalName": "contentType",
                         "serializedName": "Content-Type",
                         "type": {
                           "$ref": "110"
@@ -8315,6 +8658,7 @@
                     "$id": "491",
                     "kind": "header",
                     "name": "accept",
+                    "originalName": "accept",
                     "serializedName": "Accept",
                     "type": {
                       "$ref": "114"
@@ -8331,6 +8675,7 @@
                         "$id": "492",
                         "kind": "method",
                         "name": "accept",
+                        "originalName": "accept",
                         "serializedName": "Accept",
                         "type": {
                           "$ref": "114"
@@ -8352,6 +8697,7 @@
                     "$id": "493",
                     "kind": "body",
                     "name": "body",
+                    "originalName": "body",
                     "serializedName": "body",
                     "type": {
                       "$ref": "1"
@@ -8371,6 +8717,7 @@
                         "$id": "494",
                         "kind": "method",
                         "name": "body",
+                        "originalName": "body",
                         "serializedName": "body",
                         "type": {
                           "$ref": "1"
@@ -8511,12 +8858,14 @@
               "$id": "499",
               "kind": "basic",
               "name": "and",
+              "originalName": "and",
               "isExactName": false,
               "accessibility": "public",
               "apiVersions": [],
               "operation": {
                 "$id": "500",
                 "name": "and",
+                "originalName": "and",
                 "isExactName": false,
                 "resourceName": "Operations",
                 "accessibility": "public",
@@ -8552,12 +8901,14 @@
               "$id": "501",
               "kind": "basic",
               "name": "as",
+              "originalName": "as",
               "isExactName": false,
               "accessibility": "public",
               "apiVersions": [],
               "operation": {
                 "$id": "502",
                 "name": "as",
+                "originalName": "as",
                 "isExactName": false,
                 "resourceName": "Operations",
                 "accessibility": "public",
@@ -8593,12 +8944,14 @@
               "$id": "503",
               "kind": "basic",
               "name": "assert",
+              "originalName": "assert",
               "isExactName": false,
               "accessibility": "public",
               "apiVersions": [],
               "operation": {
                 "$id": "504",
                 "name": "assert",
+                "originalName": "assert",
                 "isExactName": false,
                 "resourceName": "Operations",
                 "accessibility": "public",
@@ -8634,12 +8987,14 @@
               "$id": "505",
               "kind": "basic",
               "name": "async",
+              "originalName": "async",
               "isExactName": false,
               "accessibility": "public",
               "apiVersions": [],
               "operation": {
                 "$id": "506",
                 "name": "async",
+                "originalName": "async",
                 "isExactName": false,
                 "resourceName": "Operations",
                 "accessibility": "public",
@@ -8675,12 +9030,14 @@
               "$id": "507",
               "kind": "basic",
               "name": "await",
+              "originalName": "await",
               "isExactName": false,
               "accessibility": "public",
               "apiVersions": [],
               "operation": {
                 "$id": "508",
                 "name": "await",
+                "originalName": "await",
                 "isExactName": false,
                 "resourceName": "Operations",
                 "accessibility": "public",
@@ -8716,12 +9073,14 @@
               "$id": "509",
               "kind": "basic",
               "name": "break",
+              "originalName": "break",
               "isExactName": false,
               "accessibility": "public",
               "apiVersions": [],
               "operation": {
                 "$id": "510",
                 "name": "break",
+                "originalName": "break",
                 "isExactName": false,
                 "resourceName": "Operations",
                 "accessibility": "public",
@@ -8757,12 +9116,14 @@
               "$id": "511",
               "kind": "basic",
               "name": "class",
+              "originalName": "class",
               "isExactName": false,
               "accessibility": "public",
               "apiVersions": [],
               "operation": {
                 "$id": "512",
                 "name": "class",
+                "originalName": "class",
                 "isExactName": false,
                 "resourceName": "Operations",
                 "accessibility": "public",
@@ -8798,12 +9159,14 @@
               "$id": "513",
               "kind": "basic",
               "name": "constructor",
+              "originalName": "constructor",
               "isExactName": false,
               "accessibility": "public",
               "apiVersions": [],
               "operation": {
                 "$id": "514",
                 "name": "constructor",
+                "originalName": "constructor",
                 "isExactName": false,
                 "resourceName": "Operations",
                 "accessibility": "public",
@@ -8839,12 +9202,14 @@
               "$id": "515",
               "kind": "basic",
               "name": "continue",
+              "originalName": "continue",
               "isExactName": false,
               "accessibility": "public",
               "apiVersions": [],
               "operation": {
                 "$id": "516",
                 "name": "continue",
+                "originalName": "continue",
                 "isExactName": false,
                 "resourceName": "Operations",
                 "accessibility": "public",
@@ -8880,12 +9245,14 @@
               "$id": "517",
               "kind": "basic",
               "name": "def",
+              "originalName": "def",
               "isExactName": false,
               "accessibility": "public",
               "apiVersions": [],
               "operation": {
                 "$id": "518",
                 "name": "def",
+                "originalName": "def",
                 "isExactName": false,
                 "resourceName": "Operations",
                 "accessibility": "public",
@@ -8921,12 +9288,14 @@
               "$id": "519",
               "kind": "basic",
               "name": "del",
+              "originalName": "del",
               "isExactName": false,
               "accessibility": "public",
               "apiVersions": [],
               "operation": {
                 "$id": "520",
                 "name": "del",
+                "originalName": "del",
                 "isExactName": false,
                 "resourceName": "Operations",
                 "accessibility": "public",
@@ -8962,12 +9331,14 @@
               "$id": "521",
               "kind": "basic",
               "name": "elif",
+              "originalName": "elif",
               "isExactName": false,
               "accessibility": "public",
               "apiVersions": [],
               "operation": {
                 "$id": "522",
                 "name": "elif",
+                "originalName": "elif",
                 "isExactName": false,
                 "resourceName": "Operations",
                 "accessibility": "public",
@@ -9003,12 +9374,14 @@
               "$id": "523",
               "kind": "basic",
               "name": "else",
+              "originalName": "else",
               "isExactName": false,
               "accessibility": "public",
               "apiVersions": [],
               "operation": {
                 "$id": "524",
                 "name": "else",
+                "originalName": "else",
                 "isExactName": false,
                 "resourceName": "Operations",
                 "accessibility": "public",
@@ -9044,12 +9417,14 @@
               "$id": "525",
               "kind": "basic",
               "name": "except",
+              "originalName": "except",
               "isExactName": false,
               "accessibility": "public",
               "apiVersions": [],
               "operation": {
                 "$id": "526",
                 "name": "except",
+                "originalName": "except",
                 "isExactName": false,
                 "resourceName": "Operations",
                 "accessibility": "public",
@@ -9085,12 +9460,14 @@
               "$id": "527",
               "kind": "basic",
               "name": "exec",
+              "originalName": "exec",
               "isExactName": false,
               "accessibility": "public",
               "apiVersions": [],
               "operation": {
                 "$id": "528",
                 "name": "exec",
+                "originalName": "exec",
                 "isExactName": false,
                 "resourceName": "Operations",
                 "accessibility": "public",
@@ -9126,12 +9503,14 @@
               "$id": "529",
               "kind": "basic",
               "name": "finally",
+              "originalName": "finally",
               "isExactName": false,
               "accessibility": "public",
               "apiVersions": [],
               "operation": {
                 "$id": "530",
                 "name": "finally",
+                "originalName": "finally",
                 "isExactName": false,
                 "resourceName": "Operations",
                 "accessibility": "public",
@@ -9167,12 +9546,14 @@
               "$id": "531",
               "kind": "basic",
               "name": "for",
+              "originalName": "for",
               "isExactName": false,
               "accessibility": "public",
               "apiVersions": [],
               "operation": {
                 "$id": "532",
                 "name": "for",
+                "originalName": "for",
                 "isExactName": false,
                 "resourceName": "Operations",
                 "accessibility": "public",
@@ -9208,12 +9589,14 @@
               "$id": "533",
               "kind": "basic",
               "name": "from",
+              "originalName": "from",
               "isExactName": false,
               "accessibility": "public",
               "apiVersions": [],
               "operation": {
                 "$id": "534",
                 "name": "from",
+                "originalName": "from",
                 "isExactName": false,
                 "resourceName": "Operations",
                 "accessibility": "public",
@@ -9249,12 +9632,14 @@
               "$id": "535",
               "kind": "basic",
               "name": "global",
+              "originalName": "global",
               "isExactName": false,
               "accessibility": "public",
               "apiVersions": [],
               "operation": {
                 "$id": "536",
                 "name": "global",
+                "originalName": "global",
                 "isExactName": false,
                 "resourceName": "Operations",
                 "accessibility": "public",
@@ -9290,12 +9675,14 @@
               "$id": "537",
               "kind": "basic",
               "name": "if",
+              "originalName": "if",
               "isExactName": false,
               "accessibility": "public",
               "apiVersions": [],
               "operation": {
                 "$id": "538",
                 "name": "if",
+                "originalName": "if",
                 "isExactName": false,
                 "resourceName": "Operations",
                 "accessibility": "public",
@@ -9331,12 +9718,14 @@
               "$id": "539",
               "kind": "basic",
               "name": "import",
+              "originalName": "import",
               "isExactName": false,
               "accessibility": "public",
               "apiVersions": [],
               "operation": {
                 "$id": "540",
                 "name": "import",
+                "originalName": "import",
                 "isExactName": false,
                 "resourceName": "Operations",
                 "accessibility": "public",
@@ -9372,12 +9761,14 @@
               "$id": "541",
               "kind": "basic",
               "name": "in",
+              "originalName": "in",
               "isExactName": false,
               "accessibility": "public",
               "apiVersions": [],
               "operation": {
                 "$id": "542",
                 "name": "in",
+                "originalName": "in",
                 "isExactName": false,
                 "resourceName": "Operations",
                 "accessibility": "public",
@@ -9413,12 +9804,14 @@
               "$id": "543",
               "kind": "basic",
               "name": "is",
+              "originalName": "is",
               "isExactName": false,
               "accessibility": "public",
               "apiVersions": [],
               "operation": {
                 "$id": "544",
                 "name": "is",
+                "originalName": "is",
                 "isExactName": false,
                 "resourceName": "Operations",
                 "accessibility": "public",
@@ -9454,12 +9847,14 @@
               "$id": "545",
               "kind": "basic",
               "name": "lambda",
+              "originalName": "lambda",
               "isExactName": false,
               "accessibility": "public",
               "apiVersions": [],
               "operation": {
                 "$id": "546",
                 "name": "lambda",
+                "originalName": "lambda",
                 "isExactName": false,
                 "resourceName": "Operations",
                 "accessibility": "public",
@@ -9495,12 +9890,14 @@
               "$id": "547",
               "kind": "basic",
               "name": "not",
+              "originalName": "not",
               "isExactName": false,
               "accessibility": "public",
               "apiVersions": [],
               "operation": {
                 "$id": "548",
                 "name": "not",
+                "originalName": "not",
                 "isExactName": false,
                 "resourceName": "Operations",
                 "accessibility": "public",
@@ -9536,12 +9933,14 @@
               "$id": "549",
               "kind": "basic",
               "name": "or",
+              "originalName": "or",
               "isExactName": false,
               "accessibility": "public",
               "apiVersions": [],
               "operation": {
                 "$id": "550",
                 "name": "or",
+                "originalName": "or",
                 "isExactName": false,
                 "resourceName": "Operations",
                 "accessibility": "public",
@@ -9577,12 +9976,14 @@
               "$id": "551",
               "kind": "basic",
               "name": "pass",
+              "originalName": "pass",
               "isExactName": false,
               "accessibility": "public",
               "apiVersions": [],
               "operation": {
                 "$id": "552",
                 "name": "pass",
+                "originalName": "pass",
                 "isExactName": false,
                 "resourceName": "Operations",
                 "accessibility": "public",
@@ -9618,12 +10019,14 @@
               "$id": "553",
               "kind": "basic",
               "name": "raise",
+              "originalName": "raise",
               "isExactName": false,
               "accessibility": "public",
               "apiVersions": [],
               "operation": {
                 "$id": "554",
                 "name": "raise",
+                "originalName": "raise",
                 "isExactName": false,
                 "resourceName": "Operations",
                 "accessibility": "public",
@@ -9659,12 +10062,14 @@
               "$id": "555",
               "kind": "basic",
               "name": "return",
+              "originalName": "return",
               "isExactName": false,
               "accessibility": "public",
               "apiVersions": [],
               "operation": {
                 "$id": "556",
                 "name": "return",
+                "originalName": "return",
                 "isExactName": false,
                 "resourceName": "Operations",
                 "accessibility": "public",
@@ -9700,12 +10105,14 @@
               "$id": "557",
               "kind": "basic",
               "name": "try",
+              "originalName": "try",
               "isExactName": false,
               "accessibility": "public",
               "apiVersions": [],
               "operation": {
                 "$id": "558",
                 "name": "try",
+                "originalName": "try",
                 "isExactName": false,
                 "resourceName": "Operations",
                 "accessibility": "public",
@@ -9741,12 +10148,14 @@
               "$id": "559",
               "kind": "basic",
               "name": "while",
+              "originalName": "while",
               "isExactName": false,
               "accessibility": "public",
               "apiVersions": [],
               "operation": {
                 "$id": "560",
                 "name": "while",
+                "originalName": "while",
                 "isExactName": false,
                 "resourceName": "Operations",
                 "accessibility": "public",
@@ -9782,12 +10191,14 @@
               "$id": "561",
               "kind": "basic",
               "name": "with",
+              "originalName": "with",
               "isExactName": false,
               "accessibility": "public",
               "apiVersions": [],
               "operation": {
                 "$id": "562",
                 "name": "with",
+                "originalName": "with",
                 "isExactName": false,
                 "resourceName": "Operations",
                 "accessibility": "public",
@@ -9823,12 +10234,14 @@
               "$id": "563",
               "kind": "basic",
               "name": "yield",
+              "originalName": "yield",
               "isExactName": false,
               "accessibility": "public",
               "apiVersions": [],
               "operation": {
                 "$id": "564",
                 "name": "yield",
+                "originalName": "yield",
                 "isExactName": false,
                 "resourceName": "Operations",
                 "accessibility": "public",
@@ -9915,12 +10328,14 @@
               "$id": "569",
               "kind": "basic",
               "name": "withAnd",
+              "originalName": "withAnd",
               "isExactName": false,
               "accessibility": "public",
               "apiVersions": [],
               "operation": {
                 "$id": "570",
                 "name": "withAnd",
+                "originalName": "withAnd",
                 "isExactName": false,
                 "resourceName": "Parameters",
                 "accessibility": "public",
@@ -9929,6 +10344,7 @@
                     "$id": "571",
                     "kind": "query",
                     "name": "and",
+                    "originalName": "and",
                     "serializedName": "and",
                     "type": {
                       "$id": "572",
@@ -9949,6 +10365,7 @@
                         "$id": "573",
                         "kind": "method",
                         "name": "and",
+                        "originalName": "and",
                         "serializedName": "and",
                         "type": {
                           "$id": "574",
@@ -10006,12 +10423,14 @@
               "$id": "575",
               "kind": "basic",
               "name": "withAs",
+              "originalName": "withAs",
               "isExactName": false,
               "accessibility": "public",
               "apiVersions": [],
               "operation": {
                 "$id": "576",
                 "name": "withAs",
+                "originalName": "withAs",
                 "isExactName": false,
                 "resourceName": "Parameters",
                 "accessibility": "public",
@@ -10020,6 +10439,7 @@
                     "$id": "577",
                     "kind": "query",
                     "name": "as",
+                    "originalName": "as",
                     "serializedName": "as",
                     "type": {
                       "$id": "578",
@@ -10040,6 +10460,7 @@
                         "$id": "579",
                         "kind": "method",
                         "name": "as",
+                        "originalName": "as",
                         "serializedName": "as",
                         "type": {
                           "$id": "580",
@@ -10097,12 +10518,14 @@
               "$id": "581",
               "kind": "basic",
               "name": "withAssert",
+              "originalName": "withAssert",
               "isExactName": false,
               "accessibility": "public",
               "apiVersions": [],
               "operation": {
                 "$id": "582",
                 "name": "withAssert",
+                "originalName": "withAssert",
                 "isExactName": false,
                 "resourceName": "Parameters",
                 "accessibility": "public",
@@ -10111,6 +10534,7 @@
                     "$id": "583",
                     "kind": "query",
                     "name": "assert",
+                    "originalName": "assert",
                     "serializedName": "assert",
                     "type": {
                       "$id": "584",
@@ -10131,6 +10555,7 @@
                         "$id": "585",
                         "kind": "method",
                         "name": "assert",
+                        "originalName": "assert",
                         "serializedName": "assert",
                         "type": {
                           "$id": "586",
@@ -10188,12 +10613,14 @@
               "$id": "587",
               "kind": "basic",
               "name": "withAsync",
+              "originalName": "withAsync",
               "isExactName": false,
               "accessibility": "public",
               "apiVersions": [],
               "operation": {
                 "$id": "588",
                 "name": "withAsync",
+                "originalName": "withAsync",
                 "isExactName": false,
                 "resourceName": "Parameters",
                 "accessibility": "public",
@@ -10202,6 +10629,7 @@
                     "$id": "589",
                     "kind": "query",
                     "name": "async",
+                    "originalName": "async",
                     "serializedName": "async",
                     "type": {
                       "$id": "590",
@@ -10222,6 +10650,7 @@
                         "$id": "591",
                         "kind": "method",
                         "name": "async",
+                        "originalName": "async",
                         "serializedName": "async",
                         "type": {
                           "$id": "592",
@@ -10279,12 +10708,14 @@
               "$id": "593",
               "kind": "basic",
               "name": "withAwait",
+              "originalName": "withAwait",
               "isExactName": false,
               "accessibility": "public",
               "apiVersions": [],
               "operation": {
                 "$id": "594",
                 "name": "withAwait",
+                "originalName": "withAwait",
                 "isExactName": false,
                 "resourceName": "Parameters",
                 "accessibility": "public",
@@ -10293,6 +10724,7 @@
                     "$id": "595",
                     "kind": "query",
                     "name": "await",
+                    "originalName": "await",
                     "serializedName": "await",
                     "type": {
                       "$id": "596",
@@ -10313,6 +10745,7 @@
                         "$id": "597",
                         "kind": "method",
                         "name": "await",
+                        "originalName": "await",
                         "serializedName": "await",
                         "type": {
                           "$id": "598",
@@ -10370,12 +10803,14 @@
               "$id": "599",
               "kind": "basic",
               "name": "withBreak",
+              "originalName": "withBreak",
               "isExactName": false,
               "accessibility": "public",
               "apiVersions": [],
               "operation": {
                 "$id": "600",
                 "name": "withBreak",
+                "originalName": "withBreak",
                 "isExactName": false,
                 "resourceName": "Parameters",
                 "accessibility": "public",
@@ -10384,6 +10819,7 @@
                     "$id": "601",
                     "kind": "query",
                     "name": "break",
+                    "originalName": "break",
                     "serializedName": "break",
                     "type": {
                       "$id": "602",
@@ -10404,6 +10840,7 @@
                         "$id": "603",
                         "kind": "method",
                         "name": "break",
+                        "originalName": "break",
                         "serializedName": "break",
                         "type": {
                           "$id": "604",
@@ -10461,12 +10898,14 @@
               "$id": "605",
               "kind": "basic",
               "name": "withClass",
+              "originalName": "withClass",
               "isExactName": false,
               "accessibility": "public",
               "apiVersions": [],
               "operation": {
                 "$id": "606",
                 "name": "withClass",
+                "originalName": "withClass",
                 "isExactName": false,
                 "resourceName": "Parameters",
                 "accessibility": "public",
@@ -10475,6 +10914,7 @@
                     "$id": "607",
                     "kind": "query",
                     "name": "class",
+                    "originalName": "class",
                     "serializedName": "class",
                     "type": {
                       "$id": "608",
@@ -10495,6 +10935,7 @@
                         "$id": "609",
                         "kind": "method",
                         "name": "class",
+                        "originalName": "class",
                         "serializedName": "class",
                         "type": {
                           "$id": "610",
@@ -10552,12 +10993,14 @@
               "$id": "611",
               "kind": "basic",
               "name": "withConstructor",
+              "originalName": "withConstructor",
               "isExactName": false,
               "accessibility": "public",
               "apiVersions": [],
               "operation": {
                 "$id": "612",
                 "name": "withConstructor",
+                "originalName": "withConstructor",
                 "isExactName": false,
                 "resourceName": "Parameters",
                 "accessibility": "public",
@@ -10566,6 +11009,7 @@
                     "$id": "613",
                     "kind": "query",
                     "name": "constructor",
+                    "originalName": "constructor",
                     "serializedName": "constructor",
                     "type": {
                       "$id": "614",
@@ -10586,6 +11030,7 @@
                         "$id": "615",
                         "kind": "method",
                         "name": "constructor",
+                        "originalName": "constructor",
                         "serializedName": "constructor",
                         "type": {
                           "$id": "616",
@@ -10643,12 +11088,14 @@
               "$id": "617",
               "kind": "basic",
               "name": "withContinue",
+              "originalName": "withContinue",
               "isExactName": false,
               "accessibility": "public",
               "apiVersions": [],
               "operation": {
                 "$id": "618",
                 "name": "withContinue",
+                "originalName": "withContinue",
                 "isExactName": false,
                 "resourceName": "Parameters",
                 "accessibility": "public",
@@ -10657,6 +11104,7 @@
                     "$id": "619",
                     "kind": "query",
                     "name": "continue",
+                    "originalName": "continue",
                     "serializedName": "continue",
                     "type": {
                       "$id": "620",
@@ -10677,6 +11125,7 @@
                         "$id": "621",
                         "kind": "method",
                         "name": "continue",
+                        "originalName": "continue",
                         "serializedName": "continue",
                         "type": {
                           "$id": "622",
@@ -10734,12 +11183,14 @@
               "$id": "623",
               "kind": "basic",
               "name": "withDef",
+              "originalName": "withDef",
               "isExactName": false,
               "accessibility": "public",
               "apiVersions": [],
               "operation": {
                 "$id": "624",
                 "name": "withDef",
+                "originalName": "withDef",
                 "isExactName": false,
                 "resourceName": "Parameters",
                 "accessibility": "public",
@@ -10748,6 +11199,7 @@
                     "$id": "625",
                     "kind": "query",
                     "name": "def",
+                    "originalName": "def",
                     "serializedName": "def",
                     "type": {
                       "$id": "626",
@@ -10768,6 +11220,7 @@
                         "$id": "627",
                         "kind": "method",
                         "name": "def",
+                        "originalName": "def",
                         "serializedName": "def",
                         "type": {
                           "$id": "628",
@@ -10825,12 +11278,14 @@
               "$id": "629",
               "kind": "basic",
               "name": "withDel",
+              "originalName": "withDel",
               "isExactName": false,
               "accessibility": "public",
               "apiVersions": [],
               "operation": {
                 "$id": "630",
                 "name": "withDel",
+                "originalName": "withDel",
                 "isExactName": false,
                 "resourceName": "Parameters",
                 "accessibility": "public",
@@ -10839,6 +11294,7 @@
                     "$id": "631",
                     "kind": "query",
                     "name": "del",
+                    "originalName": "del",
                     "serializedName": "del",
                     "type": {
                       "$id": "632",
@@ -10859,6 +11315,7 @@
                         "$id": "633",
                         "kind": "method",
                         "name": "del",
+                        "originalName": "del",
                         "serializedName": "del",
                         "type": {
                           "$id": "634",
@@ -10916,12 +11373,14 @@
               "$id": "635",
               "kind": "basic",
               "name": "withElif",
+              "originalName": "withElif",
               "isExactName": false,
               "accessibility": "public",
               "apiVersions": [],
               "operation": {
                 "$id": "636",
                 "name": "withElif",
+                "originalName": "withElif",
                 "isExactName": false,
                 "resourceName": "Parameters",
                 "accessibility": "public",
@@ -10930,6 +11389,7 @@
                     "$id": "637",
                     "kind": "query",
                     "name": "elif",
+                    "originalName": "elif",
                     "serializedName": "elif",
                     "type": {
                       "$id": "638",
@@ -10950,6 +11410,7 @@
                         "$id": "639",
                         "kind": "method",
                         "name": "elif",
+                        "originalName": "elif",
                         "serializedName": "elif",
                         "type": {
                           "$id": "640",
@@ -11007,12 +11468,14 @@
               "$id": "641",
               "kind": "basic",
               "name": "withElse",
+              "originalName": "withElse",
               "isExactName": false,
               "accessibility": "public",
               "apiVersions": [],
               "operation": {
                 "$id": "642",
                 "name": "withElse",
+                "originalName": "withElse",
                 "isExactName": false,
                 "resourceName": "Parameters",
                 "accessibility": "public",
@@ -11021,6 +11484,7 @@
                     "$id": "643",
                     "kind": "query",
                     "name": "else",
+                    "originalName": "else",
                     "serializedName": "else",
                     "type": {
                       "$id": "644",
@@ -11041,6 +11505,7 @@
                         "$id": "645",
                         "kind": "method",
                         "name": "else",
+                        "originalName": "else",
                         "serializedName": "else",
                         "type": {
                           "$id": "646",
@@ -11098,12 +11563,14 @@
               "$id": "647",
               "kind": "basic",
               "name": "withExcept",
+              "originalName": "withExcept",
               "isExactName": false,
               "accessibility": "public",
               "apiVersions": [],
               "operation": {
                 "$id": "648",
                 "name": "withExcept",
+                "originalName": "withExcept",
                 "isExactName": false,
                 "resourceName": "Parameters",
                 "accessibility": "public",
@@ -11112,6 +11579,7 @@
                     "$id": "649",
                     "kind": "query",
                     "name": "except",
+                    "originalName": "except",
                     "serializedName": "except",
                     "type": {
                       "$id": "650",
@@ -11132,6 +11600,7 @@
                         "$id": "651",
                         "kind": "method",
                         "name": "except",
+                        "originalName": "except",
                         "serializedName": "except",
                         "type": {
                           "$id": "652",
@@ -11189,12 +11658,14 @@
               "$id": "653",
               "kind": "basic",
               "name": "withExec",
+              "originalName": "withExec",
               "isExactName": false,
               "accessibility": "public",
               "apiVersions": [],
               "operation": {
                 "$id": "654",
                 "name": "withExec",
+                "originalName": "withExec",
                 "isExactName": false,
                 "resourceName": "Parameters",
                 "accessibility": "public",
@@ -11203,6 +11674,7 @@
                     "$id": "655",
                     "kind": "query",
                     "name": "exec",
+                    "originalName": "exec",
                     "serializedName": "exec",
                     "type": {
                       "$id": "656",
@@ -11223,6 +11695,7 @@
                         "$id": "657",
                         "kind": "method",
                         "name": "exec",
+                        "originalName": "exec",
                         "serializedName": "exec",
                         "type": {
                           "$id": "658",
@@ -11280,12 +11753,14 @@
               "$id": "659",
               "kind": "basic",
               "name": "withFinally",
+              "originalName": "withFinally",
               "isExactName": false,
               "accessibility": "public",
               "apiVersions": [],
               "operation": {
                 "$id": "660",
                 "name": "withFinally",
+                "originalName": "withFinally",
                 "isExactName": false,
                 "resourceName": "Parameters",
                 "accessibility": "public",
@@ -11294,6 +11769,7 @@
                     "$id": "661",
                     "kind": "query",
                     "name": "finally",
+                    "originalName": "finally",
                     "serializedName": "finally",
                     "type": {
                       "$id": "662",
@@ -11314,6 +11790,7 @@
                         "$id": "663",
                         "kind": "method",
                         "name": "finally",
+                        "originalName": "finally",
                         "serializedName": "finally",
                         "type": {
                           "$id": "664",
@@ -11371,12 +11848,14 @@
               "$id": "665",
               "kind": "basic",
               "name": "withFor",
+              "originalName": "withFor",
               "isExactName": false,
               "accessibility": "public",
               "apiVersions": [],
               "operation": {
                 "$id": "666",
                 "name": "withFor",
+                "originalName": "withFor",
                 "isExactName": false,
                 "resourceName": "Parameters",
                 "accessibility": "public",
@@ -11385,6 +11864,7 @@
                     "$id": "667",
                     "kind": "query",
                     "name": "for",
+                    "originalName": "for",
                     "serializedName": "for",
                     "type": {
                       "$id": "668",
@@ -11405,6 +11885,7 @@
                         "$id": "669",
                         "kind": "method",
                         "name": "for",
+                        "originalName": "for",
                         "serializedName": "for",
                         "type": {
                           "$id": "670",
@@ -11462,12 +11943,14 @@
               "$id": "671",
               "kind": "basic",
               "name": "withFrom",
+              "originalName": "withFrom",
               "isExactName": false,
               "accessibility": "public",
               "apiVersions": [],
               "operation": {
                 "$id": "672",
                 "name": "withFrom",
+                "originalName": "withFrom",
                 "isExactName": false,
                 "resourceName": "Parameters",
                 "accessibility": "public",
@@ -11476,6 +11959,7 @@
                     "$id": "673",
                     "kind": "query",
                     "name": "from",
+                    "originalName": "from",
                     "serializedName": "from",
                     "type": {
                       "$id": "674",
@@ -11496,6 +11980,7 @@
                         "$id": "675",
                         "kind": "method",
                         "name": "from",
+                        "originalName": "from",
                         "serializedName": "from",
                         "type": {
                           "$id": "676",
@@ -11553,12 +12038,14 @@
               "$id": "677",
               "kind": "basic",
               "name": "withGlobal",
+              "originalName": "withGlobal",
               "isExactName": false,
               "accessibility": "public",
               "apiVersions": [],
               "operation": {
                 "$id": "678",
                 "name": "withGlobal",
+                "originalName": "withGlobal",
                 "isExactName": false,
                 "resourceName": "Parameters",
                 "accessibility": "public",
@@ -11567,6 +12054,7 @@
                     "$id": "679",
                     "kind": "query",
                     "name": "global",
+                    "originalName": "global",
                     "serializedName": "global",
                     "type": {
                       "$id": "680",
@@ -11587,6 +12075,7 @@
                         "$id": "681",
                         "kind": "method",
                         "name": "global",
+                        "originalName": "global",
                         "serializedName": "global",
                         "type": {
                           "$id": "682",
@@ -11644,12 +12133,14 @@
               "$id": "683",
               "kind": "basic",
               "name": "withIf",
+              "originalName": "withIf",
               "isExactName": false,
               "accessibility": "public",
               "apiVersions": [],
               "operation": {
                 "$id": "684",
                 "name": "withIf",
+                "originalName": "withIf",
                 "isExactName": false,
                 "resourceName": "Parameters",
                 "accessibility": "public",
@@ -11658,6 +12149,7 @@
                     "$id": "685",
                     "kind": "query",
                     "name": "if",
+                    "originalName": "if",
                     "serializedName": "if",
                     "type": {
                       "$id": "686",
@@ -11678,6 +12170,7 @@
                         "$id": "687",
                         "kind": "method",
                         "name": "if",
+                        "originalName": "if",
                         "serializedName": "if",
                         "type": {
                           "$id": "688",
@@ -11735,12 +12228,14 @@
               "$id": "689",
               "kind": "basic",
               "name": "withImport",
+              "originalName": "withImport",
               "isExactName": false,
               "accessibility": "public",
               "apiVersions": [],
               "operation": {
                 "$id": "690",
                 "name": "withImport",
+                "originalName": "withImport",
                 "isExactName": false,
                 "resourceName": "Parameters",
                 "accessibility": "public",
@@ -11749,6 +12244,7 @@
                     "$id": "691",
                     "kind": "query",
                     "name": "import",
+                    "originalName": "import",
                     "serializedName": "import",
                     "type": {
                       "$id": "692",
@@ -11769,6 +12265,7 @@
                         "$id": "693",
                         "kind": "method",
                         "name": "import",
+                        "originalName": "import",
                         "serializedName": "import",
                         "type": {
                           "$id": "694",
@@ -11826,12 +12323,14 @@
               "$id": "695",
               "kind": "basic",
               "name": "withIn",
+              "originalName": "withIn",
               "isExactName": false,
               "accessibility": "public",
               "apiVersions": [],
               "operation": {
                 "$id": "696",
                 "name": "withIn",
+                "originalName": "withIn",
                 "isExactName": false,
                 "resourceName": "Parameters",
                 "accessibility": "public",
@@ -11840,6 +12339,7 @@
                     "$id": "697",
                     "kind": "query",
                     "name": "in",
+                    "originalName": "in",
                     "serializedName": "in",
                     "type": {
                       "$id": "698",
@@ -11860,6 +12360,7 @@
                         "$id": "699",
                         "kind": "method",
                         "name": "in",
+                        "originalName": "in",
                         "serializedName": "in",
                         "type": {
                           "$id": "700",
@@ -11917,12 +12418,14 @@
               "$id": "701",
               "kind": "basic",
               "name": "withIs",
+              "originalName": "withIs",
               "isExactName": false,
               "accessibility": "public",
               "apiVersions": [],
               "operation": {
                 "$id": "702",
                 "name": "withIs",
+                "originalName": "withIs",
                 "isExactName": false,
                 "resourceName": "Parameters",
                 "accessibility": "public",
@@ -11931,6 +12434,7 @@
                     "$id": "703",
                     "kind": "query",
                     "name": "is",
+                    "originalName": "is",
                     "serializedName": "is",
                     "type": {
                       "$id": "704",
@@ -11951,6 +12455,7 @@
                         "$id": "705",
                         "kind": "method",
                         "name": "is",
+                        "originalName": "is",
                         "serializedName": "is",
                         "type": {
                           "$id": "706",
@@ -12008,12 +12513,14 @@
               "$id": "707",
               "kind": "basic",
               "name": "withLambda",
+              "originalName": "withLambda",
               "isExactName": false,
               "accessibility": "public",
               "apiVersions": [],
               "operation": {
                 "$id": "708",
                 "name": "withLambda",
+                "originalName": "withLambda",
                 "isExactName": false,
                 "resourceName": "Parameters",
                 "accessibility": "public",
@@ -12022,6 +12529,7 @@
                     "$id": "709",
                     "kind": "query",
                     "name": "lambda",
+                    "originalName": "lambda",
                     "serializedName": "lambda",
                     "type": {
                       "$id": "710",
@@ -12042,6 +12550,7 @@
                         "$id": "711",
                         "kind": "method",
                         "name": "lambda",
+                        "originalName": "lambda",
                         "serializedName": "lambda",
                         "type": {
                           "$id": "712",
@@ -12099,12 +12608,14 @@
               "$id": "713",
               "kind": "basic",
               "name": "withNot",
+              "originalName": "withNot",
               "isExactName": false,
               "accessibility": "public",
               "apiVersions": [],
               "operation": {
                 "$id": "714",
                 "name": "withNot",
+                "originalName": "withNot",
                 "isExactName": false,
                 "resourceName": "Parameters",
                 "accessibility": "public",
@@ -12113,6 +12624,7 @@
                     "$id": "715",
                     "kind": "query",
                     "name": "not",
+                    "originalName": "not",
                     "serializedName": "not",
                     "type": {
                       "$id": "716",
@@ -12133,6 +12645,7 @@
                         "$id": "717",
                         "kind": "method",
                         "name": "not",
+                        "originalName": "not",
                         "serializedName": "not",
                         "type": {
                           "$id": "718",
@@ -12190,12 +12703,14 @@
               "$id": "719",
               "kind": "basic",
               "name": "withOr",
+              "originalName": "withOr",
               "isExactName": false,
               "accessibility": "public",
               "apiVersions": [],
               "operation": {
                 "$id": "720",
                 "name": "withOr",
+                "originalName": "withOr",
                 "isExactName": false,
                 "resourceName": "Parameters",
                 "accessibility": "public",
@@ -12204,6 +12719,7 @@
                     "$id": "721",
                     "kind": "query",
                     "name": "or",
+                    "originalName": "or",
                     "serializedName": "or",
                     "type": {
                       "$id": "722",
@@ -12224,6 +12740,7 @@
                         "$id": "723",
                         "kind": "method",
                         "name": "or",
+                        "originalName": "or",
                         "serializedName": "or",
                         "type": {
                           "$id": "724",
@@ -12281,12 +12798,14 @@
               "$id": "725",
               "kind": "basic",
               "name": "withPass",
+              "originalName": "withPass",
               "isExactName": false,
               "accessibility": "public",
               "apiVersions": [],
               "operation": {
                 "$id": "726",
                 "name": "withPass",
+                "originalName": "withPass",
                 "isExactName": false,
                 "resourceName": "Parameters",
                 "accessibility": "public",
@@ -12295,6 +12814,7 @@
                     "$id": "727",
                     "kind": "query",
                     "name": "pass",
+                    "originalName": "pass",
                     "serializedName": "pass",
                     "type": {
                       "$id": "728",
@@ -12315,6 +12835,7 @@
                         "$id": "729",
                         "kind": "method",
                         "name": "pass",
+                        "originalName": "pass",
                         "serializedName": "pass",
                         "type": {
                           "$id": "730",
@@ -12372,12 +12893,14 @@
               "$id": "731",
               "kind": "basic",
               "name": "withRaise",
+              "originalName": "withRaise",
               "isExactName": false,
               "accessibility": "public",
               "apiVersions": [],
               "operation": {
                 "$id": "732",
                 "name": "withRaise",
+                "originalName": "withRaise",
                 "isExactName": false,
                 "resourceName": "Parameters",
                 "accessibility": "public",
@@ -12386,6 +12909,7 @@
                     "$id": "733",
                     "kind": "query",
                     "name": "raise",
+                    "originalName": "raise",
                     "serializedName": "raise",
                     "type": {
                       "$id": "734",
@@ -12406,6 +12930,7 @@
                         "$id": "735",
                         "kind": "method",
                         "name": "raise",
+                        "originalName": "raise",
                         "serializedName": "raise",
                         "type": {
                           "$id": "736",
@@ -12463,12 +12988,14 @@
               "$id": "737",
               "kind": "basic",
               "name": "withReturn",
+              "originalName": "withReturn",
               "isExactName": false,
               "accessibility": "public",
               "apiVersions": [],
               "operation": {
                 "$id": "738",
                 "name": "withReturn",
+                "originalName": "withReturn",
                 "isExactName": false,
                 "resourceName": "Parameters",
                 "accessibility": "public",
@@ -12477,6 +13004,7 @@
                     "$id": "739",
                     "kind": "query",
                     "name": "return",
+                    "originalName": "return",
                     "serializedName": "return",
                     "type": {
                       "$id": "740",
@@ -12497,6 +13025,7 @@
                         "$id": "741",
                         "kind": "method",
                         "name": "return",
+                        "originalName": "return",
                         "serializedName": "return",
                         "type": {
                           "$id": "742",
@@ -12554,12 +13083,14 @@
               "$id": "743",
               "kind": "basic",
               "name": "withTry",
+              "originalName": "withTry",
               "isExactName": false,
               "accessibility": "public",
               "apiVersions": [],
               "operation": {
                 "$id": "744",
                 "name": "withTry",
+                "originalName": "withTry",
                 "isExactName": false,
                 "resourceName": "Parameters",
                 "accessibility": "public",
@@ -12568,6 +13099,7 @@
                     "$id": "745",
                     "kind": "query",
                     "name": "try",
+                    "originalName": "try",
                     "serializedName": "try",
                     "type": {
                       "$id": "746",
@@ -12588,6 +13120,7 @@
                         "$id": "747",
                         "kind": "method",
                         "name": "try",
+                        "originalName": "try",
                         "serializedName": "try",
                         "type": {
                           "$id": "748",
@@ -12645,12 +13178,14 @@
               "$id": "749",
               "kind": "basic",
               "name": "withWhile",
+              "originalName": "withWhile",
               "isExactName": false,
               "accessibility": "public",
               "apiVersions": [],
               "operation": {
                 "$id": "750",
                 "name": "withWhile",
+                "originalName": "withWhile",
                 "isExactName": false,
                 "resourceName": "Parameters",
                 "accessibility": "public",
@@ -12659,6 +13194,7 @@
                     "$id": "751",
                     "kind": "query",
                     "name": "while",
+                    "originalName": "while",
                     "serializedName": "while",
                     "type": {
                       "$id": "752",
@@ -12679,6 +13215,7 @@
                         "$id": "753",
                         "kind": "method",
                         "name": "while",
+                        "originalName": "while",
                         "serializedName": "while",
                         "type": {
                           "$id": "754",
@@ -12736,12 +13273,14 @@
               "$id": "755",
               "kind": "basic",
               "name": "withWith",
+              "originalName": "withWith",
               "isExactName": false,
               "accessibility": "public",
               "apiVersions": [],
               "operation": {
                 "$id": "756",
                 "name": "withWith",
+                "originalName": "withWith",
                 "isExactName": false,
                 "resourceName": "Parameters",
                 "accessibility": "public",
@@ -12750,6 +13289,7 @@
                     "$id": "757",
                     "kind": "query",
                     "name": "with",
+                    "originalName": "with",
                     "serializedName": "with",
                     "type": {
                       "$id": "758",
@@ -12770,6 +13310,7 @@
                         "$id": "759",
                         "kind": "method",
                         "name": "with",
+                        "originalName": "with",
                         "serializedName": "with",
                         "type": {
                           "$id": "760",
@@ -12827,12 +13368,14 @@
               "$id": "761",
               "kind": "basic",
               "name": "withYield",
+              "originalName": "withYield",
               "isExactName": false,
               "accessibility": "public",
               "apiVersions": [],
               "operation": {
                 "$id": "762",
                 "name": "withYield",
+                "originalName": "withYield",
                 "isExactName": false,
                 "resourceName": "Parameters",
                 "accessibility": "public",
@@ -12841,6 +13384,7 @@
                     "$id": "763",
                     "kind": "query",
                     "name": "yield",
+                    "originalName": "yield",
                     "serializedName": "yield",
                     "type": {
                       "$id": "764",
@@ -12861,6 +13405,7 @@
                         "$id": "765",
                         "kind": "method",
                         "name": "yield",
+                        "originalName": "yield",
                         "serializedName": "yield",
                         "type": {
                           "$id": "766",
@@ -12918,12 +13463,14 @@
               "$id": "767",
               "kind": "basic",
               "name": "withCancellationToken",
+              "originalName": "withCancellationToken",
               "isExactName": false,
               "accessibility": "public",
               "apiVersions": [],
               "operation": {
                 "$id": "768",
                 "name": "withCancellationToken",
+                "originalName": "withCancellationToken",
                 "isExactName": false,
                 "resourceName": "Parameters",
                 "accessibility": "public",
@@ -12932,6 +13479,7 @@
                     "$id": "769",
                     "kind": "query",
                     "name": "cancellationToken",
+                    "originalName": "cancellationToken",
                     "serializedName": "cancellationToken",
                     "type": {
                       "$id": "770",
@@ -12952,6 +13500,7 @@
                         "$id": "771",
                         "kind": "method",
                         "name": "cancellationToken",
+                        "originalName": "cancellationToken",
                         "serializedName": "cancellationToken",
                         "type": {
                           "$id": "772",

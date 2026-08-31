@@ -8,6 +8,7 @@
       "$id": "1",
       "kind": "model",
       "name": "ExpandParameters",
+      "originalName": "ExpandParameters",
       "namespace": "Routes",
       "crossLanguageDefinitionId": "Routes.ExpandParameters",
       "usage": "Input",
@@ -20,6 +21,7 @@
           "$id": "2",
           "kind": "property",
           "name": "field",
+          "originalName": "field",
           "type": {
             "$id": "3",
             "kind": "string",
@@ -41,6 +43,7 @@
           "$id": "4",
           "kind": "property",
           "name": "value",
+          "originalName": "value",
           "type": {
             "$id": "5",
             "kind": "string",
@@ -74,12 +77,14 @@
           "$id": "7",
           "kind": "basic",
           "name": "fixed",
+          "originalName": "fixed",
           "isExactName": false,
           "accessibility": "public",
           "apiVersions": [],
           "operation": {
             "$id": "8",
             "name": "fixed",
+            "originalName": "fixed",
             "isExactName": false,
             "resourceName": "Routes",
             "accessibility": "public",
@@ -161,12 +166,14 @@
               "$id": "13",
               "kind": "basic",
               "name": "templateOnly",
+              "originalName": "templateOnly",
               "isExactName": false,
               "accessibility": "public",
               "apiVersions": [],
               "operation": {
                 "$id": "14",
                 "name": "templateOnly",
+                "originalName": "templateOnly",
                 "isExactName": false,
                 "resourceName": "PathParameters",
                 "accessibility": "public",
@@ -175,6 +182,7 @@
                     "$id": "15",
                     "kind": "path",
                     "name": "param",
+                    "originalName": "param",
                     "serializedName": "param",
                     "type": {
                       "$id": "16",
@@ -198,6 +206,7 @@
                         "$id": "17",
                         "kind": "method",
                         "name": "param",
+                        "originalName": "param",
                         "serializedName": "param",
                         "type": {
                           "$id": "18",
@@ -255,12 +264,14 @@
               "$id": "19",
               "kind": "basic",
               "name": "explicit",
+              "originalName": "explicit",
               "isExactName": false,
               "accessibility": "public",
               "apiVersions": [],
               "operation": {
                 "$id": "20",
                 "name": "explicit",
+                "originalName": "explicit",
                 "isExactName": false,
                 "resourceName": "PathParameters",
                 "accessibility": "public",
@@ -269,6 +280,7 @@
                     "$id": "21",
                     "kind": "path",
                     "name": "param",
+                    "originalName": "param",
                     "serializedName": "param",
                     "type": {
                       "$id": "22",
@@ -292,6 +304,7 @@
                         "$id": "23",
                         "kind": "method",
                         "name": "param",
+                        "originalName": "param",
                         "serializedName": "param",
                         "type": {
                           "$id": "24",
@@ -349,12 +362,14 @@
               "$id": "25",
               "kind": "basic",
               "name": "annotationOnly",
+              "originalName": "annotationOnly",
               "isExactName": false,
               "accessibility": "public",
               "apiVersions": [],
               "operation": {
                 "$id": "26",
                 "name": "annotationOnly",
+                "originalName": "annotationOnly",
                 "isExactName": false,
                 "resourceName": "PathParameters",
                 "accessibility": "public",
@@ -363,6 +378,7 @@
                     "$id": "27",
                     "kind": "path",
                     "name": "param",
+                    "originalName": "param",
                     "serializedName": "param",
                     "type": {
                       "$id": "28",
@@ -386,6 +402,7 @@
                         "$id": "29",
                         "kind": "method",
                         "name": "param",
+                        "originalName": "param",
                         "serializedName": "param",
                         "type": {
                           "$id": "30",
@@ -492,12 +509,14 @@
                   "$id": "35",
                   "kind": "basic",
                   "name": "template",
+                  "originalName": "template",
                   "isExactName": false,
                   "accessibility": "public",
                   "apiVersions": [],
                   "operation": {
                     "$id": "36",
                     "name": "template",
+                    "originalName": "template",
                     "isExactName": false,
                     "resourceName": "ReservedExpansion",
                     "accessibility": "public",
@@ -506,6 +525,7 @@
                         "$id": "37",
                         "kind": "path",
                         "name": "param",
+                        "originalName": "param",
                         "serializedName": "param",
                         "type": {
                           "$id": "38",
@@ -529,6 +549,7 @@
                             "$id": "39",
                             "kind": "method",
                             "name": "param",
+                            "originalName": "param",
                             "serializedName": "param",
                             "type": {
                               "$id": "40",
@@ -586,12 +607,14 @@
                   "$id": "41",
                   "kind": "basic",
                   "name": "annotation",
+                  "originalName": "annotation",
                   "isExactName": false,
                   "accessibility": "public",
                   "apiVersions": [],
                   "operation": {
                     "$id": "42",
                     "name": "annotation",
+                    "originalName": "annotation",
                     "isExactName": false,
                     "resourceName": "ReservedExpansion",
                     "accessibility": "public",
@@ -600,6 +623,7 @@
                         "$id": "43",
                         "kind": "path",
                         "name": "param",
+                        "originalName": "param",
                         "serializedName": "param",
                         "type": {
                           "$id": "44",
@@ -623,6 +647,7 @@
                             "$id": "45",
                             "kind": "method",
                             "name": "param",
+                            "originalName": "param",
                             "serializedName": "param",
                             "type": {
                               "$id": "46",
@@ -778,12 +803,14 @@
                       "$id": "55",
                       "kind": "basic",
                       "name": "primitive",
+                      "originalName": "primitive",
                       "isExactName": false,
                       "accessibility": "public",
                       "apiVersions": [],
                       "operation": {
                         "$id": "56",
                         "name": "primitive",
+                        "originalName": "primitive",
                         "isExactName": false,
                         "resourceName": "Standard",
                         "accessibility": "public",
@@ -792,6 +819,7 @@
                             "$id": "57",
                             "kind": "path",
                             "name": "param",
+                            "originalName": "param",
                             "serializedName": "param",
                             "type": {
                               "$id": "58",
@@ -815,6 +843,7 @@
                                 "$id": "59",
                                 "kind": "method",
                                 "name": "param",
+                                "originalName": "param",
                                 "serializedName": "param",
                                 "type": {
                                   "$id": "60",
@@ -872,12 +901,14 @@
                       "$id": "61",
                       "kind": "basic",
                       "name": "array",
+                      "originalName": "array",
                       "isExactName": false,
                       "accessibility": "public",
                       "apiVersions": [],
                       "operation": {
                         "$id": "62",
                         "name": "array",
+                        "originalName": "array",
                         "isExactName": false,
                         "resourceName": "Standard",
                         "accessibility": "public",
@@ -886,6 +917,7 @@
                             "$id": "63",
                             "kind": "path",
                             "name": "param",
+                            "originalName": "param",
                             "serializedName": "param",
                             "type": {
                               "$id": "64",
@@ -916,6 +948,7 @@
                                 "$id": "66",
                                 "kind": "method",
                                 "name": "param",
+                                "originalName": "param",
                                 "serializedName": "param",
                                 "type": {
                                   "$ref": "64"
@@ -969,12 +1002,14 @@
                       "$id": "67",
                       "kind": "basic",
                       "name": "record",
+                      "originalName": "record",
                       "isExactName": false,
                       "accessibility": "public",
                       "apiVersions": [],
                       "operation": {
                         "$id": "68",
                         "name": "record",
+                        "originalName": "record",
                         "isExactName": false,
                         "resourceName": "Standard",
                         "accessibility": "public",
@@ -983,6 +1018,7 @@
                             "$id": "69",
                             "kind": "path",
                             "name": "param",
+                            "originalName": "param",
                             "serializedName": "param",
                             "type": {
                               "$id": "70",
@@ -1018,6 +1054,7 @@
                                 "$id": "73",
                                 "kind": "method",
                                 "name": "param",
+                                "originalName": "param",
                                 "serializedName": "param",
                                 "type": {
                                   "$ref": "70"
@@ -1121,12 +1158,14 @@
                       "$id": "78",
                       "kind": "basic",
                       "name": "primitive",
+                      "originalName": "primitive",
                       "isExactName": false,
                       "accessibility": "public",
                       "apiVersions": [],
                       "operation": {
                         "$id": "79",
                         "name": "primitive",
+                        "originalName": "primitive",
                         "isExactName": false,
                         "resourceName": "Explode",
                         "accessibility": "public",
@@ -1135,6 +1174,7 @@
                             "$id": "80",
                             "kind": "path",
                             "name": "param",
+                            "originalName": "param",
                             "serializedName": "param",
                             "type": {
                               "$id": "81",
@@ -1158,6 +1198,7 @@
                                 "$id": "82",
                                 "kind": "method",
                                 "name": "param",
+                                "originalName": "param",
                                 "serializedName": "param",
                                 "type": {
                                   "$id": "83",
@@ -1215,12 +1256,14 @@
                       "$id": "84",
                       "kind": "basic",
                       "name": "array",
+                      "originalName": "array",
                       "isExactName": false,
                       "accessibility": "public",
                       "apiVersions": [],
                       "operation": {
                         "$id": "85",
                         "name": "array",
+                        "originalName": "array",
                         "isExactName": false,
                         "resourceName": "Explode",
                         "accessibility": "public",
@@ -1229,6 +1272,7 @@
                             "$id": "86",
                             "kind": "path",
                             "name": "param",
+                            "originalName": "param",
                             "serializedName": "param",
                             "type": {
                               "$ref": "64"
@@ -1248,6 +1292,7 @@
                                 "$id": "87",
                                 "kind": "method",
                                 "name": "param",
+                                "originalName": "param",
                                 "serializedName": "param",
                                 "type": {
                                   "$ref": "64"
@@ -1301,12 +1346,14 @@
                       "$id": "88",
                       "kind": "basic",
                       "name": "record",
+                      "originalName": "record",
                       "isExactName": false,
                       "accessibility": "public",
                       "apiVersions": [],
                       "operation": {
                         "$id": "89",
                         "name": "record",
+                        "originalName": "record",
                         "isExactName": false,
                         "resourceName": "Explode",
                         "accessibility": "public",
@@ -1315,6 +1362,7 @@
                             "$id": "90",
                             "kind": "path",
                             "name": "param",
+                            "originalName": "param",
                             "serializedName": "param",
                             "type": {
                               "$ref": "70"
@@ -1334,6 +1382,7 @@
                                 "$id": "91",
                                 "kind": "method",
                                 "name": "param",
+                                "originalName": "param",
                                 "serializedName": "param",
                                 "type": {
                                   "$ref": "70"
@@ -1488,12 +1537,14 @@
                       "$id": "100",
                       "kind": "basic",
                       "name": "primitive",
+                      "originalName": "primitive",
                       "isExactName": false,
                       "accessibility": "public",
                       "apiVersions": [],
                       "operation": {
                         "$id": "101",
                         "name": "primitive",
+                        "originalName": "primitive",
                         "isExactName": false,
                         "resourceName": "Standard",
                         "accessibility": "public",
@@ -1502,6 +1553,7 @@
                             "$id": "102",
                             "kind": "path",
                             "name": "param",
+                            "originalName": "param",
                             "serializedName": "param",
                             "type": {
                               "$id": "103",
@@ -1525,6 +1577,7 @@
                                 "$id": "104",
                                 "kind": "method",
                                 "name": "param",
+                                "originalName": "param",
                                 "serializedName": "param",
                                 "type": {
                                   "$id": "105",
@@ -1582,12 +1635,14 @@
                       "$id": "106",
                       "kind": "basic",
                       "name": "array",
+                      "originalName": "array",
                       "isExactName": false,
                       "accessibility": "public",
                       "apiVersions": [],
                       "operation": {
                         "$id": "107",
                         "name": "array",
+                        "originalName": "array",
                         "isExactName": false,
                         "resourceName": "Standard",
                         "accessibility": "public",
@@ -1596,6 +1651,7 @@
                             "$id": "108",
                             "kind": "path",
                             "name": "param",
+                            "originalName": "param",
                             "serializedName": "param",
                             "type": {
                               "$ref": "64"
@@ -1615,6 +1671,7 @@
                                 "$id": "109",
                                 "kind": "method",
                                 "name": "param",
+                                "originalName": "param",
                                 "serializedName": "param",
                                 "type": {
                                   "$ref": "64"
@@ -1668,12 +1725,14 @@
                       "$id": "110",
                       "kind": "basic",
                       "name": "record",
+                      "originalName": "record",
                       "isExactName": false,
                       "accessibility": "public",
                       "apiVersions": [],
                       "operation": {
                         "$id": "111",
                         "name": "record",
+                        "originalName": "record",
                         "isExactName": false,
                         "resourceName": "Standard",
                         "accessibility": "public",
@@ -1682,6 +1741,7 @@
                             "$id": "112",
                             "kind": "path",
                             "name": "param",
+                            "originalName": "param",
                             "serializedName": "param",
                             "type": {
                               "$ref": "70"
@@ -1701,6 +1761,7 @@
                                 "$id": "113",
                                 "kind": "method",
                                 "name": "param",
+                                "originalName": "param",
                                 "serializedName": "param",
                                 "type": {
                                   "$ref": "70"
@@ -1804,12 +1865,14 @@
                       "$id": "118",
                       "kind": "basic",
                       "name": "primitive",
+                      "originalName": "primitive",
                       "isExactName": false,
                       "accessibility": "public",
                       "apiVersions": [],
                       "operation": {
                         "$id": "119",
                         "name": "primitive",
+                        "originalName": "primitive",
                         "isExactName": false,
                         "resourceName": "Explode",
                         "accessibility": "public",
@@ -1818,6 +1881,7 @@
                             "$id": "120",
                             "kind": "path",
                             "name": "param",
+                            "originalName": "param",
                             "serializedName": "param",
                             "type": {
                               "$id": "121",
@@ -1841,6 +1905,7 @@
                                 "$id": "122",
                                 "kind": "method",
                                 "name": "param",
+                                "originalName": "param",
                                 "serializedName": "param",
                                 "type": {
                                   "$id": "123",
@@ -1898,12 +1963,14 @@
                       "$id": "124",
                       "kind": "basic",
                       "name": "array",
+                      "originalName": "array",
                       "isExactName": false,
                       "accessibility": "public",
                       "apiVersions": [],
                       "operation": {
                         "$id": "125",
                         "name": "array",
+                        "originalName": "array",
                         "isExactName": false,
                         "resourceName": "Explode",
                         "accessibility": "public",
@@ -1912,6 +1979,7 @@
                             "$id": "126",
                             "kind": "path",
                             "name": "param",
+                            "originalName": "param",
                             "serializedName": "param",
                             "type": {
                               "$ref": "64"
@@ -1931,6 +1999,7 @@
                                 "$id": "127",
                                 "kind": "method",
                                 "name": "param",
+                                "originalName": "param",
                                 "serializedName": "param",
                                 "type": {
                                   "$ref": "64"
@@ -1984,12 +2053,14 @@
                       "$id": "128",
                       "kind": "basic",
                       "name": "record",
+                      "originalName": "record",
                       "isExactName": false,
                       "accessibility": "public",
                       "apiVersions": [],
                       "operation": {
                         "$id": "129",
                         "name": "record",
+                        "originalName": "record",
                         "isExactName": false,
                         "resourceName": "Explode",
                         "accessibility": "public",
@@ -1998,6 +2069,7 @@
                             "$id": "130",
                             "kind": "path",
                             "name": "param",
+                            "originalName": "param",
                             "serializedName": "param",
                             "type": {
                               "$ref": "70"
@@ -2017,6 +2089,7 @@
                                 "$id": "131",
                                 "kind": "method",
                                 "name": "param",
+                                "originalName": "param",
                                 "serializedName": "param",
                                 "type": {
                                   "$ref": "70"
@@ -2171,12 +2244,14 @@
                       "$id": "140",
                       "kind": "basic",
                       "name": "primitive",
+                      "originalName": "primitive",
                       "isExactName": false,
                       "accessibility": "public",
                       "apiVersions": [],
                       "operation": {
                         "$id": "141",
                         "name": "primitive",
+                        "originalName": "primitive",
                         "isExactName": false,
                         "resourceName": "Standard",
                         "accessibility": "public",
@@ -2185,6 +2260,7 @@
                             "$id": "142",
                             "kind": "path",
                             "name": "param",
+                            "originalName": "param",
                             "serializedName": "param",
                             "type": {
                               "$id": "143",
@@ -2208,6 +2284,7 @@
                                 "$id": "144",
                                 "kind": "method",
                                 "name": "param",
+                                "originalName": "param",
                                 "serializedName": "param",
                                 "type": {
                                   "$id": "145",
@@ -2265,12 +2342,14 @@
                       "$id": "146",
                       "kind": "basic",
                       "name": "array",
+                      "originalName": "array",
                       "isExactName": false,
                       "accessibility": "public",
                       "apiVersions": [],
                       "operation": {
                         "$id": "147",
                         "name": "array",
+                        "originalName": "array",
                         "isExactName": false,
                         "resourceName": "Standard",
                         "accessibility": "public",
@@ -2279,6 +2358,7 @@
                             "$id": "148",
                             "kind": "path",
                             "name": "param",
+                            "originalName": "param",
                             "serializedName": "param",
                             "type": {
                               "$ref": "64"
@@ -2298,6 +2378,7 @@
                                 "$id": "149",
                                 "kind": "method",
                                 "name": "param",
+                                "originalName": "param",
                                 "serializedName": "param",
                                 "type": {
                                   "$ref": "64"
@@ -2351,12 +2432,14 @@
                       "$id": "150",
                       "kind": "basic",
                       "name": "record",
+                      "originalName": "record",
                       "isExactName": false,
                       "accessibility": "public",
                       "apiVersions": [],
                       "operation": {
                         "$id": "151",
                         "name": "record",
+                        "originalName": "record",
                         "isExactName": false,
                         "resourceName": "Standard",
                         "accessibility": "public",
@@ -2365,6 +2448,7 @@
                             "$id": "152",
                             "kind": "path",
                             "name": "param",
+                            "originalName": "param",
                             "serializedName": "param",
                             "type": {
                               "$ref": "70"
@@ -2384,6 +2468,7 @@
                                 "$id": "153",
                                 "kind": "method",
                                 "name": "param",
+                                "originalName": "param",
                                 "serializedName": "param",
                                 "type": {
                                   "$ref": "70"
@@ -2487,12 +2572,14 @@
                       "$id": "158",
                       "kind": "basic",
                       "name": "primitive",
+                      "originalName": "primitive",
                       "isExactName": false,
                       "accessibility": "public",
                       "apiVersions": [],
                       "operation": {
                         "$id": "159",
                         "name": "primitive",
+                        "originalName": "primitive",
                         "isExactName": false,
                         "resourceName": "Explode",
                         "accessibility": "public",
@@ -2501,6 +2588,7 @@
                             "$id": "160",
                             "kind": "path",
                             "name": "param",
+                            "originalName": "param",
                             "serializedName": "param",
                             "type": {
                               "$id": "161",
@@ -2524,6 +2612,7 @@
                                 "$id": "162",
                                 "kind": "method",
                                 "name": "param",
+                                "originalName": "param",
                                 "serializedName": "param",
                                 "type": {
                                   "$id": "163",
@@ -2581,12 +2670,14 @@
                       "$id": "164",
                       "kind": "basic",
                       "name": "array",
+                      "originalName": "array",
                       "isExactName": false,
                       "accessibility": "public",
                       "apiVersions": [],
                       "operation": {
                         "$id": "165",
                         "name": "array",
+                        "originalName": "array",
                         "isExactName": false,
                         "resourceName": "Explode",
                         "accessibility": "public",
@@ -2595,6 +2686,7 @@
                             "$id": "166",
                             "kind": "path",
                             "name": "param",
+                            "originalName": "param",
                             "serializedName": "param",
                             "type": {
                               "$ref": "64"
@@ -2614,6 +2706,7 @@
                                 "$id": "167",
                                 "kind": "method",
                                 "name": "param",
+                                "originalName": "param",
                                 "serializedName": "param",
                                 "type": {
                                   "$ref": "64"
@@ -2667,12 +2760,14 @@
                       "$id": "168",
                       "kind": "basic",
                       "name": "record",
+                      "originalName": "record",
                       "isExactName": false,
                       "accessibility": "public",
                       "apiVersions": [],
                       "operation": {
                         "$id": "169",
                         "name": "record",
+                        "originalName": "record",
                         "isExactName": false,
                         "resourceName": "Explode",
                         "accessibility": "public",
@@ -2681,6 +2776,7 @@
                             "$id": "170",
                             "kind": "path",
                             "name": "param",
+                            "originalName": "param",
                             "serializedName": "param",
                             "type": {
                               "$ref": "70"
@@ -2700,6 +2796,7 @@
                                 "$id": "171",
                                 "kind": "method",
                                 "name": "param",
+                                "originalName": "param",
                                 "serializedName": "param",
                                 "type": {
                                   "$ref": "70"
@@ -2854,12 +2951,14 @@
                       "$id": "180",
                       "kind": "basic",
                       "name": "primitive",
+                      "originalName": "primitive",
                       "isExactName": false,
                       "accessibility": "public",
                       "apiVersions": [],
                       "operation": {
                         "$id": "181",
                         "name": "primitive",
+                        "originalName": "primitive",
                         "isExactName": false,
                         "resourceName": "Standard",
                         "accessibility": "public",
@@ -2868,6 +2967,7 @@
                             "$id": "182",
                             "kind": "path",
                             "name": "param",
+                            "originalName": "param",
                             "serializedName": "param",
                             "type": {
                               "$id": "183",
@@ -2891,6 +2991,7 @@
                                 "$id": "184",
                                 "kind": "method",
                                 "name": "param",
+                                "originalName": "param",
                                 "serializedName": "param",
                                 "type": {
                                   "$id": "185",
@@ -2948,12 +3049,14 @@
                       "$id": "186",
                       "kind": "basic",
                       "name": "array",
+                      "originalName": "array",
                       "isExactName": false,
                       "accessibility": "public",
                       "apiVersions": [],
                       "operation": {
                         "$id": "187",
                         "name": "array",
+                        "originalName": "array",
                         "isExactName": false,
                         "resourceName": "Standard",
                         "accessibility": "public",
@@ -2962,6 +3065,7 @@
                             "$id": "188",
                             "kind": "path",
                             "name": "param",
+                            "originalName": "param",
                             "serializedName": "param",
                             "type": {
                               "$ref": "64"
@@ -2981,6 +3085,7 @@
                                 "$id": "189",
                                 "kind": "method",
                                 "name": "param",
+                                "originalName": "param",
                                 "serializedName": "param",
                                 "type": {
                                   "$ref": "64"
@@ -3034,12 +3139,14 @@
                       "$id": "190",
                       "kind": "basic",
                       "name": "record",
+                      "originalName": "record",
                       "isExactName": false,
                       "accessibility": "public",
                       "apiVersions": [],
                       "operation": {
                         "$id": "191",
                         "name": "record",
+                        "originalName": "record",
                         "isExactName": false,
                         "resourceName": "Standard",
                         "accessibility": "public",
@@ -3048,6 +3155,7 @@
                             "$id": "192",
                             "kind": "path",
                             "name": "param",
+                            "originalName": "param",
                             "serializedName": "param",
                             "type": {
                               "$ref": "70"
@@ -3067,6 +3175,7 @@
                                 "$id": "193",
                                 "kind": "method",
                                 "name": "param",
+                                "originalName": "param",
                                 "serializedName": "param",
                                 "type": {
                                   "$ref": "70"
@@ -3170,12 +3279,14 @@
                       "$id": "198",
                       "kind": "basic",
                       "name": "primitive",
+                      "originalName": "primitive",
                       "isExactName": false,
                       "accessibility": "public",
                       "apiVersions": [],
                       "operation": {
                         "$id": "199",
                         "name": "primitive",
+                        "originalName": "primitive",
                         "isExactName": false,
                         "resourceName": "Explode",
                         "accessibility": "public",
@@ -3184,6 +3295,7 @@
                             "$id": "200",
                             "kind": "path",
                             "name": "param",
+                            "originalName": "param",
                             "serializedName": "param",
                             "type": {
                               "$id": "201",
@@ -3207,6 +3319,7 @@
                                 "$id": "202",
                                 "kind": "method",
                                 "name": "param",
+                                "originalName": "param",
                                 "serializedName": "param",
                                 "type": {
                                   "$id": "203",
@@ -3264,12 +3377,14 @@
                       "$id": "204",
                       "kind": "basic",
                       "name": "array",
+                      "originalName": "array",
                       "isExactName": false,
                       "accessibility": "public",
                       "apiVersions": [],
                       "operation": {
                         "$id": "205",
                         "name": "array",
+                        "originalName": "array",
                         "isExactName": false,
                         "resourceName": "Explode",
                         "accessibility": "public",
@@ -3278,6 +3393,7 @@
                             "$id": "206",
                             "kind": "path",
                             "name": "param",
+                            "originalName": "param",
                             "serializedName": "param",
                             "type": {
                               "$ref": "64"
@@ -3297,6 +3413,7 @@
                                 "$id": "207",
                                 "kind": "method",
                                 "name": "param",
+                                "originalName": "param",
                                 "serializedName": "param",
                                 "type": {
                                   "$ref": "64"
@@ -3350,12 +3467,14 @@
                       "$id": "208",
                       "kind": "basic",
                       "name": "record",
+                      "originalName": "record",
                       "isExactName": false,
                       "accessibility": "public",
                       "apiVersions": [],
                       "operation": {
                         "$id": "209",
                         "name": "record",
+                        "originalName": "record",
                         "isExactName": false,
                         "resourceName": "Explode",
                         "accessibility": "public",
@@ -3364,6 +3483,7 @@
                             "$id": "210",
                             "kind": "path",
                             "name": "param",
+                            "originalName": "param",
                             "serializedName": "param",
                             "type": {
                               "$ref": "70"
@@ -3383,6 +3503,7 @@
                                 "$id": "211",
                                 "kind": "method",
                                 "name": "param",
+                                "originalName": "param",
                                 "serializedName": "param",
                                 "type": {
                                   "$ref": "70"
@@ -3492,12 +3613,14 @@
               "$id": "216",
               "kind": "basic",
               "name": "templateOnly",
+              "originalName": "templateOnly",
               "isExactName": false,
               "accessibility": "public",
               "apiVersions": [],
               "operation": {
                 "$id": "217",
                 "name": "templateOnly",
+                "originalName": "templateOnly",
                 "isExactName": false,
                 "resourceName": "QueryParameters",
                 "accessibility": "public",
@@ -3506,6 +3629,7 @@
                     "$id": "218",
                     "kind": "query",
                     "name": "param",
+                    "originalName": "param",
                     "serializedName": "param",
                     "type": {
                       "$id": "219",
@@ -3526,6 +3650,7 @@
                         "$id": "220",
                         "kind": "method",
                         "name": "param",
+                        "originalName": "param",
                         "serializedName": "param",
                         "type": {
                           "$id": "221",
@@ -3583,12 +3708,14 @@
               "$id": "222",
               "kind": "basic",
               "name": "explicit",
+              "originalName": "explicit",
               "isExactName": false,
               "accessibility": "public",
               "apiVersions": [],
               "operation": {
                 "$id": "223",
                 "name": "explicit",
+                "originalName": "explicit",
                 "isExactName": false,
                 "resourceName": "QueryParameters",
                 "accessibility": "public",
@@ -3597,6 +3724,7 @@
                     "$id": "224",
                     "kind": "query",
                     "name": "param",
+                    "originalName": "param",
                     "serializedName": "param",
                     "type": {
                       "$id": "225",
@@ -3617,6 +3745,7 @@
                         "$id": "226",
                         "kind": "method",
                         "name": "param",
+                        "originalName": "param",
                         "serializedName": "param",
                         "type": {
                           "$id": "227",
@@ -3674,12 +3803,14 @@
               "$id": "228",
               "kind": "basic",
               "name": "annotationOnly",
+              "originalName": "annotationOnly",
               "isExactName": false,
               "accessibility": "public",
               "apiVersions": [],
               "operation": {
                 "$id": "229",
                 "name": "annotationOnly",
+                "originalName": "annotationOnly",
                 "isExactName": false,
                 "resourceName": "QueryParameters",
                 "accessibility": "public",
@@ -3688,6 +3819,7 @@
                     "$id": "230",
                     "kind": "query",
                     "name": "param",
+                    "originalName": "param",
                     "serializedName": "param",
                     "type": {
                       "$id": "231",
@@ -3708,6 +3840,7 @@
                         "$id": "232",
                         "kind": "method",
                         "name": "param",
+                        "originalName": "param",
                         "serializedName": "param",
                         "type": {
                           "$id": "233",
@@ -3862,12 +3995,14 @@
                       "$id": "242",
                       "kind": "basic",
                       "name": "primitive",
+                      "originalName": "primitive",
                       "isExactName": false,
                       "accessibility": "public",
                       "apiVersions": [],
                       "operation": {
                         "$id": "243",
                         "name": "primitive",
+                        "originalName": "primitive",
                         "isExactName": false,
                         "resourceName": "Standard",
                         "accessibility": "public",
@@ -3876,6 +4011,7 @@
                             "$id": "244",
                             "kind": "query",
                             "name": "param",
+                            "originalName": "param",
                             "serializedName": "param",
                             "type": {
                               "$id": "245",
@@ -3896,6 +4032,7 @@
                                 "$id": "246",
                                 "kind": "method",
                                 "name": "param",
+                                "originalName": "param",
                                 "serializedName": "param",
                                 "type": {
                                   "$id": "247",
@@ -3953,12 +4090,14 @@
                       "$id": "248",
                       "kind": "basic",
                       "name": "array",
+                      "originalName": "array",
                       "isExactName": false,
                       "accessibility": "public",
                       "apiVersions": [],
                       "operation": {
                         "$id": "249",
                         "name": "array",
+                        "originalName": "array",
                         "isExactName": false,
                         "resourceName": "Standard",
                         "accessibility": "public",
@@ -3967,6 +4106,7 @@
                             "$id": "250",
                             "kind": "query",
                             "name": "param",
+                            "originalName": "param",
                             "serializedName": "param",
                             "type": {
                               "$ref": "64"
@@ -3983,6 +4123,7 @@
                                 "$id": "251",
                                 "kind": "method",
                                 "name": "param",
+                                "originalName": "param",
                                 "serializedName": "param",
                                 "type": {
                                   "$ref": "64"
@@ -4036,12 +4177,14 @@
                       "$id": "252",
                       "kind": "basic",
                       "name": "record",
+                      "originalName": "record",
                       "isExactName": false,
                       "accessibility": "public",
                       "apiVersions": [],
                       "operation": {
                         "$id": "253",
                         "name": "record",
+                        "originalName": "record",
                         "isExactName": false,
                         "resourceName": "Standard",
                         "accessibility": "public",
@@ -4050,6 +4193,7 @@
                             "$id": "254",
                             "kind": "query",
                             "name": "param",
+                            "originalName": "param",
                             "serializedName": "param",
                             "type": {
                               "$ref": "70"
@@ -4066,6 +4210,7 @@
                                 "$id": "255",
                                 "kind": "method",
                                 "name": "param",
+                                "originalName": "param",
                                 "serializedName": "param",
                                 "type": {
                                   "$ref": "70"
@@ -4169,12 +4314,14 @@
                       "$id": "260",
                       "kind": "basic",
                       "name": "primitive",
+                      "originalName": "primitive",
                       "isExactName": false,
                       "accessibility": "public",
                       "apiVersions": [],
                       "operation": {
                         "$id": "261",
                         "name": "primitive",
+                        "originalName": "primitive",
                         "isExactName": false,
                         "resourceName": "Explode",
                         "accessibility": "public",
@@ -4183,6 +4330,7 @@
                             "$id": "262",
                             "kind": "query",
                             "name": "param",
+                            "originalName": "param",
                             "serializedName": "param",
                             "type": {
                               "$id": "263",
@@ -4203,6 +4351,7 @@
                                 "$id": "264",
                                 "kind": "method",
                                 "name": "param",
+                                "originalName": "param",
                                 "serializedName": "param",
                                 "type": {
                                   "$id": "265",
@@ -4260,12 +4409,14 @@
                       "$id": "266",
                       "kind": "basic",
                       "name": "array",
+                      "originalName": "array",
                       "isExactName": false,
                       "accessibility": "public",
                       "apiVersions": [],
                       "operation": {
                         "$id": "267",
                         "name": "array",
+                        "originalName": "array",
                         "isExactName": false,
                         "resourceName": "Explode",
                         "accessibility": "public",
@@ -4274,6 +4425,7 @@
                             "$id": "268",
                             "kind": "query",
                             "name": "param",
+                            "originalName": "param",
                             "serializedName": "param",
                             "type": {
                               "$ref": "64"
@@ -4290,6 +4442,7 @@
                                 "$id": "269",
                                 "kind": "method",
                                 "name": "param",
+                                "originalName": "param",
                                 "serializedName": "param",
                                 "type": {
                                   "$ref": "64"
@@ -4343,12 +4496,14 @@
                       "$id": "270",
                       "kind": "basic",
                       "name": "record",
+                      "originalName": "record",
                       "isExactName": false,
                       "accessibility": "public",
                       "apiVersions": [],
                       "operation": {
                         "$id": "271",
                         "name": "record",
+                        "originalName": "record",
                         "isExactName": false,
                         "resourceName": "Explode",
                         "accessibility": "public",
@@ -4357,6 +4512,7 @@
                             "$id": "272",
                             "kind": "query",
                             "name": "param",
+                            "originalName": "param",
                             "serializedName": "param",
                             "type": {
                               "$ref": "70"
@@ -4373,6 +4529,7 @@
                                 "$id": "273",
                                 "kind": "method",
                                 "name": "param",
+                                "originalName": "param",
                                 "serializedName": "param",
                                 "type": {
                                   "$ref": "70"
@@ -4426,12 +4583,14 @@
                       "$id": "274",
                       "kind": "basic",
                       "name": "model",
+                      "originalName": "model",
                       "isExactName": false,
                       "accessibility": "public",
                       "apiVersions": [],
                       "operation": {
                         "$id": "275",
                         "name": "model",
+                        "originalName": "model",
                         "isExactName": false,
                         "resourceName": "Explode",
                         "accessibility": "public",
@@ -4440,6 +4599,7 @@
                             "$id": "276",
                             "kind": "query",
                             "name": "param",
+                            "originalName": "param",
                             "serializedName": "param",
                             "type": {
                               "$ref": "1"
@@ -4456,6 +4616,7 @@
                                 "$id": "277",
                                 "kind": "method",
                                 "name": "param",
+                                "originalName": "param",
                                 "serializedName": "param",
                                 "type": {
                                   "$ref": "1"
@@ -4610,12 +4771,14 @@
                       "$id": "286",
                       "kind": "basic",
                       "name": "primitive",
+                      "originalName": "primitive",
                       "isExactName": false,
                       "accessibility": "public",
                       "apiVersions": [],
                       "operation": {
                         "$id": "287",
                         "name": "primitive",
+                        "originalName": "primitive",
                         "isExactName": false,
                         "resourceName": "Standard",
                         "accessibility": "public",
@@ -4624,6 +4787,7 @@
                             "$id": "288",
                             "kind": "query",
                             "name": "param",
+                            "originalName": "param",
                             "serializedName": "param",
                             "type": {
                               "$id": "289",
@@ -4644,6 +4808,7 @@
                                 "$id": "290",
                                 "kind": "method",
                                 "name": "param",
+                                "originalName": "param",
                                 "serializedName": "param",
                                 "type": {
                                   "$id": "291",
@@ -4701,12 +4866,14 @@
                       "$id": "292",
                       "kind": "basic",
                       "name": "array",
+                      "originalName": "array",
                       "isExactName": false,
                       "accessibility": "public",
                       "apiVersions": [],
                       "operation": {
                         "$id": "293",
                         "name": "array",
+                        "originalName": "array",
                         "isExactName": false,
                         "resourceName": "Standard",
                         "accessibility": "public",
@@ -4715,6 +4882,7 @@
                             "$id": "294",
                             "kind": "query",
                             "name": "param",
+                            "originalName": "param",
                             "serializedName": "param",
                             "type": {
                               "$ref": "64"
@@ -4731,6 +4899,7 @@
                                 "$id": "295",
                                 "kind": "method",
                                 "name": "param",
+                                "originalName": "param",
                                 "serializedName": "param",
                                 "type": {
                                   "$ref": "64"
@@ -4784,12 +4953,14 @@
                       "$id": "296",
                       "kind": "basic",
                       "name": "record",
+                      "originalName": "record",
                       "isExactName": false,
                       "accessibility": "public",
                       "apiVersions": [],
                       "operation": {
                         "$id": "297",
                         "name": "record",
+                        "originalName": "record",
                         "isExactName": false,
                         "resourceName": "Standard",
                         "accessibility": "public",
@@ -4798,6 +4969,7 @@
                             "$id": "298",
                             "kind": "query",
                             "name": "param",
+                            "originalName": "param",
                             "serializedName": "param",
                             "type": {
                               "$ref": "70"
@@ -4814,6 +4986,7 @@
                                 "$id": "299",
                                 "kind": "method",
                                 "name": "param",
+                                "originalName": "param",
                                 "serializedName": "param",
                                 "type": {
                                   "$ref": "70"
@@ -4917,12 +5090,14 @@
                       "$id": "304",
                       "kind": "basic",
                       "name": "primitive",
+                      "originalName": "primitive",
                       "isExactName": false,
                       "accessibility": "public",
                       "apiVersions": [],
                       "operation": {
                         "$id": "305",
                         "name": "primitive",
+                        "originalName": "primitive",
                         "isExactName": false,
                         "resourceName": "Explode",
                         "accessibility": "public",
@@ -4931,6 +5106,7 @@
                             "$id": "306",
                             "kind": "query",
                             "name": "param",
+                            "originalName": "param",
                             "serializedName": "param",
                             "type": {
                               "$id": "307",
@@ -4951,6 +5127,7 @@
                                 "$id": "308",
                                 "kind": "method",
                                 "name": "param",
+                                "originalName": "param",
                                 "serializedName": "param",
                                 "type": {
                                   "$id": "309",
@@ -5008,12 +5185,14 @@
                       "$id": "310",
                       "kind": "basic",
                       "name": "array",
+                      "originalName": "array",
                       "isExactName": false,
                       "accessibility": "public",
                       "apiVersions": [],
                       "operation": {
                         "$id": "311",
                         "name": "array",
+                        "originalName": "array",
                         "isExactName": false,
                         "resourceName": "Explode",
                         "accessibility": "public",
@@ -5022,6 +5201,7 @@
                             "$id": "312",
                             "kind": "query",
                             "name": "param",
+                            "originalName": "param",
                             "serializedName": "param",
                             "type": {
                               "$ref": "64"
@@ -5038,6 +5218,7 @@
                                 "$id": "313",
                                 "kind": "method",
                                 "name": "param",
+                                "originalName": "param",
                                 "serializedName": "param",
                                 "type": {
                                   "$ref": "64"
@@ -5091,12 +5272,14 @@
                       "$id": "314",
                       "kind": "basic",
                       "name": "record",
+                      "originalName": "record",
                       "isExactName": false,
                       "accessibility": "public",
                       "apiVersions": [],
                       "operation": {
                         "$id": "315",
                         "name": "record",
+                        "originalName": "record",
                         "isExactName": false,
                         "resourceName": "Explode",
                         "accessibility": "public",
@@ -5105,6 +5288,7 @@
                             "$id": "316",
                             "kind": "query",
                             "name": "param",
+                            "originalName": "param",
                             "serializedName": "param",
                             "type": {
                               "$ref": "70"
@@ -5121,6 +5305,7 @@
                                 "$id": "317",
                                 "kind": "method",
                                 "name": "param",
+                                "originalName": "param",
                                 "serializedName": "param",
                                 "type": {
                                   "$ref": "70"
@@ -5230,12 +5415,14 @@
               "$id": "322",
               "kind": "basic",
               "name": "fixed",
+              "originalName": "fixed",
               "isExactName": false,
               "accessibility": "public",
               "apiVersions": [],
               "operation": {
                 "$id": "323",
                 "name": "fixed",
+                "originalName": "fixed",
                 "isExactName": false,
                 "resourceName": "InInterface",
                 "accessibility": "public",

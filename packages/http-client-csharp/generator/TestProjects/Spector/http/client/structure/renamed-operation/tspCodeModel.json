@@ -6,6 +6,7 @@
       "$id": "1",
       "kind": "enum",
       "name": "ClientType",
+      "originalName": "ClientType",
       "crossLanguageDefinitionId": "Client.Structure.Service.ClientType",
       "valueType": {
         "$id": "2",
@@ -19,6 +20,7 @@
           "$id": "3",
           "kind": "enumvalue",
           "name": "Default",
+          "originalName": "Default",
           "value": "default",
           "valueType": {
             "$ref": "2"
@@ -33,6 +35,7 @@
           "$id": "4",
           "kind": "enumvalue",
           "name": "MultiClient",
+          "originalName": "MultiClient",
           "value": "multi-client",
           "valueType": {
             "$ref": "2"
@@ -47,6 +50,7 @@
           "$id": "5",
           "kind": "enumvalue",
           "name": "RenamedOperation",
+          "originalName": "RenamedOperation",
           "value": "renamed-operation",
           "valueType": {
             "$ref": "2"
@@ -61,6 +65,7 @@
           "$id": "6",
           "kind": "enumvalue",
           "name": "TwoOperationGroup",
+          "originalName": "TwoOperationGroup",
           "value": "two-operation-group",
           "valueType": {
             "$ref": "2"
@@ -75,6 +80,7 @@
           "$id": "7",
           "kind": "enumvalue",
           "name": "ClientOperationGroup",
+          "originalName": "ClientOperationGroup",
           "value": "client-operation-group",
           "valueType": {
             "$ref": "2"
@@ -108,12 +114,14 @@
           "$id": "9",
           "kind": "basic",
           "name": "renamedOne",
+          "originalName": "renamedOne",
           "isExactName": false,
           "accessibility": "public",
           "apiVersions": [],
           "operation": {
             "$id": "10",
             "name": "renamedOne",
+            "originalName": "renamedOne",
             "isExactName": false,
             "resourceName": "RenamedOperation",
             "accessibility": "public",
@@ -149,12 +157,14 @@
           "$id": "11",
           "kind": "basic",
           "name": "renamedThree",
+          "originalName": "renamedThree",
           "isExactName": false,
           "accessibility": "public",
           "apiVersions": [],
           "operation": {
             "$id": "12",
             "name": "renamedThree",
+            "originalName": "renamedThree",
             "isExactName": false,
             "resourceName": "RenamedOperation",
             "accessibility": "public",
@@ -190,12 +200,14 @@
           "$id": "13",
           "kind": "basic",
           "name": "renamedFive",
+          "originalName": "renamedFive",
           "isExactName": false,
           "accessibility": "public",
           "apiVersions": [],
           "operation": {
             "$id": "14",
             "name": "renamedFive",
+            "originalName": "renamedFive",
             "isExactName": false,
             "resourceName": "RenamedOperation",
             "accessibility": "public",
@@ -287,12 +299,14 @@
               "$id": "19",
               "kind": "basic",
               "name": "renamedTwo",
+              "originalName": "renamedTwo",
               "isExactName": false,
               "accessibility": "public",
               "apiVersions": [],
               "operation": {
                 "$id": "20",
                 "name": "renamedTwo",
+                "originalName": "renamedTwo",
                 "isExactName": false,
                 "resourceName": "Group",
                 "accessibility": "public",
@@ -328,12 +342,14 @@
               "$id": "21",
               "kind": "basic",
               "name": "renamedFour",
+              "originalName": "renamedFour",
               "isExactName": false,
               "accessibility": "public",
               "apiVersions": [],
               "operation": {
                 "$id": "22",
                 "name": "renamedFour",
+                "originalName": "renamedFour",
                 "isExactName": false,
                 "resourceName": "Group",
                 "accessibility": "public",
@@ -369,12 +385,14 @@
               "$id": "23",
               "kind": "basic",
               "name": "renamedSix",
+              "originalName": "renamedSix",
               "isExactName": false,
               "accessibility": "public",
               "apiVersions": [],
               "operation": {
                 "$id": "24",
                 "name": "renamedSix",
+                "originalName": "renamedSix",
                 "isExactName": false,
                 "resourceName": "Group",
                 "accessibility": "public",

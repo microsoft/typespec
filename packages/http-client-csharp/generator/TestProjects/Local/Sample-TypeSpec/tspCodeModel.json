@@ -9,6 +9,7 @@
       "$id": "1",
       "kind": "enum",
       "name": "ThingOptionalLiteralString",
+      "originalName": "ThingOptionalLiteralString",
       "crossLanguageDefinitionId": "",
       "valueType": {
         "$id": "2",
@@ -22,6 +23,7 @@
           "$id": "3",
           "kind": "enumvalue",
           "name": "reject",
+          "originalName": "reject",
           "value": "reject",
           "valueType": {
             "$id": "4",
@@ -49,6 +51,7 @@
       "$id": "5",
       "kind": "enum",
       "name": "ThingRequiredNullableLiteralString1",
+      "originalName": "ThingRequiredNullableLiteralString1",
       "crossLanguageDefinitionId": "",
       "valueType": {
         "$id": "6",
@@ -62,6 +65,7 @@
           "$id": "7",
           "kind": "enumvalue",
           "name": "someValue",
+          "originalName": "someValue",
           "value": "someValue",
           "valueType": {
             "$id": "8",
@@ -89,6 +93,7 @@
       "$id": "9",
       "kind": "enum",
       "name": "ThingOptionalLiteralInt",
+      "originalName": "ThingOptionalLiteralInt",
       "crossLanguageDefinitionId": "",
       "valueType": {
         "$id": "10",
@@ -102,6 +107,7 @@
           "$id": "11",
           "kind": "enumvalue",
           "name": "456",
+          "originalName": "456",
           "value": 456,
           "valueType": {
             "$id": "12",
@@ -129,6 +135,7 @@
       "$id": "13",
       "kind": "enum",
       "name": "ThingOptionalLiteralFloat",
+      "originalName": "ThingOptionalLiteralFloat",
       "crossLanguageDefinitionId": "",
       "valueType": {
         "$id": "14",
@@ -142,6 +149,7 @@
           "$id": "15",
           "kind": "enumvalue",
           "name": "4.56",
+          "originalName": "4.56",
           "value": 4.56,
           "valueType": {
             "$id": "16",
@@ -169,6 +177,7 @@
       "$id": "17",
       "kind": "enum",
       "name": "StringFixedEnum",
+      "originalName": "StringFixedEnum",
       "crossLanguageDefinitionId": "SampleTypeSpec.StringFixedEnum",
       "valueType": {
         "$id": "18",
@@ -182,6 +191,7 @@
           "$id": "19",
           "kind": "enumvalue",
           "name": "One",
+          "originalName": "One",
           "value": "1",
           "valueType": {
             "$ref": "18"
@@ -196,6 +206,7 @@
           "$id": "20",
           "kind": "enumvalue",
           "name": "Two",
+          "originalName": "Two",
           "value": "2",
           "valueType": {
             "$ref": "18"
@@ -210,6 +221,7 @@
           "$id": "21",
           "kind": "enumvalue",
           "name": "Four",
+          "originalName": "Four",
           "value": "4",
           "valueType": {
             "$ref": "18"
@@ -233,6 +245,7 @@
       "$id": "22",
       "kind": "enum",
       "name": "StringExtensibleEnum",
+      "originalName": "StringExtensibleEnum",
       "crossLanguageDefinitionId": "SampleTypeSpec.StringExtensibleEnum",
       "valueType": {
         "$id": "23",
@@ -246,6 +259,7 @@
           "$id": "24",
           "kind": "enumvalue",
           "name": "One",
+          "originalName": "One",
           "value": "1",
           "valueType": {
             "$ref": "23"
@@ -260,6 +274,7 @@
           "$id": "25",
           "kind": "enumvalue",
           "name": "Two",
+          "originalName": "Two",
           "value": "2",
           "valueType": {
             "$ref": "23"
@@ -274,6 +289,7 @@
           "$id": "26",
           "kind": "enumvalue",
           "name": "Four",
+          "originalName": "Four",
           "value": "4",
           "valueType": {
             "$ref": "23"
@@ -297,6 +313,7 @@
       "$id": "27",
       "kind": "enum",
       "name": "IntExtensibleEnum",
+      "originalName": "IntExtensibleEnum",
       "crossLanguageDefinitionId": "SampleTypeSpec.IntExtensibleEnum",
       "valueType": {
         "$id": "28",
@@ -310,6 +327,7 @@
           "$id": "29",
           "kind": "enumvalue",
           "name": "One",
+          "originalName": "One",
           "value": 1,
           "valueType": {
             "$ref": "28"
@@ -324,6 +342,7 @@
           "$id": "30",
           "kind": "enumvalue",
           "name": "Two",
+          "originalName": "Two",
           "value": 2,
           "valueType": {
             "$ref": "28"
@@ -338,6 +357,7 @@
           "$id": "31",
           "kind": "enumvalue",
           "name": "Four",
+          "originalName": "Four",
           "value": 4,
           "valueType": {
             "$ref": "28"
@@ -361,6 +381,7 @@
       "$id": "32",
       "kind": "enum",
       "name": "FloatExtensibleEnum",
+      "originalName": "FloatExtensibleEnum",
       "crossLanguageDefinitionId": "SampleTypeSpec.FloatExtensibleEnum",
       "valueType": {
         "$id": "33",
@@ -374,6 +395,7 @@
           "$id": "34",
           "kind": "enumvalue",
           "name": "OneDotOne",
+          "originalName": "OneDotOne",
           "value": 1.1,
           "valueType": {
             "$ref": "33"
@@ -388,6 +410,7 @@
           "$id": "35",
           "kind": "enumvalue",
           "name": "TwoDotTwo",
+          "originalName": "TwoDotTwo",
           "value": 2.2,
           "valueType": {
             "$ref": "33"
@@ -402,6 +425,7 @@
           "$id": "36",
           "kind": "enumvalue",
           "name": "FourDotFour",
+          "originalName": "FourDotFour",
           "value": 4.4,
           "valueType": {
             "$ref": "33"
@@ -425,6 +449,7 @@
       "$id": "37",
       "kind": "enum",
       "name": "FloatExtensibleEnumWithIntValue",
+      "originalName": "FloatExtensibleEnumWithIntValue",
       "crossLanguageDefinitionId": "SampleTypeSpec.FloatExtensibleEnumWithIntValue",
       "valueType": {
         "$id": "38",
@@ -438,6 +463,7 @@
           "$id": "39",
           "kind": "enumvalue",
           "name": "One",
+          "originalName": "One",
           "value": 1,
           "valueType": {
             "$ref": "38"
@@ -452,6 +478,7 @@
           "$id": "40",
           "kind": "enumvalue",
           "name": "Two",
+          "originalName": "Two",
           "value": 2,
           "valueType": {
             "$ref": "38"
@@ -466,6 +493,7 @@
           "$id": "41",
           "kind": "enumvalue",
           "name": "Four",
+          "originalName": "Four",
           "value": 4,
           "valueType": {
             "$ref": "38"
@@ -489,6 +517,7 @@
       "$id": "42",
       "kind": "enum",
       "name": "FloatFixedEnum",
+      "originalName": "FloatFixedEnum",
       "crossLanguageDefinitionId": "SampleTypeSpec.FloatFixedEnum",
       "valueType": {
         "$id": "43",
@@ -502,6 +531,7 @@
           "$id": "44",
           "kind": "enumvalue",
           "name": "OneDotOne",
+          "originalName": "OneDotOne",
           "value": 1.1,
           "valueType": {
             "$ref": "43"
@@ -516,6 +546,7 @@
           "$id": "45",
           "kind": "enumvalue",
           "name": "TwoDotTwo",
+          "originalName": "TwoDotTwo",
           "value": 2.2,
           "valueType": {
             "$ref": "43"
@@ -530,6 +561,7 @@
           "$id": "46",
           "kind": "enumvalue",
           "name": "FourDotFour",
+          "originalName": "FourDotFour",
           "value": 4.4,
           "valueType": {
             "$ref": "43"
@@ -553,6 +585,7 @@
       "$id": "47",
       "kind": "enum",
       "name": "FloatFixedEnumWithIntValue",
+      "originalName": "FloatFixedEnumWithIntValue",
       "crossLanguageDefinitionId": "SampleTypeSpec.FloatFixedEnumWithIntValue",
       "valueType": {
         "$id": "48",
@@ -566,6 +599,7 @@
           "$id": "49",
           "kind": "enumvalue",
           "name": "One",
+          "originalName": "One",
           "value": 1,
           "valueType": {
             "$ref": "48"
@@ -580,6 +614,7 @@
           "$id": "50",
           "kind": "enumvalue",
           "name": "Two",
+          "originalName": "Two",
           "value": 2,
           "valueType": {
             "$ref": "48"
@@ -594,6 +629,7 @@
           "$id": "51",
           "kind": "enumvalue",
           "name": "Four",
+          "originalName": "Four",
           "value": 4,
           "valueType": {
             "$ref": "48"
@@ -617,6 +653,7 @@
       "$id": "52",
       "kind": "enum",
       "name": "IntFixedEnum",
+      "originalName": "IntFixedEnum",
       "crossLanguageDefinitionId": "SampleTypeSpec.IntFixedEnum",
       "valueType": {
         "$id": "53",
@@ -630,6 +667,7 @@
           "$id": "54",
           "kind": "enumvalue",
           "name": "One",
+          "originalName": "One",
           "value": 1,
           "valueType": {
             "$ref": "53"
@@ -644,6 +682,7 @@
           "$id": "55",
           "kind": "enumvalue",
           "name": "Two",
+          "originalName": "Two",
           "value": 2,
           "valueType": {
             "$ref": "53"
@@ -658,6 +697,7 @@
           "$id": "56",
           "kind": "enumvalue",
           "name": "Four",
+          "originalName": "Four",
           "value": 4,
           "valueType": {
             "$ref": "53"
@@ -681,6 +721,7 @@
       "$id": "57",
       "kind": "enum",
       "name": "DaysOfWeekExtensibleEnum",
+      "originalName": "DaysOfWeekExtensibleEnum",
       "crossLanguageDefinitionId": "SampleTypeSpec.DaysOfWeekExtensibleEnum",
       "valueType": {
         "$id": "58",
@@ -694,6 +735,7 @@
           "$id": "59",
           "kind": "enumvalue",
           "name": "Monday",
+          "originalName": "Monday",
           "value": "Monday",
           "valueType": {
             "$ref": "58"
@@ -708,6 +750,7 @@
           "$id": "60",
           "kind": "enumvalue",
           "name": "Tuesday",
+          "originalName": "Tuesday",
           "value": "Tuesday",
           "valueType": {
             "$ref": "58"
@@ -722,6 +765,7 @@
           "$id": "61",
           "kind": "enumvalue",
           "name": "Wednesday",
+          "originalName": "Wednesday",
           "value": "Wednesday",
           "valueType": {
             "$ref": "58"
@@ -736,6 +780,7 @@
           "$id": "62",
           "kind": "enumvalue",
           "name": "Thursday",
+          "originalName": "Thursday",
           "value": "Thursday",
           "valueType": {
             "$ref": "58"
@@ -750,6 +795,7 @@
           "$id": "63",
           "kind": "enumvalue",
           "name": "Friday",
+          "originalName": "Friday",
           "value": "Friday",
           "valueType": {
             "$ref": "58"
@@ -764,6 +810,7 @@
           "$id": "64",
           "kind": "enumvalue",
           "name": "Saturday",
+          "originalName": "Saturday",
           "value": "Saturday",
           "valueType": {
             "$ref": "58"
@@ -778,6 +825,7 @@
           "$id": "65",
           "kind": "enumvalue",
           "name": "Sunday",
+          "originalName": "Sunday",
           "value": "Sunday",
           "valueType": {
             "$ref": "58"
@@ -800,6 +848,7 @@
       "$id": "66",
       "kind": "enum",
       "name": "Versions",
+      "originalName": "Versions",
       "crossLanguageDefinitionId": "SampleTypeSpec.Versions",
       "valueType": {
         "$id": "67",
@@ -813,6 +862,7 @@
           "$id": "68",
           "kind": "enumvalue",
           "name": "2024-07-16-preview",
+          "originalName": "2024-07-16-preview",
           "value": "2024-07-16-preview",
           "valueType": {
             "$ref": "67"
@@ -827,6 +877,7 @@
           "$id": "69",
           "kind": "enumvalue",
           "name": "2024-08-16-preview",
+          "originalName": "2024-08-16-preview",
           "value": "2024-08-16-preview",
           "valueType": {
             "$ref": "67"
@@ -2434,6 +2485,7 @@
       "$id": "256",
       "kind": "model",
       "name": "Thing",
+      "originalName": "Thing",
       "namespace": "SampleTypeSpec",
       "crossLanguageDefinitionId": "SampleTypeSpec.Thing",
       "usage": "Input,Output,Spread,Json",
@@ -2450,6 +2502,7 @@
           "$id": "257",
           "kind": "property",
           "name": "name",
+          "originalName": "name",
           "serializedName": "name",
           "doc": "name of the Thing",
           "type": {
@@ -2477,6 +2530,7 @@
           "$id": "259",
           "kind": "property",
           "name": "requiredUnion",
+          "originalName": "requiredUnion",
           "serializedName": "requiredUnion",
           "doc": "required Union",
           "type": {
@@ -2535,6 +2589,7 @@
           "$id": "265",
           "kind": "property",
           "name": "requiredLiteralString",
+          "originalName": "requiredLiteralString",
           "serializedName": "requiredLiteralString",
           "doc": "required literal string",
           "type": {
@@ -2558,6 +2613,7 @@
           "$id": "266",
           "kind": "property",
           "name": "requiredNullableString",
+          "originalName": "requiredNullableString",
           "serializedName": "requiredNullableString",
           "doc": "required nullable string",
           "type": {
@@ -2590,6 +2646,7 @@
           "$id": "269",
           "kind": "property",
           "name": "optionalNullableString",
+          "originalName": "optionalNullableString",
           "serializedName": "optionalNullableString",
           "doc": "required optional string",
           "type": {
@@ -2622,6 +2679,7 @@
           "$id": "272",
           "kind": "property",
           "name": "requiredLiteralInt",
+          "originalName": "requiredLiteralInt",
           "serializedName": "requiredLiteralInt",
           "doc": "required literal int",
           "type": {
@@ -2645,6 +2703,7 @@
           "$id": "273",
           "kind": "property",
           "name": "requiredLiteralFloat",
+          "originalName": "requiredLiteralFloat",
           "serializedName": "requiredLiteralFloat",
           "doc": "required literal float",
           "type": {
@@ -2668,6 +2727,7 @@
           "$id": "274",
           "kind": "property",
           "name": "requiredLiteralBool",
+          "originalName": "requiredLiteralBool",
           "serializedName": "requiredLiteralBool",
           "doc": "required literal bool",
           "type": {
@@ -2691,6 +2751,7 @@
           "$id": "275",
           "kind": "property",
           "name": "optionalLiteralString",
+          "originalName": "optionalLiteralString",
           "serializedName": "optionalLiteralString",
           "doc": "optional literal string",
           "type": {
@@ -2714,6 +2775,7 @@
           "$id": "276",
           "kind": "property",
           "name": "requiredNullableLiteralString",
+          "originalName": "requiredNullableLiteralString",
           "serializedName": "requiredNullableLiteralString",
           "doc": "required nullable literal string",
           "type": {
@@ -2742,6 +2804,7 @@
           "$id": "278",
           "kind": "property",
           "name": "optionalLiteralInt",
+          "originalName": "optionalLiteralInt",
           "serializedName": "optionalLiteralInt",
           "doc": "optional literal int",
           "type": {
@@ -2765,6 +2828,7 @@
           "$id": "279",
           "kind": "property",
           "name": "optionalLiteralFloat",
+          "originalName": "optionalLiteralFloat",
           "serializedName": "optionalLiteralFloat",
           "doc": "optional literal float",
           "type": {
@@ -2788,6 +2852,7 @@
           "$id": "280",
           "kind": "property",
           "name": "optionalLiteralBool",
+          "originalName": "optionalLiteralBool",
           "serializedName": "optionalLiteralBool",
           "doc": "optional literal bool",
           "type": {
@@ -2811,6 +2876,7 @@
           "$id": "281",
           "kind": "property",
           "name": "requiredBadDescription",
+          "originalName": "requiredBadDescription",
           "serializedName": "requiredBadDescription",
           "doc": "description with xml <|endoftext|>",
           "type": {
@@ -2838,6 +2904,7 @@
           "$id": "283",
           "kind": "property",
           "name": "optionalNullableList",
+          "originalName": "optionalNullableList",
           "serializedName": "optionalNullableList",
           "doc": "optional nullable collection",
           "type": {
@@ -2877,6 +2944,7 @@
           "$id": "287",
           "kind": "property",
           "name": "requiredNullableList",
+          "originalName": "requiredNullableList",
           "serializedName": "requiredNullableList",
           "doc": "required nullable collection",
           "type": {
@@ -2905,6 +2973,7 @@
           "$id": "289",
           "kind": "property",
           "name": "propertyWithSpecialDocs",
+          "originalName": "propertyWithSpecialDocs",
           "serializedName": "propertyWithSpecialDocs",
           "doc": "This tests:\n- Simple bullet point. This bullet point is going to be very long to test how text wrapping is handled in bullet points within documentation comments. It should properly indent the wrapped lines.\n- Another bullet point with **bold text**. This bullet point is also intentionally long to see how the formatting is preserved when the text wraps onto multiple lines in the generated documentation.\n- Third bullet point with *italic text*. Similar to the previous points, this one is extended to ensure that the wrapping and formatting are correctly applied in the output.\n- Complex bullet point with **bold** and *italic* combined. This bullet point combines both bold and italic formatting and is long enough to test the wrapping behavior in such cases.\n- **Bold bullet point**: A bullet point that is entirely bolded. This point is also made lengthy to observe how the bold formatting is maintained across wrapped lines.\n- *Italic bullet point*: A bullet point that is entirely italicized. This final point is extended to verify that italic formatting is correctly applied even when the text spans multiple lines.",
           "type": {
@@ -2934,6 +3003,7 @@
       "$id": "291",
       "kind": "model",
       "name": "RoundTripModel",
+      "originalName": "RoundTripModel",
       "namespace": "SampleTypeSpec",
       "crossLanguageDefinitionId": "SampleTypeSpec.RoundTripModel",
       "usage": "Input,Output,Json",
@@ -2950,6 +3020,7 @@
           "$id": "292",
           "kind": "property",
           "name": "requiredString",
+          "originalName": "requiredString",
           "serializedName": "requiredString",
           "doc": "Required string, illustrating a reference type property.",
           "type": {
@@ -2977,6 +3048,7 @@
           "$id": "294",
           "kind": "property",
           "name": "requiredInt",
+          "originalName": "requiredInt",
           "serializedName": "requiredInt",
           "doc": "Required int, illustrating a value type property.",
           "type": {
@@ -3005,6 +3077,7 @@
           "$id": "296",
           "kind": "property",
           "name": "requiredCollection",
+          "originalName": "requiredCollection",
           "serializedName": "requiredCollection",
           "doc": "Required collection of enums",
           "type": {
@@ -3035,6 +3108,7 @@
           "$id": "298",
           "kind": "property",
           "name": "requiredDictionary",
+          "originalName": "requiredDictionary",
           "serializedName": "requiredDictionary",
           "doc": "Required dictionary of enums",
           "type": {
@@ -3070,6 +3144,7 @@
           "$id": "301",
           "kind": "property",
           "name": "requiredModel",
+          "originalName": "requiredModel",
           "serializedName": "requiredModel",
           "doc": "Required model",
           "type": {
@@ -3093,6 +3168,7 @@
           "$id": "302",
           "kind": "property",
           "name": "intExtensibleEnum",
+          "originalName": "intExtensibleEnum",
           "serializedName": "intExtensibleEnum",
           "doc": "this is an int based extensible enum",
           "type": {
@@ -3116,6 +3192,7 @@
           "$id": "303",
           "kind": "property",
           "name": "intExtensibleEnumCollection",
+          "originalName": "intExtensibleEnumCollection",
           "serializedName": "intExtensibleEnumCollection",
           "doc": "this is a collection of int based extensible enum",
           "type": {
@@ -3146,6 +3223,7 @@
           "$id": "305",
           "kind": "property",
           "name": "floatExtensibleEnum",
+          "originalName": "floatExtensibleEnum",
           "serializedName": "floatExtensibleEnum",
           "doc": "this is a float based extensible enum",
           "type": {
@@ -3169,6 +3247,7 @@
           "$id": "306",
           "kind": "property",
           "name": "floatExtensibleEnumWithIntValue",
+          "originalName": "floatExtensibleEnumWithIntValue",
           "serializedName": "floatExtensibleEnumWithIntValue",
           "doc": "this is a float based extensible enum",
           "type": {
@@ -3192,6 +3271,7 @@
           "$id": "307",
           "kind": "property",
           "name": "floatExtensibleEnumCollection",
+          "originalName": "floatExtensibleEnumCollection",
           "serializedName": "floatExtensibleEnumCollection",
           "doc": "this is a collection of float based extensible enum",
           "type": {
@@ -3222,6 +3302,7 @@
           "$id": "309",
           "kind": "property",
           "name": "floatFixedEnum",
+          "originalName": "floatFixedEnum",
           "serializedName": "floatFixedEnum",
           "doc": "this is a float based fixed enum",
           "type": {
@@ -3245,6 +3326,7 @@
           "$id": "310",
           "kind": "property",
           "name": "floatFixedEnumWithIntValue",
+          "originalName": "floatFixedEnumWithIntValue",
           "serializedName": "floatFixedEnumWithIntValue",
           "doc": "this is a float based fixed enum",
           "type": {
@@ -3268,6 +3350,7 @@
           "$id": "311",
           "kind": "property",
           "name": "floatFixedEnumCollection",
+          "originalName": "floatFixedEnumCollection",
           "serializedName": "floatFixedEnumCollection",
           "doc": "this is a collection of float based fixed enum",
           "type": {
@@ -3298,6 +3381,7 @@
           "$id": "313",
           "kind": "property",
           "name": "intFixedEnum",
+          "originalName": "intFixedEnum",
           "serializedName": "intFixedEnum",
           "doc": "this is a int based fixed enum",
           "type": {
@@ -3321,6 +3405,7 @@
           "$id": "314",
           "kind": "property",
           "name": "intFixedEnumCollection",
+          "originalName": "intFixedEnumCollection",
           "serializedName": "intFixedEnumCollection",
           "doc": "this is a collection of int based fixed enum",
           "type": {
@@ -3351,6 +3436,7 @@
           "$id": "316",
           "kind": "property",
           "name": "stringFixedEnum",
+          "originalName": "stringFixedEnum",
           "serializedName": "stringFixedEnum",
           "doc": "this is a string based fixed enum",
           "type": {
@@ -3374,6 +3460,7 @@
           "$id": "317",
           "kind": "property",
           "name": "requiredUnknown",
+          "originalName": "requiredUnknown",
           "serializedName": "requiredUnknown",
           "doc": "required unknown",
           "type": {
@@ -3401,6 +3488,7 @@
           "$id": "319",
           "kind": "property",
           "name": "optionalUnknown",
+          "originalName": "optionalUnknown",
           "serializedName": "optionalUnknown",
           "doc": "optional unknown",
           "type": {
@@ -3428,6 +3516,7 @@
           "$id": "321",
           "kind": "property",
           "name": "requiredRecordUnknown",
+          "originalName": "requiredRecordUnknown",
           "serializedName": "requiredRecordUnknown",
           "doc": "required record of unknown",
           "type": {
@@ -3467,6 +3556,7 @@
           "$id": "325",
           "kind": "property",
           "name": "optionalRecordUnknown",
+          "originalName": "optionalRecordUnknown",
           "serializedName": "optionalRecordUnknown",
           "doc": "optional record of unknown",
           "type": {
@@ -3490,6 +3580,7 @@
           "$id": "326",
           "kind": "property",
           "name": "readOnlyRequiredRecordUnknown",
+          "originalName": "readOnlyRequiredRecordUnknown",
           "serializedName": "readOnlyRequiredRecordUnknown",
           "doc": "required readonly record of unknown",
           "type": {
@@ -3513,6 +3604,7 @@
           "$id": "327",
           "kind": "property",
           "name": "readOnlyOptionalRecordUnknown",
+          "originalName": "readOnlyOptionalRecordUnknown",
           "serializedName": "readOnlyOptionalRecordUnknown",
           "doc": "optional readonly record of unknown",
           "type": {
@@ -3536,12 +3628,14 @@
           "$id": "328",
           "kind": "property",
           "name": "modelWithRequiredNullable",
+          "originalName": "modelWithRequiredNullable",
           "serializedName": "modelWithRequiredNullable",
           "doc": "this is a model with required nullable properties",
           "type": {
             "$id": "329",
             "kind": "model",
             "name": "ModelWithRequiredNullableProperties",
+            "originalName": "ModelWithRequiredNullableProperties",
             "namespace": "SampleTypeSpec",
             "crossLanguageDefinitionId": "SampleTypeSpec.ModelWithRequiredNullableProperties",
             "usage": "Input,Output,Json",
@@ -3558,6 +3652,7 @@
                 "$id": "330",
                 "kind": "property",
                 "name": "requiredNullablePrimitive",
+                "originalName": "requiredNullablePrimitive",
                 "serializedName": "requiredNullablePrimitive",
                 "doc": "required nullable primitive type",
                 "type": {
@@ -3590,6 +3685,7 @@
                 "$id": "333",
                 "kind": "property",
                 "name": "requiredExtensibleEnum",
+                "originalName": "requiredExtensibleEnum",
                 "serializedName": "requiredExtensibleEnum",
                 "doc": "required nullable extensible enum type",
                 "type": {
@@ -3618,6 +3714,7 @@
                 "$id": "335",
                 "kind": "property",
                 "name": "requiredFixedEnum",
+                "originalName": "requiredFixedEnum",
                 "serializedName": "requiredFixedEnum",
                 "doc": "required nullable fixed enum type",
                 "type": {
@@ -3662,6 +3759,7 @@
           "$id": "337",
           "kind": "property",
           "name": "requiredBytes",
+          "originalName": "requiredBytes",
           "serializedName": "requiredBytes",
           "doc": "Required bytes",
           "type": {
@@ -3695,6 +3793,7 @@
       "$id": "339",
       "kind": "model",
       "name": "Wrapper",
+      "originalName": "Wrapper",
       "namespace": "SampleTypeSpec",
       "crossLanguageDefinitionId": "SampleTypeSpec.Wrapper",
       "usage": "Input",
@@ -3706,6 +3805,7 @@
           "$id": "340",
           "kind": "property",
           "name": "p1",
+          "originalName": "p1",
           "doc": "header parameter",
           "type": {
             "$id": "341",
@@ -3728,6 +3828,7 @@
           "$id": "342",
           "kind": "property",
           "name": "action",
+          "originalName": "action",
           "doc": "body parameter",
           "type": {
             "$ref": "291"
@@ -3746,6 +3847,7 @@
           "$id": "343",
           "kind": "property",
           "name": "p2",
+          "originalName": "p2",
           "doc": "path parameter",
           "type": {
             "$id": "344",
@@ -3770,6 +3872,7 @@
       "$id": "345",
       "kind": "model",
       "name": "Friend",
+      "originalName": "Friend",
       "namespace": "SampleTypeSpec",
       "crossLanguageDefinitionId": "SampleTypeSpec.NotFriend",
       "usage": "Output,Spread,Json",
@@ -3786,6 +3889,7 @@
           "$id": "346",
           "kind": "property",
           "name": "name",
+          "originalName": "name",
           "serializedName": "name",
           "doc": "name of the NotFriend",
           "type": {
@@ -3815,6 +3919,7 @@
       "$id": "348",
       "kind": "model",
       "name": "RenamedModel",
+      "originalName": "RenamedModel",
       "namespace": "SampleTypeSpec",
       "crossLanguageDefinitionId": "SampleTypeSpec.ModelWithClientName",
       "usage": "Output,Spread,Json",
@@ -3831,6 +3936,7 @@
           "$id": "349",
           "kind": "property",
           "name": "otherName",
+          "originalName": "otherName",
           "serializedName": "otherName",
           "doc": "name of the ModelWithClientName",
           "type": {
@@ -3860,6 +3966,7 @@
       "$id": "351",
       "kind": "model",
       "name": "ReturnsAnonymousModelResponse",
+      "originalName": "ReturnsAnonymousModelResponse",
       "namespace": "SampleTypeSpec",
       "crossLanguageDefinitionId": "SampleTypeSpec.returnsAnonymousModel.Response.anonymous",
       "usage": "Output,Json",
@@ -3876,6 +3983,7 @@
       "$id": "352",
       "kind": "model",
       "name": "ListWithNextLinkResponse",
+      "originalName": "ListWithNextLinkResponse",
       "namespace": "SampleTypeSpec",
       "crossLanguageDefinitionId": "SampleTypeSpec.ListWithNextLink.Response.anonymous",
       "usage": "Output,Json",
@@ -3891,6 +3999,7 @@
           "$id": "353",
           "kind": "property",
           "name": "things",
+          "originalName": "things",
           "serializedName": "things",
           "type": {
             "$id": "354",
@@ -3920,6 +4029,7 @@
           "$id": "355",
           "kind": "property",
           "name": "next",
+          "originalName": "next",
           "serializedName": "next",
           "type": {
             "$id": "356",
@@ -3948,6 +4058,7 @@
       "$id": "357",
       "kind": "model",
       "name": "ListWithStringNextLinkResponse",
+      "originalName": "ListWithStringNextLinkResponse",
       "namespace": "SampleTypeSpec",
       "crossLanguageDefinitionId": "SampleTypeSpec.ListWithStringNextLink.Response.anonymous",
       "usage": "Output,Json",
@@ -3963,6 +4074,7 @@
           "$id": "358",
           "kind": "property",
           "name": "things",
+          "originalName": "things",
           "serializedName": "things",
           "type": {
             "$ref": "354"
@@ -3985,6 +4097,7 @@
           "$id": "359",
           "kind": "property",
           "name": "next",
+          "originalName": "next",
           "serializedName": "next",
           "type": {
             "$id": "360",
@@ -4013,6 +4126,7 @@
       "$id": "361",
       "kind": "model",
       "name": "ListWithContinuationTokenResponse",
+      "originalName": "ListWithContinuationTokenResponse",
       "namespace": "SampleTypeSpec",
       "crossLanguageDefinitionId": "SampleTypeSpec.ListWithContinuationToken.Response.anonymous",
       "usage": "Output,Json",
@@ -4028,6 +4142,7 @@
           "$id": "362",
           "kind": "property",
           "name": "things",
+          "originalName": "things",
           "serializedName": "things",
           "type": {
             "$ref": "354"
@@ -4050,6 +4165,7 @@
           "$id": "363",
           "kind": "property",
           "name": "nextToken",
+          "originalName": "nextToken",
           "serializedName": "nextToken",
           "type": {
             "$id": "364",
@@ -4078,6 +4194,7 @@
       "$id": "365",
       "kind": "model",
       "name": "ListWithContinuationTokenHeaderResponseResponse",
+      "originalName": "ListWithContinuationTokenHeaderResponseResponse",
       "namespace": "",
       "crossLanguageDefinitionId": "SampleTypeSpec.ListWithContinuationTokenHeaderResponse.Response.anonymous",
       "usage": "Output,Json",
@@ -4093,6 +4210,7 @@
           "$id": "366",
           "kind": "property",
           "name": "things",
+          "originalName": "things",
           "serializedName": "things",
           "type": {
             "$ref": "354"
@@ -4117,6 +4235,7 @@
       "$id": "367",
       "kind": "model",
       "name": "PageThing",
+      "originalName": "PageThing",
       "namespace": "SampleTypeSpec",
       "crossLanguageDefinitionId": "SampleTypeSpec.Page",
       "usage": "Output,Json",
@@ -4132,6 +4251,7 @@
           "$id": "368",
           "kind": "property",
           "name": "items",
+          "originalName": "items",
           "serializedName": "items",
           "type": {
             "$ref": "354"
@@ -4156,6 +4276,7 @@
       "$id": "369",
       "kind": "model",
       "name": "ModelWithEmbeddedNonBodyParameters",
+      "originalName": "ModelWithEmbeddedNonBodyParameters",
       "namespace": "SampleTypeSpec",
       "crossLanguageDefinitionId": "SampleTypeSpec.ModelWithEmbeddedNonBodyParameters",
       "usage": "Input,Json",
@@ -4171,6 +4292,7 @@
           "$id": "370",
           "kind": "property",
           "name": "name",
+          "originalName": "name",
           "serializedName": "name",
           "doc": "name of the ModelWithEmbeddedNonBodyParameters",
           "type": {
@@ -4198,6 +4320,7 @@
           "$id": "372",
           "kind": "property",
           "name": "requiredHeader",
+          "originalName": "requiredHeader",
           "serializedName": "requiredHeader",
           "doc": "required header parameter",
           "type": {
@@ -4225,6 +4348,7 @@
           "$id": "374",
           "kind": "property",
           "name": "optionalHeader",
+          "originalName": "optionalHeader",
           "serializedName": "optionalHeader",
           "doc": "optional header parameter",
           "type": {
@@ -4252,6 +4376,7 @@
           "$id": "376",
           "kind": "property",
           "name": "requiredQuery",
+          "originalName": "requiredQuery",
           "serializedName": "requiredQuery",
           "doc": "required query parameter",
           "type": {
@@ -4279,6 +4404,7 @@
           "$id": "378",
           "kind": "property",
           "name": "optionalQuery",
+          "originalName": "optionalQuery",
           "serializedName": "optionalQuery",
           "doc": "optional query parameter",
           "type": {
@@ -4308,6 +4434,7 @@
       "$id": "380",
       "kind": "model",
       "name": "DynamicModel",
+      "originalName": "DynamicModel",
       "namespace": "SampleTypeSpec",
       "crossLanguageDefinitionId": "SampleTypeSpec.DynamicModel",
       "usage": "Input,Json",
@@ -4329,6 +4456,7 @@
           "$id": "381",
           "kind": "property",
           "name": "name",
+          "originalName": "name",
           "serializedName": "name",
           "type": {
             "$id": "382",
@@ -4355,6 +4483,7 @@
           "$id": "383",
           "kind": "property",
           "name": "optionalUnknown",
+          "originalName": "optionalUnknown",
           "serializedName": "optionalUnknown",
           "type": {
             "$id": "384",
@@ -4381,6 +4510,7 @@
           "$id": "385",
           "kind": "property",
           "name": "optionalInt",
+          "originalName": "optionalInt",
           "serializedName": "optionalInt",
           "type": {
             "$id": "386",
@@ -4407,6 +4537,7 @@
           "$id": "387",
           "kind": "property",
           "name": "optionalNullableList",
+          "originalName": "optionalNullableList",
           "serializedName": "optionalNullableList",
           "type": {
             "$id": "388",
@@ -4434,6 +4565,7 @@
           "$id": "389",
           "kind": "property",
           "name": "requiredNullableList",
+          "originalName": "requiredNullableList",
           "serializedName": "requiredNullableList",
           "type": {
             "$id": "390",
@@ -4461,6 +4593,7 @@
           "$id": "391",
           "kind": "property",
           "name": "optionalNullableDictionary",
+          "originalName": "optionalNullableDictionary",
           "serializedName": "optionalNullableDictionary",
           "type": {
             "$id": "392",
@@ -4504,6 +4637,7 @@
           "$id": "396",
           "kind": "property",
           "name": "requiredNullableDictionary",
+          "originalName": "requiredNullableDictionary",
           "serializedName": "requiredNullableDictionary",
           "type": {
             "$id": "397",
@@ -4531,6 +4665,7 @@
           "$id": "398",
           "kind": "property",
           "name": "primitiveDictionary",
+          "originalName": "primitiveDictionary",
           "serializedName": "primitiveDictionary",
           "type": {
             "$ref": "393"
@@ -4553,11 +4688,13 @@
           "$id": "399",
           "kind": "property",
           "name": "foo",
+          "originalName": "foo",
           "serializedName": "foo",
           "type": {
             "$id": "400",
             "kind": "model",
             "name": "AnotherDynamicModel",
+            "originalName": "AnotherDynamicModel",
             "namespace": "SampleTypeSpec",
             "crossLanguageDefinitionId": "SampleTypeSpec.AnotherDynamicModel",
             "usage": "Input,Json",
@@ -4579,6 +4716,7 @@
                 "$id": "401",
                 "kind": "property",
                 "name": "bar",
+                "originalName": "bar",
                 "serializedName": "bar",
                 "type": {
                   "$id": "402",
@@ -4621,6 +4759,7 @@
           "$id": "403",
           "kind": "property",
           "name": "listFoo",
+          "originalName": "listFoo",
           "serializedName": "listFoo",
           "type": {
             "$id": "404",
@@ -4650,6 +4789,7 @@
           "$id": "405",
           "kind": "property",
           "name": "listOfListFoo",
+          "originalName": "listOfListFoo",
           "serializedName": "listOfListFoo",
           "type": {
             "$id": "406",
@@ -4679,6 +4819,7 @@
           "$id": "407",
           "kind": "property",
           "name": "dictionaryFoo",
+          "originalName": "dictionaryFoo",
           "serializedName": "dictionaryFoo",
           "type": {
             "$id": "408",
@@ -4713,6 +4854,7 @@
           "$id": "410",
           "kind": "property",
           "name": "dictionaryOfDictionaryFoo",
+          "originalName": "dictionaryOfDictionaryFoo",
           "serializedName": "dictionaryOfDictionaryFoo",
           "type": {
             "$id": "411",
@@ -4747,6 +4889,7 @@
           "$id": "413",
           "kind": "property",
           "name": "dictionaryListFoo",
+          "originalName": "dictionaryListFoo",
           "serializedName": "dictionaryListFoo",
           "type": {
             "$id": "414",
@@ -4781,6 +4924,7 @@
           "$id": "416",
           "kind": "property",
           "name": "listOfDictionaryFoo",
+          "originalName": "listOfDictionaryFoo",
           "serializedName": "listOfDictionaryFoo",
           "type": {
             "$id": "417",
@@ -4815,6 +4959,7 @@
       "$id": "418",
       "kind": "model",
       "name": "XmlAdvancedModel",
+      "originalName": "XmlAdvancedModel",
       "namespace": "SampleTypeSpec",
       "crossLanguageDefinitionId": "SampleTypeSpec.XmlAdvancedModel",
       "usage": "Input,Output,Xml",
@@ -4840,6 +4985,7 @@
           "$id": "419",
           "kind": "property",
           "name": "name",
+          "originalName": "name",
           "serializedName": "name",
           "doc": "A simple string property",
           "type": {
@@ -4869,6 +5015,7 @@
           "$id": "421",
           "kind": "property",
           "name": "age",
+          "originalName": "age",
           "serializedName": "age",
           "doc": "An integer property",
           "type": {
@@ -4898,6 +5045,7 @@
           "$id": "423",
           "kind": "property",
           "name": "enabled",
+          "originalName": "enabled",
           "serializedName": "enabled",
           "doc": "A boolean property",
           "type": {
@@ -4927,6 +5075,7 @@
           "$id": "425",
           "kind": "property",
           "name": "score",
+          "originalName": "score",
           "serializedName": "score",
           "doc": "A float property",
           "type": {
@@ -4956,6 +5105,7 @@
           "$id": "427",
           "kind": "property",
           "name": "optionalString",
+          "originalName": "optionalString",
           "serializedName": "optionalString",
           "doc": "An optional string",
           "type": {
@@ -4985,6 +5135,7 @@
           "$id": "429",
           "kind": "property",
           "name": "optionalInt",
+          "originalName": "optionalInt",
           "serializedName": "optionalInt",
           "doc": "An optional integer",
           "type": {
@@ -5014,6 +5165,7 @@
           "$id": "431",
           "kind": "property",
           "name": "nullableString",
+          "originalName": "nullableString",
           "serializedName": "nullableString",
           "doc": "A nullable string",
           "type": {
@@ -5048,6 +5200,7 @@
           "$id": "434",
           "kind": "property",
           "name": "id",
+          "originalName": "id",
           "serializedName": "id",
           "doc": "A string as XML attribute",
           "type": {
@@ -5082,6 +5235,7 @@
           "$id": "436",
           "kind": "property",
           "name": "version",
+          "originalName": "version",
           "serializedName": "version",
           "doc": "An integer as XML attribute",
           "type": {
@@ -5116,6 +5270,7 @@
           "$id": "438",
           "kind": "property",
           "name": "isActive",
+          "originalName": "isActive",
           "serializedName": "isActive",
           "doc": "A boolean as XML attribute",
           "type": {
@@ -5150,6 +5305,7 @@
           "$id": "440",
           "kind": "property",
           "name": "originalName",
+          "originalName": "originalName",
           "serializedName": "RenamedProperty",
           "doc": "A property with a custom XML element name",
           "type": {
@@ -5186,6 +5342,7 @@
           "$id": "442",
           "kind": "property",
           "name": "xmlIdentifier",
+          "originalName": "xmlIdentifier",
           "serializedName": "xml-id",
           "doc": "An attribute with a custom XML name",
           "type": {
@@ -5226,6 +5383,7 @@
           "$id": "444",
           "kind": "property",
           "name": "content",
+          "originalName": "content",
           "serializedName": "content",
           "doc": "Text content in the element (unwrapped string)",
           "type": {
@@ -5260,6 +5418,7 @@
           "$id": "446",
           "kind": "property",
           "name": "unwrappedStrings",
+          "originalName": "unwrappedStrings",
           "serializedName": "unwrappedStrings",
           "doc": "An unwrapped array of strings - items appear directly without wrapper",
           "type": {
@@ -5291,6 +5450,7 @@
           "$id": "447",
           "kind": "property",
           "name": "unwrappedCounts",
+          "originalName": "unwrappedCounts",
           "serializedName": "unwrappedCounts",
           "doc": "An unwrapped array of integers",
           "type": {
@@ -5322,6 +5482,7 @@
           "$id": "448",
           "kind": "property",
           "name": "unwrappedItems",
+          "originalName": "unwrappedItems",
           "serializedName": "unwrappedItems",
           "doc": "An unwrapped array of models",
           "type": {
@@ -5332,6 +5493,7 @@
               "$id": "450",
               "kind": "model",
               "name": "XmlItem",
+              "originalName": "XmlItem",
               "namespace": "SampleTypeSpec",
               "crossLanguageDefinitionId": "SampleTypeSpec.XmlItem",
               "usage": "Input,Output,Xml",
@@ -5357,6 +5519,7 @@
                   "$id": "451",
                   "kind": "property",
                   "name": "itemName",
+                  "originalName": "itemName",
                   "serializedName": "itemName",
                   "doc": "The item name",
                   "type": {
@@ -5386,6 +5549,7 @@
                   "$id": "453",
                   "kind": "property",
                   "name": "itemValue",
+                  "originalName": "itemValue",
                   "serializedName": "itemValue",
                   "doc": "The item value",
                   "type": {
@@ -5415,6 +5579,7 @@
                   "$id": "455",
                   "kind": "property",
                   "name": "itemId",
+                  "originalName": "itemId",
                   "serializedName": "itemId",
                   "doc": "Item ID as attribute",
                   "type": {
@@ -5476,6 +5641,7 @@
           "$id": "457",
           "kind": "property",
           "name": "wrappedColors",
+          "originalName": "wrappedColors",
           "serializedName": "wrappedColors",
           "doc": "A wrapped array of strings (default)",
           "type": {
@@ -5502,6 +5668,7 @@
           "$id": "458",
           "kind": "property",
           "name": "items",
+          "originalName": "items",
           "serializedName": "ItemCollection",
           "doc": "A wrapped array with custom wrapper name",
           "type": {
@@ -5535,12 +5702,14 @@
           "$id": "459",
           "kind": "property",
           "name": "nestedModel",
+          "originalName": "nestedModel",
           "serializedName": "nestedModel",
           "doc": "A nested model property",
           "type": {
             "$id": "460",
             "kind": "model",
             "name": "XmlNestedModel",
+            "originalName": "XmlNestedModel",
             "namespace": "SampleTypeSpec",
             "crossLanguageDefinitionId": "SampleTypeSpec.XmlNestedModel",
             "usage": "Input,Output,Xml",
@@ -5559,6 +5728,7 @@
                 "$id": "461",
                 "kind": "property",
                 "name": "value",
+                "originalName": "value",
                 "serializedName": "value",
                 "doc": "The value of the nested model",
                 "type": {
@@ -5588,6 +5758,7 @@
                 "$id": "463",
                 "kind": "property",
                 "name": "nestedId",
+                "originalName": "nestedId",
                 "serializedName": "nestedId",
                 "doc": "An attribute on the nested model",
                 "type": {
@@ -5640,6 +5811,7 @@
           "$id": "465",
           "kind": "property",
           "name": "optionalNestedModel",
+          "originalName": "optionalNestedModel",
           "serializedName": "optionalNestedModel",
           "doc": "An optional nested model",
           "type": {
@@ -5665,6 +5837,7 @@
           "$id": "466",
           "kind": "property",
           "name": "metadata",
+          "originalName": "metadata",
           "serializedName": "metadata",
           "doc": "A dictionary property",
           "type": {
@@ -5706,6 +5879,7 @@
           "$id": "470",
           "kind": "property",
           "name": "CreatedOn",
+          "originalName": "createdAt",
           "serializedName": "createdAt",
           "doc": "A date-time property",
           "type": {
@@ -5737,13 +5911,13 @@
             }
           },
           "isHttpMetadata": false,
-          "isExactName": false,
-          "originalName": "createdAt"
+          "isExactName": false
         },
         {
           "$id": "473",
           "kind": "property",
           "name": "duration",
+          "originalName": "duration",
           "serializedName": "duration",
           "doc": "A duration property",
           "type": {
@@ -5781,6 +5955,7 @@
           "$id": "476",
           "kind": "property",
           "name": "data",
+          "originalName": "data",
           "serializedName": "data",
           "doc": "A bytes property",
           "type": {
@@ -5811,6 +5986,7 @@
           "$id": "478",
           "kind": "property",
           "name": "optionalRecordUnknown",
+          "originalName": "optionalRecordUnknown",
           "serializedName": "optionalRecordUnknown",
           "doc": "optional record of unknown",
           "type": {
@@ -5836,6 +6012,7 @@
           "$id": "479",
           "kind": "property",
           "name": "fixedEnum",
+          "originalName": "fixedEnum",
           "serializedName": "fixedEnum",
           "doc": "A fixed enum property",
           "type": {
@@ -5861,6 +6038,7 @@
           "$id": "480",
           "kind": "property",
           "name": "extensibleEnum",
+          "originalName": "extensibleEnum",
           "serializedName": "extensibleEnum",
           "doc": "An extensible enum property",
           "type": {
@@ -5886,6 +6064,7 @@
           "$id": "481",
           "kind": "property",
           "name": "optionalFixedEnum",
+          "originalName": "optionalFixedEnum",
           "serializedName": "optionalFixedEnum",
           "doc": "An optional fixed enum property",
           "type": {
@@ -5911,6 +6090,7 @@
           "$id": "482",
           "kind": "property",
           "name": "optionalExtensibleEnum",
+          "originalName": "optionalExtensibleEnum",
           "serializedName": "optionalExtensibleEnum",
           "doc": "An optional extensible enum property",
           "type": {
@@ -5936,6 +6116,7 @@
           "$id": "483",
           "kind": "property",
           "name": "label",
+          "originalName": "label",
           "serializedName": "label",
           "type": {
             "$id": "484",
@@ -6055,6 +6236,7 @@
           "$id": "490",
           "kind": "property",
           "name": "daysUsed",
+          "originalName": "daysUsed",
           "serializedName": "daysUsed",
           "type": {
             "$id": "491",
@@ -6108,6 +6290,7 @@
           "$id": "493",
           "kind": "property",
           "name": "fooItems",
+          "originalName": "fooItems",
           "serializedName": "fooItems",
           "type": {
             "$ref": "262"
@@ -6145,6 +6328,7 @@
           "$id": "494",
           "kind": "property",
           "name": "anotherModel",
+          "originalName": "anotherModel",
           "serializedName": "anotherModel",
           "type": {
             "$ref": "460"
@@ -6181,6 +6365,7 @@
           "$id": "495",
           "kind": "property",
           "name": "modelsWithNamespaces",
+          "originalName": "modelsWithNamespaces",
           "serializedName": "modelsWithNamespaces",
           "type": {
             "$id": "496",
@@ -6190,6 +6375,7 @@
               "$id": "497",
               "kind": "model",
               "name": "XmlModelWithNamespace",
+              "originalName": "XmlModelWithNamespace",
               "namespace": "SampleTypeSpec",
               "crossLanguageDefinitionId": "SampleTypeSpec.XmlModelWithNamespace",
               "usage": "Input,Output,Xml",
@@ -6219,6 +6405,7 @@
                   "$id": "498",
                   "kind": "property",
                   "name": "foo",
+                  "originalName": "foo",
                   "serializedName": "foo",
                   "type": {
                     "$id": "499",
@@ -6273,6 +6460,7 @@
           "$id": "500",
           "kind": "property",
           "name": "unwrappedModelsWithNamespaces",
+          "originalName": "unwrappedModelsWithNamespaces",
           "serializedName": "unwrappedModelsWithNamespaces",
           "type": {
             "$ref": "496"
@@ -6303,6 +6491,7 @@
           "$id": "501",
           "kind": "property",
           "name": "listOfListFoo",
+          "originalName": "listOfListFoo",
           "serializedName": "listOfListFoo",
           "type": {
             "$id": "502",
@@ -6335,6 +6524,7 @@
           "$id": "503",
           "kind": "property",
           "name": "dictionaryFoo",
+          "originalName": "dictionaryFoo",
           "serializedName": "dictionaryFoo",
           "type": {
             "$id": "504",
@@ -6371,6 +6561,7 @@
           "$id": "506",
           "kind": "property",
           "name": "dictionaryOfDictionaryFoo",
+          "originalName": "dictionaryOfDictionaryFoo",
           "serializedName": "dictionaryOfDictionaryFoo",
           "type": {
             "$id": "507",
@@ -6407,6 +6598,7 @@
           "$id": "509",
           "kind": "property",
           "name": "dictionaryListFoo",
+          "originalName": "dictionaryListFoo",
           "serializedName": "dictionaryListFoo",
           "type": {
             "$id": "510",
@@ -6443,6 +6635,7 @@
           "$id": "512",
           "kind": "property",
           "name": "listOfDictionaryFoo",
+          "originalName": "listOfDictionaryFoo",
           "serializedName": "listOfDictionaryFoo",
           "type": {
             "$id": "513",
@@ -6486,6 +6679,7 @@
       "$id": "514",
       "kind": "model",
       "name": "Cat",
+      "originalName": "Cat",
       "namespace": "SampleTypeSpec",
       "crossLanguageDefinitionId": "SampleTypeSpec.Cat",
       "usage": "Input,MultipartFormData",
@@ -6497,6 +6691,7 @@
           "$id": "515",
           "kind": "property",
           "name": "id",
+          "originalName": "id",
           "serializedName": "id",
           "type": {
             "$id": "516",
@@ -6529,6 +6724,7 @@
           "$id": "517",
           "kind": "property",
           "name": "boolPart",
+          "originalName": "boolPart",
           "serializedName": "boolPart",
           "type": {
             "$id": "518",
@@ -6561,6 +6757,7 @@
           "$id": "519",
           "kind": "property",
           "name": "int32Part",
+          "originalName": "int32Part",
           "serializedName": "int32Part",
           "type": {
             "$id": "520",
@@ -6593,6 +6790,7 @@
           "$id": "521",
           "kind": "property",
           "name": "int64Part",
+          "originalName": "int64Part",
           "serializedName": "int64Part",
           "type": {
             "$id": "522",
@@ -6625,6 +6823,7 @@
           "$id": "523",
           "kind": "property",
           "name": "float32Part",
+          "originalName": "float32Part",
           "serializedName": "float32Part",
           "type": {
             "$id": "524",
@@ -6657,6 +6856,7 @@
           "$id": "525",
           "kind": "property",
           "name": "float64Part",
+          "originalName": "float64Part",
           "serializedName": "float64Part",
           "type": {
             "$id": "526",
@@ -6689,6 +6889,7 @@
           "$id": "527",
           "kind": "property",
           "name": "decimalPart",
+          "originalName": "decimalPart",
           "serializedName": "decimalPart",
           "type": {
             "$id": "528",
@@ -6721,6 +6922,7 @@
           "$id": "529",
           "kind": "property",
           "name": "int8Part",
+          "originalName": "int8Part",
           "serializedName": "int8Part",
           "type": {
             "$id": "530",
@@ -6753,6 +6955,7 @@
           "$id": "531",
           "kind": "property",
           "name": "uint8Part",
+          "originalName": "uint8Part",
           "serializedName": "uint8Part",
           "type": {
             "$id": "532",
@@ -6785,6 +6988,7 @@
           "$id": "533",
           "kind": "property",
           "name": "dictionaryPart",
+          "originalName": "dictionaryPart",
           "serializedName": "dictionaryPart",
           "type": {
             "$ref": "467"
@@ -6813,6 +7017,7 @@
           "$id": "534",
           "kind": "property",
           "name": "dictionaryModelPart",
+          "originalName": "dictionaryModelPart",
           "serializedName": "dictionaryModelPart",
           "type": {
             "$id": "535",
@@ -6853,6 +7058,7 @@
           "$id": "537",
           "kind": "property",
           "name": "listPart",
+          "originalName": "listPart",
           "serializedName": "listPart",
           "type": {
             "$ref": "262"
@@ -6881,6 +7087,7 @@
           "$id": "538",
           "kind": "property",
           "name": "listModelPart",
+          "originalName": "listModelPart",
           "serializedName": "listModelPart",
           "type": {
             "$ref": "354"
@@ -6909,6 +7116,7 @@
           "$id": "539",
           "kind": "property",
           "name": "multipleListPart",
+          "originalName": "multipleListPart",
           "serializedName": "multipleListPart",
           "type": {
             "$id": "540",
@@ -6948,11 +7156,13 @@
           "$id": "542",
           "kind": "property",
           "name": "profileImage",
+          "originalName": "profileImage",
           "serializedName": "profileImage",
           "type": {
             "$id": "543",
             "kind": "model",
             "name": "File",
+            "originalName": "File",
             "namespace": "TypeSpec.Http",
             "crossLanguageDefinitionId": "TypeSpec.Http.File",
             "usage": "Input",
@@ -6967,6 +7177,7 @@
                 "$id": "544",
                 "kind": "property",
                 "name": "contentType",
+                "originalName": "contentType",
                 "summary": "The allowed media (MIME) types of the file contents.",
                 "doc": "The allowed media (MIME) types of the file contents.\n\nIn file bodies, this value comes from the `Content-Type` header of the request or response. In JSON bodies,\nthis value is serialized as a field in the response.\n\nNOTE: this is not _necessarily_ the same as the `Content-Type` header of the request or response, but\nit will be for file bodies. It may be different if the file is serialized as a JSON object. It always refers to the\n_contents_ of the file, and not necessarily the way the file itself is transmitted or serialized.",
                 "type": {
@@ -6990,6 +7201,7 @@
                 "$id": "546",
                 "kind": "property",
                 "name": "filename",
+                "originalName": "filename",
                 "summary": "The name of the file, if any.",
                 "doc": "The name of the file, if any.\n\nIn file bodies, this value comes from the `filename` parameter of the `Content-Disposition` header of the response\nor multipart payload. In JSON bodies, this value is serialized as a field in the response.\n\nNOTE: By default, `filename` cannot be sent in request payloads and can only be sent in responses and multipart\npayloads, as the `Content-Disposition` header is not valid in requests. If you want to send the `filename` in a request,\nyou must extend the `File` model and override the `filename` property with a different location defined by HTTP metadata\ndecorators.",
                 "type": {
@@ -7013,6 +7225,7 @@
                 "$id": "548",
                 "kind": "property",
                 "name": "contents",
+                "originalName": "contents",
                 "summary": "The contents of the file.",
                 "doc": "The contents of the file.\n\nIn file bodies, this value comes from the body of the request, response, or multipart payload. In JSON bodies,\nthis value is serialized as a field in the response.",
                 "type": {
@@ -7131,6 +7344,7 @@
           "$id": "554",
           "kind": "property",
           "name": "extensibleEnumPart",
+          "originalName": "extensibleEnumPart",
           "serializedName": "extensibleEnumPart",
           "type": {
             "$ref": "22"
@@ -7159,6 +7373,7 @@
           "$id": "555",
           "kind": "property",
           "name": "fixedEnumPart",
+          "originalName": "fixedEnumPart",
           "serializedName": "fixedEnumPart",
           "type": {
             "$ref": "17"
@@ -7187,6 +7402,7 @@
           "$id": "556",
           "kind": "property",
           "name": "intExtensibleEnumPart",
+          "originalName": "intExtensibleEnumPart",
           "serializedName": "intExtensibleEnumPart",
           "type": {
             "$ref": "27"
@@ -7215,6 +7431,7 @@
           "$id": "557",
           "kind": "property",
           "name": "intFixedEnumPart",
+          "originalName": "intFixedEnumPart",
           "serializedName": "intFixedEnumPart",
           "type": {
             "$ref": "52"
@@ -7245,6 +7462,7 @@
       "$id": "558",
       "kind": "model",
       "name": "File",
+      "originalName": "File",
       "namespace": "TypeSpec.Http",
       "crossLanguageDefinitionId": "TypeSpec.Http.File",
       "usage": "Input",
@@ -7270,6 +7488,7 @@
       "$id": "559",
       "kind": "model",
       "name": "StreamingItem",
+      "originalName": "StreamingItem",
       "namespace": "SampleTypeSpec",
       "crossLanguageDefinitionId": "SampleTypeSpec.StreamingItem",
       "usage": "Input,Output,Json",
@@ -7285,6 +7504,7 @@
           "$id": "560",
           "kind": "property",
           "name": "message",
+          "originalName": "message",
           "serializedName": "message",
           "type": {
             "$id": "561",
@@ -7313,6 +7533,7 @@
       "$id": "562",
       "kind": "model",
       "name": "Animal",
+      "originalName": "Animal",
       "namespace": "SampleTypeSpec",
       "crossLanguageDefinitionId": "SampleTypeSpec.Animal",
       "usage": "Input,Output,Json",
@@ -7328,6 +7549,7 @@
         "$id": "563",
         "kind": "property",
         "name": "kind",
+        "originalName": "kind",
         "serializedName": "kind",
         "doc": "The kind of animal",
         "type": {
@@ -7359,6 +7581,7 @@
           "$id": "565",
           "kind": "property",
           "name": "name",
+          "originalName": "name",
           "serializedName": "name",
           "doc": "Name of the animal",
           "type": {
@@ -7388,6 +7611,7 @@
           "$id": "567",
           "kind": "model",
           "name": "Pet",
+          "originalName": "Pet",
           "namespace": "SampleTypeSpec",
           "crossLanguageDefinitionId": "SampleTypeSpec.Pet",
           "usage": "Input,Output,Json",
@@ -7404,6 +7628,7 @@
             "$id": "568",
             "kind": "property",
             "name": "kind",
+            "originalName": "kind",
             "serializedName": "kind",
             "type": {
               "$ref": "80"
@@ -7433,6 +7658,7 @@
               "$id": "569",
               "kind": "property",
               "name": "trained",
+              "originalName": "trained",
               "serializedName": "trained",
               "doc": "Whether the pet is trained",
               "type": {
@@ -7462,6 +7688,7 @@
               "$id": "571",
               "kind": "model",
               "name": "Dog",
+              "originalName": "Dog",
               "namespace": "SampleTypeSpec",
               "crossLanguageDefinitionId": "SampleTypeSpec.Dog",
               "usage": "Input,Output,Json",
@@ -7482,6 +7709,7 @@
                   "$id": "572",
                   "kind": "property",
                   "name": "kind",
+                  "originalName": "kind",
                   "serializedName": "kind",
                   "type": {
                     "$ref": "82"
@@ -7504,6 +7732,7 @@
                   "$id": "573",
                   "kind": "property",
                   "name": "breed",
+                  "originalName": "breed",
                   "serializedName": "breed",
                   "doc": "The breed of the dog",
                   "type": {
@@ -7546,6 +7775,7 @@
       "$id": "575",
       "kind": "model",
       "name": "Tree",
+      "originalName": "Tree",
       "namespace": "SampleTypeSpec",
       "crossLanguageDefinitionId": "SampleTypeSpec.Tree",
       "usage": "Input,Output,Json,Xml",
@@ -7567,6 +7797,7 @@
         "$id": "576",
         "kind": "model",
         "name": "Plant",
+        "originalName": "Plant",
         "namespace": "SampleTypeSpec",
         "crossLanguageDefinitionId": "SampleTypeSpec.Plant",
         "usage": "Input,Output,Json,Xml",
@@ -7587,6 +7818,7 @@
           "$id": "577",
           "kind": "property",
           "name": "species",
+          "originalName": "species",
           "serializedName": "species",
           "doc": "The species of plant",
           "type": {
@@ -7623,6 +7855,7 @@
             "$id": "579",
             "kind": "property",
             "name": "id",
+            "originalName": "id",
             "serializedName": "id",
             "doc": "The unique identifier of the plant",
             "type": {
@@ -7655,6 +7888,7 @@
             "$id": "581",
             "kind": "property",
             "name": "height",
+            "originalName": "height",
             "serializedName": "height",
             "doc": "The height of the plant in centimeters",
             "type": {
@@ -7695,6 +7929,7 @@
           "$id": "583",
           "kind": "property",
           "name": "species",
+          "originalName": "species",
           "serializedName": "species",
           "type": {
             "$ref": "84"
@@ -7722,6 +7957,7 @@
           "$id": "584",
           "kind": "property",
           "name": "age",
+          "originalName": "age",
           "serializedName": "age",
           "doc": "The age of the tree in years",
           "type": {
@@ -7759,6 +7995,7 @@
       "$id": "586",
       "kind": "model",
       "name": "GetWidgetMetricsResponse",
+      "originalName": "GetWidgetMetricsResponse",
       "namespace": "SampleTypeSpec",
       "crossLanguageDefinitionId": "SampleTypeSpec.getWidgetMetrics.Response.anonymous",
       "usage": "Output,Json",
@@ -7774,6 +8011,7 @@
           "$id": "587",
           "kind": "property",
           "name": "numSold",
+          "originalName": "numSold",
           "serializedName": "numSold",
           "type": {
             "$id": "588",
@@ -7800,6 +8038,7 @@
           "$id": "589",
           "kind": "property",
           "name": "averagePrice",
+          "originalName": "averagePrice",
           "serializedName": "averagePrice",
           "type": {
             "$id": "590",
@@ -7828,6 +8067,7 @@
       "$id": "591",
       "kind": "model",
       "name": "GetNotebookResponse",
+      "originalName": "GetNotebookResponse",
       "namespace": "SampleTypeSpec",
       "crossLanguageDefinitionId": "SampleTypeSpec.getNotebook.Response.anonymous",
       "usage": "Output,Json",
@@ -7843,6 +8083,7 @@
           "$id": "592",
           "kind": "property",
           "name": "name",
+          "originalName": "name",
           "serializedName": "name",
           "type": {
             "$id": "593",
@@ -7869,6 +8110,7 @@
           "$id": "594",
           "kind": "property",
           "name": "content",
+          "originalName": "content",
           "serializedName": "content",
           "type": {
             "$id": "595",
@@ -7897,6 +8139,7 @@
       "$id": "596",
       "kind": "model",
       "name": "JsonlStreamStreamingItem",
+      "originalName": "JsonlStreamStreamingItem",
       "namespace": "TypeSpec.Http.Streams",
       "crossLanguageDefinitionId": "TypeSpec.Http.Streams.JsonlStream",
       "usage": "None",
@@ -7909,6 +8152,7 @@
           "$id": "597",
           "kind": "property",
           "name": "contentType",
+          "originalName": "contentType",
           "type": {
             "$ref": "196"
           },
@@ -7926,6 +8170,7 @@
           "$id": "598",
           "kind": "property",
           "name": "body",
+          "originalName": "body",
           "type": {
             "$id": "599",
             "kind": "bytes",
@@ -7959,6 +8204,7 @@
           "$id": "601",
           "kind": "basic",
           "name": "sayHi",
+          "originalName": "sayHi",
           "isExactName": false,
           "accessibility": "public",
           "apiVersions": [
@@ -7969,6 +8215,7 @@
           "operation": {
             "$id": "602",
             "name": "sayHi",
+            "originalName": "sayHi",
             "isExactName": false,
             "resourceName": "SampleTypeSpec",
             "doc": "Return hi",
@@ -7978,6 +8225,7 @@
                 "$id": "603",
                 "kind": "header",
                 "name": "headParameter",
+                "originalName": "headParameter",
                 "serializedName": "head-parameter",
                 "type": {
                   "$id": "604",
@@ -7998,6 +8246,7 @@
                     "$id": "605",
                     "kind": "method",
                     "name": "headParameter",
+                    "originalName": "headParameter",
                     "serializedName": "head-parameter",
                     "type": {
                       "$id": "606",
@@ -8023,6 +8272,7 @@
                 "$id": "607",
                 "kind": "query",
                 "name": "queryParameter",
+                "originalName": "queryParameter",
                 "serializedName": "queryParameter",
                 "type": {
                   "$id": "608",
@@ -8043,6 +8293,7 @@
                     "$id": "609",
                     "kind": "method",
                     "name": "queryParameter",
+                    "originalName": "queryParameter",
                     "serializedName": "queryParameter",
                     "type": {
                       "$id": "610",
@@ -8068,6 +8319,7 @@
                 "$id": "611",
                 "kind": "query",
                 "name": "optionalQuery",
+                "originalName": "optionalQuery",
                 "serializedName": "optionalQuery",
                 "type": {
                   "$id": "612",
@@ -8088,6 +8340,7 @@
                     "$id": "613",
                     "kind": "method",
                     "name": "optionalQuery",
+                    "originalName": "optionalQuery",
                     "serializedName": "optionalQuery",
                     "type": {
                       "$id": "614",
@@ -8113,6 +8366,7 @@
                 "$id": "615",
                 "kind": "header",
                 "name": "accept",
+                "originalName": "accept",
                 "serializedName": "Accept",
                 "type": {
                   "$ref": "86"
@@ -8129,6 +8383,7 @@
                     "$id": "616",
                     "kind": "method",
                     "name": "accept",
+                    "originalName": "accept",
                     "serializedName": "Accept",
                     "type": {
                       "$ref": "86"
@@ -8205,6 +8460,7 @@
           "$id": "617",
           "kind": "basic",
           "name": "helloAgain",
+          "originalName": "helloAgain",
           "isExactName": false,
           "accessibility": "public",
           "apiVersions": [
@@ -8215,6 +8471,7 @@
           "operation": {
             "$id": "618",
             "name": "helloAgain",
+            "originalName": "helloAgain",
             "isExactName": false,
             "resourceName": "SampleTypeSpec",
             "doc": "Return hi again",
@@ -8224,6 +8481,7 @@
                 "$id": "619",
                 "kind": "header",
                 "name": "p1",
+                "originalName": "p1",
                 "serializedName": "p1",
                 "type": {
                   "$id": "620",
@@ -8244,6 +8502,7 @@
                     "$id": "621",
                     "kind": "method",
                     "name": "p1",
+                    "originalName": "p1",
                     "serializedName": "p1",
                     "type": {
                       "$id": "622",
@@ -8269,6 +8528,7 @@
                 "$id": "623",
                 "kind": "header",
                 "name": "contentType",
+                "originalName": "contentType",
                 "serializedName": "Content-Type",
                 "type": {
                   "$ref": "88"
@@ -8285,6 +8545,7 @@
                     "$id": "624",
                     "kind": "method",
                     "name": "contentType",
+                    "originalName": "contentType",
                     "serializedName": "Content-Type",
                     "type": {
                       "$ref": "88"
@@ -8306,6 +8567,7 @@
                 "$id": "625",
                 "kind": "path",
                 "name": "p2",
+                "originalName": "p2",
                 "serializedName": "p2",
                 "type": {
                   "$id": "626",
@@ -8329,6 +8591,7 @@
                     "$id": "627",
                     "kind": "method",
                     "name": "p2",
+                    "originalName": "p2",
                     "serializedName": "p2",
                     "type": {
                       "$id": "628",
@@ -8354,6 +8617,7 @@
                 "$id": "629",
                 "kind": "header",
                 "name": "accept",
+                "originalName": "accept",
                 "serializedName": "Accept",
                 "type": {
                   "$ref": "92"
@@ -8370,6 +8634,7 @@
                     "$id": "630",
                     "kind": "method",
                     "name": "accept",
+                    "originalName": "accept",
                     "serializedName": "Accept",
                     "type": {
                       "$ref": "92"
@@ -8391,6 +8656,7 @@
                 "$id": "631",
                 "kind": "body",
                 "name": "action",
+                "originalName": "action",
                 "serializedName": "action",
                 "type": {
                   "$ref": "291"
@@ -8410,6 +8676,7 @@
                     "$id": "632",
                     "kind": "method",
                     "name": "action",
+                    "originalName": "action",
                     "serializedName": "action",
                     "type": {
                       "$ref": "291"
@@ -8493,6 +8760,7 @@
           "$id": "633",
           "kind": "basic",
           "name": "noContentType",
+          "originalName": "noContentType",
           "isExactName": false,
           "accessibility": "public",
           "apiVersions": [
@@ -8503,6 +8771,7 @@
           "operation": {
             "$id": "634",
             "name": "noContentType",
+            "originalName": "noContentType",
             "isExactName": false,
             "resourceName": "SampleTypeSpec",
             "doc": "Return hi again",
@@ -8512,6 +8781,7 @@
                 "$id": "635",
                 "kind": "header",
                 "name": "p1",
+                "originalName": "p1",
                 "serializedName": "p1",
                 "type": {
                   "$id": "636",
@@ -8532,6 +8802,7 @@
                     "$id": "637",
                     "kind": "method",
                     "name": "info",
+                    "originalName": "info",
                     "serializedName": "info",
                     "type": {
                       "$ref": "339"
@@ -8550,6 +8821,7 @@
                     "$id": "638",
                     "kind": "method",
                     "name": "p1",
+                    "originalName": "p1",
                     "serializedName": "p1",
                     "doc": "header parameter",
                     "type": {
@@ -8572,6 +8844,7 @@
                 "$id": "639",
                 "kind": "path",
                 "name": "p2",
+                "originalName": "p2",
                 "serializedName": "p2",
                 "type": {
                   "$id": "640",
@@ -8598,6 +8871,7 @@
                     "$id": "641",
                     "kind": "method",
                     "name": "p2",
+                    "originalName": "p2",
                     "serializedName": "p2",
                     "doc": "path parameter",
                     "type": {
@@ -8620,6 +8894,7 @@
                 "$id": "642",
                 "kind": "header",
                 "name": "contentType",
+                "originalName": "contentType",
                 "serializedName": "Content-Type",
                 "doc": "Body parameter's content type. Known values are application/json",
                 "type": {
@@ -8637,6 +8912,7 @@
                     "$id": "643",
                     "kind": "method",
                     "name": "contentType",
+                    "originalName": "contentType",
                     "serializedName": "Content-Type",
                     "doc": "Body parameter's content type. Known values are application/json",
                     "type": {
@@ -8659,6 +8935,7 @@
                 "$id": "644",
                 "kind": "header",
                 "name": "accept",
+                "originalName": "accept",
                 "serializedName": "Accept",
                 "type": {
                   "$ref": "96"
@@ -8675,6 +8952,7 @@
                     "$id": "645",
                     "kind": "method",
                     "name": "accept",
+                    "originalName": "accept",
                     "serializedName": "Accept",
                     "type": {
                       "$ref": "96"
@@ -8696,6 +8974,7 @@
                 "$id": "646",
                 "kind": "body",
                 "name": "action",
+                "originalName": "action",
                 "serializedName": "action",
                 "type": {
                   "$ref": "291"
@@ -8718,6 +8997,7 @@
                     "$id": "647",
                     "kind": "method",
                     "name": "action",
+                    "originalName": "action",
                     "serializedName": "action",
                     "doc": "body parameter",
                     "type": {
@@ -8800,6 +9080,7 @@
           "$id": "648",
           "kind": "basic",
           "name": "helloDemo2",
+          "originalName": "helloDemo2",
           "isExactName": false,
           "accessibility": "public",
           "apiVersions": [
@@ -8810,6 +9091,7 @@
           "operation": {
             "$id": "649",
             "name": "helloDemo2",
+            "originalName": "helloDemo2",
             "isExactName": false,
             "resourceName": "SampleTypeSpec",
             "doc": "Return hi in demo2",
@@ -8819,6 +9101,7 @@
                 "$id": "650",
                 "kind": "header",
                 "name": "accept",
+                "originalName": "accept",
                 "serializedName": "Accept",
                 "type": {
                   "$ref": "98"
@@ -8835,6 +9118,7 @@
                     "$id": "651",
                     "kind": "method",
                     "name": "accept",
+                    "originalName": "accept",
                     "serializedName": "Accept",
                     "type": {
                       "$ref": "98"
@@ -8902,6 +9186,7 @@
           "$id": "652",
           "kind": "basic",
           "name": "createLiteral",
+          "originalName": "createLiteral",
           "isExactName": false,
           "accessibility": "public",
           "apiVersions": [
@@ -8912,6 +9197,7 @@
           "operation": {
             "$id": "653",
             "name": "createLiteral",
+            "originalName": "createLiteral",
             "isExactName": false,
             "resourceName": "SampleTypeSpec",
             "doc": "Create with literal value",
@@ -8921,6 +9207,7 @@
                 "$id": "654",
                 "kind": "header",
                 "name": "contentType",
+                "originalName": "contentType",
                 "serializedName": "Content-Type",
                 "doc": "Body parameter's content type. Known values are application/json",
                 "type": {
@@ -8938,6 +9225,7 @@
                     "$id": "655",
                     "kind": "method",
                     "name": "contentType",
+                    "originalName": "contentType",
                     "serializedName": "Content-Type",
                     "doc": "Body parameter's content type. Known values are application/json",
                     "type": {
@@ -8960,6 +9248,7 @@
                 "$id": "656",
                 "kind": "header",
                 "name": "accept",
+                "originalName": "accept",
                 "serializedName": "Accept",
                 "type": {
                   "$ref": "102"
@@ -8976,6 +9265,7 @@
                     "$id": "657",
                     "kind": "method",
                     "name": "accept",
+                    "originalName": "accept",
                     "serializedName": "Accept",
                     "type": {
                       "$ref": "102"
@@ -8997,6 +9287,7 @@
                 "$id": "658",
                 "kind": "body",
                 "name": "body",
+                "originalName": "body",
                 "serializedName": "body",
                 "type": {
                   "$ref": "256"
@@ -9016,6 +9307,7 @@
                     "$id": "659",
                     "kind": "method",
                     "name": "body",
+                    "originalName": "body",
                     "serializedName": "body",
                     "type": {
                       "$ref": "256"
@@ -9097,6 +9389,7 @@
           "$id": "660",
           "kind": "basic",
           "name": "helloLiteral",
+          "originalName": "helloLiteral",
           "isExactName": false,
           "accessibility": "public",
           "apiVersions": [
@@ -9107,6 +9400,7 @@
           "operation": {
             "$id": "661",
             "name": "helloLiteral",
+            "originalName": "helloLiteral",
             "isExactName": false,
             "resourceName": "SampleTypeSpec",
             "doc": "Send literal parameters",
@@ -9116,6 +9410,7 @@
                 "$id": "662",
                 "kind": "header",
                 "name": "p1",
+                "originalName": "p1",
                 "serializedName": "p1",
                 "type": {
                   "$ref": "104"
@@ -9132,6 +9427,7 @@
                     "$id": "663",
                     "kind": "method",
                     "name": "p1",
+                    "originalName": "p1",
                     "serializedName": "p1",
                     "type": {
                       "$ref": "106"
@@ -9153,6 +9449,7 @@
                 "$id": "664",
                 "kind": "path",
                 "name": "p2",
+                "originalName": "p2",
                 "serializedName": "p2",
                 "type": {
                   "$ref": "108"
@@ -9172,6 +9469,7 @@
                     "$id": "665",
                     "kind": "method",
                     "name": "p2",
+                    "originalName": "p2",
                     "serializedName": "p2",
                     "type": {
                       "$ref": "110"
@@ -9193,6 +9491,7 @@
                 "$id": "666",
                 "kind": "query",
                 "name": "p3",
+                "originalName": "p3",
                 "serializedName": "p3",
                 "type": {
                   "$ref": "112"
@@ -9209,6 +9508,7 @@
                     "$id": "667",
                     "kind": "method",
                     "name": "p3",
+                    "originalName": "p3",
                     "serializedName": "p3",
                     "type": {
                       "$ref": "114"
@@ -9230,6 +9530,7 @@
                 "$id": "668",
                 "kind": "header",
                 "name": "accept",
+                "originalName": "accept",
                 "serializedName": "Accept",
                 "type": {
                   "$ref": "116"
@@ -9246,6 +9547,7 @@
                     "$id": "669",
                     "kind": "method",
                     "name": "accept",
+                    "originalName": "accept",
                     "serializedName": "Accept",
                     "type": {
                       "$ref": "116"
@@ -9322,6 +9624,7 @@
           "$id": "670",
           "kind": "basic",
           "name": "topAction",
+          "originalName": "topAction",
           "isExactName": false,
           "accessibility": "public",
           "apiVersions": [
@@ -9332,6 +9635,7 @@
           "operation": {
             "$id": "671",
             "name": "topAction",
+            "originalName": "topAction",
             "isExactName": false,
             "resourceName": "SampleTypeSpec",
             "doc": "top level method",
@@ -9341,6 +9645,7 @@
                 "$id": "672",
                 "kind": "path",
                 "name": "action",
+                "originalName": "action",
                 "serializedName": "action",
                 "type": {
                   "$id": "673",
@@ -9372,6 +9677,7 @@
                     "$id": "675",
                     "kind": "method",
                     "name": "action",
+                    "originalName": "action",
                     "serializedName": "action",
                     "type": {
                       "$id": "676",
@@ -9405,6 +9711,7 @@
                 "$id": "678",
                 "kind": "header",
                 "name": "accept",
+                "originalName": "accept",
                 "serializedName": "Accept",
                 "type": {
                   "$ref": "118"
@@ -9421,6 +9728,7 @@
                     "$id": "679",
                     "kind": "method",
                     "name": "accept",
+                    "originalName": "accept",
                     "serializedName": "Accept",
                     "type": {
                       "$ref": "118"
@@ -9491,6 +9799,7 @@
           "$id": "680",
           "kind": "basic",
           "name": "topAction2",
+          "originalName": "topAction2",
           "isExactName": false,
           "accessibility": "public",
           "apiVersions": [
@@ -9501,6 +9810,7 @@
           "operation": {
             "$id": "681",
             "name": "topAction2",
+            "originalName": "topAction2",
             "isExactName": false,
             "resourceName": "SampleTypeSpec",
             "doc": "top level method2",
@@ -9510,6 +9820,7 @@
                 "$id": "682",
                 "kind": "header",
                 "name": "accept",
+                "originalName": "accept",
                 "serializedName": "Accept",
                 "type": {
                   "$ref": "120"
@@ -9526,6 +9837,7 @@
                     "$id": "683",
                     "kind": "method",
                     "name": "accept",
+                    "originalName": "accept",
                     "serializedName": "Accept",
                     "type": {
                       "$ref": "120"
@@ -9593,6 +9905,7 @@
           "$id": "684",
           "kind": "basic",
           "name": "patchAction",
+          "originalName": "patchAction",
           "isExactName": false,
           "accessibility": "public",
           "apiVersions": [
@@ -9603,6 +9916,7 @@
           "operation": {
             "$id": "685",
             "name": "patchAction",
+            "originalName": "patchAction",
             "isExactName": false,
             "resourceName": "SampleTypeSpec",
             "doc": "top level patch",
@@ -9612,6 +9926,7 @@
                 "$id": "686",
                 "kind": "header",
                 "name": "contentType",
+                "originalName": "contentType",
                 "serializedName": "Content-Type",
                 "doc": "Body parameter's content type. Known values are application/json",
                 "type": {
@@ -9629,6 +9944,7 @@
                     "$id": "687",
                     "kind": "method",
                     "name": "contentType",
+                    "originalName": "contentType",
                     "serializedName": "Content-Type",
                     "doc": "Body parameter's content type. Known values are application/json",
                     "type": {
@@ -9651,6 +9967,7 @@
                 "$id": "688",
                 "kind": "header",
                 "name": "accept",
+                "originalName": "accept",
                 "serializedName": "Accept",
                 "type": {
                   "$ref": "124"
@@ -9667,6 +9984,7 @@
                     "$id": "689",
                     "kind": "method",
                     "name": "accept",
+                    "originalName": "accept",
                     "serializedName": "Accept",
                     "type": {
                       "$ref": "124"
@@ -9688,6 +10006,7 @@
                 "$id": "690",
                 "kind": "body",
                 "name": "body",
+                "originalName": "body",
                 "serializedName": "body",
                 "type": {
                   "$ref": "256"
@@ -9707,6 +10026,7 @@
                     "$id": "691",
                     "kind": "method",
                     "name": "body",
+                    "originalName": "body",
                     "serializedName": "body",
                     "type": {
                       "$ref": "256"
@@ -9788,6 +10108,7 @@
           "$id": "692",
           "kind": "basic",
           "name": "anonymousBody",
+          "originalName": "anonymousBody",
           "isExactName": false,
           "accessibility": "public",
           "apiVersions": [
@@ -9798,6 +10119,7 @@
           "operation": {
             "$id": "693",
             "name": "anonymousBody",
+            "originalName": "anonymousBody",
             "isExactName": false,
             "resourceName": "SampleTypeSpec",
             "doc": "body parameter without body decorator",
@@ -9807,6 +10129,7 @@
                 "$id": "694",
                 "kind": "query",
                 "name": "requiredQueryParam",
+                "originalName": "requiredQueryParam",
                 "serializedName": "requiredQueryParam",
                 "type": {
                   "$ref": "126"
@@ -9823,6 +10146,7 @@
                     "$id": "695",
                     "kind": "method",
                     "name": "requiredQueryParam",
+                    "originalName": "requiredQueryParam",
                     "serializedName": "requiredQueryParam",
                     "type": {
                       "$ref": "128"
@@ -9844,6 +10168,7 @@
                 "$id": "696",
                 "kind": "header",
                 "name": "requiredHeader",
+                "originalName": "requiredHeader",
                 "serializedName": "required-header",
                 "type": {
                   "$ref": "130"
@@ -9860,6 +10185,7 @@
                     "$id": "697",
                     "kind": "method",
                     "name": "requiredHeader",
+                    "originalName": "requiredHeader",
                     "serializedName": "required-header",
                     "type": {
                       "$ref": "132"
@@ -9881,6 +10207,7 @@
                 "$id": "698",
                 "kind": "header",
                 "name": "contentType",
+                "originalName": "contentType",
                 "serializedName": "Content-Type",
                 "doc": "Body parameter's content type. Known values are application/json",
                 "type": {
@@ -9898,6 +10225,7 @@
                     "$id": "699",
                     "kind": "method",
                     "name": "contentType",
+                    "originalName": "contentType",
                     "serializedName": "Content-Type",
                     "doc": "Body parameter's content type. Known values are application/json",
                     "type": {
@@ -9920,6 +10248,7 @@
                 "$id": "700",
                 "kind": "header",
                 "name": "accept",
+                "originalName": "accept",
                 "serializedName": "Accept",
                 "type": {
                   "$ref": "136"
@@ -9936,6 +10265,7 @@
                     "$id": "701",
                     "kind": "method",
                     "name": "accept",
+                    "originalName": "accept",
                     "serializedName": "Accept",
                     "type": {
                       "$ref": "136"
@@ -9957,6 +10287,7 @@
                 "$id": "702",
                 "kind": "body",
                 "name": "thing",
+                "originalName": "thing",
                 "serializedName": "thing",
                 "type": {
                   "$ref": "256"
@@ -9976,6 +10307,7 @@
                     "$id": "703",
                     "kind": "method",
                     "name": "name",
+                    "originalName": "name",
                     "serializedName": "name",
                     "doc": "name of the Thing",
                     "type": {
@@ -10045,6 +10377,7 @@
               "$id": "705",
               "kind": "method",
               "name": "requiredUnion",
+              "originalName": "requiredUnion",
               "serializedName": "requiredUnion",
               "doc": "required Union",
               "type": {
@@ -10064,6 +10397,7 @@
               "$id": "706",
               "kind": "method",
               "name": "requiredLiteralString",
+              "originalName": "requiredLiteralString",
               "serializedName": "requiredLiteralString",
               "doc": "required literal string",
               "type": {
@@ -10083,6 +10417,7 @@
               "$id": "707",
               "kind": "method",
               "name": "requiredNullableString",
+              "originalName": "requiredNullableString",
               "serializedName": "requiredNullableString",
               "doc": "required nullable string",
               "type": {
@@ -10102,6 +10437,7 @@
               "$id": "708",
               "kind": "method",
               "name": "optionalNullableString",
+              "originalName": "optionalNullableString",
               "serializedName": "optionalNullableString",
               "doc": "required optional string",
               "type": {
@@ -10121,6 +10457,7 @@
               "$id": "709",
               "kind": "method",
               "name": "requiredLiteralInt",
+              "originalName": "requiredLiteralInt",
               "serializedName": "requiredLiteralInt",
               "doc": "required literal int",
               "type": {
@@ -10140,6 +10477,7 @@
               "$id": "710",
               "kind": "method",
               "name": "requiredLiteralFloat",
+              "originalName": "requiredLiteralFloat",
               "serializedName": "requiredLiteralFloat",
               "doc": "required literal float",
               "type": {
@@ -10159,6 +10497,7 @@
               "$id": "711",
               "kind": "method",
               "name": "requiredLiteralBool",
+              "originalName": "requiredLiteralBool",
               "serializedName": "requiredLiteralBool",
               "doc": "required literal bool",
               "type": {
@@ -10178,12 +10517,14 @@
               "$id": "712",
               "kind": "method",
               "name": "optionalLiteralString",
+              "originalName": "optionalLiteralString",
               "serializedName": "optionalLiteralString",
               "doc": "optional literal string",
               "type": {
                 "$id": "713",
                 "kind": "enum",
                 "name": "ThingOptionalLiteralString",
+                "originalName": "ThingOptionalLiteralString",
                 "crossLanguageDefinitionId": "",
                 "valueType": {
                   "$id": "714",
@@ -10197,6 +10538,7 @@
                     "$id": "715",
                     "kind": "enumvalue",
                     "name": "reject",
+                    "originalName": "reject",
                     "value": "reject",
                     "valueType": {
                       "$id": "716",
@@ -10234,6 +10576,7 @@
               "$id": "717",
               "kind": "method",
               "name": "requiredNullableLiteralString",
+              "originalName": "requiredNullableLiteralString",
               "serializedName": "requiredNullableLiteralString",
               "doc": "required nullable literal string",
               "type": {
@@ -10253,12 +10596,14 @@
               "$id": "718",
               "kind": "method",
               "name": "optionalLiteralInt",
+              "originalName": "optionalLiteralInt",
               "serializedName": "optionalLiteralInt",
               "doc": "optional literal int",
               "type": {
                 "$id": "719",
                 "kind": "enum",
                 "name": "ThingOptionalLiteralInt",
+                "originalName": "ThingOptionalLiteralInt",
                 "crossLanguageDefinitionId": "",
                 "valueType": {
                   "$id": "720",
@@ -10272,6 +10617,7 @@
                     "$id": "721",
                     "kind": "enumvalue",
                     "name": "456",
+                    "originalName": "456",
                     "value": 456,
                     "valueType": {
                       "$id": "722",
@@ -10309,12 +10655,14 @@
               "$id": "723",
               "kind": "method",
               "name": "optionalLiteralFloat",
+              "originalName": "optionalLiteralFloat",
               "serializedName": "optionalLiteralFloat",
               "doc": "optional literal float",
               "type": {
                 "$id": "724",
                 "kind": "enum",
                 "name": "ThingOptionalLiteralFloat",
+                "originalName": "ThingOptionalLiteralFloat",
                 "crossLanguageDefinitionId": "",
                 "valueType": {
                   "$id": "725",
@@ -10328,6 +10676,7 @@
                     "$id": "726",
                     "kind": "enumvalue",
                     "name": "4.56",
+                    "originalName": "4.56",
                     "value": 4.56,
                     "valueType": {
                       "$id": "727",
@@ -10365,6 +10714,7 @@
               "$id": "728",
               "kind": "method",
               "name": "optionalLiteralBool",
+              "originalName": "optionalLiteralBool",
               "serializedName": "optionalLiteralBool",
               "doc": "optional literal bool",
               "type": {
@@ -10384,6 +10734,7 @@
               "$id": "729",
               "kind": "method",
               "name": "requiredBadDescription",
+              "originalName": "requiredBadDescription",
               "serializedName": "requiredBadDescription",
               "doc": "description with xml <|endoftext|>",
               "type": {
@@ -10407,6 +10758,7 @@
               "$id": "731",
               "kind": "method",
               "name": "optionalNullableList",
+              "originalName": "optionalNullableList",
               "serializedName": "optionalNullableList",
               "doc": "optional nullable collection",
               "type": {
@@ -10426,6 +10778,7 @@
               "$id": "732",
               "kind": "method",
               "name": "requiredNullableList",
+              "originalName": "requiredNullableList",
               "serializedName": "requiredNullableList",
               "doc": "required nullable collection",
               "type": {
@@ -10445,6 +10798,7 @@
               "$id": "733",
               "kind": "method",
               "name": "propertyWithSpecialDocs",
+              "originalName": "propertyWithSpecialDocs",
               "serializedName": "propertyWithSpecialDocs",
               "doc": "This tests:\n- Simple bullet point. This bullet point is going to be very long to test how text wrapping is handled in bullet points within documentation comments. It should properly indent the wrapped lines.\n- Another bullet point with **bold text**. This bullet point is also intentionally long to see how the formatting is preserved when the text wraps onto multiple lines in the generated documentation.\n- Third bullet point with *italic text*. Similar to the previous points, this one is extended to ensure that the wrapping and formatting are correctly applied in the output.\n- Complex bullet point with **bold** and *italic* combined. This bullet point combines both bold and italic formatting and is long enough to test the wrapping behavior in such cases.\n- **Bold bullet point**: A bullet point that is entirely bolded. This point is also made lengthy to observe how the bold formatting is maintained across wrapped lines.\n- *Italic bullet point*: A bullet point that is entirely italicized. This final point is extended to verify that italic formatting is correctly applied even when the text spans multiple lines.",
               "type": {
@@ -10491,6 +10845,7 @@
           "$id": "735",
           "kind": "basic",
           "name": "friendlyModel",
+          "originalName": "friendlyModel",
           "isExactName": false,
           "accessibility": "public",
           "apiVersions": [
@@ -10501,6 +10856,7 @@
           "operation": {
             "$id": "736",
             "name": "friendlyModel",
+            "originalName": "friendlyModel",
             "isExactName": false,
             "resourceName": "SampleTypeSpec",
             "doc": "Model can have its friendly name",
@@ -10510,6 +10866,7 @@
                 "$id": "737",
                 "kind": "header",
                 "name": "contentType",
+                "originalName": "contentType",
                 "serializedName": "Content-Type",
                 "doc": "Body parameter's content type. Known values are application/json",
                 "type": {
@@ -10527,6 +10884,7 @@
                     "$id": "738",
                     "kind": "method",
                     "name": "contentType",
+                    "originalName": "contentType",
                     "serializedName": "Content-Type",
                     "doc": "Body parameter's content type. Known values are application/json",
                     "type": {
@@ -10549,6 +10907,7 @@
                 "$id": "739",
                 "kind": "header",
                 "name": "accept",
+                "originalName": "accept",
                 "serializedName": "Accept",
                 "type": {
                   "$ref": "150"
@@ -10565,6 +10924,7 @@
                     "$id": "740",
                     "kind": "method",
                     "name": "accept",
+                    "originalName": "accept",
                     "serializedName": "Accept",
                     "type": {
                       "$ref": "150"
@@ -10586,6 +10946,7 @@
                 "$id": "741",
                 "kind": "body",
                 "name": "friend",
+                "originalName": "friend",
                 "serializedName": "friend",
                 "type": {
                   "$ref": "345"
@@ -10605,6 +10966,7 @@
                     "$id": "742",
                     "kind": "method",
                     "name": "name",
+                    "originalName": "name",
                     "serializedName": "name",
                     "doc": "name of the NotFriend",
                     "type": {
@@ -10691,6 +11053,7 @@
           "$id": "744",
           "kind": "basic",
           "name": "addTimeHeader",
+          "originalName": "addTimeHeader",
           "isExactName": false,
           "accessibility": "public",
           "apiVersions": [
@@ -10700,6 +11063,7 @@
           "operation": {
             "$id": "745",
             "name": "addTimeHeader",
+            "originalName": "addTimeHeader",
             "isExactName": false,
             "resourceName": "SampleTypeSpec",
             "accessibility": "public",
@@ -10708,6 +11072,7 @@
                 "$id": "746",
                 "kind": "header",
                 "name": "repeatabilityFirstSent",
+                "originalName": "repeatabilityFirstSent",
                 "serializedName": "Repeatability-First-Sent",
                 "type": {
                   "$id": "747",
@@ -10736,6 +11101,7 @@
                     "$id": "749",
                     "kind": "method",
                     "name": "repeatabilityFirstSent",
+                    "originalName": "repeatabilityFirstSent",
                     "serializedName": "Repeatability-First-Sent",
                     "type": {
                       "$id": "750",
@@ -10801,6 +11167,7 @@
           "$id": "752",
           "kind": "basic",
           "name": "projectedNameModel",
+          "originalName": "projectedNameModel",
           "isExactName": false,
           "accessibility": "public",
           "apiVersions": [
@@ -10811,6 +11178,7 @@
           "operation": {
             "$id": "753",
             "name": "projectedNameModel",
+            "originalName": "projectedNameModel",
             "isExactName": false,
             "resourceName": "SampleTypeSpec",
             "doc": "Model can have its projected name",
@@ -10820,6 +11188,7 @@
                 "$id": "754",
                 "kind": "header",
                 "name": "contentType",
+                "originalName": "contentType",
                 "serializedName": "Content-Type",
                 "doc": "Body parameter's content type. Known values are application/json",
                 "type": {
@@ -10837,6 +11206,7 @@
                     "$id": "755",
                     "kind": "method",
                     "name": "contentType",
+                    "originalName": "contentType",
                     "serializedName": "Content-Type",
                     "doc": "Body parameter's content type. Known values are application/json",
                     "type": {
@@ -10859,6 +11229,7 @@
                 "$id": "756",
                 "kind": "header",
                 "name": "accept",
+                "originalName": "accept",
                 "serializedName": "Accept",
                 "type": {
                   "$ref": "154"
@@ -10875,6 +11246,7 @@
                     "$id": "757",
                     "kind": "method",
                     "name": "accept",
+                    "originalName": "accept",
                     "serializedName": "Accept",
                     "type": {
                       "$ref": "154"
@@ -10896,6 +11268,7 @@
                 "$id": "758",
                 "kind": "body",
                 "name": "renamedModel",
+                "originalName": "renamedModel",
                 "serializedName": "renamedModel",
                 "type": {
                   "$ref": "348"
@@ -10915,6 +11288,7 @@
                     "$id": "759",
                     "kind": "method",
                     "name": "otherName",
+                    "originalName": "otherName",
                     "serializedName": "otherName",
                     "doc": "name of the ModelWithClientName",
                     "type": {
@@ -11001,6 +11375,7 @@
           "$id": "761",
           "kind": "basic",
           "name": "returnsAnonymousModel",
+          "originalName": "returnsAnonymousModel",
           "isExactName": false,
           "accessibility": "public",
           "apiVersions": [
@@ -11011,6 +11386,7 @@
           "operation": {
             "$id": "762",
             "name": "returnsAnonymousModel",
+            "originalName": "returnsAnonymousModel",
             "isExactName": false,
             "resourceName": "SampleTypeSpec",
             "doc": "return anonymous model",
@@ -11020,6 +11396,7 @@
                 "$id": "763",
                 "kind": "header",
                 "name": "accept",
+                "originalName": "accept",
                 "serializedName": "Accept",
                 "type": {
                   "$ref": "156"
@@ -11036,6 +11413,7 @@
                     "$id": "764",
                     "kind": "method",
                     "name": "accept",
+                    "originalName": "accept",
                     "serializedName": "Accept",
                     "type": {
                       "$ref": "156"
@@ -11103,6 +11481,7 @@
           "$id": "765",
           "kind": "basic",
           "name": "getUnknownValue",
+          "originalName": "getUnknownValue",
           "isExactName": false,
           "accessibility": "public",
           "apiVersions": [
@@ -11113,6 +11492,7 @@
           "operation": {
             "$id": "766",
             "name": "getUnknownValue",
+            "originalName": "getUnknownValue",
             "isExactName": false,
             "resourceName": "SampleTypeSpec",
             "doc": "get extensible enum",
@@ -11122,6 +11502,7 @@
                 "$id": "767",
                 "kind": "header",
                 "name": "accept",
+                "originalName": "accept",
                 "serializedName": "Accept",
                 "type": {
                   "$ref": "158"
@@ -11138,6 +11519,7 @@
                     "$id": "768",
                     "kind": "method",
                     "name": "accept",
+                    "originalName": "accept",
                     "serializedName": "Accept",
                     "type": {
                       "$ref": "158"
@@ -11201,6 +11583,7 @@
           "$id": "769",
           "kind": "basic",
           "name": "internalProtocol",
+          "originalName": "internalProtocol",
           "isExactName": false,
           "accessibility": "public",
           "apiVersions": [
@@ -11211,6 +11594,7 @@
           "operation": {
             "$id": "770",
             "name": "internalProtocol",
+            "originalName": "internalProtocol",
             "isExactName": false,
             "resourceName": "SampleTypeSpec",
             "doc": "When set protocol false and convenient true, then the protocol method should be internal",
@@ -11220,6 +11604,7 @@
                 "$id": "771",
                 "kind": "header",
                 "name": "contentType",
+                "originalName": "contentType",
                 "serializedName": "Content-Type",
                 "doc": "Body parameter's content type. Known values are application/json",
                 "type": {
@@ -11237,6 +11622,7 @@
                     "$id": "772",
                     "kind": "method",
                     "name": "contentType",
+                    "originalName": "contentType",
                     "serializedName": "Content-Type",
                     "doc": "Body parameter's content type. Known values are application/json",
                     "type": {
@@ -11259,6 +11645,7 @@
                 "$id": "773",
                 "kind": "header",
                 "name": "accept",
+                "originalName": "accept",
                 "serializedName": "Accept",
                 "type": {
                   "$ref": "162"
@@ -11275,6 +11662,7 @@
                     "$id": "774",
                     "kind": "method",
                     "name": "accept",
+                    "originalName": "accept",
                     "serializedName": "Accept",
                     "type": {
                       "$ref": "162"
@@ -11296,6 +11684,7 @@
                 "$id": "775",
                 "kind": "body",
                 "name": "body",
+                "originalName": "body",
                 "serializedName": "body",
                 "type": {
                   "$ref": "256"
@@ -11315,6 +11704,7 @@
                     "$id": "776",
                     "kind": "method",
                     "name": "body",
+                    "originalName": "body",
                     "serializedName": "body",
                     "type": {
                       "$ref": "256"
@@ -11396,6 +11786,7 @@
           "$id": "777",
           "kind": "basic",
           "name": "stillConvenient",
+          "originalName": "stillConvenient",
           "isExactName": false,
           "accessibility": "public",
           "apiVersions": [
@@ -11406,6 +11797,7 @@
           "operation": {
             "$id": "778",
             "name": "stillConvenient",
+            "originalName": "stillConvenient",
             "isExactName": false,
             "resourceName": "SampleTypeSpec",
             "doc": "When set protocol false and convenient true, the convenient method should be generated even it has the same signature as protocol one",
@@ -11442,6 +11834,7 @@
           "$id": "779",
           "kind": "basic",
           "name": "headAsBoolean",
+          "originalName": "headAsBoolean",
           "isExactName": false,
           "accessibility": "public",
           "apiVersions": [
@@ -11452,6 +11845,7 @@
           "operation": {
             "$id": "780",
             "name": "headAsBoolean",
+            "originalName": "headAsBoolean",
             "isExactName": false,
             "resourceName": "SampleTypeSpec",
             "doc": "head as boolean.",
@@ -11461,6 +11855,7 @@
                 "$id": "781",
                 "kind": "path",
                 "name": "id",
+                "originalName": "id",
                 "serializedName": "id",
                 "type": {
                   "$id": "782",
@@ -11484,6 +11879,7 @@
                     "$id": "783",
                     "kind": "method",
                     "name": "id",
+                    "originalName": "id",
                     "serializedName": "id",
                     "type": {
                       "$id": "784",
@@ -11541,6 +11937,7 @@
           "$id": "785",
           "kind": "basic",
           "name": "WithApiVersion",
+          "originalName": "WithApiVersion",
           "isExactName": false,
           "accessibility": "public",
           "apiVersions": [
@@ -11551,6 +11948,7 @@
           "operation": {
             "$id": "786",
             "name": "WithApiVersion",
+            "originalName": "WithApiVersion",
             "isExactName": false,
             "resourceName": "SampleTypeSpec",
             "doc": "Return hi again",
@@ -11560,6 +11958,7 @@
                 "$id": "787",
                 "kind": "header",
                 "name": "p1",
+                "originalName": "p1",
                 "serializedName": "p1",
                 "type": {
                   "$id": "788",
@@ -11580,6 +11979,7 @@
                     "$id": "789",
                     "kind": "method",
                     "name": "p1",
+                    "originalName": "p1",
                     "serializedName": "p1",
                     "type": {
                       "$id": "790",
@@ -11605,6 +12005,7 @@
                 "$id": "791",
                 "kind": "query",
                 "name": "apiVersion",
+                "originalName": "apiVersion",
                 "serializedName": "apiVersion",
                 "type": {
                   "$id": "792",
@@ -11634,6 +12035,7 @@
                     "$id": "794",
                     "kind": "method",
                     "name": "apiVersion",
+                    "originalName": "apiVersion",
                     "serializedName": "apiVersion",
                     "type": {
                       "$id": "795",
@@ -11700,6 +12102,7 @@
           "$id": "797",
           "kind": "paging",
           "name": "ListWithNextLink",
+          "originalName": "ListWithNextLink",
           "isExactName": false,
           "accessibility": "public",
           "apiVersions": [
@@ -11710,6 +12113,7 @@
           "operation": {
             "$id": "798",
             "name": "ListWithNextLink",
+            "originalName": "ListWithNextLink",
             "isExactName": false,
             "resourceName": "SampleTypeSpec",
             "doc": "List things with nextlink",
@@ -11719,6 +12123,7 @@
                 "$id": "799",
                 "kind": "header",
                 "name": "accept",
+                "originalName": "accept",
                 "serializedName": "Accept",
                 "type": {
                   "$ref": "164"
@@ -11735,6 +12140,7 @@
                     "$id": "800",
                     "kind": "method",
                     "name": "accept",
+                    "originalName": "accept",
                     "serializedName": "Accept",
                     "type": {
                       "$ref": "164"
@@ -11817,6 +12223,7 @@
           "$id": "801",
           "kind": "paging",
           "name": "ListWithStringNextLink",
+          "originalName": "ListWithStringNextLink",
           "isExactName": false,
           "accessibility": "public",
           "apiVersions": [
@@ -11827,6 +12234,7 @@
           "operation": {
             "$id": "802",
             "name": "ListWithStringNextLink",
+            "originalName": "ListWithStringNextLink",
             "isExactName": false,
             "resourceName": "SampleTypeSpec",
             "doc": "List things with nextlink",
@@ -11836,6 +12244,7 @@
                 "$id": "803",
                 "kind": "header",
                 "name": "accept",
+                "originalName": "accept",
                 "serializedName": "Accept",
                 "type": {
                   "$ref": "166"
@@ -11852,6 +12261,7 @@
                     "$id": "804",
                     "kind": "method",
                     "name": "accept",
+                    "originalName": "accept",
                     "serializedName": "Accept",
                     "type": {
                       "$ref": "166"
@@ -11934,6 +12344,7 @@
           "$id": "805",
           "kind": "paging",
           "name": "ListWithContinuationToken",
+          "originalName": "ListWithContinuationToken",
           "isExactName": false,
           "accessibility": "public",
           "apiVersions": [
@@ -11944,6 +12355,7 @@
           "operation": {
             "$id": "806",
             "name": "ListWithContinuationToken",
+            "originalName": "ListWithContinuationToken",
             "isExactName": false,
             "resourceName": "SampleTypeSpec",
             "doc": "List things with continuation token",
@@ -11953,6 +12365,7 @@
                 "$id": "807",
                 "kind": "query",
                 "name": "token",
+                "originalName": "token",
                 "serializedName": "token",
                 "type": {
                   "$id": "808",
@@ -11973,6 +12386,7 @@
                     "$id": "809",
                     "kind": "method",
                     "name": "token",
+                    "originalName": "token",
                     "serializedName": "token",
                     "type": {
                       "$id": "810",
@@ -11998,6 +12412,7 @@
                 "$id": "811",
                 "kind": "header",
                 "name": "accept",
+                "originalName": "accept",
                 "serializedName": "Accept",
                 "type": {
                   "$ref": "168"
@@ -12014,6 +12429,7 @@
                     "$id": "812",
                     "kind": "method",
                     "name": "accept",
+                    "originalName": "accept",
                     "serializedName": "Accept",
                     "type": {
                       "$ref": "168"
@@ -12102,6 +12518,7 @@
           "$id": "813",
           "kind": "paging",
           "name": "ListWithContinuationTokenHeaderResponse",
+          "originalName": "ListWithContinuationTokenHeaderResponse",
           "isExactName": false,
           "accessibility": "public",
           "apiVersions": [
@@ -12112,6 +12529,7 @@
           "operation": {
             "$id": "814",
             "name": "ListWithContinuationTokenHeaderResponse",
+            "originalName": "ListWithContinuationTokenHeaderResponse",
             "isExactName": false,
             "resourceName": "SampleTypeSpec",
             "doc": "List things with continuation token header response",
@@ -12121,6 +12539,7 @@
                 "$id": "815",
                 "kind": "query",
                 "name": "token",
+                "originalName": "token",
                 "serializedName": "token",
                 "type": {
                   "$id": "816",
@@ -12141,6 +12560,7 @@
                     "$id": "817",
                     "kind": "method",
                     "name": "token",
+                    "originalName": "token",
                     "serializedName": "token",
                     "type": {
                       "$id": "818",
@@ -12166,6 +12586,7 @@
                 "$id": "819",
                 "kind": "header",
                 "name": "accept",
+                "originalName": "accept",
                 "serializedName": "Accept",
                 "type": {
                   "$ref": "170"
@@ -12182,6 +12603,7 @@
                     "$id": "820",
                     "kind": "method",
                     "name": "accept",
+                    "originalName": "accept",
                     "serializedName": "Accept",
                     "type": {
                       "$ref": "170"
@@ -12282,6 +12704,7 @@
           "$id": "822",
           "kind": "paging",
           "name": "ListWithPaging",
+          "originalName": "ListWithPaging",
           "isExactName": false,
           "accessibility": "public",
           "apiVersions": [
@@ -12292,6 +12715,7 @@
           "operation": {
             "$id": "823",
             "name": "ListWithPaging",
+            "originalName": "ListWithPaging",
             "isExactName": false,
             "resourceName": "SampleTypeSpec",
             "doc": "List things with paging",
@@ -12301,6 +12725,7 @@
                 "$id": "824",
                 "kind": "header",
                 "name": "accept",
+                "originalName": "accept",
                 "serializedName": "Accept",
                 "type": {
                   "$ref": "172"
@@ -12317,6 +12742,7 @@
                     "$id": "825",
                     "kind": "method",
                     "name": "accept",
+                    "originalName": "accept",
                     "serializedName": "Accept",
                     "type": {
                       "$ref": "172"
@@ -12393,6 +12819,7 @@
           "$id": "826",
           "kind": "basic",
           "name": "EmbeddedParameters",
+          "originalName": "EmbeddedParameters",
           "isExactName": false,
           "accessibility": "public",
           "apiVersions": [
@@ -12403,6 +12830,7 @@
           "operation": {
             "$id": "827",
             "name": "EmbeddedParameters",
+            "originalName": "EmbeddedParameters",
             "isExactName": false,
             "resourceName": "SampleTypeSpec",
             "doc": "An operation with embedded parameters within the body",
@@ -12412,6 +12840,7 @@
                 "$id": "828",
                 "kind": "header",
                 "name": "requiredHeader",
+                "originalName": "requiredHeader",
                 "serializedName": "required-header",
                 "doc": "required header parameter",
                 "type": {
@@ -12433,6 +12862,7 @@
                     "$id": "830",
                     "kind": "method",
                     "name": "body",
+                    "originalName": "body",
                     "serializedName": "body",
                     "type": {
                       "$ref": "369"
@@ -12451,6 +12881,7 @@
                     "$id": "831",
                     "kind": "method",
                     "name": "requiredHeader",
+                    "originalName": "requiredHeader",
                     "serializedName": "requiredHeader",
                     "doc": "required header parameter",
                     "type": {
@@ -12473,6 +12904,7 @@
                 "$id": "832",
                 "kind": "header",
                 "name": "optionalHeader",
+                "originalName": "optionalHeader",
                 "serializedName": "optional-header",
                 "doc": "optional header parameter",
                 "type": {
@@ -12497,6 +12929,7 @@
                     "$id": "834",
                     "kind": "method",
                     "name": "optionalHeader",
+                    "originalName": "optionalHeader",
                     "serializedName": "optionalHeader",
                     "doc": "optional header parameter",
                     "type": {
@@ -12519,6 +12952,7 @@
                 "$id": "835",
                 "kind": "query",
                 "name": "requiredQuery",
+                "originalName": "requiredQuery",
                 "serializedName": "requiredQuery",
                 "doc": "required query parameter",
                 "type": {
@@ -12543,6 +12977,7 @@
                     "$id": "837",
                     "kind": "method",
                     "name": "requiredQuery",
+                    "originalName": "requiredQuery",
                     "serializedName": "requiredQuery",
                     "doc": "required query parameter",
                     "type": {
@@ -12565,6 +13000,7 @@
                 "$id": "838",
                 "kind": "query",
                 "name": "optionalQuery",
+                "originalName": "optionalQuery",
                 "serializedName": "optionalQuery",
                 "doc": "optional query parameter",
                 "type": {
@@ -12589,6 +13025,7 @@
                     "$id": "840",
                     "kind": "method",
                     "name": "optionalQuery",
+                    "originalName": "optionalQuery",
                     "serializedName": "optionalQuery",
                     "doc": "optional query parameter",
                     "type": {
@@ -12611,6 +13048,7 @@
                 "$id": "841",
                 "kind": "header",
                 "name": "contentType",
+                "originalName": "contentType",
                 "serializedName": "Content-Type",
                 "doc": "Body parameter's content type. Known values are application/json",
                 "type": {
@@ -12628,6 +13066,7 @@
                     "$id": "842",
                     "kind": "method",
                     "name": "contentType",
+                    "originalName": "contentType",
                     "serializedName": "Content-Type",
                     "doc": "Body parameter's content type. Known values are application/json",
                     "type": {
@@ -12650,6 +13089,7 @@
                 "$id": "843",
                 "kind": "body",
                 "name": "body",
+                "originalName": "body",
                 "serializedName": "body",
                 "type": {
                   "$ref": "369"
@@ -12718,6 +13158,7 @@
           "$id": "844",
           "kind": "basic",
           "name": "DynamicModelOperation",
+          "originalName": "DynamicModelOperation",
           "isExactName": false,
           "accessibility": "public",
           "apiVersions": [
@@ -12728,6 +13169,7 @@
           "operation": {
             "$id": "845",
             "name": "DynamicModelOperation",
+            "originalName": "DynamicModelOperation",
             "isExactName": false,
             "resourceName": "SampleTypeSpec",
             "doc": "An operation with a dynamic model",
@@ -12737,6 +13179,7 @@
                 "$id": "846",
                 "kind": "header",
                 "name": "contentType",
+                "originalName": "contentType",
                 "serializedName": "Content-Type",
                 "doc": "Body parameter's content type. Known values are application/json",
                 "type": {
@@ -12754,6 +13197,7 @@
                     "$id": "847",
                     "kind": "method",
                     "name": "contentType",
+                    "originalName": "contentType",
                     "serializedName": "Content-Type",
                     "doc": "Body parameter's content type. Known values are application/json",
                     "type": {
@@ -12776,6 +13220,7 @@
                 "$id": "848",
                 "kind": "body",
                 "name": "body",
+                "originalName": "body",
                 "serializedName": "body",
                 "type": {
                   "$ref": "380"
@@ -12795,6 +13240,7 @@
                     "$id": "849",
                     "kind": "method",
                     "name": "body",
+                    "originalName": "body",
                     "serializedName": "body",
                     "type": {
                       "$ref": "380"
@@ -12859,6 +13305,7 @@
           "$id": "850",
           "kind": "basic",
           "name": "GetXmlAdvancedModel",
+          "originalName": "GetXmlAdvancedModel",
           "isExactName": false,
           "accessibility": "public",
           "apiVersions": [
@@ -12869,6 +13316,7 @@
           "operation": {
             "$id": "851",
             "name": "GetXmlAdvancedModel",
+            "originalName": "GetXmlAdvancedModel",
             "isExactName": false,
             "resourceName": "SampleTypeSpec",
             "doc": "Get an advanced XML model with various property types",
@@ -12878,6 +13326,7 @@
                 "$id": "852",
                 "kind": "header",
                 "name": "accept",
+                "originalName": "accept",
                 "serializedName": "Accept",
                 "type": {
                   "$ref": "178"
@@ -12894,6 +13343,7 @@
                     "$id": "853",
                     "kind": "method",
                     "name": "accept",
+                    "originalName": "accept",
                     "serializedName": "Accept",
                     "type": {
                       "$ref": "178"
@@ -12969,6 +13419,7 @@
           "$id": "854",
           "kind": "basic",
           "name": "UpdateXmlAdvancedModel",
+          "originalName": "UpdateXmlAdvancedModel",
           "isExactName": false,
           "accessibility": "public",
           "apiVersions": [
@@ -12979,6 +13430,7 @@
           "operation": {
             "$id": "855",
             "name": "UpdateXmlAdvancedModel",
+            "originalName": "UpdateXmlAdvancedModel",
             "isExactName": false,
             "resourceName": "SampleTypeSpec",
             "doc": "Update an advanced XML model with various property types",
@@ -12988,6 +13440,7 @@
                 "$id": "856",
                 "kind": "header",
                 "name": "contentType",
+                "originalName": "contentType",
                 "serializedName": "Content-Type",
                 "type": {
                   "$ref": "182"
@@ -13004,6 +13457,7 @@
                     "$id": "857",
                     "kind": "method",
                     "name": "contentType",
+                    "originalName": "contentType",
                     "serializedName": "Content-Type",
                     "type": {
                       "$ref": "182"
@@ -13025,6 +13479,7 @@
                 "$id": "858",
                 "kind": "header",
                 "name": "accept",
+                "originalName": "accept",
                 "serializedName": "Accept",
                 "type": {
                   "$ref": "186"
@@ -13041,6 +13496,7 @@
                     "$id": "859",
                     "kind": "method",
                     "name": "accept",
+                    "originalName": "accept",
                     "serializedName": "Accept",
                     "type": {
                       "$ref": "186"
@@ -13062,6 +13518,7 @@
                 "$id": "860",
                 "kind": "body",
                 "name": "body",
+                "originalName": "body",
                 "serializedName": "body",
                 "type": {
                   "$ref": "418"
@@ -13081,6 +13538,7 @@
                     "$id": "861",
                     "kind": "method",
                     "name": "body",
+                    "originalName": "body",
                     "serializedName": "body",
                     "type": {
                       "$ref": "418"
@@ -13170,6 +13628,7 @@
           "$id": "862",
           "kind": "basic",
           "name": "uploadCat",
+          "originalName": "uploadCat",
           "isExactName": false,
           "accessibility": "public",
           "apiVersions": [
@@ -13179,6 +13638,7 @@
           "operation": {
             "$id": "863",
             "name": "uploadCat",
+            "originalName": "uploadCat",
             "isExactName": false,
             "resourceName": "SampleTypeSpec",
             "accessibility": "public",
@@ -13187,6 +13647,7 @@
                 "$id": "864",
                 "kind": "header",
                 "name": "contentType",
+                "originalName": "contentType",
                 "serializedName": "Content-Type",
                 "type": {
                   "$ref": "190"
@@ -13203,6 +13664,7 @@
                     "$id": "865",
                     "kind": "method",
                     "name": "contentType",
+                    "originalName": "contentType",
                     "serializedName": "Content-Type",
                     "type": {
                       "$ref": "190"
@@ -13224,6 +13686,7 @@
                 "$id": "866",
                 "kind": "body",
                 "name": "body",
+                "originalName": "body",
                 "serializedName": "body",
                 "type": {
                   "$ref": "514"
@@ -13243,6 +13706,7 @@
                     "$id": "867",
                     "kind": "method",
                     "name": "body",
+                    "originalName": "body",
                     "serializedName": "body",
                     "type": {
                       "$ref": "514"
@@ -13303,6 +13767,7 @@
           "$id": "868",
           "kind": "basic",
           "name": "sendJsonLines",
+          "originalName": "sendJsonLines",
           "isExactName": false,
           "accessibility": "public",
           "apiVersions": [
@@ -13312,6 +13777,7 @@
           "operation": {
             "$id": "869",
             "name": "sendJsonLines",
+            "originalName": "sendJsonLines",
             "isExactName": false,
             "resourceName": "SampleTypeSpec",
             "accessibility": "public",
@@ -13320,6 +13786,7 @@
                 "$id": "870",
                 "kind": "header",
                 "name": "contentType",
+                "originalName": "contentType",
                 "serializedName": "Content-Type",
                 "type": {
                   "$ref": "194"
@@ -13336,6 +13803,7 @@
                     "$id": "871",
                     "kind": "method",
                     "name": "stream",
+                    "originalName": "stream",
                     "serializedName": "stream",
                     "type": {
                       "$id": "872",
@@ -13364,6 +13832,7 @@
                     "$id": "873",
                     "kind": "method",
                     "name": "contentType",
+                    "originalName": "contentType",
                     "serializedName": "contentType",
                     "type": {
                       "$ref": "196"
@@ -13385,6 +13854,7 @@
                 "$id": "874",
                 "kind": "body",
                 "name": "body",
+                "originalName": "body",
                 "serializedName": "body",
                 "type": {
                   "$id": "875",
@@ -13417,6 +13887,7 @@
                     "$id": "876",
                     "kind": "method",
                     "name": "body",
+                    "originalName": "body",
                     "serializedName": "body",
                     "type": {
                       "$ref": "599"
@@ -13478,6 +13949,7 @@
           "$id": "877",
           "kind": "basic",
           "name": "receiveJsonLines",
+          "originalName": "receiveJsonLines",
           "isExactName": false,
           "accessibility": "public",
           "apiVersions": [
@@ -13487,6 +13959,7 @@
           "operation": {
             "$id": "878",
             "name": "receiveJsonLines",
+            "originalName": "receiveJsonLines",
             "isExactName": false,
             "resourceName": "SampleTypeSpec",
             "accessibility": "public",
@@ -13495,6 +13968,7 @@
                 "$id": "879",
                 "kind": "header",
                 "name": "accept",
+                "originalName": "accept",
                 "serializedName": "Accept",
                 "type": {
                   "$ref": "198"
@@ -13511,6 +13985,7 @@
                     "$id": "880",
                     "kind": "method",
                     "name": "accept",
+                    "originalName": "accept",
                     "serializedName": "Accept",
                     "type": {
                       "$ref": "198"
@@ -13606,6 +14081,7 @@
           "$id": "883",
           "kind": "basic",
           "name": "receiveSse",
+          "originalName": "receiveSse",
           "isExactName": false,
           "accessibility": "public",
           "apiVersions": [
@@ -13615,6 +14091,7 @@
           "operation": {
             "$id": "884",
             "name": "receiveSse",
+            "originalName": "receiveSse",
             "isExactName": false,
             "resourceName": "SampleTypeSpec",
             "accessibility": "public",
@@ -13623,6 +14100,7 @@
                 "$id": "885",
                 "kind": "header",
                 "name": "accept",
+                "originalName": "accept",
                 "serializedName": "Accept",
                 "type": {
                   "$ref": "202"
@@ -13639,6 +14117,7 @@
                     "$id": "886",
                     "kind": "method",
                     "name": "accept",
+                    "originalName": "accept",
                     "serializedName": "Accept",
                     "type": {
                       "$ref": "202"
@@ -13787,6 +14266,7 @@
               "$id": "893",
               "kind": "basic",
               "name": "updatePetAsAnimal",
+              "originalName": "updatePetAsAnimal",
               "isExactName": false,
               "accessibility": "public",
               "apiVersions": [
@@ -13797,6 +14277,7 @@
               "operation": {
                 "$id": "894",
                 "name": "updatePetAsAnimal",
+                "originalName": "updatePetAsAnimal",
                 "isExactName": false,
                 "resourceName": "AnimalOperations",
                 "doc": "Update a pet as an animal",
@@ -13806,6 +14287,7 @@
                     "$id": "895",
                     "kind": "header",
                     "name": "contentType",
+                    "originalName": "contentType",
                     "serializedName": "Content-Type",
                     "doc": "Body parameter's content type. Known values are application/json",
                     "type": {
@@ -13823,6 +14305,7 @@
                         "$id": "896",
                         "kind": "method",
                         "name": "contentType",
+                        "originalName": "contentType",
                         "serializedName": "Content-Type",
                         "doc": "Body parameter's content type. Known values are application/json",
                         "type": {
@@ -13845,6 +14328,7 @@
                     "$id": "897",
                     "kind": "header",
                     "name": "accept",
+                    "originalName": "accept",
                     "serializedName": "Accept",
                     "type": {
                       "$ref": "210"
@@ -13861,6 +14345,7 @@
                         "$id": "898",
                         "kind": "method",
                         "name": "accept",
+                        "originalName": "accept",
                         "serializedName": "Accept",
                         "type": {
                           "$ref": "210"
@@ -13882,6 +14367,7 @@
                     "$id": "899",
                     "kind": "body",
                     "name": "animal",
+                    "originalName": "animal",
                     "serializedName": "animal",
                     "type": {
                       "$ref": "562"
@@ -13901,6 +14387,7 @@
                         "$id": "900",
                         "kind": "method",
                         "name": "animal",
+                        "originalName": "animal",
                         "serializedName": "animal",
                         "type": {
                           "$ref": "562"
@@ -13982,6 +14469,7 @@
               "$id": "901",
               "kind": "basic",
               "name": "updateDogAsAnimal",
+              "originalName": "updateDogAsAnimal",
               "isExactName": false,
               "accessibility": "public",
               "apiVersions": [
@@ -13992,6 +14480,7 @@
               "operation": {
                 "$id": "902",
                 "name": "updateDogAsAnimal",
+                "originalName": "updateDogAsAnimal",
                 "isExactName": false,
                 "resourceName": "AnimalOperations",
                 "doc": "Update a dog as an animal",
@@ -14001,6 +14490,7 @@
                     "$id": "903",
                     "kind": "header",
                     "name": "contentType",
+                    "originalName": "contentType",
                     "serializedName": "Content-Type",
                     "doc": "Body parameter's content type. Known values are application/json",
                     "type": {
@@ -14018,6 +14508,7 @@
                         "$id": "904",
                         "kind": "method",
                         "name": "contentType",
+                        "originalName": "contentType",
                         "serializedName": "Content-Type",
                         "doc": "Body parameter's content type. Known values are application/json",
                         "type": {
@@ -14040,6 +14531,7 @@
                     "$id": "905",
                     "kind": "header",
                     "name": "accept",
+                    "originalName": "accept",
                     "serializedName": "Accept",
                     "type": {
                       "$ref": "214"
@@ -14056,6 +14548,7 @@
                         "$id": "906",
                         "kind": "method",
                         "name": "accept",
+                        "originalName": "accept",
                         "serializedName": "Accept",
                         "type": {
                           "$ref": "214"
@@ -14077,6 +14570,7 @@
                     "$id": "907",
                     "kind": "body",
                     "name": "animal",
+                    "originalName": "animal",
                     "serializedName": "animal",
                     "type": {
                       "$ref": "562"
@@ -14096,6 +14590,7 @@
                         "$id": "908",
                         "kind": "method",
                         "name": "animal",
+                        "originalName": "animal",
                         "serializedName": "animal",
                         "type": {
                           "$ref": "562"
@@ -14220,6 +14715,7 @@
               "$id": "912",
               "kind": "basic",
               "name": "updatePetAsPet",
+              "originalName": "updatePetAsPet",
               "isExactName": false,
               "accessibility": "public",
               "apiVersions": [
@@ -14230,6 +14726,7 @@
               "operation": {
                 "$id": "913",
                 "name": "updatePetAsPet",
+                "originalName": "updatePetAsPet",
                 "isExactName": false,
                 "resourceName": "PetOperations",
                 "doc": "Update a pet as a pet",
@@ -14239,6 +14736,7 @@
                     "$id": "914",
                     "kind": "header",
                     "name": "contentType",
+                    "originalName": "contentType",
                     "serializedName": "Content-Type",
                     "doc": "Body parameter's content type. Known values are application/json",
                     "type": {
@@ -14256,6 +14754,7 @@
                         "$id": "915",
                         "kind": "method",
                         "name": "contentType",
+                        "originalName": "contentType",
                         "serializedName": "Content-Type",
                         "doc": "Body parameter's content type. Known values are application/json",
                         "type": {
@@ -14278,6 +14777,7 @@
                     "$id": "916",
                     "kind": "header",
                     "name": "accept",
+                    "originalName": "accept",
                     "serializedName": "Accept",
                     "type": {
                       "$ref": "218"
@@ -14294,6 +14794,7 @@
                         "$id": "917",
                         "kind": "method",
                         "name": "accept",
+                        "originalName": "accept",
                         "serializedName": "Accept",
                         "type": {
                           "$ref": "218"
@@ -14315,6 +14816,7 @@
                     "$id": "918",
                     "kind": "body",
                     "name": "pet",
+                    "originalName": "pet",
                     "serializedName": "pet",
                     "type": {
                       "$ref": "567"
@@ -14334,6 +14836,7 @@
                         "$id": "919",
                         "kind": "method",
                         "name": "pet",
+                        "originalName": "pet",
                         "serializedName": "pet",
                         "type": {
                           "$ref": "567"
@@ -14415,6 +14918,7 @@
               "$id": "920",
               "kind": "basic",
               "name": "updateDogAsPet",
+              "originalName": "updateDogAsPet",
               "isExactName": false,
               "accessibility": "public",
               "apiVersions": [
@@ -14425,6 +14929,7 @@
               "operation": {
                 "$id": "921",
                 "name": "updateDogAsPet",
+                "originalName": "updateDogAsPet",
                 "isExactName": false,
                 "resourceName": "PetOperations",
                 "doc": "Update a dog as a pet",
@@ -14434,6 +14939,7 @@
                     "$id": "922",
                     "kind": "header",
                     "name": "contentType",
+                    "originalName": "contentType",
                     "serializedName": "Content-Type",
                     "doc": "Body parameter's content type. Known values are application/json",
                     "type": {
@@ -14451,6 +14957,7 @@
                         "$id": "923",
                         "kind": "method",
                         "name": "contentType",
+                        "originalName": "contentType",
                         "serializedName": "Content-Type",
                         "doc": "Body parameter's content type. Known values are application/json",
                         "type": {
@@ -14473,6 +14980,7 @@
                     "$id": "924",
                     "kind": "header",
                     "name": "accept",
+                    "originalName": "accept",
                     "serializedName": "Accept",
                     "type": {
                       "$ref": "222"
@@ -14489,6 +14997,7 @@
                         "$id": "925",
                         "kind": "method",
                         "name": "accept",
+                        "originalName": "accept",
                         "serializedName": "Accept",
                         "type": {
                           "$ref": "222"
@@ -14510,6 +15019,7 @@
                     "$id": "926",
                     "kind": "body",
                     "name": "pet",
+                    "originalName": "pet",
                     "serializedName": "pet",
                     "type": {
                       "$ref": "567"
@@ -14529,6 +15039,7 @@
                         "$id": "927",
                         "kind": "method",
                         "name": "pet",
+                        "originalName": "pet",
                         "serializedName": "pet",
                         "type": {
                           "$ref": "567"
@@ -14653,6 +15164,7 @@
               "$id": "931",
               "kind": "basic",
               "name": "updateDogAsDog",
+              "originalName": "updateDogAsDog",
               "isExactName": false,
               "accessibility": "public",
               "apiVersions": [
@@ -14663,6 +15175,7 @@
               "operation": {
                 "$id": "932",
                 "name": "updateDogAsDog",
+                "originalName": "updateDogAsDog",
                 "isExactName": false,
                 "resourceName": "DogOperations",
                 "doc": "Update a dog as a dog",
@@ -14672,6 +15185,7 @@
                     "$id": "933",
                     "kind": "header",
                     "name": "contentType",
+                    "originalName": "contentType",
                     "serializedName": "Content-Type",
                     "doc": "Body parameter's content type. Known values are application/json",
                     "type": {
@@ -14689,6 +15203,7 @@
                         "$id": "934",
                         "kind": "method",
                         "name": "contentType",
+                        "originalName": "contentType",
                         "serializedName": "Content-Type",
                         "doc": "Body parameter's content type. Known values are application/json",
                         "type": {
@@ -14711,6 +15226,7 @@
                     "$id": "935",
                     "kind": "header",
                     "name": "accept",
+                    "originalName": "accept",
                     "serializedName": "Accept",
                     "type": {
                       "$ref": "226"
@@ -14727,6 +15243,7 @@
                         "$id": "936",
                         "kind": "method",
                         "name": "accept",
+                        "originalName": "accept",
                         "serializedName": "Accept",
                         "type": {
                           "$ref": "226"
@@ -14748,6 +15265,7 @@
                     "$id": "937",
                     "kind": "body",
                     "name": "dog",
+                    "originalName": "dog",
                     "serializedName": "dog",
                     "type": {
                       "$ref": "571"
@@ -14767,6 +15285,7 @@
                         "$id": "938",
                         "kind": "method",
                         "name": "dog",
+                        "originalName": "dog",
                         "serializedName": "dog",
                         "type": {
                           "$ref": "571"
@@ -14891,6 +15410,7 @@
               "$id": "942",
               "kind": "basic",
               "name": "getTree",
+              "originalName": "getTree",
               "isExactName": false,
               "accessibility": "public",
               "apiVersions": [
@@ -14901,6 +15421,7 @@
               "operation": {
                 "$id": "943",
                 "name": "getTree",
+                "originalName": "getTree",
                 "isExactName": false,
                 "resourceName": "PlantOperations",
                 "doc": "Get a tree as a plant",
@@ -14910,6 +15431,7 @@
                     "$id": "944",
                     "kind": "header",
                     "name": "accept",
+                    "originalName": "accept",
                     "serializedName": "Accept",
                     "type": {
                       "$ref": "228"
@@ -14926,6 +15448,7 @@
                         "$id": "945",
                         "kind": "method",
                         "name": "accept",
+                        "originalName": "accept",
                         "serializedName": "Accept",
                         "type": {
                           "$ref": "228"
@@ -15001,6 +15524,7 @@
               "$id": "946",
               "kind": "basic",
               "name": "getTreeAsJson",
+              "originalName": "getTreeAsJson",
               "isExactName": false,
               "accessibility": "public",
               "apiVersions": [
@@ -15011,6 +15535,7 @@
               "operation": {
                 "$id": "947",
                 "name": "getTreeAsJson",
+                "originalName": "getTreeAsJson",
                 "isExactName": false,
                 "resourceName": "PlantOperations",
                 "doc": "Get a tree as a plant",
@@ -15020,6 +15545,7 @@
                     "$id": "948",
                     "kind": "header",
                     "name": "accept",
+                    "originalName": "accept",
                     "serializedName": "Accept",
                     "type": {
                       "$ref": "232"
@@ -15036,6 +15562,7 @@
                         "$id": "949",
                         "kind": "method",
                         "name": "accept",
+                        "originalName": "accept",
                         "serializedName": "Accept",
                         "type": {
                           "$ref": "232"
@@ -15111,6 +15638,7 @@
               "$id": "950",
               "kind": "basic",
               "name": "updateTree",
+              "originalName": "updateTree",
               "isExactName": false,
               "accessibility": "public",
               "apiVersions": [
@@ -15121,6 +15649,7 @@
               "operation": {
                 "$id": "951",
                 "name": "updateTree",
+                "originalName": "updateTree",
                 "isExactName": false,
                 "resourceName": "PlantOperations",
                 "doc": "Update a tree as a plant",
@@ -15130,6 +15659,7 @@
                     "$id": "952",
                     "kind": "header",
                     "name": "contentType",
+                    "originalName": "contentType",
                     "serializedName": "Content-Type",
                     "type": {
                       "$ref": "236"
@@ -15146,6 +15676,7 @@
                         "$id": "953",
                         "kind": "method",
                         "name": "contentType",
+                        "originalName": "contentType",
                         "serializedName": "Content-Type",
                         "type": {
                           "$ref": "236"
@@ -15167,6 +15698,7 @@
                     "$id": "954",
                     "kind": "header",
                     "name": "accept",
+                    "originalName": "accept",
                     "serializedName": "Accept",
                     "type": {
                       "$ref": "240"
@@ -15183,6 +15715,7 @@
                         "$id": "955",
                         "kind": "method",
                         "name": "accept",
+                        "originalName": "accept",
                         "serializedName": "Accept",
                         "type": {
                           "$ref": "240"
@@ -15204,6 +15737,7 @@
                     "$id": "956",
                     "kind": "body",
                     "name": "tree",
+                    "originalName": "tree",
                     "serializedName": "tree",
                     "type": {
                       "$ref": "575"
@@ -15223,6 +15757,7 @@
                         "$id": "957",
                         "kind": "method",
                         "name": "tree",
+                        "originalName": "tree",
                         "serializedName": "tree",
                         "type": {
                           "$ref": "575"
@@ -15312,6 +15847,7 @@
               "$id": "958",
               "kind": "basic",
               "name": "updateTreeAsJson",
+              "originalName": "updateTreeAsJson",
               "isExactName": false,
               "accessibility": "public",
               "apiVersions": [
@@ -15322,6 +15858,7 @@
               "operation": {
                 "$id": "959",
                 "name": "updateTreeAsJson",
+                "originalName": "updateTreeAsJson",
                 "isExactName": false,
                 "resourceName": "PlantOperations",
                 "doc": "Update a tree as a plant",
@@ -15331,6 +15868,7 @@
                     "$id": "960",
                     "kind": "header",
                     "name": "contentType",
+                    "originalName": "contentType",
                     "serializedName": "Content-Type",
                     "type": {
                       "$ref": "244"
@@ -15347,6 +15885,7 @@
                         "$id": "961",
                         "kind": "method",
                         "name": "contentType",
+                        "originalName": "contentType",
                         "serializedName": "Content-Type",
                         "type": {
                           "$ref": "244"
@@ -15368,6 +15907,7 @@
                     "$id": "962",
                     "kind": "header",
                     "name": "accept",
+                    "originalName": "accept",
                     "serializedName": "Accept",
                     "type": {
                       "$ref": "248"
@@ -15384,6 +15924,7 @@
                         "$id": "963",
                         "kind": "method",
                         "name": "accept",
+                        "originalName": "accept",
                         "serializedName": "Accept",
                         "type": {
                           "$ref": "248"
@@ -15405,6 +15946,7 @@
                     "$id": "964",
                     "kind": "body",
                     "name": "tree",
+                    "originalName": "tree",
                     "serializedName": "tree",
                     "type": {
                       "$ref": "575"
@@ -15424,6 +15966,7 @@
                         "$id": "965",
                         "kind": "method",
                         "name": "tree",
+                        "originalName": "tree",
                         "serializedName": "tree",
                         "type": {
                           "$ref": "575"
@@ -15556,6 +16099,7 @@
               "$id": "969",
               "kind": "basic",
               "name": "getWidgetMetrics",
+              "originalName": "getWidgetMetrics",
               "isExactName": false,
               "accessibility": "public",
               "apiVersions": [
@@ -15566,6 +16110,7 @@
               "operation": {
                 "$id": "970",
                 "name": "getWidgetMetrics",
+                "originalName": "getWidgetMetrics",
                 "isExactName": false,
                 "resourceName": "Metrics",
                 "doc": "Get Widget metrics for given day of week",
@@ -15575,6 +16120,7 @@
                     "$id": "971",
                     "kind": "path",
                     "name": "metricsNamespace",
+                    "originalName": "metricsNamespace",
                     "serializedName": "metricsNamespace",
                     "type": {
                       "$id": "972",
@@ -15598,6 +16144,7 @@
                         "$id": "973",
                         "kind": "method",
                         "name": "metricsNamespace",
+                        "originalName": "metricsNamespace",
                         "serializedName": "metricsNamespace",
                         "type": {
                           "$id": "974",
@@ -15623,6 +16170,7 @@
                     "$id": "975",
                     "kind": "path",
                     "name": "day",
+                    "originalName": "day",
                     "serializedName": "day",
                     "type": {
                       "$ref": "57"
@@ -15642,6 +16190,7 @@
                         "$id": "976",
                         "kind": "method",
                         "name": "day",
+                        "originalName": "day",
                         "serializedName": "day",
                         "type": {
                           "$ref": "57"
@@ -15663,6 +16212,7 @@
                     "$id": "977",
                     "kind": "header",
                     "name": "accept",
+                    "originalName": "accept",
                     "serializedName": "Accept",
                     "type": {
                       "$ref": "252"
@@ -15679,6 +16229,7 @@
                         "$id": "978",
                         "kind": "method",
                         "name": "accept",
+                        "originalName": "accept",
                         "serializedName": "Accept",
                         "type": {
                           "$ref": "252"
@@ -15795,6 +16346,7 @@
               "$id": "982",
               "kind": "basic",
               "name": "getNotebook",
+              "originalName": "getNotebook",
               "isExactName": false,
               "accessibility": "public",
               "apiVersions": [
@@ -15805,6 +16357,7 @@
               "operation": {
                 "$id": "983",
                 "name": "getNotebook",
+                "originalName": "getNotebook",
                 "isExactName": false,
                 "resourceName": "Notebooks",
                 "doc": "Get a notebook by name",
@@ -15814,6 +16367,7 @@
                     "$id": "984",
                     "kind": "path",
                     "name": "notebookName",
+                    "originalName": "notebookName",
                     "serializedName": "notebookName",
                     "type": {
                       "$id": "985",
@@ -15837,6 +16391,7 @@
                         "$id": "986",
                         "kind": "method",
                         "name": "notebook",
+                        "originalName": "notebook",
                         "serializedName": "notebook",
                         "type": {
                           "$id": "987",
@@ -15863,6 +16418,7 @@
                     "$id": "988",
                     "kind": "header",
                     "name": "accept",
+                    "originalName": "accept",
                     "serializedName": "Accept",
                     "type": {
                       "$ref": "254"
@@ -15879,6 +16435,7 @@
                         "$id": "989",
                         "kind": "method",
                         "name": "accept",
+                        "originalName": "accept",
                         "serializedName": "Accept",
                         "type": {
                           "$ref": "254"

@@ -1,7 +1,7 @@
 // Copyright (c) Microsoft Corporation. All rights reserved.
 // Licensed under the MIT License.
 
-// cspell:ignore readded
+// cspell:ignore DBOSIP IPDBOS readded
 
 using System;
 using System.Collections.Generic;
@@ -88,6 +88,40 @@ namespace Microsoft.TypeSpec.Generator.Tests.Providers
             // non-int based enum does not initialization values.
             Assert.IsNull(fields[0].InitializationValue);
             Assert.IsNull(fields[1].InitializationValue);
+        }
+
+        [Test]
+        public async Task BuildEnumType_BackCompatTakesPrecedenceOverAcronymNormalization()
+        {
+            await MockHelpers.LoadMockGeneratorAsync(
+                createCSharpTypeCore: (inputType) => typeof(string),
+                lastContractCompilation: async () => await Helpers.GetCompilationFromDirectoryAsync());
+            var input = InputFactory.StringEnum("IpKind", [("Value", "value")], normalizedName: "IPKind");
+
+            var enumType = EnumProvider.Create(input);
+
+            Assert.AreEqual("IpKind", enumType.Name);
+        }
+
+        [Test]
+        public async Task BuildEnumType_BackCompatTakesPrecedenceAfterNamespaceUpdate()
+        {
+            await MockHelpers.LoadMockGeneratorAsync(
+                createCSharpTypeCore: (inputType) => typeof(string),
+                lastContractCompilation: async () => await Helpers.GetCompilationFromDirectoryAsync());
+            var input = InputFactory.StringEnum(
+                "IpKind",
+                [("Value", "value")],
+                clientNamespace: "Sample",
+                normalizedName: "IPKind");
+
+            var enumType = EnumProvider.Create(input);
+            Assert.AreEqual("IPKind", enumType.Name);
+
+            enumType.Update(@namespace: "Sample.Models");
+
+            Assert.AreEqual("IpKind", enumType.Name);
+            Assert.IsNotNull(enumType.LastContractView);
         }
 
         // Validates the api version enum
@@ -1207,6 +1241,26 @@ namespace Microsoft.TypeSpec.Generator.Tests.Providers
             Assert.AreEqual(2, properties.Count);
             Assert.AreEqual("One", properties[0].Name);
             Assert.AreEqual("snake_case_value", properties[1].Name);
+        }
+
+        [TestCase(false, "Fixed")]
+        [TestCase(true, "Extensible")]
+        public async Task BuildEnumType_PreservesUrlSuffixFromLastContract(bool isExtensible, string testData)
+        {
+            await MockHelpers.LoadMockGeneratorAsync(
+                createCSharpTypeCore: (inputType) => typeof(string),
+                lastContractCompilation: async () => await Helpers.GetCompilationFromDirectoryAsync(parameters: testData));
+            var enumValues = new List<InputEnumTypeValue>();
+            var input = InputFactory.Enum(
+                "mockInputEnum",
+                InputPrimitiveType.String,
+                enumValues,
+                isExtensible: isExtensible);
+            enumValues.Add(InputFactory.EnumMember.String("CallbackUrl", "value", input, normalizedName: "CallbackUri"));
+
+            var enumProvider = EnumProvider.Create(input);
+
+            Assert.AreEqual("CallbackUrl", enumProvider.EnumValues.Single().Name);
         }
 
         // An explicitly configured (exact) member name must win over the name published in the last

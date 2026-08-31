@@ -8,6 +8,7 @@
       "$id": "1",
       "kind": "model",
       "name": "InvalidAuth",
+      "originalName": "InvalidAuth",
       "namespace": "Authentication.ApiKey",
       "crossLanguageDefinitionId": "Authentication.ApiKey.InvalidAuth",
       "usage": "Json,Exception",
@@ -23,6 +24,7 @@
           "$id": "2",
           "kind": "property",
           "name": "error",
+          "originalName": "error",
           "serializedName": "error",
           "type": {
             "$id": "3",
@@ -61,6 +63,7 @@
           "$id": "5",
           "kind": "basic",
           "name": "valid",
+          "originalName": "valid",
           "isExactName": false,
           "accessibility": "public",
           "apiVersions": [],
@@ -68,6 +71,7 @@
           "operation": {
             "$id": "6",
             "name": "valid",
+            "originalName": "valid",
             "isExactName": false,
             "resourceName": "ApiKey",
             "doc": "Check whether client is authenticated",
@@ -104,6 +108,7 @@
           "$id": "7",
           "kind": "basic",
           "name": "invalid",
+          "originalName": "invalid",
           "isExactName": false,
           "accessibility": "public",
           "apiVersions": [],
@@ -111,6 +116,7 @@
           "operation": {
             "$id": "8",
             "name": "invalid",
+            "originalName": "invalid",
             "isExactName": false,
             "resourceName": "ApiKey",
             "doc": "Check whether client is authenticated.",

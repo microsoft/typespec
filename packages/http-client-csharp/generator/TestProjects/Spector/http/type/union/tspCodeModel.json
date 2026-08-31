@@ -6,6 +6,7 @@
       "$id": "1",
       "kind": "enum",
       "name": "GetResponseProp",
+      "originalName": "GetResponseProp",
       "crossLanguageDefinitionId": "Type.Union.get.Response.prop.anonymous",
       "valueType": {
         "$id": "2",
@@ -19,6 +20,7 @@
           "$id": "3",
           "kind": "enumvalue",
           "name": "a",
+          "originalName": "a",
           "value": "a",
           "valueType": {
             "$ref": "2"
@@ -33,6 +35,7 @@
           "$id": "4",
           "kind": "enumvalue",
           "name": "b",
+          "originalName": "b",
           "value": "b",
           "valueType": {
             "$ref": "2"
@@ -47,6 +50,7 @@
           "$id": "5",
           "kind": "enumvalue",
           "name": "c",
+          "originalName": "c",
           "value": "c",
           "valueType": {
             "$ref": "2"
@@ -69,6 +73,7 @@
       "$id": "6",
       "kind": "enum",
       "name": "GetResponseProp1",
+      "originalName": "GetResponseProp1",
       "crossLanguageDefinitionId": "Type.Union.get.Response.prop.anonymous",
       "valueType": {
         "$id": "7",
@@ -82,6 +87,7 @@
           "$id": "8",
           "kind": "enumvalue",
           "name": "b",
+          "originalName": "b",
           "value": "b",
           "valueType": {
             "$ref": "7"
@@ -96,6 +102,7 @@
           "$id": "9",
           "kind": "enumvalue",
           "name": "c",
+          "originalName": "c",
           "value": "c",
           "valueType": {
             "$ref": "7"
@@ -118,6 +125,7 @@
       "$id": "10",
       "kind": "enum",
       "name": "StringExtensibleNamedUnion",
+      "originalName": "StringExtensibleNamedUnion",
       "crossLanguageDefinitionId": "Type.Union.StringExtensibleNamedUnion",
       "valueType": {
         "$id": "11",
@@ -131,6 +139,7 @@
           "$id": "12",
           "kind": "enumvalue",
           "name": "OptionB",
+          "originalName": "OptionB",
           "value": "b",
           "valueType": {
             "$ref": "11"
@@ -145,6 +154,7 @@
           "$id": "13",
           "kind": "enumvalue",
           "name": "c",
+          "originalName": "c",
           "value": "c",
           "valueType": {
             "$ref": "11"
@@ -167,6 +177,7 @@
       "$id": "14",
       "kind": "enum",
       "name": "GetResponseProp2",
+      "originalName": "GetResponseProp2",
       "crossLanguageDefinitionId": "Type.Union.get.Response.prop.anonymous",
       "valueType": {
         "$id": "15",
@@ -180,6 +191,7 @@
           "$id": "16",
           "kind": "enumvalue",
           "name": "1",
+          "originalName": "1",
           "value": 1,
           "valueType": {
             "$ref": "15"
@@ -194,6 +206,7 @@
           "$id": "17",
           "kind": "enumvalue",
           "name": "2",
+          "originalName": "2",
           "value": 2,
           "valueType": {
             "$ref": "15"
@@ -208,6 +221,7 @@
           "$id": "18",
           "kind": "enumvalue",
           "name": "3",
+          "originalName": "3",
           "value": 3,
           "valueType": {
             "$ref": "15"
@@ -230,6 +244,7 @@
       "$id": "19",
       "kind": "enum",
       "name": "GetResponseProp3",
+      "originalName": "GetResponseProp3",
       "crossLanguageDefinitionId": "Type.Union.get.Response.prop.anonymous",
       "valueType": {
         "$id": "20",
@@ -243,6 +258,7 @@
           "$id": "21",
           "kind": "enumvalue",
           "name": "1.1",
+          "originalName": "1.1",
           "value": 1.1,
           "valueType": {
             "$ref": "20"
@@ -257,6 +273,7 @@
           "$id": "22",
           "kind": "enumvalue",
           "name": "2.2",
+          "originalName": "2.2",
           "value": 2.2,
           "valueType": {
             "$ref": "20"
@@ -271,6 +288,7 @@
           "$id": "23",
           "kind": "enumvalue",
           "name": "3.3",
+          "originalName": "3.3",
           "value": 3.3,
           "valueType": {
             "$ref": "20"
@@ -293,6 +311,7 @@
       "$id": "24",
       "kind": "enum",
       "name": "EnumsOnlyCasesLr",
+      "originalName": "EnumsOnlyCasesLr",
       "crossLanguageDefinitionId": "Type.Union.EnumsOnlyCases.lr.anonymous",
       "valueType": {
         "$id": "25",
@@ -306,6 +325,7 @@
           "$id": "26",
           "kind": "enumvalue",
           "name": "left",
+          "originalName": "left",
           "value": "left",
           "valueType": {
             "$ref": "25"
@@ -320,6 +340,7 @@
           "$id": "27",
           "kind": "enumvalue",
           "name": "right",
+          "originalName": "right",
           "value": "right",
           "valueType": {
             "$ref": "25"
@@ -334,6 +355,7 @@
           "$id": "28",
           "kind": "enumvalue",
           "name": "up",
+          "originalName": "up",
           "value": "up",
           "valueType": {
             "$ref": "25"
@@ -348,6 +370,7 @@
           "$id": "29",
           "kind": "enumvalue",
           "name": "down",
+          "originalName": "down",
           "value": "down",
           "valueType": {
             "$ref": "25"
@@ -370,6 +393,7 @@
       "$id": "30",
       "kind": "enum",
       "name": "EnumsOnlyCasesUd",
+      "originalName": "EnumsOnlyCasesUd",
       "crossLanguageDefinitionId": "Type.Union.EnumsOnlyCases.ud.anonymous",
       "valueType": {
         "$id": "31",
@@ -383,6 +407,7 @@
           "$id": "32",
           "kind": "enumvalue",
           "name": "up",
+          "originalName": "up",
           "value": "up",
           "valueType": {
             "$ref": "31"
@@ -397,6 +422,7 @@
           "$id": "33",
           "kind": "enumvalue",
           "name": "down",
+          "originalName": "down",
           "value": "down",
           "valueType": {
             "$ref": "31"
@@ -848,6 +874,7 @@
       "$id": "84",
       "kind": "model",
       "name": "GetResponse",
+      "originalName": "GetResponse",
       "namespace": "Type.Union",
       "crossLanguageDefinitionId": "Type.Union.get.Response.anonymous",
       "usage": "Output,Json",
@@ -863,6 +890,7 @@
           "$id": "85",
           "kind": "property",
           "name": "prop",
+          "originalName": "prop",
           "serializedName": "prop",
           "type": {
             "$ref": "1"
@@ -887,6 +915,7 @@
       "$id": "86",
       "kind": "model",
       "name": "SendRequest",
+      "originalName": "SendRequest",
       "namespace": "Type.Union",
       "crossLanguageDefinitionId": "Type.Union.send.Request.anonymous",
       "usage": "Spread,Json",
@@ -902,6 +931,7 @@
           "$id": "87",
           "kind": "property",
           "name": "prop",
+          "originalName": "prop",
           "serializedName": "prop",
           "type": {
             "$ref": "1"
@@ -926,6 +956,7 @@
       "$id": "88",
       "kind": "model",
       "name": "GetResponse1",
+      "originalName": "GetResponse1",
       "namespace": "Type.Union",
       "crossLanguageDefinitionId": "Type.Union.get.Response.anonymous",
       "usage": "Output,Json",
@@ -941,6 +972,7 @@
           "$id": "89",
           "kind": "property",
           "name": "prop",
+          "originalName": "prop",
           "serializedName": "prop",
           "type": {
             "$ref": "6"
@@ -965,6 +997,7 @@
       "$id": "90",
       "kind": "model",
       "name": "SendRequest1",
+      "originalName": "SendRequest1",
       "namespace": "Type.Union",
       "crossLanguageDefinitionId": "Type.Union.send.Request.anonymous",
       "usage": "Spread,Json",
@@ -980,6 +1013,7 @@
           "$id": "91",
           "kind": "property",
           "name": "prop",
+          "originalName": "prop",
           "serializedName": "prop",
           "type": {
             "$ref": "6"
@@ -1004,6 +1038,7 @@
       "$id": "92",
       "kind": "model",
       "name": "GetResponse2",
+      "originalName": "GetResponse2",
       "namespace": "Type.Union",
       "crossLanguageDefinitionId": "Type.Union.get.Response.anonymous",
       "usage": "Output,Json",
@@ -1019,6 +1054,7 @@
           "$id": "93",
           "kind": "property",
           "name": "prop",
+          "originalName": "prop",
           "serializedName": "prop",
           "type": {
             "$ref": "10"
@@ -1043,6 +1079,7 @@
       "$id": "94",
       "kind": "model",
       "name": "SendRequest2",
+      "originalName": "SendRequest2",
       "namespace": "Type.Union",
       "crossLanguageDefinitionId": "Type.Union.send.Request.anonymous",
       "usage": "Spread,Json",
@@ -1058,6 +1095,7 @@
           "$id": "95",
           "kind": "property",
           "name": "prop",
+          "originalName": "prop",
           "serializedName": "prop",
           "type": {
             "$ref": "10"
@@ -1082,6 +1120,7 @@
       "$id": "96",
       "kind": "model",
       "name": "GetResponse3",
+      "originalName": "GetResponse3",
       "namespace": "Type.Union",
       "crossLanguageDefinitionId": "Type.Union.get.Response.anonymous",
       "usage": "Output,Json",
@@ -1097,6 +1136,7 @@
           "$id": "97",
           "kind": "property",
           "name": "prop",
+          "originalName": "prop",
           "serializedName": "prop",
           "type": {
             "$ref": "14"
@@ -1121,6 +1161,7 @@
       "$id": "98",
       "kind": "model",
       "name": "SendRequest3",
+      "originalName": "SendRequest3",
       "namespace": "Type.Union",
       "crossLanguageDefinitionId": "Type.Union.send.Request.anonymous",
       "usage": "Spread,Json",
@@ -1136,6 +1177,7 @@
           "$id": "99",
           "kind": "property",
           "name": "prop",
+          "originalName": "prop",
           "serializedName": "prop",
           "type": {
             "$ref": "14"
@@ -1160,6 +1202,7 @@
       "$id": "100",
       "kind": "model",
       "name": "GetResponse4",
+      "originalName": "GetResponse4",
       "namespace": "Type.Union",
       "crossLanguageDefinitionId": "Type.Union.get.Response.anonymous",
       "usage": "Output,Json",
@@ -1175,6 +1218,7 @@
           "$id": "101",
           "kind": "property",
           "name": "prop",
+          "originalName": "prop",
           "serializedName": "prop",
           "type": {
             "$ref": "19"
@@ -1199,6 +1243,7 @@
       "$id": "102",
       "kind": "model",
       "name": "SendRequest4",
+      "originalName": "SendRequest4",
       "namespace": "Type.Union",
       "crossLanguageDefinitionId": "Type.Union.send.Request.anonymous",
       "usage": "Spread,Json",
@@ -1214,6 +1259,7 @@
           "$id": "103",
           "kind": "property",
           "name": "prop",
+          "originalName": "prop",
           "serializedName": "prop",
           "type": {
             "$ref": "19"
@@ -1238,6 +1284,7 @@
       "$id": "104",
       "kind": "model",
       "name": "GetResponse5",
+      "originalName": "GetResponse5",
       "namespace": "Type.Union",
       "crossLanguageDefinitionId": "Type.Union.get.Response.anonymous",
       "usage": "Output,Json",
@@ -1253,6 +1300,7 @@
           "$id": "105",
           "kind": "property",
           "name": "prop",
+          "originalName": "prop",
           "serializedName": "prop",
           "type": {
             "$id": "106",
@@ -1263,6 +1311,7 @@
                 "$id": "107",
                 "kind": "model",
                 "name": "Cat",
+                "originalName": "Cat",
                 "namespace": "Type.Union",
                 "crossLanguageDefinitionId": "Type.Union.Cat",
                 "usage": "Input,Output,Json",
@@ -1278,6 +1327,7 @@
                     "$id": "108",
                     "kind": "property",
                     "name": "name",
+                    "originalName": "name",
                     "serializedName": "name",
                     "type": {
                       "$id": "109",
@@ -1306,6 +1356,7 @@
                 "$id": "110",
                 "kind": "model",
                 "name": "Dog",
+                "originalName": "Dog",
                 "namespace": "Type.Union",
                 "crossLanguageDefinitionId": "Type.Union.Dog",
                 "usage": "Input,Output,Json",
@@ -1321,6 +1372,7 @@
                     "$id": "111",
                     "kind": "property",
                     "name": "bark",
+                    "originalName": "bark",
                     "serializedName": "bark",
                     "type": {
                       "$id": "112",
@@ -1376,6 +1428,7 @@
       "$id": "113",
       "kind": "model",
       "name": "SendRequest5",
+      "originalName": "SendRequest5",
       "namespace": "Type.Union",
       "crossLanguageDefinitionId": "Type.Union.send.Request.anonymous",
       "usage": "Spread,Json",
@@ -1391,6 +1444,7 @@
           "$id": "114",
           "kind": "property",
           "name": "prop",
+          "originalName": "prop",
           "serializedName": "prop",
           "type": {
             "$ref": "106"
@@ -1415,6 +1469,7 @@
       "$id": "115",
       "kind": "model",
       "name": "GetResponse6",
+      "originalName": "GetResponse6",
       "namespace": "Type.Union",
       "crossLanguageDefinitionId": "Type.Union.get.Response.anonymous",
       "usage": "Output,Json",
@@ -1430,11 +1485,13 @@
           "$id": "116",
           "kind": "property",
           "name": "prop",
+          "originalName": "prop",
           "serializedName": "prop",
           "type": {
             "$id": "117",
             "kind": "model",
             "name": "EnumsOnlyCases",
+            "originalName": "EnumsOnlyCases",
             "namespace": "Type.Union",
             "crossLanguageDefinitionId": "Type.Union.EnumsOnlyCases",
             "usage": "Input,Output,Json",
@@ -1450,6 +1507,7 @@
                 "$id": "118",
                 "kind": "property",
                 "name": "lr",
+                "originalName": "lr",
                 "serializedName": "lr",
                 "doc": "This should be receive/send the left variant",
                 "type": {
@@ -1473,6 +1531,7 @@
                 "$id": "119",
                 "kind": "property",
                 "name": "ud",
+                "originalName": "ud",
                 "serializedName": "ud",
                 "doc": "This should be receive/send the up variant",
                 "type": {
@@ -1517,6 +1576,7 @@
       "$id": "120",
       "kind": "model",
       "name": "SendRequest6",
+      "originalName": "SendRequest6",
       "namespace": "Type.Union",
       "crossLanguageDefinitionId": "Type.Union.send.Request.anonymous",
       "usage": "Spread,Json",
@@ -1532,6 +1592,7 @@
           "$id": "121",
           "kind": "property",
           "name": "prop",
+          "originalName": "prop",
           "serializedName": "prop",
           "type": {
             "$ref": "117"
@@ -1556,6 +1617,7 @@
       "$id": "122",
       "kind": "model",
       "name": "GetResponse7",
+      "originalName": "GetResponse7",
       "namespace": "Type.Union",
       "crossLanguageDefinitionId": "Type.Union.get.Response.anonymous",
       "usage": "Output,Json",
@@ -1571,11 +1633,13 @@
           "$id": "123",
           "kind": "property",
           "name": "prop",
+          "originalName": "prop",
           "serializedName": "prop",
           "type": {
             "$id": "124",
             "kind": "model",
             "name": "StringAndArrayCases",
+            "originalName": "StringAndArrayCases",
             "namespace": "Type.Union",
             "crossLanguageDefinitionId": "Type.Union.StringAndArrayCases",
             "usage": "Input,Output,Json",
@@ -1591,6 +1655,7 @@
                 "$id": "125",
                 "kind": "property",
                 "name": "string",
+                "originalName": "string",
                 "serializedName": "string",
                 "doc": "This should be receive/send the string variant",
                 "type": {
@@ -1642,6 +1707,7 @@
                 "$id": "130",
                 "kind": "property",
                 "name": "array",
+                "originalName": "array",
                 "serializedName": "array",
                 "doc": "This should be receive/send the array variant",
                 "type": {
@@ -1703,6 +1769,7 @@
       "$id": "133",
       "kind": "model",
       "name": "SendRequest7",
+      "originalName": "SendRequest7",
       "namespace": "Type.Union",
       "crossLanguageDefinitionId": "Type.Union.send.Request.anonymous",
       "usage": "Spread,Json",
@@ -1718,6 +1785,7 @@
           "$id": "134",
           "kind": "property",
           "name": "prop",
+          "originalName": "prop",
           "serializedName": "prop",
           "type": {
             "$ref": "124"
@@ -1742,6 +1810,7 @@
       "$id": "135",
       "kind": "model",
       "name": "GetResponse8",
+      "originalName": "GetResponse8",
       "namespace": "Type.Union",
       "crossLanguageDefinitionId": "Type.Union.get.Response.anonymous",
       "usage": "Output,Json",
@@ -1757,11 +1826,13 @@
           "$id": "136",
           "kind": "property",
           "name": "prop",
+          "originalName": "prop",
           "serializedName": "prop",
           "type": {
             "$id": "137",
             "kind": "model",
             "name": "MixedLiteralsCases",
+            "originalName": "MixedLiteralsCases",
             "namespace": "Type.Union",
             "crossLanguageDefinitionId": "Type.Union.MixedLiteralsCases",
             "usage": "Input,Output,Json",
@@ -1777,6 +1848,7 @@
                 "$id": "138",
                 "kind": "property",
                 "name": "stringLiteral",
+                "originalName": "stringLiteral",
                 "serializedName": "stringLiteral",
                 "doc": "This should be receive/send the \"a\" variant",
                 "type": {
@@ -1819,6 +1891,7 @@
                 "$id": "140",
                 "kind": "property",
                 "name": "intLiteral",
+                "originalName": "intLiteral",
                 "serializedName": "intLiteral",
                 "doc": "This should be receive/send the 2 variant",
                 "type": {
@@ -1842,6 +1915,7 @@
                 "$id": "141",
                 "kind": "property",
                 "name": "floatLiteral",
+                "originalName": "floatLiteral",
                 "serializedName": "floatLiteral",
                 "doc": "This should be receive/send the 3.3 variant",
                 "type": {
@@ -1865,6 +1939,7 @@
                 "$id": "142",
                 "kind": "property",
                 "name": "booleanLiteral",
+                "originalName": "booleanLiteral",
                 "serializedName": "booleanLiteral",
                 "doc": "This should be receive/send the true variant",
                 "type": {
@@ -1909,6 +1984,7 @@
       "$id": "143",
       "kind": "model",
       "name": "SendRequest8",
+      "originalName": "SendRequest8",
       "namespace": "Type.Union",
       "crossLanguageDefinitionId": "Type.Union.send.Request.anonymous",
       "usage": "Spread,Json",
@@ -1924,6 +2000,7 @@
           "$id": "144",
           "kind": "property",
           "name": "prop",
+          "originalName": "prop",
           "serializedName": "prop",
           "type": {
             "$ref": "137"
@@ -1948,6 +2025,7 @@
       "$id": "145",
       "kind": "model",
       "name": "GetResponse9",
+      "originalName": "GetResponse9",
       "namespace": "Type.Union",
       "crossLanguageDefinitionId": "Type.Union.get.Response.anonymous",
       "usage": "Output,Json",
@@ -1963,11 +2041,13 @@
           "$id": "146",
           "kind": "property",
           "name": "prop",
+          "originalName": "prop",
           "serializedName": "prop",
           "type": {
             "$id": "147",
             "kind": "model",
             "name": "MixedTypesCases",
+            "originalName": "MixedTypesCases",
             "namespace": "Type.Union",
             "crossLanguageDefinitionId": "Type.Union.MixedTypesCases",
             "usage": "Input,Output,Json",
@@ -1983,6 +2063,7 @@
                 "$id": "148",
                 "kind": "property",
                 "name": "model",
+                "originalName": "model",
                 "serializedName": "model",
                 "doc": "This should be receive/send the Cat variant",
                 "type": {
@@ -2033,6 +2114,7 @@
                 "$id": "152",
                 "kind": "property",
                 "name": "literal",
+                "originalName": "literal",
                 "serializedName": "literal",
                 "doc": "This should be receive/send the \"a\" variant",
                 "type": {
@@ -2056,6 +2138,7 @@
                 "$id": "153",
                 "kind": "property",
                 "name": "int",
+                "originalName": "int",
                 "serializedName": "int",
                 "doc": "This should be receive/send the int variant",
                 "type": {
@@ -2079,6 +2162,7 @@
                 "$id": "154",
                 "kind": "property",
                 "name": "boolean",
+                "originalName": "boolean",
                 "serializedName": "boolean",
                 "doc": "This should be receive/send the boolean variant",
                 "type": {
@@ -2102,6 +2186,7 @@
                 "$id": "155",
                 "kind": "property",
                 "name": "array",
+                "originalName": "array",
                 "serializedName": "array",
                 "doc": "This should be receive/send 4 element with Cat, \"a\", int, and boolean",
                 "type": {
@@ -2153,6 +2238,7 @@
       "$id": "157",
       "kind": "model",
       "name": "SendRequest9",
+      "originalName": "SendRequest9",
       "namespace": "Type.Union",
       "crossLanguageDefinitionId": "Type.Union.send.Request.anonymous",
       "usage": "Spread,Json",
@@ -2168,6 +2254,7 @@
           "$id": "158",
           "kind": "property",
           "name": "prop",
+          "originalName": "prop",
           "serializedName": "prop",
           "type": {
             "$ref": "147"
@@ -2248,12 +2335,14 @@
               "$id": "164",
               "kind": "basic",
               "name": "get",
+              "originalName": "get",
               "isExactName": false,
               "accessibility": "public",
               "apiVersions": [],
               "operation": {
                 "$id": "165",
                 "name": "get",
+                "originalName": "get",
                 "isExactName": false,
                 "resourceName": "StringsOnly",
                 "accessibility": "public",
@@ -2262,6 +2351,7 @@
                     "$id": "166",
                     "kind": "header",
                     "name": "accept",
+                    "originalName": "accept",
                     "serializedName": "Accept",
                     "type": {
                       "$ref": "44"
@@ -2278,6 +2368,7 @@
                         "$id": "167",
                         "kind": "method",
                         "name": "accept",
+                        "originalName": "accept",
                         "serializedName": "Accept",
                         "type": {
                           "$ref": "44"
@@ -2345,12 +2436,14 @@
               "$id": "168",
               "kind": "basic",
               "name": "send",
+              "originalName": "send",
               "isExactName": false,
               "accessibility": "public",
               "apiVersions": [],
               "operation": {
                 "$id": "169",
                 "name": "send",
+                "originalName": "send",
                 "isExactName": false,
                 "resourceName": "StringsOnly",
                 "accessibility": "public",
@@ -2359,6 +2452,7 @@
                     "$id": "170",
                     "kind": "header",
                     "name": "contentType",
+                    "originalName": "contentType",
                     "serializedName": "Content-Type",
                     "doc": "Body parameter's content type. Known values are application/json",
                     "type": {
@@ -2376,6 +2470,7 @@
                         "$id": "171",
                         "kind": "method",
                         "name": "contentType",
+                        "originalName": "contentType",
                         "serializedName": "Content-Type",
                         "doc": "Body parameter's content type. Known values are application/json",
                         "type": {
@@ -2398,6 +2493,7 @@
                     "$id": "172",
                     "kind": "body",
                     "name": "sendRequest",
+                    "originalName": "sendRequest",
                     "serializedName": "sendRequest",
                     "type": {
                       "$ref": "86"
@@ -2417,6 +2513,7 @@
                         "$id": "173",
                         "kind": "method",
                         "name": "prop",
+                        "originalName": "prop",
                         "serializedName": "prop",
                         "type": {
                           "$ref": "1"
@@ -2532,12 +2629,14 @@
               "$id": "178",
               "kind": "basic",
               "name": "get",
+              "originalName": "get",
               "isExactName": false,
               "accessibility": "public",
               "apiVersions": [],
               "operation": {
                 "$id": "179",
                 "name": "get",
+                "originalName": "get",
                 "isExactName": false,
                 "resourceName": "StringExtensible",
                 "accessibility": "public",
@@ -2546,6 +2645,7 @@
                     "$id": "180",
                     "kind": "header",
                     "name": "accept",
+                    "originalName": "accept",
                     "serializedName": "Accept",
                     "type": {
                       "$ref": "48"
@@ -2562,6 +2662,7 @@
                         "$id": "181",
                         "kind": "method",
                         "name": "accept",
+                        "originalName": "accept",
                         "serializedName": "Accept",
                         "type": {
                           "$ref": "48"
@@ -2629,12 +2730,14 @@
               "$id": "182",
               "kind": "basic",
               "name": "send",
+              "originalName": "send",
               "isExactName": false,
               "accessibility": "public",
               "apiVersions": [],
               "operation": {
                 "$id": "183",
                 "name": "send",
+                "originalName": "send",
                 "isExactName": false,
                 "resourceName": "StringExtensible",
                 "accessibility": "public",
@@ -2643,6 +2746,7 @@
                     "$id": "184",
                     "kind": "header",
                     "name": "contentType",
+                    "originalName": "contentType",
                     "serializedName": "Content-Type",
                     "doc": "Body parameter's content type. Known values are application/json",
                     "type": {
@@ -2660,6 +2764,7 @@
                         "$id": "185",
                         "kind": "method",
                         "name": "contentType",
+                        "originalName": "contentType",
                         "serializedName": "Content-Type",
                         "doc": "Body parameter's content type. Known values are application/json",
                         "type": {
@@ -2682,6 +2787,7 @@
                     "$id": "186",
                     "kind": "body",
                     "name": "sendRequest1",
+                    "originalName": "sendRequest1",
                     "serializedName": "sendRequest1",
                     "type": {
                       "$ref": "90"
@@ -2701,6 +2807,7 @@
                         "$id": "187",
                         "kind": "method",
                         "name": "prop",
+                        "originalName": "prop",
                         "serializedName": "prop",
                         "type": {
                           "$ref": "6"
@@ -2816,12 +2923,14 @@
               "$id": "192",
               "kind": "basic",
               "name": "get",
+              "originalName": "get",
               "isExactName": false,
               "accessibility": "public",
               "apiVersions": [],
               "operation": {
                 "$id": "193",
                 "name": "get",
+                "originalName": "get",
                 "isExactName": false,
                 "resourceName": "StringExtensibleNamed",
                 "accessibility": "public",
@@ -2830,6 +2939,7 @@
                     "$id": "194",
                     "kind": "header",
                     "name": "accept",
+                    "originalName": "accept",
                     "serializedName": "Accept",
                     "type": {
                       "$ref": "52"
@@ -2846,6 +2956,7 @@
                         "$id": "195",
                         "kind": "method",
                         "name": "accept",
+                        "originalName": "accept",
                         "serializedName": "Accept",
                         "type": {
                           "$ref": "52"
@@ -2913,12 +3024,14 @@
               "$id": "196",
               "kind": "basic",
               "name": "send",
+              "originalName": "send",
               "isExactName": false,
               "accessibility": "public",
               "apiVersions": [],
               "operation": {
                 "$id": "197",
                 "name": "send",
+                "originalName": "send",
                 "isExactName": false,
                 "resourceName": "StringExtensibleNamed",
                 "accessibility": "public",
@@ -2927,6 +3040,7 @@
                     "$id": "198",
                     "kind": "header",
                     "name": "contentType",
+                    "originalName": "contentType",
                     "serializedName": "Content-Type",
                     "doc": "Body parameter's content type. Known values are application/json",
                     "type": {
@@ -2944,6 +3058,7 @@
                         "$id": "199",
                         "kind": "method",
                         "name": "contentType",
+                        "originalName": "contentType",
                         "serializedName": "Content-Type",
                         "doc": "Body parameter's content type. Known values are application/json",
                         "type": {
@@ -2966,6 +3081,7 @@
                     "$id": "200",
                     "kind": "body",
                     "name": "sendRequest2",
+                    "originalName": "sendRequest2",
                     "serializedName": "sendRequest2",
                     "type": {
                       "$ref": "94"
@@ -2985,6 +3101,7 @@
                         "$id": "201",
                         "kind": "method",
                         "name": "prop",
+                        "originalName": "prop",
                         "serializedName": "prop",
                         "type": {
                           "$ref": "10"
@@ -3100,12 +3217,14 @@
               "$id": "206",
               "kind": "basic",
               "name": "get",
+              "originalName": "get",
               "isExactName": false,
               "accessibility": "public",
               "apiVersions": [],
               "operation": {
                 "$id": "207",
                 "name": "get",
+                "originalName": "get",
                 "isExactName": false,
                 "resourceName": "IntsOnly",
                 "accessibility": "public",
@@ -3114,6 +3233,7 @@
                     "$id": "208",
                     "kind": "header",
                     "name": "accept",
+                    "originalName": "accept",
                     "serializedName": "Accept",
                     "type": {
                       "$ref": "56"
@@ -3130,6 +3250,7 @@
                         "$id": "209",
                         "kind": "method",
                         "name": "accept",
+                        "originalName": "accept",
                         "serializedName": "Accept",
                         "type": {
                           "$ref": "56"
@@ -3197,12 +3318,14 @@
               "$id": "210",
               "kind": "basic",
               "name": "send",
+              "originalName": "send",
               "isExactName": false,
               "accessibility": "public",
               "apiVersions": [],
               "operation": {
                 "$id": "211",
                 "name": "send",
+                "originalName": "send",
                 "isExactName": false,
                 "resourceName": "IntsOnly",
                 "accessibility": "public",
@@ -3211,6 +3334,7 @@
                     "$id": "212",
                     "kind": "header",
                     "name": "contentType",
+                    "originalName": "contentType",
                     "serializedName": "Content-Type",
                     "doc": "Body parameter's content type. Known values are application/json",
                     "type": {
@@ -3228,6 +3352,7 @@
                         "$id": "213",
                         "kind": "method",
                         "name": "contentType",
+                        "originalName": "contentType",
                         "serializedName": "Content-Type",
                         "doc": "Body parameter's content type. Known values are application/json",
                         "type": {
@@ -3250,6 +3375,7 @@
                     "$id": "214",
                     "kind": "body",
                     "name": "sendRequest3",
+                    "originalName": "sendRequest3",
                     "serializedName": "sendRequest3",
                     "type": {
                       "$ref": "98"
@@ -3269,6 +3395,7 @@
                         "$id": "215",
                         "kind": "method",
                         "name": "prop",
+                        "originalName": "prop",
                         "serializedName": "prop",
                         "type": {
                           "$ref": "14"
@@ -3384,12 +3511,14 @@
               "$id": "220",
               "kind": "basic",
               "name": "get",
+              "originalName": "get",
               "isExactName": false,
               "accessibility": "public",
               "apiVersions": [],
               "operation": {
                 "$id": "221",
                 "name": "get",
+                "originalName": "get",
                 "isExactName": false,
                 "resourceName": "FloatsOnly",
                 "accessibility": "public",
@@ -3398,6 +3527,7 @@
                     "$id": "222",
                     "kind": "header",
                     "name": "accept",
+                    "originalName": "accept",
                     "serializedName": "Accept",
                     "type": {
                       "$ref": "60"
@@ -3414,6 +3544,7 @@
                         "$id": "223",
                         "kind": "method",
                         "name": "accept",
+                        "originalName": "accept",
                         "serializedName": "Accept",
                         "type": {
                           "$ref": "60"
@@ -3481,12 +3612,14 @@
               "$id": "224",
               "kind": "basic",
               "name": "send",
+              "originalName": "send",
               "isExactName": false,
               "accessibility": "public",
               "apiVersions": [],
               "operation": {
                 "$id": "225",
                 "name": "send",
+                "originalName": "send",
                 "isExactName": false,
                 "resourceName": "FloatsOnly",
                 "accessibility": "public",
@@ -3495,6 +3628,7 @@
                     "$id": "226",
                     "kind": "header",
                     "name": "contentType",
+                    "originalName": "contentType",
                     "serializedName": "Content-Type",
                     "doc": "Body parameter's content type. Known values are application/json",
                     "type": {
@@ -3512,6 +3646,7 @@
                         "$id": "227",
                         "kind": "method",
                         "name": "contentType",
+                        "originalName": "contentType",
                         "serializedName": "Content-Type",
                         "doc": "Body parameter's content type. Known values are application/json",
                         "type": {
@@ -3534,6 +3669,7 @@
                     "$id": "228",
                     "kind": "body",
                     "name": "sendRequest4",
+                    "originalName": "sendRequest4",
                     "serializedName": "sendRequest4",
                     "type": {
                       "$ref": "102"
@@ -3553,6 +3689,7 @@
                         "$id": "229",
                         "kind": "method",
                         "name": "prop",
+                        "originalName": "prop",
                         "serializedName": "prop",
                         "type": {
                           "$ref": "19"
@@ -3668,12 +3805,14 @@
               "$id": "234",
               "kind": "basic",
               "name": "get",
+              "originalName": "get",
               "isExactName": false,
               "accessibility": "public",
               "apiVersions": [],
               "operation": {
                 "$id": "235",
                 "name": "get",
+                "originalName": "get",
                 "isExactName": false,
                 "resourceName": "ModelsOnly",
                 "accessibility": "public",
@@ -3682,6 +3821,7 @@
                     "$id": "236",
                     "kind": "header",
                     "name": "accept",
+                    "originalName": "accept",
                     "serializedName": "Accept",
                     "type": {
                       "$ref": "64"
@@ -3698,6 +3838,7 @@
                         "$id": "237",
                         "kind": "method",
                         "name": "accept",
+                        "originalName": "accept",
                         "serializedName": "Accept",
                         "type": {
                           "$ref": "64"
@@ -3765,12 +3906,14 @@
               "$id": "238",
               "kind": "basic",
               "name": "send",
+              "originalName": "send",
               "isExactName": false,
               "accessibility": "public",
               "apiVersions": [],
               "operation": {
                 "$id": "239",
                 "name": "send",
+                "originalName": "send",
                 "isExactName": false,
                 "resourceName": "ModelsOnly",
                 "accessibility": "public",
@@ -3779,6 +3922,7 @@
                     "$id": "240",
                     "kind": "header",
                     "name": "contentType",
+                    "originalName": "contentType",
                     "serializedName": "Content-Type",
                     "doc": "Body parameter's content type. Known values are application/json",
                     "type": {
@@ -3796,6 +3940,7 @@
                         "$id": "241",
                         "kind": "method",
                         "name": "contentType",
+                        "originalName": "contentType",
                         "serializedName": "Content-Type",
                         "doc": "Body parameter's content type. Known values are application/json",
                         "type": {
@@ -3818,6 +3963,7 @@
                     "$id": "242",
                     "kind": "body",
                     "name": "sendRequest5",
+                    "originalName": "sendRequest5",
                     "serializedName": "sendRequest5",
                     "type": {
                       "$ref": "113"
@@ -3837,6 +3983,7 @@
                         "$id": "243",
                         "kind": "method",
                         "name": "prop",
+                        "originalName": "prop",
                         "serializedName": "prop",
                         "type": {
                           "$ref": "106"
@@ -3952,12 +4099,14 @@
               "$id": "248",
               "kind": "basic",
               "name": "get",
+              "originalName": "get",
               "isExactName": false,
               "accessibility": "public",
               "apiVersions": [],
               "operation": {
                 "$id": "249",
                 "name": "get",
+                "originalName": "get",
                 "isExactName": false,
                 "resourceName": "EnumsOnly",
                 "accessibility": "public",
@@ -3966,6 +4115,7 @@
                     "$id": "250",
                     "kind": "header",
                     "name": "accept",
+                    "originalName": "accept",
                     "serializedName": "Accept",
                     "type": {
                       "$ref": "68"
@@ -3982,6 +4132,7 @@
                         "$id": "251",
                         "kind": "method",
                         "name": "accept",
+                        "originalName": "accept",
                         "serializedName": "Accept",
                         "type": {
                           "$ref": "68"
@@ -4049,12 +4200,14 @@
               "$id": "252",
               "kind": "basic",
               "name": "send",
+              "originalName": "send",
               "isExactName": false,
               "accessibility": "public",
               "apiVersions": [],
               "operation": {
                 "$id": "253",
                 "name": "send",
+                "originalName": "send",
                 "isExactName": false,
                 "resourceName": "EnumsOnly",
                 "accessibility": "public",
@@ -4063,6 +4216,7 @@
                     "$id": "254",
                     "kind": "header",
                     "name": "contentType",
+                    "originalName": "contentType",
                     "serializedName": "Content-Type",
                     "doc": "Body parameter's content type. Known values are application/json",
                     "type": {
@@ -4080,6 +4234,7 @@
                         "$id": "255",
                         "kind": "method",
                         "name": "contentType",
+                        "originalName": "contentType",
                         "serializedName": "Content-Type",
                         "doc": "Body parameter's content type. Known values are application/json",
                         "type": {
@@ -4102,6 +4257,7 @@
                     "$id": "256",
                     "kind": "body",
                     "name": "sendRequest6",
+                    "originalName": "sendRequest6",
                     "serializedName": "sendRequest6",
                     "type": {
                       "$ref": "120"
@@ -4121,6 +4277,7 @@
                         "$id": "257",
                         "kind": "method",
                         "name": "prop",
+                        "originalName": "prop",
                         "serializedName": "prop",
                         "type": {
                           "$ref": "117"
@@ -4236,12 +4393,14 @@
               "$id": "262",
               "kind": "basic",
               "name": "get",
+              "originalName": "get",
               "isExactName": false,
               "accessibility": "public",
               "apiVersions": [],
               "operation": {
                 "$id": "263",
                 "name": "get",
+                "originalName": "get",
                 "isExactName": false,
                 "resourceName": "StringAndArray",
                 "accessibility": "public",
@@ -4250,6 +4409,7 @@
                     "$id": "264",
                     "kind": "header",
                     "name": "accept",
+                    "originalName": "accept",
                     "serializedName": "Accept",
                     "type": {
                       "$ref": "72"
@@ -4266,6 +4426,7 @@
                         "$id": "265",
                         "kind": "method",
                         "name": "accept",
+                        "originalName": "accept",
                         "serializedName": "Accept",
                         "type": {
                           "$ref": "72"
@@ -4333,12 +4494,14 @@
               "$id": "266",
               "kind": "basic",
               "name": "send",
+              "originalName": "send",
               "isExactName": false,
               "accessibility": "public",
               "apiVersions": [],
               "operation": {
                 "$id": "267",
                 "name": "send",
+                "originalName": "send",
                 "isExactName": false,
                 "resourceName": "StringAndArray",
                 "accessibility": "public",
@@ -4347,6 +4510,7 @@
                     "$id": "268",
                     "kind": "header",
                     "name": "contentType",
+                    "originalName": "contentType",
                     "serializedName": "Content-Type",
                     "doc": "Body parameter's content type. Known values are application/json",
                     "type": {
@@ -4364,6 +4528,7 @@
                         "$id": "269",
                         "kind": "method",
                         "name": "contentType",
+                        "originalName": "contentType",
                         "serializedName": "Content-Type",
                         "doc": "Body parameter's content type. Known values are application/json",
                         "type": {
@@ -4386,6 +4551,7 @@
                     "$id": "270",
                     "kind": "body",
                     "name": "sendRequest7",
+                    "originalName": "sendRequest7",
                     "serializedName": "sendRequest7",
                     "type": {
                       "$ref": "133"
@@ -4405,6 +4571,7 @@
                         "$id": "271",
                         "kind": "method",
                         "name": "prop",
+                        "originalName": "prop",
                         "serializedName": "prop",
                         "type": {
                           "$ref": "124"
@@ -4520,12 +4687,14 @@
               "$id": "276",
               "kind": "basic",
               "name": "get",
+              "originalName": "get",
               "isExactName": false,
               "accessibility": "public",
               "apiVersions": [],
               "operation": {
                 "$id": "277",
                 "name": "get",
+                "originalName": "get",
                 "isExactName": false,
                 "resourceName": "MixedLiterals",
                 "accessibility": "public",
@@ -4534,6 +4703,7 @@
                     "$id": "278",
                     "kind": "header",
                     "name": "accept",
+                    "originalName": "accept",
                     "serializedName": "Accept",
                     "type": {
                       "$ref": "76"
@@ -4550,6 +4720,7 @@
                         "$id": "279",
                         "kind": "method",
                         "name": "accept",
+                        "originalName": "accept",
                         "serializedName": "Accept",
                         "type": {
                           "$ref": "76"
@@ -4617,12 +4788,14 @@
               "$id": "280",
               "kind": "basic",
               "name": "send",
+              "originalName": "send",
               "isExactName": false,
               "accessibility": "public",
               "apiVersions": [],
               "operation": {
                 "$id": "281",
                 "name": "send",
+                "originalName": "send",
                 "isExactName": false,
                 "resourceName": "MixedLiterals",
                 "accessibility": "public",
@@ -4631,6 +4804,7 @@
                     "$id": "282",
                     "kind": "header",
                     "name": "contentType",
+                    "originalName": "contentType",
                     "serializedName": "Content-Type",
                     "doc": "Body parameter's content type. Known values are application/json",
                     "type": {
@@ -4648,6 +4822,7 @@
                         "$id": "283",
                         "kind": "method",
                         "name": "contentType",
+                        "originalName": "contentType",
                         "serializedName": "Content-Type",
                         "doc": "Body parameter's content type. Known values are application/json",
                         "type": {
@@ -4670,6 +4845,7 @@
                     "$id": "284",
                     "kind": "body",
                     "name": "sendRequest8",
+                    "originalName": "sendRequest8",
                     "serializedName": "sendRequest8",
                     "type": {
                       "$ref": "143"
@@ -4689,6 +4865,7 @@
                         "$id": "285",
                         "kind": "method",
                         "name": "prop",
+                        "originalName": "prop",
                         "serializedName": "prop",
                         "type": {
                           "$ref": "137"
@@ -4804,12 +4981,14 @@
               "$id": "290",
               "kind": "basic",
               "name": "get",
+              "originalName": "get",
               "isExactName": false,
               "accessibility": "public",
               "apiVersions": [],
               "operation": {
                 "$id": "291",
                 "name": "get",
+                "originalName": "get",
                 "isExactName": false,
                 "resourceName": "MixedTypes",
                 "accessibility": "public",
@@ -4818,6 +4997,7 @@
                     "$id": "292",
                     "kind": "header",
                     "name": "accept",
+                    "originalName": "accept",
                     "serializedName": "Accept",
                     "type": {
                       "$ref": "80"
@@ -4834,6 +5014,7 @@
                         "$id": "293",
                         "kind": "method",
                         "name": "accept",
+                        "originalName": "accept",
                         "serializedName": "Accept",
                         "type": {
                           "$ref": "80"
@@ -4901,12 +5082,14 @@
               "$id": "294",
               "kind": "basic",
               "name": "send",
+              "originalName": "send",
               "isExactName": false,
               "accessibility": "public",
               "apiVersions": [],
               "operation": {
                 "$id": "295",
                 "name": "send",
+                "originalName": "send",
                 "isExactName": false,
                 "resourceName": "MixedTypes",
                 "accessibility": "public",
@@ -4915,6 +5098,7 @@
                     "$id": "296",
                     "kind": "header",
                     "name": "contentType",
+                    "originalName": "contentType",
                     "serializedName": "Content-Type",
                     "doc": "Body parameter's content type. Known values are application/json",
                     "type": {
@@ -4932,6 +5116,7 @@
                         "$id": "297",
                         "kind": "method",
                         "name": "contentType",
+                        "originalName": "contentType",
                         "serializedName": "Content-Type",
                         "doc": "Body parameter's content type. Known values are application/json",
                         "type": {
@@ -4954,6 +5139,7 @@
                     "$id": "298",
                     "kind": "body",
                     "name": "sendRequest9",
+                    "originalName": "sendRequest9",
                     "serializedName": "sendRequest9",
                     "type": {
                       "$ref": "157"
@@ -4973,6 +5159,7 @@
                         "$id": "299",
                         "kind": "method",
                         "name": "prop",
+                        "originalName": "prop",
                         "serializedName": "prop",
                         "type": {
                           "$ref": "147"

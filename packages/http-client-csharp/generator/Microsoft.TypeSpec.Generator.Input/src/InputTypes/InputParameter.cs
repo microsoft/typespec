@@ -43,7 +43,6 @@ namespace Microsoft.TypeSpec.Generator.Input
             }
             if (name != null)
             {
-                PreserveOriginalName();
                 Name = name;
             }
             if (methodParameterSegments != null)

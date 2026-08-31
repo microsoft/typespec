@@ -1,3 +1,4 @@
+import type { CSharpEmitterContext } from "../sdk-context.js";
 import type { InputType } from "../type/input-type.js";
 
 /**
@@ -50,6 +51,7 @@ function isDigit(c: string): boolean {
  * TypeScript port of the generator's `StringExtensions.ToIdentifierName`. Names are only replaced with
  * their identifier form when a normalization rule actually applies, so any divergence is limited to
  * names that contain one of the recognized patterns.
+ * @internal
  */
 export function toIdentifierName(
   name: string,
@@ -115,6 +117,7 @@ export function toIdentifierName(
 
 /**
  * Replaces well known acronyms with their idiomatic C# casing, e.g. `IpAddress` -> `IPAddress`.
+ * @internal
  */
 export function normalizeAcronyms(name: string): string {
   let normalizedName: string | undefined;
@@ -257,6 +260,7 @@ function getSuffixLength(name: string): number {
 
 /**
  * Renames date-time members to the `<verb>On` convention, e.g. `CreationTime` -> `CreatedOn`.
+ * @internal
  */
 export function normalizeDateTimeSuffix(name: string): string {
   const suffixLength = getSuffixLength(name);
@@ -275,6 +279,7 @@ export function normalizeDateTimeSuffix(name: string): string {
 
 /**
  * Renames a trailing `Url` to `Uri` to match .NET conventions.
+ * @internal
  */
 export function normalizeUrlSuffix(name: string): string {
   return name.endsWith("Url") ? `${name.substring(0, name.length - 3)}Uri` : name;
@@ -282,6 +287,7 @@ export function normalizeUrlSuffix(name: string): string {
 
 /**
  * Determines whether the input type represents a date-time value.
+ * @internal
  */
 export function isDateTimeInputType(type: InputType | undefined): boolean {
   if (type === undefined) {
@@ -300,92 +306,89 @@ export function isDateTimeInputType(type: InputType | undefined): boolean {
   }
 }
 
-/** A named object that can carry the original spec name when its name was normalized. */
-interface NormalizableName {
+/**
+ * A named object whose C# name can be normalized. `originalName` always carries the name as it was
+ * written in the spec, while `name` carries the normalized name, which is the same value as
+ * `originalName` whenever no normalization rule applies.
+ * @internal
+ */
+export interface NormalizableName {
+  kind?: string;
   name: string;
   originalName?: string;
   isExactName?: boolean;
+  type?: InputType;
 }
 
-function applyNormalization<T extends NormalizableName>(
-  target: T,
+function applyNormalization(
+  context: CSharpEmitterContext,
+  target: NormalizableName,
+  kind: string,
   candidate: string,
   normalize: (name: string) => string,
-): T {
+): void {
   const normalized = normalize(candidate);
   if (normalized === candidate) {
-    return target;
+    return;
   }
 
-  target.originalName = target.name;
+  target.originalName ??= target.name;
   target.name = normalized;
-  return target;
-}
-
-/**
- * Applies the given normalization to the C# identifier form of `target.name`, recording the original
- * spec name in `originalName` when the name changes. Names flagged as exact are left untouched.
- *
- * The name is only replaced when a rule applies, so names that do not match any rule keep their
- * original spec spelling and are cased by the generator as before.
- */
-export function normalizeIdentifierName<T extends NormalizableName>(
-  target: T,
-  normalize: (identifierName: string) => string,
-): T {
-  if (target.isExactName || !target.name) {
-    return target;
-  }
-
-  return applyNormalization(target, toIdentifierName(target.name), normalize);
-}
-
-/**
- * Applies the given normalization directly to `target.name` without any identifier casing. Used for
- * parameters, whose declared spelling is preserved by the generator.
- */
-export function normalizeVerbatimName<T extends NormalizableName>(
-  target: T,
-  normalize: (name: string) => string,
-): T {
-  if (target.isExactName || !target.name) {
-    return target;
-  }
-
-  return applyNormalization(target, target.name, normalize);
-}
-
-/** Normalizes a model or enum type name. */
-export function normalizeTypeName<T extends NormalizableName>(target: T): T {
-  return normalizeIdentifierName(target, normalizeAcronyms);
-}
-
-/** Normalizes a model property name, including the date-time naming convention. */
-export function normalizePropertyName<T extends NormalizableName & { type?: InputType }>(
-  target: T,
-): T {
-  const isDateTime = isDateTimeInputType(target.type);
-  return normalizeIdentifierName(target, (name) =>
-    normalizeAcronyms(isDateTime ? normalizeDateTimeSuffix(name) : name),
+  context.logger.debug(
+    `Normalized ${kind} name '${target.originalName}' to '${normalized}' for C#.`,
   );
 }
 
-/** Normalizes a parameter name, applying only the date-time naming convention. */
-export function normalizeParameterName<T extends NormalizableName & { type?: InputType }>(
+/**
+ * Normalizes the C# name of the given input type, property, parameter, operation or service method,
+ * branching on its kind. `originalName` is left untouched so the generator can always recover the
+ * spec name, and names flagged as exact are never changed.
+ *
+ * A name is only replaced when a rule actually applies. Names that match no rule keep their spec
+ * spelling and are cased by the generator.
+ * @internal
+ */
+export function normalizeName<T extends NormalizableName>(
+  context: CSharpEmitterContext,
   target: T,
 ): T {
-  if (!isDateTimeInputType(target.type)) {
+  if (target.isExactName || !target.name) {
     return target;
   }
-  return normalizeVerbatimName(target, normalizeDateTimeSuffix);
-}
 
-/** Normalizes an operation or service method name. */
-export function normalizeOperationName<T extends NormalizableName>(target: T): T {
-  return normalizeIdentifierName(target, normalizeUrlSuffix);
-}
+  // `InputOperation` is the only normalized shape without a discriminator of its own.
+  const kind = target.kind ?? "operation";
+  switch (kind) {
+    case "model":
+    case "enum":
+      applyNormalization(context, target, kind, toIdentifierName(target.name), normalizeAcronyms);
+      break;
+    case "enumvalue":
+      applyNormalization(context, target, kind, toIdentifierName(target.name), normalizeUrlSuffix);
+      break;
+    case "property":
+      applyNormalization(context, target, kind, toIdentifierName(target.name), (name) =>
+        normalizeAcronyms(isDateTimeInputType(target.type) ? normalizeDateTimeSuffix(name) : name),
+      );
+      break;
+    case "body":
+    case "header":
+    case "method":
+    case "path":
+    case "query":
+      // Parameters keep the spelling declared in the spec, so only the date-time convention applies.
+      if (isDateTimeInputType(target.type)) {
+        applyNormalization(context, target, kind, target.name, normalizeDateTimeSuffix);
+      }
+      break;
+    case "basic":
+    case "lro":
+    case "lropaging":
+    case "operation":
+    case "paging":
+      applyNormalization(context, target, kind, toIdentifierName(target.name), normalizeUrlSuffix);
+      break;
+  }
 
-/** Normalizes an enum value name. */
-export function normalizeEnumValueName<T extends NormalizableName>(target: T): T {
-  return normalizeIdentifierName(target, normalizeUrlSuffix);
+  return target;
 }

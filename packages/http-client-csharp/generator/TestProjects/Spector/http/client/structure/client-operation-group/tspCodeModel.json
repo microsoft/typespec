@@ -6,6 +6,7 @@
       "$id": "1",
       "kind": "enum",
       "name": "ClientType",
+      "originalName": "ClientType",
       "crossLanguageDefinitionId": "Client.Structure.Service.ClientType",
       "valueType": {
         "$id": "2",
@@ -19,6 +20,7 @@
           "$id": "3",
           "kind": "enumvalue",
           "name": "Default",
+          "originalName": "Default",
           "value": "default",
           "valueType": {
             "$ref": "2"
@@ -33,6 +35,7 @@
           "$id": "4",
           "kind": "enumvalue",
           "name": "MultiClient",
+          "originalName": "MultiClient",
           "value": "multi-client",
           "valueType": {
             "$ref": "2"
@@ -47,6 +50,7 @@
           "$id": "5",
           "kind": "enumvalue",
           "name": "RenamedOperation",
+          "originalName": "RenamedOperation",
           "value": "renamed-operation",
           "valueType": {
             "$ref": "2"
@@ -61,6 +65,7 @@
           "$id": "6",
           "kind": "enumvalue",
           "name": "TwoOperationGroup",
+          "originalName": "TwoOperationGroup",
           "value": "two-operation-group",
           "valueType": {
             "$ref": "2"
@@ -75,6 +80,7 @@
           "$id": "7",
           "kind": "enumvalue",
           "name": "ClientOperationGroup",
+          "originalName": "ClientOperationGroup",
           "value": "client-operation-group",
           "valueType": {
             "$ref": "2"
@@ -108,12 +114,14 @@
           "$id": "9",
           "kind": "basic",
           "name": "one",
+          "originalName": "one",
           "isExactName": false,
           "accessibility": "public",
           "apiVersions": [],
           "operation": {
             "$id": "10",
             "name": "one",
+            "originalName": "one",
             "isExactName": false,
             "resourceName": "ClientOperationGroup",
             "accessibility": "public",
@@ -205,12 +213,14 @@
               "$id": "15",
               "kind": "basic",
               "name": "two",
+              "originalName": "two",
               "isExactName": false,
               "accessibility": "public",
               "apiVersions": [],
               "operation": {
                 "$id": "16",
                 "name": "two",
+                "originalName": "two",
                 "isExactName": false,
                 "resourceName": "Group3",
                 "accessibility": "public",
@@ -246,12 +256,14 @@
               "$id": "17",
               "kind": "basic",
               "name": "three",
+              "originalName": "three",
               "isExactName": false,
               "accessibility": "public",
               "apiVersions": [],
               "operation": {
                 "$id": "18",
                 "name": "three",
+                "originalName": "three",
                 "isExactName": false,
                 "resourceName": "Group3",
                 "accessibility": "public",
@@ -347,12 +359,14 @@
               "$id": "23",
               "kind": "basic",
               "name": "four",
+              "originalName": "four",
               "isExactName": false,
               "accessibility": "public",
               "apiVersions": [],
               "operation": {
                 "$id": "24",
                 "name": "four",
+                "originalName": "four",
                 "isExactName": false,
                 "resourceName": "Group4",
                 "accessibility": "public",
@@ -451,12 +465,14 @@
           "$id": "29",
           "kind": "basic",
           "name": "five",
+          "originalName": "five",
           "isExactName": false,
           "accessibility": "public",
           "apiVersions": [],
           "operation": {
             "$id": "30",
             "name": "five",
+            "originalName": "five",
             "isExactName": false,
             "resourceName": "AnotherClientOperationGroup",
             "accessibility": "public",
@@ -548,12 +564,14 @@
               "$id": "35",
               "kind": "basic",
               "name": "six",
+              "originalName": "six",
               "isExactName": false,
               "accessibility": "public",
               "apiVersions": [],
               "operation": {
                 "$id": "36",
                 "name": "six",
+                "originalName": "six",
                 "isExactName": false,
                 "resourceName": "Group5",
                 "accessibility": "public",

@@ -199,12 +199,14 @@
               "$id": "22",
               "kind": "basic",
               "name": "sendAsText",
+              "originalName": "sendAsText",
               "isExactName": false,
               "accessibility": "public",
               "apiVersions": [],
               "operation": {
                 "$id": "23",
                 "name": "sendAsText",
+                "originalName": "sendAsText",
                 "isExactName": false,
                 "resourceName": "StringBody",
                 "accessibility": "public",
@@ -213,6 +215,7 @@
                     "$id": "24",
                     "kind": "header",
                     "name": "contentType",
+                    "originalName": "contentType",
                     "serializedName": "Content-Type",
                     "type": {
                       "$ref": "1"
@@ -229,6 +232,7 @@
                         "$id": "25",
                         "kind": "method",
                         "name": "contentType",
+                        "originalName": "contentType",
                         "serializedName": "Content-Type",
                         "type": {
                           "$ref": "1"
@@ -250,6 +254,7 @@
                     "$id": "26",
                     "kind": "body",
                     "name": "text",
+                    "originalName": "text",
                     "serializedName": "text",
                     "type": {
                       "$id": "27",
@@ -273,6 +278,7 @@
                         "$id": "28",
                         "kind": "method",
                         "name": "text",
+                        "originalName": "text",
                         "serializedName": "text",
                         "type": {
                           "$id": "29",
@@ -337,12 +343,14 @@
               "$id": "30",
               "kind": "basic",
               "name": "getAsText",
+              "originalName": "getAsText",
               "isExactName": false,
               "accessibility": "public",
               "apiVersions": [],
               "operation": {
                 "$id": "31",
                 "name": "getAsText",
+                "originalName": "getAsText",
                 "isExactName": false,
                 "resourceName": "StringBody",
                 "accessibility": "public",
@@ -351,6 +359,7 @@
                     "$id": "32",
                     "kind": "header",
                     "name": "accept",
+                    "originalName": "accept",
                     "serializedName": "Accept",
                     "type": {
                       "$ref": "5"
@@ -367,6 +376,7 @@
                         "$id": "33",
                         "kind": "method",
                         "name": "accept",
+                        "originalName": "accept",
                         "serializedName": "Accept",
                         "type": {
                           "$ref": "5"
@@ -442,12 +452,14 @@
               "$id": "35",
               "kind": "basic",
               "name": "sendAsJson",
+              "originalName": "sendAsJson",
               "isExactName": false,
               "accessibility": "public",
               "apiVersions": [],
               "operation": {
                 "$id": "36",
                 "name": "sendAsJson",
+                "originalName": "sendAsJson",
                 "isExactName": false,
                 "resourceName": "StringBody",
                 "accessibility": "public",
@@ -456,6 +468,7 @@
                     "$id": "37",
                     "kind": "header",
                     "name": "contentType",
+                    "originalName": "contentType",
                     "serializedName": "Content-Type",
                     "type": {
                       "$ref": "9"
@@ -472,6 +485,7 @@
                         "$id": "38",
                         "kind": "method",
                         "name": "contentType",
+                        "originalName": "contentType",
                         "serializedName": "Content-Type",
                         "type": {
                           "$ref": "9"
@@ -493,6 +507,7 @@
                     "$id": "39",
                     "kind": "body",
                     "name": "text",
+                    "originalName": "text",
                     "serializedName": "text",
                     "type": {
                       "$id": "40",
@@ -516,6 +531,7 @@
                         "$id": "41",
                         "kind": "method",
                         "name": "text",
+                        "originalName": "text",
                         "serializedName": "text",
                         "type": {
                           "$id": "42",
@@ -584,12 +600,14 @@
               "$id": "43",
               "kind": "basic",
               "name": "getAsJson",
+              "originalName": "getAsJson",
               "isExactName": false,
               "accessibility": "public",
               "apiVersions": [],
               "operation": {
                 "$id": "44",
                 "name": "getAsJson",
+                "originalName": "getAsJson",
                 "isExactName": false,
                 "resourceName": "StringBody",
                 "accessibility": "public",
@@ -598,6 +616,7 @@
                     "$id": "45",
                     "kind": "header",
                     "name": "accept",
+                    "originalName": "accept",
                     "serializedName": "Accept",
                     "type": {
                       "$ref": "13"
@@ -614,6 +633,7 @@
                         "$id": "46",
                         "kind": "method",
                         "name": "accept",
+                        "originalName": "accept",
                         "serializedName": "Accept",
                         "type": {
                           "$ref": "13"

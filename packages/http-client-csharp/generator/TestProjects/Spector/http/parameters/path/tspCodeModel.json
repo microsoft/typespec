@@ -17,12 +17,14 @@
           "$id": "2",
           "kind": "basic",
           "name": "normal",
+          "originalName": "normal",
           "isExactName": false,
           "accessibility": "public",
           "apiVersions": [],
           "operation": {
             "$id": "3",
             "name": "normal",
+            "originalName": "normal",
             "isExactName": false,
             "resourceName": "Path",
             "accessibility": "public",
@@ -31,6 +33,7 @@
                 "$id": "4",
                 "kind": "path",
                 "name": "name",
+                "originalName": "name",
                 "serializedName": "name",
                 "type": {
                   "$id": "5",
@@ -54,6 +57,7 @@
                     "$id": "6",
                     "kind": "method",
                     "name": "name",
+                    "originalName": "name",
                     "serializedName": "name",
                     "type": {
                       "$id": "7",
@@ -111,12 +115,14 @@
           "$id": "8",
           "kind": "basic",
           "name": "optional",
+          "originalName": "optional",
           "isExactName": false,
           "accessibility": "public",
           "apiVersions": [],
           "operation": {
             "$id": "9",
             "name": "optional",
+            "originalName": "optional",
             "isExactName": false,
             "resourceName": "Path",
             "accessibility": "public",
@@ -125,6 +131,7 @@
                 "$id": "10",
                 "kind": "path",
                 "name": "name",
+                "originalName": "name",
                 "serializedName": "name",
                 "type": {
                   "$id": "11",
@@ -148,6 +155,7 @@
                     "$id": "12",
                     "kind": "method",
                     "name": "name",
+                    "originalName": "name",
                     "serializedName": "name",
                     "type": {
                       "$id": "13",

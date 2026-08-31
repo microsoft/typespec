@@ -8,6 +8,7 @@
       "$id": "1",
       "kind": "enum",
       "name": "Versions",
+      "originalName": "Versions",
       "crossLanguageDefinitionId": "Resiliency.ServiceDriven.Versions",
       "valueType": {
         "$id": "2",
@@ -21,6 +22,7 @@
           "$id": "3",
           "kind": "enumvalue",
           "name": "v1",
+          "originalName": "v1",
           "value": "v1",
           "valueType": {
             "$ref": "2"
@@ -57,6 +59,7 @@
           "$id": "5",
           "kind": "basic",
           "name": "fromNone",
+          "originalName": "fromNone",
           "isExactName": false,
           "accessibility": "public",
           "apiVersions": [
@@ -66,6 +69,7 @@
           "operation": {
             "$id": "6",
             "name": "fromNone",
+            "originalName": "fromNone",
             "isExactName": false,
             "resourceName": "AddOptionalParam",
             "doc": "Test that currently accepts no parameters, will be updated in next spec to accept a new optional parameter as well",
@@ -102,6 +106,7 @@
           "$id": "7",
           "kind": "basic",
           "name": "fromOneRequired",
+          "originalName": "fromOneRequired",
           "isExactName": false,
           "accessibility": "public",
           "apiVersions": [
@@ -111,6 +116,7 @@
           "operation": {
             "$id": "8",
             "name": "fromOneRequired",
+            "originalName": "fromOneRequired",
             "isExactName": false,
             "resourceName": "AddOptionalParam",
             "doc": "Test that currently accepts one required parameter, will be updated in next spec to accept a new optional parameter as well",
@@ -120,6 +126,7 @@
                 "$id": "9",
                 "kind": "query",
                 "name": "parameter",
+                "originalName": "parameter",
                 "serializedName": "parameter",
                 "doc": "I am a required parameter",
                 "type": {
@@ -141,6 +148,7 @@
                     "$id": "11",
                     "kind": "method",
                     "name": "parameter",
+                    "originalName": "parameter",
                     "serializedName": "parameter",
                     "doc": "I am a required parameter",
                     "type": {
@@ -199,6 +207,7 @@
           "$id": "13",
           "kind": "basic",
           "name": "fromOneOptional",
+          "originalName": "fromOneOptional",
           "isExactName": false,
           "accessibility": "public",
           "apiVersions": [
@@ -208,6 +217,7 @@
           "operation": {
             "$id": "14",
             "name": "fromOneOptional",
+            "originalName": "fromOneOptional",
             "isExactName": false,
             "resourceName": "AddOptionalParam",
             "doc": "Test that currently accepts one optional parameter, will be updated in next spec to accept a new optional parameter as well",
@@ -217,6 +227,7 @@
                 "$id": "15",
                 "kind": "query",
                 "name": "parameter",
+                "originalName": "parameter",
                 "serializedName": "parameter",
                 "doc": "I am an optional parameter",
                 "type": {
@@ -238,6 +249,7 @@
                     "$id": "17",
                     "kind": "method",
                     "name": "parameter",
+                    "originalName": "parameter",
                     "serializedName": "parameter",
                     "doc": "I am an optional parameter",
                     "type": {

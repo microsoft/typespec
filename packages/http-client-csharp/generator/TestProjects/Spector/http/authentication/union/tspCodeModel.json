@@ -17,6 +17,7 @@
           "$id": "2",
           "kind": "basic",
           "name": "validKey",
+          "originalName": "validKey",
           "isExactName": false,
           "accessibility": "public",
           "apiVersions": [],
@@ -24,6 +25,7 @@
           "operation": {
             "$id": "3",
             "name": "validKey",
+            "originalName": "validKey",
             "isExactName": false,
             "resourceName": "Union",
             "doc": "Check whether client is authenticated",
@@ -60,6 +62,7 @@
           "$id": "4",
           "kind": "basic",
           "name": "validToken",
+          "originalName": "validToken",
           "isExactName": false,
           "accessibility": "public",
           "apiVersions": [],
@@ -67,6 +70,7 @@
           "operation": {
             "$id": "5",
             "name": "validToken",
+            "originalName": "validToken",
             "isExactName": false,
             "resourceName": "Union",
             "doc": "Check whether client is authenticated",

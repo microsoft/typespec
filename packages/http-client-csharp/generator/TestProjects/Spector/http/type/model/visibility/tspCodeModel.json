@@ -162,6 +162,7 @@
       "$id": "19",
       "kind": "model",
       "name": "VisibilityModel",
+      "originalName": "VisibilityModel",
       "namespace": "Type.Model.Visibility",
       "crossLanguageDefinitionId": "Type.Model.Visibility.VisibilityModel",
       "usage": "Input,Output,Json",
@@ -178,6 +179,7 @@
           "$id": "20",
           "kind": "property",
           "name": "readProp",
+          "originalName": "readProp",
           "serializedName": "readProp",
           "doc": "Required string, illustrating a readonly property.",
           "type": {
@@ -205,6 +207,7 @@
           "$id": "22",
           "kind": "property",
           "name": "queryProp",
+          "originalName": "queryProp",
           "serializedName": "queryProp",
           "doc": "Required int32, illustrating a query property.",
           "type": {
@@ -232,6 +235,7 @@
           "$id": "24",
           "kind": "property",
           "name": "createProp",
+          "originalName": "createProp",
           "serializedName": "createProp",
           "doc": "Required string[], illustrating a create property.",
           "type": {
@@ -266,6 +270,7 @@
           "$id": "27",
           "kind": "property",
           "name": "updateProp",
+          "originalName": "updateProp",
           "serializedName": "updateProp",
           "doc": "Required int32[], illustrating a update property.",
           "type": {
@@ -300,6 +305,7 @@
           "$id": "30",
           "kind": "property",
           "name": "deleteProp",
+          "originalName": "deleteProp",
           "serializedName": "deleteProp",
           "doc": "Required bool, illustrating a delete property.",
           "type": {
@@ -329,6 +335,7 @@
       "$id": "32",
       "kind": "model",
       "name": "ReadOnlyModel",
+      "originalName": "ReadOnlyModel",
       "namespace": "Type.Model.Visibility",
       "crossLanguageDefinitionId": "Type.Model.Visibility.ReadOnlyModel",
       "usage": "Input,Output,Json",
@@ -345,6 +352,7 @@
           "$id": "33",
           "kind": "property",
           "name": "optionalNullableIntList",
+          "originalName": "optionalNullableIntList",
           "serializedName": "optionalNullableIntList",
           "doc": "Optional readonly nullable int list.",
           "type": {
@@ -373,6 +381,7 @@
           "$id": "35",
           "kind": "property",
           "name": "optionalStringRecord",
+          "originalName": "optionalStringRecord",
           "serializedName": "optionalStringRecord",
           "doc": "Optional readonly string dictionary.",
           "type": {
@@ -424,12 +433,14 @@
           "$id": "40",
           "kind": "basic",
           "name": "getModel",
+          "originalName": "getModel",
           "isExactName": false,
           "accessibility": "public",
           "apiVersions": [],
           "operation": {
             "$id": "41",
             "name": "getModel",
+            "originalName": "getModel",
             "isExactName": false,
             "resourceName": "Visibility",
             "accessibility": "public",
@@ -438,6 +449,7 @@
                 "$id": "42",
                 "kind": "query",
                 "name": "queryProp",
+                "originalName": "queryProp",
                 "serializedName": "queryProp",
                 "doc": "Required int32, illustrating a query property.",
                 "type": {
@@ -459,6 +471,7 @@
                     "$id": "44",
                     "kind": "method",
                     "name": "input",
+                    "originalName": "input",
                     "serializedName": "input",
                     "type": {
                       "$ref": "19"
@@ -477,6 +490,7 @@
                     "$id": "45",
                     "kind": "method",
                     "name": "queryProp",
+                    "originalName": "queryProp",
                     "serializedName": "queryProp",
                     "doc": "Required int32, illustrating a query property.",
                     "type": {
@@ -499,6 +513,7 @@
                 "$id": "46",
                 "kind": "header",
                 "name": "contentType",
+                "originalName": "contentType",
                 "serializedName": "Content-Type",
                 "doc": "Body parameter's content type. Known values are application/json",
                 "type": {
@@ -516,6 +531,7 @@
                     "$id": "47",
                     "kind": "method",
                     "name": "contentType",
+                    "originalName": "contentType",
                     "serializedName": "Content-Type",
                     "doc": "Body parameter's content type. Known values are application/json",
                     "type": {
@@ -538,6 +554,7 @@
                 "$id": "48",
                 "kind": "header",
                 "name": "accept",
+                "originalName": "accept",
                 "serializedName": "Accept",
                 "type": {
                   "$ref": "3"
@@ -554,6 +571,7 @@
                     "$id": "49",
                     "kind": "method",
                     "name": "accept",
+                    "originalName": "accept",
                     "serializedName": "Accept",
                     "type": {
                       "$ref": "3"
@@ -575,6 +593,7 @@
                 "$id": "50",
                 "kind": "body",
                 "name": "input",
+                "originalName": "input",
                 "serializedName": "input",
                 "type": {
                   "$ref": "19"
@@ -660,12 +679,14 @@
           "$id": "51",
           "kind": "basic",
           "name": "headModel",
+          "originalName": "headModel",
           "isExactName": false,
           "accessibility": "public",
           "apiVersions": [],
           "operation": {
             "$id": "52",
             "name": "headModel",
+            "originalName": "headModel",
             "isExactName": false,
             "resourceName": "Visibility",
             "accessibility": "public",
@@ -674,6 +695,7 @@
                 "$id": "53",
                 "kind": "query",
                 "name": "queryProp",
+                "originalName": "queryProp",
                 "serializedName": "queryProp",
                 "doc": "Required int32, illustrating a query property.",
                 "type": {
@@ -695,6 +717,7 @@
                     "$id": "55",
                     "kind": "method",
                     "name": "input",
+                    "originalName": "input",
                     "serializedName": "input",
                     "type": {
                       "$ref": "19"
@@ -719,6 +742,7 @@
                 "$id": "56",
                 "kind": "header",
                 "name": "contentType",
+                "originalName": "contentType",
                 "serializedName": "Content-Type",
                 "doc": "Body parameter's content type. Known values are application/json",
                 "type": {
@@ -736,6 +760,7 @@
                     "$id": "57",
                     "kind": "method",
                     "name": "contentType",
+                    "originalName": "contentType",
                     "serializedName": "Content-Type",
                     "doc": "Body parameter's content type. Known values are application/json",
                     "type": {
@@ -758,6 +783,7 @@
                 "$id": "58",
                 "kind": "body",
                 "name": "input",
+                "originalName": "input",
                 "serializedName": "input",
                 "type": {
                   "$ref": "19"
@@ -826,12 +852,14 @@
           "$id": "59",
           "kind": "basic",
           "name": "putModel",
+          "originalName": "putModel",
           "isExactName": false,
           "accessibility": "public",
           "apiVersions": [],
           "operation": {
             "$id": "60",
             "name": "putModel",
+            "originalName": "putModel",
             "isExactName": false,
             "resourceName": "Visibility",
             "accessibility": "public",
@@ -840,6 +868,7 @@
                 "$id": "61",
                 "kind": "header",
                 "name": "contentType",
+                "originalName": "contentType",
                 "serializedName": "Content-Type",
                 "doc": "Body parameter's content type. Known values are application/json",
                 "type": {
@@ -857,6 +886,7 @@
                     "$id": "62",
                     "kind": "method",
                     "name": "contentType",
+                    "originalName": "contentType",
                     "serializedName": "Content-Type",
                     "doc": "Body parameter's content type. Known values are application/json",
                     "type": {
@@ -879,6 +909,7 @@
                 "$id": "63",
                 "kind": "body",
                 "name": "input",
+                "originalName": "input",
                 "serializedName": "input",
                 "type": {
                   "$ref": "19"
@@ -898,6 +929,7 @@
                     "$id": "64",
                     "kind": "method",
                     "name": "input",
+                    "originalName": "input",
                     "serializedName": "input",
                     "type": {
                       "$ref": "19"
@@ -962,12 +994,14 @@
           "$id": "65",
           "kind": "basic",
           "name": "patchModel",
+          "originalName": "patchModel",
           "isExactName": false,
           "accessibility": "public",
           "apiVersions": [],
           "operation": {
             "$id": "66",
             "name": "patchModel",
+            "originalName": "patchModel",
             "isExactName": false,
             "resourceName": "Visibility",
             "accessibility": "public",
@@ -976,6 +1010,7 @@
                 "$id": "67",
                 "kind": "header",
                 "name": "contentType",
+                "originalName": "contentType",
                 "serializedName": "Content-Type",
                 "doc": "Body parameter's content type. Known values are application/json",
                 "type": {
@@ -993,6 +1028,7 @@
                     "$id": "68",
                     "kind": "method",
                     "name": "contentType",
+                    "originalName": "contentType",
                     "serializedName": "Content-Type",
                     "doc": "Body parameter's content type. Known values are application/json",
                     "type": {
@@ -1015,6 +1051,7 @@
                 "$id": "69",
                 "kind": "body",
                 "name": "input",
+                "originalName": "input",
                 "serializedName": "input",
                 "type": {
                   "$ref": "19"
@@ -1034,6 +1071,7 @@
                     "$id": "70",
                     "kind": "method",
                     "name": "input",
+                    "originalName": "input",
                     "serializedName": "input",
                     "type": {
                       "$ref": "19"
@@ -1098,12 +1136,14 @@
           "$id": "71",
           "kind": "basic",
           "name": "postModel",
+          "originalName": "postModel",
           "isExactName": false,
           "accessibility": "public",
           "apiVersions": [],
           "operation": {
             "$id": "72",
             "name": "postModel",
+            "originalName": "postModel",
             "isExactName": false,
             "resourceName": "Visibility",
             "accessibility": "public",
@@ -1112,6 +1152,7 @@
                 "$id": "73",
                 "kind": "header",
                 "name": "contentType",
+                "originalName": "contentType",
                 "serializedName": "Content-Type",
                 "doc": "Body parameter's content type. Known values are application/json",
                 "type": {
@@ -1129,6 +1170,7 @@
                     "$id": "74",
                     "kind": "method",
                     "name": "contentType",
+                    "originalName": "contentType",
                     "serializedName": "Content-Type",
                     "doc": "Body parameter's content type. Known values are application/json",
                     "type": {
@@ -1151,6 +1193,7 @@
                 "$id": "75",
                 "kind": "body",
                 "name": "input",
+                "originalName": "input",
                 "serializedName": "input",
                 "type": {
                   "$ref": "19"
@@ -1170,6 +1213,7 @@
                     "$id": "76",
                     "kind": "method",
                     "name": "input",
+                    "originalName": "input",
                     "serializedName": "input",
                     "type": {
                       "$ref": "19"
@@ -1234,12 +1278,14 @@
           "$id": "77",
           "kind": "basic",
           "name": "deleteModel",
+          "originalName": "deleteModel",
           "isExactName": false,
           "accessibility": "public",
           "apiVersions": [],
           "operation": {
             "$id": "78",
             "name": "deleteModel",
+            "originalName": "deleteModel",
             "isExactName": false,
             "resourceName": "Visibility",
             "accessibility": "public",
@@ -1248,6 +1294,7 @@
                 "$id": "79",
                 "kind": "header",
                 "name": "contentType",
+                "originalName": "contentType",
                 "serializedName": "Content-Type",
                 "doc": "Body parameter's content type. Known values are application/json",
                 "type": {
@@ -1265,6 +1312,7 @@
                     "$id": "80",
                     "kind": "method",
                     "name": "contentType",
+                    "originalName": "contentType",
                     "serializedName": "Content-Type",
                     "doc": "Body parameter's content type. Known values are application/json",
                     "type": {
@@ -1287,6 +1335,7 @@
                 "$id": "81",
                 "kind": "body",
                 "name": "input",
+                "originalName": "input",
                 "serializedName": "input",
                 "type": {
                   "$ref": "19"
@@ -1306,6 +1355,7 @@
                     "$id": "82",
                     "kind": "method",
                     "name": "input",
+                    "originalName": "input",
                     "serializedName": "input",
                     "type": {
                       "$ref": "19"
@@ -1370,12 +1420,14 @@
           "$id": "83",
           "kind": "basic",
           "name": "putReadOnlyModel",
+          "originalName": "putReadOnlyModel",
           "isExactName": false,
           "accessibility": "public",
           "apiVersions": [],
           "operation": {
             "$id": "84",
             "name": "putReadOnlyModel",
+            "originalName": "putReadOnlyModel",
             "isExactName": false,
             "resourceName": "Visibility",
             "accessibility": "public",
@@ -1384,6 +1436,7 @@
                 "$id": "85",
                 "kind": "header",
                 "name": "contentType",
+                "originalName": "contentType",
                 "serializedName": "Content-Type",
                 "doc": "Body parameter's content type. Known values are application/json",
                 "type": {
@@ -1401,6 +1454,7 @@
                     "$id": "86",
                     "kind": "method",
                     "name": "contentType",
+                    "originalName": "contentType",
                     "serializedName": "Content-Type",
                     "doc": "Body parameter's content type. Known values are application/json",
                     "type": {
@@ -1423,6 +1477,7 @@
                 "$id": "87",
                 "kind": "header",
                 "name": "accept",
+                "originalName": "accept",
                 "serializedName": "Accept",
                 "type": {
                   "$ref": "17"
@@ -1439,6 +1494,7 @@
                     "$id": "88",
                     "kind": "method",
                     "name": "accept",
+                    "originalName": "accept",
                     "serializedName": "Accept",
                     "type": {
                       "$ref": "17"
@@ -1460,6 +1516,7 @@
                 "$id": "89",
                 "kind": "body",
                 "name": "input",
+                "originalName": "input",
                 "serializedName": "input",
                 "type": {
                   "$ref": "32"
@@ -1479,6 +1536,7 @@
                     "$id": "90",
                     "kind": "method",
                     "name": "input",
+                    "originalName": "input",
                     "serializedName": "input",
                     "type": {
                       "$ref": "32"

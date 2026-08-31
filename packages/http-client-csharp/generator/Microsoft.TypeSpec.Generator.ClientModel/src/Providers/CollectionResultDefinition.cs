@@ -188,7 +188,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
         {
             var operationName = Operation.Name.ToIdentifierName();
             // Check if there is another paging operation in the same client whose name would produce a collision.
-            // If so, use the OriginalName to differentiate.
+            // If so, use the name from the spec to differentiate.
             if (HasPagingOperationNameCollision(operationName))
             {
                 operationName = (Operation.OriginalName ?? Operation.Name).ToIdentifierName();
@@ -597,12 +597,39 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
 
         private ScopedApi<PipelineMessage> InvokeCreateRequestForNextLink(ValueExpression nextPageUri)
         {
-            var createNextLinkRequestMethodName =
-                Client.RestClient.GetCreateNextLinkRequestMethod(Operation).Signature.Name;
+            var createNextLinkRequestMethod =
+                Client.RestClient.GetCreateNextLinkRequestMethod(Operation);
+            var arguments = createNextLinkRequestMethod.Signature.Parameters
+                .Skip(1)
+                .Select(parameter => GetRequestField(parameter).AsValueExpression);
             return ClientField.Invoke(
-                    createNextLinkRequestMethodName,
-                    [nextPageUri, .. RequestFields])
+                    createNextLinkRequestMethod.Signature.Name,
+                    [nextPageUri, .. arguments])
                 .As<PipelineMessage>();
+        }
+
+        private FieldProvider GetRequestField(ParameterProvider parameter)
+        {
+            for (int i = 0; i < CreateRequestParameters.Count; i++)
+            {
+                var createRequestParameter = CreateRequestParameters[i];
+                if (parameter.InputParameter is { } inputParameter)
+                {
+                    if (ReferenceEquals(inputParameter, createRequestParameter.InputParameter) ||
+                        createRequestParameter.InputParameter is { } createRequestInputParameter &&
+                        string.Equals(inputParameter.OriginalName, createRequestInputParameter.OriginalName, StringComparison.Ordinal))
+                    {
+                        return RequestFields[i];
+                    }
+                }
+                else if (createRequestParameter.InputParameter is null &&
+                    string.Equals(parameter.Name, createRequestParameter.Name, StringComparison.Ordinal))
+                {
+                    return RequestFields[i];
+                }
+            }
+
+            throw new InvalidOperationException($"No initial request field matches next-link parameter '{parameter.Name}'.");
         }
 
         private ScopedApi<PipelineMessage> InvokeCreateRequestForContinuationToken(ValueExpression nextToken)

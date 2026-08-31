@@ -17,6 +17,7 @@
           "$id": "2",
           "kind": "basic",
           "name": "postIfMatch",
+          "originalName": "postIfMatch",
           "isExactName": false,
           "accessibility": "public",
           "apiVersions": [],
@@ -24,6 +25,7 @@
           "operation": {
             "$id": "3",
             "name": "postIfMatch",
+            "originalName": "postIfMatch",
             "isExactName": false,
             "resourceName": "ConditionalRequest",
             "doc": "Check when only If-Match in header is defined.",
@@ -33,6 +35,7 @@
                 "$id": "4",
                 "kind": "header",
                 "name": "ifMatch",
+                "originalName": "ifMatch",
                 "serializedName": "If-Match",
                 "doc": "The request should only proceed if an entity matches this string.",
                 "type": {
@@ -54,6 +57,7 @@
                     "$id": "6",
                     "kind": "method",
                     "name": "ifMatch",
+                    "originalName": "ifMatch",
                     "serializedName": "If-Match",
                     "doc": "The request should only proceed if an entity matches this string.",
                     "type": {
@@ -112,6 +116,7 @@
           "$id": "8",
           "kind": "basic",
           "name": "postIfNoneMatch",
+          "originalName": "postIfNoneMatch",
           "isExactName": false,
           "accessibility": "public",
           "apiVersions": [],
@@ -119,6 +124,7 @@
           "operation": {
             "$id": "9",
             "name": "postIfNoneMatch",
+            "originalName": "postIfNoneMatch",
             "isExactName": false,
             "resourceName": "ConditionalRequest",
             "doc": "Check when only If-None-Match in header is defined.",
@@ -128,6 +134,7 @@
                 "$id": "10",
                 "kind": "header",
                 "name": "ifNoneMatch",
+                "originalName": "ifNoneMatch",
                 "serializedName": "If-None-Match",
                 "doc": "The request should only proceed if no entity matches this string.",
                 "type": {
@@ -149,6 +156,7 @@
                     "$id": "12",
                     "kind": "method",
                     "name": "ifNoneMatch",
+                    "originalName": "ifNoneMatch",
                     "serializedName": "If-None-Match",
                     "doc": "The request should only proceed if no entity matches this string.",
                     "type": {
@@ -207,6 +215,7 @@
           "$id": "14",
           "kind": "basic",
           "name": "headIfModifiedSince",
+          "originalName": "headIfModifiedSince",
           "isExactName": false,
           "accessibility": "public",
           "apiVersions": [],
@@ -214,6 +223,7 @@
           "operation": {
             "$id": "15",
             "name": "headIfModifiedSince",
+            "originalName": "headIfModifiedSince",
             "isExactName": false,
             "resourceName": "ConditionalRequest",
             "doc": "Check when only If-Modified-Since in header is defined.",
@@ -223,6 +233,7 @@
                 "$id": "16",
                 "kind": "header",
                 "name": "ifModifiedSince",
+                "originalName": "ifModifiedSince",
                 "serializedName": "If-Modified-Since",
                 "doc": "A timestamp indicating the last modified time of the resource known to the\nclient. The operation will be performed only if the resource on the service has\nbeen modified since the specified time.",
                 "type": {
@@ -252,6 +263,7 @@
                     "$id": "19",
                     "kind": "method",
                     "name": "ifModifiedSince",
+                    "originalName": "ifModifiedSince",
                     "serializedName": "If-Modified-Since",
                     "doc": "A timestamp indicating the last modified time of the resource known to the\nclient. The operation will be performed only if the resource on the service has\nbeen modified since the specified time.",
                     "type": {
@@ -318,6 +330,7 @@
           "$id": "22",
           "kind": "basic",
           "name": "postIfUnmodifiedSince",
+          "originalName": "postIfUnmodifiedSince",
           "isExactName": false,
           "accessibility": "public",
           "apiVersions": [],
@@ -325,6 +338,7 @@
           "operation": {
             "$id": "23",
             "name": "postIfUnmodifiedSince",
+            "originalName": "postIfUnmodifiedSince",
             "isExactName": false,
             "resourceName": "ConditionalRequest",
             "doc": "Check when only If-Unmodified-Since in header is defined.",
@@ -334,6 +348,7 @@
                 "$id": "24",
                 "kind": "header",
                 "name": "ifUnmodifiedSince",
+                "originalName": "ifUnmodifiedSince",
                 "serializedName": "If-Unmodified-Since",
                 "doc": "A timestamp indicating the last modified time of the resource known to the\nclient. The operation will be performed only if the resource on the service has\nnot been modified since the specified time.",
                 "type": {
@@ -363,6 +378,7 @@
                     "$id": "27",
                     "kind": "method",
                     "name": "ifUnmodifiedSince",
+                    "originalName": "ifUnmodifiedSince",
                     "serializedName": "If-Unmodified-Since",
                     "doc": "A timestamp indicating the last modified time of the resource known to the\nclient. The operation will be performed only if the resource on the service has\nnot been modified since the specified time.",
                     "type": {

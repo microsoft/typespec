@@ -9,6 +9,7 @@
       "$id": "1",
       "kind": "enum",
       "name": "Versions",
+      "originalName": "Versions",
       "crossLanguageDefinitionId": "Versioning.MadeOptional.Versions",
       "valueType": {
         "$id": "2",
@@ -22,6 +23,7 @@
           "$id": "3",
           "kind": "enumvalue",
           "name": "v1",
+          "originalName": "v1",
           "value": "v1",
           "valueType": {
             "$ref": "2"
@@ -37,6 +39,7 @@
           "$id": "4",
           "kind": "enumvalue",
           "name": "v2",
+          "originalName": "v2",
           "value": "v2",
           "valueType": {
             "$ref": "2"
@@ -99,6 +102,7 @@
       "$id": "9",
       "kind": "model",
       "name": "TestModel",
+      "originalName": "TestModel",
       "namespace": "Versioning.MadeOptional",
       "crossLanguageDefinitionId": "Versioning.MadeOptional.TestModel",
       "usage": "Input,Output,Json",
@@ -114,6 +118,7 @@
           "$id": "10",
           "kind": "property",
           "name": "prop",
+          "originalName": "prop",
           "serializedName": "prop",
           "type": {
             "$id": "11",
@@ -140,6 +145,7 @@
           "$id": "12",
           "kind": "property",
           "name": "changedProp",
+          "originalName": "changedProp",
           "serializedName": "changedProp",
           "type": {
             "$id": "13",
@@ -178,6 +184,7 @@
           "$id": "15",
           "kind": "basic",
           "name": "test",
+          "originalName": "test",
           "isExactName": false,
           "accessibility": "public",
           "apiVersions": [
@@ -187,6 +194,7 @@
           "operation": {
             "$id": "16",
             "name": "test",
+            "originalName": "test",
             "isExactName": false,
             "resourceName": "MadeOptional",
             "accessibility": "public",
@@ -195,6 +203,7 @@
                 "$id": "17",
                 "kind": "query",
                 "name": "param",
+                "originalName": "param",
                 "serializedName": "param",
                 "type": {
                   "$id": "18",
@@ -215,6 +224,7 @@
                     "$id": "19",
                     "kind": "method",
                     "name": "param",
+                    "originalName": "param",
                     "serializedName": "param",
                     "type": {
                       "$id": "20",
@@ -240,6 +250,7 @@
                 "$id": "21",
                 "kind": "header",
                 "name": "contentType",
+                "originalName": "contentType",
                 "serializedName": "Content-Type",
                 "doc": "Body parameter's content type. Known values are application/json",
                 "type": {
@@ -257,6 +268,7 @@
                     "$id": "22",
                     "kind": "method",
                     "name": "contentType",
+                    "originalName": "contentType",
                     "serializedName": "Content-Type",
                     "doc": "Body parameter's content type. Known values are application/json",
                     "type": {
@@ -279,6 +291,7 @@
                 "$id": "23",
                 "kind": "header",
                 "name": "accept",
+                "originalName": "accept",
                 "serializedName": "Accept",
                 "type": {
                   "$ref": "7"
@@ -295,6 +308,7 @@
                     "$id": "24",
                     "kind": "method",
                     "name": "accept",
+                    "originalName": "accept",
                     "serializedName": "Accept",
                     "type": {
                       "$ref": "7"
@@ -316,6 +330,7 @@
                 "$id": "25",
                 "kind": "body",
                 "name": "body",
+                "originalName": "body",
                 "serializedName": "body",
                 "type": {
                   "$ref": "9"
@@ -335,6 +350,7 @@
                     "$id": "26",
                     "kind": "method",
                     "name": "body",
+                    "originalName": "body",
                     "serializedName": "body",
                     "type": {
                       "$ref": "9"

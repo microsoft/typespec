@@ -8,6 +8,7 @@
       "$id": "1",
       "kind": "enum",
       "name": "Versions",
+      "originalName": "Versions",
       "crossLanguageDefinitionId": "Server.Path.Multiple.Versions",
       "valueType": {
         "$id": "2",
@@ -21,6 +22,7 @@
           "$id": "3",
           "kind": "enumvalue",
           "name": "v1_0",
+          "originalName": "v1_0",
           "value": "v1.0",
           "valueType": {
             "$ref": "2"
@@ -56,6 +58,7 @@
           "$id": "5",
           "kind": "basic",
           "name": "noOperationParams",
+          "originalName": "noOperationParams",
           "isExactName": false,
           "accessibility": "public",
           "apiVersions": [
@@ -64,6 +67,7 @@
           "operation": {
             "$id": "6",
             "name": "noOperationParams",
+            "originalName": "noOperationParams",
             "isExactName": false,
             "resourceName": "Multiple",
             "accessibility": "public",
@@ -99,6 +103,7 @@
           "$id": "7",
           "kind": "basic",
           "name": "withOperationPathParam",
+          "originalName": "withOperationPathParam",
           "isExactName": false,
           "accessibility": "public",
           "apiVersions": [
@@ -107,6 +112,7 @@
           "operation": {
             "$id": "8",
             "name": "withOperationPathParam",
+            "originalName": "withOperationPathParam",
             "isExactName": false,
             "resourceName": "Multiple",
             "accessibility": "public",
@@ -115,6 +121,7 @@
                 "$id": "9",
                 "kind": "path",
                 "name": "keyword",
+                "originalName": "keyword",
                 "serializedName": "keyword",
                 "type": {
                   "$id": "10",
@@ -138,6 +145,7 @@
                     "$id": "11",
                     "kind": "method",
                     "name": "keyword",
+                    "originalName": "keyword",
                     "serializedName": "keyword",
                     "type": {
                       "$id": "12",

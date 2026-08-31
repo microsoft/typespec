@@ -17,7 +17,10 @@ interface InputServiceMethodBase {
   kind: string;
   name: string;
   isExactName?: boolean;
-  /** The original name from the spec, set only when the emitter normalized the name. */
+  /**
+   * The name as written in the spec, prior to any C# name normalization applied to `name`. Always
+   * set by the converters; it is the same value as `name` when no normalization rule applied.
+   */
   originalName?: string;
   accessibility?: string;
   apiVersions: string[];

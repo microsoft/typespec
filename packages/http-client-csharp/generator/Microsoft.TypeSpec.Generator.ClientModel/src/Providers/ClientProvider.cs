@@ -104,9 +104,9 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
 
         public ClientProvider(InputClient inputClient)
         {
+            _inputClient = inputClient;
             CleanOperationNames(inputClient);
 
-            _inputClient = inputClient;
             _inputAuth = ScmCodeModelGenerator.Instance.InputLibrary.InputNamespace.Auth;
             _endpointParameter = BuildClientEndpointParameter();
             _subClientEndpointParameter = BuildSubClientEndpointParameter();
@@ -207,24 +207,59 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
             _allClientParameters = GetAllClientParameters();
         }
 
-        private static void CleanOperationNames(InputClient inputClient)
+        private void CleanOperationNames(InputClient inputClient)
         {
             foreach (var serviceMethod in inputClient.Methods)
             {
-                var updatedOperationName = GetCleanOperationName(serviceMethod);
+                var updatedOperationName = GetOperationName(serviceMethod);
                 serviceMethod.Update(name: updatedOperationName);
                 serviceMethod.Operation.Update(name: updatedOperationName);
             }
         }
 
-        private static string GetCleanOperationName(InputServiceMethod serviceMethod)
+        private string GetOperationName(InputServiceMethod serviceMethod)
         {
             if (serviceMethod.IsExactName)
             {
                 return serviceMethod.Operation.Name;
             }
 
-            var operationName = serviceMethod.Operation.Name.ToIdentifierName();
+            // The emitter already applied the C# naming conventions to the operation name.
+            var operationName = ReplaceListWithGet(serviceMethod.Operation.Name.ToIdentifierName());
+            var specOperationName = GetRestOperationName(serviceMethod);
+            if (specOperationName == operationName)
+            {
+                return operationName;
+            }
+
+            // The name was normalized by the emitter. If a previously shipped contract declared the spec
+            // spelling, keep it so the public surface stays back-compatible.
+            var lastContractMethods = BackCompatProvider.LastContractView?.Methods ?? LastContractView?.Methods;
+            if (lastContractMethods?.Any(m =>
+                m.Signature.Name == specOperationName ||
+                m.Signature.Name == $"{specOperationName}Async") == true)
+            {
+                return specOperationName;
+            }
+
+            return operationName;
+        }
+
+        /// <summary>
+        /// Gets the name used for the request builder of the given service method. Request builders use the
+        /// stable operation identity from the spec rather than the mutable public method name, so a projection
+        /// honoring a previously shipped name and a newer projection whose name was normalized by the emitter
+        /// continue to reference the same request builder.
+        /// </summary>
+        internal string GetRestOperationName(InputServiceMethod serviceMethod)
+        {
+            return serviceMethod.IsExactName
+                ? serviceMethod.Operation.Name.ToIdentifierName()
+                : ReplaceListWithGet((serviceMethod.Operation.OriginalName ?? serviceMethod.Operation.Name).ToIdentifierName());
+        }
+
+        private static string ReplaceListWithGet(string operationName)
+        {
             // Replace List with Get as .NET convention is to use Get for list operations.
             if (operationName == "List")
             {
@@ -1159,6 +1194,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
                 if (_backCompatProvider != backCompatProvider)
                 {
                     _backCompatProvider = backCompatProvider;
+                    CleanOperationNames(_inputClient);
                     // Only reset the cached methods (and the underlying RestClient methods)
                     // so they are rebuilt with the new backcompat provider. Do NOT call full
                     // Reset() — that would discard properties/constructors/fields applied by
@@ -1172,6 +1208,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
             else if (_backCompatProvider != null)
             {
                 _backCompatProvider = null;
+                CleanOperationNames(_inputClient);
                 ResetMethods();
                 _restClient?.ResetMethods();
                 _methodCache = null;

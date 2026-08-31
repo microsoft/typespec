@@ -26,6 +26,7 @@
       "$id": "3",
       "kind": "model",
       "name": "BodyRootModel",
+      "originalName": "BodyRootModel",
       "namespace": "Parameters.BodyRoot",
       "crossLanguageDefinitionId": "Parameters.BodyRoot.BodyRootModel",
       "usage": "Input,Json",
@@ -41,6 +42,7 @@
           "$id": "4",
           "kind": "property",
           "name": "category",
+          "originalName": "category",
           "serializedName": "category",
           "type": {
             "$id": "5",
@@ -67,6 +69,7 @@
           "$id": "6",
           "kind": "property",
           "name": "linkType",
+          "originalName": "linkType",
           "serializedName": "linkType",
           "type": {
             "$id": "7",
@@ -93,6 +96,7 @@
           "$id": "8",
           "kind": "property",
           "name": "wasSuccessful",
+          "originalName": "wasSuccessful",
           "serializedName": "wasSuccessful",
           "type": {
             "$id": "9",
@@ -121,6 +125,7 @@
       "$id": "10",
       "kind": "model",
       "name": "NestedParameterBody",
+      "originalName": "NestedParameterBody",
       "namespace": "Parameters.BodyRoot",
       "crossLanguageDefinitionId": "Parameters.BodyRoot.nested.Parameter.body.anonymous",
       "usage": "Input",
@@ -132,6 +137,7 @@
           "$id": "11",
           "kind": "property",
           "name": "bodyRootParameters",
+          "originalName": "bodyRootParameters",
           "type": {
             "$ref": "3"
           },
@@ -161,12 +167,14 @@
           "$id": "13",
           "kind": "basic",
           "name": "nested",
+          "originalName": "nested",
           "isExactName": false,
           "accessibility": "public",
           "apiVersions": [],
           "operation": {
             "$id": "14",
             "name": "nested",
+            "originalName": "nested",
             "isExactName": false,
             "resourceName": "BodyRoot",
             "accessibility": "public",
@@ -175,6 +183,7 @@
                 "$id": "15",
                 "kind": "header",
                 "name": "contentType",
+                "originalName": "contentType",
                 "serializedName": "Content-Type",
                 "doc": "Body parameter's content type. Known values are application/json",
                 "type": {
@@ -192,6 +201,7 @@
                     "$id": "16",
                     "kind": "method",
                     "name": "contentType",
+                    "originalName": "contentType",
                     "serializedName": "Content-Type",
                     "doc": "Body parameter's content type. Known values are application/json",
                     "type": {
@@ -214,6 +224,7 @@
                 "$id": "17",
                 "kind": "body",
                 "name": "bodyRootParameters",
+                "originalName": "bodyRootParameters",
                 "serializedName": "bodyRootParameters",
                 "type": {
                   "$ref": "3"
@@ -233,6 +244,7 @@
                     "$id": "18",
                     "kind": "method",
                     "name": "body",
+                    "originalName": "body",
                     "serializedName": "body",
                     "type": {
                       "$ref": "10"
@@ -251,6 +263,7 @@
                     "$id": "19",
                     "kind": "method",
                     "name": "bodyRootParameters",
+                    "originalName": "bodyRootParameters",
                     "serializedName": "bodyRootParameters",
                     "type": {
                       "$ref": "3"

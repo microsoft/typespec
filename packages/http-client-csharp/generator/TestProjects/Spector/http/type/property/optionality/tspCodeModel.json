@@ -6,6 +6,7 @@
       "$id": "1",
       "kind": "enum",
       "name": "StringLiteralPropertyProperty",
+      "originalName": "StringLiteralPropertyProperty",
       "crossLanguageDefinitionId": "",
       "valueType": {
         "$id": "2",
@@ -19,6 +20,7 @@
           "$id": "3",
           "kind": "enumvalue",
           "name": "hello",
+          "originalName": "hello",
           "value": "hello",
           "valueType": {
             "$id": "4",
@@ -46,6 +48,7 @@
       "$id": "5",
       "kind": "enum",
       "name": "IntLiteralPropertyProperty",
+      "originalName": "IntLiteralPropertyProperty",
       "crossLanguageDefinitionId": "",
       "valueType": {
         "$id": "6",
@@ -59,6 +62,7 @@
           "$id": "7",
           "kind": "enumvalue",
           "name": "1",
+          "originalName": "1",
           "value": 1,
           "valueType": {
             "$id": "8",
@@ -86,6 +90,7 @@
       "$id": "9",
       "kind": "enum",
       "name": "FloatLiteralPropertyProperty",
+      "originalName": "FloatLiteralPropertyProperty",
       "crossLanguageDefinitionId": "",
       "valueType": {
         "$id": "10",
@@ -99,6 +104,7 @@
           "$id": "11",
           "kind": "enumvalue",
           "name": "1.25",
+          "originalName": "1.25",
           "value": 1.25,
           "valueType": {
             "$id": "12",
@@ -126,6 +132,7 @@
       "$id": "13",
       "kind": "enum",
       "name": "UnionStringLiteralPropertyProperty",
+      "originalName": "UnionStringLiteralPropertyProperty",
       "crossLanguageDefinitionId": "Type.Property.Optional.UnionStringLiteralProperty.property.anonymous",
       "valueType": {
         "$id": "14",
@@ -139,6 +146,7 @@
           "$id": "15",
           "kind": "enumvalue",
           "name": "hello",
+          "originalName": "hello",
           "value": "hello",
           "valueType": {
             "$ref": "14"
@@ -153,6 +161,7 @@
           "$id": "16",
           "kind": "enumvalue",
           "name": "world",
+          "originalName": "world",
           "value": "world",
           "valueType": {
             "$ref": "14"
@@ -175,6 +184,7 @@
       "$id": "17",
       "kind": "enum",
       "name": "UnionIntLiteralPropertyProperty",
+      "originalName": "UnionIntLiteralPropertyProperty",
       "crossLanguageDefinitionId": "Type.Property.Optional.UnionIntLiteralProperty.property.anonymous",
       "valueType": {
         "$id": "18",
@@ -188,6 +198,7 @@
           "$id": "19",
           "kind": "enumvalue",
           "name": "1",
+          "originalName": "1",
           "value": 1,
           "valueType": {
             "$ref": "18"
@@ -202,6 +213,7 @@
           "$id": "20",
           "kind": "enumvalue",
           "name": "2",
+          "originalName": "2",
           "value": 2,
           "valueType": {
             "$ref": "18"
@@ -224,6 +236,7 @@
       "$id": "21",
       "kind": "enum",
       "name": "UnionFloatLiteralPropertyProperty",
+      "originalName": "UnionFloatLiteralPropertyProperty",
       "crossLanguageDefinitionId": "Type.Property.Optional.UnionFloatLiteralProperty.property.anonymous",
       "valueType": {
         "$id": "22",
@@ -237,6 +250,7 @@
           "$id": "23",
           "kind": "enumvalue",
           "name": "1.25",
+          "originalName": "1.25",
           "value": 1.25,
           "valueType": {
             "$ref": "22"
@@ -251,6 +265,7 @@
           "$id": "24",
           "kind": "enumvalue",
           "name": "2.375",
+          "originalName": "2.375",
           "value": 2.375,
           "valueType": {
             "$ref": "22"
@@ -1382,6 +1397,7 @@
       "$id": "155",
       "kind": "model",
       "name": "StringProperty",
+      "originalName": "StringProperty",
       "namespace": "Type.Property.Optional",
       "crossLanguageDefinitionId": "Type.Property.Optional.StringProperty",
       "usage": "Input,Output,Json",
@@ -1398,6 +1414,7 @@
           "$id": "156",
           "kind": "property",
           "name": "property",
+          "originalName": "property",
           "serializedName": "property",
           "doc": "Property",
           "type": {
@@ -1427,6 +1444,7 @@
       "$id": "158",
       "kind": "model",
       "name": "BytesProperty",
+      "originalName": "BytesProperty",
       "namespace": "Type.Property.Optional",
       "crossLanguageDefinitionId": "Type.Property.Optional.BytesProperty",
       "usage": "Input,Output,Json",
@@ -1443,6 +1461,7 @@
           "$id": "159",
           "kind": "property",
           "name": "property",
+          "originalName": "property",
           "serializedName": "property",
           "doc": "Property",
           "type": {
@@ -1473,6 +1492,7 @@
       "$id": "161",
       "kind": "model",
       "name": "DatetimeProperty",
+      "originalName": "DatetimeProperty",
       "namespace": "Type.Property.Optional",
       "crossLanguageDefinitionId": "Type.Property.Optional.DatetimeProperty",
       "usage": "Input,Output,Json",
@@ -1489,6 +1509,7 @@
           "$id": "162",
           "kind": "property",
           "name": "property",
+          "originalName": "property",
           "serializedName": "property",
           "doc": "Property",
           "type": {
@@ -1526,6 +1547,7 @@
       "$id": "165",
       "kind": "model",
       "name": "DurationProperty",
+      "originalName": "DurationProperty",
       "namespace": "Type.Property.Optional",
       "crossLanguageDefinitionId": "Type.Property.Optional.DurationProperty",
       "usage": "Input,Output,Json",
@@ -1542,6 +1564,7 @@
           "$id": "166",
           "kind": "property",
           "name": "property",
+          "originalName": "property",
           "serializedName": "property",
           "doc": "Property",
           "type": {
@@ -1579,6 +1602,7 @@
       "$id": "169",
       "kind": "model",
       "name": "PlainDateProperty",
+      "originalName": "PlainDateProperty",
       "namespace": "Type.Property.Optional",
       "crossLanguageDefinitionId": "Type.Property.Optional.PlainDateProperty",
       "usage": "Input,Output,Json",
@@ -1595,6 +1619,7 @@
           "$id": "170",
           "kind": "property",
           "name": "property",
+          "originalName": "property",
           "serializedName": "property",
           "doc": "Property",
           "type": {
@@ -1624,6 +1649,7 @@
       "$id": "172",
       "kind": "model",
       "name": "PlainTimeProperty",
+      "originalName": "PlainTimeProperty",
       "namespace": "Type.Property.Optional",
       "crossLanguageDefinitionId": "Type.Property.Optional.PlainTimeProperty",
       "usage": "Input,Output,Json",
@@ -1640,6 +1666,7 @@
           "$id": "173",
           "kind": "property",
           "name": "property",
+          "originalName": "property",
           "serializedName": "property",
           "doc": "Property",
           "type": {
@@ -1669,6 +1696,7 @@
       "$id": "175",
       "kind": "model",
       "name": "CollectionsByteProperty",
+      "originalName": "CollectionsByteProperty",
       "namespace": "Type.Property.Optional",
       "crossLanguageDefinitionId": "Type.Property.Optional.CollectionsByteProperty",
       "usage": "Input,Output,Json",
@@ -1685,6 +1713,7 @@
           "$id": "176",
           "kind": "property",
           "name": "property",
+          "originalName": "property",
           "serializedName": "property",
           "doc": "Property",
           "type": {
@@ -1722,6 +1751,7 @@
       "$id": "179",
       "kind": "model",
       "name": "CollectionsModelProperty",
+      "originalName": "CollectionsModelProperty",
       "namespace": "Type.Property.Optional",
       "crossLanguageDefinitionId": "Type.Property.Optional.CollectionsModelProperty",
       "usage": "Input,Output,Json",
@@ -1738,6 +1768,7 @@
           "$id": "180",
           "kind": "property",
           "name": "property",
+          "originalName": "property",
           "serializedName": "property",
           "doc": "Property",
           "type": {
@@ -1770,6 +1801,7 @@
       "$id": "182",
       "kind": "model",
       "name": "StringLiteralProperty",
+      "originalName": "StringLiteralProperty",
       "namespace": "Type.Property.Optional",
       "crossLanguageDefinitionId": "Type.Property.Optional.StringLiteralProperty",
       "usage": "Input,Output,Json",
@@ -1786,6 +1818,7 @@
           "$id": "183",
           "kind": "property",
           "name": "property",
+          "originalName": "property",
           "serializedName": "property",
           "doc": "Property",
           "type": {
@@ -1811,6 +1844,7 @@
       "$id": "184",
       "kind": "model",
       "name": "IntLiteralProperty",
+      "originalName": "IntLiteralProperty",
       "namespace": "Type.Property.Optional",
       "crossLanguageDefinitionId": "Type.Property.Optional.IntLiteralProperty",
       "usage": "Input,Output,Json",
@@ -1827,6 +1861,7 @@
           "$id": "185",
           "kind": "property",
           "name": "property",
+          "originalName": "property",
           "serializedName": "property",
           "doc": "Property",
           "type": {
@@ -1852,6 +1887,7 @@
       "$id": "186",
       "kind": "model",
       "name": "FloatLiteralProperty",
+      "originalName": "FloatLiteralProperty",
       "namespace": "Type.Property.Optional",
       "crossLanguageDefinitionId": "Type.Property.Optional.FloatLiteralProperty",
       "usage": "Input,Output,Json",
@@ -1868,6 +1904,7 @@
           "$id": "187",
           "kind": "property",
           "name": "property",
+          "originalName": "property",
           "serializedName": "property",
           "doc": "Property",
           "type": {
@@ -1893,6 +1930,7 @@
       "$id": "188",
       "kind": "model",
       "name": "BooleanLiteralProperty",
+      "originalName": "BooleanLiteralProperty",
       "namespace": "Type.Property.Optional",
       "crossLanguageDefinitionId": "Type.Property.Optional.BooleanLiteralProperty",
       "usage": "Input,Output,Json",
@@ -1909,6 +1947,7 @@
           "$id": "189",
           "kind": "property",
           "name": "property",
+          "originalName": "property",
           "serializedName": "property",
           "doc": "Property",
           "type": {
@@ -1934,6 +1973,7 @@
       "$id": "190",
       "kind": "model",
       "name": "UnionStringLiteralProperty",
+      "originalName": "UnionStringLiteralProperty",
       "namespace": "Type.Property.Optional",
       "crossLanguageDefinitionId": "Type.Property.Optional.UnionStringLiteralProperty",
       "usage": "Input,Output,Json",
@@ -1950,6 +1990,7 @@
           "$id": "191",
           "kind": "property",
           "name": "property",
+          "originalName": "property",
           "serializedName": "property",
           "doc": "Property",
           "type": {
@@ -1975,6 +2016,7 @@
       "$id": "192",
       "kind": "model",
       "name": "UnionIntLiteralProperty",
+      "originalName": "UnionIntLiteralProperty",
       "namespace": "Type.Property.Optional",
       "crossLanguageDefinitionId": "Type.Property.Optional.UnionIntLiteralProperty",
       "usage": "Input,Output,Json",
@@ -1991,6 +2033,7 @@
           "$id": "193",
           "kind": "property",
           "name": "property",
+          "originalName": "property",
           "serializedName": "property",
           "doc": "Property",
           "type": {
@@ -2016,6 +2059,7 @@
       "$id": "194",
       "kind": "model",
       "name": "UnionFloatLiteralProperty",
+      "originalName": "UnionFloatLiteralProperty",
       "namespace": "Type.Property.Optional",
       "crossLanguageDefinitionId": "Type.Property.Optional.UnionFloatLiteralProperty",
       "usage": "Input,Output,Json",
@@ -2032,6 +2076,7 @@
           "$id": "195",
           "kind": "property",
           "name": "property",
+          "originalName": "property",
           "serializedName": "property",
           "doc": "Property",
           "type": {
@@ -2057,6 +2102,7 @@
       "$id": "196",
       "kind": "model",
       "name": "RequiredAndOptionalProperty",
+      "originalName": "RequiredAndOptionalProperty",
       "namespace": "Type.Property.Optional",
       "crossLanguageDefinitionId": "Type.Property.Optional.RequiredAndOptionalProperty",
       "usage": "Input,Output,Json",
@@ -2073,6 +2119,7 @@
           "$id": "197",
           "kind": "property",
           "name": "optionalProperty",
+          "originalName": "optionalProperty",
           "serializedName": "optionalProperty",
           "doc": "optional string property",
           "type": {
@@ -2100,6 +2147,7 @@
           "$id": "199",
           "kind": "property",
           "name": "requiredProperty",
+          "originalName": "requiredProperty",
           "serializedName": "requiredProperty",
           "doc": "required int property",
           "type": {
@@ -2184,6 +2232,7 @@
               "$id": "206",
               "kind": "basic",
               "name": "getAll",
+              "originalName": "getAll",
               "isExactName": false,
               "accessibility": "public",
               "apiVersions": [],
@@ -2191,6 +2240,7 @@
               "operation": {
                 "$id": "207",
                 "name": "getAll",
+                "originalName": "getAll",
                 "isExactName": false,
                 "resourceName": "String",
                 "doc": "Get models that will return all properties in the model",
@@ -2200,6 +2250,7 @@
                     "$id": "208",
                     "kind": "header",
                     "name": "accept",
+                    "originalName": "accept",
                     "serializedName": "Accept",
                     "type": {
                       "$ref": "27"
@@ -2216,6 +2267,7 @@
                         "$id": "209",
                         "kind": "method",
                         "name": "accept",
+                        "originalName": "accept",
                         "serializedName": "Accept",
                         "type": {
                           "$ref": "27"
@@ -2283,6 +2335,7 @@
               "$id": "210",
               "kind": "basic",
               "name": "getDefault",
+              "originalName": "getDefault",
               "isExactName": false,
               "accessibility": "public",
               "apiVersions": [],
@@ -2290,6 +2343,7 @@
               "operation": {
                 "$id": "211",
                 "name": "getDefault",
+                "originalName": "getDefault",
                 "isExactName": false,
                 "resourceName": "String",
                 "doc": "Get models that will return the default object",
@@ -2299,6 +2353,7 @@
                     "$id": "212",
                     "kind": "header",
                     "name": "accept",
+                    "originalName": "accept",
                     "serializedName": "Accept",
                     "type": {
                       "$ref": "29"
@@ -2315,6 +2370,7 @@
                         "$id": "213",
                         "kind": "method",
                         "name": "accept",
+                        "originalName": "accept",
                         "serializedName": "Accept",
                         "type": {
                           "$ref": "29"
@@ -2382,6 +2438,7 @@
               "$id": "214",
               "kind": "basic",
               "name": "putAll",
+              "originalName": "putAll",
               "isExactName": false,
               "accessibility": "public",
               "apiVersions": [],
@@ -2389,6 +2446,7 @@
               "operation": {
                 "$id": "215",
                 "name": "putAll",
+                "originalName": "putAll",
                 "isExactName": false,
                 "resourceName": "String",
                 "doc": "Put a body with all properties present.",
@@ -2398,6 +2456,7 @@
                     "$id": "216",
                     "kind": "header",
                     "name": "contentType",
+                    "originalName": "contentType",
                     "serializedName": "Content-Type",
                     "doc": "Body parameter's content type. Known values are application/json",
                     "type": {
@@ -2415,6 +2474,7 @@
                         "$id": "217",
                         "kind": "method",
                         "name": "contentType",
+                        "originalName": "contentType",
                         "serializedName": "Content-Type",
                         "doc": "Body parameter's content type. Known values are application/json",
                         "type": {
@@ -2437,6 +2497,7 @@
                     "$id": "218",
                     "kind": "body",
                     "name": "body",
+                    "originalName": "body",
                     "serializedName": "body",
                     "type": {
                       "$ref": "155"
@@ -2456,6 +2517,7 @@
                         "$id": "219",
                         "kind": "method",
                         "name": "body",
+                        "originalName": "body",
                         "serializedName": "body",
                         "type": {
                           "$ref": "155"
@@ -2520,6 +2582,7 @@
               "$id": "220",
               "kind": "basic",
               "name": "putDefault",
+              "originalName": "putDefault",
               "isExactName": false,
               "accessibility": "public",
               "apiVersions": [],
@@ -2527,6 +2590,7 @@
               "operation": {
                 "$id": "221",
                 "name": "putDefault",
+                "originalName": "putDefault",
                 "isExactName": false,
                 "resourceName": "String",
                 "doc": "Put a body with default properties.",
@@ -2536,6 +2600,7 @@
                     "$id": "222",
                     "kind": "header",
                     "name": "contentType",
+                    "originalName": "contentType",
                     "serializedName": "Content-Type",
                     "doc": "Body parameter's content type. Known values are application/json",
                     "type": {
@@ -2553,6 +2618,7 @@
                         "$id": "223",
                         "kind": "method",
                         "name": "contentType",
+                        "originalName": "contentType",
                         "serializedName": "Content-Type",
                         "doc": "Body parameter's content type. Known values are application/json",
                         "type": {
@@ -2575,6 +2641,7 @@
                     "$id": "224",
                     "kind": "body",
                     "name": "body",
+                    "originalName": "body",
                     "serializedName": "body",
                     "type": {
                       "$ref": "155"
@@ -2594,6 +2661,7 @@
                         "$id": "225",
                         "kind": "method",
                         "name": "body",
+                        "originalName": "body",
                         "serializedName": "body",
                         "type": {
                           "$ref": "155"
@@ -2708,6 +2776,7 @@
               "$id": "230",
               "kind": "basic",
               "name": "getAll",
+              "originalName": "getAll",
               "isExactName": false,
               "accessibility": "public",
               "apiVersions": [],
@@ -2715,6 +2784,7 @@
               "operation": {
                 "$id": "231",
                 "name": "getAll",
+                "originalName": "getAll",
                 "isExactName": false,
                 "resourceName": "Bytes",
                 "doc": "Get models that will return all properties in the model",
@@ -2724,6 +2794,7 @@
                     "$id": "232",
                     "kind": "header",
                     "name": "accept",
+                    "originalName": "accept",
                     "serializedName": "Accept",
                     "type": {
                       "$ref": "35"
@@ -2740,6 +2811,7 @@
                         "$id": "233",
                         "kind": "method",
                         "name": "accept",
+                        "originalName": "accept",
                         "serializedName": "Accept",
                         "type": {
                           "$ref": "35"
@@ -2807,6 +2879,7 @@
               "$id": "234",
               "kind": "basic",
               "name": "getDefault",
+              "originalName": "getDefault",
               "isExactName": false,
               "accessibility": "public",
               "apiVersions": [],
@@ -2814,6 +2887,7 @@
               "operation": {
                 "$id": "235",
                 "name": "getDefault",
+                "originalName": "getDefault",
                 "isExactName": false,
                 "resourceName": "Bytes",
                 "doc": "Get models that will return the default object",
@@ -2823,6 +2897,7 @@
                     "$id": "236",
                     "kind": "header",
                     "name": "accept",
+                    "originalName": "accept",
                     "serializedName": "Accept",
                     "type": {
                       "$ref": "37"
@@ -2839,6 +2914,7 @@
                         "$id": "237",
                         "kind": "method",
                         "name": "accept",
+                        "originalName": "accept",
                         "serializedName": "Accept",
                         "type": {
                           "$ref": "37"
@@ -2906,6 +2982,7 @@
               "$id": "238",
               "kind": "basic",
               "name": "putAll",
+              "originalName": "putAll",
               "isExactName": false,
               "accessibility": "public",
               "apiVersions": [],
@@ -2913,6 +2990,7 @@
               "operation": {
                 "$id": "239",
                 "name": "putAll",
+                "originalName": "putAll",
                 "isExactName": false,
                 "resourceName": "Bytes",
                 "doc": "Put a body with all properties present.",
@@ -2922,6 +3000,7 @@
                     "$id": "240",
                     "kind": "header",
                     "name": "contentType",
+                    "originalName": "contentType",
                     "serializedName": "Content-Type",
                     "doc": "Body parameter's content type. Known values are application/json",
                     "type": {
@@ -2939,6 +3018,7 @@
                         "$id": "241",
                         "kind": "method",
                         "name": "contentType",
+                        "originalName": "contentType",
                         "serializedName": "Content-Type",
                         "doc": "Body parameter's content type. Known values are application/json",
                         "type": {
@@ -2961,6 +3041,7 @@
                     "$id": "242",
                     "kind": "body",
                     "name": "body",
+                    "originalName": "body",
                     "serializedName": "body",
                     "type": {
                       "$ref": "158"
@@ -2980,6 +3061,7 @@
                         "$id": "243",
                         "kind": "method",
                         "name": "body",
+                        "originalName": "body",
                         "serializedName": "body",
                         "type": {
                           "$ref": "158"
@@ -3044,6 +3126,7 @@
               "$id": "244",
               "kind": "basic",
               "name": "putDefault",
+              "originalName": "putDefault",
               "isExactName": false,
               "accessibility": "public",
               "apiVersions": [],
@@ -3051,6 +3134,7 @@
               "operation": {
                 "$id": "245",
                 "name": "putDefault",
+                "originalName": "putDefault",
                 "isExactName": false,
                 "resourceName": "Bytes",
                 "doc": "Put a body with default properties.",
@@ -3060,6 +3144,7 @@
                     "$id": "246",
                     "kind": "header",
                     "name": "contentType",
+                    "originalName": "contentType",
                     "serializedName": "Content-Type",
                     "doc": "Body parameter's content type. Known values are application/json",
                     "type": {
@@ -3077,6 +3162,7 @@
                         "$id": "247",
                         "kind": "method",
                         "name": "contentType",
+                        "originalName": "contentType",
                         "serializedName": "Content-Type",
                         "doc": "Body parameter's content type. Known values are application/json",
                         "type": {
@@ -3099,6 +3185,7 @@
                     "$id": "248",
                     "kind": "body",
                     "name": "body",
+                    "originalName": "body",
                     "serializedName": "body",
                     "type": {
                       "$ref": "158"
@@ -3118,6 +3205,7 @@
                         "$id": "249",
                         "kind": "method",
                         "name": "body",
+                        "originalName": "body",
                         "serializedName": "body",
                         "type": {
                           "$ref": "158"
@@ -3232,6 +3320,7 @@
               "$id": "254",
               "kind": "basic",
               "name": "getAll",
+              "originalName": "getAll",
               "isExactName": false,
               "accessibility": "public",
               "apiVersions": [],
@@ -3239,6 +3328,7 @@
               "operation": {
                 "$id": "255",
                 "name": "getAll",
+                "originalName": "getAll",
                 "isExactName": false,
                 "resourceName": "Datetime",
                 "doc": "Get models that will return all properties in the model",
@@ -3248,6 +3338,7 @@
                     "$id": "256",
                     "kind": "header",
                     "name": "accept",
+                    "originalName": "accept",
                     "serializedName": "Accept",
                     "type": {
                       "$ref": "43"
@@ -3264,6 +3355,7 @@
                         "$id": "257",
                         "kind": "method",
                         "name": "accept",
+                        "originalName": "accept",
                         "serializedName": "Accept",
                         "type": {
                           "$ref": "43"
@@ -3331,6 +3423,7 @@
               "$id": "258",
               "kind": "basic",
               "name": "getDefault",
+              "originalName": "getDefault",
               "isExactName": false,
               "accessibility": "public",
               "apiVersions": [],
@@ -3338,6 +3431,7 @@
               "operation": {
                 "$id": "259",
                 "name": "getDefault",
+                "originalName": "getDefault",
                 "isExactName": false,
                 "resourceName": "Datetime",
                 "doc": "Get models that will return the default object",
@@ -3347,6 +3441,7 @@
                     "$id": "260",
                     "kind": "header",
                     "name": "accept",
+                    "originalName": "accept",
                     "serializedName": "Accept",
                     "type": {
                       "$ref": "45"
@@ -3363,6 +3458,7 @@
                         "$id": "261",
                         "kind": "method",
                         "name": "accept",
+                        "originalName": "accept",
                         "serializedName": "Accept",
                         "type": {
                           "$ref": "45"
@@ -3430,6 +3526,7 @@
               "$id": "262",
               "kind": "basic",
               "name": "putAll",
+              "originalName": "putAll",
               "isExactName": false,
               "accessibility": "public",
               "apiVersions": [],
@@ -3437,6 +3534,7 @@
               "operation": {
                 "$id": "263",
                 "name": "putAll",
+                "originalName": "putAll",
                 "isExactName": false,
                 "resourceName": "Datetime",
                 "doc": "Put a body with all properties present.",
@@ -3446,6 +3544,7 @@
                     "$id": "264",
                     "kind": "header",
                     "name": "contentType",
+                    "originalName": "contentType",
                     "serializedName": "Content-Type",
                     "doc": "Body parameter's content type. Known values are application/json",
                     "type": {
@@ -3463,6 +3562,7 @@
                         "$id": "265",
                         "kind": "method",
                         "name": "contentType",
+                        "originalName": "contentType",
                         "serializedName": "Content-Type",
                         "doc": "Body parameter's content type. Known values are application/json",
                         "type": {
@@ -3485,6 +3585,7 @@
                     "$id": "266",
                     "kind": "body",
                     "name": "body",
+                    "originalName": "body",
                     "serializedName": "body",
                     "type": {
                       "$ref": "161"
@@ -3504,6 +3605,7 @@
                         "$id": "267",
                         "kind": "method",
                         "name": "body",
+                        "originalName": "body",
                         "serializedName": "body",
                         "type": {
                           "$ref": "161"
@@ -3568,6 +3670,7 @@
               "$id": "268",
               "kind": "basic",
               "name": "putDefault",
+              "originalName": "putDefault",
               "isExactName": false,
               "accessibility": "public",
               "apiVersions": [],
@@ -3575,6 +3678,7 @@
               "operation": {
                 "$id": "269",
                 "name": "putDefault",
+                "originalName": "putDefault",
                 "isExactName": false,
                 "resourceName": "Datetime",
                 "doc": "Put a body with default properties.",
@@ -3584,6 +3688,7 @@
                     "$id": "270",
                     "kind": "header",
                     "name": "contentType",
+                    "originalName": "contentType",
                     "serializedName": "Content-Type",
                     "doc": "Body parameter's content type. Known values are application/json",
                     "type": {
@@ -3601,6 +3706,7 @@
                         "$id": "271",
                         "kind": "method",
                         "name": "contentType",
+                        "originalName": "contentType",
                         "serializedName": "Content-Type",
                         "doc": "Body parameter's content type. Known values are application/json",
                         "type": {
@@ -3623,6 +3729,7 @@
                     "$id": "272",
                     "kind": "body",
                     "name": "body",
+                    "originalName": "body",
                     "serializedName": "body",
                     "type": {
                       "$ref": "161"
@@ -3642,6 +3749,7 @@
                         "$id": "273",
                         "kind": "method",
                         "name": "body",
+                        "originalName": "body",
                         "serializedName": "body",
                         "type": {
                           "$ref": "161"
@@ -3756,6 +3864,7 @@
               "$id": "278",
               "kind": "basic",
               "name": "getAll",
+              "originalName": "getAll",
               "isExactName": false,
               "accessibility": "public",
               "apiVersions": [],
@@ -3763,6 +3872,7 @@
               "operation": {
                 "$id": "279",
                 "name": "getAll",
+                "originalName": "getAll",
                 "isExactName": false,
                 "resourceName": "Duration",
                 "doc": "Get models that will return all properties in the model",
@@ -3772,6 +3882,7 @@
                     "$id": "280",
                     "kind": "header",
                     "name": "accept",
+                    "originalName": "accept",
                     "serializedName": "Accept",
                     "type": {
                       "$ref": "51"
@@ -3788,6 +3899,7 @@
                         "$id": "281",
                         "kind": "method",
                         "name": "accept",
+                        "originalName": "accept",
                         "serializedName": "Accept",
                         "type": {
                           "$ref": "51"
@@ -3855,6 +3967,7 @@
               "$id": "282",
               "kind": "basic",
               "name": "getDefault",
+              "originalName": "getDefault",
               "isExactName": false,
               "accessibility": "public",
               "apiVersions": [],
@@ -3862,6 +3975,7 @@
               "operation": {
                 "$id": "283",
                 "name": "getDefault",
+                "originalName": "getDefault",
                 "isExactName": false,
                 "resourceName": "Duration",
                 "doc": "Get models that will return the default object",
@@ -3871,6 +3985,7 @@
                     "$id": "284",
                     "kind": "header",
                     "name": "accept",
+                    "originalName": "accept",
                     "serializedName": "Accept",
                     "type": {
                       "$ref": "53"
@@ -3887,6 +4002,7 @@
                         "$id": "285",
                         "kind": "method",
                         "name": "accept",
+                        "originalName": "accept",
                         "serializedName": "Accept",
                         "type": {
                           "$ref": "53"
@@ -3954,6 +4070,7 @@
               "$id": "286",
               "kind": "basic",
               "name": "putAll",
+              "originalName": "putAll",
               "isExactName": false,
               "accessibility": "public",
               "apiVersions": [],
@@ -3961,6 +4078,7 @@
               "operation": {
                 "$id": "287",
                 "name": "putAll",
+                "originalName": "putAll",
                 "isExactName": false,
                 "resourceName": "Duration",
                 "doc": "Put a body with all properties present.",
@@ -3970,6 +4088,7 @@
                     "$id": "288",
                     "kind": "header",
                     "name": "contentType",
+                    "originalName": "contentType",
                     "serializedName": "Content-Type",
                     "doc": "Body parameter's content type. Known values are application/json",
                     "type": {
@@ -3987,6 +4106,7 @@
                         "$id": "289",
                         "kind": "method",
                         "name": "contentType",
+                        "originalName": "contentType",
                         "serializedName": "Content-Type",
                         "doc": "Body parameter's content type. Known values are application/json",
                         "type": {
@@ -4009,6 +4129,7 @@
                     "$id": "290",
                     "kind": "body",
                     "name": "body",
+                    "originalName": "body",
                     "serializedName": "body",
                     "type": {
                       "$ref": "165"
@@ -4028,6 +4149,7 @@
                         "$id": "291",
                         "kind": "method",
                         "name": "body",
+                        "originalName": "body",
                         "serializedName": "body",
                         "type": {
                           "$ref": "165"
@@ -4092,6 +4214,7 @@
               "$id": "292",
               "kind": "basic",
               "name": "putDefault",
+              "originalName": "putDefault",
               "isExactName": false,
               "accessibility": "public",
               "apiVersions": [],
@@ -4099,6 +4222,7 @@
               "operation": {
                 "$id": "293",
                 "name": "putDefault",
+                "originalName": "putDefault",
                 "isExactName": false,
                 "resourceName": "Duration",
                 "doc": "Put a body with default properties.",
@@ -4108,6 +4232,7 @@
                     "$id": "294",
                     "kind": "header",
                     "name": "contentType",
+                    "originalName": "contentType",
                     "serializedName": "Content-Type",
                     "doc": "Body parameter's content type. Known values are application/json",
                     "type": {
@@ -4125,6 +4250,7 @@
                         "$id": "295",
                         "kind": "method",
                         "name": "contentType",
+                        "originalName": "contentType",
                         "serializedName": "Content-Type",
                         "doc": "Body parameter's content type. Known values are application/json",
                         "type": {
@@ -4147,6 +4273,7 @@
                     "$id": "296",
                     "kind": "body",
                     "name": "body",
+                    "originalName": "body",
                     "serializedName": "body",
                     "type": {
                       "$ref": "165"
@@ -4166,6 +4293,7 @@
                         "$id": "297",
                         "kind": "method",
                         "name": "body",
+                        "originalName": "body",
                         "serializedName": "body",
                         "type": {
                           "$ref": "165"
@@ -4280,6 +4408,7 @@
               "$id": "302",
               "kind": "basic",
               "name": "getAll",
+              "originalName": "getAll",
               "isExactName": false,
               "accessibility": "public",
               "apiVersions": [],
@@ -4287,6 +4416,7 @@
               "operation": {
                 "$id": "303",
                 "name": "getAll",
+                "originalName": "getAll",
                 "isExactName": false,
                 "resourceName": "PlainDate",
                 "doc": "Get models that will return all properties in the model",
@@ -4296,6 +4426,7 @@
                     "$id": "304",
                     "kind": "header",
                     "name": "accept",
+                    "originalName": "accept",
                     "serializedName": "Accept",
                     "type": {
                       "$ref": "59"
@@ -4312,6 +4443,7 @@
                         "$id": "305",
                         "kind": "method",
                         "name": "accept",
+                        "originalName": "accept",
                         "serializedName": "Accept",
                         "type": {
                           "$ref": "59"
@@ -4379,6 +4511,7 @@
               "$id": "306",
               "kind": "basic",
               "name": "getDefault",
+              "originalName": "getDefault",
               "isExactName": false,
               "accessibility": "public",
               "apiVersions": [],
@@ -4386,6 +4519,7 @@
               "operation": {
                 "$id": "307",
                 "name": "getDefault",
+                "originalName": "getDefault",
                 "isExactName": false,
                 "resourceName": "PlainDate",
                 "doc": "Get models that will return the default object",
@@ -4395,6 +4529,7 @@
                     "$id": "308",
                     "kind": "header",
                     "name": "accept",
+                    "originalName": "accept",
                     "serializedName": "Accept",
                     "type": {
                       "$ref": "61"
@@ -4411,6 +4546,7 @@
                         "$id": "309",
                         "kind": "method",
                         "name": "accept",
+                        "originalName": "accept",
                         "serializedName": "Accept",
                         "type": {
                           "$ref": "61"
@@ -4478,6 +4614,7 @@
               "$id": "310",
               "kind": "basic",
               "name": "putAll",
+              "originalName": "putAll",
               "isExactName": false,
               "accessibility": "public",
               "apiVersions": [],
@@ -4485,6 +4622,7 @@
               "operation": {
                 "$id": "311",
                 "name": "putAll",
+                "originalName": "putAll",
                 "isExactName": false,
                 "resourceName": "PlainDate",
                 "doc": "Put a body with all properties present.",
@@ -4494,6 +4632,7 @@
                     "$id": "312",
                     "kind": "header",
                     "name": "contentType",
+                    "originalName": "contentType",
                     "serializedName": "Content-Type",
                     "doc": "Body parameter's content type. Known values are application/json",
                     "type": {
@@ -4511,6 +4650,7 @@
                         "$id": "313",
                         "kind": "method",
                         "name": "contentType",
+                        "originalName": "contentType",
                         "serializedName": "Content-Type",
                         "doc": "Body parameter's content type. Known values are application/json",
                         "type": {
@@ -4533,6 +4673,7 @@
                     "$id": "314",
                     "kind": "body",
                     "name": "body",
+                    "originalName": "body",
                     "serializedName": "body",
                     "type": {
                       "$ref": "169"
@@ -4552,6 +4693,7 @@
                         "$id": "315",
                         "kind": "method",
                         "name": "body",
+                        "originalName": "body",
                         "serializedName": "body",
                         "type": {
                           "$ref": "169"
@@ -4616,6 +4758,7 @@
               "$id": "316",
               "kind": "basic",
               "name": "putDefault",
+              "originalName": "putDefault",
               "isExactName": false,
               "accessibility": "public",
               "apiVersions": [],
@@ -4623,6 +4766,7 @@
               "operation": {
                 "$id": "317",
                 "name": "putDefault",
+                "originalName": "putDefault",
                 "isExactName": false,
                 "resourceName": "PlainDate",
                 "doc": "Put a body with default properties.",
@@ -4632,6 +4776,7 @@
                     "$id": "318",
                     "kind": "header",
                     "name": "contentType",
+                    "originalName": "contentType",
                     "serializedName": "Content-Type",
                     "doc": "Body parameter's content type. Known values are application/json",
                     "type": {
@@ -4649,6 +4794,7 @@
                         "$id": "319",
                         "kind": "method",
                         "name": "contentType",
+                        "originalName": "contentType",
                         "serializedName": "Content-Type",
                         "doc": "Body parameter's content type. Known values are application/json",
                         "type": {
@@ -4671,6 +4817,7 @@
                     "$id": "320",
                     "kind": "body",
                     "name": "body",
+                    "originalName": "body",
                     "serializedName": "body",
                     "type": {
                       "$ref": "169"
@@ -4690,6 +4837,7 @@
                         "$id": "321",
                         "kind": "method",
                         "name": "body",
+                        "originalName": "body",
                         "serializedName": "body",
                         "type": {
                           "$ref": "169"
@@ -4804,6 +4952,7 @@
               "$id": "326",
               "kind": "basic",
               "name": "getAll",
+              "originalName": "getAll",
               "isExactName": false,
               "accessibility": "public",
               "apiVersions": [],
@@ -4811,6 +4960,7 @@
               "operation": {
                 "$id": "327",
                 "name": "getAll",
+                "originalName": "getAll",
                 "isExactName": false,
                 "resourceName": "PlainTime",
                 "doc": "Get models that will return all properties in the model",
@@ -4820,6 +4970,7 @@
                     "$id": "328",
                     "kind": "header",
                     "name": "accept",
+                    "originalName": "accept",
                     "serializedName": "Accept",
                     "type": {
                       "$ref": "67"
@@ -4836,6 +4987,7 @@
                         "$id": "329",
                         "kind": "method",
                         "name": "accept",
+                        "originalName": "accept",
                         "serializedName": "Accept",
                         "type": {
                           "$ref": "67"
@@ -4903,6 +5055,7 @@
               "$id": "330",
               "kind": "basic",
               "name": "getDefault",
+              "originalName": "getDefault",
               "isExactName": false,
               "accessibility": "public",
               "apiVersions": [],
@@ -4910,6 +5063,7 @@
               "operation": {
                 "$id": "331",
                 "name": "getDefault",
+                "originalName": "getDefault",
                 "isExactName": false,
                 "resourceName": "PlainTime",
                 "doc": "Get models that will return the default object",
@@ -4919,6 +5073,7 @@
                     "$id": "332",
                     "kind": "header",
                     "name": "accept",
+                    "originalName": "accept",
                     "serializedName": "Accept",
                     "type": {
                       "$ref": "69"
@@ -4935,6 +5090,7 @@
                         "$id": "333",
                         "kind": "method",
                         "name": "accept",
+                        "originalName": "accept",
                         "serializedName": "Accept",
                         "type": {
                           "$ref": "69"
@@ -5002,6 +5158,7 @@
               "$id": "334",
               "kind": "basic",
               "name": "putAll",
+              "originalName": "putAll",
               "isExactName": false,
               "accessibility": "public",
               "apiVersions": [],
@@ -5009,6 +5166,7 @@
               "operation": {
                 "$id": "335",
                 "name": "putAll",
+                "originalName": "putAll",
                 "isExactName": false,
                 "resourceName": "PlainTime",
                 "doc": "Put a body with all properties present.",
@@ -5018,6 +5176,7 @@
                     "$id": "336",
                     "kind": "header",
                     "name": "contentType",
+                    "originalName": "contentType",
                     "serializedName": "Content-Type",
                     "doc": "Body parameter's content type. Known values are application/json",
                     "type": {
@@ -5035,6 +5194,7 @@
                         "$id": "337",
                         "kind": "method",
                         "name": "contentType",
+                        "originalName": "contentType",
                         "serializedName": "Content-Type",
                         "doc": "Body parameter's content type. Known values are application/json",
                         "type": {
@@ -5057,6 +5217,7 @@
                     "$id": "338",
                     "kind": "body",
                     "name": "body",
+                    "originalName": "body",
                     "serializedName": "body",
                     "type": {
                       "$ref": "172"
@@ -5076,6 +5237,7 @@
                         "$id": "339",
                         "kind": "method",
                         "name": "body",
+                        "originalName": "body",
                         "serializedName": "body",
                         "type": {
                           "$ref": "172"
@@ -5140,6 +5302,7 @@
               "$id": "340",
               "kind": "basic",
               "name": "putDefault",
+              "originalName": "putDefault",
               "isExactName": false,
               "accessibility": "public",
               "apiVersions": [],
@@ -5147,6 +5310,7 @@
               "operation": {
                 "$id": "341",
                 "name": "putDefault",
+                "originalName": "putDefault",
                 "isExactName": false,
                 "resourceName": "PlainTime",
                 "doc": "Put a body with default properties.",
@@ -5156,6 +5320,7 @@
                     "$id": "342",
                     "kind": "header",
                     "name": "contentType",
+                    "originalName": "contentType",
                     "serializedName": "Content-Type",
                     "doc": "Body parameter's content type. Known values are application/json",
                     "type": {
@@ -5173,6 +5338,7 @@
                         "$id": "343",
                         "kind": "method",
                         "name": "contentType",
+                        "originalName": "contentType",
                         "serializedName": "Content-Type",
                         "doc": "Body parameter's content type. Known values are application/json",
                         "type": {
@@ -5195,6 +5361,7 @@
                     "$id": "344",
                     "kind": "body",
                     "name": "body",
+                    "originalName": "body",
                     "serializedName": "body",
                     "type": {
                       "$ref": "172"
@@ -5214,6 +5381,7 @@
                         "$id": "345",
                         "kind": "method",
                         "name": "body",
+                        "originalName": "body",
                         "serializedName": "body",
                         "type": {
                           "$ref": "172"
@@ -5328,6 +5496,7 @@
               "$id": "350",
               "kind": "basic",
               "name": "getAll",
+              "originalName": "getAll",
               "isExactName": false,
               "accessibility": "public",
               "apiVersions": [],
@@ -5335,6 +5504,7 @@
               "operation": {
                 "$id": "351",
                 "name": "getAll",
+                "originalName": "getAll",
                 "isExactName": false,
                 "resourceName": "CollectionsByte",
                 "doc": "Get models that will return all properties in the model",
@@ -5344,6 +5514,7 @@
                     "$id": "352",
                     "kind": "header",
                     "name": "accept",
+                    "originalName": "accept",
                     "serializedName": "Accept",
                     "type": {
                       "$ref": "75"
@@ -5360,6 +5531,7 @@
                         "$id": "353",
                         "kind": "method",
                         "name": "accept",
+                        "originalName": "accept",
                         "serializedName": "Accept",
                         "type": {
                           "$ref": "75"
@@ -5427,6 +5599,7 @@
               "$id": "354",
               "kind": "basic",
               "name": "getDefault",
+              "originalName": "getDefault",
               "isExactName": false,
               "accessibility": "public",
               "apiVersions": [],
@@ -5434,6 +5607,7 @@
               "operation": {
                 "$id": "355",
                 "name": "getDefault",
+                "originalName": "getDefault",
                 "isExactName": false,
                 "resourceName": "CollectionsByte",
                 "doc": "Get models that will return the default object",
@@ -5443,6 +5617,7 @@
                     "$id": "356",
                     "kind": "header",
                     "name": "accept",
+                    "originalName": "accept",
                     "serializedName": "Accept",
                     "type": {
                       "$ref": "77"
@@ -5459,6 +5634,7 @@
                         "$id": "357",
                         "kind": "method",
                         "name": "accept",
+                        "originalName": "accept",
                         "serializedName": "Accept",
                         "type": {
                           "$ref": "77"
@@ -5526,6 +5702,7 @@
               "$id": "358",
               "kind": "basic",
               "name": "putAll",
+              "originalName": "putAll",
               "isExactName": false,
               "accessibility": "public",
               "apiVersions": [],
@@ -5533,6 +5710,7 @@
               "operation": {
                 "$id": "359",
                 "name": "putAll",
+                "originalName": "putAll",
                 "isExactName": false,
                 "resourceName": "CollectionsByte",
                 "doc": "Put a body with all properties present.",
@@ -5542,6 +5720,7 @@
                     "$id": "360",
                     "kind": "header",
                     "name": "contentType",
+                    "originalName": "contentType",
                     "serializedName": "Content-Type",
                     "doc": "Body parameter's content type. Known values are application/json",
                     "type": {
@@ -5559,6 +5738,7 @@
                         "$id": "361",
                         "kind": "method",
                         "name": "contentType",
+                        "originalName": "contentType",
                         "serializedName": "Content-Type",
                         "doc": "Body parameter's content type. Known values are application/json",
                         "type": {
@@ -5581,6 +5761,7 @@
                     "$id": "362",
                     "kind": "body",
                     "name": "body",
+                    "originalName": "body",
                     "serializedName": "body",
                     "type": {
                       "$ref": "175"
@@ -5600,6 +5781,7 @@
                         "$id": "363",
                         "kind": "method",
                         "name": "body",
+                        "originalName": "body",
                         "serializedName": "body",
                         "type": {
                           "$ref": "175"
@@ -5664,6 +5846,7 @@
               "$id": "364",
               "kind": "basic",
               "name": "putDefault",
+              "originalName": "putDefault",
               "isExactName": false,
               "accessibility": "public",
               "apiVersions": [],
@@ -5671,6 +5854,7 @@
               "operation": {
                 "$id": "365",
                 "name": "putDefault",
+                "originalName": "putDefault",
                 "isExactName": false,
                 "resourceName": "CollectionsByte",
                 "doc": "Put a body with default properties.",
@@ -5680,6 +5864,7 @@
                     "$id": "366",
                     "kind": "header",
                     "name": "contentType",
+                    "originalName": "contentType",
                     "serializedName": "Content-Type",
                     "doc": "Body parameter's content type. Known values are application/json",
                     "type": {
@@ -5697,6 +5882,7 @@
                         "$id": "367",
                         "kind": "method",
                         "name": "contentType",
+                        "originalName": "contentType",
                         "serializedName": "Content-Type",
                         "doc": "Body parameter's content type. Known values are application/json",
                         "type": {
@@ -5719,6 +5905,7 @@
                     "$id": "368",
                     "kind": "body",
                     "name": "body",
+                    "originalName": "body",
                     "serializedName": "body",
                     "type": {
                       "$ref": "175"
@@ -5738,6 +5925,7 @@
                         "$id": "369",
                         "kind": "method",
                         "name": "body",
+                        "originalName": "body",
                         "serializedName": "body",
                         "type": {
                           "$ref": "175"
@@ -5852,6 +6040,7 @@
               "$id": "374",
               "kind": "basic",
               "name": "getAll",
+              "originalName": "getAll",
               "isExactName": false,
               "accessibility": "public",
               "apiVersions": [],
@@ -5859,6 +6048,7 @@
               "operation": {
                 "$id": "375",
                 "name": "getAll",
+                "originalName": "getAll",
                 "isExactName": false,
                 "resourceName": "CollectionsModel",
                 "doc": "Get models that will return all properties in the model",
@@ -5868,6 +6058,7 @@
                     "$id": "376",
                     "kind": "header",
                     "name": "accept",
+                    "originalName": "accept",
                     "serializedName": "Accept",
                     "type": {
                       "$ref": "83"
@@ -5884,6 +6075,7 @@
                         "$id": "377",
                         "kind": "method",
                         "name": "accept",
+                        "originalName": "accept",
                         "serializedName": "Accept",
                         "type": {
                           "$ref": "83"
@@ -5951,6 +6143,7 @@
               "$id": "378",
               "kind": "basic",
               "name": "getDefault",
+              "originalName": "getDefault",
               "isExactName": false,
               "accessibility": "public",
               "apiVersions": [],
@@ -5958,6 +6151,7 @@
               "operation": {
                 "$id": "379",
                 "name": "getDefault",
+                "originalName": "getDefault",
                 "isExactName": false,
                 "resourceName": "CollectionsModel",
                 "doc": "Get models that will return the default object",
@@ -5967,6 +6161,7 @@
                     "$id": "380",
                     "kind": "header",
                     "name": "accept",
+                    "originalName": "accept",
                     "serializedName": "Accept",
                     "type": {
                       "$ref": "85"
@@ -5983,6 +6178,7 @@
                         "$id": "381",
                         "kind": "method",
                         "name": "accept",
+                        "originalName": "accept",
                         "serializedName": "Accept",
                         "type": {
                           "$ref": "85"
@@ -6050,6 +6246,7 @@
               "$id": "382",
               "kind": "basic",
               "name": "putAll",
+              "originalName": "putAll",
               "isExactName": false,
               "accessibility": "public",
               "apiVersions": [],
@@ -6057,6 +6254,7 @@
               "operation": {
                 "$id": "383",
                 "name": "putAll",
+                "originalName": "putAll",
                 "isExactName": false,
                 "resourceName": "CollectionsModel",
                 "doc": "Put a body with all properties present.",
@@ -6066,6 +6264,7 @@
                     "$id": "384",
                     "kind": "header",
                     "name": "contentType",
+                    "originalName": "contentType",
                     "serializedName": "Content-Type",
                     "doc": "Body parameter's content type. Known values are application/json",
                     "type": {
@@ -6083,6 +6282,7 @@
                         "$id": "385",
                         "kind": "method",
                         "name": "contentType",
+                        "originalName": "contentType",
                         "serializedName": "Content-Type",
                         "doc": "Body parameter's content type. Known values are application/json",
                         "type": {
@@ -6105,6 +6305,7 @@
                     "$id": "386",
                     "kind": "body",
                     "name": "body",
+                    "originalName": "body",
                     "serializedName": "body",
                     "type": {
                       "$ref": "179"
@@ -6124,6 +6325,7 @@
                         "$id": "387",
                         "kind": "method",
                         "name": "body",
+                        "originalName": "body",
                         "serializedName": "body",
                         "type": {
                           "$ref": "179"
@@ -6188,6 +6390,7 @@
               "$id": "388",
               "kind": "basic",
               "name": "putDefault",
+              "originalName": "putDefault",
               "isExactName": false,
               "accessibility": "public",
               "apiVersions": [],
@@ -6195,6 +6398,7 @@
               "operation": {
                 "$id": "389",
                 "name": "putDefault",
+                "originalName": "putDefault",
                 "isExactName": false,
                 "resourceName": "CollectionsModel",
                 "doc": "Put a body with default properties.",
@@ -6204,6 +6408,7 @@
                     "$id": "390",
                     "kind": "header",
                     "name": "contentType",
+                    "originalName": "contentType",
                     "serializedName": "Content-Type",
                     "doc": "Body parameter's content type. Known values are application/json",
                     "type": {
@@ -6221,6 +6426,7 @@
                         "$id": "391",
                         "kind": "method",
                         "name": "contentType",
+                        "originalName": "contentType",
                         "serializedName": "Content-Type",
                         "doc": "Body parameter's content type. Known values are application/json",
                         "type": {
@@ -6243,6 +6449,7 @@
                     "$id": "392",
                     "kind": "body",
                     "name": "body",
+                    "originalName": "body",
                     "serializedName": "body",
                     "type": {
                       "$ref": "179"
@@ -6262,6 +6469,7 @@
                         "$id": "393",
                         "kind": "method",
                         "name": "body",
+                        "originalName": "body",
                         "serializedName": "body",
                         "type": {
                           "$ref": "179"
@@ -6376,6 +6584,7 @@
               "$id": "398",
               "kind": "basic",
               "name": "getAll",
+              "originalName": "getAll",
               "isExactName": false,
               "accessibility": "public",
               "apiVersions": [],
@@ -6383,6 +6592,7 @@
               "operation": {
                 "$id": "399",
                 "name": "getAll",
+                "originalName": "getAll",
                 "isExactName": false,
                 "resourceName": "StringLiteral",
                 "doc": "Get models that will return all properties in the model",
@@ -6392,6 +6602,7 @@
                     "$id": "400",
                     "kind": "header",
                     "name": "accept",
+                    "originalName": "accept",
                     "serializedName": "Accept",
                     "type": {
                       "$ref": "91"
@@ -6408,6 +6619,7 @@
                         "$id": "401",
                         "kind": "method",
                         "name": "accept",
+                        "originalName": "accept",
                         "serializedName": "Accept",
                         "type": {
                           "$ref": "91"
@@ -6475,6 +6687,7 @@
               "$id": "402",
               "kind": "basic",
               "name": "getDefault",
+              "originalName": "getDefault",
               "isExactName": false,
               "accessibility": "public",
               "apiVersions": [],
@@ -6482,6 +6695,7 @@
               "operation": {
                 "$id": "403",
                 "name": "getDefault",
+                "originalName": "getDefault",
                 "isExactName": false,
                 "resourceName": "StringLiteral",
                 "doc": "Get models that will return the default object",
@@ -6491,6 +6705,7 @@
                     "$id": "404",
                     "kind": "header",
                     "name": "accept",
+                    "originalName": "accept",
                     "serializedName": "Accept",
                     "type": {
                       "$ref": "93"
@@ -6507,6 +6722,7 @@
                         "$id": "405",
                         "kind": "method",
                         "name": "accept",
+                        "originalName": "accept",
                         "serializedName": "Accept",
                         "type": {
                           "$ref": "93"
@@ -6574,6 +6790,7 @@
               "$id": "406",
               "kind": "basic",
               "name": "putAll",
+              "originalName": "putAll",
               "isExactName": false,
               "accessibility": "public",
               "apiVersions": [],
@@ -6581,6 +6798,7 @@
               "operation": {
                 "$id": "407",
                 "name": "putAll",
+                "originalName": "putAll",
                 "isExactName": false,
                 "resourceName": "StringLiteral",
                 "doc": "Put a body with all properties present.",
@@ -6590,6 +6808,7 @@
                     "$id": "408",
                     "kind": "header",
                     "name": "contentType",
+                    "originalName": "contentType",
                     "serializedName": "Content-Type",
                     "doc": "Body parameter's content type. Known values are application/json",
                     "type": {
@@ -6607,6 +6826,7 @@
                         "$id": "409",
                         "kind": "method",
                         "name": "contentType",
+                        "originalName": "contentType",
                         "serializedName": "Content-Type",
                         "doc": "Body parameter's content type. Known values are application/json",
                         "type": {
@@ -6629,6 +6849,7 @@
                     "$id": "410",
                     "kind": "body",
                     "name": "body",
+                    "originalName": "body",
                     "serializedName": "body",
                     "type": {
                       "$ref": "182"
@@ -6648,6 +6869,7 @@
                         "$id": "411",
                         "kind": "method",
                         "name": "body",
+                        "originalName": "body",
                         "serializedName": "body",
                         "type": {
                           "$ref": "182"
@@ -6712,6 +6934,7 @@
               "$id": "412",
               "kind": "basic",
               "name": "putDefault",
+              "originalName": "putDefault",
               "isExactName": false,
               "accessibility": "public",
               "apiVersions": [],
@@ -6719,6 +6942,7 @@
               "operation": {
                 "$id": "413",
                 "name": "putDefault",
+                "originalName": "putDefault",
                 "isExactName": false,
                 "resourceName": "StringLiteral",
                 "doc": "Put a body with default properties.",
@@ -6728,6 +6952,7 @@
                     "$id": "414",
                     "kind": "header",
                     "name": "contentType",
+                    "originalName": "contentType",
                     "serializedName": "Content-Type",
                     "doc": "Body parameter's content type. Known values are application/json",
                     "type": {
@@ -6745,6 +6970,7 @@
                         "$id": "415",
                         "kind": "method",
                         "name": "contentType",
+                        "originalName": "contentType",
                         "serializedName": "Content-Type",
                         "doc": "Body parameter's content type. Known values are application/json",
                         "type": {
@@ -6767,6 +6993,7 @@
                     "$id": "416",
                     "kind": "body",
                     "name": "body",
+                    "originalName": "body",
                     "serializedName": "body",
                     "type": {
                       "$ref": "182"
@@ -6786,6 +7013,7 @@
                         "$id": "417",
                         "kind": "method",
                         "name": "body",
+                        "originalName": "body",
                         "serializedName": "body",
                         "type": {
                           "$ref": "182"
@@ -6900,6 +7128,7 @@
               "$id": "422",
               "kind": "basic",
               "name": "getAll",
+              "originalName": "getAll",
               "isExactName": false,
               "accessibility": "public",
               "apiVersions": [],
@@ -6907,6 +7136,7 @@
               "operation": {
                 "$id": "423",
                 "name": "getAll",
+                "originalName": "getAll",
                 "isExactName": false,
                 "resourceName": "IntLiteral",
                 "doc": "Get models that will return all properties in the model",
@@ -6916,6 +7146,7 @@
                     "$id": "424",
                     "kind": "header",
                     "name": "accept",
+                    "originalName": "accept",
                     "serializedName": "Accept",
                     "type": {
                       "$ref": "99"
@@ -6932,6 +7163,7 @@
                         "$id": "425",
                         "kind": "method",
                         "name": "accept",
+                        "originalName": "accept",
                         "serializedName": "Accept",
                         "type": {
                           "$ref": "99"
@@ -6999,6 +7231,7 @@
               "$id": "426",
               "kind": "basic",
               "name": "getDefault",
+              "originalName": "getDefault",
               "isExactName": false,
               "accessibility": "public",
               "apiVersions": [],
@@ -7006,6 +7239,7 @@
               "operation": {
                 "$id": "427",
                 "name": "getDefault",
+                "originalName": "getDefault",
                 "isExactName": false,
                 "resourceName": "IntLiteral",
                 "doc": "Get models that will return the default object",
@@ -7015,6 +7249,7 @@
                     "$id": "428",
                     "kind": "header",
                     "name": "accept",
+                    "originalName": "accept",
                     "serializedName": "Accept",
                     "type": {
                       "$ref": "101"
@@ -7031,6 +7266,7 @@
                         "$id": "429",
                         "kind": "method",
                         "name": "accept",
+                        "originalName": "accept",
                         "serializedName": "Accept",
                         "type": {
                           "$ref": "101"
@@ -7098,6 +7334,7 @@
               "$id": "430",
               "kind": "basic",
               "name": "putAll",
+              "originalName": "putAll",
               "isExactName": false,
               "accessibility": "public",
               "apiVersions": [],
@@ -7105,6 +7342,7 @@
               "operation": {
                 "$id": "431",
                 "name": "putAll",
+                "originalName": "putAll",
                 "isExactName": false,
                 "resourceName": "IntLiteral",
                 "doc": "Put a body with all properties present.",
@@ -7114,6 +7352,7 @@
                     "$id": "432",
                     "kind": "header",
                     "name": "contentType",
+                    "originalName": "contentType",
                     "serializedName": "Content-Type",
                     "doc": "Body parameter's content type. Known values are application/json",
                     "type": {
@@ -7131,6 +7370,7 @@
                         "$id": "433",
                         "kind": "method",
                         "name": "contentType",
+                        "originalName": "contentType",
                         "serializedName": "Content-Type",
                         "doc": "Body parameter's content type. Known values are application/json",
                         "type": {
@@ -7153,6 +7393,7 @@
                     "$id": "434",
                     "kind": "body",
                     "name": "body",
+                    "originalName": "body",
                     "serializedName": "body",
                     "type": {
                       "$ref": "184"
@@ -7172,6 +7413,7 @@
                         "$id": "435",
                         "kind": "method",
                         "name": "body",
+                        "originalName": "body",
                         "serializedName": "body",
                         "type": {
                           "$ref": "184"
@@ -7236,6 +7478,7 @@
               "$id": "436",
               "kind": "basic",
               "name": "putDefault",
+              "originalName": "putDefault",
               "isExactName": false,
               "accessibility": "public",
               "apiVersions": [],
@@ -7243,6 +7486,7 @@
               "operation": {
                 "$id": "437",
                 "name": "putDefault",
+                "originalName": "putDefault",
                 "isExactName": false,
                 "resourceName": "IntLiteral",
                 "doc": "Put a body with default properties.",
@@ -7252,6 +7496,7 @@
                     "$id": "438",
                     "kind": "header",
                     "name": "contentType",
+                    "originalName": "contentType",
                     "serializedName": "Content-Type",
                     "doc": "Body parameter's content type. Known values are application/json",
                     "type": {
@@ -7269,6 +7514,7 @@
                         "$id": "439",
                         "kind": "method",
                         "name": "contentType",
+                        "originalName": "contentType",
                         "serializedName": "Content-Type",
                         "doc": "Body parameter's content type. Known values are application/json",
                         "type": {
@@ -7291,6 +7537,7 @@
                     "$id": "440",
                     "kind": "body",
                     "name": "body",
+                    "originalName": "body",
                     "serializedName": "body",
                     "type": {
                       "$ref": "184"
@@ -7310,6 +7557,7 @@
                         "$id": "441",
                         "kind": "method",
                         "name": "body",
+                        "originalName": "body",
                         "serializedName": "body",
                         "type": {
                           "$ref": "184"
@@ -7424,6 +7672,7 @@
               "$id": "446",
               "kind": "basic",
               "name": "getAll",
+              "originalName": "getAll",
               "isExactName": false,
               "accessibility": "public",
               "apiVersions": [],
@@ -7431,6 +7680,7 @@
               "operation": {
                 "$id": "447",
                 "name": "getAll",
+                "originalName": "getAll",
                 "isExactName": false,
                 "resourceName": "FloatLiteral",
                 "doc": "Get models that will return all properties in the model",
@@ -7440,6 +7690,7 @@
                     "$id": "448",
                     "kind": "header",
                     "name": "accept",
+                    "originalName": "accept",
                     "serializedName": "Accept",
                     "type": {
                       "$ref": "107"
@@ -7456,6 +7707,7 @@
                         "$id": "449",
                         "kind": "method",
                         "name": "accept",
+                        "originalName": "accept",
                         "serializedName": "Accept",
                         "type": {
                           "$ref": "107"
@@ -7523,6 +7775,7 @@
               "$id": "450",
               "kind": "basic",
               "name": "getDefault",
+              "originalName": "getDefault",
               "isExactName": false,
               "accessibility": "public",
               "apiVersions": [],
@@ -7530,6 +7783,7 @@
               "operation": {
                 "$id": "451",
                 "name": "getDefault",
+                "originalName": "getDefault",
                 "isExactName": false,
                 "resourceName": "FloatLiteral",
                 "doc": "Get models that will return the default object",
@@ -7539,6 +7793,7 @@
                     "$id": "452",
                     "kind": "header",
                     "name": "accept",
+                    "originalName": "accept",
                     "serializedName": "Accept",
                     "type": {
                       "$ref": "109"
@@ -7555,6 +7810,7 @@
                         "$id": "453",
                         "kind": "method",
                         "name": "accept",
+                        "originalName": "accept",
                         "serializedName": "Accept",
                         "type": {
                           "$ref": "109"
@@ -7622,6 +7878,7 @@
               "$id": "454",
               "kind": "basic",
               "name": "putAll",
+              "originalName": "putAll",
               "isExactName": false,
               "accessibility": "public",
               "apiVersions": [],
@@ -7629,6 +7886,7 @@
               "operation": {
                 "$id": "455",
                 "name": "putAll",
+                "originalName": "putAll",
                 "isExactName": false,
                 "resourceName": "FloatLiteral",
                 "doc": "Put a body with all properties present.",
@@ -7638,6 +7896,7 @@
                     "$id": "456",
                     "kind": "header",
                     "name": "contentType",
+                    "originalName": "contentType",
                     "serializedName": "Content-Type",
                     "doc": "Body parameter's content type. Known values are application/json",
                     "type": {
@@ -7655,6 +7914,7 @@
                         "$id": "457",
                         "kind": "method",
                         "name": "contentType",
+                        "originalName": "contentType",
                         "serializedName": "Content-Type",
                         "doc": "Body parameter's content type. Known values are application/json",
                         "type": {
@@ -7677,6 +7937,7 @@
                     "$id": "458",
                     "kind": "body",
                     "name": "body",
+                    "originalName": "body",
                     "serializedName": "body",
                     "type": {
                       "$ref": "186"
@@ -7696,6 +7957,7 @@
                         "$id": "459",
                         "kind": "method",
                         "name": "body",
+                        "originalName": "body",
                         "serializedName": "body",
                         "type": {
                           "$ref": "186"
@@ -7760,6 +8022,7 @@
               "$id": "460",
               "kind": "basic",
               "name": "putDefault",
+              "originalName": "putDefault",
               "isExactName": false,
               "accessibility": "public",
               "apiVersions": [],
@@ -7767,6 +8030,7 @@
               "operation": {
                 "$id": "461",
                 "name": "putDefault",
+                "originalName": "putDefault",
                 "isExactName": false,
                 "resourceName": "FloatLiteral",
                 "doc": "Put a body with default properties.",
@@ -7776,6 +8040,7 @@
                     "$id": "462",
                     "kind": "header",
                     "name": "contentType",
+                    "originalName": "contentType",
                     "serializedName": "Content-Type",
                     "doc": "Body parameter's content type. Known values are application/json",
                     "type": {
@@ -7793,6 +8058,7 @@
                         "$id": "463",
                         "kind": "method",
                         "name": "contentType",
+                        "originalName": "contentType",
                         "serializedName": "Content-Type",
                         "doc": "Body parameter's content type. Known values are application/json",
                         "type": {
@@ -7815,6 +8081,7 @@
                     "$id": "464",
                     "kind": "body",
                     "name": "body",
+                    "originalName": "body",
                     "serializedName": "body",
                     "type": {
                       "$ref": "186"
@@ -7834,6 +8101,7 @@
                         "$id": "465",
                         "kind": "method",
                         "name": "body",
+                        "originalName": "body",
                         "serializedName": "body",
                         "type": {
                           "$ref": "186"
@@ -7948,6 +8216,7 @@
               "$id": "470",
               "kind": "basic",
               "name": "getAll",
+              "originalName": "getAll",
               "isExactName": false,
               "accessibility": "public",
               "apiVersions": [],
@@ -7955,6 +8224,7 @@
               "operation": {
                 "$id": "471",
                 "name": "getAll",
+                "originalName": "getAll",
                 "isExactName": false,
                 "resourceName": "BooleanLiteral",
                 "doc": "Get models that will return all properties in the model",
@@ -7964,6 +8234,7 @@
                     "$id": "472",
                     "kind": "header",
                     "name": "accept",
+                    "originalName": "accept",
                     "serializedName": "Accept",
                     "type": {
                       "$ref": "115"
@@ -7980,6 +8251,7 @@
                         "$id": "473",
                         "kind": "method",
                         "name": "accept",
+                        "originalName": "accept",
                         "serializedName": "Accept",
                         "type": {
                           "$ref": "115"
@@ -8047,6 +8319,7 @@
               "$id": "474",
               "kind": "basic",
               "name": "getDefault",
+              "originalName": "getDefault",
               "isExactName": false,
               "accessibility": "public",
               "apiVersions": [],
@@ -8054,6 +8327,7 @@
               "operation": {
                 "$id": "475",
                 "name": "getDefault",
+                "originalName": "getDefault",
                 "isExactName": false,
                 "resourceName": "BooleanLiteral",
                 "doc": "Get models that will return the default object",
@@ -8063,6 +8337,7 @@
                     "$id": "476",
                     "kind": "header",
                     "name": "accept",
+                    "originalName": "accept",
                     "serializedName": "Accept",
                     "type": {
                       "$ref": "117"
@@ -8079,6 +8354,7 @@
                         "$id": "477",
                         "kind": "method",
                         "name": "accept",
+                        "originalName": "accept",
                         "serializedName": "Accept",
                         "type": {
                           "$ref": "117"
@@ -8146,6 +8422,7 @@
               "$id": "478",
               "kind": "basic",
               "name": "putAll",
+              "originalName": "putAll",
               "isExactName": false,
               "accessibility": "public",
               "apiVersions": [],
@@ -8153,6 +8430,7 @@
               "operation": {
                 "$id": "479",
                 "name": "putAll",
+                "originalName": "putAll",
                 "isExactName": false,
                 "resourceName": "BooleanLiteral",
                 "doc": "Put a body with all properties present.",
@@ -8162,6 +8440,7 @@
                     "$id": "480",
                     "kind": "header",
                     "name": "contentType",
+                    "originalName": "contentType",
                     "serializedName": "Content-Type",
                     "doc": "Body parameter's content type. Known values are application/json",
                     "type": {
@@ -8179,6 +8458,7 @@
                         "$id": "481",
                         "kind": "method",
                         "name": "contentType",
+                        "originalName": "contentType",
                         "serializedName": "Content-Type",
                         "doc": "Body parameter's content type. Known values are application/json",
                         "type": {
@@ -8201,6 +8481,7 @@
                     "$id": "482",
                     "kind": "body",
                     "name": "body",
+                    "originalName": "body",
                     "serializedName": "body",
                     "type": {
                       "$ref": "188"
@@ -8220,6 +8501,7 @@
                         "$id": "483",
                         "kind": "method",
                         "name": "body",
+                        "originalName": "body",
                         "serializedName": "body",
                         "type": {
                           "$ref": "188"
@@ -8284,6 +8566,7 @@
               "$id": "484",
               "kind": "basic",
               "name": "putDefault",
+              "originalName": "putDefault",
               "isExactName": false,
               "accessibility": "public",
               "apiVersions": [],
@@ -8291,6 +8574,7 @@
               "operation": {
                 "$id": "485",
                 "name": "putDefault",
+                "originalName": "putDefault",
                 "isExactName": false,
                 "resourceName": "BooleanLiteral",
                 "doc": "Put a body with default properties.",
@@ -8300,6 +8584,7 @@
                     "$id": "486",
                     "kind": "header",
                     "name": "contentType",
+                    "originalName": "contentType",
                     "serializedName": "Content-Type",
                     "doc": "Body parameter's content type. Known values are application/json",
                     "type": {
@@ -8317,6 +8602,7 @@
                         "$id": "487",
                         "kind": "method",
                         "name": "contentType",
+                        "originalName": "contentType",
                         "serializedName": "Content-Type",
                         "doc": "Body parameter's content type. Known values are application/json",
                         "type": {
@@ -8339,6 +8625,7 @@
                     "$id": "488",
                     "kind": "body",
                     "name": "body",
+                    "originalName": "body",
                     "serializedName": "body",
                     "type": {
                       "$ref": "188"
@@ -8358,6 +8645,7 @@
                         "$id": "489",
                         "kind": "method",
                         "name": "body",
+                        "originalName": "body",
                         "serializedName": "body",
                         "type": {
                           "$ref": "188"
@@ -8472,6 +8760,7 @@
               "$id": "494",
               "kind": "basic",
               "name": "getAll",
+              "originalName": "getAll",
               "isExactName": false,
               "accessibility": "public",
               "apiVersions": [],
@@ -8479,6 +8768,7 @@
               "operation": {
                 "$id": "495",
                 "name": "getAll",
+                "originalName": "getAll",
                 "isExactName": false,
                 "resourceName": "UnionStringLiteral",
                 "doc": "Get models that will return all properties in the model",
@@ -8488,6 +8778,7 @@
                     "$id": "496",
                     "kind": "header",
                     "name": "accept",
+                    "originalName": "accept",
                     "serializedName": "Accept",
                     "type": {
                       "$ref": "123"
@@ -8504,6 +8795,7 @@
                         "$id": "497",
                         "kind": "method",
                         "name": "accept",
+                        "originalName": "accept",
                         "serializedName": "Accept",
                         "type": {
                           "$ref": "123"
@@ -8571,6 +8863,7 @@
               "$id": "498",
               "kind": "basic",
               "name": "getDefault",
+              "originalName": "getDefault",
               "isExactName": false,
               "accessibility": "public",
               "apiVersions": [],
@@ -8578,6 +8871,7 @@
               "operation": {
                 "$id": "499",
                 "name": "getDefault",
+                "originalName": "getDefault",
                 "isExactName": false,
                 "resourceName": "UnionStringLiteral",
                 "doc": "Get models that will return the default object",
@@ -8587,6 +8881,7 @@
                     "$id": "500",
                     "kind": "header",
                     "name": "accept",
+                    "originalName": "accept",
                     "serializedName": "Accept",
                     "type": {
                       "$ref": "125"
@@ -8603,6 +8898,7 @@
                         "$id": "501",
                         "kind": "method",
                         "name": "accept",
+                        "originalName": "accept",
                         "serializedName": "Accept",
                         "type": {
                           "$ref": "125"
@@ -8670,6 +8966,7 @@
               "$id": "502",
               "kind": "basic",
               "name": "putAll",
+              "originalName": "putAll",
               "isExactName": false,
               "accessibility": "public",
               "apiVersions": [],
@@ -8677,6 +8974,7 @@
               "operation": {
                 "$id": "503",
                 "name": "putAll",
+                "originalName": "putAll",
                 "isExactName": false,
                 "resourceName": "UnionStringLiteral",
                 "doc": "Put a body with all properties present.",
@@ -8686,6 +8984,7 @@
                     "$id": "504",
                     "kind": "header",
                     "name": "contentType",
+                    "originalName": "contentType",
                     "serializedName": "Content-Type",
                     "doc": "Body parameter's content type. Known values are application/json",
                     "type": {
@@ -8703,6 +9002,7 @@
                         "$id": "505",
                         "kind": "method",
                         "name": "contentType",
+                        "originalName": "contentType",
                         "serializedName": "Content-Type",
                         "doc": "Body parameter's content type. Known values are application/json",
                         "type": {
@@ -8725,6 +9025,7 @@
                     "$id": "506",
                     "kind": "body",
                     "name": "body",
+                    "originalName": "body",
                     "serializedName": "body",
                     "type": {
                       "$ref": "190"
@@ -8744,6 +9045,7 @@
                         "$id": "507",
                         "kind": "method",
                         "name": "body",
+                        "originalName": "body",
                         "serializedName": "body",
                         "type": {
                           "$ref": "190"
@@ -8808,6 +9110,7 @@
               "$id": "508",
               "kind": "basic",
               "name": "putDefault",
+              "originalName": "putDefault",
               "isExactName": false,
               "accessibility": "public",
               "apiVersions": [],
@@ -8815,6 +9118,7 @@
               "operation": {
                 "$id": "509",
                 "name": "putDefault",
+                "originalName": "putDefault",
                 "isExactName": false,
                 "resourceName": "UnionStringLiteral",
                 "doc": "Put a body with default properties.",
@@ -8824,6 +9128,7 @@
                     "$id": "510",
                     "kind": "header",
                     "name": "contentType",
+                    "originalName": "contentType",
                     "serializedName": "Content-Type",
                     "doc": "Body parameter's content type. Known values are application/json",
                     "type": {
@@ -8841,6 +9146,7 @@
                         "$id": "511",
                         "kind": "method",
                         "name": "contentType",
+                        "originalName": "contentType",
                         "serializedName": "Content-Type",
                         "doc": "Body parameter's content type. Known values are application/json",
                         "type": {
@@ -8863,6 +9169,7 @@
                     "$id": "512",
                     "kind": "body",
                     "name": "body",
+                    "originalName": "body",
                     "serializedName": "body",
                     "type": {
                       "$ref": "190"
@@ -8882,6 +9189,7 @@
                         "$id": "513",
                         "kind": "method",
                         "name": "body",
+                        "originalName": "body",
                         "serializedName": "body",
                         "type": {
                           "$ref": "190"
@@ -8996,6 +9304,7 @@
               "$id": "518",
               "kind": "basic",
               "name": "getAll",
+              "originalName": "getAll",
               "isExactName": false,
               "accessibility": "public",
               "apiVersions": [],
@@ -9003,6 +9312,7 @@
               "operation": {
                 "$id": "519",
                 "name": "getAll",
+                "originalName": "getAll",
                 "isExactName": false,
                 "resourceName": "UnionIntLiteral",
                 "doc": "Get models that will return all properties in the model",
@@ -9012,6 +9322,7 @@
                     "$id": "520",
                     "kind": "header",
                     "name": "accept",
+                    "originalName": "accept",
                     "serializedName": "Accept",
                     "type": {
                       "$ref": "131"
@@ -9028,6 +9339,7 @@
                         "$id": "521",
                         "kind": "method",
                         "name": "accept",
+                        "originalName": "accept",
                         "serializedName": "Accept",
                         "type": {
                           "$ref": "131"
@@ -9095,6 +9407,7 @@
               "$id": "522",
               "kind": "basic",
               "name": "getDefault",
+              "originalName": "getDefault",
               "isExactName": false,
               "accessibility": "public",
               "apiVersions": [],
@@ -9102,6 +9415,7 @@
               "operation": {
                 "$id": "523",
                 "name": "getDefault",
+                "originalName": "getDefault",
                 "isExactName": false,
                 "resourceName": "UnionIntLiteral",
                 "doc": "Get models that will return the default object",
@@ -9111,6 +9425,7 @@
                     "$id": "524",
                     "kind": "header",
                     "name": "accept",
+                    "originalName": "accept",
                     "serializedName": "Accept",
                     "type": {
                       "$ref": "133"
@@ -9127,6 +9442,7 @@
                         "$id": "525",
                         "kind": "method",
                         "name": "accept",
+                        "originalName": "accept",
                         "serializedName": "Accept",
                         "type": {
                           "$ref": "133"
@@ -9194,6 +9510,7 @@
               "$id": "526",
               "kind": "basic",
               "name": "putAll",
+              "originalName": "putAll",
               "isExactName": false,
               "accessibility": "public",
               "apiVersions": [],
@@ -9201,6 +9518,7 @@
               "operation": {
                 "$id": "527",
                 "name": "putAll",
+                "originalName": "putAll",
                 "isExactName": false,
                 "resourceName": "UnionIntLiteral",
                 "doc": "Put a body with all properties present.",
@@ -9210,6 +9528,7 @@
                     "$id": "528",
                     "kind": "header",
                     "name": "contentType",
+                    "originalName": "contentType",
                     "serializedName": "Content-Type",
                     "doc": "Body parameter's content type. Known values are application/json",
                     "type": {
@@ -9227,6 +9546,7 @@
                         "$id": "529",
                         "kind": "method",
                         "name": "contentType",
+                        "originalName": "contentType",
                         "serializedName": "Content-Type",
                         "doc": "Body parameter's content type. Known values are application/json",
                         "type": {
@@ -9249,6 +9569,7 @@
                     "$id": "530",
                     "kind": "body",
                     "name": "body",
+                    "originalName": "body",
                     "serializedName": "body",
                     "type": {
                       "$ref": "192"
@@ -9268,6 +9589,7 @@
                         "$id": "531",
                         "kind": "method",
                         "name": "body",
+                        "originalName": "body",
                         "serializedName": "body",
                         "type": {
                           "$ref": "192"
@@ -9332,6 +9654,7 @@
               "$id": "532",
               "kind": "basic",
               "name": "putDefault",
+              "originalName": "putDefault",
               "isExactName": false,
               "accessibility": "public",
               "apiVersions": [],
@@ -9339,6 +9662,7 @@
               "operation": {
                 "$id": "533",
                 "name": "putDefault",
+                "originalName": "putDefault",
                 "isExactName": false,
                 "resourceName": "UnionIntLiteral",
                 "doc": "Put a body with default properties.",
@@ -9348,6 +9672,7 @@
                     "$id": "534",
                     "kind": "header",
                     "name": "contentType",
+                    "originalName": "contentType",
                     "serializedName": "Content-Type",
                     "doc": "Body parameter's content type. Known values are application/json",
                     "type": {
@@ -9365,6 +9690,7 @@
                         "$id": "535",
                         "kind": "method",
                         "name": "contentType",
+                        "originalName": "contentType",
                         "serializedName": "Content-Type",
                         "doc": "Body parameter's content type. Known values are application/json",
                         "type": {
@@ -9387,6 +9713,7 @@
                     "$id": "536",
                     "kind": "body",
                     "name": "body",
+                    "originalName": "body",
                     "serializedName": "body",
                     "type": {
                       "$ref": "192"
@@ -9406,6 +9733,7 @@
                         "$id": "537",
                         "kind": "method",
                         "name": "body",
+                        "originalName": "body",
                         "serializedName": "body",
                         "type": {
                           "$ref": "192"
@@ -9520,6 +9848,7 @@
               "$id": "542",
               "kind": "basic",
               "name": "getAll",
+              "originalName": "getAll",
               "isExactName": false,
               "accessibility": "public",
               "apiVersions": [],
@@ -9527,6 +9856,7 @@
               "operation": {
                 "$id": "543",
                 "name": "getAll",
+                "originalName": "getAll",
                 "isExactName": false,
                 "resourceName": "UnionFloatLiteral",
                 "doc": "Get models that will return all properties in the model",
@@ -9536,6 +9866,7 @@
                     "$id": "544",
                     "kind": "header",
                     "name": "accept",
+                    "originalName": "accept",
                     "serializedName": "Accept",
                     "type": {
                       "$ref": "139"
@@ -9552,6 +9883,7 @@
                         "$id": "545",
                         "kind": "method",
                         "name": "accept",
+                        "originalName": "accept",
                         "serializedName": "Accept",
                         "type": {
                           "$ref": "139"
@@ -9619,6 +9951,7 @@
               "$id": "546",
               "kind": "basic",
               "name": "getDefault",
+              "originalName": "getDefault",
               "isExactName": false,
               "accessibility": "public",
               "apiVersions": [],
@@ -9626,6 +9959,7 @@
               "operation": {
                 "$id": "547",
                 "name": "getDefault",
+                "originalName": "getDefault",
                 "isExactName": false,
                 "resourceName": "UnionFloatLiteral",
                 "doc": "Get models that will return the default object",
@@ -9635,6 +9969,7 @@
                     "$id": "548",
                     "kind": "header",
                     "name": "accept",
+                    "originalName": "accept",
                     "serializedName": "Accept",
                     "type": {
                       "$ref": "141"
@@ -9651,6 +9986,7 @@
                         "$id": "549",
                         "kind": "method",
                         "name": "accept",
+                        "originalName": "accept",
                         "serializedName": "Accept",
                         "type": {
                           "$ref": "141"
@@ -9718,6 +10054,7 @@
               "$id": "550",
               "kind": "basic",
               "name": "putAll",
+              "originalName": "putAll",
               "isExactName": false,
               "accessibility": "public",
               "apiVersions": [],
@@ -9725,6 +10062,7 @@
               "operation": {
                 "$id": "551",
                 "name": "putAll",
+                "originalName": "putAll",
                 "isExactName": false,
                 "resourceName": "UnionFloatLiteral",
                 "doc": "Put a body with all properties present.",
@@ -9734,6 +10072,7 @@
                     "$id": "552",
                     "kind": "header",
                     "name": "contentType",
+                    "originalName": "contentType",
                     "serializedName": "Content-Type",
                     "doc": "Body parameter's content type. Known values are application/json",
                     "type": {
@@ -9751,6 +10090,7 @@
                         "$id": "553",
                         "kind": "method",
                         "name": "contentType",
+                        "originalName": "contentType",
                         "serializedName": "Content-Type",
                         "doc": "Body parameter's content type. Known values are application/json",
                         "type": {
@@ -9773,6 +10113,7 @@
                     "$id": "554",
                     "kind": "body",
                     "name": "body",
+                    "originalName": "body",
                     "serializedName": "body",
                     "type": {
                       "$ref": "194"
@@ -9792,6 +10133,7 @@
                         "$id": "555",
                         "kind": "method",
                         "name": "body",
+                        "originalName": "body",
                         "serializedName": "body",
                         "type": {
                           "$ref": "194"
@@ -9856,6 +10198,7 @@
               "$id": "556",
               "kind": "basic",
               "name": "putDefault",
+              "originalName": "putDefault",
               "isExactName": false,
               "accessibility": "public",
               "apiVersions": [],
@@ -9863,6 +10206,7 @@
               "operation": {
                 "$id": "557",
                 "name": "putDefault",
+                "originalName": "putDefault",
                 "isExactName": false,
                 "resourceName": "UnionFloatLiteral",
                 "doc": "Put a body with default properties.",
@@ -9872,6 +10216,7 @@
                     "$id": "558",
                     "kind": "header",
                     "name": "contentType",
+                    "originalName": "contentType",
                     "serializedName": "Content-Type",
                     "doc": "Body parameter's content type. Known values are application/json",
                     "type": {
@@ -9889,6 +10234,7 @@
                         "$id": "559",
                         "kind": "method",
                         "name": "contentType",
+                        "originalName": "contentType",
                         "serializedName": "Content-Type",
                         "doc": "Body parameter's content type. Known values are application/json",
                         "type": {
@@ -9911,6 +10257,7 @@
                     "$id": "560",
                     "kind": "body",
                     "name": "body",
+                    "originalName": "body",
                     "serializedName": "body",
                     "type": {
                       "$ref": "194"
@@ -9930,6 +10277,7 @@
                         "$id": "561",
                         "kind": "method",
                         "name": "body",
+                        "originalName": "body",
                         "serializedName": "body",
                         "type": {
                           "$ref": "194"
@@ -10045,6 +10393,7 @@
               "$id": "566",
               "kind": "basic",
               "name": "getAll",
+              "originalName": "getAll",
               "isExactName": false,
               "accessibility": "public",
               "apiVersions": [],
@@ -10052,6 +10401,7 @@
               "operation": {
                 "$id": "567",
                 "name": "getAll",
+                "originalName": "getAll",
                 "isExactName": false,
                 "resourceName": "RequiredAndOptional",
                 "doc": "Get models that will return all properties in the model",
@@ -10061,6 +10411,7 @@
                     "$id": "568",
                     "kind": "header",
                     "name": "accept",
+                    "originalName": "accept",
                     "serializedName": "Accept",
                     "type": {
                       "$ref": "147"
@@ -10077,6 +10428,7 @@
                         "$id": "569",
                         "kind": "method",
                         "name": "accept",
+                        "originalName": "accept",
                         "serializedName": "Accept",
                         "type": {
                           "$ref": "147"
@@ -10144,6 +10496,7 @@
               "$id": "570",
               "kind": "basic",
               "name": "getRequiredOnly",
+              "originalName": "getRequiredOnly",
               "isExactName": false,
               "accessibility": "public",
               "apiVersions": [],
@@ -10151,6 +10504,7 @@
               "operation": {
                 "$id": "571",
                 "name": "getRequiredOnly",
+                "originalName": "getRequiredOnly",
                 "isExactName": false,
                 "resourceName": "RequiredAndOptional",
                 "doc": "Get models that will return only the required properties",
@@ -10160,6 +10514,7 @@
                     "$id": "572",
                     "kind": "header",
                     "name": "accept",
+                    "originalName": "accept",
                     "serializedName": "Accept",
                     "type": {
                       "$ref": "149"
@@ -10176,6 +10531,7 @@
                         "$id": "573",
                         "kind": "method",
                         "name": "accept",
+                        "originalName": "accept",
                         "serializedName": "Accept",
                         "type": {
                           "$ref": "149"
@@ -10243,6 +10599,7 @@
               "$id": "574",
               "kind": "basic",
               "name": "putAll",
+              "originalName": "putAll",
               "isExactName": false,
               "accessibility": "public",
               "apiVersions": [],
@@ -10250,6 +10607,7 @@
               "operation": {
                 "$id": "575",
                 "name": "putAll",
+                "originalName": "putAll",
                 "isExactName": false,
                 "resourceName": "RequiredAndOptional",
                 "doc": "Put a body with all properties present.",
@@ -10259,6 +10617,7 @@
                     "$id": "576",
                     "kind": "header",
                     "name": "contentType",
+                    "originalName": "contentType",
                     "serializedName": "Content-Type",
                     "doc": "Body parameter's content type. Known values are application/json",
                     "type": {
@@ -10276,6 +10635,7 @@
                         "$id": "577",
                         "kind": "method",
                         "name": "contentType",
+                        "originalName": "contentType",
                         "serializedName": "Content-Type",
                         "doc": "Body parameter's content type. Known values are application/json",
                         "type": {
@@ -10298,6 +10658,7 @@
                     "$id": "578",
                     "kind": "body",
                     "name": "body",
+                    "originalName": "body",
                     "serializedName": "body",
                     "type": {
                       "$ref": "196"
@@ -10317,6 +10678,7 @@
                         "$id": "579",
                         "kind": "method",
                         "name": "body",
+                        "originalName": "body",
                         "serializedName": "body",
                         "type": {
                           "$ref": "196"
@@ -10381,6 +10743,7 @@
               "$id": "580",
               "kind": "basic",
               "name": "putRequiredOnly",
+              "originalName": "putRequiredOnly",
               "isExactName": false,
               "accessibility": "public",
               "apiVersions": [],
@@ -10388,6 +10751,7 @@
               "operation": {
                 "$id": "581",
                 "name": "putRequiredOnly",
+                "originalName": "putRequiredOnly",
                 "isExactName": false,
                 "resourceName": "RequiredAndOptional",
                 "doc": "Put a body with only required properties.",
@@ -10397,6 +10761,7 @@
                     "$id": "582",
                     "kind": "header",
                     "name": "contentType",
+                    "originalName": "contentType",
                     "serializedName": "Content-Type",
                     "doc": "Body parameter's content type. Known values are application/json",
                     "type": {
@@ -10414,6 +10779,7 @@
                         "$id": "583",
                         "kind": "method",
                         "name": "contentType",
+                        "originalName": "contentType",
                         "serializedName": "Content-Type",
                         "doc": "Body parameter's content type. Known values are application/json",
                         "type": {
@@ -10436,6 +10802,7 @@
                     "$id": "584",
                     "kind": "body",
                     "name": "body",
+                    "originalName": "body",
                     "serializedName": "body",
                     "type": {
                       "$ref": "196"
@@ -10455,6 +10822,7 @@
                         "$id": "585",
                         "kind": "method",
                         "name": "body",
+                        "originalName": "body",
                         "serializedName": "body",
                         "type": {
                           "$ref": "196"

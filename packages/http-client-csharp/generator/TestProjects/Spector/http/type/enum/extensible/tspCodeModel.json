@@ -6,6 +6,7 @@
       "$id": "1",
       "kind": "enum",
       "name": "DaysOfWeekExtensibleEnum",
+      "originalName": "DaysOfWeekExtensibleEnum",
       "crossLanguageDefinitionId": "Type.Enum.Extensible.DaysOfWeekExtensibleEnum",
       "valueType": {
         "$id": "2",
@@ -19,6 +20,7 @@
           "$id": "3",
           "kind": "enumvalue",
           "name": "Monday",
+          "originalName": "Monday",
           "value": "Monday",
           "valueType": {
             "$ref": "2"
@@ -34,6 +36,7 @@
           "$id": "4",
           "kind": "enumvalue",
           "name": "Tuesday",
+          "originalName": "Tuesday",
           "value": "Tuesday",
           "valueType": {
             "$ref": "2"
@@ -49,6 +52,7 @@
           "$id": "5",
           "kind": "enumvalue",
           "name": "Wednesday",
+          "originalName": "Wednesday",
           "value": "Wednesday",
           "valueType": {
             "$ref": "2"
@@ -64,6 +68,7 @@
           "$id": "6",
           "kind": "enumvalue",
           "name": "Thursday",
+          "originalName": "Thursday",
           "value": "Thursday",
           "valueType": {
             "$ref": "2"
@@ -79,6 +84,7 @@
           "$id": "7",
           "kind": "enumvalue",
           "name": "Friday",
+          "originalName": "Friday",
           "value": "Friday",
           "valueType": {
             "$ref": "2"
@@ -94,6 +100,7 @@
           "$id": "8",
           "kind": "enumvalue",
           "name": "Saturday",
+          "originalName": "Saturday",
           "value": "Saturday",
           "valueType": {
             "$ref": "2"
@@ -109,6 +116,7 @@
           "$id": "9",
           "kind": "enumvalue",
           "name": "Sunday",
+          "originalName": "Sunday",
           "value": "Sunday",
           "valueType": {
             "$ref": "2"
@@ -326,12 +334,14 @@
               "$id": "31",
               "kind": "basic",
               "name": "getKnownValue",
+              "originalName": "getKnownValue",
               "isExactName": false,
               "accessibility": "public",
               "apiVersions": [],
               "operation": {
                 "$id": "32",
                 "name": "getKnownValue",
+                "originalName": "getKnownValue",
                 "isExactName": false,
                 "resourceName": "String",
                 "accessibility": "public",
@@ -340,6 +350,7 @@
                     "$id": "33",
                     "kind": "header",
                     "name": "accept",
+                    "originalName": "accept",
                     "serializedName": "Accept",
                     "type": {
                       "$ref": "10"
@@ -356,6 +367,7 @@
                         "$id": "34",
                         "kind": "method",
                         "name": "accept",
+                        "originalName": "accept",
                         "serializedName": "Accept",
                         "type": {
                           "$ref": "10"
@@ -431,12 +443,14 @@
               "$id": "35",
               "kind": "basic",
               "name": "getUnknownValue",
+              "originalName": "getUnknownValue",
               "isExactName": false,
               "accessibility": "public",
               "apiVersions": [],
               "operation": {
                 "$id": "36",
                 "name": "getUnknownValue",
+                "originalName": "getUnknownValue",
                 "isExactName": false,
                 "resourceName": "String",
                 "accessibility": "public",
@@ -445,6 +459,7 @@
                     "$id": "37",
                     "kind": "header",
                     "name": "accept",
+                    "originalName": "accept",
                     "serializedName": "Accept",
                     "type": {
                       "$ref": "14"
@@ -461,6 +476,7 @@
                         "$id": "38",
                         "kind": "method",
                         "name": "accept",
+                        "originalName": "accept",
                         "serializedName": "Accept",
                         "type": {
                           "$ref": "14"
@@ -536,12 +552,14 @@
               "$id": "39",
               "kind": "basic",
               "name": "putKnownValue",
+              "originalName": "putKnownValue",
               "isExactName": false,
               "accessibility": "public",
               "apiVersions": [],
               "operation": {
                 "$id": "40",
                 "name": "putKnownValue",
+                "originalName": "putKnownValue",
                 "isExactName": false,
                 "resourceName": "String",
                 "accessibility": "public",
@@ -550,6 +568,7 @@
                     "$id": "41",
                     "kind": "header",
                     "name": "contentType",
+                    "originalName": "contentType",
                     "serializedName": "Content-Type",
                     "type": {
                       "$ref": "18"
@@ -566,6 +585,7 @@
                         "$id": "42",
                         "kind": "method",
                         "name": "contentType",
+                        "originalName": "contentType",
                         "serializedName": "Content-Type",
                         "type": {
                           "$ref": "18"
@@ -587,6 +607,7 @@
                     "$id": "43",
                     "kind": "body",
                     "name": "body",
+                    "originalName": "body",
                     "serializedName": "body",
                     "type": {
                       "$ref": "1"
@@ -606,6 +627,7 @@
                         "$id": "44",
                         "kind": "method",
                         "name": "body",
+                        "originalName": "body",
                         "serializedName": "body",
                         "type": {
                           "$ref": "1"
@@ -670,12 +692,14 @@
               "$id": "45",
               "kind": "basic",
               "name": "putUnknownValue",
+              "originalName": "putUnknownValue",
               "isExactName": false,
               "accessibility": "public",
               "apiVersions": [],
               "operation": {
                 "$id": "46",
                 "name": "putUnknownValue",
+                "originalName": "putUnknownValue",
                 "isExactName": false,
                 "resourceName": "String",
                 "accessibility": "public",
@@ -684,6 +708,7 @@
                     "$id": "47",
                     "kind": "header",
                     "name": "contentType",
+                    "originalName": "contentType",
                     "serializedName": "Content-Type",
                     "type": {
                       "$ref": "22"
@@ -700,6 +725,7 @@
                         "$id": "48",
                         "kind": "method",
                         "name": "contentType",
+                        "originalName": "contentType",
                         "serializedName": "Content-Type",
                         "type": {
                           "$ref": "22"
@@ -721,6 +747,7 @@
                     "$id": "49",
                     "kind": "body",
                     "name": "body",
+                    "originalName": "body",
                     "serializedName": "body",
                     "type": {
                       "$ref": "1"
@@ -740,6 +767,7 @@
                         "$id": "50",
                         "kind": "method",
                         "name": "body",
+                        "originalName": "body",
                         "serializedName": "body",
                         "type": {
                           "$ref": "1"

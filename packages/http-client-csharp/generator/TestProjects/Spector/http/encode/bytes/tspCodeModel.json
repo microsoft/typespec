@@ -451,6 +451,7 @@
       "$id": "53",
       "kind": "model",
       "name": "DefaultBytesProperty",
+      "originalName": "DefaultBytesProperty",
       "namespace": "Encode.Bytes",
       "crossLanguageDefinitionId": "Encode.Bytes.DefaultBytesProperty",
       "usage": "Input,Output,Json",
@@ -466,6 +467,7 @@
           "$id": "54",
           "kind": "property",
           "name": "value",
+          "originalName": "value",
           "serializedName": "value",
           "type": {
             "$id": "55",
@@ -495,6 +497,7 @@
       "$id": "56",
       "kind": "model",
       "name": "Base64BytesProperty",
+      "originalName": "Base64BytesProperty",
       "namespace": "Encode.Bytes",
       "crossLanguageDefinitionId": "Encode.Bytes.Base64BytesProperty",
       "usage": "Input,Output,Json",
@@ -510,6 +513,7 @@
           "$id": "57",
           "kind": "property",
           "name": "value",
+          "originalName": "value",
           "serializedName": "value",
           "type": {
             "$id": "58",
@@ -539,6 +543,7 @@
       "$id": "59",
       "kind": "model",
       "name": "Base64urlBytesProperty",
+      "originalName": "Base64urlBytesProperty",
       "namespace": "Encode.Bytes",
       "crossLanguageDefinitionId": "Encode.Bytes.Base64urlBytesProperty",
       "usage": "Input,Output,Json",
@@ -554,6 +559,7 @@
           "$id": "60",
           "kind": "property",
           "name": "value",
+          "originalName": "value",
           "serializedName": "value",
           "type": {
             "$id": "61",
@@ -583,6 +589,7 @@
       "$id": "62",
       "kind": "model",
       "name": "Base64urlArrayBytesProperty",
+      "originalName": "Base64urlArrayBytesProperty",
       "namespace": "Encode.Bytes",
       "crossLanguageDefinitionId": "Encode.Bytes.Base64urlArrayBytesProperty",
       "usage": "Input,Output,Json",
@@ -598,6 +605,7 @@
           "$id": "63",
           "kind": "property",
           "name": "value",
+          "originalName": "value",
           "serializedName": "value",
           "type": {
             "$id": "64",
@@ -697,12 +705,14 @@
               "$id": "72",
               "kind": "basic",
               "name": "default",
+              "originalName": "default",
               "isExactName": false,
               "accessibility": "public",
               "apiVersions": [],
               "operation": {
                 "$id": "73",
                 "name": "default",
+                "originalName": "default",
                 "isExactName": false,
                 "resourceName": "Query",
                 "accessibility": "public",
@@ -711,6 +721,7 @@
                     "$id": "74",
                     "kind": "query",
                     "name": "value",
+                    "originalName": "value",
                     "serializedName": "value",
                     "type": {
                       "$id": "75",
@@ -732,6 +743,7 @@
                         "$id": "76",
                         "kind": "method",
                         "name": "value",
+                        "originalName": "value",
                         "serializedName": "value",
                         "type": {
                           "$id": "77",
@@ -790,12 +802,14 @@
               "$id": "78",
               "kind": "basic",
               "name": "base64",
+              "originalName": "base64",
               "isExactName": false,
               "accessibility": "public",
               "apiVersions": [],
               "operation": {
                 "$id": "79",
                 "name": "base64",
+                "originalName": "base64",
                 "isExactName": false,
                 "resourceName": "Query",
                 "accessibility": "public",
@@ -804,6 +818,7 @@
                     "$id": "80",
                     "kind": "query",
                     "name": "value",
+                    "originalName": "value",
                     "serializedName": "value",
                     "type": {
                       "$id": "81",
@@ -825,6 +840,7 @@
                         "$id": "82",
                         "kind": "method",
                         "name": "value",
+                        "originalName": "value",
                         "serializedName": "value",
                         "type": {
                           "$id": "83",
@@ -883,12 +899,14 @@
               "$id": "84",
               "kind": "basic",
               "name": "base64url",
+              "originalName": "base64url",
               "isExactName": false,
               "accessibility": "public",
               "apiVersions": [],
               "operation": {
                 "$id": "85",
                 "name": "base64url",
+                "originalName": "base64url",
                 "isExactName": false,
                 "resourceName": "Query",
                 "accessibility": "public",
@@ -897,6 +915,7 @@
                     "$id": "86",
                     "kind": "query",
                     "name": "value",
+                    "originalName": "value",
                     "serializedName": "value",
                     "type": {
                       "$id": "87",
@@ -918,6 +937,7 @@
                         "$id": "88",
                         "kind": "method",
                         "name": "value",
+                        "originalName": "value",
                         "serializedName": "value",
                         "type": {
                           "$id": "89",
@@ -976,12 +996,14 @@
               "$id": "90",
               "kind": "basic",
               "name": "base64urlArray",
+              "originalName": "base64urlArray",
               "isExactName": false,
               "accessibility": "public",
               "apiVersions": [],
               "operation": {
                 "$id": "91",
                 "name": "base64urlArray",
+                "originalName": "base64urlArray",
                 "isExactName": false,
                 "resourceName": "Query",
                 "accessibility": "public",
@@ -990,6 +1012,7 @@
                     "$id": "92",
                     "kind": "query",
                     "name": "value",
+                    "originalName": "value",
                     "serializedName": "value",
                     "type": {
                       "$ref": "64"
@@ -1007,6 +1030,7 @@
                         "$id": "93",
                         "kind": "method",
                         "name": "value",
+                        "originalName": "value",
                         "serializedName": "value",
                         "type": {
                           "$ref": "64"
@@ -1110,12 +1134,14 @@
               "$id": "98",
               "kind": "basic",
               "name": "default",
+              "originalName": "default",
               "isExactName": false,
               "accessibility": "public",
               "apiVersions": [],
               "operation": {
                 "$id": "99",
                 "name": "default",
+                "originalName": "default",
                 "isExactName": false,
                 "resourceName": "Property",
                 "accessibility": "public",
@@ -1124,6 +1150,7 @@
                     "$id": "100",
                     "kind": "header",
                     "name": "contentType",
+                    "originalName": "contentType",
                     "serializedName": "Content-Type",
                     "doc": "Body parameter's content type. Known values are application/json",
                     "type": {
@@ -1141,6 +1168,7 @@
                         "$id": "101",
                         "kind": "method",
                         "name": "contentType",
+                        "originalName": "contentType",
                         "serializedName": "Content-Type",
                         "doc": "Body parameter's content type. Known values are application/json",
                         "type": {
@@ -1163,6 +1191,7 @@
                     "$id": "102",
                     "kind": "header",
                     "name": "accept",
+                    "originalName": "accept",
                     "serializedName": "Accept",
                     "type": {
                       "$ref": "3"
@@ -1179,6 +1208,7 @@
                         "$id": "103",
                         "kind": "method",
                         "name": "accept",
+                        "originalName": "accept",
                         "serializedName": "Accept",
                         "type": {
                           "$ref": "3"
@@ -1200,6 +1230,7 @@
                     "$id": "104",
                     "kind": "body",
                     "name": "body",
+                    "originalName": "body",
                     "serializedName": "body",
                     "type": {
                       "$ref": "53"
@@ -1219,6 +1250,7 @@
                         "$id": "105",
                         "kind": "method",
                         "name": "body",
+                        "originalName": "body",
                         "serializedName": "body",
                         "type": {
                           "$ref": "53"
@@ -1300,12 +1332,14 @@
               "$id": "106",
               "kind": "basic",
               "name": "base64",
+              "originalName": "base64",
               "isExactName": false,
               "accessibility": "public",
               "apiVersions": [],
               "operation": {
                 "$id": "107",
                 "name": "base64",
+                "originalName": "base64",
                 "isExactName": false,
                 "resourceName": "Property",
                 "accessibility": "public",
@@ -1314,6 +1348,7 @@
                     "$id": "108",
                     "kind": "header",
                     "name": "contentType",
+                    "originalName": "contentType",
                     "serializedName": "Content-Type",
                     "doc": "Body parameter's content type. Known values are application/json",
                     "type": {
@@ -1331,6 +1366,7 @@
                         "$id": "109",
                         "kind": "method",
                         "name": "contentType",
+                        "originalName": "contentType",
                         "serializedName": "Content-Type",
                         "doc": "Body parameter's content type. Known values are application/json",
                         "type": {
@@ -1353,6 +1389,7 @@
                     "$id": "110",
                     "kind": "header",
                     "name": "accept",
+                    "originalName": "accept",
                     "serializedName": "Accept",
                     "type": {
                       "$ref": "7"
@@ -1369,6 +1406,7 @@
                         "$id": "111",
                         "kind": "method",
                         "name": "accept",
+                        "originalName": "accept",
                         "serializedName": "Accept",
                         "type": {
                           "$ref": "7"
@@ -1390,6 +1428,7 @@
                     "$id": "112",
                     "kind": "body",
                     "name": "body",
+                    "originalName": "body",
                     "serializedName": "body",
                     "type": {
                       "$ref": "56"
@@ -1409,6 +1448,7 @@
                         "$id": "113",
                         "kind": "method",
                         "name": "body",
+                        "originalName": "body",
                         "serializedName": "body",
                         "type": {
                           "$ref": "56"
@@ -1490,12 +1530,14 @@
               "$id": "114",
               "kind": "basic",
               "name": "base64url",
+              "originalName": "base64url",
               "isExactName": false,
               "accessibility": "public",
               "apiVersions": [],
               "operation": {
                 "$id": "115",
                 "name": "base64url",
+                "originalName": "base64url",
                 "isExactName": false,
                 "resourceName": "Property",
                 "accessibility": "public",
@@ -1504,6 +1546,7 @@
                     "$id": "116",
                     "kind": "header",
                     "name": "contentType",
+                    "originalName": "contentType",
                     "serializedName": "Content-Type",
                     "doc": "Body parameter's content type. Known values are application/json",
                     "type": {
@@ -1521,6 +1564,7 @@
                         "$id": "117",
                         "kind": "method",
                         "name": "contentType",
+                        "originalName": "contentType",
                         "serializedName": "Content-Type",
                         "doc": "Body parameter's content type. Known values are application/json",
                         "type": {
@@ -1543,6 +1587,7 @@
                     "$id": "118",
                     "kind": "header",
                     "name": "accept",
+                    "originalName": "accept",
                     "serializedName": "Accept",
                     "type": {
                       "$ref": "11"
@@ -1559,6 +1604,7 @@
                         "$id": "119",
                         "kind": "method",
                         "name": "accept",
+                        "originalName": "accept",
                         "serializedName": "Accept",
                         "type": {
                           "$ref": "11"
@@ -1580,6 +1626,7 @@
                     "$id": "120",
                     "kind": "body",
                     "name": "body",
+                    "originalName": "body",
                     "serializedName": "body",
                     "type": {
                       "$ref": "59"
@@ -1599,6 +1646,7 @@
                         "$id": "121",
                         "kind": "method",
                         "name": "body",
+                        "originalName": "body",
                         "serializedName": "body",
                         "type": {
                           "$ref": "59"
@@ -1680,12 +1728,14 @@
               "$id": "122",
               "kind": "basic",
               "name": "base64urlArray",
+              "originalName": "base64urlArray",
               "isExactName": false,
               "accessibility": "public",
               "apiVersions": [],
               "operation": {
                 "$id": "123",
                 "name": "base64urlArray",
+                "originalName": "base64urlArray",
                 "isExactName": false,
                 "resourceName": "Property",
                 "accessibility": "public",
@@ -1694,6 +1744,7 @@
                     "$id": "124",
                     "kind": "header",
                     "name": "contentType",
+                    "originalName": "contentType",
                     "serializedName": "Content-Type",
                     "doc": "Body parameter's content type. Known values are application/json",
                     "type": {
@@ -1711,6 +1762,7 @@
                         "$id": "125",
                         "kind": "method",
                         "name": "contentType",
+                        "originalName": "contentType",
                         "serializedName": "Content-Type",
                         "doc": "Body parameter's content type. Known values are application/json",
                         "type": {
@@ -1733,6 +1785,7 @@
                     "$id": "126",
                     "kind": "header",
                     "name": "accept",
+                    "originalName": "accept",
                     "serializedName": "Accept",
                     "type": {
                       "$ref": "15"
@@ -1749,6 +1802,7 @@
                         "$id": "127",
                         "kind": "method",
                         "name": "accept",
+                        "originalName": "accept",
                         "serializedName": "Accept",
                         "type": {
                           "$ref": "15"
@@ -1770,6 +1824,7 @@
                     "$id": "128",
                     "kind": "body",
                     "name": "body",
+                    "originalName": "body",
                     "serializedName": "body",
                     "type": {
                       "$ref": "62"
@@ -1789,6 +1844,7 @@
                         "$id": "129",
                         "kind": "method",
                         "name": "body",
+                        "originalName": "body",
                         "serializedName": "body",
                         "type": {
                           "$ref": "62"
@@ -1920,12 +1976,14 @@
               "$id": "134",
               "kind": "basic",
               "name": "default",
+              "originalName": "default",
               "isExactName": false,
               "accessibility": "public",
               "apiVersions": [],
               "operation": {
                 "$id": "135",
                 "name": "default",
+                "originalName": "default",
                 "isExactName": false,
                 "resourceName": "Header",
                 "accessibility": "public",
@@ -1934,6 +1992,7 @@
                     "$id": "136",
                     "kind": "header",
                     "name": "value",
+                    "originalName": "value",
                     "serializedName": "value",
                     "type": {
                       "$id": "137",
@@ -1955,6 +2014,7 @@
                         "$id": "138",
                         "kind": "method",
                         "name": "value",
+                        "originalName": "value",
                         "serializedName": "value",
                         "type": {
                           "$id": "139",
@@ -2013,12 +2073,14 @@
               "$id": "140",
               "kind": "basic",
               "name": "base64",
+              "originalName": "base64",
               "isExactName": false,
               "accessibility": "public",
               "apiVersions": [],
               "operation": {
                 "$id": "141",
                 "name": "base64",
+                "originalName": "base64",
                 "isExactName": false,
                 "resourceName": "Header",
                 "accessibility": "public",
@@ -2027,6 +2089,7 @@
                     "$id": "142",
                     "kind": "header",
                     "name": "value",
+                    "originalName": "value",
                     "serializedName": "value",
                     "type": {
                       "$id": "143",
@@ -2048,6 +2111,7 @@
                         "$id": "144",
                         "kind": "method",
                         "name": "value",
+                        "originalName": "value",
                         "serializedName": "value",
                         "type": {
                           "$id": "145",
@@ -2106,12 +2170,14 @@
               "$id": "146",
               "kind": "basic",
               "name": "base64url",
+              "originalName": "base64url",
               "isExactName": false,
               "accessibility": "public",
               "apiVersions": [],
               "operation": {
                 "$id": "147",
                 "name": "base64url",
+                "originalName": "base64url",
                 "isExactName": false,
                 "resourceName": "Header",
                 "accessibility": "public",
@@ -2120,6 +2186,7 @@
                     "$id": "148",
                     "kind": "header",
                     "name": "value",
+                    "originalName": "value",
                     "serializedName": "value",
                     "type": {
                       "$id": "149",
@@ -2141,6 +2208,7 @@
                         "$id": "150",
                         "kind": "method",
                         "name": "value",
+                        "originalName": "value",
                         "serializedName": "value",
                         "type": {
                           "$id": "151",
@@ -2199,12 +2267,14 @@
               "$id": "152",
               "kind": "basic",
               "name": "base64urlArray",
+              "originalName": "base64urlArray",
               "isExactName": false,
               "accessibility": "public",
               "apiVersions": [],
               "operation": {
                 "$id": "153",
                 "name": "base64urlArray",
+                "originalName": "base64urlArray",
                 "isExactName": false,
                 "resourceName": "Header",
                 "accessibility": "public",
@@ -2213,6 +2283,7 @@
                     "$id": "154",
                     "kind": "header",
                     "name": "value",
+                    "originalName": "value",
                     "serializedName": "value",
                     "type": {
                       "$ref": "64"
@@ -2231,6 +2302,7 @@
                         "$id": "155",
                         "kind": "method",
                         "name": "value",
+                        "originalName": "value",
                         "serializedName": "value",
                         "type": {
                           "$ref": "64"
@@ -2334,12 +2406,14 @@
               "$id": "160",
               "kind": "basic",
               "name": "default",
+              "originalName": "default",
               "isExactName": false,
               "accessibility": "public",
               "apiVersions": [],
               "operation": {
                 "$id": "161",
                 "name": "default",
+                "originalName": "default",
                 "isExactName": false,
                 "resourceName": "RequestBody",
                 "accessibility": "public",
@@ -2348,6 +2422,7 @@
                     "$id": "162",
                     "kind": "header",
                     "name": "contentType",
+                    "originalName": "contentType",
                     "serializedName": "Content-Type",
                     "doc": "Body parameter's content type. Known values are application/octet-stream",
                     "type": {
@@ -2365,6 +2440,7 @@
                         "$id": "163",
                         "kind": "method",
                         "name": "contentType",
+                        "originalName": "contentType",
                         "serializedName": "Content-Type",
                         "doc": "Body parameter's content type. Known values are application/octet-stream",
                         "type": {
@@ -2387,6 +2463,7 @@
                     "$id": "164",
                     "kind": "body",
                     "name": "value",
+                    "originalName": "value",
                     "serializedName": "value",
                     "type": {
                       "$id": "165",
@@ -2410,6 +2487,7 @@
                         "$id": "166",
                         "kind": "method",
                         "name": "value",
+                        "originalName": "value",
                         "serializedName": "value",
                         "type": {
                           "$id": "167",
@@ -2474,12 +2552,14 @@
               "$id": "168",
               "kind": "basic",
               "name": "octetStream",
+              "originalName": "octetStream",
               "isExactName": false,
               "accessibility": "public",
               "apiVersions": [],
               "operation": {
                 "$id": "169",
                 "name": "octetStream",
+                "originalName": "octetStream",
                 "isExactName": false,
                 "resourceName": "RequestBody",
                 "accessibility": "public",
@@ -2488,6 +2568,7 @@
                     "$id": "170",
                     "kind": "header",
                     "name": "contentType",
+                    "originalName": "contentType",
                     "serializedName": "Content-Type",
                     "type": {
                       "$ref": "19"
@@ -2504,6 +2585,7 @@
                         "$id": "171",
                         "kind": "method",
                         "name": "contentType",
+                        "originalName": "contentType",
                         "serializedName": "Content-Type",
                         "type": {
                           "$ref": "19"
@@ -2525,6 +2607,7 @@
                     "$id": "172",
                     "kind": "body",
                     "name": "value",
+                    "originalName": "value",
                     "serializedName": "value",
                     "type": {
                       "$id": "173",
@@ -2548,6 +2631,7 @@
                         "$id": "174",
                         "kind": "method",
                         "name": "value",
+                        "originalName": "value",
                         "serializedName": "value",
                         "type": {
                           "$id": "175",
@@ -2612,12 +2696,14 @@
               "$id": "176",
               "kind": "basic",
               "name": "customContentType",
+              "originalName": "customContentType",
               "isExactName": false,
               "accessibility": "public",
               "apiVersions": [],
               "operation": {
                 "$id": "177",
                 "name": "customContentType",
+                "originalName": "customContentType",
                 "isExactName": false,
                 "resourceName": "RequestBody",
                 "accessibility": "public",
@@ -2626,6 +2712,7 @@
                     "$id": "178",
                     "kind": "header",
                     "name": "contentType",
+                    "originalName": "contentType",
                     "serializedName": "Content-Type",
                     "type": {
                       "$ref": "23"
@@ -2642,6 +2729,7 @@
                         "$id": "179",
                         "kind": "method",
                         "name": "contentType",
+                        "originalName": "contentType",
                         "serializedName": "Content-Type",
                         "type": {
                           "$ref": "23"
@@ -2663,6 +2751,7 @@
                     "$id": "180",
                     "kind": "body",
                     "name": "value",
+                    "originalName": "value",
                     "serializedName": "value",
                     "type": {
                       "$id": "181",
@@ -2686,6 +2775,7 @@
                         "$id": "182",
                         "kind": "method",
                         "name": "value",
+                        "originalName": "value",
                         "serializedName": "value",
                         "type": {
                           "$id": "183",
@@ -2750,12 +2840,14 @@
               "$id": "184",
               "kind": "basic",
               "name": "base64",
+              "originalName": "base64",
               "isExactName": false,
               "accessibility": "public",
               "apiVersions": [],
               "operation": {
                 "$id": "185",
                 "name": "base64",
+                "originalName": "base64",
                 "isExactName": false,
                 "resourceName": "RequestBody",
                 "accessibility": "public",
@@ -2764,6 +2856,7 @@
                     "$id": "186",
                     "kind": "header",
                     "name": "contentType",
+                    "originalName": "contentType",
                     "serializedName": "Content-Type",
                     "type": {
                       "$ref": "27"
@@ -2780,6 +2873,7 @@
                         "$id": "187",
                         "kind": "method",
                         "name": "contentType",
+                        "originalName": "contentType",
                         "serializedName": "Content-Type",
                         "type": {
                           "$ref": "27"
@@ -2801,6 +2895,7 @@
                     "$id": "188",
                     "kind": "body",
                     "name": "value",
+                    "originalName": "value",
                     "serializedName": "value",
                     "type": {
                       "$id": "189",
@@ -2825,6 +2920,7 @@
                         "$id": "190",
                         "kind": "method",
                         "name": "value",
+                        "originalName": "value",
                         "serializedName": "value",
                         "type": {
                           "$id": "191",
@@ -2894,12 +2990,14 @@
               "$id": "192",
               "kind": "basic",
               "name": "base64url",
+              "originalName": "base64url",
               "isExactName": false,
               "accessibility": "public",
               "apiVersions": [],
               "operation": {
                 "$id": "193",
                 "name": "base64url",
+                "originalName": "base64url",
                 "isExactName": false,
                 "resourceName": "RequestBody",
                 "accessibility": "public",
@@ -2908,6 +3006,7 @@
                     "$id": "194",
                     "kind": "header",
                     "name": "contentType",
+                    "originalName": "contentType",
                     "serializedName": "Content-Type",
                     "type": {
                       "$ref": "31"
@@ -2924,6 +3023,7 @@
                         "$id": "195",
                         "kind": "method",
                         "name": "contentType",
+                        "originalName": "contentType",
                         "serializedName": "Content-Type",
                         "type": {
                           "$ref": "31"
@@ -2945,6 +3045,7 @@
                     "$id": "196",
                     "kind": "body",
                     "name": "value",
+                    "originalName": "value",
                     "serializedName": "value",
                     "type": {
                       "$id": "197",
@@ -2969,6 +3070,7 @@
                         "$id": "198",
                         "kind": "method",
                         "name": "value",
+                        "originalName": "value",
                         "serializedName": "value",
                         "type": {
                           "$id": "199",
@@ -3088,12 +3190,14 @@
               "$id": "204",
               "kind": "basic",
               "name": "default",
+              "originalName": "default",
               "isExactName": false,
               "accessibility": "public",
               "apiVersions": [],
               "operation": {
                 "$id": "205",
                 "name": "default",
+                "originalName": "default",
                 "isExactName": false,
                 "resourceName": "ResponseBody",
                 "accessibility": "public",
@@ -3102,6 +3206,7 @@
                     "$id": "206",
                     "kind": "header",
                     "name": "accept",
+                    "originalName": "accept",
                     "serializedName": "Accept",
                     "type": {
                       "$ref": "35"
@@ -3118,6 +3223,7 @@
                         "$id": "207",
                         "kind": "method",
                         "name": "accept",
+                        "originalName": "accept",
                         "serializedName": "Accept",
                         "type": {
                           "$ref": "35"
@@ -3185,12 +3291,14 @@
               "$id": "209",
               "kind": "basic",
               "name": "octetStream",
+              "originalName": "octetStream",
               "isExactName": false,
               "accessibility": "public",
               "apiVersions": [],
               "operation": {
                 "$id": "210",
                 "name": "octetStream",
+                "originalName": "octetStream",
                 "isExactName": false,
                 "resourceName": "ResponseBody",
                 "accessibility": "public",
@@ -3199,6 +3307,7 @@
                     "$id": "211",
                     "kind": "header",
                     "name": "accept",
+                    "originalName": "accept",
                     "serializedName": "Accept",
                     "type": {
                       "$ref": "37"
@@ -3215,6 +3324,7 @@
                         "$id": "212",
                         "kind": "method",
                         "name": "accept",
+                        "originalName": "accept",
                         "serializedName": "Accept",
                         "type": {
                           "$ref": "37"
@@ -3290,12 +3400,14 @@
               "$id": "214",
               "kind": "basic",
               "name": "customContentType",
+              "originalName": "customContentType",
               "isExactName": false,
               "accessibility": "public",
               "apiVersions": [],
               "operation": {
                 "$id": "215",
                 "name": "customContentType",
+                "originalName": "customContentType",
                 "isExactName": false,
                 "resourceName": "ResponseBody",
                 "accessibility": "public",
@@ -3304,6 +3416,7 @@
                     "$id": "216",
                     "kind": "header",
                     "name": "accept",
+                    "originalName": "accept",
                     "serializedName": "Accept",
                     "type": {
                       "$ref": "41"
@@ -3320,6 +3433,7 @@
                         "$id": "217",
                         "kind": "method",
                         "name": "accept",
+                        "originalName": "accept",
                         "serializedName": "Accept",
                         "type": {
                           "$ref": "41"
@@ -3395,12 +3509,14 @@
               "$id": "219",
               "kind": "basic",
               "name": "base64",
+              "originalName": "base64",
               "isExactName": false,
               "accessibility": "public",
               "apiVersions": [],
               "operation": {
                 "$id": "220",
                 "name": "base64",
+                "originalName": "base64",
                 "isExactName": false,
                 "resourceName": "ResponseBody",
                 "accessibility": "public",
@@ -3409,6 +3525,7 @@
                     "$id": "221",
                     "kind": "header",
                     "name": "accept",
+                    "originalName": "accept",
                     "serializedName": "Accept",
                     "type": {
                       "$ref": "45"
@@ -3425,6 +3542,7 @@
                         "$id": "222",
                         "kind": "method",
                         "name": "accept",
+                        "originalName": "accept",
                         "serializedName": "Accept",
                         "type": {
                           "$ref": "45"
@@ -3505,12 +3623,14 @@
               "$id": "224",
               "kind": "basic",
               "name": "base64url",
+              "originalName": "base64url",
               "isExactName": false,
               "accessibility": "public",
               "apiVersions": [],
               "operation": {
                 "$id": "225",
                 "name": "base64url",
+                "originalName": "base64url",
                 "isExactName": false,
                 "resourceName": "ResponseBody",
                 "accessibility": "public",
@@ -3519,6 +3639,7 @@
                     "$id": "226",
                     "kind": "header",
                     "name": "accept",
+                    "originalName": "accept",
                     "serializedName": "Accept",
                     "type": {
                       "$ref": "49"
@@ -3535,6 +3656,7 @@
                         "$id": "227",
                         "kind": "method",
                         "name": "accept",
+                        "originalName": "accept",
                         "serializedName": "Accept",
                         "type": {
                           "$ref": "49"

@@ -9,6 +9,7 @@
       "$id": "1",
       "kind": "enum",
       "name": "Versions",
+      "originalName": "Versions",
       "crossLanguageDefinitionId": "Resiliency.ServiceDriven.Versions",
       "valueType": {
         "$id": "2",
@@ -22,6 +23,7 @@
           "$id": "3",
           "kind": "enumvalue",
           "name": "v1",
+          "originalName": "v1",
           "value": "v1",
           "valueType": {
             "$ref": "2"
@@ -37,6 +39,7 @@
           "$id": "4",
           "kind": "enumvalue",
           "name": "v2",
+          "originalName": "v2",
           "value": "v2",
           "valueType": {
             "$ref": "2"
@@ -73,6 +76,7 @@
           "$id": "6",
           "kind": "basic",
           "name": "addOperation",
+          "originalName": "addOperation",
           "isExactName": false,
           "accessibility": "public",
           "apiVersions": [
@@ -82,6 +86,7 @@
           "operation": {
             "$id": "7",
             "name": "addOperation",
+            "originalName": "addOperation",
             "isExactName": false,
             "resourceName": "ServiceDriven",
             "doc": "Added operation",
@@ -118,6 +123,7 @@
           "$id": "8",
           "kind": "basic",
           "name": "fromNone",
+          "originalName": "fromNone",
           "isExactName": false,
           "accessibility": "public",
           "apiVersions": [
@@ -128,6 +134,7 @@
           "operation": {
             "$id": "9",
             "name": "fromNone",
+            "originalName": "fromNone",
             "isExactName": false,
             "resourceName": "AddOptionalParam",
             "doc": "Test that grew up from accepting no parameters to an optional input parameter",
@@ -137,6 +144,7 @@
                 "$id": "10",
                 "kind": "query",
                 "name": "new-parameter",
+                "originalName": "new-parameter",
                 "serializedName": "new-parameter",
                 "doc": "I'm a new input optional parameter",
                 "type": {
@@ -158,6 +166,7 @@
                     "$id": "12",
                     "kind": "method",
                     "name": "new-parameter",
+                    "originalName": "new-parameter",
                     "serializedName": "new-parameter",
                     "doc": "I'm a new input optional parameter",
                     "type": {
@@ -216,6 +225,7 @@
           "$id": "14",
           "kind": "basic",
           "name": "fromOneRequired",
+          "originalName": "fromOneRequired",
           "isExactName": false,
           "accessibility": "public",
           "apiVersions": [
@@ -226,6 +236,7 @@
           "operation": {
             "$id": "15",
             "name": "fromOneRequired",
+            "originalName": "fromOneRequired",
             "isExactName": false,
             "resourceName": "AddOptionalParam",
             "doc": "Operation that grew up from accepting one required parameter to accepting a required parameter and an optional parameter.",
@@ -235,6 +246,7 @@
                 "$id": "16",
                 "kind": "query",
                 "name": "parameter",
+                "originalName": "parameter",
                 "serializedName": "parameter",
                 "doc": "I am a required parameter",
                 "type": {
@@ -256,6 +268,7 @@
                     "$id": "18",
                     "kind": "method",
                     "name": "parameter",
+                    "originalName": "parameter",
                     "serializedName": "parameter",
                     "doc": "I am a required parameter",
                     "type": {
@@ -282,6 +295,7 @@
                 "$id": "20",
                 "kind": "query",
                 "name": "new-parameter",
+                "originalName": "new-parameter",
                 "serializedName": "new-parameter",
                 "doc": "I'm a new input optional parameter",
                 "type": {
@@ -303,6 +317,7 @@
                     "$id": "22",
                     "kind": "method",
                     "name": "new-parameter",
+                    "originalName": "new-parameter",
                     "serializedName": "new-parameter",
                     "doc": "I'm a new input optional parameter",
                     "type": {
@@ -364,6 +379,7 @@
           "$id": "24",
           "kind": "basic",
           "name": "fromOneOptional",
+          "originalName": "fromOneOptional",
           "isExactName": false,
           "accessibility": "public",
           "apiVersions": [
@@ -374,6 +390,7 @@
           "operation": {
             "$id": "25",
             "name": "fromOneOptional",
+            "originalName": "fromOneOptional",
             "isExactName": false,
             "resourceName": "AddOptionalParam",
             "doc": "Tests that we can grow up an operation from accepting one optional parameter to accepting two optional parameters.",
@@ -383,6 +400,7 @@
                 "$id": "26",
                 "kind": "query",
                 "name": "parameter",
+                "originalName": "parameter",
                 "serializedName": "parameter",
                 "doc": "I am an optional parameter",
                 "type": {
@@ -404,6 +422,7 @@
                     "$id": "28",
                     "kind": "method",
                     "name": "parameter",
+                    "originalName": "parameter",
                     "serializedName": "parameter",
                     "doc": "I am an optional parameter",
                     "type": {
@@ -430,6 +449,7 @@
                 "$id": "30",
                 "kind": "query",
                 "name": "new-parameter",
+                "originalName": "new-parameter",
                 "serializedName": "new-parameter",
                 "doc": "I'm a new input optional parameter",
                 "type": {
@@ -451,6 +471,7 @@
                     "$id": "32",
                     "kind": "method",
                     "name": "new-parameter",
+                    "originalName": "new-parameter",
                     "serializedName": "new-parameter",
                     "doc": "I'm a new input optional parameter",
                     "type": {

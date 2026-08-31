@@ -6,6 +6,7 @@
       "$id": "1",
       "kind": "enum",
       "name": "ImmediateSuccessResponseRepeatabilityResult",
+      "originalName": "ImmediateSuccessResponseRepeatabilityResult",
       "crossLanguageDefinitionId": "SpecialHeaders.Repeatability.immediateSuccess.ResponseRepeatabilityResult.anonymous",
       "valueType": {
         "$id": "2",
@@ -19,6 +20,7 @@
           "$id": "3",
           "kind": "enumvalue",
           "name": "accepted",
+          "originalName": "accepted",
           "value": "accepted",
           "valueType": {
             "$ref": "2"
@@ -33,6 +35,7 @@
           "$id": "4",
           "kind": "enumvalue",
           "name": "rejected",
+          "originalName": "rejected",
           "value": "rejected",
           "valueType": {
             "$ref": "2"
@@ -67,6 +70,7 @@
           "$id": "6",
           "kind": "basic",
           "name": "immediateSuccess",
+          "originalName": "immediateSuccess",
           "isExactName": false,
           "accessibility": "public",
           "apiVersions": [],
@@ -74,6 +78,7 @@
           "operation": {
             "$id": "7",
             "name": "immediateSuccess",
+            "originalName": "immediateSuccess",
             "isExactName": false,
             "resourceName": "Repeatability",
             "doc": "Check we recognize Repeatability-Request-ID and Repeatability-First-Sent.",
@@ -83,6 +88,7 @@
                 "$id": "8",
                 "kind": "header",
                 "name": "repeatabilityRequestID",
+                "originalName": "repeatabilityRequestID",
                 "serializedName": "Repeatability-Request-ID",
                 "type": {
                   "$id": "9",
@@ -103,6 +109,7 @@
                     "$id": "10",
                     "kind": "method",
                     "name": "repeatabilityRequestID",
+                    "originalName": "repeatabilityRequestID",
                     "serializedName": "Repeatability-Request-ID",
                     "type": {
                       "$id": "11",
@@ -128,6 +135,7 @@
                 "$id": "12",
                 "kind": "header",
                 "name": "repeatabilityFirstSent",
+                "originalName": "repeatabilityFirstSent",
                 "serializedName": "Repeatability-First-Sent",
                 "type": {
                   "$id": "13",
@@ -156,6 +164,7 @@
                     "$id": "15",
                     "kind": "method",
                     "name": "repeatabilityFirstSent",
+                    "originalName": "repeatabilityFirstSent",
                     "serializedName": "Repeatability-First-Sent",
                     "type": {
                       "$id": "16",

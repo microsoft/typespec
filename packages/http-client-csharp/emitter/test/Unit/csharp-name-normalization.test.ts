@@ -3,12 +3,22 @@ import {
   isDateTimeInputType,
   normalizeAcronyms,
   normalizeDateTimeSuffix,
-  normalizeParameterName,
-  normalizePropertyName,
+  normalizeName,
   normalizeUrlSuffix,
   toIdentifierName,
 } from "../../src/lib/csharp-name-normalization.js";
+import type { CSharpEmitterContext } from "../../src/sdk-context.js";
 import type { InputType } from "../../src/type/input-type.js";
+
+const debugMessages: string[] = [];
+const context = {
+  logger: { debug: (message: string) => debugMessages.push(message) },
+} as unknown as CSharpEmitterContext;
+
+function normalize<T extends { name: string; originalName?: string }>(target: T): T {
+  target.originalName ??= target.name;
+  return normalizeName(context, target);
+}
 
 const utcDateTime: InputType = {
   kind: "utcDateTime",
@@ -149,62 +159,130 @@ describe("normalizeDateTimeSuffix", () => {
   });
 });
 
-describe("normalizePropertyName", () => {
-  it("normalizes the date-time suffix and acronyms in a single pass", () => {
-    const property = { name: "ipStartTime", type: utcDateTime };
-    normalizePropertyName(property);
-    expect(property).toMatchObject({ name: "IPStartsOn", originalName: "ipStartTime" });
-  });
-
-  it("records the original name when only acronyms are normalized", () => {
-    const property = { name: "ipAddress", type: stringType };
-    normalizePropertyName(property);
-    expect(property).toMatchObject({ name: "IPAddress", originalName: "ipAddress" });
-  });
-
-  it("leaves the spec name untouched when no rule applies", () => {
-    const property: { name: string; type: InputType; originalName?: string } = {
-      name: "address",
-      type: stringType,
-    };
-    normalizePropertyName(property);
-    expect(property.name).toBe("address");
-    expect(property.originalName).toBeUndefined();
-  });
-
-  it("does not normalize exact names", () => {
-    const property: { name: string; type: InputType; isExactName: boolean; originalName?: string } =
-      { name: "ipAddress", type: stringType, isExactName: true };
-    normalizePropertyName(property);
-    expect(property.name).toBe("ipAddress");
-    expect(property.originalName).toBeUndefined();
+describe("isDateTimeInputType", () => {
+  it.each([
+    ["utcDateTime", utcDateTime, true],
+    ["plainDate", plainDate, true],
+    ["string", stringType, false],
+    ["nullable utcDateTime", { kind: "nullable", type: utcDateTime } as InputType, true],
+    ["nullable string", { kind: "nullable", type: stringType } as InputType, false],
+    ["undefined", undefined, false],
+  ])("returns %s -> %s", (_, type, expected) => {
+    expect(isDateTimeInputType(type as InputType | undefined)).toBe(expected);
   });
 });
 
-describe("normalizeParameterName", () => {
-  it("preserves camel casing", () => {
-    const parameter = { name: "startTime", type: utcDateTime };
-    normalizeParameterName(parameter);
-    expect(parameter).toMatchObject({ name: "startsOn", originalName: "startTime" });
+describe("normalizeName", () => {
+  it.each(["model", "enum"])("normalizes acronyms in %s names", (kind) => {
+    expect(normalize({ kind, name: "ipAddress" })).toMatchObject({
+      name: "IPAddress",
+      originalName: "ipAddress",
+    });
   });
 
-  it("does not apply identifier casing to names that do not normalize", () => {
-    const parameter: { name: string; type: InputType; originalName?: string } = {
+  it("does not apply the date-time convention to type names", () => {
+    expect(normalize({ kind: "model", name: "startTime" })).toMatchObject({ name: "startTime" });
+  });
+
+  it("normalizes the trailing url suffix on enum values", () => {
+    expect(normalize({ kind: "enumvalue", name: "callbackUrl" })).toMatchObject({
+      name: "CallbackUri",
+      originalName: "callbackUrl",
+    });
+  });
+
+  it("normalizes the date-time suffix and acronyms of a property in a single pass", () => {
+    expect(normalize({ kind: "property", name: "ipStartTime", type: utcDateTime })).toMatchObject({
+      name: "IPStartsOn",
+      originalName: "ipStartTime",
+    });
+  });
+
+  it("normalizes acronyms of a non date-time property", () => {
+    expect(normalize({ kind: "property", name: "ipAddress", type: stringType })).toMatchObject({
+      name: "IPAddress",
+      originalName: "ipAddress",
+    });
+  });
+
+  it("leaves the spec name untouched when no rule applies", () => {
+    expect(normalize({ kind: "property", name: "address", type: stringType })).toMatchObject({
+      name: "address",
+      originalName: "address",
+    });
+  });
+
+  it("does not normalize exact names", () => {
+    expect(
+      normalize({ kind: "property", name: "ipAddress", type: stringType, isExactName: true }),
+    ).toMatchObject({ name: "ipAddress", originalName: "ipAddress" });
+  });
+
+  it.each(["body", "header", "method", "path", "query"])(
+    "preserves the casing of %s parameters",
+    (kind) => {
+      expect(normalize({ kind, name: "startTime", type: utcDateTime })).toMatchObject({
+        name: "startsOn",
+        originalName: "startTime",
+      });
+    },
+  );
+
+  it("does not apply identifier casing to parameter names that do not normalize", () => {
+    expect(normalize({ kind: "query", name: "start_time", type: utcDateTime })).toMatchObject({
       name: "start_time",
-      type: utcDateTime,
-    };
-    normalizeParameterName(parameter);
-    expect(parameter.name).toBe("start_time");
-    expect(parameter.originalName).toBeUndefined();
+      originalName: "start_time",
+    });
   });
 
-  it("ignores non date-time parameters", () => {
-    const parameter: { name: string; type: InputType; originalName?: string } = {
+  it("does not apply the date-time convention to non date-time parameters", () => {
+    expect(normalize({ kind: "query", name: "startTime", type: stringType })).toMatchObject({
       name: "startTime",
-      type: stringType,
-    };
-    normalizeParameterName(parameter);
-    expect(parameter.name).toBe("startTime");
-    expect(parameter.originalName).toBeUndefined();
+      originalName: "startTime",
+    });
+  });
+
+  it("does not apply acronym normalization to parameters", () => {
+    expect(normalize({ kind: "query", name: "ipAddress", type: stringType })).toMatchObject({
+      name: "ipAddress",
+      originalName: "ipAddress",
+    });
+  });
+
+  it.each(["basic", "lro", "lropaging", "paging"])(
+    "normalizes the url suffix of %s service methods",
+    (kind) => {
+      expect(normalize({ kind, name: "getUrl" })).toMatchObject({
+        name: "GetUri",
+        originalName: "getUrl",
+      });
+    },
+  );
+
+  it("normalizes operations, which carry no kind of their own", () => {
+    expect(normalize({ name: "getUrl" })).toMatchObject({
+      name: "GetUri",
+      originalName: "getUrl",
+    });
+  });
+
+  it("ignores unknown kinds", () => {
+    expect(normalize({ kind: "union", name: "ipAddress" })).toMatchObject({ name: "ipAddress" });
+  });
+
+  it("ignores empty names", () => {
+    expect(normalize({ kind: "model", name: "" })).toMatchObject({ name: "" });
+  });
+
+  it("logs the kind, original name and normalized name when a name changes", () => {
+    debugMessages.length = 0;
+    normalize({ kind: "property", name: "ipAddress", type: stringType });
+    expect(debugMessages).toEqual(["Normalized property name 'ipAddress' to 'IPAddress' for C#."]);
+  });
+
+  it("does not log when the name is unchanged", () => {
+    debugMessages.length = 0;
+    normalize({ kind: "property", name: "address", type: stringType });
+    expect(debugMessages).toEqual([]);
   });
 });

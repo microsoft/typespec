@@ -9,6 +9,7 @@
       "$id": "1",
       "kind": "enum",
       "name": "VersionsA",
+      "originalName": "VersionsA",
       "crossLanguageDefinitionId": "Service.MultipleServices.ServiceA.VersionsA",
       "valueType": {
         "$id": "2",
@@ -22,6 +23,7 @@
           "$id": "3",
           "kind": "enumvalue",
           "name": "av1",
+          "originalName": "av1",
           "value": "av1",
           "valueType": {
             "$ref": "2"
@@ -36,6 +38,7 @@
           "$id": "4",
           "kind": "enumvalue",
           "name": "av2",
+          "originalName": "av2",
           "value": "av2",
           "valueType": {
             "$ref": "2"
@@ -58,6 +61,7 @@
       "$id": "5",
       "kind": "enum",
       "name": "VersionsB",
+      "originalName": "VersionsB",
       "crossLanguageDefinitionId": "Service.MultipleServices.ServiceB.VersionsB",
       "valueType": {
         "$id": "6",
@@ -71,6 +75,7 @@
           "$id": "7",
           "kind": "enumvalue",
           "name": "bv1",
+          "originalName": "bv1",
           "value": "bv1",
           "valueType": {
             "$ref": "6"
@@ -85,6 +90,7 @@
           "$id": "8",
           "kind": "enumvalue",
           "name": "bv2",
+          "originalName": "bv2",
           "value": "bv2",
           "valueType": {
             "$ref": "6"
@@ -151,6 +157,7 @@
           "$id": "13",
           "kind": "method",
           "name": "apiVersion",
+          "originalName": "apiVersion",
           "serializedName": "apiVersion",
           "type": {
             "$ref": "1"
@@ -194,6 +201,7 @@
               "$id": "16",
               "kind": "basic",
               "name": "subOpA",
+              "originalName": "subOpA",
               "isExactName": false,
               "accessibility": "public",
               "apiVersions": [
@@ -203,6 +211,7 @@
               "operation": {
                 "$id": "17",
                 "name": "subOpA",
+                "originalName": "subOpA",
                 "isExactName": false,
                 "resourceName": "SubNamespace",
                 "accessibility": "public",
@@ -211,6 +220,7 @@
                     "$id": "18",
                     "kind": "query",
                     "name": "apiVersion",
+                    "originalName": "apiVersion",
                     "serializedName": "api-version",
                     "type": {
                       "$ref": "1"
@@ -326,6 +336,7 @@
               "$id": "24",
               "kind": "basic",
               "name": "opA",
+              "originalName": "opA",
               "isExactName": false,
               "accessibility": "public",
               "apiVersions": [
@@ -335,6 +346,7 @@
               "operation": {
                 "$id": "25",
                 "name": "opA",
+                "originalName": "opA",
                 "isExactName": false,
                 "resourceName": "Operations",
                 "accessibility": "public",
@@ -343,6 +355,7 @@
                     "$id": "26",
                     "kind": "query",
                     "name": "apiVersion",
+                    "originalName": "apiVersion",
                     "serializedName": "api-version",
                     "type": {
                       "$ref": "1"
@@ -368,6 +381,7 @@
                         "$id": "28",
                         "kind": "method",
                         "name": "apiVersion",
+                        "originalName": "apiVersion",
                         "serializedName": "apiVersion",
                         "type": {
                           "$ref": "1"
@@ -518,6 +532,7 @@
           "$id": "37",
           "kind": "method",
           "name": "apiVersion",
+          "originalName": "apiVersion",
           "serializedName": "apiVersion",
           "type": {
             "$ref": "5"
@@ -561,6 +576,7 @@
               "$id": "40",
               "kind": "basic",
               "name": "subOpB",
+              "originalName": "subOpB",
               "isExactName": false,
               "accessibility": "public",
               "apiVersions": [
@@ -570,6 +586,7 @@
               "operation": {
                 "$id": "41",
                 "name": "subOpB",
+                "originalName": "subOpB",
                 "isExactName": false,
                 "resourceName": "SubNamespace",
                 "accessibility": "public",
@@ -578,6 +595,7 @@
                     "$id": "42",
                     "kind": "query",
                     "name": "apiVersion",
+                    "originalName": "apiVersion",
                     "serializedName": "api-version",
                     "type": {
                       "$ref": "5"
@@ -693,6 +711,7 @@
               "$id": "48",
               "kind": "basic",
               "name": "opB",
+              "originalName": "opB",
               "isExactName": false,
               "accessibility": "public",
               "apiVersions": [
@@ -702,6 +721,7 @@
               "operation": {
                 "$id": "49",
                 "name": "opB",
+                "originalName": "opB",
                 "isExactName": false,
                 "resourceName": "Operations",
                 "accessibility": "public",
@@ -710,6 +730,7 @@
                     "$id": "50",
                     "kind": "query",
                     "name": "apiVersion",
+                    "originalName": "apiVersion",
                     "serializedName": "api-version",
                     "type": {
                       "$ref": "5"
@@ -735,6 +756,7 @@
                         "$id": "52",
                         "kind": "method",
                         "name": "apiVersion",
+                        "originalName": "apiVersion",
                         "serializedName": "apiVersion",
                         "type": {
                           "$ref": "5"

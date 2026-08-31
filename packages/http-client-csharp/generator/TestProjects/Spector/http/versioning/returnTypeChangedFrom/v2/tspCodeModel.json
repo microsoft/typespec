@@ -9,6 +9,7 @@
       "$id": "1",
       "kind": "enum",
       "name": "Versions",
+      "originalName": "Versions",
       "crossLanguageDefinitionId": "Versioning.ReturnTypeChangedFrom.Versions",
       "valueType": {
         "$id": "2",
@@ -22,6 +23,7 @@
           "$id": "3",
           "kind": "enumvalue",
           "name": "v1",
+          "originalName": "v1",
           "value": "v1",
           "valueType": {
             "$ref": "2"
@@ -37,6 +39,7 @@
           "$id": "4",
           "kind": "enumvalue",
           "name": "v2",
+          "originalName": "v2",
           "value": "v2",
           "valueType": {
             "$ref": "2"
@@ -142,6 +145,7 @@
           "$id": "14",
           "kind": "basic",
           "name": "test",
+          "originalName": "test",
           "isExactName": false,
           "accessibility": "public",
           "apiVersions": [
@@ -151,6 +155,7 @@
           "operation": {
             "$id": "15",
             "name": "test",
+            "originalName": "test",
             "isExactName": false,
             "resourceName": "ReturnTypeChangedFrom",
             "accessibility": "public",
@@ -159,6 +164,7 @@
                 "$id": "16",
                 "kind": "header",
                 "name": "contentType",
+                "originalName": "contentType",
                 "serializedName": "Content-Type",
                 "type": {
                   "$ref": "5"
@@ -175,6 +181,7 @@
                     "$id": "17",
                     "kind": "method",
                     "name": "contentType",
+                    "originalName": "contentType",
                     "serializedName": "Content-Type",
                     "type": {
                       "$ref": "5"
@@ -196,6 +203,7 @@
                 "$id": "18",
                 "kind": "header",
                 "name": "accept",
+                "originalName": "accept",
                 "serializedName": "Accept",
                 "type": {
                   "$ref": "9"
@@ -212,6 +220,7 @@
                     "$id": "19",
                     "kind": "method",
                     "name": "accept",
+                    "originalName": "accept",
                     "serializedName": "Accept",
                     "type": {
                       "$ref": "9"
@@ -233,6 +242,7 @@
                 "$id": "20",
                 "kind": "body",
                 "name": "body",
+                "originalName": "body",
                 "serializedName": "body",
                 "type": {
                   "$id": "21",
@@ -256,6 +266,7 @@
                     "$id": "22",
                     "kind": "method",
                     "name": "body",
+                    "originalName": "body",
                     "serializedName": "body",
                     "type": {
                       "$id": "23",

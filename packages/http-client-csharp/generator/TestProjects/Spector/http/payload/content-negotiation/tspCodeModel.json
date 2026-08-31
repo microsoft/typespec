@@ -230,6 +230,7 @@
       "$id": "27",
       "kind": "model",
       "name": "PngImageAsJson",
+      "originalName": "PngImageAsJson",
       "namespace": "Payload.ContentNegotiation.DifferentBody",
       "crossLanguageDefinitionId": "Payload.ContentNegotiation.DifferentBody.PngImageAsJson",
       "usage": "Output,Json",
@@ -245,6 +246,7 @@
           "$id": "28",
           "kind": "property",
           "name": "contentType",
+          "originalName": "contentType",
           "serializedName": "contentType",
           "type": {
             "$ref": "1"
@@ -267,6 +269,7 @@
           "$id": "29",
           "kind": "property",
           "name": "content",
+          "originalName": "content",
           "serializedName": "content",
           "type": {
             "$id": "30",
@@ -351,12 +354,14 @@
               "$id": "36",
               "kind": "basic",
               "name": "getAvatarAsPng",
+              "originalName": "getAvatarAsPng",
               "isExactName": false,
               "accessibility": "public",
               "apiVersions": [],
               "operation": {
                 "$id": "37",
                 "name": "getAvatarAsPng",
+                "originalName": "getAvatarAsPng",
                 "isExactName": false,
                 "resourceName": "SameBody",
                 "accessibility": "public",
@@ -365,6 +370,7 @@
                     "$id": "38",
                     "kind": "header",
                     "name": "accept",
+                    "originalName": "accept",
                     "serializedName": "Accept",
                     "type": {
                       "$ref": "3"
@@ -381,6 +387,7 @@
                         "$id": "39",
                         "kind": "method",
                         "name": "accept",
+                        "originalName": "accept",
                         "serializedName": "Accept",
                         "type": {
                           "$ref": "5"
@@ -456,12 +463,14 @@
               "$id": "41",
               "kind": "basic",
               "name": "getAvatarAsJpeg",
+              "originalName": "getAvatarAsJpeg",
               "isExactName": false,
               "accessibility": "public",
               "apiVersions": [],
               "operation": {
                 "$id": "42",
                 "name": "getAvatarAsJpeg",
+                "originalName": "getAvatarAsJpeg",
                 "isExactName": false,
                 "resourceName": "SameBody",
                 "accessibility": "public",
@@ -470,6 +479,7 @@
                     "$id": "43",
                     "kind": "header",
                     "name": "accept",
+                    "originalName": "accept",
                     "serializedName": "Accept",
                     "type": {
                       "$ref": "9"
@@ -486,6 +496,7 @@
                         "$id": "44",
                         "kind": "method",
                         "name": "accept",
+                        "originalName": "accept",
                         "serializedName": "Accept",
                         "type": {
                           "$ref": "11"
@@ -611,12 +622,14 @@
               "$id": "50",
               "kind": "basic",
               "name": "getAvatarAsPng",
+              "originalName": "getAvatarAsPng",
               "isExactName": false,
               "accessibility": "public",
               "apiVersions": [],
               "operation": {
                 "$id": "51",
                 "name": "getAvatarAsPng",
+                "originalName": "getAvatarAsPng",
                 "isExactName": false,
                 "resourceName": "DifferentBody",
                 "accessibility": "public",
@@ -625,6 +638,7 @@
                     "$id": "52",
                     "kind": "header",
                     "name": "accept",
+                    "originalName": "accept",
                     "serializedName": "Accept",
                     "type": {
                       "$ref": "15"
@@ -641,6 +655,7 @@
                         "$id": "53",
                         "kind": "method",
                         "name": "accept",
+                        "originalName": "accept",
                         "serializedName": "Accept",
                         "type": {
                           "$ref": "17"
@@ -716,12 +731,14 @@
               "$id": "55",
               "kind": "basic",
               "name": "getAvatarAsJson",
+              "originalName": "getAvatarAsJson",
               "isExactName": false,
               "accessibility": "public",
               "apiVersions": [],
               "operation": {
                 "$id": "56",
                 "name": "getAvatarAsJson",
+                "originalName": "getAvatarAsJson",
                 "isExactName": false,
                 "resourceName": "DifferentBody",
                 "accessibility": "public",
@@ -730,6 +747,7 @@
                     "$id": "57",
                     "kind": "header",
                     "name": "accept",
+                    "originalName": "accept",
                     "serializedName": "Accept",
                     "type": {
                       "$ref": "21"
@@ -746,6 +764,7 @@
                         "$id": "58",
                         "kind": "method",
                         "name": "accept",
+                        "originalName": "accept",
                         "serializedName": "Accept",
                         "type": {
                           "$ref": "23"

@@ -145,6 +145,7 @@
       "$id": "17",
       "kind": "model",
       "name": "BoolAsStringProperty",
+      "originalName": "BoolAsStringProperty",
       "namespace": "Encode.Boolean.Property",
       "crossLanguageDefinitionId": "Encode.Boolean.Property.BoolAsStringProperty",
       "usage": "Input,Output,Json",
@@ -160,6 +161,7 @@
           "$id": "18",
           "kind": "property",
           "name": "value",
+          "originalName": "value",
           "serializedName": "value",
           "type": {
             "$id": "19",
@@ -244,12 +246,14 @@
               "$id": "25",
               "kind": "basic",
               "name": "trueLower",
+              "originalName": "trueLower",
               "isExactName": false,
               "accessibility": "public",
               "apiVersions": [],
               "operation": {
                 "$id": "26",
                 "name": "trueLower",
+                "originalName": "trueLower",
                 "isExactName": false,
                 "resourceName": "Property",
                 "accessibility": "public",
@@ -258,6 +262,7 @@
                     "$id": "27",
                     "kind": "header",
                     "name": "contentType",
+                    "originalName": "contentType",
                     "serializedName": "Content-Type",
                     "doc": "Body parameter's content type. Known values are application/json",
                     "type": {
@@ -275,6 +280,7 @@
                         "$id": "28",
                         "kind": "method",
                         "name": "contentType",
+                        "originalName": "contentType",
                         "serializedName": "Content-Type",
                         "doc": "Body parameter's content type. Known values are application/json",
                         "type": {
@@ -297,6 +303,7 @@
                     "$id": "29",
                     "kind": "header",
                     "name": "accept",
+                    "originalName": "accept",
                     "serializedName": "Accept",
                     "type": {
                       "$ref": "3"
@@ -313,6 +320,7 @@
                         "$id": "30",
                         "kind": "method",
                         "name": "accept",
+                        "originalName": "accept",
                         "serializedName": "Accept",
                         "type": {
                           "$ref": "3"
@@ -334,6 +342,7 @@
                     "$id": "31",
                     "kind": "body",
                     "name": "value",
+                    "originalName": "value",
                     "serializedName": "value",
                     "type": {
                       "$ref": "17"
@@ -353,6 +362,7 @@
                         "$id": "32",
                         "kind": "method",
                         "name": "value",
+                        "originalName": "value",
                         "serializedName": "value",
                         "type": {
                           "$ref": "17"
@@ -434,12 +444,14 @@
               "$id": "33",
               "kind": "basic",
               "name": "falseLower",
+              "originalName": "falseLower",
               "isExactName": false,
               "accessibility": "public",
               "apiVersions": [],
               "operation": {
                 "$id": "34",
                 "name": "falseLower",
+                "originalName": "falseLower",
                 "isExactName": false,
                 "resourceName": "Property",
                 "accessibility": "public",
@@ -448,6 +460,7 @@
                     "$id": "35",
                     "kind": "header",
                     "name": "contentType",
+                    "originalName": "contentType",
                     "serializedName": "Content-Type",
                     "doc": "Body parameter's content type. Known values are application/json",
                     "type": {
@@ -465,6 +478,7 @@
                         "$id": "36",
                         "kind": "method",
                         "name": "contentType",
+                        "originalName": "contentType",
                         "serializedName": "Content-Type",
                         "doc": "Body parameter's content type. Known values are application/json",
                         "type": {
@@ -487,6 +501,7 @@
                     "$id": "37",
                     "kind": "header",
                     "name": "accept",
+                    "originalName": "accept",
                     "serializedName": "Accept",
                     "type": {
                       "$ref": "7"
@@ -503,6 +518,7 @@
                         "$id": "38",
                         "kind": "method",
                         "name": "accept",
+                        "originalName": "accept",
                         "serializedName": "Accept",
                         "type": {
                           "$ref": "7"
@@ -524,6 +540,7 @@
                     "$id": "39",
                     "kind": "body",
                     "name": "value",
+                    "originalName": "value",
                     "serializedName": "value",
                     "type": {
                       "$ref": "17"
@@ -543,6 +560,7 @@
                         "$id": "40",
                         "kind": "method",
                         "name": "value",
+                        "originalName": "value",
                         "serializedName": "value",
                         "type": {
                           "$ref": "17"
@@ -624,12 +642,14 @@
               "$id": "41",
               "kind": "basic",
               "name": "trueUpper",
+              "originalName": "trueUpper",
               "isExactName": false,
               "accessibility": "public",
               "apiVersions": [],
               "operation": {
                 "$id": "42",
                 "name": "trueUpper",
+                "originalName": "trueUpper",
                 "isExactName": false,
                 "resourceName": "Property",
                 "accessibility": "public",
@@ -638,6 +658,7 @@
                     "$id": "43",
                     "kind": "header",
                     "name": "contentType",
+                    "originalName": "contentType",
                     "serializedName": "Content-Type",
                     "doc": "Body parameter's content type. Known values are application/json",
                     "type": {
@@ -655,6 +676,7 @@
                         "$id": "44",
                         "kind": "method",
                         "name": "contentType",
+                        "originalName": "contentType",
                         "serializedName": "Content-Type",
                         "doc": "Body parameter's content type. Known values are application/json",
                         "type": {
@@ -677,6 +699,7 @@
                     "$id": "45",
                     "kind": "header",
                     "name": "accept",
+                    "originalName": "accept",
                     "serializedName": "Accept",
                     "type": {
                       "$ref": "11"
@@ -693,6 +716,7 @@
                         "$id": "46",
                         "kind": "method",
                         "name": "accept",
+                        "originalName": "accept",
                         "serializedName": "Accept",
                         "type": {
                           "$ref": "11"
@@ -714,6 +738,7 @@
                     "$id": "47",
                     "kind": "body",
                     "name": "value",
+                    "originalName": "value",
                     "serializedName": "value",
                     "type": {
                       "$ref": "17"
@@ -733,6 +758,7 @@
                         "$id": "48",
                         "kind": "method",
                         "name": "value",
+                        "originalName": "value",
                         "serializedName": "value",
                         "type": {
                           "$ref": "17"
@@ -814,12 +840,14 @@
               "$id": "49",
               "kind": "basic",
               "name": "falseMixed",
+              "originalName": "falseMixed",
               "isExactName": false,
               "accessibility": "public",
               "apiVersions": [],
               "operation": {
                 "$id": "50",
                 "name": "falseMixed",
+                "originalName": "falseMixed",
                 "isExactName": false,
                 "resourceName": "Property",
                 "accessibility": "public",
@@ -828,6 +856,7 @@
                     "$id": "51",
                     "kind": "header",
                     "name": "contentType",
+                    "originalName": "contentType",
                     "serializedName": "Content-Type",
                     "doc": "Body parameter's content type. Known values are application/json",
                     "type": {
@@ -845,6 +874,7 @@
                         "$id": "52",
                         "kind": "method",
                         "name": "contentType",
+                        "originalName": "contentType",
                         "serializedName": "Content-Type",
                         "doc": "Body parameter's content type. Known values are application/json",
                         "type": {
@@ -867,6 +897,7 @@
                     "$id": "53",
                     "kind": "header",
                     "name": "accept",
+                    "originalName": "accept",
                     "serializedName": "Accept",
                     "type": {
                       "$ref": "15"
@@ -883,6 +914,7 @@
                         "$id": "54",
                         "kind": "method",
                         "name": "accept",
+                        "originalName": "accept",
                         "serializedName": "Accept",
                         "type": {
                           "$ref": "15"
@@ -904,6 +936,7 @@
                     "$id": "55",
                     "kind": "body",
                     "name": "value",
+                    "originalName": "value",
                     "serializedName": "value",
                     "type": {
                       "$ref": "17"
@@ -923,6 +956,7 @@
                         "$id": "56",
                         "kind": "method",
                         "name": "value",
+                        "originalName": "value",
                         "serializedName": "value",
                         "type": {
                           "$ref": "17"

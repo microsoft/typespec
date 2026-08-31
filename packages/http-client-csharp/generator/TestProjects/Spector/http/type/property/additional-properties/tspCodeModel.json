@@ -1148,6 +1148,7 @@
       "$id": "135",
       "kind": "model",
       "name": "ExtendsUnknownAdditionalProperties",
+      "originalName": "ExtendsUnknownAdditionalProperties",
       "namespace": "Type.Property.AdditionalProperties",
       "crossLanguageDefinitionId": "Type.Property.AdditionalProperties.ExtendsUnknownAdditionalProperties",
       "usage": "Input,Output,Json",
@@ -1171,6 +1172,7 @@
           "$id": "137",
           "kind": "property",
           "name": "name",
+          "originalName": "name",
           "serializedName": "name",
           "doc": "The name property",
           "type": {
@@ -1200,6 +1202,7 @@
       "$id": "139",
       "kind": "model",
       "name": "ExtendsUnknownAdditionalPropertiesDerived",
+      "originalName": "ExtendsUnknownAdditionalPropertiesDerived",
       "namespace": "Type.Property.AdditionalProperties",
       "crossLanguageDefinitionId": "Type.Property.AdditionalProperties.ExtendsUnknownAdditionalPropertiesDerived",
       "usage": "Input,Output,Json",
@@ -1219,6 +1222,7 @@
           "$id": "140",
           "kind": "property",
           "name": "index",
+          "originalName": "index",
           "serializedName": "index",
           "doc": "The index property",
           "type": {
@@ -1246,6 +1250,7 @@
           "$id": "142",
           "kind": "property",
           "name": "age",
+          "originalName": "age",
           "serializedName": "age",
           "doc": "The age property",
           "type": {
@@ -1275,6 +1280,7 @@
       "$id": "144",
       "kind": "model",
       "name": "ExtendsUnknownAdditionalPropertiesDiscriminated",
+      "originalName": "ExtendsUnknownAdditionalPropertiesDiscriminated",
       "namespace": "Type.Property.AdditionalProperties",
       "crossLanguageDefinitionId": "Type.Property.AdditionalProperties.ExtendsUnknownAdditionalPropertiesDiscriminated",
       "usage": "Input,Output,Json",
@@ -1293,6 +1299,7 @@
         "$id": "145",
         "kind": "property",
         "name": "kind",
+        "originalName": "kind",
         "serializedName": "kind",
         "doc": "The discriminator",
         "type": {
@@ -1321,6 +1328,7 @@
           "$id": "147",
           "kind": "property",
           "name": "name",
+          "originalName": "name",
           "serializedName": "name",
           "doc": "The name property",
           "type": {
@@ -1353,6 +1361,7 @@
           "$id": "149",
           "kind": "model",
           "name": "ExtendsUnknownAdditionalPropertiesDiscriminatedDerived",
+          "originalName": "ExtendsUnknownAdditionalPropertiesDiscriminatedDerived",
           "namespace": "Type.Property.AdditionalProperties",
           "crossLanguageDefinitionId": "Type.Property.AdditionalProperties.ExtendsUnknownAdditionalPropertiesDiscriminatedDerived",
           "usage": "Input,Output,Json",
@@ -1373,6 +1382,7 @@
               "$id": "150",
               "kind": "property",
               "name": "kind",
+              "originalName": "kind",
               "serializedName": "kind",
               "type": {
                 "$ref": "1"
@@ -1395,6 +1405,7 @@
               "$id": "151",
               "kind": "property",
               "name": "index",
+              "originalName": "index",
               "serializedName": "index",
               "doc": "The index property",
               "type": {
@@ -1422,6 +1433,7 @@
               "$id": "153",
               "kind": "property",
               "name": "age",
+              "originalName": "age",
               "serializedName": "age",
               "doc": "The age property",
               "type": {
@@ -1456,6 +1468,7 @@
       "$id": "155",
       "kind": "model",
       "name": "IsUnknownAdditionalProperties",
+      "originalName": "IsUnknownAdditionalProperties",
       "namespace": "Type.Property.AdditionalProperties",
       "crossLanguageDefinitionId": "Type.Property.AdditionalProperties.IsUnknownAdditionalProperties",
       "usage": "Input,Output,Json",
@@ -1479,6 +1492,7 @@
           "$id": "157",
           "kind": "property",
           "name": "name",
+          "originalName": "name",
           "serializedName": "name",
           "doc": "The name property",
           "type": {
@@ -1508,6 +1522,7 @@
       "$id": "159",
       "kind": "model",
       "name": "IsUnknownAdditionalPropertiesDerived",
+      "originalName": "IsUnknownAdditionalPropertiesDerived",
       "namespace": "Type.Property.AdditionalProperties",
       "crossLanguageDefinitionId": "Type.Property.AdditionalProperties.IsUnknownAdditionalPropertiesDerived",
       "usage": "Input,Output,Json",
@@ -1527,6 +1542,7 @@
           "$id": "160",
           "kind": "property",
           "name": "index",
+          "originalName": "index",
           "serializedName": "index",
           "doc": "The index property",
           "type": {
@@ -1554,6 +1570,7 @@
           "$id": "162",
           "kind": "property",
           "name": "age",
+          "originalName": "age",
           "serializedName": "age",
           "doc": "The age property",
           "type": {
@@ -1583,6 +1600,7 @@
       "$id": "164",
       "kind": "model",
       "name": "IsUnknownAdditionalPropertiesDiscriminated",
+      "originalName": "IsUnknownAdditionalPropertiesDiscriminated",
       "namespace": "Type.Property.AdditionalProperties",
       "crossLanguageDefinitionId": "Type.Property.AdditionalProperties.IsUnknownAdditionalPropertiesDiscriminated",
       "usage": "Input,Output,Json",
@@ -1605,6 +1623,7 @@
         "$id": "166",
         "kind": "property",
         "name": "kind",
+        "originalName": "kind",
         "serializedName": "kind",
         "doc": "The discriminator",
         "type": {
@@ -1633,6 +1652,7 @@
           "$id": "168",
           "kind": "property",
           "name": "name",
+          "originalName": "name",
           "serializedName": "name",
           "doc": "The name property",
           "type": {
@@ -1665,6 +1685,7 @@
           "$id": "170",
           "kind": "model",
           "name": "IsUnknownAdditionalPropertiesDiscriminatedDerived",
+          "originalName": "IsUnknownAdditionalPropertiesDiscriminatedDerived",
           "namespace": "Type.Property.AdditionalProperties",
           "crossLanguageDefinitionId": "Type.Property.AdditionalProperties.IsUnknownAdditionalPropertiesDiscriminatedDerived",
           "usage": "Input,Output,Json",
@@ -1685,6 +1706,7 @@
               "$id": "171",
               "kind": "property",
               "name": "kind",
+              "originalName": "kind",
               "serializedName": "kind",
               "type": {
                 "$ref": "3"
@@ -1707,6 +1729,7 @@
               "$id": "172",
               "kind": "property",
               "name": "index",
+              "originalName": "index",
               "serializedName": "index",
               "doc": "The index property",
               "type": {
@@ -1734,6 +1757,7 @@
               "$id": "174",
               "kind": "property",
               "name": "age",
+              "originalName": "age",
               "serializedName": "age",
               "doc": "The age property",
               "type": {
@@ -1768,6 +1792,7 @@
       "$id": "176",
       "kind": "model",
       "name": "ExtendsStringAdditionalProperties",
+      "originalName": "ExtendsStringAdditionalProperties",
       "namespace": "Type.Property.AdditionalProperties",
       "crossLanguageDefinitionId": "Type.Property.AdditionalProperties.ExtendsStringAdditionalProperties",
       "usage": "Input,Output,Json",
@@ -1791,6 +1816,7 @@
           "$id": "178",
           "kind": "property",
           "name": "name",
+          "originalName": "name",
           "serializedName": "name",
           "doc": "The name property",
           "type": {
@@ -1820,6 +1846,7 @@
       "$id": "180",
       "kind": "model",
       "name": "IsStringAdditionalProperties",
+      "originalName": "IsStringAdditionalProperties",
       "namespace": "Type.Property.AdditionalProperties",
       "crossLanguageDefinitionId": "Type.Property.AdditionalProperties.IsStringAdditionalProperties",
       "usage": "Input,Output,Json",
@@ -1843,6 +1870,7 @@
           "$id": "182",
           "kind": "property",
           "name": "name",
+          "originalName": "name",
           "serializedName": "name",
           "doc": "The name property",
           "type": {
@@ -1872,6 +1900,7 @@
       "$id": "184",
       "kind": "model",
       "name": "SpreadStringRecord",
+      "originalName": "SpreadStringRecord",
       "namespace": "Type.Property.AdditionalProperties",
       "crossLanguageDefinitionId": "Type.Property.AdditionalProperties.SpreadStringRecord",
       "usage": "Input,Output,Json",
@@ -1895,6 +1924,7 @@
           "$id": "186",
           "kind": "property",
           "name": "name",
+          "originalName": "name",
           "serializedName": "name",
           "doc": "The name property",
           "type": {
@@ -1924,6 +1954,7 @@
       "$id": "188",
       "kind": "model",
       "name": "ExtendsFloatAdditionalProperties",
+      "originalName": "ExtendsFloatAdditionalProperties",
       "namespace": "Type.Property.AdditionalProperties",
       "crossLanguageDefinitionId": "Type.Property.AdditionalProperties.ExtendsFloatAdditionalProperties",
       "usage": "Input,Output,Json",
@@ -1947,6 +1978,7 @@
           "$id": "190",
           "kind": "property",
           "name": "id",
+          "originalName": "id",
           "serializedName": "id",
           "doc": "The id property",
           "type": {
@@ -1976,6 +2008,7 @@
       "$id": "192",
       "kind": "model",
       "name": "IsFloatAdditionalProperties",
+      "originalName": "IsFloatAdditionalProperties",
       "namespace": "Type.Property.AdditionalProperties",
       "crossLanguageDefinitionId": "Type.Property.AdditionalProperties.IsFloatAdditionalProperties",
       "usage": "Input,Output,Json",
@@ -1999,6 +2032,7 @@
           "$id": "194",
           "kind": "property",
           "name": "id",
+          "originalName": "id",
           "serializedName": "id",
           "doc": "The id property",
           "type": {
@@ -2028,6 +2062,7 @@
       "$id": "196",
       "kind": "model",
       "name": "SpreadFloatRecord",
+      "originalName": "SpreadFloatRecord",
       "namespace": "Type.Property.AdditionalProperties",
       "crossLanguageDefinitionId": "Type.Property.AdditionalProperties.SpreadFloatRecord",
       "usage": "Input,Output,Json",
@@ -2051,6 +2086,7 @@
           "$id": "198",
           "kind": "property",
           "name": "id",
+          "originalName": "id",
           "serializedName": "id",
           "doc": "The id property",
           "type": {
@@ -2080,6 +2116,7 @@
       "$id": "200",
       "kind": "model",
       "name": "ExtendsModelAdditionalProperties",
+      "originalName": "ExtendsModelAdditionalProperties",
       "namespace": "Type.Property.AdditionalProperties",
       "crossLanguageDefinitionId": "Type.Property.AdditionalProperties.ExtendsModelAdditionalProperties",
       "usage": "Input,Output,Json",
@@ -2095,6 +2132,7 @@
         "$id": "201",
         "kind": "model",
         "name": "ModelForRecord",
+        "originalName": "ModelForRecord",
         "namespace": "Type.Property.AdditionalProperties",
         "crossLanguageDefinitionId": "Type.Property.AdditionalProperties.ModelForRecord",
         "usage": "Input,Output,Json",
@@ -2111,6 +2149,7 @@
             "$id": "202",
             "kind": "property",
             "name": "state",
+            "originalName": "state",
             "serializedName": "state",
             "doc": "The state property",
             "type": {
@@ -2141,6 +2180,7 @@
           "$id": "204",
           "kind": "property",
           "name": "knownProp",
+          "originalName": "knownProp",
           "serializedName": "knownProp",
           "type": {
             "$ref": "201"
@@ -2168,6 +2208,7 @@
       "$id": "205",
       "kind": "model",
       "name": "IsModelAdditionalProperties",
+      "originalName": "IsModelAdditionalProperties",
       "namespace": "Type.Property.AdditionalProperties",
       "crossLanguageDefinitionId": "Type.Property.AdditionalProperties.IsModelAdditionalProperties",
       "usage": "Input,Output,Json",
@@ -2187,6 +2228,7 @@
           "$id": "206",
           "kind": "property",
           "name": "knownProp",
+          "originalName": "knownProp",
           "serializedName": "knownProp",
           "type": {
             "$ref": "201"
@@ -2211,6 +2253,7 @@
       "$id": "207",
       "kind": "model",
       "name": "SpreadModelRecord",
+      "originalName": "SpreadModelRecord",
       "namespace": "Type.Property.AdditionalProperties",
       "crossLanguageDefinitionId": "Type.Property.AdditionalProperties.SpreadModelRecord",
       "usage": "Input,Output,Json",
@@ -2230,6 +2273,7 @@
           "$id": "208",
           "kind": "property",
           "name": "knownProp",
+          "originalName": "knownProp",
           "serializedName": "knownProp",
           "type": {
             "$ref": "201"
@@ -2254,6 +2298,7 @@
       "$id": "209",
       "kind": "model",
       "name": "ExtendsModelArrayAdditionalProperties",
+      "originalName": "ExtendsModelArrayAdditionalProperties",
       "namespace": "Type.Property.AdditionalProperties",
       "crossLanguageDefinitionId": "Type.Property.AdditionalProperties.ExtendsModelArrayAdditionalProperties",
       "usage": "Input,Output,Json",
@@ -2280,6 +2325,7 @@
           "$id": "211",
           "kind": "property",
           "name": "knownProp",
+          "originalName": "knownProp",
           "serializedName": "knownProp",
           "type": {
             "$ref": "210"
@@ -2304,6 +2350,7 @@
       "$id": "212",
       "kind": "model",
       "name": "IsModelArrayAdditionalProperties",
+      "originalName": "IsModelArrayAdditionalProperties",
       "namespace": "Type.Property.AdditionalProperties",
       "crossLanguageDefinitionId": "Type.Property.AdditionalProperties.IsModelArrayAdditionalProperties",
       "usage": "Input,Output,Json",
@@ -2323,6 +2370,7 @@
           "$id": "213",
           "kind": "property",
           "name": "knownProp",
+          "originalName": "knownProp",
           "serializedName": "knownProp",
           "type": {
             "$ref": "210"
@@ -2347,6 +2395,7 @@
       "$id": "214",
       "kind": "model",
       "name": "SpreadModelArrayRecord",
+      "originalName": "SpreadModelArrayRecord",
       "namespace": "Type.Property.AdditionalProperties",
       "crossLanguageDefinitionId": "Type.Property.AdditionalProperties.SpreadModelArrayRecord",
       "usage": "Input,Output,Json",
@@ -2365,6 +2414,7 @@
           "$id": "215",
           "kind": "property",
           "name": "knownProp",
+          "originalName": "knownProp",
           "serializedName": "knownProp",
           "type": {
             "$ref": "210"
@@ -2389,6 +2439,7 @@
       "$id": "216",
       "kind": "model",
       "name": "DifferentSpreadStringRecord",
+      "originalName": "DifferentSpreadStringRecord",
       "namespace": "Type.Property.AdditionalProperties",
       "crossLanguageDefinitionId": "Type.Property.AdditionalProperties.DifferentSpreadStringRecord",
       "usage": "Input,Output,Json",
@@ -2412,6 +2463,7 @@
           "$id": "218",
           "kind": "property",
           "name": "id",
+          "originalName": "id",
           "serializedName": "id",
           "doc": "The name property",
           "type": {
@@ -2441,6 +2493,7 @@
       "$id": "220",
       "kind": "model",
       "name": "DifferentSpreadFloatRecord",
+      "originalName": "DifferentSpreadFloatRecord",
       "namespace": "Type.Property.AdditionalProperties",
       "crossLanguageDefinitionId": "Type.Property.AdditionalProperties.DifferentSpreadFloatRecord",
       "usage": "Input,Output,Json",
@@ -2464,6 +2517,7 @@
           "$id": "222",
           "kind": "property",
           "name": "name",
+          "originalName": "name",
           "serializedName": "name",
           "doc": "The id property",
           "type": {
@@ -2493,6 +2547,7 @@
       "$id": "224",
       "kind": "model",
       "name": "DifferentSpreadModelRecord",
+      "originalName": "DifferentSpreadModelRecord",
       "namespace": "Type.Property.AdditionalProperties",
       "crossLanguageDefinitionId": "Type.Property.AdditionalProperties.DifferentSpreadModelRecord",
       "usage": "Input,Output,Json",
@@ -2512,6 +2567,7 @@
           "$id": "225",
           "kind": "property",
           "name": "knownProp",
+          "originalName": "knownProp",
           "serializedName": "knownProp",
           "type": {
             "$id": "226",
@@ -2540,6 +2596,7 @@
       "$id": "227",
       "kind": "model",
       "name": "DifferentSpreadModelArrayRecord",
+      "originalName": "DifferentSpreadModelArrayRecord",
       "namespace": "Type.Property.AdditionalProperties",
       "crossLanguageDefinitionId": "Type.Property.AdditionalProperties.DifferentSpreadModelArrayRecord",
       "usage": "Input,Output,Json",
@@ -2559,6 +2616,7 @@
           "$id": "228",
           "kind": "property",
           "name": "knownProp",
+          "originalName": "knownProp",
           "serializedName": "knownProp",
           "type": {
             "$id": "229",
@@ -2587,6 +2645,7 @@
       "$id": "230",
       "kind": "model",
       "name": "DifferentSpreadStringDerived",
+      "originalName": "DifferentSpreadStringDerived",
       "namespace": "Type.Property.AdditionalProperties",
       "crossLanguageDefinitionId": "Type.Property.AdditionalProperties.DifferentSpreadStringDerived",
       "usage": "Input,Output,Json",
@@ -2606,6 +2665,7 @@
           "$id": "231",
           "kind": "property",
           "name": "derivedProp",
+          "originalName": "derivedProp",
           "serializedName": "derivedProp",
           "doc": "The index property",
           "type": {
@@ -2635,6 +2695,7 @@
       "$id": "233",
       "kind": "model",
       "name": "DifferentSpreadFloatDerived",
+      "originalName": "DifferentSpreadFloatDerived",
       "namespace": "Type.Property.AdditionalProperties",
       "crossLanguageDefinitionId": "Type.Property.AdditionalProperties.DifferentSpreadFloatDerived",
       "usage": "Input,Output,Json",
@@ -2654,6 +2715,7 @@
           "$id": "234",
           "kind": "property",
           "name": "derivedProp",
+          "originalName": "derivedProp",
           "serializedName": "derivedProp",
           "doc": "The index property",
           "type": {
@@ -2683,6 +2745,7 @@
       "$id": "236",
       "kind": "model",
       "name": "DifferentSpreadModelDerived",
+      "originalName": "DifferentSpreadModelDerived",
       "namespace": "Type.Property.AdditionalProperties",
       "crossLanguageDefinitionId": "Type.Property.AdditionalProperties.DifferentSpreadModelDerived",
       "usage": "Input,Output,Json",
@@ -2702,6 +2765,7 @@
           "$id": "237",
           "kind": "property",
           "name": "derivedProp",
+          "originalName": "derivedProp",
           "serializedName": "derivedProp",
           "doc": "The index property",
           "type": {
@@ -2727,6 +2791,7 @@
       "$id": "238",
       "kind": "model",
       "name": "DifferentSpreadModelArrayDerived",
+      "originalName": "DifferentSpreadModelArrayDerived",
       "namespace": "Type.Property.AdditionalProperties",
       "crossLanguageDefinitionId": "Type.Property.AdditionalProperties.DifferentSpreadModelArrayDerived",
       "usage": "Input,Output,Json",
@@ -2746,6 +2811,7 @@
           "$id": "239",
           "kind": "property",
           "name": "derivedProp",
+          "originalName": "derivedProp",
           "serializedName": "derivedProp",
           "doc": "The index property",
           "type": {
@@ -2771,6 +2837,7 @@
       "$id": "240",
       "kind": "model",
       "name": "MultipleSpreadRecord",
+      "originalName": "MultipleSpreadRecord",
       "namespace": "Type.Property.AdditionalProperties",
       "crossLanguageDefinitionId": "Type.Property.AdditionalProperties.MultipleSpreadRecord",
       "usage": "Input,Output,Json",
@@ -2811,6 +2878,7 @@
           "$id": "244",
           "kind": "property",
           "name": "flag",
+          "originalName": "flag",
           "serializedName": "flag",
           "doc": "The name property",
           "type": {
@@ -2840,6 +2908,7 @@
       "$id": "246",
       "kind": "model",
       "name": "SpreadRecordForUnion",
+      "originalName": "SpreadRecordForUnion",
       "namespace": "Type.Property.AdditionalProperties",
       "crossLanguageDefinitionId": "Type.Property.AdditionalProperties.SpreadRecordForUnion",
       "usage": "Input,Output,Json",
@@ -2880,6 +2949,7 @@
           "$id": "250",
           "kind": "property",
           "name": "flag",
+          "originalName": "flag",
           "serializedName": "flag",
           "doc": "The name property",
           "type": {
@@ -2909,6 +2979,7 @@
       "$id": "252",
       "kind": "model",
       "name": "SpreadRecordForNonDiscriminatedUnion",
+      "originalName": "SpreadRecordForNonDiscriminatedUnion",
       "namespace": "Type.Property.AdditionalProperties",
       "crossLanguageDefinitionId": "Type.Property.AdditionalProperties.SpreadRecordForNonDiscriminatedUnion",
       "usage": "Input,Output,Json",
@@ -2929,6 +3000,7 @@
             "$id": "254",
             "kind": "model",
             "name": "WidgetData0",
+            "originalName": "WidgetData0",
             "namespace": "Type.Property.AdditionalProperties",
             "crossLanguageDefinitionId": "Type.Property.AdditionalProperties.WidgetData0",
             "usage": "Input,Output,Json",
@@ -2944,6 +3016,7 @@
                 "$id": "255",
                 "kind": "property",
                 "name": "kind",
+                "originalName": "kind",
                 "serializedName": "kind",
                 "type": {
                   "$ref": "5"
@@ -2966,6 +3039,7 @@
                 "$id": "256",
                 "kind": "property",
                 "name": "fooProp",
+                "originalName": "fooProp",
                 "serializedName": "fooProp",
                 "type": {
                   "$id": "257",
@@ -2994,6 +3068,7 @@
             "$id": "258",
             "kind": "model",
             "name": "WidgetData1",
+            "originalName": "WidgetData1",
             "namespace": "Type.Property.AdditionalProperties",
             "crossLanguageDefinitionId": "Type.Property.AdditionalProperties.WidgetData1",
             "usage": "Input,Output,Json",
@@ -3009,6 +3084,7 @@
                 "$id": "259",
                 "kind": "property",
                 "name": "kind",
+                "originalName": "kind",
                 "serializedName": "kind",
                 "type": {
                   "$ref": "7"
@@ -3031,6 +3107,7 @@
                 "$id": "260",
                 "kind": "property",
                 "name": "start",
+                "originalName": "start",
                 "serializedName": "start",
                 "type": {
                   "$id": "261",
@@ -3065,6 +3142,7 @@
                 "$id": "263",
                 "kind": "property",
                 "name": "end",
+                "originalName": "end",
                 "serializedName": "end",
                 "type": {
                   "$id": "264",
@@ -3107,6 +3185,7 @@
           "$id": "266",
           "kind": "property",
           "name": "name",
+          "originalName": "name",
           "serializedName": "name",
           "doc": "The name property",
           "type": {
@@ -3142,6 +3221,7 @@
       "$id": "268",
       "kind": "model",
       "name": "SpreadRecordForNonDiscriminatedUnion2",
+      "originalName": "SpreadRecordForNonDiscriminatedUnion2",
       "namespace": "Type.Property.AdditionalProperties",
       "crossLanguageDefinitionId": "Type.Property.AdditionalProperties.SpreadRecordForNonDiscriminatedUnion2",
       "usage": "Input,Output,Json",
@@ -3162,6 +3242,7 @@
             "$id": "270",
             "kind": "model",
             "name": "WidgetData2",
+            "originalName": "WidgetData2",
             "namespace": "Type.Property.AdditionalProperties",
             "crossLanguageDefinitionId": "Type.Property.AdditionalProperties.WidgetData2",
             "usage": "Input,Output,Json",
@@ -3177,6 +3258,7 @@
                 "$id": "271",
                 "kind": "property",
                 "name": "kind",
+                "originalName": "kind",
                 "serializedName": "kind",
                 "type": {
                   "$ref": "9"
@@ -3199,6 +3281,7 @@
                 "$id": "272",
                 "kind": "property",
                 "name": "start",
+                "originalName": "start",
                 "serializedName": "start",
                 "type": {
                   "$id": "273",
@@ -3236,6 +3319,7 @@
           "$id": "274",
           "kind": "property",
           "name": "name",
+          "originalName": "name",
           "serializedName": "name",
           "doc": "The name property",
           "type": {
@@ -3268,6 +3352,7 @@
       "$id": "276",
       "kind": "model",
       "name": "SpreadRecordForNonDiscriminatedUnion3",
+      "originalName": "SpreadRecordForNonDiscriminatedUnion3",
       "namespace": "Type.Property.AdditionalProperties",
       "crossLanguageDefinitionId": "Type.Property.AdditionalProperties.SpreadRecordForNonDiscriminatedUnion3",
       "usage": "Input,Output,Json",
@@ -3307,6 +3392,7 @@
           "$id": "279",
           "kind": "property",
           "name": "name",
+          "originalName": "name",
           "serializedName": "name",
           "doc": "The name property",
           "type": {
@@ -3391,6 +3477,7 @@
               "$id": "286",
               "kind": "basic",
               "name": "get",
+              "originalName": "get",
               "isExactName": false,
               "accessibility": "public",
               "apiVersions": [],
@@ -3398,6 +3485,7 @@
               "operation": {
                 "$id": "287",
                 "name": "get",
+                "originalName": "get",
                 "isExactName": false,
                 "resourceName": "ExtendsUnknown",
                 "doc": "Get call",
@@ -3407,6 +3495,7 @@
                     "$id": "288",
                     "kind": "header",
                     "name": "accept",
+                    "originalName": "accept",
                     "serializedName": "Accept",
                     "type": {
                       "$ref": "11"
@@ -3423,6 +3512,7 @@
                         "$id": "289",
                         "kind": "method",
                         "name": "accept",
+                        "originalName": "accept",
                         "serializedName": "Accept",
                         "type": {
                           "$ref": "11"
@@ -3490,6 +3580,7 @@
               "$id": "290",
               "kind": "basic",
               "name": "put",
+              "originalName": "put",
               "isExactName": false,
               "accessibility": "public",
               "apiVersions": [],
@@ -3497,6 +3588,7 @@
               "operation": {
                 "$id": "291",
                 "name": "put",
+                "originalName": "put",
                 "isExactName": false,
                 "resourceName": "ExtendsUnknown",
                 "doc": "Put operation",
@@ -3506,6 +3598,7 @@
                     "$id": "292",
                     "kind": "header",
                     "name": "contentType",
+                    "originalName": "contentType",
                     "serializedName": "Content-Type",
                     "doc": "Body parameter's content type. Known values are application/json",
                     "type": {
@@ -3523,6 +3616,7 @@
                         "$id": "293",
                         "kind": "method",
                         "name": "contentType",
+                        "originalName": "contentType",
                         "serializedName": "Content-Type",
                         "doc": "Body parameter's content type. Known values are application/json",
                         "type": {
@@ -3545,6 +3639,7 @@
                     "$id": "294",
                     "kind": "body",
                     "name": "body",
+                    "originalName": "body",
                     "serializedName": "body",
                     "doc": "body",
                     "type": {
@@ -3565,6 +3660,7 @@
                         "$id": "295",
                         "kind": "method",
                         "name": "body",
+                        "originalName": "body",
                         "serializedName": "body",
                         "doc": "body",
                         "type": {
@@ -3680,6 +3776,7 @@
               "$id": "300",
               "kind": "basic",
               "name": "get",
+              "originalName": "get",
               "isExactName": false,
               "accessibility": "public",
               "apiVersions": [],
@@ -3687,6 +3784,7 @@
               "operation": {
                 "$id": "301",
                 "name": "get",
+                "originalName": "get",
                 "isExactName": false,
                 "resourceName": "ExtendsUnknownDerived",
                 "doc": "Get call",
@@ -3696,6 +3794,7 @@
                     "$id": "302",
                     "kind": "header",
                     "name": "accept",
+                    "originalName": "accept",
                     "serializedName": "Accept",
                     "type": {
                       "$ref": "15"
@@ -3712,6 +3811,7 @@
                         "$id": "303",
                         "kind": "method",
                         "name": "accept",
+                        "originalName": "accept",
                         "serializedName": "Accept",
                         "type": {
                           "$ref": "15"
@@ -3779,6 +3879,7 @@
               "$id": "304",
               "kind": "basic",
               "name": "put",
+              "originalName": "put",
               "isExactName": false,
               "accessibility": "public",
               "apiVersions": [],
@@ -3786,6 +3887,7 @@
               "operation": {
                 "$id": "305",
                 "name": "put",
+                "originalName": "put",
                 "isExactName": false,
                 "resourceName": "ExtendsUnknownDerived",
                 "doc": "Put operation",
@@ -3795,6 +3897,7 @@
                     "$id": "306",
                     "kind": "header",
                     "name": "contentType",
+                    "originalName": "contentType",
                     "serializedName": "Content-Type",
                     "doc": "Body parameter's content type. Known values are application/json",
                     "type": {
@@ -3812,6 +3915,7 @@
                         "$id": "307",
                         "kind": "method",
                         "name": "contentType",
+                        "originalName": "contentType",
                         "serializedName": "Content-Type",
                         "doc": "Body parameter's content type. Known values are application/json",
                         "type": {
@@ -3834,6 +3938,7 @@
                     "$id": "308",
                     "kind": "body",
                     "name": "body",
+                    "originalName": "body",
                     "serializedName": "body",
                     "doc": "body",
                     "type": {
@@ -3854,6 +3959,7 @@
                         "$id": "309",
                         "kind": "method",
                         "name": "body",
+                        "originalName": "body",
                         "serializedName": "body",
                         "doc": "body",
                         "type": {
@@ -3969,6 +4075,7 @@
               "$id": "314",
               "kind": "basic",
               "name": "get",
+              "originalName": "get",
               "isExactName": false,
               "accessibility": "public",
               "apiVersions": [],
@@ -3976,6 +4083,7 @@
               "operation": {
                 "$id": "315",
                 "name": "get",
+                "originalName": "get",
                 "isExactName": false,
                 "resourceName": "ExtendsUnknownDiscriminated",
                 "doc": "Get call",
@@ -3985,6 +4093,7 @@
                     "$id": "316",
                     "kind": "header",
                     "name": "accept",
+                    "originalName": "accept",
                     "serializedName": "Accept",
                     "type": {
                       "$ref": "19"
@@ -4001,6 +4110,7 @@
                         "$id": "317",
                         "kind": "method",
                         "name": "accept",
+                        "originalName": "accept",
                         "serializedName": "Accept",
                         "type": {
                           "$ref": "19"
@@ -4068,6 +4178,7 @@
               "$id": "318",
               "kind": "basic",
               "name": "put",
+              "originalName": "put",
               "isExactName": false,
               "accessibility": "public",
               "apiVersions": [],
@@ -4075,6 +4186,7 @@
               "operation": {
                 "$id": "319",
                 "name": "put",
+                "originalName": "put",
                 "isExactName": false,
                 "resourceName": "ExtendsUnknownDiscriminated",
                 "doc": "Put operation",
@@ -4084,6 +4196,7 @@
                     "$id": "320",
                     "kind": "header",
                     "name": "contentType",
+                    "originalName": "contentType",
                     "serializedName": "Content-Type",
                     "doc": "Body parameter's content type. Known values are application/json",
                     "type": {
@@ -4101,6 +4214,7 @@
                         "$id": "321",
                         "kind": "method",
                         "name": "contentType",
+                        "originalName": "contentType",
                         "serializedName": "Content-Type",
                         "doc": "Body parameter's content type. Known values are application/json",
                         "type": {
@@ -4123,6 +4237,7 @@
                     "$id": "322",
                     "kind": "body",
                     "name": "body",
+                    "originalName": "body",
                     "serializedName": "body",
                     "doc": "body",
                     "type": {
@@ -4143,6 +4258,7 @@
                         "$id": "323",
                         "kind": "method",
                         "name": "body",
+                        "originalName": "body",
                         "serializedName": "body",
                         "doc": "body",
                         "type": {
@@ -4258,6 +4374,7 @@
               "$id": "328",
               "kind": "basic",
               "name": "get",
+              "originalName": "get",
               "isExactName": false,
               "accessibility": "public",
               "apiVersions": [],
@@ -4265,6 +4382,7 @@
               "operation": {
                 "$id": "329",
                 "name": "get",
+                "originalName": "get",
                 "isExactName": false,
                 "resourceName": "IsUnknown",
                 "doc": "Get call",
@@ -4274,6 +4392,7 @@
                     "$id": "330",
                     "kind": "header",
                     "name": "accept",
+                    "originalName": "accept",
                     "serializedName": "Accept",
                     "type": {
                       "$ref": "23"
@@ -4290,6 +4409,7 @@
                         "$id": "331",
                         "kind": "method",
                         "name": "accept",
+                        "originalName": "accept",
                         "serializedName": "Accept",
                         "type": {
                           "$ref": "23"
@@ -4357,6 +4477,7 @@
               "$id": "332",
               "kind": "basic",
               "name": "put",
+              "originalName": "put",
               "isExactName": false,
               "accessibility": "public",
               "apiVersions": [],
@@ -4364,6 +4485,7 @@
               "operation": {
                 "$id": "333",
                 "name": "put",
+                "originalName": "put",
                 "isExactName": false,
                 "resourceName": "IsUnknown",
                 "doc": "Put operation",
@@ -4373,6 +4495,7 @@
                     "$id": "334",
                     "kind": "header",
                     "name": "contentType",
+                    "originalName": "contentType",
                     "serializedName": "Content-Type",
                     "doc": "Body parameter's content type. Known values are application/json",
                     "type": {
@@ -4390,6 +4513,7 @@
                         "$id": "335",
                         "kind": "method",
                         "name": "contentType",
+                        "originalName": "contentType",
                         "serializedName": "Content-Type",
                         "doc": "Body parameter's content type. Known values are application/json",
                         "type": {
@@ -4412,6 +4536,7 @@
                     "$id": "336",
                     "kind": "body",
                     "name": "body",
+                    "originalName": "body",
                     "serializedName": "body",
                     "doc": "body",
                     "type": {
@@ -4432,6 +4557,7 @@
                         "$id": "337",
                         "kind": "method",
                         "name": "body",
+                        "originalName": "body",
                         "serializedName": "body",
                         "doc": "body",
                         "type": {
@@ -4547,6 +4673,7 @@
               "$id": "342",
               "kind": "basic",
               "name": "get",
+              "originalName": "get",
               "isExactName": false,
               "accessibility": "public",
               "apiVersions": [],
@@ -4554,6 +4681,7 @@
               "operation": {
                 "$id": "343",
                 "name": "get",
+                "originalName": "get",
                 "isExactName": false,
                 "resourceName": "IsUnknownDerived",
                 "doc": "Get call",
@@ -4563,6 +4691,7 @@
                     "$id": "344",
                     "kind": "header",
                     "name": "accept",
+                    "originalName": "accept",
                     "serializedName": "Accept",
                     "type": {
                       "$ref": "27"
@@ -4579,6 +4708,7 @@
                         "$id": "345",
                         "kind": "method",
                         "name": "accept",
+                        "originalName": "accept",
                         "serializedName": "Accept",
                         "type": {
                           "$ref": "27"
@@ -4646,6 +4776,7 @@
               "$id": "346",
               "kind": "basic",
               "name": "put",
+              "originalName": "put",
               "isExactName": false,
               "accessibility": "public",
               "apiVersions": [],
@@ -4653,6 +4784,7 @@
               "operation": {
                 "$id": "347",
                 "name": "put",
+                "originalName": "put",
                 "isExactName": false,
                 "resourceName": "IsUnknownDerived",
                 "doc": "Put operation",
@@ -4662,6 +4794,7 @@
                     "$id": "348",
                     "kind": "header",
                     "name": "contentType",
+                    "originalName": "contentType",
                     "serializedName": "Content-Type",
                     "doc": "Body parameter's content type. Known values are application/json",
                     "type": {
@@ -4679,6 +4812,7 @@
                         "$id": "349",
                         "kind": "method",
                         "name": "contentType",
+                        "originalName": "contentType",
                         "serializedName": "Content-Type",
                         "doc": "Body parameter's content type. Known values are application/json",
                         "type": {
@@ -4701,6 +4835,7 @@
                     "$id": "350",
                     "kind": "body",
                     "name": "body",
+                    "originalName": "body",
                     "serializedName": "body",
                     "doc": "body",
                     "type": {
@@ -4721,6 +4856,7 @@
                         "$id": "351",
                         "kind": "method",
                         "name": "body",
+                        "originalName": "body",
                         "serializedName": "body",
                         "doc": "body",
                         "type": {
@@ -4836,6 +4972,7 @@
               "$id": "356",
               "kind": "basic",
               "name": "get",
+              "originalName": "get",
               "isExactName": false,
               "accessibility": "public",
               "apiVersions": [],
@@ -4843,6 +4980,7 @@
               "operation": {
                 "$id": "357",
                 "name": "get",
+                "originalName": "get",
                 "isExactName": false,
                 "resourceName": "IsUnknownDiscriminated",
                 "doc": "Get call",
@@ -4852,6 +4990,7 @@
                     "$id": "358",
                     "kind": "header",
                     "name": "accept",
+                    "originalName": "accept",
                     "serializedName": "Accept",
                     "type": {
                       "$ref": "31"
@@ -4868,6 +5007,7 @@
                         "$id": "359",
                         "kind": "method",
                         "name": "accept",
+                        "originalName": "accept",
                         "serializedName": "Accept",
                         "type": {
                           "$ref": "31"
@@ -4935,6 +5075,7 @@
               "$id": "360",
               "kind": "basic",
               "name": "put",
+              "originalName": "put",
               "isExactName": false,
               "accessibility": "public",
               "apiVersions": [],
@@ -4942,6 +5083,7 @@
               "operation": {
                 "$id": "361",
                 "name": "put",
+                "originalName": "put",
                 "isExactName": false,
                 "resourceName": "IsUnknownDiscriminated",
                 "doc": "Put operation",
@@ -4951,6 +5093,7 @@
                     "$id": "362",
                     "kind": "header",
                     "name": "contentType",
+                    "originalName": "contentType",
                     "serializedName": "Content-Type",
                     "doc": "Body parameter's content type. Known values are application/json",
                     "type": {
@@ -4968,6 +5111,7 @@
                         "$id": "363",
                         "kind": "method",
                         "name": "contentType",
+                        "originalName": "contentType",
                         "serializedName": "Content-Type",
                         "doc": "Body parameter's content type. Known values are application/json",
                         "type": {
@@ -4990,6 +5134,7 @@
                     "$id": "364",
                     "kind": "body",
                     "name": "body",
+                    "originalName": "body",
                     "serializedName": "body",
                     "doc": "body",
                     "type": {
@@ -5010,6 +5155,7 @@
                         "$id": "365",
                         "kind": "method",
                         "name": "body",
+                        "originalName": "body",
                         "serializedName": "body",
                         "doc": "body",
                         "type": {
@@ -5125,6 +5271,7 @@
               "$id": "370",
               "kind": "basic",
               "name": "get",
+              "originalName": "get",
               "isExactName": false,
               "accessibility": "public",
               "apiVersions": [],
@@ -5132,6 +5279,7 @@
               "operation": {
                 "$id": "371",
                 "name": "get",
+                "originalName": "get",
                 "isExactName": false,
                 "resourceName": "ExtendsString",
                 "doc": "Get call",
@@ -5141,6 +5289,7 @@
                     "$id": "372",
                     "kind": "header",
                     "name": "accept",
+                    "originalName": "accept",
                     "serializedName": "Accept",
                     "type": {
                       "$ref": "35"
@@ -5157,6 +5306,7 @@
                         "$id": "373",
                         "kind": "method",
                         "name": "accept",
+                        "originalName": "accept",
                         "serializedName": "Accept",
                         "type": {
                           "$ref": "35"
@@ -5224,6 +5374,7 @@
               "$id": "374",
               "kind": "basic",
               "name": "put",
+              "originalName": "put",
               "isExactName": false,
               "accessibility": "public",
               "apiVersions": [],
@@ -5231,6 +5382,7 @@
               "operation": {
                 "$id": "375",
                 "name": "put",
+                "originalName": "put",
                 "isExactName": false,
                 "resourceName": "ExtendsString",
                 "doc": "Put operation",
@@ -5240,6 +5392,7 @@
                     "$id": "376",
                     "kind": "header",
                     "name": "contentType",
+                    "originalName": "contentType",
                     "serializedName": "Content-Type",
                     "doc": "Body parameter's content type. Known values are application/json",
                     "type": {
@@ -5257,6 +5410,7 @@
                         "$id": "377",
                         "kind": "method",
                         "name": "contentType",
+                        "originalName": "contentType",
                         "serializedName": "Content-Type",
                         "doc": "Body parameter's content type. Known values are application/json",
                         "type": {
@@ -5279,6 +5433,7 @@
                     "$id": "378",
                     "kind": "body",
                     "name": "body",
+                    "originalName": "body",
                     "serializedName": "body",
                     "doc": "body",
                     "type": {
@@ -5299,6 +5454,7 @@
                         "$id": "379",
                         "kind": "method",
                         "name": "body",
+                        "originalName": "body",
                         "serializedName": "body",
                         "doc": "body",
                         "type": {
@@ -5414,6 +5570,7 @@
               "$id": "384",
               "kind": "basic",
               "name": "get",
+              "originalName": "get",
               "isExactName": false,
               "accessibility": "public",
               "apiVersions": [],
@@ -5421,6 +5578,7 @@
               "operation": {
                 "$id": "385",
                 "name": "get",
+                "originalName": "get",
                 "isExactName": false,
                 "resourceName": "IsString",
                 "doc": "Get call",
@@ -5430,6 +5588,7 @@
                     "$id": "386",
                     "kind": "header",
                     "name": "accept",
+                    "originalName": "accept",
                     "serializedName": "Accept",
                     "type": {
                       "$ref": "39"
@@ -5446,6 +5605,7 @@
                         "$id": "387",
                         "kind": "method",
                         "name": "accept",
+                        "originalName": "accept",
                         "serializedName": "Accept",
                         "type": {
                           "$ref": "39"
@@ -5513,6 +5673,7 @@
               "$id": "388",
               "kind": "basic",
               "name": "put",
+              "originalName": "put",
               "isExactName": false,
               "accessibility": "public",
               "apiVersions": [],
@@ -5520,6 +5681,7 @@
               "operation": {
                 "$id": "389",
                 "name": "put",
+                "originalName": "put",
                 "isExactName": false,
                 "resourceName": "IsString",
                 "doc": "Put operation",
@@ -5529,6 +5691,7 @@
                     "$id": "390",
                     "kind": "header",
                     "name": "contentType",
+                    "originalName": "contentType",
                     "serializedName": "Content-Type",
                     "doc": "Body parameter's content type. Known values are application/json",
                     "type": {
@@ -5546,6 +5709,7 @@
                         "$id": "391",
                         "kind": "method",
                         "name": "contentType",
+                        "originalName": "contentType",
                         "serializedName": "Content-Type",
                         "doc": "Body parameter's content type. Known values are application/json",
                         "type": {
@@ -5568,6 +5732,7 @@
                     "$id": "392",
                     "kind": "body",
                     "name": "body",
+                    "originalName": "body",
                     "serializedName": "body",
                     "doc": "body",
                     "type": {
@@ -5588,6 +5753,7 @@
                         "$id": "393",
                         "kind": "method",
                         "name": "body",
+                        "originalName": "body",
                         "serializedName": "body",
                         "doc": "body",
                         "type": {
@@ -5703,6 +5869,7 @@
               "$id": "398",
               "kind": "basic",
               "name": "get",
+              "originalName": "get",
               "isExactName": false,
               "accessibility": "public",
               "apiVersions": [],
@@ -5710,6 +5877,7 @@
               "operation": {
                 "$id": "399",
                 "name": "get",
+                "originalName": "get",
                 "isExactName": false,
                 "resourceName": "SpreadString",
                 "doc": "Get call",
@@ -5719,6 +5887,7 @@
                     "$id": "400",
                     "kind": "header",
                     "name": "accept",
+                    "originalName": "accept",
                     "serializedName": "Accept",
                     "type": {
                       "$ref": "43"
@@ -5735,6 +5904,7 @@
                         "$id": "401",
                         "kind": "method",
                         "name": "accept",
+                        "originalName": "accept",
                         "serializedName": "Accept",
                         "type": {
                           "$ref": "43"
@@ -5802,6 +5972,7 @@
               "$id": "402",
               "kind": "basic",
               "name": "put",
+              "originalName": "put",
               "isExactName": false,
               "accessibility": "public",
               "apiVersions": [],
@@ -5809,6 +5980,7 @@
               "operation": {
                 "$id": "403",
                 "name": "put",
+                "originalName": "put",
                 "isExactName": false,
                 "resourceName": "SpreadString",
                 "doc": "Put operation",
@@ -5818,6 +5990,7 @@
                     "$id": "404",
                     "kind": "header",
                     "name": "contentType",
+                    "originalName": "contentType",
                     "serializedName": "Content-Type",
                     "doc": "Body parameter's content type. Known values are application/json",
                     "type": {
@@ -5835,6 +6008,7 @@
                         "$id": "405",
                         "kind": "method",
                         "name": "contentType",
+                        "originalName": "contentType",
                         "serializedName": "Content-Type",
                         "doc": "Body parameter's content type. Known values are application/json",
                         "type": {
@@ -5857,6 +6031,7 @@
                     "$id": "406",
                     "kind": "body",
                     "name": "body",
+                    "originalName": "body",
                     "serializedName": "body",
                     "doc": "body",
                     "type": {
@@ -5877,6 +6052,7 @@
                         "$id": "407",
                         "kind": "method",
                         "name": "body",
+                        "originalName": "body",
                         "serializedName": "body",
                         "doc": "body",
                         "type": {
@@ -5992,6 +6168,7 @@
               "$id": "412",
               "kind": "basic",
               "name": "get",
+              "originalName": "get",
               "isExactName": false,
               "accessibility": "public",
               "apiVersions": [],
@@ -5999,6 +6176,7 @@
               "operation": {
                 "$id": "413",
                 "name": "get",
+                "originalName": "get",
                 "isExactName": false,
                 "resourceName": "ExtendsFloat",
                 "doc": "Get call",
@@ -6008,6 +6186,7 @@
                     "$id": "414",
                     "kind": "header",
                     "name": "accept",
+                    "originalName": "accept",
                     "serializedName": "Accept",
                     "type": {
                       "$ref": "47"
@@ -6024,6 +6203,7 @@
                         "$id": "415",
                         "kind": "method",
                         "name": "accept",
+                        "originalName": "accept",
                         "serializedName": "Accept",
                         "type": {
                           "$ref": "47"
@@ -6091,6 +6271,7 @@
               "$id": "416",
               "kind": "basic",
               "name": "put",
+              "originalName": "put",
               "isExactName": false,
               "accessibility": "public",
               "apiVersions": [],
@@ -6098,6 +6279,7 @@
               "operation": {
                 "$id": "417",
                 "name": "put",
+                "originalName": "put",
                 "isExactName": false,
                 "resourceName": "ExtendsFloat",
                 "doc": "Put operation",
@@ -6107,6 +6289,7 @@
                     "$id": "418",
                     "kind": "header",
                     "name": "contentType",
+                    "originalName": "contentType",
                     "serializedName": "Content-Type",
                     "doc": "Body parameter's content type. Known values are application/json",
                     "type": {
@@ -6124,6 +6307,7 @@
                         "$id": "419",
                         "kind": "method",
                         "name": "contentType",
+                        "originalName": "contentType",
                         "serializedName": "Content-Type",
                         "doc": "Body parameter's content type. Known values are application/json",
                         "type": {
@@ -6146,6 +6330,7 @@
                     "$id": "420",
                     "kind": "body",
                     "name": "body",
+                    "originalName": "body",
                     "serializedName": "body",
                     "doc": "body",
                     "type": {
@@ -6166,6 +6351,7 @@
                         "$id": "421",
                         "kind": "method",
                         "name": "body",
+                        "originalName": "body",
                         "serializedName": "body",
                         "doc": "body",
                         "type": {
@@ -6281,6 +6467,7 @@
               "$id": "426",
               "kind": "basic",
               "name": "get",
+              "originalName": "get",
               "isExactName": false,
               "accessibility": "public",
               "apiVersions": [],
@@ -6288,6 +6475,7 @@
               "operation": {
                 "$id": "427",
                 "name": "get",
+                "originalName": "get",
                 "isExactName": false,
                 "resourceName": "IsFloat",
                 "doc": "Get call",
@@ -6297,6 +6485,7 @@
                     "$id": "428",
                     "kind": "header",
                     "name": "accept",
+                    "originalName": "accept",
                     "serializedName": "Accept",
                     "type": {
                       "$ref": "51"
@@ -6313,6 +6502,7 @@
                         "$id": "429",
                         "kind": "method",
                         "name": "accept",
+                        "originalName": "accept",
                         "serializedName": "Accept",
                         "type": {
                           "$ref": "51"
@@ -6380,6 +6570,7 @@
               "$id": "430",
               "kind": "basic",
               "name": "put",
+              "originalName": "put",
               "isExactName": false,
               "accessibility": "public",
               "apiVersions": [],
@@ -6387,6 +6578,7 @@
               "operation": {
                 "$id": "431",
                 "name": "put",
+                "originalName": "put",
                 "isExactName": false,
                 "resourceName": "IsFloat",
                 "doc": "Put operation",
@@ -6396,6 +6588,7 @@
                     "$id": "432",
                     "kind": "header",
                     "name": "contentType",
+                    "originalName": "contentType",
                     "serializedName": "Content-Type",
                     "doc": "Body parameter's content type. Known values are application/json",
                     "type": {
@@ -6413,6 +6606,7 @@
                         "$id": "433",
                         "kind": "method",
                         "name": "contentType",
+                        "originalName": "contentType",
                         "serializedName": "Content-Type",
                         "doc": "Body parameter's content type. Known values are application/json",
                         "type": {
@@ -6435,6 +6629,7 @@
                     "$id": "434",
                     "kind": "body",
                     "name": "body",
+                    "originalName": "body",
                     "serializedName": "body",
                     "doc": "body",
                     "type": {
@@ -6455,6 +6650,7 @@
                         "$id": "435",
                         "kind": "method",
                         "name": "body",
+                        "originalName": "body",
                         "serializedName": "body",
                         "doc": "body",
                         "type": {
@@ -6570,6 +6766,7 @@
               "$id": "440",
               "kind": "basic",
               "name": "get",
+              "originalName": "get",
               "isExactName": false,
               "accessibility": "public",
               "apiVersions": [],
@@ -6577,6 +6774,7 @@
               "operation": {
                 "$id": "441",
                 "name": "get",
+                "originalName": "get",
                 "isExactName": false,
                 "resourceName": "SpreadFloat",
                 "doc": "Get call",
@@ -6586,6 +6784,7 @@
                     "$id": "442",
                     "kind": "header",
                     "name": "accept",
+                    "originalName": "accept",
                     "serializedName": "Accept",
                     "type": {
                       "$ref": "55"
@@ -6602,6 +6801,7 @@
                         "$id": "443",
                         "kind": "method",
                         "name": "accept",
+                        "originalName": "accept",
                         "serializedName": "Accept",
                         "type": {
                           "$ref": "55"
@@ -6669,6 +6869,7 @@
               "$id": "444",
               "kind": "basic",
               "name": "put",
+              "originalName": "put",
               "isExactName": false,
               "accessibility": "public",
               "apiVersions": [],
@@ -6676,6 +6877,7 @@
               "operation": {
                 "$id": "445",
                 "name": "put",
+                "originalName": "put",
                 "isExactName": false,
                 "resourceName": "SpreadFloat",
                 "doc": "Put operation",
@@ -6685,6 +6887,7 @@
                     "$id": "446",
                     "kind": "header",
                     "name": "contentType",
+                    "originalName": "contentType",
                     "serializedName": "Content-Type",
                     "doc": "Body parameter's content type. Known values are application/json",
                     "type": {
@@ -6702,6 +6905,7 @@
                         "$id": "447",
                         "kind": "method",
                         "name": "contentType",
+                        "originalName": "contentType",
                         "serializedName": "Content-Type",
                         "doc": "Body parameter's content type. Known values are application/json",
                         "type": {
@@ -6724,6 +6928,7 @@
                     "$id": "448",
                     "kind": "body",
                     "name": "body",
+                    "originalName": "body",
                     "serializedName": "body",
                     "doc": "body",
                     "type": {
@@ -6744,6 +6949,7 @@
                         "$id": "449",
                         "kind": "method",
                         "name": "body",
+                        "originalName": "body",
                         "serializedName": "body",
                         "doc": "body",
                         "type": {
@@ -6859,6 +7065,7 @@
               "$id": "454",
               "kind": "basic",
               "name": "get",
+              "originalName": "get",
               "isExactName": false,
               "accessibility": "public",
               "apiVersions": [],
@@ -6866,6 +7073,7 @@
               "operation": {
                 "$id": "455",
                 "name": "get",
+                "originalName": "get",
                 "isExactName": false,
                 "resourceName": "ExtendsModel",
                 "doc": "Get call",
@@ -6875,6 +7083,7 @@
                     "$id": "456",
                     "kind": "header",
                     "name": "accept",
+                    "originalName": "accept",
                     "serializedName": "Accept",
                     "type": {
                       "$ref": "59"
@@ -6891,6 +7100,7 @@
                         "$id": "457",
                         "kind": "method",
                         "name": "accept",
+                        "originalName": "accept",
                         "serializedName": "Accept",
                         "type": {
                           "$ref": "59"
@@ -6958,6 +7168,7 @@
               "$id": "458",
               "kind": "basic",
               "name": "put",
+              "originalName": "put",
               "isExactName": false,
               "accessibility": "public",
               "apiVersions": [],
@@ -6965,6 +7176,7 @@
               "operation": {
                 "$id": "459",
                 "name": "put",
+                "originalName": "put",
                 "isExactName": false,
                 "resourceName": "ExtendsModel",
                 "doc": "Put operation",
@@ -6974,6 +7186,7 @@
                     "$id": "460",
                     "kind": "header",
                     "name": "contentType",
+                    "originalName": "contentType",
                     "serializedName": "Content-Type",
                     "doc": "Body parameter's content type. Known values are application/json",
                     "type": {
@@ -6991,6 +7204,7 @@
                         "$id": "461",
                         "kind": "method",
                         "name": "contentType",
+                        "originalName": "contentType",
                         "serializedName": "Content-Type",
                         "doc": "Body parameter's content type. Known values are application/json",
                         "type": {
@@ -7013,6 +7227,7 @@
                     "$id": "462",
                     "kind": "body",
                     "name": "body",
+                    "originalName": "body",
                     "serializedName": "body",
                     "doc": "body",
                     "type": {
@@ -7033,6 +7248,7 @@
                         "$id": "463",
                         "kind": "method",
                         "name": "body",
+                        "originalName": "body",
                         "serializedName": "body",
                         "doc": "body",
                         "type": {
@@ -7148,6 +7364,7 @@
               "$id": "468",
               "kind": "basic",
               "name": "get",
+              "originalName": "get",
               "isExactName": false,
               "accessibility": "public",
               "apiVersions": [],
@@ -7155,6 +7372,7 @@
               "operation": {
                 "$id": "469",
                 "name": "get",
+                "originalName": "get",
                 "isExactName": false,
                 "resourceName": "IsModel",
                 "doc": "Get call",
@@ -7164,6 +7382,7 @@
                     "$id": "470",
                     "kind": "header",
                     "name": "accept",
+                    "originalName": "accept",
                     "serializedName": "Accept",
                     "type": {
                       "$ref": "63"
@@ -7180,6 +7399,7 @@
                         "$id": "471",
                         "kind": "method",
                         "name": "accept",
+                        "originalName": "accept",
                         "serializedName": "Accept",
                         "type": {
                           "$ref": "63"
@@ -7247,6 +7467,7 @@
               "$id": "472",
               "kind": "basic",
               "name": "put",
+              "originalName": "put",
               "isExactName": false,
               "accessibility": "public",
               "apiVersions": [],
@@ -7254,6 +7475,7 @@
               "operation": {
                 "$id": "473",
                 "name": "put",
+                "originalName": "put",
                 "isExactName": false,
                 "resourceName": "IsModel",
                 "doc": "Put operation",
@@ -7263,6 +7485,7 @@
                     "$id": "474",
                     "kind": "header",
                     "name": "contentType",
+                    "originalName": "contentType",
                     "serializedName": "Content-Type",
                     "doc": "Body parameter's content type. Known values are application/json",
                     "type": {
@@ -7280,6 +7503,7 @@
                         "$id": "475",
                         "kind": "method",
                         "name": "contentType",
+                        "originalName": "contentType",
                         "serializedName": "Content-Type",
                         "doc": "Body parameter's content type. Known values are application/json",
                         "type": {
@@ -7302,6 +7526,7 @@
                     "$id": "476",
                     "kind": "body",
                     "name": "body",
+                    "originalName": "body",
                     "serializedName": "body",
                     "doc": "body",
                     "type": {
@@ -7322,6 +7547,7 @@
                         "$id": "477",
                         "kind": "method",
                         "name": "body",
+                        "originalName": "body",
                         "serializedName": "body",
                         "doc": "body",
                         "type": {
@@ -7437,6 +7663,7 @@
               "$id": "482",
               "kind": "basic",
               "name": "get",
+              "originalName": "get",
               "isExactName": false,
               "accessibility": "public",
               "apiVersions": [],
@@ -7444,6 +7671,7 @@
               "operation": {
                 "$id": "483",
                 "name": "get",
+                "originalName": "get",
                 "isExactName": false,
                 "resourceName": "SpreadModel",
                 "doc": "Get call",
@@ -7453,6 +7681,7 @@
                     "$id": "484",
                     "kind": "header",
                     "name": "accept",
+                    "originalName": "accept",
                     "serializedName": "Accept",
                     "type": {
                       "$ref": "67"
@@ -7469,6 +7698,7 @@
                         "$id": "485",
                         "kind": "method",
                         "name": "accept",
+                        "originalName": "accept",
                         "serializedName": "Accept",
                         "type": {
                           "$ref": "67"
@@ -7536,6 +7766,7 @@
               "$id": "486",
               "kind": "basic",
               "name": "put",
+              "originalName": "put",
               "isExactName": false,
               "accessibility": "public",
               "apiVersions": [],
@@ -7543,6 +7774,7 @@
               "operation": {
                 "$id": "487",
                 "name": "put",
+                "originalName": "put",
                 "isExactName": false,
                 "resourceName": "SpreadModel",
                 "doc": "Put operation",
@@ -7552,6 +7784,7 @@
                     "$id": "488",
                     "kind": "header",
                     "name": "contentType",
+                    "originalName": "contentType",
                     "serializedName": "Content-Type",
                     "doc": "Body parameter's content type. Known values are application/json",
                     "type": {
@@ -7569,6 +7802,7 @@
                         "$id": "489",
                         "kind": "method",
                         "name": "contentType",
+                        "originalName": "contentType",
                         "serializedName": "Content-Type",
                         "doc": "Body parameter's content type. Known values are application/json",
                         "type": {
@@ -7591,6 +7825,7 @@
                     "$id": "490",
                     "kind": "body",
                     "name": "body",
+                    "originalName": "body",
                     "serializedName": "body",
                     "doc": "body",
                     "type": {
@@ -7611,6 +7846,7 @@
                         "$id": "491",
                         "kind": "method",
                         "name": "body",
+                        "originalName": "body",
                         "serializedName": "body",
                         "doc": "body",
                         "type": {
@@ -7726,6 +7962,7 @@
               "$id": "496",
               "kind": "basic",
               "name": "get",
+              "originalName": "get",
               "isExactName": false,
               "accessibility": "public",
               "apiVersions": [],
@@ -7733,6 +7970,7 @@
               "operation": {
                 "$id": "497",
                 "name": "get",
+                "originalName": "get",
                 "isExactName": false,
                 "resourceName": "ExtendsModelArray",
                 "doc": "Get call",
@@ -7742,6 +7980,7 @@
                     "$id": "498",
                     "kind": "header",
                     "name": "accept",
+                    "originalName": "accept",
                     "serializedName": "Accept",
                     "type": {
                       "$ref": "71"
@@ -7758,6 +7997,7 @@
                         "$id": "499",
                         "kind": "method",
                         "name": "accept",
+                        "originalName": "accept",
                         "serializedName": "Accept",
                         "type": {
                           "$ref": "71"
@@ -7825,6 +8065,7 @@
               "$id": "500",
               "kind": "basic",
               "name": "put",
+              "originalName": "put",
               "isExactName": false,
               "accessibility": "public",
               "apiVersions": [],
@@ -7832,6 +8073,7 @@
               "operation": {
                 "$id": "501",
                 "name": "put",
+                "originalName": "put",
                 "isExactName": false,
                 "resourceName": "ExtendsModelArray",
                 "doc": "Put operation",
@@ -7841,6 +8083,7 @@
                     "$id": "502",
                     "kind": "header",
                     "name": "contentType",
+                    "originalName": "contentType",
                     "serializedName": "Content-Type",
                     "doc": "Body parameter's content type. Known values are application/json",
                     "type": {
@@ -7858,6 +8101,7 @@
                         "$id": "503",
                         "kind": "method",
                         "name": "contentType",
+                        "originalName": "contentType",
                         "serializedName": "Content-Type",
                         "doc": "Body parameter's content type. Known values are application/json",
                         "type": {
@@ -7880,6 +8124,7 @@
                     "$id": "504",
                     "kind": "body",
                     "name": "body",
+                    "originalName": "body",
                     "serializedName": "body",
                     "doc": "body",
                     "type": {
@@ -7900,6 +8145,7 @@
                         "$id": "505",
                         "kind": "method",
                         "name": "body",
+                        "originalName": "body",
                         "serializedName": "body",
                         "doc": "body",
                         "type": {
@@ -8015,6 +8261,7 @@
               "$id": "510",
               "kind": "basic",
               "name": "get",
+              "originalName": "get",
               "isExactName": false,
               "accessibility": "public",
               "apiVersions": [],
@@ -8022,6 +8269,7 @@
               "operation": {
                 "$id": "511",
                 "name": "get",
+                "originalName": "get",
                 "isExactName": false,
                 "resourceName": "IsModelArray",
                 "doc": "Get call",
@@ -8031,6 +8279,7 @@
                     "$id": "512",
                     "kind": "header",
                     "name": "accept",
+                    "originalName": "accept",
                     "serializedName": "Accept",
                     "type": {
                       "$ref": "75"
@@ -8047,6 +8296,7 @@
                         "$id": "513",
                         "kind": "method",
                         "name": "accept",
+                        "originalName": "accept",
                         "serializedName": "Accept",
                         "type": {
                           "$ref": "75"
@@ -8114,6 +8364,7 @@
               "$id": "514",
               "kind": "basic",
               "name": "put",
+              "originalName": "put",
               "isExactName": false,
               "accessibility": "public",
               "apiVersions": [],
@@ -8121,6 +8372,7 @@
               "operation": {
                 "$id": "515",
                 "name": "put",
+                "originalName": "put",
                 "isExactName": false,
                 "resourceName": "IsModelArray",
                 "doc": "Put operation",
@@ -8130,6 +8382,7 @@
                     "$id": "516",
                     "kind": "header",
                     "name": "contentType",
+                    "originalName": "contentType",
                     "serializedName": "Content-Type",
                     "doc": "Body parameter's content type. Known values are application/json",
                     "type": {
@@ -8147,6 +8400,7 @@
                         "$id": "517",
                         "kind": "method",
                         "name": "contentType",
+                        "originalName": "contentType",
                         "serializedName": "Content-Type",
                         "doc": "Body parameter's content type. Known values are application/json",
                         "type": {
@@ -8169,6 +8423,7 @@
                     "$id": "518",
                     "kind": "body",
                     "name": "body",
+                    "originalName": "body",
                     "serializedName": "body",
                     "doc": "body",
                     "type": {
@@ -8189,6 +8444,7 @@
                         "$id": "519",
                         "kind": "method",
                         "name": "body",
+                        "originalName": "body",
                         "serializedName": "body",
                         "doc": "body",
                         "type": {
@@ -8304,6 +8560,7 @@
               "$id": "524",
               "kind": "basic",
               "name": "get",
+              "originalName": "get",
               "isExactName": false,
               "accessibility": "public",
               "apiVersions": [],
@@ -8311,6 +8568,7 @@
               "operation": {
                 "$id": "525",
                 "name": "get",
+                "originalName": "get",
                 "isExactName": false,
                 "resourceName": "SpreadModelArray",
                 "doc": "Get call",
@@ -8320,6 +8578,7 @@
                     "$id": "526",
                     "kind": "header",
                     "name": "accept",
+                    "originalName": "accept",
                     "serializedName": "Accept",
                     "type": {
                       "$ref": "79"
@@ -8336,6 +8595,7 @@
                         "$id": "527",
                         "kind": "method",
                         "name": "accept",
+                        "originalName": "accept",
                         "serializedName": "Accept",
                         "type": {
                           "$ref": "79"
@@ -8403,6 +8663,7 @@
               "$id": "528",
               "kind": "basic",
               "name": "put",
+              "originalName": "put",
               "isExactName": false,
               "accessibility": "public",
               "apiVersions": [],
@@ -8410,6 +8671,7 @@
               "operation": {
                 "$id": "529",
                 "name": "put",
+                "originalName": "put",
                 "isExactName": false,
                 "resourceName": "SpreadModelArray",
                 "doc": "Put operation",
@@ -8419,6 +8681,7 @@
                     "$id": "530",
                     "kind": "header",
                     "name": "contentType",
+                    "originalName": "contentType",
                     "serializedName": "Content-Type",
                     "doc": "Body parameter's content type. Known values are application/json",
                     "type": {
@@ -8436,6 +8699,7 @@
                         "$id": "531",
                         "kind": "method",
                         "name": "contentType",
+                        "originalName": "contentType",
                         "serializedName": "Content-Type",
                         "doc": "Body parameter's content type. Known values are application/json",
                         "type": {
@@ -8458,6 +8722,7 @@
                     "$id": "532",
                     "kind": "body",
                     "name": "body",
+                    "originalName": "body",
                     "serializedName": "body",
                     "doc": "body",
                     "type": {
@@ -8478,6 +8743,7 @@
                         "$id": "533",
                         "kind": "method",
                         "name": "body",
+                        "originalName": "body",
                         "serializedName": "body",
                         "doc": "body",
                         "type": {
@@ -8593,6 +8859,7 @@
               "$id": "538",
               "kind": "basic",
               "name": "get",
+              "originalName": "get",
               "isExactName": false,
               "accessibility": "public",
               "apiVersions": [],
@@ -8600,6 +8867,7 @@
               "operation": {
                 "$id": "539",
                 "name": "get",
+                "originalName": "get",
                 "isExactName": false,
                 "resourceName": "SpreadDifferentString",
                 "doc": "Get call",
@@ -8609,6 +8877,7 @@
                     "$id": "540",
                     "kind": "header",
                     "name": "accept",
+                    "originalName": "accept",
                     "serializedName": "Accept",
                     "type": {
                       "$ref": "83"
@@ -8625,6 +8894,7 @@
                         "$id": "541",
                         "kind": "method",
                         "name": "accept",
+                        "originalName": "accept",
                         "serializedName": "Accept",
                         "type": {
                           "$ref": "83"
@@ -8692,6 +8962,7 @@
               "$id": "542",
               "kind": "basic",
               "name": "put",
+              "originalName": "put",
               "isExactName": false,
               "accessibility": "public",
               "apiVersions": [],
@@ -8699,6 +8970,7 @@
               "operation": {
                 "$id": "543",
                 "name": "put",
+                "originalName": "put",
                 "isExactName": false,
                 "resourceName": "SpreadDifferentString",
                 "doc": "Put operation",
@@ -8708,6 +8980,7 @@
                     "$id": "544",
                     "kind": "header",
                     "name": "contentType",
+                    "originalName": "contentType",
                     "serializedName": "Content-Type",
                     "doc": "Body parameter's content type. Known values are application/json",
                     "type": {
@@ -8725,6 +8998,7 @@
                         "$id": "545",
                         "kind": "method",
                         "name": "contentType",
+                        "originalName": "contentType",
                         "serializedName": "Content-Type",
                         "doc": "Body parameter's content type. Known values are application/json",
                         "type": {
@@ -8747,6 +9021,7 @@
                     "$id": "546",
                     "kind": "body",
                     "name": "body",
+                    "originalName": "body",
                     "serializedName": "body",
                     "doc": "body",
                     "type": {
@@ -8767,6 +9042,7 @@
                         "$id": "547",
                         "kind": "method",
                         "name": "body",
+                        "originalName": "body",
                         "serializedName": "body",
                         "doc": "body",
                         "type": {
@@ -8882,6 +9158,7 @@
               "$id": "552",
               "kind": "basic",
               "name": "get",
+              "originalName": "get",
               "isExactName": false,
               "accessibility": "public",
               "apiVersions": [],
@@ -8889,6 +9166,7 @@
               "operation": {
                 "$id": "553",
                 "name": "get",
+                "originalName": "get",
                 "isExactName": false,
                 "resourceName": "SpreadDifferentFloat",
                 "doc": "Get call",
@@ -8898,6 +9176,7 @@
                     "$id": "554",
                     "kind": "header",
                     "name": "accept",
+                    "originalName": "accept",
                     "serializedName": "Accept",
                     "type": {
                       "$ref": "87"
@@ -8914,6 +9193,7 @@
                         "$id": "555",
                         "kind": "method",
                         "name": "accept",
+                        "originalName": "accept",
                         "serializedName": "Accept",
                         "type": {
                           "$ref": "87"
@@ -8981,6 +9261,7 @@
               "$id": "556",
               "kind": "basic",
               "name": "put",
+              "originalName": "put",
               "isExactName": false,
               "accessibility": "public",
               "apiVersions": [],
@@ -8988,6 +9269,7 @@
               "operation": {
                 "$id": "557",
                 "name": "put",
+                "originalName": "put",
                 "isExactName": false,
                 "resourceName": "SpreadDifferentFloat",
                 "doc": "Put operation",
@@ -8997,6 +9279,7 @@
                     "$id": "558",
                     "kind": "header",
                     "name": "contentType",
+                    "originalName": "contentType",
                     "serializedName": "Content-Type",
                     "doc": "Body parameter's content type. Known values are application/json",
                     "type": {
@@ -9014,6 +9297,7 @@
                         "$id": "559",
                         "kind": "method",
                         "name": "contentType",
+                        "originalName": "contentType",
                         "serializedName": "Content-Type",
                         "doc": "Body parameter's content type. Known values are application/json",
                         "type": {
@@ -9036,6 +9320,7 @@
                     "$id": "560",
                     "kind": "body",
                     "name": "body",
+                    "originalName": "body",
                     "serializedName": "body",
                     "doc": "body",
                     "type": {
@@ -9056,6 +9341,7 @@
                         "$id": "561",
                         "kind": "method",
                         "name": "body",
+                        "originalName": "body",
                         "serializedName": "body",
                         "doc": "body",
                         "type": {
@@ -9171,6 +9457,7 @@
               "$id": "566",
               "kind": "basic",
               "name": "get",
+              "originalName": "get",
               "isExactName": false,
               "accessibility": "public",
               "apiVersions": [],
@@ -9178,6 +9465,7 @@
               "operation": {
                 "$id": "567",
                 "name": "get",
+                "originalName": "get",
                 "isExactName": false,
                 "resourceName": "SpreadDifferentModel",
                 "doc": "Get call",
@@ -9187,6 +9475,7 @@
                     "$id": "568",
                     "kind": "header",
                     "name": "accept",
+                    "originalName": "accept",
                     "serializedName": "Accept",
                     "type": {
                       "$ref": "91"
@@ -9203,6 +9492,7 @@
                         "$id": "569",
                         "kind": "method",
                         "name": "accept",
+                        "originalName": "accept",
                         "serializedName": "Accept",
                         "type": {
                           "$ref": "91"
@@ -9270,6 +9560,7 @@
               "$id": "570",
               "kind": "basic",
               "name": "put",
+              "originalName": "put",
               "isExactName": false,
               "accessibility": "public",
               "apiVersions": [],
@@ -9277,6 +9568,7 @@
               "operation": {
                 "$id": "571",
                 "name": "put",
+                "originalName": "put",
                 "isExactName": false,
                 "resourceName": "SpreadDifferentModel",
                 "doc": "Put operation",
@@ -9286,6 +9578,7 @@
                     "$id": "572",
                     "kind": "header",
                     "name": "contentType",
+                    "originalName": "contentType",
                     "serializedName": "Content-Type",
                     "doc": "Body parameter's content type. Known values are application/json",
                     "type": {
@@ -9303,6 +9596,7 @@
                         "$id": "573",
                         "kind": "method",
                         "name": "contentType",
+                        "originalName": "contentType",
                         "serializedName": "Content-Type",
                         "doc": "Body parameter's content type. Known values are application/json",
                         "type": {
@@ -9325,6 +9619,7 @@
                     "$id": "574",
                     "kind": "body",
                     "name": "body",
+                    "originalName": "body",
                     "serializedName": "body",
                     "doc": "body",
                     "type": {
@@ -9345,6 +9640,7 @@
                         "$id": "575",
                         "kind": "method",
                         "name": "body",
+                        "originalName": "body",
                         "serializedName": "body",
                         "doc": "body",
                         "type": {
@@ -9460,6 +9756,7 @@
               "$id": "580",
               "kind": "basic",
               "name": "get",
+              "originalName": "get",
               "isExactName": false,
               "accessibility": "public",
               "apiVersions": [],
@@ -9467,6 +9764,7 @@
               "operation": {
                 "$id": "581",
                 "name": "get",
+                "originalName": "get",
                 "isExactName": false,
                 "resourceName": "SpreadDifferentModelArray",
                 "doc": "Get call",
@@ -9476,6 +9774,7 @@
                     "$id": "582",
                     "kind": "header",
                     "name": "accept",
+                    "originalName": "accept",
                     "serializedName": "Accept",
                     "type": {
                       "$ref": "95"
@@ -9492,6 +9791,7 @@
                         "$id": "583",
                         "kind": "method",
                         "name": "accept",
+                        "originalName": "accept",
                         "serializedName": "Accept",
                         "type": {
                           "$ref": "95"
@@ -9559,6 +9859,7 @@
               "$id": "584",
               "kind": "basic",
               "name": "put",
+              "originalName": "put",
               "isExactName": false,
               "accessibility": "public",
               "apiVersions": [],
@@ -9566,6 +9867,7 @@
               "operation": {
                 "$id": "585",
                 "name": "put",
+                "originalName": "put",
                 "isExactName": false,
                 "resourceName": "SpreadDifferentModelArray",
                 "doc": "Put operation",
@@ -9575,6 +9877,7 @@
                     "$id": "586",
                     "kind": "header",
                     "name": "contentType",
+                    "originalName": "contentType",
                     "serializedName": "Content-Type",
                     "doc": "Body parameter's content type. Known values are application/json",
                     "type": {
@@ -9592,6 +9895,7 @@
                         "$id": "587",
                         "kind": "method",
                         "name": "contentType",
+                        "originalName": "contentType",
                         "serializedName": "Content-Type",
                         "doc": "Body parameter's content type. Known values are application/json",
                         "type": {
@@ -9614,6 +9918,7 @@
                     "$id": "588",
                     "kind": "body",
                     "name": "body",
+                    "originalName": "body",
                     "serializedName": "body",
                     "doc": "body",
                     "type": {
@@ -9634,6 +9939,7 @@
                         "$id": "589",
                         "kind": "method",
                         "name": "body",
+                        "originalName": "body",
                         "serializedName": "body",
                         "doc": "body",
                         "type": {
@@ -9749,6 +10055,7 @@
               "$id": "594",
               "kind": "basic",
               "name": "get",
+              "originalName": "get",
               "isExactName": false,
               "accessibility": "public",
               "apiVersions": [],
@@ -9756,6 +10063,7 @@
               "operation": {
                 "$id": "595",
                 "name": "get",
+                "originalName": "get",
                 "isExactName": false,
                 "resourceName": "ExtendsDifferentSpreadString",
                 "doc": "Get call",
@@ -9765,6 +10073,7 @@
                     "$id": "596",
                     "kind": "header",
                     "name": "accept",
+                    "originalName": "accept",
                     "serializedName": "Accept",
                     "type": {
                       "$ref": "99"
@@ -9781,6 +10090,7 @@
                         "$id": "597",
                         "kind": "method",
                         "name": "accept",
+                        "originalName": "accept",
                         "serializedName": "Accept",
                         "type": {
                           "$ref": "99"
@@ -9848,6 +10158,7 @@
               "$id": "598",
               "kind": "basic",
               "name": "put",
+              "originalName": "put",
               "isExactName": false,
               "accessibility": "public",
               "apiVersions": [],
@@ -9855,6 +10166,7 @@
               "operation": {
                 "$id": "599",
                 "name": "put",
+                "originalName": "put",
                 "isExactName": false,
                 "resourceName": "ExtendsDifferentSpreadString",
                 "doc": "Put operation",
@@ -9864,6 +10176,7 @@
                     "$id": "600",
                     "kind": "header",
                     "name": "contentType",
+                    "originalName": "contentType",
                     "serializedName": "Content-Type",
                     "doc": "Body parameter's content type. Known values are application/json",
                     "type": {
@@ -9881,6 +10194,7 @@
                         "$id": "601",
                         "kind": "method",
                         "name": "contentType",
+                        "originalName": "contentType",
                         "serializedName": "Content-Type",
                         "doc": "Body parameter's content type. Known values are application/json",
                         "type": {
@@ -9903,6 +10217,7 @@
                     "$id": "602",
                     "kind": "body",
                     "name": "body",
+                    "originalName": "body",
                     "serializedName": "body",
                     "doc": "body",
                     "type": {
@@ -9923,6 +10238,7 @@
                         "$id": "603",
                         "kind": "method",
                         "name": "body",
+                        "originalName": "body",
                         "serializedName": "body",
                         "doc": "body",
                         "type": {
@@ -10038,6 +10354,7 @@
               "$id": "608",
               "kind": "basic",
               "name": "get",
+              "originalName": "get",
               "isExactName": false,
               "accessibility": "public",
               "apiVersions": [],
@@ -10045,6 +10362,7 @@
               "operation": {
                 "$id": "609",
                 "name": "get",
+                "originalName": "get",
                 "isExactName": false,
                 "resourceName": "ExtendsDifferentSpreadFloat",
                 "doc": "Get call",
@@ -10054,6 +10372,7 @@
                     "$id": "610",
                     "kind": "header",
                     "name": "accept",
+                    "originalName": "accept",
                     "serializedName": "Accept",
                     "type": {
                       "$ref": "103"
@@ -10070,6 +10389,7 @@
                         "$id": "611",
                         "kind": "method",
                         "name": "accept",
+                        "originalName": "accept",
                         "serializedName": "Accept",
                         "type": {
                           "$ref": "103"
@@ -10137,6 +10457,7 @@
               "$id": "612",
               "kind": "basic",
               "name": "put",
+              "originalName": "put",
               "isExactName": false,
               "accessibility": "public",
               "apiVersions": [],
@@ -10144,6 +10465,7 @@
               "operation": {
                 "$id": "613",
                 "name": "put",
+                "originalName": "put",
                 "isExactName": false,
                 "resourceName": "ExtendsDifferentSpreadFloat",
                 "doc": "Put operation",
@@ -10153,6 +10475,7 @@
                     "$id": "614",
                     "kind": "header",
                     "name": "contentType",
+                    "originalName": "contentType",
                     "serializedName": "Content-Type",
                     "doc": "Body parameter's content type. Known values are application/json",
                     "type": {
@@ -10170,6 +10493,7 @@
                         "$id": "615",
                         "kind": "method",
                         "name": "contentType",
+                        "originalName": "contentType",
                         "serializedName": "Content-Type",
                         "doc": "Body parameter's content type. Known values are application/json",
                         "type": {
@@ -10192,6 +10516,7 @@
                     "$id": "616",
                     "kind": "body",
                     "name": "body",
+                    "originalName": "body",
                     "serializedName": "body",
                     "doc": "body",
                     "type": {
@@ -10212,6 +10537,7 @@
                         "$id": "617",
                         "kind": "method",
                         "name": "body",
+                        "originalName": "body",
                         "serializedName": "body",
                         "doc": "body",
                         "type": {
@@ -10327,6 +10653,7 @@
               "$id": "622",
               "kind": "basic",
               "name": "get",
+              "originalName": "get",
               "isExactName": false,
               "accessibility": "public",
               "apiVersions": [],
@@ -10334,6 +10661,7 @@
               "operation": {
                 "$id": "623",
                 "name": "get",
+                "originalName": "get",
                 "isExactName": false,
                 "resourceName": "ExtendsDifferentSpreadModel",
                 "doc": "Get call",
@@ -10343,6 +10671,7 @@
                     "$id": "624",
                     "kind": "header",
                     "name": "accept",
+                    "originalName": "accept",
                     "serializedName": "Accept",
                     "type": {
                       "$ref": "107"
@@ -10359,6 +10688,7 @@
                         "$id": "625",
                         "kind": "method",
                         "name": "accept",
+                        "originalName": "accept",
                         "serializedName": "Accept",
                         "type": {
                           "$ref": "107"
@@ -10426,6 +10756,7 @@
               "$id": "626",
               "kind": "basic",
               "name": "put",
+              "originalName": "put",
               "isExactName": false,
               "accessibility": "public",
               "apiVersions": [],
@@ -10433,6 +10764,7 @@
               "operation": {
                 "$id": "627",
                 "name": "put",
+                "originalName": "put",
                 "isExactName": false,
                 "resourceName": "ExtendsDifferentSpreadModel",
                 "doc": "Put operation",
@@ -10442,6 +10774,7 @@
                     "$id": "628",
                     "kind": "header",
                     "name": "contentType",
+                    "originalName": "contentType",
                     "serializedName": "Content-Type",
                     "doc": "Body parameter's content type. Known values are application/json",
                     "type": {
@@ -10459,6 +10792,7 @@
                         "$id": "629",
                         "kind": "method",
                         "name": "contentType",
+                        "originalName": "contentType",
                         "serializedName": "Content-Type",
                         "doc": "Body parameter's content type. Known values are application/json",
                         "type": {
@@ -10481,6 +10815,7 @@
                     "$id": "630",
                     "kind": "body",
                     "name": "body",
+                    "originalName": "body",
                     "serializedName": "body",
                     "doc": "body",
                     "type": {
@@ -10501,6 +10836,7 @@
                         "$id": "631",
                         "kind": "method",
                         "name": "body",
+                        "originalName": "body",
                         "serializedName": "body",
                         "doc": "body",
                         "type": {
@@ -10616,6 +10952,7 @@
               "$id": "636",
               "kind": "basic",
               "name": "get",
+              "originalName": "get",
               "isExactName": false,
               "accessibility": "public",
               "apiVersions": [],
@@ -10623,6 +10960,7 @@
               "operation": {
                 "$id": "637",
                 "name": "get",
+                "originalName": "get",
                 "isExactName": false,
                 "resourceName": "ExtendsDifferentSpreadModelArray",
                 "doc": "Get call",
@@ -10632,6 +10970,7 @@
                     "$id": "638",
                     "kind": "header",
                     "name": "accept",
+                    "originalName": "accept",
                     "serializedName": "Accept",
                     "type": {
                       "$ref": "111"
@@ -10648,6 +10987,7 @@
                         "$id": "639",
                         "kind": "method",
                         "name": "accept",
+                        "originalName": "accept",
                         "serializedName": "Accept",
                         "type": {
                           "$ref": "111"
@@ -10715,6 +11055,7 @@
               "$id": "640",
               "kind": "basic",
               "name": "put",
+              "originalName": "put",
               "isExactName": false,
               "accessibility": "public",
               "apiVersions": [],
@@ -10722,6 +11063,7 @@
               "operation": {
                 "$id": "641",
                 "name": "put",
+                "originalName": "put",
                 "isExactName": false,
                 "resourceName": "ExtendsDifferentSpreadModelArray",
                 "doc": "Put operation",
@@ -10731,6 +11073,7 @@
                     "$id": "642",
                     "kind": "header",
                     "name": "contentType",
+                    "originalName": "contentType",
                     "serializedName": "Content-Type",
                     "doc": "Body parameter's content type. Known values are application/json",
                     "type": {
@@ -10748,6 +11091,7 @@
                         "$id": "643",
                         "kind": "method",
                         "name": "contentType",
+                        "originalName": "contentType",
                         "serializedName": "Content-Type",
                         "doc": "Body parameter's content type. Known values are application/json",
                         "type": {
@@ -10770,6 +11114,7 @@
                     "$id": "644",
                     "kind": "body",
                     "name": "body",
+                    "originalName": "body",
                     "serializedName": "body",
                     "doc": "body",
                     "type": {
@@ -10790,6 +11135,7 @@
                         "$id": "645",
                         "kind": "method",
                         "name": "body",
+                        "originalName": "body",
                         "serializedName": "body",
                         "doc": "body",
                         "type": {
@@ -10905,6 +11251,7 @@
               "$id": "650",
               "kind": "basic",
               "name": "get",
+              "originalName": "get",
               "isExactName": false,
               "accessibility": "public",
               "apiVersions": [],
@@ -10912,6 +11259,7 @@
               "operation": {
                 "$id": "651",
                 "name": "get",
+                "originalName": "get",
                 "isExactName": false,
                 "resourceName": "MultipleSpread",
                 "doc": "Get call",
@@ -10921,6 +11269,7 @@
                     "$id": "652",
                     "kind": "header",
                     "name": "accept",
+                    "originalName": "accept",
                     "serializedName": "Accept",
                     "type": {
                       "$ref": "115"
@@ -10937,6 +11286,7 @@
                         "$id": "653",
                         "kind": "method",
                         "name": "accept",
+                        "originalName": "accept",
                         "serializedName": "Accept",
                         "type": {
                           "$ref": "115"
@@ -11004,6 +11354,7 @@
               "$id": "654",
               "kind": "basic",
               "name": "put",
+              "originalName": "put",
               "isExactName": false,
               "accessibility": "public",
               "apiVersions": [],
@@ -11011,6 +11362,7 @@
               "operation": {
                 "$id": "655",
                 "name": "put",
+                "originalName": "put",
                 "isExactName": false,
                 "resourceName": "MultipleSpread",
                 "doc": "Put operation",
@@ -11020,6 +11372,7 @@
                     "$id": "656",
                     "kind": "header",
                     "name": "contentType",
+                    "originalName": "contentType",
                     "serializedName": "Content-Type",
                     "doc": "Body parameter's content type. Known values are application/json",
                     "type": {
@@ -11037,6 +11390,7 @@
                         "$id": "657",
                         "kind": "method",
                         "name": "contentType",
+                        "originalName": "contentType",
                         "serializedName": "Content-Type",
                         "doc": "Body parameter's content type. Known values are application/json",
                         "type": {
@@ -11059,6 +11413,7 @@
                     "$id": "658",
                     "kind": "body",
                     "name": "body",
+                    "originalName": "body",
                     "serializedName": "body",
                     "doc": "body",
                     "type": {
@@ -11079,6 +11434,7 @@
                         "$id": "659",
                         "kind": "method",
                         "name": "body",
+                        "originalName": "body",
                         "serializedName": "body",
                         "doc": "body",
                         "type": {
@@ -11194,6 +11550,7 @@
               "$id": "664",
               "kind": "basic",
               "name": "get",
+              "originalName": "get",
               "isExactName": false,
               "accessibility": "public",
               "apiVersions": [],
@@ -11201,6 +11558,7 @@
               "operation": {
                 "$id": "665",
                 "name": "get",
+                "originalName": "get",
                 "isExactName": false,
                 "resourceName": "SpreadRecordUnion",
                 "doc": "Get call",
@@ -11210,6 +11568,7 @@
                     "$id": "666",
                     "kind": "header",
                     "name": "accept",
+                    "originalName": "accept",
                     "serializedName": "Accept",
                     "type": {
                       "$ref": "119"
@@ -11226,6 +11585,7 @@
                         "$id": "667",
                         "kind": "method",
                         "name": "accept",
+                        "originalName": "accept",
                         "serializedName": "Accept",
                         "type": {
                           "$ref": "119"
@@ -11293,6 +11653,7 @@
               "$id": "668",
               "kind": "basic",
               "name": "put",
+              "originalName": "put",
               "isExactName": false,
               "accessibility": "public",
               "apiVersions": [],
@@ -11300,6 +11661,7 @@
               "operation": {
                 "$id": "669",
                 "name": "put",
+                "originalName": "put",
                 "isExactName": false,
                 "resourceName": "SpreadRecordUnion",
                 "doc": "Put operation",
@@ -11309,6 +11671,7 @@
                     "$id": "670",
                     "kind": "header",
                     "name": "contentType",
+                    "originalName": "contentType",
                     "serializedName": "Content-Type",
                     "doc": "Body parameter's content type. Known values are application/json",
                     "type": {
@@ -11326,6 +11689,7 @@
                         "$id": "671",
                         "kind": "method",
                         "name": "contentType",
+                        "originalName": "contentType",
                         "serializedName": "Content-Type",
                         "doc": "Body parameter's content type. Known values are application/json",
                         "type": {
@@ -11348,6 +11712,7 @@
                     "$id": "672",
                     "kind": "body",
                     "name": "body",
+                    "originalName": "body",
                     "serializedName": "body",
                     "doc": "body",
                     "type": {
@@ -11368,6 +11733,7 @@
                         "$id": "673",
                         "kind": "method",
                         "name": "body",
+                        "originalName": "body",
                         "serializedName": "body",
                         "doc": "body",
                         "type": {
@@ -11483,6 +11849,7 @@
               "$id": "678",
               "kind": "basic",
               "name": "get",
+              "originalName": "get",
               "isExactName": false,
               "accessibility": "public",
               "apiVersions": [],
@@ -11490,6 +11857,7 @@
               "operation": {
                 "$id": "679",
                 "name": "get",
+                "originalName": "get",
                 "isExactName": false,
                 "resourceName": "SpreadRecordNonDiscriminatedUnion",
                 "doc": "Get call",
@@ -11499,6 +11867,7 @@
                     "$id": "680",
                     "kind": "header",
                     "name": "accept",
+                    "originalName": "accept",
                     "serializedName": "Accept",
                     "type": {
                       "$ref": "123"
@@ -11515,6 +11884,7 @@
                         "$id": "681",
                         "kind": "method",
                         "name": "accept",
+                        "originalName": "accept",
                         "serializedName": "Accept",
                         "type": {
                           "$ref": "123"
@@ -11582,6 +11952,7 @@
               "$id": "682",
               "kind": "basic",
               "name": "put",
+              "originalName": "put",
               "isExactName": false,
               "accessibility": "public",
               "apiVersions": [],
@@ -11589,6 +11960,7 @@
               "operation": {
                 "$id": "683",
                 "name": "put",
+                "originalName": "put",
                 "isExactName": false,
                 "resourceName": "SpreadRecordNonDiscriminatedUnion",
                 "doc": "Put operation",
@@ -11598,6 +11970,7 @@
                     "$id": "684",
                     "kind": "header",
                     "name": "contentType",
+                    "originalName": "contentType",
                     "serializedName": "Content-Type",
                     "doc": "Body parameter's content type. Known values are application/json",
                     "type": {
@@ -11615,6 +11988,7 @@
                         "$id": "685",
                         "kind": "method",
                         "name": "contentType",
+                        "originalName": "contentType",
                         "serializedName": "Content-Type",
                         "doc": "Body parameter's content type. Known values are application/json",
                         "type": {
@@ -11637,6 +12011,7 @@
                     "$id": "686",
                     "kind": "body",
                     "name": "body",
+                    "originalName": "body",
                     "serializedName": "body",
                     "doc": "body",
                     "type": {
@@ -11657,6 +12032,7 @@
                         "$id": "687",
                         "kind": "method",
                         "name": "body",
+                        "originalName": "body",
                         "serializedName": "body",
                         "doc": "body",
                         "type": {
@@ -11772,6 +12148,7 @@
               "$id": "692",
               "kind": "basic",
               "name": "get",
+              "originalName": "get",
               "isExactName": false,
               "accessibility": "public",
               "apiVersions": [],
@@ -11779,6 +12156,7 @@
               "operation": {
                 "$id": "693",
                 "name": "get",
+                "originalName": "get",
                 "isExactName": false,
                 "resourceName": "SpreadRecordNonDiscriminatedUnion2",
                 "doc": "Get call",
@@ -11788,6 +12166,7 @@
                     "$id": "694",
                     "kind": "header",
                     "name": "accept",
+                    "originalName": "accept",
                     "serializedName": "Accept",
                     "type": {
                       "$ref": "127"
@@ -11804,6 +12183,7 @@
                         "$id": "695",
                         "kind": "method",
                         "name": "accept",
+                        "originalName": "accept",
                         "serializedName": "Accept",
                         "type": {
                           "$ref": "127"
@@ -11871,6 +12251,7 @@
               "$id": "696",
               "kind": "basic",
               "name": "put",
+              "originalName": "put",
               "isExactName": false,
               "accessibility": "public",
               "apiVersions": [],
@@ -11878,6 +12259,7 @@
               "operation": {
                 "$id": "697",
                 "name": "put",
+                "originalName": "put",
                 "isExactName": false,
                 "resourceName": "SpreadRecordNonDiscriminatedUnion2",
                 "doc": "Put operation",
@@ -11887,6 +12269,7 @@
                     "$id": "698",
                     "kind": "header",
                     "name": "contentType",
+                    "originalName": "contentType",
                     "serializedName": "Content-Type",
                     "doc": "Body parameter's content type. Known values are application/json",
                     "type": {
@@ -11904,6 +12287,7 @@
                         "$id": "699",
                         "kind": "method",
                         "name": "contentType",
+                        "originalName": "contentType",
                         "serializedName": "Content-Type",
                         "doc": "Body parameter's content type. Known values are application/json",
                         "type": {
@@ -11926,6 +12310,7 @@
                     "$id": "700",
                     "kind": "body",
                     "name": "body",
+                    "originalName": "body",
                     "serializedName": "body",
                     "doc": "body",
                     "type": {
@@ -11946,6 +12331,7 @@
                         "$id": "701",
                         "kind": "method",
                         "name": "body",
+                        "originalName": "body",
                         "serializedName": "body",
                         "doc": "body",
                         "type": {
@@ -12061,6 +12447,7 @@
               "$id": "706",
               "kind": "basic",
               "name": "get",
+              "originalName": "get",
               "isExactName": false,
               "accessibility": "public",
               "apiVersions": [],
@@ -12068,6 +12455,7 @@
               "operation": {
                 "$id": "707",
                 "name": "get",
+                "originalName": "get",
                 "isExactName": false,
                 "resourceName": "SpreadRecordNonDiscriminatedUnion3",
                 "doc": "Get call",
@@ -12077,6 +12465,7 @@
                     "$id": "708",
                     "kind": "header",
                     "name": "accept",
+                    "originalName": "accept",
                     "serializedName": "Accept",
                     "type": {
                       "$ref": "131"
@@ -12093,6 +12482,7 @@
                         "$id": "709",
                         "kind": "method",
                         "name": "accept",
+                        "originalName": "accept",
                         "serializedName": "Accept",
                         "type": {
                           "$ref": "131"
@@ -12160,6 +12550,7 @@
               "$id": "710",
               "kind": "basic",
               "name": "put",
+              "originalName": "put",
               "isExactName": false,
               "accessibility": "public",
               "apiVersions": [],
@@ -12167,6 +12558,7 @@
               "operation": {
                 "$id": "711",
                 "name": "put",
+                "originalName": "put",
                 "isExactName": false,
                 "resourceName": "SpreadRecordNonDiscriminatedUnion3",
                 "doc": "Put operation",
@@ -12176,6 +12568,7 @@
                     "$id": "712",
                     "kind": "header",
                     "name": "contentType",
+                    "originalName": "contentType",
                     "serializedName": "Content-Type",
                     "doc": "Body parameter's content type. Known values are application/json",
                     "type": {
@@ -12193,6 +12586,7 @@
                         "$id": "713",
                         "kind": "method",
                         "name": "contentType",
+                        "originalName": "contentType",
                         "serializedName": "Content-Type",
                         "doc": "Body parameter's content type. Known values are application/json",
                         "type": {
@@ -12215,6 +12609,7 @@
                     "$id": "714",
                     "kind": "body",
                     "name": "body",
+                    "originalName": "body",
                     "serializedName": "body",
                     "doc": "body",
                     "type": {
@@ -12235,6 +12630,7 @@
                         "$id": "715",
                         "kind": "method",
                         "name": "body",
+                        "originalName": "body",
                         "serializedName": "body",
                         "doc": "body",
                         "type": {

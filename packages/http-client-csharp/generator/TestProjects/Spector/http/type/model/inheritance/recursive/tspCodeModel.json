@@ -43,6 +43,7 @@
       "$id": "5",
       "kind": "model",
       "name": "Extension",
+      "originalName": "Extension",
       "namespace": "Type.Model.Inheritance.Recursive",
       "crossLanguageDefinitionId": "Type.Model.Inheritance.Recursive.Extension",
       "usage": "Input,Output,Json",
@@ -58,6 +59,7 @@
         "$id": "6",
         "kind": "model",
         "name": "Element",
+        "originalName": "Element",
         "namespace": "Type.Model.Inheritance.Recursive",
         "crossLanguageDefinitionId": "Type.Model.Inheritance.Recursive.Element",
         "usage": "Input,Output,Json",
@@ -74,6 +76,7 @@
             "$id": "7",
             "kind": "property",
             "name": "extension",
+            "originalName": "extension",
             "serializedName": "extension",
             "type": {
               "$id": "8",
@@ -106,6 +109,7 @@
           "$id": "9",
           "kind": "property",
           "name": "level",
+          "originalName": "level",
           "serializedName": "level",
           "type": {
             "$id": "10",
@@ -147,12 +151,14 @@
           "$id": "12",
           "kind": "basic",
           "name": "put",
+          "originalName": "put",
           "isExactName": false,
           "accessibility": "public",
           "apiVersions": [],
           "operation": {
             "$id": "13",
             "name": "put",
+            "originalName": "put",
             "isExactName": false,
             "resourceName": "Recursive",
             "accessibility": "public",
@@ -161,6 +167,7 @@
                 "$id": "14",
                 "kind": "header",
                 "name": "contentType",
+                "originalName": "contentType",
                 "serializedName": "Content-Type",
                 "doc": "Body parameter's content type. Known values are application/json",
                 "type": {
@@ -178,6 +185,7 @@
                     "$id": "15",
                     "kind": "method",
                     "name": "contentType",
+                    "originalName": "contentType",
                     "serializedName": "Content-Type",
                     "doc": "Body parameter's content type. Known values are application/json",
                     "type": {
@@ -200,6 +208,7 @@
                 "$id": "16",
                 "kind": "body",
                 "name": "input",
+                "originalName": "input",
                 "serializedName": "input",
                 "type": {
                   "$ref": "5"
@@ -219,6 +228,7 @@
                     "$id": "17",
                     "kind": "method",
                     "name": "input",
+                    "originalName": "input",
                     "serializedName": "input",
                     "type": {
                       "$ref": "5"
@@ -283,12 +293,14 @@
           "$id": "18",
           "kind": "basic",
           "name": "get",
+          "originalName": "get",
           "isExactName": false,
           "accessibility": "public",
           "apiVersions": [],
           "operation": {
             "$id": "19",
             "name": "get",
+            "originalName": "get",
             "isExactName": false,
             "resourceName": "Recursive",
             "accessibility": "public",
@@ -297,6 +309,7 @@
                 "$id": "20",
                 "kind": "header",
                 "name": "accept",
+                "originalName": "accept",
                 "serializedName": "Accept",
                 "type": {
                   "$ref": "3"
@@ -313,6 +326,7 @@
                     "$id": "21",
                     "kind": "method",
                     "name": "accept",
+                    "originalName": "accept",
                     "serializedName": "Accept",
                     "type": {
                       "$ref": "3"

@@ -145,6 +145,7 @@
       "$id": "17",
       "kind": "model",
       "name": "Resource",
+      "originalName": "Resource",
       "namespace": "Payload.JsonMergePatch",
       "crossLanguageDefinitionId": "Payload.JsonMergePatch.Resource",
       "usage": "Input,Output,Json",
@@ -161,6 +162,7 @@
           "$id": "18",
           "kind": "property",
           "name": "name",
+          "originalName": "name",
           "serializedName": "name",
           "type": {
             "$id": "19",
@@ -187,6 +189,7 @@
           "$id": "20",
           "kind": "property",
           "name": "description",
+          "originalName": "description",
           "serializedName": "description",
           "type": {
             "$id": "21",
@@ -213,6 +216,7 @@
           "$id": "22",
           "kind": "property",
           "name": "map",
+          "originalName": "map",
           "serializedName": "map",
           "type": {
             "$id": "23",
@@ -228,6 +232,7 @@
               "$id": "25",
               "kind": "model",
               "name": "InnerModel",
+              "originalName": "InnerModel",
               "namespace": "Payload.JsonMergePatch",
               "crossLanguageDefinitionId": "Payload.JsonMergePatch.InnerModel",
               "usage": "Input,Output,JsonMergePatch,Json",
@@ -244,6 +249,7 @@
                   "$id": "26",
                   "kind": "property",
                   "name": "name",
+                  "originalName": "name",
                   "serializedName": "name",
                   "type": {
                     "$id": "27",
@@ -270,6 +276,7 @@
                   "$id": "28",
                   "kind": "property",
                   "name": "description",
+                  "originalName": "description",
                   "serializedName": "description",
                   "type": {
                     "$id": "29",
@@ -314,6 +321,7 @@
           "$id": "30",
           "kind": "property",
           "name": "array",
+          "originalName": "array",
           "serializedName": "array",
           "type": {
             "$id": "31",
@@ -343,6 +351,7 @@
           "$id": "32",
           "kind": "property",
           "name": "intValue",
+          "originalName": "intValue",
           "serializedName": "intValue",
           "type": {
             "$id": "33",
@@ -369,6 +378,7 @@
           "$id": "34",
           "kind": "property",
           "name": "floatValue",
+          "originalName": "floatValue",
           "serializedName": "floatValue",
           "type": {
             "$id": "35",
@@ -395,6 +405,7 @@
           "$id": "36",
           "kind": "property",
           "name": "innerModel",
+          "originalName": "innerModel",
           "serializedName": "innerModel",
           "type": {
             "$ref": "25"
@@ -417,6 +428,7 @@
           "$id": "37",
           "kind": "property",
           "name": "intArray",
+          "originalName": "intArray",
           "serializedName": "intArray",
           "type": {
             "$id": "38",
@@ -455,6 +467,7 @@
       "$id": "40",
       "kind": "model",
       "name": "ResourcePatch",
+      "originalName": "ResourcePatch",
       "namespace": "Payload.JsonMergePatch",
       "crossLanguageDefinitionId": "Payload.JsonMergePatch.ResourcePatch",
       "usage": "Input,JsonMergePatch,Json",
@@ -471,6 +484,7 @@
           "$id": "41",
           "kind": "property",
           "name": "description",
+          "originalName": "description",
           "serializedName": "description",
           "type": {
             "$id": "42",
@@ -497,6 +511,7 @@
           "$id": "43",
           "kind": "property",
           "name": "map",
+          "originalName": "map",
           "serializedName": "map",
           "type": {
             "$ref": "23"
@@ -519,6 +534,7 @@
           "$id": "44",
           "kind": "property",
           "name": "array",
+          "originalName": "array",
           "serializedName": "array",
           "type": {
             "$ref": "31"
@@ -541,6 +557,7 @@
           "$id": "45",
           "kind": "property",
           "name": "intValue",
+          "originalName": "intValue",
           "serializedName": "intValue",
           "type": {
             "$id": "46",
@@ -567,6 +584,7 @@
           "$id": "47",
           "kind": "property",
           "name": "floatValue",
+          "originalName": "floatValue",
           "serializedName": "floatValue",
           "type": {
             "$id": "48",
@@ -593,6 +611,7 @@
           "$id": "49",
           "kind": "property",
           "name": "innerModel",
+          "originalName": "innerModel",
           "serializedName": "innerModel",
           "type": {
             "$ref": "25"
@@ -615,6 +634,7 @@
           "$id": "50",
           "kind": "property",
           "name": "intArray",
+          "originalName": "intArray",
           "serializedName": "intArray",
           "type": {
             "$ref": "38"
@@ -649,6 +669,7 @@
           "$id": "52",
           "kind": "basic",
           "name": "createResource",
+          "originalName": "createResource",
           "isExactName": false,
           "accessibility": "public",
           "apiVersions": [],
@@ -656,6 +677,7 @@
           "operation": {
             "$id": "53",
             "name": "createResource",
+            "originalName": "createResource",
             "isExactName": false,
             "resourceName": "JsonMergePatch",
             "doc": "Test content-type: application/merge-patch+json with required body",
@@ -665,6 +687,7 @@
                 "$id": "54",
                 "kind": "header",
                 "name": "contentType",
+                "originalName": "contentType",
                 "serializedName": "Content-Type",
                 "doc": "Body parameter's content type. Known values are application/json",
                 "type": {
@@ -682,6 +705,7 @@
                     "$id": "55",
                     "kind": "method",
                     "name": "contentType",
+                    "originalName": "contentType",
                     "serializedName": "Content-Type",
                     "doc": "Body parameter's content type. Known values are application/json",
                     "type": {
@@ -704,6 +728,7 @@
                 "$id": "56",
                 "kind": "header",
                 "name": "accept",
+                "originalName": "accept",
                 "serializedName": "Accept",
                 "type": {
                   "$ref": "3"
@@ -720,6 +745,7 @@
                     "$id": "57",
                     "kind": "method",
                     "name": "accept",
+                    "originalName": "accept",
                     "serializedName": "Accept",
                     "type": {
                       "$ref": "3"
@@ -741,6 +767,7 @@
                 "$id": "58",
                 "kind": "body",
                 "name": "body",
+                "originalName": "body",
                 "serializedName": "body",
                 "type": {
                   "$ref": "17"
@@ -760,6 +787,7 @@
                     "$id": "59",
                     "kind": "method",
                     "name": "body",
+                    "originalName": "body",
                     "serializedName": "body",
                     "type": {
                       "$ref": "17"
@@ -841,6 +869,7 @@
           "$id": "60",
           "kind": "basic",
           "name": "updateResource",
+          "originalName": "updateResource",
           "isExactName": false,
           "accessibility": "public",
           "apiVersions": [],
@@ -848,6 +877,7 @@
           "operation": {
             "$id": "61",
             "name": "updateResource",
+            "originalName": "updateResource",
             "isExactName": false,
             "resourceName": "JsonMergePatch",
             "doc": "Test content-type: application/merge-patch+json with required body",
@@ -857,6 +887,7 @@
                 "$id": "62",
                 "kind": "header",
                 "name": "contentType",
+                "originalName": "contentType",
                 "serializedName": "Content-Type",
                 "type": {
                   "$ref": "5"
@@ -873,6 +904,7 @@
                     "$id": "63",
                     "kind": "method",
                     "name": "contentType",
+                    "originalName": "contentType",
                     "serializedName": "Content-Type",
                     "type": {
                       "$ref": "5"
@@ -894,6 +926,7 @@
                 "$id": "64",
                 "kind": "header",
                 "name": "accept",
+                "originalName": "accept",
                 "serializedName": "Accept",
                 "type": {
                   "$ref": "9"
@@ -910,6 +943,7 @@
                     "$id": "65",
                     "kind": "method",
                     "name": "accept",
+                    "originalName": "accept",
                     "serializedName": "Accept",
                     "type": {
                       "$ref": "9"
@@ -931,6 +965,7 @@
                 "$id": "66",
                 "kind": "body",
                 "name": "body",
+                "originalName": "body",
                 "serializedName": "body",
                 "type": {
                   "$ref": "40"
@@ -950,6 +985,7 @@
                     "$id": "67",
                     "kind": "method",
                     "name": "body",
+                    "originalName": "body",
                     "serializedName": "body",
                     "type": {
                       "$ref": "40"
@@ -1031,6 +1067,7 @@
           "$id": "68",
           "kind": "basic",
           "name": "updateOptionalResource",
+          "originalName": "updateOptionalResource",
           "isExactName": false,
           "accessibility": "public",
           "apiVersions": [],
@@ -1038,6 +1075,7 @@
           "operation": {
             "$id": "69",
             "name": "updateOptionalResource",
+            "originalName": "updateOptionalResource",
             "isExactName": false,
             "resourceName": "JsonMergePatch",
             "doc": "Test content-type: application/merge-patch+json with optional body",
@@ -1047,6 +1085,7 @@
                 "$id": "70",
                 "kind": "header",
                 "name": "contentType",
+                "originalName": "contentType",
                 "serializedName": "Content-Type",
                 "type": {
                   "$ref": "11"
@@ -1063,6 +1102,7 @@
                     "$id": "71",
                     "kind": "method",
                     "name": "contentType",
+                    "originalName": "contentType",
                     "serializedName": "Content-Type",
                     "type": {
                       "$ref": "11"
@@ -1084,6 +1124,7 @@
                 "$id": "72",
                 "kind": "header",
                 "name": "accept",
+                "originalName": "accept",
                 "serializedName": "Accept",
                 "type": {
                   "$ref": "15"
@@ -1100,6 +1141,7 @@
                     "$id": "73",
                     "kind": "method",
                     "name": "accept",
+                    "originalName": "accept",
                     "serializedName": "Accept",
                     "type": {
                       "$ref": "15"
@@ -1121,6 +1163,7 @@
                 "$id": "74",
                 "kind": "body",
                 "name": "body",
+                "originalName": "body",
                 "serializedName": "body",
                 "type": {
                   "$ref": "40"
@@ -1140,6 +1183,7 @@
                     "$id": "75",
                     "kind": "method",
                     "name": "body",
+                    "originalName": "body",
                     "serializedName": "body",
                     "type": {
                       "$ref": "40"

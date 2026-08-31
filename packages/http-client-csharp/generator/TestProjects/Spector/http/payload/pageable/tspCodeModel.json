@@ -298,6 +298,7 @@
       "$id": "35",
       "kind": "model",
       "name": "LinkResponse",
+      "originalName": "LinkResponse",
       "namespace": "Payload.Pageable.ServerDrivenPagination",
       "crossLanguageDefinitionId": "Payload.Pageable.ServerDrivenPagination.link.Response.anonymous",
       "usage": "Output,Json",
@@ -313,6 +314,7 @@
           "$id": "36",
           "kind": "property",
           "name": "pets",
+          "originalName": "pets",
           "serializedName": "pets",
           "type": {
             "$id": "37",
@@ -322,6 +324,7 @@
               "$id": "38",
               "kind": "model",
               "name": "Pet",
+              "originalName": "Pet",
               "namespace": "Payload.Pageable",
               "crossLanguageDefinitionId": "Payload.Pageable.Pet",
               "usage": "Output,Json",
@@ -337,6 +340,7 @@
                   "$id": "39",
                   "kind": "property",
                   "name": "id",
+                  "originalName": "id",
                   "serializedName": "id",
                   "type": {
                     "$id": "40",
@@ -363,6 +367,7 @@
                   "$id": "41",
                   "kind": "property",
                   "name": "name",
+                  "originalName": "name",
                   "serializedName": "name",
                   "type": {
                     "$id": "42",
@@ -408,6 +413,7 @@
           "$id": "43",
           "kind": "property",
           "name": "next",
+          "originalName": "next",
           "serializedName": "next",
           "type": {
             "$id": "44",
@@ -439,6 +445,7 @@
       "$id": "45",
       "kind": "model",
       "name": "LinkStringResponse",
+      "originalName": "LinkStringResponse",
       "namespace": "Payload.Pageable.ServerDrivenPagination",
       "crossLanguageDefinitionId": "Payload.Pageable.ServerDrivenPagination.linkString.Response.anonymous",
       "usage": "Output,Json",
@@ -454,6 +461,7 @@
           "$id": "46",
           "kind": "property",
           "name": "pets",
+          "originalName": "pets",
           "serializedName": "pets",
           "type": {
             "$ref": "37"
@@ -476,6 +484,7 @@
           "$id": "47",
           "kind": "property",
           "name": "next",
+          "originalName": "next",
           "serializedName": "next",
           "type": {
             "$id": "48",
@@ -504,6 +513,7 @@
       "$id": "49",
       "kind": "model",
       "name": "NestedLinkResponse",
+      "originalName": "NestedLinkResponse",
       "namespace": "Payload.Pageable.ServerDrivenPagination",
       "crossLanguageDefinitionId": "Payload.Pageable.ServerDrivenPagination.nestedLink.Response.anonymous",
       "usage": "Output,Json",
@@ -519,11 +529,13 @@
           "$id": "50",
           "kind": "property",
           "name": "nestedItems",
+          "originalName": "nestedItems",
           "serializedName": "nestedItems",
           "type": {
             "$id": "51",
             "kind": "model",
             "name": "NestedLinkResponseNestedItems",
+            "originalName": "NestedLinkResponseNestedItems",
             "namespace": "Payload.Pageable.ServerDrivenPagination",
             "crossLanguageDefinitionId": "Payload.Pageable.ServerDrivenPagination.nestedLink.Response.nestedItems.anonymous",
             "usage": "Output,Json",
@@ -539,6 +551,7 @@
                 "$id": "52",
                 "kind": "property",
                 "name": "pets",
+                "originalName": "pets",
                 "serializedName": "pets",
                 "type": {
                   "$ref": "37"
@@ -577,11 +590,13 @@
           "$id": "53",
           "kind": "property",
           "name": "nestedNext",
+          "originalName": "nestedNext",
           "serializedName": "nestedNext",
           "type": {
             "$id": "54",
             "kind": "model",
             "name": "NestedLinkResponseNestedNext",
+            "originalName": "NestedLinkResponseNestedNext",
             "namespace": "Payload.Pageable.ServerDrivenPagination",
             "crossLanguageDefinitionId": "Payload.Pageable.ServerDrivenPagination.nestedLink.Response.nestedNext.anonymous",
             "usage": "Output,Json",
@@ -597,6 +612,7 @@
                 "$id": "55",
                 "kind": "property",
                 "name": "next",
+                "originalName": "next",
                 "serializedName": "next",
                 "type": {
                   "$id": "56",
@@ -647,6 +663,7 @@
       "$id": "57",
       "kind": "model",
       "name": "ListWithoutContinuationResponse",
+      "originalName": "ListWithoutContinuationResponse",
       "namespace": "Payload.Pageable.PageSize",
       "crossLanguageDefinitionId": "Payload.Pageable.PageSize.listWithoutContinuation.Response.anonymous",
       "usage": "Output,Json",
@@ -662,6 +679,7 @@
           "$id": "58",
           "kind": "property",
           "name": "pets",
+          "originalName": "pets",
           "serializedName": "pets",
           "type": {
             "$ref": "37"
@@ -686,6 +704,7 @@
       "$id": "59",
       "kind": "model",
       "name": "ListWithPageSizeResponse",
+      "originalName": "ListWithPageSizeResponse",
       "namespace": "Payload.Pageable.PageSize",
       "crossLanguageDefinitionId": "Payload.Pageable.PageSize.listWithPageSize.Response.anonymous",
       "usage": "Output,Json",
@@ -701,6 +720,7 @@
           "$id": "60",
           "kind": "property",
           "name": "pets",
+          "originalName": "pets",
           "serializedName": "pets",
           "type": {
             "$ref": "37"
@@ -725,6 +745,7 @@
       "$id": "61",
       "kind": "model",
       "name": "XmlPetListResult",
+      "originalName": "XmlPetListResult",
       "namespace": "Payload.Pageable",
       "crossLanguageDefinitionId": "Payload.Pageable.XmlPetListResult",
       "usage": "Output,Xml",
@@ -750,6 +771,7 @@
           "$id": "62",
           "kind": "property",
           "name": "pets",
+          "originalName": "pets",
           "serializedName": "Pets",
           "type": {
             "$id": "63",
@@ -759,6 +781,7 @@
               "$id": "64",
               "kind": "model",
               "name": "XmlPet",
+              "originalName": "XmlPet",
               "namespace": "Payload.Pageable",
               "crossLanguageDefinitionId": "Payload.Pageable.XmlPet",
               "usage": "Output,Xml",
@@ -784,6 +807,7 @@
                   "$id": "65",
                   "kind": "property",
                   "name": "id",
+                  "originalName": "id",
                   "serializedName": "Id",
                   "type": {
                     "$id": "66",
@@ -819,6 +843,7 @@
                   "$id": "67",
                   "kind": "property",
                   "name": "name",
+                  "originalName": "name",
                   "serializedName": "Name",
                   "type": {
                     "$id": "68",
@@ -883,6 +908,7 @@
           "$id": "69",
           "kind": "property",
           "name": "nextMarker",
+          "originalName": "nextMarker",
           "serializedName": "NextMarker",
           "type": {
             "$id": "70",
@@ -923,6 +949,7 @@
       "$id": "71",
       "kind": "model",
       "name": "XmlPetListResultWithNextLink",
+      "originalName": "XmlPetListResultWithNextLink",
       "namespace": "Payload.Pageable",
       "crossLanguageDefinitionId": "Payload.Pageable.XmlPetListResultWithNextLink",
       "usage": "Output,Xml",
@@ -948,6 +975,7 @@
           "$id": "72",
           "kind": "property",
           "name": "pets",
+          "originalName": "pets",
           "serializedName": "Pets",
           "type": {
             "$ref": "63"
@@ -980,6 +1008,7 @@
           "$id": "73",
           "kind": "property",
           "name": "nextLink",
+          "originalName": "nextLink",
           "serializedName": "NextLink",
           "type": {
             "$id": "74",
@@ -1017,6 +1046,7 @@
       "$id": "75",
       "kind": "model",
       "name": "Filter",
+      "originalName": "Filter",
       "namespace": "Payload.Pageable.ServerDrivenPagination.AlternateInitialVerb",
       "crossLanguageDefinitionId": "Payload.Pageable.ServerDrivenPagination.AlternateInitialVerb.Filter",
       "usage": "Input,Json",
@@ -1032,6 +1062,7 @@
           "$id": "76",
           "kind": "property",
           "name": "filter",
+          "originalName": "filter",
           "serializedName": "filter",
           "type": {
             "$id": "77",
@@ -1060,6 +1091,7 @@
       "$id": "78",
       "kind": "model",
       "name": "PostResponse",
+      "originalName": "PostResponse",
       "namespace": "Payload.Pageable.ServerDrivenPagination.AlternateInitialVerb",
       "crossLanguageDefinitionId": "Payload.Pageable.ServerDrivenPagination.AlternateInitialVerb.post.Response.anonymous",
       "usage": "Output,Json",
@@ -1075,6 +1107,7 @@
           "$id": "79",
           "kind": "property",
           "name": "pets",
+          "originalName": "pets",
           "serializedName": "pets",
           "type": {
             "$ref": "37"
@@ -1097,6 +1130,7 @@
           "$id": "80",
           "kind": "property",
           "name": "next",
+          "originalName": "next",
           "serializedName": "next",
           "type": {
             "$id": "81",
@@ -1125,6 +1159,7 @@
       "$id": "82",
       "kind": "model",
       "name": "RequestQueryResponseBodyResponse",
+      "originalName": "RequestQueryResponseBodyResponse",
       "namespace": "Payload.Pageable.ServerDrivenPagination.ContinuationToken",
       "crossLanguageDefinitionId": "Payload.Pageable.ServerDrivenPagination.ContinuationToken.requestQueryResponseBody.Response.anonymous",
       "usage": "Output,Json",
@@ -1140,6 +1175,7 @@
           "$id": "83",
           "kind": "property",
           "name": "pets",
+          "originalName": "pets",
           "serializedName": "pets",
           "type": {
             "$ref": "37"
@@ -1162,6 +1198,7 @@
           "$id": "84",
           "kind": "property",
           "name": "nextToken",
+          "originalName": "nextToken",
           "serializedName": "nextToken",
           "type": {
             "$id": "85",
@@ -1190,6 +1227,7 @@
       "$id": "86",
       "kind": "model",
       "name": "RequestHeaderResponseBodyResponse",
+      "originalName": "RequestHeaderResponseBodyResponse",
       "namespace": "Payload.Pageable.ServerDrivenPagination.ContinuationToken",
       "crossLanguageDefinitionId": "Payload.Pageable.ServerDrivenPagination.ContinuationToken.requestHeaderResponseBody.Response.anonymous",
       "usage": "Output,Json",
@@ -1205,6 +1243,7 @@
           "$id": "87",
           "kind": "property",
           "name": "pets",
+          "originalName": "pets",
           "serializedName": "pets",
           "type": {
             "$ref": "37"
@@ -1227,6 +1266,7 @@
           "$id": "88",
           "kind": "property",
           "name": "nextToken",
+          "originalName": "nextToken",
           "serializedName": "nextToken",
           "type": {
             "$id": "89",
@@ -1255,6 +1295,7 @@
       "$id": "90",
       "kind": "model",
       "name": "RequestQueryResponseHeaderResponse",
+      "originalName": "RequestQueryResponseHeaderResponse",
       "namespace": "",
       "crossLanguageDefinitionId": "Payload.Pageable.ServerDrivenPagination.ContinuationToken.requestQueryResponseHeader.Response.anonymous",
       "usage": "Output,Json",
@@ -1270,6 +1311,7 @@
           "$id": "91",
           "kind": "property",
           "name": "pets",
+          "originalName": "pets",
           "serializedName": "pets",
           "type": {
             "$ref": "37"
@@ -1294,6 +1336,7 @@
       "$id": "92",
       "kind": "model",
       "name": "RequestHeaderResponseHeaderResponse",
+      "originalName": "RequestHeaderResponseHeaderResponse",
       "namespace": "",
       "crossLanguageDefinitionId": "Payload.Pageable.ServerDrivenPagination.ContinuationToken.requestHeaderResponseHeader.Response.anonymous",
       "usage": "Output,Json",
@@ -1309,6 +1352,7 @@
           "$id": "93",
           "kind": "property",
           "name": "pets",
+          "originalName": "pets",
           "serializedName": "pets",
           "type": {
             "$ref": "37"
@@ -1333,6 +1377,7 @@
       "$id": "94",
       "kind": "model",
       "name": "RequestQueryNestedResponseBodyResponse",
+      "originalName": "RequestQueryNestedResponseBodyResponse",
       "namespace": "Payload.Pageable.ServerDrivenPagination.ContinuationToken",
       "crossLanguageDefinitionId": "Payload.Pageable.ServerDrivenPagination.ContinuationToken.requestQueryNestedResponseBody.Response.anonymous",
       "usage": "Output,Json",
@@ -1348,11 +1393,13 @@
           "$id": "95",
           "kind": "property",
           "name": "nestedItems",
+          "originalName": "nestedItems",
           "serializedName": "nestedItems",
           "type": {
             "$id": "96",
             "kind": "model",
             "name": "RequestQueryNestedResponseBodyResponseNestedItems",
+            "originalName": "RequestQueryNestedResponseBodyResponseNestedItems",
             "namespace": "Payload.Pageable.ServerDrivenPagination.ContinuationToken",
             "crossLanguageDefinitionId": "Payload.Pageable.ServerDrivenPagination.ContinuationToken.requestQueryNestedResponseBody.Response.nestedItems.anonymous",
             "usage": "Output,Json",
@@ -1368,6 +1415,7 @@
                 "$id": "97",
                 "kind": "property",
                 "name": "pets",
+                "originalName": "pets",
                 "serializedName": "pets",
                 "type": {
                   "$ref": "37"
@@ -1406,11 +1454,13 @@
           "$id": "98",
           "kind": "property",
           "name": "nestedNext",
+          "originalName": "nestedNext",
           "serializedName": "nestedNext",
           "type": {
             "$id": "99",
             "kind": "model",
             "name": "RequestQueryNestedResponseBodyResponseNestedNext",
+            "originalName": "RequestQueryNestedResponseBodyResponseNestedNext",
             "namespace": "Payload.Pageable.ServerDrivenPagination.ContinuationToken",
             "crossLanguageDefinitionId": "Payload.Pageable.ServerDrivenPagination.ContinuationToken.requestQueryNestedResponseBody.Response.nestedNext.anonymous",
             "usage": "Output,Json",
@@ -1426,6 +1476,7 @@
                 "$id": "100",
                 "kind": "property",
                 "name": "nextToken",
+                "originalName": "nextToken",
                 "serializedName": "nextToken",
                 "type": {
                   "$id": "101",
@@ -1476,6 +1527,7 @@
       "$id": "102",
       "kind": "model",
       "name": "RequestHeaderNestedResponseBodyResponse",
+      "originalName": "RequestHeaderNestedResponseBodyResponse",
       "namespace": "Payload.Pageable.ServerDrivenPagination.ContinuationToken",
       "crossLanguageDefinitionId": "Payload.Pageable.ServerDrivenPagination.ContinuationToken.requestHeaderNestedResponseBody.Response.anonymous",
       "usage": "Output,Json",
@@ -1491,11 +1543,13 @@
           "$id": "103",
           "kind": "property",
           "name": "nestedItems",
+          "originalName": "nestedItems",
           "serializedName": "nestedItems",
           "type": {
             "$id": "104",
             "kind": "model",
             "name": "RequestHeaderNestedResponseBodyResponseNestedItems",
+            "originalName": "RequestHeaderNestedResponseBodyResponseNestedItems",
             "namespace": "Payload.Pageable.ServerDrivenPagination.ContinuationToken",
             "crossLanguageDefinitionId": "Payload.Pageable.ServerDrivenPagination.ContinuationToken.requestHeaderNestedResponseBody.Response.nestedItems.anonymous",
             "usage": "Output,Json",
@@ -1511,6 +1565,7 @@
                 "$id": "105",
                 "kind": "property",
                 "name": "pets",
+                "originalName": "pets",
                 "serializedName": "pets",
                 "type": {
                   "$ref": "37"
@@ -1549,11 +1604,13 @@
           "$id": "106",
           "kind": "property",
           "name": "nestedNext",
+          "originalName": "nestedNext",
           "serializedName": "nestedNext",
           "type": {
             "$id": "107",
             "kind": "model",
             "name": "RequestHeaderNestedResponseBodyResponseNestedNext",
+            "originalName": "RequestHeaderNestedResponseBodyResponseNestedNext",
             "namespace": "Payload.Pageable.ServerDrivenPagination.ContinuationToken",
             "crossLanguageDefinitionId": "Payload.Pageable.ServerDrivenPagination.ContinuationToken.requestHeaderNestedResponseBody.Response.nestedNext.anonymous",
             "usage": "Output,Json",
@@ -1569,6 +1626,7 @@
                 "$id": "108",
                 "kind": "property",
                 "name": "nextToken",
+                "originalName": "nextToken",
                 "serializedName": "nextToken",
                 "type": {
                   "$id": "109",
@@ -1674,12 +1732,14 @@
               "$id": "115",
               "kind": "paging",
               "name": "link",
+              "originalName": "link",
               "isExactName": false,
               "accessibility": "public",
               "apiVersions": [],
               "operation": {
                 "$id": "116",
                 "name": "link",
+                "originalName": "link",
                 "isExactName": false,
                 "resourceName": "ServerDrivenPagination",
                 "accessibility": "public",
@@ -1688,6 +1748,7 @@
                     "$id": "117",
                     "kind": "header",
                     "name": "accept",
+                    "originalName": "accept",
                     "serializedName": "Accept",
                     "type": {
                       "$ref": "1"
@@ -1704,6 +1765,7 @@
                         "$id": "118",
                         "kind": "method",
                         "name": "accept",
+                        "originalName": "accept",
                         "serializedName": "Accept",
                         "type": {
                           "$ref": "1"
@@ -1786,12 +1848,14 @@
               "$id": "119",
               "kind": "paging",
               "name": "linkString",
+              "originalName": "linkString",
               "isExactName": false,
               "accessibility": "public",
               "apiVersions": [],
               "operation": {
                 "$id": "120",
                 "name": "linkString",
+                "originalName": "linkString",
                 "isExactName": false,
                 "resourceName": "ServerDrivenPagination",
                 "accessibility": "public",
@@ -1800,6 +1864,7 @@
                     "$id": "121",
                     "kind": "header",
                     "name": "accept",
+                    "originalName": "accept",
                     "serializedName": "Accept",
                     "type": {
                       "$ref": "3"
@@ -1816,6 +1881,7 @@
                         "$id": "122",
                         "kind": "method",
                         "name": "accept",
+                        "originalName": "accept",
                         "serializedName": "Accept",
                         "type": {
                           "$ref": "3"
@@ -1898,12 +1964,14 @@
               "$id": "123",
               "kind": "paging",
               "name": "nestedLink",
+              "originalName": "nestedLink",
               "isExactName": false,
               "accessibility": "public",
               "apiVersions": [],
               "operation": {
                 "$id": "124",
                 "name": "nestedLink",
+                "originalName": "nestedLink",
                 "isExactName": false,
                 "resourceName": "ServerDrivenPagination",
                 "accessibility": "public",
@@ -1912,6 +1980,7 @@
                     "$id": "125",
                     "kind": "header",
                     "name": "accept",
+                    "originalName": "accept",
                     "serializedName": "Accept",
                     "type": {
                       "$ref": "5"
@@ -1928,6 +1997,7 @@
                         "$id": "126",
                         "kind": "method",
                         "name": "accept",
+                        "originalName": "accept",
                         "serializedName": "Accept",
                         "type": {
                           "$ref": "5"
@@ -2063,12 +2133,14 @@
                   "$id": "131",
                   "kind": "paging",
                   "name": "post",
+                  "originalName": "post",
                   "isExactName": false,
                   "accessibility": "public",
                   "apiVersions": [],
                   "operation": {
                     "$id": "132",
                     "name": "post",
+                    "originalName": "post",
                     "isExactName": false,
                     "resourceName": "AlternateInitialVerb",
                     "accessibility": "public",
@@ -2077,6 +2149,7 @@
                         "$id": "133",
                         "kind": "header",
                         "name": "contentType",
+                        "originalName": "contentType",
                         "serializedName": "Content-Type",
                         "doc": "Body parameter's content type. Known values are application/json",
                         "type": {
@@ -2094,6 +2167,7 @@
                             "$id": "134",
                             "kind": "method",
                             "name": "contentType",
+                            "originalName": "contentType",
                             "serializedName": "Content-Type",
                             "doc": "Body parameter's content type. Known values are application/json",
                             "type": {
@@ -2116,6 +2190,7 @@
                         "$id": "135",
                         "kind": "header",
                         "name": "accept",
+                        "originalName": "accept",
                         "serializedName": "Accept",
                         "type": {
                           "$ref": "9"
@@ -2132,6 +2207,7 @@
                             "$id": "136",
                             "kind": "method",
                             "name": "accept",
+                            "originalName": "accept",
                             "serializedName": "Accept",
                             "type": {
                               "$ref": "9"
@@ -2153,6 +2229,7 @@
                         "$id": "137",
                         "kind": "body",
                         "name": "body",
+                        "originalName": "body",
                         "serializedName": "body",
                         "type": {
                           "$ref": "75"
@@ -2172,6 +2249,7 @@
                             "$id": "138",
                             "kind": "method",
                             "name": "body",
+                            "originalName": "body",
                             "serializedName": "body",
                             "type": {
                               "$ref": "75"
@@ -2318,12 +2396,14 @@
                   "$id": "143",
                   "kind": "paging",
                   "name": "requestQueryResponseBody",
+                  "originalName": "requestQueryResponseBody",
                   "isExactName": false,
                   "accessibility": "public",
                   "apiVersions": [],
                   "operation": {
                     "$id": "144",
                     "name": "requestQueryResponseBody",
+                    "originalName": "requestQueryResponseBody",
                     "isExactName": false,
                     "resourceName": "ContinuationToken",
                     "accessibility": "public",
@@ -2332,6 +2412,7 @@
                         "$id": "145",
                         "kind": "query",
                         "name": "token",
+                        "originalName": "token",
                         "serializedName": "token",
                         "type": {
                           "$id": "146",
@@ -2352,6 +2433,7 @@
                             "$id": "147",
                             "kind": "method",
                             "name": "token",
+                            "originalName": "token",
                             "serializedName": "token",
                             "type": {
                               "$id": "148",
@@ -2377,6 +2459,7 @@
                         "$id": "149",
                         "kind": "header",
                         "name": "foo",
+                        "originalName": "foo",
                         "serializedName": "foo",
                         "type": {
                           "$id": "150",
@@ -2397,6 +2480,7 @@
                             "$id": "151",
                             "kind": "method",
                             "name": "foo",
+                            "originalName": "foo",
                             "serializedName": "foo",
                             "type": {
                               "$id": "152",
@@ -2422,6 +2506,7 @@
                         "$id": "153",
                         "kind": "query",
                         "name": "bar",
+                        "originalName": "bar",
                         "serializedName": "bar",
                         "type": {
                           "$id": "154",
@@ -2442,6 +2527,7 @@
                             "$id": "155",
                             "kind": "method",
                             "name": "bar",
+                            "originalName": "bar",
                             "serializedName": "bar",
                             "type": {
                               "$id": "156",
@@ -2467,6 +2553,7 @@
                         "$id": "157",
                         "kind": "header",
                         "name": "accept",
+                        "originalName": "accept",
                         "serializedName": "Accept",
                         "type": {
                           "$ref": "11"
@@ -2483,6 +2570,7 @@
                             "$id": "158",
                             "kind": "method",
                             "name": "accept",
+                            "originalName": "accept",
                             "serializedName": "Accept",
                             "type": {
                               "$ref": "11"
@@ -2577,12 +2665,14 @@
                   "$id": "159",
                   "kind": "paging",
                   "name": "requestHeaderResponseBody",
+                  "originalName": "requestHeaderResponseBody",
                   "isExactName": false,
                   "accessibility": "public",
                   "apiVersions": [],
                   "operation": {
                     "$id": "160",
                     "name": "requestHeaderResponseBody",
+                    "originalName": "requestHeaderResponseBody",
                     "isExactName": false,
                     "resourceName": "ContinuationToken",
                     "accessibility": "public",
@@ -2591,6 +2681,7 @@
                         "$id": "161",
                         "kind": "header",
                         "name": "token",
+                        "originalName": "token",
                         "serializedName": "token",
                         "type": {
                           "$id": "162",
@@ -2611,6 +2702,7 @@
                             "$id": "163",
                             "kind": "method",
                             "name": "token",
+                            "originalName": "token",
                             "serializedName": "token",
                             "type": {
                               "$id": "164",
@@ -2636,6 +2728,7 @@
                         "$id": "165",
                         "kind": "header",
                         "name": "foo",
+                        "originalName": "foo",
                         "serializedName": "foo",
                         "type": {
                           "$id": "166",
@@ -2656,6 +2749,7 @@
                             "$id": "167",
                             "kind": "method",
                             "name": "foo",
+                            "originalName": "foo",
                             "serializedName": "foo",
                             "type": {
                               "$id": "168",
@@ -2681,6 +2775,7 @@
                         "$id": "169",
                         "kind": "query",
                         "name": "bar",
+                        "originalName": "bar",
                         "serializedName": "bar",
                         "type": {
                           "$id": "170",
@@ -2701,6 +2796,7 @@
                             "$id": "171",
                             "kind": "method",
                             "name": "bar",
+                            "originalName": "bar",
                             "serializedName": "bar",
                             "type": {
                               "$id": "172",
@@ -2726,6 +2822,7 @@
                         "$id": "173",
                         "kind": "header",
                         "name": "accept",
+                        "originalName": "accept",
                         "serializedName": "Accept",
                         "type": {
                           "$ref": "13"
@@ -2742,6 +2839,7 @@
                             "$id": "174",
                             "kind": "method",
                             "name": "accept",
+                            "originalName": "accept",
                             "serializedName": "Accept",
                             "type": {
                               "$ref": "13"
@@ -2836,12 +2934,14 @@
                   "$id": "175",
                   "kind": "paging",
                   "name": "requestQueryResponseHeader",
+                  "originalName": "requestQueryResponseHeader",
                   "isExactName": false,
                   "accessibility": "public",
                   "apiVersions": [],
                   "operation": {
                     "$id": "176",
                     "name": "requestQueryResponseHeader",
+                    "originalName": "requestQueryResponseHeader",
                     "isExactName": false,
                     "resourceName": "ContinuationToken",
                     "accessibility": "public",
@@ -2850,6 +2950,7 @@
                         "$id": "177",
                         "kind": "query",
                         "name": "token",
+                        "originalName": "token",
                         "serializedName": "token",
                         "type": {
                           "$id": "178",
@@ -2870,6 +2971,7 @@
                             "$id": "179",
                             "kind": "method",
                             "name": "token",
+                            "originalName": "token",
                             "serializedName": "token",
                             "type": {
                               "$id": "180",
@@ -2895,6 +2997,7 @@
                         "$id": "181",
                         "kind": "header",
                         "name": "foo",
+                        "originalName": "foo",
                         "serializedName": "foo",
                         "type": {
                           "$id": "182",
@@ -2915,6 +3018,7 @@
                             "$id": "183",
                             "kind": "method",
                             "name": "foo",
+                            "originalName": "foo",
                             "serializedName": "foo",
                             "type": {
                               "$id": "184",
@@ -2940,6 +3044,7 @@
                         "$id": "185",
                         "kind": "query",
                         "name": "bar",
+                        "originalName": "bar",
                         "serializedName": "bar",
                         "type": {
                           "$id": "186",
@@ -2960,6 +3065,7 @@
                             "$id": "187",
                             "kind": "method",
                             "name": "bar",
+                            "originalName": "bar",
                             "serializedName": "bar",
                             "type": {
                               "$id": "188",
@@ -2985,6 +3091,7 @@
                         "$id": "189",
                         "kind": "header",
                         "name": "accept",
+                        "originalName": "accept",
                         "serializedName": "Accept",
                         "type": {
                           "$ref": "15"
@@ -3001,6 +3108,7 @@
                             "$id": "190",
                             "kind": "method",
                             "name": "accept",
+                            "originalName": "accept",
                             "serializedName": "Accept",
                             "type": {
                               "$ref": "15"
@@ -3107,12 +3215,14 @@
                   "$id": "192",
                   "kind": "paging",
                   "name": "requestHeaderResponseHeader",
+                  "originalName": "requestHeaderResponseHeader",
                   "isExactName": false,
                   "accessibility": "public",
                   "apiVersions": [],
                   "operation": {
                     "$id": "193",
                     "name": "requestHeaderResponseHeader",
+                    "originalName": "requestHeaderResponseHeader",
                     "isExactName": false,
                     "resourceName": "ContinuationToken",
                     "accessibility": "public",
@@ -3121,6 +3231,7 @@
                         "$id": "194",
                         "kind": "header",
                         "name": "token",
+                        "originalName": "token",
                         "serializedName": "token",
                         "type": {
                           "$id": "195",
@@ -3141,6 +3252,7 @@
                             "$id": "196",
                             "kind": "method",
                             "name": "token",
+                            "originalName": "token",
                             "serializedName": "token",
                             "type": {
                               "$id": "197",
@@ -3166,6 +3278,7 @@
                         "$id": "198",
                         "kind": "header",
                         "name": "foo",
+                        "originalName": "foo",
                         "serializedName": "foo",
                         "type": {
                           "$id": "199",
@@ -3186,6 +3299,7 @@
                             "$id": "200",
                             "kind": "method",
                             "name": "foo",
+                            "originalName": "foo",
                             "serializedName": "foo",
                             "type": {
                               "$id": "201",
@@ -3211,6 +3325,7 @@
                         "$id": "202",
                         "kind": "query",
                         "name": "bar",
+                        "originalName": "bar",
                         "serializedName": "bar",
                         "type": {
                           "$id": "203",
@@ -3231,6 +3346,7 @@
                             "$id": "204",
                             "kind": "method",
                             "name": "bar",
+                            "originalName": "bar",
                             "serializedName": "bar",
                             "type": {
                               "$id": "205",
@@ -3256,6 +3372,7 @@
                         "$id": "206",
                         "kind": "header",
                         "name": "accept",
+                        "originalName": "accept",
                         "serializedName": "Accept",
                         "type": {
                           "$ref": "17"
@@ -3272,6 +3389,7 @@
                             "$id": "207",
                             "kind": "method",
                             "name": "accept",
+                            "originalName": "accept",
                             "serializedName": "Accept",
                             "type": {
                               "$ref": "17"
@@ -3378,12 +3496,14 @@
                   "$id": "209",
                   "kind": "paging",
                   "name": "requestQueryNestedResponseBody",
+                  "originalName": "requestQueryNestedResponseBody",
                   "isExactName": false,
                   "accessibility": "public",
                   "apiVersions": [],
                   "operation": {
                     "$id": "210",
                     "name": "requestQueryNestedResponseBody",
+                    "originalName": "requestQueryNestedResponseBody",
                     "isExactName": false,
                     "resourceName": "ContinuationToken",
                     "accessibility": "public",
@@ -3392,6 +3512,7 @@
                         "$id": "211",
                         "kind": "query",
                         "name": "token",
+                        "originalName": "token",
                         "serializedName": "token",
                         "type": {
                           "$id": "212",
@@ -3412,6 +3533,7 @@
                             "$id": "213",
                             "kind": "method",
                             "name": "token",
+                            "originalName": "token",
                             "serializedName": "token",
                             "type": {
                               "$id": "214",
@@ -3437,6 +3559,7 @@
                         "$id": "215",
                         "kind": "header",
                         "name": "foo",
+                        "originalName": "foo",
                         "serializedName": "foo",
                         "type": {
                           "$id": "216",
@@ -3457,6 +3580,7 @@
                             "$id": "217",
                             "kind": "method",
                             "name": "foo",
+                            "originalName": "foo",
                             "serializedName": "foo",
                             "type": {
                               "$id": "218",
@@ -3482,6 +3606,7 @@
                         "$id": "219",
                         "kind": "query",
                         "name": "bar",
+                        "originalName": "bar",
                         "serializedName": "bar",
                         "type": {
                           "$id": "220",
@@ -3502,6 +3627,7 @@
                             "$id": "221",
                             "kind": "method",
                             "name": "bar",
+                            "originalName": "bar",
                             "serializedName": "bar",
                             "type": {
                               "$id": "222",
@@ -3527,6 +3653,7 @@
                         "$id": "223",
                         "kind": "header",
                         "name": "accept",
+                        "originalName": "accept",
                         "serializedName": "Accept",
                         "type": {
                           "$ref": "19"
@@ -3543,6 +3670,7 @@
                             "$id": "224",
                             "kind": "method",
                             "name": "accept",
+                            "originalName": "accept",
                             "serializedName": "Accept",
                             "type": {
                               "$ref": "19"
@@ -3640,12 +3768,14 @@
                   "$id": "225",
                   "kind": "paging",
                   "name": "requestHeaderNestedResponseBody",
+                  "originalName": "requestHeaderNestedResponseBody",
                   "isExactName": false,
                   "accessibility": "public",
                   "apiVersions": [],
                   "operation": {
                     "$id": "226",
                     "name": "requestHeaderNestedResponseBody",
+                    "originalName": "requestHeaderNestedResponseBody",
                     "isExactName": false,
                     "resourceName": "ContinuationToken",
                     "accessibility": "public",
@@ -3654,6 +3784,7 @@
                         "$id": "227",
                         "kind": "header",
                         "name": "token",
+                        "originalName": "token",
                         "serializedName": "token",
                         "type": {
                           "$id": "228",
@@ -3674,6 +3805,7 @@
                             "$id": "229",
                             "kind": "method",
                             "name": "token",
+                            "originalName": "token",
                             "serializedName": "token",
                             "type": {
                               "$id": "230",
@@ -3699,6 +3831,7 @@
                         "$id": "231",
                         "kind": "header",
                         "name": "foo",
+                        "originalName": "foo",
                         "serializedName": "foo",
                         "type": {
                           "$id": "232",
@@ -3719,6 +3852,7 @@
                             "$id": "233",
                             "kind": "method",
                             "name": "foo",
+                            "originalName": "foo",
                             "serializedName": "foo",
                             "type": {
                               "$id": "234",
@@ -3744,6 +3878,7 @@
                         "$id": "235",
                         "kind": "query",
                         "name": "bar",
+                        "originalName": "bar",
                         "serializedName": "bar",
                         "type": {
                           "$id": "236",
@@ -3764,6 +3899,7 @@
                             "$id": "237",
                             "kind": "method",
                             "name": "bar",
+                            "originalName": "bar",
                             "serializedName": "bar",
                             "type": {
                               "$id": "238",
@@ -3789,6 +3925,7 @@
                         "$id": "239",
                         "kind": "header",
                         "name": "accept",
+                        "originalName": "accept",
                         "serializedName": "Accept",
                         "type": {
                           "$ref": "21"
@@ -3805,6 +3942,7 @@
                             "$id": "240",
                             "kind": "method",
                             "name": "accept",
+                            "originalName": "accept",
                             "serializedName": "Accept",
                             "type": {
                               "$ref": "21"
@@ -3955,12 +4093,14 @@
               "$id": "245",
               "kind": "paging",
               "name": "listWithoutContinuation",
+              "originalName": "listWithoutContinuation",
               "isExactName": false,
               "accessibility": "public",
               "apiVersions": [],
               "operation": {
                 "$id": "246",
                 "name": "listWithoutContinuation",
+                "originalName": "listWithoutContinuation",
                 "isExactName": false,
                 "resourceName": "PageSize",
                 "accessibility": "public",
@@ -3969,6 +4109,7 @@
                     "$id": "247",
                     "kind": "header",
                     "name": "accept",
+                    "originalName": "accept",
                     "serializedName": "Accept",
                     "type": {
                       "$ref": "23"
@@ -3985,6 +4126,7 @@
                         "$id": "248",
                         "kind": "method",
                         "name": "accept",
+                        "originalName": "accept",
                         "serializedName": "Accept",
                         "type": {
                           "$ref": "23"
@@ -4061,12 +4203,14 @@
               "$id": "249",
               "kind": "paging",
               "name": "listWithPageSize",
+              "originalName": "listWithPageSize",
               "isExactName": false,
               "accessibility": "public",
               "apiVersions": [],
               "operation": {
                 "$id": "250",
                 "name": "listWithPageSize",
+                "originalName": "listWithPageSize",
                 "isExactName": false,
                 "resourceName": "PageSize",
                 "accessibility": "public",
@@ -4075,6 +4219,7 @@
                     "$id": "251",
                     "kind": "query",
                     "name": "pageSize",
+                    "originalName": "pageSize",
                     "serializedName": "pageSize",
                     "type": {
                       "$id": "252",
@@ -4095,6 +4240,7 @@
                         "$id": "253",
                         "kind": "method",
                         "name": "pageSize",
+                        "originalName": "pageSize",
                         "serializedName": "pageSize",
                         "type": {
                           "$id": "254",
@@ -4120,6 +4266,7 @@
                     "$id": "255",
                     "kind": "header",
                     "name": "accept",
+                    "originalName": "accept",
                     "serializedName": "Accept",
                     "type": {
                       "$ref": "25"
@@ -4136,6 +4283,7 @@
                         "$id": "256",
                         "kind": "method",
                         "name": "accept",
+                        "originalName": "accept",
                         "serializedName": "Accept",
                         "type": {
                           "$ref": "25"
@@ -4267,12 +4415,14 @@
               "$id": "261",
               "kind": "paging",
               "name": "listWithContinuation",
+              "originalName": "listWithContinuation",
               "isExactName": false,
               "accessibility": "public",
               "apiVersions": [],
               "operation": {
                 "$id": "262",
                 "name": "listWithContinuation",
+                "originalName": "listWithContinuation",
                 "isExactName": false,
                 "resourceName": "XmlPagination",
                 "accessibility": "public",
@@ -4281,6 +4431,7 @@
                     "$id": "263",
                     "kind": "query",
                     "name": "marker",
+                    "originalName": "marker",
                     "serializedName": "marker",
                     "type": {
                       "$id": "264",
@@ -4301,6 +4452,7 @@
                         "$id": "265",
                         "kind": "method",
                         "name": "marker",
+                        "originalName": "marker",
                         "serializedName": "marker",
                         "type": {
                           "$id": "266",
@@ -4326,6 +4478,7 @@
                     "$id": "267",
                     "kind": "header",
                     "name": "accept",
+                    "originalName": "accept",
                     "serializedName": "Accept",
                     "type": {
                       "$ref": "27"
@@ -4342,6 +4495,7 @@
                         "$id": "268",
                         "kind": "method",
                         "name": "accept",
+                        "originalName": "accept",
                         "serializedName": "Accept",
                         "type": {
                           "$ref": "27"
@@ -4438,12 +4592,14 @@
               "$id": "269",
               "kind": "paging",
               "name": "listWithNextLink",
+              "originalName": "listWithNextLink",
               "isExactName": false,
               "accessibility": "public",
               "apiVersions": [],
               "operation": {
                 "$id": "270",
                 "name": "listWithNextLink",
+                "originalName": "listWithNextLink",
                 "isExactName": false,
                 "resourceName": "XmlPagination",
                 "accessibility": "public",
@@ -4452,6 +4608,7 @@
                     "$id": "271",
                     "kind": "header",
                     "name": "accept",
+                    "originalName": "accept",
                     "serializedName": "Accept",
                     "type": {
                       "$ref": "31"
@@ -4468,6 +4625,7 @@
                         "$id": "272",
                         "kind": "method",
                         "name": "accept",
+                        "originalName": "accept",
                         "serializedName": "Accept",
                         "type": {
                           "$ref": "31"

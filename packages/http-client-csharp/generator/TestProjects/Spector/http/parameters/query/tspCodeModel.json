@@ -98,6 +98,7 @@
               "$id": "10",
               "kind": "basic",
               "name": "post",
+              "originalName": "post",
               "isExactName": false,
               "accessibility": "public",
               "apiVersions": [],
@@ -105,6 +106,7 @@
               "operation": {
                 "$id": "11",
                 "name": "post",
+                "originalName": "post",
                 "isExactName": false,
                 "resourceName": "Constant",
                 "doc": "post constant query value",
@@ -114,6 +116,7 @@
                     "$id": "12",
                     "kind": "query",
                     "name": "queryParam",
+                    "originalName": "queryParam",
                     "serializedName": "queryParam",
                     "type": {
                       "$ref": "1"
@@ -130,6 +133,7 @@
                         "$id": "13",
                         "kind": "method",
                         "name": "queryParam",
+                        "originalName": "queryParam",
                         "serializedName": "queryParam",
                         "type": {
                           "$ref": "3"
@@ -234,12 +238,14 @@
               "$id": "18",
               "kind": "basic",
               "name": "dollarSign",
+              "originalName": "dollarSign",
               "isExactName": false,
               "accessibility": "public",
               "apiVersions": [],
               "operation": {
                 "$id": "19",
                 "name": "dollarSign",
+                "originalName": "dollarSign",
                 "isExactName": false,
                 "resourceName": "SpecialChar",
                 "accessibility": "public",
@@ -248,6 +254,7 @@
                     "$id": "20",
                     "kind": "query",
                     "name": "filter",
+                    "originalName": "filter",
                     "serializedName": "$filter",
                     "type": {
                       "$id": "21",
@@ -268,6 +275,7 @@
                         "$id": "22",
                         "kind": "method",
                         "name": "filter",
+                        "originalName": "filter",
                         "serializedName": "$filter",
                         "type": {
                           "$id": "23",

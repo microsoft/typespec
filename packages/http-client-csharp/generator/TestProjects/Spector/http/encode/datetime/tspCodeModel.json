@@ -179,6 +179,7 @@
       "$id": "21",
       "kind": "model",
       "name": "DefaultDatetimeProperty",
+      "originalName": "DefaultDatetimeProperty",
       "namespace": "Encode.Datetime",
       "crossLanguageDefinitionId": "Encode.Datetime.DefaultDatetimeProperty",
       "usage": "Input,Output,Json",
@@ -194,6 +195,7 @@
           "$id": "22",
           "kind": "property",
           "name": "value",
+          "originalName": "value",
           "serializedName": "value",
           "type": {
             "$id": "23",
@@ -230,6 +232,7 @@
       "$id": "25",
       "kind": "model",
       "name": "Rfc3339DatetimeProperty",
+      "originalName": "Rfc3339DatetimeProperty",
       "namespace": "Encode.Datetime",
       "crossLanguageDefinitionId": "Encode.Datetime.Rfc3339DatetimeProperty",
       "usage": "Input,Output,Json",
@@ -245,6 +248,7 @@
           "$id": "26",
           "kind": "property",
           "name": "value",
+          "originalName": "value",
           "serializedName": "value",
           "type": {
             "$id": "27",
@@ -281,6 +285,7 @@
       "$id": "29",
       "kind": "model",
       "name": "Rfc7231DatetimeProperty",
+      "originalName": "Rfc7231DatetimeProperty",
       "namespace": "Encode.Datetime",
       "crossLanguageDefinitionId": "Encode.Datetime.Rfc7231DatetimeProperty",
       "usage": "Input,Output,Json",
@@ -296,6 +301,7 @@
           "$id": "30",
           "kind": "property",
           "name": "value",
+          "originalName": "value",
           "serializedName": "value",
           "type": {
             "$id": "31",
@@ -332,6 +338,7 @@
       "$id": "33",
       "kind": "model",
       "name": "UnixTimestampDatetimeProperty",
+      "originalName": "UnixTimestampDatetimeProperty",
       "namespace": "Encode.Datetime",
       "crossLanguageDefinitionId": "Encode.Datetime.UnixTimestampDatetimeProperty",
       "usage": "Input,Output,Json",
@@ -347,6 +354,7 @@
           "$id": "34",
           "kind": "property",
           "name": "value",
+          "originalName": "value",
           "serializedName": "value",
           "type": {
             "$id": "35",
@@ -383,6 +391,7 @@
       "$id": "37",
       "kind": "model",
       "name": "UnixTimestampArrayDatetimeProperty",
+      "originalName": "UnixTimestampArrayDatetimeProperty",
       "namespace": "Encode.Datetime",
       "crossLanguageDefinitionId": "Encode.Datetime.UnixTimestampArrayDatetimeProperty",
       "usage": "Input,Output,Json",
@@ -398,6 +407,7 @@
           "$id": "38",
           "kind": "property",
           "name": "value",
+          "originalName": "value",
           "serializedName": "value",
           "type": {
             "$id": "39",
@@ -511,12 +521,14 @@
               "$id": "49",
               "kind": "basic",
               "name": "default",
+              "originalName": "default",
               "isExactName": false,
               "accessibility": "public",
               "apiVersions": [],
               "operation": {
                 "$id": "50",
                 "name": "default",
+                "originalName": "default",
                 "isExactName": false,
                 "resourceName": "Query",
                 "accessibility": "public",
@@ -525,6 +537,7 @@
                     "$id": "51",
                     "kind": "query",
                     "name": "value",
+                    "originalName": "value",
                     "serializedName": "value",
                     "type": {
                       "$id": "52",
@@ -553,6 +566,7 @@
                         "$id": "54",
                         "kind": "method",
                         "name": "value",
+                        "originalName": "value",
                         "serializedName": "value",
                         "type": {
                           "$id": "55",
@@ -618,12 +632,14 @@
               "$id": "57",
               "kind": "basic",
               "name": "rfc3339",
+              "originalName": "rfc3339",
               "isExactName": false,
               "accessibility": "public",
               "apiVersions": [],
               "operation": {
                 "$id": "58",
                 "name": "rfc3339",
+                "originalName": "rfc3339",
                 "isExactName": false,
                 "resourceName": "Query",
                 "accessibility": "public",
@@ -632,6 +648,7 @@
                     "$id": "59",
                     "kind": "query",
                     "name": "value",
+                    "originalName": "value",
                     "serializedName": "value",
                     "type": {
                       "$id": "60",
@@ -660,6 +677,7 @@
                         "$id": "62",
                         "kind": "method",
                         "name": "value",
+                        "originalName": "value",
                         "serializedName": "value",
                         "type": {
                           "$id": "63",
@@ -725,12 +743,14 @@
               "$id": "65",
               "kind": "basic",
               "name": "rfc7231",
+              "originalName": "rfc7231",
               "isExactName": false,
               "accessibility": "public",
               "apiVersions": [],
               "operation": {
                 "$id": "66",
                 "name": "rfc7231",
+                "originalName": "rfc7231",
                 "isExactName": false,
                 "resourceName": "Query",
                 "accessibility": "public",
@@ -739,6 +759,7 @@
                     "$id": "67",
                     "kind": "query",
                     "name": "value",
+                    "originalName": "value",
                     "serializedName": "value",
                     "type": {
                       "$id": "68",
@@ -767,6 +788,7 @@
                         "$id": "70",
                         "kind": "method",
                         "name": "value",
+                        "originalName": "value",
                         "serializedName": "value",
                         "type": {
                           "$id": "71",
@@ -832,12 +854,14 @@
               "$id": "73",
               "kind": "basic",
               "name": "unixTimestamp",
+              "originalName": "unixTimestamp",
               "isExactName": false,
               "accessibility": "public",
               "apiVersions": [],
               "operation": {
                 "$id": "74",
                 "name": "unixTimestamp",
+                "originalName": "unixTimestamp",
                 "isExactName": false,
                 "resourceName": "Query",
                 "accessibility": "public",
@@ -846,6 +870,7 @@
                     "$id": "75",
                     "kind": "query",
                     "name": "value",
+                    "originalName": "value",
                     "serializedName": "value",
                     "type": {
                       "$id": "76",
@@ -874,6 +899,7 @@
                         "$id": "78",
                         "kind": "method",
                         "name": "value",
+                        "originalName": "value",
                         "serializedName": "value",
                         "type": {
                           "$id": "79",
@@ -939,12 +965,14 @@
               "$id": "81",
               "kind": "basic",
               "name": "unixTimestampArray",
+              "originalName": "unixTimestampArray",
               "isExactName": false,
               "accessibility": "public",
               "apiVersions": [],
               "operation": {
                 "$id": "82",
                 "name": "unixTimestampArray",
+                "originalName": "unixTimestampArray",
                 "isExactName": false,
                 "resourceName": "Query",
                 "accessibility": "public",
@@ -953,6 +981,7 @@
                     "$id": "83",
                     "kind": "query",
                     "name": "value",
+                    "originalName": "value",
                     "serializedName": "value",
                     "type": {
                       "$ref": "39"
@@ -970,6 +999,7 @@
                         "$id": "84",
                         "kind": "method",
                         "name": "value",
+                        "originalName": "value",
                         "serializedName": "value",
                         "type": {
                           "$ref": "39"
@@ -1073,12 +1103,14 @@
               "$id": "89",
               "kind": "basic",
               "name": "default",
+              "originalName": "default",
               "isExactName": false,
               "accessibility": "public",
               "apiVersions": [],
               "operation": {
                 "$id": "90",
                 "name": "default",
+                "originalName": "default",
                 "isExactName": false,
                 "resourceName": "Property",
                 "accessibility": "public",
@@ -1087,6 +1119,7 @@
                     "$id": "91",
                     "kind": "header",
                     "name": "contentType",
+                    "originalName": "contentType",
                     "serializedName": "Content-Type",
                     "doc": "Body parameter's content type. Known values are application/json",
                     "type": {
@@ -1104,6 +1137,7 @@
                         "$id": "92",
                         "kind": "method",
                         "name": "contentType",
+                        "originalName": "contentType",
                         "serializedName": "Content-Type",
                         "doc": "Body parameter's content type. Known values are application/json",
                         "type": {
@@ -1126,6 +1160,7 @@
                     "$id": "93",
                     "kind": "header",
                     "name": "accept",
+                    "originalName": "accept",
                     "serializedName": "Accept",
                     "type": {
                       "$ref": "3"
@@ -1142,6 +1177,7 @@
                         "$id": "94",
                         "kind": "method",
                         "name": "accept",
+                        "originalName": "accept",
                         "serializedName": "Accept",
                         "type": {
                           "$ref": "3"
@@ -1163,6 +1199,7 @@
                     "$id": "95",
                     "kind": "body",
                     "name": "body",
+                    "originalName": "body",
                     "serializedName": "body",
                     "type": {
                       "$ref": "21"
@@ -1182,6 +1219,7 @@
                         "$id": "96",
                         "kind": "method",
                         "name": "body",
+                        "originalName": "body",
                         "serializedName": "body",
                         "type": {
                           "$ref": "21"
@@ -1263,12 +1301,14 @@
               "$id": "97",
               "kind": "basic",
               "name": "rfc3339",
+              "originalName": "rfc3339",
               "isExactName": false,
               "accessibility": "public",
               "apiVersions": [],
               "operation": {
                 "$id": "98",
                 "name": "rfc3339",
+                "originalName": "rfc3339",
                 "isExactName": false,
                 "resourceName": "Property",
                 "accessibility": "public",
@@ -1277,6 +1317,7 @@
                     "$id": "99",
                     "kind": "header",
                     "name": "contentType",
+                    "originalName": "contentType",
                     "serializedName": "Content-Type",
                     "doc": "Body parameter's content type. Known values are application/json",
                     "type": {
@@ -1294,6 +1335,7 @@
                         "$id": "100",
                         "kind": "method",
                         "name": "contentType",
+                        "originalName": "contentType",
                         "serializedName": "Content-Type",
                         "doc": "Body parameter's content type. Known values are application/json",
                         "type": {
@@ -1316,6 +1358,7 @@
                     "$id": "101",
                     "kind": "header",
                     "name": "accept",
+                    "originalName": "accept",
                     "serializedName": "Accept",
                     "type": {
                       "$ref": "7"
@@ -1332,6 +1375,7 @@
                         "$id": "102",
                         "kind": "method",
                         "name": "accept",
+                        "originalName": "accept",
                         "serializedName": "Accept",
                         "type": {
                           "$ref": "7"
@@ -1353,6 +1397,7 @@
                     "$id": "103",
                     "kind": "body",
                     "name": "body",
+                    "originalName": "body",
                     "serializedName": "body",
                     "type": {
                       "$ref": "25"
@@ -1372,6 +1417,7 @@
                         "$id": "104",
                         "kind": "method",
                         "name": "body",
+                        "originalName": "body",
                         "serializedName": "body",
                         "type": {
                           "$ref": "25"
@@ -1453,12 +1499,14 @@
               "$id": "105",
               "kind": "basic",
               "name": "rfc7231",
+              "originalName": "rfc7231",
               "isExactName": false,
               "accessibility": "public",
               "apiVersions": [],
               "operation": {
                 "$id": "106",
                 "name": "rfc7231",
+                "originalName": "rfc7231",
                 "isExactName": false,
                 "resourceName": "Property",
                 "accessibility": "public",
@@ -1467,6 +1515,7 @@
                     "$id": "107",
                     "kind": "header",
                     "name": "contentType",
+                    "originalName": "contentType",
                     "serializedName": "Content-Type",
                     "doc": "Body parameter's content type. Known values are application/json",
                     "type": {
@@ -1484,6 +1533,7 @@
                         "$id": "108",
                         "kind": "method",
                         "name": "contentType",
+                        "originalName": "contentType",
                         "serializedName": "Content-Type",
                         "doc": "Body parameter's content type. Known values are application/json",
                         "type": {
@@ -1506,6 +1556,7 @@
                     "$id": "109",
                     "kind": "header",
                     "name": "accept",
+                    "originalName": "accept",
                     "serializedName": "Accept",
                     "type": {
                       "$ref": "11"
@@ -1522,6 +1573,7 @@
                         "$id": "110",
                         "kind": "method",
                         "name": "accept",
+                        "originalName": "accept",
                         "serializedName": "Accept",
                         "type": {
                           "$ref": "11"
@@ -1543,6 +1595,7 @@
                     "$id": "111",
                     "kind": "body",
                     "name": "body",
+                    "originalName": "body",
                     "serializedName": "body",
                     "type": {
                       "$ref": "29"
@@ -1562,6 +1615,7 @@
                         "$id": "112",
                         "kind": "method",
                         "name": "body",
+                        "originalName": "body",
                         "serializedName": "body",
                         "type": {
                           "$ref": "29"
@@ -1643,12 +1697,14 @@
               "$id": "113",
               "kind": "basic",
               "name": "unixTimestamp",
+              "originalName": "unixTimestamp",
               "isExactName": false,
               "accessibility": "public",
               "apiVersions": [],
               "operation": {
                 "$id": "114",
                 "name": "unixTimestamp",
+                "originalName": "unixTimestamp",
                 "isExactName": false,
                 "resourceName": "Property",
                 "accessibility": "public",
@@ -1657,6 +1713,7 @@
                     "$id": "115",
                     "kind": "header",
                     "name": "contentType",
+                    "originalName": "contentType",
                     "serializedName": "Content-Type",
                     "doc": "Body parameter's content type. Known values are application/json",
                     "type": {
@@ -1674,6 +1731,7 @@
                         "$id": "116",
                         "kind": "method",
                         "name": "contentType",
+                        "originalName": "contentType",
                         "serializedName": "Content-Type",
                         "doc": "Body parameter's content type. Known values are application/json",
                         "type": {
@@ -1696,6 +1754,7 @@
                     "$id": "117",
                     "kind": "header",
                     "name": "accept",
+                    "originalName": "accept",
                     "serializedName": "Accept",
                     "type": {
                       "$ref": "15"
@@ -1712,6 +1771,7 @@
                         "$id": "118",
                         "kind": "method",
                         "name": "accept",
+                        "originalName": "accept",
                         "serializedName": "Accept",
                         "type": {
                           "$ref": "15"
@@ -1733,6 +1793,7 @@
                     "$id": "119",
                     "kind": "body",
                     "name": "body",
+                    "originalName": "body",
                     "serializedName": "body",
                     "type": {
                       "$ref": "33"
@@ -1752,6 +1813,7 @@
                         "$id": "120",
                         "kind": "method",
                         "name": "body",
+                        "originalName": "body",
                         "serializedName": "body",
                         "type": {
                           "$ref": "33"
@@ -1833,12 +1895,14 @@
               "$id": "121",
               "kind": "basic",
               "name": "unixTimestampArray",
+              "originalName": "unixTimestampArray",
               "isExactName": false,
               "accessibility": "public",
               "apiVersions": [],
               "operation": {
                 "$id": "122",
                 "name": "unixTimestampArray",
+                "originalName": "unixTimestampArray",
                 "isExactName": false,
                 "resourceName": "Property",
                 "accessibility": "public",
@@ -1847,6 +1911,7 @@
                     "$id": "123",
                     "kind": "header",
                     "name": "contentType",
+                    "originalName": "contentType",
                     "serializedName": "Content-Type",
                     "doc": "Body parameter's content type. Known values are application/json",
                     "type": {
@@ -1864,6 +1929,7 @@
                         "$id": "124",
                         "kind": "method",
                         "name": "contentType",
+                        "originalName": "contentType",
                         "serializedName": "Content-Type",
                         "doc": "Body parameter's content type. Known values are application/json",
                         "type": {
@@ -1886,6 +1952,7 @@
                     "$id": "125",
                     "kind": "header",
                     "name": "accept",
+                    "originalName": "accept",
                     "serializedName": "Accept",
                     "type": {
                       "$ref": "19"
@@ -1902,6 +1969,7 @@
                         "$id": "126",
                         "kind": "method",
                         "name": "accept",
+                        "originalName": "accept",
                         "serializedName": "Accept",
                         "type": {
                           "$ref": "19"
@@ -1923,6 +1991,7 @@
                     "$id": "127",
                     "kind": "body",
                     "name": "body",
+                    "originalName": "body",
                     "serializedName": "body",
                     "type": {
                       "$ref": "37"
@@ -1942,6 +2011,7 @@
                         "$id": "128",
                         "kind": "method",
                         "name": "body",
+                        "originalName": "body",
                         "serializedName": "body",
                         "type": {
                           "$ref": "37"
@@ -2073,12 +2143,14 @@
               "$id": "133",
               "kind": "basic",
               "name": "default",
+              "originalName": "default",
               "isExactName": false,
               "accessibility": "public",
               "apiVersions": [],
               "operation": {
                 "$id": "134",
                 "name": "default",
+                "originalName": "default",
                 "isExactName": false,
                 "resourceName": "Header",
                 "accessibility": "public",
@@ -2087,6 +2159,7 @@
                     "$id": "135",
                     "kind": "header",
                     "name": "value",
+                    "originalName": "value",
                     "serializedName": "value",
                     "type": {
                       "$id": "136",
@@ -2115,6 +2188,7 @@
                         "$id": "138",
                         "kind": "method",
                         "name": "value",
+                        "originalName": "value",
                         "serializedName": "value",
                         "type": {
                           "$id": "139",
@@ -2180,12 +2254,14 @@
               "$id": "141",
               "kind": "basic",
               "name": "rfc3339",
+              "originalName": "rfc3339",
               "isExactName": false,
               "accessibility": "public",
               "apiVersions": [],
               "operation": {
                 "$id": "142",
                 "name": "rfc3339",
+                "originalName": "rfc3339",
                 "isExactName": false,
                 "resourceName": "Header",
                 "accessibility": "public",
@@ -2194,6 +2270,7 @@
                     "$id": "143",
                     "kind": "header",
                     "name": "value",
+                    "originalName": "value",
                     "serializedName": "value",
                     "type": {
                       "$id": "144",
@@ -2222,6 +2299,7 @@
                         "$id": "146",
                         "kind": "method",
                         "name": "value",
+                        "originalName": "value",
                         "serializedName": "value",
                         "type": {
                           "$id": "147",
@@ -2287,12 +2365,14 @@
               "$id": "149",
               "kind": "basic",
               "name": "rfc7231",
+              "originalName": "rfc7231",
               "isExactName": false,
               "accessibility": "public",
               "apiVersions": [],
               "operation": {
                 "$id": "150",
                 "name": "rfc7231",
+                "originalName": "rfc7231",
                 "isExactName": false,
                 "resourceName": "Header",
                 "accessibility": "public",
@@ -2301,6 +2381,7 @@
                     "$id": "151",
                     "kind": "header",
                     "name": "value",
+                    "originalName": "value",
                     "serializedName": "value",
                     "type": {
                       "$id": "152",
@@ -2329,6 +2410,7 @@
                         "$id": "154",
                         "kind": "method",
                         "name": "value",
+                        "originalName": "value",
                         "serializedName": "value",
                         "type": {
                           "$id": "155",
@@ -2394,12 +2476,14 @@
               "$id": "157",
               "kind": "basic",
               "name": "unixTimestamp",
+              "originalName": "unixTimestamp",
               "isExactName": false,
               "accessibility": "public",
               "apiVersions": [],
               "operation": {
                 "$id": "158",
                 "name": "unixTimestamp",
+                "originalName": "unixTimestamp",
                 "isExactName": false,
                 "resourceName": "Header",
                 "accessibility": "public",
@@ -2408,6 +2492,7 @@
                     "$id": "159",
                     "kind": "header",
                     "name": "value",
+                    "originalName": "value",
                     "serializedName": "value",
                     "type": {
                       "$id": "160",
@@ -2436,6 +2521,7 @@
                         "$id": "162",
                         "kind": "method",
                         "name": "value",
+                        "originalName": "value",
                         "serializedName": "value",
                         "type": {
                           "$id": "163",
@@ -2501,12 +2587,14 @@
               "$id": "165",
               "kind": "basic",
               "name": "unixTimestampArray",
+              "originalName": "unixTimestampArray",
               "isExactName": false,
               "accessibility": "public",
               "apiVersions": [],
               "operation": {
                 "$id": "166",
                 "name": "unixTimestampArray",
+                "originalName": "unixTimestampArray",
                 "isExactName": false,
                 "resourceName": "Header",
                 "accessibility": "public",
@@ -2515,6 +2603,7 @@
                     "$id": "167",
                     "kind": "header",
                     "name": "value",
+                    "originalName": "value",
                     "serializedName": "value",
                     "type": {
                       "$ref": "39"
@@ -2533,6 +2622,7 @@
                         "$id": "168",
                         "kind": "method",
                         "name": "value",
+                        "originalName": "value",
                         "serializedName": "value",
                         "type": {
                           "$ref": "39"
@@ -2636,12 +2726,14 @@
               "$id": "173",
               "kind": "basic",
               "name": "default",
+              "originalName": "default",
               "isExactName": false,
               "accessibility": "public",
               "apiVersions": [],
               "operation": {
                 "$id": "174",
                 "name": "default",
+                "originalName": "default",
                 "isExactName": false,
                 "resourceName": "ResponseHeader",
                 "accessibility": "public",
@@ -2697,12 +2789,14 @@
               "$id": "177",
               "kind": "basic",
               "name": "rfc3339",
+              "originalName": "rfc3339",
               "isExactName": false,
               "accessibility": "public",
               "apiVersions": [],
               "operation": {
                 "$id": "178",
                 "name": "rfc3339",
+                "originalName": "rfc3339",
                 "isExactName": false,
                 "resourceName": "ResponseHeader",
                 "accessibility": "public",
@@ -2758,12 +2852,14 @@
               "$id": "181",
               "kind": "basic",
               "name": "rfc7231",
+              "originalName": "rfc7231",
               "isExactName": false,
               "accessibility": "public",
               "apiVersions": [],
               "operation": {
                 "$id": "182",
                 "name": "rfc7231",
+                "originalName": "rfc7231",
                 "isExactName": false,
                 "resourceName": "ResponseHeader",
                 "accessibility": "public",
@@ -2819,12 +2915,14 @@
               "$id": "185",
               "kind": "basic",
               "name": "unixTimestamp",
+              "originalName": "unixTimestamp",
               "isExactName": false,
               "accessibility": "public",
               "apiVersions": [],
               "operation": {
                 "$id": "186",
                 "name": "unixTimestamp",
+                "originalName": "unixTimestamp",
                 "isExactName": false,
                 "resourceName": "ResponseHeader",
                 "accessibility": "public",

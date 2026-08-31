@@ -84,8 +84,9 @@ namespace Microsoft.TypeSpec.Generator.Input.Tests
                 scope: InputParameterScope.Method,
                 arraySerializationDelimiter: null);
 
-            // Simulate what the JSON converter does: set Name after construction
+            // Simulate what the JSON converter does: set Name and OriginalName after construction
             parameter.Name = "top";
+            parameter.OriginalName = "top";
 
             // Simulate the rename that happens in GetMethodParameters
             parameter.Update(name: "maxCount");

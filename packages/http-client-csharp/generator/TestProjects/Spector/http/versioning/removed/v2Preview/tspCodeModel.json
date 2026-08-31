@@ -9,6 +9,7 @@
       "$id": "1",
       "kind": "enum",
       "name": "EnumV1",
+      "originalName": "EnumV1",
       "crossLanguageDefinitionId": "Versioning.Removed.EnumV1",
       "valueType": {
         "$id": "2",
@@ -22,6 +23,7 @@
           "$id": "3",
           "kind": "enumvalue",
           "name": "enumMember",
+          "originalName": "enumMember",
           "value": "enumMember",
           "valueType": {
             "$ref": "2"
@@ -44,6 +46,7 @@
       "$id": "4",
       "kind": "enum",
       "name": "EnumV2",
+      "originalName": "EnumV2",
       "crossLanguageDefinitionId": "Versioning.Removed.EnumV2",
       "valueType": {
         "$id": "5",
@@ -57,6 +60,7 @@
           "$id": "6",
           "kind": "enumvalue",
           "name": "enumMemberV1",
+          "originalName": "enumMemberV1",
           "value": "enumMemberV1",
           "valueType": {
             "$ref": "5"
@@ -71,6 +75,7 @@
           "$id": "7",
           "kind": "enumvalue",
           "name": "enumMemberV2",
+          "originalName": "enumMemberV2",
           "value": "enumMemberV2",
           "valueType": {
             "$ref": "5"
@@ -93,6 +98,7 @@
       "$id": "8",
       "kind": "enum",
       "name": "Versions",
+      "originalName": "Versions",
       "crossLanguageDefinitionId": "Versioning.Removed.Versions",
       "valueType": {
         "$id": "9",
@@ -106,6 +112,7 @@
           "$id": "10",
           "kind": "enumvalue",
           "name": "v1",
+          "originalName": "v1",
           "value": "v1",
           "valueType": {
             "$ref": "9"
@@ -121,6 +128,7 @@
           "$id": "11",
           "kind": "enumvalue",
           "name": "v2preview",
+          "originalName": "v2preview",
           "value": "v2preview",
           "valueType": {
             "$ref": "9"
@@ -285,6 +293,7 @@
       "$id": "28",
       "kind": "model",
       "name": "ModelV1",
+      "originalName": "ModelV1",
       "namespace": "Versioning.Removed",
       "crossLanguageDefinitionId": "Versioning.Removed.ModelV1",
       "usage": "Input,Output,Json",
@@ -300,6 +309,7 @@
           "$id": "29",
           "kind": "property",
           "name": "prop",
+          "originalName": "prop",
           "serializedName": "prop",
           "type": {
             "$id": "30",
@@ -326,6 +336,7 @@
           "$id": "31",
           "kind": "property",
           "name": "enumProp",
+          "originalName": "enumProp",
           "serializedName": "enumProp",
           "type": {
             "$ref": "1"
@@ -348,6 +359,7 @@
           "$id": "32",
           "kind": "property",
           "name": "unionProp",
+          "originalName": "unionProp",
           "serializedName": "unionProp",
           "type": {
             "$id": "33",
@@ -393,6 +405,7 @@
       "$id": "36",
       "kind": "model",
       "name": "ModelV2",
+      "originalName": "ModelV2",
       "namespace": "Versioning.Removed",
       "crossLanguageDefinitionId": "Versioning.Removed.ModelV2",
       "usage": "Input,Output,Json",
@@ -408,6 +421,7 @@
           "$id": "37",
           "kind": "property",
           "name": "prop",
+          "originalName": "prop",
           "serializedName": "prop",
           "type": {
             "$id": "38",
@@ -434,6 +448,7 @@
           "$id": "39",
           "kind": "property",
           "name": "removedProp",
+          "originalName": "removedProp",
           "serializedName": "removedProp",
           "type": {
             "$id": "40",
@@ -460,6 +475,7 @@
           "$id": "41",
           "kind": "property",
           "name": "enumProp",
+          "originalName": "enumProp",
           "serializedName": "enumProp",
           "type": {
             "$ref": "4"
@@ -482,6 +498,7 @@
           "$id": "42",
           "kind": "property",
           "name": "unionProp",
+          "originalName": "unionProp",
           "serializedName": "unionProp",
           "type": {
             "$id": "43",
@@ -541,6 +558,7 @@
       "$id": "48",
       "kind": "model",
       "name": "ModelV3",
+      "originalName": "ModelV3",
       "namespace": "Versioning.Removed",
       "crossLanguageDefinitionId": "Versioning.Removed.ModelV3",
       "usage": "Input,Output,Json",
@@ -556,6 +574,7 @@
           "$id": "49",
           "kind": "property",
           "name": "id",
+          "originalName": "id",
           "serializedName": "id",
           "type": {
             "$id": "50",
@@ -594,6 +613,7 @@
           "$id": "52",
           "kind": "basic",
           "name": "v1",
+          "originalName": "v1",
           "isExactName": false,
           "accessibility": "public",
           "apiVersions": [
@@ -604,6 +624,7 @@
           "operation": {
             "$id": "53",
             "name": "v1",
+            "originalName": "v1",
             "isExactName": false,
             "resourceName": "Removed",
             "doc": "This operation should not be generated with latest version's signature.",
@@ -613,6 +634,7 @@
                 "$id": "54",
                 "kind": "header",
                 "name": "contentType",
+                "originalName": "contentType",
                 "serializedName": "Content-Type",
                 "doc": "Body parameter's content type. Known values are application/json",
                 "type": {
@@ -630,6 +652,7 @@
                     "$id": "55",
                     "kind": "method",
                     "name": "contentType",
+                    "originalName": "contentType",
                     "serializedName": "Content-Type",
                     "doc": "Body parameter's content type. Known values are application/json",
                     "type": {
@@ -652,6 +675,7 @@
                 "$id": "56",
                 "kind": "header",
                 "name": "accept",
+                "originalName": "accept",
                 "serializedName": "Accept",
                 "type": {
                   "$ref": "14"
@@ -668,6 +692,7 @@
                     "$id": "57",
                     "kind": "method",
                     "name": "accept",
+                    "originalName": "accept",
                     "serializedName": "Accept",
                     "type": {
                       "$ref": "14"
@@ -689,6 +714,7 @@
                 "$id": "58",
                 "kind": "body",
                 "name": "body",
+                "originalName": "body",
                 "serializedName": "body",
                 "type": {
                   "$ref": "28"
@@ -708,6 +734,7 @@
                     "$id": "59",
                     "kind": "method",
                     "name": "body",
+                    "originalName": "body",
                     "serializedName": "body",
                     "type": {
                       "$ref": "28"
@@ -789,6 +816,7 @@
           "$id": "60",
           "kind": "basic",
           "name": "v2",
+          "originalName": "v2",
           "isExactName": false,
           "accessibility": "public",
           "apiVersions": [
@@ -798,6 +826,7 @@
           "operation": {
             "$id": "61",
             "name": "v2",
+            "originalName": "v2",
             "isExactName": false,
             "resourceName": "Removed",
             "accessibility": "public",
@@ -806,6 +835,7 @@
                 "$id": "62",
                 "kind": "query",
                 "name": "param",
+                "originalName": "param",
                 "serializedName": "param",
                 "type": {
                   "$id": "63",
@@ -826,6 +856,7 @@
                     "$id": "64",
                     "kind": "method",
                     "name": "param",
+                    "originalName": "param",
                     "serializedName": "param",
                     "type": {
                       "$id": "65",
@@ -851,6 +882,7 @@
                 "$id": "66",
                 "kind": "header",
                 "name": "contentType",
+                "originalName": "contentType",
                 "serializedName": "Content-Type",
                 "doc": "Body parameter's content type. Known values are application/json",
                 "type": {
@@ -868,6 +900,7 @@
                     "$id": "67",
                     "kind": "method",
                     "name": "contentType",
+                    "originalName": "contentType",
                     "serializedName": "Content-Type",
                     "doc": "Body parameter's content type. Known values are application/json",
                     "type": {
@@ -890,6 +923,7 @@
                 "$id": "68",
                 "kind": "header",
                 "name": "accept",
+                "originalName": "accept",
                 "serializedName": "Accept",
                 "type": {
                   "$ref": "18"
@@ -906,6 +940,7 @@
                     "$id": "69",
                     "kind": "method",
                     "name": "accept",
+                    "originalName": "accept",
                     "serializedName": "Accept",
                     "type": {
                       "$ref": "18"
@@ -927,6 +962,7 @@
                 "$id": "70",
                 "kind": "body",
                 "name": "body",
+                "originalName": "body",
                 "serializedName": "body",
                 "type": {
                   "$ref": "36"
@@ -946,6 +982,7 @@
                     "$id": "71",
                     "kind": "method",
                     "name": "body",
+                    "originalName": "body",
                     "serializedName": "body",
                     "type": {
                       "$ref": "36"
@@ -1030,6 +1067,7 @@
           "$id": "72",
           "kind": "basic",
           "name": "modelV3",
+          "originalName": "modelV3",
           "isExactName": false,
           "accessibility": "public",
           "apiVersions": [
@@ -1040,6 +1078,7 @@
           "operation": {
             "$id": "73",
             "name": "modelV3",
+            "originalName": "modelV3",
             "isExactName": false,
             "resourceName": "Removed",
             "doc": "This operation will pass different paths and different request bodies based on different versions.",
@@ -1049,6 +1088,7 @@
                 "$id": "74",
                 "kind": "header",
                 "name": "contentType",
+                "originalName": "contentType",
                 "serializedName": "Content-Type",
                 "doc": "Body parameter's content type. Known values are application/json",
                 "type": {
@@ -1066,6 +1106,7 @@
                     "$id": "75",
                     "kind": "method",
                     "name": "contentType",
+                    "originalName": "contentType",
                     "serializedName": "Content-Type",
                     "doc": "Body parameter's content type. Known values are application/json",
                     "type": {
@@ -1088,6 +1129,7 @@
                 "$id": "76",
                 "kind": "header",
                 "name": "accept",
+                "originalName": "accept",
                 "serializedName": "Accept",
                 "type": {
                   "$ref": "22"
@@ -1104,6 +1146,7 @@
                     "$id": "77",
                     "kind": "method",
                     "name": "accept",
+                    "originalName": "accept",
                     "serializedName": "Accept",
                     "type": {
                       "$ref": "22"
@@ -1125,6 +1168,7 @@
                 "$id": "78",
                 "kind": "body",
                 "name": "body",
+                "originalName": "body",
                 "serializedName": "body",
                 "type": {
                   "$ref": "48"
@@ -1144,6 +1188,7 @@
                     "$id": "79",
                     "kind": "method",
                     "name": "body",
+                    "originalName": "body",
                     "serializedName": "body",
                     "type": {
                       "$ref": "48"
@@ -1294,6 +1339,7 @@
               "$id": "85",
               "kind": "basic",
               "name": "v1InInterface",
+              "originalName": "v1InInterface",
               "isExactName": false,
               "accessibility": "public",
               "apiVersions": [
@@ -1303,6 +1349,7 @@
               "operation": {
                 "$id": "86",
                 "name": "v1InInterface",
+                "originalName": "v1InInterface",
                 "isExactName": false,
                 "resourceName": "InterfaceV1",
                 "accessibility": "public",
@@ -1311,6 +1358,7 @@
                     "$id": "87",
                     "kind": "header",
                     "name": "contentType",
+                    "originalName": "contentType",
                     "serializedName": "Content-Type",
                     "doc": "Body parameter's content type. Known values are application/json",
                     "type": {
@@ -1328,6 +1376,7 @@
                         "$id": "88",
                         "kind": "method",
                         "name": "contentType",
+                        "originalName": "contentType",
                         "serializedName": "Content-Type",
                         "doc": "Body parameter's content type. Known values are application/json",
                         "type": {
@@ -1350,6 +1399,7 @@
                     "$id": "89",
                     "kind": "header",
                     "name": "accept",
+                    "originalName": "accept",
                     "serializedName": "Accept",
                     "type": {
                       "$ref": "26"
@@ -1366,6 +1416,7 @@
                         "$id": "90",
                         "kind": "method",
                         "name": "accept",
+                        "originalName": "accept",
                         "serializedName": "Accept",
                         "type": {
                           "$ref": "26"
@@ -1387,6 +1438,7 @@
                     "$id": "91",
                     "kind": "body",
                     "name": "body",
+                    "originalName": "body",
                     "serializedName": "body",
                     "type": {
                       "$ref": "28"
@@ -1406,6 +1458,7 @@
                         "$id": "92",
                         "kind": "method",
                         "name": "body",
+                        "originalName": "body",
                         "serializedName": "body",
                         "type": {
                           "$ref": "28"

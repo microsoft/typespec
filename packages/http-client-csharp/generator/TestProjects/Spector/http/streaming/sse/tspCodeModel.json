@@ -162,6 +162,7 @@
       "$id": "19",
       "kind": "model",
       "name": "Info",
+      "originalName": "Info",
       "namespace": "Streaming.Sse.Unnamed",
       "crossLanguageDefinitionId": "Streaming.Sse.Unnamed.Info",
       "usage": "Output,Json",
@@ -177,6 +178,7 @@
           "$id": "20",
           "kind": "property",
           "name": "desc",
+          "originalName": "desc",
           "serializedName": "desc",
           "type": {
             "$id": "21",
@@ -205,6 +207,7 @@
       "$id": "22",
       "kind": "model",
       "name": "ResponseCreated",
+      "originalName": "ResponseCreated",
       "namespace": "Streaming.Sse.Named",
       "crossLanguageDefinitionId": "Streaming.Sse.Named.ResponseCreated",
       "usage": "Output,Json",
@@ -220,6 +223,7 @@
           "$id": "23",
           "kind": "property",
           "name": "id",
+          "originalName": "id",
           "serializedName": "id",
           "type": {
             "$id": "24",
@@ -248,6 +252,7 @@
       "$id": "25",
       "kind": "model",
       "name": "ResponseDelta",
+      "originalName": "ResponseDelta",
       "namespace": "Streaming.Sse.Named",
       "crossLanguageDefinitionId": "Streaming.Sse.Named.ResponseDelta",
       "usage": "Output,Json",
@@ -263,6 +268,7 @@
           "$id": "26",
           "kind": "property",
           "name": "delta",
+          "originalName": "delta",
           "serializedName": "delta",
           "type": {
             "$id": "27",
@@ -291,6 +297,7 @@
       "$id": "28",
       "kind": "model",
       "name": "RetrievalRequest",
+      "originalName": "RetrievalRequest",
       "namespace": "Streaming.Sse.Retrieve",
       "crossLanguageDefinitionId": "Streaming.Sse.Retrieve.RetrievalRequest",
       "usage": "Input,Json",
@@ -306,6 +313,7 @@
           "$id": "29",
           "kind": "property",
           "name": "query",
+          "originalName": "query",
           "serializedName": "query",
           "type": {
             "$id": "30",
@@ -334,6 +342,7 @@
       "$id": "31",
       "kind": "model",
       "name": "PartialResult",
+      "originalName": "PartialResult",
       "namespace": "Streaming.Sse.Retrieve",
       "crossLanguageDefinitionId": "Streaming.Sse.Retrieve.PartialResult",
       "usage": "Output,Json",
@@ -349,6 +358,7 @@
           "$id": "32",
           "kind": "property",
           "name": "text",
+          "originalName": "text",
           "serializedName": "text",
           "type": {
             "$id": "33",
@@ -377,6 +387,7 @@
       "$id": "34",
       "kind": "model",
       "name": "FinalResult",
+      "originalName": "FinalResult",
       "namespace": "Streaming.Sse.Retrieve",
       "crossLanguageDefinitionId": "Streaming.Sse.Retrieve.FinalResult",
       "usage": "Output,Json",
@@ -392,6 +403,7 @@
           "$id": "35",
           "kind": "property",
           "name": "references",
+          "originalName": "references",
           "serializedName": "references",
           "type": {
             "$id": "36",
@@ -482,12 +494,14 @@
               "$id": "43",
               "kind": "basic",
               "name": "receive",
+              "originalName": "receive",
               "isExactName": false,
               "accessibility": "public",
               "apiVersions": [],
               "operation": {
                 "$id": "44",
                 "name": "receive",
+                "originalName": "receive",
                 "isExactName": false,
                 "resourceName": "Unnamed",
                 "accessibility": "public",
@@ -496,6 +510,7 @@
                     "$id": "45",
                     "kind": "header",
                     "name": "accept",
+                    "originalName": "accept",
                     "serializedName": "Accept",
                     "type": {
                       "$ref": "1"
@@ -512,6 +527,7 @@
                         "$id": "46",
                         "kind": "method",
                         "name": "accept",
+                        "originalName": "accept",
                         "serializedName": "Accept",
                         "type": {
                           "$ref": "1"
@@ -663,12 +679,14 @@
               "$id": "54",
               "kind": "basic",
               "name": "receive",
+              "originalName": "receive",
               "isExactName": false,
               "accessibility": "public",
               "apiVersions": [],
               "operation": {
                 "$id": "55",
                 "name": "receive",
+                "originalName": "receive",
                 "isExactName": false,
                 "resourceName": "Named",
                 "accessibility": "public",
@@ -677,6 +695,7 @@
                     "$id": "56",
                     "kind": "header",
                     "name": "accept",
+                    "originalName": "accept",
                     "serializedName": "Accept",
                     "type": {
                       "$ref": "5"
@@ -693,6 +712,7 @@
                         "$id": "57",
                         "kind": "method",
                         "name": "accept",
+                        "originalName": "accept",
                         "serializedName": "Accept",
                         "type": {
                           "$ref": "5"
@@ -852,12 +872,14 @@
               "$id": "65",
               "kind": "basic",
               "name": "stream",
+              "originalName": "stream",
               "isExactName": false,
               "accessibility": "public",
               "apiVersions": [],
               "operation": {
                 "$id": "66",
                 "name": "stream",
+                "originalName": "stream",
                 "isExactName": false,
                 "resourceName": "Retrieve",
                 "accessibility": "public",
@@ -866,6 +888,7 @@
                     "$id": "67",
                     "kind": "header",
                     "name": "contentType",
+                    "originalName": "contentType",
                     "serializedName": "Content-Type",
                     "doc": "Body parameter's content type. Known values are application/json",
                     "type": {
@@ -883,6 +906,7 @@
                         "$id": "68",
                         "kind": "method",
                         "name": "contentType",
+                        "originalName": "contentType",
                         "serializedName": "Content-Type",
                         "doc": "Body parameter's content type. Known values are application/json",
                         "type": {
@@ -905,6 +929,7 @@
                     "$id": "69",
                     "kind": "header",
                     "name": "accept",
+                    "originalName": "accept",
                     "serializedName": "Accept",
                     "type": {
                       "$ref": "13"
@@ -921,6 +946,7 @@
                         "$id": "70",
                         "kind": "method",
                         "name": "accept",
+                        "originalName": "accept",
                         "serializedName": "Accept",
                         "type": {
                           "$ref": "13"
@@ -942,6 +968,7 @@
                     "$id": "71",
                     "kind": "body",
                     "name": "request",
+                    "originalName": "request",
                     "serializedName": "request",
                     "type": {
                       "$ref": "28"
@@ -961,6 +988,7 @@
                         "$id": "72",
                         "kind": "method",
                         "name": "request",
+                        "originalName": "request",
                         "serializedName": "request",
                         "type": {
                           "$ref": "28"

@@ -723,6 +723,7 @@
       "$id": "85",
       "kind": "model",
       "name": "StringProperty",
+      "originalName": "StringProperty",
       "namespace": "Type.Property.Nullable",
       "crossLanguageDefinitionId": "Type.Property.Nullable.StringProperty",
       "usage": "Input,Output,JsonMergePatch,Json",
@@ -739,6 +740,7 @@
           "$id": "86",
           "kind": "property",
           "name": "requiredProperty",
+          "originalName": "requiredProperty",
           "serializedName": "requiredProperty",
           "doc": "Required property",
           "type": {
@@ -766,6 +768,7 @@
           "$id": "88",
           "kind": "property",
           "name": "nullableProperty",
+          "originalName": "nullableProperty",
           "serializedName": "nullableProperty",
           "doc": "Property",
           "type": {
@@ -800,6 +803,7 @@
       "$id": "91",
       "kind": "model",
       "name": "BytesProperty",
+      "originalName": "BytesProperty",
       "namespace": "Type.Property.Nullable",
       "crossLanguageDefinitionId": "Type.Property.Nullable.BytesProperty",
       "usage": "Input,Output,JsonMergePatch,Json",
@@ -816,6 +820,7 @@
           "$id": "92",
           "kind": "property",
           "name": "requiredProperty",
+          "originalName": "requiredProperty",
           "serializedName": "requiredProperty",
           "doc": "Required property",
           "type": {
@@ -843,6 +848,7 @@
           "$id": "94",
           "kind": "property",
           "name": "nullableProperty",
+          "originalName": "nullableProperty",
           "serializedName": "nullableProperty",
           "doc": "Property",
           "type": {
@@ -878,6 +884,7 @@
       "$id": "97",
       "kind": "model",
       "name": "DatetimeProperty",
+      "originalName": "DatetimeProperty",
       "namespace": "Type.Property.Nullable",
       "crossLanguageDefinitionId": "Type.Property.Nullable.DatetimeProperty",
       "usage": "Input,Output,JsonMergePatch,Json",
@@ -894,6 +901,7 @@
           "$id": "98",
           "kind": "property",
           "name": "requiredProperty",
+          "originalName": "requiredProperty",
           "serializedName": "requiredProperty",
           "doc": "Required property",
           "type": {
@@ -921,6 +929,7 @@
           "$id": "100",
           "kind": "property",
           "name": "nullableProperty",
+          "originalName": "nullableProperty",
           "serializedName": "nullableProperty",
           "doc": "Property",
           "type": {
@@ -963,6 +972,7 @@
       "$id": "104",
       "kind": "model",
       "name": "DurationProperty",
+      "originalName": "DurationProperty",
       "namespace": "Type.Property.Nullable",
       "crossLanguageDefinitionId": "Type.Property.Nullable.DurationProperty",
       "usage": "Input,Output,JsonMergePatch,Json",
@@ -979,6 +989,7 @@
           "$id": "105",
           "kind": "property",
           "name": "requiredProperty",
+          "originalName": "requiredProperty",
           "serializedName": "requiredProperty",
           "doc": "Required property",
           "type": {
@@ -1006,6 +1017,7 @@
           "$id": "107",
           "kind": "property",
           "name": "nullableProperty",
+          "originalName": "nullableProperty",
           "serializedName": "nullableProperty",
           "doc": "Property",
           "type": {
@@ -1048,6 +1060,7 @@
       "$id": "111",
       "kind": "model",
       "name": "CollectionsByteProperty",
+      "originalName": "CollectionsByteProperty",
       "namespace": "Type.Property.Nullable",
       "crossLanguageDefinitionId": "Type.Property.Nullable.CollectionsByteProperty",
       "usage": "Input,Output,JsonMergePatch,Json",
@@ -1064,6 +1077,7 @@
           "$id": "112",
           "kind": "property",
           "name": "requiredProperty",
+          "originalName": "requiredProperty",
           "serializedName": "requiredProperty",
           "doc": "Required property",
           "type": {
@@ -1091,6 +1105,7 @@
           "$id": "114",
           "kind": "property",
           "name": "nullableProperty",
+          "originalName": "nullableProperty",
           "serializedName": "nullableProperty",
           "doc": "Property",
           "type": {
@@ -1133,6 +1148,7 @@
       "$id": "118",
       "kind": "model",
       "name": "CollectionsModelProperty",
+      "originalName": "CollectionsModelProperty",
       "namespace": "Type.Property.Nullable",
       "crossLanguageDefinitionId": "Type.Property.Nullable.CollectionsModelProperty",
       "usage": "Input,Output,JsonMergePatch,Json",
@@ -1149,6 +1165,7 @@
           "$id": "119",
           "kind": "property",
           "name": "requiredProperty",
+          "originalName": "requiredProperty",
           "serializedName": "requiredProperty",
           "doc": "Required property",
           "type": {
@@ -1176,6 +1193,7 @@
           "$id": "121",
           "kind": "property",
           "name": "nullableProperty",
+          "originalName": "nullableProperty",
           "serializedName": "nullableProperty",
           "doc": "Property",
           "type": {
@@ -1189,6 +1207,7 @@
                 "$id": "124",
                 "kind": "model",
                 "name": "InnerModel",
+                "originalName": "InnerModel",
                 "namespace": "Type.Property.Nullable",
                 "crossLanguageDefinitionId": "Type.Property.Nullable.InnerModel",
                 "usage": "Input,Output,JsonMergePatch,Json",
@@ -1205,6 +1224,7 @@
                     "$id": "125",
                     "kind": "property",
                     "name": "property",
+                    "originalName": "property",
                     "serializedName": "property",
                     "doc": "Inner model property",
                     "type": {
@@ -1258,6 +1278,7 @@
       "$id": "127",
       "kind": "model",
       "name": "CollectionsStringProperty",
+      "originalName": "CollectionsStringProperty",
       "namespace": "Type.Property.Nullable",
       "crossLanguageDefinitionId": "Type.Property.Nullable.CollectionsStringProperty",
       "usage": "Input,Output,JsonMergePatch,Json",
@@ -1274,6 +1295,7 @@
           "$id": "128",
           "kind": "property",
           "name": "requiredProperty",
+          "originalName": "requiredProperty",
           "serializedName": "requiredProperty",
           "doc": "Required property",
           "type": {
@@ -1301,6 +1323,7 @@
           "$id": "130",
           "kind": "property",
           "name": "nullableProperty",
+          "originalName": "nullableProperty",
           "serializedName": "nullableProperty",
           "doc": "Property",
           "type": {
@@ -1397,6 +1420,7 @@
               "$id": "139",
               "kind": "basic",
               "name": "getNonNull",
+              "originalName": "getNonNull",
               "isExactName": false,
               "accessibility": "public",
               "apiVersions": [],
@@ -1404,6 +1428,7 @@
               "operation": {
                 "$id": "140",
                 "name": "getNonNull",
+                "originalName": "getNonNull",
                 "isExactName": false,
                 "resourceName": "String",
                 "doc": "Get models that will return all properties in the model",
@@ -1413,6 +1438,7 @@
                     "$id": "141",
                     "kind": "header",
                     "name": "accept",
+                    "originalName": "accept",
                     "serializedName": "Accept",
                     "type": {
                       "$ref": "1"
@@ -1429,6 +1455,7 @@
                         "$id": "142",
                         "kind": "method",
                         "name": "accept",
+                        "originalName": "accept",
                         "serializedName": "Accept",
                         "type": {
                           "$ref": "1"
@@ -1496,6 +1523,7 @@
               "$id": "143",
               "kind": "basic",
               "name": "getNull",
+              "originalName": "getNull",
               "isExactName": false,
               "accessibility": "public",
               "apiVersions": [],
@@ -1503,6 +1531,7 @@
               "operation": {
                 "$id": "144",
                 "name": "getNull",
+                "originalName": "getNull",
                 "isExactName": false,
                 "resourceName": "String",
                 "doc": "Get models that will return the default object",
@@ -1512,6 +1541,7 @@
                     "$id": "145",
                     "kind": "header",
                     "name": "accept",
+                    "originalName": "accept",
                     "serializedName": "Accept",
                     "type": {
                       "$ref": "3"
@@ -1528,6 +1558,7 @@
                         "$id": "146",
                         "kind": "method",
                         "name": "accept",
+                        "originalName": "accept",
                         "serializedName": "Accept",
                         "type": {
                           "$ref": "3"
@@ -1595,6 +1626,7 @@
               "$id": "147",
               "kind": "basic",
               "name": "patchNonNull",
+              "originalName": "patchNonNull",
               "isExactName": false,
               "accessibility": "public",
               "apiVersions": [],
@@ -1602,6 +1634,7 @@
               "operation": {
                 "$id": "148",
                 "name": "patchNonNull",
+                "originalName": "patchNonNull",
                 "isExactName": false,
                 "resourceName": "String",
                 "doc": "Put a body with all properties present.",
@@ -1611,6 +1644,7 @@
                     "$id": "149",
                     "kind": "header",
                     "name": "contentType",
+                    "originalName": "contentType",
                     "serializedName": "Content-Type",
                     "doc": "content-type is application/merge-patch+json",
                     "type": {
@@ -1628,6 +1662,7 @@
                         "$id": "150",
                         "kind": "method",
                         "name": "contentType",
+                        "originalName": "contentType",
                         "serializedName": "Content-Type",
                         "doc": "content-type is application/merge-patch+json",
                         "type": {
@@ -1650,6 +1685,7 @@
                     "$id": "151",
                     "kind": "body",
                     "name": "body",
+                    "originalName": "body",
                     "serializedName": "body",
                     "type": {
                       "$ref": "85"
@@ -1669,6 +1705,7 @@
                         "$id": "152",
                         "kind": "method",
                         "name": "body",
+                        "originalName": "body",
                         "serializedName": "body",
                         "type": {
                           "$ref": "85"
@@ -1733,6 +1770,7 @@
               "$id": "153",
               "kind": "basic",
               "name": "patchNull",
+              "originalName": "patchNull",
               "isExactName": false,
               "accessibility": "public",
               "apiVersions": [],
@@ -1740,6 +1778,7 @@
               "operation": {
                 "$id": "154",
                 "name": "patchNull",
+                "originalName": "patchNull",
                 "isExactName": false,
                 "resourceName": "String",
                 "doc": "Put a body with default properties.",
@@ -1749,6 +1788,7 @@
                     "$id": "155",
                     "kind": "header",
                     "name": "contentType",
+                    "originalName": "contentType",
                     "serializedName": "Content-Type",
                     "doc": "content-type is application/merge-patch+json",
                     "type": {
@@ -1766,6 +1806,7 @@
                         "$id": "156",
                         "kind": "method",
                         "name": "contentType",
+                        "originalName": "contentType",
                         "serializedName": "Content-Type",
                         "doc": "content-type is application/merge-patch+json",
                         "type": {
@@ -1788,6 +1829,7 @@
                     "$id": "157",
                     "kind": "body",
                     "name": "body",
+                    "originalName": "body",
                     "serializedName": "body",
                     "type": {
                       "$ref": "85"
@@ -1807,6 +1849,7 @@
                         "$id": "158",
                         "kind": "method",
                         "name": "body",
+                        "originalName": "body",
                         "serializedName": "body",
                         "type": {
                           "$ref": "85"
@@ -1921,6 +1964,7 @@
               "$id": "163",
               "kind": "basic",
               "name": "getNonNull",
+              "originalName": "getNonNull",
               "isExactName": false,
               "accessibility": "public",
               "apiVersions": [],
@@ -1928,6 +1972,7 @@
               "operation": {
                 "$id": "164",
                 "name": "getNonNull",
+                "originalName": "getNonNull",
                 "isExactName": false,
                 "resourceName": "Bytes",
                 "doc": "Get models that will return all properties in the model",
@@ -1937,6 +1982,7 @@
                     "$id": "165",
                     "kind": "header",
                     "name": "accept",
+                    "originalName": "accept",
                     "serializedName": "Accept",
                     "type": {
                       "$ref": "13"
@@ -1953,6 +1999,7 @@
                         "$id": "166",
                         "kind": "method",
                         "name": "accept",
+                        "originalName": "accept",
                         "serializedName": "Accept",
                         "type": {
                           "$ref": "13"
@@ -2020,6 +2067,7 @@
               "$id": "167",
               "kind": "basic",
               "name": "getNull",
+              "originalName": "getNull",
               "isExactName": false,
               "accessibility": "public",
               "apiVersions": [],
@@ -2027,6 +2075,7 @@
               "operation": {
                 "$id": "168",
                 "name": "getNull",
+                "originalName": "getNull",
                 "isExactName": false,
                 "resourceName": "Bytes",
                 "doc": "Get models that will return the default object",
@@ -2036,6 +2085,7 @@
                     "$id": "169",
                     "kind": "header",
                     "name": "accept",
+                    "originalName": "accept",
                     "serializedName": "Accept",
                     "type": {
                       "$ref": "15"
@@ -2052,6 +2102,7 @@
                         "$id": "170",
                         "kind": "method",
                         "name": "accept",
+                        "originalName": "accept",
                         "serializedName": "Accept",
                         "type": {
                           "$ref": "15"
@@ -2119,6 +2170,7 @@
               "$id": "171",
               "kind": "basic",
               "name": "patchNonNull",
+              "originalName": "patchNonNull",
               "isExactName": false,
               "accessibility": "public",
               "apiVersions": [],
@@ -2126,6 +2178,7 @@
               "operation": {
                 "$id": "172",
                 "name": "patchNonNull",
+                "originalName": "patchNonNull",
                 "isExactName": false,
                 "resourceName": "Bytes",
                 "doc": "Put a body with all properties present.",
@@ -2135,6 +2188,7 @@
                     "$id": "173",
                     "kind": "header",
                     "name": "contentType",
+                    "originalName": "contentType",
                     "serializedName": "Content-Type",
                     "doc": "content-type is application/merge-patch+json",
                     "type": {
@@ -2152,6 +2206,7 @@
                         "$id": "174",
                         "kind": "method",
                         "name": "contentType",
+                        "originalName": "contentType",
                         "serializedName": "Content-Type",
                         "doc": "content-type is application/merge-patch+json",
                         "type": {
@@ -2174,6 +2229,7 @@
                     "$id": "175",
                     "kind": "body",
                     "name": "body",
+                    "originalName": "body",
                     "serializedName": "body",
                     "type": {
                       "$ref": "91"
@@ -2193,6 +2249,7 @@
                         "$id": "176",
                         "kind": "method",
                         "name": "body",
+                        "originalName": "body",
                         "serializedName": "body",
                         "type": {
                           "$ref": "91"
@@ -2257,6 +2314,7 @@
               "$id": "177",
               "kind": "basic",
               "name": "patchNull",
+              "originalName": "patchNull",
               "isExactName": false,
               "accessibility": "public",
               "apiVersions": [],
@@ -2264,6 +2322,7 @@
               "operation": {
                 "$id": "178",
                 "name": "patchNull",
+                "originalName": "patchNull",
                 "isExactName": false,
                 "resourceName": "Bytes",
                 "doc": "Put a body with default properties.",
@@ -2273,6 +2332,7 @@
                     "$id": "179",
                     "kind": "header",
                     "name": "contentType",
+                    "originalName": "contentType",
                     "serializedName": "Content-Type",
                     "doc": "content-type is application/merge-patch+json",
                     "type": {
@@ -2290,6 +2350,7 @@
                         "$id": "180",
                         "kind": "method",
                         "name": "contentType",
+                        "originalName": "contentType",
                         "serializedName": "Content-Type",
                         "doc": "content-type is application/merge-patch+json",
                         "type": {
@@ -2312,6 +2373,7 @@
                     "$id": "181",
                     "kind": "body",
                     "name": "body",
+                    "originalName": "body",
                     "serializedName": "body",
                     "type": {
                       "$ref": "91"
@@ -2331,6 +2393,7 @@
                         "$id": "182",
                         "kind": "method",
                         "name": "body",
+                        "originalName": "body",
                         "serializedName": "body",
                         "type": {
                           "$ref": "91"
@@ -2445,6 +2508,7 @@
               "$id": "187",
               "kind": "basic",
               "name": "getNonNull",
+              "originalName": "getNonNull",
               "isExactName": false,
               "accessibility": "public",
               "apiVersions": [],
@@ -2452,6 +2516,7 @@
               "operation": {
                 "$id": "188",
                 "name": "getNonNull",
+                "originalName": "getNonNull",
                 "isExactName": false,
                 "resourceName": "Datetime",
                 "doc": "Get models that will return all properties in the model",
@@ -2461,6 +2526,7 @@
                     "$id": "189",
                     "kind": "header",
                     "name": "accept",
+                    "originalName": "accept",
                     "serializedName": "Accept",
                     "type": {
                       "$ref": "25"
@@ -2477,6 +2543,7 @@
                         "$id": "190",
                         "kind": "method",
                         "name": "accept",
+                        "originalName": "accept",
                         "serializedName": "Accept",
                         "type": {
                           "$ref": "25"
@@ -2544,6 +2611,7 @@
               "$id": "191",
               "kind": "basic",
               "name": "getNull",
+              "originalName": "getNull",
               "isExactName": false,
               "accessibility": "public",
               "apiVersions": [],
@@ -2551,6 +2619,7 @@
               "operation": {
                 "$id": "192",
                 "name": "getNull",
+                "originalName": "getNull",
                 "isExactName": false,
                 "resourceName": "Datetime",
                 "doc": "Get models that will return the default object",
@@ -2560,6 +2629,7 @@
                     "$id": "193",
                     "kind": "header",
                     "name": "accept",
+                    "originalName": "accept",
                     "serializedName": "Accept",
                     "type": {
                       "$ref": "27"
@@ -2576,6 +2646,7 @@
                         "$id": "194",
                         "kind": "method",
                         "name": "accept",
+                        "originalName": "accept",
                         "serializedName": "Accept",
                         "type": {
                           "$ref": "27"
@@ -2643,6 +2714,7 @@
               "$id": "195",
               "kind": "basic",
               "name": "patchNonNull",
+              "originalName": "patchNonNull",
               "isExactName": false,
               "accessibility": "public",
               "apiVersions": [],
@@ -2650,6 +2722,7 @@
               "operation": {
                 "$id": "196",
                 "name": "patchNonNull",
+                "originalName": "patchNonNull",
                 "isExactName": false,
                 "resourceName": "Datetime",
                 "doc": "Put a body with all properties present.",
@@ -2659,6 +2732,7 @@
                     "$id": "197",
                     "kind": "header",
                     "name": "contentType",
+                    "originalName": "contentType",
                     "serializedName": "Content-Type",
                     "doc": "content-type is application/merge-patch+json",
                     "type": {
@@ -2676,6 +2750,7 @@
                         "$id": "198",
                         "kind": "method",
                         "name": "contentType",
+                        "originalName": "contentType",
                         "serializedName": "Content-Type",
                         "doc": "content-type is application/merge-patch+json",
                         "type": {
@@ -2698,6 +2773,7 @@
                     "$id": "199",
                     "kind": "body",
                     "name": "body",
+                    "originalName": "body",
                     "serializedName": "body",
                     "type": {
                       "$ref": "97"
@@ -2717,6 +2793,7 @@
                         "$id": "200",
                         "kind": "method",
                         "name": "body",
+                        "originalName": "body",
                         "serializedName": "body",
                         "type": {
                           "$ref": "97"
@@ -2781,6 +2858,7 @@
               "$id": "201",
               "kind": "basic",
               "name": "patchNull",
+              "originalName": "patchNull",
               "isExactName": false,
               "accessibility": "public",
               "apiVersions": [],
@@ -2788,6 +2866,7 @@
               "operation": {
                 "$id": "202",
                 "name": "patchNull",
+                "originalName": "patchNull",
                 "isExactName": false,
                 "resourceName": "Datetime",
                 "doc": "Put a body with default properties.",
@@ -2797,6 +2876,7 @@
                     "$id": "203",
                     "kind": "header",
                     "name": "contentType",
+                    "originalName": "contentType",
                     "serializedName": "Content-Type",
                     "doc": "content-type is application/merge-patch+json",
                     "type": {
@@ -2814,6 +2894,7 @@
                         "$id": "204",
                         "kind": "method",
                         "name": "contentType",
+                        "originalName": "contentType",
                         "serializedName": "Content-Type",
                         "doc": "content-type is application/merge-patch+json",
                         "type": {
@@ -2836,6 +2917,7 @@
                     "$id": "205",
                     "kind": "body",
                     "name": "body",
+                    "originalName": "body",
                     "serializedName": "body",
                     "type": {
                       "$ref": "97"
@@ -2855,6 +2937,7 @@
                         "$id": "206",
                         "kind": "method",
                         "name": "body",
+                        "originalName": "body",
                         "serializedName": "body",
                         "type": {
                           "$ref": "97"
@@ -2969,6 +3052,7 @@
               "$id": "211",
               "kind": "basic",
               "name": "getNonNull",
+              "originalName": "getNonNull",
               "isExactName": false,
               "accessibility": "public",
               "apiVersions": [],
@@ -2976,6 +3060,7 @@
               "operation": {
                 "$id": "212",
                 "name": "getNonNull",
+                "originalName": "getNonNull",
                 "isExactName": false,
                 "resourceName": "Duration",
                 "doc": "Get models that will return all properties in the model",
@@ -2985,6 +3070,7 @@
                     "$id": "213",
                     "kind": "header",
                     "name": "accept",
+                    "originalName": "accept",
                     "serializedName": "Accept",
                     "type": {
                       "$ref": "37"
@@ -3001,6 +3087,7 @@
                         "$id": "214",
                         "kind": "method",
                         "name": "accept",
+                        "originalName": "accept",
                         "serializedName": "Accept",
                         "type": {
                           "$ref": "37"
@@ -3068,6 +3155,7 @@
               "$id": "215",
               "kind": "basic",
               "name": "getNull",
+              "originalName": "getNull",
               "isExactName": false,
               "accessibility": "public",
               "apiVersions": [],
@@ -3075,6 +3163,7 @@
               "operation": {
                 "$id": "216",
                 "name": "getNull",
+                "originalName": "getNull",
                 "isExactName": false,
                 "resourceName": "Duration",
                 "doc": "Get models that will return the default object",
@@ -3084,6 +3173,7 @@
                     "$id": "217",
                     "kind": "header",
                     "name": "accept",
+                    "originalName": "accept",
                     "serializedName": "Accept",
                     "type": {
                       "$ref": "39"
@@ -3100,6 +3190,7 @@
                         "$id": "218",
                         "kind": "method",
                         "name": "accept",
+                        "originalName": "accept",
                         "serializedName": "Accept",
                         "type": {
                           "$ref": "39"
@@ -3167,6 +3258,7 @@
               "$id": "219",
               "kind": "basic",
               "name": "patchNonNull",
+              "originalName": "patchNonNull",
               "isExactName": false,
               "accessibility": "public",
               "apiVersions": [],
@@ -3174,6 +3266,7 @@
               "operation": {
                 "$id": "220",
                 "name": "patchNonNull",
+                "originalName": "patchNonNull",
                 "isExactName": false,
                 "resourceName": "Duration",
                 "doc": "Put a body with all properties present.",
@@ -3183,6 +3276,7 @@
                     "$id": "221",
                     "kind": "header",
                     "name": "contentType",
+                    "originalName": "contentType",
                     "serializedName": "Content-Type",
                     "doc": "content-type is application/merge-patch+json",
                     "type": {
@@ -3200,6 +3294,7 @@
                         "$id": "222",
                         "kind": "method",
                         "name": "contentType",
+                        "originalName": "contentType",
                         "serializedName": "Content-Type",
                         "doc": "content-type is application/merge-patch+json",
                         "type": {
@@ -3222,6 +3317,7 @@
                     "$id": "223",
                     "kind": "body",
                     "name": "body",
+                    "originalName": "body",
                     "serializedName": "body",
                     "type": {
                       "$ref": "104"
@@ -3241,6 +3337,7 @@
                         "$id": "224",
                         "kind": "method",
                         "name": "body",
+                        "originalName": "body",
                         "serializedName": "body",
                         "type": {
                           "$ref": "104"
@@ -3305,6 +3402,7 @@
               "$id": "225",
               "kind": "basic",
               "name": "patchNull",
+              "originalName": "patchNull",
               "isExactName": false,
               "accessibility": "public",
               "apiVersions": [],
@@ -3312,6 +3410,7 @@
               "operation": {
                 "$id": "226",
                 "name": "patchNull",
+                "originalName": "patchNull",
                 "isExactName": false,
                 "resourceName": "Duration",
                 "doc": "Put a body with default properties.",
@@ -3321,6 +3420,7 @@
                     "$id": "227",
                     "kind": "header",
                     "name": "contentType",
+                    "originalName": "contentType",
                     "serializedName": "Content-Type",
                     "doc": "content-type is application/merge-patch+json",
                     "type": {
@@ -3338,6 +3438,7 @@
                         "$id": "228",
                         "kind": "method",
                         "name": "contentType",
+                        "originalName": "contentType",
                         "serializedName": "Content-Type",
                         "doc": "content-type is application/merge-patch+json",
                         "type": {
@@ -3360,6 +3461,7 @@
                     "$id": "229",
                     "kind": "body",
                     "name": "body",
+                    "originalName": "body",
                     "serializedName": "body",
                     "type": {
                       "$ref": "104"
@@ -3379,6 +3481,7 @@
                         "$id": "230",
                         "kind": "method",
                         "name": "body",
+                        "originalName": "body",
                         "serializedName": "body",
                         "type": {
                           "$ref": "104"
@@ -3493,6 +3596,7 @@
               "$id": "235",
               "kind": "basic",
               "name": "getNonNull",
+              "originalName": "getNonNull",
               "isExactName": false,
               "accessibility": "public",
               "apiVersions": [],
@@ -3500,6 +3604,7 @@
               "operation": {
                 "$id": "236",
                 "name": "getNonNull",
+                "originalName": "getNonNull",
                 "isExactName": false,
                 "resourceName": "CollectionsByte",
                 "doc": "Get models that will return all properties in the model",
@@ -3509,6 +3614,7 @@
                     "$id": "237",
                     "kind": "header",
                     "name": "accept",
+                    "originalName": "accept",
                     "serializedName": "Accept",
                     "type": {
                       "$ref": "49"
@@ -3525,6 +3631,7 @@
                         "$id": "238",
                         "kind": "method",
                         "name": "accept",
+                        "originalName": "accept",
                         "serializedName": "Accept",
                         "type": {
                           "$ref": "49"
@@ -3592,6 +3699,7 @@
               "$id": "239",
               "kind": "basic",
               "name": "getNull",
+              "originalName": "getNull",
               "isExactName": false,
               "accessibility": "public",
               "apiVersions": [],
@@ -3599,6 +3707,7 @@
               "operation": {
                 "$id": "240",
                 "name": "getNull",
+                "originalName": "getNull",
                 "isExactName": false,
                 "resourceName": "CollectionsByte",
                 "doc": "Get models that will return the default object",
@@ -3608,6 +3717,7 @@
                     "$id": "241",
                     "kind": "header",
                     "name": "accept",
+                    "originalName": "accept",
                     "serializedName": "Accept",
                     "type": {
                       "$ref": "51"
@@ -3624,6 +3734,7 @@
                         "$id": "242",
                         "kind": "method",
                         "name": "accept",
+                        "originalName": "accept",
                         "serializedName": "Accept",
                         "type": {
                           "$ref": "51"
@@ -3691,6 +3802,7 @@
               "$id": "243",
               "kind": "basic",
               "name": "patchNonNull",
+              "originalName": "patchNonNull",
               "isExactName": false,
               "accessibility": "public",
               "apiVersions": [],
@@ -3698,6 +3810,7 @@
               "operation": {
                 "$id": "244",
                 "name": "patchNonNull",
+                "originalName": "patchNonNull",
                 "isExactName": false,
                 "resourceName": "CollectionsByte",
                 "doc": "Put a body with all properties present.",
@@ -3707,6 +3820,7 @@
                     "$id": "245",
                     "kind": "header",
                     "name": "contentType",
+                    "originalName": "contentType",
                     "serializedName": "Content-Type",
                     "doc": "content-type is application/merge-patch+json",
                     "type": {
@@ -3724,6 +3838,7 @@
                         "$id": "246",
                         "kind": "method",
                         "name": "contentType",
+                        "originalName": "contentType",
                         "serializedName": "Content-Type",
                         "doc": "content-type is application/merge-patch+json",
                         "type": {
@@ -3746,6 +3861,7 @@
                     "$id": "247",
                     "kind": "body",
                     "name": "body",
+                    "originalName": "body",
                     "serializedName": "body",
                     "type": {
                       "$ref": "111"
@@ -3765,6 +3881,7 @@
                         "$id": "248",
                         "kind": "method",
                         "name": "body",
+                        "originalName": "body",
                         "serializedName": "body",
                         "type": {
                           "$ref": "111"
@@ -3829,6 +3946,7 @@
               "$id": "249",
               "kind": "basic",
               "name": "patchNull",
+              "originalName": "patchNull",
               "isExactName": false,
               "accessibility": "public",
               "apiVersions": [],
@@ -3836,6 +3954,7 @@
               "operation": {
                 "$id": "250",
                 "name": "patchNull",
+                "originalName": "patchNull",
                 "isExactName": false,
                 "resourceName": "CollectionsByte",
                 "doc": "Put a body with default properties.",
@@ -3845,6 +3964,7 @@
                     "$id": "251",
                     "kind": "header",
                     "name": "contentType",
+                    "originalName": "contentType",
                     "serializedName": "Content-Type",
                     "doc": "content-type is application/merge-patch+json",
                     "type": {
@@ -3862,6 +3982,7 @@
                         "$id": "252",
                         "kind": "method",
                         "name": "contentType",
+                        "originalName": "contentType",
                         "serializedName": "Content-Type",
                         "doc": "content-type is application/merge-patch+json",
                         "type": {
@@ -3884,6 +4005,7 @@
                     "$id": "253",
                     "kind": "body",
                     "name": "body",
+                    "originalName": "body",
                     "serializedName": "body",
                     "type": {
                       "$ref": "111"
@@ -3903,6 +4025,7 @@
                         "$id": "254",
                         "kind": "method",
                         "name": "body",
+                        "originalName": "body",
                         "serializedName": "body",
                         "type": {
                           "$ref": "111"
@@ -4017,6 +4140,7 @@
               "$id": "259",
               "kind": "basic",
               "name": "getNonNull",
+              "originalName": "getNonNull",
               "isExactName": false,
               "accessibility": "public",
               "apiVersions": [],
@@ -4024,6 +4148,7 @@
               "operation": {
                 "$id": "260",
                 "name": "getNonNull",
+                "originalName": "getNonNull",
                 "isExactName": false,
                 "resourceName": "CollectionsModel",
                 "doc": "Get models that will return all properties in the model",
@@ -4033,6 +4158,7 @@
                     "$id": "261",
                     "kind": "header",
                     "name": "accept",
+                    "originalName": "accept",
                     "serializedName": "Accept",
                     "type": {
                       "$ref": "61"
@@ -4049,6 +4175,7 @@
                         "$id": "262",
                         "kind": "method",
                         "name": "accept",
+                        "originalName": "accept",
                         "serializedName": "Accept",
                         "type": {
                           "$ref": "61"
@@ -4116,6 +4243,7 @@
               "$id": "263",
               "kind": "basic",
               "name": "getNull",
+              "originalName": "getNull",
               "isExactName": false,
               "accessibility": "public",
               "apiVersions": [],
@@ -4123,6 +4251,7 @@
               "operation": {
                 "$id": "264",
                 "name": "getNull",
+                "originalName": "getNull",
                 "isExactName": false,
                 "resourceName": "CollectionsModel",
                 "doc": "Get models that will return the default object",
@@ -4132,6 +4261,7 @@
                     "$id": "265",
                     "kind": "header",
                     "name": "accept",
+                    "originalName": "accept",
                     "serializedName": "Accept",
                     "type": {
                       "$ref": "63"
@@ -4148,6 +4278,7 @@
                         "$id": "266",
                         "kind": "method",
                         "name": "accept",
+                        "originalName": "accept",
                         "serializedName": "Accept",
                         "type": {
                           "$ref": "63"
@@ -4215,6 +4346,7 @@
               "$id": "267",
               "kind": "basic",
               "name": "patchNonNull",
+              "originalName": "patchNonNull",
               "isExactName": false,
               "accessibility": "public",
               "apiVersions": [],
@@ -4222,6 +4354,7 @@
               "operation": {
                 "$id": "268",
                 "name": "patchNonNull",
+                "originalName": "patchNonNull",
                 "isExactName": false,
                 "resourceName": "CollectionsModel",
                 "doc": "Put a body with all properties present.",
@@ -4231,6 +4364,7 @@
                     "$id": "269",
                     "kind": "header",
                     "name": "contentType",
+                    "originalName": "contentType",
                     "serializedName": "Content-Type",
                     "doc": "content-type is application/merge-patch+json",
                     "type": {
@@ -4248,6 +4382,7 @@
                         "$id": "270",
                         "kind": "method",
                         "name": "contentType",
+                        "originalName": "contentType",
                         "serializedName": "Content-Type",
                         "doc": "content-type is application/merge-patch+json",
                         "type": {
@@ -4270,6 +4405,7 @@
                     "$id": "271",
                     "kind": "body",
                     "name": "body",
+                    "originalName": "body",
                     "serializedName": "body",
                     "type": {
                       "$ref": "118"
@@ -4289,6 +4425,7 @@
                         "$id": "272",
                         "kind": "method",
                         "name": "body",
+                        "originalName": "body",
                         "serializedName": "body",
                         "type": {
                           "$ref": "118"
@@ -4353,6 +4490,7 @@
               "$id": "273",
               "kind": "basic",
               "name": "patchNull",
+              "originalName": "patchNull",
               "isExactName": false,
               "accessibility": "public",
               "apiVersions": [],
@@ -4360,6 +4498,7 @@
               "operation": {
                 "$id": "274",
                 "name": "patchNull",
+                "originalName": "patchNull",
                 "isExactName": false,
                 "resourceName": "CollectionsModel",
                 "doc": "Put a body with default properties.",
@@ -4369,6 +4508,7 @@
                     "$id": "275",
                     "kind": "header",
                     "name": "contentType",
+                    "originalName": "contentType",
                     "serializedName": "Content-Type",
                     "doc": "content-type is application/merge-patch+json",
                     "type": {
@@ -4386,6 +4526,7 @@
                         "$id": "276",
                         "kind": "method",
                         "name": "contentType",
+                        "originalName": "contentType",
                         "serializedName": "Content-Type",
                         "doc": "content-type is application/merge-patch+json",
                         "type": {
@@ -4408,6 +4549,7 @@
                     "$id": "277",
                     "kind": "body",
                     "name": "body",
+                    "originalName": "body",
                     "serializedName": "body",
                     "type": {
                       "$ref": "118"
@@ -4427,6 +4569,7 @@
                         "$id": "278",
                         "kind": "method",
                         "name": "body",
+                        "originalName": "body",
                         "serializedName": "body",
                         "type": {
                           "$ref": "118"
@@ -4541,6 +4684,7 @@
               "$id": "283",
               "kind": "basic",
               "name": "getNonNull",
+              "originalName": "getNonNull",
               "isExactName": false,
               "accessibility": "public",
               "apiVersions": [],
@@ -4548,6 +4692,7 @@
               "operation": {
                 "$id": "284",
                 "name": "getNonNull",
+                "originalName": "getNonNull",
                 "isExactName": false,
                 "resourceName": "CollectionsString",
                 "doc": "Get models that will return all properties in the model",
@@ -4557,6 +4702,7 @@
                     "$id": "285",
                     "kind": "header",
                     "name": "accept",
+                    "originalName": "accept",
                     "serializedName": "Accept",
                     "type": {
                       "$ref": "73"
@@ -4573,6 +4719,7 @@
                         "$id": "286",
                         "kind": "method",
                         "name": "accept",
+                        "originalName": "accept",
                         "serializedName": "Accept",
                         "type": {
                           "$ref": "73"
@@ -4640,6 +4787,7 @@
               "$id": "287",
               "kind": "basic",
               "name": "getNull",
+              "originalName": "getNull",
               "isExactName": false,
               "accessibility": "public",
               "apiVersions": [],
@@ -4647,6 +4795,7 @@
               "operation": {
                 "$id": "288",
                 "name": "getNull",
+                "originalName": "getNull",
                 "isExactName": false,
                 "resourceName": "CollectionsString",
                 "doc": "Get models that will return the default object",
@@ -4656,6 +4805,7 @@
                     "$id": "289",
                     "kind": "header",
                     "name": "accept",
+                    "originalName": "accept",
                     "serializedName": "Accept",
                     "type": {
                       "$ref": "75"
@@ -4672,6 +4822,7 @@
                         "$id": "290",
                         "kind": "method",
                         "name": "accept",
+                        "originalName": "accept",
                         "serializedName": "Accept",
                         "type": {
                           "$ref": "75"
@@ -4739,6 +4890,7 @@
               "$id": "291",
               "kind": "basic",
               "name": "patchNonNull",
+              "originalName": "patchNonNull",
               "isExactName": false,
               "accessibility": "public",
               "apiVersions": [],
@@ -4746,6 +4898,7 @@
               "operation": {
                 "$id": "292",
                 "name": "patchNonNull",
+                "originalName": "patchNonNull",
                 "isExactName": false,
                 "resourceName": "CollectionsString",
                 "doc": "Put a body with all properties present.",
@@ -4755,6 +4908,7 @@
                     "$id": "293",
                     "kind": "header",
                     "name": "contentType",
+                    "originalName": "contentType",
                     "serializedName": "Content-Type",
                     "doc": "content-type is application/merge-patch+json",
                     "type": {
@@ -4772,6 +4926,7 @@
                         "$id": "294",
                         "kind": "method",
                         "name": "contentType",
+                        "originalName": "contentType",
                         "serializedName": "Content-Type",
                         "doc": "content-type is application/merge-patch+json",
                         "type": {
@@ -4794,6 +4949,7 @@
                     "$id": "295",
                     "kind": "body",
                     "name": "body",
+                    "originalName": "body",
                     "serializedName": "body",
                     "type": {
                       "$ref": "127"
@@ -4813,6 +4969,7 @@
                         "$id": "296",
                         "kind": "method",
                         "name": "body",
+                        "originalName": "body",
                         "serializedName": "body",
                         "type": {
                           "$ref": "127"
@@ -4877,6 +5034,7 @@
               "$id": "297",
               "kind": "basic",
               "name": "patchNull",
+              "originalName": "patchNull",
               "isExactName": false,
               "accessibility": "public",
               "apiVersions": [],
@@ -4884,6 +5042,7 @@
               "operation": {
                 "$id": "298",
                 "name": "patchNull",
+                "originalName": "patchNull",
                 "isExactName": false,
                 "resourceName": "CollectionsString",
                 "doc": "Put a body with default properties.",
@@ -4893,6 +5052,7 @@
                     "$id": "299",
                     "kind": "header",
                     "name": "contentType",
+                    "originalName": "contentType",
                     "serializedName": "Content-Type",
                     "doc": "content-type is application/merge-patch+json",
                     "type": {
@@ -4910,6 +5070,7 @@
                         "$id": "300",
                         "kind": "method",
                         "name": "contentType",
+                        "originalName": "contentType",
                         "serializedName": "Content-Type",
                         "doc": "content-type is application/merge-patch+json",
                         "type": {
@@ -4932,6 +5093,7 @@
                     "$id": "301",
                     "kind": "body",
                     "name": "body",
+                    "originalName": "body",
                     "serializedName": "body",
                     "type": {
                       "$ref": "127"
@@ -4951,6 +5113,7 @@
                         "$id": "302",
                         "kind": "method",
                         "name": "body",
+                        "originalName": "body",
                         "serializedName": "body",
                         "type": {
                           "$ref": "127"

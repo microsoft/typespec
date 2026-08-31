@@ -102,7 +102,10 @@ export interface InputLiteralType extends InputTypeBase {
   value: string | number | boolean | null;
   /** Whether the name should be used exactly as-is, without casing transformations. */
   isExactName?: boolean;
-  /** The original name from the spec, set only when the emitter normalized the name. */
+  /**
+   * The name as written in the spec, prior to any C# name normalization applied to `name`. Always
+   * set by the converters; it is the same value as `name` when no normalization rule applied.
+   */
   originalName?: string;
 }
 
@@ -144,7 +147,10 @@ export interface InputUnionType extends InputTypeBase {
   namespace: string;
   /** Whether the name should be used exactly as-is, without casing transformations. */
   isExactName?: boolean;
-  /** The original name from the spec, set only when the emitter normalized the name. */
+  /**
+   * The name as written in the spec, prior to any C# name normalization applied to `name`. Always
+   * set by the converters; it is the same value as `name` when no normalization rule applied.
+   */
   originalName?: string;
 }
 
@@ -172,7 +178,10 @@ export interface InputModelType extends InputTypeBase {
   serializationOptions: SerializationOptions;
   /** Whether the name should be used exactly as-is, without casing transformations. */
   isExactName?: boolean;
-  /** The original name from the spec, set only when the emitter normalized the name. */
+  /**
+   * The name as written in the spec, prior to any C# name normalization applied to `name`. Always
+   * set by the converters; it is the same value as `name` when no normalization rule applied.
+   */
   originalName?: string;
   /**
    * Whether the type represents a file. Only set on types that can represent a file in TCGC
@@ -194,7 +203,10 @@ export interface InputPropertyTypeBase extends DecoratedType {
   access?: AccessFlags;
   /** Whether the name should be used exactly as-is, without casing transformations. */
   isExactName?: boolean;
-  /** The original name from the spec, set only when the emitter normalized the name. */
+  /**
+   * The name as written in the spec, prior to any C# name normalization applied to `name`. Always
+   * set by the converters; it is the same value as `name` when no normalization rule applied.
+   */
   originalName?: string;
 }
 
@@ -289,7 +301,10 @@ export interface InputEnumType extends InputTypeBase {
   namespace: string;
   /** Whether the name should be used exactly as-is, without casing transformations. */
   isExactName?: boolean;
-  /** The original name from the spec, set only when the emitter normalized the name. */
+  /**
+   * The name as written in the spec, prior to any C# name normalization applied to `name`. Always
+   * set by the converters; it is the same value as `name` when no normalization rule applied.
+   */
   originalName?: string;
 }
 
@@ -301,7 +316,10 @@ export interface InputEnumValueType extends InputTypeBase {
   valueType: InputPrimitiveType;
   /** Whether the name should be used exactly as-is, without casing transformations. */
   isExactName?: boolean;
-  /** The original name from the spec, set only when the emitter normalized the name. */
+  /**
+   * The name as written in the spec, prior to any C# name normalization applied to `name`. Always
+   * set by the converters; it is the same value as `name` when no normalization rule applied.
+   */
   originalName?: string;
 }
 

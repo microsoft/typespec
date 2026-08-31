@@ -6,6 +6,7 @@
       "$id": "1",
       "kind": "enum",
       "name": "Colors",
+      "originalName": "Colors",
       "crossLanguageDefinitionId": "Encode.Array.Colors",
       "valueType": {
         "$id": "2",
@@ -19,6 +20,7 @@
           "$id": "3",
           "kind": "enumvalue",
           "name": "Blue",
+          "originalName": "Blue",
           "value": "blue",
           "valueType": {
             "$ref": "2"
@@ -33,6 +35,7 @@
           "$id": "4",
           "kind": "enumvalue",
           "name": "Red",
+          "originalName": "Red",
           "value": "red",
           "valueType": {
             "$ref": "2"
@@ -47,6 +50,7 @@
           "$id": "5",
           "kind": "enumvalue",
           "name": "Green",
+          "originalName": "Green",
           "value": "green",
           "valueType": {
             "$ref": "2"
@@ -69,6 +73,7 @@
       "$id": "6",
       "kind": "enum",
       "name": "ColorsExtensibleEnum",
+      "originalName": "ColorsExtensibleEnum",
       "crossLanguageDefinitionId": "Encode.Array.ColorsExtensibleEnum",
       "valueType": {
         "$id": "7",
@@ -82,6 +87,7 @@
           "$id": "8",
           "kind": "enumvalue",
           "name": "Blue",
+          "originalName": "Blue",
           "value": "blue",
           "valueType": {
             "$ref": "7"
@@ -96,6 +102,7 @@
           "$id": "9",
           "kind": "enumvalue",
           "name": "Red",
+          "originalName": "Red",
           "value": "red",
           "valueType": {
             "$ref": "7"
@@ -110,6 +117,7 @@
           "$id": "10",
           "kind": "enumvalue",
           "name": "Green",
+          "originalName": "Green",
           "value": "green",
           "valueType": {
             "$ref": "7"
@@ -544,6 +552,7 @@
       "$id": "59",
       "kind": "model",
       "name": "CommaDelimitedArrayProperty",
+      "originalName": "CommaDelimitedArrayProperty",
       "namespace": "Encode.Array",
       "crossLanguageDefinitionId": "Encode.Array.CommaDelimitedArrayProperty",
       "usage": "Input,Output,Json",
@@ -559,6 +568,7 @@
           "$id": "60",
           "kind": "property",
           "name": "value",
+          "originalName": "value",
           "serializedName": "value",
           "type": {
             "$id": "61",
@@ -595,6 +605,7 @@
       "$id": "63",
       "kind": "model",
       "name": "SpaceDelimitedArrayProperty",
+      "originalName": "SpaceDelimitedArrayProperty",
       "namespace": "Encode.Array",
       "crossLanguageDefinitionId": "Encode.Array.SpaceDelimitedArrayProperty",
       "usage": "Input,Output,Json",
@@ -610,6 +621,7 @@
           "$id": "64",
           "kind": "property",
           "name": "value",
+          "originalName": "value",
           "serializedName": "value",
           "type": {
             "$ref": "61"
@@ -635,6 +647,7 @@
       "$id": "65",
       "kind": "model",
       "name": "PipeDelimitedArrayProperty",
+      "originalName": "PipeDelimitedArrayProperty",
       "namespace": "Encode.Array",
       "crossLanguageDefinitionId": "Encode.Array.PipeDelimitedArrayProperty",
       "usage": "Input,Output,Json",
@@ -650,6 +663,7 @@
           "$id": "66",
           "kind": "property",
           "name": "value",
+          "originalName": "value",
           "serializedName": "value",
           "type": {
             "$ref": "61"
@@ -675,6 +689,7 @@
       "$id": "67",
       "kind": "model",
       "name": "NewlineDelimitedArrayProperty",
+      "originalName": "NewlineDelimitedArrayProperty",
       "namespace": "Encode.Array",
       "crossLanguageDefinitionId": "Encode.Array.NewlineDelimitedArrayProperty",
       "usage": "Input,Output,Json",
@@ -690,6 +705,7 @@
           "$id": "68",
           "kind": "property",
           "name": "value",
+          "originalName": "value",
           "serializedName": "value",
           "type": {
             "$ref": "61"
@@ -715,6 +731,7 @@
       "$id": "69",
       "kind": "model",
       "name": "CommaDelimitedEnumArrayProperty",
+      "originalName": "CommaDelimitedEnumArrayProperty",
       "namespace": "Encode.Array",
       "crossLanguageDefinitionId": "Encode.Array.CommaDelimitedEnumArrayProperty",
       "usage": "Input,Output,Json",
@@ -730,6 +747,7 @@
           "$id": "70",
           "kind": "property",
           "name": "value",
+          "originalName": "value",
           "serializedName": "value",
           "type": {
             "$id": "71",
@@ -762,6 +780,7 @@
       "$id": "72",
       "kind": "model",
       "name": "SpaceDelimitedEnumArrayProperty",
+      "originalName": "SpaceDelimitedEnumArrayProperty",
       "namespace": "Encode.Array",
       "crossLanguageDefinitionId": "Encode.Array.SpaceDelimitedEnumArrayProperty",
       "usage": "Input,Output,Json",
@@ -777,6 +796,7 @@
           "$id": "73",
           "kind": "property",
           "name": "value",
+          "originalName": "value",
           "serializedName": "value",
           "type": {
             "$ref": "71"
@@ -802,6 +822,7 @@
       "$id": "74",
       "kind": "model",
       "name": "PipeDelimitedEnumArrayProperty",
+      "originalName": "PipeDelimitedEnumArrayProperty",
       "namespace": "Encode.Array",
       "crossLanguageDefinitionId": "Encode.Array.PipeDelimitedEnumArrayProperty",
       "usage": "Input,Output,Json",
@@ -817,6 +838,7 @@
           "$id": "75",
           "kind": "property",
           "name": "value",
+          "originalName": "value",
           "serializedName": "value",
           "type": {
             "$ref": "71"
@@ -842,6 +864,7 @@
       "$id": "76",
       "kind": "model",
       "name": "NewlineDelimitedEnumArrayProperty",
+      "originalName": "NewlineDelimitedEnumArrayProperty",
       "namespace": "Encode.Array",
       "crossLanguageDefinitionId": "Encode.Array.NewlineDelimitedEnumArrayProperty",
       "usage": "Input,Output,Json",
@@ -857,6 +880,7 @@
           "$id": "77",
           "kind": "property",
           "name": "value",
+          "originalName": "value",
           "serializedName": "value",
           "type": {
             "$ref": "71"
@@ -882,6 +906,7 @@
       "$id": "78",
       "kind": "model",
       "name": "CommaDelimitedExtensibleEnumArrayProperty",
+      "originalName": "CommaDelimitedExtensibleEnumArrayProperty",
       "namespace": "Encode.Array",
       "crossLanguageDefinitionId": "Encode.Array.CommaDelimitedExtensibleEnumArrayProperty",
       "usage": "Input,Output,Json",
@@ -897,6 +922,7 @@
           "$id": "79",
           "kind": "property",
           "name": "value",
+          "originalName": "value",
           "serializedName": "value",
           "type": {
             "$id": "80",
@@ -929,6 +955,7 @@
       "$id": "81",
       "kind": "model",
       "name": "SpaceDelimitedExtensibleEnumArrayProperty",
+      "originalName": "SpaceDelimitedExtensibleEnumArrayProperty",
       "namespace": "Encode.Array",
       "crossLanguageDefinitionId": "Encode.Array.SpaceDelimitedExtensibleEnumArrayProperty",
       "usage": "Input,Output,Json",
@@ -944,6 +971,7 @@
           "$id": "82",
           "kind": "property",
           "name": "value",
+          "originalName": "value",
           "serializedName": "value",
           "type": {
             "$ref": "80"
@@ -969,6 +997,7 @@
       "$id": "83",
       "kind": "model",
       "name": "PipeDelimitedExtensibleEnumArrayProperty",
+      "originalName": "PipeDelimitedExtensibleEnumArrayProperty",
       "namespace": "Encode.Array",
       "crossLanguageDefinitionId": "Encode.Array.PipeDelimitedExtensibleEnumArrayProperty",
       "usage": "Input,Output,Json",
@@ -984,6 +1013,7 @@
           "$id": "84",
           "kind": "property",
           "name": "value",
+          "originalName": "value",
           "serializedName": "value",
           "type": {
             "$ref": "80"
@@ -1009,6 +1039,7 @@
       "$id": "85",
       "kind": "model",
       "name": "NewlineDelimitedExtensibleEnumArrayProperty",
+      "originalName": "NewlineDelimitedExtensibleEnumArrayProperty",
       "namespace": "Encode.Array",
       "crossLanguageDefinitionId": "Encode.Array.NewlineDelimitedExtensibleEnumArrayProperty",
       "usage": "Input,Output,Json",
@@ -1024,6 +1055,7 @@
           "$id": "86",
           "kind": "property",
           "name": "value",
+          "originalName": "value",
           "serializedName": "value",
           "type": {
             "$ref": "80"
@@ -1104,12 +1136,14 @@
               "$id": "92",
               "kind": "basic",
               "name": "commaDelimited",
+              "originalName": "commaDelimited",
               "isExactName": false,
               "accessibility": "public",
               "apiVersions": [],
               "operation": {
                 "$id": "93",
                 "name": "commaDelimited",
+                "originalName": "commaDelimited",
                 "isExactName": false,
                 "resourceName": "Property",
                 "accessibility": "public",
@@ -1118,6 +1152,7 @@
                     "$id": "94",
                     "kind": "header",
                     "name": "contentType",
+                    "originalName": "contentType",
                     "serializedName": "Content-Type",
                     "doc": "Body parameter's content type. Known values are application/json",
                     "type": {
@@ -1135,6 +1170,7 @@
                         "$id": "95",
                         "kind": "method",
                         "name": "contentType",
+                        "originalName": "contentType",
                         "serializedName": "Content-Type",
                         "doc": "Body parameter's content type. Known values are application/json",
                         "type": {
@@ -1157,6 +1193,7 @@
                     "$id": "96",
                     "kind": "header",
                     "name": "accept",
+                    "originalName": "accept",
                     "serializedName": "Accept",
                     "type": {
                       "$ref": "13"
@@ -1173,6 +1210,7 @@
                         "$id": "97",
                         "kind": "method",
                         "name": "accept",
+                        "originalName": "accept",
                         "serializedName": "Accept",
                         "type": {
                           "$ref": "13"
@@ -1194,6 +1232,7 @@
                     "$id": "98",
                     "kind": "body",
                     "name": "body",
+                    "originalName": "body",
                     "serializedName": "body",
                     "type": {
                       "$ref": "59"
@@ -1213,6 +1252,7 @@
                         "$id": "99",
                         "kind": "method",
                         "name": "body",
+                        "originalName": "body",
                         "serializedName": "body",
                         "type": {
                           "$ref": "59"
@@ -1294,12 +1334,14 @@
               "$id": "100",
               "kind": "basic",
               "name": "spaceDelimited",
+              "originalName": "spaceDelimited",
               "isExactName": false,
               "accessibility": "public",
               "apiVersions": [],
               "operation": {
                 "$id": "101",
                 "name": "spaceDelimited",
+                "originalName": "spaceDelimited",
                 "isExactName": false,
                 "resourceName": "Property",
                 "accessibility": "public",
@@ -1308,6 +1350,7 @@
                     "$id": "102",
                     "kind": "header",
                     "name": "contentType",
+                    "originalName": "contentType",
                     "serializedName": "Content-Type",
                     "doc": "Body parameter's content type. Known values are application/json",
                     "type": {
@@ -1325,6 +1368,7 @@
                         "$id": "103",
                         "kind": "method",
                         "name": "contentType",
+                        "originalName": "contentType",
                         "serializedName": "Content-Type",
                         "doc": "Body parameter's content type. Known values are application/json",
                         "type": {
@@ -1347,6 +1391,7 @@
                     "$id": "104",
                     "kind": "header",
                     "name": "accept",
+                    "originalName": "accept",
                     "serializedName": "Accept",
                     "type": {
                       "$ref": "17"
@@ -1363,6 +1408,7 @@
                         "$id": "105",
                         "kind": "method",
                         "name": "accept",
+                        "originalName": "accept",
                         "serializedName": "Accept",
                         "type": {
                           "$ref": "17"
@@ -1384,6 +1430,7 @@
                     "$id": "106",
                     "kind": "body",
                     "name": "body",
+                    "originalName": "body",
                     "serializedName": "body",
                     "type": {
                       "$ref": "63"
@@ -1403,6 +1450,7 @@
                         "$id": "107",
                         "kind": "method",
                         "name": "body",
+                        "originalName": "body",
                         "serializedName": "body",
                         "type": {
                           "$ref": "63"
@@ -1484,12 +1532,14 @@
               "$id": "108",
               "kind": "basic",
               "name": "pipeDelimited",
+              "originalName": "pipeDelimited",
               "isExactName": false,
               "accessibility": "public",
               "apiVersions": [],
               "operation": {
                 "$id": "109",
                 "name": "pipeDelimited",
+                "originalName": "pipeDelimited",
                 "isExactName": false,
                 "resourceName": "Property",
                 "accessibility": "public",
@@ -1498,6 +1548,7 @@
                     "$id": "110",
                     "kind": "header",
                     "name": "contentType",
+                    "originalName": "contentType",
                     "serializedName": "Content-Type",
                     "doc": "Body parameter's content type. Known values are application/json",
                     "type": {
@@ -1515,6 +1566,7 @@
                         "$id": "111",
                         "kind": "method",
                         "name": "contentType",
+                        "originalName": "contentType",
                         "serializedName": "Content-Type",
                         "doc": "Body parameter's content type. Known values are application/json",
                         "type": {
@@ -1537,6 +1589,7 @@
                     "$id": "112",
                     "kind": "header",
                     "name": "accept",
+                    "originalName": "accept",
                     "serializedName": "Accept",
                     "type": {
                       "$ref": "21"
@@ -1553,6 +1606,7 @@
                         "$id": "113",
                         "kind": "method",
                         "name": "accept",
+                        "originalName": "accept",
                         "serializedName": "Accept",
                         "type": {
                           "$ref": "21"
@@ -1574,6 +1628,7 @@
                     "$id": "114",
                     "kind": "body",
                     "name": "body",
+                    "originalName": "body",
                     "serializedName": "body",
                     "type": {
                       "$ref": "65"
@@ -1593,6 +1648,7 @@
                         "$id": "115",
                         "kind": "method",
                         "name": "body",
+                        "originalName": "body",
                         "serializedName": "body",
                         "type": {
                           "$ref": "65"
@@ -1674,12 +1730,14 @@
               "$id": "116",
               "kind": "basic",
               "name": "newlineDelimited",
+              "originalName": "newlineDelimited",
               "isExactName": false,
               "accessibility": "public",
               "apiVersions": [],
               "operation": {
                 "$id": "117",
                 "name": "newlineDelimited",
+                "originalName": "newlineDelimited",
                 "isExactName": false,
                 "resourceName": "Property",
                 "accessibility": "public",
@@ -1688,6 +1746,7 @@
                     "$id": "118",
                     "kind": "header",
                     "name": "contentType",
+                    "originalName": "contentType",
                     "serializedName": "Content-Type",
                     "doc": "Body parameter's content type. Known values are application/json",
                     "type": {
@@ -1705,6 +1764,7 @@
                         "$id": "119",
                         "kind": "method",
                         "name": "contentType",
+                        "originalName": "contentType",
                         "serializedName": "Content-Type",
                         "doc": "Body parameter's content type. Known values are application/json",
                         "type": {
@@ -1727,6 +1787,7 @@
                     "$id": "120",
                     "kind": "header",
                     "name": "accept",
+                    "originalName": "accept",
                     "serializedName": "Accept",
                     "type": {
                       "$ref": "25"
@@ -1743,6 +1804,7 @@
                         "$id": "121",
                         "kind": "method",
                         "name": "accept",
+                        "originalName": "accept",
                         "serializedName": "Accept",
                         "type": {
                           "$ref": "25"
@@ -1764,6 +1826,7 @@
                     "$id": "122",
                     "kind": "body",
                     "name": "body",
+                    "originalName": "body",
                     "serializedName": "body",
                     "type": {
                       "$ref": "67"
@@ -1783,6 +1846,7 @@
                         "$id": "123",
                         "kind": "method",
                         "name": "body",
+                        "originalName": "body",
                         "serializedName": "body",
                         "type": {
                           "$ref": "67"
@@ -1864,12 +1928,14 @@
               "$id": "124",
               "kind": "basic",
               "name": "enumCommaDelimited",
+              "originalName": "enumCommaDelimited",
               "isExactName": false,
               "accessibility": "public",
               "apiVersions": [],
               "operation": {
                 "$id": "125",
                 "name": "enumCommaDelimited",
+                "originalName": "enumCommaDelimited",
                 "isExactName": false,
                 "resourceName": "Property",
                 "accessibility": "public",
@@ -1878,6 +1944,7 @@
                     "$id": "126",
                     "kind": "header",
                     "name": "contentType",
+                    "originalName": "contentType",
                     "serializedName": "Content-Type",
                     "doc": "Body parameter's content type. Known values are application/json",
                     "type": {
@@ -1895,6 +1962,7 @@
                         "$id": "127",
                         "kind": "method",
                         "name": "contentType",
+                        "originalName": "contentType",
                         "serializedName": "Content-Type",
                         "doc": "Body parameter's content type. Known values are application/json",
                         "type": {
@@ -1917,6 +1985,7 @@
                     "$id": "128",
                     "kind": "header",
                     "name": "accept",
+                    "originalName": "accept",
                     "serializedName": "Accept",
                     "type": {
                       "$ref": "29"
@@ -1933,6 +2002,7 @@
                         "$id": "129",
                         "kind": "method",
                         "name": "accept",
+                        "originalName": "accept",
                         "serializedName": "Accept",
                         "type": {
                           "$ref": "29"
@@ -1954,6 +2024,7 @@
                     "$id": "130",
                     "kind": "body",
                     "name": "body",
+                    "originalName": "body",
                     "serializedName": "body",
                     "type": {
                       "$ref": "69"
@@ -1973,6 +2044,7 @@
                         "$id": "131",
                         "kind": "method",
                         "name": "body",
+                        "originalName": "body",
                         "serializedName": "body",
                         "type": {
                           "$ref": "69"
@@ -2054,12 +2126,14 @@
               "$id": "132",
               "kind": "basic",
               "name": "enumSpaceDelimited",
+              "originalName": "enumSpaceDelimited",
               "isExactName": false,
               "accessibility": "public",
               "apiVersions": [],
               "operation": {
                 "$id": "133",
                 "name": "enumSpaceDelimited",
+                "originalName": "enumSpaceDelimited",
                 "isExactName": false,
                 "resourceName": "Property",
                 "accessibility": "public",
@@ -2068,6 +2142,7 @@
                     "$id": "134",
                     "kind": "header",
                     "name": "contentType",
+                    "originalName": "contentType",
                     "serializedName": "Content-Type",
                     "doc": "Body parameter's content type. Known values are application/json",
                     "type": {
@@ -2085,6 +2160,7 @@
                         "$id": "135",
                         "kind": "method",
                         "name": "contentType",
+                        "originalName": "contentType",
                         "serializedName": "Content-Type",
                         "doc": "Body parameter's content type. Known values are application/json",
                         "type": {
@@ -2107,6 +2183,7 @@
                     "$id": "136",
                     "kind": "header",
                     "name": "accept",
+                    "originalName": "accept",
                     "serializedName": "Accept",
                     "type": {
                       "$ref": "33"
@@ -2123,6 +2200,7 @@
                         "$id": "137",
                         "kind": "method",
                         "name": "accept",
+                        "originalName": "accept",
                         "serializedName": "Accept",
                         "type": {
                           "$ref": "33"
@@ -2144,6 +2222,7 @@
                     "$id": "138",
                     "kind": "body",
                     "name": "body",
+                    "originalName": "body",
                     "serializedName": "body",
                     "type": {
                       "$ref": "72"
@@ -2163,6 +2242,7 @@
                         "$id": "139",
                         "kind": "method",
                         "name": "body",
+                        "originalName": "body",
                         "serializedName": "body",
                         "type": {
                           "$ref": "72"
@@ -2244,12 +2324,14 @@
               "$id": "140",
               "kind": "basic",
               "name": "enumPipeDelimited",
+              "originalName": "enumPipeDelimited",
               "isExactName": false,
               "accessibility": "public",
               "apiVersions": [],
               "operation": {
                 "$id": "141",
                 "name": "enumPipeDelimited",
+                "originalName": "enumPipeDelimited",
                 "isExactName": false,
                 "resourceName": "Property",
                 "accessibility": "public",
@@ -2258,6 +2340,7 @@
                     "$id": "142",
                     "kind": "header",
                     "name": "contentType",
+                    "originalName": "contentType",
                     "serializedName": "Content-Type",
                     "doc": "Body parameter's content type. Known values are application/json",
                     "type": {
@@ -2275,6 +2358,7 @@
                         "$id": "143",
                         "kind": "method",
                         "name": "contentType",
+                        "originalName": "contentType",
                         "serializedName": "Content-Type",
                         "doc": "Body parameter's content type. Known values are application/json",
                         "type": {
@@ -2297,6 +2381,7 @@
                     "$id": "144",
                     "kind": "header",
                     "name": "accept",
+                    "originalName": "accept",
                     "serializedName": "Accept",
                     "type": {
                       "$ref": "37"
@@ -2313,6 +2398,7 @@
                         "$id": "145",
                         "kind": "method",
                         "name": "accept",
+                        "originalName": "accept",
                         "serializedName": "Accept",
                         "type": {
                           "$ref": "37"
@@ -2334,6 +2420,7 @@
                     "$id": "146",
                     "kind": "body",
                     "name": "body",
+                    "originalName": "body",
                     "serializedName": "body",
                     "type": {
                       "$ref": "74"
@@ -2353,6 +2440,7 @@
                         "$id": "147",
                         "kind": "method",
                         "name": "body",
+                        "originalName": "body",
                         "serializedName": "body",
                         "type": {
                           "$ref": "74"
@@ -2434,12 +2522,14 @@
               "$id": "148",
               "kind": "basic",
               "name": "enumNewlineDelimited",
+              "originalName": "enumNewlineDelimited",
               "isExactName": false,
               "accessibility": "public",
               "apiVersions": [],
               "operation": {
                 "$id": "149",
                 "name": "enumNewlineDelimited",
+                "originalName": "enumNewlineDelimited",
                 "isExactName": false,
                 "resourceName": "Property",
                 "accessibility": "public",
@@ -2448,6 +2538,7 @@
                     "$id": "150",
                     "kind": "header",
                     "name": "contentType",
+                    "originalName": "contentType",
                     "serializedName": "Content-Type",
                     "doc": "Body parameter's content type. Known values are application/json",
                     "type": {
@@ -2465,6 +2556,7 @@
                         "$id": "151",
                         "kind": "method",
                         "name": "contentType",
+                        "originalName": "contentType",
                         "serializedName": "Content-Type",
                         "doc": "Body parameter's content type. Known values are application/json",
                         "type": {
@@ -2487,6 +2579,7 @@
                     "$id": "152",
                     "kind": "header",
                     "name": "accept",
+                    "originalName": "accept",
                     "serializedName": "Accept",
                     "type": {
                       "$ref": "41"
@@ -2503,6 +2596,7 @@
                         "$id": "153",
                         "kind": "method",
                         "name": "accept",
+                        "originalName": "accept",
                         "serializedName": "Accept",
                         "type": {
                           "$ref": "41"
@@ -2524,6 +2618,7 @@
                     "$id": "154",
                     "kind": "body",
                     "name": "body",
+                    "originalName": "body",
                     "serializedName": "body",
                     "type": {
                       "$ref": "76"
@@ -2543,6 +2638,7 @@
                         "$id": "155",
                         "kind": "method",
                         "name": "body",
+                        "originalName": "body",
                         "serializedName": "body",
                         "type": {
                           "$ref": "76"
@@ -2624,12 +2720,14 @@
               "$id": "156",
               "kind": "basic",
               "name": "extensibleEnumCommaDelimited",
+              "originalName": "extensibleEnumCommaDelimited",
               "isExactName": false,
               "accessibility": "public",
               "apiVersions": [],
               "operation": {
                 "$id": "157",
                 "name": "extensibleEnumCommaDelimited",
+                "originalName": "extensibleEnumCommaDelimited",
                 "isExactName": false,
                 "resourceName": "Property",
                 "accessibility": "public",
@@ -2638,6 +2736,7 @@
                     "$id": "158",
                     "kind": "header",
                     "name": "contentType",
+                    "originalName": "contentType",
                     "serializedName": "Content-Type",
                     "doc": "Body parameter's content type. Known values are application/json",
                     "type": {
@@ -2655,6 +2754,7 @@
                         "$id": "159",
                         "kind": "method",
                         "name": "contentType",
+                        "originalName": "contentType",
                         "serializedName": "Content-Type",
                         "doc": "Body parameter's content type. Known values are application/json",
                         "type": {
@@ -2677,6 +2777,7 @@
                     "$id": "160",
                     "kind": "header",
                     "name": "accept",
+                    "originalName": "accept",
                     "serializedName": "Accept",
                     "type": {
                       "$ref": "45"
@@ -2693,6 +2794,7 @@
                         "$id": "161",
                         "kind": "method",
                         "name": "accept",
+                        "originalName": "accept",
                         "serializedName": "Accept",
                         "type": {
                           "$ref": "45"
@@ -2714,6 +2816,7 @@
                     "$id": "162",
                     "kind": "body",
                     "name": "body",
+                    "originalName": "body",
                     "serializedName": "body",
                     "type": {
                       "$ref": "78"
@@ -2733,6 +2836,7 @@
                         "$id": "163",
                         "kind": "method",
                         "name": "body",
+                        "originalName": "body",
                         "serializedName": "body",
                         "type": {
                           "$ref": "78"
@@ -2814,12 +2918,14 @@
               "$id": "164",
               "kind": "basic",
               "name": "extensibleEnumSpaceDelimited",
+              "originalName": "extensibleEnumSpaceDelimited",
               "isExactName": false,
               "accessibility": "public",
               "apiVersions": [],
               "operation": {
                 "$id": "165",
                 "name": "extensibleEnumSpaceDelimited",
+                "originalName": "extensibleEnumSpaceDelimited",
                 "isExactName": false,
                 "resourceName": "Property",
                 "accessibility": "public",
@@ -2828,6 +2934,7 @@
                     "$id": "166",
                     "kind": "header",
                     "name": "contentType",
+                    "originalName": "contentType",
                     "serializedName": "Content-Type",
                     "doc": "Body parameter's content type. Known values are application/json",
                     "type": {
@@ -2845,6 +2952,7 @@
                         "$id": "167",
                         "kind": "method",
                         "name": "contentType",
+                        "originalName": "contentType",
                         "serializedName": "Content-Type",
                         "doc": "Body parameter's content type. Known values are application/json",
                         "type": {
@@ -2867,6 +2975,7 @@
                     "$id": "168",
                     "kind": "header",
                     "name": "accept",
+                    "originalName": "accept",
                     "serializedName": "Accept",
                     "type": {
                       "$ref": "49"
@@ -2883,6 +2992,7 @@
                         "$id": "169",
                         "kind": "method",
                         "name": "accept",
+                        "originalName": "accept",
                         "serializedName": "Accept",
                         "type": {
                           "$ref": "49"
@@ -2904,6 +3014,7 @@
                     "$id": "170",
                     "kind": "body",
                     "name": "body",
+                    "originalName": "body",
                     "serializedName": "body",
                     "type": {
                       "$ref": "81"
@@ -2923,6 +3034,7 @@
                         "$id": "171",
                         "kind": "method",
                         "name": "body",
+                        "originalName": "body",
                         "serializedName": "body",
                         "type": {
                           "$ref": "81"
@@ -3004,12 +3116,14 @@
               "$id": "172",
               "kind": "basic",
               "name": "extensibleEnumPipeDelimited",
+              "originalName": "extensibleEnumPipeDelimited",
               "isExactName": false,
               "accessibility": "public",
               "apiVersions": [],
               "operation": {
                 "$id": "173",
                 "name": "extensibleEnumPipeDelimited",
+                "originalName": "extensibleEnumPipeDelimited",
                 "isExactName": false,
                 "resourceName": "Property",
                 "accessibility": "public",
@@ -3018,6 +3132,7 @@
                     "$id": "174",
                     "kind": "header",
                     "name": "contentType",
+                    "originalName": "contentType",
                     "serializedName": "Content-Type",
                     "doc": "Body parameter's content type. Known values are application/json",
                     "type": {
@@ -3035,6 +3150,7 @@
                         "$id": "175",
                         "kind": "method",
                         "name": "contentType",
+                        "originalName": "contentType",
                         "serializedName": "Content-Type",
                         "doc": "Body parameter's content type. Known values are application/json",
                         "type": {
@@ -3057,6 +3173,7 @@
                     "$id": "176",
                     "kind": "header",
                     "name": "accept",
+                    "originalName": "accept",
                     "serializedName": "Accept",
                     "type": {
                       "$ref": "53"
@@ -3073,6 +3190,7 @@
                         "$id": "177",
                         "kind": "method",
                         "name": "accept",
+                        "originalName": "accept",
                         "serializedName": "Accept",
                         "type": {
                           "$ref": "53"
@@ -3094,6 +3212,7 @@
                     "$id": "178",
                     "kind": "body",
                     "name": "body",
+                    "originalName": "body",
                     "serializedName": "body",
                     "type": {
                       "$ref": "83"
@@ -3113,6 +3232,7 @@
                         "$id": "179",
                         "kind": "method",
                         "name": "body",
+                        "originalName": "body",
                         "serializedName": "body",
                         "type": {
                           "$ref": "83"
@@ -3194,12 +3314,14 @@
               "$id": "180",
               "kind": "basic",
               "name": "extensibleEnumNewlineDelimited",
+              "originalName": "extensibleEnumNewlineDelimited",
               "isExactName": false,
               "accessibility": "public",
               "apiVersions": [],
               "operation": {
                 "$id": "181",
                 "name": "extensibleEnumNewlineDelimited",
+                "originalName": "extensibleEnumNewlineDelimited",
                 "isExactName": false,
                 "resourceName": "Property",
                 "accessibility": "public",
@@ -3208,6 +3330,7 @@
                     "$id": "182",
                     "kind": "header",
                     "name": "contentType",
+                    "originalName": "contentType",
                     "serializedName": "Content-Type",
                     "doc": "Body parameter's content type. Known values are application/json",
                     "type": {
@@ -3225,6 +3348,7 @@
                         "$id": "183",
                         "kind": "method",
                         "name": "contentType",
+                        "originalName": "contentType",
                         "serializedName": "Content-Type",
                         "doc": "Body parameter's content type. Known values are application/json",
                         "type": {
@@ -3247,6 +3371,7 @@
                     "$id": "184",
                     "kind": "header",
                     "name": "accept",
+                    "originalName": "accept",
                     "serializedName": "Accept",
                     "type": {
                       "$ref": "57"
@@ -3263,6 +3388,7 @@
                         "$id": "185",
                         "kind": "method",
                         "name": "accept",
+                        "originalName": "accept",
                         "serializedName": "Accept",
                         "type": {
                           "$ref": "57"
@@ -3284,6 +3410,7 @@
                     "$id": "186",
                     "kind": "body",
                     "name": "body",
+                    "originalName": "body",
                     "serializedName": "body",
                     "type": {
                       "$ref": "85"
@@ -3303,6 +3430,7 @@
                         "$id": "187",
                         "kind": "method",
                         "name": "body",
+                        "originalName": "body",
                         "serializedName": "body",
                         "type": {
                           "$ref": "85"

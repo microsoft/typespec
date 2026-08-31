@@ -6,6 +6,7 @@
       "$id": "1",
       "kind": "enum",
       "name": "DaysOfWeekEnum",
+      "originalName": "DaysOfWeekEnum",
       "crossLanguageDefinitionId": "Type.Enum.Fixed.DaysOfWeekEnum",
       "valueType": {
         "$id": "2",
@@ -19,6 +20,7 @@
           "$id": "3",
           "kind": "enumvalue",
           "name": "Monday",
+          "originalName": "Monday",
           "value": "Monday",
           "valueType": {
             "$ref": "2"
@@ -34,6 +36,7 @@
           "$id": "4",
           "kind": "enumvalue",
           "name": "Tuesday",
+          "originalName": "Tuesday",
           "value": "Tuesday",
           "valueType": {
             "$ref": "2"
@@ -49,6 +52,7 @@
           "$id": "5",
           "kind": "enumvalue",
           "name": "Wednesday",
+          "originalName": "Wednesday",
           "value": "Wednesday",
           "valueType": {
             "$ref": "2"
@@ -64,6 +68,7 @@
           "$id": "6",
           "kind": "enumvalue",
           "name": "Thursday",
+          "originalName": "Thursday",
           "value": "Thursday",
           "valueType": {
             "$ref": "2"
@@ -79,6 +84,7 @@
           "$id": "7",
           "kind": "enumvalue",
           "name": "Friday",
+          "originalName": "Friday",
           "value": "Friday",
           "valueType": {
             "$ref": "2"
@@ -94,6 +100,7 @@
           "$id": "8",
           "kind": "enumvalue",
           "name": "Saturday",
+          "originalName": "Saturday",
           "value": "Saturday",
           "valueType": {
             "$ref": "2"
@@ -109,6 +116,7 @@
           "$id": "9",
           "kind": "enumvalue",
           "name": "Sunday",
+          "originalName": "Sunday",
           "value": "Sunday",
           "valueType": {
             "$ref": "2"
@@ -292,6 +300,7 @@
               "$id": "27",
               "kind": "basic",
               "name": "getKnownValue",
+              "originalName": "getKnownValue",
               "isExactName": false,
               "accessibility": "public",
               "apiVersions": [],
@@ -299,6 +308,7 @@
               "operation": {
                 "$id": "28",
                 "name": "getKnownValue",
+                "originalName": "getKnownValue",
                 "isExactName": false,
                 "resourceName": "String",
                 "doc": "getKnownValue",
@@ -308,6 +318,7 @@
                     "$id": "29",
                     "kind": "header",
                     "name": "accept",
+                    "originalName": "accept",
                     "serializedName": "Accept",
                     "type": {
                       "$ref": "10"
@@ -324,6 +335,7 @@
                         "$id": "30",
                         "kind": "method",
                         "name": "accept",
+                        "originalName": "accept",
                         "serializedName": "Accept",
                         "type": {
                           "$ref": "10"
@@ -399,6 +411,7 @@
               "$id": "31",
               "kind": "basic",
               "name": "putKnownValue",
+              "originalName": "putKnownValue",
               "isExactName": false,
               "accessibility": "public",
               "apiVersions": [],
@@ -406,6 +419,7 @@
               "operation": {
                 "$id": "32",
                 "name": "putKnownValue",
+                "originalName": "putKnownValue",
                 "isExactName": false,
                 "resourceName": "String",
                 "doc": "putKnownValue",
@@ -415,6 +429,7 @@
                     "$id": "33",
                     "kind": "header",
                     "name": "contentType",
+                    "originalName": "contentType",
                     "serializedName": "Content-Type",
                     "type": {
                       "$ref": "14"
@@ -431,6 +446,7 @@
                         "$id": "34",
                         "kind": "method",
                         "name": "contentType",
+                        "originalName": "contentType",
                         "serializedName": "Content-Type",
                         "type": {
                           "$ref": "14"
@@ -452,6 +468,7 @@
                     "$id": "35",
                     "kind": "body",
                     "name": "body",
+                    "originalName": "body",
                     "serializedName": "body",
                     "doc": "_",
                     "type": {
@@ -472,6 +489,7 @@
                         "$id": "36",
                         "kind": "method",
                         "name": "body",
+                        "originalName": "body",
                         "serializedName": "body",
                         "doc": "_",
                         "type": {
@@ -537,6 +555,7 @@
               "$id": "37",
               "kind": "basic",
               "name": "putUnknownValue",
+              "originalName": "putUnknownValue",
               "isExactName": false,
               "accessibility": "public",
               "apiVersions": [],
@@ -544,6 +563,7 @@
               "operation": {
                 "$id": "38",
                 "name": "putUnknownValue",
+                "originalName": "putUnknownValue",
                 "isExactName": false,
                 "resourceName": "String",
                 "doc": "putUnknownValue",
@@ -553,6 +573,7 @@
                     "$id": "39",
                     "kind": "header",
                     "name": "contentType",
+                    "originalName": "contentType",
                     "serializedName": "Content-Type",
                     "type": {
                       "$ref": "18"
@@ -569,6 +590,7 @@
                         "$id": "40",
                         "kind": "method",
                         "name": "contentType",
+                        "originalName": "contentType",
                         "serializedName": "Content-Type",
                         "type": {
                           "$ref": "18"
@@ -590,6 +612,7 @@
                     "$id": "41",
                     "kind": "body",
                     "name": "body",
+                    "originalName": "body",
                     "serializedName": "body",
                     "doc": "_",
                     "type": {
@@ -610,6 +633,7 @@
                         "$id": "42",
                         "kind": "method",
                         "name": "body",
+                        "originalName": "body",
                         "serializedName": "body",
                         "doc": "_",
                         "type": {

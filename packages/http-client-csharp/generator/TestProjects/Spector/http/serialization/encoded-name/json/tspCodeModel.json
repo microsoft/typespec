@@ -43,6 +43,7 @@
       "$id": "5",
       "kind": "model",
       "name": "JsonEncodedNameModel",
+      "originalName": "JsonEncodedNameModel",
       "namespace": "Serialization.EncodedName.Json.Property",
       "crossLanguageDefinitionId": "Serialization.EncodedName.Json.Property.JsonEncodedNameModel",
       "usage": "Input,Output,Json",
@@ -58,6 +59,7 @@
           "$id": "6",
           "kind": "property",
           "name": "defaultName",
+          "originalName": "defaultName",
           "serializedName": "wireName",
           "doc": "Pass in true",
           "type": {
@@ -142,12 +144,14 @@
               "$id": "13",
               "kind": "basic",
               "name": "send",
+              "originalName": "send",
               "isExactName": false,
               "accessibility": "public",
               "apiVersions": [],
               "operation": {
                 "$id": "14",
                 "name": "send",
+                "originalName": "send",
                 "isExactName": false,
                 "resourceName": "Property",
                 "accessibility": "public",
@@ -156,6 +160,7 @@
                     "$id": "15",
                     "kind": "header",
                     "name": "contentType",
+                    "originalName": "contentType",
                     "serializedName": "Content-Type",
                     "doc": "Body parameter's content type. Known values are application/json",
                     "type": {
@@ -173,6 +178,7 @@
                         "$id": "16",
                         "kind": "method",
                         "name": "contentType",
+                        "originalName": "contentType",
                         "serializedName": "Content-Type",
                         "doc": "Body parameter's content type. Known values are application/json",
                         "type": {
@@ -195,6 +201,7 @@
                     "$id": "17",
                     "kind": "body",
                     "name": "body",
+                    "originalName": "body",
                     "serializedName": "body",
                     "type": {
                       "$ref": "5"
@@ -214,6 +221,7 @@
                         "$id": "18",
                         "kind": "method",
                         "name": "body",
+                        "originalName": "body",
                         "serializedName": "body",
                         "type": {
                           "$ref": "5"
@@ -278,12 +286,14 @@
               "$id": "19",
               "kind": "basic",
               "name": "get",
+              "originalName": "get",
               "isExactName": false,
               "accessibility": "public",
               "apiVersions": [],
               "operation": {
                 "$id": "20",
                 "name": "get",
+                "originalName": "get",
                 "isExactName": false,
                 "resourceName": "Property",
                 "accessibility": "public",
@@ -292,6 +302,7 @@
                     "$id": "21",
                     "kind": "header",
                     "name": "accept",
+                    "originalName": "accept",
                     "serializedName": "Accept",
                     "type": {
                       "$ref": "3"
@@ -308,6 +319,7 @@
                         "$id": "22",
                         "kind": "method",
                         "name": "accept",
+                        "originalName": "accept",
                         "serializedName": "Accept",
                         "type": {
                           "$ref": "3"
