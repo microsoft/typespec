@@ -18,6 +18,7 @@ namespace Microsoft.TypeSpec.Generator.Providers
     {
         private readonly TypeProvider _generatedTypeProvider;
         private readonly Dictionary<string, InputModelProperty> _specPropertiesMap;
+        private readonly HashSet<string> _exactSpecPropertyNames;
         private readonly Dictionary<string, string?> _serializedNameMap;
         private readonly Dictionary<InputModelProperty, PropertyProvider> _propertyProviderMap = new();
         private readonly HashSet<string> _renamedProperties;
@@ -30,14 +31,17 @@ namespace Microsoft.TypeSpec.Generator.Providers
             var inputModel = inputType as InputModelType;
             _specProperties = inputModel?.Properties ?? [];
             _specPropertiesMap = [];
+            _exactSpecPropertyNames = [];
             foreach (var property in _specProperties)
             {
                 var name = property.IsExactName ? property.Name : property.Name.ToIdentifierName();
                 _specPropertiesMap.TryAdd(name, property);
-                if (!property.IsExactName)
-                {
-                    _specPropertiesMap.TryAdd(name.NormalizeCSharpAcronyms(property.Type.IsDateTimeInputType()), property);
-                }
+                _exactSpecPropertyNames.Add(name);
+            }
+            foreach (var property in _specProperties.Where(p => !p.IsExactName))
+            {
+                var name = property.Name.ToIdentifierName();
+                _specPropertiesMap.TryAdd(name.NormalizeCSharpAcronyms(property.Type.IsDateTimeInputType()), property);
             }
             _serializedNameMap = BuildSerializationNameMap();
             _renamedProperties = (_generatedTypeProvider.CustomCodeView?.Properties ?? [])
@@ -92,8 +96,22 @@ namespace Microsoft.TypeSpec.Generator.Providers
 
         protected internal override PropertyProvider[] BuildProperties()
         {
+            // Building Properties populates GeneratedPropertiesBySpecName as part of customization filtering.
+            // Keep these reads together and in this order so the map is never observed mid-build.
             var generatedProperties = _generatedTypeProvider.Properties;
+            var generatedPropertiesBySpecName = _generatedTypeProvider.GeneratedPropertiesBySpecName;
             var customProperties = _generatedTypeProvider.CustomCodeView?.Properties ?? [];
+
+            // Exact emitted names take precedence over canonical aliases. A canonical alias from an earlier
+            // property must not shadow a later property that actually emits that name.
+            foreach (var generatedProperty in generatedPropertiesBySpecName.Values)
+            {
+                if (generatedProperty.InputProperty is InputModelProperty preservedSpecProperty &&
+                    _exactSpecPropertyNames.Add(generatedProperty.Name))
+                {
+                    _specPropertiesMap[generatedProperty.Name] = preservedSpecProperty;
+                }
+            }
 
             // Update the serializedName of generated properties if necessary
             foreach (var generatedProperty in generatedProperties)
@@ -163,7 +181,9 @@ namespace Microsoft.TypeSpec.Generator.Providers
             // Filter out generated properties that have been customized to avoid duplicates.
             // This is needed because EnsureBuilt caches members without applying customization
             // filtering, so _generatedTypeProvider.Properties may contain unfiltered results.
-            var filteredGeneratedProperties = FilterCustomizedProperties(generatedProperties);
+            var filteredGeneratedProperties = FilterCustomizedProperties(
+                generatedProperties,
+                generatedPropertiesBySpecName);
 
             if (_specProperties.Count > 0)
             {
@@ -186,9 +206,9 @@ namespace Microsoft.TypeSpec.Generator.Providers
 
                 foreach (var prop in customProperties)
                 {
-                    // Check if custom property is in spec
-                    if (_specPropertiesMap.TryGetValue(prop.Name, out var specProp) ||
-                        (prop.OriginalName != null && TryGetSpecProperty(prop.OriginalName, out specProp)))
+                    // Check if custom property is in spec.
+                    if ((prop.OriginalName != null && TryGetSpecProperty(prop.OriginalName, out var specProp)) ||
+                        _specPropertiesMap.TryGetValue(prop.Name, out specProp))
                     {
                         inputProperties.Add(specProp);
                     }
