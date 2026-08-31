@@ -9,15 +9,17 @@
 from jinja2 import PackageLoader, Environment
 
 from pygen.codegen.models import CodeModel, JSONModelType, DPGModelType, build_type
-from pygen.codegen.models.imports import ImportType
+from pygen.codegen.models.imports import ImportType, FileImport, TypingSection
 from pygen.codegen.models.model_type import TypedDictModelType
 from pygen.codegen.models.property import Property
 from pygen.codegen.models.list_type import ListType
+from pygen.codegen.models.utils import NamespaceType
 from pygen.codegen.serializers import JinjaSerializer
 from pygen.codegen.serializers.types_serializer import (
     TypesSerializer,
     _qualify_shadowed_builtins,
 )
+from pygen.codegen.serializers.import_serializer import FileImportSerializer
 from pygen.codegen.serializers.unions_serializer import UnionsSerializer
 
 
@@ -162,13 +164,9 @@ def test_typeddict_models_shared_cross_language_id_not_collapsed():
     code_model = _make_code_model(models_mode="dpg")
     clid = "Azure.ResourceManager.Foundations.ResourceUpdateModel"
     cache_dpg = _make_model_with_clid(code_model, "CacheUpdate", clid, DPGModelType)
-    cache_td = _make_model_with_clid(
-        code_model, "CacheUpdate", clid, TypedDictModelType
-    )
+    cache_td = _make_model_with_clid(code_model, "CacheUpdate", clid, TypedDictModelType)
     volume_dpg = _make_model_with_clid(code_model, "VolumeUpdate", clid, DPGModelType)
-    volume_td = _make_model_with_clid(
-        code_model, "VolumeUpdate", clid, TypedDictModelType
-    )
+    volume_td = _make_model_with_clid(code_model, "VolumeUpdate", clid, TypedDictModelType)
 
     env = _make_env()
     ts = TypesSerializer(
@@ -200,9 +198,7 @@ def test_dpg_unreferenced_input_model_excluded_from_typeddict_models():
     """An input model used only through models must not render in types.py."""
     code_model = _make_code_model(models_mode="dpg")
     json_request = _make_model_with_usage(code_model, "JsonRequest", 2, DPGModelType)
-    json_request_copy = _make_model_with_usage(
-        code_model, "JsonRequest", 2, TypedDictModelType
-    )
+    json_request_copy = _make_model_with_usage(code_model, "JsonRequest", 2, TypedDictModelType)
     xml_request = _make_model_with_usage(code_model, "XmlRequest", 2, DPGModelType)
 
     env = _make_env()
@@ -223,15 +219,9 @@ def test_dpg_output_only_model_excluded_from_typeddict_models():
     ``_types.*`` and is dead code. Only input models belong in types.py.
     """
     code_model = _make_code_model(models_mode="dpg")
-    send_request = _make_model_with_usage(
-        code_model, "SendRequest", 2, DPGModelType
-    )  # Input
-    send_request_copy = _make_model_with_usage(
-        code_model, "SendRequest", 2, TypedDictModelType
-    )
-    get_response = _make_model_with_usage(
-        code_model, "GetResponse", 4, DPGModelType
-    )  # Output-only
+    send_request = _make_model_with_usage(code_model, "SendRequest", 2, DPGModelType)  # Input
+    send_request_copy = _make_model_with_usage(code_model, "SendRequest", 2, TypedDictModelType)
+    get_response = _make_model_with_usage(code_model, "GetResponse", 4, DPGModelType)  # Output-only
 
     env = _make_env()
     ts = TypesSerializer(
@@ -258,9 +248,7 @@ def test_dpg_input_output_model_included_in_typeddict_models():
 def test_typeddict_mode_output_only_model_included():
     """In full typeddict mode, every model (incl. output-only) is consumed as a TypedDict."""
     code_model = _make_code_model(models_mode="typeddict")
-    get_response = _make_model_with_usage(
-        code_model, "GetResponse", 4, TypedDictModelType
-    )  # Output-only
+    get_response = _make_model_with_usage(code_model, "GetResponse", 4, TypedDictModelType)  # Output-only
 
     env = _make_env()
     ts = TypesSerializer(code_model=code_model, env=env, models=[get_response])
@@ -278,16 +266,12 @@ def test_dpg_typeddict_copy_without_input_usage_still_kept():
     """
     code_model = _make_code_model(models_mode="dpg")
     # usage 320 == Json(256) | Spread(64), no Input(2) bit — mirrors real tcgc output.
-    send_copy = _make_model_with_usage(
-        code_model, "SendRequest", 320, TypedDictModelType
-    )
+    send_copy = _make_model_with_usage(code_model, "SendRequest", 320, TypedDictModelType)
 
     env = _make_env()
     ts = TypesSerializer(code_model=code_model, env=env, models=[send_copy])
     assert [m.name for m in ts.typeddict_models] == ["SendRequest"]
-    assert (
-        not send_copy.is_usage_input
-    )  # the copy is kept despite lacking the Input flag
+    assert not send_copy.is_usage_input  # the copy is kept despite lacking the Input flag
 
 
 def _make_discriminated_base(code_model, name, usage, subtypes, model_cls=DPGModelType):
@@ -313,12 +297,8 @@ def test_dpg_output_only_discriminated_base_excluded():
     leaving the alias referencing an undefined name.
     """
     code_model = _make_code_model(models_mode="dpg")
-    trex = _make_model_with_usage(
-        code_model, "TRex", 4, DPGModelType
-    )  # Output-only subtype
-    dinosaur = _make_discriminated_base(
-        code_model, "Dinosaur", 4, [trex]
-    )  # Output-only base
+    trex = _make_model_with_usage(code_model, "TRex", 4, DPGModelType)  # Output-only subtype
+    dinosaur = _make_discriminated_base(code_model, "Dinosaur", 4, [trex])  # Output-only base
 
     env = _make_env()
     ts = TypesSerializer(code_model=code_model, env=env, models=[dinosaur, trex])
@@ -332,9 +312,7 @@ def test_dpg_input_discriminated_base_included_with_subtypes():
     code_model = _make_code_model(models_mode="dpg")
     eagle = _make_model_with_usage(code_model, "Eagle", 2, DPGModelType)  # Input
     goose = _make_model_with_usage(code_model, "Goose", 2, DPGModelType)  # Input
-    bird = _make_discriminated_base(
-        code_model, "Bird", 2, [eagle, goose], model_cls=TypedDictModelType
-    )
+    bird = _make_discriminated_base(code_model, "Bird", 2, [eagle, goose], model_cls=TypedDictModelType)
 
     env = _make_env()
     ts = TypesSerializer(code_model=code_model, env=env, models=[bird, eagle, goose])
@@ -350,12 +328,8 @@ def test_dpg_input_base_forces_output_only_subtype_into_types():
     undefined name.
     """
     code_model = _make_code_model(models_mode="dpg")
-    eagle = _make_model_with_usage(
-        code_model, "Eagle", 4, DPGModelType
-    )  # Output-only subtype
-    bird = _make_discriminated_base(
-        code_model, "Bird", 2, [eagle], model_cls=TypedDictModelType
-    )
+    eagle = _make_model_with_usage(code_model, "Eagle", 4, DPGModelType)  # Output-only subtype
+    bird = _make_discriminated_base(code_model, "Bird", 2, [eagle], model_cls=TypedDictModelType)
 
     env = _make_env()
     ts = TypesSerializer(code_model=code_model, env=env, models=[bird, eagle])
@@ -381,14 +355,10 @@ def test_dpg_input_model_pulls_in_output_only_property_type():
     keep it.
     """
     code_model = _make_code_model(models_mode="dpg")
-    system_data = _make_model_with_usage(
-        code_model, "SystemData", 4, DPGModelType
-    )  # Output-only
+    system_data = _make_model_with_usage(code_model, "SystemData", 4, DPGModelType)  # Output-only
     resource = _make_model_with_usage(code_model, "Resource", 2, DPGModelType)  # Input
     resource.properties = [_make_property(code_model, "systemData", system_data)]
-    resource_copy = _make_model_with_usage(
-        code_model, "Resource", 2, TypedDictModelType
-    )
+    resource_copy = _make_model_with_usage(code_model, "Resource", 2, TypedDictModelType)
     resource_copy.properties = resource.properties
     # An unrelated output-only response model that nothing input references must stay excluded.
     get_response = _make_model_with_usage(code_model, "GetResponse", 4, DPGModelType)
@@ -407,25 +377,15 @@ def test_dpg_input_model_pulls_in_output_only_property_type():
 def test_dpg_input_model_pulls_in_output_only_type_inside_container():
     """Reachability must descend into list/dict element types, not just direct property references."""
     code_model = _make_code_model(models_mode="dpg")
-    item = _make_model_with_usage(
-        code_model, "Item", 4, DPGModelType
-    )  # Output-only element
-    container = _make_model_with_usage(
-        code_model, "Container", 2, DPGModelType
-    )  # Input
-    list_type = ListType(
-        yaml_data={"type": "list"}, code_model=code_model, element_type=item
-    )
+    item = _make_model_with_usage(code_model, "Item", 4, DPGModelType)  # Output-only element
+    container = _make_model_with_usage(code_model, "Container", 2, DPGModelType)  # Input
+    list_type = ListType(yaml_data={"type": "list"}, code_model=code_model, element_type=item)
     container.properties = [_make_property(code_model, "items", list_type)]
-    container_copy = _make_model_with_usage(
-        code_model, "Container", 2, TypedDictModelType
-    )
+    container_copy = _make_model_with_usage(code_model, "Container", 2, TypedDictModelType)
     container_copy.properties = container.properties
 
     env = _make_env()
-    ts = TypesSerializer(
-        code_model=code_model, env=env, models=[container, container_copy, item]
-    )
+    ts = TypesSerializer(code_model=code_model, env=env, models=[container, container_copy, item])
     assert sorted(m.name for m in ts.typeddict_models) == ["Container", "Item"]
 
 
@@ -443,17 +403,13 @@ def test_models_mode_typeddict_models_included():
     assert len(ts.typeddict_models) == 2
 
 
-def test_models_mode_typeddict_does_not_write_empty_models_folder(
-    tmp_path, monkeypatch
-):
+def test_models_mode_typeddict_does_not_write_empty_models_folder(tmp_path, monkeypatch):
     """TypedDict-only generation must not write models package scaffolding."""
     code_model = _make_code_model(models_mode="typeddict")
     model = _make_model(code_model, "Foo", model_cls=TypedDictModelType)
     serializer = JinjaSerializer(code_model=code_model, output_folder=tmp_path)
     written_paths = []
-    monkeypatch.setattr(
-        serializer, "write_file", lambda path, content: written_paths.append(path)
-    )
+    monkeypatch.setattr(serializer, "write_file", lambda path, content: written_paths.append(path))
     monkeypatch.setattr(serializer, "read_file", lambda path: "")
 
     serializer._serialize_and_write_models_folder(
@@ -728,44 +684,30 @@ def _make_required_property(code_model, name, prop_type):
 def test_qualify_shadowed_builtins_ignores_literal_value():
     """A builtin name that only appears inside a ``Literal[...]`` value must not be rewritten."""
     # ``type`` is a builtin, but here it is a literal string value, not a type reference.
-    assert (
-        _qualify_shadowed_builtins('Required[Literal["type"]]', frozenset({"type"}))
-        == 'Required[Literal["type"]]'
-    )
+    assert _qualify_shadowed_builtins('Required[Literal["type"]]', frozenset({"type"})) == 'Required[Literal["type"]]'
 
 
 def test_qualify_shadowed_builtins_ignores_quoted_forward_reference():
     """A builtin name inside a quoted forward reference must not be rewritten."""
-    assert (
-        _qualify_shadowed_builtins('list["type"]', frozenset({"type"}))
-        == 'list["type"]'
-    )
+    assert _qualify_shadowed_builtins('list["type"]', frozenset({"type"})) == 'list["type"]'
 
 
 def test_qualify_shadowed_builtins_rewrites_genuine_bare_reference():
     """A genuine bare builtin type reference is qualified as ``builtins.X``."""
     assert _qualify_shadowed_builtins("bytes", frozenset({"bytes"})) == "builtins.bytes"
     # Only the bare reference is rewritten; the quoted forward reference is left untouched.
-    assert (
-        _qualify_shadowed_builtins('Union["Model", bytes]', frozenset({"bytes"}))
-        == 'Union["Model", builtins.bytes]'
-    )
+    assert _qualify_shadowed_builtins('Union["Model", bytes]', frozenset({"bytes"})) == 'Union["Model", builtins.bytes]'
 
 
 def test_qualify_shadowed_builtins_skips_already_dotted_names():
     """An already-qualified ``builtins.X`` reference must not be double-qualified."""
-    assert (
-        _qualify_shadowed_builtins("builtins.bytes", frozenset({"bytes"}))
-        == "builtins.bytes"
-    )
+    assert _qualify_shadowed_builtins("builtins.bytes", frozenset({"bytes"})) == "builtins.bytes"
 
 
 def test_qualify_shadowed_builtins_mixes_real_and_literal():
     """Within one annotation, a real reference is rewritten while a Literal value is preserved."""
     assert (
-        _qualify_shadowed_builtins(
-            'dict[str, Literal["type"]]', frozenset({"type", "str"})
-        )
+        _qualify_shadowed_builtins('dict[str, Literal["type"]]', frozenset({"type", "str"}))
         == 'dict[builtins.str, Literal["type"]]'
     )
 
@@ -895,3 +837,238 @@ def test_type_changing_under_types_file_does_not_cause_spurious_builtins_import(
 
     output = ts.serialize()
     assert "import builtins" not in output
+
+
+# ---------- Bug 3: TypedDict requiredness override via inheritance (issue #11626) ----------
+
+
+def _make_typed_property(code_model, name, prop_type, *, optional):
+    """Create a Property with an explicit requiredness."""
+    return Property(
+        yaml_data={"wireName": name, "clientName": name, "optional": optional},
+        code_model=code_model,
+        type=prop_type,
+    )
+
+
+def test_typeddict_requiredness_override_uses_flat_form():
+    """A child that changes an inherited field's requiredness must render as a flat TypedDict.
+
+    Regression for mypy ``Overwriting TypedDict field "generatedKeyName" while extending [misc]``.
+    PEP 589 forbids changing an inherited key's requiredness via subclassing, so the child is
+    emitted as a flat ``class Child(TypedDict, total=False):`` listing every field (inherited + own)
+    rather than subclassing the parent.
+    """
+    code_model = _make_code_model(models_mode="dpg")
+    str_type = build_type({"type": "string"}, code_model)
+
+    parent = _make_model_with_usage(code_model, "SearchIndexerKnowledgeStoreProjectionSelector", 2, DPGModelType)
+    parent.is_typed_dict_only = True
+    parent.properties = [
+        _make_typed_property(code_model, "referenceKeyName", str_type, optional=True),
+        _make_typed_property(code_model, "generatedKeyName", str_type, optional=True),
+    ]
+
+    child = DPGModelType(
+        yaml_data={
+            "name": "SearchIndexerKnowledgeStoreTableProjectionSelector",
+            "type": "model",
+            "snakeCaseName": "searchindexerknowledgestoretableprojectionselector",
+            "usage": 2,
+        },
+        code_model=code_model,
+        # Merged property list: the inherited field is the *same object*, the overridden field is new.
+        properties=[
+            parent.properties[0],  # referenceKeyName inherited unchanged
+            _make_typed_property(code_model, "generatedKeyName", str_type, optional=False),  # now required
+        ],
+        parents=[parent],
+    )
+    child.is_typed_dict_only = True
+    code_model.model_types = [parent, child]
+
+    assert TypesSerializer.needs_flat_typeddict(child) is True
+
+    env = _make_env()
+    output = TypesSerializer(code_model=code_model, env=env, models=[parent, child]).serialize()
+
+    # Parent renders normally.
+    assert "class SearchIndexerKnowledgeStoreProjectionSelector(TypedDict, total=False):" in output
+    # Child renders flat — NOT subclassing the parent (which would violate PEP 589).
+    assert "class SearchIndexerKnowledgeStoreTableProjectionSelector(TypedDict, total=False):" in output
+    assert (
+        "class SearchIndexerKnowledgeStoreTableProjectionSelector(SearchIndexerKnowledgeStoreProjectionSelector)"
+        not in output
+    )
+    # The overridden field is required and the inherited field is flattened in.
+    assert "generatedKeyName: Required[str]" in output
+    assert "referenceKeyName: str" in output
+
+
+def test_typeddict_inheritance_without_requiredness_change_still_subclasses():
+    """A child that only adds fields (no requiredness change) keeps normal subclassing."""
+    code_model = _make_code_model(models_mode="dpg")
+    str_type = build_type({"type": "string"}, code_model)
+
+    parent = _make_model_with_usage(code_model, "Base", 2, DPGModelType)
+    parent.is_typed_dict_only = True
+    parent.properties = [_make_typed_property(code_model, "name", str_type, optional=True)]
+
+    child = DPGModelType(
+        yaml_data={"name": "Derived", "type": "model", "snakeCaseName": "derived", "usage": 2},
+        code_model=code_model,
+        properties=[
+            parent.properties[0],  # inherited unchanged
+            _make_typed_property(code_model, "extra", str_type, optional=True),  # new, same requiredness
+        ],
+        parents=[parent],
+    )
+    child.is_typed_dict_only = True
+    code_model.model_types = [parent, child]
+
+    assert TypesSerializer.needs_flat_typeddict(child) is False
+
+    env = _make_env()
+    output = TypesSerializer(code_model=code_model, env=env, models=[parent, child]).serialize()
+    assert "class Derived(Base):" in output
+
+
+# ---------- Bug 1: internal enum reference/import in types.py (issue #11626) ----------
+
+
+def _make_enum_type(code_model, name, *, internal, client_namespace=None):
+    """Build an EnumType (with no members) attached to code_model."""
+    yaml_data = {
+        "type": "enum",
+        "name": name,
+        "valueType": {"type": "string"},
+        "values": [],
+        "internal": internal,
+    }
+    if client_namespace is not None:
+        yaml_data["clientNamespace"] = client_namespace
+    return build_type(yaml_data, code_model)
+
+
+def test_internal_enum_types_file_annotation_uses_bare_name():
+    """An internal enum annotated in types.py must use the bare name, not ``_enums.Name``.
+
+    Regression for mypy ``Name "_enums" is not defined [name-defined]``: types.py imports the enum
+    symbol directly, so the annotation must reference the bare name.
+    """
+    code_model = _make_code_model(models_mode="dpg")
+    enum = _make_enum_type(code_model, "SemanticQueryRewritesResultType", internal=True)
+    annotation = enum.type_annotation(serialize_namespace_type=NamespaceType.TYPES_FILE)
+    assert annotation == 'Union[str, "SemanticQueryRewritesResultType"]'
+    assert "_enums." not in annotation
+
+
+def test_internal_enum_types_file_imports_from_private_enums_submodule():
+    """Internal enums are not public, so types.py imports them from the private ``_enums`` submodule."""
+    code_model = _make_code_model(models_mode="dpg")
+    enum = _make_enum_type(code_model, "SemanticQueryRewritesResultType", internal=True)
+    modules = _local_import_modules(enum.imports(serialize_namespace_type=NamespaceType.TYPES_FILE))
+    suffix = f"models.{code_model.enums_filename}"
+    assert any(module.endswith(suffix) for module in modules), modules
+
+
+def test_public_enum_types_file_imports_from_models_package():
+    """A non-internal enum keeps importing from the public ``models`` package (bare symbol)."""
+    code_model = _make_code_model(models_mode="dpg")
+    enum = _make_enum_type(code_model, "PublicEnum", internal=False)
+    modules = _local_import_modules(enum.imports(serialize_namespace_type=NamespaceType.TYPES_FILE))
+    assert any(module.endswith("models") for module in modules), modules
+    assert not any(module.endswith(code_model.enums_filename) for module in modules), modules
+
+
+def test_cross_namespace_internal_enum_types_file_import_path_is_dotted():
+    """A cross-namespace internal enum import must keep the dot between the relative path and ``models``.
+
+    Regression for a string-concatenation bug: ``get_relative_import_path`` returns values like
+    ``..indexes`` (no trailing dot) for a sibling namespace, so ``f"{relative_path}models..."`` would
+    produce an invalid ``..indexesmodels._enums`` path. Building the path with ``module_name=`` keeps
+    it valid: ``..indexes.models._enums``.
+    """
+    code_model = _make_code_model(models_mode="dpg")
+    enum = _make_enum_type(code_model, "KnowledgeSourceKind", internal=True, client_namespace="namespace.indexes")
+    modules = _local_import_modules(
+        enum.imports(
+            serialize_namespace="namespace.knowledgebases",
+            serialize_namespace_type=NamespaceType.TYPES_FILE,
+        )
+    )
+    expected = f"..indexes.models.{code_model.enums_filename}"
+    assert expected in modules, modules
+    # The mangled (dot-less) form must never appear.
+    assert not any("indexesmodels" in module for module in modules), modules
+
+
+def test_cross_namespace_public_enum_types_file_import_path_is_dotted():
+    """A cross-namespace public enum import must keep the dot before ``models`` (``..indexes.models``)."""
+    code_model = _make_code_model(models_mode="dpg")
+    enum = _make_enum_type(code_model, "PublicEnum", internal=False, client_namespace="namespace.indexes")
+    modules = _local_import_modules(
+        enum.imports(
+            serialize_namespace="namespace.knowledgebases",
+            serialize_namespace_type=NamespaceType.TYPES_FILE,
+        )
+    )
+    assert "..indexes.models" in modules, modules
+    assert not any("indexesmodels" in module for module in modules), modules
+
+
+def test_internal_enum_property_types_file_serialize_is_consistent():
+    """End-to-end: the internal enum annotation and its import agree in generated types.py."""
+    code_model = _make_code_model(models_mode="dpg")
+    enum = _make_enum_type(code_model, "SemanticQueryRewritesResultType", internal=True)
+    model = _make_model_with_usage(code_model, "SearchDocumentsResult", 2, DPGModelType)
+    model.is_typed_dict_only = True
+    model.properties = [_make_property(code_model, "semanticQueryRewritesResultType", enum)]
+    code_model.model_types = [model]
+
+    env = _make_env()
+    output = TypesSerializer(code_model=code_model, env=env, models=[model]).serialize()
+    # The undefined ``_enums.`` prefix must never appear in types.py.
+    assert f"{code_model.enums_filename}.SemanticQueryRewritesResultType" not in output
+    # The enum symbol is imported (from the private submodule) so the forward ref resolves.
+    assert "import SemanticQueryRewritesResultType" in output
+    assert f"models.{code_model.enums_filename}" in output
+
+
+# ---------- Bug 2: duplicate runtime + TYPE_CHECKING import (issue #11626) ----------
+
+
+def test_duplicate_runtime_and_type_checking_import_is_deduped():
+    """A symbol imported at runtime must not be re-imported under ``if TYPE_CHECKING:``.
+
+    Regression for mypy ``Name "KnowledgeSourceKind" already defined [no-redef]``: the same enum was
+    imported at runtime from its ``_enums`` submodule and again for its annotation from the public
+    ``models`` package. The runtime import is sufficient; the TYPE_CHECKING duplicate is dropped.
+    """
+    code_model = _make_code_model(models_mode="dpg")
+    file_import = FileImport(code_model)
+    # Runtime import from the private submodule.
+    file_import.add_submodule_import(
+        "..indexes.models._enums", "KnowledgeSourceKind", ImportType.LOCAL, TypingSection.REGULAR
+    )
+    # TYPE_CHECKING import of the same bound name from a different module.
+    file_import.add_submodule_import(
+        "..indexes.models", "KnowledgeSourceKind", ImportType.LOCAL, typing_section=TypingSection.TYPING
+    )
+
+    output = str(FileImportSerializer(file_import))
+    assert output.count("import KnowledgeSourceKind") == 1
+    # No TYPE_CHECKING duplicate remains (that was the only typing import).
+    assert "if TYPE_CHECKING:" not in output
+
+
+def test_type_checking_import_kept_when_no_runtime_duplicate():
+    """A TYPE_CHECKING import with no runtime counterpart is preserved."""
+    code_model = _make_code_model(models_mode="dpg")
+    file_import = FileImport(code_model)
+    file_import.add_submodule_import(
+        "..indexes.models", "OnlyForTyping", ImportType.LOCAL, typing_section=TypingSection.TYPING
+    )
+    output = str(FileImportSerializer(file_import))
+    assert "if TYPE_CHECKING:" in output
+    assert "import OnlyForTyping" in output

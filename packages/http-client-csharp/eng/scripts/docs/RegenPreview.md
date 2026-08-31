@@ -392,6 +392,16 @@ If all libraries regenerate successfully, the script restores modified files:
 
 **Note:** If any libraries fail, artifacts are NOT restored, allowing you to debug the issue with the modified configuration intact.
 
+## Shared Regeneration Helpers
+
+The library discovery and parallel regeneration logic lives in `RegenPreview.psm1` so it can be reused outside of local validation runs:
+
+| Function                        | Description                                                                                                                                                                                                                                                                                                                                                                                                   |
+| ------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `Get-SdkLibrariesToRegenerate`  | Scans `sdk/` in azure-sdk-for-net and returns the libraries whose `tsp-location.yaml` references one of the TypeSpec C# emitter package json artifacts. Supports filtering by emitter (`-EmitterPackageJsonPaths`).                                                                                                                                                                                           |
+| `Invoke-SdkLibraryRegeneration` | Pre-installs tsp-client, pre-builds the code generation plugin, and then regenerates the given libraries in parallel with `dotnet build /t:GenerateCode`. Supports `-ThrottleLimit` (defaults to 3x the logical processors, clamped to 4-12), `-NpmRegistry`, `-AdditionalBuildArgs`, `-SerialServiceDirectories` (service directories that must be regenerated one library at a time), and `-StopOnFailure`. |
+| `Write-RegenerationReport`      | Prints the pass/fail summary and optionally writes the detailed JSON report. In CI mode, it also prints a human-readable JSON report.                                                                                                                                                                                                                                                                         |
+
 ### Error Handling
 
 If the script encounters an error during pre-requisite steps (Steps 1-6), it will:
@@ -411,7 +421,8 @@ All packaged artifacts are stored in the `debug` folder at the root of the unbra
 - `Microsoft.TypeSpec.Generator.{version}.nupkg` - Core generator NuGet package
 - `Microsoft.TypeSpec.Generator.Input.{version}.nupkg` - Input models NuGet package
 - `Microsoft.TypeSpec.Generator.ClientModel.{version}.nupkg` - Client model NuGet package
-- `regen-report.json` - Detailed JSON report of regeneration results
+- `regen-report.json` - Detailed JSON report of regeneration results (written to the ADO artifact staging
+  directory during CI runs)
 
 ### Console Output
 
@@ -447,6 +458,12 @@ FAILED LIBRARIES:
 =============================================================
 Detailed report saved to: C:\...\debug\regen-report.json
 ```
+
+In ADO CI runs, the detailed JSON report is written to the artifact staging directory instead and is
+also printed to the console in human-readable JSON. If any library fails to regenerate, later regeneration
+batches are marked as skipped and the script exits with an error after printing the report. Local runs keep
+the existing behavior: all regeneration batches run, and any library failures are reported as warnings at
+the end.
 
 ## Common Scenarios
 

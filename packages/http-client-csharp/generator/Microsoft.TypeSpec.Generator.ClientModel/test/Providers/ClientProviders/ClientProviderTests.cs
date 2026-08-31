@@ -2805,6 +2805,57 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers.ClientProvide
             }
         }
 
+        // Date parameter names are normalized (requestDate -> requestOn) on both the protocol and the
+        // convenience surface, so the previously published name is restored consistently for both and the
+        // convenience method forwards every argument positionally. When only one surface is normalized, the
+        // date argument is dropped (passed as null) and the remaining arguments are passed by name.
+        [Test]
+        public async Task BackCompatibility_DateParameterNameIsPreservedInConvenienceCall()
+        {
+            var dateType = new InputDateTimeType(
+                DateTimeKnownEncoding.Rfc7231,
+                "utcDateTime",
+                "TypeSpec.utcDateTime",
+                InputPrimitiveType.String);
+            var operation = InputFactory.Operation(
+                "TestMethod",
+                parameters:
+                [
+                    InputFactory.HeaderParameter("requestDate", dateType),
+                    InputFactory.HeaderParameter("ifMatch", InputPrimitiveType.String)
+                ]);
+            var method = InputFactory.BasicServiceMethod(
+                "TestMethod",
+                operation,
+                parameters:
+                [
+                    InputFactory.MethodParameter("requestDate", dateType, location: InputRequestLocation.Header),
+                    InputFactory.MethodParameter("ifMatch", InputPrimitiveType.String, location: InputRequestLocation.Header)
+                ]);
+            var client = InputFactory.Client(TestClientName, methods: [method]);
+
+            var generator = await MockHelpers.LoadMockGeneratorAsync(
+                clients: () => [client],
+                lastContractCompilation: async () => await Helpers.GetCompilationFromDirectoryAsync());
+
+            var clientProvider = generator.Object.OutputLibrary.TypeProviders.OfType<ClientProvider>().FirstOrDefault();
+            Assert.IsNotNull(clientProvider);
+            Assert.IsNotNull(clientProvider!.LastContractView);
+
+            clientProvider!.ProcessTypeForBackCompatibility();
+
+            using var writer = new CodeWriter();
+            foreach (var methodName in new[] { "TestMethod", "TestMethodAsync" })
+            {
+                writer.WriteMethod(clientProvider.Methods
+                    .Single(m => m.Signature.Name == methodName && m is ScmMethodProvider { Kind: ScmMethodKind.Protocol }));
+                writer.WriteMethod(clientProvider.Methods
+                    .Single(m => m.Signature.Name == methodName && m is ScmMethodProvider { Kind: ScmMethodKind.Convenience }));
+            }
+
+            Assert.AreEqual(Helpers.GetExpectedFromFile(), writer.ToString(false));
+        }
+
         [Test]
         public async Task BackCompatibility_ProtocolMethodParamOrderChanged()
         {
@@ -4657,11 +4708,12 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers.ClientProvide
             var inputOperation = InputFactory.Operation("snake_case_op", isExactName: true);
             var inputServiceMethod = InputFactory.BasicServiceMethod("snake_case_op", inputOperation, isExactName: true);
             var client = InputFactory.Client("TestClient", methods: [inputServiceMethod]);
-            _ = new ClientProvider(client);
+            var clientProvider = new ClientProvider(client);
 
             // After CleanOperationNames runs in the ClientProvider constructor, names should be unchanged.
             Assert.AreEqual("snake_case_op", inputServiceMethod.Name);
             Assert.AreEqual("snake_case_op", inputServiceMethod.Operation.Name);
+            Assert.AreEqual("CreateSnakeCaseOpRequest", clientProvider.RestClient.GetCreateRequestMethod(inputOperation).Signature.Name);
         }
 
         [TestCase("GetUrl", false, "GetUri")]
@@ -4738,6 +4790,37 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers.ClientProvide
             Assert.AreEqual("GetUrl", inputServiceMethod.Name);
             Assert.AreEqual("GetUrl", inputServiceMethod.Operation.Name);
             Assert.IsTrue(methods.Any(m => m.Signature.Name == "GetUrl"));
+        }
+
+        [Test]
+        public async Task TestEarlierWrapperRequestExistsAfterLaterBackCompatProvider()
+        {
+            var inputOperation = InputFactory.Operation("GetUrl");
+            var inputServiceMethod = InputFactory.BasicServiceMethod("GetUrl", inputOperation);
+            var client = InputFactory.Client("TestClient", methods: [inputServiceMethod]);
+            var generator = await MockHelpers.LoadMockGeneratorAsync(
+                clients: () => [client],
+                lastContractCompilation: async () => await Helpers.GetCompilationFromDirectoryAsync());
+            var clientProvider = generator.Object.OutputLibrary.TypeProviders.OfType<ClientProvider>().Single();
+            var shippedWrapper = new BackCompatTypeProvider("MockableTestResource", "Sample");
+
+            var shippedWrapperMethods = clientProvider.GetMethodCollectionByOperation(inputOperation, shippedWrapper);
+            var publicMethodName = shippedWrapperMethods.Single(m =>
+                m.Kind == ScmMethodKind.Convenience &&
+                !m.Signature.Modifiers.HasFlag(MethodSignatureModifiers.Async)).Signature.Name;
+            var capturedRequestMethodName = clientProvider.RestClient.GetCreateRequestMethod(inputOperation).Signature.Name;
+
+            Assert.AreEqual("GetUrl", publicMethodName);
+            Assert.AreEqual("CreateGetUrlRequest", capturedRequestMethodName);
+
+            var newWrapper = new BackCompatTypeProvider("MissingWrapper", "Sample");
+            _ = clientProvider.GetMethodCollectionByOperation(inputOperation, newWrapper);
+
+            var emittedRestClient = new TypeProviderWriter(clientProvider.RestClient).Write().Content;
+            StringAssert.Contains(
+                $"{capturedRequestMethodName}(",
+                emittedRestClient,
+                "The final REST client must emit the request method captured by an earlier wrapper projection.");
         }
 
         [Test]

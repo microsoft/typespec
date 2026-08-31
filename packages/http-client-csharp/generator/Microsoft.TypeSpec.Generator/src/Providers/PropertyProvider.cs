@@ -103,19 +103,43 @@ namespace Microsoft.TypeSpec.Generator.Providers
             var hasOutputUsage = inputProperty.EnclosingType?.Usage.HasFlag(InputModelTypeUsage.Output) ?? false;
             Modifiers = IsDiscriminator || (!hasOutputUsage && _isRequiredNonNullableConstant) ? MethodSignatureModifiers.Internal : MethodSignatureModifiers.Public;
             var identifierName = inputProperty.IsExactName ? inputProperty.Name : inputProperty.Name.ToIdentifierName();
-            var lastContractProperties = enclosingType.LastContractView?.Properties;
-            var legacyName = identifierName == enclosingType.Name
-                ? $"{identifierName}Property"
-                : identifierName;
-            if (!inputProperty.IsExactName &&
-                (lastContractProperties is null ||
-                 !lastContractProperties.Any(p => p.Name == legacyName)))
+            if (!inputProperty.IsExactName)
             {
-                identifierName = identifierName.NormalizeCSharpAcronyms();
+                var isDateTime = inputProperty.Type.IsDateTimeInputType();
+                var canonicalName = identifierName.NormalizeCSharpAcronyms(isDateTime);
+                var enclosingTypeName = enclosingType.Name;
+                var lastContractProperties = enclosingType.LastContractView?.Properties
+                    .Where(p => MethodSignatureHelper.IsPublicApi(p.Modifiers))
+                    .ToList();
+
+                // An exact input-identifier match is authoritative: it is the name this property would have had
+                // before normalization, so it does not need the disambiguation required by normalized candidates.
+                // The shipped member may carry the enclosing-type collision suffix, so candidates are compared
+                // against the collision-adjusted form of each name we are looking for.
+                var previousProperty =
+                    lastContractProperties?.FirstOrDefault(p => p.Name == AvoidPropertyNameCollision(identifierName, enclosingTypeName))
+                    ?? lastContractProperties?.FirstOrDefault(p =>
+                        p.Name == AvoidPropertyNameCollision(canonicalName, enclosingTypeName) &&
+                        !IsClaimedBySiblingProperty(p.Name, inputProperty, enclosingType));
+
+                if (previousProperty is null &&
+                    isDateTime &&
+                    !identifierName.EndsWith("On", StringComparison.Ordinal))
+                {
+                    // Both the current and previous conventions render date-time names as <stem>On. Requiring
+                    // that suffix on the contract name prevents a removed property such as StartDate from being
+                    // mistaken for the historical name of StartTime even though both normalize to StartsOn.
+                    var specStem = identifierName.NormalizeCSharpAcronyms().GetDateTimeStem();
+                    previousProperty = specStem is null
+                        ? null
+                        : lastContractProperties?.FirstOrDefault(p =>
+                            HasDateTimeStem(p.Name, specStem, enclosingTypeName) &&
+                            p.Type.WithNullable(false).Equals(Type.WithNullable(false)) &&
+                            !IsClaimedBySiblingProperty(p.Name, inputProperty, enclosingType));
+                }
+                identifierName = previousProperty?.Name ?? canonicalName;
             }
-            Name = identifierName == enclosingType.Name
-                ? $"{identifierName}Property"
-                : identifierName;
+            Name = AvoidPropertyNameCollision(identifierName, enclosingType.Name);
             Body = new AutoPropertyBody(propHasSetter, setterModifier, GetPropertyInitializationValue(propertyType, inputProperty));
 
             WireInfo = new PropertyWireInformation(inputProperty);
@@ -175,6 +199,95 @@ namespace Microsoft.TypeSpec.Generator.Providers
                 if (Description != null)
                 {
                     XmlDocs = new XmlDocProvider(new XmlDocSummaryStatement([Description]));
+                }
+            }
+        }
+
+        private static string AvoidPropertyNameCollision(string propertyName, string enclosingTypeName) =>
+            propertyName == enclosingTypeName ? $"{propertyName}Property" : propertyName;
+
+        private static bool HasDateTimeStem(string contractName, string specStem, string enclosingTypeName)
+        {
+            if (contractName == AvoidPropertyNameCollision(enclosingTypeName, enclosingTypeName))
+            {
+                contractName = enclosingTypeName;
+            }
+
+            return contractName.EndsWith("On", StringComparison.Ordinal) &&
+                contractName.GetDateTimeStem() == specStem;
+        }
+
+        private static bool IsClaimedBySiblingProperty(
+            string contractName,
+            InputProperty inputProperty,
+            TypeProvider enclosingType)
+        {
+            var enclosingTypeName = enclosingType.Name;
+
+            foreach (var sibling in inputProperty.EnclosingType?.Properties ?? [])
+            {
+                if (ReferenceEquals(sibling, inputProperty))
+                {
+                    continue;
+                }
+
+                if (sibling.IsExactName)
+                {
+                    if (AvoidPropertyNameCollision(sibling.Name, enclosingTypeName) == contractName)
+                    {
+                        return true;
+                    }
+
+                    continue;
+                }
+
+                // Compare both the raw identifier and the name the sibling actually emits, since acronym
+                // normalization can move it onto the shipped name even when the identifier does not match.
+                var siblingIdentifier = sibling.Name.ToIdentifierName();
+                var siblingGenerated = siblingIdentifier.NormalizeCSharpAcronyms(sibling.Type.IsDateTimeInputType());
+                if (AvoidPropertyNameCollision(siblingIdentifier, enclosingTypeName) == contractName ||
+                    AvoidPropertyNameCollision(siblingGenerated, enclosingTypeName) == contractName)
+                {
+                    return true;
+                }
+            }
+
+            // A customization that explicitly targets a different spec property owns its public name outright.
+            // A raw-name customization is excluded: it has no declared target, so it is intended to replace
+            // whichever generated property ends up with that name, including a preserved one. Fields are
+            // included because customization filtering treats a custom field as a claim on a property name.
+            foreach (var customName in GetExplicitlyRenamedCustomNames(enclosingType))
+            {
+                if (customName.OriginalName == inputProperty.Name ||
+                    customName.OriginalName == inputProperty.Name.ToIdentifierName())
+                {
+                    continue;
+                }
+
+                if (customName.Name == contractName)
+                {
+                    return true;
+                }
+            }
+
+            return false;
+        }
+
+        private static IEnumerable<(string Name, string OriginalName)> GetExplicitlyRenamedCustomNames(TypeProvider enclosingType)
+        {
+            foreach (var customProperty in enclosingType.CustomCodeView?.Properties ?? [])
+            {
+                if (customProperty.OriginalName is { } propertyOriginalName)
+                {
+                    yield return (customProperty.Name, propertyOriginalName);
+                }
+            }
+
+            foreach (var customField in enclosingType.CustomCodeView?.Fields ?? [])
+            {
+                if (customField.OriginalName is { } fieldOriginalName)
+                {
+                    yield return (customField.Name, fieldOriginalName);
                 }
             }
         }

@@ -26,11 +26,12 @@ export function ControllersAndInterfaces(props: ControllersAndInterfacesProps): 
   const interfaceOps = props.interfaces.map((iface) => ({
     iface,
     ops: props.canonicalOpsMap.get(iface.name) ?? [],
+    name: namePolicy.getName(iface.name, "class"),
   }));
 
   // Collect operations that need request model classes
   const requestModels: RequestModelInfo[] = [];
-  for (const { iface, ops } of interfaceOps) {
+  for (const { iface, ops, name } of interfaceOps) {
     for (const op of ops) {
       // GET requests don't have body parameters in the server
       if (op.method === "get") continue;
@@ -45,7 +46,7 @@ export function ControllersAndInterfaces(props: ControllersAndInterfacesProps): 
           const hasExplicitBody = body.bodies[0].property !== undefined;
           if (!hasExplicitBody) {
             const opName = namePolicy.getName(op.name, "class-method");
-            const requestModelName = `${iface.name}${opName}Request`;
+            const requestModelName = `${name}${opName}Request`;
             requestModels.push({ name: requestModelName, op, ifaceName: iface.name });
           }
         }
@@ -60,13 +61,13 @@ export function ControllersAndInterfaces(props: ControllersAndInterfacesProps): 
       </SourceDirectory>
       <SourceDirectory path="operations">
         <For each={interfaceOps}>
-          {({ iface, ops }) => {
+          {({ iface, ops, name }) => {
             const hasMultipart = ops.some(
               (op) => op.requestParameters.body?.bodyKind === "multipart",
             );
             return (
               <CSharpFile
-                path={`I${iface.name}.cs`}
+                path={`I${name}.cs`}
                 using={[
                   "System",
                   "System.Collections.Generic",
@@ -86,13 +87,13 @@ export function ControllersAndInterfaces(props: ControllersAndInterfacesProps): 
       <SourceDirectory path="controllers">
         <Namespace name="Controllers">
           <For each={interfaceOps}>
-            {({ iface, ops }) => {
+            {({ iface, ops, name }) => {
               const hasMultipart = ops.some(
                 (op) => op.requestParameters.body?.bodyKind === "multipart",
               );
               return (
                 <CSharpFile
-                  path={`${iface.name}Controller.cs`}
+                  path={`${name}Controller.cs`}
                   using={[
                     "System",
                     "System.Net",

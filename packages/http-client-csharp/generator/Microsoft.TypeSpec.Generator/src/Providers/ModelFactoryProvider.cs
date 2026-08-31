@@ -152,6 +152,15 @@ namespace Microsoft.TypeSpec.Generator.Providers
                             break;
                         }
 
+                        if (HasMatchingExactParameterNames(currentMethodSignature, previousMethod.Signature))
+                        {
+                            CodeModelGenerator.Instance.Emitter.Info(
+                                $"Model factory method '{Name}.{previousMethod.Signature.Name}' keeps its exact parameter name(s) instead of the last contract's.",
+                                BackCompatibilityChangeCategory.ModelFactoryMethodSkipped);
+                            foundCompatibleOverload = true;
+                            break;
+                        }
+
                         currentOverloads.Add(currentMethodSignature);
                     }
                 }
@@ -217,6 +226,25 @@ namespace Microsoft.TypeSpec.Generator.Providers
             }
 
             return [.. factoryMethods];
+        }
+
+        private static bool HasMatchingExactParameterNames(MethodSignature current, MethodSignature previous)
+        {
+            if (!MethodSignature.MethodSignatureComparer.Equals(current, previous))
+            {
+                return false;
+            }
+
+            for (int i = 0; i < current.Parameters.Count; i++)
+            {
+                if (!current.Parameters[i].IsExactName &&
+                    current.Parameters[i].Name != previous.Parameters[i].Name)
+                {
+                    return false;
+                }
+            }
+
+            return true;
         }
 
         internal static IReadOnlyList<string> GetUnavailableSignatureTypes(MethodSignature signature)

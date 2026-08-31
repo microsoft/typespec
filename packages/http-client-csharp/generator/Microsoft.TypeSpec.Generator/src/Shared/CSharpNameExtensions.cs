@@ -4,6 +4,7 @@
 using System;
 using System.Diagnostics.CodeAnalysis;
 using System.Text;
+using Microsoft.TypeSpec.Generator.Input;
 
 namespace Microsoft.TypeSpec.Generator.Utilities
 {
@@ -20,8 +21,9 @@ namespace Microsoft.TypeSpec.Generator.Utilities
             ("Os", "OS")
         ];
 
-        public static string NormalizeCSharpAcronyms(this string name)
+        public static string NormalizeCSharpAcronyms(this string name, bool normalizeDateTimeSuffix = false)
         {
+            name = normalizeDateTimeSuffix ? name.NormalizeDateTimeSuffix() : name;
             StringBuilder? normalizedName = null;
             int segmentStart = 0;
             for (int index = 0; index < name.Length - 1; index++)
@@ -57,6 +59,151 @@ namespace Microsoft.TypeSpec.Generator.Utilities
             return normalizedName.ToString();
         }
 
+        public static string NormalizeDateTimeSuffix(this string name)
+        {
+            var suffixLength = DateTimeNameRules.GetSuffixLength(name);
+            if (suffixLength == 0 ||
+                suffixLength == name.Length ||
+                DateTimeNameRules.HasExcludedComponent(name, suffixLength))
+            {
+                return name;
+            }
+
+            var prefix = DateTimeNameRules.ToVerbForm(name[..^suffixLength]);
+            var onSuffix = prefix.Length == 0 && char.IsLower(name[0])
+                ? DateTimeNameRules.LowercaseOnSuffix
+                : DateTimeNameRules.OnSuffix;
+            return prefix + onSuffix;
+        }
+
+        /// <summary>
+        /// Gets the normalized semantic stem of a date-time name by removing its recognized suffix.
+        /// </summary>
+        public static string? GetDateTimeStem(this string name)
+        {
+            var suffixLength = DateTimeNameRules.GetSuffixLength(name);
+            return suffixLength == 0 || suffixLength == name.Length
+                ? null
+                : DateTimeNameRules.ToVerbForm(name[..^suffixLength]);
+        }
+
+        private static class DateTimeNameRules
+        {
+            private const string AtSuffix = "At";
+            private const string DateSuffix = "Date";
+            private const string DateTimeSuffix = "DateTime";
+            private const string FirstName = "First";
+            private const string FromName = "From";
+            private const string LastName = "Last";
+            internal const string LowercaseOnSuffix = "on";
+            internal const string OnSuffix = "On";
+            private const string PointInTimeName = "PointInTime";
+            private const string StatusTimeStampName = "StatusTimeStamp";
+            private const string StatusTimestampName = "StatusTimestamp";
+            private const string TimeStampSuffix = "TimeStamp";
+            private const string TimeSuffix = "Time";
+            private const string TimestampSuffix = "Timestamp";
+            private const string ToName = "To";
+
+            // Complete prefixes that read better as verbs when combined with the "On" suffix. Keep the
+            // collection ordered so adding overlapping suffixes in the future cannot make compound matching
+            // depend on dictionary enumeration order.
+            private static readonly (string Noun, string Verb)[] _nounToVerbRules =
+            [
+                ("Change", "Changed"),
+                ("Creation", "Created"),
+                ("Deletion", "Deleted"),
+                ("End", "Ends"),
+                ("Expiration", "Expires"),
+                ("Expire", "Expires"),
+                ("Modification", "Modified"),
+                ("Start", "Starts")
+            ];
+
+            internal static string ToVerbForm(string prefix)
+            {
+                // Resolve all exact rules before considering compound suffixes so an overlapping rule added
+                // later cannot be preempted by an earlier compound match.
+                foreach (var (noun, verb) in _nounToVerbRules)
+                {
+                    if (prefix.Equals(noun, StringComparison.OrdinalIgnoreCase))
+                    {
+                        return char.IsLower(prefix[0])
+                            ? char.ToLowerInvariant(verb[0]) + verb[1..]
+                            : verb;
+                    }
+                }
+
+                foreach (var (noun, compoundVerb) in _nounToVerbRules)
+                {
+                    if (prefix.Length > noun.Length &&
+                        prefix.EndsWith(noun, StringComparison.OrdinalIgnoreCase) &&
+                        char.IsUpper(prefix[^noun.Length]))
+                    {
+                        return prefix[..^noun.Length] + compoundVerb;
+                    }
+                }
+
+                return prefix;
+            }
+
+            internal static bool HasExcludedComponent(string name, int suffixLength)
+            {
+                // StatusTimestamp is a semantic compound. Keep the exclusion exact so names such as
+                // LastSyncTimestamp continue to normalize.
+                var prefix = name.AsSpan(0, name.Length - suffixLength);
+                return prefix.Equals(FirstName, StringComparison.OrdinalIgnoreCase) ||
+                    prefix.Equals(LastName, StringComparison.OrdinalIgnoreCase) ||
+                    name.StartsWith(FromName, StringComparison.OrdinalIgnoreCase) ||
+                    name.StartsWith(ToName, StringComparison.OrdinalIgnoreCase) ||
+                    name.EndsWith(PointInTimeName, StringComparison.OrdinalIgnoreCase) ||
+                    name.Equals(StatusTimestampName, StringComparison.OrdinalIgnoreCase) ||
+                    name.Equals(StatusTimeStampName, StringComparison.OrdinalIgnoreCase);
+            }
+
+            internal static int GetSuffixLength(string name)
+            {
+                if (name.EndsWith(TimestampSuffix, StringComparison.Ordinal) ||
+                    name.EndsWith(TimeStampSuffix, StringComparison.Ordinal) ||
+                    name.Equals(TimestampSuffix, StringComparison.OrdinalIgnoreCase))
+                {
+                    return TimestampSuffix.Length;
+                }
+
+                if (name.Length > DateTimeSuffix.Length && name.EndsWith(DateTimeSuffix, StringComparison.Ordinal))
+                {
+                    return DateTimeSuffix.Length;
+                }
+
+                if (name.Length > TimeSuffix.Length && name.EndsWith(TimeSuffix, StringComparison.Ordinal))
+                {
+                    return TimeSuffix.Length;
+                }
+
+                if (name.Equals(DateSuffix, StringComparison.OrdinalIgnoreCase) ||
+                    name.EndsWith(DateSuffix, StringComparison.Ordinal))
+                {
+                    return DateSuffix.Length;
+                }
+
+                if (name.Length > OnSuffix.Length && name.EndsWith(OnSuffix, StringComparison.Ordinal))
+                {
+                    return OnSuffix.Length;
+                }
+
+                return name.Length > AtSuffix.Length && name.EndsWith(AtSuffix, StringComparison.Ordinal)
+                    ? AtSuffix.Length
+                    : 0;
+            }
+        }
+
+        public static bool IsDateTimeInputType(this InputType inputType) => inputType switch
+        {
+            InputDateTimeType => true,
+            InputPrimitiveType { Kind: InputPrimitiveTypeKind.PlainDate } => true,
+            InputNullableType nullableType => IsDateTimeInputType(nullableType.Type),
+            _ => false
+        };
         [return: NotNullIfNotNull(nameof(name))]
         public static string? NormalizeCSharpUrlSuffix(this string? name)
             => !string.IsNullOrEmpty(name) && name.EndsWith("Url", StringComparison.Ordinal)

@@ -570,6 +570,23 @@ namespace Microsoft.TypeSpec.Generator.Tests.Providers.ModelFactories
             Assert.AreEqual("oldModelProp", docParams[1].Parameter.Name);
         }
 
+        [Test]
+        public async Task BackCompatibility_ExactPropertyNameTakesPrecedence()
+        {
+            var inputModels = GetTestModels(isStringPropExact: true);
+            _instance = (await MockHelpers.LoadMockGeneratorAsync(
+                inputNamespaceName: "Sample.Namespace",
+                inputModelTypes: inputModels,
+                lastContractCompilation: async () => await Helpers.GetCompilationFromDirectoryAsync(
+                    parameters: "Last"))).Object;
+
+            var modelFactory = _instance!.OutputLibrary.ModelFactory.Value;
+            modelFactory.ProcessTypeForBackCompatibility();
+
+            var actual = new TypeProviderWriter(modelFactory).Write().Content;
+            Assert.AreEqual(Helpers.GetExpectedFromFile(), actual);
+        }
+
         // Validates that when ALL parameters in a factory method are renamed in the previous
         // contract, every preserved name is propagated to the current method. This complements
         // BackCompatibility_OnlyParamNameChanged which exercises a partial rename.
@@ -619,6 +636,31 @@ namespace Microsoft.TypeSpec.Generator.Tests.Providers.ModelFactories
             Assert.AreEqual("previousModelProp", docParams[1].Parameter.Name);
             Assert.AreEqual("previousListProp", docParams[2].Parameter.Name);
             Assert.AreEqual("previousDictProp", docParams[3].Parameter.Name);
+        }
+
+        [Test]
+        public async Task BackCompatibility_ModelFactoryParameterPreservesDateTimeSuffix()
+        {
+            var dateTime = new InputDateTimeType(
+                DateTimeKnownEncoding.Rfc3339,
+                "utcDateTime",
+                "TypeSpec.utcDateTime",
+                InputPrimitiveType.String);
+            var model = InputFactory.Model(
+                "DateTimeModel",
+                properties: [InputFactory.Property("StartTime", dateTime, isRequired: true)]);
+
+            _instance = (await MockHelpers.LoadMockGeneratorAsync(
+                inputNamespaceName: "Sample.Namespace",
+                inputModelTypes: [model],
+                lastContractCompilation: async () => await Helpers.GetCompilationFromDirectoryAsync())).Object;
+
+            var modelFactory = _instance.OutputLibrary.ModelFactory.Value;
+            modelFactory.ProcessTypeForBackCompatibility();
+
+            var method = modelFactory.Methods.Single(m => m.Signature.Name == "DateTimeModel");
+            Assert.AreEqual("startTime", method.Signature.Parameters.Single().Name);
+            StringAssert.Contains("DateTimeModel(startTime", method.BodyStatements!.ToDisplayString());
         }
 
         // Validates that when a new property is added AND the previous contract used different
@@ -1306,12 +1348,12 @@ namespace Microsoft.TypeSpec.Generator.Tests.Providers.ModelFactories
             Assert.IsNotNull(renamed, "The visitor's rename of the back-compat method was not applied.");
         }
 
-        private static InputModelType[] GetTestModels()
+        private static InputModelType[] GetTestModels(bool isStringPropExact = false)
         {
             InputType additionalPropertiesUnknown = InputPrimitiveType.Any;
             InputModelProperty[] properties =
             [
-                InputFactory.Property("StringProp", InputPrimitiveType.String),
+                InputFactory.Property("StringProp", InputPrimitiveType.String, isExactName: isStringPropExact),
                 InputFactory.Property("ModelProp", InputFactory.Model("Thing")),
                 InputFactory.Property("ListProp", InputFactory.Array(InputPrimitiveType.String)),
                 InputFactory.Property("DictProp", InputFactory.Dictionary(InputPrimitiveType.String, InputPrimitiveType.String)),

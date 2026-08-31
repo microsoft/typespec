@@ -7,6 +7,7 @@ using System.ComponentModel;
 using System.Linq;
 using Microsoft.TypeSpec.Generator.EmitterRpc;
 using Microsoft.TypeSpec.Generator.Expressions;
+using Microsoft.TypeSpec.Generator.Input;
 using Microsoft.TypeSpec.Generator.Input.Extensions;
 using Microsoft.TypeSpec.Generator.Primitives;
 using Microsoft.TypeSpec.Generator.Providers;
@@ -186,16 +187,17 @@ namespace Microsoft.TypeSpec.Generator.Utilities
                 for (int i = 0; i < currentParameters.Count; i++)
                 {
                     var parameter = currentParameters[i];
+                    if (parameter.IsExactName)
+                    {
+                        continue;
+                    }
+
                     string? preservedName = null;
 
                     var inputParameter = parameter.InputParameter;
-                    if (inputParameter is not null && string.Equals(parameter.Name, inputParameter.Name, StringComparison.Ordinal))
+                    if (inputParameter is not null && !parameter.IsContentParameter)
                     {
-                        var originalName = inputParameter.OriginalName;
-                        if (!string.IsNullOrEmpty(originalName))
-                        {
-                            preservedName = FindPreviousParameterName(lastContractView, originalName, method.Signature.Name);
-                        }
+                        preservedName = FindPreviousParameterName(lastContractView, inputParameter.OriginalName, method.Signature.Name);
                     }
 
                     // Fall back to a positional match for synthesized parameters
@@ -213,8 +215,9 @@ namespace Microsoft.TypeSpec.Generator.Utilities
 
                     // Skip the rename when applying it would collide with another current parameter's
                     // name (e.g. two same-typed parameters whose order changed between the previous and
-                    // current contracts). A rename in that case would produce a duplicate parameter name
-                    // and, for name-based argument lookups, silently wire the wrong value.
+                    // current contracts, or a parameter whose exact name is retained above). A rename in
+                    // that case would produce a duplicate parameter name and, for name-based argument
+                    // lookups, silently wire the wrong value.
                     bool wouldCollide = false;
                     for (int j = 0; j < currentParameters.Count; j++)
                     {
