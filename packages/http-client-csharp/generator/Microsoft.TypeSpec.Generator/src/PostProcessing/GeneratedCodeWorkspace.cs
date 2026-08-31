@@ -272,15 +272,10 @@ namespace Microsoft.TypeSpec.Generator
             // Read in the resolved direct dependencies.
 
             // We first try the default location of project.assets.json, which is %project_dir%/obj/.
-            string assetsJson = Path.Combine(CodeModelGenerator.Instance.Configuration.ProjectDirectory, "obj", "project.assets.json");
-            if (!File.Exists(assetsJson))
+            string? assetsJson = await TryGetAssetsFile();
+            if (string.IsNullOrEmpty(assetsJson) || !File.Exists(assetsJson))
             {
-                string? assetsPath = await TryGetAssetsFile();
-                if (string.IsNullOrEmpty(assetsPath) || !File.Exists(assetsPath))
-                {
-                    return hshFrameworks;
-                }
-                assetsJson = assetsPath;
+                return hshFrameworks;
             }
             Utf8JsonReader reader = new Utf8JsonReader(await File.ReadAllBytesAsync(assetsJson));
             using JsonDocument document = JsonDocument.ParseValue(ref reader);
@@ -345,7 +340,7 @@ namespace Microsoft.TypeSpec.Generator
                 {
                     CodeModelGenerator.Instance.Emitter.ReportDiagnostic(
                         code: "unable-to-get-artifact-path",
-                        message: $"The dotnet msbuild {projectFilePath} -getProperty:OutputPath command exited with {restore.ExitCode}.\n" +
+                        message: $"The dotnet msbuild {projectFilePath} -getProperty:ProjectAssetsFile command exited with {restore.ExitCode}.\n" +
                         $"Standard output: {output}\n" +
                         $"Error output: {error}",
                         severity: EmitterRpc.EmitterDiagnosticSeverity.Warning
