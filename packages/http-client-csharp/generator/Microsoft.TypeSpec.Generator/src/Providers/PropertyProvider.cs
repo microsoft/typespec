@@ -108,6 +108,7 @@ namespace Microsoft.TypeSpec.Generator.Providers
             if (!inputProperty.IsExactName)
             {
                 var canonicalName = identifierName;
+                var isDateTime = Type.Equals(typeof(DateTimeOffset));
                 var specName = inputProperty.OriginalName.ToIdentifierName();
                 var enclosingTypeName = enclosingType.Name;
                 var lastContractProperties = enclosingType.LastContractView?.Properties
@@ -125,7 +126,7 @@ namespace Microsoft.TypeSpec.Generator.Providers
                         !IsClaimedBySiblingProperty(p.Name, inputProperty, enclosingType));
 
                 if (previousProperty is null &&
-                    IsDateTimeInputType(inputProperty.Type) &&
+                    isDateTime &&
                     !specName.EndsWith("On", StringComparison.Ordinal))
                 {
                     // Both the current and previous conventions render date-time names as <stem>On. Requiring
@@ -207,14 +208,6 @@ namespace Microsoft.TypeSpec.Generator.Providers
 
         private static string AvoidPropertyNameCollision(string propertyName, string enclosingTypeName) =>
             propertyName == enclosingTypeName ? $"{propertyName}Property" : propertyName;
-
-        private static bool IsDateTimeInputType(InputType inputType) => inputType switch
-        {
-            InputDateTimeType => true,
-            InputPrimitiveType { Kind: InputPrimitiveTypeKind.PlainDate } => true,
-            InputNullableType nullableType => IsDateTimeInputType(nullableType.Type),
-            _ => false
-        };
 
         /// <summary>
         /// Gets the normalized semantic stem of a date-time name by removing its recognized suffix.
