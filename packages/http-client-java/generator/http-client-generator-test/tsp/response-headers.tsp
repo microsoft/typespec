@@ -17,6 +17,9 @@ interface ResponseHeaderOp {
   getResourceMetadata(): {
     @statusCode statusCode: 200;
 
+    // constant headers are omitted from the generated response headers model
+    @header("x-constant-header") constantHeader: "constant-value";
+
     // required header, with mixed-case header name
     @header("ETag") eTag: string;
 
