@@ -62,6 +62,7 @@ namespace Microsoft.TypeSpec.Generator.Providers
 
             return NormalizeTypeNameForNewContract(_inputType.Name.ToIdentifierName(), _inputType.OriginalName.ToIdentifierName());
         }
+
         protected override FormattableString BuildDescription() => DocHelpers.GetFormattableDescription(_inputType!.Summary, _inputType.Doc) ?? FormattableStringHelpers.Empty;
 
         protected override TypeProvider[] BuildSerializationProviders()
