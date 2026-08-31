@@ -10,6 +10,12 @@ export const libDef = {
         missingCondition: `exports field is missing one export with the typespec condition`,
       },
     },
+    "sub-export-missing-js": {
+      severity: "warning",
+      messages: {
+        default: paramMessage`Sub export "${"subpath"}" declares decorators or functions but has no JS export condition("import" or "default") in package.json. Skipping generation of the signature typecheck file.`,
+      },
+    },
     "documentation-missing": {
       severity: "warning",
       messages: {

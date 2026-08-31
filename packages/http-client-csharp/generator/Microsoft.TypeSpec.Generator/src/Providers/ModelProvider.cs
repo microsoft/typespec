@@ -939,11 +939,26 @@ namespace Microsoft.TypeSpec.Generator.Providers
                     continue;
                 }
 
+                // A permutation replaces every name, so a clash there is transient. Exact names are
+                // retained, so restoring another parameter onto one would produce a real duplicate.
+                var retainedExactNames = restoredParameters
+                    .Where(p => p.IsExactName)
+                    .Select(p => p.Name)
+                    .ToHashSet(StringComparer.Ordinal);
                 for (int i = 0; i < restoredParameters.Count; i++)
                 {
                     var restoredName = previousParameters[i].Name;
-                    if (string.Equals(restoredParameters[i].Name, restoredName, StringComparison.Ordinal))
+                    if (string.Equals(restoredParameters[i].Name, restoredName, StringComparison.Ordinal)
+                        || restoredParameters[i].IsExactName)
                     {
+                        continue;
+                    }
+
+                    if (retainedExactNames.Contains(restoredName))
+                    {
+                        CodeModelGenerator.Instance.Emitter.Info(
+                            $"Could not preserve parameter name '{restoredName}' at position {i} on constructor '{Name}' from the last contract; it collides with the exact name of another parameter.",
+                            BackCompatibilityChangeCategory.ParameterNamePreserved);
                         continue;
                     }
 
