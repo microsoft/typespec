@@ -471,16 +471,13 @@ namespace My.External.Library
         }
 
         [Test]
-        [TestCase(true)]
-        [TestCase(false)]
-        public async Task TestReadProjectAssets(bool isSdkFramework)
+        public async Task TestReadProjectAssets()
         {
-            string artifactPath = isSdkFramework ? $"\n<ArtifactsPath>{Path.Combine(_tempDirectory!, "artifacts")}</ArtifactsPath>\n" : "";
             var ns = "TestNamespace";
             var nugetCacheDir = Path.Combine(_tempDirectory!, "NuGetCache");
-            var csprojContent = $@"<Project Sdk=""Microsoft.NET.Sdk"">
+            var csprojContent = @"<Project Sdk=""Microsoft.NET.Sdk"">
   <PropertyGroup>
-    <TargetFramework>netstandard2.0,net10.0</TargetFramework>{artifactPath}
+    <TargetFramework>netstandard2.0,net10.0</TargetFramework>
   </PropertyGroup>
   <ItemGroup>
     <PackageReference Include=""First.Package"">
@@ -513,27 +510,11 @@ namespace My.External.Library
             """;
 
             string projectDir;
-            if (isSdkFramework)
-            {
-                Assert.That(_tempDirectory, Is.Not.Null.And.Not.Empty);
-                Directory.CreateDirectory(Path.Combine(_tempDirectory!, "sdk"));
-                Directory.CreateDirectory(Path.Combine(_tempDirectory!, "sdk", "my_service"));
-                projectDir = Path.Combine(_tempDirectory!, "sdk", "my_service", "ProjectDir");
-                Directory.CreateDirectory(projectDir);
-                Directory.CreateDirectory(Path.Combine(projectDir, "src"));
-                Directory.CreateDirectory(Path.Combine(_tempDirectory!, "artifacts"));
-                Directory.CreateDirectory(Path.Combine(_tempDirectory!, "artifacts", "obj"));
-                Directory.CreateDirectory(Path.Combine(_tempDirectory!, "artifacts", "obj", ns));
-                File.WriteAllText(Path.Combine(_tempDirectory!, "artifacts", "obj", ns, "project.assets.json"), minimalProjectAssets);
-            }
-            else
-            {
-                Assert.That(_projectDir, Is.Not.Null.And.Not.Empty);
-                projectDir = _projectDir ?? "";
-                Directory.CreateDirectory(Path.Combine(projectDir, "src"));
-                Directory.CreateDirectory(Path.Combine(projectDir, "src", "obj"));
-                File.WriteAllText(Path.Combine(projectDir, "src", "obj", "project.assets.json"), minimalProjectAssets);
-            }
+            Assert.That(_projectDir, Is.Not.Null.And.Not.Empty);
+            projectDir = _projectDir ?? "";
+            Directory.CreateDirectory(Path.Combine(projectDir, "src"));
+            Directory.CreateDirectory(Path.Combine(projectDir, "src", "obj"));
+            File.WriteAllText(Path.Combine(projectDir, "src", "obj", "project.assets.json"), minimalProjectAssets);
             File.WriteAllText(Path.Combine(projectDir, "src", $"{ns}.csproj"), csprojContent);
 
             MockHelpers.LoadMockGenerator(
@@ -653,31 +634,11 @@ namespace My.External.Library
         }
 
         [Test]
-        [TestCase(null, false, "<proj>/src/obj", "TestNamespace")]
-        [TestCase(null, true, "<proj>/src/artifacts/obj", "TestNamespace")]
-        [TestCase("", false, "<proj>/src/obj", "TestNamespace")]
-        [TestCase("", true, "<proj>/src/artifacts/obj", "TestNamespace")]
-        [TestCase("<proj>/temp", false, "<proj>/temp/obj/TestNamespace", "TestNamespace")]
-        [TestCase("<proj>/temp", true, "<proj>/temp/obj/TestNamespace", "TestNamespace")]
-        [TestCase("", false, "<proj>/src/obj", "Dustbin")]
-        [TestCase("", true, "<proj>/src/artifacts/obj", "Dustbin")]
-        [TestCase("<proj>/temp", false, "<proj>/temp/obj/Dustbin", "Dustbin")]
-        [TestCase("<proj>/temp", true, "<proj>/temp/obj/Dustbin", "Dustbin")]
-        public async Task TestTryGetObjectPath(string? artifactPath, bool useArtifacts, string? expectedOutput, string projName)
+        public async Task TestTryGetObjectPath()
         {
-            if (artifactPath != null)
-            {
-                artifactPath = artifactPath.Replace("<proj>", _projectDir!).Replace('/', Path.DirectorySeparatorChar);
-            }
-            if (expectedOutput != null)
-            {
-                expectedOutput = expectedOutput.Replace("<proj>", _projectDir!).Replace('/', Path.DirectorySeparatorChar);
-            }
-            string artifactTag = string.IsNullOrEmpty(artifactPath) ? "" : $"\n<ArtifactsPath>{artifactPath}</ArtifactsPath>\n";
-            string useArtifactTag = useArtifacts ? "\n<UseArtifactsOutput>true</UseArtifactsOutput>\n" : "";
             var csprojContent = $@"<Project Sdk=""Microsoft.NET.Sdk"">
   <PropertyGroup>
-    <TargetFramework>netstandard2.0,net10.0</TargetFramework>{useArtifactTag}{artifactTag}
+    <TargetFramework>netstandard2.0,net10.0</TargetFramework>
   </PropertyGroup>
   <ItemGroup>
     <PackageReference Include=""First.Package"">
@@ -688,19 +649,16 @@ namespace My.External.Library
     </PackageReference>
   </ItemGroup>
 </Project>";
+            string projName = "TestNamespace";
             File.WriteAllText(Path.Combine(_projectDir!, "src", $"{projName}.csproj"), csprojContent);
             MockHelpers.LoadMockGenerator(
                 inputNamespaceName: projName,
                 outputPath: _projectDir,
                 configuration: $"{{\"package-name\": \"{projName}\"}}");
-            // If the folder was not created, we should get null.
-            //Assert.That(await GeneratedCodeWorkspace.TryGetObjectPath(), Is.Null);
             // Create directory and make sure it is not null now.
-            if (expectedOutput != null)
-            {
-                Directory.CreateDirectory(expectedOutput);
-                Assert.That(await GeneratedCodeWorkspace.TryGetObjectPath(), Is.EqualTo(expectedOutput));
-            }
+
+            string expectedOutput = Path.Combine(_projectDir!, "src", "obj", "project.assets.json");
+            Assert.That(await GeneratedCodeWorkspace.TryGetAssetsFile(), Is.EqualTo(expectedOutput));
         }
 
         /// <summary>

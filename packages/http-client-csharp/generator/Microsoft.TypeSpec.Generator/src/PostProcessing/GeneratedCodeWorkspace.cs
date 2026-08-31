@@ -275,20 +275,12 @@ namespace Microsoft.TypeSpec.Generator
             string assetsJson = Path.Combine(CodeModelGenerator.Instance.Configuration.ProjectDirectory, "obj", "project.assets.json");
             if (!File.Exists(assetsJson))
             {
-                // If it does not exists, try the artifacts/obj/%project_name%/ three directoreies above projects directory.
-                // If this directory does not extists or does not contain artifacts/obj/%project_name%/roject.assets.json, give up.
-                //DirectoryInfo? directory = (new DirectoryInfo(CodeModelGenerator.Instance.Configuration.OutputDirectory)).Parent?.Parent?.Parent;
-                //if (directory == null)
-                //{
-                //    return hshFrameworks;
-                //}
-                //assetsJson = Path.Combine(directory.FullName, "artifacts", "obj", CodeModelGenerator.Instance.Configuration.PackageName, "project.assets.json");
-                string objPath = await TryGetObjectPath() ?? "";
-                assetsJson = Path.Combine(objPath, "project.assets.json");
-                if (!File.Exists(assetsJson))
+                string? assetsPath = await TryGetAssetsFile();
+                if (string.IsNullOrEmpty(assetsPath) || !File.Exists(assetsPath))
                 {
                     return hshFrameworks;
                 }
+                assetsJson = assetsPath;
             }
             Utf8JsonReader reader = new Utf8JsonReader(await File.ReadAllBytesAsync(assetsJson));
             using JsonDocument document = JsonDocument.ParseValue(ref reader);
@@ -326,7 +318,7 @@ namespace Microsoft.TypeSpec.Generator
             return hshFrameworks;
         }
 
-        internal static async Task<string?> TryGetObjectPath()
+        internal static async Task<string?> TryGetAssetsFile()
         {
             string projectFilePath = Path.GetFullPath(
                 Path.Combine(CodeModelGenerator.Instance.Configuration.ProjectDirectory, $"{CodeModelGenerator.Instance.Configuration.PackageName}.csproj"));
@@ -336,7 +328,7 @@ namespace Microsoft.TypeSpec.Generator
                 UseShellExecute = false,
                 WindowStyle = ProcessWindowStyle.Hidden,
                 FileName = "dotnet",
-                ArgumentList = { "msbuild", projectFilePath, "-getProperty:OutputPath" },
+                ArgumentList = { "msbuild", projectFilePath, "-getProperty:ProjectAssetsFile" },
                 RedirectStandardOutput = true,
                 RedirectStandardError = true,
             };
@@ -360,29 +352,7 @@ namespace Microsoft.TypeSpec.Generator
                     );
                 }
             }
-            Regex regBin = Path.DirectorySeparatorChar == '\\' ? new(@"(^bin\\)|(\\bin\\)") : new($"(^bin{Path.DirectorySeparatorChar})|({Path.DirectorySeparatorChar}bin{Path.DirectorySeparatorChar})");
-            if (string.IsNullOrEmpty(output) || !regBin.IsMatch(output))
-            {
-                return null;
-            }
-            output = output.Trim(['\n', '\r', '\t', ' ']);
-            string binProjPath = Path.Combine("bin", CodeModelGenerator.Instance.Configuration.PackageName);
-            if (output.Contains(binProjPath))
-            {
-                // Special case when we have the absolute path to the atrifacts. In this case the obj folder contains subfolder named with ptroject name.
-                string objpath = Path.Combine("obj", CodeModelGenerator.Instance.Configuration.PackageName);
-                output = output.ReplaceLast(output.Substring(output.LastIndexOf(binProjPath)), objpath);
-            }
-            else
-            {
-                output = output.ReplaceLast(output.Substring(output.LastIndexOf("bin")), "obj");
-            }
-            // Handle relative paths
-            if (!Path.IsPathFullyQualified(output))
-            {
-                output = Path.Combine(Path.GetDirectoryName(projectFilePath) ?? "", output);
-            }
-            return Directory.Exists(output) ? output : null;
+            return output?.Trim(['\n', '\r', '\t', ' ']);
         }
 
         internal static string GetLatestTargetFramework(IEnumerable<string> shortNames)
