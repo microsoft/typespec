@@ -109,6 +109,7 @@
           "$id": "6",
           "kind": "endpoint",
           "name": "endpoint",
+          "originalName": "endpoint",
           "serializedName": "endpoint",
           "doc": "Service host",
           "type": {

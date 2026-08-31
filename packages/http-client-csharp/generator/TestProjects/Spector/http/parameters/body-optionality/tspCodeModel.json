@@ -7,6 +7,7 @@
       "$id": "1",
       "kind": "constant",
       "name": "RequiredExplicitContentType",
+      "originalName": "RequiredExplicitContentType",
       "namespace": "",
       "usage": "None",
       "valueType": {
@@ -24,6 +25,7 @@
       "$id": "3",
       "kind": "constant",
       "name": "RequiredExplicitContentType1",
+      "originalName": "RequiredExplicitContentType",
       "namespace": "",
       "usage": "None",
       "valueType": {
@@ -41,6 +43,7 @@
       "$id": "5",
       "kind": "constant",
       "name": "RequiredExplicitContentType2",
+      "originalName": "RequiredExplicitContentType",
       "namespace": "",
       "usage": "None",
       "valueType": {
@@ -58,6 +61,7 @@
       "$id": "7",
       "kind": "constant",
       "name": "RequiredExplicitContentType3",
+      "originalName": "RequiredExplicitContentType",
       "namespace": "",
       "usage": "None",
       "valueType": {
@@ -422,6 +426,7 @@
           "$id": "26",
           "kind": "endpoint",
           "name": "endpoint",
+          "originalName": "endpoint",
           "serializedName": "endpoint",
           "doc": "Service host",
           "type": {
@@ -752,6 +757,7 @@
               "$id": "42",
               "kind": "endpoint",
               "name": "endpoint",
+              "originalName": "endpoint",
               "serializedName": "endpoint",
               "doc": "Service host",
               "type": {

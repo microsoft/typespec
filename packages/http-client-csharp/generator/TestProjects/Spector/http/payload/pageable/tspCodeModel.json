@@ -7,6 +7,7 @@
       "$id": "1",
       "kind": "constant",
       "name": "LinkAccept",
+      "originalName": "LinkAccept",
       "namespace": "",
       "usage": "None",
       "valueType": {
@@ -24,6 +25,7 @@
       "$id": "3",
       "kind": "constant",
       "name": "LinkAccept1",
+      "originalName": "LinkAccept",
       "namespace": "",
       "usage": "None",
       "valueType": {
@@ -41,6 +43,7 @@
       "$id": "5",
       "kind": "constant",
       "name": "LinkAccept2",
+      "originalName": "LinkAccept",
       "namespace": "",
       "usage": "None",
       "valueType": {
@@ -58,6 +61,7 @@
       "$id": "7",
       "kind": "constant",
       "name": "LinkAccept3",
+      "originalName": "LinkAccept",
       "namespace": "",
       "usage": "None",
       "valueType": {
@@ -75,6 +79,7 @@
       "$id": "9",
       "kind": "constant",
       "name": "LinkAccept4",
+      "originalName": "LinkAccept",
       "namespace": "",
       "usage": "None",
       "valueType": {
@@ -92,6 +97,7 @@
       "$id": "11",
       "kind": "constant",
       "name": "LinkAccept5",
+      "originalName": "LinkAccept",
       "namespace": "",
       "usage": "None",
       "valueType": {
@@ -109,6 +115,7 @@
       "$id": "13",
       "kind": "constant",
       "name": "LinkAccept6",
+      "originalName": "LinkAccept",
       "namespace": "",
       "usage": "None",
       "valueType": {
@@ -126,6 +133,7 @@
       "$id": "15",
       "kind": "constant",
       "name": "LinkAccept7",
+      "originalName": "LinkAccept",
       "namespace": "",
       "usage": "None",
       "valueType": {
@@ -143,6 +151,7 @@
       "$id": "17",
       "kind": "constant",
       "name": "LinkAccept8",
+      "originalName": "LinkAccept",
       "namespace": "",
       "usage": "None",
       "valueType": {
@@ -160,6 +169,7 @@
       "$id": "19",
       "kind": "constant",
       "name": "LinkAccept9",
+      "originalName": "LinkAccept",
       "namespace": "",
       "usage": "None",
       "valueType": {
@@ -177,6 +187,7 @@
       "$id": "21",
       "kind": "constant",
       "name": "LinkAccept10",
+      "originalName": "LinkAccept",
       "namespace": "",
       "usage": "None",
       "valueType": {
@@ -194,6 +205,7 @@
       "$id": "23",
       "kind": "constant",
       "name": "LinkAccept11",
+      "originalName": "LinkAccept",
       "namespace": "",
       "usage": "None",
       "valueType": {
@@ -211,6 +223,7 @@
       "$id": "25",
       "kind": "constant",
       "name": "LinkAccept12",
+      "originalName": "LinkAccept",
       "namespace": "",
       "usage": "None",
       "valueType": {
@@ -228,6 +241,7 @@
       "$id": "27",
       "kind": "constant",
       "name": "ListWithContinuationResponseContentType",
+      "originalName": "ListWithContinuationResponseContentType",
       "namespace": "",
       "usage": "None",
       "valueType": {
@@ -245,6 +259,7 @@
       "$id": "29",
       "kind": "constant",
       "name": "ListWithContinuationResponseContentType1",
+      "originalName": "ListWithContinuationResponseContentType",
       "namespace": "",
       "usage": "None",
       "valueType": {
@@ -262,6 +277,7 @@
       "$id": "31",
       "kind": "constant",
       "name": "ListWithContinuationResponseContentType2",
+      "originalName": "ListWithContinuationResponseContentType",
       "namespace": "",
       "usage": "None",
       "valueType": {
@@ -279,6 +295,7 @@
       "$id": "33",
       "kind": "constant",
       "name": "ListWithContinuationResponseContentType3",
+      "originalName": "ListWithContinuationResponseContentType",
       "namespace": "",
       "usage": "None",
       "valueType": {
@@ -1688,6 +1705,7 @@
           "$id": "111",
           "kind": "endpoint",
           "name": "endpoint",
+          "originalName": "endpoint",
           "serializedName": "endpoint",
           "doc": "Service host",
           "type": {
@@ -2085,6 +2103,7 @@
               "$id": "127",
               "kind": "endpoint",
               "name": "endpoint",
+              "originalName": "endpoint",
               "serializedName": "endpoint",
               "doc": "Service host",
               "type": {
@@ -2348,6 +2367,7 @@
                   "$id": "139",
                   "kind": "endpoint",
                   "name": "endpoint",
+                  "originalName": "endpoint",
                   "serializedName": "endpoint",
                   "doc": "Service host",
                   "type": {
@@ -4042,6 +4062,7 @@
                   "$id": "241",
                   "kind": "endpoint",
                   "name": "endpoint",
+                  "originalName": "endpoint",
                   "serializedName": "endpoint",
                   "doc": "Service host",
                   "type": {
@@ -4367,6 +4388,7 @@
               "$id": "257",
               "kind": "endpoint",
               "name": "endpoint",
+              "originalName": "endpoint",
               "serializedName": "endpoint",
               "doc": "Service host",
               "type": {
@@ -4718,6 +4740,7 @@
               "$id": "273",
               "kind": "endpoint",
               "name": "endpoint",
+              "originalName": "endpoint",
               "serializedName": "endpoint",
               "doc": "Service host",
               "type": {

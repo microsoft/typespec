@@ -126,6 +126,7 @@
           "$id": "10",
           "kind": "endpoint",
           "name": "endpoint",
+          "originalName": "endpoint",
           "serializedName": "endpoint",
           "doc": "Service host",
           "type": {
@@ -282,6 +283,7 @@
               "$id": "20",
               "kind": "endpoint",
               "name": "endpoint",
+              "originalName": "endpoint",
               "serializedName": "endpoint",
               "doc": "Service host",
               "type": {
@@ -442,6 +444,7 @@
               "$id": "30",
               "kind": "endpoint",
               "name": "endpoint",
+              "originalName": "endpoint",
               "serializedName": "endpoint",
               "doc": "Service host",
               "type": {
@@ -501,6 +504,7 @@
           "$id": "34",
           "kind": "endpoint",
           "name": "endpoint",
+          "originalName": "endpoint",
           "serializedName": "endpoint",
           "doc": "Service host",
           "type": {
@@ -657,6 +661,7 @@
               "$id": "44",
               "kind": "endpoint",
               "name": "endpoint",
+              "originalName": "endpoint",
               "serializedName": "endpoint",
               "doc": "Service host",
               "type": {
@@ -817,6 +822,7 @@
               "$id": "54",
               "kind": "endpoint",
               "name": "endpoint",
+              "originalName": "endpoint",
               "serializedName": "endpoint",
               "doc": "Service host",
               "type": {

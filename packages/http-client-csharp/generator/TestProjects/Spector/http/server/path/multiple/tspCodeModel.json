@@ -205,6 +205,7 @@
           "$id": "13",
           "kind": "endpoint",
           "name": "endpoint",
+          "originalName": "endpoint",
           "serializedName": "endpoint",
           "doc": "Pass in http://localhost:3000 for endpoint.",
           "type": {
@@ -227,6 +228,7 @@
           "$id": "15",
           "kind": "endpoint",
           "name": "apiVersion",
+          "originalName": "apiVersion",
           "serializedName": "apiVersion",
           "doc": "Pass in v1.0 for API version.",
           "type": {

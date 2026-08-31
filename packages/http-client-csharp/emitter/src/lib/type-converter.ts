@@ -463,6 +463,7 @@ function fromUnionType(
   return diagnostics.wrap({
     kind: "union",
     name: union.name,
+    originalName: union.name,
     variantTypes: variantTypes,
     namespace: union.namespace,
     decorators: union.decorators,
@@ -479,6 +480,7 @@ function fromSdkConstantType(
   const literalType = {
     kind: constantType.kind,
     name: constantType.name,
+    originalName: constantType.name,
     namespace: "", // constantType.namespace, TODO - constant type now does not have namespace. TCGC will add it later
     access: undefined, // constantType.access, TODO - constant type now does not have access. TCGC will add it later
     usage: UsageFlags.None, // constantType.usage, TODO - constant type now does not have usage. TCGC will add it later
@@ -498,8 +500,9 @@ function fromSdkEnumValueType(
   enumValueType: SdkEnumValueType,
 ): [InputEnumValueType, readonly Diagnostic[]] {
   const diagnostics = createDiagnosticCollector();
+  const enumType = diagnostics.pipe(fromSdkType(sdkContext, enumValueType.enumType));
   return diagnostics.wrap(
-    diagnostics.pipe(createEnumValueType(sdkContext, enumValueType, enumValueType.enumType)),
+    diagnostics.pipe(createEnumValueType(sdkContext, enumValueType, enumType)),
   );
 }
 

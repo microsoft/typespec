@@ -7,6 +7,7 @@
       "$id": "1",
       "kind": "constant",
       "name": "DefaultContentType",
+      "originalName": "DefaultContentType",
       "namespace": "",
       "usage": "None",
       "valueType": {
@@ -24,6 +25,7 @@
       "$id": "3",
       "kind": "constant",
       "name": "DefaultContentType1",
+      "originalName": "DefaultContentType",
       "namespace": "",
       "usage": "None",
       "valueType": {
@@ -41,6 +43,7 @@
       "$id": "5",
       "kind": "constant",
       "name": "DefaultContentType2",
+      "originalName": "DefaultContentType",
       "namespace": "",
       "usage": "None",
       "valueType": {
@@ -58,6 +61,7 @@
       "$id": "7",
       "kind": "constant",
       "name": "DefaultContentType3",
+      "originalName": "DefaultContentType",
       "namespace": "",
       "usage": "None",
       "valueType": {
@@ -75,6 +79,7 @@
       "$id": "9",
       "kind": "constant",
       "name": "DefaultContentType4",
+      "originalName": "DefaultContentType",
       "namespace": "",
       "usage": "None",
       "valueType": {
@@ -92,6 +97,7 @@
       "$id": "11",
       "kind": "constant",
       "name": "DefaultContentType5",
+      "originalName": "DefaultContentType",
       "namespace": "",
       "usage": "None",
       "valueType": {
@@ -109,6 +115,7 @@
       "$id": "13",
       "kind": "constant",
       "name": "DefaultContentType6",
+      "originalName": "DefaultContentType",
       "namespace": "",
       "usage": "None",
       "valueType": {
@@ -126,6 +133,7 @@
       "$id": "15",
       "kind": "constant",
       "name": "DefaultContentType7",
+      "originalName": "DefaultContentType",
       "namespace": "",
       "usage": "None",
       "valueType": {
@@ -143,6 +151,7 @@
       "$id": "17",
       "kind": "constant",
       "name": "DefaultContentType8",
+      "originalName": "DefaultContentType",
       "namespace": "",
       "usage": "None",
       "valueType": {
@@ -160,6 +169,7 @@
       "$id": "19",
       "kind": "constant",
       "name": "DefaultContentType9",
+      "originalName": "DefaultContentType",
       "namespace": "",
       "usage": "None",
       "valueType": {
@@ -477,6 +487,7 @@
           "$id": "45",
           "kind": "endpoint",
           "name": "endpoint",
+          "originalName": "endpoint",
           "serializedName": "endpoint",
           "doc": "Service host",
           "type": {
@@ -1055,6 +1066,7 @@
               "$id": "85",
               "kind": "endpoint",
               "name": "endpoint",
+              "originalName": "endpoint",
               "serializedName": "endpoint",
               "doc": "Service host",
               "type": {
@@ -2095,6 +2107,7 @@
               "$id": "129",
               "kind": "endpoint",
               "name": "endpoint",
+              "originalName": "endpoint",
               "serializedName": "endpoint",
               "doc": "Service host",
               "type": {
@@ -2678,6 +2691,7 @@
               "$id": "169",
               "kind": "endpoint",
               "name": "endpoint",
+              "originalName": "endpoint",
               "serializedName": "endpoint",
               "doc": "Service host",
               "type": {
@@ -2980,6 +2994,7 @@
               "$id": "189",
               "kind": "endpoint",
               "name": "endpoint",
+              "originalName": "endpoint",
               "serializedName": "endpoint",
               "doc": "Service host",
               "type": {

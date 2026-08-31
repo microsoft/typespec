@@ -7,6 +7,7 @@
       "$id": "1",
       "kind": "constant",
       "name": "SendRequestContentType",
+      "originalName": "SendRequestContentType",
       "namespace": "",
       "usage": "None",
       "valueType": {
@@ -24,6 +25,7 @@
       "$id": "3",
       "kind": "constant",
       "name": "JsonlStreamInfoContentType",
+      "originalName": "SendRequestContentType",
       "namespace": "TypeSpec.Http.Streams",
       "usage": "None",
       "valueType": {
@@ -41,6 +43,7 @@
       "$id": "5",
       "kind": "constant",
       "name": "SendRequestContentType1",
+      "originalName": "SendRequestContentType",
       "namespace": "",
       "usage": "None",
       "valueType": {
@@ -58,6 +61,7 @@
       "$id": "7",
       "kind": "constant",
       "name": "SendRequestContentType2",
+      "originalName": "SendRequestContentType",
       "namespace": "",
       "usage": "None",
       "valueType": {
@@ -179,6 +183,7 @@
           "$id": "17",
           "kind": "endpoint",
           "name": "endpoint",
+          "originalName": "endpoint",
           "serializedName": "endpoint",
           "doc": "Service host",
           "type": {
@@ -533,6 +538,7 @@
               "$id": "36",
               "kind": "endpoint",
               "name": "endpoint",
+              "originalName": "endpoint",
               "serializedName": "endpoint",
               "doc": "Service host",
               "type": {

@@ -155,6 +155,7 @@
       "$id": "12",
       "kind": "constant",
       "name": "V1ContentType",
+      "originalName": "V1ContentType",
       "namespace": "",
       "usage": "None",
       "valueType": {
@@ -172,6 +173,7 @@
       "$id": "14",
       "kind": "constant",
       "name": "V1ContentType1",
+      "originalName": "V1ContentType",
       "namespace": "",
       "usage": "None",
       "valueType": {
@@ -189,6 +191,7 @@
       "$id": "16",
       "kind": "constant",
       "name": "V1ContentType2",
+      "originalName": "V1ContentType",
       "namespace": "",
       "usage": "None",
       "valueType": {
@@ -206,6 +209,7 @@
       "$id": "18",
       "kind": "constant",
       "name": "V1ContentType3",
+      "originalName": "V1ContentType",
       "namespace": "",
       "usage": "None",
       "valueType": {
@@ -223,6 +227,7 @@
       "$id": "20",
       "kind": "constant",
       "name": "V1ContentType4",
+      "originalName": "V1ContentType",
       "namespace": "",
       "usage": "None",
       "valueType": {
@@ -240,6 +245,7 @@
       "$id": "22",
       "kind": "constant",
       "name": "V1ContentType5",
+      "originalName": "V1ContentType",
       "namespace": "",
       "usage": "None",
       "valueType": {
@@ -257,6 +263,7 @@
       "$id": "24",
       "kind": "constant",
       "name": "V1ContentType6",
+      "originalName": "V1ContentType",
       "namespace": "",
       "usage": "None",
       "valueType": {
@@ -274,6 +281,7 @@
       "$id": "26",
       "kind": "constant",
       "name": "V1ContentType7",
+      "originalName": "V1ContentType",
       "namespace": "",
       "usage": "None",
       "valueType": {
@@ -365,6 +373,7 @@
             "$id": "33",
             "kind": "union",
             "name": "UnionV1",
+            "originalName": "UnionV1",
             "variantTypes": [
               {
                 "$id": "34",
@@ -504,6 +513,7 @@
             "$id": "43",
             "kind": "union",
             "name": "UnionV2",
+            "originalName": "UnionV2",
             "variantTypes": [
               {
                 "$id": "44",
@@ -1272,6 +1282,7 @@
           "$id": "80",
           "kind": "endpoint",
           "name": "endpoint",
+          "originalName": "endpoint",
           "serializedName": "endpoint",
           "doc": "Need to be set as 'http://localhost:3000' in client.",
           "type": {
@@ -1294,6 +1305,7 @@
           "$id": "82",
           "kind": "endpoint",
           "name": "version",
+          "originalName": "version",
           "serializedName": "version",
           "doc": "Need to be set as 'v1', 'v2preview' or 'v2' in client.",
           "type": {
@@ -1542,6 +1554,7 @@
               "$id": "93",
               "kind": "endpoint",
               "name": "endpoint",
+              "originalName": "endpoint",
               "serializedName": "endpoint",
               "doc": "Need to be set as 'http://localhost:3000' in client.",
               "type": {
@@ -1564,6 +1577,7 @@
               "$id": "95",
               "kind": "endpoint",
               "name": "version",
+              "originalName": "version",
               "serializedName": "version",
               "doc": "Need to be set as 'v1', 'v2preview' or 'v2' in client.",
               "type": {

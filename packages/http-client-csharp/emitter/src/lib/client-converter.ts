@@ -191,6 +191,7 @@ function fromSdkClient(
       parameters.push({
         kind: "endpoint",
         name: parameter.name,
+        originalName: parameter.name,
         serializedName: parameter.serializedName,
         summary: parameter.summary,
         doc: parameter.doc,

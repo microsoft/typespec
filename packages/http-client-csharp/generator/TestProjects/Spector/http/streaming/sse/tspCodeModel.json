@@ -7,6 +7,7 @@
       "$id": "1",
       "kind": "constant",
       "name": "ReceiveResponseContentType",
+      "originalName": "ReceiveResponseContentType",
       "namespace": "",
       "usage": "None",
       "valueType": {
@@ -24,6 +25,7 @@
       "$id": "3",
       "kind": "constant",
       "name": "ReceiveResponseContentType1",
+      "originalName": "ReceiveResponseContentType",
       "namespace": "",
       "usage": "None",
       "valueType": {
@@ -41,6 +43,7 @@
       "$id": "5",
       "kind": "constant",
       "name": "ReceiveResponseContentType2",
+      "originalName": "ReceiveResponseContentType",
       "namespace": "",
       "usage": "None",
       "valueType": {
@@ -58,6 +61,7 @@
       "$id": "7",
       "kind": "constant",
       "name": "Receive",
+      "originalName": "Receive",
       "namespace": "",
       "usage": "None",
       "valueType": {
@@ -75,6 +79,7 @@
       "$id": "9",
       "kind": "constant",
       "name": "ReceiveResponseContentType3",
+      "originalName": "ReceiveResponseContentType",
       "namespace": "",
       "usage": "None",
       "valueType": {
@@ -92,6 +97,7 @@
       "$id": "11",
       "kind": "constant",
       "name": "StreamContentType",
+      "originalName": "StreamContentType",
       "namespace": "",
       "usage": "None",
       "valueType": {
@@ -109,6 +115,7 @@
       "$id": "13",
       "kind": "constant",
       "name": "ReceiveResponseContentType4",
+      "originalName": "ReceiveResponseContentType",
       "namespace": "",
       "usage": "None",
       "valueType": {
@@ -126,6 +133,7 @@
       "$id": "15",
       "kind": "constant",
       "name": "Receive1",
+      "originalName": "Receive",
       "namespace": "",
       "usage": "None",
       "valueType": {
@@ -143,6 +151,7 @@
       "$id": "17",
       "kind": "constant",
       "name": "ReceiveResponseContentType5",
+      "originalName": "ReceiveResponseContentType",
       "namespace": "",
       "usage": "None",
       "valueType": {
@@ -450,6 +459,7 @@
           "$id": "39",
           "kind": "endpoint",
           "name": "endpoint",
+          "originalName": "endpoint",
           "serializedName": "endpoint",
           "doc": "Service host",
           "type": {
@@ -559,6 +569,7 @@
                         "$id": "48",
                         "kind": "union",
                         "name": "UnnamedEvents",
+                        "originalName": "UnnamedEvents",
                         "variantTypes": [
                           {
                             "$ref": "19"
@@ -631,6 +642,7 @@
               "$id": "50",
               "kind": "endpoint",
               "name": "endpoint",
+              "originalName": "endpoint",
               "serializedName": "endpoint",
               "doc": "Service host",
               "type": {
@@ -744,6 +756,7 @@
                         "$id": "59",
                         "kind": "union",
                         "name": "ResponseEvents",
+                        "originalName": "ResponseEvents",
                         "variantTypes": [
                           {
                             "$ref": "22"
@@ -824,6 +837,7 @@
               "$id": "61",
               "kind": "endpoint",
               "name": "endpoint",
+              "originalName": "endpoint",
               "serializedName": "endpoint",
               "doc": "Service host",
               "type": {
@@ -1025,6 +1039,7 @@
                         "$id": "74",
                         "kind": "union",
                         "name": "RetrievalEvents",
+                        "originalName": "RetrievalEvents",
                         "variantTypes": [
                           {
                             "$ref": "31"
@@ -1114,6 +1129,7 @@
               "$id": "76",
               "kind": "endpoint",
               "name": "endpoint",
+              "originalName": "endpoint",
               "serializedName": "endpoint",
               "doc": "Service host",
               "type": {

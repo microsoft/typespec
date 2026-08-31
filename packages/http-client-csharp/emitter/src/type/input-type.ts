@@ -103,10 +103,10 @@ export interface InputLiteralType extends InputTypeBase {
   /** Whether the name should be used exactly as-is, without casing transformations. */
   isExactName?: boolean;
   /**
-   * The name as written in the spec, prior to any C# name normalization applied to `name`. Always
-   * set by the converters; it is the same value as `name` when no normalization rule applied.
+   * The name as written in the spec, prior to any C# name normalization applied to `name`. This is
+   * always set; it is the same value as `name` when no normalization rule applied.
    */
-  originalName?: string;
+  originalName: string;
 }
 
 export function isInputLiteralType(type: InputType): type is InputLiteralType {
@@ -148,10 +148,10 @@ export interface InputUnionType extends InputTypeBase {
   /** Whether the name should be used exactly as-is, without casing transformations. */
   isExactName?: boolean;
   /**
-   * The name as written in the spec, prior to any C# name normalization applied to `name`. Always
-   * set by the converters; it is the same value as `name` when no normalization rule applied.
+   * The name as written in the spec, prior to any C# name normalization applied to `name`. This is
+   * always set; it is the same value as `name` when no normalization rule applied.
    */
-  originalName?: string;
+  originalName: string;
 }
 
 export function isInputUnionType(type: InputType): type is InputUnionType {
@@ -179,10 +179,10 @@ export interface InputModelType extends InputTypeBase {
   /** Whether the name should be used exactly as-is, without casing transformations. */
   isExactName?: boolean;
   /**
-   * The name as written in the spec, prior to any C# name normalization applied to `name`. Always
-   * set by the converters; it is the same value as `name` when no normalization rule applied.
+   * The name as written in the spec, prior to any C# name normalization applied to `name`. This is
+   * always set; it is the same value as `name` when no normalization rule applied.
    */
-  originalName?: string;
+  originalName: string;
   /**
    * Whether the type represents a file. Only set on types that can represent a file in TCGC
    * (the http `File` model); otherwise left undefined.
@@ -204,10 +204,10 @@ export interface InputPropertyTypeBase extends DecoratedType {
   /** Whether the name should be used exactly as-is, without casing transformations. */
   isExactName?: boolean;
   /**
-   * The name as written in the spec, prior to any C# name normalization applied to `name`. Always
-   * set by the converters; it is the same value as `name` when no normalization rule applied.
+   * The name as written in the spec, prior to any C# name normalization applied to `name`. This is
+   * always set; it is the same value as `name` when no normalization rule applied.
    */
-  originalName?: string;
+  originalName: string;
 }
 
 export interface InputModelProperty extends InputPropertyTypeBase {
@@ -302,10 +302,10 @@ export interface InputEnumType extends InputTypeBase {
   /** Whether the name should be used exactly as-is, without casing transformations. */
   isExactName?: boolean;
   /**
-   * The name as written in the spec, prior to any C# name normalization applied to `name`. Always
-   * set by the converters; it is the same value as `name` when no normalization rule applied.
+   * The name as written in the spec, prior to any C# name normalization applied to `name`. This is
+   * always set; it is the same value as `name` when no normalization rule applied.
    */
-  originalName?: string;
+  originalName: string;
 }
 
 export interface InputEnumValueType extends InputTypeBase {
@@ -317,10 +317,10 @@ export interface InputEnumValueType extends InputTypeBase {
   /** Whether the name should be used exactly as-is, without casing transformations. */
   isExactName?: boolean;
   /**
-   * The name as written in the spec, prior to any C# name normalization applied to `name`. Always
-   * set by the converters; it is the same value as `name` when no normalization rule applied.
+   * The name as written in the spec, prior to any C# name normalization applied to `name`. This is
+   * always set; it is the same value as `name` when no normalization rule applied.
    */
-  originalName?: string;
+  originalName: string;
 }
 
 export interface InputNullableType extends InputTypeBase {

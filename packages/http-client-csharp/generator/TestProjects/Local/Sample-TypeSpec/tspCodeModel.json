@@ -902,6 +902,7 @@
       "$id": "70",
       "kind": "constant",
       "name": "ThingRequiredLiteralString",
+      "originalName": "ThingRequiredLiteralString",
       "namespace": "SampleTypeSpec",
       "usage": "Input,Output,Spread,Json",
       "valueType": {
@@ -919,6 +920,7 @@
       "$id": "72",
       "kind": "constant",
       "name": "ThingRequiredLiteralInt",
+      "originalName": "ThingRequiredLiteralInt",
       "namespace": "SampleTypeSpec",
       "usage": "Input,Output,Spread,Json",
       "valueType": {
@@ -936,6 +938,7 @@
       "$id": "74",
       "kind": "constant",
       "name": "ThingRequiredLiteralFloat",
+      "originalName": "ThingRequiredLiteralFloat",
       "namespace": "SampleTypeSpec",
       "usage": "Input,Output,Spread,Json",
       "valueType": {
@@ -953,6 +956,7 @@
       "$id": "76",
       "kind": "constant",
       "name": "ThingRequiredLiteralBool",
+      "originalName": "ThingRequiredLiteralBool",
       "namespace": "SampleTypeSpec",
       "usage": "Input,Output,Spread,Json",
       "valueType": {
@@ -970,6 +974,7 @@
       "$id": "78",
       "kind": "constant",
       "name": "ThingOptionalLiteralBool",
+      "originalName": "ThingOptionalLiteralBool",
       "namespace": "SampleTypeSpec",
       "usage": "Input,Output,Spread,Json",
       "valueType": {
@@ -987,6 +992,7 @@
       "$id": "80",
       "kind": "constant",
       "name": "PetKind",
+      "originalName": "PetKind",
       "namespace": "SampleTypeSpec",
       "usage": "Input,Output,Json",
       "valueType": {
@@ -1004,6 +1010,7 @@
       "$id": "82",
       "kind": "constant",
       "name": "DogKind",
+      "originalName": "DogKind",
       "namespace": "SampleTypeSpec",
       "usage": "Input,Output,Json",
       "valueType": {
@@ -1021,6 +1028,7 @@
       "$id": "84",
       "kind": "constant",
       "name": "TreeSpecies",
+      "originalName": "TreeSpecies",
       "namespace": "SampleTypeSpec",
       "usage": "Input,Output,Json,Xml",
       "valueType": {
@@ -1038,6 +1046,7 @@
       "$id": "86",
       "kind": "constant",
       "name": "GetTreeAsJsonResponseContentType",
+      "originalName": "GetTreeAsJsonResponseContentType",
       "namespace": "",
       "usage": "None",
       "valueType": {
@@ -1055,6 +1064,7 @@
       "$id": "88",
       "kind": "constant",
       "name": "HelloAgainRequestContentType",
+      "originalName": "HelloAgainRequestContentType",
       "namespace": "",
       "usage": "None",
       "valueType": {
@@ -1072,6 +1082,7 @@
       "$id": "90",
       "kind": "constant",
       "name": "HelloAgainRequestContentType1",
+      "originalName": "HelloAgainRequestContentType",
       "namespace": "",
       "usage": "None",
       "valueType": {
@@ -1089,6 +1100,7 @@
       "$id": "92",
       "kind": "constant",
       "name": "GetTreeAsJsonResponseContentType1",
+      "originalName": "GetTreeAsJsonResponseContentType",
       "namespace": "",
       "usage": "None",
       "valueType": {
@@ -1106,6 +1118,7 @@
       "$id": "94",
       "kind": "constant",
       "name": "GetTreeAsJsonResponseContentType2",
+      "originalName": "GetTreeAsJsonResponseContentType",
       "namespace": "",
       "usage": "None",
       "valueType": {
@@ -1123,6 +1136,7 @@
       "$id": "96",
       "kind": "constant",
       "name": "GetTreeAsJsonResponseContentType3",
+      "originalName": "GetTreeAsJsonResponseContentType",
       "namespace": "",
       "usage": "None",
       "valueType": {
@@ -1140,6 +1154,7 @@
       "$id": "98",
       "kind": "constant",
       "name": "GetTreeAsJsonResponseContentType4",
+      "originalName": "GetTreeAsJsonResponseContentType",
       "namespace": "",
       "usage": "None",
       "valueType": {
@@ -1157,6 +1172,7 @@
       "$id": "100",
       "kind": "constant",
       "name": "GetTreeAsJsonResponseContentType5",
+      "originalName": "GetTreeAsJsonResponseContentType",
       "namespace": "",
       "usage": "None",
       "valueType": {
@@ -1174,6 +1190,7 @@
       "$id": "102",
       "kind": "constant",
       "name": "GetTreeAsJsonResponseContentType6",
+      "originalName": "GetTreeAsJsonResponseContentType",
       "namespace": "",
       "usage": "None",
       "valueType": {
@@ -1191,6 +1208,7 @@
       "$id": "104",
       "kind": "constant",
       "name": "HelloLiteralRequestP1",
+      "originalName": "HelloLiteralRequestP1",
       "namespace": "",
       "usage": "None",
       "valueType": {
@@ -1208,6 +1226,7 @@
       "$id": "106",
       "kind": "constant",
       "name": "HelloLiteralRequestP11",
+      "originalName": "HelloLiteralRequestP1",
       "namespace": "",
       "usage": "None",
       "valueType": {
@@ -1225,6 +1244,7 @@
       "$id": "108",
       "kind": "constant",
       "name": "ThingRequiredLiteralInt1",
+      "originalName": "ThingRequiredLiteralInt",
       "namespace": "",
       "usage": "None",
       "valueType": {
@@ -1242,6 +1262,7 @@
       "$id": "110",
       "kind": "constant",
       "name": "ThingRequiredLiteralInt2",
+      "originalName": "ThingRequiredLiteralInt",
       "namespace": "",
       "usage": "None",
       "valueType": {
@@ -1259,6 +1280,7 @@
       "$id": "112",
       "kind": "constant",
       "name": "ThingOptionalLiteralBool1",
+      "originalName": "ThingOptionalLiteralBool",
       "namespace": "",
       "usage": "None",
       "valueType": {
@@ -1276,6 +1298,7 @@
       "$id": "114",
       "kind": "constant",
       "name": "ThingOptionalLiteralBool2",
+      "originalName": "ThingOptionalLiteralBool",
       "namespace": "",
       "usage": "None",
       "valueType": {
@@ -1293,6 +1316,7 @@
       "$id": "116",
       "kind": "constant",
       "name": "GetTreeAsJsonResponseContentType7",
+      "originalName": "GetTreeAsJsonResponseContentType",
       "namespace": "",
       "usage": "None",
       "valueType": {
@@ -1310,6 +1334,7 @@
       "$id": "118",
       "kind": "constant",
       "name": "GetTreeAsJsonResponseContentType8",
+      "originalName": "GetTreeAsJsonResponseContentType",
       "namespace": "",
       "usage": "None",
       "valueType": {
@@ -1327,6 +1352,7 @@
       "$id": "120",
       "kind": "constant",
       "name": "GetTreeAsJsonResponseContentType9",
+      "originalName": "GetTreeAsJsonResponseContentType",
       "namespace": "",
       "usage": "None",
       "valueType": {
@@ -1344,6 +1370,7 @@
       "$id": "122",
       "kind": "constant",
       "name": "GetTreeAsJsonResponseContentType10",
+      "originalName": "GetTreeAsJsonResponseContentType",
       "namespace": "",
       "usage": "None",
       "valueType": {
@@ -1361,6 +1388,7 @@
       "$id": "124",
       "kind": "constant",
       "name": "GetTreeAsJsonResponseContentType11",
+      "originalName": "GetTreeAsJsonResponseContentType",
       "namespace": "",
       "usage": "None",
       "valueType": {
@@ -1378,6 +1406,7 @@
       "$id": "126",
       "kind": "constant",
       "name": "AnonymousBodyRequestRequiredQueryParam",
+      "originalName": "AnonymousBodyRequestRequiredQueryParam",
       "namespace": "",
       "usage": "None",
       "valueType": {
@@ -1395,6 +1424,7 @@
       "$id": "128",
       "kind": "constant",
       "name": "AnonymousBodyRequestRequiredQueryParam1",
+      "originalName": "AnonymousBodyRequestRequiredQueryParam",
       "namespace": "",
       "usage": "None",
       "valueType": {
@@ -1412,6 +1442,7 @@
       "$id": "130",
       "kind": "constant",
       "name": "AnonymousBodyRequestRequiredHeader",
+      "originalName": "AnonymousBodyRequestRequiredHeader",
       "namespace": "",
       "usage": "None",
       "valueType": {
@@ -1429,6 +1460,7 @@
       "$id": "132",
       "kind": "constant",
       "name": "AnonymousBodyRequestRequiredHeader1",
+      "originalName": "AnonymousBodyRequestRequiredHeader",
       "namespace": "",
       "usage": "None",
       "valueType": {
@@ -1446,6 +1478,7 @@
       "$id": "134",
       "kind": "constant",
       "name": "GetTreeAsJsonResponseContentType12",
+      "originalName": "GetTreeAsJsonResponseContentType",
       "namespace": "",
       "usage": "None",
       "valueType": {
@@ -1463,6 +1496,7 @@
       "$id": "136",
       "kind": "constant",
       "name": "GetTreeAsJsonResponseContentType13",
+      "originalName": "GetTreeAsJsonResponseContentType",
       "namespace": "",
       "usage": "None",
       "valueType": {
@@ -1480,6 +1514,7 @@
       "$id": "138",
       "kind": "constant",
       "name": "ThingRequiredLiteralString1",
+      "originalName": "ThingRequiredLiteralString",
       "namespace": "",
       "usage": "None",
       "valueType": {
@@ -1497,6 +1532,7 @@
       "$id": "140",
       "kind": "constant",
       "name": "ThingRequiredLiteralInt3",
+      "originalName": "ThingRequiredLiteralInt",
       "namespace": "",
       "usage": "None",
       "valueType": {
@@ -1514,6 +1550,7 @@
       "$id": "142",
       "kind": "constant",
       "name": "ThingRequiredLiteralFloat1",
+      "originalName": "ThingRequiredLiteralFloat",
       "namespace": "",
       "usage": "None",
       "valueType": {
@@ -1531,6 +1568,7 @@
       "$id": "144",
       "kind": "constant",
       "name": "ThingRequiredLiteralBool1",
+      "originalName": "ThingRequiredLiteralBool",
       "namespace": "",
       "usage": "None",
       "valueType": {
@@ -1548,6 +1586,7 @@
       "$id": "146",
       "kind": "constant",
       "name": "ThingOptionalLiteralBool3",
+      "originalName": "ThingOptionalLiteralBool",
       "namespace": "",
       "usage": "None",
       "valueType": {
@@ -1565,6 +1604,7 @@
       "$id": "148",
       "kind": "constant",
       "name": "GetTreeAsJsonResponseContentType14",
+      "originalName": "GetTreeAsJsonResponseContentType",
       "namespace": "",
       "usage": "None",
       "valueType": {
@@ -1582,6 +1622,7 @@
       "$id": "150",
       "kind": "constant",
       "name": "GetTreeAsJsonResponseContentType15",
+      "originalName": "GetTreeAsJsonResponseContentType",
       "namespace": "",
       "usage": "None",
       "valueType": {
@@ -1599,6 +1640,7 @@
       "$id": "152",
       "kind": "constant",
       "name": "GetTreeAsJsonResponseContentType16",
+      "originalName": "GetTreeAsJsonResponseContentType",
       "namespace": "",
       "usage": "None",
       "valueType": {
@@ -1616,6 +1658,7 @@
       "$id": "154",
       "kind": "constant",
       "name": "GetTreeAsJsonResponseContentType17",
+      "originalName": "GetTreeAsJsonResponseContentType",
       "namespace": "",
       "usage": "None",
       "valueType": {
@@ -1633,6 +1676,7 @@
       "$id": "156",
       "kind": "constant",
       "name": "GetTreeAsJsonResponseContentType18",
+      "originalName": "GetTreeAsJsonResponseContentType",
       "namespace": "",
       "usage": "None",
       "valueType": {
@@ -1650,6 +1694,7 @@
       "$id": "158",
       "kind": "constant",
       "name": "HelloAgainRequestContentType2",
+      "originalName": "HelloAgainRequestContentType",
       "namespace": "",
       "usage": "None",
       "valueType": {
@@ -1667,6 +1712,7 @@
       "$id": "160",
       "kind": "constant",
       "name": "GetTreeAsJsonResponseContentType19",
+      "originalName": "GetTreeAsJsonResponseContentType",
       "namespace": "",
       "usage": "None",
       "valueType": {
@@ -1684,6 +1730,7 @@
       "$id": "162",
       "kind": "constant",
       "name": "GetTreeAsJsonResponseContentType20",
+      "originalName": "GetTreeAsJsonResponseContentType",
       "namespace": "",
       "usage": "None",
       "valueType": {
@@ -1701,6 +1748,7 @@
       "$id": "164",
       "kind": "constant",
       "name": "GetTreeAsJsonResponseContentType21",
+      "originalName": "GetTreeAsJsonResponseContentType",
       "namespace": "",
       "usage": "None",
       "valueType": {
@@ -1718,6 +1766,7 @@
       "$id": "166",
       "kind": "constant",
       "name": "GetTreeAsJsonResponseContentType22",
+      "originalName": "GetTreeAsJsonResponseContentType",
       "namespace": "",
       "usage": "None",
       "valueType": {
@@ -1735,6 +1784,7 @@
       "$id": "168",
       "kind": "constant",
       "name": "GetTreeAsJsonResponseContentType23",
+      "originalName": "GetTreeAsJsonResponseContentType",
       "namespace": "",
       "usage": "None",
       "valueType": {
@@ -1752,6 +1802,7 @@
       "$id": "170",
       "kind": "constant",
       "name": "GetTreeAsJsonResponseContentType24",
+      "originalName": "GetTreeAsJsonResponseContentType",
       "namespace": "",
       "usage": "None",
       "valueType": {
@@ -1769,6 +1820,7 @@
       "$id": "172",
       "kind": "constant",
       "name": "GetTreeAsJsonResponseContentType25",
+      "originalName": "GetTreeAsJsonResponseContentType",
       "namespace": "",
       "usage": "None",
       "valueType": {
@@ -1786,6 +1838,7 @@
       "$id": "174",
       "kind": "constant",
       "name": "GetTreeAsJsonResponseContentType26",
+      "originalName": "GetTreeAsJsonResponseContentType",
       "namespace": "",
       "usage": "None",
       "valueType": {
@@ -1803,6 +1856,7 @@
       "$id": "176",
       "kind": "constant",
       "name": "GetTreeAsJsonResponseContentType27",
+      "originalName": "GetTreeAsJsonResponseContentType",
       "namespace": "",
       "usage": "None",
       "valueType": {
@@ -1820,6 +1874,7 @@
       "$id": "178",
       "kind": "constant",
       "name": "GetXmlAdvancedModelResponseContentType",
+      "originalName": "GetXmlAdvancedModelResponseContentType",
       "namespace": "",
       "usage": "None",
       "valueType": {
@@ -1837,6 +1892,7 @@
       "$id": "180",
       "kind": "constant",
       "name": "GetXmlAdvancedModelResponseContentType1",
+      "originalName": "GetXmlAdvancedModelResponseContentType",
       "namespace": "",
       "usage": "None",
       "valueType": {
@@ -1854,6 +1910,7 @@
       "$id": "182",
       "kind": "constant",
       "name": "GetXmlAdvancedModelResponseContentType2",
+      "originalName": "GetXmlAdvancedModelResponseContentType",
       "namespace": "",
       "usage": "None",
       "valueType": {
@@ -1871,6 +1928,7 @@
       "$id": "184",
       "kind": "constant",
       "name": "GetXmlAdvancedModelResponseContentType3",
+      "originalName": "GetXmlAdvancedModelResponseContentType",
       "namespace": "",
       "usage": "None",
       "valueType": {
@@ -1888,6 +1946,7 @@
       "$id": "186",
       "kind": "constant",
       "name": "GetXmlAdvancedModelResponseContentType4",
+      "originalName": "GetXmlAdvancedModelResponseContentType",
       "namespace": "",
       "usage": "None",
       "valueType": {
@@ -1905,6 +1964,7 @@
       "$id": "188",
       "kind": "constant",
       "name": "GetXmlAdvancedModelResponseContentType5",
+      "originalName": "GetXmlAdvancedModelResponseContentType",
       "namespace": "",
       "usage": "None",
       "valueType": {
@@ -1922,6 +1982,7 @@
       "$id": "190",
       "kind": "constant",
       "name": "UploadCatRequestContentType",
+      "originalName": "UploadCatRequestContentType",
       "namespace": "",
       "usage": "None",
       "valueType": {
@@ -1939,6 +2000,7 @@
       "$id": "192",
       "kind": "constant",
       "name": "UploadCatRequestContentType1",
+      "originalName": "UploadCatRequestContentType",
       "namespace": "",
       "usage": "None",
       "valueType": {
@@ -1956,6 +2018,7 @@
       "$id": "194",
       "kind": "constant",
       "name": "SendJsonLinesRequestContentType",
+      "originalName": "SendJsonLinesRequestContentType",
       "namespace": "",
       "usage": "None",
       "valueType": {
@@ -1973,6 +2036,7 @@
       "$id": "196",
       "kind": "constant",
       "name": "JsonlStreamStreamingItemContentType",
+      "originalName": "SendJsonLinesRequestContentType",
       "namespace": "TypeSpec.Http.Streams",
       "usage": "None",
       "valueType": {
@@ -1990,6 +2054,7 @@
       "$id": "198",
       "kind": "constant",
       "name": "SendJsonLinesRequestContentType1",
+      "originalName": "SendJsonLinesRequestContentType",
       "namespace": "",
       "usage": "None",
       "valueType": {
@@ -2007,6 +2072,7 @@
       "$id": "200",
       "kind": "constant",
       "name": "SendJsonLinesRequestContentType2",
+      "originalName": "SendJsonLinesRequestContentType",
       "namespace": "",
       "usage": "None",
       "valueType": {
@@ -2024,6 +2090,7 @@
       "$id": "202",
       "kind": "constant",
       "name": "ReceiveSseResponseContentType",
+      "originalName": "ReceiveSseResponseContentType",
       "namespace": "",
       "usage": "None",
       "valueType": {
@@ -2041,6 +2108,7 @@
       "$id": "204",
       "kind": "constant",
       "name": "ReceiveSse",
+      "originalName": "ReceiveSse",
       "namespace": "",
       "usage": "None",
       "valueType": {
@@ -2058,6 +2126,7 @@
       "$id": "206",
       "kind": "constant",
       "name": "ReceiveSseResponseContentType1",
+      "originalName": "ReceiveSseResponseContentType",
       "namespace": "",
       "usage": "None",
       "valueType": {
@@ -2075,6 +2144,7 @@
       "$id": "208",
       "kind": "constant",
       "name": "GetTreeAsJsonResponseContentType28",
+      "originalName": "GetTreeAsJsonResponseContentType",
       "namespace": "",
       "usage": "None",
       "valueType": {
@@ -2092,6 +2162,7 @@
       "$id": "210",
       "kind": "constant",
       "name": "GetTreeAsJsonResponseContentType29",
+      "originalName": "GetTreeAsJsonResponseContentType",
       "namespace": "",
       "usage": "None",
       "valueType": {
@@ -2109,6 +2180,7 @@
       "$id": "212",
       "kind": "constant",
       "name": "GetTreeAsJsonResponseContentType30",
+      "originalName": "GetTreeAsJsonResponseContentType",
       "namespace": "",
       "usage": "None",
       "valueType": {
@@ -2126,6 +2198,7 @@
       "$id": "214",
       "kind": "constant",
       "name": "GetTreeAsJsonResponseContentType31",
+      "originalName": "GetTreeAsJsonResponseContentType",
       "namespace": "",
       "usage": "None",
       "valueType": {
@@ -2143,6 +2216,7 @@
       "$id": "216",
       "kind": "constant",
       "name": "GetTreeAsJsonResponseContentType32",
+      "originalName": "GetTreeAsJsonResponseContentType",
       "namespace": "",
       "usage": "None",
       "valueType": {
@@ -2160,6 +2234,7 @@
       "$id": "218",
       "kind": "constant",
       "name": "GetTreeAsJsonResponseContentType33",
+      "originalName": "GetTreeAsJsonResponseContentType",
       "namespace": "",
       "usage": "None",
       "valueType": {
@@ -2177,6 +2252,7 @@
       "$id": "220",
       "kind": "constant",
       "name": "GetTreeAsJsonResponseContentType34",
+      "originalName": "GetTreeAsJsonResponseContentType",
       "namespace": "",
       "usage": "None",
       "valueType": {
@@ -2194,6 +2270,7 @@
       "$id": "222",
       "kind": "constant",
       "name": "GetTreeAsJsonResponseContentType35",
+      "originalName": "GetTreeAsJsonResponseContentType",
       "namespace": "",
       "usage": "None",
       "valueType": {
@@ -2211,6 +2288,7 @@
       "$id": "224",
       "kind": "constant",
       "name": "GetTreeAsJsonResponseContentType36",
+      "originalName": "GetTreeAsJsonResponseContentType",
       "namespace": "",
       "usage": "None",
       "valueType": {
@@ -2228,6 +2306,7 @@
       "$id": "226",
       "kind": "constant",
       "name": "GetTreeAsJsonResponseContentType37",
+      "originalName": "GetTreeAsJsonResponseContentType",
       "namespace": "",
       "usage": "None",
       "valueType": {
@@ -2245,6 +2324,7 @@
       "$id": "228",
       "kind": "constant",
       "name": "GetXmlAdvancedModelResponseContentType6",
+      "originalName": "GetXmlAdvancedModelResponseContentType",
       "namespace": "",
       "usage": "None",
       "valueType": {
@@ -2262,6 +2342,7 @@
       "$id": "230",
       "kind": "constant",
       "name": "GetXmlAdvancedModelResponseContentType7",
+      "originalName": "GetXmlAdvancedModelResponseContentType",
       "namespace": "",
       "usage": "None",
       "valueType": {
@@ -2279,6 +2360,7 @@
       "$id": "232",
       "kind": "constant",
       "name": "GetTreeAsJsonResponseContentType38",
+      "originalName": "GetTreeAsJsonResponseContentType",
       "namespace": "",
       "usage": "None",
       "valueType": {
@@ -2296,6 +2378,7 @@
       "$id": "234",
       "kind": "constant",
       "name": "GetTreeAsJsonResponseContentType39",
+      "originalName": "GetTreeAsJsonResponseContentType",
       "namespace": "",
       "usage": "None",
       "valueType": {
@@ -2313,6 +2396,7 @@
       "$id": "236",
       "kind": "constant",
       "name": "GetXmlAdvancedModelResponseContentType8",
+      "originalName": "GetXmlAdvancedModelResponseContentType",
       "namespace": "",
       "usage": "None",
       "valueType": {
@@ -2330,6 +2414,7 @@
       "$id": "238",
       "kind": "constant",
       "name": "GetXmlAdvancedModelResponseContentType9",
+      "originalName": "GetXmlAdvancedModelResponseContentType",
       "namespace": "",
       "usage": "None",
       "valueType": {
@@ -2347,6 +2432,7 @@
       "$id": "240",
       "kind": "constant",
       "name": "GetXmlAdvancedModelResponseContentType10",
+      "originalName": "GetXmlAdvancedModelResponseContentType",
       "namespace": "",
       "usage": "None",
       "valueType": {
@@ -2364,6 +2450,7 @@
       "$id": "242",
       "kind": "constant",
       "name": "GetXmlAdvancedModelResponseContentType11",
+      "originalName": "GetXmlAdvancedModelResponseContentType",
       "namespace": "",
       "usage": "None",
       "valueType": {
@@ -2381,6 +2468,7 @@
       "$id": "244",
       "kind": "constant",
       "name": "GetTreeAsJsonResponseContentType40",
+      "originalName": "GetTreeAsJsonResponseContentType",
       "namespace": "",
       "usage": "None",
       "valueType": {
@@ -2398,6 +2486,7 @@
       "$id": "246",
       "kind": "constant",
       "name": "GetTreeAsJsonResponseContentType41",
+      "originalName": "GetTreeAsJsonResponseContentType",
       "namespace": "",
       "usage": "None",
       "valueType": {
@@ -2415,6 +2504,7 @@
       "$id": "248",
       "kind": "constant",
       "name": "GetTreeAsJsonResponseContentType42",
+      "originalName": "GetTreeAsJsonResponseContentType",
       "namespace": "",
       "usage": "None",
       "valueType": {
@@ -2432,6 +2522,7 @@
       "$id": "250",
       "kind": "constant",
       "name": "GetTreeAsJsonResponseContentType43",
+      "originalName": "GetTreeAsJsonResponseContentType",
       "namespace": "",
       "usage": "None",
       "valueType": {
@@ -2449,6 +2540,7 @@
       "$id": "252",
       "kind": "constant",
       "name": "GetTreeAsJsonResponseContentType44",
+      "originalName": "GetTreeAsJsonResponseContentType",
       "namespace": "",
       "usage": "None",
       "valueType": {
@@ -2466,6 +2558,7 @@
       "$id": "254",
       "kind": "constant",
       "name": "GetTreeAsJsonResponseContentType45",
+      "originalName": "GetTreeAsJsonResponseContentType",
       "namespace": "",
       "usage": "None",
       "valueType": {
@@ -2537,6 +2630,7 @@
             "$id": "260",
             "kind": "union",
             "name": "ThingRequiredUnion",
+            "originalName": "ThingRequiredUnion",
             "variantTypes": [
               {
                 "$id": "261",
@@ -14149,6 +14243,7 @@
                     "$id": "888",
                     "kind": "union",
                     "name": "SampleEvents",
+                    "originalName": "SampleEvents",
                     "variantTypes": [
                       {
                         "$ref": "559"
@@ -14226,6 +14321,7 @@
           "$id": "890",
           "kind": "endpoint",
           "name": "sampleTypeSpecUrl",
+          "originalName": "sampleTypeSpecUrl",
           "serializedName": "sampleTypeSpecUrl",
           "type": {
             "$id": "891",
@@ -14674,6 +14770,7 @@
               "$id": "909",
               "kind": "endpoint",
               "name": "sampleTypeSpecUrl",
+              "originalName": "sampleTypeSpecUrl",
               "serializedName": "sampleTypeSpecUrl",
               "type": {
                 "$id": "910",
@@ -15123,6 +15220,7 @@
               "$id": "928",
               "kind": "endpoint",
               "name": "sampleTypeSpecUrl",
+              "originalName": "sampleTypeSpecUrl",
               "serializedName": "sampleTypeSpecUrl",
               "type": {
                 "$id": "929",
@@ -15369,6 +15467,7 @@
               "$id": "939",
               "kind": "endpoint",
               "name": "sampleTypeSpecUrl",
+              "originalName": "sampleTypeSpecUrl",
               "serializedName": "sampleTypeSpecUrl",
               "type": {
                 "$id": "940",
@@ -16058,6 +16157,7 @@
               "$id": "966",
               "kind": "endpoint",
               "name": "sampleTypeSpecUrl",
+              "originalName": "sampleTypeSpecUrl",
               "serializedName": "sampleTypeSpecUrl",
               "type": {
                 "$id": "967",
@@ -16302,6 +16402,7 @@
               "$id": "979",
               "kind": "endpoint",
               "name": "sampleTypeSpecUrl",
+              "originalName": "sampleTypeSpecUrl",
               "serializedName": "sampleTypeSpecUrl",
               "type": {
                 "$id": "980",
@@ -16505,6 +16606,7 @@
               "$id": "990",
               "kind": "endpoint",
               "name": "sampleTypeSpecUrl",
+              "originalName": "sampleTypeSpecUrl",
               "serializedName": "sampleTypeSpecUrl",
               "type": {
                 "$id": "991",

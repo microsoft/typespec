@@ -7,6 +7,7 @@
       "$id": "1",
       "kind": "constant",
       "name": "GetModelContentType",
+      "originalName": "GetModelContentType",
       "namespace": "",
       "usage": "None",
       "valueType": {
@@ -24,6 +25,7 @@
       "$id": "3",
       "kind": "constant",
       "name": "GetModelContentType1",
+      "originalName": "GetModelContentType",
       "namespace": "",
       "usage": "None",
       "valueType": {
@@ -41,6 +43,7 @@
       "$id": "5",
       "kind": "constant",
       "name": "GetModelContentType2",
+      "originalName": "GetModelContentType",
       "namespace": "",
       "usage": "None",
       "valueType": {
@@ -58,6 +61,7 @@
       "$id": "7",
       "kind": "constant",
       "name": "GetModelContentType3",
+      "originalName": "GetModelContentType",
       "namespace": "",
       "usage": "None",
       "valueType": {
@@ -75,6 +79,7 @@
       "$id": "9",
       "kind": "constant",
       "name": "GetModelContentType4",
+      "originalName": "GetModelContentType",
       "namespace": "",
       "usage": "None",
       "valueType": {
@@ -92,6 +97,7 @@
       "$id": "11",
       "kind": "constant",
       "name": "GetModelContentType5",
+      "originalName": "GetModelContentType",
       "namespace": "",
       "usage": "None",
       "valueType": {
@@ -109,6 +115,7 @@
       "$id": "13",
       "kind": "constant",
       "name": "GetModelContentType6",
+      "originalName": "GetModelContentType",
       "namespace": "",
       "usage": "None",
       "valueType": {
@@ -126,6 +133,7 @@
       "$id": "15",
       "kind": "constant",
       "name": "GetModelContentType7",
+      "originalName": "GetModelContentType",
       "namespace": "",
       "usage": "None",
       "valueType": {
@@ -143,6 +151,7 @@
       "$id": "17",
       "kind": "constant",
       "name": "GetModelContentType8",
+      "originalName": "GetModelContentType",
       "namespace": "",
       "usage": "None",
       "valueType": {
@@ -1620,6 +1629,7 @@
           "$id": "91",
           "kind": "endpoint",
           "name": "endpoint",
+          "originalName": "endpoint",
           "serializedName": "endpoint",
           "doc": "Service host",
           "type": {

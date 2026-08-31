@@ -7,6 +7,7 @@
       "$id": "1",
       "kind": "constant",
       "name": "SpreadAsRequestBodyContentType",
+      "originalName": "SpreadAsRequestBodyContentType",
       "namespace": "",
       "usage": "None",
       "valueType": {
@@ -24,6 +25,7 @@
       "$id": "3",
       "kind": "constant",
       "name": "SpreadAsRequestBodyContentType1",
+      "originalName": "SpreadAsRequestBodyContentType",
       "namespace": "",
       "usage": "None",
       "valueType": {
@@ -41,6 +43,7 @@
       "$id": "5",
       "kind": "constant",
       "name": "SpreadAsRequestBodyContentType2",
+      "originalName": "SpreadAsRequestBodyContentType",
       "namespace": "",
       "usage": "None",
       "valueType": {
@@ -58,6 +61,7 @@
       "$id": "7",
       "kind": "constant",
       "name": "SpreadAsRequestBodyContentType3",
+      "originalName": "SpreadAsRequestBodyContentType",
       "namespace": "",
       "usage": "None",
       "valueType": {
@@ -75,6 +79,7 @@
       "$id": "9",
       "kind": "constant",
       "name": "SpreadAsRequestBodyContentType4",
+      "originalName": "SpreadAsRequestBodyContentType",
       "namespace": "",
       "usage": "None",
       "valueType": {
@@ -92,6 +97,7 @@
       "$id": "11",
       "kind": "constant",
       "name": "SpreadAsRequestBodyContentType5",
+      "originalName": "SpreadAsRequestBodyContentType",
       "namespace": "",
       "usage": "None",
       "valueType": {
@@ -109,6 +115,7 @@
       "$id": "13",
       "kind": "constant",
       "name": "SpreadAsRequestBodyContentType6",
+      "originalName": "SpreadAsRequestBodyContentType",
       "namespace": "",
       "usage": "None",
       "valueType": {
@@ -126,6 +133,7 @@
       "$id": "15",
       "kind": "constant",
       "name": "SpreadAsRequestBodyContentType7",
+      "originalName": "SpreadAsRequestBodyContentType",
       "namespace": "",
       "usage": "None",
       "valueType": {
@@ -143,6 +151,7 @@
       "$id": "17",
       "kind": "constant",
       "name": "SpreadAsRequestBodyContentType8",
+      "originalName": "SpreadAsRequestBodyContentType",
       "namespace": "",
       "usage": "None",
       "valueType": {
@@ -617,6 +626,7 @@
           "$id": "51",
           "kind": "endpoint",
           "name": "endpoint",
+          "originalName": "endpoint",
           "serializedName": "endpoint",
           "doc": "Service host",
           "type": {
@@ -1593,6 +1603,7 @@
               "$id": "107",
               "kind": "endpoint",
               "name": "endpoint",
+              "originalName": "endpoint",
               "serializedName": "endpoint",
               "doc": "Service host",
               "type": {
@@ -2877,6 +2888,7 @@
               "$id": "184",
               "kind": "endpoint",
               "name": "endpoint",
+              "originalName": "endpoint",
               "serializedName": "endpoint",
               "doc": "Service host",
               "type": {

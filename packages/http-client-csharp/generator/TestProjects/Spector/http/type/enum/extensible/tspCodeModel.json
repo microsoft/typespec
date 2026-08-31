@@ -143,6 +143,7 @@
       "$id": "10",
       "kind": "constant",
       "name": "GetKnownValueResponseContentType",
+      "originalName": "GetKnownValueResponseContentType",
       "namespace": "",
       "usage": "None",
       "valueType": {
@@ -160,6 +161,7 @@
       "$id": "12",
       "kind": "constant",
       "name": "GetKnownValueResponseContentType1",
+      "originalName": "GetKnownValueResponseContentType",
       "namespace": "",
       "usage": "None",
       "valueType": {
@@ -177,6 +179,7 @@
       "$id": "14",
       "kind": "constant",
       "name": "GetKnownValueResponseContentType2",
+      "originalName": "GetKnownValueResponseContentType",
       "namespace": "",
       "usage": "None",
       "valueType": {
@@ -194,6 +197,7 @@
       "$id": "16",
       "kind": "constant",
       "name": "GetKnownValueResponseContentType3",
+      "originalName": "GetKnownValueResponseContentType",
       "namespace": "",
       "usage": "None",
       "valueType": {
@@ -211,6 +215,7 @@
       "$id": "18",
       "kind": "constant",
       "name": "GetKnownValueResponseContentType4",
+      "originalName": "GetKnownValueResponseContentType",
       "namespace": "",
       "usage": "None",
       "valueType": {
@@ -228,6 +233,7 @@
       "$id": "20",
       "kind": "constant",
       "name": "GetKnownValueResponseContentType5",
+      "originalName": "GetKnownValueResponseContentType",
       "namespace": "",
       "usage": "None",
       "valueType": {
@@ -245,6 +251,7 @@
       "$id": "22",
       "kind": "constant",
       "name": "GetKnownValueResponseContentType6",
+      "originalName": "GetKnownValueResponseContentType",
       "namespace": "",
       "usage": "None",
       "valueType": {
@@ -262,6 +269,7 @@
       "$id": "24",
       "kind": "constant",
       "name": "GetKnownValueResponseContentType7",
+      "originalName": "GetKnownValueResponseContentType",
       "namespace": "",
       "usage": "None",
       "valueType": {
@@ -290,6 +298,7 @@
           "$id": "27",
           "kind": "endpoint",
           "name": "endpoint",
+          "originalName": "endpoint",
           "serializedName": "endpoint",
           "doc": "Service host",
           "type": {
@@ -834,6 +843,7 @@
               "$id": "51",
               "kind": "endpoint",
               "name": "endpoint",
+              "originalName": "endpoint",
               "serializedName": "endpoint",
               "doc": "Service host",
               "type": {

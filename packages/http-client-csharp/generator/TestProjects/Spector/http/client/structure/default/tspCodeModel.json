@@ -203,6 +203,7 @@
           "$id": "13",
           "kind": "endpoint",
           "name": "endpoint",
+          "originalName": "endpoint",
           "serializedName": "endpoint",
           "doc": "Need to be set as 'http://localhost:3000' in client.",
           "type": {
@@ -225,6 +226,7 @@
           "$id": "15",
           "kind": "endpoint",
           "name": "client",
+          "originalName": "client",
           "serializedName": "client",
           "doc": "Need to be set as 'default', 'multi-client', 'renamed-operation', 'two-operation-group' in client.",
           "type": {
@@ -258,6 +260,7 @@
               "$id": "17",
               "kind": "endpoint",
               "name": "endpoint",
+              "originalName": "endpoint",
               "serializedName": "endpoint",
               "doc": "Need to be set as 'http://localhost:3000' in client.",
               "type": {
@@ -280,6 +283,7 @@
               "$id": "19",
               "kind": "endpoint",
               "name": "client",
+              "originalName": "client",
               "serializedName": "client",
               "doc": "Need to be set as 'default', 'multi-client', 'renamed-operation', 'two-operation-group' in client.",
               "type": {
@@ -360,6 +364,7 @@
                   "$id": "23",
                   "kind": "endpoint",
                   "name": "endpoint",
+                  "originalName": "endpoint",
                   "serializedName": "endpoint",
                   "doc": "Need to be set as 'http://localhost:3000' in client.",
                   "type": {
@@ -382,6 +387,7 @@
                   "$id": "25",
                   "kind": "endpoint",
                   "name": "client",
+                  "originalName": "client",
                   "serializedName": "client",
                   "doc": "Need to be set as 'default', 'multi-client', 'renamed-operation', 'two-operation-group' in client.",
                   "type": {
@@ -466,6 +472,7 @@
               "$id": "29",
               "kind": "endpoint",
               "name": "endpoint",
+              "originalName": "endpoint",
               "serializedName": "endpoint",
               "doc": "Need to be set as 'http://localhost:3000' in client.",
               "type": {
@@ -488,6 +495,7 @@
               "$id": "31",
               "kind": "endpoint",
               "name": "client",
+              "originalName": "client",
               "serializedName": "client",
               "doc": "Need to be set as 'default', 'multi-client', 'renamed-operation', 'two-operation-group' in client.",
               "type": {
@@ -568,6 +576,7 @@
                   "$id": "35",
                   "kind": "endpoint",
                   "name": "endpoint",
+                  "originalName": "endpoint",
                   "serializedName": "endpoint",
                   "doc": "Need to be set as 'http://localhost:3000' in client.",
                   "type": {
@@ -590,6 +599,7 @@
                   "$id": "37",
                   "kind": "endpoint",
                   "name": "client",
+                  "originalName": "client",
                   "serializedName": "client",
                   "doc": "Need to be set as 'default', 'multi-client', 'renamed-operation', 'two-operation-group' in client.",
                   "type": {
@@ -717,6 +727,7 @@
               "$id": "43",
               "kind": "endpoint",
               "name": "endpoint",
+              "originalName": "endpoint",
               "serializedName": "endpoint",
               "doc": "Need to be set as 'http://localhost:3000' in client.",
               "type": {
@@ -739,6 +750,7 @@
               "$id": "45",
               "kind": "endpoint",
               "name": "client",
+              "originalName": "client",
               "serializedName": "client",
               "doc": "Need to be set as 'default', 'multi-client', 'renamed-operation', 'two-operation-group' in client.",
               "type": {
@@ -863,6 +875,7 @@
               "$id": "51",
               "kind": "endpoint",
               "name": "endpoint",
+              "originalName": "endpoint",
               "serializedName": "endpoint",
               "doc": "Need to be set as 'http://localhost:3000' in client.",
               "type": {
@@ -885,6 +898,7 @@
               "$id": "53",
               "kind": "endpoint",
               "name": "client",
+              "originalName": "client",
               "serializedName": "client",
               "doc": "Need to be set as 'default', 'multi-client', 'renamed-operation', 'two-operation-group' in client.",
               "type": {

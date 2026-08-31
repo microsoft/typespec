@@ -7,6 +7,7 @@
       "$id": "1",
       "kind": "constant",
       "name": "GetNonNullAccept",
+      "originalName": "GetNonNullAccept",
       "namespace": "",
       "usage": "None",
       "valueType": {
@@ -24,6 +25,7 @@
       "$id": "3",
       "kind": "constant",
       "name": "GetNonNullAccept1",
+      "originalName": "GetNonNullAccept",
       "namespace": "",
       "usage": "None",
       "valueType": {
@@ -41,6 +43,7 @@
       "$id": "5",
       "kind": "constant",
       "name": "PatchNonNullRequestContentType",
+      "originalName": "PatchNonNullRequestContentType",
       "namespace": "",
       "usage": "None",
       "valueType": {
@@ -58,6 +61,7 @@
       "$id": "7",
       "kind": "constant",
       "name": "PatchNonNullRequestContentType1",
+      "originalName": "PatchNonNullRequestContentType",
       "namespace": "",
       "usage": "None",
       "valueType": {
@@ -75,6 +79,7 @@
       "$id": "9",
       "kind": "constant",
       "name": "PatchNonNullRequestContentType2",
+      "originalName": "PatchNonNullRequestContentType",
       "namespace": "",
       "usage": "None",
       "valueType": {
@@ -92,6 +97,7 @@
       "$id": "11",
       "kind": "constant",
       "name": "PatchNonNullRequestContentType3",
+      "originalName": "PatchNonNullRequestContentType",
       "namespace": "",
       "usage": "None",
       "valueType": {
@@ -109,6 +115,7 @@
       "$id": "13",
       "kind": "constant",
       "name": "GetNonNullAccept2",
+      "originalName": "GetNonNullAccept",
       "namespace": "",
       "usage": "None",
       "valueType": {
@@ -126,6 +133,7 @@
       "$id": "15",
       "kind": "constant",
       "name": "GetNonNullAccept3",
+      "originalName": "GetNonNullAccept",
       "namespace": "",
       "usage": "None",
       "valueType": {
@@ -143,6 +151,7 @@
       "$id": "17",
       "kind": "constant",
       "name": "PatchNonNullRequestContentType4",
+      "originalName": "PatchNonNullRequestContentType",
       "namespace": "",
       "usage": "None",
       "valueType": {
@@ -160,6 +169,7 @@
       "$id": "19",
       "kind": "constant",
       "name": "PatchNonNullRequestContentType5",
+      "originalName": "PatchNonNullRequestContentType",
       "namespace": "",
       "usage": "None",
       "valueType": {
@@ -177,6 +187,7 @@
       "$id": "21",
       "kind": "constant",
       "name": "PatchNonNullRequestContentType6",
+      "originalName": "PatchNonNullRequestContentType",
       "namespace": "",
       "usage": "None",
       "valueType": {
@@ -194,6 +205,7 @@
       "$id": "23",
       "kind": "constant",
       "name": "PatchNonNullRequestContentType7",
+      "originalName": "PatchNonNullRequestContentType",
       "namespace": "",
       "usage": "None",
       "valueType": {
@@ -211,6 +223,7 @@
       "$id": "25",
       "kind": "constant",
       "name": "GetNonNullAccept4",
+      "originalName": "GetNonNullAccept",
       "namespace": "",
       "usage": "None",
       "valueType": {
@@ -228,6 +241,7 @@
       "$id": "27",
       "kind": "constant",
       "name": "GetNonNullAccept5",
+      "originalName": "GetNonNullAccept",
       "namespace": "",
       "usage": "None",
       "valueType": {
@@ -245,6 +259,7 @@
       "$id": "29",
       "kind": "constant",
       "name": "PatchNonNullRequestContentType8",
+      "originalName": "PatchNonNullRequestContentType",
       "namespace": "",
       "usage": "None",
       "valueType": {
@@ -262,6 +277,7 @@
       "$id": "31",
       "kind": "constant",
       "name": "PatchNonNullRequestContentType9",
+      "originalName": "PatchNonNullRequestContentType",
       "namespace": "",
       "usage": "None",
       "valueType": {
@@ -279,6 +295,7 @@
       "$id": "33",
       "kind": "constant",
       "name": "PatchNonNullRequestContentType10",
+      "originalName": "PatchNonNullRequestContentType",
       "namespace": "",
       "usage": "None",
       "valueType": {
@@ -296,6 +313,7 @@
       "$id": "35",
       "kind": "constant",
       "name": "PatchNonNullRequestContentType11",
+      "originalName": "PatchNonNullRequestContentType",
       "namespace": "",
       "usage": "None",
       "valueType": {
@@ -313,6 +331,7 @@
       "$id": "37",
       "kind": "constant",
       "name": "GetNonNullAccept6",
+      "originalName": "GetNonNullAccept",
       "namespace": "",
       "usage": "None",
       "valueType": {
@@ -330,6 +349,7 @@
       "$id": "39",
       "kind": "constant",
       "name": "GetNonNullAccept7",
+      "originalName": "GetNonNullAccept",
       "namespace": "",
       "usage": "None",
       "valueType": {
@@ -347,6 +367,7 @@
       "$id": "41",
       "kind": "constant",
       "name": "PatchNonNullRequestContentType12",
+      "originalName": "PatchNonNullRequestContentType",
       "namespace": "",
       "usage": "None",
       "valueType": {
@@ -364,6 +385,7 @@
       "$id": "43",
       "kind": "constant",
       "name": "PatchNonNullRequestContentType13",
+      "originalName": "PatchNonNullRequestContentType",
       "namespace": "",
       "usage": "None",
       "valueType": {
@@ -381,6 +403,7 @@
       "$id": "45",
       "kind": "constant",
       "name": "PatchNonNullRequestContentType14",
+      "originalName": "PatchNonNullRequestContentType",
       "namespace": "",
       "usage": "None",
       "valueType": {
@@ -398,6 +421,7 @@
       "$id": "47",
       "kind": "constant",
       "name": "PatchNonNullRequestContentType15",
+      "originalName": "PatchNonNullRequestContentType",
       "namespace": "",
       "usage": "None",
       "valueType": {
@@ -415,6 +439,7 @@
       "$id": "49",
       "kind": "constant",
       "name": "GetNonNullAccept8",
+      "originalName": "GetNonNullAccept",
       "namespace": "",
       "usage": "None",
       "valueType": {
@@ -432,6 +457,7 @@
       "$id": "51",
       "kind": "constant",
       "name": "GetNonNullAccept9",
+      "originalName": "GetNonNullAccept",
       "namespace": "",
       "usage": "None",
       "valueType": {
@@ -449,6 +475,7 @@
       "$id": "53",
       "kind": "constant",
       "name": "PatchNonNullRequestContentType16",
+      "originalName": "PatchNonNullRequestContentType",
       "namespace": "",
       "usage": "None",
       "valueType": {
@@ -466,6 +493,7 @@
       "$id": "55",
       "kind": "constant",
       "name": "PatchNonNullRequestContentType17",
+      "originalName": "PatchNonNullRequestContentType",
       "namespace": "",
       "usage": "None",
       "valueType": {
@@ -483,6 +511,7 @@
       "$id": "57",
       "kind": "constant",
       "name": "PatchNonNullRequestContentType18",
+      "originalName": "PatchNonNullRequestContentType",
       "namespace": "",
       "usage": "None",
       "valueType": {
@@ -500,6 +529,7 @@
       "$id": "59",
       "kind": "constant",
       "name": "PatchNonNullRequestContentType19",
+      "originalName": "PatchNonNullRequestContentType",
       "namespace": "",
       "usage": "None",
       "valueType": {
@@ -517,6 +547,7 @@
       "$id": "61",
       "kind": "constant",
       "name": "GetNonNullAccept10",
+      "originalName": "GetNonNullAccept",
       "namespace": "",
       "usage": "None",
       "valueType": {
@@ -534,6 +565,7 @@
       "$id": "63",
       "kind": "constant",
       "name": "GetNonNullAccept11",
+      "originalName": "GetNonNullAccept",
       "namespace": "",
       "usage": "None",
       "valueType": {
@@ -551,6 +583,7 @@
       "$id": "65",
       "kind": "constant",
       "name": "PatchNonNullRequestContentType20",
+      "originalName": "PatchNonNullRequestContentType",
       "namespace": "",
       "usage": "None",
       "valueType": {
@@ -568,6 +601,7 @@
       "$id": "67",
       "kind": "constant",
       "name": "PatchNonNullRequestContentType21",
+      "originalName": "PatchNonNullRequestContentType",
       "namespace": "",
       "usage": "None",
       "valueType": {
@@ -585,6 +619,7 @@
       "$id": "69",
       "kind": "constant",
       "name": "PatchNonNullRequestContentType22",
+      "originalName": "PatchNonNullRequestContentType",
       "namespace": "",
       "usage": "None",
       "valueType": {
@@ -602,6 +637,7 @@
       "$id": "71",
       "kind": "constant",
       "name": "PatchNonNullRequestContentType23",
+      "originalName": "PatchNonNullRequestContentType",
       "namespace": "",
       "usage": "None",
       "valueType": {
@@ -619,6 +655,7 @@
       "$id": "73",
       "kind": "constant",
       "name": "GetNonNullAccept12",
+      "originalName": "GetNonNullAccept",
       "namespace": "",
       "usage": "None",
       "valueType": {
@@ -636,6 +673,7 @@
       "$id": "75",
       "kind": "constant",
       "name": "GetNonNullAccept13",
+      "originalName": "GetNonNullAccept",
       "namespace": "",
       "usage": "None",
       "valueType": {
@@ -653,6 +691,7 @@
       "$id": "77",
       "kind": "constant",
       "name": "PatchNonNullRequestContentType24",
+      "originalName": "PatchNonNullRequestContentType",
       "namespace": "",
       "usage": "None",
       "valueType": {
@@ -670,6 +709,7 @@
       "$id": "79",
       "kind": "constant",
       "name": "PatchNonNullRequestContentType25",
+      "originalName": "PatchNonNullRequestContentType",
       "namespace": "",
       "usage": "None",
       "valueType": {
@@ -687,6 +727,7 @@
       "$id": "81",
       "kind": "constant",
       "name": "PatchNonNullRequestContentType26",
+      "originalName": "PatchNonNullRequestContentType",
       "namespace": "",
       "usage": "None",
       "valueType": {
@@ -704,6 +745,7 @@
       "$id": "83",
       "kind": "constant",
       "name": "PatchNonNullRequestContentType27",
+      "originalName": "PatchNonNullRequestContentType",
       "namespace": "",
       "usage": "None",
       "valueType": {
@@ -1376,6 +1418,7 @@
           "$id": "135",
           "kind": "endpoint",
           "name": "endpoint",
+          "originalName": "endpoint",
           "serializedName": "endpoint",
           "doc": "Service host",
           "type": {
@@ -1916,6 +1959,7 @@
               "$id": "159",
               "kind": "endpoint",
               "name": "endpoint",
+              "originalName": "endpoint",
               "serializedName": "endpoint",
               "doc": "Service host",
               "type": {
@@ -2460,6 +2504,7 @@
               "$id": "183",
               "kind": "endpoint",
               "name": "endpoint",
+              "originalName": "endpoint",
               "serializedName": "endpoint",
               "doc": "Service host",
               "type": {
@@ -3004,6 +3049,7 @@
               "$id": "207",
               "kind": "endpoint",
               "name": "endpoint",
+              "originalName": "endpoint",
               "serializedName": "endpoint",
               "doc": "Service host",
               "type": {
@@ -3548,6 +3594,7 @@
               "$id": "231",
               "kind": "endpoint",
               "name": "endpoint",
+              "originalName": "endpoint",
               "serializedName": "endpoint",
               "doc": "Service host",
               "type": {
@@ -4092,6 +4139,7 @@
               "$id": "255",
               "kind": "endpoint",
               "name": "endpoint",
+              "originalName": "endpoint",
               "serializedName": "endpoint",
               "doc": "Service host",
               "type": {
@@ -4636,6 +4684,7 @@
               "$id": "279",
               "kind": "endpoint",
               "name": "endpoint",
+              "originalName": "endpoint",
               "serializedName": "endpoint",
               "doc": "Service host",
               "type": {
@@ -5180,6 +5229,7 @@
               "$id": "303",
               "kind": "endpoint",
               "name": "endpoint",
+              "originalName": "endpoint",
               "serializedName": "endpoint",
               "doc": "Service host",
               "type": {

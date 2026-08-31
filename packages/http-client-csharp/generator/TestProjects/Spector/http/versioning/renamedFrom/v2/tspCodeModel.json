@@ -103,6 +103,7 @@
       "$id": "8",
       "kind": "constant",
       "name": "NewOpContentType",
+      "originalName": "NewOpContentType",
       "namespace": "",
       "usage": "None",
       "valueType": {
@@ -120,6 +121,7 @@
       "$id": "10",
       "kind": "constant",
       "name": "NewOpContentType1",
+      "originalName": "NewOpContentType",
       "namespace": "",
       "usage": "None",
       "valueType": {
@@ -137,6 +139,7 @@
       "$id": "12",
       "kind": "constant",
       "name": "NewOpContentType2",
+      "originalName": "NewOpContentType",
       "namespace": "",
       "usage": "None",
       "valueType": {
@@ -154,6 +157,7 @@
       "$id": "14",
       "kind": "constant",
       "name": "NewOpContentType3",
+      "originalName": "NewOpContentType",
       "namespace": "",
       "usage": "None",
       "valueType": {
@@ -245,6 +249,7 @@
             "$id": "21",
             "kind": "union",
             "name": "NewUnion",
+            "originalName": "NewUnion",
             "variantTypes": [
               {
                 "$id": "22",
@@ -555,6 +560,7 @@
           "$id": "38",
           "kind": "endpoint",
           "name": "endpoint",
+          "originalName": "endpoint",
           "serializedName": "endpoint",
           "doc": "Need to be set as 'http://localhost:3000' in client.",
           "type": {
@@ -577,6 +583,7 @@
           "$id": "40",
           "kind": "endpoint",
           "name": "version",
+          "originalName": "version",
           "serializedName": "version",
           "doc": "Need to be set as 'v1' or 'v2' in client.",
           "type": {
@@ -824,6 +831,7 @@
               "$id": "51",
               "kind": "endpoint",
               "name": "endpoint",
+              "originalName": "endpoint",
               "serializedName": "endpoint",
               "doc": "Need to be set as 'http://localhost:3000' in client.",
               "type": {
@@ -846,6 +854,7 @@
               "$id": "53",
               "kind": "endpoint",
               "name": "version",
+              "originalName": "version",
               "serializedName": "version",
               "doc": "Need to be set as 'v1' or 'v2' in client.",
               "type": {

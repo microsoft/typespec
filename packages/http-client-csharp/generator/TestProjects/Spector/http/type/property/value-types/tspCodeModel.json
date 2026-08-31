@@ -311,6 +311,7 @@
       "$id": "24",
       "kind": "constant",
       "name": "StringLiteralPropertyProperty",
+      "originalName": "StringLiteralPropertyProperty",
       "namespace": "Type.Property.ValueTypes",
       "usage": "Input,Output,Json",
       "valueType": {
@@ -328,6 +329,7 @@
       "$id": "26",
       "kind": "constant",
       "name": "IntLiteralPropertyProperty",
+      "originalName": "IntLiteralPropertyProperty",
       "namespace": "Type.Property.ValueTypes",
       "usage": "Input,Output,Json",
       "valueType": {
@@ -345,6 +347,7 @@
       "$id": "28",
       "kind": "constant",
       "name": "FloatLiteralPropertyProperty",
+      "originalName": "FloatLiteralPropertyProperty",
       "namespace": "Type.Property.ValueTypes",
       "usage": "Input,Output,Json",
       "valueType": {
@@ -362,6 +365,7 @@
       "$id": "30",
       "kind": "constant",
       "name": "BooleanLiteralPropertyProperty",
+      "originalName": "BooleanLiteralPropertyProperty",
       "namespace": "Type.Property.ValueTypes",
       "usage": "Input,Output,Json",
       "valueType": {
@@ -379,6 +383,7 @@
       "$id": "32",
       "kind": "constant",
       "name": "GetAccept",
+      "originalName": "GetAccept",
       "namespace": "",
       "usage": "None",
       "valueType": {
@@ -396,6 +401,7 @@
       "$id": "34",
       "kind": "constant",
       "name": "GetAccept1",
+      "originalName": "GetAccept",
       "namespace": "",
       "usage": "None",
       "valueType": {
@@ -413,6 +419,7 @@
       "$id": "36",
       "kind": "constant",
       "name": "GetAccept2",
+      "originalName": "GetAccept",
       "namespace": "",
       "usage": "None",
       "valueType": {
@@ -430,6 +437,7 @@
       "$id": "38",
       "kind": "constant",
       "name": "GetAccept3",
+      "originalName": "GetAccept",
       "namespace": "",
       "usage": "None",
       "valueType": {
@@ -447,6 +455,7 @@
       "$id": "40",
       "kind": "constant",
       "name": "GetAccept4",
+      "originalName": "GetAccept",
       "namespace": "",
       "usage": "None",
       "valueType": {
@@ -464,6 +473,7 @@
       "$id": "42",
       "kind": "constant",
       "name": "GetAccept5",
+      "originalName": "GetAccept",
       "namespace": "",
       "usage": "None",
       "valueType": {
@@ -481,6 +491,7 @@
       "$id": "44",
       "kind": "constant",
       "name": "GetAccept6",
+      "originalName": "GetAccept",
       "namespace": "",
       "usage": "None",
       "valueType": {
@@ -498,6 +509,7 @@
       "$id": "46",
       "kind": "constant",
       "name": "GetAccept7",
+      "originalName": "GetAccept",
       "namespace": "",
       "usage": "None",
       "valueType": {
@@ -515,6 +527,7 @@
       "$id": "48",
       "kind": "constant",
       "name": "GetAccept8",
+      "originalName": "GetAccept",
       "namespace": "",
       "usage": "None",
       "valueType": {
@@ -532,6 +545,7 @@
       "$id": "50",
       "kind": "constant",
       "name": "GetAccept9",
+      "originalName": "GetAccept",
       "namespace": "",
       "usage": "None",
       "valueType": {
@@ -549,6 +563,7 @@
       "$id": "52",
       "kind": "constant",
       "name": "GetAccept10",
+      "originalName": "GetAccept",
       "namespace": "",
       "usage": "None",
       "valueType": {
@@ -566,6 +581,7 @@
       "$id": "54",
       "kind": "constant",
       "name": "GetAccept11",
+      "originalName": "GetAccept",
       "namespace": "",
       "usage": "None",
       "valueType": {
@@ -583,6 +599,7 @@
       "$id": "56",
       "kind": "constant",
       "name": "GetAccept12",
+      "originalName": "GetAccept",
       "namespace": "",
       "usage": "None",
       "valueType": {
@@ -600,6 +617,7 @@
       "$id": "58",
       "kind": "constant",
       "name": "GetAccept13",
+      "originalName": "GetAccept",
       "namespace": "",
       "usage": "None",
       "valueType": {
@@ -617,6 +635,7 @@
       "$id": "60",
       "kind": "constant",
       "name": "GetAccept14",
+      "originalName": "GetAccept",
       "namespace": "",
       "usage": "None",
       "valueType": {
@@ -634,6 +653,7 @@
       "$id": "62",
       "kind": "constant",
       "name": "GetAccept15",
+      "originalName": "GetAccept",
       "namespace": "",
       "usage": "None",
       "valueType": {
@@ -651,6 +671,7 @@
       "$id": "64",
       "kind": "constant",
       "name": "GetAccept16",
+      "originalName": "GetAccept",
       "namespace": "",
       "usage": "None",
       "valueType": {
@@ -668,6 +689,7 @@
       "$id": "66",
       "kind": "constant",
       "name": "GetAccept17",
+      "originalName": "GetAccept",
       "namespace": "",
       "usage": "None",
       "valueType": {
@@ -685,6 +707,7 @@
       "$id": "68",
       "kind": "constant",
       "name": "GetAccept18",
+      "originalName": "GetAccept",
       "namespace": "",
       "usage": "None",
       "valueType": {
@@ -702,6 +725,7 @@
       "$id": "70",
       "kind": "constant",
       "name": "GetAccept19",
+      "originalName": "GetAccept",
       "namespace": "",
       "usage": "None",
       "valueType": {
@@ -719,6 +743,7 @@
       "$id": "72",
       "kind": "constant",
       "name": "GetAccept20",
+      "originalName": "GetAccept",
       "namespace": "",
       "usage": "None",
       "valueType": {
@@ -736,6 +761,7 @@
       "$id": "74",
       "kind": "constant",
       "name": "GetAccept21",
+      "originalName": "GetAccept",
       "namespace": "",
       "usage": "None",
       "valueType": {
@@ -753,6 +779,7 @@
       "$id": "76",
       "kind": "constant",
       "name": "GetAccept22",
+      "originalName": "GetAccept",
       "namespace": "",
       "usage": "None",
       "valueType": {
@@ -770,6 +797,7 @@
       "$id": "78",
       "kind": "constant",
       "name": "GetAccept23",
+      "originalName": "GetAccept",
       "namespace": "",
       "usage": "None",
       "valueType": {
@@ -787,6 +815,7 @@
       "$id": "80",
       "kind": "constant",
       "name": "GetAccept24",
+      "originalName": "GetAccept",
       "namespace": "",
       "usage": "None",
       "valueType": {
@@ -804,6 +833,7 @@
       "$id": "82",
       "kind": "constant",
       "name": "GetAccept25",
+      "originalName": "GetAccept",
       "namespace": "",
       "usage": "None",
       "valueType": {
@@ -821,6 +851,7 @@
       "$id": "84",
       "kind": "constant",
       "name": "GetAccept26",
+      "originalName": "GetAccept",
       "namespace": "",
       "usage": "None",
       "valueType": {
@@ -838,6 +869,7 @@
       "$id": "86",
       "kind": "constant",
       "name": "GetAccept27",
+      "originalName": "GetAccept",
       "namespace": "",
       "usage": "None",
       "valueType": {
@@ -855,6 +887,7 @@
       "$id": "88",
       "kind": "constant",
       "name": "GetAccept28",
+      "originalName": "GetAccept",
       "namespace": "",
       "usage": "None",
       "valueType": {
@@ -872,6 +905,7 @@
       "$id": "90",
       "kind": "constant",
       "name": "GetAccept29",
+      "originalName": "GetAccept",
       "namespace": "",
       "usage": "None",
       "valueType": {
@@ -889,6 +923,7 @@
       "$id": "92",
       "kind": "constant",
       "name": "GetAccept30",
+      "originalName": "GetAccept",
       "namespace": "",
       "usage": "None",
       "valueType": {
@@ -906,6 +941,7 @@
       "$id": "94",
       "kind": "constant",
       "name": "GetAccept31",
+      "originalName": "GetAccept",
       "namespace": "",
       "usage": "None",
       "valueType": {
@@ -923,6 +959,7 @@
       "$id": "96",
       "kind": "constant",
       "name": "GetAccept32",
+      "originalName": "GetAccept",
       "namespace": "",
       "usage": "None",
       "valueType": {
@@ -940,6 +977,7 @@
       "$id": "98",
       "kind": "constant",
       "name": "GetAccept33",
+      "originalName": "GetAccept",
       "namespace": "",
       "usage": "None",
       "valueType": {
@@ -957,6 +995,7 @@
       "$id": "100",
       "kind": "constant",
       "name": "GetAccept34",
+      "originalName": "GetAccept",
       "namespace": "",
       "usage": "None",
       "valueType": {
@@ -974,6 +1013,7 @@
       "$id": "102",
       "kind": "constant",
       "name": "GetAccept35",
+      "originalName": "GetAccept",
       "namespace": "",
       "usage": "None",
       "valueType": {
@@ -991,6 +1031,7 @@
       "$id": "104",
       "kind": "constant",
       "name": "GetAccept36",
+      "originalName": "GetAccept",
       "namespace": "",
       "usage": "None",
       "valueType": {
@@ -1008,6 +1049,7 @@
       "$id": "106",
       "kind": "constant",
       "name": "GetAccept37",
+      "originalName": "GetAccept",
       "namespace": "",
       "usage": "None",
       "valueType": {
@@ -1025,6 +1067,7 @@
       "$id": "108",
       "kind": "constant",
       "name": "GetAccept38",
+      "originalName": "GetAccept",
       "namespace": "",
       "usage": "None",
       "valueType": {
@@ -1042,6 +1085,7 @@
       "$id": "110",
       "kind": "constant",
       "name": "GetAccept39",
+      "originalName": "GetAccept",
       "namespace": "",
       "usage": "None",
       "valueType": {
@@ -1059,6 +1103,7 @@
       "$id": "112",
       "kind": "constant",
       "name": "GetAccept40",
+      "originalName": "GetAccept",
       "namespace": "",
       "usage": "None",
       "valueType": {
@@ -1076,6 +1121,7 @@
       "$id": "114",
       "kind": "constant",
       "name": "GetAccept41",
+      "originalName": "GetAccept",
       "namespace": "",
       "usage": "None",
       "valueType": {
@@ -1093,6 +1139,7 @@
       "$id": "116",
       "kind": "constant",
       "name": "GetAccept42",
+      "originalName": "GetAccept",
       "namespace": "",
       "usage": "None",
       "valueType": {
@@ -1110,6 +1157,7 @@
       "$id": "118",
       "kind": "constant",
       "name": "GetAccept43",
+      "originalName": "GetAccept",
       "namespace": "",
       "usage": "None",
       "valueType": {
@@ -1127,6 +1175,7 @@
       "$id": "120",
       "kind": "constant",
       "name": "GetAccept44",
+      "originalName": "GetAccept",
       "namespace": "",
       "usage": "None",
       "valueType": {
@@ -1144,6 +1193,7 @@
       "$id": "122",
       "kind": "constant",
       "name": "GetAccept45",
+      "originalName": "GetAccept",
       "namespace": "",
       "usage": "None",
       "valueType": {
@@ -1161,6 +1211,7 @@
       "$id": "124",
       "kind": "constant",
       "name": "GetAccept46",
+      "originalName": "GetAccept",
       "namespace": "",
       "usage": "None",
       "valueType": {
@@ -1178,6 +1229,7 @@
       "$id": "126",
       "kind": "constant",
       "name": "GetAccept47",
+      "originalName": "GetAccept",
       "namespace": "",
       "usage": "None",
       "valueType": {
@@ -1195,6 +1247,7 @@
       "$id": "128",
       "kind": "constant",
       "name": "GetAccept48",
+      "originalName": "GetAccept",
       "namespace": "",
       "usage": "None",
       "valueType": {
@@ -1212,6 +1265,7 @@
       "$id": "130",
       "kind": "constant",
       "name": "GetAccept49",
+      "originalName": "GetAccept",
       "namespace": "",
       "usage": "None",
       "valueType": {
@@ -1229,6 +1283,7 @@
       "$id": "132",
       "kind": "constant",
       "name": "GetAccept50",
+      "originalName": "GetAccept",
       "namespace": "",
       "usage": "None",
       "valueType": {
@@ -1246,6 +1301,7 @@
       "$id": "134",
       "kind": "constant",
       "name": "GetAccept51",
+      "originalName": "GetAccept",
       "namespace": "",
       "usage": "None",
       "valueType": {
@@ -1263,6 +1319,7 @@
       "$id": "136",
       "kind": "constant",
       "name": "GetAccept52",
+      "originalName": "GetAccept",
       "namespace": "",
       "usage": "None",
       "valueType": {
@@ -1280,6 +1337,7 @@
       "$id": "138",
       "kind": "constant",
       "name": "GetAccept53",
+      "originalName": "GetAccept",
       "namespace": "",
       "usage": "None",
       "valueType": {
@@ -1297,6 +1355,7 @@
       "$id": "140",
       "kind": "constant",
       "name": "GetAccept54",
+      "originalName": "GetAccept",
       "namespace": "",
       "usage": "None",
       "valueType": {
@@ -1314,6 +1373,7 @@
       "$id": "142",
       "kind": "constant",
       "name": "GetAccept55",
+      "originalName": "GetAccept",
       "namespace": "",
       "usage": "None",
       "valueType": {
@@ -1331,6 +1391,7 @@
       "$id": "144",
       "kind": "constant",
       "name": "GetAccept56",
+      "originalName": "GetAccept",
       "namespace": "",
       "usage": "None",
       "valueType": {
@@ -1348,6 +1409,7 @@
       "$id": "146",
       "kind": "constant",
       "name": "GetAccept57",
+      "originalName": "GetAccept",
       "namespace": "",
       "usage": "None",
       "valueType": {
@@ -2737,46 +2799,7 @@
               "$ref": "22"
             },
             "enumType": {
-              "$id": "232",
-              "kind": "enum",
-              "decorators": [],
-              "name": "ExtendedEnum",
-              "isGeneratedName": false,
-              "isExactName": false,
-              "namespace": "Type.Property.ValueTypes",
-              "valueType": {
-                "$id": "233",
-                "kind": "string",
-                "decorators": [],
-                "doc": "A sequence of textual characters.",
-                "name": "string",
-                "crossLanguageDefinitionId": "TypeSpec.string"
-              },
-              "values": [
-                {
-                  "$id": "234",
-                  "kind": "enumvalue",
-                  "decorators": [],
-                  "name": "EnumValue2",
-                  "isExactName": false,
-                  "value": "value2",
-                  "valueType": {
-                    "$ref": "233"
-                  },
-                  "enumType": {
-                    "$ref": "232"
-                  },
-                  "crossLanguageDefinitionId": "Type.Property.ValueTypes.ExtendedEnum.EnumValue2"
-                }
-              ],
-              "isFixed": false,
-              "isFlags": false,
-              "usage": "Input,Output,Json",
-              "access": "public",
-              "crossLanguageDefinitionId": "Type.Property.ValueTypes.ExtendedEnum",
-              "apiVersions": [],
-              "isUnionAsEnum": true,
-              "__accessSet": true
+              "$ref": "21"
             },
             "decorators": [],
             "isExactName": false
@@ -2800,7 +2823,7 @@
   ],
   "clients": [
     {
-      "$id": "235",
+      "$id": "232",
       "kind": "client",
       "name": "ValueTypesClient",
       "isExactName": false,
@@ -2809,13 +2832,14 @@
       "methods": [],
       "parameters": [
         {
-          "$id": "236",
+          "$id": "233",
           "kind": "endpoint",
           "name": "endpoint",
+          "originalName": "endpoint",
           "serializedName": "endpoint",
           "doc": "Service host",
           "type": {
-            "$id": "237",
+            "$id": "234",
             "kind": "url",
             "name": "endpoint",
             "crossLanguageDefinitionId": "TypeSpec.url"
@@ -2826,7 +2850,7 @@
           "isEndpoint": true,
           "defaultValue": {
             "type": {
-              "$id": "238",
+              "$id": "235",
               "kind": "string",
               "name": "string",
               "crossLanguageDefinitionId": "TypeSpec.string"
@@ -2846,14 +2870,14 @@
       "apiVersions": [],
       "children": [
         {
-          "$id": "239",
+          "$id": "236",
           "kind": "client",
           "name": "Boolean",
           "isExactName": false,
           "namespace": "Type.Property.ValueTypes",
           "methods": [
             {
-              "$id": "240",
+              "$id": "237",
               "kind": "basic",
               "name": "get",
               "originalName": "get",
@@ -2862,7 +2886,7 @@
               "apiVersions": [],
               "doc": "Get call",
               "operation": {
-                "$id": "241",
+                "$id": "238",
                 "name": "get",
                 "originalName": "get",
                 "isExactName": false,
@@ -2871,7 +2895,7 @@
                 "accessibility": "public",
                 "parameters": [
                   {
-                    "$id": "242",
+                    "$id": "239",
                     "kind": "header",
                     "name": "accept",
                     "originalName": "accept",
@@ -2888,7 +2912,7 @@
                     "crossLanguageDefinitionId": "Type.Property.ValueTypes.Boolean.get.accept",
                     "methodParameterSegments": [
                       {
-                        "$id": "243",
+                        "$id": "240",
                         "kind": "method",
                         "name": "accept",
                         "originalName": "accept",
@@ -2942,7 +2966,7 @@
               },
               "parameters": [
                 {
-                  "$ref": "243"
+                  "$ref": "240"
                 }
               ],
               "response": {
@@ -2956,7 +2980,7 @@
               "crossLanguageDefinitionId": "Type.Property.ValueTypes.Boolean.get"
             },
             {
-              "$id": "244",
+              "$id": "241",
               "kind": "basic",
               "name": "put",
               "originalName": "put",
@@ -2965,7 +2989,7 @@
               "apiVersions": [],
               "doc": "Put operation",
               "operation": {
-                "$id": "245",
+                "$id": "242",
                 "name": "put",
                 "originalName": "put",
                 "isExactName": false,
@@ -2974,7 +2998,7 @@
                 "accessibility": "public",
                 "parameters": [
                   {
-                    "$id": "246",
+                    "$id": "243",
                     "kind": "header",
                     "name": "contentType",
                     "originalName": "contentType",
@@ -2992,7 +3016,7 @@
                     "crossLanguageDefinitionId": "Type.Property.ValueTypes.Boolean.put.contentType",
                     "methodParameterSegments": [
                       {
-                        "$id": "247",
+                        "$id": "244",
                         "kind": "method",
                         "name": "contentType",
                         "originalName": "contentType",
@@ -3015,7 +3039,7 @@
                     "isExactName": false
                   },
                   {
-                    "$id": "248",
+                    "$id": "245",
                     "kind": "body",
                     "name": "body",
                     "originalName": "body",
@@ -3036,7 +3060,7 @@
                     "crossLanguageDefinitionId": "Type.Property.ValueTypes.Boolean.put.body",
                     "methodParameterSegments": [
                       {
-                        "$id": "249",
+                        "$id": "246",
                         "kind": "method",
                         "name": "body",
                         "originalName": "body",
@@ -3089,10 +3113,10 @@
               },
               "parameters": [
                 {
-                  "$ref": "249"
+                  "$ref": "246"
                 },
                 {
-                  "$ref": "247"
+                  "$ref": "244"
                 }
               ],
               "response": {},
@@ -3104,13 +3128,14 @@
           ],
           "parameters": [
             {
-              "$id": "250",
+              "$id": "247",
               "kind": "endpoint",
               "name": "endpoint",
+              "originalName": "endpoint",
               "serializedName": "endpoint",
               "doc": "Service host",
               "type": {
-                "$id": "251",
+                "$id": "248",
                 "kind": "url",
                 "name": "endpoint",
                 "crossLanguageDefinitionId": "TypeSpec.url"
@@ -3121,7 +3146,7 @@
               "isEndpoint": true,
               "defaultValue": {
                 "type": {
-                  "$id": "252",
+                  "$id": "249",
                   "kind": "string",
                   "name": "string",
                   "crossLanguageDefinitionId": "TypeSpec.string"
@@ -3140,19 +3165,19 @@
           "crossLanguageDefinitionId": "Type.Property.ValueTypes.Boolean",
           "apiVersions": [],
           "parent": {
-            "$ref": "235"
+            "$ref": "232"
           },
           "isMultiServiceClient": false
         },
         {
-          "$id": "253",
+          "$id": "250",
           "kind": "client",
           "name": "String",
           "isExactName": false,
           "namespace": "Type.Property.ValueTypes",
           "methods": [
             {
-              "$id": "254",
+              "$id": "251",
               "kind": "basic",
               "name": "get",
               "originalName": "get",
@@ -3161,7 +3186,7 @@
               "apiVersions": [],
               "doc": "Get call",
               "operation": {
-                "$id": "255",
+                "$id": "252",
                 "name": "get",
                 "originalName": "get",
                 "isExactName": false,
@@ -3170,7 +3195,7 @@
                 "accessibility": "public",
                 "parameters": [
                   {
-                    "$id": "256",
+                    "$id": "253",
                     "kind": "header",
                     "name": "accept",
                     "originalName": "accept",
@@ -3187,7 +3212,7 @@
                     "crossLanguageDefinitionId": "Type.Property.ValueTypes.String.get.accept",
                     "methodParameterSegments": [
                       {
-                        "$id": "257",
+                        "$id": "254",
                         "kind": "method",
                         "name": "accept",
                         "originalName": "accept",
@@ -3241,7 +3266,7 @@
               },
               "parameters": [
                 {
-                  "$ref": "257"
+                  "$ref": "254"
                 }
               ],
               "response": {
@@ -3255,7 +3280,7 @@
               "crossLanguageDefinitionId": "Type.Property.ValueTypes.String.get"
             },
             {
-              "$id": "258",
+              "$id": "255",
               "kind": "basic",
               "name": "put",
               "originalName": "put",
@@ -3264,7 +3289,7 @@
               "apiVersions": [],
               "doc": "Put operation",
               "operation": {
-                "$id": "259",
+                "$id": "256",
                 "name": "put",
                 "originalName": "put",
                 "isExactName": false,
@@ -3273,7 +3298,7 @@
                 "accessibility": "public",
                 "parameters": [
                   {
-                    "$id": "260",
+                    "$id": "257",
                     "kind": "header",
                     "name": "contentType",
                     "originalName": "contentType",
@@ -3291,7 +3316,7 @@
                     "crossLanguageDefinitionId": "Type.Property.ValueTypes.String.put.contentType",
                     "methodParameterSegments": [
                       {
-                        "$id": "261",
+                        "$id": "258",
                         "kind": "method",
                         "name": "contentType",
                         "originalName": "contentType",
@@ -3314,7 +3339,7 @@
                     "isExactName": false
                   },
                   {
-                    "$id": "262",
+                    "$id": "259",
                     "kind": "body",
                     "name": "body",
                     "originalName": "body",
@@ -3335,7 +3360,7 @@
                     "crossLanguageDefinitionId": "Type.Property.ValueTypes.String.put.body",
                     "methodParameterSegments": [
                       {
-                        "$id": "263",
+                        "$id": "260",
                         "kind": "method",
                         "name": "body",
                         "originalName": "body",
@@ -3388,10 +3413,10 @@
               },
               "parameters": [
                 {
-                  "$ref": "263"
+                  "$ref": "260"
                 },
                 {
-                  "$ref": "261"
+                  "$ref": "258"
                 }
               ],
               "response": {},
@@ -3403,13 +3428,14 @@
           ],
           "parameters": [
             {
-              "$id": "264",
+              "$id": "261",
               "kind": "endpoint",
               "name": "endpoint",
+              "originalName": "endpoint",
               "serializedName": "endpoint",
               "doc": "Service host",
               "type": {
-                "$id": "265",
+                "$id": "262",
                 "kind": "url",
                 "name": "endpoint",
                 "crossLanguageDefinitionId": "TypeSpec.url"
@@ -3420,7 +3446,7 @@
               "isEndpoint": true,
               "defaultValue": {
                 "type": {
-                  "$id": "266",
+                  "$id": "263",
                   "kind": "string",
                   "name": "string",
                   "crossLanguageDefinitionId": "TypeSpec.string"
@@ -3439,19 +3465,19 @@
           "crossLanguageDefinitionId": "Type.Property.ValueTypes.String",
           "apiVersions": [],
           "parent": {
-            "$ref": "235"
+            "$ref": "232"
           },
           "isMultiServiceClient": false
         },
         {
-          "$id": "267",
+          "$id": "264",
           "kind": "client",
           "name": "Bytes",
           "isExactName": false,
           "namespace": "Type.Property.ValueTypes",
           "methods": [
             {
-              "$id": "268",
+              "$id": "265",
               "kind": "basic",
               "name": "get",
               "originalName": "get",
@@ -3460,7 +3486,7 @@
               "apiVersions": [],
               "doc": "Get call",
               "operation": {
-                "$id": "269",
+                "$id": "266",
                 "name": "get",
                 "originalName": "get",
                 "isExactName": false,
@@ -3469,7 +3495,7 @@
                 "accessibility": "public",
                 "parameters": [
                   {
-                    "$id": "270",
+                    "$id": "267",
                     "kind": "header",
                     "name": "accept",
                     "originalName": "accept",
@@ -3486,7 +3512,7 @@
                     "crossLanguageDefinitionId": "Type.Property.ValueTypes.Bytes.get.accept",
                     "methodParameterSegments": [
                       {
-                        "$id": "271",
+                        "$id": "268",
                         "kind": "method",
                         "name": "accept",
                         "originalName": "accept",
@@ -3540,7 +3566,7 @@
               },
               "parameters": [
                 {
-                  "$ref": "271"
+                  "$ref": "268"
                 }
               ],
               "response": {
@@ -3554,7 +3580,7 @@
               "crossLanguageDefinitionId": "Type.Property.ValueTypes.Bytes.get"
             },
             {
-              "$id": "272",
+              "$id": "269",
               "kind": "basic",
               "name": "put",
               "originalName": "put",
@@ -3563,7 +3589,7 @@
               "apiVersions": [],
               "doc": "Put operation",
               "operation": {
-                "$id": "273",
+                "$id": "270",
                 "name": "put",
                 "originalName": "put",
                 "isExactName": false,
@@ -3572,7 +3598,7 @@
                 "accessibility": "public",
                 "parameters": [
                   {
-                    "$id": "274",
+                    "$id": "271",
                     "kind": "header",
                     "name": "contentType",
                     "originalName": "contentType",
@@ -3590,7 +3616,7 @@
                     "crossLanguageDefinitionId": "Type.Property.ValueTypes.Bytes.put.contentType",
                     "methodParameterSegments": [
                       {
-                        "$id": "275",
+                        "$id": "272",
                         "kind": "method",
                         "name": "contentType",
                         "originalName": "contentType",
@@ -3613,7 +3639,7 @@
                     "isExactName": false
                   },
                   {
-                    "$id": "276",
+                    "$id": "273",
                     "kind": "body",
                     "name": "body",
                     "originalName": "body",
@@ -3634,7 +3660,7 @@
                     "crossLanguageDefinitionId": "Type.Property.ValueTypes.Bytes.put.body",
                     "methodParameterSegments": [
                       {
-                        "$id": "277",
+                        "$id": "274",
                         "kind": "method",
                         "name": "body",
                         "originalName": "body",
@@ -3687,10 +3713,10 @@
               },
               "parameters": [
                 {
-                  "$ref": "277"
+                  "$ref": "274"
                 },
                 {
-                  "$ref": "275"
+                  "$ref": "272"
                 }
               ],
               "response": {},
@@ -3702,13 +3728,14 @@
           ],
           "parameters": [
             {
-              "$id": "278",
+              "$id": "275",
               "kind": "endpoint",
               "name": "endpoint",
+              "originalName": "endpoint",
               "serializedName": "endpoint",
               "doc": "Service host",
               "type": {
-                "$id": "279",
+                "$id": "276",
                 "kind": "url",
                 "name": "endpoint",
                 "crossLanguageDefinitionId": "TypeSpec.url"
@@ -3719,7 +3746,7 @@
               "isEndpoint": true,
               "defaultValue": {
                 "type": {
-                  "$id": "280",
+                  "$id": "277",
                   "kind": "string",
                   "name": "string",
                   "crossLanguageDefinitionId": "TypeSpec.string"
@@ -3738,19 +3765,19 @@
           "crossLanguageDefinitionId": "Type.Property.ValueTypes.Bytes",
           "apiVersions": [],
           "parent": {
-            "$ref": "235"
+            "$ref": "232"
           },
           "isMultiServiceClient": false
         },
         {
-          "$id": "281",
+          "$id": "278",
           "kind": "client",
           "name": "Int",
           "isExactName": false,
           "namespace": "Type.Property.ValueTypes",
           "methods": [
             {
-              "$id": "282",
+              "$id": "279",
               "kind": "basic",
               "name": "get",
               "originalName": "get",
@@ -3759,7 +3786,7 @@
               "apiVersions": [],
               "doc": "Get call",
               "operation": {
-                "$id": "283",
+                "$id": "280",
                 "name": "get",
                 "originalName": "get",
                 "isExactName": false,
@@ -3768,7 +3795,7 @@
                 "accessibility": "public",
                 "parameters": [
                   {
-                    "$id": "284",
+                    "$id": "281",
                     "kind": "header",
                     "name": "accept",
                     "originalName": "accept",
@@ -3785,7 +3812,7 @@
                     "crossLanguageDefinitionId": "Type.Property.ValueTypes.Int.get.accept",
                     "methodParameterSegments": [
                       {
-                        "$id": "285",
+                        "$id": "282",
                         "kind": "method",
                         "name": "accept",
                         "originalName": "accept",
@@ -3839,7 +3866,7 @@
               },
               "parameters": [
                 {
-                  "$ref": "285"
+                  "$ref": "282"
                 }
               ],
               "response": {
@@ -3853,7 +3880,7 @@
               "crossLanguageDefinitionId": "Type.Property.ValueTypes.Int.get"
             },
             {
-              "$id": "286",
+              "$id": "283",
               "kind": "basic",
               "name": "put",
               "originalName": "put",
@@ -3862,7 +3889,7 @@
               "apiVersions": [],
               "doc": "Put operation",
               "operation": {
-                "$id": "287",
+                "$id": "284",
                 "name": "put",
                 "originalName": "put",
                 "isExactName": false,
@@ -3871,7 +3898,7 @@
                 "accessibility": "public",
                 "parameters": [
                   {
-                    "$id": "288",
+                    "$id": "285",
                     "kind": "header",
                     "name": "contentType",
                     "originalName": "contentType",
@@ -3889,7 +3916,7 @@
                     "crossLanguageDefinitionId": "Type.Property.ValueTypes.Int.put.contentType",
                     "methodParameterSegments": [
                       {
-                        "$id": "289",
+                        "$id": "286",
                         "kind": "method",
                         "name": "contentType",
                         "originalName": "contentType",
@@ -3912,7 +3939,7 @@
                     "isExactName": false
                   },
                   {
-                    "$id": "290",
+                    "$id": "287",
                     "kind": "body",
                     "name": "body",
                     "originalName": "body",
@@ -3933,7 +3960,7 @@
                     "crossLanguageDefinitionId": "Type.Property.ValueTypes.Int.put.body",
                     "methodParameterSegments": [
                       {
-                        "$id": "291",
+                        "$id": "288",
                         "kind": "method",
                         "name": "body",
                         "originalName": "body",
@@ -3986,10 +4013,10 @@
               },
               "parameters": [
                 {
-                  "$ref": "291"
+                  "$ref": "288"
                 },
                 {
-                  "$ref": "289"
+                  "$ref": "286"
                 }
               ],
               "response": {},
@@ -4001,13 +4028,14 @@
           ],
           "parameters": [
             {
-              "$id": "292",
+              "$id": "289",
               "kind": "endpoint",
               "name": "endpoint",
+              "originalName": "endpoint",
               "serializedName": "endpoint",
               "doc": "Service host",
               "type": {
-                "$id": "293",
+                "$id": "290",
                 "kind": "url",
                 "name": "endpoint",
                 "crossLanguageDefinitionId": "TypeSpec.url"
@@ -4018,7 +4046,7 @@
               "isEndpoint": true,
               "defaultValue": {
                 "type": {
-                  "$id": "294",
+                  "$id": "291",
                   "kind": "string",
                   "name": "string",
                   "crossLanguageDefinitionId": "TypeSpec.string"
@@ -4037,19 +4065,19 @@
           "crossLanguageDefinitionId": "Type.Property.ValueTypes.Int",
           "apiVersions": [],
           "parent": {
-            "$ref": "235"
+            "$ref": "232"
           },
           "isMultiServiceClient": false
         },
         {
-          "$id": "295",
+          "$id": "292",
           "kind": "client",
           "name": "Float",
           "isExactName": false,
           "namespace": "Type.Property.ValueTypes",
           "methods": [
             {
-              "$id": "296",
+              "$id": "293",
               "kind": "basic",
               "name": "get",
               "originalName": "get",
@@ -4058,7 +4086,7 @@
               "apiVersions": [],
               "doc": "Get call",
               "operation": {
-                "$id": "297",
+                "$id": "294",
                 "name": "get",
                 "originalName": "get",
                 "isExactName": false,
@@ -4067,7 +4095,7 @@
                 "accessibility": "public",
                 "parameters": [
                   {
-                    "$id": "298",
+                    "$id": "295",
                     "kind": "header",
                     "name": "accept",
                     "originalName": "accept",
@@ -4084,7 +4112,7 @@
                     "crossLanguageDefinitionId": "Type.Property.ValueTypes.Float.get.accept",
                     "methodParameterSegments": [
                       {
-                        "$id": "299",
+                        "$id": "296",
                         "kind": "method",
                         "name": "accept",
                         "originalName": "accept",
@@ -4138,7 +4166,7 @@
               },
               "parameters": [
                 {
-                  "$ref": "299"
+                  "$ref": "296"
                 }
               ],
               "response": {
@@ -4152,7 +4180,7 @@
               "crossLanguageDefinitionId": "Type.Property.ValueTypes.Float.get"
             },
             {
-              "$id": "300",
+              "$id": "297",
               "kind": "basic",
               "name": "put",
               "originalName": "put",
@@ -4161,7 +4189,7 @@
               "apiVersions": [],
               "doc": "Put operation",
               "operation": {
-                "$id": "301",
+                "$id": "298",
                 "name": "put",
                 "originalName": "put",
                 "isExactName": false,
@@ -4170,7 +4198,7 @@
                 "accessibility": "public",
                 "parameters": [
                   {
-                    "$id": "302",
+                    "$id": "299",
                     "kind": "header",
                     "name": "contentType",
                     "originalName": "contentType",
@@ -4188,7 +4216,7 @@
                     "crossLanguageDefinitionId": "Type.Property.ValueTypes.Float.put.contentType",
                     "methodParameterSegments": [
                       {
-                        "$id": "303",
+                        "$id": "300",
                         "kind": "method",
                         "name": "contentType",
                         "originalName": "contentType",
@@ -4211,7 +4239,7 @@
                     "isExactName": false
                   },
                   {
-                    "$id": "304",
+                    "$id": "301",
                     "kind": "body",
                     "name": "body",
                     "originalName": "body",
@@ -4232,7 +4260,7 @@
                     "crossLanguageDefinitionId": "Type.Property.ValueTypes.Float.put.body",
                     "methodParameterSegments": [
                       {
-                        "$id": "305",
+                        "$id": "302",
                         "kind": "method",
                         "name": "body",
                         "originalName": "body",
@@ -4285,10 +4313,10 @@
               },
               "parameters": [
                 {
-                  "$ref": "305"
+                  "$ref": "302"
                 },
                 {
-                  "$ref": "303"
+                  "$ref": "300"
                 }
               ],
               "response": {},
@@ -4300,13 +4328,14 @@
           ],
           "parameters": [
             {
-              "$id": "306",
+              "$id": "303",
               "kind": "endpoint",
               "name": "endpoint",
+              "originalName": "endpoint",
               "serializedName": "endpoint",
               "doc": "Service host",
               "type": {
-                "$id": "307",
+                "$id": "304",
                 "kind": "url",
                 "name": "endpoint",
                 "crossLanguageDefinitionId": "TypeSpec.url"
@@ -4317,7 +4346,7 @@
               "isEndpoint": true,
               "defaultValue": {
                 "type": {
-                  "$id": "308",
+                  "$id": "305",
                   "kind": "string",
                   "name": "string",
                   "crossLanguageDefinitionId": "TypeSpec.string"
@@ -4336,19 +4365,19 @@
           "crossLanguageDefinitionId": "Type.Property.ValueTypes.Float",
           "apiVersions": [],
           "parent": {
-            "$ref": "235"
+            "$ref": "232"
           },
           "isMultiServiceClient": false
         },
         {
-          "$id": "309",
+          "$id": "306",
           "kind": "client",
           "name": "Decimal",
           "isExactName": false,
           "namespace": "Type.Property.ValueTypes",
           "methods": [
             {
-              "$id": "310",
+              "$id": "307",
               "kind": "basic",
               "name": "get",
               "originalName": "get",
@@ -4357,7 +4386,7 @@
               "apiVersions": [],
               "doc": "Get call",
               "operation": {
-                "$id": "311",
+                "$id": "308",
                 "name": "get",
                 "originalName": "get",
                 "isExactName": false,
@@ -4366,7 +4395,7 @@
                 "accessibility": "public",
                 "parameters": [
                   {
-                    "$id": "312",
+                    "$id": "309",
                     "kind": "header",
                     "name": "accept",
                     "originalName": "accept",
@@ -4383,7 +4412,7 @@
                     "crossLanguageDefinitionId": "Type.Property.ValueTypes.Decimal.get.accept",
                     "methodParameterSegments": [
                       {
-                        "$id": "313",
+                        "$id": "310",
                         "kind": "method",
                         "name": "accept",
                         "originalName": "accept",
@@ -4437,7 +4466,7 @@
               },
               "parameters": [
                 {
-                  "$ref": "313"
+                  "$ref": "310"
                 }
               ],
               "response": {
@@ -4451,7 +4480,7 @@
               "crossLanguageDefinitionId": "Type.Property.ValueTypes.Decimal.get"
             },
             {
-              "$id": "314",
+              "$id": "311",
               "kind": "basic",
               "name": "put",
               "originalName": "put",
@@ -4460,7 +4489,7 @@
               "apiVersions": [],
               "doc": "Put operation",
               "operation": {
-                "$id": "315",
+                "$id": "312",
                 "name": "put",
                 "originalName": "put",
                 "isExactName": false,
@@ -4469,7 +4498,7 @@
                 "accessibility": "public",
                 "parameters": [
                   {
-                    "$id": "316",
+                    "$id": "313",
                     "kind": "header",
                     "name": "contentType",
                     "originalName": "contentType",
@@ -4487,7 +4516,7 @@
                     "crossLanguageDefinitionId": "Type.Property.ValueTypes.Decimal.put.contentType",
                     "methodParameterSegments": [
                       {
-                        "$id": "317",
+                        "$id": "314",
                         "kind": "method",
                         "name": "contentType",
                         "originalName": "contentType",
@@ -4510,7 +4539,7 @@
                     "isExactName": false
                   },
                   {
-                    "$id": "318",
+                    "$id": "315",
                     "kind": "body",
                     "name": "body",
                     "originalName": "body",
@@ -4531,7 +4560,7 @@
                     "crossLanguageDefinitionId": "Type.Property.ValueTypes.Decimal.put.body",
                     "methodParameterSegments": [
                       {
-                        "$id": "319",
+                        "$id": "316",
                         "kind": "method",
                         "name": "body",
                         "originalName": "body",
@@ -4584,10 +4613,10 @@
               },
               "parameters": [
                 {
-                  "$ref": "319"
+                  "$ref": "316"
                 },
                 {
-                  "$ref": "317"
+                  "$ref": "314"
                 }
               ],
               "response": {},
@@ -4599,13 +4628,14 @@
           ],
           "parameters": [
             {
-              "$id": "320",
+              "$id": "317",
               "kind": "endpoint",
               "name": "endpoint",
+              "originalName": "endpoint",
               "serializedName": "endpoint",
               "doc": "Service host",
               "type": {
-                "$id": "321",
+                "$id": "318",
                 "kind": "url",
                 "name": "endpoint",
                 "crossLanguageDefinitionId": "TypeSpec.url"
@@ -4616,7 +4646,7 @@
               "isEndpoint": true,
               "defaultValue": {
                 "type": {
-                  "$id": "322",
+                  "$id": "319",
                   "kind": "string",
                   "name": "string",
                   "crossLanguageDefinitionId": "TypeSpec.string"
@@ -4635,19 +4665,19 @@
           "crossLanguageDefinitionId": "Type.Property.ValueTypes.Decimal",
           "apiVersions": [],
           "parent": {
-            "$ref": "235"
+            "$ref": "232"
           },
           "isMultiServiceClient": false
         },
         {
-          "$id": "323",
+          "$id": "320",
           "kind": "client",
           "name": "Decimal128",
           "isExactName": false,
           "namespace": "Type.Property.ValueTypes",
           "methods": [
             {
-              "$id": "324",
+              "$id": "321",
               "kind": "basic",
               "name": "get",
               "originalName": "get",
@@ -4656,7 +4686,7 @@
               "apiVersions": [],
               "doc": "Get call",
               "operation": {
-                "$id": "325",
+                "$id": "322",
                 "name": "get",
                 "originalName": "get",
                 "isExactName": false,
@@ -4665,7 +4695,7 @@
                 "accessibility": "public",
                 "parameters": [
                   {
-                    "$id": "326",
+                    "$id": "323",
                     "kind": "header",
                     "name": "accept",
                     "originalName": "accept",
@@ -4682,7 +4712,7 @@
                     "crossLanguageDefinitionId": "Type.Property.ValueTypes.Decimal128.get.accept",
                     "methodParameterSegments": [
                       {
-                        "$id": "327",
+                        "$id": "324",
                         "kind": "method",
                         "name": "accept",
                         "originalName": "accept",
@@ -4736,7 +4766,7 @@
               },
               "parameters": [
                 {
-                  "$ref": "327"
+                  "$ref": "324"
                 }
               ],
               "response": {
@@ -4750,7 +4780,7 @@
               "crossLanguageDefinitionId": "Type.Property.ValueTypes.Decimal128.get"
             },
             {
-              "$id": "328",
+              "$id": "325",
               "kind": "basic",
               "name": "put",
               "originalName": "put",
@@ -4759,7 +4789,7 @@
               "apiVersions": [],
               "doc": "Put operation",
               "operation": {
-                "$id": "329",
+                "$id": "326",
                 "name": "put",
                 "originalName": "put",
                 "isExactName": false,
@@ -4768,7 +4798,7 @@
                 "accessibility": "public",
                 "parameters": [
                   {
-                    "$id": "330",
+                    "$id": "327",
                     "kind": "header",
                     "name": "contentType",
                     "originalName": "contentType",
@@ -4786,7 +4816,7 @@
                     "crossLanguageDefinitionId": "Type.Property.ValueTypes.Decimal128.put.contentType",
                     "methodParameterSegments": [
                       {
-                        "$id": "331",
+                        "$id": "328",
                         "kind": "method",
                         "name": "contentType",
                         "originalName": "contentType",
@@ -4809,7 +4839,7 @@
                     "isExactName": false
                   },
                   {
-                    "$id": "332",
+                    "$id": "329",
                     "kind": "body",
                     "name": "body",
                     "originalName": "body",
@@ -4830,7 +4860,7 @@
                     "crossLanguageDefinitionId": "Type.Property.ValueTypes.Decimal128.put.body",
                     "methodParameterSegments": [
                       {
-                        "$id": "333",
+                        "$id": "330",
                         "kind": "method",
                         "name": "body",
                         "originalName": "body",
@@ -4883,10 +4913,10 @@
               },
               "parameters": [
                 {
-                  "$ref": "333"
+                  "$ref": "330"
                 },
                 {
-                  "$ref": "331"
+                  "$ref": "328"
                 }
               ],
               "response": {},
@@ -4898,13 +4928,14 @@
           ],
           "parameters": [
             {
-              "$id": "334",
+              "$id": "331",
               "kind": "endpoint",
               "name": "endpoint",
+              "originalName": "endpoint",
               "serializedName": "endpoint",
               "doc": "Service host",
               "type": {
-                "$id": "335",
+                "$id": "332",
                 "kind": "url",
                 "name": "endpoint",
                 "crossLanguageDefinitionId": "TypeSpec.url"
@@ -4915,7 +4946,7 @@
               "isEndpoint": true,
               "defaultValue": {
                 "type": {
-                  "$id": "336",
+                  "$id": "333",
                   "kind": "string",
                   "name": "string",
                   "crossLanguageDefinitionId": "TypeSpec.string"
@@ -4934,19 +4965,19 @@
           "crossLanguageDefinitionId": "Type.Property.ValueTypes.Decimal128",
           "apiVersions": [],
           "parent": {
-            "$ref": "235"
+            "$ref": "232"
           },
           "isMultiServiceClient": false
         },
         {
-          "$id": "337",
+          "$id": "334",
           "kind": "client",
           "name": "Datetime",
           "isExactName": false,
           "namespace": "Type.Property.ValueTypes",
           "methods": [
             {
-              "$id": "338",
+              "$id": "335",
               "kind": "basic",
               "name": "get",
               "originalName": "get",
@@ -4955,7 +4986,7 @@
               "apiVersions": [],
               "doc": "Get call",
               "operation": {
-                "$id": "339",
+                "$id": "336",
                 "name": "get",
                 "originalName": "get",
                 "isExactName": false,
@@ -4964,7 +4995,7 @@
                 "accessibility": "public",
                 "parameters": [
                   {
-                    "$id": "340",
+                    "$id": "337",
                     "kind": "header",
                     "name": "accept",
                     "originalName": "accept",
@@ -4981,7 +5012,7 @@
                     "crossLanguageDefinitionId": "Type.Property.ValueTypes.Datetime.get.accept",
                     "methodParameterSegments": [
                       {
-                        "$id": "341",
+                        "$id": "338",
                         "kind": "method",
                         "name": "accept",
                         "originalName": "accept",
@@ -5035,7 +5066,7 @@
               },
               "parameters": [
                 {
-                  "$ref": "341"
+                  "$ref": "338"
                 }
               ],
               "response": {
@@ -5049,7 +5080,7 @@
               "crossLanguageDefinitionId": "Type.Property.ValueTypes.Datetime.get"
             },
             {
-              "$id": "342",
+              "$id": "339",
               "kind": "basic",
               "name": "put",
               "originalName": "put",
@@ -5058,7 +5089,7 @@
               "apiVersions": [],
               "doc": "Put operation",
               "operation": {
-                "$id": "343",
+                "$id": "340",
                 "name": "put",
                 "originalName": "put",
                 "isExactName": false,
@@ -5067,7 +5098,7 @@
                 "accessibility": "public",
                 "parameters": [
                   {
-                    "$id": "344",
+                    "$id": "341",
                     "kind": "header",
                     "name": "contentType",
                     "originalName": "contentType",
@@ -5085,7 +5116,7 @@
                     "crossLanguageDefinitionId": "Type.Property.ValueTypes.Datetime.put.contentType",
                     "methodParameterSegments": [
                       {
-                        "$id": "345",
+                        "$id": "342",
                         "kind": "method",
                         "name": "contentType",
                         "originalName": "contentType",
@@ -5108,7 +5139,7 @@
                     "isExactName": false
                   },
                   {
-                    "$id": "346",
+                    "$id": "343",
                     "kind": "body",
                     "name": "body",
                     "originalName": "body",
@@ -5129,7 +5160,7 @@
                     "crossLanguageDefinitionId": "Type.Property.ValueTypes.Datetime.put.body",
                     "methodParameterSegments": [
                       {
-                        "$id": "347",
+                        "$id": "344",
                         "kind": "method",
                         "name": "body",
                         "originalName": "body",
@@ -5182,10 +5213,10 @@
               },
               "parameters": [
                 {
-                  "$ref": "347"
+                  "$ref": "344"
                 },
                 {
-                  "$ref": "345"
+                  "$ref": "342"
                 }
               ],
               "response": {},
@@ -5197,13 +5228,14 @@
           ],
           "parameters": [
             {
-              "$id": "348",
+              "$id": "345",
               "kind": "endpoint",
               "name": "endpoint",
+              "originalName": "endpoint",
               "serializedName": "endpoint",
               "doc": "Service host",
               "type": {
-                "$id": "349",
+                "$id": "346",
                 "kind": "url",
                 "name": "endpoint",
                 "crossLanguageDefinitionId": "TypeSpec.url"
@@ -5214,7 +5246,7 @@
               "isEndpoint": true,
               "defaultValue": {
                 "type": {
-                  "$id": "350",
+                  "$id": "347",
                   "kind": "string",
                   "name": "string",
                   "crossLanguageDefinitionId": "TypeSpec.string"
@@ -5233,19 +5265,19 @@
           "crossLanguageDefinitionId": "Type.Property.ValueTypes.Datetime",
           "apiVersions": [],
           "parent": {
-            "$ref": "235"
+            "$ref": "232"
           },
           "isMultiServiceClient": false
         },
         {
-          "$id": "351",
+          "$id": "348",
           "kind": "client",
           "name": "Duration",
           "isExactName": false,
           "namespace": "Type.Property.ValueTypes",
           "methods": [
             {
-              "$id": "352",
+              "$id": "349",
               "kind": "basic",
               "name": "get",
               "originalName": "get",
@@ -5254,7 +5286,7 @@
               "apiVersions": [],
               "doc": "Get call",
               "operation": {
-                "$id": "353",
+                "$id": "350",
                 "name": "get",
                 "originalName": "get",
                 "isExactName": false,
@@ -5263,7 +5295,7 @@
                 "accessibility": "public",
                 "parameters": [
                   {
-                    "$id": "354",
+                    "$id": "351",
                     "kind": "header",
                     "name": "accept",
                     "originalName": "accept",
@@ -5280,7 +5312,7 @@
                     "crossLanguageDefinitionId": "Type.Property.ValueTypes.Duration.get.accept",
                     "methodParameterSegments": [
                       {
-                        "$id": "355",
+                        "$id": "352",
                         "kind": "method",
                         "name": "accept",
                         "originalName": "accept",
@@ -5334,7 +5366,7 @@
               },
               "parameters": [
                 {
-                  "$ref": "355"
+                  "$ref": "352"
                 }
               ],
               "response": {
@@ -5348,7 +5380,7 @@
               "crossLanguageDefinitionId": "Type.Property.ValueTypes.Duration.get"
             },
             {
-              "$id": "356",
+              "$id": "353",
               "kind": "basic",
               "name": "put",
               "originalName": "put",
@@ -5357,7 +5389,7 @@
               "apiVersions": [],
               "doc": "Put operation",
               "operation": {
-                "$id": "357",
+                "$id": "354",
                 "name": "put",
                 "originalName": "put",
                 "isExactName": false,
@@ -5366,7 +5398,7 @@
                 "accessibility": "public",
                 "parameters": [
                   {
-                    "$id": "358",
+                    "$id": "355",
                     "kind": "header",
                     "name": "contentType",
                     "originalName": "contentType",
@@ -5384,7 +5416,7 @@
                     "crossLanguageDefinitionId": "Type.Property.ValueTypes.Duration.put.contentType",
                     "methodParameterSegments": [
                       {
-                        "$id": "359",
+                        "$id": "356",
                         "kind": "method",
                         "name": "contentType",
                         "originalName": "contentType",
@@ -5407,7 +5439,7 @@
                     "isExactName": false
                   },
                   {
-                    "$id": "360",
+                    "$id": "357",
                     "kind": "body",
                     "name": "body",
                     "originalName": "body",
@@ -5428,7 +5460,7 @@
                     "crossLanguageDefinitionId": "Type.Property.ValueTypes.Duration.put.body",
                     "methodParameterSegments": [
                       {
-                        "$id": "361",
+                        "$id": "358",
                         "kind": "method",
                         "name": "body",
                         "originalName": "body",
@@ -5481,10 +5513,10 @@
               },
               "parameters": [
                 {
-                  "$ref": "361"
+                  "$ref": "358"
                 },
                 {
-                  "$ref": "359"
+                  "$ref": "356"
                 }
               ],
               "response": {},
@@ -5496,13 +5528,14 @@
           ],
           "parameters": [
             {
-              "$id": "362",
+              "$id": "359",
               "kind": "endpoint",
               "name": "endpoint",
+              "originalName": "endpoint",
               "serializedName": "endpoint",
               "doc": "Service host",
               "type": {
-                "$id": "363",
+                "$id": "360",
                 "kind": "url",
                 "name": "endpoint",
                 "crossLanguageDefinitionId": "TypeSpec.url"
@@ -5513,7 +5546,7 @@
               "isEndpoint": true,
               "defaultValue": {
                 "type": {
-                  "$id": "364",
+                  "$id": "361",
                   "kind": "string",
                   "name": "string",
                   "crossLanguageDefinitionId": "TypeSpec.string"
@@ -5532,19 +5565,19 @@
           "crossLanguageDefinitionId": "Type.Property.ValueTypes.Duration",
           "apiVersions": [],
           "parent": {
-            "$ref": "235"
+            "$ref": "232"
           },
           "isMultiServiceClient": false
         },
         {
-          "$id": "365",
+          "$id": "362",
           "kind": "client",
           "name": "Enum",
           "isExactName": false,
           "namespace": "Type.Property.ValueTypes",
           "methods": [
             {
-              "$id": "366",
+              "$id": "363",
               "kind": "basic",
               "name": "get",
               "originalName": "get",
@@ -5553,7 +5586,7 @@
               "apiVersions": [],
               "doc": "Get call",
               "operation": {
-                "$id": "367",
+                "$id": "364",
                 "name": "get",
                 "originalName": "get",
                 "isExactName": false,
@@ -5562,7 +5595,7 @@
                 "accessibility": "public",
                 "parameters": [
                   {
-                    "$id": "368",
+                    "$id": "365",
                     "kind": "header",
                     "name": "accept",
                     "originalName": "accept",
@@ -5579,7 +5612,7 @@
                     "crossLanguageDefinitionId": "Type.Property.ValueTypes.Enum.get.accept",
                     "methodParameterSegments": [
                       {
-                        "$id": "369",
+                        "$id": "366",
                         "kind": "method",
                         "name": "accept",
                         "originalName": "accept",
@@ -5633,7 +5666,7 @@
               },
               "parameters": [
                 {
-                  "$ref": "369"
+                  "$ref": "366"
                 }
               ],
               "response": {
@@ -5647,7 +5680,7 @@
               "crossLanguageDefinitionId": "Type.Property.ValueTypes.Enum.get"
             },
             {
-              "$id": "370",
+              "$id": "367",
               "kind": "basic",
               "name": "put",
               "originalName": "put",
@@ -5656,7 +5689,7 @@
               "apiVersions": [],
               "doc": "Put operation",
               "operation": {
-                "$id": "371",
+                "$id": "368",
                 "name": "put",
                 "originalName": "put",
                 "isExactName": false,
@@ -5665,7 +5698,7 @@
                 "accessibility": "public",
                 "parameters": [
                   {
-                    "$id": "372",
+                    "$id": "369",
                     "kind": "header",
                     "name": "contentType",
                     "originalName": "contentType",
@@ -5683,7 +5716,7 @@
                     "crossLanguageDefinitionId": "Type.Property.ValueTypes.Enum.put.contentType",
                     "methodParameterSegments": [
                       {
-                        "$id": "373",
+                        "$id": "370",
                         "kind": "method",
                         "name": "contentType",
                         "originalName": "contentType",
@@ -5706,7 +5739,7 @@
                     "isExactName": false
                   },
                   {
-                    "$id": "374",
+                    "$id": "371",
                     "kind": "body",
                     "name": "body",
                     "originalName": "body",
@@ -5727,7 +5760,7 @@
                     "crossLanguageDefinitionId": "Type.Property.ValueTypes.Enum.put.body",
                     "methodParameterSegments": [
                       {
-                        "$id": "375",
+                        "$id": "372",
                         "kind": "method",
                         "name": "body",
                         "originalName": "body",
@@ -5780,10 +5813,10 @@
               },
               "parameters": [
                 {
-                  "$ref": "375"
+                  "$ref": "372"
                 },
                 {
-                  "$ref": "373"
+                  "$ref": "370"
                 }
               ],
               "response": {},
@@ -5795,13 +5828,14 @@
           ],
           "parameters": [
             {
-              "$id": "376",
+              "$id": "373",
               "kind": "endpoint",
               "name": "endpoint",
+              "originalName": "endpoint",
               "serializedName": "endpoint",
               "doc": "Service host",
               "type": {
-                "$id": "377",
+                "$id": "374",
                 "kind": "url",
                 "name": "endpoint",
                 "crossLanguageDefinitionId": "TypeSpec.url"
@@ -5812,7 +5846,7 @@
               "isEndpoint": true,
               "defaultValue": {
                 "type": {
-                  "$id": "378",
+                  "$id": "375",
                   "kind": "string",
                   "name": "string",
                   "crossLanguageDefinitionId": "TypeSpec.string"
@@ -5831,19 +5865,19 @@
           "crossLanguageDefinitionId": "Type.Property.ValueTypes.Enum",
           "apiVersions": [],
           "parent": {
-            "$ref": "235"
+            "$ref": "232"
           },
           "isMultiServiceClient": false
         },
         {
-          "$id": "379",
+          "$id": "376",
           "kind": "client",
           "name": "ExtensibleEnum",
           "isExactName": false,
           "namespace": "Type.Property.ValueTypes",
           "methods": [
             {
-              "$id": "380",
+              "$id": "377",
               "kind": "basic",
               "name": "get",
               "originalName": "get",
@@ -5852,7 +5886,7 @@
               "apiVersions": [],
               "doc": "Get call",
               "operation": {
-                "$id": "381",
+                "$id": "378",
                 "name": "get",
                 "originalName": "get",
                 "isExactName": false,
@@ -5861,7 +5895,7 @@
                 "accessibility": "public",
                 "parameters": [
                   {
-                    "$id": "382",
+                    "$id": "379",
                     "kind": "header",
                     "name": "accept",
                     "originalName": "accept",
@@ -5878,7 +5912,7 @@
                     "crossLanguageDefinitionId": "Type.Property.ValueTypes.ExtensibleEnum.get.accept",
                     "methodParameterSegments": [
                       {
-                        "$id": "383",
+                        "$id": "380",
                         "kind": "method",
                         "name": "accept",
                         "originalName": "accept",
@@ -5932,7 +5966,7 @@
               },
               "parameters": [
                 {
-                  "$ref": "383"
+                  "$ref": "380"
                 }
               ],
               "response": {
@@ -5946,7 +5980,7 @@
               "crossLanguageDefinitionId": "Type.Property.ValueTypes.ExtensibleEnum.get"
             },
             {
-              "$id": "384",
+              "$id": "381",
               "kind": "basic",
               "name": "put",
               "originalName": "put",
@@ -5955,7 +5989,7 @@
               "apiVersions": [],
               "doc": "Put operation",
               "operation": {
-                "$id": "385",
+                "$id": "382",
                 "name": "put",
                 "originalName": "put",
                 "isExactName": false,
@@ -5964,7 +5998,7 @@
                 "accessibility": "public",
                 "parameters": [
                   {
-                    "$id": "386",
+                    "$id": "383",
                     "kind": "header",
                     "name": "contentType",
                     "originalName": "contentType",
@@ -5982,7 +6016,7 @@
                     "crossLanguageDefinitionId": "Type.Property.ValueTypes.ExtensibleEnum.put.contentType",
                     "methodParameterSegments": [
                       {
-                        "$id": "387",
+                        "$id": "384",
                         "kind": "method",
                         "name": "contentType",
                         "originalName": "contentType",
@@ -6005,7 +6039,7 @@
                     "isExactName": false
                   },
                   {
-                    "$id": "388",
+                    "$id": "385",
                     "kind": "body",
                     "name": "body",
                     "originalName": "body",
@@ -6026,7 +6060,7 @@
                     "crossLanguageDefinitionId": "Type.Property.ValueTypes.ExtensibleEnum.put.body",
                     "methodParameterSegments": [
                       {
-                        "$id": "389",
+                        "$id": "386",
                         "kind": "method",
                         "name": "body",
                         "originalName": "body",
@@ -6079,10 +6113,10 @@
               },
               "parameters": [
                 {
-                  "$ref": "389"
+                  "$ref": "386"
                 },
                 {
-                  "$ref": "387"
+                  "$ref": "384"
                 }
               ],
               "response": {},
@@ -6094,13 +6128,14 @@
           ],
           "parameters": [
             {
-              "$id": "390",
+              "$id": "387",
               "kind": "endpoint",
               "name": "endpoint",
+              "originalName": "endpoint",
               "serializedName": "endpoint",
               "doc": "Service host",
               "type": {
-                "$id": "391",
+                "$id": "388",
                 "kind": "url",
                 "name": "endpoint",
                 "crossLanguageDefinitionId": "TypeSpec.url"
@@ -6111,7 +6146,7 @@
               "isEndpoint": true,
               "defaultValue": {
                 "type": {
-                  "$id": "392",
+                  "$id": "389",
                   "kind": "string",
                   "name": "string",
                   "crossLanguageDefinitionId": "TypeSpec.string"
@@ -6130,19 +6165,19 @@
           "crossLanguageDefinitionId": "Type.Property.ValueTypes.ExtensibleEnum",
           "apiVersions": [],
           "parent": {
-            "$ref": "235"
+            "$ref": "232"
           },
           "isMultiServiceClient": false
         },
         {
-          "$id": "393",
+          "$id": "390",
           "kind": "client",
           "name": "Model",
           "isExactName": false,
           "namespace": "Type.Property.ValueTypes",
           "methods": [
             {
-              "$id": "394",
+              "$id": "391",
               "kind": "basic",
               "name": "get",
               "originalName": "get",
@@ -6151,7 +6186,7 @@
               "apiVersions": [],
               "doc": "Get call",
               "operation": {
-                "$id": "395",
+                "$id": "392",
                 "name": "get",
                 "originalName": "get",
                 "isExactName": false,
@@ -6160,7 +6195,7 @@
                 "accessibility": "public",
                 "parameters": [
                   {
-                    "$id": "396",
+                    "$id": "393",
                     "kind": "header",
                     "name": "accept",
                     "originalName": "accept",
@@ -6177,7 +6212,7 @@
                     "crossLanguageDefinitionId": "Type.Property.ValueTypes.Model.get.accept",
                     "methodParameterSegments": [
                       {
-                        "$id": "397",
+                        "$id": "394",
                         "kind": "method",
                         "name": "accept",
                         "originalName": "accept",
@@ -6231,7 +6266,7 @@
               },
               "parameters": [
                 {
-                  "$ref": "397"
+                  "$ref": "394"
                 }
               ],
               "response": {
@@ -6245,7 +6280,7 @@
               "crossLanguageDefinitionId": "Type.Property.ValueTypes.Model.get"
             },
             {
-              "$id": "398",
+              "$id": "395",
               "kind": "basic",
               "name": "put",
               "originalName": "put",
@@ -6254,7 +6289,7 @@
               "apiVersions": [],
               "doc": "Put operation",
               "operation": {
-                "$id": "399",
+                "$id": "396",
                 "name": "put",
                 "originalName": "put",
                 "isExactName": false,
@@ -6263,7 +6298,7 @@
                 "accessibility": "public",
                 "parameters": [
                   {
-                    "$id": "400",
+                    "$id": "397",
                     "kind": "header",
                     "name": "contentType",
                     "originalName": "contentType",
@@ -6281,7 +6316,7 @@
                     "crossLanguageDefinitionId": "Type.Property.ValueTypes.Model.put.contentType",
                     "methodParameterSegments": [
                       {
-                        "$id": "401",
+                        "$id": "398",
                         "kind": "method",
                         "name": "contentType",
                         "originalName": "contentType",
@@ -6304,7 +6339,7 @@
                     "isExactName": false
                   },
                   {
-                    "$id": "402",
+                    "$id": "399",
                     "kind": "body",
                     "name": "body",
                     "originalName": "body",
@@ -6325,7 +6360,7 @@
                     "crossLanguageDefinitionId": "Type.Property.ValueTypes.Model.put.body",
                     "methodParameterSegments": [
                       {
-                        "$id": "403",
+                        "$id": "400",
                         "kind": "method",
                         "name": "body",
                         "originalName": "body",
@@ -6378,10 +6413,10 @@
               },
               "parameters": [
                 {
-                  "$ref": "403"
+                  "$ref": "400"
                 },
                 {
-                  "$ref": "401"
+                  "$ref": "398"
                 }
               ],
               "response": {},
@@ -6393,13 +6428,14 @@
           ],
           "parameters": [
             {
-              "$id": "404",
+              "$id": "401",
               "kind": "endpoint",
               "name": "endpoint",
+              "originalName": "endpoint",
               "serializedName": "endpoint",
               "doc": "Service host",
               "type": {
-                "$id": "405",
+                "$id": "402",
                 "kind": "url",
                 "name": "endpoint",
                 "crossLanguageDefinitionId": "TypeSpec.url"
@@ -6410,7 +6446,7 @@
               "isEndpoint": true,
               "defaultValue": {
                 "type": {
-                  "$id": "406",
+                  "$id": "403",
                   "kind": "string",
                   "name": "string",
                   "crossLanguageDefinitionId": "TypeSpec.string"
@@ -6429,19 +6465,19 @@
           "crossLanguageDefinitionId": "Type.Property.ValueTypes.Model",
           "apiVersions": [],
           "parent": {
-            "$ref": "235"
+            "$ref": "232"
           },
           "isMultiServiceClient": false
         },
         {
-          "$id": "407",
+          "$id": "404",
           "kind": "client",
           "name": "CollectionsString",
           "isExactName": false,
           "namespace": "Type.Property.ValueTypes",
           "methods": [
             {
-              "$id": "408",
+              "$id": "405",
               "kind": "basic",
               "name": "get",
               "originalName": "get",
@@ -6450,7 +6486,7 @@
               "apiVersions": [],
               "doc": "Get call",
               "operation": {
-                "$id": "409",
+                "$id": "406",
                 "name": "get",
                 "originalName": "get",
                 "isExactName": false,
@@ -6459,7 +6495,7 @@
                 "accessibility": "public",
                 "parameters": [
                   {
-                    "$id": "410",
+                    "$id": "407",
                     "kind": "header",
                     "name": "accept",
                     "originalName": "accept",
@@ -6476,7 +6512,7 @@
                     "crossLanguageDefinitionId": "Type.Property.ValueTypes.CollectionsString.get.accept",
                     "methodParameterSegments": [
                       {
-                        "$id": "411",
+                        "$id": "408",
                         "kind": "method",
                         "name": "accept",
                         "originalName": "accept",
@@ -6530,7 +6566,7 @@
               },
               "parameters": [
                 {
-                  "$ref": "411"
+                  "$ref": "408"
                 }
               ],
               "response": {
@@ -6544,7 +6580,7 @@
               "crossLanguageDefinitionId": "Type.Property.ValueTypes.CollectionsString.get"
             },
             {
-              "$id": "412",
+              "$id": "409",
               "kind": "basic",
               "name": "put",
               "originalName": "put",
@@ -6553,7 +6589,7 @@
               "apiVersions": [],
               "doc": "Put operation",
               "operation": {
-                "$id": "413",
+                "$id": "410",
                 "name": "put",
                 "originalName": "put",
                 "isExactName": false,
@@ -6562,7 +6598,7 @@
                 "accessibility": "public",
                 "parameters": [
                   {
-                    "$id": "414",
+                    "$id": "411",
                     "kind": "header",
                     "name": "contentType",
                     "originalName": "contentType",
@@ -6580,7 +6616,7 @@
                     "crossLanguageDefinitionId": "Type.Property.ValueTypes.CollectionsString.put.contentType",
                     "methodParameterSegments": [
                       {
-                        "$id": "415",
+                        "$id": "412",
                         "kind": "method",
                         "name": "contentType",
                         "originalName": "contentType",
@@ -6603,7 +6639,7 @@
                     "isExactName": false
                   },
                   {
-                    "$id": "416",
+                    "$id": "413",
                     "kind": "body",
                     "name": "body",
                     "originalName": "body",
@@ -6624,7 +6660,7 @@
                     "crossLanguageDefinitionId": "Type.Property.ValueTypes.CollectionsString.put.body",
                     "methodParameterSegments": [
                       {
-                        "$id": "417",
+                        "$id": "414",
                         "kind": "method",
                         "name": "body",
                         "originalName": "body",
@@ -6677,10 +6713,10 @@
               },
               "parameters": [
                 {
-                  "$ref": "417"
+                  "$ref": "414"
                 },
                 {
-                  "$ref": "415"
+                  "$ref": "412"
                 }
               ],
               "response": {},
@@ -6692,13 +6728,14 @@
           ],
           "parameters": [
             {
-              "$id": "418",
+              "$id": "415",
               "kind": "endpoint",
               "name": "endpoint",
+              "originalName": "endpoint",
               "serializedName": "endpoint",
               "doc": "Service host",
               "type": {
-                "$id": "419",
+                "$id": "416",
                 "kind": "url",
                 "name": "endpoint",
                 "crossLanguageDefinitionId": "TypeSpec.url"
@@ -6709,7 +6746,7 @@
               "isEndpoint": true,
               "defaultValue": {
                 "type": {
-                  "$id": "420",
+                  "$id": "417",
                   "kind": "string",
                   "name": "string",
                   "crossLanguageDefinitionId": "TypeSpec.string"
@@ -6728,19 +6765,19 @@
           "crossLanguageDefinitionId": "Type.Property.ValueTypes.CollectionsString",
           "apiVersions": [],
           "parent": {
-            "$ref": "235"
+            "$ref": "232"
           },
           "isMultiServiceClient": false
         },
         {
-          "$id": "421",
+          "$id": "418",
           "kind": "client",
           "name": "CollectionsInt",
           "isExactName": false,
           "namespace": "Type.Property.ValueTypes",
           "methods": [
             {
-              "$id": "422",
+              "$id": "419",
               "kind": "basic",
               "name": "get",
               "originalName": "get",
@@ -6749,7 +6786,7 @@
               "apiVersions": [],
               "doc": "Get call",
               "operation": {
-                "$id": "423",
+                "$id": "420",
                 "name": "get",
                 "originalName": "get",
                 "isExactName": false,
@@ -6758,7 +6795,7 @@
                 "accessibility": "public",
                 "parameters": [
                   {
-                    "$id": "424",
+                    "$id": "421",
                     "kind": "header",
                     "name": "accept",
                     "originalName": "accept",
@@ -6775,7 +6812,7 @@
                     "crossLanguageDefinitionId": "Type.Property.ValueTypes.CollectionsInt.get.accept",
                     "methodParameterSegments": [
                       {
-                        "$id": "425",
+                        "$id": "422",
                         "kind": "method",
                         "name": "accept",
                         "originalName": "accept",
@@ -6829,7 +6866,7 @@
               },
               "parameters": [
                 {
-                  "$ref": "425"
+                  "$ref": "422"
                 }
               ],
               "response": {
@@ -6843,7 +6880,7 @@
               "crossLanguageDefinitionId": "Type.Property.ValueTypes.CollectionsInt.get"
             },
             {
-              "$id": "426",
+              "$id": "423",
               "kind": "basic",
               "name": "put",
               "originalName": "put",
@@ -6852,7 +6889,7 @@
               "apiVersions": [],
               "doc": "Put operation",
               "operation": {
-                "$id": "427",
+                "$id": "424",
                 "name": "put",
                 "originalName": "put",
                 "isExactName": false,
@@ -6861,7 +6898,7 @@
                 "accessibility": "public",
                 "parameters": [
                   {
-                    "$id": "428",
+                    "$id": "425",
                     "kind": "header",
                     "name": "contentType",
                     "originalName": "contentType",
@@ -6879,7 +6916,7 @@
                     "crossLanguageDefinitionId": "Type.Property.ValueTypes.CollectionsInt.put.contentType",
                     "methodParameterSegments": [
                       {
-                        "$id": "429",
+                        "$id": "426",
                         "kind": "method",
                         "name": "contentType",
                         "originalName": "contentType",
@@ -6902,7 +6939,7 @@
                     "isExactName": false
                   },
                   {
-                    "$id": "430",
+                    "$id": "427",
                     "kind": "body",
                     "name": "body",
                     "originalName": "body",
@@ -6923,7 +6960,7 @@
                     "crossLanguageDefinitionId": "Type.Property.ValueTypes.CollectionsInt.put.body",
                     "methodParameterSegments": [
                       {
-                        "$id": "431",
+                        "$id": "428",
                         "kind": "method",
                         "name": "body",
                         "originalName": "body",
@@ -6976,10 +7013,10 @@
               },
               "parameters": [
                 {
-                  "$ref": "431"
+                  "$ref": "428"
                 },
                 {
-                  "$ref": "429"
+                  "$ref": "426"
                 }
               ],
               "response": {},
@@ -6991,13 +7028,14 @@
           ],
           "parameters": [
             {
-              "$id": "432",
+              "$id": "429",
               "kind": "endpoint",
               "name": "endpoint",
+              "originalName": "endpoint",
               "serializedName": "endpoint",
               "doc": "Service host",
               "type": {
-                "$id": "433",
+                "$id": "430",
                 "kind": "url",
                 "name": "endpoint",
                 "crossLanguageDefinitionId": "TypeSpec.url"
@@ -7008,7 +7046,7 @@
               "isEndpoint": true,
               "defaultValue": {
                 "type": {
-                  "$id": "434",
+                  "$id": "431",
                   "kind": "string",
                   "name": "string",
                   "crossLanguageDefinitionId": "TypeSpec.string"
@@ -7027,19 +7065,19 @@
           "crossLanguageDefinitionId": "Type.Property.ValueTypes.CollectionsInt",
           "apiVersions": [],
           "parent": {
-            "$ref": "235"
+            "$ref": "232"
           },
           "isMultiServiceClient": false
         },
         {
-          "$id": "435",
+          "$id": "432",
           "kind": "client",
           "name": "CollectionsModel",
           "isExactName": false,
           "namespace": "Type.Property.ValueTypes",
           "methods": [
             {
-              "$id": "436",
+              "$id": "433",
               "kind": "basic",
               "name": "get",
               "originalName": "get",
@@ -7048,7 +7086,7 @@
               "apiVersions": [],
               "doc": "Get call",
               "operation": {
-                "$id": "437",
+                "$id": "434",
                 "name": "get",
                 "originalName": "get",
                 "isExactName": false,
@@ -7057,7 +7095,7 @@
                 "accessibility": "public",
                 "parameters": [
                   {
-                    "$id": "438",
+                    "$id": "435",
                     "kind": "header",
                     "name": "accept",
                     "originalName": "accept",
@@ -7074,7 +7112,7 @@
                     "crossLanguageDefinitionId": "Type.Property.ValueTypes.CollectionsModel.get.accept",
                     "methodParameterSegments": [
                       {
-                        "$id": "439",
+                        "$id": "436",
                         "kind": "method",
                         "name": "accept",
                         "originalName": "accept",
@@ -7128,7 +7166,7 @@
               },
               "parameters": [
                 {
-                  "$ref": "439"
+                  "$ref": "436"
                 }
               ],
               "response": {
@@ -7142,7 +7180,7 @@
               "crossLanguageDefinitionId": "Type.Property.ValueTypes.CollectionsModel.get"
             },
             {
-              "$id": "440",
+              "$id": "437",
               "kind": "basic",
               "name": "put",
               "originalName": "put",
@@ -7151,7 +7189,7 @@
               "apiVersions": [],
               "doc": "Put operation",
               "operation": {
-                "$id": "441",
+                "$id": "438",
                 "name": "put",
                 "originalName": "put",
                 "isExactName": false,
@@ -7160,7 +7198,7 @@
                 "accessibility": "public",
                 "parameters": [
                   {
-                    "$id": "442",
+                    "$id": "439",
                     "kind": "header",
                     "name": "contentType",
                     "originalName": "contentType",
@@ -7178,7 +7216,7 @@
                     "crossLanguageDefinitionId": "Type.Property.ValueTypes.CollectionsModel.put.contentType",
                     "methodParameterSegments": [
                       {
-                        "$id": "443",
+                        "$id": "440",
                         "kind": "method",
                         "name": "contentType",
                         "originalName": "contentType",
@@ -7201,7 +7239,7 @@
                     "isExactName": false
                   },
                   {
-                    "$id": "444",
+                    "$id": "441",
                     "kind": "body",
                     "name": "body",
                     "originalName": "body",
@@ -7222,7 +7260,7 @@
                     "crossLanguageDefinitionId": "Type.Property.ValueTypes.CollectionsModel.put.body",
                     "methodParameterSegments": [
                       {
-                        "$id": "445",
+                        "$id": "442",
                         "kind": "method",
                         "name": "body",
                         "originalName": "body",
@@ -7275,10 +7313,10 @@
               },
               "parameters": [
                 {
-                  "$ref": "445"
+                  "$ref": "442"
                 },
                 {
-                  "$ref": "443"
+                  "$ref": "440"
                 }
               ],
               "response": {},
@@ -7290,13 +7328,14 @@
           ],
           "parameters": [
             {
-              "$id": "446",
+              "$id": "443",
               "kind": "endpoint",
               "name": "endpoint",
+              "originalName": "endpoint",
               "serializedName": "endpoint",
               "doc": "Service host",
               "type": {
-                "$id": "447",
+                "$id": "444",
                 "kind": "url",
                 "name": "endpoint",
                 "crossLanguageDefinitionId": "TypeSpec.url"
@@ -7307,7 +7346,7 @@
               "isEndpoint": true,
               "defaultValue": {
                 "type": {
-                  "$id": "448",
+                  "$id": "445",
                   "kind": "string",
                   "name": "string",
                   "crossLanguageDefinitionId": "TypeSpec.string"
@@ -7326,19 +7365,19 @@
           "crossLanguageDefinitionId": "Type.Property.ValueTypes.CollectionsModel",
           "apiVersions": [],
           "parent": {
-            "$ref": "235"
+            "$ref": "232"
           },
           "isMultiServiceClient": false
         },
         {
-          "$id": "449",
+          "$id": "446",
           "kind": "client",
           "name": "DictionaryString",
           "isExactName": false,
           "namespace": "Type.Property.ValueTypes",
           "methods": [
             {
-              "$id": "450",
+              "$id": "447",
               "kind": "basic",
               "name": "get",
               "originalName": "get",
@@ -7347,7 +7386,7 @@
               "apiVersions": [],
               "doc": "Get call",
               "operation": {
-                "$id": "451",
+                "$id": "448",
                 "name": "get",
                 "originalName": "get",
                 "isExactName": false,
@@ -7356,7 +7395,7 @@
                 "accessibility": "public",
                 "parameters": [
                   {
-                    "$id": "452",
+                    "$id": "449",
                     "kind": "header",
                     "name": "accept",
                     "originalName": "accept",
@@ -7373,7 +7412,7 @@
                     "crossLanguageDefinitionId": "Type.Property.ValueTypes.DictionaryString.get.accept",
                     "methodParameterSegments": [
                       {
-                        "$id": "453",
+                        "$id": "450",
                         "kind": "method",
                         "name": "accept",
                         "originalName": "accept",
@@ -7427,7 +7466,7 @@
               },
               "parameters": [
                 {
-                  "$ref": "453"
+                  "$ref": "450"
                 }
               ],
               "response": {
@@ -7441,7 +7480,7 @@
               "crossLanguageDefinitionId": "Type.Property.ValueTypes.DictionaryString.get"
             },
             {
-              "$id": "454",
+              "$id": "451",
               "kind": "basic",
               "name": "put",
               "originalName": "put",
@@ -7450,7 +7489,7 @@
               "apiVersions": [],
               "doc": "Put operation",
               "operation": {
-                "$id": "455",
+                "$id": "452",
                 "name": "put",
                 "originalName": "put",
                 "isExactName": false,
@@ -7459,7 +7498,7 @@
                 "accessibility": "public",
                 "parameters": [
                   {
-                    "$id": "456",
+                    "$id": "453",
                     "kind": "header",
                     "name": "contentType",
                     "originalName": "contentType",
@@ -7477,7 +7516,7 @@
                     "crossLanguageDefinitionId": "Type.Property.ValueTypes.DictionaryString.put.contentType",
                     "methodParameterSegments": [
                       {
-                        "$id": "457",
+                        "$id": "454",
                         "kind": "method",
                         "name": "contentType",
                         "originalName": "contentType",
@@ -7500,7 +7539,7 @@
                     "isExactName": false
                   },
                   {
-                    "$id": "458",
+                    "$id": "455",
                     "kind": "body",
                     "name": "body",
                     "originalName": "body",
@@ -7521,7 +7560,7 @@
                     "crossLanguageDefinitionId": "Type.Property.ValueTypes.DictionaryString.put.body",
                     "methodParameterSegments": [
                       {
-                        "$id": "459",
+                        "$id": "456",
                         "kind": "method",
                         "name": "body",
                         "originalName": "body",
@@ -7574,10 +7613,10 @@
               },
               "parameters": [
                 {
-                  "$ref": "459"
+                  "$ref": "456"
                 },
                 {
-                  "$ref": "457"
+                  "$ref": "454"
                 }
               ],
               "response": {},
@@ -7589,13 +7628,14 @@
           ],
           "parameters": [
             {
-              "$id": "460",
+              "$id": "457",
               "kind": "endpoint",
               "name": "endpoint",
+              "originalName": "endpoint",
               "serializedName": "endpoint",
               "doc": "Service host",
               "type": {
-                "$id": "461",
+                "$id": "458",
                 "kind": "url",
                 "name": "endpoint",
                 "crossLanguageDefinitionId": "TypeSpec.url"
@@ -7606,7 +7646,7 @@
               "isEndpoint": true,
               "defaultValue": {
                 "type": {
-                  "$id": "462",
+                  "$id": "459",
                   "kind": "string",
                   "name": "string",
                   "crossLanguageDefinitionId": "TypeSpec.string"
@@ -7625,19 +7665,19 @@
           "crossLanguageDefinitionId": "Type.Property.ValueTypes.DictionaryString",
           "apiVersions": [],
           "parent": {
-            "$ref": "235"
+            "$ref": "232"
           },
           "isMultiServiceClient": false
         },
         {
-          "$id": "463",
+          "$id": "460",
           "kind": "client",
           "name": "Never",
           "isExactName": false,
           "namespace": "Type.Property.ValueTypes",
           "methods": [
             {
-              "$id": "464",
+              "$id": "461",
               "kind": "basic",
               "name": "get",
               "originalName": "get",
@@ -7646,7 +7686,7 @@
               "apiVersions": [],
               "doc": "Get call",
               "operation": {
-                "$id": "465",
+                "$id": "462",
                 "name": "get",
                 "originalName": "get",
                 "isExactName": false,
@@ -7655,7 +7695,7 @@
                 "accessibility": "public",
                 "parameters": [
                   {
-                    "$id": "466",
+                    "$id": "463",
                     "kind": "header",
                     "name": "accept",
                     "originalName": "accept",
@@ -7672,7 +7712,7 @@
                     "crossLanguageDefinitionId": "Type.Property.ValueTypes.Never.get.accept",
                     "methodParameterSegments": [
                       {
-                        "$id": "467",
+                        "$id": "464",
                         "kind": "method",
                         "name": "accept",
                         "originalName": "accept",
@@ -7726,7 +7766,7 @@
               },
               "parameters": [
                 {
-                  "$ref": "467"
+                  "$ref": "464"
                 }
               ],
               "response": {
@@ -7740,7 +7780,7 @@
               "crossLanguageDefinitionId": "Type.Property.ValueTypes.Never.get"
             },
             {
-              "$id": "468",
+              "$id": "465",
               "kind": "basic",
               "name": "put",
               "originalName": "put",
@@ -7749,7 +7789,7 @@
               "apiVersions": [],
               "doc": "Put operation",
               "operation": {
-                "$id": "469",
+                "$id": "466",
                 "name": "put",
                 "originalName": "put",
                 "isExactName": false,
@@ -7758,7 +7798,7 @@
                 "accessibility": "public",
                 "parameters": [
                   {
-                    "$id": "470",
+                    "$id": "467",
                     "kind": "header",
                     "name": "contentType",
                     "originalName": "contentType",
@@ -7776,7 +7816,7 @@
                     "crossLanguageDefinitionId": "Type.Property.ValueTypes.Never.put.contentType",
                     "methodParameterSegments": [
                       {
-                        "$id": "471",
+                        "$id": "468",
                         "kind": "method",
                         "name": "contentType",
                         "originalName": "contentType",
@@ -7799,7 +7839,7 @@
                     "isExactName": false
                   },
                   {
-                    "$id": "472",
+                    "$id": "469",
                     "kind": "body",
                     "name": "body",
                     "originalName": "body",
@@ -7820,7 +7860,7 @@
                     "crossLanguageDefinitionId": "Type.Property.ValueTypes.Never.put.body",
                     "methodParameterSegments": [
                       {
-                        "$id": "473",
+                        "$id": "470",
                         "kind": "method",
                         "name": "body",
                         "originalName": "body",
@@ -7873,10 +7913,10 @@
               },
               "parameters": [
                 {
-                  "$ref": "473"
+                  "$ref": "470"
                 },
                 {
-                  "$ref": "471"
+                  "$ref": "468"
                 }
               ],
               "response": {},
@@ -7888,13 +7928,14 @@
           ],
           "parameters": [
             {
-              "$id": "474",
+              "$id": "471",
               "kind": "endpoint",
               "name": "endpoint",
+              "originalName": "endpoint",
               "serializedName": "endpoint",
               "doc": "Service host",
               "type": {
-                "$id": "475",
+                "$id": "472",
                 "kind": "url",
                 "name": "endpoint",
                 "crossLanguageDefinitionId": "TypeSpec.url"
@@ -7905,7 +7946,7 @@
               "isEndpoint": true,
               "defaultValue": {
                 "type": {
-                  "$id": "476",
+                  "$id": "473",
                   "kind": "string",
                   "name": "string",
                   "crossLanguageDefinitionId": "TypeSpec.string"
@@ -7924,19 +7965,19 @@
           "crossLanguageDefinitionId": "Type.Property.ValueTypes.Never",
           "apiVersions": [],
           "parent": {
-            "$ref": "235"
+            "$ref": "232"
           },
           "isMultiServiceClient": false
         },
         {
-          "$id": "477",
+          "$id": "474",
           "kind": "client",
           "name": "UnknownString",
           "isExactName": false,
           "namespace": "Type.Property.ValueTypes",
           "methods": [
             {
-              "$id": "478",
+              "$id": "475",
               "kind": "basic",
               "name": "get",
               "originalName": "get",
@@ -7945,7 +7986,7 @@
               "apiVersions": [],
               "doc": "Get call",
               "operation": {
-                "$id": "479",
+                "$id": "476",
                 "name": "get",
                 "originalName": "get",
                 "isExactName": false,
@@ -7954,7 +7995,7 @@
                 "accessibility": "public",
                 "parameters": [
                   {
-                    "$id": "480",
+                    "$id": "477",
                     "kind": "header",
                     "name": "accept",
                     "originalName": "accept",
@@ -7971,7 +8012,7 @@
                     "crossLanguageDefinitionId": "Type.Property.ValueTypes.UnknownString.get.accept",
                     "methodParameterSegments": [
                       {
-                        "$id": "481",
+                        "$id": "478",
                         "kind": "method",
                         "name": "accept",
                         "originalName": "accept",
@@ -8025,7 +8066,7 @@
               },
               "parameters": [
                 {
-                  "$ref": "481"
+                  "$ref": "478"
                 }
               ],
               "response": {
@@ -8039,7 +8080,7 @@
               "crossLanguageDefinitionId": "Type.Property.ValueTypes.UnknownString.get"
             },
             {
-              "$id": "482",
+              "$id": "479",
               "kind": "basic",
               "name": "put",
               "originalName": "put",
@@ -8048,7 +8089,7 @@
               "apiVersions": [],
               "doc": "Put operation",
               "operation": {
-                "$id": "483",
+                "$id": "480",
                 "name": "put",
                 "originalName": "put",
                 "isExactName": false,
@@ -8057,7 +8098,7 @@
                 "accessibility": "public",
                 "parameters": [
                   {
-                    "$id": "484",
+                    "$id": "481",
                     "kind": "header",
                     "name": "contentType",
                     "originalName": "contentType",
@@ -8075,7 +8116,7 @@
                     "crossLanguageDefinitionId": "Type.Property.ValueTypes.UnknownString.put.contentType",
                     "methodParameterSegments": [
                       {
-                        "$id": "485",
+                        "$id": "482",
                         "kind": "method",
                         "name": "contentType",
                         "originalName": "contentType",
@@ -8098,7 +8139,7 @@
                     "isExactName": false
                   },
                   {
-                    "$id": "486",
+                    "$id": "483",
                     "kind": "body",
                     "name": "body",
                     "originalName": "body",
@@ -8119,7 +8160,7 @@
                     "crossLanguageDefinitionId": "Type.Property.ValueTypes.UnknownString.put.body",
                     "methodParameterSegments": [
                       {
-                        "$id": "487",
+                        "$id": "484",
                         "kind": "method",
                         "name": "body",
                         "originalName": "body",
@@ -8172,10 +8213,10 @@
               },
               "parameters": [
                 {
-                  "$ref": "487"
+                  "$ref": "484"
                 },
                 {
-                  "$ref": "485"
+                  "$ref": "482"
                 }
               ],
               "response": {},
@@ -8187,13 +8228,14 @@
           ],
           "parameters": [
             {
-              "$id": "488",
+              "$id": "485",
               "kind": "endpoint",
               "name": "endpoint",
+              "originalName": "endpoint",
               "serializedName": "endpoint",
               "doc": "Service host",
               "type": {
-                "$id": "489",
+                "$id": "486",
                 "kind": "url",
                 "name": "endpoint",
                 "crossLanguageDefinitionId": "TypeSpec.url"
@@ -8204,7 +8246,7 @@
               "isEndpoint": true,
               "defaultValue": {
                 "type": {
-                  "$id": "490",
+                  "$id": "487",
                   "kind": "string",
                   "name": "string",
                   "crossLanguageDefinitionId": "TypeSpec.string"
@@ -8223,19 +8265,19 @@
           "crossLanguageDefinitionId": "Type.Property.ValueTypes.UnknownString",
           "apiVersions": [],
           "parent": {
-            "$ref": "235"
+            "$ref": "232"
           },
           "isMultiServiceClient": false
         },
         {
-          "$id": "491",
+          "$id": "488",
           "kind": "client",
           "name": "UnknownInt",
           "isExactName": false,
           "namespace": "Type.Property.ValueTypes",
           "methods": [
             {
-              "$id": "492",
+              "$id": "489",
               "kind": "basic",
               "name": "get",
               "originalName": "get",
@@ -8244,7 +8286,7 @@
               "apiVersions": [],
               "doc": "Get call",
               "operation": {
-                "$id": "493",
+                "$id": "490",
                 "name": "get",
                 "originalName": "get",
                 "isExactName": false,
@@ -8253,7 +8295,7 @@
                 "accessibility": "public",
                 "parameters": [
                   {
-                    "$id": "494",
+                    "$id": "491",
                     "kind": "header",
                     "name": "accept",
                     "originalName": "accept",
@@ -8270,7 +8312,7 @@
                     "crossLanguageDefinitionId": "Type.Property.ValueTypes.UnknownInt.get.accept",
                     "methodParameterSegments": [
                       {
-                        "$id": "495",
+                        "$id": "492",
                         "kind": "method",
                         "name": "accept",
                         "originalName": "accept",
@@ -8324,7 +8366,7 @@
               },
               "parameters": [
                 {
-                  "$ref": "495"
+                  "$ref": "492"
                 }
               ],
               "response": {
@@ -8338,7 +8380,7 @@
               "crossLanguageDefinitionId": "Type.Property.ValueTypes.UnknownInt.get"
             },
             {
-              "$id": "496",
+              "$id": "493",
               "kind": "basic",
               "name": "put",
               "originalName": "put",
@@ -8347,7 +8389,7 @@
               "apiVersions": [],
               "doc": "Put operation",
               "operation": {
-                "$id": "497",
+                "$id": "494",
                 "name": "put",
                 "originalName": "put",
                 "isExactName": false,
@@ -8356,7 +8398,7 @@
                 "accessibility": "public",
                 "parameters": [
                   {
-                    "$id": "498",
+                    "$id": "495",
                     "kind": "header",
                     "name": "contentType",
                     "originalName": "contentType",
@@ -8374,7 +8416,7 @@
                     "crossLanguageDefinitionId": "Type.Property.ValueTypes.UnknownInt.put.contentType",
                     "methodParameterSegments": [
                       {
-                        "$id": "499",
+                        "$id": "496",
                         "kind": "method",
                         "name": "contentType",
                         "originalName": "contentType",
@@ -8397,7 +8439,7 @@
                     "isExactName": false
                   },
                   {
-                    "$id": "500",
+                    "$id": "497",
                     "kind": "body",
                     "name": "body",
                     "originalName": "body",
@@ -8418,7 +8460,7 @@
                     "crossLanguageDefinitionId": "Type.Property.ValueTypes.UnknownInt.put.body",
                     "methodParameterSegments": [
                       {
-                        "$id": "501",
+                        "$id": "498",
                         "kind": "method",
                         "name": "body",
                         "originalName": "body",
@@ -8471,10 +8513,10 @@
               },
               "parameters": [
                 {
-                  "$ref": "501"
+                  "$ref": "498"
                 },
                 {
-                  "$ref": "499"
+                  "$ref": "496"
                 }
               ],
               "response": {},
@@ -8486,13 +8528,14 @@
           ],
           "parameters": [
             {
-              "$id": "502",
+              "$id": "499",
               "kind": "endpoint",
               "name": "endpoint",
+              "originalName": "endpoint",
               "serializedName": "endpoint",
               "doc": "Service host",
               "type": {
-                "$id": "503",
+                "$id": "500",
                 "kind": "url",
                 "name": "endpoint",
                 "crossLanguageDefinitionId": "TypeSpec.url"
@@ -8503,7 +8546,7 @@
               "isEndpoint": true,
               "defaultValue": {
                 "type": {
-                  "$id": "504",
+                  "$id": "501",
                   "kind": "string",
                   "name": "string",
                   "crossLanguageDefinitionId": "TypeSpec.string"
@@ -8522,19 +8565,19 @@
           "crossLanguageDefinitionId": "Type.Property.ValueTypes.UnknownInt",
           "apiVersions": [],
           "parent": {
-            "$ref": "235"
+            "$ref": "232"
           },
           "isMultiServiceClient": false
         },
         {
-          "$id": "505",
+          "$id": "502",
           "kind": "client",
           "name": "UnknownDict",
           "isExactName": false,
           "namespace": "Type.Property.ValueTypes",
           "methods": [
             {
-              "$id": "506",
+              "$id": "503",
               "kind": "basic",
               "name": "get",
               "originalName": "get",
@@ -8543,7 +8586,7 @@
               "apiVersions": [],
               "doc": "Get call",
               "operation": {
-                "$id": "507",
+                "$id": "504",
                 "name": "get",
                 "originalName": "get",
                 "isExactName": false,
@@ -8552,7 +8595,7 @@
                 "accessibility": "public",
                 "parameters": [
                   {
-                    "$id": "508",
+                    "$id": "505",
                     "kind": "header",
                     "name": "accept",
                     "originalName": "accept",
@@ -8569,7 +8612,7 @@
                     "crossLanguageDefinitionId": "Type.Property.ValueTypes.UnknownDict.get.accept",
                     "methodParameterSegments": [
                       {
-                        "$id": "509",
+                        "$id": "506",
                         "kind": "method",
                         "name": "accept",
                         "originalName": "accept",
@@ -8623,7 +8666,7 @@
               },
               "parameters": [
                 {
-                  "$ref": "509"
+                  "$ref": "506"
                 }
               ],
               "response": {
@@ -8637,7 +8680,7 @@
               "crossLanguageDefinitionId": "Type.Property.ValueTypes.UnknownDict.get"
             },
             {
-              "$id": "510",
+              "$id": "507",
               "kind": "basic",
               "name": "put",
               "originalName": "put",
@@ -8646,7 +8689,7 @@
               "apiVersions": [],
               "doc": "Put operation",
               "operation": {
-                "$id": "511",
+                "$id": "508",
                 "name": "put",
                 "originalName": "put",
                 "isExactName": false,
@@ -8655,7 +8698,7 @@
                 "accessibility": "public",
                 "parameters": [
                   {
-                    "$id": "512",
+                    "$id": "509",
                     "kind": "header",
                     "name": "contentType",
                     "originalName": "contentType",
@@ -8673,7 +8716,7 @@
                     "crossLanguageDefinitionId": "Type.Property.ValueTypes.UnknownDict.put.contentType",
                     "methodParameterSegments": [
                       {
-                        "$id": "513",
+                        "$id": "510",
                         "kind": "method",
                         "name": "contentType",
                         "originalName": "contentType",
@@ -8696,7 +8739,7 @@
                     "isExactName": false
                   },
                   {
-                    "$id": "514",
+                    "$id": "511",
                     "kind": "body",
                     "name": "body",
                     "originalName": "body",
@@ -8717,7 +8760,7 @@
                     "crossLanguageDefinitionId": "Type.Property.ValueTypes.UnknownDict.put.body",
                     "methodParameterSegments": [
                       {
-                        "$id": "515",
+                        "$id": "512",
                         "kind": "method",
                         "name": "body",
                         "originalName": "body",
@@ -8770,10 +8813,10 @@
               },
               "parameters": [
                 {
-                  "$ref": "515"
+                  "$ref": "512"
                 },
                 {
-                  "$ref": "513"
+                  "$ref": "510"
                 }
               ],
               "response": {},
@@ -8785,13 +8828,14 @@
           ],
           "parameters": [
             {
-              "$id": "516",
+              "$id": "513",
               "kind": "endpoint",
               "name": "endpoint",
+              "originalName": "endpoint",
               "serializedName": "endpoint",
               "doc": "Service host",
               "type": {
-                "$id": "517",
+                "$id": "514",
                 "kind": "url",
                 "name": "endpoint",
                 "crossLanguageDefinitionId": "TypeSpec.url"
@@ -8802,7 +8846,7 @@
               "isEndpoint": true,
               "defaultValue": {
                 "type": {
-                  "$id": "518",
+                  "$id": "515",
                   "kind": "string",
                   "name": "string",
                   "crossLanguageDefinitionId": "TypeSpec.string"
@@ -8821,19 +8865,19 @@
           "crossLanguageDefinitionId": "Type.Property.ValueTypes.UnknownDict",
           "apiVersions": [],
           "parent": {
-            "$ref": "235"
+            "$ref": "232"
           },
           "isMultiServiceClient": false
         },
         {
-          "$id": "519",
+          "$id": "516",
           "kind": "client",
           "name": "UnknownArray",
           "isExactName": false,
           "namespace": "Type.Property.ValueTypes",
           "methods": [
             {
-              "$id": "520",
+              "$id": "517",
               "kind": "basic",
               "name": "get",
               "originalName": "get",
@@ -8842,7 +8886,7 @@
               "apiVersions": [],
               "doc": "Get call",
               "operation": {
-                "$id": "521",
+                "$id": "518",
                 "name": "get",
                 "originalName": "get",
                 "isExactName": false,
@@ -8851,7 +8895,7 @@
                 "accessibility": "public",
                 "parameters": [
                   {
-                    "$id": "522",
+                    "$id": "519",
                     "kind": "header",
                     "name": "accept",
                     "originalName": "accept",
@@ -8868,7 +8912,7 @@
                     "crossLanguageDefinitionId": "Type.Property.ValueTypes.UnknownArray.get.accept",
                     "methodParameterSegments": [
                       {
-                        "$id": "523",
+                        "$id": "520",
                         "kind": "method",
                         "name": "accept",
                         "originalName": "accept",
@@ -8922,7 +8966,7 @@
               },
               "parameters": [
                 {
-                  "$ref": "523"
+                  "$ref": "520"
                 }
               ],
               "response": {
@@ -8936,7 +8980,7 @@
               "crossLanguageDefinitionId": "Type.Property.ValueTypes.UnknownArray.get"
             },
             {
-              "$id": "524",
+              "$id": "521",
               "kind": "basic",
               "name": "put",
               "originalName": "put",
@@ -8945,7 +8989,7 @@
               "apiVersions": [],
               "doc": "Put operation",
               "operation": {
-                "$id": "525",
+                "$id": "522",
                 "name": "put",
                 "originalName": "put",
                 "isExactName": false,
@@ -8954,7 +8998,7 @@
                 "accessibility": "public",
                 "parameters": [
                   {
-                    "$id": "526",
+                    "$id": "523",
                     "kind": "header",
                     "name": "contentType",
                     "originalName": "contentType",
@@ -8972,7 +9016,7 @@
                     "crossLanguageDefinitionId": "Type.Property.ValueTypes.UnknownArray.put.contentType",
                     "methodParameterSegments": [
                       {
-                        "$id": "527",
+                        "$id": "524",
                         "kind": "method",
                         "name": "contentType",
                         "originalName": "contentType",
@@ -8995,7 +9039,7 @@
                     "isExactName": false
                   },
                   {
-                    "$id": "528",
+                    "$id": "525",
                     "kind": "body",
                     "name": "body",
                     "originalName": "body",
@@ -9016,7 +9060,7 @@
                     "crossLanguageDefinitionId": "Type.Property.ValueTypes.UnknownArray.put.body",
                     "methodParameterSegments": [
                       {
-                        "$id": "529",
+                        "$id": "526",
                         "kind": "method",
                         "name": "body",
                         "originalName": "body",
@@ -9069,10 +9113,10 @@
               },
               "parameters": [
                 {
-                  "$ref": "529"
+                  "$ref": "526"
                 },
                 {
-                  "$ref": "527"
+                  "$ref": "524"
                 }
               ],
               "response": {},
@@ -9084,13 +9128,14 @@
           ],
           "parameters": [
             {
-              "$id": "530",
+              "$id": "527",
               "kind": "endpoint",
               "name": "endpoint",
+              "originalName": "endpoint",
               "serializedName": "endpoint",
               "doc": "Service host",
               "type": {
-                "$id": "531",
+                "$id": "528",
                 "kind": "url",
                 "name": "endpoint",
                 "crossLanguageDefinitionId": "TypeSpec.url"
@@ -9101,7 +9146,7 @@
               "isEndpoint": true,
               "defaultValue": {
                 "type": {
-                  "$id": "532",
+                  "$id": "529",
                   "kind": "string",
                   "name": "string",
                   "crossLanguageDefinitionId": "TypeSpec.string"
@@ -9120,19 +9165,19 @@
           "crossLanguageDefinitionId": "Type.Property.ValueTypes.UnknownArray",
           "apiVersions": [],
           "parent": {
-            "$ref": "235"
+            "$ref": "232"
           },
           "isMultiServiceClient": false
         },
         {
-          "$id": "533",
+          "$id": "530",
           "kind": "client",
           "name": "StringLiteral",
           "isExactName": false,
           "namespace": "Type.Property.ValueTypes",
           "methods": [
             {
-              "$id": "534",
+              "$id": "531",
               "kind": "basic",
               "name": "get",
               "originalName": "get",
@@ -9141,7 +9186,7 @@
               "apiVersions": [],
               "doc": "Get call",
               "operation": {
-                "$id": "535",
+                "$id": "532",
                 "name": "get",
                 "originalName": "get",
                 "isExactName": false,
@@ -9150,7 +9195,7 @@
                 "accessibility": "public",
                 "parameters": [
                   {
-                    "$id": "536",
+                    "$id": "533",
                     "kind": "header",
                     "name": "accept",
                     "originalName": "accept",
@@ -9167,7 +9212,7 @@
                     "crossLanguageDefinitionId": "Type.Property.ValueTypes.StringLiteral.get.accept",
                     "methodParameterSegments": [
                       {
-                        "$id": "537",
+                        "$id": "534",
                         "kind": "method",
                         "name": "accept",
                         "originalName": "accept",
@@ -9221,7 +9266,7 @@
               },
               "parameters": [
                 {
-                  "$ref": "537"
+                  "$ref": "534"
                 }
               ],
               "response": {
@@ -9235,7 +9280,7 @@
               "crossLanguageDefinitionId": "Type.Property.ValueTypes.StringLiteral.get"
             },
             {
-              "$id": "538",
+              "$id": "535",
               "kind": "basic",
               "name": "put",
               "originalName": "put",
@@ -9244,7 +9289,7 @@
               "apiVersions": [],
               "doc": "Put operation",
               "operation": {
-                "$id": "539",
+                "$id": "536",
                 "name": "put",
                 "originalName": "put",
                 "isExactName": false,
@@ -9253,7 +9298,7 @@
                 "accessibility": "public",
                 "parameters": [
                   {
-                    "$id": "540",
+                    "$id": "537",
                     "kind": "header",
                     "name": "contentType",
                     "originalName": "contentType",
@@ -9271,7 +9316,7 @@
                     "crossLanguageDefinitionId": "Type.Property.ValueTypes.StringLiteral.put.contentType",
                     "methodParameterSegments": [
                       {
-                        "$id": "541",
+                        "$id": "538",
                         "kind": "method",
                         "name": "contentType",
                         "originalName": "contentType",
@@ -9294,7 +9339,7 @@
                     "isExactName": false
                   },
                   {
-                    "$id": "542",
+                    "$id": "539",
                     "kind": "body",
                     "name": "body",
                     "originalName": "body",
@@ -9315,7 +9360,7 @@
                     "crossLanguageDefinitionId": "Type.Property.ValueTypes.StringLiteral.put.body",
                     "methodParameterSegments": [
                       {
-                        "$id": "543",
+                        "$id": "540",
                         "kind": "method",
                         "name": "body",
                         "originalName": "body",
@@ -9368,10 +9413,10 @@
               },
               "parameters": [
                 {
-                  "$ref": "543"
+                  "$ref": "540"
                 },
                 {
-                  "$ref": "541"
+                  "$ref": "538"
                 }
               ],
               "response": {},
@@ -9383,13 +9428,14 @@
           ],
           "parameters": [
             {
-              "$id": "544",
+              "$id": "541",
               "kind": "endpoint",
               "name": "endpoint",
+              "originalName": "endpoint",
               "serializedName": "endpoint",
               "doc": "Service host",
               "type": {
-                "$id": "545",
+                "$id": "542",
                 "kind": "url",
                 "name": "endpoint",
                 "crossLanguageDefinitionId": "TypeSpec.url"
@@ -9400,7 +9446,7 @@
               "isEndpoint": true,
               "defaultValue": {
                 "type": {
-                  "$id": "546",
+                  "$id": "543",
                   "kind": "string",
                   "name": "string",
                   "crossLanguageDefinitionId": "TypeSpec.string"
@@ -9419,19 +9465,19 @@
           "crossLanguageDefinitionId": "Type.Property.ValueTypes.StringLiteral",
           "apiVersions": [],
           "parent": {
-            "$ref": "235"
+            "$ref": "232"
           },
           "isMultiServiceClient": false
         },
         {
-          "$id": "547",
+          "$id": "544",
           "kind": "client",
           "name": "IntLiteral",
           "isExactName": false,
           "namespace": "Type.Property.ValueTypes",
           "methods": [
             {
-              "$id": "548",
+              "$id": "545",
               "kind": "basic",
               "name": "get",
               "originalName": "get",
@@ -9440,7 +9486,7 @@
               "apiVersions": [],
               "doc": "Get call",
               "operation": {
-                "$id": "549",
+                "$id": "546",
                 "name": "get",
                 "originalName": "get",
                 "isExactName": false,
@@ -9449,7 +9495,7 @@
                 "accessibility": "public",
                 "parameters": [
                   {
-                    "$id": "550",
+                    "$id": "547",
                     "kind": "header",
                     "name": "accept",
                     "originalName": "accept",
@@ -9466,7 +9512,7 @@
                     "crossLanguageDefinitionId": "Type.Property.ValueTypes.IntLiteral.get.accept",
                     "methodParameterSegments": [
                       {
-                        "$id": "551",
+                        "$id": "548",
                         "kind": "method",
                         "name": "accept",
                         "originalName": "accept",
@@ -9520,7 +9566,7 @@
               },
               "parameters": [
                 {
-                  "$ref": "551"
+                  "$ref": "548"
                 }
               ],
               "response": {
@@ -9534,7 +9580,7 @@
               "crossLanguageDefinitionId": "Type.Property.ValueTypes.IntLiteral.get"
             },
             {
-              "$id": "552",
+              "$id": "549",
               "kind": "basic",
               "name": "put",
               "originalName": "put",
@@ -9543,7 +9589,7 @@
               "apiVersions": [],
               "doc": "Put operation",
               "operation": {
-                "$id": "553",
+                "$id": "550",
                 "name": "put",
                 "originalName": "put",
                 "isExactName": false,
@@ -9552,7 +9598,7 @@
                 "accessibility": "public",
                 "parameters": [
                   {
-                    "$id": "554",
+                    "$id": "551",
                     "kind": "header",
                     "name": "contentType",
                     "originalName": "contentType",
@@ -9570,7 +9616,7 @@
                     "crossLanguageDefinitionId": "Type.Property.ValueTypes.IntLiteral.put.contentType",
                     "methodParameterSegments": [
                       {
-                        "$id": "555",
+                        "$id": "552",
                         "kind": "method",
                         "name": "contentType",
                         "originalName": "contentType",
@@ -9593,7 +9639,7 @@
                     "isExactName": false
                   },
                   {
-                    "$id": "556",
+                    "$id": "553",
                     "kind": "body",
                     "name": "body",
                     "originalName": "body",
@@ -9614,7 +9660,7 @@
                     "crossLanguageDefinitionId": "Type.Property.ValueTypes.IntLiteral.put.body",
                     "methodParameterSegments": [
                       {
-                        "$id": "557",
+                        "$id": "554",
                         "kind": "method",
                         "name": "body",
                         "originalName": "body",
@@ -9667,10 +9713,10 @@
               },
               "parameters": [
                 {
-                  "$ref": "557"
+                  "$ref": "554"
                 },
                 {
-                  "$ref": "555"
+                  "$ref": "552"
                 }
               ],
               "response": {},
@@ -9682,13 +9728,14 @@
           ],
           "parameters": [
             {
-              "$id": "558",
+              "$id": "555",
               "kind": "endpoint",
               "name": "endpoint",
+              "originalName": "endpoint",
               "serializedName": "endpoint",
               "doc": "Service host",
               "type": {
-                "$id": "559",
+                "$id": "556",
                 "kind": "url",
                 "name": "endpoint",
                 "crossLanguageDefinitionId": "TypeSpec.url"
@@ -9699,7 +9746,7 @@
               "isEndpoint": true,
               "defaultValue": {
                 "type": {
-                  "$id": "560",
+                  "$id": "557",
                   "kind": "string",
                   "name": "string",
                   "crossLanguageDefinitionId": "TypeSpec.string"
@@ -9718,19 +9765,19 @@
           "crossLanguageDefinitionId": "Type.Property.ValueTypes.IntLiteral",
           "apiVersions": [],
           "parent": {
-            "$ref": "235"
+            "$ref": "232"
           },
           "isMultiServiceClient": false
         },
         {
-          "$id": "561",
+          "$id": "558",
           "kind": "client",
           "name": "FloatLiteral",
           "isExactName": false,
           "namespace": "Type.Property.ValueTypes",
           "methods": [
             {
-              "$id": "562",
+              "$id": "559",
               "kind": "basic",
               "name": "get",
               "originalName": "get",
@@ -9739,7 +9786,7 @@
               "apiVersions": [],
               "doc": "Get call",
               "operation": {
-                "$id": "563",
+                "$id": "560",
                 "name": "get",
                 "originalName": "get",
                 "isExactName": false,
@@ -9748,7 +9795,7 @@
                 "accessibility": "public",
                 "parameters": [
                   {
-                    "$id": "564",
+                    "$id": "561",
                     "kind": "header",
                     "name": "accept",
                     "originalName": "accept",
@@ -9765,7 +9812,7 @@
                     "crossLanguageDefinitionId": "Type.Property.ValueTypes.FloatLiteral.get.accept",
                     "methodParameterSegments": [
                       {
-                        "$id": "565",
+                        "$id": "562",
                         "kind": "method",
                         "name": "accept",
                         "originalName": "accept",
@@ -9819,7 +9866,7 @@
               },
               "parameters": [
                 {
-                  "$ref": "565"
+                  "$ref": "562"
                 }
               ],
               "response": {
@@ -9833,7 +9880,7 @@
               "crossLanguageDefinitionId": "Type.Property.ValueTypes.FloatLiteral.get"
             },
             {
-              "$id": "566",
+              "$id": "563",
               "kind": "basic",
               "name": "put",
               "originalName": "put",
@@ -9842,7 +9889,7 @@
               "apiVersions": [],
               "doc": "Put operation",
               "operation": {
-                "$id": "567",
+                "$id": "564",
                 "name": "put",
                 "originalName": "put",
                 "isExactName": false,
@@ -9851,7 +9898,7 @@
                 "accessibility": "public",
                 "parameters": [
                   {
-                    "$id": "568",
+                    "$id": "565",
                     "kind": "header",
                     "name": "contentType",
                     "originalName": "contentType",
@@ -9869,7 +9916,7 @@
                     "crossLanguageDefinitionId": "Type.Property.ValueTypes.FloatLiteral.put.contentType",
                     "methodParameterSegments": [
                       {
-                        "$id": "569",
+                        "$id": "566",
                         "kind": "method",
                         "name": "contentType",
                         "originalName": "contentType",
@@ -9892,7 +9939,7 @@
                     "isExactName": false
                   },
                   {
-                    "$id": "570",
+                    "$id": "567",
                     "kind": "body",
                     "name": "body",
                     "originalName": "body",
@@ -9913,7 +9960,7 @@
                     "crossLanguageDefinitionId": "Type.Property.ValueTypes.FloatLiteral.put.body",
                     "methodParameterSegments": [
                       {
-                        "$id": "571",
+                        "$id": "568",
                         "kind": "method",
                         "name": "body",
                         "originalName": "body",
@@ -9966,10 +10013,10 @@
               },
               "parameters": [
                 {
-                  "$ref": "571"
+                  "$ref": "568"
                 },
                 {
-                  "$ref": "569"
+                  "$ref": "566"
                 }
               ],
               "response": {},
@@ -9981,13 +10028,14 @@
           ],
           "parameters": [
             {
-              "$id": "572",
+              "$id": "569",
               "kind": "endpoint",
               "name": "endpoint",
+              "originalName": "endpoint",
               "serializedName": "endpoint",
               "doc": "Service host",
               "type": {
-                "$id": "573",
+                "$id": "570",
                 "kind": "url",
                 "name": "endpoint",
                 "crossLanguageDefinitionId": "TypeSpec.url"
@@ -9998,7 +10046,7 @@
               "isEndpoint": true,
               "defaultValue": {
                 "type": {
-                  "$id": "574",
+                  "$id": "571",
                   "kind": "string",
                   "name": "string",
                   "crossLanguageDefinitionId": "TypeSpec.string"
@@ -10017,19 +10065,19 @@
           "crossLanguageDefinitionId": "Type.Property.ValueTypes.FloatLiteral",
           "apiVersions": [],
           "parent": {
-            "$ref": "235"
+            "$ref": "232"
           },
           "isMultiServiceClient": false
         },
         {
-          "$id": "575",
+          "$id": "572",
           "kind": "client",
           "name": "BooleanLiteral",
           "isExactName": false,
           "namespace": "Type.Property.ValueTypes",
           "methods": [
             {
-              "$id": "576",
+              "$id": "573",
               "kind": "basic",
               "name": "get",
               "originalName": "get",
@@ -10038,7 +10086,7 @@
               "apiVersions": [],
               "doc": "Get call",
               "operation": {
-                "$id": "577",
+                "$id": "574",
                 "name": "get",
                 "originalName": "get",
                 "isExactName": false,
@@ -10047,7 +10095,7 @@
                 "accessibility": "public",
                 "parameters": [
                   {
-                    "$id": "578",
+                    "$id": "575",
                     "kind": "header",
                     "name": "accept",
                     "originalName": "accept",
@@ -10064,7 +10112,7 @@
                     "crossLanguageDefinitionId": "Type.Property.ValueTypes.BooleanLiteral.get.accept",
                     "methodParameterSegments": [
                       {
-                        "$id": "579",
+                        "$id": "576",
                         "kind": "method",
                         "name": "accept",
                         "originalName": "accept",
@@ -10118,7 +10166,7 @@
               },
               "parameters": [
                 {
-                  "$ref": "579"
+                  "$ref": "576"
                 }
               ],
               "response": {
@@ -10132,7 +10180,7 @@
               "crossLanguageDefinitionId": "Type.Property.ValueTypes.BooleanLiteral.get"
             },
             {
-              "$id": "580",
+              "$id": "577",
               "kind": "basic",
               "name": "put",
               "originalName": "put",
@@ -10141,7 +10189,7 @@
               "apiVersions": [],
               "doc": "Put operation",
               "operation": {
-                "$id": "581",
+                "$id": "578",
                 "name": "put",
                 "originalName": "put",
                 "isExactName": false,
@@ -10150,7 +10198,7 @@
                 "accessibility": "public",
                 "parameters": [
                   {
-                    "$id": "582",
+                    "$id": "579",
                     "kind": "header",
                     "name": "contentType",
                     "originalName": "contentType",
@@ -10168,7 +10216,7 @@
                     "crossLanguageDefinitionId": "Type.Property.ValueTypes.BooleanLiteral.put.contentType",
                     "methodParameterSegments": [
                       {
-                        "$id": "583",
+                        "$id": "580",
                         "kind": "method",
                         "name": "contentType",
                         "originalName": "contentType",
@@ -10191,7 +10239,7 @@
                     "isExactName": false
                   },
                   {
-                    "$id": "584",
+                    "$id": "581",
                     "kind": "body",
                     "name": "body",
                     "originalName": "body",
@@ -10212,7 +10260,7 @@
                     "crossLanguageDefinitionId": "Type.Property.ValueTypes.BooleanLiteral.put.body",
                     "methodParameterSegments": [
                       {
-                        "$id": "585",
+                        "$id": "582",
                         "kind": "method",
                         "name": "body",
                         "originalName": "body",
@@ -10265,10 +10313,10 @@
               },
               "parameters": [
                 {
-                  "$ref": "585"
+                  "$ref": "582"
                 },
                 {
-                  "$ref": "583"
+                  "$ref": "580"
                 }
               ],
               "response": {},
@@ -10280,13 +10328,14 @@
           ],
           "parameters": [
             {
-              "$id": "586",
+              "$id": "583",
               "kind": "endpoint",
               "name": "endpoint",
+              "originalName": "endpoint",
               "serializedName": "endpoint",
               "doc": "Service host",
               "type": {
-                "$id": "587",
+                "$id": "584",
                 "kind": "url",
                 "name": "endpoint",
                 "crossLanguageDefinitionId": "TypeSpec.url"
@@ -10297,7 +10346,7 @@
               "isEndpoint": true,
               "defaultValue": {
                 "type": {
-                  "$id": "588",
+                  "$id": "585",
                   "kind": "string",
                   "name": "string",
                   "crossLanguageDefinitionId": "TypeSpec.string"
@@ -10316,19 +10365,19 @@
           "crossLanguageDefinitionId": "Type.Property.ValueTypes.BooleanLiteral",
           "apiVersions": [],
           "parent": {
-            "$ref": "235"
+            "$ref": "232"
           },
           "isMultiServiceClient": false
         },
         {
-          "$id": "589",
+          "$id": "586",
           "kind": "client",
           "name": "UnionStringLiteral",
           "isExactName": false,
           "namespace": "Type.Property.ValueTypes",
           "methods": [
             {
-              "$id": "590",
+              "$id": "587",
               "kind": "basic",
               "name": "get",
               "originalName": "get",
@@ -10337,7 +10386,7 @@
               "apiVersions": [],
               "doc": "Get call",
               "operation": {
-                "$id": "591",
+                "$id": "588",
                 "name": "get",
                 "originalName": "get",
                 "isExactName": false,
@@ -10346,7 +10395,7 @@
                 "accessibility": "public",
                 "parameters": [
                   {
-                    "$id": "592",
+                    "$id": "589",
                     "kind": "header",
                     "name": "accept",
                     "originalName": "accept",
@@ -10363,7 +10412,7 @@
                     "crossLanguageDefinitionId": "Type.Property.ValueTypes.UnionStringLiteral.get.accept",
                     "methodParameterSegments": [
                       {
-                        "$id": "593",
+                        "$id": "590",
                         "kind": "method",
                         "name": "accept",
                         "originalName": "accept",
@@ -10417,7 +10466,7 @@
               },
               "parameters": [
                 {
-                  "$ref": "593"
+                  "$ref": "590"
                 }
               ],
               "response": {
@@ -10431,7 +10480,7 @@
               "crossLanguageDefinitionId": "Type.Property.ValueTypes.UnionStringLiteral.get"
             },
             {
-              "$id": "594",
+              "$id": "591",
               "kind": "basic",
               "name": "put",
               "originalName": "put",
@@ -10440,7 +10489,7 @@
               "apiVersions": [],
               "doc": "Put operation",
               "operation": {
-                "$id": "595",
+                "$id": "592",
                 "name": "put",
                 "originalName": "put",
                 "isExactName": false,
@@ -10449,7 +10498,7 @@
                 "accessibility": "public",
                 "parameters": [
                   {
-                    "$id": "596",
+                    "$id": "593",
                     "kind": "header",
                     "name": "contentType",
                     "originalName": "contentType",
@@ -10467,7 +10516,7 @@
                     "crossLanguageDefinitionId": "Type.Property.ValueTypes.UnionStringLiteral.put.contentType",
                     "methodParameterSegments": [
                       {
-                        "$id": "597",
+                        "$id": "594",
                         "kind": "method",
                         "name": "contentType",
                         "originalName": "contentType",
@@ -10490,7 +10539,7 @@
                     "isExactName": false
                   },
                   {
-                    "$id": "598",
+                    "$id": "595",
                     "kind": "body",
                     "name": "body",
                     "originalName": "body",
@@ -10511,7 +10560,7 @@
                     "crossLanguageDefinitionId": "Type.Property.ValueTypes.UnionStringLiteral.put.body",
                     "methodParameterSegments": [
                       {
-                        "$id": "599",
+                        "$id": "596",
                         "kind": "method",
                         "name": "body",
                         "originalName": "body",
@@ -10564,10 +10613,10 @@
               },
               "parameters": [
                 {
-                  "$ref": "599"
+                  "$ref": "596"
                 },
                 {
-                  "$ref": "597"
+                  "$ref": "594"
                 }
               ],
               "response": {},
@@ -10579,13 +10628,14 @@
           ],
           "parameters": [
             {
-              "$id": "600",
+              "$id": "597",
               "kind": "endpoint",
               "name": "endpoint",
+              "originalName": "endpoint",
               "serializedName": "endpoint",
               "doc": "Service host",
               "type": {
-                "$id": "601",
+                "$id": "598",
                 "kind": "url",
                 "name": "endpoint",
                 "crossLanguageDefinitionId": "TypeSpec.url"
@@ -10596,7 +10646,7 @@
               "isEndpoint": true,
               "defaultValue": {
                 "type": {
-                  "$id": "602",
+                  "$id": "599",
                   "kind": "string",
                   "name": "string",
                   "crossLanguageDefinitionId": "TypeSpec.string"
@@ -10615,19 +10665,19 @@
           "crossLanguageDefinitionId": "Type.Property.ValueTypes.UnionStringLiteral",
           "apiVersions": [],
           "parent": {
-            "$ref": "235"
+            "$ref": "232"
           },
           "isMultiServiceClient": false
         },
         {
-          "$id": "603",
+          "$id": "600",
           "kind": "client",
           "name": "UnionIntLiteral",
           "isExactName": false,
           "namespace": "Type.Property.ValueTypes",
           "methods": [
             {
-              "$id": "604",
+              "$id": "601",
               "kind": "basic",
               "name": "get",
               "originalName": "get",
@@ -10636,7 +10686,7 @@
               "apiVersions": [],
               "doc": "Get call",
               "operation": {
-                "$id": "605",
+                "$id": "602",
                 "name": "get",
                 "originalName": "get",
                 "isExactName": false,
@@ -10645,7 +10695,7 @@
                 "accessibility": "public",
                 "parameters": [
                   {
-                    "$id": "606",
+                    "$id": "603",
                     "kind": "header",
                     "name": "accept",
                     "originalName": "accept",
@@ -10662,7 +10712,7 @@
                     "crossLanguageDefinitionId": "Type.Property.ValueTypes.UnionIntLiteral.get.accept",
                     "methodParameterSegments": [
                       {
-                        "$id": "607",
+                        "$id": "604",
                         "kind": "method",
                         "name": "accept",
                         "originalName": "accept",
@@ -10716,7 +10766,7 @@
               },
               "parameters": [
                 {
-                  "$ref": "607"
+                  "$ref": "604"
                 }
               ],
               "response": {
@@ -10730,7 +10780,7 @@
               "crossLanguageDefinitionId": "Type.Property.ValueTypes.UnionIntLiteral.get"
             },
             {
-              "$id": "608",
+              "$id": "605",
               "kind": "basic",
               "name": "put",
               "originalName": "put",
@@ -10739,7 +10789,7 @@
               "apiVersions": [],
               "doc": "Put operation",
               "operation": {
-                "$id": "609",
+                "$id": "606",
                 "name": "put",
                 "originalName": "put",
                 "isExactName": false,
@@ -10748,7 +10798,7 @@
                 "accessibility": "public",
                 "parameters": [
                   {
-                    "$id": "610",
+                    "$id": "607",
                     "kind": "header",
                     "name": "contentType",
                     "originalName": "contentType",
@@ -10766,7 +10816,7 @@
                     "crossLanguageDefinitionId": "Type.Property.ValueTypes.UnionIntLiteral.put.contentType",
                     "methodParameterSegments": [
                       {
-                        "$id": "611",
+                        "$id": "608",
                         "kind": "method",
                         "name": "contentType",
                         "originalName": "contentType",
@@ -10789,7 +10839,7 @@
                     "isExactName": false
                   },
                   {
-                    "$id": "612",
+                    "$id": "609",
                     "kind": "body",
                     "name": "body",
                     "originalName": "body",
@@ -10810,7 +10860,7 @@
                     "crossLanguageDefinitionId": "Type.Property.ValueTypes.UnionIntLiteral.put.body",
                     "methodParameterSegments": [
                       {
-                        "$id": "613",
+                        "$id": "610",
                         "kind": "method",
                         "name": "body",
                         "originalName": "body",
@@ -10863,10 +10913,10 @@
               },
               "parameters": [
                 {
-                  "$ref": "613"
+                  "$ref": "610"
                 },
                 {
-                  "$ref": "611"
+                  "$ref": "608"
                 }
               ],
               "response": {},
@@ -10878,13 +10928,14 @@
           ],
           "parameters": [
             {
-              "$id": "614",
+              "$id": "611",
               "kind": "endpoint",
               "name": "endpoint",
+              "originalName": "endpoint",
               "serializedName": "endpoint",
               "doc": "Service host",
               "type": {
-                "$id": "615",
+                "$id": "612",
                 "kind": "url",
                 "name": "endpoint",
                 "crossLanguageDefinitionId": "TypeSpec.url"
@@ -10895,7 +10946,7 @@
               "isEndpoint": true,
               "defaultValue": {
                 "type": {
-                  "$id": "616",
+                  "$id": "613",
                   "kind": "string",
                   "name": "string",
                   "crossLanguageDefinitionId": "TypeSpec.string"
@@ -10914,19 +10965,19 @@
           "crossLanguageDefinitionId": "Type.Property.ValueTypes.UnionIntLiteral",
           "apiVersions": [],
           "parent": {
-            "$ref": "235"
+            "$ref": "232"
           },
           "isMultiServiceClient": false
         },
         {
-          "$id": "617",
+          "$id": "614",
           "kind": "client",
           "name": "UnionFloatLiteral",
           "isExactName": false,
           "namespace": "Type.Property.ValueTypes",
           "methods": [
             {
-              "$id": "618",
+              "$id": "615",
               "kind": "basic",
               "name": "get",
               "originalName": "get",
@@ -10935,7 +10986,7 @@
               "apiVersions": [],
               "doc": "Get call",
               "operation": {
-                "$id": "619",
+                "$id": "616",
                 "name": "get",
                 "originalName": "get",
                 "isExactName": false,
@@ -10944,7 +10995,7 @@
                 "accessibility": "public",
                 "parameters": [
                   {
-                    "$id": "620",
+                    "$id": "617",
                     "kind": "header",
                     "name": "accept",
                     "originalName": "accept",
@@ -10961,7 +11012,7 @@
                     "crossLanguageDefinitionId": "Type.Property.ValueTypes.UnionFloatLiteral.get.accept",
                     "methodParameterSegments": [
                       {
-                        "$id": "621",
+                        "$id": "618",
                         "kind": "method",
                         "name": "accept",
                         "originalName": "accept",
@@ -11015,7 +11066,7 @@
               },
               "parameters": [
                 {
-                  "$ref": "621"
+                  "$ref": "618"
                 }
               ],
               "response": {
@@ -11029,7 +11080,7 @@
               "crossLanguageDefinitionId": "Type.Property.ValueTypes.UnionFloatLiteral.get"
             },
             {
-              "$id": "622",
+              "$id": "619",
               "kind": "basic",
               "name": "put",
               "originalName": "put",
@@ -11038,7 +11089,7 @@
               "apiVersions": [],
               "doc": "Put operation",
               "operation": {
-                "$id": "623",
+                "$id": "620",
                 "name": "put",
                 "originalName": "put",
                 "isExactName": false,
@@ -11047,7 +11098,7 @@
                 "accessibility": "public",
                 "parameters": [
                   {
-                    "$id": "624",
+                    "$id": "621",
                     "kind": "header",
                     "name": "contentType",
                     "originalName": "contentType",
@@ -11065,7 +11116,7 @@
                     "crossLanguageDefinitionId": "Type.Property.ValueTypes.UnionFloatLiteral.put.contentType",
                     "methodParameterSegments": [
                       {
-                        "$id": "625",
+                        "$id": "622",
                         "kind": "method",
                         "name": "contentType",
                         "originalName": "contentType",
@@ -11088,7 +11139,7 @@
                     "isExactName": false
                   },
                   {
-                    "$id": "626",
+                    "$id": "623",
                     "kind": "body",
                     "name": "body",
                     "originalName": "body",
@@ -11109,7 +11160,7 @@
                     "crossLanguageDefinitionId": "Type.Property.ValueTypes.UnionFloatLiteral.put.body",
                     "methodParameterSegments": [
                       {
-                        "$id": "627",
+                        "$id": "624",
                         "kind": "method",
                         "name": "body",
                         "originalName": "body",
@@ -11162,10 +11213,10 @@
               },
               "parameters": [
                 {
-                  "$ref": "627"
+                  "$ref": "624"
                 },
                 {
-                  "$ref": "625"
+                  "$ref": "622"
                 }
               ],
               "response": {},
@@ -11177,13 +11228,14 @@
           ],
           "parameters": [
             {
-              "$id": "628",
+              "$id": "625",
               "kind": "endpoint",
               "name": "endpoint",
+              "originalName": "endpoint",
               "serializedName": "endpoint",
               "doc": "Service host",
               "type": {
-                "$id": "629",
+                "$id": "626",
                 "kind": "url",
                 "name": "endpoint",
                 "crossLanguageDefinitionId": "TypeSpec.url"
@@ -11194,7 +11246,7 @@
               "isEndpoint": true,
               "defaultValue": {
                 "type": {
-                  "$id": "630",
+                  "$id": "627",
                   "kind": "string",
                   "name": "string",
                   "crossLanguageDefinitionId": "TypeSpec.string"
@@ -11213,19 +11265,19 @@
           "crossLanguageDefinitionId": "Type.Property.ValueTypes.UnionFloatLiteral",
           "apiVersions": [],
           "parent": {
-            "$ref": "235"
+            "$ref": "232"
           },
           "isMultiServiceClient": false
         },
         {
-          "$id": "631",
+          "$id": "628",
           "kind": "client",
           "name": "UnionEnumValue",
           "isExactName": false,
           "namespace": "Type.Property.ValueTypes",
           "methods": [
             {
-              "$id": "632",
+              "$id": "629",
               "kind": "basic",
               "name": "get",
               "originalName": "get",
@@ -11234,7 +11286,7 @@
               "apiVersions": [],
               "doc": "Get call",
               "operation": {
-                "$id": "633",
+                "$id": "630",
                 "name": "get",
                 "originalName": "get",
                 "isExactName": false,
@@ -11243,7 +11295,7 @@
                 "accessibility": "public",
                 "parameters": [
                   {
-                    "$id": "634",
+                    "$id": "631",
                     "kind": "header",
                     "name": "accept",
                     "originalName": "accept",
@@ -11260,7 +11312,7 @@
                     "crossLanguageDefinitionId": "Type.Property.ValueTypes.UnionEnumValue.get.accept",
                     "methodParameterSegments": [
                       {
-                        "$id": "635",
+                        "$id": "632",
                         "kind": "method",
                         "name": "accept",
                         "originalName": "accept",
@@ -11314,7 +11366,7 @@
               },
               "parameters": [
                 {
-                  "$ref": "635"
+                  "$ref": "632"
                 }
               ],
               "response": {
@@ -11328,7 +11380,7 @@
               "crossLanguageDefinitionId": "Type.Property.ValueTypes.UnionEnumValue.get"
             },
             {
-              "$id": "636",
+              "$id": "633",
               "kind": "basic",
               "name": "put",
               "originalName": "put",
@@ -11337,7 +11389,7 @@
               "apiVersions": [],
               "doc": "Put operation",
               "operation": {
-                "$id": "637",
+                "$id": "634",
                 "name": "put",
                 "originalName": "put",
                 "isExactName": false,
@@ -11346,7 +11398,7 @@
                 "accessibility": "public",
                 "parameters": [
                   {
-                    "$id": "638",
+                    "$id": "635",
                     "kind": "header",
                     "name": "contentType",
                     "originalName": "contentType",
@@ -11364,7 +11416,7 @@
                     "crossLanguageDefinitionId": "Type.Property.ValueTypes.UnionEnumValue.put.contentType",
                     "methodParameterSegments": [
                       {
-                        "$id": "639",
+                        "$id": "636",
                         "kind": "method",
                         "name": "contentType",
                         "originalName": "contentType",
@@ -11387,7 +11439,7 @@
                     "isExactName": false
                   },
                   {
-                    "$id": "640",
+                    "$id": "637",
                     "kind": "body",
                     "name": "body",
                     "originalName": "body",
@@ -11408,7 +11460,7 @@
                     "crossLanguageDefinitionId": "Type.Property.ValueTypes.UnionEnumValue.put.body",
                     "methodParameterSegments": [
                       {
-                        "$id": "641",
+                        "$id": "638",
                         "kind": "method",
                         "name": "body",
                         "originalName": "body",
@@ -11461,10 +11513,10 @@
               },
               "parameters": [
                 {
-                  "$ref": "641"
+                  "$ref": "638"
                 },
                 {
-                  "$ref": "639"
+                  "$ref": "636"
                 }
               ],
               "response": {},
@@ -11476,13 +11528,14 @@
           ],
           "parameters": [
             {
-              "$id": "642",
+              "$id": "639",
               "kind": "endpoint",
               "name": "endpoint",
+              "originalName": "endpoint",
               "serializedName": "endpoint",
               "doc": "Service host",
               "type": {
-                "$id": "643",
+                "$id": "640",
                 "kind": "url",
                 "name": "endpoint",
                 "crossLanguageDefinitionId": "TypeSpec.url"
@@ -11493,7 +11546,7 @@
               "isEndpoint": true,
               "defaultValue": {
                 "type": {
-                  "$id": "644",
+                  "$id": "641",
                   "kind": "string",
                   "name": "string",
                   "crossLanguageDefinitionId": "TypeSpec.string"
@@ -11512,7 +11565,7 @@
           "crossLanguageDefinitionId": "Type.Property.ValueTypes.UnionEnumValue",
           "apiVersions": [],
           "parent": {
-            "$ref": "235"
+            "$ref": "232"
           },
           "isMultiServiceClient": false
         }

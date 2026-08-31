@@ -172,6 +172,7 @@
       "$id": "13",
       "kind": "constant",
       "name": "V2ContentType",
+      "originalName": "V2ContentType",
       "namespace": "",
       "usage": "None",
       "valueType": {
@@ -189,6 +190,7 @@
       "$id": "15",
       "kind": "constant",
       "name": "V2ContentType1",
+      "originalName": "V2ContentType",
       "namespace": "",
       "usage": "None",
       "valueType": {
@@ -206,6 +208,7 @@
       "$id": "17",
       "kind": "constant",
       "name": "V2ContentType2",
+      "originalName": "V2ContentType",
       "namespace": "",
       "usage": "None",
       "valueType": {
@@ -223,6 +226,7 @@
       "$id": "19",
       "kind": "constant",
       "name": "V2ContentType3",
+      "originalName": "V2ContentType",
       "namespace": "",
       "usage": "None",
       "valueType": {
@@ -314,6 +318,7 @@
             "$id": "26",
             "kind": "union",
             "name": "UnionV2",
+            "originalName": "UnionV2",
             "variantTypes": [
               {
                 "$id": "27",
@@ -840,6 +845,7 @@
           "$id": "50",
           "kind": "endpoint",
           "name": "endpoint",
+          "originalName": "endpoint",
           "serializedName": "endpoint",
           "doc": "Need to be set as 'http://localhost:3000' in client.",
           "type": {
@@ -862,6 +868,7 @@
           "$id": "52",
           "kind": "endpoint",
           "name": "version",
+          "originalName": "version",
           "serializedName": "version",
           "doc": "Need to be set as 'v1', 'v2preview' or 'v2' in client.",
           "type": {

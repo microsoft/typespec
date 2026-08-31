@@ -310,6 +310,7 @@
           "$id": "19",
           "kind": "endpoint",
           "name": "endpoint",
+          "originalName": "endpoint",
           "serializedName": "endpoint",
           "doc": "Need to be set as 'http://localhost:3000' in client.",
           "type": {
@@ -332,6 +333,7 @@
           "$id": "21",
           "kind": "endpoint",
           "name": "serviceDeploymentVersion",
+          "originalName": "serviceDeploymentVersion",
           "serializedName": "serviceDeploymentVersion",
           "doc": "Pass in either 'v1' or 'v2'. This represents a version of the service deployment in history. 'v1' is for the deployment when the service had only one api version. 'v2' is for the deployment when the service had api-versions 'v1' and 'v2'.",
           "type": {
@@ -355,6 +357,7 @@
           "$id": "23",
           "kind": "endpoint",
           "name": "apiVersion",
+          "originalName": "apiVersion",
           "serializedName": "apiVersion",
           "doc": "Pass in 'v1'. This represents the API version of the service. Will grow up in the next deployment to be both 'v1' and 'v2'",
           "type": {

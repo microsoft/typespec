@@ -7,6 +7,7 @@
       "$id": "1",
       "kind": "constant",
       "name": "InputContentType",
+      "originalName": "InputContentType",
       "namespace": "",
       "usage": "None",
       "valueType": {
@@ -24,6 +25,7 @@
       "$id": "3",
       "kind": "constant",
       "name": "InputContentType1",
+      "originalName": "InputContentType",
       "namespace": "",
       "usage": "None",
       "valueType": {
@@ -41,6 +43,7 @@
       "$id": "5",
       "kind": "constant",
       "name": "InputContentType2",
+      "originalName": "InputContentType",
       "namespace": "",
       "usage": "None",
       "valueType": {
@@ -58,6 +61,7 @@
       "$id": "7",
       "kind": "constant",
       "name": "InputContentType3",
+      "originalName": "InputContentType",
       "namespace": "",
       "usage": "None",
       "valueType": {
@@ -668,6 +672,7 @@
           "$id": "37",
           "kind": "endpoint",
           "name": "endpoint",
+          "originalName": "endpoint",
           "serializedName": "endpoint",
           "doc": "Service host",
           "type": {

@@ -7,6 +7,7 @@
       "$id": "1",
       "kind": "constant",
       "name": "SeaGullKind",
+      "originalName": "SeaGullKind",
       "namespace": "Type.Model.Inheritance.SingleDiscriminator",
       "usage": "Input,Output,Json",
       "valueType": {
@@ -24,6 +25,7 @@
       "$id": "3",
       "kind": "constant",
       "name": "SparrowKind",
+      "originalName": "SparrowKind",
       "namespace": "Type.Model.Inheritance.SingleDiscriminator",
       "usage": "Input,Output,Json",
       "valueType": {
@@ -41,6 +43,7 @@
       "$id": "5",
       "kind": "constant",
       "name": "GooseKind",
+      "originalName": "GooseKind",
       "namespace": "Type.Model.Inheritance.SingleDiscriminator",
       "usage": "Input,Output,Json",
       "valueType": {
@@ -58,6 +61,7 @@
       "$id": "7",
       "kind": "constant",
       "name": "EagleKind",
+      "originalName": "EagleKind",
       "namespace": "Type.Model.Inheritance.SingleDiscriminator",
       "usage": "Input,Output,Json",
       "valueType": {
@@ -75,6 +79,7 @@
       "$id": "9",
       "kind": "constant",
       "name": "TRexKind",
+      "originalName": "TRexKind",
       "namespace": "Type.Model.Inheritance.SingleDiscriminator",
       "usage": "Output,Json",
       "valueType": {
@@ -92,6 +97,7 @@
       "$id": "11",
       "kind": "constant",
       "name": "GetModelAccept",
+      "originalName": "GetModelAccept",
       "namespace": "",
       "usage": "None",
       "valueType": {
@@ -109,6 +115,7 @@
       "$id": "13",
       "kind": "constant",
       "name": "GetModelAccept1",
+      "originalName": "GetModelAccept",
       "namespace": "",
       "usage": "None",
       "valueType": {
@@ -126,6 +133,7 @@
       "$id": "15",
       "kind": "constant",
       "name": "GetModelAccept2",
+      "originalName": "GetModelAccept",
       "namespace": "",
       "usage": "None",
       "valueType": {
@@ -143,6 +151,7 @@
       "$id": "17",
       "kind": "constant",
       "name": "GetModelAccept3",
+      "originalName": "GetModelAccept",
       "namespace": "",
       "usage": "None",
       "valueType": {
@@ -160,6 +169,7 @@
       "$id": "19",
       "kind": "constant",
       "name": "GetModelAccept4",
+      "originalName": "GetModelAccept",
       "namespace": "",
       "usage": "None",
       "valueType": {
@@ -177,6 +187,7 @@
       "$id": "21",
       "kind": "constant",
       "name": "GetModelAccept5",
+      "originalName": "GetModelAccept",
       "namespace": "",
       "usage": "None",
       "valueType": {
@@ -194,6 +205,7 @@
       "$id": "23",
       "kind": "constant",
       "name": "GetModelAccept6",
+      "originalName": "GetModelAccept",
       "namespace": "",
       "usage": "None",
       "valueType": {
@@ -211,6 +223,7 @@
       "$id": "25",
       "kind": "constant",
       "name": "GetModelAccept7",
+      "originalName": "GetModelAccept",
       "namespace": "",
       "usage": "None",
       "valueType": {
@@ -228,6 +241,7 @@
       "$id": "27",
       "kind": "constant",
       "name": "GetModelAccept8",
+      "originalName": "GetModelAccept",
       "namespace": "",
       "usage": "None",
       "valueType": {
@@ -1857,6 +1871,7 @@
           "$id": "103",
           "kind": "endpoint",
           "name": "endpoint",
+          "originalName": "endpoint",
           "serializedName": "endpoint",
           "doc": "Service host",
           "type": {

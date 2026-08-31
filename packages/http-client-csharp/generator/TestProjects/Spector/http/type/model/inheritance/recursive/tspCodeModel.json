@@ -7,6 +7,7 @@
       "$id": "1",
       "kind": "constant",
       "name": "PutContentType",
+      "originalName": "PutContentType",
       "namespace": "",
       "usage": "None",
       "valueType": {
@@ -24,6 +25,7 @@
       "$id": "3",
       "kind": "constant",
       "name": "PutContentType1",
+      "originalName": "PutContentType",
       "namespace": "",
       "usage": "None",
       "valueType": {
@@ -396,6 +398,7 @@
           "$id": "22",
           "kind": "endpoint",
           "name": "endpoint",
+          "originalName": "endpoint",
           "serializedName": "endpoint",
           "doc": "Service host",
           "type": {

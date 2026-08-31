@@ -79,6 +79,7 @@
       "$id": "6",
       "kind": "constant",
       "name": "BulletPointsModelContentType",
+      "originalName": "BulletPointsModelContentType",
       "namespace": "",
       "usage": "None",
       "valueType": {
@@ -193,6 +194,7 @@
           "$id": "13",
           "kind": "endpoint",
           "name": "endpoint",
+          "originalName": "endpoint",
           "serializedName": "endpoint",
           "doc": "Service host",
           "type": {
@@ -471,6 +473,7 @@
               "$id": "27",
               "kind": "endpoint",
               "name": "endpoint",
+              "originalName": "endpoint",
               "serializedName": "endpoint",
               "doc": "Service host",
               "type": {
@@ -656,6 +659,7 @@
               "$id": "37",
               "kind": "endpoint",
               "name": "endpoint",
+              "originalName": "endpoint",
               "serializedName": "endpoint",
               "doc": "Service host",
               "type": {

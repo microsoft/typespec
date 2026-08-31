@@ -290,6 +290,7 @@
       "$id": "25",
       "kind": "constant",
       "name": "BooleanLiteralPropertyProperty",
+      "originalName": "BooleanLiteralPropertyProperty",
       "namespace": "Type.Property.Optional",
       "usage": "Input,Output,Json",
       "valueType": {
@@ -307,6 +308,7 @@
       "$id": "27",
       "kind": "constant",
       "name": "GetAllAccept",
+      "originalName": "GetAllAccept",
       "namespace": "",
       "usage": "None",
       "valueType": {
@@ -324,6 +326,7 @@
       "$id": "29",
       "kind": "constant",
       "name": "GetAllAccept1",
+      "originalName": "GetAllAccept",
       "namespace": "",
       "usage": "None",
       "valueType": {
@@ -341,6 +344,7 @@
       "$id": "31",
       "kind": "constant",
       "name": "GetAllAccept2",
+      "originalName": "GetAllAccept",
       "namespace": "",
       "usage": "None",
       "valueType": {
@@ -358,6 +362,7 @@
       "$id": "33",
       "kind": "constant",
       "name": "GetAllAccept3",
+      "originalName": "GetAllAccept",
       "namespace": "",
       "usage": "None",
       "valueType": {
@@ -375,6 +380,7 @@
       "$id": "35",
       "kind": "constant",
       "name": "GetAllAccept4",
+      "originalName": "GetAllAccept",
       "namespace": "",
       "usage": "None",
       "valueType": {
@@ -392,6 +398,7 @@
       "$id": "37",
       "kind": "constant",
       "name": "GetAllAccept5",
+      "originalName": "GetAllAccept",
       "namespace": "",
       "usage": "None",
       "valueType": {
@@ -409,6 +416,7 @@
       "$id": "39",
       "kind": "constant",
       "name": "GetAllAccept6",
+      "originalName": "GetAllAccept",
       "namespace": "",
       "usage": "None",
       "valueType": {
@@ -426,6 +434,7 @@
       "$id": "41",
       "kind": "constant",
       "name": "GetAllAccept7",
+      "originalName": "GetAllAccept",
       "namespace": "",
       "usage": "None",
       "valueType": {
@@ -443,6 +452,7 @@
       "$id": "43",
       "kind": "constant",
       "name": "GetAllAccept8",
+      "originalName": "GetAllAccept",
       "namespace": "",
       "usage": "None",
       "valueType": {
@@ -460,6 +470,7 @@
       "$id": "45",
       "kind": "constant",
       "name": "GetAllAccept9",
+      "originalName": "GetAllAccept",
       "namespace": "",
       "usage": "None",
       "valueType": {
@@ -477,6 +488,7 @@
       "$id": "47",
       "kind": "constant",
       "name": "GetAllAccept10",
+      "originalName": "GetAllAccept",
       "namespace": "",
       "usage": "None",
       "valueType": {
@@ -494,6 +506,7 @@
       "$id": "49",
       "kind": "constant",
       "name": "GetAllAccept11",
+      "originalName": "GetAllAccept",
       "namespace": "",
       "usage": "None",
       "valueType": {
@@ -511,6 +524,7 @@
       "$id": "51",
       "kind": "constant",
       "name": "GetAllAccept12",
+      "originalName": "GetAllAccept",
       "namespace": "",
       "usage": "None",
       "valueType": {
@@ -528,6 +542,7 @@
       "$id": "53",
       "kind": "constant",
       "name": "GetAllAccept13",
+      "originalName": "GetAllAccept",
       "namespace": "",
       "usage": "None",
       "valueType": {
@@ -545,6 +560,7 @@
       "$id": "55",
       "kind": "constant",
       "name": "GetAllAccept14",
+      "originalName": "GetAllAccept",
       "namespace": "",
       "usage": "None",
       "valueType": {
@@ -562,6 +578,7 @@
       "$id": "57",
       "kind": "constant",
       "name": "GetAllAccept15",
+      "originalName": "GetAllAccept",
       "namespace": "",
       "usage": "None",
       "valueType": {
@@ -579,6 +596,7 @@
       "$id": "59",
       "kind": "constant",
       "name": "GetAllAccept16",
+      "originalName": "GetAllAccept",
       "namespace": "",
       "usage": "None",
       "valueType": {
@@ -596,6 +614,7 @@
       "$id": "61",
       "kind": "constant",
       "name": "GetAllAccept17",
+      "originalName": "GetAllAccept",
       "namespace": "",
       "usage": "None",
       "valueType": {
@@ -613,6 +632,7 @@
       "$id": "63",
       "kind": "constant",
       "name": "GetAllAccept18",
+      "originalName": "GetAllAccept",
       "namespace": "",
       "usage": "None",
       "valueType": {
@@ -630,6 +650,7 @@
       "$id": "65",
       "kind": "constant",
       "name": "GetAllAccept19",
+      "originalName": "GetAllAccept",
       "namespace": "",
       "usage": "None",
       "valueType": {
@@ -647,6 +668,7 @@
       "$id": "67",
       "kind": "constant",
       "name": "GetAllAccept20",
+      "originalName": "GetAllAccept",
       "namespace": "",
       "usage": "None",
       "valueType": {
@@ -664,6 +686,7 @@
       "$id": "69",
       "kind": "constant",
       "name": "GetAllAccept21",
+      "originalName": "GetAllAccept",
       "namespace": "",
       "usage": "None",
       "valueType": {
@@ -681,6 +704,7 @@
       "$id": "71",
       "kind": "constant",
       "name": "GetAllAccept22",
+      "originalName": "GetAllAccept",
       "namespace": "",
       "usage": "None",
       "valueType": {
@@ -698,6 +722,7 @@
       "$id": "73",
       "kind": "constant",
       "name": "GetAllAccept23",
+      "originalName": "GetAllAccept",
       "namespace": "",
       "usage": "None",
       "valueType": {
@@ -715,6 +740,7 @@
       "$id": "75",
       "kind": "constant",
       "name": "GetAllAccept24",
+      "originalName": "GetAllAccept",
       "namespace": "",
       "usage": "None",
       "valueType": {
@@ -732,6 +758,7 @@
       "$id": "77",
       "kind": "constant",
       "name": "GetAllAccept25",
+      "originalName": "GetAllAccept",
       "namespace": "",
       "usage": "None",
       "valueType": {
@@ -749,6 +776,7 @@
       "$id": "79",
       "kind": "constant",
       "name": "GetAllAccept26",
+      "originalName": "GetAllAccept",
       "namespace": "",
       "usage": "None",
       "valueType": {
@@ -766,6 +794,7 @@
       "$id": "81",
       "kind": "constant",
       "name": "GetAllAccept27",
+      "originalName": "GetAllAccept",
       "namespace": "",
       "usage": "None",
       "valueType": {
@@ -783,6 +812,7 @@
       "$id": "83",
       "kind": "constant",
       "name": "GetAllAccept28",
+      "originalName": "GetAllAccept",
       "namespace": "",
       "usage": "None",
       "valueType": {
@@ -800,6 +830,7 @@
       "$id": "85",
       "kind": "constant",
       "name": "GetAllAccept29",
+      "originalName": "GetAllAccept",
       "namespace": "",
       "usage": "None",
       "valueType": {
@@ -817,6 +848,7 @@
       "$id": "87",
       "kind": "constant",
       "name": "GetAllAccept30",
+      "originalName": "GetAllAccept",
       "namespace": "",
       "usage": "None",
       "valueType": {
@@ -834,6 +866,7 @@
       "$id": "89",
       "kind": "constant",
       "name": "GetAllAccept31",
+      "originalName": "GetAllAccept",
       "namespace": "",
       "usage": "None",
       "valueType": {
@@ -851,6 +884,7 @@
       "$id": "91",
       "kind": "constant",
       "name": "GetAllAccept32",
+      "originalName": "GetAllAccept",
       "namespace": "",
       "usage": "None",
       "valueType": {
@@ -868,6 +902,7 @@
       "$id": "93",
       "kind": "constant",
       "name": "GetAllAccept33",
+      "originalName": "GetAllAccept",
       "namespace": "",
       "usage": "None",
       "valueType": {
@@ -885,6 +920,7 @@
       "$id": "95",
       "kind": "constant",
       "name": "GetAllAccept34",
+      "originalName": "GetAllAccept",
       "namespace": "",
       "usage": "None",
       "valueType": {
@@ -902,6 +938,7 @@
       "$id": "97",
       "kind": "constant",
       "name": "GetAllAccept35",
+      "originalName": "GetAllAccept",
       "namespace": "",
       "usage": "None",
       "valueType": {
@@ -919,6 +956,7 @@
       "$id": "99",
       "kind": "constant",
       "name": "GetAllAccept36",
+      "originalName": "GetAllAccept",
       "namespace": "",
       "usage": "None",
       "valueType": {
@@ -936,6 +974,7 @@
       "$id": "101",
       "kind": "constant",
       "name": "GetAllAccept37",
+      "originalName": "GetAllAccept",
       "namespace": "",
       "usage": "None",
       "valueType": {
@@ -953,6 +992,7 @@
       "$id": "103",
       "kind": "constant",
       "name": "GetAllAccept38",
+      "originalName": "GetAllAccept",
       "namespace": "",
       "usage": "None",
       "valueType": {
@@ -970,6 +1010,7 @@
       "$id": "105",
       "kind": "constant",
       "name": "GetAllAccept39",
+      "originalName": "GetAllAccept",
       "namespace": "",
       "usage": "None",
       "valueType": {
@@ -987,6 +1028,7 @@
       "$id": "107",
       "kind": "constant",
       "name": "GetAllAccept40",
+      "originalName": "GetAllAccept",
       "namespace": "",
       "usage": "None",
       "valueType": {
@@ -1004,6 +1046,7 @@
       "$id": "109",
       "kind": "constant",
       "name": "GetAllAccept41",
+      "originalName": "GetAllAccept",
       "namespace": "",
       "usage": "None",
       "valueType": {
@@ -1021,6 +1064,7 @@
       "$id": "111",
       "kind": "constant",
       "name": "GetAllAccept42",
+      "originalName": "GetAllAccept",
       "namespace": "",
       "usage": "None",
       "valueType": {
@@ -1038,6 +1082,7 @@
       "$id": "113",
       "kind": "constant",
       "name": "GetAllAccept43",
+      "originalName": "GetAllAccept",
       "namespace": "",
       "usage": "None",
       "valueType": {
@@ -1055,6 +1100,7 @@
       "$id": "115",
       "kind": "constant",
       "name": "GetAllAccept44",
+      "originalName": "GetAllAccept",
       "namespace": "",
       "usage": "None",
       "valueType": {
@@ -1072,6 +1118,7 @@
       "$id": "117",
       "kind": "constant",
       "name": "GetAllAccept45",
+      "originalName": "GetAllAccept",
       "namespace": "",
       "usage": "None",
       "valueType": {
@@ -1089,6 +1136,7 @@
       "$id": "119",
       "kind": "constant",
       "name": "GetAllAccept46",
+      "originalName": "GetAllAccept",
       "namespace": "",
       "usage": "None",
       "valueType": {
@@ -1106,6 +1154,7 @@
       "$id": "121",
       "kind": "constant",
       "name": "GetAllAccept47",
+      "originalName": "GetAllAccept",
       "namespace": "",
       "usage": "None",
       "valueType": {
@@ -1123,6 +1172,7 @@
       "$id": "123",
       "kind": "constant",
       "name": "GetAllAccept48",
+      "originalName": "GetAllAccept",
       "namespace": "",
       "usage": "None",
       "valueType": {
@@ -1140,6 +1190,7 @@
       "$id": "125",
       "kind": "constant",
       "name": "GetAllAccept49",
+      "originalName": "GetAllAccept",
       "namespace": "",
       "usage": "None",
       "valueType": {
@@ -1157,6 +1208,7 @@
       "$id": "127",
       "kind": "constant",
       "name": "GetAllAccept50",
+      "originalName": "GetAllAccept",
       "namespace": "",
       "usage": "None",
       "valueType": {
@@ -1174,6 +1226,7 @@
       "$id": "129",
       "kind": "constant",
       "name": "GetAllAccept51",
+      "originalName": "GetAllAccept",
       "namespace": "",
       "usage": "None",
       "valueType": {
@@ -1191,6 +1244,7 @@
       "$id": "131",
       "kind": "constant",
       "name": "GetAllAccept52",
+      "originalName": "GetAllAccept",
       "namespace": "",
       "usage": "None",
       "valueType": {
@@ -1208,6 +1262,7 @@
       "$id": "133",
       "kind": "constant",
       "name": "GetAllAccept53",
+      "originalName": "GetAllAccept",
       "namespace": "",
       "usage": "None",
       "valueType": {
@@ -1225,6 +1280,7 @@
       "$id": "135",
       "kind": "constant",
       "name": "GetAllAccept54",
+      "originalName": "GetAllAccept",
       "namespace": "",
       "usage": "None",
       "valueType": {
@@ -1242,6 +1298,7 @@
       "$id": "137",
       "kind": "constant",
       "name": "GetAllAccept55",
+      "originalName": "GetAllAccept",
       "namespace": "",
       "usage": "None",
       "valueType": {
@@ -1259,6 +1316,7 @@
       "$id": "139",
       "kind": "constant",
       "name": "GetAllAccept56",
+      "originalName": "GetAllAccept",
       "namespace": "",
       "usage": "None",
       "valueType": {
@@ -1276,6 +1334,7 @@
       "$id": "141",
       "kind": "constant",
       "name": "GetAllAccept57",
+      "originalName": "GetAllAccept",
       "namespace": "",
       "usage": "None",
       "valueType": {
@@ -1293,6 +1352,7 @@
       "$id": "143",
       "kind": "constant",
       "name": "GetAllAccept58",
+      "originalName": "GetAllAccept",
       "namespace": "",
       "usage": "None",
       "valueType": {
@@ -1310,6 +1370,7 @@
       "$id": "145",
       "kind": "constant",
       "name": "GetAllAccept59",
+      "originalName": "GetAllAccept",
       "namespace": "",
       "usage": "None",
       "valueType": {
@@ -1327,6 +1388,7 @@
       "$id": "147",
       "kind": "constant",
       "name": "GetAllAccept60",
+      "originalName": "GetAllAccept",
       "namespace": "",
       "usage": "None",
       "valueType": {
@@ -1344,6 +1406,7 @@
       "$id": "149",
       "kind": "constant",
       "name": "GetAllAccept61",
+      "originalName": "GetAllAccept",
       "namespace": "",
       "usage": "None",
       "valueType": {
@@ -1361,6 +1424,7 @@
       "$id": "151",
       "kind": "constant",
       "name": "GetAllAccept62",
+      "originalName": "GetAllAccept",
       "namespace": "",
       "usage": "None",
       "valueType": {
@@ -1378,6 +1442,7 @@
       "$id": "153",
       "kind": "constant",
       "name": "GetAllAccept63",
+      "originalName": "GetAllAccept",
       "namespace": "",
       "usage": "None",
       "valueType": {
@@ -2188,6 +2253,7 @@
           "$id": "202",
           "kind": "endpoint",
           "name": "endpoint",
+          "originalName": "endpoint",
           "serializedName": "endpoint",
           "doc": "Service host",
           "type": {
@@ -2728,6 +2794,7 @@
               "$id": "226",
               "kind": "endpoint",
               "name": "endpoint",
+              "originalName": "endpoint",
               "serializedName": "endpoint",
               "doc": "Service host",
               "type": {
@@ -3272,6 +3339,7 @@
               "$id": "250",
               "kind": "endpoint",
               "name": "endpoint",
+              "originalName": "endpoint",
               "serializedName": "endpoint",
               "doc": "Service host",
               "type": {
@@ -3816,6 +3884,7 @@
               "$id": "274",
               "kind": "endpoint",
               "name": "endpoint",
+              "originalName": "endpoint",
               "serializedName": "endpoint",
               "doc": "Service host",
               "type": {
@@ -4360,6 +4429,7 @@
               "$id": "298",
               "kind": "endpoint",
               "name": "endpoint",
+              "originalName": "endpoint",
               "serializedName": "endpoint",
               "doc": "Service host",
               "type": {
@@ -4904,6 +4974,7 @@
               "$id": "322",
               "kind": "endpoint",
               "name": "endpoint",
+              "originalName": "endpoint",
               "serializedName": "endpoint",
               "doc": "Service host",
               "type": {
@@ -5448,6 +5519,7 @@
               "$id": "346",
               "kind": "endpoint",
               "name": "endpoint",
+              "originalName": "endpoint",
               "serializedName": "endpoint",
               "doc": "Service host",
               "type": {
@@ -5992,6 +6064,7 @@
               "$id": "370",
               "kind": "endpoint",
               "name": "endpoint",
+              "originalName": "endpoint",
               "serializedName": "endpoint",
               "doc": "Service host",
               "type": {
@@ -6536,6 +6609,7 @@
               "$id": "394",
               "kind": "endpoint",
               "name": "endpoint",
+              "originalName": "endpoint",
               "serializedName": "endpoint",
               "doc": "Service host",
               "type": {
@@ -7080,6 +7154,7 @@
               "$id": "418",
               "kind": "endpoint",
               "name": "endpoint",
+              "originalName": "endpoint",
               "serializedName": "endpoint",
               "doc": "Service host",
               "type": {
@@ -7624,6 +7699,7 @@
               "$id": "442",
               "kind": "endpoint",
               "name": "endpoint",
+              "originalName": "endpoint",
               "serializedName": "endpoint",
               "doc": "Service host",
               "type": {
@@ -8168,6 +8244,7 @@
               "$id": "466",
               "kind": "endpoint",
               "name": "endpoint",
+              "originalName": "endpoint",
               "serializedName": "endpoint",
               "doc": "Service host",
               "type": {
@@ -8712,6 +8789,7 @@
               "$id": "490",
               "kind": "endpoint",
               "name": "endpoint",
+              "originalName": "endpoint",
               "serializedName": "endpoint",
               "doc": "Service host",
               "type": {
@@ -9256,6 +9334,7 @@
               "$id": "514",
               "kind": "endpoint",
               "name": "endpoint",
+              "originalName": "endpoint",
               "serializedName": "endpoint",
               "doc": "Service host",
               "type": {
@@ -9800,6 +9879,7 @@
               "$id": "538",
               "kind": "endpoint",
               "name": "endpoint",
+              "originalName": "endpoint",
               "serializedName": "endpoint",
               "doc": "Service host",
               "type": {
@@ -10344,6 +10424,7 @@
               "$id": "562",
               "kind": "endpoint",
               "name": "endpoint",
+              "originalName": "endpoint",
               "serializedName": "endpoint",
               "doc": "Service host",
               "type": {
@@ -10889,6 +10970,7 @@
               "$id": "586",
               "kind": "endpoint",
               "name": "endpoint",
+              "originalName": "endpoint",
               "serializedName": "endpoint",
               "doc": "Service host",
               "type": {

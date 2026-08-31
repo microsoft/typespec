@@ -7,6 +7,7 @@
       "$id": "1",
       "kind": "constant",
       "name": "SendContentType",
+      "originalName": "SendContentType",
       "namespace": "",
       "usage": "None",
       "valueType": {
@@ -24,6 +25,7 @@
       "$id": "3",
       "kind": "constant",
       "name": "SendContentType1",
+      "originalName": "SendContentType",
       "namespace": "",
       "usage": "None",
       "valueType": {
@@ -100,6 +102,7 @@
           "$id": "9",
           "kind": "endpoint",
           "name": "endpoint",
+          "originalName": "endpoint",
           "serializedName": "endpoint",
           "doc": "Service host",
           "type": {
@@ -389,6 +392,7 @@
               "$id": "23",
               "kind": "endpoint",
               "name": "endpoint",
+              "originalName": "endpoint",
               "serializedName": "endpoint",
               "doc": "Service host",
               "type": {

@@ -7,6 +7,7 @@
       "$id": "1",
       "kind": "constant",
       "name": "SafeintAsStringContentType",
+      "originalName": "SafeintAsStringContentType",
       "namespace": "",
       "usage": "None",
       "valueType": {
@@ -24,6 +25,7 @@
       "$id": "3",
       "kind": "constant",
       "name": "SafeintAsStringContentType1",
+      "originalName": "SafeintAsStringContentType",
       "namespace": "",
       "usage": "None",
       "valueType": {
@@ -41,6 +43,7 @@
       "$id": "5",
       "kind": "constant",
       "name": "SafeintAsStringContentType2",
+      "originalName": "SafeintAsStringContentType",
       "namespace": "",
       "usage": "None",
       "valueType": {
@@ -58,6 +61,7 @@
       "$id": "7",
       "kind": "constant",
       "name": "SafeintAsStringContentType3",
+      "originalName": "SafeintAsStringContentType",
       "namespace": "",
       "usage": "None",
       "valueType": {
@@ -75,6 +79,7 @@
       "$id": "9",
       "kind": "constant",
       "name": "SafeintAsStringContentType4",
+      "originalName": "SafeintAsStringContentType",
       "namespace": "",
       "usage": "None",
       "valueType": {
@@ -92,6 +97,7 @@
       "$id": "11",
       "kind": "constant",
       "name": "SafeintAsStringContentType5",
+      "originalName": "SafeintAsStringContentType",
       "namespace": "",
       "usage": "None",
       "valueType": {
@@ -260,6 +266,7 @@
           "$id": "23",
           "kind": "endpoint",
           "name": "endpoint",
+          "originalName": "endpoint",
           "serializedName": "endpoint",
           "doc": "Service host",
           "type": {
@@ -900,6 +907,7 @@
               "$id": "51",
               "kind": "endpoint",
               "name": "endpoint",
+              "originalName": "endpoint",
               "serializedName": "endpoint",
               "doc": "Service host",
               "type": {

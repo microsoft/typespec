@@ -49,6 +49,7 @@
       "$id": "4",
       "kind": "constant",
       "name": "TestContentType",
+      "originalName": "TestContentType",
       "namespace": "",
       "usage": "None",
       "valueType": {
@@ -66,6 +67,7 @@
       "$id": "6",
       "kind": "constant",
       "name": "TestContentType1",
+      "originalName": "TestContentType",
       "namespace": "",
       "usage": "None",
       "valueType": {
@@ -419,6 +421,7 @@
           "$id": "26",
           "kind": "endpoint",
           "name": "endpoint",
+          "originalName": "endpoint",
           "serializedName": "endpoint",
           "doc": "Need to be set as 'http://localhost:3000' in client.",
           "type": {
@@ -441,6 +444,7 @@
           "$id": "28",
           "kind": "endpoint",
           "name": "version",
+          "originalName": "version",
           "serializedName": "version",
           "doc": "Need to be set as 'v1' or 'v2' in client.",
           "type": {

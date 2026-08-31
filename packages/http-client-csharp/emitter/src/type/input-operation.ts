@@ -11,10 +11,10 @@ export interface InputOperation {
   name: string;
   isExactName?: boolean;
   /**
-   * The name as written in the spec, prior to any C# name normalization applied to `name`. Always
-   * set by the converters; it is the same value as `name` when no normalization rule applied.
+   * The name as written in the spec, prior to any C# name normalization applied to `name`. This is
+   * always set; it is the same value as `name` when no normalization rule applied.
    */
-  originalName?: string;
+  originalName: string;
   resourceName?: string;
   summary?: string;
   deprecated?: string;

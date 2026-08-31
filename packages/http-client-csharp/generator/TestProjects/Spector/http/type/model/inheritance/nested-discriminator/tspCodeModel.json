@@ -7,6 +7,7 @@
       "$id": "1",
       "kind": "constant",
       "name": "SharkKind",
+      "originalName": "SharkKind",
       "namespace": "Type.Model.Inheritance.NestedDiscriminator",
       "usage": "Input,Output,Json",
       "valueType": {
@@ -24,6 +25,7 @@
       "$id": "3",
       "kind": "constant",
       "name": "SawSharkSharktype",
+      "originalName": "SawSharkSharktype",
       "namespace": "Type.Model.Inheritance.NestedDiscriminator",
       "usage": "Input,Output,Json",
       "valueType": {
@@ -41,6 +43,7 @@
       "$id": "5",
       "kind": "constant",
       "name": "GoblinSharkSharktype",
+      "originalName": "GoblinSharkSharktype",
       "namespace": "Type.Model.Inheritance.NestedDiscriminator",
       "usage": "Input,Output,Json",
       "valueType": {
@@ -58,6 +61,7 @@
       "$id": "7",
       "kind": "constant",
       "name": "SalmonKind",
+      "originalName": "SalmonKind",
       "namespace": "Type.Model.Inheritance.NestedDiscriminator",
       "usage": "Input,Output,Json",
       "valueType": {
@@ -75,6 +79,7 @@
       "$id": "9",
       "kind": "constant",
       "name": "GetModelAccept",
+      "originalName": "GetModelAccept",
       "namespace": "",
       "usage": "None",
       "valueType": {
@@ -92,6 +97,7 @@
       "$id": "11",
       "kind": "constant",
       "name": "GetModelAccept1",
+      "originalName": "GetModelAccept",
       "namespace": "",
       "usage": "None",
       "valueType": {
@@ -109,6 +115,7 @@
       "$id": "13",
       "kind": "constant",
       "name": "GetModelAccept2",
+      "originalName": "GetModelAccept",
       "namespace": "",
       "usage": "None",
       "valueType": {
@@ -126,6 +133,7 @@
       "$id": "15",
       "kind": "constant",
       "name": "GetModelAccept3",
+      "originalName": "GetModelAccept",
       "namespace": "",
       "usage": "None",
       "valueType": {
@@ -143,6 +151,7 @@
       "$id": "17",
       "kind": "constant",
       "name": "GetModelAccept4",
+      "originalName": "GetModelAccept",
       "namespace": "",
       "usage": "None",
       "valueType": {
@@ -160,6 +169,7 @@
       "$id": "19",
       "kind": "constant",
       "name": "GetModelAccept5",
+      "originalName": "GetModelAccept",
       "namespace": "",
       "usage": "None",
       "valueType": {
@@ -1274,6 +1284,7 @@
           "$id": "71",
           "kind": "endpoint",
           "name": "endpoint",
+          "originalName": "endpoint",
           "serializedName": "endpoint",
           "doc": "Service host",
           "type": {

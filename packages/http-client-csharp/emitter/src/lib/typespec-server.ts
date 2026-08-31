@@ -50,6 +50,7 @@ export function resolveServers(
       const variable: InputEndpointParameter = {
         kind: "endpoint",
         name: name,
+        originalName: name,
         serializedName: name,
         summary: getSummary(sdkContext.program, prop),
         doc: getDoc(sdkContext.program, prop),
@@ -73,6 +74,7 @@ export function resolveServers(
       const variable: InputEndpointParameter = {
         kind: "endpoint",
         name: "host",
+        originalName: "host",
         serializedName: "host",
         doc: server.description,
         type: {
