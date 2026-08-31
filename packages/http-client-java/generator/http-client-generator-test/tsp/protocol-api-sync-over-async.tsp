@@ -18,6 +18,6 @@ model ResponseModel {
 
 @route("/items")
 @post
-@convenientAPI(true)
-@protocolAPI(false)
+@convenientAPI(true, "java")
+@protocolAPI(false, "java")
 op create(@body body: RequestModel): ResponseModel;
