@@ -118,6 +118,7 @@ namespace Microsoft.TypeSpec.Generator.Providers
             var compatiblePreviousMethods = new List<MethodProvider>();
             List<MethodSignature> previousPublicSignatures = [];
             List<MethodSignature> preservedPreviousSignatures = [];
+            List<MethodProvider> nonConstrainingCustomMethods = [];
 
             foreach (var previousMethod in LastContractView.Methods)
             {
@@ -134,7 +135,8 @@ namespace Microsoft.TypeSpec.Generator.Providers
                     MethodSignature.MethodSignatureComparer.Equals(m.Signature, previousMethod.Signature));
                 if (matchingCurrentMethod is not null)
                 {
-                    if (factoryMethods.Any(method => ReferenceEquals(method, matchingCurrentMethod)))
+                    bool isGeneratedMethod = factoryMethods.Any(method => ReferenceEquals(method, matchingCurrentMethod));
+                    if (isGeneratedMethod)
                     {
                         for (int i = 0; i < previousMethod.Signature.Parameters.Count; i++)
                         {
@@ -159,6 +161,14 @@ namespace Microsoft.TypeSpec.Generator.Providers
                     if (currentMinimumArgumentCount == previousMinimumArgumentCount)
                     {
                         preservedPreviousSignatures.Add(previousMethod.Signature);
+                    }
+                    else if (!isGeneratedMethod && currentMinimumArgumentCount > previousMinimumArgumentCount)
+                    {
+                        // A custom method can take over the published CLR signature while requiring
+                        // more arguments. The published omitted-argument calls can then only be
+                        // served by a longer generated overload, so this custom method must not
+                        // constrain that overload's optionality.
+                        nonConstrainingCustomMethods.Add(matchingCurrentMethod);
                     }
 
                     continue;
@@ -195,12 +205,25 @@ namespace Microsoft.TypeSpec.Generator.Providers
                     continue;
                 }
 
-                var previousOverloads = preservedPreviousSignatures
-                    .Where(signature => signature.Name == currentMethod.Signature.Name)
+                // Constrain the overload against every other method that will exist on the final
+                // type, not just the published ones. A custom method is immutable and can occupy a
+                // shape that no longer matches its published optionality, so the generated overload
+                // is the only side that can change to keep the pair unambiguous.
+                // A published signature that this method already serves is excluded: no separate
+                // compatibility overload is emitted for it, so there is nothing to disambiguate
+                // from and stripping defaults would break the published omitted-argument calls.
+                var competingSignatures = preservedPreviousSignatures
+                    .Concat(customFactoryMethods
+                        .Where(method => !nonConstrainingCustomMethods.Any(m => ReferenceEquals(m, method)))
+                        .Select(method => method.Signature))
+                    .Where(signature =>
+                        signature.Name == currentMethod.Signature.Name
+                        && !MethodSignature.MethodSignatureComparer.Equals(signature, currentMethod.Signature)
+                        && !MethodSignatureHelper.HaveSameParametersInSameOrder(currentMethod.Signature, signature))
                     .ToList();
                 MethodSignatureHelper.RequireMinimumParameterPrefix(
                     currentMethod.Signature,
-                    previousOverloads,
+                    competingSignatures,
                     preservePublishedMinimumArgumentCount: false);
             }
 

@@ -416,6 +416,70 @@ namespace Microsoft.TypeSpec.Generator.Tests.Providers.ModelFactories
                 m.Signature.Parameters.Count == 2);
             Assert.IsNull(compatibilityMethod.Signature.Parameters[0].DefaultValue);
             Assert.IsNotNull(compatibilityMethod.Signature.Parameters[1].DefaultValue);
+
+            // The custom method keeps the fully optional (string, string, string) shape, so the
+            // generated overload must require every parameter. Leaving any trailing default would
+            // make CompatibilityModel("id") and CompatibilityModel("id", "description") ambiguous.
+            var generatedMethod = modelFactory.Methods.Single(m =>
+                m.Signature.Name == "CompatibilityModel" &&
+                m.Signature.Parameters.Count == 4);
+            Assert.IsTrue(generatedMethod.Signature.Parameters.All(p => p.DefaultValue is null));
+        }
+
+        // A custom overload that was never published still exists on the final type, so a newly
+        // generated overload must be constrained against it. The published (bool, string) overload
+        // alone would only require the first parameter, leaving CompatibilityModel("id") ambiguous
+        // with the custom (string, string) overload.
+        [Test]
+        public async Task BackCompatibility_CustomOverloadConstrainsNewlyGeneratedOverload()
+        {
+            InputModelType model = InputFactory.Model("CompatibilityModel", properties:
+            [
+                InputFactory.Property("Id", InputPrimitiveType.String),
+                InputFactory.Property("Description", InputPrimitiveType.String),
+                InputFactory.Property("Text", InputPrimitiveType.String),
+                InputFactory.Property("IsRegex", InputPrimitiveType.Boolean),
+            ]);
+
+            _instance = (await MockHelpers.LoadMockGeneratorAsync(
+                inputNamespaceName: "Sample.Namespace",
+                inputModelTypes: [model],
+                compilation: async () => await Helpers.GetCompilationFromDirectoryAsync(parameters: "Custom"),
+                lastContractCompilation: async () => await Helpers.GetCompilationFromDirectoryAsync(parameters: "Last"))).Object;
+
+            var modelFactory = _instance.OutputLibrary.ModelFactory.Value;
+            modelFactory.ProcessTypeForBackCompatibility();
+
+            // The custom overload accepts zero to two arguments, so the generated overload needs
+            // three required parameters to make their applicable argument counts disjoint. The
+            // trailing default is still preserved because it cannot reach the custom overload.
+            var content = new TypeProviderWriter(modelFactory).Write().Content;
+            Assert.AreEqual(Helpers.GetExpectedFromFile(), content);
+        }
+
+        // A published signature whose parameter names all still match is served by the generated
+        // method itself, so no separate compatibility overload is emitted for it. The generated
+        // method must therefore keep its defaults: constraining it against a signature it already
+        // serves would break the published CompatibilityModel() and CompatibilityModel(id) calls.
+        [Test]
+        public async Task BackCompatibility_ServedPublishedSignatureKeepsGeneratedOptionality()
+        {
+            InputModelType model = InputFactory.Model("CompatibilityModel", properties:
+            [
+                InputFactory.Property("Id", InputPrimitiveType.String),
+                InputFactory.Property("IsRegex", InputPrimitiveType.Boolean),
+            ]);
+
+            _instance = (await MockHelpers.LoadMockGeneratorAsync(
+                inputNamespaceName: "Sample.Namespace",
+                inputModelTypes: [model],
+                lastContractCompilation: async () => await Helpers.GetCompilationFromDirectoryAsync(parameters: "Last"))).Object;
+
+            var modelFactory = _instance.OutputLibrary.ModelFactory.Value;
+            modelFactory.ProcessTypeForBackCompatibility();
+
+            var content = new TypeProviderWriter(modelFactory).Write().Content;
+            Assert.AreEqual(Helpers.GetExpectedFromFile(), content);
         }
 
         // The last contract is read from metadata, which reports a parameter's default as a constant
