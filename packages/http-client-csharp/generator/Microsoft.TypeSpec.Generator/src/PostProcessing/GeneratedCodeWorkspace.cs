@@ -270,18 +270,21 @@ namespace Microsoft.TypeSpec.Generator
             Dictionary<string, Dictionary<string, string>> hshFrameworks = [];
 
             // Read in the resolved direct dependencies.
+
             // We first try the default location of project.assets.json, which is %project_dir%/obj/.
             string assetsJson = Path.Combine(CodeModelGenerator.Instance.Configuration.ProjectDirectory, "obj", "project.assets.json");
             if (!File.Exists(assetsJson))
             {
                 // If it does not exists, try the artifacts/obj/%project_name%/ three directoreies above projects directory.
                 // If this directory does not extists or does not contain artifacts/obj/%project_name%/roject.assets.json, give up.
-                DirectoryInfo? directory = (new DirectoryInfo(CodeModelGenerator.Instance.Configuration.OutputDirectory)).Parent?.Parent?.Parent;
-                if (directory == null)
-                {
-                    return hshFrameworks;
-                }
-                assetsJson = Path.Combine(directory.FullName, "artifacts", "obj", CodeModelGenerator.Instance.Configuration.PackageName, "project.assets.json");
+                //DirectoryInfo? directory = (new DirectoryInfo(CodeModelGenerator.Instance.Configuration.OutputDirectory)).Parent?.Parent?.Parent;
+                //if (directory == null)
+                //{
+                //    return hshFrameworks;
+                //}
+                //assetsJson = Path.Combine(directory.FullName, "artifacts", "obj", CodeModelGenerator.Instance.Configuration.PackageName, "project.assets.json");
+                string objPath = await TryGetObjectPath() ?? "";
+                assetsJson = Path.Combine(objPath, "project.assets.json");
                 if (!File.Exists(assetsJson))
                 {
                     return hshFrameworks;
@@ -321,6 +324,65 @@ namespace Microsoft.TypeSpec.Generator
                 }
             }
             return hshFrameworks;
+        }
+
+        internal static async Task<string?> TryGetObjectPath()
+        {
+            string projectFilePath = Path.GetFullPath(
+                Path.Combine(CodeModelGenerator.Instance.Configuration.ProjectDirectory, $"{CodeModelGenerator.Instance.Configuration.PackageName}.csproj"));
+            Process restore = new();
+            ProcessStartInfo info = new()
+            {
+                UseShellExecute = false,
+                WindowStyle = ProcessWindowStyle.Hidden,
+                FileName = "dotnet",
+                ArgumentList = { "msbuild", projectFilePath, "-getProperty:OutputPath" },
+                RedirectStandardOutput = true,
+                RedirectStandardError = true,
+            };
+            restore.StartInfo = info;
+            string? output = default;
+            if (restore.Start())
+            {
+                Task<string> outputTask = restore.StandardOutput.ReadToEndAsync();
+                Task<string> errorTask = restore.StandardError.ReadToEndAsync();
+                await restore.WaitForExitAsync();
+                output = await outputTask;
+                string error = await errorTask;
+                if (restore.ExitCode != 0)
+                {
+                    CodeModelGenerator.Instance.Emitter.ReportDiagnostic(
+                        code: "unable-to-get-artifact-path",
+                        message: $"The dotnet msbuild {projectFilePath} -getProperty:OutputPath command exited with {restore.ExitCode}.\n" +
+                        $"Standard output: {output}\n" +
+                        $"Error output: {error}",
+                        severity: EmitterRpc.EmitterDiagnosticSeverity.Warning
+                    );
+                }
+            }
+            Regex regBin = Path.DirectorySeparatorChar == '\\' ? new(@"(^bin\\)|(\\bin\\)") : new($"(^bin{Path.DirectorySeparatorChar})|({Path.DirectorySeparatorChar}bin{Path.DirectorySeparatorChar})");
+            if (string.IsNullOrEmpty(output) || !regBin.IsMatch(output))
+            {
+                return null;
+            }
+            output = output.Trim(['\n', '\r', '\t', ' ']);
+            string binProjPath = Path.Combine("bin", CodeModelGenerator.Instance.Configuration.PackageName);
+            if (output.Contains(binProjPath))
+            {
+                // Special case when we have the absolute path to the atrifacts. In this case the obj folder contains subfolder named with ptroject name.
+                string objpath = Path.Combine("obj", CodeModelGenerator.Instance.Configuration.PackageName);
+                output = output.ReplaceLast(output.Substring(output.LastIndexOf(binProjPath)), objpath);
+            }
+            else
+            {
+                output = output.ReplaceLast(output.Substring(output.LastIndexOf("bin")), "obj");
+            }
+            // Handle relative paths
+            if (!Path.IsPathFullyQualified(output))
+            {
+                output = Path.Combine(Path.GetDirectoryName(projectFilePath) ?? "", output);
+            }
+            return Directory.Exists(output) ? output : null;
         }
 
         internal static string GetLatestTargetFramework(IEnumerable<string> shortNames)
@@ -397,7 +459,7 @@ namespace Microsoft.TypeSpec.Generator
                         message: $"The dotnet restore {projectFilePath} command exited with {restore.ExitCode}.\n" +
                         $"Standard output: {output}\n" +
                         $"Error output: {error}",
-                        severity: EmitterRpc.EmitterDiagnosticSeverity.Error
+                        severity: EmitterRpc.EmitterDiagnosticSeverity.Warning
                 );
                 }
             }
