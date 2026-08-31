@@ -2,6 +2,7 @@
 // Licensed under the MIT License.
 
 using System;
+using Microsoft.TypeSpec.Generator.Input;
 
 namespace Microsoft.TypeSpec.Generator.Utilities
 {
@@ -105,5 +106,13 @@ namespace Microsoft.TypeSpec.Generator.Utilities
                     : 0;
             }
         }
+
+        public static bool IsDateTimeInputType(this InputType inputType) => inputType switch
+        {
+            InputDateTimeType => true,
+            InputPrimitiveType { Kind: InputPrimitiveTypeKind.PlainDate } => true,
+            InputNullableType nullableType => IsDateTimeInputType(nullableType.Type),
+            _ => false
+        };
     }
 }

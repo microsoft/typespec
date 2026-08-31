@@ -108,7 +108,7 @@ namespace Microsoft.TypeSpec.Generator.Providers
             if (!inputProperty.IsExactName)
             {
                 var canonicalName = identifierName;
-                var isDateTime = Type.Equals(typeof(DateTimeOffset));
+                var isDateTime = inputProperty.Type.IsDateTimeInputType();
                 var specName = inputProperty.OriginalName.ToIdentifierName();
                 var enclosingTypeName = enclosingType.Name;
                 var lastContractProperties = enclosingType.LastContractView?.Properties
