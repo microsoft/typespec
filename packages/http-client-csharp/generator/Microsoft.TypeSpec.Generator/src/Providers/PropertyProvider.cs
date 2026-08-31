@@ -104,9 +104,43 @@ namespace Microsoft.TypeSpec.Generator.Providers
             Modifiers = IsDiscriminator || (!hasOutputUsage && _isRequiredNonNullableConstant) ? MethodSignatureModifiers.Internal : MethodSignatureModifiers.Public;
             // The emitter applies C# name normalization, so the input name is already the canonical name.
             // The pre-normalization spec name is available on the input property for back-compat lookups.
-            var identifierName = inputProperty.IsExactName
-                ? inputProperty.Name
-                : ResolveNameFromLastContract(inputProperty, inputProperty.Name.ToIdentifierName(), enclosingType, Type);
+            var identifierName = inputProperty.IsExactName ? inputProperty.Name : inputProperty.Name.ToIdentifierName();
+            if (!inputProperty.IsExactName)
+            {
+                var canonicalName = identifierName;
+                var specName = inputProperty.OriginalName.ToIdentifierName();
+                var enclosingTypeName = enclosingType.Name;
+                var lastContractProperties = enclosingType.LastContractView?.Properties
+                    .Where(p => MethodSignatureHelper.IsPublicApi(p.Modifiers))
+                    .ToList();
+
+                // An exact spec-identifier match is authoritative: it is the name this property would have had
+                // before normalization, so it does not need the disambiguation required by normalized candidates.
+                // The shipped member may carry the enclosing-type collision suffix, so candidates are compared
+                // against the collision-adjusted form of each name we are looking for.
+                var previousProperty =
+                    lastContractProperties?.FirstOrDefault(p => p.Name == AvoidPropertyNameCollision(specName, enclosingTypeName))
+                    ?? lastContractProperties?.FirstOrDefault(p =>
+                        p.Name == AvoidPropertyNameCollision(canonicalName, enclosingTypeName) &&
+                        !IsClaimedBySiblingProperty(p.Name, inputProperty, enclosingType));
+
+                if (previousProperty is null &&
+                    IsDateTimeInputType(inputProperty.Type) &&
+                    !specName.EndsWith("On", StringComparison.Ordinal))
+                {
+                    // Both the current and previous conventions render date-time names as <stem>On. Requiring
+                    // that suffix on the contract name prevents a removed property such as StartDate from being
+                    // mistaken for the historical name of StartTime even though both normalize to StartsOn.
+                    var specStem = GetDateTimeStem(canonicalName);
+                    previousProperty = specStem is null
+                        ? null
+                        : lastContractProperties?.FirstOrDefault(p =>
+                            HasDateTimeStem(p.Name, specStem, enclosingTypeName) &&
+                            p.Type.WithNullable(false).Equals(Type.WithNullable(false)) &&
+                            !IsClaimedBySiblingProperty(p.Name, inputProperty, enclosingType));
+                }
+                identifierName = previousProperty?.Name ?? canonicalName;
+            }
             Name = AvoidPropertyNameCollision(identifierName, enclosingType.Name);
             Body = new AutoPropertyBody(propHasSetter, setterModifier, GetPropertyInitializationValue(propertyType, inputProperty));
 
@@ -174,67 +208,111 @@ namespace Microsoft.TypeSpec.Generator.Providers
         private static string AvoidPropertyNameCollision(string propertyName, string enclosingTypeName) =>
             propertyName == enclosingTypeName ? $"{propertyName}Property" : propertyName;
 
-        /// <summary>
-        /// Resolves the name to generate for <paramref name="inputProperty"/>. The emitter has already applied
-        /// the C# naming conventions, so the last shipped contract is searched for <paramref name="normalizedName"/>
-        /// first and only falls back to the pre-normalization spec name when that is the spelling the contract
-        /// actually published. Date-time properties get one further fallback for names produced by an earlier
-        /// convention (for example a shipped <c>EndOn</c> for a spec <c>endTime</c> that now normalizes to
-        /// <c>EndsOn</c>), which is neither the normalized nor the spec spelling.
-        /// </summary>
-        private static string ResolveNameFromLastContract(
-            InputProperty inputProperty,
-            string normalizedName,
-            TypeProvider enclosingType,
-            CSharpType propertyType)
+        private static bool IsDateTimeInputType(InputType inputType) => inputType switch
         {
-            var specName = inputProperty.OriginalName.ToIdentifierName();
-            var lastContractProperties = enclosingType.LastContractView?.Properties
-                .Where(p => MethodSignatureHelper.IsPublicApi(p.Modifiers))
-                .ToList();
-            if (lastContractProperties is null)
+            InputDateTimeType => true,
+            InputPrimitiveType { Kind: InputPrimitiveTypeKind.PlainDate } => true,
+            InputNullableType nullableType => IsDateTimeInputType(nullableType.Type),
+            _ => false
+        };
+
+        /// <summary>
+        /// Gets the normalized semantic stem of a date-time name by removing its recognized suffix.
+        /// </summary>
+        private static string? GetDateTimeStem(string name)
+        {
+            var suffixLength = DateTimeNameRules.GetSuffixLength(name);
+            return suffixLength == 0 || suffixLength == name.Length
+                ? null
+                : DateTimeNameRules.ToVerbForm(name[..^suffixLength]);
+        }
+
+        private static class DateTimeNameRules
+        {
+            private const string AtSuffix = "At";
+            private const string DateSuffix = "Date";
+            private const string DateTimeSuffix = "DateTime";
+            private const string OnSuffix = "On";
+            private const string TimeStampSuffix = "TimeStamp";
+            private const string TimeSuffix = "Time";
+            private const string TimestampSuffix = "Timestamp";
+
+            // Complete prefixes that read better as verbs when combined with the "On" suffix. Keep the
+            // collection ordered so adding overlapping suffixes in the future cannot make compound matching
+            // depend on dictionary enumeration order.
+            private static readonly (string Noun, string Verb)[] _nounToVerbRules =
+            [
+                ("Change", "Changed"),
+                ("Creation", "Created"),
+                ("Deletion", "Deleted"),
+                ("End", "Ends"),
+                ("Expiration", "Expires"),
+                ("Expire", "Expires"),
+                ("Modification", "Modified"),
+                ("Start", "Starts")
+            ];
+
+            internal static string ToVerbForm(string prefix)
             {
-                return normalizedName;
+                // Resolve all exact rules before considering compound suffixes so an overlapping rule added
+                // later cannot be preempted by an earlier compound match.
+                foreach (var (noun, verb) in _nounToVerbRules)
+                {
+                    if (prefix.Equals(noun, StringComparison.OrdinalIgnoreCase))
+                    {
+                        return char.IsLower(prefix[0])
+                            ? char.ToLowerInvariant(verb[0]) + verb[1..]
+                            : verb;
+                    }
+                }
+
+                foreach (var (noun, compoundVerb) in _nounToVerbRules)
+                {
+                    if (prefix.Length > noun.Length &&
+                        prefix.EndsWith(noun, StringComparison.OrdinalIgnoreCase) &&
+                        char.IsUpper(prefix[^noun.Length]))
+                    {
+                        return prefix[..^noun.Length] + compoundVerb;
+                    }
+                }
+
+                return prefix;
             }
 
-            // The shipped member may carry the enclosing-type collision suffix, so candidates are compared
-            // against the collision-adjusted form of each name we are looking for.
-            var enclosingTypeName = enclosingType.Name;
-            // A sibling property whose spec name already matches the normalized name owns that declaration, so
-            // this property must keep looking rather than emit a duplicate.
-            if (lastContractProperties.Any(p =>
-                p.Name == AvoidPropertyNameCollision(normalizedName, enclosingTypeName) &&
-                !IsClaimedBySiblingProperty(p.Name, inputProperty, enclosingType)))
+            internal static int GetSuffixLength(string name)
             {
-                return normalizedName;
+                if (name.EndsWith(TimestampSuffix, StringComparison.Ordinal) ||
+                    name.EndsWith(TimeStampSuffix, StringComparison.Ordinal) ||
+                    name.Equals(TimestampSuffix, StringComparison.OrdinalIgnoreCase))
+                {
+                    return TimestampSuffix.Length;
+                }
+
+                if (name.Length > DateTimeSuffix.Length && name.EndsWith(DateTimeSuffix, StringComparison.Ordinal))
+                {
+                    return DateTimeSuffix.Length;
+                }
+
+                if (name.Length > TimeSuffix.Length && name.EndsWith(TimeSuffix, StringComparison.Ordinal))
+                {
+                    return TimeSuffix.Length;
+                }
+
+                if (name.Equals(DateSuffix, StringComparison.OrdinalIgnoreCase) ||
+                    name.EndsWith(DateSuffix, StringComparison.Ordinal))
+                {
+                    return DateSuffix.Length;
+                }
+
+                if (name.Length > OnSuffix.Length && name.EndsWith(OnSuffix, StringComparison.Ordinal))
+                {
+                    return OnSuffix.Length;
+                }
+
+                return name.Length > AtSuffix.Length && name.EndsWith(AtSuffix, StringComparison.Ordinal)
+                    ? AtSuffix.Length
+                    : 0;
             }
-
-            if (specName != normalizedName &&
-                lastContractProperties.Any(p => p.Name == AvoidPropertyNameCollision(specName, enclosingTypeName)))
-            {
-                return specName;
-            }
-
-            if (!inputProperty.Type.IsDateTimeInputType() || specName.EndsWith("On", StringComparison.Ordinal))
-            {
-                return normalizedName;
-            }
-
-            // Both the current and previous conventions render date-time names as <stem>On. Requiring that
-            // suffix on the contract name prevents a removed property such as StartDate from being mistaken
-            // for the historical name of StartTime even though both normalize to StartsOn.
-            var specStem = normalizedName.GetDateTimeStem();
-            if (specStem is null)
-            {
-                return normalizedName;
-            }
-
-            var historicalProperty = lastContractProperties.FirstOrDefault(p =>
-                HasDateTimeStem(p.Name, specStem, enclosingTypeName) &&
-                p.Type.WithNullable(false).Equals(propertyType.WithNullable(false)) &&
-                !IsClaimedBySiblingProperty(p.Name, inputProperty, enclosingType));
-
-            return historicalProperty?.Name ?? normalizedName;
         }
 
         private static bool HasDateTimeStem(string contractName, string specStem, string enclosingTypeName)
@@ -245,7 +323,7 @@ namespace Microsoft.TypeSpec.Generator.Providers
             }
 
             return contractName.EndsWith("On", StringComparison.Ordinal) &&
-                contractName.GetDateTimeStem() == specStem;
+                GetDateTimeStem(contractName) == specStem;
         }
 
         private static bool IsClaimedBySiblingProperty(

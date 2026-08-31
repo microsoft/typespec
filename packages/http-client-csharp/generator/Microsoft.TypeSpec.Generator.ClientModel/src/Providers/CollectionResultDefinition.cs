@@ -188,7 +188,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
         {
             var operationName = Operation.Name.ToIdentifierName();
             // Check if there is another paging operation in the same client whose name would produce a collision.
-            // If so, use the name from the spec to differentiate.
+            // If so, use the OriginalName to differentiate.
             if (HasPagingOperationNameCollision(operationName))
             {
                 operationName = (Operation.OriginalName ?? Operation.Name).ToIdentifierName();

@@ -40,7 +40,6 @@ namespace Microsoft.TypeSpec.Generator.Providers
             }
             foreach (var property in _specProperties.Where(p => !p.IsExactName))
             {
-                // The emitter-normalized name is registered as an alias of the spec name.
                 _specPropertiesMap.TryAdd(property.Name.ToIdentifierName(), property);
             }
             _serializedNameMap = BuildSerializationNameMap();

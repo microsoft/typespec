@@ -270,8 +270,16 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
             var parameters = signature.Parameters.Concat(ClientProvider.ClientParameters).ToArray();
             var paramMap = new ParameterProviderMap();
 
-            // Register the input model names first so that they win over the normalized C# names, which may collide
-            // with the raw name of a different parameter.
+            // Register the spec names first so that they win over the emitter-normalized names, which may
+            // collide with the spec name of a different parameter.
+            foreach (var parameter in parameters)
+            {
+                if (parameter.InputParameter is { } inputParameter)
+                {
+                    paramMap.AddInputName(inputParameter.OriginalName, parameter);
+                }
+            }
+
             foreach (var parameter in parameters)
             {
                 if (parameter.InputParameter is not { } inputParameter)
@@ -279,9 +287,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
                     continue;
                 }
 
-                paramMap.AddInputParameter(inputParameter, parameter);
                 paramMap.AddInputName(inputParameter.Name, parameter);
-                paramMap.AddInputName(inputParameter.OriginalName, parameter);
                 if (inputParameter is InputMethodParameter { ParamAlias: string alias })
                 {
                     paramMap.AddInputName(alias, parameter);
@@ -391,10 +397,8 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
             {
                 foreach (var param in nextLink.ReInjectedParameters)
                 {
-                    if (paramMap.TryGetValue(param, out var paramInSignature) ||
-                        paramMap.TryGetValue(param.Name, out paramInSignature))
+                    if (paramMap.TryGetValue(param.OriginalName, out var paramInSignature))
                     {
-                        reinjectedParamsMap.AddInputParameter(param, paramInSignature);
                         reinjectedParamsMap[param.OriginalName] = paramInSignature;
                     }
                 }
@@ -408,10 +412,8 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
                 var pageSizeParameter = operation.Parameters.FirstOrDefault(p => p.Name.Equals(pageSizeParameterName, StringComparison.OrdinalIgnoreCase));
                 if (pageSizeParameter != null)
                 {
-                    if (paramMap.TryGetValue(pageSizeParameter, out var paramInSignature) ||
-                        paramMap.TryGetValue(pageSizeParameter.Name, out paramInSignature))
+                    if (paramMap.TryGetValue(pageSizeParameter.OriginalName, out var paramInSignature))
                     {
-                        reinjectedParamsMap.AddInputParameter(pageSizeParameter, paramInSignature);
                         reinjectedParamsMap[pageSizeParameter.OriginalName] = paramInSignature;
                     }
                 }
@@ -421,10 +423,8 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
             var apiVersionParam = operation.Parameters.FirstOrDefault(p => p.IsApiVersion);
             if (apiVersionParam != null && !reinjectedParamsMap.ContainsExactInputName(apiVersionParam.OriginalName))
             {
-                if (paramMap.TryGetValue(apiVersionParam, out var paramInSignature) ||
-                    paramMap.TryGetValue(apiVersionParam.Name, out paramInSignature))
+                if (paramMap.TryGetValue(apiVersionParam.OriginalName, out var paramInSignature))
                 {
-                    reinjectedParamsMap.AddInputParameter(apiVersionParam, paramInSignature);
                     reinjectedParamsMap[apiVersionParam.OriginalName] = paramInSignature;
                 }
             }
@@ -1073,8 +1073,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
             }
             else
             {
-                if (paramMap.TryGetValue(inputParam, out var paramProvider) ||
-                    paramMap.TryGetValue(inputParam.Name, out paramProvider))
+                if (paramMap.TryGetValue(inputParam.OriginalName, out var paramProvider))
                 {
                     GetParamInfo(paramProvider, out type, out serializationFormat, out valueExpression);
                 }
@@ -1152,8 +1151,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
                 return;
             }
 
-            // Look up the parameter in the previous contract, preferring the name it already carries and
-            // falling back to its original (spec) name.
+            // Look up the parameter's original (spec) name in the previous contract.
             // When a service method is supplied, scope the search to methods whose name matches
             // the current service method (allowing for sync/async pairing) so that a common
             // parameter name (e.g. "id") on multiple methods can't cross-match.
@@ -1167,17 +1165,11 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
                     string.Equals(m.Signature.Name, serviceMethodName + "Async", StringComparison.OrdinalIgnoreCase));
             }
 
-            // The emitter has already applied the C# naming conventions, so a proposed name that the last
-            // contract already declares verbatim is kept as-is; only otherwise do we look up the original wire
-            // name for backward compatibility. The match is case-sensitive because a casing-only difference is
-            // still a source-breaking rename for named arguments.
-            var shippedParameters = scopedMethods?.SelectMany(method => method.Signature.Parameters).ToList();
-            var existingParam = shippedParameters
-                ?.Any(p => string.Equals(p.Name, proposedName, StringComparison.Ordinal)) == true
-                ? proposedName
-                : shippedParameters
-                    ?.FirstOrDefault(p => string.Equals(p.Name, inputParameter.OriginalName, StringComparison.OrdinalIgnoreCase))
-                    ?.Name;
+            // Check if the original wire name exists in LastContractView for backward compatibility.
+            var existingParam = scopedMethods
+                ?.SelectMany(method => method.Signature.Parameters)
+                .FirstOrDefault(p => string.Equals(p.Name, inputParameter.OriginalName, StringComparison.OrdinalIgnoreCase))
+                ?.Name;
 
             if (existingParam != null)
             {
@@ -1683,8 +1675,6 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
         /// </summary>
         private sealed class ParameterProviderMap
         {
-            private readonly Dictionary<InputParameter, ParameterProvider> _byInputParameter =
-                new(ReferenceEqualityComparer.Instance);
             private readonly Dictionary<string, ParameterProvider> _inputExact = new(StringComparer.Ordinal);
             private readonly Dictionary<string, ParameterProvider> _inputIgnoreCase = new(StringComparer.OrdinalIgnoreCase);
             private readonly Dictionary<string, ParameterProvider> _generatedExact = new(StringComparer.Ordinal);
@@ -1711,17 +1701,6 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
                     : throw new KeyNotFoundException($"No parameter named '{name}' was found.");
                 set => SetInputName(name, value);
             }
-
-            /// <summary>
-            /// Registers the input parameter instance the generated parameter was created from. Names can be
-            /// ambiguous when two input parameters normalize onto the same name, so lookups that know which input
-            /// parameter they are resolving use this map first.
-            /// </summary>
-            public void AddInputParameter(InputParameter inputParameter, ParameterProvider parameter)
-                => _byInputParameter.TryAdd(inputParameter, parameter);
-
-            public bool TryGetValue(InputParameter inputParameter, [NotNullWhen(true)] out ParameterProvider? parameter)
-                => _byInputParameter.TryGetValue(inputParameter, out parameter);
 
             /// <summary>
             /// Registers an input model name if it is not already mapped. The first registration wins so that the
