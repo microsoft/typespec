@@ -84,8 +84,8 @@ public final class ProtocolAndConvenientAsyncClient {
      */
     @Generated
     @ServiceMethod(returns = ReturnType.SINGLE)
-    Mono<Response<BinaryData>> onlyConvenientWithResponse(BinaryData body, RequestOptions requestOptions) {
-        return this.serviceClient.onlyConvenientWithResponseAsync(body, requestOptions);
+    Mono<Response<BinaryData>> onlyConvenientWithResponseInternal(BinaryData body, RequestOptions requestOptions) {
+        return this.serviceClient.onlyConvenientWithResponseInternalAsync(body, requestOptions);
     }
 
     /**
@@ -200,8 +200,8 @@ public final class ProtocolAndConvenientAsyncClient {
      */
     @Generated
     @ServiceMethod(returns = ReturnType.SINGLE)
-    Mono<Response<BinaryData>> errorSettingWithResponse(BinaryData body, RequestOptions requestOptions) {
-        return this.serviceClient.errorSettingWithResponseAsync(body, requestOptions);
+    Mono<Response<BinaryData>> errorSettingWithResponseInternal(BinaryData body, RequestOptions requestOptions) {
+        return this.serviceClient.errorSettingWithResponseInternalAsync(body, requestOptions);
     }
 
     /**
@@ -295,9 +295,9 @@ public final class ProtocolAndConvenientAsyncClient {
     @Generated
     @ServiceMethod(returns = ReturnType.SINGLE)
     public Mono<ResourceB> onlyConvenient(ResourceA body) {
-        // Generated convenience method for onlyConvenientWithResponse
+        // Generated convenience method for onlyConvenientWithResponseInternal
         RequestOptions requestOptions = new RequestOptions();
-        return onlyConvenientWithResponse(BinaryData.fromObject(body), requestOptions).flatMap(FluxUtil::toMono)
+        return onlyConvenientWithResponseInternal(BinaryData.fromObject(body), requestOptions).flatMap(FluxUtil::toMono)
             .map(protocolMethodData -> protocolMethodData.toObject(ResourceB.class));
     }
 

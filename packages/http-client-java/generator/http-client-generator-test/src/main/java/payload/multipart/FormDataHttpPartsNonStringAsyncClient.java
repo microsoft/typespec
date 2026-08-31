@@ -52,10 +52,10 @@ public final class FormDataHttpPartsNonStringAsyncClient {
      */
     @Generated
     @ServiceMethod(returns = ReturnType.SINGLE)
-    Mono<Response<Void>> floatMethodWithResponse(BinaryData body, RequestOptions requestOptions) {
+    Mono<Response<Void>> floatMethodWithResponseInternal(BinaryData body, RequestOptions requestOptions) {
         // Operation 'float' is of content-type 'multipart/form-data'. Protocol API is not usable and hence not
         // generated.
-        return this.serviceClient.floatMethodWithResponseAsync(body, requestOptions);
+        return this.serviceClient.floatMethodWithResponseInternalAsync(body, requestOptions);
     }
 
     /**
@@ -73,9 +73,9 @@ public final class FormDataHttpPartsNonStringAsyncClient {
     @Generated
     @ServiceMethod(returns = ReturnType.SINGLE)
     public Mono<Void> floatMethod(FloatRequest body) {
-        // Generated convenience method for floatMethodWithResponse
+        // Generated convenience method for floatMethodWithResponseInternal
         RequestOptions requestOptions = new RequestOptions();
-        return floatMethodWithResponse(new MultipartFormDataHelper(requestOptions)
+        return floatMethodWithResponseInternal(new MultipartFormDataHelper(requestOptions)
             .serializeTextField("temperature", String.valueOf(body.getTemperature()))
             .end()
             .getRequestBody(), requestOptions).flatMap(FluxUtil::toMono);
