@@ -852,12 +852,16 @@ namespace Microsoft.TypeSpec.Generator.Providers
                 // constructor via its serialization partial, so there is nothing to restore on the model partial.
                 if (previousParameters.Count == 0)
                 {
+                    if (Type.IsStruct)
+                    {
+                        continue;
+                    }
+
                     var hasAccessibleParameterlessSerializationConstructor = SerializationProviders
                         .SelectMany(p => p.Constructors)
                         .Any(c => c.Signature.Parameters.Count == 0 && MethodSignatureHelper.IsPublicApi(c.Signature.Modifiers));
 
-                    if (!Type.IsStruct
-                        && !constructors.Any(c => c.Signature.Parameters.Count == 0 && MethodSignatureHelper.IsPublicApi(c.Signature.Modifiers))
+                    if (!constructors.Any(c => c.Signature.Parameters.Count == 0 && MethodSignatureHelper.IsPublicApi(c.Signature.Modifiers))
                         && !candidateConstructors.Any(c => c.Signature.Parameters.Count == 0 && MethodSignatureHelper.IsPublicApi(c.Signature.Modifiers))
                         && !hasAccessibleParameterlessSerializationConstructor)
                     {
