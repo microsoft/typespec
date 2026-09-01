@@ -52,9 +52,8 @@ export async function generateExternSignatures(
     }
   }
 
-  const exports = Object.values(exportsMap);
-  if (exports.length > 0) {
-    diagnostics.pipe(await generateExternSignatureForExports(host, libraryPath, pkgJson, exports));
+  if (Object.keys(exportsMap).length > 0) {
+    diagnostics.pipe(await generateExternSignatureForExports(host, libraryPath, pkgJson, exportsMap));
   } else {
     diagnostics.add(
       createDiagnostic({
@@ -72,14 +71,9 @@ export async function generateExternSignatureForExports(
   host: CompilerHost,
   libraryPath: string,
   pkgJson: PackageJson,
-  exports: string[],
+  exportsMap: Record<string, string>,
 ): Promise<[undefined, readonly Diagnostic[]]> {
-  const [main] = exports;
   const diagnostics = createDiagnosticCollector();
-  const program = await compile(host, main, {
-    // additionalImports, See: github.com/microsoft/typespec/issues/8913 -- additional imports are disabled pending further design discussion.
-    parseOptions: { comments: true, docs: true },
-  });
   const prettierConfig = await prettier.resolveConfig(libraryPath);
 
   const outDir = resolvePath(libraryPath, "generated-defs");
@@ -88,13 +82,44 @@ export async function generateExternSignatureForExports(
   } catch (e) {}
   await host.mkdirp(outDir);
 
-  const files = await generateExternDecorators(program, pkgJson.name, {
-    prettierConfig: prettierConfig ?? undefined,
-  });
-  for (const [name, content] of Object.entries(files)) {
-    await host.writeFile(resolvePath(outDir, name), content);
+  const generatedNamespaces = new Set<string>();
+  for (const [exportPath, entrypoint] of Object.entries(exportsMap)) {
+    const program = await compile(host, entrypoint, {
+      // additionalImports, See: github.com/microsoft/typespec/issues/8913 -- additional imports are disabled pending further design discussion.
+      parseOptions: { comments: true, docs: true },
+    });
+
+    const files = await generateExternDecorators(program, pkgJson.name, {
+      packageImportName:
+        exportPath === "." ? pkgJson.name : `${pkgJson.name}/${exportPath.replace(/^\.\//, "")}`,
+      prettierConfig: prettierConfig ?? undefined,
+    });
+    const exportDir = exportPath === "." ? "" : exportPath.replace(/^\.\//, "");
+    const exportNamespaces = new Set(Object.keys(files).map(getGeneratedNamespaceName));
+    for (const [name, content] of Object.entries(files)) {
+      const namespaceName = getGeneratedNamespaceName(name);
+      if (generatedNamespaces.has(namespaceName)) {
+        continue;
+      }
+
+      const path = exportDir ? joinPaths(exportDir, name) : name;
+      const dir = path.split("/").slice(0, -1).join("/");
+      if (dir) {
+        await host.mkdirp(resolvePath(outDir, dir));
+      }
+      await host.writeFile(resolvePath(outDir, path), content);
+    }
+    for (const namespaceName of exportNamespaces) {
+      generatedNamespaces.add(namespaceName);
+    }
   }
   return [undefined, diagnostics.diagnostics];
+}
+
+function getGeneratedNamespaceName(fileName: string): string {
+  return fileName.endsWith(".ts-test.ts")
+    ? fileName.slice(0, -".ts-test.ts".length)
+    : fileName.slice(0, -".ts".length);
 }
 
 async function readPackageJson(host: CompilerHost, libraryPath: string): Promise<PackageJson> {
@@ -106,6 +131,7 @@ export interface GenerateExternDecoratorOptions {
   /** Render those namespaces only(exclude sub namespaces as well). By default it will include all namespaces. */
   readonly namespaces?: Namespace[];
   readonly prettierConfig?: prettier.Options;
+  readonly packageImportName?: string;
 }
 export async function generateExternDecorators(
   program: Program,
@@ -174,7 +200,12 @@ export async function generateExternDecorators(
 
   const files: Record<string, string> = {};
   for (const [ns, nsEntities] of entities.entries()) {
-    const output = generateSignatures(program, nsEntities, packageName, ns);
+    const output = generateSignatures(
+      program,
+      nsEntities,
+      options?.packageImportName ?? packageName,
+      ns,
+    );
     const rawFiles: OutputFile[] = [];
     await traverseOutput(output, {
       visitDirectory: () => {},
