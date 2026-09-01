@@ -480,6 +480,9 @@ overrides:
 
 packageExtensionsChecksum: sha256-41ngUhSL5ByEpDCSEB/d425efDxH3k+E1gkcIyo00jw=
 
+patchedDependencies:
+  tabster@8.8.0: 70c580321426e5b6001576f28fd07bb47fa01677048e805232147142d60f29a9
+
 importers:
 
   .:
@@ -13470,7 +13473,7 @@ snapshots:
       keyborg: 2.14.1
       react: 19.2.8
       react-dom: 19.2.8(react@19.2.8)
-      tabster: 8.8.0
+      tabster: 8.8.0(patch_hash=70c580321426e5b6001576f28fd07bb47fa01677048e805232147142d60f29a9)
 
   '@fluentui/react-tag-picker@9.10.3(@types/react-dom@19.2.5(@types/react@19.2.18))(@types/react@19.2.18)(react-dom@19.2.8(react@19.2.8))(react@19.2.8)(scheduler@0.27.0)':
     dependencies:
@@ -20223,7 +20226,7 @@ snapshots:
       string-width: 4.2.3
       strip-ansi: 6.0.1
 
-  tabster@8.8.0:
+  tabster@8.8.0(patch_hash=70c580321426e5b6001576f28fd07bb47fa01677048e805232147142d60f29a9):
     dependencies:
       keyborg: 2.14.1
       tslib: 2.8.1
