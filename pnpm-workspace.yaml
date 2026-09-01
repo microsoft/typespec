@@ -102,7 +102,7 @@ catalog:
   cspell: ^10.1.1
   debounce: ^3.0.0
   decimal.js: ^10.6.0
-  ecmarkup: ~25.0.1
+  ecmarkup: ^23.0.2
   env-paths: ^4.0.0
   es-module-shims: ^2.8.4
   esbuild: ^0.28.2
@@ -157,7 +157,6 @@ catalog:
   tree-sitter-javascript: ^0.25.0
   tree-sitter-python: ^0.25.0
   tree-sitter-typescript: ^0.23.2
-  # Keep this on a verified version range because older Turbo 2.10.x builds crashed on Windows CI.
   turbo: ^2.10.11
   typedoc: ^0.28.20
   typedoc-plugin-markdown: ^4.12.0
