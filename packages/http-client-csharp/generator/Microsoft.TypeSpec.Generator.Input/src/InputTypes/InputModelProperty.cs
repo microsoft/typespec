@@ -2,33 +2,12 @@
 // Licensed under the MIT License.
 
 using System.Collections.Generic;
-using System.Text.Json.Serialization;
 using Microsoft.TypeSpec.Generator.Input.Extensions;
 
 namespace Microsoft.TypeSpec.Generator.Input
 {
     public class InputModelProperty : InputProperty
     {
-        public InputModelProperty(
-            string name,
-            string? summary,
-            string? doc,
-            InputType type,
-            bool isRequired,
-            bool isReadOnly,
-            string? access,
-            bool isDiscriminator,
-            string serializedName,
-            bool isHttpMetadata,
-            bool isApiVersion,
-            InputConstant? defaultValue,
-            InputSerializationOptions serializationOptions,
-            ArrayKnownEncoding? encode = null)
-            : this(name, summary, doc, type, isRequired, isReadOnly, access, isDiscriminator, serializedName, isHttpMetadata, isApiVersion, defaultValue, serializationOptions, encode, [])
-        {
-        }
-
-        [JsonConstructor]
         public InputModelProperty(
             string name,
             string? summary,

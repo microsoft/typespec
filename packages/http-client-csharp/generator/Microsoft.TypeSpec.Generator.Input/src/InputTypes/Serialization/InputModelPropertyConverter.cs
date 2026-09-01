@@ -47,7 +47,8 @@ namespace Microsoft.TypeSpec.Generator.Input
                 isApiVersion: false,
                 defaultValue: null,
                 serializationOptions: null!,
-                encode: null);
+                encode: null,
+                apiVersions: []);
             resolver.AddReference(id, property);
 
             string? kind = null;

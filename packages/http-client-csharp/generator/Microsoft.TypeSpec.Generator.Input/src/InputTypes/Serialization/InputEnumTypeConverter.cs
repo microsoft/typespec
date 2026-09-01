@@ -45,7 +45,8 @@ namespace Microsoft.TypeSpec.Generator.Input
                 usage: InputModelTypeUsage.None,
                 valueType: null!,
                 values: Array.Empty<InputEnumTypeValue>(),
-                isExtensible: false);
+                isExtensible: false,
+                apiVersions: []);
             resolver.AddReference(id, enumType);
 
             string? @namespace = null;

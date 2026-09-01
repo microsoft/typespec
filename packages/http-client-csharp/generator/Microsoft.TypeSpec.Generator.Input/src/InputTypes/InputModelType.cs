@@ -4,7 +4,6 @@
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
-using System.Text.Json.Serialization;
 using Microsoft.TypeSpec.Generator.Input.Extensions;
 
 namespace Microsoft.TypeSpec.Generator.Input
@@ -17,12 +16,6 @@ namespace Microsoft.TypeSpec.Generator.Input
         private IList<InputModelType> _derivedModels = [];
 
         // TODO: Follow up issue https://github.com/microsoft/typespec/issues/3619. After https://github.com/Azure/typespec-azure/pull/966 is completed, update this type and remove the "modelAsStruct" parameter.
-        public InputModelType(string name, string @namespace, string crossLanguageDefinitionId, string? access, string? deprecation, string? summary, string? doc, InputModelTypeUsage usage, IReadOnlyList<InputModelProperty> properties, InputModelType? baseModel, IReadOnlyList<InputModelType> derivedModels, string? discriminatorValue, InputModelProperty? discriminatorProperty, IReadOnlyDictionary<string, InputModelType> discriminatedSubtypes, InputType? additionalProperties, bool modelAsStruct, InputSerializationOptions serializationOptions, bool isDynamicModel)
-            : this(name, @namespace, crossLanguageDefinitionId, access, deprecation, summary, doc, usage, properties, baseModel, derivedModels, discriminatorValue, discriminatorProperty, discriminatedSubtypes, additionalProperties, modelAsStruct, serializationOptions, isDynamicModel, [])
-        {
-        }
-
-        [JsonConstructor]
         public InputModelType(string name, string @namespace, string crossLanguageDefinitionId, string? access, string? deprecation, string? summary, string? doc, InputModelTypeUsage usage, IReadOnlyList<InputModelProperty> properties, InputModelType? baseModel, IReadOnlyList<InputModelType> derivedModels, string? discriminatorValue, InputModelProperty? discriminatorProperty, IReadOnlyDictionary<string, InputModelType> discriminatedSubtypes, InputType? additionalProperties, bool modelAsStruct, InputSerializationOptions serializationOptions, bool isDynamicModel, IReadOnlyList<string> apiVersions)
             : base(name)
         {

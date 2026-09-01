@@ -53,7 +53,8 @@ namespace Microsoft.TypeSpec.Generator.Input
                 additionalProperties: null,
                 modelAsStruct: false,
                 serializationOptions: null!,
-                isDynamicModel: false);
+                isDynamicModel: false,
+                apiVersions: []);
             resolver.AddReference(id, model);
 
             string? @namespace = null;
