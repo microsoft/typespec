@@ -6,8 +6,10 @@ using System.Diagnostics.CodeAnalysis;
 using System.Linq;
 using System.Text.Json.Serialization;
 using System.Threading.Tasks;
+using Microsoft.TypeSpec.Generator.Expressions;
 using Microsoft.TypeSpec.Generator.Input;
 using Microsoft.TypeSpec.Generator.Primitives;
+using Microsoft.TypeSpec.Generator.Snippets;
 using Microsoft.TypeSpec.Generator.Tests.Common;
 using NUnit.Framework;
 using ScmModel = Microsoft.TypeSpec.Generator.ClientModel.Providers.ScmModelProvider;
@@ -258,6 +260,85 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers.ScmModelProvi
             // The serialization partial no longer carries the parameterless mocking constructor (avoids CS0111).
             var serializationContent = new TypeProviderWriter(model.SerializationProviders.Single()).Write().Content;
             Assert.AreEqual(Helpers.GetExpectedFromFile("Serialization"), serializationContent);
+        }
+
+        [Test]
+        public async Task BackCompat_AccessibleParameterlessSerializationConstructorIsPreserved()
+        {
+            var inputModel = InputFactory.Model(
+                "mockInputModel",
+                usage: InputModelTypeUsage.Input | InputModelTypeUsage.Json,
+                properties:
+                [
+                    InputFactory.Property("name", InputPrimitiveType.String, isRequired: true)
+                ]);
+
+            await MockHelpers.LoadMockGeneratorAsync(
+                lastContractCompilation: async () => await Helpers.GetCompilationFromDirectoryAsync(),
+                inputModels: () => [inputModel]);
+
+            var model = ScmCodeModelGenerator.Instance.OutputLibrary.TypeProviders
+                .OfType<ScmModel>().Single(t => t.Name == "MockInputModel");
+            var serializationProvider = model.SerializationProviders.Single();
+            var serializationConstructor = serializationProvider.Constructors
+                .Single(c => c.Signature.Parameters.Count == 0);
+            var originalSignature = serializationConstructor.Signature;
+            ValueExpression[] fullConstructorArguments =
+                [.. model.FullConstructor.Signature.Parameters.Select(_ => Snippet.Default)];
+            var fullConstructorInitializer = new ConstructorInitializer(
+                IsBase: false,
+                fullConstructorArguments);
+
+            // Simulate a visitor making the serialization constructor public and routing it through
+            // the full constructor.
+            serializationConstructor.Update(
+                signature: new ConstructorSignature(
+                    originalSignature.Type,
+                    originalSignature.Description,
+                    MethodSignatureModifiers.Public,
+                    originalSignature.Parameters,
+                    originalSignature.Attributes,
+                    fullConstructorInitializer));
+
+            model.ProcessTypeForBackCompatibility();
+
+            Assert.IsFalse(model.Constructors.Any(c => c.Signature.Parameters.Count == 0),
+                "An accessible parameterless constructor already exists on the serialization partial.");
+            var preservedConstructor = serializationProvider.Constructors
+                .Single(c => c.Signature.Parameters.Count == 0);
+            Assert.AreSame(serializationConstructor, preservedConstructor);
+            Assert.AreSame(fullConstructorInitializer, preservedConstructor.Signature.Initializer);
+        }
+
+        [Test]
+        public async Task BackCompat_InaccessibleParameterlessSerializationConstructorIsReplaced()
+        {
+            var inputModel = InputFactory.Model(
+                "mockInputModel",
+                usage: InputModelTypeUsage.Input | InputModelTypeUsage.Json,
+                properties:
+                [
+                    InputFactory.Property("name", InputPrimitiveType.String, isRequired: true)
+                ]);
+
+            await MockHelpers.LoadMockGeneratorAsync(
+                lastContractCompilation: async () => await Helpers.GetCompilationFromDirectoryAsync(
+                    method: nameof(BackCompat_AccessibleParameterlessSerializationConstructorIsPreserved)),
+                inputModels: () => [inputModel]);
+
+            var model = ScmCodeModelGenerator.Instance.OutputLibrary.TypeProviders
+                .OfType<ScmModel>().Single(t => t.Name == "MockInputModel");
+            var serializationProvider = model.SerializationProviders.Single();
+            Assert.IsTrue(serializationProvider.Constructors.Any(c =>
+                c.Signature.Parameters.Count == 0
+                && c.Signature.Modifiers.HasFlag(MethodSignatureModifiers.Internal)));
+
+            model.ProcessTypeForBackCompatibility();
+
+            Assert.IsFalse(serializationProvider.Constructors.Any(c => c.Signature.Parameters.Count == 0));
+            Assert.IsTrue(model.Constructors.Any(c =>
+                c.Signature.Parameters.Count == 0
+                && c.Signature.Modifiers.HasFlag(MethodSignatureModifiers.Public)));
         }
 
         [Test]

@@ -738,10 +738,10 @@ protected Widget() : this(default)
 
 **Key Points:**
 
-- The previous parameterless constructor must be accessible and no accessible generated or custom parameterless constructor may already exist.
+- The previous parameterless constructor must be accessible and no accessible parameterless constructor may already exist in generated code (including another partial declaration) or custom code.
 - The restored constructor retains the previous accessibility.
 - The generator prefers an accessible current constructor with the fewest required parameters as the chain target. When necessary, it can chain to a `private protected` initialization constructor.
-- The generated parameterless mocking constructor is removed so it does not duplicate the restored constructor.
+- An inaccessible generated parameterless mocking constructor is removed so it does not duplicate the restored constructor.
 - If the constructor removal is accepted in an ApiCompat baseline, the generator does not restore it.
 
 #### Scenario: Constructor Parameter Name Restored by Signature Match
