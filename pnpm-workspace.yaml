@@ -41,10 +41,8 @@ catalog:
   "@docsearch/css": ^4.7.0
   "@docsearch/js": ^4.7.0
   "@expressive-code/core": ^0.44.1
-  # Held at the pre-upgrade (main) versions on purpose: newer @fluentui/react-components
-  # pulls a tabster@8.8.0 graph whose CJS build breaks named-import resolution
-  # (`createTabster`) under the upgraded Vite/Vitest. Pinning here avoids a test-config
-  # workaround. Revisit once tabster ships a statically-analyzable CJS build / exports map.
+  # Pinned to pre-upgrade versions: newer @fluentui/react-components pulls tabster@8.8.0,
+  # whose entry-point change breaks ESM named imports. See https://github.com/microsoft/tabster/issues/532
   "@fluentui/react-components": 9.74.3
   "@fluentui/react-icons": 2.0.333
   "@fluentui/react-list": 9.6.16
