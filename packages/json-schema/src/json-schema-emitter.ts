@@ -54,6 +54,7 @@ import {
   isStringType,
   isType,
   joinPaths,
+  sanitizePathSegment,
   serializeValueAsJson,
 } from "@typespec/compiler";
 import { DuplicateTracker } from "@typespec/compiler/utils";
@@ -1131,7 +1132,7 @@ export class JsonSchemaEmitter extends TypeEmitter<Record<string, any>, JSONSche
 
   #newFileScope(type: JsonSchemaDeclaration) {
     const sourceFile = this.emitter.createSourceFile(
-      `${this.declarationName(type)}.${this.#fileExtension()}`,
+      `${sanitizePathSegment(this.declarationName(type)!)}.${this.#fileExtension()}`,
     );
 
     sourceFile.meta.shouldEmit = true;

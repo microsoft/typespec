@@ -723,6 +723,34 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers.ScmModelProvi
         }
 
         [Test]
+        public async Task TestMultipartFormDataModel_LastContractFileType_KeepsFileBinaryContentFrameworkType()
+        {
+            // The last contract already ships `public FileBinaryContent ProfileImage { get; }`. The
+            // back-compat property type preservation must recognize the symbol-backed
+            // `System.ClientModel.FileBinaryContent` as the same type as the generated framework type,
+            // otherwise the model loses its convenience constructors and [Experimental] attributes.
+            var inputModel = MultipartModel(
+                "MultiPartRequest",
+                [
+                    NonFilePartProperty("id", InputPrimitiveType.String),
+                    FilePartProperty("profileImage"),
+                ]);
+
+            var mockGenerator = await MockHelpers.LoadMockGeneratorAsync(
+                inputModels: () => [inputModel],
+                lastContractCompilation: async () => await Helpers.GetCompilationFromDirectoryAsync());
+
+            var model = mockGenerator.Object.OutputLibrary.TypeProviders.OfType<ScmModel>().Single(t => t.Name == "MultiPartRequest");
+
+            var profileImage = model.Properties.Single(p => p.Name == "ProfileImage");
+            Assert.IsTrue(profileImage.Type.IsFrameworkType, "The file property must remain the FileBinaryContent framework type.");
+            Assert.IsTrue(ScmModel.IsFileBinaryContentType(profileImage.Type));
+
+            var file = new TypeProviderWriter(model).Write();
+            Assert.AreEqual(Helpers.GetExpectedFromFile(), file.Content);
+        }
+
+        [Test]
         public void TestFileBinaryContentConstructor_WithoutMultipartUsage_HasExperimentalAttribute()
         {
             var inputModel = MultipartModel(

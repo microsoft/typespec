@@ -1986,6 +1986,9 @@ importers:
       '@typespec/rest':
         specifier: workspace:^
         version: link:../rest
+      '@typespec/samples':
+        specifier: workspace:^
+        version: link:../samples
       '@typespec/sse':
         specifier: workspace:^
         version: link:../sse

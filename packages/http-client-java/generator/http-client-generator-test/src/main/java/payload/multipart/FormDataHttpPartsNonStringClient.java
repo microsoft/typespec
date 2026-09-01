@@ -50,10 +50,10 @@ public final class FormDataHttpPartsNonStringClient {
      */
     @Generated
     @ServiceMethod(returns = ReturnType.SINGLE)
-    Response<Void> floatMethodWithResponse(BinaryData body, RequestOptions requestOptions) {
+    Response<Void> floatMethodWithResponseInternal(BinaryData body, RequestOptions requestOptions) {
         // Operation 'float' is of content-type 'multipart/form-data'. Protocol API is not usable and hence not
         // generated.
-        return this.serviceClient.floatMethodWithResponse(body, requestOptions);
+        return this.serviceClient.floatMethodWithResponseInternal(body, requestOptions);
     }
 
     /**
@@ -70,9 +70,9 @@ public final class FormDataHttpPartsNonStringClient {
     @Generated
     @ServiceMethod(returns = ReturnType.SINGLE)
     public void floatMethod(FloatRequest body) {
-        // Generated convenience method for floatMethodWithResponse
+        // Generated convenience method for floatMethodWithResponseInternal
         RequestOptions requestOptions = new RequestOptions();
-        floatMethodWithResponse(new MultipartFormDataHelper(requestOptions)
+        floatMethodWithResponseInternal(new MultipartFormDataHelper(requestOptions)
             .serializeTextField("temperature", String.valueOf(body.getTemperature()))
             .end()
             .getRequestBody(), requestOptions).getValue();

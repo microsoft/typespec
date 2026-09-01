@@ -54,10 +54,10 @@ public final class FormDataHttpPartsContentTypeAsyncClient {
      */
     @Generated
     @ServiceMethod(returns = ReturnType.SINGLE)
-    Mono<Response<Void>> imageJpegContentTypeWithResponse(BinaryData body, RequestOptions requestOptions) {
+    Mono<Response<Void>> imageJpegContentTypeWithResponseInternal(BinaryData body, RequestOptions requestOptions) {
         // Operation 'imageJpegContentType' is of content-type 'multipart/form-data'. Protocol API is not usable and
         // hence not generated.
-        return this.serviceClient.imageJpegContentTypeWithResponseAsync(body, requestOptions);
+        return this.serviceClient.imageJpegContentTypeWithResponseInternalAsync(body, requestOptions);
     }
 
     /**
@@ -73,10 +73,10 @@ public final class FormDataHttpPartsContentTypeAsyncClient {
      */
     @Generated
     @ServiceMethod(returns = ReturnType.SINGLE)
-    Mono<Response<Void>> requiredContentTypeWithResponse(BinaryData body, RequestOptions requestOptions) {
+    Mono<Response<Void>> requiredContentTypeWithResponseInternal(BinaryData body, RequestOptions requestOptions) {
         // Operation 'requiredContentType' is of content-type 'multipart/form-data'. Protocol API is not usable and
         // hence not generated.
-        return this.serviceClient.requiredContentTypeWithResponseAsync(body, requestOptions);
+        return this.serviceClient.requiredContentTypeWithResponseInternalAsync(body, requestOptions);
     }
 
     /**
@@ -92,10 +92,10 @@ public final class FormDataHttpPartsContentTypeAsyncClient {
      */
     @Generated
     @ServiceMethod(returns = ReturnType.SINGLE)
-    Mono<Response<Void>> optionalContentTypeWithResponse(BinaryData body, RequestOptions requestOptions) {
+    Mono<Response<Void>> optionalContentTypeWithResponseInternal(BinaryData body, RequestOptions requestOptions) {
         // Operation 'optionalContentType' is of content-type 'multipart/form-data'. Protocol API is not usable and
         // hence not generated.
-        return this.serviceClient.optionalContentTypeWithResponseAsync(body, requestOptions);
+        return this.serviceClient.optionalContentTypeWithResponseInternalAsync(body, requestOptions);
     }
 
     /**
@@ -113,9 +113,9 @@ public final class FormDataHttpPartsContentTypeAsyncClient {
     @Generated
     @ServiceMethod(returns = ReturnType.SINGLE)
     public Mono<Void> imageJpegContentType(FileWithHttpPartSpecificContentTypeRequest body) {
-        // Generated convenience method for imageJpegContentTypeWithResponse
+        // Generated convenience method for imageJpegContentTypeWithResponseInternal
         RequestOptions requestOptions = new RequestOptions();
-        return imageJpegContentTypeWithResponse(
+        return imageJpegContentTypeWithResponseInternal(
             new MultipartFormDataHelper(requestOptions)
                 .serializeFileField("profileImage", body.getProfileImage().getContent(),
                     body.getProfileImage().getContentType(), body.getProfileImage().getFilename())
@@ -139,9 +139,9 @@ public final class FormDataHttpPartsContentTypeAsyncClient {
     @Generated
     @ServiceMethod(returns = ReturnType.SINGLE)
     public Mono<Void> requiredContentType(FileWithHttpPartRequiredContentTypeRequest body) {
-        // Generated convenience method for requiredContentTypeWithResponse
+        // Generated convenience method for requiredContentTypeWithResponseInternal
         RequestOptions requestOptions = new RequestOptions();
-        return requiredContentTypeWithResponse(
+        return requiredContentTypeWithResponseInternal(
             new MultipartFormDataHelper(requestOptions)
                 .serializeFileField("profileImage", body.getProfileImage().getContent(),
                     body.getProfileImage().getContentType(), body.getProfileImage().getFilename())
@@ -165,9 +165,9 @@ public final class FormDataHttpPartsContentTypeAsyncClient {
     @Generated
     @ServiceMethod(returns = ReturnType.SINGLE)
     public Mono<Void> optionalContentType(FileWithHttpPartOptionalContentTypeRequest body) {
-        // Generated convenience method for optionalContentTypeWithResponse
+        // Generated convenience method for optionalContentTypeWithResponseInternal
         RequestOptions requestOptions = new RequestOptions();
-        return optionalContentTypeWithResponse(
+        return optionalContentTypeWithResponseInternal(
             new MultipartFormDataHelper(requestOptions)
                 .serializeFileField("profileImage", body.getProfileImage().getContent(),
                     body.getProfileImage().getContentType(), body.getProfileImage().getFilename())

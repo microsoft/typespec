@@ -787,6 +787,81 @@ namespace Microsoft.TypeSpec.Generator.Tests.Providers
         }
 
         [Test]
+        public async Task RestorePreviousParameterNamesRestoresNormalizedMethodParameterName()
+        {
+            await MockHelpers.LoadMockGeneratorAsync(lastContractCompilation: async () => await Helpers.GetCompilationFromDirectoryAsync());
+
+            var dateTime = new InputDateTimeType(
+                DateTimeKnownEncoding.Rfc3339,
+                "utcDateTime",
+                "TypeSpec.utcDateTime",
+                InputPrimitiveType.String);
+            var parameter = new ParameterProvider(InputFactory.MethodParameter("startTime", dateTime, isRequired: true));
+            var method = new MethodProvider(
+                new MethodSignature("Foo", $"", MethodSignatureModifiers.Public, new CSharpType(typeof(string)), $"", [parameter]),
+                Snippet.Return(Snippet.Null),
+                new TestTypeProvider());
+            var typeProvider = new TestTypeProvider(name: "TestClient", methods: [method]);
+
+            BackCompatHelper.RestorePreviousParameterNames(typeProvider, typeProvider.Methods);
+
+            var actual = new TypeProviderWriter(typeProvider).Write().Content;
+            Assert.AreEqual(Helpers.GetExpectedFromFile("Expected"), actual);
+        }
+
+        // A reorder combined with a casing-only rename must still restore the published spelling.
+        // The reorder matches parameters via ToVariableName (so current "URL" aligns with published
+        // "url"), which previously short-circuited the exact-name pass and left the CP0017-breaking
+        // "URL". The exact-name restoration must run against the reordered parameters.
+        [Test]
+        public async Task RestorePreviousParameterNamesRestoresCasingAfterReorder()
+        {
+            await MockHelpers.LoadMockGeneratorAsync(lastContractCompilation: async () => await Helpers.GetCompilationFromDirectoryAsync());
+
+            // Current generation declares Foo(eventId, itemId, URL); the previous contract published
+            // Foo(itemId, eventId, url).
+            var foo = new MethodProvider(
+                new MethodSignature("Foo", $"", MethodSignatureModifiers.Public, new CSharpType(typeof(string)), $"",
+                [
+                    new ParameterProvider("eventId", $"", new CSharpType(typeof(string))),
+                    new ParameterProvider("itemId", $"", new CSharpType(typeof(string))),
+                    new ParameterProvider("URL", $"", new CSharpType(typeof(string))),
+                ]),
+                Snippet.Return(Snippet.Null),
+                new TestTypeProvider());
+
+            var typeProvider = new TestTypeProvider(name: "TestClient", ns: "Test", methods: [foo]);
+            BackCompatHelper.RestorePreviousParameterNames(typeProvider, typeProvider.Methods);
+
+            var actual = new TypeProviderWriter(typeProvider).Write().Content;
+            Assert.AreEqual(Helpers.GetExpectedFromFile(), actual);
+        }
+
+        [Test]
+        public async Task RestorePreviousParameterNamesRestoresNonExactParameterAlongsideExactRename()
+        {
+            await MockHelpers.LoadMockGeneratorAsync(lastContractCompilation: async () => await Helpers.GetCompilationFromDirectoryAsync());
+
+            // Current generation declares Foo(other, new_exact), while the previous contract published
+            // Foo(oldFirst, oldSecond). The exact parameter keeps its configured name, but the non-exact
+            // one - which shares its type - must still fall back to the previous name at its position.
+            var foo = new MethodProvider(
+                new MethodSignature("Foo", $"", MethodSignatureModifiers.Public, new CSharpType(typeof(string)), $"",
+                [
+                    new ParameterProvider(InputFactory.MethodParameter("other", InputPrimitiveType.String, isRequired: true)),
+                    new ParameterProvider(InputFactory.MethodParameter("new_exact", InputPrimitiveType.String, isRequired: true, isExactName: true)),
+                ]),
+                Snippet.Return(Snippet.Null),
+                new TestTypeProvider());
+
+            var typeProvider = new TestTypeProvider(name: "TestClient", ns: "Test", methods: [foo]);
+            BackCompatHelper.RestorePreviousParameterNames(typeProvider, typeProvider.Methods);
+
+            var actual = new TypeProviderWriter(typeProvider).Write().Content;
+            Assert.AreEqual(Helpers.GetExpectedFromFile(), actual);
+        }
+
+        [Test]
         public async Task TryRestorePreviousParameterOrderMatchesNonCanonicalParameterNames()
         {
             await MockHelpers.LoadMockGeneratorAsync();
@@ -911,6 +986,35 @@ namespace Microsoft.TypeSpec.Generator.Tests.Providers
 
             // The default has no override here; the base restores the previously-published name and
             // the rename propagates into the already-built body.
+            typeProvider.ProcessTypeForBackCompatibility();
+
+            var actual = new TypeProviderWriter(typeProvider).Write().Content;
+            Assert.AreEqual(Helpers.GetExpectedFromFile(), actual);
+        }
+
+        [Test]
+        public async Task BuildMethodsForBackCompatibilityExactNameTakesPrecedence()
+        {
+            await MockHelpers.LoadMockGeneratorAsync(
+                lastContractCompilation: async () => await Helpers.GetCompilationFromDirectoryAsync(
+                    parameters: "Last"));
+
+            // Update() records the prior name as OriginalName, so the parameter is named "exact_param"
+            // while still resolving to "oldParam" when looked up against the last contract.
+            var inputParameter = InputFactory.QueryParameter(
+                "oldParam",
+                InputPrimitiveType.String,
+                isRequired: true,
+                isExactName: true);
+            inputParameter.Update(name: "exact_param");
+
+            var parameter = new ParameterProvider(inputParameter);
+            var fooMethod = new MethodProvider(
+                new MethodSignature("Foo", $"", MethodSignatureModifiers.Public, new CSharpType(typeof(string)), $"", [parameter]),
+                Snippet.Return(parameter),
+                new TestTypeProvider());
+            var typeProvider = new TestTypeProvider(name: "TestClient", methods: [fooMethod]);
+
             typeProvider.ProcessTypeForBackCompatibility();
 
             var actual = new TypeProviderWriter(typeProvider).Write().Content;

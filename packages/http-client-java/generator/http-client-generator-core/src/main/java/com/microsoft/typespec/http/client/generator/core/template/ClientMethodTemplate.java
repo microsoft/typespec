@@ -9,7 +9,6 @@ import com.microsoft.typespec.http.client.generator.core.model.clientmodel.Array
 import com.microsoft.typespec.http.client.generator.core.model.clientmodel.ClassType;
 import com.microsoft.typespec.http.client.generator.core.model.clientmodel.ClientMethod;
 import com.microsoft.typespec.http.client.generator.core.model.clientmodel.ClientMethodParameter;
-import com.microsoft.typespec.http.client.generator.core.model.clientmodel.ClientMethodType;
 import com.microsoft.typespec.http.client.generator.core.model.clientmodel.EnumType;
 import com.microsoft.typespec.http.client.generator.core.model.clientmodel.GenericType;
 import com.microsoft.typespec.http.client.generator.core.model.clientmodel.IType;
@@ -1269,9 +1268,6 @@ public class ClientMethodTemplate extends ClientMethodTemplateBase {
 
     protected void generateSyncMethod(ClientMethod clientMethod, JavaType typeBlock, JavaSettings settings) {
         String asyncMethodName = MethodNamer.getSimpleAsyncMethodName(clientMethod.getName());
-        if (clientMethod.getType() == ClientMethodType.SimpleSyncRestResponse) {
-            asyncMethodName = clientMethod.getProxyMethod().getSimpleAsyncRestResponseMethodName();
-        }
         String effectiveAsyncMethodName = asyncMethodName;
         addServiceMethodAnnotation(typeBlock, ReturnType.SINGLE);
         writeMethod(typeBlock, clientMethod.getMethodVisibility(), clientMethod.getDeclaration(), function -> {

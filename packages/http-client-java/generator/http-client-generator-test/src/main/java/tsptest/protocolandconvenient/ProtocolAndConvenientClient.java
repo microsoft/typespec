@@ -78,8 +78,8 @@ public final class ProtocolAndConvenientClient {
      */
     @Generated
     @ServiceMethod(returns = ReturnType.SINGLE)
-    Response<BinaryData> onlyConvenientWithResponse(BinaryData body, RequestOptions requestOptions) {
-        return this.serviceClient.onlyConvenientWithResponse(body, requestOptions);
+    Response<BinaryData> onlyConvenientWithResponseInternal(BinaryData body, RequestOptions requestOptions) {
+        return this.serviceClient.onlyConvenientWithResponseInternal(body, requestOptions);
     }
 
     /**
@@ -193,8 +193,8 @@ public final class ProtocolAndConvenientClient {
      */
     @Generated
     @ServiceMethod(returns = ReturnType.SINGLE)
-    Response<BinaryData> errorSettingWithResponse(BinaryData body, RequestOptions requestOptions) {
-        return this.serviceClient.errorSettingWithResponse(body, requestOptions);
+    Response<BinaryData> errorSettingWithResponseInternal(BinaryData body, RequestOptions requestOptions) {
+        return this.serviceClient.errorSettingWithResponseInternal(body, requestOptions);
     }
 
     /**
@@ -288,9 +288,9 @@ public final class ProtocolAndConvenientClient {
     @Generated
     @ServiceMethod(returns = ReturnType.SINGLE)
     public ResourceB onlyConvenient(ResourceA body) {
-        // Generated convenience method for onlyConvenientWithResponse
+        // Generated convenience method for onlyConvenientWithResponseInternal
         RequestOptions requestOptions = new RequestOptions();
-        return onlyConvenientWithResponse(BinaryData.fromObject(body), requestOptions).getValue()
+        return onlyConvenientWithResponseInternal(BinaryData.fromObject(body), requestOptions).getValue()
             .toObject(ResourceB.class);
     }
 

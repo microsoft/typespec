@@ -166,7 +166,8 @@ public class ClientMethodMapper implements IMapper<Operation, List<ClientMethod>
                 final ClientMethodsReturnDescription methodsReturnDescription = ClientMethodsReturnDescription
                     .create(operation, isProtocolMethod, proxyMethod.isCustomHeaderIgnored());
                 final CreateMethodArgs createMethodArgs = new CreateMethodArgs(settings, isProtocolMethod,
-                    methodsReturnDescription, methodNamer, getMethodOverloadType(paramsDetails));
+                    operation.getGenerateProtocolApi() == Boolean.FALSE, methodsReturnDescription, methodNamer,
+                    getMethodOverloadType(paramsDetails));
 
                 if (operation.isPageable()) {
                     // Create Paging Client Methods.
@@ -816,16 +817,21 @@ public class ClientMethodMapper implements IMapper<Operation, List<ClientMethod>
         final MethodOverloadType methodOverloadType = createMethodArgs.methodOverloadType;
         final ClientMethodsReturnDescription methodsReturnDescription = createMethodArgs.methodsReturnDescription;
         final MethodNamer methodNamer = createMethodArgs.methodNamer;
+        final boolean isInternalProtocolMethod = isProtocolMethod && createMethodArgs.isProtocolApiGenerationDisabled;
 
         // '[Operation]WithResponse' sync or async methods.
         //
         final String methodName;
         final ClientMethodType clientMethodType;
         if (isSync) {
-            methodName = methodNamer.getSimpleRestResponseMethodName();
+            methodName = isInternalProtocolMethod
+                ? methodNamer.getSimpleRestResponseInternalMethodName()
+                : methodNamer.getSimpleRestResponseMethodName();
             clientMethodType = ClientMethodType.SimpleSyncRestResponse;
         } else {
-            methodName = methodNamer.getSimpleAsyncRestResponseMethodName();
+            methodName = isInternalProtocolMethod
+                ? methodNamer.getSimpleAsyncRestResponseInternalMethodName()
+                : methodNamer.getSimpleAsyncRestResponseMethodName();
             clientMethodType = ClientMethodType.SimpleAsyncRestResponse;
         }
         final JavaVisibility methodVisibility
@@ -1068,16 +1074,18 @@ public class ClientMethodMapper implements IMapper<Operation, List<ClientMethod>
     protected static class CreateMethodArgs {
         public final JavaSettings settings;
         public final boolean isProtocolMethod;
+        public final boolean isProtocolApiGenerationDisabled;
         public final ClientMethodsReturnDescription methodsReturnDescription;
         public final MethodOverloadType methodOverloadType;
         public final MethodNamer methodNamer;
         public final boolean generateRequiredOnlyParamsMethodOverload;
 
-        CreateMethodArgs(JavaSettings settings, boolean isProtocolMethod,
+        CreateMethodArgs(JavaSettings settings, boolean isProtocolMethod, boolean isProtocolApiGenerationDisabled,
             ClientMethodsReturnDescription methodsReturnDescription, MethodNamer methodNamer,
             MethodOverloadType methodOverloadType) {
             this.settings = settings;
             this.isProtocolMethod = isProtocolMethod;
+            this.isProtocolApiGenerationDisabled = isProtocolApiGenerationDisabled;
             this.methodsReturnDescription = methodsReturnDescription;
             this.methodOverloadType = methodOverloadType;
             this.methodNamer = methodNamer;
@@ -1086,8 +1094,9 @@ public class ClientMethodMapper implements IMapper<Operation, List<ClientMethod>
         }
 
         CreateMethodArgs forPaging(PagingMetadata pagingMetadata, ClientMethodParametersDetails paramsDetails) {
-            return new CreateMethodArgs(this.settings, this.isProtocolMethod, this.methodsReturnDescription,
-                this.methodNamer, getPageMethodOverloadType(pagingMetadata, paramsDetails));
+            return new CreateMethodArgs(this.settings, this.isProtocolMethod, this.isProtocolApiGenerationDisabled,
+                this.methodsReturnDescription, this.methodNamer,
+                getPageMethodOverloadType(pagingMetadata, paramsDetails));
         }
     }
 
