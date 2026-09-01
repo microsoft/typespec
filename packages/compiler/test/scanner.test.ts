@@ -425,6 +425,7 @@ it("provides friendly token display and classification", () => {
     Token.AutoKeyword,
     Token.ValueOfKeyword,
     Token.TypeOfKeyword,
+    Token.WhenKeyword,
     // `fn` can be either a statement or the start of an expr depending on context.
     Token.FnKeyword,
   ];

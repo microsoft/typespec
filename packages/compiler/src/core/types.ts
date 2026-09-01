@@ -5,6 +5,7 @@ import type { FileRef } from "./file-ref.js";
 import type { Numeric } from "./numeric.js";
 import type { Program } from "./program.js";
 import type { TokenFlags } from "./scanner.js";
+import type { Scope } from "./scope.js";
 
 /**
  * JavaScript-facing type mapping for compiler values.
@@ -1587,6 +1588,7 @@ export enum SyntaxKind {
   UnionDeclarationExpression,
   /** Keyword-form `enum` used as an expression without namespace registration. */
   EnumDeclarationExpression,
+  WhenClause,
 }
 
 /** Parser error-state and origin bits attached to syntax nodes. */
@@ -1719,6 +1721,7 @@ export type Node =
   | ModelSpreadPropertyNode
   | DecoratorExpressionNode
   | DirectiveExpressionNode
+  | WhenClauseNode
   | Statement
   | Expression
   | FunctionParameterNode
@@ -1947,6 +1950,27 @@ export interface DecoratorExpressionNode extends BaseNode {
   readonly target: IdentifierNode | MemberExpressionNode;
   /** Explicit arguments in source order; the decorated entity is supplied separately by the checker. */
   readonly arguments: readonly Expression[];
+  /** Condition restricting the scopes this decorator applies in. */
+  readonly when?: WhenClauseNode;
+}
+
+/**
+ * A condition in a {@link WhenClauseNode}.
+ *
+ * The grammar is deliberately closed rather than a general expression: it is what
+ * guarantees the clause terminates unambiguously in decorator position.
+ */
+export type WhenConditionNode = IdentifierNode | MemberExpressionNode | CallExpressionNode;
+
+/**
+ * A `when` clause scoping the thing it is attached to.
+ *
+ * Conditions are alternatives, separated by `|`. A comma-separated list is not used
+ * because `,` is the model-property and operation-parameter separator.
+ */
+export interface WhenClauseNode extends BaseNode {
+  readonly kind: SyntaxKind.WhenClause;
+  readonly conditions: readonly WhenConditionNode[];
 }
 
 /** An out-of-line decorator application, such as `@@doc(MyModel, "description");`. */
@@ -1960,6 +1984,8 @@ export interface AugmentDecoratorStatementNode extends BaseNode {
   /** Remaining source arguments, excluding the decorated entity reference. */
   readonly arguments: readonly Expression[];
   /** Containing file or namespace after binding. */
+  /** Condition restricting the scopes this decorator applies in. */
+  readonly when?: WhenClauseNode;
   readonly parent?: TypeSpecScriptNode | NamespaceStatementNode;
 }
 
@@ -3954,6 +3980,30 @@ export interface EmitContext<TOptions extends object = Record<string, never>> {
    * The information will be displayed when the compiler is run with `--stats` flag.
    */
   readonly perf: PerfReporter;
+
+  /**
+   * The scope this emitter is running under, used to resolve `when`-conditioned metadata.
+   *
+   * The `emitter` dimension is populated automatically from the emitter's package name. Emitters
+   * that serve a specific language or artifact kind should narrow it further with
+   * {@link EmitContext.createScope}.
+   */
+  readonly scope: Scope;
+
+  /**
+   * Derive a scope from this emitter's scope, overriding the given dimensions.
+   *
+   * Use this when a single emitter produces output for more than one scope — for example a
+   * client emitter that targets several languages, or one that emits both client and server
+   * artifacts from the same program.
+   *
+   * @example
+   * ```ts
+   * const csharp = context.createScope({ language: "csharp", target: "client" });
+   * const name = getAutoDecoratorValue(program, "MyLib.clientName", model, csharp);
+   * ```
+   */
+  readonly createScope: (overrides: Partial<Scope>) => Scope;
 }
 
 /** Elapsed-time measurement handle returned by compiler performance utilities. */
