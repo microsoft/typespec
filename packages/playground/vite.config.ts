@@ -40,7 +40,7 @@ export default defineConfig({
       formats: ["es"],
     },
 
-    rollupOptions: {
+    rolldownOptions: {
       external: (id) => !id.endsWith("?worker") && externals.some((x) => id.startsWith(x)),
     },
   },

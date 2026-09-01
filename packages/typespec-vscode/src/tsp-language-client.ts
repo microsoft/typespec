@@ -264,7 +264,8 @@ export class TspLanguageClient {
     const options: LanguageClientOptions = {
       synchronize: {
         // Synchronize the setting section 'typespec' to the server
-        // oxlint-disable-next-line typescript/no-deprecated -- Migrating to the pull configuration model is outside this dependency update.
+        // Migrating to the pull configuration model is outside this dependency update.
+        // oxlint-disable-next-line typescript/no-deprecated
         configurationSection: "typespec",
         fileEvents: watchers,
       },

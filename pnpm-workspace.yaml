@@ -157,6 +157,7 @@ catalog:
   tree-sitter-javascript: ^0.25.0
   tree-sitter-python: ^0.25.0
   tree-sitter-typescript: ^0.23.2
+  # Keep this on a verified version range because older Turbo 2.10.x builds crashed on Windows CI.
   turbo: ^2.10.11
   typedoc: ^0.28.20
   typedoc-plugin-markdown: ^4.12.0

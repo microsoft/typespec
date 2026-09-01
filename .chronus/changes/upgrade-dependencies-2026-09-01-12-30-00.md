@@ -2,6 +2,7 @@
 changeKind: dependencies
 packages:
   - "@typespec/graphql"
+  - "@typespec/html-program-viewer"
   - "@typespec/http"
   - "@typespec/http-server-js"
   - "@typespec/playground"
