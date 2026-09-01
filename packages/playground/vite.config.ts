@@ -41,7 +41,7 @@ export default defineConfig({
     },
 
     rollupOptions: {
-      external: (id) => externals.some((x) => id.startsWith(x)),
+      external: (id) => !id.endsWith("?worker") && externals.some((x) => id.startsWith(x)),
     },
   },
   assetsInclude: [/\.tsp$/],

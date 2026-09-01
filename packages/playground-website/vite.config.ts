@@ -22,13 +22,6 @@ export default defineConfig(({ mode }) => {
   });
 
   config.build!.outDir = "dist/web";
-  config.build!.rolldownOptions = {
-    ...config.build!.rolldownOptions,
-    external: [
-      "monaco-editor/esm/vs/language/json/json.worker.js?worker",
-      "monaco-editor/esm/vs/editor/editor.worker.js?worker",
-    ],
-  };
 
   config.plugins!.push(
     visualizer({
