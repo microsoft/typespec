@@ -847,10 +847,9 @@ namespace Microsoft.TypeSpec.Generator.Providers
 
                 // A previously published accessible parameterless constructor is dropped when the current
                 // generation makes a property required. Restore it and drop the generated mocking constructor
-                // so it is not a duplicate. An accessible parameterless constructor (generated, customized,
-                // or custom code) counts as already present; an inaccessible generated mocking constructor
-                // does not. A struct always exposes a public parameterless constructor via its serialization
-                // (mocking) constructor, so there is nothing to restore on the model partial.
+                // so it is not a duplicate. An accessible parameterless constructor on any generated partial
+                // or in custom code counts as already present. A struct always exposes a public parameterless
+                // constructor via its serialization partial, so there is nothing to restore on the model partial.
                 if (previousParameters.Count == 0)
                 {
                     var hasAccessibleParameterlessSerializationConstructor = SerializationProviders
