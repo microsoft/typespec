@@ -20,7 +20,7 @@ namespace Sample.Namespace
         }
 
         [global::System.ComponentModel.EditorBrowsableAttribute(global::System.ComponentModel.EditorBrowsableState.Never)]
-        public static global::Sample.Models.UnknownAbstractModel UnknownAbstractModel(string prop1, string kind)
+        public static global::Sample.Models.UnknownAbstractModel UnknownAbstractModel(string prop1 = default, string kind = default)
         {
             return new global::Sample.Models.UnknownAbstractModel(kind, prop1, additionalBinaryDataProperties: null);
         }
