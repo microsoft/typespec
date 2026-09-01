@@ -147,7 +147,9 @@ public class ClientMapper implements IMapper<CodeModel, Client> {
             .stream()
             .flatMap(c -> c.getOperationGroups().stream())
             .flatMap(og -> og.getOperations().stream())
-            .filter(o -> o.getConvenienceApi() != null && o.getConvenienceApi().isResponseHeadersAsModel())
+            .filter(o -> o.getConvenienceApi() != null
+                && (o.getConvenienceApi().isResponseHeadersAsModel()
+                    || (settings.isAzureV1() && settings.isModelMaxOverload())))
             .map(o -> parseHeader(o, settings))
             .filter(Objects::nonNull);
 
@@ -611,7 +613,9 @@ public class ClientMapper implements IMapper<CodeModel, Client> {
         // (@clientOption "responseHeadersAsModel"), the strongly-typed header class is surfaced as a
         // public model and used as the return type of the convenience method. Marking it PUBLIC ensures
         // it is generated (data-plane models are only generated when public or internal).
-        if (operation.getConvenienceApi() != null && operation.getConvenienceApi().isResponseHeadersAsModel()) {
+        if (operation.getConvenienceApi() != null
+            && (operation.getConvenienceApi().isResponseHeadersAsModel()
+                || (JavaSettings.getInstance().isAzureV1() && JavaSettings.getInstance().isModelMaxOverload()))) {
             headerSchema.getUsage().add(SchemaContext.PUBLIC);
         }
 

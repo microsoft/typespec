@@ -201,6 +201,7 @@ export interface EmitterOptionsDev {
   "required-fields-as-ctor-args"?: boolean;
   "group-etag-headers"?: boolean;
   "enable-sync-stack"?: boolean;
+  "max-overload"?: "model";
   "stream-style-serialization"?: boolean;
   "use-object-for-unknown"?: boolean;
   "float32-as-double"?: boolean;
@@ -1039,6 +1040,9 @@ export class CodeModelBuilder {
       }
     }
     if (generateConvenienceApi && convenienceApiName) {
+      if (this.isAzureV1() && this.options["max-overload"] === "model") {
+        generateProtocolApi = false;
+      }
       codeModelOperation.convenienceApi = new ConvenienceApi(convenienceApiName);
       if (sdkMethod.isExactName) {
         codeModelOperation.convenienceApi.language.java =

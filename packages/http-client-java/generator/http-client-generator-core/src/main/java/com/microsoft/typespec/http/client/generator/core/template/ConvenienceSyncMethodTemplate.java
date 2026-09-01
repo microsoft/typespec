@@ -4,18 +4,14 @@
 package com.microsoft.typespec.http.client.generator.core.template;
 
 import com.microsoft.typespec.http.client.generator.core.extension.plugin.JavaSettings;
-import com.microsoft.typespec.http.client.generator.core.model.clientmodel.ArrayType;
 import com.microsoft.typespec.http.client.generator.core.model.clientmodel.ClassType;
 import com.microsoft.typespec.http.client.generator.core.model.clientmodel.ClientMethod;
 import com.microsoft.typespec.http.client.generator.core.model.clientmodel.ClientMethodParameter;
 import com.microsoft.typespec.http.client.generator.core.model.clientmodel.ClientMethodType;
 import com.microsoft.typespec.http.client.generator.core.model.clientmodel.ConvenienceMethod;
-import com.microsoft.typespec.http.client.generator.core.model.clientmodel.EnumType;
 import com.microsoft.typespec.http.client.generator.core.model.clientmodel.GenericType;
 import com.microsoft.typespec.http.client.generator.core.model.clientmodel.IType;
-import com.microsoft.typespec.http.client.generator.core.model.clientmodel.PrimitiveType;
 import com.microsoft.typespec.http.client.generator.core.model.javamodel.JavaBlock;
-import com.microsoft.typespec.http.client.generator.core.util.TemplateUtil;
 import io.clientcore.core.utils.CoreUtils;
 import java.util.List;
 import java.util.Set;
@@ -116,6 +112,12 @@ public class ConvenienceSyncMethodTemplate extends ConvenienceMethodTemplateBase
             String methodName = protocolMethod.getName();
             methodBlock.methodReturn(String.format("serviceClient.%1$s(%2$s)", methodName, invocationExpression));
         } else if (convenienceMethod.getType() == ClientMethodType.SimpleSyncRestResponse
+            && isResponseHeadersAsModel(convenienceMethod)) {
+            methodBlock.line(getProtocolMethodResponseStatement(protocolMethod, invocationExpression));
+            methodBlock.methodReturn(String.format(
+                "new SimpleResponse<>(protocolMethodResponse, new %1$s(" + "protocolMethodResponse.getHeaders()))",
+                responseBodyType));
+        } else if (convenienceMethod.getType() == ClientMethodType.SimpleSyncRestResponse
             && !(responseBodyType.asNullable() == ClassType.VOID || responseBodyType == ClassType.BINARY_DATA)) {
 
             // protocolMethodResponse = ...
@@ -149,12 +151,15 @@ public class ConvenienceSyncMethodTemplate extends ConvenienceMethodTemplateBase
                 if (isResponseBase(convenienceMethod.getReturnValue().getType())) {
                     IType headerType
                         = ((GenericType) convenienceMethod.getReturnValue().getType()).getTypeArguments()[0];
+                    String responseValue = responseBodyType.asNullable() == ClassType.VOID
+                        ? "null"
+                        : "protocolMethodResponse.getValue()";
 
                     methodBlock.line(getProtocolMethodResponseStatement(protocolMethod, invocationExpression));
 
                     methodBlock.methodReturn(String.format(
-                        "new ResponseBase<>(protocolMethodResponse.getRequest(), protocolMethodResponse.getStatusCode(), protocolMethodResponse.getHeaders(), null, new %1$s(protocolMethodResponse.getHeaders()))",
-                        headerType));
+                        "new ResponseBase<>(protocolMethodResponse.getRequest(), protocolMethodResponse.getStatusCode(), protocolMethodResponse.getHeaders(), %1$s, new %2$s(protocolMethodResponse.getHeaders()))",
+                        responseValue, headerType));
                 } else {
                     methodBlock.methodReturn(statement);
                 }
@@ -192,55 +197,4 @@ public class ConvenienceSyncMethodTemplate extends ConvenienceMethodTemplateBase
             statement);
     }
 
-    private boolean isResponseBase(IType type) {
-        return type instanceof GenericType && ClassType.RESPONSE_BASE.getName().equals(((GenericType) type).getName());
-    }
-
-    private String expressionConvertFromBinaryData(IType responseBodyType, IType rawType, String invocationExpression,
-        Set<String> mediaTypes, Set<GenericType> typeReferenceStaticClasses) {
-        SupportedMimeType mimeType = SupportedMimeType.getResponseKnownMimeType(mediaTypes);
-        String serializerArgument = xmlSerializerArgument(mimeType, responseBodyType);
-        switch (mimeType) {
-            case TEXT:
-                String basicText = invocationExpression + ".toString()";
-                if (!rawType.isNullable()) {
-                    // Dealing with a primitive type that needs to be converted.
-                    return wrapPrimitiveMimeTypeText(basicText, (PrimitiveType) rawType);
-                }
-                return basicText;
-
-            case BINARY:
-                return invocationExpression;
-
-            default:
-                // JSON, XML etc.
-                if (responseBodyType instanceof EnumType) {
-                    // enum
-                    IType elementType = ((EnumType) responseBodyType).getElementType();
-                    return String.format("%1$s.from%2$s(%3$s.toObject(%2$s.class%4$s))", responseBodyType, elementType,
-                        invocationExpression, serializerArgument);
-                } else if (responseBodyType instanceof GenericType) {
-                    // generic, e.g. List, Map
-                    typeReferenceStaticClasses.add((GenericType) responseBodyType);
-                    return String.format("%2$s.toObject(%1$s%3$s)",
-                        TemplateUtil.getTypeReferenceCreation(responseBodyType), invocationExpression,
-                        serializerArgument);
-                } else if (responseBodyType == ClassType.BINARY_DATA) {
-                    // BinaryData
-                    return invocationExpression;
-                } else if (responseBodyType == ArrayType.BYTE_ARRAY) {
-                    // byte[]
-                    if (rawType == ClassType.BASE_64_URL) {
-                        return invocationExpression + ".toObject(" + ClassType.BASE_64_URL.getName() + ".class"
-                            + serializerArgument + ").decodedBytes()";
-                    } else {
-                        return invocationExpression + ".toObject(byte[].class" + serializerArgument + ")";
-                    }
-                } else {
-                    // default, treat as class
-                    return String.format("%2$s.toObject(%1$s.class%3$s)", responseBodyType.asNullable(),
-                        invocationExpression, serializerArgument);
-                }
-        }
-    }
 }

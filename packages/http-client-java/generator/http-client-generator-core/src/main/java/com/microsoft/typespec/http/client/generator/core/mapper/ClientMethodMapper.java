@@ -814,6 +814,9 @@ public class ClientMethodMapper implements IMapper<Operation, List<ClientMethod>
         List<ClientMethod> methods, CreateMethodArgs createMethodArgs) {
 
         final boolean isProtocolMethod = createMethodArgs.isProtocolMethod;
+        final boolean isModelMaxOverload = !isProtocolMethod
+            && createMethodArgs.settings.isAzureV1()
+            && createMethodArgs.settings.isModelMaxOverload();
         final MethodOverloadType methodOverloadType = createMethodArgs.methodOverloadType;
         final ClientMethodsReturnDescription methodsReturnDescription = createMethodArgs.methodsReturnDescription;
         final MethodNamer methodNamer = createMethodArgs.methodNamer;
@@ -835,26 +838,33 @@ public class ClientMethodMapper implements IMapper<Operation, List<ClientMethod>
             clientMethodType = ClientMethodType.SimpleAsyncRestResponse;
         }
         final JavaVisibility methodVisibility
-            = methodVisibility(clientMethodType, methodOverloadType, false, isProtocolMethod);
-        final JavaVisibility methodWithContextVisibility
-            = methodVisibility(clientMethodType, methodOverloadType, true, isProtocolMethod);
+            = methodVisibility(clientMethodType, methodOverloadType, isModelMaxOverload, isProtocolMethod);
+        final JavaVisibility methodWithContextVisibility = isModelMaxOverload
+            ? NOT_GENERATE
+            : methodVisibility(clientMethodType, methodOverloadType, true, isProtocolMethod);
         final boolean hasContextOverload = methodWithContextVisibility != NOT_GENERATE;
 
-        final ClientMethod withResponseMethod = baseMethod.newBuilder()
+        ClientMethod.Builder withResponseMethodBuilder = baseMethod.newBuilder()
             .returnValue(methodsReturnDescription.getReturnValue(clientMethodType))
             .onlyRequiredParameters(false)
             .name(methodName)
             .type(clientMethodType)
             .groupedParameterRequired(false)
             .hasWithContextOverload(hasContextOverload)
-            .methodVisibility(methodVisibility)
-            .build();
+            .methodVisibility(methodVisibility);
+        if (isModelMaxOverload) {
+            List<ClientMethodParameter> parameters = new ArrayList<>(baseMethod.getParameters());
+            parameters.add(ClientMethodParameter.REQUEST_OPTIONS_PARAMETER);
+            withResponseMethodBuilder = withResponseMethodBuilder.parameters(parameters);
+        }
+        final ClientMethod withResponseMethod = withResponseMethodBuilder.build();
 
         // Always generate an overload of WithResponse with non-required parameters without Context. It is only for sync
         // proxy method, and is usually filtered out in methodVisibility function.
         methods.add(withResponseMethod);
-        ClientMethod clientMethodWithContext
-            = addClientMethodWithContext(methods, withResponseMethod, methodWithContextVisibility, isProtocolMethod);
+        ClientMethod clientMethodWithContext = isModelMaxOverload
+            ? withResponseMethod
+            : addClientMethodWithContext(methods, withResponseMethod, methodWithContextVisibility, isProtocolMethod);
 
         // Simple op '[Operation]WithResponse' overloads for versioning
         createOverloadForVersioning(methods, withResponseMethod, clientMethodWithContext, methodWithContextVisibility,
@@ -996,6 +1006,11 @@ public class ClientMethodMapper implements IMapper<Operation, List<ClientMethod>
                 // at present, only generate convenience method for simple API and pageable API (no LRO)
                 return ((methodType == ClientMethodType.SimpleAsync && !hasContextParameter)
                     || (methodType == ClientMethodType.SimpleSync && !hasContextParameter)
+                    || (settings.isAzureV1()
+                        && settings.isModelMaxOverload()
+                        && (methodType == ClientMethodType.SimpleAsyncRestResponse
+                            || methodType == ClientMethodType.SimpleSyncRestResponse)
+                        && hasContextParameter)
                     || (methodType == ClientMethodType.PagingAsync && !hasContextParameter)
                     || (methodType == ClientMethodType.PagingSync && !hasContextParameter)
                     || (methodType == ClientMethodType.LongRunningBeginAsync && !hasContextParameter)

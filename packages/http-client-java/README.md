@@ -58,6 +58,12 @@ See [Configuring output directory for more info](https://typespec.io/docs/handbo
 
 License information for the generated client code.
 
+### `max-overload`
+
+**Type:** `"model"`
+
+Set to `model` to generate public maximum `WithResponse` overloads that use strongly typed request and response models. The low-level protocol methods remain package-private.
+
 ### `dev-options`
 
 **Type:** `object`
