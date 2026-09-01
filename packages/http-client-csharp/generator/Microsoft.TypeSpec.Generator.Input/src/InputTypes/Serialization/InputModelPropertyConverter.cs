@@ -66,12 +66,14 @@ namespace Microsoft.TypeSpec.Generator.Input
             InputSerializationOptions? serializationOptions = null;
             string? encodeString = null;
             bool isExactName = false;
+            IReadOnlyList<string>? apiVersions = null;
 
             while (reader.TokenType != JsonTokenType.EndObject)
             {
                 var isKnownProperty = reader.TryReadReferenceId(ref id)
                     || reader.TryReadString("name", ref name)
                     || reader.TryReadString("kind", ref kind)
+                    || reader.TryReadComplexType("apiVersions", options, ref apiVersions)
                     || reader.TryReadString("summary", ref summary)
                     || reader.TryReadString("doc", ref doc)
                     || reader.TryReadComplexType("type", options, ref propertyType)
@@ -110,6 +112,7 @@ namespace Microsoft.TypeSpec.Generator.Input
             property.DefaultValue = defaultValue;
             property.Encode = Enum.TryParse<ArrayKnownEncoding>(encodeString, ignoreCase: true, out var encode) ? encode : null;
             property.IsExactName = isExactName;
+            property.ApiVersions = apiVersions ?? [];
 
             return property;
         }

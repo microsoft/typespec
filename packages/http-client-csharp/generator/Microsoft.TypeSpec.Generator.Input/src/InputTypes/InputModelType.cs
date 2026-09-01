@@ -4,6 +4,7 @@
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
+using System.Text.Json.Serialization;
 using Microsoft.TypeSpec.Generator.Input.Extensions;
 
 namespace Microsoft.TypeSpec.Generator.Input
@@ -17,6 +18,12 @@ namespace Microsoft.TypeSpec.Generator.Input
 
         // TODO: Follow up issue https://github.com/microsoft/typespec/issues/3619. After https://github.com/Azure/typespec-azure/pull/966 is completed, update this type and remove the "modelAsStruct" parameter.
         public InputModelType(string name, string @namespace, string crossLanguageDefinitionId, string? access, string? deprecation, string? summary, string? doc, InputModelTypeUsage usage, IReadOnlyList<InputModelProperty> properties, InputModelType? baseModel, IReadOnlyList<InputModelType> derivedModels, string? discriminatorValue, InputModelProperty? discriminatorProperty, IReadOnlyDictionary<string, InputModelType> discriminatedSubtypes, InputType? additionalProperties, bool modelAsStruct, InputSerializationOptions serializationOptions, bool isDynamicModel)
+            : this(name, @namespace, crossLanguageDefinitionId, access, deprecation, summary, doc, usage, properties, baseModel, derivedModels, discriminatorValue, discriminatorProperty, discriminatedSubtypes, additionalProperties, modelAsStruct, serializationOptions, isDynamicModel, [])
+        {
+        }
+
+        [JsonConstructor]
+        public InputModelType(string name, string @namespace, string crossLanguageDefinitionId, string? access, string? deprecation, string? summary, string? doc, InputModelTypeUsage usage, IReadOnlyList<InputModelProperty> properties, InputModelType? baseModel, IReadOnlyList<InputModelType> derivedModels, string? discriminatorValue, InputModelProperty? discriminatorProperty, IReadOnlyDictionary<string, InputModelType> discriminatedSubtypes, InputType? additionalProperties, bool modelAsStruct, InputSerializationOptions serializationOptions, bool isDynamicModel, IReadOnlyList<string> apiVersions)
             : base(name)
         {
             Namespace = @namespace;
@@ -48,6 +55,7 @@ namespace Microsoft.TypeSpec.Generator.Input
             IsPropertyBag = false;
             ModelAsStruct = modelAsStruct;
             SerializationOptions = serializationOptions;
+            ApiVersions = apiVersions;
         }
 
         public string Namespace { get; internal set; }
@@ -57,6 +65,7 @@ namespace Microsoft.TypeSpec.Generator.Input
         public string? Summary { get; internal set; }
         public string? Doc { get; internal set; }
         public InputModelTypeUsage Usage { get; internal set; }
+        public IReadOnlyList<string> ApiVersions { get; internal set; }
 
         public IReadOnlyList<InputModelProperty> Properties
         {
@@ -126,7 +135,8 @@ namespace Microsoft.TypeSpec.Generator.Input
                     null,
                     false,
                     SerializationOptions,
-                    IsDynamicModel)
+                    IsDynamicModel,
+                    ApiVersions)
                 );
             }
         }
@@ -173,6 +183,7 @@ namespace Microsoft.TypeSpec.Generator.Input
         /// <param name="doc">The new documentation for the model.</param>
         /// <param name="usage">The new usage for the model.</param>
         /// <param name="properties">The new properties for the model.</param>
+        /// <param name="apiVersions">The new API versions for the model.</param>
         /// <param name="baseModel">The new base model for the model.</param>
         /// <param name="discriminatorValue">The new discriminator value for the model.</param>
         /// <param name="discriminatorProperty">The new discriminator property for the model.</param>
@@ -196,7 +207,8 @@ namespace Microsoft.TypeSpec.Generator.Input
             InputType? additionalProperties = null,
             bool? modelAsStruct = null,
             InputSerializationOptions? serializationOptions = null,
-            bool? isDynamicModel = null)
+            bool? isDynamicModel = null,
+            IEnumerable<string>? apiVersions = null)
         {
             if (name != null)
             {
@@ -241,6 +253,11 @@ namespace Microsoft.TypeSpec.Generator.Input
             if (properties != null)
             {
                 Properties = [.. properties];
+            }
+
+            if (apiVersions != null)
+            {
+                ApiVersions = [.. apiVersions];
             }
 
             if (baseModel != null)
