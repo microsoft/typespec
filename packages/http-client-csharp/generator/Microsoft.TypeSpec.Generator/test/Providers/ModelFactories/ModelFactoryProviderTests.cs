@@ -484,6 +484,33 @@ namespace Microsoft.TypeSpec.Generator.Tests.Providers.ModelFactories
             Assert.AreEqual(Helpers.GetExpectedFromFile(), content);
         }
 
+        // A published overload that the reorder path did not replace still exists on the final type,
+        // but it already coexisted with the reordered signature in the published contract, so every
+        // call that reaches both of them compiled before. Constraining the reordered compatibility
+        // signature against it would strip defaults the published callers rely on, breaking calls
+        // such as CompatibilityModel() and CompatibilityModel(5).
+        [Test]
+        public async Task BackCompatibility_ReorderKeepsOptionalityAgainstCoexistingPublishedOverload()
+        {
+            InputModelType model = InputFactory.Model("CompatibilityModel", properties:
+            [
+                InputFactory.Property("Id", InputPrimitiveType.String),
+                InputFactory.Property("Count", InputPrimitiveType.Int32),
+            ]);
+
+            _instance = (await MockHelpers.LoadMockGeneratorAsync(
+                inputNamespaceName: "Sample.Namespace",
+                inputModelTypes: [model],
+                compilation: async () => await Helpers.GetCompilationFromDirectoryAsync(parameters: "Custom"),
+                lastContractCompilation: async () => await Helpers.GetCompilationFromDirectoryAsync(parameters: "Last"))).Object;
+
+            var modelFactory = _instance.OutputLibrary.ModelFactory.Value;
+            modelFactory.ProcessTypeForBackCompatibility();
+
+            var content = new TypeProviderWriter(modelFactory).Write().Content;
+            Assert.AreEqual(Helpers.GetExpectedFromFile(), content);
+        }
+
         // A published signature whose parameter names all still match is served by the generated
         // method itself, so no separate compatibility overload is emitted for it. The generated
         // method must therefore keep its defaults: constraining it against a signature it already

@@ -266,7 +266,10 @@ namespace Microsoft.TypeSpec.Generator.Providers
                 }
 
                 // Generated overloads were constrained above, so only immutable custom overloads can
-                // still force a compatibility signature to change its published optionality.
+                // still force a compatibility signature to change its published optionality. A custom
+                // overload that reproduces a preserved published signature is excluded as well: it
+                // already coexisted with this signature in the published contract, so the calls that
+                // reach both of them were valid before and must keep compiling.
                 var compatibilityOverloadSignatures = customFactoryMethods
                     .Select(method => method.Signature)
                     .Where(signature =>
@@ -284,15 +287,11 @@ namespace Microsoft.TypeSpec.Generator.Providers
                     {
                         var factoryMethodToRemove = factoryMethods
                             .FirstOrDefault(m => MethodSignature.MethodSignatureComparer.Equals(m.Signature, currentOverload));
-                        var coexistingCompatibilityOverloads = GetCurrentOverloadSignatures(
-                            allFactoryMethods,
-                            previousMethod.Signature.Name,
-                            factoryMethodToRemove);
                         if (TryBuildCompatibleMethodForPreviousContract(
                             previousMethod,
                             currentOverload,
                             false,
-                            coexistingCompatibilityOverloads,
+                            compatibilityOverloadSignatures,
                             out MethodProvider? replacedMethod))
                         {
                             factoryMethods.Add(replacedMethod);
@@ -356,11 +355,10 @@ namespace Microsoft.TypeSpec.Generator.Providers
 
         private IReadOnlyList<MethodSignature> GetCurrentOverloadSignatures(
             IEnumerable<MethodProvider> methods,
-            string methodName,
-            MethodProvider? methodToExclude = null)
+            string methodName)
         {
             return methods
-                .Where(m => (methodToExclude is null || !ReferenceEquals(m, methodToExclude)) && m.Signature.Name == methodName)
+                .Where(m => m.Signature.Name == methodName)
                 .Select(m => m.Signature)
                 .ToList();
         }
