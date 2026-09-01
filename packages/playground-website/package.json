@@ -75,6 +75,7 @@
     "@typespec/versioning": "workspace:^",
     "@typespec/xml": "workspace:^",
     "es-module-shims": "catalog:",
+    "monaco-editor": "catalog:",
     "react": "catalog:",
     "react-dom": "catalog:"
   },
