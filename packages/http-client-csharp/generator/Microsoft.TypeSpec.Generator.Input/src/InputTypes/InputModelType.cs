@@ -16,7 +16,7 @@ namespace Microsoft.TypeSpec.Generator.Input
         private IList<InputModelType> _derivedModels = [];
 
         // TODO: Follow up issue https://github.com/microsoft/typespec/issues/3619. After https://github.com/Azure/typespec-azure/pull/966 is completed, update this type and remove the "modelAsStruct" parameter.
-        public InputModelType(string name, string @namespace, string crossLanguageDefinitionId, string? access, string? deprecation, string? summary, string? doc, InputModelTypeUsage usage, IReadOnlyList<InputModelProperty> properties, InputModelType? baseModel, IReadOnlyList<InputModelType> derivedModels, string? discriminatorValue, InputModelProperty? discriminatorProperty, IReadOnlyDictionary<string, InputModelType> discriminatedSubtypes, InputType? additionalProperties, bool modelAsStruct, InputSerializationOptions serializationOptions, bool isDynamicModel, IReadOnlyList<string> apiVersions)
+        public InputModelType(string name, string @namespace, string crossLanguageDefinitionId, string? access, string? deprecation, string? summary, string? doc, InputModelTypeUsage usage, IReadOnlyList<InputModelProperty> properties, InputModelType? baseModel, IReadOnlyList<InputModelType> derivedModels, string? discriminatorValue, InputModelProperty? discriminatorProperty, IReadOnlyDictionary<string, InputModelType> discriminatedSubtypes, InputType? additionalProperties, bool modelAsStruct, InputSerializationOptions serializationOptions, bool isDynamicModel, IReadOnlyList<string>? apiVersions = null)
             : base(name)
         {
             Namespace = @namespace;
@@ -48,7 +48,7 @@ namespace Microsoft.TypeSpec.Generator.Input
             IsPropertyBag = false;
             ModelAsStruct = modelAsStruct;
             SerializationOptions = serializationOptions;
-            ApiVersions = apiVersions;
+            ApiVersions = apiVersions ?? [];
         }
 
         public string Namespace { get; internal set; }

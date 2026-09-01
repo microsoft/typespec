@@ -9,7 +9,7 @@ namespace Microsoft.TypeSpec.Generator.Input
     {
         // We always call the Values setter so we know the field will not be null.
 #pragma warning disable CS8618 // Non-nullable field must contain a non-null value when exiting constructor. Consider adding the 'required' modifier or declaring as nullable.
-        public InputEnumType(string name, string @namespace, string crossLanguageDefinitionId, string? access, string? deprecation, string? summary, string? doc, InputModelTypeUsage usage, InputPrimitiveType valueType, IReadOnlyList<InputEnumTypeValue> values, bool isExtensible, IReadOnlyList<string> apiVersions)
+        public InputEnumType(string name, string @namespace, string crossLanguageDefinitionId, string? access, string? deprecation, string? summary, string? doc, InputModelTypeUsage usage, InputPrimitiveType valueType, IReadOnlyList<InputEnumTypeValue> values, bool isExtensible, IReadOnlyList<string>? apiVersions = null)
 #pragma warning restore CS8618 // Non-nullable field must contain a non-null value when exiting constructor. Consider adding the 'required' modifier or declaring as nullable.
             : base(name)
         {
@@ -23,7 +23,7 @@ namespace Microsoft.TypeSpec.Generator.Input
             ValueType = valueType;
             Values = values;
             IsExtensible = isExtensible;
-            ApiVersions = apiVersions;
+            ApiVersions = apiVersions ?? [];
         }
 
         public string Namespace { get; internal set; }

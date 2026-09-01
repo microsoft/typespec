@@ -22,8 +22,8 @@ namespace Microsoft.TypeSpec.Generator.Input
             bool isApiVersion,
             InputConstant? defaultValue,
             InputSerializationOptions serializationOptions,
-            ArrayKnownEncoding? encode,
-            IReadOnlyList<string> apiVersions)
+            ArrayKnownEncoding? encode = null,
+            IReadOnlyList<string>? apiVersions = null)
             : base(name, summary, doc, type, isRequired, isReadOnly, access, serializedName, isApiVersion, defaultValue)
         {
             Name = name;
@@ -36,7 +36,7 @@ namespace Microsoft.TypeSpec.Generator.Input
             IsHttpMetadata = isHttpMetadata;
             SerializationOptions = serializationOptions;
             Encode = encode;
-            ApiVersions = apiVersions;
+            ApiVersions = apiVersions ?? [];
         }
 
         public bool IsDiscriminator { get; internal set; }

@@ -899,10 +899,10 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers.MrwSerializat
             var name = kind.ToString().ToLower();
             var properties = new List<InputModelProperty>
             {
-                new InputModelProperty("requiredInt", "", "", new InputPrimitiveType(kind, name, $"TypeSpec.{name}", encode), true, false, null, false, "requiredInt", false, false, null, new(json: new("requiredInt")), null, []),
+                new InputModelProperty("requiredInt", "", "", new InputPrimitiveType(kind, name, $"TypeSpec.{name}", encode), true, false, null, false, "requiredInt", false, false, null, new(json: new("requiredInt"))),
              };
 
-            var inputModel = new InputModelType("TestModel", "TestNamespace", "TestModel", "public", null, "", "Test model.", InputModelTypeUsage.Input, properties, null, Array.Empty<InputModelType>(), null, null, new Dictionary<string, InputModelType>(), null, false, new(), false, []);
+            var inputModel = new InputModelType("TestModel", "TestNamespace", "TestModel", "public", null, "", "Test model.", InputModelTypeUsage.Input, properties, null, Array.Empty<InputModelType>(), null, null, new Dictionary<string, InputModelType>(), null, false, new(), false);
 
             var (_, serialization) = CreateModelAndSerialization(inputModel);
 
@@ -1369,11 +1369,10 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers.MrwSerializat
                 false,
                 null,
                 new(json: new("testArray")),
-                arrayEncoding,
-                []);
+                arrayEncoding);
 
             var properties = new List<InputModelProperty> { arrayProperty };
-            var inputModel = new InputModelType("TestModel", "TestNamespace", "TestModel", "public", null, null, "Test model.", InputModelTypeUsage.Input, properties, null, Array.Empty<InputModelType>(), null, null, new Dictionary<string, InputModelType>(), null, false, new(), false, []);
+            var inputModel = new InputModelType("TestModel", "TestNamespace", "TestModel", "public", null, null, "Test model.", InputModelTypeUsage.Input, properties, null, Array.Empty<InputModelType>(), null, null, new Dictionary<string, InputModelType>(), null, false, new(), false);
 
             var (_, serialization) = CreateModelAndSerialization(inputModel);
             var writeMethod = serialization.BuildJsonModelWriteCoreMethod();
@@ -1405,11 +1404,10 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers.MrwSerializat
                 false,
                 null,
                 new(json: new("testArray")),
-                arrayEncoding,
-                []);
+                arrayEncoding);
 
             var properties = new List<InputModelProperty> { arrayProperty };
-            var inputModel = new InputModelType("TestModel", "TestNamespace", "TestModel", "public", null, null, "Test model.", InputModelTypeUsage.Input, properties, null, Array.Empty<InputModelType>(), null, null, new Dictionary<string, InputModelType>(), null, false, new(), false, []);
+            var inputModel = new InputModelType("TestModel", "TestNamespace", "TestModel", "public", null, null, "Test model.", InputModelTypeUsage.Input, properties, null, Array.Empty<InputModelType>(), null, null, new Dictionary<string, InputModelType>(), null, false, new(), false);
 
             var (_, serialization) = CreateModelAndSerialization(inputModel);
             var deserializeMethod = serialization.BuildDeserializationMethod();
