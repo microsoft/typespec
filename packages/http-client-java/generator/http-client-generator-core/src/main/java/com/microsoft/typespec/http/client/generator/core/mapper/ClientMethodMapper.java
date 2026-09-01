@@ -531,20 +531,14 @@ public class ClientMethodMapper implements IMapper<Operation, List<ClientMethod>
             methodName = isInternalProtocolMethod ? methodNamer.getInternalMethodName() : methodNamer.getMethodName();
             clientMethodType = ClientMethodType.PagingSync;
             methodPageDetails = pagingMetadata.asMethodPageDetails(true);
-            methodPageDetailsWithContext = pagingMetadata.asMethodPageDetailsForContext(true,
-                isModelMaxOverload
-                    ? ClientMethodParameter.REQUEST_OPTIONS_PARAMETER
-                    : getContextParameter(isProtocolMethod));
+            methodPageDetailsWithContext = pagingMetadata.asMethodPageDetailsForContext(true, getContextParameter());
         } else {
             methodName = isInternalProtocolMethod
                 ? methodNamer.getInternalAsyncMethodName()
                 : methodNamer.getSimpleAsyncMethodName();
             clientMethodType = ClientMethodType.PagingAsync;
             methodPageDetails = pagingMetadata.asMethodPageDetails(false);
-            methodPageDetailsWithContext = pagingMetadata.asMethodPageDetailsForContext(false,
-                isModelMaxOverload
-                    ? ClientMethodParameter.REQUEST_OPTIONS_PARAMETER
-                    : getContextParameter(isProtocolMethod));
+            methodPageDetailsWithContext = pagingMetadata.asMethodPageDetailsForContext(false, getContextParameter());
         }
         final JavaVisibility methodVisibility
             = methodVisibility(clientMethodType, methodOverloadType, false, isProtocolMethod);
@@ -1054,11 +1048,11 @@ public class ClientMethodMapper implements IMapper<Operation, List<ClientMethod>
     /**
      * Gets the Context parameter.
      *
-     * @param isProtocolMethod Whether the client method using the Context is a protocol method.
      * @return The Context parameter.
      */
-    protected ClientMethodParameter getContextParameter(boolean isProtocolMethod) {
-        if (isProtocolMethod) {
+    protected ClientMethodParameter getContextParameter() {
+        JavaSettings settings = JavaSettings.getInstance();
+        if (settings.isAzureV1() && settings.isDataPlaneClient()) {
             return ClientMethodParameter.REQUEST_OPTIONS_PARAMETER;
         } else {
             return ClientMethodParameter.CONTEXT_PARAMETER;
@@ -1076,7 +1070,7 @@ public class ClientMethodMapper implements IMapper<Operation, List<ClientMethod>
      */
     protected ClientMethod addClientMethodWithContext(List<ClientMethod> methods, ClientMethod baseMethod,
         JavaVisibility visibility, boolean isProtocolMethod) {
-        final ClientMethodParameter contextParameter = getContextParameter(isProtocolMethod);
+        final ClientMethodParameter contextParameter = getContextParameter();
         final List<ClientMethodParameter> parameters = new ArrayList<>(baseMethod.getParameters());
         if (JavaSettings.getInstance().isAzureV1()
             || contextParameter.getClientType().equals(ClassType.REQUEST_OPTIONS)) {
