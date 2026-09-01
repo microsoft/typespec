@@ -7,6 +7,7 @@ import { modifiersToFlags } from "./modifiers.js";
 import {
   createScanner,
   isComment,
+  isContextualKeyword,
   isKeyword,
   isModifier,
   isPunctuation,
@@ -106,6 +107,8 @@ import type {
   UsingStatementNode,
   ValueOfExpressionNode,
   VoidKeywordNode,
+  WhenClauseNode,
+  WhenConditionNode,
 } from "./types.js";
 import { IdentifierKind, ModifierFlags, NodeFlags, SyntaxKind } from "./types.js";
 
@@ -1531,6 +1534,7 @@ function createParser(code: string | SourceFile, options: ParseOptions = {}): Pa
       allowReservedIdentifierInMember: true,
     });
     const { items: args } = parseOptionalList(ListKind.DecoratorArguments, parseExpression);
+    const when = parseOptionalWhenClause();
     if (args.length === 0) {
       error({ code: "augment-decorator-target" });
       const emptyList = createEmptyList<TemplateArgumentNode>();
@@ -1566,6 +1570,7 @@ function createParser(code: string | SourceFile, options: ParseOptions = {}): Pa
       target,
       targetType: targetEntity,
       arguments: decoratorArgs,
+      when,
       ...finishNode(pos),
     };
   }
@@ -1596,12 +1601,59 @@ function createParser(code: string | SourceFile, options: ParseOptions = {}): Pa
       allowReservedIdentifierInMember: true,
     });
     const { items: args } = parseOptionalList(ListKind.DecoratorArguments, parseExpression);
+    const when = parseOptionalWhenClause();
     return {
       kind: SyntaxKind.DecoratorExpression,
       arguments: args,
       target,
+      when,
       ...finishNode(pos),
     };
+  }
+
+  /**
+   * Parse an optional trailing `when <cond> (| <cond>)*` clause.
+   *
+   * The clause is a suffix so that it binds to the decorator it follows. The condition
+   * grammar is closed (identifier, member expression or call) rather than a general
+   * expression, which is what makes the clause terminate unambiguously: the token that
+   * follows can only be `@`, `#`, a doc comment, or the start of the decorated entity,
+   * none of which can continue a condition.
+   */
+  function parseOptionalWhenClause(): WhenClauseNode | undefined {
+    const pos = tokenPos();
+    if (!parseOptional(Token.WhenKeyword)) {
+      return undefined;
+    }
+
+    const conditions: WhenConditionNode[] = [parseWhenCondition()];
+    while (parseOptional(Token.Bar)) {
+      conditions.push(parseWhenCondition());
+    }
+
+    return {
+      kind: SyntaxKind.WhenClause,
+      conditions,
+      ...finishNode(pos),
+    };
+  }
+
+  function parseWhenCondition(): WhenConditionNode {
+    const pos = tokenPos();
+    const target = parseIdentifierOrMemberExpression({
+      message: "whenCondition",
+      allowReservedIdentifierInMember: true,
+    });
+    if (token() === Token.OpenParen) {
+      const { items: args } = parseList(ListKind.FunctionArguments, parseExpression);
+      return {
+        kind: SyntaxKind.CallExpression,
+        target,
+        arguments: args,
+        ...finishNode(pos),
+      };
+    }
+    return target;
   }
 
   function parseDirectiveExpression(): DirectiveExpressionNode {
@@ -2020,7 +2072,10 @@ function createParser(code: string | SourceFile, options: ParseOptions = {}): Pa
     allowReservedIdentifier?: boolean;
   }): IdentifierNode {
     if (isKeyword(token())) {
-      if (!(isModifier(token()) && options?.allowReservedIdentifier)) {
+      if (!(
+        (isModifier(token()) || isContextualKeyword(token())) &&
+        options?.allowReservedIdentifier
+      )) {
         error({ code: "reserved-identifier" });
         return createMissingIdentifier();
       }
@@ -2989,10 +3044,15 @@ export function visitChildren<T>(node: Node, cb: NodeCallback<T>): T | undefined
       return (
         visitNode(cb, node.target) ||
         visitNode(cb, node.targetType) ||
-        visitEach(cb, node.arguments)
+        visitEach(cb, node.arguments) ||
+        visitNode(cb, node.when)
       );
     case SyntaxKind.DecoratorExpression:
-      return visitNode(cb, node.target) || visitEach(cb, node.arguments);
+      return (
+        visitNode(cb, node.target) || visitEach(cb, node.arguments) || visitNode(cb, node.when)
+      );
+    case SyntaxKind.WhenClause:
+      return visitEach(cb, node.conditions);
     case SyntaxKind.CallExpression:
       return visitNode(cb, node.target) || visitEach(cb, node.arguments);
     case SyntaxKind.DirectiveExpression:

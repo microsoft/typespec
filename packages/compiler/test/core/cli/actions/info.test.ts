@@ -22,6 +22,7 @@ it("lists available compiler features and marks enabled features", () => {
     "",
     "  enabled   function-declarations  Allows use of function declarations without experimental warnings in project code.",
     "  disabled  auto-decorators        Allows use of auto decorator declarations without experimental warnings in project code.",
+    "  disabled  scoped-decorators      Allows use of `when` clauses on `auto` decorator applications, conditioning the stored metadata on the querying scope (emitter, language, target).",
     "  disabled  type-info-provider     Enables the experimental `$provideTypeInfo` provider allowing libraries to contribute extra information about types to IDE hover and tooling (queried via `program.getTypeInfo`).",
   ]);
 });

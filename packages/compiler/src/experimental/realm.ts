@@ -226,6 +226,7 @@ export class Realm {
     const clone = this.typekit.type.clone(type);
     this.#types.add(clone);
     Realm.realmForType.set(clone, this);
+    Realm.sourceForType.set(clone, type);
     return clone;
   }
 
@@ -236,6 +237,31 @@ export class Realm {
   }
 
   static realmForType = singleton("Realm.realmForType", () => new WeakMap<Type, Realm>());
+
+  /**
+   * Maps a realm-owned clone back to the type it was cloned from.
+   *
+   * Realm state maps only resolve state for types the realm owns, so a clone has none of the
+   * decorator state recorded against its source. Provenance lets a query walk back to the type
+   * the state was actually stored against, which is what makes scoped metadata composable with
+   * realm-based transforms such as versioning.
+   */
+  static sourceForType = singleton("Realm.sourceForType", () => new WeakMap<Type, Type>());
+
+  /**
+   * Walk a type back through any realm clones to the original program-owned type.
+   *
+   * Returns `type` itself when it is not a realm clone.
+   */
+  static sourceOf(type: Type): Type {
+    let current = type;
+    let source = Realm.sourceForType.get(current);
+    while (source !== undefined) {
+      current = source;
+      source = Realm.sourceForType.get(current);
+    }
+    return current;
+  }
 }
 
 /**

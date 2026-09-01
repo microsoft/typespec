@@ -4,7 +4,10 @@ import { $ } from "../typekit/index.js";
 import { DuplicateTracker } from "../utils/duplicate-tracker.js";
 import type { Mutable } from "../utils/misc.js";
 import { MultiKeyMap, createRekeyableMap, isArray, mutate } from "../utils/misc.js";
-import { createAutoDecoratorImplementation } from "./auto-decorator.js";
+import {
+  createAutoDecoratorImplementation,
+  createScopedAutoDecoratorImplementation,
+} from "./auto-decorator.js";
 import { createSymbol, getSymNode } from "./binder.js";
 import { createChangeIdentifierCodeFix } from "./compiler-code-fixes/change-identifier.codefix.js";
 import {
@@ -41,6 +44,7 @@ import {
   visitChildren,
 } from "./parser.js";
 import type { Program } from "./program.js";
+import { isWhenFilterName, whenFilterNames, type ScopeCondition } from "./scope.js";
 import { createTypeRelationChecker } from "./type-relation-checker.js";
 import {
   getFullyQualifiedSymbolName,
@@ -178,6 +182,7 @@ import type {
   Value,
   ValueWithTemplate,
   VoidType,
+  WhenClauseNode,
 } from "./types.js";
 import {
   IdentifierKind,
@@ -6949,12 +6954,150 @@ export function createChecker(program: Program, resolver: NameResolver): Checker
     }
 
     const impl = sym.value ?? symbolLinks.declaredType?.implementation;
+    const scopedImpl = checkWhenClause(ctx, decNode, sym, symbolLinks.declaredType);
     return {
       definition: symbolLinks.declaredType,
-      decorator: impl ?? ((...args: any[]) => {}),
+      decorator: scopedImpl ?? impl ?? ((...args: any[]) => {}),
       node: decNode,
       args,
     };
+  }
+
+  /**
+   * Validate a decorator's `when` clause and, if valid, build the conditioned implementation
+   * that stores the decorator's arguments against the resolved scope instead of unconditionally.
+   *
+   * Returns `undefined` when there is no clause or the clause is invalid — the decorator's
+   * arguments are still validated either way, only the *storage* is conditioned.
+   */
+  function checkWhenClause(
+    ctx: CheckContext,
+    decNode: DecoratorExpressionNode | AugmentDecoratorStatementNode,
+    sym: Sym,
+    declaration: Decorator | undefined,
+  ): ((ctx: DecoratorContext, target: Type, ...args: unknown[]) => void) | undefined {
+    const when = decNode.when;
+    if (when === undefined) {
+      return undefined;
+    }
+
+    if (!isCompilerFeatureEnabled(program, "scoped-decorators", when)) {
+      reportCheckerDiagnostic(
+        createDiagnostic({ code: "scoped-decorator-disabled", target: when }),
+      );
+      return undefined;
+    }
+
+    if (decNode.kind === SyntaxKind.AugmentDecoratorStatement) {
+      reportCheckerDiagnostic(
+        createDiagnostic({
+          code: "when-clause-not-allowed",
+          messageId: "augment",
+          target: when,
+        }),
+      );
+      return undefined;
+    }
+
+    const declNode = sym.declarations.find(
+      (x): x is DecoratorDeclarationStatementNode =>
+        x.kind === SyntaxKind.DecoratorDeclarationStatement,
+    );
+    if (declaration?.declarationKind !== "auto" || declNode === undefined) {
+      reportCheckerDiagnostic(
+        createDiagnostic({
+          code: "when-clause-not-allowed",
+          format: { decorator: `@${sym.name}` },
+          target: when,
+        }),
+      );
+      return undefined;
+    }
+
+    const conditions = checkWhenConditions(when);
+    if (conditions === undefined) {
+      return undefined;
+    }
+
+    return createScopedAutoDecoratorImplementation(sym, declNode, { conditions });
+  }
+
+  /** Resolve the closed condition grammar into scope dimensions. Returns `undefined` on error. */
+  function checkWhenConditions(when: WhenClauseNode): ScopeCondition[] | undefined {
+    const conditions: ScopeCondition[] = [];
+    let hasError = false;
+
+    for (const condition of when.conditions) {
+      if (condition.kind !== SyntaxKind.CallExpression) {
+        // Enum member references (e.g. `Lifecycle.read`) are reserved for the visibility
+        // dimension, which is not part of phase 1.
+        reportCheckerDiagnostic(
+          createDiagnostic({
+            code: "unknown-when-filter",
+            format: { name: getIdentifierText(condition), expected: whenFilterNames.join(", ") },
+            target: condition,
+          }),
+        );
+        hasError = true;
+        continue;
+      }
+
+      const name =
+        condition.target.kind === SyntaxKind.Identifier ? condition.target.sv : undefined;
+      if (name === undefined || !isWhenFilterName(name)) {
+        reportCheckerDiagnostic(
+          createDiagnostic({
+            code: "unknown-when-filter",
+            format: {
+              name: getIdentifierText(condition.target),
+              expected: whenFilterNames.join(", "),
+            },
+            target: condition.target,
+          }),
+        );
+        hasError = true;
+        continue;
+      }
+
+      if (condition.arguments.length !== 1) {
+        reportCheckerDiagnostic(
+          createDiagnostic({ code: "invalid-when-condition", format: { name }, target: condition }),
+        );
+        hasError = true;
+        continue;
+      }
+
+      const arg = condition.arguments[0];
+      if (arg.kind !== SyntaxKind.StringLiteral) {
+        reportCheckerDiagnostic(
+          createDiagnostic({
+            code: "invalid-when-condition",
+            messageId: "notAValue",
+            format: { name },
+            target: arg,
+          }),
+        );
+        hasError = true;
+        continue;
+      }
+
+      conditions.push({ dimension: name, value: arg.value });
+    }
+
+    return hasError ? undefined : conditions;
+  }
+
+  function getIdentifierText(node: Node): string {
+    switch (node.kind) {
+      case SyntaxKind.Identifier:
+        return node.sv;
+      case SyntaxKind.MemberExpression:
+        return `${getIdentifierText(node.base)}${node.selector}${node.id.sv}`;
+      case SyntaxKind.CallExpression:
+        return getIdentifierText(node.target);
+      default:
+        return "<unknown>";
+    }
   }
   /** Check the decorator target is valid */
 

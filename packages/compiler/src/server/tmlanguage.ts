@@ -312,6 +312,25 @@ const identifierExpression: MatchRule = {
   match: identifier,
 };
 
+/**
+ * A `when` clause suffix on a decorator: `@dec(...) when emitter("x") | language("y")`.
+ *
+ * `when` is a contextual keyword, so this rule has to work out where the clause ends. A clause
+ * is followed either by something `universalEnd` already covers (a statement keyword, `@`, `}`,
+ * `;`, …) or — when the decorator is on a model property — by the property name, which is always
+ * followed by `:` or `?:`.
+ */
+const whenClause: BeginEndRule = {
+  key: "when-clause",
+  scope: meta,
+  begin: `\\b(when)\\b`,
+  beginCaptures: {
+    "1": { scope: "keyword.other.tsp" },
+  },
+  end: `(?=(?:${identifier})\\s*\\??\\s*:)|${universalEnd}`,
+  patterns: [token, parenthesizedExpression, identifierExpression],
+};
+
 const valueOfExpression: BeginEndRule = {
   key: "valueof",
   scope: meta,
@@ -498,6 +517,7 @@ const modelExpression: BeginEndRule = {
     // modelProperty must come before token or quoted property name will be
     // considered an arbitrarily positioned string literal and not match as part
     // of modelProperty begin.
+    whenClause,
     modelProperty,
     token,
     directive,
@@ -572,7 +592,7 @@ const operationParameters: BeginEndRule = {
   endCaptures: {
     "0": { scope: "punctuation.parenthesis.close.tsp" },
   },
-  patterns: [token, decorator, modelProperty, spreadExpression, punctuationComma],
+  patterns: [token, whenClause, decorator, modelProperty, spreadExpression, punctuationComma],
 };
 
 const scalarExtends: BeginEndRule = {
@@ -941,6 +961,7 @@ expression.patterns = [
 statement.patterns = [
   token,
   directive,
+  whenClause,
   augmentDecoratorStatement,
   decorator,
   modelStatement,

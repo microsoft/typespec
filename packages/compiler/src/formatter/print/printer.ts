@@ -61,6 +61,7 @@ import type {
   UnionVariantNode,
   UsingStatementNode,
   ValueOfExpressionNode,
+  WhenClauseNode,
 } from "../../core/types.js";
 import { NodeFlags, SyntaxKind } from "../../core/types.js";
 import type { FlattenedNamespaceStatementNode } from "../types.js";
@@ -305,6 +306,8 @@ export function printNode(
       return printConstStatement(path as AstPath<ConstStatementNode>, options, print);
     case SyntaxKind.CallExpression:
       return printCallExpression(path as AstPath<CallExpressionNode>, options, print);
+    case SyntaxKind.WhenClause:
+      return printWhenClauseNode(path as AstPath<WhenClauseNode>, options, print);
     case SyntaxKind.StringTemplateSpan:
     case SyntaxKind.StringTemplateHead:
     case SyntaxKind.StringTemplateMiddle:
@@ -539,7 +542,23 @@ export function printDecorator(
     node.target.kind === SyntaxKind.Identifier
       ? printIdentifier(node.target, "allow-reserved")
       : path.call(print, "target");
-  return ["@", name, args];
+  return ["@", name, args, printWhenClause(path, print)];
+}
+
+/** Print the trailing `when` clause of a decorator, if any. */
+function printWhenClause(
+  path: AstPath<DecoratorExpressionNode | AugmentDecoratorStatementNode>,
+  print: PrettierChildPrint,
+): Doc {
+  return path.node.when === undefined ? "" : [" ", path.call(print, "when")];
+}
+
+export function printWhenClauseNode(
+  path: AstPath<WhenClauseNode>,
+  options: TypeSpecPrettierOptions,
+  print: PrettierChildPrint,
+): Doc {
+  return group(["when ", indent(join([line, "| "], path.map(print, "conditions")))]);
 }
 
 export function printAugmentDecorator(
@@ -553,7 +572,7 @@ export function printAugmentDecorator(
       ? printIdentifier(node.target, "allow-reserved")
       : path.call(print, "target");
   const args = printAugmentDecoratorArgs(path, options, print);
-  return ["@@", target, args, ";"];
+  return ["@@", target, args, printWhenClause(path, print), ";"];
 }
 
 function printAugmentDecoratorArgs(
