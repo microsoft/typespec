@@ -21,8 +21,16 @@ public class MethodNamer {
         return baseName + "WithResponseAsync";
     }
 
+    public static String getSimpleAsyncRestResponseInternalMethodName(String baseName) {
+        return getSimpleRestResponseInternalMethodName(baseName) + "Async";
+    }
+
     public static String getSimpleRestResponseMethodName(String baseName) {
         return baseName + "WithResponse";
+    }
+
+    public static String getSimpleRestResponseInternalMethodName(String baseName) {
+        return getSimpleRestResponseMethodName(baseName) + "Internal";
     }
 
     public static String getLroBeginAsyncMethodName(String baseName) {
@@ -69,8 +77,16 @@ public class MethodNamer {
         return getSimpleAsyncRestResponseMethodName(this.getMethodName());
     }
 
+    public String getSimpleAsyncRestResponseInternalMethodName() {
+        return getSimpleAsyncRestResponseInternalMethodName(this.getMethodName());
+    }
+
     public String getSimpleRestResponseMethodName() {
         return getSimpleRestResponseMethodName(this.getMethodName());
+    }
+
+    public String getSimpleRestResponseInternalMethodName() {
+        return getSimpleRestResponseInternalMethodName(this.getMethodName());
     }
 
     public String getLroBeginAsyncMethodName() {

@@ -98,6 +98,9 @@ $generateScript = {
     $tspOptions += " --option ""@typespec/http-client-java.advanced-versioning=true"""
     $tspOptions += " --option ""@typespec/http-client-java.generate-async-methods=true"""
     $tspOptions += " --option ""@typespec/http-client-java.enable-sync-stack=false"""
+  } elseif ($tspFile -match "tsp[\\/]protocol-api-sync-over-async.tsp") {
+    # test hidden protocol methods when sync methods call the async implementation
+    $tspOptions += " --option ""@typespec/http-client-java.enable-sync-stack=false"""
   } elseif ($tspFile -match "tsp[\\/]subclient.tsp") {
     $tspOptions += " --option ""@typespec/http-client-java.enable-subclient=true"""
     # test for include-api-view-properties

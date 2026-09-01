@@ -1070,7 +1070,7 @@ export class CodeModelBuilder {
     }
 
     // check for generating protocol api or not
-    codeModelOperation.generateProtocolApi = generateProtocolApi && !codeModelOperation.internalApi;
+    codeModelOperation.generateProtocolApi = generateProtocolApi;
 
     codeModelOperation.addRequest(
       new Request({

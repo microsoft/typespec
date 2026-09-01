@@ -61,10 +61,10 @@ public final class FormDataAsyncClient {
      */
     @Generated
     @ServiceMethod(returns = ReturnType.SINGLE)
-    Mono<Response<Void>> basicWithResponse(BinaryData body, RequestOptions requestOptions) {
+    Mono<Response<Void>> basicWithResponseInternal(BinaryData body, RequestOptions requestOptions) {
         // Operation 'basic' is of content-type 'multipart/form-data'. Protocol API is not usable and hence not
         // generated.
-        return this.serviceClient.basicWithResponseAsync(body, requestOptions);
+        return this.serviceClient.basicWithResponseInternalAsync(body, requestOptions);
     }
 
     /**
@@ -80,10 +80,10 @@ public final class FormDataAsyncClient {
      */
     @Generated
     @ServiceMethod(returns = ReturnType.SINGLE)
-    Mono<Response<Void>> withWireNameWithResponse(BinaryData body, RequestOptions requestOptions) {
+    Mono<Response<Void>> withWireNameWithResponseInternal(BinaryData body, RequestOptions requestOptions) {
         // Operation 'withWireName' is of content-type 'multipart/form-data'. Protocol API is not usable and hence not
         // generated.
-        return this.serviceClient.withWireNameWithResponseAsync(body, requestOptions);
+        return this.serviceClient.withWireNameWithResponseInternalAsync(body, requestOptions);
     }
 
     /**
@@ -99,10 +99,10 @@ public final class FormDataAsyncClient {
      */
     @Generated
     @ServiceMethod(returns = ReturnType.SINGLE)
-    Mono<Response<Void>> optionalPartsWithResponse(BinaryData body, RequestOptions requestOptions) {
+    Mono<Response<Void>> optionalPartsWithResponseInternal(BinaryData body, RequestOptions requestOptions) {
         // Operation 'optionalParts' is of content-type 'multipart/form-data'. Protocol API is not usable and hence not
         // generated.
-        return this.serviceClient.optionalPartsWithResponseAsync(body, requestOptions);
+        return this.serviceClient.optionalPartsWithResponseInternalAsync(body, requestOptions);
     }
 
     /**
@@ -118,10 +118,10 @@ public final class FormDataAsyncClient {
      */
     @Generated
     @ServiceMethod(returns = ReturnType.SINGLE)
-    Mono<Response<Void>> fileArrayAndBasicWithResponse(BinaryData body, RequestOptions requestOptions) {
+    Mono<Response<Void>> fileArrayAndBasicWithResponseInternal(BinaryData body, RequestOptions requestOptions) {
         // Operation 'fileArrayAndBasic' is of content-type 'multipart/form-data'. Protocol API is not usable and hence
         // not generated.
-        return this.serviceClient.fileArrayAndBasicWithResponseAsync(body, requestOptions);
+        return this.serviceClient.fileArrayAndBasicWithResponseInternalAsync(body, requestOptions);
     }
 
     /**
@@ -137,10 +137,10 @@ public final class FormDataAsyncClient {
      */
     @Generated
     @ServiceMethod(returns = ReturnType.SINGLE)
-    Mono<Response<Void>> jsonPartWithResponse(BinaryData body, RequestOptions requestOptions) {
+    Mono<Response<Void>> jsonPartWithResponseInternal(BinaryData body, RequestOptions requestOptions) {
         // Operation 'jsonPart' is of content-type 'multipart/form-data'. Protocol API is not usable and hence not
         // generated.
-        return this.serviceClient.jsonPartWithResponseAsync(body, requestOptions);
+        return this.serviceClient.jsonPartWithResponseInternalAsync(body, requestOptions);
     }
 
     /**
@@ -156,10 +156,10 @@ public final class FormDataAsyncClient {
      */
     @Generated
     @ServiceMethod(returns = ReturnType.SINGLE)
-    Mono<Response<Void>> binaryArrayPartsWithResponse(BinaryData body, RequestOptions requestOptions) {
+    Mono<Response<Void>> binaryArrayPartsWithResponseInternal(BinaryData body, RequestOptions requestOptions) {
         // Operation 'binaryArrayParts' is of content-type 'multipart/form-data'. Protocol API is not usable and hence
         // not generated.
-        return this.serviceClient.binaryArrayPartsWithResponseAsync(body, requestOptions);
+        return this.serviceClient.binaryArrayPartsWithResponseInternalAsync(body, requestOptions);
     }
 
     /**
@@ -175,10 +175,10 @@ public final class FormDataAsyncClient {
      */
     @Generated
     @ServiceMethod(returns = ReturnType.SINGLE)
-    Mono<Response<Void>> multiBinaryPartsWithResponse(BinaryData body, RequestOptions requestOptions) {
+    Mono<Response<Void>> multiBinaryPartsWithResponseInternal(BinaryData body, RequestOptions requestOptions) {
         // Operation 'multiBinaryParts' is of content-type 'multipart/form-data'. Protocol API is not usable and hence
         // not generated.
-        return this.serviceClient.multiBinaryPartsWithResponseAsync(body, requestOptions);
+        return this.serviceClient.multiBinaryPartsWithResponseInternalAsync(body, requestOptions);
     }
 
     /**
@@ -194,10 +194,11 @@ public final class FormDataAsyncClient {
      */
     @Generated
     @ServiceMethod(returns = ReturnType.SINGLE)
-    Mono<Response<Void>> checkFileNameAndContentTypeWithResponse(BinaryData body, RequestOptions requestOptions) {
+    Mono<Response<Void>> checkFileNameAndContentTypeWithResponseInternal(BinaryData body,
+        RequestOptions requestOptions) {
         // Operation 'checkFileNameAndContentType' is of content-type 'multipart/form-data'. Protocol API is not usable
         // and hence not generated.
-        return this.serviceClient.checkFileNameAndContentTypeWithResponseAsync(body, requestOptions);
+        return this.serviceClient.checkFileNameAndContentTypeWithResponseInternalAsync(body, requestOptions);
     }
 
     /**
@@ -213,10 +214,10 @@ public final class FormDataAsyncClient {
      */
     @Generated
     @ServiceMethod(returns = ReturnType.SINGLE)
-    Mono<Response<Void>> anonymousModelWithResponse(BinaryData body, RequestOptions requestOptions) {
+    Mono<Response<Void>> anonymousModelWithResponseInternal(BinaryData body, RequestOptions requestOptions) {
         // Operation 'anonymousModel' is of content-type 'multipart/form-data'. Protocol API is not usable and hence not
         // generated.
-        return this.serviceClient.anonymousModelWithResponseAsync(body, requestOptions);
+        return this.serviceClient.anonymousModelWithResponseInternalAsync(body, requestOptions);
     }
 
     /**
@@ -234,13 +235,15 @@ public final class FormDataAsyncClient {
     @Generated
     @ServiceMethod(returns = ReturnType.SINGLE)
     public Mono<Void> basic(MultiPartRequest body) {
-        // Generated convenience method for basicWithResponse
+        // Generated convenience method for basicWithResponseInternal
         RequestOptions requestOptions = new RequestOptions();
-        return basicWithResponse(new MultipartFormDataHelper(requestOptions).serializeTextField("id", body.getId())
-            .serializeFileField("profileImage", body.getProfileImage().getContent(),
-                body.getProfileImage().getContentType(), body.getProfileImage().getFilename())
-            .end()
-            .getRequestBody(), requestOptions).flatMap(FluxUtil::toMono);
+        return basicWithResponseInternal(
+            new MultipartFormDataHelper(requestOptions).serializeTextField("id", body.getId())
+                .serializeFileField("profileImage", body.getProfileImage().getContent(),
+                    body.getProfileImage().getContentType(), body.getProfileImage().getFilename())
+                .end()
+                .getRequestBody(),
+            requestOptions).flatMap(FluxUtil::toMono);
     }
 
     /**
@@ -258,9 +261,9 @@ public final class FormDataAsyncClient {
     @Generated
     @ServiceMethod(returns = ReturnType.SINGLE)
     public Mono<Void> withWireName(MultiPartRequestWithWireName body) {
-        // Generated convenience method for withWireNameWithResponse
+        // Generated convenience method for withWireNameWithResponseInternal
         RequestOptions requestOptions = new RequestOptions();
-        return withWireNameWithResponse(
+        return withWireNameWithResponseInternal(
             new MultipartFormDataHelper(requestOptions).serializeTextField("id", body.getIdentifier())
                 .serializeFileField("profileImage", body.getImage().getContent(), body.getImage().getContentType(),
                     body.getImage().getFilename())
@@ -284,9 +287,9 @@ public final class FormDataAsyncClient {
     @Generated
     @ServiceMethod(returns = ReturnType.SINGLE)
     public Mono<Void> optionalParts(MultiPartOptionalRequest body) {
-        // Generated convenience method for optionalPartsWithResponse
+        // Generated convenience method for optionalPartsWithResponseInternal
         RequestOptions requestOptions = new RequestOptions();
-        return optionalPartsWithResponse(
+        return optionalPartsWithResponseInternal(
             new MultipartFormDataHelper(requestOptions).serializeTextField("id", body.getId())
                 .serializeFileField("profileImage",
                     body.getProfileImage() == null ? null : body.getProfileImage().getContent(),
@@ -312,9 +315,9 @@ public final class FormDataAsyncClient {
     @Generated
     @ServiceMethod(returns = ReturnType.SINGLE)
     public Mono<Void> fileArrayAndBasic(ComplexPartsRequest body) {
-        // Generated convenience method for fileArrayAndBasicWithResponse
+        // Generated convenience method for fileArrayAndBasicWithResponseInternal
         RequestOptions requestOptions = new RequestOptions();
-        return fileArrayAndBasicWithResponse(
+        return fileArrayAndBasicWithResponseInternal(
             new MultipartFormDataHelper(requestOptions).serializeTextField("id", body.getId())
                 .serializeJsonField("address", body.getAddress())
                 .serializeFileField("profileImage", body.getProfileImage().getContent(),
@@ -343,9 +346,9 @@ public final class FormDataAsyncClient {
     @Generated
     @ServiceMethod(returns = ReturnType.SINGLE)
     public Mono<Void> jsonPart(JsonPartRequest body) {
-        // Generated convenience method for jsonPartWithResponse
+        // Generated convenience method for jsonPartWithResponseInternal
         RequestOptions requestOptions = new RequestOptions();
-        return jsonPartWithResponse(
+        return jsonPartWithResponseInternal(
             new MultipartFormDataHelper(requestOptions).serializeJsonField("address", body.getAddress())
                 .serializeFileField("profileImage", body.getProfileImage().getContent(),
                     body.getProfileImage().getContentType(), body.getProfileImage().getFilename())
@@ -369,9 +372,9 @@ public final class FormDataAsyncClient {
     @Generated
     @ServiceMethod(returns = ReturnType.SINGLE)
     public Mono<Void> binaryArrayParts(BinaryArrayPartsRequest body) {
-        // Generated convenience method for binaryArrayPartsWithResponse
+        // Generated convenience method for binaryArrayPartsWithResponseInternal
         RequestOptions requestOptions = new RequestOptions();
-        return binaryArrayPartsWithResponse(
+        return binaryArrayPartsWithResponseInternal(
             new MultipartFormDataHelper(requestOptions).serializeTextField("id", body.getId())
                 .serializeFileFields("pictures",
                     body.getPictures().stream().map(PicturesFileDetails::getContent).collect(Collectors.toList()),
@@ -397,9 +400,9 @@ public final class FormDataAsyncClient {
     @Generated
     @ServiceMethod(returns = ReturnType.SINGLE)
     public Mono<Void> multiBinaryParts(MultiBinaryPartsRequest body) {
-        // Generated convenience method for multiBinaryPartsWithResponse
+        // Generated convenience method for multiBinaryPartsWithResponseInternal
         RequestOptions requestOptions = new RequestOptions();
-        return multiBinaryPartsWithResponse(new MultipartFormDataHelper(requestOptions)
+        return multiBinaryPartsWithResponseInternal(new MultipartFormDataHelper(requestOptions)
             .serializeFileField("profileImage", body.getProfileImage().getContent(),
                 body.getProfileImage().getContentType(), body.getProfileImage().getFilename())
             .serializeFileField("picture", body.getPicture() == null ? null : body.getPicture().getContent(),
@@ -424,9 +427,9 @@ public final class FormDataAsyncClient {
     @Generated
     @ServiceMethod(returns = ReturnType.SINGLE)
     public Mono<Void> checkFileNameAndContentType(MultiPartRequest body) {
-        // Generated convenience method for checkFileNameAndContentTypeWithResponse
+        // Generated convenience method for checkFileNameAndContentTypeWithResponseInternal
         RequestOptions requestOptions = new RequestOptions();
-        return checkFileNameAndContentTypeWithResponse(
+        return checkFileNameAndContentTypeWithResponseInternal(
             new MultipartFormDataHelper(requestOptions).serializeTextField("id", body.getId())
                 .serializeFileField("profileImage", body.getProfileImage().getContent(),
                     body.getProfileImage().getContentType(), body.getProfileImage().getFilename())
@@ -450,9 +453,9 @@ public final class FormDataAsyncClient {
     @Generated
     @ServiceMethod(returns = ReturnType.SINGLE)
     public Mono<Void> anonymousModel(AnonymousModelRequest body) {
-        // Generated convenience method for anonymousModelWithResponse
+        // Generated convenience method for anonymousModelWithResponseInternal
         RequestOptions requestOptions = new RequestOptions();
-        return anonymousModelWithResponse(
+        return anonymousModelWithResponseInternal(
             new MultipartFormDataHelper(requestOptions)
                 .serializeFileField("profileImage", body.getProfileImage().getContent(),
                     body.getProfileImage().getContentType(), body.getProfileImage().getFilename())
