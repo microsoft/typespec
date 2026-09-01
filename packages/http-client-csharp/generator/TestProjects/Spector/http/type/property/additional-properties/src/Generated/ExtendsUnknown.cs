@@ -14,7 +14,7 @@ namespace _Type.Property.AdditionalProperties
     {
         protected ExtendsUnknown() => throw null;
 
-        internal ExtendsUnknown(ClientPipeline pipeline, Uri endpoint) => throw null;
+        internal ExtendsUnknown(ClientPipeline pipeline, ModelReaderWriterOptions modelReaderWriterOptions, Uri endpoint) => throw null;
 
         public ClientPipeline Pipeline => throw null;
 

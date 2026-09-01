@@ -14,7 +14,7 @@ namespace SpecialWords._ExtensibleStrings
     {
         protected ExtensibleStrings() => throw null;
 
-        internal ExtensibleStrings(ClientPipeline pipeline, Uri endpoint) => throw null;
+        internal ExtensibleStrings(ClientPipeline pipeline, ModelReaderWriterOptions modelReaderWriterOptions, Uri endpoint) => throw null;
 
         public ClientPipeline Pipeline => throw null;
 

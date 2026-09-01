@@ -16,7 +16,7 @@ namespace Payload.MultiPart._FormData.HttpParts.ContentType
     {
         protected FormDataHttpPartsContentType() => throw null;
 
-        internal FormDataHttpPartsContentType(ClientPipeline pipeline, Uri endpoint) => throw null;
+        internal FormDataHttpPartsContentType(ClientPipeline pipeline, ModelReaderWriterOptions modelReaderWriterOptions, Uri endpoint) => throw null;
 
         public ClientPipeline Pipeline => throw null;
 

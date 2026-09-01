@@ -1,9 +1,11 @@
 // Copyright (c) Microsoft Corporation. All rights reserved.
 // Licensed under the MIT License.
 
+using System.ClientModel.Primitives;
 using Microsoft.TypeSpec.Generator.ClientModel.Providers;
 using Microsoft.TypeSpec.Generator.Expressions;
 using Microsoft.TypeSpec.Generator.Primitives;
+using Microsoft.TypeSpec.Generator.Snippets;
 using Microsoft.TypeSpec.Generator.Statements;
 
 namespace Microsoft.TypeSpec.Generator.ClientModel.Tests
@@ -26,5 +28,8 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests
         public override RequestContentApi ToExpression() => this;
         public override MethodBodyStatement[] Create(ValueExpression argument)
             => [Original.Invoke("FakeCreate", argument).Terminate()];
+
+        public override MethodBodyStatement[] Create(ValueExpression argument, ScopedApi<ModelReaderWriterOptions> options)
+            => [Original.Invoke("FakeCreate", [argument, options]).Terminate()];
     }
 }

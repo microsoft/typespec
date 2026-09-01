@@ -15,7 +15,7 @@ namespace _Type.Dictionary
     {
         protected BooleanValue() => throw null;
 
-        internal BooleanValue(ClientPipeline pipeline, Uri endpoint) => throw null;
+        internal BooleanValue(ClientPipeline pipeline, ModelReaderWriterOptions modelReaderWriterOptions, Uri endpoint) => throw null;
 
         public ClientPipeline Pipeline => throw null;
 

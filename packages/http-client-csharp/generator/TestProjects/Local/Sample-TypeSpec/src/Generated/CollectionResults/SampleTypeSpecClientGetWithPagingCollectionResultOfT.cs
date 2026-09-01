@@ -14,14 +14,17 @@ namespace SampleTypeSpec
     internal partial class SampleTypeSpecClientGetWithPagingCollectionResultOfT : CollectionResult<Thing>
     {
         private readonly SampleTypeSpecClient _client;
+        private readonly ModelReaderWriterOptions _modelReaderWriterOptions;
         private readonly RequestOptions _options;
 
         /// <summary> Initializes a new instance of SampleTypeSpecClientGetWithPagingCollectionResultOfT, which is used to iterate over the pages of a collection. </summary>
         /// <param name="client"> The SampleTypeSpecClient client used to send requests. </param>
+        /// <param name="modelReaderWriterOptions"> The options used to serialize and deserialize models. </param>
         /// <param name="options"> The request options, which can override default behaviors of the client pipeline on a per-call basis. </param>
-        public SampleTypeSpecClientGetWithPagingCollectionResultOfT(SampleTypeSpecClient client, RequestOptions options)
+        public SampleTypeSpecClientGetWithPagingCollectionResultOfT(SampleTypeSpecClient client, ModelReaderWriterOptions modelReaderWriterOptions, RequestOptions options)
         {
             _client = client;
+            _modelReaderWriterOptions = modelReaderWriterOptions;
             _options = options;
         }
 
@@ -46,7 +49,7 @@ namespace SampleTypeSpec
         /// <returns> The values from the specified page. </returns>
         protected override IEnumerable<Thing> GetValuesFromPage(ClientResult page)
         {
-            return ((PageThing)page).Items;
+            return ModelReaderWriter.Read<PageThing>(page.GetRawResponse().Content, _modelReaderWriterOptions, SampleTypeSpecContext.Default).Items;
         }
 
         /// <summary> Sends the request in the pipeline message and returns the response. </summary>

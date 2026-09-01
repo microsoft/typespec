@@ -15,7 +15,7 @@ namespace _Type.Dictionary
     {
         protected NullableFloatValue() => throw null;
 
-        internal NullableFloatValue(ClientPipeline pipeline, Uri endpoint) => throw null;
+        internal NullableFloatValue(ClientPipeline pipeline, ModelReaderWriterOptions modelReaderWriterOptions, Uri endpoint) => throw null;
 
         public ClientPipeline Pipeline => throw null;
 

@@ -15,7 +15,7 @@ namespace Routes._QueryParameters.QueryContinuation.Standard
     {
         protected QueryParametersQueryContinuationStandard() => throw null;
 
-        internal QueryParametersQueryContinuationStandard(ClientPipeline pipeline, Uri endpoint) => throw null;
+        internal QueryParametersQueryContinuationStandard(ClientPipeline pipeline, ModelReaderWriterOptions modelReaderWriterOptions, Uri endpoint) => throw null;
 
         public ClientPipeline Pipeline => throw null;
 

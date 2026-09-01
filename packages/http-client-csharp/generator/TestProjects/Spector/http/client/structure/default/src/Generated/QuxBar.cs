@@ -15,7 +15,7 @@ namespace Client.Structure.Service._Qux
     {
         protected QuxBar() => throw null;
 
-        internal QuxBar(ClientPipeline pipeline, Uri endpoint, ClientType client) => throw null;
+        internal QuxBar(ClientPipeline pipeline, ModelReaderWriterOptions modelReaderWriterOptions, Uri endpoint, ClientType client) => throw null;
 
         public ClientPipeline Pipeline => throw null;
 

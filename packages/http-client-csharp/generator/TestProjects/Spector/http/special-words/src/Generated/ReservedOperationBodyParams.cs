@@ -15,7 +15,7 @@ namespace SpecialWords._ReservedOperationBodyParams
     {
         protected ReservedOperationBodyParams() => throw null;
 
-        internal ReservedOperationBodyParams(ClientPipeline pipeline, Uri endpoint) => throw null;
+        internal ReservedOperationBodyParams(ClientPipeline pipeline, ModelReaderWriterOptions modelReaderWriterOptions, Uri endpoint) => throw null;
 
         public ClientPipeline Pipeline => throw null;
 

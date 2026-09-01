@@ -14,7 +14,7 @@ namespace _Type.Property.ValueTypes
     {
         protected DictionaryString() => throw null;
 
-        internal DictionaryString(ClientPipeline pipeline, Uri endpoint) => throw null;
+        internal DictionaryString(ClientPipeline pipeline, ModelReaderWriterOptions modelReaderWriterOptions, Uri endpoint) => throw null;
 
         public ClientPipeline Pipeline => throw null;
 

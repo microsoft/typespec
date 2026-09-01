@@ -15,7 +15,7 @@ namespace Routes._PathParameters.LabelExpansion.Explode
     {
         protected PathParametersLabelExpansionExplode() => throw null;
 
-        internal PathParametersLabelExpansionExplode(ClientPipeline pipeline, Uri endpoint) => throw null;
+        internal PathParametersLabelExpansionExplode(ClientPipeline pipeline, ModelReaderWriterOptions modelReaderWriterOptions, Uri endpoint) => throw null;
 
         public ClientPipeline Pipeline => throw null;
 

@@ -13,11 +13,13 @@ namespace Sample
     internal partial class CatClientGetCatsAsyncCollectionResult : global::System.ClientModel.Primitives.AsyncCollectionResult
     {
         private readonly global::Sample.CatClient _client;
+        private readonly global::System.ClientModel.Primitives.ModelReaderWriterOptions _modelReaderWriterOptions;
         private readonly global::System.ClientModel.Primitives.RequestOptions _options;
 
-        public CatClientGetCatsAsyncCollectionResult(global::Sample.CatClient client, global::System.ClientModel.Primitives.RequestOptions options)
+        public CatClientGetCatsAsyncCollectionResult(global::Sample.CatClient client, global::System.ClientModel.Primitives.ModelReaderWriterOptions modelReaderWriterOptions, global::System.ClientModel.Primitives.RequestOptions options)
         {
             _client = client;
+            _modelReaderWriterOptions = modelReaderWriterOptions;
             _options = options;
         }
 

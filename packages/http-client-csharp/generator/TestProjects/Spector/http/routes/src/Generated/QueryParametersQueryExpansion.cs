@@ -13,7 +13,7 @@ namespace Routes._QueryParameters.QueryExpansion
     {
         protected QueryParametersQueryExpansion() => throw null;
 
-        internal QueryParametersQueryExpansion(ClientPipeline pipeline, Uri endpoint) => throw null;
+        internal QueryParametersQueryExpansion(ClientPipeline pipeline, ModelReaderWriterOptions modelReaderWriterOptions, Uri endpoint) => throw null;
 
         public ClientPipeline Pipeline => throw null;
 

@@ -14,7 +14,7 @@ namespace _Type.Property.Nullable
     {
         protected Bytes() => throw null;
 
-        internal Bytes(ClientPipeline pipeline, Uri endpoint) => throw null;
+        internal Bytes(ClientPipeline pipeline, ModelReaderWriterOptions modelReaderWriterOptions, Uri endpoint) => throw null;
 
         public ClientPipeline Pipeline => throw null;
 

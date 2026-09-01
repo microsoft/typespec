@@ -33,7 +33,8 @@ namespace Sample
         {
             global::Sample.Argument.AssertNotNull(body, nameof(body));
 
-            global::System.ClientModel.ClientResult result = this.GetData(param1, body, param3, cancellationToken.ToRequestOptions());
+            using global::System.ClientModel.BinaryContent content = body.ToBinaryContent(_modelReaderWriterOptions);
+            global::System.ClientModel.ClientResult result = this.GetData(param1, content, param3, cancellationToken.ToRequestOptions());
             return global::System.ClientModel.ClientResult.FromValue(result.GetRawResponse().Content.ToObjectFromJson<string>(), result.GetRawResponse());
         }
 
@@ -41,7 +42,8 @@ namespace Sample
         {
             global::Sample.Argument.AssertNotNull(body, nameof(body));
 
-            global::System.ClientModel.ClientResult result = await this.GetDataAsync(param1, body, param3, cancellationToken.ToRequestOptions()).ConfigureAwait(false);
+            using global::System.ClientModel.BinaryContent content = body.ToBinaryContent(_modelReaderWriterOptions);
+            global::System.ClientModel.ClientResult result = await this.GetDataAsync(param1, content, param3, cancellationToken.ToRequestOptions()).ConfigureAwait(false);
             return global::System.ClientModel.ClientResult.FromValue(result.GetRawResponse().Content.ToObjectFromJson<string>(), result.GetRawResponse());
         }
 

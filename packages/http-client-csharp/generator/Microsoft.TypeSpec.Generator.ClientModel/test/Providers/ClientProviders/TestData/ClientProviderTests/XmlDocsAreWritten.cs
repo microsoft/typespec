@@ -14,6 +14,7 @@ namespace Sample
     public partial class TestClient
     {
         private readonly global::System.Uri _endpoint;
+        private readonly global::System.ClientModel.Primitives.ModelReaderWriterOptions _modelReaderWriterOptions;
         private readonly string _queryParam;
 
         /// <summary> Initializes a new instance of TestClient for mocking. </summary>
@@ -43,6 +44,7 @@ namespace Sample
             options ??= new global::Sample.TestClientOptions();
 
             _endpoint = endpoint;
+            _modelReaderWriterOptions = (options.ModelReaderWriterOptions == null) ? global::Sample.ModelSerializationExtensions.WireOptions : new global::System.ClientModel.Primitives.ModelReaderWriterOptions("W", options.ModelReaderWriterOptions);
             _queryParam = queryParam;
             if ((authenticationPolicy != null))
             {

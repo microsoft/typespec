@@ -15,7 +15,7 @@ namespace Payload.MultiPart._FormData.HttpParts.NonString
     {
         protected FormDataHttpPartsNonString() => throw null;
 
-        internal FormDataHttpPartsNonString(ClientPipeline pipeline, Uri endpoint) => throw null;
+        internal FormDataHttpPartsNonString(ClientPipeline pipeline, ModelReaderWriterOptions modelReaderWriterOptions, Uri endpoint) => throw null;
 
         public ClientPipeline Pipeline => throw null;
 

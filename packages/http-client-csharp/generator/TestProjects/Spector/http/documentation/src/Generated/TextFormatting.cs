@@ -14,7 +14,7 @@ namespace Documentation._TextFormatting
     {
         protected TextFormatting() => throw null;
 
-        internal TextFormatting(ClientPipeline pipeline, Uri endpoint) => throw null;
+        internal TextFormatting(ClientPipeline pipeline, ModelReaderWriterOptions modelReaderWriterOptions, Uri endpoint) => throw null;
 
         public ClientPipeline Pipeline => throw null;
 

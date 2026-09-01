@@ -5,7 +5,7 @@ using (global::System.IO.MemoryStream stream = new global::System.IO.MemoryStrea
         writer.WriteStartElement(rootNameHint);
         foreach (var item in enumerable)
         {
-            writer.WriteObjectValue<T>(item, global::Sample.ModelSerializationExtensions.WireOptions, childNameHint);
+            writer.WriteObjectValue<T>(item, options, childNameHint);
         }
         writer.WriteEndElement();
     }

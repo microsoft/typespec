@@ -19,6 +19,7 @@ namespace SampleTypeSpec
     public partial class Metrics
     {
         private readonly Uri _endpoint;
+        private readonly ModelReaderWriterOptions _modelReaderWriterOptions;
         private const string AuthorizationHeader = "my-api-key";
         /// <summary> The OAuth2 flows supported by the service. </summary>
         private static readonly Dictionary<string, object>[] _flows = new Dictionary<string, object>[] 
@@ -39,12 +40,14 @@ namespace SampleTypeSpec
 
         /// <summary> Initializes a new instance of Metrics. </summary>
         /// <param name="pipeline"> The HTTP pipeline for sending and receiving REST requests and responses. </param>
+        /// <param name="modelReaderWriterOptions"></param>
         /// <param name="endpoint"> Service endpoint. </param>
         /// <param name="metricsNamespace"></param>
-        internal Metrics(ClientPipeline pipeline, Uri endpoint, string metricsNamespace)
+        internal Metrics(ClientPipeline pipeline, ModelReaderWriterOptions modelReaderWriterOptions, Uri endpoint, string metricsNamespace)
         {
             _endpoint = endpoint;
             Pipeline = pipeline;
+            _modelReaderWriterOptions = modelReaderWriterOptions;
             _metricsNamespace = metricsNamespace;
         }
 
@@ -81,6 +84,7 @@ namespace SampleTypeSpec
             options ??= new SampleTypeSpecClientOptions();
 
             _endpoint = endpoint;
+            _modelReaderWriterOptions = options.ModelReaderWriterOptions == null ? ModelSerializationExtensions.WireOptions : new ModelReaderWriterOptions("W", options.ModelReaderWriterOptions);
             _metricsNamespace = metricsNamespace;
             if (authenticationPolicy != null)
             {
@@ -167,7 +171,8 @@ namespace SampleTypeSpec
         public virtual ClientResult<GetWidgetMetricsResponse> GetWidgetMetrics(DaysOfWeekExtensibleEnum day, CancellationToken cancellationToken = default)
         {
             ClientResult result = GetWidgetMetrics(day.ToString(), cancellationToken.ToRequestOptions());
-            return ClientResult.FromValue((GetWidgetMetricsResponse)result, result.GetRawResponse());
+            BinaryData data = result.GetRawResponse().Content;
+            return ClientResult.FromValue(ModelReaderWriter.Read<GetWidgetMetricsResponse>(data, _modelReaderWriterOptions, SampleTypeSpecContext.Default), result.GetRawResponse());
         }
 
         /// <summary> Get Widget metrics for given day of week. </summary>
@@ -177,7 +182,8 @@ namespace SampleTypeSpec
         public virtual async Task<ClientResult<GetWidgetMetricsResponse>> GetWidgetMetricsAsync(DaysOfWeekExtensibleEnum day, CancellationToken cancellationToken = default)
         {
             ClientResult result = await GetWidgetMetricsAsync(day.ToString(), cancellationToken.ToRequestOptions()).ConfigureAwait(false);
-            return ClientResult.FromValue((GetWidgetMetricsResponse)result, result.GetRawResponse());
+            BinaryData data = result.GetRawResponse().Content;
+            return ClientResult.FromValue(ModelReaderWriter.Read<GetWidgetMetricsResponse>(data, _modelReaderWriterOptions, SampleTypeSpecContext.Default), result.GetRawResponse());
         }
     }
 }

@@ -6,6 +6,7 @@
 #nullable disable
 
 using System;
+using System.ClientModel.Primitives;
 using System.Collections.Generic;
 using System.IO;
 using System.Text.Json;
@@ -15,8 +16,9 @@ namespace SampleTypeSpec
     internal static partial class MultipartFormDataHelper
     {
         /// <param name="enumerable"></param>
+        /// <param name="options"></param>
         /// <param name="mediaType"></param>
-        public static BinaryData FromEnumerable<T>(IEnumerable<T> enumerable, string mediaType = null)
+        public static BinaryData FromEnumerable<T>(IEnumerable<T> enumerable, ModelReaderWriterOptions options, string mediaType = null)
             where T : notnull
         {
             using (MemoryStream stream = new MemoryStream(256))
@@ -26,7 +28,7 @@ namespace SampleTypeSpec
                     writer.WriteStartArray();
                     foreach (var item in enumerable)
                     {
-                        writer.WriteObjectValue(item, ModelSerializationExtensions.WireOptions);
+                        writer.WriteObjectValue(item, options);
                     }
                     writer.WriteEndArray();
                 }
@@ -36,8 +38,9 @@ namespace SampleTypeSpec
         }
 
         /// <param name="dictionary"></param>
+        /// <param name="options"></param>
         /// <param name="mediaType"></param>
-        public static BinaryData FromDictionary<TValue>(IDictionary<string, TValue> dictionary, string mediaType = null)
+        public static BinaryData FromDictionary<TValue>(IDictionary<string, TValue> dictionary, ModelReaderWriterOptions options, string mediaType = null)
             where TValue : notnull
         {
             using (MemoryStream stream = new MemoryStream(256))
@@ -48,7 +51,7 @@ namespace SampleTypeSpec
                     foreach (var item in dictionary)
                     {
                         writer.WritePropertyName(item.Key);
-                        writer.WriteObjectValue(item.Value, ModelSerializationExtensions.WireOptions);
+                        writer.WriteObjectValue(item.Value, options);
                     }
                     writer.WriteEndObject();
                 }

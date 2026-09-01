@@ -14,7 +14,7 @@ namespace _Type.Union
     {
         protected StringExtensibleNamed() => throw null;
 
-        internal StringExtensibleNamed(ClientPipeline pipeline, Uri endpoint) => throw null;
+        internal StringExtensibleNamed(ClientPipeline pipeline, ModelReaderWriterOptions modelReaderWriterOptions, Uri endpoint) => throw null;
 
         public ClientPipeline Pipeline => throw null;
 

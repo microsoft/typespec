@@ -14,7 +14,7 @@ namespace SpecialWords._Models
     {
         protected Models() => throw null;
 
-        internal Models(ClientPipeline pipeline, Uri endpoint) => throw null;
+        internal Models(ClientPipeline pipeline, ModelReaderWriterOptions modelReaderWriterOptions, Uri endpoint) => throw null;
 
         public ClientPipeline Pipeline => throw null;
 

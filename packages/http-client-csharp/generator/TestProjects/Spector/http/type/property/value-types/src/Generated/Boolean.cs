@@ -14,7 +14,7 @@ namespace _Type.Property.ValueTypes
     {
         protected Boolean() => throw null;
 
-        internal Boolean(ClientPipeline pipeline, Uri endpoint) => throw null;
+        internal Boolean(ClientPipeline pipeline, ModelReaderWriterOptions modelReaderWriterOptions, Uri endpoint) => throw null;
 
         public ClientPipeline Pipeline => throw null;
 

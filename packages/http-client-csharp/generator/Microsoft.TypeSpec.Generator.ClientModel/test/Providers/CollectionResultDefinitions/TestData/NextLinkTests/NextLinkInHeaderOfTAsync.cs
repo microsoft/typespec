@@ -14,11 +14,13 @@ namespace Sample
     internal partial class CatClientGetCatsAsyncCollectionResultOfT : global::System.ClientModel.AsyncCollectionResult<global::Sample.Models.Cat>
     {
         private readonly global::Sample.CatClient _client;
+        private readonly global::System.ClientModel.Primitives.ModelReaderWriterOptions _modelReaderWriterOptions;
         private readonly global::System.ClientModel.Primitives.RequestOptions _options;
 
-        public CatClientGetCatsAsyncCollectionResultOfT(global::Sample.CatClient client, global::System.ClientModel.Primitives.RequestOptions options)
+        public CatClientGetCatsAsyncCollectionResultOfT(global::Sample.CatClient client, global::System.ClientModel.Primitives.ModelReaderWriterOptions modelReaderWriterOptions, global::System.ClientModel.Primitives.RequestOptions options)
         {
             _client = client;
+            _modelReaderWriterOptions = modelReaderWriterOptions;
             _options = options;
         }
 
@@ -57,7 +59,7 @@ namespace Sample
 
         protected override async global::System.Collections.Generic.IAsyncEnumerable<global::Sample.Models.Cat> GetValuesFromPageAsync(global::System.ClientModel.ClientResult page)
         {
-            foreach (global::Sample.Models.Cat item in ((global::Sample.Models.Page)page).Cats)
+            foreach (global::Sample.Models.Cat item in ((global::Sample.Models.Page)global::System.ClientModel.Primitives.ModelReaderWriter.Read<global::Sample.Models.Page>(page.GetRawResponse().Content, _modelReaderWriterOptions, global::Sample.SampleContext.Default)).Cats)
             {
                 yield return item;
                 await global::System.Threading.Tasks.Task.Yield();

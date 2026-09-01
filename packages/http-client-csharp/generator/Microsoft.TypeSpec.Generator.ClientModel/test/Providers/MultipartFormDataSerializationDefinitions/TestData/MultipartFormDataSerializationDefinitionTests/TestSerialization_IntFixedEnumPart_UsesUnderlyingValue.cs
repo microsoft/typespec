@@ -3,6 +3,7 @@
 #nullable disable
 
 using System.ClientModel;
+using System.ClientModel.Primitives;
 
 #pragma warning disable SCME0004 // Type is for evaluation purposes only and is subject to change or removal in future updates.
 namespace Sample.Models
@@ -13,7 +14,7 @@ namespace Sample.Models
         {
         }
 
-        internal global::System.ClientModel.MultiPartFormContent ToMultipartFormContent()
+        internal global::System.ClientModel.MultiPartFormContent ToMultipartFormContent(global::System.ClientModel.Primitives.ModelReaderWriterOptions options)
         {
             global::System.ClientModel.MultiPartFormContent content = new global::System.ClientModel.MultiPartFormContent();
 

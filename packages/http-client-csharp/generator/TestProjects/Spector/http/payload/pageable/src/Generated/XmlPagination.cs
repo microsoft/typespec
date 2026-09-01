@@ -14,7 +14,7 @@ namespace Payload.Pageable._XmlPagination
     {
         protected XmlPagination() => throw null;
 
-        internal XmlPagination(ClientPipeline pipeline, Uri endpoint) => throw null;
+        internal XmlPagination(ClientPipeline pipeline, ModelReaderWriterOptions modelReaderWriterOptions, Uri endpoint) => throw null;
 
         public ClientPipeline Pipeline => throw null;
 

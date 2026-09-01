@@ -14,7 +14,7 @@ namespace Payload.Xml
     {
         protected ModelWithAttributesValue() => throw null;
 
-        internal ModelWithAttributesValue(ClientPipeline pipeline, Uri endpoint) => throw null;
+        internal ModelWithAttributesValue(ClientPipeline pipeline, ModelReaderWriterOptions modelReaderWriterOptions, Uri endpoint) => throw null;
 
         public ClientPipeline Pipeline => throw null;
 

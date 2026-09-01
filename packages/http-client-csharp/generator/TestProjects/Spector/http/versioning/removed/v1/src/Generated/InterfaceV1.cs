@@ -14,7 +14,7 @@ namespace Versioning.Removed
     {
         protected InterfaceV1() => throw null;
 
-        internal InterfaceV1(ClientPipeline pipeline, Uri endpoint, string version) => throw null;
+        internal InterfaceV1(ClientPipeline pipeline, ModelReaderWriterOptions modelReaderWriterOptions, Uri endpoint, string version) => throw null;
 
         public ClientPipeline Pipeline => throw null;
 

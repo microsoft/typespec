@@ -15,7 +15,7 @@ namespace Client.Structure.ClientOperationGroup
     {
         protected Group4() => throw null;
 
-        internal Group4(ClientPipeline pipeline, Uri endpoint, ClientType client) => throw null;
+        internal Group4(ClientPipeline pipeline, ModelReaderWriterOptions modelReaderWriterOptions, Uri endpoint, ClientType client) => throw null;
 
         public ClientPipeline Pipeline => throw null;
 

@@ -14,7 +14,7 @@ namespace _Type.Property.ValueTypes
     {
         protected Enum() => throw null;
 
-        internal Enum(ClientPipeline pipeline, Uri endpoint) => throw null;
+        internal Enum(ClientPipeline pipeline, ModelReaderWriterOptions modelReaderWriterOptions, Uri endpoint) => throw null;
 
         public ClientPipeline Pipeline => throw null;
 

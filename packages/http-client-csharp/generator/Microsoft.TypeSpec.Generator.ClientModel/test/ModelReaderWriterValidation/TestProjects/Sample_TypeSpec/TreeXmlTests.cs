@@ -86,7 +86,9 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.ModelReaderWriterValida
                 System.Reflection.BindingFlags.Instance | System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Public);
             Assert.IsNotNull(method, "ToBinaryContent method should exist on Tree");
 
-            var binaryContent = (BinaryContent)method!.Invoke(tree, new object[] { "J" })!;
+            var binaryContent = (BinaryContent)method!.Invoke(
+                tree,
+                new object[] { new ModelReaderWriterOptions("J") })!;
 
             // Verify the MediaType is set correctly for JSON
             Assert.That(binaryContent.MediaType,
@@ -104,7 +106,9 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.ModelReaderWriterValida
                 System.Reflection.BindingFlags.Instance | System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Public);
             Assert.IsNotNull(method, "ToBinaryContent method should exist on Tree");
 
-            var binaryContent = (BinaryContent)method!.Invoke(tree, new object[] { "X" })!;
+            var binaryContent = (BinaryContent)method!.Invoke(
+                tree,
+                new object[] { new ModelReaderWriterOptions("X") })!;
 
             // Verify the MediaType is null or empty for XML format
             Assert.That(string.IsNullOrEmpty(binaryContent.MediaType), Is.True,

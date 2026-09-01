@@ -14,7 +14,7 @@ namespace _Type.Union
     {
         protected MixedLiterals() => throw null;
 
-        internal MixedLiterals(ClientPipeline pipeline, Uri endpoint) => throw null;
+        internal MixedLiterals(ClientPipeline pipeline, ModelReaderWriterOptions modelReaderWriterOptions, Uri endpoint) => throw null;
 
         public ClientPipeline Pipeline => throw null;
 
