@@ -814,6 +814,7 @@ public class ClientMethodMapper implements IMapper<Operation, List<ClientMethod>
         List<ClientMethod> methods, CreateMethodArgs createMethodArgs) {
 
         final boolean isProtocolMethod = createMethodArgs.isProtocolMethod;
+        // Model maximum overloads are convenience methods layered over the hidden protocol method.
         final boolean isModelMaxOverload = !isProtocolMethod
             && createMethodArgs.settings.isAzureV1()
             && createMethodArgs.settings.isModelMaxOverload();
@@ -853,6 +854,7 @@ public class ClientMethodMapper implements IMapper<Operation, List<ClientMethod>
             .hasWithContextOverload(hasContextOverload)
             .methodVisibility(methodVisibility);
         if (isModelMaxOverload) {
+            // RequestOptions is the final parameter of the maximum overload and carries optional HTTP parameters.
             List<ClientMethodParameter> parameters = new ArrayList<>(baseMethod.getParameters());
             parameters.add(ClientMethodParameter.REQUEST_OPTIONS_PARAMETER);
             withResponseMethodBuilder = withResponseMethodBuilder.parameters(parameters);

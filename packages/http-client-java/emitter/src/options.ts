@@ -32,20 +32,12 @@ export interface License {
 export interface EmitterOptions {
   license?: License;
   "dev-options"?: DevOptions;
-  "max-overload"?: "model";
 }
 
 export const EmitterOptionsSchema: JSONSchemaType<EmitterOptions> = {
   type: "object",
   properties: {
     ...UnbrandedSdkEmitterOptions.license,
-    "max-overload": {
-      type: "string",
-      description:
-        "Controls the payload type of the maximum WithResponse overload. Set to 'model' to use strongly typed request and response models.",
-      nullable: true,
-      enum: ["model"],
-    },
     "dev-options": {
       type: "object",
       description: "Developer options for http-client-java emitter.",

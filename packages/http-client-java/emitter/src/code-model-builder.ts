@@ -1041,6 +1041,9 @@ export class CodeModelBuilder {
     }
     if (generateConvenienceApi && convenienceApiName) {
       if (this.isAzureV1() && this.options["max-overload"] === "model") {
+        // The model WithResponse overload replaces the public protocol method of the same name.
+        // This is scoped to convenience APIs because their model types are required for the
+        // replacement; the protocol method remains generated internally for delegation.
         generateProtocolApi = false;
       }
       codeModelOperation.convenienceApi = new ConvenienceApi(convenienceApiName);
@@ -2361,6 +2364,8 @@ export class CodeModelBuilder {
         (this.isAzureV1() && this.options["max-overload"] === "model"));
 
     if (trackResponseHeadersAsModel) {
+      // Typed header models are public convenience return types. Propagate that visibility to
+      // referenced schemas so enum and model header properties are generated in the same package.
       for (const header of headers) {
         this.trackSchemaUsage(header.schema, {
           usage: [op.internalApi ? SchemaContext.Internal : SchemaContext.Public],

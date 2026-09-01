@@ -65,6 +65,8 @@ public class ServiceSyncClientTemplate implements IJavaTemplate<AsyncSyncClient,
         if (rootClientBuilder != null) {
             rootClientBuilder.addImportsTo(imports, false);
         }
+        // A generated class can itself be named ServiceClient; use the annotation's fully-qualified
+        // name in that case because Java forbids importing a type with the declared class's name.
         boolean serviceClientAnnotationNameConflict = syncClassName.equals(Annotation.SERVICE_CLIENT.getName());
         addServiceClientAnnotationImport(imports, serviceClientAnnotationNameConflict);
 
