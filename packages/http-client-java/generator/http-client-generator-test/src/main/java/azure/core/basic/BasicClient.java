@@ -244,8 +244,8 @@ public final class BasicClient {
      */
     @Generated
     @ServiceMethod(returns = ReturnType.COLLECTION)
-    PagedIterable<BinaryData> list(RequestOptions requestOptions) {
-        return this.serviceClient.list(requestOptions);
+    PagedIterable<BinaryData> listInternal(RequestOptions requestOptions) {
+        return this.serviceClient.listInternal(requestOptions);
     }
 
     /**
@@ -529,7 +529,7 @@ public final class BasicClient {
     @ServiceMethod(returns = ReturnType.COLLECTION)
     public PagedIterable<User> list(Integer top, Integer skip, List<String> orderBy, String filter, List<String> select,
         List<String> expand) {
-        // Generated convenience method for list
+        // Generated convenience method for listInternal
         RequestOptions requestOptions = new RequestOptions();
         if (top != null) {
             requestOptions.addQueryParam("top", String.valueOf(top), false);
@@ -561,7 +561,7 @@ public final class BasicClient {
                 }
             }
         }
-        return serviceClient.list(requestOptions).mapPage(bodyItemValue -> bodyItemValue.toObject(User.class));
+        return serviceClient.listInternal(requestOptions).mapPage(bodyItemValue -> bodyItemValue.toObject(User.class));
     }
 
     /**
@@ -579,9 +579,68 @@ public final class BasicClient {
     @Generated
     @ServiceMethod(returns = ReturnType.COLLECTION)
     public PagedIterable<User> list() {
-        // Generated convenience method for list
+        // Generated convenience method for listInternal
         RequestOptions requestOptions = new RequestOptions();
-        return serviceClient.list(requestOptions).mapPage(bodyItemValue -> bodyItemValue.toObject(User.class));
+        return serviceClient.listInternal(requestOptions).mapPage(bodyItemValue -> bodyItemValue.toObject(User.class));
+    }
+
+    /**
+     * Lists all users.
+     * 
+     * Lists all Users.
+     * 
+     * @param top The number of result items to return.
+     * @param skip The number of result items to skip.
+     * @param orderBy Expressions that specify the order of returned results.
+     * @param filter Filter the result list using the given expression.
+     * @param select Select the specified fields to be included in the response.
+     * @param expand Expand the indicated resources into the response.
+     * @param requestOptions The options to configure the HTTP request before HTTP client sends it.
+     * @throws IllegalArgumentException thrown if parameters fail the validation.
+     * @throws HttpResponseException thrown if the request is rejected by server.
+     * @throws ClientAuthenticationException thrown if the request is rejected by server on status code 401.
+     * @throws ResourceNotFoundException thrown if the request is rejected by server on status code 404.
+     * @throws ResourceModifiedException thrown if the request is rejected by server on status code 409.
+     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
+     * @return paged collection of User items as paginated response with {@link PagedIterable}.
+     */
+    @Generated
+    @ServiceMethod(returns = ReturnType.COLLECTION)
+    public PagedIterable<User> list(Integer top, Integer skip, List<String> orderBy, String filter, List<String> select,
+        List<String> expand, RequestOptions requestOptions) {
+        // Generated convenience method for listInternal
+        requestOptions = requestOptions == null ? new RequestOptions() : requestOptions;
+        if (top != null) {
+            requestOptions.addQueryParam("top", String.valueOf(top), false);
+        }
+        if (skip != null) {
+            requestOptions.addQueryParam("skip", String.valueOf(skip), false);
+        }
+        if (orderBy != null) {
+            for (String paramItemValue : orderBy) {
+                if (paramItemValue != null) {
+                    requestOptions.addQueryParam("orderby", paramItemValue, false);
+                }
+            }
+        }
+        if (filter != null) {
+            requestOptions.addQueryParam("filter", filter, false);
+        }
+        if (select != null) {
+            for (String paramItemValue : select) {
+                if (paramItemValue != null) {
+                    requestOptions.addQueryParam("select", paramItemValue, false);
+                }
+            }
+        }
+        if (expand != null) {
+            for (String paramItemValue : expand) {
+                if (paramItemValue != null) {
+                    requestOptions.addQueryParam("expand", paramItemValue, false);
+                }
+            }
+        }
+        return serviceClient.listInternal(requestOptions).mapPage(bodyItemValue -> bodyItemValue.toObject(User.class));
     }
 
     /**

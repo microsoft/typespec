@@ -250,8 +250,8 @@ public final class BasicAsyncClient {
      */
     @Generated
     @ServiceMethod(returns = ReturnType.COLLECTION)
-    PagedFlux<BinaryData> list(RequestOptions requestOptions) {
-        return this.serviceClient.listAsync(requestOptions);
+    PagedFlux<BinaryData> listInternal(RequestOptions requestOptions) {
+        return this.serviceClient.listInternalAsync(requestOptions);
     }
 
     /**
@@ -538,7 +538,7 @@ public final class BasicAsyncClient {
     @ServiceMethod(returns = ReturnType.COLLECTION)
     public PagedFlux<User> list(Integer top, Integer skip, List<String> orderBy, String filter, List<String> select,
         List<String> expand) {
-        // Generated convenience method for list
+        // Generated convenience method for listInternal
         RequestOptions requestOptions = new RequestOptions();
         if (top != null) {
             requestOptions.addQueryParam("top", String.valueOf(top), false);
@@ -570,7 +570,7 @@ public final class BasicAsyncClient {
                 }
             }
         }
-        PagedFlux<BinaryData> pagedFluxResponse = list(requestOptions);
+        PagedFlux<BinaryData> pagedFluxResponse = listInternal(requestOptions);
         return PagedFlux.create(() -> (continuationTokenParam, pageSizeParam) -> {
             Flux<PagedResponse<BinaryData>> flux = (continuationTokenParam == null)
                 ? pagedFluxResponse.byPage().take(1)
@@ -600,9 +600,80 @@ public final class BasicAsyncClient {
     @Generated
     @ServiceMethod(returns = ReturnType.COLLECTION)
     public PagedFlux<User> list() {
-        // Generated convenience method for list
+        // Generated convenience method for listInternal
         RequestOptions requestOptions = new RequestOptions();
-        PagedFlux<BinaryData> pagedFluxResponse = list(requestOptions);
+        PagedFlux<BinaryData> pagedFluxResponse = listInternal(requestOptions);
+        return PagedFlux.create(() -> (continuationTokenParam, pageSizeParam) -> {
+            Flux<PagedResponse<BinaryData>> flux = (continuationTokenParam == null)
+                ? pagedFluxResponse.byPage().take(1)
+                : pagedFluxResponse.byPage(continuationTokenParam).take(1);
+            return flux.map(pagedResponse -> new PagedResponseBase<Void, User>(pagedResponse.getRequest(),
+                pagedResponse.getStatusCode(), pagedResponse.getHeaders(),
+                pagedResponse.getValue()
+                    .stream()
+                    .map(protocolMethodData -> protocolMethodData.toObject(User.class))
+                    .collect(Collectors.toList()),
+                pagedResponse.getContinuationToken(), null));
+        });
+    }
+
+    /**
+     * Lists all users.
+     * 
+     * Lists all Users.
+     * 
+     * @param top The number of result items to return.
+     * @param skip The number of result items to skip.
+     * @param orderBy Expressions that specify the order of returned results.
+     * @param filter Filter the result list using the given expression.
+     * @param select Select the specified fields to be included in the response.
+     * @param expand Expand the indicated resources into the response.
+     * @param requestOptions The options to configure the HTTP request before HTTP client sends it.
+     * @throws IllegalArgumentException thrown if parameters fail the validation.
+     * @throws HttpResponseException thrown if the request is rejected by server.
+     * @throws ClientAuthenticationException thrown if the request is rejected by server on status code 401.
+     * @throws ResourceNotFoundException thrown if the request is rejected by server on status code 404.
+     * @throws ResourceModifiedException thrown if the request is rejected by server on status code 409.
+     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
+     * @return paged collection of User items as paginated response with {@link PagedFlux}.
+     */
+    @Generated
+    @ServiceMethod(returns = ReturnType.COLLECTION)
+    public PagedFlux<User> list(Integer top, Integer skip, List<String> orderBy, String filter, List<String> select,
+        List<String> expand, RequestOptions requestOptions) {
+        // Generated convenience method for listInternal
+        requestOptions = requestOptions == null ? new RequestOptions() : requestOptions;
+        if (top != null) {
+            requestOptions.addQueryParam("top", String.valueOf(top), false);
+        }
+        if (skip != null) {
+            requestOptions.addQueryParam("skip", String.valueOf(skip), false);
+        }
+        if (orderBy != null) {
+            for (String paramItemValue : orderBy) {
+                if (paramItemValue != null) {
+                    requestOptions.addQueryParam("orderby", paramItemValue, false);
+                }
+            }
+        }
+        if (filter != null) {
+            requestOptions.addQueryParam("filter", filter, false);
+        }
+        if (select != null) {
+            for (String paramItemValue : select) {
+                if (paramItemValue != null) {
+                    requestOptions.addQueryParam("select", paramItemValue, false);
+                }
+            }
+        }
+        if (expand != null) {
+            for (String paramItemValue : expand) {
+                if (paramItemValue != null) {
+                    requestOptions.addQueryParam("expand", paramItemValue, false);
+                }
+            }
+        }
+        PagedFlux<BinaryData> pagedFluxResponse = listInternal(requestOptions);
         return PagedFlux.create(() -> (continuationTokenParam, pageSizeParam) -> {
             Flux<PagedResponse<BinaryData>> flux = (continuationTokenParam == null)
                 ? pagedFluxResponse.byPage().take(1)

@@ -241,9 +241,9 @@ public final class ProtocolAndConvenientAsyncClient {
      */
     @Generated
     @ServiceMethod(returns = ReturnType.LONG_RUNNING_OPERATION)
-    PollerFlux<BinaryData, BinaryData> beginCreateOrReplace(String name, BinaryData resource,
+    PollerFlux<BinaryData, BinaryData> beginCreateOrReplaceInternal(String name, BinaryData resource,
         RequestOptions requestOptions) {
-        return this.serviceClient.beginCreateOrReplaceAsync(name, resource, requestOptions);
+        return this.serviceClient.beginCreateOrReplaceInternalAsync(name, resource, requestOptions);
     }
 
     /**
@@ -276,8 +276,8 @@ public final class ProtocolAndConvenientAsyncClient {
      */
     @Generated
     @ServiceMethod(returns = ReturnType.COLLECTION)
-    PagedFlux<BinaryData> list(RequestOptions requestOptions) {
-        return this.serviceClient.listAsync(requestOptions);
+    PagedFlux<BinaryData> listInternal(RequestOptions requestOptions) {
+        return this.serviceClient.listInternalAsync(requestOptions);
     }
 
     /**
@@ -357,9 +357,9 @@ public final class ProtocolAndConvenientAsyncClient {
     @Generated
     @ServiceMethod(returns = ReturnType.COLLECTION)
     public PagedFlux<ResourceJ> list() {
-        // Generated convenience method for list
+        // Generated convenience method for listInternal
         RequestOptions requestOptions = new RequestOptions();
-        PagedFlux<BinaryData> pagedFluxResponse = list(requestOptions);
+        PagedFlux<BinaryData> pagedFluxResponse = listInternal(requestOptions);
         return PagedFlux.create(() -> (continuationTokenParam, pageSizeParam) -> {
             Flux<PagedResponse<BinaryData>> flux = (continuationTokenParam == null)
                 ? pagedFluxResponse.byPage().take(1)

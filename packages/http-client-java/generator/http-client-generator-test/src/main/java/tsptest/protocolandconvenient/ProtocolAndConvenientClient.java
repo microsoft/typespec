@@ -234,9 +234,9 @@ public final class ProtocolAndConvenientClient {
      */
     @Generated
     @ServiceMethod(returns = ReturnType.LONG_RUNNING_OPERATION)
-    SyncPoller<BinaryData, BinaryData> beginCreateOrReplace(String name, BinaryData resource,
+    SyncPoller<BinaryData, BinaryData> beginCreateOrReplaceInternal(String name, BinaryData resource,
         RequestOptions requestOptions) {
-        return this.serviceClient.beginCreateOrReplace(name, resource, requestOptions);
+        return this.serviceClient.beginCreateOrReplaceInternal(name, resource, requestOptions);
     }
 
     /**
@@ -269,8 +269,8 @@ public final class ProtocolAndConvenientClient {
      */
     @Generated
     @ServiceMethod(returns = ReturnType.COLLECTION)
-    PagedIterable<BinaryData> list(RequestOptions requestOptions) {
-        return this.serviceClient.list(requestOptions);
+    PagedIterable<BinaryData> listInternal(RequestOptions requestOptions) {
+        return this.serviceClient.listInternal(requestOptions);
     }
 
     /**
@@ -349,8 +349,9 @@ public final class ProtocolAndConvenientClient {
     @Generated
     @ServiceMethod(returns = ReturnType.COLLECTION)
     public PagedIterable<ResourceJ> list() {
-        // Generated convenience method for list
+        // Generated convenience method for listInternal
         RequestOptions requestOptions = new RequestOptions();
-        return serviceClient.list(requestOptions).mapPage(bodyItemValue -> bodyItemValue.toObject(ResourceJ.class));
+        return serviceClient.listInternal(requestOptions)
+            .mapPage(bodyItemValue -> bodyItemValue.toObject(ResourceJ.class));
     }
 }
