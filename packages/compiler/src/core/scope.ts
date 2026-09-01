@@ -118,7 +118,7 @@ export function getScopedDecoratorEntries(
  *
  * An unscoped application is the default; a scoped application whose condition matches
  * overrides it. When several scoped applications match, the last one in source order wins,
- * mirroring the last-write-wins behaviour of repeated unscoped applications.
+ * mirroring the last-write-wins behavior of repeated unscoped applications.
  * @internal
  */
 export function resolveScopedDecoratorValue(

@@ -106,8 +106,8 @@ describe("resolution", () => {
   });
 
   it("the topmost application wins, matching unscoped last-write-wins semantics", async () => {
-    // Decorators are applied bottom-up (`checkDecorators` unshifts), so the topmost
-    // application is the last one to run — same as repeated unscoped auto decorators.
+    // Decorators are applied bottom-up (`checkDecorators` prepends each one), so the
+    // topmost application is the last one to run — same as repeated unscoped auto decorators.
     const { value } = await compileWithClientName(`
       @clientName("Topmost") when language("csharp")
       @clientName("Lower") when language("csharp")
