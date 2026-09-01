@@ -375,7 +375,7 @@ public final class BasicClientImpl {
      * @return details about a user along with {@link Response} on successful completion of {@link Mono}.
      */
     @ServiceMethod(returns = ReturnType.SINGLE)
-    public Mono<Response<BinaryData>> createOrUpdateWithResponseAsync(int id, BinaryData resource,
+    public Mono<Response<BinaryData>> createOrUpdateWithResponseInternalAsync(int id, BinaryData resource,
         RequestOptions requestOptions) {
         final String contentType = "application/merge-patch+json";
         final String accept = "application/json";
@@ -435,7 +435,8 @@ public final class BasicClientImpl {
      * @return details about a user along with {@link Response}.
      */
     @ServiceMethod(returns = ReturnType.SINGLE)
-    public Response<BinaryData> createOrUpdateWithResponse(int id, BinaryData resource, RequestOptions requestOptions) {
+    public Response<BinaryData> createOrUpdateWithResponseInternal(int id, BinaryData resource,
+        RequestOptions requestOptions) {
         final String contentType = "application/merge-patch+json";
         final String accept = "application/json";
         return service.createOrUpdateSync(this.getEndpoint(), this.getServiceVersion().getVersion(), id, contentType,
@@ -494,7 +495,7 @@ public final class BasicClientImpl {
      * @return details about a user along with {@link Response} on successful completion of {@link Mono}.
      */
     @ServiceMethod(returns = ReturnType.SINGLE)
-    public Mono<Response<BinaryData>> createOrReplaceWithResponseAsync(int id, BinaryData resource,
+    public Mono<Response<BinaryData>> createOrReplaceWithResponseInternalAsync(int id, BinaryData resource,
         RequestOptions requestOptions) {
         final String contentType = "application/json";
         final String accept = "application/json";
@@ -554,7 +555,7 @@ public final class BasicClientImpl {
      * @return details about a user along with {@link Response}.
      */
     @ServiceMethod(returns = ReturnType.SINGLE)
-    public Response<BinaryData> createOrReplaceWithResponse(int id, BinaryData resource,
+    public Response<BinaryData> createOrReplaceWithResponseInternal(int id, BinaryData resource,
         RequestOptions requestOptions) {
         final String contentType = "application/json";
         final String accept = "application/json";
@@ -596,7 +597,7 @@ public final class BasicClientImpl {
      * Gets a User along with {@link Response} on successful completion of {@link Mono}.
      */
     @ServiceMethod(returns = ReturnType.SINGLE)
-    public Mono<Response<BinaryData>> getWithResponseAsync(int id, RequestOptions requestOptions) {
+    public Mono<Response<BinaryData>> getWithResponseInternalAsync(int id, RequestOptions requestOptions) {
         final String accept = "application/json";
         return FluxUtil.withContext(context -> service.get(this.getEndpoint(), this.getServiceVersion().getVersion(),
             id, accept, requestOptions, context));
@@ -636,7 +637,7 @@ public final class BasicClientImpl {
      * Gets a User along with {@link Response}.
      */
     @ServiceMethod(returns = ReturnType.SINGLE)
-    public Response<BinaryData> getWithResponse(int id, RequestOptions requestOptions) {
+    public Response<BinaryData> getWithResponseInternal(int id, RequestOptions requestOptions) {
         final String accept = "application/json";
         return service.getSync(this.getEndpoint(), this.getServiceVersion().getVersion(), id, accept, requestOptions,
             Context.NONE);
@@ -917,7 +918,7 @@ public final class BasicClientImpl {
      * @return the {@link Response} on successful completion of {@link Mono}.
      */
     @ServiceMethod(returns = ReturnType.SINGLE)
-    public Mono<Response<Void>> deleteWithResponseAsync(int id, RequestOptions requestOptions) {
+    public Mono<Response<Void>> deleteWithResponseInternalAsync(int id, RequestOptions requestOptions) {
         return FluxUtil.withContext(context -> service.delete(this.getEndpoint(), this.getServiceVersion().getVersion(),
             id, requestOptions, context));
     }
@@ -936,7 +937,7 @@ public final class BasicClientImpl {
      * @return the {@link Response}.
      */
     @ServiceMethod(returns = ReturnType.SINGLE)
-    public Response<Void> deleteWithResponse(int id, RequestOptions requestOptions) {
+    public Response<Void> deleteWithResponseInternal(int id, RequestOptions requestOptions) {
         return service.deleteSync(this.getEndpoint(), this.getServiceVersion().getVersion(), id, requestOptions,
             Context.NONE);
     }
@@ -974,7 +975,8 @@ public final class BasicClientImpl {
      * @return details about a user along with {@link Response} on successful completion of {@link Mono}.
      */
     @ServiceMethod(returns = ReturnType.SINGLE)
-    public Mono<Response<BinaryData>> exportWithResponseAsync(int id, String format, RequestOptions requestOptions) {
+    public Mono<Response<BinaryData>> exportWithResponseInternalAsync(int id, String format,
+        RequestOptions requestOptions) {
         final String accept = "application/json";
         return FluxUtil.withContext(context -> service.export(this.getEndpoint(), this.getServiceVersion().getVersion(),
             id, format, accept, requestOptions, context));
@@ -1013,7 +1015,7 @@ public final class BasicClientImpl {
      * @return details about a user along with {@link Response}.
      */
     @ServiceMethod(returns = ReturnType.SINGLE)
-    public Response<BinaryData> exportWithResponse(int id, String format, RequestOptions requestOptions) {
+    public Response<BinaryData> exportWithResponseInternal(int id, String format, RequestOptions requestOptions) {
         final String accept = "application/json";
         return service.exportSync(this.getEndpoint(), this.getServiceVersion().getVersion(), id, format, accept,
             requestOptions, Context.NONE);
@@ -1055,7 +1057,8 @@ public final class BasicClientImpl {
      * @return the response body along with {@link Response} on successful completion of {@link Mono}.
      */
     @ServiceMethod(returns = ReturnType.SINGLE)
-    public Mono<Response<BinaryData>> exportAllUsersWithResponseAsync(String format, RequestOptions requestOptions) {
+    public Mono<Response<BinaryData>> exportAllUsersWithResponseInternalAsync(String format,
+        RequestOptions requestOptions) {
         final String accept = "application/json";
         return FluxUtil.withContext(context -> service.exportAllUsers(this.getEndpoint(),
             this.getServiceVersion().getVersion(), format, accept, requestOptions, context));
@@ -1097,7 +1100,7 @@ public final class BasicClientImpl {
      * @return the response body along with {@link Response}.
      */
     @ServiceMethod(returns = ReturnType.SINGLE)
-    public Response<BinaryData> exportAllUsersWithResponse(String format, RequestOptions requestOptions) {
+    public Response<BinaryData> exportAllUsersWithResponseInternal(String format, RequestOptions requestOptions) {
         final String accept = "application/json";
         return service.exportAllUsersSync(this.getEndpoint(), this.getServiceVersion().getVersion(), format, accept,
             requestOptions, Context.NONE);

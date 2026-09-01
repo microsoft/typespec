@@ -28,7 +28,10 @@ $generateScript = {
   # for each test run. We do this by appending a random number to the output directory.
   # Without this, we could have multiple runs trying to write to the same directory which introduces race conditions.
   $tspOptions = "--option ""@typespec/http-client-java.emitter-output-dir={project-root}/tsp-output/$(Get-Random)"""
-  if ($tspFile -match "type[\\/]enum[\\/]extensible[\\/]") {
+  if ($tspFile -match "(azure[\\/]core[\\/]basic|parameters[\\/]basic|payload[\\/]head|payload[\\/]multipart)[\\/](main|client)\.tsp$") {
+    # exercise model maximum overloads across representative data-plane E2E scenarios
+    $tspOptions += " --option ""@typespec/http-client-java.max-overload=model"""
+  } elseif ($tspFile -match "type[\\/]enum[\\/]extensible[\\/]") {
     # override namespace for reserved keyword "enum"
     $tspOptions += " --option ""@typespec/http-client-java.namespace=type.enums.extensible"""
   } elseif ($tspFile -match "type[\\/]enum[\\/]fixed[\\/]") {
