@@ -1,5 +1,5 @@
-import { TypeSpecProgram } from "../interfaces.js";
-import { Context } from "../utils/context.js";
+import type { TypeSpecProgram } from "../interfaces.js";
+import type { Context } from "../utils/context.js";
 import { generateHelpers } from "../utils/generate-helpers.js";
 import { generateDataType } from "./generate-model.js";
 import { generateNamespace } from "./generate-namespace.js";

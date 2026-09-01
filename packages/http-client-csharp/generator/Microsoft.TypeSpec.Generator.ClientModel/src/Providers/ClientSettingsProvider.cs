@@ -15,6 +15,7 @@ using Microsoft.TypeSpec.Generator.Primitives;
 using Microsoft.TypeSpec.Generator.Providers;
 using Microsoft.TypeSpec.Generator.Snippets;
 using Microsoft.TypeSpec.Generator.Statements;
+using Microsoft.TypeSpec.Generator.ClientModel.Utilities;
 using static Microsoft.TypeSpec.Generator.Snippets.Snippet;
 
 namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
@@ -24,6 +25,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
         internal const string ClientSettingsDiagnosticId = "SCME0002";
 
         private readonly ClientProvider _clientProvider;
+        private readonly HashSet<string> _reportedUnsupportedCustomParameters = [];
 
 #pragma warning disable SCME0002 // ClientSettings is for evaluation purposes only
         internal static readonly CSharpType ClientSettingsType = typeof(ClientSettings);
@@ -70,7 +72,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
         internal IReadOnlyList<ParameterProvider> OtherRequiredParams { get; }
 
         protected override FormattableString BuildDescription()
-            => $"Represents the settings used to configure a <see cref=\"{_clientProvider.Name}\"/> that can be loaded from an <see cref=\"IConfigurationSection\"/>.";
+            => $"Represents the settings used to configure a {_clientProvider.Type:C} that can be loaded from an {IConfigurationSectionType:C}.";
 
         protected override string BuildRelativeFilePath() => Path.Combine("src", "Generated", $"{Name}.cs");
 
@@ -126,7 +128,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
                     foreach (var param in ctor.Signature.Parameters)
                     {
                         var propName = param.Name.ToIdentifierName();
-                        if (!knownProps.Contains(propName) && !IsStandardParameterType(param.Type))
+                        if (ShouldIncludeCustomParameter(param, propName, knownProps))
                         {
                             properties.Add(new PropertyProvider(
                                 null,
@@ -163,13 +165,13 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
 
             if (EndpointProperty != null)
             {
-                AppendBindingForProperty(body, sectionParam, EndpointProperty.Name, EndpointProperty.Name.ToVariableName(), EndpointProperty.Type);
+                AppendBindingForProperty(body, sectionParam, GetSettingPropertyName(EndpointProperty.Name), EndpointProperty.Name.ToVariableName(), EndpointProperty.Type, EndpointProperty.Name);
             }
 
             foreach (var param in OtherRequiredParams)
             {
                 var propName = param.Name.ToIdentifierName();
-                AppendBindingForProperty(body, sectionParam, propName, param.Name.ToVariableName(), param.Type);
+                AppendBindingForProperty(body, sectionParam, GetSettingPropertyName(propName), param.Name.ToVariableName(), param.Type, propName);
             }
 
             // Bind custom constructor parameters from custom code.
@@ -200,7 +202,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
                     foreach (var param in ctor.Signature.Parameters)
                     {
                         var propName = param.Name.ToIdentifierName();
-                        if (!knownProps.Contains(propName) && !IsStandardParameterType(param.Type))
+                        if (ShouldIncludeCustomParameter(param, propName, knownProps))
                         {
                             AppendBindingForProperty(body, sectionParam, propName, param.Name.ToVariableName(), param.Type);
                             knownProps.Add(propName);
@@ -212,7 +214,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
             var clientOptions = _clientProvider.EffectiveClientOptions;
             if (clientOptions != null)
             {
-                AppendComplexObjectBinding(body, sectionParam, "Options", "options", clientOptions.Type);
+                AppendComplexObjectBinding(body, sectionParam, GetSettingPropertyName("Options"), "options", clientOptions.Type, "Options");
             }
 
             var bindCoreMethod = new MethodProvider(
@@ -230,6 +232,24 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
         }
 
         /// <summary>
+        /// Resolves the effective property name to assign to during binding, honoring custom code
+        /// replacements (e.g., a property renamed via <c>[CodeGenMember("OriginalName")]</c>).
+        /// The configuration key used to read the value remains the original generated name.
+        /// </summary>
+        private string GetSettingPropertyName(string generatedName)
+        {
+            foreach (var property in CanonicalView.Properties)
+            {
+                if (property.OriginalName == generatedName)
+                {
+                    return property.Name;
+                }
+            }
+
+            return generatedName;
+        }
+
+        /// <summary>
         /// Dispatches to the appropriate binding method based on the property type.
         /// </summary>
         internal static void AppendBindingForProperty(
@@ -237,8 +257,11 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
             ParameterProvider sectionParam,
             string propName,
             string varName,
-            CSharpType type)
+            CSharpType type,
+            string? configKey = null)
         {
+            configKey ??= propName;
+
             // Handle non-framework types (enums, complex objects)
             if (!type.IsFrameworkType)
             {
@@ -246,11 +269,11 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
                 {
                     if (type.IsStruct)
                     {
-                        AppendEnumBinding(body, sectionParam, propName, varName, type);
+                        AppendEnumBinding(body, sectionParam, propName, varName, type, configKey);
                     }
                     else
                     {
-                        AppendFixedEnumBinding(body, sectionParam, propName, varName, type);
+                        AppendFixedEnumBinding(body, sectionParam, propName, varName, type, configKey);
                     }
                 }
                 else if (type.IsStruct && TryGetStructUnderlyingType(type) is { } underlyingType)
@@ -259,24 +282,24 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
                     // Use the constructor's parameter type to pick the correct binding.
                     if (underlyingType.FrameworkType == typeof(string))
                     {
-                        AppendEnumBinding(body, sectionParam, propName, varName, type);
+                        AppendEnumBinding(body, sectionParam, propName, varName, type, configKey);
                     }
                     else if (underlyingType.FrameworkType == typeof(int) || underlyingType.FrameworkType == typeof(long))
                     {
-                        AppendTryParseBinding(body, sectionParam, propName, varName, typeof(int));
+                        AppendTryParseBinding(body, sectionParam, propName, varName, typeof(int), configKey);
                     }
                     else if (underlyingType.FrameworkType == typeof(float) || underlyingType.FrameworkType == typeof(double))
                     {
-                        AppendTryParseBinding(body, sectionParam, propName, varName, typeof(double));
+                        AppendTryParseBinding(body, sectionParam, propName, varName, typeof(double), configKey);
                     }
                     else
                     {
-                        AppendComplexObjectBinding(body, sectionParam, propName, varName, type);
+                        AppendComplexObjectBinding(body, sectionParam, propName, varName, type, configKey);
                     }
                 }
                 else
                 {
-                    AppendComplexObjectBinding(body, sectionParam, propName, varName, type);
+                    AppendComplexObjectBinding(body, sectionParam, propName, varName, type, configKey);
                 }
                 return;
             }
@@ -284,7 +307,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
             // Handle collection types (string[]/List<string>)
             if (type.IsList)
             {
-                AppendStringListBinding(body, sectionParam, propName, varName, type);
+                AppendStringListBinding(body, sectionParam, propName, varName, type, configKey);
                 return;
             }
 
@@ -292,39 +315,39 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
 
             if (frameworkType == typeof(string))
             {
-                AppendStringBinding(body, sectionParam, propName, varName);
+                AppendStringBinding(body, sectionParam, propName, varName, configKey);
             }
             else if (frameworkType == typeof(bool))
             {
-                AppendTryParseBinding(body, sectionParam, propName, varName, typeof(bool));
+                AppendTryParseBinding(body, sectionParam, propName, varName, typeof(bool), configKey);
             }
             else if (frameworkType == typeof(int))
             {
-                AppendTryParseBinding(body, sectionParam, propName, varName, typeof(int));
+                AppendTryParseBinding(body, sectionParam, propName, varName, typeof(int), configKey);
             }
             else if (frameworkType == typeof(long))
             {
-                AppendTryParseBinding(body, sectionParam, propName, varName, typeof(long));
+                AppendTryParseBinding(body, sectionParam, propName, varName, typeof(long), configKey);
             }
             else if (frameworkType == typeof(float))
             {
-                AppendTryParseBinding(body, sectionParam, propName, varName, typeof(float));
+                AppendTryParseBinding(body, sectionParam, propName, varName, typeof(float), configKey);
             }
             else if (frameworkType == typeof(double))
             {
-                AppendTryParseBinding(body, sectionParam, propName, varName, typeof(double));
+                AppendTryParseBinding(body, sectionParam, propName, varName, typeof(double), configKey);
             }
             else if (frameworkType == typeof(TimeSpan))
             {
-                AppendTryParseBinding(body, sectionParam, propName, varName, typeof(TimeSpan));
+                AppendTryParseBinding(body, sectionParam, propName, varName, typeof(TimeSpan), configKey);
             }
             else if (frameworkType == typeof(Uri))
             {
-                AppendUriTryCreateBinding(body, sectionParam, propName, varName);
+                AppendUriTryCreateBinding(body, sectionParam, propName, varName, configKey);
             }
             else
             {
-                AppendComplexObjectBinding(body, sectionParam, propName, varName, type);
+                AppendComplexObjectBinding(body, sectionParam, propName, varName, type, configKey);
             }
         }
 
@@ -335,9 +358,10 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
             List<MethodBodyStatement> body,
             ParameterProvider sectionParam,
             string propName,
-            string varName)
+            string varName,
+            string? configKey = null)
         {
-            body.Add(Declare(varName, new CSharpType(typeof(string), isNullable: true), new IndexerExpression(sectionParam, Literal(propName)), out var valVar));
+            body.Add(Declare(varName, new CSharpType(typeof(string), isNullable: true), new IndexerExpression(sectionParam, Literal(configKey ?? propName)), out var valVar));
             var ifStatement = new IfStatement(Not(StringSnippets.IsNullOrEmpty(valVar.As<string>())));
             ifStatement.Add(This.Property(propName).Assign(valVar).Terminate());
             body.Add(ifStatement);
@@ -351,13 +375,14 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
             ParameterProvider sectionParam,
             string propName,
             string varName,
-            Type parseType)
+            Type parseType,
+            string? configKey = null)
         {
             var outDecl = new DeclarationExpression(parseType, varName, out var parsedVar, isOut: true);
             var ifStatement = new IfStatement(Static(parseType).Invoke("TryParse",
                 new ValueExpression[]
                 {
-                    new IndexerExpression(sectionParam, Literal(propName)),
+                    new IndexerExpression(sectionParam, Literal(configKey ?? propName)),
                     outDecl
                 }));
             ifStatement.Add(This.Property(propName).Assign(parsedVar).Terminate());
@@ -371,13 +396,14 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
             List<MethodBodyStatement> body,
             ParameterProvider sectionParam,
             string propName,
-            string varName)
+            string varName,
+            string? configKey = null)
         {
             var outUriDecl = new DeclarationExpression(typeof(Uri), varName, out var uriVar, isOut: true);
             var ifStatement = new IfStatement(Static(typeof(Uri)).Invoke("TryCreate",
                 new ValueExpression[]
                 {
-                    new IndexerExpression(sectionParam, Literal(propName)),
+                    new IndexerExpression(sectionParam, Literal(configKey ?? propName)),
                     new MemberExpression(typeof(UriKind), nameof(UriKind.Absolute)),
                     outUriDecl
                 }));
@@ -394,7 +420,8 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
             ParameterProvider sectionParam,
             string propName,
             string varName,
-            CSharpType type)
+            CSharpType type,
+            string? configKey = null)
         {
             // Only handle List<string> for now
             if (type.Arguments.Count == 0 ||
@@ -405,7 +432,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
             }
 
             // IConfigurationSection listSection = section.GetSection("PropName");
-            body.Add(Declare((propName + "Section").ToVariableName(), IConfigurationSectionType, sectionParam.Invoke("GetSection", Literal(propName)), out var sectionVar));
+            body.Add(Declare((propName + "Section").ToVariableName(), IConfigurationSectionType, sectionParam.Invoke("GetSection", Literal(configKey ?? propName)), out var sectionVar));
 
             // if (listSection.Exists())
             var ifExistsStatement = new IfStatement(sectionVar.Invoke("Exists"));
@@ -437,10 +464,11 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
             ParameterProvider sectionParam,
             string propName,
             string varName,
-            CSharpType type)
+            CSharpType type,
+            string? configKey = null)
         {
             var decl = Declare(varName, new CSharpType(typeof(string)), out var declVar);
-            var ifStatement = new IfStatement(new IndexerExpression(sectionParam, Literal(propName)).Is(decl));
+            var ifStatement = new IfStatement(new IndexerExpression(sectionParam, Literal(configKey ?? propName)).Is(decl));
             ifStatement.Add(This.Property(propName).Assign(New.Instance(type, declVar)).Terminate());
             body.Add(ifStatement);
         }
@@ -453,13 +481,14 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
             ParameterProvider sectionParam,
             string propName,
             string varName,
-            CSharpType type)
+            CSharpType type,
+            string? configKey = null)
         {
             var outDecl = new DeclarationExpression(type, varName, out var parsedVar, isOut: true);
             var ifStatement = new IfStatement(Static(typeof(Enum)).Invoke("TryParse",
                 new ValueExpression[]
                 {
-                    new IndexerExpression(sectionParam, Literal(propName)),
+                    new IndexerExpression(sectionParam, Literal(configKey ?? propName)),
                     outDecl
                 }));
             ifStatement.Add(This.Property(propName).Assign(parsedVar).Terminate());
@@ -475,10 +504,11 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
             ParameterProvider sectionParam,
             string propName,
             string varName,
-            CSharpType type)
+            CSharpType type,
+            string? configKey = null)
         {
             // IConfigurationSection {name}Section = section.GetSection("PropName");
-            body.Add(Declare((propName + "Section").ToVariableName(), IConfigurationSectionType, sectionParam.Invoke("GetSection", Literal(propName)), out var sectionVar));
+            body.Add(Declare((propName + "Section").ToVariableName(), IConfigurationSectionType, sectionParam.Invoke("GetSection", Literal(configKey ?? propName)), out var sectionVar));
 
             // if ({name}Section.Exists()) { PropName = new TypeName({name}Section); }
             var ifExistsStatement = new IfStatement(sectionVar.Invoke("Exists"));
@@ -494,7 +524,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
         internal static CSharpType? TryGetStructUnderlyingType(CSharpType type)
         {
             var typeProvider = CodeModelGenerator.Instance.SourceInputModel
-                .FindForTypeInCustomization(type.Namespace, type.Name);
+                .FindForTypeInCurrentCompilation(type.Namespace, type.Name);
 
             if (typeProvider == null)
             {
@@ -549,6 +579,87 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
             if (effectiveType.Equals(optionsType) || effectiveType.Name == optionsType.Name)
             {
                 return true;
+            }
+
+            return false;
+        }
+
+        /// <summary>
+        /// Checks if a custom constructor parameter can be populated from configuration.
+        /// </summary>
+        internal static bool IsBindableCustomParameterType(CSharpType type)
+        {
+            var effectiveType = type.IsNullable ? type.WithNullable(false) : type;
+
+            if (!effectiveType.IsFrameworkType)
+            {
+                if (effectiveType.IsEnum)
+                {
+                    return true;
+                }
+
+                if (effectiveType.IsStruct)
+                {
+                    var underlyingType = TryGetStructUnderlyingType(effectiveType);
+                    if (underlyingType == null || !underlyingType.IsFrameworkType)
+                    {
+                        return false;
+                    }
+
+                    var underlyingFrameworkType = underlyingType.FrameworkType;
+                    return underlyingFrameworkType == typeof(string) ||
+                        underlyingFrameworkType == typeof(int) ||
+                        underlyingFrameworkType == typeof(long) ||
+                        underlyingFrameworkType == typeof(float) ||
+                        underlyingFrameworkType == typeof(double);
+                }
+
+                var typeProvider = CodeModelGenerator.Instance.SourceInputModel
+                    .FindForTypeInCurrentCompilation(effectiveType.Namespace, effectiveType.Name);
+                return typeProvider?.Constructors.Any(ctor =>
+                    ctor.Signature.Parameters.Count == 1 &&
+                    ctor.Signature.Parameters[0].Type.Name == IConfigurationSectionType.Name &&
+                    ctor.Signature.Parameters[0].Type.Namespace == IConfigurationSectionType.Namespace) == true;
+            }
+
+            if (effectiveType.IsList)
+            {
+                return effectiveType.Arguments.Count > 0 &&
+                    effectiveType.Arguments[0].IsFrameworkType &&
+                    effectiveType.Arguments[0].FrameworkType == typeof(string);
+            }
+
+            var frameworkType = effectiveType.FrameworkType;
+            return frameworkType == typeof(string) ||
+                frameworkType == typeof(bool) ||
+                frameworkType == typeof(int) ||
+                frameworkType == typeof(long) ||
+                frameworkType == typeof(float) ||
+                frameworkType == typeof(double) ||
+                frameworkType == typeof(TimeSpan) ||
+                frameworkType == typeof(Uri);
+        }
+
+        private bool ShouldIncludeCustomParameter(
+            ParameterProvider parameter,
+            string propertyName,
+            HashSet<string> knownProperties)
+        {
+            if (knownProperties.Contains(propertyName) || IsStandardParameterType(parameter.Type))
+            {
+                return false;
+            }
+
+            if (IsBindableCustomParameterType(parameter.Type))
+            {
+                return true;
+            }
+
+            if (_reportedUnsupportedCustomParameters.Add(propertyName))
+            {
+                ScmCodeModelGenerator.Instance.Emitter.ReportDiagnostic(
+                    DiagnosticCodes.UnsupportedClientSettingsParameter,
+                    $"Client settings for '{_clientProvider.Name}' omitted custom constructor parameter '{parameter.Name}' of type '{parameter.Type.Name}' because it cannot be bound from configuration. Construct the client directly or use a configuration-bindable parameter type.");
             }
 
             return false;

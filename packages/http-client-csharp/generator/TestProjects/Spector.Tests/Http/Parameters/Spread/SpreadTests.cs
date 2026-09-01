@@ -154,7 +154,9 @@ namespace TestProjects.Spector.Tests.Http.Parameters.Spread
         private static void ValidateConvenienceMethodParameters(MethodInfo method, IEnumerable<(Type ParameterType, string Name, bool IsRequired)> expected)
         {
             if (IsProtocolMethod(method))
+            {
                 return;
+            }
 
             expected = expected.Append((typeof(CancellationToken), "cancellationToken", false));
 

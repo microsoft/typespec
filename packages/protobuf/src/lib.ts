@@ -1,13 +1,8 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT license.
 
-import {
-  createTypeSpecLibrary,
-  DiagnosticTarget,
-  JSONSchemaType,
-  paramMessage,
-  Program,
-} from "@typespec/compiler";
+import type { DiagnosticTarget, JSONSchemaType, Program } from "@typespec/compiler";
+import { createTypeSpecLibrary, paramMessage } from "@typespec/compiler";
 
 /**
  * Options that the Protobuf emitter accepts.
@@ -110,6 +105,20 @@ export const TypeSpecProtobufLibrary = createTypeSpecLibrary({
         "unknown-scalar": paramMessage`no known protobuf scalar for TypeSpec scalar type ${"name"}`,
         "recursive-map": "a protobuf map's 'value' type may not refer to another map",
         union: "a message field's type may not be a union",
+      },
+    },
+    "optional-array-field": {
+      severity: "warning",
+      messages: {
+        default:
+          "optional array fields cannot preserve unset versus empty in protobuf; emitting a repeated field without the 'optional' label",
+      },
+    },
+    "optional-map-field": {
+      severity: "warning",
+      messages: {
+        default:
+          "optional map fields cannot preserve unset versus empty in protobuf; emitting a map field without the 'optional' label",
       },
     },
     "namespace-collision": {

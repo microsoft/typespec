@@ -1,0 +1,5 @@
+CannotRemoveAttribute : Attribute 'System.Diagnostics.CodeAnalysis.ExperimentalAttribute' exists on 'Ns.Foo' in the contract but not the implementation.
+this line has no colon and should be ignored
+
+   
+MembersMustExist : Member with no quotes should be ignored

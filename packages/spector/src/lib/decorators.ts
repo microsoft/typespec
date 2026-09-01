@@ -1,25 +1,9 @@
-import {
-  $service,
-  Enum,
-  getNamespaceFullName,
-  getTypeName,
-  Interface,
-  listServices,
-  Model,
-  Namespace,
-  Operation,
-  Program,
-} from "@typespec/compiler";
-import {
-  $route,
-  $server,
-  getOperationVerb,
-  getRoutePath,
-  getServers,
-  HttpVerb,
-} from "@typespec/http";
+import type { Enum, Interface, Model, Namespace, Operation, Program } from "@typespec/compiler";
+import { $service, getNamespaceFullName, getTypeName, listServices } from "@typespec/compiler";
+import type { HttpVerb } from "@typespec/http";
+import { $route, $server, getOperationVerb, getRoutePath, getServers } from "@typespec/http";
 import { $versioned } from "@typespec/versioning";
-import {
+import type {
   ScenarioDecorator,
   ScenarioDocDecorator,
   ScenarioServiceDecorator,

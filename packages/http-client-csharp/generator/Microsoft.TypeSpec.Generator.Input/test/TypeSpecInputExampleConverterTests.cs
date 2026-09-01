@@ -1,5 +1,5 @@
-using System.IO;
 using System.Collections.Generic;
+using System.IO;
 using Microsoft.TypeSpec.Generator.Tests.Common;
 using NUnit.Framework;
 

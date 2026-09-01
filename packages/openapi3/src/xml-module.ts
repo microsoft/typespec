@@ -1,18 +1,17 @@
 import { ArrayBuilder, ObjectBuilder, Placeholder } from "@typespec/asset-emitter";
-import {
+import type {
   ArrayModelType,
   Enum,
   Model,
   ModelProperty,
   Program,
   Scalar,
-  isArrayModelType,
-  resolveEncodedName,
 } from "@typespec/compiler";
+import { isArrayModelType, resolveEncodedName } from "@typespec/compiler";
 import { shouldInline } from "@typespec/openapi";
 import { reportDiagnostic } from "./lib.js";
-import { ResolvedOpenAPI3EmitterOptions } from "./openapi.js";
-import { OpenAPI3Schema, OpenAPI3XmlSchema, OpenAPISchema3_1 } from "./types.js";
+import type { ResolvedOpenAPI3EmitterOptions } from "./openapi.js";
+import type { OpenAPI3Schema, OpenAPI3XmlSchema, OpenAPISchema3_1 } from "./types.js";
 
 export interface XmlModule {
   attachXmlObjectForScalarOrModel(

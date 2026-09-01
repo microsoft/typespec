@@ -7,6 +7,7 @@ import com.azure.core.http.HttpPipelineCallContext;
 import com.azure.core.http.HttpPipelineNextPolicy;
 import com.azure.core.http.HttpResponse;
 import com.azure.core.http.policy.HttpPipelinePolicy;
+import com.azure.core.http.rest.RequestOptions;
 import com.azure.core.util.BinaryData;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Path;
@@ -65,6 +66,18 @@ public class MultipartTests {
 
     private static final String FILENAME = "image";
     private static final String FILE_CONTENT_TYPE = "application/octet-stream";
+
+    @Test
+    public void testHiddenProtocolMethodName() throws NoSuchMethodException {
+        FormDataClient.class.getDeclaredMethod("basicWithResponseInternal", BinaryData.class, RequestOptions.class);
+        FormDataAsyncClient.class.getDeclaredMethod("basicWithResponseInternal", BinaryData.class,
+            RequestOptions.class);
+
+        Assertions.assertThrows(NoSuchMethodException.class,
+            () -> FormDataClient.class.getDeclaredMethod("basicWithResponse", BinaryData.class, RequestOptions.class));
+        Assertions.assertThrows(NoSuchMethodException.class, () -> FormDataAsyncClient.class
+            .getDeclaredMethod("basicWithResponse", BinaryData.class, RequestOptions.class));
+    }
 
     private final static class KpmAlgorithm {
         private static int indexOf(byte[] data, int start, int stop, byte[] pattern) {

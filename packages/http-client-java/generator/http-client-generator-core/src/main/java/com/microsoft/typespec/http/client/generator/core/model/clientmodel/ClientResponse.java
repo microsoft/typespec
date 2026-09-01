@@ -12,16 +12,16 @@ public final class ClientResponse {
     private String description;
     private IType headersType;
     private IType bodyType;
-    private String crossLanguageDefinitionId;
+    private final ApiMetadata apiMetadata;
 
     private ClientResponse(String name, String packageKeyword, String description, IType headersType, IType bodyType,
-        String crossLanguageDefinitionId) {
+        ApiMetadata apiMetadata) {
         this.name = name;
         packageName = packageKeyword;
         this.description = description;
         this.headersType = headersType;
         this.bodyType = bodyType;
-        this.crossLanguageDefinitionId = crossLanguageDefinitionId;
+        this.apiMetadata = apiMetadata;
     }
 
     public String getName() {
@@ -44,8 +44,8 @@ public final class ClientResponse {
         return bodyType;
     }
 
-    public String getCrossLanguageDefinitionId() {
-        return crossLanguageDefinitionId;
+    public ApiMetadata getApiMetadata() {
+        return apiMetadata;
     }
 
     public static class Builder {
@@ -55,7 +55,7 @@ public final class ClientResponse {
         private IType headersType;
         private IType bodyType;
 
-        private String crossLanguageDefinitionId;
+        private ApiMetadata apiMetadata = new ApiMetadata.Builder().build();
 
         public Builder name(String name) {
             this.name = name;
@@ -82,13 +82,13 @@ public final class ClientResponse {
             return this;
         }
 
-        public Builder crossLanguageDefinitionId(String crossLanguageDefinitionId) {
-            this.crossLanguageDefinitionId = crossLanguageDefinitionId;
+        public Builder apiMetadata(ApiMetadata apiMetadata) {
+            this.apiMetadata = apiMetadata;
             return this;
         }
 
         public ClientResponse build() {
-            return new ClientResponse(name, packageName, description, headersType, bodyType, crossLanguageDefinitionId);
+            return new ClientResponse(name, packageName, description, headersType, bodyType, apiMetadata);
         }
     }
 }

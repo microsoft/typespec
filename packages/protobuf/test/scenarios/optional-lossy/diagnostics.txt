@@ -1,0 +1,2 @@
+/test/main.tsp:18:13 - warning @typespec/protobuf/optional-array-field: optional array fields cannot preserve unset versus empty in protobuf; emitting a repeated field without the 'optional' label
+/test/main.tsp:19:13 - warning @typespec/protobuf/optional-map-field: optional map fields cannot preserve unset versus empty in protobuf; emitting a map field without the 'optional' label

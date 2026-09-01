@@ -34,7 +34,7 @@ namespace SampleTypeSpec
             Uri nextPageUri = null;
             while (true)
             {
-                ClientResult result = ClientResult.FromResponse(_client.Pipeline.ProcessMessage(message, _options));
+                ClientResult result = GetNextResponse(message);
                 yield return result;
 
                 string nextPageString = ((ListWithStringNextLinkResponse)result).Next;
@@ -69,6 +69,13 @@ namespace SampleTypeSpec
         protected override IEnumerable<Thing> GetValuesFromPage(ClientResult page)
         {
             return ((ListWithStringNextLinkResponse)page).Things;
+        }
+
+        /// <summary> Sends the request in the pipeline message and returns the response. </summary>
+        /// <param name="message"> The pipeline message containing the request to send. </param>
+        private ClientResult GetNextResponse(PipelineMessage message)
+        {
+            return ClientResult.FromResponse(_client.Pipeline.ProcessMessage(message, _options));
         }
     }
 }

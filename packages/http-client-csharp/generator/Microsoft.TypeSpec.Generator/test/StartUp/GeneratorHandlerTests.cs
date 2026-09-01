@@ -5,8 +5,10 @@ using System;
 using System.Collections.Generic;
 using System.ComponentModel.Composition;
 using System.ComponentModel.Composition.Hosting;
+using System.Diagnostics;
 using System.IO;
 using System.Linq;
+using System.Threading.Tasks;
 using Microsoft.TypeSpec.Generator.EmitterRpc;
 using Moq;
 using NUnit.Framework;
@@ -216,6 +218,9 @@ namespace TestPlugin
                 Assert.IsNotNull(result, "BuildPlugin should return a DLL path");
                 Assert.IsTrue(result!.EndsWith("TestPlugin.dll", StringComparison.OrdinalIgnoreCase));
                 Assert.IsTrue(File.Exists(result), $"Built DLL should exist at {result}");
+                // The plugin is built into a process-isolated directory, not under the project.
+                StringAssert.DoesNotContain(testDir, result,
+                    "Plugin output should be redirected to an isolated directory, not the project directory");
             }
             finally
             {
@@ -224,7 +229,81 @@ namespace TestPlugin
         }
 
         [Test]
-        public void BuildPlugin_ThrowsOnInvalidProject()
+        public void ReadProcessOutput_DrainsStandardOutputAndErrorConcurrently()
+        {
+            var testDir = Path.Combine(Path.GetTempPath(), "typespec-test-process-output-" + Guid.NewGuid().ToString("N")[..8]);
+            try
+            {
+                Directory.CreateDirectory(testDir);
+                var projectPath = Path.Combine(testDir, "OutputFlood.csproj");
+                File.WriteAllText(projectPath, """
+                    <Project Sdk="Microsoft.NET.Sdk">
+                      <PropertyGroup>
+                        <OutputType>Exe</OutputType>
+                        <TargetFramework>net10.0</TargetFramework>
+                      </PropertyGroup>
+                    </Project>
+                    """);
+                File.WriteAllText(Path.Combine(testDir, "Program.cs"), """
+                    using System;
+
+                    Console.Error.Write(new string('e', 1_000_000));
+                    Console.Out.Write("stdout");
+                    """);
+
+                var buildStartInfo = new ProcessStartInfo("dotnet")
+                {
+                    UseShellExecute = false,
+                    ArgumentList =
+                    {
+                        "build",
+                        projectPath,
+                        "-c",
+                        "Release",
+                        "--nologo",
+                        "--verbosity",
+                        "quiet"
+                    }
+                };
+                AppendMsBuildPropertyIfSet(buildStartInfo.ArgumentList, "RestoreConfigFile", "RestoreConfigFile");
+                AppendMsBuildPropertyIfSet(buildStartInfo.ArgumentList, "NuGetAudit", "NuGetAudit");
+
+                using var buildProcess = Process.Start(buildStartInfo);
+                Assert.IsNotNull(buildProcess);
+                buildProcess!.WaitForExit();
+                Assert.AreEqual(0, buildProcess.ExitCode);
+
+                using var process = Process.Start(new ProcessStartInfo("dotnet")
+                {
+                    RedirectStandardOutput = true,
+                    RedirectStandardError = true,
+                    UseShellExecute = false,
+                    ArgumentList =
+                    {
+                        Path.Combine(testDir, "bin", "Release", "net10.0", "OutputFlood.dll")
+                    }
+                });
+                Assert.IsNotNull(process);
+
+                var readTask = Task.Run(() => GeneratorHandler.ReadProcessOutput(process!));
+                if (!readTask.Wait(TimeSpan.FromSeconds(10)))
+                {
+                    process!.Kill(entireProcessTree: true);
+                    Assert.Fail("Reading redirected output deadlocked when stderr filled its pipe before stdout closed.");
+                }
+
+                var (stdout, stderr) = readTask.Result;
+                Assert.AreEqual("stdout", stdout);
+                Assert.AreEqual(1_000_000, stderr.Length);
+            }
+            finally
+            {
+                try { Directory.Delete(testDir, true); } catch { }
+            }
+        }
+
+        [Test]
+        public void BuildPlugin_ReturnsNullOnInvalidProject()
         {
             var testDir = Path.Combine(Path.GetTempPath(), "typespec-test-plugin-" + Guid.NewGuid().ToString("N")[..8]);
             try
@@ -236,10 +315,43 @@ namespace TestPlugin
 
                 using var emitter = new Emitter(Stream.Null);
 
-                Assert.Throws<InvalidOperationException>(() =>
-                    GeneratorHandler.BuildPlugin(
-                        Path.Combine(testDir, "Bad.csproj"),
-                        emitter));
+                // A failed build should log an error and return null rather than throwing, so that
+                // generation is not aborted (e.g. when the plugin is built in parallel across projects).
+                var result = GeneratorHandler.BuildPlugin(
+                    Path.Combine(testDir, "Bad.csproj"),
+                    emitter);
+
+                Assert.IsNull(result);
+            }
+            finally
+            {
+                try { Directory.Delete(testDir, true); } catch { }
+            }
+        }
+
+        [Test]
+        public void BuildPlugin_ReturnsNullWhenBuildFails()
+        {
+            var testDir = Path.Combine(Path.GetTempPath(), "typespec-test-plugin-" + Guid.NewGuid().ToString("N")[..8]);
+            try
+            {
+                Directory.CreateDirectory(testDir);
+
+                // Create an invalid .csproj so the build fails. Because each generation builds the
+                // plugin into its own isolated output directory, there is no shared artifact from a
+                // parallel build to fall back to: a failed build yields no plugin (null) instead of
+                // silently reusing a possibly-stale assembly.
+                File.WriteAllText(Path.Combine(testDir, "Bad.csproj"), "not valid xml");
+                var existingDll = Path.Combine(testDir, "Bad.dll");
+                File.Copy(typeof(GeneratorHandlerTests).Assembly.Location, existingDll);
+
+                using var emitter = new Emitter(Stream.Null);
+
+                var result = GeneratorHandler.BuildPlugin(
+                    Path.Combine(testDir, "Bad.csproj"),
+                    emitter);
+
+                Assert.IsNull(result, "A failed build should not reuse an unrelated assembly next to the project");
             }
             finally
             {
@@ -328,6 +440,127 @@ namespace TypedPlugin { public class MyType { public int Value => 42; } }");
             {
                 try { Directory.Delete(testDir, true); } catch { }
             }
+        }
+
+        [Test]
+        public void FindPluginProject_ReturnsNullWhenNoCsproj()
+        {
+            using var testDir = new TempDirectory();
+            File.WriteAllText(Path.Combine(testDir.Path, "readme.txt"), "no csproj here");
+
+            Assert.IsNull(GeneratorHandler.FindPluginProject(testDir.Path));
+        }
+
+        [Test]
+        public void FindPluginProject_ReturnsRootProjectWhenNoSrcFolder()
+        {
+            using var testDir = new TempDirectory();
+            var csproj = Path.Combine(testDir.Path, "RootPlugin.csproj");
+            File.WriteAllText(csproj, EmptyProject);
+
+            Assert.AreEqual(csproj, GeneratorHandler.FindPluginProject(testDir.Path));
+        }
+
+        [Test]
+        public void FindPluginProject_ReturnsDeterministicProjectForNestedLayoutWithoutSrc()
+        {
+            // No 'src' folder anywhere, and the projects live in nested subdirectories. The fast
+            // path is skipped and the recursive fallback runs; with no 'src' project to prefer,
+            // selection falls back to the ordinal-first project deterministically.
+            using var testDir = new TempDirectory();
+
+            var betaDir = Directory.CreateDirectory(Path.Combine(testDir.Path, "beta", "lib")).FullName;
+            var betaProject = Path.Combine(betaDir, "Beta.csproj");
+            File.WriteAllText(betaProject, EmptyProject);
+
+            var alphaDir = Directory.CreateDirectory(Path.Combine(testDir.Path, "alpha", "lib")).FullName;
+            var alphaProject = Path.Combine(alphaDir, "Alpha.csproj");
+            File.WriteAllText(alphaProject, EmptyProject);
+
+            var result = GeneratorHandler.FindPluginProject(testDir.Path);
+
+            Assert.AreEqual(alphaProject, result);
+            // Selection is stable across repeated calls regardless of enumeration order.
+            Assert.AreEqual(alphaProject, GeneratorHandler.FindPluginProject(testDir.Path));
+        }
+
+        [Test]
+        public void FindPluginProject_PrefersProjectUnderSrcOverTest()
+        {
+            using var testDir = new TempDirectory();
+
+            var srcDir = Directory.CreateDirectory(Path.Combine(testDir.Path, "src")).FullName;
+            var srcProject = Path.Combine(srcDir, "Contoso.Plugin.csproj");
+            File.WriteAllText(srcProject, EmptyProject);
+
+            var testProjDir = Directory.CreateDirectory(Path.Combine(testDir.Path, "test")).FullName;
+            File.WriteAllText(Path.Combine(testProjDir, "Contoso.Plugin.Tests.csproj"), EmptyProject);
+
+            Assert.AreEqual(srcProject, GeneratorHandler.FindPluginProject(testDir.Path));
+        }
+
+        [Test]
+        public void FindPluginProject_PrefersSrcProjectWhenNestedDeeper()
+        {
+            using var testDir = new TempDirectory();
+
+            var nestedSrc = Directory.CreateDirectory(
+                Path.Combine(testDir.Path, "packages", "core", "src")).FullName;
+            var srcProject = Path.Combine(nestedSrc, "Core.csproj");
+            File.WriteAllText(srcProject, EmptyProject);
+
+            var testProjDir = Directory.CreateDirectory(
+                Path.Combine(testDir.Path, "packages", "core", "test")).FullName;
+            File.WriteAllText(Path.Combine(testProjDir, "Core.Tests.csproj"), EmptyProject);
+
+            Assert.AreEqual(srcProject, GeneratorHandler.FindPluginProject(testDir.Path));
+        }
+
+        [Test]
+        public void FindPluginProject_IsDeterministicWithMultipleSrcProjects()
+        {
+            // When several projects live under 'src', selection must be deterministic (ordinal-first)
+            // and identical across platforms rather than depending on filesystem enumeration order.
+            using var testDir = new TempDirectory();
+            var srcDir = Directory.CreateDirectory(Path.Combine(testDir.Path, "src")).FullName;
+
+            var aProject = Path.Combine(srcDir, "AAA.csproj");
+            var bProject = Path.Combine(srcDir, "BBB.csproj");
+            var cProject = Path.Combine(srcDir, "CCC.csproj");
+            File.WriteAllText(cProject, EmptyProject);
+            File.WriteAllText(aProject, EmptyProject);
+            File.WriteAllText(bProject, EmptyProject);
+
+            var result = GeneratorHandler.FindPluginProject(testDir.Path);
+
+            Assert.AreEqual(aProject, result);
+            // Selection is stable across repeated calls.
+            Assert.AreEqual(aProject, GeneratorHandler.FindPluginProject(testDir.Path));
+        }
+
+        [Test]
+        public void GetPackageDirectory_ScopedPackageSplitsOnSlash()
+        {
+            var root = Path.Combine("root", "project");
+            var result = GeneratorHandler.GetPackageDirectory(root, "@azure-typespec/http-client-csharp-mgmt");
+
+            var sep = Path.DirectorySeparatorChar;
+            var expected = $"root{sep}project{sep}node_modules{sep}@azure-typespec{sep}http-client-csharp-mgmt";
+            Assert.AreEqual(expected, result);
+            // The scoped package separator must be normalized to the platform separator so that
+            // long paths don't fail when the runtime applies the extended-length path prefix.
+            Assert.IsFalse(result.Contains('/') && sep != '/');
+        }
+
+        [Test]
+        public void GetPackageDirectory_UnscopedPackage()
+        {
+            var root = Path.Combine("root", "project");
+            var result = GeneratorHandler.GetPackageDirectory(root, "some-package");
+
+            var sep = Path.DirectorySeparatorChar;
+            var expected = $"root{sep}project{sep}node_modules{sep}some-package";
+            Assert.AreEqual(expected, result);
         }
 
         [Test]
@@ -478,34 +711,7 @@ namespace Plugin2 { public class Dummy { } }");
             }
         }
         [Test]
-        public void GetExpectedOutputPath_ConstructsPathFromCsprojProperties()
-        {
-            var testDir = Path.Combine(Path.GetTempPath(), "typespec-test-plugin-" + Guid.NewGuid().ToString("N")[..8]);
-            try
-            {
-                Directory.CreateDirectory(testDir);
-
-                File.WriteAllText(Path.Combine(testDir, "MyPlugin.csproj"), @"<Project Sdk=""Microsoft.NET.Sdk"">
-  <PropertyGroup>
-    <TargetFramework>net10.0</TargetFramework>
-  </PropertyGroup>
-</Project>");
-
-                var result = GeneratorHandler.GetExpectedOutputPath(
-                    Path.Combine(testDir, "MyPlugin.csproj"));
-
-                Assert.IsNotNull(result);
-                var expected = Path.Combine(testDir, "bin", "Release", "net10.0", "MyPlugin.dll");
-                Assert.AreEqual(expected, result);
-            }
-            finally
-            {
-                try { Directory.Delete(testDir, true); } catch { }
-            }
-        }
-
-        [Test]
-        public void GetExpectedOutputPath_UsesAssemblyNameWhenSpecified()
+        public void GetAssemblyName_UsesAssemblyNameWhenSpecified()
         {
             var testDir = Path.Combine(Path.GetTempPath(), "typespec-test-plugin-" + Guid.NewGuid().ToString("N")[..8]);
             try
@@ -519,12 +725,10 @@ namespace Plugin2 { public class Dummy { } }");
   </PropertyGroup>
 </Project>");
 
-                var result = GeneratorHandler.GetExpectedOutputPath(
+                var result = GeneratorHandler.GetAssemblyName(
                     Path.Combine(testDir, "MyPlugin.csproj"));
 
-                Assert.IsNotNull(result);
-                var expected = Path.Combine(testDir, "bin", "Release", "net10.0", "CustomName.dll");
-                Assert.AreEqual(expected, result);
+                Assert.AreEqual("CustomName", result);
             }
             finally
             {
@@ -533,22 +737,23 @@ namespace Plugin2 { public class Dummy { } }");
         }
 
         [Test]
-        public void GetExpectedOutputPath_ReturnsNullWhenNoTargetFramework()
+        public void GetAssemblyName_FallsBackToProjectFileName()
         {
             var testDir = Path.Combine(Path.GetTempPath(), "typespec-test-plugin-" + Guid.NewGuid().ToString("N")[..8]);
             try
             {
                 Directory.CreateDirectory(testDir);
 
-                File.WriteAllText(Path.Combine(testDir, "Bad.csproj"), @"<Project Sdk=""Microsoft.NET.Sdk"">
+                File.WriteAllText(Path.Combine(testDir, "MyPlugin.csproj"), @"<Project Sdk=""Microsoft.NET.Sdk"">
   <PropertyGroup>
+    <TargetFramework>net10.0</TargetFramework>
   </PropertyGroup>
 </Project>");
 
-                var result = GeneratorHandler.GetExpectedOutputPath(
-                    Path.Combine(testDir, "Bad.csproj"));
+                var result = GeneratorHandler.GetAssemblyName(
+                    Path.Combine(testDir, "MyPlugin.csproj"));
 
-                Assert.IsNull(result);
+                Assert.AreEqual("MyPlugin", result);
             }
             finally
             {
@@ -557,7 +762,7 @@ namespace Plugin2 { public class Dummy { } }");
         }
 
         [Test]
-        public void GetExpectedOutputPath_ReturnsNullForInvalidXml()
+        public void GetAssemblyName_FallsBackToProjectFileNameForInvalidXml()
         {
             var testDir = Path.Combine(Path.GetTempPath(), "typespec-test-plugin-" + Guid.NewGuid().ToString("N")[..8]);
             try
@@ -566,10 +771,10 @@ namespace Plugin2 { public class Dummy { } }");
 
                 File.WriteAllText(Path.Combine(testDir, "Bad.csproj"), "not valid xml");
 
-                var result = GeneratorHandler.GetExpectedOutputPath(
+                var result = GeneratorHandler.GetAssemblyName(
                     Path.Combine(testDir, "Bad.csproj"));
 
-                Assert.IsNull(result);
+                Assert.AreEqual("Bad", result);
             }
             finally
             {
@@ -578,29 +783,195 @@ namespace Plugin2 { public class Dummy { } }");
         }
 
         [Test]
-        public void GetExpectedOutputPath_UsesFirstTargetFrameworkFromMultiTargeting()
+        public void FindPluginAssembly_LocatesDllAndIgnoresIntermediateObjOutput()
         {
             var testDir = Path.Combine(Path.GetTempPath(), "typespec-test-plugin-" + Guid.NewGuid().ToString("N")[..8]);
             try
             {
                 Directory.CreateDirectory(testDir);
 
-                File.WriteAllText(Path.Combine(testDir, "MultiTarget.csproj"), @"<Project Sdk=""Microsoft.NET.Sdk"">
+                File.WriteAllText(Path.Combine(testDir, "MyPlugin.csproj"), @"<Project Sdk=""Microsoft.NET.Sdk"">
   <PropertyGroup>
-    <TargetFrameworks>net8.0;net10.0</TargetFrameworks>
+    <TargetFramework>net10.0</TargetFramework>
+    <AssemblyName>CustomName</AssemblyName>
   </PropertyGroup>
 </Project>");
 
-                var result = GeneratorHandler.GetExpectedOutputPath(
-                    Path.Combine(testDir, "MultiTarget.csproj"));
+                // A reference assembly under 'obj' must be ignored (metadata-only).
+                var objRefDir = Path.Combine(testDir, "obj", "Release", "net10.0", "ref");
+                Directory.CreateDirectory(objRefDir);
+                File.WriteAllText(Path.Combine(objRefDir, "CustomName.dll"), "ref");
 
-                Assert.IsNotNull(result);
-                var expected = Path.Combine(testDir, "bin", "Release", "net8.0", "MultiTarget.dll");
+                // The real output may live in a non-default location.
+                var outDir = Path.Combine(testDir, "custom-out", "Release", "net10.0");
+                Directory.CreateDirectory(outDir);
+                var expected = Path.Combine(outDir, "CustomName.dll");
+                File.WriteAllText(expected, "real");
+
+                var result = GeneratorHandler.FindPluginAssembly(
+                    Path.Combine(testDir, "MyPlugin.csproj"), testDir);
+
                 Assert.AreEqual(expected, result);
             }
             finally
             {
                 try { Directory.Delete(testDir, true); } catch { }
+            }
+        }
+
+        [Test]
+        public void BuildPlugin_IsolatesOutputEvenWhenProjectRedirectsIt()
+        {
+            var testDir = Path.Combine(Path.GetTempPath(), "typespec-test-plugin-" + Guid.NewGuid().ToString("N")[..8]);
+            try
+            {
+                Directory.CreateDirectory(testDir);
+
+                // The project tries to redirect its build output to a custom folder. The plugin
+                // build must override this and write to its own process-isolated directory so that
+                // concurrent builds of the same plugin never share output.
+                File.WriteAllText(Path.Combine(testDir, "Redirected.csproj"), @"<Project Sdk=""Microsoft.NET.Sdk"">
+  <PropertyGroup>
+    <TargetFrameworks>net10.0</TargetFrameworks>
+    <BaseOutputPath>$(MSBuildProjectDirectory)\artifacts-bin\</BaseOutputPath>
+  </PropertyGroup>
+</Project>");
+
+                File.WriteAllText(Path.Combine(testDir, "Plugin.cs"), @"
+namespace Redirected { public class Dummy { } }");
+
+                using var emitter = new Emitter(Stream.Null);
+                var result = GeneratorHandler.BuildPlugin(
+                    Path.Combine(testDir, "Redirected.csproj"), emitter);
+
+                Assert.IsNotNull(result, "Should locate the built DLL");
+                Assert.IsTrue(result!.EndsWith("Redirected.dll", StringComparison.OrdinalIgnoreCase));
+                Assert.IsTrue(File.Exists(result), $"Built DLL should exist at {result}");
+                // The project's own output redirection is overridden by the isolated build.
+                StringAssert.DoesNotContain("artifacts-bin", result,
+                    "The project's output redirection should be overridden by the isolated build");
+                StringAssert.DoesNotContain(testDir, result,
+                    "Plugin output should be redirected outside the project directory");
+            }
+            finally
+            {
+                try { Directory.Delete(testDir, true); } catch { }
+            }
+        }
+
+        [Test]
+        public void BuildPlugin_FindsOutputForMultiTargetedProject()
+        {
+            var testDir = Path.Combine(Path.GetTempPath(), "typespec-test-plugin-" + Guid.NewGuid().ToString("N")[..8]);
+            try
+            {
+                Directory.CreateDirectory(testDir);
+
+                // Multi-targeting (multiple frameworks) produces a separate output folder
+                // per framework. The previous path-computation logic could not reliably
+                // pick a framework; the scan should still locate a loadable assembly.
+                File.WriteAllText(Path.Combine(testDir, "MultiTarget.csproj"), @"<Project Sdk=""Microsoft.NET.Sdk"">
+  <PropertyGroup>
+    <TargetFrameworks>net10.0;netstandard2.0</TargetFrameworks>
+  </PropertyGroup>
+</Project>");
+
+                File.WriteAllText(Path.Combine(testDir, "Plugin.cs"), @"
+namespace MultiTarget { public class Dummy { } }");
+
+                using var emitter = new Emitter(Stream.Null);
+                var result = GeneratorHandler.BuildPlugin(
+                    Path.Combine(testDir, "MultiTarget.csproj"), emitter);
+
+                Assert.IsNotNull(result, "Should locate the DLL for a multi-targeted project");
+                Assert.IsTrue(result!.EndsWith("MultiTarget.dll", StringComparison.OrdinalIgnoreCase));
+                Assert.IsTrue(File.Exists(result), $"Built DLL should exist at {result}");
+                // The located assembly must be a real output, not an 'obj' reference assembly.
+                Assert.IsFalse(
+                    result.Split(Path.DirectorySeparatorChar, Path.AltDirectorySeparatorChar)
+                        .Contains("obj", StringComparer.OrdinalIgnoreCase),
+                    $"Should not return a metadata-only reference assembly under obj: {result}");
+            }
+            finally
+            {
+                try { Directory.Delete(testDir, true); } catch { }
+            }
+        }
+
+        [Test]
+        public void BuildPlugin_UsesADistinctOutputDirectoryPerCall()
+        {
+            var testDir = Path.Combine(Path.GetTempPath(), "typespec-test-plugin-" + Guid.NewGuid().ToString("N")[..8]);
+            try
+            {
+                Directory.CreateDirectory(testDir);
+
+                // Building the *same* project twice must produce assemblies in different
+                // directories. This is what allows concurrent generations to build a shared
+                // plugin without racing on the same 'bin'/'obj' output.
+                File.WriteAllText(Path.Combine(testDir, "Isolated.csproj"), @"<Project Sdk=""Microsoft.NET.Sdk"">
+  <PropertyGroup>
+    <TargetFramework>net10.0</TargetFramework>
+  </PropertyGroup>
+</Project>");
+
+                File.WriteAllText(Path.Combine(testDir, "Plugin.cs"), @"
+namespace Isolated { public class Dummy { } }");
+
+                using var emitter = new Emitter(Stream.Null);
+                var csproj = Path.Combine(testDir, "Isolated.csproj");
+
+                var first = GeneratorHandler.BuildPlugin(csproj, emitter);
+                var second = GeneratorHandler.BuildPlugin(csproj, emitter);
+
+                Assert.IsNotNull(first);
+                Assert.IsNotNull(second);
+                Assert.AreNotEqual(
+                    Path.GetDirectoryName(first),
+                    Path.GetDirectoryName(second),
+                    "Each build should write to its own isolated output directory");
+            }
+            finally
+            {
+                try { Directory.Delete(testDir, true); } catch { }
+            }
+        }
+
+        /// <summary>Minimal, buildable-shaped project file used by project-selection tests.</summary>
+        private const string EmptyProject = @"<Project Sdk=""Microsoft.NET.Sdk"">
+  <PropertyGroup>
+    <TargetFramework>net10.0</TargetFramework>
+  </PropertyGroup>
+</Project>";
+
+                private static void AppendMsBuildPropertyIfSet(
+                        System.Collections.ObjectModel.Collection<string> argumentList,
+                        string envVarName,
+                        string propertyName)
+                {
+                        var value = Environment.GetEnvironmentVariable(envVarName, EnvironmentVariableTarget.Process);
+                        if (!string.IsNullOrWhiteSpace(value))
+                        {
+                                argumentList.Add($"-p:{propertyName}={value}");
+                        }
+                }
+
+        /// <summary>Creates a unique temp directory and removes it on dispose.</summary>
+        private sealed class TempDirectory : IDisposable
+        {
+            public string Path { get; }
+
+            public TempDirectory()
+            {
+                Path = System.IO.Path.Combine(
+                    System.IO.Path.GetTempPath(),
+                    "typespec-test-plugin-" + Guid.NewGuid().ToString("N")[..8]);
+                Directory.CreateDirectory(Path);
+            }
+
+            public void Dispose()
+            {
+                try { Directory.Delete(Path, true); } catch { }
             }
         }
     }

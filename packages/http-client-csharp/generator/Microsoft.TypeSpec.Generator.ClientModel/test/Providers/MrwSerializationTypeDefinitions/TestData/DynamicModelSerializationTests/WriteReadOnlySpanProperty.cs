@@ -42,7 +42,7 @@ namespace Sample.Models
                 if (!Patch.IsRemoved("$.someSpan"u8))
                 {
                     writer.WritePropertyName("someSpan"u8);
-                    writer.WriteRawValue(Patch.GetJson("$.someSpan"u8));
+                    Patch.WriteTo(writer, "$.someSpan"u8);
                 }
             }
             else if (((options.Format != "W") && global::Sample.Optional.IsDefined(SomeSpan)))

@@ -5,7 +5,7 @@
 # --------------------------------------------------------------------------
 import pytest
 from typetest.model.singlediscriminator import SingleDiscriminatorClient
-from typetest.model.singlediscriminator.models import Sparrow, Eagle, Bird, Dinosaur
+from typetest.model.singlediscriminator.models import Sparrow, Eagle, Bird, Dinosaur, Fish
 
 
 @pytest.fixture
@@ -54,6 +54,14 @@ def test_get_missing_discriminator(client):
 
 def test_get_wrong_discriminator(client):
     assert client.get_wrong_discriminator() == Bird(wingspan=1, kind="wrongKind")
+
+
+def test_get_no_subtypes_model(client):
+    assert client.get_no_subtypes_model() == Fish(kind="salmon", size=10)
+
+
+def test_put_no_subtypes_model(client):
+    client.put_no_subtypes_model(Fish(kind="salmon", size=10))
 
 
 def test_get_legacy_model(client):

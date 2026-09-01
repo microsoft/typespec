@@ -75,6 +75,11 @@ namespace Microsoft.TypeSpec.Generator.Input
         public string Name { get; internal set; }
 
         /// <summary>
+        /// Gets a value indicating whether the operation name should be preserved exactly as-is, without casing transformations.
+        /// </summary>
+        public bool IsExactName { get; internal set; }
+
+        /// <summary>
         /// Gets the original name of the operation as defined in the TypeSpec before any mutations.
         /// </summary>
         public string? OriginalName { get; internal set; }

@@ -3,22 +3,25 @@ import { pathToFileURL } from "url";
 import { compilerAssert } from "../core/diagnostics.js";
 import { getEntityName } from "../core/helpers/type-name-utils.js";
 import { NodeHost } from "../core/node-host.js";
-import { CompilerOptions } from "../core/options.js";
+import type { CompilerOptions } from "../core/options.js";
 import { getIdentifierContext, getNodeAtPosition } from "../core/parser.js";
 import { getRelativePathFromDirectory, joinPaths, resolvePath } from "../core/path-utils.js";
-import { Program, compile as coreCompile } from "../core/program.js";
+import type { Program } from "../core/program.js";
+import { compile as coreCompile } from "../core/program.js";
 import { createSourceLoader } from "../core/source-loader.js";
-import { CompilerHost, Diagnostic, Entity, NoTarget, SourceFile } from "../core/types.js";
+import type { CompilerHost, Diagnostic, Entity, SourceFile } from "../core/types.js";
+import { NoTarget } from "../core/types.js";
 import { resolveModule } from "../module-resolver/module-resolver.js";
 import { NodePackageResolver } from "../module-resolver/node-package-resolver.js";
-import { ResolveModuleHost } from "../module-resolver/types.js";
+import type { ResolveModuleHost } from "../module-resolver/types.js";
 import { parseNodeModuleSpecifier } from "../module-resolver/utils.js";
-import { Typekit } from "../typekit/define-kit.js";
+import type { Typekit } from "../typekit/define-kit.js";
 import { $ } from "../typekit/index.js";
 import { expectDiagnosticEmpty } from "./expect.js";
 import { extractMarkers } from "./fourslash.js";
 import { createTestFileSystem } from "./fs.js";
-import { GetMarkedEntities, Marker, TemplateWithMarkers } from "./marked-template.js";
+import type { GetMarkedEntities, Marker } from "./marked-template.js";
+import { TemplateWithMarkers } from "./marked-template.js";
 import { StandardTestLibrary, addTestLib } from "./test-compiler-host.js";
 import { resolveVirtualPath } from "./test-utils.js";
 import type {
@@ -113,6 +116,16 @@ async function createTesterFs(base: string, options: TesterOptions) {
         resolvePath("node_modules", lib, "package.json"),
         (resolved.manifest as any).file.text,
       );
+
+      // Mount the library's own `tspconfig.yaml` (if any) so that features it opts into
+      // (e.g. `auto-decorators`) are honored when compiling against the virtual file system.
+      const tspconfigPath = resolvePath(resolved.path, "tspconfig.yaml");
+      try {
+        const tspconfig = await host.readFile(tspconfigPath);
+        fs.add(resolvePath("node_modules", lib, "tspconfig.yaml"), tspconfig.text);
+      } catch {
+        // No library tspconfig.yaml; nothing to mount.
+      }
     }
   }
 

@@ -1,4 +1,4 @@
-import { Numeric } from "../../core/numeric.js";
+import type { Numeric } from "../../core/numeric.js";
 import type { BooleanLiteral, Entity, NumericLiteral, StringLiteral } from "../../core/types.js";
 import { defineKit } from "../define-kit.js";
 

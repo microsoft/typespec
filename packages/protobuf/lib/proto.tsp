@@ -27,9 +27,11 @@ namespace TypeSpec.Protobuf;
  */
 @Private.externRef(Path, Name)
 model Extern<Path extends string, Name extends string> {
-  // This _extern property is needed so that getEffectiveModelType will have something to look up. Without it, if an
-  // Extern model is spread into the parameter of an operation, the resulting model is empty and carries no information
-  // that can relate it back to its original definition.
+  /**
+   * Never present. This property exists only so that `getEffectiveModelType` has something to look
+   * up: without it, an `Extern` model spread into an operation parameter yields an empty model that
+   * cannot be related back to its original definition.
+   */
   _extern: never;
 }
 
@@ -157,7 +159,7 @@ extern dec message(target: {});
  * The field index of a Protobuf message must:
  *   - fall between 1 and 2<sup>29</sup> - 1, inclusive.
  *   - not fall within the implementation reserved range of 19000 to 19999, inclusive.
- *   - not fall within any range that was [marked reserved](#@TypeSpec.Protobuf.reserve).
+ *   - not fall within any range that was [marked reserved](#%40TypeSpec.Protobuf.reserve).
  *
  * #### API Compatibility Note
  *
@@ -226,7 +228,7 @@ extern dec service(target: TypeSpec.Reflection.Interface);
 
 // FIXME: cannot link to the package decorator directly because it is detected as a broken link.
 /**
- * Details applied to a package definition by the [`@package`](./decorators#@TypeSpec.Protobuf.package) decorator.
+ * Details applied to a package definition by the [`@package`](./decorators#%40TypeSpec.Protobuf.package) decorator.
  */
 model PackageDetails {
   /**
@@ -262,7 +264,7 @@ extern dec `package`(target: TypeSpec.Reflection.Namespace, details?: PackageDet
  * - `Out`: the output of the operation is streaming.
  * - `None`: neither the input nor the output are streaming.
  *
- * See the [`@stream`](./decorators#@TypeSpec.Protobuf.stream) decorator.
+ * See the [`@stream`](./decorators#%40TypeSpec.Protobuf.stream) decorator.
  */
 enum StreamMode {
   /**

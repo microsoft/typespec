@@ -1215,6 +1215,33 @@ worksFor(supportedVersions, ({ openApiFor }) => {
       required: ["name"],
     });
   });
+
+  it("inheritance tree unreachable with @visibility(Create, Update) property doesn't get conflicts", async () => {
+    const res = await openApiFor(`
+      model Base {
+      }
+
+      model Child extends Base {
+        @visibility(Lifecycle.Create, Lifecycle.Update) name: string;
+      }
+    `);
+
+    deepStrictEqual(Object.keys(res.components.schemas), ["Base", "Child"]);
+    deepStrictEqual(res.components.schemas.Child, {
+      type: "object",
+      allOf: [
+        {
+          $ref: "#/components/schemas/Base",
+        },
+      ],
+      properties: {
+        name: {
+          type: "string",
+        },
+      },
+      required: ["name"],
+    });
+  });
 });
 
 worksFor(["3.0.0"], ({ openApiFor }) => {

@@ -19,6 +19,7 @@ import com.microsoft.typespec.http.client.generator.mgmt.model.clientmodel.examp
 import com.microsoft.typespec.http.client.generator.mgmt.model.clientmodel.examplemodel.ParameterExample;
 import io.clientcore.core.utils.CoreUtils;
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
@@ -47,7 +48,16 @@ public class FluentExampleTemplate {
         javaFile.javadocComment(commentBlock -> commentBlock
             .description(String.format("Samples for %1$s %2$s", example.getGroupName(), example.getMethodName())));
         javaFile.publicFinalClass(className, classBlock -> {
+            Set<String> methodSignatureWritten = new HashSet<>();
             for (ExampleMethod exampleMethod : exampleMethods) {
+                String methodSignature = exampleMethod.getMethodSignature();
+                if (methodSignatureWritten.contains(methodSignature)) {
+                    // skip this method, as it duplicate with method already written to the class
+                    // this usually happen on "advanced-versioning: true", where we have overload on the SDK method
+                    continue;
+                }
+                methodSignatureWritten.add(methodSignature);
+
                 if (!CoreUtils.isNullOrEmpty(exampleMethod.getExample().getOriginalFileName())) {
                     classBlock.blockComment(getExampleTag(exampleMethod.getExample()));
                 }
@@ -57,7 +67,6 @@ public class FluentExampleTemplate {
                     commentBlock.param(exampleMethod.getExample().getEntryName(),
                         exampleMethod.getExample().getEntryDescription());
                 });
-                String methodSignature = exampleMethod.getMethodSignature();
                 if (exampleMethod.getHelperFeatures().contains(ExampleHelperFeature.ThrowsIOException)) {
                     methodSignature += " throws IOException";
                 }

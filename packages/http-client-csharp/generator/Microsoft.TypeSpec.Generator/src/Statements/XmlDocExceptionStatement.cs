@@ -51,7 +51,9 @@ namespace Microsoft.TypeSpec.Generator.Statements
                     writer.Append($", <paramref name=\"{Parameters[i].AsVariable().Declaration}\"/>");
                 }
                 if (Parameters.Count > 1)
+                {
                     writer.Append($" or <paramref name=\"{Parameters[Parameters.Count - 1].AsVariable().Declaration}\"/>");
+                }
             }
 
             writer.WriteLine($" {_reason} </exception>");

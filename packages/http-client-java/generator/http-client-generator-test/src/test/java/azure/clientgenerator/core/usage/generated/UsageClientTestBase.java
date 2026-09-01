@@ -8,7 +8,8 @@ package azure.clientgenerator.core.usage.generated;
 // If you wish to modify these files, please copy them out of the 'generated' package, and modify there.
 // See https://aka.ms/azsdk/dpg/java/tests for guide on adding a test.
 
-import azure.clientgenerator.core.usage.UsageClient;
+import azure.clientgenerator.core.usage.ModelInOperationClient;
+import azure.clientgenerator.core.usage.NamespaceUsageClient;
 import azure.clientgenerator.core.usage.UsageClientBuilder;
 import com.azure.core.http.policy.HttpLogDetailLevel;
 import com.azure.core.http.policy.HttpLogOptions;
@@ -17,18 +18,29 @@ import com.azure.core.test.TestProxyTestBase;
 import com.azure.core.util.Configuration;
 
 class UsageClientTestBase extends TestProxyTestBase {
-    protected UsageClient usageClient;
+    protected ModelInOperationClient modelInOperationClient;
+
+    protected NamespaceUsageClient namespaceUsageClient;
 
     @Override
     protected void beforeTest() {
-        UsageClientBuilder usageClientbuilder = new UsageClientBuilder()
+        UsageClientBuilder modelInOperationClientbuilder = new UsageClientBuilder()
             .endpoint(Configuration.getGlobalConfiguration().get("ENDPOINT", "http://localhost:3000"))
             .httpClient(getHttpClientOrUsePlayback(getHttpClients().findFirst().orElse(null)))
             .httpLogOptions(new HttpLogOptions().setLogLevel(HttpLogDetailLevel.BASIC));
         if (getTestMode() == TestMode.RECORD) {
-            usageClientbuilder.addPolicy(interceptorManager.getRecordPolicy());
+            modelInOperationClientbuilder.addPolicy(interceptorManager.getRecordPolicy());
         }
-        usageClient = usageClientbuilder.buildClient();
+        modelInOperationClient = modelInOperationClientbuilder.buildModelInOperationClient();
+
+        UsageClientBuilder namespaceUsageClientbuilder = new UsageClientBuilder()
+            .endpoint(Configuration.getGlobalConfiguration().get("ENDPOINT", "http://localhost:3000"))
+            .httpClient(getHttpClientOrUsePlayback(getHttpClients().findFirst().orElse(null)))
+            .httpLogOptions(new HttpLogOptions().setLogLevel(HttpLogDetailLevel.BASIC));
+        if (getTestMode() == TestMode.RECORD) {
+            namespaceUsageClientbuilder.addPolicy(interceptorManager.getRecordPolicy());
+        }
+        namespaceUsageClient = namespaceUsageClientbuilder.buildNamespaceUsageClient();
 
     }
 }

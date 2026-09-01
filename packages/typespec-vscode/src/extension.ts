@@ -2,7 +2,8 @@
 // sort-imports-ignore
 import "./pre-extension-activate.js";
 
-import vscode, { commands, ExtensionContext, TabInputText } from "vscode";
+import type { ExtensionContext } from "vscode";
+import vscode, { commands, TabInputText } from "vscode";
 import { State } from "vscode-languageclient";
 import { createCodeActionProvider } from "./code-action-provider.js";
 import { setTspLanguageClient, tspLanguageClient } from "./extension-context.js";
@@ -13,24 +14,22 @@ import { TypeSpecLogOutputChannel } from "./log/typespec-log-output-channel.js";
 import { getDirectoryPath, normalizePath } from "./path-utils.js";
 import { createTaskProvider } from "./task-provider.js";
 import telemetryClient from "./telemetry/telemetry-client.js";
-import { OperationTelemetryEvent, TelemetryEventName } from "./telemetry/telemetry-event.js";
+import type { OperationTelemetryEvent } from "./telemetry/telemetry-event.js";
+import { TelemetryEventName } from "./telemetry/telemetry-event.js";
 import { TspLanguageClient } from "./tsp-language-client.js";
-import {
-  CodeActionCommand,
-  CommandName,
+import type {
   InstallGlobalCliCommandArgs,
   RestartServerCommandArgs,
   RestartServerCommandResult,
   Result,
-  ResultCode,
-  SettingName,
   TypeSpecExtensionApi,
 } from "./types.js";
+import { CodeActionCommand, CommandName, ResultCode, SettingName } from "./types.js";
 import { installCompilerWithUi } from "./typespec-utils.js";
 import { isWhitespaceStringOrUndefined, spawnExecutionAndLogToOutput } from "./utils.js";
+import type { InitTemplatesUrlSetting } from "./vscode-cmd/create-tsp-project.js";
 import {
   createTypeSpecProject,
-  InitTemplatesUrlSetting,
   registerInitTemplateUrls as registerInitTemplateUrlsInternal,
 } from "./vscode-cmd/create-tsp-project.js";
 import { emitCode } from "./vscode-cmd/emit-code/emit-code.js";
@@ -245,6 +244,7 @@ export async function activate(context: ExtensionContext) {
             await telemetryClient.doOperationWithTelemetry(
               TelemetryEventName.ServerPathSettingChanged,
               async (tel) => {
+                tel.lastStep = "Recreate LSP client for path change";
                 return await recreateLSPClient(context, tel.activityId);
               },
               undefined,
@@ -316,6 +316,7 @@ export async function activate(context: ExtensionContext) {
             }
             // client will be undefined only when we can't find compiler locally or globally
             // otherwise, the client should always be created though the start command may fail which is a different case
+            ssTel.lastStep = "Compiler not found (prompting to install)";
             const choice: "Yes" | "Ignore" | undefined = await vscode.window.showWarningMessage(
               "No TypeSpec compiler found which is required to start TypeSpec language server. Do you want to install TypeSpec compiler?",
               "Yes",
@@ -355,6 +356,8 @@ export async function activate(context: ExtensionContext) {
                 { showPopup: true },
               );
               ssTel.lastStep = "Failed to install TypeSpec compiler.";
+            } else {
+              ssTel.lastStep = "Install TypeSpec compiler cancelled.";
             }
             return installResult.code;
           },

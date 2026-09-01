@@ -1,4 +1,4 @@
-import { TypeSpecRestDecorators } from "../generated-defs/TypeSpec.Rest.js";
+import type { TypeSpecRestDecorators } from "../generated-defs/TypeSpec.Rest.js";
 import { $copyResourceKeyParameters, $parentResource } from "./resource.js";
 import {
   $action,

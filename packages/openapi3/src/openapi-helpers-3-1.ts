@@ -1,7 +1,7 @@
-import { ModelProperty, Scalar } from "@typespec/compiler";
+import type { ModelProperty, Scalar } from "@typespec/compiler";
 import { applyEncoding as baseApplyEncoding } from "./encoding.js";
-import { OpenApiSpecSpecificProps } from "./openapi-spec-mappings.js";
-import { OpenAPISchema3_1 } from "./types.js";
+import type { OpenApiSpecSpecificProps } from "./openapi-spec-mappings.js";
+import type { OpenAPISchema3_1 } from "./types.js";
 import { isScalarExtendsBytes } from "./util.js";
 
 function getEncodingFieldName(typespecType: Scalar | ModelProperty) {

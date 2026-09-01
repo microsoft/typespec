@@ -126,7 +126,7 @@ namespace SampleTypeSpec
                 if (!Patch.IsRemoved("$.optionalNullableList"u8))
                 {
                     writer.WritePropertyName("optionalNullableList"u8);
-                    writer.WriteRawValue(Patch.GetJson("$.optionalNullableList"u8));
+                    Patch.WriteTo(writer, "$.optionalNullableList"u8);
                 }
             }
             else if (Optional.IsCollectionDefined(OptionalNullableList))
@@ -149,7 +149,7 @@ namespace SampleTypeSpec
                 if (!Patch.IsRemoved("$.requiredNullableList"u8))
                 {
                     writer.WritePropertyName("requiredNullableList"u8);
-                    writer.WriteRawValue(Patch.GetJson("$.requiredNullableList"u8));
+                    Patch.WriteTo(writer, "$.requiredNullableList"u8);
                 }
             }
             else if (Optional.IsCollectionDefined(RequiredNullableList))
@@ -221,7 +221,7 @@ namespace SampleTypeSpec
                 Patch.WriteTo(writer, "$.requiredNullableDictionary"u8);
                 writer.WriteEndObject();
             }
-            else
+            else if (!Patch.Contains("$.requiredNullableDictionary"u8))
             {
                 writer.WriteNull("requiredNullableDictionary"u8);
             }
@@ -260,7 +260,7 @@ namespace SampleTypeSpec
                 if (!Patch.IsRemoved("$.listFoo"u8))
                 {
                     writer.WritePropertyName("listFoo"u8);
-                    writer.WriteRawValue(Patch.GetJson("$.listFoo"u8));
+                    Patch.WriteTo(writer, "$.listFoo"u8);
                 }
             }
             else
@@ -283,7 +283,7 @@ namespace SampleTypeSpec
                 if (!Patch.IsRemoved("$.listOfListFoo"u8))
                 {
                     writer.WritePropertyName("listOfListFoo"u8);
-                    writer.WriteRawValue(Patch.GetJson("$.listOfListFoo"u8));
+                    Patch.WriteTo(writer, "$.listOfListFoo"u8);
                 }
             }
             else
@@ -436,7 +436,7 @@ namespace SampleTypeSpec
                 if (!Patch.IsRemoved("$.listOfDictionaryFoo"u8))
                 {
                     writer.WritePropertyName("listOfDictionaryFoo"u8);
-                    writer.WriteRawValue(Patch.GetJson("$.listOfDictionaryFoo"u8));
+                    Patch.WriteTo(writer, "$.listOfDictionaryFoo"u8);
                 }
             }
             else
@@ -773,7 +773,11 @@ namespace SampleTypeSpec
             {
                 int propertyLength = "listFoo"u8.Length;
                 ReadOnlySpan<byte> currentSlice = local.Slice(propertyLength);
-                if (!currentSlice.TryGetIndex(out int index, out int bytesConsumed))
+                if (currentSlice.IsEmpty)
+                {
+                    return TryResolveListFooArray(out value);
+                }
+                if (!currentSlice.TryGetIndex(out int index, out int bytesConsumed) || index >= ListFoo.Count)
                 {
                     return false;
                 }
@@ -783,12 +787,12 @@ namespace SampleTypeSpec
             {
                 int propertyLength = "listOfListFoo"u8.Length;
                 ReadOnlySpan<byte> currentSlice = local.Slice(propertyLength);
-                if (!currentSlice.TryGetIndex(out int index, out int bytesConsumed))
+                if (!currentSlice.TryGetIndex(out int index, out int bytesConsumed) || index >= ListOfListFoo.Count)
                 {
                     return false;
                 }
                 currentSlice = currentSlice.Slice(bytesConsumed);
-                if (!currentSlice.TryGetIndex(out int index0, out int bytesConsumed0))
+                if (!currentSlice.TryGetIndex(out int index0, out int bytesConsumed0) || index0 >= ListOfListFoo[index].Count)
                 {
                     return false;
                 }
@@ -832,7 +836,7 @@ namespace SampleTypeSpec
                     return false;
                 }
                 currentSlice = currentSlice.GetRemainder(i);
-                if (!currentSlice.TryGetIndex(out int index, out int bytesConsumed))
+                if (!currentSlice.TryGetIndex(out int index, out int bytesConsumed) || index >= item.Count)
                 {
                     return false;
                 }
@@ -842,7 +846,7 @@ namespace SampleTypeSpec
             {
                 int propertyLength = "listOfDictionaryFoo"u8.Length;
                 ReadOnlySpan<byte> currentSlice = local.Slice(propertyLength);
-                if (!currentSlice.TryGetIndex(out int index, out int bytesConsumed))
+                if (!currentSlice.TryGetIndex(out int index, out int bytesConsumed) || index >= ListOfDictionaryFoo.Count)
                 {
                     return false;
                 }
@@ -876,7 +880,7 @@ namespace SampleTypeSpec
             {
                 int propertyLength = "listFoo"u8.Length;
                 ReadOnlySpan<byte> currentSlice = local.Slice(propertyLength);
-                if (!currentSlice.TryGetIndex(out int index, out int bytesConsumed))
+                if (!currentSlice.TryGetIndex(out int index, out int bytesConsumed) || index >= ListFoo.Count)
                 {
                     return false;
                 }
@@ -887,12 +891,12 @@ namespace SampleTypeSpec
             {
                 int propertyLength = "listOfListFoo"u8.Length;
                 ReadOnlySpan<byte> currentSlice = local.Slice(propertyLength);
-                if (!currentSlice.TryGetIndex(out int index, out int bytesConsumed))
+                if (!currentSlice.TryGetIndex(out int index, out int bytesConsumed) || index >= ListOfListFoo.Count)
                 {
                     return false;
                 }
                 currentSlice = currentSlice.Slice(bytesConsumed);
-                if (!currentSlice.TryGetIndex(out int index0, out int bytesConsumed0))
+                if (!currentSlice.TryGetIndex(out int index0, out int bytesConsumed0) || index0 >= ListOfListFoo[index].Count)
                 {
                     return false;
                 }
@@ -939,7 +943,7 @@ namespace SampleTypeSpec
                     return false;
                 }
                 currentSlice = currentSlice.GetRemainder(i);
-                if (!currentSlice.TryGetIndex(out int index, out int bytesConsumed))
+                if (!currentSlice.TryGetIndex(out int index, out int bytesConsumed) || index >= item.Count)
                 {
                     return false;
                 }
@@ -950,7 +954,7 @@ namespace SampleTypeSpec
             {
                 int propertyLength = "listOfDictionaryFoo"u8.Length;
                 ReadOnlySpan<byte> currentSlice = local.Slice(propertyLength);
-                if (!currentSlice.TryGetIndex(out int index, out int bytesConsumed))
+                if (!currentSlice.TryGetIndex(out int index, out int bytesConsumed) || index >= ListOfDictionaryFoo.Count)
                 {
                     return false;
                 }
@@ -964,6 +968,39 @@ namespace SampleTypeSpec
                 return true;
             }
             return false;
+        }
+#pragma warning restore SCME0001 // Type is for evaluation purposes only and is subject to change or removal in future updates.
+
+        /// <summary></summary>
+        /// <param name="value"></param>
+        /// <returns></returns>
+#pragma warning disable SCME0001 // Type is for evaluation purposes only and is subject to change or removal in future updates.
+        private bool TryResolveListFooArray(out JsonPatch.EncodedValue value)
+        {
+            value = default;
+            BinaryData data = ModelReaderWriter.Write(ActiveListFoo(), ModelReaderWriterOptions.Json, SampleTypeSpecContext.Default);
+            JsonPatch tempPatch = new JsonPatch();
+            tempPatch.Set("$"u8, data.ToMemory().Span);
+            return tempPatch.TryGetEncodedValue("$"u8, out value);
+        }
+#pragma warning restore SCME0001 // Type is for evaluation purposes only and is subject to change or removal in future updates.
+
+        /// <summary></summary>
+        /// <returns></returns>
+#pragma warning disable SCME0001 // Type is for evaluation purposes only and is subject to change or removal in future updates.
+        private IEnumerable<AnotherDynamicModel> ActiveListFoo()
+        {
+            if (!Optional.IsCollectionDefined(ListFoo))
+            {
+                yield break;
+            }
+            for (int i = 0; i < ListFoo.Count; i++)
+            {
+                if (!ListFoo[i].Patch.IsRemoved("$"u8))
+                {
+                    yield return ListFoo[i];
+                }
+            }
         }
 #pragma warning restore SCME0001 // Type is for evaluation purposes only and is subject to change or removal in future updates.
     }

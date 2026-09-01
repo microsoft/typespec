@@ -15,6 +15,10 @@ namespace Microsoft.TypeSpec.Generator
 {
     internal class MethodSignatureHelper
     {
+        internal static bool IsPublicApi(MethodSignatureModifiers modifiers)
+            => (modifiers.HasFlag(MethodSignatureModifiers.Public) || modifiers.HasFlag(MethodSignatureModifiers.Protected))
+                && !modifiers.HasFlag(MethodSignatureModifiers.Private);
+
         internal static bool ContainsSameParameters(MethodSignature method1, MethodSignature method2)
         {
             var count = method1.Parameters.Count;
@@ -53,7 +57,7 @@ namespace Microsoft.TypeSpec.Generator
             return true;
         }
 
-        internal static MethodSignature BuildBackCompatMethodSignature(MethodSignature previousMethodSignature, bool hideMethod)
+        internal static MethodSignature BuildBackCompatMethodSignature(MethodSignature previousMethodSignature, bool hideMethod, bool shouldNotBeAsync = false)
         {
             if (hideMethod)
             {
@@ -64,13 +68,17 @@ namespace Microsoft.TypeSpec.Generator
                 }
             }
 
+            var modifiers = shouldNotBeAsync
+                ? previousMethodSignature.Modifiers & ~MethodSignatureModifiers.Async
+                : previousMethodSignature.Modifiers;
+
             var attributes = hideMethod
                 ? [.. previousMethodSignature.Attributes, new AttributeStatement(typeof(EditorBrowsableAttribute), Snippet.FrameworkEnumValue(EditorBrowsableState.Never))]
                 : previousMethodSignature.Attributes;
             return new MethodSignature(
                 previousMethodSignature.Name,
                 previousMethodSignature.Description,
-                previousMethodSignature.Modifiers,
+                modifiers,
                 previousMethodSignature.ReturnType,
                 previousMethodSignature.ReturnDescription,
                 previousMethodSignature.Parameters,
@@ -82,9 +90,14 @@ namespace Microsoft.TypeSpec.Generator
             public bool Equals(ParameterProvider? x, ParameterProvider? y)
             {
                 if (ReferenceEquals(x, y))
+                {
                     return true;
+                }
+
                 if (x is null || y is null)
+                {
                     return false;
+                }
 
                 return x.Type.AreNamesEqual(y.Type)
                     && x.Name.ToVariableName() == y.Name.ToVariableName()

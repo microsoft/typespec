@@ -1,4 +1,4 @@
-import { Program, Service } from "@typespec/compiler";
+import type { Program, Service } from "@typespec/compiler";
 import type { OpenAPI3ServiceRecord, SupportedOpenAPIDocuments } from "@typespec/openapi3";
 
 /**

@@ -1,14 +1,12 @@
-import {
+import type {
   Diagnostic,
   DiagnosticTarget,
   ModelProperty,
   Program,
   Scalar,
   Type,
-  createDiagnosticCollector,
-  getMaxValue,
-  getMinValue,
 } from "@typespec/compiler";
+import { createDiagnosticCollector, getMaxValue, getMinValue } from "@typespec/compiler";
 import { $ } from "@typespec/compiler/typekit";
 import { createDiagnostic } from "./lib.js";
 import type { HttpStatusCodeRange, HttpStatusCodes } from "./types.js";

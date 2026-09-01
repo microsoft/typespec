@@ -131,17 +131,30 @@ namespace Microsoft.TypeSpec.Generator.Input
                     case JsonValueKind.Number:
                         var rawText = rawValue.Value.GetRawText();
                         if (int.TryParse(rawText, out var int32Value))
+                        {
                             return InputExampleValue.Value(type, int32Value);
+                        }
                         else if (long.TryParse(rawText, out var int64Value))
+                        {
                             return InputExampleValue.Value(type, int64Value);
+                        }
                         else if (float.TryParse(rawText, out var floatValue))
+                        {
                             return InputExampleValue.Value(type, floatValue);
+                        }
                         else if (double.TryParse(rawText, out var doubleValue))
+                        {
                             return InputExampleValue.Value(type, doubleValue);
+                        }
                         else if (decimal.TryParse(rawText, out var decimalValue))
+                        {
                             return InputExampleValue.Value(type, decimalValue);
+                        }
                         else
+                        {
                             return InputExampleValue.Value(type, null);
+                        }
+
                     case JsonValueKind.Array:
                         var length = rawValue.Value.GetArrayLength();
                         var values = new List<InputExampleValue>(length);

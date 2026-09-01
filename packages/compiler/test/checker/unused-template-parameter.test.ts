@@ -1,6 +1,7 @@
 import { beforeEach, describe, it } from "vitest";
 import { createUnusedTemplateParameterLinterRule } from "../../src/core/linter-rules/unused-template-parameter.rule.js";
-import { LinterRuleTester, createLinterRuleTester } from "../../src/testing/rule-tester.js";
+import type { LinterRuleTester } from "../../src/testing/rule-tester.js";
+import { createLinterRuleTester } from "../../src/testing/rule-tester.js";
 import { Tester } from "../tester.js";
 
 let ruleTester: LinterRuleTester;

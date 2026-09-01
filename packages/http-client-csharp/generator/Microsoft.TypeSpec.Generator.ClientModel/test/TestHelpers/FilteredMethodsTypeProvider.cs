@@ -18,7 +18,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests
             _include = includeMethod;
         }
 
-        protected override MethodProvider[] BuildMethods()
+        protected internal override MethodProvider[] BuildMethods()
         {
             return _provider.Methods.Where(m => _include.Invoke(m.Signature.Name)).ToArray();
         }

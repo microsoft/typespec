@@ -1,23 +1,21 @@
 // Copyright (c) Microsoft Corporation. All rights reserved.
 // Licensed under the MIT License. See License.txt in the project root for license information.
 
-import { createSdkContext, SdkContext } from "@azure-tools/typespec-client-generator-core";
-import {
-  createDiagnosticCollector,
-  Diagnostic,
-  EmitContext,
-  Program,
-  resolvePath,
-} from "@typespec/compiler";
+import type { SdkContext } from "@azure-tools/typespec-client-generator-core";
+import { createSdkContext } from "@azure-tools/typespec-client-generator-core";
+import type { Diagnostic, EmitContext, Program } from "@typespec/compiler";
+import { createDiagnosticCollector, resolvePath } from "@typespec/compiler";
 import { serializeCodeModel } from "./code-model-writer.js";
 import { generate } from "./emit-generate.js";
 import { createModel } from "./lib/client-model-builder.js";
 import { LoggerLevel } from "./lib/logger-level.js";
 import { Logger } from "./lib/logger.js";
-import { CSharpEmitterOptions, resolveOptions } from "./options.js";
-import { createCSharpEmitterContext, CSharpEmitterContext } from "./sdk-context.js";
-import { CodeModel } from "./type/code-model.js";
-import { Configuration } from "./type/configuration.js";
+import type { CSharpEmitterOptions } from "./options.js";
+import { resolveOptions } from "./options.js";
+import type { CSharpEmitterContext } from "./sdk-context.js";
+import { createCSharpEmitterContext } from "./sdk-context.js";
+import type { CodeModel } from "./type/code-model.js";
+import type { Configuration } from "./type/configuration.js";
 
 /**
  * Creates a code model by executing the full emission logic.
@@ -81,24 +79,31 @@ export async function emitCodeModel(
       const updatedRoot = updateCodeModel ? updateCodeModel(root, sdkContext) : root;
 
       const namespace = updatedRoot.name;
-      const configurations: Configuration = createConfiguration(options, namespace, sdkContext);
 
-      // Serialize code model and configuration
-      const codeModelJson = serializeCodeModel(sdkContext, updatedRoot);
-      const configJson = JSON.stringify(configurations, null, 2) + "\n";
+      // If the namespace could not be resolved, createModel has already reported an
+      // actionable diagnostic. Skip generation so we don't send an unnamed code model that
+      // fails to deserialize in the .NET generator with an opaque root-level error.
+      // See https://github.com/microsoft/typespec/issues/10914.
+      if (namespace) {
+        const configurations: Configuration = createConfiguration(options, namespace, sdkContext);
 
-      // Generate C# code via platform-specific implementation.
-      // In Node.js this runs the .NET generator locally.
-      // In the browser this sends the code model to a playground server.
-      await generate(sdkContext, codeModelJson, configJson, {
-        outputFolder,
-        packageName: configurations["package-name"] ?? "",
-        generatorName: options["generator-name"],
-        newProject: options["new-project"],
-        debug: options.debug ?? false,
-        saveInputs: options["save-inputs"] ?? false,
-        emitterExtensionPath: options["emitter-extension-path"],
-      });
+        // Serialize code model and configuration
+        const codeModelJson = serializeCodeModel(sdkContext, updatedRoot);
+        const configJson = JSON.stringify(configurations, null, 2) + "\n";
+
+        // Generate C# code via platform-specific implementation.
+        // In Node.js this runs the .NET generator locally.
+        // In the browser this sends the code model to a playground server.
+        await generate(sdkContext, codeModelJson, configJson, {
+          outputFolder,
+          packageName: configurations["package-name"] ?? "",
+          generatorName: options["generator-name"],
+          newProject: options["new-project"],
+          debug: options.debug ?? false,
+          saveInputs: options["save-inputs"] ?? false,
+          emitterExtensionPath: options["emitter-extension-path"],
+        });
+      }
     }
   }
 
@@ -143,6 +148,8 @@ export function createConfiguration(
     "unreferenced-types-handling": options["unreferenced-types-handling"],
     "disable-xml-docs":
       options["disable-xml-docs"] === false ? undefined : options["disable-xml-docs"],
+    "disable-roslyn-reduce":
+      options["disable-roslyn-reduce"] === false ? undefined : options["disable-roslyn-reduce"],
     license: sdkContext.sdkPackage.licenseInfo,
   };
 }

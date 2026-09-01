@@ -12,7 +12,7 @@ import java.util.List;
  */
 public interface Lroes {
     /**
-     * A long-running resource action.
+     * The export operation.
      * 
      * @param resourceGroupName The name of the resource group. The name is case insensitive.
      * @param orderName The name of the Order.
@@ -25,7 +25,7 @@ public interface Lroes {
     ExportResult export(String resourceGroupName, String orderName, ExportRequest body);
 
     /**
-     * A long-running resource action.
+     * The export operation.
      * 
      * @param resourceGroupName The name of the resource group. The name is case insensitive.
      * @param orderName The name of the Order.
@@ -83,6 +83,31 @@ public interface Lroes {
      * @return the response.
      */
     List<ExportResult> exportArray(ExportRequest body, Context context);
+
+    /**
+     * Get a CostReport.
+     * 
+     * @param scope The fully qualified Azure Resource manager identifier of the resource.
+     * @param operationId The name of the CostReport.
+     * @throws IllegalArgumentException thrown if parameters fail the validation.
+     * @throws com.azure.core.management.exception.ManagementException thrown if the request is rejected by server.
+     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
+     * @return a CostReport.
+     */
+    CostReport getLro(String scope, String operationId);
+
+    /**
+     * Get a CostReport.
+     * 
+     * @param scope The fully qualified Azure Resource manager identifier of the resource.
+     * @param operationId The name of the CostReport.
+     * @param context The context to associate with this operation.
+     * @throws IllegalArgumentException thrown if parameters fail the validation.
+     * @throws com.azure.core.management.exception.ManagementException thrown if the request is rejected by server.
+     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
+     * @return a CostReport.
+     */
+    CostReport getLro(String scope, String operationId, Context context);
 
     /**
      * Delete a Order.

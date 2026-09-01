@@ -1,5 +1,5 @@
-import { HttpAuth } from "@typespec/http";
-import { authSchemeSymbol, credentialSymbol } from "./credential-symbol.js";
+import type { HttpAuth } from "@typespec/http";
+import type { authSchemeSymbol, credentialSymbol } from "./credential-symbol.js";
 
 declare module "@typespec/compiler" {
   interface ModelProperty {

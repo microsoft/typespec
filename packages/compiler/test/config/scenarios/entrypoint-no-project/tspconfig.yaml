@@ -1,0 +1,3 @@
+entrypoint: src/service.tsp
+emit:
+  - openapi

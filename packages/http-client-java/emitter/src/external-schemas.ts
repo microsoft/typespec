@@ -1,14 +1,7 @@
-import {
-  ArraySchema,
-  BinarySchema,
-  ObjectSchema,
-  Property,
-  Schema,
-  Schemas,
-  StringSchema,
-} from "@autorest/codemodel";
+import type { BinarySchema, Schema, Schemas, StringSchema } from "@autorest/codemodel";
+import { ArraySchema, ObjectSchema, Property } from "@autorest/codemodel";
 import { KnownMediaType } from "@azure-tools/codegen";
-import {
+import type {
   SdkModelPropertyType,
   SdkModelType,
   SdkType,

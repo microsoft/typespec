@@ -6,7 +6,6 @@
     { "path": "packages/http/tsconfig.build.json" },
     { "path": "packages/rest/tsconfig.build.json" },
     { "path": "packages/library-linter/tsconfig.build.json" },
-    { "path": "packages/eslint-plugin-typespec/tsconfig.build.json" },
     { "path": "packages/openapi/tsconfig.build.json" },
     { "path": "packages/sse/tsconfig.build.json" },
     { "path": "packages/events/tsconfig.build.json" },
@@ -29,7 +28,6 @@
     { "path": "packages/best-practices/tsconfig.build.json" },
     { "path": "packages/xml/tsconfig.build.json" },
     { "path": "./packages/http-server-js/tsconfig.json" },
-    { "path": "packages/http-server-csharp/tsconfig.build.json" },
     { "path": "packages/astro-utils/tsconfig.build.json" }
   ],
   "files": []

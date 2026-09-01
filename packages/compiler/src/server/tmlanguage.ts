@@ -93,16 +93,12 @@ const anyNumber = `(?:${hexNumber}|${binaryNumber}|${decimalNumber})`;
 
 const expression: IncludeRule = {
   key: "expression",
-  patterns: [
-    /* placeholder filled later due to cycle*/
-  ],
+  patterns: [/* placeholder filled later due to cycle*/],
 };
 
 const statement: IncludeRule = {
   key: "statement",
-  patterns: [
-    /*placeholder filled later due to cycle*/
-  ],
+  patterns: [/*placeholder filled later due to cycle*/],
 };
 
 const booleanLiteral: MatchRule = {

@@ -46,7 +46,9 @@ namespace Microsoft.TypeSpec.Generator.Snippets
         public static ValueExpression ToSerial(this CSharpType type, ParameterProvider param)
         {
             if (!type.IsEnum)
+            {
                 throw new InvalidOperationException($"Can't call ToSerial on non-enum type {type.Name}");
+            }
 
             ValueExpression variable = param.Field is null ? param : param.Field;
             ValueExpression invokeVariable = variable;
@@ -61,7 +63,9 @@ namespace Microsoft.TypeSpec.Generator.Snippets
         public static ValueExpression ToSerial(this CSharpType type, ValueExpression variable)
         {
             if (!type.IsEnum)
+            {
                 throw new InvalidOperationException($"Can't call ToSerial on non-enum type {type.Name}");
+            }
 
             if (type.IsStruct) //extensible
             {

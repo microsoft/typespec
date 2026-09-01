@@ -37,8 +37,10 @@ export interface EditorPanelProps {
 
   selectedEmitter: string;
   compilerOptions: CompilerOptions;
+  tspconfig: string;
   onCompilerOptionsChange: (options: CompilerOptions) => void;
   onSelectedEmitterChange: (emitter: string) => void;
+  onTspconfigChange: (tspconfig: string) => void;
 
   /** Toolbar content rendered above the editor area */
   commandBar?: ReactNode;
@@ -52,8 +54,10 @@ export const EditorPanel: FunctionComponent<EditorPanelProps> = ({
   onMount,
   selectedEmitter,
   compilerOptions,
+  tspconfig,
   onCompilerOptionsChange,
   onSelectedEmitterChange,
+  onTspconfigChange,
   commandBar,
 }) => {
   const [selectedTab, setSelectedTab] = useState<EditorPanelTab>("tsp");
@@ -92,8 +96,10 @@ export const EditorPanel: FunctionComponent<EditorPanelProps> = ({
             host={host}
             selectedEmitter={selectedEmitter}
             compilerOptions={compilerOptions}
+            tspconfig={tspconfig}
             onCompilerOptionsChange={onCompilerOptionsChange}
             onSelectedEmitterChange={onSelectedEmitterChange}
+            onTspconfigChange={onTspconfigChange}
             editorOptions={editorOptions}
           />
         )}

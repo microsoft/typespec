@@ -1,9 +1,9 @@
 import { codeFrameColumns } from "@babel/code-frame";
 import pc from "picocolors";
-import { Formatter } from "picocolors/types.js";
+import type { Formatter } from "picocolors/types.js";
 import { getRelatedLocations, getSourceLocation } from "../diagnostics.js";
 import { getRelativePathFromDirectory } from "../path-utils.js";
-import {
+import type {
   Diagnostic,
   LogLevel,
   LogSink,

@@ -1,5 +1,8 @@
 import "@typespec/rest";
 import "@typespec/http";
+import "@typespec/http/streams";
+import "@typespec/sse";
+import "@typespec/events";
 import "@typespec/xml";
 import "@typespec/http-client-csharp";
 import "@azure-tools/typespec-client-generator-core";
@@ -19,9 +22,12 @@ import "@azure-tools/typespec-azure-core";
 namespace SampleTypeSpec;
 
 using TypeSpec.Http;
+using TypeSpec.Http.Streams;
 using TypeSpec.Versioning;
 using TypeSpec.HttpClient.CSharp;
 using TypeSpec.Xml;
+using TypeSpec.Events;
+using TypeSpec.SSE;
 using Azure.ClientGenerator.Core;
 
 alias SampleOAuth2 = OAuth2Auth<[
@@ -509,7 +515,7 @@ op sayHi(
 @route("/againHi")
 @doc("Return hi again")
 @get
-@convenientAPI(true)
+@convenientAPI(true, "csharp")
 op helloAgain(
   @header p1: string,
   @body action: RoundTripModel,
@@ -533,43 +539,43 @@ op noContentTypeOverride(info: Wrapper): RoundTripModel;
 @route("/demoHi")
 @doc("Return hi in demo2")
 @get
-@convenientAPI(true)
+@convenientAPI(true, "csharp")
 op helloDemo2(): Thing;
 
 @route("/literal")
 @doc("Create with literal value")
 @post
-@convenientAPI(true)
+@convenientAPI(true, "csharp")
 op createLiteral(@body body: Thing): Thing;
 
 @route("/helloLiteral")
 @doc("Send literal parameters")
 @get
-@convenientAPI(true)
+@convenientAPI(true, "csharp")
 op helloLiteral(@header p1: "test", @path p2: 123, @query p3: true): Thing;
 
 @route("/top")
 @doc("top level method")
 @get
-@convenientAPI(true)
+@convenientAPI(true, "csharp")
 op topAction(@path action: utcDateTime): Thing;
 
 @route("/top2")
 @doc("top level method2")
 @get
-@convenientAPI(false)
+@convenientAPI(false, "csharp")
 op topAction2(): Thing;
 
 @route("/patch")
 @doc("top level patch")
 @patch
-@convenientAPI(true)
+@convenientAPI(true, "csharp")
 op patchAction(@body body: Thing): Thing;
 
 @route("/anonymousBody")
 @doc("body parameter without body decorator")
 @post
-@convenientAPI(true)
+@convenientAPI(true, "csharp")
 op anonymousBody(
   ...Thing,
   @query requiredQueryParam: "someRequiredLiteralQueryParam",
@@ -579,7 +585,7 @@ op anonymousBody(
 @route("/friendlyName")
 @doc("Model can have its friendly name")
 @post
-@convenientAPI(true)
+@convenientAPI(true, "csharp")
 op friendlyModel(...NotFriend): NotFriend;
 
 op addTimeHeader(@header("Repeatability-First-Sent") repeatabilityFirstSent?: utcDateTime): void;
@@ -587,13 +593,13 @@ op addTimeHeader(@header("Repeatability-First-Sent") repeatabilityFirstSent?: ut
 @route("/projectedName")
 @doc("Model can have its projected name")
 @post
-@convenientAPI(true)
+@convenientAPI(true, "csharp")
 op projectedNameModel(...ModelWithClientName): ModelWithClientName;
 
 @route("/returnsAnonymousModel")
 @doc("return anonymous model")
 @post
-@convenientAPI(true)
+@convenientAPI(true, "csharp")
 op returnsAnonymousModel(): {
   @body body: {};
 };
@@ -606,32 +612,32 @@ op getUnknownValue(): DaysOfWeekExtensibleEnum;
 @doc("When set protocol false and convenient true, then the protocol method should be internal")
 @route("internalProtocol")
 @post
-@convenientAPI(true)
-@protocolAPI(false)
+@convenientAPI(true, "csharp")
+@protocolAPI(false, "csharp")
 op internalProtocol(@body body: Thing): Thing;
 
 @doc("When set protocol false and convenient true, the convenient method should be generated even it has the same signature as protocol one")
 @route("stillConvenient")
 @get
-@convenientAPI(true)
-@protocolAPI(false)
+@convenientAPI(true, "csharp")
+@protocolAPI(false, "csharp")
 op stillConvenient(): void;
 
 @route("/headAsBoolean")
 @doc("head as boolean.")
 @head
-@convenientAPI(true)
+@convenientAPI(true, "csharp")
 op headAsBoolean(@path id: string): void;
 
 @route("/WithApiVersion")
 @doc("Return hi again")
 @get
-@convenientAPI(true)
+@convenientAPI(true, "csharp")
 op WithApiVersion(@header p1: string, @query apiVersion: string): void;
 
 @route("/link")
 @doc("List things with nextlink")
-@convenientAPI(true)
+@convenientAPI(true, "csharp")
 @list
 op ListWithNextLink(): {
   @pageItems
@@ -642,7 +648,7 @@ op ListWithNextLink(): {
 
 @route("/linkString")
 @doc("List things with nextlink")
-@convenientAPI(true)
+@convenientAPI(true, "csharp")
 @list
 op ListWithStringNextLink(): {
   @pageItems
@@ -653,7 +659,7 @@ op ListWithStringNextLink(): {
 
 @route("/continuation")
 @doc("List things with continuation token")
-@convenientAPI(true)
+@convenientAPI(true, "csharp")
 @list
 op ListWithContinuationToken(@query @continuationToken token?: string): {
   @pageItems
@@ -664,7 +670,7 @@ op ListWithContinuationToken(@query @continuationToken token?: string): {
 
 @route("/continuation/header")
 @doc("List things with continuation token header response")
-@convenientAPI(true)
+@convenientAPI(true, "csharp")
 @list
 op ListWithContinuationTokenHeaderResponse(@query @continuationToken token?: string): {
   @pageItems
@@ -679,7 +685,7 @@ model Page<T> {
 
 @route("list/paging")
 @doc("List things with paging")
-@convenientAPI(true)
+@convenientAPI(true, "csharp")
 @list
 op ListWithPaging(): Page<Thing>;
 
@@ -873,3 +879,58 @@ interface Notebooks {
     content: string;
   };
 }
+
+model Cat {
+  id: HttpPart<string>;
+  boolPart: HttpPart<boolean>;
+  int32Part: HttpPart<int32>;
+  int64Part: HttpPart<int64>;
+  float32Part: HttpPart<float32>;
+  float64Part: HttpPart<float64>;
+  decimalPart: HttpPart<decimal128>;
+  int8Part: HttpPart<int8>;
+  uint8Part: HttpPart<uint8>;
+  dictionaryPart: HttpPart<Record<string>>;
+  dictionaryModelPart: HttpPart<Record<Thing>>;
+  listPart: HttpPart<string[]>;
+  listModelPart: HttpPart<Thing[]>;
+  multipleListPart: HttpPart<string>[];
+  profileImage: HttpPart<File>;
+  extensibleEnumPart: HttpPart<StringExtensibleEnum>;
+  fixedEnumPart: HttpPart<StringFixedEnum>;
+  intExtensibleEnumPart: HttpPart<IntExtensibleEnum>;
+  intFixedEnumPart: HttpPart<IntFixedEnum>;
+}
+
+@post
+@route("/cats")
+op uploadCat(
+  @header contentType: "multipart/form-data",
+  @multipartBody body: Cat,
+): NoContentResponse;
+
+model StreamingItem {
+  message: string;
+}
+
+@events
+union SampleEvents {
+  @Events.contentType("application/json")
+  item: StreamingItem,
+
+  @Events.contentType("text/plain")
+  @terminalEvent
+  "[DONE]",
+}
+
+@post
+@route("/streaming/jsonl/send")
+op sendJsonLines(stream: JsonlStream<StreamingItem>): NoContentResponse;
+
+@get
+@route("/streaming/jsonl/receive")
+op receiveJsonLines(): JsonlStream<StreamingItem>;
+
+@get
+@route("/streaming/sse/receive")
+op receiveSse(): SSEStream<SampleEvents>;

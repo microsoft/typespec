@@ -1,17 +1,10 @@
-import {
-  For,
-  Output,
-  OutputDirectory,
-  Refkey,
-  refkey,
-  render,
-  Show,
-  StatementList,
-} from "@alloy-js/core";
+import type { OutputDirectory, Refkey } from "@alloy-js/core";
+import { For, Output, refkey, render, Show, StatementList } from "@alloy-js/core";
 import * as ts from "@alloy-js/typescript";
-import { Program } from "@typespec/compiler";
+import type { Program } from "@typespec/compiler";
 import { typespecCompiler } from "../external-packages/compiler.js";
-import { DecoratorSignature, EntitySignature, FunctionSignature } from "../types.js";
+import type { DecoratorSignature, EntitySignature, FunctionSignature } from "../types.js";
+import { AutoDecoratorAccessors } from "./auto-decorator-accessors.js";
 import { DecoratorSignatureType, ValueOfModelTsInterfaceBody } from "./decorator-signature-type.js";
 import { DollarDecoratorsType } from "./dollar-decorators-type.js";
 import { DollarFunctionsType } from "./dollar-functions-type.jsx";
@@ -33,41 +26,50 @@ export function EntitySignatures({
   dollarFunctionsRefKey: dollarFunctionsRefkey,
 }: EntitySignaturesProps) {
   const decorators = entities.filter((e): e is DecoratorSignature => e.kind === "Decorator");
+  const externDecorators = decorators.filter((d) => !d.isAuto);
+  const autoDecorators = decorators.filter((d) => d.isAuto);
 
   const functions = entities.filter((e): e is FunctionSignature => e.kind === "Function");
 
   return (
-    <ts.TypeRefContext>
-      <LocalTypes />
-      <Show when={decorators.length > 0}>
+    <>
+      <ts.TypeRefContext>
+        <LocalTypes />
+        <Show when={externDecorators.length > 0}>
+          <hbr />
+          <hbr />
+          <For each={externDecorators} doubleHardline semicolon>
+            {(signature) => <DecoratorSignatureType signature={signature} />}
+          </For>
+          <hbr />
+          <hbr />
+          <DollarDecoratorsType
+            namespaceName={namespaceName}
+            decorators={externDecorators}
+            refkey={dollarDecoratorsRefkey}
+          />
+        </Show>
+        <Show when={functions.length > 0}>
+          <hbr />
+          <hbr />
+          <For each={functions} doubleHardline semicolon>
+            {(signature) => <FunctionSignatureType signature={signature} />}
+          </For>
+          <hbr />
+          <hbr />
+          <DollarFunctionsType
+            namespaceName={namespaceName}
+            functions={functions}
+            refkey={dollarFunctionsRefkey}
+          />
+        </Show>
+      </ts.TypeRefContext>
+      <Show when={autoDecorators.length > 0}>
         <hbr />
         <hbr />
-        <For each={decorators} doubleHardline semicolon>
-          {(signature) => <DecoratorSignatureType signature={signature} />}
-        </For>
-        <hbr />
-        <hbr />
-        <DollarDecoratorsType
-          namespaceName={namespaceName}
-          decorators={decorators}
-          refkey={dollarDecoratorsRefkey}
-        />
+        <AutoDecoratorAccessors decorators={autoDecorators} namespaceName={namespaceName} />
       </Show>
-      <Show when={functions.length > 0}>
-        <hbr />
-        <hbr />
-        <For each={functions} doubleHardline semicolon>
-          {(signature) => <FunctionSignatureType signature={signature} />}
-        </For>
-        <hbr />
-        <hbr />
-        <DollarFunctionsType
-          namespaceName={namespaceName}
-          functions={functions}
-          refkey={dollarFunctionsRefkey}
-        />
-      </Show>
-    </ts.TypeRefContext>
+    </>
   );
 }
 
@@ -88,25 +90,38 @@ export function LocalTypes() {
   );
 }
 
+export interface GenerateSignaturesOptions {
+  /** Package export subpath the signatures belong to. Defaults to the root(`.`). */
+  readonly subpath?: string;
+  /** Whether to emit the `<Namespace>.ts-test.ts` typecheck file. Defaults to `true`. */
+  readonly emitTests?: boolean;
+}
+
 export function generateSignatures(
   program: Program,
   entities: EntitySignature[],
   libraryName: string,
   namespaceName: string,
+  options?: GenerateSignaturesOptions,
 ): OutputDirectory {
   const context = createTspdContext(program);
   const base = namespaceName === "" ? "__global__" : namespaceName;
+  const subpath = options?.subpath ?? ".";
+  const emitTests = options?.emitTests ?? true;
   const $decoratorsRef = refkey();
   const $functionsRef = refkey();
   const userLib = ts.createPackage({
     name: libraryName,
     version: "0.0.0",
     descriptor: {
-      ".": {
+      [subpath]: {
         named: ["$decorators", "$functions"],
       },
     },
   });
+  // createPackage hoists the root export members but keeps sub exports nested under their subpath key.
+  const userLibExports: { $decorators: Refkey; $functions: Refkey } =
+    subpath === "." ? (userLib as any) : (userLib as any)[subpath];
 
   const jsxContent = (
     <TspdContext.Provider value={context}>
@@ -119,7 +134,7 @@ export function generateSignatures(
             dollarFunctionsRefKey={$functionsRef}
           />
         </ts.SourceFile>
-        {!base.includes(".Private") && (
+        {emitTests && !base.includes(".Private") && (
           <ts.SourceFile
             path={`${base}.ts-test.ts`}
             headerComment="An error in the imports would mean that the decorator is not exported or doesn't have the right name."
@@ -127,9 +142,9 @@ export function generateSignatures(
             <EntitySignatureTests
               namespaceName={namespaceName}
               entities={entities}
-              dollarDecoratorRefKey={userLib.$decorators}
+              dollarDecoratorRefKey={userLibExports.$decorators}
               dollarDecoratorsTypeRefKey={$decoratorsRef}
-              dollarFunctionsRefKey={userLib.$functions}
+              dollarFunctionsRefKey={userLibExports.$functions}
               dollarFunctionsTypeRefKey={$functionsRef}
             />
           </ts.SourceFile>

@@ -1,23 +1,22 @@
 export {
-  DiscriminatedUnion,
-  DiscriminatedUnionLegacy,
   getDiscriminatedUnion,
   getDiscriminatedUnionFromInheritance,
 } from "./discriminator-utils.js";
+export type { DiscriminatedUnion, DiscriminatedUnionLegacy } from "./discriminator-utils.js";
 export { getLocationContext } from "./location-context.js";
 export { listOperationsIn, type ListOperationOptions } from "./operation-utils.js";
-export { interpolatePath } from "./path-interpolation.js";
+export { interpolatePath, sanitizePathSegment } from "./path-interpolation.js";
 
 export { cacheRawText, getCachedRawText, getRawTextWithCache } from "./raw-text-cache.js";
 export { explainStringTemplateNotSerializable } from "./string-template-utils.js";
 export { printIdentifier as formatIdentifier, printIdentifier } from "./syntax-utils.js";
 export {
-  TypeNameOptions,
   getEntityName,
   getNamespaceFullName,
   getTypeName,
   isStdNamespace,
 } from "./type-name-utils.js";
+export type { TypeNameOptions } from "./type-name-utils.js";
 export {
   UsageFlags,
   resolveUsages,

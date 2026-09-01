@@ -66,7 +66,7 @@ class CombinedType(BaseType):
 
     def type_annotation(self, **kwargs: Any) -> str:
         if self.name:
-            return f'"_types.{self.name}"'
+            return f'"_unions.{self.name}"'
         return self.type_definition(**kwargs)
 
     def type_definition(self, **kwargs: Any) -> str:
@@ -116,10 +116,10 @@ class CombinedType(BaseType):
         file_import = FileImport(self.code_model)
         serialize_namespace = kwargs.get("serialize_namespace", self.code_model.namespace)
         serialize_namespace_type = kwargs.get("serialize_namespace_type")
-        if self.name and serialize_namespace_type != NamespaceType.TYPES_FILE:
+        if self.name and serialize_namespace_type != NamespaceType.UNIONS_FILE:
             file_import.add_submodule_import(
                 self.code_model.get_relative_import_path(serialize_namespace),
-                "_types",
+                "_unions",
                 ImportType.LOCAL,
                 TypingSection.TYPING,
             )

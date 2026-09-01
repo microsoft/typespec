@@ -51,9 +51,7 @@ def process_single_spec(config_path_str: str) -> tuple[str, bool, str]:
                 return False
             return value
 
-        pygen_args = {
-            k: _coerce(v) for k, v in command_args.items() if k not in ["emit-yaml-only"]
-        }
+        pygen_args = {k: _coerce(v) for k, v in command_args.items() if k not in ["emit-yaml-only"]}
 
         # Run preprocess and codegen (black is batched at the end for performance)
         preprocess.PreProcessPlugin(output_folder=output_dir, tsp_file=yaml_path, **pygen_args).process()

@@ -3,16 +3,15 @@ import type {
   Range,
   Diagnostic as VSDiagnostic,
 } from "vscode-languageserver";
+import { DiagnosticSeverity } from "vscode-languageserver";
 import type { TextDocument } from "vscode-languageserver-textdocument";
-import { DiagnosticSeverity } from "vscode-languageserver/node.js";
 import {
   getDiagnosticTemplateInstantitationTrace,
   getSourceLocation,
 } from "../core/diagnostics.js";
 import { getTypeName } from "../core/helpers/type-name-utils.js";
 import type { Program } from "../core/program.js";
-import type { Node, SourceLocation } from "../core/types.js";
-import { Diagnostic } from "../core/types.js";
+import type { Diagnostic, Node, SourceLocation } from "../core/types.js";
 import { isDefined } from "../utils/misc.js";
 import type { FileService } from "./file-service.js";
 import type { ServerSourceFile } from "./types.js";

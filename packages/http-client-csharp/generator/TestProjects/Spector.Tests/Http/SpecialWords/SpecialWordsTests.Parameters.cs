@@ -2,8 +2,8 @@
 // Licensed under the MIT License.
 
 using System.Threading.Tasks;
-using SpecialWords;
 using NUnit.Framework;
+using SpecialWords;
 
 namespace TestProjects.Spector.Tests.Http.SpecialWords
 {

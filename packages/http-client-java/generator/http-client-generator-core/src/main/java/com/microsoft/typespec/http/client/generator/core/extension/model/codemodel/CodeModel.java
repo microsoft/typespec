@@ -17,6 +17,9 @@ public class CodeModel extends Client {
     private List<Client> clients = new ArrayList<>();
     private TestModel testModel;
 
+    private String crossLanguagePackageId;
+    private String crossLanguageVersion;
+
     /**
      * Creates a new instance of the CodeModel class.
      */
@@ -85,6 +88,42 @@ public class CodeModel extends Client {
      */
     public TestModel getTestModel() {
         return testModel;
+    }
+
+    /**
+     * Gets the cross-language package ID.
+     *
+     * @return The cross-language package ID.
+     */
+    public String getCrossLanguagePackageId() {
+        return crossLanguagePackageId;
+    }
+
+    /**
+     * Sets the cross-language package ID.
+     *
+     * @param crossLanguagePackageId The cross-language package ID.
+     */
+    public void setCrossLanguagePackageId(String crossLanguagePackageId) {
+        this.crossLanguagePackageId = crossLanguagePackageId;
+    }
+
+    /**
+     * Gets the cross-language version.
+     *
+     * @return The cross-language version.
+     */
+    public String getCrossLanguageVersion() {
+        return crossLanguageVersion;
+    }
+
+    /**
+     * Sets the cross-language version.
+     *
+     * @param crossLanguageVersion The cross-language version.
+     */
+    public void setCrossLanguageVersion(String crossLanguageVersion) {
+        this.crossLanguageVersion = crossLanguageVersion;
     }
 
     /**

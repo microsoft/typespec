@@ -17,7 +17,13 @@
     "textmate",
     "tmlanguage"
   ],
+  "type": "module",
   "main": "dist/tmlanguage-generator.js",
+  "exports": {
+    ".": {
+      "import": "./dist/tmlanguage-generator.js"
+    }
+  },
   "engines": {
     "node": ">=22.0.0"
   },
@@ -25,8 +31,8 @@
     "clean": "rimraf ./dist ./temp",
     "build": "tsc -p tsconfig.build.json",
     "watch": "tsc -p tsconfig.build.json --watch",
-    "lint": "eslint . --max-warnings=0",
-    "lint:fix": "eslint . --fix"
+    "lint": "oxlint . --deny-warnings",
+    "lint:fix": "oxlint . --fix"
   },
   "files": [
     "dist/**",
@@ -38,7 +44,6 @@
   },
   "devDependencies": {
     "@types/node": "catalog:",
-    "@types/plist": "catalog:",
     "rimraf": "catalog:",
     "typescript": "catalog:"
   }

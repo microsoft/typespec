@@ -1,6 +1,7 @@
 import { removeUnusedCodeCodeFix } from "../compiler-code-fixes/remove-unused-code.codefix.js";
 import { createLinterRule, paramMessage } from "../library.js";
-import { IdentifierNode, MemberExpressionNode, SyntaxKind } from "../types.js";
+import type { IdentifierNode, MemberExpressionNode } from "../types.js";
+import { SyntaxKind } from "../types.js";
 
 export const builtInLinterRule_UnusedUsing = `unused-using`;
 

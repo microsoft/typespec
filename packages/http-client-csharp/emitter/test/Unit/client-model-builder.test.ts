@@ -1,10 +1,10 @@
 vi.resetModules();
 
-import { TestHost } from "@typespec/compiler/testing";
+import type { TestHost } from "@typespec/compiler/testing";
 import { ok, strictEqual } from "assert";
 import { beforeEach, describe, it, vi } from "vitest";
 import { createModel } from "../../src/lib/client-model-builder.js";
-import { InputEnumType } from "../../src/type/input-type.js";
+import type { InputEnumType } from "../../src/type/input-type.js";
 import {
   createCSharpSdkContext,
   createEmitterContext,
@@ -567,5 +567,29 @@ describe("createModel diagnostic collection", () => {
     // Verify diagnostics array exists (may be empty or contain diagnostics)
     ok(diagnostics !== undefined, "Diagnostics should not be undefined");
     ok(Array.isArray(diagnostics), "Diagnostics should be an array");
+  });
+
+  it("reports an unresolved-client-namespace diagnostic when no namespace can be resolved", async () => {
+    const program = await typeSpecCompile(
+      `
+      @route("/test")
+      op test(): void;
+      `,
+      runner,
+      { IsNamespaceNeeded: false, IsVersionNeeded: false },
+    );
+    const context = createEmitterContext(program);
+    const sdkContext = await createCSharpSdkContext(context);
+    const [codeModel, diagnostics] = createModel(sdkContext);
+
+    ok(
+      diagnostics.some(
+        (d) => d.code === "@typespec/http-client-csharp/unresolved-client-namespace",
+      ),
+      "Expected an unresolved-client-namespace diagnostic",
+    );
+    // The code model name is empty so callers can skip generation instead of
+    // sending an unnamed model that fails to deserialize in the generator.
+    strictEqual(codeModel.name, "", "CodeModel name should be empty when unresolved");
   });
 });

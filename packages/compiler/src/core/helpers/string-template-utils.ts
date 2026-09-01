@@ -31,6 +31,7 @@ export function explainStringTemplateNotSerializable(
           diagnostics.pipe(isStringTemplateSerializable(span.type));
           break;
         case "TemplateParameter":
+        case "TemplateParameterAccess":
           if (span.type.constraint && span.type.constraint.valueType !== undefined) {
             break; // Value types will be serializable in the template instance.
           }

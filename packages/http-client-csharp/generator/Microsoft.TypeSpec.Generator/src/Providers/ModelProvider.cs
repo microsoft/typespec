@@ -3,6 +3,7 @@
 
 using System;
 using System.Collections.Generic;
+using System.Diagnostics.CodeAnalysis;
 using System.IO;
 using System.Linq;
 using Microsoft.TypeSpec.Generator.EmitterRpc;
@@ -27,12 +28,13 @@ namespace Microsoft.TypeSpec.Generator.Providers
         {
             var description = DocHelpers.GetFormattableDescription(_inputModel.Summary, _inputModel.Doc) ??
                               $"The {Name}.";
-            if (IsAbstract)
+            if (_isDiscriminatedBaseType)
             {
                 _derivedModels = BuildDerivedModels();
                 var publicDerivedModels = _derivedModels.Where(m => m.DeclarationModifiers.HasFlag(TypeSignatureModifiers.Public)).ToList();
-                var derivedClassesDescription =
-                    "Please note this is the abstract base class. The derived classes available for instantiation are: ";
+                var derivedClassesDescription = DeclarationModifiers.HasFlag(TypeSignatureModifiers.Abstract)
+                    ? "Please note this is the abstract base class. The derived classes available for instantiation are: "
+                    : "Please note this is the base class. The derived classes available for instantiation are: ";
                 bool addComma = publicDerivedModels.Count > 2;
                 for (int i = 0; i < publicDerivedModels.Count; i++)
                 {
@@ -52,49 +54,52 @@ namespace Microsoft.TypeSpec.Generator.Providers
             return description;
         }
 
-        private readonly bool _isMultiLevelDiscriminator;
+        private bool? _isMultiLevelDiscriminator;
+        private bool IsMultiLevelDiscriminator => _isMultiLevelDiscriminator ??= ComputeIsMultiLevelDiscriminator();
 
         private readonly CSharpType _additionalBinaryDataPropsFieldType = typeof(IDictionary<string, BinaryData>);
         private readonly CSharpType _additionalObjectPropsFieldType = typeof(IDictionary<string, object>);
         private readonly Type _additionalPropsUnknownType = typeof(BinaryData);
         private Lazy<bool> _useObjectAdditionalProperties;
         private FieldProvider? _rawDataField;
+        private bool _buildingRawDataField;
         private List<FieldProvider>? _additionalPropertyFields;
         private List<PropertyProvider>? _additionalPropertyProperties;
         private ModelProvider? _baseModelProvider;
         private ConstructorProvider? _fullConstructor;
         internal PropertyProvider? DiscriminatorProperty { get; private set; }
+
+        private readonly bool _isDiscriminatedBaseType;
+
         private ValueExpression DiscriminatorLiteral => Literal(_inputModel.DiscriminatorValue ?? "");
-        private bool IsAbstract => _inputModel.DiscriminatorProperty is not null && _inputModel.DiscriminatorValue is null && LastContractView?.DeclarationModifiers.HasFlag(TypeSignatureModifiers.Abstract) != false;
 
         public ModelProvider(InputModelType inputModel) : base(inputModel)
         {
             _inputModel = inputModel;
-            _isMultiLevelDiscriminator = ComputeIsMultiLevelDiscriminator();
+            _isDiscriminatedBaseType = inputModel.DiscriminatorProperty is not null && inputModel.DiscriminatorValue is null;
             _useObjectAdditionalProperties = new Lazy<bool>(ShouldUseObjectAdditionalProperties);
-
-            if (_inputModel.BaseModel is not null)
-            {
-                DiscriminatorValueExpression = EnsureDiscriminatorValueExpression();
-            }
-
-            if (_inputModel.Access == "public")
-            {
-                CodeModelGenerator.Instance.AddTypeToKeep(this);
-            }
         }
 
         public bool IsUnknownDiscriminatorModel => _inputModel.IsUnknownDiscriminatorModel;
 
+        // Whether this model is reused from another shipped package (linked via an `external` block)
+        // rather than emitted by this library. Such a type's constructor surface is owned elsewhere.
+        internal bool IsExternal => _inputModel.External is not null;
+
         public string? DiscriminatorValue => _inputModel.DiscriminatorValue;
-        public ValueExpression? DiscriminatorValueExpression { get; init; }
+
+        private ValueExpression? _discriminatorValueExpression;
+        public ValueExpression? DiscriminatorValueExpression =>
+            _inputModel.BaseModel is not null
+                ? _discriminatorValueExpression ??= EnsureDiscriminatorValueExpression()
+                : null;
 
         private IReadOnlyList<ModelProvider>? _derivedModels;
         public IReadOnlyList<ModelProvider> DerivedModels => _derivedModels ??= BuildDerivedModels();
 
         private IDictionary<string, CSharpType> LastContractPropertiesMap
             => _lastContractPropertiesMap ??= LastContractView?.Properties
-                .Where(p => IsPublicApi(p.Modifiers))
+                .Where(p => MethodSignatureHelper.IsPublicApi(p.Modifiers))
                 .ToDictionary(p => p.Name, p => p.Type) ?? [];
 
         private IDictionary<string, CSharpType>? _lastContractPropertiesMap;
@@ -146,11 +151,14 @@ namespace Microsoft.TypeSpec.Generator.Providers
                     return existingProvider;
                 }
 
-                // Try to find the type in the customization compilation (excluding referenced assemblies)
-                var baseTypeProvider = CodeModelGenerator.Instance.SourceInputModel.FindForTypeInCustomization(
+                // Try to find the type in the customization compilation. Referenced assemblies are
+                // included so custom bases from framework or external packages are represented by
+                // normal symbol-backed providers.
+                var baseTypeProvider = CodeModelGenerator.Instance.SourceInputModel.FindForTypeInCurrentCompilation(
                     baseType.Namespace,
                     baseType.Name,
-                    baseType.DeclaringType?.Name);
+                    baseType.DeclaringType?.Name,
+                    includeReferencedAssemblies: true);
 
                 if (baseTypeProvider != null)
                 {
@@ -159,8 +167,8 @@ namespace Microsoft.TypeSpec.Generator.Providers
                     return baseTypeProvider;
                 }
 
-                // If we couldn't find the type symbol (e.g., type is from a referenced assembly),
-                // create a SystemObjectTypeProvider that represents the external type
+                // If we couldn't find the type symbol, create a SystemObjectTypeProvider that
+                // represents the external type without member metadata.
                 var systemObjectTypeProvider = new SystemObjectTypeProvider(baseType);
                 // Cache it in CSharpTypeMap for future lookups
                 CodeModelGenerator.Instance.TypeFactory.CSharpTypeMap[baseType] = systemObjectTypeProvider;
@@ -172,12 +180,64 @@ namespace Microsoft.TypeSpec.Generator.Providers
 
         public ModelProvider? BaseModelProvider
             => _baseModelProvider ??= BuildBaseModelProvider();
-        protected FieldProvider? RawDataField => _rawDataField ??= BuildRawDataField();
+
+        /// <inheritdoc/>
+        public override void Reset()
+        {
+            base.Reset();
+            _rawDataField = null;
+            _additionalPropertyFields = null;
+            _additionalPropertyProperties = null;
+            _isMultiLevelDiscriminator = null;
+        }
+
+        private protected override void ResetConstructors()
+        {
+            base.ResetConstructors();
+            _fullConstructor = null;
+        }
+
+        protected FieldProvider? RawDataField
+        {
+            get
+            {
+                if (_rawDataField is not null)
+                {
+                    return _rawDataField;
+                }
+
+                if (_buildingRawDataField)
+                {
+                    // BuildRawDataField walks base models and can re-enter this property when custom
+                    // base models form a cycle.
+                    return null;
+                }
+
+                _buildingRawDataField = true;
+                try
+                {
+                    return _rawDataField = BuildRawDataField();
+                }
+                finally
+                {
+                    _buildingRawDataField = false;
+                }
+            }
+        }
+        protected virtual bool ShouldSkipDerivedModelProperties => false;
+        private protected virtual bool ShouldUseFullConstructorInDerivedTypes => true;
+        /// <summary>
+        /// Gets whether derived models should skip overriding serialization methods from this base model.
+        /// </summary>
+        public virtual bool ShouldSkipDerivedSerializationMethodOverrides => false;
         private List<FieldProvider> AdditionalPropertyFields => _additionalPropertyFields ??= BuildAdditionalPropertyFields();
         private List<PropertyProvider> AdditionalPropertyProperties => _additionalPropertyProperties ??= BuildAdditionalPropertyProperties();
         protected internal bool SupportsBinaryDataAdditionalProperties => AdditionalPropertyProperties.Any(p =>
             p.Type.ElementType.Equals(_additionalPropsUnknownType) ||
             (p.Type.ElementType.IsFrameworkType && p.Type.ElementType.FrameworkType == typeof(object)));
+        /// <summary>
+        /// The constructor that takes every serializable property.
+        /// </summary>
         public ConstructorProvider FullConstructor => _fullConstructor ??= BuildFullConstructor();
 
         protected override string BuildNamespace() => string.IsNullOrEmpty(_inputModel.Namespace) ?
@@ -187,7 +247,53 @@ namespace Microsoft.TypeSpec.Generator.Providers
 
         protected override CSharpType? BuildBaseType()
         {
-            return BaseModelProvider?.Type;
+            if (CustomCodeView?.BaseType != null)
+            {
+                var customBase = CustomCodeView.BaseType;
+
+                // If the custom base type doesn't have a resolved namespace, then try to resolve it from the input model map.
+                // This will happen if a model is customized to inherit from another generated model, but that generated model
+                // was not also defined in custom code so Roslyn does not recognize it.
+                if (string.IsNullOrEmpty(customBase.Namespace))
+                {
+                    if (CodeModelGenerator.Instance.TypeFactory.TypeProvidersByName.TryGetValue(
+                            customBase.Name, out var resolvedProvider) &&
+                        resolvedProvider is ModelProvider resolvedModel)
+                    {
+                        return resolvedModel.Type;
+                    }
+
+                    // Force-create all input models so that visitors run (which may rename models
+                    // via TypeProvider.Update) and TypeProvidersByName is fully populated.
+                    foreach (var model in CodeModelGenerator.Instance.InputLibrary.InputNamespace.Models)
+                    {
+                        CodeModelGenerator.Instance.TypeFactory.CreateModel(model);
+                    }
+
+                    if (CodeModelGenerator.Instance.TypeFactory.TypeProvidersByName.TryGetValue(
+                            customBase.Name, out resolvedProvider) &&
+                        resolvedProvider is ModelProvider resolvedAfterCreate)
+                    {
+                        return resolvedAfterCreate.Type;
+                    }
+                }
+
+                if (CodeModelGenerator.Instance.TypeFactory.CSharpTypeMap.TryGetValue(
+                        customBase, out var mappedProvider) &&
+                    mappedProvider is ModelProvider mappedModel)
+                {
+                    return mappedModel.Type;
+                }
+
+                return customBase;
+            }
+
+            if (_inputModel.BaseModel == null)
+            {
+                return null;
+            }
+
+            return CodeModelGenerator.Instance.TypeFactory.CreateModel(_inputModel.BaseModel)?.Type;
         }
 
         protected override TypeProvider[] BuildSerializationProviders()
@@ -197,7 +303,15 @@ namespace Microsoft.TypeSpec.Generator.Providers
 
         protected override string BuildRelativeFilePath() => Path.Combine("src", "Generated", "Models", $"{Name}.cs");
 
-        protected override string BuildName() => _inputModel.Name.ToIdentifierName();
+        protected override string BuildName()
+        {
+            if (_inputModel.IsExactName)
+            {
+                return _inputModel.Name;
+            }
+
+            return NormalizeTypeNameForNewContract(_inputModel.Name.ToIdentifierName());
+        }
 
         protected override TypeSignatureModifiers BuildDeclarationModifiers()
         {
@@ -234,7 +348,7 @@ namespace Microsoft.TypeSpec.Generator.Providers
                 declarationModifiers |= TypeSignatureModifiers.Internal;
             }
 
-            if (IsAbstract)
+            if (_isDiscriminatedBaseType)
             {
                 declarationModifiers |= TypeSignatureModifiers.Abstract;
             }
@@ -268,7 +382,9 @@ namespace Microsoft.TypeSpec.Generator.Providers
             foreach (var property in _inputModel.Properties)
             {
                 if (IsDiscriminator(property))
+                {
                     continue;
+                }
 
                 var derivedProperty = InputDerivedProperties.FirstOrDefault(p => p.Value.ContainsKey(property.Name)).Value?[property.Name];
                 if (derivedProperty is not null)
@@ -291,65 +407,45 @@ namespace Microsoft.TypeSpec.Generator.Providers
             return property is InputModelProperty modelProperty && modelProperty.IsDiscriminator;
         }
 
-        private ModelProvider? BuildBaseModelProvider()
+        protected virtual ModelProvider? BuildBaseModelProvider()
         {
-            // consider models that have been customized to inherit from a different generated model
-            if (CustomCodeView?.BaseType != null)
-            {
-                var baseType = CustomCodeView.BaseType;
-
-                // If the custom base type doesn't have a resolved namespace, then try to resolve it from the input model map.
-                // This will happen if a model is customized to inherit from another generated model, but that generated model
-                // was not also defined in custom code so Roslyn does not recognize it.
-                if (string.IsNullOrEmpty(baseType.Namespace))
-                {
-                    // Cheap check: the base model may already be created and registered under the right name.
-                    if (CodeModelGenerator.Instance.TypeFactory.TypeProvidersByName.TryGetValue(
-                            baseType.Name, out var resolvedProvider) &&
-                        resolvedProvider is ModelProvider resolvedModel)
-                    {
-                        return resolvedModel;
-                    }
-
-                    // Force-create all input models so that visitors run (which may rename models
-                    // via TypeProvider.Update) and TypeProvidersByName is fully populated.
-                    // This is a no-op for models that have already been created.
-                    foreach (var model in CodeModelGenerator.Instance.InputLibrary.InputNamespace.Models)
-                    {
-                        CodeModelGenerator.Instance.TypeFactory.CreateModel(model);
-                    }
-
-                    if (CodeModelGenerator.Instance.TypeFactory.TypeProvidersByName.TryGetValue(
-                            baseType.Name, out resolvedProvider) &&
-                        resolvedProvider is ModelProvider resolvedAfterCreate)
-                    {
-                        return resolvedAfterCreate;
-                    }
-                }
-
-                // Try to find the base type in the CSharpTypeMap
-                if (baseType != null && CodeModelGenerator.Instance.TypeFactory.CSharpTypeMap.TryGetValue(
-                        baseType,
-                        out var customBaseType) &&
-                    customBaseType is ModelProvider customBaseModel)
-                {
-                    return customBaseModel;
-                }
-
-                // If the custom base type has a namespace (external type), we don't return it here
-                // as it's handled by BuildBaseTypeProvider() which returns a TypeProvider
-                if (!string.IsNullOrEmpty(baseType?.Namespace))
-                {
-                    return null;
-                }
-            }
-
-            if (_inputModel.BaseModel == null)
+            var baseType = BaseType;
+            if (baseType is null)
             {
                 return null;
             }
 
-            return CodeModelGenerator.Instance.TypeFactory.CreateModel(_inputModel.BaseModel);
+            if (CodeModelGenerator.Instance.TypeFactory.CSharpTypeMap.TryGetValue(baseType, out var provider)
+                && provider is ModelProvider modelProvider)
+            {
+                return modelProvider;
+            }
+
+            if (CustomCodeView?.BaseType is null && _inputModel.BaseModel is not null)
+            {
+                var inputBaseModelProvider = CodeModelGenerator.Instance.TypeFactory.CreateModel(_inputModel.BaseModel);
+                if (inputBaseModelProvider is not null && inputBaseModelProvider.Type.AreNamesEqual(baseType))
+                {
+                    CodeModelGenerator.Instance.TypeFactory.CSharpTypeMap[baseType] = inputBaseModelProvider;
+                    return inputBaseModelProvider;
+                }
+            }
+
+            if (CustomCodeView?.BaseType != null && !string.IsNullOrEmpty(baseType.Namespace))
+            {
+                foreach (var (mapKey, mapValue) in CodeModelGenerator.Instance.TypeFactory.CSharpTypeMap)
+                {
+                    if (mapValue is ModelProvider model
+                        && mapKey.Name == baseType.Name
+                        && mapKey.Namespace == baseType.Namespace)
+                    {
+                        CodeModelGenerator.Instance.TypeFactory.CSharpTypeMap[baseType] = model;
+                        return model;
+                    }
+                }
+            }
+
+            return null;
         }
 
         private List<FieldProvider> BuildAdditionalPropertyFields()
@@ -505,7 +601,27 @@ namespace Microsoft.TypeSpec.Generator.Providers
         {
             var propertiesCount = _inputModel.Properties.Count;
             var properties = new List<PropertyProvider>(propertiesCount + 1);
-            Dictionary<string, InputModelProperty> baseProperties = EnumerateBaseModels().SelectMany(m => m.Properties).GroupBy(x => x.Name).Select(g => g.First()).ToDictionary(p => p.Name) ?? [];
+            Dictionary<string, InputModelProperty> baseProperties = [];
+            HashSet<string> skippedBasePropertyNames = [];
+            foreach (var baseModelProvider in EnumerateBaseModelProviders())
+            {
+                foreach (var baseProperty in baseModelProvider._inputModel.Properties)
+                {
+                    if (baseProperties.ContainsKey(baseProperty.Name) || skippedBasePropertyNames.Contains(baseProperty.Name))
+                    {
+                        continue;
+                    }
+
+                    if (baseModelProvider.ShouldSkipDerivedModelProperties)
+                    {
+                        skippedBasePropertyNames.Add(baseProperty.Name);
+                    }
+                    else
+                    {
+                        baseProperties.Add(baseProperty.Name, baseProperty);
+                    }
+                }
+            }
             // Build a set of serialized names for base discriminator properties to handle cases where
             // the derived model has a discriminator with a different C# name but the same wire name
             HashSet<string> baseDiscriminatorSerializedNames = EnumerateBaseModels()
@@ -521,7 +637,7 @@ namespace Microsoft.TypeSpec.Generator.Providers
                 // Skip discriminator properties that already exist in the base class
                 // Check both by C# property name and by serialized name to handle cases where
                 // the derived model has a discriminator with a different C# name but the same wire name
-                if (isDiscriminator && (baseProperties.ContainsKey(property.Name) || (property.SerializedName is not null && baseDiscriminatorSerializedNames.Contains(property.SerializedName))))
+                if (isDiscriminator && (baseProperties.ContainsKey(property.Name) || skippedBasePropertyNames.Contains(property.Name) || (property.SerializedName is not null && baseDiscriminatorSerializedNames.Contains(property.SerializedName))))
                 {
                     continue;
                 }
@@ -540,16 +656,27 @@ namespace Microsoft.TypeSpec.Generator.Providers
 
                 // Apply back-compat type replacement only for properties on the public API
                 // surface: changing the type of an internal/private generated property is not
-                // a source-breaking change, and the last-contract map already excludes
-                // non-public-API entries.
-                if (IsPublicApi(outputProperty.Modifiers) &&
+                // a source-breaking change
+                if (MethodSignatureHelper.IsPublicApi(outputProperty.Modifiers) &&
                     LastContractPropertiesMap.TryGetValue(outputProperty.Name, out var lastContractPropertyType) &&
                     !lastContractPropertyType.Equals(outputProperty.Type))
                 {
-                    outputProperty.Type = lastContractPropertyType.ApplyInputSpecProperty(property);
-                    CodeModelGenerator.Instance.Emitter.Info(
-                        $"Changed property '{Name}.{outputProperty.Name}' type to '{lastContractPropertyType}' to match last contract.",
-                        BackCompatibilityChangeCategory.PropertyTypePreserved);
+                    // If the previous property type (or a type nested in it) has been intentionally
+                    // removed and that removal is accepted in the ApiCompat baseline, preserving it
+                    // would reference a now-deleted type. Honor the baseline and allow the new type.
+                    if (CodeModelGenerator.Instance.SourceInputModel?.ApiCompatBaseline.ReferencesSuppressedType(lastContractPropertyType) == true)
+                    {
+                        CodeModelGenerator.Instance.Emitter.Info(
+                            $"Allowing property '{Name}.{outputProperty.Name}' type change to '{outputProperty.Type}'; previous type '{lastContractPropertyType}' is an accepted removal in the ApiCompat baseline.",
+                            BackCompatibilityChangeCategory.BaselineAcceptedRemovalSkipped);
+                    }
+                    else
+                    {
+                        outputProperty.Type = lastContractPropertyType.ApplyInputSpecProperty(property);
+                        CodeModelGenerator.Instance.Emitter.Info(
+                            $"Changed property '{Name}.{outputProperty.Name}' type to '{lastContractPropertyType}' to match last contract.",
+                            BackCompatibilityChangeCategory.PropertyTypePreserved);
+                    }
                 }
 
                 if (!isDiscriminator)
@@ -562,8 +689,12 @@ namespace Microsoft.TypeSpec.Generator.Providers
                             outputProperty.Modifiers |= MethodSignatureModifiers.Virtual;
                         }
                     }
-                    var baseProperty = baseProperties.GetValueOrDefault(property.Name);
-                    if (baseProperty is not null)
+                    if (skippedBasePropertyNames.Contains(property.Name))
+                    {
+                        continue;
+                    }
+
+                    if (baseProperties.TryGetValue(property.Name, out var baseProperty))
                     {
                         if (DomainEqual(baseProperty, property))
                         {
@@ -593,11 +724,17 @@ namespace Microsoft.TypeSpec.Generator.Providers
         }
 
         private IEnumerable<InputModelType> EnumerateBaseModels()
+            => EnumerateBaseModelProviders().Select(model => model._inputModel);
+
+        private IEnumerable<ModelProvider> EnumerateBaseModelProviders()
         {
+            // Custom code can create base-model cycles; include this model in the visited set so a cycle
+            // back to it is not yielded as one of its own bases.
+            HashSet<ModelProvider> visited = [this];
             var model = BaseModelProvider;
-            while (model != null)
+            while (model != null && visited.Add(model))
             {
-                yield return model._inputModel;
+                yield return model;
                 model = model.BaseModelProvider;
             }
         }
@@ -605,9 +742,15 @@ namespace Microsoft.TypeSpec.Generator.Providers
         private static bool DomainEqual(InputProperty baseProperty, InputProperty derivedProperty)
         {
             if (baseProperty.Type.Name != derivedProperty.Type.Name)
+            {
                 return false;
+            }
+
             if (baseProperty.IsRequired != derivedProperty.IsRequired)
+            {
                 return false;
+            }
+
             var baseNullable = baseProperty.Type is InputNullableType;
             return baseNullable ? derivedProperty.Type is InputNullableType : derivedProperty.Type is not InputNullableType;
         }
@@ -625,7 +768,11 @@ namespace Microsoft.TypeSpec.Generator.Providers
                 : _inputModel.Usage.HasFlag(InputModelTypeUsage.Input)
                     ? MethodSignatureModifiers.Public
                     : MethodSignatureModifiers.Internal;
-            var (constructorParameters, constructorInitializer) = BuildConstructorParameters(true);
+            var includeDiscriminatorParameter = _isDiscriminatedBaseType
+                && BaseModelProvider?._inputModel.DiscriminatorProperty is not null;
+            var (constructorParameters, constructorInitializer) = BuildConstructorParameters(
+                true,
+                includeDiscriminatorParameter);
 
             var constructor = new ConstructorProvider(
                 signature: new ConstructorSignature(
@@ -649,13 +796,374 @@ namespace Microsoft.TypeSpec.Generator.Providers
             }
 
             // For multi-level discriminators, add one additional private protected constructor
-            if (_isMultiLevelDiscriminator)
+            if (IsMultiLevelDiscriminator)
             {
                 var protectedConstructor = BuildProtectedInheritanceConstructor();
                 constructors.Add(protectedConstructor);
             }
 
             return [.. constructors];
+        }
+
+        /// <summary>
+        /// Restores previously-published public constructors that the current generation would otherwise
+        /// drop. The primary scenario is a previously required property becoming optional: the corresponding
+        /// parameter is removed from the initialization constructor, which is a source-breaking change for
+        /// callers that construct the model positionally. When the previous public constructor can be safely
+        /// reconstructed - i.e. every one of its extra parameters still maps to a settable property whose
+        /// name and type are unchanged (or a property renamed via a codegen customization but keeping the
+        /// same type) - a back-compat overload is added that chains to the current public constructor and
+        /// assigns the extra properties.
+        /// </summary>
+        protected internal override IReadOnlyList<ConstructorProvider> BuildConstructorsForBackCompatibility(IEnumerable<ConstructorProvider> originalConstructors)
+        {
+            if (LastContractView?.Constructors is not { Count: > 0 } previousConstructors)
+            {
+                return base.BuildConstructorsForBackCompatibility(originalConstructors);
+            }
+
+            var originalConstructorList = originalConstructors as IReadOnlyList<ConstructorProvider> ?? [.. originalConstructors];
+            IReadOnlyList<ConstructorProvider> candidateConstructors = CustomCodeView?.Constructors is { Count: > 0 } customConstructors
+                ? [.. originalConstructorList, .. customConstructors]
+                : originalConstructorList;
+
+            var restorablePreviousConstructors = previousConstructors
+                .Where(c => !BackCompatHelper.IsConstructorRemovalAcceptedInBaseline(this, c.Signature))
+                .ToList();
+
+            RestorePreviousConstructorParameterNames(originalConstructorList, candidateConstructors, restorablePreviousConstructors);
+
+            var constructors = new List<ConstructorProvider>(base.BuildConstructorsForBackCompatibility(originalConstructorList));
+            var restorablePropertyLookup = BuildRestorablePropertyLookup();
+
+            foreach (var previousConstructor in restorablePreviousConstructors)
+            {
+                if (!MethodSignatureHelper.IsPublicApi(previousConstructor.Signature.Modifiers))
+                {
+                    continue;
+                }
+
+                var previousParameters = previousConstructor.Signature.Parameters;
+
+                // A previously published accessible parameterless constructor is dropped when the current
+                // generation makes a property required. Restore it and drop the generated mocking constructor
+                // so it is not a duplicate. An accessible parameterless constructor (generated or custom code)
+                // counts as already present; an inaccessible generated mocking constructor does not. A struct
+                // always exposes a public parameterless constructor via its serialization (mocking)
+                // constructor, so there is nothing to restore on the model partial.
+                if (previousParameters.Count == 0)
+                {
+                    if (!Type.IsStruct
+                        && !constructors.Any(c => c.Signature.Parameters.Count == 0 && MethodSignatureHelper.IsPublicApi(c.Signature.Modifiers))
+                        && !candidateConstructors.Any(c => c.Signature.Parameters.Count == 0 && MethodSignatureHelper.IsPublicApi(c.Signature.Modifiers)))
+                    {
+                        var parameterlessConstructor = BuildBackCompatParameterlessConstructor(previousConstructor, candidateConstructors);
+                        RemoveGeneratedMockingConstructor(constructors);
+                        constructors.Add(parameterlessConstructor);
+                        CodeModelGenerator.Instance.Emitter.Info(
+                            $"Restored parameterless constructor '{Name}()' to match last contract.",
+                            BackCompatibilityChangeCategory.ConstructorAddedFromLastContract);
+                    }
+
+                    continue;
+                }
+
+                // If a constructor with the same parameters already exists - either still generated or
+                // supplied by custom code - there is nothing to restore.
+                if (constructors.Any(c => BackCompatHelper.ParametersMatch(c.Signature.Parameters, previousParameters))
+                    || candidateConstructors.Any(c => BackCompatHelper.ParametersMatch(c.Signature.Parameters, previousParameters)))
+                {
+                    continue;
+                }
+
+                if (TryBuildRestoredConstructor(previousConstructor, candidateConstructors, restorablePropertyLookup, out var restoredConstructor))
+                {
+                    constructors.Add(restoredConstructor);
+                    CodeModelGenerator.Instance.Emitter.Info(
+                        $"Restored constructor '{Name}({string.Join(", ", previousParameters.Select(p => p.Type.Name))})' to match last contract.",
+                        BackCompatibilityChangeCategory.ConstructorAddedFromLastContract);
+                }
+                else
+                {
+                    CodeModelGenerator.Instance.Emitter.Info(
+                        $"Could not restore constructor '{Name}({string.Join(", ", previousParameters.Select(p => p.Type.Name))})' from the last contract; a property name or type has changed.",
+                        BackCompatibilityChangeCategory.ConstructorAddedFromLastContractSkipped);
+                }
+            }
+
+            return constructors;
+        }
+
+        private void RestorePreviousConstructorParameterNames(
+            IReadOnlyList<ConstructorProvider> currentConstructors,
+            IReadOnlyList<ConstructorProvider> candidateConstructors,
+            IReadOnlyList<ConstructorProvider> previousConstructors)
+        {
+            const MethodSignatureModifiers privateProtected = MethodSignatureModifiers.Private | MethodSignatureModifiers.Protected;
+            foreach (var previousConstructor in previousConstructors)
+            {
+                if (!MethodSignatureHelper.IsPublicApi(previousConstructor.Signature.Modifiers))
+                {
+                    continue;
+                }
+
+                var previousParameters = previousConstructor.Signature.Parameters;
+
+                // A generated or custom constructor that already matches the previous signature (types and
+                // names) satisfies the contract; renaming another constructor into it would collide.
+                if (candidateConstructors.Any(c => BackCompatHelper.ParametersMatch(c.Signature.Parameters, previousParameters)))
+                {
+                    continue;
+                }
+
+                var currentConstructor = currentConstructors.FirstOrDefault(c =>
+                    (MethodSignatureHelper.IsPublicApi(c.Signature.Modifiers)
+                        || (c.Signature.Modifiers & privateProtected) == privateProtected)
+                    && MethodSignatureBase.SignatureComparer.Equals(c.Signature, previousConstructor.Signature));
+                if (currentConstructor is null)
+                {
+                    continue;
+                }
+
+                var currentParameters = currentConstructor.Signature.Parameters;
+
+                // A swap or rotation keeps every previous name, so realign the existing parameter objects
+                // to the previous order - renaming positionally would mis-bind a caller's named argument to
+                // the wrong property. Otherwise restore names positionally where the types line up.
+                var currentByName = currentParameters.ToDictionary(p => p.Name);
+                IReadOnlyList<ParameterProvider> restoredParameters = previousParameters.All(p => currentByName.ContainsKey(p.Name))
+                    ? [.. previousParameters.Select(p => currentByName[p.Name])]
+                    : currentParameters;
+                if (!restoredParameters.Select((p, i) => p.Type.AreNamesEqual(previousParameters[i].Type)).All(match => match))
+                {
+                    continue;
+                }
+
+                // A permutation replaces every name, so a clash there is transient. Exact names are
+                // retained, so restoring another parameter onto one would produce a real duplicate.
+                var retainedExactNames = restoredParameters
+                    .Where(p => p.IsExactName)
+                    .Select(p => p.Name)
+                    .ToHashSet(StringComparer.Ordinal);
+                for (int i = 0; i < restoredParameters.Count; i++)
+                {
+                    var restoredName = previousParameters[i].Name;
+                    if (string.Equals(restoredParameters[i].Name, restoredName, StringComparison.Ordinal)
+                        || restoredParameters[i].IsExactName)
+                    {
+                        continue;
+                    }
+
+                    if (retainedExactNames.Contains(restoredName))
+                    {
+                        CodeModelGenerator.Instance.Emitter.Info(
+                            $"Could not preserve parameter name '{restoredName}' at position {i} on constructor '{Name}' from the last contract; it collides with the exact name of another parameter.",
+                            BackCompatibilityChangeCategory.ParameterNamePreserved);
+                        continue;
+                    }
+
+                    CodeModelGenerator.Instance.Emitter.Debug(
+                        $"Preserved parameter name '{restoredName}' at position {i} on constructor '{Name}' from last contract (instead of '{restoredParameters[i].Name}').",
+                        BackCompatibilityChangeCategory.ParameterNamePreserved);
+                    restoredParameters[i].Update(name: restoredName);
+                }
+
+                currentConstructor.Signature.Update(parameters: [.. restoredParameters]);
+                currentConstructor.Update(signature: currentConstructor.Signature);
+            }
+        }
+
+        private bool TryBuildRestoredConstructor(
+            ConstructorProvider previousConstructor,
+            IReadOnlyList<ConstructorProvider> currentConstructors,
+            Dictionary<string, PropertyProvider> restorablePropertyLookup,
+            [NotNullWhen(true)] out ConstructorProvider? restoredConstructor)
+        {
+            restoredConstructor = null;
+            var previousParameters = previousConstructor.Signature.Parameters;
+
+            // Find the public constructor to chain to: its parameters must form an in-order subsequence of
+            // the previous constructor's parameters. Prefer the closest one. Without a chaining target the
+            // constructor is not restored - a standalone constructor would bypass the current constructor's
+            // initialization (e.g. the implicit base() call and inherited get-only properties).
+            ConstructorProvider? targetConstructor = null;
+            foreach (var candidate in currentConstructors)
+            {
+                if (!MethodSignatureHelper.IsPublicApi(candidate.Signature.Modifiers)
+                    || candidate.Signature.Parameters.Count >= previousParameters.Count)
+                {
+                    continue;
+                }
+
+                // Check whether this candidate would improve on the current target before performing the
+                // more expensive subsequence lookup.
+                if ((targetConstructor == null
+                        || candidate.Signature.Parameters.Count > targetConstructor.Signature.Parameters.Count)
+                    && IsParameterSubsequence(candidate.Signature.Parameters, previousParameters))
+                {
+                    targetConstructor = candidate;
+                }
+            }
+
+            if (targetConstructor is null)
+            {
+                return false;
+            }
+
+            var targetParameters = targetConstructor.Signature.Parameters;
+            var restoredParameters = new List<ParameterProvider>(previousParameters.Count);
+            var initializerArguments = new List<ParameterProvider>(targetParameters.Count);
+            var extraAssignments = new List<(PropertyProvider Property, ParameterProvider Parameter)>();
+            int targetIndex = 0;
+
+            foreach (var previousParameter in previousParameters)
+            {
+                if (targetIndex < targetParameters.Count
+                    && targetParameters[targetIndex].Equals(previousParameter))
+                {
+                    var keptParameter = PartialMethodCustomization.CloneParameterWithName(
+                        targetParameters[targetIndex],
+                        previousParameter.Name,
+                        removeDefault: false,
+                        validation: ParameterValidationType.None);
+                    restoredParameters.Add(keptParameter);
+                    initializerArguments.Add(keptParameter);
+                    targetIndex++;
+                    continue;
+                }
+
+                // Each extra parameter (not consumed by the chain target) must map to a settable, wire-backed
+                // property assigned in the restored constructor's body.
+                var property = restorablePropertyLookup.TryGetValue(previousParameter.Name, out var chained)
+                    && chained.Type.AreNamesEqual(previousParameter.Type)
+                    ? chained
+                    : null;
+
+                if (property is null || extraAssignments.Any(a => a.Property == property))
+                {
+                    return false;
+                }
+
+                var restoredParameter = PartialMethodCustomization.CloneParameterWithName(property.AsParameter, previousParameter.Name, removeDefault: true);
+                restoredParameters.Add(restoredParameter);
+                extraAssignments.Add((property, restoredParameter));
+            }
+
+            if (targetIndex != targetParameters.Count || extraAssignments.Count == 0)
+            {
+                return false;
+            }
+
+            var bodyStatements = new List<MethodBodyStatement>(extraAssignments.Count);
+            foreach (var (property, parameter) in extraAssignments)
+            {
+                ValueExpression assignee = property.BackingField is null ? property : property.BackingField;
+                ValueExpression value = parameter;
+                if (CSharpType.RequiresToList(parameter.Type, property.Type))
+                {
+                    value = parameter.Type.IsNullable ? value.NullConditional().ToList() : value.ToList();
+                }
+
+                bodyStatements.Add(assignee.Assign(value).Terminate());
+            }
+
+            var signature = new ConstructorSignature(
+                Type,
+                $"Initializes a new instance of {Type:C}",
+                previousConstructor.Signature.Modifiers,
+                restoredParameters,
+                initializer: new ConstructorInitializer(false, initializerArguments));
+
+            restoredConstructor = new ConstructorProvider(signature, bodyStatements, this);
+            return true;
+        }
+
+        private ConstructorProvider BuildBackCompatParameterlessConstructor(
+            ConstructorProvider previousConstructor,
+            IReadOnlyList<ConstructorProvider> currentConstructors)
+        {
+            // Prefer the public or protected constructor with the fewest required parameters, then a
+            // private-protected one; a null target yields a standalone constructor.
+            const MethodSignatureModifiers privateProtected = MethodSignatureModifiers.Private | MethodSignatureModifiers.Protected;
+            var target = currentConstructors
+                .Where(c => c.Signature.Parameters.Count > 0
+                    && (MethodSignatureHelper.IsPublicApi(c.Signature.Modifiers) || (c.Signature.Modifiers & privateProtected) == privateProtected))
+                .MinBy(c => (MethodSignatureHelper.IsPublicApi(c.Signature.Modifiers) ? 0 : 1, c.Signature.Parameters.Count(p => p.DefaultValue is null)));
+
+            ConstructorInitializer? initializer = target is null
+                ? null
+                : new ConstructorInitializer(false, [.. target.Signature.Parameters.Select(_ => Snippet.Default)]);
+
+            var signature = new ConstructorSignature(
+                Type,
+                $"Initializes a new instance of {Type:C}",
+                previousConstructor.Signature.Modifiers,
+                parameters: [],
+                initializer: initializer);
+
+            return new ConstructorProvider(signature, MethodBodyStatement.Empty, this);
+        }
+
+        private void RemoveGeneratedMockingConstructor(List<ConstructorProvider> constructors)
+        {
+            constructors.RemoveAll(c => c.Signature.Parameters.Count == 0);
+
+            foreach (var serializationProvider in SerializationProviders)
+            {
+                var serializationConstructors = serializationProvider.Constructors;
+                if (serializationConstructors.Any(c => c.Signature.Parameters.Count == 0))
+                {
+                    serializationProvider.Update(
+                        constructors: [.. serializationConstructors.Where(c => c.Signature.Parameters.Count != 0)]);
+                }
+            }
+        }
+
+        private static bool IsParameterSubsequence(
+            IReadOnlyList<ParameterProvider> subset,
+            IReadOnlyList<ParameterProvider> full)
+        {
+            if (subset.Count > full.Count)
+            {
+                return false;
+            }
+
+            int matched = 0;
+            foreach (var parameter in full)
+            {
+                if (matched == subset.Count)
+                {
+                    break;
+                }
+
+                if (subset[matched].Equals(parameter))
+                {
+                    matched++;
+                }
+            }
+
+            return matched == subset.Count;
+        }
+
+        private Dictionary<string, PropertyProvider> BuildRestorablePropertyLookup()
+        {
+            var lookup = new Dictionary<string, PropertyProvider>();
+            foreach (var property in CanonicalView.Properties)
+            {
+                if (!MethodSignatureHelper.IsPublicApi(property.Modifiers) || !property.Body.HasSetter || property.WireInfo == null)
+                {
+                    continue;
+                }
+
+                lookup.TryAdd(property.AsParameter.Name, property);
+
+                if (property.OriginalName != null)
+                {
+                    lookup.TryAdd(property.OriginalName.ToVariableName(), property);
+                }
+            }
+
+            return lookup;
         }
 
         /// <summary>
@@ -666,7 +1174,7 @@ namespace Microsoft.TypeSpec.Generator.Providers
         private bool ComputeIsMultiLevelDiscriminator()
         {
             // Only applies to non-abstract models with a base model
-            if (IsAbstract || _inputModel.BaseModel == null)
+            if (DeclarationModifiers.HasFlag(TypeSignatureModifiers.Abstract) || _inputModel.BaseModel == null)
             {
                 return false;
             }
@@ -737,77 +1245,11 @@ namespace Microsoft.TypeSpec.Generator.Providers
                 this);
         }
 
-        protected internal override IReadOnlyList<ConstructorProvider> BuildConstructorsForBackCompatibility(IEnumerable<ConstructorProvider> originalConstructors)
-        {
-            // Only handle the case of changing modifiers on abstract base types
-            if (!DeclarationModifiers.HasFlag(TypeSignatureModifiers.Abstract))
-            {
-                return [.. originalConstructors];
-            }
-
-            if (LastContractView?.Constructors == null || LastContractView.Constructors.Count == 0)
-            {
-                return [.. originalConstructors];
-            }
-
-            List<ConstructorProvider> constructors = [.. originalConstructors];
-
-            // Check if the last contract had a public constructor with matching parameters
-            foreach (var previousConstructor in LastContractView.Constructors)
-            {
-                if (!previousConstructor.Signature.Modifiers.HasFlag(MethodSignatureModifiers.Public))
-                {
-                    continue;
-                }
-
-                // Find a matching constructor in the current version by parameter signature
-                for (int i = 0; i < constructors.Count; i++)
-                {
-                    var currentConstructor = constructors[i];
-
-                    // Check if parameters match (same count and types)
-                    if (ParametersMatch(currentConstructor.Signature.Parameters, previousConstructor.Signature.Parameters))
-                    {
-                        // Change the modifier from private protected to public
-                        if (currentConstructor.Signature.Modifiers.HasFlag(MethodSignatureModifiers.Private) &&
-                            currentConstructor.Signature.Modifiers.HasFlag(MethodSignatureModifiers.Protected))
-                        {
-                            currentConstructor.Signature.Update(modifiers: MethodSignatureModifiers.Public);
-                            CodeModelGenerator.Instance.Emitter.Debug(
-                                $"Promoted constructor '{Name}({string.Join(", ", currentConstructor.Signature.Parameters.Select(p => p.Type.ToString()))})' from 'private protected' to 'public' to match last contract.",
-                                BackCompatibilityChangeCategory.ConstructorModifierPreserved);
-                        }
-                    }
-                }
-            }
-
-            return [.. constructors];
-        }
-
-        private bool ParametersMatch(IReadOnlyList<ParameterProvider> params1, IReadOnlyList<ParameterProvider> params2)
-        {
-            if (params1.Count != params2.Count)
-            {
-                return false;
-            }
-
-            for (int i = 0; i < params1.Count; i++)
-            {
-                if (!params1[i].Type.AreNamesEqual(params2[i].Type) || params1[i].Name != params2[i].Name)
-                {
-                    return false;
-                }
-            }
-
-            return true;
-        }
-
         private IEnumerable<PropertyProvider> GetAllBasePropertiesForConstructorInitialization(bool includeAllHierarchyDiscriminator = false)
         {
             var properties = new Stack<List<PropertyProvider>>();
-            var modelProvider = BaseModelProvider;
             bool isDirectBase = true;
-            while (modelProvider != null)
+            foreach (var modelProvider in EnumerateBaseModelProviders())
             {
                 properties.Push([]);
                 foreach (var property in modelProvider.CanonicalView.Properties)
@@ -826,7 +1268,6 @@ namespace Microsoft.TypeSpec.Generator.Providers
                     }
                 }
 
-                modelProvider = modelProvider.BaseModelProvider;
                 isDirectBase = false;
             }
 
@@ -837,15 +1278,13 @@ namespace Microsoft.TypeSpec.Generator.Providers
         private IEnumerable<FieldProvider> GetAllBaseFieldsForConstructorInitialization()
         {
             var fields = new Stack<List<FieldProvider>>();
-            var modelProvider = BaseModelProvider;
-            while (modelProvider != null)
+            foreach (var modelProvider in EnumerateBaseModelProviders())
             {
                 fields.Push([]);
                 foreach (var field in modelProvider.CanonicalView.Fields)
                 {
                     fields.Peek().Add(field);
                 }
-                modelProvider = modelProvider.BaseModelProvider;
             }
 
             return fields.SelectMany(l => l);
@@ -864,7 +1303,7 @@ namespace Microsoft.TypeSpec.Generator.Providers
                 baseProperties = GetAllBasePropertiesForConstructorInitialization(includeDiscriminatorParameter);
                 baseFields = GetAllBaseFieldsForConstructorInitialization();
             }
-            else if (BaseModelProvider?.FullConstructor.Signature != null)
+            else if (BaseModelProvider is not null && BaseModelProvider.ShouldUseFullConstructorInDerivedTypes && !HasBaseModelProviderCycle())
             {
                 baseParameters.AddRange(BaseModelProvider.FullConstructor.Signature.Parameters);
             }
@@ -898,7 +1337,7 @@ namespace Microsoft.TypeSpec.Generator.Providers
                 ? baseParameters
                 : baseParameters.Where(p =>
                     p.Property is null
-                    || (!overriddenProperties.Contains(p.Property!) && (!p.Property.IsDiscriminator || !isInitializationConstructor || (includeDiscriminatorParameter && _isMultiLevelDiscriminator)))));
+                    || (!overriddenProperties.Contains(p.Property!) && (!p.Property.IsDiscriminator || !isInitializationConstructor || includeDiscriminatorParameter))));
 
             // construct the initializer using the parameters from base signature
             ConstructorInitializer? constructorInitializer = null;
@@ -907,24 +1346,23 @@ namespace Microsoft.TypeSpec.Generator.Providers
                 if (baseParameters.Count > 0)
                 {
                     // Check if we should call multi-level discriminator constructor
-                    if (isInitializationConstructor && (_isMultiLevelDiscriminator || BaseModelProvider._isMultiLevelDiscriminator))
+                    if (isInitializationConstructor && (IsMultiLevelDiscriminator || BaseModelProvider.IsMultiLevelDiscriminator))
                     {
                         var baseDiscriminatorParam = baseParameters.FirstOrDefault(p => p.Property?.IsDiscriminator == true);
-                        var hasDiscriminatorProperty = BaseModelProvider.CanonicalView.Properties.Any(p => p.IsDiscriminator);
 
-                        ValueExpression discriminatorExpression = (hasDiscriminatorProperty && baseDiscriminatorParam is not null && includeDiscriminatorParameter)
+                        ValueExpression discriminatorExpression = (baseDiscriminatorParam is not null && includeDiscriminatorParameter)
                             ? constructorParameters.FirstOrDefault(p => p.Property?.IsDiscriminator == true) ?? baseDiscriminatorParam
                             : DiscriminatorLiteral;
 
                         var args = baseParameters.Where(p => p.Property?.IsDiscriminator != true)
-                            .Select(p => GetExpressionForCtor(p, overriddenProperties, isInitializationConstructor));
+                            .Select(p => GetExpressionForCtor(p, overriddenProperties, isInitializationConstructor, constructorParameters));
 
                         constructorInitializer = new ConstructorInitializer(true, [discriminatorExpression, .. args]);
                     }
                     else
                     {
                         // Standard base constructor call
-                        constructorInitializer = new ConstructorInitializer(true, [.. baseParameters.Select(p => GetExpressionForCtor(p, overriddenProperties, isInitializationConstructor))]);
+                        constructorInitializer = new ConstructorInitializer(true, [.. baseParameters.Select(p => GetExpressionForCtor(p, overriddenProperties, isInitializationConstructor, constructorParameters))]);
                     }
                 }
                 else
@@ -943,10 +1381,31 @@ namespace Microsoft.TypeSpec.Generator.Providers
 
                 // only add the raw data field if it has not already been added as a parameter for BinaryData additional properties
                 if (RawDataField != null && !SupportsBinaryDataAdditionalProperties)
+                {
                     constructorParameters.Add(RawDataField.AsParameter);
+                }
             }
 
             return (constructorParameters, constructorInitializer);
+        }
+
+        private bool HasBaseModelProviderCycle()
+        {
+            // FullConstructor reads the base constructor signature. If the custom base chain loops back
+            // to this model, skip that read rather than recursively building this constructor again.
+            HashSet<ModelProvider> visited = [this];
+            var modelProvider = BaseModelProvider;
+            while (modelProvider != null)
+            {
+                if (!visited.Add(modelProvider))
+                {
+                    return true;
+                }
+
+                modelProvider = modelProvider.BaseModelProvider;
+            }
+
+            return false;
         }
 
         private ValueExpression? EnsureDiscriminatorValueExpression()
@@ -1002,7 +1461,11 @@ namespace Microsoft.TypeSpec.Generator.Providers
             return null;
         }
 
-        private ValueExpression GetExpressionForCtor(ParameterProvider parameter, HashSet<PropertyProvider> overriddenProperties, bool isPrimaryConstructor)
+        private ValueExpression GetExpressionForCtor(
+            ParameterProvider parameter,
+            HashSet<PropertyProvider> overriddenProperties,
+            bool isPrimaryConstructor,
+            IReadOnlyList<ParameterProvider>? availableParameters = null)
         {
             if (parameter.Property is not null && parameter.Property.IsDiscriminator && _inputModel.DiscriminatorValue != null)
             {
@@ -1021,8 +1484,14 @@ namespace Microsoft.TypeSpec.Generator.Providers
             }
 
             var paramToUse = parameter.Property is not null && overriddenProperties.Contains(parameter.Property) ? Properties.First(p => p.Name == parameter.Property.Name).AsParameter : parameter;
+            if (availableParameters is not null && paramToUse.Property is not null)
+            {
+                paramToUse = availableParameters.FirstOrDefault(p => p.Property == paramToUse.Property)
+                    ?? availableParameters.FirstOrDefault(p => p.Property?.Name == paramToUse.Property.Name)
+                    ?? paramToUse;
+            }
 
-            return paramToUse.Property is not null ? GetConversion(paramToUse.Property) : paramToUse;
+            return paramToUse.Property is not null ? GetConversion(paramToUse.Property, sourceParameter: paramToUse) : paramToUse;
         }
 
         private ValueExpression? GetUnknownDiscriminatorExpression(PropertyProvider property)
@@ -1158,12 +1627,16 @@ namespace Microsoft.TypeSpec.Generator.Providers
             var wireInfo = property?.WireInfo ?? field?.WireInfo;
             // skip those non-spec properties
             if (wireInfo == null)
+            {
                 return;
+            }
 
             // skip if this is an overload / new of a base property
             // also skip if the base was required or the derived property is not required
             if (property?.BaseProperty is not null && (!isPrimaryConstructor || wireInfo.IsRequired == false || property.BaseProperty.WireInfo?.IsRequired == true))
+            {
                 return;
+            }
 
             ValueExpression assignee = property != null
                 ? property.BackingField is null ? property : property.BackingField
@@ -1205,41 +1678,43 @@ namespace Microsoft.TypeSpec.Generator.Providers
             }
         }
 
-        private ValueExpression GetConversion(PropertyProvider? property = default, FieldProvider? field = default)
+        private static ValueExpression GetConversion(PropertyProvider? property = default, FieldProvider? field = default, ValueExpression? source = default, ParameterProvider? sourceParameter = default)
         {
             CSharpType to = property != null
                 ? property.BackingField is null ? property.Type : property.BackingField.Type
                 : field!.Type;
             CSharpType from = property?.Type ?? field!.Type;
+            sourceParameter ??= property?.AsParameter ?? field!.AsParameter;
+            source ??= sourceParameter;
 
             if (from.IsEnum && to.Equals(from.UnderlyingEnumType))
             {
-                return from.ToSerial(property?.AsParameter ?? field!.AsParameter);
+                return from.ToSerial(sourceParameter);
             }
 
-            return property?.AsParameter ?? field!.AsParameter;
+            return source;
         }
 
         /// <summary>
         /// Builds the raw data field for the model to be used for serialization.
         /// </summary>
         /// <returns>The constructed <see cref="FieldProvider"/> if the model should generate the field.</returns>
-        private FieldProvider? BuildRawDataField()
+        protected virtual FieldProvider? BuildRawDataField()
         {
-            if (_inputModel.Usage.HasFlag(InputModelTypeUsage.Xml) && !_inputModel.Usage.HasFlag(InputModelTypeUsage.Json))
+            if (!_inputModel.Usage.HasFlag(InputModelTypeUsage.Json)
+                && (_inputModel.Usage.HasFlag(InputModelTypeUsage.Xml)
+                    || _inputModel.Usage.HasFlag(InputModelTypeUsage.MultipartFormData)))
             {
                 return null;
             }
 
             // check if there is a raw data field on any of the base models, if so, we do not have to have one here.
-            var baseModelProvider = BaseModelProvider;
-            while (baseModelProvider != null)
+            foreach (var baseModelProvider in EnumerateBaseModelProviders())
             {
                 if (baseModelProvider.RawDataField != null)
                 {
                     return null;
                 }
-                baseModelProvider = baseModelProvider.BaseModelProvider;
             }
 
             var modifiers = FieldModifiers.Private;
@@ -1277,7 +1752,7 @@ namespace Microsoft.TypeSpec.Generator.Providers
                 _ when type.IsUnion => type,
                 _ when type.IsList => type.MakeGenericType([ReplaceUnverifiableType(type.Arguments[0])]),
                 _ when type.IsDictionary => type.MakeGenericType([ReplaceUnverifiableType(type.Arguments[0]), ReplaceUnverifiableType(type.Arguments[1])]),
-                _ => CSharpType.FromUnion([type])
+                _ => CSharpType.FromUnion([type], false, UnionItemTypeReferenceKind.MetadataOnly)
             };
         }
 
@@ -1295,6 +1770,7 @@ namespace Microsoft.TypeSpec.Generator.Providers
 
             // Check if the property exists in the last contract by name
             var lastContractProperty = LastContractView.Properties.FirstOrDefault(p =>
+                MethodSignatureHelper.IsPublicApi(p.Modifiers) &&
                 p.Name == AdditionalPropertiesHelper.DefaultAdditionalPropertiesPropertyName);
 
             if (lastContractProperty == null)
@@ -1332,9 +1808,5 @@ namespace Microsoft.TypeSpec.Generator.Providers
 
             return $"_additional{name.ToIdentifierName()}Properties";
         }
-
-        private static bool IsPublicApi(MethodSignatureModifiers modifiers)
-            => (modifiers.HasFlag(MethodSignatureModifiers.Public) || modifiers.HasFlag(MethodSignatureModifiers.Protected))
-                && !modifiers.HasFlag(MethodSignatureModifiers.Private);
     }
 }

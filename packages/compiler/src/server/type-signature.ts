@@ -6,7 +6,7 @@ import { printIdentifier } from "../core/helpers/syntax-utils.js";
 import { getEntityName, getTypeName, isStdNamespace } from "../core/helpers/type-name-utils.js";
 import type { Program } from "../core/program.js";
 import { getFullyQualifiedSymbolName } from "../core/type-utils.js";
-import {
+import type {
   AliasStatementNode,
   Decorator,
   EnumMember,
@@ -18,12 +18,11 @@ import {
   Operation,
   StringTemplate,
   Sym,
-  SymbolFlags,
-  SyntaxKind,
   Type,
   UnionVariant,
   Value,
 } from "../core/types.js";
+import { SymbolFlags, SyntaxKind } from "../core/types.js";
 import { walkPropertiesInherited } from "../index.js";
 
 interface GetSymbolSignatureOptions {
@@ -111,39 +110,45 @@ function getTypeSignature(type: Type, options: GetSymbolSignatureOptions): strin
     case "EnumMember":
       return `(enum member)\n${fence(getEnumMemberSignature(type))}`;
     case "TemplateParameter":
-      return `(template parameter)\n${fence(type.node.id.sv)}`;
+      return `(template parameter)\n${fence(
+        getTemplateConstraintSignature(type.node.id.sv, type.constraint),
+      )}`;
+    case "TemplateParameterAccess":
+      return `(template access)\n${fence(getTemplateConstraintSignature(type.path, type.constraint))}`;
     case "UnionVariant":
       return `(union variant)\n${fence(getUnionVariantSignature(type))}`;
     case "Tuple":
       return `(tuple)\n[${fence(type.values.map((v) => getTypeSignature(v, options)).join(", "))}]`;
     case "FunctionType":
-      return `fn (${type.parameters.map((p) => getTypeSignature(p, options)).join(", ")}): ${getMixedConstraintSignature(
-        type.returnType,
-        options,
-      )}`;
+      return fence(
+        `fn (${type.parameters.map((p) => getFunctionParameterSignature(p)).join(", ")}) => ${getEntityName(
+          type.returnType,
+        )}`,
+      );
     default:
       const _assertNever: never = type;
       compilerAssert(false, "Unexpected type kind");
   }
 }
 
-function getMixedConstraintSignature(
-  constraint: MixedParameterConstraint,
-  options: GetSymbolSignatureOptions,
-) {
-  let result = "";
+/** Format `T extends ...` style signatures for template parameters/access paths. */
+function getTemplateConstraintSignature(
+  nameOrPath: string,
+  constraint?: MixedParameterConstraint,
+): string {
+  if (!constraint) {
+    return nameOrPath;
+  }
 
+  const parts: string[] = [];
   if (constraint.type) {
-    result += getTypeSignature(constraint.type, options);
+    parts.push(getTypeName(constraint.type, { printable: true }));
+  }
+  if (constraint.valueType) {
+    parts.push(`valueof ${getTypeName(constraint.valueType, { printable: true })}`);
   }
 
-  if (constraint.valueType) {
-    if (result.length > 0) {
-      result += " | ";
-    }
-    result += "valueof " + getTypeSignature(constraint.valueType, options);
-  }
-  return result;
+  return parts.length > 0 ? `${nameOrPath} extends ${parts.join(" | ")}` : nameOrPath;
 }
 
 function getDecoratorSignature(type: Decorator) {

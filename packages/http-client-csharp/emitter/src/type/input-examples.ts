@@ -1,7 +1,7 @@
 // Copyright (c) Microsoft Corporation. All rights reserved.
 // Licensed under the MIT License. See License.txt in the project root for license information.
 
-import {
+import type {
   InputArrayType,
   InputDictionaryType,
   InputHttpParameter,
@@ -12,7 +12,7 @@ import {
   InputType,
   InputUnionType,
 } from "./input-type.js";
-import { OperationResponse } from "./operation-response.js";
+import type { OperationResponse } from "./operation-response.js";
 
 interface InputExampleBase {
   kind: string;

@@ -1,7 +1,10 @@
 import { readFile } from "fs/promises";
+import { createRequire } from "module";
 import { dirname, resolve } from "path";
-import plist from "plist";
-import * as vscodeOniguruma from "vscode-oniguruma";
+import * as plist from "plist";
+import vscodeOniguruma from "vscode-oniguruma";
+
+const require = createRequire(import.meta.url);
 
 const { loadWASM, createOnigScanner } = vscodeOniguruma;
 
@@ -37,9 +40,7 @@ export type Captures<Scope extends string = string> = Record<
 >;
 
 export type Rule<Scope extends string = string> =
-  | MatchRule<Scope>
-  | BeginEndRule<Scope>
-  | IncludeRule<Scope>;
+  MatchRule<Scope> | BeginEndRule<Scope> | IncludeRule<Scope>;
 
 export interface MatchRule<Scope extends string = string> extends RuleScope<Scope>, RuleKey {
   match: string;

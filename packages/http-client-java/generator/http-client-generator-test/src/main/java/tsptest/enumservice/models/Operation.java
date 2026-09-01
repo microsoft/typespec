@@ -89,6 +89,12 @@ public final class Operation implements JsonSerializable<Operation> {
     @Generated
     private OlympicRecordModel olympicRecordValue;
 
+    /*
+     * The reasoning_effort property.
+     */
+    @Generated
+    private OperationReasoningEffort1 reasoningEffort;
+
     /**
      * Creates an instance of Operation class.
      * 
@@ -262,6 +268,28 @@ public final class Operation implements JsonSerializable<Operation> {
     }
 
     /**
+     * Get the reasoningEffort property: The reasoning_effort property.
+     * 
+     * @return the reasoningEffort value.
+     */
+    @Generated
+    public OperationReasoningEffort1 getReasoningEffort() {
+        return this.reasoningEffort;
+    }
+
+    /**
+     * Set the reasoningEffort property: The reasoning_effort property.
+     * 
+     * @param reasoningEffort the reasoningEffort value to set.
+     * @return the Operation object itself.
+     */
+    @Generated
+    public Operation setReasoningEffort(OperationReasoningEffort1 reasoningEffort) {
+        this.reasoningEffort = reasoningEffort;
+        return this;
+    }
+
+    /**
      * {@inheritDoc}
      */
     @Generated
@@ -282,6 +310,8 @@ public final class Operation implements JsonSerializable<Operation> {
         jsonWriter.writeNumberField("olympicRecord", this.olympicRecord == null ? null : this.olympicRecord.getValue());
         jsonWriter.writeNumberField("olympicRecordValue",
             this.olympicRecordValue == null ? null : this.olympicRecordValue.getValue());
+        jsonWriter.writeStringField("reasoning_effort",
+            this.reasoningEffort == null ? null : this.reasoningEffort.toString());
         return jsonWriter.writeEndObject();
     }
 
@@ -304,6 +334,7 @@ public final class Operation implements JsonSerializable<Operation> {
             Unit unitValue = null;
             OlympicRecordModel olympicRecord = null;
             OlympicRecordModel olympicRecordValue = null;
+            OperationReasoningEffort1 reasoningEffort = null;
             while (reader.nextToken() != JsonToken.END_OBJECT) {
                 String fieldName = reader.getFieldName();
                 reader.nextToken();
@@ -322,6 +353,8 @@ public final class Operation implements JsonSerializable<Operation> {
                     olympicRecord = OlympicRecordModel.fromValue(reader.getDouble());
                 } else if ("olympicRecordValue".equals(fieldName)) {
                     olympicRecordValue = OlympicRecordModel.fromValue(reader.getDouble());
+                } else if ("reasoning_effort".equals(fieldName)) {
+                    reasoningEffort = OperationReasoningEffort1.fromString(reader.getString());
                 } else {
                     reader.skipChildren();
                 }
@@ -330,6 +363,7 @@ public final class Operation implements JsonSerializable<Operation> {
             deserializedOperation.unitValue = unitValue;
             deserializedOperation.olympicRecord = olympicRecord;
             deserializedOperation.olympicRecordValue = olympicRecordValue;
+            deserializedOperation.reasoningEffort = reasoningEffort;
 
             return deserializedOperation;
         });

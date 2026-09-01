@@ -3,6 +3,7 @@
 # Licensed under the MIT License. See License.txt in the project root for
 # license information.
 # --------------------------------------------------------------------------
+from dataclasses import dataclass
 from typing import Optional, Any, TYPE_CHECKING, Union
 
 from .base import BaseModel
@@ -16,6 +17,53 @@ from .combined_type import CombinedType
 
 if TYPE_CHECKING:
     from .code_model import CodeModel
+
+DEFAULT_SSE_EVENT_TYPE = "message"
+
+
+@dataclass(frozen=True)
+class StreamingEvent:
+    event_type: Optional[str]
+    payload_type: BaseType
+    payload_content_type: Optional[str]
+    is_terminal: bool
+
+
+def get_streaming_event_discriminator(
+    events: list[StreamingEvent],
+) -> Optional[tuple[str, list[tuple[str, StreamingEvent]]]]:
+    discriminator_name: Optional[str] = None
+    variants: list[tuple[str, StreamingEvent]] = []
+    values: set[str] = set()
+    for event in events:
+        discriminator_property = getattr(event.payload_type, "discriminator_property", None)
+        discriminator_value = getattr(event.payload_type, "discriminator_value", None)
+        if discriminator_property is None or discriminator_value is None:
+            return None
+        if discriminator_name is None:
+            discriminator_name = discriminator_property.wire_name
+        elif discriminator_property.wire_name != discriminator_name:
+            return None
+        if discriminator_value in values:
+            return None
+        values.add(discriminator_value)
+        variants.append((discriminator_value, event))
+    if discriminator_name is None:
+        return None
+    return discriminator_name, variants
+
+
+def _get_terminal_event_names(events: list[StreamingEvent]) -> list[str]:
+    unnamed_events = [event for event in events if event.event_type is None]
+    terminal_event_names: list[str] = []
+    for event in events:
+        if not event.is_terminal:
+            continue
+        if event.event_type is not None:
+            terminal_event_names.append(event.event_type)
+        elif len(unnamed_events) == 1:
+            terminal_event_names.append(DEFAULT_SSE_EVENT_TYPE)
+    return list(dict.fromkeys(terminal_event_names))
 
 
 class ResponseHeader(BaseModel):
@@ -58,6 +106,25 @@ class Response(BaseModel):
         self.type = type
         self.nullable = yaml_data.get("nullable")
         self.default_content_type = yaml_data.get("defaultContentType")
+        streaming = yaml_data.get("streaming")
+        self.streaming_kind: Optional[str] = streaming["kind"] if streaming else None
+        self.streaming_events: list[StreamingEvent] = []
+        self.terminal_event: Optional[str] = streaming.get("terminalEvent") if streaming else None
+        # Named / model ``@terminalEvent`` events: deserialized and yielded like any other event,
+        # then iteration stops. The bare string-constant sentinel (``terminal_event``)
+        # stops WITHOUT yielding and is matched on event ``data`` instead of the event name.
+        self.terminal_event_names: list[str] = []
+        if streaming:
+            self.streaming_events = [
+                StreamingEvent(
+                    event_type=event.get("eventType"),
+                    payload_type=self.code_model.lookup_type(id(event["payloadType"])),
+                    payload_content_type=event.get("payloadContentType"),
+                    is_terminal=event.get("isTerminal", False),
+                )
+                for event in streaming.get("events", [])
+            ]
+            self.terminal_event_names = _get_terminal_event_names(self.streaming_events)
 
     @property
     def result_property(self) -> str:
@@ -68,7 +135,12 @@ class Response(BaseModel):
 
     def get_polymorphic_subtypes(self, polymorphic_subtypes: list["ModelType"]) -> None:
         if self.type:
-            self.type.get_polymorphic_subtypes(polymorphic_subtypes)
+            if isinstance(self.type, CombinedType):
+                target = self.type.target_model_subtype((ModelType,))
+                if target:
+                    target.get_polymorphic_subtypes(polymorphic_subtypes)
+            else:
+                self.type.get_polymorphic_subtypes(polymorphic_subtypes)
 
     def get_json_template_representation(self) -> Any:
         if not self.type:
@@ -87,14 +159,51 @@ class Response(BaseModel):
         )
         return retval
 
+    @property
+    def is_structured_stream(self) -> bool:
+        """Is the response a structured (JSONL / SSE) stream rendered as Stream[T] / AsyncStream[T]."""
+        return self.streaming_kind is not None
+
+    def stream_class_name(self, async_mode: bool) -> str:
+        return "AsyncStream" if async_mode else "Stream"
+
+    @property
+    def stream_item_type(self) -> Optional[BaseType]:
+        event_item_types = list(dict.fromkeys(event.payload_type for event in self.streaming_events))
+        if len(event_item_types) == 1:
+            return event_item_types[0]
+        if event_item_types:
+            return CombinedType({"type": "combined"}, self.code_model, event_item_types)
+        return self.type
+
     def serialization_type(self, **kwargs: Any) -> str:
         if self.type:
             return self.type.serialization_type(**kwargs)
         return "None"
 
+    def stream_item_annotation(self, **kwargs: Any) -> str:
+        """Valid type expression for a structured stream's item type.
+
+        A named ``CombinedType`` (``@events`` union) renders its ``type_annotation`` as the
+        ``_unions.<Name>`` alias, which is a module-level variable and therefore rejected by
+        pyright/mypy inside ``Stream[...]`` ("Variable not allowed in type expression"). Expand
+        the union inline (``Union[Model, ...]`` / the single member) so the annotation is a
+        valid type expression.
+        """
+        item_type = self.stream_item_type
+        if isinstance(item_type, CombinedType):
+            return item_type.type_definition(**kwargs)
+        return item_type.type_annotation(**kwargs) if item_type else "None"
+
     def type_annotation(self, **kwargs: Any) -> str:
+        if self.is_structured_stream and self.type:
+            kwargs["is_operation_file"] = True
+            kwargs["is_response"] = True
+            stream_class = self.stream_class_name(kwargs.get("async_mode", False))
+            return f"{stream_class}[{self.stream_item_annotation(**kwargs)}]"
         if self.type:
             kwargs["is_operation_file"] = True
+            kwargs["is_response"] = True
             type_annotation = self.type.type_annotation(**kwargs)
             if self.nullable:
                 return f"Optional[{type_annotation}]"
@@ -102,29 +211,64 @@ class Response(BaseModel):
         return "None"
 
     def docstring_text(self, **kwargs: Any) -> str:
+        kwargs["is_response"] = True
+        if self.is_structured_stream and self.type:
+            stream_class = self.stream_class_name(kwargs.get("async_mode", False))
+            item_type = self.stream_item_type or self.type
+            return f"An instance of {stream_class} that iterates over {item_type.docstring_text(**kwargs)}"
         if self.nullable and self.type:
             return f"{self.type.docstring_text(**kwargs)} or None"
         return self.type.docstring_text(**kwargs) if self.type else "None"
 
     def docstring_type(self, **kwargs: Any) -> str:
+        kwargs["is_response"] = True
+        if self.is_structured_stream and self.type:
+            stream_class = self.stream_class_name(kwargs.get("async_mode", False))
+            item_type = (self.stream_item_type or self.type).docstring_type(**kwargs)
+            return f"~{self.code_model.namespace}.{stream_class}[{item_type}]"
         if self.nullable and self.type:
             return f"{self.type.docstring_type(**kwargs)} or None"
         return self.type.docstring_type(**kwargs) if self.type else "None"
 
     def imports(self, **kwargs: Any) -> FileImport:
         file_import = FileImport(self.code_model)
-        if self.type:
-            file_import.merge(self.type.imports(**kwargs))
+        item_type = self.stream_item_type if self.is_structured_stream else self.type
+        # For a structured stream whose item type is a named ``@events`` union, the annotation
+        # is expanded inline (see ``stream_item_annotation``), so import the union member types
+        # rather than the ``_unions`` alias.
+        if self.is_structured_stream and isinstance(item_type, CombinedType):
+            for member in item_type.types:
+                file_import.merge(member.imports(**kwargs))
+            # ``Union`` is only needed when the inline expansion actually yields a union of
+            # 2+ distinct member types (a single member collapses to that member; a union of
+            # only literals collapses to a single ``Literal[...]``).
+            distinct = list(dict.fromkeys(m.type_annotation(**kwargs) for m in item_type.types))
+            all_constant = all(t.type == "constant" for t in item_type.types)
+            if len(distinct) > 1 and not all_constant:
+                file_import.add_submodule_import("typing", "Union", ImportType.STDLIB)
+        elif item_type:
+            file_import.merge(item_type.imports(**kwargs))
+            if not self.is_structured_stream and isinstance(item_type, CombinedType) and item_type.name:
+                serialize_namespace = kwargs.get("serialize_namespace", self.code_model.namespace)
+                file_import.add_submodule_import(
+                    self.code_model.get_relative_import_path(serialize_namespace),
+                    "_unions",
+                    ImportType.LOCAL,
+                    TypingSection.TYPING,
+                )
         if self.nullable:
             file_import.add_submodule_import("typing", "Optional", ImportType.STDLIB)
-        if isinstance(self.type, CombinedType) and self.type.name:
+        if self.is_structured_stream:
+            stream_class = self.stream_class_name(kwargs.get("async_mode", False))
             serialize_namespace = kwargs.get("serialize_namespace", self.code_model.namespace)
-            file_import.add_submodule_import(
-                self.code_model.get_relative_import_path(serialize_namespace),
-                "_types",
-                ImportType.LOCAL,
-                TypingSection.TYPING,
+            relative_path = self.code_model.get_relative_import_path(
+                serialize_namespace, module_name="_utils.streaming_base"
             )
+            file_import.add_submodule_import(relative_path, stream_class, ImportType.LOCAL)
+            if self.streaming_kind == "sse":
+                file_import.add_import("json", ImportType.STDLIB)
+                for event in self.streaming_events:
+                    file_import.merge(event.payload_type.imports(**kwargs))
         return file_import
 
     def _get_import_type(self, input_path: str) -> ImportType:
@@ -135,6 +279,14 @@ class Response(BaseModel):
 
     @classmethod
     def from_yaml(cls, yaml_data: dict[str, Any], code_model: "CodeModel") -> "Response":
+        streaming = yaml_data.get("streaming")
+        if streaming:
+            return cls(
+                yaml_data=yaml_data,
+                code_model=code_model,
+                headers=[ResponseHeader.from_yaml(header, code_model) for header in yaml_data["headers"]],
+                type=code_model.lookup_type(id(streaming["itemType"])),
+            )
         type = code_model.lookup_type(id(yaml_data["type"])) if yaml_data.get("type") else None
         # use ByteIteratorType if we are returning a binary type
         default_content_type = yaml_data.get("defaultContentType", "application/json")
@@ -165,7 +317,12 @@ class PagingResponse(Response):
         )
 
     def get_polymorphic_subtypes(self, polymorphic_subtypes: list["ModelType"]) -> None:
-        return self.item_type.get_polymorphic_subtypes(polymorphic_subtypes)
+        if isinstance(self.item_type, CombinedType):
+            target = self.item_type.target_model_subtype((ModelType,))
+            if target:
+                target.get_polymorphic_subtypes(polymorphic_subtypes)
+        else:
+            self.item_type.get_polymorphic_subtypes(polymorphic_subtypes)
 
     def get_json_template_representation(self) -> Any:
         return self.item_type.get_json_template_representation()
@@ -181,7 +338,21 @@ class PagingResponse(Response):
 
     def type_annotation(self, **kwargs: Any) -> str:
         iterable = "AsyncItemPaged" if kwargs["async_mode"] else "ItemPaged"
-        return f"{iterable}[{self.item_type.type_annotation(**kwargs)}]"
+        return f"{iterable}[{self._item_type_annotation(**kwargs)}]"
+
+    def _item_type_annotation(self, **kwargs: Any) -> str:
+        # When the page item is a ListType, render the outer `List`/`list`
+        # wrapper here using the operation-file alias decision so a list page
+        # item rendered inside an operation file named `list` uses the `List`
+        # alias (avoiding the built-in `list` shadowed by `List = list`).
+        # Recurse into the element type without is_operation_file so nested
+        # generated model types keep their forward-reference quoting
+        # (e.g. ItemPaged[List["_models.Product"]]).
+        if isinstance(self.item_type, ListType):
+            use_list_import = self.code_model.has_operation_named_list
+            list_type = "List" if use_list_import else "list"
+            return f"{list_type}[{self.item_type.element_type.type_annotation(**kwargs)}]"
+        return self.item_type.type_annotation(**kwargs)
 
     def docstring_text(self, **kwargs: Any) -> str:
         base_description = "An iterator like instance of "

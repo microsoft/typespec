@@ -42,7 +42,7 @@ namespace Sample
                 if (!Patch.IsRemoved("$.propertyWithNestedArray"u8))
                 {
                     writer.WritePropertyName("propertyWithNestedArray"u8);
-                    writer.WriteRawValue(Patch.GetJson("$.propertyWithNestedArray"u8));
+                    Patch.WriteTo(writer, "$.propertyWithNestedArray"u8);
                 }
             }
             else if (global::Sample.Optional.IsCollectionDefined(PropertyWithNestedArray))

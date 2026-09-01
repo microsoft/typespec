@@ -1,7 +1,7 @@
 // Copyright (c) Microsoft Corporation
 // Licensed under the MIT license.
 
-import { Module } from "../../src/ctx.js";
+import type { Module } from "../../src/ctx.js";
 
 export let module: Module = undefined as any;
 

@@ -61,3 +61,7 @@ def test_model_properties_with_list(client: SpecialWordsClient):
 def test_extensible_strings(client: SpecialWordsClient):
     for enum_value in models.ExtensibleString:
         assert enum_value == client.extensible_strings.put_extensible_string_value(body=enum_value)
+
+
+def test_reserved_operation_body_params_with_items(client: SpecialWordsClient):
+    client.reserved_operation_body_params.with_items(items=["item"])

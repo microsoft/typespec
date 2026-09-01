@@ -168,15 +168,8 @@ namespace Microsoft.TypeSpec.Generator.Providers
                 return currentApiVersions;
             }
 
-            var processedNames = new HashSet<string>(lastContractFields.Select(f => f.Name), StringComparer.OrdinalIgnoreCase);
-            // Then, add new versions in the wire order
-            foreach (var currentVersion in currentApiVersions)
-            {
-                if (!processedNames.Contains(currentVersion.Name))
-                {
-                    allMembers.Add(currentVersion);
-                }
-            }
+            // Then, add new versions in the wire order.
+            AppendMembersNotInLastContract(currentApiVersions, lastContractFields, allMembers);
 
             for (int i = 0; i < allMembers.Count; i++)
             {
@@ -282,7 +275,9 @@ namespace Microsoft.TypeSpec.Generator.Providers
         private static char? ExtractApiVersionSeparator(string version)
         {
             if (string.IsNullOrEmpty(version))
+            {
                 return null;
+            }
 
             char[] versionSeparators = ['-', '.', '_', '/'];
             int separatorIndex = version.IndexOfAny(versionSeparators);

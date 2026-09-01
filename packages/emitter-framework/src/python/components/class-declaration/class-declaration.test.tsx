@@ -35,24 +35,24 @@ describe("Python Class from model", () => {
           from typing import TYPE_CHECKING
 
           if TYPE_CHECKING:
-            from typing import Literal
-            from typing import Optional
+              from typing import Literal
+              from typing import Optional
 
 
           @dataclass(kw_only=True)
           class Widget:
-            id: str
-            weight: int
-            aliases: list[str]
-            is_active: bool
-            color: Literal["blue", "red"]
-            promotional_price: float
-            description: Optional[str] = "This is a widget"
-            created_at: int = 1717334400
-            tags: list[str] = ["tag1", "tag2"]
-            is_deleted: bool = False
-            alternative_color: Literal["green", "yellow"] = "green"
-            price: float = 100.0
+              id: str
+              weight: int
+              aliases: list[str]
+              is_active: bool
+              color: Literal["blue", "red"]
+              promotional_price: float
+              description: Optional[str] = "This is a widget"
+              created_at: int = 1717334400
+              tags: list[str] = ["tag1", "tag2"]
+              is_deleted: bool = False
+              alternative_color: Literal["green", "yellow"] = "green"
+              price: float = 100.0
           
           `,
     );
@@ -73,13 +73,13 @@ describe("Python Class from model", () => {
           from typing import TYPE_CHECKING
 
           if TYPE_CHECKING:
-            from typing import Optional
+              from typing import Optional
 
 
           @dataclass(kw_only=True)
           class Widget:
-            id: str
-            description: Optional[str] = "This is a widget"
+              id: str
+              description: Optional[str] = "This is a widget"
           
           `,
     );
@@ -100,13 +100,13 @@ describe("Python Class from model", () => {
           from typing import TYPE_CHECKING
 
           if TYPE_CHECKING:
-            from typing import Optional
+              from typing import Optional
 
 
           @dataclass(kw_only=True)
           class Widget:
-            description: Optional[str] = "This is a widget"
-            id: str
+              description: Optional[str] = "This is a widget"
+              id: str
           
           `,
     );
@@ -130,12 +130,12 @@ describe("Python Class from model", () => {
 
           @dataclass(kw_only=True)
           class Foo:
-            """
-            This is a test
-            with multiple lines
-            """
+              """
+              This is a test
+              with multiple lines
+              """
 
-            known_prop: str
+              known_prop: str
 
           `,
     );
@@ -166,12 +166,12 @@ describe("Python Class from model", () => {
 
           @dataclass(kw_only=True)
           class Foo:
-            """
-            This is an overridden doc comment
-            with multiple lines
-            """
+              """
+              This is an overridden doc comment
+              with multiple lines
+              """
 
-            known_prop: str
+              known_prop: str
 
           `,
     );
@@ -198,13 +198,13 @@ describe("Python Class from model", () => {
 
           @dataclass(kw_only=True)
           class Foo:
-            """
-            First paragraph
+              """
+              First paragraph
 
-            Second paragraph
-            """
+              Second paragraph
+              """
 
-            known_prop: str
+              known_prop: str
 
           `,
     );
@@ -231,13 +231,13 @@ describe("Python Class from model", () => {
 
           @dataclass(kw_only=True)
           class Foo:
-            """
-            Alpha
+              """
+              Alpha
 
-            Beta
-            """
+              Beta
+              """
 
-            known_prop: str
+              known_prop: str
 
           `,
     );
@@ -258,11 +258,11 @@ describe("Python Class from model", () => {
 
           @dataclass(kw_only=True)
           class Foo:
-            """
-            This is a test
-            """
+              """
+              This is a test
+              """
 
-            known_prop: str
+              known_prop: str
 
           `,
     );
@@ -286,12 +286,12 @@ describe("Python Class from model", () => {
 
           @dataclass(kw_only=True)
           class Foo:
-            """
-            This is a test
-            """
+              """
+              This is a test
+              """
 
-            # This is a known property
-            known_prop: str
+              # This is a known property
+              known_prop: str
 
           `,
     );
@@ -352,7 +352,7 @@ describe("Python Class from model", () => {
     expect(getOutput(program, [<ClassDeclaration type={Foo} />])).toRenderTo(
       `
       class Foo(list[str]):
-        pass
+          pass
 
     `,
     );
@@ -381,19 +381,19 @@ describe("Python Class from model", () => {
       from typing import TYPE_CHECKING
 
       if TYPE_CHECKING:
-        from typing import Literal
+          from typing import Literal
 
 
       class Color(StrEnum):
-        RED = "RED"
-        BLUE = "BLUE"
+          RED = "RED"
+          BLUE = "BLUE"
 
 
       @dataclass(kw_only=True)
       class Widget:
-        id: str = "123"
-        weight: int = 100
-        color: Literal[Color.BLUE]
+          id: str = "123"
+          weight: int = 100
+          color: Literal[Color.BLUE]
 
       `,
     );
@@ -422,19 +422,19 @@ describe("Python Class from model", () => {
       from typing import TYPE_CHECKING
 
       if TYPE_CHECKING:
-        from typing import Literal
+          from typing import Literal
 
 
       class Color(StrEnum):
-        RED = "RED"
-        BLUE = "BLUE"
-        GREEN = "GREEN"
+          RED = "RED"
+          BLUE = "BLUE"
+          GREEN = "GREEN"
 
 
       @dataclass(kw_only=True)
       class Widget:
-        id: str
-        primary_color: Literal[Color.RED, Color.BLUE]
+          id: str
+          primary_color: Literal[Color.RED, Color.BLUE]
 
       `,
     );
@@ -454,13 +454,13 @@ describe("Python Class from model", () => {
       from typing import TYPE_CHECKING
 
       if TYPE_CHECKING:
-        from typing import Literal
+          from typing import Literal
 
 
       @dataclass(kw_only=True)
       class Widget:
-        id: str
-        priority: Literal[1, 2, 3]
+          id: str
+          priority: Literal[1, 2, 3]
 
       `,
     );
@@ -480,13 +480,13 @@ describe("Python Class from model", () => {
       from typing import TYPE_CHECKING
 
       if TYPE_CHECKING:
-        from typing import Literal
+          from typing import Literal
 
 
       @dataclass(kw_only=True)
       class Widget:
-        id: str
-        is_active_or_enabled: Literal[True, False]
+          id: str
+          is_active_or_enabled: Literal[True, False]
 
       `,
     );
@@ -514,18 +514,18 @@ describe("Python Class from model", () => {
       from typing import TYPE_CHECKING
 
       if TYPE_CHECKING:
-        from typing import Literal
+          from typing import Literal
 
 
       class Color(StrEnum):
-        RED = "RED"
-        BLUE = "BLUE"
+          RED = "RED"
+          BLUE = "BLUE"
 
 
       @dataclass(kw_only=True)
       class Widget:
-        id: str
-        mixed_value: Literal["custom", 42, True, Color.RED]
+          id: str
+          mixed_value: Literal["custom", 42, True, Color.RED]
 
       `,
     );
@@ -543,12 +543,12 @@ describe("Python Class from model", () => {
       from typing import TYPE_CHECKING
 
       if TYPE_CHECKING:
-        from typing import Never
+          from typing import Never
 
 
       @dataclass(kw_only=True)
       class Widget:
-        property: Never
+          property: Never
 
   `);
   });
@@ -568,14 +568,14 @@ describe("Python Class from model", () => {
       from typing import TYPE_CHECKING
 
       if TYPE_CHECKING:
-        from typing import Literal
+          from typing import Literal
 
 
       @dataclass(kw_only=True)
       class MyOperations:
-        id: str
-        weight: int
-        color: Literal["blue", "red"]
+          id: str
+          weight: int
+          color: Literal["blue", "red"]
 
       `);
   });
@@ -603,15 +603,15 @@ describe("Python Class from model", () => {
       from typing import TYPE_CHECKING
 
       if TYPE_CHECKING:
-        from typing import Literal
+          from typing import Literal
 
 
       @dataclass(kw_only=True)
       class MyOperations:
-        id: str
-        weight: int
-        color: Literal["blue", "red"]
-        custom_property: str
+          id: str
+          weight: int
+          color: Literal["blue", "red"]
+          custom_property: str
 
     `);
   });
@@ -639,20 +639,20 @@ describe("Python Class from model", () => {
       from typing import TYPE_CHECKING
 
       if TYPE_CHECKING:
-        from typing import Literal
+          from typing import Literal
 
 
       @dataclass(kw_only=True)
       class Widget:
-        id: str
-        weight: int
-        color: Literal["blue", "red"]
+          id: str
+          weight: int
+          color: Literal["blue", "red"]
 
 
       @dataclass(kw_only=True)
       class ErrorWidget(Widget):
-        code: int
-        message: str
+          code: int
+          message: str
 
     `);
   });
@@ -672,9 +672,9 @@ describe("Python Class from interface", () => {
 
 
       class WidgetOperations(ABC):
-        @abstractmethod
-        def get_name(self, id: str) -> str:
-          pass
+          @abstractmethod
+          def get_name(self, id: str) -> str:
+              pass
 
 
       `);
@@ -705,17 +705,17 @@ describe("Python Class from interface", () => {
 
       @dataclass(kw_only=True)
       class Foo:
-        name: str
+          name: str
 
 
       class WidgetOperations(ABC):
-        @abstractmethod
-        def get_name(self, foo: Foo) -> str:
-          pass
+          @abstractmethod
+          def get_name(self, foo: Foo) -> str:
+              pass
 
-        @abstractmethod
-        def get_other_name(self, name: str) -> str:
-          pass
+          @abstractmethod
+          def get_other_name(self, name: str) -> str:
+              pass
 
 
     `);
@@ -757,28 +757,28 @@ describe("Python Class from interface", () => {
       from typing import TYPE_CHECKING
 
       if TYPE_CHECKING:
-        from typing import Literal
+          from typing import Literal
 
 
       class WidgetOperations(ABC):
-        """
-        Operations for Widget
-        """
+          """
+          Operations for Widget
+          """
 
-        @abstractmethod
-        def get_name(self, id: str) -> Widget:
-          """
-          Get the name of the widget
-          """
-          pass
+          @abstractmethod
+          def get_name(self, id: str) -> Widget:
+              """
+              Get the name of the widget
+              """
+              pass
 
 
 
       @dataclass(kw_only=True)
       class Widget:
-        id: str
-        weight: int
-        color: Literal["blue", "red"]
+          id: str
+          weight: int
+          color: Literal["blue", "red"]
 
       `);
   });
@@ -814,32 +814,32 @@ describe("Python Class from interface", () => {
       from typing import TYPE_CHECKING
 
       if TYPE_CHECKING:
-        from typing import Literal
+          from typing import Literal
 
 
       class WidgetOperations(ABC):
-        @abstractmethod
-        def get_name(self, id: str) -> Widget:
-          pass
+          @abstractmethod
+          def get_name(self, id: str) -> Widget:
+              pass
 
 
 
       class WidgetOperationsExtended(ABC):
-        @abstractmethod
-        def get_name(self, id: str) -> Widget:
-          pass
+          @abstractmethod
+          def get_name(self, id: str) -> Widget:
+              pass
 
-        @abstractmethod
-        def delete(self, id: str) -> None:
-          pass
+          @abstractmethod
+          def delete(self, id: str) -> None:
+              pass
 
 
 
       @dataclass(kw_only=True)
       class Widget:
-        id: str
-        weight: int
-        color: Literal["blue", "red"]
+          id: str
+          weight: int
+          color: Literal["blue", "red"]
 
       `);
   });
@@ -870,14 +870,14 @@ describe("Python Class overrides", () => {
 
       @dataclass(kw_only=True)
       class WidgetOperations:
-        id: str
-        weight: int
+          id: str
+          weight: int
 
-        def do_work(self) -> None:
-          """
-          This is a test
-          """
-          pass
+          def do_work(self) -> None:
+              """
+              This is a test
+              """
+              pass
 
 
       `);
@@ -907,14 +907,14 @@ describe("Python Class overrides", () => {
 
       @dataclass(kw_only=True)
       class WidgetOperations:
-        id: str
-        weight: int
+          id: str
+          weight: int
 
-        def do_work(self) -> None:
-          """
-          This is a test
-          """
-          pass
+          def do_work(self) -> None:
+              """
+              This is a test
+              """
+              pass
 
 
       `);
@@ -944,15 +944,15 @@ describe("Python Class overrides", () => {
 
       @dataclass(kw_only=True)
       class WidgetOperations:
-        id: str
-        weight: int
+          id: str
+          weight: int
 
-        @classmethod
-        def do_work(cls) -> None:
-          """
-          This is a test
-          """
-          pass
+          @classmethod
+          def do_work(cls) -> None:
+              """
+              This is a test
+              """
+              pass
 
 
       `);
@@ -982,15 +982,15 @@ describe("Python Class overrides", () => {
 
       @dataclass(kw_only=True)
       class WidgetOperations:
-        id: str
-        weight: int
+          id: str
+          weight: int
 
-        @staticmethod
-        def do_work() -> None:
-          """
-          This is a test
-          """
-          pass
+          @staticmethod
+          def do_work() -> None:
+              """
+              This is a test
+              """
+              pass
 
 
       `);
@@ -1009,9 +1009,9 @@ describe("Python Class overrides", () => {
 
 
       class WidgetOperations(ABC):
-        @abstractmethod
-        def get_name(self, id: str) -> str:
-          pass
+          @abstractmethod
+          def get_name(self, id: str) -> str:
+              pass
 
 
       `);
@@ -1031,9 +1031,9 @@ describe("Python Class overrides", () => {
 
 
       class WidgetOperations(ABC):
-        @abstractmethod
-        def get_name(self, id: str) -> str:
-          pass
+          @abstractmethod
+          def get_name(self, id: str) -> str:
+              pass
 
 
       `);
@@ -1053,10 +1053,10 @@ describe("Python Class overrides", () => {
 
 
       class WidgetOperations(ABC):
-        @classmethod
-        @abstractmethod
-        def get_name(cls, id: str) -> str:
-          pass
+          @classmethod
+          @abstractmethod
+          def get_name(cls, id: str) -> str:
+              pass
 
 
       `);
@@ -1076,10 +1076,10 @@ describe("Python Class overrides", () => {
 
 
       class WidgetOperations(ABC):
-        @staticmethod
-        @abstractmethod
-        def get_name(id: str) -> str:
-          pass
+          @staticmethod
+          @abstractmethod
+          def get_name(id: str) -> str:
+              pass
 
 
       `);
@@ -1104,8 +1104,8 @@ describe("Python Class overrides", () => {
 
       @dataclass(kw_only=True)
       class StringResponse:
-        data: str
-        status: str
+          data: str
+          status: str
 
       `);
   });
@@ -1134,14 +1134,14 @@ describe("Python Class overrides", () => {
 
       @dataclass(kw_only=True)
       class StringResult:
-        value: str
-        error: str
+          value: str
+          error: str
 
 
       @dataclass(kw_only=True)
       class IntResult:
-        value: int
-        error: str
+          value: int
+          error: str
 
       `);
   });
@@ -1164,8 +1164,8 @@ describe("Python Class overrides", () => {
 
       @dataclass(kw_only=True)
       class StringResponse:
-        data: str
-        status: str
+          data: str
+          status: str
 
       `);
   });
@@ -1190,17 +1190,17 @@ describe("Python Class overrides", () => {
 
 
       class StringRepository(ABC):
-        @abstractmethod
-        def get(self, id: str) -> str:
-          pass
+          @abstractmethod
+          def get(self, id: str) -> str:
+              pass
 
-        @abstractmethod
-        def list(self) -> list[str]:
-          pass
+          @abstractmethod
+          def list(self) -> list[str]:
+              pass
 
-        @abstractmethod
-        def find_by_prefix(self, prefix: str) -> list[str]:
-          pass
+          @abstractmethod
+          def find_by_prefix(self, prefix: str) -> list[str]:
+              pass
 
 
       `);
@@ -1234,24 +1234,24 @@ describe("Python Class overrides", () => {
 
 
       class UserRepository(ABC):
-        @abstractmethod
-        def get(self, id: str) -> str:
-          pass
+          @abstractmethod
+          def get(self, id: str) -> str:
+              pass
 
-        @abstractmethod
-        def find_by_email(self, email: str) -> str:
-          pass
+          @abstractmethod
+          def find_by_email(self, email: str) -> str:
+              pass
 
 
 
       class ProductRepository(ABC):
-        @abstractmethod
-        def get(self, id: str) -> int:
-          pass
+          @abstractmethod
+          def get(self, id: str) -> int:
+              pass
 
-        @abstractmethod
-        def find_by_category(self, category: str) -> list[int]:
-          pass
+          @abstractmethod
+          def find_by_category(self, category: str) -> list[int]:
+              pass
 
 
       `);
@@ -1275,14 +1275,14 @@ describe("Python Class overrides", () => {
       from typing import TYPE_CHECKING
 
       if TYPE_CHECKING:
-        from typing import Never
+          from typing import Never
 
 
       @dataclass(kw_only=True)
       class CanadaAddress:
-        state: Never
-        city: str
-        street: str
+          state: Never
+          city: str
+          street: str
 
       `);
   });
@@ -1306,8 +1306,8 @@ describe("Python Class overrides", () => {
 
       @dataclass(kw_only=True)
       class StringContainer:
-        value: str
-        label: str
+          value: str
+          label: str
 
       `);
   });
@@ -1330,8 +1330,8 @@ describe("Python Class overrides", () => {
 
       @dataclass(kw_only=True)
       class MyResult:
-        value: str
-        error: int
+          value: str
+          error: int
 
       `);
   });
@@ -1359,12 +1359,12 @@ describe("Python Class overrides", () => {
 
       @dataclass(kw_only=True)
       class Address:
-        city: str
+          city: str
 
 
       @dataclass(kw_only=True)
       class CanadaAddress(Address):
-        street: str
+          street: str
 
       `);
   });
@@ -1394,13 +1394,13 @@ describe("Python Class overrides", () => {
 
       @dataclass(kw_only=True)
       class Response:
-        data: str
-        status: str
+          data: str
+          status: str
 
 
       @dataclass(kw_only=True)
       class ConcreteResponse(Response):
-        timestamp: str
+          timestamp: str
 
       `);
   });
@@ -1426,14 +1426,14 @@ describe("Python Class overrides", () => {
       from typing import TYPE_CHECKING
 
       if TYPE_CHECKING:
-        from typing import Never
+          from typing import Never
 
 
       @dataclass(kw_only=True)
       class CanadaAddress:
-        state: Never
-        city: str
-        street: str
+          state: Never
+          city: str
+          street: str
 
       `);
   });
@@ -1454,8 +1454,8 @@ describe("Python Class overrides", () => {
 
       @dataclass(kw_only=True)
       class BaseEntity(ABC):
-        id: str
-        created_at: str
+          id: str
+          created_at: str
 
       `);
   });

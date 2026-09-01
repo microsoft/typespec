@@ -1,10 +1,10 @@
 vi.resetModules();
 
-import { TestHost } from "@typespec/compiler/testing";
+import type { TestHost } from "@typespec/compiler/testing";
 import { ok, strictEqual } from "assert";
 import { beforeEach, describe, it, vi } from "vitest";
 import { createModel } from "../../src/lib/client-model-builder.js";
-import { InputMethodParameter } from "../../src/type/input-type.js";
+import type { InputMethodParameter } from "../../src/type/input-type.js";
 import {
   createCSharpSdkContext,
   createEmitterContext,
@@ -157,8 +157,7 @@ describe("ClientInitialization", () => {
 
     // Find the method parameter with paramAlias
     const blobParam = client.parameters.find((p) => p.kind === "method" && p.name === "blob") as
-      | InputMethodParameter
-      | undefined;
+      InputMethodParameter | undefined;
     ok(blobParam, "Should have a 'blob' method parameter");
     strictEqual(blobParam.paramAlias, "blobName", "paramAlias should be 'blobName'");
   });

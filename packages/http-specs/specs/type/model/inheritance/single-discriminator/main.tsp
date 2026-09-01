@@ -49,6 +49,13 @@ model TRex extends Dinosaur {
   kind: "t-rex";
 }
 
+@doc("A discriminated model with no defined subtypes. The discriminator is declared but no models extend it.")
+@discriminator("kind")
+model Fish {
+  kind: string;
+  size: int32;
+}
+
 @scenario
 @route("/model")
 @scenarioDoc("""
@@ -170,3 +177,28 @@ op getWrongDiscriminator(): Bird;
   """)
 @get
 op getLegacyModel(): Dinosaur;
+
+@scenario
+@route("/no-subtypes/model")
+@scenarioDoc("""
+  Generate and receive a discriminated model that has no defined subtypes.
+  The base model declares a discriminator but no models extend it.
+  Expected response body:
+  ```json
+  {"kind": "salmon", "size": 10}
+  ```
+  """)
+@get
+op getNoSubtypesModel(): Fish;
+
+@scenario
+@route("/no-subtypes/model")
+@scenarioDoc("""
+  Send a discriminated model that has no defined subtypes.
+  Expected input body:
+  ```json
+  {"kind": "salmon", "size": 10}
+  ```
+  """)
+@put
+op putNoSubtypesModel(@body input: Fish): NoContentResponse;

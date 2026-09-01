@@ -8,6 +8,7 @@ import azure.clientgenerator.core.usage.models.OrphanModel;
 import azure.clientgenerator.core.usage.models.OutputModel;
 import azure.clientgenerator.core.usage.models.ResultModel;
 import azure.clientgenerator.core.usage.models.RoundTripModel;
+import azure.clientgenerator.core.usage.models.models.NamespaceModel;
 import com.azure.core.util.BinaryData;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.Modifier;
@@ -16,7 +17,8 @@ import org.junit.jupiter.api.Test;
 
 public class UsageTests {
 
-    private final UsageClient client = new UsageClientBuilder().buildClient();
+    private final ModelInOperationClient client = new UsageClientBuilder().buildModelInOperationClient();
+    private final NamespaceUsageClient namespaceUsageClient = new UsageClientBuilder().buildNamespaceUsageClient();
 
     @Test
     public void test() throws NoSuchMethodException {
@@ -36,5 +38,11 @@ public class UsageTests {
 
         // verify "OrphanModel" (when made public) can be serialized (and de-serializable as well) to JSON
         client.orphanModelSerializableWithResponse(BinaryData.fromObject(new OrphanModel("name", "desc")), null);
+
+        // verify namespace-scoped model can be serialized through namespace usage operation
+        int statusCode = namespaceUsageClient
+            .namespaceModelSerializableWithResponse(BinaryData.fromObject(new NamespaceModel("test")), null)
+            .getStatusCode();
+        Assertions.assertEquals(204, statusCode);
     }
 }

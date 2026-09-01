@@ -1,8 +1,9 @@
-import { For, List, Refkey, refkey } from "@alloy-js/core";
+import type { Refkey } from "@alloy-js/core";
+import { For, List, refkey } from "@alloy-js/core";
 import * as ts from "@alloy-js/typescript";
 import { useTsp } from "@typespec/emitter-framework";
 import { ClassMethod } from "@typespec/emitter-framework/typescript";
-import * as cl from "@typespec/http-client";
+import type * as cl from "@typespec/http-client";
 import { useClientLibrary } from "@typespec/http-client";
 import { flattenClients } from "../utils/client-discovery.js";
 import { buildClientParameters } from "../utils/parameters.jsx";

@@ -25,7 +25,9 @@ jobs:
       inputs:
         - input: pipelineArtifact
           artifactName: ${{ parameters.artifactName }}
-          itemPattern: "**/*.tgz"
+          # Download the whole artifact (the .tgz packages plus publish-npm-packages.ts, which the
+          # checkout-less release job runs to publish them).
+          itemPattern: "**"
           targetPath: $(Pipeline.Workspace)/${{ parameters.artifactName }}/
 
     strategy:
@@ -34,6 +36,13 @@ jobs:
           steps:
             - script: ls $(Pipeline.Workspace)/${{ parameters.artifactName }}
               displayName: List files in artifact
+
+            # Publish to the Azure DevOps feed first (bypasses the 7-day npmjs.org quarantine),
+            # then publish to npmjs.org via ESRP.
+            - template: /eng/tsp-core/pipelines/templates/release/ado-feed-release.yml
+              parameters:
+                tag: ${{ parameters.tag }}
+                path: "$(Pipeline.Workspace)/${{ parameters.artifactName }}"
 
             - template: /eng/tsp-core/pipelines/templates/release/esrp-release.yml
               parameters:

@@ -1,7 +1,7 @@
 // Copyright (c) Microsoft Corporation
 // Licensed under the MIT license.
 
-import { Interface, Model, ModelProperty, Operation } from "@typespec/compiler";
+import type { Interface, Model, ModelProperty, Operation } from "@typespec/compiler";
 
 /**
  * Recursively collects all properties of a model, including inherited properties.

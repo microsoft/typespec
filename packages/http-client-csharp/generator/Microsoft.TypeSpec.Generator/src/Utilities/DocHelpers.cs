@@ -41,7 +41,9 @@ namespace Microsoft.TypeSpec.Generator.Utilities
         internal static string ConvertMarkdownToXml(string markdown)
         {
             if (string.IsNullOrEmpty(markdown))
+            {
                 return markdown;
+            }
 
             var lines = markdown.Split(new[] { "\r\n", "\r", "\n" }, StringSplitOptions.None);
             var result = new StringBuilder();
@@ -123,7 +125,9 @@ namespace Microsoft.TypeSpec.Generator.Utilities
         private static void AppendList(StringBuilder result, string listType, List<string> items)
         {
             if (items.Count == 0)
+            {
                 return;
+            }
 
             if (result.Length > 0)
             {
@@ -145,7 +149,9 @@ namespace Microsoft.TypeSpec.Generator.Utilities
         private static string ConvertInlineMarkdown(string text)
         {
             if (string.IsNullOrEmpty(text))
+            {
                 return text;
+            }
 
             // Handle ***bold italic*** (must be done before ** and *)
             text = BoldItalicRegex.Replace(text, "<b><i>$1</i></b>");

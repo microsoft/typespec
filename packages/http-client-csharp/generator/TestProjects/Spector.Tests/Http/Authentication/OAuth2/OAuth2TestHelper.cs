@@ -2,19 +2,19 @@
 // Licensed under the MIT License.
 
 using System;
-using System.ClientModel.Primitives;
+using System.Buffers;
 using System.ClientModel;
+using System.ClientModel.Primitives;
 using System.Collections.Generic;
-using System.Net.Http.Headers;
+using System.IO;
+using System.Net;
 using System.Net.Http;
+using System.Net.Http.Headers;
+using System.Reflection;
+using System.Text;
 using System.Text.Json;
 using System.Threading;
 using System.Threading.Tasks;
-using System.Buffers;
-using System.IO;
-using System.Net;
-using System.Reflection;
-using System.Text;
 using NUnit.Framework;
 
 namespace TestProjects.Spector.Tests.Http.Authentication.OAuth2
@@ -275,7 +275,10 @@ namespace TestProjects.Spector.Tests.Http.Authentication.OAuth2
                             int bytesRead = await source.ReadAsync(buffer, 0, buffer.Length, cancellationTokenSource.Token).ConfigureAwait(false);
 #pragma warning restore // ReadAsync(Memory<>) overload is not available in all targets
                             if (bytesRead == 0)
+                            {
                                 break;
+                            }
+
                             await destination.WriteAsync(new ReadOnlyMemory<byte>(buffer, 0, bytesRead), cancellationTokenSource.Token).ConfigureAwait(false);
                         }
                     }

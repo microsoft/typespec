@@ -1,1 +1,0 @@
-import "./multiple-inheritance.tsp";

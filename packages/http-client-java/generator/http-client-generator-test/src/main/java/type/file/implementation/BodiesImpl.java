@@ -472,7 +472,13 @@ public final class BodiesImpl {
      * }
      * </pre>
      * 
-     * @param accept The accept parameter. Allowed values: "image/png", "image/jpeg".
+     * <p><strong>Response Headers</strong></p>
+     * <table border="1">
+     * <caption>Response Headers</caption>
+     * <tr><th>Name</th><th>Type</th><th>Description</th></tr>
+     * <tr><td>Content-Type</td><td>String</td><td>The allowed media (MIME) types of the file contents.</td></tr>
+     * </table>
+     * 
      * @param requestOptions The options to configure the HTTP request before HTTP client sends it.
      * @throws HttpResponseException thrown if the request is rejected by server.
      * @throws ClientAuthenticationException thrown if the request is rejected by server on status code 401.
@@ -481,8 +487,8 @@ public final class BodiesImpl {
      * @return the response body along with {@link Response} on successful completion of {@link Mono}.
      */
     @ServiceMethod(returns = ReturnType.SINGLE)
-    public Mono<Response<BinaryData>> downloadFileMultipleContentTypesWithResponseAsync(String accept,
-        RequestOptions requestOptions) {
+    public Mono<Response<BinaryData>> downloadFileMultipleContentTypesWithResponseAsync(RequestOptions requestOptions) {
+        final String accept = "image/png, image/jpeg";
         return FluxUtil.withContext(context -> service.downloadFileMultipleContentTypes(this.client.getEndpoint(),
             accept, requestOptions, context));
     }
@@ -497,7 +503,13 @@ public final class BodiesImpl {
      * }
      * </pre>
      * 
-     * @param accept The accept parameter. Allowed values: "image/png", "image/jpeg".
+     * <p><strong>Response Headers</strong></p>
+     * <table border="1">
+     * <caption>Response Headers</caption>
+     * <tr><th>Name</th><th>Type</th><th>Description</th></tr>
+     * <tr><td>Content-Type</td><td>String</td><td>The allowed media (MIME) types of the file contents.</td></tr>
+     * </table>
+     * 
      * @param requestOptions The options to configure the HTTP request before HTTP client sends it.
      * @throws HttpResponseException thrown if the request is rejected by server.
      * @throws ClientAuthenticationException thrown if the request is rejected by server on status code 401.
@@ -506,8 +518,8 @@ public final class BodiesImpl {
      * @return the response body along with {@link Response}.
      */
     @ServiceMethod(returns = ReturnType.SINGLE)
-    public Response<BinaryData> downloadFileMultipleContentTypesWithResponse(String accept,
-        RequestOptions requestOptions) {
+    public Response<BinaryData> downloadFileMultipleContentTypesWithResponse(RequestOptions requestOptions) {
+        final String accept = "image/png, image/jpeg";
         return service.downloadFileMultipleContentTypesSync(this.client.getEndpoint(), accept, requestOptions,
             Context.NONE);
     }
@@ -573,6 +585,13 @@ public final class BodiesImpl {
      * }
      * </pre>
      * 
+     * <p><strong>Response Headers</strong></p>
+     * <table border="1">
+     * <caption>Response Headers</caption>
+     * <tr><th>Name</th><th>Type</th><th>Description</th></tr>
+     * <tr><td>Content-Type</td><td>String</td><td>The allowed media (MIME) types of the file contents.</td></tr>
+     * </table>
+     * 
      * @param requestOptions The options to configure the HTTP request before HTTP client sends it.
      * @throws HttpResponseException thrown if the request is rejected by server.
      * @throws ClientAuthenticationException thrown if the request is rejected by server on status code 401.
@@ -596,6 +615,13 @@ public final class BodiesImpl {
      * BinaryData
      * }
      * </pre>
+     * 
+     * <p><strong>Response Headers</strong></p>
+     * <table border="1">
+     * <caption>Response Headers</caption>
+     * <tr><th>Name</th><th>Type</th><th>Description</th></tr>
+     * <tr><td>Content-Type</td><td>String</td><td>The allowed media (MIME) types of the file contents.</td></tr>
+     * </table>
      * 
      * @param requestOptions The options to configure the HTTP request before HTTP client sends it.
      * @throws HttpResponseException thrown if the request is rejected by server.

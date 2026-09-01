@@ -1,16 +1,24 @@
-import { createDiagnosticCollector, DiagnosticResult, Program, Type } from "@typespec/compiler";
+import type { DiagnosticResult, Program, Type } from "@typespec/compiler";
+import { createDiagnosticCollector } from "@typespec/compiler";
 import { useStateMap } from "@typespec/compiler/utils";
-import { ExperimentalDecorator } from "../../generated-defs/TypeSpec.HttpClient.js";
+import type { ExperimentalDecorator } from "../../generated-defs/TypeSpec.HttpClient.js";
 import { createStateSymbol } from "../lib.js";
-import { parseScopeFilter, ScopedValue } from "./scope-cache.js";
+import type { ScopedValue } from "./scope-cache.js";
+import { parseScopeFilter } from "./scope-cache.js";
 
 const featureLifecycleStateSymbol = createStateSymbol("featureLifecycleState");
 
 export type FeatureLifecycleStage = "Experimental";
 
+export interface FeatureLifecycleDetails {
+  stage: FeatureLifecycleStage;
+  diagnosticId?: string;
+  dependsOn: readonly string[];
+}
+
 const [getFeatureLifecycleState, setFeatureLifecycleState] = useStateMap<
   Type,
-  ScopedValue<FeatureLifecycleStage>
+  ScopedValue<FeatureLifecycleDetails>
 >(featureLifecycleStateSymbol);
 
 export const $experimental: ExperimentalDecorator = (context, target, options) => {
@@ -25,7 +33,11 @@ export const $experimental: ExperimentalDecorator = (context, target, options) =
   }
   setFeatureLifecycleState(context.program, target, {
     emitterFilter: scopeFilter,
-    value: "Experimental",
+    value: {
+      stage: "Experimental",
+      diagnosticId: options?.diagnosticId,
+      dependsOn: options?.dependsOn ?? [],
+    },
   });
 };
 
@@ -37,6 +49,15 @@ export function getClientFeatureLifecycle(
   target: Type,
   options: GetFeatureLifecycleOptions = {},
 ): DiagnosticResult<FeatureLifecycleStage | undefined> {
+  const [details, diagnostics] = getClientFeatureLifecycleDetails(program, target, options);
+  return [details?.stage, diagnostics];
+}
+
+export function getClientFeatureLifecycleDetails(
+  program: Program,
+  target: Type,
+  options: GetFeatureLifecycleOptions = {},
+): DiagnosticResult<FeatureLifecycleDetails | undefined> {
   const diagnostics = createDiagnosticCollector();
 
   const lifecycle = getFeatureLifecycleState(program, target);

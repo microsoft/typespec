@@ -1,4 +1,4 @@
-import { IdentifierNode, NamespaceStatementNode } from "../core/types.js";
+import type { IdentifierNode, NamespaceStatementNode } from "../core/types.js";
 
 /**
  * Extended namespace type that will flatten namespace nodes when defined as `namespace Foo.Bar;` as a single node.

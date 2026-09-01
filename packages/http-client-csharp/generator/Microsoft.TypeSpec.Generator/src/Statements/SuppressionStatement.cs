@@ -28,6 +28,10 @@ namespace Microsoft.TypeSpec.Generator.Statements
         {
             DisableStatement.Write(writer);
             Inner?.Write(writer);
+            if (Inner is AttributeStatement)
+            {
+                writer.WriteLine();
+            }
             RestoreStatement.Write(writer);
         }
     }

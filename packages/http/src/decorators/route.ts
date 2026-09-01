@@ -6,7 +6,7 @@ import {
   type Operation,
 } from "@typespec/compiler";
 import { useStateMap } from "@typespec/compiler/utils";
-import { RouteDecorator } from "../../generated-defs/TypeSpec.Http.js";
+import type { RouteDecorator } from "../../generated-defs/TypeSpec.Http.js";
 import { HttpStateKeys, reportDiagnostic } from "../lib.js";
 import type { RoutePath } from "../types.js";
 import { setSharedRoute } from "./shared-route.js";

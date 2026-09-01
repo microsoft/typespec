@@ -202,6 +202,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers.ClientProvide
             }
         }
 
+
         [TestCaseSource(nameof(BuildOAuth2FlowsFieldTestCases))]
         public void TestBuildOAuth2FlowsField(IEnumerable<InputOAuth2Flow> inputFlows)
         {
@@ -849,6 +850,52 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers.ClientProvide
             Assert.IsNotNull(mockingConstructor);
         }
 
+        // Regression test: when the root client takes the endpoint as a hostname string and expands
+        // a server URL template into a Uri, the sub-client must receive that already-resolved Uri from
+        // its parent. The sub-client's internal (parent-initialized) constructor must therefore declare
+        // the endpoint parameter as Uri to match the Uri _endpoint field and the Uri argument the parent
+        // passes, otherwise the generated code fails to compile (CS0029/CS1503).
+        [Test]
+        public void TestBuildConstructors_ForSubClient_StringHostnameEndpoint_UsesUriEndpointParameter()
+        {
+            var endpointParameter = InputFactory.EndpointParameter(
+                KnownParameters.Endpoint.Name,
+                InputPrimitiveType.String,
+                serverUrlTemplate: "https://{endpoint}",
+                scope: InputParameterScope.Client,
+                isEndpoint: true);
+            var parentClient = InputFactory.Client("ParentClient", parameters: [endpointParameter]);
+            var subClient = InputFactory.Client(
+                "SubClient",
+                parent: parentClient,
+                parameters: [endpointParameter],
+                initializedBy: InputClientInitializedBy.Parent);
+
+            MockHelpers.LoadMockGenerator(
+                auth: () => new(new InputApiKeyAuth("mock", null), null),
+                clients: () => [parentClient]);
+
+            var clientProvider = new ClientProvider(subClient);
+            Assert.IsNotNull(clientProvider);
+
+            // The endpoint field is always Uri.
+            var endpointField = clientProvider.Fields.FirstOrDefault(f => f.Name == "_endpoint");
+            Assert.IsNotNull(endpointField, "Sub-client should have an _endpoint field");
+            Assert.AreEqual(new CSharpType(typeof(Uri)), endpointField!.Type, "_endpoint field should be Uri");
+
+            // The internal constructor used by the parent takes the pipeline as its first parameter.
+            var internalConstructor = clientProvider.Constructors.FirstOrDefault(
+                c => c.Signature?.Modifiers == MethodSignatureModifiers.Internal
+                    && c.Signature.Parameters.Any(p => p.Name == "pipeline"));
+            Assert.IsNotNull(internalConstructor, "Sub-client should have an internal parent-initialization constructor");
+
+            var endpointCtorParam = internalConstructor!.Signature.Parameters
+                .FirstOrDefault(p => p.Name == KnownParameters.Endpoint.Name);
+            Assert.IsNotNull(endpointCtorParam, "Sub-client internal constructor should have an endpoint parameter");
+            Assert.AreEqual(new CSharpType(typeof(Uri)), endpointCtorParam!.Type,
+                "Sub-client internal constructor endpoint parameter should be Uri, not string");
+        }
+
         [Test]
         public void TestBuildConstructors_ForSubClient_InitializedByBoth_HasBothConstructors()
         {
@@ -1156,7 +1203,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers.ClientProvide
                 // auth should be the only parameter if endpoint is optional when there is auth
                 if (_hasSupportedAuth)
                 {
-                    var expectedName = ctorParams?[0].Type?.Equals(ClientPipelineProvider.Instance.TokenCredentialType) == true
+                    var expectedName = ctorParams?[0].Type?.Equals(ClientPipelineProvider.Instance.TokenCredentialType!) == true
                         ? "tokenProvider"
                         : "credential";
                     Assert.AreEqual(expectedName, ctorParams?[0].Name);
@@ -1179,7 +1226,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers.ClientProvide
                 Assert.AreEqual(KnownParameters.Endpoint.Name, ctorParams?[0].Name);
                 if (_hasSupportedAuth)
                 {
-                    var expectedName = ctorParams?[1].Type?.Equals(ClientPipelineProvider.Instance.TokenCredentialType) == true
+                    var expectedName = ctorParams?[1].Type?.Equals(ClientPipelineProvider.Instance.TokenCredentialType!) == true
                         ? "tokenProvider"
                         : "credential";
                     Assert.AreEqual(expectedName, ctorParams?[1].Name);
@@ -2758,6 +2805,57 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers.ClientProvide
             }
         }
 
+        // Date parameter names are normalized (requestDate -> requestOn) on both the protocol and the
+        // convenience surface, so the previously published name is restored consistently for both and the
+        // convenience method forwards every argument positionally. When only one surface is normalized, the
+        // date argument is dropped (passed as null) and the remaining arguments are passed by name.
+        [Test]
+        public async Task BackCompatibility_DateParameterNameIsPreservedInConvenienceCall()
+        {
+            var dateType = new InputDateTimeType(
+                DateTimeKnownEncoding.Rfc7231,
+                "utcDateTime",
+                "TypeSpec.utcDateTime",
+                InputPrimitiveType.String);
+            var operation = InputFactory.Operation(
+                "TestMethod",
+                parameters:
+                [
+                    InputFactory.HeaderParameter("requestDate", dateType),
+                    InputFactory.HeaderParameter("ifMatch", InputPrimitiveType.String)
+                ]);
+            var method = InputFactory.BasicServiceMethod(
+                "TestMethod",
+                operation,
+                parameters:
+                [
+                    InputFactory.MethodParameter("requestDate", dateType, location: InputRequestLocation.Header),
+                    InputFactory.MethodParameter("ifMatch", InputPrimitiveType.String, location: InputRequestLocation.Header)
+                ]);
+            var client = InputFactory.Client(TestClientName, methods: [method]);
+
+            var generator = await MockHelpers.LoadMockGeneratorAsync(
+                clients: () => [client],
+                lastContractCompilation: async () => await Helpers.GetCompilationFromDirectoryAsync());
+
+            var clientProvider = generator.Object.OutputLibrary.TypeProviders.OfType<ClientProvider>().FirstOrDefault();
+            Assert.IsNotNull(clientProvider);
+            Assert.IsNotNull(clientProvider!.LastContractView);
+
+            clientProvider!.ProcessTypeForBackCompatibility();
+
+            using var writer = new CodeWriter();
+            foreach (var methodName in new[] { "TestMethod", "TestMethodAsync" })
+            {
+                writer.WriteMethod(clientProvider.Methods
+                    .Single(m => m.Signature.Name == methodName && m is ScmMethodProvider { Kind: ScmMethodKind.Protocol }));
+                writer.WriteMethod(clientProvider.Methods
+                    .Single(m => m.Signature.Name == methodName && m is ScmMethodProvider { Kind: ScmMethodKind.Convenience }));
+            }
+
+            Assert.AreEqual(Helpers.GetExpectedFromFile(), writer.ToString(false));
+        }
+
         [Test]
         public async Task BackCompatibility_ProtocolMethodParamOrderChanged()
         {
@@ -2787,9 +2885,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers.ClientProvide
             Assert.IsNotNull(clientProvider);
             Assert.IsNotNull(clientProvider!.LastContractView);
 
-            // Use reflection to invoke internal ProcessTypeForBackCompatibility method
-            var processMethod = typeof(ClientProvider).GetMethod("ProcessTypeForBackCompatibility", System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance);
-            processMethod?.Invoke(clientProvider, null);
+            clientProvider!.ProcessTypeForBackCompatibility();
 
             var methods = clientProvider!.Methods;
             var protocolMethods = methods
@@ -2844,6 +2940,59 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers.ClientProvide
                result);
         }
 
+        // The rest client is a partial of the same type as its ClientProvider. Back-compatibility must be
+        // applied only once (by the ClientProvider); otherwise the base pass would add duplicate overloads to
+        // the RestClientProvider partial (CS0111). Here the convenience delegation target lives in custom
+        // code shared by both partials, and the last contract published the nullable overload.
+        [Test]
+        public async Task BackCompatibility_RestClientProviderDoesNotDuplicateOverloads()
+        {
+            var enumType = InputFactory.StringEnum(
+                "fileFormatType",
+                [("Document", "Document"), ("Glossary", "Glossary")],
+                usage: InputModelTypeUsage.Input,
+                isExtensible: true);
+
+            var operation = InputFactory.Operation(
+                "GetData",
+                parameters: [InputFactory.QueryParameter("type", enumType, isRequired: true)],
+                responses: [InputFactory.OperationResponse([200], bodytype: InputPrimitiveType.String)]);
+
+            var method = InputFactory.BasicServiceMethod(
+                "GetData",
+                operation,
+                parameters: [InputFactory.MethodParameter("type", enumType, isRequired: true, location: InputRequestLocation.Query)]);
+
+            var client = InputFactory.Client(TestClientName, methods: [method]);
+
+            var generator = await MockHelpers.LoadMockGeneratorAsync(
+                clients: () => [client],
+                compilation: async () => await Helpers.GetCompilationFromDirectoryAsync(parameters: "Custom"),
+                lastContractCompilation: async () => await Helpers.GetCompilationFromDirectoryAsync(parameters: "Last"));
+
+            var clientProvider = generator.Object.OutputLibrary.TypeProviders.OfType<ClientProvider>().Single();
+            var restClientProvider = generator.Object.OutputLibrary.TypeProviders.OfType<RestClientProvider>().Single();
+
+            clientProvider.ProcessTypeForBackCompatibility();
+            restClientProvider.ProcessTypeForBackCompatibility();
+
+            static int NullableEnumOverloads(TypeProvider provider) => provider.Methods.Count(m =>
+                m.Signature.Name.StartsWith("GetData")
+                && m.Signature.Parameters.Count >= 1
+                && m.Signature.Parameters[0].Type is { IsValueType: true, IsNullable: true });
+
+            // The sync + async nullable back-compat overloads are added on the ClientProvider only.
+            Assert.AreEqual(2, NullableEnumOverloads(clientProvider));
+            Assert.AreEqual(0, NullableEnumOverloads(restClientProvider), "RestClientProvider must not add duplicate back-compat overloads.");
+
+            // Validate the generated output: the hidden nullable overloads appear on the ClientProvider
+            // partial and are absent from the RestClientProvider partial.
+            var clientFile = new TypeProviderWriter(new FilteredMethodsTypeProvider(clientProvider, name => name is "GetData" or "GetDataAsync")).Write();
+            var restClientFile = new TypeProviderWriter(new FilteredMethodsTypeProvider(restClientProvider, name => name is "GetData" or "GetDataAsync")).Write();
+            Assert.AreEqual(Helpers.GetExpectedFromFile("Client"), clientFile.Content);
+            Assert.AreEqual(Helpers.GetExpectedFromFile("RestClient"), restClientFile.Content);
+        }
+
         [Test]
         public async Task BackCompatibility_ConvenienceMethodParamOrderChanged()
         {
@@ -2874,9 +3023,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers.ClientProvide
             Assert.IsNotNull(clientProvider);
             Assert.IsNotNull(clientProvider!.LastContractView);
 
-            // Use reflection to invoke internal ProcessTypeForBackCompatibility method
-            var processMethod = typeof(ClientProvider).GetMethod("ProcessTypeForBackCompatibility", System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance);
-            processMethod?.Invoke(clientProvider, null);
+            clientProvider!.ProcessTypeForBackCompatibility();
 
             var methods = clientProvider!.Methods;
             var convenienceMethods = methods
@@ -2956,9 +3103,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers.ClientProvide
             Assert.IsNotNull(clientProvider);
             Assert.IsNotNull(clientProvider!.LastContractView);
 
-            // Use reflection to invoke internal ProcessTypeForBackCompatibility method
-            var processMethod = typeof(ClientProvider).GetMethod("ProcessTypeForBackCompatibility", System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance);
-            processMethod?.Invoke(clientProvider, null);
+            clientProvider!.ProcessTypeForBackCompatibility();
 
             var methods = clientProvider.Methods;
             var protocolMethods = methods
@@ -3055,9 +3200,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers.ClientProvide
             Assert.IsNotNull(clientProvider);
             Assert.IsNotNull(clientProvider!.LastContractView);
 
-            // Use reflection to invoke internal ProcessTypeForBackCompatibility method
-            var processMethod = typeof(ClientProvider).GetMethod("ProcessTypeForBackCompatibility", System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance);
-            processMethod?.Invoke(clientProvider, null);
+            clientProvider!.ProcessTypeForBackCompatibility();
 
             var methods = clientProvider.Methods;
             var processDataMethods = methods
@@ -3143,10 +3286,8 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers.ClientProvide
             Assert.IsNotNull(clientProvider);
             Assert.IsNotNull(clientProvider!.LastContractView);
 
-            // Use reflection to invoke internal ProcessTypeForBackCompatibility method
             // This should not throw even when there are duplicate method signatures
-            var processMethod = typeof(ClientProvider).GetMethod("ProcessTypeForBackCompatibility", System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance);
-            Assert.DoesNotThrow(() => processMethod?.Invoke(clientProvider, null));
+            Assert.DoesNotThrow(() => clientProvider!.ProcessTypeForBackCompatibility());
         }
 
         // Last contract has GetData(int param1, string param2, CancellationToken) (and async).
@@ -3183,8 +3324,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers.ClientProvide
             Assert.IsNotNull(clientProvider);
             Assert.IsNotNull(clientProvider!.LastContractView);
 
-            var processMethod = typeof(ClientProvider).GetMethod("ProcessTypeForBackCompatibility", System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance);
-            processMethod?.Invoke(clientProvider, null);
+            clientProvider!.ProcessTypeForBackCompatibility();
 
             var writer = new TypeProviderWriter(new FilteredMethodsTypeProvider(clientProvider!, name => name == "GetData" || name == "GetDataAsync"));
             var file = writer.Write();
@@ -3226,8 +3366,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers.ClientProvide
             Assert.IsNotNull(clientProvider);
             Assert.IsNotNull(clientProvider!.LastContractView);
 
-            var processMethod = typeof(ClientProvider).GetMethod("ProcessTypeForBackCompatibility", System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance);
-            processMethod?.Invoke(clientProvider, null);
+            clientProvider!.ProcessTypeForBackCompatibility();
 
             var writer = new TypeProviderWriter(new FilteredMethodsTypeProvider(clientProvider!, name => name == "GetData" || name == "GetDataAsync"));
             var file = writer.Write();
@@ -3272,8 +3411,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers.ClientProvide
             Assert.IsNotNull(clientProvider);
             Assert.IsNotNull(clientProvider!.LastContractView);
 
-            var processMethod = typeof(ClientProvider).GetMethod("ProcessTypeForBackCompatibility", System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance);
-            processMethod?.Invoke(clientProvider, null);
+            clientProvider!.ProcessTypeForBackCompatibility();
 
             var writer = new TypeProviderWriter(new FilteredMethodsTypeProvider(clientProvider!, name => name == "GetData" || name == "GetDataAsync"));
             var file = writer.Write();
@@ -3312,8 +3450,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers.ClientProvide
             Assert.IsNotNull(clientProvider);
             Assert.IsNotNull(clientProvider!.LastContractView);
 
-            var processMethod = typeof(ClientProvider).GetMethod("ProcessTypeForBackCompatibility", System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance);
-            processMethod?.Invoke(clientProvider, null);
+            clientProvider!.ProcessTypeForBackCompatibility();
 
             var writer = new TypeProviderWriter(new FilteredMethodsTypeProvider(clientProvider!, name => name == "GetData" || name == "GetDataAsync"));
             var file = writer.Write();
@@ -3353,8 +3490,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers.ClientProvide
             Assert.IsNotNull(clientProvider);
             Assert.IsNotNull(clientProvider!.LastContractView);
 
-            var processMethod = typeof(ClientProvider).GetMethod("ProcessTypeForBackCompatibility", System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance);
-            processMethod?.Invoke(clientProvider, null);
+            clientProvider!.ProcessTypeForBackCompatibility();
 
             var writer = new TypeProviderWriter(new FilteredMethodsTypeProvider(clientProvider!, name => name == "GetData" || name == "GetDataAsync"));
             var file = writer.Write();
@@ -3399,8 +3535,108 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers.ClientProvide
             Assert.IsNotNull(clientProvider);
             Assert.IsNotNull(clientProvider!.LastContractView);
 
-            var processMethod = typeof(ClientProvider).GetMethod("ProcessTypeForBackCompatibility", System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance);
-            processMethod?.Invoke(clientProvider, null);
+            clientProvider!.ProcessTypeForBackCompatibility();
+
+            var writer = new TypeProviderWriter(new FilteredMethodsTypeProvider(clientProvider!, name => name == "GetData" || name == "GetDataAsync"));
+            var file = writer.Write();
+            Assert.AreEqual(Helpers.GetExpectedFromFile(), file.Content);
+        }
+
+        // Verifies that a back-compat overload added by ProcessTypeForBackCompatibility is removed
+        // when the user has explicitly suppressed it via [CodeGenSuppress] in custom code. Without
+        // filtering in ProcessTypeForBackCompatibility, the suppressed overload would be re-introduced
+        // after the FilterAllCustomizedMembers pass, leaking into the generated client.
+        [Test]
+        public async Task BackCompatibility_BackCompatOverloadSuppressedByCustomCode()
+        {
+            // Last contract had a GetData(int param1, string param2, CancellationToken) method.
+            // Current method adds an optional non-body parameter `param3`, which would normally
+            // cause a back-compat overload matching the previous signature to be added.
+            var param1 = InputFactory.QueryParameter("param1", InputPrimitiveType.Int32, isRequired: true);
+            var param2 = InputFactory.BodyParameter("param2", InputPrimitiveType.String, isRequired: true);
+            var param3 = InputFactory.HeaderParameter("param3", InputPrimitiveType.Boolean, isRequired: false);
+
+            var operation = InputFactory.Operation(
+                "GetData",
+                parameters: [param1, param2, param3],
+                responses: [InputFactory.OperationResponse([200], bodytype: InputPrimitiveType.String)]);
+
+            List<InputMethodParameter> methodParameters =
+            [
+                InputFactory.MethodParameter("param1", InputPrimitiveType.Int32, location: InputRequestLocation.Query, isRequired: true),
+                InputFactory.MethodParameter("param2", InputPrimitiveType.String, location: InputRequestLocation.Body, isRequired: true),
+                InputFactory.MethodParameter("param3", InputPrimitiveType.Boolean, location: InputRequestLocation.Header, isRequired: false),
+            ];
+
+            var method = InputFactory.BasicServiceMethod("GetData", operation, parameters: [.. methodParameters]);
+            var client = InputFactory.Client(TestClientName, methods: [method]);
+
+            var generator = await MockHelpers.LoadMockGeneratorAsync(
+                clients: () => [client],
+                compilation: async () => await Helpers.GetCompilationFromDirectoryAsync(parameters: "Custom"),
+                lastContractCompilation: async () => await Helpers.GetCompilationFromDirectoryAsync(parameters: "Last"));
+
+            var clientProvider = generator.Object.OutputLibrary.TypeProviders.OfType<ClientProvider>().FirstOrDefault();
+            Assert.IsNotNull(clientProvider);
+            Assert.IsNotNull(clientProvider!.LastContractView);
+            Assert.IsNotNull(clientProvider.CustomCodeView);
+
+            clientProvider.ProcessTypeForBackCompatibility();
+
+            // The current spec method has param3, the back-compat overload would NOT have param3.
+            // With the fix, the suppressed back-compat overload should not appear in the methods.
+            var getDataOverloads = clientProvider.Methods
+                .Where(m => m.Signature.Name == "GetData" && !m.Signature.Parameters.Any(p => p.Name == "param3"))
+                .ToList();
+            var getDataAsyncOverloads = clientProvider.Methods
+                .Where(m => m.Signature.Name == "GetDataAsync" && !m.Signature.Parameters.Any(p => p.Name == "param3"))
+                .ToList();
+
+            Assert.AreEqual(0, getDataOverloads.Count, "Back-compat overload of GetData should be suppressed by [CodeGenSuppress] in custom code.");
+            Assert.AreEqual(0, getDataAsyncOverloads.Count, "Back-compat overload of GetDataAsync should be suppressed by [CodeGenSuppress] in custom code.");
+
+            // The current methods (with param3) must still be present.
+            Assert.IsTrue(clientProvider.Methods.Any(m => m.Signature.Name == "GetData" && m.Signature.Parameters.Any(p => p.Name == "param3")));
+            Assert.IsTrue(clientProvider.Methods.Any(m => m.Signature.Name == "GetDataAsync" && m.Signature.Parameters.Any(p => p.Name == "param3")));
+        }
+
+        // Last contract has only protocol methods: GetData(int param1, BinaryContent content, RequestOptions options = null).
+        // The current TypeSpec adds a new optional non-body query parameter "$select" whose raw input name
+        // starts with a reserved character.
+        // Expected: a hidden back-compat protocol overload matching the previous signature is added. The
+        // delegating call body must use the C# variable name ("select") for the named-argument label, not
+        // the raw "$select" name (which would produce invalid C#).
+        [Test]
+        public async Task BackCompatibility_NewOptionalParameterWithReservedName()
+        {
+            var param1 = InputFactory.QueryParameter("param1", InputPrimitiveType.Int32, isRequired: true);
+            var content = InputFactory.BodyParameter("content", InputPrimitiveType.String, isRequired: true);
+            var selectParam = InputFactory.QueryParameter("$select", InputPrimitiveType.String, isRequired: false);
+
+            var operation = InputFactory.Operation(
+                "GetData",
+                parameters: [param1, content, selectParam],
+                responses: [InputFactory.OperationResponse([200], bodytype: InputPrimitiveType.String)]);
+
+            List<InputMethodParameter> methodParameters =
+            [
+                InputFactory.MethodParameter("param1", InputPrimitiveType.Int32, location: InputRequestLocation.Query, isRequired: true),
+                InputFactory.MethodParameter("content", InputPrimitiveType.String, location: InputRequestLocation.Body, isRequired: true),
+                InputFactory.MethodParameter("$select", InputPrimitiveType.String, location: InputRequestLocation.Query, isRequired: false),
+            ];
+
+            var method = InputFactory.BasicServiceMethod("GetData", operation, parameters: [.. methodParameters]);
+            var client = InputFactory.Client(TestClientName, methods: [method]);
+
+            var generator = await MockHelpers.LoadMockGeneratorAsync(
+                clients: () => [client],
+                lastContractCompilation: async () => await Helpers.GetCompilationFromDirectoryAsync());
+
+            var clientProvider = generator.Object.OutputLibrary.TypeProviders.OfType<ClientProvider>().FirstOrDefault();
+            Assert.IsNotNull(clientProvider);
+            Assert.IsNotNull(clientProvider!.LastContractView);
+
+            clientProvider!.ProcessTypeForBackCompatibility();
 
             var writer = new TypeProviderWriter(new FilteredMethodsTypeProvider(clientProvider!, name => name == "GetData" || name == "GetDataAsync"));
             var file = writer.Write();
@@ -3458,8 +3694,8 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers.ClientProvide
             MockHelpers.LoadMockGenerator();
 
             var serverTemplate = "{endpoint}/{apiVersion}";
-            var apiVersionParam = InputFactory.PathParameter("apiVersion", InputPrimitiveType.String, serverUrlTemplate: serverTemplate);
-            var userIdParam = InputFactory.PathParameter("userId", InputPrimitiveType.String);
+            var apiVersionParam = InputFactory.PathParameter("apiVersion", InputPrimitiveType.String, isRequired: true, serverUrlTemplate: serverTemplate);
+            var userIdParam = InputFactory.PathParameter("userId", InputPrimitiveType.String, isRequired: true);
 
             var operation = InputFactory.Operation(
                 name: "GetUser",
@@ -3502,7 +3738,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers.ClientProvide
             MockHelpers.LoadMockGenerator();
 
             var serverTemplate = "{endpoint}/v1/services";
-            var operationIdParam = InputFactory.PathParameter("operationId", InputPrimitiveType.String);
+            var operationIdParam = InputFactory.PathParameter("operationId", InputPrimitiveType.String, isRequired: true);
 
             var operation = InputFactory.Operation(
                 name: "GetOperation",
@@ -4443,6 +4679,311 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers.ClientProvide
                     $"Params: [{string.Join(", ", paramNames)}]");
             }
         }
+
+        [Test]
+        public void TestIsExactNameClientPreservesNameVerbatim()
+        {
+            // A client marked with isExactName should bypass ToIdentifierName() casing.
+            var client = InputFactory.Client("snake_case_client", isExactName: true);
+            var clientProvider = new ClientProvider(client);
+
+            Assert.AreEqual("snake_case_client", clientProvider.Name);
+        }
+
+        [Test]
+        public void TestNonExactNameClientStillCased()
+        {
+            // A client without isExactName should still go through ToIdentifierName().
+            var client = InputFactory.Client("snake_case_client");
+            var clientProvider = new ClientProvider(client);
+
+            Assert.AreEqual("SnakeCaseClient", clientProvider.Name);
+        }
+
+        [Test]
+        public void TestIsExactNameServiceMethodPreservesOperationNameVerbatim()
+        {
+            // A service method marked with isExactName should preserve the operation name verbatim
+            // (no PascalCase transformation, no "List" -> "Get" rename).
+            var inputOperation = InputFactory.Operation("snake_case_op", isExactName: true);
+            var inputServiceMethod = InputFactory.BasicServiceMethod("snake_case_op", inputOperation, isExactName: true);
+            var client = InputFactory.Client("TestClient", methods: [inputServiceMethod]);
+            var clientProvider = new ClientProvider(client);
+
+            // After CleanOperationNames runs in the ClientProvider constructor, names should be unchanged.
+            Assert.AreEqual("snake_case_op", inputServiceMethod.Name);
+            Assert.AreEqual("snake_case_op", inputServiceMethod.Operation.Name);
+            Assert.AreEqual("CreateSnakeCaseOpRequest", clientProvider.RestClient.GetCreateRequestMethod(inputOperation).Signature.Name);
+        }
+
+        [TestCase("GetUrl", false, "GetUri")]
+        [TestCase("ListUrl", false, "GetUri")]
+        [TestCase("GetUrlValue", false, "GetUrlValue")]
+        [TestCase("GetUrls", false, "GetUrls")]
+        [TestCase("GetUrl", true, "GetUrl")]
+        public void TestOperationNameReplacesCompleteUrlSuffix(string operationName, bool isExactName, string expectedName)
+        {
+            var inputOperation = InputFactory.Operation(operationName, isExactName: isExactName);
+            var inputServiceMethod = InputFactory.BasicServiceMethod(operationName, inputOperation, isExactName: isExactName);
+            var client = InputFactory.Client("TestClient", methods: [inputServiceMethod]);
+
+            _ = new ClientProvider(client);
+
+            Assert.AreEqual(expectedName, inputServiceMethod.Name);
+            Assert.AreEqual(expectedName, inputServiceMethod.Operation.Name);
+        }
+
+        [Test]
+        public async Task TestOperationNamePreservesUrlSuffixFromLastContract()
+        {
+            var inputOperation = InputFactory.Operation("GetUrl");
+            var inputServiceMethod = InputFactory.BasicServiceMethod("GetUrl", inputOperation);
+            var client = InputFactory.Client("TestClient", methods: [inputServiceMethod]);
+            await MockHelpers.LoadMockGeneratorAsync(
+                clients: () => [client],
+                lastContractCompilation: async () => await Helpers.GetCompilationFromDirectoryAsync());
+
+            _ = new ClientProvider(client);
+
+            Assert.AreEqual("GetUrl", inputServiceMethod.Name);
+            Assert.AreEqual("GetUrl", inputServiceMethod.Operation.Name);
+        }
+
+        [Test]
+        public async Task TestOperationNamePreservesUrlSuffixFromBackCompatProvider()
+        {
+            var inputOperation = InputFactory.Operation("GetUrl");
+            var inputServiceMethod = InputFactory.BasicServiceMethod("GetUrl", inputOperation);
+            var client = InputFactory.Client("TestClient", methods: [inputServiceMethod]);
+            var generator = await MockHelpers.LoadMockGeneratorAsync(
+                clients: () => [client],
+                lastContractCompilation: async () => await Helpers.GetCompilationFromDirectoryAsync());
+            var clientProvider = generator.Object.OutputLibrary.TypeProviders.OfType<ClientProvider>().Single();
+
+            Assert.AreEqual("GetUri", inputServiceMethod.Name);
+
+            var backCompatProvider = new BackCompatTypeProvider("MockableTestResource", "Sample");
+            var methods = clientProvider.GetMethodCollectionByOperation(inputOperation, backCompatProvider);
+
+            Assert.AreEqual("GetUrl", inputServiceMethod.Name);
+            Assert.AreEqual("GetUrl", inputServiceMethod.Operation.Name);
+            Assert.IsTrue(methods.Any(m => m.Signature.Name == "GetUrl"));
+        }
+
+        [Test]
+        public async Task TestOperationNameFallsBackToClientLastContractWhenBackCompatProviderHasNoLastContract()
+        {
+            var inputOperation = InputFactory.Operation("GetUrl");
+            var inputServiceMethod = InputFactory.BasicServiceMethod("GetUrl", inputOperation);
+            var client = InputFactory.Client("TestClient", methods: [inputServiceMethod]);
+            var generator = await MockHelpers.LoadMockGeneratorAsync(
+                clients: () => [client],
+                lastContractCompilation: async () => await Helpers.GetCompilationFromDirectoryAsync());
+            var clientProvider = generator.Object.OutputLibrary.TypeProviders.OfType<ClientProvider>().Single();
+
+            Assert.AreEqual("GetUrl", inputServiceMethod.Name);
+
+            var backCompatProvider = new BackCompatTypeProvider("MissingWrapper", "Sample");
+            var methods = clientProvider.GetMethodCollectionByOperation(inputOperation, backCompatProvider);
+
+            Assert.IsNull(backCompatProvider.LastContractView);
+            Assert.AreEqual("GetUrl", inputServiceMethod.Name);
+            Assert.AreEqual("GetUrl", inputServiceMethod.Operation.Name);
+            Assert.IsTrue(methods.Any(m => m.Signature.Name == "GetUrl"));
+        }
+
+        [Test]
+        public async Task TestEarlierWrapperRequestExistsAfterLaterBackCompatProvider()
+        {
+            var inputOperation = InputFactory.Operation("GetUrl");
+            var inputServiceMethod = InputFactory.BasicServiceMethod("GetUrl", inputOperation);
+            var client = InputFactory.Client("TestClient", methods: [inputServiceMethod]);
+            var generator = await MockHelpers.LoadMockGeneratorAsync(
+                clients: () => [client],
+                lastContractCompilation: async () => await Helpers.GetCompilationFromDirectoryAsync());
+            var clientProvider = generator.Object.OutputLibrary.TypeProviders.OfType<ClientProvider>().Single();
+            var shippedWrapper = new BackCompatTypeProvider("MockableTestResource", "Sample");
+
+            var shippedWrapperMethods = clientProvider.GetMethodCollectionByOperation(inputOperation, shippedWrapper);
+            var publicMethodName = shippedWrapperMethods.Single(m =>
+                m.Kind == ScmMethodKind.Convenience &&
+                !m.Signature.Modifiers.HasFlag(MethodSignatureModifiers.Async)).Signature.Name;
+            var capturedRequestMethodName = clientProvider.RestClient.GetCreateRequestMethod(inputOperation).Signature.Name;
+
+            Assert.AreEqual("GetUrl", publicMethodName);
+            Assert.AreEqual("CreateGetUrlRequest", capturedRequestMethodName);
+
+            var newWrapper = new BackCompatTypeProvider("MissingWrapper", "Sample");
+            _ = clientProvider.GetMethodCollectionByOperation(inputOperation, newWrapper);
+
+            var emittedRestClient = new TypeProviderWriter(clientProvider.RestClient).Write().Content;
+            StringAssert.Contains(
+                $"{capturedRequestMethodName}(",
+                emittedRestClient,
+                "The final REST client must emit the request method captured by an earlier wrapper projection.");
+        }
+
+        [Test]
+        public void TestIsExactNameServiceMethodSkipsListToGetRename()
+        {
+            // The normal CleanOperationNames behavior renames "List" -> "GetAll" and "ListFoo" -> "GetFoo".
+            // When isExactName is true, even an operation literally named "List" must be preserved verbatim.
+            var inputOperation = InputFactory.Operation("List", isExactName: true);
+            var inputServiceMethod = InputFactory.BasicServiceMethod("List", inputOperation, isExactName: true);
+            var client = InputFactory.Client("TestClient", methods: [inputServiceMethod]);
+            _ = new ClientProvider(client);
+
+            Assert.AreEqual("List", inputServiceMethod.Name);
+            Assert.AreEqual("List", inputServiceMethod.Operation.Name);
+        }
+
+        [Test]
+        public void TestNonExactNameServiceMethodAppliesListRename()
+        {
+            // Sanity check that without isExactName the existing rename still applies.
+            var inputOperation = InputFactory.Operation("List");
+            var inputServiceMethod = InputFactory.BasicServiceMethod("List", inputOperation);
+            var client = InputFactory.Client("TestClient", methods: [inputServiceMethod]);
+            _ = new ClientProvider(client);
+
+            Assert.AreEqual("GetAll", inputServiceMethod.Name);
+            Assert.AreEqual("GetAll", inputServiceMethod.Operation.Name);
+        }
+
+        private sealed class BackCompatTypeProvider : TypeProvider
+        {
+            private readonly string _name;
+            private readonly string _namespace;
+
+            public BackCompatTypeProvider(string name, string ns)
+            {
+                _name = name;
+                _namespace = ns;
+            }
+
+            protected override string BuildRelativeFilePath() => $"{_name}.cs";
+            protected override string BuildName() => _name;
+            protected override string BuildNamespace() => _namespace;
+        }
+
+        private static ClientProvider BuildMultipartClient(InputModelType bodyModel, bool bodyIsRequired = true)
+        {
+            var body = InputFactory.MethodParameter(
+                "body",
+                bodyModel,
+                isRequired: bodyIsRequired,
+                location: InputRequestLocation.Body);
+
+            var bodyOperationParameter = InputFactory.BodyParameter(
+                "body",
+                bodyModel,
+                isRequired: bodyIsRequired,
+                contentTypes: ["multipart/form-data"],
+                defaultContentType: "multipart/form-data");
+
+            var operation = InputFactory.Operation(
+                "Upload",
+                requestMediaTypes: ["multipart/form-data"],
+                parameters: [InputFactory.ContentTypeParameter("multipart/form-data"), bodyOperationParameter]);
+
+            var serviceMethod = InputFactory.BasicServiceMethod("Upload", operation, parameters: [body]);
+            var inputClient = InputFactory.Client("MultipartClient", methods: [serviceMethod]);
+
+            MockHelpers.LoadMockGenerator(
+                auth: () => new(new InputApiKeyAuth("mock", null), null),
+                clients: () => [inputClient],
+                inputModels: () => [bodyModel]);
+
+            return ScmCodeModelGenerator.Instance.TypeFactory.CreateClient(inputClient)!;
+        }
+
+        [Test]
+        public void TestMultipartClient_UploadMethods_RequiredFileBody()
+        {
+            var inputModel = MultipartModel(
+                "MultiPartRequest",
+                [
+                    NonFilePartProperty("id", InputPrimitiveType.String),
+                    FilePartProperty("profileImage"),
+                ]);
+
+            var clientProvider = BuildMultipartClient(inputModel);
+            var writer = new TypeProviderWriter(new FilteredMethodsTypeProvider(clientProvider, name => name == "Upload" || name == "UploadAsync"));
+            var file = writer.Write();
+            Assert.AreEqual(Helpers.GetExpectedFromFile(), file.Content);
+        }
+
+        [Test]
+        public void TestMultipartClient_UploadMethods_MultiFileOnlyBody()
+        {
+            var inputModel = MultipartModel(
+                "BinaryArrayPartsRequest",
+                [MultiFilePartProperty("pictures")]);
+
+            var clientProvider = BuildMultipartClient(inputModel);
+            var writer = new TypeProviderWriter(new FilteredMethodsTypeProvider(clientProvider, name => name == "Upload" || name == "UploadAsync"));
+            var file = writer.Write();
+            Assert.AreEqual(Helpers.GetExpectedFromFile(), file.Content);
+        }
+
+        [Test]
+        public void TestMultipartClient_UploadMethods_OptionalFileBody()
+        {
+            var inputModel = MultipartModel(
+                "OptionalFileRequest",
+                [
+                    NonFilePartProperty("id", InputPrimitiveType.String),
+                    FilePartProperty("optionalFile", isRequired: false),
+                ]);
+
+            var clientProvider = BuildMultipartClient(inputModel);
+            var writer = new TypeProviderWriter(new FilteredMethodsTypeProvider(clientProvider, name => name == "Upload" || name == "UploadAsync"));
+            var file = writer.Write();
+            Assert.AreEqual(Helpers.GetExpectedFromFile(), file.Content);
+        }
+
+        [Test]
+        public void TestMultipartClient_UploadMethods_OptionalBody()
+        {
+            var inputModel = MultipartModel(
+                "MultiPartRequest",
+                [
+                    NonFilePartProperty("id", InputPrimitiveType.String),
+                    FilePartProperty("profileImage"),
+                ]);
+
+            var clientProvider = BuildMultipartClient(inputModel, bodyIsRequired: false);
+            var writer = new TypeProviderWriter(new FilteredMethodsTypeProvider(clientProvider, name => name == "Upload" || name == "UploadAsync"));
+            var file = writer.Write();
+            Assert.AreEqual(Helpers.GetExpectedFromFile(), file.Content);
+        }
+
+        private static InputModelProperty FilePartProperty(string name, bool isRequired = true)
+            => InputFactory.Property(
+                name,
+                InputFactory.FileType(),
+                isRequired: isRequired,
+                serializationOptions: InputFactory.Serialization.Options(
+                    multipart: InputFactory.Serialization.Multipart(name, isFilePart: true)));
+
+        private static InputModelProperty MultiFilePartProperty(string name)
+            => InputFactory.Property(
+                name,
+                InputFactory.Array(InputFactory.FileType()),
+                isRequired: true,
+                serializationOptions: InputFactory.Serialization.Options(
+                    multipart: InputFactory.Serialization.Multipart(name, isFilePart: true, isMulti: true)));
+
+        private static InputModelProperty NonFilePartProperty(string name, InputType type)
+            => InputFactory.Property(
+                name,
+                type,
+                isRequired: true,
+                serializationOptions: InputFactory.Serialization.Options(
+                    multipart: InputFactory.Serialization.Multipart(name, isFilePart: false, defaultContentTypes: ["text/plain"])));
+
+        private static InputModelType MultipartModel(string name, IEnumerable<InputModelProperty> properties)
+            => InputFactory.Model(name, usage: InputModelTypeUsage.Input | InputModelTypeUsage.MultipartFormData, properties: properties);
+
     }
 }
-

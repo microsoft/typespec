@@ -2,11 +2,11 @@ import { resolvePath } from "@typespec/compiler";
 import { resolve } from "path";
 import type { IndexHtmlTransformContext, Plugin, ResolvedConfig } from "vite";
 import {
-  CreateTypeSpecBundleOptions,
-  TypeSpecBundle,
-  TypeSpecBundleDefinition,
   createTypeSpecBundle,
   watchTypeSpecBundle,
+  type CreateTypeSpecBundleOptions,
+  type TypeSpecBundle,
+  type TypeSpecBundleDefinition,
 } from "../bundler.js";
 
 export interface TypeSpecBundlePluginOptions {

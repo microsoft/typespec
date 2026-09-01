@@ -33,5 +33,9 @@ namespace Microsoft.TypeSpec.Generator.Input
         public InputModelType? EnclosingType { get; internal set; }
         public bool IsApiVersion { get; internal set; }
         public InputConstant? DefaultValue { get; internal set; }
+        /// <summary>
+        /// Whether the name should be used exactly as-is, without casing transformations.
+        /// </summary>
+        public bool IsExactName { get; internal set; }
     }
 }

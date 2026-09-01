@@ -1,8 +1,9 @@
 import { rejects } from "assert";
 import { normalize, resolve } from "path";
 import { describe, it } from "vitest";
-import { CompilerOptions } from "../../../src/core/options.js";
-import { NodeHost, Program, compile, resolvePath } from "../../../src/index.js";
+import type { CompilerOptions } from "../../../src/core/options.js";
+import type { Program } from "../../../src/index.js";
+import { NodeHost, compile, resolvePath } from "../../../src/index.js";
 import { expectDiagnosticEmpty, expectDiagnostics } from "../../../src/testing/expect.js";
 import { findTestPackageRoot } from "../../../src/testing/test-utils.js";
 
@@ -127,6 +128,11 @@ describe("compiler: entrypoints", () => {
         emit: ["@typespec/my-emitter"],
         additionalImports: ["@typespec/my-lib"],
       });
+      expectDiagnosticEmpty(program.diagnostics);
+    });
+
+    it("succeed with relative .ts module import", async () => {
+      const program = await compileScenario("import-relative-ts");
       expectDiagnosticEmpty(program.diagnostics);
     });
 

@@ -7,18 +7,18 @@ import {
   NoMatchingConditionsError,
 } from "./esm/utils.js";
 import { NodePackageResolver } from "./node-package-resolver.js";
-import {
+import type {
   ModuleResolutionResult,
   NodePackage,
   ResolvedFile,
   ResolvedModule,
   ResolveModuleHost,
 } from "./types.js";
+import type { NodeModuleSpecifier } from "./utils.js";
 import {
   fileURLToPath,
   isFile,
   listDirHierarchy,
-  NodeModuleSpecifier,
   parseNodeModuleSpecifier,
   pathToFileURL,
   readPackage,

@@ -1,15 +1,23 @@
+import { isCompilerFeatureName } from "../core/features.js";
 import { createDiagnostic } from "../core/messages.js";
-import { getDirectoryPath, isPathAbsolute, joinPaths, resolvePath } from "../core/path-utils.js";
+import {
+  getBaseFileName,
+  getDirectoryPath,
+  isPathAbsolute,
+  joinPaths,
+  resolvePath,
+} from "../core/path-utils.js";
 import { createJSONSchemaValidator } from "../core/schema-validator.js";
 import { createSourceFile } from "../core/source-file.js";
-import { Diagnostic, NoTarget, SourceFile, SystemHost } from "../core/types.js";
+import type { Diagnostic, SourceFile, SystemHost } from "../core/types.js";
+import { NoTarget } from "../core/types.js";
 import { doIO } from "../utils/io.js";
-import { deepClone, deepFreeze, omitUndefined } from "../utils/misc.js";
+import { deepFreeze, omitUndefined } from "../utils/misc.js";
 import { getLocationInYamlScript } from "../yaml/index.js";
 import { parseYaml } from "../yaml/parser.js";
-import { YamlScript } from "../yaml/types.js";
+import type { YamlScript } from "../yaml/types.js";
 import { TypeSpecConfigJsonSchema } from "./config-schema.js";
-import { TypeSpecConfig, TypeSpecRawConfig } from "./types.js";
+import type { TypeSpecConfig, TypeSpecRawConfig } from "./types.js";
 
 export const TypeSpecConfigFilename = "tspconfig.yaml";
 
@@ -86,7 +94,7 @@ export async function loadTypeSpecConfigForPath(
   const typespecConfigPath = await findTypeSpecConfigPath(host, path, lookup);
   if (typespecConfigPath === undefined) {
     const projectRoot = getDirectoryPath(path);
-    const tsConfig = { ...deepClone(defaultConfig), projectRoot: projectRoot };
+    const tsConfig = { ...structuredClone(defaultConfig), projectRoot: projectRoot };
     if (errorIfNotFound) {
       tsConfig.diagnostics.push(
         createDiagnostic({
@@ -131,7 +139,7 @@ export async function loadTypeSpecConfigFile(
   }
 
   return {
-    ...deepClone(defaultConfig),
+    ...structuredClone(defaultConfig),
     ...config,
   };
 }
@@ -175,7 +183,53 @@ async function loadConfigFile(
     // NOTE: Don't trust the data if there are errors and use default
     // config. Otherwise, we may return an object that does not conform to
     // TypeSpecConfig's typing.
-    data = deepClone(defaultConfig) as TypeSpecRawConfig;
+    data = structuredClone(defaultConfig) as TypeSpecRawConfig;
+  }
+
+  // Validate project-specific constraints
+  if (data.kind === "project" && getBaseFileName(filename) !== TypeSpecConfigFilename) {
+    diagnostics.push(
+      createDiagnostic({
+        code: "config-project-kind-filename",
+        format: { filename: getBaseFileName(filename) },
+        target: NoTarget,
+      }),
+    );
+  }
+
+  if (data.entrypoint !== undefined && data.kind !== "project") {
+    diagnostics.push(
+      createDiagnostic({
+        code: "config-project-only-option",
+        format: { option: "entrypoint" },
+        target: NoTarget,
+      }),
+    );
+  }
+
+  if (data.features !== undefined && data.kind !== "project") {
+    diagnostics.push(
+      createDiagnostic({
+        code: "config-project-only-option",
+        format: { option: "features" },
+        target: NoTarget,
+      }),
+    );
+  }
+
+  const features = Array.isArray(data.features) ? data.features : undefined;
+  if (data.kind === "project" && features !== undefined) {
+    for (const feature of features) {
+      if (!isCompilerFeatureName(feature)) {
+        diagnostics.push(
+          createDiagnostic({
+            code: "config-unknown-feature",
+            format: { feature },
+            target: getLocationInYamlScript(yamlScript, ["features", feature]),
+          }),
+        );
+      }
+    }
   }
 
   const emit = data.emit;
@@ -187,6 +241,9 @@ async function loadConfigFile(
     filename,
     diagnostics,
     extends: data.extends,
+    kind: data.kind,
+    entrypoint: data.entrypoint,
+    features,
     environmentVariables: data["environment-variables"],
     parameters: data.parameters,
     outputDir: data["output-dir"] ?? "{cwd}/tsp-output",

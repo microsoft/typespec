@@ -1,8 +1,6 @@
 import { getEffectiveModelType } from "../../core/checker.js";
-import {
-  DiscriminatedUnionLegacy,
-  getDiscriminatedUnionFromInheritance,
-} from "../../core/helpers/discriminator-utils.js";
+import type { DiscriminatedUnionLegacy } from "../../core/helpers/discriminator-utils.js";
+import { getDiscriminatedUnionFromInheritance } from "../../core/helpers/discriminator-utils.js";
 import { getDiscriminator } from "../../core/intrinsic-type-state.js";
 import type {
   Entity,
@@ -13,9 +11,11 @@ import type {
   SourceModel,
 } from "../../core/types.js";
 import { createRekeyableMap } from "../../utils/misc.js";
-import { createDiagnosable, Diagnosable } from "../create-diagnosable.js";
+import type { Diagnosable } from "../create-diagnosable.js";
+import { createDiagnosable } from "../create-diagnosable.js";
 import { defineKit } from "../define-kit.js";
-import { copyMap, decoratorApplication, DecoratorArgs } from "../utils.js";
+import type { DecoratorArgs } from "../utils.js";
+import { copyMap, decoratorApplication } from "../utils.js";
 
 /**
  * A descriptor for creating a model.

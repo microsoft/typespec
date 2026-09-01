@@ -3,14 +3,14 @@ import { ignoreDiagnostics } from "../core/diagnostics.js";
 import type { Program } from "../core/program.js";
 import { getProperty } from "../core/semantic-walker.js";
 import { isArrayModelType, isUnknownType } from "../core/type-utils.js";
-import {
+import type {
   DiagnosticTarget,
   NoTarget,
-  type ObjectValue,
-  type Scalar,
-  type ScalarValue,
-  type Type,
-  type Value,
+  ObjectValue,
+  Scalar,
+  ScalarValue,
+  Type,
+  Value,
 } from "../core/types.js";
 import { getEncode, resolveEncodedName, type EncodeData } from "./decorators.js";
 
@@ -309,6 +309,12 @@ const ScalarSerializers = {
           return Math.floor(duration.total({ unit: "seconds" }));
         } else {
           return duration.total({ unit: "seconds" });
+        }
+      case "milliseconds":
+        if (isInteger(encodeAs.type)) {
+          return Math.floor(duration.total({ unit: "milliseconds" }));
+        } else {
+          return duration.total({ unit: "milliseconds" });
         }
       default:
         return duration.toString();

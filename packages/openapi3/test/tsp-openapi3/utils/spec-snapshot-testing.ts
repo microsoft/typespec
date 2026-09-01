@@ -1,5 +1,5 @@
+import type { CompilerHost } from "@typespec/compiler";
 import {
-  CompilerHost,
   NodeHost,
   getDirectoryPath,
   getRelativePathFromDirectory,
@@ -9,7 +9,8 @@ import {
 import { fail, ok, strictEqual } from "assert";
 import { readdirSync } from "fs";
 import { mkdir, readFile, readdir, rm, writeFile } from "fs/promises";
-import { RunnerTestFile, RunnerTestSuite, afterAll, beforeAll, it } from "vitest";
+import type { RunnerTestFile, RunnerTestSuite } from "vitest";
+import { afterAll, beforeAll, it } from "vitest";
 import { convertAction } from "../../../src/cli/actions/convert/convert-file.js";
 
 const shouldUpdateSnapshots = process.env.RECORD === "true";

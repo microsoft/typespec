@@ -16,6 +16,7 @@ import type {
   Union,
   Value,
 } from "../types.js";
+import { SyntaxKind } from "../types.js";
 import { getCachedRawText } from "./raw-text-cache.js";
 import { printIdentifier } from "./syntax-utils.js";
 
@@ -31,6 +32,8 @@ export function getTypeName(type: Type, options?: TypeNameOptions): string {
       return getNamespaceFullName(type, options);
     case "TemplateParameter":
       return getIdentifierName(type.node.id.sv, options);
+    case "TemplateParameterAccess":
+      return type.path;
     case "Scalar":
       return getScalarName(type, options);
     case "Model":
@@ -172,6 +175,12 @@ function getScalarName(scalar: Scalar, options: TypeNameOptions | undefined): st
 
 function getModelName(model: Model, options: TypeNameOptions | undefined) {
   const nsPrefix = getNamespacePrefix(model.namespace, options);
+  if (model.name === "") {
+    const operationParametersName = getOperationParametersName(model, options);
+    if (operationParametersName !== undefined) {
+      return operationParametersName;
+    }
+  }
   if (model.name === "" && model.properties.size === 0) {
     return "{}";
   }
@@ -203,6 +212,34 @@ function getModelName(model: Model, options: TypeNameOptions | undefined) {
     // regular old model.
     return modelName;
   }
+}
+
+function getOperationParametersName(
+  model: Model,
+  options: TypeNameOptions | undefined,
+): string | undefined {
+  const node = model.node;
+  if (node?.kind !== SyntaxKind.ModelExpression) return undefined;
+  const signature = node.parent;
+  if (
+    signature?.kind !== SyntaxKind.OperationSignatureDeclaration ||
+    signature.parameters !== node
+  ) {
+    return undefined;
+  }
+  const operation = signature.parent;
+  if (operation?.kind !== SyntaxKind.OperationStatement) return undefined;
+
+  const opName = getIdentifierName(operation.id.sv, options);
+  if (options?.nameOnly === true) {
+    return `${opName}::parameters`;
+  }
+  const iface = operation.parent;
+  const prefix =
+    iface?.kind === SyntaxKind.InterfaceStatement
+      ? `${getNamespacePrefix(model.namespace, options)}${getIdentifierName(iface.id.sv, options)}.`
+      : getNamespacePrefix(model.namespace, options);
+  return `${prefix}${opName}::parameters`;
 }
 
 function getUnionName(type: Union, options: TypeNameOptions | undefined): string {

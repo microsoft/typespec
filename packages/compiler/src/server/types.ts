@@ -1,4 +1,4 @@
-import {
+import type {
   ApplyWorkspaceEditParams,
   ApplyWorkspaceEditResult,
   CodeAction,
@@ -12,7 +12,6 @@ import {
   DocumentHighlightParams,
   DocumentSymbol,
   DocumentSymbolParams,
-  ExecuteCommandParams,
   FoldingRange,
   FoldingRangeParams,
   Hover,
@@ -48,10 +47,14 @@ import type {
   SourceLocation,
   TypeSpecScriptNode,
 } from "../core/types.js";
-import { LoadedCoreTemplates } from "../init/core-templates.js";
-import { EmitterTemplate, InitTemplate, InitTemplateLibrarySpec } from "../init/init-template.js";
-import { ScaffoldingConfig } from "../init/scaffold.js";
-import { CompileTracker, ServerCompileOptions } from "./server-compile-manager.js";
+import type { LoadedCoreTemplates } from "../init/core-templates.js";
+import type {
+  EmitterTemplate,
+  InitTemplate,
+  InitTemplateLibrarySpec,
+} from "../init/init-template.js";
+import type { ScaffoldingConfig } from "../init/scaffold.js";
+import type { CompileTracker, ServerCompileOptions } from "./server-compile-manager.js";
 
 export type ServerLogLevel = "trace" | "debug" | "info" | "warning" | "error";
 export interface ServerLog {
@@ -126,7 +129,7 @@ export interface Server {
   documentClosed(change: TextDocumentChangeEvent<TextDocument>): void;
   documentOpened(change: TextDocumentChangeEvent<TextDocument>): void;
   getCodeActions(params: CodeActionParams): Promise<CodeAction[]>;
-  executeCommand(params: ExecuteCommandParams): Promise<void>;
+  resolveCodeAction(codeAction: CodeAction): Promise<CodeAction>;
   reportDiagnostics({ program, document, optionsFromConfig }: CompileResult): void;
   log(log: ServerLog): void;
 

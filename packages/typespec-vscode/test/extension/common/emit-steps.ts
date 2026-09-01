@@ -1,5 +1,6 @@
-import { Page } from "playwright";
-import { CaseScreenshot, retry } from "./utils";
+import type { Page } from "playwright";
+import type { CaseScreenshot } from "./utils";
+import { retry } from "./utils";
 
 /**
  * When emitting a select emit type.

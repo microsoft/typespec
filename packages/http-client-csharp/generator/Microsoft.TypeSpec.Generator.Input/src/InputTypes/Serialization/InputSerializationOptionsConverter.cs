@@ -29,12 +29,14 @@ namespace Microsoft.TypeSpec.Generator.Input
             InputJsonSerializationOptions? json = null;
             InputXmlSerializationOptions? xml = null;
             InputMultipartOptions? multipart = null;
+            InputBinarySerializationOptions? binary = null;
 
             while (reader.TokenType != JsonTokenType.EndObject)
             {
                 var isKnownProperty = reader.TryReadComplexType("json", options, ref json)
                     || reader.TryReadComplexType("xml", options, ref xml)
-                    || reader.TryReadComplexType("multipart", options, ref multipart);
+                    || reader.TryReadComplexType("multipart", options, ref multipart)
+                    || reader.TryReadComplexType("binary", options, ref binary);
 
                 if (!isKnownProperty)
                 {
@@ -42,7 +44,7 @@ namespace Microsoft.TypeSpec.Generator.Input
                 }
             }
 
-            return new InputSerializationOptions(json, xml, multipart);
+            return new InputSerializationOptions(json, xml, multipart, binary);
         }
     }
 }

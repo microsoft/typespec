@@ -243,6 +243,33 @@ namespace Microsoft.TypeSpec.Generator.Tests
         }
 
         [Test]
+        public void DisableRoslynReduce_ParsedFromConfig()
+        {
+            var mockJson = @"{
+                ""output-folder"": ""outputFolder"",
+                ""package-name"": ""libraryName"",
+                ""disable-roslyn-reduce"": true
+                }";
+
+            MockHelpers.LoadMockGenerator(configuration: mockJson);
+
+            Assert.IsTrue(CodeModelGenerator.Instance.Configuration.DisableRoslynReduce);
+        }
+
+        [Test]
+        public void DisableRoslynReduce_DefaultsToFalse()
+        {
+            var mockJson = @"{
+                ""output-folder"": ""outputFolder"",
+                ""package-name"": ""libraryName""
+                }";
+
+            MockHelpers.LoadMockGenerator(configuration: mockJson);
+
+            Assert.IsFalse(CodeModelGenerator.Instance.Configuration.DisableRoslynReduce);
+        }
+
+        [Test]
         public void CanAddLicenseInfo()
         {
             var mockJson = @"{

@@ -2,10 +2,12 @@ import { readdirSync } from "fs";
 import fs, { rmSync, writeFileSync } from "node:fs";
 import { readdir } from "node:fs/promises";
 import path from "node:path";
-import { Locator, Page } from "playwright";
+import type { Locator, Page } from "playwright";
 import { expect } from "vitest";
-import { RunOptions, runOrExit } from "../../../../internal-build-utils/dist/src/index.js";
-import { CaseScreenshot, npxCmd, repoRoot, retry, tempDir } from "./utils";
+import type { RunOptions } from "../../../../internal-build-utils/dist/src/index.js";
+import { runOrExit } from "../../../../internal-build-utils/dist/src/index.js";
+import type { CaseScreenshot } from "./utils";
+import { npxCmd, repoRoot, retry, tempDir } from "./utils";
 
 /**
  * Waits for the specified text to appear on the page before proceeding.

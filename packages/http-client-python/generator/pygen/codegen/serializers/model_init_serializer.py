@@ -32,7 +32,7 @@ class ModelInitSerializer:
                         ", ".join(model_enum_name_intersection)
                     )
                 )
-        has_models = self.models
+        has_models = self.code_model.has_non_json_models(self.models)
         has_enums = self.enums
         template = self.env.get_template("model_init.py.jinja2")
         return template.render(

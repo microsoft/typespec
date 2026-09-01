@@ -2,8 +2,10 @@
 // Licensed under the MIT license.
 
 import { NoTarget } from "@typespec/compiler";
-import { HttpServer, HttpService, getHttpService, getServers } from "@typespec/http";
-import { JsContext, Module, createModule } from "../ctx.js";
+import type { HttpServer, HttpService } from "@typespec/http";
+import { getHttpService, getServers } from "@typespec/http";
+import type { JsContext, Module } from "../ctx.js";
+import { createModule } from "../ctx.js";
 import { reportDiagnostic } from "../lib.js";
 import { getOpenApi3Emitter, getOpenApi3ServiceRecord, tryGetOpenApi3 } from "../util/openapi3.js";
 import { emitRawServer } from "./server/index.js";

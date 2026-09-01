@@ -32,5 +32,7 @@ namespace Microsoft.TypeSpec.Generator.Input
         Array_SpaceDelimited,
         Array_PipeDelimited,
         Array_NewlineDelimited,
+        Duration_Seconds_Int64,
+        Duration_Milliseconds_Int64,
     }
 }

@@ -1,5 +1,6 @@
 import { deepStrictEqual, ok, strictEqual } from "assert";
-import { it } from "vitest";
+import { expect, it } from "vitest";
+import { openApiFor } from "./test-host.js";
 import { supportedVersions, worksFor } from "./works-for.js";
 
 worksFor(supportedVersions, ({ oapiForModel, openApiFor }) => {
@@ -402,4 +403,24 @@ worksFor(["3.1.0"], ({ oapiForModel }) => {
       ],
     });
   });
+});
+
+it("removes array items when an array property is encoded to a scalar", async () => {
+  const res = await openApiFor(
+    `
+    model Bar {
+      @encode(ArrayEncoding.commaDelimited)
+      prop: string[];
+    }
+
+    op getBar(): Bar;
+    `,
+    { "openapi-versions": ["3.1.0"] },
+  );
+
+  const schema = res.components.schemas.Bar.properties.prop;
+  expect(schema.type).toBe("string");
+  expect(schema.format).toBe("ArrayEncoding.commaDelimited");
+  expect(schema.items).toBeUndefined();
+  expect(schema.prefixItems).toBeUndefined();
 });

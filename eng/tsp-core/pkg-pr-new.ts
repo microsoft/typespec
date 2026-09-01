@@ -1,7 +1,7 @@
 import { execSync } from "child_process";
-import { repoRoot } from "../common/scripts/utils/common.js";
-import { listChangedFilesSince } from "../common/scripts/utils/git.js";
-import { getPublishablePackages } from "./tpm/packages.js";
+import { repoRoot } from "../common/scripts/utils/common.ts";
+import { listChangedFilesSince } from "../common/scripts/utils/git.ts";
+import { getPublishablePackages } from "./tpm/packages.ts";
 
 const files = await listChangedFilesSince(`origin/main`, { repositoryPath: repoRoot });
 

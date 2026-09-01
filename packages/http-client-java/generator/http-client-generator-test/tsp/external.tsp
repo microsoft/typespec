@@ -52,14 +52,16 @@ interface ExternalOp {
   postExternal(@body body: Body): Body;
 }
 
-@@alternateType(CloudEventDataFormat,
+@@alternateType(
+  CloudEventDataFormat,
   {
     identity: "com.azure.core.models.CloudEventDataFormat",
   },
   "java"
 );
 
-@@alternateType(DayOfWeek,
+@@alternateType(
+  DayOfWeek,
   {
     identity: "java.time.DayOfWeek",
   },

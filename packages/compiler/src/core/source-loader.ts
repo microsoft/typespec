@@ -1,10 +1,8 @@
-import {
-  ModuleResolutionResult,
-  ResolvedModule,
-  resolveModule,
-  ResolveModuleError,
-} from "../module-resolver/index.js";
-import { PackageJson } from "../types/package-json.js";
+import { loadTypeSpecConfigForPath } from "../config/config-loader.js";
+import type { ModuleResolutionResult, ResolvedModule } from "../module-resolver/index.js";
+import { resolveModule, ResolveModuleError } from "../module-resolver/index.js";
+import type { PackageJson } from "../types/package-json.js";
+import { DuplicateTracker } from "../utils/duplicate-tracker.js";
 import { doIO } from "../utils/io.js";
 import { deepEquals, resolveTspMain } from "../utils/misc.js";
 import { compilerAssert, createDiagnosticCollector } from "./diagnostics.js";
@@ -12,18 +10,20 @@ import { resolveTypeSpecEntrypointForDir } from "./entrypoint-resolution.js";
 import { createDiagnostic } from "./messages.js";
 import { createResolveModuleHost } from "./module-host.js";
 import { isImportStatement, parse } from "./parser.js";
-import { getDirectoryPath } from "./path-utils.js";
+import { getDirectoryPath, resolvePath } from "./path-utils.js";
 import { createSourceFile } from "./source-file.js";
-import {
+import type {
   DiagnosticTarget,
-  ModifierFlags,
   ModuleLibraryMetadata,
-  NodeFlags,
-  NoTarget,
   ParseOptions,
   SourceFile,
-  SyntaxKind,
   Tracer,
+} from "./types.js";
+import {
+  ModifierFlags,
+  NodeFlags,
+  NoTarget,
+  SyntaxKind,
   type CompilerHost,
   type Diagnostic,
   type JsSourceFileNode,
@@ -95,6 +95,9 @@ export async function createSourceLoader(
   const jsSourceFiles = new Map<string, JsSourceFileNode>();
   const loadedLibraries = new Map<string, TypeSpecLibraryReference>();
   const externals: string[] = [];
+  // Cache of resolved feature lists from each library's own tspconfig.yaml, keyed by the
+  // library root directory, to avoid re-reading the config for every import of the library.
+  const libraryFeaturesCache = new Map<string, readonly string[] | undefined>();
 
   const externalsOpts = options?.externals;
   const isExternal = externalsOpts
@@ -191,13 +194,45 @@ export async function createSourceLoader(
   }
 
   async function loadScriptImports(file: TypeSpecScriptNode) {
-    // collect imports
     const basedir = getDirectoryPath(file.file.path);
-    await loadImports(
-      file.statements.filter(isImportStatement).map((x) => ({ path: x.path.value, target: x })),
-      basedir,
-      getSourceFileLocationContext(file.file),
-    );
+    const importStatements = file.statements.filter(isImportStatement);
+    const duplicateTracker = new DuplicateTracker<string, DiagnosticTarget>();
+    const imports: Array<{ path: string; target: DiagnosticTarget | typeof NoTarget }> = [];
+
+    for (const stmt of importStatements) {
+      const importPath = stmt.path.value;
+
+      // Check for self-import: resolve relative paths and compare with file's own path
+      if (importPath.startsWith(".")) {
+        const resolved = resolvePath(basedir, importPath);
+        if (resolved === file.file.path) {
+          diagnostics.add(
+            createDiagnostic({
+              code: "self-import",
+              target: stmt,
+            }),
+          );
+          continue;
+        }
+      }
+
+      duplicateTracker.track(importPath, stmt);
+      imports.push({ path: importPath, target: stmt });
+    }
+
+    for (const [importPath, duplicates] of duplicateTracker.entries()) {
+      for (const duplicate of duplicates.slice(1)) {
+        diagnostics.add(
+          createDiagnostic({
+            code: "duplicate-import",
+            target: duplicate,
+            format: { importPath },
+          }),
+        );
+      }
+    }
+
+    await loadImports(imports, basedir, getSourceFileLocationContext(file.file));
   }
 
   function getSourceFileLocationContext(sourcefile: SourceFile): LocationContext {
@@ -247,9 +282,11 @@ export async function createSourceLoader(
       );
 
       const metadata = computeModuleMetadata(library);
+      const features = await resolveLibraryFeatures(library.path);
       locationContext = {
         type: "library",
         metadata,
+        ...(features && { features }),
       };
     }
 
@@ -323,6 +360,27 @@ export async function createSourceLoader(
       jsSourceFiles.set(path, file);
     }
     return file;
+  }
+
+  /**
+   * Resolve the compiler features a library opted into via its own `tspconfig.yaml`.
+   * Features are only honored when the library config is a project config (`kind: "project"`),
+   * matching the rule that `features` is only meaningful in a project config.
+   * @param libraryRoot Absolute path to the library root directory (containing `package.json`).
+   */
+  async function resolveLibraryFeatures(
+    libraryRoot: string,
+  ): Promise<readonly string[] | undefined> {
+    if (libraryFeaturesCache.has(libraryRoot)) {
+      return libraryFeaturesCache.get(libraryRoot);
+    }
+    // `lookup: false` restricts the search to the library root only, so we never pick up the
+    // consuming project's config by walking up the directory tree.
+    const config = await loadTypeSpecConfigForPath(host, libraryRoot, false, false);
+    const features =
+      config.diagnostics.length === 0 && config.kind === "project" ? config.features : undefined;
+    libraryFeaturesCache.set(libraryRoot, features);
+    return features;
   }
 }
 

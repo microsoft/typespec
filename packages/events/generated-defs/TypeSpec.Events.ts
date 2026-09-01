@@ -45,6 +45,7 @@ export type EventsDecorator = (
  *   { done: false, @data @contentType("text/plain") value: string,}
  * }
  * ```
+ * @param contentType The content type of the event or event payload.
  */
 export type ContentTypeDecorator = (
   context: DecoratorContext,

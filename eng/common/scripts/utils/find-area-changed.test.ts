@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { findAreasChanged } from "./find-area-changed.js";
+import { findAreasChanged } from "./find-area-changed.ts";
 
 describe("paths that should trigger CSharp CI", () => {
   it.each([

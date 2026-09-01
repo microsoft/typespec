@@ -21,8 +21,8 @@ describe("interface methods with a `type` prop", () => {
       ]),
     ).toRenderTo(`
       class BasicInterface:
-        async def get_name(self, id: str) -> str:
-          pass
+          async def get_name(self, id: str) -> str:
+              pass
 
 
     `);
@@ -41,9 +41,9 @@ describe("interface methods with a `type` prop", () => {
       ]),
     ).toRenderTo(`
       class BasicInterface:
-        @classmethod
-        async def get_name(cls, id: str) -> str:
-          pass
+          @classmethod
+          async def get_name(cls, id: str) -> str:
+              pass
 
 
     `);
@@ -62,9 +62,9 @@ describe("interface methods with a `type` prop", () => {
       ]),
     ).toRenderTo(`
       class BasicInterface:
-        @staticmethod
-        async def get_name(id: str) -> str:
-          pass
+          @staticmethod
+          async def get_name(id: str) -> str:
+              pass
 
 
     `);
@@ -83,8 +83,8 @@ describe("interface methods with a `type` prop", () => {
       ]),
     ).toRenderTo(`
       class BasicInterface:
-        async def get_name(self, id: str) -> str:
-          pass
+          async def get_name(self, id: str) -> str:
+              pass
 
 
     `);
@@ -103,8 +103,8 @@ describe("interface methods with a `type` prop", () => {
       ]),
     ).toRenderTo(`
       class BasicInterface:
-        def get_name(self, id: str, *, foo: str) -> str:
-          pass
+          def get_name(self, id: str, *, foo: str) -> str:
+              pass
 
 
       `);
@@ -123,8 +123,8 @@ describe("interface methods with a `type` prop", () => {
       ]),
     ).toRenderTo(`
       class BasicInterface:
-        def get_name(self, id: str, *, foo: str) -> str:
-          pass
+          def get_name(self, id: str, *, foo: str) -> str:
+              pass
 
 
       `);
@@ -150,8 +150,8 @@ describe("interface methods with a `type` prop", () => {
       ]),
     ).toRenderTo(`
       class BasicInterface:
-        def get_name(self, *, foo: str, bar: float) -> str:
-          pass
+          def get_name(self, *, foo: str, bar: float) -> str:
+              pass
 
 
       `);
@@ -177,8 +177,8 @@ describe("interface methods with a `type` prop", () => {
       ]),
     ).toRenderTo(`
       class BasicInterface:
-        def get_name(self, *, foo: str = "default", bar: float = 42) -> str:
-          pass
+          def get_name(self, *, foo: str = "default", bar: float = 42) -> str:
+              pass
 
 
       `);
@@ -197,8 +197,8 @@ describe("interface methods with a `type` prop", () => {
       ]),
     ).toRenderTo(`
       class BasicInterface:
-        def get_name(self, id: str) -> ASpecialString:
-          pass
+          def get_name(self, id: str) -> ASpecialString:
+              pass
 
 
       `);
@@ -217,8 +217,8 @@ describe("interface methods with a `type` prop", () => {
       ]),
     ).toRenderTo(`
       class BasicInterface:
-        def get_name_custom(self, id: str) -> str:
-          pass
+          def get_name_custom(self, id: str) -> str:
+              pass
 
 
       `);
@@ -241,8 +241,8 @@ describe("interface methods without a `type` prop", () => {
       ]),
     ).toRenderTo(`
       class BasicInterface:
-        def plain_method(self, param1: string) -> number:
-          pass
+          def plain_method(self, param1: string) -> number:
+              pass
 
 
       `);

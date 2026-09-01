@@ -1,18 +1,20 @@
-import {
+import type {
   BooleanValue,
   EncodeData,
   Example,
-  getEncode,
-  getOpExamples,
-  ignoreDiagnostics,
   ModelProperty,
   NumericValue,
   OpExample,
   Program,
-  serializeValueAsJson,
   StringValue,
   Type,
   Value,
+} from "@typespec/compiler";
+import {
+  getEncode,
+  getOpExamples,
+  ignoreDiagnostics,
+  serializeValueAsJson,
 } from "@typespec/compiler";
 import { $ } from "@typespec/compiler/typekit";
 import {
@@ -23,16 +25,12 @@ import {
   type HttpProperty,
   type HttpStatusCodeRange,
 } from "@typespec/http";
-import { ExperimentalParameterExamplesStrategy } from "./lib.js";
+import type { ExperimentalParameterExamplesStrategy } from "./lib.js";
 import { getParameterStyle } from "./parameters.js";
 import { getOpenAPI3StatusCodes } from "./status-codes.js";
-import { OpenAPI3Example, OpenAPI3MediaType } from "./types.js";
-import {
-  HttpParameterProperties,
-  isHttpParameterProperty,
-  isSharedHttpOperation,
-  SharedHttpOperation,
-} from "./util.js";
+import type { OpenAPI3Example, OpenAPI3MediaType } from "./types.js";
+import type { HttpParameterProperties, SharedHttpOperation } from "./util.js";
+import { isHttpParameterProperty, isSharedHttpOperation } from "./util.js";
 
 export interface OperationExamples {
   requestBody: Record<string, [Example, Type][]>;

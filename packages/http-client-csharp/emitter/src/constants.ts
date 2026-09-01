@@ -23,3 +23,9 @@ export const _minSupportedDotNetSdkVersion = 8;
  * @internal
  */
 export const _defaultGeneratorName = "ScmCodeModelGenerator";
+
+/**
+ * The cross-language definition id for the TypeSpec HTTP File model.
+ * @internal
+ */
+export const _httpFileCrossLanguageDefinitionId = "TypeSpec.Http.File";

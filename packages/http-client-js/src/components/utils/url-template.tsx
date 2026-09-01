@@ -1,5 +1,5 @@
 import * as ts from "@alloy-js/typescript";
-import { ModelProperty } from "@typespec/compiler";
+import type { ModelProperty } from "@typespec/compiler";
 import { useTransformNamePolicy } from "@typespec/emitter-framework";
 import { uriTemplateLib } from "../external-packages/uri-template.js";
 

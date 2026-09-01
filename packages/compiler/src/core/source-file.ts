@@ -40,7 +40,7 @@ export function createSourceFile(text: string, path: string): SourceFile {
 
 export function getSourceFileKindFromExt(path: string): SourceFileKind | undefined {
   const ext = getAnyExtensionFromPath(path);
-  if (ext === ".js" || ext === ".mjs") {
+  if (ext === ".js" || ext === ".mjs" || ext === ".ts") {
     return "js";
   } else if (ext === ".tsp") {
     return "typespec";

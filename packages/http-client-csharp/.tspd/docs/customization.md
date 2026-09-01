@@ -222,6 +222,7 @@ Scenarios that would work:
 2. Float <-> Int (both are numbers)
 3. String <-> Enums (both strings)
 4. String -> Uri
+5. String -> Guid (both strings)
 
 Won't work:
 

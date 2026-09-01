@@ -3,6 +3,7 @@
 
 using System;
 using System.Collections.Generic;
+using System.Threading.Tasks;
 using Microsoft.TypeSpec.Generator.Primitives;
 using Microsoft.TypeSpec.Generator.Providers;
 using Microsoft.TypeSpec.Generator.Statements;
@@ -283,6 +284,51 @@ namespace Microsoft.TypeSpec.Generator.Tests.Shared
             Assert.AreEqual("TestMethod", backCompatSignature.Name);
             Assert.AreEqual(MethodSignatureModifiers.Public | MethodSignatureModifiers.Virtual, backCompatSignature.Modifiers);
             Assert.AreEqual(typeof(string), backCompatSignature.ReturnType?.FrameworkType);
+        }
+
+        [Test]
+        public void BuildBackCompatMethodSignature_ShouldNotBeAsyncFalse_PreservesAsyncModifier()
+        {
+            var originalSignature = CreateMethodSignature(
+                "TestMethodAsync",
+                modifiers: MethodSignatureModifiers.Public | MethodSignatureModifiers.Async,
+                returnType: typeof(Task),
+                parameters: [new ParameterProvider("param1", $"", typeof(int))]);
+
+            // The default (shouldNotBeAsync: false) keeps the async modifier.
+            var backCompatSignature = MethodSignatureHelper.BuildBackCompatMethodSignature(originalSignature, hideMethod: false);
+
+            Assert.IsTrue(backCompatSignature.Modifiers.HasFlag(MethodSignatureModifiers.Async));
+        }
+
+        [Test]
+        public void BuildBackCompatMethodSignature_ShouldNotBeAsyncTrue_RemovesAsyncModifier()
+        {
+            var originalSignature = CreateMethodSignature(
+                "TestMethodAsync",
+                modifiers: MethodSignatureModifiers.Public | MethodSignatureModifiers.Async,
+                returnType: typeof(Task),
+                parameters: [new ParameterProvider("param1", $"", typeof(int))]);
+
+            var backCompatSignature = MethodSignatureHelper.BuildBackCompatMethodSignature(originalSignature, hideMethod: false, shouldNotBeAsync: true);
+
+            // The async modifier is removed while the other modifiers are preserved.
+            Assert.IsFalse(backCompatSignature.Modifiers.HasFlag(MethodSignatureModifiers.Async));
+            Assert.IsTrue(backCompatSignature.Modifiers.HasFlag(MethodSignatureModifiers.Public));
+        }
+
+        [Test]
+        public void BuildBackCompatMethodSignature_ShouldNotBeAsyncTrue_OnNonAsyncSignature_IsNoOp()
+        {
+            var originalSignature = CreateMethodSignature(
+                "TestMethod",
+                modifiers: MethodSignatureModifiers.Public | MethodSignatureModifiers.Virtual,
+                returnType: typeof(string),
+                parameters: [new ParameterProvider("param1", $"", typeof(int))]);
+
+            var backCompatSignature = MethodSignatureHelper.BuildBackCompatMethodSignature(originalSignature, hideMethod: false, shouldNotBeAsync: true);
+
+            Assert.AreEqual(MethodSignatureModifiers.Public | MethodSignatureModifiers.Virtual, backCompatSignature.Modifiers);
         }
 
         [Test]

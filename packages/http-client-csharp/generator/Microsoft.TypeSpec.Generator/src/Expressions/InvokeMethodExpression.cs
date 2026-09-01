@@ -95,7 +95,9 @@ namespace Microsoft.TypeSpec.Generator.Expressions
         internal override void Write(CodeWriter writer)
         {
             if (ExtensionType is not null)
+            {
                 writer.UseNamespace(ExtensionType.Namespace);
+            }
 
             writer.AppendRawIf("await ", CallAsAsync);
             if (InstanceReference != null && !ReferenceEquals(InstanceReference, Static()))

@@ -1,6 +1,6 @@
 import { join } from "path";
 import { describe, expect, it } from "vitest";
-import { CompletionList } from "vscode-languageserver/node.js";
+import type { CompletionList } from "vscode-languageserver";
 import { joinPaths } from "../../src/index.js";
 import { extractCursor } from "../../src/testing/source-utils.js";
 import { createTestServerHost } from "../../src/testing/test-server-host.js";
@@ -8,6 +8,9 @@ import { resolveVirtualPath } from "../../src/testing/test-utils.js";
 
 const rootOptions = [
   "extends",
+  "kind",
+  "entrypoint",
+  "features",
   "environment-variables",
   "parameters",
   "output-dir",
@@ -124,6 +127,42 @@ describe("Test completion items for options and emitters", () => {
     },
   ])("#%# Test no emitter options: $config", async ({ config, expected }) => {
     await checkCompletionItems(config, false, expected);
+  });
+});
+
+describe("Test completion items for features", () => {
+  it.each([
+    {
+      config: `features:\n  - ┆`,
+      expected: ['"auto-decorators"', '"function-declarations"', '"type-info-provider"'],
+    },
+    {
+      config: `features:\n  - "┆"`,
+      expected: ["auto-decorators", "function-declarations", "type-info-provider"],
+    },
+    {
+      config: `features:\n  - "function┆"`,
+      expected: ["auto-decorators", "function-declarations", "type-info-provider"],
+    },
+    {
+      config: `features:\n  - function-declarations\n  - ┆`,
+      expected: ['"auto-decorators"', '"type-info-provider"'],
+    },
+  ])("#%# Test features: $config", async ({ config, expected }) => {
+    await checkCompletionItems(config, true, expected);
+  });
+
+  it("includes feature descriptions", async () => {
+    await checkCompletionItems(
+      `features:\n  - ┆`,
+      true,
+      [
+        "Allows use of auto decorator declarations without experimental warnings in project code.",
+        "Allows use of function declarations without experimental warnings in project code.",
+        "Enables the experimental `$provideTypeInfo` provider allowing libraries to contribute extra information about types to IDE hover and tooling (queried via `program.getTypeInfo`).",
+      ],
+      true,
+    );
   });
 });
 
@@ -437,8 +476,11 @@ describe("Test completion items for extends", () => {
       config: `extends:  \n┆`,
       expected: [
         "emit",
+        "entrypoint",
         "environment-variables",
+        "features",
         "imports",
+        "kind",
         "linter",
         "options",
         "output-dir",

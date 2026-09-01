@@ -5,7 +5,7 @@
 
 import { resolvePath } from "@typespec/compiler";
 import type { GenerateOptions } from "./emit-generate.js";
-import { CSharpEmitterContext } from "./sdk-context.js";
+import type { CSharpEmitterContext } from "./sdk-context.js";
 
 const SERVER_URL = "https://csharp-playground-server.azurewebsites.net";
 const MAX_RESPONSE_SIZE = 10 * 1024 * 1024; // 10 MB

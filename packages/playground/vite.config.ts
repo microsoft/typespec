@@ -48,9 +48,7 @@ export default defineConfig({
   optimizeDeps: {},
   plugins: [
     react({}),
-    dts({
-      logLevel: "silent", // checker reports the errors
-    }),
+    dts({}),
     checker({
       // e.g. use TypeScript check
       typescript: true,

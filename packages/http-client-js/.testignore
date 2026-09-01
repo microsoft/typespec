@@ -13,3 +13,7 @@ type/union/discriminated
 # Multipart - https://github.com/microsoft/typespec/issues/9155
 
 payload/multipart
+
+# Body root issues - https://github.com/microsoft/typespec/issues/10877
+
+parameters/body-root

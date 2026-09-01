@@ -40,7 +40,7 @@ public interface LroNoBodies {
         Context context);
 
     /**
-     * A long-running resource action.
+     * The action operation.
      * 
      * @param resourceGroupName The name of the resource group. The name is case insensitive.
      * @param resourceLroNoBodyName The name of the ResourceLroNoBody.
@@ -52,7 +52,7 @@ public interface LroNoBodies {
     ActionFinalResult action(String resourceGroupName, String resourceLroNoBodyName);
 
     /**
-     * A long-running resource action.
+     * The action operation.
      * 
      * @param resourceGroupName The name of the resource group. The name is case insensitive.
      * @param resourceLroNoBodyName The name of the ResourceLroNoBody.

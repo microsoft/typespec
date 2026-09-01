@@ -12,9 +12,18 @@
     - [New Property Added Together with a Rename](#scenario-new-property-added-together-with-a-rename)
   - [Model Properties](#model-properties)
   - [AdditionalProperties Type Preservation](#additionalproperties-type-preservation)
+  - [Fixed Enum Members](#fixed-enum-members)
+    - [Explicit (Non-contiguous) Values Preserved](#scenario-explicit-non-contiguous-values-preserved)
+    - [Removed Integer Enum Member Re-added](#scenario-removed-integer-enum-member-re-added)
+    - [Baseline-Accepted Removal Honored](#scenario-baseline-accepted-removal-honored)
+  - [Extensible Enum Members](#extensible-enum-members)
+    - [Removed Extensible Enum Member Re-added](#scenario-removed-extensible-enum-member-re-added)
   - [API Version Enum](#api-version-enum)
   - [Non-abstract Base Models](#non-abstract-base-models)
   - [Model Constructors](#model-constructors)
+    - [Required Property Becomes Optional](#scenario-required-property-becomes-optional)
+    - [Parameterless Constructor Becomes Parameterized](#scenario-parameterless-constructor-becomes-parameterized)
+    - [Constructor Parameter Name Restored by Signature Match](#scenario-constructor-parameter-name-restored-by-signature-match)
   - [Parameter Naming](#parameter-naming)
     - [Page Size Parameter Casing Correction](#scenario-page-size-parameter-casing-correction)
     - [Top Parameter Conversion to MaxCount](#scenario-top-parameter-conversion-to-maxcount)
@@ -23,6 +32,8 @@
     - [Content-Type Before Body Preserved from Last Contract](#scenario-content-type-before-body-preserved-from-last-contract)
   - [Client Methods](#client-methods)
     - [New Optional Non-Body Parameter Added to a Service Method](#scenario-new-optional-non-body-parameter-added-to-a-service-method)
+    - [Value-Type Parameter Nullability Removed](#scenario-value-type-parameter-nullability-removed)
+    - [Nullable Optional Parameter Became Required](#scenario-nullable-optional-parameter-became-required)
 
 ## Overview
 
@@ -37,6 +48,19 @@ When generating code, the generator can optionally receive a compiled assembly f
 1. Analyzes the current TypeSpec specification and generates types based on the current API
 2. Compares the generated types against the types in the last contract
 3. Automatically generates compatibility methods, properties, or enum members where differences are detected
+
+### ApiCompat Baseline Awareness
+
+Sometimes a breaking change (such as removing a model or a model factory method) is intentional and has already been reviewed and accepted. In the Azure SDK, such accepted breaking changes are recorded in an [ApiCompat](https://github.com/dotnet/sdk/tree/main/src/Compatibility) baseline (suppression) file, conventionally located at `eng/apicompatbaselines/<AssemblyName>.txt`.
+
+Without awareness of these files, the back-compat system would resurrect every member present in the last contract — re-introducing the very API that was intentionally removed (and potentially referencing types that no longer exist). To prevent this, the generator discovers the baseline file by walking up from the project directory and parses its `TypesMustExist`, `MembersMustExist`, and `EnumValuesMustMatch` suppressions. The back-compat code then consults the baseline in the following ways:
+
+- **Skipping resurrected members:** before regenerating a compatibility shim for a removed member, it checks whether the removal has been accepted in the baseline (matched by declaring-type full name, member name, and parameter count) and, if so, skips it.
+- **Allowing property type changes:** the back-compat system normally preserves a property's previous (last-contract) type to avoid a breaking change. When that previous type — or a type nested within it (e.g. the element type of a collection) — has itself been intentionally removed and accepted in the baseline, preserving it would reference a now-deleted type. In that case the generator allows the property to take its current (spec) type instead.
+- **Skipping re-added enum members:** before re-adding a fixed enum member that exists in the last contract but was dropped from the current spec, it checks whether that removal — or an accepted value difference recorded as `EnumValuesMustMatch` — has been accepted in the baseline (matched by the declaring enum's fully-qualified name and the member name) and, if so, omits the member.
+
+> [!NOTE]
+> Baseline awareness is currently wired into the base method back-compat path in `TypeProvider` (the parameter reorder/removal loop, inherited by `ClientProvider` and also used directly by `ModelFactoryProvider`), the model property type-preservation path (`ModelProvider`), and the fixed enum member path (`FixedEnumProvider`). The remaining back-compat consumers (`ModelProvider` constructors and `RestClientProvider`) can be made baseline-aware in the same way as a follow-up.
 
 ## Supported Scenarios
 
@@ -351,6 +375,132 @@ public partial class MyModel
 - For object types, serialization uses `Utf8JsonWriter.WriteObjectValue<object>()` to handle arbitrary values
 - Binary compatibility is fully maintained - existing client code continues to work without recompilation
 
+### Fixed Enum Members
+
+Fixed enums (C# `enum` types) preserve their previously shipped members and values by comparing the current spec against the last contract. Because the underlying value of an integer-backed enum member is part of its public API, the generator keeps those values stable across regenerations, aligns member order to the last contract, and re-adds members that were dropped from the current spec.
+
+> [!NOTE]
+> These behaviors apply to **integer-backed** fixed enums (`int`/`long`).
+
+#### Scenario: Explicit (Non-contiguous) Values Preserved
+
+**Description:** When an integer enum's members carry explicit, non-contiguous values, the generator preserves each member's exact value from the last contract instead of reassigning positional ordinals.
+
+**Example:**
+
+Previous version (GA surface):
+
+```csharp
+public enum CapacityReservationLevel
+{
+    OneHundred = 100,
+    TwoHundred = 200,
+    FiveHundred = 500,
+}
+```
+
+**Generated Result:** The members keep their exact values (`100`, `200`, `500`) rather than being reassigned to `0`, `1`, `2`.
+
+#### Scenario: Removed Integer Enum Member Re-added
+
+**Description:** When an integer enum member present in the last contract is dropped from the current spec, the generator re-adds it — at its original position and with its original explicit value — to avoid removing a previously shipped member.
+
+**Example:**
+
+Previous version:
+
+```csharp
+public enum SampleEnum
+{
+    Alpha = 0,
+    Beta = 1,
+    Gamma = 2,
+}
+```
+
+Current TypeSpec removes `Beta`:
+
+```csharp
+public enum SampleEnum
+{
+    Alpha = 0,
+    Gamma = 2,
+}
+```
+
+**Generated Result:** `Beta` is re-added at its original position with its original value:
+
+```csharp
+public enum SampleEnum
+{
+    Alpha = 0,
+    Beta = 1,
+    Gamma = 2,
+}
+```
+
+**Key Points:**
+
+- Members shared between the current spec and the last contract are ordered to match the last contract and keep their last-contract values
+- New members introduced by the current spec are appended after the last-contract members, keeping their spec values
+- The re-added member's underlying value is read from the previously published assembly's metadata (no debug symbols required)
+
+#### Scenario: Baseline-Accepted Removal Honored
+
+**Description:** When the removal of an enum member has been intentionally accepted in the [ApiCompat baseline](#apicompat-baseline-awareness) — recorded as a `MembersMustExist` removal or an `EnumValuesMustMatch` value-difference suppression — the generator honors that decision and does **not** re-add the member.
+
+**Key Points:**
+
+- Suppressed members are matched by the declaring enum's fully-qualified name and the member name
+- This lets a library intentionally drop a previously shipped enum member once the removal is reviewed and recorded in the baseline
+
+### Extensible Enum Members
+
+Extensible enums (C# `readonly partial struct` types) preserve their previously shipped members by comparing the current spec against the last contract. The generator re-adds an extensible enum member that was dropped from the current spec, restoring it with its original wire value to avoid removing a previously shipped member.
+
+#### Scenario: Removed Extensible Enum Member Re-added
+
+**Description:** When an extensible enum member present in the last contract is dropped from the current spec, the generator restores it — as a public static property backed by its recovered `const` wire value — to keep the previously shipped API.
+
+**Example:**
+
+Previous version:
+
+```csharp
+public readonly partial struct OperationStatusType : IEquatable<OperationStatusType>
+{
+    private const string CompletedValue = "Completed";
+    private const string FailedValue = "Failed";
+    private const string RunningValue = "Running";
+
+    public static OperationStatusType Completed { get; } = new OperationStatusType(CompletedValue);
+    public static OperationStatusType Failed { get; } = new OperationStatusType(FailedValue);
+    public static OperationStatusType Running { get; } = new OperationStatusType(RunningValue);
+    // ...
+}
+```
+
+Current TypeSpec removes `Running`. **Generated Result:** `Running` is re-added (appended after the current members) with its original wire value:
+
+```csharp
+public readonly partial struct OperationStatusType : IEquatable<OperationStatusType>
+{
+    private const string CompletedValue = "Completed";
+    private const string FailedValue = "Failed";
+    private const string RunningValue = "Running";
+
+    public static OperationStatusType Completed { get; } = new OperationStatusType(CompletedValue);
+    public static OperationStatusType Failed { get; } = new OperationStatusType(FailedValue);
+    public static OperationStatusType Running { get; } = new OperationStatusType(RunningValue);
+    // ...
+}
+```
+
+**Key Points:**
+
+- Members that already exist in the current spec, are provided by custom code, or whose removal is accepted in the [ApiCompat baseline](#apicompat-baseline-awareness) are not re-added
+- Restored members are appended after the current spec's members, preserving the current spec's order
+
 ### API Version Enum
 
 Service version enums maintain backward compatibility by preserving version values from previous releases.
@@ -490,6 +640,137 @@ public abstract partial class SearchIndexerDataIdentity
 - The constructor must have matching parameters (same count, types, and names)
 - The modifier is changed from `private protected` to `public`
 - No additional constructors are generated; only the accessibility is adjusted
+
+#### Scenario: Required Property Becomes Optional
+
+**Description:** When a required model property becomes optional, the current initialization constructor no longer includes that property. To preserve source compatibility for callers that construct the model positionally, the generator restores the previously published public constructor as an overload. The restored overload chains to the closest current public constructor and assigns the now-optional property.
+
+**Example:**
+
+Previous version required both properties:
+
+```csharp
+public partial class Widget
+{
+    public Widget(string name, string description)
+    {
+        Name = name;
+        Description = description;
+    }
+
+    public string Name { get; }
+    public string Description { get; }
+}
+```
+
+Current TypeSpec makes `description` optional:
+
+```csharp
+public partial class Widget
+{
+    public Widget(string name)
+    {
+        Name = name;
+    }
+
+    public string Name { get; }
+    public string Description { get; set; }
+}
+```
+
+**Generated Compatibility Result:**
+
+```csharp
+public Widget(string name, string description) : this(name)
+{
+    Description = description;
+}
+```
+
+**Key Points:**
+
+- The previous constructor must be public and no generated or custom constructor may already have the same parameters.
+- Every parameter removed from the current constructor must map to a public, settable property with the same type. Properties renamed through a code-generation customization are supported.
+- The current constructor used for chaining must have parameters that match an in-order subset of the previous constructor's parameters.
+- When no current public constructor is such an in-order subset, there is no safe chain target, so the previous constructor is not restored. A standalone constructor is not generated because it would bypass the current constructor's initialization (for example, the implicit `base()` call and inherited get-only properties).
+- If the constructor removal is accepted in an ApiCompat baseline, the generator does not restore it.
+
+#### Scenario: Parameterless Constructor Becomes Parameterized
+
+**Description:** When a model previously exposed an accessible parameterless constructor and a property later becomes required, generation replaces the parameterless constructor with one that accepts the required property. The generator restores the previous parameterless constructor and chains it to an appropriate current constructor with `default` values.
+
+**Example:**
+
+Previous version exposed a parameterless constructor:
+
+```csharp
+public partial class Widget
+{
+    protected Widget()
+    {
+    }
+
+    public string Name { get; set; }
+}
+```
+
+Current TypeSpec makes `name` required:
+
+```csharp
+public partial class Widget
+{
+    protected Widget(string name)
+    {
+        Name = name;
+    }
+
+    public string Name { get; }
+}
+```
+
+**Generated Compatibility Result:**
+
+```csharp
+protected Widget() : this(default)
+{
+}
+```
+
+**Key Points:**
+
+- The previous parameterless constructor must be accessible and no accessible generated or custom parameterless constructor may already exist.
+- The restored constructor retains the previous accessibility.
+- The generator prefers an accessible current constructor with the fewest required parameters as the chain target. When necessary, it can chain to a `private protected` initialization constructor.
+- The generated parameterless mocking constructor is removed so it does not duplicate the restored constructor.
+- If the constructor removal is accepted in an ApiCompat baseline, the generator does not restore it.
+
+#### Scenario: Constructor Parameter Name Restored by Signature Match
+
+**Description:** When a constructor keeps the same parameter types (in the same order and count) but one or more parameters would be renamed — because of a `@@clientName`, a spec/property rename, a generator naming-rule change, or a casing correction — the new names would appear on the generated constructor. Renaming a constructor parameter is source-breaking for callers using named arguments and is reported by ApiCompat as a `CP0017` parameter-name change, even though ordinary binary-compatibility checks may miss it. To avoid this, the generator matches the current constructor to the previously published one by signature and restores the previous parameter names.
+
+This covers straight renames, casing corrections, and parameter **swaps/rotations**. For a swap or rotation (every previous name is still present, just in a different position) the generator realigns the existing parameter objects to the previous positional order instead of renaming positionally, so a caller's named argument stays bound to the same property.
+
+**Example:**
+
+Previous version published `(name, vmSkuName)`:
+
+```csharp
+public MockInputModel(string name, string vmSkuName)
+{
+    Name = name;
+    VmSkuName = vmSkuName;
+}
+```
+
+Current TypeSpec orders the properties differently, which would normally produce `(vmSkuName, name)`. The generator restores the previous parameter order and names:
+
+```csharp
+public MockInputModel(string name, string vmSkuName)
+{
+    VmSkuName = vmSkuName;
+    Name = name;
+}
+```
 
 ### Parameter Naming
 
@@ -868,3 +1149,75 @@ public virtual Task<ClientResult> GetDataAsync(int p1, BinaryContent body, Reque
 ```
 
 The back-compat overloads are hidden from IntelliSense via `[EditorBrowsable(EditorBrowsableState.Never)]`, have all default values stripped to avoid ambiguous call sites with the current methods, and delegate to the current method passing `default` for each new parameter.
+
+#### Scenario: Value-Type Parameter Nullability Removed
+
+**Description:** When a value-type parameter that was nullable in the last contract (`T?`) becomes non-nullable (`T`) in the current generation, the generator emits a hidden back-compat overload that reproduces the previous nullable signature and delegates to the current method, unwrapping the argument with `.Value`. The forwarded argument is guarded with `Argument.AssertNotNull` so a `null` argument produces a clear `ArgumentNullException` rather than an `InvalidOperationException` from `.Value`. This also covers extensible enums (which are read back from the last contract as structs), matched by fully-qualified type name.
+
+**Example:**
+
+Previous contract:
+
+```csharp
+public string GetData(string data, FileFormatType? value = default, bool? flag = default);
+```
+
+Current generation makes `value` non-nullable and required:
+
+```csharp
+public string GetData(string data, FileFormatType value, bool? flag = default);
+```
+
+**Generated Compatibility Overload:**
+
+```csharp
+[EditorBrowsable(EditorBrowsableState.Never)]
+public string GetData(string data, FileFormatType? value = default, bool? flag = default)
+{
+    Argument.AssertNotNull(value, nameof(value));
+    return this.GetData(data: data, value: value.Value, flag: flag);
+}
+```
+
+**Key Points:**
+
+- Only applies to value types (including extensible enums); reference-type nullability (`string?` vs `string`) cannot form distinct overloads and is not handled.
+- Only the `T?` → `T` direction (removing nullability) is handled, not the widening direction.
+- When the current parameter is required, the previous optional default is preserved so callers that omitted it still compile; the `AssertNotNull` guard turns a `null` argument into a clear `ArgumentNullException`.
+- A `ref`/`out` parameter is not eligible (its value cannot be forwarded through `.Value`), so no overload is generated in that case.
+- The overload is hidden via `[EditorBrowsable(EditorBrowsableState.Never)]`.
+
+#### Scenario: Nullable Optional Parameter Became Required
+
+**Description:** When a nullable parameter that was optional in the last contract (had a default value) becomes required in the current generation (same type, but no longer has a default), callers that omitted it no longer compile. The generator emits a hidden reduced-arity overload that drops the now-required parameter and delegates to the current method, supplying the parameter's previous default value.
+
+**Example:**
+
+Previous contract:
+
+```csharp
+public string GetData(string data, FileFormatType? value = default, bool? flag = default);
+```
+
+Current generation keeps `value` nullable but makes it required:
+
+```csharp
+public string GetData(string data, FileFormatType? value, bool? flag = default);
+```
+
+**Generated Compatibility Overload:**
+
+```csharp
+[EditorBrowsable(EditorBrowsableState.Never)]
+public string GetData(string data, bool? flag = default)
+{
+    return this.GetData(data: data, value: default, flag: flag);
+}
+```
+
+**Key Points:**
+
+- Applies only to a single nullable parameter that changed from optional to required; the parameter's type is otherwise unchanged.
+- The dropped parameter's type must differ from every other parameter's type so the reduced-arity overload's call sites stay unambiguous.
+- The optionality of the remaining parameters is preserved, and the overload is hidden via `[EditorBrowsable(EditorBrowsableState.Never)]`.
+- Unlike the nullability-removal scenario, the delegation passes the previous default — there is no `.Value` unwrap and no runtime throw.

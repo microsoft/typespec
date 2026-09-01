@@ -1,7 +1,7 @@
 import { mkdir, rm, writeFile } from "fs/promises";
 import { dirname, join } from "path";
 import { fileURLToPath } from "url";
-import { beforeAll, describe, expect, it } from "vitest";
+import { beforeAll, expect, it } from "vitest";
 import { checkFilesFormat } from "../../src/core/formatter-fs.js";
 import { resolvePath } from "../../src/core/path-utils.js";
 
@@ -44,76 +44,74 @@ beforeAll(async () => {
   await createFixtureFile("project/excluded/skip.tsp", unformattedTsp);
 });
 
-describe("formatter-fs: findFiles", () => {
-  it("finds .tsp files with explicit glob pattern", async () => {
-    const result = await checkFilesFormat([fixturePath("project/**/*.tsp")], {});
-    expect(allFiles(result)).toEqual([
-      fixturePath("project/excluded/skip.tsp"),
-      fixturePath("project/lib.tsp"),
-      fixturePath("project/main.tsp"),
-      fixturePath("project/sub/nested.tsp"),
-    ]);
-  });
+it("finds .tsp files with explicit glob pattern", async () => {
+  const result = await checkFilesFormat([fixturePath("project/**/*.tsp")], {});
+  expect(allFiles(result)).toEqual([
+    fixturePath("project/excluded/skip.tsp"),
+    fixturePath("project/lib.tsp"),
+    fixturePath("project/main.tsp"),
+    fixturePath("project/sub/nested.tsp"),
+  ]);
+});
 
-  it("expands bare directory path to find files recursively", async () => {
-    const result = await checkFilesFormat([fixturePath("project")], {});
-    expect(allFiles(result)).toEqual([
-      fixturePath("project/excluded/skip.tsp"),
-      fixturePath("project/lib.tsp"),
-      fixturePath("project/main.tsp"),
-      fixturePath("project/readme.md"),
-      fixturePath("project/sub/nested.tsp"),
-    ]);
-  });
+it("expands bare directory path to find files recursively", async () => {
+  const result = await checkFilesFormat([fixturePath("project")], {});
+  expect(allFiles(result)).toEqual([
+    fixturePath("project/excluded/skip.tsp"),
+    fixturePath("project/lib.tsp"),
+    fixturePath("project/main.tsp"),
+    fixturePath("project/readme.md"),
+    fixturePath("project/sub/nested.tsp"),
+  ]);
+});
 
-  it("excludes node_modules automatically", async () => {
-    const result = await checkFilesFormat([fixturePath("project/**/*.tsp")], {});
-    expect(allFiles(result)).not.toContainEqual(expect.stringContaining("node_modules"));
-  });
+it("excludes node_modules automatically", async () => {
+  const result = await checkFilesFormat([fixturePath("project/**/*.tsp")], {});
+  expect(allFiles(result)).not.toContainEqual(expect.stringContaining("node_modules"));
+});
 
-  it("excludes node_modules when using directory expansion", async () => {
-    const result = await checkFilesFormat([fixturePath("project")], {});
-    expect(allFiles(result)).not.toContainEqual(expect.stringContaining("node_modules"));
-  });
+it("excludes node_modules when using directory expansion", async () => {
+  const result = await checkFilesFormat([fixturePath("project")], {});
+  expect(allFiles(result)).not.toContainEqual(expect.stringContaining("node_modules"));
+});
 
-  it("respects user-provided exclude patterns", async () => {
-    const result = await checkFilesFormat([fixturePath("project/**/*.tsp")], {
-      exclude: [fixturePath("project/excluded/**")],
-    });
-    expect(allFiles(result)).toEqual([
-      fixturePath("project/lib.tsp"),
-      fixturePath("project/main.tsp"),
-      fixturePath("project/sub/nested.tsp"),
-    ]);
+it("respects user-provided exclude patterns", async () => {
+  const result = await checkFilesFormat([fixturePath("project/**/*.tsp")], {
+    exclude: [fixturePath("project/excluded/**")],
   });
+  expect(allFiles(result)).toEqual([
+    fixturePath("project/lib.tsp"),
+    fixturePath("project/main.tsp"),
+    fixturePath("project/sub/nested.tsp"),
+  ]);
+});
 
-  it("handles multiple include patterns", async () => {
-    const result = await checkFilesFormat(
-      [fixturePath("project/main.tsp"), fixturePath("project/sub/**/*.tsp")],
-      {},
-    );
-    expect(allFiles(result)).toEqual([
-      fixturePath("project/main.tsp"),
-      fixturePath("project/sub/nested.tsp"),
-    ]);
-  });
+it("handles multiple include patterns", async () => {
+  const result = await checkFilesFormat(
+    [fixturePath("project/main.tsp"), fixturePath("project/sub/**/*.tsp")],
+    {},
+  );
+  expect(allFiles(result)).toEqual([
+    fixturePath("project/main.tsp"),
+    fixturePath("project/sub/nested.tsp"),
+  ]);
+});
 
-  it("classifies non-tsp files as ignored", async () => {
-    const result = await checkFilesFormat([fixturePath("project/readme.md")], {});
-    expect(result.ignored).toEqual([fixturePath("project/readme.md")]);
-  });
+it("classifies non-tsp files as ignored", async () => {
+  const result = await checkFilesFormat([fixturePath("project/readme.md")], {});
+  expect(result.ignored).toEqual([fixturePath("project/readme.md")]);
+});
 
-  it("returns empty results when nothing matches", async () => {
-    const result = await checkFilesFormat([fixturePath("project/**/*.py")], {});
-    expect(allFiles(result)).toEqual([]);
-  });
+it("returns empty results when nothing matches", async () => {
+  const result = await checkFilesFormat([fixturePath("project/**/*.py")], {});
+  expect(allFiles(result)).toEqual([]);
+});
 
-  it("correctly identifies formatted vs needs-format files", async () => {
-    const result = await checkFilesFormat(
-      [fixturePath("project/main.tsp"), fixturePath("project/lib.tsp")],
-      {},
-    );
-    expect(result.formatted).toEqual([fixturePath("project/main.tsp")]);
-    expect(result.needsFormat).toEqual([fixturePath("project/lib.tsp")]);
-  });
+it("correctly identifies formatted vs needs-format files", async () => {
+  const result = await checkFilesFormat(
+    [fixturePath("project/main.tsp"), fixturePath("project/lib.tsp")],
+    {},
+  );
+  expect(result.formatted).toEqual([fixturePath("project/main.tsp")]);
+  expect(result.needsFormat).toEqual([fixturePath("project/lib.tsp")]);
 });

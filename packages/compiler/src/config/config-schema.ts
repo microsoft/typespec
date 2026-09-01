@@ -1,5 +1,5 @@
 import type { JSONSchemaType } from "ajv";
-import { EmitterOptions, TypeSpecRawConfig } from "./types.js";
+import type { EmitterOptions, TypeSpecRawConfig } from "./types.js";
 
 export const emitterOptionsSchema: JSONSchemaType<EmitterOptions> = {
   type: "object",
@@ -17,6 +17,20 @@ export const TypeSpecConfigJsonSchema: JSONSchemaType<TypeSpecRawConfig> = {
     extends: {
       type: "string",
       nullable: true,
+    },
+    kind: {
+      type: "string",
+      enum: ["project"],
+      nullable: true,
+    },
+    entrypoint: {
+      type: "string",
+      nullable: true,
+    },
+    features: {
+      type: "array",
+      nullable: true,
+      items: { type: "string" },
     },
     "environment-variables": {
       type: "object",

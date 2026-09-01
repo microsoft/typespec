@@ -119,25 +119,30 @@ namespace Pets {
   };
 
   @get
-  op getPet(@path petId: int32, ...CommonParameters): {
-    @statusCode statusCode: 200;
-    @body pet: Pet;
-  } | {
-    @statusCode statusCode: 404;
-    @body error: NotFoundError;
-  };
+  op getPet(@path petId: int32, ...CommonParameters):
+    | {
+        @statusCode statusCode: 200;
+        @body pet: Pet;
+      }
+    | {
+        @statusCode statusCode: 404;
+        @body error: NotFoundError;
+      };
 
   @post
-  op createPet(@body pet: Pet, ...CommonParameters): {
-    @statusCode statusCode: 201;
-    @body newPet: Pet;
-  } | {
-    @statusCode statusCode: 202;
-    @body acceptedPet: Pet;
-  } | {
-    @statusCode statusCode: 400;
-    @body error: ValidationError;
-  };
+  op createPet(@body pet: Pet, ...CommonParameters):
+    | {
+        @statusCode statusCode: 201;
+        @body newPet: Pet;
+      }
+    | {
+        @statusCode statusCode: 202;
+        @body acceptedPet: Pet;
+      }
+    | {
+        @statusCode statusCode: 400;
+        @body error: ValidationError;
+      };
 
   @put
   op updatePet(@path petId: int32, @body pet: Pet, ...CommonParameters):

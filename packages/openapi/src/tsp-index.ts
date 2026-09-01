@@ -1,4 +1,4 @@
-import { TypeSpecOpenAPIDecorators } from "../generated-defs/TypeSpec.OpenAPI.js";
+import type { TypeSpecOpenAPIDecorators } from "../generated-defs/TypeSpec.OpenAPI.js";
 import {
   $defaultResponse,
   $extension,

@@ -1,0 +1,3 @@
+title: Local TypeSpec installation
+description: Configure an editor to use a project-local TypeSpec compiler.
+playground: false

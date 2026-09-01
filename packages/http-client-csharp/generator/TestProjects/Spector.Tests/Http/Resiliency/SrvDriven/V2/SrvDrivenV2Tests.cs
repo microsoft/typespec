@@ -1,8 +1,8 @@
 // Copyright (c) Microsoft Corporation. All rights reserved.
 // Licensed under the MIT License.
 
-extern alias SrvDrivenV2;
 extern alias SrvDrivenV1;
+extern alias SrvDrivenV2;
 using System.Threading.Tasks;
 using NUnit.Framework;
 using SrvDrivenV2::Resiliency.ServiceDriven;

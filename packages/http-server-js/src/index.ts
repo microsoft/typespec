@@ -1,15 +1,15 @@
 // Copyright (c) Microsoft Corporation
 // Licensed under the MIT license.
 
-import { EmitContext } from "@typespec/compiler";
+import type { EmitContext } from "@typespec/compiler";
+import { joinPaths } from "@typespec/compiler";
 import { visitAllTypes } from "./common/namespace.js";
 import { createInitialContext } from "./ctx.js";
-import { JsEmitterOptions } from "./lib.js";
+import type { JsEmitterOptions } from "./lib.js";
 import { writeModuleTree } from "./write.js";
 
 // #region features
 
-import path from "node:path";
 import { emitSerialization } from "./common/serialization/index.js";
 import { emitHttp } from "./http/index.js";
 
@@ -34,7 +34,7 @@ export async function $onEmit(context: EmitContext<JsEmitterOptions>) {
   // Emit serialization code for all required types.
   emitSerialization(jsCtx);
 
-  const srcGeneratedPath = path.join(context.emitterOutputDir, "src", "generated");
+  const srcGeneratedPath = joinPaths(context.emitterOutputDir, "src", "generated");
 
   if (!context.program.compilerOptions.dryRun) {
     try {

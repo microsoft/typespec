@@ -1,4 +1,5 @@
-import { Diagnostic, interpolatePath, resolvePath } from "@typespec/compiler";
+import type { Diagnostic } from "@typespec/compiler";
+import { interpolatePath, resolvePath } from "@typespec/compiler";
 import {
   createTester,
   expectDiagnosticEmpty,
@@ -6,8 +7,8 @@ import {
 } from "@typespec/compiler/testing";
 import { ok } from "assert";
 import { parse } from "yaml";
-import { OpenAPI3EmitterOptions } from "../src/lib.js";
-import { OpenAPI3Document } from "../src/types.js";
+import type { OpenAPI3EmitterOptions } from "../src/lib.js";
+import type { OpenAPI3Document } from "../src/types.js";
 
 export const ApiTester = createTester(resolvePath(import.meta.dirname, ".."), {
   libraries: [

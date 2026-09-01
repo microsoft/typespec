@@ -1,12 +1,12 @@
 vi.resetModules();
 
-import { EmitContext, Program } from "@typespec/compiler";
-import { TestHost } from "@typespec/compiler/testing";
+import type { EmitContext, Program } from "@typespec/compiler";
+import type { TestHost } from "@typespec/compiler/testing";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 import { generate } from "../../src/emit-generate.js";
 import { execAsync, execCSharpGenerator } from "../../src/lib/exec-utils.js";
-import { CSharpEmitterOptions } from "../../src/options.js";
-import { CodeModel } from "../../src/type/code-model.js";
+import type { CSharpEmitterOptions } from "../../src/options.js";
+import type { CodeModel } from "../../src/type/code-model.js";
 import {
   createEmitterContext,
   createEmitterTestHost,
@@ -43,16 +43,21 @@ describe("$onEmit tests", () => {
         }),
       };
     });
-    vi.mock("@azure-tools/typespec-client-generator-core", () => ({
-      createSdkContext: vi.fn().mockImplementation(async (...args) => {
-        return {
-          sdkPackage: {},
-          emitContext: args[0],
-          program: args[0].program,
-          diagnostics: [],
-        };
-      }),
-    }));
+    vi.mock("@azure-tools/typespec-client-generator-core", async (importOriginal) => {
+      const actual =
+        await importOriginal<typeof import("@azure-tools/typespec-client-generator-core")>();
+      return {
+        ...actual,
+        createSdkContext: vi.fn().mockImplementation(async (...args) => {
+          return {
+            sdkPackage: {},
+            emitContext: args[0],
+            program: args[0].program,
+            diagnostics: [],
+          };
+        }),
+      };
+    });
 
     vi.mock("../../src/lib/exec-utils.js", () => ({
       execCSharpGenerator: vi.fn(),

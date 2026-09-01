@@ -1,16 +1,25 @@
 import { ok, strictEqual } from "assert";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import { parse } from "yaml";
-import { InitTemplate } from "../../src/init/init-template.js";
-import {
-  ScaffoldingConfig,
-  makeScaffoldingConfig,
-  scaffoldNewProject,
-} from "../../src/init/scaffold.js";
-import { TestHost, createTestHost, resolveVirtualPath } from "../../src/testing/index.js";
+import type { InitTemplate } from "../../src/init/init-template.js";
+import type { ScaffoldingConfig } from "../../src/init/scaffold.js";
+import { makeScaffoldingConfig, scaffoldNewProject } from "../../src/init/scaffold.js";
+import type { TestHost } from "../../src/testing/index.js";
+import { createTestHost, resolveVirtualPath } from "../../src/testing/index.js";
 
+const manifest = {
+  name: "mock-pkg",
+  version: "1.0.0",
+  dist: { shasum: "abc", tarball: "https://example.com/mock-pkg.tgz" },
+};
 const fetchMock = vi.fn().mockResolvedValue({
-  json: () => Promise.resolve({ name: "mock-pkg", version: "1.0.0" }),
+  ok: true,
+  json: () =>
+    Promise.resolve({
+      name: manifest.name,
+      "dist-tags": { latest: manifest.version },
+      versions: { [manifest.version]: manifest },
+    }),
 });
 
 let testHost: TestHost;

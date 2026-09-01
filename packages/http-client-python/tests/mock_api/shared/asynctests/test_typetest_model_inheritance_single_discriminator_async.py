@@ -6,7 +6,7 @@
 import pytest
 import pytest_asyncio
 from typetest.model.singlediscriminator.aio import SingleDiscriminatorClient
-from typetest.model.singlediscriminator.models import Sparrow, Eagle, Bird, Dinosaur
+from typetest.model.singlediscriminator.models import Sparrow, Eagle, Bird, Dinosaur, Fish
 
 
 @pytest_asyncio.fixture
@@ -61,6 +61,16 @@ async def test_get_missing_discriminator(client):
 @pytest.mark.asyncio
 async def test_get_wrong_discriminator(client):
     assert await client.get_wrong_discriminator() == Bird(wingspan=1, kind="wrongKind")
+
+
+@pytest.mark.asyncio
+async def test_get_no_subtypes_model(client):
+    assert await client.get_no_subtypes_model() == Fish(kind="salmon", size=10)
+
+
+@pytest.mark.asyncio
+async def test_put_no_subtypes_model(client):
+    await client.put_no_subtypes_model(Fish(kind="salmon", size=10))
 
 
 @pytest.mark.asyncio

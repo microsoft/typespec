@@ -81,24 +81,25 @@ function Update-GeneratorPackage {
             Write-Host "  Updated dependencies to local packages" -ForegroundColor Green
         }
 
-        # Step 2: Install dependencies, clean, and build
+        # Step 2: Install dependencies, clean, and build.
+        # Force the default registry to the public azure-sdk-for-js feed.
         Push-Location $GeneratorPath
         try {
             Write-Host "Installing dependencies..." -ForegroundColor Gray
             if ($UseNpmCi) {
-                $installOutput = & npm install --package-lock-only 2>&1
+                $installOutput = & npm install --package-lock-only --registry https://pkgs.dev.azure.com/azure-sdk/public/_packaging/azure-sdk-for-js/npm/registry/ 2>&1
                 if ($LASTEXITCODE -ne 0) {
                     Write-Host $installOutput -ForegroundColor Red
                     throw "Failed to update package-lock.json"
                 }
                 
-                $ciOutput = & npm ci 2>&1
+                $ciOutput = & npm ci --registry https://pkgs.dev.azure.com/azure-sdk/public/_packaging/azure-sdk-for-js/npm/registry/ 2>&1
                 if ($LASTEXITCODE -ne 0) {
                     Write-Host $ciOutput -ForegroundColor Red
                     throw "Failed to install dependencies"
                 }
             } else {
-                $installOutput = & npm install 2>&1
+                $installOutput = & npm install --registry https://pkgs.dev.azure.com/azure-sdk/public/_packaging/azure-sdk-for-js/npm/registry/ 2>&1
                 if ($LASTEXITCODE -ne 0) {
                     Write-Host $installOutput -ForegroundColor Red
                     throw "Failed to run npm install"
@@ -175,13 +176,14 @@ function Update-MgmtGenerator {
 
     .DESCRIPTION
         This function handles the management plane generator setup:
-        1. Updates package.json with local unbranded and Azure generator dependencies
+        1. Redirects the mgmt generator's "dependencies" for both @azure-typespec/http-client-csharp
+           and @typespec/http-client-csharp to the locally built packages
         2. Runs npm install
         3. Runs npm run clean to ensure a clean build
         4. Builds the management plane generator
         5. Packages the management plane generator
         6. Updates eng folder emitter package artifacts (azure-typespec-http-client-csharp-mgmt-emitter-package.json)
-        7. Updates mgmt emitter package artifact's devDependency for @typespec/http-client-csharp
+           and regenerates the lock file with the full local dependency graph (mgmt + Azure + unbranded)
         
         This function is designed to be called from RegenPreview.ps1 and uses the same
         versioning scheme as the main generators. It derives all necessary paths from the
@@ -232,34 +234,38 @@ function Update-MgmtGenerator {
     Write-Host "Local version: $LocalVersion" -ForegroundColor Gray
     Write-Host ""
 
-    # Use shared helper to build and package the mgmt generator
+    # Use shared helper to build and package the mgmt generator.
+    # The mgmt generator declares BOTH the Azure and unbranded generators under
+    # "dependencies" (not devDependencies), so both must be redirected to the locally
+    # built packages before packing. Otherwise the packed mgmt emitter would still
+    # reference the published Azure/unbranded versions instead of the local builds.
     $mgmtPackagePath = Update-GeneratorPackage `
         -GeneratorPath $mgmtGeneratorPath `
-        -Dependencies @{ '@azure-typespec/http-client-csharp' = $azurePackagePath } `
-        -DevDependencies @{ '@typespec/http-client-csharp' = $unbrandedPackagePath } `
+        -Dependencies @{
+            '@azure-typespec/http-client-csharp' = $azurePackagePath
+            '@typespec/http-client-csharp'       = $unbrandedPackagePath
+        } `
         -LocalVersion $LocalVersion `
         -DebugFolder $DebugFolder `
         -UseNpmCi $false
 
-    # Update eng folder mgmt emitter package artifacts
+    # Update eng folder mgmt emitter package artifacts.
+    # The emitter package only declares @azure-typespec/http-client-csharp-mgmt directly;
+    # the Azure + unbranded packages are pulled in transitively from the mgmt tgz, which
+    # now points at the local file: packages. Installing the local mgmt tgz regenerates
+    # the lock file with the full local dependency graph.
     Write-Host "Updating mgmt emitter package artifacts..." -ForegroundColor Gray
     
-    # First, update the mgmt emitter package artifact's devDependency for @typespec/http-client-csharp
     $mgmtEmitterJson = Join-Path $EngFolder "azure-typespec-http-client-csharp-mgmt-emitter-package.json"
-    $mgmtEmitterPackageJson = Get-Content $mgmtEmitterJson -Raw | ConvertFrom-Json
     
-    # Check if devDependencies exists and has @typespec/http-client-csharp
-    if ($mgmtEmitterPackageJson.devDependencies -and 
-        $mgmtEmitterPackageJson.devDependencies.PSObject.Properties['@typespec/http-client-csharp']) {
-        # Use file path to the unbranded package, not just the version string
-        $mgmtEmitterPackageJson.devDependencies.'@typespec/http-client-csharp' = "file:$unbrandedPackagePath"
-        $mgmtEmitterPackageJson | ConvertTo-Json -Depth 100 | Set-Content $mgmtEmitterJson -Encoding UTF8
-        Write-Host "  Updated @typespec/http-client-csharp devDependency to file:$unbrandedPackagePath" -ForegroundColor Green
-    }
-    
-    # Now update the package-lock.json with both dependencies
+    # Regenerate the package-lock.json with the full (local) dependency graph
     $tempDir = Join-Path $EngFolder "temp-mgmt-package-update"
     New-Item -ItemType Directory -Path $tempDir -Force | Out-Null
+    
+    # Point the default registry at the public azure-sdk-for-js feed so dependency
+    # resolution doesn't fall back to the authenticated machine-global proxy
+    # (packagefeedproxy), which fails with E401 for @typespec/@azure-tools packages.
+    Set-Content (Join-Path $tempDir ".npmrc") "registry=https://pkgs.dev.azure.com/azure-sdk/public/_packaging/azure-sdk-for-js/npm/registry/`n" -Encoding utf8
     
     try {
         $tempPackageJson = Join-Path $tempDir "package.json"
@@ -462,6 +468,34 @@ function Filter-LibrariesByGenerator {
     return @($filtered.ToArray())
 }
 
+function Filter-LibrariesByName {
+    <#
+    .SYNOPSIS
+        Filters libraries by name.
+
+    .PARAMETER Libraries
+        Array of library objects to filter. Each object should have a 'Library' property.
+
+    .PARAMETER LibraryNames
+        Names of the libraries to include. If no names are specified, all libraries are returned.
+    #>
+    param(
+        [Parameter(Mandatory=$true)]
+        [array]$Libraries,
+
+        [Parameter(Mandatory=$false)]
+        [string[]]$LibraryNames
+    )
+
+    $ErrorActionPreference = 'Stop'
+
+    if (-not $LibraryNames -or $LibraryNames.Count -eq 0) {
+        return @($Libraries)
+    }
+
+    return @($Libraries | Where-Object { $_.Library -in $LibraryNames })
+}
+
 function Update-OpenAIGenerator {
     <#
     .SYNOPSIS
@@ -574,7 +608,7 @@ function Update-OpenAIGenerator {
         Write-Host "Installing dependencies..." -ForegroundColor Gray
         Push-Location $OpenAIRepoPath
         try {
-            $npmOutput = Invoke "npm install" $OpenAIRepoPath
+            $npmOutput = Invoke "npm install --registry https://pkgs.dev.azure.com/azure-sdk/public/_packaging/azure-sdk-for-js/npm/registry/" $OpenAIRepoPath
             if ($LASTEXITCODE -ne 0) {
                 Write-Host $npmOutput -ForegroundColor Red
                 throw "npm install failed"
@@ -901,7 +935,7 @@ function Update-AzureSpectorScenarios {
         Write-Host "Installing dependencies..." -ForegroundColor Gray
         Push-Location $AzureGeneratorPath
         try {
-            $installOutput = & npm install 2>&1
+            $installOutput = & npm install --registry https://pkgs.dev.azure.com/azure-sdk/public/_packaging/azure-sdk-for-js/npm/registry/ 2>&1
             if ($LASTEXITCODE -ne 0) {
                 Write-Host $installOutput -ForegroundColor Red
                 throw "npm install failed in Azure generator"
@@ -972,4 +1006,487 @@ function Update-AzureSpectorScenarios {
     return $generationOutput
 }
 
-Export-ModuleMember -Function "Update-MgmtGenerator", "Update-AzureGenerator", "Filter-LibrariesByGenerator", "Update-OpenAIGenerator", "Add-LocalNuGetSource", "Update-AzureSpectorScenarios"
+function Get-SdkLibrariesToRegenerate {
+    <#
+    .SYNOPSIS
+        Discovers the SDK libraries in azure-sdk-for-net that are generated by the TypeSpec C# generators.
+
+    .DESCRIPTION
+        Scans the sdk directory of the given repository for libraries containing a tsp-location.yaml
+        that references one of the TypeSpec C# emitter package json artifacts and returns metadata for
+        each matching library (Service, Library, Path and Generator).
+
+    .PARAMETER SdkRepoPath
+        Path to the local azure-sdk-for-net repository.
+
+    .PARAMETER EmitterPackageJsonPaths
+        Optional. Restricts the results to libraries referencing the specified emitter package json paths
+        (for example 'eng/http-client-csharp-emitter-package.json'). When omitted, all known emitters match.
+
+    #>
+    param(
+        [Parameter(Mandatory = $true)]
+        [string]$SdkRepoPath,
+
+        [Parameter(Mandatory = $false)]
+        [string[]]$EmitterPackageJsonPaths
+    )
+
+    $ErrorActionPreference = 'Stop'
+
+    $emitterMap = @{
+        'eng/azure-typespec-http-client-csharp-emitter-package.json'      = '@azure-typespec/http-client-csharp'
+        'eng/azure-typespec-http-client-csharp-mgmt-emitter-package.json' = '@azure-typespec/http-client-csharp-mgmt'
+        'eng/http-client-csharp-emitter-package.json'                     = '@typespec/http-client-csharp'
+    }
+
+    if ($EmitterPackageJsonPaths -and $EmitterPackageJsonPaths.Count -gt 0) {
+        $unknownEmitters = @($EmitterPackageJsonPaths | Where-Object { -not $emitterMap.ContainsKey($_) })
+        if ($unknownEmitters.Count -gt 0) {
+            throw "Unknown emitter package json path(s): $($unknownEmitters -join ', ')"
+        }
+
+        $filteredMap = @{}
+        foreach ($emitterPath in $EmitterPackageJsonPaths) {
+            $filteredMap[$emitterPath] = $emitterMap[$emitterPath]
+        }
+        $emitterMap = $filteredMap
+    }
+
+    # Resolves the generator used by a library by inspecting its tsp-location.yaml files
+    function Get-GeneratorType {
+        param(
+            [string]$LibraryPath,
+            [hashtable]$EmitterMap
+        )
+
+        $tspLocationFiles = Get-ChildItem -Path $LibraryPath -Recurse -Filter "tsp-location.yaml" -ErrorAction SilentlyContinue
+
+        foreach ($tspLocationFile in $tspLocationFiles) {
+            try {
+                $content = Get-Content $tspLocationFile.FullName -Raw -ErrorAction SilentlyContinue
+                if ($content -and $content -match 'emitterPackageJsonPath:\s*(?<val>"[^"]+"|[^,\s]+)\s*,?') {
+                    $emitterPath = $matches['val'].Trim('"')
+
+                    if ($EmitterMap.ContainsKey($emitterPath)) {
+                        return $EmitterMap[$emitterPath]
+                    }
+                }
+            }
+            catch {
+                # Continue to next file if error
+            }
+        }
+
+        return $null
+    }
+
+    $libraries = @()
+    $sdkRoot = Join-Path $SdkRepoPath "sdk"
+
+    if (-not (Test-Path $sdkRoot)) {
+        Write-Warning "SDK directory not found at: $sdkRoot"
+        return @()
+    }
+
+    # Scan through all service directories
+    $serviceDirs = Get-ChildItem -Path $sdkRoot -Directory -Force -ErrorAction SilentlyContinue
+    foreach ($serviceDir in $serviceDirs) {
+        # Look for library directories
+        $libraryDirs = Get-ChildItem -Path $serviceDir.FullName -Directory -Force -ErrorAction SilentlyContinue
+        foreach ($libraryDir in $libraryDirs) {
+            # Skip directories that don't look like libraries
+            if ($libraryDir.Name -in @("tests", "samples", "perf", "assets", "docs")) {
+                continue
+            }
+
+            # If it has a /src directory, it's likely a library
+            $srcPath = Join-Path $libraryDir.FullName "src"
+            if (-not (Test-Path $srcPath)) {
+                continue
+            }
+
+            # Check if this library uses TypeSpec with one of our generators
+            $generator = Get-GeneratorType -LibraryPath $libraryDir.FullName -EmitterMap $emitterMap
+            if (-not $generator) {
+                continue
+            }
+
+            # Calculate relative path from SDK repo root
+            $relativePath = $libraryDir.FullName.Substring($SdkRepoPath.Length + 1)
+            $relativePath = $relativePath -replace "\\", "/"
+
+            $libraries += @{
+                Service   = $serviceDir.Name
+                Library   = $libraryDir.Name
+                Path      = $relativePath
+                Generator = $generator
+            }
+        }
+    }
+
+    return @($libraries)
+}
+
+function Invoke-SdkLibraryRegeneration {
+    <#
+    .SYNOPSIS
+        Regenerates the specified azure-sdk-for-net libraries in parallel.
+
+    .DESCRIPTION
+        Pre-installs tsp-client and pre-builds the code generation plugin once, then invokes
+        'dotnet build /t:GenerateCode' for each library concurrently. Returns one result object per
+        library containing the library metadata, a Success flag, and any error output.
+
+    .PARAMETER SdkRepoPath
+        Path to the local azure-sdk-for-net repository.
+
+    .PARAMETER Libraries
+        The libraries to regenerate, as returned by Get-SdkLibrariesToRegenerate.
+
+    .PARAMETER ThrottleLimit
+        Optional. Number of concurrent regeneration jobs. Defaults to 3x the logical processors, clamped to 4-12,
+        since each job is dominated by child process and IO wait rather than CPU work.
+
+    .PARAMETER NpmRegistry
+        Optional. When specified, a temporary .env file is written to the repository root so tsp-client
+        restores npm packages from the given registry. The original .env is restored afterwards.
+
+    .PARAMETER AdditionalBuildArgs
+        Optional. Extra msbuild arguments appended to the 'dotnet build /t:GenerateCode' invocation.
+
+    .PARAMETER SerialServiceDirectories
+        Optional. Names of service directories whose libraries share a code generation plugin and therefore
+        must be regenerated one at a time. Those libraries are regenerated serially after the parallel batch.
+
+    .PARAMETER StopOnFailure
+        Optional. Stops dispatching later regeneration batches after a batch reports any failures.
+    #>
+    param(
+        [Parameter(Mandatory = $true)]
+        [string]$SdkRepoPath,
+
+        [Parameter(Mandatory = $true)]
+        [array]$Libraries,
+
+        [Parameter(Mandatory = $false)]
+        [int]$ThrottleLimit = 0,
+
+        [Parameter(Mandatory = $false)]
+        [string]$NpmRegistry,
+
+        [Parameter(Mandatory = $false)]
+        [string[]]$AdditionalBuildArgs = @(),
+
+        [Parameter(Mandatory = $false)]
+        [string[]]$SerialServiceDirectories = @(),
+
+        [Parameter(Mandatory = $false)]
+        [switch]$StopOnFailure
+    )
+
+    $ErrorActionPreference = 'Stop'
+
+    if (-not $Libraries -or $Libraries.Count -eq 0) {
+        return @()
+    }
+
+    # Determine parallel execution throttle limit. Each regeneration job spends most of its time
+    # waiting on child processes (tsp-client spec sync, NuGet/npm restore, file IO), so the machine
+    # can run more jobs than it has cores without saturating the CPU. Oversubscribe by 3x the
+    # logical processors, with a floor of 4 so low-core CI agents still get useful concurrency and a
+    # cap of 12 to keep memory usage on those same agents bounded.
+    if ($ThrottleLimit -le 0) {
+        $cpuCores = if ($IsWindows -or $PSVersionTable.PSVersion.Major -lt 6) {
+            (Get-CimInstance -ClassName Win32_Processor | Measure-Object -Property NumberOfLogicalProcessors -Sum).Sum
+        } elseif ($IsMacOS) {
+            [int](sysctl -n hw.ncpu)
+        } else {
+            [int](nproc)
+        }
+
+        $ThrottleLimit = [Math]::Max(4, [Math]::Min(12, $cpuCores * 3))
+        Write-Host "Using $ThrottleLimit concurrent jobs (detected $cpuCores logical processors)" -ForegroundColor Gray
+    } else {
+        Write-Host "Using $ThrottleLimit concurrent jobs" -ForegroundColor Gray
+    }
+    Write-Host ""
+
+    $engFolder = Join-Path $SdkRepoPath "eng"
+
+    # Pre-install tsp-client to avoid concurrent npm operations
+    Write-Host "Pre-installing tsp-client..." -ForegroundColor Gray
+    $tspClientDir = Join-Path $engFolder "common" "tsp-client"
+    $npmCiCommand = "npm ci --prefix $tspClientDir"
+    if ($NpmRegistry) {
+        $npmCiCommand += " --registry $NpmRegistry"
+    }
+    # Pipe to Out-Host so the command output is not captured as this function's return value
+    Invoke $npmCiCommand $tspClientDir | Out-Host
+    if ($LASTEXITCODE -ne 0) {
+        throw "Failed to install tsp-client"
+    }
+    Write-Host "  tsp-client ready" -ForegroundColor Green
+    Write-Host ""
+
+    # Pre-build the client plugin to avoid concurrent builds
+    $codeGenerationTargetPath = Join-Path $engFolder "CodeGeneration.targets"
+    if (-not (Test-Path $codeGenerationTargetPath)) {
+        throw "CodeGeneration.targets not found at: $codeGenerationTargetPath"
+    }
+    Write-Host "Pre-building client plugin..." -ForegroundColor Gray
+    Invoke "dotnet build $codeGenerationTargetPath /t:BuildPlugin /p:TypeSpecInput=temp" $engFolder | Out-Host
+    if ($LASTEXITCODE -ne 0) {
+        throw "Failed to build client plugin"
+    }
+    Write-Host "  Client plugin ready" -ForegroundColor Green
+    Write-Host ""
+
+    # Thread-safe collections for progress tracking
+    $completed = [System.Collections.Concurrent.ConcurrentBag[int]]::new()
+    $totalCount = $Libraries.Count
+    $buildArgs = @($AdditionalBuildArgs | Where-Object { $_ })
+
+    $sdkEnvFile = Join-Path $SdkRepoPath ".env"
+    $originalSdkEnv = $null
+    $wroteSdkEnv = $false
+    if ($NpmRegistry) {
+        Write-Host "Configuring npm registry for tsp-client (temporary .env)..." -ForegroundColor Gray
+        $originalSdkEnv = if (Test-Path $sdkEnvFile) { Get-Content $sdkEnvFile -Raw } else { $null }
+        Set-Content $sdkEnvFile "npm_config_registry=$NpmRegistry`n" -Encoding utf8 -NoNewline
+        $wroteSdkEnv = $true
+        Write-Host "  Wrote $sdkEnvFile" -ForegroundColor Green
+        Write-Host ""
+    }
+
+    # Libraries in service directories that share a code generation plugin must not be built
+    # concurrently with each other, so they are regenerated in a serial batch after the parallel one.
+    $parallelLibraries = @($Libraries | Where-Object { $_.Service -notin $SerialServiceDirectories })
+    $serialLibraries = @($Libraries | Where-Object { $_.Service -in $SerialServiceDirectories })
+
+    $batches = @()
+    if ($parallelLibraries.Count -gt 0) {
+        $batches += , @{ Libraries = $parallelLibraries; Throttle = $ThrottleLimit }
+    }
+    if ($serialLibraries.Count -gt 0) {
+        $batches += , @{ Libraries = $serialLibraries; Throttle = 1 }
+    }
+
+    $results = @()
+
+    try {
+        for ($batchIndex = 0; $batchIndex -lt $batches.Count; $batchIndex++) {
+            $batch = $batches[$batchIndex]
+            $batchLibraries = $batch.Libraries
+            $batchThrottle = $batch.Throttle
+            Write-Host "Dispatching $($batchLibraries.Count) regeneration jobs ($batchThrottle at a time)..." -ForegroundColor Cyan
+            # Run regeneration in parallel
+            $batchResults = @($batchLibraries | ForEach-Object -ThrottleLimit $batchThrottle -Parallel {
+                $library = $_
+                $azureSdkPath = $using:SdkRepoPath
+                $completedBag = $using:completed
+                $total = $using:totalCount
+                $extraArgs = $using:buildArgs
+
+                Write-Host "  -> Starting $($library.Library) ($($library.Service))" -ForegroundColor DarkGray
+                $libraryStopwatch = [System.Diagnostics.Stopwatch]::StartNew()
+
+                # Determine build path (check for src subdirectory)
+                $libraryPath = Join-Path $azureSdkPath $library.Path
+                $srcPath = Join-Path $libraryPath "src"
+                $buildPath = if ((Test-Path $srcPath) -and (Get-ChildItem -Path $srcPath -Filter "*.csproj" -ErrorAction SilentlyContinue)) {
+                    $srcPath
+                } else {
+                    $libraryPath
+                }
+
+                # Regenerate library
+                $result = try {
+                    if (-not (Test-Path $libraryPath)) {
+                        @{ Success = $false; Error = "Library path not found"; Output = "" }
+                    } else {
+                        Push-Location $buildPath
+                        try {
+                            $output = & dotnet build /t:GenerateCode /p:SkipTspClientInstall=true /p:SkipBuildPlugin=true @extraArgs 2>&1
+                            $exitCode = $LASTEXITCODE
+
+                            if ($exitCode -ne 0) {
+                                @{ Success = $false; Error = "Generation failed with exit code $exitCode"; Output = ($output -join "`n") }
+                            } else {
+                                @{ Success = $true; Output = ($output -join "`n") }
+                            }
+                        }
+                        finally {
+                            Pop-Location
+                        }
+                    }
+                }
+                catch {
+                    @{ Success = $false; Error = $_.Exception.Message; Output = $_.Exception.ToString() }
+                }
+
+                # Update progress counter
+                $libraryStopwatch.Stop()
+                $durationSeconds = [Math]::Round($libraryStopwatch.Elapsed.TotalSeconds, 1)
+                $completedBag.Add(1)
+                $currentCount = $completedBag.Count
+
+                # Thread-safe console output with progress
+                $status = if ($result.Success) { "✓" } else { "✗" }
+                $color = if ($result.Success) { "Green" } else { "White" }
+
+                $progressMsg = "[$currentCount/$total] $status $($library.Library) ($($durationSeconds)s)"
+                Write-Host $progressMsg -ForegroundColor $color
+
+                # Return result with library metadata
+                return @{
+                    Service         = $library.Service
+                    Library         = $library.Library
+                    Path            = $library.Path
+                    Generator       = $library.Generator
+                    DurationSeconds = $durationSeconds
+                    Success         = if ($result.ContainsKey('Success')) { $result.Success } else { $false }
+                    Error           = if ($result.ContainsKey('Error')) { $result.Error } else { "" }
+                    Output          = if ($result.ContainsKey('Output')) { $result.Output } else { "" }
+                }
+            })
+            $results += $batchResults
+
+            if ($StopOnFailure -and @($batchResults | Where-Object { -not $_.Success }).Count -gt 0) {
+                $remainingLibraries = @()
+                for ($remainingBatchIndex = $batchIndex + 1; $remainingBatchIndex -lt $batches.Count; $remainingBatchIndex++) {
+                    $remainingLibraries += $batches[$remainingBatchIndex].Libraries
+                }
+                foreach ($library in $remainingLibraries) {
+                    $results += @{
+                        Service         = $library.Service
+                        Library         = $library.Library
+                        Path            = $library.Path
+                        Generator       = $library.Generator
+                        DurationSeconds = 0
+                        Success         = $false
+                        Error           = "Skipped because an earlier regeneration batch failed"
+                        Output          = ""
+                        Skipped         = $true
+                    }
+                }
+                break
+            }
+        }
+    }
+    finally {
+        # Remove/restore the temporary .env used to redirect tsp-client's npm registry
+        if ($wroteSdkEnv) {
+            if ($null -eq $originalSdkEnv) {
+                Remove-Item $sdkEnvFile -Force -ErrorAction SilentlyContinue
+            } else {
+                Set-Content $sdkEnvFile $originalSdkEnv -Encoding utf8 -NoNewline
+            }
+        }
+    }
+
+    return @($results)
+}
+
+function Write-RegenerationReport {
+    <#
+    .SYNOPSIS
+        Writes a summary of the regeneration results to the console and optionally to a JSON file.
+
+    .PARAMETER Results
+        The result objects returned by Invoke-SdkLibraryRegeneration.
+
+    .PARAMETER ElapsedTime
+        Optional. The total time taken to produce the results.
+
+    .PARAMETER ReportPath
+        Optional. When specified, the detailed results are also written as JSON to this path.
+
+    .PARAMETER PrintJson
+        Optional. Prints the detailed report as human-readable JSON.
+    #>
+    param(
+        [Parameter(Mandatory = $true)]
+        [array]$Results,
+
+        [Parameter(Mandatory = $false)]
+        [TimeSpan]$ElapsedTime,
+
+        [Parameter(Mandatory = $false)]
+        [string]$ReportPath,
+
+        [Parameter(Mandatory = $false)]
+        [switch]$PrintJson
+    )
+
+    $passed = @($Results | Where-Object { $_.Success -eq $true })
+    $failed = @($Results | Where-Object { $_.Success -eq $false })
+
+    $elapsedFormatted = if ($ElapsedTime) { "{0:hh\:mm\:ss}" -f $ElapsedTime } else { $null }
+    $report = [ordered]@{
+        Summary = [ordered]@{
+            TotalLibraries = $Results.Count
+            Passed         = $passed.Count
+            Failed         = $failed.Count
+            ExecutionTime  = $elapsedFormatted
+        }
+        Results = @($Results)
+    }
+    $reportJson = $report | ConvertTo-Json -Depth 10
+
+    Write-Host "`n==================== REGENERATION REPORT ====================" -ForegroundColor Cyan
+    Write-Host "Total Libraries: $($Results.Count)" -ForegroundColor White
+    Write-Host "Passed: $($passed.Count)" -ForegroundColor Green
+    Write-Host "Failed: $($failed.Count)" -ForegroundColor Red
+
+    if ($ElapsedTime) {
+        Write-Host "Execution Time: $elapsedFormatted" -ForegroundColor Cyan
+    }
+    Write-Host ""
+
+    if ($passed.Count -gt 0) {
+        Write-Host "PASSED LIBRARIES:" -ForegroundColor Green
+        foreach ($result in $passed) {
+            $duration = if ($result.DurationSeconds) { " - $($result.DurationSeconds)s" } else { "" }
+            Write-Host "  ✓ $($result.Library) ($($result.Service))$duration" -ForegroundColor Green
+        }
+        Write-Host ""
+    }
+
+    $timed = @($Results | Where-Object { $_.DurationSeconds } | Sort-Object -Property DurationSeconds -Descending | Select-Object -First 5)
+    if ($timed.Count -gt 0) {
+        Write-Host "SLOWEST LIBRARIES:" -ForegroundColor Cyan
+        foreach ($result in $timed) {
+            Write-Host "  $($result.Library) ($($result.Service)) - $($result.DurationSeconds)s" -ForegroundColor Gray
+        }
+        Write-Host ""
+    }
+
+    if ($failed.Count -gt 0) {
+        Write-Host "FAILED LIBRARIES:" -ForegroundColor Red
+        foreach ($result in $failed) {
+            Write-Host "  ✗ $($result.Library) ($($result.Service))" -ForegroundColor Red
+            Write-Host "    Error: $($result.Error)" -ForegroundColor Gray
+            if ($result.Output) {
+                Write-Host "    Details: $($result.Output.Substring(0, [Math]::Min(200, $result.Output.Length)))..." -ForegroundColor DarkGray
+            }
+        }
+        Write-Host ""
+    }
+
+    Write-Host "=============================================================" -ForegroundColor Cyan
+
+    # Save detailed report
+    if ($ReportPath) {
+        $reportJson | Set-Content $ReportPath -Encoding utf8
+        Write-Host "Detailed report saved to: $ReportPath" -ForegroundColor Gray
+    }
+
+    if ($PrintJson) {
+        Write-Host ""
+        Write-Host "REGENERATION REPORT JSON:" -ForegroundColor Cyan
+        Write-Host $reportJson
+    }
+}
+
+Export-ModuleMember -Function "Update-MgmtGenerator", "Update-AzureGenerator", "Filter-LibrariesByGenerator", "Filter-LibrariesByName", "Update-OpenAIGenerator", "Add-LocalNuGetSource", "Update-AzureSpectorScenarios", "Get-SdkLibrariesToRegenerate", "Invoke-SdkLibraryRegeneration", "Write-RegenerationReport"

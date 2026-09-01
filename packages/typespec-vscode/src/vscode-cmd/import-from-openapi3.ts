@@ -1,4 +1,4 @@
-import { PackageJson } from "@typespec/compiler";
+import type { PackageJson } from "@typespec/compiler";
 import { major, minor } from "semver";
 import { inspect } from "util";
 import vscode from "vscode";
@@ -6,15 +6,16 @@ import logger from "../log/logger.js";
 import { normalizePath } from "../path-utils.js";
 import telemetryClient from "../telemetry/telemetry-client.js";
 import { TelemetryEventName } from "../telemetry/telemetry-event.js";
-import { Result, ResultCode } from "../types.js";
+import type { Result } from "../types.js";
+import { ResultCode } from "../types.js";
 import {
   checkAndConfirmEmptyFolder,
   selectFile,
   selectFolder,
   tryExecuteWithUi,
 } from "../ui-utils.js";
+import type { ExecOutput } from "../utils.js";
 import {
-  ExecOutput,
   isDirectory,
   isExecOutputCmdNotFound,
   loadDependencyPackageJson,

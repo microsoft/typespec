@@ -29,8 +29,10 @@ export const typingModule = createModule({
   name: "typing",
   descriptor: {
     ".": [
+      "Annotated",
       "Any",
       "Callable",
+      "ClassVar",
       "Generic",
       "Literal",
       "Never",
@@ -38,6 +40,7 @@ export const typingModule = createModule({
       "Protocol",
       "TypeAlias",
       "TypeVar",
+      "Union",
     ],
   },
 });

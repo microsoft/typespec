@@ -102,7 +102,7 @@ namespace Microsoft.TypeSpec.Generator.Snippets
         public static MethodBodyStatement Return() => new KeywordExpression("return", null).Terminate();
         public static MethodBodyStatement Throw(ValueExpression? expression = default) => new KeywordExpression("throw", expression).Terminate();
 
-        public static ValueExpression ByRef(ValueExpression expression) => new KeywordExpression("ref", expression);
+        public static ValueExpression ByRef(ValueExpression expression) => new ArgumentExpression(expression, IsRef: true);
 
         public static ValueExpression ArrayEmpty(CSharpType arrayItemType)
             => Static<Array>().Invoke(nameof(Array.Empty), [], [arrayItemType], false);
@@ -179,7 +179,12 @@ namespace Microsoft.TypeSpec.Generator.Snippets
         public static ScopedApi<bool> NotEqual(this ParameterProvider parameter, ValueExpression other)
             => new BinaryOperatorExpression("!=", parameter, other).As<bool>();
 
-        public static VariableExpression AsVariable(this ParameterProvider parameter) => ParameterProvider.GetVariableExpression(parameter, includeModifiers: false);
-        public static VariableExpression AsArgument(this ParameterProvider property) => ParameterProvider.GetVariableExpression(property, includeModifiers: true);
+        public static VariableExpression AsVariable(this ParameterProvider parameter) => ParameterProvider.GetVariableExpression(parameter);
+        public static ValueExpression AsArgument(this ParameterProvider parameter) => ParameterProvider.GetArgumentExpression(parameter);
+
+        /// <summary>
+        /// Wraps a <see cref="ValueExpression"/> as an argument with optional <c>ref</c> or <c>out</c> modifiers.
+        /// </summary>
+        public static ValueExpression AsArgument(this ValueExpression expression, bool isRef = false, bool isOut = false) => new ArgumentExpression(expression, isRef, isOut);
     }
 }

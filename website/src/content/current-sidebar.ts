@@ -168,13 +168,19 @@ const sidebar: SidebarItem[] = [
       createLibraryReferenceStructure("emitters/openapi3", "OpenAPI3", false, [
         "emitters/openapi3/openapi",
         "emitters/openapi3/cli",
-        "emitters/openapi3/diagnostics",
       ]),
       createLibraryReferenceStructure(
         "emitters/protobuf",
         "Protobuf",
         false,
         ["emitters/protobuf/guide"],
+        "preview",
+      ),
+      createLibraryReferenceStructure(
+        "emitters/graphql",
+        "GraphQL",
+        false,
+        ["emitters/graphql/guide"],
         "preview",
       ),
       {
@@ -238,6 +244,10 @@ const sidebar: SidebarItem[] = [
       "extending-typespec/basics",
       "extending-typespec/diagnostics",
       "extending-typespec/create-decorators",
+      {
+        slug: "extending-typespec/providing-type-info",
+        badge: { text: "experimental", variant: "caution" },
+      },
       "extending-typespec/linters",
       "extending-typespec/codefixes",
       "extending-typespec/testing",

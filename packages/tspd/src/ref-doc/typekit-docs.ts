@@ -1,13 +1,14 @@
+import type { ApiDocumentedItem, Excerpt } from "@microsoft/api-extractor-model";
 import {
-  ApiDocumentedItem,
   ApiInterface,
   ApiMethodSignature,
   ApiProperty,
   ApiPropertySignature,
-  Excerpt,
 } from "@microsoft/api-extractor-model";
-import { DocNode, type DocComment, type DocSection } from "@microsoft/tsdoc";
-import { joinPaths, PackageJson } from "@typespec/compiler";
+import type { DocNode } from "@microsoft/tsdoc";
+import { type DocComment, type DocSection } from "@microsoft/tsdoc";
+import type { PackageJson } from "@typespec/compiler";
+import { joinPaths } from "@typespec/compiler";
 import { writeFile } from "fs/promises";
 import { createApiModel } from "./api-extractor.js";
 import { createTypekitDocs } from "./components/typekits-file.js";

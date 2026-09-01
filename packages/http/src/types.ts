@@ -1,4 +1,4 @@
-import {
+import type {
   DiagnosticResult,
   Interface,
   ListOperationOptions,
@@ -11,8 +11,8 @@ import {
   Tuple,
   Type,
 } from "@typespec/compiler";
-import { CookieOptions, PathOptions, QueryOptions } from "../generated-defs/TypeSpec.Http.js";
-import { HeaderProperty, HttpProperty } from "./http-property.js";
+import type { CookieOptions, PathOptions, QueryOptions } from "../generated-defs/TypeSpec.Http.js";
+import type { HeaderProperty, HttpProperty } from "./http-property.js";
 
 export type HttpVerb = "get" | "put" | "post" | "patch" | "delete" | "head";
 
@@ -122,10 +122,7 @@ export interface Oauth2Auth<TFlows extends OAuth2Flow[]> extends HttpAuthBase {
 }
 
 export type OAuth2Flow =
-  | AuthorizationCodeFlow
-  | ImplicitFlow
-  | PasswordFlow
-  | ClientCredentialsFlow;
+  AuthorizationCodeFlow | ImplicitFlow | PasswordFlow | ClientCredentialsFlow;
 
 export type OAuth2FlowType = OAuth2Flow["type"];
 
@@ -188,6 +185,8 @@ export interface OAuth2Scope {
 export interface OpenIDConnectAuth extends HttpAuthBase {
   type: "openIdConnect";
   openIdConnectUrl: string;
+  /** Scope names required for operations that use this scheme. */
+  scopes: string[];
 }
 
 /**
@@ -203,6 +202,12 @@ export type HttpAuthRef = AnyHttpAuthRef | OAuth2HttpAuthRef | NoHttpAuthRef;
 export interface AnyHttpAuthRef {
   readonly kind: "any";
   readonly auth: HttpAuth;
+  /**
+   * Scope names required for this scheme in the containing auth option. Empty
+   * for schemes that do not carry scopes. Populated for `openIdConnect`; kept
+   * scheme-agnostic so other scheme types can carry scopes without a new ref kind.
+   */
+  readonly scopes: string[];
 }
 
 export interface NoHttpAuthRef {
@@ -454,9 +459,7 @@ export interface HttpOperationResponseContent {
 
 /** The possible bodies of an HTTP operation. */
 export type HttpPayloadBody =
-  | HttpOperationBody
-  | HttpOperationMultipartBody
-  | HttpOperationFileBody;
+  HttpOperationBody | HttpOperationMultipartBody | HttpOperationFileBody;
 
 export interface HttpOperationBodyBase {
   /** Content types. */
@@ -486,8 +489,7 @@ export interface HttpOperationBody extends HttpOperationBodyBase, HttpBody {
 
 /** Body marked with `@multipartBody` */
 export type HttpOperationMultipartBody =
-  | HttpOperationMultipartBodyModel
-  | HttpOperationMultipartBodyTuple;
+  HttpOperationMultipartBodyModel | HttpOperationMultipartBodyTuple;
 
 export interface HttpOperationMultipartBodyCommon extends HttpOperationBodyBase {
   readonly bodyKind: "multipart";

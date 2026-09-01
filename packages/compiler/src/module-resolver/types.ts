@@ -1,4 +1,4 @@
-import { PackageJson } from "../types/package-json.js";
+import type { PackageJson } from "../types/package-json.js";
 
 export interface ResolveModuleHost {
   /**

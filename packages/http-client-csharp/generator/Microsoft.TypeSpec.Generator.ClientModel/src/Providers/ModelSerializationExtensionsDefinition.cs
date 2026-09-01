@@ -2,12 +2,15 @@
 // Licensed under the MIT License.
 
 using System;
+using System.Buffers;
 using System.Buffers.Text;
+using System.ClientModel;
 using System.ClientModel.Primitives;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Globalization;
 using System.IO;
+using System.Linq;
 using System.Runtime.InteropServices;
 using System.Text;
 using System.Text.Json;
@@ -15,22 +18,26 @@ using System.Xml;
 using Microsoft.TypeSpec.Generator.ClientModel.Primitives;
 using Microsoft.TypeSpec.Generator.ClientModel.Snippets;
 using Microsoft.TypeSpec.Generator.Expressions;
+using Microsoft.TypeSpec.Generator.Input;
 using Microsoft.TypeSpec.Generator.Primitives;
 using Microsoft.TypeSpec.Generator.Providers;
 using Microsoft.TypeSpec.Generator.Snippets;
 using Microsoft.TypeSpec.Generator.Statements;
 using static Microsoft.TypeSpec.Generator.Snippets.Snippet;
 
+#pragma warning disable SCME0004 // FileBinaryContent is evaluation-only.
 namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
 {
-    public sealed partial class ModelSerializationExtensionsDefinition : TypeProvider
+    public sealed partial class ModelSerializationExtensionsDefinition : InternalHelperProvider
     {
         public const string WireOptionsFieldName = "WireOptions";
         public const string JsonDocumentOptionsFieldName = "JsonDocumentOptions";
         private const string WriteStringValueMethodName = "WriteStringValue";
         private const string WriteBase64StringValueMethodName = "WriteBase64StringValue";
+        private const string WriteBase64UrlStringValueMethodName = "WriteBase64UrlStringValue";
         private const string WriteNumberValueMethodName = "WriteNumberValue";
         private const string WriteObjectValueMethodName = "WriteObjectValue";
+        private const string WriteFileBinaryContentMethodName = "WriteFileBinaryContent";
 
         private class WriteObjectValueTemplate<T>
         {
@@ -91,17 +98,15 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
                 enclosingType: this);
         }
 
-        protected override TypeSignatureModifiers BuildDeclarationModifiers()
-        {
-            return TypeSignatureModifiers.Internal | TypeSignatureModifiers.Static;
-        }
-
         internal FieldProvider WireOptionsField { get; }
         private readonly FieldProvider _jsonDocumentOptionsField;
 
         protected override string BuildRelativeFilePath() => Path.Combine("src", "Generated", "Internal", $"{Name}.cs");
 
         protected override string BuildName() => "ModelSerializationExtensions";
+
+        protected override IReadOnlyList<CSharpType> BuildBodyDependencyTypes() =>
+            [ScmCodeModelGenerator.Instance.TypeFormattersDefinition.Type];
 
         protected override FieldProvider[] BuildFields()
         {
@@ -165,7 +170,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
                 this,
                 XmlDocProvider.Empty);
 
-            return
+            List<MethodProvider> methods =
             [
                 BuildGetObjectMethodProvider(),
                 BuildGetBytesFromBase64(),
@@ -179,13 +184,127 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
                 writeStringTimeSpan,
                 writeStringChar,
                 BuildWriteBase64StringValueMethodProvider(),
+                BuildWriteBase64StringValueBinaryDataMethodProvider(),
+                BuildWriteBase64UrlStringValueMethodProvider(),
                 BuildWriteNumberValueMethodProvider(),
                 BuildWriteObjectValueMethodGeneric(),
                 BuildWriteObjectValueMethodProvider(),
                 BuildGetUtf8BytesMethodProvider(),
                 .. BuildDynamicModelHelpers(),
-                .. BuildXmlExtensionMethods()
+                .. BuildXmlExtensionMethods(),
             ];
+
+            if (HasFileBinaryContentJsonModel)
+            {
+                methods.Add(BuildWriteFileBinaryContentMethodProvider());
+            }
+
+            if (HasFileBinaryContentXmlModel)
+            {
+                methods.Add(BuildWriteFileBinaryContentXmlMethodProvider());
+            }
+
+            return [.. methods];
+        }
+
+        protected override SuppressionStatement[] BuildDisabledFileWarnings()
+            => HasFileBinaryContentJsonModel || HasFileBinaryContentXmlModel
+                ? [new SuppressionStatement(null, Literal(ScmModelProvider.FileBinaryContentDiagnosticId), ScmModelProvider.ScmEvaluationTypeSuppressionJustification)]
+                : [];
+
+        private bool HasFileBinaryContentJsonModel
+            => _hasFileBinaryContentJsonModel ??= HasFileTypeForUsage(InputModelTypeUsage.Json);
+        private bool? _hasFileBinaryContentJsonModel;
+
+        private bool HasFileBinaryContentXmlModel
+            => _hasFileBinaryContentXmlModel ??= HasFileTypeForUsage(InputModelTypeUsage.Xml);
+        private bool? _hasFileBinaryContentXmlModel;
+
+        private static bool HasFileTypeForUsage(InputModelTypeUsage usage)
+        {
+            foreach (var model in ScmCodeModelGenerator.Instance.InputLibrary.InputNamespace.Models)
+            {
+                if (!model.Usage.HasFlag(usage))
+                {
+                    continue;
+                }
+
+                foreach (var property in model.Properties)
+                {
+                    if (IsFileInputType(property.Type))
+                    {
+                        return true;
+                    }
+                }
+            }
+
+            return false;
+        }
+
+        private static bool IsFileInputType(InputType type) => type switch
+        {
+            InputModelType { IsFileType: true } => true,
+            InputPrimitiveType { IsFileType: true } => true,
+            InputArrayType array => IsFileInputType(array.ValueType),
+            InputDictionaryType dictionary => IsFileInputType(dictionary.ValueType),
+            InputNullableType nullable => IsFileInputType(nullable.Type),
+            _ => false,
+        };
+
+        private MethodProvider BuildWriteFileBinaryContentMethodProvider()
+        {
+            var valueParameter = new ParameterProvider("value", FormattableStringHelpers.Empty, typeof(FileBinaryContent));
+            var signature = new MethodSignature(
+                Name: WriteFileBinaryContentMethodName,
+                Description: null,
+                Modifiers: _methodModifiers,
+                ReturnType: null,
+                ReturnDescription: null,
+                Parameters: [ScmKnownParameters.Utf8JsonWriter, valueParameter]);
+
+            var writer = ScmKnownParameters.Utf8JsonWriter.As<Utf8JsonWriter>();
+            var value = valueParameter.As<FileBinaryContent>();
+
+            // value.TryComputeLength(out long length)
+            var tryComputeLength = value.TryComputeLength(out var lengthVariable);
+            var length = lengthVariable.As<long>();
+
+            // length <= int.MaxValue
+            var fitsInInt = new BinaryOperatorExpression("<=", length, IntSnippets.MaxValue).As<bool>();
+
+            // value.TryComputeLength(out long length) && length <= int.MaxValue ? (int)length : 0
+            var capacityExpression = new TernaryConditionalExpression(
+                tryComputeLength.And(fitsInInt),
+                length.CastTo(typeof(int)),
+                Literal(0));
+
+            var declareCapacity = Declare("capacity", typeof(int), capacityExpression, out var capacity);
+
+            // using MemoryStream stream = new MemoryStream(capacity);
+            var declareStream = UsingDeclare(
+                "stream",
+                typeof(MemoryStream),
+                New.Instance<MemoryStream>(capacity),
+                out var stream);
+            var streamScoped = stream.As<Stream>();
+
+            // value.WriteTo(stream);
+            var writeTo = value.WriteTo(streamScoped).Terminate();
+
+            // writer.WriteBase64StringValue(stream.GetBuffer().AsSpan(0, (int)stream.Position));
+            var positionAsInt = streamScoped.Position().CastTo(typeof(int));
+            var bufferSpan = streamScoped.GetBuffer().Invoke(nameof(MemoryExtensions.AsSpan), [Literal(0), positionAsInt]);
+            var writeBase64 = writer.WriteBase64StringValue(bufferSpan);
+
+            var body = new MethodBodyStatement[]
+            {
+                declareCapacity,
+                declareStream,
+                writeTo,
+                writeBase64,
+            };
+
+            return new MethodProvider(signature, body, this, XmlDocProvider.Empty);
         }
 
         #region JsonElementExtensions MethodProvider builders
@@ -417,6 +536,94 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
             return new MethodProvider(signature, body, this, XmlDocProvider.Empty);
         }
 
+        private MethodProvider BuildWriteBase64StringValueBinaryDataMethodProvider()
+        {
+            var valueParameter = new ParameterProvider("value", FormattableStringHelpers.Empty, typeof(BinaryData));
+            var signature = new MethodSignature(
+                Name: WriteBase64StringValueMethodName,
+                Modifiers: _methodModifiers,
+                Parameters: [ScmKnownParameters.Utf8JsonWriter, valueParameter, _formatParameter],
+                ReturnType: null,
+                Description: null, ReturnDescription: null);
+            var writer = ScmKnownParameters.Utf8JsonWriter.As<Utf8JsonWriter>();
+            var value = valueParameter.As<BinaryData>();
+            var body = new MethodBodyStatement[]
+            {
+                new IfStatement(value.Equal(Null)) { writer.WriteNullValue(), Return() },
+                new SwitchStatement(_formatParameter)
+                {
+                    new(Literal("U"),
+                        new MethodBodyStatement[]
+                        {
+                            writer.WriteBase64UrlStringValue(value.ToMemory().Span()),
+                            Break
+                        }),
+                    new(Literal("D"),
+                        new MethodBodyStatement[]
+                        {
+                            writer.WriteBase64StringValue(value.ToMemory().Span()),
+                            Break
+                        }),
+                    SwitchCaseStatement.Default(Throw(New.ArgumentException(_formatParameter,
+                        new FormattableStringExpression("Format is not supported: '{0}'", [_formatParameter]))))
+                }
+            };
+
+            return new MethodProvider(signature, body, this, XmlDocProvider.Empty);
+        }
+
+        private MethodProvider BuildWriteBase64UrlStringValueMethodProvider()
+        {
+            var sourceParameter = new ParameterProvider("source", FormattableStringHelpers.Empty, typeof(ReadOnlySpan<byte>));
+            var signature = new MethodSignature(
+                Name: WriteBase64UrlStringValueMethodName,
+                Modifiers: _methodModifiers,
+                Parameters: [ScmKnownParameters.Utf8JsonWriter, sourceParameter],
+                ReturnType: null,
+                Description: null, ReturnDescription: null);
+            var writer = ScmKnownParameters.Utf8JsonWriter.As<Utf8JsonWriter>();
+            var encodedVariable = new VariableExpression(typeof(byte[]), "encoded");
+            var encoded = new IndexableExpression(encodedVariable);
+            var indexVariable = new VariableExpression(typeof(int), "index");
+            var index = indexVariable.As<int>();
+            var body = new MethodBodyStatement[]
+            {
+                Declare(encodedVariable, New.Array(typeof(byte),
+                    Static(typeof(Base64)).Invoke(nameof(Base64.GetMaxEncodedToUtf8Length), ReadOnlySpanSnippets.Length(sourceParameter)))),
+                Declare("status", typeof(OperationStatus),
+                    Static(typeof(Base64)).Invoke(nameof(Base64.EncodeToUtf8),
+                        [
+                            sourceParameter,
+                            encodedVariable,
+                            new DeclarationExpression(typeof(int), "bytesConsumed", out var bytesConsumed, isOut: true),
+                            new DeclarationExpression(typeof(int), "bytesWritten", out var bytesWritten, isOut: true)
+                        ]),
+                    out var status),
+                new IfStatement(status.NotEqual(Static(typeof(OperationStatus)).Property(nameof(OperationStatus.Done)))
+                    .Or(bytesConsumed.NotEqual(ReadOnlySpanSnippets.Length(sourceParameter))))
+                {
+                    Throw(New.InvalidOperationException(Literal("Base64Url encoding did not complete.")))
+                },
+                new ForStatement(new DeclarationExpression(indexVariable).Assign(Int(0)), index.LessThan(bytesWritten), index.Increment())
+                {
+                    new IfElseStatement(new IfStatement(encoded[index].Equal(Literal('+').CastTo(typeof(byte))))
+                    {
+                        encoded[index].Assign(Literal('-').CastTo(typeof(byte))).Terminate()
+                    }, new IfElseStatement(new IfStatement(encoded[index].Equal(Literal('/').CastTo(typeof(byte))))
+                    {
+                        encoded[index].Assign(Literal('_').CastTo(typeof(byte))).Terminate()
+                    }, new IfStatement(encoded[index].Equal(Literal('=').CastTo(typeof(byte))))
+                    {
+                        bytesWritten.Assign(index).Terminate(),
+                        Break
+                    }))
+                },
+                writer.WriteStringValue(encodedVariable.Invoke(nameof(MemoryExtensions.AsSpan), [Int(0), bytesWritten]))
+            };
+
+            return new MethodProvider(signature, body, this, XmlDocProvider.Empty);
+        }
+
         private MethodProvider BuildWriteNumberValueMethodProvider()
         {
             var valueParameter = new ParameterProvider("value", FormattableStringHelpers.Empty, typeof(DateTimeOffset));
@@ -547,10 +754,21 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
                 // TimeSpan case
                 BuildWriteObjectValueSwitchCase(typeof(TimeSpan), "timeSpan",
                     timeSpan => new MethodBodyStatement[] { writer.WriteStringValue(timeSpan, "P"), Break }),
-                // default
-                SwitchCaseStatement.Default(Throw(New.NotSupportedException(
-                    new FormattableStringExpression("Not supported type {0}", [value.InvokeGetType()]))))
             });
+
+            if (HasFileBinaryContentJsonModel)
+            {
+                cases.Add(BuildWriteObjectValueSwitchCase(typeof(FileBinaryContent), "fileBinaryContent",
+                    fileBinaryContent => new MethodBodyStatement[]
+                    {
+                        writer.Invoke(WriteFileBinaryContentMethodName, fileBinaryContent).Terminate(),
+                        Break
+                    }));
+            }
+
+            // default
+            cases.Add(SwitchCaseStatement.Default(Throw(New.NotSupportedException(
+                new FormattableStringExpression("Not supported type {0}", [value.InvokeGetType()])))));
 
             return new MethodProvider(signature, new SwitchStatement(value, cases), this, XmlDocProvider.Empty);
 
@@ -631,6 +849,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
                     Return(ReadOnlySpanSnippets.Empty())
                 },
                 new IfStatement(indexable[Int(0)].NotEqual(Literal('$'))) { Return(ReadOnlySpanSnippets.Empty()) },
+                new IfStatement(indexable[Int(1)].Equal(Literal('.'))) { Return(ReadOnlySpanSnippets.Slice(local, Int(2))) },
                 Return(new TernaryConditionalExpression(
                     ReadOnlySpanSnippets.Length(local).GreaterThanOrEqual(Int(4))
                         .And(indexable[Int(1)].Equal(Literal('[')))
@@ -795,3 +1014,4 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
         }
     }
 }
+#pragma warning restore SCME0004

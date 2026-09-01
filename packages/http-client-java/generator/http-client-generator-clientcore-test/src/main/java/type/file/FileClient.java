@@ -10,6 +10,7 @@ import io.clientcore.core.http.models.RequestContext;
 import io.clientcore.core.http.models.Response;
 import io.clientcore.core.instrumentation.Instrumentation;
 import io.clientcore.core.models.binarydata.BinaryData;
+import type.file.body.UploadFileMultipleContentTypesContentType;
 import type.file.implementation.BodiesImpl;
 
 /**
@@ -205,7 +206,6 @@ public final class FileClient {
     /**
      * The downloadFileMultipleContentTypes operation.
      * 
-     * @param accept The accept parameter.
      * @param requestContext The context to configure the HTTP request before HTTP client sends it.
      * @throws IllegalArgumentException thrown if parameters fail the validation.
      * @throws HttpResponseException thrown if the service returns an error.
@@ -214,26 +214,23 @@ public final class FileClient {
      */
     @Metadata(properties = { MetadataProperties.GENERATED })
     @ServiceMethod(returns = ReturnType.SINGLE)
-    public Response<BinaryData> downloadFileMultipleContentTypesWithResponse(
-        DownloadFileMultipleContentTypesContentType accept, RequestContext requestContext) {
+    public Response<BinaryData> downloadFileMultipleContentTypesWithResponse(RequestContext requestContext) {
         return this.instrumentation.instrumentWithResponse("Type.File.Body.downloadFileMultipleContentTypes",
             requestContext,
-            updatedContext -> this.serviceClient.downloadFileMultipleContentTypesWithResponse(accept, updatedContext));
+            updatedContext -> this.serviceClient.downloadFileMultipleContentTypesWithResponse(updatedContext));
     }
 
     /**
      * The downloadFileMultipleContentTypes operation.
      * 
-     * @param accept The accept parameter.
-     * @throws IllegalArgumentException thrown if parameters fail the validation.
      * @throws HttpResponseException thrown if the service returns an error.
      * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
      * @return the response.
      */
     @Metadata(properties = { MetadataProperties.GENERATED })
     @ServiceMethod(returns = ReturnType.SINGLE)
-    public BinaryData downloadFileMultipleContentTypes(DownloadFileMultipleContentTypesContentType accept) {
-        return downloadFileMultipleContentTypesWithResponse(accept, RequestContext.none()).getValue();
+    public BinaryData downloadFileMultipleContentTypes() {
+        return downloadFileMultipleContentTypesWithResponse(RequestContext.none()).getValue();
     }
 
     /**

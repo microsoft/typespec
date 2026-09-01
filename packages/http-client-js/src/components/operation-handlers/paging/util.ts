@@ -1,5 +1,5 @@
-import { ModelProperty, PagingOperation } from "@typespec/compiler";
-import { HttpOperation } from "@typespec/http";
+import type { ModelProperty, PagingOperation } from "@typespec/compiler";
+import type { HttpOperation } from "@typespec/http";
 
 export interface PagingDetail {
   // Only support the nextLink or continuationToken

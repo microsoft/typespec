@@ -62,7 +62,24 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Primitives
             DefaultValue = Static(typeof(DateTimeOffset)).Property(nameof(DateTimeOffset.Now))
         };
 
-        public static readonly ParameterProvider ContentType = new("contentType", $"The contentType to use which has the multipart/form-data boundary.", typeof(string), wireInfo: new PropertyWireInformation(SerializationFormat.Default, true, false, false, false, "Content-Type", false, false));
+        private const string ContentTypeParameterName = "contentType";
+        private static readonly FormattableString ContentTypeDescription = $"The contentType to use which has the multipart/form-data boundary.";
+        private static readonly PropertyWireInformation ContentTypeWireInfo = new(SerializationFormat.Default, true, false, false, false, "Content-Type", false, false);
+
+        public static readonly ParameterProvider ContentType = new(
+            ContentTypeParameterName,
+            ContentTypeDescription,
+            typeof(string),
+            wireInfo: ContentTypeWireInfo)
+        {
+            Validation = ParameterValidationType.AssertNotNullOrEmpty,
+        };
+
+        public static readonly ParameterProvider OptionalContentType = new(
+            ContentTypeParameterName,
+            ContentTypeDescription,
+            typeof(string),
+            wireInfo: ContentTypeWireInfo);
 
         public static readonly ParameterProvider NextPage =
             new ParameterProvider("nextPage", $"The url of the next page of responses.", typeof(Uri));

@@ -1,6 +1,6 @@
 import { ok, strictEqual } from "assert";
 import { describe, expect, it } from "vitest";
-import { Type } from "../../src/core/types.js";
+import type { Type } from "../../src/core/types.js";
 import { expectDiagnostics, extractSquiggles, mockFile, t } from "../../src/testing/index.js";
 import { Tester } from "../tester.js";
 
@@ -113,7 +113,7 @@ describe("circular reference", () => {
   });
 
   // https://github.com/microsoft/typespec/issues/7956
-  it.skip("emit diagnostic if models spread each other", async () => {
+  it("emit diagnostic if models spread each other", async () => {
     const diagnostics = await Tester.diagnose(`
       model Foo { ...Bar }
       model Bar { ...Foo }

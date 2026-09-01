@@ -1,0 +1,16 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(npx vitest *)",
+      "Bash(node -e \"const p=require\\('./packages/compiler/package.json'\\); console.log\\(JSON.stringify\\(p.exports['./testing'],null,2\\)\\); console.log\\('---main---'\\); console.log\\(JSON.stringify\\(p.exports['.'],null,2\\)\\)\")",
+      "Bash(node -e \"const p=require\\('./packages/compiler/package.json'\\); console.log\\('declared:', p.dependencies['vscode-languageserver']\\)\")",
+      "Bash(node -e \"const p=require\\('./node_modules/.pnpm/vscode-languageserver@9.0.1/node_modules/vscode-languageserver/package.json'\\); console.log\\(JSON.stringify\\(p.exports,null,2\\)\\)\")",
+      "Bash(npm run *)",
+      "Bash(node -e \"const p=require\\('./node_modules/.pnpm/lock'\\);\")",
+      "Bash(pnpm chronus *)",
+      "Bash(xargs cat)",
+      "Bash(npx prettier *)",
+      "Bash(pnpm run *)"
+    ]
+  }
+}

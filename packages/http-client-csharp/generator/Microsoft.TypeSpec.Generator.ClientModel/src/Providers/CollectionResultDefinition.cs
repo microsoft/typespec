@@ -31,6 +31,8 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
         protected InputOperation Operation { get; }
         protected InputPagingServiceMetadata Paging { get; }
 
+        public string ScopeName { get; }
+
         protected internal FieldProvider? PageSizeField { get; }
 
         protected FieldProvider RequestOptionsField => _requestOptionsField ??= RequestFields
@@ -77,6 +79,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
             Paging = serviceMethod.PagingMetadata;
             IsAsync = isAsync;
             ItemModelType = itemModelType;
+            ScopeName = $"{Client.Name}.{Operation.Name.ToIdentifierName()}";
 
             var response = Operation.Responses.FirstOrDefault(r => !r.IsErrorResponse);
             ResponseModel = ScmCodeModelGenerator.Instance.TypeFactory.CreateModel((InputModelType)response!.BodyType!)!;
@@ -214,6 +217,22 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
         protected override TypeSignatureModifiers BuildDeclarationModifiers()
             => TypeSignatureModifiers.Internal | TypeSignatureModifiers.Partial | TypeSignatureModifiers.Class;
 
+        protected override IReadOnlyList<CSharpType> BuildBodyDependencyTypes()
+        {
+            var dependencies = new List<CSharpType> { Client.Type, ResponseModelType, NextPagePropertyType };
+            if (ItemModelType != null)
+            {
+                dependencies.Add(ItemModelType);
+            }
+
+            foreach (var field in RequestFields)
+            {
+                dependencies.Add(field.Type);
+            }
+
+            return dependencies;
+        }
+
         protected override FieldProvider[] BuildFields() => [ClientField, .. RequestFields];
 
         protected override CSharpType[] BuildImplements() =>
@@ -272,6 +291,11 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
             return statements.ToArray();
         }
 
+        /// <summary>
+        /// The name of the method that retrieves the next response, e.g. "GetNextResponse" or "GetNextResponseAsync".
+        /// </summary>
+        public string GetNextResponseMethodName => IsAsync ? "GetNextResponseAsync" : "GetNextResponse";
+
         protected override MethodProvider[] BuildMethods()
         {
             MethodBodyStatement[] getRawPagesMethodBody = (Paging.NextLink, Paging.ContinuationToken) switch
@@ -328,7 +352,38 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
                         this));
             }
 
+            methods.Add(BuildGetNextResponseMethod());
+
             return methods.ToArray();
+        }
+
+        private MethodProvider BuildGetNextResponseMethod()
+        {
+            var messageParameter = new ParameterProvider(
+                "message",
+                $"The pipeline message containing the request to send.",
+                ScmCodeModelGenerator.Instance.TypeFactory.HttpMessageApi.HttpMessageType);
+
+            var signature = new MethodSignature(
+                GetNextResponseMethodName,
+                $"Sends the request in the pipeline message and returns the response.",
+                IsAsync ? MethodSignatureModifiers.Private | MethodSignatureModifiers.Async : MethodSignatureModifiers.Private,
+                IsAsync
+                    ? new CSharpType(typeof(ValueTask<>), typeof(ClientResult))
+                    : new CSharpType(typeof(ClientResult)),
+                null,
+                [messageParameter]);
+
+            var processMessageExpression = ScmCodeModelGenerator.Instance.TypeFactory.ClientResponseApi.ToExpression().FromResponse(
+                ClientField.Property("Pipeline").ToApi<ClientPipelineApi>().ProcessMessage(
+                    messageParameter.ToApi<HttpMessageApi>(),
+                    RequestOptionsField.AsValueExpression.ToApi<HttpRequestOptionsApi>(),
+                    IsAsync)).ToApi<ClientResponseApi>();
+
+            return new MethodProvider(
+                signature,
+                Return(processMessageExpression),
+                this);
         }
 
         private MethodBodyStatement[] BuildGetValuesFromPages()
@@ -426,11 +481,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
                 {
                     Declare(
                         "result",
-                        ScmCodeModelGenerator.Instance.TypeFactory.ClientResponseApi.ToExpression().FromResponse(
-                            ClientField.Property("Pipeline").ToApi<ClientPipelineApi>().ProcessMessage(
-                                message.ToApi<HttpMessageApi>(),
-                                RequestOptionsField.AsValueExpression.ToApi<HttpRequestOptionsApi>(),
-                                IsAsync)).ToApi<ClientResponseApi>(),
+                        This.Invoke(GetNextResponseMethodName, [message], IsAsync).ToApi<ClientResponseApi>(),
                         out ClientResponseApi result),
 
                     // Yield return result
@@ -465,11 +516,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
                 {
                     Declare(
                         "result",
-                        ScmCodeModelGenerator.Instance.TypeFactory.ClientResponseApi.ToExpression().FromResponse(
-                            ClientField.Property("Pipeline").ToApi<ClientPipelineApi>().ProcessMessage(
-                                message.ToApi<HttpMessageApi>(),
-                                RequestOptionsField.AsValueExpression.ToApi<HttpRequestOptionsApi>(),
-                                IsAsync)).ToApi<ClientResponseApi>(),
+                        This.Invoke(GetNextResponseMethodName, [message], IsAsync).ToApi<ClientResponseApi>(),
                         out ClientResponseApi result),
 
                     // Yield return result
@@ -491,16 +538,12 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
                     "message",
                     InvokeCreateInitialRequest(),
                     out ScopedApi<PipelineMessage> m);
-            var pipelineResponse = ScmCodeModelGenerator.Instance.TypeFactory.ClientResponseApi.ToExpression().FromResponse(
-                        ClientField.Property("Pipeline").ToApi<ClientPipelineApi>().ProcessMessage(
-                            m.ToApi<HttpMessageApi>(),
-                            RequestOptionsField.AsValueExpression.ToApi<HttpRequestOptionsApi>(),
-                            IsAsync)).ToApi<ClientResponseApi>();
+            var result = This.Invoke(GetNextResponseMethodName, [m], IsAsync).ToApi<ClientResponseApi>();
             return
             [
                 pipelineMessageDeclaration,
                 // Yield return result
-                YieldReturn(pipelineResponse),
+                YieldReturn(result),
             ];
         }
 
@@ -554,12 +597,39 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
 
         private ScopedApi<PipelineMessage> InvokeCreateRequestForNextLink(ValueExpression nextPageUri)
         {
-            var createNextLinkRequestMethodName =
-                Client.RestClient.GetCreateNextLinkRequestMethod(Operation).Signature.Name;
+            var createNextLinkRequestMethod =
+                Client.RestClient.GetCreateNextLinkRequestMethod(Operation);
+            var arguments = createNextLinkRequestMethod.Signature.Parameters
+                .Skip(1)
+                .Select(parameter => GetRequestField(parameter).AsValueExpression);
             return ClientField.Invoke(
-                    createNextLinkRequestMethodName,
-                    [nextPageUri, .. RequestFields])
+                    createNextLinkRequestMethod.Signature.Name,
+                    [nextPageUri, .. arguments])
                 .As<PipelineMessage>();
+        }
+
+        private FieldProvider GetRequestField(ParameterProvider parameter)
+        {
+            for (int i = 0; i < CreateRequestParameters.Count; i++)
+            {
+                var createRequestParameter = CreateRequestParameters[i];
+                if (parameter.InputParameter is { } inputParameter)
+                {
+                    if (ReferenceEquals(inputParameter, createRequestParameter.InputParameter) ||
+                        createRequestParameter.InputParameter is { } createRequestInputParameter &&
+                        string.Equals(inputParameter.OriginalName, createRequestInputParameter.OriginalName, StringComparison.Ordinal))
+                    {
+                        return RequestFields[i];
+                    }
+                }
+                else if (createRequestParameter.InputParameter is null &&
+                    string.Equals(parameter.Name, createRequestParameter.Name, StringComparison.Ordinal))
+                {
+                    return RequestFields[i];
+                }
+            }
+
+            throw new InvalidOperationException($"No initial request field matches next-link parameter '{parameter.Name}'.");
         }
 
         private ScopedApi<PipelineMessage> InvokeCreateRequestForContinuationToken(ValueExpression nextToken)

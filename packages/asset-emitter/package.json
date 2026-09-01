@@ -32,8 +32,8 @@
     "test": "vitest run",
     "test:watch": "vitest -w",
     "test:ui": "vitest --ui",
-    "lint": "eslint . --ext .ts --max-warnings=0",
-    "lint:fix": "eslint . --fix --ext .ts",
+    "lint": "oxlint . --deny-warnings",
+    "lint:fix": "oxlint . --fix",
     "api-extractor": "api-extractor run --local --verbose"
   },
   "files": [

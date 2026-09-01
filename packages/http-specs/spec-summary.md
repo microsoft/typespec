@@ -101,7 +101,7 @@ Expected behavior: Should render numbered list properly.
 
 - Endpoint: `get /documentation/text-formatting/bold`
 
-Expected behavior: Text between \*\* should render as bold.
+Expected behavior: Text between ** should render as bold.
 
 ### Documentation_TextFormatting_combinedFormatting
 
@@ -115,7 +115,7 @@ Expected behavior: Should handle nested and combined formatting.
 - Endpoint: `get /documentation/text-formatting/italic`
 
 Test italic text formatting using _single asterisks_.
-Expected behavior: Text between \* should render as italic.
+Expected behavior: Text between * should render as italic.
 
 ### Encode_Array_Property_commaDelimited
 
@@ -366,6 +366,90 @@ Expected response body:
 ```json
 {
   "value": "blue red green"
+}
+```
+
+### Encode_Boolean_Property_falseLower
+
+- Endpoint: `post /encode/boolean/property/false-lower`
+
+Test operation with request and response model containing a property of boolean type with string encode.
+Expected request body:
+
+```json
+{
+  "value": "false"
+}
+```
+
+Expected response body:
+
+```json
+{
+  "value": "false"
+}
+```
+
+### Encode_Boolean_Property_falseMixed
+
+- Endpoint: `post /encode/boolean/property/false-mixed`
+
+Test operation with request and response model containing a property of boolean type with string encode.
+Expected request body:
+
+```json
+{
+  "value": "FaLsE"
+}
+```
+
+Expected response body:
+
+```json
+{
+  "value": "FaLsE"
+}
+```
+
+### Encode_Boolean_Property_trueLower
+
+- Endpoint: `post /encode/boolean/property/true-lower`
+
+Test operation with request and response model containing a property of boolean type with string encode.
+Expected request body:
+
+```json
+{
+  "value": "true"
+}
+```
+
+Expected response body:
+
+```json
+{
+  "value": "true"
+}
+```
+
+### Encode_Boolean_Property_trueUpper
+
+- Endpoint: `post /encode/boolean/property/true-upper`
+
+Test operation with request and response model containing a property of boolean type with string encode.
+Expected request body:
+
+```json
+{
+  "value": "TRUE"
+}
+```
+
+Expected response body:
+
+```json
+{
+  "value": "TRUE"
 }
 ```
 
@@ -909,6 +993,24 @@ Expected header `duration: P40D`
 
 Test iso8601 encode for a duration array header.
 Expected header `duration: [P40D,P50D]`
+
+### Encode_Duration_Lossy_intMilliseconds
+
+- Endpoint: `get /encode/duration/lossy/int32-milliseconds`
+
+Test int32 milliseconds encode for a duration query parameter whose value has a sub-millisecond fractional component.
+The duration is 36250.25 milliseconds, e.g. TimeSpan.FromMilliseconds(36250.25) in C#.
+The client must serialize the value as an integer (not a floating point number such as `36250.25`), discarding the sub-millisecond precision.
+Because emitters may floor, round, or ceil when discarding that precision, the expected query parameter is `input=36250` or `input=36251`.
+
+### Encode_Duration_Lossy_intSeconds
+
+- Endpoint: `get /encode/duration/lossy/int32-seconds`
+
+Test int32 seconds encode for a duration query parameter whose value has a fractional (sub-second) component.
+The duration is 36.25 seconds, e.g. TimeSpan.FromSeconds(36.25) in C#.
+The client must serialize the value as an integer (not a floating point number such as `36.25`), discarding the sub-second precision.
+Because emitters may floor, round, or ceil when discarding that precision, the expected query parameter is `input=36` or `input=37`.
 
 ### Encode_Duration_Property_default
 
@@ -1455,6 +1557,22 @@ Expected request body:
 { "name": "foo" }
 ```
 
+### Parameters_BodyRoot_nested
+
+- Endpoint: `post /parameters/body-root/nested`
+
+Test case for a `@bodyRoot` parameter nested inside a wrapper model.
+
+Emitters must resolve the accessor path through the wrapper (e.g.
+`body.bodyRootParameters`) rather than referencing the property name
+directly.
+
+Expected request body:
+
+```json
+{ "category": "widget", "linkType": "hard", "wasSuccessful": true }
+```
+
 ### Parameters_CollectionFormat_Header_csv
 
 - Endpoint: `get /parameters/collection-format/header/csv`
@@ -1533,6 +1651,18 @@ Second request path:
 - Endpoint: `post /parameters/query/constant`
 
 Expect to handle a constant value for query and mock api returns nothing
+
+### Parameters_Query_SpecialChar_dollarSign
+
+- Endpoint: `get /parameters/query/special-char/dollar-sign`
+
+Send a request with a dollar-sign prefixed`$filter` query parameter.
+
+Expected query parameter:
+
+- `$filter` = "status eq 'active'"
+
+Expected response status code: 204
 
 ### Parameters_Spread_Alias_spreadAsRequestBody
 
@@ -3847,6 +3977,35 @@ Expected error response body:
 </XmlErrorBody>
 ```
 
+### Response_BodyOrNoContent_getBody
+
+- Endpoint: `get /response/body-or-no-content/body`
+
+Operation that returns a successful response with a status code of 200 and a `BlobLayout` body.
+
+Both `200` and `204` are declared as successful responses, but this route always returns `200`.
+Expected response status code is 200 with body:
+
+```json
+{ "content": "hello" }
+```
+
+Expected response header `x-ms-request-id: body-request`.
+Verify that the `200` response is deserialized normally and that the raw response status and
+headers remain available.
+
+### Response_BodyOrNoContent_getNoContent
+
+- Endpoint: `get /response/body-or-no-content/no-content`
+
+Operation that returns a successful response with a status code of 204 and no content.
+
+Both `200` and `204` are declared as successful responses, but this route always returns `204`.
+Expected response status code is 204 with no body.
+Expected response header `x-ms-request-id: no-content-request`.
+Verify that the `204` response is classified as successful, that it does not attempt body
+deserialization, and that the raw response status and headers remain available.
+
 ### Response_StatusCodeRange_errorResponseStatusCode404
 
 - Endpoint: `get /response/status-code-range/error-response-status-code-404`
@@ -4194,6 +4353,17 @@ Expected path: /routes/query/query-continuation/standard/record?fixed=true&param
 Test query expansion with explode: true when passed an array value.
 Param value: ["a","b"]
 Expected path: /routes/query/query-expansion/explode/array?param=a&param=b
+
+### Routes_QueryParameters_QueryExpansion_Explode_model
+
+- Endpoint: `get /routes/query/query-expansion/explode/model{?param*}`
+
+Test query expansion with explode: true when passed a named model value.
+Per RFC 6570 form explode, each property of the model is expanded into its own
+query parameter using the property name as the key (the parameter name itself
+is not emitted).
+Param value: {field: "status", value: "active"}
+Expected path: /routes/query/query-expansion/explode/model?field=status&value=active
 
 ### Routes_QueryParameters_QueryExpansion_Explode_primitive
 
@@ -5190,6 +5360,203 @@ Basic jsonl streaming for response.
 - Endpoint: `post /streaming/jsonl/basic/send`
 
 Basic jsonl streaming for request.
+
+### Streaming_Sse_Named_receive
+
+- Endpoint: `get /streaming/sse/named/receive`
+
+SSE streaming with multiple named events and a terminal event, modeled after
+an OpenAI-style streaming response. Each named union variant sets the SSE
+`event:` field; the terminal `[DONE]` event signals the client to disconnect.
+
+Expected response body (content type `text/event-stream`):
+
+```
+event: responseCreated
+data: {"id": "resp_1"}
+
+event: responseDelta
+data: {"delta": "Hello"}
+
+event: responseDelta
+data: {"delta": " world"}
+
+data: [DONE]
+
+```
+
+### Streaming_Sse_Protocol_Data_withEnvelope
+
+- Endpoint: `get /streaming/sse/protocol/data/with-envelope`
+
+SSE event with an explicit `@data` payload. The `withEnvelope` event sends
+only the `contents` property in the SSE `data` field.
+Expected response body (content type `text/event-stream`):
+
+```
+event: withEnvelope
+data: hello
+```
+
+### Streaming_Sse_Protocol_Data_withoutEnvelope
+
+- Endpoint: `get /streaming/sse/protocol/data/without-envelope`
+
+SSE event without an explicit `@data` payload. The `withoutEnvelope` event
+sends the complete model in the SSE `data` field.
+Expected response body (content type `text/event-stream`):
+
+```
+event: withoutEnvelope
+data: {"metadata": {"source": "test"}, "contents": "world"}
+```
+
+### Streaming_Sse_Protocol_id
+
+- Endpoint: `get /streaming/sse/protocol/id`
+
+An SSE event with an `id` field. The event ID is envelope metadata and is
+not part of the typed event data.
+
+Expected response body (content type `text/event-stream`):
+
+```
+id: event-1
+event: message
+data: {"message": "hello"}
+
+```
+
+### Streaming_Sse_Protocol_invalidId
+
+- Endpoint: `get /streaming/sse/protocol/invalid-id`
+
+An SSE event with an `id` field containing U+0000 NULL. The field is
+ignored according to the SSE parsing rules.
+
+Expected response body (content type `text/event-stream`):
+
+```
+id: invalid<U+0000 NULL>id
+event: message
+data: {"message": "hello"}
+
+```
+
+### Streaming_Sse_Protocol_invalidRetry
+
+- Endpoint: `get /streaming/sse/protocol/invalid-retry`
+
+An SSE event with an invalid `retry` field. Since the value contains
+non-ASCII-digit characters, the field is ignored.
+
+Expected response body (content type `text/event-stream`):
+
+```
+retry: not-a-number
+event: message
+data: {"message": "hello"}
+
+```
+
+### Streaming_Sse_Protocol_reconnect
+
+- Endpoint: `get /streaming/sse/protocol/reconnect`
+
+An SSE stream that resumes after a reconnect. The first response closes after
+sending `event-1`. On reconnect, the client sends the most recently received
+event ID in the `Last-Event-ID` request header.
+
+Expected initial response body (content type `text/event-stream`):
+
+```
+id: event-1
+event: message
+data: {"message": "hello"}
+```
+
+Expected request header on reconnect:
+
+```
+Last-Event-ID: event-1
+```
+
+Expected reconnect response body (content type `text/event-stream`):
+
+```
+id: event-2
+event: message
+data: {"message": "world"}
+
+```
+
+### Streaming_Sse_Protocol_retry
+
+- Endpoint: `get /streaming/sse/protocol/retry`
+
+An SSE event with a valid `retry` field containing only ASCII digits. The
+field sets the client's reconnection delay and is not part of the typed
+event data.
+
+Expected response body (content type `text/event-stream`):
+
+```
+retry: 1000
+event: message
+data: {"message": "hello"}
+
+```
+
+### Streaming_Sse_Retrieve_stream
+
+- Endpoint: `post /streaming/sse/retrieve/stream`
+
+A POST request with a JSON body whose response is an SSE stream, modeled
+after a knowledge-retrieval service. The server streams `partialResult`
+events as results become available, a final `finalResult` event, and a
+terminal `[DONE]` event.
+
+Expected request body (content type `application/json`):
+
+```
+{"query": "what is typespec?"}
+```
+
+Expected response body (content type `text/event-stream`):
+
+```
+event: partialResult
+data: {"text": "partial one"}
+
+event: partialResult
+data: {"text": "partial two"}
+
+event: finalResult
+data: {"references": ["doc1", "doc2"]}
+
+data: [DONE]
+
+```
+
+### Streaming_Sse_Unnamed_receive
+
+- Endpoint: `get /streaming/sse/unnamed/receive`
+
+SSE streaming with unnamed events. The server streams a sequence of unnamed
+`message` events, each carrying a JSON `Info` payload, then closes the
+connection. Since the union variant is unnamed, no `event:` field is emitted
+and each event defaults to the `message` type.
+
+Expected response body (content type `text/event-stream`):
+
+```
+data: {"desc": "one"}
+
+data: {"desc": "two"}
+
+data: {"desc": "three"}
+
+```
 
 ### Type_Array_BooleanValue_get
 
@@ -6226,6 +6593,18 @@ Expected response body:
 { "wingspan": 1, "kind": "sparrow" }
 ```
 
+### Type_Model_Inheritance_SingleDiscriminator_getNoSubtypesModel
+
+- Endpoint: `get /type/model/inheritance/single-discriminator/no-subtypes/model`
+
+Generate and receive a discriminated model that has no defined subtypes.
+The base model declares a discriminator but no models extend it.
+Expected response body:
+
+```json
+{ "kind": "salmon", "size": 10 }
+```
+
 ### Type_Model_Inheritance_SingleDiscriminator_getRecursiveModel
 
 - Endpoint: `get /type/model/inheritance/single-discriminator/recursivemodel`
@@ -6276,6 +6655,17 @@ Expected input body:
 
 ```json
 { "wingspan": 1, "kind": "sparrow" }
+```
+
+### Type_Model_Inheritance_SingleDiscriminator_putNoSubtypesModel
+
+- Endpoint: `put /type/model/inheritance/single-discriminator/no-subtypes/model`
+
+Send a discriminated model that has no defined subtypes.
+Expected input body:
+
+```json
+{ "kind": "salmon", "size": 10 }
 ```
 
 ### Type_Model_Inheritance_SingleDiscriminator_putRecursiveModel

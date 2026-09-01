@@ -4,7 +4,6 @@ import { getDirectoryPath, joinPaths } from "../core/path-utils.js";
 import type { SystemHost } from "../core/types.js";
 import { fetchLatestPackageManifest } from "../package-manger/npm-registry.js";
 import type { PackageJson } from "../types/package-json.js";
-import { readUrlOrPath, resolveRelativeUrlOrPath } from "../utils/misc.js";
 import {
   createFileTemplatingContext,
   type FileTemplatingContext,
@@ -16,6 +15,7 @@ import type {
   InitTemplateLibrary,
   InitTemplateLibrarySpec,
 } from "./init-template.js";
+import type { TemplateSource } from "./template-source/index.js";
 
 export const TypeSpecConfigFilename = "tspconfig.yaml";
 
@@ -24,9 +24,10 @@ export interface ScaffoldingConfig {
   template: InitTemplate;
 
   /**
-   * Path where this template was loaded from.
+   * Source the template was loaded from. Used to read the template's files during scaffolding.
+   * Optional: templates that declare no `files` never need it.
    */
-  baseUri: string;
+  source?: TemplateSource;
 
   /**
    * Directory full path where the project should be initialized.
@@ -73,7 +74,6 @@ export function makeScaffoldingConfig(
   return {
     template,
     libraries: config.libraries ?? template.libraries?.map(normalizeLibrary) ?? [],
-    baseUri: config.baseUri ?? ".",
     name: config.name ?? "",
     directory: config.directory ?? "",
     parameters: config.parameters ?? {},
@@ -153,24 +153,29 @@ async function writePackageJson(host: SystemHost, config: ScaffoldingConfig) {
   );
 }
 
-const placeholderConfig = `
-# extends: ../tspconfig.yaml                    # Extend another config file
-# emit:                                         # Emitter name
+const commentedOptions = `\
+# entrypoint: main.tsp                           # Main TypeSpec file (default: main.tsp)
+# extends: ../tspconfig.yaml                     # Extend another config file
+# emit:                                          # Emitter name
 #   - "<emitter-name"
-# options:                                      # Emitter options
+# options:                                       # Emitter options
 #   <emitter-name>:
 #    "<option-name>": "<option-value>"
-# environment-variables:                        # Environment variables which can be used to interpolate emitter options
+# environment-variables:                         # Environment variables which can be used to interpolate emitter options
 #   <variable-name>:
 #     default: "<variable-default>"
-# parameters:                                   # Parameters which can be used to interpolate emitter options
+# parameters:                                    # Parameters which can be used to interpolate emitter options
 #   <param-name>:
 #     default: "<param-default>"
-# trace:                                        # Trace areas to enable tracing
+# trace:                                         # Trace areas to enable tracing
 #  - "<trace-name>"
-# warn-as-error: true                           # Treat warnings as errors
-# output-dir: "{project-root}/_generated"       # Configure the base output directory for all emitters
-`.trim();
+# warn-as-error: true                            # Treat warnings as errors
+# output-dir: "{project-root}/_generated"        # Configure the base output directory for all emitters`;
+
+const placeholderConfig = `\
+kind: project                                    # Marks this as a TypeSpec project
+${commentedOptions}`;
+
 async function writeConfig(host: SystemHost, config: ScaffoldingConfig) {
   if (isFileSkipGeneration(TypeSpecConfigFilename, config.template.files ?? [])) {
     return;
@@ -189,7 +194,9 @@ async function writeConfig(host: SystemHost, config: ScaffoldingConfig) {
       Object.entries(config.emitters).map(([key, emitter]) => [key, emitter.options]),
     );
   }
-  const content = rawConfig ? stringify(rawConfig) : placeholderConfig;
+  const content = rawConfig
+    ? stringify(rawConfig).trimEnd() + "\n" + commentedOptions
+    : placeholderConfig;
   return host.writeFile(joinPaths(config.directory, TypeSpecConfigFilename), content);
 }
 
@@ -241,8 +248,12 @@ async function writeFile(
   context: FileTemplatingContext,
   file: InitTemplateFile,
 ) {
-  const baseDir = config.baseUri + "/";
-  const template = await readUrlOrPath(host, resolveRelativeUrlOrPath(baseDir, file.path));
+  if (config.source === undefined) {
+    throw new Error(
+      `Cannot resolve template file "${file.path}": template was loaded without a source.`,
+    );
+  }
+  const template = await config.source.readFile(file.path);
   const content = render(template.text, context);
   const destinationFilePath = joinPaths(config.directory, file.destination);
   // create folders in case they don't exist

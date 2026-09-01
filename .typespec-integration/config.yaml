@@ -3,6 +3,8 @@ suites:
     repo: https://github.com/Azure/azure-rest-api-specs
     branch: typespec-next
     pattern: "specification/**/tspconfig.yaml"
+    exclude:
+      - "specification/ai-foundry/data-plane/Foundry/**"
     entrypoints:
       - name: "client.tsp"
         options: ["--no-emit"]
@@ -11,6 +13,8 @@ suites:
     repo: https://github.com/Azure/azure-rest-api-specs-pr
     branch: typespec-next
     pattern: "specification/**/tspconfig.yaml"
+    exclude:
+      - "specification/ai-foundry/data-plane/Foundry/**"
     entrypoints:
       - name: "client.tsp"
         options: ["--no-emit"]

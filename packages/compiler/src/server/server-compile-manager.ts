@@ -1,16 +1,9 @@
 import { formatLog } from "../core/logger/index.js";
-import {
-  compile as compileProgram,
-  CompilerHost,
-  CompilerOptions,
-  normalizePath,
-  ProcessedLog,
-  Program,
-  ServerLog,
-} from "../index.js";
+import type { CompilerHost, CompilerOptions, ProcessedLog, Program, ServerLog } from "../index.js";
+import { compile as compileProgram, normalizePath } from "../index.js";
 import { debugLoggers } from "./debug.js";
 import { trackActionFunc } from "./server-track-action-task.js";
-import { UpdateManager } from "./update-manager.js";
+import type { UpdateManager } from "./update-manager.js";
 
 /**
  * core: linter and emitter will be set to [] when trigger compilation

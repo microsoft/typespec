@@ -17,3 +17,8 @@ async def client():
 @pytest.mark.asyncio
 async def test_constant(client: QueryClient):
     await client.constant.post()
+
+
+@pytest.mark.asyncio
+async def test_special_char_dollar_sign(client: QueryClient):
+    await client.special_char.dollar_sign(filter="status eq 'active'")

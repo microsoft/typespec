@@ -1,20 +1,17 @@
-import { TextDocument } from "vscode-languageserver-textdocument";
-import {
-  CompletionItem,
-  CompletionItemKind,
-  Position,
-  Range,
-  TextEdit,
-} from "vscode-languageserver/node.js";
-import { Document, isMap, isPair, Node } from "yaml";
+import type { CompletionItem } from "vscode-languageserver";
+import { CompletionItemKind, Position, Range, TextEdit } from "vscode-languageserver";
+import type { TextDocument } from "vscode-languageserver-textdocument";
+import type { Document, Node } from "yaml";
+import { isMap, isPair } from "yaml";
 import { emitterOptionsSchema, TypeSpecConfigJsonSchema } from "../../config/config-schema.js";
+import { compilerFeatureNames, compilerFeatures } from "../../core/features.js";
 import {
   getDirectoryPath,
   getNormalizedAbsolutePath,
   joinPaths,
   normalizeSlashes,
 } from "../../core/path-utils.js";
-import {
+import type {
   CompilerHost,
   DiagnosticMessages,
   JSONSchemaType,
@@ -22,9 +19,10 @@ import {
   ServerLog,
 } from "../../index.js";
 import { distinctArray } from "../../utils/misc.js";
-import { FileService } from "../file-service.js";
-import { LibraryProvider } from "../lib-provider.js";
-import { resolveYamlPositionDetail, YamlPositionDetail } from "../yaml-resolver.js";
+import type { FileService } from "../file-service.js";
+import type { LibraryProvider } from "../lib-provider.js";
+import type { YamlPositionDetail } from "../yaml-resolver.js";
+import { resolveYamlPositionDetail } from "../yaml-resolver.js";
 
 type ObjectJSONSchemaType = JSONSchemaType<object>;
 
@@ -76,6 +74,7 @@ export async function provideTspconfigCompletionItems(
     const CONFIG_PATH_LENGTH_FOR_LINTER_LIST = 2;
     const CONFIG_PATH_LENGTH_FOR_EXTENDS = 1;
     const CONFIG_PATH_LENGTH_FOR_IMPORTS = 2;
+    const CONFIG_PATH_LENGTH_FOR_FEATURES = 2;
 
     if (
       (nodePath.length === CONFIG_PATH_LENGTH_FOR_EMITTER_LIST &&
@@ -187,6 +186,21 @@ export async function provideTspconfigCompletionItems(
         });
       }
       return items;
+    } else if (
+      nodePath.length === CONFIG_PATH_LENGTH_FOR_FEATURES &&
+      nodePath[0] === "features" &&
+      targetType === "arr-item"
+    ) {
+      return compilerFeatureNames
+        .filter((name) => !siblings.includes(name))
+        .map((name) =>
+          createCompletionItemWithQuote(
+            name,
+            compilerFeatures[name].description,
+            tspConfigPosition,
+            target,
+          ),
+        );
     } else if (nodePath.length === CONFIG_PATH_LENGTH_FOR_EXTENDS && nodePath[0] === "extends") {
       const currentFolder = getDirectoryPath(tspConfigFile);
       const newFolderPath = joinPaths(currentFolder, source);

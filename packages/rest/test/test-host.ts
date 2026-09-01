@@ -1,13 +1,9 @@
 import type { Diagnostic } from "@typespec/compiler";
 import { resolvePath } from "@typespec/compiler";
 import { createTester, expectDiagnosticEmpty } from "@typespec/compiler/testing";
-import {
-  getAllHttpServices,
-  HttpOperation,
-  HttpOperationParameter,
-  HttpVerb,
-} from "@typespec/http";
-import { unsafe_RouteResolutionOptions as RouteResolutionOptions } from "@typespec/http/experimental";
+import type { HttpOperation, HttpOperationParameter, HttpVerb } from "@typespec/http";
+import { getAllHttpServices } from "@typespec/http";
+import type { unsafe_RouteResolutionOptions as RouteResolutionOptions } from "@typespec/http/experimental";
 
 export const Tester = createTester(resolvePath(import.meta.dirname, ".."), {
   libraries: ["@typespec/http", "@typespec/rest"],

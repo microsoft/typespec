@@ -6,8 +6,8 @@ import {
   SpeakerMute20Filled,
   Warning20Filled,
 } from "@fluentui/react-icons";
-import { ScenarioStatus } from "@typespec/spec-coverage-sdk";
-import { FunctionComponent } from "react";
+import type { ScenarioStatus } from "@typespec/spec-coverage-sdk";
+import type { FunctionComponent } from "react";
 import style from "./scenario-status.module.css";
 
 export interface ScenarioStatusBoxProps {

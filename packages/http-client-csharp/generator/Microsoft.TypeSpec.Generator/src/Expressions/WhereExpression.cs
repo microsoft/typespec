@@ -21,7 +21,9 @@ namespace Microsoft.TypeSpec.Generator.Expressions
             {
                 Constraints[i].Write(writer);
                 if (i < Constraints.Count - 1)
+                {
                     writer.AppendRaw(", ");
+                }
             }
         }
     }

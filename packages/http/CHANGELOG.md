@@ -1,5 +1,68 @@
 # Change Log - @typespec/http
 
+## 1.15.0
+
+### Features
+
+- [#11318](https://github.com/microsoft/typespec/pull/11318) Cache `getHttpOperation` results during linting and emitting stages using `program.useCache()`. This eliminates redundant route resolution when multiple linter rules inspect the same operations, improving linter performance on large specs.
+- [#11153](https://github.com/microsoft/typespec/pull/11153) Add scope support to `OpenIdConnectAuth`. The model now accepts an optional `Scopes` template parameter (`OpenIdConnectAuth<ConnectUrl, Scopes>`) and the OpenAPI3 emitter emits those scopes on each operation's `openIdConnect` security requirement. The scheme object itself remains unchanged (scopes are discovered via the `openIdConnectUrl`). Existing `OpenIdConnectAuth<Url>` usages are unaffected.
+
+
+## 1.14.0
+
+### Deprecations
+
+- [#10964](https://github.com/microsoft/typespec/pull/10964) Deprecate old testing framework (`createTestHost`, `createTestRunner`, `createTestWrapper`, `createTestLibrary`, `BasicTestRunner`, `TypeSpecTestLibrary`, etc.). Use `createTester` from `@typespec/compiler/testing` instead.
+
+
+## 1.13.0
+
+No changes, version bump only.
+
+## 1.12.0
+
+### Deprecations
+
+- [#9884](https://github.com/microsoft/typespec/pull/9884) Deprecate use of `@patch(#{implicitOptionality: true})`.
+  
+  Migrate using one of the following patterns depending on intended semantics:
+  
+  1. Preserve previous behavior with an explicit patch model (optional properties)
+  
+  ```diff lang=typespec
+    model Pet {
+      name: string;
+      age: int32;
+    }
+  
+  + model PetPatch {
+  +    name?: string;
+  +    age?: int32;
+  + }
+  
+    
+  - @patch(#{implicitOptionality: true}) op updatePet(@body patch: Pet): void;
+  + @patch op updatePet(@body patch: PetPatch): void;
+  ```
+  
+  2. Use merge-patch semantics explicitly with `MergePatchUpdate<T>`
+  
+  ```typespec
+  model Pet {
+    name: string;
+    age: int32;
+  }
+  
+  @patch op updatePet(@body patch: MergePatchUpdate<Pet>): void;
+  ```
+  
+  Use `MergePatchCreateOrUpdate<T>` when the operation supports create-or-update behavior.
+
+### Features
+
+- [#10180](https://github.com/microsoft/typespec/pull/10180) [API] Operation returning a union of types without status code or content type will be treated as a single response
+
+
 ## 1.11.0
 
 No changes, version bump only.

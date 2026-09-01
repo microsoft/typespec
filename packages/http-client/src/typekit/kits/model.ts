@@ -1,6 +1,8 @@
-import { getDiscriminator, Model, ModelProperty } from "@typespec/compiler";
+import type { Model, ModelProperty } from "@typespec/compiler";
+import { getDiscriminator } from "@typespec/compiler";
 import { defineKit } from "@typespec/compiler/typekit";
-import { AccessKit, getAccess, getName, getUsage, NameKit, UsageKit } from "./utils.js";
+import type { AccessKit, NameKit, UsageKit } from "./utils.js";
+import { getAccess, getName, getUsage } from "./utils.js";
 
 export interface SdkModelKit extends NameKit<Model>, AccessKit<Model>, UsageKit<Model> {
   /**

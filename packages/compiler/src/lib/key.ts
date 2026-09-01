@@ -1,5 +1,5 @@
-import { Program } from "../core/program.js";
-import { ModelProperty, Type } from "../core/types.js";
+import type { Program } from "../core/program.js";
+import type { ModelProperty, Type } from "../core/types.js";
 import { useStateMap } from "../utils/index.js";
 import { createStateSymbol } from "./utils.js";
 

@@ -82,6 +82,31 @@ message TestMessage {
 }
 ```
 
+#### Optional fields
+
+When a TypeSpec property is defined as optional (`?`) inside of a model that defines a `message`, the protobuf emitter writes the proto3 `optional` label for singular scalar and enum fields.
+
+```typespec
+model Example {
+  @field(1)
+  count?: int32;
+
+  @field(2)
+  name?: string;
+}
+```
+
+```protobuf
+message Example {
+  optional int32 count = 1;
+  optional string name = 2;
+}
+```
+
+Optional message fields (TypeSpec optional properties where the type is a model) are emitted without the `optional` label because message-typed fields always have explicit presence discipline in proto3 (in other words, _all message-typed fields are effectively optional in the Protocol Buffers layer_). Validating optionality constraints on message-typed fields requires checking the presence of the field in the application that uses the protobuf implementation.
+
+Optional `repeated` and `map` fields are emitted without `optional` and produce a warning; protobuf cannot distinguish between _unset_ and _empty_ for those shapes because they are represented by "repeating" a field index within the protobuf message payload (if the field isn't set in the message, that means "_empty_" and there is no alternative to represent "_this field is not set_").
+
 ### Services
 
 TypeSpec defines a "service" using the [`TypeSpec.service` decorator][native-service], but the Protobuf "service" concept is different and is denoted by the [`TypeSpec.Protobuf.service` decorator][protobuf-service].
