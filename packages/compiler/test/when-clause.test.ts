@@ -126,7 +126,7 @@ describe("when clause on decorators: parsing", () => {
 
   it("is visited by visitChildren (no orphaned nodes)", () => {
     // parseOk asserts hasParseError() agrees with parseDiagnostics, which walks
-    // children — an unvisited node would desync that.
+    // children — an unvisited node would put those two out of sync.
     parseOk(`@name("Cs") when emitter("csharp") | Lifecycle.read model Foo {}`);
   });
 });
