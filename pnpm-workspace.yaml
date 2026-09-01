@@ -41,9 +41,13 @@ catalog:
   "@docsearch/css": ^4.7.0
   "@docsearch/js": ^4.7.0
   "@expressive-code/core": ^0.44.1
-  "@fluentui/react-components": ^9.74.7
-  "@fluentui/react-icons": ^2.0.338
-  "@fluentui/react-list": ^9.6.18
+  # Held at the pre-upgrade (main) versions on purpose: newer @fluentui/react-components
+  # pulls a tabster@8.8.0 graph whose CJS build breaks named-import resolution
+  # (`createTabster`) under the upgraded Vite/Vitest. Pinning here avoids a test-config
+  # workaround. Revisit once tabster ships a statically-analyzable CJS build / exports map.
+  "@fluentui/react-components": 9.74.3
+  "@fluentui/react-icons": 2.0.333
+  "@fluentui/react-list": 9.6.16
   "@inquirer/prompts": ^8.6.0
   "@microsoft/api-extractor": ^7.59.0
   "@microsoft/api-extractor-model": ^7.33.11
