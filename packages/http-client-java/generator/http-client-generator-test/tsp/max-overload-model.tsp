@@ -53,6 +53,15 @@ model ResourceModel {
   name: string;
 }
 
+@resource("resources-without-options")
+model ResourceWithoutOptionsModel {
+  @visibility(Lifecycle.Read)
+  id: string;
+
+  @key
+  name: string;
+}
+
 @trait
 model ListTrait {
   @traitContext(TraitContext.List)
@@ -61,9 +70,24 @@ model ListTrait {
     properties: {
       @query
       filter?: string;
+
+      @added(Versions.v2)
+      @query
+      added?: string;
     };
   };
 }
+
+model LroParameters {
+  @query
+  optional?: string;
+
+  @added(Versions.v2)
+  @query
+  added?: string;
+}
+
+model EmptyLroParameters {}
 
 interface ResourceOperations
   extends Azure.Core.ResourceOperations<NoRepeatableRequests &
@@ -86,7 +110,23 @@ op getWithHeaders(@path id: string): ResponseWithHeaders;
 @pollingOperation(ResourceOperations.GetResourceOperationStatus<ResourceModel, never>)
 op createOrReplace is ResourceOperations.LongRunningResourceCreateOrReplace<ResourceModel>;
 
+@pollingOperation(ResourceOperations.GetResourceOperationStatus<ResourceModel, ResourceModel>)
+op export is ResourceOperations.LongRunningResourceAction<
+  ResourceModel,
+  LroParameters,
+  ResourceModel
+>;
+
+@pollingOperation(ResourceOperations.GetResourceOperationStatus<ResourceModel, ResourceModel>)
+op archive is ResourceOperations.LongRunningResourceAction<
+  ResourceModel,
+  EmptyLroParameters,
+  ResourceModel
+>;
+
 op list is ResourceOperations.ResourceList<ResourceModel, ListTrait>;
+
+op listWithoutOptions is ResourceOperations.ResourceList<ResourceWithoutOptionsModel>;
 
 @route("/resource-metadata")
 @head
@@ -97,3 +137,8 @@ op getResourceMetadata(): {
 };
 
 @@clientOption(getResourceMetadata, "responseHeadersAsModel", true, "java");
+
+@access(Access.internal, "java")
+@route("/internal-headers")
+@get
+op getInternalHeaders(): ResponseWithHeaders;

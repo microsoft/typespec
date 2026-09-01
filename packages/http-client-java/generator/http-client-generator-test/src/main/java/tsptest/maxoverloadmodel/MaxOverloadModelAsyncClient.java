@@ -28,10 +28,12 @@ import java.util.stream.Collectors;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 import tsptest.maxoverloadmodel.implementation.MaxOverloadModelClientImpl;
+import tsptest.maxoverloadmodel.implementation.models.GetInternalHeadersHeaders;
 import tsptest.maxoverloadmodel.models.GetResourceMetadataHeaders;
 import tsptest.maxoverloadmodel.models.GetWithHeadersHeaders;
 import tsptest.maxoverloadmodel.models.RequestModel;
 import tsptest.maxoverloadmodel.models.ResourceModel;
+import tsptest.maxoverloadmodel.models.ResourceWithoutOptionsModel;
 import tsptest.maxoverloadmodel.models.ResponseModel;
 
 /**
@@ -166,9 +168,103 @@ public final class MaxOverloadModelAsyncClient {
      */
     @Generated
     @ServiceMethod(returns = ReturnType.LONG_RUNNING_OPERATION)
-    PollerFlux<BinaryData, BinaryData> beginCreateOrReplace(String name, BinaryData resource,
+    PollerFlux<BinaryData, BinaryData> beginCreateOrReplaceInternal(String name, BinaryData resource,
         RequestOptions requestOptions) {
-        return this.serviceClient.beginCreateOrReplaceAsync(name, resource, requestOptions);
+        return this.serviceClient.beginCreateOrReplaceInternalAsync(name, resource, requestOptions);
+    }
+
+    /**
+     * Long-running resource action operation template.
+     * <p><strong>Query Parameters</strong></p>
+     * <table border="1">
+     * <caption>Query Parameters</caption>
+     * <tr><th>Name</th><th>Type</th><th>Required</th><th>Description</th></tr>
+     * <tr><td>optional</td><td>String</td><td>No</td><td>The optional parameter</td></tr>
+     * <tr><td>added</td><td>String</td><td>No</td><td>The added parameter</td></tr>
+     * </table>
+     * You can add these to a request with {@link RequestOptions#addQueryParam}
+     * <p><strong>Response Body Schema</strong></p>
+     * 
+     * <pre>
+     * {@code
+     * {
+     *     id: String (Required)
+     *     status: String(NotStarted/Running/Succeeded/Failed/Canceled) (Required)
+     *     error (Optional): {
+     *         code: String (Required)
+     *         message: String (Required)
+     *         target: String (Optional)
+     *         details (Optional): [
+     *             (recursive schema, see above)
+     *         ]
+     *         innererror (Optional): {
+     *             code: String (Optional)
+     *             innererror (Optional): (recursive schema, see innererror above)
+     *         }
+     *     }
+     *     result (Optional): {
+     *         id: String (Required)
+     *         name: String (Required)
+     *     }
+     * }
+     * }
+     * </pre>
+     * 
+     * @param name The name parameter.
+     * @param requestOptions The options to configure the HTTP request before HTTP client sends it.
+     * @throws HttpResponseException thrown if the request is rejected by server.
+     * @throws ClientAuthenticationException thrown if the request is rejected by server on status code 401.
+     * @throws ResourceNotFoundException thrown if the request is rejected by server on status code 404.
+     * @throws ResourceModifiedException thrown if the request is rejected by server on status code 409.
+     * @return the {@link PollerFlux} for polling of provides status details for long running operations.
+     */
+    @Generated
+    @ServiceMethod(returns = ReturnType.LONG_RUNNING_OPERATION)
+    PollerFlux<BinaryData, BinaryData> beginExportInternal(String name, RequestOptions requestOptions) {
+        return this.serviceClient.beginExportInternalAsync(name, requestOptions);
+    }
+
+    /**
+     * Long-running resource action operation template.
+     * <p><strong>Response Body Schema</strong></p>
+     * 
+     * <pre>
+     * {@code
+     * {
+     *     id: String (Required)
+     *     status: String(NotStarted/Running/Succeeded/Failed/Canceled) (Required)
+     *     error (Optional): {
+     *         code: String (Required)
+     *         message: String (Required)
+     *         target: String (Optional)
+     *         details (Optional): [
+     *             (recursive schema, see above)
+     *         ]
+     *         innererror (Optional): {
+     *             code: String (Optional)
+     *             innererror (Optional): (recursive schema, see innererror above)
+     *         }
+     *     }
+     *     result (Optional): {
+     *         id: String (Required)
+     *         name: String (Required)
+     *     }
+     * }
+     * }
+     * </pre>
+     * 
+     * @param name The name parameter.
+     * @param requestOptions The options to configure the HTTP request before HTTP client sends it.
+     * @throws HttpResponseException thrown if the request is rejected by server.
+     * @throws ClientAuthenticationException thrown if the request is rejected by server on status code 401.
+     * @throws ResourceNotFoundException thrown if the request is rejected by server on status code 404.
+     * @throws ResourceModifiedException thrown if the request is rejected by server on status code 409.
+     * @return the {@link PollerFlux} for polling of provides status details for long running operations.
+     */
+    @Generated
+    @ServiceMethod(returns = ReturnType.LONG_RUNNING_OPERATION)
+    PollerFlux<BinaryData, BinaryData> beginArchiveInternal(String name, RequestOptions requestOptions) {
+        return this.serviceClient.beginArchiveInternalAsync(name, requestOptions);
     }
 
     /**
@@ -178,6 +274,7 @@ public final class MaxOverloadModelAsyncClient {
      * <caption>Query Parameters</caption>
      * <tr><th>Name</th><th>Type</th><th>Required</th><th>Description</th></tr>
      * <tr><td>filter</td><td>String</td><td>No</td><td>The filter parameter</td></tr>
+     * <tr><td>added</td><td>String</td><td>No</td><td>The added parameter</td></tr>
      * </table>
      * You can add these to a request with {@link RequestOptions#addQueryParam}
      * <p><strong>Response Body Schema</strong></p>
@@ -200,8 +297,34 @@ public final class MaxOverloadModelAsyncClient {
      */
     @Generated
     @ServiceMethod(returns = ReturnType.COLLECTION)
-    PagedFlux<BinaryData> list(RequestOptions requestOptions) {
-        return this.serviceClient.listAsync(requestOptions);
+    PagedFlux<BinaryData> listInternal(RequestOptions requestOptions) {
+        return this.serviceClient.listInternalAsync(requestOptions);
+    }
+
+    /**
+     * Resource list operation template.
+     * <p><strong>Response Body Schema</strong></p>
+     * 
+     * <pre>
+     * {@code
+     * {
+     *     id: String (Required)
+     *     name: String (Required)
+     * }
+     * }
+     * </pre>
+     * 
+     * @param requestOptions The options to configure the HTTP request before HTTP client sends it.
+     * @throws HttpResponseException thrown if the request is rejected by server.
+     * @throws ClientAuthenticationException thrown if the request is rejected by server on status code 401.
+     * @throws ResourceNotFoundException thrown if the request is rejected by server on status code 404.
+     * @throws ResourceModifiedException thrown if the request is rejected by server on status code 409.
+     * @return paged collection of ResourceWithoutOptionsModel items as paginated response with {@link PagedFlux}.
+     */
+    @Generated
+    @ServiceMethod(returns = ReturnType.COLLECTION)
+    PagedFlux<BinaryData> listWithoutOptionsInternal(RequestOptions requestOptions) {
+        return this.serviceClient.listWithoutOptionsInternalAsync(requestOptions);
     }
 
     /**
@@ -225,6 +348,39 @@ public final class MaxOverloadModelAsyncClient {
     @ServiceMethod(returns = ReturnType.SINGLE)
     Mono<Response<Void>> getResourceMetadataWithResponseInternal(RequestOptions requestOptions) {
         return this.serviceClient.getResourceMetadataWithResponseInternalAsync(requestOptions);
+    }
+
+    /**
+     * The getInternalHeaders operation.
+     * <p><strong>Response Body Schema</strong></p>
+     * 
+     * <pre>
+     * {@code
+     * {
+     *     name: String (Required)
+     * }
+     * }
+     * </pre>
+     * 
+     * <p><strong>Response Headers</strong></p>
+     * <table border="1">
+     * <caption>Response Headers</caption>
+     * <tr><th>Name</th><th>Type</th><th>Description</th></tr>
+     * <tr><td>x-request-id</td><td>String</td><td>The x-request-id response header.</td></tr>
+     * <tr><td>x-request-status</td><td>String</td><td>The x-request-status response header.</td></tr>
+     * </table>
+     * 
+     * @param requestOptions The options to configure the HTTP request before HTTP client sends it.
+     * @throws HttpResponseException thrown if the request is rejected by server.
+     * @throws ClientAuthenticationException thrown if the request is rejected by server on status code 401.
+     * @throws ResourceNotFoundException thrown if the request is rejected by server on status code 404.
+     * @throws ResourceModifiedException thrown if the request is rejected by server on status code 409.
+     * @return the response body along with {@link Response} on successful completion of {@link Mono}.
+     */
+    @Generated
+    @ServiceMethod(returns = ReturnType.SINGLE)
+    Mono<Response<BinaryData>> getInternalHeadersWithResponseInternal(RequestOptions requestOptions) {
+        return this.serviceClient.getInternalHeadersWithResponseInternalAsync(requestOptions);
     }
 
     /**
@@ -444,9 +600,210 @@ public final class MaxOverloadModelAsyncClient {
     }
 
     /**
+     * Long-running resource create or replace operation template.
+     * 
+     * @param name The name parameter.
+     * @param resource The resource instance.
+     * @param requestOptions The options to configure the HTTP request before HTTP client sends it.
+     * @throws IllegalArgumentException thrown if parameters fail the validation.
+     * @throws HttpResponseException thrown if the request is rejected by server.
+     * @throws ClientAuthenticationException thrown if the request is rejected by server on status code 401.
+     * @throws ResourceNotFoundException thrown if the request is rejected by server on status code 404.
+     * @throws ResourceModifiedException thrown if the request is rejected by server on status code 409.
+     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
+     * @return the {@link PollerFlux} for polling of long-running operation.
+     */
+    @Generated
+    @ServiceMethod(returns = ReturnType.LONG_RUNNING_OPERATION)
+    public PollerFlux<PollOperationDetails, ResourceModel> beginCreateOrReplace(String name, ResourceModel resource,
+        RequestOptions requestOptions) {
+        // Generated convenience method for beginCreateOrReplaceWithModel
+        requestOptions = requestOptions == null ? new RequestOptions() : requestOptions;
+        return serviceClient.beginCreateOrReplaceWithModelAsync(name, BinaryData.fromObject(resource), requestOptions);
+    }
+
+    /**
+     * Long-running resource action operation template.
+     * 
+     * @param name The name parameter.
+     * @param optional The optional parameter.
+     * @param added The added parameter.
+     * @throws IllegalArgumentException thrown if parameters fail the validation.
+     * @throws HttpResponseException thrown if the request is rejected by server.
+     * @throws ClientAuthenticationException thrown if the request is rejected by server on status code 401.
+     * @throws ResourceNotFoundException thrown if the request is rejected by server on status code 404.
+     * @throws ResourceModifiedException thrown if the request is rejected by server on status code 409.
+     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
+     * @return the {@link PollerFlux} for polling of provides status details for long running operations.
+     */
+    @Generated
+    @ServiceMethod(returns = ReturnType.LONG_RUNNING_OPERATION)
+    public PollerFlux<PollOperationDetails, ResourceModel> beginExport(String name, String optional, String added) {
+        // Generated convenience method for beginExportWithModel
+        RequestOptions requestOptions = new RequestOptions();
+        if (!Arrays.asList("2026-01-01").contains(serviceClient.getServiceVersion().getVersion())) {
+            return PollerFlux
+                .error(new IllegalArgumentException("Parameter added is only available in api-version 2026-01-01."));
+        }
+        if (optional != null) {
+            requestOptions.addQueryParam("optional", optional, false);
+        }
+        if (added != null) {
+            requestOptions.addQueryParam("added", added, false);
+        }
+        return serviceClient.beginExportWithModelAsync(name, requestOptions);
+    }
+
+    /**
+     * Long-running resource action operation template.
+     * 
+     * @param name The name parameter.
+     * @throws IllegalArgumentException thrown if parameters fail the validation.
+     * @throws HttpResponseException thrown if the request is rejected by server.
+     * @throws ClientAuthenticationException thrown if the request is rejected by server on status code 401.
+     * @throws ResourceNotFoundException thrown if the request is rejected by server on status code 404.
+     * @throws ResourceModifiedException thrown if the request is rejected by server on status code 409.
+     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
+     * @return the {@link PollerFlux} for polling of provides status details for long running operations.
+     */
+    @Generated
+    @ServiceMethod(returns = ReturnType.LONG_RUNNING_OPERATION)
+    public PollerFlux<PollOperationDetails, ResourceModel> beginExport(String name) {
+        // Generated convenience method for beginExportWithModel
+        RequestOptions requestOptions = new RequestOptions();
+        return serviceClient.beginExportWithModelAsync(name, requestOptions);
+    }
+
+    /**
+     * Long-running resource action operation template.
+     * 
+     * @param name The name parameter.
+     * @param optional The optional parameter.
+     * @param added The added parameter.
+     * @param requestOptions The options to configure the HTTP request before HTTP client sends it.
+     * @throws IllegalArgumentException thrown if parameters fail the validation.
+     * @throws HttpResponseException thrown if the request is rejected by server.
+     * @throws ClientAuthenticationException thrown if the request is rejected by server on status code 401.
+     * @throws ResourceNotFoundException thrown if the request is rejected by server on status code 404.
+     * @throws ResourceModifiedException thrown if the request is rejected by server on status code 409.
+     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
+     * @return the {@link PollerFlux} for polling of provides status details for long running operations.
+     */
+    @Generated
+    @ServiceMethod(returns = ReturnType.LONG_RUNNING_OPERATION)
+    public PollerFlux<PollOperationDetails, ResourceModel> beginExport(String name, String optional, String added,
+        RequestOptions requestOptions) {
+        // Generated convenience method for beginExportWithModel
+        requestOptions = requestOptions == null ? new RequestOptions() : requestOptions;
+        if (!Arrays.asList("2026-01-01").contains(serviceClient.getServiceVersion().getVersion())) {
+            return PollerFlux
+                .error(new IllegalArgumentException("Parameter added is only available in api-version 2026-01-01."));
+        }
+        if (optional != null) {
+            requestOptions.addQueryParam("optional", optional, false);
+        }
+        if (added != null) {
+            requestOptions.addQueryParam("added", added, false);
+        }
+        return serviceClient.beginExportWithModelAsync(name, requestOptions);
+    }
+
+    /**
+     * Long-running resource action operation template.
+     * 
+     * @param name The name parameter.
+     * @param optional The optional parameter.
+     * @param requestOptions The options to configure the HTTP request before HTTP client sends it.
+     * @throws IllegalArgumentException thrown if parameters fail the validation.
+     * @throws HttpResponseException thrown if the request is rejected by server.
+     * @throws ClientAuthenticationException thrown if the request is rejected by server on status code 401.
+     * @throws ResourceNotFoundException thrown if the request is rejected by server on status code 404.
+     * @throws ResourceModifiedException thrown if the request is rejected by server on status code 409.
+     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
+     * @return the {@link PollerFlux} for polling of provides status details for long running operations.
+     */
+    @Generated
+    @ServiceMethod(returns = ReturnType.LONG_RUNNING_OPERATION)
+    public PollerFlux<PollOperationDetails, ResourceModel> beginExport(String name, String optional,
+        RequestOptions requestOptions) {
+        // Generated convenience method for beginExportWithModel
+        requestOptions = requestOptions == null ? new RequestOptions() : requestOptions;
+        if (optional != null) {
+            requestOptions.addQueryParam("optional", optional, false);
+        }
+        return serviceClient.beginExportWithModelAsync(name, requestOptions);
+    }
+
+    /**
+     * Long-running resource action operation template.
+     * 
+     * @param name The name parameter.
+     * @param optional The optional parameter.
+     * @throws IllegalArgumentException thrown if parameters fail the validation.
+     * @throws HttpResponseException thrown if the request is rejected by server.
+     * @throws ClientAuthenticationException thrown if the request is rejected by server on status code 401.
+     * @throws ResourceNotFoundException thrown if the request is rejected by server on status code 404.
+     * @throws ResourceModifiedException thrown if the request is rejected by server on status code 409.
+     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
+     * @return the {@link PollerFlux} for polling of provides status details for long running operations.
+     */
+    @Generated
+    @ServiceMethod(returns = ReturnType.LONG_RUNNING_OPERATION)
+    public PollerFlux<PollOperationDetails, ResourceModel> beginExport(String name, String optional) {
+        // Generated convenience method for beginExportWithModel
+        RequestOptions requestOptions = new RequestOptions();
+        if (optional != null) {
+            requestOptions.addQueryParam("optional", optional, false);
+        }
+        return serviceClient.beginExportWithModelAsync(name, requestOptions);
+    }
+
+    /**
+     * Long-running resource action operation template.
+     * 
+     * @param name The name parameter.
+     * @throws IllegalArgumentException thrown if parameters fail the validation.
+     * @throws HttpResponseException thrown if the request is rejected by server.
+     * @throws ClientAuthenticationException thrown if the request is rejected by server on status code 401.
+     * @throws ResourceNotFoundException thrown if the request is rejected by server on status code 404.
+     * @throws ResourceModifiedException thrown if the request is rejected by server on status code 409.
+     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
+     * @return the {@link PollerFlux} for polling of provides status details for long running operations.
+     */
+    @Generated
+    @ServiceMethod(returns = ReturnType.LONG_RUNNING_OPERATION)
+    public PollerFlux<PollOperationDetails, ResourceModel> beginArchive(String name) {
+        // Generated convenience method for beginArchiveWithModel
+        RequestOptions requestOptions = new RequestOptions();
+        return serviceClient.beginArchiveWithModelAsync(name, requestOptions);
+    }
+
+    /**
+     * Long-running resource action operation template.
+     * 
+     * @param name The name parameter.
+     * @param requestOptions The options to configure the HTTP request before HTTP client sends it.
+     * @throws IllegalArgumentException thrown if parameters fail the validation.
+     * @throws HttpResponseException thrown if the request is rejected by server.
+     * @throws ClientAuthenticationException thrown if the request is rejected by server on status code 401.
+     * @throws ResourceNotFoundException thrown if the request is rejected by server on status code 404.
+     * @throws ResourceModifiedException thrown if the request is rejected by server on status code 409.
+     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
+     * @return the {@link PollerFlux} for polling of provides status details for long running operations.
+     */
+    @Generated
+    @ServiceMethod(returns = ReturnType.LONG_RUNNING_OPERATION)
+    public PollerFlux<PollOperationDetails, ResourceModel> beginArchive(String name, RequestOptions requestOptions) {
+        // Generated convenience method for beginArchiveWithModel
+        requestOptions = requestOptions == null ? new RequestOptions() : requestOptions;
+        return serviceClient.beginArchiveWithModelAsync(name, requestOptions);
+    }
+
+    /**
      * Resource list operation template.
      * 
      * @param filter The filter parameter.
+     * @param added The added parameter.
      * @throws IllegalArgumentException thrown if parameters fail the validation.
      * @throws HttpResponseException thrown if the request is rejected by server.
      * @throws ClientAuthenticationException thrown if the request is rejected by server on status code 401.
@@ -457,13 +814,20 @@ public final class MaxOverloadModelAsyncClient {
      */
     @Generated
     @ServiceMethod(returns = ReturnType.COLLECTION)
-    public PagedFlux<ResourceModel> list(String filter) {
-        // Generated convenience method for list
+    public PagedFlux<ResourceModel> list(String filter, String added) {
+        // Generated convenience method for listInternal
         RequestOptions requestOptions = new RequestOptions();
+        if (!Arrays.asList("2026-01-01").contains(serviceClient.getServiceVersion().getVersion())) {
+            return PagedFlux.create(() -> (ignoredContinuationToken, ignoredPageSize) -> Flux
+                .error(new IllegalArgumentException("Parameter added is only available in api-version 2026-01-01.")));
+        }
         if (filter != null) {
             requestOptions.addQueryParam("filter", filter, false);
         }
-        PagedFlux<BinaryData> pagedFluxResponse = list(requestOptions);
+        if (added != null) {
+            requestOptions.addQueryParam("added", added, false);
+        }
+        PagedFlux<BinaryData> pagedFluxResponse = listInternal(requestOptions);
         return PagedFlux.create(() -> (continuationTokenParam, pageSizeParam) -> {
             Flux<PagedResponse<BinaryData>> flux = (continuationTokenParam == null)
                 ? pagedFluxResponse.byPage().take(1)
@@ -491,9 +855,9 @@ public final class MaxOverloadModelAsyncClient {
     @Generated
     @ServiceMethod(returns = ReturnType.COLLECTION)
     public PagedFlux<ResourceModel> list() {
-        // Generated convenience method for list
+        // Generated convenience method for listInternal
         RequestOptions requestOptions = new RequestOptions();
-        PagedFlux<BinaryData> pagedFluxResponse = list(requestOptions);
+        PagedFlux<BinaryData> pagedFluxResponse = listInternal(requestOptions);
         return PagedFlux.create(() -> (continuationTokenParam, pageSizeParam) -> {
             Flux<PagedResponse<BinaryData>> flux = (continuationTokenParam == null)
                 ? pagedFluxResponse.byPage().take(1)
@@ -503,6 +867,183 @@ public final class MaxOverloadModelAsyncClient {
                 pagedResponse.getValue()
                     .stream()
                     .map(protocolMethodData -> protocolMethodData.toObject(ResourceModel.class))
+                    .collect(Collectors.toList()),
+                pagedResponse.getContinuationToken(), null));
+        });
+    }
+
+    /**
+     * Resource list operation template.
+     * 
+     * @param filter The filter parameter.
+     * @param added The added parameter.
+     * @param requestOptions The options to configure the HTTP request before HTTP client sends it.
+     * @throws IllegalArgumentException thrown if parameters fail the validation.
+     * @throws HttpResponseException thrown if the request is rejected by server.
+     * @throws ClientAuthenticationException thrown if the request is rejected by server on status code 401.
+     * @throws ResourceNotFoundException thrown if the request is rejected by server on status code 404.
+     * @throws ResourceModifiedException thrown if the request is rejected by server on status code 409.
+     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
+     * @return paged collection of ResourceModel items as paginated response with {@link PagedFlux}.
+     */
+    @Generated
+    @ServiceMethod(returns = ReturnType.COLLECTION)
+    public PagedFlux<ResourceModel> list(String filter, String added, RequestOptions requestOptions) {
+        // Generated convenience method for listInternal
+        requestOptions = requestOptions == null ? new RequestOptions() : requestOptions;
+        if (!Arrays.asList("2026-01-01").contains(serviceClient.getServiceVersion().getVersion())) {
+            return PagedFlux.create(() -> (ignoredContinuationToken, ignoredPageSize) -> Flux
+                .error(new IllegalArgumentException("Parameter added is only available in api-version 2026-01-01.")));
+        }
+        if (filter != null) {
+            requestOptions.addQueryParam("filter", filter, false);
+        }
+        if (added != null) {
+            requestOptions.addQueryParam("added", added, false);
+        }
+        PagedFlux<BinaryData> pagedFluxResponse = listInternal(requestOptions);
+        return PagedFlux.create(() -> (continuationTokenParam, pageSizeParam) -> {
+            Flux<PagedResponse<BinaryData>> flux = (continuationTokenParam == null)
+                ? pagedFluxResponse.byPage().take(1)
+                : pagedFluxResponse.byPage(continuationTokenParam).take(1);
+            return flux.map(pagedResponse -> new PagedResponseBase<Void, ResourceModel>(pagedResponse.getRequest(),
+                pagedResponse.getStatusCode(), pagedResponse.getHeaders(),
+                pagedResponse.getValue()
+                    .stream()
+                    .map(protocolMethodData -> protocolMethodData.toObject(ResourceModel.class))
+                    .collect(Collectors.toList()),
+                pagedResponse.getContinuationToken(), null));
+        });
+    }
+
+    /**
+     * Resource list operation template.
+     * 
+     * @param filter The filter parameter.
+     * @param requestOptions The options to configure the HTTP request before HTTP client sends it.
+     * @throws IllegalArgumentException thrown if parameters fail the validation.
+     * @throws HttpResponseException thrown if the request is rejected by server.
+     * @throws ClientAuthenticationException thrown if the request is rejected by server on status code 401.
+     * @throws ResourceNotFoundException thrown if the request is rejected by server on status code 404.
+     * @throws ResourceModifiedException thrown if the request is rejected by server on status code 409.
+     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
+     * @return paged collection of ResourceModel items as paginated response with {@link PagedFlux}.
+     */
+    @Generated
+    @ServiceMethod(returns = ReturnType.COLLECTION)
+    public PagedFlux<ResourceModel> list(String filter, RequestOptions requestOptions) {
+        // Generated convenience method for listInternal
+        requestOptions = requestOptions == null ? new RequestOptions() : requestOptions;
+        if (filter != null) {
+            requestOptions.addQueryParam("filter", filter, false);
+        }
+        PagedFlux<BinaryData> pagedFluxResponse = listInternal(requestOptions);
+        return PagedFlux.create(() -> (continuationTokenParam, pageSizeParam) -> {
+            Flux<PagedResponse<BinaryData>> flux = (continuationTokenParam == null)
+                ? pagedFluxResponse.byPage().take(1)
+                : pagedFluxResponse.byPage(continuationTokenParam).take(1);
+            return flux.map(pagedResponse -> new PagedResponseBase<Void, ResourceModel>(pagedResponse.getRequest(),
+                pagedResponse.getStatusCode(), pagedResponse.getHeaders(),
+                pagedResponse.getValue()
+                    .stream()
+                    .map(protocolMethodData -> protocolMethodData.toObject(ResourceModel.class))
+                    .collect(Collectors.toList()),
+                pagedResponse.getContinuationToken(), null));
+        });
+    }
+
+    /**
+     * Resource list operation template.
+     * 
+     * @param filter The filter parameter.
+     * @throws IllegalArgumentException thrown if parameters fail the validation.
+     * @throws HttpResponseException thrown if the request is rejected by server.
+     * @throws ClientAuthenticationException thrown if the request is rejected by server on status code 401.
+     * @throws ResourceNotFoundException thrown if the request is rejected by server on status code 404.
+     * @throws ResourceModifiedException thrown if the request is rejected by server on status code 409.
+     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
+     * @return paged collection of ResourceModel items as paginated response with {@link PagedFlux}.
+     */
+    @Generated
+    @ServiceMethod(returns = ReturnType.COLLECTION)
+    public PagedFlux<ResourceModel> list(String filter) {
+        // Generated convenience method for listInternal
+        RequestOptions requestOptions = new RequestOptions();
+        if (filter != null) {
+            requestOptions.addQueryParam("filter", filter, false);
+        }
+        PagedFlux<BinaryData> pagedFluxResponse = listInternal(requestOptions);
+        return PagedFlux.create(() -> (continuationTokenParam, pageSizeParam) -> {
+            Flux<PagedResponse<BinaryData>> flux = (continuationTokenParam == null)
+                ? pagedFluxResponse.byPage().take(1)
+                : pagedFluxResponse.byPage(continuationTokenParam).take(1);
+            return flux.map(pagedResponse -> new PagedResponseBase<Void, ResourceModel>(pagedResponse.getRequest(),
+                pagedResponse.getStatusCode(), pagedResponse.getHeaders(),
+                pagedResponse.getValue()
+                    .stream()
+                    .map(protocolMethodData -> protocolMethodData.toObject(ResourceModel.class))
+                    .collect(Collectors.toList()),
+                pagedResponse.getContinuationToken(), null));
+        });
+    }
+
+    /**
+     * Resource list operation template.
+     * 
+     * @throws HttpResponseException thrown if the request is rejected by server.
+     * @throws ClientAuthenticationException thrown if the request is rejected by server on status code 401.
+     * @throws ResourceNotFoundException thrown if the request is rejected by server on status code 404.
+     * @throws ResourceModifiedException thrown if the request is rejected by server on status code 409.
+     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
+     * @return paged collection of ResourceWithoutOptionsModel items as paginated response with {@link PagedFlux}.
+     */
+    @Generated
+    @ServiceMethod(returns = ReturnType.COLLECTION)
+    public PagedFlux<ResourceWithoutOptionsModel> listWithoutOptions() {
+        // Generated convenience method for listWithoutOptionsInternal
+        RequestOptions requestOptions = new RequestOptions();
+        PagedFlux<BinaryData> pagedFluxResponse = listWithoutOptionsInternal(requestOptions);
+        return PagedFlux.create(() -> (continuationTokenParam, pageSizeParam) -> {
+            Flux<PagedResponse<BinaryData>> flux = (continuationTokenParam == null)
+                ? pagedFluxResponse.byPage().take(1)
+                : pagedFluxResponse.byPage(continuationTokenParam).take(1);
+            return flux.map(pagedResponse -> new PagedResponseBase<Void, ResourceWithoutOptionsModel>(
+                pagedResponse.getRequest(), pagedResponse.getStatusCode(), pagedResponse.getHeaders(),
+                pagedResponse.getValue()
+                    .stream()
+                    .map(protocolMethodData -> protocolMethodData.toObject(ResourceWithoutOptionsModel.class))
+                    .collect(Collectors.toList()),
+                pagedResponse.getContinuationToken(), null));
+        });
+    }
+
+    /**
+     * Resource list operation template.
+     * 
+     * @param requestOptions The options to configure the HTTP request before HTTP client sends it.
+     * @throws IllegalArgumentException thrown if parameters fail the validation.
+     * @throws HttpResponseException thrown if the request is rejected by server.
+     * @throws ClientAuthenticationException thrown if the request is rejected by server on status code 401.
+     * @throws ResourceNotFoundException thrown if the request is rejected by server on status code 404.
+     * @throws ResourceModifiedException thrown if the request is rejected by server on status code 409.
+     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
+     * @return paged collection of ResourceWithoutOptionsModel items as paginated response with {@link PagedFlux}.
+     */
+    @Generated
+    @ServiceMethod(returns = ReturnType.COLLECTION)
+    public PagedFlux<ResourceWithoutOptionsModel> listWithoutOptions(RequestOptions requestOptions) {
+        // Generated convenience method for listWithoutOptionsInternal
+        requestOptions = requestOptions == null ? new RequestOptions() : requestOptions;
+        PagedFlux<BinaryData> pagedFluxResponse = listWithoutOptionsInternal(requestOptions);
+        return PagedFlux.create(() -> (continuationTokenParam, pageSizeParam) -> {
+            Flux<PagedResponse<BinaryData>> flux = (continuationTokenParam == null)
+                ? pagedFluxResponse.byPage().take(1)
+                : pagedFluxResponse.byPage(continuationTokenParam).take(1);
+            return flux.map(pagedResponse -> new PagedResponseBase<Void, ResourceWithoutOptionsModel>(
+                pagedResponse.getRequest(), pagedResponse.getStatusCode(), pagedResponse.getHeaders(),
+                pagedResponse.getValue()
+                    .stream()
+                    .map(protocolMethodData -> protocolMethodData.toObject(ResourceWithoutOptionsModel.class))
                     .collect(Collectors.toList()),
                 pagedResponse.getContinuationToken(), null));
         });
@@ -547,5 +1088,49 @@ public final class MaxOverloadModelAsyncClient {
         RequestOptions requestOptions = new RequestOptions();
         return getResourceMetadataWithResponseInternal(requestOptions)
             .map(protocolMethodResponse -> new GetResourceMetadataHeaders(protocolMethodResponse.getHeaders()));
+    }
+
+    /**
+     * The getInternalHeaders operation.
+     * 
+     * @param requestOptions The options to configure the HTTP request before HTTP client sends it.
+     * @throws IllegalArgumentException thrown if parameters fail the validation.
+     * @throws HttpResponseException thrown if the request is rejected by server.
+     * @throws ClientAuthenticationException thrown if the request is rejected by server on status code 401.
+     * @throws ResourceNotFoundException thrown if the request is rejected by server on status code 404.
+     * @throws ResourceModifiedException thrown if the request is rejected by server on status code 409.
+     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
+     * @return the response body along with {@link ResponseBase} on successful completion of {@link Mono}.
+     */
+    @Generated
+    @ServiceMethod(returns = ReturnType.SINGLE)
+    Mono<ResponseBase<GetInternalHeadersHeaders, ResponseModel>>
+        getInternalHeadersWithResponse(RequestOptions requestOptions) {
+        // Generated convenience method for getInternalHeadersWithResponseInternal
+        requestOptions = requestOptions == null ? new RequestOptions() : requestOptions;
+        return getInternalHeadersWithResponseInternal(requestOptions)
+            .map(protocolMethodResponse -> new ResponseBase<>(protocolMethodResponse.getRequest(),
+                protocolMethodResponse.getStatusCode(), protocolMethodResponse.getHeaders(),
+                protocolMethodResponse.getValue().toObject(ResponseModel.class),
+                new GetInternalHeadersHeaders(protocolMethodResponse.getHeaders())));
+    }
+
+    /**
+     * The getInternalHeaders operation.
+     * 
+     * @throws HttpResponseException thrown if the request is rejected by server.
+     * @throws ClientAuthenticationException thrown if the request is rejected by server on status code 401.
+     * @throws ResourceNotFoundException thrown if the request is rejected by server on status code 404.
+     * @throws ResourceModifiedException thrown if the request is rejected by server on status code 409.
+     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
+     * @return the response body on successful completion of {@link Mono}.
+     */
+    @Generated
+    @ServiceMethod(returns = ReturnType.SINGLE)
+    Mono<ResponseModel> getInternalHeaders() {
+        // Generated convenience method for getInternalHeadersWithResponseInternal
+        RequestOptions requestOptions = new RequestOptions();
+        return getInternalHeadersWithResponseInternal(requestOptions).flatMap(FluxUtil::toMono)
+            .map(protocolMethodData -> protocolMethodData.toObject(ResponseModel.class));
     }
 }

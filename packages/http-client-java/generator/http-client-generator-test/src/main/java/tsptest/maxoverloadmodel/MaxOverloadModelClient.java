@@ -23,10 +23,12 @@ import com.azure.core.util.polling.PollOperationDetails;
 import com.azure.core.util.polling.SyncPoller;
 import java.util.Arrays;
 import tsptest.maxoverloadmodel.implementation.MaxOverloadModelClientImpl;
+import tsptest.maxoverloadmodel.implementation.models.GetInternalHeadersHeaders;
 import tsptest.maxoverloadmodel.models.GetResourceMetadataHeaders;
 import tsptest.maxoverloadmodel.models.GetWithHeadersHeaders;
 import tsptest.maxoverloadmodel.models.RequestModel;
 import tsptest.maxoverloadmodel.models.ResourceModel;
+import tsptest.maxoverloadmodel.models.ResourceWithoutOptionsModel;
 import tsptest.maxoverloadmodel.models.ResponseModel;
 
 /**
@@ -161,9 +163,103 @@ public final class MaxOverloadModelClient {
      */
     @Generated
     @ServiceMethod(returns = ReturnType.LONG_RUNNING_OPERATION)
-    SyncPoller<BinaryData, BinaryData> beginCreateOrReplace(String name, BinaryData resource,
+    SyncPoller<BinaryData, BinaryData> beginCreateOrReplaceInternal(String name, BinaryData resource,
         RequestOptions requestOptions) {
-        return this.serviceClient.beginCreateOrReplace(name, resource, requestOptions);
+        return this.serviceClient.beginCreateOrReplaceInternal(name, resource, requestOptions);
+    }
+
+    /**
+     * Long-running resource action operation template.
+     * <p><strong>Query Parameters</strong></p>
+     * <table border="1">
+     * <caption>Query Parameters</caption>
+     * <tr><th>Name</th><th>Type</th><th>Required</th><th>Description</th></tr>
+     * <tr><td>optional</td><td>String</td><td>No</td><td>The optional parameter</td></tr>
+     * <tr><td>added</td><td>String</td><td>No</td><td>The added parameter</td></tr>
+     * </table>
+     * You can add these to a request with {@link RequestOptions#addQueryParam}
+     * <p><strong>Response Body Schema</strong></p>
+     * 
+     * <pre>
+     * {@code
+     * {
+     *     id: String (Required)
+     *     status: String(NotStarted/Running/Succeeded/Failed/Canceled) (Required)
+     *     error (Optional): {
+     *         code: String (Required)
+     *         message: String (Required)
+     *         target: String (Optional)
+     *         details (Optional): [
+     *             (recursive schema, see above)
+     *         ]
+     *         innererror (Optional): {
+     *             code: String (Optional)
+     *             innererror (Optional): (recursive schema, see innererror above)
+     *         }
+     *     }
+     *     result (Optional): {
+     *         id: String (Required)
+     *         name: String (Required)
+     *     }
+     * }
+     * }
+     * </pre>
+     * 
+     * @param name The name parameter.
+     * @param requestOptions The options to configure the HTTP request before HTTP client sends it.
+     * @throws HttpResponseException thrown if the request is rejected by server.
+     * @throws ClientAuthenticationException thrown if the request is rejected by server on status code 401.
+     * @throws ResourceNotFoundException thrown if the request is rejected by server on status code 404.
+     * @throws ResourceModifiedException thrown if the request is rejected by server on status code 409.
+     * @return the {@link SyncPoller} for polling of provides status details for long running operations.
+     */
+    @Generated
+    @ServiceMethod(returns = ReturnType.LONG_RUNNING_OPERATION)
+    SyncPoller<BinaryData, BinaryData> beginExportInternal(String name, RequestOptions requestOptions) {
+        return this.serviceClient.beginExportInternal(name, requestOptions);
+    }
+
+    /**
+     * Long-running resource action operation template.
+     * <p><strong>Response Body Schema</strong></p>
+     * 
+     * <pre>
+     * {@code
+     * {
+     *     id: String (Required)
+     *     status: String(NotStarted/Running/Succeeded/Failed/Canceled) (Required)
+     *     error (Optional): {
+     *         code: String (Required)
+     *         message: String (Required)
+     *         target: String (Optional)
+     *         details (Optional): [
+     *             (recursive schema, see above)
+     *         ]
+     *         innererror (Optional): {
+     *             code: String (Optional)
+     *             innererror (Optional): (recursive schema, see innererror above)
+     *         }
+     *     }
+     *     result (Optional): {
+     *         id: String (Required)
+     *         name: String (Required)
+     *     }
+     * }
+     * }
+     * </pre>
+     * 
+     * @param name The name parameter.
+     * @param requestOptions The options to configure the HTTP request before HTTP client sends it.
+     * @throws HttpResponseException thrown if the request is rejected by server.
+     * @throws ClientAuthenticationException thrown if the request is rejected by server on status code 401.
+     * @throws ResourceNotFoundException thrown if the request is rejected by server on status code 404.
+     * @throws ResourceModifiedException thrown if the request is rejected by server on status code 409.
+     * @return the {@link SyncPoller} for polling of provides status details for long running operations.
+     */
+    @Generated
+    @ServiceMethod(returns = ReturnType.LONG_RUNNING_OPERATION)
+    SyncPoller<BinaryData, BinaryData> beginArchiveInternal(String name, RequestOptions requestOptions) {
+        return this.serviceClient.beginArchiveInternal(name, requestOptions);
     }
 
     /**
@@ -173,6 +269,7 @@ public final class MaxOverloadModelClient {
      * <caption>Query Parameters</caption>
      * <tr><th>Name</th><th>Type</th><th>Required</th><th>Description</th></tr>
      * <tr><td>filter</td><td>String</td><td>No</td><td>The filter parameter</td></tr>
+     * <tr><td>added</td><td>String</td><td>No</td><td>The added parameter</td></tr>
      * </table>
      * You can add these to a request with {@link RequestOptions#addQueryParam}
      * <p><strong>Response Body Schema</strong></p>
@@ -195,8 +292,34 @@ public final class MaxOverloadModelClient {
      */
     @Generated
     @ServiceMethod(returns = ReturnType.COLLECTION)
-    PagedIterable<BinaryData> list(RequestOptions requestOptions) {
-        return this.serviceClient.list(requestOptions);
+    PagedIterable<BinaryData> listInternal(RequestOptions requestOptions) {
+        return this.serviceClient.listInternal(requestOptions);
+    }
+
+    /**
+     * Resource list operation template.
+     * <p><strong>Response Body Schema</strong></p>
+     * 
+     * <pre>
+     * {@code
+     * {
+     *     id: String (Required)
+     *     name: String (Required)
+     * }
+     * }
+     * </pre>
+     * 
+     * @param requestOptions The options to configure the HTTP request before HTTP client sends it.
+     * @throws HttpResponseException thrown if the request is rejected by server.
+     * @throws ClientAuthenticationException thrown if the request is rejected by server on status code 401.
+     * @throws ResourceNotFoundException thrown if the request is rejected by server on status code 404.
+     * @throws ResourceModifiedException thrown if the request is rejected by server on status code 409.
+     * @return paged collection of ResourceWithoutOptionsModel items as paginated response with {@link PagedIterable}.
+     */
+    @Generated
+    @ServiceMethod(returns = ReturnType.COLLECTION)
+    PagedIterable<BinaryData> listWithoutOptionsInternal(RequestOptions requestOptions) {
+        return this.serviceClient.listWithoutOptionsInternal(requestOptions);
     }
 
     /**
@@ -220,6 +343,39 @@ public final class MaxOverloadModelClient {
     @ServiceMethod(returns = ReturnType.SINGLE)
     Response<Void> getResourceMetadataWithResponseInternal(RequestOptions requestOptions) {
         return this.serviceClient.getResourceMetadataWithResponseInternal(requestOptions);
+    }
+
+    /**
+     * The getInternalHeaders operation.
+     * <p><strong>Response Body Schema</strong></p>
+     * 
+     * <pre>
+     * {@code
+     * {
+     *     name: String (Required)
+     * }
+     * }
+     * </pre>
+     * 
+     * <p><strong>Response Headers</strong></p>
+     * <table border="1">
+     * <caption>Response Headers</caption>
+     * <tr><th>Name</th><th>Type</th><th>Description</th></tr>
+     * <tr><td>x-request-id</td><td>String</td><td>The x-request-id response header.</td></tr>
+     * <tr><td>x-request-status</td><td>String</td><td>The x-request-status response header.</td></tr>
+     * </table>
+     * 
+     * @param requestOptions The options to configure the HTTP request before HTTP client sends it.
+     * @throws HttpResponseException thrown if the request is rejected by server.
+     * @throws ClientAuthenticationException thrown if the request is rejected by server on status code 401.
+     * @throws ResourceNotFoundException thrown if the request is rejected by server on status code 404.
+     * @throws ResourceModifiedException thrown if the request is rejected by server on status code 409.
+     * @return the response body along with {@link Response}.
+     */
+    @Generated
+    @ServiceMethod(returns = ReturnType.SINGLE)
+    Response<BinaryData> getInternalHeadersWithResponseInternal(RequestOptions requestOptions) {
+        return this.serviceClient.getInternalHeadersWithResponseInternal(requestOptions);
     }
 
     /**
@@ -439,9 +595,186 @@ public final class MaxOverloadModelClient {
     }
 
     /**
+     * Long-running resource create or replace operation template.
+     * 
+     * @param name The name parameter.
+     * @param resource The resource instance.
+     * @param requestOptions The options to configure the HTTP request before HTTP client sends it.
+     * @throws IllegalArgumentException thrown if parameters fail the validation.
+     * @throws HttpResponseException thrown if the request is rejected by server.
+     * @throws ClientAuthenticationException thrown if the request is rejected by server on status code 401.
+     * @throws ResourceNotFoundException thrown if the request is rejected by server on status code 404.
+     * @throws ResourceModifiedException thrown if the request is rejected by server on status code 409.
+     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
+     * @return the {@link SyncPoller} for polling of long-running operation.
+     */
+    @Generated
+    @ServiceMethod(returns = ReturnType.LONG_RUNNING_OPERATION)
+    public SyncPoller<PollOperationDetails, ResourceModel> beginCreateOrReplace(String name, ResourceModel resource,
+        RequestOptions requestOptions) {
+        // Generated convenience method for beginCreateOrReplaceWithModel
+        requestOptions = requestOptions == null ? new RequestOptions() : requestOptions;
+        return serviceClient.beginCreateOrReplaceWithModel(name, BinaryData.fromObject(resource), requestOptions);
+    }
+
+    /**
+     * Long-running resource action operation template.
+     * 
+     * @param name The name parameter.
+     * @param optional The optional parameter.
+     * @param added The added parameter.
+     * @throws IllegalArgumentException thrown if parameters fail the validation.
+     * @throws HttpResponseException thrown if the request is rejected by server.
+     * @throws ClientAuthenticationException thrown if the request is rejected by server on status code 401.
+     * @throws ResourceNotFoundException thrown if the request is rejected by server on status code 404.
+     * @throws ResourceModifiedException thrown if the request is rejected by server on status code 409.
+     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
+     * @return the {@link SyncPoller} for polling of provides status details for long running operations.
+     */
+    @Generated
+    @ServiceMethod(returns = ReturnType.LONG_RUNNING_OPERATION)
+    public SyncPoller<PollOperationDetails, ResourceModel> beginExport(String name, String optional, String added) {
+        // Generated convenience method for beginExportWithModel
+        RequestOptions requestOptions = new RequestOptions();
+        if (!Arrays.asList("2026-01-01").contains(serviceClient.getServiceVersion().getVersion())) {
+            throw LOGGER.atError()
+                .log(new IllegalArgumentException("Parameter added is only available in api-version 2026-01-01."));
+        }
+        if (optional != null) {
+            requestOptions.addQueryParam("optional", optional, false);
+        }
+        if (added != null) {
+            requestOptions.addQueryParam("added", added, false);
+        }
+        return serviceClient.beginExportWithModel(name, requestOptions);
+    }
+
+    /**
+     * Long-running resource action operation template.
+     * 
+     * @param name The name parameter.
+     * @throws IllegalArgumentException thrown if parameters fail the validation.
+     * @throws HttpResponseException thrown if the request is rejected by server.
+     * @throws ClientAuthenticationException thrown if the request is rejected by server on status code 401.
+     * @throws ResourceNotFoundException thrown if the request is rejected by server on status code 404.
+     * @throws ResourceModifiedException thrown if the request is rejected by server on status code 409.
+     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
+     * @return the {@link SyncPoller} for polling of provides status details for long running operations.
+     */
+    @Generated
+    @ServiceMethod(returns = ReturnType.LONG_RUNNING_OPERATION)
+    public SyncPoller<PollOperationDetails, ResourceModel> beginExport(String name) {
+        // Generated convenience method for beginExportWithModel
+        RequestOptions requestOptions = new RequestOptions();
+        return serviceClient.beginExportWithModel(name, requestOptions);
+    }
+
+    /**
+     * Long-running resource action operation template.
+     * 
+     * @param name The name parameter.
+     * @param optional The optional parameter.
+     * @param added The added parameter.
+     * @param requestOptions The options to configure the HTTP request before HTTP client sends it.
+     * @throws IllegalArgumentException thrown if parameters fail the validation.
+     * @throws HttpResponseException thrown if the request is rejected by server.
+     * @throws ClientAuthenticationException thrown if the request is rejected by server on status code 401.
+     * @throws ResourceNotFoundException thrown if the request is rejected by server on status code 404.
+     * @throws ResourceModifiedException thrown if the request is rejected by server on status code 409.
+     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
+     * @return the {@link SyncPoller} for polling of provides status details for long running operations.
+     */
+    @Generated
+    @ServiceMethod(returns = ReturnType.LONG_RUNNING_OPERATION)
+    public SyncPoller<PollOperationDetails, ResourceModel> beginExport(String name, String optional, String added,
+        RequestOptions requestOptions) {
+        // Generated convenience method for beginExportWithModel
+        requestOptions = requestOptions == null ? new RequestOptions() : requestOptions;
+        if (!Arrays.asList("2026-01-01").contains(serviceClient.getServiceVersion().getVersion())) {
+            throw LOGGER.atError()
+                .log(new IllegalArgumentException("Parameter added is only available in api-version 2026-01-01."));
+        }
+        if (optional != null) {
+            requestOptions.addQueryParam("optional", optional, false);
+        }
+        if (added != null) {
+            requestOptions.addQueryParam("added", added, false);
+        }
+        return serviceClient.beginExportWithModel(name, requestOptions);
+    }
+
+    /**
+     * Long-running resource action operation template.
+     * 
+     * @param name The name parameter.
+     * @param optional The optional parameter.
+     * @param requestOptions The options to configure the HTTP request before HTTP client sends it.
+     * @throws IllegalArgumentException thrown if parameters fail the validation.
+     * @throws HttpResponseException thrown if the request is rejected by server.
+     * @throws ClientAuthenticationException thrown if the request is rejected by server on status code 401.
+     * @throws ResourceNotFoundException thrown if the request is rejected by server on status code 404.
+     * @throws ResourceModifiedException thrown if the request is rejected by server on status code 409.
+     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
+     * @return the {@link SyncPoller} for polling of provides status details for long running operations.
+     */
+    @Generated
+    @ServiceMethod(returns = ReturnType.LONG_RUNNING_OPERATION)
+    public SyncPoller<PollOperationDetails, ResourceModel> beginExport(String name, String optional,
+        RequestOptions requestOptions) {
+        // Generated convenience method for beginExportWithModel
+        requestOptions = requestOptions == null ? new RequestOptions() : requestOptions;
+        if (optional != null) {
+            requestOptions.addQueryParam("optional", optional, false);
+        }
+        return serviceClient.beginExportWithModel(name, requestOptions);
+    }
+
+    /**
+     * Long-running resource action operation template.
+     * 
+     * @param name The name parameter.
+     * @throws IllegalArgumentException thrown if parameters fail the validation.
+     * @throws HttpResponseException thrown if the request is rejected by server.
+     * @throws ClientAuthenticationException thrown if the request is rejected by server on status code 401.
+     * @throws ResourceNotFoundException thrown if the request is rejected by server on status code 404.
+     * @throws ResourceModifiedException thrown if the request is rejected by server on status code 409.
+     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
+     * @return the {@link SyncPoller} for polling of provides status details for long running operations.
+     */
+    @Generated
+    @ServiceMethod(returns = ReturnType.LONG_RUNNING_OPERATION)
+    public SyncPoller<PollOperationDetails, ResourceModel> beginArchive(String name) {
+        // Generated convenience method for beginArchiveWithModel
+        RequestOptions requestOptions = new RequestOptions();
+        return serviceClient.beginArchiveWithModel(name, requestOptions);
+    }
+
+    /**
+     * Long-running resource action operation template.
+     * 
+     * @param name The name parameter.
+     * @param requestOptions The options to configure the HTTP request before HTTP client sends it.
+     * @throws IllegalArgumentException thrown if parameters fail the validation.
+     * @throws HttpResponseException thrown if the request is rejected by server.
+     * @throws ClientAuthenticationException thrown if the request is rejected by server on status code 401.
+     * @throws ResourceNotFoundException thrown if the request is rejected by server on status code 404.
+     * @throws ResourceModifiedException thrown if the request is rejected by server on status code 409.
+     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
+     * @return the {@link SyncPoller} for polling of provides status details for long running operations.
+     */
+    @Generated
+    @ServiceMethod(returns = ReturnType.LONG_RUNNING_OPERATION)
+    public SyncPoller<PollOperationDetails, ResourceModel> beginArchive(String name, RequestOptions requestOptions) {
+        // Generated convenience method for beginArchiveWithModel
+        requestOptions = requestOptions == null ? new RequestOptions() : requestOptions;
+        return serviceClient.beginArchiveWithModel(name, requestOptions);
+    }
+
+    /**
      * Resource list operation template.
      * 
      * @param filter The filter parameter.
+     * @param added The added parameter.
      * @throws IllegalArgumentException thrown if parameters fail the validation.
      * @throws HttpResponseException thrown if the request is rejected by server.
      * @throws ClientAuthenticationException thrown if the request is rejected by server on status code 401.
@@ -452,13 +785,21 @@ public final class MaxOverloadModelClient {
      */
     @Generated
     @ServiceMethod(returns = ReturnType.COLLECTION)
-    public PagedIterable<ResourceModel> list(String filter) {
-        // Generated convenience method for list
+    public PagedIterable<ResourceModel> list(String filter, String added) {
+        // Generated convenience method for listInternal
         RequestOptions requestOptions = new RequestOptions();
+        if (!Arrays.asList("2026-01-01").contains(serviceClient.getServiceVersion().getVersion())) {
+            throw LOGGER.atError()
+                .log(new IllegalArgumentException("Parameter added is only available in api-version 2026-01-01."));
+        }
         if (filter != null) {
             requestOptions.addQueryParam("filter", filter, false);
         }
-        return serviceClient.list(requestOptions).mapPage(bodyItemValue -> bodyItemValue.toObject(ResourceModel.class));
+        if (added != null) {
+            requestOptions.addQueryParam("added", added, false);
+        }
+        return serviceClient.listInternal(requestOptions)
+            .mapPage(bodyItemValue -> bodyItemValue.toObject(ResourceModel.class));
     }
 
     /**
@@ -474,9 +815,108 @@ public final class MaxOverloadModelClient {
     @Generated
     @ServiceMethod(returns = ReturnType.COLLECTION)
     public PagedIterable<ResourceModel> list() {
-        // Generated convenience method for list
+        // Generated convenience method for listInternal
         RequestOptions requestOptions = new RequestOptions();
-        return serviceClient.list(requestOptions).mapPage(bodyItemValue -> bodyItemValue.toObject(ResourceModel.class));
+        return serviceClient.listInternal(requestOptions)
+            .mapPage(bodyItemValue -> bodyItemValue.toObject(ResourceModel.class));
+    }
+
+    /**
+     * Resource list operation template.
+     * 
+     * @param filter The filter parameter.
+     * @param added The added parameter.
+     * @param requestOptions The options to configure the HTTP request before HTTP client sends it.
+     * @throws IllegalArgumentException thrown if parameters fail the validation.
+     * @throws HttpResponseException thrown if the request is rejected by server.
+     * @throws ClientAuthenticationException thrown if the request is rejected by server on status code 401.
+     * @throws ResourceNotFoundException thrown if the request is rejected by server on status code 404.
+     * @throws ResourceModifiedException thrown if the request is rejected by server on status code 409.
+     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
+     * @return paged collection of ResourceModel items as paginated response with {@link PagedIterable}.
+     */
+    @Generated
+    @ServiceMethod(returns = ReturnType.COLLECTION)
+    public PagedIterable<ResourceModel> list(String filter, String added, RequestOptions requestOptions) {
+        // Generated convenience method for listInternal
+        requestOptions = requestOptions == null ? new RequestOptions() : requestOptions;
+        if (!Arrays.asList("2026-01-01").contains(serviceClient.getServiceVersion().getVersion())) {
+            throw LOGGER.atError()
+                .log(new IllegalArgumentException("Parameter added is only available in api-version 2026-01-01."));
+        }
+        if (filter != null) {
+            requestOptions.addQueryParam("filter", filter, false);
+        }
+        if (added != null) {
+            requestOptions.addQueryParam("added", added, false);
+        }
+        return serviceClient.listInternal(requestOptions)
+            .mapPage(bodyItemValue -> bodyItemValue.toObject(ResourceModel.class));
+    }
+
+    /**
+     * Resource list operation template.
+     * 
+     * @param filter The filter parameter.
+     * @param requestOptions The options to configure the HTTP request before HTTP client sends it.
+     * @throws IllegalArgumentException thrown if parameters fail the validation.
+     * @throws HttpResponseException thrown if the request is rejected by server.
+     * @throws ClientAuthenticationException thrown if the request is rejected by server on status code 401.
+     * @throws ResourceNotFoundException thrown if the request is rejected by server on status code 404.
+     * @throws ResourceModifiedException thrown if the request is rejected by server on status code 409.
+     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
+     * @return paged collection of ResourceModel items as paginated response with {@link PagedIterable}.
+     */
+    @Generated
+    @ServiceMethod(returns = ReturnType.COLLECTION)
+    public PagedIterable<ResourceModel> list(String filter, RequestOptions requestOptions) {
+        // Generated convenience method for listInternal
+        requestOptions = requestOptions == null ? new RequestOptions() : requestOptions;
+        if (filter != null) {
+            requestOptions.addQueryParam("filter", filter, false);
+        }
+        return serviceClient.listInternal(requestOptions)
+            .mapPage(bodyItemValue -> bodyItemValue.toObject(ResourceModel.class));
+    }
+
+    /**
+     * Resource list operation template.
+     * 
+     * @throws HttpResponseException thrown if the request is rejected by server.
+     * @throws ClientAuthenticationException thrown if the request is rejected by server on status code 401.
+     * @throws ResourceNotFoundException thrown if the request is rejected by server on status code 404.
+     * @throws ResourceModifiedException thrown if the request is rejected by server on status code 409.
+     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
+     * @return paged collection of ResourceWithoutOptionsModel items as paginated response with {@link PagedIterable}.
+     */
+    @Generated
+    @ServiceMethod(returns = ReturnType.COLLECTION)
+    public PagedIterable<ResourceWithoutOptionsModel> listWithoutOptions() {
+        // Generated convenience method for listWithoutOptionsInternal
+        RequestOptions requestOptions = new RequestOptions();
+        return serviceClient.listWithoutOptionsInternal(requestOptions)
+            .mapPage(bodyItemValue -> bodyItemValue.toObject(ResourceWithoutOptionsModel.class));
+    }
+
+    /**
+     * Resource list operation template.
+     * 
+     * @param requestOptions The options to configure the HTTP request before HTTP client sends it.
+     * @throws IllegalArgumentException thrown if parameters fail the validation.
+     * @throws HttpResponseException thrown if the request is rejected by server.
+     * @throws ClientAuthenticationException thrown if the request is rejected by server on status code 401.
+     * @throws ResourceNotFoundException thrown if the request is rejected by server on status code 404.
+     * @throws ResourceModifiedException thrown if the request is rejected by server on status code 409.
+     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
+     * @return paged collection of ResourceWithoutOptionsModel items as paginated response with {@link PagedIterable}.
+     */
+    @Generated
+    @ServiceMethod(returns = ReturnType.COLLECTION)
+    public PagedIterable<ResourceWithoutOptionsModel> listWithoutOptions(RequestOptions requestOptions) {
+        // Generated convenience method for listWithoutOptionsInternal
+        requestOptions = requestOptions == null ? new RequestOptions() : requestOptions;
+        return serviceClient.listWithoutOptionsInternal(requestOptions)
+            .mapPage(bodyItemValue -> bodyItemValue.toObject(ResourceWithoutOptionsModel.class));
     }
 
     /**
@@ -518,6 +958,48 @@ public final class MaxOverloadModelClient {
         RequestOptions requestOptions = new RequestOptions();
         Response<Void> protocolMethodResponse = getResourceMetadataWithResponseInternal(requestOptions);
         return new GetResourceMetadataHeaders(protocolMethodResponse.getHeaders());
+    }
+
+    /**
+     * The getInternalHeaders operation.
+     * 
+     * @param requestOptions The options to configure the HTTP request before HTTP client sends it.
+     * @throws IllegalArgumentException thrown if parameters fail the validation.
+     * @throws HttpResponseException thrown if the request is rejected by server.
+     * @throws ClientAuthenticationException thrown if the request is rejected by server on status code 401.
+     * @throws ResourceNotFoundException thrown if the request is rejected by server on status code 404.
+     * @throws ResourceModifiedException thrown if the request is rejected by server on status code 409.
+     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
+     * @return the response body along with {@link ResponseBase}.
+     */
+    @Generated
+    @ServiceMethod(returns = ReturnType.SINGLE)
+    ResponseBase<GetInternalHeadersHeaders, ResponseModel>
+        getInternalHeadersWithResponse(RequestOptions requestOptions) {
+        // Generated convenience method for getInternalHeadersWithResponseInternal
+        requestOptions = requestOptions == null ? new RequestOptions() : requestOptions;
+        Response<BinaryData> protocolMethodResponse = getInternalHeadersWithResponseInternal(requestOptions);
+        return new ResponseBase<>(protocolMethodResponse.getRequest(), protocolMethodResponse.getStatusCode(),
+            protocolMethodResponse.getHeaders(), protocolMethodResponse.getValue().toObject(ResponseModel.class),
+            new GetInternalHeadersHeaders(protocolMethodResponse.getHeaders()));
+    }
+
+    /**
+     * The getInternalHeaders operation.
+     * 
+     * @throws HttpResponseException thrown if the request is rejected by server.
+     * @throws ClientAuthenticationException thrown if the request is rejected by server on status code 401.
+     * @throws ResourceNotFoundException thrown if the request is rejected by server on status code 404.
+     * @throws ResourceModifiedException thrown if the request is rejected by server on status code 409.
+     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
+     * @return the response.
+     */
+    @Generated
+    @ServiceMethod(returns = ReturnType.SINGLE)
+    ResponseModel getInternalHeaders() {
+        // Generated convenience method for getInternalHeadersWithResponseInternal
+        RequestOptions requestOptions = new RequestOptions();
+        return getInternalHeadersWithResponseInternal(requestOptions).getValue().toObject(ResponseModel.class);
     }
 
     private static final ClientLogger LOGGER = new ClientLogger(MaxOverloadModelClient.class);

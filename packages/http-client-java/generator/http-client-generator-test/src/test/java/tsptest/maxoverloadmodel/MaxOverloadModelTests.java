@@ -56,14 +56,18 @@ public class MaxOverloadModelTests {
     }
 
     @Test
-    public void testLroAndPageableMethods() throws NoSuchMethodException {
+    public void testLroAndPageableMethods() throws ReflectiveOperationException {
         Method syncLro
             = MaxOverloadModelClient.class.getDeclaredMethod("beginCreateOrReplace", String.class, ResourceModel.class);
         Assertions.assertTrue(Modifier.isPublic(syncLro.getModifiers()));
         Assertions.assertEquals(SyncPoller.class, syncLro.getReturnType());
 
-        Method syncProtocolLro = MaxOverloadModelClient.class.getDeclaredMethod("beginCreateOrReplace", String.class,
-            BinaryData.class, RequestOptions.class);
+        Method syncLroMax = MaxOverloadModelClient.class.getDeclaredMethod("beginCreateOrReplace", String.class,
+            ResourceModel.class, RequestOptions.class);
+        Assertions.assertTrue(Modifier.isPublic(syncLroMax.getModifiers()));
+
+        Method syncProtocolLro = MaxOverloadModelClient.class.getDeclaredMethod("beginCreateOrReplaceInternal",
+            String.class, BinaryData.class, RequestOptions.class);
         Assertions.assertFalse(Modifier.isPublic(syncProtocolLro.getModifiers()));
 
         Method asyncLro = MaxOverloadModelAsyncClient.class.getDeclaredMethod("beginCreateOrReplace", String.class,
@@ -71,24 +75,89 @@ public class MaxOverloadModelTests {
         Assertions.assertTrue(Modifier.isPublic(asyncLro.getModifiers()));
         Assertions.assertEquals(PollerFlux.class, asyncLro.getReturnType());
 
-        Method asyncProtocolLro = MaxOverloadModelAsyncClient.class.getDeclaredMethod("beginCreateOrReplace",
+        Method asyncLroMax = MaxOverloadModelAsyncClient.class.getDeclaredMethod("beginCreateOrReplace", String.class,
+            ResourceModel.class, RequestOptions.class);
+        Assertions.assertTrue(Modifier.isPublic(asyncLroMax.getModifiers()));
+
+        Method asyncProtocolLro = MaxOverloadModelAsyncClient.class.getDeclaredMethod("beginCreateOrReplaceInternal",
             String.class, BinaryData.class, RequestOptions.class);
         Assertions.assertFalse(Modifier.isPublic(asyncProtocolLro.getModifiers()));
 
-        Method syncPageable = MaxOverloadModelClient.class.getDeclaredMethod("list", String.class);
+        Method syncPageable = MaxOverloadModelClient.class.getDeclaredMethod("list", String.class, String.class);
         Assertions.assertTrue(Modifier.isPublic(syncPageable.getModifiers()));
         Assertions.assertEquals(PagedIterable.class, syncPageable.getReturnType());
 
-        Method syncProtocolPageable = MaxOverloadModelClient.class.getDeclaredMethod("list", RequestOptions.class);
+        Method syncPageableMax
+            = MaxOverloadModelClient.class.getDeclaredMethod("list", String.class, String.class, RequestOptions.class);
+        Method syncPageablePastMax
+            = MaxOverloadModelClient.class.getDeclaredMethod("list", String.class, RequestOptions.class);
+        Assertions.assertTrue(Modifier.isPublic(syncPageableMax.getModifiers()));
+        Assertions.assertTrue(Modifier.isPublic(syncPageablePastMax.getModifiers()));
+
+        Method syncProtocolPageable
+            = MaxOverloadModelClient.class.getDeclaredMethod("listInternal", RequestOptions.class);
         Assertions.assertFalse(Modifier.isPublic(syncProtocolPageable.getModifiers()));
 
-        Method asyncPageable = MaxOverloadModelAsyncClient.class.getDeclaredMethod("list", String.class);
+        Method asyncPageable = MaxOverloadModelAsyncClient.class.getDeclaredMethod("list", String.class, String.class);
         Assertions.assertTrue(Modifier.isPublic(asyncPageable.getModifiers()));
         Assertions.assertEquals(PagedFlux.class, asyncPageable.getReturnType());
 
+        Method asyncPageableMax = MaxOverloadModelAsyncClient.class.getDeclaredMethod("list", String.class,
+            String.class, RequestOptions.class);
+        Method asyncPageablePastMax
+            = MaxOverloadModelAsyncClient.class.getDeclaredMethod("list", String.class, RequestOptions.class);
+        Assertions.assertTrue(Modifier.isPublic(asyncPageableMax.getModifiers()));
+        Assertions.assertTrue(Modifier.isPublic(asyncPageablePastMax.getModifiers()));
+
         Method asyncProtocolPageable
-            = MaxOverloadModelAsyncClient.class.getDeclaredMethod("list", RequestOptions.class);
+            = MaxOverloadModelAsyncClient.class.getDeclaredMethod("listInternal", RequestOptions.class);
         Assertions.assertFalse(Modifier.isPublic(asyncProtocolPageable.getModifiers()));
+
+        Method syncLroVersionedMax = MaxOverloadModelClient.class.getDeclaredMethod("beginExport", String.class,
+            String.class, String.class, RequestOptions.class);
+        Method syncLroVersionedPastMax = MaxOverloadModelClient.class.getDeclaredMethod("beginExport", String.class,
+            String.class, RequestOptions.class);
+        Assertions.assertTrue(Modifier.isPublic(syncLroVersionedMax.getModifiers()));
+        Assertions.assertTrue(Modifier.isPublic(syncLroVersionedPastMax.getModifiers()));
+
+        Method asyncLroVersionedMax = MaxOverloadModelAsyncClient.class.getDeclaredMethod("beginExport", String.class,
+            String.class, String.class, RequestOptions.class);
+        Method asyncLroVersionedPastMax = MaxOverloadModelAsyncClient.class.getDeclaredMethod("beginExport",
+            String.class, String.class, RequestOptions.class);
+        Assertions.assertTrue(Modifier.isPublic(asyncLroVersionedMax.getModifiers()));
+        Assertions.assertTrue(Modifier.isPublic(asyncLroVersionedPastMax.getModifiers()));
+
+        Method syncBodylessLro
+            = MaxOverloadModelClient.class.getDeclaredMethod("beginArchive", String.class, RequestOptions.class);
+        Method syncBodylessProtocolLro = MaxOverloadModelClient.class.getDeclaredMethod("beginArchiveInternal",
+            String.class, RequestOptions.class);
+        Assertions.assertTrue(Modifier.isPublic(syncBodylessLro.getModifiers()));
+        Assertions.assertFalse(Modifier.isPublic(syncBodylessProtocolLro.getModifiers()));
+
+        Method asyncBodylessLro
+            = MaxOverloadModelAsyncClient.class.getDeclaredMethod("beginArchive", String.class, RequestOptions.class);
+        Method asyncBodylessProtocolLro = MaxOverloadModelAsyncClient.class.getDeclaredMethod("beginArchiveInternal",
+            String.class, RequestOptions.class);
+        Assertions.assertTrue(Modifier.isPublic(asyncBodylessLro.getModifiers()));
+        Assertions.assertFalse(Modifier.isPublic(asyncBodylessProtocolLro.getModifiers()));
+
+        Method syncParameterlessPageable
+            = MaxOverloadModelClient.class.getDeclaredMethod("listWithoutOptions", RequestOptions.class);
+        Method syncParameterlessProtocolPageable
+            = MaxOverloadModelClient.class.getDeclaredMethod("listWithoutOptionsInternal", RequestOptions.class);
+        Assertions.assertTrue(Modifier.isPublic(syncParameterlessPageable.getModifiers()));
+        Assertions.assertFalse(Modifier.isPublic(syncParameterlessProtocolPageable.getModifiers()));
+
+        Method asyncParameterlessPageable
+            = MaxOverloadModelAsyncClient.class.getDeclaredMethod("listWithoutOptions", RequestOptions.class);
+        Method asyncParameterlessProtocolPageable
+            = MaxOverloadModelAsyncClient.class.getDeclaredMethod("listWithoutOptionsInternal", RequestOptions.class);
+        Assertions.assertTrue(Modifier.isPublic(asyncParameterlessPageable.getModifiers()));
+        Assertions.assertFalse(Modifier.isPublic(asyncParameterlessProtocolPageable.getModifiers()));
+
+        Class<?> internalHeaders
+            = Class.forName("tsptest.maxoverloadmodel.implementation.models.GetInternalHeadersHeaders");
+        Assertions.assertEquals("tsptest.maxoverloadmodel.implementation.models", internalHeaders.getPackageName());
     }
 
     @Test
