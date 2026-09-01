@@ -2355,6 +2355,18 @@ export class CodeModelBuilder {
 
     const bodyType: SdkType | undefined = sdkResponse.type;
     let trackConvenienceApi: boolean = Boolean(op.convenienceApi);
+    const trackResponseHeadersAsModel =
+      trackConvenienceApi &&
+      (op.convenienceApi?.responseHeadersAsModel === true ||
+        (this.isAzureV1() && this.options["max-overload"] === "model"));
+
+    if (trackResponseHeadersAsModel) {
+      for (const header of headers) {
+        this.trackSchemaUsage(header.schema, {
+          usage: [op.internalApi ? SchemaContext.Internal : SchemaContext.Public],
+        });
+      }
+    }
 
     let responseBodyIsFile: boolean = false;
     if (

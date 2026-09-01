@@ -28,9 +28,17 @@ model ResponseModel {
   name: string;
 }
 
+enum RequestStatus {
+  succeeded,
+  failed,
+}
+
 model ResponseWithHeaders {
   @header("x-request-id")
   requestId: string;
+
+  @header("x-request-status")
+  requestStatus: RequestStatus;
 
   @body
   body: ResponseModel;

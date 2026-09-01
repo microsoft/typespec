@@ -20,7 +20,15 @@ public final class GetWithHeadersHeaders {
     @Generated
     private final String requestId;
 
+    /*
+     * The x-request-status property.
+     */
+    @Generated
+    private final RequestStatus requestStatus;
+
     private static final HttpHeaderName X_REQUEST_ID = HttpHeaderName.fromString("x-request-id");
+
+    private static final HttpHeaderName X_REQUEST_STATUS = HttpHeaderName.fromString("x-request-status");
 
     // HttpHeaders containing the raw property values.
     /**
@@ -30,6 +38,12 @@ public final class GetWithHeadersHeaders {
      */
     public GetWithHeadersHeaders(HttpHeaders rawHeaders) {
         this.requestId = rawHeaders.getValue(X_REQUEST_ID);
+        String requestStatus = rawHeaders.getValue(X_REQUEST_STATUS);
+        if (requestStatus != null) {
+            this.requestStatus = RequestStatus.fromString(requestStatus);
+        } else {
+            this.requestStatus = null;
+        }
     }
 
     /**
@@ -40,5 +54,15 @@ public final class GetWithHeadersHeaders {
     @Generated
     public String getRequestId() {
         return this.requestId;
+    }
+
+    /**
+     * Get the requestStatus property: The x-request-status property.
+     * 
+     * @return the requestStatus value.
+     */
+    @Generated
+    public RequestStatus getRequestStatus() {
+        return this.requestStatus;
     }
 }

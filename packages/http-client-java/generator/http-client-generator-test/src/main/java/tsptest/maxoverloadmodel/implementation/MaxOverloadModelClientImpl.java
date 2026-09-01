@@ -395,6 +395,7 @@ public final class MaxOverloadModelClientImpl {
      * <caption>Response Headers</caption>
      * <tr><th>Name</th><th>Type</th><th>Description</th></tr>
      * <tr><td>x-request-id</td><td>String</td><td>The x-request-id response header.</td></tr>
+     * <tr><td>x-request-status</td><td>String</td><td>The x-request-status response header.</td></tr>
      * </table>
      * 
      * @param id The id parameter.
@@ -430,6 +431,7 @@ public final class MaxOverloadModelClientImpl {
      * <caption>Response Headers</caption>
      * <tr><th>Name</th><th>Type</th><th>Description</th></tr>
      * <tr><td>x-request-id</td><td>String</td><td>The x-request-id response header.</td></tr>
+     * <tr><td>x-request-status</td><td>String</td><td>The x-request-status response header.</td></tr>
      * </table>
      * 
      * @param id The id parameter.

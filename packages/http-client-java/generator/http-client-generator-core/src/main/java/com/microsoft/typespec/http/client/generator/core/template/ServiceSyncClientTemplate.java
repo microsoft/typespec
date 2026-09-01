@@ -65,7 +65,8 @@ public class ServiceSyncClientTemplate implements IJavaTemplate<AsyncSyncClient,
         if (rootClientBuilder != null) {
             rootClientBuilder.addImportsTo(imports, false);
         }
-        addServiceClientAnnotationImport(imports);
+        boolean serviceClientAnnotationNameConflict = syncClassName.equals(Annotation.SERVICE_CLIENT.getName());
+        addServiceClientAnnotationImport(imports, serviceClientAnnotationNameConflict);
 
         for (ClientAccessorMethod clientAccessorMethod : serviceClient.getClientAccessorMethods()) {
             clientAccessorMethod.addImportsTo(imports, false);
@@ -89,7 +90,11 @@ public class ServiceSyncClientTemplate implements IJavaTemplate<AsyncSyncClient,
             .format("Initializes a new instance of the synchronous %1$s type.", serviceClient.getInterfaceName())));
 
         if (rootClientBuilder != null) {
-            javaFile.annotation(String.format("ServiceClient(builder = %s.class)", rootClientBuilder.getClassName()));
+            String serviceClientAnnotation = serviceClientAnnotationNameConflict
+                ? Annotation.SERVICE_CLIENT.getFullName()
+                : Annotation.SERVICE_CLIENT.getName();
+            javaFile.annotation(
+                String.format("%s(builder = %s.class)", serviceClientAnnotation, rootClientBuilder.getClassName()));
         }
         javaFile.publicFinalClass(syncClassName, classBlock -> {
             writeClass(syncClient, classBlock, constructorVisibility);
@@ -207,8 +212,10 @@ public class ServiceSyncClientTemplate implements IJavaTemplate<AsyncSyncClient,
         Templates.getWrapperClientMethodTemplate().write(clientMethod, classBlock);
     }
 
-    private void addServiceClientAnnotationImport(Set<String> imports) {
-        Annotation.SERVICE_CLIENT.addImportsTo(imports);
+    private void addServiceClientAnnotationImport(Set<String> imports, boolean serviceClientAnnotationNameConflict) {
+        if (!serviceClientAnnotationNameConflict) {
+            Annotation.SERVICE_CLIENT.addImportsTo(imports);
+        }
         Annotation.GENERATED.addImportsTo(imports);
         Annotation.METADATA.addImportsTo(imports);
         Annotation.METADATA_PROPERTIES.addImportsTo(imports);

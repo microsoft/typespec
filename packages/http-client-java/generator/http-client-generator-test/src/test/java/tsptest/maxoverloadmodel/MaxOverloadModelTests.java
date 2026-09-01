@@ -16,6 +16,7 @@ import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 import tsptest.maxoverloadmodel.models.GetResourceMetadataHeaders;
 import tsptest.maxoverloadmodel.models.RequestModel;
+import tsptest.maxoverloadmodel.models.RequestStatus;
 import tsptest.maxoverloadmodel.models.ResourceModel;
 import tsptest.maxoverloadmodel.models.ResponseModel;
 
@@ -92,6 +93,8 @@ public class MaxOverloadModelTests {
 
     @Test
     public void testResponseHeadersAsModel() throws NoSuchMethodException {
+        Assertions.assertTrue(Modifier.isPublic(RequestStatus.class.getModifiers()));
+
         Method syncWithHeaders = MaxOverloadModelClient.class.getDeclaredMethod("getWithHeadersWithResponse",
             String.class, RequestOptions.class);
         Assertions.assertTrue(syncWithHeaders.getGenericReturnType()
