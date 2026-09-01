@@ -457,6 +457,33 @@ namespace Microsoft.TypeSpec.Generator.Tests.Providers.ModelFactories
             Assert.AreEqual(Helpers.GetExpectedFromFile(), content);
         }
 
+        // A custom overload with the same parameter names and order but a different parameter type is
+        // still emitted, so it must constrain the generated overload. Excluding it by name would leave
+        // CompatibilityModel("id") ambiguous between the two.
+        [Test]
+        public async Task BackCompatibility_CustomOverloadWithDifferentTypesStillConstrains()
+        {
+            InputModelType model = InputFactory.Model("CompatibilityModel", properties:
+            [
+                InputFactory.Property("Id", InputPrimitiveType.String),
+                InputFactory.Property("Description", InputPrimitiveType.String),
+                InputFactory.Property("Text", InputPrimitiveType.String),
+                InputFactory.Property("IsRegex", InputPrimitiveType.Boolean),
+            ]);
+
+            _instance = (await MockHelpers.LoadMockGeneratorAsync(
+                inputNamespaceName: "Sample.Namespace",
+                inputModelTypes: [model],
+                compilation: async () => await Helpers.GetCompilationFromDirectoryAsync(parameters: "Custom"),
+                lastContractCompilation: async () => await Helpers.GetCompilationFromDirectoryAsync(parameters: "Last"))).Object;
+
+            var modelFactory = _instance.OutputLibrary.ModelFactory.Value;
+            modelFactory.ProcessTypeForBackCompatibility();
+
+            var content = new TypeProviderWriter(modelFactory).Write().Content;
+            Assert.AreEqual(Helpers.GetExpectedFromFile(), content);
+        }
+
         // A published signature whose parameter names all still match is served by the generated
         // method itself, so no separate compatibility overload is emitted for it. The generated
         // method must therefore keep its defaults: constraining it against a signature it already

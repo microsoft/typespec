@@ -212,14 +212,18 @@ namespace Microsoft.TypeSpec.Generator.Providers
                 // A published signature that this method already serves is excluded: no separate
                 // compatibility overload is emitted for it, so there is nothing to disambiguate
                 // from and stripping defaults would break the published omitted-argument calls.
+                // The exclusion is name-based and therefore applies only to published signatures;
+                // a custom overload is always emitted and must always constrain.
                 var competingSignatures = preservedPreviousSignatures
+                    .Where(signature => !MethodSignatureHelper.HaveSameParametersInSameOrder(
+                        currentMethod.Signature,
+                        signature))
                     .Concat(customFactoryMethods
                         .Where(method => !nonConstrainingCustomMethods.Any(m => ReferenceEquals(m, method)))
                         .Select(method => method.Signature))
                     .Where(signature =>
                         signature.Name == currentMethod.Signature.Name
-                        && !MethodSignature.MethodSignatureComparer.Equals(signature, currentMethod.Signature)
-                        && !MethodSignatureHelper.HaveSameParametersInSameOrder(currentMethod.Signature, signature))
+                        && !MethodSignature.MethodSignatureComparer.Equals(signature, currentMethod.Signature))
                     .ToList();
                 MethodSignatureHelper.RequireMinimumParameterPrefix(
                     currentMethod.Signature,
