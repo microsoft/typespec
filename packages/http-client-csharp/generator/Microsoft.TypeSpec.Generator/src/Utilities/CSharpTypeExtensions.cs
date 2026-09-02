@@ -11,17 +11,6 @@ namespace Microsoft.TypeSpec.Generator.Utilities
 {
     internal static class CSharpTypeExtensions
     {
-        /// <summary>
-        /// Restores the union item metadata carried by <paramref name="source"/> onto <paramref name="type"/>.
-        /// </summary>
-        /// <remarks>
-        /// Last-contract types are built from Roslyn symbols, which have no notion of a TypeSpec union: a union
-        /// property is just <see cref="BinaryData"/> in metadata. When a last-contract type is preserved for
-        /// back compatibility, the union item types of the current TypeSpec type would otherwise be dropped.
-        /// That makes the union variant models appear unreferenced, so they get removed (or internalized) from
-        /// the output and their doc references degrade to plain text. Restoring the metadata keeps the emitted
-        /// C# identical while keeping the variant models reachable.
-        /// </remarks>
         internal static CSharpType RestoreUnionItemTypes(this CSharpType type, CSharpType source)
         {
             if (type.IsUnion)
