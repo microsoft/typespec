@@ -1,5 +1,5 @@
 import { createSdkContext } from "@azure-tools/typespec-client-generator-core";
-import type { EmitContext, Program } from "@typespec/compiler";
+import type { EmitContext } from "@typespec/compiler";
 import { emitFile, joinPaths, listServices, NoTarget } from "@typespec/compiler";
 import pkgJson from "../../package.json" with { type: "json" };
 import { emitCodeModel } from "./code-model.js";
