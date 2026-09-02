@@ -16,7 +16,7 @@ import java.util.stream.Stream;
 
 /**
  * Holds the details of the parameters for a {@link ClientMethod}, produced by
- * {@link ClientMethodParameterProcessor#process(Request, boolean, boolean)}.
+ * {@link ClientMethodParameterProcessor#process(Request, Request, boolean, boolean)}.
  */
 final class ClientMethodParametersDetails {
     /**

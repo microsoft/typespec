@@ -24,6 +24,12 @@ public final class GroupQueryOptions {
     @Generated
     private String bar;
 
+    /*
+     * The kind property.
+     */
+    @Generated
+    private GroupQueryKind kind;
+
     /**
      * Creates an instance of GroupQueryOptions class.
      */
@@ -72,6 +78,28 @@ public final class GroupQueryOptions {
     @Generated
     public GroupQueryOptions setBar(String bar) {
         this.bar = bar;
+        return this;
+    }
+
+    /**
+     * Get the kind property: The kind property.
+     *
+     * @return the kind value.
+     */
+    @Generated
+    public GroupQueryKind getKind() {
+        return this.kind;
+    }
+
+    /**
+     * Set the kind property: The kind property.
+     *
+     * @param kind the kind value to set.
+     * @return the GroupQueryOptions object itself.
+     */
+    @Generated
+    public GroupQueryOptions setKind(GroupQueryKind kind) {
+        this.kind = kind;
         return this;
     }
 }

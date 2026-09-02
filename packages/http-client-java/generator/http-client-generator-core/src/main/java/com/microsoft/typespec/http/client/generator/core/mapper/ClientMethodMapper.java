@@ -151,6 +151,7 @@ public class ClientMethodMapper implements IMapper<Operation, List<ClientMethod>
                     continue;
                 }
                 final ClientMethodParametersDetails paramsDetails = ClientMethodParameterProcessor.process(request,
+                    getConvenienceRequest(operation, request, isProtocolMethod),
                     proxyMethod.hasParameterOfType(ClassType.BINARY_DATA), isProtocolMethod);
 
                 final ClientMethod baseMethod = builder.proxyMethod(proxyMethod)
@@ -317,6 +318,21 @@ public class ClientMethodMapper implements IMapper<Operation, List<ClientMethod>
         } else {
             return operation.getRequests();
         }
+    }
+
+    private static Request getConvenienceRequest(Operation operation, Request request, boolean isProtocolMethod) {
+        if (!isProtocolMethod
+            || operation.getConvenienceApi() == null
+            || operation.getConvenienceApi().getRequests() == null
+            || operation.getConvenienceApi().getRequests().isEmpty()) {
+            return null;
+        }
+
+        int requestIndex = operation.getRequests().indexOf(request);
+        List<Request> convenienceRequests = operation.getConvenienceApi().getRequests();
+        return requestIndex >= 0 && requestIndex < convenienceRequests.size()
+            ? convenienceRequests.get(requestIndex)
+            : convenienceRequests.get(0);
     }
 
     /**

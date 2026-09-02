@@ -22,6 +22,9 @@ import com.azure.core.exception.ClientAuthenticationException;
 import com.azure.core.exception.HttpResponseException;
 import com.azure.core.exception.ResourceModifiedException;
 import com.azure.core.exception.ResourceNotFoundException;
+import com.azure.core.http.HttpHeaderName;
+import com.azure.core.http.MatchConditions;
+import com.azure.core.http.RequestConditions;
 import com.azure.core.http.rest.PagedFlux;
 import com.azure.core.http.rest.PagedIterable;
 import com.azure.core.http.rest.PagedResponse;
@@ -31,7 +34,9 @@ import com.azure.core.http.rest.Response;
 import com.azure.core.http.rest.RestProxy;
 import com.azure.core.util.BinaryData;
 import com.azure.core.util.Context;
+import com.azure.core.util.DateTimeRfc1123;
 import com.azure.core.util.FluxUtil;
+import java.time.OffsetDateTime;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
@@ -217,6 +222,7 @@ public final class EtagHeadersImpl {
      * 
      * @param name The name parameter.
      * @param resource The resource instance.
+     * @param requestConditions Specifies HTTP options for conditional requests based on modification time.
      * @param requestOptions The options to configure the HTTP request before HTTP client sends it.
      * @throws HttpResponseException thrown if the request is rejected by server.
      * @throws ClientAuthenticationException thrown if the request is rejected by server on status code 401.
@@ -226,11 +232,46 @@ public final class EtagHeadersImpl {
      */
     @ServiceMethod(returns = ReturnType.SINGLE)
     public Mono<Response<BinaryData>> putWithRequestHeadersWithResponseAsync(String name, BinaryData resource,
-        RequestOptions requestOptions) {
+        RequestConditions requestConditions, RequestOptions requestOptions) {
         final String contentType = "application/json";
         final String accept = "application/json";
+        String ifMatchInternal = null;
+        if (requestConditions != null) {
+            ifMatchInternal = requestConditions.getIfMatch();
+        }
+        String ifMatch = ifMatchInternal;
+        String ifNoneMatchInternal = null;
+        if (requestConditions != null) {
+            ifNoneMatchInternal = requestConditions.getIfNoneMatch();
+        }
+        String ifNoneMatch = ifNoneMatchInternal;
+        OffsetDateTime ifUnmodifiedSinceInternal = null;
+        if (requestConditions != null) {
+            ifUnmodifiedSinceInternal = requestConditions.getIfUnmodifiedSince();
+        }
+        OffsetDateTime ifUnmodifiedSince = ifUnmodifiedSinceInternal;
+        OffsetDateTime ifModifiedSinceInternal = null;
+        if (requestConditions != null) {
+            ifModifiedSinceInternal = requestConditions.getIfModifiedSince();
+        }
+        OffsetDateTime ifModifiedSince = ifModifiedSinceInternal;
+        RequestOptions requestOptionsLocal = requestOptions == null ? new RequestOptions() : requestOptions;
+        if (ifMatch != null) {
+            requestOptionsLocal.setHeader(HttpHeaderName.IF_MATCH, ifMatch);
+        }
+        if (ifNoneMatch != null) {
+            requestOptionsLocal.setHeader(HttpHeaderName.IF_NONE_MATCH, ifNoneMatch);
+        }
+        if (ifUnmodifiedSince != null) {
+            requestOptionsLocal.setHeader(HttpHeaderName.IF_UNMODIFIED_SINCE,
+                String.valueOf(new DateTimeRfc1123(ifUnmodifiedSince)));
+        }
+        if (ifModifiedSince != null) {
+            requestOptionsLocal.setHeader(HttpHeaderName.IF_MODIFIED_SINCE,
+                String.valueOf(new DateTimeRfc1123(ifModifiedSince)));
+        }
         return FluxUtil.withContext(context -> service.putWithRequestHeaders(this.client.getEndpoint(),
-            this.client.getServiceVersion().getVersion(), name, contentType, accept, resource, requestOptions,
+            this.client.getServiceVersion().getVersion(), name, contentType, accept, resource, requestOptionsLocal,
             context));
     }
 
@@ -285,6 +326,7 @@ public final class EtagHeadersImpl {
      * 
      * @param name The name parameter.
      * @param resource The resource instance.
+     * @param requestConditions Specifies HTTP options for conditional requests based on modification time.
      * @param requestOptions The options to configure the HTTP request before HTTP client sends it.
      * @throws HttpResponseException thrown if the request is rejected by server.
      * @throws ClientAuthenticationException thrown if the request is rejected by server on status code 401.
@@ -294,11 +336,46 @@ public final class EtagHeadersImpl {
      */
     @ServiceMethod(returns = ReturnType.SINGLE)
     public Response<BinaryData> putWithRequestHeadersWithResponse(String name, BinaryData resource,
-        RequestOptions requestOptions) {
+        RequestConditions requestConditions, RequestOptions requestOptions) {
         final String contentType = "application/json";
         final String accept = "application/json";
+        String ifMatchInternal = null;
+        if (requestConditions != null) {
+            ifMatchInternal = requestConditions.getIfMatch();
+        }
+        String ifMatch = ifMatchInternal;
+        String ifNoneMatchInternal = null;
+        if (requestConditions != null) {
+            ifNoneMatchInternal = requestConditions.getIfNoneMatch();
+        }
+        String ifNoneMatch = ifNoneMatchInternal;
+        OffsetDateTime ifUnmodifiedSinceInternal = null;
+        if (requestConditions != null) {
+            ifUnmodifiedSinceInternal = requestConditions.getIfUnmodifiedSince();
+        }
+        OffsetDateTime ifUnmodifiedSince = ifUnmodifiedSinceInternal;
+        OffsetDateTime ifModifiedSinceInternal = null;
+        if (requestConditions != null) {
+            ifModifiedSinceInternal = requestConditions.getIfModifiedSince();
+        }
+        OffsetDateTime ifModifiedSince = ifModifiedSinceInternal;
+        RequestOptions requestOptionsLocal = requestOptions == null ? new RequestOptions() : requestOptions;
+        if (ifMatch != null) {
+            requestOptionsLocal.setHeader(HttpHeaderName.IF_MATCH, ifMatch);
+        }
+        if (ifNoneMatch != null) {
+            requestOptionsLocal.setHeader(HttpHeaderName.IF_NONE_MATCH, ifNoneMatch);
+        }
+        if (ifUnmodifiedSince != null) {
+            requestOptionsLocal.setHeader(HttpHeaderName.IF_UNMODIFIED_SINCE,
+                String.valueOf(new DateTimeRfc1123(ifUnmodifiedSince)));
+        }
+        if (ifModifiedSince != null) {
+            requestOptionsLocal.setHeader(HttpHeaderName.IF_MODIFIED_SINCE,
+                String.valueOf(new DateTimeRfc1123(ifModifiedSince)));
+        }
         return service.putWithRequestHeadersSync(this.client.getEndpoint(),
-            this.client.getServiceVersion().getVersion(), name, contentType, accept, resource, requestOptions,
+            this.client.getServiceVersion().getVersion(), name, contentType, accept, resource, requestOptionsLocal,
             Context.NONE);
     }
 
@@ -349,6 +426,7 @@ public final class EtagHeadersImpl {
      * 
      * @param name The name parameter.
      * @param resource The resource instance.
+     * @param matchConditions Specifies HTTP options for conditional requests.
      * @param requestOptions The options to configure the HTTP request before HTTP client sends it.
      * @throws HttpResponseException thrown if the request is rejected by server.
      * @throws ClientAuthenticationException thrown if the request is rejected by server on status code 401.
@@ -358,11 +436,28 @@ public final class EtagHeadersImpl {
      */
     @ServiceMethod(returns = ReturnType.SINGLE)
     public Mono<Response<BinaryData>> patchWithMatchHeadersWithResponseAsync(String name, BinaryData resource,
-        RequestOptions requestOptions) {
+        MatchConditions matchConditions, RequestOptions requestOptions) {
         final String contentType = "application/merge-patch+json";
         final String accept = "application/json";
+        String ifMatchInternal = null;
+        if (matchConditions != null) {
+            ifMatchInternal = matchConditions.getIfMatch();
+        }
+        String ifMatch = ifMatchInternal;
+        String ifNoneMatchInternal = null;
+        if (matchConditions != null) {
+            ifNoneMatchInternal = matchConditions.getIfNoneMatch();
+        }
+        String ifNoneMatch = ifNoneMatchInternal;
+        RequestOptions requestOptionsLocal = requestOptions == null ? new RequestOptions() : requestOptions;
+        if (ifMatch != null) {
+            requestOptionsLocal.setHeader(HttpHeaderName.IF_MATCH, ifMatch);
+        }
+        if (ifNoneMatch != null) {
+            requestOptionsLocal.setHeader(HttpHeaderName.IF_NONE_MATCH, ifNoneMatch);
+        }
         return FluxUtil.withContext(context -> service.patchWithMatchHeaders(this.client.getEndpoint(),
-            this.client.getServiceVersion().getVersion(), name, contentType, accept, resource, requestOptions,
+            this.client.getServiceVersion().getVersion(), name, contentType, accept, resource, requestOptionsLocal,
             context));
     }
 
@@ -413,6 +508,7 @@ public final class EtagHeadersImpl {
      * 
      * @param name The name parameter.
      * @param resource The resource instance.
+     * @param matchConditions Specifies HTTP options for conditional requests.
      * @param requestOptions The options to configure the HTTP request before HTTP client sends it.
      * @throws HttpResponseException thrown if the request is rejected by server.
      * @throws ClientAuthenticationException thrown if the request is rejected by server on status code 401.
@@ -422,11 +518,28 @@ public final class EtagHeadersImpl {
      */
     @ServiceMethod(returns = ReturnType.SINGLE)
     public Response<BinaryData> patchWithMatchHeadersWithResponse(String name, BinaryData resource,
-        RequestOptions requestOptions) {
+        MatchConditions matchConditions, RequestOptions requestOptions) {
         final String contentType = "application/merge-patch+json";
         final String accept = "application/json";
+        String ifMatchInternal = null;
+        if (matchConditions != null) {
+            ifMatchInternal = matchConditions.getIfMatch();
+        }
+        String ifMatch = ifMatchInternal;
+        String ifNoneMatchInternal = null;
+        if (matchConditions != null) {
+            ifNoneMatchInternal = matchConditions.getIfNoneMatch();
+        }
+        String ifNoneMatch = ifNoneMatchInternal;
+        RequestOptions requestOptionsLocal = requestOptions == null ? new RequestOptions() : requestOptions;
+        if (ifMatch != null) {
+            requestOptionsLocal.setHeader(HttpHeaderName.IF_MATCH, ifMatch);
+        }
+        if (ifNoneMatch != null) {
+            requestOptionsLocal.setHeader(HttpHeaderName.IF_NONE_MATCH, ifNoneMatch);
+        }
         return service.patchWithMatchHeadersSync(this.client.getEndpoint(),
-            this.client.getServiceVersion().getVersion(), name, contentType, accept, resource, requestOptions,
+            this.client.getServiceVersion().getVersion(), name, contentType, accept, resource, requestOptionsLocal,
             Context.NONE);
     }
 

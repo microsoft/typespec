@@ -17,7 +17,6 @@ import com.azure.core.http.RequestConditions;
 import com.azure.core.http.rest.RequestOptions;
 import com.azure.core.http.rest.Response;
 import com.azure.core.util.BinaryData;
-import com.azure.core.util.DateTimeRfc1123;
 import com.azure.core.util.FluxUtil;
 import java.time.OffsetDateTime;
 import reactor.core.publisher.Mono;
@@ -95,6 +94,7 @@ public final class EtagHeadersOptionalBodyAsyncClient {
      * </pre>
      * 
      * @param format The format parameter.
+     * @param requestConditions Specifies HTTP options for conditional requests based on modification time.
      * @param requestOptions The options to configure the HTTP request before HTTP client sends it.
      * @throws HttpResponseException thrown if the request is rejected by server.
      * @throws ClientAuthenticationException thrown if the request is rejected by server on status code 401.
@@ -104,8 +104,9 @@ public final class EtagHeadersOptionalBodyAsyncClient {
      */
     @Generated
     @ServiceMethod(returns = ReturnType.SINGLE)
-    public Mono<Response<BinaryData>> putWithOptionalBodyWithResponse(String format, RequestOptions requestOptions) {
-        return this.serviceClient.putWithOptionalBodyWithResponseAsync(format, requestOptions);
+    public Mono<Response<BinaryData>> putWithOptionalBodyWithResponse(String format,
+        RequestConditions requestConditions, RequestOptions requestOptions) {
+        return this.serviceClient.putWithOptionalBodyWithResponseAsync(format, requestConditions, requestOptions);
     }
 
     /**
@@ -130,10 +131,6 @@ public final class EtagHeadersOptionalBodyAsyncClient {
         RequestConditions requestConditions) {
         // Generated convenience method for putWithOptionalBodyWithResponse
         RequestOptions requestOptions = new RequestOptions();
-        String ifMatch = requestConditions == null ? null : requestConditions.getIfMatch();
-        String ifNoneMatch = requestConditions == null ? null : requestConditions.getIfNoneMatch();
-        OffsetDateTime ifUnmodifiedSince = requestConditions == null ? null : requestConditions.getIfUnmodifiedSince();
-        OffsetDateTime ifModifiedSince = requestConditions == null ? null : requestConditions.getIfModifiedSince();
         if (filter != null) {
             requestOptions.addQueryParam("filter", filter, false);
         }
@@ -143,21 +140,7 @@ public final class EtagHeadersOptionalBodyAsyncClient {
         if (body != null) {
             requestOptions.setBody(BinaryData.fromObject(body));
         }
-        if (ifMatch != null) {
-            requestOptions.setHeader(HttpHeaderName.IF_MATCH, ifMatch);
-        }
-        if (ifNoneMatch != null) {
-            requestOptions.setHeader(HttpHeaderName.IF_NONE_MATCH, ifNoneMatch);
-        }
-        if (ifUnmodifiedSince != null) {
-            requestOptions.setHeader(HttpHeaderName.IF_UNMODIFIED_SINCE,
-                String.valueOf(new DateTimeRfc1123(ifUnmodifiedSince)));
-        }
-        if (ifModifiedSince != null) {
-            requestOptions.setHeader(HttpHeaderName.IF_MODIFIED_SINCE,
-                String.valueOf(new DateTimeRfc1123(ifModifiedSince)));
-        }
-        return putWithOptionalBodyWithResponse(format, requestOptions).flatMap(FluxUtil::toMono)
+        return putWithOptionalBodyWithResponse(format, requestConditions, requestOptions).flatMap(FluxUtil::toMono)
             .map(protocolMethodData -> protocolMethodData.toObject(Resource.class));
     }
 
@@ -178,7 +161,7 @@ public final class EtagHeadersOptionalBodyAsyncClient {
     public Mono<Resource> putWithOptionalBody(String format) {
         // Generated convenience method for putWithOptionalBodyWithResponse
         RequestOptions requestOptions = new RequestOptions();
-        return putWithOptionalBodyWithResponse(format, requestOptions).flatMap(FluxUtil::toMono)
+        return putWithOptionalBodyWithResponse(format, null, requestOptions).flatMap(FluxUtil::toMono)
             .map(protocolMethodData -> protocolMethodData.toObject(Resource.class));
     }
 }

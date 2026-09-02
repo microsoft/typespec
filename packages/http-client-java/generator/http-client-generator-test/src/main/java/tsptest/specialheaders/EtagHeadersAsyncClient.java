@@ -12,7 +12,6 @@ import com.azure.core.exception.ClientAuthenticationException;
 import com.azure.core.exception.HttpResponseException;
 import com.azure.core.exception.ResourceModifiedException;
 import com.azure.core.exception.ResourceNotFoundException;
-import com.azure.core.http.HttpHeaderName;
 import com.azure.core.http.MatchConditions;
 import com.azure.core.http.RequestConditions;
 import com.azure.core.http.rest.PagedFlux;
@@ -21,9 +20,7 @@ import com.azure.core.http.rest.PagedResponseBase;
 import com.azure.core.http.rest.RequestOptions;
 import com.azure.core.http.rest.Response;
 import com.azure.core.util.BinaryData;
-import com.azure.core.util.DateTimeRfc1123;
 import com.azure.core.util.FluxUtil;
-import java.time.OffsetDateTime;
 import java.util.stream.Collectors;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
@@ -100,6 +97,7 @@ public final class EtagHeadersAsyncClient {
      * 
      * @param name The name parameter.
      * @param resource The resource instance.
+     * @param requestConditions Specifies HTTP options for conditional requests based on modification time.
      * @param requestOptions The options to configure the HTTP request before HTTP client sends it.
      * @throws HttpResponseException thrown if the request is rejected by server.
      * @throws ClientAuthenticationException thrown if the request is rejected by server on status code 401.
@@ -110,8 +108,9 @@ public final class EtagHeadersAsyncClient {
     @Generated
     @ServiceMethod(returns = ReturnType.SINGLE)
     public Mono<Response<BinaryData>> putWithRequestHeadersWithResponse(String name, BinaryData resource,
-        RequestOptions requestOptions) {
-        return this.serviceClient.putWithRequestHeadersWithResponseAsync(name, resource, requestOptions);
+        RequestConditions requestConditions, RequestOptions requestOptions) {
+        return this.serviceClient.putWithRequestHeadersWithResponseAsync(name, resource, requestConditions,
+            requestOptions);
     }
 
     /**
@@ -161,6 +160,7 @@ public final class EtagHeadersAsyncClient {
      * 
      * @param name The name parameter.
      * @param resource The resource instance.
+     * @param matchConditions Specifies HTTP options for conditional requests.
      * @param requestOptions The options to configure the HTTP request before HTTP client sends it.
      * @throws HttpResponseException thrown if the request is rejected by server.
      * @throws ClientAuthenticationException thrown if the request is rejected by server on status code 401.
@@ -171,8 +171,9 @@ public final class EtagHeadersAsyncClient {
     @Generated
     @ServiceMethod(returns = ReturnType.SINGLE)
     public Mono<Response<BinaryData>> patchWithMatchHeadersWithResponse(String name, BinaryData resource,
-        RequestOptions requestOptions) {
-        return this.serviceClient.patchWithMatchHeadersWithResponseAsync(name, resource, requestOptions);
+        MatchConditions matchConditions, RequestOptions requestOptions) {
+        return this.serviceClient.patchWithMatchHeadersWithResponseAsync(name, resource, matchConditions,
+            requestOptions);
     }
 
     /**
@@ -222,27 +223,9 @@ public final class EtagHeadersAsyncClient {
     public Mono<Resource> putWithRequestHeaders(String name, Resource resource, RequestConditions requestConditions) {
         // Generated convenience method for putWithRequestHeadersWithResponse
         RequestOptions requestOptions = new RequestOptions();
-        String ifMatch = requestConditions == null ? null : requestConditions.getIfMatch();
-        String ifNoneMatch = requestConditions == null ? null : requestConditions.getIfNoneMatch();
-        OffsetDateTime ifUnmodifiedSince = requestConditions == null ? null : requestConditions.getIfUnmodifiedSince();
-        OffsetDateTime ifModifiedSince = requestConditions == null ? null : requestConditions.getIfModifiedSince();
-        if (ifMatch != null) {
-            requestOptions.setHeader(HttpHeaderName.IF_MATCH, ifMatch);
-        }
-        if (ifNoneMatch != null) {
-            requestOptions.setHeader(HttpHeaderName.IF_NONE_MATCH, ifNoneMatch);
-        }
-        if (ifUnmodifiedSince != null) {
-            requestOptions.setHeader(HttpHeaderName.IF_UNMODIFIED_SINCE,
-                String.valueOf(new DateTimeRfc1123(ifUnmodifiedSince)));
-        }
-        if (ifModifiedSince != null) {
-            requestOptions.setHeader(HttpHeaderName.IF_MODIFIED_SINCE,
-                String.valueOf(new DateTimeRfc1123(ifModifiedSince)));
-        }
-        return putWithRequestHeadersWithResponse(name, BinaryData.fromObject(resource), requestOptions)
-            .flatMap(FluxUtil::toMono)
-            .map(protocolMethodData -> protocolMethodData.toObject(Resource.class));
+        return putWithRequestHeadersWithResponse(name, BinaryData.fromObject(resource), requestConditions,
+            requestOptions).flatMap(FluxUtil::toMono)
+                .map(protocolMethodData -> protocolMethodData.toObject(Resource.class));
     }
 
     /**
@@ -263,7 +246,7 @@ public final class EtagHeadersAsyncClient {
     public Mono<Resource> putWithRequestHeaders(String name, Resource resource) {
         // Generated convenience method for putWithRequestHeadersWithResponse
         RequestOptions requestOptions = new RequestOptions();
-        return putWithRequestHeadersWithResponse(name, BinaryData.fromObject(resource), requestOptions)
+        return putWithRequestHeadersWithResponse(name, BinaryData.fromObject(resource), null, requestOptions)
             .flatMap(FluxUtil::toMono)
             .map(protocolMethodData -> protocolMethodData.toObject(Resource.class));
     }
@@ -287,20 +270,13 @@ public final class EtagHeadersAsyncClient {
     public Mono<Resource> patchWithMatchHeaders(String name, Resource resource, MatchConditions matchConditions) {
         // Generated convenience method for patchWithMatchHeadersWithResponse
         RequestOptions requestOptions = new RequestOptions();
-        String ifMatch = matchConditions == null ? null : matchConditions.getIfMatch();
-        String ifNoneMatch = matchConditions == null ? null : matchConditions.getIfNoneMatch();
-        if (ifMatch != null) {
-            requestOptions.setHeader(HttpHeaderName.IF_MATCH, ifMatch);
-        }
-        if (ifNoneMatch != null) {
-            requestOptions.setHeader(HttpHeaderName.IF_NONE_MATCH, ifNoneMatch);
-        }
         JsonMergePatchHelper.getResourceAccessor().prepareModelForJsonMergePatch(resource, true);
         BinaryData resourceInBinaryData = BinaryData.fromObject(resource);
         // BinaryData.fromObject() will not fire serialization, use getLength() to fire serialization.
         resourceInBinaryData.getLength();
         JsonMergePatchHelper.getResourceAccessor().prepareModelForJsonMergePatch(resource, false);
-        return patchWithMatchHeadersWithResponse(name, resourceInBinaryData, requestOptions).flatMap(FluxUtil::toMono)
+        return patchWithMatchHeadersWithResponse(name, resourceInBinaryData, matchConditions, requestOptions)
+            .flatMap(FluxUtil::toMono)
             .map(protocolMethodData -> protocolMethodData.toObject(Resource.class));
     }
 
@@ -327,7 +303,8 @@ public final class EtagHeadersAsyncClient {
         // BinaryData.fromObject() will not fire serialization, use getLength() to fire serialization.
         resourceInBinaryData.getLength();
         JsonMergePatchHelper.getResourceAccessor().prepareModelForJsonMergePatch(resource, false);
-        return patchWithMatchHeadersWithResponse(name, resourceInBinaryData, requestOptions).flatMap(FluxUtil::toMono)
+        return patchWithMatchHeadersWithResponse(name, resourceInBinaryData, null, requestOptions)
+            .flatMap(FluxUtil::toMono)
             .map(protocolMethodData -> protocolMethodData.toObject(Resource.class));
     }
 

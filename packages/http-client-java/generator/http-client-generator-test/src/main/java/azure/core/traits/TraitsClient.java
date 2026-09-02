@@ -16,13 +16,10 @@ import com.azure.core.exception.ClientAuthenticationException;
 import com.azure.core.exception.HttpResponseException;
 import com.azure.core.exception.ResourceModifiedException;
 import com.azure.core.exception.ResourceNotFoundException;
-import com.azure.core.http.HttpHeaderName;
 import com.azure.core.http.RequestConditions;
 import com.azure.core.http.rest.RequestOptions;
 import com.azure.core.http.rest.Response;
 import com.azure.core.util.BinaryData;
-import com.azure.core.util.DateTimeRfc1123;
-import java.time.OffsetDateTime;
 
 /**
  * Initializes a new instance of the synchronous TraitsClient type.
@@ -81,6 +78,7 @@ public final class TraitsClient {
      * 
      * @param id The user's id.
      * @param foo header in request.
+     * @param requestConditions Specifies HTTP options for conditional requests based on modification time.
      * @param requestOptions The options to configure the HTTP request before HTTP client sends it.
      * @throws HttpResponseException thrown if the request is rejected by server.
      * @throws ClientAuthenticationException thrown if the request is rejected by server on status code 401.
@@ -90,8 +88,9 @@ public final class TraitsClient {
      */
     @Generated
     @ServiceMethod(returns = ReturnType.SINGLE)
-    public Response<BinaryData> smokeTestWithResponse(int id, String foo, RequestOptions requestOptions) {
-        return this.serviceClient.smokeTestWithResponse(id, foo, requestOptions);
+    public Response<BinaryData> smokeTestWithResponse(int id, String foo, RequestConditions requestConditions,
+        RequestOptions requestOptions) {
+        return this.serviceClient.smokeTestWithResponse(id, foo, requestConditions, requestOptions);
     }
 
     /**
@@ -167,25 +166,7 @@ public final class TraitsClient {
     public User smokeTest(int id, String foo, RequestConditions requestConditions) {
         // Generated convenience method for smokeTestWithResponse
         RequestOptions requestOptions = new RequestOptions();
-        String ifMatch = requestConditions == null ? null : requestConditions.getIfMatch();
-        String ifNoneMatch = requestConditions == null ? null : requestConditions.getIfNoneMatch();
-        OffsetDateTime ifUnmodifiedSince = requestConditions == null ? null : requestConditions.getIfUnmodifiedSince();
-        OffsetDateTime ifModifiedSince = requestConditions == null ? null : requestConditions.getIfModifiedSince();
-        if (ifMatch != null) {
-            requestOptions.setHeader(HttpHeaderName.IF_MATCH, ifMatch);
-        }
-        if (ifNoneMatch != null) {
-            requestOptions.setHeader(HttpHeaderName.IF_NONE_MATCH, ifNoneMatch);
-        }
-        if (ifUnmodifiedSince != null) {
-            requestOptions.setHeader(HttpHeaderName.IF_UNMODIFIED_SINCE,
-                String.valueOf(new DateTimeRfc1123(ifUnmodifiedSince)));
-        }
-        if (ifModifiedSince != null) {
-            requestOptions.setHeader(HttpHeaderName.IF_MODIFIED_SINCE,
-                String.valueOf(new DateTimeRfc1123(ifModifiedSince)));
-        }
-        return smokeTestWithResponse(id, foo, requestOptions).getValue().toObject(User.class);
+        return smokeTestWithResponse(id, foo, requestConditions, requestOptions).getValue().toObject(User.class);
     }
 
     /**
@@ -206,7 +187,7 @@ public final class TraitsClient {
     public User smokeTest(int id, String foo) {
         // Generated convenience method for smokeTestWithResponse
         RequestOptions requestOptions = new RequestOptions();
-        return smokeTestWithResponse(id, foo, requestOptions).getValue().toObject(User.class);
+        return smokeTestWithResponse(id, foo, null, requestOptions).getValue().toObject(User.class);
     }
 
     /**
