@@ -726,25 +726,31 @@ namespace Microsoft.TypeSpec.Generator.Providers
                     if (baseProperties.TryGetValue(property.Name, out var basePropertyInfo))
                     {
                         var (baseProperty, basePropertyProvider) = basePropertyInfo;
-                        if (DomainEqual(baseProperty, property))
+                        // A reconciled property can be filtered when a custom CLR base supplies it under another
+                        // name. Only a member that survives in the effective base contract is an override candidate.
+                        var effectiveBaseProperty = basePropertyProvider.CanonicalView.Properties.FirstOrDefault(p =>
+                            ReferenceEquals(p.InputProperty, baseProperty));
+                        if (effectiveBaseProperty is not null && outputProperty.Name == effectiveBaseProperty.Name)
                         {
-                            outputProperty.Modifiers |= MethodSignatureModifiers.Override;
-                        }
-                        else
-                        {
-                            outputProperty.Modifiers |= MethodSignatureModifiers.New;
-                            var fieldName = $"_{baseProperty.Name.ToVariableName()}";
-                            outputProperty.Body = new ExpressionPropertyBody(
-                                This.Property(fieldName).NullCoalesce(Default),
-                                outputProperty.Body.HasSetter ? This.Property(fieldName).Assign(Value) : null);
-                            outputProperty.BackingField = BaseModelProvider?.Fields.FirstOrDefault(f => f.Name == fieldName);
-                        }
+                            if (DomainEqual(baseProperty, property) && CanOverride(effectiveBaseProperty))
+                            {
+                                outputProperty.Modifiers |= MethodSignatureModifiers.Override;
+                            }
+                            else
+                            {
+                                outputProperty.Modifiers |= MethodSignatureModifiers.New;
+                                if (!DomainEqual(baseProperty, property))
+                                {
+                                    var fieldName = $"_{baseProperty.Name.ToVariableName()}";
+                                    outputProperty.Body = new ExpressionPropertyBody(
+                                        This.Property(fieldName).NullCoalesce(Default),
+                                        outputProperty.Body.HasSetter ? This.Property(fieldName).Assign(Value) : null);
+                                    outputProperty.BackingField = BaseModelProvider?.Fields.FirstOrDefault(f => f.Name == fieldName);
+                                }
+                            }
 
-                        // Reconciled properties have a provider scoped to the model that materialized them. Use that
-                        // provider as the override target rather than the provider scoped to the input property's owner.
-                        outputProperty.BaseProperty = basePropertyProvider.CanonicalView.Properties.FirstOrDefault(p =>
-                            ReferenceEquals(p.InputProperty, baseProperty))
-                            ?? CodeModelGenerator.Instance.TypeFactory.CreateProperty(baseProperty, basePropertyProvider);
+                            outputProperty.BaseProperty = effectiveBaseProperty;
+                        }
                     }
                 }
                 properties.Add(outputProperty);
@@ -772,6 +778,17 @@ namespace Microsoft.TypeSpec.Generator.Providers
                 yield return model;
                 model = model.BaseModelProvider;
             }
+        }
+
+        private static bool CanOverride(PropertyProvider property)
+        {
+            var modifiers = property.Modifiers;
+            return (modifiers.HasFlag(MethodSignatureModifiers.Virtual) ||
+                    modifiers.HasFlag(MethodSignatureModifiers.Abstract) ||
+                    modifiers.HasFlag(MethodSignatureModifiers.Override)) &&
+                !modifiers.HasFlag(MethodSignatureModifiers.Sealed) &&
+                !modifiers.HasFlag(MethodSignatureModifiers.Static) &&
+                !modifiers.HasFlag(MethodSignatureModifiers.Private);
         }
 
         private static bool DomainEqual(InputProperty baseProperty, InputProperty derivedProperty)

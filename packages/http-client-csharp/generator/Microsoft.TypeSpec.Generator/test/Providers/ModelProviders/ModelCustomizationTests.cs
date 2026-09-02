@@ -2204,6 +2204,39 @@ namespace Microsoft.TypeSpec.Generator.Tests.Providers.ModelProviders
         }
 
         [Test]
+        public async Task DoesNotOverrideFilteredReconciledBaseProperty()
+        {
+            var rootModel = InputFactory.Model(
+                "rootModel",
+                properties: [InputFactory.Property("sharedProp", InputPrimitiveType.String, isRequired: true)],
+                usage: InputModelTypeUsage.Json);
+            var intermediateModel = InputFactory.Model(
+                "intermediateModel",
+                properties: [InputFactory.Property("intermediateProp", InputPrimitiveType.String)],
+                baseModel: rootModel,
+                usage: InputModelTypeUsage.Json);
+            var leafModel = InputFactory.Model(
+                "leafModel",
+                properties: [InputFactory.Property("sharedProp", InputPrimitiveType.String, isRequired: true)],
+                baseModel: intermediateModel,
+                usage: InputModelTypeUsage.Json);
+
+            var mockGenerator = await MockHelpers.LoadMockGeneratorAsync(
+                inputModelTypes: [leafModel, intermediateModel, rootModel],
+                compilation: async () => await Helpers.GetCompilationFromDirectoryAsync());
+
+            var intermediateProvider = (ModelProvider)mockGenerator.Object.OutputLibrary.TypeProviders
+                .Single(t => t.Name == "IntermediateModel");
+            var leafProvider = (ModelProvider)mockGenerator.Object.OutputLibrary.TypeProviders
+                .Single(t => t.Name == "LeafModel");
+
+            Assert.That(intermediateProvider.CanonicalView.Properties.Select(p => p.Name), Does.Not.Contain("SharedProp"));
+            var leafProperty = leafProvider.Properties.Single(p => p.Name == "SharedProp");
+            Assert.IsFalse(leafProperty.Modifiers.HasFlag(MethodSignatureModifiers.Override));
+            Assert.IsNull(leafProperty.BaseProperty);
+        }
+
+        [Test]
         public async Task DeduplicatesReconciledPropertiesByFinalCSharpName()
         {
             var specBaseModel = InputFactory.Model(
