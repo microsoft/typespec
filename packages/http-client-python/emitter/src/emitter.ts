@@ -197,7 +197,7 @@ async function onEmitMain(context: EmitContext<PythonEmitterOptions>) {
       code: "no-sdk-clients",
       target:
         listServices(program)[0]?.type ??
-        program.getGlobalNamespaceType().models.values().next().value ??
+        sdkContext.sdkPackage.models[0]?.__raw ??
         program.getGlobalNamespaceType(),
     });
   }

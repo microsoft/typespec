@@ -50,6 +50,7 @@ export async function emitCodeModel(
   code: string,
 ): Promise<{ codeModel: CodeModel; diagnostics: readonly Diagnostic[] }> {
   const outputDir = await mkdtemp(join(tmpdir(), "typespec-python-"));
+  let yamlPath: string | undefined;
   try {
     const [, diagnostics] = await EmitterTester.compileAndDiagnose(code, {
       compilerOptions: {
@@ -70,14 +71,17 @@ export async function emitCodeModel(
     if (!pointerName) {
       throw new Error("Emitter did not produce a code model.");
     }
-    const { yamlPath } = JSON.parse(
+    ({ yamlPath } = JSON.parse(
       await readFile(join(outputDir, pointerName), "utf-8"),
-    );
+    ));
     const codeModel = jsyaml.load(
-      await readFile(yamlPath, "utf-8"),
+      await readFile(yamlPath!, "utf-8"),
     ) as CodeModel;
     return { codeModel, diagnostics };
   } finally {
     await rm(outputDir, { recursive: true, force: true });
+    if (yamlPath) {
+      await rm(yamlPath, { force: true });
+    }
   }
 }
