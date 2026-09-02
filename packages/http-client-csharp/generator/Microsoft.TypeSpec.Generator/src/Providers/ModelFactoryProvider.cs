@@ -214,7 +214,13 @@ namespace Microsoft.TypeSpec.Generator.Providers
                 // from and stripping defaults would break the published omitted-argument calls.
                 // The exclusion is name-based and therefore applies only to published signatures;
                 // a custom overload is always emitted and must always constrain.
+                // A published signature that is restored as a compatibility overload is excluded as
+                // well: that overload either requires every parameter, which makes it preferred at
+                // its own argument count and unreachable by any shorter call, or it replaces this
+                // overload entirely.
                 var competingSignatures = preservedPreviousSignatures
+                    .Where(signature => !compatiblePreviousMethods.Any(method =>
+                        ReferenceEquals(method.Signature, signature)))
                     .Where(signature => !MethodSignatureHelper.HaveSameParametersInSameOrder(
                         currentMethod.Signature,
                         signature))
@@ -505,14 +511,27 @@ namespace Microsoft.TypeSpec.Generator.Providers
                 return false;
             }
 
+            var signature = MethodSignatureHelper.BuildBackCompatMethodSignature(
+                previousMethod.Signature,
+                hideMethod,
+                currentMethodSignatures: currentOverloadSignatures);
+
+            // Best effort: never emit a compatibility overload that a call could not resolve against a
+            // custom overload. When a visible overload is rejected here the caller falls back to a hidden
+            // one, which requires every parameter and is therefore preferred at its own argument count.
+            if (currentOverloadSignatures.Any(overload => MethodSignatureHelper.AreAmbiguous(signature, overload)))
+            {
+                CodeModelGenerator.Instance.Emitter.Debug(
+                    $"Skipped model factory method '{Name}.{previousMethod.Signature.Name}' from last contract because it would be ambiguous with a custom overload.",
+                    BackCompatibilityChangeCategory.ModelFactoryMethodSkipped);
+                return false;
+            }
+
             if (currentMethodSignature != null && TryBuildMethodArgumentsForOverload(previousMethod.Signature, currentMethodSignature, out var arguments))
             {
                 var callToOverload = Return(new InvokeMethodExpression(null, currentMethodSignature, arguments));
                 builtMethod = new MethodProvider(
-                    MethodSignatureHelper.BuildBackCompatMethodSignature(
-                        previousMethod.Signature,
-                        hideMethod,
-                        currentMethodSignatures: currentOverloadSignatures),
+                    signature,
                     callToOverload,
                     this,
                     previousMethod.XmlDocs);
@@ -523,10 +542,7 @@ namespace Microsoft.TypeSpec.Generator.Providers
             MethodBodyStatements body = ConstructMethodBody(previousMethod.Signature, modelToInstantiate);
 
             builtMethod = new MethodProvider(
-                MethodSignatureHelper.BuildBackCompatMethodSignature(
-                    previousMethod.Signature,
-                    hideMethod,
-                    currentMethodSignatures: currentOverloadSignatures),
+                signature,
                 body,
                 this,
                 previousMethod.XmlDocs);

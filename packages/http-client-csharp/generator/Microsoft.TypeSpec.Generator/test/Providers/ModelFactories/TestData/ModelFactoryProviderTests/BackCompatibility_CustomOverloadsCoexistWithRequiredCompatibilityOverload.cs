@@ -10,7 +10,7 @@ namespace Sample.Namespace
     public static partial class SampleNamespaceModelFactory
     {
         [global::System.ComponentModel.EditorBrowsableAttribute(global::System.ComponentModel.EditorBrowsableState.Never)]
-        public static global::Sample.Models.CompatibilityModel CompatibilityModel(string id, string name, bool? enabled = default, string description = default)
+        public static global::Sample.Models.CompatibilityModel CompatibilityModel(string id, string name, bool? enabled, string description)
         {
             return CompatibilityModel(id: id, name: name, enabled: enabled, description: description, kind: default);
         }

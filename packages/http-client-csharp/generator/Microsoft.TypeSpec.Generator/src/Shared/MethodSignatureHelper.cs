@@ -76,10 +76,66 @@ namespace Microsoft.TypeSpec.Generator
             IReadOnlyList<MethodSignature> currentMethodSignatures,
             bool shouldNotBeAsync = false)
         {
-            RequireMinimumParameterPrefix(previousMethodSignature, currentMethodSignatures);
+            // A hidden overload only exists to keep previously compiled call sites working, so every
+            // parameter is required. Any call that omits an argument then binds to a visible overload,
+            // which keeps the optionality of the current shape.
+            RequireMinimumParameterPrefix(
+                previousMethodSignature,
+                hideMethod ? null : currentMethodSignatures);
 
             return CreateBackCompatSignature(previousMethodSignature, hideMethod, shouldNotBeAsync);
         }
+
+        /// <summary>
+        /// Determines whether a call could bind to both <paramref name="signature"/> and
+        /// <paramref name="otherSignature"/> without overload resolution being able to prefer one of them.
+        /// Only argument counts that both signatures accept with the same parameter types are considered,
+        /// since any other call is resolved by the argument count or the argument types.
+        /// </summary>
+        internal static bool AreAmbiguous(MethodSignature signature, MethodSignature otherSignature)
+        {
+            if (signature.Name != otherSignature.Name
+                || HasUnsupportedParameterKind(signature)
+                || HasUnsupportedParameterKind(otherSignature))
+            {
+                return false;
+            }
+
+            int equivalentParameterCount = 0;
+            int overlappingParameterCount = Math.Min(signature.Parameters.Count, otherSignature.Parameters.Count);
+            while (equivalentParameterCount < overlappingParameterCount)
+            {
+                CSharpType type = signature.Parameters[equivalentParameterCount].Type;
+                CSharpType otherType = otherSignature.Parameters[equivalentParameterCount].Type;
+                if (type.IsNullable != otherType.IsNullable || !type.AreNamesEqual(otherType))
+                {
+                    break;
+                }
+
+                equivalentParameterCount++;
+            }
+
+            int minimumArgumentCount = Math.Max(
+                GetMinimumArgumentCount(signature),
+                GetMinimumArgumentCount(otherSignature));
+            for (int argumentCount = minimumArgumentCount; argumentCount <= equivalentParameterCount; argumentCount++)
+            {
+                // An overload that receives an argument for every one of its parameters is preferred over
+                // an overload that has to substitute a default, so the pair can only be unresolvable when
+                // both of them are in the same state.
+                bool substitutesDefault = argumentCount < signature.Parameters.Count;
+                bool otherSubstitutesDefault = argumentCount < otherSignature.Parameters.Count;
+                if (substitutesDefault == otherSubstitutesDefault)
+                {
+                    return true;
+                }
+            }
+
+            return false;
+        }
+
+        private static bool HasUnsupportedParameterKind(MethodSignature signature)
+            => signature.Parameters.Any(p => p.IsRef || p.IsOut || p.IsParams);
 
         /// <summary>
         /// Removes the default values from the leading parameters of <paramref name="signature"/> so it
