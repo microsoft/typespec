@@ -55,6 +55,7 @@ model Salmon extends Fish {
 
 @doc("The third level model SawShark in polymorphic multiple levels inheritance.")
 model SawShark extends Shark {
+  kind: FishKind.Shark;
   sharktype: SharkKind.Saw;
 }
 

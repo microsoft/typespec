@@ -17,10 +17,10 @@ import java.io.IOException;
 @Immutable
 public final class SawShark extends Shark {
     /*
-     * discriminator property
+     * The kind property.
      */
     @Generated
-    private FishKind kind = FishKind.SHARK;
+    private final FishKind kind = FishKind.SHARK;
 
     /*
      * The sharktype property.
@@ -39,7 +39,7 @@ public final class SawShark extends Shark {
     }
 
     /**
-     * Get the kind property: discriminator property.
+     * Get the kind property: The kind property.
      * 
      * @return the kind value.
      */

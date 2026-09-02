@@ -116,7 +116,11 @@ public final class PolymorphicDiscriminatorHandler {
                 && settings.isShareJsonSerializableCode()) {
                 classBlock.memberVariable(JavaVisibility.PackagePrivate, fieldSignature);
             } else if (!allPolymorphicModelsInSamePackage || !settings.isShareJsonSerializableCode()) {
-                classBlock.privateMemberVariable(fieldSignature);
+                if (discriminator.isConstant()) {
+                    classBlock.privateFinalMemberVariable(fieldSignature);
+                } else {
+                    classBlock.privateMemberVariable(fieldSignature);
+                }
             }
         }
     }
