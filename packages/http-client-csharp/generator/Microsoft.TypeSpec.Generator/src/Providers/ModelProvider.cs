@@ -765,8 +765,8 @@ namespace Microsoft.TypeSpec.Generator.Providers
                 return false;
             }
 
-            // Roslyn-backed last-contract reference types do not retain nullable-reference metadata.
-            // Keep the current TypeSpec nullability when the reference types otherwise match.
+            // Roslyn-backed last-contract reference types do not retain top-level nullable-reference metadata.
+            // Keep the current TypeSpec top-level nullability when the reference types otherwise match.
             return lastContractType.IsValueType
                 || currentType.IsValueType
                 || !lastContractType.Equals(currentType, ignoreNullable: true);

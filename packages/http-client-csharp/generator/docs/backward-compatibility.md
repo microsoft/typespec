@@ -272,7 +272,7 @@ public IReadOnlyList<string> Items { get; }
 
 **Description:** When the type of a scalar, enum, or model property differs between the last contract and the current spec, the generator preserves the last contract's type shape. Nullable value-type differences also preserve the last contract's nullability.
 
-Reference types loaded from the last contract are nullable-oblivious, so their nullability is not used as compatibility evidence. The generator retains the current TypeSpec reference nullability while preserving any other last-contract type differences. This prevents compatibility processing from adding null guards or null-unsafe collection conversions that contradict the current wire contract.
+Reference types loaded from the last contract are nullable-oblivious, so their top-level nullability is not used as compatibility evidence. The generator retains the current TypeSpec top-level reference nullability while preserving any other last-contract type differences, including nested generic argument types. This prevents compatibility processing from adding null guards or null-unsafe collection conversions that contradict the current wire contract.
 
 **Example:**
 

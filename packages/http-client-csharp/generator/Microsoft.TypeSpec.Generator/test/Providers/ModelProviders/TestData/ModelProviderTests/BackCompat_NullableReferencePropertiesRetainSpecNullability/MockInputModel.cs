@@ -1,13 +1,16 @@
 #nullable disable
 
+using System;
+using System.Collections.Generic;
+
 namespace Sample.Models
 {
     public partial class MockInputModel
     {
-        public global::System.BinaryData Unknown { get; set; }
-        public global::System.BinaryData Bytes { get; set; }
+        public BinaryData Unknown { get; set; }
+        public BinaryData Bytes { get; set; }
         public object Description { get; set; }
-        public global::System.Collections.Generic.IReadOnlyList<string> Items { get; set; }
+        public IReadOnlyList<string> Items { get; set; }
         public string Name { get; set; }
     }
 }
