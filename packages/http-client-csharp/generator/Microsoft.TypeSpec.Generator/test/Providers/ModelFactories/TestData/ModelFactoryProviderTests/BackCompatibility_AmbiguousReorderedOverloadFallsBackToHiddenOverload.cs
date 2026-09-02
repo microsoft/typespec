@@ -9,15 +9,15 @@ namespace Sample.Namespace
 {
     public static partial class SampleNamespaceModelFactory
     {
-        public static global::Sample.Models.CompatibilityModel CompatibilityModel(string id, int? count, string name)
+        public static global::Sample.Models.CompatibilityModel CompatibilityModel(string id, bool? flag = default, string name = default)
         {
-            return new global::Sample.Models.CompatibilityModel(id, count, name, additionalBinaryDataProperties: null);
+            return new global::Sample.Models.CompatibilityModel(id, flag, name, additionalBinaryDataProperties: null);
         }
 
         [global::System.ComponentModel.EditorBrowsableAttribute(global::System.ComponentModel.EditorBrowsableState.Never)]
-        public static global::Sample.Models.CompatibilityModel CompatibilityModel(string id, string name, int? count)
+        public static global::Sample.Models.CompatibilityModel CompatibilityModel(bool flag, string id, string name)
         {
-            return new global::Sample.Models.CompatibilityModel(id, count, name, additionalBinaryDataProperties: null);
+            return new global::Sample.Models.CompatibilityModel(id, flag, name, additionalBinaryDataProperties: null);
         }
     }
 }

@@ -351,14 +351,15 @@ namespace Microsoft.TypeSpec.Generator.Tests.Providers.ModelFactories
         // A reordered previous overload would normally replace the generated overload while keeping its
         // published optionality. Here that visible overload would be ambiguous with a custom overload
         // (both would substitute defaults for a single-argument call), so it is emitted as a hidden
-        // overload requiring every parameter instead.
+        // overload requiring every parameter instead. The generated overload only has to require the
+        // parameters that distinguish it from the custom overload, so it keeps its trailing defaults.
         [Test]
         public async Task BackCompatibility_AmbiguousReorderedOverloadFallsBackToHiddenOverload()
         {
             InputModelType model = InputFactory.Model("CompatibilityModel", properties:
             [
                 InputFactory.Property("Id", InputPrimitiveType.String),
-                InputFactory.Property("Count", new InputNullableType(InputPrimitiveType.Int32)),
+                InputFactory.Property("Flag", InputPrimitiveType.Boolean),
                 InputFactory.Property("Name", InputPrimitiveType.String),
             ]);
 
@@ -373,13 +374,18 @@ namespace Microsoft.TypeSpec.Generator.Tests.Providers.ModelFactories
 
             var compatibilityMethod = modelFactory.Methods.Single(m =>
                 m.Signature.Name == "CompatibilityModel"
-                && m.Signature.Parameters.Count == 3
-                && m.Signature.Parameters[1].Name == "name");
+                && m.Signature.Parameters[0].Name == "flag");
             Assert.AreEqual(1, compatibilityMethod.Signature.Attributes.Count);
             Assert.AreEqual(
                 "[global::System.ComponentModel.EditorBrowsableAttribute(global::System.ComponentModel.EditorBrowsableState.Never)]",
                 compatibilityMethod.Signature.Attributes[0].ToDisplayString());
             Assert.IsTrue(compatibilityMethod.Signature.Parameters.All(p => p.DefaultValue is null));
+
+            var generatedMethod = modelFactory.Methods.Single(m =>
+                m.Signature.Name == "CompatibilityModel"
+                && m.Signature.Parameters[0].Name == "id");
+            Assert.IsEmpty(generatedMethod.Signature.Attributes);
+            Assert.IsTrue(generatedMethod.Signature.Parameters.Skip(1).All(p => p.DefaultValue is not null));
 
             var content = new TypeProviderWriter(modelFactory).Write().Content;
             Assert.AreEqual(Helpers.GetExpectedFromFile(), content);

@@ -5,11 +5,11 @@ namespace Sample.Namespace
     public static partial class SampleNamespaceModelFactory
     {
         // A reordering of the current overload. Keeping it visible with its published optionality
-        // would make the single-argument call ambiguous with the custom overload below.
+        // would make the single-argument call ambiguous with the custom overload.
         public static CompatibilityModel CompatibilityModel(
+            bool flag = default,
             string id = default,
-            string name = default,
-            int? count = default)
+            string name = default)
         { }
     }
 }

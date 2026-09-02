@@ -517,8 +517,10 @@ namespace Microsoft.TypeSpec.Generator.Providers
                 currentMethodSignatures: currentOverloadSignatures);
 
             // Best effort: never emit a compatibility overload that a call could not resolve against a
-            // custom overload. When a visible overload is rejected here the caller falls back to a hidden
-            // one, which requires every parameter and is therefore preferred at its own argument count.
+            // custom overload. A hidden overload requires every parameter, so it can only be rejected
+            // here by a custom overload with an identical parameter type list; every other shape is
+            // resolved by the argument count or the argument types. A rejected visible (reorder
+            // replacement) overload falls back to the hidden all-required overload instead.
             if (currentOverloadSignatures.Any(overload => MethodSignatureHelper.AreAmbiguous(signature, overload)))
             {
                 CodeModelGenerator.Instance.Emitter.Debug(

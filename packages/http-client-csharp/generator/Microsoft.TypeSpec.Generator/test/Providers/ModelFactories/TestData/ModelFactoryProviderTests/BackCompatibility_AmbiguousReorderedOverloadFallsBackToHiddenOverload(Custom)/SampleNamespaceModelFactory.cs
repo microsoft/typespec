@@ -5,10 +5,8 @@ namespace Sample.Namespace
     public static partial class SampleNamespaceModelFactory
     {
         public static CompatibilityModel CompatibilityModel(
-            string id,
-            string name = default,
-            string extra = default,
-            string other = default)
+            bool flag,
+            string id = default)
         { }
     }
 }
