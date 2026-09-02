@@ -2,6 +2,7 @@
 // Licensed under the MIT License.
 
 using System;
+using System.Collections.Generic;
 using System.Diagnostics.CodeAnalysis;
 using Microsoft.TypeSpec.Generator.Input;
 using Microsoft.TypeSpec.Generator.Primitives;
@@ -50,14 +51,12 @@ namespace Microsoft.TypeSpec.Generator.Utilities
                 return type;
             }
 
-            if (type.IsList)
-            {
-                return new CSharpType(type.FrameworkType, [elementType], type.IsNullable);
-            }
-
-            return type.IsDictionary
-                ? new CSharpType(type.FrameworkType, [type.Arguments[0], elementType], type.IsNullable)
-                : type;
+            // The element is always the trailing generic argument of a collection: `IReadOnlyList<TElement>`
+            // and `IDictionary<TKey, TElement>`. This mirrors how CSharpType.ElementType resolves it, and the
+            // successful ElementType access above proves there is at least one argument to replace.
+            var arguments = new List<CSharpType>(type.Arguments);
+            arguments[^1] = elementType;
+            return new CSharpType(type.FrameworkType, arguments, type.IsNullable);
         }
 
         public static CSharpType ApplyInputSpecProperty(this CSharpType type, InputProperty? specProperty)
