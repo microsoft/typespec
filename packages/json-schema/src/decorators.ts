@@ -5,6 +5,7 @@ import {
   isType,
   type Model,
   type Namespace,
+  type Numeric,
   type Program,
   type Scalar,
   serializeValueAsJson,
@@ -18,24 +19,22 @@ import {
 import { useStateMap, useStateSet } from "@typespec/compiler/utils";
 import type { ValidatesRawJsonDecorator } from "../generated-defs/TypeSpec.JsonSchema.Private.js";
 import type {
-  ContainsDecorator,
-  ContentEncodingDecorator,
-  ContentMediaTypeDecorator,
-  ContentSchemaDecorator,
   ExtensionDecorator,
-  IdDecorator,
   JsonSchemaDecorator,
-  MaxContainsDecorator,
-  MaxPropertiesDecorator,
-  MinContainsDecorator,
-  MinPropertiesDecorator,
-  MultipleOfDecorator,
-  OneOfDecorator,
-  PrefixItemsDecorator,
-  UniqueItemsDecorator,
+} from "../generated-defs/TypeSpec.JsonSchema.js";
+import {
+  getBaseUri as getBaseUriOnNamespace,
+  getContentEncoding as getContentEncodingOnScalar,
+  getContentMediaType as getContentMediaTypeOnScalar,
+  getContentSchema as getContentSchemaOnScalar,
+  getMultipleOf as getMultipleOfOnScalar,
+  getPrefixItems as getPrefixItemsAsType,
+  isOneOf as isOneOfOnUnion,
+  isUniqueItems,
+  setBaseUri,
+  setId,
 } from "../generated-defs/TypeSpec.JsonSchema.js";
 import { JsonSchemaStateKeys } from "./lib.js";
-import { createDataDecorator } from "./utils.js";
 
 /**
  * TypeSpec Types that can create a json schmea declaration
@@ -56,20 +55,51 @@ export const $jsonSchema: JsonSchemaDecorator = (
   markJsonSchema(context.program, target);
   if (baseUriOrId) {
     if (target.kind === "Namespace") {
-      context.call($baseUri, target, baseUriOrId);
+      setBaseUri(context.program, target, baseUriOrId);
     } else {
-      context.call($id, target, baseUriOrId);
+      setId(context.program, target, baseUriOrId);
     }
   }
 };
 
-export const [
-  /** Get base uri set via `@baseUri` decorator */
-  getBaseUri,
-  setBaseUri,
-  /** {@inheritdoc BaseUriDecorator} */
-  $baseUri,
-] = createDataDecorator(JsonSchemaStateKeys["JsonSchema.baseURI"]);
+/**
+ * Accessors for the metadata-only decorators are generated from their `auto dec`
+ * declarations in `lib/main.tsp`. They are re-exported here when their generated
+ * signature already matches the historical one, and wrapped below when the
+ * historical signature was wider or returned a different shape.
+ */
+export {
+  getContains,
+  getId,
+  getMaxContains,
+  getMaxProperties,
+  getMinContains,
+  getMinProperties,
+  setContains,
+  setContentEncoding,
+  setContentMediaType,
+  setContentSchema,
+  setId,
+  setMaxContains,
+  setMaxProperties,
+  setMinContains,
+  setMinProperties,
+  setMultipleOf,
+  setOneOf,
+  setPrefixItems,
+  setUniqueItems,
+} from "../generated-defs/TypeSpec.JsonSchema.js";
+export { setBaseUri };
+
+/**
+ * Get base uri set via `@baseUri` decorator.
+ *
+ * Accepts any type so that {@link findBaseUri} can probe a declaration before walking
+ * up its enclosing namespaces; only namespaces can carry the decorator.
+ */
+export function getBaseUri(program: Program, target: Type): string | undefined {
+  return getBaseUriOnNamespace(program, target as Namespace);
+}
 
 /** Find base uri for the given type. */
 export function findBaseUri(
@@ -146,133 +176,51 @@ export function getJsonSchemaTypes(program: Program): (JsonSchemaDeclarationType
   return types;
 }
 
-export const [
-  /** Get value set by `@multipleOf` decorator as a `Numeric` type. */
-  getMultipleOfAsNumeric,
-  setMultipleOf,
-  /** {@inheritdoc MultipleOfDecorator} */
-
-  $multipleOf,
-] = createDataDecorator<MultipleOfDecorator, Type>(JsonSchemaStateKeys["JsonSchema.multipleOf"]);
+/** Get value set by `@multipleOf` decorator as a `Numeric` type. */
+export function getMultipleOfAsNumeric(program: Program, target: Type): Numeric | undefined {
+  return getMultipleOfOnScalar(program, target as Scalar);
+}
 
 /** Get value set by `@multipleOf` decorator as a `number` type. If the value is not representable as a number or not set, returns undefined. */
 export function getMultipleOf(program: Program, target: Type): number | undefined {
   return getMultipleOfAsNumeric(program, target)?.asNumber() ?? undefined;
 }
 
-export const [
-  /** Get id as set with `@id` decorator. */
-  getId,
-  setId,
-  /** {@inheritdoc IdDecorator} */
-  $id,
-] = createDataDecorator<IdDecorator>(JsonSchemaStateKeys["JsonSchema.id"]);
+/** Check if given type is annotated with `@oneOf` decorator */
+export function isOneOf(program: Program, target: Type): boolean {
+  return isOneOfOnUnion(program, target as Union);
+}
 
-export const [
-  /** Check if given type is annotated with `@oneOf` decorator */
-  isOneOf,
-  markOneOf,
-] = useStateSet(JsonSchemaStateKeys["JsonSchema.oneOf"]);
+/**
+ * Check if the given array is annotated with `@uniqueItems` decorator.
+ *
+ * Returns `true` when the decorator is applied and `undefined` otherwise, so that callers
+ * can distinguish "not set" from "set" when building constraint objects.
+ */
+export function getUniqueItems(program: Program, target: Type): true | undefined {
+  return isUniqueItems(program, target) ? true : undefined;
+}
 
-/** {@inheritdoc OneOfDecorator} */
-export const $oneOf: OneOfDecorator = (context: DecoratorContext, target: Type) => {
-  markOneOf(context.program, target);
-};
+/** Get content encoding as configured by `@contentEncoding` decorator. */
+export function getContentEncoding(program: Program, target: Type): string | undefined {
+  return getContentEncodingOnScalar(program, target as Scalar);
+}
 
-export const [
-  /** Get contains value set by `@contains` decorator */
-  getContains,
-  setContains,
-  /** {@inheritdoc ContainsDecorator} */
-  $contains,
-] = createDataDecorator<ContainsDecorator>(JsonSchemaStateKeys["JsonSchema.contains"]);
+/** Get content media type as configured by `@contentMediaType` decorator. */
+export function getContentMediaType(program: Program, target: Type): string | undefined {
+  return getContentMediaTypeOnScalar(program, target as Scalar);
+}
 
-export const [
-  /** Get value set by `@minContains` decorator */
-  getMinContains,
-  setMinContains,
-  /** {@inheritdoc MinContainsDecorator} */
-  $minContains,
-] = createDataDecorator<MinContainsDecorator>(JsonSchemaStateKeys["JsonSchema.minContains"]);
+/** Get content schema set with `@contentSchema` decorator */
+export function getContentSchema(program: Program, target: Type): Type | undefined {
+  return getContentSchemaOnScalar(program, target as Scalar);
+}
 
-export const [
-  /** Get value set by `@maxContains` decorator */
-  getMaxContains,
-  setMaxContains,
-  /** {@inheritdoc MaxContainsDecorator} */
-  $maxContains,
-] = createDataDecorator<MaxContainsDecorator>(JsonSchemaStateKeys["JsonSchema.maxContains"]);
-
-export const [
-  /** Check if the given array is annotated with `@uniqueItems` decorator */
-  getUniqueItems,
-  setUniqueItems,
-] = useStateMap<Type, boolean>(JsonSchemaStateKeys["JsonSchema.uniqueItems"]);
-/** {@inheritdoc UniqueItemsDecorator} */
-export const $uniqueItems: UniqueItemsDecorator = (context: DecoratorContext, target: Type) =>
-  setUniqueItems(context.program, target, true);
-
-export const [
-  /** Get minimum number of properties set by `@minProperties` decorator */
-  getMinProperties,
-  setMinProperties,
-  /** {@inheritdoc MinPropertiesDecorator} */
-  $minProperties,
-] = createDataDecorator<MinPropertiesDecorator>(JsonSchemaStateKeys["JsonSchema.minProperties"]);
-
-export const [
-  /** Get maximum number of properties set by `@maxProperties` decorator */
-
-  getMaxProperties,
-  setMaxProperties,
-  /** {@inheritdoc MaxPropertiesDecorator} */
-  $maxProperties,
-] = createDataDecorator<MaxPropertiesDecorator>(JsonSchemaStateKeys["JsonSchema.maxProperties"]);
-
-export const [
-  /** Get content encoding as configured by `@contentEncoding` decorator. */
-  getContentEncoding,
-  setContentEncoding,
-  /** {@inheritdoc ContentEncodingDecorator} */
-  $contentEncoding,
-] = createDataDecorator<ContentEncodingDecorator, Type>(
-  JsonSchemaStateKeys["JsonSchema.contentEncoding"],
-);
-
-export const [
-  /** Get content media type as configured by `@contentMediaType` decorator. */
-  getContentMediaType,
-  setContentMediaType,
-  /** {@inheritdoc ContentMediaTypeDecorator} */
-  $contentMediaType,
-] = createDataDecorator<ContentMediaTypeDecorator, Type>(
-  JsonSchemaStateKeys["JsonSchema.contentMediaType"],
-);
-
-export const [
-  /** Get content schema set with `@contentSchema` decorator */
-  getContentSchema,
-  setContentSchema,
-  /** {@inheritdoc ContentSchemaDecorator} */
-  $contentSchema,
-] = createDataDecorator<ContentSchemaDecorator, Type>(
-  JsonSchemaStateKeys["JsonSchema.contentSchema"],
-);
-
-export const [
-  /** Get prefix items set with `@prefixItems` decorator */
-  getPrefixItems,
-  setPrefixItems,
-] = useStateMap<Type, Tuple>(JsonSchemaStateKeys["JsonSchema.prefixItems"]);
-
-/** {@inheritdoc PrefixItemsDecorator} */
-export const $prefixItems: PrefixItemsDecorator = (
-  context: DecoratorContext,
-  target: Type,
-  value: Type,
-) => {
-  setPrefixItems(context.program, target, value as Tuple); // This cast is incorrect and would cause a crash https://github.com/microsoft/typespec/issues/4742
-};
+/** Get prefix items set with `@prefixItems` decorator */
+export function getPrefixItems(program: Program, target: Type): Tuple | undefined {
+  // This cast is incorrect and would cause a crash https://github.com/microsoft/typespec/issues/4742
+  return getPrefixItemsAsType(program, target) as Tuple | undefined;
+}
 
 /**
  * Data type containing information about an extension.

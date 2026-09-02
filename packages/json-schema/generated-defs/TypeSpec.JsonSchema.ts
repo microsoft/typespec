@@ -1,12 +1,16 @@
-import type {
-  DecoratorContext,
-  DecoratorValidatorCallbacks,
-  ModelProperty,
-  Namespace,
-  Numeric,
-  Scalar,
-  Type,
-  Union,
+import {
+  type DecoratorContext,
+  type DecoratorValidatorCallbacks,
+  getAutoDecoratorValue,
+  hasAutoDecorator,
+  type ModelProperty,
+  type Namespace,
+  type Numeric,
+  type Program,
+  type Scalar,
+  setAutoDecorator,
+  type Type,
+  type Union,
 } from "@typespec/compiler";
 
 /**
@@ -22,163 +26,6 @@ export type JsonSchemaDecorator = (
   context: DecoratorContext,
   target: Type,
   baseUri?: string,
-) => DecoratorValidatorCallbacks | void;
-
-/**
- * Set the base URI for any schemas emitted from types within this namespace.
- *
- * @param baseUri The base URI. Schema IDs inside this namespace are relative to this URI.
- */
-export type BaseUriDecorator = (
-  context: DecoratorContext,
-  target: Namespace,
-  baseUri: string,
-) => DecoratorValidatorCallbacks | void;
-
-/**
- * Specify the JSON Schema id. If this model or a parent namespace has a base URI,
- * the provided ID will be relative to that base URI.
- *
- * By default, the id will be constructed based on the declaration's name.
- *
- * @param id The id of the JSON schema for this declaration.
- */
-export type IdDecorator = (
-  context: DecoratorContext,
-  target: Type,
-  id: string,
-) => DecoratorValidatorCallbacks | void;
-
-/**
- * Specify that `oneOf` should be used instead of `anyOf` for that union.
- */
-export type OneOfDecorator = (
-  context: DecoratorContext,
-  target: Union | ModelProperty,
-) => DecoratorValidatorCallbacks | void;
-
-/**
- * Specify that the numeric type must be a multiple of some numeric value.
- *
- * @param value The numeric type must be a multiple of this value.
- */
-export type MultipleOfDecorator = (
-  context: DecoratorContext,
-  target: Scalar | ModelProperty,
-  value: Numeric,
-) => DecoratorValidatorCallbacks | void;
-
-/**
- * Specify that the array must contain at least one instance of the provided type.
- * Use `@minContains` and `@maxContains` to customize how many instances to expect.
- *
- * @param value The type the array must contain.
- */
-export type ContainsDecorator = (
-  context: DecoratorContext,
-  target: Type | ModelProperty,
-  value: Type,
-) => DecoratorValidatorCallbacks | void;
-
-/**
- * Used in conjunction with the `@contains` decorator,
- * specifies that the array must contain at least a certain number of the types provided by the `@contains` decorator.
- *
- * @param value The minimum number of instances the array must contain
- */
-export type MinContainsDecorator = (
-  context: DecoratorContext,
-  target: Type | ModelProperty,
-  value: number,
-) => DecoratorValidatorCallbacks | void;
-
-/**
- * Used in conjunction with the `@contains` decorator,
- * specifies that the array must contain at most a certain number of the types provided by the `@contains` decorator.
- *
- * @param value The maximum number of instances the array must contain
- */
-export type MaxContainsDecorator = (
-  context: DecoratorContext,
-  target: Type | ModelProperty,
-  value: number,
-) => DecoratorValidatorCallbacks | void;
-
-/**
- * Specify that every item in the array must be unique.
- */
-export type UniqueItemsDecorator = (
-  context: DecoratorContext,
-  target: Type | ModelProperty,
-) => DecoratorValidatorCallbacks | void;
-
-/**
- * Specify the minimum number of properties this object can have.
- *
- * @param value The minimum number of properties this object can have.
- */
-export type MinPropertiesDecorator = (
-  context: DecoratorContext,
-  target: Type | ModelProperty,
-  value: number,
-) => DecoratorValidatorCallbacks | void;
-
-/**
- * Specify the maximum number of properties this object can have.
- *
- * @param value The maximum number of properties this object can have.
- */
-export type MaxPropertiesDecorator = (
-  context: DecoratorContext,
-  target: Type | ModelProperty,
-  value: number,
-) => DecoratorValidatorCallbacks | void;
-
-/**
- * Specify the encoding used for the contents of a string.
- *
- * @param value
- *
- *
- */
-export type ContentEncodingDecorator = (
-  context: DecoratorContext,
-  target: Scalar | ModelProperty,
-  value: string,
-) => DecoratorValidatorCallbacks | void;
-
-/**
- * Specify that the target array must begin with the provided types.
- *
- * @param value A tuple containing the types that must be present at the start of the array
- */
-export type PrefixItemsDecorator = (
-  context: DecoratorContext,
-  target: Type | ModelProperty,
-  value: Type,
-) => DecoratorValidatorCallbacks | void;
-
-/**
- * Specify the content type of content stored in a string.
- *
- * @param value The media type of the string contents
- */
-export type ContentMediaTypeDecorator = (
-  context: DecoratorContext,
-  target: Scalar | ModelProperty,
-  value: string,
-) => DecoratorValidatorCallbacks | void;
-
-/**
- * Specify the schema for the contents of a string when interpreted according to the content's
- * media type and encoding.
- *
- * @param value The schema of the string contents
- */
-export type ContentSchemaDecorator = (
-  context: DecoratorContext,
-  target: Scalar | ModelProperty,
-  value: Type,
 ) => DecoratorValidatorCallbacks | void;
 
 /**
@@ -209,19 +56,245 @@ export type ExtensionDecorator = (
 
 export type TypeSpecJsonSchemaDecorators = {
   jsonSchema: JsonSchemaDecorator;
-  baseUri: BaseUriDecorator;
-  id: IdDecorator;
-  oneOf: OneOfDecorator;
-  multipleOf: MultipleOfDecorator;
-  contains: ContainsDecorator;
-  minContains: MinContainsDecorator;
-  maxContains: MaxContainsDecorator;
-  uniqueItems: UniqueItemsDecorator;
-  minProperties: MinPropertiesDecorator;
-  maxProperties: MaxPropertiesDecorator;
-  contentEncoding: ContentEncodingDecorator;
-  prefixItems: PrefixItemsDecorator;
-  contentMediaType: ContentMediaTypeDecorator;
-  contentSchema: ContentSchemaDecorator;
   extension: ExtensionDecorator;
 };
+
+/** Set the base URI for any schemas emitted from types within this namespace. */
+export function getBaseUri(program: Program, target: Namespace): string | undefined {
+  return getAutoDecoratorValue(program, "TypeSpec.JsonSchema.baseUri", target)?.["baseUri"] as any;
+}
+
+/** Set the base URI for any schemas emitted from types within this namespace. */
+export function setBaseUri(program: Program, target: Namespace, baseUri: string): void {
+  setAutoDecorator(program, "TypeSpec.JsonSchema.baseUri", target, { baseUri: baseUri });
+}
+
+/**
+ * Specify the JSON Schema id. If this model or a parent namespace has a base URI,
+ * the provided ID will be relative to that base URI.
+ *
+ * By default, the id will be constructed based on the declaration's name.
+ */
+export function getId(program: Program, target: Type): string | undefined {
+  return getAutoDecoratorValue(program, "TypeSpec.JsonSchema.id", target)?.["id"] as any;
+}
+
+/**
+ * Specify the JSON Schema id. If this model or a parent namespace has a base URI,
+ * the provided ID will be relative to that base URI.
+ *
+ * By default, the id will be constructed based on the declaration's name.
+ */
+export function setId(program: Program, target: Type, id: string): void {
+  setAutoDecorator(program, "TypeSpec.JsonSchema.id", target, { id: id });
+}
+
+/** Check if the `@TypeSpec.JsonSchema.oneOf` decorator was applied on the given target. */
+export function isOneOf(program: Program, target: Union | ModelProperty): boolean {
+  return hasAutoDecorator(program, "TypeSpec.JsonSchema.oneOf", target);
+}
+
+/** Specify that `oneOf` should be used instead of `anyOf` for that union. */
+export function setOneOf(program: Program, target: Union | ModelProperty): void {
+  setAutoDecorator(program, "TypeSpec.JsonSchema.oneOf", target);
+}
+
+/** Specify that the numeric type must be a multiple of some numeric value. */
+export function getMultipleOf(
+  program: Program,
+  target: Scalar | ModelProperty,
+): Numeric | undefined {
+  return getAutoDecoratorValue(program, "TypeSpec.JsonSchema.multipleOf", target)?.["value"] as any;
+}
+
+/** Specify that the numeric type must be a multiple of some numeric value. */
+export function setMultipleOf(
+  program: Program,
+  target: Scalar | ModelProperty,
+  value: Numeric,
+): void {
+  setAutoDecorator(program, "TypeSpec.JsonSchema.multipleOf", target, { value: value });
+}
+
+/**
+ * Specify that the array must contain at least one instance of the provided type.
+ * Use `@minContains` and `@maxContains` to customize how many instances to expect.
+ */
+export function getContains(program: Program, target: Type | ModelProperty): Type | undefined {
+  return getAutoDecoratorValue(program, "TypeSpec.JsonSchema.contains", target)?.["value"] as any;
+}
+
+/**
+ * Specify that the array must contain at least one instance of the provided type.
+ * Use `@minContains` and `@maxContains` to customize how many instances to expect.
+ */
+export function setContains(program: Program, target: Type | ModelProperty, value: Type): void {
+  setAutoDecorator(program, "TypeSpec.JsonSchema.contains", target, { value: value });
+}
+
+/**
+ * Used in conjunction with the `@contains` decorator,
+ * specifies that the array must contain at least a certain number of the types provided by the `@contains` decorator.
+ */
+export function getMinContains(program: Program, target: Type | ModelProperty): number | undefined {
+  return getAutoDecoratorValue(program, "TypeSpec.JsonSchema.minContains", target)?.[
+    "value"
+  ] as any;
+}
+
+/**
+ * Used in conjunction with the `@contains` decorator,
+ * specifies that the array must contain at least a certain number of the types provided by the `@contains` decorator.
+ */
+export function setMinContains(
+  program: Program,
+  target: Type | ModelProperty,
+  value: number,
+): void {
+  setAutoDecorator(program, "TypeSpec.JsonSchema.minContains", target, { value: value });
+}
+
+/**
+ * Used in conjunction with the `@contains` decorator,
+ * specifies that the array must contain at most a certain number of the types provided by the `@contains` decorator.
+ */
+export function getMaxContains(program: Program, target: Type | ModelProperty): number | undefined {
+  return getAutoDecoratorValue(program, "TypeSpec.JsonSchema.maxContains", target)?.[
+    "value"
+  ] as any;
+}
+
+/**
+ * Used in conjunction with the `@contains` decorator,
+ * specifies that the array must contain at most a certain number of the types provided by the `@contains` decorator.
+ */
+export function setMaxContains(
+  program: Program,
+  target: Type | ModelProperty,
+  value: number,
+): void {
+  setAutoDecorator(program, "TypeSpec.JsonSchema.maxContains", target, { value: value });
+}
+
+/** Check if the `@TypeSpec.JsonSchema.uniqueItems` decorator was applied on the given target. */
+export function isUniqueItems(program: Program, target: Type | ModelProperty): boolean {
+  return hasAutoDecorator(program, "TypeSpec.JsonSchema.uniqueItems", target);
+}
+
+/** Specify that every item in the array must be unique. */
+export function setUniqueItems(program: Program, target: Type | ModelProperty): void {
+  setAutoDecorator(program, "TypeSpec.JsonSchema.uniqueItems", target);
+}
+
+/** Specify the minimum number of properties this object can have. */
+export function getMinProperties(
+  program: Program,
+  target: Type | ModelProperty,
+): number | undefined {
+  return getAutoDecoratorValue(program, "TypeSpec.JsonSchema.minProperties", target)?.[
+    "value"
+  ] as any;
+}
+
+/** Specify the minimum number of properties this object can have. */
+export function setMinProperties(
+  program: Program,
+  target: Type | ModelProperty,
+  value: number,
+): void {
+  setAutoDecorator(program, "TypeSpec.JsonSchema.minProperties", target, { value: value });
+}
+
+/** Specify the maximum number of properties this object can have. */
+export function getMaxProperties(
+  program: Program,
+  target: Type | ModelProperty,
+): number | undefined {
+  return getAutoDecoratorValue(program, "TypeSpec.JsonSchema.maxProperties", target)?.[
+    "value"
+  ] as any;
+}
+
+/** Specify the maximum number of properties this object can have. */
+export function setMaxProperties(
+  program: Program,
+  target: Type | ModelProperty,
+  value: number,
+): void {
+  setAutoDecorator(program, "TypeSpec.JsonSchema.maxProperties", target, { value: value });
+}
+
+/** Specify the encoding used for the contents of a string. */
+export function getContentEncoding(
+  program: Program,
+  target: Scalar | ModelProperty,
+): string | undefined {
+  return getAutoDecoratorValue(program, "TypeSpec.JsonSchema.contentEncoding", target)?.[
+    "value"
+  ] as any;
+}
+
+/** Specify the encoding used for the contents of a string. */
+export function setContentEncoding(
+  program: Program,
+  target: Scalar | ModelProperty,
+  value: string,
+): void {
+  setAutoDecorator(program, "TypeSpec.JsonSchema.contentEncoding", target, { value: value });
+}
+
+/** Specify that the target array must begin with the provided types. */
+export function getPrefixItems(program: Program, target: Type | ModelProperty): Type | undefined {
+  return getAutoDecoratorValue(program, "TypeSpec.JsonSchema.prefixItems", target)?.[
+    "value"
+  ] as any;
+}
+
+/** Specify that the target array must begin with the provided types. */
+export function setPrefixItems(program: Program, target: Type | ModelProperty, value: Type): void {
+  setAutoDecorator(program, "TypeSpec.JsonSchema.prefixItems", target, { value: value });
+}
+
+/** Specify the content type of content stored in a string. */
+export function getContentMediaType(
+  program: Program,
+  target: Scalar | ModelProperty,
+): string | undefined {
+  return getAutoDecoratorValue(program, "TypeSpec.JsonSchema.contentMediaType", target)?.[
+    "value"
+  ] as any;
+}
+
+/** Specify the content type of content stored in a string. */
+export function setContentMediaType(
+  program: Program,
+  target: Scalar | ModelProperty,
+  value: string,
+): void {
+  setAutoDecorator(program, "TypeSpec.JsonSchema.contentMediaType", target, { value: value });
+}
+
+/**
+ * Specify the schema for the contents of a string when interpreted according to the content's
+ * media type and encoding.
+ */
+export function getContentSchema(
+  program: Program,
+  target: Scalar | ModelProperty,
+): Type | undefined {
+  return getAutoDecoratorValue(program, "TypeSpec.JsonSchema.contentSchema", target)?.[
+    "value"
+  ] as any;
+}
+
+/**
+ * Specify the schema for the contents of a string when interpreted according to the content's
+ * media type and encoding.
+ */
+export function setContentSchema(
+  program: Program,
+  target: Scalar | ModelProperty,
+  value: Type,
+): void {
+  setAutoDecorator(program, "TypeSpec.JsonSchema.contentSchema", target, { value: value });
+}
