@@ -257,7 +257,7 @@ namespace Microsoft.TypeSpec.Generator
                         || (competingType.IsValueType && !competingType.IsNullable)))
                 {
                     return minimumOverlappingArgumentCount > i
-                        ? 0
+                        ? targetMinimumArgumentCount
                         : Math.Max(i + 1, targetMinimumArgumentCount);
                 }
             }
