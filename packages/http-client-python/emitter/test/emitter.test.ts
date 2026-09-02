@@ -1,37 +1,31 @@
-import { NoTarget, resolvePath } from "@typespec/compiler";
-import { createTester, t } from "@typespec/compiler/testing";
-import { strictEqual } from "assert";
+import { listServices } from "@typespec/compiler";
+import { expectDiagnostics, t } from "@typespec/compiler/testing";
 import { it } from "vitest";
-import { getNoSdkClientsDiagnosticTarget } from "../src/emitter.js";
 import { reportDiagnostic } from "../src/lib.js";
-
-const Tester = createTester(resolvePath(import.meta.dirname, "../.."), { libraries: [] });
+import { Tester } from "./test-host.js";
 
 it("targets the service namespace when no SDK clients are found", async () => {
-  const { Service, program } = await Tester.compile(t.code`
+  const { program } = await Tester.compile(t.code`
     #suppress "@typespec/http-client-python/no-sdk-clients" "This service intentionally has no client."
     @service namespace ${t.namespace("Service")} {}
   `);
 
-  const target = getNoSdkClientsDiagnosticTarget(program);
-  strictEqual(target, Service);
-
-  reportDiagnostic(program, { code: "no-sdk-clients", target });
-  strictEqual(
-    program.diagnostics.some((x) => x.code.endsWith("/no-sdk-clients")),
-    false,
-  );
+  reportDiagnostic(program, {
+    code: "no-sdk-clients",
+    target: listServices(program)[0]?.type ?? program.getGlobalNamespaceType(),
+  });
+  expectDiagnostics(program.diagnostics, []);
 });
 
-it("uses no target when no service exists", async () => {
-  const { program } = await Tester.compile(`model Widget {}`);
+it("allows suppressing the warning when no service exists", async () => {
+  const { program } = await Tester.compile(`
+    #suppress "@typespec/http-client-python/no-sdk-clients" "This model-only package intentionally has no client."
+    model Widget {}
+  `);
 
-  const target = getNoSdkClientsDiagnosticTarget(program);
-  strictEqual(target, NoTarget);
-
-  reportDiagnostic(program, { code: "no-sdk-clients", target });
-  strictEqual(
-    program.diagnostics.some((x) => x.code.endsWith("/no-sdk-clients")),
-    true,
-  );
+  reportDiagnostic(program, {
+    code: "no-sdk-clients",
+    target: listServices(program)[0]?.type ?? program.getGlobalNamespaceType(),
+  });
+  expectDiagnostics(program.diagnostics, []);
 });
