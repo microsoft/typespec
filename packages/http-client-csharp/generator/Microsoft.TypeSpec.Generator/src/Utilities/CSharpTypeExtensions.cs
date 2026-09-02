@@ -38,6 +38,9 @@ namespace Microsoft.TypeSpec.Generator.Utilities
                     : type;
             }
 
+            // Arrays are intentionally out of scope: CSharpType.IsCollection covers only lists and
+            // dictionaries, and an array's ElementType is reconstructed from reflection on every access
+            // (CSharpType.GetElementType), so a decorated element cannot survive on an array anyway.
             if (!type.IsCollection || !source.IsCollection)
             {
                 return type;
