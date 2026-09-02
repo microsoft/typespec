@@ -180,7 +180,7 @@ const libDef = {
       },
     },
     "no-sdk-clients": {
-      severity: "error",
+      severity: "warning",
       messages: {
         default:
           "The Python emitter did not find any SDK clients in this TypeSpec program. The current Python generator expects at least one client/service to generate code.",

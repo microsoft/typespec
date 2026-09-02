@@ -1,6 +1,6 @@
 import { createSdkContext } from "@azure-tools/typespec-client-generator-core";
-import type { EmitContext } from "@typespec/compiler";
-import { emitFile, joinPaths, NoTarget } from "@typespec/compiler";
+import type { EmitContext, Namespace, Program } from "@typespec/compiler";
+import { emitFile, joinPaths, listServices, NoTarget } from "@typespec/compiler";
 import pkgJson from "../../package.json" with { type: "json" };
 import { emitCodeModel } from "./code-model.js";
 import {
@@ -128,6 +128,10 @@ async function runPyodideGeneration(
   await pyodide.runPythonAsync(pyodideGenerationCode, { globals });
 }
 
+export function getNoSdkClientsDiagnosticTarget(program: Program): Namespace {
+  return listServices(program)[0].type;
+}
+
 async function copyPyodideOutputToHost(
   context: EmitContext<PythonEmitterOptions>,
   pyodide: PyodideInterface,
@@ -185,9 +189,9 @@ async function onEmitMain(context: EmitContext<PythonEmitterOptions>) {
   if (sdkContext.sdkPackage.clients.length === 0) {
     reportDiagnostic(program, {
       code: "no-sdk-clients",
-      target: NoTarget,
+      target: getNoSdkClientsDiagnosticTarget(program),
     });
-    return;
+    // return;
   }
 
   const resolvedOptions = sdkContext.emitContext.options;
