@@ -22,6 +22,9 @@ namespace Microsoft.TypeSpec.Generator.EmitterRpc
         /// <summary>A property type was preserved from the last contract.</summary>
         PropertyTypePreserved,
 
+        /// <summary>A model base type was preserved from the last contract.</summary>
+        ModelBaseTypePreserved,
+
         /// <summary>A constructor modifier (e.g. <c>private protected</c> -&gt; <c>public</c>) was preserved from the last contract.</summary>
         ConstructorModifierPreserved,
 

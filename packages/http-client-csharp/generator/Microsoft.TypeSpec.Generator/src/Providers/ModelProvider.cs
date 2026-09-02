@@ -134,43 +134,43 @@ namespace Microsoft.TypeSpec.Generator.Providers
 
         private TypeProvider? BuildBaseTypeProvider()
         {
-            // First check if there's a generated base model
+            // First check if there's a generated base model.
             if (BaseModelProvider != null)
             {
                 return BaseModelProvider;
             }
 
-            // If there's a custom base type that's not a generated model, create a provider for it
-            if (CustomCodeView?.BaseType != null && !string.IsNullOrEmpty(CustomCodeView.BaseType.Namespace))
+            var baseType = BaseType;
+            if (baseType is null || string.IsNullOrEmpty(baseType.Namespace))
             {
-                var baseType = CustomCodeView.BaseType;
+                return null;
+            }
 
-                // Try to find it in the CSharpTypeMap first
-                if (CodeModelGenerator.Instance.TypeFactory.CSharpTypeMap.TryGetValue(baseType, out var existingProvider))
-                {
-                    return existingProvider;
-                }
+            // A base preserved from the last contract can be a framework or external type, just like
+            // a custom base. Resolve it from the current compilation rather than retaining a symbol
+            // that exists only in the baseline assembly.
+            if (CodeModelGenerator.Instance.TypeFactory.CSharpTypeMap.TryGetValue(baseType, out var existingProvider))
+            {
+                return existingProvider;
+            }
 
-                // Try to find the type in the customization compilation. Referenced assemblies are
-                // included so custom bases from framework or external packages are represented by
-                // normal symbol-backed providers.
-                var baseTypeProvider = CodeModelGenerator.Instance.SourceInputModel.FindForTypeInCurrentCompilation(
-                    baseType.Namespace,
-                    baseType.Name,
-                    baseType.DeclaringType?.Name,
-                    includeReferencedAssemblies: true);
+            var baseTypeProvider = CodeModelGenerator.Instance.SourceInputModel.FindForTypeInCurrentCompilation(
+                baseType.Namespace,
+                baseType.Name,
+                baseType.DeclaringType?.Name,
+                includeReferencedAssemblies: true);
 
-                if (baseTypeProvider != null)
-                {
-                    // Cache it in CSharpTypeMap for future lookups
-                    CodeModelGenerator.Instance.TypeFactory.CSharpTypeMap[baseType] = baseTypeProvider;
-                    return baseTypeProvider;
-                }
+            if (baseTypeProvider != null)
+            {
+                CodeModelGenerator.Instance.TypeFactory.CSharpTypeMap[baseType] = baseTypeProvider;
+                return baseTypeProvider;
+            }
 
-                // If we couldn't find the type symbol, create a SystemObjectTypeProvider that
-                // represents the external type without member metadata.
+            // Preserve the existing fallback for unresolved custom base types. Last-contract bases
+            // are selected only after they have been resolved against the current build.
+            if (CustomCodeView?.BaseType != null)
+            {
                 var systemObjectTypeProvider = new SystemObjectTypeProvider(baseType);
-                // Cache it in CSharpTypeMap for future lookups
                 CodeModelGenerator.Instance.TypeFactory.CSharpTypeMap[baseType] = systemObjectTypeProvider;
                 return systemObjectTypeProvider;
             }
@@ -247,6 +247,30 @@ namespace Microsoft.TypeSpec.Generator.Providers
 
         protected override CSharpType? BuildBaseType()
         {
+            var currentBase = BuildCurrentBaseType();
+            var previousBase = LastContractView?.BaseType;
+            if (previousBase is null || IsInBaseTypeHierarchy(currentBase, previousBase))
+            {
+                return currentBase;
+            }
+
+            var resolvedPreviousBase = ResolveTypeInCurrentBuild(previousBase);
+            if (resolvedPreviousBase is null)
+            {
+                CodeModelGenerator.Instance.Emitter.ReportDiagnostic(
+                    DiagnosticCodes.UnavailableBackcompatType,
+                    $"Could not preserve base type '{previousBase.FullyQualifiedName}' on model '{BuildNamespace()}.{BuildName()}' because the previous base is unavailable in the current build.");
+                return currentBase;
+            }
+
+            CodeModelGenerator.Instance.Emitter.Info(
+                $"Changed base type of model '{BuildName()}' from '{currentBase?.FullyQualifiedName ?? "object"}' to '{resolvedPreviousBase.FullyQualifiedName}' to match the last contract.",
+                BackCompatibilityChangeCategory.ModelBaseTypePreserved);
+            return resolvedPreviousBase;
+        }
+
+        private CSharpType? BuildCurrentBaseType()
+        {
             if (CustomCodeView?.BaseType != null)
             {
                 var customBase = CustomCodeView.BaseType;
@@ -288,12 +312,62 @@ namespace Microsoft.TypeSpec.Generator.Providers
                 return customBase;
             }
 
-            if (_inputModel.BaseModel == null)
+            return _inputModel.BaseModel is null
+                ? null
+                : CodeModelGenerator.Instance.TypeFactory.CreateModel(_inputModel.BaseModel)?.Type;
+        }
+
+        private static bool IsInBaseTypeHierarchy(CSharpType? currentBase, CSharpType previousBase)
+        {
+            var visited = new HashSet<string>(StringComparer.Ordinal);
+            for (var type = currentBase; type is not null && visited.Add(type.FullyQualifiedName); type = type.BaseType)
+            {
+                if (type.AreNamesEqual(previousBase))
+                {
+                    return true;
+                }
+            }
+
+            return false;
+        }
+
+        private CSharpType? ResolveTypeInCurrentBuild(CSharpType type)
+        {
+            foreach (var provider in CodeModelGenerator.Instance.TypeFactory.CSharpTypeMap.Values)
+            {
+                if (provider is not null && provider.Type.AreNamesEqual(type))
+                {
+                    return provider.Type;
+                }
+            }
+
+            // The previous base may occur later in input order. Force-create all input models before
+            // deciding that no generated provider is available.
+            foreach (var model in CodeModelGenerator.Instance.InputLibrary.InputNamespace.Models)
+            {
+                CodeModelGenerator.Instance.TypeFactory.CreateModel(model);
+            }
+
+            foreach (var provider in CodeModelGenerator.Instance.TypeFactory.CSharpTypeMap.Values)
+            {
+                if (provider is not null && provider.Type.AreNamesEqual(type))
+                {
+                    return provider.Type;
+                }
+            }
+
+            var currentProvider = CodeModelGenerator.Instance.SourceInputModel.FindForTypeInCurrentCompilation(
+                type.Namespace,
+                type.Name,
+                type.DeclaringType?.Name,
+                includeReferencedAssemblies: true);
+            if (currentProvider is null)
             {
                 return null;
             }
 
-            return CodeModelGenerator.Instance.TypeFactory.CreateModel(_inputModel.BaseModel)?.Type;
+            CodeModelGenerator.Instance.TypeFactory.CSharpTypeMap[currentProvider.Type] = currentProvider;
+            return currentProvider.Type;
         }
 
         protected override TypeProvider[] BuildSerializationProviders()

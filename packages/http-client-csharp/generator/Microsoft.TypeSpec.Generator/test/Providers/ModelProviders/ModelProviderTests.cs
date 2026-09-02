@@ -527,6 +527,28 @@ namespace Microsoft.TypeSpec.Generator.Tests.Providers.ModelProviders
         }
 
         [Test]
+        public async Task BackCompat_CurrentBaseDerivedFromLastContractBaseIsPreserved()
+        {
+            var previousBase = InputFactory.Model("PreviousBase", properties: []);
+            var currentBase = InputFactory.Model("CurrentBase", properties: [], baseModel: previousBase);
+            var derivedModel = InputFactory.Model("DerivedModel", properties: [], baseModel: currentBase);
+
+            await MockHelpers.LoadMockGeneratorAsync(
+                inputModelTypes: [previousBase, currentBase, derivedModel],
+                lastContractCompilation: async () => await Helpers.GetCompilationFromDirectoryAsync(
+                    method: nameof(BackCompat_BaseTypeChangePreservesLastContractBaseType)));
+
+            var modelProvider = CodeModelGenerator.Instance.OutputLibrary.TypeProviders
+                .OfType<ModelProvider>()
+                .Single(t => t.Name == "DerivedModel");
+
+            modelProvider.ProcessTypeForBackCompatibility();
+
+            Assert.AreEqual(currentBase.Name, modelProvider.BaseType?.Name,
+                "The current base should remain when it already derives from the previously shipped base");
+        }
+
+        [Test]
         public async Task BackCompat_BaseTypeChangePreservesNonGeneratedLastContractBaseType()
         {
             var currentBase = InputFactory.Model("CurrentBase", properties: []);
@@ -534,6 +556,7 @@ namespace Microsoft.TypeSpec.Generator.Tests.Providers.ModelProviders
 
             await MockHelpers.LoadMockGeneratorAsync(
                 inputModelTypes: [currentBase, derivedModel],
+                compilation: async () => await Helpers.GetCompilationFromSourceFilesAsync([]),
                 lastContractCompilation: async () => await Helpers.GetCompilationFromDirectoryAsync());
 
             var modelProvider = CodeModelGenerator.Instance.OutputLibrary.TypeProviders
@@ -554,8 +577,8 @@ namespace Microsoft.TypeSpec.Generator.Tests.Providers.ModelProviders
                 Assert.AreEqual(nameof(Exception), modelProvider.BaseType?.Name,
                     "A model must remain assignable to its previously shipped non-generated CLR base type");
                 Assert.AreEqual(nameof(System), modelProvider.BaseType?.Namespace);
-                Assert.IsNotInstanceOf<ModelProvider>(modelProvider.BaseTypeProvider,
-                    "The preserved base must not require a generated model provider");
+                Assert.IsInstanceOf<NamedTypeSymbolProvider>(modelProvider.BaseTypeProvider,
+                    "The preserved base should resolve from the current referenced assemblies without a generated model provider");
             });
         }
 
