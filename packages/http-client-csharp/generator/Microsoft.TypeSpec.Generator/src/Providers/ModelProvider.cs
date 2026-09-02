@@ -778,9 +778,14 @@ namespace Microsoft.TypeSpec.Generator.Providers
             InputProperty inputProperty)
         {
             var compatibleType = lastContractType.ApplyInputSpecProperty(inputProperty);
-            return !compatibleType.IsValueType && currentType.IsNullable
-                ? compatibleType.WithNullable(true)
-                : compatibleType;
+            if (!compatibleType.IsValueType && currentType.IsNullable)
+            {
+                compatibleType = compatibleType.WithNullable(true);
+            }
+
+            // Last-contract types are Roslyn-backed and carry no union metadata. Restore it from the current
+            // TypeSpec type so the union variant models stay referenced and are not removed as unused.
+            return compatibleType.RestoreUnionItemTypes(currentType);
         }
 
         protected internal override ConstructorProvider[] BuildConstructors()

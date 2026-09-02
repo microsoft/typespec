@@ -22,6 +22,11 @@ namespace Microsoft.TypeSpec.Generator.Tests.Providers.ModelProviders
 {
     public class ModelProviderTests
     {
+        // BinaryData lives outside corlib, so the last-contract compilation needs an explicit reference
+        // for `BinaryData` in test assets to resolve to the framework type.
+        private static readonly Microsoft.CodeAnalysis.MetadataReference BinaryDataMetadataReference =
+            Microsoft.CodeAnalysis.MetadataReference.CreateFromFile(typeof(BinaryData).Assembly.Location);
+
         [SetUp]
         public void Setup()
         {
@@ -1410,6 +1415,91 @@ namespace Microsoft.TypeSpec.Generator.Tests.Providers.ModelProviders
             Assert.IsFalse(generatedCode.Contains("AssertNotNull(items"));
             Assert.IsTrue(generatedCode.Contains("AssertNotNull(name"));
             Assert.IsTrue(generatedCode.Contains("Items = items?.ToList();"));
+        }
+
+        [Test]
+        public async Task BackCompat_UnionCollectionPropertiesRetainUnionItemTypes()
+        {
+            // The last contract types are Roslyn-backed and have no union metadata (a union is just
+            // BinaryData in metadata). When those types are preserved for back compatibility, the union
+            // item types from the current spec must be restored, otherwise the union variant models look
+            // unreferenced and get removed from the output.
+            var variantModel = InputFactory.Model(
+                "VariantModel",
+                properties: [InputFactory.Property("name", InputPrimitiveType.String)]);
+            var union = InputFactory.Union([InputPrimitiveType.String, variantModel]);
+            var inputModel = InputFactory.Model(
+                "MockInputModel",
+                properties:
+                [
+                    InputFactory.Property("items", InputFactory.Array(union)),
+                    InputFactory.Property("moreItems", InputFactory.Dictionary(union))
+                ]);
+
+            await MockHelpers.LoadMockGeneratorAsync(
+                inputModelTypes: [inputModel, variantModel],
+                additionalMetadataReferences: [BinaryDataMetadataReference],
+                lastContractCompilation: async () => await Helpers.GetCompilationFromDirectoryAsync());
+
+            var modelProvider = CodeModelGenerator.Instance.OutputLibrary.TypeProviders.SingleOrDefault(t => t.Name == "MockInputModel") as ModelProvider;
+            Assert.IsNotNull(modelProvider);
+
+            var itemsProperty = modelProvider!.Properties.FirstOrDefault(p => p.Name == "Items");
+            Assert.IsNotNull(itemsProperty);
+            // The last contract shape is preserved.
+            Assert.AreEqual(typeof(IReadOnlyList<>), itemsProperty!.Type.FrameworkType);
+            Assert.AreEqual(typeof(BinaryData), itemsProperty.Type.ElementType.FrameworkType);
+            // The union metadata from the spec is restored onto the preserved type.
+            Assert.IsTrue(itemsProperty.Type.ElementType.IsUnion);
+            CollectionAssert.AreEquivalent(
+                new[] { "String", "VariantModel" },
+                itemsProperty.Type.ElementType.UnionItemTypes.Select(t => t.Name).ToArray());
+
+            var moreItemsProperty = modelProvider.Properties.FirstOrDefault(p => p.Name == "MoreItems");
+            Assert.IsNotNull(moreItemsProperty);
+            Assert.AreEqual(typeof(IReadOnlyDictionary<,>), moreItemsProperty!.Type.FrameworkType);
+            Assert.AreEqual(typeof(string), moreItemsProperty.Type.Arguments[0].FrameworkType);
+            Assert.IsTrue(moreItemsProperty.Type.ElementType.IsUnion);
+            CollectionAssert.AreEquivalent(
+                new[] { "String", "VariantModel" },
+                moreItemsProperty.Type.ElementType.UnionItemTypes.Select(t => t.Name).ToArray());
+
+            // Restoring the union metadata must not change the emitted C#.
+            var generatedCode = new TypeProviderWriter(modelProvider).Write().Content;
+            Assert.IsTrue(generatedCode.Contains("IReadOnlyList<global::System.BinaryData> Items"));
+            Assert.IsTrue(generatedCode.Contains("IReadOnlyDictionary<string, global::System.BinaryData> MoreItems"));
+        }
+
+        [Test]
+        public async Task BackCompat_UnionPropertyReplacedWithNonBinaryDataTypeDropsUnionItemTypes()
+        {
+            // A union is always represented as BinaryData, so when the preserved last contract type is
+            // something else the union metadata cannot be carried over.
+            var variantModel = InputFactory.Model(
+                "VariantModel",
+                properties: [InputFactory.Property("name", InputPrimitiveType.String)]);
+            var inputModel = InputFactory.Model(
+                "MockInputModel",
+                properties:
+                [
+                    InputFactory.Property(
+                        "data",
+                        InputFactory.Union([InputPrimitiveType.String, variantModel]),
+                        isRequired: true)
+                ]);
+
+            await MockHelpers.LoadMockGeneratorAsync(
+                inputModelTypes: [inputModel, variantModel],
+                additionalMetadataReferences: [BinaryDataMetadataReference],
+                lastContractCompilation: async () => await Helpers.GetCompilationFromDirectoryAsync());
+
+            var modelProvider = CodeModelGenerator.Instance.OutputLibrary.TypeProviders.SingleOrDefault(t => t.Name == "MockInputModel") as ModelProvider;
+            Assert.IsNotNull(modelProvider);
+
+            var dataProperty = modelProvider!.Properties.FirstOrDefault(p => p.Name == "Data");
+            Assert.IsNotNull(dataProperty);
+            Assert.IsTrue(dataProperty!.Type.Equals(typeof(object)));
+            Assert.IsFalse(dataProperty.Type.IsUnion);
         }
 
         [Test]

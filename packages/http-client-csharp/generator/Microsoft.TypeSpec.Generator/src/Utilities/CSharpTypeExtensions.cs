@@ -1,6 +1,7 @@
 // Copyright (c) Microsoft Corporation. All rights reserved.
 // Licensed under the MIT License.
 
+using System;
 using System.Diagnostics.CodeAnalysis;
 using Microsoft.TypeSpec.Generator.Input;
 using Microsoft.TypeSpec.Generator.Primitives;
@@ -9,6 +10,54 @@ namespace Microsoft.TypeSpec.Generator.Utilities
 {
     internal static class CSharpTypeExtensions
     {
+        /// <summary>
+        /// Restores the union item metadata carried by <paramref name="source"/> onto <paramref name="type"/>.
+        /// </summary>
+        /// <remarks>
+        /// Last-contract types are built from Roslyn symbols, which have no notion of a TypeSpec union: a union
+        /// property is just <see cref="BinaryData"/> in metadata. When a last-contract type is preserved for
+        /// back compatibility, the union item types of the current TypeSpec type would otherwise be dropped.
+        /// That makes the union variant models appear unreferenced, so they get removed (or internalized) from
+        /// the output and their doc references degrade to plain text. Restoring the metadata keeps the emitted
+        /// C# identical while keeping the variant models reachable.
+        /// </remarks>
+        public static CSharpType RestoreUnionItemTypes(this CSharpType type, CSharpType source)
+        {
+            if (type.IsUnion)
+            {
+                return type;
+            }
+
+            if (source.IsUnion)
+            {
+                // A union is always represented as BinaryData, so the metadata can only be restored onto a
+                // preserved type that is also BinaryData.
+                return type.IsFrameworkType && type.FrameworkType == typeof(BinaryData)
+                    ? CSharpType.FromUnion(source.UnionItemTypes, type.IsNullable, source.UnionItemTypeReferenceKind)
+                    : type;
+            }
+
+            if (!type.IsCollection || !source.IsCollection)
+            {
+                return type;
+            }
+
+            var elementType = type.ElementType.RestoreUnionItemTypes(source.ElementType);
+            if (!elementType.IsUnion)
+            {
+                return type;
+            }
+
+            if (type.IsList)
+            {
+                return new CSharpType(type.FrameworkType, [elementType], type.IsNullable);
+            }
+
+            return type.IsDictionary
+                ? new CSharpType(type.FrameworkType, [type.Arguments[0], elementType], type.IsNullable)
+                : type;
+        }
+
         public static CSharpType ApplyInputSpecProperty(this CSharpType type, InputProperty? specProperty)
         {
             if (type.IsCollection)
