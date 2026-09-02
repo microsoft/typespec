@@ -61,6 +61,14 @@ public class MethodNamer {
         return baseName;
     }
 
+    public String getInternalMethodName() {
+        return baseName + "Internal";
+    }
+
+    public String getInternalAsyncMethodName() {
+        return getSimpleAsyncMethodName(getInternalMethodName());
+    }
+
     public String getPagingAsyncSinglePageMethodName() {
         return getPagingAsyncSinglePageMethodName(this.getMethodName());
     }
@@ -95,6 +103,14 @@ public class MethodNamer {
 
     public String getLroBeginMethodName() {
         return getLroBeginMethodNameInternal(pascalName);
+    }
+
+    public String getLroBeginInternalMethodName() {
+        return getLroBeginMethodName() + "Internal";
+    }
+
+    public String getLroBeginInternalAsyncMethodName() {
+        return getLroBeginInternalMethodName() + "Async";
     }
 
     public String getLroModelBeginMethodName() {

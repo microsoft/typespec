@@ -26,6 +26,7 @@ public class EmitterOptions implements JsonSerializable<EmitterOptions> {
     private Boolean generateTests = true;
     private Boolean generateSamples = true;
     private Boolean enableSyncStack = true;
+    private String maxOverload;
     private Boolean streamStyleSerialization = true;
     private Boolean partialUpdate;
     private Boolean requiredFieldsAsConstructorArgs;
@@ -101,6 +102,10 @@ public class EmitterOptions implements JsonSerializable<EmitterOptions> {
 
     public Boolean getEnableSyncStack() {
         return enableSyncStack;
+    }
+
+    public String getMaxOverload() {
+        return maxOverload;
     }
 
     public Boolean getStreamStyleSerialization() {
@@ -243,6 +248,8 @@ public class EmitterOptions implements JsonSerializable<EmitterOptions> {
                 options.generateSamples = reader.getNullable(EmitterOptions::getBoolean);
             } else if ("enable-sync-stack".equals(fieldName)) {
                 options.enableSyncStack = reader.getNullable(EmitterOptions::getBoolean);
+            } else if ("max-overload".equals(fieldName)) {
+                options.maxOverload = emptyToNull(reader.getString());
             } else if ("stream-style-serialization".equals(fieldName)) {
                 options.streamStyleSerialization = reader.getNullable(EmitterOptions::getBoolean);
             } else if ("partial-update".equals(fieldName)) {

@@ -14,6 +14,7 @@ import com.azure.core.exception.ResourceModifiedException;
 import com.azure.core.exception.ResourceNotFoundException;
 import com.azure.core.http.rest.RequestOptions;
 import com.azure.core.http.rest.Response;
+import com.azure.core.http.rest.SimpleResponse;
 import com.azure.core.util.BinaryData;
 import com.azure.core.util.FluxUtil;
 import reactor.core.publisher.Mono;
@@ -76,8 +77,8 @@ public final class AddedAsyncClient {
      */
     @Generated
     @ServiceMethod(returns = ReturnType.SINGLE)
-    public Mono<Response<BinaryData>> v1WithResponse(String headerV2, BinaryData body, RequestOptions requestOptions) {
-        return this.serviceClient.v1WithResponseAsync(headerV2, body, requestOptions);
+    Mono<Response<BinaryData>> v1WithResponseInternal(String headerV2, BinaryData body, RequestOptions requestOptions) {
+        return this.serviceClient.v1WithResponseInternalAsync(headerV2, body, requestOptions);
     }
 
     /**
@@ -116,8 +117,32 @@ public final class AddedAsyncClient {
      */
     @Generated
     @ServiceMethod(returns = ReturnType.SINGLE)
-    public Mono<Response<BinaryData>> v2WithResponse(BinaryData body, RequestOptions requestOptions) {
-        return this.serviceClient.v2WithResponseAsync(body, requestOptions);
+    Mono<Response<BinaryData>> v2WithResponseInternal(BinaryData body, RequestOptions requestOptions) {
+        return this.serviceClient.v2WithResponseInternalAsync(body, requestOptions);
+    }
+
+    /**
+     * The v1 operation.
+     *
+     * @param headerV2 The headerV2 parameter.
+     * @param body The body parameter.
+     * @param requestOptions The options to configure the HTTP request before HTTP client sends it.
+     * @throws IllegalArgumentException thrown if parameters fail the validation.
+     * @throws HttpResponseException thrown if the request is rejected by server.
+     * @throws ClientAuthenticationException thrown if the request is rejected by server on status code 401.
+     * @throws ResourceNotFoundException thrown if the request is rejected by server on status code 404.
+     * @throws ResourceModifiedException thrown if the request is rejected by server on status code 409.
+     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
+     * @return the response body along with {@link Response} on successful completion of {@link Mono}.
+     */
+    @Generated
+    @ServiceMethod(returns = ReturnType.SINGLE)
+    public Mono<Response<ModelV1>> v1WithResponse(String headerV2, ModelV1 body, RequestOptions requestOptions) {
+        // Generated convenience method for v1WithResponseInternal
+        requestOptions = requestOptions == null ? new RequestOptions() : requestOptions;
+        return v1WithResponseInternal(headerV2, BinaryData.fromObject(body), requestOptions)
+            .map(protocolMethodResponse -> new SimpleResponse<>(protocolMethodResponse,
+                protocolMethodResponse.getValue().toObject(ModelV1.class)));
     }
 
     /**
@@ -136,10 +161,33 @@ public final class AddedAsyncClient {
     @Generated
     @ServiceMethod(returns = ReturnType.SINGLE)
     public Mono<ModelV1> v1(String headerV2, ModelV1 body) {
-        // Generated convenience method for v1WithResponse
+        // Generated convenience method for v1WithResponseInternal
         RequestOptions requestOptions = new RequestOptions();
-        return v1WithResponse(headerV2, BinaryData.fromObject(body), requestOptions).flatMap(FluxUtil::toMono)
+        return v1WithResponseInternal(headerV2, BinaryData.fromObject(body), requestOptions).flatMap(FluxUtil::toMono)
             .map(protocolMethodData -> protocolMethodData.toObject(ModelV1.class));
+    }
+
+    /**
+     * The v2 operation.
+     *
+     * @param body The body parameter.
+     * @param requestOptions The options to configure the HTTP request before HTTP client sends it.
+     * @throws IllegalArgumentException thrown if parameters fail the validation.
+     * @throws HttpResponseException thrown if the request is rejected by server.
+     * @throws ClientAuthenticationException thrown if the request is rejected by server on status code 401.
+     * @throws ResourceNotFoundException thrown if the request is rejected by server on status code 404.
+     * @throws ResourceModifiedException thrown if the request is rejected by server on status code 409.
+     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
+     * @return the response body along with {@link Response} on successful completion of {@link Mono}.
+     */
+    @Generated
+    @ServiceMethod(returns = ReturnType.SINGLE)
+    public Mono<Response<ModelV2>> v2WithResponse(ModelV2 body, RequestOptions requestOptions) {
+        // Generated convenience method for v2WithResponseInternal
+        requestOptions = requestOptions == null ? new RequestOptions() : requestOptions;
+        return v2WithResponseInternal(BinaryData.fromObject(body), requestOptions)
+            .map(protocolMethodResponse -> new SimpleResponse<>(protocolMethodResponse,
+                protocolMethodResponse.getValue().toObject(ModelV2.class)));
     }
 
     /**
@@ -157,9 +205,9 @@ public final class AddedAsyncClient {
     @Generated
     @ServiceMethod(returns = ReturnType.SINGLE)
     public Mono<ModelV2> v2(ModelV2 body) {
-        // Generated convenience method for v2WithResponse
+        // Generated convenience method for v2WithResponseInternal
         RequestOptions requestOptions = new RequestOptions();
-        return v2WithResponse(BinaryData.fromObject(body), requestOptions).flatMap(FluxUtil::toMono)
+        return v2WithResponseInternal(BinaryData.fromObject(body), requestOptions).flatMap(FluxUtil::toMono)
             .map(protocolMethodData -> protocolMethodData.toObject(ModelV2.class));
     }
 }

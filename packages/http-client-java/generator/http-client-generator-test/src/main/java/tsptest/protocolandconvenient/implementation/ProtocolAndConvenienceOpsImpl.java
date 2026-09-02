@@ -780,7 +780,7 @@ public final class ProtocolAndConvenienceOpsImpl {
      * @return the {@link PollerFlux} for polling of long-running operation.
      */
     @ServiceMethod(returns = ReturnType.LONG_RUNNING_OPERATION)
-    public PollerFlux<BinaryData, BinaryData> beginCreateOrReplaceAsync(String name, BinaryData resource,
+    public PollerFlux<BinaryData, BinaryData> beginCreateOrReplaceInternalAsync(String name, BinaryData resource,
         RequestOptions requestOptions) {
         return PollerFlux.create(Duration.ofSeconds(1),
             () -> this.createOrReplaceWithResponseAsync(name, resource, requestOptions),
@@ -830,7 +830,7 @@ public final class ProtocolAndConvenienceOpsImpl {
      * @return the {@link SyncPoller} for polling of long-running operation.
      */
     @ServiceMethod(returns = ReturnType.LONG_RUNNING_OPERATION)
-    public SyncPoller<BinaryData, BinaryData> beginCreateOrReplace(String name, BinaryData resource,
+    public SyncPoller<BinaryData, BinaryData> beginCreateOrReplaceInternal(String name, BinaryData resource,
         RequestOptions requestOptions) {
         return SyncPoller.createPoller(Duration.ofSeconds(1),
             () -> this.createOrReplaceWithResponse(name, resource, requestOptions),
@@ -912,7 +912,7 @@ public final class ProtocolAndConvenienceOpsImpl {
      * @return paged collection of ResourceJ items as paginated response with {@link PagedFlux}.
      */
     @ServiceMethod(returns = ReturnType.COLLECTION)
-    public PagedFlux<BinaryData> listAsync(RequestOptions requestOptions) {
+    public PagedFlux<BinaryData> listInternalAsync(RequestOptions requestOptions) {
         RequestOptions requestOptionsForNextPage = new RequestOptions();
         requestOptionsForNextPage.setContext(
             requestOptions != null && requestOptions.getContext() != null ? requestOptions.getContext() : Context.NONE);
@@ -1006,7 +1006,7 @@ public final class ProtocolAndConvenienceOpsImpl {
      * @return paged collection of ResourceJ items as paginated response with {@link PagedIterable}.
      */
     @ServiceMethod(returns = ReturnType.COLLECTION)
-    public PagedIterable<BinaryData> list(RequestOptions requestOptions) {
+    public PagedIterable<BinaryData> listInternal(RequestOptions requestOptions) {
         RequestOptions requestOptionsForNextPage = new RequestOptions();
         requestOptionsForNextPage.setContext(
             requestOptions != null && requestOptions.getContext() != null ? requestOptions.getContext() : Context.NONE);
