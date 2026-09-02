@@ -731,6 +731,30 @@ public final class MaxOverloadModelClient {
 
     /**
      * Long-running resource action operation template.
+     *
+     * @param name The name parameter.
+     * @param optional The optional parameter.
+     * @throws IllegalArgumentException thrown if parameters fail the validation.
+     * @throws HttpResponseException thrown if the request is rejected by server.
+     * @throws ClientAuthenticationException thrown if the request is rejected by server on status code 401.
+     * @throws ResourceNotFoundException thrown if the request is rejected by server on status code 404.
+     * @throws ResourceModifiedException thrown if the request is rejected by server on status code 409.
+     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
+     * @return the {@link SyncPoller} for polling of provides status details for long running operations.
+     */
+    @Generated
+    @ServiceMethod(returns = ReturnType.LONG_RUNNING_OPERATION)
+    public SyncPoller<PollOperationDetails, ResourceModel> beginExport(String name, String optional) {
+        // Generated convenience method for beginExportWithModel
+        RequestOptions requestOptions = new RequestOptions();
+        if (optional != null) {
+            requestOptions.addQueryParam("optional", optional, false);
+        }
+        return serviceClient.beginExportWithModel(name, requestOptions);
+    }
+
+    /**
+     * Long-running resource action operation template.
      * 
      * @param name The name parameter.
      * @throws IllegalArgumentException thrown if parameters fail the validation.
@@ -872,6 +896,30 @@ public final class MaxOverloadModelClient {
     public PagedIterable<ResourceModel> list(String filter, RequestOptions requestOptions) {
         // Generated convenience method for listInternal
         requestOptions = requestOptions == null ? new RequestOptions() : requestOptions;
+        if (filter != null) {
+            requestOptions.addQueryParam("filter", filter, false);
+        }
+        return serviceClient.listInternal(requestOptions)
+            .mapPage(bodyItemValue -> bodyItemValue.toObject(ResourceModel.class));
+    }
+
+    /**
+     * Resource list operation template.
+     *
+     * @param filter The filter parameter.
+     * @throws IllegalArgumentException thrown if parameters fail the validation.
+     * @throws HttpResponseException thrown if the request is rejected by server.
+     * @throws ClientAuthenticationException thrown if the request is rejected by server on status code 401.
+     * @throws ResourceNotFoundException thrown if the request is rejected by server on status code 404.
+     * @throws ResourceModifiedException thrown if the request is rejected by server on status code 409.
+     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
+     * @return paged collection of ResourceModel items as paginated response with {@link PagedIterable}.
+     */
+    @Generated
+    @ServiceMethod(returns = ReturnType.COLLECTION)
+    public PagedIterable<ResourceModel> list(String filter) {
+        // Generated convenience method for listInternal
+        RequestOptions requestOptions = new RequestOptions();
         if (filter != null) {
             requestOptions.addQueryParam("filter", filter, false);
         }

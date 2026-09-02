@@ -91,8 +91,10 @@ public class MaxOverloadModelTests {
             = MaxOverloadModelClient.class.getDeclaredMethod("list", String.class, String.class, RequestOptions.class);
         Method syncPageablePastMax
             = MaxOverloadModelClient.class.getDeclaredMethod("list", String.class, RequestOptions.class);
+        Method syncPageablePast = MaxOverloadModelClient.class.getDeclaredMethod("list", String.class);
         Assertions.assertTrue(Modifier.isPublic(syncPageableMax.getModifiers()));
         Assertions.assertTrue(Modifier.isPublic(syncPageablePastMax.getModifiers()));
+        Assertions.assertTrue(Modifier.isPublic(syncPageablePast.getModifiers()));
 
         Method syncProtocolPageable
             = MaxOverloadModelClient.class.getDeclaredMethod("listInternal", RequestOptions.class);
@@ -117,8 +119,11 @@ public class MaxOverloadModelTests {
             String.class, String.class, RequestOptions.class);
         Method syncLroVersionedPastMax = MaxOverloadModelClient.class.getDeclaredMethod("beginExport", String.class,
             String.class, RequestOptions.class);
+        Method syncLroVersionedPast
+            = MaxOverloadModelClient.class.getDeclaredMethod("beginExport", String.class, String.class);
         Assertions.assertTrue(Modifier.isPublic(syncLroVersionedMax.getModifiers()));
         Assertions.assertTrue(Modifier.isPublic(syncLroVersionedPastMax.getModifiers()));
+        Assertions.assertTrue(Modifier.isPublic(syncLroVersionedPast.getModifiers()));
 
         Method asyncLroVersionedMax = MaxOverloadModelAsyncClient.class.getDeclaredMethod("beginExport", String.class,
             String.class, String.class, RequestOptions.class);

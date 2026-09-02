@@ -584,8 +584,8 @@ public class ClientMethodMapper implements IMapper<Operation, List<ClientMethod>
         // Pageable op '[Operation]' overloads for versioning
         createOverloadForVersioning(methods, isModelMaxOverload ? clientMethodWithContext : pagingMethod,
             clientMethodWithContext, methodWithContextVisibility, methodPageDetailsWithContext, isProtocolMethod, true);
-        // async method without Context parameter
-        if (!isSync) {
+        // method without RequestOptions/Context parameter
+        if (!isSync || isModelMaxOverload) {
             createOverloadForVersioning(methods, pagingMethod, pagingMethod, methodVisibility, methodPageDetails,
                 isProtocolMethod, false);
         }
@@ -803,8 +803,8 @@ public class ClientMethodMapper implements IMapper<Operation, List<ClientMethod>
         // LRO 'begin[Operation]' sync or async method overloads with versioning.
         createOverloadForVersioning(methods, isModelMaxOverload ? clientMethodWithContext : beginLroMethod,
             clientMethodWithContext, methodWithContextVisibility, null, isProtocolMethod, true);
-        // async method without Context parameter
-        if (!isSync) {
+        // method without RequestOptions/Context parameter
+        if (!isSync || isModelMaxOverload) {
             createOverloadForVersioning(methods, beginLroMethod, beginLroMethod, methodVisibility, null,
                 isProtocolMethod, false);
         }
