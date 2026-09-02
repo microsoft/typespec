@@ -2722,6 +2722,170 @@ model Foo<T       extends    string =
 model Foo<T extends string = "abc"> {}`,
     });
   });
+
+  // Regression tests for https://github.com/microsoft/typespec/issues/11836
+  describe("splits the parameter list instead of the last parameter constraint or default", () => {
+    it("op is", async () => {
+      await assertFormat({
+        code: `
+@delete
+op deleteJobPreview<AreaPreviewLabel extends FoundryFeaturesOptInKeys | AgentDefinitionOptInKeys> is FoundryDataPlanePreviewOperation<AreaPreviewLabel, { /** The ID of the job to delete. */ @path jobId: string; }, NoContentResponse>;
+`,
+        expected: `
+@delete
+op deleteJobPreview<
+  AreaPreviewLabel extends FoundryFeaturesOptInKeys | AgentDefinitionOptInKeys
+> is FoundryDataPlanePreviewOperation<
+  AreaPreviewLabel,
+  {
+    /** The ID of the job to delete. */
+    @path jobId: string;
+  },
+  NoContentResponse
+>;
+`,
+      });
+    });
+
+    it("op in interface", async () => {
+      await assertFormat({
+        code: `
+interface Jobs { op deleteJobPreview<AreaPreviewLabel extends FoundryFeaturesOptInKeys | AgentDefinitionOptIn>(): void; }
+`,
+        expected: `
+interface Jobs {
+  deleteJobPreview<
+    AreaPreviewLabel extends FoundryFeaturesOptInKeys | AgentDefinitionOptIn
+  >(): void;
+}
+`,
+      });
+    });
+
+    it("model", async () => {
+      await assertFormat({
+        code: `
+model Foo<AreaPreviewLabel extends FoundryFeaturesOptInKeys | AgentDefinitionOptInKeys> is Base<AreaPreviewLabel, Bar, NoContentResponse>;
+`,
+        expected: `
+model Foo<
+  AreaPreviewLabel extends FoundryFeaturesOptInKeys | AgentDefinitionOptInKeys
+> is Base<AreaPreviewLabel, Bar, NoContentResponse>;
+`,
+      });
+    });
+
+    it("alias", async () => {
+      await assertFormat({
+        code: `
+alias Foo<AreaPreviewLabel extends FoundryFeaturesOptInKeys | AgentDefinitionOptInKeys> = Base<AreaPreviewLabel>;
+`,
+        expected: `
+alias Foo<
+  AreaPreviewLabel extends FoundryFeaturesOptInKeys | AgentDefinitionOptInKeys
+> = Base<AreaPreviewLabel>;
+`,
+      });
+    });
+
+    it("interface", async () => {
+      await assertFormat({
+        code: `
+interface Foo<AreaPreviewLabel extends FoundryFeaturesOptInKeys | AgentDefinitionOptIn> { bar(): void; }
+`,
+        expected: `
+interface Foo<
+  AreaPreviewLabel extends FoundryFeaturesOptInKeys | AgentDefinitionOptIn
+> {
+  bar(): void;
+}
+`,
+      });
+    });
+
+    it("union", async () => {
+      await assertFormat({
+        code: `
+union Foo<AreaPreviewLabel extends FoundryFeaturesOptInKeys | AgentDefinitionOptInKey> { a: AreaPreviewLabel }
+`,
+        expected: `
+union Foo<
+  AreaPreviewLabel extends FoundryFeaturesOptInKeys | AgentDefinitionOptInKey
+> {
+  a: AreaPreviewLabel,
+}
+`,
+      });
+    });
+
+    it("scalar", async () => {
+      await assertFormat({
+        code: `
+scalar Foo<AreaPreviewLabel extends FoundryFeaturesOptInKeys | AgentDefinitionOptInKey> extends string;
+`,
+        expected: `
+scalar Foo<
+  AreaPreviewLabel extends FoundryFeaturesOptInKeys | AgentDefinitionOptInKey
+> extends string;
+`,
+      });
+    });
+
+    it("splits the constraint union only when it doesn't fit on its own line", async () => {
+      await assertFormat({
+        code: `
+model Foo<AreaPreviewLabel extends FoundryFeaturesOptInKeysExtraLongNeedSplit | FoundryFeaturesOptInKeysExtraLongNeedSplit | AgentDefinitionOptInKeys> {}
+`,
+        expected: `
+model Foo<
+  AreaPreviewLabel extends
+    | FoundryFeaturesOptInKeysExtraLongNeedSplit
+    | FoundryFeaturesOptInKeysExtraLongNeedSplit
+    | AgentDefinitionOptInKeys
+> {}
+`,
+      });
+    });
+
+    it("splits a default that is too long", async () => {
+      await assertFormat({
+        code: `
+model Foo<AreaPreviewLabel = FoundryFeaturesOptInKeys | AgentDefinitionOptInKeysMoreLong> {}
+`,
+        expected: `
+model Foo<
+  AreaPreviewLabel = FoundryFeaturesOptInKeys | AgentDefinitionOptInKeysMoreLong
+> {}
+`,
+      });
+    });
+
+    it("splits a single parameter without constraint that is too long", async () => {
+      await assertFormat({
+        code: `
+model Foo<AreaPreviewLabelIsExtremelyLongNameHereOkFineAndEvenLongerThanThatYesYes> {}
+`,
+        expected: `
+model Foo<
+  AreaPreviewLabelIsExtremelyLongNameHereOkFineAndEvenLongerThanThatYesYes
+> {}
+`,
+      });
+    });
+
+    it("keeps the inlined model expression properties separated with a space", async () => {
+      await assertFormat({
+        code: `
+model Foo<T extends { someProperty: string, anotherProperty: string, thirdProp: int32 }> {}
+`,
+        expected: `
+model Foo<
+  T extends {someProperty: string; anotherProperty: string; thirdProp: int32}
+> {}
+`,
+      });
+    });
+  });
 });
 
 describe("template references", () => {
