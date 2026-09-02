@@ -254,8 +254,7 @@ namespace Microsoft.TypeSpec.Generator.Providers
                 return currentBase;
             }
 
-            var resolvedPreviousBase = ResolveTypeInCurrentBuild(previousBase);
-            if (resolvedPreviousBase is null)
+            if (!TryResolveTypeInCurrentBuild(previousBase, out var resolvedPreviousBase))
             {
                 CodeModelGenerator.Instance.Emitter.ReportDiagnostic(
                     DiagnosticCodes.UnavailableBackcompatType,
@@ -331,13 +330,14 @@ namespace Microsoft.TypeSpec.Generator.Providers
             return false;
         }
 
-        private CSharpType? ResolveTypeInCurrentBuild(CSharpType type)
+        private bool TryResolveTypeInCurrentBuild(CSharpType type, [NotNullWhen(true)] out CSharpType? resolvedType)
         {
             foreach (var provider in CodeModelGenerator.Instance.TypeFactory.CSharpTypeMap.Values)
             {
                 if (provider is not null && provider.Type.AreNamesEqual(type))
                 {
-                    return provider.Type;
+                    resolvedType = provider.Type;
+                    return true;
                 }
             }
 
@@ -352,7 +352,8 @@ namespace Microsoft.TypeSpec.Generator.Providers
             {
                 if (provider is not null && provider.Type.AreNamesEqual(type))
                 {
-                    return provider.Type;
+                    resolvedType = provider.Type;
+                    return true;
                 }
             }
 
@@ -363,11 +364,13 @@ namespace Microsoft.TypeSpec.Generator.Providers
                 includeReferencedAssemblies: true);
             if (currentProvider is null)
             {
-                return null;
+                resolvedType = null;
+                return false;
             }
 
             CodeModelGenerator.Instance.TypeFactory.CSharpTypeMap[currentProvider.Type] = currentProvider;
-            return currentProvider.Type;
+            resolvedType = currentProvider.Type;
+            return true;
         }
 
         protected override TypeProvider[] BuildSerializationProviders()
