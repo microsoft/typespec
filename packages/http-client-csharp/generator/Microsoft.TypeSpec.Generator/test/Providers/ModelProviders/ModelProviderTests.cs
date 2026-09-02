@@ -560,11 +560,16 @@ namespace Microsoft.TypeSpec.Generator.Tests.Providers.ModelProviders
         }
 
         [Test]
-        public async Task BackCompat_NarrowerLastContractBaseMaterializesCurrentBaseProperties()
+        public async Task BackCompat_LastContractBaseRestoresInheritedProperties()
         {
             var previousBase = InputFactory.Model(
                 "PreviousBase",
-                properties: [InputFactory.Property("id", InputPrimitiveType.String)]);
+                properties:
+                [
+                    InputFactory.Property("id", InputPrimitiveType.String),
+                    InputFactory.Property("location", InputPrimitiveType.String),
+                    InputFactory.Property("tags", InputFactory.Dictionary(InputPrimitiveType.String)),
+                ]);
             var currentBase = InputFactory.Model(
                 "CurrentBase",
                 properties:
@@ -591,12 +596,12 @@ namespace Microsoft.TypeSpec.Generator.Tests.Providers.ModelProviders
             Assert.Multiple(() =>
             {
                 Assert.AreEqual(previousBase.Name, modelProvider.BaseType?.Name,
-                    "The narrower previously shipped base type must be preserved");
-                Assert.That(modelProvider.BaseTypeProvider?.Properties.Select(p => p.Name), Does.Contain("Id"),
-                    "Properties supplied by the preserved base must remain inherited");
-                Assert.That(modelProvider.Properties.Select(p => p.Name),
-                    Is.EquivalentTo(new[] { "Location", "Tags", "ChildProp" }),
-                    "Properties supplied only by the broader current spec base must be materialized on the derived model");
+                    "The previously shipped base type must be preserved");
+                Assert.That(modelProvider.BaseTypeProvider?.Properties.Select(p => p.Name),
+                    Is.EquivalentTo(new[] { "Id", "Location", "Tags" }),
+                    "Properties shipped on the previous GA base must remain inherited");
+                Assert.That(modelProvider.Properties.Select(p => p.Name), Is.EqualTo(new[] { "ChildProp" }),
+                    "Properties supplied by the preserved base must not be duplicated on the derived model");
             });
         }
 
