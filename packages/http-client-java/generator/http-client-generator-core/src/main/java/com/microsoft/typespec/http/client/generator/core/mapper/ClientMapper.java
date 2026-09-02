@@ -613,7 +613,7 @@ public class ClientMapper implements IMapper<CodeModel, Client> {
         // when marked public or internal.
         if (operation.getConvenienceApi() != null
             && (operation.getConvenienceApi().isResponseHeadersAsModel()
-                || (JavaSettings.getInstance().isAzureV1() && JavaSettings.getInstance().isModelMaxOverload()))) {
+                || (settings.isAzureV1() && settings.isModelMaxOverload()))) {
             headerSchema.getUsage()
                 .add(operation.getInternalApi() == Boolean.TRUE ? SchemaContext.INTERNAL : SchemaContext.PUBLIC);
         }
