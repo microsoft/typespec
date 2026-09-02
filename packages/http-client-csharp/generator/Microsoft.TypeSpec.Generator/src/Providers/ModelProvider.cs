@@ -260,7 +260,7 @@ namespace Microsoft.TypeSpec.Generator.Providers
             if (CustomCodeView?.BaseType is not null)
             {
                 CodeModelGenerator.Instance.Emitter.ReportDiagnostic(
-                    DiagnosticCodes.UnrestorableBackcompatBaseType,
+                    DiagnosticCodes.IncompatibleBackcompatBaseType,
                     $"Could not preserve base type '{previousBase.FullyQualifiedName}' on model '{BuildNamespace()}.{BuildName()}' because custom code declares base type '{currentBase?.FullyQualifiedName}'.");
                 return currentBase;
             }
@@ -387,10 +387,10 @@ namespace Microsoft.TypeSpec.Generator.Providers
             // symbol-backed base does not, so generated constructors can only rely on an accessible
             // parameterless constructor (explicit or implicit).
             if (provider is ModelProvider ||
-                provider.Constructors.Count == 0 ||
-                provider.Constructors.Any(c =>
+                provider is NamedTypeSymbolProvider { HasAccessibleParameterlessConstructor: true } ||
+                provider is not NamedTypeSymbolProvider && provider.Constructors.Any(c =>
                     c.Signature.Parameters.Count == 0 &&
-                    IsConstructorAccessibleFromDerivedType(c.Signature.Modifiers)))
+                    MethodSignatureHelper.IsPublicApi(c.Signature.Modifiers)))
             {
                 resolvedType = provider.Type;
                 return true;
@@ -399,11 +399,6 @@ namespace Microsoft.TypeSpec.Generator.Providers
             resolvedType = null;
             return false;
         }
-
-        private static bool IsConstructorAccessibleFromDerivedType(MethodSignatureModifiers modifiers)
-            => MethodSignatureHelper.IsPublicApi(modifiers) ||
-                (modifiers.HasFlag(MethodSignatureModifiers.Internal) &&
-                 !modifiers.HasFlag(MethodSignatureModifiers.Private));
 
         protected override TypeProvider[] BuildSerializationProviders()
         {

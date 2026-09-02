@@ -8,6 +8,8 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
+using Microsoft.CodeAnalysis;
+using Microsoft.CodeAnalysis.CSharp;
 using Microsoft.TypeSpec.Generator.Input;
 using Microsoft.TypeSpec.Generator.Primitives;
 using Microsoft.TypeSpec.Generator.Providers;
@@ -626,6 +628,64 @@ namespace Microsoft.TypeSpec.Generator.Tests.Providers.ModelProviders
 
             Assert.AreEqual(currentBase.Name, modelProvider.BaseType?.Name,
                 "The previous base must not be restored when generated constructors cannot chain to it");
+        }
+
+        [Test]
+        public async Task BackCompat_ReferencedLastContractBaseWithInternalParameterlessConstructorIsNotRestored()
+        {
+            const string externalBaseSource = """
+                namespace Sample.Models
+                {
+                    public class ExternalBase
+                    {
+                        internal ExternalBase() { }
+                        public ExternalBase(string value) { }
+                    }
+                }
+                """;
+            var externalCompilation = CSharpCompilation.Create(
+                "ExternalAssembly",
+                [CSharpSyntaxTree.ParseText(externalBaseSource)],
+                [MetadataReference.CreateFromFile(typeof(object).Assembly.Location)],
+                new CSharpCompilationOptions(OutputKind.DynamicallyLinkedLibrary));
+            using var externalAssembly = new MemoryStream();
+            var emitResult = externalCompilation.Emit(externalAssembly);
+            Assert.That(emitResult.Success, Is.True, string.Join(Environment.NewLine, emitResult.Diagnostics));
+            var externalReference = MetadataReference.CreateFromImage(externalAssembly.ToArray());
+
+            var currentBase = InputFactory.Model("CurrentBase", properties: []);
+            var derivedModel = InputFactory.Model("DerivedModel", properties: [], baseModel: currentBase);
+
+            var mockGenerator = await MockHelpers.LoadMockGeneratorAsync(
+                inputModelTypes: [currentBase, derivedModel],
+                additionalMetadataReferences: [externalReference],
+                compilation: async () =>
+                {
+                    var compilation = await Helpers.GetCompilationFromSourceFilesAsync([]);
+                    return compilation.WithOptions(
+                        ((CSharpCompilationOptions)compilation.Options).WithMetadataImportOptions(MetadataImportOptions.All));
+                },
+                lastContractCompilation: async () => await Helpers.GetCompilationFromDirectoryAsync("LastContract"));
+
+            var referencedBase = mockGenerator.Object.SourceInputModel.FindForTypeInCurrentCompilation(
+                "Sample.Models", "ExternalBase", includeReferencedAssemblies: true);
+            Assert.IsNotNull(referencedBase, "The previous base must resolve from the referenced assembly");
+            Assert.That(referencedBase!.Constructors, Has.Some.Matches<ConstructorProvider>(c =>
+                c.Signature.Parameters.Count == 0 && c.Signature.Modifiers.HasFlag(MethodSignatureModifiers.Internal)));
+            Assert.That(referencedBase.Constructors, Has.Some.Matches<ConstructorProvider>(c =>
+                c.Signature.Parameters.Count == 1 && c.Signature.Modifiers.HasFlag(MethodSignatureModifiers.Public)));
+
+            var modelProvider = CodeModelGenerator.Instance.OutputLibrary.TypeProviders
+                .OfType<ModelProvider>()
+                .Single(t => t.Name == "DerivedModel");
+
+            Assert.AreEqual("ExternalBase", modelProvider.LastContractView?.BaseType?.Name,
+                "The regression requires a previous base that resolves from a referenced assembly");
+
+            modelProvider.ProcessTypeForBackCompatibility();
+
+            Assert.AreEqual(currentBase.Name, modelProvider.BaseType?.Name,
+                "An internal constructor from a referenced assembly is not accessible to the generated derived model");
         }
 
         [Test]

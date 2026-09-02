@@ -50,6 +50,18 @@ namespace Microsoft.TypeSpec.Generator.Providers
 
         internal string MetadataSimpleName => _metadataSimpleName ??= _namedTypeSymbol.Name;
 
+        internal bool HasAccessibleParameterlessConstructor => _namedTypeSymbol.InstanceConstructors.Any(constructor =>
+            constructor.Parameters.Length == 0 && IsConstructorAccessibleFromGeneratedType(constructor));
+
+        private bool IsConstructorAccessibleFromGeneratedType(IMethodSymbol constructor)
+            => constructor.DeclaredAccessibility switch
+            {
+                Accessibility.Public or Accessibility.Protected or Accessibility.ProtectedOrInternal => true,
+                Accessibility.Internal or Accessibility.ProtectedAndInternal =>
+                    SymbolEqualityComparer.Default.Equals(constructor.ContainingAssembly, _compilation.Assembly),
+                _ => false,
+            };
+
         private protected sealed override NamedTypeSymbolProvider? BuildCustomCodeView(string? generatedTypeName = default, string? generatedTypeNamespace = default) => null;
         private protected sealed override TypeProvider? BuildLastContractView(string? generatedTypeName = default, string? generatedTypeNamespace = default) => null;
 
