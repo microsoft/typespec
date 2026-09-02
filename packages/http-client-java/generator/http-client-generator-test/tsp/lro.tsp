@@ -95,9 +95,7 @@ namespace TspTest.LongRunning {
     Traits
   >;
 
-  op LroLongRunningPollOperation<
-    TResult extends TypeSpec.Reflection.Model
-  > is Azure.Core.RpcOperation<
+  op LroLongRunningPollOperation<TResult extends TypeSpec.Reflection.Model> is Azure.Core.RpcOperation<
     {
       @path("id")
       id: Azure.Core.uuid;

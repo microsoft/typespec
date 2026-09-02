@@ -2860,15 +2860,21 @@ model Foo<
       });
     });
 
-    it("splits a single parameter without constraint that is too long", async () => {
+    it("keeps a single parameter that cannot break hugged even if the line is too long", async () => {
       await assertFormat({
         code: `
 model Foo<AreaPreviewLabelIsExtremelyLongNameHereOkFineAndEvenLongerThanThatYesYes> {}
+
+model Bar<TResource extends TypeSpec.Reflection.Model> is Base<TResource, Options, NoContentResponse>;
 `,
         expected: `
-model Foo<
-  AreaPreviewLabelIsExtremelyLongNameHereOkFineAndEvenLongerThanThatYesYes
-> {}
+model Foo<AreaPreviewLabelIsExtremelyLongNameHereOkFineAndEvenLongerThanThatYesYes> {}
+
+model Bar<TResource extends TypeSpec.Reflection.Model> is Base<
+  TResource,
+  Options,
+  NoContentResponse
+>;
 `,
       });
     });

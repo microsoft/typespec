@@ -412,9 +412,9 @@ function printTemplateArguments<T extends Node>(
 /**
  * Print a template parameter declaration list(e.g. `<T extends string, U = int32>`).
  *
- * Unlike template arguments, parameter declarations are never hugged: when the list doesn't fit on
- * the line every parameter is moved to its own indented line instead of letting the last parameter
- * constraint or default break on its own.
+ * A single parameter is hugged(`Foo<T extends string>`) as long as it cannot break by itself. When the
+ * parameter has a breakable constraint or default(union, model expression, ...) the list breaks instead,
+ * so the parameter never gets split while the `<` and `>` stay glued to the surrounding code.
  */
 function printTemplateParameterDeclarations<T extends Node>(
   path: AstPath<T>,
@@ -428,8 +428,44 @@ function printTemplateParameterDeclarations<T extends Node>(
     return "";
   }
 
+  if (params.length === 1 && isUnbreakableTemplateParameter(params[0])) {
+    return ["<", join(", ", path.map(print, propertyName as any)), ">"];
+  }
+
   const body = indent([softline, join([",", line], path.map(print, propertyName as any))]);
   return group(["<", body, softline, ">"]);
+}
+
+/** Check the template parameter declaration will always be printed on a single line. */
+function isUnbreakableTemplateParameter(node: TemplateParameterDeclarationNode): boolean {
+  return isUnbreakableType(node.constraint) && isUnbreakableType(node.default);
+}
+
+/** Check the type expression has no line break opportunity and so will always be printed on a single line. */
+function isUnbreakableType(node: Node | undefined): boolean {
+  if (node === undefined) {
+    return true;
+  }
+  switch (node.kind) {
+    case SyntaxKind.Identifier:
+    case SyntaxKind.MemberExpression:
+    case SyntaxKind.StringLiteral:
+    case SyntaxKind.NumericLiteral:
+    case SyntaxKind.BooleanLiteral:
+    case SyntaxKind.VoidKeyword:
+    case SyntaxKind.NeverKeyword:
+    case SyntaxKind.UnknownKeyword:
+      return true;
+    case SyntaxKind.TypeReference:
+      return node.arguments.length === 0;
+    case SyntaxKind.ArrayExpression:
+      return isUnbreakableType(node.elementType);
+    case SyntaxKind.ValueOfExpression:
+    case SyntaxKind.TypeOfExpression:
+      return isUnbreakableType(node.target);
+    default:
+      return false;
+  }
 }
 
 export function canAttachComment(node: Node): boolean {

@@ -4,7 +4,7 @@ packages:
   - "@typespec/compiler"
 ---
 
-[formatter] Split the template parameter list instead of the last parameter constraint or default when the declaration is too long
+[formatter] Split the template parameter list instead of splitting a parameter constraint or default when the declaration is too long
 
 ```tsp
 // Before
