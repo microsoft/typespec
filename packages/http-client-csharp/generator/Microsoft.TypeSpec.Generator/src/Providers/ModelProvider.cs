@@ -254,11 +254,22 @@ namespace Microsoft.TypeSpec.Generator.Providers
                 return currentBase;
             }
 
+            // A generated partial cannot replace a different base declared by custom code: all partial
+            // declarations must specify the same base class. Keep the custom base authoritative and
+            // report that the previous inheritance relationship could not be restored.
+            if (CustomCodeView?.BaseType is not null)
+            {
+                CodeModelGenerator.Instance.Emitter.ReportDiagnostic(
+                    DiagnosticCodes.UnrestorableBackcompatBaseType,
+                    $"Could not preserve base type '{previousBase.FullyQualifiedName}' on model '{BuildNamespace()}.{BuildName()}' because custom code declares base type '{currentBase?.FullyQualifiedName}'.");
+                return currentBase;
+            }
+
             if (!TryResolveTypeInCurrentBuild(previousBase, out var resolvedPreviousBase))
             {
                 CodeModelGenerator.Instance.Emitter.ReportDiagnostic(
                     DiagnosticCodes.UnavailableBackcompatType,
-                    $"Could not preserve base type '{previousBase.FullyQualifiedName}' on model '{BuildNamespace()}.{BuildName()}' because the previous base is unavailable in the current build.");
+                    $"Could not preserve base type '{previousBase.FullyQualifiedName}' on model '{BuildNamespace()}.{BuildName()}' because the previous base is unavailable or does not expose an accessible parameterless constructor in the current build.");
                 return currentBase;
             }
 
@@ -336,8 +347,7 @@ namespace Microsoft.TypeSpec.Generator.Providers
             {
                 if (provider is not null && provider.Type.AreNamesEqual(type))
                 {
-                    resolvedType = provider.Type;
-                    return true;
+                    return TryUseProviderAsBase(provider, out resolvedType);
                 }
             }
 
@@ -352,8 +362,7 @@ namespace Microsoft.TypeSpec.Generator.Providers
             {
                 if (provider is not null && provider.Type.AreNamesEqual(type))
                 {
-                    resolvedType = provider.Type;
-                    return true;
+                    return TryUseProviderAsBase(provider, out resolvedType);
                 }
             }
 
@@ -369,9 +378,32 @@ namespace Microsoft.TypeSpec.Generator.Providers
             }
 
             CodeModelGenerator.Instance.TypeFactory.CSharpTypeMap[currentProvider.Type] = currentProvider;
-            resolvedType = currentProvider.Type;
-            return true;
+            return TryUseProviderAsBase(currentProvider, out resolvedType);
         }
+
+        private static bool TryUseProviderAsBase(TypeProvider provider, [NotNullWhen(true)] out CSharpType? resolvedType)
+        {
+            // Generated model bases already participate in ModelProvider's constructor chaining. A
+            // symbol-backed base does not, so generated constructors can only rely on an accessible
+            // parameterless constructor (explicit or implicit).
+            if (provider is ModelProvider ||
+                provider.Constructors.Count == 0 ||
+                provider.Constructors.Any(c =>
+                    c.Signature.Parameters.Count == 0 &&
+                    IsConstructorAccessibleFromDerivedType(c.Signature.Modifiers)))
+            {
+                resolvedType = provider.Type;
+                return true;
+            }
+
+            resolvedType = null;
+            return false;
+        }
+
+        private static bool IsConstructorAccessibleFromDerivedType(MethodSignatureModifiers modifiers)
+            => MethodSignatureHelper.IsPublicApi(modifiers) ||
+                (modifiers.HasFlag(MethodSignatureModifiers.Internal) &&
+                 !modifiers.HasFlag(MethodSignatureModifiers.Private));
 
         protected override TypeProvider[] BuildSerializationProviders()
         {

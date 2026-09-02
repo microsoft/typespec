@@ -527,6 +527,28 @@ namespace Microsoft.TypeSpec.Generator.Tests.Providers.ModelProviders
         }
 
         [Test]
+        public async Task BackCompat_CustomBaseTakesPrecedenceOverDifferentLastContractBase()
+        {
+            var previousBase = InputFactory.Model("PreviousBase", properties: []);
+            var currentBase = InputFactory.Model("CurrentBase", properties: []);
+            var derivedModel = InputFactory.Model("DerivedModel", properties: [], baseModel: currentBase);
+
+            await MockHelpers.LoadMockGeneratorAsync(
+                inputModelTypes: [previousBase, currentBase, derivedModel],
+                compilation: async () => await Helpers.GetCompilationFromDirectoryAsync("Current"),
+                lastContractCompilation: async () => await Helpers.GetCompilationFromDirectoryAsync("LastContract"));
+
+            var modelProvider = CodeModelGenerator.Instance.OutputLibrary.TypeProviders
+                .OfType<ModelProvider>()
+                .Single(t => t.Name == "DerivedModel");
+
+            modelProvider.ProcessTypeForBackCompatibility();
+
+            Assert.AreEqual("CustomBase", modelProvider.BaseType?.Name,
+                "An explicit custom base must remain authoritative when the previous base cannot be restored without conflicting partial declarations");
+        }
+
+        [Test]
         public async Task BackCompat_CurrentBaseDerivedFromLastContractBaseIsPreserved()
         {
             var previousBase = InputFactory.Model("PreviousBase", properties: []);
@@ -580,6 +602,30 @@ namespace Microsoft.TypeSpec.Generator.Tests.Providers.ModelProviders
                 Assert.IsInstanceOf<NamedTypeSymbolProvider>(modelProvider.BaseTypeProvider,
                     "The preserved base should resolve from the current referenced assemblies without a generated model provider");
             });
+        }
+
+        [Test]
+        public async Task BackCompat_NonGeneratedLastContractBaseWithoutParameterlessConstructorIsNotRestored()
+        {
+            var currentBase = InputFactory.Model("CurrentBase", properties: []);
+            var derivedModel = InputFactory.Model("DerivedModel", properties: [], baseModel: currentBase);
+
+            await MockHelpers.LoadMockGeneratorAsync(
+                inputModelTypes: [currentBase, derivedModel],
+                compilation: async () => await Helpers.GetCompilationFromDirectoryAsync("Current"),
+                lastContractCompilation: async () => await Helpers.GetCompilationFromDirectoryAsync("LastContract"));
+
+            var modelProvider = CodeModelGenerator.Instance.OutputLibrary.TypeProviders
+                .OfType<ModelProvider>()
+                .Single(t => t.Name == "DerivedModel");
+
+            Assert.AreEqual("ExternalBase", modelProvider.LastContractView?.BaseType?.Name,
+                "The regression requires a resolvable previous base without a parameterless constructor");
+
+            modelProvider.ProcessTypeForBackCompatibility();
+
+            Assert.AreEqual(currentBase.Name, modelProvider.BaseType?.Name,
+                "The previous base must not be restored when generated constructors cannot chain to it");
         }
 
         [Test]
