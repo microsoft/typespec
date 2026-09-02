@@ -284,13 +284,13 @@ namespace Microsoft.TypeSpec.Generator.Tests.Providers.ModelFactories
             _instance = (await MockHelpers.LoadMockGeneratorAsync(
                 inputNamespaceName: "Sample.Namespace",
                 inputModelTypes: [compatibilityModel],
-                lastContractCompilation: async () => await Helpers.GetCompilationFromDirectoryAsync(parameters: "Last", method: "BackCompatibility_ReorderedFullyOptionalParametersRequireMinimumPrefix"))).Object;
+                lastContractCompilation: async () => await Helpers.GetCompilationFromDirectoryAsync(parameters: "Last"))).Object;
 
             var modelFactory = _instance.OutputLibrary.ModelFactory.Value;
             modelFactory.ProcessTypeForBackCompatibility();
 
             var content = new TypeProviderWriter(modelFactory).Write().Content;
-            Assert.AreEqual(Helpers.GetExpectedFromFile(method: "BackCompatibility_ReorderedFullyOptionalParametersRequireMinimumPrefix"), content);
+            Assert.AreEqual(Helpers.GetExpectedFromFile(), content);
         }
 
         // The previous overload mixes required and optional parameters. The hidden compatibility
@@ -303,13 +303,13 @@ namespace Microsoft.TypeSpec.Generator.Tests.Providers.ModelFactories
             _instance = (await MockHelpers.LoadMockGeneratorAsync(
                 inputNamespaceName: "Sample.Namespace",
                 inputModelTypes: [compatibilityModel],
-                lastContractCompilation: async () => await Helpers.GetCompilationFromDirectoryAsync(parameters: "Last", method: "BackCompatibility_ReorderedRequiredParametersPreserveTrailingOptionalParameters"))).Object;
+                lastContractCompilation: async () => await Helpers.GetCompilationFromDirectoryAsync(parameters: "Last"))).Object;
 
             var modelFactory = _instance.OutputLibrary.ModelFactory.Value;
             modelFactory.ProcessTypeForBackCompatibility();
 
             var content = new TypeProviderWriter(modelFactory).Write().Content;
-            Assert.AreEqual(Helpers.GetExpectedFromFile(method: "BackCompatibility_ReorderedRequiredParametersPreserveTrailingOptionalParameters"), content);
+            Assert.AreEqual(Helpers.GetExpectedFromFile(), content);
         }
 
         [Test]
@@ -338,28 +338,28 @@ namespace Microsoft.TypeSpec.Generator.Tests.Providers.ModelFactories
             _instance = (await MockHelpers.LoadMockGeneratorAsync(
                 inputNamespaceName: "Sample.Namespace",
                 inputModelTypes: [GetCompatibilityModel(includeCount: false)],
-                compilation: async () => await Helpers.GetCompilationFromDirectoryAsync(parameters: "Custom", method: "BackCompatibility_CustomOverloadsPreserveTrailingOptionalParameters"),
-                lastContractCompilation: async () => await Helpers.GetCompilationFromDirectoryAsync(parameters: "Last", method: "BackCompatibility_CustomOverloadsPreserveTrailingOptionalParameters"))).Object;
+                compilation: async () => await Helpers.GetCompilationFromDirectoryAsync(parameters: "Custom"),
+                lastContractCompilation: async () => await Helpers.GetCompilationFromDirectoryAsync(parameters: "Last"))).Object;
 
             var modelFactory = _instance.OutputLibrary.ModelFactory.Value;
             modelFactory.ProcessTypeForBackCompatibility();
 
             var content = new TypeProviderWriter(modelFactory).Write().Content;
-            Assert.AreEqual(Helpers.GetExpectedFromFile(method: "BackCompatibility_CustomOverloadsPreserveTrailingOptionalParameters"), content);
+            Assert.AreEqual(Helpers.GetExpectedFromFile(), content);
         }
 
         // A reordered previous overload would normally replace the generated overload while keeping its
         // published optionality. Here that visible overload would be ambiguous with a custom overload
         // (both would substitute defaults for a single-argument call), so it is emitted as a hidden
-        // overload requiring every parameter instead. The generated overload only has to require the
-        // parameters that distinguish it from the custom overload, so it keeps its trailing defaults.
+        // overload requiring every parameter instead. The current generated overload is also
+        // constrained against the custom overload to avoid ambiguous source calls.
         [Test]
         public async Task BackCompatibility_AmbiguousReorderedOverloadFallsBackToHiddenOverload()
         {
             InputModelType model = InputFactory.Model("CompatibilityModel", properties:
             [
                 InputFactory.Property("Id", InputPrimitiveType.String),
-                InputFactory.Property("Flag", InputPrimitiveType.Boolean),
+                InputFactory.Property("Count", new InputNullableType(InputPrimitiveType.Int32)),
                 InputFactory.Property("Name", InputPrimitiveType.String),
             ]);
 
@@ -374,7 +374,7 @@ namespace Microsoft.TypeSpec.Generator.Tests.Providers.ModelFactories
 
             var compatibilityMethod = modelFactory.Methods.Single(m =>
                 m.Signature.Name == "CompatibilityModel"
-                && m.Signature.Parameters[0].Name == "flag");
+                && m.Signature.Parameters[1].Name == "name");
             Assert.AreEqual(1, compatibilityMethod.Signature.Attributes.Count);
             Assert.AreEqual(
                 "[global::System.ComponentModel.EditorBrowsableAttribute(global::System.ComponentModel.EditorBrowsableState.Never)]",
@@ -383,9 +383,9 @@ namespace Microsoft.TypeSpec.Generator.Tests.Providers.ModelFactories
 
             var generatedMethod = modelFactory.Methods.Single(m =>
                 m.Signature.Name == "CompatibilityModel"
-                && m.Signature.Parameters[0].Name == "id");
+                && m.Signature.Parameters[1].Name == "count");
             Assert.IsEmpty(generatedMethod.Signature.Attributes);
-            Assert.IsTrue(generatedMethod.Signature.Parameters.All(p => p.DefaultValue is not null));
+            Assert.IsTrue(generatedMethod.Signature.Parameters.All(p => p.DefaultValue is null));
 
             var content = new TypeProviderWriter(modelFactory).Write().Content;
             Assert.AreEqual(Helpers.GetExpectedFromFile(), content);
@@ -457,8 +457,8 @@ namespace Microsoft.TypeSpec.Generator.Tests.Providers.ModelFactories
             _instance = (await MockHelpers.LoadMockGeneratorAsync(
                 inputNamespaceName: "Sample.Namespace",
                 inputModelTypes: [model],
-                compilation: async () => await Helpers.GetCompilationFromDirectoryAsync(parameters: "Custom", method: "BackCompatibility_ChangedCustomOptionalityConstrainsCompatibilityOverload"),
-                lastContractCompilation: async () => await Helpers.GetCompilationFromDirectoryAsync(parameters: "Last", method: "BackCompatibility_ChangedCustomOptionalityConstrainsCompatibilityOverload"))).Object;
+                compilation: async () => await Helpers.GetCompilationFromDirectoryAsync(parameters: "Custom"),
+                lastContractCompilation: async () => await Helpers.GetCompilationFromDirectoryAsync(parameters: "Last"))).Object;
 
             var modelFactory = _instance.OutputLibrary.ModelFactory.Value;
             modelFactory.ProcessTypeForBackCompatibility();
@@ -682,13 +682,13 @@ namespace Microsoft.TypeSpec.Generator.Tests.Providers.ModelFactories
             _instance = (await MockHelpers.LoadMockGeneratorAsync(
                 inputNamespaceName: "Sample.Namespace",
                 inputModelTypes: [model],
-                lastContractCompilation: async () => await Helpers.GetCompilationFromDirectoryAsync(parameters: "Last", method: "BackCompatibility_LongPositionalPrefixOverloadPreservesTrailingOptionality"))).Object;
+                lastContractCompilation: async () => await Helpers.GetCompilationFromDirectoryAsync(parameters: "Last"))).Object;
 
             var modelFactory = _instance.OutputLibrary.ModelFactory.Value;
             modelFactory.ProcessTypeForBackCompatibility();
 
             var content = new TypeProviderWriter(modelFactory).Write().Content;
-            Assert.AreEqual(Helpers.GetExpectedFromFile(method: "BackCompatibility_LongPositionalPrefixOverloadPreservesTrailingOptionality"), content);
+            Assert.AreEqual(Helpers.GetExpectedFromFile(), content);
         }
 
         // The management generator's ModelFactoryVisitor restores last-contract methods verbatim during
@@ -751,13 +751,13 @@ namespace Microsoft.TypeSpec.Generator.Tests.Providers.ModelFactories
             _instance = (await MockHelpers.LoadMockGeneratorAsync(
                 inputNamespaceName: "Sample.Namespace",
                 inputModelTypes: [model],
-                lastContractCompilation: async () => await Helpers.GetCompilationFromDirectoryAsync(parameters: "Last", method: "BackCompatibility_MultiplePreviousOverloadsRequireIndependentPrefixes"))).Object;
+                lastContractCompilation: async () => await Helpers.GetCompilationFromDirectoryAsync(parameters: "Last"))).Object;
 
             var modelFactory = _instance.OutputLibrary.ModelFactory.Value;
             modelFactory.ProcessTypeForBackCompatibility();
 
             var content = new TypeProviderWriter(modelFactory).Write().Content;
-            Assert.AreEqual(Helpers.GetExpectedFromFile(method: "BackCompatibility_MultiplePreviousOverloadsRequireIndependentPrefixes"), content);
+            Assert.AreEqual(Helpers.GetExpectedFromFile(), content);
         }
 
         // Two overloads that shipped together in the published contract both become hidden
@@ -776,12 +776,12 @@ namespace Microsoft.TypeSpec.Generator.Tests.Providers.ModelFactories
             _instance = (await MockHelpers.LoadMockGeneratorAsync(
                 inputNamespaceName: "Sample.Namespace",
                 inputModelTypes: [model],
-                lastContractCompilation: async () => await Helpers.GetCompilationFromDirectoryAsync(parameters: "Last", method: "BackCompatibility_CoexistingPreviousOverloadsKeepPublishedOptionality"))).Object;
+                lastContractCompilation: async () => await Helpers.GetCompilationFromDirectoryAsync(parameters: "Last"))).Object;
 
             var modelFactory = _instance.OutputLibrary.ModelFactory.Value;
             modelFactory.ProcessTypeForBackCompatibility();
             var content = new TypeProviderWriter(modelFactory).Write().Content;
-            Assert.AreEqual(Helpers.GetExpectedFromFile(method: "BackCompatibility_CoexistingPreviousOverloadsKeepPublishedOptionality"), content);
+            Assert.AreEqual(Helpers.GetExpectedFromFile(), content);
         }
 
         // Same last-contract overloads as above but declared in the opposite order. Signatures are
@@ -799,13 +799,13 @@ namespace Microsoft.TypeSpec.Generator.Tests.Providers.ModelFactories
             _instance = (await MockHelpers.LoadMockGeneratorAsync(
                 inputNamespaceName: "Sample.Namespace",
                 inputModelTypes: [model],
-                lastContractCompilation: async () => await Helpers.GetCompilationFromDirectoryAsync(parameters: "Last", method: "BackCompatibility_CoexistingPreviousOverloadsKeepPublishedOptionalityReversed"))).Object;
+                lastContractCompilation: async () => await Helpers.GetCompilationFromDirectoryAsync(parameters: "Last"))).Object;
 
             var modelFactory = _instance.OutputLibrary.ModelFactory.Value;
             modelFactory.ProcessTypeForBackCompatibility();
 
             var content = new TypeProviderWriter(modelFactory).Write().Content;
-            Assert.AreEqual(Helpers.GetExpectedFromFile(method: "BackCompatibility_CoexistingPreviousOverloadsKeepPublishedOptionalityReversed"), content);
+            Assert.AreEqual(Helpers.GetExpectedFromFile(), content);
         }
 
         // An all-required previous overload is only callable at exactly its own argument count, so it
@@ -884,7 +884,7 @@ namespace Microsoft.TypeSpec.Generator.Tests.Providers.ModelFactories
             _instance = (await MockHelpers.LoadMockGeneratorAsync(
                 inputNamespaceName: "Sample.Namespace",
                 inputModelTypes: [model],
-                lastContractCompilation: async () => await Helpers.GetCompilationFromDirectoryAsync(parameters: "Last", method: "BackCompatibility_NewOverloadIsConstrainedToPreservePublishedNamedArguments"))).Object;
+                lastContractCompilation: async () => await Helpers.GetCompilationFromDirectoryAsync(parameters: "Last"))).Object;
 
             var modelFactory = _instance.OutputLibrary.ModelFactory.Value;
             modelFactory.ProcessTypeForBackCompatibility();
