@@ -1,4 +1,4 @@
-import { resolvePath } from "@typespec/compiler";
+import { NoTarget, resolvePath } from "@typespec/compiler";
 import { createTester, t } from "@typespec/compiler/testing";
 import { strictEqual } from "assert";
 import { it } from "vitest";
@@ -20,5 +20,18 @@ it("targets the service namespace when no SDK clients are found", async () => {
   strictEqual(
     program.diagnostics.some((x) => x.code.endsWith("/no-sdk-clients")),
     false,
+  );
+});
+
+it("uses no target when no service exists", async () => {
+  const { program } = await Tester.compile(`model Widget {}`);
+
+  const target = getNoSdkClientsDiagnosticTarget(program);
+  strictEqual(target, NoTarget);
+
+  reportDiagnostic(program, { code: "no-sdk-clients", target });
+  strictEqual(
+    program.diagnostics.some((x) => x.code.endsWith("/no-sdk-clients")),
+    true,
   );
 });
