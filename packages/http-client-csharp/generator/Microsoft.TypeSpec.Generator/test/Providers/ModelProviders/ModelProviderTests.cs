@@ -1439,6 +1439,7 @@ namespace Microsoft.TypeSpec.Generator.Tests.Providers.ModelProviders
             await MockHelpers.LoadMockGeneratorAsync(
                 inputModelTypes: [inputModel, variantModel],
                 additionalMetadataReferences: [BinaryDataMetadataReference],
+                includeXmlDocs: true,
                 lastContractCompilation: async () => await Helpers.GetCompilationFromDirectoryAsync());
 
             var modelProvider = CodeModelGenerator.Instance.OutputLibrary.TypeProviders.SingleOrDefault(t => t.Name == "MockInputModel") as ModelProvider;
@@ -1464,10 +1465,10 @@ namespace Microsoft.TypeSpec.Generator.Tests.Providers.ModelProviders
                 new[] { "String", "VariantModel" },
                 moreItemsProperty.Type.ElementType.UnionItemTypes.Select(t => t.Name).ToArray());
 
-            // Restoring the union metadata must not change the emitted C#.
-            var generatedCode = new TypeProviderWriter(modelProvider).Write().Content;
-            Assert.IsTrue(generatedCode.Contains("IReadOnlyList<global::System.BinaryData> Items"));
-            Assert.IsTrue(generatedCode.Contains("IReadOnlyDictionary<string, global::System.BinaryData> MoreItems"));
+            // Restoring the union metadata leaves the emitted types unchanged and keeps the union item
+            // documentation pointing at the variant models.
+            var file = new TypeProviderWriter(modelProvider).Write();
+            Assert.AreEqual(Helpers.GetExpectedFromFile(), file.Content);
         }
 
         [Test]
@@ -1489,6 +1490,7 @@ namespace Microsoft.TypeSpec.Generator.Tests.Providers.ModelProviders
             await MockHelpers.LoadMockGeneratorAsync(
                 inputModelTypes: [inputModel, variantModel],
                 additionalMetadataReferences: [BinaryDataMetadataReference],
+                includeXmlDocs: true,
                 lastContractCompilation: async () => await Helpers.GetCompilationFromDirectoryAsync());
 
             var modelProvider = CodeModelGenerator.Instance.OutputLibrary.TypeProviders.SingleOrDefault(t => t.Name == "MockInputModel") as ModelProvider;
@@ -1507,8 +1509,8 @@ namespace Microsoft.TypeSpec.Generator.Tests.Providers.ModelProviders
                 new[] { "String", "VariantModel" },
                 innerElementType.UnionItemTypes.Select(t => t.Name).ToArray());
 
-            var generatedCode = new TypeProviderWriter(modelProvider).Write().Content;
-            Assert.IsTrue(generatedCode.Contains("IReadOnlyList<global::System.Collections.Generic.IReadOnlyList<global::System.BinaryData>> NestedItems"));
+            var file = new TypeProviderWriter(modelProvider).Write();
+            Assert.AreEqual(Helpers.GetExpectedFromFile(), file.Content);
         }
 
         [Test]
@@ -1532,6 +1534,7 @@ namespace Microsoft.TypeSpec.Generator.Tests.Providers.ModelProviders
             await MockHelpers.LoadMockGeneratorAsync(
                 inputModelTypes: [inputModel, variantModel],
                 additionalMetadataReferences: [BinaryDataMetadataReference],
+                includeXmlDocs: true,
                 lastContractCompilation: async () => await Helpers.GetCompilationFromDirectoryAsync());
 
             var modelProvider = CodeModelGenerator.Instance.OutputLibrary.TypeProviders.SingleOrDefault(t => t.Name == "MockInputModel") as ModelProvider;
@@ -1541,6 +1544,9 @@ namespace Microsoft.TypeSpec.Generator.Tests.Providers.ModelProviders
             Assert.IsNotNull(dataProperty);
             Assert.IsTrue(dataProperty!.Type.Equals(typeof(object)));
             Assert.IsFalse(dataProperty.Type.IsUnion);
+
+            var file = new TypeProviderWriter(modelProvider).Write();
+            Assert.AreEqual(Helpers.GetExpectedFromFile(), file.Content);
         }
 
         [Test]

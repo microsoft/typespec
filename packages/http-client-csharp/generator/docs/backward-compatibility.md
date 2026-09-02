@@ -296,14 +296,6 @@ public int? Count { get; set; }
 
 A diagnostic message is logged for every overridden property: `"Changed property {ModelName}.{PropertyName} type to {LastContractType} to match last contract."`
 
-#### Union Metadata Preservation
-
-Last contract types are read from Roslyn symbols, which have no notion of a TypeSpec union — a union property is just `BinaryData` in metadata. When a last contract type is preserved, the generator restores the union item types from the current TypeSpec type onto the preserved type (including through list and dictionary element types).
-
-This does not change the emitted C#, because a union is always written as `BinaryData`. It matters because the union item types are what keep the union variant models referenced. Without them the variant models look unused, so they are removed (or internalized) from the output and their documentation references degrade from `<see cref="..."/>` to plain text.
-
-If the preserved type is not `BinaryData` — for example when the last contract used `object` — the union metadata cannot be carried over and the variant models are no longer referenced by that property.
-
 ### AdditionalProperties Type Preservation
 
 The generator maintains backward compatibility for the `AdditionalProperties` property type on models that extend or use `Record<unknown>`.

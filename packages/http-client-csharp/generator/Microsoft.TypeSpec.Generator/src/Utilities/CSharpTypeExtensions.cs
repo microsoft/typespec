@@ -21,7 +21,7 @@ namespace Microsoft.TypeSpec.Generator.Utilities
         /// the output and their doc references degrade to plain text. Restoring the metadata keeps the emitted
         /// C# identical while keeping the variant models reachable.
         /// </remarks>
-        public static CSharpType RestoreUnionItemTypes(this CSharpType type, CSharpType source)
+        internal static CSharpType RestoreUnionItemTypes(this CSharpType type, CSharpType source)
         {
             if (type.IsUnion)
             {
@@ -42,8 +42,9 @@ namespace Microsoft.TypeSpec.Generator.Utilities
                 return type;
             }
 
-            var elementType = type.ElementType.RestoreUnionItemTypes(source.ElementType);
-            if (ReferenceEquals(elementType, type.ElementType))
+            var currentElementType = type.ElementType;
+            var elementType = currentElementType.RestoreUnionItemTypes(source.ElementType);
+            if (ReferenceEquals(elementType, currentElementType))
             {
                 // Nothing was restored anywhere in the element type, so the container is unchanged.
                 return type;
