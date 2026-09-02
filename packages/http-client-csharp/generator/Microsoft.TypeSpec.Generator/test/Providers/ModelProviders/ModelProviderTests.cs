@@ -1471,6 +1471,47 @@ namespace Microsoft.TypeSpec.Generator.Tests.Providers.ModelProviders
         }
 
         [Test]
+        public async Task BackCompat_NestedUnionCollectionPropertyRetainsUnionItemTypes()
+        {
+            // Restoration must survive nesting: the outer element type is a collection, not a union, so the
+            // container has to be rebuilt whenever anything below it changed.
+            var variantModel = InputFactory.Model(
+                "VariantModel",
+                properties: [InputFactory.Property("name", InputPrimitiveType.String)]);
+            var union = InputFactory.Union([InputPrimitiveType.String, variantModel]);
+            var inputModel = InputFactory.Model(
+                "MockInputModel",
+                properties:
+                [
+                    InputFactory.Property("nestedItems", InputFactory.Array(InputFactory.Array(union)))
+                ]);
+
+            await MockHelpers.LoadMockGeneratorAsync(
+                inputModelTypes: [inputModel, variantModel],
+                additionalMetadataReferences: [BinaryDataMetadataReference],
+                lastContractCompilation: async () => await Helpers.GetCompilationFromDirectoryAsync());
+
+            var modelProvider = CodeModelGenerator.Instance.OutputLibrary.TypeProviders.SingleOrDefault(t => t.Name == "MockInputModel") as ModelProvider;
+            Assert.IsNotNull(modelProvider);
+
+            var nestedItemsProperty = modelProvider!.Properties.FirstOrDefault(p => p.Name == "NestedItems");
+            Assert.IsNotNull(nestedItemsProperty);
+            // The last contract shape is preserved at both levels.
+            Assert.AreEqual(typeof(IReadOnlyList<>), nestedItemsProperty!.Type.FrameworkType);
+            Assert.AreEqual(typeof(IReadOnlyList<>), nestedItemsProperty.Type.ElementType.FrameworkType);
+
+            var innerElementType = nestedItemsProperty.Type.ElementType.ElementType;
+            Assert.AreEqual(typeof(BinaryData), innerElementType.FrameworkType);
+            Assert.IsTrue(innerElementType.IsUnion);
+            CollectionAssert.AreEquivalent(
+                new[] { "String", "VariantModel" },
+                innerElementType.UnionItemTypes.Select(t => t.Name).ToArray());
+
+            var generatedCode = new TypeProviderWriter(modelProvider).Write().Content;
+            Assert.IsTrue(generatedCode.Contains("IReadOnlyList<global::System.Collections.Generic.IReadOnlyList<global::System.BinaryData>> NestedItems"));
+        }
+
+        [Test]
         public async Task BackCompat_UnionPropertyReplacedWithNonBinaryDataTypeDropsUnionItemTypes()
         {
             // A union is always represented as BinaryData, so when the preserved last contract type is

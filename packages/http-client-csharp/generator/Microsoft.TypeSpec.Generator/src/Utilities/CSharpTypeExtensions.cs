@@ -43,8 +43,9 @@ namespace Microsoft.TypeSpec.Generator.Utilities
             }
 
             var elementType = type.ElementType.RestoreUnionItemTypes(source.ElementType);
-            if (!elementType.IsUnion)
+            if (ReferenceEquals(elementType, type.ElementType))
             {
+                // Nothing was restored anywhere in the element type, so the container is unchanged.
                 return type;
             }
 
