@@ -9,7 +9,7 @@ namespace Sample.Namespace
 {
     public static partial class SampleNamespaceModelFactory
     {
-        public static global::Sample.Models.AbstractModel AbstractModel(string kind = default, string prop1 = default, string prop2 = default)
+        public static global::Sample.Models.AbstractModel AbstractModel(string kind, string prop1, string prop2)
         {
             return new global::Sample.Models.UnknownAbstractModel(kind, prop1, prop2, additionalBinaryDataProperties: null);
         }
@@ -20,7 +20,7 @@ namespace Sample.Namespace
         }
 
         [global::System.ComponentModel.EditorBrowsableAttribute(global::System.ComponentModel.EditorBrowsableState.Never)]
-        public static global::Sample.Models.AbstractModel AbstractModel(string prop1, string kind)
+        public static global::Sample.Models.AbstractModel AbstractModel(string prop1 = default, string kind = default)
         {
             return AbstractModel(kind: kind, prop1: prop1, prop2: default);
         }

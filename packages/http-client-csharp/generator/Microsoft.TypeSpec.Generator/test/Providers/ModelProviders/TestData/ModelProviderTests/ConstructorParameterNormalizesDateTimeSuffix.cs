@@ -11,17 +11,17 @@ namespace Sample.Models
     {
         private protected readonly global::System.Collections.Generic.IDictionary<string, global::System.BinaryData> _additionalBinaryDataProperties;
 
-        public DateTimeModel(global::System.DateTimeOffset startOn)
+        public DateTimeModel(global::System.DateTimeOffset startsOn)
         {
-            StartOn = startOn;
+            StartsOn = startsOn;
         }
 
-        internal DateTimeModel(global::System.DateTimeOffset startOn, global::System.Collections.Generic.IDictionary<string, global::System.BinaryData> additionalBinaryDataProperties)
+        internal DateTimeModel(global::System.DateTimeOffset startsOn, global::System.Collections.Generic.IDictionary<string, global::System.BinaryData> additionalBinaryDataProperties)
         {
-            StartOn = startOn;
+            StartsOn = startsOn;
             _additionalBinaryDataProperties = additionalBinaryDataProperties;
         }
 
-        public global::System.DateTimeOffset StartOn { get; }
+        public global::System.DateTimeOffset StartsOn { get; }
     }
 }

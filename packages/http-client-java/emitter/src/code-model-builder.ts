@@ -1070,7 +1070,7 @@ export class CodeModelBuilder {
     }
 
     // check for generating protocol api or not
-    codeModelOperation.generateProtocolApi = generateProtocolApi && !codeModelOperation.internalApi;
+    codeModelOperation.generateProtocolApi = generateProtocolApi;
 
     codeModelOperation.addRequest(
       new Request({
@@ -2322,15 +2322,15 @@ export class CodeModelBuilder {
 
         if (schema instanceof ConstantSchema) {
           // skip constant header in response
-          if (isContentTypeHeader(header)) {
-            // we does not warn on content-type as constant, as this is the most common case
+          if (!isContentTypeHeader(header)) {
+            // we do not warn on content-type as constant, as this is the most common case
             reportDiagnostic(this.program, {
               code: "constant-header-in-response-removed",
               format: { headerName: header.serializedName },
               target: header.__raw ?? NoTarget,
             });
           }
-          break;
+          continue;
         }
 
         const httpHeader = new HttpHeader(header.serializedName, schema, {

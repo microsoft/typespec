@@ -54,10 +54,10 @@ public final class FormDataHttpPartsAsyncClient {
      */
     @Generated
     @ServiceMethod(returns = ReturnType.SINGLE)
-    Mono<Response<Void>> jsonArrayAndFileArrayWithResponse(BinaryData body, RequestOptions requestOptions) {
+    Mono<Response<Void>> jsonArrayAndFileArrayWithResponseInternal(BinaryData body, RequestOptions requestOptions) {
         // Operation 'jsonArrayAndFileArray' is of content-type 'multipart/form-data'. Protocol API is not usable and
         // hence not generated.
-        return this.serviceClient.jsonArrayAndFileArrayWithResponseAsync(body, requestOptions);
+        return this.serviceClient.jsonArrayAndFileArrayWithResponseInternalAsync(body, requestOptions);
     }
 
     /**
@@ -75,9 +75,9 @@ public final class FormDataHttpPartsAsyncClient {
     @Generated
     @ServiceMethod(returns = ReturnType.SINGLE)
     public Mono<Void> jsonArrayAndFileArray(ComplexHttpPartsModelRequest body) {
-        // Generated convenience method for jsonArrayAndFileArrayWithResponse
+        // Generated convenience method for jsonArrayAndFileArrayWithResponseInternal
         RequestOptions requestOptions = new RequestOptions();
-        return jsonArrayAndFileArrayWithResponse(
+        return jsonArrayAndFileArrayWithResponseInternal(
             new MultipartFormDataHelper(requestOptions).serializeTextField("id", body.getId())
                 .serializeJsonField("address", body.getAddress())
                 .serializeFileField("profileImage", body.getProfileImage().getContent(),

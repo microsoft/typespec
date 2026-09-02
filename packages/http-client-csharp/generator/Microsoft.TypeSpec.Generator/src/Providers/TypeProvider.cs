@@ -25,6 +25,7 @@ namespace Microsoft.TypeSpec.Generator.Providers
         private Lazy<TypeProvider> _specView;
         private Lazy<string?> _declaringTypeName;
         private readonly InputType? _inputType;
+        private readonly Dictionary<string, PropertyProvider> _generatedPropertiesBySpecName = new(StringComparer.Ordinal);
 
         protected TypeProvider(InputType? inputType = default)
         {
@@ -441,23 +442,82 @@ namespace Microsoft.TypeSpec.Generator.Providers
 
         protected virtual CSharpType[] GetTypeArguments() => [];
 
-        internal PropertyProvider[] FilterCustomizedProperties(IEnumerable<PropertyProvider> specProperties)
+        internal PropertyProvider[] FilterCustomizedProperties(
+            IEnumerable<PropertyProvider> specProperties,
+            IReadOnlyDictionary<string, PropertyProvider>? knownSpecProperties = null)
         {
-            var specPropertiesByName = BuildSpecPropertiesByName(specProperties);
+            var propertiesToFilter = specProperties as IReadOnlyList<PropertyProvider> ?? [.. specProperties];
+            var activeProperties = new HashSet<PropertyProvider>(
+                propertiesToFilter,
+                ReferenceEqualityComparer.Instance);
+
+            if (knownSpecProperties is not null)
+            {
+                // The supplied map came from the complete generated property set and already resolved exact-name
+                // precedence. Do not rebuild it from this potentially filtered subset.
+                foreach (var (name, property) in knownSpecProperties)
+                {
+                    _generatedPropertiesBySpecName[name] = property;
+                }
+            }
+            else
+            {
+                var exactNames = new HashSet<string>(StringComparer.Ordinal);
+                var normalizedNames = new List<(string Name, PropertyProvider Property)>();
+                foreach (var specProperty in propertiesToFilter)
+                {
+                    var inputProperty = specProperty.InputProperty;
+                    if (inputProperty is null)
+                    {
+                        continue;
+                    }
+
+                    if (inputProperty.IsExactName)
+                    {
+                        AddExactName(inputProperty.Name, specProperty);
+                        continue;
+                    }
+
+                    var identifierName = inputProperty.Name.ToIdentifierName();
+                    // The first exact identity in this pass replaces any stale alias, while a later exact
+                    // collision keeps the established first-wins behavior.
+                    AddExactName(inputProperty.Name, specProperty);
+                    AddExactName(identifierName, specProperty);
+                    normalizedNames.Add((
+                        identifierName.NormalizeCSharpAcronyms(inputProperty.Type.IsDateTimeInputType()),
+                        specProperty));
+                }
+
+                // Canonical names are aliases. Add them only after all exact names have been registered so an
+                // alias such as startTime -> StartsOn cannot shadow a separate startsOn property.
+                foreach (var (name, property) in normalizedNames)
+                {
+                    _generatedPropertiesBySpecName.TryAdd(name, property);
+                }
+
+                void AddExactName(string name, PropertyProvider property)
+                {
+                    if (exactNames.Add(name))
+                    {
+                        _generatedPropertiesBySpecName[name] = property;
+                    }
+                }
+            }
+
             var properties = new List<PropertyProvider>();
             var customProperties = new HashSet<string>();
 
             foreach (var customProperty in BuildAllCustomProperties())
             {
-                AddCustomName(customProperties, customProperty.Name, customProperty.OriginalName, specPropertiesByName);
+                AddCustomName(customProperties, customProperty.Name, customProperty.OriginalName, _generatedPropertiesBySpecName, activeProperties);
             }
 
             foreach (var customField in BuildAllCustomFields())
             {
-                AddCustomName(customProperties, customField.Name, customField.OriginalName, specPropertiesByName);
+                AddCustomName(customProperties, customField.Name, customField.OriginalName, _generatedPropertiesBySpecName, activeProperties);
             }
 
-            foreach (var property in specProperties)
+            foreach (var property in propertiesToFilter)
             {
                 if (ShouldGenerate(property, customProperties))
                 {
@@ -472,43 +532,39 @@ namespace Microsoft.TypeSpec.Generator.Providers
             HashSet<string> customNames,
             string name,
             string? originalName,
-            IReadOnlyDictionary<string, InputProperty> specPropertiesByName)
+            IReadOnlyDictionary<string, PropertyProvider> generatedPropertiesBySpecName,
+            IReadOnlySet<PropertyProvider> activeProperties)
         {
-            customNames.Add(name);
             if (originalName is null)
             {
+                AddCustomName(customNames, name, generatedPropertiesBySpecName, activeProperties);
                 return;
             }
 
-            customNames.Add(originalName);
-            if (specPropertiesByName.TryGetValue(originalName, out var inputProperty) && !inputProperty.IsExactName)
-            {
-                customNames.Add(
-                    originalName
-                        .ToIdentifierName()
-                        .NormalizeCSharpAcronyms(inputProperty.Type.IsDateTimeInputType()));
-            }
+            customNames.Add(name);
+            AddCustomName(customNames, originalName, generatedPropertiesBySpecName, activeProperties);
         }
 
-        private static IReadOnlyDictionary<string, InputProperty> BuildSpecPropertiesByName(IEnumerable<PropertyProvider> specProperties)
+        private static void AddCustomName(
+            HashSet<string> customNames,
+            string name,
+            IReadOnlyDictionary<string, PropertyProvider> generatedPropertiesBySpecName,
+            IReadOnlySet<PropertyProvider> activeProperties)
         {
-            var specPropertiesByName = new Dictionary<string, InputProperty>(StringComparer.Ordinal);
-
-            foreach (var specProperty in specProperties)
+            customNames.Add(name);
+            if (generatedPropertiesBySpecName.TryGetValue(name, out var generatedProperty) &&
+                activeProperties.Contains(generatedProperty))
             {
-                var inputProperty = specProperty.InputProperty;
-                if (inputProperty is null)
-                {
-                    continue;
-                }
-
-                var identifierName = inputProperty.Name.ToIdentifierName();
-                specPropertiesByName.TryAdd(inputProperty.Name, inputProperty);
-                specPropertiesByName.TryAdd(identifierName, inputProperty);
+                customNames.Add(generatedProperty.Name);
             }
-
-            return specPropertiesByName;
         }
+
+        /// <summary>
+        /// Maps the spec names a customization can reference to the property the generator built from that spec
+        /// property, as captured by <see cref="FilterCustomizedProperties"/> before the properties replaced by
+        /// custom code were filtered out. Callers must build <see cref="Properties"/> before reading this map.
+        /// </summary>
+        internal IReadOnlyDictionary<string, PropertyProvider> GeneratedPropertiesBySpecName => _generatedPropertiesBySpecName;
 
         internal FieldProvider[] FilterCustomizedFields(IEnumerable<FieldProvider> specFields)
         {
@@ -732,6 +788,7 @@ namespace Microsoft.TypeSpec.Generator.Providers
         {
             _methods = null;
             _properties = null;
+            _generatedPropertiesBySpecName.Clear();
             _fields = null;
             ResetConstructors();
             _implements = null;

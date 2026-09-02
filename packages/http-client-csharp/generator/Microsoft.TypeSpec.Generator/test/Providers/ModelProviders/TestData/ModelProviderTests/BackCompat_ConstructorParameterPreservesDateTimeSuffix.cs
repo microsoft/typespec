@@ -13,15 +13,15 @@ namespace Sample.Models
 
         public DateTimeModel(global::System.DateTimeOffset startTime)
         {
-            StartOn = startTime;
+            StartsOn = startTime;
         }
 
         internal DateTimeModel(global::System.DateTimeOffset startTime, global::System.Collections.Generic.IDictionary<string, global::System.BinaryData> additionalBinaryDataProperties)
         {
-            StartOn = startTime;
+            StartsOn = startTime;
             _additionalBinaryDataProperties = additionalBinaryDataProperties;
         }
 
-        public global::System.DateTimeOffset StartOn { get; }
+        public global::System.DateTimeOffset StartsOn { get; }
     }
 }
