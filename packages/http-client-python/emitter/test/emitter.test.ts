@@ -1,31 +1,28 @@
-import { listServices } from "@typespec/compiler";
 import { expectDiagnostics, t } from "@typespec/compiler/testing";
-import { it } from "vitest";
-import { reportDiagnostic } from "../src/lib.js";
-import { Tester } from "./test-host.js";
+import { expect } from "vitest";
+import { EmitterTester } from "./test-host.js";
 
 it("targets the service namespace when no SDK clients are found", async () => {
-  const { program } = await Tester.compile(t.code`
+  const [, diagnostics] = await EmitterTester.compileAndDiagnose(t.code`
     #suppress "@typespec/http-client-python/no-sdk-clients" "This service intentionally has no client."
     @service namespace ${t.namespace("Service")} {}
   `);
 
-  reportDiagnostic(program, {
-    code: "no-sdk-clients",
-    target: listServices(program)[0]?.type ?? program.getGlobalNamespaceType(),
-  });
-  expectDiagnostics(program.diagnostics, []);
+  expectDiagnostics(diagnostics, []);
 });
 
-it("allows suppressing the warning when no service exists", async () => {
-  const { program } = await Tester.compile(`
+it("generates models when no service exists", async () => {
+  const [result, diagnostics] = await EmitterTester.compileAndDiagnose(`
     #suppress "@typespec/http-client-python/no-sdk-clients" "This model-only package intentionally has no client."
-    model Widget {}
+    namespace Models {
+      model Widget {}
+    }
   `);
 
-  reportDiagnostic(program, {
-    code: "no-sdk-clients",
-    target: listServices(program)[0]?.type ?? program.getGlobalNamespaceType(),
-  });
-  expectDiagnostics(program.diagnostics, []);
+  expectDiagnostics(diagnostics, []);
+  expect(
+    Object.entries(result.outputs).some(
+      ([path, content]) => path.endsWith("models/_models.py") && content.includes("class Widget"),
+    ),
+  ).toBe(true);
 });
