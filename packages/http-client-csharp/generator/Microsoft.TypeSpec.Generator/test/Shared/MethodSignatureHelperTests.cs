@@ -658,6 +658,39 @@ namespace Microsoft.TypeSpec.Generator.Tests.Shared
             Assert.IsFalse(MethodSignatureHelper.AreAmbiguous(signature, otherSignature));
         }
 
+        // C# erases reference type nullability from a signature, so 'string?' and 'string' are the
+        // same parameter type. Treating them as different would hide the real ambiguity of
+        // Method("a") between these two overloads.
+        [Test]
+        public void AreAmbiguous_ReferenceTypeNullabilityDifference_ReturnsTrue()
+        {
+            var signature = CreateMethodSignature("Method",
+                new ParameterProvider("id", $"", new CSharpType(typeof(string), isNullable: true)),
+                new ParameterProvider("name", $"", typeof(string), defaultValue: Default));
+            var otherSignature = CreateMethodSignature("Method",
+                new ParameterProvider("id", $"", typeof(string)),
+                new ParameterProvider("name", $"", typeof(string), defaultValue: Default),
+                new ParameterProvider("extra", $"", typeof(string), defaultValue: Default));
+
+            Assert.IsTrue(MethodSignatureHelper.AreAmbiguous(signature, otherSignature));
+        }
+
+        // Nullability of a value type is part of the signature, so 'int' and 'int?' remain
+        // distinguishable and Method(1) prefers the 'int' overload.
+        [Test]
+        public void AreAmbiguous_ValueTypeNullabilityDifference_ReturnsFalse()
+        {
+            var signature = CreateMethodSignature("Method",
+                new ParameterProvider("count", $"", typeof(int?)),
+                new ParameterProvider("name", $"", typeof(string), defaultValue: Default));
+            var otherSignature = CreateMethodSignature("Method",
+                new ParameterProvider("count", $"", typeof(int)),
+                new ParameterProvider("name", $"", typeof(string), defaultValue: Default),
+                new ParameterProvider("extra", $"", typeof(string), defaultValue: Default));
+
+            Assert.IsFalse(MethodSignatureHelper.AreAmbiguous(signature, otherSignature));
+        }
+
         private static MethodSignature CreateMethodSignature(
             string name,
             params ParameterProvider[] parameters)

@@ -511,6 +511,15 @@ namespace Microsoft.TypeSpec.Generator.Providers
                 return false;
             }
 
+            // BuildBackCompatMethodSignature strips defaults from previousMethod.Signature in place and
+            // the signature it returns shares those parameter instances, so capture the published
+            // defaults first and restore them if this candidate is rejected below. Without that, a
+            // rejected candidate would leave the previous signature partially required for every later
+            // attempt, which would over-constrain the fallback shapes.
+            var publishedDefaultValues = previousMethod.Signature.Parameters
+                .Select(parameter => parameter.DefaultValue)
+                .ToArray();
+
             var signature = MethodSignatureHelper.BuildBackCompatMethodSignature(
                 previousMethod.Signature,
                 hideMethod,
@@ -522,6 +531,11 @@ namespace Microsoft.TypeSpec.Generator.Providers
             // processing other previous signatures.
             if (currentOverloadSignatures.Any(overload => MethodSignatureHelper.AreAmbiguous(signature, overload)))
             {
+                for (int i = 0; i < publishedDefaultValues.Length; i++)
+                {
+                    previousMethod.Signature.Parameters[i].DefaultValue = publishedDefaultValues[i];
+                }
+
                 CodeModelGenerator.Instance.Emitter.Debug(
                     $"Skipped model factory method '{Name}.{previousMethod.Signature.Name}' from last contract because it would be ambiguous with a custom overload.",
                     BackCompatibilityChangeCategory.ModelFactoryMethodSkipped);
