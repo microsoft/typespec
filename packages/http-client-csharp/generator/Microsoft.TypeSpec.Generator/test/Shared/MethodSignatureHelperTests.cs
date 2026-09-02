@@ -497,6 +497,25 @@ namespace Microsoft.TypeSpec.Generator.Tests.Shared
         }
 
         [Test]
+        public void RequireMinimumParameterPrefix_PreservesDefaultsWhenRequiredCompetitorIsTypeDistinguished()
+        {
+            var generatedSignature = CreateMethodSignature("CompatibilityModel",
+                new ParameterProvider("id", $"", typeof(string), defaultValue: Default),
+                new ParameterProvider("flag", $"", typeof(bool?), defaultValue: Default),
+                new ParameterProvider("name", $"", typeof(string), defaultValue: Default));
+            var customSignature = CreateMethodSignature("CompatibilityModel",
+                new ParameterProvider("flag", $"", typeof(bool)),
+                new ParameterProvider("id", $"", typeof(string), defaultValue: Default));
+
+            MethodSignatureHelper.RequireMinimumParameterPrefix(
+                generatedSignature,
+                [customSignature],
+                preservePublishedMinimumArgumentCount: false);
+
+            Assert.That(generatedSignature.Parameters, Has.All.Property("DefaultValue").Not.Null);
+        }
+
+        [Test]
         public void BuildBackCompatMethodSignature_PreservesDefaultsForRefOutOverload()
         {
             var previousSignature = CreateMethodSignature("TestMethod",

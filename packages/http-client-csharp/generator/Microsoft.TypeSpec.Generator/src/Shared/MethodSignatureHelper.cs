@@ -238,11 +238,14 @@ namespace Microsoft.TypeSpec.Generator
             }
 
             // Require only the prefix up to and including the first position whose parameter types
-            // distinguish the overloads. A type-name difference alone is insufficient because a
-            // null literal is applicable to any reference or nullable value type.
+            // distinguish the overloads. If every overlapping argument count already includes that
+            // distinguishing position, the overloads are resolved by argument types without raising
+            // the target's minimum argument count. A type-name difference alone is insufficient
+            // because a null literal is applicable to any reference or nullable value type.
             int overlappingParameterCount = Math.Min(
                 targetMethodSignature.Parameters.Count,
                 competingMethodSignature.Parameters.Count);
+            int minimumOverlappingArgumentCount = Math.Max(targetMinimumArgumentCount, competingMinimumArgumentCount);
             for (int i = 0; i < overlappingParameterCount; i++)
             {
                 CSharpType targetType = targetMethodSignature.Parameters[i].Type;
@@ -253,7 +256,9 @@ namespace Microsoft.TypeSpec.Generator
                     && ((targetType.IsValueType && !targetType.IsNullable)
                         || (competingType.IsValueType && !competingType.IsNullable)))
                 {
-                    return Math.Max(i + 1, targetMinimumArgumentCount);
+                    return minimumOverlappingArgumentCount > i
+                        ? 0
+                        : Math.Max(i + 1, targetMinimumArgumentCount);
                 }
             }
 

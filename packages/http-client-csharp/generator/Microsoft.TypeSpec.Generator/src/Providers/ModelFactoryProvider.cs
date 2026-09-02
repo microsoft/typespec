@@ -214,10 +214,10 @@ namespace Microsoft.TypeSpec.Generator.Providers
                 // from and stripping defaults would break the published omitted-argument calls.
                 // The exclusion is name-based and therefore applies only to published signatures;
                 // a custom overload is always emitted and must always constrain.
-                // A published signature that is restored as a compatibility overload is excluded as
-                // well: that overload either requires every parameter, which makes it preferred at
-                // its own argument count and unreachable by any shorter call, or it replaces this
-                // overload entirely.
+                // A published signature that is restored as a compatibility overload is excluded
+                // from this constraint set as well. It is still generated below: either as a hidden
+                // overload that requires every parameter or as a visible replacement for this
+                // overload.
                 var competingSignatures = preservedPreviousSignatures
                     .Where(signature => !compatiblePreviousMethods.Any(method =>
                         ReferenceEquals(method.Signature, signature)))
@@ -516,11 +516,10 @@ namespace Microsoft.TypeSpec.Generator.Providers
                 hideMethod,
                 currentMethodSignatures: currentOverloadSignatures);
 
-            // Best effort: never emit a compatibility overload that a call could not resolve against a
-            // custom overload. A hidden overload requires every parameter, so it can only be rejected
-            // here by a custom overload with an identical parameter type list; every other shape is
-            // resolved by the argument count or the argument types. A rejected visible (reorder
-            // replacement) overload falls back to the hidden all-required overload instead.
+            // Best effort: never emit a compatibility overload that a call could not resolve against
+            // a custom overload. Returning false rejects only this candidate; the caller can still
+            // try the hidden all-required fallback for a rejected visible replacement and will keep
+            // processing other previous signatures.
             if (currentOverloadSignatures.Any(overload => MethodSignatureHelper.AreAmbiguous(signature, overload)))
             {
                 CodeModelGenerator.Instance.Emitter.Debug(
