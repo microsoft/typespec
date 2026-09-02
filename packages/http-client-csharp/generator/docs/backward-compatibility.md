@@ -270,7 +270,9 @@ public IReadOnlyList<string> Items { get; }
 
 #### Scenario: Scalar/Model Property Type Changed
 
-**Description:** When the type of a scalar, enum, or model property differs between the last contract and the current spec — whether the change is in nullability, the underlying type, or anything else — the generator preserves the last contract's type.
+**Description:** When the type of a scalar, enum, or model property differs between the last contract and the current spec, the generator preserves the last contract's type shape. Nullable value-type differences also preserve the last contract's nullability.
+
+Reference types loaded from the last contract are nullable-oblivious, so their nullability is not used as compatibility evidence. The generator retains the current TypeSpec reference nullability while preserving any other last-contract type differences. This prevents compatibility processing from adding null guards or null-unsafe collection conversions that contradict the current wire contract.
 
 **Example:**
 
