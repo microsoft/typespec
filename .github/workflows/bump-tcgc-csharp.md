@@ -28,7 +28,7 @@ safe-outputs:
     assignees: [copilot]
   assign-to-agent:
     name: "copilot"
-    model: "gpt-5"
+    model: "claude-opus-4.6"
 
 tools:
   web-fetch:
@@ -40,9 +40,7 @@ tools:
     lockdown: false
 
 timeout-minutes: 15
-engine:
-  id: copilot
-  model: gpt-5
+engine: copilot
 ---
 
 # Agentic TCGC Bump for http-client-csharp
@@ -80,7 +78,7 @@ You're an automation assistant for the TypeSpec GitHub repository. Your task is 
      Replace `<LATEST_STABLE>` with the actual version (e.g. `0.67.2`) and `<anchor>` with the GitHub-style heading anchor for that version on the CHANGELOG page (lowercased, dots removed — e.g. `0.67.2` → `0672`).
 
    - **Labels**: `emitter:client:csharp` is applied automatically via the workflow's `safe-outputs.create-issue.labels` configuration.
-   - **Assignees**: `copilot` is assigned automatically via the `assignees: [copilot]` setting in the workflow's `create-issue` configuration. The `assign-to-agent` block sets `gpt-5` as the default model for the Copilot coding agent.
+   - **Assignees**: `copilot` is assigned automatically via the `assignees: [copilot]` setting in the workflow's `create-issue` configuration. The `assign-to-agent` block sets `claude-opus-4.6` as the default model for the Copilot coding agent.
 
    Do not perform the upgrade in this workflow — the Copilot coding agent picks up the issue once assigned and follows `.github/prompts/upgrade-tcgc.instructions.md`.
 
