@@ -47,7 +47,7 @@ catalog:
   "@fluentui/react-icons": 2.0.333
   "@fluentui/react-list": 9.6.16
   "@inquirer/prompts": ^8.6.0
-  "@microsoft/api-extractor": ^7.59.0
+  "@microsoft/api-extractor": ~7.58.1
   "@microsoft/api-extractor-model": ^7.33.11
   "@microsoft/tsdoc": ^0.16.0
   "@microsoft/tsdoc-config": ^0.18.1
