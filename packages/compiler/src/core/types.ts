@@ -676,8 +676,12 @@ export interface Union extends BaseType, DecoratedType, TemplatedTypeBase {
   expression: boolean;
 
   /**
-   * Type declared with the `extends` clause of a union statement. Every variant of the
-   * union is guaranteed to be assignable to this model, scalar, enum, or union.
+   * Type declared with the `extends` clause of a union statement. Union variants are
+   * constrained to be assignable to this model, scalar, enum, or union; violations are
+   * reported as diagnostics.
+   *
+   * Validation is deferred for uninstantiated template declarations because their variants
+   * can contain unresolved template parameters. Each template instance is validated instead.
    *
    * This is only set for named unions declared with an `extends` clause. It documents a
    * constraint: it does **not** imply a subclassing relationship, it does **not** mean the

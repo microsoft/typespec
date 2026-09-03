@@ -446,6 +446,20 @@ describe("extends", () => {
       expectDiagnosticEmpty(diagnostics);
     });
 
+    it("sets the base type before an uninstantiated template's variants are validated", async () => {
+      const { Foo, string: stringType } = await Tester.compile(
+        t.code`
+          union ${t.union("Foo")}<T> extends ${t.scalar("string")} {
+            value: T,
+          }
+        `,
+        unionExtendsOptions,
+      );
+
+      expectTypeEquals(Foo.baseType, stringType);
+      strictEqual(Foo.variants.get("value")?.type.kind, "TemplateParameter");
+    });
+
     it("supports a template parameter as the base type", async () => {
       const { Foo, string: stringType } = await Tester.compile(
         t.code`
