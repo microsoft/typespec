@@ -141,6 +141,13 @@ public final class HeadClientImpl {
 
     /**
      * The contentTypeHeaderInResponse operation.
+     * <p><strong>Response Headers</strong></p>
+     * <table border="1">
+     * <caption>Response Headers</caption>
+     * <tr><th>Name</th><th>Type</th><th>Description</th></tr>
+     * <tr><td>Content-Type</td><td>String</td><td>Content-type.</td></tr>
+     * <tr><td>x-ms-meta</td><td>String</td><td>The metadata headers.</td></tr>
+     * </table>
      * 
      * @param requestOptions The options to configure the HTTP request before HTTP client sends it.
      * @throws HttpResponseException thrown if the request is rejected by server.
@@ -150,13 +157,20 @@ public final class HeadClientImpl {
      * @return the {@link Response} on successful completion of {@link Mono}.
      */
     @ServiceMethod(returns = ReturnType.SINGLE)
-    public Mono<Response<Void>> contentTypeHeaderInResponseWithResponseAsync(RequestOptions requestOptions) {
+    public Mono<Response<Void>> contentTypeHeaderInResponseWithResponseInternalAsync(RequestOptions requestOptions) {
         return FluxUtil
             .withContext(context -> service.contentTypeHeaderInResponse(this.getEndpoint(), requestOptions, context));
     }
 
     /**
      * The contentTypeHeaderInResponse operation.
+     * <p><strong>Response Headers</strong></p>
+     * <table border="1">
+     * <caption>Response Headers</caption>
+     * <tr><th>Name</th><th>Type</th><th>Description</th></tr>
+     * <tr><td>Content-Type</td><td>String</td><td>Content-type.</td></tr>
+     * <tr><td>x-ms-meta</td><td>String</td><td>The metadata headers.</td></tr>
+     * </table>
      * 
      * @param requestOptions The options to configure the HTTP request before HTTP client sends it.
      * @throws HttpResponseException thrown if the request is rejected by server.
@@ -166,7 +180,7 @@ public final class HeadClientImpl {
      * @return the {@link Response}.
      */
     @ServiceMethod(returns = ReturnType.SINGLE)
-    public Response<Void> contentTypeHeaderInResponseWithResponse(RequestOptions requestOptions) {
+    public Response<Void> contentTypeHeaderInResponseWithResponseInternal(RequestOptions requestOptions) {
         return service.contentTypeHeaderInResponseSync(this.getEndpoint(), requestOptions, Context.NONE);
     }
 }

@@ -27,5 +27,7 @@ namespace Schema {
  * }
  * // Emits: MyAPI.graphql
  * ```
+ *
+ * @param options Options for the schema, such as its name.
  */
 extern dec schema(target: Namespace, options?: valueof Schema.SchemaOptions);

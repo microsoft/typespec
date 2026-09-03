@@ -127,6 +127,19 @@ namespace Microsoft.TypeSpec.Generator.Tests.Providers.NamedTypeSymbolProviders
         }
 
         [Test]
+        public void ParameterSeeTagsProcessedCorrectly()
+        {
+            var model = new ParameterSeeTagsModel();
+            var compilation = CompilationHelper.LoadCompilation(new[] { model });
+            var symbol = CompilationHelper.GetSymbol(compilation.Assembly.Modules.First().GlobalNamespace, nameof(ParameterSeeTagsModel));
+
+            var provider = new NamedTypeSymbolProvider(symbol!, compilation);
+            var description = provider.Methods.Single().Signature.Parameters.Single().Description.ToString();
+
+            Assert.AreEqual("Works with <see cref=\"System.String\"/> and <see cref=\"System.Int32\"/> types.", description);
+        }
+
+        [Test]
         public void InvalidParameterDocsThrows()
         {
             var model = new InvalidParameterDocsModel();
@@ -167,8 +180,21 @@ namespace Microsoft.TypeSpec.Generator.Tests.Providers.NamedTypeSymbolProviders
 
             protected internal override MethodProvider[] BuildMethods()
             {
-                var sig = new MethodSignature("Write", $"", MethodSignatureModifiers.Public, null, $"", [ new ParameterProvider("value", $"This is an invalid description because it is missing closing slash <see cref=\"Y\">", typeof(int)), new ParameterProvider("options", $"", typeof(string)) ]);
+                var sig = new MethodSignature("Write", $"", MethodSignatureModifiers.Public, null, $"", [new ParameterProvider("value", $"This is an invalid description because it is missing closing slash <see cref=\"Y\">", typeof(int)), new ParameterProvider("options", $"", typeof(string))]);
                 return [new MethodProvider(sig, Snippet.ThrowExpression(Snippet.Null), this, null)];
+            }
+        }
+
+        private class ParameterSeeTagsModel : TypeProvider
+        {
+            protected override string BuildRelativeFilePath() => ".";
+
+            protected override string BuildName() => nameof(ParameterSeeTagsModel);
+
+            protected internal override MethodProvider[] BuildMethods()
+            {
+                var signature = new MethodSignature("Write", $"", MethodSignatureModifiers.Public, null, $"", [new ParameterProvider("value", $"Works with <see cref=\"T:System.String\"/> and <see cref=\"T:System.Int32\"/> types", typeof(string))]);
+                return [new MethodProvider(signature, Snippet.ThrowExpression(Snippet.Null), this, null)];
             }
         }
 

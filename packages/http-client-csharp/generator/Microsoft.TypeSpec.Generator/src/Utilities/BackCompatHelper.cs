@@ -7,6 +7,7 @@ using System.ComponentModel;
 using System.Linq;
 using Microsoft.TypeSpec.Generator.EmitterRpc;
 using Microsoft.TypeSpec.Generator.Expressions;
+using Microsoft.TypeSpec.Generator.Input;
 using Microsoft.TypeSpec.Generator.Input.Extensions;
 using Microsoft.TypeSpec.Generator.Primitives;
 using Microsoft.TypeSpec.Generator.Providers;
@@ -46,6 +47,35 @@ namespace Microsoft.TypeSpec.Generator.Utilities
 
             CodeModelGenerator.Instance.Emitter.Info(
                 $"Skipping back-compat for '{enclosingType.Type.FullyQualifiedName}.{previousSignature.Name}'; removal is accepted in the ApiCompat baseline.",
+                BackCompatibilityChangeCategory.BaselineAcceptedRemovalSkipped);
+            return true;
+        }
+
+        /// <summary>
+        /// Returns true when the removal of a previously-published constructor — identified by the
+        /// enclosing type's fully-qualified name and the exact parameter types — has been accepted in the
+        /// ApiCompat baseline, in which case back compatibility must not restore it. Constructors are
+        /// recorded in the baseline as the <c>.ctor</c> member of their declaring type. Emits an
+        /// informational log entry when a suppression is honored.
+        /// </summary>
+        public static bool IsConstructorRemovalAcceptedInBaseline(TypeProvider enclosingType, ConstructorSignature previousSignature)
+        {
+            var parameterTypes = new CSharpType[previousSignature.Parameters.Count];
+            for (int i = 0; i < parameterTypes.Length; i++)
+            {
+                parameterTypes[i] = previousSignature.Parameters[i].Type;
+            }
+
+            if (CodeModelGenerator.Instance.SourceInputModel?.ApiCompatBaseline.IsMethodRemovalSuppressed(
+                    enclosingType.Type.FullyQualifiedName,
+                    ".ctor",
+                    parameterTypes) != true)
+            {
+                return false;
+            }
+
+            CodeModelGenerator.Instance.Emitter.Info(
+                $"Skipping back-compat for '{enclosingType.Type.FullyQualifiedName}..ctor'; removal is accepted in the ApiCompat baseline.",
                 BackCompatibilityChangeCategory.BaselineAcceptedRemovalSkipped);
             return true;
         }
@@ -146,38 +176,33 @@ namespace Microsoft.TypeSpec.Generator.Utilities
                 }
 
                 var currentParameters = method.Signature.Parameters;
-                MethodProvider? matchingPrevious = null;
-                bool matchingPreviousResolved = false;
+                var matchingPrevious = FindMethodWithSameSignatureIgnoringNames(previousMethods, method.Signature);
+
+                if (matchingPrevious != null
+                    && TryRestorePreviousParameterOrder(method, matchingPrevious.Signature))
+                {
+                    currentParameters = method.Signature.Parameters;
+                }
 
                 for (int i = 0; i < currentParameters.Count; i++)
                 {
                     var parameter = currentParameters[i];
+                    if (parameter.IsExactName)
+                    {
+                        continue;
+                    }
+
                     string? preservedName = null;
 
                     var inputParameter = parameter.InputParameter;
-                    if (inputParameter is not null)
+                    if (inputParameter is not null && !parameter.IsContentParameter)
                     {
-                        if (!string.Equals(parameter.Name, inputParameter.Name, StringComparison.Ordinal))
-                        {
-                            continue;
-                        }
-
-                        var originalName = inputParameter.OriginalName;
-                        if (!string.IsNullOrEmpty(originalName))
-                        {
-                            preservedName = FindPreviousParameterName(lastContractView, originalName, method.Signature.Name);
-                        }
+                        preservedName = FindPreviousParameterName(lastContractView, inputParameter.OriginalName, method.Signature.Name);
                     }
 
                     // Fall back to a positional match for synthesized parameters
                     if (string.IsNullOrEmpty(preservedName))
                     {
-                        if (!matchingPreviousResolved)
-                        {
-                            matchingPrevious = FindMethodWithSameSignatureIgnoringNames(previousMethods, method.Signature);
-                            matchingPreviousResolved = true;
-                        }
-
                         preservedName = matchingPrevious?.Signature.Parameters[i].Name;
                     }
 
@@ -190,8 +215,9 @@ namespace Microsoft.TypeSpec.Generator.Utilities
 
                     // Skip the rename when applying it would collide with another current parameter's
                     // name (e.g. two same-typed parameters whose order changed between the previous and
-                    // current contracts). A rename in that case would produce a duplicate parameter name
-                    // and, for name-based argument lookups, silently wire the wrong value.
+                    // current contracts, or a parameter whose exact name is retained above). A rename in
+                    // that case would produce a duplicate parameter name and, for name-based argument
+                    // lookups, silently wire the wrong value.
                     bool wouldCollide = false;
                     for (int j = 0; j < currentParameters.Count; j++)
                     {
@@ -653,7 +679,8 @@ namespace Microsoft.TypeSpec.Generator.Utilities
             }
             else
             {
-                arguments.Add(PositionalReference(currentParam.Name.ToVariableName(), value));
+                var argumentName = currentParam.AsVariable().Declaration.RequestedName;
+                arguments.Add(PositionalReference(argumentName, value));
             }
         }
 

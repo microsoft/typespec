@@ -26,6 +26,7 @@ public class EmitterOptions implements JsonSerializable<EmitterOptions> {
     private Boolean generateTests = true;
     private Boolean generateSamples = true;
     private Boolean enableSyncStack = true;
+    private String maxOverload;
     private Boolean streamStyleSerialization = true;
     private Boolean partialUpdate;
     private Boolean requiredFieldsAsConstructorArgs;
@@ -49,6 +50,7 @@ public class EmitterOptions implements JsonSerializable<EmitterOptions> {
     private String renameModel;
     private String addInner;
     private String removeInner;
+    private String removeModel;
     private String preserveModel;
     private Boolean generateAsyncMethods;
     private String propertyIncludeAlways;
@@ -100,6 +102,10 @@ public class EmitterOptions implements JsonSerializable<EmitterOptions> {
 
     public Boolean getEnableSyncStack() {
         return enableSyncStack;
+    }
+
+    public String getMaxOverload() {
+        return maxOverload;
     }
 
     public Boolean getStreamStyleSerialization() {
@@ -190,6 +196,10 @@ public class EmitterOptions implements JsonSerializable<EmitterOptions> {
         return removeInner;
     }
 
+    public String getRemoveModel() {
+        return removeModel;
+    }
+
     public String getPreserveModel() {
         return preserveModel;
     }
@@ -238,6 +248,8 @@ public class EmitterOptions implements JsonSerializable<EmitterOptions> {
                 options.generateSamples = reader.getNullable(EmitterOptions::getBoolean);
             } else if ("enable-sync-stack".equals(fieldName)) {
                 options.enableSyncStack = reader.getNullable(EmitterOptions::getBoolean);
+            } else if ("max-overload".equals(fieldName)) {
+                options.maxOverload = emptyToNull(reader.getString());
             } else if ("stream-style-serialization".equals(fieldName)) {
                 options.streamStyleSerialization = reader.getNullable(EmitterOptions::getBoolean);
             } else if ("partial-update".equals(fieldName)) {
@@ -278,6 +290,8 @@ public class EmitterOptions implements JsonSerializable<EmitterOptions> {
                 options.addInner = reader.getNullable(EmitterOptions::getStringOrList);
             } else if ("remove-inner".equals(fieldName)) {
                 options.removeInner = reader.getNullable(EmitterOptions::getStringOrList);
+            } else if ("remove-model".equals(fieldName)) {
+                options.removeModel = reader.getNullable(EmitterOptions::getStringOrList);
             } else if ("preserve-model".equals(fieldName)) {
                 options.preserveModel = reader.getNullable(EmitterOptions::getStringOrList);
             } else if ("generate-async-methods".equals(fieldName)) {

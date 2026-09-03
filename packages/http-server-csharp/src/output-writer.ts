@@ -2,6 +2,7 @@ import { renderAsync, type Children } from "@alloy-js/core";
 import type { Program } from "@typespec/compiler";
 import {
   emitFile,
+  getRelativePathFromDirectory,
   joinPaths,
   resolveCompilerOptions,
   resolvePath,
@@ -86,8 +87,7 @@ export async function resolveOpenApiPath(
 
     if (outputDir) {
       const openApiFullPath = resolvePath(outputDir, fileName || "openapi.yaml");
-      const pathModule = await import("path");
-      return normalizeSlashes(pathModule.relative(projectDir, openApiFullPath));
+      return normalizeSlashes(getRelativePathFromDirectory(projectDir, openApiFullPath, false));
     }
     if (emitted) {
       const baseDir = context.program.compilerOptions.outputDir || resolvePath(root, "tsp-output");
@@ -97,8 +97,7 @@ export async function resolveOpenApiPath(
         "openapi3",
         fileName || "openapi.yaml",
       );
-      const pathModule = await import("path");
-      return normalizeSlashes(pathModule.relative(projectDir, openApiFullPath));
+      return normalizeSlashes(getRelativePathFromDirectory(projectDir, openApiFullPath, false));
     }
   } catch {
     // Config resolution failed, fall through

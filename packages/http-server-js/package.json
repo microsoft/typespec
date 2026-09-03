@@ -31,6 +31,11 @@
   "bin": {
     "hsjs-scaffold": "./cmd/hsjs-scaffold.mjs"
   },
+  "files": [
+    "dist/**",
+    "cmd/**",
+    "!dist/test/**"
+  ],
   "scripts": {
     "clean": "rimraf ./dist ./temp",
     "build": "pnpm build:helpers && pnpm build:src",

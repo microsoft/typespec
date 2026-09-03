@@ -1529,6 +1529,16 @@ export interface UsingStatementNode extends BaseNode {
   readonly kind: SyntaxKind.UsingStatement;
   readonly name: IdentifierNode | MemberExpressionNode;
   readonly parent?: TypeSpecScriptNode | NamespaceStatementNode;
+
+  /**
+   * Namespace this using statement is scoped to.
+   * Set by the binder.
+   *
+   * This is the enclosing namespace for a using declared inside a namespace block, or the file(blockless) namespace
+   * if the using is declared after it. It is `undefined` when the using is declared at the file level, before any
+   * blockless namespace declaration, in which case its name resolves from the global namespace.
+   */
+  readonly scopeNamespace?: NamespaceStatementNode;
 }
 
 export interface OperationSignatureDeclarationNode extends BaseNode {
@@ -2350,6 +2360,39 @@ export type SemanticNodeListener = {
   root?: (context: Program) => void | undefined;
 } & TypeListeners &
   ValueListeners;
+
+/**
+ * Extra information about a type contributed by a library through `$provideTypeInfo`. Used to
+ * enrich IDE hover documentation and to answer queries (e.g. from AI agents/tooling).
+ */
+export interface TypeInfo {
+  /** Markdown content describing this information, e.g. ``"`HTTP Route`: `GET /pets/{id}`"``. */
+  readonly content: string;
+}
+
+/**
+ * Context passed to a library's `$provideTypeInfo` provider. Additional properties may be added
+ * over time.
+ */
+export interface TypeInfoContext {
+  /** The current program. */
+  readonly program: Program;
+  /** The type the information is being requested for. */
+  readonly target: Type;
+}
+
+/**
+ * Provides extra information about a given type.
+ *
+ * A library registers one by exporting a `$provideTypeInfo` function (typically via
+ * {@link defineTypeInfoProvider}). Unlike the `$onValidate` lifecycle hook, a provider is never
+ * run during compilation and must not mutate the type graph. It is invoked lazily and on demand
+ * (e.g. by the language server when computing hover documentation, or by tooling querying
+ * {@link Program.getTypeInfo}).
+ *
+ * Providers are gated behind the experimental `type-info-provider` compiler feature.
+ */
+export type TypeInfoProvider = (context: TypeInfoContext) => TypeInfo | undefined;
 
 export type DiagnosticReportWithoutTarget<
   T extends { [code: string]: DiagnosticMessages },

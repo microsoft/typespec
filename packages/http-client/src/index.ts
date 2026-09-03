@@ -1,5 +1,10 @@
 export const namespace = "TypeSpec.HttpClient";
 export * from "./context/index.js";
+export type {
+  FeatureLifecycleDetails,
+  FeatureLifecycleStage,
+  GetFeatureLifecycleOptions,
+} from "./decorators/experimental.js";
 export type * from "./interfaces.js";
 export { $lib } from "./lib.js";
 export { $decorators } from "./tsp-index.js";

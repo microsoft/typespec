@@ -190,7 +190,8 @@ public final class MultipartClientImpl {
      * @return the {@link Response} on successful completion of {@link Mono}.
      */
     @ServiceMethod(returns = ReturnType.SINGLE)
-    public Mono<Response<Void>> uploadWithResponseAsync(String name, BinaryData data, RequestOptions requestOptions) {
+    public Mono<Response<Void>> uploadWithResponseInternalAsync(String name, BinaryData data,
+        RequestOptions requestOptions) {
         final String contentType = "multipart/form-data";
         return FluxUtil.withContext(
             context -> service.upload(this.getEndpoint(), name, contentType, data, requestOptions, context));
@@ -216,7 +217,7 @@ public final class MultipartClientImpl {
      * @return the {@link Response}.
      */
     @ServiceMethod(returns = ReturnType.SINGLE)
-    public Response<Void> uploadWithResponse(String name, BinaryData data, RequestOptions requestOptions) {
+    public Response<Void> uploadWithResponseInternal(String name, BinaryData data, RequestOptions requestOptions) {
         final String contentType = "multipart/form-data";
         return service.uploadSync(this.getEndpoint(), name, contentType, data, requestOptions, Context.NONE);
     }
@@ -241,7 +242,7 @@ public final class MultipartClientImpl {
      * @return the {@link Response} on successful completion of {@link Mono}.
      */
     @ServiceMethod(returns = ReturnType.SINGLE)
-    public Mono<Response<Void>> uploadHttpPartWithResponseAsync(String name, BinaryData body,
+    public Mono<Response<Void>> uploadHttpPartWithResponseInternalAsync(String name, BinaryData body,
         RequestOptions requestOptions) {
         final String contentType = "multipart/form-data";
         return FluxUtil.withContext(
@@ -268,7 +269,8 @@ public final class MultipartClientImpl {
      * @return the {@link Response}.
      */
     @ServiceMethod(returns = ReturnType.SINGLE)
-    public Response<Void> uploadHttpPartWithResponse(String name, BinaryData body, RequestOptions requestOptions) {
+    public Response<Void> uploadHttpPartWithResponseInternal(String name, BinaryData body,
+        RequestOptions requestOptions) {
         final String contentType = "multipart/form-data";
         return service.uploadHttpPartSync(this.getEndpoint(), name, contentType, body, requestOptions, Context.NONE);
     }

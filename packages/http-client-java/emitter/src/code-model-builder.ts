@@ -201,6 +201,7 @@ export interface EmitterOptionsDev {
   "required-fields-as-ctor-args"?: boolean;
   "group-etag-headers"?: boolean;
   "enable-sync-stack"?: boolean;
+  "max-overload"?: "model";
   "stream-style-serialization"?: boolean;
   "use-object-for-unknown"?: boolean;
   "float32-as-double"?: boolean;
@@ -1006,7 +1007,7 @@ export class CodeModelBuilder {
         // do not generate protocol method for multipart/form-data, as it be very hard for user to prepare the request body as BinaryData
         generateProtocolApi = false;
         diagnostic = createDiagnostic({
-          code: "protocol-api-not-generated",
+          code: "dpg-protocol-api-not-generated",
           messageId: "multipartFormData",
           format: { operationName: operationName },
           target: sdkMethod.__raw ?? NoTarget,
@@ -1017,7 +1018,7 @@ export class CodeModelBuilder {
         // issue link: https://github.com/Azure/autorest.java/issues/1958#issuecomment-1562558219
         generateConvenienceApi = false;
         diagnostic = createDiagnostic({
-          code: "convenience-api-not-generated",
+          code: "dpg-convenience-api-not-generated",
           messageId: "multipleContentType",
           format: { operationName: operationName },
           target: sdkMethod.__raw ?? NoTarget,
@@ -1030,7 +1031,7 @@ export class CodeModelBuilder {
         // do not generate convenient method for json merge patch operation if stream-style-serialization is not enabled
         generateConvenienceApi = false;
         diagnostic = createDiagnostic({
-          code: "convenience-api-not-generated",
+          code: "dpg-convenience-api-not-generated",
           messageId: "jsonMergePatch",
           format: { operationName: operationName },
           target: sdkMethod.__raw ?? NoTarget,
@@ -1039,6 +1040,12 @@ export class CodeModelBuilder {
       }
     }
     if (generateConvenienceApi && convenienceApiName) {
+      if (this.isAzureV1() && this.options["max-overload"] === "model") {
+        // The model WithResponse overload replaces the public protocol method of the same name.
+        // This is scoped to convenience APIs because their model types are required for the
+        // replacement; the protocol method remains generated internally for delegation.
+        generateProtocolApi = false;
+      }
       codeModelOperation.convenienceApi = new ConvenienceApi(convenienceApiName);
       if (sdkMethod.isExactName) {
         codeModelOperation.convenienceApi.language.java =
@@ -1070,7 +1077,7 @@ export class CodeModelBuilder {
     }
 
     // check for generating protocol api or not
-    codeModelOperation.generateProtocolApi = generateProtocolApi && !codeModelOperation.internalApi;
+    codeModelOperation.generateProtocolApi = generateProtocolApi;
 
     codeModelOperation.addRequest(
       new Request({
@@ -2322,15 +2329,15 @@ export class CodeModelBuilder {
 
         if (schema instanceof ConstantSchema) {
           // skip constant header in response
-          if (isContentTypeHeader(header)) {
-            // we does not warn on content-type as constant, as this is the most common case
+          if (!isContentTypeHeader(header)) {
+            // we do not warn on content-type as constant, as this is the most common case
             reportDiagnostic(this.program, {
               code: "constant-header-in-response-removed",
               format: { headerName: header.serializedName },
               target: header.__raw ?? NoTarget,
             });
           }
-          break;
+          continue;
         }
 
         const httpHeader = new HttpHeader(header.serializedName, schema, {
@@ -2351,6 +2358,20 @@ export class CodeModelBuilder {
 
     const bodyType: SdkType | undefined = sdkResponse.type;
     let trackConvenienceApi: boolean = Boolean(op.convenienceApi);
+    const trackResponseHeadersAsModel =
+      trackConvenienceApi &&
+      (op.convenienceApi?.responseHeadersAsModel === true ||
+        (this.isAzureV1() && this.options["max-overload"] === "model"));
+
+    if (trackResponseHeadersAsModel) {
+      // Typed header models are public convenience return types. Propagate that visibility to
+      // referenced schemas so enum and model header properties are generated in the same package.
+      for (const header of headers) {
+        this.trackSchemaUsage(header.schema, {
+          usage: [op.internalApi ? SchemaContext.Internal : SchemaContext.Public],
+        });
+      }
+    }
 
     let responseBodyIsFile: boolean = false;
     if (
