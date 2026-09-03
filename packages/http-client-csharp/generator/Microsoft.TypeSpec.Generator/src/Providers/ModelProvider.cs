@@ -248,6 +248,18 @@ namespace Microsoft.TypeSpec.Generator.Providers
         protected override CSharpType? BuildBaseType()
         {
             var currentBase = BuildCurrentBaseType();
+            return BuildBaseTypeForBackCompatibility(currentBase);
+        }
+
+        /// <summary>
+        /// Returns the model base type after applying backward compatibility against <see cref="LastContractView"/>.
+        /// The default implementation conservatively restores a resolvable previously-published base type.
+        /// Override and call <c>base</c> to extend this behavior, or override without calling <c>base</c> to replace it.
+        /// This hook runs while the base type is being built, before model members and serialization are materialized.
+        /// </summary>
+        /// <param name="currentBase">The base type selected from custom code or the current input model.</param>
+        protected internal virtual CSharpType? BuildBaseTypeForBackCompatibility(CSharpType? currentBase)
+        {
             var previousBase = LastContractView?.BaseType;
             if (previousBase is null || IsInBaseTypeHierarchy(currentBase, previousBase))
             {

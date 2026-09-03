@@ -529,6 +529,36 @@ namespace Microsoft.TypeSpec.Generator.Tests.Providers.ModelProviders
         }
 
         [Test]
+        public async Task BackCompat_BaseTypeHookCanKeepCurrentBaseType()
+        {
+            var previousBase = InputFactory.Model("PreviousBase", properties: []);
+            var currentBase = InputFactory.Model("CurrentBase", properties: []);
+            var derivedModel = InputFactory.Model("DerivedModel", properties: [], baseModel: currentBase);
+
+            await MockHelpers.LoadMockGeneratorAsync(
+                createModelCore: input => input == derivedModel
+                    ? new BaseTypeBackCompatibilityOverridingModelProvider(input)
+                    : new ModelProvider(input),
+                inputModelTypes: [previousBase, currentBase, derivedModel],
+                lastContractCompilation: async () => await Helpers.GetCompilationFromDirectoryAsync(
+                    method: nameof(BackCompat_BaseTypeChangePreservesLastContractBaseType)));
+
+            var modelProvider = CodeModelGenerator.Instance.OutputLibrary.TypeProviders
+                .OfType<BaseTypeBackCompatibilityOverridingModelProvider>()
+                .Single();
+
+            Assert.Multiple(() =>
+            {
+                Assert.AreEqual(previousBase.Name, modelProvider.LastContractView?.BaseType?.Name,
+                    "The default back-compat behavior would restore the previous base");
+                Assert.AreEqual(currentBase.Name, modelProvider.CapturedCurrentBase?.Name,
+                    "The hook should receive the base selected from the current input model");
+                Assert.AreEqual(currentBase.Name, modelProvider.BaseType?.Name,
+                    "A downstream provider can override the hook to retain the current base");
+            });
+        }
+
+        [Test]
         public async Task BackCompat_CustomBaseTakesPrecedenceOverDifferentLastContractBase()
         {
             var previousBase = InputFactory.Model("PreviousBase", properties: []);
@@ -833,6 +863,21 @@ namespace Microsoft.TypeSpec.Generator.Tests.Providers.ModelProviders
             }
 
             protected override CSharpType? BuildBaseType() => _redirectedBaseType;
+        }
+
+        private sealed class BaseTypeBackCompatibilityOverridingModelProvider : ModelProvider
+        {
+            public BaseTypeBackCompatibilityOverridingModelProvider(InputModelType inputModel) : base(inputModel)
+            {
+            }
+
+            public CSharpType? CapturedCurrentBase { get; private set; }
+
+            protected internal override CSharpType? BuildBaseTypeForBackCompatibility(CSharpType? currentBase)
+            {
+                CapturedCurrentBase = currentBase;
+                return currentBase;
+            }
         }
 
         // Regression: custom code (such as an inheritable system base model) can produce a base
