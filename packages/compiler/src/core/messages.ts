@@ -863,6 +863,12 @@ const diagnostics = {
       default: paramMessage`Invalid options for rule "${"ruleName"}": ${"details"}`,
     },
   },
+  "circular-ruleset-file": {
+    severity: "error",
+    messages: {
+      default: paramMessage`Linter ruleset file "${"path"}" is extending itself, either directly or indirectly.`,
+    },
+  },
 
   /**
    * Formatter

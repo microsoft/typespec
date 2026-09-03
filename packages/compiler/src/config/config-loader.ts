@@ -1,4 +1,5 @@
 import { isCompilerFeatureName } from "../core/features.js";
+import { linterRuleSetFilePrefix } from "../core/linter-ruleset-file.js";
 import { createDiagnostic } from "../core/messages.js";
 import {
   getBaseFileName,
@@ -9,7 +10,7 @@ import {
 } from "../core/path-utils.js";
 import { createJSONSchemaValidator } from "../core/schema-validator.js";
 import { createSourceFile } from "../core/source-file.js";
-import type { Diagnostic, SourceFile, SystemHost } from "../core/types.js";
+import type { Diagnostic, RuleSetFileRef, SourceFile, SystemHost } from "../core/types.js";
 import { NoTarget } from "../core/types.js";
 import { doIO } from "../utils/io.js";
 import { deepFreeze, omitUndefined } from "../utils/misc.js";
@@ -17,8 +18,7 @@ import { getLocationInYamlScript } from "../yaml/index.js";
 import { parseYaml } from "../yaml/parser.js";
 import type { YamlScript } from "../yaml/types.js";
 import { TypeSpecConfigJsonSchema } from "./config-schema.js";
-import type { TypeSpecConfig, TypeSpecRawConfig } from "./types.js";
-
+import type { LinterConfig, TypeSpecConfig, TypeSpecRawConfig } from "./types.js";
 export const TypeSpecConfigFilename = "tspconfig.yaml";
 
 export const defaultConfig = deepFreeze({
@@ -252,8 +252,31 @@ async function loadConfigFile(
     trace: typeof data.trace === "string" ? [data.trace] : data.trace,
     emit,
     options,
-    linter: data.linter,
+    linter: resolveLinterConfigFileRefs(data.linter, getDirectoryPath(filename)),
   });
+}
+
+/**
+ * Make `file:` ruleset references absolute so they stay resolvable relative to the config file
+ * that declared them even when that config is extended from another directory.
+ */
+function resolveLinterConfigFileRefs(
+  linter: LinterConfig | undefined,
+  configDir: string,
+): LinterConfig | undefined {
+  if (!Array.isArray(linter?.extends)) {
+    return linter;
+  }
+  return {
+    ...linter,
+    extends: linter.extends.map((ref) => {
+      if (typeof ref !== "string" || !ref.startsWith(linterRuleSetFilePrefix)) {
+        return ref;
+      }
+      const path = ref.slice(linterRuleSetFilePrefix.length);
+      return `${linterRuleSetFilePrefix}${resolvePath(configDir, path)}` as RuleSetFileRef;
+    }),
+  };
 }
 
 export function validateConfigPathsAbsolute(config: TypeSpecConfig): readonly Diagnostic[] {

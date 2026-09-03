@@ -7,7 +7,9 @@ import { getLocationContext } from "./helpers/location-context.js";
 import { defineLinter } from "./library.js";
 import { createUnusedTemplateParameterLinterRule } from "./linter-rules/unused-template-parameter.rule.js";
 import { createUnusedUsingLinterRule } from "./linter-rules/unused-using.rule.js";
+import { linterRuleSetFilePrefix, loadLinterRuleSetFile } from "./linter-ruleset-file.js";
 import { createDiagnostic } from "./messages.js";
+import { getDirectoryPath, resolvePath } from "./path-utils.js";
 import { perf } from "./perf.js";
 import type { Program } from "./program.js";
 import { createJSONSchemaValidator } from "./schema-validator.js";
@@ -30,7 +32,12 @@ import { NoTarget } from "./types.js";
 type LinterLibraryInstance = { linter: LinterResolvedDefinition };
 
 export interface Linter {
-  extendRuleSet(ruleSet: LinterRuleSet): Promise<readonly Diagnostic[]>;
+  /**
+   * Extend the current set of enabled rules with the given ruleset.
+   * @param ruleSet Ruleset to extend.
+   * @param baseDir Directory used to resolve relative `file:` ruleset references. Defaults to the program project root.
+   */
+  extendRuleSet(ruleSet: LinterRuleSet, baseDir?: string): Promise<readonly Diagnostic[]>;
   registerLinterLibrary(name: string, lib?: LinterLibraryInstance): void;
   lint(): Promise<LinterResult>;
 }
@@ -118,11 +125,32 @@ export function createLinter(
     lint,
   };
 
-  async function extendRuleSet(ruleSet: LinterRuleSet): Promise<readonly Diagnostic[]> {
+  async function extendRuleSet(
+    ruleSet: LinterRuleSet,
+    baseDir: string = program.projectRoot,
+  ): Promise<readonly Diagnostic[]> {
+    return extendRuleSetInternal(ruleSet, baseDir, []);
+  }
+
+  async function extendRuleSetInternal(
+    ruleSet: LinterRuleSet,
+    baseDir: string,
+    fileStack: readonly string[],
+  ): Promise<readonly Diagnostic[]> {
     tracer.trace("extend-rule-set.start", JSON.stringify(ruleSet, null, 2));
     const diagnostics = createDiagnosticCollector();
     if (ruleSet.extends) {
       for (const extendingRuleSetName of ruleSet.extends) {
+        if (extendingRuleSetName.startsWith(linterRuleSetFilePrefix)) {
+          for (const diagnostic of await extendRuleSetFile(
+            extendingRuleSetName.slice(linterRuleSetFilePrefix.length),
+            baseDir,
+            fileStack,
+          )) {
+            diagnostics.add(diagnostic);
+          }
+          continue;
+        }
         if (reportIfAmbiguous(extendingRuleSetName, diagnostics)) {
           continue;
         }
@@ -134,7 +162,7 @@ export function createLinter(
           const libLinterDefinition = library?.linter;
           const extendingRuleSet = libLinterDefinition?.ruleSets?.[ref.name];
           if (extendingRuleSet) {
-            await extendRuleSet(extendingRuleSet);
+            await extendRuleSetInternal(extendingRuleSet, baseDir, fileStack);
           } else {
             diagnostics.add(
               createDiagnostic({
@@ -297,6 +325,37 @@ export function createLinter(
 
     stats.runtime.total = timer.end();
     return { diagnostics: diagnostics.diagnostics, stats };
+  }
+
+  /** Load and apply a ruleset defined in a yaml file. */
+  async function extendRuleSetFile(
+    path: string,
+    baseDir: string,
+    fileStack: readonly string[],
+  ): Promise<readonly Diagnostic[]> {
+    const resolvedPath = resolvePath(baseDir, path);
+    tracer.trace("extend-rule-set.file", resolvedPath);
+    if (fileStack.includes(resolvedPath)) {
+      return [
+        createDiagnostic({
+          code: "circular-ruleset-file",
+          format: { path: resolvedPath },
+          target: NoTarget,
+        }),
+      ];
+    }
+
+    const [ruleSet, diagnostics] = await loadLinterRuleSetFile(program.host, resolvedPath);
+    if (ruleSet === undefined) {
+      return diagnostics;
+    }
+    return [
+      ...diagnostics,
+      ...(await extendRuleSetInternal(ruleSet, getDirectoryPath(resolvedPath), [
+        ...fileStack,
+        resolvedPath,
+      ])),
+    ];
   }
 
   async function resolveLibrary(name: string): Promise<LinterLibraryInstance | undefined> {

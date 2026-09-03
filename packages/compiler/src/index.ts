@@ -442,6 +442,8 @@ export type {
   ReplaceTextCodeFixEdit,
   RmOptions,
   RuleRef,
+  RuleSetFileRef,
+  RuleSetRef,
   Scalar,
   ScalarConstructor,
   ScalarValue,
