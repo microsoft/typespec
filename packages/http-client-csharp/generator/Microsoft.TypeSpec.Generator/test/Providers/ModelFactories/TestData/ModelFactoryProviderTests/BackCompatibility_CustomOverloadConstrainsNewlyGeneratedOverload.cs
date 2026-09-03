@@ -15,7 +15,7 @@ namespace Sample.Namespace
         }
 
         [global::System.ComponentModel.EditorBrowsableAttribute(global::System.ComponentModel.EditorBrowsableState.Never)]
-        public static global::Sample.Models.CompatibilityModel CompatibilityModel(bool isRegex, string id = default)
+        public static global::Sample.Models.CompatibilityModel CompatibilityModel(bool isRegex, string id)
         {
             return CompatibilityModel(id: id, description: default, text: default, isRegex: isRegex);
         }
