@@ -272,7 +272,7 @@ namespace Microsoft.TypeSpec.Generator
             // Read in the resolved direct dependencies.
 
             // We first try the default location of project.assets.json, which is %project_dir%/obj/.
-            string? assetsJson = await TryGetAssetsFile();
+            string? assetsJson = await GetAssetFileOrNull();
             if (string.IsNullOrEmpty(assetsJson) || !File.Exists(assetsJson))
             {
                 return hshFrameworks;
@@ -281,14 +281,38 @@ namespace Microsoft.TypeSpec.Generator
             using JsonDocument document = JsonDocument.ParseValue(ref reader);
             foreach (JsonProperty prop in document.RootElement.EnumerateObject())
             {
+                if (prop.Value.ValueKind == JsonValueKind.Object && prop.NameEquals("targets"))
+                {
+                    foreach (JsonProperty targetFramework in prop.Value.EnumerateObject())
+                    {
+                        NuGetFramework currentFramework = NuGetFramework.ParseFolder(targetFramework.Name);
+                        if (!hshFrameworks.ContainsKey(currentFramework.GetShortFolderName()))
+                        {
+                            hshFrameworks[currentFramework.GetShortFolderName()] = [];
+                        }
+                        if (targetFramework.Value.ValueKind == JsonValueKind.Object)
+                        {
+                            // Parse dependencies. They are structured as SomePackage/package.version
+                            foreach (JsonProperty packageAndVersion in targetFramework.Value.EnumerateObject())
+                            {
+                                string[] packageVersion = packageAndVersion.Name.Split('/');
+                                if (packageVersion.Length == 2)
+                                {
+                                    hshFrameworks[currentFramework.GetShortFolderName()][packageVersion[0].ToLower()] = packageVersion[1];
+                                }
+                            }
+                        }
+                    }
+                }
+                // Centrally managed packages are stored in projectFileDependencyGroups; they are not present in targets
                 if (prop.Value.ValueKind == JsonValueKind.Object && prop.NameEquals("projectFileDependencyGroups"))
                 {
                     foreach (JsonProperty targetFramework in prop.Value.EnumerateObject())
                     {
-                        NuGetFramework currentFramework = new(targetFramework.Name);
-                        if (!hshFrameworks.ContainsKey(currentFramework.Framework))
+                        NuGetFramework currentFramework = NuGetFramework.ParseFolder(targetFramework.Name);
+                        if (!hshFrameworks.ContainsKey(currentFramework.GetShortFolderName()))
                         {
-                            hshFrameworks[currentFramework.Framework] = [];
+                            hshFrameworks[currentFramework.GetShortFolderName()] = [];
                         }
                         if (targetFramework.Value.ValueKind == JsonValueKind.Array)
                         {
@@ -298,11 +322,19 @@ namespace Microsoft.TypeSpec.Generator
                                 if (packageAndVersion.ValueKind == JsonValueKind.String)
                                 {
                                     string[] packageVersionRelation = (packageAndVersion.GetString() ?? "").Split();
-                                    // We only support the greater-than-or-equal relation.
+                                    // We only support the greater-than-or-equal relation, in other cases we only record the package.
                                     // Example: "My.Package >= 1.1.1"
-                                    if (packageVersionRelation.Length == 3 && string.Equals(packageVersionRelation[1], ">="))
+                                    string packageName = packageVersionRelation[0].ToLower();
+                                    if (!string.IsNullOrEmpty(packageName) && !hshFrameworks[currentFramework.GetShortFolderName()].ContainsKey(packageName))
                                     {
-                                        hshFrameworks[currentFramework.Framework][packageVersionRelation[0].ToLower()] = packageVersionRelation[2];
+                                        if (packageVersionRelation.Length == 3 && string.Equals(packageVersionRelation[1], ">="))
+                                        {
+                                            hshFrameworks[currentFramework.GetShortFolderName()][packageName] = packageVersionRelation[2];
+                                        }
+                                        else
+                                        {
+                                            hshFrameworks[currentFramework.GetShortFolderName()][packageName] = "";
+                                        }
                                     }
                                 }
                             }
@@ -313,10 +345,14 @@ namespace Microsoft.TypeSpec.Generator
             return hshFrameworks;
         }
 
-        internal static async Task<string?> TryGetAssetsFile()
+        internal static async Task<string?> GetAssetFileOrNull()
         {
             string projectFilePath = Path.GetFullPath(
                 Path.Combine(CodeModelGenerator.Instance.Configuration.ProjectDirectory, $"{CodeModelGenerator.Instance.Configuration.PackageName}.csproj"));
+            if (!File.Exists(projectFilePath))
+            {
+                return null;
+            }
             Process restore = new();
             ProcessStartInfo info = new()
             {
@@ -364,7 +400,7 @@ namespace Microsoft.TypeSpec.Generator
                 Match numeral = Regex.Match(name, "\\d+[.]*\\d*$");
                 if (numeral.Success)
                 {
-                    current = double.Parse(numeral.Value);
+                    current = double.Parse(numeral.Value, System.Globalization.CultureInfo.InvariantCulture);
                 }
                 if (name.StartsWith("net4", StringComparison.InvariantCultureIgnoreCase))
                 {
@@ -446,7 +482,26 @@ namespace Microsoft.TypeSpec.Generator
             Dictionary<string, string> hshNameVersion = [];
             if (hshFrameworks.Count > 0)
             {
-                hshNameVersion = hshFrameworks[GetLatestTargetFramework(hshFrameworks.Keys.AsEnumerable())];
+                // Mimic the behavior of NugetPackageResolver.FindPackageAssemblyInVersion here
+                // when selecting Framefork i.e. select the framework from the ones
+                // supported by the project to the one currently running.
+                string? frameworkName = AppContext.TargetFrameworkName;
+                NuGetFramework? currentFramework = null;
+                if (!string.IsNullOrEmpty(frameworkName))
+                {
+                    try
+                    {
+                        currentFramework = NuGetFramework.Parse(frameworkName);
+                    }
+                    catch (ArgumentException)
+                    {
+                        // Fall through to the runtime-version based approximation below.
+                    }
+                }
+                currentFramework = currentFramework ?? NuGetFramework.Parse($".NETCoreApp,Version=v{Environment.Version.Major}.{Environment.Version.Minor}");
+                NuGetFramework? nearest = new FrameworkReducer().GetNearest(currentFramework, hshFrameworks.Keys.Select(x => NuGetFramework.ParseFolder(x)));
+                string bestFramework = nearest?.GetShortFolderName() ?? GetLatestTargetFramework(hshFrameworks.Keys.AsEnumerable());
+                hshNameVersion = hshFrameworks[bestFramework];
             }
             // Build a set of assembly names already registered so we can skip them
             var existingRefs = new HashSet<string>(
@@ -456,10 +511,8 @@ namespace Microsoft.TypeSpec.Generator
                 .Where(n => !string.IsNullOrEmpty(n)),
             StringComparer.OrdinalIgnoreCase);
 
-            foreach (var item in projectRoot.Items.Where(i => i.ItemType == "PackageReference"))
+            foreach (string refPackageName in hshNameVersion.Keys)
             {
-                var refPackageName = item.Include;
-
                 if (string.IsNullOrEmpty(refPackageName))
                 {
                     continue;
@@ -472,9 +525,8 @@ namespace Microsoft.TypeSpec.Generator
                 }
 
                 // Search the NuGet global packages folder for any cached version of this package.
-                string? version = default;
-                hshNameVersion.TryGetValue(refPackageName.ToLower(), out version);
-                string? resolvedAssemblyPath = version is null
+                string version = hshNameVersion[refPackageName];
+                string? resolvedAssemblyPath = string.IsNullOrEmpty(version)
                      ? NugetPackageResolver.FindPackageAssembly(globalPackagesFolder, refPackageName)
                      : NugetPackageResolver.FindPackageAssemblyInVersion(globalPackagesFolder, refPackageName, version);
                 if (resolvedAssemblyPath == null)

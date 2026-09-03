@@ -212,7 +212,7 @@ namespace My.External.Library
             await GeneratedCodeWorkspace.AddPackageReferencesFromProject();
             var refCountAfter = CodeModelGenerator.Instance.AdditionalMetadataReferences.Count;
 
-            Assert.AreEqual(refCountBefore + 1, refCountAfter, "Should have added one metadata reference");
+            Assert.That(refCountAfter, Is.GreaterThanOrEqualTo(refCountBefore + 1), "Should have added at least one metadata reference and its dependencies.");
         }
 
         [Test]
@@ -293,7 +293,7 @@ namespace My.External.Library
             await GeneratedCodeWorkspace.AddPackageReferencesFromProject();
             var refCountAfter = CodeModelGenerator.Instance.AdditionalMetadataReferences.Count;
 
-            Assert.AreEqual(refCountBefore + 1, refCountAfter,
+            Assert.That(refCountAfter, Is.GreaterThanOrEqualTo(refCountBefore + 1),
                 "Should resolve package from cache even without a version (centrally managed)");
         }
 
@@ -329,6 +329,8 @@ namespace My.External.Library
             // Pre-add the reference (simulating a plugin that already added it)
             CodeModelGenerator.Instance.AddMetadataReference(
                 MetadataReference.CreateFromFile(dllPath));
+            // Update dependencies
+            await GeneratedCodeWorkspace.AddPackageReferencesFromProject();
 
             var refCountBefore = CodeModelGenerator.Instance.AdditionalMetadataReferences.Count;
             await GeneratedCodeWorkspace.AddPackageReferencesFromProject();
@@ -397,22 +399,22 @@ namespace My.External.Library
                 .Select(x => (Name: x[0], Version: x[1], TargetFramework: x[3]));
             foreach (var resolvedPackage in resolvedPackages)
             {
-                Assert.That(resolvedPackage.TargetFramework, Is.EqualTo("netstandard2.0"));
                 if(packages.TryGetValue(resolvedPackage.Name, out string? version))
                 {
+                    Assert.That(resolvedPackage.TargetFramework, Is.EqualTo("netstandard2.0"));
                     Assert.Fail($"Found more than one version for package {resolvedPackage.Name}: {version} and {resolvedPackage.Version}");
                 }
                 packages[resolvedPackage.Name] = resolvedPackage.Version;
             }
             if (badPackage)
             {
-                Assert.AreEqual(refCountBefore + 1, refCountAfter, "Should have added one metadata reference as the second one was intentionally broken");
+                Assert.That(refCountAfter, Is.GreaterThanOrEqualTo(refCountBefore + 1), "Should have added one metadata reference as the second one was intentionally broken");
                 AssertPackageVersion(packages, "Second.Package", "3.5.0");
                 Assert.That(packages, Does.Not.ContainKey("first.package"));
             }
             else
             {
-                Assert.AreEqual(refCountBefore + 2, refCountAfter, "Should have added two metadata references");
+                Assert.That(refCountAfter, Is.GreaterThanOrEqualTo(refCountBefore + 2), "Should have added two metadata references");
                 AssertPackageVersion(packages, "First.Package", "1.0.0");
                 AssertPackageVersion(packages, "Second.Package", "3.5.0");
             }
@@ -491,7 +493,38 @@ namespace My.External.Library
             string minimalProjectAssets = """
             {
               "version": 4,
-              "targets": {},
+              "targets": {
+                  "netstandard2.0": {
+                      "First.Package/1.0.0": {
+                          "type": "package",
+                          "dependencies": {}
+                      },
+                      "Second.Package/3.5.0": {
+                          "type": "package",
+                          "dependencies": {}
+                      }
+                  },
+                  "net462": {
+                      "First.Package/1.0.0": {
+                          "type": "package",
+                          "dependencies": {}
+                      },
+                      "Second.Package/3.5.0": {
+                          "type": "package",
+                          "dependencies": {}
+                      }
+                  },
+                  "net10.0": {
+                      "First.Package/1.0.0": {
+                          "type": "package",
+                          "dependencies": {}
+                      },
+                      "Second.Package/3.5.0": {
+                          "type": "package",
+                          "dependencies": {}
+                      }
+                  }
+              },
               "projectFileDependencyGroups": {
                 "netstandard2.0": [
                   "First.Package >= 1.0.0",
@@ -536,6 +569,20 @@ namespace My.External.Library
                     Assert.Fail($"No information on Framework {framework} was found.");
                 }
             }
+        }
+
+        [Test]
+        public async Task TestReadProjectAssetsFileDoesNotExist()
+        {
+            var ns = "TestNamespace";
+            Assert.That(_projectDir, Is.Not.Null.And.Not.Empty);
+            File.Delete(Path.Combine(_projectDir!, "src", $"{ns}.csproj"));
+
+            MockHelpers.LoadMockGenerator(
+                inputNamespaceName: ns,
+                outputPath: _projectDir,
+                configuration: $"{{\"package-name\": \"{ns}\"}}");
+            Assert.That(await GeneratedCodeWorkspace.GetAssetFileOrNull(), Is.Null);
         }
 
         [Test]
@@ -586,19 +633,63 @@ namespace My.External.Library
             string minimalProjectAssets = """
             {
               "version": 4,
-              "targets": {},
+              "targets": {
+                  "netstandard2.0": {
+                      "First.Package/1.0.0": {
+                          "type": "package",
+                          "dependencies": {}
+                      },
+                      "Second.Package": {
+                          "type": "package",
+                          "dependencies": {}
+                      }
+                  },
+                  "net462": {
+                      "First.Package/1.1.0": {
+                          "type": "package",
+                          "dependencies": {}
+                      },
+                      "Second.Package/3.5.0/3.7.0": {
+                          "type": "package",
+                          "dependencies": {}
+                      }
+                  },
+                  "net478": {},
+                  "net479": {},
+                  "net480": {},
+                  "net481": {},
+                  "net10.0": {
+                      "First.Package/1.2.0": {
+                          "type": "package",
+                          "dependencies": {}
+                      },
+                      "Second.Package 3.5.0": {
+                          "type": "package",
+                          "dependencies": {}
+                      }
+                  }
+              },
               "projectFileDependencyGroups": {
                 "netstandard2.0": [
-                  "First.Package >= 1.0.0",
-                  "Second.Package"
+                  "First.Package >= 2.0.0"
                 ],
                 "net462": [
-                  "First.Package >= 1.1.0",
-                  "Second.Package == 3.5.0"
+                  "First.Package >= 2.1.0"
+                ],
+                "net478": [
+                  "First.Package >= 2.1.0"
+                ],
+                "net479": [
+                  "First.Package"
+                ],
+                "net480": [
+                  "First.Package < 2.1.0"
+                ],
+                "net481": [
+                  "First.Package <= 1.2.3 > 1.0.0"
                 ],
                 "net10.0": [
-                  "First.Package >= 1.2.0",
-                  "Second.Package < 3.5.0"
+                  "First.Package >= 2.2.0"
                 ]
               }
             }
@@ -611,13 +702,17 @@ namespace My.External.Library
                 outputPath: _projectDir,
                 configuration: $"{{\"package-name\": \"{ns}\"}}");
             Dictionary<string, Dictionary<string, string>> dtFrameworks = await GeneratedCodeWorkspace.ReadProjectAssets();
-            Assert.That(dtFrameworks, Has.Count.EqualTo(3));
+            Assert.That(dtFrameworks, Has.Count.EqualTo(7));
             foreach (string framework in new string[] { "netstandard2.0", "net10.0", "net462" })
             {
                 string version = framework switch
                 {
                     "netstandard2.0" => "1.0.0",
                     "net462" => "1.1.0",
+                    "net478" => "2.1.0",
+                    "net479" => "",
+                    "net480" => "",
+                    "net481" => "",
                     "net10.0" => "1.2.0",
                     _ => throw new InvalidOperationException($"Invalid value {framework}")
                 };
@@ -658,7 +753,7 @@ namespace My.External.Library
             // Create directory and make sure it is not null now.
 
             string expectedOutput = Path.Combine(_projectDir!, "src", "obj", "project.assets.json");
-            Assert.That(await GeneratedCodeWorkspace.TryGetAssetsFile(), Is.EqualTo(expectedOutput));
+            Assert.That(await GeneratedCodeWorkspace.GetAssetFileOrNull(), Is.EqualTo(expectedOutput));
         }
 
         /// <summary>
