@@ -89,20 +89,6 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
             return base.BuildBaseTypeForBackCompatibility(currentBase);
         }
 
-        private static bool IsInBaseTypeHierarchy(CSharpType? currentBase, CSharpType expectedBase)
-        {
-            var visited = new HashSet<string>(StringComparer.Ordinal);
-            for (var type = currentBase; type is not null && visited.Add(type.FullyQualifiedName); type = type.BaseType)
-            {
-                if (type.AreNamesEqual(expectedBase))
-                {
-                    return true;
-                }
-            }
-
-            return false;
-        }
-
         protected override FieldProvider[] BuildFields()
         {
             if (JsonPatchField is null)

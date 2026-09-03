@@ -360,10 +360,10 @@ namespace Microsoft.TypeSpec.Generator.Providers
                 : CodeModelGenerator.Instance.TypeFactory.CreateModel(_inputModel.BaseModel)?.Type;
         }
 
-        private static bool IsInBaseTypeHierarchy(CSharpType? currentBase, CSharpType previousBase)
+        protected static bool IsInBaseTypeHierarchy(CSharpType? currentBase, CSharpType previousBase)
         {
             var visited = new HashSet<string>(StringComparer.Ordinal);
-            for (var type = currentBase; type is not null && visited.Add(type.FullyQualifiedName); type = type.BaseType)
+            for (var type = currentBase; type is not null && visited.Add(GetMetadataTypeIdentity(type)); type = type.BaseType)
             {
                 if (type.AreNamesEqual(previousBase))
                 {
@@ -413,9 +413,11 @@ namespace Microsoft.TypeSpec.Generator.Providers
         {
             foreach (var provider in CodeModelGenerator.Instance.TypeFactory.CSharpTypeMap.Values)
             {
-                if (provider is not null && provider.Type.AreNamesEqual(type))
+                if (provider is not null &&
+                    provider.Type.AreNamesEqual(type) &&
+                    TryUseProviderAsBase(provider, out resolvedProvider))
                 {
-                    return TryUseProviderAsBase(provider, out resolvedProvider);
+                    return true;
                 }
             }
 
@@ -428,9 +430,11 @@ namespace Microsoft.TypeSpec.Generator.Providers
 
             foreach (var provider in CodeModelGenerator.Instance.TypeFactory.CSharpTypeMap.Values)
             {
-                if (provider is not null && provider.Type.AreNamesEqual(type))
+                if (provider is not null &&
+                    provider.Type.AreNamesEqual(type) &&
+                    TryUseProviderAsBase(provider, out resolvedProvider))
                 {
-                    return TryUseProviderAsBase(provider, out resolvedProvider);
+                    return true;
                 }
             }
 
@@ -448,6 +452,9 @@ namespace Microsoft.TypeSpec.Generator.Providers
             CodeModelGenerator.Instance.TypeFactory.CSharpTypeMap[currentProvider.Type] = currentProvider;
             return TryUseProviderAsBase(currentProvider, out resolvedProvider);
         }
+
+        private static string GetMetadataTypeIdentity(CSharpType type)
+            => $"{GetMetadataNamespace(type)}.{type.ClrMetadataName}";
 
         private static string GetMetadataNamespace(CSharpType type)
         {

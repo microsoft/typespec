@@ -720,11 +720,14 @@ namespace Microsoft.TypeSpec.Generator.Tests.Providers.ModelProviders
             var derivedModel = InputFactory.Model("DerivedModel", properties: [], baseModel: currentBase);
             var nestedDerivedModel = InputFactory.Model("NestedDerivedModel", properties: [], baseModel: currentBase);
 
-            await MockHelpers.LoadMockGeneratorAsync(
+            var mockGenerator = await MockHelpers.LoadMockGeneratorAsync(
                 inputModelTypes: [currentBase, derivedModel, nestedDerivedModel],
                 compilation: async () => await Helpers.GetCompilationFromSourceFilesAsync(
                     [("NestedBase.cs", nestedBaseSource)]),
                 lastContractCompilation: async () => await Helpers.GetCompilationFromDirectoryAsync());
+
+            var placeholderType = new CSharpType(typeof(Exception));
+            mockGenerator.Object.TypeFactory.CSharpTypeMap[placeholderType] = new SystemObjectTypeProvider(placeholderType);
 
             var modelProviders = CodeModelGenerator.Instance.OutputLibrary.TypeProviders
                 .OfType<ModelProvider>()
