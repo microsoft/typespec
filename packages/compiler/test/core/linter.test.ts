@@ -1,3 +1,4 @@
+import { strictEqual } from "assert";
 import { describe, expect, it, vi } from "vitest";
 
 import type { createDiagnosticCodeResolver } from "../../src/core/diagnostic-code.js";
@@ -11,7 +12,12 @@ import {
   type LinterRuleContext,
 } from "../../src/index.js";
 import type { MockFile } from "../../src/testing/index.js";
-import { expectDiagnosticEmpty, expectDiagnostics, mockFile } from "../../src/testing/index.js";
+import {
+  expectDiagnosticEmpty,
+  expectDiagnostics,
+  mockFile,
+  resolveVirtualPath,
+} from "../../src/testing/index.js";
 import { Tester } from "../tester.js";
 
 const noModelFoo = createLinterRule({
@@ -907,7 +913,7 @@ disable:
     expectDiagnosticEmpty((await linter.lint()).diagnostics);
   });
 
-  it("resolve nested file reference relative to the ruleset file", async () => {
+  it("resolves nested file reference relative to the ruleset file", async () => {
     const linter = await createLinterWithFiles({
       "rulesets/main.yaml": `
 extends:
@@ -924,25 +930,38 @@ enable:
     });
   });
 
-  it("emit a diagnostic when the file doesn't exists", async () => {
+  it("emits a diagnostic when the file doesn't exist", async () => {
     const linter = await createLinterWithFiles({});
     expectDiagnostics(await linter.extendRuleSet({ extends: ["file:./not-found.yaml"] }), {
       code: "file-not-found",
     });
   });
 
-  it("emit a diagnostic when the file is not a valid ruleset", async () => {
+  it("emits a diagnostic when the file is not a valid ruleset", async () => {
     const linter = await createLinterWithFiles({
       "rules.yaml": `
 notARuleSetProperty: true
 `,
     });
-    expectDiagnostics(await linter.extendRuleSet({ extends: ["file:./rules.yaml"] }), {
-      code: "invalid-schema",
-    });
+    const diagnostics = await linter.extendRuleSet({ extends: ["file:./rules.yaml"] });
+    expectDiagnostics(diagnostics, { code: "invalid-schema" });
+    // Diagnostics must point at the ruleset file itself, not `<anonymous file>`.
+    strictEqual((diagnostics[0].target as any).file.path, resolveVirtualPath("rules.yaml"));
   });
 
-  it("emit a diagnostic when the file extends itself", async () => {
+  it("emits a diagnostic pointing at the ruleset file when the yaml is malformed", async () => {
+    const linter = await createLinterWithFiles({
+      "rules.yaml": `
+enable:
+  - "a/b": [
+`,
+    });
+    const diagnostics = await linter.extendRuleSet({ extends: ["file:./rules.yaml"] });
+    expectDiagnostics(diagnostics, { code: "yaml-bad-indent" });
+    strictEqual((diagnostics[0].target as any).file.path, resolveVirtualPath("rules.yaml"));
+  });
+
+  it("emits a diagnostic when the file extends itself", async () => {
     const linter = await createLinterWithFiles({
       "rules.yaml": `
 extends:
@@ -954,7 +973,7 @@ extends:
     });
   });
 
-  it("emit a diagnostic when there is a circular reference between files", async () => {
+  it("emits a diagnostic when there is a circular reference between files", async () => {
     const linter = await createLinterWithFiles({
       "a.yaml": `
 extends:
