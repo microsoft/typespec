@@ -7,5 +7,6 @@ namespace Sample.Models
 
     public partial class DerivedModel : PreviousBase
     {
+        public string IpAddress { get; set; }
     }
 }

@@ -558,18 +558,20 @@ namespace Microsoft.TypeSpec.Generator.Tests.Providers.ModelProviders
             });
         }
 
-        [TestCase("sharedProperty", "sharedProperty", false)]
-        [TestCase("sharedProperty", "sharedProperty", true)]
-        [TestCase("shared-property", "shared_property", false)]
-        [TestCase("previousBase", "previousBaseProperty", false)]
+        [TestCase("sharedProperty", "sharedProperty", false, false)]
+        [TestCase("sharedProperty", "sharedProperty", true, false)]
+        [TestCase("shared-property", "shared_property", false, false)]
+        [TestCase("previousBase", "previousBaseProperty", false, false)]
+        [TestCase("IpAddress", "IpAddress", false, true)]
         public async Task BackCompat_GeneratedLastContractBaseWithPropertyCollisionIsNotRestored(
             string previousPropertyName,
             string currentPropertyName,
-            bool hasMismatchedType)
+            bool hasMismatchedType,
+            bool previousPropertyIsExact)
         {
             var previousBase = InputFactory.Model(
                 "PreviousBase",
-                properties: [InputFactory.Property(previousPropertyName, InputPrimitiveType.String)]);
+                properties: [InputFactory.Property(previousPropertyName, InputPrimitiveType.String, isExactName: previousPropertyIsExact)]);
             var currentBase = InputFactory.Model("CurrentBase", properties: []);
             var derivedModel = InputFactory.Model(
                 "DerivedModel",

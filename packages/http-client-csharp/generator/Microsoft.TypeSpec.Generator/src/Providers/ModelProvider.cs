@@ -397,14 +397,16 @@ namespace Microsoft.TypeSpec.Generator.Providers
             return false;
         }
 
-        private static string GetGeneratedPropertyName(InputModelProperty property, string enclosingTypeName)
+        private string GetGeneratedPropertyName(InputModelProperty property, string enclosingTypeName)
         {
-            var propertyName = property.IsExactName
-                ? property.Name
-                : property.Name
-                    .ToIdentifierName()
-                    .NormalizeCSharpAcronyms(property.Type.IsDateTimeInputType());
-            return PropertyProvider.AvoidPropertyNameCollision(propertyName, enclosingTypeName);
+            var propertyType = CodeModelGenerator.Instance.TypeFactory.CreateCSharpType(property.Type);
+            return propertyType is null
+                ? PropertyProvider.AvoidPropertyNameCollision(
+                    property.IsExactName
+                        ? property.Name
+                        : property.Name.ToIdentifierName().NormalizeCSharpAcronyms(property.Type.IsDateTimeInputType()),
+                    enclosingTypeName)
+                : PropertyProvider.GetPropertyName(property, propertyType, this, enclosingTypeName);
         }
 
         private bool TryResolveTypeInCurrentBuild(CSharpType type, [NotNullWhen(true)] out TypeProvider? resolvedProvider)
