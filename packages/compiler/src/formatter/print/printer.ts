@@ -384,9 +384,9 @@ export function printCallExpression(
 }
 
 /**
- * Print a template argument list(e.g. `<string, T = int32>`).
+ * Print a template argument list (e.g. `<string, T = int32>`).
  *
- * A single argument is hugged(`Foo<{...}>`) so object like arguments and long unions stay attached to the reference.
+ * A single argument is hugged (`Foo<{...}>`) so object-like arguments and long unions stay attached to the reference.
  */
 function printTemplateArguments<T extends Node>(
   path: AstPath<T>,
