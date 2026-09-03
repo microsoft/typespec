@@ -378,7 +378,9 @@ namespace Microsoft.TypeSpec.Generator.Providers
 
         private bool HasDirectPropertyNameCollision(ModelProvider previousBase)
         {
-            var directPropertyNames = _inputModel.Properties.Select(p => p.Name).ToHashSet(StringComparer.Ordinal);
+            var directPropertyNames = _inputModel.Properties
+                .Select(GetGeneratedPropertyName)
+                .ToHashSet(StringComparer.Ordinal);
             if (directPropertyNames.Count == 0)
             {
                 return false;
@@ -387,13 +389,25 @@ namespace Microsoft.TypeSpec.Generator.Providers
             var visited = new HashSet<InputModelType>();
             for (InputModelType? model = previousBase._inputModel; model is not null && visited.Add(model); model = model.BaseModel)
             {
-                if (model.Properties.Any(p => directPropertyNames.Contains(p.Name)))
+                if (model.Properties.Any(p => directPropertyNames.Contains(GetGeneratedPropertyName(p))))
                 {
                     return true;
                 }
             }
 
             return false;
+        }
+
+        private static string GetGeneratedPropertyName(InputModelProperty property)
+        {
+            if (property.IsExactName)
+            {
+                return property.Name;
+            }
+
+            return property.Name
+                .ToIdentifierName()
+                .NormalizeCSharpAcronyms(property.Type.IsDateTimeInputType());
         }
 
         private bool TryResolveTypeInCurrentBuild(CSharpType type, [NotNullWhen(true)] out TypeProvider? resolvedProvider)
