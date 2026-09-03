@@ -20,7 +20,7 @@ public final class Dog extends Pet {
      * The kind property.
      */
     @Generated
-    private final String kind = "dog";
+    private String kind = "dog";
 
     /*
      * The breed of the dog
