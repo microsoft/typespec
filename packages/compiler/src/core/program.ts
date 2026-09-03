@@ -685,10 +685,25 @@ async function createProgram(
     const emitFunction = entrypoint.esmExports.$onEmit;
     const libDefinition = library.definition;
 
+    // Prefer the emit specifier so subpath exports get matching options.
+    // Fall back to the library name ($lib.name for file emitters, package.json
+    // name for module emitters) for older configs and file-based emitters.
+    const libraryName = metadata.name;
+    let emitterOptionsKey = emitterNameOrPath;
+    if (
+      !Object.hasOwn(emittersOptions, emitterNameOrPath) &&
+      libraryName !== undefined &&
+      Object.hasOwn(emittersOptions, libraryName)
+    ) {
+      emitterOptionsKey = libraryName;
+    }
     let { "emitter-output-dir": emitterOutputDir, ...emitterOptions } =
-      emittersOptions[metadata.name ?? emitterNameOrPath] ?? {};
+      emittersOptions[emitterOptionsKey] ?? {};
     if (emitterOutputDir === undefined) {
-      emitterOutputDir = [options.outputDir, metadata.name].filter(isDefined).join("/");
+      // Module emitters use the emit specifier so multiple subpath exports from
+      // the same package do not share one default output directory.
+      const defaultDirName = metadata.type === "module" ? emitterNameOrPath : libraryName;
+      emitterOutputDir = [options.outputDir, defaultDirName].filter(isDefined).join("/");
     }
     if (libDefinition?.requireImports) {
       for (const lib of libDefinition.requireImports) {
@@ -702,7 +717,7 @@ async function createProgram(
           options.configFile?.file
             ? {
                 kind: "path-target",
-                path: ["options", emitterNameOrPath],
+                path: ["options", emitterOptionsKey],
                 script: options.configFile.file,
               }
             : NoTarget,
