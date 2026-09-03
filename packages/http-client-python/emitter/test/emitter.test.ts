@@ -26,9 +26,7 @@ it("generates models when no service exists", async () => {
   expectDiagnostics(diagnostics, []);
   // A model-only package has no clients but must still emit its models into the code model.
   expect(codeModel.clients).toHaveLength(0);
-  expect(
-    codeModel.types.some(
-      (type) => type.type === "model" && type.name === "Widget",
-    ),
-  ).toBe(true);
+  expect(codeModel.types.some((type) => type.type === "model" && type.name === "Widget")).toBe(
+    true,
+  );
 });

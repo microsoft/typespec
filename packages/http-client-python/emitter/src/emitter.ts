@@ -1,11 +1,6 @@
 import { createSdkContext } from "@azure-tools/typespec-client-generator-core";
 import type { EmitContext } from "@typespec/compiler";
-import {
-  emitFile,
-  joinPaths,
-  listServices,
-  NoTarget,
-} from "@typespec/compiler";
+import { emitFile, joinPaths, listServices, NoTarget } from "@typespec/compiler";
 import pkgJson from "../../package.json" with { type: "json" };
 import { emitCodeModel } from "./code-model.js";
 import {
@@ -97,10 +92,7 @@ function walkThroughNodes(yamlMap: Record<string, any>): Record<string, any> {
           }
         } else if (Array.isArray(current[key])) {
           stack.push(current[key]);
-        } else if (
-          current[key] !== undefined &&
-          typeof current[key] === "object"
-        ) {
+        } else if (current[key] !== undefined && typeof current[key] === "object") {
           stack.push(current[key]);
         }
       }
@@ -172,9 +164,7 @@ export async function $onEmit(context: EmitContext<PythonEmitterOptions>) {
       "========================================= error stack start ================================================";
     const errStackEnd =
       "========================================= error stack end ================================================";
-    const errStack = error.stack
-      ? `\n${errStackStart}\n${error.stack}\n${errStackEnd}`
-      : "";
+    const errStack = error.stack ? `\n${errStackStart}\n${error.stack}\n${errStackEnd}` : "";
     reportDiagnostic(context.program, {
       code: "unknown-error",
       target: NoTarget,
@@ -205,19 +195,17 @@ async function onEmitMain(context: EmitContext<PythonEmitterOptions>) {
   const resolvedOptions = sdkContext.emitContext.options;
   const commandArgs: Record<string, string> = {};
   if (resolvedOptions["packaging-files-config"]) {
-    const keyValuePairs = Object.entries(
-      resolvedOptions["packaging-files-config"],
-    ).map(([key, value]) => {
-      return `${key}:${value}`;
-    });
+    const keyValuePairs = Object.entries(resolvedOptions["packaging-files-config"]).map(
+      ([key, value]) => {
+        return `${key}:${value}`;
+      },
+    );
     commandArgs["packaging-files-config"] = keyValuePairs.join("|");
     resolvedOptions["packaging-files-config"] = undefined;
   }
   if (resolvedOptions["keep-pyproject-fields"]) {
     // Flatten the object of enabled fields into a comma-separated list for the generator.
-    const enabledFields = Object.entries(
-      resolvedOptions["keep-pyproject-fields"],
-    )
+    const enabledFields = Object.entries(resolvedOptions["keep-pyproject-fields"])
       .filter(([, value]) => value === true)
       .map(([key]) => key);
     commandArgs["keep-pyproject-fields"] = enabledFields.join(",");
@@ -229,11 +217,8 @@ async function onEmitMain(context: EmitContext<PythonEmitterOptions>) {
     commandArgs[key] = value;
   }
   if (resolvedOptions["generate-packaging-files"]) {
-    commandArgs["package-mode"] = sdkContext.arm
-      ? "azure-mgmt"
-      : "azure-dataplane";
-    commandArgs["keep-setup-py"] =
-      resolvedOptions["keep-setup-py"] === true ? "true" : "false";
+    commandArgs["package-mode"] = sdkContext.arm ? "azure-mgmt" : "azure-dataplane";
+    commandArgs["keep-setup-py"] = resolvedOptions["keep-setup-py"] === true ? "true" : "false";
   }
   if (sdkContext.arm === true) {
     commandArgs["azure-arm"] = "true";
