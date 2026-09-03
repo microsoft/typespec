@@ -88,7 +88,7 @@ import { includeDerivedModel } from "./utils.js";
  * into the referencing schema rather than hoisted into their own file/`$defs`.
  */
 function isAnonymousExpression(type: JsonSchemaDeclaration): boolean {
-  return type.expression && type.name === "";
+  return type.expression && !type.name;
 }
 
 /** @internal */
