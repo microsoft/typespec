@@ -84,6 +84,10 @@ namespace Microsoft.TypeSpec.Generator.Providers
 
         protected override string BuildNamespace() => _namedTypeSymbol.ContainingNamespace.GetFullyQualifiedNameFromDisplayString();
 
+        protected override TypeProvider? BuildDeclaringTypeProvider() => _namedTypeSymbol.ContainingType is null
+            ? null
+            : new NamedTypeSymbolProvider(_namedTypeSymbol.ContainingType, _compilation);
+
         protected override IReadOnlyList<AttributeStatement> BuildAttributes()
             => [.._namedTypeSymbol.GetAttributes().Select(a => new AttributeStatement(a))];
 

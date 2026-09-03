@@ -702,26 +702,47 @@ namespace Microsoft.TypeSpec.Generator.Tests.Providers.ModelProviders
         [Test]
         public async Task BackCompat_BaseTypeChangePreservesNonGeneratedLastContractBaseType()
         {
+            const string nestedBaseSource = """
+                namespace Sample.Models
+                {
+                    public class Outer
+                    {
+                        public class Middle
+                        {
+                            public class NestedBase
+                            {
+                            }
+                        }
+                    }
+                }
+                """;
             var currentBase = InputFactory.Model("CurrentBase", properties: []);
             var derivedModel = InputFactory.Model("DerivedModel", properties: [], baseModel: currentBase);
+            var nestedDerivedModel = InputFactory.Model("NestedDerivedModel", properties: [], baseModel: currentBase);
 
             await MockHelpers.LoadMockGeneratorAsync(
-                inputModelTypes: [currentBase, derivedModel],
-                compilation: async () => await Helpers.GetCompilationFromSourceFilesAsync([]),
+                inputModelTypes: [currentBase, derivedModel, nestedDerivedModel],
+                compilation: async () => await Helpers.GetCompilationFromSourceFilesAsync(
+                    [("NestedBase.cs", nestedBaseSource)]),
                 lastContractCompilation: async () => await Helpers.GetCompilationFromDirectoryAsync());
 
-            var modelProvider = CodeModelGenerator.Instance.OutputLibrary.TypeProviders
+            var modelProviders = CodeModelGenerator.Instance.OutputLibrary.TypeProviders
                 .OfType<ModelProvider>()
-                .Single(t => t.Name == "DerivedModel");
+                .ToArray();
+            var modelProvider = modelProviders.Single(t => t.Name == "DerivedModel");
+            var nestedModelProvider = modelProviders.Single(t => t.Name == "NestedDerivedModel");
 
             Assert.Multiple(() =>
             {
                 Assert.AreEqual(nameof(Exception), modelProvider.LastContractView?.BaseType?.Name);
                 Assert.AreEqual(nameof(System), modelProvider.LastContractView?.BaseType?.Namespace,
                     "The regression requires the previously shipped framework base type to be available from the last contract");
+                Assert.AreEqual("NestedBase", nestedModelProvider.LastContractView?.BaseType?.Name,
+                    "The regression requires a multi-level nested base type");
             });
 
             modelProvider.ProcessTypeForBackCompatibility();
+            nestedModelProvider.ProcessTypeForBackCompatibility();
 
             Assert.Multiple(() =>
             {
@@ -730,6 +751,9 @@ namespace Microsoft.TypeSpec.Generator.Tests.Providers.ModelProviders
                 Assert.AreEqual(nameof(System), modelProvider.BaseType?.Namespace);
                 Assert.IsInstanceOf<NamedTypeSymbolProvider>(modelProvider.BaseTypeProvider,
                     "The preserved base should resolve from the current referenced assemblies without a generated model provider");
+                Assert.AreEqual("NestedBase", nestedModelProvider.BaseType?.Name,
+                    "A nested base should resolve using its complete CLR declaring-type metadata name");
+                Assert.AreEqual("Outer", nestedModelProvider.BaseType?.DeclaringType?.DeclaringType?.Name);
             });
         }
 

@@ -155,9 +155,9 @@ namespace Microsoft.TypeSpec.Generator.Providers
             }
 
             var baseTypeProvider = CodeModelGenerator.Instance.SourceInputModel.FindForTypeInCurrentCompilation(
-                baseType.Namespace,
+                GetMetadataNamespace(baseType),
                 baseType.Name,
-                baseType.DeclaringType?.Name,
+                baseType.DeclaringType?.ClrMetadataName,
                 includeReferencedAssemblies: true);
 
             if (baseTypeProvider != null)
@@ -435,9 +435,9 @@ namespace Microsoft.TypeSpec.Generator.Providers
             }
 
             var currentProvider = CodeModelGenerator.Instance.SourceInputModel.FindForTypeInCurrentCompilation(
-                type.Namespace,
+                GetMetadataNamespace(type),
                 type.Name,
-                type.DeclaringType?.Name,
+                type.DeclaringType?.ClrMetadataName,
                 includeReferencedAssemblies: true);
             if (currentProvider is null)
             {
@@ -447,6 +447,16 @@ namespace Microsoft.TypeSpec.Generator.Providers
 
             CodeModelGenerator.Instance.TypeFactory.CSharpTypeMap[currentProvider.Type] = currentProvider;
             return TryUseProviderAsBase(currentProvider, out resolvedProvider);
+        }
+
+        private static string GetMetadataNamespace(CSharpType type)
+        {
+            while (type.DeclaringType is not null)
+            {
+                type = type.DeclaringType;
+            }
+
+            return type.Namespace;
         }
 
         private static bool TryUseProviderAsBase(TypeProvider provider, [NotNullWhen(true)] out TypeProvider? resolvedProvider)
