@@ -39,7 +39,7 @@ The above example is equivalent to the `Breed` alias mentioned earlier, with the
 ## Keyword unions in expression position
 
 :::warning
-Declaration expressions are an experimental TypeSpec feature. Using a `model`, `enum`, `union`, or `scalar` declaration in expression position yields an `experimental-feature` warning. Enable them without the warning by adding `declaration-expressions` to the `features` list in your `tspconfig.yaml`:
+Declaration expressions are an experimental TypeSpec feature and are disabled by default. Using a `model`, `enum`, `union`, or `scalar` declaration in expression position is an error unless you enable them by adding `declaration-expressions` to the `features` list in your `tspconfig.yaml`:
 
 ```yaml
 kind: project

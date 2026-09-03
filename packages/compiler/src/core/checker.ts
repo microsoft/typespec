@@ -1133,8 +1133,7 @@ export function createChecker(program: Program, resolver: NameResolver): Checker
     if (!isCompilerFeatureEnabled(program, "declaration-expressions", node)) {
       reportCheckerDiagnostic(
         createDiagnostic({
-          code: "experimental-feature",
-          messageId: "declarationExpressions",
+          code: "declaration-expression-disabled",
           target: node,
         }),
       );

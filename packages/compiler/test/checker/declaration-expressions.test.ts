@@ -682,20 +682,20 @@ describe("doc comments", () => {
   });
 });
 
-describe("experimental feature flag", () => {
-  it("reports an experimental-feature warning when the feature is not enabled", async () => {
+describe("feature flag", () => {
+  it("reports an error when the feature is not enabled", async () => {
     const diagnostics = await BaseTester.diagnose(`
       model Foo {
         status: enum { active, inactive };
       }
     `);
     expectDiagnostics(diagnostics, {
-      code: "experimental-feature",
-      severity: "warning",
+      code: "declaration-expression-disabled",
+      severity: "error",
     });
   });
 
-  it("reports the warning for each kind of declaration expression", async () => {
+  it("reports the error for each kind of declaration expression", async () => {
     const diagnostics = await BaseTester.diagnose(`
       model Foo {
         a: model { x: string };
@@ -704,11 +704,11 @@ describe("experimental feature flag", () => {
         d: scalar myStr extends string;
       }
     `);
-    const experimental = diagnostics.filter((d) => d.code === "experimental-feature");
-    expect(experimental).toHaveLength(4);
+    const disabled = diagnostics.filter((d) => d.code === "declaration-expression-disabled");
+    expect(disabled).toHaveLength(4);
   });
 
-  it("reports the warning only once for a declaration expression in a template instantiated multiple times", async () => {
+  it("reports the error only once for a declaration expression in a template instantiated multiple times", async () => {
     const diagnostics = await BaseTester.diagnose(`
       model Foo<T> {
         x: model { y: T };
@@ -716,11 +716,11 @@ describe("experimental feature flag", () => {
       model A is Foo<string>;
       model B is Foo<int32>;
     `);
-    const experimental = diagnostics.filter((d) => d.code === "experimental-feature");
-    expect(experimental).toHaveLength(1);
+    const disabled = diagnostics.filter((d) => d.code === "declaration-expression-disabled");
+    expect(disabled).toHaveLength(1);
   });
 
-  it("does not report the warning when the feature is enabled", async () => {
+  it("does not report the error when the feature is enabled", async () => {
     const diagnostics = await Tester.diagnose(`
       model Foo {
         status: enum { active, inactive };

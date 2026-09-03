@@ -41,6 +41,7 @@ function printNodeInfoInternal(node: Node): string {
     case SyntaxKind.ConstStatement:
     case SyntaxKind.UnionStatement:
     case SyntaxKind.UnionDeclarationExpression:
+    case SyntaxKind.ScalarStatement:
     case SyntaxKind.ScalarDeclarationExpression:
       return node.id?.sv ?? "";
     default:

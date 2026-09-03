@@ -13,7 +13,7 @@ export const compilerFeatures = {
   },
   "declaration-expressions": {
     description:
-      "Allows use of declaration expressions (named or anonymous model, scalar, enum and union declarations in expression position) without experimental warnings in project code.",
+      "Allows use of declaration expressions (named or anonymous model, scalar, enum and union declarations in expression position) in project code.",
   },
   "auto-decorators": {
     description:
