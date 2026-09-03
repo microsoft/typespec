@@ -1,5 +1,5 @@
-import { Connection } from "vscode-languageserver/node.js";
-import { ServerHost } from "./types.js";
+import type { Connection } from "vscode-languageserver/node";
+import type { ServerHost } from "./types.js";
 
 interface LSPConfig {
   emit?: string[];

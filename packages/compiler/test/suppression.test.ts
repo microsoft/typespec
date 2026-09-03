@@ -86,6 +86,54 @@ it("error diagnostics cannot be suppressed and emit another error", async () => 
   expectDiagnostics(diagnostics, [{ code: "suppress-error" }, { code: "no-id-property" }]);
 });
 
+it("warns on duplicate suppressions with a message", async () => {
+  const [, diagnostics] = await Tester.compileAndDiagnose(
+    `
+      #deprecated "Old is deprecated"
+      model Old {}
+
+      model Foo {
+        #suppress "deprecated" "intentional"
+        #suppress "deprecated" "duplicate"
+        prop: Old;
+      }
+      `,
+    {
+      compilerOptions: { nostdlib: true },
+    },
+  );
+
+  expectDiagnostics(diagnostics, {
+    code: "duplicate-suppression",
+    severity: "warning",
+    message: 'Diagnostic "deprecated" is already suppressed on this node.',
+  });
+});
+
+it("warns on duplicate suppressions without a message", async () => {
+  const [, diagnostics] = await Tester.compileAndDiagnose(
+    `
+      #deprecated "Old is deprecated"
+      model Old {}
+
+      model Foo {
+        #suppress "deprecated"
+        #suppress "deprecated"
+        prop: Old;
+      }
+      `,
+    {
+      compilerOptions: { nostdlib: true },
+    },
+  );
+
+  expectDiagnostics(diagnostics, {
+    code: "duplicate-suppression",
+    severity: "warning",
+    message: 'Diagnostic "deprecated" is already suppressed on this node.',
+  });
+});
+
 it("reports unused suppression via tracker", async () => {
   const { program } = await Tester.compile(
     `

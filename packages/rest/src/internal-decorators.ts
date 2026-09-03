@@ -1,5 +1,6 @@
-import { DecoratorContext, getTypeName, isErrorModel, Type } from "@typespec/compiler";
-import {
+import type { DecoratorContext, Type } from "@typespec/compiler";
+import { getTypeName, isErrorModel } from "@typespec/compiler";
+import type {
   TypeSpecRestPrivateDecorators,
   ValidateHasKeyDecorator,
   ValidateIsErrorDecorator,

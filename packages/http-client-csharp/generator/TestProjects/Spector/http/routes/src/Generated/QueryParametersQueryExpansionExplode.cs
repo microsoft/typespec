@@ -8,6 +8,7 @@ using System.ClientModel.Primitives;
 using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;
+using Routes;
 
 namespace Routes._QueryParameters.QueryExpansion.Explode
 {
@@ -42,5 +43,13 @@ namespace Routes._QueryParameters.QueryExpansion.Explode
         public virtual ClientResult Record(IDictionary<string, int> @param, CancellationToken cancellationToken = default) => throw null;
 
         public virtual Task<ClientResult> RecordAsync(IDictionary<string, int> @param, CancellationToken cancellationToken = default) => throw null;
+
+        public virtual ClientResult Model(ExpandParameters @param, RequestOptions options) => throw null;
+
+        public virtual Task<ClientResult> ModelAsync(ExpandParameters @param, RequestOptions options) => throw null;
+
+        public virtual ClientResult Model(ExpandParameters @param, CancellationToken cancellationToken = default) => throw null;
+
+        public virtual Task<ClientResult> ModelAsync(ExpandParameters @param, CancellationToken cancellationToken = default) => throw null;
     }
 }

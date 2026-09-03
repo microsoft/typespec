@@ -1,6 +1,6 @@
 import { deepStrictEqual, fail, ok, strictEqual } from "assert";
 import { beforeEach, describe, expect, it } from "vitest";
-import {
+import type {
   Diagnostic,
   FunctionContext,
   IndeterminateEntity,
@@ -9,8 +9,8 @@ import {
   Type,
   Value,
 } from "../../src/core/types.js";
+import type { DiagnosticMatch } from "../../src/testing/index.js";
 import {
-  DiagnosticMatch,
   type Tester,
   expectDiagnosticEmpty,
   expectDiagnostics,

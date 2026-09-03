@@ -1,7 +1,7 @@
 // Copyright (c) Microsoft Corporation. All rights reserved.
 // Licensed under the MIT License. See License.txt in the project root for license information.
 
-import {
+import type {
   AccessFlags,
   CollectionFormat,
   DecoratorInfo,
@@ -10,11 +10,11 @@ import {
   SerializationOptions,
   UsageFlags,
 } from "@azure-tools/typespec-client-generator-core";
-import { DateTimeKnownEncoding, DurationKnownEncoding } from "@typespec/compiler";
-import { InputConstant } from "./input-constant.js";
-import { InputParameterScope } from "./input-parameter-scope.js";
-import { InputServiceMethod } from "./input-service-method.js";
-import { RequestLocation } from "./request-location.js";
+import type { DateTimeKnownEncoding, DurationKnownEncoding } from "@typespec/compiler";
+import type { InputConstant } from "./input-constant.js";
+import type { InputParameterScope } from "./input-parameter-scope.js";
+import type { InputServiceMethod } from "./input-service-method.js";
+import type { RequestLocation } from "./request-location.js";
 
 /**
  * External type information for types that map to external library types.
@@ -79,6 +79,7 @@ export type InputType =
   | InputEnumType
   | InputEnumValueType
   | InputArrayType
+  | InputStreamingType
   | InputDictionaryType
   | InputNullableType;
 
@@ -154,6 +155,7 @@ export function isInputUnionType(type: InputType): type is InputUnionType {
 export interface InputModelType extends InputTypeBase {
   kind: "model";
   properties: InputModelProperty[];
+  apiVersions: string[];
   name: string;
   crossLanguageDefinitionId: string;
   access?: AccessFlags;
@@ -191,6 +193,7 @@ export interface InputPropertyTypeBase extends DecoratedType {
 
 export interface InputModelProperty extends InputPropertyTypeBase {
   kind: "property";
+  apiVersions: string[];
   discriminator: boolean;
   serializedName: string;
   serializationOptions: SerializationOptions;
@@ -202,10 +205,7 @@ export interface InputModelProperty extends InputPropertyTypeBase {
 export type InputProperty = InputModelProperty | InputParameter;
 
 export type InputHttpParameter =
-  | InputQueryParameter
-  | InputPathParameter
-  | InputHeaderParameter
-  | InputBodyParameter;
+  InputQueryParameter | InputPathParameter | InputHeaderParameter | InputBodyParameter;
 
 export type InputParameter = InputMethodParameter | InputEndpointParameter | InputHttpParameter;
 
@@ -272,6 +272,7 @@ export interface InputEndpointParameter extends InputPropertyTypeBase {
 
 export interface InputEnumType extends InputTypeBase {
   kind: "enum";
+  apiVersions: string[];
   name: string;
   crossLanguageDefinitionId: string;
   valueType: InputPrimitiveType;
@@ -305,6 +306,17 @@ export interface InputArrayType extends InputTypeBase {
   kind: "array";
   name: string;
   valueType: InputType;
+  crossLanguageDefinitionId: string;
+}
+
+export interface InputStreamingType extends InputTypeBase {
+  kind: "streaming";
+  name: string;
+  valueType: InputType;
+  streamKind: "jsonl" | "sse";
+  contentTypes: string[];
+  terminalEventType?: string;
+  terminalEventValue?: string;
   crossLanguageDefinitionId: string;
 }
 

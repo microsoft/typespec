@@ -18,7 +18,8 @@ on:
   reaction: eyes
 
 permissions:
-  all: read
+  contents: read
+  issues: read
   copilot-requests: write
 
 network: defaults

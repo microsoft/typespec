@@ -1,9 +1,11 @@
-import { Children, code, List, Refkey, refkey } from "@alloy-js/core";
+import type { Children, Refkey } from "@alloy-js/core";
+import { code, List, refkey } from "@alloy-js/core";
 import * as ts from "@alloy-js/typescript";
 import { FunctionDeclaration } from "@typespec/emitter-framework/typescript";
-import { HttpOperation } from "@typespec/http";
+import type { HttpOperation } from "@typespec/http";
 import { httpRuntimeTemplateLib } from "../../external-packages/ts-http-runtime.js";
-import { HttpResponseProps, HttpResponses } from "../../http-response.jsx";
+import type { HttpResponseProps } from "../../http-response.jsx";
+import { HttpResponses } from "../../http-response.jsx";
 import { getOperationOptionsTypeRefkey } from "../../operation-options.jsx";
 import { getCreateRestErrorRefkey } from "../../static-helpers/rest-error.jsx";
 

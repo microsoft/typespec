@@ -1,6 +1,7 @@
-import { code, For, Refkey, refkey, StatementList } from "@alloy-js/core";
+import type { Refkey } from "@alloy-js/core";
+import { code, For, refkey, StatementList } from "@alloy-js/core";
 import * as ts from "@alloy-js/typescript";
-import { ModelProperty } from "@typespec/compiler";
+import type { ModelProperty } from "@typespec/compiler";
 import { useTransformNamePolicy } from "@typespec/emitter-framework";
 import { getDefaultValue } from "../../utils/parameters.jsx";
 

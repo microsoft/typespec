@@ -1,13 +1,9 @@
 import { deepStrictEqual, ok, strictEqual } from "assert";
 import { beforeEach, describe, it } from "vitest";
-import { numericRanges } from "../../src/core/numeric-ranges.js";
+import type { numericRanges } from "../../src/core/numeric-ranges.js";
 import { Numeric } from "../../src/core/numeric.js";
-import {
-  DecoratorContext,
-  DecoratorFunction,
-  Model,
-  setTypeSpecNamespace,
-} from "../../src/index.js";
+import type { DecoratorContext, DecoratorFunction, Model } from "../../src/index.js";
+import { setTypeSpecNamespace } from "../../src/index.js";
 import { expectDiagnostics, mockFile, t } from "../../src/testing/index.js";
 import { Tester } from "../tester.js";
 
@@ -274,6 +270,25 @@ describe("compiler: checker: decorators", () => {
       const Foo = program.getGlobalNamespaceType().models.get("Foo")!;
       const { getAutoDecoratorValue } = await import("../../src/core/auto-decorator.js");
       deepStrictEqual(getAutoDecoratorValue(program, "MyLib.myLabel", Foo), { label: "world" });
+    });
+
+    it("setAutoDecorator programmatically marks a target read back by the accessors", async () => {
+      const { program } = await Tester.using("TypeSpec.Reflection").compile(`model Foo {}`);
+
+      const Foo = program.getGlobalNamespaceType().models.get("Foo")!;
+      const { setAutoDecorator, hasAutoDecorator, getAutoDecoratorValue } =
+        await import("../../src/core/auto-decorator.js");
+
+      // No decorator written in source yet.
+      strictEqual(hasAutoDecorator(program, "MyLib.myLabel", Foo), false);
+
+      setAutoDecorator(program, "MyLib.myLabel", Foo, { label: "world" });
+      strictEqual(hasAutoDecorator(program, "MyLib.myLabel", Foo), true);
+      deepStrictEqual(getAutoDecoratorValue(program, "MyLib.myLabel", Foo), { label: "world" });
+
+      // Defaults to an empty record for a no-arg mark.
+      setAutoDecorator(program, "MyLib.myFlag", Foo);
+      deepStrictEqual(getAutoDecoratorValue(program, "MyLib.myFlag", Foo), {});
     });
 
     it("internal auto dec is valid", async () => {
@@ -815,6 +830,37 @@ describe("compiler: checker: decorators", () => {
           );
           deepStrictEqual(arg, { name: { other: "foo" } });
         });
+
+        // Regression tests for https://github.com/microsoft/typespec/issues/11743
+        describe.each(["__proto__", "constructor", "hasOwnProperty", "toString"])(
+          "a member named %s",
+          (name) => {
+            it("is kept as an own property when it holds a string", async () => {
+              const arg = await testCallDecorator(
+                "valueof unknown",
+                `#{${name}: "written", ok: 1}`,
+              );
+              ok(Object.prototype.hasOwnProperty.call(arg, name));
+              strictEqual(arg[name], "written");
+              strictEqual(arg.ok, 1);
+              deepStrictEqual(Object.keys(arg), [name, "ok"]);
+              strictEqual(Object.getPrototypeOf(arg), Object.prototype);
+            });
+
+            it("is kept as an own property when it holds an object", async () => {
+              const arg = await testCallDecorator(
+                "valueof unknown",
+                `#{${name}: #{polluted: true}, ok: 1}`,
+              );
+              ok(Object.prototype.hasOwnProperty.call(arg, name));
+              deepStrictEqual(arg[name], { polluted: true });
+              strictEqual(arg.ok, 1);
+              deepStrictEqual(Object.keys(arg), [name, "ok"]);
+              strictEqual(Object.getPrototypeOf(arg), Object.prototype);
+              strictEqual(arg.polluted, undefined);
+            });
+          },
+        );
       });
 
       describe("passing an array value", () => {

@@ -30,29 +30,23 @@ public class FluentProject extends Project {
 
     private final ServiceDescription serviceDescription = new ServiceDescription();
 
-    private Map<String, String> apiVersionMap = null;
-
     private Changelog changelog;
     private final List<CodeSample> codeSamples = new ArrayList<>();
-
-    public void setApiVersionInTypeSpec(Map<String, String> apiVersionMap) {
-        this.apiVersionMap = apiVersionMap;
-    }
 
     private static class ServiceDescription {
         private String simpleDescription;
         private String clientDescription;
-        private String tagDescription;
+        private String apiVersionDescription;
 
         private String getServiceDescription() {
-            return String.format("%1$s %2$s %3$s", simpleDescription, clientDescription, tagDescription).trim();
+            return String.format("%1$s %2$s %3$s", simpleDescription, clientDescription, apiVersionDescription).trim();
         }
 
         public String getServiceDescriptionForPom() {
             return String
                 .format("%1$s %2$s %3$s %4$s", simpleDescription,
                     "For documentation on how to use this package, please see https://aka.ms/azsdk/java/mgmt.",
-                    clientDescription, tagDescription)
+                    clientDescription, apiVersionDescription)
                 .trim();
         }
 
@@ -87,25 +81,30 @@ public class FluentProject extends Project {
 
         this.serviceDescription.simpleDescription = String.format(simpleDescriptionTemplate, serviceName);
         this.serviceDescription.clientDescription = clientDescription;
-        String autorestTag = JavaSettings.getInstance().getAutorestSettings().getTag();
-        // SDK from TypeSpec does not contain autorest tag.
-        if (autorestTag != null) {
-            this.serviceDescription.tagDescription = "Package tag " + autorestTag + ".";
-        } else if (apiVersionMap != null) {
-            if (apiVersionMap.size() == 1) {
-                this.serviceDescription.tagDescription
-                    = "Package api-version " + apiVersionMap.values().iterator().next() + ".";
-            } else {
-                this.serviceDescription.tagDescription = "Package api-version " + apiVersionMap.entrySet()
-                    .stream()
-                    .map(e -> e.getKey() + ": " + e.getValue())
-                    .collect(Collectors.joining(", ")) + ".";
-            }
-        } else {
-            this.serviceDescription.tagDescription = "";
-        }
+        // SDK from TypeSpec does not contain autorest tag, use api-version instead.
+        this.serviceDescription.apiVersionDescription = apiVersionDescription(apiVersionMap);
 
         this.changelog = new Changelog(this);
+    }
+
+    /**
+     * Builds the api-version description, e.g. "Package api-version 2023-01-01.", from the api-version map.
+     *
+     * @param apiVersionMap the map of client name to api-version.
+     * @return the api-version description, or empty string if the map is null or empty.
+     */
+    public static String apiVersionDescription(Map<String, String> apiVersionMap) {
+        if (apiVersionMap == null || apiVersionMap.isEmpty()) {
+            return "";
+        }
+        if (apiVersionMap.size() == 1) {
+            return "Package api-version " + apiVersionMap.values().iterator().next() + ".";
+        } else {
+            return "Package api-version " + apiVersionMap.entrySet()
+                .stream()
+                .map(e -> e.getKey() + ": " + e.getValue())
+                .collect(Collectors.joining(", ")) + ".";
+        }
     }
 
     @Override
@@ -129,7 +128,7 @@ public class FluentProject extends Project {
     }
 
     private void updateChangelog() {
-        String outputFolder = JavaSettings.getInstance().getAutorestSettings().getOutputFolder();
+        String outputFolder = JavaSettings.getInstance().getProjectSettings().getOutputFolder();
         if (outputFolder != null && Paths.get(outputFolder).isAbsolute()) {
             Path changelogPath = Paths.get(outputFolder, "CHANGELOG.md");
 
@@ -150,7 +149,7 @@ public class FluentProject extends Project {
     }
 
     private void findCodeSamples() {
-        String outputFolder = JavaSettings.getInstance().getAutorestSettings().getOutputFolder();
+        String outputFolder = JavaSettings.getInstance().getProjectSettings().getOutputFolder();
         if (outputFolder != null && Paths.get(outputFolder).isAbsolute()) {
             Path srcTestJavaPath = Paths.get(outputFolder).resolve(Paths.get("src", "test", "java"));
             if (Files.isDirectory(srcTestJavaPath)) {

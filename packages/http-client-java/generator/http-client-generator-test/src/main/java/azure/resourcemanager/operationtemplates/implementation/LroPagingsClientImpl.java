@@ -7,6 +7,8 @@ package azure.resourcemanager.operationtemplates.implementation;
 import azure.resourcemanager.operationtemplates.fluent.LroPagingsClient;
 import azure.resourcemanager.operationtemplates.fluent.models.ProductInner;
 import azure.resourcemanager.operationtemplates.implementation.models.ProductListResult;
+import azure.resourcemanager.operationtemplates.models.VnetProfile;
+import com.azure.core.annotation.BodyParam;
 import com.azure.core.annotation.ExpectedResponses;
 import com.azure.core.annotation.Get;
 import com.azure.core.annotation.HeaderParam;
@@ -85,6 +87,24 @@ public final class LroPagingsClientImpl implements LroPagingsClient {
             @HeaderParam("Accept") String accept, Context context);
 
         @Headers({ "Content-Type: application/json" })
+        @Post("/subscriptions/{subscriptionId}/resourceGroups/{resourceGroupName}/providers/Azure.ResourceManager.OperationTemplates/products/{productName}/postPagingLroWithBody")
+        @ExpectedResponses({ 200, 202 })
+        @UnexpectedResponseExceptionType(ManagementException.class)
+        Mono<Response<Flux<ByteBuffer>>> postPagingLroWithBody(@HostParam("endpoint") String endpoint,
+            @QueryParam("api-version") String apiVersion, @PathParam("subscriptionId") String subscriptionId,
+            @PathParam("resourceGroupName") String resourceGroupName, @PathParam("productName") String productName,
+            @HeaderParam("Accept") String accept, @BodyParam("application/json") VnetProfile body, Context context);
+
+        @Headers({ "Content-Type: application/json" })
+        @Post("/subscriptions/{subscriptionId}/resourceGroups/{resourceGroupName}/providers/Azure.ResourceManager.OperationTemplates/products/{productName}/postPagingLroWithBody")
+        @ExpectedResponses({ 200, 202 })
+        @UnexpectedResponseExceptionType(ManagementException.class)
+        Response<BinaryData> postPagingLroWithBodySync(@HostParam("endpoint") String endpoint,
+            @QueryParam("api-version") String apiVersion, @PathParam("subscriptionId") String subscriptionId,
+            @PathParam("resourceGroupName") String resourceGroupName, @PathParam("productName") String productName,
+            @HeaderParam("Accept") String accept, @BodyParam("application/json") VnetProfile body, Context context);
+
+        @Headers({ "Content-Type: application/json" })
         @Get("{nextLink}")
         @ExpectedResponses({ 200, 202 })
         @UnexpectedResponseExceptionType(ManagementException.class)
@@ -99,10 +119,26 @@ public final class LroPagingsClientImpl implements LroPagingsClient {
         Response<ProductListResult> postPagingLroNextSync(
             @PathParam(value = "nextLink", encoded = true) String nextLink, @HostParam("endpoint") String endpoint,
             @HeaderParam("Accept") String accept, Context context);
+
+        @Headers({ "Content-Type: application/json" })
+        @Get("{nextLink}")
+        @ExpectedResponses({ 200, 202 })
+        @UnexpectedResponseExceptionType(ManagementException.class)
+        Mono<Response<ProductListResult>> postPagingLroWithBodyNext(
+            @PathParam(value = "nextLink", encoded = true) String nextLink, @HostParam("endpoint") String endpoint,
+            @HeaderParam("Accept") String accept, Context context);
+
+        @Headers({ "Content-Type: application/json" })
+        @Get("{nextLink}")
+        @ExpectedResponses({ 200, 202 })
+        @UnexpectedResponseExceptionType(ManagementException.class)
+        Response<ProductListResult> postPagingLroWithBodyNextSync(
+            @PathParam(value = "nextLink", encoded = true) String nextLink, @HostParam("endpoint") String endpoint,
+            @HeaderParam("Accept") String accept, Context context);
     }
 
     /**
-     * A long-running resource action.
+     * The postPagingLro operation.
      * 
      * @param resourceGroupName The name of the resource group. The name is case insensitive.
      * @param productName The name of the Product.
@@ -136,7 +172,7 @@ public final class LroPagingsClientImpl implements LroPagingsClient {
     }
 
     /**
-     * A long-running resource action.
+     * The postPagingLro operation.
      * 
      * @param resourceGroupName The name of the resource group. The name is case insensitive.
      * @param productName The name of the Product.
@@ -152,7 +188,7 @@ public final class LroPagingsClientImpl implements LroPagingsClient {
     }
 
     /**
-     * A long-running resource action.
+     * The postPagingLro operation.
      * 
      * @param resourceGroupName The name of the resource group. The name is case insensitive.
      * @param productName The name of the Product.
@@ -175,7 +211,7 @@ public final class LroPagingsClientImpl implements LroPagingsClient {
     }
 
     /**
-     * A long-running resource action.
+     * The postPagingLro operation.
      * 
      * @param resourceGroupName The name of the resource group. The name is case insensitive.
      * @param productName The name of the Product.
@@ -200,7 +236,7 @@ public final class LroPagingsClientImpl implements LroPagingsClient {
     }
 
     /**
-     * A long-running resource action.
+     * The postPagingLro operation.
      * 
      * @param resourceGroupName The name of the resource group. The name is case insensitive.
      * @param productName The name of the Product.
@@ -216,7 +252,7 @@ public final class LroPagingsClientImpl implements LroPagingsClient {
     }
 
     /**
-     * A long-running resource action.
+     * The postPagingLro operation.
      * 
      * @param resourceGroupName The name of the resource group. The name is case insensitive.
      * @param productName The name of the Product.
@@ -230,6 +266,149 @@ public final class LroPagingsClientImpl implements LroPagingsClient {
     public PagedIterable<ProductInner> postPagingLro(String resourceGroupName, String productName, Context context) {
         return new PagedIterable<>(() -> postPagingLroSinglePage(resourceGroupName, productName, context),
             nextLink -> postPagingLroNextSinglePage(nextLink, context));
+    }
+
+    /**
+     * A long-running resource action.
+     * 
+     * @param resourceGroupName The name of the resource group. The name is case insensitive.
+     * @param productName The name of the Product.
+     * @param body The content of the action request.
+     * @throws IllegalArgumentException thrown if parameters fail the validation.
+     * @throws ManagementException thrown if the request is rejected by server.
+     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
+     * @return paged collection of Product items along with {@link PagedResponse} on successful completion of
+     * {@link Mono}.
+     */
+    @ServiceMethod(returns = ReturnType.SINGLE)
+    private Mono<PagedResponse<ProductInner>> postPagingLroWithBodySinglePageAsync(String resourceGroupName,
+        String productName, VnetProfile body) {
+        final String accept = "application/json";
+        return FluxUtil.withContext(context -> {
+            Mono<Response<Flux<ByteBuffer>>> mono
+                = service
+                    .postPagingLroWithBody(this.client.getEndpoint(), this.client.getApiVersion(),
+                        this.client.getSubscriptionId(), resourceGroupName, productName, accept, body, context)
+                    .cache();
+            return Mono.zip(mono,
+                this.client
+                    .<ProductListResult, ProductListResult>getLroResult(mono, this.client.getHttpPipeline(),
+                        ProductListResult.class, ProductListResult.class, this.client.getContext())
+                    .last()
+                    .flatMap(this.client::getLroFinalResultOrError));
+        })
+            .<PagedResponse<ProductInner>>map(
+                res -> new PagedResponseBase<>(res.getT1().getRequest(), res.getT1().getStatusCode(),
+                    res.getT1().getHeaders(), res.getT2().value(), res.getT2().nextLink(), null))
+            .contextWrite(context -> context.putAll(FluxUtil.toReactorContext(this.client.getContext()).readOnly()));
+    }
+
+    /**
+     * A long-running resource action.
+     * 
+     * @param resourceGroupName The name of the resource group. The name is case insensitive.
+     * @param productName The name of the Product.
+     * @param body The content of the action request.
+     * @throws IllegalArgumentException thrown if parameters fail the validation.
+     * @throws ManagementException thrown if the request is rejected by server.
+     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
+     * @return paged collection of Product items as paginated response with {@link PagedFlux}.
+     */
+    @ServiceMethod(returns = ReturnType.COLLECTION)
+    private PagedFlux<ProductInner> postPagingLroWithBodyAsync(String resourceGroupName, String productName,
+        VnetProfile body) {
+        return new PagedFlux<>(() -> postPagingLroWithBodySinglePageAsync(resourceGroupName, productName, body),
+            nextLink -> postPagingLroWithBodyNextSinglePageAsync(nextLink));
+    }
+
+    /**
+     * A long-running resource action.
+     * 
+     * @param resourceGroupName The name of the resource group. The name is case insensitive.
+     * @param productName The name of the Product.
+     * @param body The content of the action request.
+     * @throws IllegalArgumentException thrown if parameters fail the validation.
+     * @throws ManagementException thrown if the request is rejected by server.
+     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
+     * @return paged collection of Product items along with {@link PagedResponse}.
+     */
+    @ServiceMethod(returns = ReturnType.SINGLE)
+    private PagedResponse<ProductInner> postPagingLroWithBodySinglePage(String resourceGroupName, String productName,
+        VnetProfile body) {
+        final String accept = "application/json";
+        Response<BinaryData> res
+            = service.postPagingLroWithBodySync(this.client.getEndpoint(), this.client.getApiVersion(),
+                this.client.getSubscriptionId(), resourceGroupName, productName, accept, body, Context.NONE);
+        ProductListResult lroPageableResult = this.client
+            .<ProductListResult, ProductListResult>getLroResult(res, ProductListResult.class, ProductListResult.class,
+                Context.NONE)
+            .getFinalResult();
+        return new PagedResponseBase<>(res.getRequest(), res.getStatusCode(), res.getHeaders(),
+            lroPageableResult.value(), lroPageableResult.nextLink(), null);
+    }
+
+    /**
+     * A long-running resource action.
+     * 
+     * @param resourceGroupName The name of the resource group. The name is case insensitive.
+     * @param productName The name of the Product.
+     * @param body The content of the action request.
+     * @param context The context to associate with this operation.
+     * @throws IllegalArgumentException thrown if parameters fail the validation.
+     * @throws ManagementException thrown if the request is rejected by server.
+     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
+     * @return paged collection of Product items along with {@link PagedResponse}.
+     */
+    @ServiceMethod(returns = ReturnType.SINGLE)
+    private PagedResponse<ProductInner> postPagingLroWithBodySinglePage(String resourceGroupName, String productName,
+        VnetProfile body, Context context) {
+        final String accept = "application/json";
+        Response<BinaryData> res
+            = service.postPagingLroWithBodySync(this.client.getEndpoint(), this.client.getApiVersion(),
+                this.client.getSubscriptionId(), resourceGroupName, productName, accept, body, context);
+        ProductListResult lroPageableResult = this.client
+            .<ProductListResult, ProductListResult>getLroResult(res, ProductListResult.class, ProductListResult.class,
+                context)
+            .getFinalResult();
+        return new PagedResponseBase<>(res.getRequest(), res.getStatusCode(), res.getHeaders(),
+            lroPageableResult.value(), lroPageableResult.nextLink(), null);
+    }
+
+    /**
+     * A long-running resource action.
+     * 
+     * @param resourceGroupName The name of the resource group. The name is case insensitive.
+     * @param productName The name of the Product.
+     * @param body The content of the action request.
+     * @throws IllegalArgumentException thrown if parameters fail the validation.
+     * @throws ManagementException thrown if the request is rejected by server.
+     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
+     * @return paged collection of Product items as paginated response with {@link PagedIterable}.
+     */
+    @ServiceMethod(returns = ReturnType.COLLECTION)
+    public PagedIterable<ProductInner> postPagingLroWithBody(String resourceGroupName, String productName,
+        VnetProfile body) {
+        return new PagedIterable<>(() -> postPagingLroWithBodySinglePage(resourceGroupName, productName, body),
+            nextLink -> postPagingLroWithBodyNextSinglePage(nextLink));
+    }
+
+    /**
+     * A long-running resource action.
+     * 
+     * @param resourceGroupName The name of the resource group. The name is case insensitive.
+     * @param productName The name of the Product.
+     * @param body The content of the action request.
+     * @param context The context to associate with this operation.
+     * @throws IllegalArgumentException thrown if parameters fail the validation.
+     * @throws ManagementException thrown if the request is rejected by server.
+     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
+     * @return paged collection of Product items as paginated response with {@link PagedIterable}.
+     */
+    @ServiceMethod(returns = ReturnType.COLLECTION)
+    public PagedIterable<ProductInner> postPagingLroWithBody(String resourceGroupName, String productName,
+        VnetProfile body, Context context) {
+        return new PagedIterable<>(() -> postPagingLroWithBodySinglePage(resourceGroupName, productName, body, context),
+            nextLink -> postPagingLroWithBodyNextSinglePage(nextLink, context));
     }
 
     /**
@@ -285,6 +464,64 @@ public final class LroPagingsClientImpl implements LroPagingsClient {
         final String accept = "application/json";
         Response<ProductListResult> res
             = service.postPagingLroNextSync(nextLink, this.client.getEndpoint(), accept, context);
+        return new PagedResponseBase<>(res.getRequest(), res.getStatusCode(), res.getHeaders(), res.getValue().value(),
+            res.getValue().nextLink(), null);
+    }
+
+    /**
+     * Get the next page of items.
+     * 
+     * @param nextLink The URL to get the next list of items.
+     * @throws IllegalArgumentException thrown if parameters fail the validation.
+     * @throws ManagementException thrown if the request is rejected by server.
+     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
+     * @return paged collection of Product items along with {@link PagedResponse} on successful completion of
+     * {@link Mono}.
+     */
+    @ServiceMethod(returns = ReturnType.SINGLE)
+    private Mono<PagedResponse<ProductInner>> postPagingLroWithBodyNextSinglePageAsync(String nextLink) {
+        final String accept = "application/json";
+        return FluxUtil
+            .withContext(
+                context -> service.postPagingLroWithBodyNext(nextLink, this.client.getEndpoint(), accept, context))
+            .<PagedResponse<ProductInner>>map(res -> new PagedResponseBase<>(res.getRequest(), res.getStatusCode(),
+                res.getHeaders(), res.getValue().value(), res.getValue().nextLink(), null))
+            .contextWrite(context -> context.putAll(FluxUtil.toReactorContext(this.client.getContext()).readOnly()));
+    }
+
+    /**
+     * Get the next page of items.
+     * 
+     * @param nextLink The URL to get the next list of items.
+     * @throws IllegalArgumentException thrown if parameters fail the validation.
+     * @throws ManagementException thrown if the request is rejected by server.
+     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
+     * @return paged collection of Product items along with {@link PagedResponse}.
+     */
+    @ServiceMethod(returns = ReturnType.SINGLE)
+    private PagedResponse<ProductInner> postPagingLroWithBodyNextSinglePage(String nextLink) {
+        final String accept = "application/json";
+        Response<ProductListResult> res
+            = service.postPagingLroWithBodyNextSync(nextLink, this.client.getEndpoint(), accept, Context.NONE);
+        return new PagedResponseBase<>(res.getRequest(), res.getStatusCode(), res.getHeaders(), res.getValue().value(),
+            res.getValue().nextLink(), null);
+    }
+
+    /**
+     * Get the next page of items.
+     * 
+     * @param nextLink The URL to get the next list of items.
+     * @param context The context to associate with this operation.
+     * @throws IllegalArgumentException thrown if parameters fail the validation.
+     * @throws ManagementException thrown if the request is rejected by server.
+     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
+     * @return paged collection of Product items along with {@link PagedResponse}.
+     */
+    @ServiceMethod(returns = ReturnType.SINGLE)
+    private PagedResponse<ProductInner> postPagingLroWithBodyNextSinglePage(String nextLink, Context context) {
+        final String accept = "application/json";
+        Response<ProductListResult> res
+            = service.postPagingLroWithBodyNextSync(nextLink, this.client.getEndpoint(), accept, context);
         return new PagedResponseBase<>(res.getRequest(), res.getStatusCode(), res.getHeaders(), res.getValue().value(),
             res.getValue().nextLink(), null);
     }

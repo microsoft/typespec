@@ -1,0 +1,4 @@
+# The Third enum member was intentionally removed during migration; suppress the difference so the
+# back-compat system honors the removal instead of re-adding it. ApiCompat reports a removed enum
+# member as a MembersMustExist difference.
+MembersMustExist : Member 'public Sample.Models.MockInputEnum Sample.Models.MockInputEnum.Third' does not exist in the implementation but it does exist in the contract.

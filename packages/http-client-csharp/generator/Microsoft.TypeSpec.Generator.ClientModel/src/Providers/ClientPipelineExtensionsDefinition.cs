@@ -13,7 +13,7 @@ using static Microsoft.TypeSpec.Generator.Snippets.Snippet;
 
 namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
 {
-    internal class ClientPipelineExtensionsDefinition : TypeProvider
+    internal class ClientPipelineExtensionsDefinition : InternalHelperProvider
     {
         private ParameterProvider _pipelineParam;
         private ParameterProvider _messageParam;
@@ -30,11 +30,6 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
             _pipeline = _pipelineParam.ToApi<ClientPipelineApi>();
             _message = _messageParam.ToApi<HttpMessageApi>();
             _options = _requestOptionsParam.ToApi<HttpRequestOptionsApi>();
-        }
-
-        protected override TypeSignatureModifiers BuildDeclarationModifiers()
-        {
-            return TypeSignatureModifiers.Internal | TypeSignatureModifiers.Static;
         }
 
         protected override string BuildRelativeFilePath() => Path.Combine("src", "Generated", "Internal", $"{Name}.cs");

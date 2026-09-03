@@ -296,6 +296,11 @@ op update(@header ifMatch: string): void; // headerName: if-match
 
 #### `@multipartBody`
 
+Specify that the target property is the body of a multipart request or response.
+
+The property type must be a model or tuple whose members are all `HttpPart`, each describing one
+part of the payload.
+
 ```typespec
 @TypeSpec.Http.multipartBody
 ```
@@ -366,7 +371,7 @@ Explicitly specify that this property is to be interpolated as a path parameter.
 
 | Name               | Type                                          | Description                                                    |
 | ------------------ | --------------------------------------------- | -------------------------------------------------------------- |
-| paramNameOrOptions | `valueof string \| TypeSpec.Http.PathOptions` | Optional name of the parameter in the uri template or options. |
+| paramNameOrOptions | `valueof string \| TypeSpec.Http.PathOptions` | Optional name of the parameter in the URI template or options. |
 
 ##### Examples
 
@@ -460,9 +465,9 @@ Defines the relative route URI template for the target operation as defined by [
 
 ##### Parameters
 
-| Name | Type             | Description |
-| ---- | ---------------- | ----------- |
-| path | `valueof string` |             |
+| Name | Type             | Description                      |
+| ---- | ---------------- | -------------------------------- |
+| path | `valueof string` | URI template for this operation. |
 
 ##### Examples
 

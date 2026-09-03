@@ -53,6 +53,12 @@ export const $lib = createTypeSpecLibrary({
         error: `@defaultResponse should not be used on a model that is marked with @error. Use either @defaultResponse or @error, not both.`,
       },
     },
+    "license-url-identifier-conflict": {
+      severity: "error",
+      messages: {
+        default: `License 'url' and 'identifier' are mutually exclusive. Specify only one of them.`,
+      },
+    },
   },
   state: {
     tagsMetadata: { description: "State for the @tagMetadata decorator." },

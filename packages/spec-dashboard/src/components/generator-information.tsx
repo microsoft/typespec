@@ -1,4 +1,4 @@
-import { FunctionComponent } from "react";
+import type { FunctionComponent } from "react";
 import type { GeneratorCoverageSuiteReport } from "../apis.js";
 import { InfoEntry, InfoReport } from "./info-table.js";
 import { ScenarioGroupRatioStatusBox } from "./scenario-group-status.js";

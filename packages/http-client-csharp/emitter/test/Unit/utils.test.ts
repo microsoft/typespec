@@ -4,7 +4,7 @@ import { EventEmitter } from "events";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 import { execCSharpGenerator } from "../../src/lib/exec-utils.js";
 import { getClientNamespaceStringHelper } from "../../src/lib/utils.js";
-import { CSharpEmitterContext } from "../../src/sdk-context.js";
+import type { CSharpEmitterContext } from "../../src/sdk-context.js";
 import {
   createCSharpSdkContext,
   createEmitterContext,

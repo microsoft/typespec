@@ -3,12 +3,15 @@
 
 using System;
 using System.Collections.Generic;
+using System.ComponentModel;
 using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.TypeSpec.Generator.Input;
 using Microsoft.TypeSpec.Generator.Input.Extensions;
 using Microsoft.TypeSpec.Generator.Primitives;
 using Microsoft.TypeSpec.Generator.Providers;
+using Microsoft.TypeSpec.Generator.Snippets;
+using Microsoft.TypeSpec.Generator.Statements;
 using Microsoft.TypeSpec.Generator.Tests.Common;
 using NUnit.Framework;
 
@@ -30,6 +33,26 @@ namespace Microsoft.TypeSpec.Generator.Tests.Providers.ModelFactories
         {
             var modelFactory = _instance!.OutputLibrary.ModelFactory.Value;
             Assert.AreEqual(ModelList.Length - ModelList.Where(m => m.Access == "internal").Count(), modelFactory.Methods.Count);
+        }
+
+        [Test]
+        public void SkipExternalModels()
+        {
+            var external = new InputExternalTypeMetadata("OpenAI.Responses.ResponseTool", "OpenAI", "2.11.0");
+            var externalModel = InputFactory.Model("ExternalTool", external: external);
+            var localModel = InputFactory.Model("LocalThing");
+            var instance = MockHelpers.LoadMockGenerator(
+                inputNamespaceName: "Sample.Namespace",
+                inputModelTypes: [externalModel, localModel]).Object;
+
+            var modelFactory = instance.OutputLibrary.ModelFactory.Value;
+
+            Assert.IsNull(
+                modelFactory.Methods.FirstOrDefault(m => m.Signature.Name == "ExternalTool"),
+                "Externally-linked models must not get a model factory method.");
+            Assert.IsNotNull(
+                modelFactory.Methods.FirstOrDefault(m => m.Signature.Name == "LocalThing"),
+                "Local models must still get a model factory method.");
         }
 
         [Test]
@@ -178,7 +201,7 @@ namespace Microsoft.TypeSpec.Generator.Tests.Providers.ModelFactories
             Assert.AreEqual("listProp", parameters[2].Name);
             foreach (var param in parameters)
             {
-                Assert.IsNull(param.DefaultValue);
+                Assert.IsNotNull(param.DefaultValue);
             }
 
             var currentParameters = currentOverloadMethod!.Signature.Parameters;
@@ -189,7 +212,7 @@ namespace Microsoft.TypeSpec.Generator.Tests.Providers.ModelFactories
             Assert.AreEqual("dictProp", currentParameters[3].Name);
             foreach (var param in currentParameters)
             {
-                Assert.IsNotNull(param.DefaultValue);
+                Assert.IsNull(param.DefaultValue);
             }
 
             Assert.IsTrue(parameters[0].Type.AreNamesEqual(currentParameters[0].Type));
@@ -237,10 +260,6 @@ namespace Microsoft.TypeSpec.Generator.Tests.Providers.ModelFactories
             Assert.AreEqual("modelProp", parameters[0].Name);
             Assert.AreEqual("stringProp", parameters[1].Name);
             Assert.AreEqual("listProp", parameters[2].Name);
-            foreach (var param in parameters)
-            {
-                Assert.IsNull(param.DefaultValue);
-            }
 
             // validate the previous method body uses named arguments to ensure correct mapping
             // even though the parameter order differs between the previous and current methods
@@ -250,6 +269,583 @@ namespace Microsoft.TypeSpec.Generator.Tests.Providers.ModelFactories
             Assert.AreEqual(
                 "return PublicModel1(stringProp: stringProp, modelProp: modelProp, listProp: listProp, dictProp: default);\n",
                 result);
+        }
+
+        [Test]
+        public async Task BackCompatibility_ReorderedFullyOptionalParametersRequireMinimumPrefix()
+        {
+            var compatibilityModel = GetCompatibilityModel(includeCount: true);
+
+            _instance = (await MockHelpers.LoadMockGeneratorAsync(
+                inputNamespaceName: "Sample.Namespace",
+                inputModelTypes: [compatibilityModel],
+                lastContractCompilation: async () => await Helpers.GetCompilationFromDirectoryAsync(parameters: "Last"))).Object;
+
+            var modelFactory = _instance.OutputLibrary.ModelFactory.Value;
+            modelFactory.ProcessTypeForBackCompatibility();
+
+            var content = new TypeProviderWriter(modelFactory).Write().Content;
+            Assert.AreEqual(Helpers.GetExpectedFromFile(), content);
+        }
+
+        [Test]
+        public async Task BackCompatibility_ReorderedRequiredParametersPreserveTrailingOptionalParameters()
+        {
+            var compatibilityModel = GetCompatibilityModel(includeCount: true);
+
+            _instance = (await MockHelpers.LoadMockGeneratorAsync(
+                inputNamespaceName: "Sample.Namespace",
+                inputModelTypes: [compatibilityModel],
+                lastContractCompilation: async () => await Helpers.GetCompilationFromDirectoryAsync(parameters: "Last"))).Object;
+
+            var modelFactory = _instance.OutputLibrary.ModelFactory.Value;
+            modelFactory.ProcessTypeForBackCompatibility();
+
+            var content = new TypeProviderWriter(modelFactory).Write().Content;
+            Assert.AreEqual(Helpers.GetExpectedFromFile(), content);
+        }
+
+        [Test]
+        public async Task BackCompatibility_ReorderedCustomOverloadRequiresMinimumPrefix()
+        {
+            var compatibilityModel = GetCompatibilityModel(includeCount: false);
+
+            _instance = (await MockHelpers.LoadMockGeneratorAsync(
+                inputNamespaceName: "Sample.Namespace",
+                inputModelTypes: [compatibilityModel],
+                compilation: async () => await Helpers.GetCompilationFromDirectoryAsync(parameters: "Custom"),
+                lastContractCompilation: async () => await Helpers.GetCompilationFromDirectoryAsync(parameters: "Last"))).Object;
+
+            var modelFactory = _instance.OutputLibrary.ModelFactory.Value;
+            modelFactory.ProcessTypeForBackCompatibility();
+
+            var content = new TypeProviderWriter(modelFactory).Write().Content;
+            Assert.AreEqual(Helpers.GetExpectedFromFile(), content);
+        }
+
+        [Test]
+        public async Task BackCompatibility_CustomOverloadsPreserveTrailingOptionalParameters()
+        {
+            _instance = (await MockHelpers.LoadMockGeneratorAsync(
+                inputNamespaceName: "Sample.Namespace",
+                inputModelTypes: [GetCompatibilityModel(includeCount: false)],
+                compilation: async () => await Helpers.GetCompilationFromDirectoryAsync(parameters: "Custom"),
+                lastContractCompilation: async () => await Helpers.GetCompilationFromDirectoryAsync(parameters: "Last"))).Object;
+
+            var modelFactory = _instance.OutputLibrary.ModelFactory.Value;
+            modelFactory.ProcessTypeForBackCompatibility();
+
+            var content = new TypeProviderWriter(modelFactory).Write().Content;
+            Assert.AreEqual(Helpers.GetExpectedFromFile(), content);
+        }
+
+        [Test]
+        public async Task BackCompatibility_CustomPublishedSignatureDoesNotRequireLongerCurrentOverload()
+        {
+            InputModelType model = InputFactory.Model("CompatibilityModel", properties:
+            [
+                InputFactory.Property("Id", InputPrimitiveType.String),
+                InputFactory.Property("Description", InputPrimitiveType.String),
+                InputFactory.Property("Text", InputPrimitiveType.String),
+                InputFactory.Property("IsRegex", new InputNullableType(InputPrimitiveType.Boolean)),
+            ]);
+
+            _instance = (await MockHelpers.LoadMockGeneratorAsync(
+                inputNamespaceName: "Sample.Namespace",
+                inputModelTypes: [model],
+                compilation: async () => await Helpers.GetCompilationFromDirectoryAsync(parameters: "Custom"),
+                lastContractCompilation: async () => await Helpers.GetCompilationFromDirectoryAsync(parameters: "Last"))).Object;
+
+            var modelFactory = _instance.OutputLibrary.ModelFactory.Value;
+            modelFactory.ProcessTypeForBackCompatibility();
+
+            var currentMethod = modelFactory.Methods.Single(m =>
+                m.Signature.Name == "CompatibilityModel" &&
+                m.Signature.Parameters.Count == 4);
+            Assert.That(currentMethod.Signature.Parameters, Has.All.Property("DefaultValue").Not.Null);
+        }
+
+        [Test]
+        public async Task BackCompatibility_OptionalCustomPublishedSignatureRequiresLongerCurrentOverload()
+        {
+            InputModelType model = InputFactory.Model("CompatibilityModel", properties:
+            [
+                InputFactory.Property("Id", InputPrimitiveType.String),
+                InputFactory.Property("Description", InputPrimitiveType.String),
+                InputFactory.Property("Text", InputPrimitiveType.String),
+                InputFactory.Property("IsRegex", new InputNullableType(InputPrimitiveType.Boolean)),
+            ]);
+
+            _instance = (await MockHelpers.LoadMockGeneratorAsync(
+                inputNamespaceName: "Sample.Namespace",
+                inputModelTypes: [model],
+                compilation: async () => await Helpers.GetCompilationFromDirectoryAsync(parameters: "Custom"),
+                lastContractCompilation: async () => await Helpers.GetCompilationFromDirectoryAsync(parameters: "Last"))).Object;
+
+            var modelFactory = _instance.OutputLibrary.ModelFactory.Value;
+            modelFactory.ProcessTypeForBackCompatibility();
+
+            var currentMethod = modelFactory.Methods.Single(m =>
+                m.Signature.Name == "CompatibilityModel" &&
+                m.Signature.Parameters.Count == 4);
+            Assert.That(currentMethod.Signature.Parameters, Has.All.Property("DefaultValue").Null);
+        }
+
+        [Test]
+        public async Task BackCompatibility_ChangedCustomOptionalityConstrainsCompatibilityOverload()
+        {
+            InputModelType model = InputFactory.Model("CompatibilityModel", properties:
+            [
+                InputFactory.Property("Id", InputPrimitiveType.String),
+                InputFactory.Property("Description", InputPrimitiveType.String),
+                InputFactory.Property("Text", InputPrimitiveType.String),
+                InputFactory.Property("IsRegex", InputPrimitiveType.Boolean),
+            ]);
+
+            _instance = (await MockHelpers.LoadMockGeneratorAsync(
+                inputNamespaceName: "Sample.Namespace",
+                inputModelTypes: [model],
+                compilation: async () => await Helpers.GetCompilationFromDirectoryAsync(parameters: "Custom"),
+                lastContractCompilation: async () => await Helpers.GetCompilationFromDirectoryAsync(parameters: "Last"))).Object;
+
+            var modelFactory = _instance.OutputLibrary.ModelFactory.Value;
+            modelFactory.ProcessTypeForBackCompatibility();
+
+            var compatibilityMethod = modelFactory.Methods.Single(m =>
+                m.Signature.Name == "CompatibilityModel" &&
+                m.Signature.Parameters.Count == 2);
+            Assert.IsNull(compatibilityMethod.Signature.Parameters[0].DefaultValue);
+            Assert.IsNotNull(compatibilityMethod.Signature.Parameters[1].DefaultValue);
+
+            // The custom method keeps the fully optional (string, string, string) shape, so the
+            // generated overload must require every parameter. Leaving any trailing default would
+            // make CompatibilityModel("id") and CompatibilityModel("id", "description") ambiguous.
+            var generatedMethod = modelFactory.Methods.Single(m =>
+                m.Signature.Name == "CompatibilityModel" &&
+                m.Signature.Parameters.Count == 4);
+            Assert.IsTrue(generatedMethod.Signature.Parameters.All(p => p.DefaultValue is null));
+        }
+
+        // A custom overload that was never published still exists on the final type, so a newly
+        // generated overload must be constrained against it. The published (bool, string) overload
+        // alone would only require the first parameter, leaving CompatibilityModel("id") ambiguous
+        // with the custom (string, string) overload.
+        [Test]
+        public async Task BackCompatibility_CustomOverloadConstrainsNewlyGeneratedOverload()
+        {
+            InputModelType model = InputFactory.Model("CompatibilityModel", properties:
+            [
+                InputFactory.Property("Id", InputPrimitiveType.String),
+                InputFactory.Property("Description", InputPrimitiveType.String),
+                InputFactory.Property("Text", InputPrimitiveType.String),
+                InputFactory.Property("IsRegex", InputPrimitiveType.Boolean),
+            ]);
+
+            _instance = (await MockHelpers.LoadMockGeneratorAsync(
+                inputNamespaceName: "Sample.Namespace",
+                inputModelTypes: [model],
+                compilation: async () => await Helpers.GetCompilationFromDirectoryAsync(parameters: "Custom"),
+                lastContractCompilation: async () => await Helpers.GetCompilationFromDirectoryAsync(parameters: "Last"))).Object;
+
+            var modelFactory = _instance.OutputLibrary.ModelFactory.Value;
+            modelFactory.ProcessTypeForBackCompatibility();
+
+            // The custom overload accepts zero to two arguments, so the generated overload needs
+            // three required parameters to make their applicable argument counts disjoint. The
+            // trailing default is still preserved because it cannot reach the custom overload.
+            var content = new TypeProviderWriter(modelFactory).Write().Content;
+            Assert.AreEqual(Helpers.GetExpectedFromFile(), content);
+        }
+
+        // A custom overload with the same parameter names and order but a different parameter type is
+        // still emitted, so it must constrain the generated overload. Excluding it by name would leave
+        // CompatibilityModel("id") ambiguous between the two.
+        [Test]
+        public async Task BackCompatibility_CustomOverloadWithDifferentTypesStillConstrains()
+        {
+            InputModelType model = InputFactory.Model("CompatibilityModel", properties:
+            [
+                InputFactory.Property("Id", InputPrimitiveType.String),
+                InputFactory.Property("Description", InputPrimitiveType.String),
+                InputFactory.Property("Text", InputPrimitiveType.String),
+                InputFactory.Property("IsRegex", InputPrimitiveType.Boolean),
+            ]);
+
+            _instance = (await MockHelpers.LoadMockGeneratorAsync(
+                inputNamespaceName: "Sample.Namespace",
+                inputModelTypes: [model],
+                compilation: async () => await Helpers.GetCompilationFromDirectoryAsync(parameters: "Custom"),
+                lastContractCompilation: async () => await Helpers.GetCompilationFromDirectoryAsync(parameters: "Last"))).Object;
+
+            var modelFactory = _instance.OutputLibrary.ModelFactory.Value;
+            modelFactory.ProcessTypeForBackCompatibility();
+
+            var content = new TypeProviderWriter(modelFactory).Write().Content;
+            Assert.AreEqual(Helpers.GetExpectedFromFile(), content);
+        }
+
+        // A published overload that the reorder path did not replace still exists on the final type,
+        // but it already coexisted with the reordered signature in the published contract, so every
+        // call that reaches both of them compiled before. Constraining the reordered compatibility
+        // signature against it would strip defaults the published callers rely on, breaking calls
+        // such as CompatibilityModel() and CompatibilityModel(5).
+        [Test]
+        public async Task BackCompatibility_ReorderKeepsOptionalityAgainstCoexistingPublishedOverload()
+        {
+            InputModelType model = InputFactory.Model("CompatibilityModel", properties:
+            [
+                InputFactory.Property("Id", InputPrimitiveType.String),
+                InputFactory.Property("Count", InputPrimitiveType.Int32),
+            ]);
+
+            _instance = (await MockHelpers.LoadMockGeneratorAsync(
+                inputNamespaceName: "Sample.Namespace",
+                inputModelTypes: [model],
+                compilation: async () => await Helpers.GetCompilationFromDirectoryAsync(parameters: "Custom"),
+                lastContractCompilation: async () => await Helpers.GetCompilationFromDirectoryAsync(parameters: "Last"))).Object;
+
+            var modelFactory = _instance.OutputLibrary.ModelFactory.Value;
+            modelFactory.ProcessTypeForBackCompatibility();
+
+            var content = new TypeProviderWriter(modelFactory).Write().Content;
+            Assert.AreEqual(Helpers.GetExpectedFromFile(), content);
+        }
+
+        // A published signature whose parameter names all still match is served by the generated
+        // method itself, so no separate compatibility overload is emitted for it. The generated
+        // method must therefore keep its defaults: constraining it against a signature it already
+        // serves would break the published CompatibilityModel() and CompatibilityModel(id) calls.
+        [Test]
+        public async Task BackCompatibility_ServedPublishedSignatureKeepsGeneratedOptionality()
+        {
+            InputModelType model = InputFactory.Model("CompatibilityModel", properties:
+            [
+                InputFactory.Property("Id", InputPrimitiveType.String),
+                InputFactory.Property("IsRegex", InputPrimitiveType.Boolean),
+            ]);
+
+            _instance = (await MockHelpers.LoadMockGeneratorAsync(
+                inputNamespaceName: "Sample.Namespace",
+                inputModelTypes: [model],
+                lastContractCompilation: async () => await Helpers.GetCompilationFromDirectoryAsync(parameters: "Last"))).Object;
+
+            var modelFactory = _instance.OutputLibrary.ModelFactory.Value;
+            modelFactory.ProcessTypeForBackCompatibility();
+
+            var content = new TypeProviderWriter(modelFactory).Write().Content;
+            Assert.AreEqual(Helpers.GetExpectedFromFile(), content);
+        }
+
+        // The last contract is read from metadata, which reports a parameter's default as a constant
+        // rather than as syntax and so cannot tell `= default` apart from `= 0F`. Only optionality is
+        // restored from the published signature, so the generated `default` is kept either way.
+        [Test]
+        public async Task BackCompatibility_PublishedDefaultLiteralsDoNotChangeGeneratedDefaults()
+        {
+            InputModelType model = InputFactory.Model("CompatibilityModel", properties:
+            [
+                InputFactory.Property("Value", InputPrimitiveType.Float32, isRequired: true),
+                InputFactory.Property("Kind", InputPrimitiveType.String, isRequired: true),
+            ]);
+
+            _instance = (await MockHelpers.LoadMockGeneratorAsync(
+                inputNamespaceName: "Sample.Namespace",
+                inputModelTypes: [model],
+                lastContractCompilation: async () => await Helpers.GetCompilationFromDirectoryAsync(parameters: "Last"))).Object;
+
+            var modelFactory = _instance.OutputLibrary.ModelFactory.Value;
+            modelFactory.ProcessTypeForBackCompatibility();
+
+            var content = new TypeProviderWriter(modelFactory).Write().Content;
+            Assert.That(content, Does.Contain("float value = default, string kind = default)"));
+            Assert.That(content, Does.Not.Contain("0F"));
+            Assert.That(content, Does.Not.Contain("\"Unknown\""));
+        }
+
+        // Mirrors the reported Azure.ResourceManager.AppService regression: both overloads already
+        // existed in the last contract, so each must retain its published optionality.
+        [Test]
+        public async Task BackCompatibility_ReorderedOverloadKeptWhenStillInLastContract()
+        {
+            InputModelType model = InputFactory.Model("CompatibilityModel", properties:
+            [
+                InputFactory.Property("Id", InputPrimitiveType.String),
+                InputFactory.Property("Kind", InputPrimitiveType.String),
+                InputFactory.Property("Image", InputPrimitiveType.String),
+                InputFactory.Property("IsMain", new InputNullableType(InputPrimitiveType.Boolean)),
+            ]);
+
+            _instance = (await MockHelpers.LoadMockGeneratorAsync(
+                inputNamespaceName: "Sample.Namespace",
+                inputModelTypes: [model],
+                lastContractCompilation: async () => await Helpers.GetCompilationFromDirectoryAsync(parameters: "Last"))).Object;
+
+            var modelFactory = _instance.OutputLibrary.ModelFactory.Value;
+            modelFactory.ProcessTypeForBackCompatibility();
+
+            var content = new TypeProviderWriter(modelFactory).Write().Content;
+            Assert.AreEqual(Helpers.GetExpectedFromFile(), content);
+        }
+
+        // A previous signature that is a positional prefix of a new current overload cannot be
+        // disambiguated by argument count, so every parameter on the new overload must be required.
+        [Test]
+        public async Task BackCompatibility_PositionalPrefixOverloadRequiresAllParameters()
+        {
+            InputModelType model = InputFactory.Model("CompatibilityModel", properties:
+            [
+                InputFactory.Property("Id", InputPrimitiveType.String),
+                InputFactory.Property("Name", InputPrimitiveType.String),
+                InputFactory.Property("Count", new InputNullableType(InputPrimitiveType.Int32)),
+            ]);
+
+            _instance = (await MockHelpers.LoadMockGeneratorAsync(
+                inputNamespaceName: "Sample.Namespace",
+                inputModelTypes: [model],
+                lastContractCompilation: async () => await Helpers.GetCompilationFromDirectoryAsync(parameters: "Last"))).Object;
+
+            var modelFactory = _instance.OutputLibrary.ModelFactory.Value;
+            modelFactory.ProcessTypeForBackCompatibility();
+
+            var content = new TypeProviderWriter(modelFactory).Write().Content;
+            Assert.AreEqual(Helpers.GetExpectedFromFile(), content);
+        }
+
+        // When the previous signature is a strict positional prefix of a longer new overload,
+        // requiring one parameter beyond the previous signature makes their applicable argument
+        // counts disjoint. Parameters after that boundary must retain their optionality.
+        [Test]
+        public async Task BackCompatibility_LongPositionalPrefixOverloadPreservesTrailingOptionality()
+        {
+            InputModelType model = InputFactory.Model("CompatibilityModel", properties:
+            [
+                InputFactory.Property("Id", InputPrimitiveType.String),
+                InputFactory.Property("Name", InputPrimitiveType.String),
+                InputFactory.Property("Count", new InputNullableType(InputPrimitiveType.Int32)),
+                InputFactory.Property("Description", InputPrimitiveType.String),
+            ]);
+
+            _instance = (await MockHelpers.LoadMockGeneratorAsync(
+                inputNamespaceName: "Sample.Namespace",
+                inputModelTypes: [model],
+                lastContractCompilation: async () => await Helpers.GetCompilationFromDirectoryAsync(parameters: "Last"))).Object;
+
+            var modelFactory = _instance.OutputLibrary.ModelFactory.Value;
+            modelFactory.ProcessTypeForBackCompatibility();
+
+            var content = new TypeProviderWriter(modelFactory).Write().Content;
+            Assert.AreEqual(Helpers.GetExpectedFromFile(), content);
+        }
+
+        // The management generator's ModelFactoryVisitor restores last-contract methods verbatim during
+        // the visitor pass, which runs before back-compatibility processing. The restored overload must
+        // keep its published defaults while the new generated overload acquires the required prefix.
+        [Test]
+        public async Task BackCompatibility_VisitorAddedOverloadRequiresMinimumPrefix()
+        {
+            InputModelType model = InputFactory.Model("CompatibilityModel", properties:
+            [
+                InputFactory.Property("Id", InputPrimitiveType.String),
+                InputFactory.Property("Name", InputPrimitiveType.String),
+                InputFactory.Property("Image", InputPrimitiveType.String),
+                InputFactory.Property("TargetPort", InputPrimitiveType.String),
+                InputFactory.Property("IsMain", new InputNullableType(InputPrimitiveType.Boolean)),
+                InputFactory.Property("Kind", InputPrimitiveType.String),
+            ]);
+
+            _instance = (await MockHelpers.LoadMockGeneratorAsync(
+                inputNamespaceName: "Sample.Namespace",
+                inputModelTypes: [model],
+                lastContractCompilation: async () => await Helpers.GetCompilationFromDirectoryAsync(parameters: "Last"))).Object;
+
+            var modelFactory = _instance.OutputLibrary.ModelFactory.Value;
+
+            var previous = modelFactory.LastContractView!.Methods[0];
+            var restored = new MethodProvider(
+                new MethodSignature(
+                    previous.Signature.Name,
+                    previous.Signature.Description,
+                    previous.Signature.Modifiers,
+                    previous.Signature.ReturnType,
+                    previous.Signature.ReturnDescription,
+                    previous.Signature.Parameters,
+                    [.. previous.Signature.Attributes, new AttributeStatement(typeof(EditorBrowsableAttribute), Snippet.FrameworkEnumValue(EditorBrowsableState.Never))]),
+                Snippet.Throw(Snippet.Null),
+                modelFactory);
+            modelFactory.Update(methods: [.. modelFactory.Methods, restored]);
+
+            modelFactory.ProcessTypeForBackCompatibility();
+
+            var content = new TypeProviderWriter(modelFactory).Write().Content;
+            Assert.AreEqual(Helpers.GetExpectedFromFile(), content);
+        }
+
+        // Two previous overloads compete with the same new current method. Both retain their published
+        // defaults while the new overload acquires the longest prefix needed to avoid both.
+        [Test]
+        public async Task BackCompatibility_MultiplePreviousOverloadsRequireIndependentPrefixes()
+        {
+            InputModelType model = InputFactory.Model("CompatibilityModel", properties:
+            [
+                InputFactory.Property("Id", InputPrimitiveType.String),
+                InputFactory.Property("Name", InputPrimitiveType.String),
+                InputFactory.Property("Count", new InputNullableType(InputPrimitiveType.Int32)),
+                InputFactory.Property("Flag", new InputNullableType(InputPrimitiveType.Boolean)),
+                InputFactory.Property("Kind", InputPrimitiveType.String),
+            ]);
+
+            _instance = (await MockHelpers.LoadMockGeneratorAsync(
+                inputNamespaceName: "Sample.Namespace",
+                inputModelTypes: [model],
+                lastContractCompilation: async () => await Helpers.GetCompilationFromDirectoryAsync(parameters: "Last"))).Object;
+
+            var modelFactory = _instance.OutputLibrary.ModelFactory.Value;
+            modelFactory.ProcessTypeForBackCompatibility();
+
+            var content = new TypeProviderWriter(modelFactory).Write().Content;
+            Assert.AreEqual(Helpers.GetExpectedFromFile(), content);
+        }
+
+        // Overloads that shipped together in the published contract already coexisted there, so they
+        // are not new competitors for one another; only a surviving current or custom overload can
+        // introduce ambiguity that was not already present. Here 'id, count' is a positional prefix
+        // of the wider overload, so treating them as competitors would make the wider one fully
+        // required and break the previously valid call 'CompatibilityModel("i", 1, "e")'.
+        [Test]
+        public async Task BackCompatibility_CoexistingPreviousOverloadsKeepPublishedOptionality()
+        {
+            InputModelType model = InputFactory.Model("CompatibilityModel", properties:
+            [
+                InputFactory.Property("Id", InputPrimitiveType.String),
+                InputFactory.Property("Description", InputPrimitiveType.String),
+                InputFactory.Property("Name", InputPrimitiveType.String),
+            ]);
+
+            _instance = (await MockHelpers.LoadMockGeneratorAsync(
+                inputNamespaceName: "Sample.Namespace",
+                inputModelTypes: [model],
+                lastContractCompilation: async () => await Helpers.GetCompilationFromDirectoryAsync(parameters: "Last"))).Object;
+
+            var modelFactory = _instance.OutputLibrary.ModelFactory.Value;
+            modelFactory.ProcessTypeForBackCompatibility();
+            var content = new TypeProviderWriter(modelFactory).Write().Content;
+            Assert.AreEqual(Helpers.GetExpectedFromFile(), content);
+        }
+
+        // Same last-contract overloads as above but declared in the opposite order. Signatures are
+        // mutated in place, so this pins that the result does not depend on declaration order.
+        [Test]
+        public async Task BackCompatibility_CoexistingPreviousOverloadsKeepPublishedOptionalityReversed()
+        {
+            InputModelType model = InputFactory.Model("CompatibilityModel", properties:
+            [
+                InputFactory.Property("Id", InputPrimitiveType.String),
+                InputFactory.Property("Description", InputPrimitiveType.String),
+                InputFactory.Property("Name", InputPrimitiveType.String),
+            ]);
+
+            _instance = (await MockHelpers.LoadMockGeneratorAsync(
+                inputNamespaceName: "Sample.Namespace",
+                inputModelTypes: [model],
+                lastContractCompilation: async () => await Helpers.GetCompilationFromDirectoryAsync(parameters: "Last"))).Object;
+
+            var modelFactory = _instance.OutputLibrary.ModelFactory.Value;
+            modelFactory.ProcessTypeForBackCompatibility();
+
+            var content = new TypeProviderWriter(modelFactory).Write().Content;
+            Assert.AreEqual(Helpers.GetExpectedFromFile(), content);
+        }
+
+        // An all-required previous overload is only callable at exactly its own argument count, so it
+        // cannot be reached by shorter calls to a coexisting all-optional overload. Promoting the
+        // all-optional overload against it would raise its published minimum argument count and break
+        // previously valid low-arity calls, so the published optionality must be preserved. This
+        // mirrors the shipped Azure.ResourceManager.AppService 'SiteConfigProperties' shape.
+        [Test]
+        public async Task BackCompatibility_AllRequiredPreviousOverloadKeepsPublishedOptionality()
+        {
+            InputModelType model = InputFactory.Model("CompatibilityModel", properties:
+            [
+                InputFactory.Property("Id", InputPrimitiveType.String),
+                InputFactory.Property("Name", InputPrimitiveType.String),
+                InputFactory.Property("Count", new InputNullableType(InputPrimitiveType.Int32)),
+                InputFactory.Property("Kind", InputPrimitiveType.String),
+            ]);
+
+            _instance = (await MockHelpers.LoadMockGeneratorAsync(
+                inputNamespaceName: "Sample.Namespace",
+                inputModelTypes: [model],
+                lastContractCompilation: async () => await Helpers.GetCompilationFromDirectoryAsync(parameters: "Last"))).Object;
+
+            var modelFactory = _instance.OutputLibrary.ModelFactory.Value;
+            modelFactory.ProcessTypeForBackCompatibility();
+
+            var content = new TypeProviderWriter(modelFactory).Write().Content;
+            Assert.AreEqual(Helpers.GetExpectedFromFile(), content);
+        }
+
+        // A current generated overload can have the same signature as a previously published overload
+        // while acquiring different defaults from the current model shape. Preserve the published
+        // required boundary on that overload and the published optionality on its reordered companion
+        // rather than swapping their callability.
+        [Test]
+        public async Task BackCompatibility_PublishedOverloadBoundariesArePreserved()
+        {
+            InputModelType model = InputFactory.Model("CompatibilityModel", properties:
+            [
+                InputFactory.Property("Id", InputPrimitiveType.String),
+                InputFactory.Property("Allow", new InputNullableType(InputPrimitiveType.Boolean)),
+                InputFactory.Property("Kind", InputPrimitiveType.String),
+            ]);
+
+            _instance = (await MockHelpers.LoadMockGeneratorAsync(
+                inputNamespaceName: "Sample.Namespace",
+                inputModelTypes: [model],
+                lastContractCompilation: async () => await Helpers.GetCompilationFromDirectoryAsync(parameters: "Last"))).Object;
+
+            var modelFactory = _instance.OutputLibrary.ModelFactory.Value;
+            modelFactory.ProcessTypeForBackCompatibility();
+
+            var currentOverload = modelFactory.Methods.Single(m =>
+                m.Signature.Name == "CompatibilityModel"
+                && m.Signature.Parameters[1].Name == "allow");
+            var compatibilityOverload = modelFactory.Methods.Single(m =>
+                m.Signature.Name == "CompatibilityModel"
+                && m.Signature.Parameters[1].Name == "kind");
+
+            Assert.IsTrue(currentOverload.Signature.Parameters.All(p => p.DefaultValue is null));
+            Assert.IsTrue(compatibilityOverload.Signature.Parameters.All(p => p.DefaultValue is not null));
+        }
+
+        // The newly generated overload did not exist in the previous contract, so it can acquire the
+        // required prefix needed for disambiguation. The previous overload must remain fully optional
+        // so calls using its unique parameter names continue to compile.
+        [Test]
+        public async Task BackCompatibility_NewOverloadIsConstrainedToPreservePublishedNamedArguments()
+        {
+            InputModelType model = InputFactory.Model("CompatibilityModel", properties:
+            [
+                InputFactory.Property("Id", InputPrimitiveType.String),
+                InputFactory.Property("Properties", new InputNullableType(InputPrimitiveType.Int32)),
+            ]);
+
+            _instance = (await MockHelpers.LoadMockGeneratorAsync(
+                inputNamespaceName: "Sample.Namespace",
+                inputModelTypes: [model],
+                lastContractCompilation: async () => await Helpers.GetCompilationFromDirectoryAsync(parameters: "Last"))).Object;
+
+            var modelFactory = _instance.OutputLibrary.ModelFactory.Value;
+            modelFactory.ProcessTypeForBackCompatibility();
+
+            var currentOverload = modelFactory.Methods.Single(m =>
+                m.Signature.Name == "CompatibilityModel"
+                && m.Signature.Parameters.Count == 2);
+            var compatibilityOverload = modelFactory.Methods.Single(m =>
+                m.Signature.Name == "CompatibilityModel"
+                && m.Signature.Parameters.Count == 3);
+
+            Assert.IsTrue(currentOverload.Signature.Parameters.All(p => p.DefaultValue is null));
+            Assert.IsTrue(compatibilityOverload.Signature.Parameters.All(p => p.DefaultValue is not null));
         }
 
         // This test validates that only the previous model factory methods are generated when only the parameter ordering is changed
@@ -354,10 +950,7 @@ namespace Microsoft.TypeSpec.Generator.Tests.Providers.ModelFactories
             var parameters = backwardCompatibilityMethod!.Signature.Parameters;
             Assert.AreEqual(1, parameters.Count);
             Assert.AreEqual("stringProp", parameters[0].Name);
-            foreach (var param in parameters)
-            {
-                Assert.IsNull(param.DefaultValue);
-            }
+            Assert.IsNotNull(parameters[0].DefaultValue);
             var attributes = backwardCompatibilityMethod!.Signature.Attributes;
             Assert.AreEqual(1, attributes.Count);
             var printedAttribute = attributes[0].ToDisplayString();
@@ -385,6 +978,30 @@ namespace Microsoft.TypeSpec.Generator.Tests.Providers.ModelFactories
             Assert.AreEqual(
                 "return new global::Sample.Models.PublicModel1(stringProp, default, default, default, additionalBinaryDataProperties: null);\n",
                 result);
+        }
+
+        [Test]
+        public async Task BackCompatibility_SkipsNonPublicPreviousMethod()
+        {
+            _instance = (await MockHelpers.LoadMockGeneratorAsync(
+                inputNamespaceName: "Sample.Namespace",
+                inputModelTypes: ModelList,
+                lastContractCompilation: async () => await Helpers.GetCompilationFromDirectoryAsync())).Object;
+
+            var modelFactory = _instance!.OutputLibrary.ModelFactory.Value;
+
+            // The last contract exposes an internal factory method that no longer exists in the current
+            // contract. It is surfaced in the last-contract view (metadata import includes non-public members)
+            // but is not part of the public compatibility surface.
+            Assert.IsTrue(modelFactory.LastContractView!.Methods.Any(m =>
+                m.Signature.Name == "PublicModel1OldName"
+                && m.Signature.Modifiers.HasFlag(MethodSignatureModifiers.Internal)));
+
+            modelFactory.ProcessTypeForBackCompatibility();
+
+            // No back-compat shim is generated for the internal previous method.
+            var content = new TypeProviderWriter(modelFactory).Write().Content;
+            Assert.AreEqual(Helpers.GetExpectedFromFile(), content);
         }
 
         [Test]
@@ -526,6 +1143,23 @@ namespace Microsoft.TypeSpec.Generator.Tests.Providers.ModelFactories
             Assert.AreEqual("oldModelProp", docParams[1].Parameter.Name);
         }
 
+        [Test]
+        public async Task BackCompatibility_ExactPropertyNameTakesPrecedence()
+        {
+            var inputModels = GetTestModels(isStringPropExact: true);
+            _instance = (await MockHelpers.LoadMockGeneratorAsync(
+                inputNamespaceName: "Sample.Namespace",
+                inputModelTypes: inputModels,
+                lastContractCompilation: async () => await Helpers.GetCompilationFromDirectoryAsync(
+                    parameters: "Last"))).Object;
+
+            var modelFactory = _instance!.OutputLibrary.ModelFactory.Value;
+            modelFactory.ProcessTypeForBackCompatibility();
+
+            var actual = new TypeProviderWriter(modelFactory).Write().Content;
+            Assert.AreEqual(Helpers.GetExpectedFromFile(), actual);
+        }
+
         // Validates that when ALL parameters in a factory method are renamed in the previous
         // contract, every preserved name is propagated to the current method. This complements
         // BackCompatibility_OnlyParamNameChanged which exercises a partial rename.
@@ -577,6 +1211,31 @@ namespace Microsoft.TypeSpec.Generator.Tests.Providers.ModelFactories
             Assert.AreEqual("previousDictProp", docParams[3].Parameter.Name);
         }
 
+        [Test]
+        public async Task BackCompatibility_ModelFactoryParameterPreservesDateTimeSuffix()
+        {
+            var dateTime = new InputDateTimeType(
+                DateTimeKnownEncoding.Rfc3339,
+                "utcDateTime",
+                "TypeSpec.utcDateTime",
+                InputPrimitiveType.String);
+            var model = InputFactory.Model(
+                "DateTimeModel",
+                properties: [InputFactory.Property("StartTime", dateTime, isRequired: true)]);
+
+            _instance = (await MockHelpers.LoadMockGeneratorAsync(
+                inputNamespaceName: "Sample.Namespace",
+                inputModelTypes: [model],
+                lastContractCompilation: async () => await Helpers.GetCompilationFromDirectoryAsync())).Object;
+
+            var modelFactory = _instance.OutputLibrary.ModelFactory.Value;
+            modelFactory.ProcessTypeForBackCompatibility();
+
+            var method = modelFactory.Methods.Single(m => m.Signature.Name == "DateTimeModel");
+            Assert.AreEqual("startTime", method.Signature.Parameters.Single().Name);
+            StringAssert.Contains("DateTimeModel(startTime", method.BodyStatements!.ToDisplayString());
+        }
+
         // Validates that when a new property is added AND the previous contract used different
         // names for some of the surviving parameters, the rename-only fast path does NOT apply
         // (parameter counts differ). Instead the standard "new property added" backcompat overload
@@ -626,8 +1285,10 @@ namespace Microsoft.TypeSpec.Generator.Tests.Providers.ModelFactories
             Assert.AreEqual("listProp", parameters[2].Name);
             foreach (var param in parameters)
             {
-                Assert.IsNull(param.DefaultValue);
+                Assert.IsNotNull(param.DefaultValue);
             }
+
+            Assert.IsTrue(currentParameters.All(p => p.DefaultValue is null));
 
             // The backcompat overload's body instantiates the model directly because the previous
             // parameter names (oldStringProp, oldModelProp) do not match any current property name.
@@ -638,6 +1299,208 @@ namespace Microsoft.TypeSpec.Generator.Tests.Providers.ModelFactories
             var bodyString = body!.ToDisplayString();
             StringAssert.Contains("listProp ??= new global::Sample.Namespace.ChangeTrackingList<string>();", bodyString);
             StringAssert.Contains("return new global::Sample.Models.PublicModel1(default, default, listProp.ToList(), default, additionalBinaryDataProperties: null);", bodyString);
+        }
+
+        [Test]
+        public void NewAcronymParameterNameIsNormalized()
+        {
+            var model = InputFactory.Model(
+                "AggregateRouteConfiguration",
+                properties:
+                [
+                    InputFactory.Property("Ipv4Routes", InputFactory.Array(InputPrimitiveType.String)),
+                ]);
+
+            _instance = MockHelpers.LoadMockGenerator(
+                inputNamespaceName: "Sample.Namespace",
+                inputModelTypes: [model]).Object;
+
+            var modelFactory = _instance.OutputLibrary.ModelFactory.Value;
+            var method = modelFactory.Methods.Single(m =>
+                m.Signature.Name == "AggregateRouteConfiguration");
+
+            Assert.That(
+                method.Signature.Parameters.Select(p => p.Name),
+                Is.EqualTo(new[] { "ipv4Routes" }));
+        }
+
+        [Test]
+        public async Task BackCompatibility_AcronymParameterNameIsPreservedAlongsideNormalizedCurrentMethod()
+        {
+            var model = InputFactory.Model(
+                "AggregateRouteConfiguration",
+                properties:
+                [
+                    InputFactory.Property("Ipv4Routes", InputFactory.Array(InputPrimitiveType.String)),
+                    InputFactory.Property("NewProperty", InputPrimitiveType.String),
+                ]);
+
+            _instance = (await MockHelpers.LoadMockGeneratorAsync(
+                inputNamespaceName: "Sample.Namespace",
+                inputModelTypes: [model],
+                lastContractCompilation: async () => await Helpers.GetCompilationFromDirectoryAsync(
+                    method: "BackCompatibility_AcronymParameterNameIsPreservedInForwardingCall"))).Object;
+
+            var modelFactory = _instance.OutputLibrary.ModelFactory.Value;
+            modelFactory.ProcessTypeForBackCompatibility();
+
+            var currentMethod = modelFactory.Methods.Single(m =>
+                m.Signature.Name == "AggregateRouteConfiguration"
+                && m.Signature.Parameters.Count == 2);
+            var backCompatMethod = modelFactory.Methods.Single(m =>
+                m.Signature.Name == "AggregateRouteConfiguration"
+                && m.Signature.Parameters.Count == 1);
+
+            Assert.AreEqual("ipv4Routes", currentMethod.Signature.Parameters[0].Name);
+            Assert.AreEqual("iPv4Routes", backCompatMethod.Signature.Parameters[0].Name);
+            Assert.That(backCompatMethod.BodyStatements!.ToDisplayString(), Does.Contain("iPv4Routes"));
+            Assert.That(backCompatMethod.BodyStatements!.ToDisplayString(), Does.Not.Contain("ipv4Routes"));
+        }
+
+        [Test]
+        public async Task BackCompatibility_SkipsMethodWithUnavailableParameterType()
+        {
+            var externalTool = InputFactory.Model(
+                "Tool",
+                external: new InputExternalTypeMetadata("System.Uri", null, null));
+            var hostedAgentDefinition = InputFactory.Model(
+                "HostedAgentDefinition",
+                properties:
+                [
+                    InputFactory.Property("Tool", externalTool)
+                ]);
+
+            _instance = (await MockHelpers.LoadMockGeneratorAsync(
+                inputNamespaceName: "Sample.Namespace",
+                inputModelTypes: [externalTool, hostedAgentDefinition],
+                lastContractCompilation: async () => await Helpers.GetCompilationFromDirectoryAsync())).Object;
+
+            var modelFactory = _instance.OutputLibrary.ModelFactory.Value;
+            modelFactory.ProcessTypeForBackCompatibility();
+
+            var methods = modelFactory.Methods
+                .Where(method => method.Signature.Name == "HostedAgentDefinition")
+                .ToList();
+            Assert.AreEqual(1, methods.Count);
+            Assert.AreEqual(typeof(Uri), methods[0].Signature.Parameters.Single().Type.FrameworkType);
+
+            var content = new TypeProviderWriter(modelFactory).Write().Content;
+            StringAssert.DoesNotContain("ProjectsAgentTool", content);
+        }
+
+        [Test]
+        public async Task BackCompatibility_SkipsMethodWithUnavailableGenericParameterType()
+        {
+            var externalTool = InputFactory.Model(
+                "Tool",
+                external: new InputExternalTypeMetadata("System.Uri", null, null));
+            var hostedAgentDefinition = InputFactory.Model(
+                "HostedAgentDefinition",
+                properties:
+                [
+                    InputFactory.Property("Tools", InputFactory.Array(externalTool))
+                ]);
+
+            _instance = (await MockHelpers.LoadMockGeneratorAsync(
+                inputNamespaceName: "Sample.Namespace",
+                inputModelTypes: [externalTool, hostedAgentDefinition],
+                lastContractCompilation: async () => await Helpers.GetCompilationFromDirectoryAsync())).Object;
+
+            var modelFactory = _instance.OutputLibrary.ModelFactory.Value;
+            modelFactory.ProcessTypeForBackCompatibility();
+
+            var methods = modelFactory.Methods
+                .Where(method => method.Signature.Name == "HostedAgentDefinition")
+                .ToList();
+            Assert.AreEqual(1, methods.Count);
+
+            var toolsParameter = methods[0].Signature.Parameters.Single();
+            Assert.AreEqual(typeof(IEnumerable<>), toolsParameter.Type.FrameworkType);
+            Assert.AreEqual(typeof(Uri), toolsParameter.Type.Arguments.Single().FrameworkType);
+
+            var content = new TypeProviderWriter(modelFactory).Write().Content;
+            StringAssert.DoesNotContain("ProjectsAgentTool", content);
+        }
+
+        [Test]
+        public async Task BackCompatibility_PreservesMethodWithAvailableArrayParameterType()
+        {
+            var tool = InputFactory.Model("Tool");
+            var hostedAgentDefinition = InputFactory.Model(
+                "HostedAgentDefinition",
+                properties:
+                [
+                    InputFactory.Property("Tools", InputFactory.Array(tool))
+                ]);
+
+            _instance = (await MockHelpers.LoadMockGeneratorAsync(
+                inputNamespaceName: "Sample.Namespace",
+                inputModelTypes: [tool, hostedAgentDefinition],
+                lastContractCompilation: async () => await Helpers.GetCompilationFromDirectoryAsync())).Object;
+
+            var modelFactory = _instance.OutputLibrary.TypeProviders.OfType<ModelFactoryProvider>().Single();
+            var previousMethod = modelFactory.LastContractView!.Methods
+                .Single(method => method.Signature.Name == "HostedAgentDefinition");
+            Assert.IsEmpty(ModelFactoryProvider.GetUnavailableSignatureTypes(previousMethod.Signature));
+        }
+
+        [Test]
+        public async Task BackCompatibility_SkipsMethodWithUnavailableArrayParameterType()
+        {
+            var externalTool = InputFactory.Model(
+                "Tool",
+                external: new InputExternalTypeMetadata("System.Uri", null, null));
+            var hostedAgentDefinition = InputFactory.Model(
+                "HostedAgentDefinition",
+                properties:
+                [
+                    InputFactory.Property("Tools", InputFactory.Array(externalTool))
+                ]);
+
+            _instance = (await MockHelpers.LoadMockGeneratorAsync(
+                inputNamespaceName: "Sample.Namespace",
+                inputModelTypes: [externalTool, hostedAgentDefinition],
+                lastContractCompilation: async () => await Helpers.GetCompilationFromDirectoryAsync())).Object;
+
+            var modelFactory = _instance.OutputLibrary.TypeProviders.OfType<ModelFactoryProvider>().Single();
+            var previousMethod = modelFactory.LastContractView!.Methods
+                .Single(method => method.Signature.Name == "HostedAgentDefinition");
+            CollectionAssert.AreEqual(
+                new[] { "Sample.Models.ProjectsAgentTool" },
+                ModelFactoryProvider.GetUnavailableSignatureTypes(previousMethod.Signature));
+
+            modelFactory.ProcessTypeForBackCompatibility();
+
+            var methods = modelFactory.Methods
+                .Where(method => method.Signature.Name == "HostedAgentDefinition")
+                .ToList();
+            Assert.AreEqual(1, methods.Count);
+
+            var content = new TypeProviderWriter(modelFactory).Write().Content;
+            StringAssert.DoesNotContain("ProjectsAgentTool", content);
+        }
+
+        [Test]
+        public async Task BackCompatibility_SkipsMethodWithUnavailableReturnType()
+        {
+            var hostedAgentDefinition = InputFactory.Model("HostedAgentDefinition");
+
+            _instance = (await MockHelpers.LoadMockGeneratorAsync(
+                inputNamespaceName: "Sample.Namespace",
+                inputModelTypes: [hostedAgentDefinition],
+                lastContractCompilation: async () => await Helpers.GetCompilationFromDirectoryAsync())).Object;
+
+            var modelFactory = _instance.OutputLibrary.ModelFactory.Value;
+            modelFactory.ProcessTypeForBackCompatibility();
+
+            var methods = modelFactory.Methods
+                .Where(method => method.Signature.Name == "HostedAgentDefinition")
+                .ToList();
+            Assert.AreEqual(1, methods.Count);
+            Assert.AreEqual("HostedAgentDefinition", methods[0].Signature.ReturnType?.Name);
+
+            var content = new TypeProviderWriter(modelFactory).Write().Content;
+            StringAssert.DoesNotContain("ProjectsAgentTool", content);
         }
 
         [Test]
@@ -825,11 +1688,12 @@ namespace Microsoft.TypeSpec.Generator.Tests.Providers.ModelFactories
                 result);
         }
 
-        // Regression test for a model factory parameter SWAP bug: when the previous contract
-        // contained the same-typed parameters in a different order from the current contract,
-        // a naive positional rename would swap which parameter feeds which constructor field
-        // via name-based lookup in GetCtorArgs, producing semantically wrong (and
-        // source-breaking) generated code. Verify no rename occurs in this collision case.
+        // Regression test for a model factory parameter SWAP: when the previous contract contained
+        // the same-typed parameters in a different order from the current contract, the signature
+        // comparer (which ignores names) hid the reorder, leaving a source-breaking CP0017
+        // parameter-name change. The generator now realigns the existing parameter objects to the
+        // previous order, restoring the published signature without corrupting the body's name-based
+        // constructor-argument lookup.
         [Test]
         public async Task BackCompatibility_SwapTypeParamsDoesNotCorrupt()
         {
@@ -857,26 +1721,75 @@ namespace Microsoft.TypeSpec.Generator.Tests.Providers.ModelFactories
 
             var method = swapMethods[0];
             var parameters = method.Signature.Parameters;
-            // The current method should keep its parameters in the order/names derived from the
-            // current spec: eventId, itemId. A positional rename to the previous contract names
-            // (which were swapped: itemId, eventId) would corrupt the body, so we explicitly
-            // skip the rename when it would create a name collision with another parameter.
+            // The parameters are realigned to the previous contract's order (itemId, eventId) so the
+            // published signature is preserved. The parameter objects keep their names, so no CP0017
+            // parameter-name change is emitted.
             Assert.AreEqual(2, parameters.Count);
-            Assert.AreEqual("eventId", parameters[0].Name);
-            Assert.AreEqual("itemId", parameters[1].Name);
+            Assert.AreEqual("itemId", parameters[0].Name);
+            Assert.AreEqual("eventId", parameters[1].Name);
 
             // No EditorBrowsable hidden overload — there's a single visible method.
             Assert.AreEqual(0, method.Signature.Attributes.Count);
 
-            // The body must reference the parameters in their original positions so that
-            // eventId continues to feed the eventId constructor field and itemId continues
-            // to feed the itemId constructor field.
+            // The body still references the parameters by their original objects, so eventId continues
+            // to feed the eventId constructor field and itemId continues to feed the itemId field.
             var body = method.BodyStatements;
             Assert.IsNotNull(body);
             var result = body!.ToDisplayString();
             Assert.AreEqual(
                 "return new global::Sample.Models.SwapModel(eventId, itemId, additionalBinaryDataProperties: null);\n",
                 result);
+        }
+
+        [Test]
+        public async Task BackCompatibility_AbstractReturnTypeOverloadIsGenerated()
+        {
+            var derived = InputFactory.Model("DerivedModel", discriminatedKind: "derived");
+            var baseModel = InputFactory.Model(
+                "AbstractModel",
+                properties:
+                [
+                    InputFactory.Property("kind", InputPrimitiveType.String, isRequired: true, isDiscriminator: true),
+                    InputFactory.Property("prop1", InputPrimitiveType.String),
+                    InputFactory.Property("prop2", InputPrimitiveType.String),
+                ],
+                derivedModels: [derived]);
+
+            _instance = (await MockHelpers.LoadMockGeneratorAsync(
+                inputNamespaceName: "Sample.Namespace",
+                inputModelTypes: [baseModel, derived],
+                lastContractCompilation: async () => await Helpers.GetCompilationFromDirectoryAsync())).Object;
+
+            var modelFactory = _instance!.OutputLibrary.ModelFactory.Value;
+            modelFactory.ProcessTypeForBackCompatibility();
+
+            var content = new TypeProviderWriter(modelFactory).Write().Content;
+            Assert.AreEqual(Helpers.GetExpectedFromFile(), content);
+        }
+
+        [Test]
+        public async Task BackCompatibility_UnknownDiscriminatorReturnTypeOverloadIsGenerated()
+        {
+            var derived = InputFactory.Model("DerivedModel", discriminatedKind: "derived");
+            var baseModel = InputFactory.Model(
+                "AbstractModel",
+                properties:
+                [
+                    InputFactory.Property("kind", InputPrimitiveType.String, isRequired: true, isDiscriminator: true),
+                    InputFactory.Property("prop1", InputPrimitiveType.String),
+                ],
+                derivedModels: [derived]);
+
+            _instance = (await MockHelpers.LoadMockGeneratorAsync(
+                inputNamespaceName: "Sample.Namespace",
+                inputModelTypes: [baseModel, derived],
+                lastContractCompilation: async () => await Helpers.GetCompilationFromDirectoryAsync())).Object;
+
+            var modelFactory = _instance!.OutputLibrary.ModelFactory.Value;
+            modelFactory.ProcessTypeForBackCompatibility();
+
+            var content = new TypeProviderWriter(modelFactory).Write().Content;
+            Assert.AreEqual(Helpers.GetExpectedFromFile(), content);
         }
 
         [Test]
@@ -955,12 +1868,85 @@ namespace Microsoft.TypeSpec.Generator.Tests.Providers.ModelFactories
             Assert.AreEqual(4, publicModel1Methods[0].Signature.Parameters.Count);
         }
 
-        private static InputModelType[] GetTestModels()
+        // Back-compat members are synthesized in ProcessTypeForBackCompatibility, which runs after the
+        // main library visitor pass. This test ensures those newly-added members are still run through
+        // the registered visitors (only the new members, not the already-visited existing ones).
+        [Test]
+        public async Task BackCompatibility_BackCompatMethodIsVisited()
+        {
+            _instance = (await MockHelpers.LoadMockGeneratorAsync(
+                inputNamespaceName: "Sample.Namespace",
+                inputModelTypes: ModelList,
+                lastContractCompilation: async () => await Helpers.GetCompilationFromDirectoryAsync(method: "BackCompatibility_NewModelPropertyAdded"))).Object;
+
+            var recordingVisitor = new RecordingMethodVisitor();
+            _instance.AddVisitor(recordingVisitor);
+
+            var modelFactory = _instance!.OutputLibrary.ModelFactory.Value;
+            modelFactory.ProcessTypeForBackCompatibility();
+
+            var backCompatMethod = modelFactory.Methods
+                .FirstOrDefault(m => m.Signature.Name == "PublicModel1" && m.Signature.Parameters.All(p => p.Name != "dictProp"));
+            Assert.IsNotNull(backCompatMethod, "Expected a back-compat overload to be synthesized.");
+
+            // The synthesized back-compat method must have been visited.
+            Assert.IsTrue(
+                recordingVisitor.VisitedMethods.Contains(backCompatMethod!),
+                "The back-compat method was not visited by the library visitor.");
+
+            // Existing methods that were already part of the contract are not re-visited by the visitor
+            // added after the main pass (they would have been visited during the main pass in a real run).
+            var currentOverloadMethod = modelFactory.Methods
+                .FirstOrDefault(m => m.Signature.Name == "PublicModel1" && m.Signature.Parameters.Any(p => p.Name == "dictProp"));
+            Assert.IsNotNull(currentOverloadMethod);
+            Assert.IsFalse(recordingVisitor.VisitedMethods.Contains(currentOverloadMethod!));
+        }
+
+        // Verifies that a visitor can mutate (rename) a synthesized back-compat method and the change is
+        // reflected in the final generated methods.
+        [Test]
+        public async Task BackCompatibility_BackCompatMethodCanBeMutatedByVisitor()
+        {
+            _instance = (await MockHelpers.LoadMockGeneratorAsync(
+                inputNamespaceName: "Sample.Namespace",
+                inputModelTypes: ModelList,
+                lastContractCompilation: async () => await Helpers.GetCompilationFromDirectoryAsync(method: "BackCompatibility_NewModelPropertyAdded"))).Object;
+
+            _instance.AddVisitor(new BackCompatMethodRenamingVisitor());
+
+            var modelFactory = _instance!.OutputLibrary.ModelFactory.Value;
+            modelFactory.ProcessTypeForBackCompatibility();
+
+            // The visitor renames any method carrying the EditorBrowsableNever attribute (the back-compat
+            // overload) so the mutation must be observable on the final method collection.
+            var renamed = modelFactory.Methods.FirstOrDefault(m => m.Signature.Name == "PublicModel1Renamed");
+            Assert.IsNotNull(renamed, "The visitor's rename of the back-compat method was not applied.");
+        }
+
+        private static InputModelType GetCompatibilityModel(bool includeCount)
+        {
+            List<InputModelProperty> properties =
+            [
+                InputFactory.Property("Id", InputPrimitiveType.String),
+                InputFactory.Property("Name", InputPrimitiveType.String),
+                InputFactory.Property("Kind", InputPrimitiveType.String),
+                InputFactory.Property("Enabled", new InputNullableType(InputPrimitiveType.Boolean)),
+                InputFactory.Property("Description", InputPrimitiveType.String),
+            ];
+            if (includeCount)
+            {
+                properties.Add(InputFactory.Property("Count", new InputNullableType(InputPrimitiveType.Int32)));
+            }
+
+            return InputFactory.Model("CompatibilityModel", properties: properties);
+        }
+
+        private static InputModelType[] GetTestModels(bool isStringPropExact = false)
         {
             InputType additionalPropertiesUnknown = InputPrimitiveType.Any;
             InputModelProperty[] properties =
             [
-                InputFactory.Property("StringProp", InputPrimitiveType.String),
+                InputFactory.Property("StringProp", InputPrimitiveType.String, isExactName: isStringPropExact),
                 InputFactory.Property("ModelProp", InputFactory.Model("Thing")),
                 InputFactory.Property("ListProp", InputFactory.Array(InputPrimitiveType.String)),
                 InputFactory.Property("DictProp", InputFactory.Dictionary(InputPrimitiveType.String, InputPrimitiveType.String)),
@@ -981,6 +1967,30 @@ namespace Microsoft.TypeSpec.Generator.Tests.Providers.ModelFactories
                 InputFactory.Model("BaseModel", properties: properties, derivedModels: [derivedModel]),
                 InputFactory.Model("ModelWithUnknownAdditionalProperties", properties: properties, additionalProperties: additionalPropertiesUnknown),
             ];
+        }
+
+        private class RecordingMethodVisitor : LibraryVisitor
+        {
+            public List<MethodProvider> VisitedMethods { get; } = [];
+
+            protected internal override MethodProvider? VisitMethod(MethodProvider method)
+            {
+                VisitedMethods.Add(method);
+                return method;
+            }
+        }
+
+        private class BackCompatMethodRenamingVisitor : LibraryVisitor
+        {
+            protected internal override MethodProvider? VisitMethod(MethodProvider method)
+            {
+                if (method.Signature.Name == "PublicModel1"
+                    && method.Signature.Attributes.Any(a => a.ToDisplayString().Contains("EditorBrowsable")))
+                {
+                    method.Signature.Update(name: "PublicModel1Renamed");
+                }
+                return method;
+            }
         }
     }
 }

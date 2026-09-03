@@ -1,6 +1,7 @@
 import type { Type } from "@typespec/compiler";
 import { defineKit } from "@typespec/compiler/typekit";
-import { getHttpPart, HttpPart } from "../../../private.decorators.js";
+import type { HttpPart } from "../../../private.decorators.js";
+import { getHttpPart } from "../../../private.decorators.js";
 
 /**
  * Utilities for working with HTTP Parts.

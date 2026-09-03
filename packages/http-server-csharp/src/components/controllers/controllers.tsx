@@ -36,7 +36,7 @@ export function Controller(props: ControllerProps): Children {
       name={controllerName}
       public
       partial
-      baseType="ControllerBase"
+      baseType={AspNetMvc.ControllerBase}
       attributes={attributes}
     >
       <cs.Property name={implPropName} type={interfaceRef} internal virtual get />

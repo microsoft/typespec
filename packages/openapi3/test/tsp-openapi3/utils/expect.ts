@@ -1,4 +1,5 @@
-import { DecoratorApplication, isType, Numeric, typespecTypeToJson } from "@typespec/compiler";
+import type { DecoratorApplication } from "@typespec/compiler";
+import { isType, Numeric, typespecTypeToJson } from "@typespec/compiler";
 import { assert, expect } from "vitest";
 
 export interface DecoratorMatch {

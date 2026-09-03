@@ -1,7 +1,8 @@
-import { ComponentContext, createNamedContext, useContext } from "@alloy-js/core";
+import type { ComponentContext } from "@alloy-js/core";
+import { createNamedContext, useContext } from "@alloy-js/core";
 import { NoTarget } from "@typespec/compiler";
 import { useTsp } from "@typespec/emitter-framework";
-import { ClientLibrary } from "../client-library.js";
+import type { ClientLibrary } from "../client-library.js";
 import { reportDiagnostic } from "../lib.js";
 
 export const ClientLibraryContext: ComponentContext<ClientLibrary> =

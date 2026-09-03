@@ -5,9 +5,11 @@
 // file so that browser bundles (which do not support `child_process`) do not
 // pull them in transitively via `lib/utils.ts`.
 
-import { NoTarget, Type } from "@typespec/compiler";
-import { spawn, SpawnOptions } from "child_process";
-import { CSharpEmitterContext } from "../sdk-context.js";
+import type { Type } from "@typespec/compiler";
+import { NoTarget } from "@typespec/compiler";
+import type { SpawnOptions } from "child_process";
+import { spawn } from "child_process";
+import type { CSharpEmitterContext } from "../sdk-context.js";
 
 export async function execCSharpGenerator(
   context: CSharpEmitterContext,

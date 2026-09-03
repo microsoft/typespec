@@ -1,4 +1,4 @@
-import { TypeSpecHttpClientDecorators } from "../generated-defs/TypeSpec.HttpClient.js";
+import type { TypeSpecHttpClientDecorators } from "../generated-defs/TypeSpec.HttpClient.js";
 
 import { $experimental } from "./decorators/index.js";
 

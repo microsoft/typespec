@@ -1,5 +1,6 @@
 import { ok } from "assert";
-import { Diagnostic, Type, Value, definePackageFlags } from "../../../src/index.js";
+import type { Diagnostic, Type, Value } from "../../../src/index.js";
+import { definePackageFlags } from "../../../src/index.js";
 import { expectDiagnosticEmpty, extractCursor, mockFile, t } from "../../../src/testing/index.js";
 import { Tester } from "../../tester.js";
 

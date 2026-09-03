@@ -1,10 +1,7 @@
-import { Imports } from "../../types/package-json.js";
+import type { Imports } from "../../types/package-json.js";
 import { resolvePackageImportsExports } from "./resolve-package-imports-exports.js";
-import {
-  EsmResolutionContext,
-  InvalidModuleSpecifierError,
-  PackageImportNotDefinedError,
-} from "./utils.js";
+import type { EsmResolutionContext } from "./utils.js";
+import { InvalidModuleSpecifierError, PackageImportNotDefinedError } from "./utils.js";
 
 /** Implementation of PACKAGE_IMPORTS_RESOLVE https://github.com/nodejs/node/blob/main/doc/api/esm.md */
 export async function resolvePackageImports(

@@ -65,13 +65,22 @@ public class ServiceSyncClientTemplate implements IJavaTemplate<AsyncSyncClient,
         if (rootClientBuilder != null) {
             rootClientBuilder.addImportsTo(imports, false);
         }
-        addServiceClientAnnotationImport(imports);
+        // A generated class can itself be named ServiceClient; use the annotation's fully-qualified
+        // name in that case because Java forbids importing a type with the declared class's name.
+        boolean serviceClientAnnotationNameConflict = syncClassName.equals(Annotation.SERVICE_CLIENT.getName());
+        addServiceClientAnnotationImport(imports, serviceClientAnnotationNameConflict);
 
         for (ClientAccessorMethod clientAccessorMethod : serviceClient.getClientAccessorMethods()) {
             clientAccessorMethod.addImportsTo(imports, false);
         }
 
         Templates.getConvenienceSyncMethodTemplate().addImports(imports, syncClient.getConvenienceMethods());
+
+        if (useXmlSerializerMember(syncClient)) {
+            imports.add("com.azure.core.util.serializer.ObjectSerializer");
+            imports.add(settings.getPackage(settings.getImplementationSubpackage()) + "."
+                + ClientModelUtil.XML_SERIALIZER_PROVIDERS_CLASS_NAME);
+        }
 
         if (!JavaSettings.getInstance().isAzureV1()) {
             ClassType.INSTRUMENTATION.addImportsTo(imports, false);
@@ -83,7 +92,11 @@ public class ServiceSyncClientTemplate implements IJavaTemplate<AsyncSyncClient,
             .format("Initializes a new instance of the synchronous %1$s type.", serviceClient.getInterfaceName())));
 
         if (rootClientBuilder != null) {
-            javaFile.annotation(String.format("ServiceClient(builder = %s.class)", rootClientBuilder.getClassName()));
+            String serviceClientAnnotation = serviceClientAnnotationNameConflict
+                ? Annotation.SERVICE_CLIENT.getFullName()
+                : Annotation.SERVICE_CLIENT.getName();
+            javaFile.annotation(
+                String.format("%s(builder = %s.class)", serviceClientAnnotation, rootClientBuilder.getClassName()));
         }
         javaFile.publicFinalClass(syncClassName, classBlock -> {
             writeClass(syncClient, classBlock, constructorVisibility);
@@ -107,6 +120,12 @@ public class ServiceSyncClientTemplate implements IJavaTemplate<AsyncSyncClient,
         final boolean wrapServiceClient = methodGroupClient == null;
 
         // Add service client member
+        if (useXmlSerializerMember(syncClient)) {
+            addGeneratedAnnotation(classBlock);
+            classBlock.privateStaticFinalVariable(
+                "ObjectSerializer " + ConvenienceMethodTemplateBase.XML_SERIALIZER_MEMBER_NAME + " = "
+                    + ClientModelUtil.XML_SERIALIZER_PROVIDERS_CLASS_NAME + ".createInstance()");
+        }
         addGeneratedAnnotation(classBlock);
         if (wrapServiceClient) {
             classBlock.privateFinalMemberVariable(serviceClient.getClassName(), "serviceClient");
@@ -195,8 +214,10 @@ public class ServiceSyncClientTemplate implements IJavaTemplate<AsyncSyncClient,
         Templates.getWrapperClientMethodTemplate().write(clientMethod, classBlock);
     }
 
-    private void addServiceClientAnnotationImport(Set<String> imports) {
-        Annotation.SERVICE_CLIENT.addImportsTo(imports);
+    private void addServiceClientAnnotationImport(Set<String> imports, boolean serviceClientAnnotationNameConflict) {
+        if (!serviceClientAnnotationNameConflict) {
+            Annotation.SERVICE_CLIENT.addImportsTo(imports);
+        }
         Annotation.GENERATED.addImportsTo(imports);
         Annotation.METADATA.addImportsTo(imports);
         Annotation.METADATA_PROPERTIES.addImportsTo(imports);
@@ -204,6 +225,10 @@ public class ServiceSyncClientTemplate implements IJavaTemplate<AsyncSyncClient,
 
     protected void addGeneratedAnnotation(JavaContext classBlock) {
         classBlock.annotation(Annotation.GENERATED.getName());
+    }
+
+    private static boolean useXmlSerializerMember(AsyncSyncClient syncClient) {
+        return Templates.getConvenienceSyncMethodTemplate().useXmlSerializerMember(syncClient.getConvenienceMethods());
     }
 
     private void writeConvenienceMethods(List<ConvenienceMethod> convenienceMethods, JavaClass classBlock) {

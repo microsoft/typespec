@@ -2,7 +2,7 @@ import { execSync } from "child_process";
 import { readFileSync } from "fs";
 import { join, relative } from "path";
 import { parse } from "yaml";
-import { repoRoot } from "./utils/common.js";
+import { repoRoot } from "./utils/common.ts";
 
 /**
  * Validates that all workspace package dependencies use `catalog:` or `workspace:` protocols,

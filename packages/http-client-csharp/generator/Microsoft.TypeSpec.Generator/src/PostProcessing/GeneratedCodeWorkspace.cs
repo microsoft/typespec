@@ -116,7 +116,7 @@ namespace Microsoft.TypeSpec.Generator
             }
             var docs = await Task.WhenAll(documents);
 
-            LoggingHelpers.LogElapsedTime("Roslyn post processing complete");
+            LoggingHelpers.LogElapsedTime("Roslyn document processing complete");
 
             foreach (var doc in docs)
             {
@@ -233,7 +233,8 @@ namespace Microsoft.TypeSpec.Generator
             project = project
                 .AddMetadataReferences(metadataReferences)
                 .WithCompilationOptions(new CSharpCompilationOptions(
-                    OutputKind.DynamicallyLinkedLibrary, metadataReferenceResolver: _metadataReferenceResolver.Value, nullableContextOptions: NullableContextOptions.Disable));
+                    OutputKind.DynamicallyLinkedLibrary, metadataReferenceResolver: _metadataReferenceResolver.Value, nullableContextOptions: NullableContextOptions.Disable)
+                    .WithMetadataImportOptions(MetadataImportOptions.All));
             return await project.GetCompilationAsync();
         }
 
@@ -258,33 +259,6 @@ namespace Microsoft.TypeSpec.Generator
             }
 
             return project;
-        }
-
-        /// <summary>
-        /// This method invokes the postProcessor to do some post processing work
-        /// Depending on the configuration, it will either remove + internalize, just internalize or do nothing
-        /// </summary>
-        public async Task PostProcessAsync()
-        {
-            var modelFactory = CodeModelGenerator.Instance.OutputLibrary.ModelFactory.Value;
-            var nonRootTypes = CodeModelGenerator.Instance.NonRootTypes;
-            var postProcessor = new PostProcessor(
-                [.. CodeModelGenerator.Instance.TypeFactory.UnionVariantTypesToKeep, .. CodeModelGenerator.Instance.AdditionalRootTypes],
-                modelFactoryFullName: modelFactory.Type.FullyQualifiedName,
-                additionalNonRootTypeNames: nonRootTypes);
-
-            switch (Configuration.UnreferencedTypesHandling)
-            {
-                case Configuration.UnreferencedTypesHandlingOption.KeepAll:
-                    break;
-                case Configuration.UnreferencedTypesHandlingOption.Internalize:
-                    _project = await postProcessor.InternalizeAsync(_project);
-                    break;
-                case Configuration.UnreferencedTypesHandlingOption.RemoveOrInternalize:
-                    _project = await postProcessor.InternalizeAsync(_project);
-                    _project = await postProcessor.RemoveAsync(_project);
-                    break;
-            }
         }
 
         /// <summary>
@@ -369,22 +343,28 @@ namespace Microsoft.TypeSpec.Generator
 
         /// <summary>
         /// Locates and parses the ApiCompat baseline (suppression) file for the current library, if
-        /// present. The file is expected at <c>eng/apicompatbaselines/&lt;AssemblyName&gt;.txt</c>
-        /// relative to a repository root discovered by walking up from the project directory.
+        /// present. The file is expected at <c>eng/apicompatbaselines/&lt;AssemblyName&gt;.xml</c> or
+        /// <c>eng/apicompatbaselines/&lt;AssemblyName&gt;.txt</c> relative to a repository root
+        /// discovered by walking up from the project directory. The XML format is preferred when both
+        /// files exist.
         /// Returns <see cref="ApiCompatBaseline.Empty"/> when no baseline file is found.
         /// </summary>
         internal static ApiCompatBaseline LoadApiCompatBaseline()
         {
-            var packageName = CodeModelGenerator.Instance.TypeFactory.PrimaryNamespace;
+            var packageName = CodeModelGenerator.Instance.Configuration.PackageName;
             var directory = new DirectoryInfo(CodeModelGenerator.Instance.Configuration.ProjectDirectory);
 
             while (directory != null)
             {
-                var candidate = Path.Combine(directory.FullName, "eng", "apicompatbaselines", $"{packageName}.txt");
-                if (File.Exists(candidate))
+                var baselineDirectory = Path.Combine(directory.FullName, "eng", "apicompatbaselines");
+                foreach (var extension in new[] { ".xml", ".txt" })
                 {
-                    CodeModelGenerator.Instance.Emitter.Debug($"Loading ApiCompat baseline from {candidate}");
-                    return ApiCompatBaseline.FromFile(candidate);
+                    var candidate = Path.Combine(baselineDirectory, $"{packageName}{extension}");
+                    if (File.Exists(candidate))
+                    {
+                        CodeModelGenerator.Instance.Emitter.Debug($"Loading ApiCompat baseline from {candidate}");
+                        return ApiCompatBaseline.FromFile(candidate);
+                    }
                 }
 
                 directory = directory.Parent;
@@ -395,7 +375,7 @@ namespace Microsoft.TypeSpec.Generator
 
         internal static async Task<Compilation?> LoadBaselineContract()
         {
-            var packageName = CodeModelGenerator.Instance.TypeFactory.PrimaryNamespace;
+            var packageName = CodeModelGenerator.Instance.Configuration.PackageName;
             string projectFilePath = Path.GetFullPath(Path.Combine(CodeModelGenerator.Instance.Configuration.ProjectDirectory, $"{packageName}.csproj"));
 
             if (!File.Exists(projectFilePath))

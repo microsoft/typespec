@@ -22,20 +22,28 @@ def description_ends_with_code_block(description: str) -> bool:
     block runs to the end of the description.
     """
     lines = description.rstrip().splitlines()
-    directives = [
-        i for i, line in enumerate(lines) if line.lstrip().startswith(CODE_BLOCK_MARKER)
-    ]
+    directives = [i for i, line in enumerate(lines) if line.lstrip().startswith(CODE_BLOCK_MARKER)]
     if not directives:
         return False
-    return all(
-        not line.strip() or line.startswith((" ", "\t"))
-        for line in lines[directives[-1] + 1 :]
+    return all(not line.strip() or line.startswith((" ", "\t")) for line in lines[directives[-1] + 1 :])
+
+
+def is_typeddict_only(options: Any) -> bool:
+    """Whether generation is TypedDict-only.
+
+    True for TypeSpec input where no concrete models mode is selected (``models-mode: none``,
+    normalized to a falsy value by :class:`OptionsDict`) and ``generate-typeddict`` is enabled.
+    Swagger ``models-mode: none`` is left as a plain no-models mode because it never sets
+    ``tsp_file``.
+    """
+    return (
+        bool(options.get("tsp_file"))
+        and not options.get("models-mode")
+        and bool(options.get("generate-typeddict", True))
     )
 
 
-def update_enum_value(
-    name: str, value: Any, description: str, enum_type: dict[str, Any]
-) -> dict[str, Any]:
+def update_enum_value(name: str, value: Any, description: str, enum_type: dict[str, Any]) -> dict[str, Any]:
     return {
         "name": name,
         "type": "enumvalue",
@@ -62,12 +70,7 @@ def to_snake_case(name: str) -> str:
             and len(name) - next_non_upper_case_char_location > 1
             and name[next_non_upper_case_char_location].isalpha()
         ):
-            return (
-                prefix
-                + match_str[: len(match_str) - 1]
-                + "_"
-                + match_str[len(match_str) - 1]
-            )
+            return prefix + match_str[: len(match_str) - 1] + "_" + match_str[len(match_str) - 1]
 
         return prefix + match_str
 
@@ -114,16 +117,14 @@ def parse_args(
         return value
 
     unknown_args_ret = {
-        ua.strip("--").split("=", maxsplit=1)[0]: _get_value(
-            ua.strip("--").split("=", maxsplit=1)[1]
-        )
+        ua.strip("--").split("=", maxsplit=1)[0]: _get_value(ua.strip("--").split("=", maxsplit=1)[1])
         for ua in unknown_args
     }
     return args, unknown_args_ret
 
 
 def get_body_type_for_description(body_parameter: dict[str, Any]) -> str:
-    if body_parameter["type"]["type"] == "binary":
+    if body_parameter["type"]["type"] in ("binary", "bytes"):
         return "binary"
     if body_parameter["type"]["type"] == "string":
         return "string"
@@ -158,11 +159,7 @@ def build_policies(
             "self._config.user_agent_policy",
             "self._config.proxy_policy",
             "policies.ContentDecodePolicy(**kwargs)",
-            (
-                f"{async_prefix}ARMAutoResourceProviderRegistrationPolicy()"
-                if is_arm
-                else None
-            ),
+            (f"{async_prefix}ARMAutoResourceProviderRegistrationPolicy()" if is_arm else None),
             "self._config.redirect_policy",
             "self._config.retry_policy",
             "self._config.authentication_policy",

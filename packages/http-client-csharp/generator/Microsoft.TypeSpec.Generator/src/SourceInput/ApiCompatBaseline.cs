@@ -4,6 +4,8 @@
 using System;
 using System.Collections.Generic;
 using System.IO;
+using System.Text;
+using System.Xml.Linq;
 using Microsoft.TypeSpec.Generator.Primitives;
 
 namespace Microsoft.TypeSpec.Generator.SourceInput
@@ -11,6 +13,7 @@ namespace Microsoft.TypeSpec.Generator.SourceInput
     /// <summary>
     /// Represents the set of intentional, already-accepted breaking changes recorded in an
     /// <c>ApiCompat</c> baseline (suppression) file (for example the files under
+    /// <c>eng/apicompatbaselines/&lt;AssemblyName&gt;.xml</c> or
     /// <c>eng/apicompatbaselines/&lt;AssemblyName&gt;.txt</c>).
     /// <para>
     /// The backward-compatibility system resurrects any public member that exists in the previous
@@ -26,21 +29,27 @@ namespace Microsoft.TypeSpec.Generator.SourceInput
     {
         private const string TypesMustExist = "TypesMustExist";
         private const string MembersMustExist = "MembersMustExist";
+        private const string EnumValuesMustMatch = "EnumValuesMustMatch";
+        private const string TypeMustExistDiagnostic = "CP0001";
+        private const string MemberMustExistDiagnostic = "CP0002";
+        private const string EnumValueMustMatchDiagnostic = "CP0011";
 
         private readonly HashSet<string> _suppressedTypes;
         private readonly HashSet<MemberKey> _suppressedMembers;
+        private readonly HashSet<MethodKey> _suppressedMethods;
 
-        private ApiCompatBaseline(HashSet<string> suppressedTypes, HashSet<MemberKey> suppressedMembers)
+        private ApiCompatBaseline(HashSet<string> suppressedTypes, HashSet<MemberKey> suppressedMembers, HashSet<MethodKey> suppressedMethods)
         {
             _suppressedTypes = suppressedTypes;
             _suppressedMembers = suppressedMembers;
+            _suppressedMethods = suppressedMethods;
         }
 
         /// <summary>
         /// An empty baseline that suppresses nothing. Used when no baseline file is present.
         /// </summary>
         public static ApiCompatBaseline Empty { get; } =
-            new(new HashSet<string>(StringComparer.Ordinal), new HashSet<MemberKey>());
+            new(new HashSet<string>(StringComparer.Ordinal), new HashSet<MemberKey>(), new HashSet<MethodKey>());
 
         /// <summary>
         /// Gets a value indicating whether this baseline contains any suppressions.
@@ -58,7 +67,9 @@ namespace Microsoft.TypeSpec.Generator.SourceInput
                 return Empty;
             }
 
-            return Parse(File.ReadAllLines(path));
+            return string.Equals(Path.GetExtension(path), ".xml", StringComparison.OrdinalIgnoreCase)
+                ? ParseXml(XDocument.Load(path))
+                : Parse(File.ReadAllLines(path));
         }
 
         /// <summary>
@@ -68,6 +79,7 @@ namespace Microsoft.TypeSpec.Generator.SourceInput
         {
             var suppressedTypes = new HashSet<string>(StringComparer.Ordinal);
             var suppressedMembers = new HashSet<MemberKey>();
+            var suppressedMethods = new HashSet<MethodKey>();
 
             foreach (var rawLine in lines)
             {
@@ -98,9 +110,20 @@ namespace Microsoft.TypeSpec.Generator.SourceInput
                         suppressedTypes.Add(quoted);
                         break;
                     case MembersMustExist:
-                        if (TryParseMember(quoted, out var memberKey))
+                        if (TryParseMember(quoted, out var memberKey, out var methodKey))
                         {
                             suppressedMembers.Add(memberKey);
+                            suppressedMethods.Add(methodKey);
+                        }
+                        else if (TryParseField(quoted, out memberKey))
+                        {
+                            suppressedMembers.Add(memberKey);
+                        }
+                        break;
+                    case EnumValuesMustMatch:
+                        if (TryParseField(quoted, out var enumMemberKey))
+                        {
+                            suppressedMembers.Add(enumMemberKey);
                         }
                         break;
                     // Other rule ids (e.g. CannotRemoveAttribute) do not describe a removed
@@ -110,7 +133,65 @@ namespace Microsoft.TypeSpec.Generator.SourceInput
                 }
             }
 
-            return new ApiCompatBaseline(suppressedTypes, suppressedMembers);
+            return new ApiCompatBaseline(suppressedTypes, suppressedMembers, suppressedMethods);
+        }
+
+        private static ApiCompatBaseline ParseXml(XDocument document)
+        {
+            var suppressedTypes = new HashSet<string>(StringComparer.Ordinal);
+            var suppressedMembers = new HashSet<MemberKey>();
+            var suppressedMethods = new HashSet<MethodKey>();
+
+            foreach (var suppression in document.Descendants())
+            {
+                if (suppression.Name.LocalName != "Suppression")
+                {
+                    continue;
+                }
+
+                string? diagnosticId = null;
+                string? target = null;
+                foreach (var element in suppression.Elements())
+                {
+                    switch (element.Name.LocalName)
+                    {
+                        case "DiagnosticId":
+                            diagnosticId = element.Value.Trim();
+                            break;
+                        case "Target":
+                            target = element.Value.Trim();
+                            break;
+                    }
+                }
+
+                if (string.IsNullOrEmpty(target))
+                {
+                    continue;
+                }
+
+                switch (diagnosticId)
+                {
+                    case TypeMustExistDiagnostic:
+                        if (target.StartsWith("T:", StringComparison.Ordinal))
+                        {
+                            suppressedTypes.Add(RemoveGenericArity(target.Substring(2)));
+                        }
+                        break;
+                    case MemberMustExistDiagnostic:
+                    case EnumValueMustMatchDiagnostic:
+                        if (TryParseXmlMember(target, out var memberKey, out var methodKey))
+                        {
+                            suppressedMembers.Add(memberKey);
+                            if (methodKey.HasValue)
+                            {
+                                suppressedMethods.Add(methodKey.Value);
+                            }
+                        }
+                        break;
+                }
+            }
+
+            return new ApiCompatBaseline(suppressedTypes, suppressedMembers, suppressedMethods);
         }
 
         /// <summary>
@@ -140,6 +221,30 @@ namespace Microsoft.TypeSpec.Generator.SourceInput
             }
 
             return _suppressedMembers.Contains(new MemberKey(declaringTypeFullName, memberName, parameterCount));
+        }
+
+        /// <summary>
+        /// Determines whether the removal of a specific method overload has been accepted in the
+        /// baseline. Unlike <see cref="IsMemberSuppressed(string, string, int)"/>, matching considers the
+        /// exact parameter types (not just their count), so accepting the removal of one overload — for
+        /// example <c>Foo(string)</c> — does not incorrectly suppress a different overload such as
+        /// <c>Foo(int)</c>. The removal of the declaring type itself (a <c>TypesMustExist</c>
+        /// suppression) still implies all of its methods are suppressed.
+        /// </summary>
+        public bool IsMethodRemovalSuppressed(string declaringTypeFullName, string memberName, IReadOnlyList<CSharpType> parameterTypes)
+        {
+            if (string.IsNullOrEmpty(declaringTypeFullName) || string.IsNullOrEmpty(memberName))
+            {
+                return false;
+            }
+
+            if (_suppressedTypes.Contains(declaringTypeFullName))
+            {
+                return true;
+            }
+
+            return _suppressedMethods.Contains(
+                new MethodKey(declaringTypeFullName, memberName, BuildParameterSignature(parameterTypes)));
         }
 
         /// <summary>
@@ -197,9 +302,12 @@ namespace Microsoft.TypeSpec.Generator.SourceInput
         //   public Ns.Result Ns.Factory.Make(Ns.Kind, System.String)
         //   public void Ns.Record..ctor(Ns.Kind, System.String)
         //   public Ns.Kind Ns.Record.Prop.get()
-        private static bool TryParseMember(string signature, out MemberKey memberKey)
+        // Also produces a <see cref="MethodKey"/> that captures the exact parameter-type signature so
+        // overloads differing only by parameter types can be told apart.
+        private static bool TryParseMember(string signature, out MemberKey memberKey, out MethodKey methodKey)
         {
             memberKey = default;
+            methodKey = default;
 
             var parenIndex = signature.IndexOf('(');
             if (parenIndex < 0 || !signature.EndsWith(")", StringComparison.Ordinal))
@@ -251,9 +359,153 @@ namespace Microsoft.TypeSpec.Generator.SourceInput
                 }
             }
 
-            var parameterCount = CountParameters(signature.Substring(parenIndex + 1, signature.Length - parenIndex - 2));
-            memberKey = new MemberKey(declaringTypeFullName, memberName, parameterCount);
+            var parameterList = signature.Substring(parenIndex + 1, signature.Length - parenIndex - 2);
+            memberKey = new MemberKey(declaringTypeFullName, memberName, CountParameters(parameterList));
+            methodKey = new MethodKey(declaringTypeFullName, memberName, NormalizeParameterList(parameterList));
             return true;
+        }
+
+        // Parses an ApiCompat field/enum-value signature (which has no parameter list) of the form:
+        //   [modifiers] FieldType Namespace.DeclaringType.MemberName
+        // for example:
+        //   Ns.CapacityLevel Ns.CapacityLevel.FiftyThousand
+        //   public Ns.Kind Ns.Foo.Kind
+        // Enum members are recorded with a parameter count of zero.
+        private static bool TryParseField(string signature, out MemberKey memberKey)
+        {
+            memberKey = default;
+
+            // Field/enum-value signatures never contain a parameter list.
+            if (signature.Contains('('))
+            {
+                return false;
+            }
+
+            // The fully-qualified member path is the last whitespace-delimited token (the tokens
+            // before it are access modifiers and the field/enum type).
+            var lastSpace = signature.LastIndexOf(' ');
+            var memberPath = lastSpace >= 0 ? signature.Substring(lastSpace + 1) : signature;
+
+            var lastDot = memberPath.LastIndexOf('.');
+            if (lastDot <= 0 || lastDot == memberPath.Length - 1)
+            {
+                return false;
+            }
+
+            var declaringTypeFullName = memberPath.Substring(0, lastDot);
+            var memberName = memberPath.Substring(lastDot + 1);
+            memberKey = new MemberKey(declaringTypeFullName, memberName, 0);
+            return true;
+        }
+
+        private static bool TryParseXmlMember(string target, out MemberKey memberKey, out MethodKey? methodKey)
+        {
+            memberKey = default;
+            methodKey = null;
+
+            if (target.Length < 3 || target[1] != ':')
+            {
+                return false;
+            }
+
+            var symbolKind = target[0];
+            var symbol = target.Substring(2);
+            if (symbolKind == 'M')
+            {
+                var parenIndex = symbol.IndexOf('(');
+                if (parenIndex >= 0 && !symbol.EndsWith(")", StringComparison.Ordinal))
+                {
+                    return false;
+                }
+
+                var memberPath = parenIndex >= 0 ? symbol.Substring(0, parenIndex) : symbol;
+                var parameterList = parenIndex >= 0
+                    ? symbol.Substring(parenIndex + 1, symbol.Length - parenIndex - 2)
+                    : string.Empty;
+
+                if (!TrySplitXmlMemberPath(memberPath, out var declaringTypeFullName, out var memberName))
+                {
+                    return false;
+                }
+
+                memberName = NormalizeXmlMemberName(memberName);
+                var normalizedParameters = NormalizeXmlParameterList(parameterList);
+                memberKey = new MemberKey(declaringTypeFullName, memberName, CountParameters(normalizedParameters));
+                methodKey = new MethodKey(declaringTypeFullName, memberName, normalizedParameters);
+                return true;
+            }
+
+            if (symbolKind is 'F' or 'P' or 'E'
+                && TrySplitXmlMemberPath(symbol, out var declaringType, out var name))
+            {
+                memberKey = new MemberKey(declaringType, NormalizeXmlMemberName(name), 0);
+                return true;
+            }
+
+            return false;
+        }
+
+        private static bool TrySplitXmlMemberPath(
+            string memberPath,
+            out string declaringTypeFullName,
+            out string memberName)
+        {
+            declaringTypeFullName = string.Empty;
+            memberName = string.Empty;
+
+            var lastDot = memberPath.LastIndexOf('.');
+            if (lastDot <= 0 || lastDot == memberPath.Length - 1)
+            {
+                return false;
+            }
+
+            declaringTypeFullName = RemoveGenericArity(memberPath.Substring(0, lastDot));
+            memberName = memberPath.Substring(lastDot + 1);
+            return true;
+        }
+
+        private static string NormalizeXmlMemberName(string memberName)
+        {
+            if (memberName.StartsWith('#'))
+            {
+                memberName = $".{memberName.Substring(1)}";
+            }
+
+            if (memberName.StartsWith("get_", StringComparison.Ordinal)
+                || memberName.StartsWith("set_", StringComparison.Ordinal)
+                || memberName.StartsWith("add_", StringComparison.Ordinal)
+                || memberName.StartsWith("remove_", StringComparison.Ordinal))
+            {
+                memberName = memberName.Substring(memberName.IndexOf('_') + 1);
+            }
+
+            return RemoveGenericArity(memberName);
+        }
+
+        private static string NormalizeXmlParameterList(string parameterList)
+            => NormalizeParameterList(parameterList)
+                .Replace('{', '<')
+                .Replace('}', '>')
+                .Replace('+', '.');
+
+        private static string RemoveGenericArity(string name)
+        {
+            var builder = new StringBuilder(name.Length);
+            for (int i = 0; i < name.Length; i++)
+            {
+                if (name[i] == '`')
+                {
+                    while (i + 1 < name.Length && char.IsDigit(name[i + 1]))
+                    {
+                        i++;
+                    }
+                    continue;
+                }
+
+                builder.Append(name[i] == '+' ? '.' : name[i]);
+            }
+
+            return builder.ToString();
         }
 
         private static int CountParameters(string parameterList)
@@ -289,6 +541,91 @@ namespace Microsoft.TypeSpec.Generator.SourceInput
             return count;
         }
 
+        // Produces a canonical, whitespace-free representation of a baseline parameter list
+        // (e.g. "System.Collections.Generic.IDictionary<System.String,System.Int32>,System.String") so
+        // it can be compared against a signature built from <see cref="CSharpType"/> parameter types.
+        private static string NormalizeParameterList(string parameterList)
+        {
+            var trimmed = parameterList.Trim();
+            if (trimmed.Length == 0)
+            {
+                return string.Empty;
+            }
+
+            var builder = new StringBuilder(trimmed.Length);
+            foreach (var c in trimmed)
+            {
+                if (!char.IsWhiteSpace(c))
+                {
+                    builder.Append(c);
+                }
+            }
+
+            return builder.ToString();
+        }
+
+        // Builds the same canonical parameter-type signature from a list of <see cref="CSharpType"/>
+        // (using each type's fully-qualified name and recursively-rendered generic arguments) that
+        // <see cref="NormalizeParameterList"/> produces from a baseline signature.
+        private static string BuildParameterSignature(IReadOnlyList<CSharpType> parameterTypes)
+        {
+            if (parameterTypes.Count == 0)
+            {
+                return string.Empty;
+            }
+
+            var builder = new StringBuilder();
+            for (int i = 0; i < parameterTypes.Count; i++)
+            {
+                if (i > 0)
+                {
+                    builder.Append(',');
+                }
+
+                AppendTypeName(builder, parameterTypes[i]);
+            }
+
+            return builder.ToString();
+        }
+
+        private static void AppendTypeName(StringBuilder builder, CSharpType type)
+        {
+            if (type.IsFrameworkType && type.FrameworkType.IsGenericParameter)
+            {
+                builder.Append('`');
+                builder.Append(type.FrameworkType.GenericParameterPosition);
+                return;
+            }
+
+            // Nullable value types are rendered by ApiCompat as System.Nullable<T>.
+            if (type.IsNullable && type.IsValueType)
+            {
+                builder.Append("System.Nullable<");
+                AppendTypeName(builder, type.WithNullable(false));
+                builder.Append('>');
+                return;
+            }
+
+            builder.Append(type.FullyQualifiedName);
+
+            var arguments = type.Arguments;
+            if (arguments.Count > 0)
+            {
+                builder.Append('<');
+                for (int i = 0; i < arguments.Count; i++)
+                {
+                    if (i > 0)
+                    {
+                        builder.Append(',');
+                    }
+
+                    AppendTypeName(builder, arguments[i]);
+                }
+
+                builder.Append('>');
+            }
+        }
+
         private readonly struct MemberKey : IEquatable<MemberKey>
         {
             private readonly string _declaringTypeFullName;
@@ -311,6 +648,30 @@ namespace Microsoft.TypeSpec.Generator.SourceInput
 
             public override int GetHashCode()
                 => HashCode.Combine(_declaringTypeFullName, _memberName, _parameterCount);
+        }
+
+        private readonly struct MethodKey : IEquatable<MethodKey>
+        {
+            private readonly string _declaringTypeFullName;
+            private readonly string _memberName;
+            private readonly string _parameterSignature;
+
+            public MethodKey(string declaringTypeFullName, string memberName, string parameterSignature)
+            {
+                _declaringTypeFullName = declaringTypeFullName;
+                _memberName = memberName;
+                _parameterSignature = parameterSignature;
+            }
+
+            public bool Equals(MethodKey other)
+                => string.Equals(_declaringTypeFullName, other._declaringTypeFullName, StringComparison.Ordinal)
+                   && string.Equals(_memberName, other._memberName, StringComparison.Ordinal)
+                   && string.Equals(_parameterSignature, other._parameterSignature, StringComparison.Ordinal);
+
+            public override bool Equals(object? obj) => obj is MethodKey other && Equals(other);
+
+            public override int GetHashCode()
+                => HashCode.Combine(_declaringTypeFullName, _memberName, _parameterSignature);
         }
     }
 }

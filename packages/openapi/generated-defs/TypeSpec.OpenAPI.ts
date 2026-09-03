@@ -47,6 +47,7 @@ export interface License {
   readonly [key: string]: unknown;
   readonly name: string;
   readonly url?: string;
+  readonly identifier?: string;
 }
 
 export interface ExternalDocs {

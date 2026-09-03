@@ -1,7 +1,7 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT license.
 
-/* eslint no-console: "off" */
+/* eslint-disable no-console */
 
 import fs from "node:fs/promises";
 import path from "node:path";
@@ -150,7 +150,7 @@ async function main() {
       "// Copyright (c) Microsoft Corporation",
       "// Licensed under the MIT license.",
       "",
-      `import { Module } from "${path.relative(targetDir, ctxPath).replace(/\\/g, "/")}";`,
+      `import type { Module } from "${path.relative(targetDir, ctxPath).replace(/\\/g, "/")}";`,
       "",
       "export let module: Module = undefined as any;",
       "",
@@ -214,7 +214,7 @@ async function main() {
       "// Copyright (c) Microsoft Corporation",
       "// Licensed under the MIT license.",
       "",
-      `import { Module } from "${path.relative(path.dirname(targetPath), ctxPath).replace(/\\/g, "/")}";`,
+      `import type { Module } from "${path.relative(path.dirname(targetPath), ctxPath).replace(/\\/g, "/")}";`,
       "",
       "export let module: Module = undefined as any;",
       "",

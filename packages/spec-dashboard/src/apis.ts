@@ -1,12 +1,12 @@
-import {
+import type {
   CoverageReport,
   GeneratorMetadata,
   ResolvedCoverageReport,
   ScenarioData,
   ScenarioManifest,
-  SpecCoverageClient,
 } from "@typespec/spec-coverage-sdk";
-import { TierConfig } from "./utils/tier-filtering-utils.js";
+import { SpecCoverageClient } from "@typespec/spec-coverage-sdk";
+import type { TierConfig } from "./utils/tier-filtering-utils.js";
 
 export interface TableDefinition {
   /** Custom table name */

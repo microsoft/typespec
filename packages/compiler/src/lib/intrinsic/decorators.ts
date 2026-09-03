@@ -1,4 +1,5 @@
-import { DocTarget, setDocData } from "../../core/intrinsic-type-state.js";
+import type { DocTarget } from "../../core/intrinsic-type-state.js";
+import { setDocData } from "../../core/intrinsic-type-state.js";
 import type { Program } from "../../core/program.js";
 import type { DecoratorContext, ModelIndexer, Scalar, Type } from "../../core/types.js";
 

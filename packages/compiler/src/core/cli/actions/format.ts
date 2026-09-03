@@ -1,8 +1,8 @@
 import pc from "picocolors";
 import { logDiagnostics } from "../../diagnostics.js";
 import { checkFilesFormat, formatFiles } from "../../formatter-fs.js";
-import { Diagnostic } from "../../types.js";
-import { CliCompilerHost } from "../types.js";
+import type { Diagnostic } from "../../types.js";
+import type { CliCompilerHost } from "../types.js";
 
 export interface FormatArgs {
   include: string[];

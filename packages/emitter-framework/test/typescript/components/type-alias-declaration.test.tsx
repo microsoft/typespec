@@ -7,148 +7,146 @@ import { describe, expect, it } from "vitest";
 import { Output } from "../../../src/core/components/output.jsx";
 import { TypeAliasDeclaration } from "../../../src/typescript/components/type-alias-declaration.jsx";
 
-describe("Typescript Type Alias Declaration", () => {
-  describe("Type Alias bound to Typespec Scalar", () => {
-    describe("Scalar extends utcDateTime", () => {
-      it("creates a type alias declaration for a utcDateTime without encoding", async () => {
-        const program = await getProgram(`
-        namespace DemoService;
-        scalar MyDate extends utcDateTime;
-        `);
+describe("Type Alias bound to Typespec Scalar", () => {
+  describe("Scalar extends utcDateTime", () => {
+    it("creates a type alias declaration for a utcDateTime without encoding", async () => {
+      const program = await getProgram(`
+      namespace DemoService;
+      scalar MyDate extends utcDateTime;
+      `);
 
-        const [namespace] = program.resolveTypeReference("DemoService");
-        const scalar = Array.from((namespace as Namespace).scalars.values())[0];
+      const [namespace] = program.resolveTypeReference("DemoService");
+      const scalar = Array.from((namespace as Namespace).scalars.values())[0];
 
-        expect(
-          <Output program={program}>
-            <SourceFile path="test.ts">
-              <TypeAliasDeclaration type={scalar} />
-            </SourceFile>
-          </Output>,
-        ).toRenderTo(`type MyDate = Date;`);
-      });
+      expect(
+        <Output program={program}>
+          <SourceFile path="test.ts">
+            <TypeAliasDeclaration type={scalar} />
+          </SourceFile>
+        </Output>,
+      ).toRenderTo(`type MyDate = Date;`);
+    });
 
-      it("creates a type alias declaration with JSDoc", async () => {
-        const program = await getProgram(`
-        namespace DemoService;
+    it("creates a type alias declaration with JSDoc", async () => {
+      const program = await getProgram(`
+      namespace DemoService;
+      /**
+       * Type to represent a date
+       */
+      scalar MyDate extends utcDateTime;
+      `);
+
+      const [namespace] = program.resolveTypeReference("DemoService");
+      const scalar = Array.from((namespace as Namespace).scalars.values())[0];
+
+      expect(
+        <Output program={program}>
+          <SourceFile path="test.ts">
+            <TypeAliasDeclaration type={scalar} />
+          </SourceFile>
+        </Output>,
+      ).toRenderTo(`
         /**
          * Type to represent a date
          */
-        scalar MyDate extends utcDateTime;
-        `);
+        type MyDate = Date;`);
+    });
 
-        const [namespace] = program.resolveTypeReference("DemoService");
-        const scalar = Array.from((namespace as Namespace).scalars.values())[0];
+    it("can override JSDoc", async () => {
+      const program = await getProgram(`
+      namespace DemoService;
+      /**
+       * Type to represent a date
+       */
+      scalar MyDate extends utcDateTime;
+      `);
 
-        expect(
-          <Output program={program}>
-            <SourceFile path="test.ts">
-              <TypeAliasDeclaration type={scalar} />
-            </SourceFile>
-          </Output>,
-        ).toRenderTo(`
-          /**
-           * Type to represent a date
-           */
-          type MyDate = Date;`);
-      });
+      const [namespace] = program.resolveTypeReference("DemoService");
+      const scalar = Array.from((namespace as Namespace).scalars.values())[0];
 
-      it("can override JSDoc", async () => {
-        const program = await getProgram(`
-        namespace DemoService;
+      expect(
+        <Output program={program}>
+          <SourceFile path="test.ts">
+            <TypeAliasDeclaration doc={"Overridden Doc"} type={scalar} />
+          </SourceFile>
+        </Output>,
+      ).toRenderTo(`
         /**
-         * Type to represent a date
+         * Overridden Doc
          */
-        scalar MyDate extends utcDateTime;
-        `);
+        type MyDate = Date;`);
+    });
 
-        const [namespace] = program.resolveTypeReference("DemoService");
-        const scalar = Array.from((namespace as Namespace).scalars.values())[0];
+    it("creates a type alias declaration for a utcDateTime with unixTimeStamp encoding", async () => {
+      const program = await getProgram(`
+      namespace DemoService;
+      @encode("unixTimestamp", int32)
+      scalar MyDate extends utcDateTime;
+      `);
 
-        expect(
-          <Output program={program}>
-            <SourceFile path="test.ts">
-              <TypeAliasDeclaration doc={"Overridden Doc"} type={scalar} />
-            </SourceFile>
-          </Output>,
-        ).toRenderTo(`
-          /**
-           * Overridden Doc
-           */
-          type MyDate = Date;`);
-      });
+      const [namespace] = program.resolveTypeReference("DemoService");
+      const scalar = Array.from((namespace as Namespace).scalars.values())[0];
 
-      it("creates a type alias declaration for a utcDateTime with unixTimeStamp encoding", async () => {
-        const program = await getProgram(`
-        namespace DemoService;
-        @encode("unixTimestamp", int32)
-        scalar MyDate extends utcDateTime;
-        `);
+      expect(
+        <Output program={program}>
+          <SourceFile path="test.ts">
+            <TypeAliasDeclaration type={scalar} />
+          </SourceFile>
+        </Output>,
+      ).toRenderTo(`type MyDate = Date;`);
+    });
 
-        const [namespace] = program.resolveTypeReference("DemoService");
-        const scalar = Array.from((namespace as Namespace).scalars.values())[0];
+    it("creates a type alias declaration for a utcDateTime with rfc7231 encoding", async () => {
+      const program = await getProgram(`
+      namespace DemoService;
+      @encode("rfc7231")
+      scalar MyDate extends utcDateTime;
+      `);
 
-        expect(
-          <Output program={program}>
-            <SourceFile path="test.ts">
-              <TypeAliasDeclaration type={scalar} />
-            </SourceFile>
-          </Output>,
-        ).toRenderTo(`type MyDate = Date;`);
-      });
+      const [namespace] = program.resolveTypeReference("DemoService");
+      const scalar = Array.from((namespace as Namespace).scalars.values())[0];
 
-      it("creates a type alias declaration for a utcDateTime with rfc7231 encoding", async () => {
-        const program = await getProgram(`
-        namespace DemoService;
-        @encode("rfc7231")
-        scalar MyDate extends utcDateTime;
-        `);
+      expect(
+        <Output program={program}>
+          <SourceFile path="test.ts">
+            <TypeAliasDeclaration type={scalar} />
+          </SourceFile>
+        </Output>,
+      ).toRenderTo(`type MyDate = Date;`);
+    });
 
-        const [namespace] = program.resolveTypeReference("DemoService");
-        const scalar = Array.from((namespace as Namespace).scalars.values())[0];
+    it("creates a type alias declaration for a utcDateTime with rfc3339 encoding", async () => {
+      const program = await getProgram(`
+      namespace DemoService;
+      @encode("rfc3339")
+      scalar MyDate extends utcDateTime;
+      `);
 
-        expect(
-          <Output program={program}>
-            <SourceFile path="test.ts">
-              <TypeAliasDeclaration type={scalar} />
-            </SourceFile>
-          </Output>,
-        ).toRenderTo(`type MyDate = Date;`);
-      });
+      const [namespace] = program.resolveTypeReference("DemoService");
+      const scalar = Array.from((namespace as Namespace).scalars.values())[0];
 
-      it("creates a type alias declaration for a utcDateTime with rfc3339 encoding", async () => {
-        const program = await getProgram(`
-        namespace DemoService;
-        @encode("rfc3339")
-        scalar MyDate extends utcDateTime;
-        `);
-
-        const [namespace] = program.resolveTypeReference("DemoService");
-        const scalar = Array.from((namespace as Namespace).scalars.values())[0];
-
-        expect(
-          <Output program={program}>
-            <SourceFile path="test.ts">
-              <TypeAliasDeclaration export type={scalar} />
-            </SourceFile>
-          </Output>,
-        ).toRenderTo(`export type MyDate = Date;`);
-      });
+      expect(
+        <Output program={program}>
+          <SourceFile path="test.ts">
+            <TypeAliasDeclaration export type={scalar} />
+          </SourceFile>
+        </Output>,
+      ).toRenderTo(`export type MyDate = Date;`);
     });
   });
+});
 
-  it("creates a type alias of a function", async () => {
-    const runner = await Tester.createInstance();
-    const { getName } = await runner.compile(t.code`
-      @test op  ${t.op("getName")}(id: string): string;
-    `);
+it("creates a type alias of a function", async () => {
+  const runner = await Tester.createInstance();
+  const { getName } = await runner.compile(t.code`
+    @test op  ${t.op("getName")}(id: string): string;
+  `);
 
-    expect(
-      <Output program={runner.program}>
-        <SourceFile path="test.ts">
-          <TypeAliasDeclaration type={getName} />
-        </SourceFile>
-      </Output>,
-    ).toRenderTo("type getName = (id: string) => string;");
-  });
+  expect(
+    <Output program={runner.program}>
+      <SourceFile path="test.ts">
+        <TypeAliasDeclaration type={getName} />
+      </SourceFile>
+    </Output>,
+  ).toRenderTo("type getName = (id: string) => string;");
 });

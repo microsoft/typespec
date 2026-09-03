@@ -550,6 +550,7 @@ public final class EnumServiceClientImpl {
      *     unitValue: String(1/0.001/1000) (Optional)
      *     olympicRecord: String(9.58/19.3) (Optional)
      *     olympicRecordValue: String(9.58/19.3) (Optional)
+     *     reasoning_effort: String(none/minimal/low/medium/high/xhigh) (Optional)
      * }
      * }
      * </pre>
@@ -588,6 +589,7 @@ public final class EnumServiceClientImpl {
      *     unitValue: String(1/0.001/1000) (Optional)
      *     olympicRecord: String(9.58/19.3) (Optional)
      *     olympicRecordValue: String(9.58/19.3) (Optional)
+     *     reasoning_effort: String(none/minimal/low/medium/high/xhigh) (Optional)
      * }
      * }
      * </pre>
@@ -625,6 +627,7 @@ public final class EnumServiceClientImpl {
      *     unitValue: String(1/0.001/1000) (Optional)
      *     olympicRecord: String(9.58/19.3) (Optional)
      *     olympicRecordValue: String(9.58/19.3) (Optional)
+     *     reasoning_effort: String(none/minimal/low/medium/high/xhigh) (Optional)
      * }
      * }
      * </pre>
@@ -663,6 +666,7 @@ public final class EnumServiceClientImpl {
      *     unitValue: String(1/0.001/1000) (Optional)
      *     olympicRecord: String(9.58/19.3) (Optional)
      *     olympicRecordValue: String(9.58/19.3) (Optional)
+     *     reasoning_effort: String(none/minimal/low/medium/high/xhigh) (Optional)
      * }
      * }
      * </pre>
@@ -700,6 +704,7 @@ public final class EnumServiceClientImpl {
      *     unitValue: String(1/0.001/1000) (Optional)
      *     olympicRecord: String(9.58/19.3) (Optional)
      *     olympicRecordValue: String(9.58/19.3) (Optional)
+     *     reasoning_effort: String(none/minimal/low/medium/high/xhigh) (Optional)
      * }
      * }
      * </pre>
@@ -738,6 +743,7 @@ public final class EnumServiceClientImpl {
      *     unitValue: String(1/0.001/1000) (Optional)
      *     olympicRecord: String(9.58/19.3) (Optional)
      *     olympicRecordValue: String(9.58/19.3) (Optional)
+     *     reasoning_effort: String(none/minimal/low/medium/high/xhigh) (Optional)
      * }
      * }
      * </pre>
@@ -775,6 +781,7 @@ public final class EnumServiceClientImpl {
      *     unitValue: String(1/0.001/1000) (Optional)
      *     olympicRecord: String(9.58/19.3) (Optional)
      *     olympicRecordValue: String(9.58/19.3) (Optional)
+     *     reasoning_effort: String(none/minimal/low/medium/high/xhigh) (Optional)
      * }
      * }
      * </pre>
@@ -813,6 +820,7 @@ public final class EnumServiceClientImpl {
      *     unitValue: String(1/0.001/1000) (Optional)
      *     olympicRecord: String(9.58/19.3) (Optional)
      *     olympicRecordValue: String(9.58/19.3) (Optional)
+     *     reasoning_effort: String(none/minimal/low/medium/high/xhigh) (Optional)
      * }
      * }
      * </pre>

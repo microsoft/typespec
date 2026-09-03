@@ -1,5 +1,5 @@
 import { isArrayModelType } from "../../core/type-utils.js";
-import { ArrayModelType, Entity, Model, Type } from "../../core/types.js";
+import type { ArrayModelType, Entity, Model, Type } from "../../core/types.js";
 import { defineKit } from "../define-kit.js";
 
 /**

@@ -1,19 +1,8 @@
-import {
-  Interface,
-  Namespace,
-  Operation,
-  Program,
-  Type,
-  ignoreDiagnostics,
-  navigateTypesInNamespace,
-} from "@typespec/compiler";
+import type { Interface, Namespace, Operation, Program, Type } from "@typespec/compiler";
+import { ignoreDiagnostics, navigateTypesInNamespace } from "@typespec/compiler";
 import { TwoLevelMap } from "@typespec/compiler/utils";
-import {
-  MetadataInfo,
-  Visibility,
-  getHttpOperation,
-  resolveRequestVisibility,
-} from "@typespec/http";
+import type { MetadataInfo } from "@typespec/http";
+import { Visibility, getHttpOperation, resolveRequestVisibility } from "@typespec/http";
 
 export interface VisibilityUsageTracker {
   getUsage(type: Type): Set<Visibility> | undefined;

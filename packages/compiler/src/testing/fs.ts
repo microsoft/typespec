@@ -3,7 +3,8 @@ import { join } from "path";
 import { pathToFileURL } from "url";
 import { getAnyExtensionFromPath, resolvePath } from "../core/path-utils.js";
 import { createStringMap } from "../utils/misc.js";
-import { createTestCompilerHost, TestHostOptions } from "./test-compiler-host.js";
+import type { TestHostOptions } from "./test-compiler-host.js";
+import { createTestCompilerHost } from "./test-compiler-host.js";
 import { findFilesFromPattern } from "./test-host.js";
 import type { JsFile, MockFile, TestFileSystem, TypeSpecTestLibrary } from "./types.js";
 
@@ -123,6 +124,7 @@ function createTestFileSystemInternal(
     jsImports.set(key, exports);
   }
 
+  // eslint-disable-next-line @typescript-eslint/no-deprecated
   async function addTypeSpecLibrary(testLibrary: TypeSpecTestLibrary) {
     assertNotFrozen();
 

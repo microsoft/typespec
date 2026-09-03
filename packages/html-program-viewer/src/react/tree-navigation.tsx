@@ -21,8 +21,10 @@ export const TreeNavigation = (_: TreeNavigationProps) => {
 
 export const NodeIcon = ({ node }: { node: TypeGraphNode }) => {
   switch (node.kind) {
-    case "type":
-      return <span className={style["type-kind-icon"]}>{node.type.kind[0]}</span>;
+    case "type": {
+      const kindPrefix = node.type?.kind?.[0] ?? "?";
+      return <span className={style["type-kind-icon"]}>{kindPrefix}</span>;
+    }
     case "list":
       return <AppsListRegular />;
   }

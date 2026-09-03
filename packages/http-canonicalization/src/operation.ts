@@ -165,9 +165,7 @@ export interface CanonicalHttpOperationResponseContent {
 }
 
 export type CanonicalHttpPayloadBody =
-  | CanonicalHttpOperationBody
-  | CanonicalHttpOperationMultipartBody
-  | CanonicalHttpOperationFileBody;
+  CanonicalHttpOperationBody | CanonicalHttpOperationMultipartBody | CanonicalHttpOperationFileBody;
 
 export interface CanonicalHttpOperationBodyBase {
   /** Content types. */
@@ -204,8 +202,7 @@ export interface CanonicalHttpOperationBody
 }
 
 export type CanonicalHttpOperationMultipartBody =
-  | CanonicalHttpOperationMultipartBodyModel
-  | CanonicalHttpOperationMultipartBodyTuple;
+  CanonicalHttpOperationMultipartBodyModel | CanonicalHttpOperationMultipartBodyTuple;
 
 export interface CanonicalHttpOperationMultipartBodyCommon extends CanonicalHttpOperationBodyBase {
   readonly bodyKind: "multipart";
@@ -227,8 +224,7 @@ export interface CanonicalHttpOperationMultipartBodyTuple extends CanonicalHttpO
 }
 
 export type CanonicalHttpOperationMultipartPartBody =
-  | CanonicalHttpOperationBody
-  | CanonicalHttpOperationFileBody;
+  CanonicalHttpOperationBody | CanonicalHttpOperationFileBody;
 
 export interface CanonicalHttpOperationPartCommon {
   /** Part body */
@@ -246,8 +242,7 @@ export interface CanonicalHttpOperationPartCommon {
 }
 
 export type CanonicalHttpOperationPart =
-  | CanonicalHttpOperationModelPart
-  | CanonicalHttpOperationTuplePart;
+  CanonicalHttpOperationModelPart | CanonicalHttpOperationTuplePart;
 
 export interface CanonicalHttpOperationModelPart extends CanonicalHttpOperationPartCommon {
   readonly partKind: "model";

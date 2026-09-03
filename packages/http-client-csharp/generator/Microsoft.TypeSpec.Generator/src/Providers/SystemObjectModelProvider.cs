@@ -2,6 +2,8 @@
 // Licensed under the MIT License.
 
 using System;
+using System.Collections.Generic;
+using System.Linq;
 using Microsoft.TypeSpec.Generator.Input;
 using Microsoft.TypeSpec.Generator.Primitives;
 
@@ -20,15 +22,26 @@ namespace Microsoft.TypeSpec.Generator.Providers
     public class SystemObjectModelProvider : ModelProvider
     {
         private readonly CSharpType _systemType;
+        private readonly bool _skipDerivedConstructorParameters;
 
         /// <summary>
         /// Initializes a new instance of <see cref="SystemObjectModelProvider"/>.
         /// </summary>
         /// <param name="systemType">The CSharp type from the external/system assembly.</param>
         /// <param name="inputModel">The input model type that this system type replaces.</param>
-        public SystemObjectModelProvider(CSharpType systemType, InputModelType inputModel) : base(inputModel)
+        public SystemObjectModelProvider(CSharpType systemType, InputModelType inputModel)
+            : this(systemType, inputModel, skipDerivedConstructorParameters: false)
+        {
+        }
+
+        public SystemObjectModelProvider(
+            CSharpType systemType,
+            InputModelType inputModel,
+            bool skipDerivedConstructorParameters)
+            : base(inputModel)
         {
             _systemType = systemType ?? throw new ArgumentNullException(nameof(systemType));
+            _skipDerivedConstructorParameters = skipDerivedConstructorParameters;
             CrossLanguageDefinitionId = inputModel.CrossLanguageDefinitionId;
 
             // The base ModelProvider constructor can evaluate Type before _systemType is assigned.
@@ -59,7 +72,51 @@ namespace Microsoft.TypeSpec.Generator.Providers
         protected override string BuildNamespace() => _systemType?.Namespace ?? string.Empty;
 
         /// <inheritdoc/>
+        protected override CSharpType? BuildBaseType() => SystemType.BaseType ?? base.BuildBaseType();
+
+        /// <inheritdoc/>
+        private protected override bool ShouldUseFullConstructorInDerivedTypes => !_skipDerivedConstructorParameters;
+
+        /// <inheritdoc/>
         protected override bool ShouldSkipDerivedModelProperties => true;
+
+        /// <inheritdoc/>
+        protected internal override CSharpType[] BuildImplements()
+        {
+            if (SystemType.IsFrameworkType)
+            {
+                var frameworkType = SystemType.FrameworkType;
+                var typeArguments = frameworkType.IsGenericTypeDefinition
+                    ? frameworkType.GetGenericArguments()
+                        .Zip(SystemType.Arguments)
+                        .ToDictionary(pair => pair.First, pair => pair.Second)
+                    : [];
+
+                return [.. frameworkType.GetInterfaces().Select(type => CreateInterfaceType(type, typeArguments))];
+            }
+
+            return [.. CodeModelGenerator.Instance.SourceInputModel.FindForTypeInCurrentCompilation(
+                    SystemType.Namespace,
+                    SystemType.Name,
+                    declaringTypeName: SystemType.DeclaringType?.Name,
+                    includeReferencedAssemblies: true)?.Implements ?? []];
+        }
+
+        private static CSharpType CreateInterfaceType(
+            Type type,
+            IReadOnlyDictionary<Type, CSharpType> typeArguments)
+        {
+            if (type.IsGenericParameter && typeArguments.TryGetValue(type, out var typeArgument))
+            {
+                return typeArgument;
+            }
+
+            return type.IsGenericType
+                ? new CSharpType(
+                    type.GetGenericTypeDefinition(),
+                    [.. type.GetGenericArguments().Select(argument => CreateInterfaceType(argument, typeArguments))])
+                : new CSharpType(type);
+        }
 
         /// <inheritdoc/>
         public override bool ShouldSkipDerivedSerializationMethodOverrides => true;

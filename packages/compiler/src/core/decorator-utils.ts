@@ -1,7 +1,7 @@
 import { compilerAssert, ignoreDiagnostics } from "./diagnostics.js";
 import { createDiagnostic, reportDiagnostic } from "./messages.js";
 import type { Program } from "./program.js";
-import {
+import type {
   DecoratorContext,
   DecoratorFunction,
   Diagnostic,
@@ -11,9 +11,9 @@ import {
   Model,
   ModelProperty,
   Scalar,
-  SyntaxKind,
   Type,
 } from "./types.js";
+import { SyntaxKind } from "./types.js";
 
 export type TypeSpecValue = Type | string | number | boolean;
 

@@ -1,4 +1,5 @@
-import { NoTarget, Program } from "@typespec/compiler";
+import type { Program } from "@typespec/compiler";
+import { NoTarget } from "@typespec/compiler";
 import { reportDiagnostic } from "./lib.js";
 import { spawnAsync, trace } from "./utils.js";
 

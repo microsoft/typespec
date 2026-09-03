@@ -1,11 +1,12 @@
 vi.resetModules();
 
 import { UnbrandedSdkEmitterOptions } from "@azure-tools/typespec-client-generator-core";
-import { EmitContext, Program } from "@typespec/compiler";
+import type { EmitContext, Program } from "@typespec/compiler";
 import { ok, strictEqual } from "assert";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 import { createConfiguration } from "../../src/emitter.js";
-import { CSharpEmitterOptions, CSharpEmitterOptionsSchema } from "../../src/options.js";
+import type { CSharpEmitterOptions } from "../../src/options.js";
+import { CSharpEmitterOptionsSchema } from "../../src/options.js";
 import {
   createCSharpSdkContext,
   createEmitterContext,

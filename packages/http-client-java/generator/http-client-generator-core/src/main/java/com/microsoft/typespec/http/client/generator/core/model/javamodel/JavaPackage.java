@@ -36,7 +36,6 @@ import com.microsoft.typespec.http.client.generator.core.template.ProtocolTestBa
 import com.microsoft.typespec.http.client.generator.core.template.ProtocolTestTemplate;
 import com.microsoft.typespec.http.client.generator.core.template.ReadmeTemplate;
 import com.microsoft.typespec.http.client.generator.core.template.ServiceSyncClientTemplate;
-import com.microsoft.typespec.http.client.generator.core.template.SwaggerReadmeTemplate;
 import com.microsoft.typespec.http.client.generator.core.template.Templates;
 import com.microsoft.typespec.http.client.generator.core.template.TestProxyAssetsTemplate;
 import com.microsoft.typespec.http.client.generator.core.util.ClassNameUtil;
@@ -319,12 +318,6 @@ public class JavaPackage {
 
     public void addReadmeMarkdown(Project project) {
         TextFile textFile = new TextFile("README.md", new ReadmeTemplate().write(project));
-        this.checkDuplicateFile(textFile.getFilePath());
-        textFiles.add(textFile);
-    }
-
-    public void addSwaggerReadmeMarkdown(Project project) {
-        TextFile textFile = new TextFile("swagger/README.md", new SwaggerReadmeTemplate().write(project));
         this.checkDuplicateFile(textFile.getFilePath());
         textFiles.add(textFile);
     }

@@ -1,6 +1,6 @@
 import { deepStrictEqual, ok } from "assert";
 import { expect, it } from "vitest";
-import { OpenAPI3EmitterOptions } from "../src/lib.js";
+import type { OpenAPI3EmitterOptions } from "../src/lib.js";
 import { openApiFor } from "./test-host.js";
 
 export async function oapiForPatchRequest(

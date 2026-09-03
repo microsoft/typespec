@@ -5,7 +5,7 @@ import {
   printIdentifier as printIdentifierString,
   splitLines,
 } from "../../core/helpers/syntax-utils.js";
-import {
+import type {
   AliasStatementNode,
   ArrayExpressionNode,
   ArrayLiteralNode,
@@ -36,7 +36,6 @@ import {
   ModelSpreadPropertyNode,
   ModelStatementNode,
   Node,
-  NodeFlags,
   NumericLiteralNode,
   ObjectLiteralNode,
   ObjectLiteralPropertyNode,
@@ -50,7 +49,6 @@ import {
   StringLiteralNode,
   StringTemplateExpressionNode,
   StringTemplateSpanNode,
-  SyntaxKind,
   TemplateArgumentNode,
   TemplateParameterDeclarationNode,
   TextRange,
@@ -64,10 +62,11 @@ import {
   UsingStatementNode,
   ValueOfExpressionNode,
 } from "../../core/types.js";
-import { FlattenedNamespaceStatementNode } from "../types.js";
+import { NodeFlags, SyntaxKind } from "../../core/types.js";
+import type { FlattenedNamespaceStatementNode } from "../types.js";
 import { commentHandler } from "./comment-handler.js";
 import { needsParens } from "./needs-parens.js";
-import { DecorableNode, PrettierChildPrint, TypeSpecPrettierOptions } from "./types.js";
+import type { DecorableNode, PrettierChildPrint, TypeSpecPrettierOptions } from "./types.js";
 import { util } from "./util.js";
 
 const {
@@ -1446,7 +1445,15 @@ export function printUnion(
 function isInMultiTemplateArgumentList(path: AstPath<Node>): boolean {
   // A `TemplateArgument` only ever lives in `TypeReference.arguments`, so the
   // owning `TypeReference` is always the next node ancestor.
-  if (path.getParentNode()?.kind !== SyntaxKind.TemplateArgument) {
+  const argument = path.getParentNode();
+  if (argument?.kind !== SyntaxKind.TemplateArgument) {
+    return false;
+  }
+  // Named arguments (`Name = <union>`) print the union after `Name = `, so the
+  // argument list's line break + indent does not apply to the union variants.
+  // The union must therefore provide its own line break + indent like a
+  // standalone union. https://github.com/microsoft/typespec/issues/11092
+  if (argument.name !== undefined) {
     return false;
   }
   const reference = path.getParentNode(1);

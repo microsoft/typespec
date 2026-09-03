@@ -1,12 +1,12 @@
 import { bundle } from "@scalar/json-magic/bundle";
 import { fetchUrls, parseJson, parseYaml } from "@scalar/json-magic/bundle/plugins/browser";
 import { readFiles } from "@scalar/json-magic/bundle/plugins/node";
-import { OpenAPI } from "@scalar/openapi-types";
+import type { OpenAPI } from "@scalar/openapi-types";
 import { formatTypeSpec, resolvePath } from "@typespec/compiler";
-import { OpenAPI3Document } from "../../../types.js";
-import { CliHost } from "../../types.js";
+import type { OpenAPI3Document } from "../../../types.js";
+import type { CliHost } from "../../types.js";
 import { handleInternalCompilerError } from "../../utils.js";
-import { ConvertCliArgs } from "./args.js";
+import type { ConvertCliArgs } from "./args.js";
 import { generateMain } from "./generators/generate-main.js";
 import { transform } from "./transforms/transforms.js";
 import { createContext } from "./utils/context.js";

@@ -1,7 +1,7 @@
 // Copyright (c) Microsoft Corporation. All rights reserved.
 // Licensed under the MIT License. See License.txt in the project root for license information.
 
-import {
+import type {
   SdkClientType as SdkClientTypeOfT,
   SdkCredentialParameter,
   SdkEndpointParameter,
@@ -9,10 +9,11 @@ import {
   SdkHttpOperation,
   SdkMethodParameter,
 } from "@azure-tools/typespec-client-generator-core";
-import { createDiagnosticCollector, Diagnostic, NoTarget } from "@typespec/compiler";
-import { CSharpEmitterContext } from "../sdk-context.js";
+import type { Diagnostic } from "@typespec/compiler";
+import { createDiagnosticCollector, NoTarget } from "@typespec/compiler";
+import type { CSharpEmitterContext } from "../sdk-context.js";
 import { InputParameterScope } from "../type/input-parameter-scope.js";
-import {
+import type {
   InputClient,
   InputEndpointParameter,
   InputParameter,

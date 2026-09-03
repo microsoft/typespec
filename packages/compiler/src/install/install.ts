@@ -6,16 +6,20 @@ import { DiagnosticError } from "../core/diagnostic-error.js";
 import { createDiagnosticCollector } from "../core/diagnostics.js";
 import { getDirectoryPath, joinPaths } from "../core/path-utils.js";
 import { NoTarget, type Diagnostic, type Tracer } from "../core/types.js";
-import { downloadAndExtractPackage } from "../package-manger/npm-package-download.js";
-import { fetchPackageManifest, type NpmManifest } from "../package-manger/npm-registry.js";
+import {
+  downloadAndExtractPackage,
+  type ExtractedTarballResult,
+} from "../package-manger/npm-package-download.js";
+import {
+  fetchPackageManifest,
+  NpmRegistryError,
+  type NpmPackageVersion,
+} from "../package-manger/npm-registry.js";
 import { mkTempDir } from "../utils/fs-utils.js";
+import type { SupportedPackageManager } from "./config.js";
+import { getPackageManagerConfig, type PackageManagerConfig } from "./config.js";
+import type { Descriptor } from "./spec.js";
 import {
-  getPackageManagerConfig,
-  SupportedPackageManager,
-  type PackageManagerConfig,
-} from "./config.js";
-import {
-  Descriptor,
   resolvePackageManagerSpec,
   updatePackageManagerInPackageJson,
   type ResolvedSpecResult,
@@ -93,7 +97,7 @@ async function installPackageManager(
   packageManager: SupportedPackageManager,
   spec: Descriptor,
   installDir: string,
-  manifest: NpmManifest,
+  manifest: NpmPackageVersion,
 ) {
   await rm(installDir, { recursive: true, force: true });
   const tempDir = await mkTempDir(host, pmDir, `tsp-pm-${packageManager}-${manifest.version}`);
@@ -102,7 +106,17 @@ async function installPackageManager(
     "downloading-extracting",
     `Downloading and extracting ${packageManager} at version ${manifest.version} in ${tempDir}`,
   );
-  const extractResult = await downloadAndExtractPackage(manifest, tempDir, spec.hash?.algorithm);
+  let extractResult: ExtractedTarballResult;
+  try {
+    extractResult = await downloadAndExtractPackage(manifest, tempDir, spec.hash?.algorithm);
+  } catch (error) {
+    if (error instanceof NpmRegistryError) {
+      throw new InstallDependenciesError(
+        `Failed to download package manager ${packageManager}: ${error.message}`,
+      );
+    }
+    throw error;
+  }
   if (spec.hash) {
     if (spec.hash.value !== extractResult.hash.value) {
       throw new InstallDependenciesError(
@@ -168,11 +182,27 @@ export async function installTypeSpecDependencies(
     );
     const packageManager = spec.name;
     const packageManagerConfig = getPackageManagerConfig(packageManager);
-    const manifest = await fetchPackageManifest(packageManager, spec.range);
+    let manifest: NpmPackageVersion;
+    try {
+      manifest = await fetchPackageManifest(packageManager, spec.range);
+    } catch (error) {
+      if (error instanceof NpmRegistryError) {
+        throw new InstallDependenciesError(
+          `Failed to resolve package manager ${packageManager}: ${error.message}`,
+        );
+      }
+      throw error;
+    }
     tracer.trace(
       "fetched-manifest",
       `Resolved manifest for ${packageManager} at version ${manifest.version}`,
     );
+    const bin = manifest.bin?.[packageManager];
+    if (bin === undefined) {
+      throw new InstallDependenciesError(
+        `Package manager ${packageManager} does not define a "${packageManager}" executable.`,
+      );
+    }
 
     const installDir = joinPaths(pmDir, packageManager, manifest.version);
     if ((await isDirectory(host, installDir)) && !savePackageManager) {
@@ -195,7 +225,6 @@ export async function installTypeSpecDependencies(
       }
     }
 
-    const bin = manifest.bin![packageManager];
     const binPath = joinPaths(installDir, bin);
     tracer.trace("running-binary", `Running binary ${binPath}`);
 

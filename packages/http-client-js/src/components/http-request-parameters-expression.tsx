@@ -1,7 +1,8 @@
-import { Children, code, For, List, NamePolicyContext, useNamePolicy } from "@alloy-js/core";
+import type { Children } from "@alloy-js/core";
+import { code, For, List, NamePolicyContext, useNamePolicy } from "@alloy-js/core";
 import * as ts from "@alloy-js/typescript";
 import { useTransformNamePolicy } from "@typespec/emitter-framework";
-import { HttpOperation, HttpProperty } from "@typespec/http";
+import type { HttpOperation, HttpProperty } from "@typespec/http";
 import { getDefaultValue, hasDefaultValue } from "../utils/parameters.jsx";
 import { JsonTransform } from "./transforms/json/json-transform.jsx";
 export interface HttpRequestParametersExpressionProps {

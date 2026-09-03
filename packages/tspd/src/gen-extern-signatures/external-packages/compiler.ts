@@ -26,6 +26,7 @@ export const typespecCompiler = createPackage({
         "DecoratorValidatorCallbacks",
         "getAutoDecoratorValue",
         "hasAutoDecorator",
+        "setAutoDecorator",
       ],
     },
   },

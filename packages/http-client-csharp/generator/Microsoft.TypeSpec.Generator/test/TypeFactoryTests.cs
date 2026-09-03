@@ -380,6 +380,68 @@ namespace Microsoft.TypeSpec.Generator.Tests
         }
 
         [Test]
+        public void CreateCSharpType_ExternalExtensibleStringEnum_PreservesEnumSemantics()
+        {
+            // A referenced extensible enum is implemented as a value-type struct, so reflection does not
+            // report it as an enum. The resolved external type must still carry enum semantics (underlying
+            // type + struct) so serialization emits inline construction instead of a broken model read.
+            var input = InputFactory.StringEnum(
+                "ExternalKind",
+                [("value1", "value1"), ("value2", "value2")],
+                usage: InputModelTypeUsage.Input,
+                isExtensible: true,
+                external: new InputExternalTypeMetadata("System.Guid", null, null));
+
+            var type = CodeModelGenerator.Instance.TypeFactory.CreateCSharpType(input);
+
+            Assert.IsNotNull(type);
+            Assert.IsTrue(type!.IsFrameworkType);
+            Assert.AreEqual(typeof(Guid), type.FrameworkType);
+            Assert.IsTrue(type.IsEnum);
+            Assert.IsTrue(type.IsStruct);
+            Assert.AreEqual(typeof(string), type.UnderlyingEnumType);
+        }
+
+        [Test]
+        public void CreateCSharpType_ExternalExtensibleInt32Enum_PreservesEnumSemantics()
+        {
+            var input = InputFactory.Int32Enum(
+                "ExternalKind",
+                [("value1", 1), ("value2", 2)],
+                usage: InputModelTypeUsage.Input,
+                isExtensible: true,
+                external: new InputExternalTypeMetadata("System.Guid", null, null));
+
+            var type = CodeModelGenerator.Instance.TypeFactory.CreateCSharpType(input);
+
+            Assert.IsNotNull(type);
+            Assert.IsTrue(type!.IsEnum);
+            Assert.IsTrue(type.IsStruct);
+            Assert.AreEqual(typeof(int), type.UnderlyingEnumType);
+        }
+
+        [Test]
+        public void CreateCSharpType_ExternalFixedEnum_DoesNotForceEnumSemantics()
+        {
+            // Fixed (non-extensible) external enums are left untouched; they resolve to their external
+            // framework type as-is (which, for a real .NET enum, already reports enum semantics).
+            var input = InputFactory.StringEnum(
+                "ExternalKind",
+                [("value1", "value1"), ("value2", "value2")],
+                usage: InputModelTypeUsage.Input,
+                isExtensible: false,
+                external: new InputExternalTypeMetadata("System.Uri", null, null));
+
+            var type = CodeModelGenerator.Instance.TypeFactory.CreateCSharpType(input);
+
+            Assert.IsNotNull(type);
+            Assert.IsTrue(type!.IsFrameworkType);
+            Assert.AreEqual(typeof(Uri), type.FrameworkType);
+            Assert.IsFalse(type.IsEnum);
+            Assert.Throws<InvalidOperationException>(() => _ = type.UnderlyingEnumType);
+        }
+
+        [Test]
         public void CreateCSharpType_SelfReferencingModel_DoesNotThrow()
         {
             var selfRefModel = InputFactory.Model("QueryFilter");

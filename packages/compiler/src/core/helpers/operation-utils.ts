@@ -1,5 +1,5 @@
 import { isTemplateDeclaration, isTemplateDeclarationOrInstance } from "../type-utils.js";
-import { Interface, Namespace, Operation } from "../types.js";
+import type { Interface, Namespace, Operation } from "../types.js";
 
 export interface ListOperationOptions {
   /**

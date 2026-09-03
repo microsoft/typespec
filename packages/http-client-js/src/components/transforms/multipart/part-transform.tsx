@@ -1,5 +1,5 @@
 import { type Children } from "@alloy-js/core";
-import { HttpOperationPart } from "@typespec/http";
+import type { HttpOperationPart } from "@typespec/http";
 import { ArrayPartTransform } from "./array-part-transform.jsx";
 import { FilePartTransform } from "./file-part-transform.jsx";
 import { SimplePartTransform } from "./simple-part-transform.jsx";

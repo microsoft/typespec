@@ -5,7 +5,8 @@ import { PrettierParserError } from "../formatter/parser.js";
 import { checkFormat, format, getFormatterFromFilename } from "./formatter.js";
 import { createDiagnostic } from "./messages.js";
 import { normalizePath } from "./path-utils.js";
-import { Diagnostic, NoTarget } from "./types.js";
+import type { Diagnostic } from "./types.js";
+import { NoTarget } from "./types.js";
 
 export interface TypeSpecFormatOptions {
   exclude?: string[];

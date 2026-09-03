@@ -1,1 +1,1 @@
-export { TypeSpecBundlePluginOptions, typespecBundlePlugin } from "./vite-plugin.js";
+export { typespecBundlePlugin, type TypeSpecBundlePluginOptions } from "./vite-plugin.js";

@@ -1,3 +1,4 @@
+import type { Schema, SecurityScheme } from "@autorest/codemodel";
 import {
   AnySchema,
   ApiVersion,
@@ -29,11 +30,9 @@ import {
   Property,
   Relations,
   Response,
-  Schema,
   SchemaResponse,
   SchemaType,
   Security,
-  SecurityScheme,
   SerializationStyle,
   StringSchema,
   TimeSchema,
@@ -43,10 +42,9 @@ import {
   VirtualParameter,
 } from "@autorest/codemodel";
 import { KnownMediaType } from "@azure-tools/codegen";
-import {
+import type {
   CreateSdkContextOptions,
   DecoratedType,
-  InitializedByFlags,
   SdkArrayType,
   SdkBodyParameter,
   SdkBuiltInType,
@@ -71,6 +69,10 @@ import {
   SdkServiceMethod,
   SdkType,
   SdkUnionType,
+} from "@azure-tools/typespec-client-generator-core";
+import {
+  InitializedByFlags,
+  UsageFlags,
   createSdkContext,
   getAllModels,
   getClientNameOverride,
@@ -80,16 +82,18 @@ import {
   isSdkBuiltInKind,
   isSdkIntKind,
 } from "@azure-tools/typespec-client-generator-core";
-import {
+import type {
   EmitContext,
   Interface,
   Namespace,
-  NoTarget,
   Operation,
   Program,
   Type,
   TypeNameOptions,
   Union,
+} from "@typespec/compiler";
+import {
+  NoTarget,
   getDoc,
   getNamespaceFullName,
   getOverloadedOperation,
@@ -98,24 +102,13 @@ import {
   isRecordModelType,
   listServices,
 } from "@typespec/compiler";
-import {
-  Authentication,
-  HttpStatusCodeRange,
-  HttpStatusCodesEntry,
-  Visibility,
-  getAuthentication,
-} from "@typespec/http";
+import type { Authentication, HttpStatusCodeRange, HttpStatusCodesEntry } from "@typespec/http";
+import { Visibility, getAuthentication } from "@typespec/http";
 import { getSegment } from "@typespec/rest";
 import { getAddedOnVersions } from "@typespec/versioning";
 import { fail } from "assert";
-import pkg from "lodash";
-import {
-  Client as CodeModelClient,
-  EncodedProperty,
-  EncodedSchema,
-  PageableContinuationToken,
-  Serializable,
-} from "./common/client.js";
+import type { EncodedProperty, EncodedSchema, Serializable } from "./common/client.js";
+import { Client as CodeModelClient, PageableContinuationToken } from "./common/client.js";
 import { CodeModel } from "./common/code-model.js";
 import { LongRunningMetadata } from "./common/long-running-metadata.js";
 import { Operation as CodeModelOperation, ConvenienceApi, Request } from "./common/operation.js";
@@ -123,7 +116,8 @@ import { ChoiceSchema, SealedChoiceSchema } from "./common/schemas/choice.js";
 import { ConstantSchema, ConstantValue } from "./common/schemas/constant.js";
 import { OrSchema } from "./common/schemas/relationship.js";
 import { DurationSchema } from "./common/schemas/time.js";
-import { SchemaContext, SchemaUsage } from "./common/schemas/usage.js";
+import type { SchemaUsage } from "./common/schemas/usage.js";
+import { SchemaContext } from "./common/schemas/usage.js";
 import { createPollOperationDetailsSchema, getFileDetailsSchema } from "./external-schemas.js";
 import { createDiagnostic, reportDiagnostic } from "./lib.js";
 import { ClientContext } from "./models.js";
@@ -140,7 +134,8 @@ import {
   operationIsMultipart,
   operationIsMultipleContentTypes,
 } from "./operation-utils.js";
-import { DevOptions, EmitterOptions, LIB_NAME } from "./options.js";
+import type { DevOptions, EmitterOptions } from "./options.js";
+import { LIB_NAME } from "./options.js";
 import {
   BYTES_KNOWN_ENCODING,
   DATETIME_KNOWN_ENCODING,
@@ -172,8 +167,8 @@ import {
   getFilteredApiVersions,
   getServiceApiVersions,
   isStableApiVersionString,
+  resolveApiVersionOption,
 } from "./versioning-utils.js";
-const { isEqual } = pkg;
 
 export interface EmitterOptionsDev {
   flavor?: string;
@@ -203,8 +198,10 @@ export interface EmitterOptionsDev {
   "enable-subclient"?: boolean;
 
   // not recommended to set
+  "required-fields-as-ctor-args"?: boolean;
   "group-etag-headers"?: boolean;
   "enable-sync-stack"?: boolean;
+  "max-overload"?: "model";
   "stream-style-serialization"?: boolean;
   "use-object-for-unknown"?: boolean;
   "float32-as-double"?: boolean;
@@ -248,7 +245,12 @@ export class CodeModelBuilder {
 
   // current apiVersion name to generate code
   // it would be undefined, if mixed api-versions
+  // when it has value, its usage is at "getFilteredApiVersions" (to filter the api-versions for
+  // the client), and as the constant value of the "api-version" parameter for ARM
   private apiVersion: string | undefined;
+
+  // enum types with UsageFlags.ApiVersionEnum, collected in processVersionEnum()
+  private apiVersionEnums: SdkEnumType[] = [];
 
   public constructor(program1: Program, context: EmitContext<EmitterOptions>) {
     this.options = context.options as EmitterOptionsDev;
@@ -360,6 +362,8 @@ export class CodeModelBuilder {
       this.codeModel.arm = true;
       this.options["group-etag-headers"] = false;
     }
+
+    this.processVersionEnum();
 
     this.processClients();
 
@@ -640,6 +644,15 @@ export class CodeModelBuilder {
     }
   }
 
+  private processVersionEnum() {
+    this.apiVersionEnums = [];
+    for (const model of getAllModels(this.sdkContext)) {
+      if (model.kind === "enum" && model.usage & UsageFlags.ApiVersionEnum) {
+        this.apiVersionEnums.push(model);
+      }
+    }
+  }
+
   private processClients() {
     // preprocess group-etag-headers
 
@@ -698,14 +711,15 @@ export class CodeModelBuilder {
     const versions = getServiceApiVersions(this.program, client);
     if (Array.isArray(versions) && versions.length > 0) {
       // consistent api-versions
-      if (!this.sdkContext.apiVersion || ["all", "latest"].includes(this.sdkContext.apiVersion)) {
+      const apiVersionOption = resolveApiVersionOption(this.sdkContext.apiVersion);
+      if (!apiVersionOption || ["all", "latest"].includes(apiVersionOption)) {
         this.apiVersion = versions[versions.length - 1].value;
       } else {
-        this.apiVersion = versions.find((it) => it.value === this.sdkContext.apiVersion)?.value;
+        this.apiVersion = versions.find((it) => it.value === apiVersionOption)?.value;
         if (!this.apiVersion) {
           reportDiagnostic(this.program, {
             code: "invalid-api-version",
-            format: { apiVersion: this.sdkContext.apiVersion },
+            format: { apiVersion: apiVersionOption },
             target: NoTarget,
           });
         }
@@ -721,6 +735,17 @@ export class CodeModelBuilder {
         const apiVersion = new ApiVersion();
         apiVersion.version = version.value;
         codeModelClient.apiVersions.push(apiVersion);
+      }
+
+      // if there is exactly 1 api-version enum, use its values to override codeModelClient.apiVersions
+      // this is due to this issue in TCGC https://github.com/Azure/typespec-azure/issues/4914
+      if (codeModelClient.apiVersions.length > 0 && this.apiVersionEnums.length === 1) {
+        codeModelClient.apiVersions = [];
+        for (const enumValue of this.apiVersionEnums[0].values) {
+          const apiVersion = new ApiVersion();
+          apiVersion.version = String(enumValue.value ?? enumValue.name);
+          codeModelClient.apiVersions.push(apiVersion);
+        }
       }
     }
 
@@ -840,7 +865,13 @@ export class CodeModelBuilder {
         // first client, set it to sharedApiVersions
         sharedApiVersions = apiVersions;
       } else {
-        apiVersionSameForAllClients = isEqual(sharedApiVersions, apiVersions);
+        // Compare the api-version strings, not the ApiVersion object references. Each client
+        // builds its own ApiVersion instances (see `new ApiVersion()` above), so reference
+        // equality ("===") would always be false for clients that in fact share the same
+        // api-versions, incorrectly producing a separate ServiceVersion enum per client.
+        apiVersionSameForAllClients =
+          sharedApiVersions.length === apiVersions.length &&
+          sharedApiVersions.every((it, index) => it.version === apiVersions[index].version);
       }
       if (!apiVersionSameForAllClients) {
         break;
@@ -976,7 +1007,7 @@ export class CodeModelBuilder {
         // do not generate protocol method for multipart/form-data, as it be very hard for user to prepare the request body as BinaryData
         generateProtocolApi = false;
         diagnostic = createDiagnostic({
-          code: "protocol-api-not-generated",
+          code: "dpg-protocol-api-not-generated",
           messageId: "multipartFormData",
           format: { operationName: operationName },
           target: sdkMethod.__raw ?? NoTarget,
@@ -987,7 +1018,7 @@ export class CodeModelBuilder {
         // issue link: https://github.com/Azure/autorest.java/issues/1958#issuecomment-1562558219
         generateConvenienceApi = false;
         diagnostic = createDiagnostic({
-          code: "convenience-api-not-generated",
+          code: "dpg-convenience-api-not-generated",
           messageId: "multipleContentType",
           format: { operationName: operationName },
           target: sdkMethod.__raw ?? NoTarget,
@@ -1000,7 +1031,7 @@ export class CodeModelBuilder {
         // do not generate convenient method for json merge patch operation if stream-style-serialization is not enabled
         generateConvenienceApi = false;
         diagnostic = createDiagnostic({
-          code: "convenience-api-not-generated",
+          code: "dpg-convenience-api-not-generated",
           messageId: "jsonMergePatch",
           format: { operationName: operationName },
           target: sdkMethod.__raw ?? NoTarget,
@@ -1009,11 +1040,35 @@ export class CodeModelBuilder {
       }
     }
     if (generateConvenienceApi && convenienceApiName) {
+      if (this.isAzureV1() && this.options["max-overload"] === "model") {
+        // The model WithResponse overload replaces the public protocol method of the same name.
+        // This is scoped to convenience APIs because their model types are required for the
+        // replacement; the protocol method remains generated internally for delegation.
+        generateProtocolApi = false;
+      }
       codeModelOperation.convenienceApi = new ConvenienceApi(convenienceApiName);
       if (sdkMethod.isExactName) {
         codeModelOperation.convenienceApi.language.java =
           codeModelOperation.convenienceApi.language.java ?? new Language();
         codeModelOperation.convenienceApi.language.java.name = convenienceApiName;
+      }
+
+      // opt-in: return significant response headers as a strongly-typed model from the convenience method
+      const responseHeadersAsModel = getClientOptions(sdkMethod, "responseHeadersAsModel") as
+        boolean | undefined;
+      if (responseHeadersAsModel === true) {
+        if (sdkMethod.response.type !== undefined) {
+          // the model is built purely from response headers, hence the operation must not have a response body
+          this.program.reportDiagnostic(
+            createDiagnostic({
+              code: "response-headers-as-model-with-body",
+              format: { operationName: operationName },
+              target: sdkMethod.__raw ?? NoTarget,
+            }),
+          );
+        } else {
+          codeModelOperation.convenienceApi.responseHeadersAsModel = true;
+        }
       }
     }
     if (diagnostic) {
@@ -1022,7 +1077,7 @@ export class CodeModelBuilder {
     }
 
     // check for generating protocol api or not
-    codeModelOperation.generateProtocolApi = generateProtocolApi && !codeModelOperation.internalApi;
+    codeModelOperation.generateProtocolApi = generateProtocolApi;
 
     codeModelOperation.addRequest(
       new Request({
@@ -1151,22 +1206,6 @@ export class CodeModelBuilder {
       pageItemsResponseProperty && pageItemsResponseProperty.length > 0
         ? pageItemsResponseProperty[0].serializedName
         : undefined;
-
-    if (
-      this.isAzureV1() &&
-      (pageItemsResponseProperty === undefined || pageItemsResponseProperty.length > 1)
-    ) {
-      // TCGC should have verified that pageItems exists
-
-      // Azure V1 does not support nested page items
-      reportDiagnostic(this.program, {
-        code: "nested-page-items-not-supported",
-        target:
-          sdkMethod.response.resultSegments?.[sdkMethod.response.resultSegments.length - 1]
-            ?.__raw ?? NoTarget,
-      });
-      return;
-    }
 
     // nextLink
     // TODO: nextLink can also be a response header, similar to "sdkMethod.pagingMetadata.continuationTokenResponseSegments"
@@ -2290,15 +2329,15 @@ export class CodeModelBuilder {
 
         if (schema instanceof ConstantSchema) {
           // skip constant header in response
-          if (isContentTypeHeader(header)) {
-            // we does not warn on content-type as constant, as this is the most common case
+          if (!isContentTypeHeader(header)) {
+            // we do not warn on content-type as constant, as this is the most common case
             reportDiagnostic(this.program, {
               code: "constant-header-in-response-removed",
               format: { headerName: header.serializedName },
               target: header.__raw ?? NoTarget,
             });
           }
-          break;
+          continue;
         }
 
         const httpHeader = new HttpHeader(header.serializedName, schema, {
@@ -2319,6 +2358,20 @@ export class CodeModelBuilder {
 
     const bodyType: SdkType | undefined = sdkResponse.type;
     let trackConvenienceApi: boolean = Boolean(op.convenienceApi);
+    const trackResponseHeadersAsModel =
+      trackConvenienceApi &&
+      (op.convenienceApi?.responseHeadersAsModel === true ||
+        (this.isAzureV1() && this.options["max-overload"] === "model"));
+
+    if (trackResponseHeadersAsModel) {
+      // Typed header models are public convenience return types. Propagate that visibility to
+      // referenced schemas so enum and model header properties are generated in the same package.
+      for (const header of headers) {
+        this.trackSchemaUsage(header.schema, {
+          usage: [op.internalApi ? SchemaContext.Internal : SchemaContext.Public],
+        });
+      }
+    }
 
     let responseBodyIsFile: boolean = false;
     if (
@@ -2682,7 +2735,7 @@ export class CodeModelBuilder {
     let elementType = type.valueType;
     if (elementType.kind === "nullable") {
       nullableItems = true;
-      elementType = elementType.type;
+      elementType = getNonNullSdkType(elementType);
     }
 
     const elementSchema = this.processSchema(elementType, name);
@@ -2708,7 +2761,7 @@ export class CodeModelBuilder {
     let elementType = type.valueType;
     if (elementType.kind === "nullable") {
       nullableItems = true;
-      elementType = elementType.type;
+      elementType = getNonNullSdkType(elementType);
     }
     const elementSchema = this.processSchema(elementType, name);
     dictSchema.elementType = elementSchema;
@@ -3001,7 +3054,7 @@ export class CodeModelBuilder {
     let nonNullType = modelProperty.type;
     if (nonNullType.kind === "nullable") {
       nullable = true;
-      nonNullType = nonNullType.type;
+      nonNullType = getNonNullSdkType(nonNullType);
     }
     let schema;
 

@@ -1,10 +1,8 @@
 // Copyright (c) Microsoft Corporation. All rights reserved.
 // Licensed under the MIT License. See License.txt in the project root for license information.
 
-import {
+import type {
   DecoratorInfo,
-  getAccessOverride,
-  isHttpMetadata,
   SdkArrayType,
   SdkBuiltInType,
   SdkConstantType,
@@ -18,12 +16,17 @@ import {
   SdkModelType,
   SdkType,
   SdkUnionType,
+} from "@azure-tools/typespec-client-generator-core";
+import {
+  getAccessOverride,
+  isHttpMetadata,
   UsageFlags,
 } from "@azure-tools/typespec-client-generator-core";
-import { createDiagnosticCollector, Diagnostic, Model, NoTarget } from "@typespec/compiler";
+import type { Diagnostic, Model } from "@typespec/compiler";
+import { createDiagnosticCollector, NoTarget } from "@typespec/compiler";
 import { _httpFileCrossLanguageDefinitionId } from "../constants.js";
-import { CSharpEmitterContext } from "../sdk-context.js";
-import {
+import type { CSharpEmitterContext } from "../sdk-context.js";
+import type {
   InputArrayType,
   InputDateTimeType,
   InputDictionaryType,
@@ -205,6 +208,7 @@ function fromSdkModelType(
   const inputModelType: InputModelType = {
     kind: "model",
     name: modelType.name,
+    apiVersions: modelType.apiVersions,
     namespace: modelType.namespace,
     crossLanguageDefinitionId: modelType.crossLanguageDefinitionId,
     access: getAccessOverride(sdkContext, modelType.__raw as Model),
@@ -266,8 +270,7 @@ function fromSdkModelProperty(
   const diagnostics = createDiagnosticCollector();
   // TODO -- this returns undefined because some properties we do not support yet.
   let property = sdkContext.__typeCache.properties.get(sdkProperty) as
-    | InputModelProperty
-    | undefined;
+    InputModelProperty | undefined;
   if (property) {
     return diagnostics.wrap(property);
   }
@@ -279,6 +282,7 @@ function fromSdkModelProperty(
   property = {
     kind: sdkProperty.kind,
     name: sdkProperty.name,
+    apiVersions: sdkProperty.apiVersions,
     serializedName: serializedName,
     summary: sdkProperty.summary,
     doc: sdkProperty.doc,
@@ -344,6 +348,7 @@ function createEnumType(
   const inputEnumType: InputEnumType = {
     kind: "enum",
     name: sdkType.name,
+    apiVersions: sdkType.kind === "enum" ? sdkType.apiVersions : [],
     crossLanguageDefinitionId: sdkType.kind === "enum" ? sdkType.crossLanguageDefinitionId : "",
     valueType:
       sdkType.kind === "enum"

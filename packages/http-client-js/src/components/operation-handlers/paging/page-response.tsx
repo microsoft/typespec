@@ -1,8 +1,8 @@
 import { For, refkey } from "@alloy-js/core";
 import * as ts from "@alloy-js/typescript";
-import { PagingOperation, PagingProperty } from "@typespec/compiler";
+import type { PagingOperation, PagingProperty } from "@typespec/compiler";
 import * as ef from "@typespec/emitter-framework/typescript";
-import { HttpOperation } from "@typespec/http";
+import type { HttpOperation } from "@typespec/http";
 export interface PageResponseProps {
   operation: HttpOperation;
   pagingOperation: PagingOperation;

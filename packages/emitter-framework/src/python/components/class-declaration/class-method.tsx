@@ -1,4 +1,4 @@
-import { type Children, createContext, splitProps, useContext } from "@alloy-js/core";
+import { createContext, For, splitProps, useContext, type Children } from "@alloy-js/core";
 import * as py from "@alloy-js/python";
 import type { Operation } from "@typespec/compiler";
 import { useTsp } from "../../../core/index.js";
@@ -15,11 +15,13 @@ export interface MethodPropsWithType extends Omit<py.MethodDeclarationBaseProps,
   doc?: Children;
   methodType?: "method" | "class" | "static";
   abstract?: boolean;
+  decorators?: Children[];
   /** If true, parameters replaces operation parameters instead of adding to them as keyword-only */
   replaceParameters?: boolean;
 }
 
-export type MethodProps = MethodPropsWithType | py.MethodDeclarationBaseProps;
+export type MethodProps =
+  MethodPropsWithType | (py.MethodDeclarationBaseProps & { decorators?: Children[] });
 
 /**
  * Get the method component based on the resolved method type.
@@ -59,18 +61,35 @@ export function Method(props: Readonly<MethodProps>) {
     const explicit = (props as any).abstract as boolean | undefined;
     return explicit ?? (!isTypeSpecTyped ? false : undefined);
   })();
+  const decorators = (props as { decorators?: Children[] }).decorators;
+  const decoratorsBlock = decorators ? (
+    <For each={decorators} skipFalsy>
+      {(decorator) => (
+        <>
+          {decorator}
+          <hbr />
+        </>
+      )}
+    </For>
+  ) : undefined;
 
   /**
    * If the method does not come from the Typespec class declaration, return a standard Python method declaration.
    * Have in mind that, with that, we lose some of the TypeSpec class declaration overrides.
    */
   if (!isTypeSpecTyped) {
-    return <MethodComponent {...props} doc={docElement} abstract={abstractFlag} />;
+    const { decorators: _decorators, ...methodProps } = props;
+    return (
+      <>
+        {decoratorsBlock}
+        <MethodComponent {...methodProps} doc={docElement} abstract={abstractFlag} />
+      </>
+    );
   }
 
   const [efProps, updateProps, forwardProps] = splitProps(
     props,
-    ["type"],
+    ["type", "decorators"],
     ["returnType", "parameters"],
   );
 
@@ -83,6 +102,7 @@ export function Method(props: Readonly<MethodProps>) {
 
   return (
     <>
+      {decoratorsBlock}
       <MethodComponent
         {...forwardProps}
         {...updateProps}

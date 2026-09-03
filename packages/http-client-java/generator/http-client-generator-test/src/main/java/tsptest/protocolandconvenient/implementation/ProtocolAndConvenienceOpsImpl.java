@@ -263,7 +263,8 @@ public final class ProtocolAndConvenienceOpsImpl {
      * @return the response body along with {@link Response} on successful completion of {@link Mono}.
      */
     @ServiceMethod(returns = ReturnType.SINGLE)
-    public Mono<Response<BinaryData>> onlyConvenientWithResponseAsync(BinaryData body, RequestOptions requestOptions) {
+    public Mono<Response<BinaryData>> onlyConvenientWithResponseInternalAsync(BinaryData body,
+        RequestOptions requestOptions) {
         final String contentType = "application/json";
         final String accept = "application/json";
         return FluxUtil.withContext(context -> service.onlyConvenient(this.client.getEndpoint(), contentType, accept,
@@ -303,7 +304,7 @@ public final class ProtocolAndConvenienceOpsImpl {
      * @return the response body along with {@link Response}.
      */
     @ServiceMethod(returns = ReturnType.SINGLE)
-    public Response<BinaryData> onlyConvenientWithResponse(BinaryData body, RequestOptions requestOptions) {
+    public Response<BinaryData> onlyConvenientWithResponseInternal(BinaryData body, RequestOptions requestOptions) {
         final String contentType = "application/json";
         final String accept = "application/json";
         return service.onlyConvenientSync(this.client.getEndpoint(), contentType, accept, body, requestOptions,
@@ -506,7 +507,8 @@ public final class ProtocolAndConvenienceOpsImpl {
      * @return the response body along with {@link Response} on successful completion of {@link Mono}.
      */
     @ServiceMethod(returns = ReturnType.SINGLE)
-    public Mono<Response<BinaryData>> errorSettingWithResponseAsync(BinaryData body, RequestOptions requestOptions) {
+    public Mono<Response<BinaryData>> errorSettingWithResponseInternalAsync(BinaryData body,
+        RequestOptions requestOptions) {
         final String contentType = "application/json";
         final String accept = "application/json";
         return FluxUtil.withContext(context -> service.errorSetting(this.client.getEndpoint(), contentType, accept,
@@ -546,7 +548,7 @@ public final class ProtocolAndConvenienceOpsImpl {
      * @return the response body along with {@link Response}.
      */
     @ServiceMethod(returns = ReturnType.SINGLE)
-    public Response<BinaryData> errorSettingWithResponse(BinaryData body, RequestOptions requestOptions) {
+    public Response<BinaryData> errorSettingWithResponseInternal(BinaryData body, RequestOptions requestOptions) {
         final String contentType = "application/json";
         final String accept = "application/json";
         return service.errorSettingSync(this.client.getEndpoint(), contentType, accept, body, requestOptions,
@@ -778,7 +780,7 @@ public final class ProtocolAndConvenienceOpsImpl {
      * @return the {@link PollerFlux} for polling of long-running operation.
      */
     @ServiceMethod(returns = ReturnType.LONG_RUNNING_OPERATION)
-    public PollerFlux<BinaryData, BinaryData> beginCreateOrReplaceAsync(String name, BinaryData resource,
+    public PollerFlux<BinaryData, BinaryData> beginCreateOrReplaceInternalAsync(String name, BinaryData resource,
         RequestOptions requestOptions) {
         return PollerFlux.create(Duration.ofSeconds(1),
             () -> this.createOrReplaceWithResponseAsync(name, resource, requestOptions),
@@ -828,7 +830,7 @@ public final class ProtocolAndConvenienceOpsImpl {
      * @return the {@link SyncPoller} for polling of long-running operation.
      */
     @ServiceMethod(returns = ReturnType.LONG_RUNNING_OPERATION)
-    public SyncPoller<BinaryData, BinaryData> beginCreateOrReplace(String name, BinaryData resource,
+    public SyncPoller<BinaryData, BinaryData> beginCreateOrReplaceInternal(String name, BinaryData resource,
         RequestOptions requestOptions) {
         return SyncPoller.createPoller(Duration.ofSeconds(1),
             () -> this.createOrReplaceWithResponse(name, resource, requestOptions),
@@ -910,7 +912,7 @@ public final class ProtocolAndConvenienceOpsImpl {
      * @return paged collection of ResourceJ items as paginated response with {@link PagedFlux}.
      */
     @ServiceMethod(returns = ReturnType.COLLECTION)
-    public PagedFlux<BinaryData> listAsync(RequestOptions requestOptions) {
+    public PagedFlux<BinaryData> listInternalAsync(RequestOptions requestOptions) {
         RequestOptions requestOptionsForNextPage = new RequestOptions();
         requestOptionsForNextPage.setContext(
             requestOptions != null && requestOptions.getContext() != null ? requestOptions.getContext() : Context.NONE);
@@ -1004,7 +1006,7 @@ public final class ProtocolAndConvenienceOpsImpl {
      * @return paged collection of ResourceJ items as paginated response with {@link PagedIterable}.
      */
     @ServiceMethod(returns = ReturnType.COLLECTION)
-    public PagedIterable<BinaryData> list(RequestOptions requestOptions) {
+    public PagedIterable<BinaryData> listInternal(RequestOptions requestOptions) {
         RequestOptions requestOptionsForNextPage = new RequestOptions();
         requestOptionsForNextPage.setContext(
             requestOptions != null && requestOptions.getContext() != null ? requestOptions.getContext() : Context.NONE);
@@ -1096,20 +1098,26 @@ public final class ProtocolAndConvenienceOpsImpl {
             getValues(res.getValue(), "value"), getNextLink(res.getValue(), "nextLink"), null);
     }
 
-    private List<BinaryData> getValues(BinaryData binaryData, String path) {
+    private List<BinaryData> getValues(BinaryData binaryData, String... path) {
         try {
-            Map<?, ?> obj = binaryData.toObject(Map.class);
-            List<?> values = (List<?>) obj.get(path);
+            Object value = binaryData.toObject(Map.class);
+            for (String segment : path) {
+                value = ((Map<?, ?>) value).get(segment);
+            }
+            List<?> values = (List<?>) value;
             return values.stream().map(BinaryData::fromObject).collect(Collectors.toList());
         } catch (RuntimeException e) {
             return null;
         }
     }
 
-    private String getNextLink(BinaryData binaryData, String path) {
+    private String getNextLink(BinaryData binaryData, String... path) {
         try {
-            Map<?, ?> obj = binaryData.toObject(Map.class);
-            return (String) obj.get(path);
+            Object value = binaryData.toObject(Map.class);
+            for (String segment : path) {
+                value = ((Map<?, ?>) value).get(segment);
+            }
+            return (String) value;
         } catch (RuntimeException e) {
             return null;
         }

@@ -14,6 +14,25 @@ import Footer from "../footer/footer.astro";
   </div>
 </Default>
 
+<script>
+  // Starlight positions the page content and sidebar using a fixed
+  // `--sl-nav-height`. The site header can grow taller than that single-row
+  // height when its content wraps (e.g. under text resize or reflow / zoom),
+  // which made it overflow and overlap the navigation and content below.
+  // Keep `--sl-nav-height` in sync with the real header height so everything
+  // reflows correctly. (Resize Text 1.4.4 & Reflow 1.4.10.)
+  function setupNavHeightSync() {
+    const navbar = document.querySelector<HTMLElement>("header.header nav.navbar");
+    if (!navbar) return;
+    const sync = () =>
+      document.documentElement.style.setProperty("--sl-nav-height", `${navbar.offsetHeight}px`);
+    sync();
+    new ResizeObserver(sync).observe(navbar);
+    window.addEventListener("resize", sync);
+  }
+  setupNavHeightSync();
+</script>
+
 <style>
   .footer-wrapper {
     position: relative;
@@ -22,5 +41,28 @@ import Footer from "../footer/footer.astro";
     position: absolute;
     z-index: 100;
     width: 100%;
+  }
+
+  /*
+   * Starlight wraps the docs sidebar in `<nav class="sidebar" aria-label>` but
+   * makes the inner `.sidebar-pane` `position: fixed`. On desktop that leaves
+   * the `<nav>` landmark element itself with an empty, collapsed layout box, so
+   * assistive tech / landmark tools report the visible left navigation as not
+   * belonging to any landmark region (#10793, WCAG 1.3.1). Move the fixed
+   * positioning onto the `<nav>` landmark itself so its bounding box coincides
+   * with the visible sidebar, and let the pane fill it.
+   */
+  @media (min-width: 50rem) {
+    :global(nav.sidebar) {
+      position: fixed;
+      inset-block: var(--sl-nav-height) 0;
+      inset-inline-start: 0;
+      width: var(--sl-sidebar-width);
+    }
+    :global(nav.sidebar > .sidebar-pane) {
+      position: static;
+      width: 100%;
+      height: 100%;
+    }
   }
 </style>

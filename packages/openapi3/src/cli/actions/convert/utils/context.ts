@@ -1,11 +1,11 @@
-import {
+import type {
   OpenAPI3Encoding,
   OpenAPIDocument3_1,
   Refable,
   SupportedOpenAPIDocuments,
   SupportedOpenAPISchema,
 } from "../../../../types.js";
-import { Logger } from "../../../types.js";
+import type { Logger } from "../../../types.js";
 import { SchemaToExpressionGenerator } from "../generators/generate-types.js";
 import { generateNamespaceName } from "./generate-namespace-name.js";
 

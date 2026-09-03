@@ -17,7 +17,6 @@ using NuGet.Packaging.Core;
 using NuGet.Packaging.Signing;
 using NuGet.Protocol;
 using NuGet.Protocol.Core.Types;
-using NuGet.Repositories;
 using NuGet.Versioning;
 using ILogger = NuGet.Common.ILogger;
 using PackageArchiveDownloader = NuGet.Protocol.LocalPackageArchiveDownloader;
@@ -32,8 +31,6 @@ namespace Microsoft.TypeSpec.Generator.Utilities
         private readonly ISettings _nugetSettings;
         private readonly IReadOnlyList<PackageSource> _availableSources;
         private readonly HashSet<string> _targetFrameworks;
-        // cspell: disable-next-line
-        private readonly NuGetv3LocalRepository _localRepo;
 
         public NugetPackageDownloader(
             string packageName,
@@ -43,12 +40,10 @@ namespace Microsoft.TypeSpec.Generator.Utilities
         {
             _nugetSettings = settings;
             _targetFrameworks = targetFrameworks is null
-                ? [ ..PreferredDotNetFrameworkVersions ]
+                ? [.. PreferredDotNetFrameworkVersions]
                 : [.. targetFrameworks];
             _availableSources = GetPrimaryPackageSources(settings);
             _globalNugetPackagePath = SettingsUtility.GetGlobalPackagesFolder(settings);
-            // cspell: disable-next-line
-            _localRepo = new NuGetv3LocalRepository(_globalNugetPackagePath);
             _packageName = packageName;
             _packageVersion = packageVersion;
         }
@@ -71,8 +66,11 @@ namespace Microsoft.TypeSpec.Generator.Utilities
 
         protected virtual bool TryFindPackageInCache(string packageName, NuGetVersion version, out NuGet.Repositories.LocalPackageInfo? packageInfo)
         {
-            packageInfo = _localRepo.FindPackage(packageName, version);
-            return packageInfo != null;
+            return NugetPackageResolver.TryFindPackageInCache(
+                _globalNugetPackagePath,
+                packageName,
+                version,
+                out packageInfo);
         }
 
         protected virtual bool DirectoryExists(string path)

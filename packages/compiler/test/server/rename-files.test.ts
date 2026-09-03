@@ -1,7 +1,8 @@
 import { setTimeout } from "timers/promises";
 import { beforeEach, describe, expect, it } from "vitest";
 import { resolvePath } from "../../src/core/path-utils.js";
-import { createTestServerHost, TestServerHost } from "../../src/testing/test-server-host.js";
+import type { TestServerHost } from "../../src/testing/test-server-host.js";
+import { createTestServerHost } from "../../src/testing/test-server-host.js";
 import { listAllFilesInDir } from "../../src/utils/fs-utils.js";
 let host: TestServerHost;
 

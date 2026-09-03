@@ -285,7 +285,7 @@ public final class LroNoBodiesClientImpl implements LroNoBodiesClient {
     }
 
     /**
-     * A long-running resource action.
+     * The action operation.
      * 
      * @param resourceGroupName The name of the resource group. The name is case insensitive.
      * @param resourceLroNoBodyName The name of the ResourceLroNoBody.
@@ -305,7 +305,7 @@ public final class LroNoBodiesClientImpl implements LroNoBodiesClient {
     }
 
     /**
-     * A long-running resource action.
+     * The action operation.
      * 
      * @param resourceGroupName The name of the resource group. The name is case insensitive.
      * @param resourceLroNoBodyName The name of the ResourceLroNoBody.
@@ -322,7 +322,7 @@ public final class LroNoBodiesClientImpl implements LroNoBodiesClient {
     }
 
     /**
-     * A long-running resource action.
+     * The action operation.
      * 
      * @param resourceGroupName The name of the resource group. The name is case insensitive.
      * @param resourceLroNoBodyName The name of the ResourceLroNoBody.
@@ -341,7 +341,7 @@ public final class LroNoBodiesClientImpl implements LroNoBodiesClient {
     }
 
     /**
-     * A long-running resource action.
+     * The action operation.
      * 
      * @param resourceGroupName The name of the resource group. The name is case insensitive.
      * @param resourceLroNoBodyName The name of the ResourceLroNoBody.
@@ -359,7 +359,7 @@ public final class LroNoBodiesClientImpl implements LroNoBodiesClient {
     }
 
     /**
-     * A long-running resource action.
+     * The action operation.
      * 
      * @param resourceGroupName The name of the resource group. The name is case insensitive.
      * @param resourceLroNoBodyName The name of the ResourceLroNoBody.
@@ -377,7 +377,7 @@ public final class LroNoBodiesClientImpl implements LroNoBodiesClient {
     }
 
     /**
-     * A long-running resource action.
+     * The action operation.
      * 
      * @param resourceGroupName The name of the resource group. The name is case insensitive.
      * @param resourceLroNoBodyName The name of the ResourceLroNoBody.
@@ -396,7 +396,7 @@ public final class LroNoBodiesClientImpl implements LroNoBodiesClient {
     }
 
     /**
-     * A long-running resource action.
+     * The action operation.
      * 
      * @param resourceGroupName The name of the resource group. The name is case insensitive.
      * @param resourceLroNoBodyName The name of the ResourceLroNoBody.
@@ -412,7 +412,7 @@ public final class LroNoBodiesClientImpl implements LroNoBodiesClient {
     }
 
     /**
-     * A long-running resource action.
+     * The action operation.
      * 
      * @param resourceGroupName The name of the resource group. The name is case insensitive.
      * @param resourceLroNoBodyName The name of the ResourceLroNoBody.
@@ -427,7 +427,7 @@ public final class LroNoBodiesClientImpl implements LroNoBodiesClient {
     }
 
     /**
-     * A long-running resource action.
+     * The action operation.
      * 
      * @param resourceGroupName The name of the resource group. The name is case insensitive.
      * @param resourceLroNoBodyName The name of the ResourceLroNoBody.

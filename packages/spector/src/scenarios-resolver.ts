@@ -1,6 +1,6 @@
 import type { Operation } from "@typespec/compiler";
 import { isSharedRoute } from "@typespec/http";
-import { ScenarioMockApi } from "@typespec/spec-api";
+import type { ScenarioMockApi } from "@typespec/spec-api";
 import { dirname, join, relative, resolve } from "path";
 import pc from "picocolors";
 import { pathToFileURL } from "url";
@@ -8,9 +8,9 @@ import type { Scenario } from "./lib/decorators.js";
 import { logger } from "./logger.js";
 import { importSpecExpect, importTypeSpec, importTypeSpecHttp } from "./spec-utils/index.js";
 import { findFilesFromPattern } from "./utils/file-utils.js";
+import type { Diagnostic } from "./utils/index.js";
 import {
   createDiagnosticReporter,
-  Diagnostic,
   ensureScenariosPathExists,
   getSourceLocationStr,
 } from "./utils/index.js";

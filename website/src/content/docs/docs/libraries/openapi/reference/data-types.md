@@ -69,11 +69,12 @@ model TypeSpec.OpenAPI.License
 
 #### Properties
 
-| Name | Type      | Description                                                            |
-| ---- | --------- | ---------------------------------------------------------------------- |
-| name | `string`  | The license name used for the API.                                     |
-| url? | `url`     | A URL to the license used for the API. MUST be in the format of a URL. |
-|      | `unknown` | Additional properties                                                  |
+| Name        | Type      | Description                                                                                                                                                                 |
+| ----------- | --------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| name        | `string`  | The license name used for the API.                                                                                                                                          |
+| url?        | `url`     | A URL to the license used for the API. MUST be in the format of a URL. Mutually exclusive with `identifier`.                                                                |
+| identifier? | `string`  | An SPDX license expression for the API. Mutually exclusive with `url`. Only supported in OpenAPI 3.1+. For OpenAPI 3.0, this will be emitted as `x-oai-license-identifier`. |
+|             | `unknown` | Additional properties                                                                                                                                                       |
 
 ### `TagMetadata` {#TypeSpec.OpenAPI.TagMetadata}
 

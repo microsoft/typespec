@@ -1,22 +1,24 @@
+import type {
+  DecoratorContext,
+  Model,
+  Namespace,
+  Operation,
+  Program,
+  Type,
+  Value,
+} from "@typespec/compiler";
 import {
   compilerAssert,
-  DecoratorContext,
   getDoc,
   getService,
   getSummary,
   isErrorModel,
   isType,
-  Model,
-  Namespace,
-  Operation,
-  Program,
   serializeValueAsJson,
-  Type,
-  Value,
 } from "@typespec/compiler";
 import { useStateMap, useStateSet } from "@typespec/compiler/utils";
 import * as http from "@typespec/http";
-import {
+import type {
   DefaultResponseDecorator,
   ExtensionDecorator,
   ExternalDocsDecorator,
@@ -28,7 +30,7 @@ import {
 } from "../generated-defs/TypeSpec.OpenAPI.js";
 import { validateAdditionalInfoModel, validateIsUri } from "./helpers.js";
 import { createDiagnostic, createStateSymbol, OpenAPIKeys, reportDiagnostic } from "./lib.js";
-import { AdditionalInfo, ExtensionKey, ExternalDocs, TagMetadataWithName } from "./types.js";
+import type { AdditionalInfo, ExtensionKey, ExternalDocs, TagMetadataWithName } from "./types.js";
 
 export const [
   /**
@@ -95,14 +97,13 @@ function convertRemainingValuesToExtensions(program: Program, value: unknown): u
       if (isTypeSpecValue(value)) {
         return serializeValueAsJson(program, value, value.type);
       } else {
-        const result: Record<string, unknown> = {};
-        for (const [key, val] of Object.entries(value)) {
-          if (val === undefined) {
-            continue;
-          }
-          result[key] = convertRemainingValuesToExtensions(program, val);
-        }
-        return result;
+        // Object.fromEntries defines every member as an own property, so special names
+        // like `__proto__` or `constructor` never interact with Object.prototype.
+        return Object.fromEntries(
+          Object.entries(value)
+            .filter(([, val]) => val !== undefined)
+            .map(([key, val]) => [key, convertRemainingValuesToExtensions(program, val)]),
+        );
       }
     default:
       return value;
@@ -274,6 +275,16 @@ export const $info: InfoDecorator = (
       return;
     }
   }
+
+  // Validate license: url and identifier are mutually exclusive
+  if (data.license?.url !== undefined && data.license?.identifier !== undefined) {
+    reportDiagnostic(context.program, {
+      code: "license-url-identifier-conflict",
+      target: context.getArgumentTarget(0)!,
+    });
+    return;
+  }
+
   setInfo(context.program, entity, data);
 };
 

@@ -1,48 +1,52 @@
-import {
-  $invisible,
-  $removeVisibility,
-  $visibility,
-  compilerAssert,
+import type {
   DecoratorApplication,
   DecoratorContext,
   EnumValue,
   FunctionContext,
-  getDiscriminatedUnion,
-  getDiscriminator,
-  getLifecycleVisibilityEnum,
-  isVisible,
   Model,
   ModelProperty,
-  navigateType,
   Program,
-  resetVisibilityModifiersForClass,
-  setMediaTypeHint,
   Tuple,
   Type,
   Union,
   UnionVariant,
   VisibilityFilter,
 } from "@typespec/compiler";
-
 import {
+  $invisible,
+  $removeVisibility,
+  $visibility,
+  compilerAssert,
+  getDiscriminatedUnion,
+  getDiscriminator,
+  getLifecycleVisibilityEnum,
+  isVisible,
+  navigateType,
+  resetVisibilityModifiersForClass,
+  setMediaTypeHint,
+} from "@typespec/compiler";
+
+import type {
   unsafe_MutableType as MutableType,
-  unsafe_mutateSubgraph as mutateSubgraph,
   unsafe_Mutator as Mutator,
-  unsafe_MutatorFlow as MutatorFlow,
   unsafe_Realm as Realm,
+} from "@typespec/compiler/experimental";
+import {
+  unsafe_mutateSubgraph as mutateSubgraph,
+  unsafe_MutatorFlow as MutatorFlow,
 } from "@typespec/compiler/experimental";
 import { $ } from "@typespec/compiler/typekit";
 
-import {
+import type {
   ApplyMergePatchDecorator,
   ApplyMergePatchOptions,
   MergePatchModelDecorator,
   MergePatchPropertyDecorator,
 } from "../generated-defs/TypeSpec.Http.Private.js";
 import { isCookieParam, isHeader, isPathParam, isQueryParam, isStatusCode } from "./decorators.js";
+import type { MergePatchPropertyOverrides } from "./experimental/merge-patch/index.js";
 import {
   getMergePatchPropertyOverrides,
-  MergePatchPropertyOverrides,
   setMergePatchPropertyOverrides,
   setMergePatchPropertySource,
   setMergePatchSource,

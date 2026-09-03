@@ -1,6 +1,6 @@
 import { strictEqual } from "assert";
 import { describe, it } from "vitest";
-import { camelToSnakeCase, md2Rst } from "../src/utils.js";
+import { camelToSnakeCase, md2Rst, quoteShellArg } from "../src/utils.js";
 
 describe("typespec-python: utils", () => {
   it("camelToSnakeCase", async () => {
@@ -26,5 +26,16 @@ describe("typespec-python: utils", () => {
   it("md2rst", async () => {
     const des = "Format: <MajorVersion>.<MinorVersion>.<Patch>";
     strictEqual(md2Rst(des), "Format: <MajorVersion>.<MinorVersion>.<Patch>");
+  });
+
+  it("quoteShellArg wraps values in double quotes without doubling existing content", async () => {
+    // Regression test for https://github.com/microsoft/typespec Python SDK generation failure
+    // where a package-pprint-name with spaces (e.g. "Azure Web PubSub Chat Service") got quotes
+    // baked into the option value and then leaked into the generated setup.py as doubled quotes.
+    strictEqual(quoteShellArg("Azure Web PubSub Chat Service"), '"Azure Web PubSub Chat Service"');
+    strictEqual(quoteShellArg("simple"), '"simple"');
+    strictEqual(quoteShellArg('has "quotes"'), '"has \\"quotes\\""');
+    strictEqual(quoteShellArg("trailing\\"), '"trailing\\\\"');
+    strictEqual(quoteShellArg('back\\slash "q"'), '"back\\\\slash \\"q\\""');
   });
 });

@@ -2,7 +2,7 @@
 // Licensed under the MIT license.
 
 import type { Enum } from "@typespec/compiler";
-import { JsContext } from "../ctx.js";
+import type { JsContext } from "../ctx.js";
 import { parseCase } from "../util/case.js";
 import { emitDocumentation } from "./documentation.js";
 

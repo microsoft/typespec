@@ -1,15 +1,18 @@
-import { ModelProperty, NoTarget, Scalar, resolvePath } from "@typespec/compiler";
-import { BasicTestRunner, createTestRunner, createTester } from "@typespec/compiler/testing";
+import type { ModelProperty, Scalar } from "@typespec/compiler";
+import { NoTarget, resolvePath } from "@typespec/compiler";
+import type { BasicTestRunner } from "@typespec/compiler/testing";
+import { createTestRunner, createTester } from "@typespec/compiler/testing";
 import { deepStrictEqual, strictEqual } from "assert";
 import { beforeEach, describe, expect, it } from "vitest";
 import { escapeUnsafeChars } from "../src/common/reference.js";
 import { getJsScalar } from "../src/common/scalar.js";
-import { JsContext, Module, createPathCursor } from "../src/ctx.js";
+import type { JsContext, Module } from "../src/ctx.js";
+import { createPathCursor } from "../src/ctx.js";
 
 import { module as dateTimeModule } from "../generated-defs/helpers/datetime.js";
 import { module as temporalHelpersModule } from "../generated-defs/helpers/temporal/native.js";
 import { module as temporalPolyfillHelpersModule } from "../generated-defs/helpers/temporal/polyfill.js";
-import { JsEmitterOptions } from "../src/lib.js";
+import type { JsEmitterOptions } from "../src/lib.js";
 
 const HttpServerEmitterTester = createTester(resolvePath(import.meta.dirname, ".."), {
   libraries: ["@typespec/http", "@typespec/http-server-js"],

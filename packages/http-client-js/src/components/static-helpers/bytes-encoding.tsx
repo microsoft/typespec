@@ -1,5 +1,6 @@
-import { code, Refkey, refkey } from "@alloy-js/core";
-import { Children } from "@alloy-js/core/jsx-runtime";
+import type { Refkey } from "@alloy-js/core";
+import { code, refkey } from "@alloy-js/core";
+import type { Children } from "@alloy-js/core/jsx-runtime";
 import * as ts from "@alloy-js/typescript";
 
 export function getEncodeUint8ArrayRef(): Refkey {

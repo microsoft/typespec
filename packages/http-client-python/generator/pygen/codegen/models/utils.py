@@ -34,6 +34,20 @@ def add_to_pylint_disable(curr_str: str, entry: str) -> str:
     return f"  # pylint: disable={entry}"
 
 
+def escape_sphinx_field_name(name: str) -> str:
+    """Escape a name used as the target of a Sphinx info field (``:ivar``, ``:vartype``,
+    ``:keyword``, ``:paramtype``, ``:param``, ``:type``).
+
+    A name containing ``@`` (e.g. a wire name such as ``@search.facets``) is wrapped in
+    double backticks so it is treated as an inline literal. This renders cleanly in Sphinx
+    without a leading ``@`` being misinterpreted, and — unlike a ``\\@`` escape — introduces
+    no invalid escape sequence into the generated Python docstring.
+    """
+    if "@" in name:
+        return f"``{name}``"
+    return name
+
+
 class NamespaceType(str, Enum):
     """Special signal for impports"""
 
@@ -41,14 +55,11 @@ class NamespaceType(str, Enum):
     OPERATION = "operation"
     CLIENT = "client"
     TYPES_FILE = "types_file"
+    UNIONS_FILE = "unions_file"
 
 
 LOCALS_LENGTH_LIMIT = 25
 
-REQUEST_BUILDER_BODY_VARIABLES_LENGTH = (
-    6  # how many body variables are present in a request builder
-)
+REQUEST_BUILDER_BODY_VARIABLES_LENGTH = 6  # how many body variables are present in a request builder
 
-OPERATION_BODY_VARIABLES_LENGTH = (
-    14  # how many body variables are present in an operation
-)
+OPERATION_BODY_VARIABLES_LENGTH = 14  # how many body variables are present in an operation

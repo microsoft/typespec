@@ -1,7 +1,6 @@
 ---
 changeKind: dependencies
 packages:
-  - "@typespec/http-client-python"
   - "@typespec/http-client-java"
 ---
 

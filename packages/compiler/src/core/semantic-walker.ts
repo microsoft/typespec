@@ -1,11 +1,10 @@
 import type { Program } from "./program.js";
 import { isTemplateDeclaration } from "./type-utils.js";
-import {
+import type {
   Decorator,
   Enum,
   FunctionValue,
   Interface,
-  ListenerFlow,
   Model,
   ModelProperty,
   Namespace,
@@ -24,6 +23,7 @@ import {
   UnionVariant,
   Value,
 } from "./types.js";
+import { ListenerFlow } from "./types.js";
 
 export interface NavigationOptions {
   /**

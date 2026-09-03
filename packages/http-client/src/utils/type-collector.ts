@@ -1,4 +1,5 @@
-import { Enum, Model, navigateType, Scalar, Type, Union } from "@typespec/compiler";
+import type { Enum, Model, Scalar, Type, Union } from "@typespec/compiler";
+import { navigateType } from "@typespec/compiler";
 import { type Typekit } from "@typespec/compiler/typekit";
 
 export function collectDataTypes(

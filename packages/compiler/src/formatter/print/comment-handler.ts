@@ -1,5 +1,6 @@
 import type { Printer } from "prettier";
-import { Node, SyntaxKind, TextRange, TypeSpecScriptNode } from "../../core/types.js";
+import type { Node, TextRange, TypeSpecScriptNode } from "../../core/types.js";
+import { SyntaxKind } from "../../core/types.js";
 import { util } from "./util.js";
 
 interface CommentNode extends TextRange {

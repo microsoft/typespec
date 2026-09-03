@@ -1,5 +1,6 @@
-import { StringValue } from "@typespec/compiler";
-import { t, TesterInstance } from "@typespec/compiler/testing";
+import type { StringValue } from "@typespec/compiler";
+import type { TesterInstance } from "@typespec/compiler/testing";
+import { t } from "@typespec/compiler/testing";
 import { $ } from "@typespec/compiler/typekit";
 import { ok } from "assert";
 import { beforeEach, describe, expect, it } from "vitest";

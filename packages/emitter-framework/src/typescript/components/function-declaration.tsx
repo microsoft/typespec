@@ -15,8 +15,7 @@ export interface FunctionDeclarationPropsWithType extends Omit<
 }
 
 export type FunctionDeclarationProps =
-  | FunctionDeclarationPropsWithType
-  | ts.FunctionDeclarationProps;
+  FunctionDeclarationPropsWithType | ts.FunctionDeclarationProps;
 
 /**
  * A TypeScript function declaration. Pass the `type` prop to create the

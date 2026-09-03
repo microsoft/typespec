@@ -1,5 +1,5 @@
 import { compile, joinPaths, NodeHost, normalizePath, resolvePath } from "@typespec/compiler";
-import { BuildOptions, BuildResult, context, Plugin } from "esbuild";
+import { context, type BuildOptions, type BuildResult, type Plugin } from "esbuild";
 import { access, mkdir, readFile, realpath, writeFile } from "fs/promises";
 import { basename, dirname, join, resolve } from "path";
 import { promisify } from "util";
@@ -143,10 +143,17 @@ async function resolveTypeSpecBundleDefinition(
   libraryPath = normalizePath(await realpath(libraryPath));
   const pkg = await readLibraryPackageJson(libraryPath);
 
+  // Only browser-safe exports are bundled for the playground/web. The `./internals` barrel and its
+  // node-only sub-entrypoints (e.g. `./internals/standalone`, which pulls in the CLI runner and Node
+  // built-ins) must be excluded; `./internals/prettier-formatter` is browser-safe and kept so the
+  // prettier plugin can load it in the browser.
   const exports = pkg.exports
     ? Object.fromEntries(
         Object.entries(pkg.exports).filter(
-          ([k, v]) => k !== "." && k !== "./testing" && k !== "./internals",
+          ([k, v]) =>
+            k !== "." &&
+            k !== "./testing" &&
+            (!k.startsWith("./internals") || k === "./internals/prettier-formatter"),
         ),
       )
     : {};
@@ -178,6 +185,13 @@ async function createEsBuildContext(
   const typespecFiles: Record<string, string> = {
     [normalizePath(join(libraryPath, "package.json"))]: JSON.stringify(definition.packageJson),
   };
+
+  // Include the library's own `tspconfig.yaml` so per-library opt-ins (e.g. compiler
+  // `features`) are preserved in the bundle.
+  const tspconfig = await tryReadFile(join(libraryPath, "tspconfig.yaml"));
+  if (tspconfig !== undefined) {
+    typespecFiles[normalizePath(join(libraryPath, "tspconfig.yaml"))] = tspconfig;
+  }
 
   for (const [filename, sourceFile] of program.sourceFiles) {
     typespecFiles[filename] = sourceFile.file.text;
@@ -330,6 +344,18 @@ function getExportEntryPoint(value: string | ExportData) {
 async function readLibraryPackageJson(path: string): Promise<PackageJson> {
   const file = await readFile(join(path, "package.json"));
   return JSON.parse(file.toString());
+}
+
+/** Read a file, returning `undefined` when it does not exist. */
+async function tryReadFile(path: string): Promise<string | undefined> {
+  try {
+    return (await readFile(path)).toString();
+  } catch (error: any) {
+    if (error.code === "ENOENT") {
+      return undefined;
+    }
+    throw error;
+  }
 }
 
 /**

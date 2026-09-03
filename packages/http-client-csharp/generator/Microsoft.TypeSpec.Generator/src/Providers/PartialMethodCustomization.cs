@@ -174,10 +174,17 @@ namespace Microsoft.TypeSpec.Generator.Providers
         /// method's declaration and implementation to share the same return type, so the generator's
         /// resolved return type is necessarily the correct one. When <c>null</c>, the customer's
         /// parsed return type is used as a fallback.</param>
+        /// <param name="additionalModifiers">Extra modifiers to apply to the implementation that
+        /// cannot appear on the customer's partial declaration. In particular, the customer cannot
+        /// declare a partial method as <c>async</c> (that modifier belongs to the implementing
+        /// declaration, not the defining one), so callers whose generated body uses <c>await</c>
+        /// must pass <see cref="MethodSignatureModifiers.Async"/> here to avoid emitting an
+        /// <c>await</c> body without the <c>async</c> modifier (compiler error CS4032).</param>
         public static MethodSignature BuildPartialSignature(
             MethodSignature customSignature,
             IReadOnlyList<ParameterProvider> implementationParameters,
-            CSharpType? returnType = null)
+            CSharpType? returnType = null,
+            MethodSignatureModifiers additionalModifiers = MethodSignatureModifiers.None)
         {
             if (customSignature is null)
             {
@@ -192,7 +199,7 @@ namespace Microsoft.TypeSpec.Generator.Providers
             return new MethodSignature(
                 customSignature.Name,
                 customSignature.Description,
-                customSignature.Modifiers | MethodSignatureModifiers.Partial,
+                customSignature.Modifiers | MethodSignatureModifiers.Partial | additionalModifiers,
                 returnType ?? customSignature.ReturnType,
                 customSignature.ReturnDescription,
                 implementationParameters,
@@ -206,12 +213,15 @@ namespace Microsoft.TypeSpec.Generator.Providers
         // Clones a ParameterProvider with a new name (and optionally without its default value)
         // while preserving all generator metadata. Returns the source unchanged when no change is
         // needed.
-        private static ParameterProvider CloneParameterWithName(
+        internal static ParameterProvider CloneParameterWithName(
             ParameterProvider source,
             string newName,
-            bool removeDefault)
+            bool removeDefault,
+            ParameterValidationType? validation = null)
         {
-            if (source.Name == newName && !(removeDefault && source.DefaultValue != null))
+            if (source.Name == newName
+                && !(removeDefault && source.DefaultValue != null)
+                && (validation == null || validation == source.Validation))
             {
                 return source;
             }
@@ -231,7 +241,7 @@ namespace Microsoft.TypeSpec.Generator.Providers
                 initializationValue: source.InitializationValue,
                 location: source.Location,
                 wireInfo: source.WireInfo,
-                validation: source.Validation,
+                validation: validation ?? source.Validation,
                 inputParameter: source.InputParameter)
             {
                 SpreadSource = source.SpreadSource,

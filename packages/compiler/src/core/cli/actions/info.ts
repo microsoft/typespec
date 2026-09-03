@@ -5,7 +5,7 @@ import { stringify } from "yaml";
 import { loadTypeSpecConfigForPath } from "../../../config/config-loader.js";
 import type { TypeSpecConfig } from "../../../config/types.js";
 import { compilerFeatureNames, compilerFeatures } from "../../features.js";
-import { CompilerHost, Diagnostic } from "../../types.js";
+import type { CompilerHost, Diagnostic } from "../../types.js";
 import { printEmitterOptionsAction } from "./info/emitter-options.js";
 
 export interface InfoCliArgs {

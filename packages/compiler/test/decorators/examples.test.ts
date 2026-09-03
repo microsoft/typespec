@@ -1,6 +1,7 @@
 import { ok } from "assert";
 import { describe, expect, it } from "vitest";
-import { Operation, getExamples, getOpExamples, serializeValueAsJson } from "../../src/index.js";
+import type { Operation } from "../../src/index.js";
+import { getExamples, getOpExamples, serializeValueAsJson } from "../../src/index.js";
 import { expectDiagnostics } from "../../src/testing/index.js";
 import { Tester } from "../tester.js";
 
@@ -475,6 +476,16 @@ describe("json serialization of examples", () => {
             value: `duration.fromISO("PT0.5S")`,
             expect: 0.5,
             encode: `@encode("seconds", float32)`,
+          },
+          {
+            value: `duration.fromISO("PT5M")`,
+            expect: 300000,
+            encode: `@encode("milliseconds", int32)`,
+          },
+          {
+            value: `duration.fromISO("PT0.5S")`,
+            expect: 500,
+            encode: `@encode("milliseconds", float32)`,
           },
         ],
       ],

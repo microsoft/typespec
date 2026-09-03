@@ -14,7 +14,7 @@ using static Microsoft.TypeSpec.Generator.Snippets.Snippet;
 
 namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
 {
-    internal class MultipartFormDataHelperDefinition : TypeProvider
+    internal class MultipartFormDataHelperDefinition : InternalHelperProvider
     {
         private const string _fromEnumerableName = "FromEnumerable";
         private const string _fromDictionaryName = "FromDictionary";
@@ -23,9 +23,6 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
         private readonly MethodSignatureModifiers _methodModifiers = MethodSignatureModifiers.Public | MethodSignatureModifiers.Static;
 
         protected override string BuildName() => "MultipartFormDataHelper";
-
-        protected override TypeSignatureModifiers BuildDeclarationModifiers()
-            => TypeSignatureModifiers.Internal | TypeSignatureModifiers.Static | TypeSignatureModifiers.Partial | TypeSignatureModifiers.Class;
 
         protected override string BuildRelativeFilePath() => Path.Combine("src", "Generated", "Internal", $"{Name}.cs");
 

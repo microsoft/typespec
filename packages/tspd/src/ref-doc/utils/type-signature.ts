@@ -1,11 +1,8 @@
-import {
-  compilerAssert,
+import type {
   Decorator,
   EnumMember,
   FunctionParameter,
   FunctionType,
-  getEntityName,
-  getTypeName,
   Interface,
   Model,
   ModelProperty,
@@ -14,7 +11,8 @@ import {
   Type,
   UnionVariant,
 } from "@typespec/compiler";
-import { TemplateParameterDeclarationNode } from "@typespec/compiler/ast";
+import { compilerAssert, getEntityName, getTypeName } from "@typespec/compiler";
+import type { TemplateParameterDeclarationNode } from "@typespec/compiler/ast";
 
 /** @internal */
 export function getTypeSignature(type: Type): string {

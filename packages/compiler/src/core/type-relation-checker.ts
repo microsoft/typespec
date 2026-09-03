@@ -1,5 +1,6 @@
 import { MultiKeyMap } from "../utils/misc.js";
-import { Checker, walkPropertiesInherited } from "./checker.js";
+import type { Checker } from "./checker.js";
+import { walkPropertiesInherited } from "./checker.js";
 import { compilerAssert } from "./diagnostics.js";
 import { getEntityName, getTypeName } from "./helpers/type-name-utils.js";
 import {
@@ -12,12 +13,13 @@ import {
   getMinValueAsNumeric,
   getMinValueExclusiveAsNumeric,
 } from "./intrinsic-type-state.js";
-import { CompilerDiagnostics, createDiagnostic } from "./messages.js";
+import type { CompilerDiagnostics } from "./messages.js";
+import { createDiagnostic } from "./messages.js";
 import { numericRanges } from "./numeric-ranges.js";
-import { Numeric } from "./numeric.js";
-import { Program } from "./program.js";
+import type { Numeric } from "./numeric.js";
+import type { Program } from "./program.js";
 import { isArrayModelType, isNeverType, isUnknownType, isValue, isVoidType } from "./type-utils.js";
-import {
+import type {
   ArrayModelType,
   ArrayValue,
   Diagnostic,
@@ -33,17 +35,16 @@ import {
   ModelProperty,
   Namespace,
   Node,
-  NoTarget,
   NumericLiteral,
   Scalar,
   StringLiteral,
   StringTemplate,
-  SyntaxKind,
   Tuple,
   Type,
   Union,
   Value,
 } from "./types.js";
+import { NoTarget, SyntaxKind } from "./types.js";
 
 export interface TypeRelation {
   isTypeAssignableTo(
@@ -84,6 +85,28 @@ interface TypeRelationError {
   target: Entity | Node;
   /** If the first error and it has a child show the child error at this target instead */
   skipIfFirst?: boolean;
+}
+
+/**
+ * Result of a relation check.
+ *
+ * The errors are cached together with the result: returning a cached `Related.false` without its
+ * errors would make callers like {@link areModelsRelated} see a failure with nothing to report and
+ * turn it back into a success.
+ */
+type RelationResult = [Related, readonly TypeRelationError[]];
+
+/**
+ * Cache of the relation between two entities for the duration of a single top level check.
+ *
+ * It doubles as the guard that makes recursive types terminate: a relation is seeded with
+ * {@link Related.maybe} before its members are walked, so a cycle coming back to the same pair
+ * resolves optimistically instead of recursing forever.
+ */
+type RelationCache = MultiKeyMap<[Entity | IndeterminateEntity, Entity], RelationResult>;
+
+function createRelationCache(): RelationCache {
+  return new MultiKeyMap<[Entity | IndeterminateEntity, Entity], RelationResult>();
 }
 
 /**
@@ -129,7 +152,7 @@ export function createTypeRelationChecker(program: Program, checker: Checker): T
       source,
       target,
       diagnosticTarget,
-      new MultiKeyMap<[Entity, Entity], Related>(),
+      createRelationCache(),
     );
     return [related === Related.true, convertErrorsToDiagnostics(errors, diagnosticTarget)];
   }
@@ -217,7 +240,7 @@ export function createTypeRelationChecker(program: Program, checker: Checker): T
       source,
       target,
       diagnosticTarget,
-      new MultiKeyMap<[Entity, Entity], Related>(),
+      createRelationCache(),
     );
     return [related === Related.true, convertErrorsToDiagnostics(errors, diagnosticTarget)];
   }
@@ -226,27 +249,22 @@ export function createTypeRelationChecker(program: Program, checker: Checker): T
     source: Entity | IndeterminateEntity,
     target: Entity,
     diagnosticTarget: Entity | Node,
-    relationCache: MultiKeyMap<[Entity | IndeterminateEntity, Entity], Related>,
-  ): [Related, readonly TypeRelationError[]] {
+    relationCache: RelationCache,
+  ): RelationResult {
     const cached = relationCache.get([source, target]);
     if (cached !== undefined) {
-      return [cached, []];
+      return cached;
     }
-    const [result, diagnostics] = isTypeAssignableToWorker(
-      source,
-      target,
-      diagnosticTarget,
-      new MultiKeyMap<[Entity, Entity], Related>(),
-    );
+    const result = isTypeAssignableToWorker(source, target, diagnosticTarget, relationCache);
     relationCache.set([source, target], result);
-    return [result, diagnostics];
+    return result;
   }
 
   function isTypeAssignableToWorker(
     source: Entity | IndeterminateEntity,
     target: Entity,
     diagnosticTarget: Entity | Node,
-    relationCache: MultiKeyMap<[Entity, Entity], Related>,
+    relationCache: RelationCache,
   ): [Related, readonly TypeRelationError[]] {
     if (
       "kind" in source &&
@@ -297,6 +315,9 @@ export function createTypeRelationChecker(program: Program, checker: Checker): T
     }
 
     if (source.kind === "Union") {
+      // Seed the relation before walking the variants: a union can reach itself
+      // (`union Foo { self: Foo }`) and would otherwise recurse forever.
+      relationCache.set([source, target], [Related.maybe, []]);
       for (const variant of source.variants.values()) {
         const [variantAssignable] = isTypeAssignableToInternal(
           variant.type,
@@ -365,7 +386,7 @@ export function createTypeRelationChecker(program: Program, checker: Checker): T
     indeterminate: IndeterminateEntity,
     target: Type | MixedParameterConstraint,
     diagnosticTarget: Entity | Node,
-    relationCache: MultiKeyMap<[Entity, Entity], Related>,
+    relationCache: RelationCache,
   ): [Related, readonly TypeRelationError[]] {
     const [typeRelated, typeDiagnostics] = isTypeAssignableToInternal(
       indeterminate.type,
@@ -397,7 +418,7 @@ export function createTypeRelationChecker(program: Program, checker: Checker): T
     source: Entity,
     target: Type,
     diagnosticTarget: Entity | Node,
-    relationCache: MultiKeyMap<[Entity, Entity], Related>,
+    relationCache: RelationCache,
   ): [Related, readonly TypeRelationError[]] {
     if (!isValue(source)) {
       return [Related.false, [createUnassignableDiagnostic(source, target, diagnosticTarget)]];
@@ -410,7 +431,7 @@ export function createTypeRelationChecker(program: Program, checker: Checker): T
     source: Entity,
     target: MixedParameterConstraint,
     diagnosticTarget: Entity | Node,
-    relationCache: MultiKeyMap<[Entity, Entity], Related>,
+    relationCache: RelationCache,
   ): [Related, readonly TypeRelationError[]] {
     if ("entityKind" in source && source.entityKind === "MixedParameterConstraint") {
       if (source.type && target.type) {
@@ -470,7 +491,7 @@ export function createTypeRelationChecker(program: Program, checker: Checker): T
     source: Value,
     target: Type,
     diagnosticTarget: Entity | Node,
-    relationCache: MultiKeyMap<[Entity, Entity], Related>,
+    relationCache: RelationCache,
   ): [Related, readonly TypeRelationError[]] {
     return isTypeAssignableToInternal(source.type, target, diagnosticTarget, relationCache);
   }
@@ -548,7 +569,7 @@ export function createTypeRelationChecker(program: Program, checker: Checker): T
     source: Type,
     target: FunctionType,
     diagnosticTarget: Entity | Node,
-    relationCache: MultiKeyMap<[Entity, Entity], Related>,
+    relationCache: RelationCache,
   ): [Related, readonly TypeRelationError[]] {
     if (source.kind !== "FunctionType") {
       return [Related.false, [createUnassignableDiagnostic(source, target, diagnosticTarget)]];
@@ -598,7 +619,7 @@ export function createTypeRelationChecker(program: Program, checker: Checker): T
     sourceParameters: readonly MixedFunctionParameter[],
     targetParameters: readonly MixedFunctionParameter[],
     diagnosticTarget: Entity | Node,
-    relationCache: MultiKeyMap<[Entity, Entity], Related>,
+    relationCache: RelationCache,
   ): [Related, readonly TypeRelationError[]] {
     const queue = sourceParameters.slice();
     const errors: TypeRelationError[] = [];
@@ -835,9 +856,9 @@ export function createTypeRelationChecker(program: Program, checker: Checker): T
     source: Model,
     target: Model,
     diagnosticTarget: Entity | Node,
-    relationCache: MultiKeyMap<[Entity, Entity], Related>,
+    relationCache: RelationCache,
   ): [Related, readonly TypeRelationError[]] {
-    relationCache.set([source, target], Related.maybe);
+    relationCache.set([source, target], [Related.maybe, []]);
     const errors: TypeRelationError[] = [];
     const remainingProperties = new Map(source.properties);
 
@@ -951,7 +972,7 @@ export function createTypeRelationChecker(program: Program, checker: Checker): T
     properties: Map<string, ModelProperty>,
     indexerConstaint: Type,
     diagnosticTarget: Entity | Node,
-    relationCache: MultiKeyMap<[Type, Type], Related>,
+    relationCache: RelationCache,
   ): [Related, readonly TypeRelationError[]] {
     for (const prop of properties.values()) {
       const [related, diagnostics] = isTypeAssignableToInternal(
@@ -973,7 +994,7 @@ export function createTypeRelationChecker(program: Program, checker: Checker): T
     source: Model,
     target: Model & { indexer: ModelIndexer },
     diagnosticTarget: Entity | Node,
-    relationCache: MultiKeyMap<[Entity, Entity], Related>,
+    relationCache: RelationCache,
   ): [Related, readonly TypeRelationError[]] {
     if (source.indexer === undefined || source.indexer.key !== target.indexer.key) {
       return [
@@ -1002,7 +1023,7 @@ export function createTypeRelationChecker(program: Program, checker: Checker): T
     source: Tuple,
     target: ArrayModelType,
     diagnosticTarget: Entity | Node,
-    relationCache: MultiKeyMap<[Entity, Entity], Related>,
+    relationCache: RelationCache,
   ): [Related, readonly TypeRelationError[]] {
     const minItems = getMinItems(program, target);
     const maxItems = getMaxItems(program, target);
@@ -1050,7 +1071,7 @@ export function createTypeRelationChecker(program: Program, checker: Checker): T
     source: Tuple | ArrayValue,
     target: Tuple,
     diagnosticTarget: Entity | Node,
-    relationCache: MultiKeyMap<[Entity, Entity], Related>,
+    relationCache: RelationCache,
   ): [Related, readonly TypeRelationError[]] {
     if (source.values.length !== target.values.length) {
       return [
@@ -1084,11 +1105,19 @@ export function createTypeRelationChecker(program: Program, checker: Checker): T
     source: Type,
     target: Union,
     diagnosticTarget: Entity | Node,
-    relationCache: MultiKeyMap<[Entity, Entity], Related>,
+    relationCache: RelationCache,
   ): [Related, TypeRelationError[]] {
     if (source.kind === "UnionVariant" && source.union === target) {
       return [Related.true, []];
     }
+    // Seed the relation before walking the variants: a union can reach itself
+    // (`union Foo { self: Foo }`) and would otherwise recurse forever. Being assignable to a union
+    // means being assignable to at least one of its variants, so coming back to the same pair
+    // brings no new information and is resolved as unrelated.
+    relationCache.set(
+      [source, target],
+      [Related.false, [createUnassignableDiagnostic(source, target, diagnosticTarget)]],
+    );
     for (const option of target.variants.values()) {
       const [related] = isTypeAssignableToInternal(
         source,

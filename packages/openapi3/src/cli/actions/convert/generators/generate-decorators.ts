@@ -1,4 +1,4 @@
-import { TSValue, TypeSpecDecorator, TypeSpecDirective } from "../interfaces.js";
+import type { TSValue, TypeSpecDecorator, TypeSpecDirective } from "../interfaces.js";
 import { stringLiteral } from "./common.js";
 
 function generateDirective({ name, message }: TypeSpecDirective): string {

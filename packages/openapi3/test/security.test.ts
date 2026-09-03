@@ -247,6 +247,50 @@ worksFor(supportedVersions, ({ diagnoseOpenApiFor, openApiFor }) => {
     deepStrictEqual(res.security, [{ OpenIdConnectAuth: [] }]);
   });
 
+  it("set openId auth with scopes", async () => {
+    const res = await openApiFor(
+      `
+      @service
+      @useAuth(OpenIdConnectAuth<"https://api.example.com/openid", ["read", "write"]>)
+      namespace MyService {}
+      `,
+    );
+    // The scheme object must NOT list scopes (clients discover them via the
+    // openIdConnectUrl); only the security requirement lists required scopes.
+    expect(res.components.securitySchemes).toEqual({
+      OpenIdConnectAuth: {
+        type: "openIdConnect",
+        openIdConnectUrl: "https://api.example.com/openid",
+        description: expect.stringMatching(/^OpenID Connect/),
+      },
+    });
+    deepStrictEqual(res.security, [{ OpenIdConnectAuth: ["read", "write"] }]);
+  });
+
+  it("set openId auth scopes at the operation level", async () => {
+    const res = await openApiFor(
+      `
+      @service
+      @useAuth(OpenIdConnectAuth<"https://api.example.com/openid", ["read"]>)
+      namespace MyService {
+        @route("/a")
+        @useAuth(OpenIdConnectAuth<"https://api.example.com/openid", ["read", "write"]>)
+        op a(): void;
+      }
+      `,
+    );
+    // Same OIDC scheme (differs only by scopes) must dedupe to a single scheme.
+    expect(res.components.securitySchemes).toEqual({
+      OpenIdConnectAuth: {
+        type: "openIdConnect",
+        openIdConnectUrl: "https://api.example.com/openid",
+        description: expect.stringMatching(/^OpenID Connect/),
+      },
+    });
+    deepStrictEqual(res.security, [{ OpenIdConnectAuth: ["read"] }]);
+    deepStrictEqual(res.paths["/a"].get.security, [{ OpenIdConnectAuth: ["read", "write"] }]);
+  });
+
   it("set a unsupported auth", async () => {
     const diagnostics = await diagnoseOpenApiFor(
       `

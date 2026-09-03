@@ -1,4 +1,4 @@
-import {
+import type {
   DecoratorContext,
   Diagnostic,
   DiagnosticTarget,
@@ -11,6 +11,8 @@ import {
   Tuple,
   Type,
   Union,
+} from "@typespec/compiler";
+import {
   createDiagnosticCollector,
   getDoc,
   ignoreDiagnostics,
@@ -19,7 +21,7 @@ import {
 } from "@typespec/compiler";
 import { SyntaxKind } from "@typespec/compiler/ast";
 import { useStateMap } from "@typespec/compiler/utils";
-import {
+import type {
   BodyDecorator,
   BodyIgnoreDecorator,
   BodyRootDecorator,
@@ -43,7 +45,7 @@ import {
 } from "../generated-defs/TypeSpec.Http.js";
 import { HttpStateKeys, createDiagnostic, reportDiagnostic } from "./lib.js";
 import { getStatusCodesFromType } from "./status-codes.js";
-import {
+import type {
   Authentication,
   AuthenticationOption,
   CookieParameterOptions,
@@ -659,7 +661,15 @@ function extractHttpAuthentication(
   const auth =
     result.type === "oauth2"
       ? extractOAuth2Auth(modelType, result)
-      : { ...result, model: modelType };
+      : {
+          ...result,
+          // OpenID Connect requirement scopes come from the `scopes` tuple on the
+          // model. Normalize to an array so downstream resolution can rely on it.
+          ...(result.type === "openIdConnect" && {
+            scopes: Array.isArray((result as any).scopes) ? (result as any).scopes : [],
+          }),
+          model: modelType,
+        };
   return [
     {
       ...auth,

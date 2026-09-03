@@ -1,4 +1,4 @@
-import type { AreaLabels } from "./labels.js";
+import type { AreaLabels } from "./labels.ts";
 
 /**
  * Set the paths that each area applies to.
@@ -32,6 +32,18 @@ export const AreaPaths: Record<keyof typeof AreaLabels, string[]> = {
   "ui:playground": ["packages/playground/"],
   "ui:type-graph-viewer": ["packages/html-program-viewer/"],
   spector: ["packages/spector/", "packages/http-specs"],
+};
+
+/**
+ * External area owners: teams/users outside the org that should be notified on PRs
+ * touching their area. GitHub does not allow non-collaborators in CODEOWNERS, nor can
+ * they be added as formal reviewers, so they are @-mentioned in a comment instead.
+ *
+ * Keyed by the same area names as {@link AreaPaths}; the paths are reused from there.
+ */
+export const ExternalOwners: Partial<Record<keyof typeof AreaLabels, string[]>> = {
+  // cspell:ignore swatkatz fionabronwen
+  "emitter:graphql": ["fionabronwen", "swatkatz", "steverice"],
 };
 
 /**

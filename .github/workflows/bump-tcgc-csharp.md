@@ -10,7 +10,8 @@ on:
   workflow_dispatch:
 
 permissions:
-  all: read
+  contents: read
+  issues: read
   copilot-requests: write
 
 network: defaults

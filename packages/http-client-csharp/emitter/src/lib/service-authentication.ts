@@ -1,17 +1,18 @@
 // Copyright (c) Microsoft Corporation. All rights reserved.
 // Licensed under the MIT License. See License.txt in the project root for license information.
 
-import {
+import type {
   SdkCredentialParameter,
   SdkCredentialType,
   SdkHttpOperation,
   SdkPackage,
 } from "@azure-tools/typespec-client-generator-core";
-import { createDiagnosticCollector, Diagnostic, NoTarget } from "@typespec/compiler";
-import { Oauth2Auth, OAuth2Flow } from "@typespec/http";
-import { CSharpEmitterContext } from "../sdk-context.js";
-import { InputAuth } from "../type/input-auth.js";
-import { InputOAuth2Flow } from "../type/input-oauth2-auth.js";
+import type { Diagnostic } from "@typespec/compiler";
+import { createDiagnosticCollector, NoTarget } from "@typespec/compiler";
+import type { Oauth2Auth, OAuth2Flow } from "@typespec/http";
+import type { CSharpEmitterContext } from "../sdk-context.js";
+import type { InputAuth } from "../type/input-auth.js";
+import type { InputOAuth2Flow } from "../type/input-oauth2-auth.js";
 import { createDiagnostic } from "./lib.js";
 
 export function processServiceAuthentication(

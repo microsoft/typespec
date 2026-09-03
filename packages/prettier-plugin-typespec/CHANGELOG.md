@@ -1,5 +1,13 @@
 # Change Log - @typespec/prettier-plugin-typespec
 
+## 1.15.0
+
+No changes, version bump only.
+
+## 1.14.0
+
+No changes, version bump only.
+
 ## 1.13.0
 
 No changes, version bump only.

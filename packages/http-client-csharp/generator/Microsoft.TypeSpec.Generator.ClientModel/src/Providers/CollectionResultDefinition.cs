@@ -217,6 +217,22 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
         protected override TypeSignatureModifiers BuildDeclarationModifiers()
             => TypeSignatureModifiers.Internal | TypeSignatureModifiers.Partial | TypeSignatureModifiers.Class;
 
+        protected override IReadOnlyList<CSharpType> BuildBodyDependencyTypes()
+        {
+            var dependencies = new List<CSharpType> { Client.Type, ResponseModelType, NextPagePropertyType };
+            if (ItemModelType != null)
+            {
+                dependencies.Add(ItemModelType);
+            }
+
+            foreach (var field in RequestFields)
+            {
+                dependencies.Add(field.Type);
+            }
+
+            return dependencies;
+        }
+
         protected override FieldProvider[] BuildFields() => [ClientField, .. RequestFields];
 
         protected override CSharpType[] BuildImplements() =>
@@ -275,7 +291,10 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
             return statements.ToArray();
         }
 
-        private string GetNextResponseMethodName => IsAsync ? "GetNextResponseAsync" : "GetNextResponse";
+        /// <summary>
+        /// The name of the method that retrieves the next response, e.g. "GetNextResponse" or "GetNextResponseAsync".
+        /// </summary>
+        public string GetNextResponseMethodName => IsAsync ? "GetNextResponseAsync" : "GetNextResponse";
 
         protected override MethodProvider[] BuildMethods()
         {
@@ -578,12 +597,39 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
 
         private ScopedApi<PipelineMessage> InvokeCreateRequestForNextLink(ValueExpression nextPageUri)
         {
-            var createNextLinkRequestMethodName =
-                Client.RestClient.GetCreateNextLinkRequestMethod(Operation).Signature.Name;
+            var createNextLinkRequestMethod =
+                Client.RestClient.GetCreateNextLinkRequestMethod(Operation);
+            var arguments = createNextLinkRequestMethod.Signature.Parameters
+                .Skip(1)
+                .Select(parameter => GetRequestField(parameter).AsValueExpression);
             return ClientField.Invoke(
-                    createNextLinkRequestMethodName,
-                    [nextPageUri, .. RequestFields])
+                    createNextLinkRequestMethod.Signature.Name,
+                    [nextPageUri, .. arguments])
                 .As<PipelineMessage>();
+        }
+
+        private FieldProvider GetRequestField(ParameterProvider parameter)
+        {
+            for (int i = 0; i < CreateRequestParameters.Count; i++)
+            {
+                var createRequestParameter = CreateRequestParameters[i];
+                if (parameter.InputParameter is { } inputParameter)
+                {
+                    if (ReferenceEquals(inputParameter, createRequestParameter.InputParameter) ||
+                        createRequestParameter.InputParameter is { } createRequestInputParameter &&
+                        string.Equals(inputParameter.OriginalName, createRequestInputParameter.OriginalName, StringComparison.Ordinal))
+                    {
+                        return RequestFields[i];
+                    }
+                }
+                else if (createRequestParameter.InputParameter is null &&
+                    string.Equals(parameter.Name, createRequestParameter.Name, StringComparison.Ordinal))
+                {
+                    return RequestFields[i];
+                }
+            }
+
+            throw new InvalidOperationException($"No initial request field matches next-link parameter '{parameter.Name}'.");
         }
 
         private ScopedApi<PipelineMessage> InvokeCreateRequestForContinuationToken(ValueExpression nextToken)

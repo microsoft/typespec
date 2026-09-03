@@ -26,6 +26,7 @@ namespace Microsoft.TypeSpec.Generator
     {
         private List<LibraryVisitor> _visitors = [];
         private List<MetadataReference> _additionalMetadataReferences = [];
+        private readonly Dictionary<string, List<TypeProvider>> _customCodeMethodDependencies = new(StringComparer.Ordinal);
         private static CodeModelGenerator? _instance;
         private List<string> _sharedSourceDirectories = [];
         public const string GeneratorMetadataName = "GeneratorName";
@@ -161,6 +162,25 @@ namespace Microsoft.TypeSpec.Generator
             _additionalMetadataReferences.Add(reference);
         }
 
+        /// <summary>
+        /// Registers a generated provider required by an unresolved custom-code method invocation.
+        /// </summary>
+        /// <param name="methodName">The invoked method name.</param>
+        /// <param name="provider">The generated provider that defines the method.</param>
+        protected void AddCustomCodeMethodDependency(string methodName, TypeProvider provider)
+        {
+            if (!_customCodeMethodDependencies.TryGetValue(methodName, out var providers))
+            {
+                providers = [];
+                _customCodeMethodDependencies.Add(methodName, providers);
+            }
+
+            providers.Add(provider);
+        }
+
+        internal IReadOnlyList<TypeProvider> GetCustomCodeMethodDependencies(string methodName) =>
+            _customCodeMethodDependencies.TryGetValue(methodName, out var providers) ? providers : [];
+
         public virtual void AddSharedSourceDirectory(string sharedSourceDirectory)
         {
             _sharedSourceDirectories.Add(sharedSourceDirectory);
@@ -242,7 +262,7 @@ namespace Microsoft.TypeSpec.Generator
         /// </summary>
         /// <remarks>
         /// The provider's fully qualified name is resolved lazily, when the keep list is consumed during
-        /// post-processing. This makes it safe to call this method from a <see cref="TypeProvider"/>
+        /// reference-map analysis. This makes it safe to call this method from a <see cref="TypeProvider"/>
         /// constructor (including base constructors that run before the derived constructor body), since
         /// it does not force evaluation of <see cref="TypeProvider.Type"/> — which would dispatch virtual
         /// <c>Build*</c> methods on a not-yet-fully-constructed instance.

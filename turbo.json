@@ -2,6 +2,7 @@
   "$schema": "https://turbo.build/schema.json",
   "globalPassThroughEnv": [
     "TYPESPEC_WEBSITE_BASE_PATH",
+    "TYPESPEC_NPM_REGISTRY",
     "TYPESPEC_SKIP_WEBSITE_BUILD",
     "TYPESPEC_SKIP_VS_BUILD",
     "TYPESPEC_VS_CI_BUILD"
@@ -23,7 +24,7 @@
       "outputs": ["coverage/**"]
     },
     "lint": {
-      "inputs": ["src/**", "test/**", "eslint.config.*", "package.json"],
+      "inputs": ["src/**", "test/**", "oxlint.config.*", "package.json"],
       "outputs": []
     },
     "clean": {
@@ -51,6 +52,10 @@
     },
     "test:e2e": {
       "dependsOn": ["build"],
+      "cache": false
+    },
+    "@typespec/http-client-js#test:e2e": {
+      "dependsOn": ["build", "@typespec/http-specs#test:e2e"],
       "cache": false
     }
   }

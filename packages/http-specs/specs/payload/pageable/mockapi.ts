@@ -1,14 +1,5 @@
-import {
-  dyn,
-  dynItem,
-  json,
-  match,
-  MockRequest,
-  passOnSuccess,
-  ScenarioMockApi,
-  ValidationError,
-  xml,
-} from "@typespec/spec-api";
+import type { MockRequest, ScenarioMockApi } from "@typespec/spec-api";
+import { dyn, dynItem, json, match, passOnSuccess, ValidationError, xml } from "@typespec/spec-api";
 
 export const Scenarios: Record<string, ScenarioMockApi> = {};
 
