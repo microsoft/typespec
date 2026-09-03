@@ -158,6 +158,8 @@ const diagnostics = {
       statement: "Statement expected.",
       property: "Property expected.",
       enumMember: "Enum member expected.",
+      whenCondition:
+        "'when' condition expected. A condition must be a filter call (e.g. `emitter(\"name\")`) or an enum member reference (e.g. `Lifecycle.read`).",
       typeofTarget: "Typeof expects a value literal or value reference.",
     },
   },
@@ -274,6 +276,33 @@ const diagnostics = {
     messages: {
       default:
         "Auto decorator declarations require the 'auto-decorators' feature to be enabled. Add 'auto-decorators' to the 'features' list in your tspconfig.yaml.",
+    },
+  },
+  "scoped-decorator-disabled": {
+    severity: "error",
+    messages: {
+      default:
+        "'when' clauses on decorators require the 'scoped-decorators' feature to be enabled. Add 'scoped-decorators' to the 'features' list in your tspconfig.yaml.",
+    },
+  },
+  "when-clause-not-allowed": {
+    severity: "error",
+    messages: {
+      default: paramMessage`'when' clause is only allowed on 'auto' decorators. '${"decorator"}' is declared with 'extern dec', which may have side effects that cannot be deferred to query time.`,
+      augment: "'when' clause is not supported on augment decorators.",
+    },
+  },
+  "unknown-when-filter": {
+    severity: "error",
+    messages: {
+      default: paramMessage`Unknown 'when' filter '${"name"}'. Expected one of: ${"expected"}.`,
+    },
+  },
+  "invalid-when-condition": {
+    severity: "error",
+    messages: {
+      default: paramMessage`Filter '${"name"}' expects a single string argument.`,
+      notAValue: paramMessage`Filter '${"name"}' expects a string literal argument.`,
     },
   },
   "using-invalid-ref": {

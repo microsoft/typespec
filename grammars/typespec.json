@@ -568,6 +568,9 @@
       },
       "patterns": [
         {
+          "include": "#when-clause"
+        },
+        {
           "include": "#model-property"
         },
         {
@@ -804,6 +807,9 @@
           "include": "#token"
         },
         {
+          "include": "#when-clause"
+        },
+        {
           "include": "#decorator"
         },
         {
@@ -1016,6 +1022,9 @@
         },
         {
           "include": "#directive"
+        },
+        {
+          "include": "#when-clause"
         },
         {
           "include": "#augment-decorator-statement"
@@ -1456,6 +1465,27 @@
       "patterns": [
         {
           "include": "#expression"
+        }
+      ]
+    },
+    "when-clause": {
+      "name": "meta.when-clause.typespec",
+      "begin": "\\b(when)\\b",
+      "beginCaptures": {
+        "1": {
+          "name": "keyword.other.tsp"
+        }
+      },
+      "end": "(?=(?:\\b[_$[:alpha:]][_$[:alnum:]]*\\b|`(?:[^`\\\\]|\\\\.)*`)\\s*\\??\\s*:)|(?=,|;|@|#[a-z]|\\)|\\}|\\b(?:extern|internal)\\b|\\b(?:namespace|model|op|using|import|enum|alias|union|interface|dec|fn)\\b)",
+      "patterns": [
+        {
+          "include": "#token"
+        },
+        {
+          "include": "#parenthesized-expression"
+        },
+        {
+          "include": "#identifier-expression"
         }
       ]
     }

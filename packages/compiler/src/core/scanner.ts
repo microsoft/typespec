@@ -159,6 +159,7 @@ export enum Token {
   UnknownKeyword,
   ValueOfKeyword,
   TypeOfKeyword,
+  WhenKeyword,
   // Add new non-statement keyword above
 
   /** @internal */ __EndKeyword,
@@ -311,6 +312,7 @@ export const TokenDisplay = getTokenDisplayTable([
   [Token.UnknownKeyword, "'unknown'"],
   [Token.ExternKeyword, "'extern'"],
   [Token.AutoKeyword, "'auto'"],
+  [Token.WhenKeyword, "'when'"],
 
   // Reserved keywords
   [Token.StatemachineKeyword, "'statemachine'"],
@@ -385,6 +387,7 @@ export const Keywords: ReadonlyMap<string, Token> = new Map([
   ["extern", Token.ExternKeyword],
   ["auto", Token.AutoKeyword],
   ["internal", Token.InternalKeyword],
+  ["when", Token.WhenKeyword],
 
   // Reserved keywords
   ["statemachine", Token.StatemachineKeyword],
@@ -569,6 +572,15 @@ export function isPunctuation(token: Token) {
 
 export function isModifier(token: Token) {
   return token >= Token.__StartModifierKeyword && token < Token.__EndModifierKeyword;
+}
+
+/**
+ * Keywords that only have meaning in a specific syntactic position and remain
+ * usable as identifiers everywhere else, so that promoting them does not break
+ * existing specs.
+ */
+export function isContextualKeyword(token: Token) {
+  return token === Token.WhenKeyword;
 }
 
 export function isStatementKeyword(token: Token) {

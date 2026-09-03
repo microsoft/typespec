@@ -1,8 +1,16 @@
 // Copyright (c) Microsoft Corporation
 // Licensed under the MIT License.
 
+import { Realm } from "../experimental/realm.js";
 import { validateDecoratorUniqueOnNode } from "./decorator-utils.js";
 import type { Program } from "./program.js";
+import {
+  addScopedDecoratorEntry,
+  getScopedDecoratorEntries,
+  resolveScopedDecoratorValue,
+  type Scope,
+  type ScopeConditionSet,
+} from "./scope.js";
 import { getFullyQualifiedSymbolName } from "./type-utils.js";
 import type { DecoratorContext, DecoratorDeclarationStatementNode, Sym, Type } from "./types.js";
 
@@ -14,6 +22,33 @@ import type { DecoratorContext, DecoratorDeclarationStatementNode, Sym, Type } f
  */
 export function getAutoDecoratorStateKey(decoratorFqn: string): symbol {
   return Symbol.for(`dec:${decoratorFqn}`);
+}
+
+/**
+ * Build the `{ paramName: value }` record an auto decorator stores from its arguments.
+ * @internal
+ */
+export function buildAutoDecoratorData(
+  node: DecoratorDeclarationStatementNode,
+  args: unknown[],
+): Record<string, unknown> {
+  const paramNames = node.parameters.map((p) => p.id.sv);
+  const lastParamIsRest =
+    node.parameters.length > 0 && node.parameters[node.parameters.length - 1].rest;
+
+  const data: Record<string, unknown> = {};
+  if (lastParamIsRest) {
+    for (let i = 0; i < paramNames.length - 1; i++) {
+      data[paramNames[i]] = args[i];
+    }
+    // The rest parameter collects all remaining arguments into an array.
+    data[paramNames[paramNames.length - 1]] = args.slice(paramNames.length - 1);
+  } else {
+    for (let i = 0; i < paramNames.length; i++) {
+      data[paramNames[i]] = args[i];
+    }
+  }
+  return data;
 }
 
 /**
@@ -29,9 +64,6 @@ export function createAutoDecoratorImplementation(
   node: DecoratorDeclarationStatementNode,
 ): (ctx: DecoratorContext, target: Type, ...args: unknown[]) => void {
   const fqn = getFullyQualifiedSymbolName(symbol);
-  const paramNames = node.parameters.map((p) => p.id.sv);
-  const lastParamIsRest =
-    node.parameters.length > 0 && node.parameters[node.parameters.length - 1].rest;
 
   const impl = (context: DecoratorContext, target: Type, ...args: unknown[]) => {
     // Warn (but still store, so duplicates are last-write-wins like extern
@@ -40,22 +72,34 @@ export function createAutoDecoratorImplementation(
       validateDecoratorUniqueOnNode(context, target, impl);
     }
 
-    const data: Record<string, unknown> = {};
-    if (lastParamIsRest) {
-      for (let i = 0; i < paramNames.length - 1; i++) {
-        data[paramNames[i]] = args[i];
-      }
-      // The rest parameter collects all remaining arguments into an array.
-      data[paramNames[paramNames.length - 1]] = args.slice(paramNames.length - 1);
-    } else {
-      for (let i = 0; i < paramNames.length; i++) {
-        data[paramNames[i]] = args[i];
-      }
-    }
-    setAutoDecorator(context.program, fqn, target, data);
+    setAutoDecorator(context.program, fqn, target, buildAutoDecoratorData(node, args));
   };
   // The function name drives the `@<name>` text in the duplicate-decorator
   // diagnostic; mirror the extern `$name` convention so the helper strips it.
+  Object.defineProperty(impl, "name", { value: `$${node.id.sv}` });
+  return impl;
+}
+
+/**
+ * Build the implementation for a *conditioned* (`when`-scoped) `auto dec` application.
+ *
+ * Unlike the unscoped implementation this does not warn on duplicates: several scoped
+ * applications on the same target are the whole point of the feature. The value is written
+ * to a separate state map so the unscoped `getAutoDecoratorValue` contract is unaffected.
+ * @internal
+ */
+export function createScopedAutoDecoratorImplementation(
+  symbol: Sym,
+  node: DecoratorDeclarationStatementNode,
+  scope: ScopeConditionSet,
+): (ctx: DecoratorContext, target: Type, ...args: unknown[]) => void {
+  const fqn = getFullyQualifiedSymbolName(symbol);
+  const impl = (context: DecoratorContext, target: Type, ...args: unknown[]) => {
+    addScopedDecoratorEntry(context.program, fqn, target, {
+      value: buildAutoDecoratorData(node, args),
+      scope,
+    });
+  };
   Object.defineProperty(impl, "name", { value: `$${node.id.sv}` });
   return impl;
 }
@@ -98,15 +142,32 @@ export function hasAutoDecorator(program: Program, decoratorFqn: string, target:
  * @param program - The current program.
  * @param decoratorFqn - The fully-qualified name of the decorator (e.g., "MyLib.myDec").
  * @param target - The type to get the value for.
+ * @param scope - Optional scope used to resolve `when`-conditioned applications. A scoped
+ * application whose condition matches takes precedence over the unscoped value.
  * @returns The stored record, or `undefined` if the decorator was not applied.
  */
 export function getAutoDecoratorValue(
   program: Program,
   decoratorFqn: string,
   target: Type,
+  scope?: Scope,
 ): Record<string, unknown> | undefined {
+  // Realm state maps only resolve state for types the realm owns, so a clone carries none of
+  // the state recorded against the type it was cloned from. Walk back to that source type.
+  const resolved = Realm.sourceOf(target);
+
+  if (scope !== undefined) {
+    const entries = getScopedDecoratorEntries(program, decoratorFqn, resolved);
+    if (entries !== undefined) {
+      const value = resolveScopedDecoratorValue(entries, scope);
+      if (value !== undefined) {
+        return value;
+      }
+    }
+  }
+
   const key = getAutoDecoratorStateKey(decoratorFqn);
-  return program.stateMap(key).get(target) as Record<string, unknown> | undefined;
+  return program.stateMap(key).get(resolved) as Record<string, unknown> | undefined;
 }
 
 /**

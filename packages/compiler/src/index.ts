@@ -115,6 +115,8 @@ export { NodeHost } from "./core/node-host.js";
 export { isNumeric, Numeric } from "./core/numeric.js";
 export type { CompilerOptions } from "./core/options.js";
 export { getPositionBeforeTrivia } from "./core/parser-utils.js";
+export { isWhenFilterName, whenFilterNames } from "./core/scope.js";
+export type { Scope, WhenFilterName } from "./core/scope.js";
 export {
   $defaultVisibility,
   $discriminator,
