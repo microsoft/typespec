@@ -20,8 +20,7 @@ export const compilerFeatures = {
       "Enables the experimental `$provideTypeInfo` provider allowing libraries to contribute extra information about types to IDE hover and tooling (queried via `program.getTypeInfo`).",
   },
   "union-extends": {
-    description:
-      "Allows use of union `extends` clauses without experimental warnings in project code.",
+    description: "Enables experimental union `extends` clauses in project code.",
   },
 } as const satisfies Record<string, CompilerFeatureDefinition>;
 

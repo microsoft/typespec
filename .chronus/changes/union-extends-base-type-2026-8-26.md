@@ -6,7 +6,7 @@ packages:
 
 Add experimental support for an `extends` clause on union statements to constrain every variant to a common data type.
 
-Enable the `union-extends` compiler feature in `tspconfig.yaml` to use the clause without an experimental feature warning.
+Enable the `union-extends` compiler feature in `tspconfig.yaml` to use the clause.
 
 ```tsp
 model PetBase {

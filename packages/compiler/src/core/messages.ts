@@ -267,8 +267,13 @@ const diagnostics = {
       default: paramMessage`${"feature"} is an experimental feature. It may change in the future or be removed. Use with caution and consider providing feedback on this feature.`,
       functionDeclarations:
         "Function declarations are an experimental feature that may change in the future. Use with caution and consider providing feedback to the TypeSpec team.",
-      unionExtends:
-        "Union `extends` clauses are an experimental feature that may change in the future. Use with caution and consider providing feedback to the TypeSpec team.",
+    },
+  },
+  "union-extends-disabled": {
+    severity: "error",
+    messages: {
+      default:
+        "Union `extends` clauses require the 'union-extends' feature to be enabled. Add 'union-extends' to the 'features' list in your tspconfig.yaml.",
     },
   },
   "auto-decorator-disabled": {

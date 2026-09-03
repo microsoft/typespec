@@ -96,20 +96,21 @@ describe("declarations", () => {
 });
 
 describe("extends", () => {
-  it("reports an experimental feature warning when the feature is not enabled", async () => {
+  it("reports an error when the feature is not enabled", async () => {
     const diagnostics = await Tester.diagnose(`
       model PetBase { name: string }
       union Pet extends PetBase { base: PetBase }
     `);
 
     expectDiagnostics(diagnostics, {
-      code: "experimental-feature",
+      code: "union-extends-disabled",
+      severity: "error",
       message:
-        "Union `extends` clauses are an experimental feature that may change in the future. Use with caution and consider providing feedback to the TypeSpec team.",
+        "Union `extends` clauses require the 'union-extends' feature to be enabled. Add 'union-extends' to the 'features' list in your tspconfig.yaml.",
     });
   });
 
-  it("does not report an experimental feature warning when the feature is enabled", async () => {
+  it("does not report an error when the feature is enabled", async () => {
     const diagnostics = await diagnoseUnionExtends(`
       model PetBase { name: string }
       union Pet extends PetBase { base: PetBase }

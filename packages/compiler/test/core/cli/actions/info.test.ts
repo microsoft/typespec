@@ -23,6 +23,6 @@ it("lists available compiler features and marks enabled features", () => {
     "  enabled   function-declarations  Allows use of function declarations without experimental warnings in project code.",
     "  disabled  auto-decorators        Allows use of auto decorator declarations without experimental warnings in project code.",
     "  disabled  type-info-provider     Enables the experimental `$provideTypeInfo` provider allowing libraries to contribute extra information about types to IDE hover and tooling (queried via `program.getTypeInfo`).",
-    "  disabled  union-extends          Allows use of union `extends` clauses without experimental warnings in project code.",
+    "  disabled  union-extends          Enables experimental union `extends` clauses in project code.",
   ]);
 });

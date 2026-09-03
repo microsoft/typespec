@@ -41,7 +41,7 @@ The above example is equivalent to the `Breed` alias mentioned earlier, with the
 A named union can declare a base type with the `extends` keyword. Every variant of the union must be [assignable](./type-relations.md) to that base type, otherwise a diagnostic is reported on the offending variant.
 
 :::caution
-Union `extends` clauses are experimental. Enable the `union-extends` compiler feature in `tspconfig.yaml` to use them without an experimental feature warning:
+Union `extends` clauses are experimental and require the `union-extends` compiler feature. Enable it in `tspconfig.yaml`:
 
 ```yaml
 features:

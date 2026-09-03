@@ -7773,8 +7773,7 @@ export function createChecker(program: Program, resolver: NameResolver): Checker
       if (node.extends && !isCompilerFeatureEnabled(program, "union-extends", node)) {
         reportCheckerDiagnostic(
           createDiagnostic({
-            code: "experimental-feature",
-            messageId: "unionExtends",
+            code: "union-extends-disabled",
             target: node.extends,
           }),
         );
