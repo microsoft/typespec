@@ -2,7 +2,10 @@ import type { CreateSdkContextOptions } from "@azure-tools/typespec-client-gener
 import { UnbrandedSdkEmitterOptions } from "@azure-tools/typespec-client-generator-core";
 import type { EmitContext, JSONSchemaType } from "@typespec/compiler";
 import { _defaultGeneratorName } from "./constants.js";
-import { DYNAMIC_MODEL_DECORATOR_PATTERN } from "./lib/decorators.js";
+import {
+  DYNAMIC_MODEL_DECORATOR_PATTERN,
+  EXPERIMENTAL_DECORATOR_PATTERN,
+} from "./lib/decorators.js";
 import { LoggerLevel } from "./lib/logger-level.js";
 
 /**
@@ -176,7 +179,7 @@ export const defaultOptions = {
   logLevel: LoggerLevel.INFO,
   "generator-name": _defaultGeneratorName,
   "sdk-context-options": {
-    additionalDecorators: [DYNAMIC_MODEL_DECORATOR_PATTERN],
+    additionalDecorators: [DYNAMIC_MODEL_DECORATOR_PATTERN, EXPERIMENTAL_DECORATOR_PATTERN],
   },
 };
 
