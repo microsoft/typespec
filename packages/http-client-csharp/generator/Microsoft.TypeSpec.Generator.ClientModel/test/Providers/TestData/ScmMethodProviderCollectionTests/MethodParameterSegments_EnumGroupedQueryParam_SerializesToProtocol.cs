@@ -1,4 +1,4 @@
 global::Sample.Argument.AssertNotNullOrEmpty(collectionId, nameof(collectionId));
 global::Sample.Argument.AssertNotNull(options, nameof(options));
 
-return this.GetPoint(collectionId, options.Resampling?.ToString(), cancellationToken.ToRequestOptions());
+return this.GetPoint(collectionId, options, cancellationToken.ToRequestOptions());

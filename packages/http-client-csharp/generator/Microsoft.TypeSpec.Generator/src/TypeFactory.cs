@@ -110,6 +110,12 @@ namespace Microsoft.TypeSpec.Generator
                     var arrayInput = CreateCSharpType(listType.ValueType);
                     type = arrayInput != null ? new CSharpType(typeof(IList<>), arrayInput) : null;
                     break;
+                case InputStreamingType streamingType:
+                    var streamingValueType = CreateCSharpType(streamingType.ValueType);
+                    type = streamingValueType != null
+                        ? new CSharpType(typeof(IAsyncEnumerable<>), streamingValueType)
+                        : null;
+                    break;
                 case InputDictionaryType dictionaryType:
                     var inputValueType = CreateCSharpType(dictionaryType.ValueType);
                     type = inputValueType != null ? new CSharpType(typeof(IDictionary<,>), typeof(string), inputValueType) : null;

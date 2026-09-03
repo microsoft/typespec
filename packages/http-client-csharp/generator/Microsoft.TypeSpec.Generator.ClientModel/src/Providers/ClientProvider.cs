@@ -104,9 +104,9 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
 
         public ClientProvider(InputClient inputClient)
         {
+            _inputClient = inputClient;
             CleanOperationNames(inputClient);
 
-            _inputClient = inputClient;
             _inputAuth = ScmCodeModelGenerator.Instance.InputLibrary.InputNamespace.Auth;
             _endpointParameter = BuildClientEndpointParameter();
             _subClientEndpointParameter = BuildSubClientEndpointParameter();
@@ -207,37 +207,64 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
             _allClientParameters = GetAllClientParameters();
         }
 
-        private static void CleanOperationNames(InputClient inputClient)
+        private void CleanOperationNames(InputClient inputClient)
         {
             foreach (var serviceMethod in inputClient.Methods)
             {
-                var updatedOperationName = GetCleanOperationName(serviceMethod);
+                var updatedOperationName = GetOperationName(serviceMethod);
                 serviceMethod.Update(name: updatedOperationName);
                 serviceMethod.Operation.Update(name: updatedOperationName);
             }
         }
 
-        private static string GetCleanOperationName(InputServiceMethod serviceMethod)
+        private string GetOperationName(InputServiceMethod serviceMethod, bool normalizeUrlSuffix = true)
         {
             if (serviceMethod.IsExactName)
             {
                 return serviceMethod.Operation.Name;
             }
 
-            var operationName = serviceMethod.Operation.Name.ToIdentifierName();
+            var operationName = (serviceMethod.Operation.OriginalName ?? serviceMethod.Operation.Name).ToIdentifierName();
             // Replace List with Get as .NET convention is to use Get for list operations.
             if (operationName == "List")
             {
-                return "GetAll";
+                operationName = "GetAll";
             }
-            if (operationName.StartsWith("List", StringComparison.Ordinal) &&
+            else if (operationName.StartsWith("List", StringComparison.Ordinal) &&
                 operationName.Length > 4 && char.IsUpper(operationName[4]))
             {
                 // If the operation name starts with List and has a capital letter after it, we replace List with Get.
-                return $"Get{operationName.Substring(4)}";
+                operationName = $"Get{operationName.Substring(4)}";
             }
 
-            return operationName;
+            if (!normalizeUrlSuffix)
+            {
+                return operationName;
+            }
+
+            var normalizedName = operationName.NormalizeCSharpUrlSuffix();
+            if (normalizedName == operationName)
+            {
+                return operationName;
+            }
+
+            var lastContractMethods = BackCompatProvider.LastContractView?.Methods ?? LastContractView?.Methods;
+            if (lastContractMethods?.Any(m =>
+                m.Signature.Name == operationName ||
+                m.Signature.Name == $"{operationName}Async") == true)
+            {
+                return operationName;
+            }
+
+            return normalizedName;
+        }
+
+        internal string GetRestOperationName(InputServiceMethod serviceMethod)
+        {
+            // Request builders use the stable input operation identity rather than the mutable public method name.
+            // Preserve the original Url suffix so a projection honoring a previous GA name and a newer projection
+            // normalized to Uri continue to reference the same request builder.
+            return GetOperationName(serviceMethod, normalizeUrlSuffix: false).ToIdentifierName();
         }
 
         private string? _namespace;
@@ -1159,6 +1186,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
                 if (_backCompatProvider != backCompatProvider)
                 {
                     _backCompatProvider = backCompatProvider;
+                    CleanOperationNames(_inputClient);
                     // Only reset the cached methods (and the underlying RestClient methods)
                     // so they are rebuilt with the new backcompat provider. Do NOT call full
                     // Reset() — that would discard properties/constructors/fields applied by
@@ -1172,6 +1200,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
             else if (_backCompatProvider != null)
             {
                 _backCompatProvider = null;
+                CleanOperationNames(_inputClient);
                 ResetMethods();
                 _restClient?.ResetMethods();
                 _methodCache = null;

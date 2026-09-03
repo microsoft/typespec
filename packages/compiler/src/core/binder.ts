@@ -1,5 +1,6 @@
 import { mutate } from "../utils/misc.js";
 import { compilerAssert } from "./diagnostics.js";
+import { isCompilerFeatureEnabled } from "./features.js";
 import { getLocationContext } from "./helpers/location-context.js";
 import { visitChildren } from "./parser.js";
 import type { Program } from "./program.js";
@@ -179,6 +180,19 @@ export function createBinder(program: Program): Binder {
                 ? context.metadata
                 : ({ type: "file" } satisfies FileLibraryMetadata);
             program.onValidate(member as any, metadata);
+            continue;
+          } else if (name === "provideTypeInfo") {
+            // `$provideTypeInfo` is experimental: only respect it when the library (or
+            // project) declaring the provider opted into the `type-info-provider` feature in
+            // its own `tspconfig.yaml`. Consumers do not need to enable anything.
+            if (isCompilerFeatureEnabled(program, "type-info-provider", sourceFile)) {
+              const context = getLocationContext(program, sourceFile);
+              const metadata =
+                context.type === "library"
+                  ? context.metadata
+                  : ({ type: "file" } satisfies FileLibraryMetadata);
+              program.registerTypeInfoProvider(member as any, metadata);
+            }
             continue;
           } else if (name === "onEmit") {
             // nothing to do here this is loaded as emitter.
@@ -530,6 +544,10 @@ export function createBinder(program: Program): Binder {
   }
 
   function bindUsingStatement(statement: UsingStatementNode) {
+    // Track the scope in which the using was declared. A using declared at the file level, before any
+    // blockless namespace declaration, is not scoped to the file namespace and resolves from the global namespace.
+    mutate(statement).scopeNamespace =
+      scope.kind === SyntaxKind.NamespaceStatement ? scope : undefined;
     mutate(currentFile.usings).push(statement);
   }
 

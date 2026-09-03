@@ -186,6 +186,50 @@ namespace Microsoft.TypeSpec.Generator.Input.Tests
         }
 
         [Test]
+        public void LoadsInputStreamingType()
+        {
+            const string content = """
+                {
+                  "$id": "1",
+                  "kind": "streaming",
+                  "name": "Events",
+                  "crossLanguageDefinitionId": "Test.Events",
+                  "valueType": {
+                    "$id": "2",
+                    "kind": "string",
+                    "name": "string",
+                    "crossLanguageDefinitionId": "TypeSpec.string",
+                    "decorators": []
+                  },
+                  "contentTypes": ["text/event-stream"],
+                  "streamKind": "sse",
+                  "terminalEventType": "done",
+                  "terminalEventValue": "[DONE]"
+                }
+                """;
+            var referenceHandler = new TypeSpecReferenceHandler();
+            var options = new JsonSerializerOptions
+            {
+                Converters =
+                {
+                    new InputTypeConverter(referenceHandler),
+                    new InputPrimitiveTypeConverter(referenceHandler),
+                },
+            };
+
+            var streamingType = JsonSerializer.Deserialize<InputType>(content, options) as InputStreamingType;
+
+            Assert.IsNotNull(streamingType);
+            Assert.AreEqual("Events", streamingType!.Name);
+            Assert.AreEqual("Test.Events", streamingType.CrossLanguageDefinitionId);
+            Assert.AreEqual(InputPrimitiveTypeKind.String, ((InputPrimitiveType)streamingType.ValueType).Kind);
+            CollectionAssert.AreEqual(new[] { "text/event-stream" }, streamingType.ContentTypes);
+            Assert.AreEqual("sse", streamingType.StreamKind);
+            Assert.AreEqual("done", streamingType.TerminalEventType);
+            Assert.AreEqual("[DONE]", streamingType.TerminalEventValue);
+        }
+
+        [Test]
         public void LoadsDynamicModel()
         {
             var directory = Helpers.GetAssetFileOrDirectoryPath(false);
@@ -1273,6 +1317,7 @@ namespace Microsoft.TypeSpec.Generator.Input.Tests
                   "name": "TestEnum",
                   "namespace": "Test.Models",
                   "crossLanguageDefinitionId": "Test.Models.TestEnum",
+                  "apiVersions": ["2024-01-01", "2024-06-01-preview"],
                   "valueType": { "$id": "2", "kind": {{valueKindJson}}, "name": "valueType", "crossLanguageDefinitionId": "TypeSpec.numeric" },
                   "values": [
                     {
@@ -1339,6 +1384,7 @@ namespace Microsoft.TypeSpec.Generator.Input.Tests
 
             Assert.IsNotNull(enumType);
             Assert.AreEqual(1, enumType!.Values.Count);
+            CollectionAssert.AreEqual(new[] { "2024-01-01", "2024-06-01-preview" }, enumType.ApiVersions);
             var value = enumType.Values[0] as InputEnumTypeStringValue;
             Assert.IsNotNull(value);
             Assert.AreEqual("sunny", value!.StringValue);

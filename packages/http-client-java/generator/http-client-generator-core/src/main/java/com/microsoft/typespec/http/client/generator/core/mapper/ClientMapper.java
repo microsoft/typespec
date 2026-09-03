@@ -140,14 +140,15 @@ public class ClientMapper implements IMapper<CodeModel, Client> {
                 .map(o -> parseHeader(o, settings))
                 .filter(Objects::nonNull));
 
-        // For operations that opt in to returning response headers as a strongly-typed model
-        // (@clientOption "responseHeadersAsModel"), the operations are nested under clients (data-plane
-        // code model), not the top-level operation groups, so parse their header schema here as well.
+        // Typed response-header models used by convenience APIs are nested under clients (data-plane
+        // code model), not the top-level operation groups, so parse their schemas here as well.
         Stream<ObjectSchema> responseHeaderModelTypes = codeModel.getClients()
             .stream()
             .flatMap(c -> c.getOperationGroups().stream())
             .flatMap(og -> og.getOperations().stream())
-            .filter(o -> o.getConvenienceApi() != null && o.getConvenienceApi().isResponseHeadersAsModel())
+            .filter(o -> o.getConvenienceApi() != null
+                && (o.getConvenienceApi().isResponseHeadersAsModel()
+                    || (settings.isAzureV1() && settings.isModelMaxOverload())))
             .map(o -> parseHeader(o, settings))
             .filter(Objects::nonNull);
 
@@ -607,12 +608,14 @@ public class ClientMapper implements IMapper<CodeModel, Client> {
         headerSchema.setStronglyTypedHeader(true);
         headerSchema.setUsage(new LinkedHashSet<>(List.of(SchemaContext.OUTPUT)));
 
-        // When the operation opts in to returning response headers as a convenience model
-        // (@clientOption "responseHeadersAsModel"), the strongly-typed header class is surfaced as a
-        // public model and used as the return type of the convenience method. Marking it PUBLIC ensures
-        // it is generated (data-plane models are only generated when public or internal).
-        if (operation.getConvenienceApi() != null && operation.getConvenienceApi().isResponseHeadersAsModel()) {
-            headerSchema.getUsage().add(SchemaContext.PUBLIC);
+        // The strongly-typed header class is part of the public convenience response for
+        // responseHeadersAsModel and model maximum overloads. Data-plane models are generated only
+        // when marked public or internal.
+        if (operation.getConvenienceApi() != null
+            && (operation.getConvenienceApi().isResponseHeadersAsModel()
+                || (settings.isAzureV1() && settings.isModelMaxOverload()))) {
+            headerSchema.getUsage()
+                .add(operation.getInternalApi() == Boolean.TRUE ? SchemaContext.INTERNAL : SchemaContext.PUBLIC);
         }
 
         for (Map.Entry<String, Schema> header : headerMap.entrySet()) {

@@ -5,7 +5,7 @@ import { Tester } from "./test-host.js";
 
 describe("missing namespace", () => {
   it("emit diagnostics when model is missing namespace", async () => {
-    const diagnostics = await Tester.diagnose("model Foo {}");
+    const diagnostics = await Tester.diagnose("/** A model. */\nmodel Foo {}");
     expectDiagnostics(diagnostics, {
       code: "@typespec/library-linter/missing-namespace",
       message: "Model 'Foo' is not in a namespace. This is bad practice for a published library.",
@@ -14,7 +14,7 @@ describe("missing namespace", () => {
   });
 
   it("emit diagnostics when operation is missing namespace", async () => {
-    const diagnostics = await Tester.diagnose("op test(): string;");
+    const diagnostics = await Tester.diagnose("/** An operation. */\nop test(): string;");
     expectDiagnostics(diagnostics, {
       code: "@typespec/library-linter/missing-namespace",
       message:
@@ -24,7 +24,7 @@ describe("missing namespace", () => {
   });
 
   it("emit diagnostics when interface is missing namespace", async () => {
-    const diagnostics = await Tester.diagnose("interface Foo {}");
+    const diagnostics = await Tester.diagnose("/** An interface. */\ninterface Foo {}");
     expectDiagnostics(diagnostics, {
       code: "@typespec/library-linter/missing-namespace",
       message:
@@ -38,8 +38,12 @@ describe("missing namespace", () => {
       "./mylib.js": mockFile.js({ $myDec: () => null }),
     }).diagnose(`
       import "./mylib.js";
+      /** A decorator. */
       extern dec myDec(target: unknown);
-      namespace Foo { model Bar {}}
+      namespace Foo {
+        /** A model. */
+        model Bar {}
+      }
     `);
     expectDiagnostics(diagnostics, {
       code: "@typespec/library-linter/missing-namespace",

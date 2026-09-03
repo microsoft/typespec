@@ -28,7 +28,10 @@ $generateScript = {
   # for each test run. We do this by appending a random number to the output directory.
   # Without this, we could have multiple runs trying to write to the same directory which introduces race conditions.
   $tspOptions = "--option ""@typespec/http-client-java.emitter-output-dir={project-root}/tsp-output/$(Get-Random)"""
-  if ($tspFile -match "type[\\/]enum[\\/]extensible[\\/]") {
+  if ($tspFile -match "(azure[\\/]core[\\/]basic|parameters[\\/]basic|payload[\\/]head|payload[\\/]multipart|versioning[\\/]added)[\\/](main|client)\.tsp$") {
+    # exercise model maximum overloads across representative data-plane E2E and versioning scenarios
+    $tspOptions += " --option ""@typespec/http-client-java.max-overload=model"""
+  } elseif ($tspFile -match "type[\\/]enum[\\/]extensible[\\/]") {
     # override namespace for reserved keyword "enum"
     $tspOptions += " --option ""@typespec/http-client-java.namespace=type.enums.extensible"""
   } elseif ($tspFile -match "type[\\/]enum[\\/]fixed[\\/]") {
@@ -98,6 +101,13 @@ $generateScript = {
     $tspOptions += " --option ""@typespec/http-client-java.advanced-versioning=true"""
     $tspOptions += " --option ""@typespec/http-client-java.generate-async-methods=true"""
     $tspOptions += " --option ""@typespec/http-client-java.enable-sync-stack=false"""
+  } elseif ($tspFile -match "tsp[\\/]protocol-api-sync-over-async.tsp") {
+    # test hidden protocol methods when sync methods call the async implementation
+    $tspOptions += " --option ""@typespec/http-client-java.enable-sync-stack=false"""
+  } elseif ($tspFile -match "tsp[\\/]max-overload-model.tsp") {
+    # test model-based maximum overloads with advanced versioning
+    $tspOptions += " --option ""@typespec/http-client-java.max-overload=model"""
+    $tspOptions += " --option ""@typespec/http-client-java.advanced-versioning=true"""
   } elseif ($tspFile -match "tsp[\\/]subclient.tsp") {
     $tspOptions += " --option ""@typespec/http-client-java.enable-subclient=true"""
     # test for include-api-view-properties

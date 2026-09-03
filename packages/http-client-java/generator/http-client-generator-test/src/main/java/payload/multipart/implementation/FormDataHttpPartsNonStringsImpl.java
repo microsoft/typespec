@@ -93,7 +93,7 @@ public final class FormDataHttpPartsNonStringsImpl {
      * @return the {@link Response} on successful completion of {@link Mono}.
      */
     @ServiceMethod(returns = ReturnType.SINGLE)
-    public Mono<Response<Void>> floatMethodWithResponseAsync(BinaryData body, RequestOptions requestOptions) {
+    public Mono<Response<Void>> floatMethodWithResponseInternalAsync(BinaryData body, RequestOptions requestOptions) {
         final String contentType = "multipart/form-data";
         return FluxUtil.withContext(
             context -> service.floatMethod(this.client.getEndpoint(), contentType, body, requestOptions, context));
@@ -111,7 +111,7 @@ public final class FormDataHttpPartsNonStringsImpl {
      * @return the {@link Response}.
      */
     @ServiceMethod(returns = ReturnType.SINGLE)
-    public Response<Void> floatMethodWithResponse(BinaryData body, RequestOptions requestOptions) {
+    public Response<Void> floatMethodWithResponseInternal(BinaryData body, RequestOptions requestOptions) {
         final String contentType = "multipart/form-data";
         return service.floatMethodSync(this.client.getEndpoint(), contentType, body, requestOptions, Context.NONE);
     }

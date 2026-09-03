@@ -1,5 +1,5 @@
 # Catch all
-*                                            @markcowl @timotheeguerin @iscai-msft @catalinaperalta @xirzec
+*                                            @markcowl @timotheeguerin @iscai-msft @catalinaperalta @lmazuel
 
 # Those files/folders can be modified by anyone
 .chronus/changes/
@@ -22,9 +22,9 @@ cspell.yaml
 ######################
 # Java
 ######################
-/packages/http-client-java/                  @weidongxu-microsoft @haolingdong-msft @XiaofeiCao @alzimmermsft @jsquire
-/website/src/content/docs/docs/emitters/clients/http-client-java/ @weidongxu-microsoft @haolingdong-msft @XiaofeiCao @alzimmermsft @jsquire
-/.github/instructions/http-client-java.instructions.md @weidongxu-microsoft @haolingdong-msft @XiaofeiCao @alzimmermsft @jsquire
+/packages/http-client-java/                  @weidongxu-microsoft @haolingdong-msft @XiaofeiCao @alzimmermsft @jsquire @JoshLove-msft
+/website/src/content/docs/docs/emitters/clients/http-client-java/ @weidongxu-microsoft @haolingdong-msft @XiaofeiCao @alzimmermsft @jsquire @JoshLove-msft
+/.github/instructions/http-client-java.instructions.md @weidongxu-microsoft @haolingdong-msft @XiaofeiCao @alzimmermsft @jsquire @JoshLove-msft
 
 ######################
 # Python

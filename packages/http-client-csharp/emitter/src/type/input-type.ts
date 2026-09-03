@@ -79,6 +79,7 @@ export type InputType =
   | InputEnumType
   | InputEnumValueType
   | InputArrayType
+  | InputStreamingType
   | InputDictionaryType
   | InputNullableType;
 
@@ -154,6 +155,7 @@ export function isInputUnionType(type: InputType): type is InputUnionType {
 export interface InputModelType extends InputTypeBase {
   kind: "model";
   properties: InputModelProperty[];
+  apiVersions: string[];
   name: string;
   crossLanguageDefinitionId: string;
   access?: AccessFlags;
@@ -191,6 +193,7 @@ export interface InputPropertyTypeBase extends DecoratedType {
 
 export interface InputModelProperty extends InputPropertyTypeBase {
   kind: "property";
+  apiVersions: string[];
   discriminator: boolean;
   serializedName: string;
   serializationOptions: SerializationOptions;
@@ -269,6 +272,7 @@ export interface InputEndpointParameter extends InputPropertyTypeBase {
 
 export interface InputEnumType extends InputTypeBase {
   kind: "enum";
+  apiVersions: string[];
   name: string;
   crossLanguageDefinitionId: string;
   valueType: InputPrimitiveType;
@@ -302,6 +306,17 @@ export interface InputArrayType extends InputTypeBase {
   kind: "array";
   name: string;
   valueType: InputType;
+  crossLanguageDefinitionId: string;
+}
+
+export interface InputStreamingType extends InputTypeBase {
+  kind: "streaming";
+  name: string;
+  valueType: InputType;
+  streamKind: "jsonl" | "sse";
+  contentTypes: string[];
+  terminalEventType?: string;
+  terminalEventValue?: string;
   crossLanguageDefinitionId: string;
 }
 

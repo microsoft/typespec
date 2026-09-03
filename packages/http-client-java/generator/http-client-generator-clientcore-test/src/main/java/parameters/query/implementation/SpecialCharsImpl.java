@@ -36,7 +36,7 @@ public final class SpecialCharsImpl {
 
     /**
      * Initializes an instance of SpecialCharsImpl.
-     *
+     * 
      * @param client the instance of the service client containing this operation class.
      */
     SpecialCharsImpl(QueryClientImpl client) {
@@ -74,7 +74,7 @@ public final class SpecialCharsImpl {
 
     /**
      * The dollarSign operation.
-     *
+     * 
      * @param filter The filter parameter.
      * @param requestContext The context to configure the HTTP request before HTTP client sends it.
      * @throws IllegalArgumentException thrown if parameters fail the validation.
