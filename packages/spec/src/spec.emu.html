@@ -574,7 +574,8 @@ ModelExpression :
     `{` ModelBody? `}`
 
 ModelDeclarationExpression :
-    DecoratorList? `model` Identifier? TemplateParameters? ExtendsModelHeritage? `{` ModelBody? `}`
+    DecoratorList? `model` Identifier? TemplateParameters? ExtendsModelHeritage? IsModelHeritage
+    DecoratorList? `model` Identifier? TemplateParameters? ModelHeritage? `{` ModelBody? `}`
 
 ScalarDeclarationExpression :
     DecoratorList? `scalar` Identifier? TemplateParameters? ScalarExtends?
