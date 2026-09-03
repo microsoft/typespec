@@ -608,7 +608,7 @@ namespace Microsoft.TypeSpec.Generator.Tests.Providers.ModelProviders
                 references,
                 new CSharpCompilationOptions(OutputKind.DynamicallyLinkedLibrary));
             Assert.That(
-                compilation.GetDiagnostics().Where(d => d.Severity == DiagnosticSeverity.Error),
+                compilation.GetDiagnostics().Where(d => d.Severity is DiagnosticSeverity.Warning or DiagnosticSeverity.Error),
                 Is.Empty,
                 "The generated model hierarchy should compile after the incompatible base restoration is skipped");
         }
@@ -650,7 +650,7 @@ namespace Microsoft.TypeSpec.Generator.Tests.Providers.ModelProviders
                 references,
                 new CSharpCompilationOptions(OutputKind.DynamicallyLinkedLibrary));
             Assert.That(
-                compilation.GetDiagnostics().Where(d => d.Severity == DiagnosticSeverity.Error),
+                compilation.GetDiagnostics().Where(d => d.Severity is DiagnosticSeverity.Warning or DiagnosticSeverity.Error),
                 Is.Empty,
                 "The generated model hierarchy should compile after the incompatible symbol-backed base restoration is skipped");
         }

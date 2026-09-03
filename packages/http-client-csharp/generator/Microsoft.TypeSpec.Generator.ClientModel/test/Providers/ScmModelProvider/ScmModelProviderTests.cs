@@ -328,7 +328,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers.ScmModelProvi
                 references,
                 new CSharpCompilationOptions(OutputKind.DynamicallyLinkedLibrary));
             Assert.That(
-                compilation.GetDiagnostics().Where(d => d.Severity == DiagnosticSeverity.Error),
+                compilation.GetDiagnostics().Where(d => d.Severity is DiagnosticSeverity.Warning or DiagnosticSeverity.Error),
                 Is.Empty,
                 "The discriminator deserializer should compile after incompatible base restoration is skipped");
         }
