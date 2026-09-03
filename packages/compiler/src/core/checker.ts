@@ -5264,7 +5264,7 @@ export function createChecker(program: Program, resolver: NameResolver): Checker
           reportCheckerDiagnostic(
             createDiagnostic({
               code: "no-array-properties",
-              target: prop.target,
+              target: prop,
             }),
           );
           continue;
