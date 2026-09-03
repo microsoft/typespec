@@ -868,7 +868,7 @@ enable:
     });
   });
 
-  it("resolve path without ./ prefix", async () => {
+  it("resolves path without ./ prefix", async () => {
     const linter = await createLinterWithFiles({
       "rules.yaml": `
 enable:
