@@ -1107,6 +1107,35 @@ function testColorization(description: string, tokenize: Tokenize) {
         ]);
       });
 
+      it("keeps an object value literal inside the union extends expression", async () => {
+        const tokens = await tokenize(`
+          union Foo extends #{ base: "value" } { value: string }
+          model Bar { value: string }
+        `);
+        deepStrictEqual(tokens, [
+          Token.keywords.union,
+          Token.identifiers.type("Foo"),
+          Token.keywords.extends,
+          Token.punctuation.openHashBrace,
+          Token.identifiers.variable("base"),
+          Token.operators.typeAnnotation,
+          Token.literals.stringQuoted("value"),
+          Token.punctuation.closeBrace,
+          Token.punctuation.openBrace,
+          Token.identifiers.variable("value"),
+          Token.operators.typeAnnotation,
+          Token.identifiers.type("string"),
+          Token.punctuation.closeBrace,
+          Token.keywords.model,
+          Token.identifiers.type("Bar"),
+          Token.punctuation.openBrace,
+          Token.identifiers.variable("value"),
+          Token.operators.typeAnnotation,
+          Token.identifiers.type("string"),
+          Token.punctuation.closeBrace,
+        ]);
+      });
+
       it("templated union with extends", async () => {
         const tokens = await tokenize("union Foo<T extends string> extends Bar { a: T }");
         deepStrictEqual(tokens, [
