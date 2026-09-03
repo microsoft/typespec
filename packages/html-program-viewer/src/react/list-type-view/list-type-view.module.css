@@ -6,3 +6,9 @@
 .item:hover {
   background-color: var(--colorNeutralBackground1Hover);
 }
+
+.empty {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+}

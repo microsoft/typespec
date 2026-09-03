@@ -1,3 +1,45 @@
+.tree-navigation {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+}
+
+.toolbar {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  height: 26px;
+  padding: 0 2px 0 8px;
+  border-bottom: 1px solid var(--colorNeutralStroke2);
+  flex-shrink: 0;
+}
+
+.toolbar-title {
+  flex: 1;
+  min-width: 0;
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: 0.4px;
+  text-transform: uppercase;
+  color: var(--colorNeutralForeground3);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.toolbar-action {
+  min-width: 22px;
+  height: 22px;
+  padding: 0;
+  border: none;
+}
+
+.tree-container {
+  flex: 1;
+  overflow: auto;
+  min-height: 0;
+}
+
 .type-kind-icon {
   color: var(--colorPaletteBerryForeground2);
   font-weight: bold;
