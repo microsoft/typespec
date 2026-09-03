@@ -714,6 +714,16 @@ namespace Microsoft.TypeSpec.Generator.Tests.Providers.ModelProviders
                             }
                         }
                     }
+
+                    public class OtherOuter
+                    {
+                        public class Middle
+                        {
+                            public class NestedBase
+                            {
+                            }
+                        }
+                    }
                 }
                 """;
             var currentBase = InputFactory.Model("CurrentBase", properties: []);
@@ -728,6 +738,12 @@ namespace Microsoft.TypeSpec.Generator.Tests.Providers.ModelProviders
 
             var placeholderType = new CSharpType(typeof(Exception));
             mockGenerator.Object.TypeFactory.CSharpTypeMap[placeholderType] = new SystemObjectTypeProvider(placeholderType);
+            var unrelatedNestedBase = mockGenerator.Object.SourceInputModel.FindForTypeInCurrentCompilation(
+                "Sample.Models",
+                "NestedBase",
+                "OtherOuter+Middle");
+            Assert.IsNotNull(unrelatedNestedBase);
+            mockGenerator.Object.TypeFactory.CSharpTypeMap[unrelatedNestedBase!.Type] = unrelatedNestedBase;
 
             var modelProviders = CodeModelGenerator.Instance.OutputLibrary.TypeProviders
                 .OfType<ModelProvider>()

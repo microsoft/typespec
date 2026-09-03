@@ -365,7 +365,7 @@ namespace Microsoft.TypeSpec.Generator.Providers
             var visited = new HashSet<string>(StringComparer.Ordinal);
             for (var type = currentBase; type is not null && visited.Add(GetMetadataTypeIdentity(type)); type = type.BaseType)
             {
-                if (type.AreNamesEqual(previousBase))
+                if (AreMetadataTypesEqual(type, previousBase))
                 {
                     return true;
                 }
@@ -414,7 +414,7 @@ namespace Microsoft.TypeSpec.Generator.Providers
             foreach (var provider in CodeModelGenerator.Instance.TypeFactory.CSharpTypeMap.Values)
             {
                 if (provider is not null &&
-                    provider.Type.AreNamesEqual(type) &&
+                    AreMetadataTypesEqual(provider.Type, type) &&
                     TryUseProviderAsBase(provider, out resolvedProvider))
                 {
                     return true;
@@ -431,7 +431,7 @@ namespace Microsoft.TypeSpec.Generator.Providers
             foreach (var provider in CodeModelGenerator.Instance.TypeFactory.CSharpTypeMap.Values)
             {
                 if (provider is not null &&
-                    provider.Type.AreNamesEqual(type) &&
+                    AreMetadataTypesEqual(provider.Type, type) &&
                     TryUseProviderAsBase(provider, out resolvedProvider))
                 {
                     return true;
@@ -453,8 +453,22 @@ namespace Microsoft.TypeSpec.Generator.Providers
             return TryUseProviderAsBase(currentProvider, out resolvedProvider);
         }
 
+        private static bool AreMetadataTypesEqual(CSharpType left, CSharpType right)
+            => string.Equals(
+                GetMetadataTypeIdentity(left),
+                GetMetadataTypeIdentity(right),
+                StringComparison.Ordinal);
+
         private static string GetMetadataTypeIdentity(CSharpType type)
-            => $"{GetMetadataNamespace(type)}.{type.ClrMetadataName}";
+        {
+            var typeArguments = type.Arguments.Count == 0
+                ? string.Empty
+                : $"[{string.Join(",", type.Arguments.Select(GetMetadataTypeIdentity))}]";
+            var declaringType = type.DeclaringType is null
+                ? string.Empty
+                : $"@{GetMetadataTypeIdentity(type.DeclaringType)}";
+            return $"{GetMetadataNamespace(type)}.{type.ClrMetadataName}{typeArguments}{declaringType}";
+        }
 
         private static string GetMetadataNamespace(CSharpType type)
         {
