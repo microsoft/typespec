@@ -74,7 +74,7 @@ export function getDisplayPath(path: string): string {
   }
   const relative = path.slice(index + marker.length);
   const segments = relative.split("/");
-  // Drop the package name(`@scope/name` or `name`) to keep the path relative to the package root.
+  // Drop the package name (`@scope/name` or `name`) to keep the path relative to the package root.
   return segments.slice(segments[0].startsWith("@") ? 2 : 1).join("/");
 }
 

@@ -33,7 +33,7 @@ export interface TypeGraphProps {
   readonly defaultOnlyProjectCode?: boolean;
   /**
    * Called when the user clicks the source location of a type declared in their code.
-   * Provide it when the host can reveal that location(e.g. an editor showing the project files).
+   * Provide it when the host can reveal that location (e.g. an editor showing the project files).
    */
   readonly onRevealSource?: RevealSourceCallback;
 }
