@@ -5258,7 +5258,7 @@ export function createChecker(program: Program, resolver: NameResolver): Checker
         );
 
         if (
-          isArrayModelType(parentModel) &&
+          findIndexer(parentModel)?.key.name === "integer" &&
           (newProperties.length > 0 || additionalIndexer !== undefined)
         ) {
           reportCheckerDiagnostic(
