@@ -73,6 +73,36 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
             BaseJsonPatchProperty = new(GetBaseJsonPatchProperty());
         }
 
+        protected override CSharpType? BuildBaseTypeForBackCompatibility(CSharpType? currentBase)
+        {
+            var previousBase = LastContractView?.BaseType;
+            if (_inputModel.DiscriminatorValue is not null &&
+                previousBase is not null &&
+                !IsInBaseTypeHierarchy(currentBase, previousBase))
+            {
+                ReportIncompatibleBackcompatBaseType(
+                    previousBase,
+                    "the model participates in the current discriminator hierarchy");
+                return currentBase;
+            }
+
+            return base.BuildBaseTypeForBackCompatibility(currentBase);
+        }
+
+        private static bool IsInBaseTypeHierarchy(CSharpType? currentBase, CSharpType expectedBase)
+        {
+            var visited = new HashSet<string>(StringComparer.Ordinal);
+            for (var type = currentBase; type is not null && visited.Add(type.FullyQualifiedName); type = type.BaseType)
+            {
+                if (type.AreNamesEqual(expectedBase))
+                {
+                    return true;
+                }
+            }
+
+            return false;
+        }
+
         protected override FieldProvider[] BuildFields()
         {
             if (JsonPatchField is null)

@@ -558,6 +558,54 @@ namespace Microsoft.TypeSpec.Generator.Tests.Providers.ModelProviders
             });
         }
 
+        [TestCase(false)]
+        [TestCase(true)]
+        public async Task BackCompat_GeneratedLastContractBaseWithPropertyCollisionIsNotRestored(bool hasMismatchedType)
+        {
+            var previousBase = InputFactory.Model(
+                "PreviousBase",
+                properties: [InputFactory.Property("sharedProperty", InputPrimitiveType.String)]);
+            var currentBase = InputFactory.Model("CurrentBase", properties: []);
+            var derivedModel = InputFactory.Model(
+                "DerivedModel",
+                properties:
+                [
+                    InputFactory.Property(
+                        "sharedProperty",
+                        hasMismatchedType ? InputPrimitiveType.Int32 : InputPrimitiveType.String)
+                ],
+                baseModel: currentBase);
+
+            await MockHelpers.LoadMockGeneratorAsync(
+                inputModelTypes: [previousBase, currentBase, derivedModel],
+                lastContractCompilation: async () => await Helpers.GetCompilationFromDirectoryAsync());
+
+            var modelProviders = CodeModelGenerator.Instance.OutputLibrary.TypeProviders
+                .OfType<ModelProvider>()
+                .ToArray();
+            var derivedProvider = modelProviders.Single(t => t.Name == "DerivedModel");
+
+            derivedProvider.ProcessTypeForBackCompatibility();
+
+            Assert.AreEqual(currentBase.Name, derivedProvider.BaseType?.Name,
+                "The previous base must not be restored when it would collide with a directly declared current property");
+
+            var syntaxTrees = modelProviders.Select(provider =>
+                CSharpSyntaxTree.ParseText(new TypeProviderWriter(provider).Write().Content));
+            var references = AppDomain.CurrentDomain.GetAssemblies()
+                .Where(a => !a.IsDynamic && !string.IsNullOrEmpty(a.Location))
+                .Select(a => MetadataReference.CreateFromFile(a.Location));
+            var compilation = CSharpCompilation.Create(
+                "PropertyCollisionModels",
+                syntaxTrees,
+                references,
+                new CSharpCompilationOptions(OutputKind.DynamicallyLinkedLibrary));
+            Assert.That(
+                compilation.GetDiagnostics().Where(d => d.Severity == DiagnosticSeverity.Error),
+                Is.Empty,
+                "The generated model hierarchy should compile after the incompatible base restoration is skipped");
+        }
+
         [Test]
         public async Task BackCompat_CustomBaseTakesPrecedenceOverDifferentLastContractBase()
         {

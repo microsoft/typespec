@@ -271,13 +271,13 @@ namespace Microsoft.TypeSpec.Generator.Providers
             // report that the previous inheritance relationship could not be restored.
             if (CustomCodeView?.BaseType is not null)
             {
-                CodeModelGenerator.Instance.Emitter.ReportDiagnostic(
-                    DiagnosticCodes.IncompatibleBackcompatBaseType,
-                    $"Could not preserve base type '{previousBase.FullyQualifiedName}' on model '{BuildNamespace()}.{BuildName()}' because custom code declares base type '{currentBase?.FullyQualifiedName}'.");
+                ReportIncompatibleBackcompatBaseType(
+                    previousBase,
+                    $"custom code declares base type '{currentBase?.FullyQualifiedName}'");
                 return currentBase;
             }
 
-            if (!TryResolveTypeInCurrentBuild(previousBase, out var resolvedPreviousBase))
+            if (!TryResolveTypeInCurrentBuild(previousBase, out var resolvedPreviousBaseProvider))
             {
                 CodeModelGenerator.Instance.Emitter.ReportDiagnostic(
                     DiagnosticCodes.UnavailableBackcompatType,
@@ -285,10 +285,33 @@ namespace Microsoft.TypeSpec.Generator.Providers
                 return currentBase;
             }
 
+            if (resolvedPreviousBaseProvider is ModelProvider previousBaseModel &&
+                resolvedPreviousBaseProvider is not SystemObjectModelProvider &&
+                HasDirectPropertyNameCollision(previousBaseModel))
+            {
+                ReportIncompatibleBackcompatBaseType(
+                    previousBase,
+                    "the current model directly declares a property from the previous base hierarchy");
+                return currentBase;
+            }
+
+            var resolvedPreviousBase = resolvedPreviousBaseProvider.Type;
             CodeModelGenerator.Instance.Emitter.Info(
                 $"Changed base type of model '{BuildName()}' from '{currentBase?.FullyQualifiedName ?? "object"}' to '{resolvedPreviousBase.FullyQualifiedName}' to match the last contract.",
                 BackCompatibilityChangeCategory.ModelBaseTypePreserved);
             return resolvedPreviousBase;
+        }
+
+        /// <summary>
+        /// Reports that a last-contract base type cannot be restored without making the current model invalid.
+        /// </summary>
+        /// <param name="previousBase">The base type from the last contract.</param>
+        /// <param name="reason">The reason the base type cannot be restored.</param>
+        protected void ReportIncompatibleBackcompatBaseType(CSharpType previousBase, string reason)
+        {
+            CodeModelGenerator.Instance.Emitter.ReportDiagnostic(
+                DiagnosticCodes.IncompatibleBackcompatBaseType,
+                $"Could not preserve base type '{previousBase.FullyQualifiedName}' on model '{BuildNamespace()}.{BuildName()}' because {reason}.");
         }
 
         private CSharpType? BuildCurrentBaseType()
@@ -353,13 +376,33 @@ namespace Microsoft.TypeSpec.Generator.Providers
             return false;
         }
 
-        private bool TryResolveTypeInCurrentBuild(CSharpType type, [NotNullWhen(true)] out CSharpType? resolvedType)
+        private bool HasDirectPropertyNameCollision(ModelProvider previousBase)
+        {
+            var directPropertyNames = _inputModel.Properties.Select(p => p.Name).ToHashSet(StringComparer.Ordinal);
+            if (directPropertyNames.Count == 0)
+            {
+                return false;
+            }
+
+            var visited = new HashSet<InputModelType>();
+            for (InputModelType? model = previousBase._inputModel; model is not null && visited.Add(model); model = model.BaseModel)
+            {
+                if (model.Properties.Any(p => directPropertyNames.Contains(p.Name)))
+                {
+                    return true;
+                }
+            }
+
+            return false;
+        }
+
+        private bool TryResolveTypeInCurrentBuild(CSharpType type, [NotNullWhen(true)] out TypeProvider? resolvedProvider)
         {
             foreach (var provider in CodeModelGenerator.Instance.TypeFactory.CSharpTypeMap.Values)
             {
                 if (provider is not null && provider.Type.AreNamesEqual(type))
                 {
-                    return TryUseProviderAsBase(provider, out resolvedType);
+                    return TryUseProviderAsBase(provider, out resolvedProvider);
                 }
             }
 
@@ -374,7 +417,7 @@ namespace Microsoft.TypeSpec.Generator.Providers
             {
                 if (provider is not null && provider.Type.AreNamesEqual(type))
                 {
-                    return TryUseProviderAsBase(provider, out resolvedType);
+                    return TryUseProviderAsBase(provider, out resolvedProvider);
                 }
             }
 
@@ -385,15 +428,15 @@ namespace Microsoft.TypeSpec.Generator.Providers
                 includeReferencedAssemblies: true);
             if (currentProvider is null)
             {
-                resolvedType = null;
+                resolvedProvider = null;
                 return false;
             }
 
             CodeModelGenerator.Instance.TypeFactory.CSharpTypeMap[currentProvider.Type] = currentProvider;
-            return TryUseProviderAsBase(currentProvider, out resolvedType);
+            return TryUseProviderAsBase(currentProvider, out resolvedProvider);
         }
 
-        private static bool TryUseProviderAsBase(TypeProvider provider, [NotNullWhen(true)] out CSharpType? resolvedType)
+        private static bool TryUseProviderAsBase(TypeProvider provider, [NotNullWhen(true)] out TypeProvider? resolvedProvider)
         {
             // Generated model bases already participate in ModelProvider's constructor chaining. A
             // symbol-backed base does not, so generated constructors can only rely on an accessible
@@ -404,11 +447,11 @@ namespace Microsoft.TypeSpec.Generator.Providers
                     c.Signature.Parameters.Count == 0 &&
                     MethodSignatureHelper.IsPublicApi(c.Signature.Modifiers)))
             {
-                resolvedType = provider.Type;
+                resolvedProvider = provider;
                 return true;
             }
 
-            resolvedType = null;
+            resolvedProvider = null;
             return false;
         }
 

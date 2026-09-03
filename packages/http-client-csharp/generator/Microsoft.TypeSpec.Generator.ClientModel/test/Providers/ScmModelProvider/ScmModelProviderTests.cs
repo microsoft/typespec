@@ -1,11 +1,14 @@
 // Copyright (c) Microsoft Corporation. All rights reserved.
 // Licensed under the MIT License.
 
+using System;
 using System.Collections.Generic;
 using System.Diagnostics.CodeAnalysis;
 using System.Linq;
 using System.Text.Json.Serialization;
 using System.Threading.Tasks;
+using Microsoft.CodeAnalysis;
+using Microsoft.CodeAnalysis.CSharp;
 using Microsoft.TypeSpec.Generator.Expressions;
 using Microsoft.TypeSpec.Generator.Input;
 using Microsoft.TypeSpec.Generator.Primitives;
@@ -260,6 +263,74 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers.ScmModelProvi
             // The serialization partial no longer carries the parameterless mocking constructor (avoids CS0111).
             var serializationContent = new TypeProviderWriter(model.SerializationProviders.Single()).Write().Content;
             Assert.AreEqual(Helpers.GetExpectedFromFile("Serialization"), serializationContent);
+        }
+
+        [Test]
+        public async Task BackCompat_DifferentLastContractBaseIsNotRestoredAcrossDiscriminatorHierarchy()
+        {
+            var previousBase = InputFactory.Model("previousBase", properties: []);
+            var derivedModel = InputFactory.Model(
+                "derivedModel",
+                discriminatedKind: "derived",
+                usage: InputModelTypeUsage.Json,
+                properties: []);
+            var currentBase = InputFactory.Model(
+                "currentBase",
+                usage: InputModelTypeUsage.Json,
+                properties:
+                [
+                    InputFactory.Property("kind", InputPrimitiveType.String, isRequired: true, isDiscriminator: true)
+                ],
+                discriminatedModels: new Dictionary<string, InputModelType> { ["derived"] = derivedModel });
+
+            await MockHelpers.LoadMockGeneratorAsync(
+                lastContractCompilation: async () => await Helpers.GetCompilationFromDirectoryAsync(),
+                inputModels: () => [previousBase, currentBase, derivedModel]);
+
+            var models = ScmCodeModelGenerator.Instance.OutputLibrary.TypeProviders
+                .OfType<ScmModel>()
+                .ToArray();
+            foreach (var model in models)
+            {
+                model.ProcessTypeForBackCompatibility();
+            }
+
+            var derivedProvider = models.Single(t => t.Name == "DerivedModel");
+            Assert.Multiple(() =>
+            {
+                Assert.AreEqual("PreviousBase", derivedProvider.LastContractView?.BaseType?.Name,
+                    "The regression requires a different last-contract base");
+                Assert.AreEqual("CurrentBase", derivedProvider.BaseType?.Name,
+                    "The current discriminator hierarchy must remain assignable");
+                Assert.That(models, Has.Some.Matches<ScmModel>(m => m.IsUnknownDiscriminatorModel),
+                    "The current discriminator hierarchy should include its unknown subtype");
+            });
+
+            string[] supportingProviderNames = ["ModelSerializationExtensions", "ChangeTrackingDictionary", "SampleContext", "TypeFormatters", "SerializationFormat"];
+            var generatedProviders = ScmCodeModelGenerator.Instance.OutputLibrary.TypeProviders
+                .Where(provider => provider is ScmModel || supportingProviderNames.Contains(provider.Name))
+                .Concat(models.SelectMany(model => model.SerializationProviders))
+                .Distinct()
+                .ToArray();
+            var syntaxTrees = generatedProviders.Select(provider =>
+                CSharpSyntaxTree.ParseText(
+                    new TypeProviderWriter(provider).Write().Content,
+                    path: $"{provider.Name}.cs"))
+                .Append(CSharpSyntaxTree.ParseText(
+                    "namespace Sample { public partial class SampleContext { public static SampleContext Default => null; } }",
+                    path: "SampleContext.Default.cs"));
+            var references = AppDomain.CurrentDomain.GetAssemblies()
+                .Where(a => !a.IsDynamic && !string.IsNullOrEmpty(a.Location))
+                .Select(a => MetadataReference.CreateFromFile(a.Location));
+            var compilation = CSharpCompilation.Create(
+                "DiscriminatorModels",
+                syntaxTrees,
+                references,
+                new CSharpCompilationOptions(OutputKind.DynamicallyLinkedLibrary));
+            Assert.That(
+                compilation.GetDiagnostics().Where(d => d.Severity == DiagnosticSeverity.Error),
+                Is.Empty,
+                "The discriminator deserializer should compile after incompatible base restoration is skipped");
         }
 
         [Test]
