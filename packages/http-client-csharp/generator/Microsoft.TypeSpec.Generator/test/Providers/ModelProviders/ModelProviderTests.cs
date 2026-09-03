@@ -621,9 +621,13 @@ namespace Microsoft.TypeSpec.Generator.Tests.Providers.ModelProviders
                 "DerivedModel",
                 properties: [InputFactory.Property("sharedProperty", InputPrimitiveType.String)],
                 baseModel: currentBase);
+            var privatePropertyDerivedModel = InputFactory.Model(
+                "PrivatePropertyDerivedModel",
+                properties: [InputFactory.Property("privateProperty", InputPrimitiveType.String)],
+                baseModel: currentBase);
 
             var mockGenerator = await MockHelpers.LoadMockGeneratorAsync(
-                inputModelTypes: [currentBase, derivedModel],
+                inputModelTypes: [currentBase, derivedModel, privatePropertyDerivedModel],
                 compilation: async () => await Helpers.GetCompilationFromDirectoryAsync("Current"),
                 lastContractCompilation: async () => await Helpers.GetCompilationFromDirectoryAsync("LastContract"));
 
@@ -631,11 +635,18 @@ namespace Microsoft.TypeSpec.Generator.Tests.Providers.ModelProviders
                 .OfType<ModelProvider>()
                 .ToArray();
             var modelProvider = modelProviders.Single(t => t.Name == "DerivedModel");
+            var privatePropertyModelProvider = modelProviders.Single(t => t.Name == "PrivatePropertyDerivedModel");
 
             modelProvider.ProcessTypeForBackCompatibility();
+            privatePropertyModelProvider.ProcessTypeForBackCompatibility();
 
-            Assert.AreEqual(currentBase.Name, modelProvider.BaseType?.Name,
-                "The previous symbol-backed base must not be restored when one of its properties collides with a directly declared current property");
+            Assert.Multiple(() =>
+            {
+                Assert.AreEqual(currentBase.Name, modelProvider.BaseType?.Name,
+                    "The previous symbol-backed base must not be restored when one of its properties collides with a directly declared current property");
+                Assert.AreEqual("ExternalBase", privatePropertyModelProvider.BaseType?.Name,
+                    "A private base property is not inherited and must not block restoration");
+            });
 
             var syntaxTrees = modelProviders
                 .Select(provider => CSharpSyntaxTree.ParseText(new TypeProviderWriter(provider).Write().Content))
@@ -724,14 +735,19 @@ namespace Microsoft.TypeSpec.Generator.Tests.Providers.ModelProviders
                             }
                         }
                     }
+
+                    public class GenericBase<T>
+                    {
+                    }
                 }
                 """;
             var currentBase = InputFactory.Model("CurrentBase", properties: []);
             var derivedModel = InputFactory.Model("DerivedModel", properties: [], baseModel: currentBase);
             var nestedDerivedModel = InputFactory.Model("NestedDerivedModel", properties: [], baseModel: currentBase);
+            var genericDerivedModel = InputFactory.Model("GenericDerivedModel", properties: [], baseModel: currentBase);
 
             var mockGenerator = await MockHelpers.LoadMockGeneratorAsync(
-                inputModelTypes: [currentBase, derivedModel, nestedDerivedModel],
+                inputModelTypes: [currentBase, derivedModel, nestedDerivedModel, genericDerivedModel],
                 compilation: async () => await Helpers.GetCompilationFromSourceFilesAsync(
                     [("NestedBase.cs", nestedBaseSource)]),
                 lastContractCompilation: async () => await Helpers.GetCompilationFromDirectoryAsync());
@@ -750,6 +766,7 @@ namespace Microsoft.TypeSpec.Generator.Tests.Providers.ModelProviders
                 .ToArray();
             var modelProvider = modelProviders.Single(t => t.Name == "DerivedModel");
             var nestedModelProvider = modelProviders.Single(t => t.Name == "NestedDerivedModel");
+            var genericModelProvider = modelProviders.Single(t => t.Name == "GenericDerivedModel");
 
             Assert.Multiple(() =>
             {
@@ -758,10 +775,13 @@ namespace Microsoft.TypeSpec.Generator.Tests.Providers.ModelProviders
                     "The regression requires the previously shipped framework base type to be available from the last contract");
                 Assert.AreEqual("NestedBase", nestedModelProvider.LastContractView?.BaseType?.Name,
                     "The regression requires a multi-level nested base type");
+                Assert.AreEqual("GenericBase", genericModelProvider.LastContractView?.BaseType?.Name,
+                    "The regression requires a constructed generic base type");
             });
 
             modelProvider.ProcessTypeForBackCompatibility();
             nestedModelProvider.ProcessTypeForBackCompatibility();
+            genericModelProvider.ProcessTypeForBackCompatibility();
 
             Assert.Multiple(() =>
             {
@@ -773,6 +793,11 @@ namespace Microsoft.TypeSpec.Generator.Tests.Providers.ModelProviders
                 Assert.AreEqual("NestedBase", nestedModelProvider.BaseType?.Name,
                     "A nested base should resolve using its complete CLR declaring-type metadata name");
                 Assert.AreEqual("Outer", nestedModelProvider.BaseType?.DeclaringType?.DeclaringType?.Name);
+                Assert.AreEqual("GenericBase", genericModelProvider.BaseType?.Name,
+                    "A generic base should resolve using its metadata arity");
+                Assert.That(genericModelProvider.BaseType?.Arguments, Has.Count.EqualTo(1));
+                Assert.AreEqual("global::Sample.Models.GenericBase<string>", genericModelProvider.BaseType?.ToString(),
+                    "The restored base must retain its last-contract generic construction");
             });
         }
 

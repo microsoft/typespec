@@ -17,4 +17,12 @@ namespace Sample.Models
     public partial class NestedDerivedModel : Outer.Middle.NestedBase
     {
     }
+
+    public class GenericBase<T>
+    {
+    }
+
+    public partial class GenericDerivedModel : GenericBase<string>
+    {
+    }
 }

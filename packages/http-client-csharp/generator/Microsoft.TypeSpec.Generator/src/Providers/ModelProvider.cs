@@ -156,7 +156,7 @@ namespace Microsoft.TypeSpec.Generator.Providers
 
             var baseTypeProvider = CodeModelGenerator.Instance.SourceInputModel.FindForTypeInCurrentCompilation(
                 GetMetadataNamespace(baseType),
-                baseType.Name,
+                GetMetadataSimpleName(baseType),
                 baseType.DeclaringType?.ClrMetadataName,
                 includeReferencedAssemblies: true);
 
@@ -293,7 +293,8 @@ namespace Microsoft.TypeSpec.Generator.Providers
                 return currentBase;
             }
 
-            var resolvedPreviousBase = resolvedPreviousBaseProvider.Type;
+            var resolvedPreviousBase = GetResolvedBaseType(previousBase, resolvedPreviousBaseProvider);
+            CodeModelGenerator.Instance.TypeFactory.CSharpTypeMap[resolvedPreviousBase] = resolvedPreviousBaseProvider;
             CodeModelGenerator.Instance.Emitter.Info(
                 $"Changed base type of model '{BuildName()}' from '{currentBase?.FullyQualifiedName ?? "object"}' to '{resolvedPreviousBase.FullyQualifiedName}' to match the last contract.",
                 BackCompatibilityChangeCategory.ModelBaseTypePreserved);
@@ -388,7 +389,8 @@ namespace Microsoft.TypeSpec.Generator.Providers
             var visited = new HashSet<TypeProvider>();
             for (TypeProvider? provider = previousBase; provider is not null && visited.Add(provider); provider = provider.BaseTypeProvider)
             {
-                if (provider.Properties.Any(property => directPropertyNames.Contains(property.Name)))
+                if (provider.Properties.Any(property =>
+                    IsInheritedProperty(property) && directPropertyNames.Contains(property.Name)))
                 {
                     return true;
                 }
@@ -396,6 +398,10 @@ namespace Microsoft.TypeSpec.Generator.Providers
 
             return false;
         }
+
+        private static bool IsInheritedProperty(PropertyProvider property)
+            => !property.Modifiers.HasFlag(MethodSignatureModifiers.Private) ||
+                property.Modifiers.HasFlag(MethodSignatureModifiers.Protected);
 
         private string GetGeneratedPropertyName(InputModelProperty property, string enclosingTypeName)
         {
@@ -440,7 +446,7 @@ namespace Microsoft.TypeSpec.Generator.Providers
 
             var currentProvider = CodeModelGenerator.Instance.SourceInputModel.FindForTypeInCurrentCompilation(
                 GetMetadataNamespace(type),
-                type.Name,
+                GetMetadataSimpleName(type),
                 type.DeclaringType?.ClrMetadataName,
                 includeReferencedAssemblies: true);
             if (currentProvider is null)
@@ -451,6 +457,44 @@ namespace Microsoft.TypeSpec.Generator.Providers
 
             CodeModelGenerator.Instance.TypeFactory.CSharpTypeMap[currentProvider.Type] = currentProvider;
             return TryUseProviderAsBase(currentProvider, out resolvedProvider);
+        }
+
+        private static string GetMetadataSimpleName(CSharpType type)
+        {
+            var metadataName = type.ClrMetadataName;
+            var separatorIndex = metadataName.LastIndexOf('+');
+            return separatorIndex < 0 ? metadataName : metadataName[(separatorIndex + 1)..];
+        }
+
+        private static CSharpType GetResolvedBaseType(CSharpType requestedType, TypeProvider resolvedProvider)
+        {
+            var resolvedType = resolvedProvider.Type;
+            return resolvedProvider is NamedTypeSymbolProvider
+                ? ApplyTypeConstruction(resolvedType, requestedType)
+                : resolvedType;
+        }
+
+        private static CSharpType ApplyTypeConstruction(CSharpType resolvedType, CSharpType requestedType)
+        {
+            var declaringType = resolvedType.DeclaringType;
+            if (declaringType is not null && requestedType.DeclaringType is not null)
+            {
+                declaringType = ApplyTypeConstruction(declaringType, requestedType.DeclaringType);
+            }
+
+            var arguments = resolvedType.Arguments.Count == requestedType.Arguments.Count
+                ? requestedType.Arguments
+                : resolvedType.Arguments;
+            return new CSharpType(
+                resolvedType.Name,
+                resolvedType.Namespace,
+                resolvedType.IsValueType,
+                resolvedType.IsNullable,
+                declaringType,
+                arguments,
+                resolvedType.IsPublic,
+                resolvedType.IsStruct,
+                resolvedType.BaseType);
         }
 
         private static bool AreMetadataTypesEqual(CSharpType left, CSharpType right)
