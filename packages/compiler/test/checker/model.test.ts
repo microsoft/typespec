@@ -704,13 +704,22 @@ describe("with is", () => {
     });
   });
 
-  it("model is array cannot spread record properties", async () => {
-    const diagnostics = await Tester.diagnose(`
+  it("model is/extends array cannot spread record properties", async () => {
+    const diagnosticsIs = await Tester.diagnose(`
         model A is Array<string> {
           ...Record<int32>;
         }
         `);
-    expectDiagnostics(diagnostics, {
+    const diagnosticsExtends = await Tester.diagnose(`
+        model A extends Array<string> {
+          ...Record<int32>;
+        }
+        `);
+    expectDiagnostics(diagnosticsIs, {
+      code: "no-array-properties",
+      message: "Array models cannot have any properties.",
+    });
+    expectDiagnostics(diagnosticsExtends, {
       code: "no-array-properties",
       message: "Array models cannot have any properties.",
     });
