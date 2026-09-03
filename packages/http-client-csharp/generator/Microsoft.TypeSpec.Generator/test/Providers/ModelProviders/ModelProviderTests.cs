@@ -561,6 +561,7 @@ namespace Microsoft.TypeSpec.Generator.Tests.Providers.ModelProviders
         [TestCase("sharedProperty", "sharedProperty", false)]
         [TestCase("sharedProperty", "sharedProperty", true)]
         [TestCase("shared-property", "shared_property", false)]
+        [TestCase("previousBase", "previousBaseProperty", false)]
         public async Task BackCompat_GeneratedLastContractBaseWithPropertyCollisionIsNotRestored(
             string previousPropertyName,
             string currentPropertyName,
@@ -608,6 +609,48 @@ namespace Microsoft.TypeSpec.Generator.Tests.Providers.ModelProviders
                 compilation.GetDiagnostics().Where(d => d.Severity == DiagnosticSeverity.Error),
                 Is.Empty,
                 "The generated model hierarchy should compile after the incompatible base restoration is skipped");
+        }
+
+        [Test]
+        public async Task BackCompat_SymbolBackedLastContractBaseWithPropertyCollisionIsNotRestored()
+        {
+            var currentBase = InputFactory.Model("CurrentBase", properties: []);
+            var derivedModel = InputFactory.Model(
+                "DerivedModel",
+                properties: [InputFactory.Property("sharedProperty", InputPrimitiveType.String)],
+                baseModel: currentBase);
+
+            var mockGenerator = await MockHelpers.LoadMockGeneratorAsync(
+                inputModelTypes: [currentBase, derivedModel],
+                compilation: async () => await Helpers.GetCompilationFromDirectoryAsync("Current"),
+                lastContractCompilation: async () => await Helpers.GetCompilationFromDirectoryAsync("LastContract"));
+
+            var modelProviders = CodeModelGenerator.Instance.OutputLibrary.TypeProviders
+                .OfType<ModelProvider>()
+                .ToArray();
+            var modelProvider = modelProviders.Single(t => t.Name == "DerivedModel");
+
+            modelProvider.ProcessTypeForBackCompatibility();
+
+            Assert.AreEqual(currentBase.Name, modelProvider.BaseType?.Name,
+                "The previous symbol-backed base must not be restored when one of its properties collides with a directly declared current property");
+
+            var syntaxTrees = modelProviders
+                .Select(provider => CSharpSyntaxTree.ParseText(new TypeProviderWriter(provider).Write().Content))
+                .Concat(mockGenerator.Object.SourceInputModel.Customization!.SyntaxTrees.Where(tree =>
+                    Path.GetFileName(tree.FilePath) == "ExternalBase.cs"));
+            var references = AppDomain.CurrentDomain.GetAssemblies()
+                .Where(a => !a.IsDynamic && !string.IsNullOrEmpty(a.Location))
+                .Select(a => MetadataReference.CreateFromFile(a.Location));
+            var compilation = CSharpCompilation.Create(
+                "SymbolBackedPropertyCollisionModels",
+                syntaxTrees,
+                references,
+                new CSharpCompilationOptions(OutputKind.DynamicallyLinkedLibrary));
+            Assert.That(
+                compilation.GetDiagnostics().Where(d => d.Severity == DiagnosticSeverity.Error),
+                Is.Empty,
+                "The generated model hierarchy should compile after the incompatible symbol-backed base restoration is skipped");
         }
 
         [Test]

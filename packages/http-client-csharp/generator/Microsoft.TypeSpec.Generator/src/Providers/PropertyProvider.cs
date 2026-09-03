@@ -203,7 +203,7 @@ namespace Microsoft.TypeSpec.Generator.Providers
             }
         }
 
-        private static string AvoidPropertyNameCollision(string propertyName, string enclosingTypeName) =>
+        internal static string AvoidPropertyNameCollision(string propertyName, string enclosingTypeName) =>
             propertyName == enclosingTypeName ? $"{propertyName}Property" : propertyName;
 
         private static bool HasDateTimeStem(string contractName, string specStem, string enclosingTypeName)

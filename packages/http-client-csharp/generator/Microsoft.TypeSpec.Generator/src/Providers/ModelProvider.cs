@@ -285,9 +285,7 @@ namespace Microsoft.TypeSpec.Generator.Providers
                 return currentBase;
             }
 
-            if (resolvedPreviousBaseProvider is ModelProvider previousBaseModel &&
-                resolvedPreviousBaseProvider is not SystemObjectModelProvider &&
-                HasDirectPropertyNameCollision(previousBaseModel))
+            if (HasDirectPropertyNameCollision(resolvedPreviousBaseProvider))
             {
                 ReportIncompatibleBackcompatBaseType(
                     previousBase,
@@ -376,20 +374,21 @@ namespace Microsoft.TypeSpec.Generator.Providers
             return false;
         }
 
-        private bool HasDirectPropertyNameCollision(ModelProvider previousBase)
+        private bool HasDirectPropertyNameCollision(TypeProvider previousBase)
         {
+            var enclosingTypeName = BuildName();
             var directPropertyNames = _inputModel.Properties
-                .Select(GetGeneratedPropertyName)
+                .Select(property => GetGeneratedPropertyName(property, enclosingTypeName))
                 .ToHashSet(StringComparer.Ordinal);
             if (directPropertyNames.Count == 0)
             {
                 return false;
             }
 
-            var visited = new HashSet<InputModelType>();
-            for (InputModelType? model = previousBase._inputModel; model is not null && visited.Add(model); model = model.BaseModel)
+            var visited = new HashSet<TypeProvider>();
+            for (TypeProvider? provider = previousBase; provider is not null && visited.Add(provider); provider = provider.BaseTypeProvider)
             {
-                if (model.Properties.Any(p => directPropertyNames.Contains(GetGeneratedPropertyName(p))))
+                if (provider.Properties.Any(property => directPropertyNames.Contains(property.Name)))
                 {
                     return true;
                 }
@@ -398,16 +397,14 @@ namespace Microsoft.TypeSpec.Generator.Providers
             return false;
         }
 
-        private static string GetGeneratedPropertyName(InputModelProperty property)
+        private static string GetGeneratedPropertyName(InputModelProperty property, string enclosingTypeName)
         {
-            if (property.IsExactName)
-            {
-                return property.Name;
-            }
-
-            return property.Name
-                .ToIdentifierName()
-                .NormalizeCSharpAcronyms(property.Type.IsDateTimeInputType());
+            var propertyName = property.IsExactName
+                ? property.Name
+                : property.Name
+                    .ToIdentifierName()
+                    .NormalizeCSharpAcronyms(property.Type.IsDateTimeInputType());
+            return PropertyProvider.AvoidPropertyNameCollision(propertyName, enclosingTypeName);
         }
 
         private bool TryResolveTypeInCurrentBuild(CSharpType type, [NotNullWhen(true)] out TypeProvider? resolvedProvider)
