@@ -1,6 +1,8 @@
 // Copyright (c) Microsoft Corporation. All rights reserved.
 // Licensed under the MIT License.
 
+using System;
+using System.Collections.Generic;
 using System.Diagnostics.CodeAnalysis;
 using Microsoft.TypeSpec.Generator.Input;
 using Microsoft.TypeSpec.Generator.Primitives;
@@ -9,6 +11,46 @@ namespace Microsoft.TypeSpec.Generator.Utilities
 {
     internal static class CSharpTypeExtensions
     {
+        internal static CSharpType RestoreUnionItemTypes(this CSharpType type, CSharpType source)
+        {
+            if (type.IsUnion)
+            {
+                return type;
+            }
+
+            if (source.IsUnion)
+            {
+                // A union is always represented as BinaryData, so the metadata can only be restored onto a
+                // preserved type that is also BinaryData.
+                return type.IsFrameworkType && type.FrameworkType == typeof(BinaryData)
+                    ? CSharpType.FromUnion(source.UnionItemTypes, type.IsNullable, source.UnionItemTypeReferenceKind)
+                    : type;
+            }
+
+            // Arrays are intentionally out of scope: CSharpType.IsCollection covers only lists and
+            // dictionaries, and an array's ElementType is reconstructed from reflection on every access
+            // (CSharpType.GetElementType), so a decorated element cannot survive on an array anyway.
+            if (!type.IsCollection || !source.IsCollection)
+            {
+                return type;
+            }
+
+            var currentElementType = type.ElementType;
+            var elementType = currentElementType.RestoreUnionItemTypes(source.ElementType);
+            if (ReferenceEquals(elementType, currentElementType))
+            {
+                // Nothing was restored anywhere in the element type, so the container is unchanged.
+                return type;
+            }
+
+            // The element is always the trailing generic argument of a collection: `IReadOnlyList<TElement>`
+            // and `IDictionary<TKey, TElement>`. This mirrors how CSharpType.ElementType resolves it, and the
+            // successful ElementType access above proves there is at least one argument to replace.
+            var arguments = new List<CSharpType>(type.Arguments);
+            arguments[^1] = elementType;
+            return new CSharpType(type.FrameworkType, arguments, type.IsNullable);
+        }
+
         public static CSharpType ApplyInputSpecProperty(this CSharpType type, InputProperty? specProperty)
         {
             if (type.IsCollection)
