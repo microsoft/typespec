@@ -5259,6 +5259,19 @@ export function createChecker(program: Program, resolver: NameResolver): Checker
           parentModel,
         );
 
+        if (
+          findIndexer(parentModel)?.key.name === "integer" &&
+          (newProperties.length > 0 || additionalIndexer !== undefined)
+        ) {
+          reportCheckerDiagnostic(
+            createDiagnostic({
+              code: "no-array-properties",
+              target: prop,
+            }),
+          );
+          continue;
+        }
+
         if (additionalIndexer) {
           if (spreadIndexers) {
             spreadIndexers.push(additionalIndexer);
