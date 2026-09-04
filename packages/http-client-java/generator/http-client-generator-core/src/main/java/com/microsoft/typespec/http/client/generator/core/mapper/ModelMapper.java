@@ -363,6 +363,7 @@ public class ModelMapper implements IMapper<ObjectSchema, ClientModel>, NeedsPla
                 // the correct serialization in multi-level polymorphic structures.
                 for (ClientModel derivedType : derivedTypes) {
                     if (!Objects.equals(polymorphicDiscriminator, derivedType.getPolymorphicDiscriminatorName())) {
+                        // The child hierarchy stays in one fixed parent discriminator branch.
                         ClientModelProperty parentDiscriminator = result.getPolymorphicDiscriminator()
                             .newBuilder()
                             .defaultValue(result.getPolymorphicDiscriminator()
@@ -384,7 +385,16 @@ public class ModelMapper implements IMapper<ObjectSchema, ClientModel>, NeedsPla
 
     private static void passPolymorphicDiscriminatorToChildren(ClientModelProperty parentDiscriminator,
         ClientModel child) {
-        for (ClientModelProperty childProperty : child.getProperties()) {
+        // Due to the execution order of ModelMapper, where children models complete mapping before the parent model,
+        // the parent polymorphic discriminator needs to be added at index 0. Reason, given an example where there are
+        // three models, where model #1 is the root parent with discriminator type, model #2 is a child of model #2 with
+        // discriminator kind, and model #3 is a child of model #3 with discriminator form. The order if this running
+        // will have model #2 add its discriminator to model #3 before model #1 runs adding its discriminator to #2 and
+        // #3. We want #3 to have the ordering of [type, kind], to represent the ordering of the parent models.
+        // Merge a matching child declaration to avoid emitting the inherited discriminator twice.
+        ClientModelProperty discriminatorForChild = parentDiscriminator;
+        for (int i = 0; i < child.getProperties().size(); i++) {
+            ClientModelProperty childProperty = child.getProperties().get(i);
             if (!Objects.equals(parentDiscriminator.getSerializedName(), childProperty.getSerializedName())) {
                 continue;
             }
@@ -401,17 +411,17 @@ public class ModelMapper implements IMapper<ObjectSchema, ClientModel>, NeedsPla
                     + ").");
             }
 
-            // The declared constant owns the fixed discriminator value for this entire branch.
-            return;
+            discriminatorForChild = childProperty.newBuilder()
+                .name(parentDiscriminator.getName())
+                .readOnly(true)
+                .required(false)
+                .polymorphicDiscriminator(true)
+                .build();
+            child.getProperties().remove(i);
+            break;
         }
 
-        // Due to the execution order of ModelMapper, where children models complete mapping before the parent model,
-        // the parent polymorphic discriminator needs to be added at index 0. Reason, given an example where there are
-        // three models, where model #1 is the root parent with discriminator type, model #2 is a child of model #2 with
-        // discriminator kind, and model #3 is a child of model #3 with discriminator form. The order if this running
-        // will have model #2 add its discriminator to model #3 before model #1 runs adding its discriminator to #2 and
-        // #3. We want #3 to have the ordering of [type, kind], to represent the ordering of the parent models.
-        child.getParentPolymorphicDiscriminators().add(0, parentDiscriminator);
+        child.getParentPolymorphicDiscriminators().add(0, discriminatorForChild);
 
         for (ClientModel derived : child.getDerivedModels()) {
             passPolymorphicDiscriminatorToChildren(parentDiscriminator, derived);

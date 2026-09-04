@@ -17,22 +17,33 @@ import javax.xml.stream.XMLStreamException;
 @Immutable
 public final class NestedDiscriminatorAssistant extends NestedDiscriminatorMessage {
     /*
-     * The role property.
-     */
-    @Generated
-    private String role = "assistant";
-
-    /*
      * The type property.
      */
     @Generated
     private final String type = "message";
+
+    /*
+     * The role property.
+     */
+    @Generated
+    private String role = "assistant";
 
     /**
      * Creates an instance of NestedDiscriminatorAssistant class.
      */
     @Generated
     private NestedDiscriminatorAssistant() {
+    }
+
+    /**
+     * Get the type property: The type property.
+     * 
+     * @return the type value.
+     */
+    @Generated
+    @Override
+    public String getType() {
+        return this.type;
     }
 
     /**
@@ -44,16 +55,6 @@ public final class NestedDiscriminatorAssistant extends NestedDiscriminatorMessa
     @Override
     public String getRole() {
         return this.role;
-    }
-
-    /**
-     * Get the type property: The type property.
-     * 
-     * @return the type value.
-     */
-    @Generated
-    public String getType() {
-        return this.type;
     }
 
     @Generated
@@ -68,8 +69,8 @@ public final class NestedDiscriminatorAssistant extends NestedDiscriminatorMessa
         rootElementName
             = rootElementName == null || rootElementName.isEmpty() ? "NestedDiscriminatorBase" : rootElementName;
         xmlWriter.writeStartElement(rootElementName);
-        xmlWriter.writeStringAttribute("role", this.role);
         xmlWriter.writeStringAttribute("type", this.type);
+        xmlWriter.writeStringAttribute("role", this.role);
         return xmlWriter.writeEndElement();
     }
 

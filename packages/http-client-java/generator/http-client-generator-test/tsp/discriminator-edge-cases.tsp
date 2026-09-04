@@ -30,6 +30,21 @@ model GrandChildWithRequiredProperty extends ChildWithRequiredPropertyAsDiscrimi
   discriminator: "aValue";
 }
 
+@discriminator("nestedDiscriminator")
+model GrandChildWithNestedDiscriminator extends ChildWithRequiredPropertyAsDiscriminator {
+  discriminator: "nested";
+
+  // Activates a nested hierarchy so the outer discriminator is propagated and masks the base property.
+  nestedDiscriminator: string;
+}
+
+model GreatGrandChildWithDuplicateDiscriminator extends GrandChildWithNestedDiscriminator {
+  // Repeats the propagated outer discriminator to exercise duplicate merging.
+  discriminator: "nested";
+
+  nestedDiscriminator: "leaf";
+}
+
 @usage(Usage.output)
 @access(Access.public)
 @name("NestedDiscriminatorBase")
