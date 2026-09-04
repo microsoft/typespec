@@ -258,7 +258,7 @@ namespace Microsoft.TypeSpec.Generator.Providers
         /// This hook runs while the base type is being built, before model members and serialization are materialized.
         /// </summary>
         /// <param name="currentBase">The base type selected from custom code or the current input model.</param>
-        protected internal virtual CSharpType? BuildBaseTypeForBackCompatibility(CSharpType? currentBase)
+        protected virtual CSharpType? BuildBaseTypeForBackCompatibility(CSharpType? currentBase)
         {
             var previousBase = LastContractView?.BaseType;
             if (previousBase is null || IsInBaseTypeHierarchy(currentBase, previousBase))

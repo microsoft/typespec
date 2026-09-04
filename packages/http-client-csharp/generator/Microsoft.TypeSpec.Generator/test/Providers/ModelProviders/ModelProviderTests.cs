@@ -1038,7 +1038,7 @@ namespace Microsoft.TypeSpec.Generator.Tests.Providers.ModelProviders
 
             public CSharpType? CapturedCurrentBase { get; private set; }
 
-            protected internal override CSharpType? BuildBaseTypeForBackCompatibility(CSharpType? currentBase)
+            protected override CSharpType? BuildBaseTypeForBackCompatibility(CSharpType? currentBase)
             {
                 CapturedCurrentBase = currentBase;
                 return currentBase;
