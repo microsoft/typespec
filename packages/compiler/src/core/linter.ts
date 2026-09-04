@@ -1,4 +1,6 @@
 import { isPromise } from "../utils/misc.js";
+import { getLocationInYamlScript } from "../yaml/diagnostics.js";
+import type { YamlScript } from "../yaml/types.js";
 import type { DiagnosticCodeResolver } from "./diagnostic-code.js";
 import { formatShortNameCandidates } from "./diagnostic-code.js";
 import type { DiagnosticCollector } from "./diagnostics.js";
@@ -17,6 +19,7 @@ import { EventEmitter, mapEventEmitterToNodeListener, navigateProgram } from "./
 import type {
   Diagnostic,
   DiagnosticMessages,
+  DiagnosticTarget,
   LinterDefinition,
   LinterResolvedDefinition,
   LinterRule,
@@ -136,16 +139,22 @@ export function createLinter(
     ruleSet: LinterRuleSet,
     baseDir: string,
     fileStack: readonly string[],
+    source?: YamlScript,
   ): Promise<readonly Diagnostic[]> {
     tracer.trace("extend-rule-set.start", JSON.stringify(ruleSet, null, 2));
     const diagnostics = createDiagnosticCollector();
     if (ruleSet.extends) {
       for (const extendingRuleSetName of ruleSet.extends) {
         if (extendingRuleSetName.startsWith(linterRuleSetFilePrefix)) {
+          // Blame the `extends` entry that referenced the file when we know where it came from.
+          const target = source
+            ? getLocationInYamlScript(source, ["extends", extendingRuleSetName])
+            : NoTarget;
           for (const diagnostic of await extendRuleSetFile(
             extendingRuleSetName.slice(linterRuleSetFilePrefix.length),
             baseDir,
             fileStack,
+            target,
           )) {
             diagnostics.add(diagnostic);
           }
@@ -162,7 +171,7 @@ export function createLinter(
           const libLinterDefinition = library?.linter;
           const extendingRuleSet = libLinterDefinition?.ruleSets?.[ref.name];
           if (extendingRuleSet) {
-            await extendRuleSetInternal(extendingRuleSet, baseDir, fileStack);
+            await extendRuleSetInternal(extendingRuleSet, baseDir, fileStack, source);
           } else {
             diagnostics.add(
               createDiagnostic({
@@ -332,6 +341,7 @@ export function createLinter(
     path: string,
     baseDir: string,
     fileStack: readonly string[],
+    target: DiagnosticTarget | typeof NoTarget,
   ): Promise<readonly Diagnostic[]> {
     const resolvedPath = resolvePath(baseDir, path);
     tracer.trace("extend-rule-set.file", resolvedPath);
@@ -340,21 +350,23 @@ export function createLinter(
         createDiagnostic({
           code: "circular-ruleset-file",
           format: { path: resolvedPath },
-          target: NoTarget,
+          target,
         }),
       ];
     }
 
-    const [ruleSet, diagnostics] = await loadLinterRuleSetFile(program.host, resolvedPath);
-    if (ruleSet === undefined) {
+    const [loaded, diagnostics] = await loadLinterRuleSetFile(program.host, resolvedPath, target);
+    if (loaded === undefined) {
       return diagnostics;
     }
     return [
       ...diagnostics,
-      ...(await extendRuleSetInternal(ruleSet, getDirectoryPath(resolvedPath), [
-        ...fileStack,
-        resolvedPath,
-      ])),
+      ...(await extendRuleSetInternal(
+        loaded.ruleSet,
+        getDirectoryPath(resolvedPath),
+        [...fileStack, resolvedPath],
+        loaded.script,
+      )),
     ];
   }
 

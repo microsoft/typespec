@@ -6,10 +6,12 @@ import { createLinterRule, createTypeSpecLibrary } from "../../src/core/library.
 import type { Linter } from "../../src/core/linter.js";
 import { createLinter, resolveLinterDefinition } from "../../src/core/linter.js";
 import {
+  type Diagnostic,
   type Interface,
   type LibraryInstance,
   type LinterDefinition,
   type LinterRuleContext,
+  type SourceLocation,
 } from "../../src/index.js";
 import type { MockFile } from "../../src/testing/index.js";
 import {
@@ -848,6 +850,21 @@ describe("rule options", () => {
   });
 });
 
+/**
+ * Assert a diagnostic points at `expectedText` inside the given file, so that ruleset diagnostics
+ * are locatable in an editor rather than being reported globally.
+ */
+function expectTargetsSourceText(
+  diagnostic: Diagnostic,
+  fileName: string,
+  fileContent: string,
+  expectedText: string,
+) {
+  const target = diagnostic.target as SourceLocation;
+  strictEqual(target.file?.path, resolveVirtualPath(fileName));
+  strictEqual(fileContent.slice(target.pos, target.end), expectedText);
+}
+
 describe("extending a ruleset defined in a file", () => {
   async function createLinterWithFiles(files: Record<string, string>) {
     return await createTestLinter(
@@ -937,6 +954,17 @@ enable:
     });
   });
 
+  it("locates a missing file on the `extends` entry that referenced it", async () => {
+    const content = `
+extends:
+  - "file:./not-found.yaml"
+`;
+    const linter = await createLinterWithFiles({ "rules.yaml": content });
+    const diagnostics = await linter.extendRuleSet({ extends: ["file:./rules.yaml"] });
+    expectDiagnostics(diagnostics, { code: "file-not-found" });
+    expectTargetsSourceText(diagnostics[0], "rules.yaml", content, `"file:./not-found.yaml"`);
+  });
+
   it("emits a diagnostic when the file is not a valid ruleset", async () => {
     const linter = await createLinterWithFiles({
       "rules.yaml": `
@@ -962,31 +990,33 @@ enable:
   });
 
   it("emits a diagnostic when the file extends itself", async () => {
-    const linter = await createLinterWithFiles({
-      "rules.yaml": `
+    const content = `
 extends:
   - "file:./rules.yaml"
-`,
-    });
-    expectDiagnostics(await linter.extendRuleSet({ extends: ["file:./rules.yaml"] }), {
-      code: "circular-ruleset-file",
-    });
+`;
+    const linter = await createLinterWithFiles({ "rules.yaml": content });
+    const diagnostics = await linter.extendRuleSet({ extends: ["file:./rules.yaml"] });
+    expectDiagnostics(diagnostics, { code: "circular-ruleset-file" });
+    // The diagnostic is located on the `extends` entry that closes the cycle.
+    expectTargetsSourceText(diagnostics[0], "rules.yaml", content, `"file:./rules.yaml"`);
   });
 
   it("emits a diagnostic when there is a circular reference between files", async () => {
+    const bContent = `
+extends:
+  - "file:./a.yaml"
+`;
     const linter = await createLinterWithFiles({
       "a.yaml": `
 extends:
   - "file:./b.yaml"
 `,
-      "b.yaml": `
-extends:
-  - "file:./a.yaml"
-`,
+      "b.yaml": bContent,
     });
-    expectDiagnostics(await linter.extendRuleSet({ extends: ["file:./a.yaml"] }), {
-      code: "circular-ruleset-file",
-    });
+    const diagnostics = await linter.extendRuleSet({ extends: ["file:./a.yaml"] });
+    expectDiagnostics(diagnostics, { code: "circular-ruleset-file" });
+    // Blames `b.yaml`, the file that references back into the cycle.
+    expectTargetsSourceText(diagnostics[0], "b.yaml", bContent, `"file:./a.yaml"`);
   });
 });
 
