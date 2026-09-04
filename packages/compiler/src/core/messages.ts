@@ -269,6 +269,13 @@ const diagnostics = {
         "Function declarations are an experimental feature that may change in the future. Use with caution and consider providing feedback to the TypeSpec team.",
     },
   },
+  "union-extends-disabled": {
+    severity: "error",
+    messages: {
+      default:
+        "Union `extends` clauses require the 'union-extends' feature to be enabled. Add 'union-extends' to the 'features' list in your tspconfig.yaml.",
+    },
+  },
   "auto-decorator-disabled": {
     severity: "error",
     messages: {
@@ -380,6 +387,13 @@ const diagnostics = {
     messages: {
       default: "Models must extend other models.",
       modelExpression: "Models cannot extend model expressions.",
+    },
+  },
+  "extend-union": {
+    severity: "error",
+    messages: {
+      default: "Union `extends` must specify a model, scalar, enum, or union.",
+      modelExpression: "Unions cannot extend model expressions.",
     },
   },
   "is-model": {
