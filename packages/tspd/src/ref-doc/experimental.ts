@@ -2,6 +2,7 @@ import type { Diagnostic } from "@typespec/compiler";
 import { compile, createDiagnosticCollector, joinPaths, NodeHost } from "@typespec/compiler";
 import { mkdir, writeFile } from "fs/promises";
 import prettier from "prettier";
+import { resolveLibraryCompilerOptions } from "../utils/library-config.js";
 import { generateJsApiDocs } from "./api-docs.js";
 import { renderReadme } from "./emitters/markdown.js";
 import { renderToAstroStarlightMarkdown } from "./emitters/starlight.js";
@@ -74,6 +75,7 @@ export async function resolveLibraryRefDocsBase(
   if (pkgJson.tspMain) {
     const main = joinPaths(libraryPath, pkgJson.tspMain);
     const program = await compile(NodeHost, main, {
+      ...(await resolveLibraryCompilerOptions(NodeHost, main)),
       parseOptions: { comments: true, docs: true },
     });
     const refDoc = diagnostics.pipe(extractRefDocs(program, options));
