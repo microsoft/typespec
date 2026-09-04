@@ -256,3 +256,62 @@ it("renders an enum with a type-level doc comment", async () => {
     }
   `);
 });
+
+it("adds json serialization attributes", async () => {
+  const { TestEnum } = await runner.compile(t.code`
+    enum ${t.enum("TestEnum")} {
+      Value1: "value-1";
+      Value2: "value-2";
+    }
+  `);
+
+  expect(
+    <Wrapper>
+      <EnumDeclaration type={TestEnum} jsonAttributes />
+    </Wrapper>,
+  ).toRenderTo(`
+    using System.Text.Json.Serialization;
+
+    [JsonConverter(typeof(JsonStringEnumConverter))]
+    enum TestEnum
+    {
+        [JsonStringEnumMemberName("value-1")]
+        Value1,
+        [JsonStringEnumMemberName("value-2")]
+        Value2
+    }
+  `);
+});
+
+it("renders an explicit member list", async () => {
+  const { TestEnum } = await runner.compile(t.code`
+    enum ${t.enum("TestEnum")} {
+      Value1;
+      Value2;
+    }
+  `);
+
+  expect(
+    <Wrapper>
+      <EnumDeclaration
+        type={TestEnum}
+        members={[
+          { name: "only_me", jsonValue: "onlyMe" },
+          { name: "and_me", jsonValue: "andMe" },
+        ]}
+        jsonAttributes
+      />
+    </Wrapper>,
+  ).toRenderTo(`
+    using System.Text.Json.Serialization;
+
+    [JsonConverter(typeof(JsonStringEnumConverter))]
+    enum TestEnum
+    {
+        [JsonStringEnumMemberName("onlyMe")]
+        OnlyMe,
+        [JsonStringEnumMemberName("andMe")]
+        AndMe
+    }
+  `);
+});

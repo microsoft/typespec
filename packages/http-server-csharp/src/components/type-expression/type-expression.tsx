@@ -1,17 +1,20 @@
 import { code, type Children } from "@alloy-js/core";
-import { isStdNamespace, type Namespace, type Scalar, type Type } from "@typespec/compiler";
+import { isStdNamespace, type Namespace, type Type } from "@typespec/compiler";
 import type { Typekit } from "@typespec/compiler/typekit";
 import { Experimental_ComponentOverridesConfig, useTsp } from "@typespec/emitter-framework";
+import type { PropertyProps } from "@typespec/emitter-framework/csharp";
 import {
   efRefkey,
   TypeExpression as EfTypeExpression,
   getNullableUnionInnerType,
+  isCSharpValueType,
 } from "@typespec/emitter-framework/csharp";
 import { getUniqueItems } from "@typespec/json-schema";
 import { useEmitterOptions } from "../../context/emitter-options-context.js";
 import { isUnionEnum } from "../enums/enums.jsx";
-import { isValueType } from "../models/model-helpers.js";
 import { getAnonymousModelName } from "../models/models.jsx";
+import { ServerPropertyOverride } from "../models/server-property.jsx";
+import { getServerScalarOverrides } from "./scalar-overrides.js";
 
 export interface TypeExpressionProps {
   type: Type;
@@ -21,8 +24,17 @@ export interface TypeExpressionProps {
 export { efRefkey } from "@typespec/emitter-framework/csharp";
 
 /**
- * Wrapper around emitter-framework's TypeExpression that handles
- * additional type kinds the server emitter encounters.
+ * Wrapper around emitter-framework's TypeExpression.
+ *
+ * Only the cases where the server emitter genuinely diverges from the framework are handled
+ * here — union-as-enum resolution, the `collection-type` option, `@uniqueItems`, and the
+ * `Record<unknown>` → `JsonObject` mapping. Everything else is delegated to the framework.
+ *
+ * Note that any type kind the framework resolves by *recursing* into a contained type has to
+ * be handled here rather than delegated: the framework recurses into its own
+ * `TypeExpression`, so the divergences above would be lost for the nested type. Scalars are
+ * the exception — those are redirected through {@link createServerScalarOverrides}, which the
+ * framework applies at every level.
  */
 export function TypeExpression(props: TypeExpressionProps): Children {
   const { $ } = useTsp();
@@ -37,63 +49,25 @@ export function TypeExpression(props: TypeExpressionProps): Children {
         return code`${efRefkey(type.union)}`;
       }
       return <TypeExpression type={type.type} />;
-    case "Enum":
-      try {
-        return <EfTypeExpression type={type} />;
-      } catch {
-        return code`${type.name ?? "object"}`;
-      }
+    case "ModelProperty":
+      return <TypeExpression type={type.type} />;
     case "EnumMember": {
-      // A property typed as a specific enum member (e.g. `kind: Color.red`) uses
-      // the parent enum type in C#. Std-lib enums (e.g. auth `AuthType`) are not
-      // emitted, so fall back to the member's underlying primitive value type.
+      // Std-lib enums (e.g. auth `AuthType`) are never emitted, so a reference to one of
+      // their members has to fall back to the member's underlying primitive value type.
       if (isInStdLibNamespace(type.enum.namespace)) {
         if (typeof type.value === "number") {
           return Number.isInteger(type.value) ? code`int` : code`double`;
         }
         return code`string`;
       }
-      return code`${efRefkey(type.enum)}`;
+      break;
     }
     case "Tuple":
-      // Tuple of values — use the type of the first element as array
+      // A tuple is emitted as a collection of its first element's type.
       if (type.values.length > 0) {
-        const { collectionType } = useEmitterOptions();
-        if (collectionType === "enumerable") {
-          return (
-            <>
-              IEnumerable&lt;
-              <TypeExpression type={type.values[0]} />
-              &gt;
-            </>
-          );
-        }
-        return (
-          <>
-            <TypeExpression type={type.values[0]} />
-            []
-          </>
-        );
+        return <CollectionExpression elementType={type.values[0]} />;
       }
-      return code`object[]`;
-    case "StringTemplate":
-    case "String":
-      return code`string`;
-    case "Boolean":
-      return code`bool`;
-    case "Number":
-      // Use double for non-integer values, int for integers
-      return Number.isInteger(type.value) ? code`int` : code`double`;
-    case "Intrinsic":
-      if (type.name === "unknown") return code`object`;
-      if (type.name === "void") return code`void`;
-      if (type.name === "null") return code`object`;
-      if (type.name === "never") return code`void`;
-      return code`object`;
-    case "TemplateParameter":
-      return code`${(type.node as any)?.id?.sv ?? "T"}`;
-    case "ModelProperty":
-      return <TypeExpression type={type.type} />;
+      break;
     case "Model":
       // Handle Record<T> → IDictionary<string, T> or JsonObject for Record<unknown>
       if ($.record.is(type)) {
@@ -112,62 +86,66 @@ export function TypeExpression(props: TypeExpressionProps): Children {
       if ($.array.is(type)) {
         const elementType = type.indexer!.value;
         if (getUniqueItems($.program, type)) {
-          return (
-            <>
-              ISet&lt;
-              <TypeExpression type={elementType} />
-              &gt;
-            </>
-          );
+          return <SetExpression elementType={elementType} />;
         }
-        const { collectionType } = useEmitterOptions();
-        // Byte arrays always stay as T[] regardless of collection type
-        const isByteArray =
-          elementType.kind === "Scalar" &&
-          (elementType.name === "uint8" ||
-            elementType.name === "int8" ||
-            $.scalar.getStdBase(elementType)?.name === "uint8" ||
-            $.scalar.getStdBase(elementType)?.name === "int8");
-        if (collectionType === "enumerable" && !isByteArray) {
-          return (
-            <>
-              IEnumerable&lt;
-              <TypeExpression type={elementType} />
-              &gt;
-            </>
-          );
-        }
-        return (
-          <>
-            <TypeExpression type={elementType} />
-            []
-          </>
-        );
+        return <CollectionExpression elementType={elementType} />;
       }
       // Handle anonymous models — use refkey to link to their generated class
       if (type.name === "" && getAnonymousModelName(type)) {
         return code`${efRefkey(type)}`;
       }
-      // Fall through to EF for regular models
-      try {
-        return <EfTypeExpression type={type} />;
-      } catch {
-        return code`${type.name ?? "object"}`;
-      }
-    case "Scalar":
-      // Handle scalars - try EF first, fall back to our mapping
-      try {
-        return <EfTypeExpression type={type} />;
-      } catch {
-        return code`object`;
-      }
-    default:
-      try {
-        return <EfTypeExpression type={type} />;
-      } catch {
-        return code`object`;
-      }
+      break;
   }
+
+  return <EfTypeExpression type={type} />;
+}
+
+/**
+ * Renders `ISet<T>`, used for arrays marked with `@uniqueItems`.
+ */
+export function SetExpression(props: { elementType: Type }): Children {
+  return (
+    <>
+      ISet&lt;
+      <TypeExpression type={props.elementType} />
+      &gt;
+    </>
+  );
+}
+
+/**
+ * Renders a sequence of `elementType` honouring the `collection-type` emitter option:
+ * `IEnumerable<T>` when set to `enumerable`, otherwise `T[]`.
+ *
+ * Byte arrays always stay as `T[]` — they are handled as binary payloads, not sequences.
+ */
+function CollectionExpression(props: { elementType: Type }): Children {
+  const { $ } = useTsp();
+  const { collectionType } = useEmitterOptions();
+  const elementType = props.elementType;
+
+  const isByteArray =
+    elementType.kind === "Scalar" &&
+    (elementType.name === "uint8" ||
+      elementType.name === "int8" ||
+      $.scalar.getStdBase(elementType)?.name === "uint8" ||
+      $.scalar.getStdBase(elementType)?.name === "int8");
+
+  if (collectionType === "enumerable" && !isByteArray) {
+    return (
+      <>
+        IEnumerable&lt;
+        <TypeExpression type={elementType} />
+        &gt;
+      </>
+    );
+  }
+  return (
+    <>
+      <TypeExpression type={elementType} />
+      []
+    </>
+  );
 }
 
 /**
@@ -199,7 +177,7 @@ function resolveUnionType($: Typekit, union: import("@typespec/compiler").Union)
       return code`object`;
     }
     // Nullable value type → T?
-    if (isValueType($, innerType)) {
+    if (isCSharpValueType($, innerType)) {
       return (
         <>
           <TypeExpression type={innerType} />?
@@ -233,40 +211,27 @@ function resolveUnionType($: Typekit, union: import("@typespec/compiler").Union)
   return code`object`;
 }
 
-// --- Server-specific scalar overrides ---
+// --- Server-specific framework overrides ---
 
 /**
- * Server-specific scalar overrides for TypeExpression.
- * Differences from EF defaults:
- * - `plainDate` → `DateTime` (not `DateOnly`)
- * - `plainTime` → `DateTime` (not `TimeOnly`)
- * - `url` → `string` (not `Uri`)
- * - Use CLR type names (SByte, Byte, Int16, etc.) instead of C# keywords
- * - `safeint` → `long` (not `int`)
+ * Builds the {@link Experimental_ComponentOverridesConfig} the emitter installs at the root.
+ *
+ * - scalars render the server's C# names (the mapping itself lives in `scalar-overrides.ts`
+ *   so that non-rendering call sites resolve the exact same names)
+ * - model properties render the way the pre-Alloy emitter declared them
  */
-export function createServerScalarOverrides($: Typekit): Experimental_ComponentOverridesConfig {
+export function createServerOverrides($: Typekit): Experimental_ComponentOverridesConfig {
   const overrides = new Experimental_ComponentOverridesConfig();
 
-  const scalarOverrides: [Scalar, string][] = [
-    // Date/time overrides
-    [$.builtin.plainDate, "DateTime"],
-    [$.builtin.plainTime, "DateTime"],
-    [$.builtin.url, "string"],
-    // CLR type name overrides (match old emitter output)
-    [$.builtin.int8, "SByte"],
-    [$.builtin.uint8, "Byte"],
-    [$.builtin.int16, "Int16"],
-    [$.builtin.uint16, "UInt16"],
-    [$.builtin.uint32, "UInt32"],
-    [$.builtin.uint64, "UInt64"],
-    [$.builtin.safeInt, "long"],
-  ];
-
-  for (const [scalar, csType] of scalarOverrides) {
+  for (const [scalar, csType] of getServerScalarOverrides($)) {
     overrides.forType(scalar, {
-      reference: (props) => code`${csType}` as Children,
+      reference: () => code`${csType}` as Children,
     });
   }
+
+  overrides.forTypeKind<"ModelProperty", PropertyProps>("ModelProperty", {
+    declaration: ServerPropertyOverride,
+  });
 
   return overrides;
 }
