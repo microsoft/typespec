@@ -27,7 +27,6 @@ import type {
   RuleRef,
   SemanticNodeListener,
   TemplateParameter,
-  Type,
   TypeMapper,
 } from "./types.js";
 import { NoTarget, SyntaxKind } from "./types.js";
@@ -466,9 +465,9 @@ function resolveUserOwnedTarget(
 }
 
 /**
- * Resolve the node of the template argument the given target's type was built from, as
- * written in the user project. Returns `undefined` when the target isn't attributable to
- * an argument the user wrote, which includes arguments left to their default value.
+ * Resolve the node of the template argument the given target was declared as, as written in
+ * the user project. Returns `undefined` when the target isn't attributable to an argument the
+ * user wrote, which includes arguments left to their default value.
  */
 function findUserSuppliedArgumentNode(
   program: Program,
@@ -486,7 +485,7 @@ function findUserSuppliedArgumentNode(
   const mapper = (target as { templateMapper?: TypeMapper }).templateMapper;
   if (mapper === undefined) return undefined;
 
-  const parameter = findTemplateParameterInDeclaredType(program, target.node);
+  const parameter = findDeclaredTemplateParameter(program, target.node);
   if (parameter === undefined) return undefined;
 
   const node = getTemplateArgumentNode(mapper.source.node, parameter);
@@ -494,38 +493,25 @@ function findUserSuppliedArgumentNode(
 }
 
 /**
- * Resolve the member as declared, with its template parameters unsubstituted, and find the
- * parameter its type is built from. Looking at the declaration rather than comparing the
- * instantiated type to the arguments avoids matching a type the library declared itself
- * that merely happens to be the same as an argument, such as `string`.
+ * Resolve the member as declared, with its template parameters unsubstituted, and return the
+ * parameter it was declared as, if any.
+ *
+ * Only a member declared *as* the parameter, such as `body: Request`, is considered. A member
+ * the parameter merely appears inside, such as `value: Item[]` in `Page<Item>`, is left alone:
+ * the array is the library's own declaration, so a diagnostic about it is the library's to fix
+ * no matter which item type the user passed.
+ *
+ * Looking at the declaration rather than comparing the instantiated type to the arguments
+ * avoids matching a type the library declared itself that merely happens to be the same as an
+ * argument, such as `string`.
  */
-function findTemplateParameterInDeclaredType(
+function findDeclaredTemplateParameter(
   program: Program,
   node: Node,
 ): TemplateParameter | undefined {
   const declared = program.checker.getTypeForNode(node);
   if (declared.kind !== "ModelProperty" && declared.kind !== "UnionVariant") return undefined;
-  return findTemplateParameter(declared.type);
-}
-
-/** Find the template parameter a type is built from, looking through instantiations so `T[]` matches `T`. */
-function findTemplateParameter(
-  type: Type,
-  visited = new Set<Type>(),
-): TemplateParameter | undefined {
-  if (visited.has(type)) return undefined;
-  visited.add(type);
-
-  if (type.kind === "TemplateParameter") return type;
-
-  const mapper = (type as { templateMapper?: TypeMapper }).templateMapper;
-  for (const argument of mapper?.args ?? []) {
-    if (typeof argument === "object" && "kind" in argument) {
-      const found = findTemplateParameter(argument as Type, visited);
-      if (found) return found;
-    }
-  }
-  return undefined;
+  return declared.type.kind === "TemplateParameter" ? declared.type : undefined;
 }
 
 /** Resolve the argument passed for `parameter` in a template reference, by name or by position. */

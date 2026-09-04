@@ -339,15 +339,15 @@ describe("diagnostic location", () => {
       });
     });
 
-    it("reports when the argument is nested in the property type", async () => {
-      const diagnostics = await lintLibrary(
-        `model Wrapper<T> { value: T[]; }`,
-        `model Bar { wrapped: Wrapper<string>; }`,
+    it("doesn't emit diagnostic when the argument is only nested in the property type", async () => {
+      // `value: T[]` is the library's own array declaration, so a diagnostic about it is the
+      // library's to fix no matter which item type the user passed.
+      expectDiagnosticEmpty(
+        await lintLibrary(
+          `model Wrapper<T> { value: T[]; }`,
+          `model Bar { wrapped: Wrapper<string>; }`,
+        ),
       );
-      expectDiagnostics(diagnostics, {
-        code: "@typespec/test-linter/no-property-value",
-        file: "main.tsp",
-      });
     });
 
     it("doesn't emit diagnostic for a non templated library model", async () => {
