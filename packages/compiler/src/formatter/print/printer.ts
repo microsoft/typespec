@@ -806,12 +806,14 @@ export function printUnionStatement(
   const id = path.call(print, "id");
   const { decorators } = printDecorators(path, options, print, { tryInline: false });
   const generic = printTemplateParameterDeclarations(path, options, print, "templateParameters");
+  const heritage = printHeritageClause(path, print, "extends", "extends");
   return [
     decorators,
     printModifiers(path, options, print),
     "union ",
     id,
     generic,
+    heritage,
     " ",
     printUnionVariantsBlock(path, options, print),
   ];
@@ -823,11 +825,15 @@ export function printUnionVariantsBlock(
   print: PrettierChildPrint,
 ) {
   const node = path.node;
-  if (node.options.length === 0) {
+  const nodeHasComments = hasComments(node, CommentCheckFlags.Dangling);
+  if (node.options.length === 0 && !nodeHasComments) {
     return "{}";
   }
 
-  const body = joinMembersInBlock(path, "options", options, print, ",", hardline);
+  const body = [joinMembersInBlock(path, "options", options, print, ",", hardline)];
+  if (nodeHasComments) {
+    body.push(printDanglingComments(path, options, { sameIndent: true }));
+  }
   return group(["{", indent(body), hardline, "}"]);
 }
 

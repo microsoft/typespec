@@ -1378,6 +1378,24 @@
         }
       ]
     },
+    "union-extends": {
+      "name": "meta.union-extends.typespec",
+      "begin": "\\b(extends)\\b",
+      "beginCaptures": {
+        "1": {
+          "name": "keyword.other.tsp"
+        }
+      },
+      "end": "((?=\\{)|(?=;|@|\\)|\\}|\\b(?:extern|internal)\\b|\\b(?:namespace|model|op|using|import|enum|alias|union|interface|dec|fn)\\b))",
+      "patterns": [
+        {
+          "include": "#expression"
+        },
+        {
+          "include": "#punctuation-comma"
+        }
+      ]
+    },
     "union-statement": {
       "name": "meta.union-statement.typespec",
       "begin": "(?:(internal)\\s+)?\\b(union)\\b\\s+(\\b[_$[:alpha:]][_$[:alnum:]]*\\b|`(?:[^`\\\\]|\\\\.)*`)",
@@ -1396,6 +1414,12 @@
       "patterns": [
         {
           "include": "#token"
+        },
+        {
+          "include": "#type-parameters"
+        },
+        {
+          "include": "#union-extends"
         },
         {
           "include": "#union-body"

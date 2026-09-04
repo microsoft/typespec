@@ -369,13 +369,12 @@ namespace Microsoft.TypeSpec.Generator.Tests.Shared
 
             var backCompatSignature = MethodSignatureHelper.BuildBackCompatMethodSignature(
                 previousSignature,
-                hideMethod: true,
+                hideMethod: false,
                 currentMethodSignatures: [currentSignature]);
 
             // Both differing positions accept null, so requiring only three parameters would leave
             // CompatibilityModel("id", "name", null) ambiguous.
             Assert.That(backCompatSignature.Parameters, Has.All.Property("DefaultValue").Null);
-            Assert.IsTrue(backCompatSignature.Attributes.Any(a => a.Type.Equals(typeof(System.ComponentModel.EditorBrowsableAttribute))));
         }
 
         [Test]
@@ -393,7 +392,7 @@ namespace Microsoft.TypeSpec.Generator.Tests.Shared
 
             var backCompatSignature = MethodSignatureHelper.BuildBackCompatMethodSignature(
                 previousSignature,
-                hideMethod: true,
+                hideMethod: false,
                 currentMethodSignatures: [currentSignature]);
 
             Assert.IsNull(backCompatSignature.Parameters[0].DefaultValue);
@@ -419,7 +418,7 @@ namespace Microsoft.TypeSpec.Generator.Tests.Shared
 
             var backCompatSignature = MethodSignatureHelper.BuildBackCompatMethodSignature(
                 previousSignature,
-                hideMethod: true,
+                hideMethod: false,
                 currentMethodSignatures: [currentSignature]);
 
             Assert.IsNull(backCompatSignature.Parameters[0].DefaultValue);
@@ -449,7 +448,7 @@ namespace Microsoft.TypeSpec.Generator.Tests.Shared
 
             var backCompatSignature = MethodSignatureHelper.BuildBackCompatMethodSignature(
                 previousSignature,
-                hideMethod: true,
+                hideMethod: false,
                 currentMethodSignatures: [currentSignature]);
 
             foreach (var parameter in backCompatSignature.Parameters)
@@ -491,7 +490,7 @@ namespace Microsoft.TypeSpec.Generator.Tests.Shared
 
             var backCompatSignature = MethodSignatureHelper.BuildBackCompatMethodSignature(
                 previousSignature,
-                hideMethod: true,
+                hideMethod: false,
                 currentMethodSignatures: [currentSignature]);
 
             Assert.IsNotNull(backCompatSignature.Parameters[0].DefaultValue);
@@ -507,7 +506,7 @@ namespace Microsoft.TypeSpec.Generator.Tests.Shared
 
             var backCompatSignature = MethodSignatureHelper.BuildBackCompatMethodSignature(
                 previousSignature,
-                hideMethod: true,
+                hideMethod: false,
                 currentMethodSignatures: [currentSignature]);
 
             Assert.IsNotNull(backCompatSignature.Parameters[0].DefaultValue);
@@ -525,10 +524,171 @@ namespace Microsoft.TypeSpec.Generator.Tests.Shared
 
             var backCompatSignature = MethodSignatureHelper.BuildBackCompatMethodSignature(
                 previousSignature,
-                hideMethod: true,
+                hideMethod: false,
                 currentMethodSignatures: [currentSignature]);
 
             Assert.IsNotNull(backCompatSignature.Parameters[0].DefaultValue);
+        }
+
+        // A hidden overload is only there to keep previously compiled call sites working. Requiring
+        // every parameter makes it inapplicable to any call that omits an argument, so the visible
+        // overloads keep the optionality of the current shape.
+        [Test]
+        public void BuildBackCompatMethodSignature_HideMethodTrue_WithOverloads_RequiresAllParameters()
+        {
+            var previousSignature = CreateMethodSignature("CompatibilityModel",
+                new ParameterProvider("id", $"", typeof(string), defaultValue: Default),
+                new ParameterProvider("name", $"", typeof(string), defaultValue: Default));
+            var currentSignature = CreateMethodSignature("CompatibilityModel",
+                new ParameterProvider("first", $"", typeof(bool)),
+                new ParameterProvider("second", $"", typeof(int)));
+
+            var backCompatSignature = MethodSignatureHelper.BuildBackCompatMethodSignature(
+                previousSignature,
+                hideMethod: true,
+                currentMethodSignatures: [currentSignature]);
+
+            Assert.That(backCompatSignature.Parameters, Has.All.Property("DefaultValue").Null);
+            Assert.IsTrue(backCompatSignature.Attributes.Any(a => a.Type.Equals(typeof(System.ComponentModel.EditorBrowsableAttribute))));
+        }
+
+        [Test]
+        public void AreAmbiguous_DifferentNames_ReturnsFalse()
+        {
+            var signature = CreateMethodSignature("Method1",
+                new ParameterProvider("id", $"", typeof(string), defaultValue: Default));
+            var otherSignature = CreateMethodSignature("Method2",
+                new ParameterProvider("id", $"", typeof(string), defaultValue: Default));
+
+            Assert.IsFalse(MethodSignatureHelper.AreAmbiguous(signature, otherSignature));
+        }
+
+        [Test]
+        public void AreAmbiguous_DifferentParameterTypes_ReturnsFalse()
+        {
+            var signature = CreateMethodSignature("Method",
+                new ParameterProvider("id", $"", typeof(string)));
+            var otherSignature = CreateMethodSignature("Method",
+                new ParameterProvider("count", $"", typeof(int)));
+
+            Assert.IsFalse(MethodSignatureHelper.AreAmbiguous(signature, otherSignature));
+        }
+
+        // Both overloads are applicable to the argument-less call and neither of them is preferred.
+        [Test]
+        public void AreAmbiguous_FullyOptionalOverloads_ReturnsTrue()
+        {
+            var signature = CreateMethodSignature("Method",
+                new ParameterProvider("id", $"", typeof(string), defaultValue: Default));
+            var otherSignature = CreateMethodSignature("Method",
+                new ParameterProvider("count", $"", typeof(int), defaultValue: Default));
+
+            Assert.IsTrue(MethodSignatureHelper.AreAmbiguous(signature, otherSignature));
+        }
+
+        [Test]
+        public void AreAmbiguous_SameParameterTypes_ReturnsTrue()
+        {
+            var signature = CreateMethodSignature("Method",
+                new ParameterProvider("id", $"", typeof(string)),
+                new ParameterProvider("name", $"", typeof(string)));
+            var otherSignature = CreateMethodSignature("Method",
+                new ParameterProvider("id", $"", typeof(string), defaultValue: Default),
+                new ParameterProvider("name", $"", typeof(string), defaultValue: Default));
+
+            Assert.IsTrue(MethodSignatureHelper.AreAmbiguous(signature, otherSignature));
+        }
+
+        // Both overloads have to substitute a default for the single-argument call, so neither of
+        // them is preferred.
+        [Test]
+        public void AreAmbiguous_BothSubstituteDefaults_ReturnsTrue()
+        {
+            var signature = CreateMethodSignature("Method",
+                new ParameterProvider("id", $"", typeof(string), defaultValue: Default),
+                new ParameterProvider("name", $"", typeof(string), defaultValue: Default),
+                new ParameterProvider("count", $"", typeof(int?), defaultValue: Default));
+            var otherSignature = CreateMethodSignature("Method",
+                new ParameterProvider("id", $"", typeof(string)),
+                new ParameterProvider("name", $"", typeof(string), defaultValue: Default),
+                new ParameterProvider("extra", $"", typeof(string), defaultValue: Default),
+                new ParameterProvider("other", $"", typeof(string), defaultValue: Default));
+
+            Assert.IsTrue(MethodSignatureHelper.AreAmbiguous(signature, otherSignature));
+        }
+
+        // The shorter overload receives an argument for every parameter, so it is preferred over the
+        // longer one that has to substitute a default.
+        [Test]
+        public void AreAmbiguous_OnlyOneSubstitutesDefault_ReturnsFalse()
+        {
+            var signature = CreateMethodSignature("Method",
+                new ParameterProvider("id", $"", typeof(string)),
+                new ParameterProvider("name", $"", typeof(string)));
+            var otherSignature = CreateMethodSignature("Method",
+                new ParameterProvider("id", $"", typeof(string)),
+                new ParameterProvider("name", $"", typeof(string)),
+                new ParameterProvider("count", $"", typeof(int?), defaultValue: Default));
+
+            Assert.IsFalse(MethodSignatureHelper.AreAmbiguous(signature, otherSignature));
+        }
+
+        [Test]
+        public void AreAmbiguous_NoSharedArgumentCount_ReturnsFalse()
+        {
+            var signature = CreateMethodSignature("Method",
+                new ParameterProvider("id", $"", typeof(string), defaultValue: Default));
+            var otherSignature = CreateMethodSignature("Method",
+                new ParameterProvider("id", $"", typeof(string)),
+                new ParameterProvider("name", $"", typeof(string)));
+
+            Assert.IsFalse(MethodSignatureHelper.AreAmbiguous(signature, otherSignature));
+        }
+
+        [Test]
+        public void AreAmbiguous_ParamsOverload_ReturnsFalse()
+        {
+            var signature = CreateMethodSignature("Method",
+                new ParameterProvider("id", $"", typeof(string)),
+                new ParameterProvider("name", $"", typeof(string)));
+            var otherSignature = CreateMethodSignature("Method",
+                new ParameterProvider("id", $"", typeof(string)),
+                new ParameterProvider("rest", $"", typeof(string[]), isParams: true));
+
+            Assert.IsFalse(MethodSignatureHelper.AreAmbiguous(signature, otherSignature));
+        }
+
+        // C# erases reference type nullability from a signature, so 'string?' and 'string' are the
+        // same parameter type. Treating them as different would hide the real ambiguity of
+        // Method("a") between these two overloads.
+        [Test]
+        public void AreAmbiguous_ReferenceTypeNullabilityDifference_ReturnsTrue()
+        {
+            var signature = CreateMethodSignature("Method",
+                new ParameterProvider("id", $"", new CSharpType(typeof(string), isNullable: true)),
+                new ParameterProvider("name", $"", typeof(string), defaultValue: Default));
+            var otherSignature = CreateMethodSignature("Method",
+                new ParameterProvider("id", $"", typeof(string)),
+                new ParameterProvider("name", $"", typeof(string), defaultValue: Default),
+                new ParameterProvider("extra", $"", typeof(string), defaultValue: Default));
+
+            Assert.IsTrue(MethodSignatureHelper.AreAmbiguous(signature, otherSignature));
+        }
+
+        // Nullability of a value type is part of the signature, so 'int' and 'int?' remain
+        // distinguishable and Method(1) prefers the 'int' overload.
+        [Test]
+        public void AreAmbiguous_ValueTypeNullabilityDifference_ReturnsFalse()
+        {
+            var signature = CreateMethodSignature("Method",
+                new ParameterProvider("count", $"", typeof(int?)),
+                new ParameterProvider("name", $"", typeof(string), defaultValue: Default));
+            var otherSignature = CreateMethodSignature("Method",
+                new ParameterProvider("count", $"", typeof(int)),
+                new ParameterProvider("name", $"", typeof(string), defaultValue: Default),
+                new ParameterProvider("extra", $"", typeof(string), defaultValue: Default));
+
+            Assert.IsFalse(MethodSignatureHelper.AreAmbiguous(signature, otherSignature));
         }
 
         private static MethodSignature CreateMethodSignature(

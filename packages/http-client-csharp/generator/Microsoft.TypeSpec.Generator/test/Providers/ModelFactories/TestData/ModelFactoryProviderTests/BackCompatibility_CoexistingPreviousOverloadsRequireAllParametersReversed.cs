@@ -9,19 +9,19 @@ namespace Sample.Namespace
 {
     public static partial class SampleNamespaceModelFactory
     {
-        public static global::Sample.Models.CompatibilityModel CompatibilityModel(string id, string description, string name)
+        public static global::Sample.Models.CompatibilityModel CompatibilityModel(string id = default, string description = default, string name = default)
         {
             return new global::Sample.Models.CompatibilityModel(id, description, name, additionalBinaryDataProperties: null);
         }
 
         [global::System.ComponentModel.EditorBrowsableAttribute(global::System.ComponentModel.EditorBrowsableState.Never)]
-        public static global::Sample.Models.CompatibilityModel CompatibilityModel(string id, int? count = default, string extra = default, string other = default)
+        public static global::Sample.Models.CompatibilityModel CompatibilityModel(string id, int? count, string extra, string other)
         {
             return new global::Sample.Models.CompatibilityModel(id, default, default, additionalBinaryDataProperties: null);
         }
 
         [global::System.ComponentModel.EditorBrowsableAttribute(global::System.ComponentModel.EditorBrowsableState.Never)]
-        public static global::Sample.Models.CompatibilityModel CompatibilityModel(string id, int? count = default)
+        public static global::Sample.Models.CompatibilityModel CompatibilityModel(string id, int? count)
         {
             return new global::Sample.Models.CompatibilityModel(id, default, default, additionalBinaryDataProperties: null);
         }

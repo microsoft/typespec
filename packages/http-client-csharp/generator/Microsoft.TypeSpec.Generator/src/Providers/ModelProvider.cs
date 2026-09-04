@@ -32,6 +32,10 @@ namespace Microsoft.TypeSpec.Generator.Providers
             {
                 _derivedModels = BuildDerivedModels();
                 var publicDerivedModels = _derivedModels.Where(m => m.DeclarationModifiers.HasFlag(TypeSignatureModifiers.Public)).ToList();
+                if (publicDerivedModels.Count == 0)
+                {
+                    return description;
+                }
                 var derivedClassesDescription = DeclarationModifiers.HasFlag(TypeSignatureModifiers.Abstract)
                     ? "Please note this is the abstract base class. The derived classes available for instantiation are: "
                     : "Please note this is the base class. The derived classes available for instantiation are: ";
