@@ -99,6 +99,14 @@ it("creates a model expression when given an empty name", async () => {
   expect(tk.model.isExpresion(model)).toBe(true);
 });
 
+it("throws when creating an anonymous model declaration", async () => {
+  const { program } = await Tester.compile("");
+  const tk = $(program);
+  expect(() => tk.model.create({ expression: false, properties: {} })).toThrow(
+    /Cannot create an anonymous model declaration/,
+  );
+});
+
 it("creates a named model declaration expression when expression is set explicitly", async () => {
   const { program } = await Tester.compile("");
   const tk = $(program);

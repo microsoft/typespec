@@ -3,7 +3,7 @@ import { $doc, getDoc } from "../../lib/decorators.js";
 import { createRekeyableMap } from "../../utils/misc.js";
 import { defineKit } from "../define-kit.js";
 import type { DecoratorArgs } from "../utils.js";
-import { decoratorApplication } from "../utils.js";
+import { decoratorApplication, resolveExpressionFlag } from "../utils.js";
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
 import type { UnionKit } from "./union.js";
 
@@ -24,6 +24,9 @@ interface EnumDescriptor {
    * `false` for a named one. Set this explicitly to create a *named* enum
    * declaration expression (a name that is kept on the type but not registered
    * in a namespace).
+   *
+   * A declaration must have a name, so setting `expression: false` on an anonymous
+   * enum throws.
    */
   expression?: boolean;
 
@@ -90,7 +93,7 @@ defineKit<TypekitExtension>({
         name: desc.name,
         decorators: decoratorApplication(this, desc.decorators),
         members: createRekeyableMap(),
-        expression: desc.expression ?? !desc.name,
+        expression: resolveExpressionFlag("enum", desc.name, desc.expression),
       });
 
       if (Array.isArray(desc.members)) {

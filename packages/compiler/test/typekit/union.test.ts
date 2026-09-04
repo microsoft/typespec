@@ -195,6 +195,14 @@ it("creates a union expression when given an empty name", async () => {
   expect(tk.union.isExpression(union)).toBe(true);
 });
 
+it("throws when creating an anonymous union declaration", async () => {
+  const { program } = await Tester.compile("");
+  const tk = $(program);
+  expect(() => tk.union.create({ expression: false, variants: { a: "a" } })).toThrow(
+    /Cannot create an anonymous union declaration/,
+  );
+});
+
 it("creates a named union declaration expression when expression is set explicitly", async () => {
   const { program } = await Tester.compile("");
   const tk = $(program);

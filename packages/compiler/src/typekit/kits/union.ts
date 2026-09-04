@@ -8,7 +8,7 @@ import type { Diagnosable } from "../create-diagnosable.js";
 import { createDiagnosable } from "../create-diagnosable.js";
 import { defineKit } from "../define-kit.js";
 import type { DecoratorArgs } from "../utils.js";
-import { decoratorApplication } from "../utils.js";
+import { decoratorApplication, resolveExpressionFlag } from "../utils.js";
 
 /**
  * A descriptor for a union type.
@@ -26,6 +26,9 @@ export interface UnionDescriptor {
    * name) and `false` for a named one. Set this explicitly to create a *named*
    * union declaration expression (a name that is kept on the type but not
    * registered in a namespace).
+   *
+   * A declaration must have a name, so setting `expression: false` on an anonymous
+   * union throws.
    */
   expression?: boolean;
 
@@ -163,7 +166,7 @@ export const UnionKit = defineKit<TypekitExtension>({
         get options() {
           return Array.from(this.variants.values()).map((v) => v.type);
         },
-        expression: descriptor.expression ?? !descriptor.name,
+        expression: resolveExpressionFlag("union", descriptor.name, descriptor.expression),
       });
 
       if (Array.isArray(descriptor.variants)) {

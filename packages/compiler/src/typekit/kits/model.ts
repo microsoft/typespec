@@ -15,7 +15,7 @@ import type { Diagnosable } from "../create-diagnosable.js";
 import { createDiagnosable } from "../create-diagnosable.js";
 import { defineKit } from "../define-kit.js";
 import type { DecoratorArgs } from "../utils.js";
-import { copyMap, decoratorApplication } from "../utils.js";
+import { copyMap, decoratorApplication, resolveExpressionFlag } from "../utils.js";
 
 /**
  * A descriptor for creating a model.
@@ -33,6 +33,9 @@ export interface ModelDescriptor {
    * name) and `false` for a named one. Set this explicitly to create a *named*
    * model declaration expression (a name that is kept on the type but not
    * registered in a namespace).
+   *
+   * A declaration must have a name, so setting `expression: false` on an anonymous
+   * model throws.
    */
   expression?: boolean;
 
@@ -163,7 +166,7 @@ defineKit<TypekitExtension>({
         derivedModels: desc.derivedModels ?? [],
         sourceModels: desc.sourceModels ?? [],
         indexer: desc.indexer,
-        expression: desc.expression ?? !desc.name,
+        expression: resolveExpressionFlag("model", desc.name, desc.expression),
       });
 
       this.program.checker.finishType(model);

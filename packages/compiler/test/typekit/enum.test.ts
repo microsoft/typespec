@@ -67,6 +67,12 @@ it("creates an anonymous enum as an expression (expression: true)", () => {
   expect(en.expression).toBe(true);
 });
 
+it("throws when creating an anonymous enum declaration", () => {
+  expect(() => $(program).enum.create({ name: "", expression: false, members: { a: 1 } })).toThrow(
+    /Cannot create an anonymous enum declaration/,
+  );
+});
+
 it("creates a named enum declaration expression when expression is set explicitly", () => {
   const en = $(program).enum.create({
     name: "Color",
