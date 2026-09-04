@@ -22,17 +22,17 @@ import { copyMap, decoratorApplication } from "../utils.js";
  */
 export interface ModelDescriptor {
   /**
-   * The name of the Model. If name is provided, it is a Model  declaration.
+   * The name of the Model. If a non-empty name is provided, it is a Model declaration.
    * Otherwise, it is a Model expression.
    */
   name?: string;
 
   /**
    * Whether the model is used in expression position (`expression: true`). When
-   * omitted, this defaults to `true` for an anonymous model (no `name`) and
-   * `false` for a named one. Set this explicitly to create a *named* model
-   * declaration expression (a name that is kept on the type but not registered
-   * in a namespace).
+   * omitted, this defaults to `true` for an anonymous model (no name or an empty
+   * name) and `false` for a named one. Set this explicitly to create a *named*
+   * model declaration expression (a name that is kept on the type but not
+   * registered in a namespace).
    */
   expression?: boolean;
 
@@ -163,7 +163,7 @@ defineKit<TypekitExtension>({
         derivedModels: desc.derivedModels ?? [],
         sourceModels: desc.sourceModels ?? [],
         indexer: desc.indexer,
-        expression: desc.expression ?? desc.name === undefined,
+        expression: desc.expression ?? !desc.name,
       });
 
       this.program.checker.finishType(model);

@@ -82,6 +82,23 @@ function resolveTesterCompilerOptions(options: TesterOptions): CompilerOptions |
   return { ...options.compilerOptions, configFile };
 }
 
+/**
+ * Merge per-call compiler options on top of the tester defaults.
+ *
+ * `configFile` is merged as well so that per-call options (e.g. `emit`) don't drop the features
+ * or config the tester instance was created with.
+ */
+function mergeCompilerOptions(
+  base: CompilerOptions | undefined,
+  override: CompilerOptions | undefined,
+): CompilerOptions {
+  const configFile =
+    base?.configFile && override?.configFile
+      ? ({ ...base.configFile, ...override.configFile } as TypeSpecConfig)
+      : (override?.configFile ?? base?.configFile);
+  return { ...base, ...override, ...(configFile && { configFile }) };
+}
+
 function once<T>(fn: () => Promise<T>): () => Promise<T> {
   let load: Promise<T> | undefined;
   return () => {
@@ -342,8 +359,7 @@ async function createEmitterTesterInstance<Result>(
     const resolvedOptions: TestCompileOptions = {
       ...options,
       compilerOptions: {
-        ...params.compilerOptions,
-        ...options?.compilerOptions,
+        ...mergeCompilerOptions(params.compilerOptions, options?.compilerOptions),
         outputDir: "tsp-output",
         emit: [params.emitter],
       },
@@ -458,10 +474,11 @@ async function createTesterInstance(params: TesterInternalParams): Promise<Teste
     const typesCollected = addTestLib(fs);
     const { markerPositions, markerConfigs } = addCode(fs, code);
 
-    const program = await coreCompile(fs.compilerHost, resolveVirtualPath("main.tsp"), {
-      ...params.compilerOptions,
-      ...options?.compilerOptions,
-    });
+    const program = await coreCompile(
+      fs.compilerHost,
+      resolveVirtualPath("main.tsp"),
+      mergeCompilerOptions(params.compilerOptions, options?.compilerOptions),
+    );
     savedProgram = program;
     saved$ = $(program);
     const entities = extractMarkedEntities(program, markerPositions, markerConfigs);

@@ -187,6 +187,14 @@ it("creates a named union declaration (expression: false) by default", async () 
   expect(tk.union.isExpression(union)).toBe(false);
 });
 
+it("creates a union expression when given an empty name", async () => {
+  const { program } = await Tester.compile("");
+  const tk = $(program);
+  const union = tk.union.create({ name: "", variants: { a: "a" } });
+  expect(union.expression).toBe(true);
+  expect(tk.union.isExpression(union)).toBe(true);
+});
+
 it("creates a named union declaration expression when expression is set explicitly", async () => {
   const { program } = await Tester.compile("");
   const tk = $(program);

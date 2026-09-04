@@ -91,6 +91,14 @@ it("creates a named model declaration (expression: false) by default", async () 
   expect(tk.model.isExpresion(model)).toBe(false);
 });
 
+it("creates a model expression when given an empty name", async () => {
+  const { program } = await Tester.compile("");
+  const tk = $(program);
+  const model = tk.model.create({ name: "", properties: {} });
+  expect(model.expression).toBe(true);
+  expect(tk.model.isExpresion(model)).toBe(true);
+});
+
 it("creates a named model declaration expression when expression is set explicitly", async () => {
   const { program } = await Tester.compile("");
   const tk = $(program);

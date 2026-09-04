@@ -39,7 +39,7 @@ import type { ExtensionKey } from "./types.js";
  * decorator, or chosen by default in simple cases.
  *
  * Anonymous declaration expressions (e.g. an inline `enum { ... }` or
- * `scalar extends string` used as a property type) have an empty `name` and are
+ * `scalar extends string` used as a property type) have no name and are
  * inlined. A *named* declaration expression (e.g. `model Inner { ... }` used as a
  * property type) keeps its name and is hoisted into a schema like a regular
  * declaration.

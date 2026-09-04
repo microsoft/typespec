@@ -15,17 +15,17 @@ import { decoratorApplication } from "../utils.js";
  */
 export interface UnionDescriptor {
   /**
-   * The name of the union. If name is provided, it is a union declaration.
+   * The name of the union. If a non-empty name is provided, it is a union declaration.
    * Otherwise, it is a union expression.
    */
   name?: string;
 
   /**
    * Whether the union is used in expression position (`expression: true`). When
-   * omitted, this defaults to `true` for an anonymous union (no `name`) and
-   * `false` for a named one. Set this explicitly to create a *named* union
-   * declaration expression (a name that is kept on the type but not registered
-   * in a namespace).
+   * omitted, this defaults to `true` for an anonymous union (no name or an empty
+   * name) and `false` for a named one. Set this explicitly to create a *named*
+   * union declaration expression (a name that is kept on the type but not
+   * registered in a namespace).
    */
   expression?: boolean;
 
@@ -163,7 +163,7 @@ export const UnionKit = defineKit<TypekitExtension>({
         get options() {
           return Array.from(this.variants.values()).map((v) => v.type);
         },
-        expression: descriptor.expression ?? descriptor.name === undefined,
+        expression: descriptor.expression ?? !descriptor.name,
       });
 
       if (Array.isArray(descriptor.variants)) {

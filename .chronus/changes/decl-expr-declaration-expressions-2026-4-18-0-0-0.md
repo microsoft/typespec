@@ -4,7 +4,7 @@ packages:
   - "@typespec/compiler"
 ---
 
-Allow `model`, `enum`, `union`, and `scalar` declarations to be used as expressions. A declaration used in expression position has its corresponding type marked with `expression: true` and is not registered in the enclosing namespace. It may be named or anonymous (in which case its `name` is `""`).
+Allow `model`, `enum`, `union`, and `scalar` declarations to be used as expressions. A declaration used in expression position has its corresponding type marked with `expression: true` and is not registered in the enclosing namespace. It may be named or anonymous (in which case it has no name).
 
 This is an experimental feature that must be opted into by adding `declaration-expressions` to the `features` list in `tspconfig.yaml`; using a declaration expression without it reports a `declaration-expression-disabled` error.
 

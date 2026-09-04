@@ -90,7 +90,7 @@ defineKit<TypekitExtension>({
         name: desc.name,
         decorators: decoratorApplication(this, desc.decorators),
         members: createRekeyableMap(),
-        expression: desc.expression ?? desc.name === "",
+        expression: desc.expression ?? !desc.name,
       });
 
       if (Array.isArray(desc.members)) {
