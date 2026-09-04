@@ -403,9 +403,11 @@ public class ModelMapper implements IMapper<ObjectSchema, ClientModel>, NeedsPla
                 || !Objects.equals(parentDiscriminator.getWireType(), childProperty.getWireType())
                 || !Objects.equals(parentDiscriminator.getClientType(), childProperty.getClientType())
                 || !Objects.equals(parentDiscriminator.getDefaultValue(), childProperty.getDefaultValue())) {
-                throw new IllegalStateException("Property '" + childProperty.getSerializedName() + "' on model '"
-                    + child.getName() + "' does not match its inherited polymorphic discriminator.");
-            }
+throw new IllegalStateException("Property '" + childProperty.getSerializedName() + "' on model '" + child.getName()
+    + "' does not match its inherited polymorphic discriminator. Expected (type="
+    + parentDiscriminator.getClientType() + ", value=" + String.valueOf(parentDiscriminator.getDefaultValue())
+    + "), but found (type=" + childProperty.getClientType() + ", value="
+    + String.valueOf(childProperty.getDefaultValue()) + ").");
 
             discriminatorForChild = childProperty.newBuilder()
                 .name(parentDiscriminator.getName())
