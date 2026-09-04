@@ -42,9 +42,27 @@ namespace Microsoft.TypeSpec.Generator.Tests
                 ? "TestNamespaceUnevaluatedFrameworkValue.csproj"
                 : "TestNamespace.csproj";
             CreateTestAssemblyAndProjectFile(nugetCacheDir, csProjectFileName);
-
+            WriteLocalNuGetConfig(_projectDir, nugetCacheDir);
             _originalNugetPackageDir = Environment.GetEnvironmentVariable("NUGET_PACKAGES", EnvironmentVariableTarget.Process);
             Environment.SetEnvironmentVariable("NUGET_PACKAGES", nugetCacheDir, EnvironmentVariableTarget.Process);
+        }
+
+        private static void WriteLocalNuGetConfig(string projectDir, string nugetCacheDir)
+        {
+            var nugetConfigPath = Path.Combine(projectDir, "NuGet.Config");
+            var normalizedCachePath = nugetCacheDir.Replace("\\", "/");
+            var config = $@"<?xml version=""1.0"" encoding=""utf-8""?>
+<configuration>
+    <packageSources>
+        <clear />
+        <add key=""local-cache"" value=""{normalizedCachePath}"" />
+    </packageSources>
+    <disabledPackageSources>
+        <clear />
+    </disabledPackageSources>
+</configuration>";
+
+            File.WriteAllText(nugetConfigPath, config);
         }
 
         [TearDown]
@@ -399,7 +417,7 @@ namespace My.External.Library
                 .Select(x => (Name: x[0], Version: x[1], TargetFramework: x[3]));
             foreach (var resolvedPackage in resolvedPackages)
             {
-                if(packages.TryGetValue(resolvedPackage.Name, out string? version))
+                if (packages.TryGetValue(resolvedPackage.Name, out string? version))
                 {
                     Assert.That(resolvedPackage.TargetFramework, Is.EqualTo("netstandard2.0"));
                     Assert.Fail($"Found more than one version for package {resolvedPackage.Name}: {version} and {resolvedPackage.Version}");
@@ -502,6 +520,10 @@ namespace My.External.Library
                       "Second.Package/3.5.0": {
                           "type": "package",
                           "dependencies": {}
+                      },
+                      "Just.Project/3.5.0": {
+                          "type": "project",
+                          "dependencies": {}
                       }
                   },
                   "net462": {
@@ -556,9 +578,9 @@ namespace My.External.Library
                 configuration: $"{{\"package-name\": \"{ns}\"}}");
             Dictionary<string, Dictionary<string, string>> dtFrameworks = await GeneratedCodeWorkspace.ReadProjectAssets();
             Assert.That(dtFrameworks, Has.Count.EqualTo(3));
-            foreach (string framework in new string[]{ "netstandard2.0", "net10.0", "net462" })
+            foreach (string framework in new string[] { "netstandard2.0", "net10.0", "net462" })
             {
-                if(dtFrameworks.TryGetValue(framework, out Dictionary<string, string>? dtPackages))
+                if (dtFrameworks.TryGetValue(framework, out Dictionary<string, string>? dtPackages))
                 {
                     Assert.That(dtPackages, Has.Count.EqualTo(2));
                     AssertPackageVersion(dtPackages, "First.Package", "1.0.0");

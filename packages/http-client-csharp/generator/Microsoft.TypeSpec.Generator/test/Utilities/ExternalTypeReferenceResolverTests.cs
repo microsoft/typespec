@@ -209,7 +209,7 @@ namespace Microsoft.TypeSpec.Generator.Tests.Utilities
                 basePackage: basePkg,
                 referencedAssemblyPaths: [baseDll],
                 dependencies: [(basePkg, "[2.0.0, )")]);
-            // All the dependencies, even indirect onees will be present in project.assets.json.
+            // All the dependencies, even indirect ones will be present in project.assets.json.
             await CreateProjectAndLoadDependencies([basePkg, leafPkg], [pkgVersion, "1.0.0"]);
 
             var external = new InputExternalTypeMetadata(leafTypeName, leafPkg, "1.0.0");
@@ -341,7 +341,7 @@ namespace Microsoft.TypeSpec.Generator.Tests.Utilities
             }
             var csprojContent = $@"<Project Sdk=""Microsoft.NET.Sdk"">
   <PropertyGroup>
-    <TargetFramework>netstandard2.0,net10.0</TargetFramework>
+    <TargetFrameworks>netstandard2.0;net10.0</TargetFrameworks>
   </PropertyGroup>
   <ItemGroup>{sbPackagesProject}</ItemGroup>
 </Project>";

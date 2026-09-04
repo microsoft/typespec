@@ -296,9 +296,12 @@ namespace Microsoft.TypeSpec.Generator
                             foreach (JsonProperty packageAndVersion in targetFramework.Value.EnumerateObject())
                             {
                                 string[] packageVersion = packageAndVersion.Name.Split('/');
-                                if (packageVersion.Length == 2)
+                                if (packageVersion.Length == 2
+                                    && packageAndVersion.Value.TryGetProperty("type", out JsonElement packageType)
+                                    && packageType.GetString() == "package"
+                                    )
                                 {
-                                    hshFrameworks[currentFramework.GetShortFolderName()][packageVersion[0].ToLower()] = packageVersion[1];
+                                    hshFrameworks[currentFramework.GetShortFolderName()][packageVersion[0].ToLowerInvariant()] = packageVersion[1];
                                 }
                             }
                         }
@@ -362,6 +365,7 @@ namespace Microsoft.TypeSpec.Generator
                 ArgumentList = { "msbuild", projectFilePath, "-getProperty:ProjectAssetsFile" },
                 RedirectStandardOutput = true,
                 RedirectStandardError = true,
+                WorkingDirectory= CodeModelGenerator.Instance.Configuration.ProjectDirectory,
             };
             restore.StartInfo = info;
             string? output = default;
@@ -444,6 +448,7 @@ namespace Microsoft.TypeSpec.Generator
                 ArgumentList = {"restore", projectFilePath},
                 RedirectStandardOutput = true,
                 RedirectStandardError = true,
+                WorkingDirectory = CodeModelGenerator.Instance.Configuration.ProjectDirectory,
             };
             restore.StartInfo = info;
             if (restore.Start())
