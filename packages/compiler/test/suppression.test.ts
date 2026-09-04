@@ -75,6 +75,23 @@ it("suppress warning diagnostic on parent node", async () => {
   expectDiagnosticEmpty(diagnostics);
 });
 
+it("suppress warning diagnostic where the template was instantiated", async () => {
+  const diagnostics = await run(`
+      model Wrapper<T> {
+        wrapped: T;
+        inline: {
+          name: 123;
+        };
+      }
+
+      model Foo {
+        #suppress "no-inline-model" "This is needed"
+        prop: Wrapper<string>;
+      }
+    `);
+  expectDiagnosticEmpty(diagnostics);
+});
+
 it("error diagnostics cannot be suppressed and emit another error", async () => {
   const diagnostics = await run(`
       model Foo {

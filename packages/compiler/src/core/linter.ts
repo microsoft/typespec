@@ -2,7 +2,11 @@ import { isPromise } from "../utils/misc.js";
 import type { DiagnosticCodeResolver } from "./diagnostic-code.js";
 import { formatShortNameCandidates } from "./diagnostic-code.js";
 import type { DiagnosticCollector } from "./diagnostics.js";
-import { compilerAssert, createDiagnosticCollector } from "./diagnostics.js";
+import {
+  compilerAssert,
+  createDiagnosticCollector,
+  getDiagnosticTemplateInstantitationTrace,
+} from "./diagnostics.js";
 import { getLocationContext } from "./helpers/location-context.js";
 import { defineLinter } from "./library.js";
 import { createUnusedTemplateParameterLinterRule } from "./linter-rules/unused-template-parameter.rule.js";
@@ -15,6 +19,7 @@ import { EventEmitter, mapEventEmitterToNodeListener, navigateProgram } from "./
 import type {
   Diagnostic,
   DiagnosticMessages,
+  DiagnosticTarget,
   LinterDefinition,
   LinterResolvedDefinition,
   LinterRule,
@@ -427,15 +432,29 @@ export function createLinterRuleContext<
 
   function reportDiagnostic<M extends keyof DM>(diag: LinterRuleDiagnosticReport<DM, M>): void {
     const diagnostic = createDiagnostic(diag);
-    if (diagnostic.target !== NoTarget) {
-      const context = getLocationContext(program, diagnostic.target);
-      // Only report diagnostic in the user project.
-      // See for showing diagnostic in library at point of usage https://github.com/microsoft/typespec/issues/1997
-      if (context.type === "project") {
-        diagnosticCollector.add(diagnostic);
-      }
+    if (diagnostic.target !== NoTarget && isUserOwnedTarget(program, diagnostic.target)) {
+      diagnosticCollector.add(diagnostic);
     }
   }
+}
+
+/**
+ * Linter rules should only report on code the user is able to act on.
+ *
+ * A target is user owned if it is declared in the user project, or if it belongs to a
+ * library template that the user project instantiated: in that case the type only exists
+ * because of the template arguments the user passed, and the diagnostic is rendered with
+ * the instantiation trace pointing back at the user's own code.
+ *
+ * See https://github.com/microsoft/typespec/issues/11861
+ */
+function isUserOwnedTarget(program: Program, target: DiagnosticTarget): boolean {
+  if (getLocationContext(program, target).type === "project") {
+    return true;
+  }
+  return getDiagnosticTemplateInstantitationTrace(target).some(
+    (node) => getLocationContext(program, node).type === "project",
+  );
 }
 
 export const builtInLinterLibraryName = `@typespec/compiler`;

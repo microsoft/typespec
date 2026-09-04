@@ -34,6 +34,26 @@ const noModelFoo = createLinterRule({
   },
 });
 
+const noPropertyValue = createLinterRule({
+  name: "no-property-value",
+  description: "",
+  severity: "warning",
+  messages: {
+    default: "Cannot call property 'value'",
+  },
+  create(context) {
+    return {
+      modelProperty: (target) => {
+        if (target.name === "value") {
+          context.reportDiagnostic({
+            target,
+          });
+        }
+      },
+    };
+  },
+});
+
 const exitLintRuleSync = createLinterRule({
   name: "exit-lint-rule-sync",
   description: "",
@@ -272,6 +292,54 @@ describe("diagnostic location", () => {
       severity: "warning",
       code: "@typespec/test-linter/no-model-foo",
       message: `Cannot call model 'Foo'`,
+    });
+  });
+
+  describe("library template instantiated from the user project", () => {
+    async function lintPropertyValue(lib: string, main: string) {
+      const linter = await createTestLinterAndEnableRules(
+        {
+          "main.tsp": `import "my-lib";\n${main}`,
+          "node_modules/my-lib/package.json": JSON.stringify({
+            name: "my-lib",
+            tspMain: "main.tsp",
+          }),
+          "node_modules/my-lib/main.tsp": lib,
+        },
+        { rules: [noPropertyValue] },
+      );
+      return (await linter.lint()).diagnostics;
+    }
+
+    it("emit diagnostic when the user project instantiated the template", async () => {
+      const diagnostics = await lintPropertyValue(
+        `model Wrapper<T> { value: T; }`,
+        `model Bar { wrapped: Wrapper<string>; }`,
+      );
+      expectDiagnostics(diagnostics, {
+        severity: "warning",
+        code: "@typespec/test-linter/no-property-value",
+        message: `Cannot call property 'value'`,
+      });
+    });
+
+    it("doesn't emit diagnostic for a non templated library model", async () => {
+      expectDiagnosticEmpty(
+        await lintPropertyValue(
+          `model NotATemplate { value: string; }`,
+          `model Bar { plain: NotATemplate; }`,
+        ),
+      );
+    });
+
+    it("doesn't emit diagnostic when the library instantiated the template itself", async () => {
+      expectDiagnosticEmpty(
+        await lintPropertyValue(
+          `model Wrapper<T> { value: T; }
+           model LibOwnedUsage { ...Wrapper<string>; }`,
+          `model Bar { plain: LibOwnedUsage; }`,
+        ),
+      );
     });
   });
 });
