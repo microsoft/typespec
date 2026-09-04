@@ -9,13 +9,13 @@ import {
   PYGEN_WHEEL_FILENAME,
   PYODIDE_VERSION,
 } from "./constants.js";
-import { dumpCodeModelToYaml } from "./external-process.js";
 import type { PythonEmitterOptions, PythonSdkContext } from "./lib.js";
 import { reportDiagnostic } from "./lib.js";
 import { runNodeEmit } from "./node-runner.js";
 import type { PyodideInterface } from "./pyodide-loader.js";
 import { loadPyodide } from "./pyodide-loader.js";
 import { getRootNamespace, md2Rst } from "./utils.js";
+import { dumpCodeModelToYaml } from "./yaml-utils.js";
 
 function getBrowserPygenWheelUrl(): string {
   return `${BLOB_STORAGE_BASE_URL}/${PACKAGE_NAME}/${pkgJson.version}/generator/dist/${PYGEN_WHEEL_FILENAME}`;

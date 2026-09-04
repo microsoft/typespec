@@ -1,6 +1,6 @@
 {
   "name": "@typespec/http-client-python",
-  "version": "0.36.0",
+  "version": "0.37.0",
   "author": "Microsoft Corporation",
   "description": "TypeSpec emitter for Python SDKs",
   "homepage": "https://typespec.io",
@@ -109,7 +109,7 @@
     "@azure-tools/typespec-azure-resource-manager": "~0.71.0",
     "@azure-tools/typespec-azure-rulesets": "~0.71.0",
     "@azure-tools/typespec-client-generator-core": "~0.71.0",
-    "@azure-tools/azure-http-specs": "0.1.0-alpha.44",
+    "@azure-tools/azure-http-specs": "0.1.0-alpha.45-dev.3",
     "@typespec/compiler": "^1.15.0",
     "@typespec/http": "^1.15.0",
     "@typespec/openapi": "^1.15.0",

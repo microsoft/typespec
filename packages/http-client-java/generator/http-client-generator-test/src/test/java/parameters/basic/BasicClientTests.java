@@ -3,6 +3,9 @@
 
 package parameters.basic;
 
+import com.azure.core.http.rest.RequestOptions;
+import com.azure.core.http.rest.Response;
+import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 import parameters.basic.explicitbody.models.User;
 
@@ -12,7 +15,10 @@ public class BasicClientTests {
 
     @Test
     public void testBodyClient() {
-        explicitBodyClient.simple(new User("foo"));
-        implicitBodyClient.simple("foo");
+        Response<Void> explicitResponse = explicitBodyClient.simpleWithResponse(new User("foo"), new RequestOptions());
+        Response<Void> implicitResponse = implicitBodyClient.simpleWithResponse("foo", new RequestOptions());
+
+        Assertions.assertNotNull(explicitResponse);
+        Assertions.assertNotNull(implicitResponse);
     }
 }

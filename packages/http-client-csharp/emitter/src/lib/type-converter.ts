@@ -208,6 +208,7 @@ function fromSdkModelType(
   const inputModelType: InputModelType = {
     kind: "model",
     name: modelType.name,
+    apiVersions: modelType.apiVersions,
     namespace: modelType.namespace,
     crossLanguageDefinitionId: modelType.crossLanguageDefinitionId,
     access: getAccessOverride(sdkContext, modelType.__raw as Model),
@@ -281,6 +282,7 @@ function fromSdkModelProperty(
   property = {
     kind: sdkProperty.kind,
     name: sdkProperty.name,
+    apiVersions: sdkProperty.apiVersions,
     serializedName: serializedName,
     summary: sdkProperty.summary,
     doc: sdkProperty.doc,
@@ -346,6 +348,7 @@ function createEnumType(
   const inputEnumType: InputEnumType = {
     kind: "enum",
     name: sdkType.name,
+    apiVersions: sdkType.kind === "enum" ? sdkType.apiVersions : [],
     crossLanguageDefinitionId: sdkType.kind === "enum" ? sdkType.crossLanguageDefinitionId : "",
     valueType:
       sdkType.kind === "enum"

@@ -167,7 +167,8 @@ namespace Microsoft.TypeSpec.Generator.Tests.Common
             bool isExtensible = false,
             string clientNamespace = "Sample.Models",
             InputExternalTypeMetadata? external = null,
-            bool isExactName = false)
+            bool isExactName = false,
+            IReadOnlyList<string>? apiVersions = null)
         {
             var enumValues = new List<InputEnumTypeValue>();
             var enumType = Enum(
@@ -310,7 +311,8 @@ namespace Microsoft.TypeSpec.Generator.Tests.Common
             bool isExtensible = false,
             string clientNamespace = "Sample.Models",
             InputExternalTypeMetadata? external = null,
-            bool isExactName = false)
+            bool isExactName = false,
+            IReadOnlyList<string>? apiVersions = null)
         {
             var enumType = new InputEnumType(
                 name,
@@ -323,7 +325,8 @@ namespace Microsoft.TypeSpec.Generator.Tests.Common
                 usage,
                 underlyingType,
                 values,
-                isExtensible)
+                isExtensible,
+                apiVersions ?? [])
             {
                 IsExactName = isExactName,
             };
@@ -349,7 +352,8 @@ namespace Microsoft.TypeSpec.Generator.Tests.Common
             string? doc = null,
             InputSerializationOptions? serializationOptions = null,
             ArrayKnownEncoding? encode = null,
-            bool isExactName = false)
+            bool isExactName = false,
+            IReadOnlyList<string>? apiVersions = null)
         {
             serializationOptions ??= new InputSerializationOptions();
             return new InputModelProperty(
@@ -366,7 +370,8 @@ namespace Microsoft.TypeSpec.Generator.Tests.Common
                 isDiscriminator: isDiscriminator,
                 serializedName: serializedName ?? wireName ?? name.ToVariableName(),
                 serializationOptions: serializationOptions,
-                encode: encode)
+                encode: encode,
+                apiVersions: apiVersions ?? [])
             {
                 IsExactName = isExactName,
             };
@@ -589,7 +594,8 @@ namespace Microsoft.TypeSpec.Generator.Tests.Common
             bool isDynamicModel = false,
             InputExternalTypeMetadata? external = null,
             InputSerializationOptions? serializationOptions = null,
-            bool isExactName = false)
+            bool isExactName = false,
+            IReadOnlyList<string>? apiVersions = null)
         {
             IEnumerable<InputModelProperty> propertiesList = properties ?? [Property("StringProperty", InputPrimitiveType.String)];
 
@@ -614,7 +620,8 @@ namespace Microsoft.TypeSpec.Generator.Tests.Common
                 additionalProperties,
                 modelAsStruct,
                 serializationOptions ?? new(),
-                isDynamicModel)
+                isDynamicModel,
+                apiVersions ?? [])
             {
                 IsExactName = isExactName,
             };
