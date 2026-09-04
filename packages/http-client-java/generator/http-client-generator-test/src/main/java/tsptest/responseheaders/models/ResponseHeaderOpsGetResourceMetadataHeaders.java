@@ -11,6 +11,7 @@ import com.azure.core.http.HttpHeaders;
 import com.azure.core.util.DateTimeRfc1123;
 import java.time.OffsetDateTime;
 import java.util.LinkedHashMap;
+import java.util.Locale;
 import java.util.Map;
 
 /**
@@ -68,7 +69,8 @@ public final class ResponseHeaderOpsGetResourceMetadataHeaders {
 
         rawHeaders.stream().forEach(header -> {
             String headerName = header.getName();
-            if (headerName.startsWith("x-ms-meta-")) {
+            String headerNameLowerCase = headerName.toLowerCase(Locale.ROOT);
+            if (headerNameLowerCase.startsWith("x-ms-meta-")) {
                 metadataHeaderCollection.put(headerName.substring(10), header.getValue());
             }
         });

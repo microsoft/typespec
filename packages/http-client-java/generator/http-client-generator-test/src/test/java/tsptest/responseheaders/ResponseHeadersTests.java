@@ -27,7 +27,7 @@ public class ResponseHeadersTests {
         HttpHeaders responseHeaders = new HttpHeaders().set(HttpHeaderName.ETAG, "\"0x8D9\"")
             .set(HttpHeaderName.fromString("x-resource-count"), "42")
             .set(HttpHeaderName.LAST_MODIFIED, "Mon, 26 Aug 2022 14:38:00 GMT")
-            .set(HttpHeaderName.fromString("x-ms-meta-key1"), "value1")
+            .set(HttpHeaderName.fromString("X-Ms-Meta-key1"), "value1")
             .set(HttpHeaderName.fromString("x-ms-meta-key2"), "value2");
 
         ResponseHeaderOpsGetResourceMetadataHeaders headers = createClient(responseHeaders).getResourceMetadata();
