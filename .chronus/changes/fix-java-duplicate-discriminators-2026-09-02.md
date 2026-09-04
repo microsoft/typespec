@@ -4,4 +4,4 @@ packages:
   - "@typespec/http-client-java"
 ---
 
-Prevent duplicate Java fields and accessors when a model redeclares an inherited fixed discriminator.
+Prevent duplicate Java discriminator members while preserving inherited discriminators in stream-style XML serialization.

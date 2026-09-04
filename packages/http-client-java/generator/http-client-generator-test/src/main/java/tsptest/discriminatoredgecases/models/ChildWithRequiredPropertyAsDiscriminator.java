@@ -103,8 +103,6 @@ public class ChildWithRequiredPropertyAsDiscriminator extends ParentWithRequired
                 // Use the discriminator value to determine which subtype should be deserialized.
                 if ("aValue".equals(discriminatorValue)) {
                     return GrandChildWithRequiredProperty.fromJson(readerToUse.reset());
-                } else if ("nested".equals(discriminatorValue)) {
-                    return GrandChildWithNestedDiscriminator.fromJson(readerToUse.reset());
                 } else {
                     return fromJsonKnownDiscriminator(readerToUse.reset());
                 }

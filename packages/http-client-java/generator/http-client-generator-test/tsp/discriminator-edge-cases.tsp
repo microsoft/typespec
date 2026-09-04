@@ -1,8 +1,10 @@
 import "@typespec/rest";
+import "@typespec/xml";
 import "@azure-tools/typespec-azure-core";
 import "@azure-tools/typespec-client-generator-core";
 
 using TypeSpec.Http;
+using TypeSpec.Xml;
 using Azure.Core;
 using Azure.ClientGenerator.Core;
 
@@ -28,19 +30,25 @@ model GrandChildWithRequiredProperty extends ChildWithRequiredPropertyAsDiscrimi
   discriminator: "aValue";
 }
 
-@discriminator("nestedDiscriminator")
-model GrandChildWithNestedDiscriminator extends ChildWithRequiredPropertyAsDiscriminator {
-  discriminator: "nested";
-
-  // Activates a nested hierarchy so the outer discriminator is propagated and masks the base property.
-  nestedDiscriminator: string;
+@usage(Usage.output)
+@access(Access.public)
+@name("NestedDiscriminatorBase")
+@discriminator("type")
+model NestedDiscriminatorBase {
+  @attribute type: string;
 }
 
-model GreatGrandChildWithDuplicateDiscriminator extends GrandChildWithNestedDiscriminator {
-  // Repeats the propagated outer discriminator to exercise duplicate merging.
-  discriminator: "nested";
+@name("NestedDiscriminatorMessage")
+@discriminator("role")
+model NestedDiscriminatorMessage extends NestedDiscriminatorBase {
+  @attribute type: "message";
+  @attribute role: string;
+}
 
-  nestedDiscriminator: "leaf";
+@name("NestedDiscriminatorAssistant")
+model NestedDiscriminatorAssistant extends NestedDiscriminatorMessage {
+  @attribute type: "message";
+  @attribute role: "assistant";
 }
 
 model GrandChildWithAnotherDiscriminator extends ChildWithAnotherDiscriminator {
