@@ -1975,6 +1975,109 @@ union Foo {
     });
   });
 
+  describe("extends", () => {
+    it("formats a union extends clause", async () => {
+      await assertFormat({
+        code: `
+union      Foo    extends      Bar    {    a: A,        b:       B}
+`,
+        expected: `
+union Foo extends Bar {
+  a: A,
+  b: B,
+}
+`,
+      });
+    });
+
+    it("formats a templated union with an extends clause", async () => {
+      await assertFormat({
+        code: `
+union      Foo<T>    extends      Bar<T>    {    a: T}
+`,
+        expected: `
+union Foo<T> extends Bar<T> {
+  a: T,
+}
+`,
+      });
+    });
+
+    it("formats decorators and modifiers with an extends clause", async () => {
+      await assertFormat({
+        code: `
+@doc("foo")   internal    union      Foo    extends      string    {    "a", "b"}
+`,
+        expected: `
+@doc("foo")
+internal union Foo extends string {
+  "a",
+  "b",
+}
+`,
+      });
+    });
+
+    it("breaks a long extends clause onto a new line", async () => {
+      await assertFormat({
+        code: `
+union ThisIsAVeryLongUnionName extends ThisIsAVeryLongBaseTypeName<WithAVeryLongArgument> { a: A }
+`,
+        expected: `
+union ThisIsAVeryLongUnionName
+  extends ThisIsAVeryLongBaseTypeName<WithAVeryLongArgument> {
+  a: A,
+}
+`,
+      });
+    });
+
+    it("keeps a dangling comment inside an empty union body with an extends clause", async () => {
+      await assertFormat({
+        code: `
+union Foo extends Bar {
+  // dangling
+}
+`,
+        expected: `
+union Foo extends Bar {
+  // dangling
+}
+`,
+      });
+    });
+
+    it("keeps a comment between the base type and the body", async () => {
+      await assertFormat({
+        code: `
+union Foo
+// before extends
+extends Bar {}
+`,
+        expected: `
+union Foo extends Bar {
+  // before extends
+}
+`,
+      });
+    });
+  });
+
+  it("keeps a dangling comment inside an empty union body", async () => {
+    await assertFormat({
+      code: `
+union Foo {
+  // dangling
+}
+`,
+      expected: `
+union Foo {
+  // dangling
+}
+`,
+    });
+  });
+
   // Regression test for https://github.com/microsoft/typespec/issues/11009
   it("does not add a blank line or extra indent for a union used as a template argument", async () => {
     await assertFormat({

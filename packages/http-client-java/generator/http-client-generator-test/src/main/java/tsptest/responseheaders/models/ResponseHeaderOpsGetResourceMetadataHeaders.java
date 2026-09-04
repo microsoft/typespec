@@ -10,6 +10,9 @@ import com.azure.core.http.HttpHeaderName;
 import com.azure.core.http.HttpHeaders;
 import com.azure.core.util.DateTimeRfc1123;
 import java.time.OffsetDateTime;
+import java.util.LinkedHashMap;
+import java.util.Locale;
+import java.util.Map;
 
 /**
  * The ResponseHeaderOpsGetResourceMetadataHeaders model.
@@ -34,6 +37,12 @@ public final class ResponseHeaderOpsGetResourceMetadataHeaders {
     @Generated
     private final DateTimeRfc1123 lastModified;
 
+    /*
+     * The x-ms-meta- property.
+     */
+    @Generated
+    private final Map<String, String> metadata;
+
     private static final HttpHeaderName X_RESOURCE_COUNT = HttpHeaderName.fromString("x-resource-count");
 
     // HttpHeaders containing the raw property values.
@@ -56,6 +65,16 @@ public final class ResponseHeaderOpsGetResourceMetadataHeaders {
         } else {
             this.lastModified = null;
         }
+        Map<String, String> metadataHeaderCollection = new LinkedHashMap<>();
+
+        rawHeaders.stream().forEach(header -> {
+            String headerName = header.getName();
+            String headerNameLowerCase = headerName.toLowerCase(Locale.ROOT);
+            if (headerNameLowerCase.startsWith("x-ms-meta-")) {
+                metadataHeaderCollection.put(headerName.substring(10), header.getValue());
+            }
+        });
+        this.metadata = metadataHeaderCollection;
     }
 
     /**
@@ -89,5 +108,15 @@ public final class ResponseHeaderOpsGetResourceMetadataHeaders {
             return null;
         }
         return this.lastModified.getDateTime();
+    }
+
+    /**
+     * Get the metadata property: The x-ms-meta- property.
+     * 
+     * @return the metadata value.
+     */
+    @Generated
+    public Map<String, String> getMetadata() {
+        return this.metadata;
     }
 }

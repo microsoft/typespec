@@ -140,6 +140,22 @@ describe("completes for keywords", () => {
     [`interface I {┆}`, []],
     [`interface I<T, ┆>`, []],
 
+    [`union U ┆`, ["extends"]],
+    [`union U ┆ `, ["extends"]],
+    [`union U \n┆\n`, ["extends"]],
+    [`union U ┆{}`, ["extends"]],
+    [`union U ┆ {}`, ["extends"]],
+    [`union U ┆ \nscalar S2`, ["extends"]],
+    [`model M1{}; union U ┆ M1`, ["extends"]],
+    [`model M1{}; union U e┆x M1`, ["extends"]],
+    [`union U<T> ┆\n`, ["extends"]],
+    [`union U<T>┆ \n`, ["extends"]],
+    [`union U<T extends string> ┆ {}`, ["extends"]],
+    [`union U ex┆`, ["extends"]],
+    [`union U ex┆tends`, ["extends"]],
+    [`union U {┆}`, []],
+    [`union U<T, ┆> {}`, []],
+
     [`scalar S<T ┆>`, ["extends"]],
     [`scalar S<T ┆ = int16>`, ["extends"]],
     [`model M<T e┆x>`, ["extends"]],
@@ -1307,6 +1323,26 @@ describe("identifiers", () => {
       namespace N {
         model A {}
         model B extends ┆
+      }
+        `,
+    );
+
+    check(completions, [
+      {
+        label: "A",
+        insertText: "A",
+        kind: CompletionItemKind.Class,
+        documentation: { kind: MarkupKind.Markdown, value: "```typespec\nmodel N.A\n```" },
+      },
+    ]);
+  });
+
+  it("completes types in a union extends clause", async () => {
+    const completions = await complete(
+      `
+      namespace N {
+        model A {}
+        union B extends ┆
       }
         `,
     );

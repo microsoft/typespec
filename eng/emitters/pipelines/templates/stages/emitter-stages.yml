@@ -353,6 +353,10 @@ stages:
                       versionSpec: "22.x"
                       checkLatest: true
                   - template: /eng/common/pipelines/templates/steps/create-authenticated-npmrc.yml
+                  - ${{ if eq(parameters.LanguageShortName, 'python') }}:
+                      - template: /eng/common/pipelines/templates/steps/pypi-auth-dev-feed.yml
+                        parameters:
+                          EnableTwineAuth: false
                   - script: npm ci
                     displayName: Install emitter dependencies for playground bundle
                     workingDirectory: $(Build.SourcesDirectory)/${{ parameters.PackagePath }}

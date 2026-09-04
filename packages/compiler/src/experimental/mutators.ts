@@ -701,6 +701,7 @@ function createMutatorEngine(
           break;
         case "Union":
           mutateSubMap(root, "variants", mutating, newMutators);
+          mutateProperty(root, "baseType", mutating, newMutators);
           break;
         case "UnionVariant":
           mutateProperty(root, "type", mutating, newMutators);

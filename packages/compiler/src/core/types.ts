@@ -676,6 +676,25 @@ export interface Union extends BaseType, DecoratedType, TemplatedTypeBase {
   expression: boolean;
 
   /**
+   * Type declared with the `extends` clause of a union statement. Union variants are
+   * constrained to be assignable to this model, scalar, enum, or union; violations are
+   * reported as diagnostics.
+   *
+   * Validation is deferred for uninstantiated template declarations because their variants
+   * can contain unresolved template parameters. Each template instance is validated instead.
+   *
+   * This is only set for named unions declared with an `extends` clause. It documents a
+   * constraint: it does **not** imply a subclassing relationship, it does **not** mean the
+   * union is extensible, and it has no interaction with `@discriminator`.
+   *
+   * Emitters should not require this to be present: a union with the same variants and no
+   * `extends` clause should ideally be handled the same way.
+   *
+   * @experimental
+   */
+  baseType?: Model | Scalar | Enum | Union;
+
+  /**
    * Late-bound symbol of this interface type.
    * @internal
    */
@@ -1600,6 +1619,15 @@ export interface InterfaceStatementNode extends BaseNode, DeclarationNode, Templ
 export interface UnionStatementNode extends BaseNode, DeclarationNode, TemplateDeclarationNode {
   readonly kind: SyntaxKind.UnionStatement;
   readonly options: readonly UnionVariantNode[];
+  /**
+   * Type that every variant of this union must be assignable to.
+   *
+   * This is a constraint only, it does not imply any subtyping relationship between
+   * the union and the base type beyond the one that already exists structurally.
+   *
+   * @experimental
+   */
+  readonly extends?: Expression;
   readonly decorators: readonly DecoratorExpressionNode[];
   readonly parent?: TypeSpecScriptNode | NamespaceStatementNode;
 }
@@ -2360,6 +2388,39 @@ export type SemanticNodeListener = {
   root?: (context: Program) => void | undefined;
 } & TypeListeners &
   ValueListeners;
+
+/**
+ * Extra information about a type contributed by a library through `$provideTypeInfo`. Used to
+ * enrich IDE hover documentation and to answer queries (e.g. from AI agents/tooling).
+ */
+export interface TypeInfo {
+  /** Markdown content describing this information, e.g. ``"`HTTP Route`: `GET /pets/{id}`"``. */
+  readonly content: string;
+}
+
+/**
+ * Context passed to a library's `$provideTypeInfo` provider. Additional properties may be added
+ * over time.
+ */
+export interface TypeInfoContext {
+  /** The current program. */
+  readonly program: Program;
+  /** The type the information is being requested for. */
+  readonly target: Type;
+}
+
+/**
+ * Provides extra information about a given type.
+ *
+ * A library registers one by exporting a `$provideTypeInfo` function (typically via
+ * {@link defineTypeInfoProvider}). Unlike the `$onValidate` lifecycle hook, a provider is never
+ * run during compilation and must not mutate the type graph. It is invoked lazily and on demand
+ * (e.g. by the language server when computing hover documentation, or by tooling querying
+ * {@link Program.getTypeInfo}).
+ *
+ * Providers are gated behind the experimental `type-info-provider` compiler feature.
+ */
+export type TypeInfoProvider = (context: TypeInfoContext) => TypeInfo | undefined;
 
 export type DiagnosticReportWithoutTarget<
   T extends { [code: string]: DiagnosticMessages },

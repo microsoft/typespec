@@ -29,6 +29,24 @@ namespace Microsoft.TypeSpec.Generator.Tests.Providers.ModelProviders
         }
 
         [Test]
+        public void TestBuildDescription_SkipsDerivedClassesTextWhenNoPublicDerivedModels()
+        {
+            var discriminator = InputFactory.Property("kind", InputPrimitiveType.String, isRequired: true, isDiscriminator: true);
+            var internalDerived = InputFactory.Model("InternalDerived", access: "internal");
+            var baseModel = InputFactory.Model(
+                "BaseModel",
+                properties: [discriminator],
+                derivedModels: [internalDerived],
+                discriminatorProperty: discriminator);
+            MockHelpers.LoadMockGenerator(inputModelTypes: [baseModel, internalDerived]);
+
+            var provider = CodeModelGenerator.Instance.TypeFactory.CreateModel(baseModel);
+
+            Assert.IsNotNull(provider);
+            Assert.AreEqual("BaseModel description", provider!.Description.ToString());
+        }
+
+        [Test]
         public void TestBuildProperties_ValidateInheritHierarchyWithOverride()
         {
             var baseProp1 = InputFactory.Property("prop1", InputPrimitiveType.String);
@@ -1361,6 +1379,58 @@ namespace Microsoft.TypeSpec.Generator.Tests.Providers.ModelProviders
         }
 
         [Test]
+        public async Task BackCompat_NullableReferencePropertiesRetainSpecNullability()
+        {
+            var bytes = new InputPrimitiveType(InputPrimitiveTypeKind.Bytes, "bytes", "TypeSpec.bytes");
+            var inputModel = InputFactory.Model(
+                "MockInputModel",
+                usage: InputModelTypeUsage.Input,
+                properties:
+                [
+                    InputFactory.Property("unknown", new InputNullableType(InputPrimitiveType.Any), isRequired: true),
+                    InputFactory.Property("bytes", new InputNullableType(bytes), isRequired: true),
+                    InputFactory.Property("description", new InputNullableType(InputPrimitiveType.String), isRequired: true),
+                    InputFactory.Property("items", new InputNullableType(InputFactory.Array(InputPrimitiveType.String)), isRequired: true),
+                    InputFactory.Property("name", InputPrimitiveType.String, isRequired: true),
+                ]);
+
+            await MockHelpers.LoadMockGeneratorAsync(
+                inputModelTypes: [inputModel],
+                lastContractCompilation: async () => await Helpers.GetCompilationFromDirectoryAsync());
+
+            var modelProvider = CodeModelGenerator.Instance.OutputLibrary.TypeProviders
+                .OfType<ModelProvider>()
+                .Single(t => t.Name == "MockInputModel");
+            var properties = modelProvider.Properties.ToDictionary(p => p.Name);
+
+            Assert.IsTrue(properties["Unknown"].Type.IsNullable);
+            Assert.IsTrue(properties["Bytes"].Type.IsNullable);
+            Assert.IsTrue(properties["Description"].Type.IsNullable);
+            Assert.IsTrue(properties["Description"].Type.Equals(typeof(object)));
+            Assert.IsTrue(properties["Items"].Type.IsNullable);
+            Assert.AreEqual(typeof(IReadOnlyList<>), properties["Items"].Type.FrameworkType);
+            Assert.IsFalse(properties["Name"].Type.IsNullable);
+
+            var constructor = modelProvider.Constructors.Single(c =>
+                c.Signature.Modifiers.HasFlag(MethodSignatureModifiers.Public));
+            var parameters = constructor.Signature.Parameters.ToDictionary(p => p.Name);
+
+            Assert.AreEqual(ParameterValidationType.None, parameters["unknown"].Validation);
+            Assert.AreEqual(ParameterValidationType.None, parameters["bytes"].Validation);
+            Assert.AreEqual(ParameterValidationType.None, parameters["description"].Validation);
+            Assert.AreEqual(ParameterValidationType.None, parameters["items"].Validation);
+            Assert.AreEqual(ParameterValidationType.AssertNotNull, parameters["name"].Validation);
+
+            var generatedCode = new TypeProviderWriter(modelProvider).Write().Content;
+            Assert.IsFalse(generatedCode.Contains("AssertNotNull(unknown"));
+            Assert.IsFalse(generatedCode.Contains("AssertNotNull(bytes"));
+            Assert.IsFalse(generatedCode.Contains("AssertNotNull(description"));
+            Assert.IsFalse(generatedCode.Contains("AssertNotNull(items"));
+            Assert.IsTrue(generatedCode.Contains("AssertNotNull(name"));
+            Assert.IsTrue(generatedCode.Contains("Items = items?.ToList();"));
+        }
+
+        [Test]
         public async Task BackCompat_ScalarPropertyTypeOverriddenWhenTypeNameDiffers()
         {
             var inputModel = InputFactory.Model(
@@ -1542,7 +1612,7 @@ namespace Microsoft.TypeSpec.Generator.Tests.Providers.ModelProviders
                     InputFactory.Property("kind", discriminatorEnum, isRequired: false, isDiscriminator: true),
                     InputFactory.Property("baseProp", InputPrimitiveType.String, isRequired: true)
                 ],
-                discriminatedModels: new Dictionary<string, InputModelType>() { { "one", derivedInputModel }});
+                discriminatedModels: new Dictionary<string, InputModelType>() { { "one", derivedInputModel } });
 
             await MockHelpers.LoadMockGeneratorAsync(
                 inputModelTypes: [inputModel],
@@ -1574,7 +1644,7 @@ namespace Microsoft.TypeSpec.Generator.Tests.Providers.ModelProviders
                     InputFactory.Property("kind", discriminatorEnum, isRequired: false, isDiscriminator: true),
                     InputFactory.Property("baseProp", InputPrimitiveType.String, isRequired: true)
                 ],
-                discriminatedModels: new Dictionary<string, InputModelType>() { { "one", derivedInputModel }});
+                discriminatedModels: new Dictionary<string, InputModelType>() { { "one", derivedInputModel } });
 
             await MockHelpers.LoadMockGeneratorAsync(
                 inputModelTypes: [inputModel],
@@ -1607,7 +1677,7 @@ namespace Microsoft.TypeSpec.Generator.Tests.Providers.ModelProviders
                     InputFactory.Property("kind", discriminatorEnum, isRequired: false, isDiscriminator: true),
                     InputFactory.Property("baseProp", InputPrimitiveType.String, isRequired: true)
                 ],
-                discriminatedModels: new Dictionary<string, InputModelType>() { { "one", derivedInputModel }});
+                discriminatedModels: new Dictionary<string, InputModelType>() { { "one", derivedInputModel } });
 
             await MockHelpers.LoadMockGeneratorAsync(
                 inputModelTypes: [inputModel],
@@ -1773,7 +1843,7 @@ namespace Microsoft.TypeSpec.Generator.Tests.Providers.ModelProviders
         [TestCase(true, true, InputModelTypeUsage.Output, true, false)]
         [TestCase(true, false, InputModelTypeUsage.Output, true, false)]
         [TestCase(false, true, InputModelTypeUsage.Output, true, false)]
-        [TestCase(false, false,InputModelTypeUsage.Output, true, false)]
+        [TestCase(false, false, InputModelTypeUsage.Output, true, false)]
         [TestCase(true, true, InputModelTypeUsage.Input, true, false)]
         [TestCase(true, true, InputModelTypeUsage.Input | InputModelTypeUsage.Output, true, true)]
         [TestCase(true, false, InputModelTypeUsage.Input, false, false)]
@@ -1992,7 +2062,7 @@ namespace Microsoft.TypeSpec.Generator.Tests.Providers.ModelProviders
                     InputFactory.Property("kind", discriminatorEnum, isRequired: false, isDiscriminator: true),
                     InputFactory.Property("baseProp", InputPrimitiveType.String, isRequired: true)
                 ],
-                discriminatedModels: new Dictionary<string, InputModelType>() { { "one", derivedInputModel }});
+                discriminatedModels: new Dictionary<string, InputModelType>() { { "one", derivedInputModel } });
 
             MockHelpers.LoadMockGenerator(
                 inputModelTypes: [inputModel, derivedInputModel],
@@ -2478,7 +2548,7 @@ namespace Microsoft.TypeSpec.Generator.Tests.Providers.ModelProviders
                     InputFactory.Property("kind", discriminatorEnum, isRequired: false, isDiscriminator: true),
                     InputFactory.Property("baseProp", InputPrimitiveType.String, isRequired: true)
                 ],
-                discriminatedModels: new Dictionary<string, InputModelType>() { { "one", derivedInputModel }});
+                discriminatedModels: new Dictionary<string, InputModelType>() { { "one", derivedInputModel } });
 
             await MockHelpers.LoadMockGeneratorAsync(
                 inputModelTypes: [inputModel],
@@ -2563,6 +2633,118 @@ namespace Microsoft.TypeSpec.Generator.Tests.Providers.ModelProviders
                 c.Signature.Modifiers.HasFlag(MethodSignatureModifiers.Public));
             Assert.That(constructor.Signature.Parameters.Select(p => p.Name), Is.EqualTo(new[] { "unchanged", "oldName" }));
             Assert.That(constructor.Signature.Parameters.Select(p => p.Property?.Name), Is.EqualTo(new[] { "Unchanged", "NewName" }));
+
+            var content = new TypeProviderWriter(modelProvider).Write().Content;
+            Assert.AreEqual(Helpers.GetExpectedFromFile(), content);
+        }
+
+        [Test]
+        public async Task BackCompat_ConstructorParameterExactNameNotRenamed()
+        {
+            var inputModel = InputFactory.Model(
+                "MockInputModel",
+                usage: InputModelTypeUsage.Input,
+                properties:
+                [
+                    InputFactory.Property("unchanged", InputPrimitiveType.String, isRequired: true),
+                    InputFactory.Property("new_name", InputPrimitiveType.String, isRequired: true, isExactName: true),
+                ]);
+
+            await MockHelpers.LoadMockGeneratorAsync(
+                inputModelTypes: [inputModel],
+                lastContractCompilation: async () => await Helpers.GetCompilationFromDirectoryAsync());
+
+            var modelProvider = CodeModelGenerator.Instance.OutputLibrary.TypeProviders
+                .OfType<ModelProvider>()
+                .Single(t => t.Name == "MockInputModel");
+
+            modelProvider.ProcessTypeForBackCompatibility();
+
+            var constructor = modelProvider.Constructors.Single(c =>
+                c.Signature.Modifiers.HasFlag(MethodSignatureModifiers.Public));
+            Assert.That(constructor.Signature.Parameters.Select(p => p.Name), Is.EqualTo(new[] { "unchanged", "newName" }));
+
+            var content = new TypeProviderWriter(modelProvider).Write().Content;
+            Assert.AreEqual(Helpers.GetExpectedFromFile(), content);
+        }
+
+        [Test]
+        public async Task BackCompat_ConstructorNonExactParameterIsRestoredWithExactRename()
+        {
+            var inputModel = InputFactory.Model(
+                "MockInputModel",
+                usage: InputModelTypeUsage.Input,
+                properties:
+                [
+                    InputFactory.Property("new_name", InputPrimitiveType.String, isRequired: true, isExactName: true),
+                    InputFactory.Property("newCount", InputPrimitiveType.Int32, isRequired: true),
+                ]);
+
+            await MockHelpers.LoadMockGeneratorAsync(
+                inputModelTypes: [inputModel],
+                lastContractCompilation: async () => await Helpers.GetCompilationFromDirectoryAsync());
+
+            var modelProvider = CodeModelGenerator.Instance.OutputLibrary.TypeProviders
+                .OfType<ModelProvider>()
+                .Single(t => t.Name == "MockInputModel");
+
+            modelProvider.ProcessTypeForBackCompatibility();
+
+            var content = new TypeProviderWriter(modelProvider).Write().Content;
+            Assert.AreEqual(Helpers.GetExpectedFromFile(), content);
+        }
+
+        [Test]
+        public async Task BackCompat_ConstructorSameTypedNonExactParameterIsRestoredWithExactRename()
+        {
+            // The last contract published `MockInputModel(string oldUnchanged, string oldName)`. Only the
+            // second parameter is exact, so the first - which shares its type - must still be restored.
+            var inputModel = InputFactory.Model(
+                "MockInputModel",
+                usage: InputModelTypeUsage.Input,
+                properties:
+                [
+                    InputFactory.Property("unchanged", InputPrimitiveType.String, isRequired: true),
+                    InputFactory.Property("new_name", InputPrimitiveType.String, isRequired: true, isExactName: true),
+                ]);
+
+            await MockHelpers.LoadMockGeneratorAsync(
+                inputModelTypes: [inputModel],
+                lastContractCompilation: async () => await Helpers.GetCompilationFromDirectoryAsync());
+
+            var modelProvider = CodeModelGenerator.Instance.OutputLibrary.TypeProviders
+                .OfType<ModelProvider>()
+                .Single(t => t.Name == "MockInputModel");
+
+            modelProvider.ProcessTypeForBackCompatibility();
+
+            var content = new TypeProviderWriter(modelProvider).Write().Content;
+            Assert.AreEqual(Helpers.GetExpectedFromFile(), content);
+        }
+
+        [Test]
+        public async Task BackCompat_ConstructorParameterNotRestoredWhenItCollidesWithExactName()
+        {
+            // The last contract published `MockInputModel(string first, string secondValue)`. The exact
+            // parameter keeps the name "secondValue", so restoring the other parameter would duplicate it.
+            var inputModel = InputFactory.Model(
+                "MockInputModel",
+                usage: InputModelTypeUsage.Input,
+                properties:
+                [
+                    InputFactory.Property("second_value", InputPrimitiveType.String, isRequired: true, isExactName: true),
+                    InputFactory.Property("other", InputPrimitiveType.String, isRequired: true),
+                ]);
+
+            await MockHelpers.LoadMockGeneratorAsync(
+                inputModelTypes: [inputModel],
+                lastContractCompilation: async () => await Helpers.GetCompilationFromDirectoryAsync());
+
+            var modelProvider = CodeModelGenerator.Instance.OutputLibrary.TypeProviders
+                .OfType<ModelProvider>()
+                .Single(t => t.Name == "MockInputModel");
+
+            modelProvider.ProcessTypeForBackCompatibility();
 
             var content = new TypeProviderWriter(modelProvider).Write().Content;
             Assert.AreEqual(Helpers.GetExpectedFromFile(), content);
