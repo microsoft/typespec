@@ -296,7 +296,11 @@ describe("diagnostic location", () => {
   });
 
   describe("library template instantiated from the user project", () => {
-    async function lintPropertyValue(lib: string, main: string) {
+    async function lintLibrary(
+      lib: string,
+      main: string,
+      rules: LinterDefinition["rules"] = [noPropertyValue],
+    ) {
       const linter = await createTestLinterAndEnableRules(
         {
           "main.tsp": `import "my-lib";\n${main}`,
@@ -306,13 +310,13 @@ describe("diagnostic location", () => {
           }),
           "node_modules/my-lib/main.tsp": lib,
         },
-        { rules: [noPropertyValue] },
+        { rules },
       );
       return (await linter.lint()).diagnostics;
     }
 
-    it("emit diagnostic when the user project instantiated the template", async () => {
-      const diagnostics = await lintPropertyValue(
+    it("reports on the argument the user supplied", async () => {
+      const diagnostics = await lintLibrary(
         `model Wrapper<T> { value: T; }`,
         `model Bar { wrapped: Wrapper<string>; }`,
       );
@@ -320,12 +324,35 @@ describe("diagnostic location", () => {
         severity: "warning",
         code: "@typespec/test-linter/no-property-value",
         message: `Cannot call property 'value'`,
+        file: "main.tsp",
+      });
+    });
+
+    it("reports on a named argument", async () => {
+      const diagnostics = await lintLibrary(
+        `model Wrapper<T extends string = string> { value: T; }`,
+        `model Bar { wrapped: Wrapper<T = string>; }`,
+      );
+      expectDiagnostics(diagnostics, {
+        code: "@typespec/test-linter/no-property-value",
+        file: "main.tsp",
+      });
+    });
+
+    it("reports when the argument is nested in the property type", async () => {
+      const diagnostics = await lintLibrary(
+        `model Wrapper<T> { value: T[]; }`,
+        `model Bar { wrapped: Wrapper<string>; }`,
+      );
+      expectDiagnostics(diagnostics, {
+        code: "@typespec/test-linter/no-property-value",
+        file: "main.tsp",
       });
     });
 
     it("doesn't emit diagnostic for a non templated library model", async () => {
       expectDiagnosticEmpty(
-        await lintPropertyValue(
+        await lintLibrary(
           `model NotATemplate { value: string; }`,
           `model Bar { plain: NotATemplate; }`,
         ),
@@ -334,11 +361,37 @@ describe("diagnostic location", () => {
 
     it("doesn't emit diagnostic when the library instantiated the template itself", async () => {
       expectDiagnosticEmpty(
-        await lintPropertyValue(
+        await lintLibrary(
           `model Wrapper<T> { value: T; }
            model LibOwnedUsage { ...Wrapper<string>; }`,
           `model Bar { plain: LibOwnedUsage; }`,
         ),
+      );
+    });
+
+    it("doesn't emit diagnostic for a property the library declared itself", async () => {
+      expectDiagnosticEmpty(
+        await lintLibrary(
+          `model Wrapper<T> { wrapped: T; value: string; }`,
+          `model Bar { wrapped: Wrapper<string>; }`,
+        ),
+      );
+    });
+
+    it("doesn't emit diagnostic when the argument was left to its default", async () => {
+      expectDiagnosticEmpty(
+        await lintLibrary(
+          `model Wrapper<T extends string = string> { value: T; }`,
+          `model Bar { wrapped: Wrapper; }`,
+        ),
+      );
+    });
+
+    it("doesn't emit diagnostic on the instantiated model itself", async () => {
+      expectDiagnosticEmpty(
+        await lintLibrary(`model Foo<T> { value: T; }`, `model Bar { wrapped: Foo<string>; }`, [
+          noModelFoo,
+        ]),
       );
     });
   });

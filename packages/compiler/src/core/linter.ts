@@ -2,11 +2,7 @@ import { isPromise } from "../utils/misc.js";
 import type { DiagnosticCodeResolver } from "./diagnostic-code.js";
 import { formatShortNameCandidates } from "./diagnostic-code.js";
 import type { DiagnosticCollector } from "./diagnostics.js";
-import {
-  compilerAssert,
-  createDiagnosticCollector,
-  getDiagnosticTemplateInstantitationTrace,
-} from "./diagnostics.js";
+import { compilerAssert, createDiagnosticCollector } from "./diagnostics.js";
 import { getLocationContext } from "./helpers/location-context.js";
 import { defineLinter } from "./library.js";
 import { createUnusedTemplateParameterLinterRule } from "./linter-rules/unused-template-parameter.rule.js";
@@ -27,10 +23,14 @@ import type {
   LinterRuleDiagnosticReport,
   LinterRuleEnableValue,
   LinterRuleSet,
+  Node,
   RuleRef,
   SemanticNodeListener,
+  TemplateParameter,
+  Type,
+  TypeMapper,
 } from "./types.js";
-import { NoTarget } from "./types.js";
+import { NoTarget, SyntaxKind } from "./types.js";
 
 type LinterLibraryInstance = { linter: LinterResolvedDefinition };
 
@@ -432,8 +432,11 @@ export function createLinterRuleContext<
 
   function reportDiagnostic<M extends keyof DM>(diag: LinterRuleDiagnosticReport<DM, M>): void {
     const diagnostic = createDiagnostic(diag);
-    if (diagnostic.target !== NoTarget && isUserOwnedTarget(program, diagnostic.target)) {
-      diagnosticCollector.add(diagnostic);
+    if (diagnostic.target === NoTarget) return;
+
+    const target = resolveUserOwnedTarget(program, diagnostic.target);
+    if (target !== undefined) {
+      diagnosticCollector.add({ ...diagnostic, target });
     }
   }
 }
@@ -441,20 +444,103 @@ export function createLinterRuleContext<
 /**
  * Linter rules should only report on code the user is able to act on.
  *
- * A target is user owned if it is declared in the user project, or if it belongs to a
- * library template that the user project instantiated: in that case the type only exists
- * because of the template arguments the user passed, and the diagnostic is rendered with
- * the instantiation trace pointing back at the user's own code.
+ * A target declared in the user project is reported as is. A target declared in a library
+ * is reported only when its type is a template argument the user supplied: given
+ * `model Wrapper<T> { value: T }`, `Wrapper<uuid>.value` exists in that shape only because
+ * the user chose `uuid`, while everything else `Wrapper<T>` declares is authored by the
+ * library and cannot be changed by them.
+ *
+ * The diagnostic is then reported on the argument in the user's own file, which is the
+ * code they can actually change.
  *
  * See https://github.com/microsoft/typespec/issues/11861
  */
-function isUserOwnedTarget(program: Program, target: DiagnosticTarget): boolean {
+function resolveUserOwnedTarget(
+  program: Program,
+  target: DiagnosticTarget,
+): DiagnosticTarget | undefined {
   if (getLocationContext(program, target).type === "project") {
-    return true;
+    return target;
   }
-  return getDiagnosticTemplateInstantitationTrace(target).some(
-    (node) => getLocationContext(program, node).type === "project",
-  );
+  return findUserSuppliedArgumentNode(program, target);
+}
+
+/**
+ * Resolve the node of the template argument the given target's type was built from, as
+ * written in the user project. Returns `undefined` when the target isn't attributable to
+ * an argument the user wrote, which includes arguments left to their default value.
+ */
+function findUserSuppliedArgumentNode(
+  program: Program,
+  target: DiagnosticTarget,
+): Node | undefined {
+  if (typeof target !== "object" || !("kind" in target)) return undefined;
+  // Only members carry a type the user could have supplied. A whole instantiated model or
+  // operation is a library declaration, and reporting on it would duplicate the diagnostic
+  // already reported on the user's own `is`/`extends`/property declaration.
+  if (target.kind !== "ModelProperty" && target.kind !== "UnionVariant") return undefined;
+  if (target.node === undefined) return undefined;
+
+  // Members are linked to the mapper of the template they were instantiated with, even
+  // though `TemplatedTypeBase` is not part of their public type.
+  const mapper = (target as { templateMapper?: TypeMapper }).templateMapper;
+  if (mapper === undefined) return undefined;
+
+  const parameter = findTemplateParameterInDeclaredType(program, target.node);
+  if (parameter === undefined) return undefined;
+
+  const node = getTemplateArgumentNode(mapper.source.node, parameter);
+  return node && getLocationContext(program, node).type === "project" ? node : undefined;
+}
+
+/**
+ * Resolve the member as declared, with its template parameters unsubstituted, and find the
+ * parameter its type is built from. Looking at the declaration rather than comparing the
+ * instantiated type to the arguments avoids matching a type the library declared itself
+ * that merely happens to be the same as an argument, such as `string`.
+ */
+function findTemplateParameterInDeclaredType(
+  program: Program,
+  node: Node,
+): TemplateParameter | undefined {
+  const declared = program.checker.getTypeForNode(node);
+  if (declared.kind !== "ModelProperty" && declared.kind !== "UnionVariant") return undefined;
+  return findTemplateParameter(declared.type);
+}
+
+/** Find the template parameter a type is built from, looking through instantiations so `T[]` matches `T`. */
+function findTemplateParameter(
+  type: Type,
+  visited = new Set<Type>(),
+): TemplateParameter | undefined {
+  if (visited.has(type)) return undefined;
+  visited.add(type);
+
+  if (type.kind === "TemplateParameter") return type;
+
+  const mapper = (type as { templateMapper?: TypeMapper }).templateMapper;
+  for (const argument of mapper?.args ?? []) {
+    if (typeof argument === "object" && "kind" in argument) {
+      const found = findTemplateParameter(argument as Type, visited);
+      if (found) return found;
+    }
+  }
+  return undefined;
+}
+
+/** Resolve the argument passed for `parameter` in a template reference, by name or by position. */
+function getTemplateArgumentNode(source: Node, parameter: TemplateParameter): Node | undefined {
+  if (source.kind !== SyntaxKind.TypeReference) return undefined;
+  const args = source.arguments;
+
+  const name = parameter.node.id.sv;
+  const named = args.find((arg) => arg.name?.sv === name);
+  if (named) return named.argument;
+
+  const declaration = parameter.node.parent;
+  const index = declaration?.templateParameters?.indexOf(parameter.node) ?? -1;
+  const positional = index === -1 ? undefined : args[index];
+  return positional?.name === undefined ? positional?.argument : undefined;
 }
 
 export const builtInLinterLibraryName = `@typespec/compiler`;
