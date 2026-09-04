@@ -500,6 +500,7 @@ namespace ServerDrivenPagination {
 
 @route("/pagesize")
 namespace PageSize {
+  #suppress "list-no-paging-navigation" "Intentional: single-page list with no navigation for testing purposes"
   @scenario
   @scenarioDoc("""
     Test case for simple pagination without nextlink or continuationToken.
@@ -525,6 +526,7 @@ namespace PageSize {
     pets: Pet[];
   };
 
+  #suppress "list-no-paging-navigation" "Intentional: page-size-only list with no navigation for testing purposes"
   @scenario
   @scenarioDoc("""
     Test case for pagination with a regular @pageSize parameter.

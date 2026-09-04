@@ -240,6 +240,10 @@ namespace TodoItems {
   //@friendlyName("{name}List", T)
   model Page<T> {
     @pageItems items: T[];
+
+    /** A link to the next page, if it exists */
+    @nextLink
+    nextLink?: url;
   }
 
   @list op list(...PaginationControls): WithStandardErrors<TodoPage>;
