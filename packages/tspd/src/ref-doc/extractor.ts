@@ -46,6 +46,7 @@ import {
 import { SyntaxKind, type DocUnknownTagNode } from "@typespec/compiler/ast";
 import { readFile } from "fs/promises";
 import { pathToFileURL } from "url";
+import { resolveLibraryCompilerOptions } from "../utils/library-config.js";
 import { createDiagnostic, reportDiagnostic } from "./lib.js";
 import type {
   DecoratorRefDoc,
@@ -109,6 +110,7 @@ export async function extractLibraryRefDocs(
   if (tspMain) {
     const main = resolvePath(libraryPath, tspMain);
     const program = await compile(NodeHost, main, {
+      ...(await resolveLibraryCompilerOptions(NodeHost, main)),
       parseOptions: { comments: true, docs: true },
     });
     mainSourceFiles = new Set(program.sourceFiles.keys());
@@ -203,6 +205,7 @@ async function extractSubExports(
     const main = resolvePath(libraryPath, tspEntry);
     try {
       const program = await compile(NodeHost, main, {
+        ...(await resolveLibraryCompilerOptions(NodeHost, main)),
         parseOptions: { comments: true, docs: true },
       });
       const subRefDoc = diagnostics.pipe(

@@ -25,6 +25,7 @@ import {
 } from "@typespec/compiler";
 import prettier from "prettier";
 import { createDiagnostic } from "../ref-doc/lib.js";
+import { resolveLibraryCompilerOptions } from "../utils/library-config.js";
 import { generateSignatures } from "./components/entity-signatures.js";
 import type { DecoratorSignature, EntitySignature, FunctionSignature } from "./types.js";
 
@@ -155,6 +156,7 @@ export async function generateExternSignatureForExports(
   for (const entry of exports) {
     programs.push(
       await compile(host, entry.typespecEntrypoint, {
+        ...(await resolveLibraryCompilerOptions(host, entry.typespecEntrypoint)),
         parseOptions: { comments: true, docs: true },
       }),
     );
