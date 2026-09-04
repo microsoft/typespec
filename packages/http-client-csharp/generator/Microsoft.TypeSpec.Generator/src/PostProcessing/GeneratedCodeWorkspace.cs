@@ -288,7 +288,7 @@ namespace Microsoft.TypeSpec.Generator
                         NuGetFramework currentFramework = NuGetFramework.ParseFolder(targetFramework.Name);
                         if (!hshFrameworks.ContainsKey(currentFramework.GetShortFolderName()))
                         {
-                            hshFrameworks[currentFramework.GetShortFolderName()] = [];
+                            hshFrameworks[currentFramework.GetShortFolderName()] = new(StringComparer.InvariantCultureIgnoreCase);
                         }
                         if (targetFramework.Value.ValueKind == JsonValueKind.Object)
                         {
@@ -301,7 +301,7 @@ namespace Microsoft.TypeSpec.Generator
                                     && packageType.GetString() == "package"
                                     )
                                 {
-                                    hshFrameworks[currentFramework.GetShortFolderName()][packageVersion[0].ToLowerInvariant()] = packageVersion[1];
+                                    hshFrameworks[currentFramework.GetShortFolderName()][packageVersion[0]] = packageVersion[1];
                                 }
                             }
                         }
@@ -315,7 +315,7 @@ namespace Microsoft.TypeSpec.Generator
                         NuGetFramework currentFramework = NuGetFramework.ParseFolder(targetFramework.Name);
                         if (!hshFrameworks.ContainsKey(currentFramework.GetShortFolderName()))
                         {
-                            hshFrameworks[currentFramework.GetShortFolderName()] = [];
+                            hshFrameworks[currentFramework.GetShortFolderName()] = new(StringComparer.InvariantCultureIgnoreCase);
                         }
                         if (targetFramework.Value.ValueKind == JsonValueKind.Array)
                         {
@@ -327,7 +327,7 @@ namespace Microsoft.TypeSpec.Generator
                                     string[] packageVersionRelation = (packageAndVersion.GetString() ?? "").Split();
                                     // We only support the greater-than-or-equal relation, in other cases we only record the package.
                                     // Example: "My.Package >= 1.1.1"
-                                    string packageName = packageVersionRelation[0].ToLower();
+                                    string packageName = packageVersionRelation[0];
                                     if (!string.IsNullOrEmpty(packageName) && !hshFrameworks[currentFramework.GetShortFolderName()].ContainsKey(packageName))
                                     {
                                         if (packageVersionRelation.Length == 3 && string.Equals(packageVersionRelation[1], ">="))
