@@ -10,6 +10,8 @@ This is an experimental feature that must be opted into by adding `declaration-e
 
 They can be used anywhere an expression is expected, including aliases, model properties, decorator arguments, template arguments, function/call arguments, and tuples.
 
+`model`, `scalar`, and `union` declaration expressions support the same `extends` clause as their statement form (union `extends` additionally requires the `union-extends` feature).
+
 ```tsp
 alias Foo = enum {
   a,

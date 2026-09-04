@@ -698,6 +698,17 @@ const unionBody: BeginEndRule = {
   patterns: [namedUnionVariant, token, directive, decorator, expression, punctuationComma],
 };
 
+const unionExtends: BeginEndRule = {
+  key: "union-extends",
+  scope: meta,
+  begin: "\\b(extends)\\b",
+  beginCaptures: {
+    "1": { scope: "keyword.other.tsp" },
+  },
+  end: `((?=\\{)|${universalEndExceptComma})`,
+  patterns: [expression, punctuationComma],
+};
+
 const unionStatement: BeginEndRule = {
   key: "union-statement",
   scope: meta,
@@ -708,7 +719,12 @@ const unionStatement: BeginEndRule = {
     "3": { scope: "entity.name.type.tsp" },
   },
   end: `(?<=\\})|${universalEnd}`,
-  patterns: [token, unionBody],
+  patterns: [
+    token,
+    typeParameters,
+    unionExtends, // before unionBody or `extends` will look like a type name
+    unionBody,
+  ],
 };
 
 // Declarations used in expression position (e.g. `alias Foo = enum { a, b }`).
@@ -762,13 +778,18 @@ const enumExpression: BeginEndRule = {
 const unionExpression: BeginEndRule = {
   key: "union-expression",
   scope: meta,
-  begin: `\\b(union)\\b(?:\\s+(${identifier}))?`,
+  begin: `\\b(union)\\b(?:\\s+(?!extends\\b)(${identifier}))?`,
   beginCaptures: {
     "1": { scope: "keyword.other.tsp" },
     "2": { scope: "entity.name.type.tsp" },
   },
   end: `(?<=\\})|${universalEnd}`,
-  patterns: [token, unionBody],
+  patterns: [
+    token,
+    typeParameters,
+    unionExtends, // before unionBody or `extends` will look like a type name
+    unionBody,
+  ],
 };
 
 const aliasAssignment: BeginEndRule = {

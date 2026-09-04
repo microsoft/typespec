@@ -387,7 +387,10 @@ InterfaceMember :
 
 
 UnionStatement :
-    DirectiveList? DecoratorList? `union` Identifier TemplateParameters? `{` UnionBody? `}`
+    DirectiveList? DecoratorList? `union` Identifier TemplateParameters? UnionExtends? `{` UnionBody? `}`
+
+UnionExtends :
+    `extends` Expression
 
 UnionBody :
     UnionVariantList `;`? 
@@ -584,7 +587,7 @@ EnumDeclarationExpression :
     DecoratorList? `enum` Identifier? `{` EnumBody? `}`
 
 UnionDeclarationExpression :
-    DecoratorList? `union` Identifier? `{` UnionBody? `}`
+    DecoratorList? `union` Identifier? UnionExtends? `{` UnionBody? `}`
 
 TupleExpression :
     `[` ExpressionList? `]`

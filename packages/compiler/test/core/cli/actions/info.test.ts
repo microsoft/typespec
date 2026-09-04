@@ -24,5 +24,6 @@ it("lists available compiler features and marks enabled features", () => {
     "  disabled  declaration-expressions  Allows use of declaration expressions (named or anonymous model, scalar, enum and union declarations in expression position) in project code.",
     "  disabled  auto-decorators          Allows use of auto decorator declarations without experimental warnings in project code.",
     "  disabled  type-info-provider       Enables the experimental `$provideTypeInfo` provider allowing libraries to contribute extra information about types to IDE hover and tooling (queried via `program.getTypeInfo`).",
+    "  disabled  union-extends            Enables experimental union `extends` clauses in project code.",
   ]);
 });

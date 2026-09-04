@@ -1091,6 +1091,70 @@ function testColorization(description: string, tokenize: Tokenize) {
           Token.punctuation.closeBrace,
         ]);
       });
+
+      it("union with extends", async () => {
+        const tokens = await tokenize("union Foo extends Bar { a: A }");
+        deepStrictEqual(tokens, [
+          Token.keywords.union,
+          Token.identifiers.type("Foo"),
+          Token.keywords.extends,
+          Token.identifiers.type("Bar"),
+          Token.punctuation.openBrace,
+          Token.identifiers.variable("a"),
+          Token.operators.typeAnnotation,
+          Token.identifiers.type("A"),
+          Token.punctuation.closeBrace,
+        ]);
+      });
+
+      it("keeps an object value literal inside the union extends expression", async () => {
+        const tokens = await tokenize(`
+          union Foo extends #{ base: "value" } { value: string }
+          model Bar { value: string }
+        `);
+        deepStrictEqual(tokens, [
+          Token.keywords.union,
+          Token.identifiers.type("Foo"),
+          Token.keywords.extends,
+          Token.punctuation.openHashBrace,
+          Token.identifiers.variable("base"),
+          Token.operators.typeAnnotation,
+          Token.literals.stringQuoted("value"),
+          Token.punctuation.closeBrace,
+          Token.punctuation.openBrace,
+          Token.identifiers.variable("value"),
+          Token.operators.typeAnnotation,
+          Token.identifiers.type("string"),
+          Token.punctuation.closeBrace,
+          Token.keywords.model,
+          Token.identifiers.type("Bar"),
+          Token.punctuation.openBrace,
+          Token.identifiers.variable("value"),
+          Token.operators.typeAnnotation,
+          Token.identifiers.type("string"),
+          Token.punctuation.closeBrace,
+        ]);
+      });
+
+      it("templated union with extends", async () => {
+        const tokens = await tokenize("union Foo<T extends string> extends Bar { a: T }");
+        deepStrictEqual(tokens, [
+          Token.keywords.union,
+          Token.identifiers.type("Foo"),
+          Token.punctuation.typeParameters.begin,
+          Token.identifiers.type("T"),
+          Token.keywords.extends,
+          Token.identifiers.type("string"),
+          Token.punctuation.typeParameters.end,
+          Token.keywords.extends,
+          Token.identifiers.type("Bar"),
+          Token.punctuation.openBrace,
+          Token.identifiers.variable("a"),
+          Token.operators.typeAnnotation,
+          Token.identifiers.type("T"),
+          Token.punctuation.closeBrace,
+        ]);
+      });
     });
 
     describe("declaration expressions", () => {
@@ -1148,6 +1212,41 @@ function testColorization(description: string, tokenize: Tokenize) {
           Token.operators.assignment,
           Token.keywords.union,
           Token.identifiers.type("Choice"),
+          Token.punctuation.openBrace,
+          Token.identifiers.variable("a"),
+          Token.operators.typeAnnotation,
+          Token.identifiers.type("string"),
+          Token.punctuation.closeBrace,
+        ]);
+      });
+
+      it("anonymous union with extends in alias", async () => {
+        const tokens = await tokenize("alias Foo = union extends string { a: string }");
+        deepStrictEqual(tokens, [
+          Token.keywords.alias,
+          Token.identifiers.type("Foo"),
+          Token.operators.assignment,
+          Token.keywords.union,
+          Token.keywords.extends,
+          Token.identifiers.type("string"),
+          Token.punctuation.openBrace,
+          Token.identifiers.variable("a"),
+          Token.operators.typeAnnotation,
+          Token.identifiers.type("string"),
+          Token.punctuation.closeBrace,
+        ]);
+      });
+
+      it("named union with extends in alias", async () => {
+        const tokens = await tokenize("alias Foo = union Choice extends string { a: string }");
+        deepStrictEqual(tokens, [
+          Token.keywords.alias,
+          Token.identifiers.type("Foo"),
+          Token.operators.assignment,
+          Token.keywords.union,
+          Token.identifiers.type("Choice"),
+          Token.keywords.extends,
+          Token.identifiers.type("string"),
           Token.punctuation.openBrace,
           Token.identifiers.variable("a"),
           Token.operators.typeAnnotation,

@@ -9,13 +9,13 @@ namespace Sample.Namespace
 {
     public static partial class SampleNamespaceModelFactory
     {
-        public static global::Sample.Models.CompatibilityModel CompatibilityModel(string id, string name, int? count, string description = default)
+        public static global::Sample.Models.CompatibilityModel CompatibilityModel(string id = default, string name = default, int? count = default, string description = default)
         {
             return new global::Sample.Models.CompatibilityModel(id, name, count, description, additionalBinaryDataProperties: null);
         }
 
         [global::System.ComponentModel.EditorBrowsableAttribute(global::System.ComponentModel.EditorBrowsableState.Never)]
-        public static global::Sample.Models.CompatibilityModel CompatibilityModel(string id = default, string name = default)
+        public static global::Sample.Models.CompatibilityModel CompatibilityModel(string id, string name)
         {
             return CompatibilityModel(id: id, name: name, count: default, description: default);
         }

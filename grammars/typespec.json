@@ -1467,7 +1467,7 @@
     },
     "union-expression": {
       "name": "meta.union-expression.typespec",
-      "begin": "\\b(union)\\b(?:\\s+(\\b[_$[:alpha:]][_$[:alnum:]]*\\b|`(?:[^`\\\\]|\\\\.)*`))?",
+      "begin": "\\b(union)\\b(?:\\s+(?!extends\\b)(\\b[_$[:alpha:]][_$[:alnum:]]*\\b|`(?:[^`\\\\]|\\\\.)*`))?",
       "beginCaptures": {
         "1": {
           "name": "keyword.other.tsp"
@@ -1482,7 +1482,31 @@
           "include": "#token"
         },
         {
+          "include": "#type-parameters"
+        },
+        {
+          "include": "#union-extends"
+        },
+        {
           "include": "#union-body"
+        }
+      ]
+    },
+    "union-extends": {
+      "name": "meta.union-extends.typespec",
+      "begin": "\\b(extends)\\b",
+      "beginCaptures": {
+        "1": {
+          "name": "keyword.other.tsp"
+        }
+      },
+      "end": "((?=\\{)|(?=;|@|\\)|\\}|\\b(?:extern|internal)\\b|\\b(?:namespace|op|using|import|alias|interface|dec|fn)\\b))",
+      "patterns": [
+        {
+          "include": "#expression"
+        },
+        {
+          "include": "#punctuation-comma"
         }
       ]
     },
@@ -1504,6 +1528,12 @@
       "patterns": [
         {
           "include": "#token"
+        },
+        {
+          "include": "#type-parameters"
+        },
+        {
+          "include": "#union-extends"
         },
         {
           "include": "#union-body"

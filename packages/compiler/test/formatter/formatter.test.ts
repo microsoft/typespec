@@ -1888,6 +1888,30 @@ alias U = union Choice {
     });
   });
 
+  it("formats union expression with extends", async () => {
+    await assertFormat({
+      code: `alias U = union   extends   string {"a",  "b"};`,
+      expected: `
+alias U = union extends string {
+  "a",
+  "b",
+};
+`,
+    });
+  });
+
+  it("formats named union expression with extends", async () => {
+    await assertFormat({
+      code: `alias U = union Choice   extends   string {a: "a", b: "b"};`,
+      expected: `
+alias U = union Choice extends string {
+  a: "a",
+  b: "b",
+};
+`,
+    });
+  });
+
   it("formats named scalar expression", async () => {
     await assertFormat({
       code: `alias S = scalar Celsius extends int32;`,
@@ -2279,6 +2303,109 @@ union Foo {
 
   @doc("third")
   c: C,
+}
+`,
+    });
+  });
+
+  describe("extends", () => {
+    it("formats a union extends clause", async () => {
+      await assertFormat({
+        code: `
+union      Foo    extends      Bar    {    a: A,        b:       B}
+`,
+        expected: `
+union Foo extends Bar {
+  a: A,
+  b: B,
+}
+`,
+      });
+    });
+
+    it("formats a templated union with an extends clause", async () => {
+      await assertFormat({
+        code: `
+union      Foo<T>    extends      Bar<T>    {    a: T}
+`,
+        expected: `
+union Foo<T> extends Bar<T> {
+  a: T,
+}
+`,
+      });
+    });
+
+    it("formats decorators and modifiers with an extends clause", async () => {
+      await assertFormat({
+        code: `
+@doc("foo")   internal    union      Foo    extends      string    {    "a", "b"}
+`,
+        expected: `
+@doc("foo")
+internal union Foo extends string {
+  "a",
+  "b",
+}
+`,
+      });
+    });
+
+    it("breaks a long extends clause onto a new line", async () => {
+      await assertFormat({
+        code: `
+union ThisIsAVeryLongUnionName extends ThisIsAVeryLongBaseTypeName<WithAVeryLongArgument> { a: A }
+`,
+        expected: `
+union ThisIsAVeryLongUnionName
+  extends ThisIsAVeryLongBaseTypeName<WithAVeryLongArgument> {
+  a: A,
+}
+`,
+      });
+    });
+
+    it("keeps a dangling comment inside an empty union body with an extends clause", async () => {
+      await assertFormat({
+        code: `
+union Foo extends Bar {
+  // dangling
+}
+`,
+        expected: `
+union Foo extends Bar {
+  // dangling
+}
+`,
+      });
+    });
+
+    it("keeps a comment between the base type and the body", async () => {
+      await assertFormat({
+        code: `
+union Foo
+// before extends
+extends Bar {}
+`,
+        expected: `
+union Foo extends Bar {
+  // before extends
+}
+`,
+      });
+    });
+  });
+
+  it("keeps a dangling comment inside an empty union body", async () => {
+    await assertFormat({
+      code: `
+union Foo {
+  // dangling
+}
+`,
+      expected: `
+union Foo {
+  // dangling
 }
 `,
     });

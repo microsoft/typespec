@@ -15,6 +15,12 @@ const Tester = createTester(resolvePath(import.meta.dirname, "../.."), {
   features: ["declaration-expressions"],
 });
 
+/** Declaration expressions + union `extends`, which is gated behind its own feature. */
+const UnionExtendsTester = createTester(resolvePath(import.meta.dirname, "../.."), {
+  libraries: [],
+  features: ["declaration-expressions", "union-extends"],
+});
+
 describe("enum", () => {
   it("can be used as a property type", async () => {
     const { Foo } = await Tester.compile(t.code`
@@ -105,6 +111,59 @@ describe("union", () => {
     `);
     const ns = program.getGlobalNamespaceType().namespaces.get("Ns")!;
     expect(ns.unions.size).toBe(0);
+  });
+
+  describe("extends", () => {
+    it("constrains the variants of an anonymous union expression", async () => {
+      const { Foo } = await UnionExtendsTester.compile(t.code`
+        model PetBase { name: string }
+        model Cat extends PetBase { meow: boolean }
+
+        model ${t.model("Foo")} {
+          pet: union extends PetBase { cat: Cat };
+        }
+      `);
+      const type = Foo.properties.get("pet")!.type as Union;
+      expect(type.kind).toBe("Union");
+      expect(type.expression).toBe(true);
+      expect(type.baseType?.kind).toBe("Model");
+      expect((type.baseType as Model).name).toBe("PetBase");
+    });
+
+    it("constrains the variants of a named union expression", async () => {
+      const { Foo } = await UnionExtendsTester.compile(t.code`
+        model ${t.model("Foo")} {
+          status: union Status extends string { ok: "ok", ko: "ko" };
+        }
+      `);
+      const type = Foo.properties.get("status")!.type as Union;
+      expect(type.name).toBe("Status");
+      expect(type.expression).toBe(true);
+      expect((type.baseType as Scalar).name).toBe("string");
+    });
+
+    it("reports a variant that is not assignable to the base type", async () => {
+      const diagnostics = await UnionExtendsTester.diagnose(`
+        model Foo {
+          value: union extends string { ok: "ok", ko: 123 };
+        }
+      `);
+      expectDiagnostics(diagnostics, {
+        code: "unassignable",
+      });
+    });
+
+    it("reports an error when the union-extends feature is not enabled", async () => {
+      const diagnostics = await Tester.diagnose(`
+        model Foo {
+          value: union extends string { ok: "ok" };
+        }
+      `);
+      expectDiagnostics(diagnostics, {
+        code: "union-extends-disabled",
+        severity: "error",
+      });
+    });
   });
 });
 

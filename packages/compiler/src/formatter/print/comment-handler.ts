@@ -15,13 +15,9 @@ interface CommentNode extends TextRange {
  */
 export const commentHandler: Printer<Node>["handleComments"] = {
   ownLine: (comment, text, options, ast, isLastComment) =>
-    [
-      addEmptyInterfaceComment,
-      addEmptyModelComment,
-      addEmptyScalarComment,
-      addCommentBetweenAnnotationsAndNode,
-      handleOnlyComments,
-    ].some((x) => x({ comment, text, options, ast: ast as TypeSpecScriptNode, isLastComment })),
+    [addEmptyDeclarationComment, addCommentBetweenAnnotationsAndNode, handleOnlyComments].some(
+      (x) => x({ comment, text, options, ast: ast as TypeSpecScriptNode, isLastComment }),
+    ),
   remaining: (comment, text, options, ast, isLastComment) =>
     [handleOnlyComments].some((x) =>
       x({ comment, text, options, ast: ast as TypeSpecScriptNode, isLastComment }),
@@ -40,24 +36,54 @@ interface CommentContext {
   isLastComment: boolean;
 }
 /**
- * When a comment is on an empty interface make sure it gets added as a dangling comment on it and not on the identifier.
+ * When a comment is inside an empty declaration body, attach it to the declaration instead of
+ * the last node in the declaration header.
  *
  * @example
  *
- * interface Foo {
+ * union Foo extends Bar {
  *   // My comment
  * }
  */
-function addEmptyInterfaceComment({ comment, ast }: CommentContext) {
+function addEmptyDeclarationComment({ comment }: CommentContext) {
   const { precedingNode, enclosingNode } = comment;
 
-  if (
-    enclosingNode &&
-    enclosingNode.kind === SyntaxKind.InterfaceStatement &&
-    enclosingNode.operations.length === 0 &&
-    precedingNode &&
-    precedingNode.kind === SyntaxKind.Identifier
-  ) {
+  if (!enclosingNode || !precedingNode) {
+    return false;
+  }
+
+  let isEmptyDeclarationBody = false;
+  switch (enclosingNode.kind) {
+    case SyntaxKind.InterfaceStatement:
+      isEmptyDeclarationBody =
+        enclosingNode.operations.length === 0 && precedingNode.kind === SyntaxKind.Identifier;
+      break;
+    case SyntaxKind.ModelStatement:
+    case SyntaxKind.ModelDeclarationExpression:
+      isEmptyDeclarationBody =
+        enclosingNode.properties.length === 0 &&
+        (precedingNode === enclosingNode.is ||
+          precedingNode === enclosingNode.id ||
+          precedingNode === enclosingNode.extends);
+      break;
+    case SyntaxKind.ScalarStatement:
+    case SyntaxKind.ScalarDeclarationExpression:
+      isEmptyDeclarationBody =
+        enclosingNode.members.length === 0 &&
+        (precedingNode === enclosingNode.id || precedingNode === enclosingNode.extends);
+      break;
+    case SyntaxKind.UnionStatement:
+      isEmptyDeclarationBody =
+        enclosingNode.options.length === 0 &&
+        (precedingNode === enclosingNode.id || precedingNode === enclosingNode.extends);
+      break;
+    case SyntaxKind.UnionDeclarationExpression:
+      isEmptyDeclarationBody =
+        enclosingNode.options.length === 0 && precedingNode === enclosingNode.id;
+      break;
+  }
+
+  if (isEmptyDeclarationBody) {
     util.addDanglingComment(enclosingNode, comment, undefined);
     return true;
   }
@@ -76,7 +102,7 @@ function addEmptyInterfaceComment({ comment, ast }: CommentContext) {
  * }
  */
 function addCommentBetweenAnnotationsAndNode({ comment }: CommentContext) {
-  const { enclosingNode, precedingNode } = comment;
+  const { precedingNode, enclosingNode } = comment;
 
   if (
     precedingNode &&
@@ -100,60 +126,6 @@ function addCommentBetweenAnnotationsAndNode({ comment }: CommentContext) {
       enclosingNode.kind === SyntaxKind.UnionDeclarationExpression)
   ) {
     util.addTrailingComment(precedingNode, comment);
-    return true;
-  }
-  return false;
-}
-
-/**
- * When a comment is on an empty model make sure it gets added as a dangling comment on it and not on the identifier.
- *
- * @example
- *
- * model Foo {
- *   // My comment
- * }
- */
-function addEmptyModelComment({ comment }: CommentContext) {
-  const { precedingNode, enclosingNode } = comment;
-
-  if (
-    enclosingNode &&
-    (enclosingNode.kind === SyntaxKind.ModelStatement ||
-      enclosingNode.kind === SyntaxKind.ModelDeclarationExpression) &&
-    enclosingNode.properties.length === 0 &&
-    precedingNode &&
-    (precedingNode === enclosingNode.is ||
-      precedingNode === enclosingNode.id ||
-      precedingNode === enclosingNode.extends)
-  ) {
-    util.addDanglingComment(enclosingNode, comment, undefined);
-    return true;
-  }
-  return false;
-}
-
-/**
- * When a comment is on an empty scalar make sure it gets added as a dangling comment on it and not on the identifier.
- *
- * @example
- *
- * scalar foo {
- *   // My comment
- * }
- */
-function addEmptyScalarComment({ comment }: CommentContext) {
-  const { precedingNode, enclosingNode } = comment;
-
-  if (
-    enclosingNode &&
-    (enclosingNode.kind === SyntaxKind.ScalarStatement ||
-      enclosingNode.kind === SyntaxKind.ScalarDeclarationExpression) &&
-    enclosingNode.members.length === 0 &&
-    precedingNode &&
-    (precedingNode === enclosingNode.id || precedingNode === enclosingNode.extends)
-  ) {
-    util.addDanglingComment(enclosingNode, comment, undefined);
     return true;
   }
   return false;

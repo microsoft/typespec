@@ -699,6 +699,25 @@ export interface Union extends BaseType, DecoratedType, TemplatedTypeBase {
   expression: boolean;
 
   /**
+   * Type declared with the `extends` clause of a union statement. Union variants are
+   * constrained to be assignable to this model, scalar, enum, or union; violations are
+   * reported as diagnostics.
+   *
+   * Validation is deferred for uninstantiated template declarations because their variants
+   * can contain unresolved template parameters. Each template instance is validated instead.
+   *
+   * This is only set for named unions declared with an `extends` clause. It documents a
+   * constraint: it does **not** imply a subclassing relationship, it does **not** mean the
+   * union is extensible, and it has no interaction with `@discriminator`.
+   *
+   * Emitters should not require this to be present: a union with the same variants and no
+   * `extends` clause should ideally be handled the same way.
+   *
+   * @experimental
+   */
+  baseType?: Model | Scalar | Enum | Union;
+
+  /**
    * Late-bound symbol of this interface type.
    * @internal
    */
@@ -1692,6 +1711,15 @@ export interface InterfaceStatementNode extends BaseNode, DeclarationNode, Templ
 export interface UnionStatementNode extends BaseNode, DeclarationNode, TemplateDeclarationNode {
   readonly kind: SyntaxKind.UnionStatement;
   readonly options: readonly UnionVariantNode[];
+  /**
+   * Type that every variant of this union must be assignable to.
+   *
+   * This is a constraint only, it does not imply any subtyping relationship between
+   * the union and the base type beyond the one that already exists structurally.
+   *
+   * @experimental
+   */
+  readonly extends?: Expression;
   readonly decorators: readonly DecoratorExpressionNode[];
   readonly parent?: TypeSpecScriptNode | NamespaceStatementNode;
 }
@@ -1706,6 +1734,15 @@ export interface UnionDeclarationExpressionNode
   extends BaseNode, OptionallyNamedDeclarationNode, TemplateDeclarationNode {
   readonly kind: SyntaxKind.UnionDeclarationExpression;
   readonly options: readonly UnionVariantNode[];
+  /**
+   * Type that every variant of this union must be assignable to.
+   *
+   * This is a constraint only, it does not imply any subtyping relationship between
+   * the union and the base type beyond the one that already exists structurally.
+   *
+   * @experimental
+   */
+  readonly extends?: Expression;
   readonly decorators: readonly DecoratorExpressionNode[];
 }
 
