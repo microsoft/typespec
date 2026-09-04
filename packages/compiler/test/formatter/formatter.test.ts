@@ -2982,6 +2982,36 @@ model Bar<TResource extends TypeSpec.Reflection.Model> is Base<
       });
     });
 
+    it("keeps a single parameter constrained to a hugged template reference hugged", async () => {
+      await assertFormat({
+        code: `
+model Foo<TResourceTypeIsQuiteLongHere extends Reflection.ModelOf<SomeVeryLongThing>> {}
+`,
+        expected: `
+model Foo<TResourceTypeIsQuiteLongHere extends Reflection.ModelOf<SomeVeryLongThing>> {}
+`,
+      });
+    });
+
+    it("splits the parameter list when the template reference constraint can break", async () => {
+      await assertFormat({
+        code: `
+model Foo<TResourceTypeIsQuiteLong extends Reflection.ModelOf<Some | OtherThing>> {}
+
+model Bar<TResourceTypeIsQuiteLongHere extends Reflection.ModelOf<Some, Other>> {}
+`,
+        expected: `
+model Foo<
+  TResourceTypeIsQuiteLong extends Reflection.ModelOf<Some | OtherThing>
+> {}
+
+model Bar<
+  TResourceTypeIsQuiteLongHere extends Reflection.ModelOf<Some, Other>
+> {}
+`,
+      });
+    });
+
     it("keeps the inlined model expression properties separated with a space", async () => {
       await assertFormat({
         code: `

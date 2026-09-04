@@ -384,9 +384,9 @@ export function printCallExpression(
 }
 
 /**
- * Print a template argument list(e.g. `<string, T = int32>`).
+ * Print a template argument list (e.g. `<string, T = int32>`).
  *
- * A single argument is hugged(`Foo<{...}>`) so object like arguments and long unions stay attached to the reference.
+ * A single argument is hugged (`Foo<{...}>`) so object-like arguments and long unions stay attached to the reference.
  */
 function printTemplateArguments<T extends Node>(
   path: AstPath<T>,
@@ -410,10 +410,10 @@ function printTemplateArguments<T extends Node>(
 }
 
 /**
- * Print a template parameter declaration list(e.g. `<T extends string, U = int32>`).
+ * Print a template parameter declaration list (e.g. `<T extends string, U = int32>`).
  *
- * A single parameter is hugged(`Foo<T extends string>`) as long as it cannot break by itself. When the
- * parameter has a breakable constraint or default(union, model expression, ...) the list breaks instead,
+ * A single parameter is hugged (`Foo<T extends string>`) as long as it cannot break by itself. When the
+ * parameter has a breakable constraint or default (union, model expression, ...) the list breaks instead,
  * so the parameter never gets split while the `<` and `>` stay glued to the surrounding code.
  */
 function printTemplateParameterDeclarations<T extends Node>(
@@ -457,7 +457,11 @@ function isUnbreakableType(node: Node | undefined): boolean {
     case SyntaxKind.UnknownKeyword:
       return true;
     case SyntaxKind.TypeReference:
-      return node.arguments.length === 0;
+      // A single argument is hugged (see `printTemplateArguments`) so it only breaks if the argument itself does.
+      return (
+        node.arguments.length === 0 ||
+        (node.arguments.length === 1 && isUnbreakableType(node.arguments[0].argument))
+      );
     case SyntaxKind.ArrayExpression:
       return isUnbreakableType(node.elementType);
     case SyntaxKind.ValueOfExpression:
@@ -1181,11 +1185,11 @@ function printModelPropertiesBlock(
   }
   const tryInline = path.getParentNode()?.kind === SyntaxKind.TemplateParameterDeclaration;
   const lineDoc = tryInline ? softline : hardline;
-  const rawSeperator: string = isModelAValue(path) ? "," : ";";
+  const rawSeparator: string = isModelAValue(path) ? "," : ";";
   // When inlined the line between the properties collapses so the separator needs to provide the space itself.
-  const seperator: Doc = tryInline ? ifBreak(rawSeperator, `${rawSeperator} `) : rawSeperator;
+  const separator: Doc = tryInline ? ifBreak(rawSeparator, `${rawSeparator} `) : rawSeparator;
 
-  const body = [joinMembersInBlock(path, "properties", options, print, seperator, lineDoc)];
+  const body = [joinMembersInBlock(path, "properties", options, print, separator, lineDoc)];
   if (nodeHasComments) {
     body.push(printDanglingComments(path, options, { sameIndent: true }));
   }
