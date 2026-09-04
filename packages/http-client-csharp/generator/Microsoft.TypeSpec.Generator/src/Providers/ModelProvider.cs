@@ -306,7 +306,7 @@ namespace Microsoft.TypeSpec.Generator.Providers
         /// </summary>
         /// <param name="previousBase">The base type from the last contract.</param>
         /// <param name="reason">The reason the base type cannot be restored.</param>
-        protected void ReportIncompatibleBackcompatBaseType(CSharpType previousBase, string reason)
+        private void ReportIncompatibleBackcompatBaseType(CSharpType previousBase, string reason)
         {
             CodeModelGenerator.Instance.Emitter.ReportDiagnostic(
                 DiagnosticCodes.IncompatibleBackcompatBaseType,

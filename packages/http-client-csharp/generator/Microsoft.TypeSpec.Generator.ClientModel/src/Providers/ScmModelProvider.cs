@@ -46,6 +46,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
 
         internal const string ScmEvaluationTypeDiagnosticId = "SCME0001";
         internal const string FileBinaryContentDiagnosticId = "SCME0004";
+        private const string IncompatibleBackcompatBaseTypeDiagnostic = "incompatible-backcompat-base-type";
 
         internal const string ScmEvaluationTypeSuppressionJustification =
             "Type is for evaluation purposes only and is subject to change or removal in future updates.";
@@ -80,9 +81,9 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
                 previousBase is not null &&
                 !IsInBaseTypeHierarchy(currentBase, previousBase))
             {
-                ReportIncompatibleBackcompatBaseType(
-                    previousBase,
-                    "the model participates in the current discriminator hierarchy");
+                CodeModelGenerator.Instance.Emitter.ReportDiagnostic(
+                    IncompatibleBackcompatBaseTypeDiagnostic,
+                    $"Could not preserve base type '{previousBase.FullyQualifiedName}' on model '{BuildNamespace()}.{BuildName()}' because the model participates in the current discriminator hierarchy.");
                 return currentBase;
             }
 
