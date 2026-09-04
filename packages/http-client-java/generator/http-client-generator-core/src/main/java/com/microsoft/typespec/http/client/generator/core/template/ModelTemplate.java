@@ -886,18 +886,18 @@ public class ModelTemplate implements IJavaTemplate<ClientModel, JavaFile> {
                          *
                          * we use the property in this model to initiate the superclass
                          */
-                        ClientModelProperty propertyInThisModel = model.getProperties()
-                            .stream()
+                        ClientModelProperty overridingProperty = Stream
+                            .concat(model.getProperties().stream(), model.getParentPolymorphicDiscriminators().stream())
                             .filter(p -> Objects.equals(p.getSerializedName(), property.getSerializedName()))
                             .findFirst()
                             .orElse(null);
-                        if (propertyInThisModel != null) {
-                            if (propertyInThisModel.isConstant() && !property.isConstant()) {
+                        if (overridingProperty != null) {
+                            if (overridingProperty.isConstant() && !property.isConstant()) {
                                 // property changed to constant in this model, use constant value to initiate super
                                 // class
-                                superProperties.append(propertyInThisModel.getDefaultValue());
+                                superProperties.append(overridingProperty.getDefaultValue());
                             } else {
-                                superProperties.append(propertyInThisModel.getName());
+                                superProperties.append(overridingProperty.getName());
                             }
                         } else {
                             // this should not happen

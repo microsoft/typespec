@@ -2059,8 +2059,16 @@ public class StreamSerializationModelTemplate extends ModelTemplate {
                             + propertiesManager.getXmlNamespaceConstant(namespace) + ");"));
 
                     // Assumption for XML is polymorphic discriminators are attributes.
-                    if (propertiesManager.getDiscriminatorProperty() != null) {
-                        serializeXml(methodBlock, propertiesManager.getDiscriminatorProperty().getProperty(), false);
+                    ClientModelPropertyWithMetadata discriminatorProperty
+                        = propertiesManager.getDiscriminatorProperty();
+                    model.getParentPolymorphicDiscriminators()
+                        .stream()
+                        .filter(discriminator -> discriminatorProperty == null
+                            || !Objects.equals(discriminator.getSerializedName(),
+                                discriminatorProperty.getProperty().getSerializedName()))
+                        .forEach(discriminator -> serializeXml(methodBlock, discriminator, false));
+                    if (discriminatorProperty != null) {
+                        serializeXml(methodBlock, discriminatorProperty.getProperty(), false);
                     }
 
                     propertiesManager.forEachSuperXmlAttribute(property -> serializeXml(methodBlock, property, true));
@@ -2214,7 +2222,7 @@ public class StreamSerializationModelTemplate extends ModelTemplate {
                         + propertiesManager.getXmlNamespaceConstant(discriminatorProperty.getXmlNamespace()) + ", "
                         + "\"" + discriminatorProperty.getSerializedName() + "\");");
                 } else {
-                    methodBlock.line("String discriminatorValue = reader.getStringAttribute(" + "\""
+                    methodBlock.line("String discriminatorValue = reader.getStringAttribute(null, " + "\""
                         + discriminatorProperty.getSerializedName() + "\");");
                 }
 
@@ -2226,12 +2234,18 @@ public class StreamSerializationModelTemplate extends ModelTemplate {
                 // Add deserialization for all child types.
                 List<ClientModel> childTypes = getAllChildTypes(model, new ArrayList<>());
                 for (ClientModel childType : childTypes) {
+                    boolean sameDiscriminator = Objects.equals(childType.getPolymorphicDiscriminatorName(),
+                        model.getPolymorphicDiscriminatorName());
+                    if (!sameDiscriminator && !Objects.equals(childType.getParentModelName(), model.getName())) {
+                        continue;
+                    }
+
+                    String deserializationMethod = (isSuperTypeWithDiscriminator(childType) && sameDiscriminator)
+                        ? ".fromXmlInternal(reader, finalRootElementName)"
+                        : ".fromXml(reader, finalRootElementName)";
                     ifBlock = ifOrElseIf(methodBlock, ifBlock,
                         "\"" + childType.getSerializedName() + "\".equals(discriminatorValue)",
-                        ifStatement -> ifStatement
-                            .methodReturn(childType.getName() + (isSuperTypeWithDiscriminator(childType)
-                                ? ".fromXmlInternal(reader, finalRootElementName)"
-                                : ".fromXml(reader, finalRootElementName)")));
+                        ifStatement -> ifStatement.methodReturn(childType.getName() + deserializationMethod));
                 }
 
                 if (ifBlock == null) {
@@ -2439,6 +2453,10 @@ public class StreamSerializationModelTemplate extends ModelTemplate {
         }
 
         private void deserializeXmlAttribute(JavaBlock methodBlock, ClientModelProperty attribute, boolean fromSuper) {
+            if (attribute.isRequired() && attribute.isConstant() && !attribute.isPolymorphicDiscriminator()) {
+                return;
+            }
+
             String xmlAttributeDeserialization = getSimpleXmlDeserialization(attribute.getWireType(), null,
                 attribute.getXmlName(), propertiesManager.getXmlNamespaceConstant(attribute.getXmlNamespace()), true);
 

@@ -363,11 +363,13 @@ public class ModelMapper implements IMapper<ObjectSchema, ClientModel>, NeedsPla
                 // the correct serialization in multi-level polymorphic structures.
                 for (ClientModel derivedType : derivedTypes) {
                     if (!Objects.equals(polymorphicDiscriminator, derivedType.getPolymorphicDiscriminatorName())) {
+                        // The child hierarchy stays in one fixed parent discriminator branch.
                         ClientModelProperty parentDiscriminator = result.getPolymorphicDiscriminator()
                             .newBuilder()
                             .defaultValue(result.getPolymorphicDiscriminator()
                                 .getClientType()
                                 .defaultValueExpression(derivedType.getSerializedName()))
+                            .constant(true)
                             .build();
 
                         passPolymorphicDiscriminatorToChildren(parentDiscriminator, derivedType);
@@ -389,7 +391,37 @@ public class ModelMapper implements IMapper<ObjectSchema, ClientModel>, NeedsPla
         // discriminator kind, and model #3 is a child of model #3 with discriminator form. The order if this running
         // will have model #2 add its discriminator to model #3 before model #1 runs adding its discriminator to #2 and
         // #3. We want #3 to have the ordering of [type, kind], to represent the ordering of the parent models.
-        child.getParentPolymorphicDiscriminators().add(0, parentDiscriminator);
+        // Merge a matching child declaration to avoid emitting the inherited discriminator twice.
+        ClientModelProperty discriminatorForChild = parentDiscriminator;
+        for (int i = 0; i < child.getProperties().size(); i++) {
+            ClientModelProperty childProperty = child.getProperties().get(i);
+            if (!Objects.equals(parentDiscriminator.getSerializedName(), childProperty.getSerializedName())) {
+                continue;
+            }
+
+            if (!childProperty.isConstant()
+                || !Objects.equals(parentDiscriminator.getWireType(), childProperty.getWireType())
+                || !Objects.equals(parentDiscriminator.getClientType(), childProperty.getClientType())
+                || !Objects.equals(parentDiscriminator.getDefaultValue(), childProperty.getDefaultValue())) {
+                throw new IllegalStateException("Property '" + childProperty.getSerializedName() + "' on model '"
+                    + child.getName() + "' does not match its inherited polymorphic discriminator. Expected (type="
+                    + parentDiscriminator.getClientType() + ", value="
+                    + String.valueOf(parentDiscriminator.getDefaultValue()) + "), but found (type="
+                    + childProperty.getClientType() + ", value=" + String.valueOf(childProperty.getDefaultValue())
+                    + ").");
+            }
+
+            discriminatorForChild = childProperty.newBuilder()
+                .name(parentDiscriminator.getName())
+                .readOnly(true)
+                .required(false)
+                .polymorphicDiscriminator(true)
+                .build();
+            child.getProperties().remove(i);
+            break;
+        }
+
+        child.getParentPolymorphicDiscriminators().add(0, discriminatorForChild);
 
         for (ClientModel derived : child.getDerivedModels()) {
             passPolymorphicDiscriminatorToChildren(parentDiscriminator, derived);

@@ -22,6 +22,7 @@ import java.util.Set;
 import java.util.function.BiConsumer;
 import java.util.function.Consumer;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 /**
  * Manages metadata about properties in a {@link ClientModel} and how they correlate with model class generation.
@@ -124,10 +125,11 @@ public final class ClientModelPropertiesManager {
             xmlRootElementNamespace = model.getXmlNamespace();
         }
 
-        Set<String> thisModelPropertySerializeNames = model.getProperties()
-            .stream()
+        Set<String> thisModelPropertySerializeNames = Stream.concat(
             // discriminator property is known to be redefined in subclass
-            .filter(property -> !property.isPolymorphicDiscriminator())
+            model.getProperties().stream().filter(property -> !property.isPolymorphicDiscriminator()),
+            // Merged discriminators are removed from model properties but still mask same-named ancestor properties.
+            model.getParentPolymorphicDiscriminators().stream())
             .map(ClientModelProperty::getSerializedName)
             .filter(name -> Objects.nonNull(name) && !name.isEmpty())
             .collect(Collectors.toSet());
