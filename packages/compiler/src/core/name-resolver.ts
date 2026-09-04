@@ -750,6 +750,9 @@ export function createResolver(program: Program): NameResolver {
   /** Get the available meta-member names for a symbol's meta-type prototype. */
   function getMetaMemberNames(baseSym: Sym): readonly string[] {
     const baseNode = getSymNode(baseSym);
+    if (!baseNode) {
+      return [];
+    }
     const prototype = getMetaTypePrototypeForSymbol(baseSym, baseNode);
     return prototype ? [...prototype.keys()] : [];
   }
