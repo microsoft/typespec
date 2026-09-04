@@ -12,33 +12,31 @@ import com.azure.json.JsonWriter;
 import java.io.IOException;
 
 /**
- * The ChildWithRequiredPropertyAsDiscriminator model.
+ * The GrandChildWithNestedDiscriminator model.
  */
 @Immutable
-public class ChildWithRequiredPropertyAsDiscriminator extends ParentWithRequiredProperty {
+public class GrandChildWithNestedDiscriminator extends ChildWithRequiredPropertyAsDiscriminator {
     /*
      * Discriminator property for ChildWithRequiredPropertyAsDiscriminator.
      */
     @Generated
-    private String discriminator = "ChildWithRequiredPropertyAsDiscriminator";
+    private final String discriminator = "nested";
 
     /*
-     * The anotherProperty property.
+     * The nestedDiscriminator property.
      */
     @Generated
-    private final String anotherProperty;
+    private String nestedDiscriminator = "nested";
 
     /**
-     * Creates an instance of ChildWithRequiredPropertyAsDiscriminator class.
+     * Creates an instance of GrandChildWithNestedDiscriminator class.
      * 
-     * @param discriminator the discriminator value to set.
      * @param aProperty the aProperty value to set.
      * @param anotherProperty the anotherProperty value to set.
      */
     @Generated
-    protected ChildWithRequiredPropertyAsDiscriminator(String discriminator, String aProperty, String anotherProperty) {
-        super(discriminator, aProperty);
-        this.anotherProperty = anotherProperty;
+    protected GrandChildWithNestedDiscriminator(String aProperty, String anotherProperty) {
+        super("nested", aProperty, anotherProperty);
     }
 
     /**
@@ -53,13 +51,13 @@ public class ChildWithRequiredPropertyAsDiscriminator extends ParentWithRequired
     }
 
     /**
-     * Get the anotherProperty property: The anotherProperty property.
+     * Get the nestedDiscriminator property: The nestedDiscriminator property.
      * 
-     * @return the anotherProperty value.
+     * @return the nestedDiscriminator value.
      */
     @Generated
-    public String getAnotherProperty() {
-        return this.anotherProperty;
+    public String getNestedDiscriminator() {
+        return this.nestedDiscriminator;
     }
 
     /**
@@ -69,23 +67,24 @@ public class ChildWithRequiredPropertyAsDiscriminator extends ParentWithRequired
     @Override
     public JsonWriter toJson(JsonWriter jsonWriter) throws IOException {
         jsonWriter.writeStartObject();
-        jsonWriter.writeStringField("aProperty", getAProperty());
-        jsonWriter.writeStringField("anotherProperty", this.anotherProperty);
         jsonWriter.writeStringField("discriminator", this.discriminator);
+        jsonWriter.writeStringField("aProperty", getAProperty());
+        jsonWriter.writeStringField("anotherProperty", getAnotherProperty());
+        jsonWriter.writeStringField("nestedDiscriminator", this.nestedDiscriminator);
         return jsonWriter.writeEndObject();
     }
 
     /**
-     * Reads an instance of ChildWithRequiredPropertyAsDiscriminator from the JsonReader.
+     * Reads an instance of GrandChildWithNestedDiscriminator from the JsonReader.
      * 
      * @param jsonReader The JsonReader being read.
-     * @return An instance of ChildWithRequiredPropertyAsDiscriminator if the JsonReader was pointing to an instance of
-     * it, or null if it was pointing to JSON null.
+     * @return An instance of GrandChildWithNestedDiscriminator if the JsonReader was pointing to an instance of it, or
+     * null if it was pointing to JSON null.
      * @throws IllegalStateException If the deserialized JSON object was missing any required properties.
-     * @throws IOException If an error occurs while reading the ChildWithRequiredPropertyAsDiscriminator.
+     * @throws IOException If an error occurs while reading the GrandChildWithNestedDiscriminator.
      */
     @Generated
-    public static ChildWithRequiredPropertyAsDiscriminator fromJson(JsonReader jsonReader) throws IOException {
+    public static GrandChildWithNestedDiscriminator fromJson(JsonReader jsonReader) throws IOException {
         return jsonReader.readObject(reader -> {
             String discriminatorValue = null;
             try (JsonReader readerToUse = reader.bufferObject()) {
@@ -93,7 +92,7 @@ public class ChildWithRequiredPropertyAsDiscriminator extends ParentWithRequired
                 while (readerToUse.nextToken() != JsonToken.END_OBJECT) {
                     String fieldName = readerToUse.getFieldName();
                     readerToUse.nextToken();
-                    if ("discriminator".equals(fieldName)) {
+                    if ("nestedDiscriminator".equals(fieldName)) {
                         discriminatorValue = readerToUse.getString();
                         break;
                     } else {
@@ -101,10 +100,8 @@ public class ChildWithRequiredPropertyAsDiscriminator extends ParentWithRequired
                     }
                 }
                 // Use the discriminator value to determine which subtype should be deserialized.
-                if ("aValue".equals(discriminatorValue)) {
-                    return GrandChildWithRequiredProperty.fromJson(readerToUse.reset());
-                } else if ("nested".equals(discriminatorValue)) {
-                    return GrandChildWithNestedDiscriminator.fromJson(readerToUse.reset());
+                if ("leaf".equals(discriminatorValue)) {
+                    return GreatGrandChildWithDuplicateDiscriminator.fromJson(readerToUse.reset());
                 } else {
                     return fromJsonKnownDiscriminator(readerToUse.reset());
                 }
@@ -113,12 +110,11 @@ public class ChildWithRequiredPropertyAsDiscriminator extends ParentWithRequired
     }
 
     @Generated
-    static ChildWithRequiredPropertyAsDiscriminator fromJsonKnownDiscriminator(JsonReader jsonReader)
-        throws IOException {
+    static GrandChildWithNestedDiscriminator fromJsonKnownDiscriminator(JsonReader jsonReader) throws IOException {
         return jsonReader.readObject(reader -> {
             String aProperty = null;
             String anotherProperty = null;
-            String discriminator = null;
+            String nestedDiscriminator = "nested";
             while (reader.nextToken() != JsonToken.END_OBJECT) {
                 String fieldName = reader.getFieldName();
                 reader.nextToken();
@@ -127,17 +123,17 @@ public class ChildWithRequiredPropertyAsDiscriminator extends ParentWithRequired
                     aProperty = reader.getString();
                 } else if ("anotherProperty".equals(fieldName)) {
                     anotherProperty = reader.getString();
-                } else if ("discriminator".equals(fieldName)) {
-                    discriminator = reader.getString();
+                } else if ("nestedDiscriminator".equals(fieldName)) {
+                    nestedDiscriminator = reader.getString();
                 } else {
                     reader.skipChildren();
                 }
             }
-            ChildWithRequiredPropertyAsDiscriminator deserializedChildWithRequiredPropertyAsDiscriminator
-                = new ChildWithRequiredPropertyAsDiscriminator(discriminator, aProperty, anotherProperty);
-            deserializedChildWithRequiredPropertyAsDiscriminator.discriminator = discriminator;
+            GrandChildWithNestedDiscriminator deserializedGrandChildWithNestedDiscriminator
+                = new GrandChildWithNestedDiscriminator(aProperty, anotherProperty);
+            deserializedGrandChildWithNestedDiscriminator.nestedDiscriminator = nestedDiscriminator;
 
-            return deserializedChildWithRequiredPropertyAsDiscriminator;
+            return deserializedGrandChildWithNestedDiscriminator;
         });
     }
 }
