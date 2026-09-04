@@ -539,7 +539,7 @@ namespace Microsoft.TypeSpec.Generator
                     CodeModelGenerator.Instance.Emitter.Debug(
                         $"The package {refPackageName}{(version != null ? " v. "+ version : "")} was not restored.");
                 }
-                else if (version is null)
+                else if (string.IsNullOrEmpty(version))
                 {
                     string packageDir = Path.Combine(globalPackagesFolder, refPackageName.ToLowerInvariant());
                     string[] allDirs = Directory.GetDirectories(packageDir);
