@@ -46,6 +46,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
 
         internal const string ScmEvaluationTypeDiagnosticId = "SCME0001";
         internal const string FileBinaryContentDiagnosticId = "SCME0004";
+        private const string IncompatibleBackcompatBaseTypeDiagnostic = "incompatible-backcompat-base-type";
 
         internal const string ScmEvaluationTypeSuppressionJustification =
             "Type is for evaluation purposes only and is subject to change or removal in future updates.";
@@ -71,6 +72,22 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
             _inputModel = inputModel;
             IsDynamicModel = inputModel.IsDynamicModel;
             BaseJsonPatchProperty = new(GetBaseJsonPatchProperty());
+        }
+
+        protected override CSharpType? BuildBaseTypeForBackCompatibility(CSharpType? currentBase)
+        {
+            var previousBase = LastContractView?.BaseType;
+            if (_inputModel.DiscriminatorValue is not null &&
+                previousBase is not null &&
+                !IsInBaseTypeHierarchy(currentBase, previousBase))
+            {
+                CodeModelGenerator.Instance.Emitter.ReportDiagnostic(
+                    IncompatibleBackcompatBaseTypeDiagnostic,
+                    $"Could not preserve base type '{previousBase.FullyQualifiedName}' on model '{BuildNamespace()}.{BuildName()}' because the model participates in the current discriminator hierarchy.");
+                return currentBase;
+            }
+
+            return base.BuildBaseTypeForBackCompatibility(currentBase);
         }
 
         protected override FieldProvider[] BuildFields()
