@@ -930,6 +930,44 @@ disable:
     expectDiagnosticEmpty((await linter.lint()).diagnostics);
   });
 
+  it("can enable a rule that an extended file set to `enable: false`", async () => {
+    const linter = await createLinterWithFiles({
+      "rules.yaml": `
+enable:
+  "@typespec/test-linter/no-model-foo": false
+`,
+    });
+    expectDiagnosticEmpty(
+      await linter.extendRuleSet({
+        extends: ["file:./rules.yaml"],
+        enable: { "@typespec/test-linter/no-model-foo": true },
+      }),
+    );
+    expectDiagnostics((await linter.lint()).diagnostics, {
+      code: "@typespec/test-linter/no-model-foo",
+    });
+  });
+
+  it("can re-enable a rule disabled by an extended file", async () => {
+    const linter = await createLinterWithFiles({
+      "rules.yaml": `
+extends:
+  - "@typespec/test-linter/custom"
+disable:
+  "@typespec/test-linter/no-model-foo": "Not applicable here"
+`,
+    });
+    expectDiagnosticEmpty(
+      await linter.extendRuleSet({
+        extends: ["file:./rules.yaml"],
+        enable: { "@typespec/test-linter/no-model-foo": true },
+      }),
+    );
+    expectDiagnostics((await linter.lint()).diagnostics, {
+      code: "@typespec/test-linter/no-model-foo",
+    });
+  });
+
   it("resolves nested file reference relative to the ruleset file", async () => {
     const linter = await createLinterWithFiles({
       "rulesets/main.yaml": `
