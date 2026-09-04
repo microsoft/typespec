@@ -1,6 +1,6 @@
 import { createSdkContext } from "@azure-tools/typespec-client-generator-core";
 import type { EmitContext } from "@typespec/compiler";
-import { emitFile, joinPaths, NoTarget } from "@typespec/compiler";
+import { emitFile, joinPaths, listServices, NoTarget } from "@typespec/compiler";
 import pkgJson from "../../package.json" with { type: "json" };
 import { emitCodeModel } from "./code-model.js";
 import {
@@ -181,13 +181,15 @@ async function onEmitMain(context: EmitContext<PythonEmitterOptions>) {
   const yamlMap = emitCodeModel(sdkContext);
   const parsedYamlMap = walkThroughNodes(yamlMap);
 
-  // Python emitter requires an SDK client in the TypeSpec
+  // Warn when no SDK clients are present, while still allowing model-only generation.
   if (sdkContext.sdkPackage.clients.length === 0) {
     reportDiagnostic(program, {
       code: "no-sdk-clients",
-      target: NoTarget,
+      target:
+        listServices(program)[0]?.type ??
+        sdkContext.sdkPackage.models[0]?.__raw ??
+        program.getGlobalNamespaceType(),
     });
-    return;
   }
 
   const resolvedOptions = sdkContext.emitContext.options;
