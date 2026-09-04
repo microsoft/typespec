@@ -1,7 +1,8 @@
 import { type Children } from "@alloy-js/core";
 import type { ParameterProps } from "@alloy-js/csharp";
 import * as cs from "@alloy-js/csharp";
-import { isErrorModel, type Model, type Program } from "@typespec/compiler";
+import { isErrorModel, type Model } from "@typespec/compiler";
+import type { Typekit } from "@typespec/compiler/typekit";
 import { getHeaderFieldName, isHeader, isStatusCode } from "@typespec/http";
 import {
   getAllProperties,
@@ -13,18 +14,20 @@ import {
 } from "./model-helpers.js";
 
 /** Generates the constructor for an error model. */
-export function getErrorConstructor(program: Program, model: Model, className: string): Children {
-  const statusCode = getErrorStatusCode(program, model);
-  const isChild = model.baseModel && isErrorModel(program, model.baseModel);
+export function getErrorConstructor($: Typekit, model: Model, className: string): Children {
+  const statusCode = getErrorStatusCode($.program, model);
+  const isChild = model.baseModel && isErrorModel($.program, model.baseModel);
   const namePolicy = cs.createCSharpNamePolicy();
 
   // For child error models, only use own properties (not inherited)
   // For root error models, use all properties including inherited
-  const props = isChild ? Array.from(model.properties.values()) : getAllProperties(program, model);
+  const props = isChild
+    ? Array.from(model.properties.values())
+    : getAllProperties($.program, model);
 
   // Separate properties into required and optional/default
   const sortedProps = props
-    .filter((p) => !isStatusCode(program, p))
+    .filter((p) => !isStatusCode($.program, p))
     .map((prop) => {
       const defaultValue = prop.defaultValue ? getDefaultValueString(prop.defaultValue) : undefined;
       const literalValue = getLiteralValue(prop.type);
@@ -53,13 +56,13 @@ export function getErrorConstructor(program: Program, model: Model, className: s
       propName = propName === "Value" ? "ValueName" : `${propName}Prop`;
     }
 
-    const csharpType = getCSharpTypeString(program, prop.type);
+    const csharpType = getCSharpTypeString($, prop.type);
     const defaultStr = defaultValue ? defaultValue : prop.optional ? "default" : undefined;
     parameters.push({ name: prop.name, type: csharpType, default: defaultStr });
     bodyParts.push(`${propName} = ${prop.name};`);
 
-    if (isHeader(program, prop)) {
-      const headerName = getHeaderFieldName(program, prop);
+    if (isHeader($.program, prop)) {
+      const headerName = getHeaderFieldName($.program, prop);
       headerParts.push(`{"${headerName}", ${prop.name}}`);
     } else {
       valueParts.push(`${prop.name} = ${prop.name}`);
