@@ -7,7 +7,9 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using System.Text;
 using System.Threading.Tasks;
+using Microsoft.CodeAnalysis;
 using Microsoft.TypeSpec.Generator.Input;
 using Microsoft.TypeSpec.Generator.Primitives;
 using Microsoft.TypeSpec.Generator.Providers;
@@ -1998,15 +2000,17 @@ namespace Microsoft.TypeSpec.Generator.Tests.Providers.ModelProviders
             Directory.CreateDirectory(nugetCacheDir);
 
             const string pkgName = "Test.ModelProvider.External";
+            const string pkgVersion = "1.0.0";
             const string typeName = "Test.ModelProvider.External.MyExternalType";
             FakeNuGetPackage.Create(
                 nugetCacheDir,
                 pkgName,
-                "1.0.0",
+                pkgVersion,
                 $"namespace {pkgName} {{ public class MyExternalType {{ }} }}");
 
             var originalNugetPackages = Environment.GetEnvironmentVariable("NUGET_PACKAGES", EnvironmentVariableTarget.Process);
             Environment.SetEnvironmentVariable("NUGET_PACKAGES", nugetCacheDir, EnvironmentVariableTarget.Process);
+
             ExternalTypeReferenceResolver.Reset();
             try
             {
@@ -2020,7 +2024,7 @@ namespace Microsoft.TypeSpec.Generator.Tests.Providers.ModelProviders
                         InputFactory.Property("name", InputPrimitiveType.String)
                     ]);
 
-                MockHelpers.LoadMockGenerator(inputModelTypes: [model]);
+                await CreateProjectAndLoadDependencies([pkgName], [pkgVersion], tempDir, nugetCacheDir, model);
                 await ExternalTypeReferenceResolver.ResolveAllAsync();
 
                 var modelProvider = CodeModelGenerator.Instance.OutputLibrary.TypeProviders
@@ -2041,6 +2045,64 @@ namespace Microsoft.TypeSpec.Generator.Tests.Providers.ModelProviders
                 Environment.SetEnvironmentVariable("NUGET_PACKAGES", originalNugetPackages, EnvironmentVariableTarget.Process);
                 Directory.Delete(tempDir, true);
             }
+        }
+
+        private async Task CreateProjectAndLoadDependencies(string[] packages, string?[] versions, string temporaryDir, string nugetCache, InputModelType model)
+        {
+            string _projectDir = Path.Combine(temporaryDir, "ProjectDir");
+            Directory.CreateDirectory(Path.Combine(_projectDir, "src"));
+            Assert.That(packages.Length, Is.EqualTo(versions.Length), "Each package must have a version (it can be null)");
+            StringBuilder sbPackagesProject = new();
+            StringBuilder sbPackagesAssets = new();
+            string tab = "    ";
+            for (int i = 0; i < packages.Length; i++)
+            {
+                sbPackagesProject.Append($"\n  <PackageReference Include=\"{packages[i]}\">\n    <Version>{versions[i]}</Version>\n  </PackageReference>\n");
+                sbPackagesAssets.Append($"\n{tab}{tab}\"{packages[i]}\": {{\n{tab}{tab}{tab}\"type\": \"package\",\n{tab}{tab}{tab}\"dependencies\": {{}}\n{tab}{tab}}}\n");
+            }
+            var csprojContent = $@"<Project Sdk=""Microsoft.NET.Sdk"">
+  <PropertyGroup>
+    <TargetFrameworks>netstandard2.0;net10.0</TargetFrameworks>
+  </PropertyGroup>
+  <ItemGroup>{sbPackagesProject}</ItemGroup>
+</Project>";
+            string minimalProjectAssets = $$"""
+            {
+              "version": 4,
+              "targets": {
+                  "netstandard2.0": {{{sbPackagesAssets}}
+                  },
+                  "net10.0": {{{sbPackagesAssets}}
+                  }
+              }
+            }
+            """;
+            Assert.That(_projectDir, Is.Not.Null.And.Not.Empty);
+            Directory.CreateDirectory(Path.Combine(_projectDir!, "src"));
+            Directory.CreateDirectory(Path.Combine(_projectDir!, "src", "obj"));
+            string ns = "TestProject";
+            File.WriteAllText(Path.Combine(_projectDir!, "src", "obj", "project.assets.json"), minimalProjectAssets);
+            File.WriteAllText(Path.Combine(_projectDir!, "src", $"{ns}.csproj"), csprojContent);
+
+            MockHelpers.LoadMockGenerator(
+                inputNamespaceName: ns,
+                outputPath: _projectDir!,
+                inputModelTypes: [model],
+                configuration: $"{{\"package-name\": \"{ns}\"}}");
+            await GeneratedCodeWorkspace.AddPackageReferencesFromProject();
+            var nugetConfigPath = Path.Combine(_projectDir, "NuGet.Config");
+            var normalizedCachePath = nugetCache.Replace("\\", "/");
+            var config = $@"<?xml version=""1.0"" encoding=""utf-8""?>
+<configuration>
+    <packageSources>
+        <clear />
+        <add key=""local-cache"" value=""{normalizedCachePath}"" />
+    </packageSources>
+    <disabledPackageSources>
+        <clear />
+    </disabledPackageSources>
+</configuration>";
+            await File.WriteAllTextAsync(nugetConfigPath, config);
         }
 
         [Test]

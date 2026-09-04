@@ -5,6 +5,7 @@ using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.IO;
+using System.Linq;
 using System.Reflection;
 using System.Runtime.CompilerServices;
 using System.Threading;
@@ -12,13 +13,14 @@ using System.Threading.Tasks;
 using Microsoft.CodeAnalysis;
 using Microsoft.TypeSpec.Generator.Input;
 using NuGet.Configuration;
+using NuGet.Versioning;
 
 namespace Microsoft.TypeSpec.Generator.Utilities
 {
     /// <summary>
     /// Resolves <see cref="InputExternalTypeMetadata"/> entries to <see cref="Type"/> instances by
-    /// looking up the package in the NuGet global cache (or downloading it from configured feeds when
-    /// missing) and loading the assembly via reflection. Used by <c>TypeFactory.CreateExternalType</c>
+    /// looking up the package in the NuGet global cache and loading the assembly via reflection.
+    /// Used by <c>TypeFactory.CreateExternalType</c>
     /// as a fallback after <c>CreateFrameworkType</c> returns <c>null</c>.
     /// </summary>
     /// <remarks>
@@ -231,62 +233,61 @@ namespace Microsoft.TypeSpec.Generator.Utilities
             var assemblyResolver = state.GetAssemblyResolver(globalPackagesFolder, generator);
             assemblyResolver.Activate();
 
-            string? assemblyPath = NugetPackageResolver.FindPackageAssembly(
-                globalPackagesFolder, external.Package!, external.MinVersion);
-
-            if (assemblyPath == null)
+            // We have already resolved packages, now we will search for package and its version path in metadata.
+            string packageFolder = $"{Path.DirectorySeparatorChar}{external.Package!}{Path.DirectorySeparatorChar}";
+            (string AssemblyPath, string PackageVersion) packageInfo = CodeModelGenerator.Instance.AdditionalMetadataReferences
+                .Where(x => x.Properties.Kind == MetadataImageKind.Assembly
+                            && x.Display is not null
+                            && x.Display.Contains(packageFolder, StringComparison.InvariantCultureIgnoreCase)
+                            && x.Display.Substring(x.Display.LastIndexOf(packageFolder, StringComparison.InvariantCultureIgnoreCase)).Split(Path.DirectorySeparatorChar).Length > 2)
+                .Select(x => x.Display ?? "")
+                .Select(x => (AssemblyPath: x, PackageVersion: x.Substring(x.LastIndexOf(packageFolder, StringComparison.InvariantCultureIgnoreCase)).Split(Path.DirectorySeparatorChar)[2]))
+                .FirstOrDefault();
+            // If we have a min version, we must check if our package is compliant.
+            bool versionAcceptable = true;
+            if (!string.IsNullOrEmpty(external.MinVersion) && !string.IsNullOrEmpty(packageInfo.PackageVersion))
             {
-                try
-                {
-                    var resolvedVersion = !string.IsNullOrEmpty(external.MinVersion)
-                        ? external.MinVersion!
-                        : await NugetPackageResolver.ResolveLatestPackageVersion(external.Package!, nugetSettings);
-
-                    if (!string.IsNullOrEmpty(resolvedVersion))
-                    {
-                        var downloader = new NugetPackageDownloader(external.Package!, resolvedVersion!, null, nugetSettings);
-                        var downloadedPath = await downloader.DownloadAndInstallPackage();
-                        var downloadedAssembly = Path.Combine(downloadedPath, $"{external.Package}.dll");
-                        if (File.Exists(downloadedAssembly))
-                        {
-                            assemblyPath = downloadedAssembly;
-                        }
-                    }
-                }
-                catch (Exception ex)
-                {
-                    generator.Emitter?.Debug(
-                        $"Could not download package '{external.Package}' for external type '{external.Identity}': {ex.Message}");
-                }
+                NuGetVersion existingVersion = new(packageInfo.PackageVersion);
+                NuGetVersion targetVersion = new(external.MinVersion);
+                versionAcceptable = existingVersion >= targetVersion;
+            }
+            if (!versionAcceptable)
+            {
+                var versionQualifier = string.IsNullOrEmpty(external.MinVersion)
+                    ? string.Empty
+                    : $"(>= {external.MinVersion})";
+                return CacheResult(state, key, new ResolutionResult(
+                    null,
+                    $"The package '{external.Package}' minimal version declared in a typespec {versionQualifier} is higher then the one defined in project dependencies \"{packageInfo.PackageVersion}\"."));
             }
 
-            if (assemblyPath == null || !File.Exists(assemblyPath))
+            if (packageInfo.AssemblyPath == null || !File.Exists(packageInfo.AssemblyPath) || !versionAcceptable)
             {
                 var versionQualifier = string.IsNullOrEmpty(external.MinVersion)
                     ? string.Empty
                     : $" (>= {external.MinVersion})";
                 return CacheResult(state, key, new ResolutionResult(
                     null,
-                    $"package '{external.Package}'{versionQualifier} was not found in the NuGet cache or any configured feed"));
+                    $"package '{external.Package}'{versionQualifier} is not present in package dependencies."));
             }
 
             // Pin every package in this package's dependency closure before loading it, so the resolving
             // hook binds dependencies to the versions NuGet selected rather than guessing from assembly
             // versions (which are routinely lower than the package versions that ship them).
-            assemblyResolver.RegisterPackageClosure(assemblyPath);
+            assemblyResolver.RegisterPackageClosure(packageInfo.AssemblyPath);
 
             byte[] assemblyBytes;
             try
             {
-                assemblyBytes = await File.ReadAllBytesAsync(assemblyPath).ConfigureAwait(false);
+                assemblyBytes = await File.ReadAllBytesAsync(packageInfo.AssemblyPath).ConfigureAwait(false);
             }
             catch (Exception ex)
             {
                 generator.Emitter?.Debug(
-                    $"Failed to read assembly '{assemblyPath}' for external type '{external.Identity}': {ex.Message}");
+                    $"Failed to read assembly '{packageInfo.AssemblyPath}' for external type '{external.Identity}': {ex.Message}");
                 return CacheResult(state, key, new ResolutionResult(
                     null,
-                    $"assembly '{assemblyPath}' could not be read ({ex.Message})"));
+                    $"assembly '{packageInfo.AssemblyPath}' could not be read ({ex.Message})"));
             }
 
             Type? loadedType;
@@ -300,10 +301,10 @@ namespace Microsoft.TypeSpec.Generator.Utilities
             catch (Exception ex)
             {
                 generator.Emitter?.Debug(
-                    $"Failed to load assembly '{assemblyPath}' for external type '{external.Identity}': {ex.Message}");
+                    $"Failed to load assembly '{packageInfo.AssemblyPath}' for external type '{external.Identity}': {ex.Message}");
                 return CacheResult(state, key, new ResolutionResult(
                     null,
-                    $"assembly '{assemblyPath}' could not be loaded ({ex.Message})" +
+                    $"assembly '{packageInfo.AssemblyPath}' could not be loaded ({ex.Message})" +
                     assemblyResolver.DescribeDowngradedDependencies()));
             }
 
@@ -312,21 +313,11 @@ namespace Microsoft.TypeSpec.Generator.Utilities
                 // Either the type genuinely isn't in the assembly, or one of its dependencies could not be
                 // satisfied even with the NuGet probing hook installed - GetType reports both as null.
                 generator.Emitter?.Debug(
-                    $"Assembly '{assemblyPath}' does not declare external type '{external.Identity}', or one of its dependencies could not be resolved.");
+                    $"Assembly '{packageInfo.AssemblyPath}' does not declare external type '{external.Identity}', or one of its dependencies could not be resolved.");
                 return CacheResult(state, key, new ResolutionResult(
                     null,
-                    $"assembly '{assemblyPath}' was loaded but does not declare the type, or one of the type's dependencies could not be resolved" +
+                    $"assembly '{packageInfo.AssemblyPath}' was loaded but does not declare the type, or one of the type's dependencies could not be resolved" +
                     assemblyResolver.DescribeDowngradedDependencies()));
-            }
-
-            // Register the dll as a Roslyn metadata reference exactly once per assembly path so that
-            // generated and custom code that uses the type compiles inside the workspace.
-            // Use CreateFromImage with the in-memory bytes to avoid holding the dll open.
-            if (state.AddedAssemblyRefs.TryAdd(assemblyPath, 0))
-            {
-                generator.AddMetadataReference(MetadataReference.CreateFromImage(assemblyBytes));
-                generator.Emitter?.Debug(
-                    $"Added metadata reference for external type '{external.Identity}' from {assemblyPath}");
             }
 
             return CacheResult(state, key, new ResolutionResult(loadedType, null));
