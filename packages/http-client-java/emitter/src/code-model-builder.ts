@@ -67,6 +67,7 @@ import type {
   SdkPathParameter,
   SdkQueryParameter,
   SdkServiceMethod,
+  SdkServiceResponseHeader,
   SdkType,
   SdkUnionType,
 } from "@azure-tools/typespec-client-generator-core";
@@ -201,6 +202,7 @@ export interface EmitterOptionsDev {
   "required-fields-as-ctor-args"?: boolean;
   "group-etag-headers"?: boolean;
   "enable-sync-stack"?: boolean;
+  "max-overload"?: "model";
   "stream-style-serialization"?: boolean;
   "use-object-for-unknown"?: boolean;
   "float32-as-double"?: boolean;
@@ -1039,6 +1041,12 @@ export class CodeModelBuilder {
       }
     }
     if (generateConvenienceApi && convenienceApiName) {
+      if (this.isAzureV1() && this.options["max-overload"] === "model") {
+        // The model WithResponse overload replaces the public protocol method of the same name.
+        // This is scoped to convenience APIs because their model types are required for the
+        // replacement; the protocol method remains generated internally for delegation.
+        generateProtocolApi = false;
+      }
       codeModelOperation.convenienceApi = new ConvenienceApi(convenienceApiName);
       if (sdkMethod.isExactName) {
         codeModelOperation.convenienceApi.language.java =
@@ -2333,6 +2341,7 @@ export class CodeModelBuilder {
           continue;
         }
 
+        const collectionHeaderPrefix = this.getCollectionHeaderPrefix(header);
         const httpHeader = new HttpHeader(header.serializedName, schema, {
           language: {
             default: {
@@ -2340,6 +2349,9 @@ export class CodeModelBuilder {
               description: header.summary ?? header.doc,
             },
           },
+          extensions: collectionHeaderPrefix
+            ? { "x-ms-header-collection-prefix": collectionHeaderPrefix }
+            : undefined,
         });
         if (header.isExactName) {
           httpHeader.language.java = httpHeader.language.java ?? new Language();
@@ -2351,6 +2363,20 @@ export class CodeModelBuilder {
 
     const bodyType: SdkType | undefined = sdkResponse.type;
     let trackConvenienceApi: boolean = Boolean(op.convenienceApi);
+    const trackResponseHeadersAsModel =
+      trackConvenienceApi &&
+      (op.convenienceApi?.responseHeadersAsModel === true ||
+        (this.isAzureV1() && this.options["max-overload"] === "model"));
+
+    if (trackResponseHeadersAsModel) {
+      // Typed header models are public convenience return types. Propagate that visibility to
+      // referenced schemas so enum and model header properties are generated in the same package.
+      for (const header of headers) {
+        this.trackSchemaUsage(header.schema, {
+          usage: [op.internalApi ? SchemaContext.Internal : SchemaContext.Public],
+        });
+      }
+    }
 
     let responseBodyIsFile: boolean = false;
     if (
@@ -3748,5 +3774,11 @@ export class CodeModelBuilder {
       });
     }
     return clientRequired ?? !property.optional;
+  }
+
+  private getCollectionHeaderPrefix(header: SdkServiceResponseHeader): string | undefined {
+    const value = getClientOptions(header, "collectionHeaderPrefix");
+    const type = getNonNullSdkType(header.type);
+    return type.kind === "dict" && typeof value === "string" ? value : undefined;
   }
 }

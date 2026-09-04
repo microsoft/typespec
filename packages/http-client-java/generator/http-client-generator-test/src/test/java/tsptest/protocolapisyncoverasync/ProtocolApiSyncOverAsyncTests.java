@@ -15,5 +15,7 @@ public class ProtocolApiSyncOverAsyncTests {
             RequestOptions.class);
         ProtocolApiSyncOverAsyncAsyncClient.class.getDeclaredMethod("createWithResponseInternal", BinaryData.class,
             RequestOptions.class);
+        ProtocolApiSyncOverAsyncClient.class.getDeclaredMethod("listInternal", String.class, RequestOptions.class);
+        ProtocolApiSyncOverAsyncAsyncClient.class.getDeclaredMethod("listInternal", String.class, RequestOptions.class);
     }
 }

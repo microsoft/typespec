@@ -45,7 +45,8 @@ namespace Microsoft.TypeSpec.Generator.Input
                 usage: InputModelTypeUsage.None,
                 valueType: null!,
                 values: Array.Empty<InputEnumTypeValue>(),
-                isExtensible: false);
+                isExtensible: false,
+                apiVersions: []);
             resolver.AddReference(id, enumType);
 
             string? @namespace = null;
@@ -62,6 +63,7 @@ namespace Microsoft.TypeSpec.Generator.Input
             IReadOnlyList<InputDecoratorInfo>? decorators = null;
             InputExternalTypeMetadata? external = null;
             bool isExactName = false;
+            IReadOnlyList<string>? apiVersions = null;
             while (reader.TokenType != JsonTokenType.EndObject)
             {
                 var isKnownProperty = reader.TryReadString("name", ref name)
@@ -72,6 +74,7 @@ namespace Microsoft.TypeSpec.Generator.Input
                     || reader.TryReadString("summary", ref summary)
                     || reader.TryReadString("doc", ref doc)
                     || reader.TryReadString("usage", ref usageString)
+                    || reader.TryReadComplexType("apiVersions", options, ref apiVersions)
                     || reader.TryReadBoolean("isFixed", ref isFixed)
                     || reader.TryReadComplexType("valueType", options, ref valueType)
                     || reader.TryReadComplexType("values", options, ref values)
@@ -103,6 +106,7 @@ namespace Microsoft.TypeSpec.Generator.Input
             enumType.Decorators = decorators ?? [];
             enumType.External = external;
             enumType.IsExactName = isExactName;
+            enumType.ApiVersions = apiVersions ?? [];
 
             return enumType;
         }

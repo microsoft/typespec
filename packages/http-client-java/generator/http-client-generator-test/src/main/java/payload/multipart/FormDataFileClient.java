@@ -102,6 +102,31 @@ public final class FormDataFileClient {
      * The uploadFileSpecificContentType operation.
      * 
      * @param body The body parameter.
+     * @param requestOptions The options to configure the HTTP request before HTTP client sends it.
+     * @throws IllegalArgumentException thrown if parameters fail the validation.
+     * @throws HttpResponseException thrown if the request is rejected by server.
+     * @throws ClientAuthenticationException thrown if the request is rejected by server on status code 401.
+     * @throws ResourceNotFoundException thrown if the request is rejected by server on status code 404.
+     * @throws ResourceModifiedException thrown if the request is rejected by server on status code 409.
+     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
+     * @return the {@link Response}.
+     */
+    @Generated
+    @ServiceMethod(returns = ReturnType.SINGLE)
+    public Response<Void> uploadFileSpecificContentTypeWithResponse(UploadFileSpecificContentTypeRequest body,
+        RequestOptions requestOptions) {
+        // Generated convenience method for uploadFileSpecificContentTypeWithResponseInternal
+        requestOptions = requestOptions == null ? new RequestOptions() : requestOptions;
+        return uploadFileSpecificContentTypeWithResponseInternal(
+            new MultipartFormDataHelper(requestOptions).serializeFileField("file", body.getFile().getContent(),
+                body.getFile().getContentType(), body.getFile().getFilename()).end().getRequestBody(),
+            requestOptions);
+    }
+
+    /**
+     * The uploadFileSpecificContentType operation.
+     * 
+     * @param body The body parameter.
      * @throws IllegalArgumentException thrown if parameters fail the validation.
      * @throws HttpResponseException thrown if the request is rejected by server.
      * @throws ClientAuthenticationException thrown if the request is rejected by server on status code 401.
@@ -124,6 +149,31 @@ public final class FormDataFileClient {
      * The uploadFileRequiredFilename operation.
      * 
      * @param body The body parameter.
+     * @param requestOptions The options to configure the HTTP request before HTTP client sends it.
+     * @throws IllegalArgumentException thrown if parameters fail the validation.
+     * @throws HttpResponseException thrown if the request is rejected by server.
+     * @throws ClientAuthenticationException thrown if the request is rejected by server on status code 401.
+     * @throws ResourceNotFoundException thrown if the request is rejected by server on status code 404.
+     * @throws ResourceModifiedException thrown if the request is rejected by server on status code 409.
+     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
+     * @return the {@link Response}.
+     */
+    @Generated
+    @ServiceMethod(returns = ReturnType.SINGLE)
+    public Response<Void> uploadFileRequiredFilenameWithResponse(UploadFileRequiredFilenameRequest body,
+        RequestOptions requestOptions) {
+        // Generated convenience method for uploadFileRequiredFilenameWithResponseInternal
+        requestOptions = requestOptions == null ? new RequestOptions() : requestOptions;
+        return uploadFileRequiredFilenameWithResponseInternal(
+            new MultipartFormDataHelper(requestOptions).serializeFileField("file", body.getFile().getContent(),
+                body.getFile().getContentType(), body.getFile().getFilename()).end().getRequestBody(),
+            requestOptions);
+    }
+
+    /**
+     * The uploadFileRequiredFilename operation.
+     * 
+     * @param body The body parameter.
      * @throws IllegalArgumentException thrown if parameters fail the validation.
      * @throws HttpResponseException thrown if the request is rejected by server.
      * @throws ClientAuthenticationException thrown if the request is rejected by server on status code 401.
@@ -140,6 +190,33 @@ public final class FormDataFileClient {
             new MultipartFormDataHelper(requestOptions).serializeFileField("file", body.getFile().getContent(),
                 body.getFile().getContentType(), body.getFile().getFilename()).end().getRequestBody(),
             requestOptions).getValue();
+    }
+
+    /**
+     * The uploadFileArray operation.
+     * 
+     * @param body The body parameter.
+     * @param requestOptions The options to configure the HTTP request before HTTP client sends it.
+     * @throws IllegalArgumentException thrown if parameters fail the validation.
+     * @throws HttpResponseException thrown if the request is rejected by server.
+     * @throws ClientAuthenticationException thrown if the request is rejected by server on status code 401.
+     * @throws ResourceNotFoundException thrown if the request is rejected by server on status code 404.
+     * @throws ResourceModifiedException thrown if the request is rejected by server on status code 409.
+     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
+     * @return the {@link Response}.
+     */
+    @Generated
+    @ServiceMethod(returns = ReturnType.SINGLE)
+    public Response<Void> uploadFileArrayWithResponse(UploadFileArrayRequest body, RequestOptions requestOptions) {
+        // Generated convenience method for uploadFileArrayWithResponseInternal
+        requestOptions = requestOptions == null ? new RequestOptions() : requestOptions;
+        return uploadFileArrayWithResponseInternal(new MultipartFormDataHelper(requestOptions)
+            .serializeFileFields("files",
+                body.getFiles().stream().map(FilesFileDetails::getContent).collect(Collectors.toList()),
+                body.getFiles().stream().map(FilesFileDetails::getContentType).collect(Collectors.toList()),
+                body.getFiles().stream().map(FilesFileDetails::getFilename).collect(Collectors.toList()))
+            .end()
+            .getRequestBody(), requestOptions);
     }
 
     /**

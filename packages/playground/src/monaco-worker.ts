@@ -3,16 +3,14 @@ export function registerMonacoDefaultWorkersForVite() {
     getWorker: async function (workerId: string, label: string) {
       switch (label) {
         case "json": {
-          const { default: jsonWorker } = await import(
-            "monaco-editor/esm/vs/language/json/json.worker?worker" as any
-          );
-          return jsonWorker();
+          const { default: JsonWorker } =
+            await import("monaco-editor/language/json/json.worker.js?worker");
+          return new JsonWorker();
         }
         default: {
-          const { default: editorWorker } = await import(
-            "monaco-editor/esm/vs/editor/editor.worker?worker" as any
-          );
-          return editorWorker();
+          const { default: EditorWorker } =
+            await import("monaco-editor/editor/editor.worker.js?worker");
+          return new EditorWorker();
         }
       }
     },
