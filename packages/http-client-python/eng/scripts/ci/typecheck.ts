@@ -33,7 +33,7 @@ const argv = parseArgs({
 
 if (argv.values.help) {
   console.log(`
-${pc.bold("Usage:")} tsx typecheck.ts [options]
+${pc.bold("Usage:")} node typecheck.ts [options]
 
 ${pc.bold("Description:")}
   Run type checking (mypy + pyright) on Python code.
@@ -58,19 +58,19 @@ ${pc.bold("Options:")}
 
 ${pc.bold("Examples:")}
   ${pc.dim("# Type check pygen source (default - runs both mypy and pyright)")}
-  tsx typecheck.ts
+  node typecheck.ts
 
   ${pc.dim("# Run only mypy on pygen source")}
-  tsx typecheck.ts --mypy
+  node typecheck.ts --mypy
 
   ${pc.dim("# Run only pyright on pygen source")}
-  tsx typecheck.ts --pyright
+  node typecheck.ts --pyright
 
   ${pc.dim("# Type check generated SDK packages")}
-  tsx typecheck.ts --generated
+  node typecheck.ts --generated
 
   ${pc.dim("# Type check generated SDK packages for azure only")}
-  tsx typecheck.ts --generated --flavor=azure
+  node typecheck.ts --generated --flavor=azure
 `);
   process.exit(0);
 }

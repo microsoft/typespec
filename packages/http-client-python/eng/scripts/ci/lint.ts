@@ -34,7 +34,7 @@ const argv = parseArgs({
 
 if (argv.values.help) {
   console.log(`
-${pc.bold("Usage:")} tsx lint.ts [options]
+${pc.bold("Usage:")} node lint.ts [options]
 
 ${pc.bold("Description:")}
   Run linting checks on the codebase.
@@ -59,19 +59,19 @@ ${pc.bold("Options:")}
 
 ${pc.bold("Examples:")}
   ${pc.dim("# Lint emitter + pygen source (default)")}
-  tsx lint.ts
+  node lint.ts
 
   ${pc.dim("# Lint only TypeScript emitter")}
-  tsx lint.ts --emitter
+  node lint.ts --emitter
 
   ${pc.dim("# Lint only pygen source code")}
-  tsx lint.ts --generator
+  node lint.ts --generator
 
   ${pc.dim("# Lint generated SDK packages")}
-  tsx lint.ts --generated
+  node lint.ts --generated
 
   ${pc.dim("# Lint generated SDK packages for azure only")}
-  tsx lint.ts --generated --flavor=azure
+  node lint.ts --generated --flavor=azure
 `);
   process.exit(0);
 }
