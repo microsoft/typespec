@@ -22,6 +22,24 @@ export const libDef = {
         member: paramMessage`Missing documentation for ${"kind"} '${"name"}' of '${"container"}'. Add a doc comment describing it.`,
       },
     },
+    "unknown-rule": {
+      severity: "warning",
+      messages: {
+        default: paramMessage`Rule '${"name"}' referenced by ruleset '${"ruleSetName"}' is not defined in library '${"libraryName"}'.`,
+      },
+    },
+    "unknown-rule-set": {
+      severity: "warning",
+      messages: {
+        default: paramMessage`Ruleset '${"name"}' referenced by ruleset '${"ruleSetName"}' is not defined in library '${"libraryName"}'.`,
+      },
+    },
+    "invalid-rule-reference": {
+      severity: "warning",
+      messages: {
+        default: paramMessage`Reference '${"ref"}' in ruleset '${"ruleSetName"}' is invalid. It must be in the format "<library-name>/<name>".`,
+      },
+    },
     "extraneous-documentation": {
       severity: "warning",
       messages: {
