@@ -87,6 +87,15 @@ namespace Lib {
 }
 ```
 
+A diagnostic reported inside a template can also be suppressed where the template was instantiated:
+
+```tsp
+model Widget {
+  #suppress "some-rule" "Not applicable here"
+  page: Page<WidgetItem>;
+}
+```
+
 ### Short diagnostic codes
 
 Diagnostic codes from a library are prefixed with the package name (e.g. `@typespec/http/no-service-found`), which can get verbose. You can also reference a diagnostic using its **short name**, where the package scope is stripped:

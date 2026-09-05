@@ -15,6 +15,7 @@ import { EventEmitter, mapEventEmitterToNodeListener, navigateProgram } from "./
 import type {
   Diagnostic,
   DiagnosticMessages,
+  DiagnosticTarget,
   LinterDefinition,
   LinterResolvedDefinition,
   LinterRule,
@@ -22,10 +23,13 @@ import type {
   LinterRuleDiagnosticReport,
   LinterRuleEnableValue,
   LinterRuleSet,
+  Node,
   RuleRef,
   SemanticNodeListener,
+  TemplateParameter,
+  TypeMapper,
 } from "./types.js";
-import { NoTarget } from "./types.js";
+import { NoTarget, SyntaxKind } from "./types.js";
 
 type LinterLibraryInstance = { linter: LinterResolvedDefinition };
 
@@ -427,15 +431,102 @@ export function createLinterRuleContext<
 
   function reportDiagnostic<M extends keyof DM>(diag: LinterRuleDiagnosticReport<DM, M>): void {
     const diagnostic = createDiagnostic(diag);
-    if (diagnostic.target !== NoTarget) {
-      const context = getLocationContext(program, diagnostic.target);
-      // Only report diagnostic in the user project.
-      // See for showing diagnostic in library at point of usage https://github.com/microsoft/typespec/issues/1997
-      if (context.type === "project") {
-        diagnosticCollector.add(diagnostic);
-      }
+    if (diagnostic.target === NoTarget) return;
+
+    const target = resolveUserOwnedTarget(program, diagnostic.target);
+    if (target !== undefined) {
+      diagnosticCollector.add({ ...diagnostic, target });
     }
   }
+}
+
+/**
+ * Linter rules should only report on code the user is able to act on.
+ *
+ * A target declared in the user project is reported as is. A target declared in a library
+ * is reported only when its type is a template argument the user supplied: given
+ * `model Wrapper<T> { value: T }`, `Wrapper<uuid>.value` exists in that shape only because
+ * the user chose `uuid`, while everything else `Wrapper<T>` declares is authored by the
+ * library and cannot be changed by them.
+ *
+ * The diagnostic is then reported on the argument in the user's own file, which is the
+ * code they can actually change.
+ *
+ * See https://github.com/microsoft/typespec/issues/11861
+ */
+function resolveUserOwnedTarget(
+  program: Program,
+  target: DiagnosticTarget,
+): DiagnosticTarget | undefined {
+  if (getLocationContext(program, target).type === "project") {
+    return target;
+  }
+  return findUserSuppliedArgumentNode(program, target);
+}
+
+/**
+ * Resolve the node of the template argument the given target was declared as, as written in
+ * the user project. Returns `undefined` when the target isn't attributable to an argument the
+ * user wrote, which includes arguments left to their default value.
+ */
+function findUserSuppliedArgumentNode(
+  program: Program,
+  target: DiagnosticTarget,
+): Node | undefined {
+  if (typeof target !== "object" || !("kind" in target)) return undefined;
+  // Only members carry a type the user could have supplied. A whole instantiated model or
+  // operation is a library declaration, and reporting on it would duplicate the diagnostic
+  // already reported on the user's own `is`/`extends`/property declaration.
+  if (target.kind !== "ModelProperty" && target.kind !== "UnionVariant") return undefined;
+  if (target.node === undefined) return undefined;
+
+  // Members are linked to the mapper of the template they were instantiated with, even
+  // though `TemplatedTypeBase` is not part of their public type.
+  const mapper = (target as { templateMapper?: TypeMapper }).templateMapper;
+  if (mapper === undefined) return undefined;
+
+  const parameter = findDeclaredTemplateParameter(program, target.node);
+  if (parameter === undefined) return undefined;
+
+  const node = getTemplateArgumentNode(mapper.source.node, parameter);
+  return node && getLocationContext(program, node).type === "project" ? node : undefined;
+}
+
+/**
+ * Resolve the member as declared, with its template parameters unsubstituted, and return the
+ * parameter it was declared as, if any.
+ *
+ * Only a member declared *as* the parameter, such as `body: Request`, is considered. A member
+ * the parameter merely appears inside, such as `value: Item[]` in `Page<Item>`, is left alone:
+ * the array is the library's own declaration, so a diagnostic about it is the library's to fix
+ * no matter which item type the user passed.
+ *
+ * Looking at the declaration rather than comparing the instantiated type to the arguments
+ * avoids matching a type the library declared itself that merely happens to be the same as an
+ * argument, such as `string`.
+ */
+function findDeclaredTemplateParameter(
+  program: Program,
+  node: Node,
+): TemplateParameter | undefined {
+  const declared = program.checker.getTypeForNode(node);
+  if (declared.kind !== "ModelProperty" && declared.kind !== "UnionVariant") return undefined;
+  return declared.type.kind === "TemplateParameter" ? declared.type : undefined;
+}
+
+/** Resolve the argument passed for `parameter` in a template reference, by name or by position. */
+function getTemplateArgumentNode(source: Node, parameter: TemplateParameter): Node | undefined {
+  if (source.kind !== SyntaxKind.TypeReference) return undefined;
+  const args = source.arguments;
+
+  const name = parameter.node.id.sv;
+  const named = args.find((arg) => arg.name?.sv === name);
+  if (named) return named.argument;
+
+  const declaration = parameter.node.parent;
+  const index = declaration?.templateParameters?.indexOf(parameter.node) ?? -1;
+  const positional = index === -1 ? undefined : args[index];
+  return positional?.name === undefined ? positional?.argument : undefined;
 }
 
 export const builtInLinterLibraryName = `@typespec/compiler`;

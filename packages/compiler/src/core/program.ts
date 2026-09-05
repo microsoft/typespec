@@ -14,7 +14,7 @@ import { createChecker } from "./checker.js";
 import { createSuppressCodeFix } from "./compiler-code-fixes/suppress.codefix.js";
 import type { DiagnosticCodeResolver, LibraryNameInfo } from "./diagnostic-code.js";
 import { createDiagnosticCodeResolver, formatShortNameCandidates } from "./diagnostic-code.js";
-import { compilerAssert } from "./diagnostics.js";
+import { compilerAssert, getDiagnosticTemplateInstantitationTrace } from "./diagnostics.js";
 import { getEmittedFilesForProgram } from "./emitter-utils.js";
 import { resolveTypeSpecEntrypoint } from "./entrypoint-resolution.js";
 import { ExternalError } from "./external-error.js";
@@ -54,6 +54,7 @@ import {
 import type {
   CompilerHost,
   Diagnostic,
+  DiagnosticTarget,
   EmitContext,
   EmitterFunc,
   Entity,
@@ -979,11 +980,7 @@ async function createProgram(
       return false; // Can't find target cannot be suppressed.
     }
 
-    const suppressing = findDirectiveSuppressingOnNode(
-      diagnostic.code,
-      node,
-      diagnosticCodeResolver,
-    );
+    const suppressing = findSuppressingDirective(target, node);
     if (suppressing) {
       if (diagnostic.severity === "error") {
         // Cannot suppress errors.
@@ -1002,6 +999,26 @@ async function createProgram(
       }
     }
     return false;
+
+    /**
+     * Look for a `#suppress` directive on the target itself, then on each template
+     * instantiation that produced it, so a diagnostic reported inside a template can be
+     * suppressed where the template was instantiated.
+     */
+    function findSuppressingDirective(target: DiagnosticTarget, node: Node) {
+      const direct = findDirectiveSuppressingOnNode(diagnostic.code, node, diagnosticCodeResolver);
+      if (direct) return direct;
+
+      for (const instantiation of getDiagnosticTemplateInstantitationTrace(target)) {
+        const suppressing = findDirectiveSuppressingOnNode(
+          diagnostic.code,
+          instantiation,
+          diagnosticCodeResolver,
+        );
+        if (suppressing) return suppressing;
+      }
+      return undefined;
+    }
   }
 
   function getNode(target: Node | Entity | Sym | TemplateInstanceTarget): Node | undefined {
