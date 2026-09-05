@@ -427,7 +427,12 @@ async function createProgram(
   linter.registerLinterLibrary(builtInLinterLibraryName, createBuiltInLinterLibrary());
   if (options.linterRuleSet) {
     program.reportDiagnostics(
-      await linter.extendRuleSet(options.linterRuleSet, program.projectRoot),
+      await linter.extendRuleSet(options.linterRuleSet, {
+        baseDir: program.projectRoot,
+        source: options.configFile?.file
+          ? { script: options.configFile.file, path: ["linter"] }
+          : undefined,
+      }),
     );
   }
 

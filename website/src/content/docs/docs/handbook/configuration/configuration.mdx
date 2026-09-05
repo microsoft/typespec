@@ -489,6 +489,8 @@ disable:
 
 Relative paths are resolved relative to the file declaring them: a `file:` reference in `tspconfig.yaml` resolves relative to the config file, and a `file:` reference inside a ruleset file resolves relative to that ruleset file. Ruleset files may extend other ruleset files, and rulesets defined in libraries, in any combination.
 
+`file:` references can only be used in `tspconfig.yaml` or in another ruleset file. A ruleset defined in a library cannot use them, as it is not anchored to any directory the path could be resolved against.
+
 ## CLI Flags for Emitter Control
 
 ### `--no-emit`

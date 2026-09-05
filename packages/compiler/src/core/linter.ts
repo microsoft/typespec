@@ -34,13 +34,41 @@ import { NoTarget } from "./types.js";
 
 type LinterLibraryInstance = { linter: LinterResolvedDefinition };
 
+/**
+ * Where a ruleset came from. `file:` references need a directory to resolve against, so they are
+ * only supported for rulesets anchored to a location on disk (the project config or another ruleset
+ * file). Rulesets defined by a library are not anchored anywhere and cannot use them.
+ */
+type RuleSetOrigin =
+  | {
+      readonly kind: "local";
+      /** Directory relative `file:` references are resolved against. */
+      readonly baseDir: string;
+      /** Yaml this ruleset was parsed from, used to locate diagnostics on the offending entry. */
+      readonly source?: RuleSetYamlSource;
+    }
+  | { readonly kind: "library"; readonly ruleSetId: string };
+
+/** Yaml a ruleset was defined in, used to locate diagnostics on the offending entry. */
+export interface RuleSetYamlSource {
+  readonly script: YamlScript;
+  /** Path of the ruleset within the yaml. Empty in a ruleset file, `["linter"]` in `tspconfig.yaml`. */
+  readonly path: readonly string[];
+}
+
+export interface ExtendRuleSetOptions {
+  /** Directory used to resolve relative `file:` ruleset references. Defaults to the program project root. */
+  readonly baseDir?: string;
+  /** Yaml the ruleset was defined in. */
+  readonly source?: RuleSetYamlSource;
+}
+
 export interface Linter {
-  /**
-   * Extend the current set of enabled rules with the given ruleset.
-   * @param ruleSet Ruleset to extend.
-   * @param baseDir Directory used to resolve relative `file:` ruleset references. Defaults to the program project root.
-   */
-  extendRuleSet(ruleSet: LinterRuleSet, baseDir?: string): Promise<readonly Diagnostic[]>;
+  /** Extend the current set of enabled rules with the given ruleset. */
+  extendRuleSet(
+    ruleSet: LinterRuleSet,
+    options?: ExtendRuleSetOptions,
+  ): Promise<readonly Diagnostic[]>;
   registerLinterLibrary(name: string, lib?: LinterLibraryInstance): void;
   lint(): Promise<LinterResult>;
 }
@@ -130,29 +158,49 @@ export function createLinter(
 
   async function extendRuleSet(
     ruleSet: LinterRuleSet,
-    baseDir: string = program.projectRoot,
+    options?: ExtendRuleSetOptions,
   ): Promise<readonly Diagnostic[]> {
-    return extendRuleSetInternal(ruleSet, baseDir, []);
+    const origin: RuleSetOrigin = {
+      kind: "local",
+      baseDir: options?.baseDir ?? program.projectRoot,
+      source: options?.source,
+    };
+    return extendRuleSetInternal(ruleSet, origin, []);
   }
 
   async function extendRuleSetInternal(
     ruleSet: LinterRuleSet,
-    baseDir: string,
+    origin: RuleSetOrigin,
     fileStack: readonly string[],
-    source?: YamlScript,
   ): Promise<readonly Diagnostic[]> {
     tracer.trace("extend-rule-set.start", JSON.stringify(ruleSet, null, 2));
     const diagnostics = createDiagnosticCollector();
     if (ruleSet.extends) {
-      for (const extendingRuleSetName of ruleSet.extends) {
+      for (const [index, extendingRuleSetName] of ruleSet.extends.entries()) {
         if (extendingRuleSetName.startsWith(linterRuleSetFilePrefix)) {
+          if (origin.kind === "library") {
+            // A library ruleset is not anchored to a directory, so there is nothing to resolve against.
+            diagnostics.add(
+              createDiagnostic({
+                code: "ruleset-file-in-library",
+                format: { ruleSetName: origin.ruleSetId, ref: extendingRuleSetName },
+                target: NoTarget,
+              }),
+            );
+            continue;
+          }
           // Blame the `extends` entry that referenced the file when we know where it came from.
-          const target = source
-            ? getLocationInYamlScript(source, ["extends", extendingRuleSetName])
+          // Looked up by index because config loading rewrites `file:` refs to absolute paths.
+          const target = origin.source
+            ? getLocationInYamlScript(origin.source.script, [
+                ...origin.source.path,
+                "extends",
+                String(index),
+              ])
             : NoTarget;
           for (const diagnostic of await extendRuleSetFile(
             extendingRuleSetName.slice(linterRuleSetFilePrefix.length),
-            baseDir,
+            origin.baseDir,
             fileStack,
             target,
           )) {
@@ -171,7 +219,13 @@ export function createLinter(
           const libLinterDefinition = library?.linter;
           const extendingRuleSet = libLinterDefinition?.ruleSets?.[ref.name];
           if (extendingRuleSet) {
-            await extendRuleSetInternal(extendingRuleSet, baseDir, fileStack, source);
+            for (const diagnostic of await extendRuleSetInternal(
+              extendingRuleSet,
+              { kind: "library", ruleSetId: `${ref.libraryName}/${ref.name}` },
+              fileStack,
+            )) {
+              diagnostics.add(diagnostic);
+            }
           } else {
             diagnostics.add(
               createDiagnostic({
@@ -363,9 +417,12 @@ export function createLinter(
       ...diagnostics,
       ...(await extendRuleSetInternal(
         loaded.ruleSet,
-        getDirectoryPath(resolvedPath),
+        {
+          kind: "local",
+          baseDir: getDirectoryPath(resolvedPath),
+          source: { script: loaded.script, path: [] },
+        },
         [...fileStack, resolvedPath],
-        loaded.script,
       )),
     ];
   }

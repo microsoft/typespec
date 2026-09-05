@@ -2702,6 +2702,7 @@ export type RuleRef = `${string}/${string}`;
 /**
  * Reference to a ruleset defined in a yaml file. In this format `file:<path to the yaml file>`.
  * A relative path is resolved relative to the file declaring it (`tspconfig.yaml` or another ruleset file).
+ * Only valid in `tspconfig.yaml` or in another ruleset file, not in a ruleset defined by a library.
  */
 export type RuleSetFileRef = `file:${string}`;
 

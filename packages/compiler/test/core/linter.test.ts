@@ -968,6 +968,39 @@ disable:
     });
   });
 
+  it("emits a diagnostic when a library ruleset tries to extend a file", async () => {
+    const linter = await createTestLinter(`model Foo {}`, {
+      rules: [noModelFoo],
+      ruleSets: {
+        custom: { extends: ["file:./rules.yaml"] },
+      },
+    });
+    expectDiagnostics(await linter.extendRuleSet({ extends: ["@typespec/test-linter/custom"] }), {
+      code: "ruleset-file-in-library",
+      message:
+        'Ruleset "@typespec/test-linter/custom" is defined in a library and cannot extend the ruleset file "file:./rules.yaml". "file:" references can only be used in "tspconfig.yaml" or in another ruleset file.',
+    });
+    expectDiagnosticEmpty((await linter.lint()).diagnostics);
+  });
+
+  it("emits a diagnostic when a library ruleset reached through a ruleset file extends a file", async () => {
+    const linter = await createTestLinter(
+      {
+        "main.tsp": `model Foo {}`,
+        "rules.yaml": `extends:\n  - "@typespec/test-linter/custom"\n`,
+      },
+      {
+        rules: [noModelFoo],
+        ruleSets: {
+          custom: { extends: ["file:./other.yaml"] },
+        },
+      },
+    );
+    expectDiagnostics(await linter.extendRuleSet({ extends: ["file:./rules.yaml"] }), {
+      code: "ruleset-file-in-library",
+    });
+  });
+
   it("resolves nested file reference relative to the ruleset file", async () => {
     const linter = await createLinterWithFiles({
       "rulesets/main.yaml": `
