@@ -877,6 +877,18 @@ const diagnostics = {
       default: paramMessage`Invalid options for rule "${"ruleName"}": ${"details"}`,
     },
   },
+  "circular-ruleset-file": {
+    severity: "error",
+    messages: {
+      default: paramMessage`Linter ruleset file "${"path"}" is extending itself, either directly or indirectly.`,
+    },
+  },
+  "ruleset-file-in-library": {
+    severity: "error",
+    messages: {
+      default: paramMessage`Ruleset "${"ruleSetName"}" is defined in a library and cannot extend the ruleset file "${"ref"}". "file:" references can only be used in "tspconfig.yaml" or in another ruleset file.`,
+    },
+  },
 
   /**
    * Formatter

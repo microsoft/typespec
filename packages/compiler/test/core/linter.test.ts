@@ -1,3 +1,4 @@
+import { strictEqual } from "assert";
 import { describe, expect, it, vi } from "vitest";
 
 import type { createDiagnosticCodeResolver } from "../../src/core/diagnostic-code.js";
@@ -5,13 +6,20 @@ import { createLinterRule, createTypeSpecLibrary } from "../../src/core/library.
 import type { Linter } from "../../src/core/linter.js";
 import { createLinter, resolveLinterDefinition } from "../../src/core/linter.js";
 import {
+  type Diagnostic,
   type Interface,
   type LibraryInstance,
   type LinterDefinition,
   type LinterRuleContext,
+  type SourceLocation,
 } from "../../src/index.js";
 import type { MockFile } from "../../src/testing/index.js";
-import { expectDiagnosticEmpty, expectDiagnostics, mockFile } from "../../src/testing/index.js";
+import {
+  expectDiagnosticEmpty,
+  expectDiagnostics,
+  mockFile,
+  resolveVirtualPath,
+} from "../../src/testing/index.js";
 import { Tester } from "../tester.js";
 
 const noModelFoo = createLinterRule({
@@ -839,5 +847,267 @@ describe("rule options", () => {
       await linter.lint();
       expect(modelListener).not.toHaveBeenCalled();
     });
+  });
+});
+
+/**
+ * Assert a diagnostic points at `expectedText` inside the given file, so that ruleset diagnostics
+ * are locatable in an editor rather than being reported globally.
+ */
+function expectTargetsSourceText(
+  diagnostic: Diagnostic,
+  fileName: string,
+  fileContent: string,
+  expectedText: string,
+) {
+  const target = diagnostic.target as SourceLocation;
+  strictEqual(target.file?.path, resolveVirtualPath(fileName));
+  strictEqual(fileContent.slice(target.pos, target.end), expectedText);
+}
+
+describe("extending a ruleset defined in a file", () => {
+  async function createLinterWithFiles(files: Record<string, string>) {
+    return await createTestLinter(
+      { "main.tsp": `model Foo {}`, ...files },
+      {
+        rules: [noModelFoo],
+        ruleSets: {
+          custom: { enable: { "@typespec/test-linter/no-model-foo": true } },
+        },
+      },
+    );
+  }
+
+  it("enables the rules defined in the file", async () => {
+    const linter = await createLinterWithFiles({
+      "rules.yaml": `
+enable:
+  "@typespec/test-linter/no-model-foo": true
+`,
+    });
+    expectDiagnosticEmpty(await linter.extendRuleSet({ extends: ["file:./rules.yaml"] }));
+    expectDiagnostics((await linter.lint()).diagnostics, {
+      code: "@typespec/test-linter/no-model-foo",
+    });
+  });
+
+  it("resolves path without ./ prefix", async () => {
+    const linter = await createLinterWithFiles({
+      "rules.yaml": `
+enable:
+  "@typespec/test-linter/no-model-foo": true
+`,
+    });
+    expectDiagnosticEmpty(await linter.extendRuleSet({ extends: ["file:rules.yaml"] }));
+    expectDiagnostics((await linter.lint()).diagnostics, {
+      code: "@typespec/test-linter/no-model-foo",
+    });
+  });
+
+  it("can extend a ruleset defined in a library", async () => {
+    const linter = await createLinterWithFiles({
+      "rules.yaml": `
+extends:
+  - "@typespec/test-linter/custom"
+`,
+    });
+    expectDiagnosticEmpty(await linter.extendRuleSet({ extends: ["file:./rules.yaml"] }));
+    expectDiagnostics((await linter.lint()).diagnostics, {
+      code: "@typespec/test-linter/no-model-foo",
+    });
+  });
+
+  it("can disable a rule enabled by an extended ruleset", async () => {
+    const linter = await createLinterWithFiles({
+      "rules.yaml": `
+extends:
+  - "@typespec/test-linter/custom"
+disable:
+  "@typespec/test-linter/no-model-foo": "Not applicable here"
+`,
+    });
+    expectDiagnosticEmpty(await linter.extendRuleSet({ extends: ["file:./rules.yaml"] }));
+    expectDiagnosticEmpty((await linter.lint()).diagnostics);
+  });
+
+  it("can enable a rule that an extended file set to `enable: false`", async () => {
+    const linter = await createLinterWithFiles({
+      "rules.yaml": `
+enable:
+  "@typespec/test-linter/no-model-foo": false
+`,
+    });
+    expectDiagnosticEmpty(
+      await linter.extendRuleSet({
+        extends: ["file:./rules.yaml"],
+        enable: { "@typespec/test-linter/no-model-foo": true },
+      }),
+    );
+    expectDiagnostics((await linter.lint()).diagnostics, {
+      code: "@typespec/test-linter/no-model-foo",
+    });
+  });
+
+  it("can re-enable a rule disabled by an extended file", async () => {
+    const linter = await createLinterWithFiles({
+      "rules.yaml": `
+extends:
+  - "@typespec/test-linter/custom"
+disable:
+  "@typespec/test-linter/no-model-foo": "Not applicable here"
+`,
+    });
+    expectDiagnosticEmpty(
+      await linter.extendRuleSet({
+        extends: ["file:./rules.yaml"],
+        enable: { "@typespec/test-linter/no-model-foo": true },
+      }),
+    );
+    expectDiagnostics((await linter.lint()).diagnostics, {
+      code: "@typespec/test-linter/no-model-foo",
+    });
+  });
+
+  it("emits a diagnostic when a library ruleset tries to extend a file", async () => {
+    const linter = await createTestLinter(`model Foo {}`, {
+      rules: [noModelFoo],
+      ruleSets: {
+        custom: { extends: ["file:./rules.yaml"] },
+      },
+    });
+    expectDiagnostics(await linter.extendRuleSet({ extends: ["@typespec/test-linter/custom"] }), {
+      code: "ruleset-file-in-library",
+      message:
+        'Ruleset "@typespec/test-linter/custom" is defined in a library and cannot extend the ruleset file "file:./rules.yaml". "file:" references can only be used in "tspconfig.yaml" or in another ruleset file.',
+    });
+    expectDiagnosticEmpty((await linter.lint()).diagnostics);
+  });
+
+  it("emits a diagnostic when a library ruleset reached through a ruleset file extends a file", async () => {
+    const linter = await createTestLinter(
+      {
+        "main.tsp": `model Foo {}`,
+        "rules.yaml": `extends:\n  - "@typespec/test-linter/custom"\n`,
+      },
+      {
+        rules: [noModelFoo],
+        ruleSets: {
+          custom: { extends: ["file:./other.yaml"] },
+        },
+      },
+    );
+    expectDiagnostics(await linter.extendRuleSet({ extends: ["file:./rules.yaml"] }), {
+      code: "ruleset-file-in-library",
+    });
+  });
+
+  it("resolves nested file reference relative to the ruleset file", async () => {
+    const linter = await createLinterWithFiles({
+      "rulesets/main.yaml": `
+extends:
+  - "file:./base.yaml"
+`,
+      "rulesets/base.yaml": `
+enable:
+  "@typespec/test-linter/no-model-foo": true
+`,
+    });
+    expectDiagnosticEmpty(await linter.extendRuleSet({ extends: ["file:./rulesets/main.yaml"] }));
+    expectDiagnostics((await linter.lint()).diagnostics, {
+      code: "@typespec/test-linter/no-model-foo",
+    });
+  });
+
+  it("emits a diagnostic when the file doesn't exist", async () => {
+    const linter = await createLinterWithFiles({});
+    expectDiagnostics(await linter.extendRuleSet({ extends: ["file:./not-found.yaml"] }), {
+      code: "file-not-found",
+    });
+  });
+
+  it("locates a missing file on the `extends` entry that referenced it", async () => {
+    const content = `
+extends:
+  - "file:./not-found.yaml"
+`;
+    const linter = await createLinterWithFiles({ "rules.yaml": content });
+    const diagnostics = await linter.extendRuleSet({ extends: ["file:./rules.yaml"] });
+    expectDiagnostics(diagnostics, { code: "file-not-found" });
+    expectTargetsSourceText(diagnostics[0], "rules.yaml", content, `"file:./not-found.yaml"`);
+  });
+
+  it("emits a diagnostic when the file is not a valid ruleset", async () => {
+    const linter = await createLinterWithFiles({
+      "rules.yaml": `
+notARuleSetProperty: true
+`,
+    });
+    const diagnostics = await linter.extendRuleSet({ extends: ["file:./rules.yaml"] });
+    expectDiagnostics(diagnostics, { code: "invalid-schema" });
+    // Diagnostics must point at the ruleset file itself, not `<anonymous file>`.
+    strictEqual((diagnostics[0].target as any).file.path, resolveVirtualPath("rules.yaml"));
+  });
+
+  it("emits a diagnostic pointing at the ruleset file when the yaml is malformed", async () => {
+    const linter = await createLinterWithFiles({
+      "rules.yaml": `
+enable:
+  - "a/b": [
+`,
+    });
+    const diagnostics = await linter.extendRuleSet({ extends: ["file:./rules.yaml"] });
+    expectDiagnostics(diagnostics, { code: "yaml-bad-indent" });
+    strictEqual((diagnostics[0].target as any).file.path, resolveVirtualPath("rules.yaml"));
+  });
+
+  it("emits a diagnostic when the file extends itself", async () => {
+    const content = `
+extends:
+  - "file:./rules.yaml"
+`;
+    const linter = await createLinterWithFiles({ "rules.yaml": content });
+    const diagnostics = await linter.extendRuleSet({ extends: ["file:./rules.yaml"] });
+    expectDiagnostics(diagnostics, { code: "circular-ruleset-file" });
+    // The diagnostic is located on the `extends` entry that closes the cycle.
+    expectTargetsSourceText(diagnostics[0], "rules.yaml", content, `"file:./rules.yaml"`);
+  });
+
+  it("emits a diagnostic when there is a circular reference between files", async () => {
+    const bContent = `
+extends:
+  - "file:./a.yaml"
+`;
+    const linter = await createLinterWithFiles({
+      "a.yaml": `
+extends:
+  - "file:./b.yaml"
+`,
+      "b.yaml": bContent,
+    });
+    const diagnostics = await linter.extendRuleSet({ extends: ["file:./a.yaml"] });
+    expectDiagnostics(diagnostics, { code: "circular-ruleset-file" });
+    // Blames `b.yaml`, the file that references back into the cycle.
+    expectTargetsSourceText(diagnostics[0], "b.yaml", bContent, `"file:./a.yaml"`);
+  });
+});
+
+describe("(integration) linter ruleset file in tspconfig", () => {
+  it("loads the ruleset relative to the config file", async () => {
+    const diagnostics = await Tester.files({
+      "node_modules/my-lib/package.json": JSON.stringify({ name: "my-lib", main: "index.js" }),
+      "node_modules/my-lib/index.js": mockFile.js({
+        $lib: createTypeSpecLibrary({ name: "my-lib", diagnostics: {} }),
+        $linter: { rules: [noModelFoo] },
+      }),
+      "rules.yaml": `
+enable:
+  "my-lib/no-model-foo": true
+`,
+    }).diagnose(`model Foo {}`, {
+      compilerOptions: {
+        linterRuleSet: { extends: ["file:./rules.yaml"] },
+      },
+    });
+    expectDiagnostics(diagnostics, { code: "my-lib/no-model-foo" });
   });
 });
