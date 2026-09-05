@@ -15,17 +15,29 @@ import type { Diagnosable } from "../create-diagnosable.js";
 import { createDiagnosable } from "../create-diagnosable.js";
 import { defineKit } from "../define-kit.js";
 import type { DecoratorArgs } from "../utils.js";
-import { copyMap, decoratorApplication } from "../utils.js";
+import { copyMap, decoratorApplication, resolveExpressionFlag } from "../utils.js";
 
 /**
  * A descriptor for creating a model.
  */
 export interface ModelDescriptor {
   /**
-   * The name of the Model. If name is provided, it is a Model  declaration.
+   * The name of the Model. If a non-empty name is provided, it is a Model declaration.
    * Otherwise, it is a Model expression.
    */
   name?: string;
+
+  /**
+   * Whether the model is used in expression position (`expression: true`). When
+   * omitted, this defaults to `true` for an anonymous model (no name or an empty
+   * name) and `false` for a named one. Set this explicitly to create a *named*
+   * model declaration expression (a name that is kept on the type but not
+   * registered in a namespace).
+   *
+   * A declaration must have a name, so setting `expression: false` on an anonymous
+   * model throws.
+   */
+  expression?: boolean;
 
   /**
    * Decorators to apply to the Model.
@@ -154,6 +166,7 @@ defineKit<TypekitExtension>({
         derivedModels: desc.derivedModels ?? [],
         sourceModels: desc.sourceModels ?? [],
         indexer: desc.indexer,
+        expression: resolveExpressionFlag("model", desc.name, desc.expression),
       });
 
       this.program.checker.finishType(model);
@@ -165,7 +178,7 @@ defineKit<TypekitExtension>({
     },
 
     isExpresion(type) {
-      return type.name === "";
+      return type.expression;
     },
     getEffectiveModel(model, filter?: (property: ModelProperty) => boolean) {
       return getEffectiveModelType(this.program, model, filter);

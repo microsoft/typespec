@@ -76,11 +76,13 @@ export const TypeConfig: TypeGraphConfig = buildConfig({
     properties: "nested-items",
     sourceModel: "ref",
     sourceModels: "value",
+    expression: "value",
   },
   Scalar: {
     baseScalar: "ref",
     derivedScalars: "ref",
     constructors: "nested-items",
+    expression: "value",
   },
   ModelProperty: {
     model: "parent",
@@ -91,6 +93,7 @@ export const TypeConfig: TypeGraphConfig = buildConfig({
   },
   Enum: {
     members: "nested-items",
+    expression: "value",
   },
   EnumMember: {
     enum: "parent",
