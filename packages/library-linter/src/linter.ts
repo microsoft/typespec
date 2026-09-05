@@ -2,6 +2,7 @@ import type { Namespace, Program, Type } from "@typespec/compiler";
 import { SyntaxKind } from "@typespec/compiler/ast";
 import { reportDiagnostic } from "./lib.js";
 import { validateDocumentation } from "./validate-docs.js";
+import { validateRuleSets } from "./validate-rulesets.js";
 
 export function $onValidate(program: Program) {
   const root = program.getGlobalNamespaceType();
@@ -9,6 +10,7 @@ export function $onValidate(program: Program) {
   validateNoExportAtRoot(program, root);
   validateDecoratorSignature(program);
   validateDocumentation(program);
+  validateRuleSets(program);
 }
 
 function validateNoExportAtRoot(program: Program, root: Namespace) {
