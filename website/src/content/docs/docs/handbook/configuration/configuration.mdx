@@ -86,7 +86,7 @@ model TypeSpecProjectSchema {
 }
 
 model LinterConfig {
-  extends?: RuleRef[];
+  extends?: RuleSetRef[];
   enable?: Record<RuleRef, boolean | object>;
   disable?: Record<RuleRef, string>;
 }
@@ -464,6 +464,32 @@ linter:
 ```
 
 When an object is provided, the values are merged with the rule's default options. See each rule's documentation for available options.
+
+#### Extending a ruleset defined in a file
+
+A ruleset can also be defined in a standalone YAML file and referenced with the `file:` prefix. This is useful to share a common set of rules across multiple projects, or to version a ruleset independently of the libraries providing the rules.
+
+```yaml title=tspconfig.yaml
+linter:
+  extends:
+    - "file:../common-rules.yaml"
+```
+
+The referenced file has the same shape as the `linter` config:
+
+```yaml title=common-rules.yaml
+extends:
+  - "@typespec/best-practices/recommended"
+  - "@typespec/http/recommended"
+enable:
+  "@typespec/best-practices/new-rule": true
+disable:
+  "@typespec/best-practices/foo": "This rule is too strict for this repository"
+```
+
+Relative paths are resolved relative to the file declaring them: a `file:` reference in `tspconfig.yaml` resolves relative to the config file, and a `file:` reference inside a ruleset file resolves relative to that ruleset file. Ruleset files may extend other ruleset files, and rulesets defined in libraries, in any combination.
+
+`file:` references can only be used in `tspconfig.yaml` or in another ruleset file. A ruleset defined in a library cannot use them, as it is not anchored to any directory the path could be resolved against.
 
 ## CLI Flags for Emitter Control
 

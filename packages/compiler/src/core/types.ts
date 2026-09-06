@@ -2700,6 +2700,16 @@ export type LinterRule<
 export type RuleRef = `${string}/${string}`;
 
 /**
+ * Reference to a ruleset defined in a yaml file. In this format `file:<path to the yaml file>`.
+ * A relative path is resolved relative to the file declaring it (`tspconfig.yaml` or another ruleset file).
+ * Only valid in `tspconfig.yaml` or in another ruleset file, not in a ruleset defined by a library.
+ */
+export type RuleSetFileRef = `file:${string}`;
+
+/** Reference to a ruleset. Either a ruleset defined in a library or one defined in a local yaml file. */
+export type RuleSetRef = RuleRef | RuleSetFileRef;
+
+/**
  * Value for enabling a linter rule.
  * - `true` enables the rule with default options.
  * - An object enables the rule with the specified options.
@@ -2708,7 +2718,7 @@ export type LinterRuleEnableValue = boolean | Record<string, unknown>;
 
 export interface LinterRuleSet {
   /** Other ruleset this ruleset extends */
-  extends?: RuleRef[];
+  extends?: RuleSetRef[];
 
   /** Rules to enable/configure */
   enable?: Record<RuleRef, LinterRuleEnableValue>;
