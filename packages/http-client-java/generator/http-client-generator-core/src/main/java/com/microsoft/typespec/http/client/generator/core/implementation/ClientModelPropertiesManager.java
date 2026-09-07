@@ -128,9 +128,7 @@ public final class ClientModelPropertiesManager {
         Set<String> thisModelPropertySerializeNames = Stream.concat(
             // discriminator property is known to be redefined in subclass
             model.getProperties().stream().filter(property -> !property.isPolymorphicDiscriminator()),
-            // For example, after a child's fixed "type" property is removed from model.getProperties(), the fixed
-            // "type" entry in model.getParentPolymorphicDiscriminators() is included here so the inherited parent
-            // "type" property is masked. Otherwise, the generated child has two "type" members.
+            // Canonicalized parent discriminators mask inherited ordinary properties with the same wire name.
             model.getParentPolymorphicDiscriminators().stream())
             .map(ClientModelProperty::getSerializedName)
             .filter(name -> Objects.nonNull(name) && !name.isEmpty())

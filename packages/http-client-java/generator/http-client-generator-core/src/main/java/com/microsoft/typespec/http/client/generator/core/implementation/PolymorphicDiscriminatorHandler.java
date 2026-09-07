@@ -117,7 +117,7 @@ public final class PolymorphicDiscriminatorHandler {
                 && settings.isShareJsonSerializableCode()) {
                 classBlock.memberVariable(JavaVisibility.PackagePrivate, fieldSignature);
             } else if (!allPolymorphicModelsInSamePackage || !settings.isShareJsonSerializableCode()) {
-                // Active discriminators stay mutable to preserve unknown values during fallback deserialization.
+                // Fixed inherited parent discriminators are final; active discriminators remain mutable for fallback.
                 if (discriminator.isConstant()
                     && !Objects.equals(discriminator.getSerializedName(), model.getPolymorphicDiscriminatorName())) {
                     classBlock.privateFinalMemberVariable(fieldSignature);

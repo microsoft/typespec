@@ -355,15 +355,9 @@ public class ModelMapper implements IMapper<ObjectSchema, ClientModel>, NeedsPla
             result = builder.build();
 
             if (isPolymorphic && !CoreUtils.isNullOrEmpty(derivedTypes)) {
-                // Walk the polymorphic hierarchy finding places where the parent model and child model have different
-                // polymorphic discriminators. When this case is found add the parent polymorphic discriminator as a
-                // parent
-                // polymorphic discriminator to the child model. This is necessary to ensure that the child model
-                // generates
-                // the correct serialization in multi-level polymorphic structures.
+                // Preserve the fixed outer discriminator when a child starts a nested discriminator hierarchy.
                 for (ClientModel derivedType : derivedTypes) {
                     if (!Objects.equals(polymorphicDiscriminator, derivedType.getPolymorphicDiscriminatorName())) {
-                        // The child hierarchy stays in one fixed parent discriminator branch.
                         ClientModelProperty parentDiscriminator = result.getPolymorphicDiscriminator()
                             .newBuilder()
                             .defaultValue(result.getPolymorphicDiscriminator()
@@ -383,17 +377,35 @@ public class ModelMapper implements IMapper<ObjectSchema, ClientModel>, NeedsPla
         return result;
     }
 
+    /**
+     * Propagates a fixed discriminator from an outer hierarchy through a nested discriminator hierarchy.
+     * <p>
+     * The {@code parentDiscriminator} is the fixed outer selection, while {@code child}'s discriminator remains the
+     * active discriminator for its own descendants. For example, given an outer {@code type} discriminator, a
+     * {@code type="message"} child that introduces {@code role}, and a {@code role="assistant"} grandchild, both nested
+     * models retain the canonical {@code type="message"} value while {@code role} controls nested dispatch.
+     * <p>
+     * A child can also declare an ordinary fixed property with the same wire name as the propagated discriminator.
+     * Keeping both representations would generate duplicate fields and accessors. Such a property must be constant and
+     * have the same wire type, client type, and fixed value as {@code parentDiscriminator}; otherwise mapping fails.
+     * A valid property becomes the canonical entry in {@link ClientModel#getParentPolymorphicDiscriminators()}, with
+     * discriminator metadata applied, and is removed from {@link ClientModel#getProperties()}. When no same-wire-name
+     * child property exists, {@code parentDiscriminator} itself remains the canonical parent entry.
+     * <p>
+     * Parent models map after their children, so the canonical entry is inserted at index zero to retain
+     * outer-to-inner discriminator order. The fixed discriminator is then recursively propagated to every descendant.
+     * For current stream-style JSON, same-package hierarchies may serialize this metadata through shared
+     * {@code toJsonShared} code. When hierarchy models are in different packages, or sharing is disabled, each model
+     * serializes inherited discriminator metadata through {@code serializeParentJsonProperties}, which consumes
+     * {@link ClientModel#getParentPolymorphicDiscriminators()}.
+     *
+     * @param parentDiscriminator the fixed discriminator selected by the outer hierarchy
+     * @param child the nested-hierarchy model that receives the fixed discriminator
+     * @throws IllegalStateException if the child declares the same wire name without matching constant status, wire
+     * type, client type, and fixed value
+     */
     private static void passPolymorphicDiscriminatorToChildren(ClientModelProperty parentDiscriminator,
         ClientModel child) {
-        // A child that introduces a different discriminator still needs the fixed discriminator value selected by the
-        // parent hierarchy. For example, a parent may discriminate on "type", while a child fixes type="message" and
-        // discriminates its children on "role". The child branch must retain type="message" while dispatching by
-        // "role".
-        //
-        // If child.getProperties() contains a fixed property with the same serialized name and value as
-        // parentDiscriminator, use the matching property to build the parent discriminator entry. Then remove the
-        // matching property from child.getProperties() so the generated model does not contain "type" as both a normal
-        // property and a parent discriminator.
         ClientModelProperty discriminatorForChild = parentDiscriminator;
         for (int i = 0; i < child.getProperties().size(); i++) {
             ClientModelProperty childProperty = child.getProperties().get(i);
@@ -423,8 +435,6 @@ public class ModelMapper implements IMapper<ObjectSchema, ClientModel>, NeedsPla
             break;
         }
 
-        // Children are mapped before their parents, so insert at index 0 to preserve outer-to-inner discriminator
-        // order.
         child.getParentPolymorphicDiscriminators().add(0, discriminatorForChild);
 
         for (ClientModel derived : child.getDerivedModels()) {

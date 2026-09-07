@@ -873,19 +873,7 @@ public class ModelTemplate implements IJavaTemplate<ClientModel, JavaFile> {
 
                         superProperties.append(property.getName());
                     } else {
-                        /*
-                         * here because the property in superclass constructor is overwritten in this model
-                         * one example is
-                         *
-                         * model ParentModel {
-                         * property: string;
-                         * }
-                         * model Model extends ParentModel {
-                         * property: "constant";
-                         * }
-                         *
-                         * we use the property in this model to initiate the superclass
-                         */
+                        // Canonicalized discriminators can supply a fixed inherited constructor argument.
                         ClientModelProperty overridingProperty = Stream
                             .concat(model.getProperties().stream(), model.getParentPolymorphicDiscriminators().stream())
                             .filter(p -> Objects.equals(p.getSerializedName(), property.getSerializedName()))
