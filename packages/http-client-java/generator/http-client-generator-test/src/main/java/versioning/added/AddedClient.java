@@ -14,6 +14,7 @@ import com.azure.core.exception.ResourceModifiedException;
 import com.azure.core.exception.ResourceNotFoundException;
 import com.azure.core.http.rest.RequestOptions;
 import com.azure.core.http.rest.Response;
+import com.azure.core.http.rest.SimpleResponse;
 import com.azure.core.util.BinaryData;
 import versioning.added.implementation.AddedClientImpl;
 import versioning.added.models.ModelV1;
@@ -74,8 +75,8 @@ public final class AddedClient {
      */
     @Generated
     @ServiceMethod(returns = ReturnType.SINGLE)
-    public Response<BinaryData> v1WithResponse(String headerV2, BinaryData body, RequestOptions requestOptions) {
-        return this.serviceClient.v1WithResponse(headerV2, body, requestOptions);
+    Response<BinaryData> v1WithResponseInternal(String headerV2, BinaryData body, RequestOptions requestOptions) {
+        return this.serviceClient.v1WithResponseInternal(headerV2, body, requestOptions);
     }
 
     /**
@@ -114,8 +115,32 @@ public final class AddedClient {
      */
     @Generated
     @ServiceMethod(returns = ReturnType.SINGLE)
-    public Response<BinaryData> v2WithResponse(BinaryData body, RequestOptions requestOptions) {
-        return this.serviceClient.v2WithResponse(body, requestOptions);
+    Response<BinaryData> v2WithResponseInternal(BinaryData body, RequestOptions requestOptions) {
+        return this.serviceClient.v2WithResponseInternal(body, requestOptions);
+    }
+
+    /**
+     * The v1 operation.
+     *
+     * @param headerV2 The headerV2 parameter.
+     * @param body The body parameter.
+     * @param requestOptions The options to configure the HTTP request before HTTP client sends it.
+     * @throws IllegalArgumentException thrown if parameters fail the validation.
+     * @throws HttpResponseException thrown if the request is rejected by server.
+     * @throws ClientAuthenticationException thrown if the request is rejected by server on status code 401.
+     * @throws ResourceNotFoundException thrown if the request is rejected by server on status code 404.
+     * @throws ResourceModifiedException thrown if the request is rejected by server on status code 409.
+     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
+     * @return the response body along with {@link Response}.
+     */
+    @Generated
+    @ServiceMethod(returns = ReturnType.SINGLE)
+    public Response<ModelV1> v1WithResponse(String headerV2, ModelV1 body, RequestOptions requestOptions) {
+        // Generated convenience method for v1WithResponseInternal
+        requestOptions = requestOptions == null ? new RequestOptions() : requestOptions;
+        Response<BinaryData> protocolMethodResponse
+            = v1WithResponseInternal(headerV2, BinaryData.fromObject(body), requestOptions);
+        return new SimpleResponse<>(protocolMethodResponse, protocolMethodResponse.getValue().toObject(ModelV1.class));
     }
 
     /**
@@ -134,9 +159,33 @@ public final class AddedClient {
     @Generated
     @ServiceMethod(returns = ReturnType.SINGLE)
     public ModelV1 v1(String headerV2, ModelV1 body) {
-        // Generated convenience method for v1WithResponse
+        // Generated convenience method for v1WithResponseInternal
         RequestOptions requestOptions = new RequestOptions();
-        return v1WithResponse(headerV2, BinaryData.fromObject(body), requestOptions).getValue().toObject(ModelV1.class);
+        return v1WithResponseInternal(headerV2, BinaryData.fromObject(body), requestOptions).getValue()
+            .toObject(ModelV1.class);
+    }
+
+    /**
+     * The v2 operation.
+     *
+     * @param body The body parameter.
+     * @param requestOptions The options to configure the HTTP request before HTTP client sends it.
+     * @throws IllegalArgumentException thrown if parameters fail the validation.
+     * @throws HttpResponseException thrown if the request is rejected by server.
+     * @throws ClientAuthenticationException thrown if the request is rejected by server on status code 401.
+     * @throws ResourceNotFoundException thrown if the request is rejected by server on status code 404.
+     * @throws ResourceModifiedException thrown if the request is rejected by server on status code 409.
+     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
+     * @return the response body along with {@link Response}.
+     */
+    @Generated
+    @ServiceMethod(returns = ReturnType.SINGLE)
+    public Response<ModelV2> v2WithResponse(ModelV2 body, RequestOptions requestOptions) {
+        // Generated convenience method for v2WithResponseInternal
+        requestOptions = requestOptions == null ? new RequestOptions() : requestOptions;
+        Response<BinaryData> protocolMethodResponse
+            = v2WithResponseInternal(BinaryData.fromObject(body), requestOptions);
+        return new SimpleResponse<>(protocolMethodResponse, protocolMethodResponse.getValue().toObject(ModelV2.class));
     }
 
     /**
@@ -154,8 +203,8 @@ public final class AddedClient {
     @Generated
     @ServiceMethod(returns = ReturnType.SINGLE)
     public ModelV2 v2(ModelV2 body) {
-        // Generated convenience method for v2WithResponse
+        // Generated convenience method for v2WithResponseInternal
         RequestOptions requestOptions = new RequestOptions();
-        return v2WithResponse(BinaryData.fromObject(body), requestOptions).getValue().toObject(ModelV2.class);
+        return v2WithResponseInternal(BinaryData.fromObject(body), requestOptions).getValue().toObject(ModelV2.class);
     }
 }

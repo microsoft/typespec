@@ -56,10 +56,11 @@ public final class FormDataFileAsyncClient {
      */
     @Generated
     @ServiceMethod(returns = ReturnType.SINGLE)
-    Mono<Response<Void>> uploadFileSpecificContentTypeWithResponse(BinaryData body, RequestOptions requestOptions) {
+    Mono<Response<Void>> uploadFileSpecificContentTypeWithResponseInternal(BinaryData body,
+        RequestOptions requestOptions) {
         // Operation 'uploadFileSpecificContentType' is of content-type 'multipart/form-data'. Protocol API is not
         // usable and hence not generated.
-        return this.serviceClient.uploadFileSpecificContentTypeWithResponseAsync(body, requestOptions);
+        return this.serviceClient.uploadFileSpecificContentTypeWithResponseInternalAsync(body, requestOptions);
     }
 
     /**
@@ -75,10 +76,11 @@ public final class FormDataFileAsyncClient {
      */
     @Generated
     @ServiceMethod(returns = ReturnType.SINGLE)
-    Mono<Response<Void>> uploadFileRequiredFilenameWithResponse(BinaryData body, RequestOptions requestOptions) {
+    Mono<Response<Void>> uploadFileRequiredFilenameWithResponseInternal(BinaryData body,
+        RequestOptions requestOptions) {
         // Operation 'uploadFileRequiredFilename' is of content-type 'multipart/form-data'. Protocol API is not usable
         // and hence not generated.
-        return this.serviceClient.uploadFileRequiredFilenameWithResponseAsync(body, requestOptions);
+        return this.serviceClient.uploadFileRequiredFilenameWithResponseInternalAsync(body, requestOptions);
     }
 
     /**
@@ -94,10 +96,35 @@ public final class FormDataFileAsyncClient {
      */
     @Generated
     @ServiceMethod(returns = ReturnType.SINGLE)
-    Mono<Response<Void>> uploadFileArrayWithResponse(BinaryData body, RequestOptions requestOptions) {
+    Mono<Response<Void>> uploadFileArrayWithResponseInternal(BinaryData body, RequestOptions requestOptions) {
         // Operation 'uploadFileArray' is of content-type 'multipart/form-data'. Protocol API is not usable and hence
         // not generated.
-        return this.serviceClient.uploadFileArrayWithResponseAsync(body, requestOptions);
+        return this.serviceClient.uploadFileArrayWithResponseInternalAsync(body, requestOptions);
+    }
+
+    /**
+     * The uploadFileSpecificContentType operation.
+     * 
+     * @param body The body parameter.
+     * @param requestOptions The options to configure the HTTP request before HTTP client sends it.
+     * @throws IllegalArgumentException thrown if parameters fail the validation.
+     * @throws HttpResponseException thrown if the request is rejected by server.
+     * @throws ClientAuthenticationException thrown if the request is rejected by server on status code 401.
+     * @throws ResourceNotFoundException thrown if the request is rejected by server on status code 404.
+     * @throws ResourceModifiedException thrown if the request is rejected by server on status code 409.
+     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
+     * @return the {@link Response} on successful completion of {@link Mono}.
+     */
+    @Generated
+    @ServiceMethod(returns = ReturnType.SINGLE)
+    public Mono<Response<Void>> uploadFileSpecificContentTypeWithResponse(UploadFileSpecificContentTypeRequest body,
+        RequestOptions requestOptions) {
+        // Generated convenience method for uploadFileSpecificContentTypeWithResponseInternal
+        requestOptions = requestOptions == null ? new RequestOptions() : requestOptions;
+        return uploadFileSpecificContentTypeWithResponseInternal(
+            new MultipartFormDataHelper(requestOptions).serializeFileField("file", body.getFile().getContent(),
+                body.getFile().getContentType(), body.getFile().getFilename()).end().getRequestBody(),
+            requestOptions);
     }
 
     /**
@@ -115,12 +142,37 @@ public final class FormDataFileAsyncClient {
     @Generated
     @ServiceMethod(returns = ReturnType.SINGLE)
     public Mono<Void> uploadFileSpecificContentType(UploadFileSpecificContentTypeRequest body) {
-        // Generated convenience method for uploadFileSpecificContentTypeWithResponse
+        // Generated convenience method for uploadFileSpecificContentTypeWithResponseInternal
         RequestOptions requestOptions = new RequestOptions();
-        return uploadFileSpecificContentTypeWithResponse(
+        return uploadFileSpecificContentTypeWithResponseInternal(
             new MultipartFormDataHelper(requestOptions).serializeFileField("file", body.getFile().getContent(),
                 body.getFile().getContentType(), body.getFile().getFilename()).end().getRequestBody(),
             requestOptions).flatMap(FluxUtil::toMono);
+    }
+
+    /**
+     * The uploadFileRequiredFilename operation.
+     * 
+     * @param body The body parameter.
+     * @param requestOptions The options to configure the HTTP request before HTTP client sends it.
+     * @throws IllegalArgumentException thrown if parameters fail the validation.
+     * @throws HttpResponseException thrown if the request is rejected by server.
+     * @throws ClientAuthenticationException thrown if the request is rejected by server on status code 401.
+     * @throws ResourceNotFoundException thrown if the request is rejected by server on status code 404.
+     * @throws ResourceModifiedException thrown if the request is rejected by server on status code 409.
+     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
+     * @return the {@link Response} on successful completion of {@link Mono}.
+     */
+    @Generated
+    @ServiceMethod(returns = ReturnType.SINGLE)
+    public Mono<Response<Void>> uploadFileRequiredFilenameWithResponse(UploadFileRequiredFilenameRequest body,
+        RequestOptions requestOptions) {
+        // Generated convenience method for uploadFileRequiredFilenameWithResponseInternal
+        requestOptions = requestOptions == null ? new RequestOptions() : requestOptions;
+        return uploadFileRequiredFilenameWithResponseInternal(
+            new MultipartFormDataHelper(requestOptions).serializeFileField("file", body.getFile().getContent(),
+                body.getFile().getContentType(), body.getFile().getFilename()).end().getRequestBody(),
+            requestOptions);
     }
 
     /**
@@ -138,12 +190,40 @@ public final class FormDataFileAsyncClient {
     @Generated
     @ServiceMethod(returns = ReturnType.SINGLE)
     public Mono<Void> uploadFileRequiredFilename(UploadFileRequiredFilenameRequest body) {
-        // Generated convenience method for uploadFileRequiredFilenameWithResponse
+        // Generated convenience method for uploadFileRequiredFilenameWithResponseInternal
         RequestOptions requestOptions = new RequestOptions();
-        return uploadFileRequiredFilenameWithResponse(
+        return uploadFileRequiredFilenameWithResponseInternal(
             new MultipartFormDataHelper(requestOptions).serializeFileField("file", body.getFile().getContent(),
                 body.getFile().getContentType(), body.getFile().getFilename()).end().getRequestBody(),
             requestOptions).flatMap(FluxUtil::toMono);
+    }
+
+    /**
+     * The uploadFileArray operation.
+     * 
+     * @param body The body parameter.
+     * @param requestOptions The options to configure the HTTP request before HTTP client sends it.
+     * @throws IllegalArgumentException thrown if parameters fail the validation.
+     * @throws HttpResponseException thrown if the request is rejected by server.
+     * @throws ClientAuthenticationException thrown if the request is rejected by server on status code 401.
+     * @throws ResourceNotFoundException thrown if the request is rejected by server on status code 404.
+     * @throws ResourceModifiedException thrown if the request is rejected by server on status code 409.
+     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
+     * @return the {@link Response} on successful completion of {@link Mono}.
+     */
+    @Generated
+    @ServiceMethod(returns = ReturnType.SINGLE)
+    public Mono<Response<Void>> uploadFileArrayWithResponse(UploadFileArrayRequest body,
+        RequestOptions requestOptions) {
+        // Generated convenience method for uploadFileArrayWithResponseInternal
+        requestOptions = requestOptions == null ? new RequestOptions() : requestOptions;
+        return uploadFileArrayWithResponseInternal(new MultipartFormDataHelper(requestOptions)
+            .serializeFileFields("files",
+                body.getFiles().stream().map(FilesFileDetails::getContent).collect(Collectors.toList()),
+                body.getFiles().stream().map(FilesFileDetails::getContentType).collect(Collectors.toList()),
+                body.getFiles().stream().map(FilesFileDetails::getFilename).collect(Collectors.toList()))
+            .end()
+            .getRequestBody(), requestOptions);
     }
 
     /**
@@ -161,9 +241,9 @@ public final class FormDataFileAsyncClient {
     @Generated
     @ServiceMethod(returns = ReturnType.SINGLE)
     public Mono<Void> uploadFileArray(UploadFileArrayRequest body) {
-        // Generated convenience method for uploadFileArrayWithResponse
+        // Generated convenience method for uploadFileArrayWithResponseInternal
         RequestOptions requestOptions = new RequestOptions();
-        return uploadFileArrayWithResponse(new MultipartFormDataHelper(requestOptions)
+        return uploadFileArrayWithResponseInternal(new MultipartFormDataHelper(requestOptions)
             .serializeFileFields("files",
                 body.getFiles().stream().map(FilesFileDetails::getContent).collect(Collectors.toList()),
                 body.getFiles().stream().map(FilesFileDetails::getContentType).collect(Collectors.toList()),

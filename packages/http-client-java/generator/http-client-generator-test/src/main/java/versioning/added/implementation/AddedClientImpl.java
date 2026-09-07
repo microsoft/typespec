@@ -237,7 +237,7 @@ public final class AddedClientImpl {
      * @return the response body along with {@link Response} on successful completion of {@link Mono}.
      */
     @ServiceMethod(returns = ReturnType.SINGLE)
-    public Mono<Response<BinaryData>> v1WithResponseAsync(String headerV2, BinaryData body,
+    public Mono<Response<BinaryData>> v1WithResponseInternalAsync(String headerV2, BinaryData body,
         RequestOptions requestOptions) {
         final String contentType = "application/json";
         final String accept = "application/json";
@@ -281,7 +281,8 @@ public final class AddedClientImpl {
      * @return the response body along with {@link Response}.
      */
     @ServiceMethod(returns = ReturnType.SINGLE)
-    public Response<BinaryData> v1WithResponse(String headerV2, BinaryData body, RequestOptions requestOptions) {
+    public Response<BinaryData> v1WithResponseInternal(String headerV2, BinaryData body,
+        RequestOptions requestOptions) {
         final String contentType = "application/json";
         final String accept = "application/json";
         return service.v1Sync(this.getEndpoint(), this.getServiceVersion().getVersion(), headerV2, contentType, accept,
@@ -323,7 +324,7 @@ public final class AddedClientImpl {
      * @return the response body along with {@link Response} on successful completion of {@link Mono}.
      */
     @ServiceMethod(returns = ReturnType.SINGLE)
-    public Mono<Response<BinaryData>> v2WithResponseAsync(BinaryData body, RequestOptions requestOptions) {
+    public Mono<Response<BinaryData>> v2WithResponseInternalAsync(BinaryData body, RequestOptions requestOptions) {
         final String contentType = "application/json";
         final String accept = "application/json";
         return FluxUtil.withContext(context -> service.v2(this.getEndpoint(), this.getServiceVersion().getVersion(),
@@ -365,7 +366,7 @@ public final class AddedClientImpl {
      * @return the response body along with {@link Response}.
      */
     @ServiceMethod(returns = ReturnType.SINGLE)
-    public Response<BinaryData> v2WithResponse(BinaryData body, RequestOptions requestOptions) {
+    public Response<BinaryData> v2WithResponseInternal(BinaryData body, RequestOptions requestOptions) {
         final String contentType = "application/json";
         final String accept = "application/json";
         return service.v2Sync(this.getEndpoint(), this.getServiceVersion().getVersion(), contentType, accept, body,

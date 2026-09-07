@@ -6,10 +6,17 @@ package com.microsoft.typespec.http.client.generator.model;
 import io.clientcore.core.serialization.json.JsonReader;
 import java.io.IOException;
 import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.ValueSource;
 
 public final class EmitterOptionsTests {
+
+    @Test
+    public void testMaxOverload() throws IOException {
+        EmitterOptions options = EmitterOptions.fromJson(JsonReader.fromString("{\"max-overload\":\"model\"}"));
+        Assertions.assertEquals("model", options.getMaxOverload());
+    }
 
     @ParameterizedTest
     @ValueSource(

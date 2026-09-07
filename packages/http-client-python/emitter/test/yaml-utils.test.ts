@@ -1,9 +1,9 @@
 import { ok, strictEqual } from "assert";
 import { load } from "js-yaml";
 import { describe, it } from "vitest";
-import { dumpCodeModelToYaml } from "../src/external-process.js";
+import { dumpCodeModelToYaml } from "../src/yaml-utils.js";
 
-describe("typespec-python: external-process", () => {
+describe("typespec-python: yaml-utils", () => {
   // The Python generator parses the emitted YAML with PyYAML (YAML 1.1), where a plain
   // scalar such as `2020_01_01` is interpreted as the integer `20200101`. js-yaml dumps
   // using YAML 1.2 rules and would otherwise leave such string scalars unquoted, so we

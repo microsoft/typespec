@@ -121,37 +121,37 @@ interface ProtocolAndConvenienceOp {
   @doc("When set protocol false and convenient true, then the protocol method should be package private")
   @route("onlyConvenient")
   @post
-  @convenientAPI(true)
-  @protocolAPI(false)
+  @convenientAPI(true, "java")
+  @protocolAPI(false, "java")
   onlyConvenient(@body body: ResourceA): ResourceB;
 
   @doc("When set protocol true and convenient false, only the protocol method should be generated, ResourceC and ResourceD should not be generated")
   @route("onlyProtocol")
   @post
-  @convenientAPI(false)
-  @protocolAPI(true)
+  @convenientAPI(false, "java")
+  @protocolAPI(true, "java")
   onlyProtocol(@body body: ResourceC): ResourceD;
 
   @doc("Setting protocol true and convenient true, both convenient and protocol methods will be generated")
   @route("bothConvenientAndProtocol")
   @post
-  @convenientAPI(true)
-  @protocolAPI(true)
+  @convenientAPI(true, "java")
+  @protocolAPI(true, "java")
   bothConvenientAndProtocol(@body body: ResourceE): ResourceF;
 
   @doc("When set protocol false and convenient false")
   @route("errorSetting")
   @post
-  @convenientAPI(false)
-  @protocolAPI(false)
+  @convenientAPI(false, "java")
+  @protocolAPI(false, "java")
   errorSetting(@body body: ResourceG): ResourceH;
 
   @doc("Long running operation")
   @pollingOperation(ResourceOperations.GetResourceOperationStatus<ResourceI, never>)
-  @protocolAPI(false)
+  @protocolAPI(false, "java")
   createOrReplace is ResourceOperations.LongRunningResourceCreateOrReplace<ResourceI>;
 
   @doc("Paging operation")
-  @protocolAPI(false)
+  @protocolAPI(false, "java")
   list is ResourceOperations.ResourceList<ResourceJ, ListTrait>;
 }
