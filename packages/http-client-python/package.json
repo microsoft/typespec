@@ -97,11 +97,11 @@
     ]
   },
   "dependencies": {
-    "js-yaml": "^4.2.0",
+    "js-yaml": "^4.3.1",
     "marked": "^15.0.6",
     "pyodide": "0.26.2",
     "semver": "~7.6.2",
-    "tsx": "^4.21.0"
+    "tsx": "^4.23.13"
   },
   "devDependencies": {
     "@azure-tools/typespec-autorest": "~0.71.0",
