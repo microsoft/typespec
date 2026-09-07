@@ -1,4 +1,39 @@
+import { createCSharpNamePolicy, csharpContextualKeywords, csharpKeywords } from "@alloy-js/csharp";
 import { isStdNamespace, type Namespace as TspNamespace } from "@typespec/compiler";
+
+/**
+ * Names that a generated namespace segment must not use.
+ *
+ * This is Alloy's keyword set plus two identifiers that are not C# keywords but shadow
+ * types every generated file relies on: `System.Type` (used by every `typeof()` in the
+ * emitted converters) and `boolean`.
+ */
+const namespaceReservedWords = new Set<string>([
+  ...csharpKeywords,
+  ...csharpContextualKeywords,
+  "boolean",
+  "type",
+]);
+
+/**
+ * Builds the C# namespace name for a dotted TypeSpec namespace path.
+ *
+ * Alloy's name policy escapes keywords with a leading `@`, which is legal but unpleasant in
+ * a namespace, and it does not consider the shadowing cases above at all. So reserved
+ * segments are renamed (`Type` → `TypeName`) before the name policy casing is applied.
+ */
+export function getCSharpNamespaceName(dottedName: string): string {
+  const namePolicy = createCSharpNamePolicy();
+  return dottedName
+    .split(".")
+    .map((part) =>
+      namePolicy.getName(
+        namespaceReservedWords.has(part.toLowerCase()) ? `${part}Name` : part,
+        "namespace",
+      ),
+    )
+    .join(".");
+}
 
 /**
  * Gets the sub-namespace path of a type's namespace relative to the service namespace.

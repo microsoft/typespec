@@ -62,6 +62,7 @@ export {
   listOperationsIn,
   printIdentifier,
   resolveUsages,
+  sanitizePathSegment,
   UsageFlags,
 } from "./core/helpers/index.js";
 export type {
@@ -104,6 +105,7 @@ export {
   createTypeSpecLibrary,
   defineLinter,
   definePackageFlags,
+  defineTypeInfoProvider,
   paramMessage,
   setTypeSpecNamespace,
 } from "./core/library.js";
@@ -440,6 +442,8 @@ export type {
   ReplaceTextCodeFixEdit,
   RmOptions,
   RuleRef,
+  RuleSetFileRef,
+  RuleSetRef,
   Scalar,
   ScalarConstructor,
   ScalarValue,
@@ -470,6 +474,9 @@ export type {
   TracerOptions,
   Tuple,
   Type,
+  TypeInfo,
+  TypeInfoContext,
+  TypeInfoProvider,
   TypeInstantiationMap,
   TypeListeners,
   TypeMapper,

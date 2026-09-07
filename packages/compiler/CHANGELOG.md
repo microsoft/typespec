@@ -1,5 +1,87 @@
 # Change Log - @typespec/compiler
 
+## 1.15.0
+
+### Breaking Changes
+
+- [#11552](https://github.com/microsoft/typespec/pull/11552) `using` statements declared before a file-level(blockless) namespace are now resolved from the global namespace instead of the file namespace, matching C#.
+  
+  ```tsp
+  using TypeSpec.Http; // Now resolves the global `TypeSpec` namespace instead of `_Specs_.TypeSpec`
+  namespace _Specs_.TypeSpec.Foo;
+  ```
+  
+  A `using` declared after the file namespace, or inside a namespace block, is unchanged and still resolves relative to that namespace. Code relying on a relative name in a `using` written above the file namespace must now use the fully qualified name.
+  
+  ```tsp
+  namespace MyOrg.Service;
+  using Models; // Still resolves to `MyOrg.Models`
+  ```
+
+### Features
+
+- [#11476](https://github.com/microsoft/typespec/pull/11476) Add back empty project template to `tsp init` options
+  
+  ```typespec
+  # Result of selecting "Empty project" in tsp init
+  # main.tsp - minimal empty file to start from
+  ```
+- [#11000](https://github.com/microsoft/typespec/pull/11000) Add `setAutoDecorator` API to programmatically apply an `auto` decorator to a target, mirroring what the synthesized `auto dec` implementation does when the decorator is written in source. This lets emitters and mutators mark synthetic types without reaching into the program state map directly.
+  
+  ```ts
+  import { setAutoDecorator } from "@typespec/compiler";
+  
+  setAutoDecorator(program, "MyLib.myFlag", target);
+  ```
+- [#11468](https://github.com/microsoft/typespec/pull/11468) Add `Fix all: X` code action for codefixes that can be applied to multiple instances in a file at once. When a codefix applies to more than one diagnostic of the same kind in a file, a `Fix all: <fix label>` quick fix action is now suggested alongside the individual fix.
+- [#11209](https://github.com/microsoft/typespec/pull/11209) Add support for short diagnostic and linter rule names. Diagnostic/rule codes can now be referenced by their scope-stripped short name (e.g. `http/no-foo` instead of `@typespec/http/no-foo`) or by a library-declared `alias`, both in `#suppress` directives and in the `linter` section of `tspconfig.yaml`. The full name is always accepted.
+  
+  ```tsp
+  model Post {
+    #suppress "http/no-service-found" "standard library route"
+    author: LegacyUser;
+  }
+  ```
+  
+  Libraries can declare a custom alias:
+  
+  ```ts
+  export const $lib = createTypeSpecLibrary({
+    name: "@azure-tools/typespec-client-generator-core",
+    alias: "tcgc",
+    diagnostics: {
+      /* ... */
+    },
+  } as const);
+  ```
+  
+  An `alias` must be kebab-case (lowercase letters, digits, and hyphens). When two loaded libraries would resolve to the same short name, that short name is ambiguous: referencing it (in a `#suppress` directive or the `linter` config) reports a warning and the full name must be used.
+- [#11366](https://github.com/microsoft/typespec/pull/11366) Language server folding ranges now report a `kind`: comments fold as `comment` and consecutive `import` statements fold together as an `imports` region. This enables editor commands such as "Fold All Block Comments" and "Fold All Imports" to work with TypeSpec files.
+- [#11318](https://github.com/microsoft/typespec/pull/11318) Add `currentStage` property and `useCache` method to `Program` for stage-aware caching. `currentStage` tracks the compilation pipeline stage (parsing → checking → validating → linting → emitting), and `useCache` provides a generic caching mechanism that libraries can use to avoid redundant computation during later stages.
+- [#11221](https://github.com/microsoft/typespec/pull/11221) Add a `docs` field to linter rule and diagnostic definitions to provide extended reference documentation. The value can be an inline markdown string or a `FileRef` created with `fileRef.fromPackageRoot("src/rules/my-rule.md")`, which is read lazily by tooling so it stays safe to bundle for the browser.
+  
+  ```ts
+  export const myRule = createRule({
+    name: "my-rule",
+    severity: "warning",
+    description: "Short description.",
+    docs: fileRef.fromPackageRoot("src/rules/my-rule.md"),
+    messages: {
+      /* ... */
+    },
+  });
+  ```
+- [#11000](https://github.com/microsoft/typespec/pull/11000) `createTester` now mounts each discovered library's `tspconfig.yaml` into the virtual file system, so experimental features a library opts into (e.g. `auto-decorators`) are honored when compiling against the tester.
+
+### Bug Fixes
+
+- [#11477](https://github.com/microsoft/typespec/pull/11477) Fix decorators running with unresolved template parameters when a decorated template is used as a template parameter default of an operation (e.g. `op foo<Resource, Properties = Decorated<Resource>>(...)`, the ARM `TagsUpdateModel<Resource>` pattern). Operations now enter the template declaration scope before resolving template parameter defaults, so decorators on those defaults are no longer executed with the still-unresolved template parameter. This matches the existing behavior for models and interfaces.
+- [#11423](https://github.com/microsoft/typespec/pull/11423) `tsp compile .` now resolves the entrypoint from `exports["."]["typespec"]` in package.json, taking precedence over the legacy `tspMain` field
+- [#11485](https://github.com/microsoft/typespec/pull/11485) Report better error message when specifying an emitter that is not installed with `--emit` flag
+- [#11426](https://github.com/microsoft/typespec/pull/11426) IDE completion no longer adds unnecessary backticks when completing keyword identifiers in positions where they are allowed (model properties, object literal properties, member expressions).
+- [#11467](https://github.com/microsoft/typespec/pull/11467) `tsp init` template `compilerVersion` field now supports semver ranges (e.g., `^0.50.0`). Plain versions like `1.2.3` continue to work as `>=1.2.3` for backward compatibility.
+
+
 ## 1.14.0
 
 ### Deprecations

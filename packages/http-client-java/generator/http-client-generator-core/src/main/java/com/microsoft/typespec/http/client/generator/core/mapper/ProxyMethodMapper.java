@@ -4,8 +4,10 @@
 package com.microsoft.typespec.http.client.generator.core.mapper;
 
 import com.microsoft.typespec.http.client.generator.core.Javagen;
+import com.microsoft.typespec.http.client.generator.core.extension.model.codemodel.Header;
 import com.microsoft.typespec.http.client.generator.core.extension.model.codemodel.Operation;
 import com.microsoft.typespec.http.client.generator.core.extension.model.codemodel.Request;
+import com.microsoft.typespec.http.client.generator.core.extension.model.codemodel.RequestParameterLocation;
 import com.microsoft.typespec.http.client.generator.core.extension.model.codemodel.Response;
 import com.microsoft.typespec.http.client.generator.core.extension.plugin.JavaSettings;
 import com.microsoft.typespec.http.client.generator.core.extension.plugin.PluginLogger;
@@ -16,6 +18,7 @@ import com.microsoft.typespec.http.client.generator.core.model.clientmodel.Primi
 import com.microsoft.typespec.http.client.generator.core.model.clientmodel.ProxyMethod;
 import com.microsoft.typespec.http.client.generator.core.model.clientmodel.ProxyMethodExample;
 import com.microsoft.typespec.http.client.generator.core.model.clientmodel.ProxyMethodParameter;
+import com.microsoft.typespec.http.client.generator.core.model.clientmodel.ProxyMethodResponseHeader;
 import com.microsoft.typespec.http.client.generator.core.util.MethodUtil;
 import com.microsoft.typespec.http.client.generator.core.util.SchemaUtil;
 import com.microsoft.typespec.http.client.generator.core.util.XmsExampleWrapper;
@@ -25,6 +28,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.LinkedHashMap;
 import java.util.List;
+import java.util.Locale;
 import java.util.Map;
 import java.util.Set;
 import java.util.TreeMap;
@@ -68,6 +72,7 @@ public class ProxyMethodMapper implements IMapper<Operation, Map<Request, List<P
 
         final List<Integer> expectedStatusCodes = getExpectedResponseStatusCodes(operation);
         builder.responseExpectedStatusCodes(expectedStatusCodes);
+        builder.responseHeaders(getResponseHeaders(operation, settings));
         buildExpectedResponseFields(operation, settings, builder);
         buildUnexpectedResponseExceptionFields(builder, operation, expectedStatusCodes, settings);
         builder.responseContentTypes(getResponseContentTypes(operation));
@@ -128,6 +133,45 @@ public class ProxyMethodMapper implements IMapper<Operation, Map<Request, List<P
             .map(Integer::parseInt)
             .sorted()
             .collect(Collectors.toList());
+    }
+
+    protected static List<ProxyMethodResponseHeader> getResponseHeaders(Operation operation, JavaSettings settings) {
+        if (!SchemaUtil.responseContainsHeaderSchemas(operation, settings)) {
+            return List.of();
+        }
+
+        Map<String, ProxyMethodResponseHeader> responseHeaders = new LinkedHashMap<>();
+        operation.getResponses()
+            .stream()
+            .filter(response -> response.getProtocol() != null
+                && response.getProtocol().getHttp() != null
+                && response.getProtocol().getHttp().getHeaders() != null)
+            .flatMap(response -> response.getProtocol().getHttp().getHeaders().stream())
+            .filter(header -> header.getSchema() != null)
+            .forEach(header -> responseHeaders.putIfAbsent(header.getHeader().toLowerCase(Locale.ROOT),
+                mapResponseHeader(header)));
+        return new ArrayList<>(responseHeaders.values());
+    }
+
+    private static ProxyMethodResponseHeader mapResponseHeader(Header header) {
+        IType clientType = Mappers.getSchemaMapper().map(header.getSchema()).getClientType();
+        if (Mappers.getProxyParameterMapper().isRemoveModelFromClientType(clientType)) {
+            clientType = SchemaUtil.removeModelFromClientType(RequestParameterLocation.HEADER, clientType);
+        }
+        String description = null;
+        if (header.getLanguage() != null && header.getLanguage().getDefault() != null) {
+            description = header.getLanguage().getDefault().getDescription();
+        }
+        if (CoreUtils.isNullOrEmpty(description)) {
+            description = header.getSchema().getDescription();
+        }
+        if (CoreUtils.isNullOrEmpty(description)) {
+            description = String.format("The %s response header.", header.getHeader());
+        }
+        return new ProxyMethodResponseHeader.Builder().serializedName(header.getHeader())
+            .clientType(clientType)
+            .description(description)
+            .build();
     }
 
     /**

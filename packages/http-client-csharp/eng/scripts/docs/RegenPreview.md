@@ -18,7 +18,7 @@ When making changes to the TypeSpec HTTP Client C# generator, it may be helpful 
 
 1. Building local versions of the generator packages
 2. Updating the Azure SDK for .NET repository to use these local packages
-3. Regenerating all libraries (or selected libraries if `-Select` is specified)
+3. Regenerating all libraries (or specific libraries if `-Select` or `-Libraries` is specified)
 4. Cleaning up all modifications after validation
 
 ### OpenAI Mode
@@ -93,7 +93,7 @@ This will:
 - Regenerate the OpenAI library
 - Restore all modified generator metadata files on success
 
-**Note**: OpenAI mode is automatically detected when the repository path contains "openai-dotnet". The `-Select`, `-Azure`, `-Unbranded`, and `-Mgmt` parameters are not applicable in OpenAI mode.
+**Note**: OpenAI mode is automatically detected when the repository path contains "openai-dotnet". The `-Select`, `-Azure`, `-Unbranded`, `-Mgmt`, and `-Libraries` parameters are not applicable in OpenAI mode.
 
 ### Parameters
 
@@ -164,11 +164,23 @@ Not applicable in OpenAI mode.
 .\RegenPreview.ps1 -SdkLibraryRepoPath "C:\repos\azure-sdk-for-net" -Mgmt
 ```
 
+#### `-Libraries` (Optional)
+
+**Azure SDK Mode only.** A comma-separated list of library names to regenerate. This parameter can be combined with `-Select` and generator filters (`-Azure`, `-Unbranded`, `-Mgmt`), but not with `-Spector`.
+
+Not applicable in OpenAI mode.
+
+**Example:**
+
+```powershell
+.\RegenPreview.ps1 -SdkLibraryRepoPath "C:\repos\azure-sdk-for-net" -Libraries "Azure.ResourceManager.AppContainers, Azure.Data.AppConfig"
+```
+
 #### `-Spector` (Optional)
 
 **Azure SDK Mode only.** When specified, regenerates the Azure spector test scenarios in azure-sdk-for-net instead of regenerating SDK libraries. This builds the local unbranded generator, wires it into the Azure generator, and runs the Azure generator's Generate.ps1 to regenerate spector test projects.
 
-Mutually exclusive with `-Select`, `-Azure`, `-Unbranded`, and `-Mgmt`.
+Mutually exclusive with `-Select`, `-Azure`, `-Unbranded`, `-Mgmt`, and `-Libraries`.
 
 Not applicable in OpenAI mode.
 
@@ -282,7 +294,7 @@ When the repository path contains "openai-dotnet", the script switches to OpenAI
 - **On failure**, leaves all modified artifacts in place for debugging
 - Displays success message and exits
 
-**Note:** Filter parameters (`-Azure`, `-Unbranded`, `-Mgmt`, `-Select`) are not applicable in OpenAI mode and will cause an error if specified.
+**Note:** Filter parameters (`-Azure`, `-Unbranded`, `-Mgmt`, `-Select`, `-Libraries`) are not applicable in OpenAI mode and will cause an error if specified.
 
 ---
 
@@ -335,6 +347,7 @@ In Azure SDK mode, the script continues with additional steps after Step 2.5:
 ### Step 7: Prepare Library List
 
 - Confirms the list of libraries to regenerate
+- Applies the `-Libraries` filter when specified
 - When no `-Select` flag, loads all libraries from `Library_Inventory.md` including:
   - Data plane libraries using `@azure-typespec/http-client-csharp`
   - Data plane libraries using `@typespec/http-client-csharp`
@@ -379,6 +392,16 @@ If all libraries regenerate successfully, the script restores modified files:
 
 **Note:** If any libraries fail, artifacts are NOT restored, allowing you to debug the issue with the modified configuration intact.
 
+## Shared Regeneration Helpers
+
+The library discovery and parallel regeneration logic lives in `RegenPreview.psm1` so it can be reused outside of local validation runs:
+
+| Function                        | Description                                                                                                                                                                                                                                                                                                                                                                                                   |
+| ------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `Get-SdkLibrariesToRegenerate`  | Scans `sdk/` in azure-sdk-for-net and returns the libraries whose `tsp-location.yaml` references one of the TypeSpec C# emitter package json artifacts. Supports filtering by emitter (`-EmitterPackageJsonPaths`).                                                                                                                                                                                           |
+| `Invoke-SdkLibraryRegeneration` | Pre-installs tsp-client, pre-builds the code generation plugin, and then regenerates the given libraries in parallel with `dotnet build /t:GenerateCode`. Supports `-ThrottleLimit` (defaults to 3x the logical processors, clamped to 4-12), `-NpmRegistry`, `-AdditionalBuildArgs`, `-SerialServiceDirectories` (service directories that must be regenerated one library at a time), and `-StopOnFailure`. |
+| `Write-RegenerationReport`      | Prints the pass/fail summary and optionally writes the detailed JSON report. In CI mode, it also prints a human-readable JSON report.                                                                                                                                                                                                                                                                         |
+
 ### Error Handling
 
 If the script encounters an error during pre-requisite steps (Steps 1-6), it will:
@@ -398,7 +421,8 @@ All packaged artifacts are stored in the `debug` folder at the root of the unbra
 - `Microsoft.TypeSpec.Generator.{version}.nupkg` - Core generator NuGet package
 - `Microsoft.TypeSpec.Generator.Input.{version}.nupkg` - Input models NuGet package
 - `Microsoft.TypeSpec.Generator.ClientModel.{version}.nupkg` - Client model NuGet package
-- `regen-report.json` - Detailed JSON report of regeneration results
+- `regen-report.json` - Detailed JSON report of regeneration results (written to the ADO artifact staging
+  directory during CI runs)
 
 ### Console Output
 
@@ -435,6 +459,12 @@ FAILED LIBRARIES:
 Detailed report saved to: C:\...\debug\regen-report.json
 ```
 
+In ADO CI runs, the detailed JSON report is written to the artifact staging directory instead and is
+also printed to the console in human-readable JSON. If any library fails to regenerate, later regeneration
+batches are marked as skipped and the script exits with an error after printing the report. Local runs keep
+the existing behavior: all regeneration batches run, and any library failures are reported as warnings at
+the end.
+
 ## Common Scenarios
 
 ### Scenario 1: Test OpenAI Library Changes
@@ -449,10 +479,7 @@ Detailed report saved to: C:\...\debug\regen-report.json
 
 ```powershell
 # You want to test Azure generator changes on specific libraries only
-.\RegenPreview.ps1 -SdkLibraryRepoPath "C:\repos\azure-sdk-for-net" -Select
-
-# Select just one or two libraries when prompted
-# Selection: 1,5
+.\RegenPreview.ps1 -SdkLibraryRepoPath "C:\repos\azure-sdk-for-net" -Libraries "Azure.ResourceManager.AppContainers, Azure.Data.AppConfig"
 ```
 
 ### Scenario: Full Validation Before PR

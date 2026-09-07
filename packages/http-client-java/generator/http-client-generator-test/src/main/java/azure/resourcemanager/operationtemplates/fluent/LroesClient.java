@@ -4,6 +4,7 @@
 
 package azure.resourcemanager.operationtemplates.fluent;
 
+import azure.resourcemanager.operationtemplates.fluent.models.CostReportInner;
 import azure.resourcemanager.operationtemplates.fluent.models.ExportResultInner;
 import azure.resourcemanager.operationtemplates.fluent.models.OrderInner;
 import azure.resourcemanager.operationtemplates.models.ExportRequest;
@@ -242,4 +243,59 @@ public interface LroesClient {
      */
     @ServiceMethod(returns = ReturnType.SINGLE)
     List<ExportResultInner> exportArray(ExportRequest body, Context context);
+
+    /**
+     * Get a CostReport.
+     * 
+     * @param scope The fully qualified Azure Resource manager identifier of the resource.
+     * @param operationId The name of the CostReport.
+     * @throws IllegalArgumentException thrown if parameters fail the validation.
+     * @throws com.azure.core.management.exception.ManagementException thrown if the request is rejected by server.
+     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
+     * @return the {@link SyncPoller} for polling of a CostReport.
+     */
+    @ServiceMethod(returns = ReturnType.LONG_RUNNING_OPERATION)
+    SyncPoller<PollResult<CostReportInner>, CostReportInner> beginGetLro(String scope, String operationId);
+
+    /**
+     * Get a CostReport.
+     * 
+     * @param scope The fully qualified Azure Resource manager identifier of the resource.
+     * @param operationId The name of the CostReport.
+     * @param context The context to associate with this operation.
+     * @throws IllegalArgumentException thrown if parameters fail the validation.
+     * @throws com.azure.core.management.exception.ManagementException thrown if the request is rejected by server.
+     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
+     * @return the {@link SyncPoller} for polling of a CostReport.
+     */
+    @ServiceMethod(returns = ReturnType.LONG_RUNNING_OPERATION)
+    SyncPoller<PollResult<CostReportInner>, CostReportInner> beginGetLro(String scope, String operationId,
+        Context context);
+
+    /**
+     * Get a CostReport.
+     * 
+     * @param scope The fully qualified Azure Resource manager identifier of the resource.
+     * @param operationId The name of the CostReport.
+     * @throws IllegalArgumentException thrown if parameters fail the validation.
+     * @throws com.azure.core.management.exception.ManagementException thrown if the request is rejected by server.
+     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
+     * @return a CostReport.
+     */
+    @ServiceMethod(returns = ReturnType.SINGLE)
+    CostReportInner getLro(String scope, String operationId);
+
+    /**
+     * Get a CostReport.
+     * 
+     * @param scope The fully qualified Azure Resource manager identifier of the resource.
+     * @param operationId The name of the CostReport.
+     * @param context The context to associate with this operation.
+     * @throws IllegalArgumentException thrown if parameters fail the validation.
+     * @throws com.azure.core.management.exception.ManagementException thrown if the request is rejected by server.
+     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
+     * @return a CostReport.
+     */
+    @ServiceMethod(returns = ReturnType.SINGLE)
+    CostReportInner getLro(String scope, String operationId, Context context);
 }

@@ -85,6 +85,31 @@ public interface Lroes {
     List<ExportResult> exportArray(ExportRequest body, Context context);
 
     /**
+     * Get a CostReport.
+     * 
+     * @param scope The fully qualified Azure Resource manager identifier of the resource.
+     * @param operationId The name of the CostReport.
+     * @throws IllegalArgumentException thrown if parameters fail the validation.
+     * @throws com.azure.core.management.exception.ManagementException thrown if the request is rejected by server.
+     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
+     * @return a CostReport.
+     */
+    CostReport getLro(String scope, String operationId);
+
+    /**
+     * Get a CostReport.
+     * 
+     * @param scope The fully qualified Azure Resource manager identifier of the resource.
+     * @param operationId The name of the CostReport.
+     * @param context The context to associate with this operation.
+     * @throws IllegalArgumentException thrown if parameters fail the validation.
+     * @throws com.azure.core.management.exception.ManagementException thrown if the request is rejected by server.
+     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
+     * @return a CostReport.
+     */
+    CostReport getLro(String scope, String operationId, Context context);
+
+    /**
      * Delete a Order.
      * 
      * @param id the resource ID.

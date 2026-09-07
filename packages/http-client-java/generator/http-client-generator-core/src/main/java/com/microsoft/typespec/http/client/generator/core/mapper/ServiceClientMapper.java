@@ -200,9 +200,9 @@ public class ServiceClientMapper implements IMapper<CodeModel, ServiceClient> {
             String serviceClientPropertyName = CodeNamer.getPropertyName(p.getLanguage().getJava().getName());
 
             IType serviceClientPropertyClientType = Mappers.getSchemaMapper().map(p.getSchema());
-            if (isRemoveModelFromParameter(p, serviceClientPropertyClientType)) {
+            if (isRemoveModelFromClientType(p, serviceClientPropertyClientType)) {
                 // mostly for Enum to String
-                serviceClientPropertyClientType = SchemaUtil.removeModelFromParameter(RequestParameterLocation.URI,
+                serviceClientPropertyClientType = SchemaUtil.removeModelFromClientType(RequestParameterLocation.URI,
                     serviceClientPropertyClientType);
             }
             if (p.isNullable() && serviceClientPropertyClientType != null) {
@@ -250,7 +250,7 @@ public class ServiceClientMapper implements IMapper<CodeModel, ServiceClient> {
         return serviceClientProperties;
     }
 
-    protected boolean isRemoveModelFromParameter(Parameter parameter, IType type) {
+    protected boolean isRemoveModelFromClientType(Parameter parameter, IType type) {
         return JavaSettings.getInstance().isDataPlaneClient();
     }
 

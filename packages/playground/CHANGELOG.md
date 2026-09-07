@@ -1,5 +1,16 @@
 # Change Log - @typespec/playground
 
+## 0.17.0
+
+### Features
+
+- [#11468](https://github.com/microsoft/typespec/pull/11468) Add support for the `Fix all: X` code action in the playground, allowing a codefix that appears multiple times in a file to be applied to all instances at once.
+
+### Bug Fixes
+
+- [#11508](https://github.com/microsoft/typespec/pull/11508) Add support for deferring the loading of emitter libraries until they are selected. Configure with the new `deferredEmitters` option to avoid downloading and evaluating large emitters on startup.
+
+
 ## 0.16.0
 
 ### Features

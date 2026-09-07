@@ -47,7 +47,7 @@ public class CustomClientParameterMapper implements IMapper<Parameter, ClientMet
             wireType = Mappers.getSchemaMapper().map(parameter.getSchema());
         }
         if (isProtocolMethod) {
-            wireType = SchemaUtil.removeModelFromParameter(parameter.getProtocol().getHttp().getIn(), wireType);
+            wireType = SchemaUtil.removeModelFromClientType(parameter.getProtocol().getHttp().getIn(), wireType);
         }
         if (parameter.isNullable() || !parameter.isRequired()) {
             builder.wireType(wireType.asNullable());

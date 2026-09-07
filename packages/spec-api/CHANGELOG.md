@@ -1,5 +1,16 @@
 # @typespec/spec-api
 
+## 0.1.0-alpha.16
+
+### Features
+
+- [#11239](https://github.com/microsoft/typespec/pull/11239) Add `streamChunks` support to `MockBody` for chunked SSE streaming in mock responses
+
+### Bug Fixes
+
+- [#11313](https://github.com/microsoft/typespec/pull/11313) XML declarations no longer affect semantic body equality in `validateXmlBodyEquals`; both actual and expected XML declarations are ignored during comparison.
+
+
 ## 0.1.0-alpha.15
 
 ### Features

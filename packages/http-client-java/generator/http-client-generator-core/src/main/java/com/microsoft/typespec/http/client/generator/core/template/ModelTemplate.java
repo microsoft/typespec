@@ -41,6 +41,7 @@ import java.util.HashSet;
 import java.util.LinkedHashMap;
 import java.util.LinkedHashSet;
 import java.util.List;
+import java.util.Locale;
 import java.util.Objects;
 import java.util.Set;
 import java.util.UUID;
@@ -437,6 +438,7 @@ public class ModelTemplate implements IJavaTemplate<ClientModel, JavaFile> {
             // If the import isn't used it will be removed later on.
             imports.add(Base64.class.getName());
             imports.add(LinkedHashMap.class.getName());
+            imports.add(Locale.class.getName());
             imports.add(UUID.class.getName());
             imports.add(URL.class.getName());
             imports.add(IOException.class.getName());

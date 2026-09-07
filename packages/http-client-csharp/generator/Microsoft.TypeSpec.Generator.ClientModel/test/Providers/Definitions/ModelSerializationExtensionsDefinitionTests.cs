@@ -272,7 +272,9 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers.Definitions
             var methods = definition.Methods;
 
             Assert.IsNotNull(methods);
-            var writeBase64Method = methods.SingleOrDefault(m => m.Signature.Name == "WriteBase64StringValue");
+            var writeBase64Method = methods.SingleOrDefault(m =>
+                m.Signature.Name == "WriteBase64StringValue" &&
+                m.Signature.Parameters[1].Type.FrameworkType == typeof(byte[]));
             Assert.IsNotNull(writeBase64Method, "WriteBase64StringValue method should be generated");
             Assert.IsNull(writeBase64Method!.Signature.ReturnType);
             Assert.IsTrue(writeBase64Method.Signature.Modifiers.HasFlag(MethodSignatureModifiers.Public));
@@ -281,6 +283,24 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers.Definitions
             Assert.AreEqual(3, writeBase64Method.Signature.Parameters.Count);
             Assert.AreEqual(typeof(byte[]), writeBase64Method.Signature.Parameters[1].Type.FrameworkType);
             Assert.AreEqual(typeof(string), writeBase64Method.Signature.Parameters[2].Type.FrameworkType);
+        }
+
+        [Test]
+        public void ValidateWriteBase64StringValueBinaryDataMethodIsGenerated()
+        {
+            MockHelpers.LoadMockGenerator();
+
+            var definition = new ModelSerializationExtensionsDefinition();
+            var writeBase64Method = definition.Methods.SingleOrDefault(m =>
+                m.Signature.Name == "WriteBase64StringValue" &&
+                m.Signature.Parameters[1].Type.FrameworkType == typeof(BinaryData));
+
+            Assert.IsNotNull(writeBase64Method, "WriteBase64StringValue for BinaryData should be generated");
+
+            var writer = new TypeProviderWriter(new FilteredMethodsTypeProvider(definition,
+                name => name is "WriteBase64StringValue" or "WriteBase64UrlStringValue"));
+            var file = writer.Write();
+            Assert.AreEqual(Helpers.GetExpectedFromFile(), file.Content);
         }
 
         [Test]

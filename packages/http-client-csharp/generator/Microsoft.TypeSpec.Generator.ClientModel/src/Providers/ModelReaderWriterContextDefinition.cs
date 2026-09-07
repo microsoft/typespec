@@ -195,6 +195,11 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
                     }
                 }
 
+                if (resolvedProvider.CanonicalView.Attributes.Any(a => a.Type.Equals(typeof(ObsoleteAttribute))))
+                {
+                    continue;
+                }
+
                 if (attributes.ContainsKey(identity) || customizedBuildableTypes.Contains(identity))
                 {
                     continue;

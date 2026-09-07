@@ -42,6 +42,11 @@ public final class ArmResourceIdentifierResourceProperties
      */
     private String armIdWithAllScopes;
 
+    /*
+     * An ARM resource identifier with group scopes.
+     */
+    private String armIdWithGroupScope;
+
     /**
      * Creates an instance of ArmResourceIdentifierResourceProperties class.
      */
@@ -138,6 +143,26 @@ public final class ArmResourceIdentifierResourceProperties
     }
 
     /**
+     * Get the armIdWithGroupScope property: An ARM resource identifier with group scopes.
+     * 
+     * @return the armIdWithGroupScope value.
+     */
+    public String armIdWithGroupScope() {
+        return this.armIdWithGroupScope;
+    }
+
+    /**
+     * Set the armIdWithGroupScope property: An ARM resource identifier with group scopes.
+     * 
+     * @param armIdWithGroupScope the armIdWithGroupScope value to set.
+     * @return the ArmResourceIdentifierResourceProperties object itself.
+     */
+    public ArmResourceIdentifierResourceProperties withArmIdWithGroupScope(String armIdWithGroupScope) {
+        this.armIdWithGroupScope = armIdWithGroupScope;
+        return this;
+    }
+
+    /**
      * {@inheritDoc}
      */
     @Override
@@ -147,6 +172,7 @@ public final class ArmResourceIdentifierResourceProperties
         jsonWriter.writeStringField("armIdWithType", this.armIdWithType);
         jsonWriter.writeStringField("armIdWithTypeAndScope", this.armIdWithTypeAndScope);
         jsonWriter.writeStringField("armIdWithAllScopes", this.armIdWithAllScopes);
+        jsonWriter.writeStringField("armIdWithGroupScope", this.armIdWithGroupScope);
         return jsonWriter.writeEndObject();
     }
 
@@ -178,6 +204,8 @@ public final class ArmResourceIdentifierResourceProperties
                     deserializedArmResourceIdentifierResourceProperties.armIdWithTypeAndScope = reader.getString();
                 } else if ("armIdWithAllScopes".equals(fieldName)) {
                     deserializedArmResourceIdentifierResourceProperties.armIdWithAllScopes = reader.getString();
+                } else if ("armIdWithGroupScope".equals(fieldName)) {
+                    deserializedArmResourceIdentifierResourceProperties.armIdWithGroupScope = reader.getString();
                 } else {
                     reader.skipChildren();
                 }

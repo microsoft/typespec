@@ -1,5 +1,12 @@
 # Change Log - @typespec/graphql
 
+## 0.2.0
+
+### Bug Fixes
+
+- [#11565](https://github.com/microsoft/typespec/pull/11565) Add `./mutation-engine` subpath export for standalone mutation pipeline usage
+
+
 ## 0.1.0
 
 ### Features

@@ -423,12 +423,14 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
                         });
                     }
 
+                    var collection = accessorChain.Last();
+                    string lengthPropertyName = currentType.IsArray ? "Length" : "Count";
                     statements.Add(new IfStatement(Not(currentSlice.Invoke(
                         "TryGetIndex",
                         [
                             new DeclarationExpression(typeof(int), "index", out var indexVariable, isOut: true),
                             new DeclarationExpression(typeof(int), "bytesConsumed", out var bytesConsumedVariable, isOut: true)
-                        ]).As<bool>()))
+                        ]).As<bool>()).Or(indexVariable.GreaterThanOrEqual(collection.Property(lengthPropertyName))))
                     {
                         Return(False)
                     });

@@ -1,6 +1,6 @@
 {
   "name": "@typespec/graphql",
-  "version": "0.1.0",
+  "version": "0.2.0",
   "author": "Microsoft Corporation",
   "description": "TypeSpec library for emitting GraphQL",
   "homepage": "https://typespec.io",

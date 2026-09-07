@@ -39,6 +39,58 @@ namespace Microsoft.TypeSpec.Generator.Input.Tests
         }
 
         [Test]
+        public void ApiVersionsAreDeserializedForModelAndProperty()
+        {
+            const string content = """
+                {
+                  "$id": "1",
+                  "kind": "model",
+                  "name": "Widget",
+                  "namespace": "Sample",
+                  "crossLanguageDefinitionId": "Sample.Widget",
+                  "usage": "Input",
+                  "apiVersions": ["2024-01-01", "2024-06-01-preview"],
+                  "properties": [
+                    {
+                      "$id": "2",
+                      "kind": "property",
+                      "name": "previewProperty",
+                      "serializedName": "previewProperty",
+                      "apiVersions": ["2024-06-01-preview"],
+                      "type": {
+                        "$id": "3",
+                        "kind": "string",
+                        "name": "string",
+                        "crossLanguageDefinitionId": "TypeSpec.string"
+                      },
+                      "optional": false,
+                      "readOnly": false,
+                      "discriminator": false,
+                      "isHttpMetadata": false
+                    }
+                  ]
+                }
+                """;
+            var referenceHandler = new TypeSpecReferenceHandler();
+            var options = new JsonSerializerOptions
+            {
+                Converters =
+                {
+                    new InputTypeConverter(referenceHandler),
+                    new InputModelTypeConverter(referenceHandler),
+                    new InputModelPropertyConverter(referenceHandler),
+                    new InputPrimitiveTypeConverter(referenceHandler),
+                },
+            };
+
+            var model = JsonSerializer.Deserialize<InputModelType>(content, options);
+
+            Assert.IsNotNull(model);
+            CollectionAssert.AreEqual(new[] { "2024-01-01", "2024-06-01-preview" }, model!.ApiVersions);
+            CollectionAssert.AreEqual(new[] { "2024-06-01-preview" }, model.Properties.Single().ApiVersions);
+        }
+
+        [Test]
         public void IsDynamicModelPropagatesFromBaseToDerived()
         {
             var directory = Helpers.GetAssetFileOrDirectoryPath(false);

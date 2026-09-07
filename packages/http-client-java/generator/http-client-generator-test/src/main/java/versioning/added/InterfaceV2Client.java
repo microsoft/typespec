@@ -14,6 +14,7 @@ import com.azure.core.exception.ResourceModifiedException;
 import com.azure.core.exception.ResourceNotFoundException;
 import com.azure.core.http.rest.RequestOptions;
 import com.azure.core.http.rest.Response;
+import com.azure.core.http.rest.SimpleResponse;
 import com.azure.core.util.BinaryData;
 import versioning.added.implementation.InterfaceV2sImpl;
 import versioning.added.models.ModelV2;
@@ -72,8 +73,31 @@ public final class InterfaceV2Client {
      */
     @Generated
     @ServiceMethod(returns = ReturnType.SINGLE)
-    public Response<BinaryData> v2InInterfaceWithResponse(BinaryData body, RequestOptions requestOptions) {
-        return this.serviceClient.v2InInterfaceWithResponse(body, requestOptions);
+    Response<BinaryData> v2InInterfaceWithResponseInternal(BinaryData body, RequestOptions requestOptions) {
+        return this.serviceClient.v2InInterfaceWithResponseInternal(body, requestOptions);
+    }
+
+    /**
+     * The v2InInterface operation.
+     *
+     * @param body The body parameter.
+     * @param requestOptions The options to configure the HTTP request before HTTP client sends it.
+     * @throws IllegalArgumentException thrown if parameters fail the validation.
+     * @throws HttpResponseException thrown if the request is rejected by server.
+     * @throws ClientAuthenticationException thrown if the request is rejected by server on status code 401.
+     * @throws ResourceNotFoundException thrown if the request is rejected by server on status code 404.
+     * @throws ResourceModifiedException thrown if the request is rejected by server on status code 409.
+     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
+     * @return the response body along with {@link Response}.
+     */
+    @Generated
+    @ServiceMethod(returns = ReturnType.SINGLE)
+    public Response<ModelV2> v2InInterfaceWithResponse(ModelV2 body, RequestOptions requestOptions) {
+        // Generated convenience method for v2InInterfaceWithResponseInternal
+        requestOptions = requestOptions == null ? new RequestOptions() : requestOptions;
+        Response<BinaryData> protocolMethodResponse
+            = v2InInterfaceWithResponseInternal(BinaryData.fromObject(body), requestOptions);
+        return new SimpleResponse<>(protocolMethodResponse, protocolMethodResponse.getValue().toObject(ModelV2.class));
     }
 
     /**
@@ -91,9 +115,9 @@ public final class InterfaceV2Client {
     @Generated
     @ServiceMethod(returns = ReturnType.SINGLE)
     public ModelV2 v2InInterface(ModelV2 body) {
-        // Generated convenience method for v2InInterfaceWithResponse
+        // Generated convenience method for v2InInterfaceWithResponseInternal
         RequestOptions requestOptions = new RequestOptions();
-        return v2InInterfaceWithResponse(BinaryData.fromObject(body), requestOptions).getValue()
+        return v2InInterfaceWithResponseInternal(BinaryData.fromObject(body), requestOptions).getValue()
             .toObject(ModelV2.class);
     }
 }

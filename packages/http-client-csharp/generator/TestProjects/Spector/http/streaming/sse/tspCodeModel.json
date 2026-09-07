@@ -162,17 +162,24 @@
       "$id": "19",
       "kind": "model",
       "name": "Info",
+      "apiVersions": [],
       "namespace": "Streaming.Sse.Unnamed",
       "crossLanguageDefinitionId": "Streaming.Sse.Unnamed.Info",
-      "usage": "Output",
+      "usage": "Output,Json",
       "decorators": [],
-      "serializationOptions": {},
+      "serializationOptions": {
+        "json": {
+          "name": "Info"
+        }
+      },
       "isExactName": false,
       "properties": [
         {
           "$id": "20",
           "kind": "property",
           "name": "desc",
+          "apiVersions": [],
+          "serializedName": "desc",
           "type": {
             "$id": "21",
             "kind": "string",
@@ -186,7 +193,11 @@
           "flatten": false,
           "decorators": [],
           "crossLanguageDefinitionId": "Streaming.Sse.Unnamed.Info.desc",
-          "serializationOptions": {},
+          "serializationOptions": {
+            "json": {
+              "name": "desc"
+            }
+          },
           "isHttpMetadata": false,
           "isExactName": false
         }
@@ -196,17 +207,24 @@
       "$id": "22",
       "kind": "model",
       "name": "ResponseCreated",
+      "apiVersions": [],
       "namespace": "Streaming.Sse.Named",
       "crossLanguageDefinitionId": "Streaming.Sse.Named.ResponseCreated",
-      "usage": "Output",
+      "usage": "Output,Json",
       "decorators": [],
-      "serializationOptions": {},
+      "serializationOptions": {
+        "json": {
+          "name": "ResponseCreated"
+        }
+      },
       "isExactName": false,
       "properties": [
         {
           "$id": "23",
           "kind": "property",
           "name": "id",
+          "apiVersions": [],
+          "serializedName": "id",
           "type": {
             "$id": "24",
             "kind": "string",
@@ -220,7 +238,11 @@
           "flatten": false,
           "decorators": [],
           "crossLanguageDefinitionId": "Streaming.Sse.Named.ResponseCreated.id",
-          "serializationOptions": {},
+          "serializationOptions": {
+            "json": {
+              "name": "id"
+            }
+          },
           "isHttpMetadata": false,
           "isExactName": false
         }
@@ -230,17 +252,24 @@
       "$id": "25",
       "kind": "model",
       "name": "ResponseDelta",
+      "apiVersions": [],
       "namespace": "Streaming.Sse.Named",
       "crossLanguageDefinitionId": "Streaming.Sse.Named.ResponseDelta",
-      "usage": "Output",
+      "usage": "Output,Json",
       "decorators": [],
-      "serializationOptions": {},
+      "serializationOptions": {
+        "json": {
+          "name": "ResponseDelta"
+        }
+      },
       "isExactName": false,
       "properties": [
         {
           "$id": "26",
           "kind": "property",
           "name": "delta",
+          "apiVersions": [],
+          "serializedName": "delta",
           "type": {
             "$id": "27",
             "kind": "string",
@@ -254,7 +283,11 @@
           "flatten": false,
           "decorators": [],
           "crossLanguageDefinitionId": "Streaming.Sse.Named.ResponseDelta.delta",
-          "serializationOptions": {},
+          "serializationOptions": {
+            "json": {
+              "name": "delta"
+            }
+          },
           "isHttpMetadata": false,
           "isExactName": false
         }
@@ -264,6 +297,7 @@
       "$id": "28",
       "kind": "model",
       "name": "RetrievalRequest",
+      "apiVersions": [],
       "namespace": "Streaming.Sse.Retrieve",
       "crossLanguageDefinitionId": "Streaming.Sse.Retrieve.RetrievalRequest",
       "usage": "Input,Json",
@@ -279,6 +313,7 @@
           "$id": "29",
           "kind": "property",
           "name": "query",
+          "apiVersions": [],
           "serializedName": "query",
           "type": {
             "$id": "30",
@@ -307,17 +342,24 @@
       "$id": "31",
       "kind": "model",
       "name": "PartialResult",
+      "apiVersions": [],
       "namespace": "Streaming.Sse.Retrieve",
       "crossLanguageDefinitionId": "Streaming.Sse.Retrieve.PartialResult",
-      "usage": "Output",
+      "usage": "Output,Json",
       "decorators": [],
-      "serializationOptions": {},
+      "serializationOptions": {
+        "json": {
+          "name": "PartialResult"
+        }
+      },
       "isExactName": false,
       "properties": [
         {
           "$id": "32",
           "kind": "property",
           "name": "text",
+          "apiVersions": [],
+          "serializedName": "text",
           "type": {
             "$id": "33",
             "kind": "string",
@@ -331,7 +373,11 @@
           "flatten": false,
           "decorators": [],
           "crossLanguageDefinitionId": "Streaming.Sse.Retrieve.PartialResult.text",
-          "serializationOptions": {},
+          "serializationOptions": {
+            "json": {
+              "name": "text"
+            }
+          },
           "isHttpMetadata": false,
           "isExactName": false
         }
@@ -341,17 +387,24 @@
       "$id": "34",
       "kind": "model",
       "name": "FinalResult",
+      "apiVersions": [],
       "namespace": "Streaming.Sse.Retrieve",
       "crossLanguageDefinitionId": "Streaming.Sse.Retrieve.FinalResult",
-      "usage": "Output",
+      "usage": "Output,Json",
       "decorators": [],
-      "serializationOptions": {},
+      "serializationOptions": {
+        "json": {
+          "name": "FinalResult"
+        }
+      },
       "isExactName": false,
       "properties": [
         {
           "$id": "35",
           "kind": "property",
           "name": "references",
+          "apiVersions": [],
+          "serializedName": "references",
           "type": {
             "$id": "36",
             "kind": "array",
@@ -372,7 +425,11 @@
           "flatten": false,
           "decorators": [],
           "crossLanguageDefinitionId": "Streaming.Sse.Retrieve.FinalResult.references",
-          "serializationOptions": {},
+          "serializationOptions": {
+            "json": {
+              "name": "references"
+            }
+          },
           "isHttpMetadata": false,
           "isExactName": false
         }

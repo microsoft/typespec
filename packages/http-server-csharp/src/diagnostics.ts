@@ -1,10 +1,10 @@
+import { isValidCSharpIdentifier } from "@alloy-js/csharp";
 import type { Interface, Model, Program } from "@typespec/compiler";
 import { isTemplateDeclaration, type Namespace as TspNamespace } from "@typespec/compiler";
 import { $ } from "@typespec/compiler/typekit";
 import type { OperationHttpCanonicalization } from "@typespec/http-canonicalization";
 import { assignAnonymousName } from "./components/models/anonymous-models.js";
 import { reportDiagnostic } from "./lib.js";
-import { isValidCSharpIdentifier } from "./utils/naming.js";
 
 /**
  * Reports diagnostic warnings for models, scalars, and operations.

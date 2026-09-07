@@ -5,13 +5,19 @@ dictionaries:
   - node
   - typescript
 words:
+  - aclose
+  - aclosing
   - Ablack
   - Adoptium
+  - aenter
+  - aexit
   - agentic
   - agentics
   - aiohttp
+  - aiter
   - alzimmer
   - amqp
+  - anext
   - AQID
   - Arize
   - arizeaiobservabilityeval
@@ -62,6 +68,7 @@ words:
   - Declipse
   - dedented
   - dedup
+  - dedupe
   - Dedupes
   - deps
   - deser
@@ -120,6 +127,7 @@ words:
   - intrinsics
   - ints
   - IOHTTP
+  - isascii
   - isdigit
   - isinstance
   - issecret
@@ -229,6 +237,7 @@ words:
   - pylint
   - pylintrc
   - pyodide
+  - pypi
   - pyproject
   - pyright
   - pyrightconfig
@@ -239,6 +248,7 @@ words:
   - reactivex
   - recase
   - recorda
+  - redef
   - regen
   - rehype
   - reinjected

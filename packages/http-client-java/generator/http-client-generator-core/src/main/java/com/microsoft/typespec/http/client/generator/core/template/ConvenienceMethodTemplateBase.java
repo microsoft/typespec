@@ -215,6 +215,58 @@ abstract class ConvenienceMethodTemplateBase {
         return false;
     }
 
+    protected static boolean isResponseBase(IType type) {
+        return type instanceof GenericType && ClassType.RESPONSE_BASE.getName().equals(((GenericType) type).getName());
+    }
+
+    protected static GenericType getResponseBaseType(IType type) {
+        if (type instanceof GenericType && ClassType.MONO.getName().equals(((GenericType) type).getName())) {
+            type = ((GenericType) type).getTypeArguments()[0];
+        }
+        return isResponseBase(type) ? (GenericType) type : null;
+    }
+
+    protected static String expressionConvertFromBinaryData(IType responseBodyType, IType rawType,
+        String invocationExpression, Set<String> mediaTypes, Set<GenericType> typeReferenceStaticClasses) {
+        SupportedMimeType mimeType = SupportedMimeType.getResponseKnownMimeType(mediaTypes);
+        String serializerArgument = xmlSerializerArgument(mimeType, responseBodyType);
+        switch (mimeType) {
+            case TEXT:
+                String basicText = invocationExpression + ".toString()";
+                if (!rawType.isNullable()) {
+                    return wrapPrimitiveMimeTypeText(basicText, (PrimitiveType) rawType);
+                }
+                return basicText;
+
+            case BINARY:
+                return invocationExpression;
+
+            default:
+                if (responseBodyType instanceof EnumType) {
+                    IType elementType = ((EnumType) responseBodyType).getElementType();
+                    return String.format("%1$s.from%2$s(%3$s.toObject(%2$s.class%4$s))", responseBodyType, elementType,
+                        invocationExpression, serializerArgument);
+                } else if (responseBodyType instanceof GenericType) {
+                    typeReferenceStaticClasses.add((GenericType) responseBodyType);
+                    return String.format("%2$s.toObject(%1$s%3$s)",
+                        TemplateUtil.getTypeReferenceCreation(responseBodyType), invocationExpression,
+                        serializerArgument);
+                } else if (responseBodyType == ClassType.BINARY_DATA) {
+                    return invocationExpression;
+                } else if (responseBodyType == ArrayType.BYTE_ARRAY) {
+                    if (rawType == ClassType.BASE_64_URL) {
+                        return invocationExpression + ".toObject(" + ClassType.BASE_64_URL.getName() + ".class"
+                            + serializerArgument + ").decodedBytes()";
+                    } else {
+                        return invocationExpression + ".toObject(byte[].class" + serializerArgument + ")";
+                    }
+                } else {
+                    return String.format("%2$s.toObject(%1$s.class%3$s)", responseBodyType.asNullable(),
+                        invocationExpression, serializerArgument);
+                }
+        }
+    }
+
     /**
      * Gets the client type of the request body (BODY location) parameter of a convenience method, or {@code null} if
      * the method has no request body.
@@ -279,7 +331,14 @@ abstract class ConvenienceMethodTemplateBase {
             = findParametersForConvenienceMethod(convenienceMethod, protocolMethod);
 
         // RequestOptions
-        createEmptyRequestOptions(methodBlock);
+        boolean hasRequestOptionsParameter = convenienceMethod.getMethodInputParameters()
+            .stream()
+            .anyMatch(parameter -> parameter.getClientType() == ClassType.REQUEST_OPTIONS);
+        if (hasRequestOptionsParameter) {
+            methodBlock.line("requestOptions = requestOptions == null ? new RequestOptions() : requestOptions;");
+        } else {
+            createEmptyRequestOptions(methodBlock);
+        }
 
         // parameter transformation
         final ParameterTransformations transformations = convenienceMethod.getParameterTransformations();
@@ -581,6 +640,7 @@ abstract class ConvenienceMethodTemplateBase {
         ClassType.HTTP_HEADER_NAME.addImportsTo(imports, false);
         ClassType.BINARY_DATA.addImportsTo(imports, false);
         ClassType.REQUEST_OPTIONS.addImportsTo(imports, false);
+        ClassType.SIMPLE_RESPONSE.addImportsTo(imports, false);
         ClassType.REQUEST_CONTEXT.addImportsTo((imports), false);
         imports.add(Collectors.class.getName());
         imports.add(Objects.class.getName());

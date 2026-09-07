@@ -29,7 +29,7 @@ namespace Microsoft.TypeSpec.Generator.Providers
             return input.IsExtensible ? extensibleEnumProvider : fixedEnumProvider;
         }
 
-        protected EnumProvider(InputEnumType? input)
+        protected EnumProvider(InputEnumType? input) : base(input)
         {
             _inputType = input;
             _deprecated = input?.Deprecation;
@@ -53,7 +53,15 @@ namespace Microsoft.TypeSpec.Generator.Providers
 
         protected override string BuildRelativeFilePath() => Path.Combine("src", "Generated", "Models", $"{Name}.cs");
 
-        protected override string BuildName() => _inputType!.IsExactName ? _inputType.Name : _inputType.Name.ToIdentifierName();
+        protected override string BuildName()
+        {
+            if (_inputType!.IsExactName)
+            {
+                return _inputType.Name;
+            }
+
+            return NormalizeTypeNameForNewContract(_inputType.Name.ToIdentifierName());
+        }
         protected override FormattableString BuildDescription() => DocHelpers.GetFormattableDescription(_inputType!.Summary, _inputType.Doc) ?? FormattableStringHelpers.Empty;
 
         protected override TypeProvider[] BuildSerializationProviders()
@@ -87,8 +95,14 @@ namespace Microsoft.TypeSpec.Generator.Providers
         private protected string GetBackCompatibleName(
             string generatedName,
             IReadOnlyList<string> generatedNames,
-            IReadOnlyList<string> lastContractNames)
+            IReadOnlyList<string> lastContractNames,
+            bool isExactName)
         {
+            if (isExactName)
+            {
+                return generatedName;
+            }
+
             if (lastContractNames.Count == 0)
             {
                 return generatedName;
@@ -126,6 +140,23 @@ namespace Microsoft.TypeSpec.Generator.Providers
             }
 
             return backCompatName;
+        }
+
+        private protected static string GetGeneratedValueName(
+            InputEnumTypeValue inputValue,
+            IReadOnlyList<string> lastContractNames)
+        {
+            var generatedName = inputValue.IsExactName ? inputValue.Name : inputValue.Name.ToIdentifierName();
+            if (inputValue.IsExactName)
+            {
+                return generatedName;
+            }
+
+            var normalizedName = generatedName.NormalizeCSharpUrlSuffix();
+            return normalizedName == generatedName ||
+                lastContractNames.Contains(generatedName, StringComparer.Ordinal)
+                    ? generatedName
+                    : normalizedName;
         }
 
         protected override bool GetIsEnum() => true;

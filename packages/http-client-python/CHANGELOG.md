@@ -1,5 +1,32 @@
 # Change Log - @typespec/http-client-python
 
+## 0.37.0
+
+### Features
+
+- [#11594](https://github.com/microsoft/typespec/pull/11594) Generate structured streaming client methods: operations whose HTTP response is a JSONL (`application/jsonl`) or SSE (`text/event-stream`) stream now return `Stream[T]` / `AsyncStream[T]`, yielding deserialized model instances instead of raw bytes.
+
+### Bug Fixes
+
+- [#11638](https://github.com/microsoft/typespec/pull/11638) Fix invalid Python type annotations generated in `types.py` files. Internal enums used as TypedDict fields are now imported (as a bare symbol) from their private `_enums` submodule so the annotation resolves; duplicate runtime + `TYPE_CHECKING` imports of the same symbol are deduplicated to avoid `no-redef`; and TypedDicts that change an inherited field's requiredness are emitted as a flat (non-inheriting) TypedDict to satisfy PEP 589.
+- [#11300](https://github.com/microsoft/typespec/pull/11300) Forward package index and Python mirror environment variables to tox test environments so tests can install dependencies from configured feeds.
+- [#11250](https://github.com/microsoft/typespec/pull/11250) Always populate the operation `error_map` with the standard azure-core error types (401 → `ClientAuthenticationError`, 404 → `ResourceNotFoundError`, 409 → `ResourceExistsError`, 304 → `ResourceNotModifiedError`), even when a customized error model covers those status codes. Previously, a standard status code covered by a customized ranged or default error model fell back to a generic `HttpResponseError`; it now raises its dedicated error type via `map_error`. The customized error body continues to be deserialized and attached to the `HttpResponseError` raised for other (non-standard) status codes.
+
+
+## 0.36.0
+
+### Features
+
+- [#11372](https://github.com/microsoft/typespec/pull/11372) Add a `generate-typeddict` emitter option (default `true`) that controls `TypedDict` generation independently of `models-mode`. `models-mode` now toggles just `dpg` and `none`; the `typeddict` value is deprecated.
+
+### Bug Fixes
+
+- [#11622](https://github.com/microsoft/typespec/pull/11622) Wrap wire names containing `@` (e.g. `@search.facets`) in double backticks when they are used as Sphinx docstring field targets (`:ivar`/`:vartype`/`:keyword`/`:paramtype`/`:param`/`:type`) across models, TypedDicts, operations, and clients, so the generated docstrings render correctly without introducing an invalid escape sequence in the generated code.
+- [#11637](https://github.com/microsoft/typespec/pull/11637) Preserve Python boolean, integer, and bytes client types when using supported string, base64, or base64url wire encodings.
+- [#11507](https://github.com/microsoft/typespec/pull/11507) Only boot the Pyodide runtime in the browser on the first emit instead of when the emitter module is imported. Hosts such as the TypeSpec playground import every available emitter up front, so the eager bootstrap downloaded a full CPython WebAssembly runtime and its wheels on every page load, which prevented the page from loading on mobile browsers.
+- [#11639](https://github.com/microsoft/typespec/pull/11639) Only generate `TypedDict` definitions in `types.py` when they are referenced by operation inputs or required by those input models, omitting unused response-only models.
+
+
 ## 0.35.1
 
 ### Bug Fixes

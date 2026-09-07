@@ -8,6 +8,17 @@ namespace TypeSpec.HttpClient;
  */
 model FeatureLifecycleOptions {
   ...ClientDecoratorOptions;
+
+  /**
+   * The diagnostic identifier surfaced by emitters for this experimental API.
+   */
+  diagnosticId?: string;
+
+  /**
+   * Diagnostic identifiers for experimental features this API depends on. These dependencies do
+   * not automatically remove this API's experimental status when they become generally available.
+   */
+  dependsOn?: string[];
 }
 
 /**

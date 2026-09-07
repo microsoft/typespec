@@ -73,11 +73,11 @@ namespace Microsoft.TypeSpec.Generator.Providers
         protected override IReadOnlyList<EnumTypeMember> BuildEnumValues()
         {
             var customMembers = new HashSet<FieldProvider>(CustomCodeView?.Fields ?? []);
-            var generatedNames = AllowedValues
-                .Select(v => v.IsExactName ? v.Name : v.Name.ToIdentifierName())
-                .ToArray();
             var lastContractFields = LastContractView?.Fields ?? [];
             var lastContractNames = lastContractFields.Select(f => f.Name).ToArray();
+            var generatedNames = AllowedValues
+                .Select(v => GetGeneratedValueName(v, lastContractNames))
+                .ToArray();
 
             var values = new EnumTypeMember[AllowedValues.Count];
 
@@ -86,7 +86,7 @@ namespace Microsoft.TypeSpec.Generator.Providers
                 var inputValue = AllowedValues[i];
                 var modifiers = FieldModifiers.Public | FieldModifiers.Static;
                 // the fields for fixed enums are just its members (we use fields to represent the values in a system `enum` type), we just use the name for this field
-                var name = GetBackCompatibleName(generatedNames[i], generatedNames, lastContractNames);
+                var name = GetBackCompatibleName(generatedNames[i], generatedNames, lastContractNames, inputValue.IsExactName);
 
                 // check if the enum member was renamed in custom code
                 string? customMemberName = null;
@@ -205,10 +205,10 @@ namespace Microsoft.TypeSpec.Generator.Providers
                     .Where(f => f.OriginalName != null)
                     .Select(f => f.OriginalName!) ?? [],
                 StringComparer.Ordinal);
-            var generatedNames = AllowedValues
-                .Select(v => v.IsExactName ? v.Name : v.Name.ToIdentifierName())
-                .ToArray();
             var lastContractNames = lastContractFields.Select(f => f.Name).ToArray();
+            var generatedNames = AllowedValues
+                .Select(v => GetGeneratedValueName(v, lastContractNames))
+                .ToArray();
             var customMemberLastContractNames = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
 
             for (int i = 0; i < generatedNames.Length; i++)
@@ -216,7 +216,7 @@ namespace Microsoft.TypeSpec.Generator.Providers
                 if (customOriginalNames.Contains(generatedNames[i]))
                 {
                     customMemberLastContractNames.Add(
-                        GetBackCompatibleName(generatedNames[i], generatedNames, lastContractNames));
+                        GetBackCompatibleName(generatedNames[i], generatedNames, lastContractNames, AllowedValues[i].IsExactName));
                 }
             }
 
