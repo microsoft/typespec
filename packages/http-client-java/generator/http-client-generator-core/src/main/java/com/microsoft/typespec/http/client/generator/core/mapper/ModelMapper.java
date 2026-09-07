@@ -385,13 +385,15 @@ public class ModelMapper implements IMapper<ObjectSchema, ClientModel>, NeedsPla
 
     private static void passPolymorphicDiscriminatorToChildren(ClientModelProperty parentDiscriminator,
         ClientModel child) {
-        // Due to the execution order of ModelMapper, where children models complete mapping before the parent model,
-        // the parent polymorphic discriminator needs to be added at index 0. Reason, given an example where there are
-        // three models, where model #1 is the root parent with discriminator type, model #2 is a child of model #2 with
-        // discriminator kind, and model #3 is a child of model #3 with discriminator form. The order if this running
-        // will have model #2 add its discriminator to model #3 before model #1 runs adding its discriminator to #2 and
-        // #3. We want #3 to have the ordering of [type, kind], to represent the ordering of the parent models.
-        // Merge a matching child declaration to avoid emitting the inherited discriminator twice.
+        // A child that introduces a different discriminator still needs the fixed discriminator value selected by the
+        // parent hierarchy. For example, a parent may discriminate on "type", while a child fixes type="message" and
+        // discriminates its children on "role". The child branch must retain type="message" while dispatching by
+        // "role".
+        //
+        // If child.getProperties() contains a fixed property with the same serialized name and value as
+        // parentDiscriminator, use the matching property to build the parent discriminator entry. Then remove the
+        // matching property from child.getProperties() so the generated model does not contain "type" as both a normal
+        // property and a parent discriminator.
         ClientModelProperty discriminatorForChild = parentDiscriminator;
         for (int i = 0; i < child.getProperties().size(); i++) {
             ClientModelProperty childProperty = child.getProperties().get(i);
@@ -421,6 +423,8 @@ public class ModelMapper implements IMapper<ObjectSchema, ClientModel>, NeedsPla
             break;
         }
 
+        // Children are mapped before their parents, so insert at index 0 to preserve outer-to-inner discriminator
+        // order.
         child.getParentPolymorphicDiscriminators().add(0, discriminatorForChild);
 
         for (ClientModel derived : child.getDerivedModels()) {
