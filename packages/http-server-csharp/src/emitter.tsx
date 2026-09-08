@@ -15,6 +15,7 @@ import { MockHelpers, MockImplementations } from "./components/scaffolding/mock-
 import { JsonConverters } from "./components/serialization/json-converters.jsx";
 import { createServerScalarOverrides } from "./components/type-expression/type-expression.jsx";
 import { EmitterOptions } from "./context/emitter-options-context.js";
+import { OperationSources } from "./context/operation-source-context.js";
 import { reportEmitterDiagnostics } from "./diagnostics.js";
 import type { CSharpServiceEmitterOptions } from "./lib.js";
 import { resolveOpenApiPath, writeOutputWithOverwrite } from "./output-writer.js";
@@ -82,10 +83,12 @@ export async function $onEmit(context: EmitContext<CSharpServiceEmitterOptions>)
                     serviceNamespace={resolution.serviceNamespace}
                   />
                 </SourceDirectory>
-                <ControllersAndInterfaces
-                  interfaces={resolution.interfaces}
-                  canonicalOpsMap={resolution.canonicalOpsMap}
-                />
+                <OperationSources.Provider value={resolution.canonicalOperationSourceMap}>
+                  <ControllersAndInterfaces
+                    interfaces={resolution.interfaces}
+                    canonicalOpsMap={resolution.canonicalOpsMap}
+                  />
+                </OperationSources.Provider>
               </SourceDirectory>
               <ProgramCs
                 hasMocks={emitMocks}
