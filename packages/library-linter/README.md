@@ -33,5 +33,5 @@ Declarations in a namespace named `Private` and declarations marked `internal` a
 public surface of a library and are excluded from the documentation rules.
 
 Rulesets are only validated for the library being compiled, not for its dependencies. A reference to
-a library that is not part of the compilation is skipped, since there is nothing to resolve it
+a library that is not loaded in the compilation is skipped, since there is nothing to resolve it
 against.

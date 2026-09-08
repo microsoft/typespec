@@ -1,15 +1,17 @@
 import {
-  NoTarget,
   resolveLinterDefinition,
   type LinterResolvedDefinition,
   type LinterRuleSet,
   type Program,
 } from "@typespec/compiler";
+import type { JsSourceFileNode } from "@typespec/compiler/ast";
 import { reportDiagnostic } from "./lib.js";
 
 interface LoadedLinter {
   readonly libName: string;
   readonly linter: LinterResolvedDefinition;
+  /** JS file declaring the linter. Used as the diagnostic target so reports have a location. */
+  readonly node: JsSourceFileNode;
   /** Whether this linter belongs to the library being compiled as opposed to one of its dependencies. */
   readonly isProject: boolean;
 }
@@ -20,8 +22,7 @@ interface LoadedLinter {
  * extend the offending ruleset.
  */
 export function validateRuleSets(program: Program) {
-  const linters = collectLinters(program);
-  const knownLibraries = new Set(linters.map((x) => x.libName));
+  const { linters, knownLibraries } = collectLibraries(program);
   const knownRules = new Set<string>();
   const knownRuleSets = new Set<string>();
   for (const { libName, linter } of linters) {
@@ -33,10 +34,10 @@ export function validateRuleSets(program: Program) {
     }
   }
 
-  for (const { libName, linter, isProject } of linters) {
+  for (const { libName, linter, node, isProject } of linters) {
     if (!isProject) continue;
     for (const [name, ruleSet] of Object.entries(linter.ruleSets)) {
-      validateRuleSet(program, `${libName}/${name}`, ruleSet, {
+      validateRuleSet(program, `${libName}/${name}`, ruleSet, node, {
         knownLibraries,
         knownRules,
         knownRuleSets,
@@ -55,16 +56,17 @@ function validateRuleSet(
   program: Program,
   ruleSetName: string,
   ruleSet: LinterRuleSet,
+  target: JsSourceFileNode,
   known: KnownReferences,
 ) {
   for (const ref of ruleSet.extends ?? []) {
-    validateReference(program, ruleSetName, ref, "ruleset", known);
+    validateReference(program, ruleSetName, ref, "ruleset", target, known);
   }
   for (const ref of Object.keys(ruleSet.enable ?? {})) {
-    validateReference(program, ruleSetName, ref, "rule", known);
+    validateReference(program, ruleSetName, ref, "rule", target, known);
   }
   for (const ref of Object.keys(ruleSet.disable ?? {})) {
-    validateReference(program, ruleSetName, ref, "rule", known);
+    validateReference(program, ruleSetName, ref, "rule", target, known);
   }
 }
 
@@ -73,6 +75,7 @@ function validateReference(
   ruleSetName: string,
   ref: string,
   kind: "rule" | "ruleset",
+  target: JsSourceFileNode,
   known: KnownReferences,
 ) {
   const parsed = parseReference(ref);
@@ -80,7 +83,7 @@ function validateReference(
     reportDiagnostic(program, {
       code: "invalid-rule-reference",
       format: { ref, ruleSetName },
-      target: NoTarget,
+      target,
     });
     return;
   }
@@ -96,7 +99,7 @@ function validateReference(
     reportDiagnostic(program, {
       code: kind === "rule" ? "unknown-rule" : "unknown-rule-set",
       format: { name: parsed.name, libraryName: parsed.libraryName, ruleSetName },
-      target: NoTarget,
+      target,
     });
   }
 }
@@ -111,19 +114,31 @@ function parseReference(ref: string): { libraryName: string; name: string } | un
   return { libraryName, name };
 }
 
-function collectLinters(program: Program): LoadedLinter[] {
+function collectLibraries(program: Program): {
+  linters: LoadedLinter[];
+  knownLibraries: Set<string>;
+} {
   const linters: LoadedLinter[] = [];
+  // Every library loaded in this compilation, including those defining no linter: a reference into
+  // such a library is known to be broken, unlike one pointing at a library that was never loaded.
+  const knownLibraries = new Set<string>();
   for (const jsFile of program.jsSourceFiles.values()) {
     const lib = jsFile.esmExports.$lib;
+    if (typeof lib?.name !== "string") {
+      continue;
+    }
+    knownLibraries.add(lib.name);
+
     const linter = jsFile.esmExports.$linter;
-    if (linter === undefined || typeof lib?.name !== "string") {
+    if (linter === undefined) {
       continue;
     }
     linters.push({
       libName: lib.name,
       linter: resolveLinterDefinition(lib.name, linter),
+      node: jsFile,
       isProject: program.getSourceFileLocationContext(jsFile.file).type === "project",
     });
   }
-  return linters;
+  return { linters, knownLibraries };
 }
