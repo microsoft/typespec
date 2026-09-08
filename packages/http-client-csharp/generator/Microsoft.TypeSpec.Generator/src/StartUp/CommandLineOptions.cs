@@ -15,10 +15,12 @@ namespace Microsoft.TypeSpec.Generator
         private const string ShouldDebugOptionName = "debug";
         private const string GeneratorNameOptionName = "generatorName";
         private const string NewProjectOptionName = "new-project";
+        private const string HostedModeOptionName = "hosted";
         private const string CmdLineOutputDirectoryOptionHelpText = "The path to the directory containing the input files to the generator including the code model file and the configuration file for the generator.";
         private const string CmdLineDebugOptionHelpText = "Attempt to attach the debugger on execute.";
         private const string CmdLineGeneratorOptionHelpText = "The name of the generator to execute.";
         private const string CmdLineNewProjectOptionHelpText = "Indicates if the generator should create the project files such as csproj, slnx, etc.";
+        private const string CmdLineHostedModeOptionHelpText = "Disables custom plugins and NuGet package downloads when running as a hosted service.";
 
         /// <summary>
         /// The command line option to specify the path to the directory containing the input files to the generator.
@@ -35,5 +37,8 @@ namespace Microsoft.TypeSpec.Generator
 
         [Option(longName: NewProjectOptionName, shortName: 'n', Required = false, Default = false, Hidden = false, HelpText = CmdLineNewProjectOptionHelpText)]
         public bool IsNewProject { get; set; }
+
+        [Option(longName: HostedModeOptionName, Required = false, Default = false, Hidden = false, HelpText = CmdLineHostedModeOptionHelpText)]
+        public bool IsHosted { get; set; }
     }
 }

@@ -58,14 +58,16 @@ namespace Microsoft.TypeSpec.Generator.Tests
         }
 
         // This test validates that the baseline contract loads successfully from a assembly.
-        [TestCase(Category = EvaluatedFrameworkTestCategory)]
-        public async Task TestLoadBaselineContractLoadsTypeSuccessfully()
+        [TestCase(false, Category = EvaluatedFrameworkTestCategory)]
+        [TestCase(true, Category = EvaluatedFrameworkTestCategory)]
+        public async Task TestLoadBaselineContractLoadsTypeSuccessfully(bool isHosted)
         {
             var ns = "TestNamespace";
             await MockHelpers.LoadMockGeneratorAsync(
                 inputNamespaceName: ns,
                 outputPath: _projectDir,
                 includeXmlDocs: true);
+            CodeModelGenerator.Instance.IsHosted = isHosted;
             var compilation = await GeneratedCodeWorkspace.LoadBaselineContract();
             Assert.NotNull(compilation, "Compilation should not be null");
 
@@ -223,8 +225,9 @@ namespace My.External.Library
             Assert.AreEqual(refCountBefore, refCountAfter, "Should not add references for packages not in cache");
         }
 
-        [Test]
-        public async Task AddPackageReferencesFromProject_ResolvesPackageWithNoVersion()
+        [TestCase(false)]
+        [TestCase(true)]
+        public async Task AddPackageReferencesFromProject_ResolvesPackageWithNoVersion(bool isHosted)
         {
             var ns = "TestNamespace";
             var nugetCacheDir = Path.Combine(_tempDirectory!, "NuGetCache");
@@ -248,6 +251,7 @@ namespace My.External.Library
                 inputNamespaceName: ns,
                 outputPath: _projectDir,
                 configuration: $"{{\"package-name\": \"{ns}\"}}");
+            CodeModelGenerator.Instance.IsHosted = isHosted;
 
             var refCountBefore = CodeModelGenerator.Instance.AdditionalMetadataReferences.Count;
             await GeneratedCodeWorkspace.AddPackageReferencesFromProject();

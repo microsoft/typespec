@@ -67,9 +67,11 @@ namespace Microsoft.TypeSpec.Generator.Tests.Utilities
             Assert.IsNull(ExternalTypeReferenceResolver.TryResolve(external));
         }
 
-        [Test]
-        public void TryResolve_LoadsTypeFromNuGetCache()
+        [TestCase(false)]
+        [TestCase(true)]
+        public void TryResolve_LoadsTypeFromNuGetCache(bool isHosted)
         {
+            CodeModelGenerator.Instance.IsHosted = isHosted;
             const string pkgName = "Test.External.Loadable";
             const string typeName = "Test.External.Loadable.LoadableType";
             CreateFakeNuGetPackage(_nugetCacheDir!, pkgName, "1.2.3");
@@ -80,6 +82,40 @@ namespace Microsoft.TypeSpec.Generator.Tests.Utilities
 
             Assert.IsNotNull(resolved, "Resolver should locate the type in the fake NuGet cache.");
             Assert.AreEqual(typeName, resolved!.FullName);
+        }
+
+        [TestCase(null)]
+        [TestCase("1.0.0")]
+        public void TryResolve_HostedModeReportsUncachedPackage(string? minVersion)
+        {
+            CodeModelGenerator.Instance.IsHosted = true;
+            var external = new InputExternalTypeMetadata("Test.Uncached.Type", "Test.Uncached.Package", minVersion);
+            var refsBefore = CodeModelGenerator.Instance.AdditionalMetadataReferences.Count;
+
+            Assert.IsNull(ExternalTypeReferenceResolver.TryResolve(external));
+            StringAssert.Contains(
+                "NuGet package downloads are disabled in hosted mode",
+                ExternalTypeReferenceResolver.GetFailureReason(external));
+            Assert.AreEqual(refsBefore, CodeModelGenerator.Instance.AdditionalMetadataReferences.Count);
+            Assert.That(Directory.EnumerateFileSystemEntries(_nugetCacheDir!), Is.Empty);
+        }
+
+        [Test]
+        public async Task ResolveAllAsync_HostedModeReportsUncachedPackage()
+        {
+            var external = new InputExternalTypeMetadata("Test.Uncached.Type", "Test.Uncached.Package", "1.0.0");
+            var union = InputFactory.Union([InputPrimitiveType.String], "ExternalUnion", external);
+            var model = InputFactory.Model("Container", properties: [InputFactory.Property("value", union)]);
+            MockHelpers.LoadMockGenerator(outputPath: _projectDir, configuration: "{}", inputModelTypes: [model]);
+            CodeModelGenerator.Instance.IsHosted = true;
+
+            await ExternalTypeReferenceResolver.ResolveAllAsync();
+
+            Assert.IsNull(ExternalTypeReferenceResolver.TryResolve(external));
+            StringAssert.Contains(
+                "NuGet package downloads are disabled in hosted mode",
+                ExternalTypeReferenceResolver.GetFailureReason(external));
+            Assert.That(Directory.EnumerateFileSystemEntries(_nugetCacheDir!), Is.Empty);
         }
 
         [Test]
@@ -145,9 +181,11 @@ namespace Microsoft.TypeSpec.Generator.Tests.Utilities
                 "A missing package should be reported as a missing package.");
         }
 
-        [Test]
-        public void TryResolve_ResolvesTypeWhoseBaseTypeLivesInAnotherPackage()
+        [TestCase(false)]
+        [TestCase(true)]
+        public void TryResolve_ResolvesTypeWhoseBaseTypeLivesInAnotherPackage(bool isHosted)
         {
+            CodeModelGenerator.Instance.IsHosted = isHosted;
             var nugetCacheDir = Path.Combine(_tempDirectory!, "NuGetCache");
             const string basePkg = "Test.Dependency.Base";
             const string leafPkg = "Test.Dependent.Leaf";

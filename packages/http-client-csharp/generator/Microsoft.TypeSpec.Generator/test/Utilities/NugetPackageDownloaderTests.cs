@@ -34,6 +34,57 @@ namespace Microsoft.TypeSpec.Generator.Tests.Utilities
             _mockSettings.Setup(s => s.GetSection(It.IsAny<string>())).Returns(It.IsAny<SettingSection>());
         }
 
+        [TestCase("1.0.0")]
+        [TestCase("invalid")]
+        public void DownloadAndInstallPackage_HostedModeRejectsBeforeAccessingSources(string version)
+        {
+            CodeModelGenerator.Instance.IsHosted = true;
+            var repository = new Mock<SourceRepository>(MockBehavior.Strict);
+            var settings = new TestNugetSettings
+            {
+                Sections =
+                [
+                    new TestNugetSettingSection(ConfigurationConstants.PackageSources, new SourceItem("mockSource", "mockSourceUri"))
+                ]
+            };
+            var downloader = new TestNugetPackageDownloader("Mock.Package", version, settings, repository.Object);
+
+            var exception = Assert.ThrowsAsync<InvalidOperationException>(downloader.DownloadAndInstallPackage);
+
+            Assert.AreEqual("NuGet package downloads are disabled in hosted mode.", exception!.Message);
+            repository.VerifyNoOtherCalls();
+        }
+
+        [TestCase(null)]
+        [TestCase("1.0.0")]
+        public void ResolveLatestPackageVersion_HostedModeRejectsBeforeAccessingSources(string? minVersion)
+        {
+            CodeModelGenerator.Instance.IsHosted = true;
+            var settings = new Mock<ISettings>(MockBehavior.Strict);
+
+            var exception = Assert.ThrowsAsync<InvalidOperationException>(() =>
+                NugetPackageResolver.ResolveLatestPackageVersion("Mock.Package", settings.Object, minVersion));
+
+            Assert.AreEqual("NuGet package downloads are disabled in hosted mode.", exception!.Message);
+            settings.VerifyNoOtherCalls();
+        }
+
+        [Test]
+        public async Task ResolveLatestPackageVersion_LocalModeCanReadSources()
+        {
+            var settings = new TestNugetSettings
+            {
+                Sections =
+                [
+                    new TestNugetSettingSection(ConfigurationConstants.PackageSources)
+                ]
+            };
+
+            var version = await NugetPackageResolver.ResolveLatestPackageVersion("Mock.Package", settings);
+
+            Assert.IsNull(version);
+        }
+
         [TestCaseSource("ParseVersionStringTestCases")]
         public void TestParseVersionString(string version, string? expectedStringVersion, NuGetVersion? expectedVersion, bool throwsError)
         {

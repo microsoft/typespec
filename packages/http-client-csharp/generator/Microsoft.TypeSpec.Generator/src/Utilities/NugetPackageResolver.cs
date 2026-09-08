@@ -209,6 +209,8 @@ namespace Microsoft.TypeSpec.Generator.Utilities
         /// </summary>
         public static async Task<string?> ResolveLatestPackageVersion(string packageName, ISettings nugetSettings, string? minVersion = null)
         {
+            EnsurePackageDownloadsAllowed();
+
             NuGetVersion? minParsed = null;
             if (!string.IsNullOrEmpty(minVersion) && !NuGetVersion.TryParse(minVersion, out minParsed))
             {
@@ -242,6 +244,14 @@ namespace Microsoft.TypeSpec.Generator.Utilities
             }
 
             return null;
+        }
+
+        internal static void EnsurePackageDownloadsAllowed()
+        {
+            if (CodeModelGenerator.Instance.IsHosted)
+            {
+                throw new InvalidOperationException("NuGet package downloads are disabled in hosted mode.");
+            }
         }
     }
 }

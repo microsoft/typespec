@@ -234,6 +234,13 @@ namespace Microsoft.TypeSpec.Generator.Utilities
             string? assemblyPath = NugetPackageResolver.FindPackageAssembly(
                 globalPackagesFolder, external.Package!, external.MinVersion);
 
+            if (assemblyPath == null && generator.IsHosted)
+            {
+                return CacheResult(state, key, new ResolutionResult(
+                    null,
+                    $"package '{external.Package}' was not found in the NuGet cache, and NuGet package downloads are disabled in hosted mode."));
+            }
+
             if (assemblyPath == null)
             {
                 try
