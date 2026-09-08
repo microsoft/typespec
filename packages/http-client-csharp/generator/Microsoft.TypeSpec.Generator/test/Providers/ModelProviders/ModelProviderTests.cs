@@ -24,6 +24,8 @@ namespace Microsoft.TypeSpec.Generator.Tests.Providers.ModelProviders
 {
     public class ModelProviderTests
     {
+        string? _projectDir = null;
+
         [SetUp]
         public void Setup()
         {
@@ -1979,7 +1981,7 @@ namespace Microsoft.TypeSpec.Generator.Tests.Providers.ModelProviders
 
         private async Task CreateProjectAndLoadDependencies(string[] packages, string?[] versions, string temporaryDir, string nugetCache, InputModelType model)
         {
-            string _projectDir = Path.Combine(temporaryDir, "ProjectDir");
+            _projectDir = Path.Combine(temporaryDir, "ProjectDir");
             Directory.CreateDirectory(Path.Combine(_projectDir, "src"));
             Assert.That(packages.Length, Is.EqualTo(versions.Length), "Each package must have a version (it can be null)");
             StringBuilder sbPackagesProject = new();
@@ -3450,6 +3452,15 @@ namespace Microsoft.TypeSpec.Generator.Tests.Providers.ModelProviders
             else
             {
                 Assert.IsNull(rawDataField, "Expected _additionalBinaryDataProperties field to NOT be generated for XML-only models");
+            }
+        }
+
+        [TearDown]
+        public void CleanUp()
+        {
+            if(_projectDir != null && Directory.Exists(_projectDir))
+            {
+                Directory.Delete(_projectDir, true);
             }
         }
     }

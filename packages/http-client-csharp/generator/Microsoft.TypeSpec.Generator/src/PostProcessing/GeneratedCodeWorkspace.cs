@@ -286,9 +286,10 @@ namespace Microsoft.TypeSpec.Generator
                     foreach (JsonProperty targetFramework in prop.Value.EnumerateObject())
                     {
                         NuGetFramework currentFramework = NuGetFramework.ParseFolder(targetFramework.Name);
-                        if (!hshFrameworks.ContainsKey(currentFramework.GetShortFolderName()))
+                        string shortFolderName = currentFramework.GetShortFolderName();
+                        if (!hshFrameworks.ContainsKey(shortFolderName))
                         {
-                            hshFrameworks[currentFramework.GetShortFolderName()] = new(StringComparer.InvariantCultureIgnoreCase);
+                            hshFrameworks[shortFolderName] = new(StringComparer.InvariantCultureIgnoreCase);
                         }
                         if (targetFramework.Value.ValueKind == JsonValueKind.Object)
                         {
@@ -301,7 +302,7 @@ namespace Microsoft.TypeSpec.Generator
                                     && packageType.GetString() == "package"
                                     )
                                 {
-                                    hshFrameworks[currentFramework.GetShortFolderName()][packageVersion[0]] = packageVersion[1];
+                                    hshFrameworks[shortFolderName][packageVersion[0]] = packageVersion[1];
                                 }
                             }
                         }
@@ -313,9 +314,10 @@ namespace Microsoft.TypeSpec.Generator
                     foreach (JsonProperty targetFramework in prop.Value.EnumerateObject())
                     {
                         NuGetFramework currentFramework = NuGetFramework.ParseFolder(targetFramework.Name);
-                        if (!hshFrameworks.ContainsKey(currentFramework.GetShortFolderName()))
+                        string shortFolderName = currentFramework.GetShortFolderName();
+                        if (!hshFrameworks.ContainsKey(shortFolderName))
                         {
-                            hshFrameworks[currentFramework.GetShortFolderName()] = new(StringComparer.InvariantCultureIgnoreCase);
+                            hshFrameworks[shortFolderName] = new(StringComparer.InvariantCultureIgnoreCase);
                         }
                         if (targetFramework.Value.ValueKind == JsonValueKind.Array)
                         {
@@ -328,15 +330,15 @@ namespace Microsoft.TypeSpec.Generator
                                     // We only support the greater-than-or-equal relation, in other cases we only record the package.
                                     // Example: "My.Package >= 1.1.1"
                                     string packageName = packageVersionRelation[0];
-                                    if (!string.IsNullOrEmpty(packageName) && !hshFrameworks[currentFramework.GetShortFolderName()].ContainsKey(packageName))
+                                    if (!string.IsNullOrEmpty(packageName) && !hshFrameworks[shortFolderName].ContainsKey(packageName))
                                     {
                                         if (packageVersionRelation.Length == 3 && string.Equals(packageVersionRelation[1], ">="))
                                         {
-                                            hshFrameworks[currentFramework.GetShortFolderName()][packageName] = packageVersionRelation[2];
+                                            hshFrameworks[shortFolderName][packageName] = packageVersionRelation[2];
                                         }
                                         else
                                         {
-                                            hshFrameworks[currentFramework.GetShortFolderName()][packageName] = "";
+                                            hshFrameworks[shortFolderName][packageName] = "";
                                         }
                                     }
                                 }
