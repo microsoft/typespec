@@ -78,7 +78,11 @@ function resolveResponseVariants(
       continue;
     }
     // Recursively resolve nested unions
-    const resolved = resolveResponseVariants(program, option.type, unionDescription);
+    const resolved = resolveResponseVariants(
+      program,
+      option.type,
+      getDoc(program, option) ?? unionDescription,
+    );
     for (const variant of resolved) {
       if (isPlainResponseBody(program, variant.type)) {
         plainVariants.push(variant.type);

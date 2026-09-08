@@ -359,3 +359,196 @@ describe("with doc comments", () => {
     `);
   });
 });
+
+describe("declaration overrides", () => {
+  it("replaces a class declaration entirely", async () => {
+    const { TestModel } = await runner.compile(t.code`
+      model ${t.model("TestModel")} {
+        Prop1: string;
+      }
+    `);
+
+    const overrides = Experimental_ComponentOverridesConfig().forTypeKind("Model", {
+      declaration: () => "class Replaced {}",
+    });
+
+    expect(
+      <Wrapper>
+        <Experimental_ComponentOverrides overrides={overrides}>
+          <ClassDeclaration type={TestModel} />
+        </Experimental_ComponentOverrides>
+      </Wrapper>,
+    ).toRenderTo(`class Replaced {}`);
+  });
+
+  it("re-renders the default declaration with modified props", async () => {
+    const { TestModel } = await runner.compile(t.code`
+      model ${t.model("TestModel")} {}
+    `);
+
+    const overrides = Experimental_ComponentOverridesConfig().forTypeKind("Model", {
+      declaration: (props) => (
+        <props.Declaration {...props.declarationProps} name="Renamed" partial />
+      ),
+    });
+
+    expect(
+      <Wrapper>
+        <Experimental_ComponentOverrides overrides={overrides}>
+          <ClassDeclaration type={TestModel} />
+        </Experimental_ComponentOverrides>
+      </Wrapper>,
+    ).toRenderTo(`partial class Renamed {}`);
+  });
+
+  it("falls back to the default when only a reference override is configured", async () => {
+    const { TestModel } = await runner.compile(t.code`
+      model ${t.model("TestModel")} {}
+    `);
+
+    const overrides = Experimental_ComponentOverridesConfig().forTypeKind("Model", {
+      reference: () => "Nope",
+    });
+
+    expect(
+      <Wrapper>
+        <Experimental_ComponentOverrides overrides={overrides}>
+          <ClassDeclaration type={TestModel} />
+        </Experimental_ComponentOverrides>
+      </Wrapper>,
+    ).toRenderTo(`class TestModel {}`);
+  });
+
+  it("overrides a property declaration", async () => {
+    const { TestModel } = await runner.compile(t.code`
+      model ${t.model("TestModel")} {
+        Prop1: string;
+        Prop2: int32;
+      }
+    `);
+
+    const overrides = Experimental_ComponentOverridesConfig().forTypeKind("ModelProperty", {
+      declaration: (props) =>
+        props.type.name === "Prop1" ? "public string Custom { get; }" : props.default,
+    });
+
+    expect(
+      <Wrapper>
+        <Experimental_ComponentOverrides overrides={overrides}>
+          <ClassDeclaration type={TestModel} />
+        </Experimental_ComponentOverrides>
+      </Wrapper>,
+    ).toRenderTo(d`
+      class TestModel
+      {
+          public string Custom { get; }
+
+          public required int Prop2 { get; set; }
+      }
+    `);
+  });
+
+  it("overrides an enum declaration", async () => {
+    const { TestEnum } = await runner.compile(t.code`
+      enum ${t.enum("TestEnum")} {
+        A,
+        B,
+      }
+    `);
+
+    const overrides = Experimental_ComponentOverridesConfig().forTypeKind("Enum", {
+      declaration: (props) => <props.Declaration {...props.declarationProps} name="RenamedEnum" />,
+    });
+
+    expect(
+      <Wrapper>
+        <Experimental_ComponentOverrides overrides={overrides}>
+          <EnumDeclaration type={TestEnum} />
+        </Experimental_ComponentOverrides>
+      </Wrapper>,
+    ).toRenderTo(d`
+      enum RenamedEnum
+      {
+          A,
+          B
+      }
+    `);
+  });
+});
+
+describe("override precedence", () => {
+  it("does not let a type-level reference override hide a kind-level declaration override", async () => {
+    const { TestModel } = await runner.compile(t.code`
+      model ${t.model("TestModel")} {}
+    `);
+
+    const overrides = Experimental_ComponentOverridesConfig()
+      .forType(TestModel, { reference: () => "Unrelated" })
+      .forTypeKind("Model", {
+        declaration: (props) => <props.Declaration {...props.declarationProps} name="Renamed" />,
+      });
+
+    expect(
+      <Wrapper>
+        <Experimental_ComponentOverrides overrides={overrides}>
+          <ClassDeclaration type={TestModel} />
+        </Experimental_ComponentOverrides>
+      </Wrapper>,
+    ).toRenderTo(`class Renamed {}`);
+  });
+
+  it("does not let a type-level declaration override hide a kind-level reference override", async () => {
+    const { Container, TestModel } = await runner.compile(t.code`
+      model ${t.model("TestModel")} {}
+      model ${t.model("Container")} {
+        prop: TestModel;
+      }
+    `);
+
+    const overrides = Experimental_ComponentOverridesConfig()
+      .forType(TestModel, { declaration: () => "unreachable" })
+      .forTypeKind("Model", { reference: () => "Referenced" });
+
+    expect(
+      <Wrapper>
+        <Experimental_ComponentOverrides overrides={overrides}>
+          <ClassDeclaration type={Container} />
+        </Experimental_ComponentOverrides>
+      </Wrapper>,
+    ).toRenderTo(d`
+      class Container
+      {
+          public required Referenced Prop { get; set; }
+      }
+    `);
+  });
+
+  it("resolves each override kind independently up the scalar hierarchy", async () => {
+    const { Container, myBase, myDerived } = await runner.compile(t.code`
+      scalar ${t.scalar("myBase")} extends string;
+      scalar ${t.scalar("myDerived")} extends myBase;
+      model ${t.model("Container")} {
+        prop: myDerived;
+      }
+    `);
+
+    // `myDerived` only overrides `declaration`, so the `reference` override on its base
+    // scalar must still be found.
+    const overrides = Experimental_ComponentOverridesConfig()
+      .forType(myDerived, { declaration: () => "unreachable" })
+      .forType(myBase, { reference: () => "BaseRef" });
+
+    expect(
+      <Wrapper>
+        <Experimental_ComponentOverrides overrides={overrides}>
+          <ClassDeclaration type={Container} />
+        </Experimental_ComponentOverrides>
+      </Wrapper>,
+    ).toRenderTo(d`
+      class Container
+      {
+          public required BaseRef Prop { get; set; }
+      }
+    `);
+  });
+});

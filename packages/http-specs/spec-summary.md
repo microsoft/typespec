@@ -5385,6 +5385,128 @@ data: [DONE]
 
 ```
 
+### Streaming_Sse_Protocol_Data_withEnvelope
+
+- Endpoint: `get /streaming/sse/protocol/data/with-envelope`
+
+SSE event with an explicit `@data` payload. The `withEnvelope` event sends
+only the `contents` property in the SSE `data` field.
+Expected response body (content type `text/event-stream`):
+
+```
+event: withEnvelope
+data: hello
+```
+
+### Streaming_Sse_Protocol_Data_withoutEnvelope
+
+- Endpoint: `get /streaming/sse/protocol/data/without-envelope`
+
+SSE event without an explicit `@data` payload. The `withoutEnvelope` event
+sends the complete model in the SSE `data` field.
+Expected response body (content type `text/event-stream`):
+
+```
+event: withoutEnvelope
+data: {"metadata": {"source": "test"}, "contents": "world"}
+```
+
+### Streaming_Sse_Protocol_id
+
+- Endpoint: `get /streaming/sse/protocol/id`
+
+An SSE event with an `id` field. The event ID is envelope metadata and is
+not part of the typed event data.
+
+Expected response body (content type `text/event-stream`):
+
+```
+id: event-1
+event: message
+data: {"message": "hello"}
+
+```
+
+### Streaming_Sse_Protocol_invalidId
+
+- Endpoint: `get /streaming/sse/protocol/invalid-id`
+
+An SSE event with an `id` field containing U+0000 NULL. The field is
+ignored according to the SSE parsing rules.
+
+Expected response body (content type `text/event-stream`):
+
+```
+id: invalid<U+0000 NULL>id
+event: message
+data: {"message": "hello"}
+
+```
+
+### Streaming_Sse_Protocol_invalidRetry
+
+- Endpoint: `get /streaming/sse/protocol/invalid-retry`
+
+An SSE event with an invalid `retry` field. Since the value contains
+non-ASCII-digit characters, the field is ignored.
+
+Expected response body (content type `text/event-stream`):
+
+```
+retry: not-a-number
+event: message
+data: {"message": "hello"}
+
+```
+
+### Streaming_Sse_Protocol_reconnect
+
+- Endpoint: `get /streaming/sse/protocol/reconnect`
+
+An SSE stream that resumes after a reconnect. The first response closes after
+sending `event-1`. On reconnect, the client sends the most recently received
+event ID in the `Last-Event-ID` request header.
+
+Expected initial response body (content type `text/event-stream`):
+
+```
+id: event-1
+event: message
+data: {"message": "hello"}
+```
+
+Expected request header on reconnect:
+
+```
+Last-Event-ID: event-1
+```
+
+Expected reconnect response body (content type `text/event-stream`):
+
+```
+id: event-2
+event: message
+data: {"message": "world"}
+
+```
+
+### Streaming_Sse_Protocol_retry
+
+- Endpoint: `get /streaming/sse/protocol/retry`
+
+An SSE event with a valid `retry` field containing only ASCII digits. The
+field sets the client's reconnection delay and is not part of the typed
+event data.
+
+Expected response body (content type `text/event-stream`):
+
+```
+retry: 1000
+event: message
+data: {"message": "hello"}
+
+```
+
 ### Streaming_Sse_Retrieve_stream
 
 - Endpoint: `post /streaming/sse/retrieve/stream`

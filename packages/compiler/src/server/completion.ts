@@ -91,6 +91,7 @@ function addCompletionByLookingBackward(
       n.kind === SyntaxKind.ScalarStatement ||
       n.kind === SyntaxKind.OperationStatement ||
       n.kind === SyntaxKind.InterfaceStatement ||
+      n.kind === SyntaxKind.UnionStatement ||
       n.kind === SyntaxKind.TemplateParameterDeclaration,
     true /*includeSelf*/,
   );
@@ -112,12 +113,14 @@ function addCompletionByLookingBackwardNode(
     [SyntaxKind.ScalarStatement]: "scalarHeader",
     [SyntaxKind.OperationStatement]: "operationHeader",
     [SyntaxKind.InterfaceStatement]: "interfaceHeader",
+    [SyntaxKind.UnionStatement]: "unionHeader",
   };
   switch (preNode?.kind) {
     case SyntaxKind.ModelStatement:
     case SyntaxKind.ScalarStatement:
     case SyntaxKind.OperationStatement:
     case SyntaxKind.InterfaceStatement:
+    case SyntaxKind.UnionStatement:
       const idEndPos =
         preNode.templateParametersRange.end >= 0
           ? preNode.templateParametersRange.end
@@ -195,6 +198,7 @@ interface KeywordArea {
   templateParameter?: boolean;
   operationHeader?: boolean;
   interfaceHeader?: boolean;
+  unionHeader?: boolean;
 }
 
 const keywords = [
@@ -218,7 +222,13 @@ const keywords = [
   // On model `model Foo <keyword> ...`
   [
     "extends",
-    { modelHeader: true, scalarHeader: true, templateParameter: true, interfaceHeader: true },
+    {
+      modelHeader: true,
+      scalarHeader: true,
+      templateParameter: true,
+      interfaceHeader: true,
+      unionHeader: true,
+    },
   ],
   ["is", { modelHeader: true, operationHeader: true }],
 

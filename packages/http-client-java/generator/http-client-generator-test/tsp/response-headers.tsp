@@ -7,6 +7,10 @@ using Azure.ClientGenerator.Core;
 @service(#{ title: "ResponseHeaders" })
 namespace TspTest.ResponseHeaders;
 
+model MetadataHeaders {
+  @header("x-ms-meta") metadata?: string;
+}
+
 @route("/response-headers")
 interface ResponseHeaderOp {
   // HEAD operation with significant response headers but no response body.
@@ -17,6 +21,9 @@ interface ResponseHeaderOp {
   getResourceMetadata(): {
     @statusCode statusCode: 200;
 
+    // constant headers are omitted from the generated response headers model
+    @header("x-constant-header") constantHeader: "constant-value";
+
     // required header, with mixed-case header name
     @header("ETag") eTag: string;
 
@@ -25,7 +32,11 @@ interface ResponseHeaderOp {
 
     // optional header, with mixed-case header name
     @header("Last-Modified") lastModified?: utcDateTime;
+
+    ...MetadataHeaders;
   };
 }
 
 @@clientOption(ResponseHeaderOp.getResourceMetadata, "responseHeadersAsModel", true, "java");
+@@alternateType(MetadataHeaders.metadata, Record<string>, "java");
+@@clientOption(MetadataHeaders.metadata, "collectionHeaderPrefix", "x-ms-meta-", "java");

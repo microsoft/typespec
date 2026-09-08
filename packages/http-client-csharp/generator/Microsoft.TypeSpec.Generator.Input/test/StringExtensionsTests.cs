@@ -58,5 +58,13 @@ namespace Microsoft.TypeSpec.Generator.Input.Tests
         {
             Assert.AreEqual(expected, name.ToVariableName());
         }
+
+        [TestCase("IPv4", "iPv4")]
+        [TestCase("IPv6Address", "iPv6Address")]
+        [TestCase("IPAddress", "ipAddress")]
+        public void TestToVariableNameWithoutAcronymNormalization(string name, string expected)
+        {
+            Assert.AreEqual(expected, name.ToVariableName(preserveUnderscores: false, normalizeAcronyms: false));
+        }
     }
 }

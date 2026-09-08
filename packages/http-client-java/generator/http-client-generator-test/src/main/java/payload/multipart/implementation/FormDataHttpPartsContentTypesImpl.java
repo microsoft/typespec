@@ -137,7 +137,8 @@ public final class FormDataHttpPartsContentTypesImpl {
      * @return the {@link Response} on successful completion of {@link Mono}.
      */
     @ServiceMethod(returns = ReturnType.SINGLE)
-    public Mono<Response<Void>> imageJpegContentTypeWithResponseAsync(BinaryData body, RequestOptions requestOptions) {
+    public Mono<Response<Void>> imageJpegContentTypeWithResponseInternalAsync(BinaryData body,
+        RequestOptions requestOptions) {
         final String contentType = "multipart/form-data";
         return FluxUtil.withContext(context -> service.imageJpegContentType(this.client.getEndpoint(), contentType,
             body, requestOptions, context));
@@ -155,7 +156,7 @@ public final class FormDataHttpPartsContentTypesImpl {
      * @return the {@link Response}.
      */
     @ServiceMethod(returns = ReturnType.SINGLE)
-    public Response<Void> imageJpegContentTypeWithResponse(BinaryData body, RequestOptions requestOptions) {
+    public Response<Void> imageJpegContentTypeWithResponseInternal(BinaryData body, RequestOptions requestOptions) {
         final String contentType = "multipart/form-data";
         return service.imageJpegContentTypeSync(this.client.getEndpoint(), contentType, body, requestOptions,
             Context.NONE);
@@ -173,7 +174,8 @@ public final class FormDataHttpPartsContentTypesImpl {
      * @return the {@link Response} on successful completion of {@link Mono}.
      */
     @ServiceMethod(returns = ReturnType.SINGLE)
-    public Mono<Response<Void>> requiredContentTypeWithResponseAsync(BinaryData body, RequestOptions requestOptions) {
+    public Mono<Response<Void>> requiredContentTypeWithResponseInternalAsync(BinaryData body,
+        RequestOptions requestOptions) {
         final String contentType = "multipart/form-data";
         return FluxUtil.withContext(context -> service.requiredContentType(this.client.getEndpoint(), contentType, body,
             requestOptions, context));
@@ -191,7 +193,7 @@ public final class FormDataHttpPartsContentTypesImpl {
      * @return the {@link Response}.
      */
     @ServiceMethod(returns = ReturnType.SINGLE)
-    public Response<Void> requiredContentTypeWithResponse(BinaryData body, RequestOptions requestOptions) {
+    public Response<Void> requiredContentTypeWithResponseInternal(BinaryData body, RequestOptions requestOptions) {
         final String contentType = "multipart/form-data";
         return service.requiredContentTypeSync(this.client.getEndpoint(), contentType, body, requestOptions,
             Context.NONE);
@@ -209,7 +211,8 @@ public final class FormDataHttpPartsContentTypesImpl {
      * @return the {@link Response} on successful completion of {@link Mono}.
      */
     @ServiceMethod(returns = ReturnType.SINGLE)
-    public Mono<Response<Void>> optionalContentTypeWithResponseAsync(BinaryData body, RequestOptions requestOptions) {
+    public Mono<Response<Void>> optionalContentTypeWithResponseInternalAsync(BinaryData body,
+        RequestOptions requestOptions) {
         final String contentType = "multipart/form-data";
         return FluxUtil.withContext(context -> service.optionalContentType(this.client.getEndpoint(), contentType, body,
             requestOptions, context));
@@ -227,7 +230,7 @@ public final class FormDataHttpPartsContentTypesImpl {
      * @return the {@link Response}.
      */
     @ServiceMethod(returns = ReturnType.SINGLE)
-    public Response<Void> optionalContentTypeWithResponse(BinaryData body, RequestOptions requestOptions) {
+    public Response<Void> optionalContentTypeWithResponseInternal(BinaryData body, RequestOptions requestOptions) {
         final String contentType = "multipart/form-data";
         return service.optionalContentTypeSync(this.client.getEndpoint(), contentType, body, requestOptions,
             Context.NONE);

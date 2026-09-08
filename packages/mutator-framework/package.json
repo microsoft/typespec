@@ -26,6 +26,9 @@
       "import": "./dist/src/index.js"
     }
   },
+  "files": [
+    "dist/**"
+  ],
   "keywords": [],
   "author": "",
   "license": "MIT",
