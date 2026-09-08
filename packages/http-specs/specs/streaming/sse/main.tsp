@@ -151,3 +151,152 @@ namespace Retrieve {
   @route("stream")
   op stream(@body request: RetrievalRequest): SSEStream<RetrievalEvents>;
 }
+
+@route("protocol")
+namespace Protocol {
+  model Info {
+    message: string;
+  }
+
+  @events
+  union ProtocolEvents {
+    @Events.contentType("application/json")
+    message: Info,
+  }
+
+  @route("data")
+  namespace Data {
+    @events
+    union DataEvents {
+      withEnvelope: {
+        @Events.contentType("text/plain")
+        @data
+        contents: string,
+      },
+      withoutEnvelope: {
+        metadata: Record<string>,
+        contents: string,
+      },
+    }
+
+    @scenario
+    @scenarioDoc("""
+      SSE event with an explicit `@data` payload. The `withEnvelope` event sends
+      only the `contents` property in the SSE `data` field.
+      Expected response body (content type `text/event-stream`):
+      ```
+      event: withEnvelope
+      data: hello
+      ```
+      """)
+    @route("with-envelope")
+    op withEnvelope(): SSEStream<DataEvents>;
+
+    @scenario
+    @scenarioDoc("""
+      SSE event without an explicit `@data` payload. The `withoutEnvelope` event
+      sends the complete model in the SSE `data` field.
+      Expected response body (content type `text/event-stream`):
+      ```
+      event: withoutEnvelope
+      data: {"metadata": {"source": "test"}, "contents": "world"}
+      ```
+      """)
+    @route("without-envelope")
+    op withoutEnvelope(): SSEStream<DataEvents>;
+  }
+
+  @scenario
+  @scenarioDoc("""
+    An SSE event with an `id` field. The event ID is envelope metadata and is
+    not part of the typed event data.
+    
+    Expected response body (content type `text/event-stream`):
+    ```
+    id: event-1
+    event: message
+    data: {"message": "hello"}
+    
+    ```
+    """)
+  @route("id")
+  op id(): SSEStream<ProtocolEvents>;
+
+  @scenario
+  @scenarioDoc("""
+    An SSE event with an `id` field containing U+0000 NULL. The field is
+    ignored according to the SSE parsing rules.
+    
+    Expected response body (content type `text/event-stream`):
+    ```
+    id: invalid<U+0000 NULL>id
+    event: message
+    data: {"message": "hello"}
+    
+    ```
+    """)
+  @route("invalid-id")
+  op invalidId(): SSEStream<ProtocolEvents>;
+
+  @scenario
+  @scenarioDoc("""
+    An SSE event with a valid `retry` field containing only ASCII digits. The
+    field sets the client's reconnection delay and is not part of the typed
+    event data.
+    
+    Expected response body (content type `text/event-stream`):
+    ```
+    retry: 1000
+    event: message
+    data: {"message": "hello"}
+    
+    ```
+    """)
+  @route("retry")
+  op retry(): SSEStream<ProtocolEvents>;
+
+  @scenario
+  @scenarioDoc("""
+    An SSE event with an invalid `retry` field. Since the value contains
+    non-ASCII-digit characters, the field is ignored.
+    
+    Expected response body (content type `text/event-stream`):
+    ```
+    retry: not-a-number
+    event: message
+    data: {"message": "hello"}
+    
+    ```
+    """)
+  @route("invalid-retry")
+  op invalidRetry(): SSEStream<ProtocolEvents>;
+
+  @scenario
+  @scenarioDoc("""
+    An SSE stream that resumes after a reconnect. The first response closes after
+    sending `event-1`. On reconnect, the client sends the most recently received
+    event ID in the `Last-Event-ID` request header.
+    
+    Expected initial response body (content type `text/event-stream`):
+    ```
+    id: event-1
+    event: message
+    data: {"message": "hello"}
+    ```
+    
+    Expected request header on reconnect:
+    ```
+    Last-Event-ID: event-1
+    ```
+    
+    Expected reconnect response body (content type `text/event-stream`):
+    ```
+    id: event-2
+    event: message
+    data: {"message": "world"}
+    
+    ```
+    """)
+  @route("reconnect")
+  op reconnect(): SSEStream<ProtocolEvents>;
+}

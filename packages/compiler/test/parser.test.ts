@@ -270,8 +270,23 @@ describe("union declarations", () => {
     `union A { string, int32 }`,
     `union A { B<T>, C<T> }`,
     `union A { "hi", \`bye\` }`,
+    "union A extends B { x: C }",
+    "union A extends B<C> { x: C }",
+    "union A extends B | C { x: B }",
+    "union A extends B & C { x: B }",
+    "union A extends string { `hi` }",
+    "union A extends B[] { x: B[] }",
+    "union A extends { name: string } { x: B }",
+    "union A<T> extends T { x: T }",
+    "union A<T extends string> extends string { x: T }",
+    "@myDec union A extends B { @myDec a: B }",
   ]);
-  parseErrorEach([['union A { @myDec "x" x: number, y: string }', [/';' expected/]]]);
+  parseErrorEach([
+    ['union A { @myDec "x" x: number, y: string }', [/';' expected/]],
+    ["union A extends { x: B }", [/'{' expected/]],
+    ["union A extends;", [/Expression expected/]],
+    ["union A is B { x: B }", [/'{', or 'extends' expected/]],
+  ]);
 });
 
 describe("const statements", () => {

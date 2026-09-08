@@ -311,93 +311,6 @@ function Update-UnbrandedGeneratorVersion {
     }
 }
 
-# Compute libraries to regenerate by scanning the repository
-function Get-LibrariesToRegenerate {
-    param([string]$SdkRepoPath)
-    
-    $EmitterMap = @{
-        'eng/azure-typespec-http-client-csharp-emitter-package.json' = '@azure-typespec/http-client-csharp'
-        'eng/azure-typespec-http-client-csharp-mgmt-emitter-package.json' = '@azure-typespec/http-client-csharp-mgmt'
-        'eng/http-client-csharp-emitter-package.json' = '@typespec/http-client-csharp'
-    }
-    
-    function Get-GeneratorType {
-        param([string]$LibraryPath)
-        
-        # Check for tsp-location.yaml files to identify TypeSpec libraries
-        $tspLocationFiles = Get-ChildItem -Path $LibraryPath -Recurse -Filter "tsp-location.yaml" -ErrorAction SilentlyContinue
-        
-        foreach ($tspLocationFile in $tspLocationFiles) {
-            try {
-                $content = Get-Content $tspLocationFile.FullName -Raw -ErrorAction SilentlyContinue
-                if ($content -and $content -match 'emitterPackageJsonPath:\s*(?<val>"[^"]+"|[^,\s]+)\s*,?') {
-                    $emitterPath = $matches['val'].Trim('"')
-                    
-                    if ($EmitterMap.ContainsKey($emitterPath)) {
-                        return $EmitterMap[$emitterPath]
-                    }
-                }
-            }
-            catch {
-                # Continue to next file if error
-            }
-        }
-        
-        return $null
-    }
-    
-    $libraries = @()
-    $sdkRoot = Join-Path $SdkRepoPath "sdk"
-    
-    if (-not (Test-Path $sdkRoot)) {
-        Write-Warning "SDK directory not found at: $sdkRoot"
-        return @()
-    }
-    
-    # Scan through all service directories
-    $serviceDirs = Get-ChildItem -Path $sdkRoot -Directory -Force -ErrorAction SilentlyContinue
-    foreach ($serviceDir in $serviceDirs) {
-        # Look for library directories
-        $libraryDirs = Get-ChildItem -Path $serviceDir.FullName -Directory -Force -ErrorAction SilentlyContinue
-        foreach ($libraryDir in $libraryDirs) {
-            # Skip directories that don't look like libraries
-            if ($libraryDir.Name -in @("tests", "samples", "perf", "assets", "docs")) {
-                continue
-            }
-            
-            # Skip libraries that start with "Microsoft." or don't start with "Azure."
-            if ($libraryDir.Name.StartsWith("Microsoft.") -or -not $libraryDir.Name.StartsWith("Azure.")) {
-                continue
-            }
-            
-            # If it has a /src directory, it's likely a library
-            $srcPath = Join-Path $libraryDir.FullName "src"
-            if (-not (Test-Path $srcPath)) {
-                continue
-            }
-            
-            # Check if this library uses TypeSpec with one of our generators
-            $generator = Get-GeneratorType $libraryDir.FullName
-            if (-not $generator) {
-                continue
-            }
-            
-            # Calculate relative path from SDK repo root
-            $relativePath = $libraryDir.FullName.Substring($SdkRepoPath.Length + 1)
-            $relativePath = $relativePath -replace "\\", "/"
-            
-            $libraries += @{
-                Service = $serviceDir.Name
-                Library = $libraryDir.Name
-                Path = $relativePath
-                Generator = $generator
-            }
-        }
-    }
-    
-    return @($libraries)
-}
-
 # Interactive library selection
 function Select-LibrariesToRegenerate {
     param([array]$Libraries)
@@ -519,60 +432,6 @@ function Select-LibrariesToRegenerate {
     return @($selectedLibraries)
 }
 
-# Generate final report
-function Write-RegenerationReport {
-    param(
-        [array]$Results,
-        [TimeSpan]$ElapsedTime,
-        [string]$DebugFolder
-    )
-    
-    $passed = @($Results | Where-Object { $_.Success -eq $true })
-    $failed = @($Results | Where-Object { $_.Success -eq $false })
-    
-    Write-Host "`n==================== REGENERATION REPORT ====================" -ForegroundColor Cyan
-    Write-Host "Total Libraries: $($Results.Count)" -ForegroundColor White
-    Write-Host "Passed: $($passed.Count)" -ForegroundColor Green
-    Write-Host "Failed: $($failed.Count)" -ForegroundColor Red
-    
-    if ($ElapsedTime) {
-        $elapsedFormatted = "{0:hh\:mm\:ss}" -f $ElapsedTime
-        Write-Host "Execution Time: $elapsedFormatted" -ForegroundColor Cyan
-    }
-    Write-Host ""
-    
-    if ($passed.Count -gt 0) {
-        Write-Host "PASSED LIBRARIES:" -ForegroundColor Green
-        foreach ($result in $passed) {
-            Write-Host "  ✓ $($result.Library) ($($result.Service))" -ForegroundColor Green
-        }
-        Write-Host ""
-    }
-    
-    if ($failed.Count -gt 0) {
-        Write-Host "FAILED LIBRARIES:" -ForegroundColor Red
-        foreach ($result in $failed) {
-            Write-Host "  ✗ $($result.Library) ($($result.Service))" -ForegroundColor Red
-            Write-Host "    Error: $($result.Error)" -ForegroundColor Gray
-            if ($result.Output) {
-                Write-Host "    Details: $($result.Output.Substring(0, [Math]::Min(200, $result.Output.Length)))..." -ForegroundColor DarkGray
-            }
-        }
-        Write-Host ""
-    }
-    
-    Write-Host "=============================================================" -ForegroundColor Cyan
-    
-    # Save detailed report to debug folder
-    $reportPath = if ($DebugFolder) { 
-        Join-Path $DebugFolder "regen-report.json" 
-    } else { 
-        Join-Path $packageRoot "regen-report.json" 
-    }
-    $Results | ConvertTo-Json -Depth 10 | Set-Content $reportPath -Encoding utf8
-    Write-Host "Detailed report saved to: $reportPath" -ForegroundColor Gray
-}
-
 # ============================================================================
 # Main Script Execution
 # ============================================================================
@@ -585,7 +444,7 @@ try {
     if ($Select -and -not $isOpenAIMode) {
         Write-Host "`n[1/5] Loading TypeSpec libraries from repository..." -ForegroundColor Cyan
         
-        $allLibraries = Get-LibrariesToRegenerate -SdkRepoPath $sdkRepoPath
+        $allLibraries = Get-SdkLibrariesToRegenerate -SdkRepoPath $sdkRepoPath
         
         # Apply generator filter before interactive selection
         $filteredLibraries = @(Filter-LibrariesByGenerator `
@@ -626,6 +485,11 @@ try {
     }
     
     Write-Host "Debug folder: $debugFolder" -ForegroundColor Gray
+    $isCiRun = [bool]$env:BUILD_ARTIFACTSTAGINGDIRECTORY
+    $regenerationReportPath = Join-Path $debugFolder 'regen-report.json'
+    if ($isCiRun) {
+        $regenerationReportPath = Join-Path $env:BUILD_ARTIFACTSTAGINGDIRECTORY 'regen-report.json'
+    }
     Write-Host ""
     
     # Step 1: Build the unbranded generator
@@ -746,7 +610,7 @@ try {
         $scriptEndTime = Get-Date
         $elapsedTime = $scriptEndTime - $scriptStartTime
         
-        Write-RegenerationReport -Results @($result) -ElapsedTime $elapsedTime -DebugFolder $debugFolder
+        Write-RegenerationReport -Results @($result) -ElapsedTime $elapsedTime -ReportPath $regenerationReportPath -PrintJson:$isCiRun
         
         # Exit with appropriate code
         if ($result.Success) {
@@ -794,7 +658,7 @@ try {
         $scriptEndTime = Get-Date
         $elapsedTime = $scriptEndTime - $scriptStartTime
         
-        Write-RegenerationReport -Results @($result) -ElapsedTime $elapsedTime -DebugFolder $debugFolder
+        Write-RegenerationReport -Results @($result) -ElapsedTime $elapsedTime -ReportPath $regenerationReportPath -PrintJson:$isCiRun
         
         if ($result.Success) {
             Write-Host "`nScript completed successfully." -ForegroundColor Cyan
@@ -828,7 +692,7 @@ try {
         $librariesToAnalyze = $librariesToRegenerate
     } else {
         # Load all libraries and apply filters to determine what would be regenerated
-        $allLibraries = Get-LibrariesToRegenerate -SdkRepoPath $sdkRepoPath
+        $allLibraries = Get-SdkLibrariesToRegenerate -SdkRepoPath $sdkRepoPath
         $librariesToAnalyze = Filter-LibrariesByGenerator `
             -Libraries $allLibraries `
             -Azure:$Azure `
@@ -973,7 +837,7 @@ try {
     
     if (-not $Select) {
         # Load all libraries if not using -Select flag
-        $allLibraries = Get-LibrariesToRegenerate -SdkRepoPath $sdkRepoPath
+        $allLibraries = Get-SdkLibrariesToRegenerate -SdkRepoPath $sdkRepoPath
         
         # Apply generator filter
         $librariesToRegenerate = Filter-LibrariesByGenerator `
@@ -1013,145 +877,43 @@ try {
         Write-Host "No libraries selected for regeneration" -ForegroundColor Yellow
         $failedCount = 0
     } else {
-        
-        # Determine parallel execution throttle limit: (CPU cores - 2), min 1, max 8
-        $cpuCores = if ($IsWindows -or $PSVersionTable.PSVersion.Major -lt 6) {
-            (Get-CimInstance -ClassName Win32_Processor | Measure-Object -Property NumberOfLogicalProcessors -Sum).Sum
-        } elseif ($IsMacOS) {
-            [int](sysctl -n hw.ncpu)
-        } else {
-            [int](nproc)
-        }
-        
-        $throttleLimit = [Math]::Max(1, [Math]::Min(8, $cpuCores - 2))
-        
-        Write-Host "Using $throttleLimit concurrent jobs (detected $cpuCores logical processors)" -ForegroundColor Gray
-        Write-Host ""
-        
-    # Pre-install tsp-client to avoid concurrent npm operations
-    $sdkForNetEngFolder = Join-Path $sdkRepoPath "eng"
-    Write-Host "Pre-installing tsp-client..." -ForegroundColor Gray
-    $tspClientDir = Join-Path $sdkForNetEngFolder "common" "tsp-client"
-    Invoke "npm ci --prefix $tspClientDir --registry $artifactFeedRegistry" $tspClientDir
-    if ($LASTEXITCODE -ne 0) {
-        throw "Failed to install tsp-client"
-    }
-    Write-Host "  tsp-client ready" -ForegroundColor Green
-    Write-Host ""
-
-    # Pre-build the client plugin to avoid concurrent builds
-    $codeGenerationTargetPath = Join-Path $sdkForNetEngFolder  "CodeGeneration.targets"
-    if (-not (Test-Path $codeGenerationTargetPath)) {
-        throw "CodeGeneration.targets not found at: $codeGenerationTargetPath"
-    }
-    Write-Host "Pre-building client plugin..." -ForegroundColor Gray
-    Invoke "dotnet build $codeGenerationTargetPath /t:BuildPlugin /p:TypeSpecInput=temp" $sdkForNetEngFolder
-    if ($LASTEXITCODE -ne 0) {
-        throw "Failed to build client plugin"
-    }
-    Write-Host "  Client plugin ready" -ForegroundColor Green
-    Write-Host ""
-    
-    # Thread-safe collections for progress tracking
-    $completed = [System.Collections.Concurrent.ConcurrentBag[int]]::new()
-    $totalCount = $librariesToRegenerate.Count
-    
-    Write-Host "Configuring npm registry for tsp-client (temporary .env)..." -ForegroundColor Gray
-    $sdkEnvFile = Join-Path $sdkRepoPath ".env"
-    $originalSdkEnv = if (Test-Path $sdkEnvFile) { Get-Content $sdkEnvFile -Raw } else { $null }
-    Set-Content $sdkEnvFile "npm_config_registry=$artifactFeedRegistry`n" -Encoding utf8 -NoNewline
-    Write-Host "  Wrote $sdkEnvFile" -ForegroundColor Green
-    Write-Host ""
-    
-    try {
-    Write-Host "Dispatching $totalCount regeneration jobs ($throttleLimit at a time)..." -ForegroundColor Cyan
-    # Run regeneration in parallel
-    $results = $librariesToRegenerate | ForEach-Object -ThrottleLimit $throttleLimit -Parallel {
-        $library = $_
-        $azureSdkPath = $using:sdkRepoPath
-        $completedBag = $using:completed
-        $total = $using:totalCount
-        
-        Write-Host "  -> Starting $($library.Library) ($($library.Service))" -ForegroundColor DarkGray
-        
-        # Determine build path (check for src subdirectory)
-        $libraryPath = Join-Path $azureSdkPath $library.Path
-        $srcPath = Join-Path $libraryPath "src"
-        $buildPath = if ((Test-Path $srcPath) -and (Get-ChildItem -Path $srcPath -Filter "*.csproj" -ErrorAction SilentlyContinue)) {
-            $srcPath
-        } else {
-            $libraryPath
-        }
-        
-        # Regenerate library
-        $result = try {
-            if (-not (Test-Path $libraryPath)) {
-                @{ Success = $false; Error = "Library path not found"; Output = "" }
+        $regenerationThrottleLimit = 0
+        if (-not $isCiRun) {
+            # Determine parallel execution throttle limit: (CPU cores - 2), min 1, max 8
+            $cpuCores = if ($IsWindows -or $PSVersionTable.PSVersion.Major -lt 6) {
+                (Get-CimInstance -ClassName Win32_Processor | Measure-Object -Property NumberOfLogicalProcessors -Sum).Sum
+            } elseif ($IsMacOS) {
+                [int](sysctl -n hw.ncpu)
             } else {
-                Push-Location $buildPath
-                try {
-                    $output = & dotnet build /t:GenerateCode /p:SkipTspClientInstall=true /p:SkipBuildPlugin=true 2>&1
-                    $exitCode = $LASTEXITCODE
-                    
-                    if ($exitCode -ne 0) {
-                        @{ Success = $false; Error = "Generation failed with exit code $exitCode"; Output = ($output -join "`n") }
-                    } else {
-                        @{ Success = $true; Output = ($output -join "`n") }
-                    }
-                }
-                finally {
-                    Pop-Location
-                }
+                [int](nproc)
             }
+
+            $regenerationThrottleLimit = [Math]::Max(1, [Math]::Min(8, $cpuCores - 2))
         }
-        catch {
-            @{ Success = $false; Error = $_.Exception.Message; Output = $_.Exception.ToString() }
-        }
-        
-        # Update progress counter
-        $completedBag.Add(1)
-        $currentCount = $completedBag.Count
-        
-        # Thread-safe console output with progress
-        $status = if ($result.Success) { "✓" } else { "✗" }
-        $color = if ($result.Success) { "Green" } else { "White" }
-        
-        $progressMsg = "[$currentCount/$total] $status $($library.Library)"
-        Write-Host $progressMsg -ForegroundColor $color
-        
-        # Return result with library metadata
-        return @{
-            Service = $library.Service
-            Library = $library.Library
-            Path = $library.Path
-            Generator = $library.Generator
-            Success = if ($result.ContainsKey('Success')) { $result.Success } else { $false }
-            Error = if ($result.ContainsKey('Error')) { $result.Error } else { "" }
-            Output = if ($result.ContainsKey('Output')) { $result.Output } else { "" }
-        }
-    }
-    }
-    finally {
-        # Remove/restore the temporary .env used to redirect tsp-client's npm registry
-        if ($null -eq $originalSdkEnv) {
-            Remove-Item $sdkEnvFile -Force -ErrorAction SilentlyContinue
-        } else {
-            Set-Content $sdkEnvFile $originalSdkEnv -Encoding utf8 -NoNewline
-        }
-    }
-    
-    # Generate final report
-    $scriptEndTime = Get-Date
-    $elapsedTime = $scriptEndTime - $scriptStartTime
-    
-    Write-RegenerationReport -Results $results -ElapsedTime $elapsedTime -DebugFolder $debugFolder
-    
-    # Check if any libraries failed
-    $failedLibraries = @($results | Where-Object { -not $_.Success })
-    $failedCount = $failedLibraries.Count
+
+        $results = @(Invoke-SdkLibraryRegeneration `
+            -SdkRepoPath $sdkRepoPath `
+            -Libraries $librariesToRegenerate `
+            -NpmRegistry $artifactFeedRegistry `
+            -ThrottleLimit $regenerationThrottleLimit `
+            -StopOnFailure:$isCiRun)
+
+        # Generate final report
+        $scriptEndTime = Get-Date
+        $elapsedTime = $scriptEndTime - $scriptStartTime
+
+        Write-RegenerationReport -Results $results -ElapsedTime $elapsedTime -ReportPath $regenerationReportPath -PrintJson:$isCiRun
+
+        # Check if any libraries failed
+        $failedLibraries = @($results | Where-Object { -not $_.Success })
+        $failedCount = $failedLibraries.Count
     }
     
     if ($failedCount -gt 0) {
+        if ($isCiRun) {
+            throw "Validation failed: $failedCount libraries failed to regenerate. Check the detailed report above for error information."
+        }
+
         Write-Host "`nValidation completed with warnings: $failedCount libraries failed to regenerate" -ForegroundColor Yellow
         Write-Host "Check the detailed report above for error information" -ForegroundColor Yellow
     } else {

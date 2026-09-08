@@ -29,6 +29,11 @@
   },
   "type": "module",
   "tspMain": "lib/proto.tsp",
+  "files": [
+    "lib/*.tsp",
+    "dist/**",
+    "!dist/test/**"
+  ],
   "scripts": {
     "clean": "rimraf ./dist ./temp",
     "build": "pnpm gen-extern-signature && tsc -p tsconfig.build.json && pnpm lint-typespec-library",

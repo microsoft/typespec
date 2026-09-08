@@ -53,7 +53,8 @@ namespace Microsoft.TypeSpec.Generator.Input
                 additionalProperties: null,
                 modelAsStruct: false,
                 serializationOptions: null!,
-                isDynamicModel: false);
+                isDynamicModel: false,
+                apiVersions: []);
             resolver.AddReference(id, model);
 
             string? @namespace = null;
@@ -75,6 +76,7 @@ namespace Microsoft.TypeSpec.Generator.Input
             InputExternalTypeMetadata? external = null;
             bool isExactName = false;
             bool isFileType = false;
+            IReadOnlyList<string>? apiVersions = null;
 
             // read all possible properties and throw away the unknown properties
             while (reader.TokenType != JsonTokenType.EndObject)
@@ -87,6 +89,7 @@ namespace Microsoft.TypeSpec.Generator.Input
                     || reader.TryReadString("summary", ref doc)
                     || reader.TryReadString("doc", ref doc)
                     || reader.TryReadString("usage", ref usageString)
+                    || reader.TryReadComplexType("apiVersions", options, ref apiVersions)
                     || reader.TryReadComplexType("discriminatorProperty", options, ref discriminatorProperty)
                     || reader.TryReadString("discriminatorValue", ref discriminatorValue)
                     || reader.TryReadComplexType("additionalProperties", options, ref additionalProperties)
@@ -120,6 +123,7 @@ namespace Microsoft.TypeSpec.Generator.Input
                 parsedUsage |= InputModelTypeUsage.Json;
             }
             model.Usage = parsedUsage;
+            model.ApiVersions = apiVersions ?? [];
             model.DiscriminatorValue = discriminatorValue;
             model.DiscriminatorProperty = discriminatorProperty;
             model.AdditionalProperties = additionalProperties;

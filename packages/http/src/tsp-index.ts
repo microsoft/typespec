@@ -38,6 +38,7 @@ import {
 } from "./private.decorators.js";
 
 export { $lib } from "./lib.js";
+export { $provideTypeInfo } from "./type-info.js";
 export { $onValidate } from "./validate.js";
 
 /** @internal */

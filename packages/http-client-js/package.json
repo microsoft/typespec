@@ -36,6 +36,10 @@
       "import": "./dist/src/components/index.js"
     }
   },
+  "files": [
+    "dist/**",
+    "!dist/test/**"
+  ],
   "keywords": [
     "typespec",
     "javascript",

@@ -244,6 +244,10 @@ const sidebar: SidebarItem[] = [
       "extending-typespec/basics",
       "extending-typespec/diagnostics",
       "extending-typespec/create-decorators",
+      {
+        slug: "extending-typespec/providing-type-info",
+        badge: { text: "experimental", variant: "caution" },
+      },
       "extending-typespec/linters",
       "extending-typespec/codefixes",
       "extending-typespec/testing",

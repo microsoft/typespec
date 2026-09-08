@@ -239,6 +239,9 @@ public class TypeSpecPlugin extends Javagen {
         if (options.getEnableSyncStack() != null) {
             SETTINGS_MAP.put("enable-sync-stack", options.getEnableSyncStack());
         }
+        if (options.getMaxOverload() != null) {
+            SETTINGS_MAP.put("max-overload", options.getMaxOverload());
+        }
         if (options.getStreamStyleSerialization() != null) {
             SETTINGS_MAP.put("stream-style-serialization", options.getStreamStyleSerialization());
         }

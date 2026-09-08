@@ -29,7 +29,7 @@ namespace Microsoft.TypeSpec.Generator.Providers
             return input.IsExtensible ? extensibleEnumProvider : fixedEnumProvider;
         }
 
-        protected EnumProvider(InputEnumType? input)
+        protected EnumProvider(InputEnumType? input) : base(input)
         {
             _inputType = input;
             _deprecated = input?.Deprecation;
@@ -95,8 +95,14 @@ namespace Microsoft.TypeSpec.Generator.Providers
         private protected string GetBackCompatibleName(
             string generatedName,
             IReadOnlyList<string> generatedNames,
-            IReadOnlyList<string> lastContractNames)
+            IReadOnlyList<string> lastContractNames,
+            bool isExactName)
         {
+            if (isExactName)
+            {
+                return generatedName;
+            }
+
             if (lastContractNames.Count == 0)
             {
                 return generatedName;

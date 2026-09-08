@@ -1,4 +1,4 @@
-import { useTsp } from "#core/context/tsp-context.js";
+import { Experimental_OverridableComponent, useTsp } from "#core/index.js";
 import { type Children, For } from "@alloy-js/core";
 import * as cs from "@alloy-js/csharp";
 import type { Enum, Union } from "@typespec/compiler";
@@ -12,6 +12,19 @@ export interface EnumDeclarationProps extends Omit<cs.EnumDeclarationProps, "nam
 }
 
 export function EnumDeclaration(props: EnumDeclarationProps): Children {
+  return (
+    <Experimental_OverridableComponent
+      declaration
+      type={props.type}
+      Declaration={EnumDeclarationBody}
+      declarationProps={props}
+    >
+      <EnumDeclarationBody {...props} />
+    </Experimental_OverridableComponent>
+  );
+}
+
+function EnumDeclarationBody(props: EnumDeclarationProps): Children {
   const { $ } = useTsp();
   let type: Enum;
   if ($.union.is(props.type)) {

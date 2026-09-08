@@ -310,6 +310,12 @@ const ScalarSerializers = {
         } else {
           return duration.total({ unit: "seconds" });
         }
+      case "milliseconds":
+        if (isInteger(encodeAs.type)) {
+          return Math.floor(duration.total({ unit: "milliseconds" }));
+        } else {
+          return duration.total({ unit: "milliseconds" });
+        }
       default:
         return duration.toString();
     }

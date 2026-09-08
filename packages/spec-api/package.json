@@ -8,6 +8,9 @@
       "import": "./dist/index.js"
     }
   },
+  "files": [
+    "dist/**"
+  ],
   "scripts": {
     "watch": "tsc -p ./tsconfig.build.json --watch",
     "build": "tsc -p ./tsconfig.build.json",
