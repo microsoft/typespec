@@ -19,18 +19,6 @@ npm install @typespec/http-client-csharp
 
 For detailed instructions on how to customize the generated C# code, see the [Customization Guide](https://github.com/microsoft/typespec/blob/main/packages/http-client-csharp/.tspd/docs/customization.md).
 
-### Hosted generation
-
-The playground server always runs the .NET generator with `--hosted`. This disables
-plugin discovery from npm dependencies, rejects custom `plugins` paths, and prevents
-NuGet package downloads and package-version lookups against feeds. Assemblies bundled
-with the generator and packages already available in the NuGet cache remain usable.
-
-Hosted mode is a generator command-line option, not an emitter configuration option,
-so request configuration cannot disable it. Local CLI generation is unchanged unless
-`--hosted` is explicitly supplied to the .NET generator. These restrictions are not a
-replacement for isolating the hosted process and validating output paths.
-
 ## Emitter usage
 
 1. Via the command line
