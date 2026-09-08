@@ -38,7 +38,7 @@ namespace Microsoft.TypeSpec.Generator
         [Option(longName: NewProjectOptionName, shortName: 'n', Required = false, Default = false, Hidden = false, HelpText = CmdLineNewProjectOptionHelpText)]
         public bool IsNewProject { get; set; }
 
-        [Option(longName: HostedModeOptionName, Required = false, Default = false, Hidden = false, HelpText = CmdLineHostedModeOptionHelpText)]
+        [Option(longName: HostedModeOptionName, Required = false, Default = false, Hidden = true, HelpText = CmdLineHostedModeOptionHelpText)]
         public bool IsHosted { get; set; }
     }
 }

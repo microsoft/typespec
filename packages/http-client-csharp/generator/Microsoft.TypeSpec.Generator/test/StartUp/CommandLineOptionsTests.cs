@@ -5,7 +5,7 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
-using System.Text.RegularExpressions;
+using System.Reflection;
 using CommandLine;
 using CommandLine.Text;
 using NUnit.Framework;
@@ -61,14 +61,28 @@ namespace Microsoft.TypeSpec.Generator.Tests.StartUp
         [Test]
         public void HostedModeHelpDescribesAllRestrictions()
         {
-            using var parser = new Parser(settings => settings.HelpWriter = null);
-            var result = parser.ParseArguments<CommandLineOptions>(["--help"]);
-            var help = Regex.Replace(HelpText.AutoBuild(result).ToString(), @"\s+", " ");
+            var option = typeof(CommandLineOptions)
+                .GetProperty(nameof(CommandLineOptions.IsHosted))!
+                .GetCustomAttribute<OptionAttribute>();
 
-            StringAssert.Contains("npm dependency plugin discovery", help);
-            StringAssert.Contains("configured plugin loading", help);
-            StringAssert.Contains("NuGet feed lookups", help);
-            StringAssert.Contains("package downloads", help);
+            Assert.IsNotNull(option);
+            StringAssert.Contains("npm dependency plugin discovery", option!.HelpText);
+            StringAssert.Contains("configured plugin loading", option.HelpText);
+            StringAssert.Contains("NuGet feed lookups", option.HelpText);
+            StringAssert.Contains("package downloads", option.HelpText);
+        }
+
+        [TestCase("--help")]
+        [TestCase("--unknown-option")]
+        public void HostedModeIsHiddenFromHelp(string argument)
+        {
+            using var parser = new Parser(settings => settings.HelpWriter = null);
+            var result = parser.ParseArguments<CommandLineOptions>([argument]);
+            var help = HelpText.AutoBuild(result).ToString();
+
+            StringAssert.DoesNotContain("--hosted", help);
+            StringAssert.DoesNotContain("npm dependency plugin", help);
+            StringAssert.Contains("--generatorName", help);
         }
 
         [TestCase("--hosted=false")]
