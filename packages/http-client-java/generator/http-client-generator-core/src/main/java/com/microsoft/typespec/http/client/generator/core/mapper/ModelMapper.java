@@ -388,9 +388,8 @@ public class ModelMapper implements IMapper<ObjectSchema, ClientModel>, NeedsPla
      * A child can also declare an ordinary fixed property with the same wire name as the propagated discriminator.
      * Keeping both representations would generate duplicate fields and accessors. Such a property must be constant and
      * have the same wire type, client type, and fixed value as {@code parentDiscriminator}; otherwise mapping fails.
-     * A valid property becomes the canonical entry in {@link ClientModel#getParentPolymorphicDiscriminators()}, with
-     * discriminator metadata applied, and is removed from {@link ClientModel#getProperties()}. When no same-wire-name
-     * child property exists, {@code parentDiscriminator} itself remains the canonical parent entry.
+     * A valid property is removed from {@link ClientModel#getProperties()}, leaving {@code parentDiscriminator} as the
+     * canonical entry in {@link ClientModel#getParentPolymorphicDiscriminators()}.
      * <p>
      * Parent models map after their children, so the canonical entry is inserted at index zero to retain
      * outer-to-inner discriminator order. The fixed discriminator is then recursively propagated to every descendant.
@@ -406,7 +405,6 @@ public class ModelMapper implements IMapper<ObjectSchema, ClientModel>, NeedsPla
      */
     private static void passPolymorphicDiscriminatorToChildren(ClientModelProperty parentDiscriminator,
         ClientModel child) {
-        ClientModelProperty discriminatorForChild = parentDiscriminator;
         for (int i = 0; i < child.getProperties().size(); i++) {
             ClientModelProperty childProperty = child.getProperties().get(i);
             if (!Objects.equals(parentDiscriminator.getSerializedName(), childProperty.getSerializedName())) {
@@ -425,17 +423,11 @@ public class ModelMapper implements IMapper<ObjectSchema, ClientModel>, NeedsPla
                     + ").");
             }
 
-            discriminatorForChild = childProperty.newBuilder()
-                .name(parentDiscriminator.getName())
-                .readOnly(true)
-                .required(false)
-                .polymorphicDiscriminator(true)
-                .build();
             child.getProperties().remove(i);
             break;
         }
 
-        child.getParentPolymorphicDiscriminators().add(0, discriminatorForChild);
+        child.getParentPolymorphicDiscriminators().add(0, parentDiscriminator);
 
         for (ClientModel derived : child.getDerivedModels()) {
             passPolymorphicDiscriminatorToChildren(parentDiscriminator, derived);

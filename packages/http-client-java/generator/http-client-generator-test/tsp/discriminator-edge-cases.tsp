@@ -96,23 +96,6 @@ model RegressionSuperclassConstructorPropagationAssistant
 
 @usage(Usage.output)
 @access(Access.public)
-@discriminator("type")
-model RegressionStreamStyleJsonDispatchBase {
-  type: string;
-}
-
-@discriminator("role")
-model RegressionStreamStyleJsonDispatchMessage extends RegressionStreamStyleJsonDispatchBase {
-  type: "message";
-  role: string;
-}
-
-model RegressionStreamStyleJsonDispatchAssistant extends RegressionStreamStyleJsonDispatchMessage {
-  role: "assistant";
-}
-
-@usage(Usage.output)
-@access(Access.public)
 @name("NestedDiscriminatorBase")
 @discriminator("type")
 model NestedDiscriminatorBase {

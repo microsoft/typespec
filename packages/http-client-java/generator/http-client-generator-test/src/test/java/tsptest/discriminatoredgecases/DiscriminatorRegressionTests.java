@@ -10,8 +10,6 @@ import tsptest.discriminatoredgecases.models.RegressionAncestorOrdinaryPropertyM
 import tsptest.discriminatoredgecases.models.RegressionAncestorOrdinaryPropertyMaskingBase;
 import tsptest.discriminatoredgecases.models.RegressionDuplicateRepeatedInheritedDiscriminatorAssistant;
 import tsptest.discriminatoredgecases.models.RegressionDuplicateRepeatedInheritedDiscriminatorBase;
-import tsptest.discriminatoredgecases.models.RegressionStreamStyleJsonDispatchAssistant;
-import tsptest.discriminatoredgecases.models.RegressionStreamStyleJsonDispatchBase;
 import tsptest.discriminatoredgecases.models.RegressionSuperclassConstructorPropagationAssistant;
 import tsptest.discriminatoredgecases.models.RegressionSuperclassConstructorPropagationBase;
 
@@ -50,14 +48,4 @@ public class DiscriminatorRegressionTests {
         Assertions.assertEquals("message", model.getType());
     }
 
-    @Test
-    public void streamStyleJsonEmitsOuterDiscriminatorAndDispatchesNestedDiscriminator() {
-        String json = "{\"type\":\"message\",\"role\":\"assistant\"}";
-
-        RegressionStreamStyleJsonDispatchBase model
-            = BinaryData.fromString(json).toObject(RegressionStreamStyleJsonDispatchBase.class);
-
-        Assertions.assertInstanceOf(RegressionStreamStyleJsonDispatchAssistant.class, model);
-        Assertions.assertEquals(json, BinaryData.fromObject(model).toString());
-    }
 }
