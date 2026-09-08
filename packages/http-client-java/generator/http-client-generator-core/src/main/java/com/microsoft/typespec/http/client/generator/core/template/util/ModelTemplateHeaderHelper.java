@@ -26,6 +26,7 @@ import java.lang.reflect.Modifier;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import java.util.Locale;
 import java.util.Map;
 import java.util.TreeMap;
 
@@ -293,11 +294,13 @@ public final class ModelTemplateHeaderHelper {
             } else {
                 body.line("String headerName = header.getName().getValue();");
             }
+            body.line("String headerNameLowerCase = headerName.toLowerCase(Locale.ROOT);");
             int propertiesSize = properties.size();
             for (int i = 0; i < propertiesSize; i++) {
                 ClientModelProperty property = properties.get(i);
                 boolean needsContinue = i < propertiesSize - 1;
-                body.ifBlock("headerName.startsWith(\"" + property.getHeaderCollectionPrefix() + "\")", ifBlock -> {
+                String headerCollectionPrefix = property.getHeaderCollectionPrefix().toLowerCase(Locale.ROOT);
+                body.ifBlock("headerNameLowerCase.startsWith(\"" + headerCollectionPrefix + "\")", ifBlock -> {
                     ifBlock.line("%sHeaderCollection.put(headerName.substring(%d), header.getValue());",
                         property.getName(), property.getHeaderCollectionPrefix().length());
                     if (needsContinue) {

@@ -258,7 +258,7 @@ namespace Microsoft.TypeSpec.Generator.Utilities
                     : $"(>= {external.MinVersion})";
                 return CacheResult(state, key, new ResolutionResult(
                     null,
-                    $"The package '{external.Package}' minimal version declared in a typespec {versionQualifier} is higher then the one defined in project dependencies \"{packageInfo.PackageVersion}\"."));
+                    $"The package '{external.Package}' minimal version declared in a typespec {versionQualifier} is higher than the one defined in project dependencies \"{packageInfo.PackageVersion}\"."));
             }
 
             if (packageInfo.AssemblyPath == null || !File.Exists(packageInfo.AssemblyPath) || !versionAcceptable)

@@ -171,7 +171,7 @@ namespace Microsoft.TypeSpec.Generator.Tests.Utilities
 
             Assert.IsNull(resolved);
             StringAssert.Contains(
-                "minimal version declared in a typespec (>= 42.0.0) is higher then the one defined in project dependencies \"41.0.0\"",
+                "minimal version declared in a typespec (>= 42.0.0) is higher than the one defined in project dependencies \"41.0.0\"",
                 ExternalTypeReferenceResolver.GetFailureReason(external),
                 "A missing package should be reported as a missing package.");
         }
