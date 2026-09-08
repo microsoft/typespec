@@ -45,7 +45,7 @@ timeout-minutes: 10
 source: githubnext/agentics/workflows/issue-triage.md@346204513ecfa08b81566450d7d599556807389f
 engine:
   id: copilot
-  model: claude-opus-4.6
+  model: gpt-5.6-sol
 ---
 
 # Agentic Triage
