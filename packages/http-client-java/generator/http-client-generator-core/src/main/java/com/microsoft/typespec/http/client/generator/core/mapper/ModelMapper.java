@@ -28,6 +28,7 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.LinkedHashSet;
 import java.util.List;
+import java.util.ListIterator;
 import java.util.Objects;
 import java.util.Set;
 import java.util.function.Function;
@@ -386,10 +387,11 @@ public class ModelMapper implements IMapper<ObjectSchema, ClientModel>, NeedsPla
      * models retain the canonical {@code type="message"} value while {@code role} controls nested dispatch.
      * <p>
      * A child can also declare an ordinary fixed property with the same wire name as the propagated discriminator.
-     * Keeping both representations would generate duplicate fields and accessors. Such a property must be constant and
-     * have the same wire type, client type, and fixed value as {@code parentDiscriminator}; otherwise mapping fails.
-     * A valid property is removed from {@link ClientModel#getProperties()}, leaving {@code parentDiscriminator} as the
-     * canonical entry in {@link ClientModel#getParentPolymorphicDiscriminators()}.
+     * Keeping both representations would generate duplicate fields and accessors. Such a property must match
+     * {@code parentDiscriminator}'s Java name, wire type, client type, and fixed value, and must be constant; otherwise
+     * mapping fails. A valid property is removed from {@link ClientModel#getProperties()}, leaving
+     * {@code parentDiscriminator} as the canonical entry in
+     * {@link ClientModel#getParentPolymorphicDiscriminators()}.
      * <p>
      * Parent models map after their children, so the canonical entry is inserted at index zero to retain
      * outer-to-inner discriminator order. The fixed discriminator is then recursively propagated to every descendant.
@@ -400,30 +402,33 @@ public class ModelMapper implements IMapper<ObjectSchema, ClientModel>, NeedsPla
      *
      * @param parentDiscriminator the fixed discriminator selected by the outer hierarchy
      * @param child the nested-hierarchy model that receives the fixed discriminator
-     * @throws IllegalStateException if the child declares the same wire name without matching constant status, wire
-     * type, client type, and fixed value
+     * @throws IllegalStateException if the child declares the same wire name without matching constant status, Java
+     * name, wire type, client type, and fixed value
      */
     private static void passPolymorphicDiscriminatorToChildren(ClientModelProperty parentDiscriminator,
         ClientModel child) {
-        for (int i = 0; i < child.getProperties().size(); i++) {
-            ClientModelProperty childProperty = child.getProperties().get(i);
+        ListIterator<ClientModelProperty> iterator = child.getProperties().listIterator();
+        while (iterator.hasNext()) {
+            ClientModelProperty childProperty = iterator.next();
             if (!Objects.equals(parentDiscriminator.getSerializedName(), childProperty.getSerializedName())) {
                 continue;
             }
 
             if (!childProperty.isConstant()
+                || !Objects.equals(parentDiscriminator.getName(), childProperty.getName())
                 || !Objects.equals(parentDiscriminator.getWireType(), childProperty.getWireType())
                 || !Objects.equals(parentDiscriminator.getClientType(), childProperty.getClientType())
                 || !Objects.equals(parentDiscriminator.getDefaultValue(), childProperty.getDefaultValue())) {
                 throw new IllegalStateException("Property '" + childProperty.getSerializedName() + "' on model '"
-                    + child.getName() + "' does not match its inherited polymorphic discriminator. Expected (type="
-                    + parentDiscriminator.getClientType() + ", value="
-                    + String.valueOf(parentDiscriminator.getDefaultValue()) + "), but found (type="
+                    + child.getName() + "' does not match its inherited polymorphic discriminator. Expected (name="
+                    + parentDiscriminator.getName() + ", constant=true, type=" + parentDiscriminator.getClientType()
+                    + ", value=" + String.valueOf(parentDiscriminator.getDefaultValue()) + "), but found (name="
+                    + childProperty.getName() + ", constant=" + childProperty.isConstant() + ", type="
                     + childProperty.getClientType() + ", value=" + String.valueOf(childProperty.getDefaultValue())
                     + ").");
             }
 
-            child.getProperties().remove(i);
+            iterator.remove();
             break;
         }
 
