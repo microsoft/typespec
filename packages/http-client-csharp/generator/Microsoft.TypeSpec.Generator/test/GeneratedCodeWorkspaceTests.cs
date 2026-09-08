@@ -2,14 +2,19 @@
 // Licensed under the MIT License.
 
 using System;
+using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using System.Runtime.ExceptionServices;
+using System.Text;
 using System.Threading.Tasks;
 using Microsoft.Build.Construction;
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp;
+using Microsoft.TypeSpec.Generator.EmitterRpc;
 using Microsoft.TypeSpec.Generator.Tests.Common;
+using Microsoft.TypeSpec.Generator.Utilities;
 using NUnit.Framework;
 
 namespace Microsoft.TypeSpec.Generator.Tests
@@ -76,14 +81,16 @@ namespace Microsoft.TypeSpec.Generator.Tests
         }
 
         // This test validates that the baseline contract loads successfully from a assembly.
-        [TestCase(Category = EvaluatedFrameworkTestCategory)]
-        public async Task TestLoadBaselineContractLoadsTypeSuccessfully()
+        [TestCase(false, Category = EvaluatedFrameworkTestCategory)]
+        [TestCase(true, Category = EvaluatedFrameworkTestCategory)]
+        public async Task TestLoadBaselineContractLoadsTypeSuccessfully(bool isHosted)
         {
             var ns = "TestNamespace";
             await MockHelpers.LoadMockGeneratorAsync(
                 inputNamespaceName: ns,
                 outputPath: _projectDir,
                 includeXmlDocs: true);
+            CodeModelGenerator.Instance.IsHosted = isHosted;
             var compilation = await GeneratedCodeWorkspace.LoadBaselineContract();
             Assert.NotNull(compilation, "Compilation should not be null");
 
@@ -138,6 +145,40 @@ namespace Microsoft.TypeSpec.Generator.Tests
 
             Assert.NotNull(compilation, "Compilation should not be null");
             Assert.NotNull(compilation!.GetTypeByMetadataName($"{ns}.SimpleType"));
+        }
+
+        [TestCase(false)]
+        [TestCase(true)]
+        public async Task LoadBaselineContract_HostedModeSkipsDownload(bool cachedForDifferentFramework)
+        {
+            const string packageName = "Hosted.Baseline";
+            if (cachedForDifferentFramework)
+            {
+                CreateFakeNuGetPackage(Path.Combine(_tempDirectory!, "NuGetCache"), packageName, "1.0.0");
+            }
+
+            var framework = cachedForDifferentFramework ? "net9.0" : "netstandard2.0";
+            using var output = new MemoryStream();
+            using var emitter = new Emitter(output);
+            LoadHostedMockGenerator(packageName, $"""
+                <Project Sdk="Microsoft.NET.Sdk">
+                  <PropertyGroup>
+                    <TargetFramework>{framework}</TargetFramework>
+                    <ApiCompatVersion>1.0.0</ApiCompatVersion>
+                  </PropertyGroup>
+                </Project>
+                """, emitter);
+
+            await AssertNoHostedNugetExceptionsAsync(async () =>
+            {
+                Assert.IsNull(await GeneratedCodeWorkspace.LoadBaselineContract());
+            });
+
+            var messages = Encoding.UTF8.GetString(output.ToArray());
+            StringAssert.Contains("Skipping NuGet download for baseline contract Hosted.Baseline@1.0.0 in hosted mode", messages);
+            StringAssert.Contains(DiagnosticCodes.BaselineContractMissing, messages);
+            StringAssert.Contains("NuGet feed lookups and package downloads are disabled in hosted mode.", messages);
+            StringAssert.DoesNotContain("Error:", messages);
         }
 
         [Test]
@@ -250,6 +291,77 @@ namespace My.External.Library
         }
 
         [Test]
+        public async Task AddPackageReferencesFromProject_HostedModeSkipsDownloadsAndKeepsCachedReferences()
+        {
+            const string cachedPackage = "Hosted.Cached";
+            CreateFakeNuGetPackage(Path.Combine(_tempDirectory!, "NuGetCache"), cachedPackage, "1.0.0");
+            using var output = new MemoryStream();
+            using var emitter = new Emitter(output);
+            LoadHostedMockGenerator("Hosted.Project", """
+                <Project Sdk="Microsoft.NET.Sdk">
+                  <PropertyGroup>
+                    <TargetFramework>netstandard2.0</TargetFramework>
+                  </PropertyGroup>
+                  <ItemGroup>
+                    <PackageReference Include="Hosted.Missing.Before" />
+                    <PackageReference Include="Hosted.Cached" />
+                    <PackageReference Include="Hosted.Missing.After" />
+                  </ItemGroup>
+                </Project>
+                """, emitter);
+            WriteProjectAssets("""
+                {
+                  "targets": {
+                    "netstandard2.0": {
+                      "Hosted.Missing.Before/1.0.0": { "type": "package" },
+                      "Hosted.Cached/1.0.0": { "type": "package" },
+                      "Hosted.Missing.After/1.0.0": { "type": "package" }
+                    }
+                  }
+                }
+                """);
+            var refsBefore = CodeModelGenerator.Instance.AdditionalMetadataReferences.Count;
+
+            await AssertNoHostedNugetExceptionsAsync(GeneratedCodeWorkspace.AddPackageReferencesFromProject);
+
+            Assert.AreEqual(refsBefore + 1, CodeModelGenerator.Instance.AdditionalMetadataReferences.Count);
+            Assert.IsTrue(CodeModelGenerator.Instance.AdditionalMetadataReferences.Any(
+                reference => Path.GetFileName(reference.Display) == $"{cachedPackage}.dll"));
+            var messages = Encoding.UTF8.GetString(output.ToArray());
+            StringAssert.Contains("Skipping dotnet restore in hosted mode", messages);
+            StringAssert.Contains("The package Hosted.Missing.Before v. 1.0.0 was not restored.", messages);
+            StringAssert.Contains("The package Hosted.Missing.After v. 1.0.0 was not restored.", messages);
+            StringAssert.DoesNotContain("unable-to-restore-target-package", messages);
+        }
+
+        [Test]
+        public async Task AddPackageReferencesFromProject_HostedModeSkipsRestore()
+        {
+            using var output = new MemoryStream();
+            using var emitter = new Emitter(output);
+            LoadHostedMockGenerator("Hosted.Project", """
+                <Project Sdk="Microsoft.NET.Sdk">
+                  <PropertyGroup>
+                    <TargetFramework>net10.0</TargetFramework>
+                  </PropertyGroup>
+                  <Target Name="RecordRestore" BeforeTargets="Restore">
+                    <WriteLinesToFile File="$(MSBuildProjectDirectory)\restore-ran.txt" Lines="restore ran" />
+                  </Target>
+                </Project>
+                """, emitter);
+            const string assets = """{ "targets": { "net10.0": {} } }""";
+            WriteProjectAssets(assets);
+
+            await AssertNoHostedNugetExceptionsAsync(GeneratedCodeWorkspace.AddPackageReferencesFromProject);
+
+            Assert.IsFalse(File.Exists(Path.Combine(_projectDir!, "src", "restore-ran.txt")),
+                "Hosted generation must not invoke project restore targets.");
+            Assert.AreEqual(assets, File.ReadAllText(Path.Combine(_projectDir!, "src", "obj", "project.assets.json")),
+                "Hosted generation must not rewrite cached project assets.");
+            StringAssert.Contains("Skipping dotnet restore in hosted mode", Encoding.UTF8.GetString(output.ToArray()));
+        }
+
+        [Test]
         public async Task AddPackageReferencesFromProject_SkipsPackageNotInCache()
         {
             var ns = "TestNamespace";
@@ -281,8 +393,9 @@ namespace My.External.Library
             Assert.AreEqual(refCountBefore, refCountAfter, "Should not add references for packages not in cache");
         }
 
-        [Test]
-        public async Task AddPackageReferencesFromProject_ResolvesPackageWithNoVersion()
+        [TestCase(false)]
+        [TestCase(true)]
+        public async Task AddPackageReferencesFromProject_ResolvesPackageWithNoVersion(bool isHosted)
         {
             var ns = "TestNamespace";
             var nugetCacheDir = Path.Combine(_tempDirectory!, "NuGetCache");
@@ -306,6 +419,18 @@ namespace My.External.Library
                 inputNamespaceName: ns,
                 outputPath: _projectDir,
                 configuration: $"{{\"package-name\": \"{ns}\"}}");
+            CodeModelGenerator.Instance.IsHosted = isHosted;
+
+            if (isHosted)
+            {
+                WriteProjectAssets($$"""
+                    {
+                      "projectFileDependencyGroups": {
+                        "netstandard2.0": ["{{externalPkgName}}"]
+                      }
+                    }
+                    """);
+            }
 
             var refCountBefore = CodeModelGenerator.Instance.AdditionalMetadataReferences.Count;
             await GeneratedCodeWorkspace.AddPackageReferencesFromProject();
@@ -776,6 +901,88 @@ namespace My.External.Library
 
             string expectedOutput = Path.Combine(_projectDir!, "src", "obj", "project.assets.json");
             Assert.That(await GeneratedCodeWorkspace.GetAssetFileOrNull(), Is.EqualTo(expectedOutput));
+        }
+
+        [TestCase(false)]
+        [TestCase(true)]
+        public async Task GetAssetFileOrNull_HostedModeSkipsProjectEvaluation(bool hasCachedAssets)
+        {
+            using var output = new MemoryStream();
+            using var emitter = new Emitter(output);
+            LoadHostedMockGenerator("Hosted.Project", """
+                <Project Sdk="Microsoft.NET.Sdk">
+                  <Import Project="must-not-be-evaluated.props" />
+                  <PropertyGroup>
+                    <TargetFramework>net10.0</TargetFramework>
+                  </PropertyGroup>
+                </Project>
+                """, emitter);
+            if (hasCachedAssets)
+            {
+                WriteProjectAssets("{}");
+            }
+
+            var assetFile = await GeneratedCodeWorkspace.GetAssetFileOrNull();
+
+            Assert.That(assetFile, Is.EqualTo(hasCachedAssets
+                ? Path.Combine(_projectDir!, "src", "obj", "project.assets.json")
+                : null));
+            var messages = Encoding.UTF8.GetString(output.ToArray());
+            StringAssert.Contains("Skipping MSBuild project evaluation in hosted mode", messages);
+            StringAssert.DoesNotContain("unable-to-get-artifact-path", messages);
+        }
+
+        private void WriteProjectAssets(string contents)
+        {
+            var assetsDirectory = Path.Combine(_projectDir!, "src", "obj");
+            Directory.CreateDirectory(assetsDirectory);
+            File.WriteAllText(Path.Combine(assetsDirectory, "project.assets.json"), contents);
+        }
+
+        private void LoadHostedMockGenerator(string packageName, string projectContent, Emitter emitter)
+        {
+            File.WriteAllText(Path.Combine(_projectDir!, "src", $"{packageName}.csproj"), projectContent);
+            File.WriteAllText(Path.Combine(_projectDir!, "NuGet.Config"), """
+                <configuration>
+                  <packageSources>
+                    <clear />
+                  </packageSources>
+                </configuration>
+                """);
+            var generator = MockHelpers.LoadMockGenerator(
+                inputNamespaceName: packageName,
+                outputPath: _projectDir,
+                configuration: $"{{\"package-name\": \"{packageName}\"}}");
+            generator.Setup(g => g.Emitter).Returns(emitter);
+            generator.Object.IsHosted = true;
+        }
+
+        private static async Task AssertNoHostedNugetExceptionsAsync(Func<Task> action)
+        {
+            var exceptions = new ConcurrentQueue<string>();
+            void OnFirstChanceException(object? sender, FirstChanceExceptionEventArgs args)
+            {
+                if (args.Exception is InvalidOperationException
+                    && args.Exception.Message.StartsWith("NuGet ", StringComparison.Ordinal)
+                    && args.Exception.Message.Contains("disabled in hosted mode", StringComparison.Ordinal))
+                {
+                    exceptions.Enqueue(args.Exception.Message);
+                }
+            }
+
+            // First-chance notifications include exceptions caught inside the workspace.
+            AppDomain.CurrentDomain.FirstChanceException += OnFirstChanceException;
+            try
+            {
+                await action();
+            }
+            finally
+            {
+                AppDomain.CurrentDomain.FirstChanceException -= OnFirstChanceException;
+            }
+
+            Assert.That(exceptions, Is.Empty,
+                "Hosted execution should skip download paths instead of throwing and catching the lower-level guard.");
         }
 
         /// <summary>
