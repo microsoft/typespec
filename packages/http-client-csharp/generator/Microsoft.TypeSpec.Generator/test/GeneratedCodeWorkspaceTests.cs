@@ -2,14 +2,19 @@
 // Licensed under the MIT License.
 
 using System;
+using System.Collections.Concurrent;
 using System.ComponentModel;
 using System.IO;
 using System.Linq;
+using System.Runtime.ExceptionServices;
+using System.Text;
 using System.Threading.Tasks;
 using Microsoft.Build.Construction;
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp;
+using Microsoft.TypeSpec.Generator.EmitterRpc;
 using Microsoft.TypeSpec.Generator.Tests.Common;
+using Microsoft.TypeSpec.Generator.Utilities;
 using NUnit.Framework;
 
 namespace Microsoft.TypeSpec.Generator.Tests
@@ -124,6 +129,40 @@ namespace Microsoft.TypeSpec.Generator.Tests
             Assert.NotNull(compilation!.GetTypeByMetadataName($"{ns}.SimpleType"));
         }
 
+        [TestCase(false)]
+        [TestCase(true)]
+        public async Task LoadBaselineContract_HostedModeSkipsDownload(bool cachedForDifferentFramework)
+        {
+            const string packageName = "Hosted.Baseline";
+            if (cachedForDifferentFramework)
+            {
+                CreateFakeNuGetPackage(Path.Combine(_tempDirectory!, "NuGetCache"), packageName, "1.0.0");
+            }
+
+            var framework = cachedForDifferentFramework ? "net9.0" : "netstandard2.0";
+            using var output = new MemoryStream();
+            using var emitter = new Emitter(output);
+            LoadHostedMockGenerator(packageName, $"""
+                <Project Sdk="Microsoft.NET.Sdk">
+                  <PropertyGroup>
+                    <TargetFramework>{framework}</TargetFramework>
+                    <ApiCompatVersion>1.0.0</ApiCompatVersion>
+                  </PropertyGroup>
+                </Project>
+                """, emitter);
+
+            await AssertNoHostedNugetExceptionsAsync(async () =>
+            {
+                Assert.IsNull(await GeneratedCodeWorkspace.LoadBaselineContract());
+            });
+
+            var messages = Encoding.UTF8.GetString(output.ToArray());
+            StringAssert.Contains("Skipping NuGet download for baseline contract Hosted.Baseline@1.0.0 in hosted mode", messages);
+            StringAssert.Contains(DiagnosticCodes.BaselineContractMissing, messages);
+            StringAssert.Contains("NuGet feed lookups and package downloads are disabled in hosted mode.", messages);
+            StringAssert.DoesNotContain("Error:", messages);
+        }
+
         [Test]
         public async Task AddPackageReferencesFromProject_AddsReferencesFromCsproj()
         {
@@ -191,6 +230,38 @@ namespace My.External.Library
             var refCountAfter = CodeModelGenerator.Instance.AdditionalMetadataReferences.Count;
 
             Assert.AreEqual(refCountBefore, refCountAfter, "Should not add references when no .csproj exists");
+        }
+
+        [Test]
+        public async Task AddPackageReferencesFromProject_HostedModeSkipsDownloadsAndKeepsCachedReferences()
+        {
+            const string cachedPackage = "Hosted.Cached";
+            CreateFakeNuGetPackage(Path.Combine(_tempDirectory!, "NuGetCache"), cachedPackage, "1.0.0");
+            using var output = new MemoryStream();
+            using var emitter = new Emitter(output);
+            LoadHostedMockGenerator("Hosted.Project", """
+                <Project Sdk="Microsoft.NET.Sdk">
+                  <PropertyGroup>
+                    <TargetFramework>netstandard2.0</TargetFramework>
+                  </PropertyGroup>
+                  <ItemGroup>
+                    <PackageReference Include="Hosted.Missing.Before" />
+                    <PackageReference Include="Hosted.Cached" />
+                    <PackageReference Include="Hosted.Missing.After" />
+                  </ItemGroup>
+                </Project>
+                """, emitter);
+            var refsBefore = CodeModelGenerator.Instance.AdditionalMetadataReferences.Count;
+
+            await AssertNoHostedNugetExceptionsAsync(GeneratedCodeWorkspace.AddPackageReferencesFromProject);
+
+            Assert.AreEqual(refsBefore + 1, CodeModelGenerator.Instance.AdditionalMetadataReferences.Count);
+            Assert.IsTrue(CodeModelGenerator.Instance.AdditionalMetadataReferences.Any(
+                reference => Path.GetFileName(reference.Display) == $"{cachedPackage}.dll"));
+            var messages = Encoding.UTF8.GetString(output.ToArray());
+            StringAssert.Contains("Skipping NuGet feed lookup and download for package Hosted.Missing.Before in hosted mode", messages);
+            StringAssert.Contains("Skipping NuGet feed lookup and download for package Hosted.Missing.After in hosted mode", messages);
+            StringAssert.DoesNotContain("Could not download package", messages);
         }
 
         [Test]
@@ -337,6 +408,52 @@ namespace My.External.Library
             var refCountAfter = CodeModelGenerator.Instance.AdditionalMetadataReferences.Count;
 
             Assert.AreEqual(refCountBefore + 2, refCountAfter, "Should have added two metadata references");
+        }
+
+        private void LoadHostedMockGenerator(string packageName, string projectContent, Emitter emitter)
+        {
+            File.WriteAllText(Path.Combine(_projectDir!, "src", $"{packageName}.csproj"), projectContent);
+            File.WriteAllText(Path.Combine(_projectDir!, "NuGet.Config"), """
+                <configuration>
+                  <packageSources>
+                    <clear />
+                  </packageSources>
+                </configuration>
+                """);
+            var generator = MockHelpers.LoadMockGenerator(
+                inputNamespaceName: packageName,
+                outputPath: _projectDir,
+                configuration: $"{{\"package-name\": \"{packageName}\"}}");
+            generator.Setup(g => g.Emitter).Returns(emitter);
+            generator.Object.IsHosted = true;
+        }
+
+        private static async Task AssertNoHostedNugetExceptionsAsync(Func<Task> action)
+        {
+            var exceptions = new ConcurrentQueue<string>();
+            void OnFirstChanceException(object? sender, FirstChanceExceptionEventArgs args)
+            {
+                if (args.Exception is InvalidOperationException
+                    && args.Exception.Message.StartsWith("NuGet ", StringComparison.Ordinal)
+                    && args.Exception.Message.Contains("disabled in hosted mode", StringComparison.Ordinal))
+                {
+                    exceptions.Enqueue(args.Exception.Message);
+                }
+            }
+
+            // First-chance notifications include exceptions caught inside the workspace.
+            AppDomain.CurrentDomain.FirstChanceException += OnFirstChanceException;
+            try
+            {
+                await action();
+            }
+            finally
+            {
+                AppDomain.CurrentDomain.FirstChanceException -= OnFirstChanceException;
+            }
+
+            Assert.That(exceptions, Is.Empty,
+                "Hosted execution should skip download paths instead of throwing and catching the lower-level guard.");
         }
 
         /// <summary>

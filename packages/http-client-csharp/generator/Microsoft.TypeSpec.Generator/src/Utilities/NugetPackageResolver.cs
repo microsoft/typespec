@@ -22,6 +22,8 @@ namespace Microsoft.TypeSpec.Generator.Utilities
     /// </summary>
     internal static class NugetPackageResolver
     {
+        internal const string HostedModeRestrictionMessage = "NuGet feed lookups and package downloads are disabled in hosted mode.";
+
         /// <summary>
         /// Searches the NuGet global packages folder for an assembly belonging to <paramref name="packageName"/>.
         /// When <paramref name="minVersion"/> is provided, only versions greater than or equal to it are considered
@@ -250,7 +252,7 @@ namespace Microsoft.TypeSpec.Generator.Utilities
         {
             if (CodeModelGenerator.Instance.IsHosted)
             {
-                throw new InvalidOperationException("NuGet package downloads are disabled in hosted mode.");
+                throw new InvalidOperationException(HostedModeRestrictionMessage);
             }
         }
     }

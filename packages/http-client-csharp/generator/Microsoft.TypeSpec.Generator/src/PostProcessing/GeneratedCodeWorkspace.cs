@@ -310,6 +310,13 @@ namespace Microsoft.TypeSpec.Generator
                 // If not found in cache, download the latest version from NuGet feeds
                 if (resolvedAssemblyPath == null)
                 {
+                    if (CodeModelGenerator.Instance.IsHosted)
+                    {
+                        CodeModelGenerator.Instance.Emitter.Debug(
+                            $"Skipping NuGet feed lookup and download for package {refPackageName} in hosted mode because it is not in the NuGet cache.");
+                        continue;
+                    }
+
                     try
                     {
                         var latestVersion = await NugetPackageResolver.ResolveLatestPackageVersion(refPackageName, nugetSettings);
@@ -396,6 +403,9 @@ namespace Microsoft.TypeSpec.Generator
 
             var nugetSettings = Settings.LoadDefaultSettings(projectFilePath);
             var nugetGlobalPackageFolder = SettingsUtility.GetGlobalPackagesFolder(nugetSettings);
+            var missingBaselineMessage =
+                $"Cannot find Baseline contract assembly ({packageName}@{baselineVersion}) from Nuget Global Package Folder. " +
+                "Please make sure the baseline nuget package has been installed properly.";
 
             // Try to find or download the assembly
             try
@@ -429,6 +439,16 @@ namespace Microsoft.TypeSpec.Generator
                 // If assembly doesn't exist locally, download it & install it
                 if (!foundInstalledAssembly)
                 {
+                    if (CodeModelGenerator.Instance.IsHosted)
+                    {
+                        CodeModelGenerator.Instance.Emitter.Debug(
+                            $"Skipping NuGet download for baseline contract {packageName}@{baselineVersion} in hosted mode because no compatible cached assembly was found.");
+                        CodeModelGenerator.Instance.Emitter.ReportDiagnostic(
+                            DiagnosticCodes.BaselineContractMissing,
+                            $"{missingBaselineMessage} {NugetPackageResolver.HostedModeRestrictionMessage}");
+                        return null;
+                    }
+
                     NugetPackageDownloader downloader = new(packageName, baselineVersion, parsedTargetFrameworks, nugetSettings);
                     nugetFolderPathToAssembly = await downloader.DownloadAndInstallPackage();
                     assemblyFileFullPath = Path.Combine(nugetFolderPathToAssembly, $"{packageName}.dll");
@@ -441,8 +461,7 @@ namespace Microsoft.TypeSpec.Generator
             {
                 CodeModelGenerator.Instance.Emitter.ReportDiagnostic(
                     DiagnosticCodes.BaselineContractMissing,
-                    $"Cannot find Baseline contract assembly ({packageName}@{baselineVersion}) from Nuget Global Package Folder. " +
-                    $"Please make sure the baseline nuget package has been installed properly. Error: {ex.Message}");
+                    $"{missingBaselineMessage} Error: {ex.Message}");
                 return null;
             }
         }

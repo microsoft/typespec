@@ -20,7 +20,7 @@ namespace Microsoft.TypeSpec.Generator
         private const string CmdLineDebugOptionHelpText = "Attempt to attach the debugger on execute.";
         private const string CmdLineGeneratorOptionHelpText = "The name of the generator to execute.";
         private const string CmdLineNewProjectOptionHelpText = "Indicates if the generator should create the project files such as csproj, slnx, etc.";
-        private const string CmdLineHostedModeOptionHelpText = "Disables custom plugins and NuGet package downloads when running as a hosted service.";
+        private const string CmdLineHostedModeOptionHelpText = "Disables npm dependency plugin discovery, configured plugin loading, NuGet feed lookups, and package downloads when running as a hosted service.";
 
         /// <summary>
         /// The command line option to specify the path to the directory containing the input files to the generator.

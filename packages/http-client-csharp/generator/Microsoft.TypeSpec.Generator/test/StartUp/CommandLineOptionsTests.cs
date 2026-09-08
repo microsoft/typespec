@@ -5,7 +5,9 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using System.Text.RegularExpressions;
 using CommandLine;
+using CommandLine.Text;
 using NUnit.Framework;
 
 namespace Microsoft.TypeSpec.Generator.Tests.StartUp
@@ -54,6 +56,19 @@ namespace Microsoft.TypeSpec.Generator.Tests.StartUp
 
             Assert.That(result.Errors, Is.Empty);
             Assert.IsFalse(result.Value.IsHosted);
+        }
+
+        [Test]
+        public void HostedModeHelpDescribesAllRestrictions()
+        {
+            using var parser = new Parser(settings => settings.HelpWriter = null);
+            var result = parser.ParseArguments<CommandLineOptions>(["--help"]);
+            var help = Regex.Replace(HelpText.AutoBuild(result).ToString(), @"\s+", " ");
+
+            StringAssert.Contains("npm dependency plugin discovery", help);
+            StringAssert.Contains("configured plugin loading", help);
+            StringAssert.Contains("NuGet feed lookups", help);
+            StringAssert.Contains("package downloads", help);
         }
 
         [TestCase("--hosted=false")]

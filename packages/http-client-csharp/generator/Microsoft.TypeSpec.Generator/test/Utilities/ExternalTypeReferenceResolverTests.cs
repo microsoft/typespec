@@ -5,7 +5,9 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using System.Text;
 using System.Threading.Tasks;
+using Microsoft.TypeSpec.Generator.EmitterRpc;
 using Microsoft.TypeSpec.Generator.Input;
 using Microsoft.TypeSpec.Generator.Tests.Common;
 using Microsoft.TypeSpec.Generator.Utilities;
@@ -88,16 +90,23 @@ namespace Microsoft.TypeSpec.Generator.Tests.Utilities
         [TestCase("1.0.0")]
         public void TryResolve_HostedModeReportsUncachedPackage(string? minVersion)
         {
-            CodeModelGenerator.Instance.IsHosted = true;
+            using var output = new MemoryStream();
+            using var emitter = new Emitter(output);
+            var generator = MockHelpers.LoadMockGenerator(outputPath: _projectDir, configuration: "{}");
+            generator.Setup(g => g.Emitter).Returns(emitter);
+            generator.Object.IsHosted = true;
             var external = new InputExternalTypeMetadata("Test.Uncached.Type", "Test.Uncached.Package", minVersion);
             var refsBefore = CodeModelGenerator.Instance.AdditionalMetadataReferences.Count;
 
             Assert.IsNull(ExternalTypeReferenceResolver.TryResolve(external));
             StringAssert.Contains(
-                "NuGet package downloads are disabled in hosted mode",
+                "NuGet feed lookups and package downloads are disabled in hosted mode",
                 ExternalTypeReferenceResolver.GetFailureReason(external));
             Assert.AreEqual(refsBefore, CodeModelGenerator.Instance.AdditionalMetadataReferences.Count);
             Assert.That(Directory.EnumerateFileSystemEntries(_nugetCacheDir!), Is.Empty);
+            StringAssert.Contains(
+                "Skipping NuGet feed lookup and download for package Test.Uncached.Package in hosted mode",
+                Encoding.UTF8.GetString(output.ToArray()));
         }
 
         [Test]
@@ -113,7 +122,7 @@ namespace Microsoft.TypeSpec.Generator.Tests.Utilities
 
             Assert.IsNull(ExternalTypeReferenceResolver.TryResolve(external));
             StringAssert.Contains(
-                "NuGet package downloads are disabled in hosted mode",
+                "NuGet feed lookups and package downloads are disabled in hosted mode",
                 ExternalTypeReferenceResolver.GetFailureReason(external));
             Assert.That(Directory.EnumerateFileSystemEntries(_nugetCacheDir!), Is.Empty);
         }

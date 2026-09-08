@@ -236,9 +236,11 @@ namespace Microsoft.TypeSpec.Generator.Utilities
 
             if (assemblyPath == null && generator.IsHosted)
             {
+                generator.Emitter.Debug(
+                    $"Skipping NuGet feed lookup and download for package {external.Package} in hosted mode because it is not in the NuGet cache.");
                 return CacheResult(state, key, new ResolutionResult(
                     null,
-                    $"package '{external.Package}' was not found in the NuGet cache, and NuGet package downloads are disabled in hosted mode."));
+                    $"package '{external.Package}' was not found in the NuGet cache, and {NugetPackageResolver.HostedModeRestrictionMessage}"));
             }
 
             if (assemblyPath == null)

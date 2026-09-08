@@ -51,7 +51,7 @@ namespace Microsoft.TypeSpec.Generator.Tests.Utilities
 
             var exception = Assert.ThrowsAsync<InvalidOperationException>(downloader.DownloadAndInstallPackage);
 
-            Assert.AreEqual("NuGet package downloads are disabled in hosted mode.", exception!.Message);
+            Assert.AreEqual("NuGet feed lookups and package downloads are disabled in hosted mode.", exception!.Message);
             repository.VerifyNoOtherCalls();
         }
 
@@ -65,7 +65,7 @@ namespace Microsoft.TypeSpec.Generator.Tests.Utilities
             var exception = Assert.ThrowsAsync<InvalidOperationException>(() =>
                 NugetPackageResolver.ResolveLatestPackageVersion("Mock.Package", settings.Object, minVersion));
 
-            Assert.AreEqual("NuGet package downloads are disabled in hosted mode.", exception!.Message);
+            Assert.AreEqual("NuGet feed lookups and package downloads are disabled in hosted mode.", exception!.Message);
             settings.VerifyNoOtherCalls();
         }
 
