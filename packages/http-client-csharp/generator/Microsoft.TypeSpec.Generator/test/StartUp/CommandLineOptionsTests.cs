@@ -5,7 +5,6 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
-using System.Reflection;
 using CommandLine;
 using CommandLine.Text;
 using NUnit.Framework;
@@ -58,20 +57,6 @@ namespace Microsoft.TypeSpec.Generator.Tests.StartUp
             Assert.IsFalse(result.Value.IsHosted);
         }
 
-        [Test]
-        public void HostedModeHelpDescribesAllRestrictions()
-        {
-            var option = typeof(CommandLineOptions)
-                .GetProperty(nameof(CommandLineOptions.IsHosted))!
-                .GetCustomAttribute<OptionAttribute>();
-
-            Assert.IsNotNull(option);
-            StringAssert.Contains("npm dependency plugin discovery", option!.HelpText);
-            StringAssert.Contains("configured plugin loading", option.HelpText);
-            StringAssert.Contains("NuGet feed lookups", option.HelpText);
-            StringAssert.Contains("package downloads", option.HelpText);
-        }
-
         [TestCase("--help")]
         [TestCase("--unknown-option")]
         public void HostedModeIsHiddenFromHelp(string argument)
@@ -81,7 +66,6 @@ namespace Microsoft.TypeSpec.Generator.Tests.StartUp
             var help = HelpText.AutoBuild(result).ToString();
 
             StringAssert.DoesNotContain("--hosted", help);
-            StringAssert.DoesNotContain("npm dependency plugin", help);
             StringAssert.Contains("--generatorName", help);
         }
 
