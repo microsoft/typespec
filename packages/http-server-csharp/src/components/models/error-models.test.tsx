@@ -26,8 +26,8 @@ function Wrapper(props: { children: Children }) {
 }
 
 function findFileContent(output: any, pathSuffix: string): string | undefined {
-  function search(dir: any): string | undefined {
-    for (const item of dir.contents) {
+  function search(directory: any): string | undefined {
+    for (const item of directory.contents) {
       if (
         "contents" in item &&
         typeof item.contents === "string" &&
@@ -43,6 +43,18 @@ function findFileContent(output: any, pathSuffix: string): string | undefined {
     return undefined;
   }
   return search(output);
+}
+
+function renderModel(model: import("@typespec/compiler").Model): string | undefined {
+  const output = render(
+    <Output program={runner.program} namePolicy={cs.createCSharpNamePolicy()}>
+      <EmitterOptions.Provider value={{ collectionType: "array", serviceNamespace: "Test" }}>
+        <Models models={[model]} serviceNamespace={undefined} />
+      </EmitterOptions.Provider>
+    </Output>,
+  );
+
+  return findFileContent(output, `${model.name}.cs`);
 }
 
 it("uses generated property types for structured error constructor parameters", async () => {
@@ -72,14 +84,14 @@ it("uses generated property types for structured error constructor parameters", 
     {
         public ApiError(
             string message,
-            string param = default,
-            ApiError[] details = default,
-            JsonObject additionalInfo = default,
-            IDictionary<string, int> counts = default,
-            int attempts = default,
-            string[] tags = default,
+            string? param = default,
+            ApiError[]? details = default,
+            JsonObject? additionalInfo = default,
+            IDictionary<string, int>? counts = default,
+            int? attempts = default,
+            string[]? tags = default,
             int? retryAfter = default,
-            IDictionary<string, JsonObject> nested = default
+            IDictionary<string, JsonObject>? nested = default
         ) : base(
             400,
             value: new { message = message, param = param, details = details, additionalInfo = additionalInfo, counts = counts, attempts = attempts, tags = tags, retryAfter = retryAfter, nested = nested }
@@ -122,5 +134,57 @@ it("adds the JsonObject using for inherited record error constructor parameters"
 
   expect(apiErrorFile).toBeDefined();
   expect(apiErrorFile).toContain("using System.Text.Json.Nodes;");
-  expect(apiErrorFile).toContain("IDictionary<string, JsonObject> data = default");
+  expect(apiErrorFile).toContain("IDictionary<string, JsonObject>? data = default");
+});
+
+it("makes optional error properties and constructor parameters nullable", async () => {
+  const { ApiError } = await runner.compile(t.code`
+    @error
+    model ${t.model("ApiError")} {
+      message: string;
+      optionalText?: string;
+      optionalCount?: int32;
+    }
+  `);
+
+  const content = renderModel(ApiError);
+
+  expect(content).toContain("string? optionalText = default");
+  expect(content).toContain("int? optionalCount = default");
+  expect(content).toContain("public string? OptionalText { get; set; }");
+  expect(content).toContain("public int? OptionalCount { get; set; }");
+});
+
+it("emits one nullable suffix for explicitly nullable error properties", async () => {
+  const { ApiError } = await runner.compile(t.code`
+    @error
+    model ${t.model("ApiError")} {
+      context: string | null;
+      count: int32 | null;
+      optionalContext?: string | null;
+    }
+  `);
+
+  const content = renderModel(ApiError);
+
+  expect(content).toContain("string? context");
+  expect(content).toContain("int? count");
+  expect(content).toContain("string? optionalContext = default");
+  expect(content).toContain("public string? Context { get; set; }");
+  expect(content).toContain("public int? Count { get; set; }");
+  expect(content).toContain("public string? OptionalContext { get; set; }");
+  expect(content).not.toContain("??");
+});
+
+it("keeps optional non-error reference properties unchanged", async () => {
+  const { Widget } = await runner.compile(t.code`
+    model ${t.model("Widget")} {
+      optionalText?: string;
+    }
+  `);
+
+  const content = renderModel(Widget);
+
+  expect(content).toContain("public string OptionalText { get; set; }");
+  expect(content).not.toContain("public string? OptionalText { get; set; }");
 });
