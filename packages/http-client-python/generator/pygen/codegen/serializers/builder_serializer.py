@@ -1399,10 +1399,7 @@ class _OperationSerializer(_BuilderBaseSerializer[OperationType]):
             if 204 not in reconnect_status_codes:
                 reconnect_status_codes.append(204)
             retval.append(f"    if _reconnect_response.status_code not in {reconnect_status_codes!r}:")
-            retval.append("        try:")
-            retval.append(f"            {self._call_method}_reconnect_response.read()")
-            retval.append("        except (StreamConsumedError, StreamClosedError):")
-            retval.append("            pass")
+            retval.append(f"        {self._call_method}_reconnect_response.read()")
             retval.append(
                 "        map_error(status_code=_reconnect_response.status_code, "
                 "response=_reconnect_response, error_map=error_map)"
