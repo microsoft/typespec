@@ -5,8 +5,12 @@ using System;
 using System.ClientModel;
 using System.ClientModel.Primitives;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
+using System.Reflection;
 using System.Text.Json;
+using System.Threading.Tasks;
+using Microsoft.CodeAnalysis;
 using Microsoft.TypeSpec.Generator.ClientModel.Providers;
 using Microsoft.TypeSpec.Generator.Expressions;
 using Microsoft.TypeSpec.Generator.Input;
@@ -16,7 +20,9 @@ using Microsoft.TypeSpec.Generator.Providers;
 using Microsoft.TypeSpec.Generator.Snippets;
 using Microsoft.TypeSpec.Generator.Statements;
 using Microsoft.TypeSpec.Generator.Tests.Common;
+using Moq;
 using NUnit.Framework;
+using StreamingItem = SampleTypeSpec.StreamingItem;
 
 namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers.MrwSerializationTypeDefinitions
 {
@@ -658,8 +664,87 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers.MrwSerializat
             var (_, serialization) = CreateModelAndSerialization(inputModel);
 
             var deserializationMethod = serialization.Methods.Single(m => m.Signature.Name.StartsWith("Deserialize"));
-            var methodBody = deserializationMethod.BodyStatements!.ToDisplayString();
-            Assert.AreEqual(Helpers.GetExpectedFromFile(), methodBody);
+            using var writer = new CodeWriter();
+            writer.WriteMethod(deserializationMethod);
+            Assert.AreEqual(Helpers.GetExpectedFromFile(), writer.ToString(false));
+        }
+
+        [TestCase("J", "J")]
+        [TestCase("J", "W")]
+        [TestCase("W", "J")]
+        [TestCase("W", "W")]
+        public async Task ExternalModelPropertiesPreserveReaderOptions(string readFormat, string writeFormat)
+        {
+            MockHelpers.LoadMockGenerator();
+            // The context name is initialized once for the test process, using the default mock namespace.
+            Assert.AreEqual("SampleContext", new ModelReaderWriterContextDefinition().Name);
+            var externalModel = InputFactory.Model("ExternalModel",
+                external: new InputExternalTypeMetadata(typeof(StreamingItem).AssemblyQualifiedName!, null, null));
+            var inputModel = InputFactory.Model("ExternalModelProperties", @namespace: "SampleTypeSpec", properties:
+            [
+                InputFactory.Property("scalar", externalModel),
+                InputFactory.Property("list", InputFactory.Array(externalModel)),
+                InputFactory.Property("dictionary", InputFactory.Dictionary(externalModel))
+            ]);
+            var inputLibrary = new Mock<InputLibrary>("unused");
+            inputLibrary.Setup(p => p.InputNamespace).Returns(InputFactory.Namespace("SampleTypeSpec", models: [inputModel]));
+            var generator = MockHelpers.LoadMockGenerator(createInputLibrary: () => inputLibrary.Object);
+            generator.Object.TypeFactory.RootInputModels.Add(inputModel);
+            generator.Object.TypeFactory.RootOutputModels.Add(inputModel);
+            var model = generator.Object.TypeFactory.CreateModel(inputModel)!;
+            var sources = new[] { model }.Concat(model.SerializationProviders)
+                .Select(provider => new TypeProviderWriter(provider).Write())
+                .Select(file => (file.Name, file.Content))
+                .Append(("Context.cs", Helpers.GetExpectedFromFile("Context")));
+            var compilation = await Helpers.GetCompilationFromSourceFilesAsync(sources);
+            compilation = compilation.WithAssemblyName($"ExternalModelProperties{readFormat}{writeFormat}")
+                .AddReferences(AppDomain.CurrentDomain.GetAssemblies()
+                    .Where(assembly => !assembly.IsDynamic && !string.IsNullOrEmpty(assembly.Location))
+                    .Select(assembly => MetadataReference.CreateFromFile(assembly.Location)));
+            using var assemblyStream = new MemoryStream();
+            var result = compilation.Emit(assemblyStream);
+            Assert.IsTrue(result.Success, string.Join(Environment.NewLine, result.Diagnostics));
+            var assembly = Assembly.Load(assemblyStream.ToArray());
+            var type = assembly.GetType("SampleTypeSpec.ExternalModelProperties")!;
+            Assert.AreNotEqual(typeof(StreamingItem).Assembly, type.Assembly);
+
+            using var input = JsonDocument.Parse("""
+                {
+                    "scalar": {"message": "scalar", "new_option": {"enabled": true}},
+                    "list": [{"message": "list", "new_option": {"enabled": true}}],
+                    "dictionary": {"key": {"message": "dictionary", "new_option": {"enabled": true}}}
+                }
+                """);
+            var options = new ModelReaderWriterOptions(readFormat);
+            var deserialized = type.GetMethod("DeserializeExternalModelProperties", BindingFlags.Static | BindingFlags.NonPublic)!
+                .Invoke(null, [input.RootElement, options]);
+            using var output = new MemoryStream();
+            using (var writer = new Utf8JsonWriter(output))
+            {
+                typeof(IJsonModel<>).MakeGenericType(type).GetMethod("Write")!
+                    .Invoke(deserialized, [writer, new ModelReaderWriterOptions(writeFormat)]);
+            }
+            using var saved = JsonDocument.Parse(output.ToArray());
+            var nestedModels = new[]
+            {
+                saved.RootElement.GetProperty("scalar"),
+                saved.RootElement.GetProperty("list")[0],
+                saved.RootElement.GetProperty("dictionary").GetProperty("key")
+            };
+            Assert.Multiple(() =>
+            {
+                foreach (var nested in nestedModels)
+                {
+                    var message = nested.GetProperty("message").GetString();
+                    Assert.Contains(message, new[] { "scalar", "list", "dictionary" });
+                    var hasUnknown = nested.TryGetProperty("new_option", out var unknown);
+                    Assert.AreEqual(readFormat == "J" && writeFormat == "J", hasUnknown, message);
+                    if (hasUnknown)
+                    {
+                        Assert.IsTrue(unknown.GetProperty("enabled").GetBoolean(), message);
+                    }
+                }
+            });
         }
 
         [Test]

@@ -2518,7 +2518,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
                 return ModelReaderWriterSnippets.Read(
                     valueType,
                     data,
-                    ModelSerializationExtensionsSnippets.Wire);
+                    mrwOptions);
             }
 
             return exp;
