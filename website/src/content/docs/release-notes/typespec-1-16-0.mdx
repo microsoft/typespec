@@ -1,0 +1,242 @@
+---
+slug: release-notes/typespec-1-16-0
+title: "1.16.0"
+releaseDate: 2026-09-09
+version: "1.16.0"
+---
+
+# 1.16.0
+
+This release focuses on extensibility: unions can now declare a common base type, linter rulesets can live in a standalone file shared across a repository, and libraries can contribute their own type information to the IDE. It also hardens every emitter that derives file paths from spec-provided values.
+
+## Highlights
+
+### `extends` on unions
+
+Unions can now declare a common base type, constraining every variant to be assignable to it. Enable the `union-extends` compiler feature in `tspconfig.yaml` to use the clause.
+
+```tsp
+model PetBase {
+  name: string;
+}
+model Cat extends PetBase {
+  toy: string;
+}
+model Dog extends PetBase {
+  food: string;
+}
+
+union Pet extends PetBase {
+  cat: Cat,
+  dog: Dog,
+}
+```
+
+The base type is exposed on the type graph as `Union.baseType`, giving emitters an easy way to know that all variants of a union share a common shape. `extends` on a union is purely a constraint: it implies no subtyping relationship, does not make the union extensible, and has no interaction with `@discriminator`.
+
+### Standalone linter rulesets
+
+A linter ruleset no longer has to ship inside a library. Write it as a YAML file and reference it with the `file:` prefix, so a repository can share and version its rules without cutting a library release.
+
+```yaml
+# tspconfig.yaml
+linter:
+  extends:
+    - "file:../common-rules.yaml"
+```
+
+```yaml
+# common-rules.yaml
+extends:
+  - "@typespec/best-practices/recommended"
+enable:
+  "@typespec/best-practices/new-rule": true
+disable:
+  "@typespec/best-practices/foo": "This rule is too strict for this repository"
+```
+
+### Libraries can contribute type information to tooling
+
+The new experimental `$provideTypeInfo` provider lets a library attach extra, domain-specific information to a type, surfaced on hover in the IDE and queryable via `program.getTypeInfo(type)`. Unlike `$onValidate`, a provider never runs during compilation and must not mutate the type graph — it is invoked lazily, on demand.
+
+```ts
+export const $provideTypeInfo = defineTypeInfoProvider(({ program, target }) => {
+  if (target.kind !== "Operation") return undefined;
+  return { content: "extra info about this operation" };
+});
+```
+
+`@typespec/http` ships the first provider: hovering an operation now shows its resolved route and response status codes.
+
+Providers are gated by the `type-info-provider` compiler feature, scoped to the package that declares it — a library opts in through its own `tspconfig.yaml` and consumers do not need to enable anything.
+
+### Emitter output paths are sanitized
+
+Values coming from a spec are no longer trusted when building output paths. `@typespec/openapi3` sanitizes `{version}`, `{service-name}` and `{service-name-if-multiple}` in `output-file`, and `@typespec/json-schema` sanitizes declaration names used as file names, so a version, namespace, or backticked identifier containing path separators can no longer write outside the emitter output directory. The underlying `sanitizePathSegment` helper is exported from `@typespec/compiler` for emitters doing the same thing.
+
+## Features
+
+### @typespec/compiler
+
+- [#11777](https://github.com/microsoft/typespec/pull/11777) Add `sanitizePathSegment` helper to make a value coming from a TypeSpec spec safe to use as a single path segment. Path separators, drive letter separators and values only made of `.` are replaced with `_`.
+
+  ```ts
+  sanitizePathSegment("2021-10-01-preview"); // "2021-10-01-preview"
+  sanitizePathSegment("../../etc/passwd"); // ".._.._etc_passwd"
+  ```
+
+- [#11851](https://github.com/microsoft/typespec/pull/11851) Add support for defining a linter ruleset in a standalone yaml file and referencing it with the `file:` prefix in `linter.extends`. This lets a repository share and version a set of linter rules without depending on a library release.
+
+  ```yaml
+  # tspconfig.yaml
+  linter:
+    extends:
+      - "file:../common-rules.yaml"
+  ```
+
+  ```yaml
+  # common-rules.yaml
+  extends:
+    - "@typespec/best-practices/recommended"
+  enable:
+    "@typespec/best-practices/new-rule": true
+  disable:
+    "@typespec/best-practices/foo": "This rule is too strict for this repository"
+  ```
+
+- [#11489](https://github.com/microsoft/typespec/pull/11489) Add a new experimental `$provideTypeInfo` library provider and `program.getTypeInfo(type)` API allowing libraries to contribute extra, domain-specific information about types. Unlike the `$onValidate` lifecycle hook, a provider never runs during compilation and must not mutate the type graph — it is invoked lazily and on demand (e.g. by the language server for hover documentation, or by tooling querying the type).
+
+  Providers are gated by the `type-info-provider` compiler feature, scoped to the package that declares it: a library opts in via its own `tspconfig.yaml` and consumers do not need to enable anything.
+
+  ```ts
+  // A library exports a provider (use `defineTypeInfoProvider` for typing):
+  export const $provideTypeInfo = defineTypeInfoProvider(({ program, target }) => {
+    if (target.kind !== "Operation") return undefined;
+    return { content: "extra info about this operation" };
+  });
+
+  // Tooling / language server queries it (merges every library's contribution):
+  const info = program.getTypeInfo(type);
+  ```
+
+- [#11771](https://github.com/microsoft/typespec/pull/11771) Add experimental support for an `extends` clause on union statements to constrain every variant to a common data type.
+
+  Enable the `union-extends` compiler feature in `tspconfig.yaml` to use the clause.
+
+  ```tsp
+  model PetBase {
+    name: string;
+  }
+  model Cat extends PetBase {
+    toy: string;
+  }
+  model Dog extends PetBase {
+    food: string;
+  }
+
+  union Pet extends PetBase {
+    cat: Cat,
+    dog: Dog,
+  }
+  ```
+
+  The base type is exposed on the type graph as `Union.baseType`, giving emitters an easy way to know that all the variants of a union share a common base type. A diagnostic is reported on any variant that isn't assignable to the base type.
+
+  `extends` on a union is purely a constraint: it doesn't imply any subtyping relationship, it doesn't make the union extensible and it has no interaction with `@discriminator`.
+
+### @typespec/http
+
+- [#11489](https://github.com/microsoft/typespec/pull/11489) Add a `$provideTypeInfo` provider that surfaces the resolved HTTP route (verb and URI template) and response status codes of an operation. This is shown when hovering an operation in the IDE and can be queried programmatically via `program.getTypeInfo(operation)`.
+
+  ```ts
+  const info = program.getTypeInfo(operation);
+  // { content: "`HTTP Route`: `GET /pets/{id}`\n\n`Responses`: `204`" }
+  ```
+
+## Bug Fixes
+
+### @typespec/compiler
+
+- [#11731](https://github.com/microsoft/typespec/pull/11731) Fix `duration` example values being serialized verbatim as an ISO 8601 string instead of a numeric value when encoded with `@encode("milliseconds", ...)`
+- [#11744](https://github.com/microsoft/typespec/pull/11744) Fix object values passed to decorators dropping members with special names like `__proto__`. All members are now defined as plain own properties.
+- [#11779](https://github.com/microsoft/typespec/pull/11779) Fix a stack overflow when checking assignability of mutually recursive types
+
+  Checking whether a type was assignable to another one could recurse forever and crash the compiler with `RangeError: Maximum call stack size exceeded`. Two cases were affected:
+
+  - mutually recursive models, such as `model A { b: B }` / `model B { a: A }`
+  - any union reaching itself, such as `union Foo { self: Foo }`
+
+  The relation cache is now shared for the whole check instead of being recreated at every level, and unions seed it before walking their variants, so a cycle coming back to the same pair of types resolves instead of recursing.
+
+- [#11838](https://github.com/microsoft/typespec/pull/11838) [formatter] Split the template parameter list instead of splitting a parameter constraint or default when the declaration is too long
+
+  {/* prettier-ignore */}
+  ```tsp
+  // Before
+  op deleteJobPreview<AreaPreviewLabel extends
+    | FoundryFeaturesOptInKeys
+    | AgentDefinitionOptInKeys> is FoundryDataPlanePreviewOperation<AreaPreviewLabel>;
+
+  // After
+  op deleteJobPreview<
+    AreaPreviewLabel extends FoundryFeaturesOptInKeys | AgentDefinitionOptInKeys
+  > is FoundryDataPlanePreviewOperation<AreaPreviewLabel>;
+  ```
+
+- [#11776](https://github.com/microsoft/typespec/pull/11776) Allow `tsp install` to download package managers from npm-compatible registry mirrors by resolving versions from package metadata instead of version-specific manifest endpoints.
+- [#11551](https://github.com/microsoft/typespec/pull/11551) Improve the name reported for an operation's parameters model expression. Diagnostics now refer to `MyService.test::parameters.param` instead of `MyService.{ param: MyService.Foo }.param`.
+
+### @typespec/http
+
+- [#11785](https://github.com/microsoft/typespec/pull/11785) Respect docs on union variants used as HTTP responses
+
+### @typespec/openapi
+
+- [#11744](https://github.com/microsoft/typespec/pull/11744) Fix `@extension` dropping object members with special names like `__proto__`. All members are now kept as plain own properties.
+
+### @typespec/openapi3
+
+- [#11777](https://github.com/microsoft/typespec/pull/11777) Sanitize the spec provided values interpolated in `output-file` (`{version}`, `{service-name}` and `{service-name-if-multiple}`) so a version or namespace name containing path separators cannot write the OpenAPI document outside of the emitter output dir.
+
+### @typespec/json-schema
+
+- [#11777](https://github.com/microsoft/typespec/pull/11777) Sanitize declaration names used as file names so a declaration named with a backticked identifier containing path separators cannot write the schema outside of the emitter output dir.
+
+# 0.86.0
+
+## Features
+
+### @typespec/http-specs
+
+- [#11677](https://github.com/microsoft/typespec/pull/11677) Add scenario for an operation whose successful response is either a model body (`200`) or no content (`204`).
+
+  ```tsp
+  op getBody():
+    | {
+        @statusCode statusCode: 200;
+        @body layout: BlobLayout;
+      }
+    | {
+        @statusCode statusCode: 204;
+      };
+  ```
+
+- [#11613](https://github.com/microsoft/typespec/pull/11613) Add SSE protocol coverage for event IDs, retry fields, and reconnection
+
+  ```tsp
+  op reconnect(): SSEStream<ProtocolEvents>;
+  ```
+
+## Bug Fixes
+
+### @typespec/protobuf
+
+- [#11590](https://github.com/microsoft/typespec/pull/11590) Exclude build artifacts from published packages
+
+### typespec-vs
+
+- [#11300](https://github.com/microsoft/typespec/pull/11300) Disable NuGet package auditing during cross-platform Visual Studio extension builds so restores do not fail when the vulnerability feed is unavailable.
+
+### @typespec/http-specs
+
+- [#11590](https://github.com/microsoft/typespec/pull/11590) Exclude build artifacts from published packages
