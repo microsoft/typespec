@@ -38,7 +38,8 @@ public final class ParametersTransformationProcessor {
      */
     void addParameter(ParametersTuple tuple) {
         final Parameter codeModelParameter = tuple.codeModelParameter;
-        if (isProtocolMethod || codeModelParameter.getSchema() instanceof ConstantSchema) {
+        if ((isProtocolMethod && codeModelParameter.getGroupedBy() == null)
+            || codeModelParameter.getSchema() instanceof ConstantSchema) {
             return;
         }
         if (codeModelParameter.getGroupedBy() == null && codeModelParameter.getOriginalParameter() == null) {
@@ -180,6 +181,10 @@ public final class ParametersTransformationProcessor {
     }
 
     private List<Parameter> flattenedParameters(Request request) {
+        if (isProtocolMethod) {
+            return List.of();
+        }
+
         // build a list of original-parameters those were already been accounted for by process(..) while
         // processing 'this.parameters'.
         final List<Parameter> originalParameters = parametersTuples.stream()

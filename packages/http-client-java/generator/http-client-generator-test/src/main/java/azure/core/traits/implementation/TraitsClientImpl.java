@@ -25,6 +25,7 @@ import com.azure.core.exception.ResourceNotFoundException;
 import com.azure.core.http.HttpHeaderName;
 import com.azure.core.http.HttpPipeline;
 import com.azure.core.http.HttpPipelineBuilder;
+import com.azure.core.http.RequestConditions;
 import com.azure.core.http.policy.RetryPolicy;
 import com.azure.core.http.policy.UserAgentPolicy;
 import com.azure.core.http.rest.RequestOptions;
@@ -232,6 +233,7 @@ public final class TraitsClientImpl {
      * 
      * @param id The user's id.
      * @param foo header in request.
+     * @param requestConditions Specifies HTTP options for conditional requests based on modification time.
      * @param requestOptions The options to configure the HTTP request before HTTP client sends it.
      * @throws HttpResponseException thrown if the request is rejected by server.
      * @throws ClientAuthenticationException thrown if the request is rejected by server on status code 401.
@@ -241,10 +243,46 @@ public final class TraitsClientImpl {
      * {@link Mono}.
      */
     @ServiceMethod(returns = ReturnType.SINGLE)
-    public Mono<Response<BinaryData>> smokeTestWithResponseAsync(int id, String foo, RequestOptions requestOptions) {
+    public Mono<Response<BinaryData>> smokeTestWithResponseAsync(int id, String foo,
+        RequestConditions requestConditions, RequestOptions requestOptions) {
         final String accept = "application/json";
+        String ifMatchInternal = null;
+        if (requestConditions != null) {
+            ifMatchInternal = requestConditions.getIfMatch();
+        }
+        String ifMatch = ifMatchInternal;
+        String ifNoneMatchInternal = null;
+        if (requestConditions != null) {
+            ifNoneMatchInternal = requestConditions.getIfNoneMatch();
+        }
+        String ifNoneMatch = ifNoneMatchInternal;
+        OffsetDateTime ifUnmodifiedSinceInternal = null;
+        if (requestConditions != null) {
+            ifUnmodifiedSinceInternal = requestConditions.getIfUnmodifiedSince();
+        }
+        OffsetDateTime ifUnmodifiedSince = ifUnmodifiedSinceInternal;
+        OffsetDateTime ifModifiedSinceInternal = null;
+        if (requestConditions != null) {
+            ifModifiedSinceInternal = requestConditions.getIfModifiedSince();
+        }
+        OffsetDateTime ifModifiedSince = ifModifiedSinceInternal;
+        RequestOptions requestOptionsLocal = requestOptions == null ? new RequestOptions() : requestOptions;
+        if (ifMatch != null) {
+            requestOptionsLocal.setHeader(HttpHeaderName.IF_MATCH, ifMatch);
+        }
+        if (ifNoneMatch != null) {
+            requestOptionsLocal.setHeader(HttpHeaderName.IF_NONE_MATCH, ifNoneMatch);
+        }
+        if (ifUnmodifiedSince != null) {
+            requestOptionsLocal.setHeader(HttpHeaderName.IF_UNMODIFIED_SINCE,
+                String.valueOf(new DateTimeRfc1123(ifUnmodifiedSince)));
+        }
+        if (ifModifiedSince != null) {
+            requestOptionsLocal.setHeader(HttpHeaderName.IF_MODIFIED_SINCE,
+                String.valueOf(new DateTimeRfc1123(ifModifiedSince)));
+        }
         return FluxUtil.withContext(context -> service.smokeTest(this.getEndpoint(),
-            this.getServiceVersion().getVersion(), id, foo, accept, requestOptions, context));
+            this.getServiceVersion().getVersion(), id, foo, accept, requestOptionsLocal, context));
     }
 
     /**
@@ -286,6 +324,7 @@ public final class TraitsClientImpl {
      * 
      * @param id The user's id.
      * @param foo header in request.
+     * @param requestConditions Specifies HTTP options for conditional requests based on modification time.
      * @param requestOptions The options to configure the HTTP request before HTTP client sends it.
      * @throws HttpResponseException thrown if the request is rejected by server.
      * @throws ClientAuthenticationException thrown if the request is rejected by server on status code 401.
@@ -294,10 +333,46 @@ public final class TraitsClientImpl {
      * @return a resource, sending and receiving headers along with {@link Response}.
      */
     @ServiceMethod(returns = ReturnType.SINGLE)
-    public Response<BinaryData> smokeTestWithResponse(int id, String foo, RequestOptions requestOptions) {
+    public Response<BinaryData> smokeTestWithResponse(int id, String foo, RequestConditions requestConditions,
+        RequestOptions requestOptions) {
         final String accept = "application/json";
+        String ifMatchInternal = null;
+        if (requestConditions != null) {
+            ifMatchInternal = requestConditions.getIfMatch();
+        }
+        String ifMatch = ifMatchInternal;
+        String ifNoneMatchInternal = null;
+        if (requestConditions != null) {
+            ifNoneMatchInternal = requestConditions.getIfNoneMatch();
+        }
+        String ifNoneMatch = ifNoneMatchInternal;
+        OffsetDateTime ifUnmodifiedSinceInternal = null;
+        if (requestConditions != null) {
+            ifUnmodifiedSinceInternal = requestConditions.getIfUnmodifiedSince();
+        }
+        OffsetDateTime ifUnmodifiedSince = ifUnmodifiedSinceInternal;
+        OffsetDateTime ifModifiedSinceInternal = null;
+        if (requestConditions != null) {
+            ifModifiedSinceInternal = requestConditions.getIfModifiedSince();
+        }
+        OffsetDateTime ifModifiedSince = ifModifiedSinceInternal;
+        RequestOptions requestOptionsLocal = requestOptions == null ? new RequestOptions() : requestOptions;
+        if (ifMatch != null) {
+            requestOptionsLocal.setHeader(HttpHeaderName.IF_MATCH, ifMatch);
+        }
+        if (ifNoneMatch != null) {
+            requestOptionsLocal.setHeader(HttpHeaderName.IF_NONE_MATCH, ifNoneMatch);
+        }
+        if (ifUnmodifiedSince != null) {
+            requestOptionsLocal.setHeader(HttpHeaderName.IF_UNMODIFIED_SINCE,
+                String.valueOf(new DateTimeRfc1123(ifUnmodifiedSince)));
+        }
+        if (ifModifiedSince != null) {
+            requestOptionsLocal.setHeader(HttpHeaderName.IF_MODIFIED_SINCE,
+                String.valueOf(new DateTimeRfc1123(ifModifiedSince)));
+        }
         return service.smokeTestSync(this.getEndpoint(), this.getServiceVersion().getVersion(), id, foo, accept,
-            requestOptions, Context.NONE);
+            requestOptionsLocal, Context.NONE);
     }
 
     /**

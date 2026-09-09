@@ -20,6 +20,7 @@ import com.azure.core.exception.ClientAuthenticationException;
 import com.azure.core.exception.HttpResponseException;
 import com.azure.core.exception.ResourceModifiedException;
 import com.azure.core.exception.ResourceNotFoundException;
+import com.azure.core.http.HttpHeaderName;
 import com.azure.core.http.HttpPipeline;
 import com.azure.core.http.HttpPipelineBuilder;
 import com.azure.core.http.policy.RetryPolicy;
@@ -34,6 +35,9 @@ import com.azure.core.util.serializer.JacksonAdapter;
 import com.azure.core.util.serializer.SerializerAdapter;
 import reactor.core.publisher.Mono;
 import tsptest.methodoverride.MethodOverrideServiceVersion;
+import tsptest.methodoverride.models.GroupHeaderOptions;
+import tsptest.methodoverride.models.GroupQueryKind;
+import tsptest.methodoverride.models.GroupQueryOptions;
 
 /**
  * Initializes a new instance of the MethodOverrideClient type.
@@ -166,6 +170,24 @@ public final class MethodOverrideClientImpl {
         Response<Void> groupQuerySync(@HostParam("endpoint") String endpoint,
             @QueryParam("api-version") String apiVersion, RequestOptions requestOptions, Context context);
 
+        @Get("/group-header")
+        @ExpectedResponses({ 200 })
+        @UnexpectedResponseExceptionType(value = ClientAuthenticationException.class, code = { 401 })
+        @UnexpectedResponseExceptionType(value = ResourceNotFoundException.class, code = { 404 })
+        @UnexpectedResponseExceptionType(value = ResourceModifiedException.class, code = { 409 })
+        @UnexpectedResponseExceptionType(HttpResponseException.class)
+        Mono<Response<Void>> groupHeader(@HostParam("endpoint") String endpoint,
+            @QueryParam("api-version") String apiVersion, RequestOptions requestOptions, Context context);
+
+        @Get("/group-header")
+        @ExpectedResponses({ 200 })
+        @UnexpectedResponseExceptionType(value = ClientAuthenticationException.class, code = { 401 })
+        @UnexpectedResponseExceptionType(value = ResourceNotFoundException.class, code = { 404 })
+        @UnexpectedResponseExceptionType(value = ResourceModifiedException.class, code = { 409 })
+        @UnexpectedResponseExceptionType(HttpResponseException.class)
+        Response<Void> groupHeaderSync(@HostParam("endpoint") String endpoint,
+            @QueryParam("api-version") String apiVersion, RequestOptions requestOptions, Context context);
+
         @Post("/group-all")
         @ExpectedResponses({ 200 })
         @UnexpectedResponseExceptionType(value = ClientAuthenticationException.class, code = { 401 })
@@ -277,9 +299,11 @@ public final class MethodOverrideClientImpl {
      * <tr><th>Name</th><th>Type</th><th>Required</th><th>Description</th></tr>
      * <tr><td>foo</td><td>String</td><td>No</td><td>The foo parameter</td></tr>
      * <tr><td>bar</td><td>String</td><td>No</td><td>The bar parameter</td></tr>
+     * <tr><td>kind</td><td>String</td><td>No</td><td>The kind parameter. Allowed values: "first", "second".</td></tr>
      * </table>
      * You can add these to a request with {@link RequestOptions#addQueryParam}
      * 
+     * @param options The options parameter.
      * @param requestOptions The options to configure the HTTP request before HTTP client sends it.
      * @throws HttpResponseException thrown if the request is rejected by server.
      * @throws ClientAuthenticationException thrown if the request is rejected by server on status code 401.
@@ -288,9 +312,34 @@ public final class MethodOverrideClientImpl {
      * @return the {@link Response} on successful completion of {@link Mono}.
      */
     @ServiceMethod(returns = ReturnType.SINGLE)
-    public Mono<Response<Void>> groupQueryWithResponseAsync(RequestOptions requestOptions) {
+    public Mono<Response<Void>> groupQueryWithResponseAsync(GroupQueryOptions options, RequestOptions requestOptions) {
+        String fooInternal = null;
+        if (options != null) {
+            fooInternal = options.getFoo();
+        }
+        String foo = fooInternal;
+        String barInternal = null;
+        if (options != null) {
+            barInternal = options.getBar();
+        }
+        String bar = barInternal;
+        GroupQueryKind kindInternal = null;
+        if (options != null) {
+            kindInternal = options.getKind();
+        }
+        GroupQueryKind kind = kindInternal;
+        RequestOptions requestOptionsLocal = requestOptions == null ? new RequestOptions() : requestOptions;
+        if (foo != null) {
+            requestOptionsLocal.addQueryParam("foo", foo, false);
+        }
+        if (bar != null) {
+            requestOptionsLocal.addQueryParam("bar", bar, false);
+        }
+        if (kind != null) {
+            requestOptionsLocal.addQueryParam("kind", kind.toString(), false);
+        }
         return FluxUtil.withContext(context -> service.groupQuery(this.getEndpoint(),
-            this.getServiceVersion().getVersion(), requestOptions, context));
+            this.getServiceVersion().getVersion(), requestOptionsLocal, context));
     }
 
     /**
@@ -301,9 +350,11 @@ public final class MethodOverrideClientImpl {
      * <tr><th>Name</th><th>Type</th><th>Required</th><th>Description</th></tr>
      * <tr><td>foo</td><td>String</td><td>No</td><td>The foo parameter</td></tr>
      * <tr><td>bar</td><td>String</td><td>No</td><td>The bar parameter</td></tr>
+     * <tr><td>kind</td><td>String</td><td>No</td><td>The kind parameter. Allowed values: "first", "second".</td></tr>
      * </table>
      * You can add these to a request with {@link RequestOptions#addQueryParam}
      * 
+     * @param options The options parameter.
      * @param requestOptions The options to configure the HTTP request before HTTP client sends it.
      * @throws HttpResponseException thrown if the request is rejected by server.
      * @throws ClientAuthenticationException thrown if the request is rejected by server on status code 401.
@@ -312,8 +363,118 @@ public final class MethodOverrideClientImpl {
      * @return the {@link Response}.
      */
     @ServiceMethod(returns = ReturnType.SINGLE)
-    public Response<Void> groupQueryWithResponse(RequestOptions requestOptions) {
-        return service.groupQuerySync(this.getEndpoint(), this.getServiceVersion().getVersion(), requestOptions,
+    public Response<Void> groupQueryWithResponse(GroupQueryOptions options, RequestOptions requestOptions) {
+        String fooInternal = null;
+        if (options != null) {
+            fooInternal = options.getFoo();
+        }
+        String foo = fooInternal;
+        String barInternal = null;
+        if (options != null) {
+            barInternal = options.getBar();
+        }
+        String bar = barInternal;
+        GroupQueryKind kindInternal = null;
+        if (options != null) {
+            kindInternal = options.getKind();
+        }
+        GroupQueryKind kind = kindInternal;
+        RequestOptions requestOptionsLocal = requestOptions == null ? new RequestOptions() : requestOptions;
+        if (foo != null) {
+            requestOptionsLocal.addQueryParam("foo", foo, false);
+        }
+        if (bar != null) {
+            requestOptionsLocal.addQueryParam("bar", bar, false);
+        }
+        if (kind != null) {
+            requestOptionsLocal.addQueryParam("kind", kind.toString(), false);
+        }
+        return service.groupQuerySync(this.getEndpoint(), this.getServiceVersion().getVersion(), requestOptionsLocal,
+            Context.NONE);
+    }
+
+    /**
+     * A remote procedure call (RPC) operation.
+     * <p><strong>Header Parameters</strong></p>
+     * <table border="1">
+     * <caption>Header Parameters</caption>
+     * <tr><th>Name</th><th>Type</th><th>Required</th><th>Description</th></tr>
+     * <tr><td>x-foo</td><td>String</td><td>No</td><td>The foo parameter</td></tr>
+     * <tr><td>x-bar</td><td>String</td><td>No</td><td>The bar parameter</td></tr>
+     * </table>
+     * You can add these to a request with {@link RequestOptions#addHeader}
+     *
+     * @param options The options parameter.
+     * @param requestOptions The options to configure the HTTP request before HTTP client sends it.
+     * @throws HttpResponseException thrown if the request is rejected by server.
+     * @throws ClientAuthenticationException thrown if the request is rejected by server on status code 401.
+     * @throws ResourceNotFoundException thrown if the request is rejected by server on status code 404.
+     * @throws ResourceModifiedException thrown if the request is rejected by server on status code 409.
+     * @return the {@link Response} on successful completion of {@link Mono}.
+     */
+    @ServiceMethod(returns = ReturnType.SINGLE)
+    public Mono<Response<Void>> groupHeaderWithResponseAsync(GroupHeaderOptions options,
+        RequestOptions requestOptions) {
+        String fooInternal = null;
+        if (options != null) {
+            fooInternal = options.getFoo();
+        }
+        String foo = fooInternal;
+        String barInternal = null;
+        if (options != null) {
+            barInternal = options.getBar();
+        }
+        String bar = barInternal;
+        RequestOptions requestOptionsLocal = requestOptions == null ? new RequestOptions() : requestOptions;
+        if (foo != null) {
+            requestOptionsLocal.setHeader(HttpHeaderName.fromString("x-foo"), foo);
+        }
+        if (bar != null) {
+            requestOptionsLocal.setHeader(HttpHeaderName.fromString("x-bar"), bar);
+        }
+        return FluxUtil.withContext(context -> service.groupHeader(this.getEndpoint(),
+            this.getServiceVersion().getVersion(), requestOptionsLocal, context));
+    }
+
+    /**
+     * A remote procedure call (RPC) operation.
+     * <p><strong>Header Parameters</strong></p>
+     * <table border="1">
+     * <caption>Header Parameters</caption>
+     * <tr><th>Name</th><th>Type</th><th>Required</th><th>Description</th></tr>
+     * <tr><td>x-foo</td><td>String</td><td>No</td><td>The foo parameter</td></tr>
+     * <tr><td>x-bar</td><td>String</td><td>No</td><td>The bar parameter</td></tr>
+     * </table>
+     * You can add these to a request with {@link RequestOptions#addHeader}
+     *
+     * @param options The options parameter.
+     * @param requestOptions The options to configure the HTTP request before HTTP client sends it.
+     * @throws HttpResponseException thrown if the request is rejected by server.
+     * @throws ClientAuthenticationException thrown if the request is rejected by server on status code 401.
+     * @throws ResourceNotFoundException thrown if the request is rejected by server on status code 404.
+     * @throws ResourceModifiedException thrown if the request is rejected by server on status code 409.
+     * @return the {@link Response}.
+     */
+    @ServiceMethod(returns = ReturnType.SINGLE)
+    public Response<Void> groupHeaderWithResponse(GroupHeaderOptions options, RequestOptions requestOptions) {
+        String fooInternal = null;
+        if (options != null) {
+            fooInternal = options.getFoo();
+        }
+        String foo = fooInternal;
+        String barInternal = null;
+        if (options != null) {
+            barInternal = options.getBar();
+        }
+        String bar = barInternal;
+        RequestOptions requestOptionsLocal = requestOptions == null ? new RequestOptions() : requestOptions;
+        if (foo != null) {
+            requestOptionsLocal.setHeader(HttpHeaderName.fromString("x-foo"), foo);
+        }
+        if (bar != null) {
+            requestOptionsLocal.setHeader(HttpHeaderName.fromString("x-bar"), bar);
+        }
+        return service.groupHeaderSync(this.getEndpoint(), this.getServiceVersion().getVersion(), requestOptionsLocal,
             Context.NONE);
     }
 
@@ -562,6 +723,7 @@ public final class MethodOverrideClientImpl {
      * <tr><th>Name</th><th>Type</th><th>Required</th><th>Description</th></tr>
      * <tr><td>foo</td><td>String</td><td>No</td><td>The foo parameter</td></tr>
      * <tr><td>bar</td><td>String</td><td>No</td><td>The bar parameter</td></tr>
+     * <tr><td>kind</td><td>String</td><td>No</td><td>The kind parameter. Allowed values: "first", "second".</td></tr>
      * </table>
      * You can add these to a request with {@link RequestOptions#addQueryParam}
      * <p><strong>Request Body Schema</strong></p>
@@ -576,6 +738,7 @@ public final class MethodOverrideClientImpl {
      * </pre>
      * 
      * @param body The body parameter.
+     * @param options The options parameter.
      * @param requestOptions The options to configure the HTTP request before HTTP client sends it.
      * @throws HttpResponseException thrown if the request is rejected by server.
      * @throws ClientAuthenticationException thrown if the request is rejected by server on status code 401.
@@ -584,10 +747,36 @@ public final class MethodOverrideClientImpl {
      * @return the {@link Response} on successful completion of {@link Mono}.
      */
     @ServiceMethod(returns = ReturnType.SINGLE)
-    public Mono<Response<Void>> groupExcludeBodyWithResponseAsync(BinaryData body, RequestOptions requestOptions) {
+    public Mono<Response<Void>> groupExcludeBodyWithResponseAsync(BinaryData body, GroupQueryOptions options,
+        RequestOptions requestOptions) {
         final String contentType = "application/json";
+        String fooInternal = null;
+        if (options != null) {
+            fooInternal = options.getFoo();
+        }
+        String foo = fooInternal;
+        String barInternal = null;
+        if (options != null) {
+            barInternal = options.getBar();
+        }
+        String bar = barInternal;
+        GroupQueryKind kindInternal = null;
+        if (options != null) {
+            kindInternal = options.getKind();
+        }
+        GroupQueryKind kind = kindInternal;
+        RequestOptions requestOptionsLocal = requestOptions == null ? new RequestOptions() : requestOptions;
+        if (foo != null) {
+            requestOptionsLocal.addQueryParam("foo", foo, false);
+        }
+        if (bar != null) {
+            requestOptionsLocal.addQueryParam("bar", bar, false);
+        }
+        if (kind != null) {
+            requestOptionsLocal.addQueryParam("kind", kind.toString(), false);
+        }
         return FluxUtil.withContext(context -> service.groupExcludeBody(this.getEndpoint(),
-            this.getServiceVersion().getVersion(), contentType, body, requestOptions, context));
+            this.getServiceVersion().getVersion(), contentType, body, requestOptionsLocal, context));
     }
 
     /**
@@ -598,6 +787,7 @@ public final class MethodOverrideClientImpl {
      * <tr><th>Name</th><th>Type</th><th>Required</th><th>Description</th></tr>
      * <tr><td>foo</td><td>String</td><td>No</td><td>The foo parameter</td></tr>
      * <tr><td>bar</td><td>String</td><td>No</td><td>The bar parameter</td></tr>
+     * <tr><td>kind</td><td>String</td><td>No</td><td>The kind parameter. Allowed values: "first", "second".</td></tr>
      * </table>
      * You can add these to a request with {@link RequestOptions#addQueryParam}
      * <p><strong>Request Body Schema</strong></p>
@@ -612,6 +802,7 @@ public final class MethodOverrideClientImpl {
      * </pre>
      * 
      * @param body The body parameter.
+     * @param options The options parameter.
      * @param requestOptions The options to configure the HTTP request before HTTP client sends it.
      * @throws HttpResponseException thrown if the request is rejected by server.
      * @throws ClientAuthenticationException thrown if the request is rejected by server on status code 401.
@@ -620,10 +811,36 @@ public final class MethodOverrideClientImpl {
      * @return the {@link Response}.
      */
     @ServiceMethod(returns = ReturnType.SINGLE)
-    public Response<Void> groupExcludeBodyWithResponse(BinaryData body, RequestOptions requestOptions) {
+    public Response<Void> groupExcludeBodyWithResponse(BinaryData body, GroupQueryOptions options,
+        RequestOptions requestOptions) {
         final String contentType = "application/json";
+        String fooInternal = null;
+        if (options != null) {
+            fooInternal = options.getFoo();
+        }
+        String foo = fooInternal;
+        String barInternal = null;
+        if (options != null) {
+            barInternal = options.getBar();
+        }
+        String bar = barInternal;
+        GroupQueryKind kindInternal = null;
+        if (options != null) {
+            kindInternal = options.getKind();
+        }
+        GroupQueryKind kind = kindInternal;
+        RequestOptions requestOptionsLocal = requestOptions == null ? new RequestOptions() : requestOptions;
+        if (foo != null) {
+            requestOptionsLocal.addQueryParam("foo", foo, false);
+        }
+        if (bar != null) {
+            requestOptionsLocal.addQueryParam("bar", bar, false);
+        }
+        if (kind != null) {
+            requestOptionsLocal.addQueryParam("kind", kind.toString(), false);
+        }
         return service.groupExcludeBodySync(this.getEndpoint(), this.getServiceVersion().getVersion(), contentType,
-            body, requestOptions, Context.NONE);
+            body, requestOptionsLocal, Context.NONE);
     }
 
     /**

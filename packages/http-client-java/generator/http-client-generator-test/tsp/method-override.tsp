@@ -16,14 +16,29 @@ namespace TspTest.MethodOverride {
     v2022_12_01_preview: "2022-12-01-preview",
   }
 
+  enum GroupQueryKind {
+    first,
+    second,
+  }
+
   model GroupQueryOptions {
     @query foo?: string;
     @query bar?: string;
+    @query kind?: GroupQueryKind;
   }
 
   @get
   @route("/group-query")
   op groupQuery is global.Azure.Core.RpcOperation<GroupQueryOptions, {}>;
+
+  model GroupHeaderOptions {
+    @header("x-foo") foo?: string;
+    @header("x-bar") bar?: string;
+  }
+
+  @get
+  @route("/group-header")
+  op groupHeader is global.Azure.Core.RpcOperation<GroupHeaderOptions, {}>;
 
   model GroupAllOptions {
     @query foo?: string;
@@ -108,6 +123,10 @@ namespace Customization {
     options?: TspTest.MethodOverride.GroupQueryOptions,
     ...ApiVersionParameter,
   ): void;
+  op groupHeaderCustomization(
+    options?: TspTest.MethodOverride.GroupHeaderOptions,
+    ...ApiVersionParameter,
+  ): void;
   op groupAllCustomization(
     options: TspTest.MethodOverride.GroupAllOptions,
     ...ApiVersionParameter,
@@ -133,6 +152,7 @@ namespace Customization {
   ): void;
 
   @@override(TspTest.MethodOverride.groupQuery, Customization.groupQueryCustomization);
+  @@override(TspTest.MethodOverride.groupHeader, Customization.groupHeaderCustomization);
   @@override(TspTest.MethodOverride.groupAll, Customization.groupAllCustomization);
   @@override(TspTest.MethodOverride.groupPart, Customization.groupPartCustomization);
   @@override(TspTest.MethodOverride.groupPartETag, Customization.groupPartETagCustomization);

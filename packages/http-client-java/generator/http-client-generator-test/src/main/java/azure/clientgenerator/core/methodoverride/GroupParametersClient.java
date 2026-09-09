@@ -38,8 +38,7 @@ public final class GroupParametersClient {
     /**
      * The group operation.
      * 
-     * @param param1 The param1 parameter.
-     * @param param2 The param2 parameter.
+     * @param options The options parameter.
      * @param requestOptions The options to configure the HTTP request before HTTP client sends it.
      * @throws HttpResponseException thrown if the request is rejected by server.
      * @throws ClientAuthenticationException thrown if the request is rejected by server on status code 401.
@@ -49,8 +48,8 @@ public final class GroupParametersClient {
      */
     @Generated
     @ServiceMethod(returns = ReturnType.SINGLE)
-    public Response<Void> groupWithResponse(String param1, String param2, RequestOptions requestOptions) {
-        return this.serviceClient.groupWithResponse(param1, param2, requestOptions);
+    public Response<Void> groupWithResponse(GroupParametersOptions options, RequestOptions requestOptions) {
+        return this.serviceClient.groupWithResponse(options, requestOptions);
     }
 
     /**
@@ -69,8 +68,6 @@ public final class GroupParametersClient {
     public void group(GroupParametersOptions options) {
         // Generated convenience method for groupWithResponse
         RequestOptions requestOptions = new RequestOptions();
-        String param1 = options.getParam1();
-        String param2 = options.getParam2();
-        groupWithResponse(param1, param2, requestOptions).getValue();
+        groupWithResponse(options, requestOptions).getValue();
     }
 }
