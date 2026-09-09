@@ -635,6 +635,64 @@ namespace Microsoft.TypeSpec.Generator.Tests.Providers.ModelProviders
         }
 
         [Test]
+        public async Task BackCompat_GeneratedLastContractBaseWithAdditionalPropertiesCollisionIsNotRestored()
+        {
+            var previousBase = InputFactory.Model(
+                "PreviousBase",
+                properties: [],
+                additionalProperties: InputPrimitiveType.String);
+            var currentBase = InputFactory.Model("CurrentBase", properties: []);
+            var derivedModel = InputFactory.Model(
+                "DerivedModel",
+                properties: [],
+                baseModel: currentBase,
+                additionalProperties: InputPrimitiveType.String);
+
+            await MockHelpers.LoadMockGeneratorAsync(
+                inputModelTypes: [previousBase, currentBase, derivedModel],
+                lastContractCompilation: async () => await Helpers.GetCompilationFromDirectoryAsync());
+
+            var modelProviders = CodeModelGenerator.Instance.OutputLibrary.TypeProviders
+                .OfType<ModelProvider>()
+                .ToArray();
+            var previousBaseProvider = modelProviders.Single(t => t.Name == "PreviousBase");
+            var derivedProvider = modelProviders.Single(t => t.Name == "DerivedModel");
+
+            derivedProvider.ProcessTypeForBackCompatibility();
+
+            Assert.Multiple(() =>
+            {
+                Assert.That(previousBaseProvider.Properties.Select(property => property.Name),
+                    Does.Contain("AdditionalProperties"),
+                    "The previous base must synthesize the colliding additional-properties property");
+                Assert.That(derivedProvider.Properties.Select(property => property.Name),
+                    Does.Contain("AdditionalProperties"),
+                    "The current derived model must synthesize the same property name");
+                Assert.AreEqual(currentBase.Name, derivedProvider.BaseType?.Name,
+                    "The previous base must not be restored when its property collides with a synthesized current property");
+            });
+
+            var generatedProviders = modelProviders.Cast<TypeProvider>()
+                .Concat(CodeModelGenerator.Instance.OutputLibrary.TypeProviders.Where(provider =>
+                    provider.Name == "ChangeTrackingDictionary"));
+            var syntaxTrees = generatedProviders.Select(provider =>
+                CSharpSyntaxTree.ParseText(new TypeProviderWriter(provider).Write().Content));
+            var references = AppDomain.CurrentDomain.GetAssemblies()
+                .Where(assembly => !assembly.IsDynamic && !string.IsNullOrEmpty(assembly.Location))
+                .Select(assembly => MetadataReference.CreateFromFile(assembly.Location));
+            var compilation = CSharpCompilation.Create(
+                "AdditionalPropertiesCollisionModels",
+                syntaxTrees,
+                references,
+                new CSharpCompilationOptions(OutputKind.DynamicallyLinkedLibrary));
+            Assert.That(
+                compilation.GetDiagnostics().Where(diagnostic =>
+                    diagnostic.Severity is DiagnosticSeverity.Warning or DiagnosticSeverity.Error),
+                Is.Empty,
+                "The generated model hierarchy should compile after the incompatible base restoration is skipped");
+        }
+
+        [Test]
         public async Task BackCompat_SymbolBackedLastContractBaseWithPropertyCollisionIsNotRestored()
         {
             var currentBase = InputFactory.Model("CurrentBase", properties: []);

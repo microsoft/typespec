@@ -385,6 +385,7 @@ namespace Microsoft.TypeSpec.Generator.Providers
             var directPropertyNames = _inputModel.Properties
                 .Select(property => GetGeneratedPropertyName(property, enclosingTypeName))
                 .ToHashSet(StringComparer.Ordinal);
+            directPropertyNames.UnionWith(GetGeneratedAdditionalPropertyNames(previousBase));
             if (directPropertyNames.Count == 0)
             {
                 return false;
@@ -417,6 +418,47 @@ namespace Microsoft.TypeSpec.Generator.Providers
                         : property.Name.ToIdentifierName().NormalizeCSharpAcronyms(property.Type.IsDateTimeInputType()),
                     enclosingTypeName)
                 : PropertyProvider.GetPropertyName(property, propertyType, this, enclosingTypeName);
+        }
+
+        private IEnumerable<string> GetGeneratedAdditionalPropertyNames(TypeProvider restoredBase)
+        {
+            var additionalPropertyFields = AdditionalPropertyFields;
+            for (var i = 0; i < additionalPropertyFields.Count; i++)
+            {
+                yield return GetAdditionalPropertyName(additionalPropertyFields[i], i);
+            }
+
+            if (!WouldBuildRawDataField(restoredBase) || _inputModel.AdditionalProperties is null)
+            {
+                yield break;
+            }
+
+            var additionalPropertiesValueType = CodeModelGenerator.Instance.TypeFactory.CreateCSharpType(_inputModel.AdditionalProperties);
+            if (additionalPropertiesValueType is not null && ShouldAddRawDataProperty(additionalPropertiesValueType))
+            {
+                yield return GetRawDataPropertyName(additionalPropertyFields.Count > 0);
+            }
+        }
+
+        private bool WouldBuildRawDataField(TypeProvider restoredBase)
+        {
+            if (!_inputModel.Usage.HasFlag(InputModelTypeUsage.Json)
+                && (_inputModel.Usage.HasFlag(InputModelTypeUsage.Xml)
+                    || _inputModel.Usage.HasFlag(InputModelTypeUsage.MultipartFormData)))
+            {
+                return false;
+            }
+
+            var visited = new HashSet<TypeProvider>();
+            for (var provider = restoredBase; provider is ModelProvider model && visited.Add(provider); provider = provider.BaseTypeProvider)
+            {
+                if (model.RawDataField is not null)
+                {
+                    return false;
+                }
+            }
+
+            return true;
         }
 
         private bool TryResolveTypeInCurrentBuild(CSharpType type, [NotNullWhen(true)] out TypeProvider? resolvedProvider)
@@ -760,7 +802,7 @@ namespace Microsoft.TypeSpec.Generator.Providers
                     null,
                     MethodSignatureModifiers.Public,
                     propertyType,
-                    i == 0 ? AdditionalPropertiesHelper.DefaultAdditionalPropertiesPropertyName : field.Name.ToIdentifierName(),
+                    GetAdditionalPropertyName(field, i),
                     assignment,
                     this)
                 {
@@ -784,14 +826,9 @@ namespace Microsoft.TypeSpec.Generator.Providers
             // add public property for raw binary data if the model supports additional binary data properties
             var originalType = new CSharpType(typeof(IDictionary<,>), typeof(string), apValueType);
             var additionalPropsType = ReplaceUnverifiableType(originalType);
-            var shouldAddPropForUnionType = additionalPropsType.ElementType.IsUnion
-                && additionalPropsType.ElementType.UnionItemTypes.Any(t => !t.IsFrameworkType);
-
-            if (shouldAddPropForUnionType || (!apValueType.IsUnion && additionalPropsType.Equals(_additionalBinaryDataPropsFieldType)))
+            if (ShouldAddRawDataProperty(apValueType))
             {
-                var name = !containsAdditionalTypeProperties
-                    ? AdditionalPropertiesHelper.DefaultAdditionalPropertiesPropertyName
-                    : RawDataField.Name.ToIdentifierName();
+                var name = GetRawDataPropertyName(containsAdditionalTypeProperties);
 
                 // Use object type if backward compatibility requires it, otherwise use BinaryData type
                 var propertyType = _useObjectAdditionalProperties.Value ? _additionalObjectPropsFieldType : additionalPropsType;
@@ -817,6 +854,26 @@ namespace Microsoft.TypeSpec.Generator.Providers
             }
 
             return properties;
+        }
+
+        private static string GetAdditionalPropertyName(FieldProvider field, int index)
+            => index == 0
+                ? AdditionalPropertiesHelper.DefaultAdditionalPropertiesPropertyName
+                : field.Name.ToIdentifierName();
+
+        private string GetRawDataPropertyName(bool containsAdditionalTypeProperties)
+            => containsAdditionalTypeProperties
+                ? AdditionalPropertiesHelper.AdditionalBinaryDataPropsFieldName.ToIdentifierName()
+                : AdditionalPropertiesHelper.DefaultAdditionalPropertiesPropertyName;
+
+        private bool ShouldAddRawDataProperty(CSharpType additionalPropertiesValueType)
+        {
+            var additionalPropertiesType = ReplaceUnverifiableType(
+                new CSharpType(typeof(IDictionary<,>), typeof(string), additionalPropertiesValueType));
+            return additionalPropertiesType.ElementType.IsUnion
+                    && additionalPropertiesType.ElementType.UnionItemTypes.Any(type => !type.IsFrameworkType)
+                || !additionalPropertiesValueType.IsUnion
+                    && additionalPropertiesType.Equals(_additionalBinaryDataPropsFieldType);
         }
 
         private Dictionary<InputModelType, Dictionary<string, InputModelProperty>>? _inputDerivedProperties;
