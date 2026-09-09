@@ -339,6 +339,32 @@ describe("diagnostic location", () => {
       });
     });
 
+    it("reports on a library type the user chose", async () => {
+      // The shape ARM's `ResourceNameParameter<..., Type = uuid>` has: the user cannot edit
+      // `uuid`, so the instantiation is the only place the choice is visible.
+      const diagnostics = await lintLibrary(
+        `scalar libScalar extends string;
+         model Wrapper<T> { value: T; }`,
+        `model Bar { wrapped: Wrapper<libScalar>; }`,
+      );
+      expectDiagnostics(diagnostics, {
+        code: "@typespec/test-linter/no-property-value",
+        file: "main.tsp",
+      });
+    });
+
+    it("doesn't emit diagnostic when the user passed one of their own declarations", async () => {
+      // Anything wrong with `Mine` is reportable on `Mine` itself, where the user can see it in
+      // context, so the instantiated member has nothing to add.
+      expectDiagnosticEmpty(
+        await lintLibrary(
+          `model Wrapper<T> { value: T; }`,
+          `model Mine { a: string; }
+           model Bar { wrapped: Wrapper<Mine>; }`,
+        ),
+      );
+    });
+
     it("doesn't emit diagnostic when the argument is only nested in the property type", async () => {
       // `value: T[]` is the library's own array declaration, so a diagnostic about it is the
       // library's to fix no matter which item type the user passed.

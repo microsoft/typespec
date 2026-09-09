@@ -444,10 +444,10 @@ export function createLinterRuleContext<
  * Linter rules should only report on code the user is able to act on.
  *
  * A target declared in the user project is reported as is. A target declared in a library
- * is reported only when its type is a template argument the user supplied: given
- * `model Wrapper<T> { value: T }`, `Wrapper<uuid>.value` exists in that shape only because
- * the user chose `uuid`, while everything else `Wrapper<T>` declares is authored by the
- * library and cannot be changed by them.
+ * is reported only when its type is a template argument the user supplied and could not have
+ * been told about anywhere else: given `model Wrapper<T> { value: T }`, `Wrapper<uuid>.value`
+ * exists in that shape only because the user chose `uuid`, while everything else `Wrapper<T>`
+ * declares is authored by the library and cannot be changed by them.
  *
  * The diagnostic is then reported on the argument in the user's own file, which is the
  * code they can actually change.
@@ -479,6 +479,12 @@ function findUserSuppliedArgumentNode(
   // already reported on the user's own `is`/`extends`/property declaration.
   if (target.kind !== "ModelProperty" && target.kind !== "UnionVariant") return undefined;
   if (target.node === undefined) return undefined;
+
+  // When the user passed one of their own declarations the member tells them nothing new:
+  // anything wrong with that type is reportable on the declaration itself, where they can see
+  // it in context. Only a type they cannot edit, such as a library scalar or `unknown`, makes
+  // the instantiation the sole place the problem is visible.
+  if (getLocationContext(program, target.type).type === "project") return undefined;
 
   // Members are linked to the mapper of the template they were instantiated with, even
   // though `TemplatedTypeBase` is not part of their public type.
