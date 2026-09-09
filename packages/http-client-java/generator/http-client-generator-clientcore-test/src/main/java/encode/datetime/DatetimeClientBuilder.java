@@ -35,17 +35,60 @@ import java.util.Objects;
     serviceClients = { QueryClient.class, PropertyClient.class, HeaderClient.class, ResponseHeaderClient.class })
 public final class DatetimeClientBuilder implements HttpTrait<DatetimeClientBuilder>, ProxyTrait<DatetimeClientBuilder>,
     ConfigurationTrait<DatetimeClientBuilder>, EndpointTrait<DatetimeClientBuilder> {
+
+    @Metadata(properties = { MetadataProperties.GENERATED })
+    private static final Map<String, String> PROPERTIES = CoreUtils.getProperties("encode-datetime.properties");
+
     @Metadata(properties = { MetadataProperties.GENERATED })
     private static final String SDK_NAME = "name";
 
     @Metadata(properties = { MetadataProperties.GENERATED })
     private static final String SDK_VERSION = "version";
 
+    /*
+     * The configuration store that is used during construction of the service client.
+     */
     @Metadata(properties = { MetadataProperties.GENERATED })
-    private static final Map<String, String> PROPERTIES = CoreUtils.getProperties("encode-datetime.properties");
+    private Configuration configuration;
+
+    /*
+     * The service endpoint
+     */
+    @Metadata(properties = { MetadataProperties.GENERATED })
+    private String endpoint;
+
+    /*
+     * The HTTP client used to send the request.
+     */
+    @Metadata(properties = { MetadataProperties.GENERATED })
+    private HttpClient httpClient;
+
+    /*
+     * The instrumentation configuration for HTTP requests and responses.
+     */
+    @Metadata(properties = { MetadataProperties.GENERATED })
+    private HttpInstrumentationOptions httpInstrumentationOptions;
 
     @Metadata(properties = { MetadataProperties.GENERATED })
     private final List<HttpPipelinePolicy> pipelinePolicies;
+
+    /*
+     * The proxy options used during construction of the service client.
+     */
+    @Metadata(properties = { MetadataProperties.GENERATED })
+    private ProxyOptions proxyOptions;
+
+    /*
+     * The redirect options to configure redirect policy
+     */
+    @Metadata(properties = { MetadataProperties.GENERATED })
+    private HttpRedirectOptions redirectOptions;
+
+    /*
+     * The retry options to configure retry policy for failed requests.
+     */
+    @Metadata(properties = { MetadataProperties.GENERATED })
+    private HttpRetryOptions retryOptions;
 
     /**
      * Create an instance of the DatetimeClientBuilder.
@@ -55,11 +98,36 @@ public final class DatetimeClientBuilder implements HttpTrait<DatetimeClientBuil
         this.pipelinePolicies = new ArrayList<>();
     }
 
-    /*
-     * The HTTP client used to send the request.
+    /**
+     * {@inheritDoc}.
      */
     @Metadata(properties = { MetadataProperties.GENERATED })
-    private HttpClient httpClient;
+    @Override
+    public DatetimeClientBuilder addHttpPipelinePolicy(HttpPipelinePolicy customPolicy) {
+        Objects.requireNonNull(customPolicy, "'customPolicy' cannot be null.");
+        pipelinePolicies.add(customPolicy);
+        return this;
+    }
+
+    /**
+     * {@inheritDoc}.
+     */
+    @Metadata(properties = { MetadataProperties.GENERATED })
+    @Override
+    public DatetimeClientBuilder configuration(Configuration configuration) {
+        this.configuration = configuration;
+        return this;
+    }
+
+    /**
+     * {@inheritDoc}.
+     */
+    @Metadata(properties = { MetadataProperties.GENERATED })
+    @Override
+    public DatetimeClientBuilder endpoint(String endpoint) {
+        this.endpoint = endpoint;
+        return this;
+    }
 
     /**
      * {@inheritDoc}.
@@ -71,11 +139,25 @@ public final class DatetimeClientBuilder implements HttpTrait<DatetimeClientBuil
         return this;
     }
 
-    /*
-     * The retry options to configure retry policy for failed requests.
+    /**
+     * {@inheritDoc}.
      */
     @Metadata(properties = { MetadataProperties.GENERATED })
-    private HttpRetryOptions retryOptions;
+    @Override
+    public DatetimeClientBuilder httpInstrumentationOptions(HttpInstrumentationOptions httpInstrumentationOptions) {
+        this.httpInstrumentationOptions = httpInstrumentationOptions;
+        return this;
+    }
+
+    /**
+     * {@inheritDoc}.
+     */
+    @Metadata(properties = { MetadataProperties.GENERATED })
+    @Override
+    public DatetimeClientBuilder httpRedirectOptions(HttpRedirectOptions redirectOptions) {
+        this.redirectOptions = redirectOptions;
+        return this;
+    }
 
     /**
      * {@inheritDoc}.
@@ -92,95 +174,58 @@ public final class DatetimeClientBuilder implements HttpTrait<DatetimeClientBuil
      */
     @Metadata(properties = { MetadataProperties.GENERATED })
     @Override
-    public DatetimeClientBuilder addHttpPipelinePolicy(HttpPipelinePolicy customPolicy) {
-        Objects.requireNonNull(customPolicy, "'customPolicy' cannot be null.");
-        pipelinePolicies.add(customPolicy);
-        return this;
-    }
-
-    /*
-     * The redirect options to configure redirect policy
-     */
-    @Metadata(properties = { MetadataProperties.GENERATED })
-    private HttpRedirectOptions redirectOptions;
-
-    /**
-     * {@inheritDoc}.
-     */
-    @Metadata(properties = { MetadataProperties.GENERATED })
-    @Override
-    public DatetimeClientBuilder httpRedirectOptions(HttpRedirectOptions redirectOptions) {
-        this.redirectOptions = redirectOptions;
-        return this;
-    }
-
-    /*
-     * The instrumentation configuration for HTTP requests and responses.
-     */
-    @Metadata(properties = { MetadataProperties.GENERATED })
-    private HttpInstrumentationOptions httpInstrumentationOptions;
-
-    /**
-     * {@inheritDoc}.
-     */
-    @Metadata(properties = { MetadataProperties.GENERATED })
-    @Override
-    public DatetimeClientBuilder httpInstrumentationOptions(HttpInstrumentationOptions httpInstrumentationOptions) {
-        this.httpInstrumentationOptions = httpInstrumentationOptions;
-        return this;
-    }
-
-    /*
-     * The proxy options used during construction of the service client.
-     */
-    @Metadata(properties = { MetadataProperties.GENERATED })
-    private ProxyOptions proxyOptions;
-
-    /**
-     * {@inheritDoc}.
-     */
-    @Metadata(properties = { MetadataProperties.GENERATED })
-    @Override
     public DatetimeClientBuilder proxyOptions(ProxyOptions proxyOptions) {
         this.proxyOptions = proxyOptions;
         return this;
     }
 
-    /*
-     * The configuration store that is used during construction of the service client.
-     */
-    @Metadata(properties = { MetadataProperties.GENERATED })
-    private Configuration configuration;
-
     /**
-     * {@inheritDoc}.
+     * Builds an instance of HeaderClient class.
+     *
+     * @return an instance of HeaderClient.
      */
     @Metadata(properties = { MetadataProperties.GENERATED })
-    @Override
-    public DatetimeClientBuilder configuration(Configuration configuration) {
-        this.configuration = configuration;
-        return this;
+    public HeaderClient buildHeaderClient() {
+        DatetimeClientImpl innerClient = buildInnerClient();
+        return new HeaderClient(innerClient.getHeaders(), innerClient.getInstrumentation());
     }
 
-    /*
-     * The service endpoint
+    /**
+     * Builds an instance of PropertyClient class.
+     *
+     * @return an instance of PropertyClient.
      */
     @Metadata(properties = { MetadataProperties.GENERATED })
-    private String endpoint;
+    public PropertyClient buildPropertyClient() {
+        DatetimeClientImpl innerClient = buildInnerClient();
+        return new PropertyClient(innerClient.getProperties(), innerClient.getInstrumentation());
+    }
 
     /**
-     * {@inheritDoc}.
+     * Builds an instance of QueryClient class.
+     *
+     * @return an instance of QueryClient.
      */
     @Metadata(properties = { MetadataProperties.GENERATED })
-    @Override
-    public DatetimeClientBuilder endpoint(String endpoint) {
-        this.endpoint = endpoint;
-        return this;
+    public QueryClient buildQueryClient() {
+        DatetimeClientImpl innerClient = buildInnerClient();
+        return new QueryClient(innerClient.getQueries(), innerClient.getInstrumentation());
+    }
+
+    /**
+     * Builds an instance of ResponseHeaderClient class.
+     *
+     * @return an instance of ResponseHeaderClient.
+     */
+    @Metadata(properties = { MetadataProperties.GENERATED })
+    public ResponseHeaderClient buildResponseHeaderClient() {
+        DatetimeClientImpl innerClient = buildInnerClient();
+        return new ResponseHeaderClient(innerClient.getResponseHeaders(), innerClient.getInstrumentation());
     }
 
     /**
      * Builds an instance of DatetimeClientImpl with the provided parameters.
-     * 
+     *
      * @return an instance of DatetimeClientImpl.
      */
     @Metadata(properties = { MetadataProperties.GENERATED })
@@ -201,12 +246,6 @@ public final class DatetimeClientBuilder implements HttpTrait<DatetimeClientBuil
     }
 
     @Metadata(properties = { MetadataProperties.GENERATED })
-    private void validateClient() {
-        // This method is invoked from 'buildInnerClient'/'buildClient' method.
-        // Developer can customize this method, to validate that the necessary conditions are met for the new client.
-    }
-
-    @Metadata(properties = { MetadataProperties.GENERATED })
     private HttpPipeline createHttpPipeline() {
         Configuration buildConfiguration
             = (configuration == null) ? Configuration.getGlobalConfiguration() : configuration;
@@ -223,47 +262,9 @@ public final class DatetimeClientBuilder implements HttpTrait<DatetimeClientBuil
         return httpPipelineBuilder.httpClient(httpClient).build();
     }
 
-    /**
-     * Builds an instance of QueryClient class.
-     * 
-     * @return an instance of QueryClient.
-     */
     @Metadata(properties = { MetadataProperties.GENERATED })
-    public QueryClient buildQueryClient() {
-        DatetimeClientImpl innerClient = buildInnerClient();
-        return new QueryClient(innerClient.getQueries(), innerClient.getInstrumentation());
-    }
-
-    /**
-     * Builds an instance of PropertyClient class.
-     * 
-     * @return an instance of PropertyClient.
-     */
-    @Metadata(properties = { MetadataProperties.GENERATED })
-    public PropertyClient buildPropertyClient() {
-        DatetimeClientImpl innerClient = buildInnerClient();
-        return new PropertyClient(innerClient.getProperties(), innerClient.getInstrumentation());
-    }
-
-    /**
-     * Builds an instance of HeaderClient class.
-     * 
-     * @return an instance of HeaderClient.
-     */
-    @Metadata(properties = { MetadataProperties.GENERATED })
-    public HeaderClient buildHeaderClient() {
-        DatetimeClientImpl innerClient = buildInnerClient();
-        return new HeaderClient(innerClient.getHeaders(), innerClient.getInstrumentation());
-    }
-
-    /**
-     * Builds an instance of ResponseHeaderClient class.
-     * 
-     * @return an instance of ResponseHeaderClient.
-     */
-    @Metadata(properties = { MetadataProperties.GENERATED })
-    public ResponseHeaderClient buildResponseHeaderClient() {
-        DatetimeClientImpl innerClient = buildInnerClient();
-        return new ResponseHeaderClient(innerClient.getResponseHeaders(), innerClient.getInstrumentation());
+    private void validateClient() {
+        // This method is invoked from 'buildInnerClient'/'buildClient' method.
+        // Developer can customize this method, to validate that the necessary conditions are met for the new client.
     }
 }

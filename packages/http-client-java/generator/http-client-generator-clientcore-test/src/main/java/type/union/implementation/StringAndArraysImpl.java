@@ -22,10 +22,6 @@ import type.union.StringAndArrayCases;
  * An instance of this class provides access to all the operations defined in StringAndArrays.
  */
 public final class StringAndArraysImpl {
-    /**
-     * The proxy service used to perform REST calls.
-     */
-    private final StringAndArraysService service;
 
     /**
      * The service client containing this operation class.
@@ -38,8 +34,13 @@ public final class StringAndArraysImpl {
     private final Instrumentation instrumentation;
 
     /**
+     * The proxy service used to perform REST calls.
+     */
+    private final StringAndArraysService service;
+
+    /**
      * Initializes an instance of StringAndArraysImpl.
-     * 
+     *
      * @param client the instance of the service client containing this operation class.
      */
     StringAndArraysImpl(UnionClientImpl client) {
@@ -49,43 +50,8 @@ public final class StringAndArraysImpl {
     }
 
     /**
-     * The interface defining all the services for UnionClientStringAndArrays to be used by the proxy service to perform
-     * REST calls.
-     */
-    @ServiceInterface(name = "UnionClientStringAndArrays", host = "{endpoint}")
-    public interface StringAndArraysService {
-        static StringAndArraysService getNewInstance(HttpPipeline pipeline) {
-            try {
-                Class<?> clazz = Class.forName("type.union.implementation.StringAndArraysServiceImpl");
-                return (StringAndArraysService) clazz.getMethod("getNewInstance", HttpPipeline.class)
-                    .invoke(null, pipeline);
-            } catch (ClassNotFoundException | NoSuchMethodException | IllegalAccessException
-                | InvocationTargetException e) {
-                throw new RuntimeException(e);
-            }
-
-        }
-
-        @HttpRequestInformation(
-            method = HttpMethod.GET,
-            path = "/type/union/string-and-array",
-            expectedStatusCodes = { 200 })
-        @UnexpectedResponseExceptionDetail
-        Response<GetResponse7> get(@HostParam("endpoint") String endpoint, @HeaderParam("Accept") String accept,
-            RequestContext requestContext);
-
-        @HttpRequestInformation(
-            method = HttpMethod.POST,
-            path = "/type/union/string-and-array",
-            expectedStatusCodes = { 204 })
-        @UnexpectedResponseExceptionDetail
-        Response<Void> send(@HostParam("endpoint") String endpoint, @HeaderParam("Content-Type") String contentType,
-            @BodyParam("application/json") SendRequest7 sendRequest7, RequestContext requestContext);
-    }
-
-    /**
      * The get operation.
-     * 
+     *
      * @param requestContext The context to configure the HTTP request before HTTP client sends it.
      * @throws IllegalArgumentException thrown if parameters fail the validation.
      * @throws HttpResponseException thrown if the service returns an error.
@@ -103,7 +69,7 @@ public final class StringAndArraysImpl {
 
     /**
      * The send operation.
-     * 
+     *
      * @param prop The prop parameter.
      * @param requestContext The context to configure the HTTP request before HTTP client sends it.
      * @throws IllegalArgumentException thrown if parameters fail the validation.
@@ -119,5 +85,40 @@ public final class StringAndArraysImpl {
                 SendRequest7 sendRequest7 = new SendRequest7(prop);
                 return service.send(this.client.getEndpoint(), contentType, sendRequest7, updatedContext);
             });
+    }
+
+    /**
+     * The interface defining all the services for UnionClientStringAndArrays to be used by the proxy service to perform
+     * REST calls.
+     */
+    @ServiceInterface(name = "UnionClientStringAndArrays", host = "{endpoint}")
+    public interface StringAndArraysService {
+
+        @HttpRequestInformation(
+            method = HttpMethod.GET,
+            path = "/type/union/string-and-array",
+            expectedStatusCodes = { 200 })
+        @UnexpectedResponseExceptionDetail
+        Response<GetResponse7> get(@HostParam("endpoint") String endpoint, @HeaderParam("Accept") String accept,
+            RequestContext requestContext);
+
+        @HttpRequestInformation(
+            method = HttpMethod.POST,
+            path = "/type/union/string-and-array",
+            expectedStatusCodes = { 204 })
+        @UnexpectedResponseExceptionDetail
+        Response<Void> send(@HostParam("endpoint") String endpoint, @HeaderParam("Content-Type") String contentType,
+            @BodyParam("application/json") SendRequest7 sendRequest7, RequestContext requestContext);
+
+        static StringAndArraysService getNewInstance(HttpPipeline pipeline) {
+            try {
+                Class<?> clazz = Class.forName("type.union.implementation.StringAndArraysServiceImpl");
+                return (StringAndArraysService) clazz.getMethod("getNewInstance", HttpPipeline.class)
+                    .invoke(null, pipeline);
+            } catch (ClassNotFoundException | NoSuchMethodException | IllegalAccessException
+                | InvocationTargetException e) {
+                throw new RuntimeException(e);
+            }
+        }
     }
 }

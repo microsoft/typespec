@@ -16,14 +16,15 @@ import type.model.inheritance.notdiscriminated.implementation.NotDiscriminatedCl
  */
 @ServiceClient(builder = NotDiscriminatedClientBuilder.class)
 public final class NotDiscriminatedClient {
-    @Metadata(properties = { MetadataProperties.GENERATED })
-    private final NotDiscriminatedClientImpl serviceClient;
 
     private final Instrumentation instrumentation;
 
+    @Metadata(properties = { MetadataProperties.GENERATED })
+    private final NotDiscriminatedClientImpl serviceClient;
+
     /**
      * Initializes an instance of NotDiscriminatedClient class.
-     * 
+     *
      * @param serviceClient the service client implementation.
      * @param instrumentation the instrumentation instance.
      */
@@ -34,8 +35,51 @@ public final class NotDiscriminatedClient {
     }
 
     /**
+     * The getValid operation.
+     *
+     * @throws HttpResponseException thrown if the service returns an error.
+     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
+     * @return the third level model in the normal multiple levels inheritance.
+     */
+    @Metadata(properties = { MetadataProperties.GENERATED })
+    @ServiceMethod(returns = ReturnType.SINGLE)
+    public Siamese getValid() {
+        return getValidWithResponse(RequestContext.none()).getValue();
+    }
+
+    /**
+     * The getValid operation.
+     *
+     * @param requestContext The context to configure the HTTP request before HTTP client sends it.
+     * @throws IllegalArgumentException thrown if parameters fail the validation.
+     * @throws HttpResponseException thrown if the service returns an error.
+     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
+     * @return the third level model in the normal multiple levels inheritance along with {@link Response}.
+     */
+    @Metadata(properties = { MetadataProperties.GENERATED })
+    @ServiceMethod(returns = ReturnType.SINGLE)
+    public Response<Siamese> getValidWithResponse(RequestContext requestContext) {
+        return this.instrumentation.instrumentWithResponse("Type.Model.Inheritance.NotDiscriminated.getValid",
+            requestContext, updatedContext -> this.serviceClient.getValidWithResponse(updatedContext));
+    }
+
+    /**
      * The postValid operation.
-     * 
+     *
+     * @param input The input parameter.
+     * @throws IllegalArgumentException thrown if parameters fail the validation.
+     * @throws HttpResponseException thrown if the service returns an error.
+     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
+     */
+    @Metadata(properties = { MetadataProperties.GENERATED })
+    @ServiceMethod(returns = ReturnType.SINGLE)
+    public void postValid(Siamese input) {
+        postValidWithResponse(input, RequestContext.none());
+    }
+
+    /**
+     * The postValid operation.
+     *
      * @param input The input parameter.
      * @param requestContext The context to configure the HTTP request before HTTP client sends it.
      * @throws IllegalArgumentException thrown if parameters fail the validation.
@@ -51,51 +95,23 @@ public final class NotDiscriminatedClient {
     }
 
     /**
-     * The postValid operation.
-     * 
+     * The putValid operation.
+     *
      * @param input The input parameter.
      * @throws IllegalArgumentException thrown if parameters fail the validation.
-     * @throws HttpResponseException thrown if the service returns an error.
-     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
-     */
-    @Metadata(properties = { MetadataProperties.GENERATED })
-    @ServiceMethod(returns = ReturnType.SINGLE)
-    public void postValid(Siamese input) {
-        postValidWithResponse(input, RequestContext.none());
-    }
-
-    /**
-     * The getValid operation.
-     * 
-     * @param requestContext The context to configure the HTTP request before HTTP client sends it.
-     * @throws IllegalArgumentException thrown if parameters fail the validation.
-     * @throws HttpResponseException thrown if the service returns an error.
-     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
-     * @return the third level model in the normal multiple levels inheritance along with {@link Response}.
-     */
-    @Metadata(properties = { MetadataProperties.GENERATED })
-    @ServiceMethod(returns = ReturnType.SINGLE)
-    public Response<Siamese> getValidWithResponse(RequestContext requestContext) {
-        return this.instrumentation.instrumentWithResponse("Type.Model.Inheritance.NotDiscriminated.getValid",
-            requestContext, updatedContext -> this.serviceClient.getValidWithResponse(updatedContext));
-    }
-
-    /**
-     * The getValid operation.
-     * 
      * @throws HttpResponseException thrown if the service returns an error.
      * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
      * @return the third level model in the normal multiple levels inheritance.
      */
     @Metadata(properties = { MetadataProperties.GENERATED })
     @ServiceMethod(returns = ReturnType.SINGLE)
-    public Siamese getValid() {
-        return getValidWithResponse(RequestContext.none()).getValue();
+    public Siamese putValid(Siamese input) {
+        return putValidWithResponse(input, RequestContext.none()).getValue();
     }
 
     /**
      * The putValid operation.
-     * 
+     *
      * @param input The input parameter.
      * @param requestContext The context to configure the HTTP request before HTTP client sends it.
      * @throws IllegalArgumentException thrown if parameters fail the validation.
@@ -108,20 +124,5 @@ public final class NotDiscriminatedClient {
     public Response<Siamese> putValidWithResponse(Siamese input, RequestContext requestContext) {
         return this.instrumentation.instrumentWithResponse("Type.Model.Inheritance.NotDiscriminated.putValid",
             requestContext, updatedContext -> this.serviceClient.putValidWithResponse(input, updatedContext));
-    }
-
-    /**
-     * The putValid operation.
-     * 
-     * @param input The input parameter.
-     * @throws IllegalArgumentException thrown if parameters fail the validation.
-     * @throws HttpResponseException thrown if the service returns an error.
-     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
-     * @return the third level model in the normal multiple levels inheritance.
-     */
-    @Metadata(properties = { MetadataProperties.GENERATED })
-    @ServiceMethod(returns = ReturnType.SINGLE)
-    public Siamese putValid(Siamese input) {
-        return putValidWithResponse(input, RequestContext.none()).getValue();
     }
 }

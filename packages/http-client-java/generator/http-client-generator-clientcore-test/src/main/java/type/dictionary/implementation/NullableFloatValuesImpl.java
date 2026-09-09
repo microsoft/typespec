@@ -21,10 +21,6 @@ import java.util.Map;
  * An instance of this class provides access to all the operations defined in NullableFloatValues.
  */
 public final class NullableFloatValuesImpl {
-    /**
-     * The proxy service used to perform REST calls.
-     */
-    private final NullableFloatValuesService service;
 
     /**
      * The service client containing this operation class.
@@ -37,8 +33,13 @@ public final class NullableFloatValuesImpl {
     private final Instrumentation instrumentation;
 
     /**
+     * The proxy service used to perform REST calls.
+     */
+    private final NullableFloatValuesService service;
+
+    /**
      * Initializes an instance of NullableFloatValuesImpl.
-     * 
+     *
      * @param client the instance of the service client containing this operation class.
      */
     NullableFloatValuesImpl(DictionaryClientImpl client) {
@@ -48,44 +49,8 @@ public final class NullableFloatValuesImpl {
     }
 
     /**
-     * The interface defining all the services for DictionaryClientNullableFloatValues to be used by the proxy service
-     * to perform REST calls.
-     */
-    @ServiceInterface(name = "DictionaryClientNullableFloatValues", host = "{endpoint}")
-    public interface NullableFloatValuesService {
-        static NullableFloatValuesService getNewInstance(HttpPipeline pipeline) {
-            try {
-                Class<?> clazz = Class.forName("type.dictionary.implementation.NullableFloatValuesServiceImpl");
-                return (NullableFloatValuesService) clazz.getMethod("getNewInstance", HttpPipeline.class)
-                    .invoke(null, pipeline);
-            } catch (ClassNotFoundException | NoSuchMethodException | IllegalAccessException
-                | InvocationTargetException e) {
-                throw new RuntimeException(e);
-            }
-
-        }
-
-        @HttpRequestInformation(
-            method = HttpMethod.GET,
-            path = "/type/dictionary/nullable-float",
-            expectedStatusCodes = { 200 },
-            returnValueWireType = Double.class)
-        @UnexpectedResponseExceptionDetail
-        Response<Map<String, Double>> get(@HostParam("endpoint") String endpoint, @HeaderParam("Accept") String accept,
-            RequestContext requestContext);
-
-        @HttpRequestInformation(
-            method = HttpMethod.PUT,
-            path = "/type/dictionary/nullable-float",
-            expectedStatusCodes = { 204 })
-        @UnexpectedResponseExceptionDetail
-        Response<Void> put(@HostParam("endpoint") String endpoint, @HeaderParam("Content-Type") String contentType,
-            @BodyParam("application/json") Map<String, Double> body, RequestContext requestContext);
-    }
-
-    /**
      * The get operation.
-     * 
+     *
      * @param requestContext The context to configure the HTTP request before HTTP client sends it.
      * @throws IllegalArgumentException thrown if parameters fail the validation.
      * @throws HttpResponseException thrown if the service returns an error.
@@ -103,7 +68,7 @@ public final class NullableFloatValuesImpl {
 
     /**
      * The put operation.
-     * 
+     *
      * @param body The body parameter.
      * @param requestContext The context to configure the HTTP request before HTTP client sends it.
      * @throws IllegalArgumentException thrown if parameters fail the validation.
@@ -118,5 +83,41 @@ public final class NullableFloatValuesImpl {
                 final String contentType = "application/json";
                 return service.put(this.client.getEndpoint(), contentType, body, updatedContext);
             });
+    }
+
+    /**
+     * The interface defining all the services for DictionaryClientNullableFloatValues to be used by the proxy service
+     * to perform REST calls.
+     */
+    @ServiceInterface(name = "DictionaryClientNullableFloatValues", host = "{endpoint}")
+    public interface NullableFloatValuesService {
+
+        @HttpRequestInformation(
+            method = HttpMethod.GET,
+            path = "/type/dictionary/nullable-float",
+            expectedStatusCodes = { 200 },
+            returnValueWireType = Double.class)
+        @UnexpectedResponseExceptionDetail
+        Response<Map<String, Double>> get(@HostParam("endpoint") String endpoint, @HeaderParam("Accept") String accept,
+            RequestContext requestContext);
+
+        @HttpRequestInformation(
+            method = HttpMethod.PUT,
+            path = "/type/dictionary/nullable-float",
+            expectedStatusCodes = { 204 })
+        @UnexpectedResponseExceptionDetail
+        Response<Void> put(@HostParam("endpoint") String endpoint, @HeaderParam("Content-Type") String contentType,
+            @BodyParam("application/json") Map<String, Double> body, RequestContext requestContext);
+
+        static NullableFloatValuesService getNewInstance(HttpPipeline pipeline) {
+            try {
+                Class<?> clazz = Class.forName("type.dictionary.implementation.NullableFloatValuesServiceImpl");
+                return (NullableFloatValuesService) clazz.getMethod("getNewInstance", HttpPipeline.class)
+                    .invoke(null, pipeline);
+            } catch (ClassNotFoundException | NoSuchMethodException | IllegalAccessException
+                | InvocationTargetException e) {
+                throw new RuntimeException(e);
+            }
+        }
     }
 }

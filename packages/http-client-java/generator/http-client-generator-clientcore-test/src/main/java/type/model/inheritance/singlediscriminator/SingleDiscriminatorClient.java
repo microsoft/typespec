@@ -16,14 +16,15 @@ import type.model.inheritance.singlediscriminator.implementation.SingleDiscrimin
  */
 @ServiceClient(builder = SingleDiscriminatorClientBuilder.class)
 public final class SingleDiscriminatorClient {
-    @Metadata(properties = { MetadataProperties.GENERATED })
-    private final SingleDiscriminatorClientImpl serviceClient;
 
     private final Instrumentation instrumentation;
 
+    @Metadata(properties = { MetadataProperties.GENERATED })
+    private final SingleDiscriminatorClientImpl serviceClient;
+
     /**
      * Initializes an instance of SingleDiscriminatorClient class.
-     * 
+     *
      * @param serviceClient the service client implementation.
      * @param instrumentation the instrumentation instance.
      */
@@ -34,132 +35,50 @@ public final class SingleDiscriminatorClient {
     }
 
     /**
-     * The getModel operation.
-     * 
+     * The getLegacyModel operation.
+     *
+     * @throws HttpResponseException thrown if the service returns an error.
+     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
+     * @return define a base class in the legacy way.
+     */
+    @Metadata(properties = { MetadataProperties.GENERATED })
+    @ServiceMethod(returns = ReturnType.SINGLE)
+    public Dinosaur getLegacyModel() {
+        return getLegacyModelWithResponse(RequestContext.none()).getValue();
+    }
+
+    /**
+     * The getLegacyModel operation.
+     *
      * @param requestContext The context to configure the HTTP request before HTTP client sends it.
      * @throws IllegalArgumentException thrown if parameters fail the validation.
      * @throws HttpResponseException thrown if the service returns an error.
      * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
-     * @return this is base model for polymorphic single level inheritance with a discriminator along with
-     * {@link Response}.
+     * @return define a base class in the legacy way along with {@link Response}.
      */
     @Metadata(properties = { MetadataProperties.GENERATED })
     @ServiceMethod(returns = ReturnType.SINGLE)
-    public Response<Bird> getModelWithResponse(RequestContext requestContext) {
-        return this.instrumentation.instrumentWithResponse("Type.Model.Inheritance.SingleDiscriminator.getModel",
-            requestContext, updatedContext -> this.serviceClient.getModelWithResponse(updatedContext));
-    }
-
-    /**
-     * The getModel operation.
-     * 
-     * @throws HttpResponseException thrown if the service returns an error.
-     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
-     * @return this is base model for polymorphic single level inheritance with a discriminator.
-     */
-    @Metadata(properties = { MetadataProperties.GENERATED })
-    @ServiceMethod(returns = ReturnType.SINGLE)
-    public Bird getModel() {
-        return getModelWithResponse(RequestContext.none()).getValue();
-    }
-
-    /**
-     * The putModel operation.
-     * 
-     * @param input The input parameter.
-     * @param requestContext The context to configure the HTTP request before HTTP client sends it.
-     * @throws IllegalArgumentException thrown if parameters fail the validation.
-     * @throws HttpResponseException thrown if the service returns an error.
-     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
-     * @return the {@link Response}.
-     */
-    @Metadata(properties = { MetadataProperties.GENERATED })
-    @ServiceMethod(returns = ReturnType.SINGLE)
-    public Response<Void> putModelWithResponse(Bird input, RequestContext requestContext) {
-        return this.instrumentation.instrumentWithResponse("Type.Model.Inheritance.SingleDiscriminator.putModel",
-            requestContext, updatedContext -> this.serviceClient.putModelWithResponse(input, updatedContext));
-    }
-
-    /**
-     * The putModel operation.
-     * 
-     * @param input The input parameter.
-     * @throws IllegalArgumentException thrown if parameters fail the validation.
-     * @throws HttpResponseException thrown if the service returns an error.
-     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
-     */
-    @Metadata(properties = { MetadataProperties.GENERATED })
-    @ServiceMethod(returns = ReturnType.SINGLE)
-    public void putModel(Bird input) {
-        putModelWithResponse(input, RequestContext.none());
-    }
-
-    /**
-     * The getRecursiveModel operation.
-     * 
-     * @param requestContext The context to configure the HTTP request before HTTP client sends it.
-     * @throws IllegalArgumentException thrown if parameters fail the validation.
-     * @throws HttpResponseException thrown if the service returns an error.
-     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
-     * @return this is base model for polymorphic single level inheritance with a discriminator along with
-     * {@link Response}.
-     */
-    @Metadata(properties = { MetadataProperties.GENERATED })
-    @ServiceMethod(returns = ReturnType.SINGLE)
-    public Response<Bird> getRecursiveModelWithResponse(RequestContext requestContext) {
-        return this.instrumentation.instrumentWithResponse(
-            "Type.Model.Inheritance.SingleDiscriminator.getRecursiveModel", requestContext,
-            updatedContext -> this.serviceClient.getRecursiveModelWithResponse(updatedContext));
-    }
-
-    /**
-     * The getRecursiveModel operation.
-     * 
-     * @throws HttpResponseException thrown if the service returns an error.
-     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
-     * @return this is base model for polymorphic single level inheritance with a discriminator.
-     */
-    @Metadata(properties = { MetadataProperties.GENERATED })
-    @ServiceMethod(returns = ReturnType.SINGLE)
-    public Bird getRecursiveModel() {
-        return getRecursiveModelWithResponse(RequestContext.none()).getValue();
-    }
-
-    /**
-     * The putRecursiveModel operation.
-     * 
-     * @param input The input parameter.
-     * @param requestContext The context to configure the HTTP request before HTTP client sends it.
-     * @throws IllegalArgumentException thrown if parameters fail the validation.
-     * @throws HttpResponseException thrown if the service returns an error.
-     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
-     * @return the {@link Response}.
-     */
-    @Metadata(properties = { MetadataProperties.GENERATED })
-    @ServiceMethod(returns = ReturnType.SINGLE)
-    public Response<Void> putRecursiveModelWithResponse(Bird input, RequestContext requestContext) {
-        return this.instrumentation.instrumentWithResponse(
-            "Type.Model.Inheritance.SingleDiscriminator.putRecursiveModel", requestContext,
-            updatedContext -> this.serviceClient.putRecursiveModelWithResponse(input, updatedContext));
-    }
-
-    /**
-     * The putRecursiveModel operation.
-     * 
-     * @param input The input parameter.
-     * @throws IllegalArgumentException thrown if parameters fail the validation.
-     * @throws HttpResponseException thrown if the service returns an error.
-     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
-     */
-    @Metadata(properties = { MetadataProperties.GENERATED })
-    @ServiceMethod(returns = ReturnType.SINGLE)
-    public void putRecursiveModel(Bird input) {
-        putRecursiveModelWithResponse(input, RequestContext.none());
+    public Response<Dinosaur> getLegacyModelWithResponse(RequestContext requestContext) {
+        return this.instrumentation.instrumentWithResponse("Type.Model.Inheritance.SingleDiscriminator.getLegacyModel",
+            requestContext, updatedContext -> this.serviceClient.getLegacyModelWithResponse(updatedContext));
     }
 
     /**
      * The getMissingDiscriminator operation.
-     * 
+     *
+     * @throws HttpResponseException thrown if the service returns an error.
+     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
+     * @return this is base model for polymorphic single level inheritance with a discriminator.
+     */
+    @Metadata(properties = { MetadataProperties.GENERATED })
+    @ServiceMethod(returns = ReturnType.SINGLE)
+    public Bird getMissingDiscriminator() {
+        return getMissingDiscriminatorWithResponse(RequestContext.none()).getValue();
+    }
+
+    /**
+     * The getMissingDiscriminator operation.
+     *
      * @param requestContext The context to configure the HTTP request before HTTP client sends it.
      * @throws IllegalArgumentException thrown if parameters fail the validation.
      * @throws HttpResponseException thrown if the service returns an error.
@@ -176,21 +95,112 @@ public final class SingleDiscriminatorClient {
     }
 
     /**
-     * The getMissingDiscriminator operation.
-     * 
+     * The getModel operation.
+     *
      * @throws HttpResponseException thrown if the service returns an error.
      * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
      * @return this is base model for polymorphic single level inheritance with a discriminator.
      */
     @Metadata(properties = { MetadataProperties.GENERATED })
     @ServiceMethod(returns = ReturnType.SINGLE)
-    public Bird getMissingDiscriminator() {
-        return getMissingDiscriminatorWithResponse(RequestContext.none()).getValue();
+    public Bird getModel() {
+        return getModelWithResponse(RequestContext.none()).getValue();
+    }
+
+    /**
+     * The getModel operation.
+     *
+     * @param requestContext The context to configure the HTTP request before HTTP client sends it.
+     * @throws IllegalArgumentException thrown if parameters fail the validation.
+     * @throws HttpResponseException thrown if the service returns an error.
+     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
+     * @return this is base model for polymorphic single level inheritance with a discriminator along with
+     * {@link Response}.
+     */
+    @Metadata(properties = { MetadataProperties.GENERATED })
+    @ServiceMethod(returns = ReturnType.SINGLE)
+    public Response<Bird> getModelWithResponse(RequestContext requestContext) {
+        return this.instrumentation.instrumentWithResponse("Type.Model.Inheritance.SingleDiscriminator.getModel",
+            requestContext, updatedContext -> this.serviceClient.getModelWithResponse(updatedContext));
+    }
+
+    /**
+     * The getNoSubtypesModel operation.
+     *
+     * @throws HttpResponseException thrown if the service returns an error.
+     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
+     * @return a discriminated model with no defined subtypes.
+     */
+    @Metadata(properties = { MetadataProperties.GENERATED })
+    @ServiceMethod(returns = ReturnType.SINGLE)
+    public Fish getNoSubtypesModel() {
+        return getNoSubtypesModelWithResponse(RequestContext.none()).getValue();
+    }
+
+    /**
+     * The getNoSubtypesModel operation.
+     *
+     * @param requestContext The context to configure the HTTP request before HTTP client sends it.
+     * @throws IllegalArgumentException thrown if parameters fail the validation.
+     * @throws HttpResponseException thrown if the service returns an error.
+     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
+     * @return a discriminated model with no defined subtypes along with {@link Response}.
+     */
+    @Metadata(properties = { MetadataProperties.GENERATED })
+    @ServiceMethod(returns = ReturnType.SINGLE)
+    public Response<Fish> getNoSubtypesModelWithResponse(RequestContext requestContext) {
+        return this.instrumentation.instrumentWithResponse(
+            "Type.Model.Inheritance.SingleDiscriminator.getNoSubtypesModel", requestContext,
+            updatedContext -> this.serviceClient.getNoSubtypesModelWithResponse(updatedContext));
+    }
+
+    /**
+     * The getRecursiveModel operation.
+     *
+     * @throws HttpResponseException thrown if the service returns an error.
+     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
+     * @return this is base model for polymorphic single level inheritance with a discriminator.
+     */
+    @Metadata(properties = { MetadataProperties.GENERATED })
+    @ServiceMethod(returns = ReturnType.SINGLE)
+    public Bird getRecursiveModel() {
+        return getRecursiveModelWithResponse(RequestContext.none()).getValue();
+    }
+
+    /**
+     * The getRecursiveModel operation.
+     *
+     * @param requestContext The context to configure the HTTP request before HTTP client sends it.
+     * @throws IllegalArgumentException thrown if parameters fail the validation.
+     * @throws HttpResponseException thrown if the service returns an error.
+     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
+     * @return this is base model for polymorphic single level inheritance with a discriminator along with
+     * {@link Response}.
+     */
+    @Metadata(properties = { MetadataProperties.GENERATED })
+    @ServiceMethod(returns = ReturnType.SINGLE)
+    public Response<Bird> getRecursiveModelWithResponse(RequestContext requestContext) {
+        return this.instrumentation.instrumentWithResponse(
+            "Type.Model.Inheritance.SingleDiscriminator.getRecursiveModel", requestContext,
+            updatedContext -> this.serviceClient.getRecursiveModelWithResponse(updatedContext));
     }
 
     /**
      * The getWrongDiscriminator operation.
-     * 
+     *
+     * @throws HttpResponseException thrown if the service returns an error.
+     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
+     * @return this is base model for polymorphic single level inheritance with a discriminator.
+     */
+    @Metadata(properties = { MetadataProperties.GENERATED })
+    @ServiceMethod(returns = ReturnType.SINGLE)
+    public Bird getWrongDiscriminator() {
+        return getWrongDiscriminatorWithResponse(RequestContext.none()).getValue();
+    }
+
+    /**
+     * The getWrongDiscriminator operation.
+     *
      * @param requestContext The context to configure the HTTP request before HTTP client sends it.
      * @throws IllegalArgumentException thrown if parameters fail the validation.
      * @throws HttpResponseException thrown if the service returns an error.
@@ -207,80 +217,53 @@ public final class SingleDiscriminatorClient {
     }
 
     /**
-     * The getWrongDiscriminator operation.
-     * 
+     * The putModel operation.
+     *
+     * @param input The input parameter.
+     * @throws IllegalArgumentException thrown if parameters fail the validation.
      * @throws HttpResponseException thrown if the service returns an error.
      * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
-     * @return this is base model for polymorphic single level inheritance with a discriminator.
      */
     @Metadata(properties = { MetadataProperties.GENERATED })
     @ServiceMethod(returns = ReturnType.SINGLE)
-    public Bird getWrongDiscriminator() {
-        return getWrongDiscriminatorWithResponse(RequestContext.none()).getValue();
+    public void putModel(Bird input) {
+        putModelWithResponse(input, RequestContext.none());
     }
 
     /**
-     * The getLegacyModel operation.
-     * 
+     * The putModel operation.
+     *
+     * @param input The input parameter.
      * @param requestContext The context to configure the HTTP request before HTTP client sends it.
      * @throws IllegalArgumentException thrown if parameters fail the validation.
      * @throws HttpResponseException thrown if the service returns an error.
      * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
-     * @return define a base class in the legacy way along with {@link Response}.
+     * @return the {@link Response}.
      */
     @Metadata(properties = { MetadataProperties.GENERATED })
     @ServiceMethod(returns = ReturnType.SINGLE)
-    public Response<Dinosaur> getLegacyModelWithResponse(RequestContext requestContext) {
-        return this.instrumentation.instrumentWithResponse("Type.Model.Inheritance.SingleDiscriminator.getLegacyModel",
-            requestContext, updatedContext -> this.serviceClient.getLegacyModelWithResponse(updatedContext));
-    }
-
-    /**
-     * The getLegacyModel operation.
-     * 
-     * @throws HttpResponseException thrown if the service returns an error.
-     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
-     * @return define a base class in the legacy way.
-     */
-    @Metadata(properties = { MetadataProperties.GENERATED })
-    @ServiceMethod(returns = ReturnType.SINGLE)
-    public Dinosaur getLegacyModel() {
-        return getLegacyModelWithResponse(RequestContext.none()).getValue();
-    }
-
-    /**
-     * The getNoSubtypesModel operation.
-     * 
-     * @param requestContext The context to configure the HTTP request before HTTP client sends it.
-     * @throws IllegalArgumentException thrown if parameters fail the validation.
-     * @throws HttpResponseException thrown if the service returns an error.
-     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
-     * @return a discriminated model with no defined subtypes along with {@link Response}.
-     */
-    @Metadata(properties = { MetadataProperties.GENERATED })
-    @ServiceMethod(returns = ReturnType.SINGLE)
-    public Response<Fish> getNoSubtypesModelWithResponse(RequestContext requestContext) {
-        return this.instrumentation.instrumentWithResponse(
-            "Type.Model.Inheritance.SingleDiscriminator.getNoSubtypesModel", requestContext,
-            updatedContext -> this.serviceClient.getNoSubtypesModelWithResponse(updatedContext));
-    }
-
-    /**
-     * The getNoSubtypesModel operation.
-     * 
-     * @throws HttpResponseException thrown if the service returns an error.
-     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
-     * @return a discriminated model with no defined subtypes.
-     */
-    @Metadata(properties = { MetadataProperties.GENERATED })
-    @ServiceMethod(returns = ReturnType.SINGLE)
-    public Fish getNoSubtypesModel() {
-        return getNoSubtypesModelWithResponse(RequestContext.none()).getValue();
+    public Response<Void> putModelWithResponse(Bird input, RequestContext requestContext) {
+        return this.instrumentation.instrumentWithResponse("Type.Model.Inheritance.SingleDiscriminator.putModel",
+            requestContext, updatedContext -> this.serviceClient.putModelWithResponse(input, updatedContext));
     }
 
     /**
      * The putNoSubtypesModel operation.
-     * 
+     *
+     * @param input The input parameter.
+     * @throws IllegalArgumentException thrown if parameters fail the validation.
+     * @throws HttpResponseException thrown if the service returns an error.
+     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
+     */
+    @Metadata(properties = { MetadataProperties.GENERATED })
+    @ServiceMethod(returns = ReturnType.SINGLE)
+    public void putNoSubtypesModel(Fish input) {
+        putNoSubtypesModelWithResponse(input, RequestContext.none());
+    }
+
+    /**
+     * The putNoSubtypesModel operation.
+     *
      * @param input The input parameter.
      * @param requestContext The context to configure the HTTP request before HTTP client sends it.
      * @throws IllegalArgumentException thrown if parameters fail the validation.
@@ -297,8 +280,8 @@ public final class SingleDiscriminatorClient {
     }
 
     /**
-     * The putNoSubtypesModel operation.
-     * 
+     * The putRecursiveModel operation.
+     *
      * @param input The input parameter.
      * @throws IllegalArgumentException thrown if parameters fail the validation.
      * @throws HttpResponseException thrown if the service returns an error.
@@ -306,7 +289,25 @@ public final class SingleDiscriminatorClient {
      */
     @Metadata(properties = { MetadataProperties.GENERATED })
     @ServiceMethod(returns = ReturnType.SINGLE)
-    public void putNoSubtypesModel(Fish input) {
-        putNoSubtypesModelWithResponse(input, RequestContext.none());
+    public void putRecursiveModel(Bird input) {
+        putRecursiveModelWithResponse(input, RequestContext.none());
+    }
+
+    /**
+     * The putRecursiveModel operation.
+     *
+     * @param input The input parameter.
+     * @param requestContext The context to configure the HTTP request before HTTP client sends it.
+     * @throws IllegalArgumentException thrown if parameters fail the validation.
+     * @throws HttpResponseException thrown if the service returns an error.
+     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
+     * @return the {@link Response}.
+     */
+    @Metadata(properties = { MetadataProperties.GENERATED })
+    @ServiceMethod(returns = ReturnType.SINGLE)
+    public Response<Void> putRecursiveModelWithResponse(Bird input, RequestContext requestContext) {
+        return this.instrumentation.instrumentWithResponse(
+            "Type.Model.Inheritance.SingleDiscriminator.putRecursiveModel", requestContext,
+            updatedContext -> this.serviceClient.putRecursiveModelWithResponse(input, updatedContext));
     }
 }

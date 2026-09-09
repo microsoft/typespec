@@ -18,10 +18,6 @@ import java.lang.reflect.InvocationTargetException;
  * Initializes a new instance of the UnionClient type.
  */
 public final class UnionClientImpl {
-    /**
-     * The proxy service used to perform REST calls.
-     */
-    private final UnionClientService service;
 
     /**
      * Service host.
@@ -29,27 +25,9 @@ public final class UnionClientImpl {
     private final String endpoint;
 
     /**
-     * Gets Service host.
-     * 
-     * @return the endpoint value.
-     */
-    public String getEndpoint() {
-        return this.endpoint;
-    }
-
-    /**
      * The HTTP pipeline to send requests through.
      */
     private final HttpPipeline httpPipeline;
-
-    /**
-     * Gets The HTTP pipeline to send requests through.
-     * 
-     * @return the httpPipeline value.
-     */
-    public HttpPipeline getHttpPipeline() {
-        return this.httpPipeline;
-    }
 
     /**
      * The instance of instrumentation to report telemetry.
@@ -57,17 +35,13 @@ public final class UnionClientImpl {
     private final Instrumentation instrumentation;
 
     /**
-     * Gets The instance of instrumentation to report telemetry.
-     * 
-     * @return the instrumentation value.
+     * The proxy service used to perform REST calls.
      */
-    public Instrumentation getInstrumentation() {
-        return this.instrumentation;
-    }
+    private final UnionClientService service;
 
     /**
      * Initializes an instance of UnionClient client.
-     * 
+     *
      * @param httpPipeline The HTTP pipeline to send requests through.
      * @param instrumentation The instance of instrumentation to report telemetry.
      * @param endpoint Service host.
@@ -80,40 +54,35 @@ public final class UnionClientImpl {
     }
 
     /**
-     * The interface defining all the services for UnionClient to be used by the proxy service to perform REST calls.
+     * Gets Service host.
+     *
+     * @return the endpoint value.
      */
-    @ServiceInterface(name = "UnionClient", host = "{endpoint}")
-    public interface UnionClientService {
-        static UnionClientService getNewInstance(HttpPipeline pipeline) {
-            try {
-                Class<?> clazz = Class.forName("authentication.noauth.union.implementation.UnionClientServiceImpl");
-                return (UnionClientService) clazz.getMethod("getNewInstance", HttpPipeline.class)
-                    .invoke(null, pipeline);
-            } catch (ClassNotFoundException | NoSuchMethodException | IllegalAccessException
-                | InvocationTargetException e) {
-                throw new RuntimeException(e);
-            }
+    public String getEndpoint() {
+        return this.endpoint;
+    }
 
-        }
+    /**
+     * Gets The HTTP pipeline to send requests through.
+     *
+     * @return the httpPipeline value.
+     */
+    public HttpPipeline getHttpPipeline() {
+        return this.httpPipeline;
+    }
 
-        @HttpRequestInformation(
-            method = HttpMethod.GET,
-            path = "/authentication/noauth/union/valid",
-            expectedStatusCodes = { 204 })
-        @UnexpectedResponseExceptionDetail
-        Response<Void> validNoAuth(@HostParam("endpoint") String endpoint, RequestContext requestContext);
-
-        @HttpRequestInformation(
-            method = HttpMethod.GET,
-            path = "/authentication/noauth/union/validtoken",
-            expectedStatusCodes = { 204 })
-        @UnexpectedResponseExceptionDetail
-        Response<Void> validToken(@HostParam("endpoint") String endpoint, RequestContext requestContext);
+    /**
+     * Gets The instance of instrumentation to report telemetry.
+     *
+     * @return the instrumentation value.
+     */
+    public Instrumentation getInstrumentation() {
+        return this.instrumentation;
     }
 
     /**
      * Check whether client can make a request without authentication.
-     * 
+     *
      * @param requestContext The context to configure the HTTP request before HTTP client sends it.
      * @throws IllegalArgumentException thrown if parameters fail the validation.
      * @throws HttpResponseException thrown if the service returns an error.
@@ -130,7 +99,7 @@ public final class UnionClientImpl {
 
     /**
      * Check whether client is authenticated with OAuth2 token.
-     * 
+     *
      * @param requestContext The context to configure the HTTP request before HTTP client sends it.
      * @throws IllegalArgumentException thrown if parameters fail the validation.
      * @throws HttpResponseException thrown if the service returns an error.
@@ -143,5 +112,37 @@ public final class UnionClientImpl {
             updatedContext -> {
                 return service.validToken(this.getEndpoint(), updatedContext);
             });
+    }
+
+    /**
+     * The interface defining all the services for UnionClient to be used by the proxy service to perform REST calls.
+     */
+    @ServiceInterface(name = "UnionClient", host = "{endpoint}")
+    public interface UnionClientService {
+
+        @HttpRequestInformation(
+            method = HttpMethod.GET,
+            path = "/authentication/noauth/union/valid",
+            expectedStatusCodes = { 204 })
+        @UnexpectedResponseExceptionDetail
+        Response<Void> validNoAuth(@HostParam("endpoint") String endpoint, RequestContext requestContext);
+
+        @HttpRequestInformation(
+            method = HttpMethod.GET,
+            path = "/authentication/noauth/union/validtoken",
+            expectedStatusCodes = { 204 })
+        @UnexpectedResponseExceptionDetail
+        Response<Void> validToken(@HostParam("endpoint") String endpoint, RequestContext requestContext);
+
+        static UnionClientService getNewInstance(HttpPipeline pipeline) {
+            try {
+                Class<?> clazz = Class.forName("authentication.noauth.union.implementation.UnionClientServiceImpl");
+                return (UnionClientService) clazz.getMethod("getNewInstance", HttpPipeline.class)
+                    .invoke(null, pipeline);
+            } catch (ClassNotFoundException | NoSuchMethodException | IllegalAccessException
+                | InvocationTargetException e) {
+                throw new RuntimeException(e);
+            }
+        }
     }
 }

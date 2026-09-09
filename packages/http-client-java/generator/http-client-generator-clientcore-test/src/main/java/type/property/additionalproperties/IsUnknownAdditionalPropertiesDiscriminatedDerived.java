@@ -16,11 +16,12 @@ import java.util.Map;
 @Metadata(properties = { MetadataProperties.FLUENT })
 public final class IsUnknownAdditionalPropertiesDiscriminatedDerived
     extends IsUnknownAdditionalPropertiesDiscriminated {
+
     /*
-     * The discriminator
+     * The age property
      */
     @Metadata(properties = { MetadataProperties.GENERATED })
-    private String kind = "derived";
+    private Double age;
 
     /*
      * The index property
@@ -29,14 +30,14 @@ public final class IsUnknownAdditionalPropertiesDiscriminatedDerived
     private final int index;
 
     /*
-     * The age property
+     * The discriminator
      */
     @Metadata(properties = { MetadataProperties.GENERATED })
-    private Double age;
+    private String kind = "derived";
 
     /**
      * Creates an instance of IsUnknownAdditionalPropertiesDiscriminatedDerived class.
-     * 
+     *
      * @param name the name value to set.
      * @param index the index value to set.
      */
@@ -48,7 +49,7 @@ public final class IsUnknownAdditionalPropertiesDiscriminatedDerived
 
     /**
      * Get the kind property: The discriminator.
-     * 
+     *
      * @return the kind value.
      */
     @Metadata(properties = { MetadataProperties.GENERATED })
@@ -58,18 +59,8 @@ public final class IsUnknownAdditionalPropertiesDiscriminatedDerived
     }
 
     /**
-     * Get the index property: The index property.
-     * 
-     * @return the index value.
-     */
-    @Metadata(properties = { MetadataProperties.GENERATED })
-    public int getIndex() {
-        return this.index;
-    }
-
-    /**
      * Get the age property: The age property.
-     * 
+     *
      * @return the age value.
      */
     @Metadata(properties = { MetadataProperties.GENERATED })
@@ -79,7 +70,7 @@ public final class IsUnknownAdditionalPropertiesDiscriminatedDerived
 
     /**
      * Set the age property: The age property.
-     * 
+     *
      * @param age the age value to set.
      * @return the IsUnknownAdditionalPropertiesDiscriminatedDerived object itself.
      */
@@ -87,6 +78,16 @@ public final class IsUnknownAdditionalPropertiesDiscriminatedDerived
     public IsUnknownAdditionalPropertiesDiscriminatedDerived setAge(Double age) {
         this.age = age;
         return this;
+    }
+
+    /**
+     * Get the index property: The index property.
+     *
+     * @return the index value.
+     */
+    @Metadata(properties = { MetadataProperties.GENERATED })
+    public int getIndex() {
+        return this.index;
     }
 
     /**
@@ -115,7 +116,7 @@ public final class IsUnknownAdditionalPropertiesDiscriminatedDerived
 
     /**
      * Reads an instance of IsUnknownAdditionalPropertiesDiscriminatedDerived from the JsonReader.
-     * 
+     *
      * @param jsonReader The JsonReader being read.
      * @return An instance of IsUnknownAdditionalPropertiesDiscriminatedDerived if the JsonReader was pointing to an
      * instance of it, or null if it was pointing to JSON null.
@@ -133,7 +134,6 @@ public final class IsUnknownAdditionalPropertiesDiscriminatedDerived
             while (reader.nextToken() != JsonToken.END_OBJECT) {
                 String fieldName = reader.getFieldName();
                 reader.nextToken();
-
                 if ("name".equals(fieldName)) {
                     name = reader.getString();
                 } else if ("index".equals(fieldName)) {
@@ -146,7 +146,6 @@ public final class IsUnknownAdditionalPropertiesDiscriminatedDerived
                     if (additionalProperties == null) {
                         additionalProperties = new LinkedHashMap<>();
                     }
-
                     additionalProperties.put(fieldName,
                         reader.getNullable(nonNullReader -> BinaryData.fromObject(nonNullReader.readUntyped())));
                 }
@@ -156,7 +155,6 @@ public final class IsUnknownAdditionalPropertiesDiscriminatedDerived
             deserializedIsUnknownAdditionalPropertiesDiscriminatedDerived.kind = kind;
             deserializedIsUnknownAdditionalPropertiesDiscriminatedDerived.age = age;
             deserializedIsUnknownAdditionalPropertiesDiscriminatedDerived.setAdditionalProperties(additionalProperties);
-
             return deserializedIsUnknownAdditionalPropertiesDiscriminatedDerived;
         });
     }

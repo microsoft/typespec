@@ -43,17 +43,67 @@ import tsptest.partialupdate.implementation.PartialUpdateClientImpl;
 public final class PartialUpdateClientBuilder implements HttpTrait<PartialUpdateClientBuilder>,
     ConfigurationTrait<PartialUpdateClientBuilder>, EndpointTrait<PartialUpdateClientBuilder> {
 
+    private static final ClientLogger LOGGER = new ClientLogger(PartialUpdateClientBuilder.class);
+
+    @Generated
+    private static final Map<String, String> PROPERTIES = CoreUtils.getProperties("tsptest-partialupdate.properties");
+
     @Generated
     private static final String SDK_NAME = "name";
 
     @Generated
     private static final String SDK_VERSION = "version";
 
+    /*
+     * The client options such as application ID and custom headers to set on a request.
+     */
     @Generated
-    private static final Map<String, String> PROPERTIES = CoreUtils.getProperties("tsptest-partialupdate.properties");
+    private ClientOptions clientOptions;
+
+    /*
+     * The configuration store that is used during construction of the service client.
+     */
+    @Generated
+    private Configuration configuration;
+
+    /*
+     * The service endpoint
+     */
+    @Generated
+    private String endpoint;
+
+    /*
+     * The HTTP client used to send the request.
+     */
+    @Generated
+    private HttpClient httpClient;
+
+    /*
+     * The logging configuration for HTTP requests and responses.
+     */
+    @Generated
+    private HttpLogOptions httpLogOptions;
+
+    /*
+     * The HTTP pipeline to send requests through.
+     */
+    @Generated
+    private HttpPipeline pipeline;
 
     @Generated
     private final List<HttpPipelinePolicy> pipelinePolicies;
+
+    /*
+     * The retry options to configure retry policy for failed requests.
+     */
+    @Generated
+    private RetryOptions retryOptions;
+
+    /*
+     * The retry policy that will attempt to retry failed requests, if applicable.
+     */
+    @Generated
+    private RetryPolicy retryPolicy;
 
     /**
      * Create an instance of the PartialUpdateClientBuilder.
@@ -63,11 +113,66 @@ public final class PartialUpdateClientBuilder implements HttpTrait<PartialUpdate
         this.pipelinePolicies = new ArrayList<>();
     }
 
-    /*
-     * The HTTP pipeline to send requests through.
+    /**
+     * {@inheritDoc}.
      */
     @Generated
-    private HttpPipeline pipeline;
+    @Override
+    public PartialUpdateClientBuilder addPolicy(HttpPipelinePolicy customPolicy) {
+        Objects.requireNonNull(customPolicy, "'customPolicy' cannot be null.");
+        pipelinePolicies.add(customPolicy);
+        return this;
+    }
+
+    /**
+     * {@inheritDoc}.
+     */
+    @Generated
+    @Override
+    public PartialUpdateClientBuilder clientOptions(ClientOptions clientOptions) {
+        this.clientOptions = clientOptions;
+        return this;
+    }
+
+    /**
+     * {@inheritDoc}.
+     */
+    @Generated
+    @Override
+    public PartialUpdateClientBuilder configuration(Configuration configuration) {
+        this.configuration = configuration;
+        return this;
+    }
+
+    /**
+     * {@inheritDoc}.
+     */
+    @Generated
+    @Override
+    public PartialUpdateClientBuilder endpoint(String endpoint) {
+        this.endpoint = endpoint;
+        return this;
+    }
+
+    /**
+     * {@inheritDoc}.
+     */
+    @Generated
+    @Override
+    public PartialUpdateClientBuilder httpClient(HttpClient httpClient) {
+        this.httpClient = httpClient;
+        return this;
+    }
+
+    /**
+     * {@inheritDoc}.
+     */
+    @Generated
+    @Override
+    public PartialUpdateClientBuilder httpLogOptions(HttpLogOptions httpLogOptions) {
+        this.httpLogOptions = httpLogOptions;
+        return this;
+    }
 
     /**
      * {@inheritDoc}.
@@ -82,60 +187,6 @@ public final class PartialUpdateClientBuilder implements HttpTrait<PartialUpdate
         return this;
     }
 
-    /*
-     * The HTTP client used to send the request.
-     */
-    @Generated
-    private HttpClient httpClient;
-
-    /**
-     * {@inheritDoc}.
-     */
-    @Generated
-    @Override
-    public PartialUpdateClientBuilder httpClient(HttpClient httpClient) {
-        this.httpClient = httpClient;
-        return this;
-    }
-
-    /*
-     * The logging configuration for HTTP requests and responses.
-     */
-    @Generated
-    private HttpLogOptions httpLogOptions;
-
-    /**
-     * {@inheritDoc}.
-     */
-    @Generated
-    @Override
-    public PartialUpdateClientBuilder httpLogOptions(HttpLogOptions httpLogOptions) {
-        this.httpLogOptions = httpLogOptions;
-        return this;
-    }
-
-    /*
-     * The client options such as application ID and custom headers to set on a request.
-     */
-    @Generated
-    private ClientOptions clientOptions;
-
-    /**
-     * {@inheritDoc}.
-     */
-    @Generated
-    @Override
-    public PartialUpdateClientBuilder clientOptions(ClientOptions clientOptions) {
-        this.clientOptions = clientOptions;
-        return this;
-    }
-
-    /*
-     * The retry options to configure retry policy for failed requests.
-     */
-    @Generated
-    private RetryOptions retryOptions;
-
     /**
      * {@inheritDoc}.
      */
@@ -147,53 +198,24 @@ public final class PartialUpdateClientBuilder implements HttpTrait<PartialUpdate
     }
 
     /**
-     * {@inheritDoc}.
+     * Builds an instance of PartialUpdateAsyncClient class.
+     *
+     * @return an instance of PartialUpdateAsyncClient.
      */
     @Generated
-    @Override
-    public PartialUpdateClientBuilder addPolicy(HttpPipelinePolicy customPolicy) {
-        Objects.requireNonNull(customPolicy, "'customPolicy' cannot be null.");
-        pipelinePolicies.add(customPolicy);
-        return this;
+    public PartialUpdateAsyncClient buildAsyncClient() {
+        return new PartialUpdateAsyncClient(buildInnerClient());
     }
-
-    /*
-     * The configuration store that is used during construction of the service client.
-     */
-    @Generated
-    private Configuration configuration;
 
     /**
-     * {@inheritDoc}.
+     * Builds an instance of PartialUpdateClient class.
+     *
+     * @return an instance of PartialUpdateClient.
      */
     @Generated
-    @Override
-    public PartialUpdateClientBuilder configuration(Configuration configuration) {
-        this.configuration = configuration;
-        return this;
+    public PartialUpdateClient buildClient() {
+        return new PartialUpdateClient(buildInnerClient());
     }
-
-    /*
-     * The service endpoint
-     */
-    @Generated
-    private String endpoint;
-
-    /**
-     * {@inheritDoc}.
-     */
-    @Generated
-    @Override
-    public PartialUpdateClientBuilder endpoint(String endpoint) {
-        this.endpoint = endpoint;
-        return this;
-    }
-
-    /*
-     * The retry policy that will attempt to retry failed requests, if applicable.
-     */
-    @Generated
-    private RetryPolicy retryPolicy;
 
     /**
      * Sets The retry policy that will attempt to retry failed requests, if applicable.
@@ -255,28 +277,6 @@ public final class PartialUpdateClientBuilder implements HttpTrait<PartialUpdate
             .build();
         return httpPipeline;
     }
-
-    /**
-     * Builds an instance of PartialUpdateAsyncClient class.
-     *
-     * @return an instance of PartialUpdateAsyncClient.
-     */
-    @Generated
-    public PartialUpdateAsyncClient buildAsyncClient() {
-        return new PartialUpdateAsyncClient(buildInnerClient());
-    }
-
-    /**
-     * Builds an instance of PartialUpdateClient class.
-     *
-     * @return an instance of PartialUpdateClient.
-     */
-    @Generated
-    public PartialUpdateClient buildClient() {
-        return new PartialUpdateClient(buildInnerClient());
-    }
-
-    private static final ClientLogger LOGGER = new ClientLogger(PartialUpdateClientBuilder.class);
 
     @Generated
     private void validateClient() {

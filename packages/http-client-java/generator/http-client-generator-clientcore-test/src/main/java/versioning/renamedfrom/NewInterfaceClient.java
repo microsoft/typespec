@@ -16,14 +16,15 @@ import versioning.renamedfrom.implementation.NewInterfacesImpl;
  */
 @ServiceClient(builder = RenamedFromClientBuilder.class)
 public final class NewInterfaceClient {
-    @Metadata(properties = { MetadataProperties.GENERATED })
-    private final NewInterfacesImpl serviceClient;
 
     private final Instrumentation instrumentation;
 
+    @Metadata(properties = { MetadataProperties.GENERATED })
+    private final NewInterfacesImpl serviceClient;
+
     /**
      * Initializes an instance of NewInterfaceClient class.
-     * 
+     *
      * @param serviceClient the service client implementation.
      * @param instrumentation the instrumentation instance.
      */
@@ -35,7 +36,22 @@ public final class NewInterfaceClient {
 
     /**
      * The newOpInNewInterface operation.
-     * 
+     *
+     * @param body The body parameter.
+     * @throws IllegalArgumentException thrown if parameters fail the validation.
+     * @throws HttpResponseException thrown if the service returns an error.
+     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
+     * @return the response.
+     */
+    @Metadata(properties = { MetadataProperties.GENERATED })
+    @ServiceMethod(returns = ReturnType.SINGLE)
+    public NewModel newOpInNewInterface(NewModel body) {
+        return newOpInNewInterfaceWithResponse(body, RequestContext.none()).getValue();
+    }
+
+    /**
+     * The newOpInNewInterface operation.
+     *
      * @param body The body parameter.
      * @param requestContext The context to configure the HTTP request before HTTP client sends it.
      * @throws IllegalArgumentException thrown if parameters fail the validation.
@@ -48,20 +64,5 @@ public final class NewInterfaceClient {
     public Response<NewModel> newOpInNewInterfaceWithResponse(NewModel body, RequestContext requestContext) {
         return this.instrumentation.instrumentWithResponse("Versioning.RenamedFrom.NewInterface.newOpInNewInterface",
             requestContext, updatedContext -> this.serviceClient.newOpInNewInterfaceWithResponse(body, updatedContext));
-    }
-
-    /**
-     * The newOpInNewInterface operation.
-     * 
-     * @param body The body parameter.
-     * @throws IllegalArgumentException thrown if parameters fail the validation.
-     * @throws HttpResponseException thrown if the service returns an error.
-     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
-     * @return the response.
-     */
-    @Metadata(properties = { MetadataProperties.GENERATED })
-    @ServiceMethod(returns = ReturnType.SINGLE)
-    public NewModel newOpInNewInterface(NewModel body) {
-        return newOpInNewInterfaceWithResponse(body, RequestContext.none()).getValue();
     }
 }

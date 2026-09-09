@@ -13,6 +13,7 @@ import java.io.IOException;
  */
 @Metadata(properties = { MetadataProperties.IMMUTABLE })
 public final class BoolAsStringProperty implements JsonSerializable<BoolAsStringProperty> {
+
     /*
      * The value property.
      */
@@ -21,7 +22,7 @@ public final class BoolAsStringProperty implements JsonSerializable<BoolAsString
 
     /**
      * Creates an instance of BoolAsStringProperty class.
-     * 
+     *
      * @param value the value value to set.
      */
     @Metadata(properties = { MetadataProperties.GENERATED })
@@ -31,7 +32,7 @@ public final class BoolAsStringProperty implements JsonSerializable<BoolAsString
 
     /**
      * Get the value property: The value property.
-     * 
+     *
      * @return the value value.
      */
     @Metadata(properties = { MetadataProperties.GENERATED })
@@ -52,7 +53,7 @@ public final class BoolAsStringProperty implements JsonSerializable<BoolAsString
 
     /**
      * Reads an instance of BoolAsStringProperty from the JsonReader.
-     * 
+     *
      * @param jsonReader The JsonReader being read.
      * @return An instance of BoolAsStringProperty if the JsonReader was pointing to an instance of it, or null if it
      * was pointing to JSON null.
@@ -66,7 +67,6 @@ public final class BoolAsStringProperty implements JsonSerializable<BoolAsString
             while (reader.nextToken() != JsonToken.END_OBJECT) {
                 String fieldName = reader.getFieldName();
                 reader.nextToken();
-
                 if ("value".equals(fieldName)) {
                     value = reader.getBoolean();
                 } else {

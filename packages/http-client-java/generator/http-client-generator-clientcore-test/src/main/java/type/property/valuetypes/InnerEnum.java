@@ -19,9 +19,10 @@ import java.util.function.Function;
  * Enum that will be used as a property for model EnumProperty. Extensible.
  */
 public final class InnerEnum implements ExpandableEnum<String>, JsonSerializable<InnerEnum> {
-    private static final Map<String, InnerEnum> VALUES = new ConcurrentHashMap<>();
 
     private static final Function<String, InnerEnum> NEW_INSTANCE = InnerEnum::new;
+
+    private static final Map<String, InnerEnum> VALUES = new ConcurrentHashMap<>();
 
     /**
      * First value.
@@ -41,40 +42,33 @@ public final class InnerEnum implements ExpandableEnum<String>, JsonSerializable
         this.value = value;
     }
 
-    /**
-     * Creates or finds a InnerEnum.
-     * 
-     * @param value a value to look for.
-     * @return the corresponding InnerEnum.
-     * @throws IllegalArgumentException if value is null.
-     */
     @Metadata(properties = { MetadataProperties.GENERATED })
-    public static InnerEnum fromValue(String value) {
-        if (value == null) {
-            throw new IllegalArgumentException("'value' cannot be null.");
-        }
-        return VALUES.computeIfAbsent(value, NEW_INSTANCE);
-    }
-
-    /**
-     * Gets known InnerEnum values.
-     * 
-     * @return Known InnerEnum values.
-     */
-    @Metadata(properties = { MetadataProperties.GENERATED })
-    public static Collection<InnerEnum> values() {
-        return new ArrayList<>(VALUES.values());
+    @Override
+    public boolean equals(Object obj) {
+        return this == obj;
     }
 
     /**
      * Gets the value of the InnerEnum instance.
-     * 
+     *
      * @return the value of the InnerEnum instance.
      */
     @Metadata(properties = { MetadataProperties.GENERATED })
     @Override
     public String getValue() {
         return this.value;
+    }
+
+    @Metadata(properties = { MetadataProperties.GENERATED })
+    @Override
+    public int hashCode() {
+        return Objects.hashCode(this.value);
+    }
+
+    @Metadata(properties = { MetadataProperties.GENERATED })
+    @Override
+    public String toString() {
+        return Objects.toString(this.value);
     }
 
     /**
@@ -88,7 +82,7 @@ public final class InnerEnum implements ExpandableEnum<String>, JsonSerializable
 
     /**
      * Reads an instance of InnerEnum from the JsonReader.
-     * 
+     *
      * @param jsonReader The JsonReader being read.
      * @return An instance of InnerEnum if the JsonReader was pointing to an instance of it, or null if the JsonReader
      * was pointing to JSON null.
@@ -108,21 +102,28 @@ public final class InnerEnum implements ExpandableEnum<String>, JsonSerializable
         return InnerEnum.fromValue(jsonReader.getString());
     }
 
+    /**
+     * Creates or finds a InnerEnum.
+     *
+     * @param value a value to look for.
+     * @return the corresponding InnerEnum.
+     * @throws IllegalArgumentException if value is null.
+     */
     @Metadata(properties = { MetadataProperties.GENERATED })
-    @Override
-    public String toString() {
-        return Objects.toString(this.value);
+    public static InnerEnum fromValue(String value) {
+        if (value == null) {
+            throw new IllegalArgumentException("'value' cannot be null.");
+        }
+        return VALUES.computeIfAbsent(value, NEW_INSTANCE);
     }
 
+    /**
+     * Gets known InnerEnum values.
+     *
+     * @return Known InnerEnum values.
+     */
     @Metadata(properties = { MetadataProperties.GENERATED })
-    @Override
-    public boolean equals(Object obj) {
-        return this == obj;
-    }
-
-    @Metadata(properties = { MetadataProperties.GENERATED })
-    @Override
-    public int hashCode() {
-        return Objects.hashCode(this.value);
+    public static Collection<InnerEnum> values() {
+        return new ArrayList<>(VALUES.values());
     }
 }

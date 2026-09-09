@@ -16,14 +16,15 @@ import type.model.empty.implementation.EmptyClientImpl;
  */
 @ServiceClient(builder = EmptyClientBuilder.class)
 public final class EmptyClient {
-    @Metadata(properties = { MetadataProperties.GENERATED })
-    private final EmptyClientImpl serviceClient;
 
     private final Instrumentation instrumentation;
 
+    @Metadata(properties = { MetadataProperties.GENERATED })
+    private final EmptyClientImpl serviceClient;
+
     /**
      * Initializes an instance of EmptyClient class.
-     * 
+     *
      * @param serviceClient the service client implementation.
      * @param instrumentation the instrumentation instance.
      */
@@ -34,39 +35,21 @@ public final class EmptyClient {
     }
 
     /**
-     * The putEmpty operation.
-     * 
-     * @param input The input parameter.
-     * @param requestContext The context to configure the HTTP request before HTTP client sends it.
-     * @throws IllegalArgumentException thrown if parameters fail the validation.
+     * The getEmpty operation.
+     *
      * @throws HttpResponseException thrown if the service returns an error.
      * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
-     * @return the {@link Response}.
+     * @return empty model used in operation return type.
      */
     @Metadata(properties = { MetadataProperties.GENERATED })
     @ServiceMethod(returns = ReturnType.SINGLE)
-    public Response<Void> putEmptyWithResponse(EmptyInput input, RequestContext requestContext) {
-        return this.instrumentation.instrumentWithResponse("Type.Model.Empty.putEmpty", requestContext,
-            updatedContext -> this.serviceClient.putEmptyWithResponse(input, updatedContext));
-    }
-
-    /**
-     * The putEmpty operation.
-     * 
-     * @param input The input parameter.
-     * @throws IllegalArgumentException thrown if parameters fail the validation.
-     * @throws HttpResponseException thrown if the service returns an error.
-     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
-     */
-    @Metadata(properties = { MetadataProperties.GENERATED })
-    @ServiceMethod(returns = ReturnType.SINGLE)
-    public void putEmpty(EmptyInput input) {
-        putEmptyWithResponse(input, RequestContext.none());
+    public EmptyOutput getEmpty() {
+        return getEmptyWithResponse(RequestContext.none()).getValue();
     }
 
     /**
      * The getEmpty operation.
-     * 
+     *
      * @param requestContext The context to configure the HTTP request before HTTP client sends it.
      * @throws IllegalArgumentException thrown if parameters fail the validation.
      * @throws HttpResponseException thrown if the service returns an error.
@@ -81,21 +64,23 @@ public final class EmptyClient {
     }
 
     /**
-     * The getEmpty operation.
-     * 
+     * The postRoundTripEmpty operation.
+     *
+     * @param body The body parameter.
+     * @throws IllegalArgumentException thrown if parameters fail the validation.
      * @throws HttpResponseException thrown if the service returns an error.
      * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
-     * @return empty model used in operation return type.
+     * @return empty model used in both parameter and return type.
      */
     @Metadata(properties = { MetadataProperties.GENERATED })
     @ServiceMethod(returns = ReturnType.SINGLE)
-    public EmptyOutput getEmpty() {
-        return getEmptyWithResponse(RequestContext.none()).getValue();
+    public EmptyInputOutput postRoundTripEmpty(EmptyInputOutput body) {
+        return postRoundTripEmptyWithResponse(body, RequestContext.none()).getValue();
     }
 
     /**
      * The postRoundTripEmpty operation.
-     * 
+     *
      * @param body The body parameter.
      * @param requestContext The context to configure the HTTP request before HTTP client sends it.
      * @throws IllegalArgumentException thrown if parameters fail the validation.
@@ -112,17 +97,33 @@ public final class EmptyClient {
     }
 
     /**
-     * The postRoundTripEmpty operation.
-     * 
-     * @param body The body parameter.
+     * The putEmpty operation.
+     *
+     * @param input The input parameter.
      * @throws IllegalArgumentException thrown if parameters fail the validation.
      * @throws HttpResponseException thrown if the service returns an error.
      * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
-     * @return empty model used in both parameter and return type.
      */
     @Metadata(properties = { MetadataProperties.GENERATED })
     @ServiceMethod(returns = ReturnType.SINGLE)
-    public EmptyInputOutput postRoundTripEmpty(EmptyInputOutput body) {
-        return postRoundTripEmptyWithResponse(body, RequestContext.none()).getValue();
+    public void putEmpty(EmptyInput input) {
+        putEmptyWithResponse(input, RequestContext.none());
+    }
+
+    /**
+     * The putEmpty operation.
+     *
+     * @param input The input parameter.
+     * @param requestContext The context to configure the HTTP request before HTTP client sends it.
+     * @throws IllegalArgumentException thrown if parameters fail the validation.
+     * @throws HttpResponseException thrown if the service returns an error.
+     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
+     * @return the {@link Response}.
+     */
+    @Metadata(properties = { MetadataProperties.GENERATED })
+    @ServiceMethod(returns = ReturnType.SINGLE)
+    public Response<Void> putEmptyWithResponse(EmptyInput input, RequestContext requestContext) {
+        return this.instrumentation.instrumentWithResponse("Type.Model.Empty.putEmpty", requestContext,
+            updatedContext -> this.serviceClient.putEmptyWithResponse(input, updatedContext));
     }
 }

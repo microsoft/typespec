@@ -28,10 +28,8 @@ import payload.pageable.serverdrivenpagination.alternateinitialverb.implementati
  * ServerDrivenPaginationAlternateInitialVerbs.
  */
 public final class ServerDrivenPaginationAlternateInitialVerbsImpl {
-    /**
-     * The proxy service used to perform REST calls.
-     */
-    private final ServerDrivenPaginationAlternateInitialVerbsService service;
+
+    private static final ClientLogger LOGGER = new ClientLogger(ServerDrivenPaginationAlternateInitialVerbsImpl.class);
 
     /**
      * The service client containing this operation class.
@@ -44,8 +42,13 @@ public final class ServerDrivenPaginationAlternateInitialVerbsImpl {
     private final Instrumentation instrumentation;
 
     /**
+     * The proxy service used to perform REST calls.
+     */
+    private final ServerDrivenPaginationAlternateInitialVerbsService service;
+
+    /**
      * Initializes an instance of ServerDrivenPaginationAlternateInitialVerbsImpl.
-     * 
+     *
      * @param client the instance of the service client containing this operation class.
      */
     ServerDrivenPaginationAlternateInitialVerbsImpl(PageableClientImpl client) {
@@ -55,87 +58,8 @@ public final class ServerDrivenPaginationAlternateInitialVerbsImpl {
     }
 
     /**
-     * The interface defining all the services for PageableClientServerDrivenPaginationAlternateInitialVerbs to be used
-     * by the proxy service to perform REST calls.
-     */
-    @ServiceInterface(name = "PageableClientServerDrivenPaginationAlternateInitialVerbs", host = "{endpoint}")
-    public interface ServerDrivenPaginationAlternateInitialVerbsService {
-        static ServerDrivenPaginationAlternateInitialVerbsService getNewInstance(HttpPipeline pipeline) {
-            try {
-                Class<?> clazz = Class
-                    .forName("payload.pageable.implementation.ServerDrivenPaginationAlternateInitialVerbsServiceImpl");
-                return (ServerDrivenPaginationAlternateInitialVerbsService) clazz
-                    .getMethod("getNewInstance", HttpPipeline.class)
-                    .invoke(null, pipeline);
-            } catch (ClassNotFoundException | NoSuchMethodException | IllegalAccessException
-                | InvocationTargetException e) {
-                throw new RuntimeException(e);
-            }
-
-        }
-
-        @HttpRequestInformation(
-            method = HttpMethod.POST,
-            path = "/payload/pageable/server-driven-pagination/link/initial-post",
-            expectedStatusCodes = { 200 })
-        @UnexpectedResponseExceptionDetail
-        Response<PostResponse> post(@HostParam("endpoint") String endpoint, @HeaderParam("Accept") String accept,
-            @BodyParam("application/json") Filter body, RequestContext requestContext);
-
-        @HttpRequestInformation(method = HttpMethod.GET, path = "{nextLink}", expectedStatusCodes = { 200 })
-        @UnexpectedResponseExceptionDetail
-        Response<PostResponse> postNext(@PathParam(value = "nextLink", encoded = true) String nextLink,
-            @HostParam("endpoint") String endpoint, @HeaderParam("Accept") String accept,
-            RequestContext requestContext);
-    }
-
-    /**
      * The post operation.
-     * 
-     * @param body The body parameter.
-     * @throws IllegalArgumentException thrown if parameters fail the validation.
-     * @throws HttpResponseException thrown if the service returns an error.
-     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
-     * @return the response body along with {@link PagedResponse}.
-     */
-    @ServiceMethod(returns = ReturnType.SINGLE)
-    public PagedResponse<Pet> postSinglePage(Filter body) {
-        return this.instrumentation.instrumentWithResponse(
-            "Payload.Pageable.ServerDrivenPagination.AlternateInitialVerb.post", RequestContext.none(),
-            updatedContext -> {
-                final String accept = "application/json";
-                Response<PostResponse> res = service.post(this.client.getEndpoint(), accept, body, updatedContext);
-                return new PagedResponse<>(res.getRequest(), res.getStatusCode(), res.getHeaders(),
-                    res.getValue().getPets(), null, res.getValue().getNext() != null ? res.getValue().getNext() : null,
-                    null, null, null);
-            });
-    }
-
-    /**
-     * The post operation.
-     * 
-     * @param body The body parameter.
-     * @param requestContext The context to configure the HTTP request before HTTP client sends it.
-     * @throws IllegalArgumentException thrown if parameters fail the validation.
-     * @throws HttpResponseException thrown if the service returns an error.
-     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
-     * @return the response body along with {@link PagedResponse}.
-     */
-    @ServiceMethod(returns = ReturnType.SINGLE)
-    public PagedResponse<Pet> postSinglePage(Filter body, RequestContext requestContext) {
-        return this.instrumentation.instrumentWithResponse(
-            "Payload.Pageable.ServerDrivenPagination.AlternateInitialVerb.post", requestContext, updatedContext -> {
-                final String accept = "application/json";
-                Response<PostResponse> res = service.post(this.client.getEndpoint(), accept, body, updatedContext);
-                return new PagedResponse<>(res.getRequest(), res.getStatusCode(), res.getHeaders(),
-                    res.getValue().getPets(), null, res.getValue().getNext() != null ? res.getValue().getNext() : null,
-                    null, null, null);
-            });
-    }
-
-    /**
-     * The post operation.
-     * 
+     *
      * @param body The body parameter.
      * @throws IllegalArgumentException thrown if parameters fail the validation.
      * @throws HttpResponseException thrown if the service returns an error.
@@ -175,7 +99,7 @@ public final class ServerDrivenPaginationAlternateInitialVerbsImpl {
 
     /**
      * The post operation.
-     * 
+     *
      * @param body The body parameter.
      * @param requestContext The context to configure the HTTP request before HTTP client sends it.
      * @throws IllegalArgumentException thrown if parameters fail the validation.
@@ -217,7 +141,7 @@ public final class ServerDrivenPaginationAlternateInitialVerbsImpl {
 
     /**
      * Get the next page of items.
-     * 
+     *
      * @param nextLink The URL to get the next list of items.
      * @throws IllegalArgumentException thrown if parameters fail the validation.
      * @throws HttpResponseException thrown if the service returns an error.
@@ -240,7 +164,7 @@ public final class ServerDrivenPaginationAlternateInitialVerbsImpl {
 
     /**
      * Get the next page of items.
-     * 
+     *
      * @param nextLink The URL to get the next list of items.
      * @param requestContext The context to configure the HTTP request before HTTP client sends it.
      * @throws IllegalArgumentException thrown if parameters fail the validation.
@@ -261,5 +185,82 @@ public final class ServerDrivenPaginationAlternateInitialVerbsImpl {
             });
     }
 
-    private static final ClientLogger LOGGER = new ClientLogger(ServerDrivenPaginationAlternateInitialVerbsImpl.class);
+    /**
+     * The post operation.
+     *
+     * @param body The body parameter.
+     * @throws IllegalArgumentException thrown if parameters fail the validation.
+     * @throws HttpResponseException thrown if the service returns an error.
+     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
+     * @return the response body along with {@link PagedResponse}.
+     */
+    @ServiceMethod(returns = ReturnType.SINGLE)
+    public PagedResponse<Pet> postSinglePage(Filter body) {
+        return this.instrumentation.instrumentWithResponse(
+            "Payload.Pageable.ServerDrivenPagination.AlternateInitialVerb.post", RequestContext.none(),
+            updatedContext -> {
+                final String accept = "application/json";
+                Response<PostResponse> res = service.post(this.client.getEndpoint(), accept, body, updatedContext);
+                return new PagedResponse<>(res.getRequest(), res.getStatusCode(), res.getHeaders(),
+                    res.getValue().getPets(), null, res.getValue().getNext() != null ? res.getValue().getNext() : null,
+                    null, null, null);
+            });
+    }
+
+    /**
+     * The post operation.
+     *
+     * @param body The body parameter.
+     * @param requestContext The context to configure the HTTP request before HTTP client sends it.
+     * @throws IllegalArgumentException thrown if parameters fail the validation.
+     * @throws HttpResponseException thrown if the service returns an error.
+     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
+     * @return the response body along with {@link PagedResponse}.
+     */
+    @ServiceMethod(returns = ReturnType.SINGLE)
+    public PagedResponse<Pet> postSinglePage(Filter body, RequestContext requestContext) {
+        return this.instrumentation.instrumentWithResponse(
+            "Payload.Pageable.ServerDrivenPagination.AlternateInitialVerb.post", requestContext, updatedContext -> {
+                final String accept = "application/json";
+                Response<PostResponse> res = service.post(this.client.getEndpoint(), accept, body, updatedContext);
+                return new PagedResponse<>(res.getRequest(), res.getStatusCode(), res.getHeaders(),
+                    res.getValue().getPets(), null, res.getValue().getNext() != null ? res.getValue().getNext() : null,
+                    null, null, null);
+            });
+    }
+
+    /**
+     * The interface defining all the services for PageableClientServerDrivenPaginationAlternateInitialVerbs to be used
+     * by the proxy service to perform REST calls.
+     */
+    @ServiceInterface(name = "PageableClientServerDrivenPaginationAlternateInitialVerbs", host = "{endpoint}")
+    public interface ServerDrivenPaginationAlternateInitialVerbsService {
+
+        @HttpRequestInformation(
+            method = HttpMethod.POST,
+            path = "/payload/pageable/server-driven-pagination/link/initial-post",
+            expectedStatusCodes = { 200 })
+        @UnexpectedResponseExceptionDetail
+        Response<PostResponse> post(@HostParam("endpoint") String endpoint, @HeaderParam("Accept") String accept,
+            @BodyParam("application/json") Filter body, RequestContext requestContext);
+
+        @HttpRequestInformation(method = HttpMethod.GET, path = "{nextLink}", expectedStatusCodes = { 200 })
+        @UnexpectedResponseExceptionDetail
+        Response<PostResponse> postNext(@PathParam(value = "nextLink", encoded = true) String nextLink,
+            @HostParam("endpoint") String endpoint, @HeaderParam("Accept") String accept,
+            RequestContext requestContext);
+
+        static ServerDrivenPaginationAlternateInitialVerbsService getNewInstance(HttpPipeline pipeline) {
+            try {
+                Class<?> clazz = Class
+                    .forName("payload.pageable.implementation.ServerDrivenPaginationAlternateInitialVerbsServiceImpl");
+                return (ServerDrivenPaginationAlternateInitialVerbsService) clazz
+                    .getMethod("getNewInstance", HttpPipeline.class)
+                    .invoke(null, pipeline);
+            } catch (ClassNotFoundException | NoSuchMethodException | IllegalAccessException
+                | InvocationTargetException e) {
+                throw new RuntimeException(e);
+            }
+        }
+    }
 }

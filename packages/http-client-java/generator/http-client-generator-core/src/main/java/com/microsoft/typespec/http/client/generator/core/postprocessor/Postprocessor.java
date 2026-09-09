@@ -11,6 +11,7 @@ import com.microsoft.typespec.http.client.generator.core.extension.plugin.NewPlu
 import com.microsoft.typespec.http.client.generator.core.extension.plugin.PluginLogger;
 import com.microsoft.typespec.http.client.generator.core.partialupdate.util.PartialUpdateHandler;
 import com.microsoft.typespec.http.client.generator.core.postprocessor.implementation.CodeFormatterUtil;
+import com.microsoft.typespec.http.client.generator.core.postprocessor.implementation.JavaMemberSorter;
 import io.clientcore.core.serialization.json.JsonReader;
 import java.io.File;
 import java.io.IOException;
@@ -119,6 +120,7 @@ public class Postprocessor {
             handlePartialUpdate(javaFiles, plugin, logger);
         }
 
+        JavaMemberSorter.sortMembers(javaFiles);
         CodeFormatterUtil.formatCode(javaFiles, plugin, logger);
     }
 

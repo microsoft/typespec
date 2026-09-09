@@ -15,11 +15,6 @@ import java.util.Map;
  */
 @Metadata(properties = { MetadataProperties.FLUENT })
 public class DifferentSpreadStringRecord implements JsonSerializable<DifferentSpreadStringRecord> {
-    /*
-     * The name property
-     */
-    @Metadata(properties = { MetadataProperties.GENERATED })
-    private final double id;
 
     /*
      * The model spread Record<string> with the different known property type
@@ -27,9 +22,15 @@ public class DifferentSpreadStringRecord implements JsonSerializable<DifferentSp
     @Metadata(properties = { MetadataProperties.GENERATED })
     private Map<String, String> additionalProperties;
 
+    /*
+     * The name property
+     */
+    @Metadata(properties = { MetadataProperties.GENERATED })
+    private final double id;
+
     /**
      * Creates an instance of DifferentSpreadStringRecord class.
-     * 
+     *
      * @param id the id value to set.
      */
     @Metadata(properties = { MetadataProperties.GENERATED })
@@ -38,19 +39,9 @@ public class DifferentSpreadStringRecord implements JsonSerializable<DifferentSp
     }
 
     /**
-     * Get the id property: The name property.
-     * 
-     * @return the id value.
-     */
-    @Metadata(properties = { MetadataProperties.GENERATED })
-    public double getId() {
-        return this.id;
-    }
-
-    /**
      * Get the additionalProperties property: The model spread Record&lt;string&gt; with the different known property
      * type.
-     * 
+     *
      * @return the additionalProperties value.
      */
     @Metadata(properties = { MetadataProperties.GENERATED })
@@ -61,7 +52,7 @@ public class DifferentSpreadStringRecord implements JsonSerializable<DifferentSp
     /**
      * Set the additionalProperties property: The model spread Record&lt;string&gt; with the different known property
      * type.
-     * 
+     *
      * @param additionalProperties the additionalProperties value to set.
      * @return the DifferentSpreadStringRecord object itself.
      */
@@ -69,6 +60,16 @@ public class DifferentSpreadStringRecord implements JsonSerializable<DifferentSp
     public DifferentSpreadStringRecord setAdditionalProperties(Map<String, String> additionalProperties) {
         this.additionalProperties = additionalProperties;
         return this;
+    }
+
+    /**
+     * Get the id property: The name property.
+     *
+     * @return the id value.
+     */
+    @Metadata(properties = { MetadataProperties.GENERATED })
+    public double getId() {
+        return this.id;
     }
 
     /**
@@ -89,7 +90,7 @@ public class DifferentSpreadStringRecord implements JsonSerializable<DifferentSp
 
     /**
      * Reads an instance of DifferentSpreadStringRecord from the JsonReader.
-     * 
+     *
      * @param jsonReader The JsonReader being read.
      * @return An instance of DifferentSpreadStringRecord if the JsonReader was pointing to an instance of it, or null
      * if it was pointing to JSON null.
@@ -104,20 +105,17 @@ public class DifferentSpreadStringRecord implements JsonSerializable<DifferentSp
             while (reader.nextToken() != JsonToken.END_OBJECT) {
                 String fieldName = reader.getFieldName();
                 reader.nextToken();
-
                 if ("id".equals(fieldName)) {
                     id = reader.getDouble();
                 } else {
                     if (additionalProperties == null) {
                         additionalProperties = new LinkedHashMap<>();
                     }
-
                     additionalProperties.put(fieldName, reader.getString());
                 }
             }
             DifferentSpreadStringRecord deserializedDifferentSpreadStringRecord = new DifferentSpreadStringRecord(id);
             deserializedDifferentSpreadStringRecord.additionalProperties = additionalProperties;
-
             return deserializedDifferentSpreadStringRecord;
         });
     }

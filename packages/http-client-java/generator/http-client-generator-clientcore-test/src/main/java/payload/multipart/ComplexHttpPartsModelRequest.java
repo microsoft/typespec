@@ -9,11 +9,6 @@ import java.util.List;
  */
 @Metadata(properties = { MetadataProperties.IMMUTABLE })
 public final class ComplexHttpPartsModelRequest {
-    /*
-     * The id property.
-     */
-    @Metadata(properties = { MetadataProperties.GENERATED })
-    private final String id;
 
     /*
      * The address property.
@@ -22,10 +17,16 @@ public final class ComplexHttpPartsModelRequest {
     private final Address address;
 
     /*
-     * The profileImage property.
+     * The id property.
      */
     @Metadata(properties = { MetadataProperties.GENERATED })
-    private final FileRequiredMetaData profileImage;
+    private final String id;
+
+    /*
+     * The pictures property.
+     */
+    @Metadata(properties = { MetadataProperties.GENERATED })
+    private final List<FileRequiredMetaData> pictures;
 
     /*
      * The previousAddresses property.
@@ -34,14 +35,14 @@ public final class ComplexHttpPartsModelRequest {
     private final List<Address> previousAddresses;
 
     /*
-     * The pictures property.
+     * The profileImage property.
      */
     @Metadata(properties = { MetadataProperties.GENERATED })
-    private final List<FileRequiredMetaData> pictures;
+    private final FileRequiredMetaData profileImage;
 
     /**
      * Creates an instance of ComplexHttpPartsModelRequest class.
-     * 
+     *
      * @param id the id value to set.
      * @param address the address value to set.
      * @param profileImage the profileImage value to set.
@@ -59,18 +60,8 @@ public final class ComplexHttpPartsModelRequest {
     }
 
     /**
-     * Get the id property: The id property.
-     * 
-     * @return the id value.
-     */
-    @Metadata(properties = { MetadataProperties.GENERATED })
-    public String getId() {
-        return this.id;
-    }
-
-    /**
      * Get the address property: The address property.
-     * 
+     *
      * @return the address value.
      */
     @Metadata(properties = { MetadataProperties.GENERATED })
@@ -79,18 +70,28 @@ public final class ComplexHttpPartsModelRequest {
     }
 
     /**
-     * Get the profileImage property: The profileImage property.
-     * 
-     * @return the profileImage value.
+     * Get the id property: The id property.
+     *
+     * @return the id value.
      */
     @Metadata(properties = { MetadataProperties.GENERATED })
-    public FileRequiredMetaData getProfileImage() {
-        return this.profileImage;
+    public String getId() {
+        return this.id;
+    }
+
+    /**
+     * Get the pictures property: The pictures property.
+     *
+     * @return the pictures value.
+     */
+    @Metadata(properties = { MetadataProperties.GENERATED })
+    public List<FileRequiredMetaData> getPictures() {
+        return this.pictures;
     }
 
     /**
      * Get the previousAddresses property: The previousAddresses property.
-     * 
+     *
      * @return the previousAddresses value.
      */
     @Metadata(properties = { MetadataProperties.GENERATED })
@@ -99,12 +100,12 @@ public final class ComplexHttpPartsModelRequest {
     }
 
     /**
-     * Get the pictures property: The pictures property.
-     * 
-     * @return the pictures value.
+     * Get the profileImage property: The profileImage property.
+     *
+     * @return the profileImage value.
      */
     @Metadata(properties = { MetadataProperties.GENERATED })
-    public List<FileRequiredMetaData> getPictures() {
-        return this.pictures;
+    public FileRequiredMetaData getProfileImage() {
+        return this.profileImage;
     }
 }

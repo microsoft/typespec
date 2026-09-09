@@ -14,6 +14,7 @@ import java.math.BigDecimal;
  */
 @Metadata(properties = { MetadataProperties.IMMUTABLE })
 public final class DecimalProperty implements JsonSerializable<DecimalProperty> {
+
     /*
      * Property
      */
@@ -22,7 +23,7 @@ public final class DecimalProperty implements JsonSerializable<DecimalProperty> 
 
     /**
      * Creates an instance of DecimalProperty class.
-     * 
+     *
      * @param property the property value to set.
      */
     @Metadata(properties = { MetadataProperties.GENERATED })
@@ -32,7 +33,7 @@ public final class DecimalProperty implements JsonSerializable<DecimalProperty> 
 
     /**
      * Get the property property: Property.
-     * 
+     *
      * @return the property value.
      */
     @Metadata(properties = { MetadataProperties.GENERATED })
@@ -53,7 +54,7 @@ public final class DecimalProperty implements JsonSerializable<DecimalProperty> 
 
     /**
      * Reads an instance of DecimalProperty from the JsonReader.
-     * 
+     *
      * @param jsonReader The JsonReader being read.
      * @return An instance of DecimalProperty if the JsonReader was pointing to an instance of it, or null if it was
      * pointing to JSON null.
@@ -67,7 +68,6 @@ public final class DecimalProperty implements JsonSerializable<DecimalProperty> 
             while (reader.nextToken() != JsonToken.END_OBJECT) {
                 String fieldName = reader.getFieldName();
                 reader.nextToken();
-
                 if ("property".equals(fieldName)) {
                     property = reader.getNullable(nonNullReader -> new BigDecimal(nonNullReader.getString()));
                 } else {

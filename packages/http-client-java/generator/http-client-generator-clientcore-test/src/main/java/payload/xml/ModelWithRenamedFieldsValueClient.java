@@ -16,14 +16,15 @@ import payload.xml.implementation.ModelWithRenamedFieldsValuesImpl;
  */
 @ServiceClient(builder = XmlClientBuilder.class)
 public final class ModelWithRenamedFieldsValueClient {
-    @Metadata(properties = { MetadataProperties.GENERATED })
-    private final ModelWithRenamedFieldsValuesImpl serviceClient;
 
     private final Instrumentation instrumentation;
 
+    @Metadata(properties = { MetadataProperties.GENERATED })
+    private final ModelWithRenamedFieldsValuesImpl serviceClient;
+
     /**
      * Initializes an instance of ModelWithRenamedFieldsValueClient class.
-     * 
+     *
      * @param serviceClient the service client implementation.
      * @param instrumentation the instrumentation instance.
      */
@@ -35,7 +36,20 @@ public final class ModelWithRenamedFieldsValueClient {
 
     /**
      * The get operation.
-     * 
+     *
+     * @throws HttpResponseException thrown if the service returns an error.
+     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
+     * @return §1.3, §2.3 — Contains fields of the same type that have different XML representation.
+     */
+    @Metadata(properties = { MetadataProperties.GENERATED })
+    @ServiceMethod(returns = ReturnType.SINGLE)
+    public ModelWithRenamedFields get() {
+        return getWithResponse(RequestContext.none()).getValue();
+    }
+
+    /**
+     * The get operation.
+     *
      * @param requestContext The context to configure the HTTP request before HTTP client sends it.
      * @throws IllegalArgumentException thrown if parameters fail the validation.
      * @throws HttpResponseException thrown if the service returns an error.
@@ -51,21 +65,22 @@ public final class ModelWithRenamedFieldsValueClient {
     }
 
     /**
-     * The get operation.
-     * 
+     * The put operation.
+     *
+     * @param input The input parameter.
+     * @throws IllegalArgumentException thrown if parameters fail the validation.
      * @throws HttpResponseException thrown if the service returns an error.
      * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
-     * @return §1.3, §2.3 — Contains fields of the same type that have different XML representation.
      */
     @Metadata(properties = { MetadataProperties.GENERATED })
     @ServiceMethod(returns = ReturnType.SINGLE)
-    public ModelWithRenamedFields get() {
-        return getWithResponse(RequestContext.none()).getValue();
+    public void put(ModelWithRenamedFields input) {
+        putWithResponse(input, RequestContext.none());
     }
 
     /**
      * The put operation.
-     * 
+     *
      * @param input The input parameter.
      * @param requestContext The context to configure the HTTP request before HTTP client sends it.
      * @throws IllegalArgumentException thrown if parameters fail the validation.
@@ -78,19 +93,5 @@ public final class ModelWithRenamedFieldsValueClient {
     public Response<Void> putWithResponse(ModelWithRenamedFields input, RequestContext requestContext) {
         return this.instrumentation.instrumentWithResponse("Payload.Xml.ModelWithRenamedFieldsValue.put",
             requestContext, updatedContext -> this.serviceClient.putWithResponse(input, updatedContext));
-    }
-
-    /**
-     * The put operation.
-     * 
-     * @param input The input parameter.
-     * @throws IllegalArgumentException thrown if parameters fail the validation.
-     * @throws HttpResponseException thrown if the service returns an error.
-     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
-     */
-    @Metadata(properties = { MetadataProperties.GENERATED })
-    @ServiceMethod(returns = ReturnType.SINGLE)
-    public void put(ModelWithRenamedFields input) {
-        putWithResponse(input, RequestContext.none());
     }
 }

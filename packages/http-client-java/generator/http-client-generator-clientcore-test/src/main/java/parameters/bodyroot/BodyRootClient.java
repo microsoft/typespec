@@ -16,14 +16,15 @@ import parameters.bodyroot.implementation.BodyRootClientImpl;
  */
 @ServiceClient(builder = BodyRootClientBuilder.class)
 public final class BodyRootClient {
-    @Metadata(properties = { MetadataProperties.GENERATED })
-    private final BodyRootClientImpl serviceClient;
 
     private final Instrumentation instrumentation;
 
+    @Metadata(properties = { MetadataProperties.GENERATED })
+    private final BodyRootClientImpl serviceClient;
+
     /**
      * Initializes an instance of BodyRootClient class.
-     * 
+     *
      * @param serviceClient the service client implementation.
      * @param instrumentation the instrumentation instance.
      */
@@ -35,7 +36,21 @@ public final class BodyRootClient {
 
     /**
      * The nested operation.
-     * 
+     *
+     * @param bodyRootParameters The bodyRootParameters parameter.
+     * @throws IllegalArgumentException thrown if parameters fail the validation.
+     * @throws HttpResponseException thrown if the service returns an error.
+     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
+     */
+    @Metadata(properties = { MetadataProperties.GENERATED })
+    @ServiceMethod(returns = ReturnType.SINGLE)
+    public void nested(BodyRootModel bodyRootParameters) {
+        nestedWithResponse(bodyRootParameters, RequestContext.none());
+    }
+
+    /**
+     * The nested operation.
+     *
      * @param bodyRootParameters The bodyRootParameters parameter.
      * @param requestContext The context to configure the HTTP request before HTTP client sends it.
      * @throws IllegalArgumentException thrown if parameters fail the validation.
@@ -48,19 +63,5 @@ public final class BodyRootClient {
     public Response<Void> nestedWithResponse(BodyRootModel bodyRootParameters, RequestContext requestContext) {
         return this.instrumentation.instrumentWithResponse("Parameters.BodyRoot.nested", requestContext,
             updatedContext -> this.serviceClient.nestedWithResponse(bodyRootParameters, updatedContext));
-    }
-
-    /**
-     * The nested operation.
-     * 
-     * @param bodyRootParameters The bodyRootParameters parameter.
-     * @throws IllegalArgumentException thrown if parameters fail the validation.
-     * @throws HttpResponseException thrown if the service returns an error.
-     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
-     */
-    @Metadata(properties = { MetadataProperties.GENERATED })
-    @ServiceMethod(returns = ReturnType.SINGLE)
-    public void nested(BodyRootModel bodyRootParameters) {
-        nestedWithResponse(bodyRootParameters, RequestContext.none());
     }
 }

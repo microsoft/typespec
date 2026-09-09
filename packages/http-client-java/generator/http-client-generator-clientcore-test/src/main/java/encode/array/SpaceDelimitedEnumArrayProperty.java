@@ -17,6 +17,7 @@ import java.util.stream.Collectors;
  */
 @Metadata(properties = { MetadataProperties.IMMUTABLE })
 public final class SpaceDelimitedEnumArrayProperty implements JsonSerializable<SpaceDelimitedEnumArrayProperty> {
+
     /*
      * The value property.
      */
@@ -25,7 +26,7 @@ public final class SpaceDelimitedEnumArrayProperty implements JsonSerializable<S
 
     /**
      * Creates an instance of SpaceDelimitedEnumArrayProperty class.
-     * 
+     *
      * @param value the value value to set.
      */
     @Metadata(properties = { MetadataProperties.GENERATED })
@@ -35,7 +36,7 @@ public final class SpaceDelimitedEnumArrayProperty implements JsonSerializable<S
 
     /**
      * Get the value property: The value property.
-     * 
+     *
      * @return the value value.
      */
     @Metadata(properties = { MetadataProperties.GENERATED })
@@ -61,7 +62,7 @@ public final class SpaceDelimitedEnumArrayProperty implements JsonSerializable<S
 
     /**
      * Reads an instance of SpaceDelimitedEnumArrayProperty from the JsonReader.
-     * 
+     *
      * @param jsonReader The JsonReader being read.
      * @return An instance of SpaceDelimitedEnumArrayProperty if the JsonReader was pointing to an instance of it, or
      * null if it was pointing to JSON null.
@@ -75,7 +76,6 @@ public final class SpaceDelimitedEnumArrayProperty implements JsonSerializable<S
             while (reader.nextToken() != JsonToken.END_OBJECT) {
                 String fieldName = reader.getFieldName();
                 reader.nextToken();
-
                 if ("value".equals(fieldName)) {
                     value = reader.getNullable(nonNullReader -> {
                         String valueEncodedAsString = nonNullReader.getString();

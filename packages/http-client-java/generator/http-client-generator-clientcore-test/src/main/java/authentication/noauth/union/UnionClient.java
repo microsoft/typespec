@@ -16,14 +16,15 @@ import io.clientcore.core.instrumentation.Instrumentation;
  */
 @ServiceClient(builder = UnionClientBuilder.class)
 public final class UnionClient {
-    @Metadata(properties = { MetadataProperties.GENERATED })
-    private final UnionClientImpl serviceClient;
 
     private final Instrumentation instrumentation;
 
+    @Metadata(properties = { MetadataProperties.GENERATED })
+    private final UnionClientImpl serviceClient;
+
     /**
      * Initializes an instance of UnionClient class.
-     * 
+     *
      * @param serviceClient the service client implementation.
      * @param instrumentation the instrumentation instance.
      */
@@ -35,7 +36,19 @@ public final class UnionClient {
 
     /**
      * Check whether client can make a request without authentication.
-     * 
+     *
+     * @throws HttpResponseException thrown if the service returns an error.
+     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
+     */
+    @Metadata(properties = { MetadataProperties.GENERATED })
+    @ServiceMethod(returns = ReturnType.SINGLE)
+    public void validNoAuth() {
+        validNoAuthWithResponse(RequestContext.none());
+    }
+
+    /**
+     * Check whether client can make a request without authentication.
+     *
      * @param requestContext The context to configure the HTTP request before HTTP client sends it.
      * @throws IllegalArgumentException thrown if parameters fail the validation.
      * @throws HttpResponseException thrown if the service returns an error.
@@ -50,20 +63,20 @@ public final class UnionClient {
     }
 
     /**
-     * Check whether client can make a request without authentication.
-     * 
+     * Check whether client is authenticated with OAuth2 token.
+     *
      * @throws HttpResponseException thrown if the service returns an error.
      * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
      */
     @Metadata(properties = { MetadataProperties.GENERATED })
     @ServiceMethod(returns = ReturnType.SINGLE)
-    public void validNoAuth() {
-        validNoAuthWithResponse(RequestContext.none());
+    public void validToken() {
+        validTokenWithResponse(RequestContext.none());
     }
 
     /**
      * Check whether client is authenticated with OAuth2 token.
-     * 
+     *
      * @param requestContext The context to configure the HTTP request before HTTP client sends it.
      * @throws IllegalArgumentException thrown if parameters fail the validation.
      * @throws HttpResponseException thrown if the service returns an error.
@@ -75,17 +88,5 @@ public final class UnionClient {
     public Response<Void> validTokenWithResponse(RequestContext requestContext) {
         return this.instrumentation.instrumentWithResponse("Authentication.Noauth.Union.validToken", requestContext,
             updatedContext -> this.serviceClient.validTokenWithResponse(updatedContext));
-    }
-
-    /**
-     * Check whether client is authenticated with OAuth2 token.
-     * 
-     * @throws HttpResponseException thrown if the service returns an error.
-     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
-     */
-    @Metadata(properties = { MetadataProperties.GENERATED })
-    @ServiceMethod(returns = ReturnType.SINGLE)
-    public void validToken() {
-        validTokenWithResponse(RequestContext.none());
     }
 }

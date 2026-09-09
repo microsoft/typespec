@@ -14,6 +14,7 @@ import type.union.GetResponseProp;
  */
 @Metadata(properties = { MetadataProperties.IMMUTABLE })
 public final class SendRequest implements JsonSerializable<SendRequest> {
+
     /*
      * The prop property.
      */
@@ -22,7 +23,7 @@ public final class SendRequest implements JsonSerializable<SendRequest> {
 
     /**
      * Creates an instance of SendRequest class.
-     * 
+     *
      * @param prop the prop value to set.
      */
     @Metadata(properties = { MetadataProperties.GENERATED })
@@ -32,7 +33,7 @@ public final class SendRequest implements JsonSerializable<SendRequest> {
 
     /**
      * Get the prop property: The prop property.
-     * 
+     *
      * @return the prop value.
      */
     @Metadata(properties = { MetadataProperties.GENERATED })
@@ -53,7 +54,7 @@ public final class SendRequest implements JsonSerializable<SendRequest> {
 
     /**
      * Reads an instance of SendRequest from the JsonReader.
-     * 
+     *
      * @param jsonReader The JsonReader being read.
      * @return An instance of SendRequest if the JsonReader was pointing to an instance of it, or null if it was
      * pointing to JSON null.
@@ -67,7 +68,6 @@ public final class SendRequest implements JsonSerializable<SendRequest> {
             while (reader.nextToken() != JsonToken.END_OBJECT) {
                 String fieldName = reader.getFieldName();
                 reader.nextToken();
-
                 if ("prop".equals(fieldName)) {
                     prop = GetResponseProp.fromString(reader.getString());
                 } else {

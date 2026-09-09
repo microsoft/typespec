@@ -14,11 +14,6 @@ import javax.xml.stream.XMLStreamException;
  */
 @Metadata(properties = { MetadataProperties.IMMUTABLE })
 public final class XmlErrorBody implements XmlSerializable<XmlErrorBody> {
-    /*
-     * The message property.
-     */
-    @Metadata(properties = { MetadataProperties.GENERATED })
-    private final String message;
 
     /*
      * The code property.
@@ -26,9 +21,15 @@ public final class XmlErrorBody implements XmlSerializable<XmlErrorBody> {
     @Metadata(properties = { MetadataProperties.GENERATED })
     private final int code;
 
+    /*
+     * The message property.
+     */
+    @Metadata(properties = { MetadataProperties.GENERATED })
+    private final String message;
+
     /**
      * Creates an instance of XmlErrorBody class.
-     * 
+     *
      * @param message the message value to set.
      * @param code the code value to set.
      */
@@ -39,23 +40,23 @@ public final class XmlErrorBody implements XmlSerializable<XmlErrorBody> {
     }
 
     /**
-     * Get the message property: The message property.
-     * 
-     * @return the message value.
-     */
-    @Metadata(properties = { MetadataProperties.GENERATED })
-    public String getMessage() {
-        return this.message;
-    }
-
-    /**
      * Get the code property: The code property.
-     * 
+     *
      * @return the code value.
      */
     @Metadata(properties = { MetadataProperties.GENERATED })
     public int getCode() {
         return this.code;
+    }
+
+    /**
+     * Get the message property: The message property.
+     *
+     * @return the message value.
+     */
+    @Metadata(properties = { MetadataProperties.GENERATED })
+    public String getMessage() {
+        return this.message;
     }
 
     @Metadata(properties = { MetadataProperties.GENERATED })
@@ -76,7 +77,7 @@ public final class XmlErrorBody implements XmlSerializable<XmlErrorBody> {
 
     /**
      * Reads an instance of XmlErrorBody from the XmlReader.
-     * 
+     *
      * @param xmlReader The XmlReader being read.
      * @return An instance of XmlErrorBody if the XmlReader was pointing to an instance of it, or null if it was
      * pointing to XML null.
@@ -90,7 +91,7 @@ public final class XmlErrorBody implements XmlSerializable<XmlErrorBody> {
 
     /**
      * Reads an instance of XmlErrorBody from the XmlReader.
-     * 
+     *
      * @param xmlReader The XmlReader being read.
      * @param rootElementName Optional root element name to override the default defined by the model. Used to support
      * cases where the model can deserialize from different root element names.
@@ -108,7 +109,6 @@ public final class XmlErrorBody implements XmlSerializable<XmlErrorBody> {
             int code = 0;
             while (reader.nextElement() != XmlToken.END_ELEMENT) {
                 QName elementName = reader.getElementName();
-
                 if ("message".equals(elementName.getLocalPart())) {
                     message = reader.getStringElement();
                 } else if ("code".equals(elementName.getLocalPart())) {

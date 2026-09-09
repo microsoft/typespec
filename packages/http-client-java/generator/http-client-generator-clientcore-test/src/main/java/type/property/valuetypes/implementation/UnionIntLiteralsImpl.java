@@ -21,10 +21,6 @@ import type.property.valuetypes.UnionIntLiteralProperty;
  * An instance of this class provides access to all the operations defined in UnionIntLiterals.
  */
 public final class UnionIntLiteralsImpl {
-    /**
-     * The proxy service used to perform REST calls.
-     */
-    private final UnionIntLiteralsService service;
 
     /**
      * The service client containing this operation class.
@@ -37,8 +33,13 @@ public final class UnionIntLiteralsImpl {
     private final Instrumentation instrumentation;
 
     /**
+     * The proxy service used to perform REST calls.
+     */
+    private final UnionIntLiteralsService service;
+
+    /**
      * Initializes an instance of UnionIntLiteralsImpl.
-     * 
+     *
      * @param client the instance of the service client containing this operation class.
      */
     UnionIntLiteralsImpl(ValueTypesClientImpl client) {
@@ -48,43 +49,8 @@ public final class UnionIntLiteralsImpl {
     }
 
     /**
-     * The interface defining all the services for ValueTypesClientUnionIntLiterals to be used by the proxy service to
-     * perform REST calls.
-     */
-    @ServiceInterface(name = "ValueTypesClientUnionIntLiterals", host = "{endpoint}")
-    public interface UnionIntLiteralsService {
-        static UnionIntLiteralsService getNewInstance(HttpPipeline pipeline) {
-            try {
-                Class<?> clazz = Class.forName("type.property.valuetypes.implementation.UnionIntLiteralsServiceImpl");
-                return (UnionIntLiteralsService) clazz.getMethod("getNewInstance", HttpPipeline.class)
-                    .invoke(null, pipeline);
-            } catch (ClassNotFoundException | NoSuchMethodException | IllegalAccessException
-                | InvocationTargetException e) {
-                throw new RuntimeException(e);
-            }
-
-        }
-
-        @HttpRequestInformation(
-            method = HttpMethod.GET,
-            path = "/type/property/value-types/union/int/literal",
-            expectedStatusCodes = { 200 })
-        @UnexpectedResponseExceptionDetail
-        Response<UnionIntLiteralProperty> get(@HostParam("endpoint") String endpoint,
-            @HeaderParam("Accept") String accept, RequestContext requestContext);
-
-        @HttpRequestInformation(
-            method = HttpMethod.PUT,
-            path = "/type/property/value-types/union/int/literal",
-            expectedStatusCodes = { 204 })
-        @UnexpectedResponseExceptionDetail
-        Response<Void> put(@HostParam("endpoint") String endpoint, @HeaderParam("Content-Type") String contentType,
-            @BodyParam("application/json") UnionIntLiteralProperty body, RequestContext requestContext);
-    }
-
-    /**
      * Get call.
-     * 
+     *
      * @param requestContext The context to configure the HTTP request before HTTP client sends it.
      * @throws IllegalArgumentException thrown if parameters fail the validation.
      * @throws HttpResponseException thrown if the service returns an error.
@@ -102,7 +68,7 @@ public final class UnionIntLiteralsImpl {
 
     /**
      * Put operation.
-     * 
+     *
      * @param body body.
      * @param requestContext The context to configure the HTTP request before HTTP client sends it.
      * @throws IllegalArgumentException thrown if parameters fail the validation.
@@ -117,5 +83,40 @@ public final class UnionIntLiteralsImpl {
                 final String contentType = "application/json";
                 return service.put(this.client.getEndpoint(), contentType, body, updatedContext);
             });
+    }
+
+    /**
+     * The interface defining all the services for ValueTypesClientUnionIntLiterals to be used by the proxy service to
+     * perform REST calls.
+     */
+    @ServiceInterface(name = "ValueTypesClientUnionIntLiterals", host = "{endpoint}")
+    public interface UnionIntLiteralsService {
+
+        @HttpRequestInformation(
+            method = HttpMethod.GET,
+            path = "/type/property/value-types/union/int/literal",
+            expectedStatusCodes = { 200 })
+        @UnexpectedResponseExceptionDetail
+        Response<UnionIntLiteralProperty> get(@HostParam("endpoint") String endpoint,
+            @HeaderParam("Accept") String accept, RequestContext requestContext);
+
+        @HttpRequestInformation(
+            method = HttpMethod.PUT,
+            path = "/type/property/value-types/union/int/literal",
+            expectedStatusCodes = { 204 })
+        @UnexpectedResponseExceptionDetail
+        Response<Void> put(@HostParam("endpoint") String endpoint, @HeaderParam("Content-Type") String contentType,
+            @BodyParam("application/json") UnionIntLiteralProperty body, RequestContext requestContext);
+
+        static UnionIntLiteralsService getNewInstance(HttpPipeline pipeline) {
+            try {
+                Class<?> clazz = Class.forName("type.property.valuetypes.implementation.UnionIntLiteralsServiceImpl");
+                return (UnionIntLiteralsService) clazz.getMethod("getNewInstance", HttpPipeline.class)
+                    .invoke(null, pipeline);
+            } catch (ClassNotFoundException | NoSuchMethodException | IllegalAccessException
+                | InvocationTargetException e) {
+                throw new RuntimeException(e);
+            }
+        }
     }
 }

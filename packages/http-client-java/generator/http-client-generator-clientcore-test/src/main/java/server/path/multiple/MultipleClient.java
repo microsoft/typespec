@@ -16,14 +16,15 @@ import server.path.multiple.implementation.MultipleClientImpl;
  */
 @ServiceClient(builder = MultipleClientBuilder.class)
 public final class MultipleClient {
-    @Metadata(properties = { MetadataProperties.GENERATED })
-    private final MultipleClientImpl serviceClient;
 
     private final Instrumentation instrumentation;
 
+    @Metadata(properties = { MetadataProperties.GENERATED })
+    private final MultipleClientImpl serviceClient;
+
     /**
      * Initializes an instance of MultipleClient class.
-     * 
+     *
      * @param serviceClient the service client implementation.
      * @param instrumentation the instrumentation instance.
      */
@@ -35,7 +36,19 @@ public final class MultipleClient {
 
     /**
      * The noOperationParams operation.
-     * 
+     *
+     * @throws HttpResponseException thrown if the service returns an error.
+     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
+     */
+    @Metadata(properties = { MetadataProperties.GENERATED })
+    @ServiceMethod(returns = ReturnType.SINGLE)
+    public void noOperationParams() {
+        noOperationParamsWithResponse(RequestContext.none());
+    }
+
+    /**
+     * The noOperationParams operation.
+     *
      * @param requestContext The context to configure the HTTP request before HTTP client sends it.
      * @throws IllegalArgumentException thrown if parameters fail the validation.
      * @throws HttpResponseException thrown if the service returns an error.
@@ -50,20 +63,22 @@ public final class MultipleClient {
     }
 
     /**
-     * The noOperationParams operation.
-     * 
+     * The withOperationPathParam operation.
+     *
+     * @param keyword The keyword parameter.
+     * @throws IllegalArgumentException thrown if parameters fail the validation.
      * @throws HttpResponseException thrown if the service returns an error.
      * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
      */
     @Metadata(properties = { MetadataProperties.GENERATED })
     @ServiceMethod(returns = ReturnType.SINGLE)
-    public void noOperationParams() {
-        noOperationParamsWithResponse(RequestContext.none());
+    public void withOperationPathParam(String keyword) {
+        withOperationPathParamWithResponse(keyword, RequestContext.none());
     }
 
     /**
      * The withOperationPathParam operation.
-     * 
+     *
      * @param keyword The keyword parameter.
      * @param requestContext The context to configure the HTTP request before HTTP client sends it.
      * @throws IllegalArgumentException thrown if parameters fail the validation.
@@ -77,19 +92,5 @@ public final class MultipleClient {
         return this.instrumentation.instrumentWithResponse("Server.Path.Multiple.withOperationPathParam",
             requestContext,
             updatedContext -> this.serviceClient.withOperationPathParamWithResponse(keyword, updatedContext));
-    }
-
-    /**
-     * The withOperationPathParam operation.
-     * 
-     * @param keyword The keyword parameter.
-     * @throws IllegalArgumentException thrown if parameters fail the validation.
-     * @throws HttpResponseException thrown if the service returns an error.
-     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
-     */
-    @Metadata(properties = { MetadataProperties.GENERATED })
-    @ServiceMethod(returns = ReturnType.SINGLE)
-    public void withOperationPathParam(String keyword) {
-        withOperationPathParamWithResponse(keyword, RequestContext.none());
     }
 }

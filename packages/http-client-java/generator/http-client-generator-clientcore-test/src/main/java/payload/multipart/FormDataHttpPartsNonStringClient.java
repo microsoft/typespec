@@ -17,14 +17,15 @@ import payload.multipart.implementation.FormDataHttpPartsNonStringsImpl;
  */
 @ServiceClient(builder = MultiPartClientBuilder.class)
 public final class FormDataHttpPartsNonStringClient {
-    @Metadata(properties = { MetadataProperties.GENERATED })
-    private final FormDataHttpPartsNonStringsImpl serviceClient;
 
     private final Instrumentation instrumentation;
 
+    @Metadata(properties = { MetadataProperties.GENERATED })
+    private final FormDataHttpPartsNonStringsImpl serviceClient;
+
     /**
      * Initializes an instance of FormDataHttpPartsNonStringClient class.
-     * 
+     *
      * @param serviceClient the service client implementation.
      * @param instrumentation the instrumentation instance.
      */
@@ -36,7 +37,21 @@ public final class FormDataHttpPartsNonStringClient {
 
     /**
      * Test content-type: multipart/form-data for non string.
-     * 
+     *
+     * @param body The body parameter.
+     * @throws IllegalArgumentException thrown if parameters fail the validation.
+     * @throws HttpResponseException thrown if the service returns an error.
+     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
+     */
+    @Metadata(properties = { MetadataProperties.GENERATED })
+    @ServiceMethod(returns = ReturnType.SINGLE)
+    public void floatMethod(FloatRequest body) {
+        floatMethodWithResponse(body, RequestContext.none());
+    }
+
+    /**
+     * Test content-type: multipart/form-data for non string.
+     *
      * @param body The body parameter.
      * @param requestContext The context to configure the HTTP request before HTTP client sends it.
      * @throws IllegalArgumentException thrown if parameters fail the validation.
@@ -49,19 +64,5 @@ public final class FormDataHttpPartsNonStringClient {
     public Response<Void> floatMethodWithResponse(FloatRequest body, RequestContext requestContext) {
         return this.instrumentation.instrumentWithResponse("Payload.MultiPart.FormData.HttpParts.NonString.float",
             requestContext, updatedContext -> this.serviceClient.floatMethodWithResponse(body, updatedContext));
-    }
-
-    /**
-     * Test content-type: multipart/form-data for non string.
-     * 
-     * @param body The body parameter.
-     * @throws IllegalArgumentException thrown if parameters fail the validation.
-     * @throws HttpResponseException thrown if the service returns an error.
-     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
-     */
-    @Metadata(properties = { MetadataProperties.GENERATED })
-    @ServiceMethod(returns = ReturnType.SINGLE)
-    public void floatMethod(FloatRequest body) {
-        floatMethodWithResponse(body, RequestContext.none());
     }
 }

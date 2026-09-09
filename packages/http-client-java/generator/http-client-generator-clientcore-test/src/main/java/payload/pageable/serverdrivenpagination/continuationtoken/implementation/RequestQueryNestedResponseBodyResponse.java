@@ -16,6 +16,7 @@ import payload.pageable.serverdrivenpagination.continuationtoken.RequestQueryNes
 @Metadata(properties = { MetadataProperties.IMMUTABLE })
 public final class RequestQueryNestedResponseBodyResponse
     implements JsonSerializable<RequestQueryNestedResponseBodyResponse> {
+
     /*
      * The nestedItems property.
      */
@@ -30,7 +31,7 @@ public final class RequestQueryNestedResponseBodyResponse
 
     /**
      * Creates an instance of RequestQueryNestedResponseBodyResponse class.
-     * 
+     *
      * @param nestedItems the nestedItems value to set.
      */
     @Metadata(properties = { MetadataProperties.GENERATED })
@@ -40,7 +41,7 @@ public final class RequestQueryNestedResponseBodyResponse
 
     /**
      * Get the nestedItems property: The nestedItems property.
-     * 
+     *
      * @return the nestedItems value.
      */
     @Metadata(properties = { MetadataProperties.GENERATED })
@@ -50,7 +51,7 @@ public final class RequestQueryNestedResponseBodyResponse
 
     /**
      * Get the nestedNext property: The nestedNext property.
-     * 
+     *
      * @return the nestedNext value.
      */
     @Metadata(properties = { MetadataProperties.GENERATED })
@@ -72,7 +73,7 @@ public final class RequestQueryNestedResponseBodyResponse
 
     /**
      * Reads an instance of RequestQueryNestedResponseBodyResponse from the JsonReader.
-     * 
+     *
      * @param jsonReader The JsonReader being read.
      * @return An instance of RequestQueryNestedResponseBodyResponse if the JsonReader was pointing to an instance of
      * it, or null if it was pointing to JSON null.
@@ -87,7 +88,6 @@ public final class RequestQueryNestedResponseBodyResponse
             while (reader.nextToken() != JsonToken.END_OBJECT) {
                 String fieldName = reader.getFieldName();
                 reader.nextToken();
-
                 if ("nestedItems".equals(fieldName)) {
                     nestedItems = RequestQueryNestedResponseBodyResponseNestedItems.fromJson(reader);
                 } else if ("nestedNext".equals(fieldName)) {
@@ -99,7 +99,6 @@ public final class RequestQueryNestedResponseBodyResponse
             RequestQueryNestedResponseBodyResponse deserializedRequestQueryNestedResponseBodyResponse
                 = new RequestQueryNestedResponseBodyResponse(nestedItems);
             deserializedRequestQueryNestedResponseBodyResponse.nestedNext = nestedNext;
-
             return deserializedRequestQueryNestedResponseBodyResponse;
         });
     }

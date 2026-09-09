@@ -14,9 +14,16 @@ import javax.xml.stream.XMLStreamException;
  */
 @Metadata(properties = { MetadataProperties.IMMUTABLE })
 public final class ModelWithNamespaceOnProperties implements XmlSerializable<ModelWithNamespaceOnProperties> {
-    private static final String EXAMPLE_COM__SCHEMA = "http://example.com/schema";
 
     private static final String EXAMPLE_COM__NS2 = "http://example.com/ns2";
+
+    private static final String EXAMPLE_COM__SCHEMA = "http://example.com/schema";
+
+    /*
+     * The author property.
+     */
+    @Metadata(properties = { MetadataProperties.GENERATED })
+    private final String author;
 
     /*
      * The id property.
@@ -30,15 +37,9 @@ public final class ModelWithNamespaceOnProperties implements XmlSerializable<Mod
     @Metadata(properties = { MetadataProperties.GENERATED })
     private final String title;
 
-    /*
-     * The author property.
-     */
-    @Metadata(properties = { MetadataProperties.GENERATED })
-    private final String author;
-
     /**
      * Creates an instance of ModelWithNamespaceOnProperties class.
-     * 
+     *
      * @param id the id value to set.
      * @param title the title value to set.
      * @param author the author value to set.
@@ -51,8 +52,18 @@ public final class ModelWithNamespaceOnProperties implements XmlSerializable<Mod
     }
 
     /**
+     * Get the author property: The author property.
+     *
+     * @return the author value.
+     */
+    @Metadata(properties = { MetadataProperties.GENERATED })
+    public String getAuthor() {
+        return this.author;
+    }
+
+    /**
      * Get the id property: The id property.
-     * 
+     *
      * @return the id value.
      */
     @Metadata(properties = { MetadataProperties.GENERATED })
@@ -62,22 +73,12 @@ public final class ModelWithNamespaceOnProperties implements XmlSerializable<Mod
 
     /**
      * Get the title property: The title property.
-     * 
+     *
      * @return the title value.
      */
     @Metadata(properties = { MetadataProperties.GENERATED })
     public String getTitle() {
         return this.title;
-    }
-
-    /**
-     * Get the author property: The author property.
-     * 
-     * @return the author value.
-     */
-    @Metadata(properties = { MetadataProperties.GENERATED })
-    public String getAuthor() {
-        return this.author;
     }
 
     @Metadata(properties = { MetadataProperties.GENERATED })
@@ -103,7 +104,7 @@ public final class ModelWithNamespaceOnProperties implements XmlSerializable<Mod
 
     /**
      * Reads an instance of ModelWithNamespaceOnProperties from the XmlReader.
-     * 
+     *
      * @param xmlReader The XmlReader being read.
      * @return An instance of ModelWithNamespaceOnProperties if the XmlReader was pointing to an instance of it, or null
      * if it was pointing to XML null.
@@ -117,7 +118,7 @@ public final class ModelWithNamespaceOnProperties implements XmlSerializable<Mod
 
     /**
      * Reads an instance of ModelWithNamespaceOnProperties from the XmlReader.
-     * 
+     *
      * @param xmlReader The XmlReader being read.
      * @param rootElementName Optional root element name to override the default defined by the model. Used to support
      * cases where the model can deserialize from different root element names.
@@ -137,7 +138,6 @@ public final class ModelWithNamespaceOnProperties implements XmlSerializable<Mod
             String author = null;
             while (reader.nextElement() != XmlToken.END_ELEMENT) {
                 QName elementName = reader.getElementName();
-
                 if ("id".equals(elementName.getLocalPart())) {
                     id = reader.getIntElement();
                 } else if ("title".equals(elementName.getLocalPart())

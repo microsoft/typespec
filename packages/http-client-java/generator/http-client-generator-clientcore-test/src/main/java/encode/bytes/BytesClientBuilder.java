@@ -40,17 +40,60 @@ import java.util.Objects;
         ResponseBodyClient.class })
 public final class BytesClientBuilder implements HttpTrait<BytesClientBuilder>, ProxyTrait<BytesClientBuilder>,
     ConfigurationTrait<BytesClientBuilder>, EndpointTrait<BytesClientBuilder> {
+
+    @Metadata(properties = { MetadataProperties.GENERATED })
+    private static final Map<String, String> PROPERTIES = CoreUtils.getProperties("encode-bytes.properties");
+
     @Metadata(properties = { MetadataProperties.GENERATED })
     private static final String SDK_NAME = "name";
 
     @Metadata(properties = { MetadataProperties.GENERATED })
     private static final String SDK_VERSION = "version";
 
+    /*
+     * The configuration store that is used during construction of the service client.
+     */
     @Metadata(properties = { MetadataProperties.GENERATED })
-    private static final Map<String, String> PROPERTIES = CoreUtils.getProperties("encode-bytes.properties");
+    private Configuration configuration;
+
+    /*
+     * The service endpoint
+     */
+    @Metadata(properties = { MetadataProperties.GENERATED })
+    private String endpoint;
+
+    /*
+     * The HTTP client used to send the request.
+     */
+    @Metadata(properties = { MetadataProperties.GENERATED })
+    private HttpClient httpClient;
+
+    /*
+     * The instrumentation configuration for HTTP requests and responses.
+     */
+    @Metadata(properties = { MetadataProperties.GENERATED })
+    private HttpInstrumentationOptions httpInstrumentationOptions;
 
     @Metadata(properties = { MetadataProperties.GENERATED })
     private final List<HttpPipelinePolicy> pipelinePolicies;
+
+    /*
+     * The proxy options used during construction of the service client.
+     */
+    @Metadata(properties = { MetadataProperties.GENERATED })
+    private ProxyOptions proxyOptions;
+
+    /*
+     * The redirect options to configure redirect policy
+     */
+    @Metadata(properties = { MetadataProperties.GENERATED })
+    private HttpRedirectOptions redirectOptions;
+
+    /*
+     * The retry options to configure retry policy for failed requests.
+     */
+    @Metadata(properties = { MetadataProperties.GENERATED })
+    private HttpRetryOptions retryOptions;
 
     /**
      * Create an instance of the BytesClientBuilder.
@@ -60,11 +103,36 @@ public final class BytesClientBuilder implements HttpTrait<BytesClientBuilder>, 
         this.pipelinePolicies = new ArrayList<>();
     }
 
-    /*
-     * The HTTP client used to send the request.
+    /**
+     * {@inheritDoc}.
      */
     @Metadata(properties = { MetadataProperties.GENERATED })
-    private HttpClient httpClient;
+    @Override
+    public BytesClientBuilder addHttpPipelinePolicy(HttpPipelinePolicy customPolicy) {
+        Objects.requireNonNull(customPolicy, "'customPolicy' cannot be null.");
+        pipelinePolicies.add(customPolicy);
+        return this;
+    }
+
+    /**
+     * {@inheritDoc}.
+     */
+    @Metadata(properties = { MetadataProperties.GENERATED })
+    @Override
+    public BytesClientBuilder configuration(Configuration configuration) {
+        this.configuration = configuration;
+        return this;
+    }
+
+    /**
+     * {@inheritDoc}.
+     */
+    @Metadata(properties = { MetadataProperties.GENERATED })
+    @Override
+    public BytesClientBuilder endpoint(String endpoint) {
+        this.endpoint = endpoint;
+        return this;
+    }
 
     /**
      * {@inheritDoc}.
@@ -76,11 +144,25 @@ public final class BytesClientBuilder implements HttpTrait<BytesClientBuilder>, 
         return this;
     }
 
-    /*
-     * The retry options to configure retry policy for failed requests.
+    /**
+     * {@inheritDoc}.
      */
     @Metadata(properties = { MetadataProperties.GENERATED })
-    private HttpRetryOptions retryOptions;
+    @Override
+    public BytesClientBuilder httpInstrumentationOptions(HttpInstrumentationOptions httpInstrumentationOptions) {
+        this.httpInstrumentationOptions = httpInstrumentationOptions;
+        return this;
+    }
+
+    /**
+     * {@inheritDoc}.
+     */
+    @Metadata(properties = { MetadataProperties.GENERATED })
+    @Override
+    public BytesClientBuilder httpRedirectOptions(HttpRedirectOptions redirectOptions) {
+        this.redirectOptions = redirectOptions;
+        return this;
+    }
 
     /**
      * {@inheritDoc}.
@@ -97,95 +179,69 @@ public final class BytesClientBuilder implements HttpTrait<BytesClientBuilder>, 
      */
     @Metadata(properties = { MetadataProperties.GENERATED })
     @Override
-    public BytesClientBuilder addHttpPipelinePolicy(HttpPipelinePolicy customPolicy) {
-        Objects.requireNonNull(customPolicy, "'customPolicy' cannot be null.");
-        pipelinePolicies.add(customPolicy);
-        return this;
-    }
-
-    /*
-     * The redirect options to configure redirect policy
-     */
-    @Metadata(properties = { MetadataProperties.GENERATED })
-    private HttpRedirectOptions redirectOptions;
-
-    /**
-     * {@inheritDoc}.
-     */
-    @Metadata(properties = { MetadataProperties.GENERATED })
-    @Override
-    public BytesClientBuilder httpRedirectOptions(HttpRedirectOptions redirectOptions) {
-        this.redirectOptions = redirectOptions;
-        return this;
-    }
-
-    /*
-     * The instrumentation configuration for HTTP requests and responses.
-     */
-    @Metadata(properties = { MetadataProperties.GENERATED })
-    private HttpInstrumentationOptions httpInstrumentationOptions;
-
-    /**
-     * {@inheritDoc}.
-     */
-    @Metadata(properties = { MetadataProperties.GENERATED })
-    @Override
-    public BytesClientBuilder httpInstrumentationOptions(HttpInstrumentationOptions httpInstrumentationOptions) {
-        this.httpInstrumentationOptions = httpInstrumentationOptions;
-        return this;
-    }
-
-    /*
-     * The proxy options used during construction of the service client.
-     */
-    @Metadata(properties = { MetadataProperties.GENERATED })
-    private ProxyOptions proxyOptions;
-
-    /**
-     * {@inheritDoc}.
-     */
-    @Metadata(properties = { MetadataProperties.GENERATED })
-    @Override
     public BytesClientBuilder proxyOptions(ProxyOptions proxyOptions) {
         this.proxyOptions = proxyOptions;
         return this;
     }
 
-    /*
-     * The configuration store that is used during construction of the service client.
-     */
-    @Metadata(properties = { MetadataProperties.GENERATED })
-    private Configuration configuration;
-
     /**
-     * {@inheritDoc}.
+     * Builds an instance of HeaderClient class.
+     *
+     * @return an instance of HeaderClient.
      */
     @Metadata(properties = { MetadataProperties.GENERATED })
-    @Override
-    public BytesClientBuilder configuration(Configuration configuration) {
-        this.configuration = configuration;
-        return this;
+    public HeaderClient buildHeaderClient() {
+        BytesClientImpl innerClient = buildInnerClient();
+        return new HeaderClient(innerClient.getHeaders(), innerClient.getInstrumentation());
     }
 
-    /*
-     * The service endpoint
+    /**
+     * Builds an instance of PropertyClient class.
+     *
+     * @return an instance of PropertyClient.
      */
     @Metadata(properties = { MetadataProperties.GENERATED })
-    private String endpoint;
+    public PropertyClient buildPropertyClient() {
+        BytesClientImpl innerClient = buildInnerClient();
+        return new PropertyClient(innerClient.getProperties(), innerClient.getInstrumentation());
+    }
 
     /**
-     * {@inheritDoc}.
+     * Builds an instance of QueryClient class.
+     *
+     * @return an instance of QueryClient.
      */
     @Metadata(properties = { MetadataProperties.GENERATED })
-    @Override
-    public BytesClientBuilder endpoint(String endpoint) {
-        this.endpoint = endpoint;
-        return this;
+    public QueryClient buildQueryClient() {
+        BytesClientImpl innerClient = buildInnerClient();
+        return new QueryClient(innerClient.getQueries(), innerClient.getInstrumentation());
+    }
+
+    /**
+     * Builds an instance of RequestBodyClient class.
+     *
+     * @return an instance of RequestBodyClient.
+     */
+    @Metadata(properties = { MetadataProperties.GENERATED })
+    public RequestBodyClient buildRequestBodyClient() {
+        BytesClientImpl innerClient = buildInnerClient();
+        return new RequestBodyClient(innerClient.getRequestBodies(), innerClient.getInstrumentation());
+    }
+
+    /**
+     * Builds an instance of ResponseBodyClient class.
+     *
+     * @return an instance of ResponseBodyClient.
+     */
+    @Metadata(properties = { MetadataProperties.GENERATED })
+    public ResponseBodyClient buildResponseBodyClient() {
+        BytesClientImpl innerClient = buildInnerClient();
+        return new ResponseBodyClient(innerClient.getResponseBodies(), innerClient.getInstrumentation());
     }
 
     /**
      * Builds an instance of BytesClientImpl with the provided parameters.
-     * 
+     *
      * @return an instance of BytesClientImpl.
      */
     @Metadata(properties = { MetadataProperties.GENERATED })
@@ -206,12 +262,6 @@ public final class BytesClientBuilder implements HttpTrait<BytesClientBuilder>, 
     }
 
     @Metadata(properties = { MetadataProperties.GENERATED })
-    private void validateClient() {
-        // This method is invoked from 'buildInnerClient'/'buildClient' method.
-        // Developer can customize this method, to validate that the necessary conditions are met for the new client.
-    }
-
-    @Metadata(properties = { MetadataProperties.GENERATED })
     private HttpPipeline createHttpPipeline() {
         Configuration buildConfiguration
             = (configuration == null) ? Configuration.getGlobalConfiguration() : configuration;
@@ -228,58 +278,9 @@ public final class BytesClientBuilder implements HttpTrait<BytesClientBuilder>, 
         return httpPipelineBuilder.httpClient(httpClient).build();
     }
 
-    /**
-     * Builds an instance of QueryClient class.
-     * 
-     * @return an instance of QueryClient.
-     */
     @Metadata(properties = { MetadataProperties.GENERATED })
-    public QueryClient buildQueryClient() {
-        BytesClientImpl innerClient = buildInnerClient();
-        return new QueryClient(innerClient.getQueries(), innerClient.getInstrumentation());
-    }
-
-    /**
-     * Builds an instance of PropertyClient class.
-     * 
-     * @return an instance of PropertyClient.
-     */
-    @Metadata(properties = { MetadataProperties.GENERATED })
-    public PropertyClient buildPropertyClient() {
-        BytesClientImpl innerClient = buildInnerClient();
-        return new PropertyClient(innerClient.getProperties(), innerClient.getInstrumentation());
-    }
-
-    /**
-     * Builds an instance of HeaderClient class.
-     * 
-     * @return an instance of HeaderClient.
-     */
-    @Metadata(properties = { MetadataProperties.GENERATED })
-    public HeaderClient buildHeaderClient() {
-        BytesClientImpl innerClient = buildInnerClient();
-        return new HeaderClient(innerClient.getHeaders(), innerClient.getInstrumentation());
-    }
-
-    /**
-     * Builds an instance of RequestBodyClient class.
-     * 
-     * @return an instance of RequestBodyClient.
-     */
-    @Metadata(properties = { MetadataProperties.GENERATED })
-    public RequestBodyClient buildRequestBodyClient() {
-        BytesClientImpl innerClient = buildInnerClient();
-        return new RequestBodyClient(innerClient.getRequestBodies(), innerClient.getInstrumentation());
-    }
-
-    /**
-     * Builds an instance of ResponseBodyClient class.
-     * 
-     * @return an instance of ResponseBodyClient.
-     */
-    @Metadata(properties = { MetadataProperties.GENERATED })
-    public ResponseBodyClient buildResponseBodyClient() {
-        BytesClientImpl innerClient = buildInnerClient();
-        return new ResponseBodyClient(innerClient.getResponseBodies(), innerClient.getInstrumentation());
+    private void validateClient() {
+        // This method is invoked from 'buildInnerClient'/'buildClient' method.
+        // Developer can customize this method, to validate that the necessary conditions are met for the new client.
     }
 }

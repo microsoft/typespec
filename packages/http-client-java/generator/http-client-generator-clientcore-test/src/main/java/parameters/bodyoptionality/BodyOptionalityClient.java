@@ -16,14 +16,15 @@ import parameters.bodyoptionality.implementation.BodyOptionalityClientImpl;
  */
 @ServiceClient(builder = BodyOptionalityClientBuilder.class)
 public final class BodyOptionalityClient {
-    @Metadata(properties = { MetadataProperties.GENERATED })
-    private final BodyOptionalityClientImpl serviceClient;
 
     private final Instrumentation instrumentation;
 
+    @Metadata(properties = { MetadataProperties.GENERATED })
+    private final BodyOptionalityClientImpl serviceClient;
+
     /**
      * Initializes an instance of BodyOptionalityClient class.
-     * 
+     *
      * @param serviceClient the service client implementation.
      * @param instrumentation the instrumentation instance.
      */
@@ -35,7 +36,21 @@ public final class BodyOptionalityClient {
 
     /**
      * The requiredExplicit operation.
-     * 
+     *
+     * @param body The body parameter.
+     * @throws IllegalArgumentException thrown if parameters fail the validation.
+     * @throws HttpResponseException thrown if the service returns an error.
+     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
+     */
+    @Metadata(properties = { MetadataProperties.GENERATED })
+    @ServiceMethod(returns = ReturnType.SINGLE)
+    public void requiredExplicit(BodyModel body) {
+        requiredExplicitWithResponse(body, RequestContext.none());
+    }
+
+    /**
+     * The requiredExplicit operation.
+     *
      * @param body The body parameter.
      * @param requestContext The context to configure the HTTP request before HTTP client sends it.
      * @throws IllegalArgumentException thrown if parameters fail the validation.
@@ -51,22 +66,22 @@ public final class BodyOptionalityClient {
     }
 
     /**
-     * The requiredExplicit operation.
-     * 
-     * @param body The body parameter.
+     * The requiredImplicit operation.
+     *
+     * @param name The name parameter.
      * @throws IllegalArgumentException thrown if parameters fail the validation.
      * @throws HttpResponseException thrown if the service returns an error.
      * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
      */
     @Metadata(properties = { MetadataProperties.GENERATED })
     @ServiceMethod(returns = ReturnType.SINGLE)
-    public void requiredExplicit(BodyModel body) {
-        requiredExplicitWithResponse(body, RequestContext.none());
+    public void requiredImplicit(String name) {
+        requiredImplicitWithResponse(name, RequestContext.none());
     }
 
     /**
      * The requiredImplicit operation.
-     * 
+     *
      * @param name The name parameter.
      * @param requestContext The context to configure the HTTP request before HTTP client sends it.
      * @throws IllegalArgumentException thrown if parameters fail the validation.
@@ -79,19 +94,5 @@ public final class BodyOptionalityClient {
     public Response<Void> requiredImplicitWithResponse(String name, RequestContext requestContext) {
         return this.instrumentation.instrumentWithResponse("Parameters.BodyOptionality.requiredImplicit",
             requestContext, updatedContext -> this.serviceClient.requiredImplicitWithResponse(name, updatedContext));
-    }
-
-    /**
-     * The requiredImplicit operation.
-     * 
-     * @param name The name parameter.
-     * @throws IllegalArgumentException thrown if parameters fail the validation.
-     * @throws HttpResponseException thrown if the service returns an error.
-     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
-     */
-    @Metadata(properties = { MetadataProperties.GENERATED })
-    @ServiceMethod(returns = ReturnType.SINGLE)
-    public void requiredImplicit(String name) {
-        requiredImplicitWithResponse(name, RequestContext.none());
     }
 }

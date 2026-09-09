@@ -13,6 +13,7 @@ import java.io.IOException;
  */
 @Metadata(properties = { MetadataProperties.IMMUTABLE })
 public final class NestedLinkResponseNestedNext implements JsonSerializable<NestedLinkResponseNestedNext> {
+
     /*
      * The next property.
      */
@@ -28,7 +29,7 @@ public final class NestedLinkResponseNestedNext implements JsonSerializable<Nest
 
     /**
      * Get the next property: The next property.
-     * 
+     *
      * @return the next value.
      */
     @Metadata(properties = { MetadataProperties.GENERATED })
@@ -49,7 +50,7 @@ public final class NestedLinkResponseNestedNext implements JsonSerializable<Nest
 
     /**
      * Reads an instance of NestedLinkResponseNestedNext from the JsonReader.
-     * 
+     *
      * @param jsonReader The JsonReader being read.
      * @return An instance of NestedLinkResponseNestedNext if the JsonReader was pointing to an instance of it, or null
      * if it was pointing to JSON null.
@@ -62,14 +63,12 @@ public final class NestedLinkResponseNestedNext implements JsonSerializable<Nest
             while (reader.nextToken() != JsonToken.END_OBJECT) {
                 String fieldName = reader.getFieldName();
                 reader.nextToken();
-
                 if ("next".equals(fieldName)) {
                     deserializedNestedLinkResponseNestedNext.next = reader.getString();
                 } else {
                     reader.skipChildren();
                 }
             }
-
             return deserializedNestedLinkResponseNestedNext;
         });
     }

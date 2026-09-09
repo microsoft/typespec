@@ -16,14 +16,15 @@ import payload.pageable.implementation.ServerDrivenPaginationContinuationTokensI
  */
 @ServiceClient(builder = PageableClientBuilder.class)
 public final class ServerDrivenPaginationContinuationTokenClient {
-    @Metadata(properties = { MetadataProperties.GENERATED })
-    private final ServerDrivenPaginationContinuationTokensImpl serviceClient;
 
     private final Instrumentation instrumentation;
 
+    @Metadata(properties = { MetadataProperties.GENERATED })
+    private final ServerDrivenPaginationContinuationTokensImpl serviceClient;
+
     /**
      * Initializes an instance of ServerDrivenPaginationContinuationTokenClient class.
-     * 
+     *
      * @param serviceClient the service client implementation.
      * @param instrumentation the instrumentation instance.
      */
@@ -35,8 +36,23 @@ public final class ServerDrivenPaginationContinuationTokenClient {
     }
 
     /**
-     * The requestQueryResponseBody operation.
-     * 
+     * The requestHeaderNestedResponseBody operation.
+     *
+     * @throws HttpResponseException thrown if the service returns an error.
+     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
+     * @return the paginated response with {@link PagedIterable}.
+     */
+    @Metadata(properties = { MetadataProperties.GENERATED })
+    @ServiceMethod(returns = ReturnType.COLLECTION)
+    public PagedIterable<Pet> requestHeaderNestedResponseBody() {
+        final String foo = null;
+        final String bar = null;
+        return requestHeaderNestedResponseBody(foo, bar, RequestContext.none());
+    }
+
+    /**
+     * The requestHeaderNestedResponseBody operation.
+     *
      * @param foo The foo parameter.
      * @param bar The bar parameter.
      * @throws IllegalArgumentException thrown if parameters fail the validation.
@@ -46,28 +62,13 @@ public final class ServerDrivenPaginationContinuationTokenClient {
      */
     @Metadata(properties = { MetadataProperties.GENERATED })
     @ServiceMethod(returns = ReturnType.COLLECTION)
-    public PagedIterable<Pet> requestQueryResponseBody(String foo, String bar) {
-        return requestQueryResponseBody(foo, bar, RequestContext.none());
+    public PagedIterable<Pet> requestHeaderNestedResponseBody(String foo, String bar) {
+        return requestHeaderNestedResponseBody(foo, bar, RequestContext.none());
     }
 
     /**
-     * The requestQueryResponseBody operation.
-     * 
-     * @throws HttpResponseException thrown if the service returns an error.
-     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
-     * @return the paginated response with {@link PagedIterable}.
-     */
-    @Metadata(properties = { MetadataProperties.GENERATED })
-    @ServiceMethod(returns = ReturnType.COLLECTION)
-    public PagedIterable<Pet> requestQueryResponseBody() {
-        final String foo = null;
-        final String bar = null;
-        return requestQueryResponseBody(foo, bar, RequestContext.none());
-    }
-
-    /**
-     * The requestQueryResponseBody operation.
-     * 
+     * The requestHeaderNestedResponseBody operation.
+     *
      * @param foo The foo parameter.
      * @param bar The bar parameter.
      * @param requestContext The context to configure the HTTP request before HTTP client sends it.
@@ -78,13 +79,28 @@ public final class ServerDrivenPaginationContinuationTokenClient {
      */
     @Metadata(properties = { MetadataProperties.GENERATED })
     @ServiceMethod(returns = ReturnType.COLLECTION)
-    public PagedIterable<Pet> requestQueryResponseBody(String foo, String bar, RequestContext requestContext) {
-        return this.serviceClient.requestQueryResponseBody(foo, bar, requestContext);
+    public PagedIterable<Pet> requestHeaderNestedResponseBody(String foo, String bar, RequestContext requestContext) {
+        return this.serviceClient.requestHeaderNestedResponseBody(foo, bar, requestContext);
     }
 
     /**
      * The requestHeaderResponseBody operation.
-     * 
+     *
+     * @throws HttpResponseException thrown if the service returns an error.
+     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
+     * @return the paginated response with {@link PagedIterable}.
+     */
+    @Metadata(properties = { MetadataProperties.GENERATED })
+    @ServiceMethod(returns = ReturnType.COLLECTION)
+    public PagedIterable<Pet> requestHeaderResponseBody() {
+        final String foo = null;
+        final String bar = null;
+        return requestHeaderResponseBody(foo, bar, RequestContext.none());
+    }
+
+    /**
+     * The requestHeaderResponseBody operation.
+     *
      * @param foo The foo parameter.
      * @param bar The bar parameter.
      * @throws IllegalArgumentException thrown if parameters fail the validation.
@@ -100,22 +116,7 @@ public final class ServerDrivenPaginationContinuationTokenClient {
 
     /**
      * The requestHeaderResponseBody operation.
-     * 
-     * @throws HttpResponseException thrown if the service returns an error.
-     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
-     * @return the paginated response with {@link PagedIterable}.
-     */
-    @Metadata(properties = { MetadataProperties.GENERATED })
-    @ServiceMethod(returns = ReturnType.COLLECTION)
-    public PagedIterable<Pet> requestHeaderResponseBody() {
-        final String foo = null;
-        final String bar = null;
-        return requestHeaderResponseBody(foo, bar, RequestContext.none());
-    }
-
-    /**
-     * The requestHeaderResponseBody operation.
-     * 
+     *
      * @param foo The foo parameter.
      * @param bar The bar parameter.
      * @param requestContext The context to configure the HTTP request before HTTP client sends it.
@@ -131,56 +132,23 @@ public final class ServerDrivenPaginationContinuationTokenClient {
     }
 
     /**
-     * The requestQueryResponseHeader operation.
-     * 
-     * @param foo The foo parameter.
-     * @param bar The bar parameter.
-     * @throws IllegalArgumentException thrown if parameters fail the validation.
+     * The requestHeaderResponseHeader operation.
+     *
      * @throws HttpResponseException thrown if the service returns an error.
      * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
      * @return the paginated response with {@link PagedIterable}.
      */
     @Metadata(properties = { MetadataProperties.GENERATED })
     @ServiceMethod(returns = ReturnType.COLLECTION)
-    public PagedIterable<Pet> requestQueryResponseHeader(String foo, String bar) {
-        return requestQueryResponseHeader(foo, bar, RequestContext.none());
-    }
-
-    /**
-     * The requestQueryResponseHeader operation.
-     * 
-     * @throws HttpResponseException thrown if the service returns an error.
-     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
-     * @return the paginated response with {@link PagedIterable}.
-     */
-    @Metadata(properties = { MetadataProperties.GENERATED })
-    @ServiceMethod(returns = ReturnType.COLLECTION)
-    public PagedIterable<Pet> requestQueryResponseHeader() {
+    public PagedIterable<Pet> requestHeaderResponseHeader() {
         final String foo = null;
         final String bar = null;
-        return requestQueryResponseHeader(foo, bar, RequestContext.none());
-    }
-
-    /**
-     * The requestQueryResponseHeader operation.
-     * 
-     * @param foo The foo parameter.
-     * @param bar The bar parameter.
-     * @param requestContext The context to configure the HTTP request before HTTP client sends it.
-     * @throws IllegalArgumentException thrown if parameters fail the validation.
-     * @throws HttpResponseException thrown if the service returns an error.
-     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
-     * @return the paginated response with {@link PagedIterable}.
-     */
-    @Metadata(properties = { MetadataProperties.GENERATED })
-    @ServiceMethod(returns = ReturnType.COLLECTION)
-    public PagedIterable<Pet> requestQueryResponseHeader(String foo, String bar, RequestContext requestContext) {
-        return this.serviceClient.requestQueryResponseHeader(foo, bar, requestContext);
+        return requestHeaderResponseHeader(foo, bar, RequestContext.none());
     }
 
     /**
      * The requestHeaderResponseHeader operation.
-     * 
+     *
      * @param foo The foo parameter.
      * @param bar The bar parameter.
      * @throws IllegalArgumentException thrown if parameters fail the validation.
@@ -196,22 +164,7 @@ public final class ServerDrivenPaginationContinuationTokenClient {
 
     /**
      * The requestHeaderResponseHeader operation.
-     * 
-     * @throws HttpResponseException thrown if the service returns an error.
-     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
-     * @return the paginated response with {@link PagedIterable}.
-     */
-    @Metadata(properties = { MetadataProperties.GENERATED })
-    @ServiceMethod(returns = ReturnType.COLLECTION)
-    public PagedIterable<Pet> requestHeaderResponseHeader() {
-        final String foo = null;
-        final String bar = null;
-        return requestHeaderResponseHeader(foo, bar, RequestContext.none());
-    }
-
-    /**
-     * The requestHeaderResponseHeader operation.
-     * 
+     *
      * @param foo The foo parameter.
      * @param bar The bar parameter.
      * @param requestContext The context to configure the HTTP request before HTTP client sends it.
@@ -228,7 +181,22 @@ public final class ServerDrivenPaginationContinuationTokenClient {
 
     /**
      * The requestQueryNestedResponseBody operation.
-     * 
+     *
+     * @throws HttpResponseException thrown if the service returns an error.
+     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
+     * @return the paginated response with {@link PagedIterable}.
+     */
+    @Metadata(properties = { MetadataProperties.GENERATED })
+    @ServiceMethod(returns = ReturnType.COLLECTION)
+    public PagedIterable<Pet> requestQueryNestedResponseBody() {
+        final String foo = null;
+        final String bar = null;
+        return requestQueryNestedResponseBody(foo, bar, RequestContext.none());
+    }
+
+    /**
+     * The requestQueryNestedResponseBody operation.
+     *
      * @param foo The foo parameter.
      * @param bar The bar parameter.
      * @throws IllegalArgumentException thrown if parameters fail the validation.
@@ -244,22 +212,7 @@ public final class ServerDrivenPaginationContinuationTokenClient {
 
     /**
      * The requestQueryNestedResponseBody operation.
-     * 
-     * @throws HttpResponseException thrown if the service returns an error.
-     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
-     * @return the paginated response with {@link PagedIterable}.
-     */
-    @Metadata(properties = { MetadataProperties.GENERATED })
-    @ServiceMethod(returns = ReturnType.COLLECTION)
-    public PagedIterable<Pet> requestQueryNestedResponseBody() {
-        final String foo = null;
-        final String bar = null;
-        return requestQueryNestedResponseBody(foo, bar, RequestContext.none());
-    }
-
-    /**
-     * The requestQueryNestedResponseBody operation.
-     * 
+     *
      * @param foo The foo parameter.
      * @param bar The bar parameter.
      * @param requestContext The context to configure the HTTP request before HTTP client sends it.
@@ -275,8 +228,23 @@ public final class ServerDrivenPaginationContinuationTokenClient {
     }
 
     /**
-     * The requestHeaderNestedResponseBody operation.
-     * 
+     * The requestQueryResponseBody operation.
+     *
+     * @throws HttpResponseException thrown if the service returns an error.
+     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
+     * @return the paginated response with {@link PagedIterable}.
+     */
+    @Metadata(properties = { MetadataProperties.GENERATED })
+    @ServiceMethod(returns = ReturnType.COLLECTION)
+    public PagedIterable<Pet> requestQueryResponseBody() {
+        final String foo = null;
+        final String bar = null;
+        return requestQueryResponseBody(foo, bar, RequestContext.none());
+    }
+
+    /**
+     * The requestQueryResponseBody operation.
+     *
      * @param foo The foo parameter.
      * @param bar The bar parameter.
      * @throws IllegalArgumentException thrown if parameters fail the validation.
@@ -286,28 +254,13 @@ public final class ServerDrivenPaginationContinuationTokenClient {
      */
     @Metadata(properties = { MetadataProperties.GENERATED })
     @ServiceMethod(returns = ReturnType.COLLECTION)
-    public PagedIterable<Pet> requestHeaderNestedResponseBody(String foo, String bar) {
-        return requestHeaderNestedResponseBody(foo, bar, RequestContext.none());
+    public PagedIterable<Pet> requestQueryResponseBody(String foo, String bar) {
+        return requestQueryResponseBody(foo, bar, RequestContext.none());
     }
 
     /**
-     * The requestHeaderNestedResponseBody operation.
-     * 
-     * @throws HttpResponseException thrown if the service returns an error.
-     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
-     * @return the paginated response with {@link PagedIterable}.
-     */
-    @Metadata(properties = { MetadataProperties.GENERATED })
-    @ServiceMethod(returns = ReturnType.COLLECTION)
-    public PagedIterable<Pet> requestHeaderNestedResponseBody() {
-        final String foo = null;
-        final String bar = null;
-        return requestHeaderNestedResponseBody(foo, bar, RequestContext.none());
-    }
-
-    /**
-     * The requestHeaderNestedResponseBody operation.
-     * 
+     * The requestQueryResponseBody operation.
+     *
      * @param foo The foo parameter.
      * @param bar The bar parameter.
      * @param requestContext The context to configure the HTTP request before HTTP client sends it.
@@ -318,7 +271,55 @@ public final class ServerDrivenPaginationContinuationTokenClient {
      */
     @Metadata(properties = { MetadataProperties.GENERATED })
     @ServiceMethod(returns = ReturnType.COLLECTION)
-    public PagedIterable<Pet> requestHeaderNestedResponseBody(String foo, String bar, RequestContext requestContext) {
-        return this.serviceClient.requestHeaderNestedResponseBody(foo, bar, requestContext);
+    public PagedIterable<Pet> requestQueryResponseBody(String foo, String bar, RequestContext requestContext) {
+        return this.serviceClient.requestQueryResponseBody(foo, bar, requestContext);
+    }
+
+    /**
+     * The requestQueryResponseHeader operation.
+     *
+     * @throws HttpResponseException thrown if the service returns an error.
+     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
+     * @return the paginated response with {@link PagedIterable}.
+     */
+    @Metadata(properties = { MetadataProperties.GENERATED })
+    @ServiceMethod(returns = ReturnType.COLLECTION)
+    public PagedIterable<Pet> requestQueryResponseHeader() {
+        final String foo = null;
+        final String bar = null;
+        return requestQueryResponseHeader(foo, bar, RequestContext.none());
+    }
+
+    /**
+     * The requestQueryResponseHeader operation.
+     *
+     * @param foo The foo parameter.
+     * @param bar The bar parameter.
+     * @throws IllegalArgumentException thrown if parameters fail the validation.
+     * @throws HttpResponseException thrown if the service returns an error.
+     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
+     * @return the paginated response with {@link PagedIterable}.
+     */
+    @Metadata(properties = { MetadataProperties.GENERATED })
+    @ServiceMethod(returns = ReturnType.COLLECTION)
+    public PagedIterable<Pet> requestQueryResponseHeader(String foo, String bar) {
+        return requestQueryResponseHeader(foo, bar, RequestContext.none());
+    }
+
+    /**
+     * The requestQueryResponseHeader operation.
+     *
+     * @param foo The foo parameter.
+     * @param bar The bar parameter.
+     * @param requestContext The context to configure the HTTP request before HTTP client sends it.
+     * @throws IllegalArgumentException thrown if parameters fail the validation.
+     * @throws HttpResponseException thrown if the service returns an error.
+     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
+     * @return the paginated response with {@link PagedIterable}.
+     */
+    @Metadata(properties = { MetadataProperties.GENERATED })
+    @ServiceMethod(returns = ReturnType.COLLECTION)
+    public PagedIterable<Pet> requestQueryResponseHeader(String foo, String bar, RequestContext requestContext) {
+        return this.serviceClient.requestQueryResponseHeader(foo, bar, requestContext);
     }
 }

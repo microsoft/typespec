@@ -12,6 +12,7 @@ import java.io.IOException;
  */
 @Metadata(properties = { MetadataProperties.IMMUTABLE })
 public final class SeaGull extends Bird {
+
     /*
      * The kind property.
      */
@@ -20,7 +21,7 @@ public final class SeaGull extends Bird {
 
     /**
      * Creates an instance of SeaGull class.
-     * 
+     *
      * @param wingspan the wingspan value to set.
      */
     @Metadata(properties = { MetadataProperties.GENERATED })
@@ -30,7 +31,7 @@ public final class SeaGull extends Bird {
 
     /**
      * Get the kind property: The kind property.
-     * 
+     *
      * @return the kind value.
      */
     @Metadata(properties = { MetadataProperties.GENERATED })
@@ -53,7 +54,7 @@ public final class SeaGull extends Bird {
 
     /**
      * Reads an instance of SeaGull from the JsonReader.
-     * 
+     *
      * @param jsonReader The JsonReader being read.
      * @return An instance of SeaGull if the JsonReader was pointing to an instance of it, or null if it was pointing to
      * JSON null.
@@ -68,7 +69,6 @@ public final class SeaGull extends Bird {
             while (reader.nextToken() != JsonToken.END_OBJECT) {
                 String fieldName = reader.getFieldName();
                 reader.nextToken();
-
                 if ("wingspan".equals(fieldName)) {
                     wingspan = reader.getInt();
                 } else if ("kind".equals(fieldName)) {
@@ -79,7 +79,6 @@ public final class SeaGull extends Bird {
             }
             SeaGull deserializedSeaGull = new SeaGull(wingspan);
             deserializedSeaGull.kind = kind;
-
             return deserializedSeaGull;
         });
     }

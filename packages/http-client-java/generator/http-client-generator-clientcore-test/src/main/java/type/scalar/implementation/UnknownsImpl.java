@@ -21,10 +21,6 @@ import java.lang.reflect.InvocationTargetException;
  * An instance of this class provides access to all the operations defined in Unknowns.
  */
 public final class UnknownsImpl {
-    /**
-     * The proxy service used to perform REST calls.
-     */
-    private final UnknownsService service;
 
     /**
      * The service client containing this operation class.
@@ -37,8 +33,13 @@ public final class UnknownsImpl {
     private final Instrumentation instrumentation;
 
     /**
+     * The proxy service used to perform REST calls.
+     */
+    private final UnknownsService service;
+
+    /**
      * Initializes an instance of UnknownsImpl.
-     * 
+     *
      * @param client the instance of the service client containing this operation class.
      */
     UnknownsImpl(ScalarClientImpl client) {
@@ -48,36 +49,8 @@ public final class UnknownsImpl {
     }
 
     /**
-     * The interface defining all the services for ScalarClientUnknowns to be used by the proxy service to perform REST
-     * calls.
-     */
-    @ServiceInterface(name = "ScalarClientUnknowns", host = "{endpoint}")
-    public interface UnknownsService {
-        static UnknownsService getNewInstance(HttpPipeline pipeline) {
-            try {
-                Class<?> clazz = Class.forName("type.scalar.implementation.UnknownsServiceImpl");
-                return (UnknownsService) clazz.getMethod("getNewInstance", HttpPipeline.class).invoke(null, pipeline);
-            } catch (ClassNotFoundException | NoSuchMethodException | IllegalAccessException
-                | InvocationTargetException e) {
-                throw new RuntimeException(e);
-            }
-
-        }
-
-        @HttpRequestInformation(method = HttpMethod.GET, path = "/type/scalar/unknown", expectedStatusCodes = { 200 })
-        @UnexpectedResponseExceptionDetail
-        Response<BinaryData> get(@HostParam("endpoint") String endpoint, @HeaderParam("Accept") String accept,
-            RequestContext requestContext);
-
-        @HttpRequestInformation(method = HttpMethod.PUT, path = "/type/scalar/unknown", expectedStatusCodes = { 204 })
-        @UnexpectedResponseExceptionDetail
-        Response<Void> put(@HostParam("endpoint") String endpoint, @HeaderParam("content-type") String contentType,
-            @BodyParam("application/json") BinaryData body, RequestContext requestContext);
-    }
-
-    /**
      * get unknown value.
-     * 
+     *
      * @param requestContext The context to configure the HTTP request before HTTP client sends it.
      * @throws IllegalArgumentException thrown if parameters fail the validation.
      * @throws HttpResponseException thrown if the service returns an error.
@@ -95,7 +68,7 @@ public final class UnknownsImpl {
 
     /**
      * put unknown value.
-     * 
+     *
      * @param body _.
      * @param requestContext The context to configure the HTTP request before HTTP client sends it.
      * @throws IllegalArgumentException thrown if parameters fail the validation.
@@ -110,5 +83,33 @@ public final class UnknownsImpl {
                 final String contentType = "application/json";
                 return service.put(this.client.getEndpoint(), contentType, body, updatedContext);
             });
+    }
+
+    /**
+     * The interface defining all the services for ScalarClientUnknowns to be used by the proxy service to perform REST
+     * calls.
+     */
+    @ServiceInterface(name = "ScalarClientUnknowns", host = "{endpoint}")
+    public interface UnknownsService {
+
+        @HttpRequestInformation(method = HttpMethod.GET, path = "/type/scalar/unknown", expectedStatusCodes = { 200 })
+        @UnexpectedResponseExceptionDetail
+        Response<BinaryData> get(@HostParam("endpoint") String endpoint, @HeaderParam("Accept") String accept,
+            RequestContext requestContext);
+
+        @HttpRequestInformation(method = HttpMethod.PUT, path = "/type/scalar/unknown", expectedStatusCodes = { 204 })
+        @UnexpectedResponseExceptionDetail
+        Response<Void> put(@HostParam("endpoint") String endpoint, @HeaderParam("content-type") String contentType,
+            @BodyParam("application/json") BinaryData body, RequestContext requestContext);
+
+        static UnknownsService getNewInstance(HttpPipeline pipeline) {
+            try {
+                Class<?> clazz = Class.forName("type.scalar.implementation.UnknownsServiceImpl");
+                return (UnknownsService) clazz.getMethod("getNewInstance", HttpPipeline.class).invoke(null, pipeline);
+            } catch (ClassNotFoundException | NoSuchMethodException | IllegalAccessException
+                | InvocationTargetException e) {
+                throw new RuntimeException(e);
+            }
+        }
     }
 }

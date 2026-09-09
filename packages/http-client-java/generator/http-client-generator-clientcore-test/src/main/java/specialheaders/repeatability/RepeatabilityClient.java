@@ -16,14 +16,15 @@ import specialheaders.repeatability.implementation.RepeatabilityClientImpl;
  */
 @ServiceClient(builder = RepeatabilityClientBuilder.class)
 public final class RepeatabilityClient {
-    @Metadata(properties = { MetadataProperties.GENERATED })
-    private final RepeatabilityClientImpl serviceClient;
 
     private final Instrumentation instrumentation;
 
+    @Metadata(properties = { MetadataProperties.GENERATED })
+    private final RepeatabilityClientImpl serviceClient;
+
     /**
      * Initializes an instance of RepeatabilityClient class.
-     * 
+     *
      * @param serviceClient the service client implementation.
      * @param instrumentation the instrumentation instance.
      */
@@ -35,7 +36,19 @@ public final class RepeatabilityClient {
 
     /**
      * Check we recognize Repeatability-Request-ID and Repeatability-First-Sent.
-     * 
+     *
+     * @throws HttpResponseException thrown if the service returns an error.
+     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
+     */
+    @Metadata(properties = { MetadataProperties.GENERATED })
+    @ServiceMethod(returns = ReturnType.SINGLE)
+    public void immediateSuccess() {
+        immediateSuccessWithResponse(RequestContext.none());
+    }
+
+    /**
+     * Check we recognize Repeatability-Request-ID and Repeatability-First-Sent.
+     *
      * @param requestContext The context to configure the HTTP request before HTTP client sends it.
      * @throws IllegalArgumentException thrown if parameters fail the validation.
      * @throws HttpResponseException thrown if the service returns an error.
@@ -47,17 +60,5 @@ public final class RepeatabilityClient {
     public Response<Void> immediateSuccessWithResponse(RequestContext requestContext) {
         return this.instrumentation.instrumentWithResponse("SpecialHeaders.Repeatability.immediateSuccess",
             requestContext, updatedContext -> this.serviceClient.immediateSuccessWithResponse(updatedContext));
-    }
-
-    /**
-     * Check we recognize Repeatability-Request-ID and Repeatability-First-Sent.
-     * 
-     * @throws HttpResponseException thrown if the service returns an error.
-     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
-     */
-    @Metadata(properties = { MetadataProperties.GENERATED })
-    @ServiceMethod(returns = ReturnType.SINGLE)
-    public void immediateSuccess() {
-        immediateSuccessWithResponse(RequestContext.none());
     }
 }

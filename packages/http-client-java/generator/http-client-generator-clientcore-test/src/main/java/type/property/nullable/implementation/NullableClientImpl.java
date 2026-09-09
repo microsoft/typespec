@@ -7,61 +7,6 @@ import io.clientcore.core.instrumentation.Instrumentation;
  * Initializes a new instance of the NullableClient type.
  */
 public final class NullableClientImpl {
-    /**
-     * Service host.
-     */
-    private final String endpoint;
-
-    /**
-     * Gets Service host.
-     * 
-     * @return the endpoint value.
-     */
-    public String getEndpoint() {
-        return this.endpoint;
-    }
-
-    /**
-     * The HTTP pipeline to send requests through.
-     */
-    private final HttpPipeline httpPipeline;
-
-    /**
-     * Gets The HTTP pipeline to send requests through.
-     * 
-     * @return the httpPipeline value.
-     */
-    public HttpPipeline getHttpPipeline() {
-        return this.httpPipeline;
-    }
-
-    /**
-     * The instance of instrumentation to report telemetry.
-     */
-    private final Instrumentation instrumentation;
-
-    /**
-     * Gets The instance of instrumentation to report telemetry.
-     * 
-     * @return the instrumentation value.
-     */
-    public Instrumentation getInstrumentation() {
-        return this.instrumentation;
-    }
-
-    /**
-     * The StringOperationsImpl object to access its operations.
-     */
-    private final StringOperationsImpl stringOperations;
-
-    /**
-     * Gets the StringOperationsImpl object to access its operations.
-     * 
-     * @return the StringOperationsImpl object.
-     */
-    public StringOperationsImpl getStringOperations() {
-        return this.stringOperations;
-    }
 
     /**
      * The BytesImpl object to access its operations.
@@ -69,55 +14,9 @@ public final class NullableClientImpl {
     private final BytesImpl bytes;
 
     /**
-     * Gets the BytesImpl object to access its operations.
-     * 
-     * @return the BytesImpl object.
-     */
-    public BytesImpl getBytes() {
-        return this.bytes;
-    }
-
-    /**
-     * The DatetimeOperationsImpl object to access its operations.
-     */
-    private final DatetimeOperationsImpl datetimeOperations;
-
-    /**
-     * Gets the DatetimeOperationsImpl object to access its operations.
-     * 
-     * @return the DatetimeOperationsImpl object.
-     */
-    public DatetimeOperationsImpl getDatetimeOperations() {
-        return this.datetimeOperations;
-    }
-
-    /**
-     * The DurationOperationsImpl object to access its operations.
-     */
-    private final DurationOperationsImpl durationOperations;
-
-    /**
-     * Gets the DurationOperationsImpl object to access its operations.
-     * 
-     * @return the DurationOperationsImpl object.
-     */
-    public DurationOperationsImpl getDurationOperations() {
-        return this.durationOperations;
-    }
-
-    /**
      * The CollectionsBytesImpl object to access its operations.
      */
     private final CollectionsBytesImpl collectionsBytes;
-
-    /**
-     * Gets the CollectionsBytesImpl object to access its operations.
-     * 
-     * @return the CollectionsBytesImpl object.
-     */
-    public CollectionsBytesImpl getCollectionsBytes() {
-        return this.collectionsBytes;
-    }
 
     /**
      * The CollectionsModelsImpl object to access its operations.
@@ -125,31 +24,43 @@ public final class NullableClientImpl {
     private final CollectionsModelsImpl collectionsModels;
 
     /**
-     * Gets the CollectionsModelsImpl object to access its operations.
-     * 
-     * @return the CollectionsModelsImpl object.
-     */
-    public CollectionsModelsImpl getCollectionsModels() {
-        return this.collectionsModels;
-    }
-
-    /**
      * The CollectionsStringsImpl object to access its operations.
      */
     private final CollectionsStringsImpl collectionsStrings;
 
     /**
-     * Gets the CollectionsStringsImpl object to access its operations.
-     * 
-     * @return the CollectionsStringsImpl object.
+     * The DatetimeOperationsImpl object to access its operations.
      */
-    public CollectionsStringsImpl getCollectionsStrings() {
-        return this.collectionsStrings;
-    }
+    private final DatetimeOperationsImpl datetimeOperations;
+
+    /**
+     * The DurationOperationsImpl object to access its operations.
+     */
+    private final DurationOperationsImpl durationOperations;
+
+    /**
+     * Service host.
+     */
+    private final String endpoint;
+
+    /**
+     * The HTTP pipeline to send requests through.
+     */
+    private final HttpPipeline httpPipeline;
+
+    /**
+     * The instance of instrumentation to report telemetry.
+     */
+    private final Instrumentation instrumentation;
+
+    /**
+     * The StringOperationsImpl object to access its operations.
+     */
+    private final StringOperationsImpl stringOperations;
 
     /**
      * Initializes an instance of NullableClient client.
-     * 
+     *
      * @param httpPipeline The HTTP pipeline to send requests through.
      * @param instrumentation The instance of instrumentation to report telemetry.
      * @param endpoint Service host.
@@ -165,5 +76,95 @@ public final class NullableClientImpl {
         this.collectionsBytes = new CollectionsBytesImpl(this);
         this.collectionsModels = new CollectionsModelsImpl(this);
         this.collectionsStrings = new CollectionsStringsImpl(this);
+    }
+
+    /**
+     * Gets the BytesImpl object to access its operations.
+     *
+     * @return the BytesImpl object.
+     */
+    public BytesImpl getBytes() {
+        return this.bytes;
+    }
+
+    /**
+     * Gets the CollectionsBytesImpl object to access its operations.
+     *
+     * @return the CollectionsBytesImpl object.
+     */
+    public CollectionsBytesImpl getCollectionsBytes() {
+        return this.collectionsBytes;
+    }
+
+    /**
+     * Gets the CollectionsModelsImpl object to access its operations.
+     *
+     * @return the CollectionsModelsImpl object.
+     */
+    public CollectionsModelsImpl getCollectionsModels() {
+        return this.collectionsModels;
+    }
+
+    /**
+     * Gets the CollectionsStringsImpl object to access its operations.
+     *
+     * @return the CollectionsStringsImpl object.
+     */
+    public CollectionsStringsImpl getCollectionsStrings() {
+        return this.collectionsStrings;
+    }
+
+    /**
+     * Gets the DatetimeOperationsImpl object to access its operations.
+     *
+     * @return the DatetimeOperationsImpl object.
+     */
+    public DatetimeOperationsImpl getDatetimeOperations() {
+        return this.datetimeOperations;
+    }
+
+    /**
+     * Gets the DurationOperationsImpl object to access its operations.
+     *
+     * @return the DurationOperationsImpl object.
+     */
+    public DurationOperationsImpl getDurationOperations() {
+        return this.durationOperations;
+    }
+
+    /**
+     * Gets Service host.
+     *
+     * @return the endpoint value.
+     */
+    public String getEndpoint() {
+        return this.endpoint;
+    }
+
+    /**
+     * Gets The HTTP pipeline to send requests through.
+     *
+     * @return the httpPipeline value.
+     */
+    public HttpPipeline getHttpPipeline() {
+        return this.httpPipeline;
+    }
+
+    /**
+     * Gets The instance of instrumentation to report telemetry.
+     *
+     * @return the instrumentation value.
+     */
+    public Instrumentation getInstrumentation() {
+        return this.instrumentation;
+    }
+
+    /**
+     * Gets the StringOperationsImpl object to access its operations.
+     *
+     * @return the StringOperationsImpl object.
+     */
+    public StringOperationsImpl getStringOperations() {
+        return this.stringOperations;
     }
 }

@@ -20,14 +20,9 @@ import tsptest.armcustomization.models.VaultProperties;
 public final class VaultInner extends Resource {
 
     /*
-     * The RP-specific properties for this resource.
+     * Fully qualified resource Id for the resource.
      */
-    private VaultProperties properties;
-
-    /*
-     * Resource tags.
-     */
-    private Map<String, String> tags;
+    private String id;
 
     /*
      * The geo-location where the resource lives
@@ -35,24 +30,29 @@ public final class VaultInner extends Resource {
     private String location;
 
     /*
-     * Azure Resource Manager metadata containing createdBy and modifiedBy information.
-     */
-    private SystemData systemData;
-
-    /*
-     * The type of the resource.
-     */
-    private String type;
-
-    /*
      * The name of the resource.
      */
     private String name;
 
     /*
-     * Fully qualified resource Id for the resource.
+     * The RP-specific properties for this resource.
      */
-    private String id;
+    private VaultProperties properties;
+
+    /*
+     * Azure Resource Manager metadata containing createdBy and modifiedBy information.
+     */
+    private SystemData systemData;
+
+    /*
+     * Resource tags.
+     */
+    private Map<String, String> tags;
+
+    /*
+     * The type of the resource.
+     */
+    private String type;
 
     /**
      * Creates an instance of VaultInner class.
@@ -61,49 +61,13 @@ public final class VaultInner extends Resource {
     }
 
     /**
-     * Get the properties property: The RP-specific properties for this resource.
+     * Get the id property: Fully qualified resource Id for the resource.
      *
-     * @return the properties value.
-     */
-    public VaultProperties properties() {
-        return this.properties;
-    }
-
-    /**
-     * Get the tags property: Resource tags.
-     *
-     * @return the tags value.
-     */
-    public Map<String, String> tags() {
-        return this.tags;
-    }
-
-    /**
-     * Get the location property: The geo-location where the resource lives.
-     *
-     * @return the location value.
-     */
-    public String location() {
-        return this.location;
-    }
-
-    /**
-     * Get the systemData property: Azure Resource Manager metadata containing createdBy and modifiedBy information.
-     *
-     * @return the systemData value.
-     */
-    public SystemData systemData() {
-        return this.systemData;
-    }
-
-    /**
-     * Get the type property: The type of the resource.
-     *
-     * @return the type value.
+     * @return the id value.
      */
     @Override
-    public String type() {
-        return this.type;
+    public String id() {
+        return this.id;
     }
 
     /**
@@ -117,13 +81,49 @@ public final class VaultInner extends Resource {
     }
 
     /**
-     * Get the id property: Fully qualified resource Id for the resource.
+     * Get the type property: The type of the resource.
      *
-     * @return the id value.
+     * @return the type value.
      */
     @Override
-    public String id() {
-        return this.id;
+    public String type() {
+        return this.type;
+    }
+
+    /**
+     * Get the location property: The geo-location where the resource lives.
+     *
+     * @return the location value.
+     */
+    public String location() {
+        return this.location;
+    }
+
+    /**
+     * Get the properties property: The RP-specific properties for this resource.
+     *
+     * @return the properties value.
+     */
+    public VaultProperties properties() {
+        return this.properties;
+    }
+
+    /**
+     * Get the systemData property: Azure Resource Manager metadata containing createdBy and modifiedBy information.
+     *
+     * @return the systemData value.
+     */
+    public SystemData systemData() {
+        return this.systemData;
+    }
+
+    /**
+     * Get the tags property: Resource tags.
+     *
+     * @return the tags value.
+     */
+    public Map<String, String> tags() {
+        return this.tags;
     }
 
     /**

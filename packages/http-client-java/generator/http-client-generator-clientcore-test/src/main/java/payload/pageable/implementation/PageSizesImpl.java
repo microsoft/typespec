@@ -26,10 +26,8 @@ import payload.pageable.pagesize.implementation.ListWithoutContinuationResponse;
  * An instance of this class provides access to all the operations defined in PageSizes.
  */
 public final class PageSizesImpl {
-    /**
-     * The proxy service used to perform REST calls.
-     */
-    private final PageSizesService service;
+
+    private static final ClientLogger LOGGER = new ClientLogger(PageSizesImpl.class);
 
     /**
      * The service client containing this operation class.
@@ -42,8 +40,13 @@ public final class PageSizesImpl {
     private final Instrumentation instrumentation;
 
     /**
+     * The proxy service used to perform REST calls.
+     */
+    private final PageSizesService service;
+
+    /**
      * Initializes an instance of PageSizesImpl.
-     * 
+     *
      * @param client the instance of the service client containing this operation class.
      */
     PageSizesImpl(PageableClientImpl client) {
@@ -53,83 +56,8 @@ public final class PageSizesImpl {
     }
 
     /**
-     * The interface defining all the services for PageableClientPageSizes to be used by the proxy service to perform
-     * REST calls.
-     */
-    @ServiceInterface(name = "PageableClientPageSizes", host = "{endpoint}")
-    public interface PageSizesService {
-        static PageSizesService getNewInstance(HttpPipeline pipeline) {
-            try {
-                Class<?> clazz = Class.forName("payload.pageable.implementation.PageSizesServiceImpl");
-                return (PageSizesService) clazz.getMethod("getNewInstance", HttpPipeline.class).invoke(null, pipeline);
-            } catch (ClassNotFoundException | NoSuchMethodException | IllegalAccessException
-                | InvocationTargetException e) {
-                throw new RuntimeException(e);
-            }
-
-        }
-
-        @HttpRequestInformation(
-            method = HttpMethod.GET,
-            path = "/payload/pageable/pagesize/without-continuation",
-            expectedStatusCodes = { 200 })
-        @UnexpectedResponseExceptionDetail
-        Response<ListWithoutContinuationResponse> listWithoutContinuation(@HostParam("endpoint") String endpoint,
-            @HeaderParam("Accept") String accept, RequestContext requestContext);
-
-        @HttpRequestInformation(
-            method = HttpMethod.GET,
-            path = "/payload/pageable/pagesize/list",
-            expectedStatusCodes = { 200 })
-        @UnexpectedResponseExceptionDetail
-        Response<ListWithPageSizeResponse> listWithPageSize(@HostParam("endpoint") String endpoint,
-            @QueryParam("pageSize") Integer pageSize, @HeaderParam("Accept") String accept,
-            RequestContext requestContext);
-    }
-
-    /**
      * The listWithoutContinuation operation.
-     * 
-     * @throws HttpResponseException thrown if the service returns an error.
-     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
-     * @return the response body along with {@link PagedResponse}.
-     */
-    @ServiceMethod(returns = ReturnType.SINGLE)
-    public PagedResponse<Pet> listWithoutContinuationSinglePage() {
-        return this.instrumentation.instrumentWithResponse("Payload.Pageable.PageSize.listWithoutContinuation",
-            RequestContext.none(), updatedContext -> {
-                final String accept = "application/json";
-                Response<ListWithoutContinuationResponse> res
-                    = service.listWithoutContinuation(this.client.getEndpoint(), accept, updatedContext);
-                return new PagedResponse<>(res.getRequest(), res.getStatusCode(), res.getHeaders(),
-                    res.getValue().getPets(), null, null, null, null, null);
-            });
-    }
-
-    /**
-     * The listWithoutContinuation operation.
-     * 
-     * @param requestContext The context to configure the HTTP request before HTTP client sends it.
-     * @throws IllegalArgumentException thrown if parameters fail the validation.
-     * @throws HttpResponseException thrown if the service returns an error.
-     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
-     * @return the response body along with {@link PagedResponse}.
-     */
-    @ServiceMethod(returns = ReturnType.SINGLE)
-    public PagedResponse<Pet> listWithoutContinuationSinglePage(RequestContext requestContext) {
-        return this.instrumentation.instrumentWithResponse("Payload.Pageable.PageSize.listWithoutContinuation",
-            requestContext, updatedContext -> {
-                final String accept = "application/json";
-                Response<ListWithoutContinuationResponse> res
-                    = service.listWithoutContinuation(this.client.getEndpoint(), accept, updatedContext);
-                return new PagedResponse<>(res.getRequest(), res.getStatusCode(), res.getHeaders(),
-                    res.getValue().getPets(), null, null, null, null, null);
-            });
-    }
-
-    /**
-     * The listWithoutContinuation operation.
-     * 
+     *
      * @param requestContext The context to configure the HTTP request before HTTP client sends it.
      * @throws IllegalArgumentException thrown if parameters fail the validation.
      * @throws HttpResponseException thrown if the service returns an error.
@@ -168,30 +96,27 @@ public final class PageSizesImpl {
     }
 
     /**
-     * The listWithPageSize operation.
-     * 
-     * @param pageSize The pageSize parameter.
-     * @throws IllegalArgumentException thrown if parameters fail the validation.
+     * The listWithoutContinuation operation.
+     *
      * @throws HttpResponseException thrown if the service returns an error.
      * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
      * @return the response body along with {@link PagedResponse}.
      */
     @ServiceMethod(returns = ReturnType.SINGLE)
-    public PagedResponse<Pet> listWithPageSizeSinglePage(Integer pageSize) {
-        return this.instrumentation.instrumentWithResponse("Payload.Pageable.PageSize.listWithPageSize",
+    public PagedResponse<Pet> listWithoutContinuationSinglePage() {
+        return this.instrumentation.instrumentWithResponse("Payload.Pageable.PageSize.listWithoutContinuation",
             RequestContext.none(), updatedContext -> {
                 final String accept = "application/json";
-                Response<ListWithPageSizeResponse> res
-                    = service.listWithPageSize(this.client.getEndpoint(), pageSize, accept, updatedContext);
+                Response<ListWithoutContinuationResponse> res
+                    = service.listWithoutContinuation(this.client.getEndpoint(), accept, updatedContext);
                 return new PagedResponse<>(res.getRequest(), res.getStatusCode(), res.getHeaders(),
                     res.getValue().getPets(), null, null, null, null, null);
             });
     }
 
     /**
-     * The listWithPageSize operation.
-     * 
-     * @param pageSize The pageSize parameter.
+     * The listWithoutContinuation operation.
+     *
      * @param requestContext The context to configure the HTTP request before HTTP client sends it.
      * @throws IllegalArgumentException thrown if parameters fail the validation.
      * @throws HttpResponseException thrown if the service returns an error.
@@ -199,12 +124,12 @@ public final class PageSizesImpl {
      * @return the response body along with {@link PagedResponse}.
      */
     @ServiceMethod(returns = ReturnType.SINGLE)
-    public PagedResponse<Pet> listWithPageSizeSinglePage(Integer pageSize, RequestContext requestContext) {
-        return this.instrumentation.instrumentWithResponse("Payload.Pageable.PageSize.listWithPageSize", requestContext,
-            updatedContext -> {
+    public PagedResponse<Pet> listWithoutContinuationSinglePage(RequestContext requestContext) {
+        return this.instrumentation.instrumentWithResponse("Payload.Pageable.PageSize.listWithoutContinuation",
+            requestContext, updatedContext -> {
                 final String accept = "application/json";
-                Response<ListWithPageSizeResponse> res
-                    = service.listWithPageSize(this.client.getEndpoint(), pageSize, accept, updatedContext);
+                Response<ListWithoutContinuationResponse> res
+                    = service.listWithoutContinuation(this.client.getEndpoint(), accept, updatedContext);
                 return new PagedResponse<>(res.getRequest(), res.getStatusCode(), res.getHeaders(),
                     res.getValue().getPets(), null, null, null, null, null);
             });
@@ -212,7 +137,7 @@ public final class PageSizesImpl {
 
     /**
      * The listWithPageSize operation.
-     * 
+     *
      * @param pageSize The pageSize parameter.
      * @throws IllegalArgumentException thrown if parameters fail the validation.
      * @throws HttpResponseException thrown if the service returns an error.
@@ -252,7 +177,7 @@ public final class PageSizesImpl {
 
     /**
      * The listWithPageSize operation.
-     * 
+     *
      * @param pageSize The pageSize parameter.
      * @param requestContext The context to configure the HTTP request before HTTP client sends it.
      * @throws IllegalArgumentException thrown if parameters fail the validation.
@@ -291,5 +216,81 @@ public final class PageSizesImpl {
         });
     }
 
-    private static final ClientLogger LOGGER = new ClientLogger(PageSizesImpl.class);
+    /**
+     * The listWithPageSize operation.
+     *
+     * @param pageSize The pageSize parameter.
+     * @throws IllegalArgumentException thrown if parameters fail the validation.
+     * @throws HttpResponseException thrown if the service returns an error.
+     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
+     * @return the response body along with {@link PagedResponse}.
+     */
+    @ServiceMethod(returns = ReturnType.SINGLE)
+    public PagedResponse<Pet> listWithPageSizeSinglePage(Integer pageSize) {
+        return this.instrumentation.instrumentWithResponse("Payload.Pageable.PageSize.listWithPageSize",
+            RequestContext.none(), updatedContext -> {
+                final String accept = "application/json";
+                Response<ListWithPageSizeResponse> res
+                    = service.listWithPageSize(this.client.getEndpoint(), pageSize, accept, updatedContext);
+                return new PagedResponse<>(res.getRequest(), res.getStatusCode(), res.getHeaders(),
+                    res.getValue().getPets(), null, null, null, null, null);
+            });
+    }
+
+    /**
+     * The listWithPageSize operation.
+     *
+     * @param pageSize The pageSize parameter.
+     * @param requestContext The context to configure the HTTP request before HTTP client sends it.
+     * @throws IllegalArgumentException thrown if parameters fail the validation.
+     * @throws HttpResponseException thrown if the service returns an error.
+     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
+     * @return the response body along with {@link PagedResponse}.
+     */
+    @ServiceMethod(returns = ReturnType.SINGLE)
+    public PagedResponse<Pet> listWithPageSizeSinglePage(Integer pageSize, RequestContext requestContext) {
+        return this.instrumentation.instrumentWithResponse("Payload.Pageable.PageSize.listWithPageSize", requestContext,
+            updatedContext -> {
+                final String accept = "application/json";
+                Response<ListWithPageSizeResponse> res
+                    = service.listWithPageSize(this.client.getEndpoint(), pageSize, accept, updatedContext);
+                return new PagedResponse<>(res.getRequest(), res.getStatusCode(), res.getHeaders(),
+                    res.getValue().getPets(), null, null, null, null, null);
+            });
+    }
+
+    /**
+     * The interface defining all the services for PageableClientPageSizes to be used by the proxy service to perform
+     * REST calls.
+     */
+    @ServiceInterface(name = "PageableClientPageSizes", host = "{endpoint}")
+    public interface PageSizesService {
+
+        @HttpRequestInformation(
+            method = HttpMethod.GET,
+            path = "/payload/pageable/pagesize/without-continuation",
+            expectedStatusCodes = { 200 })
+        @UnexpectedResponseExceptionDetail
+        Response<ListWithoutContinuationResponse> listWithoutContinuation(@HostParam("endpoint") String endpoint,
+            @HeaderParam("Accept") String accept, RequestContext requestContext);
+
+        @HttpRequestInformation(
+            method = HttpMethod.GET,
+            path = "/payload/pageable/pagesize/list",
+            expectedStatusCodes = { 200 })
+        @UnexpectedResponseExceptionDetail
+        Response<ListWithPageSizeResponse> listWithPageSize(@HostParam("endpoint") String endpoint,
+            @QueryParam("pageSize") Integer pageSize, @HeaderParam("Accept") String accept,
+            RequestContext requestContext);
+
+        static PageSizesService getNewInstance(HttpPipeline pipeline) {
+            try {
+                Class<?> clazz = Class.forName("payload.pageable.implementation.PageSizesServiceImpl");
+                return (PageSizesService) clazz.getMethod("getNewInstance", HttpPipeline.class).invoke(null, pipeline);
+            } catch (ClassNotFoundException | NoSuchMethodException | IllegalAccessException
+                | InvocationTargetException e) {
+                throw new RuntimeException(e);
+            }
+        }
+    }
 }

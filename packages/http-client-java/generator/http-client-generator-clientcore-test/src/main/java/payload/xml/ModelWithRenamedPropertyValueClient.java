@@ -16,14 +16,15 @@ import payload.xml.implementation.ModelWithRenamedPropertyValuesImpl;
  */
 @ServiceClient(builder = XmlClientBuilder.class)
 public final class ModelWithRenamedPropertyValueClient {
-    @Metadata(properties = { MetadataProperties.GENERATED })
-    private final ModelWithRenamedPropertyValuesImpl serviceClient;
 
     private final Instrumentation instrumentation;
 
+    @Metadata(properties = { MetadataProperties.GENERATED })
+    private final ModelWithRenamedPropertyValuesImpl serviceClient;
+
     /**
      * Initializes an instance of ModelWithRenamedPropertyValueClient class.
-     * 
+     *
      * @param serviceClient the service client implementation.
      * @param instrumentation the instrumentation instance.
      */
@@ -36,7 +37,20 @@ public final class ModelWithRenamedPropertyValueClient {
 
     /**
      * The get operation.
-     * 
+     *
+     * @throws HttpResponseException thrown if the service returns an error.
+     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
+     * @return §1.2 — Contains a scalar property with a custom XML name.
+     */
+    @Metadata(properties = { MetadataProperties.GENERATED })
+    @ServiceMethod(returns = ReturnType.SINGLE)
+    public ModelWithRenamedProperty get() {
+        return getWithResponse(RequestContext.none()).getValue();
+    }
+
+    /**
+     * The get operation.
+     *
      * @param requestContext The context to configure the HTTP request before HTTP client sends it.
      * @throws IllegalArgumentException thrown if parameters fail the validation.
      * @throws HttpResponseException thrown if the service returns an error.
@@ -51,21 +65,22 @@ public final class ModelWithRenamedPropertyValueClient {
     }
 
     /**
-     * The get operation.
-     * 
+     * The put operation.
+     *
+     * @param input The input parameter.
+     * @throws IllegalArgumentException thrown if parameters fail the validation.
      * @throws HttpResponseException thrown if the service returns an error.
      * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
-     * @return §1.2 — Contains a scalar property with a custom XML name.
      */
     @Metadata(properties = { MetadataProperties.GENERATED })
     @ServiceMethod(returns = ReturnType.SINGLE)
-    public ModelWithRenamedProperty get() {
-        return getWithResponse(RequestContext.none()).getValue();
+    public void put(ModelWithRenamedProperty input) {
+        putWithResponse(input, RequestContext.none());
     }
 
     /**
      * The put operation.
-     * 
+     *
      * @param input The input parameter.
      * @param requestContext The context to configure the HTTP request before HTTP client sends it.
      * @throws IllegalArgumentException thrown if parameters fail the validation.
@@ -78,19 +93,5 @@ public final class ModelWithRenamedPropertyValueClient {
     public Response<Void> putWithResponse(ModelWithRenamedProperty input, RequestContext requestContext) {
         return this.instrumentation.instrumentWithResponse("Payload.Xml.ModelWithRenamedPropertyValue.put",
             requestContext, updatedContext -> this.serviceClient.putWithResponse(input, updatedContext));
-    }
-
-    /**
-     * The put operation.
-     * 
-     * @param input The input parameter.
-     * @throws IllegalArgumentException thrown if parameters fail the validation.
-     * @throws HttpResponseException thrown if the service returns an error.
-     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
-     */
-    @Metadata(properties = { MetadataProperties.GENERATED })
-    @ServiceMethod(returns = ReturnType.SINGLE)
-    public void put(ModelWithRenamedProperty input) {
-        putWithResponse(input, RequestContext.none());
     }
 }

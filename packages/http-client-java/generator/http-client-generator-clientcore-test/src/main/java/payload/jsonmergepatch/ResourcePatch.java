@@ -18,17 +18,6 @@ import payload.jsonmergepatch.implementation.JsonMergePatchHelper;
  */
 @Metadata(properties = { MetadataProperties.FLUENT })
 public final class ResourcePatch implements JsonSerializable<ResourcePatch> {
-    /*
-     * The description property.
-     */
-    @Metadata(properties = { MetadataProperties.GENERATED })
-    private String description;
-
-    /*
-     * The map property.
-     */
-    @Metadata(properties = { MetadataProperties.GENERATED })
-    private Map<String, InnerModel> map;
 
     /*
      * The array property.
@@ -37,10 +26,10 @@ public final class ResourcePatch implements JsonSerializable<ResourcePatch> {
     private List<InnerModel> array;
 
     /*
-     * The intValue property.
+     * The description property.
      */
     @Metadata(properties = { MetadataProperties.GENERATED })
-    private Integer intValue;
+    private String description;
 
     /*
      * The floatValue property.
@@ -60,22 +49,30 @@ public final class ResourcePatch implements JsonSerializable<ResourcePatch> {
     @Metadata(properties = { MetadataProperties.GENERATED })
     private List<Integer> intArray;
 
+    /*
+     * The intValue property.
+     */
+    @Metadata(properties = { MetadataProperties.GENERATED })
+    private Integer intValue;
+
+    @Metadata(properties = { MetadataProperties.GENERATED })
+    private boolean jsonMergePatch;
+
+    /*
+     * The map property.
+     */
+    @Metadata(properties = { MetadataProperties.GENERATED })
+    private Map<String, InnerModel> map;
+
     /**
      * Stores updated model property, the value is property name, not serialized name.
      */
     @Metadata(properties = { MetadataProperties.GENERATED })
     private final Set<String> updatedProperties = new HashSet<>();
 
-    @Metadata(properties = { MetadataProperties.GENERATED })
-    private boolean jsonMergePatch;
-
-    @Metadata(properties = { MetadataProperties.GENERATED })
-    private void serializeAsJsonMergePatch(boolean jsonMergePatch) {
-        this.jsonMergePatch = jsonMergePatch;
-    }
-
     static {
         JsonMergePatchHelper.setResourcePatchAccessor(new JsonMergePatchHelper.ResourcePatchAccessor() {
+
             @Override
             public ResourcePatch prepareModelForJsonMergePatch(ResourcePatch model, boolean jsonMergePatchEnabled) {
                 model.serializeAsJsonMergePatch(jsonMergePatchEnabled);
@@ -97,54 +94,8 @@ public final class ResourcePatch implements JsonSerializable<ResourcePatch> {
     }
 
     /**
-     * Get the description property: The description property.
-     * 
-     * @return the description value.
-     */
-    @Metadata(properties = { MetadataProperties.GENERATED })
-    public String getDescription() {
-        return this.description;
-    }
-
-    /**
-     * Set the description property: The description property.
-     * 
-     * @param description the description value to set.
-     * @return the ResourcePatch object itself.
-     */
-    @Metadata(properties = { MetadataProperties.GENERATED })
-    public ResourcePatch setDescription(String description) {
-        this.description = description;
-        this.updatedProperties.add("description");
-        return this;
-    }
-
-    /**
-     * Get the map property: The map property.
-     * 
-     * @return the map value.
-     */
-    @Metadata(properties = { MetadataProperties.GENERATED })
-    public Map<String, InnerModel> getMap() {
-        return this.map;
-    }
-
-    /**
-     * Set the map property: The map property.
-     * 
-     * @param map the map value to set.
-     * @return the ResourcePatch object itself.
-     */
-    @Metadata(properties = { MetadataProperties.GENERATED })
-    public ResourcePatch setMap(Map<String, InnerModel> map) {
-        this.map = map;
-        this.updatedProperties.add("map");
-        return this;
-    }
-
-    /**
      * Get the array property: The array property.
-     * 
+     *
      * @return the array value.
      */
     @Metadata(properties = { MetadataProperties.GENERATED })
@@ -154,7 +105,7 @@ public final class ResourcePatch implements JsonSerializable<ResourcePatch> {
 
     /**
      * Set the array property: The array property.
-     * 
+     *
      * @param array the array value to set.
      * @return the ResourcePatch object itself.
      */
@@ -166,31 +117,31 @@ public final class ResourcePatch implements JsonSerializable<ResourcePatch> {
     }
 
     /**
-     * Get the intValue property: The intValue property.
-     * 
-     * @return the intValue value.
+     * Get the description property: The description property.
+     *
+     * @return the description value.
      */
     @Metadata(properties = { MetadataProperties.GENERATED })
-    public Integer getIntValue() {
-        return this.intValue;
+    public String getDescription() {
+        return this.description;
     }
 
     /**
-     * Set the intValue property: The intValue property.
-     * 
-     * @param intValue the intValue value to set.
+     * Set the description property: The description property.
+     *
+     * @param description the description value to set.
      * @return the ResourcePatch object itself.
      */
     @Metadata(properties = { MetadataProperties.GENERATED })
-    public ResourcePatch setIntValue(Integer intValue) {
-        this.intValue = intValue;
-        this.updatedProperties.add("intValue");
+    public ResourcePatch setDescription(String description) {
+        this.description = description;
+        this.updatedProperties.add("description");
         return this;
     }
 
     /**
      * Get the floatValue property: The floatValue property.
-     * 
+     *
      * @return the floatValue value.
      */
     @Metadata(properties = { MetadataProperties.GENERATED })
@@ -200,7 +151,7 @@ public final class ResourcePatch implements JsonSerializable<ResourcePatch> {
 
     /**
      * Set the floatValue property: The floatValue property.
-     * 
+     *
      * @param floatValue the floatValue value to set.
      * @return the ResourcePatch object itself.
      */
@@ -213,7 +164,7 @@ public final class ResourcePatch implements JsonSerializable<ResourcePatch> {
 
     /**
      * Get the innerModel property: The innerModel property.
-     * 
+     *
      * @return the innerModel value.
      */
     @Metadata(properties = { MetadataProperties.GENERATED })
@@ -223,7 +174,7 @@ public final class ResourcePatch implements JsonSerializable<ResourcePatch> {
 
     /**
      * Set the innerModel property: The innerModel property.
-     * 
+     *
      * @param innerModel the innerModel value to set.
      * @return the ResourcePatch object itself.
      */
@@ -236,7 +187,7 @@ public final class ResourcePatch implements JsonSerializable<ResourcePatch> {
 
     /**
      * Get the intArray property: The intArray property.
-     * 
+     *
      * @return the intArray value.
      */
     @Metadata(properties = { MetadataProperties.GENERATED })
@@ -246,7 +197,7 @@ public final class ResourcePatch implements JsonSerializable<ResourcePatch> {
 
     /**
      * Set the intArray property: The intArray property.
-     * 
+     *
      * @param intArray the intArray value to set.
      * @return the ResourcePatch object itself.
      */
@@ -258,24 +209,54 @@ public final class ResourcePatch implements JsonSerializable<ResourcePatch> {
     }
 
     /**
-     * {@inheritDoc}
+     * Get the intValue property: The intValue property.
+     *
+     * @return the intValue value.
      */
     @Metadata(properties = { MetadataProperties.GENERATED })
-    @Override
-    public JsonWriter toJson(JsonWriter jsonWriter) throws IOException {
-        if (jsonMergePatch) {
-            return toJsonMergePatch(jsonWriter);
-        } else {
-            jsonWriter.writeStartObject();
-            jsonWriter.writeStringField("description", this.description);
-            jsonWriter.writeMapField("map", this.map, (writer, element) -> writer.writeJson(element));
-            jsonWriter.writeArrayField("array", this.array, (writer, element) -> writer.writeJson(element));
-            jsonWriter.writeNumberField("intValue", this.intValue);
-            jsonWriter.writeNumberField("floatValue", this.floatValue);
-            jsonWriter.writeJsonField("innerModel", this.innerModel);
-            jsonWriter.writeArrayField("intArray", this.intArray, (writer, element) -> writer.writeInt(element));
-            return jsonWriter.writeEndObject();
-        }
+    public Integer getIntValue() {
+        return this.intValue;
+    }
+
+    /**
+     * Set the intValue property: The intValue property.
+     *
+     * @param intValue the intValue value to set.
+     * @return the ResourcePatch object itself.
+     */
+    @Metadata(properties = { MetadataProperties.GENERATED })
+    public ResourcePatch setIntValue(Integer intValue) {
+        this.intValue = intValue;
+        this.updatedProperties.add("intValue");
+        return this;
+    }
+
+    /**
+     * Get the map property: The map property.
+     *
+     * @return the map value.
+     */
+    @Metadata(properties = { MetadataProperties.GENERATED })
+    public Map<String, InnerModel> getMap() {
+        return this.map;
+    }
+
+    /**
+     * Set the map property: The map property.
+     *
+     * @param map the map value to set.
+     * @return the ResourcePatch object itself.
+     */
+    @Metadata(properties = { MetadataProperties.GENERATED })
+    public ResourcePatch setMap(Map<String, InnerModel> map) {
+        this.map = map;
+        this.updatedProperties.add("map");
+        return this;
+    }
+
+    @Metadata(properties = { MetadataProperties.GENERATED })
+    private void serializeAsJsonMergePatch(boolean jsonMergePatch) {
+        this.jsonMergePatch = jsonMergePatch;
     }
 
     @Metadata(properties = { MetadataProperties.GENERATED })
@@ -344,8 +325,29 @@ public final class ResourcePatch implements JsonSerializable<ResourcePatch> {
     }
 
     /**
+     * {@inheritDoc}
+     */
+    @Metadata(properties = { MetadataProperties.GENERATED })
+    @Override
+    public JsonWriter toJson(JsonWriter jsonWriter) throws IOException {
+        if (jsonMergePatch) {
+            return toJsonMergePatch(jsonWriter);
+        } else {
+            jsonWriter.writeStartObject();
+            jsonWriter.writeStringField("description", this.description);
+            jsonWriter.writeMapField("map", this.map, (writer, element) -> writer.writeJson(element));
+            jsonWriter.writeArrayField("array", this.array, (writer, element) -> writer.writeJson(element));
+            jsonWriter.writeNumberField("intValue", this.intValue);
+            jsonWriter.writeNumberField("floatValue", this.floatValue);
+            jsonWriter.writeJsonField("innerModel", this.innerModel);
+            jsonWriter.writeArrayField("intArray", this.intArray, (writer, element) -> writer.writeInt(element));
+            return jsonWriter.writeEndObject();
+        }
+    }
+
+    /**
      * Reads an instance of ResourcePatch from the JsonReader.
-     * 
+     *
      * @param jsonReader The JsonReader being read.
      * @return An instance of ResourcePatch if the JsonReader was pointing to an instance of it, or null if it was
      * pointing to JSON null.
@@ -358,7 +360,6 @@ public final class ResourcePatch implements JsonSerializable<ResourcePatch> {
             while (reader.nextToken() != JsonToken.END_OBJECT) {
                 String fieldName = reader.getFieldName();
                 reader.nextToken();
-
                 if ("description".equals(fieldName)) {
                     deserializedResourcePatch.description = reader.getString();
                 } else if ("map".equals(fieldName)) {
@@ -380,7 +381,6 @@ public final class ResourcePatch implements JsonSerializable<ResourcePatch> {
                     reader.skipChildren();
                 }
             }
-
             return deserializedResourcePatch;
         });
     }

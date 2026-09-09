@@ -42,17 +42,60 @@ import type.property.nullable.implementation.NullableClientImpl;
         CollectionsStringClient.class })
 public final class NullableClientBuilder implements HttpTrait<NullableClientBuilder>, ProxyTrait<NullableClientBuilder>,
     ConfigurationTrait<NullableClientBuilder>, EndpointTrait<NullableClientBuilder> {
+
+    @Metadata(properties = { MetadataProperties.GENERATED })
+    private static final Map<String, String> PROPERTIES = CoreUtils.getProperties("type-property-nullable.properties");
+
     @Metadata(properties = { MetadataProperties.GENERATED })
     private static final String SDK_NAME = "name";
 
     @Metadata(properties = { MetadataProperties.GENERATED })
     private static final String SDK_VERSION = "version";
 
+    /*
+     * The configuration store that is used during construction of the service client.
+     */
     @Metadata(properties = { MetadataProperties.GENERATED })
-    private static final Map<String, String> PROPERTIES = CoreUtils.getProperties("type-property-nullable.properties");
+    private Configuration configuration;
+
+    /*
+     * The service endpoint
+     */
+    @Metadata(properties = { MetadataProperties.GENERATED })
+    private String endpoint;
+
+    /*
+     * The HTTP client used to send the request.
+     */
+    @Metadata(properties = { MetadataProperties.GENERATED })
+    private HttpClient httpClient;
+
+    /*
+     * The instrumentation configuration for HTTP requests and responses.
+     */
+    @Metadata(properties = { MetadataProperties.GENERATED })
+    private HttpInstrumentationOptions httpInstrumentationOptions;
 
     @Metadata(properties = { MetadataProperties.GENERATED })
     private final List<HttpPipelinePolicy> pipelinePolicies;
+
+    /*
+     * The proxy options used during construction of the service client.
+     */
+    @Metadata(properties = { MetadataProperties.GENERATED })
+    private ProxyOptions proxyOptions;
+
+    /*
+     * The redirect options to configure redirect policy
+     */
+    @Metadata(properties = { MetadataProperties.GENERATED })
+    private HttpRedirectOptions redirectOptions;
+
+    /*
+     * The retry options to configure retry policy for failed requests.
+     */
+    @Metadata(properties = { MetadataProperties.GENERATED })
+    private HttpRetryOptions retryOptions;
 
     /**
      * Create an instance of the NullableClientBuilder.
@@ -62,11 +105,36 @@ public final class NullableClientBuilder implements HttpTrait<NullableClientBuil
         this.pipelinePolicies = new ArrayList<>();
     }
 
-    /*
-     * The HTTP client used to send the request.
+    /**
+     * {@inheritDoc}.
      */
     @Metadata(properties = { MetadataProperties.GENERATED })
-    private HttpClient httpClient;
+    @Override
+    public NullableClientBuilder addHttpPipelinePolicy(HttpPipelinePolicy customPolicy) {
+        Objects.requireNonNull(customPolicy, "'customPolicy' cannot be null.");
+        pipelinePolicies.add(customPolicy);
+        return this;
+    }
+
+    /**
+     * {@inheritDoc}.
+     */
+    @Metadata(properties = { MetadataProperties.GENERATED })
+    @Override
+    public NullableClientBuilder configuration(Configuration configuration) {
+        this.configuration = configuration;
+        return this;
+    }
+
+    /**
+     * {@inheritDoc}.
+     */
+    @Metadata(properties = { MetadataProperties.GENERATED })
+    @Override
+    public NullableClientBuilder endpoint(String endpoint) {
+        this.endpoint = endpoint;
+        return this;
+    }
 
     /**
      * {@inheritDoc}.
@@ -78,11 +146,25 @@ public final class NullableClientBuilder implements HttpTrait<NullableClientBuil
         return this;
     }
 
-    /*
-     * The retry options to configure retry policy for failed requests.
+    /**
+     * {@inheritDoc}.
      */
     @Metadata(properties = { MetadataProperties.GENERATED })
-    private HttpRetryOptions retryOptions;
+    @Override
+    public NullableClientBuilder httpInstrumentationOptions(HttpInstrumentationOptions httpInstrumentationOptions) {
+        this.httpInstrumentationOptions = httpInstrumentationOptions;
+        return this;
+    }
+
+    /**
+     * {@inheritDoc}.
+     */
+    @Metadata(properties = { MetadataProperties.GENERATED })
+    @Override
+    public NullableClientBuilder httpRedirectOptions(HttpRedirectOptions redirectOptions) {
+        this.redirectOptions = redirectOptions;
+        return this;
+    }
 
     /**
      * {@inheritDoc}.
@@ -99,95 +181,91 @@ public final class NullableClientBuilder implements HttpTrait<NullableClientBuil
      */
     @Metadata(properties = { MetadataProperties.GENERATED })
     @Override
-    public NullableClientBuilder addHttpPipelinePolicy(HttpPipelinePolicy customPolicy) {
-        Objects.requireNonNull(customPolicy, "'customPolicy' cannot be null.");
-        pipelinePolicies.add(customPolicy);
-        return this;
-    }
-
-    /*
-     * The redirect options to configure redirect policy
-     */
-    @Metadata(properties = { MetadataProperties.GENERATED })
-    private HttpRedirectOptions redirectOptions;
-
-    /**
-     * {@inheritDoc}.
-     */
-    @Metadata(properties = { MetadataProperties.GENERATED })
-    @Override
-    public NullableClientBuilder httpRedirectOptions(HttpRedirectOptions redirectOptions) {
-        this.redirectOptions = redirectOptions;
-        return this;
-    }
-
-    /*
-     * The instrumentation configuration for HTTP requests and responses.
-     */
-    @Metadata(properties = { MetadataProperties.GENERATED })
-    private HttpInstrumentationOptions httpInstrumentationOptions;
-
-    /**
-     * {@inheritDoc}.
-     */
-    @Metadata(properties = { MetadataProperties.GENERATED })
-    @Override
-    public NullableClientBuilder httpInstrumentationOptions(HttpInstrumentationOptions httpInstrumentationOptions) {
-        this.httpInstrumentationOptions = httpInstrumentationOptions;
-        return this;
-    }
-
-    /*
-     * The proxy options used during construction of the service client.
-     */
-    @Metadata(properties = { MetadataProperties.GENERATED })
-    private ProxyOptions proxyOptions;
-
-    /**
-     * {@inheritDoc}.
-     */
-    @Metadata(properties = { MetadataProperties.GENERATED })
-    @Override
     public NullableClientBuilder proxyOptions(ProxyOptions proxyOptions) {
         this.proxyOptions = proxyOptions;
         return this;
     }
 
-    /*
-     * The configuration store that is used during construction of the service client.
-     */
-    @Metadata(properties = { MetadataProperties.GENERATED })
-    private Configuration configuration;
-
     /**
-     * {@inheritDoc}.
+     * Builds an instance of BytesClient class.
+     *
+     * @return an instance of BytesClient.
      */
     @Metadata(properties = { MetadataProperties.GENERATED })
-    @Override
-    public NullableClientBuilder configuration(Configuration configuration) {
-        this.configuration = configuration;
-        return this;
+    public BytesClient buildBytesClient() {
+        NullableClientImpl innerClient = buildInnerClient();
+        return new BytesClient(innerClient.getBytes(), innerClient.getInstrumentation());
     }
 
-    /*
-     * The service endpoint
+    /**
+     * Builds an instance of CollectionsByteClient class.
+     *
+     * @return an instance of CollectionsByteClient.
      */
     @Metadata(properties = { MetadataProperties.GENERATED })
-    private String endpoint;
+    public CollectionsByteClient buildCollectionsByteClient() {
+        NullableClientImpl innerClient = buildInnerClient();
+        return new CollectionsByteClient(innerClient.getCollectionsBytes(), innerClient.getInstrumentation());
+    }
 
     /**
-     * {@inheritDoc}.
+     * Builds an instance of CollectionsModelClient class.
+     *
+     * @return an instance of CollectionsModelClient.
      */
     @Metadata(properties = { MetadataProperties.GENERATED })
-    @Override
-    public NullableClientBuilder endpoint(String endpoint) {
-        this.endpoint = endpoint;
-        return this;
+    public CollectionsModelClient buildCollectionsModelClient() {
+        NullableClientImpl innerClient = buildInnerClient();
+        return new CollectionsModelClient(innerClient.getCollectionsModels(), innerClient.getInstrumentation());
+    }
+
+    /**
+     * Builds an instance of CollectionsStringClient class.
+     *
+     * @return an instance of CollectionsStringClient.
+     */
+    @Metadata(properties = { MetadataProperties.GENERATED })
+    public CollectionsStringClient buildCollectionsStringClient() {
+        NullableClientImpl innerClient = buildInnerClient();
+        return new CollectionsStringClient(innerClient.getCollectionsStrings(), innerClient.getInstrumentation());
+    }
+
+    /**
+     * Builds an instance of DatetimeOperationClient class.
+     *
+     * @return an instance of DatetimeOperationClient.
+     */
+    @Metadata(properties = { MetadataProperties.GENERATED })
+    public DatetimeOperationClient buildDatetimeOperationClient() {
+        NullableClientImpl innerClient = buildInnerClient();
+        return new DatetimeOperationClient(innerClient.getDatetimeOperations(), innerClient.getInstrumentation());
+    }
+
+    /**
+     * Builds an instance of DurationOperationClient class.
+     *
+     * @return an instance of DurationOperationClient.
+     */
+    @Metadata(properties = { MetadataProperties.GENERATED })
+    public DurationOperationClient buildDurationOperationClient() {
+        NullableClientImpl innerClient = buildInnerClient();
+        return new DurationOperationClient(innerClient.getDurationOperations(), innerClient.getInstrumentation());
+    }
+
+    /**
+     * Builds an instance of StringOperationClient class.
+     *
+     * @return an instance of StringOperationClient.
+     */
+    @Metadata(properties = { MetadataProperties.GENERATED })
+    public StringOperationClient buildStringOperationClient() {
+        NullableClientImpl innerClient = buildInnerClient();
+        return new StringOperationClient(innerClient.getStringOperations(), innerClient.getInstrumentation());
     }
 
     /**
      * Builds an instance of NullableClientImpl with the provided parameters.
-     * 
+     *
      * @return an instance of NullableClientImpl.
      */
     @Metadata(properties = { MetadataProperties.GENERATED })
@@ -208,12 +286,6 @@ public final class NullableClientBuilder implements HttpTrait<NullableClientBuil
     }
 
     @Metadata(properties = { MetadataProperties.GENERATED })
-    private void validateClient() {
-        // This method is invoked from 'buildInnerClient'/'buildClient' method.
-        // Developer can customize this method, to validate that the necessary conditions are met for the new client.
-    }
-
-    @Metadata(properties = { MetadataProperties.GENERATED })
     private HttpPipeline createHttpPipeline() {
         Configuration buildConfiguration
             = (configuration == null) ? Configuration.getGlobalConfiguration() : configuration;
@@ -230,80 +302,9 @@ public final class NullableClientBuilder implements HttpTrait<NullableClientBuil
         return httpPipelineBuilder.httpClient(httpClient).build();
     }
 
-    /**
-     * Builds an instance of StringOperationClient class.
-     * 
-     * @return an instance of StringOperationClient.
-     */
     @Metadata(properties = { MetadataProperties.GENERATED })
-    public StringOperationClient buildStringOperationClient() {
-        NullableClientImpl innerClient = buildInnerClient();
-        return new StringOperationClient(innerClient.getStringOperations(), innerClient.getInstrumentation());
-    }
-
-    /**
-     * Builds an instance of BytesClient class.
-     * 
-     * @return an instance of BytesClient.
-     */
-    @Metadata(properties = { MetadataProperties.GENERATED })
-    public BytesClient buildBytesClient() {
-        NullableClientImpl innerClient = buildInnerClient();
-        return new BytesClient(innerClient.getBytes(), innerClient.getInstrumentation());
-    }
-
-    /**
-     * Builds an instance of DatetimeOperationClient class.
-     * 
-     * @return an instance of DatetimeOperationClient.
-     */
-    @Metadata(properties = { MetadataProperties.GENERATED })
-    public DatetimeOperationClient buildDatetimeOperationClient() {
-        NullableClientImpl innerClient = buildInnerClient();
-        return new DatetimeOperationClient(innerClient.getDatetimeOperations(), innerClient.getInstrumentation());
-    }
-
-    /**
-     * Builds an instance of DurationOperationClient class.
-     * 
-     * @return an instance of DurationOperationClient.
-     */
-    @Metadata(properties = { MetadataProperties.GENERATED })
-    public DurationOperationClient buildDurationOperationClient() {
-        NullableClientImpl innerClient = buildInnerClient();
-        return new DurationOperationClient(innerClient.getDurationOperations(), innerClient.getInstrumentation());
-    }
-
-    /**
-     * Builds an instance of CollectionsByteClient class.
-     * 
-     * @return an instance of CollectionsByteClient.
-     */
-    @Metadata(properties = { MetadataProperties.GENERATED })
-    public CollectionsByteClient buildCollectionsByteClient() {
-        NullableClientImpl innerClient = buildInnerClient();
-        return new CollectionsByteClient(innerClient.getCollectionsBytes(), innerClient.getInstrumentation());
-    }
-
-    /**
-     * Builds an instance of CollectionsModelClient class.
-     * 
-     * @return an instance of CollectionsModelClient.
-     */
-    @Metadata(properties = { MetadataProperties.GENERATED })
-    public CollectionsModelClient buildCollectionsModelClient() {
-        NullableClientImpl innerClient = buildInnerClient();
-        return new CollectionsModelClient(innerClient.getCollectionsModels(), innerClient.getInstrumentation());
-    }
-
-    /**
-     * Builds an instance of CollectionsStringClient class.
-     * 
-     * @return an instance of CollectionsStringClient.
-     */
-    @Metadata(properties = { MetadataProperties.GENERATED })
-    public CollectionsStringClient buildCollectionsStringClient() {
-        NullableClientImpl innerClient = buildInnerClient();
-        return new CollectionsStringClient(innerClient.getCollectionsStrings(), innerClient.getInstrumentation());
+    private void validateClient() {
+        // This method is invoked from 'buildInnerClient'/'buildClient' method.
+        // Developer can customize this method, to validate that the necessary conditions are met for the new client.
     }
 }

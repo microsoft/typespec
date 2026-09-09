@@ -18,14 +18,15 @@ import routes.implementation.PathParametersLabelExpansionExplodesImpl;
  */
 @ServiceClient(builder = RoutesClientBuilder.class)
 public final class PathParametersLabelExpansionExplodeClient {
-    @Metadata(properties = { MetadataProperties.GENERATED })
-    private final PathParametersLabelExpansionExplodesImpl serviceClient;
 
     private final Instrumentation instrumentation;
 
+    @Metadata(properties = { MetadataProperties.GENERATED })
+    private final PathParametersLabelExpansionExplodesImpl serviceClient;
+
     /**
      * Initializes an instance of PathParametersLabelExpansionExplodeClient class.
-     * 
+     *
      * @param serviceClient the service client implementation.
      * @param instrumentation the instrumentation instance.
      */
@@ -37,25 +38,8 @@ public final class PathParametersLabelExpansionExplodeClient {
     }
 
     /**
-     * The primitive operation.
-     * 
-     * @param param The param parameter.
-     * @param requestContext The context to configure the HTTP request before HTTP client sends it.
-     * @throws IllegalArgumentException thrown if parameters fail the validation.
-     * @throws HttpResponseException thrown if the service returns an error.
-     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
-     * @return the {@link Response}.
-     */
-    @Metadata(properties = { MetadataProperties.GENERATED })
-    @ServiceMethod(returns = ReturnType.SINGLE)
-    public Response<Void> primitiveWithResponse(String param, RequestContext requestContext) {
-        return this.instrumentation.instrumentWithResponse("Routes.PathParameters.LabelExpansion.Explode.primitive",
-            requestContext, updatedContext -> this.serviceClient.primitiveWithResponse(param, updatedContext));
-    }
-
-    /**
-     * The primitive operation.
-     * 
+     * The array operation.
+     *
      * @param param The param parameter.
      * @throws IllegalArgumentException thrown if parameters fail the validation.
      * @throws HttpResponseException thrown if the service returns an error.
@@ -63,13 +47,13 @@ public final class PathParametersLabelExpansionExplodeClient {
      */
     @Metadata(properties = { MetadataProperties.GENERATED })
     @ServiceMethod(returns = ReturnType.SINGLE)
-    public void primitive(String param) {
-        primitiveWithResponse(param, RequestContext.none());
+    public void array(List<String> param) {
+        arrayWithResponse(param, RequestContext.none());
     }
 
     /**
      * The array operation.
-     * 
+     *
      * @param param The param parameter.
      * @param requestContext The context to configure the HTTP request before HTTP client sends it.
      * @throws IllegalArgumentException thrown if parameters fail the validation.
@@ -85,8 +69,8 @@ public final class PathParametersLabelExpansionExplodeClient {
     }
 
     /**
-     * The array operation.
-     * 
+     * The primitive operation.
+     *
      * @param param The param parameter.
      * @throws IllegalArgumentException thrown if parameters fail the validation.
      * @throws HttpResponseException thrown if the service returns an error.
@@ -94,13 +78,44 @@ public final class PathParametersLabelExpansionExplodeClient {
      */
     @Metadata(properties = { MetadataProperties.GENERATED })
     @ServiceMethod(returns = ReturnType.SINGLE)
-    public void array(List<String> param) {
-        arrayWithResponse(param, RequestContext.none());
+    public void primitive(String param) {
+        primitiveWithResponse(param, RequestContext.none());
+    }
+
+    /**
+     * The primitive operation.
+     *
+     * @param param The param parameter.
+     * @param requestContext The context to configure the HTTP request before HTTP client sends it.
+     * @throws IllegalArgumentException thrown if parameters fail the validation.
+     * @throws HttpResponseException thrown if the service returns an error.
+     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
+     * @return the {@link Response}.
+     */
+    @Metadata(properties = { MetadataProperties.GENERATED })
+    @ServiceMethod(returns = ReturnType.SINGLE)
+    public Response<Void> primitiveWithResponse(String param, RequestContext requestContext) {
+        return this.instrumentation.instrumentWithResponse("Routes.PathParameters.LabelExpansion.Explode.primitive",
+            requestContext, updatedContext -> this.serviceClient.primitiveWithResponse(param, updatedContext));
     }
 
     /**
      * The record operation.
-     * 
+     *
+     * @param param The param parameter.
+     * @throws IllegalArgumentException thrown if parameters fail the validation.
+     * @throws HttpResponseException thrown if the service returns an error.
+     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
+     */
+    @Metadata(properties = { MetadataProperties.GENERATED })
+    @ServiceMethod(returns = ReturnType.SINGLE)
+    public void record(Map<String, Integer> param) {
+        recordWithResponse(param, RequestContext.none());
+    }
+
+    /**
+     * The record operation.
+     *
      * @param param The param parameter.
      * @param requestContext The context to configure the HTTP request before HTTP client sends it.
      * @throws IllegalArgumentException thrown if parameters fail the validation.
@@ -113,19 +128,5 @@ public final class PathParametersLabelExpansionExplodeClient {
     public Response<Void> recordWithResponse(Map<String, Integer> param, RequestContext requestContext) {
         return this.instrumentation.instrumentWithResponse("Routes.PathParameters.LabelExpansion.Explode.record",
             requestContext, updatedContext -> this.serviceClient.recordWithResponse(param, updatedContext));
-    }
-
-    /**
-     * The record operation.
-     * 
-     * @param param The param parameter.
-     * @throws IllegalArgumentException thrown if parameters fail the validation.
-     * @throws HttpResponseException thrown if the service returns an error.
-     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
-     */
-    @Metadata(properties = { MetadataProperties.GENERATED })
-    @ServiceMethod(returns = ReturnType.SINGLE)
-    public void record(Map<String, Integer> param) {
-        recordWithResponse(param, RequestContext.none());
     }
 }

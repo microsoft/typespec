@@ -16,11 +16,6 @@ import javax.xml.stream.XMLStreamException;
  */
 @Metadata(properties = { MetadataProperties.IMMUTABLE })
 public final class ModelWithEncodedNames implements XmlSerializable<ModelWithEncodedNames> {
-    /*
-     * The SimpleModelData property.
-     */
-    @Metadata(properties = { MetadataProperties.GENERATED })
-    private final SimpleModel modelData;
 
     /*
      * The PossibleColors property.
@@ -28,9 +23,15 @@ public final class ModelWithEncodedNames implements XmlSerializable<ModelWithEnc
     @Metadata(properties = { MetadataProperties.GENERATED })
     private final List<String> colors;
 
+    /*
+     * The SimpleModelData property.
+     */
+    @Metadata(properties = { MetadataProperties.GENERATED })
+    private final SimpleModel modelData;
+
     /**
      * Creates an instance of ModelWithEncodedNames class.
-     * 
+     *
      * @param modelData the modelData value to set.
      * @param colors the colors value to set.
      */
@@ -41,23 +42,23 @@ public final class ModelWithEncodedNames implements XmlSerializable<ModelWithEnc
     }
 
     /**
-     * Get the modelData property: The SimpleModelData property.
-     * 
-     * @return the modelData value.
-     */
-    @Metadata(properties = { MetadataProperties.GENERATED })
-    public SimpleModel getModelData() {
-        return this.modelData;
-    }
-
-    /**
      * Get the colors property: The PossibleColors property.
-     * 
+     *
      * @return the colors value.
      */
     @Metadata(properties = { MetadataProperties.GENERATED })
     public List<String> getColors() {
         return this.colors;
+    }
+
+    /**
+     * Get the modelData property: The SimpleModelData property.
+     *
+     * @return the modelData value.
+     */
+    @Metadata(properties = { MetadataProperties.GENERATED })
+    public SimpleModel getModelData() {
+        return this.modelData;
     }
 
     @Metadata(properties = { MetadataProperties.GENERATED })
@@ -85,7 +86,7 @@ public final class ModelWithEncodedNames implements XmlSerializable<ModelWithEnc
 
     /**
      * Reads an instance of ModelWithEncodedNames from the XmlReader.
-     * 
+     *
      * @param xmlReader The XmlReader being read.
      * @return An instance of ModelWithEncodedNames if the XmlReader was pointing to an instance of it, or null if it
      * was pointing to XML null.
@@ -99,7 +100,7 @@ public final class ModelWithEncodedNames implements XmlSerializable<ModelWithEnc
 
     /**
      * Reads an instance of ModelWithEncodedNames from the XmlReader.
-     * 
+     *
      * @param xmlReader The XmlReader being read.
      * @param rootElementName Optional root element name to override the default defined by the model. Used to support
      * cases where the model can deserialize from different root element names.
@@ -117,7 +118,6 @@ public final class ModelWithEncodedNames implements XmlSerializable<ModelWithEnc
             List<String> colors = null;
             while (reader.nextElement() != XmlToken.END_ELEMENT) {
                 QName elementName = reader.getElementName();
-
                 if ("SimpleModelData".equals(elementName.getLocalPart())) {
                     modelData = SimpleModel.fromXml(reader, "SimpleModelData");
                 } else if ("PossibleColors".equals(elementName.getLocalPart())) {

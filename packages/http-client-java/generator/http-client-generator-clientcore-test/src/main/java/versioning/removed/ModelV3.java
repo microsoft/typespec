@@ -13,11 +13,6 @@ import java.io.IOException;
  */
 @Metadata(properties = { MetadataProperties.IMMUTABLE })
 public final class ModelV3 implements JsonSerializable<ModelV3> {
-    /*
-     * The id property.
-     */
-    @Metadata(properties = { MetadataProperties.GENERATED })
-    private final String id;
 
     /*
      * The enumProp property.
@@ -25,9 +20,15 @@ public final class ModelV3 implements JsonSerializable<ModelV3> {
     @Metadata(properties = { MetadataProperties.GENERATED })
     private final EnumV3 enumProp;
 
+    /*
+     * The id property.
+     */
+    @Metadata(properties = { MetadataProperties.GENERATED })
+    private final String id;
+
     /**
      * Creates an instance of ModelV3 class.
-     * 
+     *
      * @param id the id value to set.
      * @param enumProp the enumProp value to set.
      */
@@ -38,23 +39,23 @@ public final class ModelV3 implements JsonSerializable<ModelV3> {
     }
 
     /**
-     * Get the id property: The id property.
-     * 
-     * @return the id value.
-     */
-    @Metadata(properties = { MetadataProperties.GENERATED })
-    public String getId() {
-        return this.id;
-    }
-
-    /**
      * Get the enumProp property: The enumProp property.
-     * 
+     *
      * @return the enumProp value.
      */
     @Metadata(properties = { MetadataProperties.GENERATED })
     public EnumV3 getEnumProp() {
         return this.enumProp;
+    }
+
+    /**
+     * Get the id property: The id property.
+     *
+     * @return the id value.
+     */
+    @Metadata(properties = { MetadataProperties.GENERATED })
+    public String getId() {
+        return this.id;
     }
 
     /**
@@ -71,7 +72,7 @@ public final class ModelV3 implements JsonSerializable<ModelV3> {
 
     /**
      * Reads an instance of ModelV3 from the JsonReader.
-     * 
+     *
      * @param jsonReader The JsonReader being read.
      * @return An instance of ModelV3 if the JsonReader was pointing to an instance of it, or null if it was pointing to
      * JSON null.
@@ -86,7 +87,6 @@ public final class ModelV3 implements JsonSerializable<ModelV3> {
             while (reader.nextToken() != JsonToken.END_OBJECT) {
                 String fieldName = reader.getFieldName();
                 reader.nextToken();
-
                 if ("id".equals(fieldName)) {
                     id = reader.getString();
                 } else if ("enumProp".equals(fieldName)) {

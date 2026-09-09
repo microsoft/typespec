@@ -10,6 +10,7 @@ import payload.multipart.FilesFileDetails;
  */
 @Metadata(properties = { MetadataProperties.IMMUTABLE })
 public final class UploadFileArrayRequest {
+
     /*
      * The files property.
      */
@@ -18,7 +19,7 @@ public final class UploadFileArrayRequest {
 
     /**
      * Creates an instance of UploadFileArrayRequest class.
-     * 
+     *
      * @param files the files value to set.
      */
     @Metadata(properties = { MetadataProperties.GENERATED })
@@ -28,7 +29,7 @@ public final class UploadFileArrayRequest {
 
     /**
      * Get the files property: The files property.
-     * 
+     *
      * @return the files value.
      */
     @Metadata(properties = { MetadataProperties.GENERATED })

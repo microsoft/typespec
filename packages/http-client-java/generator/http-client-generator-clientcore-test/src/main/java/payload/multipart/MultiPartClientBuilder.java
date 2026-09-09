@@ -41,17 +41,60 @@ import payload.multipart.implementation.MultiPartClientImpl;
 public final class MultiPartClientBuilder
     implements HttpTrait<MultiPartClientBuilder>, ProxyTrait<MultiPartClientBuilder>,
     ConfigurationTrait<MultiPartClientBuilder>, EndpointTrait<MultiPartClientBuilder> {
+
+    @Metadata(properties = { MetadataProperties.GENERATED })
+    private static final Map<String, String> PROPERTIES = CoreUtils.getProperties("payload-multipart.properties");
+
     @Metadata(properties = { MetadataProperties.GENERATED })
     private static final String SDK_NAME = "name";
 
     @Metadata(properties = { MetadataProperties.GENERATED })
     private static final String SDK_VERSION = "version";
 
+    /*
+     * The configuration store that is used during construction of the service client.
+     */
     @Metadata(properties = { MetadataProperties.GENERATED })
-    private static final Map<String, String> PROPERTIES = CoreUtils.getProperties("payload-multipart.properties");
+    private Configuration configuration;
+
+    /*
+     * The service endpoint
+     */
+    @Metadata(properties = { MetadataProperties.GENERATED })
+    private String endpoint;
+
+    /*
+     * The HTTP client used to send the request.
+     */
+    @Metadata(properties = { MetadataProperties.GENERATED })
+    private HttpClient httpClient;
+
+    /*
+     * The instrumentation configuration for HTTP requests and responses.
+     */
+    @Metadata(properties = { MetadataProperties.GENERATED })
+    private HttpInstrumentationOptions httpInstrumentationOptions;
 
     @Metadata(properties = { MetadataProperties.GENERATED })
     private final List<HttpPipelinePolicy> pipelinePolicies;
+
+    /*
+     * The proxy options used during construction of the service client.
+     */
+    @Metadata(properties = { MetadataProperties.GENERATED })
+    private ProxyOptions proxyOptions;
+
+    /*
+     * The redirect options to configure redirect policy
+     */
+    @Metadata(properties = { MetadataProperties.GENERATED })
+    private HttpRedirectOptions redirectOptions;
+
+    /*
+     * The retry options to configure retry policy for failed requests.
+     */
+    @Metadata(properties = { MetadataProperties.GENERATED })
+    private HttpRetryOptions retryOptions;
 
     /**
      * Create an instance of the MultiPartClientBuilder.
@@ -61,11 +104,36 @@ public final class MultiPartClientBuilder
         this.pipelinePolicies = new ArrayList<>();
     }
 
-    /*
-     * The HTTP client used to send the request.
+    /**
+     * {@inheritDoc}.
      */
     @Metadata(properties = { MetadataProperties.GENERATED })
-    private HttpClient httpClient;
+    @Override
+    public MultiPartClientBuilder addHttpPipelinePolicy(HttpPipelinePolicy customPolicy) {
+        Objects.requireNonNull(customPolicy, "'customPolicy' cannot be null.");
+        pipelinePolicies.add(customPolicy);
+        return this;
+    }
+
+    /**
+     * {@inheritDoc}.
+     */
+    @Metadata(properties = { MetadataProperties.GENERATED })
+    @Override
+    public MultiPartClientBuilder configuration(Configuration configuration) {
+        this.configuration = configuration;
+        return this;
+    }
+
+    /**
+     * {@inheritDoc}.
+     */
+    @Metadata(properties = { MetadataProperties.GENERATED })
+    @Override
+    public MultiPartClientBuilder endpoint(String endpoint) {
+        this.endpoint = endpoint;
+        return this;
+    }
 
     /**
      * {@inheritDoc}.
@@ -77,11 +145,25 @@ public final class MultiPartClientBuilder
         return this;
     }
 
-    /*
-     * The retry options to configure retry policy for failed requests.
+    /**
+     * {@inheritDoc}.
      */
     @Metadata(properties = { MetadataProperties.GENERATED })
-    private HttpRetryOptions retryOptions;
+    @Override
+    public MultiPartClientBuilder httpInstrumentationOptions(HttpInstrumentationOptions httpInstrumentationOptions) {
+        this.httpInstrumentationOptions = httpInstrumentationOptions;
+        return this;
+    }
+
+    /**
+     * {@inheritDoc}.
+     */
+    @Metadata(properties = { MetadataProperties.GENERATED })
+    @Override
+    public MultiPartClientBuilder httpRedirectOptions(HttpRedirectOptions redirectOptions) {
+        this.redirectOptions = redirectOptions;
+        return this;
+    }
 
     /**
      * {@inheritDoc}.
@@ -98,95 +180,71 @@ public final class MultiPartClientBuilder
      */
     @Metadata(properties = { MetadataProperties.GENERATED })
     @Override
-    public MultiPartClientBuilder addHttpPipelinePolicy(HttpPipelinePolicy customPolicy) {
-        Objects.requireNonNull(customPolicy, "'customPolicy' cannot be null.");
-        pipelinePolicies.add(customPolicy);
-        return this;
-    }
-
-    /*
-     * The redirect options to configure redirect policy
-     */
-    @Metadata(properties = { MetadataProperties.GENERATED })
-    private HttpRedirectOptions redirectOptions;
-
-    /**
-     * {@inheritDoc}.
-     */
-    @Metadata(properties = { MetadataProperties.GENERATED })
-    @Override
-    public MultiPartClientBuilder httpRedirectOptions(HttpRedirectOptions redirectOptions) {
-        this.redirectOptions = redirectOptions;
-        return this;
-    }
-
-    /*
-     * The instrumentation configuration for HTTP requests and responses.
-     */
-    @Metadata(properties = { MetadataProperties.GENERATED })
-    private HttpInstrumentationOptions httpInstrumentationOptions;
-
-    /**
-     * {@inheritDoc}.
-     */
-    @Metadata(properties = { MetadataProperties.GENERATED })
-    @Override
-    public MultiPartClientBuilder httpInstrumentationOptions(HttpInstrumentationOptions httpInstrumentationOptions) {
-        this.httpInstrumentationOptions = httpInstrumentationOptions;
-        return this;
-    }
-
-    /*
-     * The proxy options used during construction of the service client.
-     */
-    @Metadata(properties = { MetadataProperties.GENERATED })
-    private ProxyOptions proxyOptions;
-
-    /**
-     * {@inheritDoc}.
-     */
-    @Metadata(properties = { MetadataProperties.GENERATED })
-    @Override
     public MultiPartClientBuilder proxyOptions(ProxyOptions proxyOptions) {
         this.proxyOptions = proxyOptions;
         return this;
     }
 
-    /*
-     * The configuration store that is used during construction of the service client.
-     */
-    @Metadata(properties = { MetadataProperties.GENERATED })
-    private Configuration configuration;
-
     /**
-     * {@inheritDoc}.
+     * Builds an instance of FormDataClient class.
+     *
+     * @return an instance of FormDataClient.
      */
     @Metadata(properties = { MetadataProperties.GENERATED })
-    @Override
-    public MultiPartClientBuilder configuration(Configuration configuration) {
-        this.configuration = configuration;
-        return this;
+    public FormDataClient buildFormDataClient() {
+        MultiPartClientImpl innerClient = buildInnerClient();
+        return new FormDataClient(innerClient.getFormDatas(), innerClient.getInstrumentation());
     }
 
-    /*
-     * The service endpoint
+    /**
+     * Builds an instance of FormDataFileClient class.
+     *
+     * @return an instance of FormDataFileClient.
      */
     @Metadata(properties = { MetadataProperties.GENERATED })
-    private String endpoint;
+    public FormDataFileClient buildFormDataFileClient() {
+        MultiPartClientImpl innerClient = buildInnerClient();
+        return new FormDataFileClient(innerClient.getFormDataFiles(), innerClient.getInstrumentation());
+    }
 
     /**
-     * {@inheritDoc}.
+     * Builds an instance of FormDataHttpPartsClient class.
+     *
+     * @return an instance of FormDataHttpPartsClient.
      */
     @Metadata(properties = { MetadataProperties.GENERATED })
-    @Override
-    public MultiPartClientBuilder endpoint(String endpoint) {
-        this.endpoint = endpoint;
-        return this;
+    public FormDataHttpPartsClient buildFormDataHttpPartsClient() {
+        MultiPartClientImpl innerClient = buildInnerClient();
+        return new FormDataHttpPartsClient(innerClient.getFormDataHttpParts(), innerClient.getInstrumentation());
+    }
+
+    /**
+     * Builds an instance of FormDataHttpPartsContentTypeClient class.
+     *
+     * @return an instance of FormDataHttpPartsContentTypeClient.
+     */
+    @Metadata(properties = { MetadataProperties.GENERATED })
+    public FormDataHttpPartsContentTypeClient buildFormDataHttpPartsContentTypeClient() {
+        MultiPartClientImpl innerClient = buildInnerClient();
+        return new FormDataHttpPartsContentTypeClient(innerClient.getFormDataHttpPartsContentTypes(),
+            innerClient.getInstrumentation());
+    }
+
+    /**
+     * Builds an instance of FormDataHttpPartsNonStringClient class.
+     *
+     * @return an instance of FormDataHttpPartsNonStringClient.
+     */
+    @Metadata(properties = { MetadataProperties.GENERATED })
+    public FormDataHttpPartsNonStringClient buildFormDataHttpPartsNonStringClient() {
+        MultiPartClientImpl innerClient = buildInnerClient();
+        return new FormDataHttpPartsNonStringClient(innerClient.getFormDataHttpPartsNonStrings(),
+            innerClient.getInstrumentation());
     }
 
     /**
      * Builds an instance of MultiPartClientImpl with the provided parameters.
-     * 
+     *
      * @return an instance of MultiPartClientImpl.
      */
     @Metadata(properties = { MetadataProperties.GENERATED })
@@ -207,12 +265,6 @@ public final class MultiPartClientBuilder
     }
 
     @Metadata(properties = { MetadataProperties.GENERATED })
-    private void validateClient() {
-        // This method is invoked from 'buildInnerClient'/'buildClient' method.
-        // Developer can customize this method, to validate that the necessary conditions are met for the new client.
-    }
-
-    @Metadata(properties = { MetadataProperties.GENERATED })
     private HttpPipeline createHttpPipeline() {
         Configuration buildConfiguration
             = (configuration == null) ? Configuration.getGlobalConfiguration() : configuration;
@@ -229,60 +281,9 @@ public final class MultiPartClientBuilder
         return httpPipelineBuilder.httpClient(httpClient).build();
     }
 
-    /**
-     * Builds an instance of FormDataClient class.
-     * 
-     * @return an instance of FormDataClient.
-     */
     @Metadata(properties = { MetadataProperties.GENERATED })
-    public FormDataClient buildFormDataClient() {
-        MultiPartClientImpl innerClient = buildInnerClient();
-        return new FormDataClient(innerClient.getFormDatas(), innerClient.getInstrumentation());
-    }
-
-    /**
-     * Builds an instance of FormDataHttpPartsClient class.
-     * 
-     * @return an instance of FormDataHttpPartsClient.
-     */
-    @Metadata(properties = { MetadataProperties.GENERATED })
-    public FormDataHttpPartsClient buildFormDataHttpPartsClient() {
-        MultiPartClientImpl innerClient = buildInnerClient();
-        return new FormDataHttpPartsClient(innerClient.getFormDataHttpParts(), innerClient.getInstrumentation());
-    }
-
-    /**
-     * Builds an instance of FormDataHttpPartsContentTypeClient class.
-     * 
-     * @return an instance of FormDataHttpPartsContentTypeClient.
-     */
-    @Metadata(properties = { MetadataProperties.GENERATED })
-    public FormDataHttpPartsContentTypeClient buildFormDataHttpPartsContentTypeClient() {
-        MultiPartClientImpl innerClient = buildInnerClient();
-        return new FormDataHttpPartsContentTypeClient(innerClient.getFormDataHttpPartsContentTypes(),
-            innerClient.getInstrumentation());
-    }
-
-    /**
-     * Builds an instance of FormDataHttpPartsNonStringClient class.
-     * 
-     * @return an instance of FormDataHttpPartsNonStringClient.
-     */
-    @Metadata(properties = { MetadataProperties.GENERATED })
-    public FormDataHttpPartsNonStringClient buildFormDataHttpPartsNonStringClient() {
-        MultiPartClientImpl innerClient = buildInnerClient();
-        return new FormDataHttpPartsNonStringClient(innerClient.getFormDataHttpPartsNonStrings(),
-            innerClient.getInstrumentation());
-    }
-
-    /**
-     * Builds an instance of FormDataFileClient class.
-     * 
-     * @return an instance of FormDataFileClient.
-     */
-    @Metadata(properties = { MetadataProperties.GENERATED })
-    public FormDataFileClient buildFormDataFileClient() {
-        MultiPartClientImpl innerClient = buildInnerClient();
-        return new FormDataFileClient(innerClient.getFormDataFiles(), innerClient.getInstrumentation());
+    private void validateClient() {
+        // This method is invoked from 'buildInnerClient'/'buildClient' method.
+        // Developer can customize this method, to validate that the necessary conditions are met for the new client.
     }
 }

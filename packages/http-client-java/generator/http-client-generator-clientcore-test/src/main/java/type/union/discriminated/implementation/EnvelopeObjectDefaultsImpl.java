@@ -22,10 +22,6 @@ import java.lang.reflect.InvocationTargetException;
  * An instance of this class provides access to all the operations defined in EnvelopeObjectDefaults.
  */
 public final class EnvelopeObjectDefaultsImpl {
-    /**
-     * The proxy service used to perform REST calls.
-     */
-    private final EnvelopeObjectDefaultsService service;
 
     /**
      * The service client containing this operation class.
@@ -38,8 +34,13 @@ public final class EnvelopeObjectDefaultsImpl {
     private final Instrumentation instrumentation;
 
     /**
+     * The proxy service used to perform REST calls.
+     */
+    private final EnvelopeObjectDefaultsService service;
+
+    /**
      * Initializes an instance of EnvelopeObjectDefaultsImpl.
-     * 
+     *
      * @param client the instance of the service client containing this operation class.
      */
     EnvelopeObjectDefaultsImpl(DiscriminatedClientImpl client) {
@@ -49,45 +50,8 @@ public final class EnvelopeObjectDefaultsImpl {
     }
 
     /**
-     * The interface defining all the services for DiscriminatedClientEnvelopeObjectDefaults to be used by the proxy
-     * service to perform REST calls.
-     */
-    @ServiceInterface(name = "DiscriminatedClientEnvelopeObjectDefaults", host = "{endpoint}")
-    public interface EnvelopeObjectDefaultsService {
-        static EnvelopeObjectDefaultsService getNewInstance(HttpPipeline pipeline) {
-            try {
-                Class<?> clazz
-                    = Class.forName("type.union.discriminated.implementation.EnvelopeObjectDefaultsServiceImpl");
-                return (EnvelopeObjectDefaultsService) clazz.getMethod("getNewInstance", HttpPipeline.class)
-                    .invoke(null, pipeline);
-            } catch (ClassNotFoundException | NoSuchMethodException | IllegalAccessException
-                | InvocationTargetException e) {
-                throw new RuntimeException(e);
-            }
-
-        }
-
-        @HttpRequestInformation(
-            method = HttpMethod.GET,
-            path = "/type/union/discriminated/envelope/object/default",
-            expectedStatusCodes = { 200 })
-        @UnexpectedResponseExceptionDetail
-        Response<BinaryData> get(@HostParam("endpoint") String endpoint, @QueryParam("kind") String kind,
-            @HeaderParam("Accept") String accept, RequestContext requestContext);
-
-        @HttpRequestInformation(
-            method = HttpMethod.PUT,
-            path = "/type/union/discriminated/envelope/object/default",
-            expectedStatusCodes = { 200 })
-        @UnexpectedResponseExceptionDetail
-        Response<BinaryData> put(@HostParam("endpoint") String endpoint,
-            @HeaderParam("Content-Type") String contentType, @HeaderParam("Accept") String accept,
-            @BodyParam("application/json") BinaryData input, RequestContext requestContext);
-    }
-
-    /**
      * The get operation.
-     * 
+     *
      * @param kind The kind parameter.
      * @param requestContext The context to configure the HTTP request before HTTP client sends it.
      * @throws IllegalArgumentException thrown if parameters fail the validation.
@@ -108,7 +72,7 @@ public final class EnvelopeObjectDefaultsImpl {
 
     /**
      * The put operation.
-     * 
+     *
      * @param input The input parameter.
      * @param requestContext The context to configure the HTTP request before HTTP client sends it.
      * @throws IllegalArgumentException thrown if parameters fail the validation.
@@ -126,5 +90,42 @@ public final class EnvelopeObjectDefaultsImpl {
                 final String accept = "application/json";
                 return service.put(this.client.getEndpoint(), contentType, accept, input, updatedContext);
             });
+    }
+
+    /**
+     * The interface defining all the services for DiscriminatedClientEnvelopeObjectDefaults to be used by the proxy
+     * service to perform REST calls.
+     */
+    @ServiceInterface(name = "DiscriminatedClientEnvelopeObjectDefaults", host = "{endpoint}")
+    public interface EnvelopeObjectDefaultsService {
+
+        @HttpRequestInformation(
+            method = HttpMethod.GET,
+            path = "/type/union/discriminated/envelope/object/default",
+            expectedStatusCodes = { 200 })
+        @UnexpectedResponseExceptionDetail
+        Response<BinaryData> get(@HostParam("endpoint") String endpoint, @QueryParam("kind") String kind,
+            @HeaderParam("Accept") String accept, RequestContext requestContext);
+
+        @HttpRequestInformation(
+            method = HttpMethod.PUT,
+            path = "/type/union/discriminated/envelope/object/default",
+            expectedStatusCodes = { 200 })
+        @UnexpectedResponseExceptionDetail
+        Response<BinaryData> put(@HostParam("endpoint") String endpoint,
+            @HeaderParam("Content-Type") String contentType, @HeaderParam("Accept") String accept,
+            @BodyParam("application/json") BinaryData input, RequestContext requestContext);
+
+        static EnvelopeObjectDefaultsService getNewInstance(HttpPipeline pipeline) {
+            try {
+                Class<?> clazz
+                    = Class.forName("type.union.discriminated.implementation.EnvelopeObjectDefaultsServiceImpl");
+                return (EnvelopeObjectDefaultsService) clazz.getMethod("getNewInstance", HttpPipeline.class)
+                    .invoke(null, pipeline);
+            } catch (ClassNotFoundException | NoSuchMethodException | IllegalAccessException
+                | InvocationTargetException e) {
+                throw new RuntimeException(e);
+            }
+        }
     }
 }

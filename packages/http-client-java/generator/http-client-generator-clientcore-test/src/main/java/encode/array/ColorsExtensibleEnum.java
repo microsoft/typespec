@@ -19,9 +19,10 @@ import java.util.function.Function;
  * Defines values for ColorsExtensibleEnum.
  */
 public final class ColorsExtensibleEnum implements ExpandableEnum<String>, JsonSerializable<ColorsExtensibleEnum> {
-    private static final Map<String, ColorsExtensibleEnum> VALUES = new ConcurrentHashMap<>();
 
     private static final Function<String, ColorsExtensibleEnum> NEW_INSTANCE = ColorsExtensibleEnum::new;
+
+    private static final Map<String, ColorsExtensibleEnum> VALUES = new ConcurrentHashMap<>();
 
     /**
      * Static value blue for ColorsExtensibleEnum.
@@ -30,16 +31,16 @@ public final class ColorsExtensibleEnum implements ExpandableEnum<String>, JsonS
     public static final ColorsExtensibleEnum BLUE = fromValue("blue");
 
     /**
-     * Static value red for ColorsExtensibleEnum.
-     */
-    @Metadata(properties = { MetadataProperties.GENERATED })
-    public static final ColorsExtensibleEnum RED = fromValue("red");
-
-    /**
      * Static value green for ColorsExtensibleEnum.
      */
     @Metadata(properties = { MetadataProperties.GENERATED })
     public static final ColorsExtensibleEnum GREEN = fromValue("green");
+
+    /**
+     * Static value red for ColorsExtensibleEnum.
+     */
+    @Metadata(properties = { MetadataProperties.GENERATED })
+    public static final ColorsExtensibleEnum RED = fromValue("red");
 
     private final String value;
 
@@ -47,40 +48,33 @@ public final class ColorsExtensibleEnum implements ExpandableEnum<String>, JsonS
         this.value = value;
     }
 
-    /**
-     * Creates or finds a ColorsExtensibleEnum.
-     * 
-     * @param value a value to look for.
-     * @return the corresponding ColorsExtensibleEnum.
-     * @throws IllegalArgumentException if value is null.
-     */
     @Metadata(properties = { MetadataProperties.GENERATED })
-    public static ColorsExtensibleEnum fromValue(String value) {
-        if (value == null) {
-            throw new IllegalArgumentException("'value' cannot be null.");
-        }
-        return VALUES.computeIfAbsent(value, NEW_INSTANCE);
-    }
-
-    /**
-     * Gets known ColorsExtensibleEnum values.
-     * 
-     * @return Known ColorsExtensibleEnum values.
-     */
-    @Metadata(properties = { MetadataProperties.GENERATED })
-    public static Collection<ColorsExtensibleEnum> values() {
-        return new ArrayList<>(VALUES.values());
+    @Override
+    public boolean equals(Object obj) {
+        return this == obj;
     }
 
     /**
      * Gets the value of the ColorsExtensibleEnum instance.
-     * 
+     *
      * @return the value of the ColorsExtensibleEnum instance.
      */
     @Metadata(properties = { MetadataProperties.GENERATED })
     @Override
     public String getValue() {
         return this.value;
+    }
+
+    @Metadata(properties = { MetadataProperties.GENERATED })
+    @Override
+    public int hashCode() {
+        return Objects.hashCode(this.value);
+    }
+
+    @Metadata(properties = { MetadataProperties.GENERATED })
+    @Override
+    public String toString() {
+        return Objects.toString(this.value);
     }
 
     /**
@@ -94,7 +88,7 @@ public final class ColorsExtensibleEnum implements ExpandableEnum<String>, JsonS
 
     /**
      * Reads an instance of ColorsExtensibleEnum from the JsonReader.
-     * 
+     *
      * @param jsonReader The JsonReader being read.
      * @return An instance of ColorsExtensibleEnum if the JsonReader was pointing to an instance of it, or null if the
      * JsonReader was pointing to JSON null.
@@ -114,21 +108,28 @@ public final class ColorsExtensibleEnum implements ExpandableEnum<String>, JsonS
         return ColorsExtensibleEnum.fromValue(jsonReader.getString());
     }
 
+    /**
+     * Creates or finds a ColorsExtensibleEnum.
+     *
+     * @param value a value to look for.
+     * @return the corresponding ColorsExtensibleEnum.
+     * @throws IllegalArgumentException if value is null.
+     */
     @Metadata(properties = { MetadataProperties.GENERATED })
-    @Override
-    public String toString() {
-        return Objects.toString(this.value);
+    public static ColorsExtensibleEnum fromValue(String value) {
+        if (value == null) {
+            throw new IllegalArgumentException("'value' cannot be null.");
+        }
+        return VALUES.computeIfAbsent(value, NEW_INSTANCE);
     }
 
+    /**
+     * Gets known ColorsExtensibleEnum values.
+     *
+     * @return Known ColorsExtensibleEnum values.
+     */
     @Metadata(properties = { MetadataProperties.GENERATED })
-    @Override
-    public boolean equals(Object obj) {
-        return this == obj;
-    }
-
-    @Metadata(properties = { MetadataProperties.GENERATED })
-    @Override
-    public int hashCode() {
-        return Objects.hashCode(this.value);
+    public static Collection<ColorsExtensibleEnum> values() {
+        return new ArrayList<>(VALUES.values());
     }
 }

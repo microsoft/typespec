@@ -16,14 +16,15 @@ import parameters.bodyoptionality.implementation.OptionalExplicitsImpl;
  */
 @ServiceClient(builder = BodyOptionalityClientBuilder.class)
 public final class OptionalExplicitClient {
-    @Metadata(properties = { MetadataProperties.GENERATED })
-    private final OptionalExplicitsImpl serviceClient;
 
     private final Instrumentation instrumentation;
 
+    @Metadata(properties = { MetadataProperties.GENERATED })
+    private final OptionalExplicitsImpl serviceClient;
+
     /**
      * Initializes an instance of OptionalExplicitClient class.
-     * 
+     *
      * @param serviceClient the service client implementation.
      * @param instrumentation the instrumentation instance.
      */
@@ -34,52 +35,35 @@ public final class OptionalExplicitClient {
     }
 
     /**
-     * The set operation.
-     * 
-     * @param body The body parameter.
-     * @param requestContext The context to configure the HTTP request before HTTP client sends it.
-     * @throws IllegalArgumentException thrown if parameters fail the validation.
-     * @throws HttpResponseException thrown if the service returns an error.
-     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
-     * @return the {@link Response}.
-     */
-    @Metadata(properties = { MetadataProperties.GENERATED })
-    @ServiceMethod(returns = ReturnType.SINGLE)
-    public Response<Void> setWithResponse(BodyModel body, RequestContext requestContext) {
-        return this.instrumentation.instrumentWithResponse("Parameters.BodyOptionality.OptionalExplicit.set",
-            requestContext, updatedContext -> this.serviceClient.setWithResponse(body, updatedContext));
-    }
-
-    /**
-     * The set operation.
-     * 
-     * @param body The body parameter.
-     * @throws IllegalArgumentException thrown if parameters fail the validation.
+     * The omit operation.
+     *
      * @throws HttpResponseException thrown if the service returns an error.
      * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
      */
     @Metadata(properties = { MetadataProperties.GENERATED })
     @ServiceMethod(returns = ReturnType.SINGLE)
-    public void set(BodyModel body) {
-        setWithResponse(body, RequestContext.none());
-    }
-
-    /**
-     * The set operation.
-     * 
-     * @throws HttpResponseException thrown if the service returns an error.
-     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
-     */
-    @Metadata(properties = { MetadataProperties.GENERATED })
-    @ServiceMethod(returns = ReturnType.SINGLE)
-    public void set() {
+    public void omit() {
         final BodyModel body = null;
-        setWithResponse(body, RequestContext.none());
+        omitWithResponse(body, RequestContext.none());
     }
 
     /**
      * The omit operation.
-     * 
+     *
+     * @param body The body parameter.
+     * @throws IllegalArgumentException thrown if parameters fail the validation.
+     * @throws HttpResponseException thrown if the service returns an error.
+     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
+     */
+    @Metadata(properties = { MetadataProperties.GENERATED })
+    @ServiceMethod(returns = ReturnType.SINGLE)
+    public void omit(BodyModel body) {
+        omitWithResponse(body, RequestContext.none());
+    }
+
+    /**
+     * The omit operation.
+     *
      * @param body The body parameter.
      * @param requestContext The context to configure the HTTP request before HTTP client sends it.
      * @throws IllegalArgumentException thrown if parameters fail the validation.
@@ -95,8 +79,21 @@ public final class OptionalExplicitClient {
     }
 
     /**
-     * The omit operation.
-     * 
+     * The set operation.
+     *
+     * @throws HttpResponseException thrown if the service returns an error.
+     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
+     */
+    @Metadata(properties = { MetadataProperties.GENERATED })
+    @ServiceMethod(returns = ReturnType.SINGLE)
+    public void set() {
+        final BodyModel body = null;
+        setWithResponse(body, RequestContext.none());
+    }
+
+    /**
+     * The set operation.
+     *
      * @param body The body parameter.
      * @throws IllegalArgumentException thrown if parameters fail the validation.
      * @throws HttpResponseException thrown if the service returns an error.
@@ -104,20 +101,24 @@ public final class OptionalExplicitClient {
      */
     @Metadata(properties = { MetadataProperties.GENERATED })
     @ServiceMethod(returns = ReturnType.SINGLE)
-    public void omit(BodyModel body) {
-        omitWithResponse(body, RequestContext.none());
+    public void set(BodyModel body) {
+        setWithResponse(body, RequestContext.none());
     }
 
     /**
-     * The omit operation.
-     * 
+     * The set operation.
+     *
+     * @param body The body parameter.
+     * @param requestContext The context to configure the HTTP request before HTTP client sends it.
+     * @throws IllegalArgumentException thrown if parameters fail the validation.
      * @throws HttpResponseException thrown if the service returns an error.
      * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
+     * @return the {@link Response}.
      */
     @Metadata(properties = { MetadataProperties.GENERATED })
     @ServiceMethod(returns = ReturnType.SINGLE)
-    public void omit() {
-        final BodyModel body = null;
-        omitWithResponse(body, RequestContext.none());
+    public Response<Void> setWithResponse(BodyModel body, RequestContext requestContext) {
+        return this.instrumentation.instrumentWithResponse("Parameters.BodyOptionality.OptionalExplicit.set",
+            requestContext, updatedContext -> this.serviceClient.setWithResponse(body, updatedContext));
     }
 }

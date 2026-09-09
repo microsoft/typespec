@@ -16,14 +16,15 @@ import io.clientcore.core.instrumentation.Instrumentation;
  */
 @ServiceClient(builder = BytesClientBuilder.class)
 public final class PropertyClient {
-    @Metadata(properties = { MetadataProperties.GENERATED })
-    private final PropertiesImpl serviceClient;
 
     private final Instrumentation instrumentation;
 
+    @Metadata(properties = { MetadataProperties.GENERATED })
+    private final PropertiesImpl serviceClient;
+
     /**
      * Initializes an instance of PropertyClient class.
-     * 
+     *
      * @param serviceClient the service client implementation.
      * @param instrumentation the instrumentation instance.
      */
@@ -34,26 +35,8 @@ public final class PropertyClient {
     }
 
     /**
-     * The defaultMethod operation.
-     * 
-     * @param body The body parameter.
-     * @param requestContext The context to configure the HTTP request before HTTP client sends it.
-     * @throws IllegalArgumentException thrown if parameters fail the validation.
-     * @throws HttpResponseException thrown if the service returns an error.
-     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
-     * @return the response body along with {@link Response}.
-     */
-    @Metadata(properties = { MetadataProperties.GENERATED })
-    @ServiceMethod(returns = ReturnType.SINGLE)
-    public Response<DefaultBytesProperty> defaultMethodWithResponse(DefaultBytesProperty body,
-        RequestContext requestContext) {
-        return this.instrumentation.instrumentWithResponse("Encode.Bytes.Property.default", requestContext,
-            updatedContext -> this.serviceClient.defaultMethodWithResponse(body, updatedContext));
-    }
-
-    /**
-     * The defaultMethod operation.
-     * 
+     * The base64 operation.
+     *
      * @param body The body parameter.
      * @throws IllegalArgumentException thrown if parameters fail the validation.
      * @throws HttpResponseException thrown if the service returns an error.
@@ -62,13 +45,13 @@ public final class PropertyClient {
      */
     @Metadata(properties = { MetadataProperties.GENERATED })
     @ServiceMethod(returns = ReturnType.SINGLE)
-    public DefaultBytesProperty defaultMethod(DefaultBytesProperty body) {
-        return defaultMethodWithResponse(body, RequestContext.none()).getValue();
+    public Base64BytesProperty base64(Base64BytesProperty body) {
+        return base64WithResponse(body, RequestContext.none()).getValue();
     }
 
     /**
      * The base64 operation.
-     * 
+     *
      * @param body The body parameter.
      * @param requestContext The context to configure the HTTP request before HTTP client sends it.
      * @throws IllegalArgumentException thrown if parameters fail the validation.
@@ -84,8 +67,8 @@ public final class PropertyClient {
     }
 
     /**
-     * The base64 operation.
-     * 
+     * The base64url operation.
+     *
      * @param body The body parameter.
      * @throws IllegalArgumentException thrown if parameters fail the validation.
      * @throws HttpResponseException thrown if the service returns an error.
@@ -94,13 +77,13 @@ public final class PropertyClient {
      */
     @Metadata(properties = { MetadataProperties.GENERATED })
     @ServiceMethod(returns = ReturnType.SINGLE)
-    public Base64BytesProperty base64(Base64BytesProperty body) {
-        return base64WithResponse(body, RequestContext.none()).getValue();
+    public Base64urlBytesProperty base64url(Base64urlBytesProperty body) {
+        return base64urlWithResponse(body, RequestContext.none()).getValue();
     }
 
     /**
      * The base64url operation.
-     * 
+     *
      * @param body The body parameter.
      * @param requestContext The context to configure the HTTP request before HTTP client sends it.
      * @throws IllegalArgumentException thrown if parameters fail the validation.
@@ -117,8 +100,8 @@ public final class PropertyClient {
     }
 
     /**
-     * The base64url operation.
-     * 
+     * The base64urlArray operation.
+     *
      * @param body The body parameter.
      * @throws IllegalArgumentException thrown if parameters fail the validation.
      * @throws HttpResponseException thrown if the service returns an error.
@@ -127,13 +110,13 @@ public final class PropertyClient {
      */
     @Metadata(properties = { MetadataProperties.GENERATED })
     @ServiceMethod(returns = ReturnType.SINGLE)
-    public Base64urlBytesProperty base64url(Base64urlBytesProperty body) {
-        return base64urlWithResponse(body, RequestContext.none()).getValue();
+    public Base64urlArrayBytesProperty base64urlArray(Base64urlArrayBytesProperty body) {
+        return base64urlArrayWithResponse(body, RequestContext.none()).getValue();
     }
 
     /**
      * The base64urlArray operation.
-     * 
+     *
      * @param body The body parameter.
      * @param requestContext The context to configure the HTTP request before HTTP client sends it.
      * @throws IllegalArgumentException thrown if parameters fail the validation.
@@ -150,8 +133,8 @@ public final class PropertyClient {
     }
 
     /**
-     * The base64urlArray operation.
-     * 
+     * The defaultMethod operation.
+     *
      * @param body The body parameter.
      * @throws IllegalArgumentException thrown if parameters fail the validation.
      * @throws HttpResponseException thrown if the service returns an error.
@@ -160,7 +143,25 @@ public final class PropertyClient {
      */
     @Metadata(properties = { MetadataProperties.GENERATED })
     @ServiceMethod(returns = ReturnType.SINGLE)
-    public Base64urlArrayBytesProperty base64urlArray(Base64urlArrayBytesProperty body) {
-        return base64urlArrayWithResponse(body, RequestContext.none()).getValue();
+    public DefaultBytesProperty defaultMethod(DefaultBytesProperty body) {
+        return defaultMethodWithResponse(body, RequestContext.none()).getValue();
+    }
+
+    /**
+     * The defaultMethod operation.
+     *
+     * @param body The body parameter.
+     * @param requestContext The context to configure the HTTP request before HTTP client sends it.
+     * @throws IllegalArgumentException thrown if parameters fail the validation.
+     * @throws HttpResponseException thrown if the service returns an error.
+     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
+     * @return the response body along with {@link Response}.
+     */
+    @Metadata(properties = { MetadataProperties.GENERATED })
+    @ServiceMethod(returns = ReturnType.SINGLE)
+    public Response<DefaultBytesProperty> defaultMethodWithResponse(DefaultBytesProperty body,
+        RequestContext requestContext) {
+        return this.instrumentation.instrumentWithResponse("Encode.Bytes.Property.default", requestContext,
+            updatedContext -> this.serviceClient.defaultMethodWithResponse(body, updatedContext));
     }
 }

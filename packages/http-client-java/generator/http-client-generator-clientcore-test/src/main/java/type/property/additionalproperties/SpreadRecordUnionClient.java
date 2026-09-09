@@ -16,14 +16,15 @@ import type.property.additionalproperties.implementation.SpreadRecordUnionsImpl;
  */
 @ServiceClient(builder = AdditionalPropertiesClientBuilder.class)
 public final class SpreadRecordUnionClient {
-    @Metadata(properties = { MetadataProperties.GENERATED })
-    private final SpreadRecordUnionsImpl serviceClient;
 
     private final Instrumentation instrumentation;
 
+    @Metadata(properties = { MetadataProperties.GENERATED })
+    private final SpreadRecordUnionsImpl serviceClient;
+
     /**
      * Initializes an instance of SpreadRecordUnionClient class.
-     * 
+     *
      * @param serviceClient the service client implementation.
      * @param instrumentation the instrumentation instance.
      */
@@ -35,7 +36,20 @@ public final class SpreadRecordUnionClient {
 
     /**
      * Get call.
-     * 
+     *
+     * @throws HttpResponseException thrown if the service returns an error.
+     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
+     * @return call.
+     */
+    @Metadata(properties = { MetadataProperties.GENERATED })
+    @ServiceMethod(returns = ReturnType.SINGLE)
+    public SpreadRecordForUnion get() {
+        return getWithResponse(RequestContext.none()).getValue();
+    }
+
+    /**
+     * Get call.
+     *
      * @param requestContext The context to configure the HTTP request before HTTP client sends it.
      * @throws IllegalArgumentException thrown if parameters fail the validation.
      * @throws HttpResponseException thrown if the service returns an error.
@@ -50,21 +64,22 @@ public final class SpreadRecordUnionClient {
     }
 
     /**
-     * Get call.
-     * 
+     * Put operation.
+     *
+     * @param body body.
+     * @throws IllegalArgumentException thrown if parameters fail the validation.
      * @throws HttpResponseException thrown if the service returns an error.
      * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
-     * @return call.
      */
     @Metadata(properties = { MetadataProperties.GENERATED })
     @ServiceMethod(returns = ReturnType.SINGLE)
-    public SpreadRecordForUnion get() {
-        return getWithResponse(RequestContext.none()).getValue();
+    public void put(SpreadRecordForUnion body) {
+        putWithResponse(body, RequestContext.none());
     }
 
     /**
      * Put operation.
-     * 
+     *
      * @param body body.
      * @param requestContext The context to configure the HTTP request before HTTP client sends it.
      * @throws IllegalArgumentException thrown if parameters fail the validation.
@@ -77,19 +92,5 @@ public final class SpreadRecordUnionClient {
     public Response<Void> putWithResponse(SpreadRecordForUnion body, RequestContext requestContext) {
         return this.instrumentation.instrumentWithResponse("Type.Property.AdditionalProperties.SpreadRecordUnion.put",
             requestContext, updatedContext -> this.serviceClient.putWithResponse(body, updatedContext));
-    }
-
-    /**
-     * Put operation.
-     * 
-     * @param body body.
-     * @throws IllegalArgumentException thrown if parameters fail the validation.
-     * @throws HttpResponseException thrown if the service returns an error.
-     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
-     */
-    @Metadata(properties = { MetadataProperties.GENERATED })
-    @ServiceMethod(returns = ReturnType.SINGLE)
-    public void put(SpreadRecordForUnion body) {
-        putWithResponse(body, RequestContext.none());
     }
 }

@@ -35,17 +35,60 @@ import java.util.Objects;
     serviceClients = { QueryClient.class, PropertyClient.class, HeaderClient.class, LossyClient.class })
 public final class DurationClientBuilder implements HttpTrait<DurationClientBuilder>, ProxyTrait<DurationClientBuilder>,
     ConfigurationTrait<DurationClientBuilder>, EndpointTrait<DurationClientBuilder> {
+
+    @Metadata(properties = { MetadataProperties.GENERATED })
+    private static final Map<String, String> PROPERTIES = CoreUtils.getProperties("encode-duration.properties");
+
     @Metadata(properties = { MetadataProperties.GENERATED })
     private static final String SDK_NAME = "name";
 
     @Metadata(properties = { MetadataProperties.GENERATED })
     private static final String SDK_VERSION = "version";
 
+    /*
+     * The configuration store that is used during construction of the service client.
+     */
     @Metadata(properties = { MetadataProperties.GENERATED })
-    private static final Map<String, String> PROPERTIES = CoreUtils.getProperties("encode-duration.properties");
+    private Configuration configuration;
+
+    /*
+     * The service endpoint
+     */
+    @Metadata(properties = { MetadataProperties.GENERATED })
+    private String endpoint;
+
+    /*
+     * The HTTP client used to send the request.
+     */
+    @Metadata(properties = { MetadataProperties.GENERATED })
+    private HttpClient httpClient;
+
+    /*
+     * The instrumentation configuration for HTTP requests and responses.
+     */
+    @Metadata(properties = { MetadataProperties.GENERATED })
+    private HttpInstrumentationOptions httpInstrumentationOptions;
 
     @Metadata(properties = { MetadataProperties.GENERATED })
     private final List<HttpPipelinePolicy> pipelinePolicies;
+
+    /*
+     * The proxy options used during construction of the service client.
+     */
+    @Metadata(properties = { MetadataProperties.GENERATED })
+    private ProxyOptions proxyOptions;
+
+    /*
+     * The redirect options to configure redirect policy
+     */
+    @Metadata(properties = { MetadataProperties.GENERATED })
+    private HttpRedirectOptions redirectOptions;
+
+    /*
+     * The retry options to configure retry policy for failed requests.
+     */
+    @Metadata(properties = { MetadataProperties.GENERATED })
+    private HttpRetryOptions retryOptions;
 
     /**
      * Create an instance of the DurationClientBuilder.
@@ -55,11 +98,36 @@ public final class DurationClientBuilder implements HttpTrait<DurationClientBuil
         this.pipelinePolicies = new ArrayList<>();
     }
 
-    /*
-     * The HTTP client used to send the request.
+    /**
+     * {@inheritDoc}.
      */
     @Metadata(properties = { MetadataProperties.GENERATED })
-    private HttpClient httpClient;
+    @Override
+    public DurationClientBuilder addHttpPipelinePolicy(HttpPipelinePolicy customPolicy) {
+        Objects.requireNonNull(customPolicy, "'customPolicy' cannot be null.");
+        pipelinePolicies.add(customPolicy);
+        return this;
+    }
+
+    /**
+     * {@inheritDoc}.
+     */
+    @Metadata(properties = { MetadataProperties.GENERATED })
+    @Override
+    public DurationClientBuilder configuration(Configuration configuration) {
+        this.configuration = configuration;
+        return this;
+    }
+
+    /**
+     * {@inheritDoc}.
+     */
+    @Metadata(properties = { MetadataProperties.GENERATED })
+    @Override
+    public DurationClientBuilder endpoint(String endpoint) {
+        this.endpoint = endpoint;
+        return this;
+    }
 
     /**
      * {@inheritDoc}.
@@ -71,11 +139,25 @@ public final class DurationClientBuilder implements HttpTrait<DurationClientBuil
         return this;
     }
 
-    /*
-     * The retry options to configure retry policy for failed requests.
+    /**
+     * {@inheritDoc}.
      */
     @Metadata(properties = { MetadataProperties.GENERATED })
-    private HttpRetryOptions retryOptions;
+    @Override
+    public DurationClientBuilder httpInstrumentationOptions(HttpInstrumentationOptions httpInstrumentationOptions) {
+        this.httpInstrumentationOptions = httpInstrumentationOptions;
+        return this;
+    }
+
+    /**
+     * {@inheritDoc}.
+     */
+    @Metadata(properties = { MetadataProperties.GENERATED })
+    @Override
+    public DurationClientBuilder httpRedirectOptions(HttpRedirectOptions redirectOptions) {
+        this.redirectOptions = redirectOptions;
+        return this;
+    }
 
     /**
      * {@inheritDoc}.
@@ -92,95 +174,58 @@ public final class DurationClientBuilder implements HttpTrait<DurationClientBuil
      */
     @Metadata(properties = { MetadataProperties.GENERATED })
     @Override
-    public DurationClientBuilder addHttpPipelinePolicy(HttpPipelinePolicy customPolicy) {
-        Objects.requireNonNull(customPolicy, "'customPolicy' cannot be null.");
-        pipelinePolicies.add(customPolicy);
-        return this;
-    }
-
-    /*
-     * The redirect options to configure redirect policy
-     */
-    @Metadata(properties = { MetadataProperties.GENERATED })
-    private HttpRedirectOptions redirectOptions;
-
-    /**
-     * {@inheritDoc}.
-     */
-    @Metadata(properties = { MetadataProperties.GENERATED })
-    @Override
-    public DurationClientBuilder httpRedirectOptions(HttpRedirectOptions redirectOptions) {
-        this.redirectOptions = redirectOptions;
-        return this;
-    }
-
-    /*
-     * The instrumentation configuration for HTTP requests and responses.
-     */
-    @Metadata(properties = { MetadataProperties.GENERATED })
-    private HttpInstrumentationOptions httpInstrumentationOptions;
-
-    /**
-     * {@inheritDoc}.
-     */
-    @Metadata(properties = { MetadataProperties.GENERATED })
-    @Override
-    public DurationClientBuilder httpInstrumentationOptions(HttpInstrumentationOptions httpInstrumentationOptions) {
-        this.httpInstrumentationOptions = httpInstrumentationOptions;
-        return this;
-    }
-
-    /*
-     * The proxy options used during construction of the service client.
-     */
-    @Metadata(properties = { MetadataProperties.GENERATED })
-    private ProxyOptions proxyOptions;
-
-    /**
-     * {@inheritDoc}.
-     */
-    @Metadata(properties = { MetadataProperties.GENERATED })
-    @Override
     public DurationClientBuilder proxyOptions(ProxyOptions proxyOptions) {
         this.proxyOptions = proxyOptions;
         return this;
     }
 
-    /*
-     * The configuration store that is used during construction of the service client.
-     */
-    @Metadata(properties = { MetadataProperties.GENERATED })
-    private Configuration configuration;
-
     /**
-     * {@inheritDoc}.
+     * Builds an instance of HeaderClient class.
+     *
+     * @return an instance of HeaderClient.
      */
     @Metadata(properties = { MetadataProperties.GENERATED })
-    @Override
-    public DurationClientBuilder configuration(Configuration configuration) {
-        this.configuration = configuration;
-        return this;
+    public HeaderClient buildHeaderClient() {
+        DurationClientImpl innerClient = buildInnerClient();
+        return new HeaderClient(innerClient.getHeaders(), innerClient.getInstrumentation());
     }
 
-    /*
-     * The service endpoint
+    /**
+     * Builds an instance of LossyClient class.
+     *
+     * @return an instance of LossyClient.
      */
     @Metadata(properties = { MetadataProperties.GENERATED })
-    private String endpoint;
+    public LossyClient buildLossyClient() {
+        DurationClientImpl innerClient = buildInnerClient();
+        return new LossyClient(innerClient.getLossies(), innerClient.getInstrumentation());
+    }
 
     /**
-     * {@inheritDoc}.
+     * Builds an instance of PropertyClient class.
+     *
+     * @return an instance of PropertyClient.
      */
     @Metadata(properties = { MetadataProperties.GENERATED })
-    @Override
-    public DurationClientBuilder endpoint(String endpoint) {
-        this.endpoint = endpoint;
-        return this;
+    public PropertyClient buildPropertyClient() {
+        DurationClientImpl innerClient = buildInnerClient();
+        return new PropertyClient(innerClient.getProperties(), innerClient.getInstrumentation());
+    }
+
+    /**
+     * Builds an instance of QueryClient class.
+     *
+     * @return an instance of QueryClient.
+     */
+    @Metadata(properties = { MetadataProperties.GENERATED })
+    public QueryClient buildQueryClient() {
+        DurationClientImpl innerClient = buildInnerClient();
+        return new QueryClient(innerClient.getQueries(), innerClient.getInstrumentation());
     }
 
     /**
      * Builds an instance of DurationClientImpl with the provided parameters.
-     * 
+     *
      * @return an instance of DurationClientImpl.
      */
     @Metadata(properties = { MetadataProperties.GENERATED })
@@ -201,12 +246,6 @@ public final class DurationClientBuilder implements HttpTrait<DurationClientBuil
     }
 
     @Metadata(properties = { MetadataProperties.GENERATED })
-    private void validateClient() {
-        // This method is invoked from 'buildInnerClient'/'buildClient' method.
-        // Developer can customize this method, to validate that the necessary conditions are met for the new client.
-    }
-
-    @Metadata(properties = { MetadataProperties.GENERATED })
     private HttpPipeline createHttpPipeline() {
         Configuration buildConfiguration
             = (configuration == null) ? Configuration.getGlobalConfiguration() : configuration;
@@ -223,47 +262,9 @@ public final class DurationClientBuilder implements HttpTrait<DurationClientBuil
         return httpPipelineBuilder.httpClient(httpClient).build();
     }
 
-    /**
-     * Builds an instance of QueryClient class.
-     * 
-     * @return an instance of QueryClient.
-     */
     @Metadata(properties = { MetadataProperties.GENERATED })
-    public QueryClient buildQueryClient() {
-        DurationClientImpl innerClient = buildInnerClient();
-        return new QueryClient(innerClient.getQueries(), innerClient.getInstrumentation());
-    }
-
-    /**
-     * Builds an instance of PropertyClient class.
-     * 
-     * @return an instance of PropertyClient.
-     */
-    @Metadata(properties = { MetadataProperties.GENERATED })
-    public PropertyClient buildPropertyClient() {
-        DurationClientImpl innerClient = buildInnerClient();
-        return new PropertyClient(innerClient.getProperties(), innerClient.getInstrumentation());
-    }
-
-    /**
-     * Builds an instance of HeaderClient class.
-     * 
-     * @return an instance of HeaderClient.
-     */
-    @Metadata(properties = { MetadataProperties.GENERATED })
-    public HeaderClient buildHeaderClient() {
-        DurationClientImpl innerClient = buildInnerClient();
-        return new HeaderClient(innerClient.getHeaders(), innerClient.getInstrumentation());
-    }
-
-    /**
-     * Builds an instance of LossyClient class.
-     * 
-     * @return an instance of LossyClient.
-     */
-    @Metadata(properties = { MetadataProperties.GENERATED })
-    public LossyClient buildLossyClient() {
-        DurationClientImpl innerClient = buildInnerClient();
-        return new LossyClient(innerClient.getLossies(), innerClient.getInstrumentation());
+    private void validateClient() {
+        // This method is invoked from 'buildInnerClient'/'buildClient' method.
+        // Developer can customize this method, to validate that the necessary conditions are met for the new client.
     }
 }

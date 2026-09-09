@@ -14,6 +14,7 @@ import java.io.IOException;
  */
 @Metadata(properties = { MetadataProperties.IMMUTABLE })
 public final class BulletPointsModelRequest implements JsonSerializable<BulletPointsModelRequest> {
+
     /*
      * The input property.
      */
@@ -22,7 +23,7 @@ public final class BulletPointsModelRequest implements JsonSerializable<BulletPo
 
     /**
      * Creates an instance of BulletPointsModelRequest class.
-     * 
+     *
      * @param input the input value to set.
      */
     @Metadata(properties = { MetadataProperties.GENERATED })
@@ -32,7 +33,7 @@ public final class BulletPointsModelRequest implements JsonSerializable<BulletPo
 
     /**
      * Get the input property: The input property.
-     * 
+     *
      * @return the input value.
      */
     @Metadata(properties = { MetadataProperties.GENERATED })
@@ -53,7 +54,7 @@ public final class BulletPointsModelRequest implements JsonSerializable<BulletPo
 
     /**
      * Reads an instance of BulletPointsModelRequest from the JsonReader.
-     * 
+     *
      * @param jsonReader The JsonReader being read.
      * @return An instance of BulletPointsModelRequest if the JsonReader was pointing to an instance of it, or null if
      * it was pointing to JSON null.
@@ -67,7 +68,6 @@ public final class BulletPointsModelRequest implements JsonSerializable<BulletPo
             while (reader.nextToken() != JsonToken.END_OBJECT) {
                 String fieldName = reader.getFieldName();
                 reader.nextToken();
-
                 if ("input".equals(fieldName)) {
                     input = BulletPointsModel.fromJson(reader);
                 } else {

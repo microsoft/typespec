@@ -16,14 +16,15 @@ import type.property.optional.implementation.DurationOperationsImpl;
  */
 @ServiceClient(builder = OptionalClientBuilder.class)
 public final class DurationOperationClient {
-    @Metadata(properties = { MetadataProperties.GENERATED })
-    private final DurationOperationsImpl serviceClient;
 
     private final Instrumentation instrumentation;
 
+    @Metadata(properties = { MetadataProperties.GENERATED })
+    private final DurationOperationsImpl serviceClient;
+
     /**
      * Initializes an instance of DurationOperationClient class.
-     * 
+     *
      * @param serviceClient the service client implementation.
      * @param instrumentation the instrumentation instance.
      */
@@ -35,7 +36,20 @@ public final class DurationOperationClient {
 
     /**
      * Get models that will return all properties in the model.
-     * 
+     *
+     * @throws HttpResponseException thrown if the service returns an error.
+     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
+     * @return models that will return all properties in the model.
+     */
+    @Metadata(properties = { MetadataProperties.GENERATED })
+    @ServiceMethod(returns = ReturnType.SINGLE)
+    public DurationProperty getAll() {
+        return getAllWithResponse(RequestContext.none()).getValue();
+    }
+
+    /**
+     * Get models that will return all properties in the model.
+     *
      * @param requestContext The context to configure the HTTP request before HTTP client sends it.
      * @throws IllegalArgumentException thrown if parameters fail the validation.
      * @throws HttpResponseException thrown if the service returns an error.
@@ -50,21 +64,21 @@ public final class DurationOperationClient {
     }
 
     /**
-     * Get models that will return all properties in the model.
-     * 
+     * Get models that will return the default object.
+     *
      * @throws HttpResponseException thrown if the service returns an error.
      * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
-     * @return models that will return all properties in the model.
+     * @return models that will return the default object.
      */
     @Metadata(properties = { MetadataProperties.GENERATED })
     @ServiceMethod(returns = ReturnType.SINGLE)
-    public DurationProperty getAll() {
-        return getAllWithResponse(RequestContext.none()).getValue();
+    public DurationProperty getDefault() {
+        return getDefaultWithResponse(RequestContext.none()).getValue();
     }
 
     /**
      * Get models that will return the default object.
-     * 
+     *
      * @param requestContext The context to configure the HTTP request before HTTP client sends it.
      * @throws IllegalArgumentException thrown if parameters fail the validation.
      * @throws HttpResponseException thrown if the service returns an error.
@@ -79,21 +93,22 @@ public final class DurationOperationClient {
     }
 
     /**
-     * Get models that will return the default object.
-     * 
+     * Put a body with all properties present.
+     *
+     * @param body The body parameter.
+     * @throws IllegalArgumentException thrown if parameters fail the validation.
      * @throws HttpResponseException thrown if the service returns an error.
      * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
-     * @return models that will return the default object.
      */
     @Metadata(properties = { MetadataProperties.GENERATED })
     @ServiceMethod(returns = ReturnType.SINGLE)
-    public DurationProperty getDefault() {
-        return getDefaultWithResponse(RequestContext.none()).getValue();
+    public void putAll(DurationProperty body) {
+        putAllWithResponse(body, RequestContext.none());
     }
 
     /**
      * Put a body with all properties present.
-     * 
+     *
      * @param body The body parameter.
      * @param requestContext The context to configure the HTTP request before HTTP client sends it.
      * @throws IllegalArgumentException thrown if parameters fail the validation.
@@ -109,8 +124,8 @@ public final class DurationOperationClient {
     }
 
     /**
-     * Put a body with all properties present.
-     * 
+     * Put a body with default properties.
+     *
      * @param body The body parameter.
      * @throws IllegalArgumentException thrown if parameters fail the validation.
      * @throws HttpResponseException thrown if the service returns an error.
@@ -118,13 +133,13 @@ public final class DurationOperationClient {
      */
     @Metadata(properties = { MetadataProperties.GENERATED })
     @ServiceMethod(returns = ReturnType.SINGLE)
-    public void putAll(DurationProperty body) {
-        putAllWithResponse(body, RequestContext.none());
+    public void putDefault(DurationProperty body) {
+        putDefaultWithResponse(body, RequestContext.none());
     }
 
     /**
      * Put a body with default properties.
-     * 
+     *
      * @param body The body parameter.
      * @param requestContext The context to configure the HTTP request before HTTP client sends it.
      * @throws IllegalArgumentException thrown if parameters fail the validation.
@@ -137,19 +152,5 @@ public final class DurationOperationClient {
     public Response<Void> putDefaultWithResponse(DurationProperty body, RequestContext requestContext) {
         return this.instrumentation.instrumentWithResponse("Type.Property.Optional.Duration.putDefault", requestContext,
             updatedContext -> this.serviceClient.putDefaultWithResponse(body, updatedContext));
-    }
-
-    /**
-     * Put a body with default properties.
-     * 
-     * @param body The body parameter.
-     * @throws IllegalArgumentException thrown if parameters fail the validation.
-     * @throws HttpResponseException thrown if the service returns an error.
-     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
-     */
-    @Metadata(properties = { MetadataProperties.GENERATED })
-    @ServiceMethod(returns = ReturnType.SINGLE)
-    public void putDefault(DurationProperty body) {
-        putDefaultWithResponse(body, RequestContext.none());
     }
 }

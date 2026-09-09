@@ -13,6 +13,7 @@ import java.io.IOException;
  */
 @Metadata(properties = { MetadataProperties.IMMUTABLE })
 public final class EmptyInputOutput implements JsonSerializable<EmptyInputOutput> {
+
     /**
      * Creates an instance of EmptyInputOutput class.
      */
@@ -32,7 +33,7 @@ public final class EmptyInputOutput implements JsonSerializable<EmptyInputOutput
 
     /**
      * Reads an instance of EmptyInputOutput from the JsonReader.
-     * 
+     *
      * @param jsonReader The JsonReader being read.
      * @return An instance of EmptyInputOutput if the JsonReader was pointing to an instance of it, or null if it was
      * pointing to JSON null.
@@ -45,10 +46,8 @@ public final class EmptyInputOutput implements JsonSerializable<EmptyInputOutput
             while (reader.nextToken() != JsonToken.END_OBJECT) {
                 String fieldName = reader.getFieldName();
                 reader.nextToken();
-
                 reader.skipChildren();
             }
-
             return deserializedEmptyInputOutput;
         });
     }

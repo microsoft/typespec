@@ -17,14 +17,15 @@ import parameters.spread.implementation.AliasImpl;
  */
 @ServiceClient(builder = SpreadClientBuilder.class)
 public final class AliasClient {
-    @Metadata(properties = { MetadataProperties.GENERATED })
-    private final AliasImpl serviceClient;
 
     private final Instrumentation instrumentation;
 
+    @Metadata(properties = { MetadataProperties.GENERATED })
+    private final AliasImpl serviceClient;
+
     /**
      * Initializes an instance of AliasClient class.
-     * 
+     *
      * @param serviceClient the service client implementation.
      * @param instrumentation the instrumentation instance.
      */
@@ -36,7 +37,21 @@ public final class AliasClient {
 
     /**
      * The spreadAsRequestBody operation.
-     * 
+     *
+     * @param name The name parameter.
+     * @throws IllegalArgumentException thrown if parameters fail the validation.
+     * @throws HttpResponseException thrown if the service returns an error.
+     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
+     */
+    @Metadata(properties = { MetadataProperties.GENERATED })
+    @ServiceMethod(returns = ReturnType.SINGLE)
+    public void spreadAsRequestBody(String name) {
+        spreadAsRequestBodyWithResponse(name, RequestContext.none());
+    }
+
+    /**
+     * The spreadAsRequestBody operation.
+     *
      * @param name The name parameter.
      * @param requestContext The context to configure the HTTP request before HTTP client sends it.
      * @throws IllegalArgumentException thrown if parameters fail the validation.
@@ -52,43 +67,8 @@ public final class AliasClient {
     }
 
     /**
-     * The spreadAsRequestBody operation.
-     * 
-     * @param name The name parameter.
-     * @throws IllegalArgumentException thrown if parameters fail the validation.
-     * @throws HttpResponseException thrown if the service returns an error.
-     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
-     */
-    @Metadata(properties = { MetadataProperties.GENERATED })
-    @ServiceMethod(returns = ReturnType.SINGLE)
-    public void spreadAsRequestBody(String name) {
-        spreadAsRequestBodyWithResponse(name, RequestContext.none());
-    }
-
-    /**
-     * The spreadParameterWithInnerModel operation.
-     * 
-     * @param id The id parameter.
-     * @param xMsTestHeader The xMsTestHeader parameter.
-     * @param name The name parameter.
-     * @param requestContext The context to configure the HTTP request before HTTP client sends it.
-     * @throws IllegalArgumentException thrown if parameters fail the validation.
-     * @throws HttpResponseException thrown if the service returns an error.
-     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
-     * @return the {@link Response}.
-     */
-    @Metadata(properties = { MetadataProperties.GENERATED })
-    @ServiceMethod(returns = ReturnType.SINGLE)
-    public Response<Void> spreadParameterWithInnerModelWithResponse(String id, String xMsTestHeader, String name,
-        RequestContext requestContext) {
-        return this.instrumentation.instrumentWithResponse("Parameters.Spread.Alias.spreadParameterWithInnerModel",
-            requestContext, updatedContext -> this.serviceClient.spreadParameterWithInnerModelWithResponse(id,
-                xMsTestHeader, name, updatedContext));
-    }
-
-    /**
-     * The spreadParameterWithInnerModel operation.
-     * 
+     * The spreadAsRequestParameter operation.
+     *
      * @param id The id parameter.
      * @param xMsTestHeader The xMsTestHeader parameter.
      * @param name The name parameter.
@@ -98,13 +78,13 @@ public final class AliasClient {
      */
     @Metadata(properties = { MetadataProperties.GENERATED })
     @ServiceMethod(returns = ReturnType.SINGLE)
-    public void spreadParameterWithInnerModel(String id, String xMsTestHeader, String name) {
-        spreadParameterWithInnerModelWithResponse(id, xMsTestHeader, name, RequestContext.none());
+    public void spreadAsRequestParameter(String id, String xMsTestHeader, String name) {
+        spreadAsRequestParameterWithResponse(id, xMsTestHeader, name, RequestContext.none());
     }
 
     /**
      * The spreadAsRequestParameter operation.
-     * 
+     *
      * @param id The id parameter.
      * @param xMsTestHeader The xMsTestHeader parameter.
      * @param name The name parameter.
@@ -124,91 +104,25 @@ public final class AliasClient {
     }
 
     /**
-     * The spreadAsRequestParameter operation.
-     * 
+     * spread an alias with contains another alias property as body.
+     *
      * @param id The id parameter.
      * @param xMsTestHeader The xMsTestHeader parameter.
-     * @param name The name parameter.
+     * @param name name of the Thing.
+     * @param age age of the Thing.
      * @throws IllegalArgumentException thrown if parameters fail the validation.
      * @throws HttpResponseException thrown if the service returns an error.
      * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
      */
     @Metadata(properties = { MetadataProperties.GENERATED })
     @ServiceMethod(returns = ReturnType.SINGLE)
-    public void spreadAsRequestParameter(String id, String xMsTestHeader, String name) {
-        spreadAsRequestParameterWithResponse(id, xMsTestHeader, name, RequestContext.none());
-    }
-
-    /**
-     * The spreadWithMultipleParameters operation.
-     * 
-     * @param id The id parameter.
-     * @param xMsTestHeader The xMsTestHeader parameter.
-     * @param requiredString required string.
-     * @param requiredIntList required int.
-     * @param optionalInt optional int.
-     * @param optionalStringList optional string.
-     * @param requestContext The context to configure the HTTP request before HTTP client sends it.
-     * @throws IllegalArgumentException thrown if parameters fail the validation.
-     * @throws HttpResponseException thrown if the service returns an error.
-     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
-     * @return the {@link Response}.
-     */
-    @Metadata(properties = { MetadataProperties.GENERATED })
-    @ServiceMethod(returns = ReturnType.SINGLE)
-    public Response<Void> spreadWithMultipleParametersWithResponse(String id, String xMsTestHeader,
-        String requiredString, List<Integer> requiredIntList, Integer optionalInt, List<String> optionalStringList,
-        RequestContext requestContext) {
-        return this.instrumentation.instrumentWithResponse("Parameters.Spread.Alias.spreadWithMultipleParameters",
-            requestContext, updatedContext -> this.serviceClient.spreadWithMultipleParametersWithResponse(id,
-                xMsTestHeader, requiredString, requiredIntList, optionalInt, optionalStringList, updatedContext));
-    }
-
-    /**
-     * The spreadWithMultipleParameters operation.
-     * 
-     * @param id The id parameter.
-     * @param xMsTestHeader The xMsTestHeader parameter.
-     * @param requiredString required string.
-     * @param requiredIntList required int.
-     * @param optionalInt optional int.
-     * @param optionalStringList optional string.
-     * @throws IllegalArgumentException thrown if parameters fail the validation.
-     * @throws HttpResponseException thrown if the service returns an error.
-     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
-     */
-    @Metadata(properties = { MetadataProperties.GENERATED })
-    @ServiceMethod(returns = ReturnType.SINGLE)
-    public void spreadWithMultipleParameters(String id, String xMsTestHeader, String requiredString,
-        List<Integer> requiredIntList, Integer optionalInt, List<String> optionalStringList) {
-        spreadWithMultipleParametersWithResponse(id, xMsTestHeader, requiredString, requiredIntList, optionalInt,
-            optionalStringList, RequestContext.none());
-    }
-
-    /**
-     * The spreadWithMultipleParameters operation.
-     * 
-     * @param id The id parameter.
-     * @param xMsTestHeader The xMsTestHeader parameter.
-     * @param requiredString required string.
-     * @param requiredIntList required int.
-     * @throws IllegalArgumentException thrown if parameters fail the validation.
-     * @throws HttpResponseException thrown if the service returns an error.
-     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
-     */
-    @Metadata(properties = { MetadataProperties.GENERATED })
-    @ServiceMethod(returns = ReturnType.SINGLE)
-    public void spreadWithMultipleParameters(String id, String xMsTestHeader, String requiredString,
-        List<Integer> requiredIntList) {
-        final Integer optionalInt = null;
-        final List<String> optionalStringList = null;
-        spreadWithMultipleParametersWithResponse(id, xMsTestHeader, requiredString, requiredIntList, optionalInt,
-            optionalStringList, RequestContext.none());
+    public void spreadParameterWithInnerAlias(String id, String xMsTestHeader, String name, int age) {
+        spreadParameterWithInnerAliasWithResponse(id, xMsTestHeader, name, age, RequestContext.none());
     }
 
     /**
      * spread an alias with contains another alias property as body.
-     * 
+     *
      * @param id The id parameter.
      * @param xMsTestHeader The xMsTestHeader parameter.
      * @param name name of the Thing.
@@ -229,19 +143,106 @@ public final class AliasClient {
     }
 
     /**
-     * spread an alias with contains another alias property as body.
-     * 
+     * The spreadParameterWithInnerModel operation.
+     *
      * @param id The id parameter.
      * @param xMsTestHeader The xMsTestHeader parameter.
-     * @param name name of the Thing.
-     * @param age age of the Thing.
+     * @param name The name parameter.
      * @throws IllegalArgumentException thrown if parameters fail the validation.
      * @throws HttpResponseException thrown if the service returns an error.
      * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
      */
     @Metadata(properties = { MetadataProperties.GENERATED })
     @ServiceMethod(returns = ReturnType.SINGLE)
-    public void spreadParameterWithInnerAlias(String id, String xMsTestHeader, String name, int age) {
-        spreadParameterWithInnerAliasWithResponse(id, xMsTestHeader, name, age, RequestContext.none());
+    public void spreadParameterWithInnerModel(String id, String xMsTestHeader, String name) {
+        spreadParameterWithInnerModelWithResponse(id, xMsTestHeader, name, RequestContext.none());
+    }
+
+    /**
+     * The spreadParameterWithInnerModel operation.
+     *
+     * @param id The id parameter.
+     * @param xMsTestHeader The xMsTestHeader parameter.
+     * @param name The name parameter.
+     * @param requestContext The context to configure the HTTP request before HTTP client sends it.
+     * @throws IllegalArgumentException thrown if parameters fail the validation.
+     * @throws HttpResponseException thrown if the service returns an error.
+     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
+     * @return the {@link Response}.
+     */
+    @Metadata(properties = { MetadataProperties.GENERATED })
+    @ServiceMethod(returns = ReturnType.SINGLE)
+    public Response<Void> spreadParameterWithInnerModelWithResponse(String id, String xMsTestHeader, String name,
+        RequestContext requestContext) {
+        return this.instrumentation.instrumentWithResponse("Parameters.Spread.Alias.spreadParameterWithInnerModel",
+            requestContext, updatedContext -> this.serviceClient.spreadParameterWithInnerModelWithResponse(id,
+                xMsTestHeader, name, updatedContext));
+    }
+
+    /**
+     * The spreadWithMultipleParameters operation.
+     *
+     * @param id The id parameter.
+     * @param xMsTestHeader The xMsTestHeader parameter.
+     * @param requiredString required string.
+     * @param requiredIntList required int.
+     * @throws IllegalArgumentException thrown if parameters fail the validation.
+     * @throws HttpResponseException thrown if the service returns an error.
+     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
+     */
+    @Metadata(properties = { MetadataProperties.GENERATED })
+    @ServiceMethod(returns = ReturnType.SINGLE)
+    public void spreadWithMultipleParameters(String id, String xMsTestHeader, String requiredString,
+        List<Integer> requiredIntList) {
+        final Integer optionalInt = null;
+        final List<String> optionalStringList = null;
+        spreadWithMultipleParametersWithResponse(id, xMsTestHeader, requiredString, requiredIntList, optionalInt,
+            optionalStringList, RequestContext.none());
+    }
+
+    /**
+     * The spreadWithMultipleParameters operation.
+     *
+     * @param id The id parameter.
+     * @param xMsTestHeader The xMsTestHeader parameter.
+     * @param requiredString required string.
+     * @param requiredIntList required int.
+     * @param optionalInt optional int.
+     * @param optionalStringList optional string.
+     * @throws IllegalArgumentException thrown if parameters fail the validation.
+     * @throws HttpResponseException thrown if the service returns an error.
+     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
+     */
+    @Metadata(properties = { MetadataProperties.GENERATED })
+    @ServiceMethod(returns = ReturnType.SINGLE)
+    public void spreadWithMultipleParameters(String id, String xMsTestHeader, String requiredString,
+        List<Integer> requiredIntList, Integer optionalInt, List<String> optionalStringList) {
+        spreadWithMultipleParametersWithResponse(id, xMsTestHeader, requiredString, requiredIntList, optionalInt,
+            optionalStringList, RequestContext.none());
+    }
+
+    /**
+     * The spreadWithMultipleParameters operation.
+     *
+     * @param id The id parameter.
+     * @param xMsTestHeader The xMsTestHeader parameter.
+     * @param requiredString required string.
+     * @param requiredIntList required int.
+     * @param optionalInt optional int.
+     * @param optionalStringList optional string.
+     * @param requestContext The context to configure the HTTP request before HTTP client sends it.
+     * @throws IllegalArgumentException thrown if parameters fail the validation.
+     * @throws HttpResponseException thrown if the service returns an error.
+     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
+     * @return the {@link Response}.
+     */
+    @Metadata(properties = { MetadataProperties.GENERATED })
+    @ServiceMethod(returns = ReturnType.SINGLE)
+    public Response<Void> spreadWithMultipleParametersWithResponse(String id, String xMsTestHeader,
+        String requiredString, List<Integer> requiredIntList, Integer optionalInt, List<String> optionalStringList,
+        RequestContext requestContext) {
+        return this.instrumentation.instrumentWithResponse("Parameters.Spread.Alias.spreadWithMultipleParameters",
+            requestContext, updatedContext -> this.serviceClient.spreadWithMultipleParametersWithResponse(id,
+                xMsTestHeader, requiredString, requiredIntList, optionalInt, optionalStringList, updatedContext));
     }
 }

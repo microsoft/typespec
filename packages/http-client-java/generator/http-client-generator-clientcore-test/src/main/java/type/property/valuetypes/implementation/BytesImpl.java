@@ -21,10 +21,6 @@ import type.property.valuetypes.BytesProperty;
  * An instance of this class provides access to all the operations defined in Bytes.
  */
 public final class BytesImpl {
-    /**
-     * The proxy service used to perform REST calls.
-     */
-    private final BytesService service;
 
     /**
      * The service client containing this operation class.
@@ -37,8 +33,13 @@ public final class BytesImpl {
     private final Instrumentation instrumentation;
 
     /**
+     * The proxy service used to perform REST calls.
+     */
+    private final BytesService service;
+
+    /**
      * Initializes an instance of BytesImpl.
-     * 
+     *
      * @param client the instance of the service client containing this operation class.
      */
     BytesImpl(ValueTypesClientImpl client) {
@@ -48,42 +49,8 @@ public final class BytesImpl {
     }
 
     /**
-     * The interface defining all the services for ValueTypesClientBytes to be used by the proxy service to perform REST
-     * calls.
-     */
-    @ServiceInterface(name = "ValueTypesClientBytes", host = "{endpoint}")
-    public interface BytesService {
-        static BytesService getNewInstance(HttpPipeline pipeline) {
-            try {
-                Class<?> clazz = Class.forName("type.property.valuetypes.implementation.BytesServiceImpl");
-                return (BytesService) clazz.getMethod("getNewInstance", HttpPipeline.class).invoke(null, pipeline);
-            } catch (ClassNotFoundException | NoSuchMethodException | IllegalAccessException
-                | InvocationTargetException e) {
-                throw new RuntimeException(e);
-            }
-
-        }
-
-        @HttpRequestInformation(
-            method = HttpMethod.GET,
-            path = "/type/property/value-types/bytes",
-            expectedStatusCodes = { 200 })
-        @UnexpectedResponseExceptionDetail
-        Response<BytesProperty> get(@HostParam("endpoint") String endpoint, @HeaderParam("Accept") String accept,
-            RequestContext requestContext);
-
-        @HttpRequestInformation(
-            method = HttpMethod.PUT,
-            path = "/type/property/value-types/bytes",
-            expectedStatusCodes = { 204 })
-        @UnexpectedResponseExceptionDetail
-        Response<Void> put(@HostParam("endpoint") String endpoint, @HeaderParam("Content-Type") String contentType,
-            @BodyParam("application/json") BytesProperty body, RequestContext requestContext);
-    }
-
-    /**
      * Get call.
-     * 
+     *
      * @param requestContext The context to configure the HTTP request before HTTP client sends it.
      * @throws IllegalArgumentException thrown if parameters fail the validation.
      * @throws HttpResponseException thrown if the service returns an error.
@@ -101,7 +68,7 @@ public final class BytesImpl {
 
     /**
      * Put operation.
-     * 
+     *
      * @param body body.
      * @param requestContext The context to configure the HTTP request before HTTP client sends it.
      * @throws IllegalArgumentException thrown if parameters fail the validation.
@@ -116,5 +83,39 @@ public final class BytesImpl {
                 final String contentType = "application/json";
                 return service.put(this.client.getEndpoint(), contentType, body, updatedContext);
             });
+    }
+
+    /**
+     * The interface defining all the services for ValueTypesClientBytes to be used by the proxy service to perform REST
+     * calls.
+     */
+    @ServiceInterface(name = "ValueTypesClientBytes", host = "{endpoint}")
+    public interface BytesService {
+
+        @HttpRequestInformation(
+            method = HttpMethod.GET,
+            path = "/type/property/value-types/bytes",
+            expectedStatusCodes = { 200 })
+        @UnexpectedResponseExceptionDetail
+        Response<BytesProperty> get(@HostParam("endpoint") String endpoint, @HeaderParam("Accept") String accept,
+            RequestContext requestContext);
+
+        @HttpRequestInformation(
+            method = HttpMethod.PUT,
+            path = "/type/property/value-types/bytes",
+            expectedStatusCodes = { 204 })
+        @UnexpectedResponseExceptionDetail
+        Response<Void> put(@HostParam("endpoint") String endpoint, @HeaderParam("Content-Type") String contentType,
+            @BodyParam("application/json") BytesProperty body, RequestContext requestContext);
+
+        static BytesService getNewInstance(HttpPipeline pipeline) {
+            try {
+                Class<?> clazz = Class.forName("type.property.valuetypes.implementation.BytesServiceImpl");
+                return (BytesService) clazz.getMethod("getNewInstance", HttpPipeline.class).invoke(null, pipeline);
+            } catch (ClassNotFoundException | NoSuchMethodException | IllegalAccessException
+                | InvocationTargetException e) {
+                throw new RuntimeException(e);
+            }
+        }
     }
 }

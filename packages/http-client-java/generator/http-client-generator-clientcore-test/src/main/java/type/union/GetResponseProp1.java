@@ -19,9 +19,10 @@ import java.util.function.Function;
  * Defines values for GetResponseProp1.
  */
 public final class GetResponseProp1 implements ExpandableEnum<String>, JsonSerializable<GetResponseProp1> {
-    private static final Map<String, GetResponseProp1> VALUES = new ConcurrentHashMap<>();
 
     private static final Function<String, GetResponseProp1> NEW_INSTANCE = GetResponseProp1::new;
+
+    private static final Map<String, GetResponseProp1> VALUES = new ConcurrentHashMap<>();
 
     /**
      * Static value b for GetResponseProp1.
@@ -41,40 +42,33 @@ public final class GetResponseProp1 implements ExpandableEnum<String>, JsonSeria
         this.value = value;
     }
 
-    /**
-     * Creates or finds a GetResponseProp1.
-     * 
-     * @param value a value to look for.
-     * @return the corresponding GetResponseProp1.
-     * @throws IllegalArgumentException if value is null.
-     */
     @Metadata(properties = { MetadataProperties.GENERATED })
-    public static GetResponseProp1 fromValue(String value) {
-        if (value == null) {
-            throw new IllegalArgumentException("'value' cannot be null.");
-        }
-        return VALUES.computeIfAbsent(value, NEW_INSTANCE);
-    }
-
-    /**
-     * Gets known GetResponseProp1 values.
-     * 
-     * @return Known GetResponseProp1 values.
-     */
-    @Metadata(properties = { MetadataProperties.GENERATED })
-    public static Collection<GetResponseProp1> values() {
-        return new ArrayList<>(VALUES.values());
+    @Override
+    public boolean equals(Object obj) {
+        return this == obj;
     }
 
     /**
      * Gets the value of the GetResponseProp1 instance.
-     * 
+     *
      * @return the value of the GetResponseProp1 instance.
      */
     @Metadata(properties = { MetadataProperties.GENERATED })
     @Override
     public String getValue() {
         return this.value;
+    }
+
+    @Metadata(properties = { MetadataProperties.GENERATED })
+    @Override
+    public int hashCode() {
+        return Objects.hashCode(this.value);
+    }
+
+    @Metadata(properties = { MetadataProperties.GENERATED })
+    @Override
+    public String toString() {
+        return Objects.toString(this.value);
     }
 
     /**
@@ -88,7 +82,7 @@ public final class GetResponseProp1 implements ExpandableEnum<String>, JsonSeria
 
     /**
      * Reads an instance of GetResponseProp1 from the JsonReader.
-     * 
+     *
      * @param jsonReader The JsonReader being read.
      * @return An instance of GetResponseProp1 if the JsonReader was pointing to an instance of it, or null if the
      * JsonReader was pointing to JSON null.
@@ -108,21 +102,28 @@ public final class GetResponseProp1 implements ExpandableEnum<String>, JsonSeria
         return GetResponseProp1.fromValue(jsonReader.getString());
     }
 
+    /**
+     * Creates or finds a GetResponseProp1.
+     *
+     * @param value a value to look for.
+     * @return the corresponding GetResponseProp1.
+     * @throws IllegalArgumentException if value is null.
+     */
     @Metadata(properties = { MetadataProperties.GENERATED })
-    @Override
-    public String toString() {
-        return Objects.toString(this.value);
+    public static GetResponseProp1 fromValue(String value) {
+        if (value == null) {
+            throw new IllegalArgumentException("'value' cannot be null.");
+        }
+        return VALUES.computeIfAbsent(value, NEW_INSTANCE);
     }
 
+    /**
+     * Gets known GetResponseProp1 values.
+     *
+     * @return Known GetResponseProp1 values.
+     */
     @Metadata(properties = { MetadataProperties.GENERATED })
-    @Override
-    public boolean equals(Object obj) {
-        return this == obj;
-    }
-
-    @Metadata(properties = { MetadataProperties.GENERATED })
-    @Override
-    public int hashCode() {
-        return Objects.hashCode(this.value);
+    public static Collection<GetResponseProp1> values() {
+        return new ArrayList<>(VALUES.values());
     }
 }

@@ -16,14 +16,15 @@ import type.enumnamespace.fixed.implementation.StringOperationsImpl;
  */
 @ServiceClient(builder = FixedClientBuilder.class)
 public final class FixedClient {
-    @Metadata(properties = { MetadataProperties.GENERATED })
-    private final StringOperationsImpl serviceClient;
 
     private final Instrumentation instrumentation;
 
+    @Metadata(properties = { MetadataProperties.GENERATED })
+    private final StringOperationsImpl serviceClient;
+
     /**
      * Initializes an instance of FixedClient class.
-     * 
+     *
      * @param serviceClient the service client implementation.
      * @param instrumentation the instrumentation instance.
      */
@@ -35,7 +36,20 @@ public final class FixedClient {
 
     /**
      * getKnownValue.
-     * 
+     *
+     * @throws HttpResponseException thrown if the service returns an error.
+     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
+     * @return days of the week.
+     */
+    @Metadata(properties = { MetadataProperties.GENERATED })
+    @ServiceMethod(returns = ReturnType.SINGLE)
+    public DaysOfWeekEnum getKnownValue() {
+        return getKnownValueWithResponse(RequestContext.none()).getValue();
+    }
+
+    /**
+     * getKnownValue.
+     *
      * @param requestContext The context to configure the HTTP request before HTTP client sends it.
      * @throws IllegalArgumentException thrown if parameters fail the validation.
      * @throws HttpResponseException thrown if the service returns an error.
@@ -50,21 +64,22 @@ public final class FixedClient {
     }
 
     /**
-     * getKnownValue.
-     * 
+     * putKnownValue.
+     *
+     * @param body _.
+     * @throws IllegalArgumentException thrown if parameters fail the validation.
      * @throws HttpResponseException thrown if the service returns an error.
      * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
-     * @return days of the week.
      */
     @Metadata(properties = { MetadataProperties.GENERATED })
     @ServiceMethod(returns = ReturnType.SINGLE)
-    public DaysOfWeekEnum getKnownValue() {
-        return getKnownValueWithResponse(RequestContext.none()).getValue();
+    public void putKnownValue(DaysOfWeekEnum body) {
+        putKnownValueWithResponse(body, RequestContext.none());
     }
 
     /**
      * putKnownValue.
-     * 
+     *
      * @param body _.
      * @param requestContext The context to configure the HTTP request before HTTP client sends it.
      * @throws IllegalArgumentException thrown if parameters fail the validation.
@@ -80,8 +95,8 @@ public final class FixedClient {
     }
 
     /**
-     * putKnownValue.
-     * 
+     * putUnknownValue.
+     *
      * @param body _.
      * @throws IllegalArgumentException thrown if parameters fail the validation.
      * @throws HttpResponseException thrown if the service returns an error.
@@ -89,13 +104,13 @@ public final class FixedClient {
      */
     @Metadata(properties = { MetadataProperties.GENERATED })
     @ServiceMethod(returns = ReturnType.SINGLE)
-    public void putKnownValue(DaysOfWeekEnum body) {
-        putKnownValueWithResponse(body, RequestContext.none());
+    public void putUnknownValue(DaysOfWeekEnum body) {
+        putUnknownValueWithResponse(body, RequestContext.none());
     }
 
     /**
      * putUnknownValue.
-     * 
+     *
      * @param body _.
      * @param requestContext The context to configure the HTTP request before HTTP client sends it.
      * @throws IllegalArgumentException thrown if parameters fail the validation.
@@ -108,19 +123,5 @@ public final class FixedClient {
     public Response<Void> putUnknownValueWithResponse(DaysOfWeekEnum body, RequestContext requestContext) {
         return this.instrumentation.instrumentWithResponse("Type.Enum.Fixed.String.putUnknownValue", requestContext,
             updatedContext -> this.serviceClient.putUnknownValueWithResponse(body, updatedContext));
-    }
-
-    /**
-     * putUnknownValue.
-     * 
-     * @param body _.
-     * @throws IllegalArgumentException thrown if parameters fail the validation.
-     * @throws HttpResponseException thrown if the service returns an error.
-     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
-     */
-    @Metadata(properties = { MetadataProperties.GENERATED })
-    @ServiceMethod(returns = ReturnType.SINGLE)
-    public void putUnknownValue(DaysOfWeekEnum body) {
-        putUnknownValueWithResponse(body, RequestContext.none());
     }
 }

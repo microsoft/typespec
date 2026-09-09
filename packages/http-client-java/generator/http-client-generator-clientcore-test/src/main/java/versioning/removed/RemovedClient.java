@@ -16,14 +16,15 @@ import versioning.removed.implementation.RemovedClientImpl;
  */
 @ServiceClient(builder = RemovedClientBuilder.class)
 public final class RemovedClient {
-    @Metadata(properties = { MetadataProperties.GENERATED })
-    private final RemovedClientImpl serviceClient;
 
     private final Instrumentation instrumentation;
 
+    @Metadata(properties = { MetadataProperties.GENERATED })
+    private final RemovedClientImpl serviceClient;
+
     /**
      * Initializes an instance of RemovedClient class.
-     * 
+     *
      * @param serviceClient the service client implementation.
      * @param instrumentation the instrumentation instance.
      */
@@ -34,25 +35,8 @@ public final class RemovedClient {
     }
 
     /**
-     * The v2 operation.
-     * 
-     * @param body The body parameter.
-     * @param requestContext The context to configure the HTTP request before HTTP client sends it.
-     * @throws IllegalArgumentException thrown if parameters fail the validation.
-     * @throws HttpResponseException thrown if the service returns an error.
-     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
-     * @return the response body along with {@link Response}.
-     */
-    @Metadata(properties = { MetadataProperties.GENERATED })
-    @ServiceMethod(returns = ReturnType.SINGLE)
-    public Response<ModelV2> v2WithResponse(ModelV2 body, RequestContext requestContext) {
-        return this.instrumentation.instrumentWithResponse("Versioning.Removed.v2", requestContext,
-            updatedContext -> this.serviceClient.v2WithResponse(body, updatedContext));
-    }
-
-    /**
-     * The v2 operation.
-     * 
+     * This operation will pass different paths and different request bodies based on different versions.
+     *
      * @param body The body parameter.
      * @throws IllegalArgumentException thrown if parameters fail the validation.
      * @throws HttpResponseException thrown if the service returns an error.
@@ -61,13 +45,13 @@ public final class RemovedClient {
      */
     @Metadata(properties = { MetadataProperties.GENERATED })
     @ServiceMethod(returns = ReturnType.SINGLE)
-    public ModelV2 v2(ModelV2 body) {
-        return v2WithResponse(body, RequestContext.none()).getValue();
+    public ModelV3 modelV3(ModelV3 body) {
+        return modelV3WithResponse(body, RequestContext.none()).getValue();
     }
 
     /**
      * This operation will pass different paths and different request bodies based on different versions.
-     * 
+     *
      * @param body The body parameter.
      * @param requestContext The context to configure the HTTP request before HTTP client sends it.
      * @throws IllegalArgumentException thrown if parameters fail the validation.
@@ -83,8 +67,8 @@ public final class RemovedClient {
     }
 
     /**
-     * This operation will pass different paths and different request bodies based on different versions.
-     * 
+     * The v2 operation.
+     *
      * @param body The body parameter.
      * @throws IllegalArgumentException thrown if parameters fail the validation.
      * @throws HttpResponseException thrown if the service returns an error.
@@ -93,7 +77,24 @@ public final class RemovedClient {
      */
     @Metadata(properties = { MetadataProperties.GENERATED })
     @ServiceMethod(returns = ReturnType.SINGLE)
-    public ModelV3 modelV3(ModelV3 body) {
-        return modelV3WithResponse(body, RequestContext.none()).getValue();
+    public ModelV2 v2(ModelV2 body) {
+        return v2WithResponse(body, RequestContext.none()).getValue();
+    }
+
+    /**
+     * The v2 operation.
+     *
+     * @param body The body parameter.
+     * @param requestContext The context to configure the HTTP request before HTTP client sends it.
+     * @throws IllegalArgumentException thrown if parameters fail the validation.
+     * @throws HttpResponseException thrown if the service returns an error.
+     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
+     * @return the response body along with {@link Response}.
+     */
+    @Metadata(properties = { MetadataProperties.GENERATED })
+    @ServiceMethod(returns = ReturnType.SINGLE)
+    public Response<ModelV2> v2WithResponse(ModelV2 body, RequestContext requestContext) {
+        return this.instrumentation.instrumentWithResponse("Versioning.Removed.v2", requestContext,
+            updatedContext -> this.serviceClient.v2WithResponse(body, updatedContext));
     }
 }

@@ -13,11 +13,6 @@ import java.io.IOException;
  */
 @Metadata(properties = { MetadataProperties.IMMUTABLE })
 public class Fish implements JsonSerializable<Fish> {
-    /*
-     * Discriminator property for Fish.
-     */
-    @Metadata(properties = { MetadataProperties.GENERATED })
-    private String kind = "Fish";
 
     /*
      * The age property.
@@ -25,9 +20,15 @@ public class Fish implements JsonSerializable<Fish> {
     @Metadata(properties = { MetadataProperties.GENERATED })
     private final int age;
 
+    /*
+     * Discriminator property for Fish.
+     */
+    @Metadata(properties = { MetadataProperties.GENERATED })
+    private String kind = "Fish";
+
     /**
      * Creates an instance of Fish class.
-     * 
+     *
      * @param age the age value to set.
      */
     @Metadata(properties = { MetadataProperties.GENERATED })
@@ -36,23 +37,23 @@ public class Fish implements JsonSerializable<Fish> {
     }
 
     /**
-     * Get the kind property: Discriminator property for Fish.
-     * 
-     * @return the kind value.
-     */
-    @Metadata(properties = { MetadataProperties.GENERATED })
-    public String getKind() {
-        return this.kind;
-    }
-
-    /**
      * Get the age property: The age property.
-     * 
+     *
      * @return the age value.
      */
     @Metadata(properties = { MetadataProperties.GENERATED })
     public int getAge() {
         return this.age;
+    }
+
+    /**
+     * Get the kind property: Discriminator property for Fish.
+     *
+     * @return the kind value.
+     */
+    @Metadata(properties = { MetadataProperties.GENERATED })
+    public String getKind() {
+        return this.kind;
     }
 
     /**
@@ -69,7 +70,7 @@ public class Fish implements JsonSerializable<Fish> {
 
     /**
      * Reads an instance of Fish from the JsonReader.
-     * 
+     *
      * @param jsonReader The JsonReader being read.
      * @return An instance of Fish if the JsonReader was pointing to an instance of it, or null if it was pointing to
      * JSON null.
@@ -81,7 +82,8 @@ public class Fish implements JsonSerializable<Fish> {
         return jsonReader.readObject(reader -> {
             String discriminatorValue = null;
             try (JsonReader readerToUse = reader.bufferObject()) {
-                readerToUse.nextToken(); // Prepare for reading
+                // Prepare for reading
+                readerToUse.nextToken();
                 while (readerToUse.nextToken() != JsonToken.END_OBJECT) {
                     String fieldName = readerToUse.getFieldName();
                     readerToUse.nextToken();
@@ -112,7 +114,6 @@ public class Fish implements JsonSerializable<Fish> {
             while (reader.nextToken() != JsonToken.END_OBJECT) {
                 String fieldName = reader.getFieldName();
                 reader.nextToken();
-
                 if ("age".equals(fieldName)) {
                     age = reader.getInt();
                 } else if ("kind".equals(fieldName)) {
@@ -123,7 +124,6 @@ public class Fish implements JsonSerializable<Fish> {
             }
             Fish deserializedFish = new Fish(age);
             deserializedFish.kind = kind;
-
             return deserializedFish;
         });
     }

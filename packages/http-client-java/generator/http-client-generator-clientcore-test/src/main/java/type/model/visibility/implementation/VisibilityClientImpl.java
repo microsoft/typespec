@@ -23,10 +23,6 @@ import type.model.visibility.VisibilityModel;
  * Initializes a new instance of the VisibilityClient type.
  */
 public final class VisibilityClientImpl {
-    /**
-     * The proxy service used to perform REST calls.
-     */
-    private final VisibilityClientService service;
 
     /**
      * Service host.
@@ -34,27 +30,9 @@ public final class VisibilityClientImpl {
     private final String endpoint;
 
     /**
-     * Gets Service host.
-     * 
-     * @return the endpoint value.
-     */
-    public String getEndpoint() {
-        return this.endpoint;
-    }
-
-    /**
      * The HTTP pipeline to send requests through.
      */
     private final HttpPipeline httpPipeline;
-
-    /**
-     * Gets The HTTP pipeline to send requests through.
-     * 
-     * @return the httpPipeline value.
-     */
-    public HttpPipeline getHttpPipeline() {
-        return this.httpPipeline;
-    }
 
     /**
      * The instance of instrumentation to report telemetry.
@@ -62,17 +40,13 @@ public final class VisibilityClientImpl {
     private final Instrumentation instrumentation;
 
     /**
-     * Gets The instance of instrumentation to report telemetry.
-     * 
-     * @return the instrumentation value.
+     * The proxy service used to perform REST calls.
      */
-    public Instrumentation getInstrumentation() {
-        return this.instrumentation;
-    }
+    private final VisibilityClientService service;
 
     /**
      * Initializes an instance of VisibilityClient client.
-     * 
+     *
      * @param httpPipeline The HTTP pipeline to send requests through.
      * @param instrumentation The instance of instrumentation to report telemetry.
      * @param endpoint Service host.
@@ -85,84 +59,54 @@ public final class VisibilityClientImpl {
     }
 
     /**
-     * The interface defining all the services for VisibilityClient to be used by the proxy service to perform REST
-     * calls.
+     * The deleteModel operation.
+     *
+     * @param input The input parameter.
+     * @param requestContext The context to configure the HTTP request before HTTP client sends it.
+     * @throws IllegalArgumentException thrown if parameters fail the validation.
+     * @throws HttpResponseException thrown if the service returns an error.
+     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
+     * @return the {@link Response}.
      */
-    @ServiceInterface(name = "VisibilityClient", host = "{endpoint}")
-    public interface VisibilityClientService {
-        static VisibilityClientService getNewInstance(HttpPipeline pipeline) {
-            try {
-                Class<?> clazz = Class.forName("type.model.visibility.implementation.VisibilityClientServiceImpl");
-                return (VisibilityClientService) clazz.getMethod("getNewInstance", HttpPipeline.class)
-                    .invoke(null, pipeline);
-            } catch (ClassNotFoundException | NoSuchMethodException | IllegalAccessException
-                | InvocationTargetException e) {
-                throw new RuntimeException(e);
-            }
+    @ServiceMethod(returns = ReturnType.SINGLE)
+    public Response<Void> deleteModelWithResponse(VisibilityModel input, RequestContext requestContext) {
+        return this.instrumentation.instrumentWithResponse("Type.Model.Visibility.deleteModel", requestContext,
+            updatedContext -> {
+                final String contentType = "application/json";
+                return service.deleteModel(this.getEndpoint(), contentType, input, updatedContext);
+            });
+    }
 
-        }
+    /**
+     * Gets Service host.
+     *
+     * @return the endpoint value.
+     */
+    public String getEndpoint() {
+        return this.endpoint;
+    }
 
-        @HttpRequestInformation(method = HttpMethod.GET, path = "/type/model/visibility", expectedStatusCodes = { 200 })
-        @UnexpectedResponseExceptionDetail
-        Response<VisibilityModel> getModel(@HostParam("endpoint") String endpoint,
-            @QueryParam("queryProp") int queryProp, @HeaderParam("Content-Type") String contentType,
-            @HeaderParam("Accept") String accept, @BodyParam("application/json") VisibilityModel input,
-            RequestContext requestContext);
+    /**
+     * Gets The HTTP pipeline to send requests through.
+     *
+     * @return the httpPipeline value.
+     */
+    public HttpPipeline getHttpPipeline() {
+        return this.httpPipeline;
+    }
 
-        @HttpRequestInformation(
-            method = HttpMethod.HEAD,
-            path = "/type/model/visibility",
-            expectedStatusCodes = { 200 })
-        @UnexpectedResponseExceptionDetail
-        Response<Void> headModel(@HostParam("endpoint") String endpoint, @QueryParam("queryProp") int queryProp,
-            @HeaderParam("Content-Type") String contentType, @BodyParam("application/json") VisibilityModel input,
-            RequestContext requestContext);
-
-        @HttpRequestInformation(method = HttpMethod.PUT, path = "/type/model/visibility", expectedStatusCodes = { 204 })
-        @UnexpectedResponseExceptionDetail
-        Response<Void> putModel(@HostParam("endpoint") String endpoint, @HeaderParam("Content-Type") String contentType,
-            @BodyParam("application/json") VisibilityModel input, RequestContext requestContext);
-
-        @HttpRequestInformation(
-            method = HttpMethod.PATCH,
-            path = "/type/model/visibility",
-            expectedStatusCodes = { 204 })
-        @UnexpectedResponseExceptionDetail
-        Response<Void> patchModel(@HostParam("endpoint") String endpoint,
-            @HeaderParam("Content-Type") String contentType, @BodyParam("application/json") VisibilityModel input,
-            RequestContext requestContext);
-
-        @HttpRequestInformation(
-            method = HttpMethod.POST,
-            path = "/type/model/visibility",
-            expectedStatusCodes = { 204 })
-        @UnexpectedResponseExceptionDetail
-        Response<Void> postModel(@HostParam("endpoint") String endpoint,
-            @HeaderParam("Content-Type") String contentType, @BodyParam("application/json") VisibilityModel input,
-            RequestContext requestContext);
-
-        @HttpRequestInformation(
-            method = HttpMethod.DELETE,
-            path = "/type/model/visibility",
-            expectedStatusCodes = { 204 })
-        @UnexpectedResponseExceptionDetail
-        Response<Void> deleteModel(@HostParam("endpoint") String endpoint,
-            @HeaderParam("Content-Type") String contentType, @BodyParam("application/json") VisibilityModel input,
-            RequestContext requestContext);
-
-        @HttpRequestInformation(
-            method = HttpMethod.PUT,
-            path = "/type/model/visibility/readonlyroundtrip",
-            expectedStatusCodes = { 200 })
-        @UnexpectedResponseExceptionDetail
-        Response<ReadOnlyModel> putReadOnlyModel(@HostParam("endpoint") String endpoint,
-            @HeaderParam("Content-Type") String contentType, @HeaderParam("Accept") String accept,
-            @BodyParam("application/json") ReadOnlyModel input, RequestContext requestContext);
+    /**
+     * Gets The instance of instrumentation to report telemetry.
+     *
+     * @return the instrumentation value.
+     */
+    public Instrumentation getInstrumentation() {
+        return this.instrumentation;
     }
 
     /**
      * The getModel operation.
-     * 
+     *
      * @param queryProp Required int32, illustrating a query property.
      * @param input The input parameter.
      * @param requestContext The context to configure the HTTP request before HTTP client sends it.
@@ -184,7 +128,7 @@ public final class VisibilityClientImpl {
 
     /**
      * The headModel operation.
-     * 
+     *
      * @param queryProp Required int32, illustrating a query property.
      * @param input The input parameter.
      * @param requestContext The context to configure the HTTP request before HTTP client sends it.
@@ -203,27 +147,8 @@ public final class VisibilityClientImpl {
     }
 
     /**
-     * The putModel operation.
-     * 
-     * @param input The input parameter.
-     * @param requestContext The context to configure the HTTP request before HTTP client sends it.
-     * @throws IllegalArgumentException thrown if parameters fail the validation.
-     * @throws HttpResponseException thrown if the service returns an error.
-     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
-     * @return the {@link Response}.
-     */
-    @ServiceMethod(returns = ReturnType.SINGLE)
-    public Response<Void> putModelWithResponse(VisibilityModel input, RequestContext requestContext) {
-        return this.instrumentation.instrumentWithResponse("Type.Model.Visibility.putModel", requestContext,
-            updatedContext -> {
-                final String contentType = "application/json";
-                return service.putModel(this.getEndpoint(), contentType, input, updatedContext);
-            });
-    }
-
-    /**
      * The patchModel operation.
-     * 
+     *
      * @param input The input parameter.
      * @param requestContext The context to configure the HTTP request before HTTP client sends it.
      * @throws IllegalArgumentException thrown if parameters fail the validation.
@@ -242,7 +167,7 @@ public final class VisibilityClientImpl {
 
     /**
      * The postModel operation.
-     * 
+     *
      * @param input The input parameter.
      * @param requestContext The context to configure the HTTP request before HTTP client sends it.
      * @throws IllegalArgumentException thrown if parameters fail the validation.
@@ -260,8 +185,8 @@ public final class VisibilityClientImpl {
     }
 
     /**
-     * The deleteModel operation.
-     * 
+     * The putModel operation.
+     *
      * @param input The input parameter.
      * @param requestContext The context to configure the HTTP request before HTTP client sends it.
      * @throws IllegalArgumentException thrown if parameters fail the validation.
@@ -270,17 +195,17 @@ public final class VisibilityClientImpl {
      * @return the {@link Response}.
      */
     @ServiceMethod(returns = ReturnType.SINGLE)
-    public Response<Void> deleteModelWithResponse(VisibilityModel input, RequestContext requestContext) {
-        return this.instrumentation.instrumentWithResponse("Type.Model.Visibility.deleteModel", requestContext,
+    public Response<Void> putModelWithResponse(VisibilityModel input, RequestContext requestContext) {
+        return this.instrumentation.instrumentWithResponse("Type.Model.Visibility.putModel", requestContext,
             updatedContext -> {
                 final String contentType = "application/json";
-                return service.deleteModel(this.getEndpoint(), contentType, input, updatedContext);
+                return service.putModel(this.getEndpoint(), contentType, input, updatedContext);
             });
     }
 
     /**
      * The putReadOnlyModel operation.
-     * 
+     *
      * @param input The input parameter.
      * @param requestContext The context to configure the HTTP request before HTTP client sends it.
      * @throws IllegalArgumentException thrown if parameters fail the validation.
@@ -296,5 +221,81 @@ public final class VisibilityClientImpl {
                 final String accept = "application/json";
                 return service.putReadOnlyModel(this.getEndpoint(), contentType, accept, input, updatedContext);
             });
+    }
+
+    /**
+     * The interface defining all the services for VisibilityClient to be used by the proxy service to perform REST
+     * calls.
+     */
+    @ServiceInterface(name = "VisibilityClient", host = "{endpoint}")
+    public interface VisibilityClientService {
+
+        @HttpRequestInformation(
+            method = HttpMethod.DELETE,
+            path = "/type/model/visibility",
+            expectedStatusCodes = { 204 })
+        @UnexpectedResponseExceptionDetail
+        Response<Void> deleteModel(@HostParam("endpoint") String endpoint,
+            @HeaderParam("Content-Type") String contentType, @BodyParam("application/json") VisibilityModel input,
+            RequestContext requestContext);
+
+        @HttpRequestInformation(method = HttpMethod.GET, path = "/type/model/visibility", expectedStatusCodes = { 200 })
+        @UnexpectedResponseExceptionDetail
+        Response<VisibilityModel> getModel(@HostParam("endpoint") String endpoint,
+            @QueryParam("queryProp") int queryProp, @HeaderParam("Content-Type") String contentType,
+            @HeaderParam("Accept") String accept, @BodyParam("application/json") VisibilityModel input,
+            RequestContext requestContext);
+
+        @HttpRequestInformation(
+            method = HttpMethod.HEAD,
+            path = "/type/model/visibility",
+            expectedStatusCodes = { 200 })
+        @UnexpectedResponseExceptionDetail
+        Response<Void> headModel(@HostParam("endpoint") String endpoint, @QueryParam("queryProp") int queryProp,
+            @HeaderParam("Content-Type") String contentType, @BodyParam("application/json") VisibilityModel input,
+            RequestContext requestContext);
+
+        @HttpRequestInformation(
+            method = HttpMethod.PATCH,
+            path = "/type/model/visibility",
+            expectedStatusCodes = { 204 })
+        @UnexpectedResponseExceptionDetail
+        Response<Void> patchModel(@HostParam("endpoint") String endpoint,
+            @HeaderParam("Content-Type") String contentType, @BodyParam("application/json") VisibilityModel input,
+            RequestContext requestContext);
+
+        @HttpRequestInformation(
+            method = HttpMethod.POST,
+            path = "/type/model/visibility",
+            expectedStatusCodes = { 204 })
+        @UnexpectedResponseExceptionDetail
+        Response<Void> postModel(@HostParam("endpoint") String endpoint,
+            @HeaderParam("Content-Type") String contentType, @BodyParam("application/json") VisibilityModel input,
+            RequestContext requestContext);
+
+        @HttpRequestInformation(method = HttpMethod.PUT, path = "/type/model/visibility", expectedStatusCodes = { 204 })
+        @UnexpectedResponseExceptionDetail
+        Response<Void> putModel(@HostParam("endpoint") String endpoint, @HeaderParam("Content-Type") String contentType,
+            @BodyParam("application/json") VisibilityModel input, RequestContext requestContext);
+
+        @HttpRequestInformation(
+            method = HttpMethod.PUT,
+            path = "/type/model/visibility/readonlyroundtrip",
+            expectedStatusCodes = { 200 })
+        @UnexpectedResponseExceptionDetail
+        Response<ReadOnlyModel> putReadOnlyModel(@HostParam("endpoint") String endpoint,
+            @HeaderParam("Content-Type") String contentType, @HeaderParam("Accept") String accept,
+            @BodyParam("application/json") ReadOnlyModel input, RequestContext requestContext);
+
+        static VisibilityClientService getNewInstance(HttpPipeline pipeline) {
+            try {
+                Class<?> clazz = Class.forName("type.model.visibility.implementation.VisibilityClientServiceImpl");
+                return (VisibilityClientService) clazz.getMethod("getNewInstance", HttpPipeline.class)
+                    .invoke(null, pipeline);
+            } catch (ClassNotFoundException | NoSuchMethodException | IllegalAccessException
+                | InvocationTargetException e) {
+                throw new RuntimeException(e);
+            }
+        }
     }
 }

@@ -21,10 +21,6 @@ import payload.xml.ModelWithRenamedNestedModel;
  * An instance of this class provides access to all the operations defined in ModelWithRenamedNestedModelValues.
  */
 public final class ModelWithRenamedNestedModelValuesImpl {
-    /**
-     * The proxy service used to perform REST calls.
-     */
-    private final ModelWithRenamedNestedModelValuesService service;
 
     /**
      * The service client containing this operation class.
@@ -37,8 +33,13 @@ public final class ModelWithRenamedNestedModelValuesImpl {
     private final Instrumentation instrumentation;
 
     /**
+     * The proxy service used to perform REST calls.
+     */
+    private final ModelWithRenamedNestedModelValuesService service;
+
+    /**
      * Initializes an instance of ModelWithRenamedNestedModelValuesImpl.
-     * 
+     *
      * @param client the instance of the service client containing this operation class.
      */
     ModelWithRenamedNestedModelValuesImpl(XmlClientImpl client) {
@@ -48,44 +49,8 @@ public final class ModelWithRenamedNestedModelValuesImpl {
     }
 
     /**
-     * The interface defining all the services for XmlClientModelWithRenamedNestedModelValues to be used by the proxy
-     * service to perform REST calls.
-     */
-    @ServiceInterface(name = "XmlClientModelWithRenamedNestedModelValues", host = "{endpoint}")
-    public interface ModelWithRenamedNestedModelValuesService {
-        static ModelWithRenamedNestedModelValuesService getNewInstance(HttpPipeline pipeline) {
-            try {
-                Class<?> clazz
-                    = Class.forName("payload.xml.implementation.ModelWithRenamedNestedModelValuesServiceImpl");
-                return (ModelWithRenamedNestedModelValuesService) clazz.getMethod("getNewInstance", HttpPipeline.class)
-                    .invoke(null, pipeline);
-            } catch (ClassNotFoundException | NoSuchMethodException | IllegalAccessException
-                | InvocationTargetException e) {
-                throw new RuntimeException(e);
-            }
-
-        }
-
-        @HttpRequestInformation(
-            method = HttpMethod.GET,
-            path = "/payload/xml/modelWithRenamedNestedModel",
-            expectedStatusCodes = { 200 })
-        @UnexpectedResponseExceptionDetail
-        Response<ModelWithRenamedNestedModel> get(@HostParam("endpoint") String endpoint,
-            @HeaderParam("Accept") String accept, RequestContext requestContext);
-
-        @HttpRequestInformation(
-            method = HttpMethod.PUT,
-            path = "/payload/xml/modelWithRenamedNestedModel",
-            expectedStatusCodes = { 204 })
-        @UnexpectedResponseExceptionDetail
-        Response<Void> put(@HostParam("endpoint") String endpoint, @HeaderParam("content-type") String contentType,
-            @BodyParam("application/xml") ModelWithRenamedNestedModel input, RequestContext requestContext);
-    }
-
-    /**
      * The get operation.
-     * 
+     *
      * @param requestContext The context to configure the HTTP request before HTTP client sends it.
      * @throws IllegalArgumentException thrown if parameters fail the validation.
      * @throws HttpResponseException thrown if the service returns an error.
@@ -103,7 +68,7 @@ public final class ModelWithRenamedNestedModelValuesImpl {
 
     /**
      * The put operation.
-     * 
+     *
      * @param input The input parameter.
      * @param requestContext The context to configure the HTTP request before HTTP client sends it.
      * @throws IllegalArgumentException thrown if parameters fail the validation.
@@ -118,5 +83,41 @@ public final class ModelWithRenamedNestedModelValuesImpl {
                 final String contentType = "application/xml";
                 return service.put(this.client.getEndpoint(), contentType, input, updatedContext);
             });
+    }
+
+    /**
+     * The interface defining all the services for XmlClientModelWithRenamedNestedModelValues to be used by the proxy
+     * service to perform REST calls.
+     */
+    @ServiceInterface(name = "XmlClientModelWithRenamedNestedModelValues", host = "{endpoint}")
+    public interface ModelWithRenamedNestedModelValuesService {
+
+        @HttpRequestInformation(
+            method = HttpMethod.GET,
+            path = "/payload/xml/modelWithRenamedNestedModel",
+            expectedStatusCodes = { 200 })
+        @UnexpectedResponseExceptionDetail
+        Response<ModelWithRenamedNestedModel> get(@HostParam("endpoint") String endpoint,
+            @HeaderParam("Accept") String accept, RequestContext requestContext);
+
+        @HttpRequestInformation(
+            method = HttpMethod.PUT,
+            path = "/payload/xml/modelWithRenamedNestedModel",
+            expectedStatusCodes = { 204 })
+        @UnexpectedResponseExceptionDetail
+        Response<Void> put(@HostParam("endpoint") String endpoint, @HeaderParam("content-type") String contentType,
+            @BodyParam("application/xml") ModelWithRenamedNestedModel input, RequestContext requestContext);
+
+        static ModelWithRenamedNestedModelValuesService getNewInstance(HttpPipeline pipeline) {
+            try {
+                Class<?> clazz
+                    = Class.forName("payload.xml.implementation.ModelWithRenamedNestedModelValuesServiceImpl");
+                return (ModelWithRenamedNestedModelValuesService) clazz.getMethod("getNewInstance", HttpPipeline.class)
+                    .invoke(null, pipeline);
+            } catch (ClassNotFoundException | NoSuchMethodException | IllegalAccessException
+                | InvocationTargetException e) {
+                throw new RuntimeException(e);
+            }
+        }
     }
 }

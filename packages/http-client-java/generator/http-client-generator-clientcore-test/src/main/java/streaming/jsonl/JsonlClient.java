@@ -17,14 +17,15 @@ import streaming.jsonl.implementation.BasicsImpl;
  */
 @ServiceClient(builder = JsonlClientBuilder.class)
 public final class JsonlClient {
-    @Metadata(properties = { MetadataProperties.GENERATED })
-    private final BasicsImpl serviceClient;
 
     private final Instrumentation instrumentation;
 
+    @Metadata(properties = { MetadataProperties.GENERATED })
+    private final BasicsImpl serviceClient;
+
     /**
      * Initializes an instance of JsonlClient class.
-     * 
+     *
      * @param serviceClient the service client implementation.
      * @param instrumentation the instrumentation instance.
      */
@@ -35,41 +36,21 @@ public final class JsonlClient {
     }
 
     /**
-     * The send operation.
-     * 
-     * @param body The body parameter.
-     * @param contentLength The Content-Length header for the request.
-     * @param requestContext The context to configure the HTTP request before HTTP client sends it.
-     * @throws IllegalArgumentException thrown if parameters fail the validation.
+     * The receive operation.
+     *
      * @throws HttpResponseException thrown if the service returns an error.
      * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
-     * @return the {@link Response}.
+     * @return the response.
      */
     @Metadata(properties = { MetadataProperties.GENERATED })
     @ServiceMethod(returns = ReturnType.SINGLE)
-    public Response<Void> sendWithResponse(BinaryData body, long contentLength, RequestContext requestContext) {
-        return this.instrumentation.instrumentWithResponse("Streaming.Jsonl.Basic.send", requestContext,
-            updatedContext -> this.serviceClient.sendWithResponse(body, contentLength, updatedContext));
-    }
-
-    /**
-     * The send operation.
-     * 
-     * @param body The body parameter.
-     * @param contentLength The Content-Length header for the request.
-     * @throws IllegalArgumentException thrown if parameters fail the validation.
-     * @throws HttpResponseException thrown if the service returns an error.
-     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
-     */
-    @Metadata(properties = { MetadataProperties.GENERATED })
-    @ServiceMethod(returns = ReturnType.SINGLE)
-    public void send(BinaryData body, long contentLength) {
-        sendWithResponse(body, contentLength, RequestContext.none());
+    public BinaryData receive() {
+        return receiveWithResponse(RequestContext.none()).getValue();
     }
 
     /**
      * The receive operation.
-     * 
+     *
      * @param requestContext The context to configure the HTTP request before HTTP client sends it.
      * @throws IllegalArgumentException thrown if parameters fail the validation.
      * @throws HttpResponseException thrown if the service returns an error.
@@ -84,15 +65,35 @@ public final class JsonlClient {
     }
 
     /**
-     * The receive operation.
-     * 
+     * The send operation.
+     *
+     * @param body The body parameter.
+     * @param contentLength The Content-Length header for the request.
+     * @throws IllegalArgumentException thrown if parameters fail the validation.
      * @throws HttpResponseException thrown if the service returns an error.
      * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
-     * @return the response.
      */
     @Metadata(properties = { MetadataProperties.GENERATED })
     @ServiceMethod(returns = ReturnType.SINGLE)
-    public BinaryData receive() {
-        return receiveWithResponse(RequestContext.none()).getValue();
+    public void send(BinaryData body, long contentLength) {
+        sendWithResponse(body, contentLength, RequestContext.none());
+    }
+
+    /**
+     * The send operation.
+     *
+     * @param body The body parameter.
+     * @param contentLength The Content-Length header for the request.
+     * @param requestContext The context to configure the HTTP request before HTTP client sends it.
+     * @throws IllegalArgumentException thrown if parameters fail the validation.
+     * @throws HttpResponseException thrown if the service returns an error.
+     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
+     * @return the {@link Response}.
+     */
+    @Metadata(properties = { MetadataProperties.GENERATED })
+    @ServiceMethod(returns = ReturnType.SINGLE)
+    public Response<Void> sendWithResponse(BinaryData body, long contentLength, RequestContext requestContext) {
+        return this.instrumentation.instrumentWithResponse("Streaming.Jsonl.Basic.send", requestContext,
+            updatedContext -> this.serviceClient.sendWithResponse(body, contentLength, updatedContext));
     }
 }

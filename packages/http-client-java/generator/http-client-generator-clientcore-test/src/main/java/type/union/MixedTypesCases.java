@@ -15,23 +15,12 @@ import java.util.List;
  */
 @Metadata(properties = { MetadataProperties.IMMUTABLE })
 public final class MixedTypesCases implements JsonSerializable<MixedTypesCases> {
-    /*
-     * This should be receive/send the Cat variant
-     */
-    @Metadata(properties = { MetadataProperties.GENERATED })
-    private final BinaryData model;
 
     /*
-     * This should be receive/send the "a" variant
+     * This should be receive/send 4 element with Cat, "a", int, and boolean
      */
     @Metadata(properties = { MetadataProperties.GENERATED })
-    private final BinaryData literal;
-
-    /*
-     * This should be receive/send the int variant
-     */
-    @Metadata(properties = { MetadataProperties.GENERATED })
-    private final BinaryData intProperty;
+    private final List<BinaryData> array;
 
     /*
      * This should be receive/send the boolean variant
@@ -40,14 +29,26 @@ public final class MixedTypesCases implements JsonSerializable<MixedTypesCases> 
     private final BinaryData booleanProperty;
 
     /*
-     * This should be receive/send 4 element with Cat, "a", int, and boolean
+     * This should be receive/send the int variant
      */
     @Metadata(properties = { MetadataProperties.GENERATED })
-    private final List<BinaryData> array;
+    private final BinaryData intProperty;
+
+    /*
+     * This should be receive/send the "a" variant
+     */
+    @Metadata(properties = { MetadataProperties.GENERATED })
+    private final BinaryData literal;
+
+    /*
+     * This should be receive/send the Cat variant
+     */
+    @Metadata(properties = { MetadataProperties.GENERATED })
+    private final BinaryData model;
 
     /**
      * Creates an instance of MixedTypesCases class.
-     * 
+     *
      * @param model the model value to set.
      * @param literal the literal value to set.
      * @param intProperty the intProperty value to set.
@@ -65,38 +66,18 @@ public final class MixedTypesCases implements JsonSerializable<MixedTypesCases> 
     }
 
     /**
-     * Get the model property: This should be receive/send the Cat variant.
-     * 
-     * @return the model value.
+     * Get the array property: This should be receive/send 4 element with Cat, "a", int, and boolean.
+     *
+     * @return the array value.
      */
     @Metadata(properties = { MetadataProperties.GENERATED })
-    public BinaryData getModel() {
-        return this.model;
-    }
-
-    /**
-     * Get the literal property: This should be receive/send the "a" variant.
-     * 
-     * @return the literal value.
-     */
-    @Metadata(properties = { MetadataProperties.GENERATED })
-    public BinaryData getLiteral() {
-        return this.literal;
-    }
-
-    /**
-     * Get the intProperty property: This should be receive/send the int variant.
-     * 
-     * @return the intProperty value.
-     */
-    @Metadata(properties = { MetadataProperties.GENERATED })
-    public BinaryData getIntProperty() {
-        return this.intProperty;
+    public List<BinaryData> getArray() {
+        return this.array;
     }
 
     /**
      * Get the booleanProperty property: This should be receive/send the boolean variant.
-     * 
+     *
      * @return the booleanProperty value.
      */
     @Metadata(properties = { MetadataProperties.GENERATED })
@@ -105,13 +86,33 @@ public final class MixedTypesCases implements JsonSerializable<MixedTypesCases> 
     }
 
     /**
-     * Get the array property: This should be receive/send 4 element with Cat, "a", int, and boolean.
-     * 
-     * @return the array value.
+     * Get the intProperty property: This should be receive/send the int variant.
+     *
+     * @return the intProperty value.
      */
     @Metadata(properties = { MetadataProperties.GENERATED })
-    public List<BinaryData> getArray() {
-        return this.array;
+    public BinaryData getIntProperty() {
+        return this.intProperty;
+    }
+
+    /**
+     * Get the literal property: This should be receive/send the "a" variant.
+     *
+     * @return the literal value.
+     */
+    @Metadata(properties = { MetadataProperties.GENERATED })
+    public BinaryData getLiteral() {
+        return this.literal;
+    }
+
+    /**
+     * Get the model property: This should be receive/send the Cat variant.
+     *
+     * @return the model value.
+     */
+    @Metadata(properties = { MetadataProperties.GENERATED })
+    public BinaryData getModel() {
+        return this.model;
     }
 
     /**
@@ -141,7 +142,7 @@ public final class MixedTypesCases implements JsonSerializable<MixedTypesCases> 
 
     /**
      * Reads an instance of MixedTypesCases from the JsonReader.
-     * 
+     *
      * @param jsonReader The JsonReader being read.
      * @return An instance of MixedTypesCases if the JsonReader was pointing to an instance of it, or null if it was
      * pointing to JSON null.
@@ -159,7 +160,6 @@ public final class MixedTypesCases implements JsonSerializable<MixedTypesCases> 
             while (reader.nextToken() != JsonToken.END_OBJECT) {
                 String fieldName = reader.getFieldName();
                 reader.nextToken();
-
                 if ("model".equals(fieldName)) {
                     model = reader.getNullable(nonNullReader -> BinaryData.fromObject(nonNullReader.readUntyped()));
                 } else if ("literal".equals(fieldName)) {

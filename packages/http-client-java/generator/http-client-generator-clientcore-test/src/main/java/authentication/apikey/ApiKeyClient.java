@@ -16,14 +16,15 @@ import io.clientcore.core.instrumentation.Instrumentation;
  */
 @ServiceClient(builder = ApiKeyClientBuilder.class)
 public final class ApiKeyClient {
-    @Metadata(properties = { MetadataProperties.GENERATED })
-    private final ApiKeyClientImpl serviceClient;
 
     private final Instrumentation instrumentation;
 
+    @Metadata(properties = { MetadataProperties.GENERATED })
+    private final ApiKeyClientImpl serviceClient;
+
     /**
      * Initializes an instance of ApiKeyClient class.
-     * 
+     *
      * @param serviceClient the service client implementation.
      * @param instrumentation the instrumentation instance.
      */
@@ -35,35 +36,19 @@ public final class ApiKeyClient {
 
     /**
      * Check whether client is authenticated.
-     * 
-     * @param requestContext The context to configure the HTTP request before HTTP client sends it.
-     * @throws IllegalArgumentException thrown if parameters fail the validation.
-     * @throws HttpResponseException thrown if the service returns an error.
-     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
-     * @return the {@link Response}.
-     */
-    @Metadata(properties = { MetadataProperties.GENERATED })
-    @ServiceMethod(returns = ReturnType.SINGLE)
-    public Response<Void> validWithResponse(RequestContext requestContext) {
-        return this.instrumentation.instrumentWithResponse("Authentication.ApiKey.valid", requestContext,
-            updatedContext -> this.serviceClient.validWithResponse(updatedContext));
-    }
-
-    /**
-     * Check whether client is authenticated.
-     * 
+     *
      * @throws HttpResponseException thrown if the service returns an error.
      * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
      */
     @Metadata(properties = { MetadataProperties.GENERATED })
     @ServiceMethod(returns = ReturnType.SINGLE)
-    public void valid() {
-        validWithResponse(RequestContext.none());
+    public void invalid() {
+        invalidWithResponse(RequestContext.none());
     }
 
     /**
      * Check whether client is authenticated.
-     * 
+     *
      * @param requestContext The context to configure the HTTP request before HTTP client sends it.
      * @throws IllegalArgumentException thrown if parameters fail the validation.
      * @throws HttpResponseException thrown if the service returns an error.
@@ -79,13 +64,29 @@ public final class ApiKeyClient {
 
     /**
      * Check whether client is authenticated.
-     * 
+     *
      * @throws HttpResponseException thrown if the service returns an error.
      * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
      */
     @Metadata(properties = { MetadataProperties.GENERATED })
     @ServiceMethod(returns = ReturnType.SINGLE)
-    public void invalid() {
-        invalidWithResponse(RequestContext.none());
+    public void valid() {
+        validWithResponse(RequestContext.none());
+    }
+
+    /**
+     * Check whether client is authenticated.
+     *
+     * @param requestContext The context to configure the HTTP request before HTTP client sends it.
+     * @throws IllegalArgumentException thrown if parameters fail the validation.
+     * @throws HttpResponseException thrown if the service returns an error.
+     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
+     * @return the {@link Response}.
+     */
+    @Metadata(properties = { MetadataProperties.GENERATED })
+    @ServiceMethod(returns = ReturnType.SINGLE)
+    public Response<Void> validWithResponse(RequestContext requestContext) {
+        return this.instrumentation.instrumentWithResponse("Authentication.ApiKey.valid", requestContext,
+            updatedContext -> this.serviceClient.validWithResponse(updatedContext));
     }
 }

@@ -22,10 +22,6 @@ import java.lang.reflect.InvocationTargetException;
  * An instance of this class provides access to all the operations defined in NoEnvelopeCustomDiscriminators.
  */
 public final class NoEnvelopeCustomDiscriminatorsImpl {
-    /**
-     * The proxy service used to perform REST calls.
-     */
-    private final NoEnvelopeCustomDiscriminatorsService service;
 
     /**
      * The service client containing this operation class.
@@ -38,8 +34,13 @@ public final class NoEnvelopeCustomDiscriminatorsImpl {
     private final Instrumentation instrumentation;
 
     /**
+     * The proxy service used to perform REST calls.
+     */
+    private final NoEnvelopeCustomDiscriminatorsService service;
+
+    /**
      * Initializes an instance of NoEnvelopeCustomDiscriminatorsImpl.
-     * 
+     *
      * @param client the instance of the service client containing this operation class.
      */
     NoEnvelopeCustomDiscriminatorsImpl(DiscriminatedClientImpl client) {
@@ -49,45 +50,8 @@ public final class NoEnvelopeCustomDiscriminatorsImpl {
     }
 
     /**
-     * The interface defining all the services for DiscriminatedClientNoEnvelopeCustomDiscriminators to be used by the
-     * proxy service to perform REST calls.
-     */
-    @ServiceInterface(name = "DiscriminatedClientNoEnvelopeCustomDiscriminators", host = "{endpoint}")
-    public interface NoEnvelopeCustomDiscriminatorsService {
-        static NoEnvelopeCustomDiscriminatorsService getNewInstance(HttpPipeline pipeline) {
-            try {
-                Class<?> clazz = Class
-                    .forName("type.union.discriminated.implementation.NoEnvelopeCustomDiscriminatorsServiceImpl");
-                return (NoEnvelopeCustomDiscriminatorsService) clazz.getMethod("getNewInstance", HttpPipeline.class)
-                    .invoke(null, pipeline);
-            } catch (ClassNotFoundException | NoSuchMethodException | IllegalAccessException
-                | InvocationTargetException e) {
-                throw new RuntimeException(e);
-            }
-
-        }
-
-        @HttpRequestInformation(
-            method = HttpMethod.GET,
-            path = "/type/union/discriminated/no-envelope/custom-discriminator",
-            expectedStatusCodes = { 200 })
-        @UnexpectedResponseExceptionDetail
-        Response<BinaryData> get(@HostParam("endpoint") String endpoint, @QueryParam("type") String type,
-            @HeaderParam("Accept") String accept, RequestContext requestContext);
-
-        @HttpRequestInformation(
-            method = HttpMethod.PUT,
-            path = "/type/union/discriminated/no-envelope/custom-discriminator",
-            expectedStatusCodes = { 200 })
-        @UnexpectedResponseExceptionDetail
-        Response<BinaryData> put(@HostParam("endpoint") String endpoint,
-            @HeaderParam("Content-Type") String contentType, @HeaderParam("Accept") String accept,
-            @BodyParam("application/json") BinaryData input, RequestContext requestContext);
-    }
-
-    /**
      * The get operation.
-     * 
+     *
      * @param type The type parameter.
      * @param requestContext The context to configure the HTTP request before HTTP client sends it.
      * @throws IllegalArgumentException thrown if parameters fail the validation.
@@ -108,7 +72,7 @@ public final class NoEnvelopeCustomDiscriminatorsImpl {
 
     /**
      * The put operation.
-     * 
+     *
      * @param input The input parameter.
      * @param requestContext The context to configure the HTTP request before HTTP client sends it.
      * @throws IllegalArgumentException thrown if parameters fail the validation.
@@ -126,5 +90,42 @@ public final class NoEnvelopeCustomDiscriminatorsImpl {
                 final String accept = "application/json";
                 return service.put(this.client.getEndpoint(), contentType, accept, input, updatedContext);
             });
+    }
+
+    /**
+     * The interface defining all the services for DiscriminatedClientNoEnvelopeCustomDiscriminators to be used by the
+     * proxy service to perform REST calls.
+     */
+    @ServiceInterface(name = "DiscriminatedClientNoEnvelopeCustomDiscriminators", host = "{endpoint}")
+    public interface NoEnvelopeCustomDiscriminatorsService {
+
+        @HttpRequestInformation(
+            method = HttpMethod.GET,
+            path = "/type/union/discriminated/no-envelope/custom-discriminator",
+            expectedStatusCodes = { 200 })
+        @UnexpectedResponseExceptionDetail
+        Response<BinaryData> get(@HostParam("endpoint") String endpoint, @QueryParam("type") String type,
+            @HeaderParam("Accept") String accept, RequestContext requestContext);
+
+        @HttpRequestInformation(
+            method = HttpMethod.PUT,
+            path = "/type/union/discriminated/no-envelope/custom-discriminator",
+            expectedStatusCodes = { 200 })
+        @UnexpectedResponseExceptionDetail
+        Response<BinaryData> put(@HostParam("endpoint") String endpoint,
+            @HeaderParam("Content-Type") String contentType, @HeaderParam("Accept") String accept,
+            @BodyParam("application/json") BinaryData input, RequestContext requestContext);
+
+        static NoEnvelopeCustomDiscriminatorsService getNewInstance(HttpPipeline pipeline) {
+            try {
+                Class<?> clazz = Class
+                    .forName("type.union.discriminated.implementation.NoEnvelopeCustomDiscriminatorsServiceImpl");
+                return (NoEnvelopeCustomDiscriminatorsService) clazz.getMethod("getNewInstance", HttpPipeline.class)
+                    .invoke(null, pipeline);
+            } catch (ClassNotFoundException | NoSuchMethodException | IllegalAccessException
+                | InvocationTargetException e) {
+                throw new RuntimeException(e);
+            }
+        }
     }
 }

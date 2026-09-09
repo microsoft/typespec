@@ -23,10 +23,6 @@ import versioning.added.ModelV2;
  * Initializes a new instance of the AddedClient type.
  */
 public final class AddedClientImpl {
-    /**
-     * The proxy service used to perform REST calls.
-     */
-    private final AddedClientService service;
 
     /**
      * Need to be set as 'http://localhost:3000' in client.
@@ -34,41 +30,9 @@ public final class AddedClientImpl {
     private final String endpoint;
 
     /**
-     * Gets Need to be set as 'http://localhost:3000' in client.
-     * 
-     * @return the endpoint value.
-     */
-    public String getEndpoint() {
-        return this.endpoint;
-    }
-
-    /**
-     * Service version.
-     */
-    private final AddedServiceVersion serviceVersion;
-
-    /**
-     * Gets Service version.
-     * 
-     * @return the serviceVersion value.
-     */
-    public AddedServiceVersion getServiceVersion() {
-        return this.serviceVersion;
-    }
-
-    /**
      * The HTTP pipeline to send requests through.
      */
     private final HttpPipeline httpPipeline;
-
-    /**
-     * Gets The HTTP pipeline to send requests through.
-     * 
-     * @return the httpPipeline value.
-     */
-    public HttpPipeline getHttpPipeline() {
-        return this.httpPipeline;
-    }
 
     /**
      * The instance of instrumentation to report telemetry.
@@ -76,31 +40,23 @@ public final class AddedClientImpl {
     private final Instrumentation instrumentation;
 
     /**
-     * Gets The instance of instrumentation to report telemetry.
-     * 
-     * @return the instrumentation value.
-     */
-    public Instrumentation getInstrumentation() {
-        return this.instrumentation;
-    }
-
-    /**
      * The InterfaceV2sImpl object to access its operations.
      */
     private final InterfaceV2sImpl interfaceV2s;
 
     /**
-     * Gets the InterfaceV2sImpl object to access its operations.
-     * 
-     * @return the InterfaceV2sImpl object.
+     * The proxy service used to perform REST calls.
      */
-    public InterfaceV2sImpl getInterfaceV2s() {
-        return this.interfaceV2s;
-    }
+    private final AddedClientService service;
+
+    /**
+     * Service version.
+     */
+    private final AddedServiceVersion serviceVersion;
 
     /**
      * Initializes an instance of AddedClient client.
-     * 
+     *
      * @param httpPipeline The HTTP pipeline to send requests through.
      * @param instrumentation The instance of instrumentation to report telemetry.
      * @param endpoint Need to be set as 'http://localhost:3000' in client.
@@ -117,39 +73,53 @@ public final class AddedClientImpl {
     }
 
     /**
-     * The interface defining all the services for AddedClient to be used by the proxy service to perform REST calls.
+     * Gets Need to be set as 'http://localhost:3000' in client.
+     *
+     * @return the endpoint value.
      */
-    @ServiceInterface(name = "AddedClient", host = "{endpoint}/versioning/added/api-version:{version}")
-    public interface AddedClientService {
-        static AddedClientService getNewInstance(HttpPipeline pipeline) {
-            try {
-                Class<?> clazz = Class.forName("versioning.added.implementation.AddedClientServiceImpl");
-                return (AddedClientService) clazz.getMethod("getNewInstance", HttpPipeline.class)
-                    .invoke(null, pipeline);
-            } catch (ClassNotFoundException | NoSuchMethodException | IllegalAccessException
-                | InvocationTargetException e) {
-                throw new RuntimeException(e);
-            }
+    public String getEndpoint() {
+        return this.endpoint;
+    }
 
-        }
+    /**
+     * Gets The HTTP pipeline to send requests through.
+     *
+     * @return the httpPipeline value.
+     */
+    public HttpPipeline getHttpPipeline() {
+        return this.httpPipeline;
+    }
 
-        @HttpRequestInformation(method = HttpMethod.POST, path = "/v1", expectedStatusCodes = { 200 })
-        @UnexpectedResponseExceptionDetail
-        Response<ModelV1> v1(@HostParam("endpoint") String endpoint, @HostParam("version") String version,
-            @HeaderParam("header-v2") String headerV2, @HeaderParam("Content-Type") String contentType,
-            @HeaderParam("Accept") String accept, @BodyParam("application/json") ModelV1 body,
-            RequestContext requestContext);
+    /**
+     * Gets The instance of instrumentation to report telemetry.
+     *
+     * @return the instrumentation value.
+     */
+    public Instrumentation getInstrumentation() {
+        return this.instrumentation;
+    }
 
-        @HttpRequestInformation(method = HttpMethod.POST, path = "/v2", expectedStatusCodes = { 200 })
-        @UnexpectedResponseExceptionDetail
-        Response<ModelV2> v2(@HostParam("endpoint") String endpoint, @HostParam("version") String version,
-            @HeaderParam("Content-Type") String contentType, @HeaderParam("Accept") String accept,
-            @BodyParam("application/json") ModelV2 body, RequestContext requestContext);
+    /**
+     * Gets the InterfaceV2sImpl object to access its operations.
+     *
+     * @return the InterfaceV2sImpl object.
+     */
+    public InterfaceV2sImpl getInterfaceV2s() {
+        return this.interfaceV2s;
+    }
+
+    /**
+     * Gets Service version.
+     *
+     * @return the serviceVersion value.
+     */
+    public AddedServiceVersion getServiceVersion() {
+        return this.serviceVersion;
     }
 
     /**
      * The v1 operation.
-     * 
+     *
      * @param headerV2 The headerV2 parameter.
      * @param body The body parameter.
      * @param requestContext The context to configure the HTTP request before HTTP client sends it.
@@ -170,7 +140,7 @@ public final class AddedClientImpl {
 
     /**
      * The v2 operation.
-     * 
+     *
      * @param body The body parameter.
      * @param requestContext The context to configure the HTTP request before HTTP client sends it.
      * @throws IllegalArgumentException thrown if parameters fail the validation.
@@ -186,5 +156,36 @@ public final class AddedClientImpl {
             return service.v2(this.getEndpoint(), this.getServiceVersion().getVersion(), contentType, accept, body,
                 updatedContext);
         });
+    }
+
+    /**
+     * The interface defining all the services for AddedClient to be used by the proxy service to perform REST calls.
+     */
+    @ServiceInterface(name = "AddedClient", host = "{endpoint}/versioning/added/api-version:{version}")
+    public interface AddedClientService {
+
+        @HttpRequestInformation(method = HttpMethod.POST, path = "/v1", expectedStatusCodes = { 200 })
+        @UnexpectedResponseExceptionDetail
+        Response<ModelV1> v1(@HostParam("endpoint") String endpoint, @HostParam("version") String version,
+            @HeaderParam("header-v2") String headerV2, @HeaderParam("Content-Type") String contentType,
+            @HeaderParam("Accept") String accept, @BodyParam("application/json") ModelV1 body,
+            RequestContext requestContext);
+
+        @HttpRequestInformation(method = HttpMethod.POST, path = "/v2", expectedStatusCodes = { 200 })
+        @UnexpectedResponseExceptionDetail
+        Response<ModelV2> v2(@HostParam("endpoint") String endpoint, @HostParam("version") String version,
+            @HeaderParam("Content-Type") String contentType, @HeaderParam("Accept") String accept,
+            @BodyParam("application/json") ModelV2 body, RequestContext requestContext);
+
+        static AddedClientService getNewInstance(HttpPipeline pipeline) {
+            try {
+                Class<?> clazz = Class.forName("versioning.added.implementation.AddedClientServiceImpl");
+                return (AddedClientService) clazz.getMethod("getNewInstance", HttpPipeline.class)
+                    .invoke(null, pipeline);
+            } catch (ClassNotFoundException | NoSuchMethodException | IllegalAccessException
+                | InvocationTargetException e) {
+                throw new RuntimeException(e);
+            }
+        }
     }
 }

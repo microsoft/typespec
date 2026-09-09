@@ -16,14 +16,15 @@ import parameters.path.implementation.PathClientImpl;
  */
 @ServiceClient(builder = PathClientBuilder.class)
 public final class PathClient {
-    @Metadata(properties = { MetadataProperties.GENERATED })
-    private final PathClientImpl serviceClient;
 
     private final Instrumentation instrumentation;
 
+    @Metadata(properties = { MetadataProperties.GENERATED })
+    private final PathClientImpl serviceClient;
+
     /**
      * Initializes an instance of PathClient class.
-     * 
+     *
      * @param serviceClient the service client implementation.
      * @param instrumentation the instrumentation instance.
      */
@@ -35,7 +36,21 @@ public final class PathClient {
 
     /**
      * The normal operation.
-     * 
+     *
+     * @param name The name parameter.
+     * @throws IllegalArgumentException thrown if parameters fail the validation.
+     * @throws HttpResponseException thrown if the service returns an error.
+     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
+     */
+    @Metadata(properties = { MetadataProperties.GENERATED })
+    @ServiceMethod(returns = ReturnType.SINGLE)
+    public void normal(String name) {
+        normalWithResponse(name, RequestContext.none());
+    }
+
+    /**
+     * The normal operation.
+     *
      * @param name The name parameter.
      * @param requestContext The context to configure the HTTP request before HTTP client sends it.
      * @throws IllegalArgumentException thrown if parameters fail the validation.
@@ -51,39 +66,21 @@ public final class PathClient {
     }
 
     /**
-     * The normal operation.
-     * 
-     * @param name The name parameter.
-     * @throws IllegalArgumentException thrown if parameters fail the validation.
+     * The optional operation.
+     *
      * @throws HttpResponseException thrown if the service returns an error.
      * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
      */
     @Metadata(properties = { MetadataProperties.GENERATED })
     @ServiceMethod(returns = ReturnType.SINGLE)
-    public void normal(String name) {
-        normalWithResponse(name, RequestContext.none());
+    public void optional() {
+        final String name = null;
+        optionalWithResponse(name, RequestContext.none());
     }
 
     /**
      * The optional operation.
-     * 
-     * @param name The name parameter.
-     * @param requestContext The context to configure the HTTP request before HTTP client sends it.
-     * @throws IllegalArgumentException thrown if parameters fail the validation.
-     * @throws HttpResponseException thrown if the service returns an error.
-     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
-     * @return the {@link Response}.
-     */
-    @Metadata(properties = { MetadataProperties.GENERATED })
-    @ServiceMethod(returns = ReturnType.SINGLE)
-    public Response<Void> optionalWithResponse(String name, RequestContext requestContext) {
-        return this.instrumentation.instrumentWithResponse("Parameters.Path.optional", requestContext,
-            updatedContext -> this.serviceClient.optionalWithResponse(name, updatedContext));
-    }
-
-    /**
-     * The optional operation.
-     * 
+     *
      * @param name The name parameter.
      * @throws IllegalArgumentException thrown if parameters fail the validation.
      * @throws HttpResponseException thrown if the service returns an error.
@@ -97,14 +94,18 @@ public final class PathClient {
 
     /**
      * The optional operation.
-     * 
+     *
+     * @param name The name parameter.
+     * @param requestContext The context to configure the HTTP request before HTTP client sends it.
+     * @throws IllegalArgumentException thrown if parameters fail the validation.
      * @throws HttpResponseException thrown if the service returns an error.
      * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
+     * @return the {@link Response}.
      */
     @Metadata(properties = { MetadataProperties.GENERATED })
     @ServiceMethod(returns = ReturnType.SINGLE)
-    public void optional() {
-        final String name = null;
-        optionalWithResponse(name, RequestContext.none());
+    public Response<Void> optionalWithResponse(String name, RequestContext requestContext) {
+        return this.instrumentation.instrumentWithResponse("Parameters.Path.optional", requestContext,
+            updatedContext -> this.serviceClient.optionalWithResponse(name, updatedContext));
     }
 }

@@ -14,6 +14,7 @@ import javax.xml.stream.XMLStreamException;
  */
 @Metadata(properties = { MetadataProperties.IMMUTABLE })
 public final class ModelWithRenamedNestedModel implements XmlSerializable<ModelWithRenamedNestedModel> {
+
     /*
      * The author property.
      */
@@ -22,7 +23,7 @@ public final class ModelWithRenamedNestedModel implements XmlSerializable<ModelW
 
     /**
      * Creates an instance of ModelWithRenamedNestedModel class.
-     * 
+     *
      * @param author the author value to set.
      */
     @Metadata(properties = { MetadataProperties.GENERATED })
@@ -32,7 +33,7 @@ public final class ModelWithRenamedNestedModel implements XmlSerializable<ModelW
 
     /**
      * Get the author property: The author property.
-     * 
+     *
      * @return the author value.
      */
     @Metadata(properties = { MetadataProperties.GENERATED })
@@ -58,7 +59,7 @@ public final class ModelWithRenamedNestedModel implements XmlSerializable<ModelW
 
     /**
      * Reads an instance of ModelWithRenamedNestedModel from the XmlReader.
-     * 
+     *
      * @param xmlReader The XmlReader being read.
      * @return An instance of ModelWithRenamedNestedModel if the XmlReader was pointing to an instance of it, or null if
      * it was pointing to XML null.
@@ -72,7 +73,7 @@ public final class ModelWithRenamedNestedModel implements XmlSerializable<ModelW
 
     /**
      * Reads an instance of ModelWithRenamedNestedModel from the XmlReader.
-     * 
+     *
      * @param xmlReader The XmlReader being read.
      * @param rootElementName Optional root element name to override the default defined by the model. Used to support
      * cases where the model can deserialize from different root element names.
@@ -90,7 +91,6 @@ public final class ModelWithRenamedNestedModel implements XmlSerializable<ModelW
             Author author = null;
             while (reader.nextElement() != XmlToken.END_ELEMENT) {
                 QName elementName = reader.getElementName();
-
                 if ("author".equals(elementName.getLocalPart())) {
                     author = Author.fromXml(reader, "author");
                 } else {

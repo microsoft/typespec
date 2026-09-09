@@ -17,14 +17,15 @@ import streaming.sse.implementation.NamedsImpl;
  */
 @ServiceClient(builder = SseClientBuilder.class)
 public final class NamedClient {
-    @Metadata(properties = { MetadataProperties.GENERATED })
-    private final NamedsImpl serviceClient;
 
     private final Instrumentation instrumentation;
 
+    @Metadata(properties = { MetadataProperties.GENERATED })
+    private final NamedsImpl serviceClient;
+
     /**
      * Initializes an instance of NamedClient class.
-     * 
+     *
      * @param serviceClient the service client implementation.
      * @param instrumentation the instrumentation instance.
      */
@@ -36,7 +37,20 @@ public final class NamedClient {
 
     /**
      * The receive operation.
-     * 
+     *
+     * @throws HttpResponseException thrown if the service returns an error.
+     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
+     * @return the response.
+     */
+    @Metadata(properties = { MetadataProperties.GENERATED })
+    @ServiceMethod(returns = ReturnType.SINGLE)
+    public BinaryData receive() {
+        return receiveWithResponse(RequestContext.none()).getValue();
+    }
+
+    /**
+     * The receive operation.
+     *
      * @param requestContext The context to configure the HTTP request before HTTP client sends it.
      * @throws IllegalArgumentException thrown if parameters fail the validation.
      * @throws HttpResponseException thrown if the service returns an error.
@@ -48,18 +62,5 @@ public final class NamedClient {
     public Response<BinaryData> receiveWithResponse(RequestContext requestContext) {
         return this.instrumentation.instrumentWithResponse("Streaming.Sse.Named.receive", requestContext,
             updatedContext -> this.serviceClient.receiveWithResponse(updatedContext));
-    }
-
-    /**
-     * The receive operation.
-     * 
-     * @throws HttpResponseException thrown if the service returns an error.
-     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
-     * @return the response.
-     */
-    @Metadata(properties = { MetadataProperties.GENERATED })
-    @ServiceMethod(returns = ReturnType.SINGLE)
-    public BinaryData receive() {
-        return receiveWithResponse(RequestContext.none()).getValue();
     }
 }

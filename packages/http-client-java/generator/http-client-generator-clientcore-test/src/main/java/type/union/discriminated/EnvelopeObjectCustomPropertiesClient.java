@@ -17,14 +17,15 @@ import type.union.discriminated.implementation.EnvelopeObjectCustomPropertiesImp
  */
 @ServiceClient(builder = DiscriminatedClientBuilder.class)
 public final class EnvelopeObjectCustomPropertiesClient {
-    @Metadata(properties = { MetadataProperties.GENERATED })
-    private final EnvelopeObjectCustomPropertiesImpl serviceClient;
 
     private final Instrumentation instrumentation;
 
+    @Metadata(properties = { MetadataProperties.GENERATED })
+    private final EnvelopeObjectCustomPropertiesImpl serviceClient;
+
     /**
      * Initializes an instance of EnvelopeObjectCustomPropertiesClient class.
-     * 
+     *
      * @param serviceClient the service client implementation.
      * @param instrumentation the instrumentation instance.
      */
@@ -37,7 +38,40 @@ public final class EnvelopeObjectCustomPropertiesClient {
 
     /**
      * The get operation.
-     * 
+     *
+     * @throws HttpResponseException thrown if the service returns an error.
+     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
+     * @return test discriminated union with custom property names.
+     * The discriminated union should serialize with custom discriminator
+     * and envelope property names.
+     */
+    @Metadata(properties = { MetadataProperties.GENERATED })
+    @ServiceMethod(returns = ReturnType.SINGLE)
+    public BinaryData get() {
+        final String petType = null;
+        return getWithResponse(petType, RequestContext.none()).getValue();
+    }
+
+    /**
+     * The get operation.
+     *
+     * @param petType The petType parameter.
+     * @throws IllegalArgumentException thrown if parameters fail the validation.
+     * @throws HttpResponseException thrown if the service returns an error.
+     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
+     * @return test discriminated union with custom property names.
+     * The discriminated union should serialize with custom discriminator
+     * and envelope property names.
+     */
+    @Metadata(properties = { MetadataProperties.GENERATED })
+    @ServiceMethod(returns = ReturnType.SINGLE)
+    public BinaryData get(String petType) {
+        return getWithResponse(petType, RequestContext.none()).getValue();
+    }
+
+    /**
+     * The get operation.
+     *
      * @param petType The petType parameter.
      * @param requestContext The context to configure the HTTP request before HTTP client sends it.
      * @throws IllegalArgumentException thrown if parameters fail the validation.
@@ -56,9 +90,9 @@ public final class EnvelopeObjectCustomPropertiesClient {
     }
 
     /**
-     * The get operation.
-     * 
-     * @param petType The petType parameter.
+     * The put operation.
+     *
+     * @param input The input parameter.
      * @throws IllegalArgumentException thrown if parameters fail the validation.
      * @throws HttpResponseException thrown if the service returns an error.
      * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
@@ -68,29 +102,13 @@ public final class EnvelopeObjectCustomPropertiesClient {
      */
     @Metadata(properties = { MetadataProperties.GENERATED })
     @ServiceMethod(returns = ReturnType.SINGLE)
-    public BinaryData get(String petType) {
-        return getWithResponse(petType, RequestContext.none()).getValue();
-    }
-
-    /**
-     * The get operation.
-     * 
-     * @throws HttpResponseException thrown if the service returns an error.
-     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
-     * @return test discriminated union with custom property names.
-     * The discriminated union should serialize with custom discriminator
-     * and envelope property names.
-     */
-    @Metadata(properties = { MetadataProperties.GENERATED })
-    @ServiceMethod(returns = ReturnType.SINGLE)
-    public BinaryData get() {
-        final String petType = null;
-        return getWithResponse(petType, RequestContext.none()).getValue();
+    public BinaryData put(BinaryData input) {
+        return putWithResponse(input, RequestContext.none()).getValue();
     }
 
     /**
      * The put operation.
-     * 
+     *
      * @param input The input parameter.
      * @param requestContext The context to configure the HTTP request before HTTP client sends it.
      * @throws IllegalArgumentException thrown if parameters fail the validation.
@@ -106,22 +124,5 @@ public final class EnvelopeObjectCustomPropertiesClient {
         return this.instrumentation.instrumentWithResponse(
             "Type.Union.Discriminated.Envelope.Object.CustomProperties.put", requestContext,
             updatedContext -> this.serviceClient.putWithResponse(input, updatedContext));
-    }
-
-    /**
-     * The put operation.
-     * 
-     * @param input The input parameter.
-     * @throws IllegalArgumentException thrown if parameters fail the validation.
-     * @throws HttpResponseException thrown if the service returns an error.
-     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
-     * @return test discriminated union with custom property names.
-     * The discriminated union should serialize with custom discriminator
-     * and envelope property names.
-     */
-    @Metadata(properties = { MetadataProperties.GENERATED })
-    @ServiceMethod(returns = ReturnType.SINGLE)
-    public BinaryData put(BinaryData input) {
-        return putWithResponse(input, RequestContext.none()).getValue();
     }
 }

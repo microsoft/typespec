@@ -42,17 +42,60 @@ import specialwords.implementation.SpecialWordsClientImpl;
 public final class SpecialWordsClientBuilder
     implements HttpTrait<SpecialWordsClientBuilder>, ProxyTrait<SpecialWordsClientBuilder>,
     ConfigurationTrait<SpecialWordsClientBuilder>, EndpointTrait<SpecialWordsClientBuilder> {
+
+    @Metadata(properties = { MetadataProperties.GENERATED })
+    private static final Map<String, String> PROPERTIES = CoreUtils.getProperties("specialwords.properties");
+
     @Metadata(properties = { MetadataProperties.GENERATED })
     private static final String SDK_NAME = "name";
 
     @Metadata(properties = { MetadataProperties.GENERATED })
     private static final String SDK_VERSION = "version";
 
+    /*
+     * The configuration store that is used during construction of the service client.
+     */
     @Metadata(properties = { MetadataProperties.GENERATED })
-    private static final Map<String, String> PROPERTIES = CoreUtils.getProperties("specialwords.properties");
+    private Configuration configuration;
+
+    /*
+     * The service endpoint
+     */
+    @Metadata(properties = { MetadataProperties.GENERATED })
+    private String endpoint;
+
+    /*
+     * The HTTP client used to send the request.
+     */
+    @Metadata(properties = { MetadataProperties.GENERATED })
+    private HttpClient httpClient;
+
+    /*
+     * The instrumentation configuration for HTTP requests and responses.
+     */
+    @Metadata(properties = { MetadataProperties.GENERATED })
+    private HttpInstrumentationOptions httpInstrumentationOptions;
 
     @Metadata(properties = { MetadataProperties.GENERATED })
     private final List<HttpPipelinePolicy> pipelinePolicies;
+
+    /*
+     * The proxy options used during construction of the service client.
+     */
+    @Metadata(properties = { MetadataProperties.GENERATED })
+    private ProxyOptions proxyOptions;
+
+    /*
+     * The redirect options to configure redirect policy
+     */
+    @Metadata(properties = { MetadataProperties.GENERATED })
+    private HttpRedirectOptions redirectOptions;
+
+    /*
+     * The retry options to configure retry policy for failed requests.
+     */
+    @Metadata(properties = { MetadataProperties.GENERATED })
+    private HttpRetryOptions retryOptions;
 
     /**
      * Create an instance of the SpecialWordsClientBuilder.
@@ -62,11 +105,36 @@ public final class SpecialWordsClientBuilder
         this.pipelinePolicies = new ArrayList<>();
     }
 
-    /*
-     * The HTTP client used to send the request.
+    /**
+     * {@inheritDoc}.
      */
     @Metadata(properties = { MetadataProperties.GENERATED })
-    private HttpClient httpClient;
+    @Override
+    public SpecialWordsClientBuilder addHttpPipelinePolicy(HttpPipelinePolicy customPolicy) {
+        Objects.requireNonNull(customPolicy, "'customPolicy' cannot be null.");
+        pipelinePolicies.add(customPolicy);
+        return this;
+    }
+
+    /**
+     * {@inheritDoc}.
+     */
+    @Metadata(properties = { MetadataProperties.GENERATED })
+    @Override
+    public SpecialWordsClientBuilder configuration(Configuration configuration) {
+        this.configuration = configuration;
+        return this;
+    }
+
+    /**
+     * {@inheritDoc}.
+     */
+    @Metadata(properties = { MetadataProperties.GENERATED })
+    @Override
+    public SpecialWordsClientBuilder endpoint(String endpoint) {
+        this.endpoint = endpoint;
+        return this;
+    }
 
     /**
      * {@inheritDoc}.
@@ -78,11 +146,25 @@ public final class SpecialWordsClientBuilder
         return this;
     }
 
-    /*
-     * The retry options to configure retry policy for failed requests.
+    /**
+     * {@inheritDoc}.
      */
     @Metadata(properties = { MetadataProperties.GENERATED })
-    private HttpRetryOptions retryOptions;
+    @Override
+    public SpecialWordsClientBuilder httpInstrumentationOptions(HttpInstrumentationOptions httpInstrumentationOptions) {
+        this.httpInstrumentationOptions = httpInstrumentationOptions;
+        return this;
+    }
+
+    /**
+     * {@inheritDoc}.
+     */
+    @Metadata(properties = { MetadataProperties.GENERATED })
+    @Override
+    public SpecialWordsClientBuilder httpRedirectOptions(HttpRedirectOptions redirectOptions) {
+        this.redirectOptions = redirectOptions;
+        return this;
+    }
 
     /**
      * {@inheritDoc}.
@@ -99,95 +181,81 @@ public final class SpecialWordsClientBuilder
      */
     @Metadata(properties = { MetadataProperties.GENERATED })
     @Override
-    public SpecialWordsClientBuilder addHttpPipelinePolicy(HttpPipelinePolicy customPolicy) {
-        Objects.requireNonNull(customPolicy, "'customPolicy' cannot be null.");
-        pipelinePolicies.add(customPolicy);
-        return this;
-    }
-
-    /*
-     * The redirect options to configure redirect policy
-     */
-    @Metadata(properties = { MetadataProperties.GENERATED })
-    private HttpRedirectOptions redirectOptions;
-
-    /**
-     * {@inheritDoc}.
-     */
-    @Metadata(properties = { MetadataProperties.GENERATED })
-    @Override
-    public SpecialWordsClientBuilder httpRedirectOptions(HttpRedirectOptions redirectOptions) {
-        this.redirectOptions = redirectOptions;
-        return this;
-    }
-
-    /*
-     * The instrumentation configuration for HTTP requests and responses.
-     */
-    @Metadata(properties = { MetadataProperties.GENERATED })
-    private HttpInstrumentationOptions httpInstrumentationOptions;
-
-    /**
-     * {@inheritDoc}.
-     */
-    @Metadata(properties = { MetadataProperties.GENERATED })
-    @Override
-    public SpecialWordsClientBuilder httpInstrumentationOptions(HttpInstrumentationOptions httpInstrumentationOptions) {
-        this.httpInstrumentationOptions = httpInstrumentationOptions;
-        return this;
-    }
-
-    /*
-     * The proxy options used during construction of the service client.
-     */
-    @Metadata(properties = { MetadataProperties.GENERATED })
-    private ProxyOptions proxyOptions;
-
-    /**
-     * {@inheritDoc}.
-     */
-    @Metadata(properties = { MetadataProperties.GENERATED })
-    @Override
     public SpecialWordsClientBuilder proxyOptions(ProxyOptions proxyOptions) {
         this.proxyOptions = proxyOptions;
         return this;
     }
 
-    /*
-     * The configuration store that is used during construction of the service client.
-     */
-    @Metadata(properties = { MetadataProperties.GENERATED })
-    private Configuration configuration;
-
     /**
-     * {@inheritDoc}.
+     * Builds an instance of ExtensibleStringsClient class.
+     *
+     * @return an instance of ExtensibleStringsClient.
      */
     @Metadata(properties = { MetadataProperties.GENERATED })
-    @Override
-    public SpecialWordsClientBuilder configuration(Configuration configuration) {
-        this.configuration = configuration;
-        return this;
+    public ExtensibleStringsClient buildExtensibleStringsClient() {
+        SpecialWordsClientImpl innerClient = buildInnerClient();
+        return new ExtensibleStringsClient(innerClient.getExtensibleStrings(), innerClient.getInstrumentation());
     }
 
-    /*
-     * The service endpoint
+    /**
+     * Builds an instance of ModelPropertiesClient class.
+     *
+     * @return an instance of ModelPropertiesClient.
      */
     @Metadata(properties = { MetadataProperties.GENERATED })
-    private String endpoint;
+    public ModelPropertiesClient buildModelPropertiesClient() {
+        SpecialWordsClientImpl innerClient = buildInnerClient();
+        return new ModelPropertiesClient(innerClient.getModelProperties(), innerClient.getInstrumentation());
+    }
 
     /**
-     * {@inheritDoc}.
+     * Builds an instance of ModelsClient class.
+     *
+     * @return an instance of ModelsClient.
      */
     @Metadata(properties = { MetadataProperties.GENERATED })
-    @Override
-    public SpecialWordsClientBuilder endpoint(String endpoint) {
-        this.endpoint = endpoint;
-        return this;
+    public ModelsClient buildModelsClient() {
+        SpecialWordsClientImpl innerClient = buildInnerClient();
+        return new ModelsClient(innerClient.getModels(), innerClient.getInstrumentation());
+    }
+
+    /**
+     * Builds an instance of OperationsClient class.
+     *
+     * @return an instance of OperationsClient.
+     */
+    @Metadata(properties = { MetadataProperties.GENERATED })
+    public OperationsClient buildOperationsClient() {
+        SpecialWordsClientImpl innerClient = buildInnerClient();
+        return new OperationsClient(innerClient.getOperations(), innerClient.getInstrumentation());
+    }
+
+    /**
+     * Builds an instance of ParametersClient class.
+     *
+     * @return an instance of ParametersClient.
+     */
+    @Metadata(properties = { MetadataProperties.GENERATED })
+    public ParametersClient buildParametersClient() {
+        SpecialWordsClientImpl innerClient = buildInnerClient();
+        return new ParametersClient(innerClient.getParameters(), innerClient.getInstrumentation());
+    }
+
+    /**
+     * Builds an instance of ReservedOperationBodyParamsClient class.
+     *
+     * @return an instance of ReservedOperationBodyParamsClient.
+     */
+    @Metadata(properties = { MetadataProperties.GENERATED })
+    public ReservedOperationBodyParamsClient buildReservedOperationBodyParamsClient() {
+        SpecialWordsClientImpl innerClient = buildInnerClient();
+        return new ReservedOperationBodyParamsClient(innerClient.getReservedOperationBodyParams(),
+            innerClient.getInstrumentation());
     }
 
     /**
      * Builds an instance of SpecialWordsClientImpl with the provided parameters.
-     * 
+     *
      * @return an instance of SpecialWordsClientImpl.
      */
     @Metadata(properties = { MetadataProperties.GENERATED })
@@ -209,12 +277,6 @@ public final class SpecialWordsClientBuilder
     }
 
     @Metadata(properties = { MetadataProperties.GENERATED })
-    private void validateClient() {
-        // This method is invoked from 'buildInnerClient'/'buildClient' method.
-        // Developer can customize this method, to validate that the necessary conditions are met for the new client.
-    }
-
-    @Metadata(properties = { MetadataProperties.GENERATED })
     private HttpPipeline createHttpPipeline() {
         Configuration buildConfiguration
             = (configuration == null) ? Configuration.getGlobalConfiguration() : configuration;
@@ -231,70 +293,9 @@ public final class SpecialWordsClientBuilder
         return httpPipelineBuilder.httpClient(httpClient).build();
     }
 
-    /**
-     * Builds an instance of ModelsClient class.
-     * 
-     * @return an instance of ModelsClient.
-     */
     @Metadata(properties = { MetadataProperties.GENERATED })
-    public ModelsClient buildModelsClient() {
-        SpecialWordsClientImpl innerClient = buildInnerClient();
-        return new ModelsClient(innerClient.getModels(), innerClient.getInstrumentation());
-    }
-
-    /**
-     * Builds an instance of ModelPropertiesClient class.
-     * 
-     * @return an instance of ModelPropertiesClient.
-     */
-    @Metadata(properties = { MetadataProperties.GENERATED })
-    public ModelPropertiesClient buildModelPropertiesClient() {
-        SpecialWordsClientImpl innerClient = buildInnerClient();
-        return new ModelPropertiesClient(innerClient.getModelProperties(), innerClient.getInstrumentation());
-    }
-
-    /**
-     * Builds an instance of ReservedOperationBodyParamsClient class.
-     * 
-     * @return an instance of ReservedOperationBodyParamsClient.
-     */
-    @Metadata(properties = { MetadataProperties.GENERATED })
-    public ReservedOperationBodyParamsClient buildReservedOperationBodyParamsClient() {
-        SpecialWordsClientImpl innerClient = buildInnerClient();
-        return new ReservedOperationBodyParamsClient(innerClient.getReservedOperationBodyParams(),
-            innerClient.getInstrumentation());
-    }
-
-    /**
-     * Builds an instance of ExtensibleStringsClient class.
-     * 
-     * @return an instance of ExtensibleStringsClient.
-     */
-    @Metadata(properties = { MetadataProperties.GENERATED })
-    public ExtensibleStringsClient buildExtensibleStringsClient() {
-        SpecialWordsClientImpl innerClient = buildInnerClient();
-        return new ExtensibleStringsClient(innerClient.getExtensibleStrings(), innerClient.getInstrumentation());
-    }
-
-    /**
-     * Builds an instance of OperationsClient class.
-     * 
-     * @return an instance of OperationsClient.
-     */
-    @Metadata(properties = { MetadataProperties.GENERATED })
-    public OperationsClient buildOperationsClient() {
-        SpecialWordsClientImpl innerClient = buildInnerClient();
-        return new OperationsClient(innerClient.getOperations(), innerClient.getInstrumentation());
-    }
-
-    /**
-     * Builds an instance of ParametersClient class.
-     * 
-     * @return an instance of ParametersClient.
-     */
-    @Metadata(properties = { MetadataProperties.GENERATED })
-    public ParametersClient buildParametersClient() {
-        SpecialWordsClientImpl innerClient = buildInnerClient();
-        return new ParametersClient(innerClient.getParameters(), innerClient.getInstrumentation());
+    private void validateClient() {
+        // This method is invoked from 'buildInnerClient'/'buildClient' method.
+        // Developer can customize this method, to validate that the necessary conditions are met for the new client.
     }
 }

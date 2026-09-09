@@ -17,14 +17,15 @@ import specialwords.implementation.ReservedOperationBodyParamsImpl;
  */
 @ServiceClient(builder = SpecialWordsClientBuilder.class)
 public final class ReservedOperationBodyParamsClient {
-    @Metadata(properties = { MetadataProperties.GENERATED })
-    private final ReservedOperationBodyParamsImpl serviceClient;
 
     private final Instrumentation instrumentation;
 
+    @Metadata(properties = { MetadataProperties.GENERATED })
+    private final ReservedOperationBodyParamsImpl serviceClient;
+
     /**
      * Initializes an instance of ReservedOperationBodyParamsClient class.
-     * 
+     *
      * @param serviceClient the service client implementation.
      * @param instrumentation the instrumentation instance.
      */
@@ -36,7 +37,21 @@ public final class ReservedOperationBodyParamsClient {
 
     /**
      * The withItems operation.
-     * 
+     *
+     * @param items The items parameter.
+     * @throws IllegalArgumentException thrown if parameters fail the validation.
+     * @throws HttpResponseException thrown if the service returns an error.
+     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
+     */
+    @Metadata(properties = { MetadataProperties.GENERATED })
+    @ServiceMethod(returns = ReturnType.SINGLE)
+    public void withItems(List<String> items) {
+        withItemsWithResponse(items, RequestContext.none());
+    }
+
+    /**
+     * The withItems operation.
+     *
      * @param items The items parameter.
      * @param requestContext The context to configure the HTTP request before HTTP client sends it.
      * @throws IllegalArgumentException thrown if parameters fail the validation.
@@ -49,19 +64,5 @@ public final class ReservedOperationBodyParamsClient {
     public Response<Void> withItemsWithResponse(List<String> items, RequestContext requestContext) {
         return this.instrumentation.instrumentWithResponse("SpecialWords.ReservedOperationBodyParams.withItems",
             requestContext, updatedContext -> this.serviceClient.withItemsWithResponse(items, updatedContext));
-    }
-
-    /**
-     * The withItems operation.
-     * 
-     * @param items The items parameter.
-     * @throws IllegalArgumentException thrown if parameters fail the validation.
-     * @throws HttpResponseException thrown if the service returns an error.
-     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
-     */
-    @Metadata(properties = { MetadataProperties.GENERATED })
-    @ServiceMethod(returns = ReturnType.SINGLE)
-    public void withItems(List<String> items) {
-        withItemsWithResponse(items, RequestContext.none());
     }
 }

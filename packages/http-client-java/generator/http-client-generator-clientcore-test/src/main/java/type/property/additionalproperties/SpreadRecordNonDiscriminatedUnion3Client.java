@@ -16,14 +16,15 @@ import type.property.additionalproperties.implementation.SpreadRecordNonDiscrimi
  */
 @ServiceClient(builder = AdditionalPropertiesClientBuilder.class)
 public final class SpreadRecordNonDiscriminatedUnion3Client {
-    @Metadata(properties = { MetadataProperties.GENERATED })
-    private final SpreadRecordNonDiscriminatedUnion3sImpl serviceClient;
 
     private final Instrumentation instrumentation;
 
+    @Metadata(properties = { MetadataProperties.GENERATED })
+    private final SpreadRecordNonDiscriminatedUnion3sImpl serviceClient;
+
     /**
      * Initializes an instance of SpreadRecordNonDiscriminatedUnion3Client class.
-     * 
+     *
      * @param serviceClient the service client implementation.
      * @param instrumentation the instrumentation instance.
      */
@@ -36,7 +37,20 @@ public final class SpreadRecordNonDiscriminatedUnion3Client {
 
     /**
      * Get call.
-     * 
+     *
+     * @throws HttpResponseException thrown if the service returns an error.
+     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
+     * @return call.
+     */
+    @Metadata(properties = { MetadataProperties.GENERATED })
+    @ServiceMethod(returns = ReturnType.SINGLE)
+    public SpreadRecordForNonDiscriminatedUnion3 get() {
+        return getWithResponse(RequestContext.none()).getValue();
+    }
+
+    /**
+     * Get call.
+     *
      * @param requestContext The context to configure the HTTP request before HTTP client sends it.
      * @throws IllegalArgumentException thrown if parameters fail the validation.
      * @throws HttpResponseException thrown if the service returns an error.
@@ -52,21 +66,22 @@ public final class SpreadRecordNonDiscriminatedUnion3Client {
     }
 
     /**
-     * Get call.
-     * 
+     * Put operation.
+     *
+     * @param body body.
+     * @throws IllegalArgumentException thrown if parameters fail the validation.
      * @throws HttpResponseException thrown if the service returns an error.
      * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
-     * @return call.
      */
     @Metadata(properties = { MetadataProperties.GENERATED })
     @ServiceMethod(returns = ReturnType.SINGLE)
-    public SpreadRecordForNonDiscriminatedUnion3 get() {
-        return getWithResponse(RequestContext.none()).getValue();
+    public void put(SpreadRecordForNonDiscriminatedUnion3 body) {
+        putWithResponse(body, RequestContext.none());
     }
 
     /**
      * Put operation.
-     * 
+     *
      * @param body body.
      * @param requestContext The context to configure the HTTP request before HTTP client sends it.
      * @throws IllegalArgumentException thrown if parameters fail the validation.
@@ -80,19 +95,5 @@ public final class SpreadRecordNonDiscriminatedUnion3Client {
         return this.instrumentation.instrumentWithResponse(
             "Type.Property.AdditionalProperties.SpreadRecordNonDiscriminatedUnion3.put", requestContext,
             updatedContext -> this.serviceClient.putWithResponse(body, updatedContext));
-    }
-
-    /**
-     * Put operation.
-     * 
-     * @param body body.
-     * @throws IllegalArgumentException thrown if parameters fail the validation.
-     * @throws HttpResponseException thrown if the service returns an error.
-     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
-     */
-    @Metadata(properties = { MetadataProperties.GENERATED })
-    @ServiceMethod(returns = ReturnType.SINGLE)
-    public void put(SpreadRecordForNonDiscriminatedUnion3 body) {
-        putWithResponse(body, RequestContext.none());
     }
 }

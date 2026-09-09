@@ -22,10 +22,6 @@ import type.union.StringExtensibleNamedUnion;
  * An instance of this class provides access to all the operations defined in StringExtensibleNameds.
  */
 public final class StringExtensibleNamedsImpl {
-    /**
-     * The proxy service used to perform REST calls.
-     */
-    private final StringExtensibleNamedsService service;
 
     /**
      * The service client containing this operation class.
@@ -38,8 +34,13 @@ public final class StringExtensibleNamedsImpl {
     private final Instrumentation instrumentation;
 
     /**
+     * The proxy service used to perform REST calls.
+     */
+    private final StringExtensibleNamedsService service;
+
+    /**
      * Initializes an instance of StringExtensibleNamedsImpl.
-     * 
+     *
      * @param client the instance of the service client containing this operation class.
      */
     StringExtensibleNamedsImpl(UnionClientImpl client) {
@@ -49,43 +50,8 @@ public final class StringExtensibleNamedsImpl {
     }
 
     /**
-     * The interface defining all the services for UnionClientStringExtensibleNameds to be used by the proxy service to
-     * perform REST calls.
-     */
-    @ServiceInterface(name = "UnionClientStringExtensibleNameds", host = "{endpoint}")
-    public interface StringExtensibleNamedsService {
-        static StringExtensibleNamedsService getNewInstance(HttpPipeline pipeline) {
-            try {
-                Class<?> clazz = Class.forName("type.union.implementation.StringExtensibleNamedsServiceImpl");
-                return (StringExtensibleNamedsService) clazz.getMethod("getNewInstance", HttpPipeline.class)
-                    .invoke(null, pipeline);
-            } catch (ClassNotFoundException | NoSuchMethodException | IllegalAccessException
-                | InvocationTargetException e) {
-                throw new RuntimeException(e);
-            }
-
-        }
-
-        @HttpRequestInformation(
-            method = HttpMethod.GET,
-            path = "/type/union/string-extensible-named",
-            expectedStatusCodes = { 200 })
-        @UnexpectedResponseExceptionDetail
-        Response<GetResponse2> get(@HostParam("endpoint") String endpoint, @HeaderParam("Accept") String accept,
-            RequestContext requestContext);
-
-        @HttpRequestInformation(
-            method = HttpMethod.POST,
-            path = "/type/union/string-extensible-named",
-            expectedStatusCodes = { 204 })
-        @UnexpectedResponseExceptionDetail
-        Response<Void> send(@HostParam("endpoint") String endpoint, @HeaderParam("Content-Type") String contentType,
-            @BodyParam("application/json") SendRequest2 sendRequest2, RequestContext requestContext);
-    }
-
-    /**
      * The get operation.
-     * 
+     *
      * @param requestContext The context to configure the HTTP request before HTTP client sends it.
      * @throws IllegalArgumentException thrown if parameters fail the validation.
      * @throws HttpResponseException thrown if the service returns an error.
@@ -103,7 +69,7 @@ public final class StringExtensibleNamedsImpl {
 
     /**
      * The send operation.
-     * 
+     *
      * @param prop The prop parameter.
      * @param requestContext The context to configure the HTTP request before HTTP client sends it.
      * @throws IllegalArgumentException thrown if parameters fail the validation.
@@ -119,5 +85,40 @@ public final class StringExtensibleNamedsImpl {
                 SendRequest2 sendRequest2 = new SendRequest2(prop);
                 return service.send(this.client.getEndpoint(), contentType, sendRequest2, updatedContext);
             });
+    }
+
+    /**
+     * The interface defining all the services for UnionClientStringExtensibleNameds to be used by the proxy service to
+     * perform REST calls.
+     */
+    @ServiceInterface(name = "UnionClientStringExtensibleNameds", host = "{endpoint}")
+    public interface StringExtensibleNamedsService {
+
+        @HttpRequestInformation(
+            method = HttpMethod.GET,
+            path = "/type/union/string-extensible-named",
+            expectedStatusCodes = { 200 })
+        @UnexpectedResponseExceptionDetail
+        Response<GetResponse2> get(@HostParam("endpoint") String endpoint, @HeaderParam("Accept") String accept,
+            RequestContext requestContext);
+
+        @HttpRequestInformation(
+            method = HttpMethod.POST,
+            path = "/type/union/string-extensible-named",
+            expectedStatusCodes = { 204 })
+        @UnexpectedResponseExceptionDetail
+        Response<Void> send(@HostParam("endpoint") String endpoint, @HeaderParam("Content-Type") String contentType,
+            @BodyParam("application/json") SendRequest2 sendRequest2, RequestContext requestContext);
+
+        static StringExtensibleNamedsService getNewInstance(HttpPipeline pipeline) {
+            try {
+                Class<?> clazz = Class.forName("type.union.implementation.StringExtensibleNamedsServiceImpl");
+                return (StringExtensibleNamedsService) clazz.getMethod("getNewInstance", HttpPipeline.class)
+                    .invoke(null, pipeline);
+            } catch (ClassNotFoundException | NoSuchMethodException | IllegalAccessException
+                | InvocationTargetException e) {
+                throw new RuntimeException(e);
+            }
+        }
     }
 }

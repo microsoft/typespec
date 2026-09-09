@@ -13,6 +13,7 @@ import java.io.IOException;
  */
 @Metadata(properties = { MetadataProperties.IMMUTABLE })
 public final class Global implements JsonSerializable<Global> {
+
     /*
      * The name property.
      */
@@ -21,7 +22,7 @@ public final class Global implements JsonSerializable<Global> {
 
     /**
      * Creates an instance of Global class.
-     * 
+     *
      * @param name the name value to set.
      */
     @Metadata(properties = { MetadataProperties.GENERATED })
@@ -31,7 +32,7 @@ public final class Global implements JsonSerializable<Global> {
 
     /**
      * Get the name property: The name property.
-     * 
+     *
      * @return the name value.
      */
     @Metadata(properties = { MetadataProperties.GENERATED })
@@ -52,7 +53,7 @@ public final class Global implements JsonSerializable<Global> {
 
     /**
      * Reads an instance of Global from the JsonReader.
-     * 
+     *
      * @param jsonReader The JsonReader being read.
      * @return An instance of Global if the JsonReader was pointing to an instance of it, or null if it was pointing to
      * JSON null.
@@ -66,7 +67,6 @@ public final class Global implements JsonSerializable<Global> {
             while (reader.nextToken() != JsonToken.END_OBJECT) {
                 String fieldName = reader.getFieldName();
                 reader.nextToken();
-
                 if ("name".equals(fieldName)) {
                     name = reader.getString();
                 } else {

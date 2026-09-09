@@ -14,6 +14,13 @@ import javax.xml.stream.XMLStreamException;
  */
 @Metadata(properties = { MetadataProperties.IMMUTABLE })
 public final class ModelWithRenamedAttribute implements XmlSerializable<ModelWithRenamedAttribute> {
+
+    /*
+     * The author property.
+     */
+    @Metadata(properties = { MetadataProperties.GENERATED })
+    private final String author;
+
     /*
      * The xml-id property.
      */
@@ -26,15 +33,9 @@ public final class ModelWithRenamedAttribute implements XmlSerializable<ModelWit
     @Metadata(properties = { MetadataProperties.GENERATED })
     private final String title;
 
-    /*
-     * The author property.
-     */
-    @Metadata(properties = { MetadataProperties.GENERATED })
-    private final String author;
-
     /**
      * Creates an instance of ModelWithRenamedAttribute class.
-     * 
+     *
      * @param id the id value to set.
      * @param title the title value to set.
      * @param author the author value to set.
@@ -47,8 +48,18 @@ public final class ModelWithRenamedAttribute implements XmlSerializable<ModelWit
     }
 
     /**
+     * Get the author property: The author property.
+     *
+     * @return the author value.
+     */
+    @Metadata(properties = { MetadataProperties.GENERATED })
+    public String getAuthor() {
+        return this.author;
+    }
+
+    /**
      * Get the id property: The xml-id property.
-     * 
+     *
      * @return the id value.
      */
     @Metadata(properties = { MetadataProperties.GENERATED })
@@ -58,22 +69,12 @@ public final class ModelWithRenamedAttribute implements XmlSerializable<ModelWit
 
     /**
      * Get the title property: The title property.
-     * 
+     *
      * @return the title value.
      */
     @Metadata(properties = { MetadataProperties.GENERATED })
     public String getTitle() {
         return this.title;
-    }
-
-    /**
-     * Get the author property: The author property.
-     * 
-     * @return the author value.
-     */
-    @Metadata(properties = { MetadataProperties.GENERATED })
-    public String getAuthor() {
-        return this.author;
     }
 
     @Metadata(properties = { MetadataProperties.GENERATED })
@@ -96,7 +97,7 @@ public final class ModelWithRenamedAttribute implements XmlSerializable<ModelWit
 
     /**
      * Reads an instance of ModelWithRenamedAttribute from the XmlReader.
-     * 
+     *
      * @param xmlReader The XmlReader being read.
      * @return An instance of ModelWithRenamedAttribute if the XmlReader was pointing to an instance of it, or null if
      * it was pointing to XML null.
@@ -110,7 +111,7 @@ public final class ModelWithRenamedAttribute implements XmlSerializable<ModelWit
 
     /**
      * Reads an instance of ModelWithRenamedAttribute from the XmlReader.
-     * 
+     *
      * @param xmlReader The XmlReader being read.
      * @param rootElementName Optional root element name to override the default defined by the model. Used to support
      * cases where the model can deserialize from different root element names.
@@ -130,7 +131,6 @@ public final class ModelWithRenamedAttribute implements XmlSerializable<ModelWit
             int id = reader.getIntAttribute(null, "xml-id");
             while (reader.nextElement() != XmlToken.END_ELEMENT) {
                 QName elementName = reader.getElementName();
-
                 if ("title".equals(elementName.getLocalPart())) {
                     title = reader.getStringElement();
                 } else if ("author".equals(elementName.getLocalPart())) {

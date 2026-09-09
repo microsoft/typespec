@@ -13,6 +13,7 @@ import java.io.IOException;
  */
 @Metadata(properties = { MetadataProperties.IMMUTABLE })
 public final class WidgetData2 implements JsonSerializable<WidgetData2> {
+
     /*
      * The kind property.
      */
@@ -27,7 +28,7 @@ public final class WidgetData2 implements JsonSerializable<WidgetData2> {
 
     /**
      * Creates an instance of WidgetData2 class.
-     * 
+     *
      * @param start the start value to set.
      */
     @Metadata(properties = { MetadataProperties.GENERATED })
@@ -37,7 +38,7 @@ public final class WidgetData2 implements JsonSerializable<WidgetData2> {
 
     /**
      * Get the kind property: The kind property.
-     * 
+     *
      * @return the kind value.
      */
     @Metadata(properties = { MetadataProperties.GENERATED })
@@ -47,7 +48,7 @@ public final class WidgetData2 implements JsonSerializable<WidgetData2> {
 
     /**
      * Get the start property: The start property.
-     * 
+     *
      * @return the start value.
      */
     @Metadata(properties = { MetadataProperties.GENERATED })
@@ -69,7 +70,7 @@ public final class WidgetData2 implements JsonSerializable<WidgetData2> {
 
     /**
      * Reads an instance of WidgetData2 from the JsonReader.
-     * 
+     *
      * @param jsonReader The JsonReader being read.
      * @return An instance of WidgetData2 if the JsonReader was pointing to an instance of it, or null if it was
      * pointing to JSON null.
@@ -83,7 +84,6 @@ public final class WidgetData2 implements JsonSerializable<WidgetData2> {
             while (reader.nextToken() != JsonToken.END_OBJECT) {
                 String fieldName = reader.getFieldName();
                 reader.nextToken();
-
                 if ("start".equals(fieldName)) {
                     start = reader.getString();
                 } else {

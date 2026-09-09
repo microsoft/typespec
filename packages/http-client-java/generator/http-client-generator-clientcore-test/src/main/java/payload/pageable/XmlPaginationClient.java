@@ -16,14 +16,15 @@ import payload.pageable.implementation.XmlPaginationsImpl;
  */
 @ServiceClient(builder = PageableClientBuilder.class)
 public final class XmlPaginationClient {
-    @Metadata(properties = { MetadataProperties.GENERATED })
-    private final XmlPaginationsImpl serviceClient;
 
     private final Instrumentation instrumentation;
 
+    @Metadata(properties = { MetadataProperties.GENERATED })
+    private final XmlPaginationsImpl serviceClient;
+
     /**
      * Initializes an instance of XmlPaginationClient class.
-     * 
+     *
      * @param serviceClient the service client implementation.
      * @param instrumentation the instrumentation instance.
      */
@@ -35,7 +36,7 @@ public final class XmlPaginationClient {
 
     /**
      * The listWithContinuation operation.
-     * 
+     *
      * @throws HttpResponseException thrown if the service returns an error.
      * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
      * @return the XML response for listing pets as paginated response with {@link PagedIterable}.
@@ -48,7 +49,7 @@ public final class XmlPaginationClient {
 
     /**
      * The listWithContinuation operation.
-     * 
+     *
      * @param requestContext The context to configure the HTTP request before HTTP client sends it.
      * @throws IllegalArgumentException thrown if parameters fail the validation.
      * @throws HttpResponseException thrown if the service returns an error.
@@ -63,7 +64,7 @@ public final class XmlPaginationClient {
 
     /**
      * The listWithNextLink operation.
-     * 
+     *
      * @throws HttpResponseException thrown if the service returns an error.
      * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
      * @return the XML response for listing pets with next link as paginated response with {@link PagedIterable}.
@@ -76,7 +77,7 @@ public final class XmlPaginationClient {
 
     /**
      * The listWithNextLink operation.
-     * 
+     *
      * @param requestContext The context to configure the HTTP request before HTTP client sends it.
      * @throws IllegalArgumentException thrown if parameters fail the validation.
      * @throws HttpResponseException thrown if the service returns an error.

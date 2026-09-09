@@ -13,6 +13,7 @@ import java.io.IOException;
  */
 @Metadata(properties = { MetadataProperties.IMMUTABLE })
 public final class SameAsModel implements JsonSerializable<SameAsModel> {
+
     /*
      * The SameAsModel property.
      */
@@ -21,7 +22,7 @@ public final class SameAsModel implements JsonSerializable<SameAsModel> {
 
     /**
      * Creates an instance of SameAsModel class.
-     * 
+     *
      * @param sameAsModel the sameAsModel value to set.
      */
     @Metadata(properties = { MetadataProperties.GENERATED })
@@ -31,7 +32,7 @@ public final class SameAsModel implements JsonSerializable<SameAsModel> {
 
     /**
      * Get the sameAsModel property: The SameAsModel property.
-     * 
+     *
      * @return the sameAsModel value.
      */
     @Metadata(properties = { MetadataProperties.GENERATED })
@@ -52,7 +53,7 @@ public final class SameAsModel implements JsonSerializable<SameAsModel> {
 
     /**
      * Reads an instance of SameAsModel from the JsonReader.
-     * 
+     *
      * @param jsonReader The JsonReader being read.
      * @return An instance of SameAsModel if the JsonReader was pointing to an instance of it, or null if it was
      * pointing to JSON null.
@@ -66,7 +67,6 @@ public final class SameAsModel implements JsonSerializable<SameAsModel> {
             while (reader.nextToken() != JsonToken.END_OBJECT) {
                 String fieldName = reader.getFieldName();
                 reader.nextToken();
-
                 if ("SameAsModel".equals(fieldName)) {
                     sameAsModel = reader.getString();
                 } else {

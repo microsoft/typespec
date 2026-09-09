@@ -39,11 +39,6 @@ import java.util.Objects;
 public final class OAuth2ClientBuilder
     implements HttpTrait<OAuth2ClientBuilder>, ProxyTrait<OAuth2ClientBuilder>, ConfigurationTrait<OAuth2ClientBuilder>,
     OAuthTokenCredentialTrait<OAuth2ClientBuilder>, EndpointTrait<OAuth2ClientBuilder> {
-    @Metadata(properties = { MetadataProperties.GENERATED })
-    private static final String SDK_NAME = "name";
-
-    @Metadata(properties = { MetadataProperties.GENERATED })
-    private static final String SDK_VERSION = "version";
 
     @Metadata(properties = { MetadataProperties.GENERATED })
     private static final String[] DEFAULT_SCOPES = new String[] { "https://security.microsoft.com/.default" };
@@ -52,7 +47,61 @@ public final class OAuth2ClientBuilder
     private static final Map<String, String> PROPERTIES = CoreUtils.getProperties("authentication-oauth2.properties");
 
     @Metadata(properties = { MetadataProperties.GENERATED })
+    private static final String SDK_NAME = "name";
+
+    @Metadata(properties = { MetadataProperties.GENERATED })
+    private static final String SDK_VERSION = "version";
+
+    /*
+     * The configuration store that is used during construction of the service client.
+     */
+    @Metadata(properties = { MetadataProperties.GENERATED })
+    private Configuration configuration;
+
+    /*
+     * The service endpoint
+     */
+    @Metadata(properties = { MetadataProperties.GENERATED })
+    private String endpoint;
+
+    /*
+     * The HTTP client used to send the request.
+     */
+    @Metadata(properties = { MetadataProperties.GENERATED })
+    private HttpClient httpClient;
+
+    /*
+     * The instrumentation configuration for HTTP requests and responses.
+     */
+    @Metadata(properties = { MetadataProperties.GENERATED })
+    private HttpInstrumentationOptions httpInstrumentationOptions;
+
+    @Metadata(properties = { MetadataProperties.GENERATED })
     private final List<HttpPipelinePolicy> pipelinePolicies;
+
+    /*
+     * The proxy options used during construction of the service client.
+     */
+    @Metadata(properties = { MetadataProperties.GENERATED })
+    private ProxyOptions proxyOptions;
+
+    /*
+     * The redirect options to configure redirect policy
+     */
+    @Metadata(properties = { MetadataProperties.GENERATED })
+    private HttpRedirectOptions redirectOptions;
+
+    /*
+     * The retry options to configure retry policy for failed requests.
+     */
+    @Metadata(properties = { MetadataProperties.GENERATED })
+    private HttpRetryOptions retryOptions;
+
+    /*
+     * The TokenCredential used for authentication.
+     */
+    @Metadata(properties = { MetadataProperties.GENERATED })
+    private OAuthTokenCredential tokenCredential;
 
     /**
      * Create an instance of the OAuth2ClientBuilder.
@@ -62,11 +111,46 @@ public final class OAuth2ClientBuilder
         this.pipelinePolicies = new ArrayList<>();
     }
 
-    /*
-     * The HTTP client used to send the request.
+    /**
+     * {@inheritDoc}.
      */
     @Metadata(properties = { MetadataProperties.GENERATED })
-    private HttpClient httpClient;
+    @Override
+    public OAuth2ClientBuilder addHttpPipelinePolicy(HttpPipelinePolicy customPolicy) {
+        Objects.requireNonNull(customPolicy, "'customPolicy' cannot be null.");
+        pipelinePolicies.add(customPolicy);
+        return this;
+    }
+
+    /**
+     * {@inheritDoc}.
+     */
+    @Metadata(properties = { MetadataProperties.GENERATED })
+    @Override
+    public OAuth2ClientBuilder configuration(Configuration configuration) {
+        this.configuration = configuration;
+        return this;
+    }
+
+    /**
+     * {@inheritDoc}.
+     */
+    @Metadata(properties = { MetadataProperties.GENERATED })
+    @Override
+    public OAuth2ClientBuilder credential(OAuthTokenCredential tokenCredential) {
+        this.tokenCredential = tokenCredential;
+        return this;
+    }
+
+    /**
+     * {@inheritDoc}.
+     */
+    @Metadata(properties = { MetadataProperties.GENERATED })
+    @Override
+    public OAuth2ClientBuilder endpoint(String endpoint) {
+        this.endpoint = endpoint;
+        return this;
+    }
 
     /**
      * {@inheritDoc}.
@@ -78,11 +162,25 @@ public final class OAuth2ClientBuilder
         return this;
     }
 
-    /*
-     * The retry options to configure retry policy for failed requests.
+    /**
+     * {@inheritDoc}.
      */
     @Metadata(properties = { MetadataProperties.GENERATED })
-    private HttpRetryOptions retryOptions;
+    @Override
+    public OAuth2ClientBuilder httpInstrumentationOptions(HttpInstrumentationOptions httpInstrumentationOptions) {
+        this.httpInstrumentationOptions = httpInstrumentationOptions;
+        return this;
+    }
+
+    /**
+     * {@inheritDoc}.
+     */
+    @Metadata(properties = { MetadataProperties.GENERATED })
+    @Override
+    public OAuth2ClientBuilder httpRedirectOptions(HttpRedirectOptions redirectOptions) {
+        this.redirectOptions = redirectOptions;
+        return this;
+    }
 
     /**
      * {@inheritDoc}.
@@ -99,111 +197,25 @@ public final class OAuth2ClientBuilder
      */
     @Metadata(properties = { MetadataProperties.GENERATED })
     @Override
-    public OAuth2ClientBuilder addHttpPipelinePolicy(HttpPipelinePolicy customPolicy) {
-        Objects.requireNonNull(customPolicy, "'customPolicy' cannot be null.");
-        pipelinePolicies.add(customPolicy);
-        return this;
-    }
-
-    /*
-     * The redirect options to configure redirect policy
-     */
-    @Metadata(properties = { MetadataProperties.GENERATED })
-    private HttpRedirectOptions redirectOptions;
-
-    /**
-     * {@inheritDoc}.
-     */
-    @Metadata(properties = { MetadataProperties.GENERATED })
-    @Override
-    public OAuth2ClientBuilder httpRedirectOptions(HttpRedirectOptions redirectOptions) {
-        this.redirectOptions = redirectOptions;
-        return this;
-    }
-
-    /*
-     * The instrumentation configuration for HTTP requests and responses.
-     */
-    @Metadata(properties = { MetadataProperties.GENERATED })
-    private HttpInstrumentationOptions httpInstrumentationOptions;
-
-    /**
-     * {@inheritDoc}.
-     */
-    @Metadata(properties = { MetadataProperties.GENERATED })
-    @Override
-    public OAuth2ClientBuilder httpInstrumentationOptions(HttpInstrumentationOptions httpInstrumentationOptions) {
-        this.httpInstrumentationOptions = httpInstrumentationOptions;
-        return this;
-    }
-
-    /*
-     * The proxy options used during construction of the service client.
-     */
-    @Metadata(properties = { MetadataProperties.GENERATED })
-    private ProxyOptions proxyOptions;
-
-    /**
-     * {@inheritDoc}.
-     */
-    @Metadata(properties = { MetadataProperties.GENERATED })
-    @Override
     public OAuth2ClientBuilder proxyOptions(ProxyOptions proxyOptions) {
         this.proxyOptions = proxyOptions;
         return this;
     }
 
-    /*
-     * The configuration store that is used during construction of the service client.
-     */
-    @Metadata(properties = { MetadataProperties.GENERATED })
-    private Configuration configuration;
-
     /**
-     * {@inheritDoc}.
+     * Builds an instance of OAuth2Client class.
+     *
+     * @return an instance of OAuth2Client.
      */
     @Metadata(properties = { MetadataProperties.GENERATED })
-    @Override
-    public OAuth2ClientBuilder configuration(Configuration configuration) {
-        this.configuration = configuration;
-        return this;
-    }
-
-    /*
-     * The TokenCredential used for authentication.
-     */
-    @Metadata(properties = { MetadataProperties.GENERATED })
-    private OAuthTokenCredential tokenCredential;
-
-    /**
-     * {@inheritDoc}.
-     */
-    @Metadata(properties = { MetadataProperties.GENERATED })
-    @Override
-    public OAuth2ClientBuilder credential(OAuthTokenCredential tokenCredential) {
-        this.tokenCredential = tokenCredential;
-        return this;
-    }
-
-    /*
-     * The service endpoint
-     */
-    @Metadata(properties = { MetadataProperties.GENERATED })
-    private String endpoint;
-
-    /**
-     * {@inheritDoc}.
-     */
-    @Metadata(properties = { MetadataProperties.GENERATED })
-    @Override
-    public OAuth2ClientBuilder endpoint(String endpoint) {
-        this.endpoint = endpoint;
-        return this;
+    public OAuth2Client buildClient() {
+        OAuth2ClientImpl innerClient = buildInnerClient();
+        return new OAuth2Client(innerClient, innerClient.getInstrumentation());
     }
 
     /**
      * Builds an instance of OAuth2ClientImpl with the provided parameters.
-     * 
+     *
      * @return an instance of OAuth2ClientImpl.
      */
     @Metadata(properties = { MetadataProperties.GENERATED })
@@ -221,12 +233,6 @@ public final class OAuth2ClientBuilder
             = Instrumentation.create(localHttpInstrumentationOptions, sdkInstrumentationOptions);
         OAuth2ClientImpl client = new OAuth2ClientImpl(createHttpPipeline(), instrumentation, localEndpoint);
         return client;
-    }
-
-    @Metadata(properties = { MetadataProperties.GENERATED })
-    private void validateClient() {
-        // This method is invoked from 'buildInnerClient'/'buildClient' method.
-        // Developer can customize this method, to validate that the necessary conditions are met for the new client.
     }
 
     @Metadata(properties = { MetadataProperties.GENERATED })
@@ -251,14 +257,9 @@ public final class OAuth2ClientBuilder
         return httpPipelineBuilder.httpClient(httpClient).build();
     }
 
-    /**
-     * Builds an instance of OAuth2Client class.
-     * 
-     * @return an instance of OAuth2Client.
-     */
     @Metadata(properties = { MetadataProperties.GENERATED })
-    public OAuth2Client buildClient() {
-        OAuth2ClientImpl innerClient = buildInnerClient();
-        return new OAuth2Client(innerClient, innerClient.getInstrumentation());
+    private void validateClient() {
+        // This method is invoked from 'buildInnerClient'/'buildClient' method.
+        // Developer can customize this method, to validate that the necessary conditions are met for the new client.
     }
 }

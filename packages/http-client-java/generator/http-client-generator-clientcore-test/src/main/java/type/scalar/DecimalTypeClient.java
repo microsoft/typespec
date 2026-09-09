@@ -17,14 +17,15 @@ import type.scalar.implementation.DecimalTypesImpl;
  */
 @ServiceClient(builder = ScalarClientBuilder.class)
 public final class DecimalTypeClient {
-    @Metadata(properties = { MetadataProperties.GENERATED })
-    private final DecimalTypesImpl serviceClient;
 
     private final Instrumentation instrumentation;
 
+    @Metadata(properties = { MetadataProperties.GENERATED })
+    private final DecimalTypesImpl serviceClient;
+
     /**
      * Initializes an instance of DecimalTypeClient class.
-     * 
+     *
      * @param serviceClient the service client implementation.
      * @param instrumentation the instrumentation instance.
      */
@@ -35,37 +36,22 @@ public final class DecimalTypeClient {
     }
 
     /**
-     * The responseBody operation.
-     * 
-     * @param requestContext The context to configure the HTTP request before HTTP client sends it.
+     * The requestBody operation.
+     *
+     * @param body The body parameter.
      * @throws IllegalArgumentException thrown if parameters fail the validation.
      * @throws HttpResponseException thrown if the service returns an error.
      * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
-     * @return a decimal number with any length and precision along with {@link Response}.
      */
     @Metadata(properties = { MetadataProperties.GENERATED })
     @ServiceMethod(returns = ReturnType.SINGLE)
-    public Response<BigDecimal> responseBodyWithResponse(RequestContext requestContext) {
-        return this.instrumentation.instrumentWithResponse("Type.Scalar.DecimalType.responseBody", requestContext,
-            updatedContext -> this.serviceClient.responseBodyWithResponse(updatedContext));
-    }
-
-    /**
-     * The responseBody operation.
-     * 
-     * @throws HttpResponseException thrown if the service returns an error.
-     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
-     * @return a decimal number with any length and precision.
-     */
-    @Metadata(properties = { MetadataProperties.GENERATED })
-    @ServiceMethod(returns = ReturnType.SINGLE)
-    public BigDecimal responseBody() {
-        return responseBodyWithResponse(RequestContext.none()).getValue();
+    public void requestBody(BigDecimal body) {
+        requestBodyWithResponse(body, RequestContext.none());
     }
 
     /**
      * The requestBody operation.
-     * 
+     *
      * @param body The body parameter.
      * @param requestContext The context to configure the HTTP request before HTTP client sends it.
      * @throws IllegalArgumentException thrown if parameters fail the validation.
@@ -81,22 +67,22 @@ public final class DecimalTypeClient {
     }
 
     /**
-     * The requestBody operation.
-     * 
-     * @param body The body parameter.
+     * The requestParameter operation.
+     *
+     * @param value The value parameter.
      * @throws IllegalArgumentException thrown if parameters fail the validation.
      * @throws HttpResponseException thrown if the service returns an error.
      * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
      */
     @Metadata(properties = { MetadataProperties.GENERATED })
     @ServiceMethod(returns = ReturnType.SINGLE)
-    public void requestBody(BigDecimal body) {
-        requestBodyWithResponse(body, RequestContext.none());
+    public void requestParameter(BigDecimal value) {
+        requestParameterWithResponse(value, RequestContext.none());
     }
 
     /**
      * The requestParameter operation.
-     * 
+     *
      * @param value The value parameter.
      * @param requestContext The context to configure the HTTP request before HTTP client sends it.
      * @throws IllegalArgumentException thrown if parameters fail the validation.
@@ -112,16 +98,31 @@ public final class DecimalTypeClient {
     }
 
     /**
-     * The requestParameter operation.
-     * 
-     * @param value The value parameter.
-     * @throws IllegalArgumentException thrown if parameters fail the validation.
+     * The responseBody operation.
+     *
      * @throws HttpResponseException thrown if the service returns an error.
      * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
+     * @return a decimal number with any length and precision.
      */
     @Metadata(properties = { MetadataProperties.GENERATED })
     @ServiceMethod(returns = ReturnType.SINGLE)
-    public void requestParameter(BigDecimal value) {
-        requestParameterWithResponse(value, RequestContext.none());
+    public BigDecimal responseBody() {
+        return responseBodyWithResponse(RequestContext.none()).getValue();
+    }
+
+    /**
+     * The responseBody operation.
+     *
+     * @param requestContext The context to configure the HTTP request before HTTP client sends it.
+     * @throws IllegalArgumentException thrown if parameters fail the validation.
+     * @throws HttpResponseException thrown if the service returns an error.
+     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
+     * @return a decimal number with any length and precision along with {@link Response}.
+     */
+    @Metadata(properties = { MetadataProperties.GENERATED })
+    @ServiceMethod(returns = ReturnType.SINGLE)
+    public Response<BigDecimal> responseBodyWithResponse(RequestContext requestContext) {
+        return this.instrumentation.instrumentWithResponse("Type.Scalar.DecimalType.responseBody", requestContext,
+            updatedContext -> this.serviceClient.responseBodyWithResponse(updatedContext));
     }
 }

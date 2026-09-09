@@ -14,6 +14,7 @@ import java.util.Map;
  */
 @Metadata(properties = { MetadataProperties.IMMUTABLE })
 public final class DifferentSpreadFloatDerived extends DifferentSpreadFloatRecord {
+
     /*
      * The index property
      */
@@ -22,7 +23,7 @@ public final class DifferentSpreadFloatDerived extends DifferentSpreadFloatRecor
 
     /**
      * Creates an instance of DifferentSpreadFloatDerived class.
-     * 
+     *
      * @param name the name value to set.
      * @param derivedProp the derivedProp value to set.
      */
@@ -34,7 +35,7 @@ public final class DifferentSpreadFloatDerived extends DifferentSpreadFloatRecor
 
     /**
      * Get the derivedProp property: The index property.
-     * 
+     *
      * @return the derivedProp value.
      */
     @Metadata(properties = { MetadataProperties.GENERATED })
@@ -61,7 +62,7 @@ public final class DifferentSpreadFloatDerived extends DifferentSpreadFloatRecor
 
     /**
      * Reads an instance of DifferentSpreadFloatDerived from the JsonReader.
-     * 
+     *
      * @param jsonReader The JsonReader being read.
      * @return An instance of DifferentSpreadFloatDerived if the JsonReader was pointing to an instance of it, or null
      * if it was pointing to JSON null.
@@ -77,7 +78,6 @@ public final class DifferentSpreadFloatDerived extends DifferentSpreadFloatRecor
             while (reader.nextToken() != JsonToken.END_OBJECT) {
                 String fieldName = reader.getFieldName();
                 reader.nextToken();
-
                 if ("name".equals(fieldName)) {
                     name = reader.getString();
                 } else if ("derivedProp".equals(fieldName)) {
@@ -86,14 +86,12 @@ public final class DifferentSpreadFloatDerived extends DifferentSpreadFloatRecor
                     if (additionalProperties == null) {
                         additionalProperties = new LinkedHashMap<>();
                     }
-
                     additionalProperties.put(fieldName, reader.getDouble());
                 }
             }
             DifferentSpreadFloatDerived deserializedDifferentSpreadFloatDerived
                 = new DifferentSpreadFloatDerived(name, derivedProp);
             deserializedDifferentSpreadFloatDerived.setAdditionalProperties(additionalProperties);
-
             return deserializedDifferentSpreadFloatDerived;
         });
     }

@@ -8,6 +8,7 @@ import io.clientcore.core.annotations.MetadataProperties;
  */
 @Metadata(properties = { MetadataProperties.FLUENT })
 public final class MultiPartOptionalRequest {
+
     /*
      * The id property.
      */
@@ -29,7 +30,7 @@ public final class MultiPartOptionalRequest {
 
     /**
      * Get the id property: The id property.
-     * 
+     *
      * @return the id value.
      */
     @Metadata(properties = { MetadataProperties.GENERATED })
@@ -39,7 +40,7 @@ public final class MultiPartOptionalRequest {
 
     /**
      * Set the id property: The id property.
-     * 
+     *
      * @param id the id value to set.
      * @return the MultiPartOptionalRequest object itself.
      */
@@ -51,7 +52,7 @@ public final class MultiPartOptionalRequest {
 
     /**
      * Get the profileImage property: The profileImage property.
-     * 
+     *
      * @return the profileImage value.
      */
     @Metadata(properties = { MetadataProperties.GENERATED })
@@ -61,7 +62,7 @@ public final class MultiPartOptionalRequest {
 
     /**
      * Set the profileImage property: The profileImage property.
-     * 
+     *
      * @param profileImage the profileImage value to set.
      * @return the MultiPartOptionalRequest object itself.
      */

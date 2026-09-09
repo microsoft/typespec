@@ -13,6 +13,7 @@ import java.io.IOException;
  */
 @Metadata(properties = { MetadataProperties.IMMUTABLE })
 public final class ModelWithList implements JsonSerializable<ModelWithList> {
+
     /*
      * The list property.
      */
@@ -21,7 +22,7 @@ public final class ModelWithList implements JsonSerializable<ModelWithList> {
 
     /**
      * Creates an instance of ModelWithList class.
-     * 
+     *
      * @param list the list value to set.
      */
     @Metadata(properties = { MetadataProperties.GENERATED })
@@ -31,7 +32,7 @@ public final class ModelWithList implements JsonSerializable<ModelWithList> {
 
     /**
      * Get the list property: The list property.
-     * 
+     *
      * @return the list value.
      */
     @Metadata(properties = { MetadataProperties.GENERATED })
@@ -52,7 +53,7 @@ public final class ModelWithList implements JsonSerializable<ModelWithList> {
 
     /**
      * Reads an instance of ModelWithList from the JsonReader.
-     * 
+     *
      * @param jsonReader The JsonReader being read.
      * @return An instance of ModelWithList if the JsonReader was pointing to an instance of it, or null if it was
      * pointing to JSON null.
@@ -66,7 +67,6 @@ public final class ModelWithList implements JsonSerializable<ModelWithList> {
             while (reader.nextToken() != JsonToken.END_OBJECT) {
                 String fieldName = reader.getFieldName();
                 reader.nextToken();
-
                 if ("list".equals(fieldName)) {
                     list = reader.getString();
                 } else {

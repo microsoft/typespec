@@ -18,14 +18,15 @@ import type.scalar.implementation.DecimalVerifiesImpl;
  */
 @ServiceClient(builder = ScalarClientBuilder.class)
 public final class DecimalVerifyClient {
-    @Metadata(properties = { MetadataProperties.GENERATED })
-    private final DecimalVerifiesImpl serviceClient;
 
     private final Instrumentation instrumentation;
 
+    @Metadata(properties = { MetadataProperties.GENERATED })
+    private final DecimalVerifiesImpl serviceClient;
+
     /**
      * Initializes an instance of DecimalVerifyClient class.
-     * 
+     *
      * @param serviceClient the service client implementation.
      * @param instrumentation the instrumentation instance.
      */
@@ -37,7 +38,20 @@ public final class DecimalVerifyClient {
 
     /**
      * The prepareVerify operation.
-     * 
+     *
+     * @throws HttpResponseException thrown if the service returns an error.
+     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
+     * @return the response.
+     */
+    @Metadata(properties = { MetadataProperties.GENERATED })
+    @ServiceMethod(returns = ReturnType.SINGLE)
+    public List<BigDecimal> prepareVerify() {
+        return prepareVerifyWithResponse(RequestContext.none()).getValue();
+    }
+
+    /**
+     * The prepareVerify operation.
+     *
      * @param requestContext The context to configure the HTTP request before HTTP client sends it.
      * @throws IllegalArgumentException thrown if parameters fail the validation.
      * @throws HttpResponseException thrown if the service returns an error.
@@ -52,21 +66,22 @@ public final class DecimalVerifyClient {
     }
 
     /**
-     * The prepareVerify operation.
-     * 
+     * The verify operation.
+     *
+     * @param body The body parameter.
+     * @throws IllegalArgumentException thrown if parameters fail the validation.
      * @throws HttpResponseException thrown if the service returns an error.
      * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
-     * @return the response.
      */
     @Metadata(properties = { MetadataProperties.GENERATED })
     @ServiceMethod(returns = ReturnType.SINGLE)
-    public List<BigDecimal> prepareVerify() {
-        return prepareVerifyWithResponse(RequestContext.none()).getValue();
+    public void verify(BigDecimal body) {
+        verifyWithResponse(body, RequestContext.none());
     }
 
     /**
      * The verify operation.
-     * 
+     *
      * @param body The body parameter.
      * @param requestContext The context to configure the HTTP request before HTTP client sends it.
      * @throws IllegalArgumentException thrown if parameters fail the validation.
@@ -79,19 +94,5 @@ public final class DecimalVerifyClient {
     public Response<Void> verifyWithResponse(BigDecimal body, RequestContext requestContext) {
         return this.instrumentation.instrumentWithResponse("Type.Scalar.DecimalVerify.verify", requestContext,
             updatedContext -> this.serviceClient.verifyWithResponse(body, updatedContext));
-    }
-
-    /**
-     * The verify operation.
-     * 
-     * @param body The body parameter.
-     * @throws IllegalArgumentException thrown if parameters fail the validation.
-     * @throws HttpResponseException thrown if the service returns an error.
-     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
-     */
-    @Metadata(properties = { MetadataProperties.GENERATED })
-    @ServiceMethod(returns = ReturnType.SINGLE)
-    public void verify(BigDecimal body) {
-        verifyWithResponse(body, RequestContext.none());
     }
 }

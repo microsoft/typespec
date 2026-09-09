@@ -13,11 +13,6 @@ import java.io.IOException;
  */
 @Metadata(properties = { MetadataProperties.IMMUTABLE })
 public final class WidgetData0 implements JsonSerializable<WidgetData0> {
-    /*
-     * The kind property.
-     */
-    @Metadata(properties = { MetadataProperties.GENERATED })
-    private final String kind = "kind0";
 
     /*
      * The fooProp property.
@@ -25,9 +20,15 @@ public final class WidgetData0 implements JsonSerializable<WidgetData0> {
     @Metadata(properties = { MetadataProperties.GENERATED })
     private final String fooProp;
 
+    /*
+     * The kind property.
+     */
+    @Metadata(properties = { MetadataProperties.GENERATED })
+    private final String kind = "kind0";
+
     /**
      * Creates an instance of WidgetData0 class.
-     * 
+     *
      * @param fooProp the fooProp value to set.
      */
     @Metadata(properties = { MetadataProperties.GENERATED })
@@ -36,23 +37,23 @@ public final class WidgetData0 implements JsonSerializable<WidgetData0> {
     }
 
     /**
-     * Get the kind property: The kind property.
-     * 
-     * @return the kind value.
-     */
-    @Metadata(properties = { MetadataProperties.GENERATED })
-    public String getKind() {
-        return this.kind;
-    }
-
-    /**
      * Get the fooProp property: The fooProp property.
-     * 
+     *
      * @return the fooProp value.
      */
     @Metadata(properties = { MetadataProperties.GENERATED })
     public String getFooProp() {
         return this.fooProp;
+    }
+
+    /**
+     * Get the kind property: The kind property.
+     *
+     * @return the kind value.
+     */
+    @Metadata(properties = { MetadataProperties.GENERATED })
+    public String getKind() {
+        return this.kind;
     }
 
     /**
@@ -69,7 +70,7 @@ public final class WidgetData0 implements JsonSerializable<WidgetData0> {
 
     /**
      * Reads an instance of WidgetData0 from the JsonReader.
-     * 
+     *
      * @param jsonReader The JsonReader being read.
      * @return An instance of WidgetData0 if the JsonReader was pointing to an instance of it, or null if it was
      * pointing to JSON null.
@@ -83,7 +84,6 @@ public final class WidgetData0 implements JsonSerializable<WidgetData0> {
             while (reader.nextToken() != JsonToken.END_OBJECT) {
                 String fieldName = reader.getFieldName();
                 reader.nextToken();
-
                 if ("fooProp".equals(fieldName)) {
                     fooProp = reader.getString();
                 } else {

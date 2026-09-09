@@ -22,10 +22,6 @@ import java.util.Map;
  * An instance of this class provides access to all the operations defined in DatetimeValues.
  */
 public final class DatetimeValuesImpl {
-    /**
-     * The proxy service used to perform REST calls.
-     */
-    private final DatetimeValuesService service;
 
     /**
      * The service client containing this operation class.
@@ -38,8 +34,13 @@ public final class DatetimeValuesImpl {
     private final Instrumentation instrumentation;
 
     /**
+     * The proxy service used to perform REST calls.
+     */
+    private final DatetimeValuesService service;
+
+    /**
      * Initializes an instance of DatetimeValuesImpl.
-     * 
+     *
      * @param client the instance of the service client containing this operation class.
      */
     DatetimeValuesImpl(DictionaryClientImpl client) {
@@ -49,44 +50,8 @@ public final class DatetimeValuesImpl {
     }
 
     /**
-     * The interface defining all the services for DictionaryClientDatetimeValues to be used by the proxy service to
-     * perform REST calls.
-     */
-    @ServiceInterface(name = "DictionaryClientDatetimeValues", host = "{endpoint}")
-    public interface DatetimeValuesService {
-        static DatetimeValuesService getNewInstance(HttpPipeline pipeline) {
-            try {
-                Class<?> clazz = Class.forName("type.dictionary.implementation.DatetimeValuesServiceImpl");
-                return (DatetimeValuesService) clazz.getMethod("getNewInstance", HttpPipeline.class)
-                    .invoke(null, pipeline);
-            } catch (ClassNotFoundException | NoSuchMethodException | IllegalAccessException
-                | InvocationTargetException e) {
-                throw new RuntimeException(e);
-            }
-
-        }
-
-        @HttpRequestInformation(
-            method = HttpMethod.GET,
-            path = "/type/dictionary/datetime",
-            expectedStatusCodes = { 200 },
-            returnValueWireType = OffsetDateTime.class)
-        @UnexpectedResponseExceptionDetail
-        Response<Map<String, OffsetDateTime>> get(@HostParam("endpoint") String endpoint,
-            @HeaderParam("Accept") String accept, RequestContext requestContext);
-
-        @HttpRequestInformation(
-            method = HttpMethod.PUT,
-            path = "/type/dictionary/datetime",
-            expectedStatusCodes = { 204 })
-        @UnexpectedResponseExceptionDetail
-        Response<Void> put(@HostParam("endpoint") String endpoint, @HeaderParam("Content-Type") String contentType,
-            @BodyParam("application/json") Map<String, OffsetDateTime> body, RequestContext requestContext);
-    }
-
-    /**
      * The get operation.
-     * 
+     *
      * @param requestContext The context to configure the HTTP request before HTTP client sends it.
      * @throws IllegalArgumentException thrown if parameters fail the validation.
      * @throws HttpResponseException thrown if the service returns an error.
@@ -104,7 +69,7 @@ public final class DatetimeValuesImpl {
 
     /**
      * The put operation.
-     * 
+     *
      * @param body The body parameter.
      * @param requestContext The context to configure the HTTP request before HTTP client sends it.
      * @throws IllegalArgumentException thrown if parameters fail the validation.
@@ -119,5 +84,41 @@ public final class DatetimeValuesImpl {
                 final String contentType = "application/json";
                 return service.put(this.client.getEndpoint(), contentType, body, updatedContext);
             });
+    }
+
+    /**
+     * The interface defining all the services for DictionaryClientDatetimeValues to be used by the proxy service to
+     * perform REST calls.
+     */
+    @ServiceInterface(name = "DictionaryClientDatetimeValues", host = "{endpoint}")
+    public interface DatetimeValuesService {
+
+        @HttpRequestInformation(
+            method = HttpMethod.GET,
+            path = "/type/dictionary/datetime",
+            expectedStatusCodes = { 200 },
+            returnValueWireType = OffsetDateTime.class)
+        @UnexpectedResponseExceptionDetail
+        Response<Map<String, OffsetDateTime>> get(@HostParam("endpoint") String endpoint,
+            @HeaderParam("Accept") String accept, RequestContext requestContext);
+
+        @HttpRequestInformation(
+            method = HttpMethod.PUT,
+            path = "/type/dictionary/datetime",
+            expectedStatusCodes = { 204 })
+        @UnexpectedResponseExceptionDetail
+        Response<Void> put(@HostParam("endpoint") String endpoint, @HeaderParam("Content-Type") String contentType,
+            @BodyParam("application/json") Map<String, OffsetDateTime> body, RequestContext requestContext);
+
+        static DatetimeValuesService getNewInstance(HttpPipeline pipeline) {
+            try {
+                Class<?> clazz = Class.forName("type.dictionary.implementation.DatetimeValuesServiceImpl");
+                return (DatetimeValuesService) clazz.getMethod("getNewInstance", HttpPipeline.class)
+                    .invoke(null, pipeline);
+            } catch (ClassNotFoundException | NoSuchMethodException | IllegalAccessException
+                | InvocationTargetException e) {
+                throw new RuntimeException(e);
+            }
+        }
     }
 }

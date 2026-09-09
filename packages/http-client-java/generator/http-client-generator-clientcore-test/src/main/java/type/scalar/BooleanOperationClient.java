@@ -16,14 +16,15 @@ import type.scalar.implementation.BooleanOperationsImpl;
  */
 @ServiceClient(builder = ScalarClientBuilder.class)
 public final class BooleanOperationClient {
-    @Metadata(properties = { MetadataProperties.GENERATED })
-    private final BooleanOperationsImpl serviceClient;
 
     private final Instrumentation instrumentation;
 
+    @Metadata(properties = { MetadataProperties.GENERATED })
+    private final BooleanOperationsImpl serviceClient;
+
     /**
      * Initializes an instance of BooleanOperationClient class.
-     * 
+     *
      * @param serviceClient the service client implementation.
      * @param instrumentation the instrumentation instance.
      */
@@ -35,7 +36,20 @@ public final class BooleanOperationClient {
 
     /**
      * get boolean value.
-     * 
+     *
+     * @throws HttpResponseException thrown if the service returns an error.
+     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
+     * @return boolean value.
+     */
+    @Metadata(properties = { MetadataProperties.GENERATED })
+    @ServiceMethod(returns = ReturnType.SINGLE)
+    public boolean get() {
+        return getWithResponse(RequestContext.none()).getValue();
+    }
+
+    /**
+     * get boolean value.
+     *
      * @param requestContext The context to configure the HTTP request before HTTP client sends it.
      * @throws IllegalArgumentException thrown if parameters fail the validation.
      * @throws HttpResponseException thrown if the service returns an error.
@@ -50,21 +64,22 @@ public final class BooleanOperationClient {
     }
 
     /**
-     * get boolean value.
-     * 
+     * put boolean value.
+     *
+     * @param body _.
+     * @throws IllegalArgumentException thrown if parameters fail the validation.
      * @throws HttpResponseException thrown if the service returns an error.
      * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
-     * @return boolean value.
      */
     @Metadata(properties = { MetadataProperties.GENERATED })
     @ServiceMethod(returns = ReturnType.SINGLE)
-    public boolean get() {
-        return getWithResponse(RequestContext.none()).getValue();
+    public void put(boolean body) {
+        putWithResponse(body, RequestContext.none());
     }
 
     /**
      * put boolean value.
-     * 
+     *
      * @param body _.
      * @param requestContext The context to configure the HTTP request before HTTP client sends it.
      * @throws IllegalArgumentException thrown if parameters fail the validation.
@@ -77,19 +92,5 @@ public final class BooleanOperationClient {
     public Response<Void> putWithResponse(boolean body, RequestContext requestContext) {
         return this.instrumentation.instrumentWithResponse("Type.Scalar.Boolean.put", requestContext,
             updatedContext -> this.serviceClient.putWithResponse(body, updatedContext));
-    }
-
-    /**
-     * put boolean value.
-     * 
-     * @param body _.
-     * @throws IllegalArgumentException thrown if parameters fail the validation.
-     * @throws HttpResponseException thrown if the service returns an error.
-     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
-     */
-    @Metadata(properties = { MetadataProperties.GENERATED })
-    @ServiceMethod(returns = ReturnType.SINGLE)
-    public void put(boolean body) {
-        putWithResponse(body, RequestContext.none());
     }
 }

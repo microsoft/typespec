@@ -22,10 +22,6 @@ import type.union.MixedTypesCases;
  * An instance of this class provides access to all the operations defined in MixedTypes.
  */
 public final class MixedTypesImpl {
-    /**
-     * The proxy service used to perform REST calls.
-     */
-    private final MixedTypesService service;
 
     /**
      * The service client containing this operation class.
@@ -38,8 +34,13 @@ public final class MixedTypesImpl {
     private final Instrumentation instrumentation;
 
     /**
+     * The proxy service used to perform REST calls.
+     */
+    private final MixedTypesService service;
+
+    /**
      * Initializes an instance of MixedTypesImpl.
-     * 
+     *
      * @param client the instance of the service client containing this operation class.
      */
     MixedTypesImpl(UnionClientImpl client) {
@@ -49,42 +50,8 @@ public final class MixedTypesImpl {
     }
 
     /**
-     * The interface defining all the services for UnionClientMixedTypes to be used by the proxy service to perform REST
-     * calls.
-     */
-    @ServiceInterface(name = "UnionClientMixedTypes", host = "{endpoint}")
-    public interface MixedTypesService {
-        static MixedTypesService getNewInstance(HttpPipeline pipeline) {
-            try {
-                Class<?> clazz = Class.forName("type.union.implementation.MixedTypesServiceImpl");
-                return (MixedTypesService) clazz.getMethod("getNewInstance", HttpPipeline.class).invoke(null, pipeline);
-            } catch (ClassNotFoundException | NoSuchMethodException | IllegalAccessException
-                | InvocationTargetException e) {
-                throw new RuntimeException(e);
-            }
-
-        }
-
-        @HttpRequestInformation(
-            method = HttpMethod.GET,
-            path = "/type/union/mixed-types",
-            expectedStatusCodes = { 200 })
-        @UnexpectedResponseExceptionDetail
-        Response<GetResponse9> get(@HostParam("endpoint") String endpoint, @HeaderParam("Accept") String accept,
-            RequestContext requestContext);
-
-        @HttpRequestInformation(
-            method = HttpMethod.POST,
-            path = "/type/union/mixed-types",
-            expectedStatusCodes = { 204 })
-        @UnexpectedResponseExceptionDetail
-        Response<Void> send(@HostParam("endpoint") String endpoint, @HeaderParam("Content-Type") String contentType,
-            @BodyParam("application/json") SendRequest9 sendRequest9, RequestContext requestContext);
-    }
-
-    /**
      * The get operation.
-     * 
+     *
      * @param requestContext The context to configure the HTTP request before HTTP client sends it.
      * @throws IllegalArgumentException thrown if parameters fail the validation.
      * @throws HttpResponseException thrown if the service returns an error.
@@ -102,7 +69,7 @@ public final class MixedTypesImpl {
 
     /**
      * The send operation.
-     * 
+     *
      * @param prop The prop parameter.
      * @param requestContext The context to configure the HTTP request before HTTP client sends it.
      * @throws IllegalArgumentException thrown if parameters fail the validation.
@@ -118,5 +85,39 @@ public final class MixedTypesImpl {
                 SendRequest9 sendRequest9 = new SendRequest9(prop);
                 return service.send(this.client.getEndpoint(), contentType, sendRequest9, updatedContext);
             });
+    }
+
+    /**
+     * The interface defining all the services for UnionClientMixedTypes to be used by the proxy service to perform REST
+     * calls.
+     */
+    @ServiceInterface(name = "UnionClientMixedTypes", host = "{endpoint}")
+    public interface MixedTypesService {
+
+        @HttpRequestInformation(
+            method = HttpMethod.GET,
+            path = "/type/union/mixed-types",
+            expectedStatusCodes = { 200 })
+        @UnexpectedResponseExceptionDetail
+        Response<GetResponse9> get(@HostParam("endpoint") String endpoint, @HeaderParam("Accept") String accept,
+            RequestContext requestContext);
+
+        @HttpRequestInformation(
+            method = HttpMethod.POST,
+            path = "/type/union/mixed-types",
+            expectedStatusCodes = { 204 })
+        @UnexpectedResponseExceptionDetail
+        Response<Void> send(@HostParam("endpoint") String endpoint, @HeaderParam("Content-Type") String contentType,
+            @BodyParam("application/json") SendRequest9 sendRequest9, RequestContext requestContext);
+
+        static MixedTypesService getNewInstance(HttpPipeline pipeline) {
+            try {
+                Class<?> clazz = Class.forName("type.union.implementation.MixedTypesServiceImpl");
+                return (MixedTypesService) clazz.getMethod("getNewInstance", HttpPipeline.class).invoke(null, pipeline);
+            } catch (ClassNotFoundException | NoSuchMethodException | IllegalAccessException
+                | InvocationTargetException e) {
+                throw new RuntimeException(e);
+            }
+        }
     }
 }

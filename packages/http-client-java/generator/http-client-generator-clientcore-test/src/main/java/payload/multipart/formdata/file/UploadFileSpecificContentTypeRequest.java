@@ -9,6 +9,7 @@ import payload.multipart.FileDetails;
  */
 @Metadata(properties = { MetadataProperties.IMMUTABLE })
 public final class UploadFileSpecificContentTypeRequest {
+
     /*
      * The file property.
      */
@@ -17,7 +18,7 @@ public final class UploadFileSpecificContentTypeRequest {
 
     /**
      * Creates an instance of UploadFileSpecificContentTypeRequest class.
-     * 
+     *
      * @param file the file value to set.
      */
     @Metadata(properties = { MetadataProperties.GENERATED })
@@ -27,7 +28,7 @@ public final class UploadFileSpecificContentTypeRequest {
 
     /**
      * Get the file property: The file property.
-     * 
+     *
      * @return the file value.
      */
     @Metadata(properties = { MetadataProperties.GENERATED })

@@ -21,10 +21,6 @@ import parameters.bodyroot.BodyRootModel;
  * Initializes a new instance of the BodyRootClient type.
  */
 public final class BodyRootClientImpl {
-    /**
-     * The proxy service used to perform REST calls.
-     */
-    private final BodyRootClientService service;
 
     /**
      * Service host.
@@ -32,27 +28,9 @@ public final class BodyRootClientImpl {
     private final String endpoint;
 
     /**
-     * Gets Service host.
-     * 
-     * @return the endpoint value.
-     */
-    public String getEndpoint() {
-        return this.endpoint;
-    }
-
-    /**
      * The HTTP pipeline to send requests through.
      */
     private final HttpPipeline httpPipeline;
-
-    /**
-     * Gets The HTTP pipeline to send requests through.
-     * 
-     * @return the httpPipeline value.
-     */
-    public HttpPipeline getHttpPipeline() {
-        return this.httpPipeline;
-    }
 
     /**
      * The instance of instrumentation to report telemetry.
@@ -60,17 +38,13 @@ public final class BodyRootClientImpl {
     private final Instrumentation instrumentation;
 
     /**
-     * Gets The instance of instrumentation to report telemetry.
-     * 
-     * @return the instrumentation value.
+     * The proxy service used to perform REST calls.
      */
-    public Instrumentation getInstrumentation() {
-        return this.instrumentation;
-    }
+    private final BodyRootClientService service;
 
     /**
      * Initializes an instance of BodyRootClient client.
-     * 
+     *
      * @param httpPipeline The HTTP pipeline to send requests through.
      * @param instrumentation The instance of instrumentation to report telemetry.
      * @param endpoint Service host.
@@ -83,34 +57,35 @@ public final class BodyRootClientImpl {
     }
 
     /**
-     * The interface defining all the services for BodyRootClient to be used by the proxy service to perform REST calls.
+     * Gets Service host.
+     *
+     * @return the endpoint value.
      */
-    @ServiceInterface(name = "BodyRootClient", host = "{endpoint}")
-    public interface BodyRootClientService {
-        static BodyRootClientService getNewInstance(HttpPipeline pipeline) {
-            try {
-                Class<?> clazz = Class.forName("parameters.bodyroot.implementation.BodyRootClientServiceImpl");
-                return (BodyRootClientService) clazz.getMethod("getNewInstance", HttpPipeline.class)
-                    .invoke(null, pipeline);
-            } catch (ClassNotFoundException | NoSuchMethodException | IllegalAccessException
-                | InvocationTargetException e) {
-                throw new RuntimeException(e);
-            }
+    public String getEndpoint() {
+        return this.endpoint;
+    }
 
-        }
+    /**
+     * Gets The HTTP pipeline to send requests through.
+     *
+     * @return the httpPipeline value.
+     */
+    public HttpPipeline getHttpPipeline() {
+        return this.httpPipeline;
+    }
 
-        @HttpRequestInformation(
-            method = HttpMethod.POST,
-            path = "/parameters/body-root/nested",
-            expectedStatusCodes = { 204 })
-        @UnexpectedResponseExceptionDetail
-        Response<Void> nested(@HostParam("endpoint") String endpoint, @HeaderParam("Content-Type") String contentType,
-            @BodyParam("application/json") BodyRootModel bodyRootParameters, RequestContext requestContext);
+    /**
+     * Gets The instance of instrumentation to report telemetry.
+     *
+     * @return the instrumentation value.
+     */
+    public Instrumentation getInstrumentation() {
+        return this.instrumentation;
     }
 
     /**
      * The nested operation.
-     * 
+     *
      * @param bodyRootParameters The bodyRootParameters parameter.
      * @param requestContext The context to configure the HTTP request before HTTP client sends it.
      * @throws IllegalArgumentException thrown if parameters fail the validation.
@@ -125,5 +100,31 @@ public final class BodyRootClientImpl {
                 final String contentType = "application/json";
                 return service.nested(this.getEndpoint(), contentType, bodyRootParameters, updatedContext);
             });
+    }
+
+    /**
+     * The interface defining all the services for BodyRootClient to be used by the proxy service to perform REST calls.
+     */
+    @ServiceInterface(name = "BodyRootClient", host = "{endpoint}")
+    public interface BodyRootClientService {
+
+        @HttpRequestInformation(
+            method = HttpMethod.POST,
+            path = "/parameters/body-root/nested",
+            expectedStatusCodes = { 204 })
+        @UnexpectedResponseExceptionDetail
+        Response<Void> nested(@HostParam("endpoint") String endpoint, @HeaderParam("Content-Type") String contentType,
+            @BodyParam("application/json") BodyRootModel bodyRootParameters, RequestContext requestContext);
+
+        static BodyRootClientService getNewInstance(HttpPipeline pipeline) {
+            try {
+                Class<?> clazz = Class.forName("parameters.bodyroot.implementation.BodyRootClientServiceImpl");
+                return (BodyRootClientService) clazz.getMethod("getNewInstance", HttpPipeline.class)
+                    .invoke(null, pipeline);
+            } catch (ClassNotFoundException | NoSuchMethodException | IllegalAccessException
+                | InvocationTargetException e) {
+                throw new RuntimeException(e);
+            }
+        }
     }
 }

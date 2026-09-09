@@ -16,6 +16,7 @@ import javax.xml.stream.XMLStreamException;
  */
 @Metadata(properties = { MetadataProperties.IMMUTABLE })
 public final class ModelWithEmptyArray implements XmlSerializable<ModelWithEmptyArray> {
+
     /*
      * The items property.
      */
@@ -24,7 +25,7 @@ public final class ModelWithEmptyArray implements XmlSerializable<ModelWithEmpty
 
     /**
      * Creates an instance of ModelWithEmptyArray class.
-     * 
+     *
      * @param items the items value to set.
      */
     @Metadata(properties = { MetadataProperties.GENERATED })
@@ -34,7 +35,7 @@ public final class ModelWithEmptyArray implements XmlSerializable<ModelWithEmpty
 
     /**
      * Get the items property: The items property.
-     * 
+     *
      * @return the items value.
      */
     @Metadata(properties = { MetadataProperties.GENERATED })
@@ -66,7 +67,7 @@ public final class ModelWithEmptyArray implements XmlSerializable<ModelWithEmpty
 
     /**
      * Reads an instance of ModelWithEmptyArray from the XmlReader.
-     * 
+     *
      * @param xmlReader The XmlReader being read.
      * @return An instance of ModelWithEmptyArray if the XmlReader was pointing to an instance of it, or null if it was
      * pointing to XML null.
@@ -80,7 +81,7 @@ public final class ModelWithEmptyArray implements XmlSerializable<ModelWithEmpty
 
     /**
      * Reads an instance of ModelWithEmptyArray from the XmlReader.
-     * 
+     *
      * @param xmlReader The XmlReader being read.
      * @param rootElementName Optional root element name to override the default defined by the model. Used to support
      * cases where the model can deserialize from different root element names.
@@ -97,7 +98,6 @@ public final class ModelWithEmptyArray implements XmlSerializable<ModelWithEmpty
             List<SimpleModel> items = null;
             while (reader.nextElement() != XmlToken.END_ELEMENT) {
                 QName elementName = reader.getElementName();
-
                 if ("items".equals(elementName.getLocalPart())) {
                     while (reader.nextElement() != XmlToken.END_ELEMENT) {
                         elementName = reader.getElementName();

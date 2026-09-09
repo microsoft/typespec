@@ -16,14 +16,15 @@ import io.clientcore.core.instrumentation.Instrumentation;
  */
 @ServiceClient(builder = DatetimeClientBuilder.class)
 public final class PropertyClient {
-    @Metadata(properties = { MetadataProperties.GENERATED })
-    private final PropertiesImpl serviceClient;
 
     private final Instrumentation instrumentation;
 
+    @Metadata(properties = { MetadataProperties.GENERATED })
+    private final PropertiesImpl serviceClient;
+
     /**
      * Initializes an instance of PropertyClient class.
-     * 
+     *
      * @param serviceClient the service client implementation.
      * @param instrumentation the instrumentation instance.
      */
@@ -35,7 +36,22 @@ public final class PropertyClient {
 
     /**
      * The defaultMethod operation.
-     * 
+     *
+     * @param body The body parameter.
+     * @throws IllegalArgumentException thrown if parameters fail the validation.
+     * @throws HttpResponseException thrown if the service returns an error.
+     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
+     * @return the response.
+     */
+    @Metadata(properties = { MetadataProperties.GENERATED })
+    @ServiceMethod(returns = ReturnType.SINGLE)
+    public DefaultDatetimeProperty defaultMethod(DefaultDatetimeProperty body) {
+        return defaultMethodWithResponse(body, RequestContext.none()).getValue();
+    }
+
+    /**
+     * The defaultMethod operation.
+     *
      * @param body The body parameter.
      * @param requestContext The context to configure the HTTP request before HTTP client sends it.
      * @throws IllegalArgumentException thrown if parameters fail the validation.
@@ -52,8 +68,8 @@ public final class PropertyClient {
     }
 
     /**
-     * The defaultMethod operation.
-     * 
+     * The rfc3339 operation.
+     *
      * @param body The body parameter.
      * @throws IllegalArgumentException thrown if parameters fail the validation.
      * @throws HttpResponseException thrown if the service returns an error.
@@ -62,13 +78,13 @@ public final class PropertyClient {
      */
     @Metadata(properties = { MetadataProperties.GENERATED })
     @ServiceMethod(returns = ReturnType.SINGLE)
-    public DefaultDatetimeProperty defaultMethod(DefaultDatetimeProperty body) {
-        return defaultMethodWithResponse(body, RequestContext.none()).getValue();
+    public Rfc3339DatetimeProperty rfc3339(Rfc3339DatetimeProperty body) {
+        return rfc3339WithResponse(body, RequestContext.none()).getValue();
     }
 
     /**
      * The rfc3339 operation.
-     * 
+     *
      * @param body The body parameter.
      * @param requestContext The context to configure the HTTP request before HTTP client sends it.
      * @throws IllegalArgumentException thrown if parameters fail the validation.
@@ -85,8 +101,8 @@ public final class PropertyClient {
     }
 
     /**
-     * The rfc3339 operation.
-     * 
+     * The rfc7231 operation.
+     *
      * @param body The body parameter.
      * @throws IllegalArgumentException thrown if parameters fail the validation.
      * @throws HttpResponseException thrown if the service returns an error.
@@ -95,13 +111,13 @@ public final class PropertyClient {
      */
     @Metadata(properties = { MetadataProperties.GENERATED })
     @ServiceMethod(returns = ReturnType.SINGLE)
-    public Rfc3339DatetimeProperty rfc3339(Rfc3339DatetimeProperty body) {
-        return rfc3339WithResponse(body, RequestContext.none()).getValue();
+    public Rfc7231DatetimeProperty rfc7231(Rfc7231DatetimeProperty body) {
+        return rfc7231WithResponse(body, RequestContext.none()).getValue();
     }
 
     /**
      * The rfc7231 operation.
-     * 
+     *
      * @param body The body parameter.
      * @param requestContext The context to configure the HTTP request before HTTP client sends it.
      * @throws IllegalArgumentException thrown if parameters fail the validation.
@@ -118,8 +134,8 @@ public final class PropertyClient {
     }
 
     /**
-     * The rfc7231 operation.
-     * 
+     * The unixTimestamp operation.
+     *
      * @param body The body parameter.
      * @throws IllegalArgumentException thrown if parameters fail the validation.
      * @throws HttpResponseException thrown if the service returns an error.
@@ -128,13 +144,13 @@ public final class PropertyClient {
      */
     @Metadata(properties = { MetadataProperties.GENERATED })
     @ServiceMethod(returns = ReturnType.SINGLE)
-    public Rfc7231DatetimeProperty rfc7231(Rfc7231DatetimeProperty body) {
-        return rfc7231WithResponse(body, RequestContext.none()).getValue();
+    public UnixTimestampDatetimeProperty unixTimestamp(UnixTimestampDatetimeProperty body) {
+        return unixTimestampWithResponse(body, RequestContext.none()).getValue();
     }
 
     /**
      * The unixTimestamp operation.
-     * 
+     *
      * @param body The body parameter.
      * @param requestContext The context to configure the HTTP request before HTTP client sends it.
      * @throws IllegalArgumentException thrown if parameters fail the validation.
@@ -151,8 +167,8 @@ public final class PropertyClient {
     }
 
     /**
-     * The unixTimestamp operation.
-     * 
+     * The unixTimestampArray operation.
+     *
      * @param body The body parameter.
      * @throws IllegalArgumentException thrown if parameters fail the validation.
      * @throws HttpResponseException thrown if the service returns an error.
@@ -161,13 +177,13 @@ public final class PropertyClient {
      */
     @Metadata(properties = { MetadataProperties.GENERATED })
     @ServiceMethod(returns = ReturnType.SINGLE)
-    public UnixTimestampDatetimeProperty unixTimestamp(UnixTimestampDatetimeProperty body) {
-        return unixTimestampWithResponse(body, RequestContext.none()).getValue();
+    public UnixTimestampArrayDatetimeProperty unixTimestampArray(UnixTimestampArrayDatetimeProperty body) {
+        return unixTimestampArrayWithResponse(body, RequestContext.none()).getValue();
     }
 
     /**
      * The unixTimestampArray operation.
-     * 
+     *
      * @param body The body parameter.
      * @param requestContext The context to configure the HTTP request before HTTP client sends it.
      * @throws IllegalArgumentException thrown if parameters fail the validation.
@@ -181,20 +197,5 @@ public final class PropertyClient {
         unixTimestampArrayWithResponse(UnixTimestampArrayDatetimeProperty body, RequestContext requestContext) {
         return this.instrumentation.instrumentWithResponse("Encode.Datetime.Property.unixTimestampArray",
             requestContext, updatedContext -> this.serviceClient.unixTimestampArrayWithResponse(body, updatedContext));
-    }
-
-    /**
-     * The unixTimestampArray operation.
-     * 
-     * @param body The body parameter.
-     * @throws IllegalArgumentException thrown if parameters fail the validation.
-     * @throws HttpResponseException thrown if the service returns an error.
-     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
-     * @return the response.
-     */
-    @Metadata(properties = { MetadataProperties.GENERATED })
-    @ServiceMethod(returns = ReturnType.SINGLE)
-    public UnixTimestampArrayDatetimeProperty unixTimestampArray(UnixTimestampArrayDatetimeProperty body) {
-        return unixTimestampArrayWithResponse(body, RequestContext.none()).getValue();
     }
 }

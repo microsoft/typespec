@@ -16,6 +16,7 @@ import javax.xml.stream.XMLStreamException;
  */
 @Metadata(properties = { MetadataProperties.IMMUTABLE })
 public final class ModelWithSimpleArrays implements XmlSerializable<ModelWithSimpleArrays> {
+
     /*
      * The colors property.
      */
@@ -30,7 +31,7 @@ public final class ModelWithSimpleArrays implements XmlSerializable<ModelWithSim
 
     /**
      * Creates an instance of ModelWithSimpleArrays class.
-     * 
+     *
      * @param colors the colors value to set.
      * @param counts the counts value to set.
      */
@@ -42,7 +43,7 @@ public final class ModelWithSimpleArrays implements XmlSerializable<ModelWithSim
 
     /**
      * Get the colors property: The colors property.
-     * 
+     *
      * @return the colors value.
      */
     @Metadata(properties = { MetadataProperties.GENERATED })
@@ -52,7 +53,7 @@ public final class ModelWithSimpleArrays implements XmlSerializable<ModelWithSim
 
     /**
      * Get the counts property: The counts property.
-     * 
+     *
      * @return the counts value.
      */
     @Metadata(properties = { MetadataProperties.GENERATED })
@@ -91,7 +92,7 @@ public final class ModelWithSimpleArrays implements XmlSerializable<ModelWithSim
 
     /**
      * Reads an instance of ModelWithSimpleArrays from the XmlReader.
-     * 
+     *
      * @param xmlReader The XmlReader being read.
      * @return An instance of ModelWithSimpleArrays if the XmlReader was pointing to an instance of it, or null if it
      * was pointing to XML null.
@@ -105,7 +106,7 @@ public final class ModelWithSimpleArrays implements XmlSerializable<ModelWithSim
 
     /**
      * Reads an instance of ModelWithSimpleArrays from the XmlReader.
-     * 
+     *
      * @param xmlReader The XmlReader being read.
      * @param rootElementName Optional root element name to override the default defined by the model. Used to support
      * cases where the model can deserialize from different root element names.
@@ -123,7 +124,6 @@ public final class ModelWithSimpleArrays implements XmlSerializable<ModelWithSim
             List<Integer> counts = null;
             while (reader.nextElement() != XmlToken.END_ELEMENT) {
                 QName elementName = reader.getElementName();
-
                 if ("colors".equals(elementName.getLocalPart())) {
                     while (reader.nextElement() != XmlToken.END_ELEMENT) {
                         elementName = reader.getElementName();
