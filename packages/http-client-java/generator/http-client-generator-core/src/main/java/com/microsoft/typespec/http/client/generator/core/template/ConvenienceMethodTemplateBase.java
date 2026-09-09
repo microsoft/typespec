@@ -820,12 +820,13 @@ abstract class ConvenienceMethodTemplateBase {
         if (headerCollectionPrefix != null
             && !headerCollectionPrefix.isEmpty()
             && parameter.getClientMethodParameter().getWireType() instanceof MapType) {
+            IType valueType = ((MapType) parameter.getClientMethodParameter().getWireType()).getValueType();
+            String valueExpression = expressionConvertToString("value", valueType, proxyMethodParameter);
             writeLine = javaBlock -> {
                 javaBlock.line("%s.forEach((key, value) -> {", parameter.getName());
                 javaBlock.indent(() -> javaBlock.ifBlock("key != null && value != null",
-                    ifBlock -> ifBlock.line(
-                        "requestOptions.setHeader(HttpHeaderName.fromString(%s + key), String.valueOf(value));",
-                        ClassType.STRING.defaultValueExpression(headerCollectionPrefix))));
+                    ifBlock -> ifBlock.line("requestOptions.setHeader(HttpHeaderName.fromString(%s + key), %s);",
+                        ClassType.STRING.defaultValueExpression(headerCollectionPrefix), valueExpression)));
                 javaBlock.line("});");
             };
         } else {

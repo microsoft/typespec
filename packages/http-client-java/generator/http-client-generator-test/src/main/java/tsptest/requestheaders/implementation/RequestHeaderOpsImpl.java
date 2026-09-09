@@ -80,6 +80,8 @@ public final class RequestHeaderOpsImpl {
      * <caption>Header Parameters</caption>
      * <tr><th>Name</th><th>Type</th><th>Required</th><th>Description</th></tr>
      * <tr><td>x-ms-meta</td><td>Map&lt;String, String&gt;</td><td>No</td><td>The metadata parameter</td></tr>
+     * <tr><td>x-ms-priority</td><td>Map&lt;String, MetadataValue&gt;</td><td>No</td><td>The priorities
+     * parameter</td></tr>
      * </table>
      * You can add these to a request with {@link RequestOptions#addHeader}
      * 
@@ -102,6 +104,8 @@ public final class RequestHeaderOpsImpl {
      * <caption>Header Parameters</caption>
      * <tr><th>Name</th><th>Type</th><th>Required</th><th>Description</th></tr>
      * <tr><td>x-ms-meta</td><td>Map&lt;String, String&gt;</td><td>No</td><td>The metadata parameter</td></tr>
+     * <tr><td>x-ms-priority</td><td>Map&lt;String, MetadataValue&gt;</td><td>No</td><td>The priorities
+     * parameter</td></tr>
      * </table>
      * You can add these to a request with {@link RequestOptions#addHeader}
      * 

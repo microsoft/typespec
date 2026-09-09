@@ -10,6 +10,7 @@ import java.util.Map;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 import reactor.core.publisher.Mono;
+import tsptest.requestheaders.models.MetadataValue;
 
 public class RequestHeadersTests {
 
@@ -24,6 +25,8 @@ public class RequestHeadersTests {
                 Assertions.assertNull(request.getHeaders().getValue(HttpHeaderName.fromString("x-ms-meta")));
                 Assertions.assertNull(request.getHeaders().getValue(HttpHeaderName.fromString("x-ms-meta-null")));
                 Assertions.assertNull(request.getHeaders().getValue(HttpHeaderName.fromString("x-ms-meta-key3")));
+                Assertions.assertEquals("100",
+                    request.getHeaders().getValue(HttpHeaderName.fromString("x-ms-priority-level")));
                 return Mono.just(new MockHttpResponse(request, 204));
             }).buildClient();
 
@@ -32,6 +35,6 @@ public class RequestHeadersTests {
         metadata.put("key2", "value2");
         metadata.put(null, "ignored");
         metadata.put("key3", null);
-        client.send(metadata);
+        client.send(metadata, Map.of("level", MetadataValue.HIGH));
     }
 }
