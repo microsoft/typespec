@@ -27,6 +27,8 @@ it("emit tuples as items", async () => {
               maximum: 2147483647,
             },
           ],
+          minItems: 2,
+          maxItems: 2,
         },
       },
     },
