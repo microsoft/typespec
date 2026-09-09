@@ -102,7 +102,7 @@ namespace SampleTypeSpec
                 writer.WriteStartArray();
                 for (int i = 0; i < Children.Count; i++)
                 {
-                    if (Children[i] != null && Children[i].Patch.IsRemoved("$"u8))
+                    if (Patch.IsRemoved(Encoding.UTF8.GetBytes($"$.children[{i}]")) || Children[i] != null && Children[i].Patch.IsRemoved("$"u8))
                     {
                         continue;
                     }
@@ -162,7 +162,7 @@ namespace SampleTypeSpec
                     writer.WriteStartArray();
                     for (int i0 = 0; i0 < NestedChildren[i].Count; i0++)
                     {
-                        if (NestedChildren[i][i0] != null && NestedChildren[i][i0].Patch.IsRemoved("$"u8))
+                        if (Patch.IsRemoved(Encoding.UTF8.GetBytes($"$.nestedChildren[{i}][{i0}]")) || NestedChildren[i][i0] != null && NestedChildren[i][i0].Patch.IsRemoved("$"u8))
                         {
                             continue;
                         }
@@ -250,7 +250,7 @@ namespace SampleTypeSpec
                         writer.WriteStartArray();
                         for (int i = 0; i < item.Value.Count; i++)
                         {
-                            if (item.Value[i] != null && item.Value[i].Patch.IsRemoved("$"u8))
+                            if (Patch.IsRemoved(Encoding.UTF8.GetBytes($"$.dictionaryChildren[\"{item.Key}\"][{i}]")) || item.Value[i] != null && item.Value[i].Patch.IsRemoved("$"u8))
                             {
                                 continue;
                             }
@@ -887,7 +887,7 @@ namespace SampleTypeSpec
             }
             for (int i = 0; i < Children.Count; i++)
             {
-                if (Children[i] == null || !Children[i].Patch.IsRemoved("$"u8))
+                if (!Patch.IsRemoved(Encoding.UTF8.GetBytes($"$.children[{i}]")) && (Children[i] == null || !Children[i].Patch.IsRemoved("$"u8)))
                 {
                     yield return Children[i];
                 }

@@ -269,7 +269,7 @@ namespace SampleTypeSpec
                 writer.WriteStartArray();
                 for (int i = 0; i < ListFoo.Count; i++)
                 {
-                    if (ListFoo[i] != null && ListFoo[i].Patch.IsRemoved("$"u8))
+                    if (Patch.IsRemoved(Encoding.UTF8.GetBytes($"$.listFoo[{i}]")) || ListFoo[i] != null && ListFoo[i].Patch.IsRemoved("$"u8))
                     {
                         continue;
                     }
@@ -304,7 +304,7 @@ namespace SampleTypeSpec
                     writer.WriteStartArray();
                     for (int i0 = 0; i0 < ListOfListFoo[i].Count; i0++)
                     {
-                        if (ListOfListFoo[i][i0] != null && ListOfListFoo[i][i0].Patch.IsRemoved("$"u8))
+                        if (Patch.IsRemoved(Encoding.UTF8.GetBytes($"$.listOfListFoo[{i}][{i0}]")) || ListOfListFoo[i][i0] != null && ListOfListFoo[i][i0].Patch.IsRemoved("$"u8))
                         {
                             continue;
                         }
@@ -417,7 +417,7 @@ namespace SampleTypeSpec
                         writer.WriteStartArray();
                         for (int i = 0; i < item.Value.Count; i++)
                         {
-                            if (item.Value[i] != null && item.Value[i].Patch.IsRemoved("$"u8))
+                            if (Patch.IsRemoved(Encoding.UTF8.GetBytes($"$.dictionaryListFoo[\"{item.Key}\"][{i}]")) || item.Value[i] != null && item.Value[i].Patch.IsRemoved("$"u8))
                             {
                                 continue;
                             }
@@ -1132,7 +1132,7 @@ namespace SampleTypeSpec
             }
             for (int i = 0; i < ListFoo.Count; i++)
             {
-                if (ListFoo[i] == null || !ListFoo[i].Patch.IsRemoved("$"u8))
+                if (!Patch.IsRemoved(Encoding.UTF8.GetBytes($"$.listFoo[{i}]")) && (ListFoo[i] == null || !ListFoo[i].Patch.IsRemoved("$"u8)))
                 {
                     yield return ListFoo[i];
                 }

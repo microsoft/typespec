@@ -174,6 +174,26 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.ModelReaderWriterValida
             Assert.That(document.RootElement.GetProperty("modelValue").ValueKind, Is.EqualTo(JsonValueKind.Null));
         }
 
+        [TestCase(false)]
+        [TestCase(true)]
+        public void JsonPatchGet_DeserializedNullDynamicChild(bool explicitNull)
+        {
+            var model = ModelReaderWriter.Read<NullableDynamicModel>(
+                BinaryData.FromString(explicitNull ? """{"modelValue":null}""" : "{}"),
+                ModelReaderWriterOptions.Json, SampleTypeSpecContext.Default)!;
+
+            Assert.That(model.ModelValue, Is.Null);
+#pragma warning disable SCME0001
+            Assert.That(model.Patch.TryGetJson("$.modelValue"u8, out _), Is.EqualTo(explicitNull));
+            Assert.That(model.Patch.TryGetValue("$.modelValue"u8, out string? value), Is.EqualTo(explicitNull));
+            Assert.That(value, Is.Null);
+            if (explicitNull)
+            {
+                Assert.That(Encoding.UTF8.GetString(model.Patch.GetJson("$.modelValue"u8)), Is.EqualTo("null"));
+            }
+#pragma warning restore SCME0001
+        }
+
         [TestCase("modelValue")]
         [TestCase("children")]
         [TestCase("childDictionary")]
@@ -311,6 +331,61 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.ModelReaderWriterValida
             Assert.That(children.GetArrayLength(), Is.EqualTo(2));
             Assert.That(children[0].ValueKind, Is.EqualTo(JsonValueKind.Null));
             Assert.That(children[1].GetProperty("bar").GetString(), Is.EqualTo("present"));
+        }
+
+        [TestCase("children", false, "J")]
+        [TestCase("children", false, "W")]
+        [TestCase("children", true, "J")]
+        [TestCase("children", true, "W")]
+        [TestCase("nestedChildren", false, "J")]
+        [TestCase("nestedChildren", false, "W")]
+        [TestCase("nestedChildren", true, "J")]
+        [TestCase("nestedChildren", true, "W")]
+        public void JsonPatchRemove_NullDynamicListElementSerialization(string propertyName, bool onlyNull, string format)
+        {
+            var model = CreateModelWithRemovedDynamicListElements(propertyName, onlyNull);
+
+            var data = ModelReaderWriter.Write(model, new ModelReaderWriterOptions(format), SampleTypeSpecContext.Default);
+            using var document = JsonDocument.Parse(data);
+            var items = propertyName switch
+            {
+                "children" => document.RootElement.GetProperty(propertyName),
+                "nestedChildren" => document.RootElement.GetProperty(propertyName)[0],
+                _ => throw new ArgumentOutOfRangeException(nameof(propertyName))
+            };
+            Assert.That(items.GetRawText(), Is.EqualTo(onlyNull ? "[]" : """[{"bar":"present"},null]"""));
+        }
+
+        [TestCase(false)]
+        [TestCase(true)]
+        public void JsonPatchRemove_NullDynamicListElementSnapshot(bool onlyNull)
+        {
+            var model = CreateModelWithRemovedDynamicListElements("children", onlyNull);
+
+#pragma warning disable SCME0001
+            var json = model.Patch.GetJson("$.children"u8);
+#pragma warning restore SCME0001
+
+            Assert.That(Encoding.UTF8.GetString(json), Is.EqualTo(onlyNull ? "[]" : """[{"bar":"present"},null]"""));
+        }
+
+        private static NullableDynamicModel CreateModelWithRemovedDynamicListElements(string propertyName, bool onlyNull)
+        {
+            var items = onlyNull ? "[null]" : """[null,{"bar":"present"},null]""";
+            var (json, path) = propertyName switch
+            {
+                "children" => ($$"""{"children":{{items}}}""", "$.children"),
+                "nestedChildren" => ($$"""{"nestedChildren":[{{items}}]}""", "$.nestedChildren[0]"),
+                _ => throw new ArgumentOutOfRangeException(nameof(propertyName), propertyName, null)
+            };
+            var model = ModelReaderWriter.Read<NullableDynamicModel>(
+                BinaryData.FromString(json), ModelReaderWriterOptions.Json, SampleTypeSpecContext.Default)!;
+
+#pragma warning disable SCME0001
+            model.Patch.Remove(Encoding.UTF8.GetBytes(path + "[0]"));
+#pragma warning restore SCME0001
+
+            return model;
         }
 
         private static NullableDynamicModel CreateNullableDynamicModel(string propertyName)

@@ -110,27 +110,24 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
             var indexDeclaration = Declare<int>("i", out var indexVar);
             var allIndices = new List<ValueExpression>(parentIndices) { indexVar };
             var jsonPathTemplate = BuildJsonPathForElement(serializedName, parentIndices);
-            ScopedApi<bool> patchIsRemovedCondition;
+            var patchIsRemovedCondition = patchSnippet.IsRemoved(
+                Utf8Snippets.GetBytes(
+                    new FormattableStringExpression(jsonPathTemplate + $"[{{{parentIndices.Count}}}]", allIndices)
+                .As<string>()));
 
             // Handle model types with their own patch property
             if (ScmCodeModelGenerator.Instance.TypeFactory.CSharpTypeMap.TryGetValue(type, out var provider) &&
                 provider is ScmModelProvider scmModelProvider && scmModelProvider.JsonPatchProperty != null)
             {
-                patchIsRemovedCondition = new IndexerExpression(collection, indexVar)
+                var childIsRemoved = new IndexerExpression(collection, indexVar)
                     .Property(scmModelProvider.JsonPatchProperty.Name)
                     .As<JsonPatch>()
                     .IsRemoved(LiteralU8("$"));
                 if (!type.IsValueType)
                 {
-                    patchIsRemovedCondition = new IndexerExpression(collection, indexVar).NotEqual(Null).And(patchIsRemovedCondition);
+                    childIsRemoved = new IndexerExpression(collection, indexVar).NotEqual(Null).And(childIsRemoved);
                 }
-            }
-            else
-            {
-                patchIsRemovedCondition = patchSnippet.IsRemoved(
-                    Utf8Snippets.GetBytes(
-                        new FormattableStringExpression(jsonPathTemplate + $"[{{{parentIndices.Count}}}]", allIndices)
-                    .As<string>()));
+                patchIsRemovedCondition = patchIsRemovedCondition.Or(childIsRemoved);
             }
 
             string lengthProperty = isReadOnlySpan || type.IsArray
@@ -608,6 +605,10 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
             {
                 isActive = item.Equal(Null).Or(isActive);
             }
+            var itemPath = Utf8Snippets.GetBytes(new FormattableStringExpression(
+                BuildJsonPathForElement(GetJsonSerializedName(property.WireInfo!), [indexVar]),
+                [indexVar]).As<string>());
+            isActive = Not(_jsonPatchProperty!.As<JsonPatch>().IsRemoved(itemPath)).And(isActive);
             var forStatement = new ForStatement(
                 indexDeclaration.Assign(Literal(0)),
                 indexVar.LessThan(((ValueExpression)property).Property(lengthPropertyName)),

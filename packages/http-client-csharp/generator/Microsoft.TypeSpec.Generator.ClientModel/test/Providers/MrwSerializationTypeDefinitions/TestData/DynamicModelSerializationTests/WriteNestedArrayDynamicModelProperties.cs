@@ -75,7 +75,7 @@ namespace Sample
                         writer.WriteStartArray();
                         for (int i1 = 0; (i1 < PropertyWithNestedArray[i][i0].Count); i1++)
                         {
-                            if (((PropertyWithNestedArray[i][i0][i1] != null) && PropertyWithNestedArray[i][i0][i1].Patch.IsRemoved("$"u8)))
+                            if ((Patch.IsRemoved(global::System.Text.Encoding.UTF8.GetBytes($"$.propertyWithNestedArray[{i}][{i0}][{i1}]")) || ((PropertyWithNestedArray[i][i0][i1] != null) && PropertyWithNestedArray[i][i0][i1].Patch.IsRemoved("$"u8))))
                             {
                                 continue;
                             }
