@@ -26,7 +26,7 @@ from jinja2 import Environment, FileSystemLoader
         'First paragraph.\n\nSecond paragraph with """ quotes.',
     ],
 )
-@pytest.mark.parametrize("location", ["enum", "member"])
+@pytest.mark.parametrize("location", ["enum", "member", "literal"])
 def test_enum_docstrings_preserve_documentation(description, location):
     templates = Path(__file__).parents[2] / "generator/pygen/codegen/templates"
     env = Environment(loader=FileSystemLoader(templates), trim_blocks=True, lstrip_blocks=True)
@@ -37,17 +37,28 @@ def test_enum_docstrings_preserve_documentation(description, location):
     )
     enum = SimpleNamespace(
         name="WidgetMode",
-        yaml_data={"description": description if location == "enum" else ""},
+        yaml_data={"description": description if location in ("enum", "literal") else ""},
         values=[value],
         pylint_disable=lambda: "",
         value_type=SimpleNamespace(type_annotation=lambda **kwargs: "str", get_declaration=repr),
     )
-    source = env.from_string('{% import "operation_tools.jinja2" as op_tools %}{% include "enum.py.jinja2" %}').render(
-        enum=enum
-    )
+    if location == "literal":
+        source = env.get_template("types.py.jinja2").render(
+            code_model=SimpleNamespace(license_header=""),
+            imports="",
+            literal_enums=[enum],
+            models=[],
+            discriminated_bases=[],
+            serializer=SimpleNamespace(declare_literal_enum=lambda enum: f'{enum.name} = Literal["fast"]'),
+        )
+    else:
+        source = env.from_string(
+            '{% import "operation_tools.jinja2" as op_tools %}{% include "enum.py.jinja2" %}'
+        ).render(enum=enum)
     # Formatting success alone does not prove that documentation stayed inside a string.
     source = black.format_str(source, mode=black.Mode())
-    body = ast.parse(source).body[0].body
+    module = ast.parse(source)
+    body = module.body if location == "literal" else module.body[0].body
     assert len(body) == 2
     doc, assignment = body if location == "enum" else reversed(body)
     assert isinstance(assignment, ast.Assign)
