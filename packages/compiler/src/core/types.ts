@@ -676,6 +676,25 @@ export interface Union extends BaseType, DecoratedType, TemplatedTypeBase {
   expression: boolean;
 
   /**
+   * Type declared with the `extends` clause of a union statement. Union variants are
+   * constrained to be assignable to this model, scalar, enum, or union; violations are
+   * reported as diagnostics.
+   *
+   * Validation is deferred for uninstantiated template declarations because their variants
+   * can contain unresolved template parameters. Each template instance is validated instead.
+   *
+   * This is only set for named unions declared with an `extends` clause. It documents a
+   * constraint: it does **not** imply a subclassing relationship, it does **not** mean the
+   * union is extensible, and it has no interaction with `@discriminator`.
+   *
+   * Emitters should not require this to be present: a union with the same variants and no
+   * `extends` clause should ideally be handled the same way.
+   *
+   * @experimental
+   */
+  baseType?: Model | Scalar | Enum | Union;
+
+  /**
    * Late-bound symbol of this interface type.
    * @internal
    */
@@ -1600,6 +1619,15 @@ export interface InterfaceStatementNode extends BaseNode, DeclarationNode, Templ
 export interface UnionStatementNode extends BaseNode, DeclarationNode, TemplateDeclarationNode {
   readonly kind: SyntaxKind.UnionStatement;
   readonly options: readonly UnionVariantNode[];
+  /**
+   * Type that every variant of this union must be assignable to.
+   *
+   * This is a constraint only, it does not imply any subtyping relationship between
+   * the union and the base type beyond the one that already exists structurally.
+   *
+   * @experimental
+   */
+  readonly extends?: Expression;
   readonly decorators: readonly DecoratorExpressionNode[];
   readonly parent?: TypeSpecScriptNode | NamespaceStatementNode;
 }
@@ -2672,6 +2700,16 @@ export type LinterRule<
 export type RuleRef = `${string}/${string}`;
 
 /**
+ * Reference to a ruleset defined in a yaml file. In this format `file:<path to the yaml file>`.
+ * A relative path is resolved relative to the file declaring it (`tspconfig.yaml` or another ruleset file).
+ * Only valid in `tspconfig.yaml` or in another ruleset file, not in a ruleset defined by a library.
+ */
+export type RuleSetFileRef = `file:${string}`;
+
+/** Reference to a ruleset. Either a ruleset defined in a library or one defined in a local yaml file. */
+export type RuleSetRef = RuleRef | RuleSetFileRef;
+
+/**
  * Value for enabling a linter rule.
  * - `true` enables the rule with default options.
  * - An object enables the rule with the specified options.
@@ -2680,7 +2718,7 @@ export type LinterRuleEnableValue = boolean | Record<string, unknown>;
 
 export interface LinterRuleSet {
   /** Other ruleset this ruleset extends */
-  extends?: RuleRef[];
+  extends?: RuleSetRef[];
 
   /** Rules to enable/configure */
   enable?: Record<RuleRef, LinterRuleEnableValue>;

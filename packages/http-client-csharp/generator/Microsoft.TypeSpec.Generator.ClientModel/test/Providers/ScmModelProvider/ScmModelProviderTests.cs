@@ -8,7 +8,6 @@ using System.Linq;
 using System.Text.Json.Serialization;
 using System.Threading.Tasks;
 using Microsoft.CodeAnalysis;
-using Microsoft.CodeAnalysis.CSharp;
 using Microsoft.TypeSpec.Generator.Expressions;
 using Microsoft.TypeSpec.Generator.Input;
 using Microsoft.TypeSpec.Generator.Primitives;
@@ -312,21 +311,17 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers.ScmModelProvi
                 .Concat(models.SelectMany(model => model.SerializationProviders))
                 .Distinct()
                 .ToArray();
-            var syntaxTrees = generatedProviders.Select(provider =>
-                CSharpSyntaxTree.ParseText(
-                    new TypeProviderWriter(provider).Write().Content,
-                    path: $"{provider.Name}.cs"))
-                .Append(CSharpSyntaxTree.ParseText(
-                    "namespace Sample { public partial class SampleContext { public static SampleContext Default => null; } }",
-                    path: "SampleContext.Default.cs"));
-            var references = AppDomain.CurrentDomain.GetAssemblies()
-                .Where(a => !a.IsDynamic && !string.IsNullOrEmpty(a.Location))
-                .Select(a => MetadataReference.CreateFromFile(a.Location));
-            var compilation = CSharpCompilation.Create(
-                "DiscriminatorModels",
-                syntaxTrees,
-                references,
-                new CSharpCompilationOptions(OutputKind.DynamicallyLinkedLibrary));
+            var sourceFiles = generatedProviders
+                .Select(provider => (
+                    Name: $"{provider.Name}.cs",
+                    Content: new TypeProviderWriter(provider).Write().Content))
+                .Append((
+                    Name: "SampleContext.Default.cs",
+                    Content: "namespace Sample { public partial class SampleContext { public static SampleContext Default => null; } }"))
+                .Append((
+                    Name: "SampleTypeSpecContext.Default.cs",
+                    Content: "namespace SampleTypeSpec { public partial class SampleTypeSpecContext : System.ClientModel.Primitives.ModelReaderWriterContext { public static SampleTypeSpecContext Default => null; } }"));
+            var compilation = await Helpers.GetCompilationFromSourceFilesAsync(sourceFiles);
             Assert.That(
                 compilation.GetDiagnostics().Where(d => d.Severity is DiagnosticSeverity.Warning or DiagnosticSeverity.Error),
                 Is.Empty,

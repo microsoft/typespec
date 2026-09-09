@@ -157,7 +157,7 @@ public final class HeadClientImpl {
      * @return the {@link Response} on successful completion of {@link Mono}.
      */
     @ServiceMethod(returns = ReturnType.SINGLE)
-    public Mono<Response<Void>> contentTypeHeaderInResponseWithResponseAsync(RequestOptions requestOptions) {
+    public Mono<Response<Void>> contentTypeHeaderInResponseWithResponseInternalAsync(RequestOptions requestOptions) {
         return FluxUtil
             .withContext(context -> service.contentTypeHeaderInResponse(this.getEndpoint(), requestOptions, context));
     }
@@ -180,7 +180,7 @@ public final class HeadClientImpl {
      * @return the {@link Response}.
      */
     @ServiceMethod(returns = ReturnType.SINGLE)
-    public Response<Void> contentTypeHeaderInResponseWithResponse(RequestOptions requestOptions) {
+    public Response<Void> contentTypeHeaderInResponseWithResponseInternal(RequestOptions requestOptions) {
         return service.contentTypeHeaderInResponseSync(this.getEndpoint(), requestOptions, Context.NONE);
     }
 }

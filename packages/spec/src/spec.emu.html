@@ -387,7 +387,10 @@ InterfaceMember :
 
 
 UnionStatement :
-    DirectiveList? DecoratorList? `union` Identifier TemplateParameters? `{` UnionBody? `}`
+    DirectiveList? DecoratorList? `union` Identifier TemplateParameters? UnionExtends? `{` UnionBody? `}`
+
+UnionExtends :
+    `extends` Expression
 
 UnionBody :
     UnionVariantList `;`? 

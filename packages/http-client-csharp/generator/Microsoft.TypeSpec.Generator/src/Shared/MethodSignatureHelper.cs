@@ -76,10 +76,90 @@ namespace Microsoft.TypeSpec.Generator
             IReadOnlyList<MethodSignature> currentMethodSignatures,
             bool shouldNotBeAsync = false)
         {
-            RequireMinimumParameterPrefix(previousMethodSignature, currentMethodSignatures);
+            // A hidden overload only exists to keep previously compiled call sites working, so every
+            // parameter is required. Any call that omits an argument then binds to a visible overload,
+            // which keeps the optionality of the current shape.
+            RequireMinimumParameterPrefix(
+                previousMethodSignature,
+                hideMethod ? null : currentMethodSignatures);
 
             return CreateBackCompatSignature(previousMethodSignature, hideMethod, shouldNotBeAsync);
         }
+
+        /// <summary>
+        /// Determines whether a call could bind to both <paramref name="signature"/> and
+        /// <paramref name="otherSignature"/> without overload resolution being able to prefer one of them.
+        /// </summary>
+        /// <remarks>
+        /// Only argument counts that both signatures accept with an equivalent leading parameter type
+        /// sequence are considered. At those counts the two candidates are equally applicable and
+        /// convert their arguments identically, so the only remaining tie-breaker is whether a default
+        /// has to be substituted.
+        /// <para>
+        /// This never reports a false positive, but it is deliberately incomplete: it cannot see an
+        /// ambiguity introduced past the equivalent prefix, for example when the first differing
+        /// positions both accept the <c>null</c> literal, or are connected by implicit conversions in
+        /// both directions such as <c>decimal</c> and <c>float</c>/<c>double</c>. Deciding those cases
+        /// requires real conversion analysis, which is tracked by
+        /// https://github.com/microsoft/typespec/issues/11805.
+        /// </para>
+        /// </remarks>
+        internal static bool AreAmbiguous(MethodSignature signature, MethodSignature otherSignature)
+        {
+            // ref and out arguments have to be spelled at the call site and a params overload can also
+            // be invoked in its expanded form, so the argument-count reasoning below does not model
+            // them. Reporting such a pair as unambiguous is the optimistic answer: it keeps the
+            // compatibility overload instead of dropping it, matching how the rest of the back-compat
+            // pipeline treats shapes it cannot reason about. Model factory signatures never use them.
+            if (signature.Name != otherSignature.Name
+                || signature.Parameters.Any(p => p.IsRef || p.IsOut || p.IsParams)
+                || otherSignature.Parameters.Any(p => p.IsRef || p.IsOut || p.IsParams))
+            {
+                return false;
+            }
+
+            int equivalentParameterCount = 0;
+            int overlappingParameterCount = Math.Min(signature.Parameters.Count, otherSignature.Parameters.Count);
+            while (equivalentParameterCount < overlappingParameterCount)
+            {
+                if (!AreEquivalentParameterTypes(
+                    signature.Parameters[equivalentParameterCount].Type,
+                    otherSignature.Parameters[equivalentParameterCount].Type))
+                {
+                    break;
+                }
+
+                equivalentParameterCount++;
+            }
+
+            int minimumArgumentCount = Math.Max(
+                GetMinimumArgumentCount(signature),
+                GetMinimumArgumentCount(otherSignature));
+            for (int argumentCount = minimumArgumentCount; argumentCount <= equivalentParameterCount; argumentCount++)
+            {
+                // An overload that receives an argument for every one of its parameters is preferred over
+                // an overload that has to substitute a default, so the pair can only be unresolvable when
+                // both of them are in the same state.
+                bool substitutesDefault = argumentCount < signature.Parameters.Count;
+                bool otherSubstitutesDefault = argumentCount < otherSignature.Parameters.Count;
+                if (substitutesDefault == otherSubstitutesDefault)
+                {
+                    return true;
+                }
+            }
+
+            return false;
+        }
+
+        /// <summary>
+        /// Determines whether two parameter types are indistinguishable to overload resolution at the
+        /// same position. Nullability is only part of a signature for value types: <c>int</c> and
+        /// <c>int?</c> are different parameter types, while C# erases reference type nullability so
+        /// <c>string</c> and <c>string?</c> are the same one.
+        /// </summary>
+        private static bool AreEquivalentParameterTypes(CSharpType type, CSharpType otherType)
+            => (!type.IsValueType || type.IsNullable == otherType.IsNullable)
+                && type.AreNamesEqual(otherType);
 
         /// <summary>
         /// Removes the default values from the leading parameters of <paramref name="signature"/> so it
@@ -191,8 +271,7 @@ namespace Microsoft.TypeSpec.Generator
             {
                 CSharpType targetType = targetMethodSignature.Parameters[i].Type;
                 CSharpType competingType = competingMethodSignature.Parameters[i].Type;
-                bool sameType = targetType.IsNullable == competingType.IsNullable
-                    && targetType.AreNamesEqual(competingType);
+                bool sameType = AreEquivalentParameterTypes(targetType, competingType);
                 if (!sameType
                     && ((targetType.IsValueType && !targetType.IsNullable)
                         || (competingType.IsValueType && !competingType.IsNullable)))

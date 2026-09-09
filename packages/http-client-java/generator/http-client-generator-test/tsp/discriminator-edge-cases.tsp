@@ -1,8 +1,10 @@
 import "@typespec/rest";
+import "@typespec/xml";
 import "@azure-tools/typespec-azure-core";
 import "@azure-tools/typespec-client-generator-core";
 
 using TypeSpec.Http;
+using TypeSpec.Xml;
 using Azure.Core;
 using Azure.ClientGenerator.Core;
 
@@ -26,6 +28,91 @@ model ChildWithAnotherDiscriminator extends ParentWithRequiredProperty {
 
 model GrandChildWithRequiredProperty extends ChildWithRequiredPropertyAsDiscriminator {
   discriminator: "aValue";
+}
+
+@usage(Usage.output)
+@access(Access.public)
+@discriminator("type")
+model RegressionDuplicateRepeatedInheritedDiscriminatorBase {
+  type: string;
+}
+
+@discriminator("role")
+model RegressionDuplicateRepeatedInheritedDiscriminatorMessage
+  extends RegressionDuplicateRepeatedInheritedDiscriminatorBase {
+  type: "message";
+  role: string;
+}
+
+model RegressionDuplicateRepeatedInheritedDiscriminatorAssistant
+  extends RegressionDuplicateRepeatedInheritedDiscriminatorMessage {
+  type: "message";
+  role: "assistant";
+}
+
+model RegressionAncestorOrdinaryPropertyMaskingRoot {
+  type?: string;
+}
+
+@usage(Usage.output)
+@access(Access.public)
+@discriminator("type")
+model RegressionAncestorOrdinaryPropertyMaskingBase
+  extends RegressionAncestorOrdinaryPropertyMaskingRoot {}
+
+@discriminator("role")
+model RegressionAncestorOrdinaryPropertyMaskingMessage
+  extends RegressionAncestorOrdinaryPropertyMaskingBase {
+  type: "message";
+  role: string;
+}
+
+model RegressionAncestorOrdinaryPropertyMaskingAssistant
+  extends RegressionAncestorOrdinaryPropertyMaskingMessage {
+  role: "assistant";
+}
+
+model RegressionSuperclassConstructorPropagationRoot {
+  type: string;
+}
+
+@usage(Usage.output)
+@access(Access.public)
+@discriminator("type")
+model RegressionSuperclassConstructorPropagationBase
+  extends RegressionSuperclassConstructorPropagationRoot {}
+
+@discriminator("role")
+model RegressionSuperclassConstructorPropagationMessage
+  extends RegressionSuperclassConstructorPropagationBase {
+  type: "message";
+  role: string;
+}
+
+model RegressionSuperclassConstructorPropagationAssistant
+  extends RegressionSuperclassConstructorPropagationMessage {
+  role: "assistant";
+}
+
+@usage(Usage.output)
+@access(Access.public)
+@name("NestedDiscriminatorBase")
+@discriminator("type")
+model NestedDiscriminatorBase {
+  @attribute type: string;
+}
+
+@name("NestedDiscriminatorMessage")
+@discriminator("role")
+model NestedDiscriminatorMessage extends NestedDiscriminatorBase {
+  @attribute type: "message";
+  @attribute role: string;
+}
+
+@name("NestedDiscriminatorAssistant")
+model NestedDiscriminatorAssistant extends NestedDiscriminatorMessage {
+  @attribute type: "message";
+  @attribute role: "assistant";
 }
 
 model GrandChildWithAnotherDiscriminator extends ChildWithAnotherDiscriminator {

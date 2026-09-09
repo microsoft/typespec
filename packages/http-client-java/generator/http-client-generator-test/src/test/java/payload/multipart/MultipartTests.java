@@ -8,6 +8,7 @@ import com.azure.core.http.HttpPipelineNextPolicy;
 import com.azure.core.http.HttpResponse;
 import com.azure.core.http.policy.HttpPipelinePolicy;
 import com.azure.core.http.rest.RequestOptions;
+import com.azure.core.http.rest.Response;
 import com.azure.core.util.BinaryData;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Path;
@@ -72,6 +73,8 @@ public class MultipartTests {
         FormDataClient.class.getDeclaredMethod("basicWithResponseInternal", BinaryData.class, RequestOptions.class);
         FormDataAsyncClient.class.getDeclaredMethod("basicWithResponseInternal", BinaryData.class,
             RequestOptions.class);
+        FormDataClient.class.getDeclaredMethod("basicWithResponse", MultiPartRequest.class, RequestOptions.class);
+        FormDataAsyncClient.class.getDeclaredMethod("basicWithResponse", MultiPartRequest.class, RequestOptions.class);
 
         Assertions.assertThrows(NoSuchMethodException.class,
             () -> FormDataClient.class.getDeclaredMethod("basicWithResponse", BinaryData.class, RequestOptions.class));
@@ -190,8 +193,10 @@ public class MultipartTests {
         MultiPartRequest request = new MultiPartRequest("123",
             new ProfileImageFileDetails(BinaryData.fromFile(FILE)).setFilename("image.jpg"));
 
-        client.basic(request);
-        asyncClient.basic(request).block();
+        Response<Void> response = client.basicWithResponse(request, new RequestOptions());
+        Response<Void> asyncResponse = asyncClient.basicWithResponse(request, new RequestOptions()).block();
+        Assertions.assertNotNull(response);
+        Assertions.assertNotNull(asyncResponse);
     }
 
     @Test

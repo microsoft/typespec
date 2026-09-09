@@ -89,7 +89,7 @@ namespace Microsoft.TypeSpec.Generator.Providers
             : new NamedTypeSymbolProvider(_namedTypeSymbol.ContainingType, _compilation);
 
         protected override IReadOnlyList<AttributeStatement> BuildAttributes()
-            => [.._namedTypeSymbol.GetAttributes().Select(a => new AttributeStatement(a))];
+            => [.. _namedTypeSymbol.GetAttributes().Select(a => new AttributeStatement(a))];
 
         protected internal override CSharpType[] BuildImplements()
             => [.. _namedTypeSymbol.AllInterfaces.Select(i => i.GetCSharpType())];
@@ -977,7 +977,7 @@ namespace Microsoft.TypeSpec.Generator.Providers
             var paramElement = xmlDoc.Descendants("param")
                                      .FirstOrDefault(e => e.Attribute("name")?.Value == parameterSymbol.Name);
 
-            return paramElement?.Value.Trim();
+            return paramElement is null ? null : ProcessXmlContent(paramElement);
         }
 
         private static MethodSignatureModifiers GetAccessModifier(Accessibility accessibility) => accessibility switch

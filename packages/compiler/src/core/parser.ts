@@ -704,6 +704,9 @@ function createParser(code: string | SourceFile, options: ParseOptions = {}): Pa
     const { items: templateParameters, range: templateParametersRange } =
       parseTemplateParameterList();
 
+    expectTokenIsOneOf(Token.OpenBrace, Token.ExtendsKeyword);
+
+    const optionalExtends = parseOptionalUnionExtends();
     const { items: options } = parseList(ListKind.UnionVariants, parseUnionVariant);
 
     return {
@@ -711,12 +714,20 @@ function createParser(code: string | SourceFile, options: ParseOptions = {}): Pa
       id,
       templateParameters,
       templateParametersRange,
+      extends: optionalExtends,
       decorators,
       modifiers,
       modifierFlags: modifiersToFlags(modifiers),
       options,
       ...finishNode(pos),
     };
+  }
+
+  function parseOptionalUnionExtends() {
+    if (parseOptional(Token.ExtendsKeyword)) {
+      return parseExpression();
+    }
+    return undefined;
   }
 
   function parseIdOrValueForVariant(): Expression {
@@ -3072,6 +3083,7 @@ export function visitChildren<T>(node: Node, cb: NodeCallback<T>): T | undefined
         visitEach(cb, node.decorators) ||
         visitNode(cb, node.id) ||
         visitEach(cb, node.templateParameters) ||
+        visitNode(cb, node.extends) ||
         visitEach(cb, node.options)
       );
     case SyntaxKind.UnionVariant:

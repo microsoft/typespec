@@ -1270,6 +1270,46 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers.MrwSerializat
             Assert.AreEqual(Helpers.GetExpectedFromFile(isDynamicModel.ToString()), file.Content);
         }
 
+        [TestCase(InputStreamingType.JsonLinesStreamKind, "application/jsonl")]
+        [TestCase(InputStreamingType.SseStreamKind, "text/event-stream")]
+        public void StreamingResponseDoesNotHaveExplicitClientResultOperator(string streamKind, string contentType)
+        {
+            var inputModel = InputFactory.Model(
+               "cat",
+               properties:
+               [
+                    InputFactory.Property("foo", InputPrimitiveType.String, isRequired: true),
+               ]);
+            var streamType = new InputStreamingType(
+                "CatStream",
+                "Sample.CatStream",
+                inputModel,
+                [contentType],
+                streamKind);
+            var operation = InputFactory.Operation(
+                "getCats",
+                responses: [InputFactory.OperationResponse([200], streamType)],
+                bufferResponse: false);
+            var method = InputFactory.BasicServiceMethod(
+                "GetCats",
+                operation,
+                response: InputFactory.ServiceMethodResponse(streamType, null));
+            MockHelpers.LoadMockGenerator(
+                inputModels: () => [inputModel],
+                clients: () => [InputFactory.Client("TestClient", methods: [method])]);
+
+            var model = ScmCodeModelGenerator.Instance.TypeFactory.CreateModel(inputModel) as ClientModel.Providers.ScmModelProvider;
+
+            Assert.IsNotNull(model);
+            var serialization = model!.SerializationProviders.SingleOrDefault();
+            Assert.IsNotNull(serialization);
+            Assert.That(
+                serialization!.Methods.Any(m =>
+                    m.Signature.Modifiers.HasFlag(MethodSignatureModifiers.Explicit) &&
+                    m.Signature.Modifiers.HasFlag(MethodSignatureModifiers.Operator)),
+                Is.False);
+        }
+
         [Test]
         public void PropagateDerivedDynamicPropertiesWithNonDynamicBase()
         {

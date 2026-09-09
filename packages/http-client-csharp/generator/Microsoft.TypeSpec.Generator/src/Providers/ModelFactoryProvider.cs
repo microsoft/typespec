@@ -214,7 +214,13 @@ namespace Microsoft.TypeSpec.Generator.Providers
                 // from and stripping defaults would break the published omitted-argument calls.
                 // The exclusion is name-based and therefore applies only to published signatures;
                 // a custom overload is always emitted and must always constrain.
+                // A published signature that is restored as a compatibility overload is excluded
+                // from this constraint set as well. It is still generated below: either as a hidden
+                // overload that requires every parameter or as a visible replacement for this
+                // overload.
                 var competingSignatures = preservedPreviousSignatures
+                    .Where(signature => !compatiblePreviousMethods.Any(method =>
+                        ReferenceEquals(method.Signature, signature)))
                     .Where(signature => !MethodSignatureHelper.HaveSameParametersInSameOrder(
                         currentMethod.Signature,
                         signature))
@@ -505,14 +511,42 @@ namespace Microsoft.TypeSpec.Generator.Providers
                 return false;
             }
 
+            // BuildBackCompatMethodSignature strips defaults from previousMethod.Signature in place and
+            // the signature it returns shares those parameter instances, so capture the published
+            // defaults first and restore them if this candidate is rejected below. Without that, a
+            // rejected candidate would leave the previous signature partially required for every later
+            // attempt, which would over-constrain the fallback shapes.
+            var publishedDefaultValues = previousMethod.Signature.Parameters
+                .Select(parameter => parameter.DefaultValue)
+                .ToArray();
+
+            var signature = MethodSignatureHelper.BuildBackCompatMethodSignature(
+                previousMethod.Signature,
+                hideMethod,
+                currentMethodSignatures: currentOverloadSignatures);
+
+            // Best effort: never emit a compatibility overload that a call could not resolve against
+            // a custom overload. Returning false rejects only this candidate; the caller can still
+            // try the hidden all-required fallback for a rejected visible replacement and will keep
+            // processing other previous signatures.
+            if (currentOverloadSignatures.Any(overload => MethodSignatureHelper.AreAmbiguous(signature, overload)))
+            {
+                for (int i = 0; i < publishedDefaultValues.Length; i++)
+                {
+                    previousMethod.Signature.Parameters[i].DefaultValue = publishedDefaultValues[i];
+                }
+
+                CodeModelGenerator.Instance.Emitter.Debug(
+                    $"Skipped model factory method '{Name}.{previousMethod.Signature.Name}' from last contract because it would be ambiguous with a custom overload.",
+                    BackCompatibilityChangeCategory.ModelFactoryMethodSkipped);
+                return false;
+            }
+
             if (currentMethodSignature != null && TryBuildMethodArgumentsForOverload(previousMethod.Signature, currentMethodSignature, out var arguments))
             {
                 var callToOverload = Return(new InvokeMethodExpression(null, currentMethodSignature, arguments));
                 builtMethod = new MethodProvider(
-                    MethodSignatureHelper.BuildBackCompatMethodSignature(
-                        previousMethod.Signature,
-                        hideMethod,
-                        currentMethodSignatures: currentOverloadSignatures),
+                    signature,
                     callToOverload,
                     this,
                     previousMethod.XmlDocs);
@@ -523,10 +557,7 @@ namespace Microsoft.TypeSpec.Generator.Providers
             MethodBodyStatements body = ConstructMethodBody(previousMethod.Signature, modelToInstantiate);
 
             builtMethod = new MethodProvider(
-                MethodSignatureHelper.BuildBackCompatMethodSignature(
-                    previousMethod.Signature,
-                    hideMethod,
-                    currentMethodSignatures: currentOverloadSignatures),
+                signature,
                 body,
                 this,
                 previousMethod.XmlDocs);

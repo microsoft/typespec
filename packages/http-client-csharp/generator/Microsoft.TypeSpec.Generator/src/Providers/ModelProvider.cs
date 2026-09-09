@@ -32,6 +32,10 @@ namespace Microsoft.TypeSpec.Generator.Providers
             {
                 _derivedModels = BuildDerivedModels();
                 var publicDerivedModels = _derivedModels.Where(m => m.DeclarationModifiers.HasFlag(TypeSignatureModifiers.Public)).ToList();
+                if (publicDerivedModels.Count == 0)
+                {
+                    return description;
+                }
                 var derivedClassesDescription = DeclarationModifiers.HasFlag(TypeSignatureModifiers.Abstract)
                     ? "Please note this is the abstract base class. The derived classes available for instantiation are: "
                     : "Please note this is the base class. The derived classes available for instantiation are: ";
@@ -455,7 +459,6 @@ namespace Microsoft.TypeSpec.Generator.Providers
                 return false;
             }
 
-            CodeModelGenerator.Instance.TypeFactory.CSharpTypeMap[currentProvider.Type] = currentProvider;
             return TryUseProviderAsBase(currentProvider, out resolvedProvider);
         }
 
@@ -906,7 +909,7 @@ namespace Microsoft.TypeSpec.Generator.Providers
                 // a source-breaking change
                 if (MethodSignatureHelper.IsPublicApi(outputProperty.Modifiers) &&
                     LastContractPropertiesMap.TryGetValue(outputProperty.Name, out var lastContractPropertyType) &&
-                    !lastContractPropertyType.Equals(outputProperty.Type))
+                    ShouldReplacePropertyTypeWithLastContractType(lastContractPropertyType, outputProperty.Type))
                 {
                     // If the previous property type (or a type nested in it) has been intentionally
                     // removed and that removal is accepted in the ApiCompat baseline, preserving it
@@ -919,7 +922,10 @@ namespace Microsoft.TypeSpec.Generator.Providers
                     }
                     else
                     {
-                        outputProperty.Type = lastContractPropertyType.ApplyInputSpecProperty(property);
+                        outputProperty.Type = GetPropertyTypeForBackCompatibility(
+                            lastContractPropertyType,
+                            outputProperty.Type,
+                            property);
                         CodeModelGenerator.Instance.Emitter.Info(
                             $"Changed property '{Name}.{outputProperty.Name}' type to '{lastContractPropertyType}' to match last contract.",
                             BackCompatibilityChangeCategory.PropertyTypePreserved);
@@ -1000,6 +1006,31 @@ namespace Microsoft.TypeSpec.Generator.Providers
 
             var baseNullable = baseProperty.Type is InputNullableType;
             return baseNullable ? derivedProperty.Type is InputNullableType : derivedProperty.Type is not InputNullableType;
+        }
+
+        private static bool ShouldReplacePropertyTypeWithLastContractType(CSharpType lastContractType, CSharpType currentType)
+        {
+            if (lastContractType.Equals(currentType))
+            {
+                return false;
+            }
+
+            // Roslyn-backed last-contract reference types do not retain top-level nullable-reference metadata.
+            // Keep the current TypeSpec top-level nullability when the reference types otherwise match.
+            return lastContractType.IsValueType
+                || currentType.IsValueType
+                || !lastContractType.Equals(currentType, ignoreNullable: true);
+        }
+
+        private static CSharpType GetPropertyTypeForBackCompatibility(
+            CSharpType lastContractType,
+            CSharpType currentType,
+            InputProperty inputProperty)
+        {
+            var compatibleType = lastContractType.ApplyInputSpecProperty(inputProperty);
+            return !compatibleType.IsValueType && currentType.IsNullable
+                ? compatibleType.WithNullable(true)
+                : compatibleType;
         }
 
         protected internal override ConstructorProvider[] BuildConstructors()

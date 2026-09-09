@@ -194,6 +194,8 @@ namespace Microsoft.TypeSpec.Generator.Tests.Providers.ModelFactories
                 "[global::System.ComponentModel.EditorBrowsableAttribute(global::System.ComponentModel.EditorBrowsableState.Never)]",
                 printedAttribute);
 
+            // The hidden overload requires every parameter so that a call omitting an argument can
+            // only bind to the current overload, which keeps its optional parameters.
             var parameters = backwardCompatibilityMethod!.Signature.Parameters;
             Assert.AreEqual(3, parameters.Count);
             Assert.AreEqual("stringProp", parameters[0].Name);
@@ -201,7 +203,7 @@ namespace Microsoft.TypeSpec.Generator.Tests.Providers.ModelFactories
             Assert.AreEqual("listProp", parameters[2].Name);
             foreach (var param in parameters)
             {
-                Assert.IsNotNull(param.DefaultValue);
+                Assert.IsNull(param.DefaultValue);
             }
 
             var currentParameters = currentOverloadMethod!.Signature.Parameters;
@@ -212,7 +214,7 @@ namespace Microsoft.TypeSpec.Generator.Tests.Providers.ModelFactories
             Assert.AreEqual("dictProp", currentParameters[3].Name);
             foreach (var param in currentParameters)
             {
-                Assert.IsNull(param.DefaultValue);
+                Assert.IsNotNull(param.DefaultValue);
             }
 
             Assert.IsTrue(parameters[0].Type.AreNamesEqual(currentParameters[0].Type));
@@ -271,8 +273,11 @@ namespace Microsoft.TypeSpec.Generator.Tests.Providers.ModelFactories
                 result);
         }
 
+        // A hidden compatibility overload requires every parameter, so a reordered fully optional
+        // previous overload can coexist with the generated overload without making any call
+        // ambiguous. The generated overload keeps the optionality of the current model shape.
         [Test]
-        public async Task BackCompatibility_ReorderedFullyOptionalParametersRequireMinimumPrefix()
+        public async Task BackCompatibility_ReorderedFullyOptionalParametersRequireAllParameters()
         {
             var compatibilityModel = GetCompatibilityModel(includeCount: true);
 
@@ -288,8 +293,10 @@ namespace Microsoft.TypeSpec.Generator.Tests.Providers.ModelFactories
             Assert.AreEqual(Helpers.GetExpectedFromFile(), content);
         }
 
+        // The previous overload mixes required and optional parameters. The hidden compatibility
+        // overload still requires every one of them.
         [Test]
-        public async Task BackCompatibility_ReorderedRequiredParametersPreserveTrailingOptionalParameters()
+        public async Task BackCompatibility_ReorderedPartiallyOptionalParametersRequireAllParameters()
         {
             var compatibilityModel = GetCompatibilityModel(includeCount: true);
 
@@ -323,8 +330,10 @@ namespace Microsoft.TypeSpec.Generator.Tests.Providers.ModelFactories
             Assert.AreEqual(Helpers.GetExpectedFromFile(), content);
         }
 
+        // The generated overload is suppressed and replaced by a custom overload, so the hidden
+        // compatibility overload forwards to the custom one while requiring every parameter.
         [Test]
-        public async Task BackCompatibility_CustomOverloadsPreserveTrailingOptionalParameters()
+        public async Task BackCompatibility_CustomOverloadsCoexistWithRequiredCompatibilityOverload()
         {
             _instance = (await MockHelpers.LoadMockGeneratorAsync(
                 inputNamespaceName: "Sample.Namespace",
@@ -334,6 +343,49 @@ namespace Microsoft.TypeSpec.Generator.Tests.Providers.ModelFactories
 
             var modelFactory = _instance.OutputLibrary.ModelFactory.Value;
             modelFactory.ProcessTypeForBackCompatibility();
+
+            var content = new TypeProviderWriter(modelFactory).Write().Content;
+            Assert.AreEqual(Helpers.GetExpectedFromFile(), content);
+        }
+
+        // A reordered previous overload would normally replace the generated overload while keeping its
+        // published optionality. Here that visible overload would be ambiguous with a custom overload
+        // (both would substitute defaults for a single-argument call), so it is emitted as a hidden
+        // overload requiring every parameter instead. The current generated overload is also
+        // constrained against the custom overload to avoid ambiguous source calls.
+        [Test]
+        public async Task BackCompatibility_AmbiguousReorderedOverloadFallsBackToHiddenOverload()
+        {
+            InputModelType model = InputFactory.Model("CompatibilityModel", properties:
+            [
+                InputFactory.Property("Id", InputPrimitiveType.String),
+                InputFactory.Property("Count", new InputNullableType(InputPrimitiveType.Int32)),
+                InputFactory.Property("Name", InputPrimitiveType.String),
+            ]);
+
+            _instance = (await MockHelpers.LoadMockGeneratorAsync(
+                inputNamespaceName: "Sample.Namespace",
+                inputModelTypes: [model],
+                compilation: async () => await Helpers.GetCompilationFromDirectoryAsync(parameters: "Custom"),
+                lastContractCompilation: async () => await Helpers.GetCompilationFromDirectoryAsync(parameters: "Last"))).Object;
+
+            var modelFactory = _instance.OutputLibrary.ModelFactory.Value;
+            modelFactory.ProcessTypeForBackCompatibility();
+
+            var compatibilityMethod = modelFactory.Methods.Single(m =>
+                m.Signature.Name == "CompatibilityModel"
+                && m.Signature.Parameters[1].Name == "name");
+            Assert.AreEqual(1, compatibilityMethod.Signature.Attributes.Count);
+            Assert.AreEqual(
+                "[global::System.ComponentModel.EditorBrowsableAttribute(global::System.ComponentModel.EditorBrowsableState.Never)]",
+                compatibilityMethod.Signature.Attributes[0].ToDisplayString());
+            Assert.IsTrue(compatibilityMethod.Signature.Parameters.All(p => p.DefaultValue is null));
+
+            var generatedMethod = modelFactory.Methods.Single(m =>
+                m.Signature.Name == "CompatibilityModel"
+                && m.Signature.Parameters[1].Name == "count");
+            Assert.IsEmpty(generatedMethod.Signature.Attributes);
+            Assert.IsTrue(generatedMethod.Signature.Parameters.All(p => p.DefaultValue is null));
 
             var content = new TypeProviderWriter(modelFactory).Write().Content;
             Assert.AreEqual(Helpers.GetExpectedFromFile(), content);
@@ -392,7 +444,7 @@ namespace Microsoft.TypeSpec.Generator.Tests.Providers.ModelFactories
         }
 
         [Test]
-        public async Task BackCompatibility_ChangedCustomOptionalityConstrainsCompatibilityOverload()
+        public async Task BackCompatibility_ChangedCustomOptionalityConstrainsGeneratedOverload()
         {
             InputModelType model = InputFactory.Model("CompatibilityModel", properties:
             [
@@ -411,11 +463,12 @@ namespace Microsoft.TypeSpec.Generator.Tests.Providers.ModelFactories
             var modelFactory = _instance.OutputLibrary.ModelFactory.Value;
             modelFactory.ProcessTypeForBackCompatibility();
 
+            // The hidden compatibility overload requires every parameter regardless of the shapes it
+            // coexists with.
             var compatibilityMethod = modelFactory.Methods.Single(m =>
                 m.Signature.Name == "CompatibilityModel" &&
                 m.Signature.Parameters.Count == 2);
-            Assert.IsNull(compatibilityMethod.Signature.Parameters[0].DefaultValue);
-            Assert.IsNotNull(compatibilityMethod.Signature.Parameters[1].DefaultValue);
+            Assert.IsTrue(compatibilityMethod.Signature.Parameters.All(p => p.DefaultValue is null));
 
             // The custom method keeps the fully optional (string, string, string) shape, so the
             // generated overload must require every parameter. Leaving any trailing default would
@@ -587,8 +640,9 @@ namespace Microsoft.TypeSpec.Generator.Tests.Providers.ModelFactories
             Assert.AreEqual(Helpers.GetExpectedFromFile(), content);
         }
 
-        // A previous signature that is a positional prefix of a new current overload cannot be
-        // disambiguated by argument count, so every parameter on the new overload must be required.
+        // A previous signature that is a positional prefix of a new current overload can only be
+        // reached by a call that supplies every one of its arguments, so the hidden overload requires
+        // all of them and the new overload keeps its optional parameters.
         [Test]
         public async Task BackCompatibility_PositionalPrefixOverloadRequiresAllParameters()
         {
@@ -611,11 +665,11 @@ namespace Microsoft.TypeSpec.Generator.Tests.Providers.ModelFactories
             Assert.AreEqual(Helpers.GetExpectedFromFile(), content);
         }
 
-        // When the previous signature is a strict positional prefix of a longer new overload,
-        // requiring one parameter beyond the previous signature makes their applicable argument
-        // counts disjoint. Parameters after that boundary must retain their optionality.
+        // The previous signature is a strict positional prefix of a longer new overload. Requiring
+        // every parameter on the hidden overload makes their applicable argument counts disjoint, so
+        // the new overload keeps every default from the current model shape.
         [Test]
-        public async Task BackCompatibility_LongPositionalPrefixOverloadPreservesTrailingOptionality()
+        public async Task BackCompatibility_LongPositionalPrefixOverloadKeepsGeneratedOptionality()
         {
             InputModelType model = InputFactory.Model("CompatibilityModel", properties:
             [
@@ -680,10 +734,10 @@ namespace Microsoft.TypeSpec.Generator.Tests.Providers.ModelFactories
             Assert.AreEqual(Helpers.GetExpectedFromFile(), content);
         }
 
-        // Two previous overloads compete with the same new current method. Both retain their published
-        // defaults while the new overload acquires the longest prefix needed to avoid both.
+        // Two previous overloads compete with the same new current method. Each of them requires all
+        // of its parameters, so the new overload keeps the defaults of the current model shape.
         [Test]
-        public async Task BackCompatibility_MultiplePreviousOverloadsRequireIndependentPrefixes()
+        public async Task BackCompatibility_MultiplePreviousOverloadsRequireAllParameters()
         {
             InputModelType model = InputFactory.Model("CompatibilityModel", properties:
             [
@@ -706,13 +760,11 @@ namespace Microsoft.TypeSpec.Generator.Tests.Providers.ModelFactories
             Assert.AreEqual(Helpers.GetExpectedFromFile(), content);
         }
 
-        // Overloads that shipped together in the published contract already coexisted there, so they
-        // are not new competitors for one another; only a surviving current or custom overload can
-        // introduce ambiguity that was not already present. Here 'id, count' is a positional prefix
-        // of the wider overload, so treating them as competitors would make the wider one fully
-        // required and break the previously valid call 'CompatibilityModel("i", 1, "e")'.
+        // Two overloads that shipped together in the published contract both become hidden
+        // compatibility overloads. Even though 'id, count' is a positional prefix of the wider
+        // overload, requiring every parameter on both keeps their applicable argument counts disjoint.
         [Test]
-        public async Task BackCompatibility_CoexistingPreviousOverloadsKeepPublishedOptionality()
+        public async Task BackCompatibility_CoexistingPreviousOverloadsRequireAllParameters()
         {
             InputModelType model = InputFactory.Model("CompatibilityModel", properties:
             [
@@ -735,7 +787,7 @@ namespace Microsoft.TypeSpec.Generator.Tests.Providers.ModelFactories
         // Same last-contract overloads as above but declared in the opposite order. Signatures are
         // mutated in place, so this pins that the result does not depend on declaration order.
         [Test]
-        public async Task BackCompatibility_CoexistingPreviousOverloadsKeepPublishedOptionalityReversed()
+        public async Task BackCompatibility_CoexistingPreviousOverloadsRequireAllParametersReversed()
         {
             InputModelType model = InputFactory.Model("CompatibilityModel", properties:
             [
@@ -785,9 +837,9 @@ namespace Microsoft.TypeSpec.Generator.Tests.Providers.ModelFactories
         }
 
         // A current generated overload can have the same signature as a previously published overload
-        // while acquiring different defaults from the current model shape. Preserve the published
-        // required boundary on that overload and the published optionality on its reordered companion
-        // rather than swapping their callability.
+        // while acquiring different defaults from the current model shape. That overload keeps the
+        // published required boundary, while its reordered companion becomes a hidden compatibility
+        // overload that requires every parameter.
         [Test]
         public async Task BackCompatibility_PublishedOverloadBoundariesArePreserved()
         {
@@ -814,14 +866,14 @@ namespace Microsoft.TypeSpec.Generator.Tests.Providers.ModelFactories
                 && m.Signature.Parameters[1].Name == "kind");
 
             Assert.IsTrue(currentOverload.Signature.Parameters.All(p => p.DefaultValue is null));
-            Assert.IsTrue(compatibilityOverload.Signature.Parameters.All(p => p.DefaultValue is not null));
+            Assert.IsTrue(compatibilityOverload.Signature.Parameters.All(p => p.DefaultValue is null));
         }
 
-        // The newly generated overload did not exist in the previous contract, so it can acquire the
-        // required prefix needed for disambiguation. The previous overload must remain fully optional
-        // so calls using its unique parameter names continue to compile.
+        // The hidden compatibility overload requires every parameter, so it is only applicable when a
+        // call supplies all of its arguments. The newly generated overload is therefore free to keep
+        // the optionality of the current model shape.
         [Test]
-        public async Task BackCompatibility_NewOverloadIsConstrainedToPreservePublishedNamedArguments()
+        public async Task BackCompatibility_NewOverloadKeepsOptionalityAgainstCompatibilityOverload()
         {
             InputModelType model = InputFactory.Model("CompatibilityModel", properties:
             [
@@ -844,8 +896,8 @@ namespace Microsoft.TypeSpec.Generator.Tests.Providers.ModelFactories
                 m.Signature.Name == "CompatibilityModel"
                 && m.Signature.Parameters.Count == 3);
 
-            Assert.IsTrue(currentOverload.Signature.Parameters.All(p => p.DefaultValue is null));
-            Assert.IsTrue(compatibilityOverload.Signature.Parameters.All(p => p.DefaultValue is not null));
+            Assert.IsTrue(currentOverload.Signature.Parameters.All(p => p.DefaultValue is not null));
+            Assert.IsTrue(compatibilityOverload.Signature.Parameters.All(p => p.DefaultValue is null));
         }
 
         // This test validates that only the previous model factory methods are generated when only the parameter ordering is changed
@@ -950,7 +1002,8 @@ namespace Microsoft.TypeSpec.Generator.Tests.Providers.ModelFactories
             var parameters = backwardCompatibilityMethod!.Signature.Parameters;
             Assert.AreEqual(1, parameters.Count);
             Assert.AreEqual("stringProp", parameters[0].Name);
-            Assert.IsNotNull(parameters[0].DefaultValue);
+            // The compatibility method is hidden, so it requires every parameter.
+            Assert.IsNull(parameters[0].DefaultValue);
             var attributes = backwardCompatibilityMethod!.Signature.Attributes;
             Assert.AreEqual(1, attributes.Count);
             var printedAttribute = attributes[0].ToDisplayString();
@@ -1283,12 +1336,13 @@ namespace Microsoft.TypeSpec.Generator.Tests.Providers.ModelFactories
             Assert.AreEqual("oldStringProp", parameters[0].Name);
             Assert.AreEqual("oldModelProp", parameters[1].Name);
             Assert.AreEqual("listProp", parameters[2].Name);
+            // The hidden overload requires every parameter, so the current overload keeps its defaults.
             foreach (var param in parameters)
             {
-                Assert.IsNotNull(param.DefaultValue);
+                Assert.IsNull(param.DefaultValue);
             }
 
-            Assert.IsTrue(currentParameters.All(p => p.DefaultValue is null));
+            Assert.IsTrue(currentParameters.All(p => p.DefaultValue is not null));
 
             // The backcompat overload's body instantiates the model directly because the previous
             // parameter names (oldStringProp, oldModelProp) do not match any current property name.

@@ -1,6 +1,6 @@
 {
   "name": "@typespec/http-client-python",
-  "version": "0.37.0",
+  "version": "0.37.1",
   "author": "Microsoft Corporation",
   "description": "TypeSpec emitter for Python SDKs",
   "homepage": "https://typespec.io",
@@ -70,7 +70,7 @@
     "@azure-tools/typespec-azure-core": ">=0.71.0 <1.0.0",
     "@azure-tools/typespec-azure-resource-manager": ">=0.71.0 <1.0.0",
     "@azure-tools/typespec-azure-rulesets": ">=0.71.0 <1.0.0",
-    "@azure-tools/typespec-client-generator-core": ">=0.71.0 <1.0.0",
+    "@azure-tools/typespec-client-generator-core": ">=0.71.2 <1.0.0",
     "@typespec/compiler": "^1.15.0",
     "@typespec/http": "^1.15.0",
     "@typespec/openapi": "^1.15.0",
@@ -97,19 +97,19 @@
     ]
   },
   "dependencies": {
-    "js-yaml": "^4.2.0",
+    "js-yaml": "^4.3.1",
     "marked": "^15.0.6",
     "pyodide": "0.26.2",
     "semver": "~7.6.2",
-    "tsx": "^4.21.0"
+    "tsx": "^4.23.13"
   },
   "devDependencies": {
     "@azure-tools/typespec-autorest": "~0.71.0",
     "@azure-tools/typespec-azure-core": "~0.71.0",
     "@azure-tools/typespec-azure-resource-manager": "~0.71.0",
     "@azure-tools/typespec-azure-rulesets": "~0.71.0",
-    "@azure-tools/typespec-client-generator-core": "~0.71.0",
-    "@azure-tools/azure-http-specs": "0.1.0-alpha.44",
+    "@azure-tools/typespec-client-generator-core": "~0.71.2",
+    "@azure-tools/azure-http-specs": "0.1.0-alpha.45-dev.3",
     "@typespec/compiler": "^1.15.0",
     "@typespec/http": "^1.15.0",
     "@typespec/openapi": "^1.15.0",
@@ -126,10 +126,10 @@
     "@types/node": "~25.0.2",
     "@types/semver": "7.5.8",
     "c8": "^10.1.3",
+    "oxlint": "^1.69.0",
     "picocolors": "~1.1.1",
     "rimraf": "~6.1.2",
     "typescript": "~5.9.2",
-    "typescript-eslint": "^8.49.0",
     "vitest": "^4.0.15",
     "prettier": "^3.9.5"
   }
