@@ -36,7 +36,7 @@ The base type is exposed on the type graph as `Union.baseType`, giving emitters 
 
 ### Standalone linter rulesets
 
-A linter ruleset no longer has to ship inside a library. Write it as a yaml file and reference it with the `file:` prefix, so a repository can share and version its rules without cutting a library release.
+A linter ruleset no longer has to ship inside a library. Write it as a YAML file and reference it with the `file:` prefix, so a repository can share and version its rules without cutting a library release.
 
 ```yaml
 # tspconfig.yaml
@@ -172,9 +172,9 @@ Values coming from a spec are no longer trusted when building output paths. `@ty
 
   ```tsp
   // Before
-  op deleteJobPreview<
-    AreaPreviewLabel extends FoundryFeaturesOptInKeys | AgentDefinitionOptInKeys
-  > is FoundryDataPlanePreviewOperation<AreaPreviewLabel>;
+  op deleteJobPreview<AreaPreviewLabel extends
+    | FoundryFeaturesOptInKeys
+    | AgentDefinitionOptInKeys> is FoundryDataPlanePreviewOperation<AreaPreviewLabel>;
 
   // After
   op deleteJobPreview<
@@ -195,7 +195,7 @@ Values coming from a spec are no longer trusted when building output paths. `@ty
 
 ### @typespec/openapi3
 
-- [#11777](https://github.com/microsoft/typespec/pull/11777) Sanitize the spec provided values interpolated in `output-file`(`{version}`, `{service-name}` and `{service-name-if-multiple}`) so a version or namespace name containing path separators cannot write the OpenAPI document outside of the emitter output dir.
+- [#11777](https://github.com/microsoft/typespec/pull/11777) Sanitize the spec provided values interpolated in `output-file` (`{version}`, `{service-name}` and `{service-name-if-multiple}`) so a version or namespace name containing path separators cannot write the OpenAPI document outside of the emitter output dir.
 
 ### @typespec/json-schema
 
