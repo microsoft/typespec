@@ -814,11 +814,19 @@ abstract class ConvenienceMethodTemplateBase {
     }
 
     private static void writeHeader(MethodParameter parameter, JavaBlock methodBlock) {
-        Consumer<JavaBlock> writeLine
-            = javaBlock -> javaBlock.line(String.format("requestOptions.setHeader(%1$s, %2$s);",
+        ProxyMethodParameter proxyMethodParameter = parameter.getProxyMethodParameter();
+        String headerCollectionPrefix = proxyMethodParameter.getHeaderCollectionPrefix();
+        Consumer<JavaBlock> writeLine;
+        if (headerCollectionPrefix != null && !headerCollectionPrefix.isEmpty()) {
+            writeLine = javaBlock -> javaBlock.line(String.format(
+                "%1$s.forEach((key, value) -> requestOptions.setHeader(HttpHeaderName.fromString(%2$s + key), String.valueOf(value)));",
+                parameter.getName(), ClassType.STRING.defaultValueExpression(headerCollectionPrefix)));
+        } else {
+            writeLine = javaBlock -> javaBlock.line(String.format("requestOptions.setHeader(%1$s, %2$s);",
                 ModelTemplateHeaderHelper.getHttpHeaderNameInstanceExpression(parameter.getSerializedName()),
                 expressionConvertToString(parameter.getName(), parameter.getClientMethodParameter().getWireType(),
-                    parameter.getProxyMethodParameter())));
+                    proxyMethodParameter)));
+        }
         if (!parameter.getClientMethodParameter().isRequired()) {
             methodBlock.ifBlock(String.format("%s != null", parameter.getName()), writeLine);
         } else {

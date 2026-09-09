@@ -12,6 +12,7 @@ import com.azure.core.exception.ClientAuthenticationException;
 import com.azure.core.exception.HttpResponseException;
 import com.azure.core.exception.ResourceModifiedException;
 import com.azure.core.exception.ResourceNotFoundException;
+import com.azure.core.http.HttpHeaderName;
 import com.azure.core.http.rest.RequestOptions;
 import com.azure.core.http.rest.Response;
 import java.util.Map;
@@ -37,8 +38,14 @@ public final class RequestHeadersClient {
 
     /**
      * The send operation.
+     * <p><strong>Header Parameters</strong></p>
+     * <table border="1">
+     * <caption>Header Parameters</caption>
+     * <tr><th>Name</th><th>Type</th><th>Required</th><th>Description</th></tr>
+     * <tr><td>x-ms-meta</td><td>Map&lt;String, String&gt;</td><td>No</td><td>The metadata parameter</td></tr>
+     * </table>
+     * You can add these to a request with {@link RequestOptions#addHeader}
      * 
-     * @param metadata The metadata parameter.
      * @param requestOptions The options to configure the HTTP request before HTTP client sends it.
      * @throws HttpResponseException thrown if the request is rejected by server.
      * @throws ClientAuthenticationException thrown if the request is rejected by server on status code 401.
@@ -48,8 +55,8 @@ public final class RequestHeadersClient {
      */
     @Generated
     @ServiceMethod(returns = ReturnType.SINGLE)
-    public Response<Void> sendWithResponse(Map<String, String> metadata, RequestOptions requestOptions) {
-        return this.serviceClient.sendWithResponse(metadata, requestOptions);
+    public Response<Void> sendWithResponse(RequestOptions requestOptions) {
+        return this.serviceClient.sendWithResponse(requestOptions);
     }
 
     /**
@@ -68,6 +75,27 @@ public final class RequestHeadersClient {
     public void send(Map<String, String> metadata) {
         // Generated convenience method for sendWithResponse
         RequestOptions requestOptions = new RequestOptions();
-        sendWithResponse(metadata, requestOptions).getValue();
+        if (metadata != null) {
+            metadata.forEach((key, value) -> requestOptions.setHeader(HttpHeaderName.fromString("x-ms-meta-" + key),
+                String.valueOf(value)));
+        }
+        sendWithResponse(requestOptions).getValue();
+    }
+
+    /**
+     * The send operation.
+     * 
+     * @throws HttpResponseException thrown if the request is rejected by server.
+     * @throws ClientAuthenticationException thrown if the request is rejected by server on status code 401.
+     * @throws ResourceNotFoundException thrown if the request is rejected by server on status code 404.
+     * @throws ResourceModifiedException thrown if the request is rejected by server on status code 409.
+     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
+     */
+    @Generated
+    @ServiceMethod(returns = ReturnType.SINGLE)
+    public void send() {
+        // Generated convenience method for sendWithResponse
+        RequestOptions requestOptions = new RequestOptions();
+        sendWithResponse(requestOptions).getValue();
     }
 }

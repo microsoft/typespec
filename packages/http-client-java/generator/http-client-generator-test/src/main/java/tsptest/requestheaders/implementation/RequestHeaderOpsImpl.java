@@ -5,7 +5,6 @@
 package tsptest.requestheaders.implementation;
 
 import com.azure.core.annotation.ExpectedResponses;
-import com.azure.core.annotation.HeaderParam;
 import com.azure.core.annotation.Host;
 import com.azure.core.annotation.HostParam;
 import com.azure.core.annotation.Post;
@@ -22,7 +21,6 @@ import com.azure.core.http.rest.Response;
 import com.azure.core.http.rest.RestProxy;
 import com.azure.core.util.Context;
 import com.azure.core.util.FluxUtil;
-import java.util.Map;
 import reactor.core.publisher.Mono;
 
 /**
@@ -63,8 +61,8 @@ public final class RequestHeaderOpsImpl {
         @UnexpectedResponseExceptionType(value = ResourceNotFoundException.class, code = { 404 })
         @UnexpectedResponseExceptionType(value = ResourceModifiedException.class, code = { 409 })
         @UnexpectedResponseExceptionType(HttpResponseException.class)
-        Mono<Response<Void>> send(@HostParam("endpoint") String endpoint,
-            @HeaderParam("x-ms-meta-") Map<String, String> metadata, RequestOptions requestOptions, Context context);
+        Mono<Response<Void>> send(@HostParam("endpoint") String endpoint, RequestOptions requestOptions,
+            Context context);
 
         @Post("/request-headers")
         @ExpectedResponses({ 204 })
@@ -72,14 +70,19 @@ public final class RequestHeaderOpsImpl {
         @UnexpectedResponseExceptionType(value = ResourceNotFoundException.class, code = { 404 })
         @UnexpectedResponseExceptionType(value = ResourceModifiedException.class, code = { 409 })
         @UnexpectedResponseExceptionType(HttpResponseException.class)
-        Response<Void> sendSync(@HostParam("endpoint") String endpoint,
-            @HeaderParam("x-ms-meta-") Map<String, String> metadata, RequestOptions requestOptions, Context context);
+        Response<Void> sendSync(@HostParam("endpoint") String endpoint, RequestOptions requestOptions, Context context);
     }
 
     /**
      * The send operation.
+     * <p><strong>Header Parameters</strong></p>
+     * <table border="1">
+     * <caption>Header Parameters</caption>
+     * <tr><th>Name</th><th>Type</th><th>Required</th><th>Description</th></tr>
+     * <tr><td>x-ms-meta</td><td>Map&lt;String, String&gt;</td><td>No</td><td>The metadata parameter</td></tr>
+     * </table>
+     * You can add these to a request with {@link RequestOptions#addHeader}
      * 
-     * @param metadata The metadata parameter.
      * @param requestOptions The options to configure the HTTP request before HTTP client sends it.
      * @throws HttpResponseException thrown if the request is rejected by server.
      * @throws ClientAuthenticationException thrown if the request is rejected by server on status code 401.
@@ -88,15 +91,20 @@ public final class RequestHeaderOpsImpl {
      * @return the {@link Response} on successful completion of {@link Mono}.
      */
     @ServiceMethod(returns = ReturnType.SINGLE)
-    public Mono<Response<Void>> sendWithResponseAsync(Map<String, String> metadata, RequestOptions requestOptions) {
-        return FluxUtil
-            .withContext(context -> service.send(this.client.getEndpoint(), metadata, requestOptions, context));
+    public Mono<Response<Void>> sendWithResponseAsync(RequestOptions requestOptions) {
+        return FluxUtil.withContext(context -> service.send(this.client.getEndpoint(), requestOptions, context));
     }
 
     /**
      * The send operation.
+     * <p><strong>Header Parameters</strong></p>
+     * <table border="1">
+     * <caption>Header Parameters</caption>
+     * <tr><th>Name</th><th>Type</th><th>Required</th><th>Description</th></tr>
+     * <tr><td>x-ms-meta</td><td>Map&lt;String, String&gt;</td><td>No</td><td>The metadata parameter</td></tr>
+     * </table>
+     * You can add these to a request with {@link RequestOptions#addHeader}
      * 
-     * @param metadata The metadata parameter.
      * @param requestOptions The options to configure the HTTP request before HTTP client sends it.
      * @throws HttpResponseException thrown if the request is rejected by server.
      * @throws ClientAuthenticationException thrown if the request is rejected by server on status code 401.
@@ -105,7 +113,7 @@ public final class RequestHeaderOpsImpl {
      * @return the {@link Response}.
      */
     @ServiceMethod(returns = ReturnType.SINGLE)
-    public Response<Void> sendWithResponse(Map<String, String> metadata, RequestOptions requestOptions) {
-        return service.sendSync(this.client.getEndpoint(), metadata, requestOptions, Context.NONE);
+    public Response<Void> sendWithResponse(RequestOptions requestOptions) {
+        return service.sendSync(this.client.getEndpoint(), requestOptions, Context.NONE);
     }
 }

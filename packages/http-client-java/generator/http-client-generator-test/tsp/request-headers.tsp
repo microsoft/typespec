@@ -8,7 +8,7 @@ using Azure.ClientGenerator.Core;
 namespace TspTest.RequestHeaders;
 
 model MetadataHeaders {
-  @header("x-ms-meta") metadata: string;
+  @header("x-ms-meta") metadata?: string;
 }
 
 @route("/request-headers")
