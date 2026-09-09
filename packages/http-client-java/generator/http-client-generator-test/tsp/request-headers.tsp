@@ -4,8 +4,8 @@ import "@azure-tools/typespec-client-generator-core";
 using TypeSpec.Http;
 using Azure.ClientGenerator.Core;
 
-@service(#{ title: "Header" })
-namespace TspTest.Header;
+@service(#{ title: "RequestHeaders" })
+namespace TspTest.RequestHeaders;
 
 model MetadataHeaders {
   @header("x-ms-meta") metadata: string;
