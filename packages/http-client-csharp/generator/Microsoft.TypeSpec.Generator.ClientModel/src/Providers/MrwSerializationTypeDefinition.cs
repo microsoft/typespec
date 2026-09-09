@@ -2384,7 +2384,9 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
                 var t when t == typeof(string) || t == typeof(char) || t == typeof(Guid) =>
                     utf8JsonWriter.WriteStringValue(value),
                 var t when t == typeof(bool) =>
-                    utf8JsonWriter.WriteBooleanValue(value),
+                    serializationFormat == SerializationFormat.Boolean_String
+                        ? utf8JsonWriter.WriteStringValue(new TernaryConditionalExpression(value, Literal("true"), Literal("false")))
+                        : utf8JsonWriter.WriteBooleanValue(value),
                 var t when t == typeof(byte[]) =>
                     utf8JsonWriter.WriteBase64StringValue(value, serializationFormat.ToFormatSpecifier()),
                 var t when t == typeof(DateTimeOffset) || t == typeof(DateTime) || t == typeof(TimeSpan) =>
@@ -2470,7 +2472,9 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
                 Type t when t == typeof(object) =>
                     element.GetObject(),
                 Type t when t == typeof(bool) =>
-                    element.GetBoolean(),
+                    format == SerializationFormat.Boolean_String
+                        ? Static<bool>().Invoke(nameof(bool.Parse), element.GetString())
+                        : element.GetBoolean(),
                 Type t when t == typeof(char) =>
                     element.GetChar(),
                 Type t when ValueTypeIsInt(t) =>
