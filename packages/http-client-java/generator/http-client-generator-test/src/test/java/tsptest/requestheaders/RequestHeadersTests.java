@@ -4,6 +4,8 @@
 package tsptest.requestheaders;
 
 import com.azure.core.http.HttpHeaderName;
+import com.azure.core.http.rest.RequestOptions;
+import com.azure.core.http.rest.Response;
 import com.azure.core.test.http.MockHttpResponse;
 import java.util.LinkedHashMap;
 import java.util.Map;
@@ -35,6 +37,8 @@ public class RequestHeadersTests {
         metadata.put("key2", "value2");
         metadata.put(null, "ignored");
         metadata.put("key3", null);
-        client.send(metadata, Map.of("level", MetadataValue.HIGH));
+        Response<Void> response
+            = client.sendWithResponse(metadata, Map.of("level", MetadataValue.HIGH), new RequestOptions());
+        Assertions.assertEquals(204, response.getStatusCode());
     }
 }

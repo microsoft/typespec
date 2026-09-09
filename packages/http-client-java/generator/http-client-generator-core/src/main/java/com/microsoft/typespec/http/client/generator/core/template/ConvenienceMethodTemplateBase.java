@@ -339,6 +339,19 @@ abstract class ConvenienceMethodTemplateBase {
         } else {
             createEmptyRequestOptions(methodBlock);
         }
+        boolean hasHeaderCollectionParameter = parametersMap.keySet()
+            .stream()
+            .map(MethodParameter::getProxyMethodParameter)
+            .filter(Objects::nonNull)
+            .anyMatch(parameter -> parameter.getRequestParameterLocation() == RequestParameterLocation.HEADER
+                && parameter.getHeaderCollectionPrefix() != null
+                && !parameter.getHeaderCollectionPrefix().isEmpty()
+                && parameter.getClientType() instanceof MapType);
+        String requestOptionsForHeaders = "requestOptions";
+        if (hasRequestOptionsParameter && hasHeaderCollectionParameter) {
+            requestOptionsForHeaders = "requestOptionsLocal";
+            methodBlock.line("RequestOptions requestOptionsLocal = requestOptions;");
+        }
 
         // parameter transformation
         final ParameterTransformations transformations = convenienceMethod.getParameterTransformations();
@@ -376,7 +389,7 @@ abstract class ConvenienceMethodTemplateBase {
                 // protocol method parameter does not exist, set the parameter via RequestOptions
                 switch (parameter.getProxyMethodParameter().getRequestParameterLocation()) {
                     case HEADER:
-                        writeHeader(parameter, methodBlock);
+                        writeHeader(parameter, requestOptionsForHeaders, methodBlock);
                         break;
 
                     case QUERY:
@@ -813,7 +826,7 @@ abstract class ConvenienceMethodTemplateBase {
         }
     }
 
-    private static void writeHeader(MethodParameter parameter, JavaBlock methodBlock) {
+    private static void writeHeader(MethodParameter parameter, String requestOptionsName, JavaBlock methodBlock) {
         ProxyMethodParameter proxyMethodParameter = parameter.getProxyMethodParameter();
         String headerCollectionPrefix = proxyMethodParameter.getHeaderCollectionPrefix();
         Consumer<JavaBlock> writeLine;
@@ -825,12 +838,13 @@ abstract class ConvenienceMethodTemplateBase {
             writeLine = javaBlock -> {
                 javaBlock.line("%s.forEach((key, value) -> {", parameter.getName());
                 javaBlock.indent(() -> javaBlock.ifBlock("key != null && value != null",
-                    ifBlock -> ifBlock.line("requestOptions.setHeader(HttpHeaderName.fromString(%s + key), %s);",
-                        ClassType.STRING.defaultValueExpression(headerCollectionPrefix), valueExpression)));
+                    ifBlock -> ifBlock.line("%s.setHeader(HttpHeaderName.fromString(%s + key), %s);",
+                        requestOptionsName, ClassType.STRING.defaultValueExpression(headerCollectionPrefix),
+                        valueExpression)));
                 javaBlock.line("});");
             };
         } else {
-            writeLine = javaBlock -> javaBlock.line(String.format("requestOptions.setHeader(%1$s, %2$s);",
+            writeLine = javaBlock -> javaBlock.line(String.format("%1$s.setHeader(%2$s, %3$s);", requestOptionsName,
                 ModelTemplateHeaderHelper.getHttpHeaderNameInstanceExpression(parameter.getSerializedName()),
                 expressionConvertToString(parameter.getName(), parameter.getClientMethodParameter().getWireType(),
                     proxyMethodParameter)));

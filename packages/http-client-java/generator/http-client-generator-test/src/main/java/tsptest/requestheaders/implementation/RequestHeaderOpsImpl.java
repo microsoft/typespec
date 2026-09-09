@@ -93,7 +93,7 @@ public final class RequestHeaderOpsImpl {
      * @return the {@link Response} on successful completion of {@link Mono}.
      */
     @ServiceMethod(returns = ReturnType.SINGLE)
-    public Mono<Response<Void>> sendWithResponseAsync(RequestOptions requestOptions) {
+    public Mono<Response<Void>> sendWithResponseInternalAsync(RequestOptions requestOptions) {
         return FluxUtil.withContext(context -> service.send(this.client.getEndpoint(), requestOptions, context));
     }
 
@@ -117,7 +117,7 @@ public final class RequestHeaderOpsImpl {
      * @return the {@link Response}.
      */
     @ServiceMethod(returns = ReturnType.SINGLE)
-    public Response<Void> sendWithResponse(RequestOptions requestOptions) {
+    public Response<Void> sendWithResponseInternal(RequestOptions requestOptions) {
         return service.sendSync(this.client.getEndpoint(), requestOptions, Context.NONE);
     }
 }
