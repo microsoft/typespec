@@ -33,6 +33,7 @@ safe-outputs:
   add-comment:
 
 tools:
+  bash: false
   web-fetch:
   github:
     toolsets: [issues, repos]
@@ -45,7 +46,7 @@ timeout-minutes: 10
 source: githubnext/agentics/workflows/issue-triage.md@346204513ecfa08b81566450d7d599556807389f
 engine:
   id: copilot
-  model: gpt-5.6-sol
+model: gpt-5.6-sol
 ---
 
 # Agentic Triage
