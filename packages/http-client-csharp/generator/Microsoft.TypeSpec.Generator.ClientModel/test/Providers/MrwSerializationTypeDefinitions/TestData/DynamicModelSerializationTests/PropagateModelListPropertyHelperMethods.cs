@@ -31,7 +31,7 @@ namespace Sample
             }
             for (int i = 0; (i < P1.Count); i++)
             {
-                if (!P1[i].Patch.IsRemoved("$"u8))
+                if (((P1[i] == null) || !P1[i].Patch.IsRemoved("$"u8)))
                 {
                     yield return P1[i];
                 }

@@ -3,7 +3,9 @@
 
 using System;
 using System.ClientModel.Primitives;
+using System.Collections.Generic;
 using System.Linq;
+using System.Text;
 using System.Text.Json;
 using SampleTypeSpec;
 using NUnit.Framework;
@@ -118,6 +120,229 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.ModelReaderWriterValida
             model.Patch.Set("$.listFoo[1].bar"u8, "\"patched\""u8);
             model.Patch.Set("$.listOfListFoo[0][0].bar"u8, "\"patched\""u8);
 #pragma warning restore SCME0001 // Type is for evaluation purposes only and is subject to change or removal in future updates.
+        }
+
+        [TestCase("modelValue", "J")]
+        [TestCase("modelValue", "W")]
+        [TestCase("children", "J")]
+        [TestCase("children", "W")]
+        [TestCase("childDictionary", "J")]
+        [TestCase("childDictionary", "W")]
+        [TestCase("nestedChildren", "J")]
+        [TestCase("nestedChildren", "W")]
+        [TestCase("nestedChildDictionary", "J")]
+        [TestCase("nestedChildDictionary", "W")]
+        [TestCase("dictionaryChildren", "J")]
+        [TestCase("dictionaryChildren", "W")]
+        [TestCase("listOfDictionaries", "J")]
+        [TestCase("listOfDictionaries", "W")]
+        public void JsonPatchSetNull_NullDynamicProperty(string propertyName, string format)
+        {
+            var model = CreateNullableDynamicModel(propertyName);
+            var path = Encoding.UTF8.GetBytes($"$.{propertyName}");
+
+#pragma warning disable SCME0001
+            Assert.That(model.Patch.TryGetJson(path, out _), Is.False);
+            model.Patch.SetNull(path);
+            Assert.That(model.Patch.TryGetJson(path, out var json), Is.True);
+            Assert.That(Encoding.UTF8.GetString(json.Span), Is.EqualTo("null"));
+#pragma warning restore SCME0001
+
+            var data = ModelReaderWriter.Write(model, new ModelReaderWriterOptions(format), SampleTypeSpecContext.Default);
+            using var document = JsonDocument.Parse(data);
+            Assert.That(GetRootPropertyCount(document.RootElement, propertyName), Is.EqualTo(1));
+            Assert.That(document.RootElement.GetProperty(propertyName).ValueKind, Is.EqualTo(JsonValueKind.Null));
+        }
+
+        [TestCase(false)]
+        [TestCase(true)]
+        public void JsonPatchSetNull_UninitializedDynamicChild(bool deserialize)
+        {
+            var model = deserialize
+                ? ModelReaderWriter.Read<NullableDynamicModel>(
+                    BinaryData.FromString("{}"), ModelReaderWriterOptions.Json, SampleTypeSpecContext.Default)!
+                : new NullableDynamicModel();
+
+            Assert.That(model.ModelValue, Is.Null);
+#pragma warning disable SCME0001
+            model.Patch.SetNull("$.modelValue"u8);
+#pragma warning restore SCME0001
+            Assert.That(model.ModelValue, Is.Null);
+
+            var data = ModelReaderWriter.Write(model, new ModelReaderWriterOptions("W"), SampleTypeSpecContext.Default);
+            using var document = JsonDocument.Parse(data);
+            Assert.That(document.RootElement.GetProperty("modelValue").ValueKind, Is.EqualTo(JsonValueKind.Null));
+        }
+
+        [TestCase("modelValue")]
+        [TestCase("children")]
+        [TestCase("childDictionary")]
+        [TestCase("nestedChildren")]
+        [TestCase("nestedChildDictionary")]
+        [TestCase("dictionaryChildren")]
+        [TestCase("listOfDictionaries")]
+        public void JsonPatchRemove_NullDynamicProperty(string propertyName)
+        {
+            var model = CreateNullableDynamicModel(propertyName);
+            var path = Encoding.UTF8.GetBytes($"$.{propertyName}");
+
+#pragma warning disable SCME0001
+            model.Patch.SetNull(path);
+            model.Patch.Remove(path);
+            Assert.That(model.Patch.IsRemoved(path), Is.True);
+#pragma warning restore SCME0001
+
+            var data = ModelReaderWriter.Write(model, new ModelReaderWriterOptions("W"), SampleTypeSpecContext.Default);
+            using var document = JsonDocument.Parse(data);
+            Assert.That(document.RootElement.TryGetProperty(propertyName, out _), Is.False);
+        }
+
+        [TestCase("$.modelValue.extra", """{"modelValue":{"extra":"patched"}}""")]
+        [TestCase("$.children[0].extra", """{"children":[{"extra":"patched"}]}""")]
+        [TestCase("$.childDictionary.key.extra", """{"childDictionary":{"key":{"extra":"patched"}}}""")]
+        [TestCase("$.nestedChildren[0][0].extra", """{"nestedChildren":[[{"extra":"patched"}]]}""")]
+        [TestCase("$.nestedChildDictionary.key.inner.extra", """{"nestedChildDictionary":{"key":{"inner":{"extra":"patched"}}}}""")]
+        [TestCase("$.dictionaryChildren.key[0].extra", """{"dictionaryChildren":{"key":[{"extra":"patched"}]}}""")]
+        [TestCase("$.listOfDictionaries[0].key.extra", """{"listOfDictionaries":[{"key":{"extra":"patched"}}]}""")]
+        public void JsonPatch_NullDynamicPropertyFallsBackToParent(string jsonPath, string expectedJson)
+        {
+            var model = CreateNullableDynamicModel(jsonPath.Split('.', '[')[1]);
+            var path = Encoding.UTF8.GetBytes(jsonPath);
+
+#pragma warning disable SCME0001
+            Assert.That(model.Patch.TryGetValue(path, out string? _), Is.False);
+            model.Patch.Set(path, "patched");
+            Assert.That(model.Patch.TryGetValue(path, out string? value), Is.True);
+            Assert.That(value, Is.EqualTo("patched"));
+#pragma warning restore SCME0001
+
+            var data = ModelReaderWriter.Write(model, new ModelReaderWriterOptions("W"), SampleTypeSpecContext.Default);
+            Assert.That(data.ToString(), Is.EqualTo(expectedJson));
+        }
+
+        [TestCase("$.children[0].extra")]
+        [TestCase("$.childDictionary.key.extra")]
+        [TestCase("$.nestedChildren[0][0].extra")]
+        [TestCase("$.nestedChildren[1][0].extra")]
+        [TestCase("$.nestedChildDictionary.key.inner.extra")]
+        [TestCase("$.nestedChildDictionary.other.inner.extra")]
+        [TestCase("$.dictionaryChildren.key[0].extra")]
+        [TestCase("$.dictionaryChildren.other[0].extra")]
+        [TestCase("$.listOfDictionaries[0].key.extra")]
+        [TestCase("$.listOfDictionaries[1].key.extra")]
+        public void JsonPatch_NullDynamicCollectionEntryFallsBackToParent(string jsonPath)
+        {
+            var model = new NullableDynamicModel
+            {
+                Children = [null],
+                ChildDictionary = new Dictionary<string, AnotherDynamicModel> { ["key"] = null! },
+                NestedChildren = [null, new List<AnotherDynamicModel> { null! }],
+                NestedChildDictionary = new Dictionary<string, IDictionary<string, AnotherDynamicModel>>
+                {
+                    ["key"] = null!,
+                    ["other"] = new Dictionary<string, AnotherDynamicModel> { ["inner"] = null! }
+                },
+                DictionaryChildren = new Dictionary<string, IList<AnotherDynamicModel>>
+                {
+                    ["key"] = null!,
+                    ["other"] = new List<AnotherDynamicModel> { null! }
+                },
+                ListOfDictionaries = [null, new Dictionary<string, AnotherDynamicModel> { ["key"] = null! }]
+            };
+            var path = Encoding.UTF8.GetBytes(jsonPath);
+
+#pragma warning disable SCME0001
+            Assert.That(model.Patch.TryGetValue(path, out string? _), Is.False);
+            model.Patch.Set(path, "patched");
+            Assert.That(model.Patch.TryGetValue(path, out string? value), Is.True);
+            Assert.That(value, Is.EqualTo("patched"));
+#pragma warning restore SCME0001
+        }
+
+        [Test]
+        public void JsonPatch_UsesCurrentDynamicChildAfterAssignment()
+        {
+            var model = new NullableDynamicModel();
+            var first = new AnotherDynamicModel("first");
+            var second = new AnotherDynamicModel("second");
+
+#pragma warning disable SCME0001
+            Assert.That(model.Patch.TryGetValue("$.modelValue.extra"u8, out string? _), Is.False);
+
+            model.ModelValue = first;
+            model.Patch.Set("$.modelValue.extra"u8, "one");
+            Assert.That(first.Patch.GetString("$.extra"u8), Is.EqualTo("one"));
+
+            model.ModelValue = second;
+            Assert.That(model.Patch.TryGetValue("$.modelValue.extra"u8, out string? _), Is.False);
+            model.Patch.Set("$.modelValue.extra"u8, "two");
+            Assert.That(second.Patch.GetString("$.extra"u8), Is.EqualTo("two"));
+            Assert.That(first.Patch.GetString("$.extra"u8), Is.EqualTo("one"));
+            Assert.That(model.Patch.GetString("$.modelValue.extra"u8), Is.EqualTo("two"));
+
+            model.ModelValue = null;
+            Assert.That(model.Patch.TryGetValue("$.modelValue.extra"u8, out string? _), Is.False);
+            model.Patch.SetNull("$.modelValue"u8);
+#pragma warning restore SCME0001
+
+            var data = ModelReaderWriter.Write(model, new ModelReaderWriterOptions("W"), SampleTypeSpecContext.Default);
+            using var document = JsonDocument.Parse(data);
+            Assert.That(document.RootElement.GetProperty("modelValue").ValueKind, Is.EqualTo(JsonValueKind.Null));
+        }
+
+        [Test]
+        public void JsonPatch_NullableDynamicListElementsArePreserved()
+        {
+            var model = new NullableDynamicModel
+            {
+                Children = [null, new AnotherDynamicModel("present")]
+            };
+
+#pragma warning disable SCME0001
+            Assert.That(model.Patch.TryGetJson("$.children"u8, out var json), Is.True);
+            using var patchDocument = JsonDocument.Parse(json);
+            Assert.That(patchDocument.RootElement[0].ValueKind, Is.EqualTo(JsonValueKind.Null));
+            Assert.That(patchDocument.RootElement[1].GetProperty("bar").GetString(), Is.EqualTo("present"));
+#pragma warning restore SCME0001
+
+            var data = ModelReaderWriter.Write(model, new ModelReaderWriterOptions("W"), SampleTypeSpecContext.Default);
+            using var document = JsonDocument.Parse(data);
+            var children = document.RootElement.GetProperty("children");
+            Assert.That(children.GetArrayLength(), Is.EqualTo(2));
+            Assert.That(children[0].ValueKind, Is.EqualTo(JsonValueKind.Null));
+            Assert.That(children[1].GetProperty("bar").GetString(), Is.EqualTo("present"));
+        }
+
+        private static NullableDynamicModel CreateNullableDynamicModel(string propertyName)
+        {
+            var model = new NullableDynamicModel();
+            switch (propertyName)
+            {
+                case "modelValue":
+                    model.ModelValue = null;
+                    break;
+                case "children":
+                    model.Children = null;
+                    break;
+                case "childDictionary":
+                    model.ChildDictionary = null;
+                    break;
+                case "nestedChildren":
+                    model.NestedChildren = null;
+                    break;
+                case "nestedChildDictionary":
+                    model.NestedChildDictionary = null;
+                    break;
+                case "dictionaryChildren":
+                    model.DictionaryChildren = null;
+                    break;
+                case "listOfDictionaries":
+                    model.ListOfDictionaries = null;
+                    break;
+                default:
+                    throw new ArgumentOutOfRangeException(nameof(propertyName), propertyName, null);
+            }
+            return model;
         }
 
         private static DynamicModel ReadDynamicModel()

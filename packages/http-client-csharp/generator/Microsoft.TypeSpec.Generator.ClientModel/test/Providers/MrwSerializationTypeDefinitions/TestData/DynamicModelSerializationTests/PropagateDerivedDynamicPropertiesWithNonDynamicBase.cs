@@ -17,6 +17,10 @@ namespace Sample
 
             if (local.StartsWith("derivedProp"u8))
             {
+                if ((DerivedProp == null))
+                {
+                    return false;
+                }
                 return DerivedProp.Patch.TryGetEncodedValue([.. "$"u8, .. local.Slice("derivedProp"u8.Length)], out value);
             }
             return false;
@@ -30,6 +34,10 @@ namespace Sample
 
             if (local.StartsWith("derivedProp"u8))
             {
+                if ((DerivedProp == null))
+                {
+                    return false;
+                }
                 DerivedProp.Patch.Set([.. "$"u8, .. local.Slice("derivedProp"u8.Length)], value);
                 return true;
             }

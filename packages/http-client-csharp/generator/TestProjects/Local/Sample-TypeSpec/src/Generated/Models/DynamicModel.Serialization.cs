@@ -269,7 +269,7 @@ namespace SampleTypeSpec
                 writer.WriteStartArray();
                 for (int i = 0; i < ListFoo.Count; i++)
                 {
-                    if (ListFoo[i].Patch.IsRemoved("$"u8))
+                    if (ListFoo[i] != null && ListFoo[i].Patch.IsRemoved("$"u8))
                     {
                         continue;
                     }
@@ -304,7 +304,7 @@ namespace SampleTypeSpec
                     writer.WriteStartArray();
                     for (int i0 = 0; i0 < ListOfListFoo[i].Count; i0++)
                     {
-                        if (ListOfListFoo[i][i0].Patch.IsRemoved("$"u8))
+                        if (ListOfListFoo[i][i0] != null && ListOfListFoo[i][i0].Patch.IsRemoved("$"u8))
                         {
                             continue;
                         }
@@ -417,7 +417,7 @@ namespace SampleTypeSpec
                         writer.WriteStartArray();
                         for (int i = 0; i < item.Value.Count; i++)
                         {
-                            if (item.Value[i].Patch.IsRemoved("$"u8))
+                            if (item.Value[i] != null && item.Value[i].Patch.IsRemoved("$"u8))
                             {
                                 continue;
                             }
@@ -767,17 +767,29 @@ namespace SampleTypeSpec
 
             if (local.StartsWith("foo"u8))
             {
+                if (Foo == null)
+                {
+                    return false;
+                }
                 return Foo.Patch.TryGetEncodedValue([.. "$"u8, .. local.Slice("foo"u8.Length)], out value);
             }
             if (local.StartsWith("listFoo"u8))
             {
                 int propertyLength = "listFoo"u8.Length;
                 ReadOnlySpan<byte> currentSlice = local.Slice(propertyLength);
+                if (ListFoo == null)
+                {
+                    return false;
+                }
                 if (currentSlice.IsEmpty)
                 {
                     return TryResolveListFooArray(out value);
                 }
                 if (!currentSlice.TryGetIndex(out int index, out int bytesConsumed) || index >= ListFoo.Count)
+                {
+                    return false;
+                }
+                if (ListFoo[index] == null)
                 {
                     return false;
                 }
@@ -787,12 +799,24 @@ namespace SampleTypeSpec
             {
                 int propertyLength = "listOfListFoo"u8.Length;
                 ReadOnlySpan<byte> currentSlice = local.Slice(propertyLength);
+                if (ListOfListFoo == null)
+                {
+                    return false;
+                }
                 if (!currentSlice.TryGetIndex(out int index, out int bytesConsumed) || index >= ListOfListFoo.Count)
                 {
                     return false;
                 }
                 currentSlice = currentSlice.Slice(bytesConsumed);
+                if (ListOfListFoo[index] == null)
+                {
+                    return false;
+                }
                 if (!currentSlice.TryGetIndex(out int index0, out int bytesConsumed0) || index0 >= ListOfListFoo[index].Count)
+                {
+                    return false;
+                }
+                if (ListOfListFoo[index][index0] == null)
                 {
                     return false;
                 }
@@ -802,8 +826,16 @@ namespace SampleTypeSpec
             {
                 int propertyLength = "dictionaryFoo"u8.Length;
                 ReadOnlySpan<byte> currentSlice = local.Slice(propertyLength);
+                if (DictionaryFoo == null)
+                {
+                    return false;
+                }
                 string key = currentSlice.GetFirstPropertyName(out int i);
                 if (!DictionaryFoo.TryGetValue(key, out AnotherDynamicModel item))
+                {
+                    return false;
+                }
+                if (item == null)
                 {
                     return false;
                 }
@@ -813,14 +845,26 @@ namespace SampleTypeSpec
             {
                 int propertyLength = "dictionaryOfDictionaryFoo"u8.Length;
                 ReadOnlySpan<byte> currentSlice = local.Slice(propertyLength);
+                if (DictionaryOfDictionaryFoo == null)
+                {
+                    return false;
+                }
                 string key = currentSlice.GetFirstPropertyName(out int i);
                 if (!DictionaryOfDictionaryFoo.TryGetValue(key, out IDictionary<string, AnotherDynamicModel> item))
                 {
                     return false;
                 }
                 currentSlice = currentSlice.GetRemainder(i);
+                if (item == null)
+                {
+                    return false;
+                }
                 string key0 = currentSlice.GetFirstPropertyName(out int i0);
                 if (!item.TryGetValue(key0, out AnotherDynamicModel item0))
+                {
+                    return false;
+                }
+                if (item0 == null)
                 {
                     return false;
                 }
@@ -830,13 +874,25 @@ namespace SampleTypeSpec
             {
                 int propertyLength = "dictionaryListFoo"u8.Length;
                 ReadOnlySpan<byte> currentSlice = local.Slice(propertyLength);
+                if (DictionaryListFoo == null)
+                {
+                    return false;
+                }
                 string key = currentSlice.GetFirstPropertyName(out int i);
                 if (!DictionaryListFoo.TryGetValue(key, out IList<AnotherDynamicModel> item))
                 {
                     return false;
                 }
                 currentSlice = currentSlice.GetRemainder(i);
+                if (item == null)
+                {
+                    return false;
+                }
                 if (!currentSlice.TryGetIndex(out int index, out int bytesConsumed) || index >= item.Count)
+                {
+                    return false;
+                }
+                if (item[index] == null)
                 {
                     return false;
                 }
@@ -846,13 +902,25 @@ namespace SampleTypeSpec
             {
                 int propertyLength = "listOfDictionaryFoo"u8.Length;
                 ReadOnlySpan<byte> currentSlice = local.Slice(propertyLength);
+                if (ListOfDictionaryFoo == null)
+                {
+                    return false;
+                }
                 if (!currentSlice.TryGetIndex(out int index, out int bytesConsumed) || index >= ListOfDictionaryFoo.Count)
                 {
                     return false;
                 }
                 currentSlice = currentSlice.Slice(bytesConsumed);
+                if (ListOfDictionaryFoo[index] == null)
+                {
+                    return false;
+                }
                 string key = currentSlice.GetFirstPropertyName(out int i);
                 if (!ListOfDictionaryFoo[index].TryGetValue(key, out AnotherDynamicModel item))
+                {
+                    return false;
+                }
+                if (item == null)
                 {
                     return false;
                 }
@@ -873,6 +941,10 @@ namespace SampleTypeSpec
 
             if (local.StartsWith("foo"u8))
             {
+                if (Foo == null)
+                {
+                    return false;
+                }
                 Foo.Patch.Set([.. "$"u8, .. local.Slice("foo"u8.Length)], value);
                 return true;
             }
@@ -880,7 +952,15 @@ namespace SampleTypeSpec
             {
                 int propertyLength = "listFoo"u8.Length;
                 ReadOnlySpan<byte> currentSlice = local.Slice(propertyLength);
+                if (ListFoo == null)
+                {
+                    return false;
+                }
                 if (!currentSlice.TryGetIndex(out int index, out int bytesConsumed) || index >= ListFoo.Count)
+                {
+                    return false;
+                }
+                if (ListFoo[index] == null)
                 {
                     return false;
                 }
@@ -891,12 +971,24 @@ namespace SampleTypeSpec
             {
                 int propertyLength = "listOfListFoo"u8.Length;
                 ReadOnlySpan<byte> currentSlice = local.Slice(propertyLength);
+                if (ListOfListFoo == null)
+                {
+                    return false;
+                }
                 if (!currentSlice.TryGetIndex(out int index, out int bytesConsumed) || index >= ListOfListFoo.Count)
                 {
                     return false;
                 }
                 currentSlice = currentSlice.Slice(bytesConsumed);
+                if (ListOfListFoo[index] == null)
+                {
+                    return false;
+                }
                 if (!currentSlice.TryGetIndex(out int index0, out int bytesConsumed0) || index0 >= ListOfListFoo[index].Count)
+                {
+                    return false;
+                }
+                if (ListOfListFoo[index][index0] == null)
                 {
                     return false;
                 }
@@ -907,8 +999,16 @@ namespace SampleTypeSpec
             {
                 int propertyLength = "dictionaryFoo"u8.Length;
                 ReadOnlySpan<byte> currentSlice = local.Slice(propertyLength);
+                if (DictionaryFoo == null)
+                {
+                    return false;
+                }
                 string key = currentSlice.GetFirstPropertyName(out int i);
                 if (!DictionaryFoo.TryGetValue(key, out AnotherDynamicModel item))
+                {
+                    return false;
+                }
+                if (item == null)
                 {
                     return false;
                 }
@@ -919,14 +1019,26 @@ namespace SampleTypeSpec
             {
                 int propertyLength = "dictionaryOfDictionaryFoo"u8.Length;
                 ReadOnlySpan<byte> currentSlice = local.Slice(propertyLength);
+                if (DictionaryOfDictionaryFoo == null)
+                {
+                    return false;
+                }
                 string key = currentSlice.GetFirstPropertyName(out int i);
                 if (!DictionaryOfDictionaryFoo.TryGetValue(key, out IDictionary<string, AnotherDynamicModel> item))
                 {
                     return false;
                 }
                 currentSlice = currentSlice.GetRemainder(i);
+                if (item == null)
+                {
+                    return false;
+                }
                 string key0 = currentSlice.GetFirstPropertyName(out int i0);
                 if (!item.TryGetValue(key0, out AnotherDynamicModel item0))
+                {
+                    return false;
+                }
+                if (item0 == null)
                 {
                     return false;
                 }
@@ -937,13 +1049,25 @@ namespace SampleTypeSpec
             {
                 int propertyLength = "dictionaryListFoo"u8.Length;
                 ReadOnlySpan<byte> currentSlice = local.Slice(propertyLength);
+                if (DictionaryListFoo == null)
+                {
+                    return false;
+                }
                 string key = currentSlice.GetFirstPropertyName(out int i);
                 if (!DictionaryListFoo.TryGetValue(key, out IList<AnotherDynamicModel> item))
                 {
                     return false;
                 }
                 currentSlice = currentSlice.GetRemainder(i);
+                if (item == null)
+                {
+                    return false;
+                }
                 if (!currentSlice.TryGetIndex(out int index, out int bytesConsumed) || index >= item.Count)
+                {
+                    return false;
+                }
+                if (item[index] == null)
                 {
                     return false;
                 }
@@ -954,13 +1078,25 @@ namespace SampleTypeSpec
             {
                 int propertyLength = "listOfDictionaryFoo"u8.Length;
                 ReadOnlySpan<byte> currentSlice = local.Slice(propertyLength);
+                if (ListOfDictionaryFoo == null)
+                {
+                    return false;
+                }
                 if (!currentSlice.TryGetIndex(out int index, out int bytesConsumed) || index >= ListOfDictionaryFoo.Count)
                 {
                     return false;
                 }
                 currentSlice = currentSlice.Slice(bytesConsumed);
+                if (ListOfDictionaryFoo[index] == null)
+                {
+                    return false;
+                }
                 string key = currentSlice.GetFirstPropertyName(out int i);
                 if (!ListOfDictionaryFoo[index].TryGetValue(key, out AnotherDynamicModel item))
+                {
+                    return false;
+                }
+                if (item == null)
                 {
                     return false;
                 }
@@ -996,7 +1132,7 @@ namespace SampleTypeSpec
             }
             for (int i = 0; i < ListFoo.Count; i++)
             {
-                if (!ListFoo[i].Patch.IsRemoved("$"u8))
+                if (ListFoo[i] == null || !ListFoo[i].Patch.IsRemoved("$"u8))
                 {
                     yield return ListFoo[i];
                 }
