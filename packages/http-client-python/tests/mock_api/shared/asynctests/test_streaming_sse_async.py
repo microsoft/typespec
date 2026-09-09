@@ -8,6 +8,7 @@ import json
 import pytest
 import pytest_asyncio
 
+import streaming.sse._utils.streaming_base as streaming_base
 from streaming.sse.aio import SseClient
 from streaming.sse._utils.streaming_base import AsyncStream
 from streaming.sse.named.models import ResponseCreated, ResponseDelta
@@ -111,14 +112,10 @@ async def test_protocol_invalid_retry(client: SseClient):
 async def test_protocol_reconnect(client: SseClient):
     async with await client.protocol.reconnect() as stream:
         first = await stream.__anext__()
-        assert isinstance(first, ProtocolInfo)
-        assert first.message == "hello"
-        assert stream.last_event_id == "event-1"
-
-    async with await client.protocol.reconnect(last_event_id="event-1") as stream:
         second = await stream.__anext__()
+        assert isinstance(first, ProtocolInfo)
         assert isinstance(second, ProtocolInfo)
-        assert second.message == "world"
+        assert [first.message, second.message] == ["hello", "world"]
         assert stream.last_event_id == "event-2"
 
 
@@ -287,3 +284,109 @@ async def test_sse_protocol_invalid_metadata_is_ignored():
     assert [item async for item in stream] == ["hello"]
     assert stream.last_event_id == ""
     assert stream.retry is None
+
+
+@pytest.mark.asyncio
+async def test_sse_reconnects_on_eof_using_latest_metadata():
+    responses = [
+        _FakeAsyncResponse(b"id: first\nretry: 0\ndata: one\n\n"),
+        _FakeAsyncResponse(b"id: second\ndata: two\n\ndata: [DONE]\n\n"),
+    ]
+    reconnect_ids = []
+
+    async def reconnect(last_event_id):
+        reconnect_ids.append(last_event_id)
+        return responses.pop(0)
+
+    stream = AsyncStream(
+        response=responses.pop(0),
+        deserialization_callback=lambda _response, event: event.data,
+        terminal_event="[DONE]",
+        reconnect_callback=reconnect,
+    )
+
+    assert [item async for item in stream] == ["one", "two"]
+    assert reconnect_ids == ["first"]
+    assert stream.last_event_id == "second"
+
+
+@pytest.mark.asyncio
+async def test_sse_reconnects_with_default_delay(monkeypatch):
+    responses = [_FakeAsyncResponse(b"data: one\n\n"), _FakeAsyncResponse(b"data: [DONE]\n\n")]
+    sleeps = []
+
+    async def sleep(delay):
+        sleeps.append(delay)
+
+    async def reconnect(_last_event_id):
+        return responses.pop(0)
+
+    monkeypatch.setattr(streaming_base.asyncio, "sleep", sleep)
+    stream = AsyncStream(
+        response=responses.pop(0),
+        deserialization_callback=lambda _response, event: event.data,
+        terminal_event="[DONE]",
+        reconnect_callback=reconnect,
+    )
+
+    assert [item async for item in stream] == ["one"]
+    assert sleeps == [3.0]
+
+
+@pytest.mark.asyncio
+async def test_sse_reconnect_preserves_initial_event_id():
+    responses = [_FakeAsyncResponse(b"retry: 0\ndata: one\n\n"), _FakeAsyncResponse(b"data: [DONE]\n\n")]
+    reconnect_ids = []
+
+    async def reconnect(last_event_id):
+        reconnect_ids.append(last_event_id)
+        return responses.pop(0)
+
+    stream = AsyncStream(
+        response=responses.pop(0),
+        deserialization_callback=lambda _response, event: event.data,
+        terminal_event="[DONE]",
+        last_event_id="prior",
+        reconnect_callback=reconnect,
+    )
+
+    assert [item async for item in stream] == ["one"]
+    assert reconnect_ids == ["prior"]
+    assert stream.last_event_id == "prior"
+
+
+@pytest.mark.asyncio
+async def test_sse_does_not_reconnect_after_terminal_predicate():
+    response = _FakeAsyncResponse(b"retry: 0\ndata: done\n\n")
+
+    async def reconnect(_last_event_id):
+        pytest.fail("unexpected reconnect")
+
+    stream = AsyncStream(
+        response=response,
+        deserialization_callback=lambda _response, event: event.data,
+        terminal_event_predicate=lambda event: event.data == "done",
+        reconnect_callback=reconnect,
+    )
+
+    assert [item async for item in stream] == ["done"]
+
+
+@pytest.mark.asyncio
+async def test_sse_stops_reconnecting_after_http_204():
+    responses = [_FakeAsyncResponse(b"retry: 0\ndata: one\n\n"), _FakeAsyncResponse(b"")]
+    responses[1].status_code = 204
+    reconnect_ids = []
+
+    async def reconnect(last_event_id):
+        reconnect_ids.append(last_event_id)
+        return responses.pop(0)
+
+    stream = AsyncStream(
+        response=responses.pop(0),
+        deserialization_callback=lambda _response, event: event.data,
+        reconnect_callback=reconnect,
+    )
+
+    assert [item async for item in stream] == ["one"]
+    assert reconnect_ids == [""]
