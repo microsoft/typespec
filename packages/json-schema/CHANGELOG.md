@@ -1,5 +1,12 @@
 # Change Log - @typespec/json-schema
 
+## 1.16.0
+
+### Bug Fixes
+
+- [#11777](https://github.com/microsoft/typespec/pull/11777) Sanitize declaration names used as file names so a declaration named with a backticked identifier containing path separators cannot write the schema outside of the emitter output dir.
+
+
 ## 1.15.0
 
 ### Bug Fixes

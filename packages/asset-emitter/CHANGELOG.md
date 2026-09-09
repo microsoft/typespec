@@ -1,5 +1,12 @@
 # Changelog - @typespec/asset-emitter
 
+## 0.79.2
+
+### Bug Fixes
+
+- [#11777](https://github.com/microsoft/typespec/pull/11777) `createSourceFile` now resolves the given path strictly under the emitter output dir. Absolute roots and `..` components are dropped so a file name derived from a TypeSpec spec cannot escape the emitter output dir.
+
+
 ## 0.79.1
 
 ### Bump dependencies
