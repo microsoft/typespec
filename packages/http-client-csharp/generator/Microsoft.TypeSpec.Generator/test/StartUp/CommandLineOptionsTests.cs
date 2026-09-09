@@ -6,6 +6,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using CommandLine;
+using CommandLine.Text;
 using NUnit.Framework;
 
 namespace Microsoft.TypeSpec.Generator.Tests.StartUp
@@ -33,6 +34,51 @@ namespace Microsoft.TypeSpec.Generator.Tests.StartUp
             Assert.IsNotNull(result.Value);
 
             Assert.IsTrue(result.Errors.Count() == 0);
+        }
+
+        [Test]
+        public void TestParseCommandLineOptions_HostedMode()
+        {
+            var result = Parser.Default.ParseArguments<CommandLineOptions>(
+                ["input", "-g", "ScmCodeModelGenerator", "--hosted"]);
+
+            Assert.That(result.Errors, Is.Empty);
+            Assert.IsNotNull(result.Value);
+            Assert.IsTrue(result.Value.IsHosted);
+        }
+
+        [Test]
+        public void TestParseCommandLineOptions_HostedModeIsOptIn()
+        {
+            var result = Parser.Default.ParseArguments<CommandLineOptions>(
+                ["input", "-g", "ScmCodeModelGenerator"]);
+
+            Assert.That(result.Errors, Is.Empty);
+            Assert.IsFalse(result.Value.IsHosted);
+        }
+
+        [TestCase("--help")]
+        [TestCase("--unknown-option")]
+        public void HostedModeIsHiddenFromHelp(string argument)
+        {
+            using var parser = new Parser(settings => settings.HelpWriter = null);
+            var result = parser.ParseArguments<CommandLineOptions>([argument]);
+            var help = HelpText.AutoBuild(result).ToString();
+
+            StringAssert.DoesNotContain("--hosted", help);
+            StringAssert.Contains("--generatorName", help);
+        }
+
+        [TestCase("--hosted=false")]
+        [TestCase("--")]
+        [TestCase("ScmCodeModelGenerator --hosted=false")]
+        public void TestParseCommandLineOptions_GeneratorNameCannotDisableHostedMode(string generatorName)
+        {
+            var result = Parser.Default.ParseArguments<CommandLineOptions>(
+                ["input", "-g", generatorName, "--new-project", "--hosted"]);
+
+            Assert.IsTrue(result.Errors.Any() || result.Value.IsHosted,
+                "A caller-controlled generator name must not produce a successful parse with hosted mode disabled.");
         }
 
         public static IEnumerable<TestCaseData> GetConfigurationInputFilePathTestCases

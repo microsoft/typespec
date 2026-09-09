@@ -722,7 +722,8 @@ namespace Microsoft.TypeSpec.Generator.Providers
             }
 
             return modelProvider.DeclarationModifiers.HasFlag(TypeSignatureModifiers.Abstract)
-                ? modelProvider.DerivedModels.FirstOrDefault(m => m.IsUnknownDiscriminatorModel)
+                ? modelProvider.DerivedModels.FirstOrDefault(m => m.IsUnknownDiscriminatorModel
+                    && !m.DeclarationModifiers.HasFlag(TypeSignatureModifiers.Abstract))
                 : modelProvider;
         }
 

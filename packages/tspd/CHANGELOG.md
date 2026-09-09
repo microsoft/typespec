@@ -1,5 +1,39 @@
 # Changelog - @typespec/tspd
 
+## 0.77.1
+
+### Bug Fixes
+
+- [#11813](https://github.com/microsoft/typespec/pull/11813) Document the generated auto decorator accessors, so libraries re-exporting them satisfy
+  api-extractor's `ae-undocumented` rule. `get*` and `set*` accessors carry the description of the
+  decorator they read or write; `is*` accessors get a generic one, since a decorator description
+  does not describe a boolean check.
+  
+  ```ts
+  /** Check if the `@TypeSpec.GraphQL.inputType` decorator was applied on the given target. */
+  export function isInputType(program: Program, target: Model): boolean {
+    return hasAutoDecorator(program, "TypeSpec.GraphQL.inputType", target);
+  }
+  
+  /** Mark a model as a GraphQL input type in the emitted schema. */
+  export function setInputType(program: Program, target: Model): void {
+    setAutoDecorator(program, "TypeSpec.GraphQL.inputType", target);
+  }
+  ```
+- [#11813](https://github.com/microsoft/typespec/pull/11813) Honor the library's own `tspconfig.yaml` when generating signatures and reference documentation, so
+  libraries that opt into a compiler feature (such as `auto-decorators`) no longer report errors during
+  `gen-extern-signature` and `doc`.
+- [#11561](https://github.com/microsoft/typespec/pull/11561) `gen-extern-signature` now generates signatures for sub path exports. Each export with a `typespec` condition is compiled on its own, entities are attributed to the export that first reaches their source file, and the generated files are written under a directory matching the sub path with `$decorators` imported from that same sub path.
+  
+  ```ts
+  // generated-defs/streams/MyLib.Streams.ts-test.ts
+  import { $decorators } from "my-lib/streams";
+  import type { MyLibStreamsDecorators } from "./MyLib.Streams.js";
+  
+  const _decs: MyLibStreamsDecorators = $decorators["MyLib.Streams"];
+  ```
+
+
 ## 0.77.0
 
 ### Features

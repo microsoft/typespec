@@ -388,9 +388,12 @@ export class JsonSchemaEmitter extends TypeEmitter<Record<string, any>, JSONSche
   }
 
   tupleLiteral(tuple: Tuple): EmitterOutput<Record<string, any>> {
+    const size = tuple.values.length;
     return new ObjectBuilder({
       type: "array",
       prefixItems: this.emitter.emitTupleLiteralValues(tuple),
+      minItems: size,
+      maxItems: size,
     });
   }
 

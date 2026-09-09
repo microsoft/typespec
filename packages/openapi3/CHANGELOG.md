@@ -1,5 +1,12 @@
 # Change Log - @typespec/openapi3
 
+## 1.16.0
+
+### Bug Fixes
+
+- [#11777](https://github.com/microsoft/typespec/pull/11777) Sanitize the spec provided values interpolated in `output-file`(`{version}`, `{service-name}` and `{service-name-if-multiple}`) so a version or namespace name containing path separators cannot write the OpenAPI document outside of the emitter output dir.
+
+
 ## 1.15.0
 
 ### Features
