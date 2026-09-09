@@ -5,6 +5,7 @@ package tsptest.requestheaders;
 
 import com.azure.core.http.HttpHeaderName;
 import com.azure.core.test.http.MockHttpResponse;
+import java.util.LinkedHashMap;
 import java.util.Map;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
@@ -21,9 +22,16 @@ public class RequestHeadersTests {
                 Assertions.assertEquals("value2",
                     request.getHeaders().getValue(HttpHeaderName.fromString("x-ms-meta-key2")));
                 Assertions.assertNull(request.getHeaders().getValue(HttpHeaderName.fromString("x-ms-meta")));
+                Assertions.assertNull(request.getHeaders().getValue(HttpHeaderName.fromString("x-ms-meta-null")));
+                Assertions.assertNull(request.getHeaders().getValue(HttpHeaderName.fromString("x-ms-meta-key3")));
                 return Mono.just(new MockHttpResponse(request, 204));
             }).buildClient();
 
-        client.send(Map.of("key1", "value1", "key2", "value2"));
+        Map<String, String> metadata = new LinkedHashMap<>();
+        metadata.put("key1", "value1");
+        metadata.put("key2", "value2");
+        metadata.put(null, "ignored");
+        metadata.put("key3", null);
+        client.send(metadata);
     }
 }

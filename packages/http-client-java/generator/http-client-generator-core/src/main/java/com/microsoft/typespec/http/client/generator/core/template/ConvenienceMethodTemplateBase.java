@@ -817,10 +817,17 @@ abstract class ConvenienceMethodTemplateBase {
         ProxyMethodParameter proxyMethodParameter = parameter.getProxyMethodParameter();
         String headerCollectionPrefix = proxyMethodParameter.getHeaderCollectionPrefix();
         Consumer<JavaBlock> writeLine;
-        if (headerCollectionPrefix != null && !headerCollectionPrefix.isEmpty()) {
-            writeLine = javaBlock -> javaBlock.line(String.format(
-                "%1$s.forEach((key, value) -> requestOptions.setHeader(HttpHeaderName.fromString(%2$s + key), String.valueOf(value)));",
-                parameter.getName(), ClassType.STRING.defaultValueExpression(headerCollectionPrefix)));
+        if (headerCollectionPrefix != null
+            && !headerCollectionPrefix.isEmpty()
+            && parameter.getClientMethodParameter().getWireType() instanceof MapType) {
+            writeLine = javaBlock -> {
+                javaBlock.line("%s.forEach((key, value) -> {", parameter.getName());
+                javaBlock.indent(() -> javaBlock.ifBlock("key != null && value != null",
+                    ifBlock -> ifBlock.line(
+                        "requestOptions.setHeader(HttpHeaderName.fromString(%s + key), String.valueOf(value));",
+                        ClassType.STRING.defaultValueExpression(headerCollectionPrefix))));
+                javaBlock.line("});");
+            };
         } else {
             writeLine = javaBlock -> javaBlock.line(String.format("requestOptions.setHeader(%1$s, %2$s);",
                 ModelTemplateHeaderHelper.getHttpHeaderNameInstanceExpression(parameter.getSerializedName()),

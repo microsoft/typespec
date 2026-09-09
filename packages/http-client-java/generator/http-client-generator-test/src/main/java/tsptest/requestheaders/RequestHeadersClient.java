@@ -76,8 +76,11 @@ public final class RequestHeadersClient {
         // Generated convenience method for sendWithResponse
         RequestOptions requestOptions = new RequestOptions();
         if (metadata != null) {
-            metadata.forEach((key, value) -> requestOptions.setHeader(HttpHeaderName.fromString("x-ms-meta-" + key),
-                String.valueOf(value)));
+            metadata.forEach((key, value) -> {
+                if (key != null && value != null) {
+                    requestOptions.setHeader(HttpHeaderName.fromString("x-ms-meta-" + key), String.valueOf(value));
+                }
+            });
         }
         sendWithResponse(requestOptions).getValue();
     }
