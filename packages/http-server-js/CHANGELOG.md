@@ -1,5 +1,12 @@
 # Changelog - @typespec/http-server-js
 
+## 0.58.0-alpha.29
+
+### Bug Fixes
+
+- [#11590](https://github.com/microsoft/typespec/pull/11590) Exclude build artifacts from published packages
+
+
 ## 0.58.0-alpha.28
 
 ### Deprecations

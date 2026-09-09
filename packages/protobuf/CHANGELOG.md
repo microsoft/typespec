@@ -1,5 +1,12 @@
 # Change Log - @typespec/protobuf
 
+## 0.86.0
+
+### Bug Fixes
+
+- [#11590](https://github.com/microsoft/typespec/pull/11590) Exclude build artifacts from published packages
+
+
 ## 0.85.0
 
 No changes, version bump only.
