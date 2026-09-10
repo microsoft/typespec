@@ -95,6 +95,15 @@ describe("file discovery", () => {
     });
   });
 
+  it("merges linter settings from an extended config", async () => {
+    const config = await loadTestConfig("extends-linter");
+    deepStrictEqual(config.linter, {
+      extends: ["test/all"],
+      enable: { "test/base-rule": true },
+      disable: { "test/child-rule": "Child exemption" },
+    });
+  });
+
   it("backcompat: loads tspconfig.yaml", async () => {
     const config = await loadTestConfig("backcompat/mixed");
     deepStrictEqual(config, {
