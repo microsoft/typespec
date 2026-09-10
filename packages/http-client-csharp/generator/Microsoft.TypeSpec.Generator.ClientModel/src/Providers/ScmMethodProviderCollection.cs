@@ -640,7 +640,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
             if (IsConvertibleFromBinaryData(responseBodyType)
                 && (responseBodyType.IsFrameworkType || responseBodyType.IsEnum)
                 && !responseBodyType.Equals(typeof(BinaryData))
-                && GetPlainTextValueConversion(responseBodyType, result.GetRawResponse()) is null)
+                && !HasOnlyPlainTextContentType())
             {
                 var data = result.GetRawResponse().Content();
                 // The stream overload preserves UTF-8 BOM handling from ToObjectFromJson.
@@ -859,11 +859,13 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
 
         private MethodBodyStatement[] GetResultConversionStatements(ClientResponseApi result, HttpResponseApi response, CSharpType responseBodyType, Dictionary<string, ValueExpression> declarations)
         {
-            if (!responseBodyType.Equals(typeof(string)) && GetPlainTextValueConversion(responseBodyType, response) is { } plainTextValue)
+            if (!responseBodyType.Equals(typeof(string)) && HasOnlyPlainTextContentType())
             {
+                var contentExpression = response.Content().InvokeToString().Invoke(nameof(string.TrimStart), Literal('\uFEFF')).As<string>();
                 return
                 [
-                    Declare("value", responseBodyType, plainTextValue, out var value),
+                    Declare("content", typeof(string), contentExpression, out var content),
+                    Declare("value", responseBodyType, GetPlainTextValueConversion(responseBodyType, content), out var value),
                     Return(result.FromValue(value, response))
                 ];
             }
@@ -922,16 +924,8 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
             return result.CastTo(responseBodyType);
         }
 
-        private ValueExpression? GetPlainTextValueConversion(CSharpType responseBodyType, HttpResponseApi response)
+        private ValueExpression GetPlainTextValueConversion(CSharpType responseBodyType, ValueExpression content)
         {
-            if (!HasOnlyPlainTextContentType())
-            {
-                return null;
-            }
-
-            // Primitive and enum text/plain bodies are not JSON-encoded. Strip a leading UTF-8 BOM to preserve
-            // the tolerance previously provided by JsonDocument/ToObjectFromJson.
-            var content = response.Content().InvokeToString().Invoke(nameof(string.TrimStart), Literal('\uFEFF')).As<string>();
             var nonNullableType = responseBodyType.WithNullable(false);
             var typeToDeserialize = nonNullableType;
             CSharpType? enumType = null;
@@ -942,7 +936,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
             }
 
             var invariantCulture = new MemberExpression(typeof(CultureInfo), nameof(CultureInfo.InvariantCulture));
-            ValueExpression? deserializedValue = typeToDeserialize.FrameworkType switch
+            var deserializedValue = typeToDeserialize.FrameworkType switch
             {
                 Type t when t == typeof(string) => content,
                 Type t when t == typeof(bool) => Static<bool>().Invoke(nameof(bool.Parse), content).As<bool>(),
@@ -963,12 +957,8 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
                         || frameworkType == typeof(double)
                         || frameworkType == typeof(decimal))
                     => Static(frameworkType).Invoke(nameof(int.Parse), [content, invariantCulture]).As(frameworkType),
-                _ => null
+                _ => Static(typeToDeserialize.FrameworkType).Invoke(nameof(int.Parse), [content, invariantCulture]).As(typeToDeserialize.FrameworkType)
             };
-            if (deserializedValue is null)
-            {
-                return null;
-            }
 
             if (enumType is not null)
             {
