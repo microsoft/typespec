@@ -1626,6 +1626,8 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers
         [TestCase(false, true, false)]
         [TestCase(false, false, false)]
         [TestCase(true, true, true)]
+        [TestCase(true, false, true)]
+        [TestCase(false, true, true)]
         [TestCase(false, false, true)]
         public void EnumReturnTypeMethods(bool isString, bool isExtensible, bool isNullable)
         {
