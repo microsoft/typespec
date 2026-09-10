@@ -17,14 +17,15 @@ import type.union.discriminated.implementation.NoEnvelopeCustomDiscriminatorsImp
  */
 @ServiceClient(builder = DiscriminatedClientBuilder.class)
 public final class NoEnvelopeCustomDiscriminatorClient {
-    @Metadata(properties = { MetadataProperties.GENERATED })
-    private final NoEnvelopeCustomDiscriminatorsImpl serviceClient;
 
     private final Instrumentation instrumentation;
 
+    @Metadata(properties = { MetadataProperties.GENERATED })
+    private final NoEnvelopeCustomDiscriminatorsImpl serviceClient;
+
     /**
      * Initializes an instance of NoEnvelopeCustomDiscriminatorClient class.
-     * 
+     *
      * @param serviceClient the service client implementation.
      * @param instrumentation the instrumentation instance.
      */
@@ -37,7 +38,40 @@ public final class NoEnvelopeCustomDiscriminatorClient {
 
     /**
      * The get operation.
-     * 
+     *
+     * @throws HttpResponseException thrown if the service returns an error.
+     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
+     * @return test discriminated union with inline discriminator and custom discriminator property name.
+     * The discriminated union should serialize with custom discriminator property
+     * injected directly into the variant object.
+     */
+    @Metadata(properties = { MetadataProperties.GENERATED })
+    @ServiceMethod(returns = ReturnType.SINGLE)
+    public BinaryData get() {
+        final String type = null;
+        return getWithResponse(type, RequestContext.none()).getValue();
+    }
+
+    /**
+     * The get operation.
+     *
+     * @param type The type parameter.
+     * @throws IllegalArgumentException thrown if parameters fail the validation.
+     * @throws HttpResponseException thrown if the service returns an error.
+     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
+     * @return test discriminated union with inline discriminator and custom discriminator property name.
+     * The discriminated union should serialize with custom discriminator property
+     * injected directly into the variant object.
+     */
+    @Metadata(properties = { MetadataProperties.GENERATED })
+    @ServiceMethod(returns = ReturnType.SINGLE)
+    public BinaryData get(String type) {
+        return getWithResponse(type, RequestContext.none()).getValue();
+    }
+
+    /**
+     * The get operation.
+     *
      * @param type The type parameter.
      * @param requestContext The context to configure the HTTP request before HTTP client sends it.
      * @throws IllegalArgumentException thrown if parameters fail the validation.
@@ -56,9 +90,9 @@ public final class NoEnvelopeCustomDiscriminatorClient {
     }
 
     /**
-     * The get operation.
-     * 
-     * @param type The type parameter.
+     * The put operation.
+     *
+     * @param input The input parameter.
      * @throws IllegalArgumentException thrown if parameters fail the validation.
      * @throws HttpResponseException thrown if the service returns an error.
      * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
@@ -68,29 +102,13 @@ public final class NoEnvelopeCustomDiscriminatorClient {
      */
     @Metadata(properties = { MetadataProperties.GENERATED })
     @ServiceMethod(returns = ReturnType.SINGLE)
-    public BinaryData get(String type) {
-        return getWithResponse(type, RequestContext.none()).getValue();
-    }
-
-    /**
-     * The get operation.
-     * 
-     * @throws HttpResponseException thrown if the service returns an error.
-     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
-     * @return test discriminated union with inline discriminator and custom discriminator property name.
-     * The discriminated union should serialize with custom discriminator property
-     * injected directly into the variant object.
-     */
-    @Metadata(properties = { MetadataProperties.GENERATED })
-    @ServiceMethod(returns = ReturnType.SINGLE)
-    public BinaryData get() {
-        final String type = null;
-        return getWithResponse(type, RequestContext.none()).getValue();
+    public BinaryData put(BinaryData input) {
+        return putWithResponse(input, RequestContext.none()).getValue();
     }
 
     /**
      * The put operation.
-     * 
+     *
      * @param input The input parameter.
      * @param requestContext The context to configure the HTTP request before HTTP client sends it.
      * @throws IllegalArgumentException thrown if parameters fail the validation.
@@ -106,22 +124,5 @@ public final class NoEnvelopeCustomDiscriminatorClient {
         return this.instrumentation.instrumentWithResponse(
             "Type.Union.Discriminated.NoEnvelope.CustomDiscriminator.put", requestContext,
             updatedContext -> this.serviceClient.putWithResponse(input, updatedContext));
-    }
-
-    /**
-     * The put operation.
-     * 
-     * @param input The input parameter.
-     * @throws IllegalArgumentException thrown if parameters fail the validation.
-     * @throws HttpResponseException thrown if the service returns an error.
-     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
-     * @return test discriminated union with inline discriminator and custom discriminator property name.
-     * The discriminated union should serialize with custom discriminator property
-     * injected directly into the variant object.
-     */
-    @Metadata(properties = { MetadataProperties.GENERATED })
-    @ServiceMethod(returns = ReturnType.SINGLE)
-    public BinaryData put(BinaryData input) {
-        return putWithResponse(input, RequestContext.none()).getValue();
     }
 }

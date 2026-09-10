@@ -14,11 +14,6 @@ import java.io.IOException;
 @Metadata(properties = { MetadataProperties.IMMUTABLE })
 public final class SpreadParameterWithInnerAliasRequest
     implements JsonSerializable<SpreadParameterWithInnerAliasRequest> {
-    /*
-     * name of the Thing
-     */
-    @Metadata(properties = { MetadataProperties.GENERATED })
-    private final String name;
 
     /*
      * age of the Thing
@@ -26,9 +21,15 @@ public final class SpreadParameterWithInnerAliasRequest
     @Metadata(properties = { MetadataProperties.GENERATED })
     private final int age;
 
+    /*
+     * name of the Thing
+     */
+    @Metadata(properties = { MetadataProperties.GENERATED })
+    private final String name;
+
     /**
      * Creates an instance of SpreadParameterWithInnerAliasRequest class.
-     * 
+     *
      * @param name the name value to set.
      * @param age the age value to set.
      */
@@ -39,23 +40,23 @@ public final class SpreadParameterWithInnerAliasRequest
     }
 
     /**
-     * Get the name property: name of the Thing.
-     * 
-     * @return the name value.
-     */
-    @Metadata(properties = { MetadataProperties.GENERATED })
-    public String getName() {
-        return this.name;
-    }
-
-    /**
      * Get the age property: age of the Thing.
-     * 
+     *
      * @return the age value.
      */
     @Metadata(properties = { MetadataProperties.GENERATED })
     public int getAge() {
         return this.age;
+    }
+
+    /**
+     * Get the name property: name of the Thing.
+     *
+     * @return the name value.
+     */
+    @Metadata(properties = { MetadataProperties.GENERATED })
+    public String getName() {
+        return this.name;
     }
 
     /**
@@ -72,7 +73,7 @@ public final class SpreadParameterWithInnerAliasRequest
 
     /**
      * Reads an instance of SpreadParameterWithInnerAliasRequest from the JsonReader.
-     * 
+     *
      * @param jsonReader The JsonReader being read.
      * @return An instance of SpreadParameterWithInnerAliasRequest if the JsonReader was pointing to an instance of it,
      * or null if it was pointing to JSON null.
@@ -87,7 +88,6 @@ public final class SpreadParameterWithInnerAliasRequest
             while (reader.nextToken() != JsonToken.END_OBJECT) {
                 String fieldName = reader.getFieldName();
                 reader.nextToken();
-
                 if ("name".equals(fieldName)) {
                     name = reader.getString();
                 } else if ("age".equals(fieldName)) {

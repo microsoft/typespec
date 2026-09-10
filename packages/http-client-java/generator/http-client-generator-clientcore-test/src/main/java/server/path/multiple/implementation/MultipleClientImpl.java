@@ -20,10 +20,6 @@ import server.path.multiple.MultipleServiceVersion;
  * Initializes a new instance of the MultipleClient type.
  */
 public final class MultipleClientImpl {
-    /**
-     * The proxy service used to perform REST calls.
-     */
-    private final MultipleClientService service;
 
     /**
      * Pass in http://localhost:3000 for endpoint.
@@ -31,41 +27,9 @@ public final class MultipleClientImpl {
     private final String endpoint;
 
     /**
-     * Gets Pass in http://localhost:3000 for endpoint.
-     * 
-     * @return the endpoint value.
-     */
-    public String getEndpoint() {
-        return this.endpoint;
-    }
-
-    /**
-     * Service version.
-     */
-    private final MultipleServiceVersion serviceVersion;
-
-    /**
-     * Gets Service version.
-     * 
-     * @return the serviceVersion value.
-     */
-    public MultipleServiceVersion getServiceVersion() {
-        return this.serviceVersion;
-    }
-
-    /**
      * The HTTP pipeline to send requests through.
      */
     private final HttpPipeline httpPipeline;
-
-    /**
-     * Gets The HTTP pipeline to send requests through.
-     * 
-     * @return the httpPipeline value.
-     */
-    public HttpPipeline getHttpPipeline() {
-        return this.httpPipeline;
-    }
 
     /**
      * The instance of instrumentation to report telemetry.
@@ -73,17 +37,18 @@ public final class MultipleClientImpl {
     private final Instrumentation instrumentation;
 
     /**
-     * Gets The instance of instrumentation to report telemetry.
-     * 
-     * @return the instrumentation value.
+     * The proxy service used to perform REST calls.
      */
-    public Instrumentation getInstrumentation() {
-        return this.instrumentation;
-    }
+    private final MultipleClientService service;
+
+    /**
+     * Service version.
+     */
+    private final MultipleServiceVersion serviceVersion;
 
     /**
      * Initializes an instance of MultipleClient client.
-     * 
+     *
      * @param httpPipeline The HTTP pipeline to send requests through.
      * @param instrumentation The instance of instrumentation to report telemetry.
      * @param endpoint Pass in http://localhost:3000 for endpoint.
@@ -99,37 +64,44 @@ public final class MultipleClientImpl {
     }
 
     /**
-     * The interface defining all the services for MultipleClient to be used by the proxy service to perform REST calls.
+     * Gets Pass in http://localhost:3000 for endpoint.
+     *
+     * @return the endpoint value.
      */
-    @ServiceInterface(name = "MultipleClient", host = "{endpoint}/server/path/multiple/{apiVersion}")
-    public interface MultipleClientService {
-        static MultipleClientService getNewInstance(HttpPipeline pipeline) {
-            try {
-                Class<?> clazz = Class.forName("server.path.multiple.implementation.MultipleClientServiceImpl");
-                return (MultipleClientService) clazz.getMethod("getNewInstance", HttpPipeline.class)
-                    .invoke(null, pipeline);
-            } catch (ClassNotFoundException | NoSuchMethodException | IllegalAccessException
-                | InvocationTargetException e) {
-                throw new RuntimeException(e);
-            }
+    public String getEndpoint() {
+        return this.endpoint;
+    }
 
-        }
+    /**
+     * Gets The HTTP pipeline to send requests through.
+     *
+     * @return the httpPipeline value.
+     */
+    public HttpPipeline getHttpPipeline() {
+        return this.httpPipeline;
+    }
 
-        @HttpRequestInformation(method = HttpMethod.GET, path = "/", expectedStatusCodes = { 204 })
-        @UnexpectedResponseExceptionDetail
-        Response<Void> noOperationParams(@HostParam("endpoint") String endpoint,
-            @HostParam("apiVersion") String apiVersion, RequestContext requestContext);
+    /**
+     * Gets The instance of instrumentation to report telemetry.
+     *
+     * @return the instrumentation value.
+     */
+    public Instrumentation getInstrumentation() {
+        return this.instrumentation;
+    }
 
-        @HttpRequestInformation(method = HttpMethod.GET, path = "/{keyword}", expectedStatusCodes = { 204 })
-        @UnexpectedResponseExceptionDetail
-        Response<Void> withOperationPathParam(@HostParam("endpoint") String endpoint,
-            @HostParam("apiVersion") String apiVersion, @PathParam("keyword") String keyword,
-            RequestContext requestContext);
+    /**
+     * Gets Service version.
+     *
+     * @return the serviceVersion value.
+     */
+    public MultipleServiceVersion getServiceVersion() {
+        return this.serviceVersion;
     }
 
     /**
      * The noOperationParams operation.
-     * 
+     *
      * @param requestContext The context to configure the HTTP request before HTTP client sends it.
      * @throws IllegalArgumentException thrown if parameters fail the validation.
      * @throws HttpResponseException thrown if the service returns an error.
@@ -147,7 +119,7 @@ public final class MultipleClientImpl {
 
     /**
      * The withOperationPathParam operation.
-     * 
+     *
      * @param keyword The keyword parameter.
      * @param requestContext The context to configure the HTTP request before HTTP client sends it.
      * @throws IllegalArgumentException thrown if parameters fail the validation.
@@ -162,5 +134,34 @@ public final class MultipleClientImpl {
                 return service.withOperationPathParam(this.getEndpoint(), this.getServiceVersion().getVersion(),
                     keyword, updatedContext);
             });
+    }
+
+    /**
+     * The interface defining all the services for MultipleClient to be used by the proxy service to perform REST calls.
+     */
+    @ServiceInterface(name = "MultipleClient", host = "{endpoint}/server/path/multiple/{apiVersion}")
+    public interface MultipleClientService {
+
+        @HttpRequestInformation(method = HttpMethod.GET, path = "/", expectedStatusCodes = { 204 })
+        @UnexpectedResponseExceptionDetail
+        Response<Void> noOperationParams(@HostParam("endpoint") String endpoint,
+            @HostParam("apiVersion") String apiVersion, RequestContext requestContext);
+
+        @HttpRequestInformation(method = HttpMethod.GET, path = "/{keyword}", expectedStatusCodes = { 204 })
+        @UnexpectedResponseExceptionDetail
+        Response<Void> withOperationPathParam(@HostParam("endpoint") String endpoint,
+            @HostParam("apiVersion") String apiVersion, @PathParam("keyword") String keyword,
+            RequestContext requestContext);
+
+        static MultipleClientService getNewInstance(HttpPipeline pipeline) {
+            try {
+                Class<?> clazz = Class.forName("server.path.multiple.implementation.MultipleClientServiceImpl");
+                return (MultipleClientService) clazz.getMethod("getNewInstance", HttpPipeline.class)
+                    .invoke(null, pipeline);
+            } catch (ClassNotFoundException | NoSuchMethodException | IllegalAccessException
+                | InvocationTargetException e) {
+                throw new RuntimeException(e);
+            }
+        }
     }
 }

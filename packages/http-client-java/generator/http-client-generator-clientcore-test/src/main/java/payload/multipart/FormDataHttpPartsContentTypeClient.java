@@ -16,14 +16,15 @@ import payload.multipart.implementation.FormDataHttpPartsContentTypesImpl;
  */
 @ServiceClient(builder = MultiPartClientBuilder.class)
 public final class FormDataHttpPartsContentTypeClient {
-    @Metadata(properties = { MetadataProperties.GENERATED })
-    private final FormDataHttpPartsContentTypesImpl serviceClient;
 
     private final Instrumentation instrumentation;
 
+    @Metadata(properties = { MetadataProperties.GENERATED })
+    private final FormDataHttpPartsContentTypesImpl serviceClient;
+
     /**
      * Initializes an instance of FormDataHttpPartsContentTypeClient class.
-     * 
+     *
      * @param serviceClient the service client implementation.
      * @param instrumentation the instrumentation instance.
      */
@@ -36,7 +37,21 @@ public final class FormDataHttpPartsContentTypeClient {
 
     /**
      * Test content-type: multipart/form-data.
-     * 
+     *
+     * @param body The body parameter.
+     * @throws IllegalArgumentException thrown if parameters fail the validation.
+     * @throws HttpResponseException thrown if the service returns an error.
+     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
+     */
+    @Metadata(properties = { MetadataProperties.GENERATED })
+    @ServiceMethod(returns = ReturnType.SINGLE)
+    public void imageJpegContentType(FileWithHttpPartSpecificContentTypeRequest body) {
+        imageJpegContentTypeWithResponse(body, RequestContext.none());
+    }
+
+    /**
+     * Test content-type: multipart/form-data.
+     *
      * @param body The body parameter.
      * @param requestContext The context to configure the HTTP request before HTTP client sends it.
      * @throws IllegalArgumentException thrown if parameters fail the validation.
@@ -54,8 +69,8 @@ public final class FormDataHttpPartsContentTypeClient {
     }
 
     /**
-     * Test content-type: multipart/form-data.
-     * 
+     * Test content-type: multipart/form-data for optional content type.
+     *
      * @param body The body parameter.
      * @throws IllegalArgumentException thrown if parameters fail the validation.
      * @throws HttpResponseException thrown if the service returns an error.
@@ -63,46 +78,13 @@ public final class FormDataHttpPartsContentTypeClient {
      */
     @Metadata(properties = { MetadataProperties.GENERATED })
     @ServiceMethod(returns = ReturnType.SINGLE)
-    public void imageJpegContentType(FileWithHttpPartSpecificContentTypeRequest body) {
-        imageJpegContentTypeWithResponse(body, RequestContext.none());
-    }
-
-    /**
-     * Test content-type: multipart/form-data.
-     * 
-     * @param body The body parameter.
-     * @param requestContext The context to configure the HTTP request before HTTP client sends it.
-     * @throws IllegalArgumentException thrown if parameters fail the validation.
-     * @throws HttpResponseException thrown if the service returns an error.
-     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
-     * @return the {@link Response}.
-     */
-    @Metadata(properties = { MetadataProperties.GENERATED })
-    @ServiceMethod(returns = ReturnType.SINGLE)
-    public Response<Void> requiredContentTypeWithResponse(FileWithHttpPartRequiredContentTypeRequest body,
-        RequestContext requestContext) {
-        return this.instrumentation.instrumentWithResponse(
-            "Payload.MultiPart.FormData.HttpParts.ContentType.requiredContentType", requestContext,
-            updatedContext -> this.serviceClient.requiredContentTypeWithResponse(body, updatedContext));
-    }
-
-    /**
-     * Test content-type: multipart/form-data.
-     * 
-     * @param body The body parameter.
-     * @throws IllegalArgumentException thrown if parameters fail the validation.
-     * @throws HttpResponseException thrown if the service returns an error.
-     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
-     */
-    @Metadata(properties = { MetadataProperties.GENERATED })
-    @ServiceMethod(returns = ReturnType.SINGLE)
-    public void requiredContentType(FileWithHttpPartRequiredContentTypeRequest body) {
-        requiredContentTypeWithResponse(body, RequestContext.none());
+    public void optionalContentType(FileWithHttpPartOptionalContentTypeRequest body) {
+        optionalContentTypeWithResponse(body, RequestContext.none());
     }
 
     /**
      * Test content-type: multipart/form-data for optional content type.
-     * 
+     *
      * @param body The body parameter.
      * @param requestContext The context to configure the HTTP request before HTTP client sends it.
      * @throws IllegalArgumentException thrown if parameters fail the validation.
@@ -120,8 +102,8 @@ public final class FormDataHttpPartsContentTypeClient {
     }
 
     /**
-     * Test content-type: multipart/form-data for optional content type.
-     * 
+     * Test content-type: multipart/form-data.
+     *
      * @param body The body parameter.
      * @throws IllegalArgumentException thrown if parameters fail the validation.
      * @throws HttpResponseException thrown if the service returns an error.
@@ -129,7 +111,26 @@ public final class FormDataHttpPartsContentTypeClient {
      */
     @Metadata(properties = { MetadataProperties.GENERATED })
     @ServiceMethod(returns = ReturnType.SINGLE)
-    public void optionalContentType(FileWithHttpPartOptionalContentTypeRequest body) {
-        optionalContentTypeWithResponse(body, RequestContext.none());
+    public void requiredContentType(FileWithHttpPartRequiredContentTypeRequest body) {
+        requiredContentTypeWithResponse(body, RequestContext.none());
+    }
+
+    /**
+     * Test content-type: multipart/form-data.
+     *
+     * @param body The body parameter.
+     * @param requestContext The context to configure the HTTP request before HTTP client sends it.
+     * @throws IllegalArgumentException thrown if parameters fail the validation.
+     * @throws HttpResponseException thrown if the service returns an error.
+     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
+     * @return the {@link Response}.
+     */
+    @Metadata(properties = { MetadataProperties.GENERATED })
+    @ServiceMethod(returns = ReturnType.SINGLE)
+    public Response<Void> requiredContentTypeWithResponse(FileWithHttpPartRequiredContentTypeRequest body,
+        RequestContext requestContext) {
+        return this.instrumentation.instrumentWithResponse(
+            "Payload.MultiPart.FormData.HttpParts.ContentType.requiredContentType", requestContext,
+            updatedContext -> this.serviceClient.requiredContentTypeWithResponse(body, updatedContext));
     }
 }

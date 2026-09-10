@@ -13,6 +13,7 @@ import java.io.IOException;
  */
 @Metadata(properties = { MetadataProperties.IMMUTABLE })
 public final class Elif implements JsonSerializable<Elif> {
+
     /*
      * The name property.
      */
@@ -21,7 +22,7 @@ public final class Elif implements JsonSerializable<Elif> {
 
     /**
      * Creates an instance of Elif class.
-     * 
+     *
      * @param name the name value to set.
      */
     @Metadata(properties = { MetadataProperties.GENERATED })
@@ -31,7 +32,7 @@ public final class Elif implements JsonSerializable<Elif> {
 
     /**
      * Get the name property: The name property.
-     * 
+     *
      * @return the name value.
      */
     @Metadata(properties = { MetadataProperties.GENERATED })
@@ -52,7 +53,7 @@ public final class Elif implements JsonSerializable<Elif> {
 
     /**
      * Reads an instance of Elif from the JsonReader.
-     * 
+     *
      * @param jsonReader The JsonReader being read.
      * @return An instance of Elif if the JsonReader was pointing to an instance of it, or null if it was pointing to
      * JSON null.
@@ -66,7 +67,6 @@ public final class Elif implements JsonSerializable<Elif> {
             while (reader.nextToken() != JsonToken.END_OBJECT) {
                 String fieldName = reader.getFieldName();
                 reader.nextToken();
-
                 if ("name".equals(fieldName)) {
                     name = reader.getString();
                 } else {

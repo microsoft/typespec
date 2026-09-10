@@ -18,10 +18,6 @@ import java.lang.reflect.InvocationTargetException;
  * An instance of this class provides access to all the operations defined in Operations.
  */
 public final class OperationsImpl {
-    /**
-     * The proxy service used to perform REST calls.
-     */
-    private final OperationsService service;
 
     /**
      * The service client containing this operation class.
@@ -34,8 +30,13 @@ public final class OperationsImpl {
     private final Instrumentation instrumentation;
 
     /**
+     * The proxy service used to perform REST calls.
+     */
+    private final OperationsService service;
+
+    /**
      * Initializes an instance of OperationsImpl.
-     * 
+     *
      * @param client the instance of the service client containing this operation class.
      */
     OperationsImpl(SpecialWordsClientImpl client) {
@@ -45,21 +46,572 @@ public final class OperationsImpl {
     }
 
     /**
+     * The and operation.
+     *
+     * @param requestContext The context to configure the HTTP request before HTTP client sends it.
+     * @throws IllegalArgumentException thrown if parameters fail the validation.
+     * @throws HttpResponseException thrown if the service returns an error.
+     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
+     * @return the {@link Response}.
+     */
+    @ServiceMethod(returns = ReturnType.SINGLE)
+    public Response<Void> andWithResponse(RequestContext requestContext) {
+        return this.instrumentation.instrumentWithResponse("SpecialWords.Operations.and", requestContext,
+            updatedContext -> {
+                return service.and(this.client.getEndpoint(), updatedContext);
+            });
+    }
+
+    /**
+     * The assertMethod operation.
+     *
+     * @param requestContext The context to configure the HTTP request before HTTP client sends it.
+     * @throws IllegalArgumentException thrown if parameters fail the validation.
+     * @throws HttpResponseException thrown if the service returns an error.
+     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
+     * @return the {@link Response}.
+     */
+    @ServiceMethod(returns = ReturnType.SINGLE)
+    public Response<Void> assertMethodWithResponse(RequestContext requestContext) {
+        return this.instrumentation.instrumentWithResponse("SpecialWords.Operations.assert", requestContext,
+            updatedContext -> {
+                return service.assertMethod(this.client.getEndpoint(), updatedContext);
+            });
+    }
+
+    /**
+     * The as operation.
+     *
+     * @param requestContext The context to configure the HTTP request before HTTP client sends it.
+     * @throws IllegalArgumentException thrown if parameters fail the validation.
+     * @throws HttpResponseException thrown if the service returns an error.
+     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
+     * @return the {@link Response}.
+     */
+    @ServiceMethod(returns = ReturnType.SINGLE)
+    public Response<Void> asWithResponse(RequestContext requestContext) {
+        return this.instrumentation.instrumentWithResponse("SpecialWords.Operations.as", requestContext,
+            updatedContext -> {
+                return service.as(this.client.getEndpoint(), updatedContext);
+            });
+    }
+
+    /**
+     * The async operation.
+     *
+     * @param requestContext The context to configure the HTTP request before HTTP client sends it.
+     * @throws IllegalArgumentException thrown if parameters fail the validation.
+     * @throws HttpResponseException thrown if the service returns an error.
+     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
+     * @return the {@link Response}.
+     */
+    @ServiceMethod(returns = ReturnType.SINGLE)
+    public Response<Void> asyncWithResponse(RequestContext requestContext) {
+        return this.instrumentation.instrumentWithResponse("SpecialWords.Operations.async", requestContext,
+            updatedContext -> {
+                return service.async(this.client.getEndpoint(), updatedContext);
+            });
+    }
+
+    /**
+     * The await operation.
+     *
+     * @param requestContext The context to configure the HTTP request before HTTP client sends it.
+     * @throws IllegalArgumentException thrown if parameters fail the validation.
+     * @throws HttpResponseException thrown if the service returns an error.
+     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
+     * @return the {@link Response}.
+     */
+    @ServiceMethod(returns = ReturnType.SINGLE)
+    public Response<Void> awaitWithResponse(RequestContext requestContext) {
+        return this.instrumentation.instrumentWithResponse("SpecialWords.Operations.await", requestContext,
+            updatedContext -> {
+                return service.await(this.client.getEndpoint(), updatedContext);
+            });
+    }
+
+    /**
+     * The breakMethod operation.
+     *
+     * @param requestContext The context to configure the HTTP request before HTTP client sends it.
+     * @throws IllegalArgumentException thrown if parameters fail the validation.
+     * @throws HttpResponseException thrown if the service returns an error.
+     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
+     * @return the {@link Response}.
+     */
+    @ServiceMethod(returns = ReturnType.SINGLE)
+    public Response<Void> breakMethodWithResponse(RequestContext requestContext) {
+        return this.instrumentation.instrumentWithResponse("SpecialWords.Operations.break", requestContext,
+            updatedContext -> {
+                return service.breakMethod(this.client.getEndpoint(), updatedContext);
+            });
+    }
+
+    /**
+     * The classMethod operation.
+     *
+     * @param requestContext The context to configure the HTTP request before HTTP client sends it.
+     * @throws IllegalArgumentException thrown if parameters fail the validation.
+     * @throws HttpResponseException thrown if the service returns an error.
+     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
+     * @return the {@link Response}.
+     */
+    @ServiceMethod(returns = ReturnType.SINGLE)
+    public Response<Void> classMethodWithResponse(RequestContext requestContext) {
+        return this.instrumentation.instrumentWithResponse("SpecialWords.Operations.class", requestContext,
+            updatedContext -> {
+                return service.classMethod(this.client.getEndpoint(), updatedContext);
+            });
+    }
+
+    /**
+     * The constructor operation.
+     *
+     * @param requestContext The context to configure the HTTP request before HTTP client sends it.
+     * @throws IllegalArgumentException thrown if parameters fail the validation.
+     * @throws HttpResponseException thrown if the service returns an error.
+     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
+     * @return the {@link Response}.
+     */
+    @ServiceMethod(returns = ReturnType.SINGLE)
+    public Response<Void> constructorWithResponse(RequestContext requestContext) {
+        return this.instrumentation.instrumentWithResponse("SpecialWords.Operations.constructor", requestContext,
+            updatedContext -> {
+                return service.constructor(this.client.getEndpoint(), updatedContext);
+            });
+    }
+
+    /**
+     * The continueMethod operation.
+     *
+     * @param requestContext The context to configure the HTTP request before HTTP client sends it.
+     * @throws IllegalArgumentException thrown if parameters fail the validation.
+     * @throws HttpResponseException thrown if the service returns an error.
+     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
+     * @return the {@link Response}.
+     */
+    @ServiceMethod(returns = ReturnType.SINGLE)
+    public Response<Void> continueMethodWithResponse(RequestContext requestContext) {
+        return this.instrumentation.instrumentWithResponse("SpecialWords.Operations.continue", requestContext,
+            updatedContext -> {
+                return service.continueMethod(this.client.getEndpoint(), updatedContext);
+            });
+    }
+
+    /**
+     * The def operation.
+     *
+     * @param requestContext The context to configure the HTTP request before HTTP client sends it.
+     * @throws IllegalArgumentException thrown if parameters fail the validation.
+     * @throws HttpResponseException thrown if the service returns an error.
+     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
+     * @return the {@link Response}.
+     */
+    @ServiceMethod(returns = ReturnType.SINGLE)
+    public Response<Void> defWithResponse(RequestContext requestContext) {
+        return this.instrumentation.instrumentWithResponse("SpecialWords.Operations.def", requestContext,
+            updatedContext -> {
+                return service.def(this.client.getEndpoint(), updatedContext);
+            });
+    }
+
+    /**
+     * The del operation.
+     *
+     * @param requestContext The context to configure the HTTP request before HTTP client sends it.
+     * @throws IllegalArgumentException thrown if parameters fail the validation.
+     * @throws HttpResponseException thrown if the service returns an error.
+     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
+     * @return the {@link Response}.
+     */
+    @ServiceMethod(returns = ReturnType.SINGLE)
+    public Response<Void> delWithResponse(RequestContext requestContext) {
+        return this.instrumentation.instrumentWithResponse("SpecialWords.Operations.del", requestContext,
+            updatedContext -> {
+                return service.del(this.client.getEndpoint(), updatedContext);
+            });
+    }
+
+    /**
+     * The elif operation.
+     *
+     * @param requestContext The context to configure the HTTP request before HTTP client sends it.
+     * @throws IllegalArgumentException thrown if parameters fail the validation.
+     * @throws HttpResponseException thrown if the service returns an error.
+     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
+     * @return the {@link Response}.
+     */
+    @ServiceMethod(returns = ReturnType.SINGLE)
+    public Response<Void> elifWithResponse(RequestContext requestContext) {
+        return this.instrumentation.instrumentWithResponse("SpecialWords.Operations.elif", requestContext,
+            updatedContext -> {
+                return service.elif(this.client.getEndpoint(), updatedContext);
+            });
+    }
+
+    /**
+     * The elseMethod operation.
+     *
+     * @param requestContext The context to configure the HTTP request before HTTP client sends it.
+     * @throws IllegalArgumentException thrown if parameters fail the validation.
+     * @throws HttpResponseException thrown if the service returns an error.
+     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
+     * @return the {@link Response}.
+     */
+    @ServiceMethod(returns = ReturnType.SINGLE)
+    public Response<Void> elseMethodWithResponse(RequestContext requestContext) {
+        return this.instrumentation.instrumentWithResponse("SpecialWords.Operations.else", requestContext,
+            updatedContext -> {
+                return service.elseMethod(this.client.getEndpoint(), updatedContext);
+            });
+    }
+
+    /**
+     * The except operation.
+     *
+     * @param requestContext The context to configure the HTTP request before HTTP client sends it.
+     * @throws IllegalArgumentException thrown if parameters fail the validation.
+     * @throws HttpResponseException thrown if the service returns an error.
+     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
+     * @return the {@link Response}.
+     */
+    @ServiceMethod(returns = ReturnType.SINGLE)
+    public Response<Void> exceptWithResponse(RequestContext requestContext) {
+        return this.instrumentation.instrumentWithResponse("SpecialWords.Operations.except", requestContext,
+            updatedContext -> {
+                return service.except(this.client.getEndpoint(), updatedContext);
+            });
+    }
+
+    /**
+     * The exec operation.
+     *
+     * @param requestContext The context to configure the HTTP request before HTTP client sends it.
+     * @throws IllegalArgumentException thrown if parameters fail the validation.
+     * @throws HttpResponseException thrown if the service returns an error.
+     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
+     * @return the {@link Response}.
+     */
+    @ServiceMethod(returns = ReturnType.SINGLE)
+    public Response<Void> execWithResponse(RequestContext requestContext) {
+        return this.instrumentation.instrumentWithResponse("SpecialWords.Operations.exec", requestContext,
+            updatedContext -> {
+                return service.exec(this.client.getEndpoint(), updatedContext);
+            });
+    }
+
+    /**
+     * The finallyMethod operation.
+     *
+     * @param requestContext The context to configure the HTTP request before HTTP client sends it.
+     * @throws IllegalArgumentException thrown if parameters fail the validation.
+     * @throws HttpResponseException thrown if the service returns an error.
+     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
+     * @return the {@link Response}.
+     */
+    @ServiceMethod(returns = ReturnType.SINGLE)
+    public Response<Void> finallyMethodWithResponse(RequestContext requestContext) {
+        return this.instrumentation.instrumentWithResponse("SpecialWords.Operations.finally", requestContext,
+            updatedContext -> {
+                return service.finallyMethod(this.client.getEndpoint(), updatedContext);
+            });
+    }
+
+    /**
+     * The forMethod operation.
+     *
+     * @param requestContext The context to configure the HTTP request before HTTP client sends it.
+     * @throws IllegalArgumentException thrown if parameters fail the validation.
+     * @throws HttpResponseException thrown if the service returns an error.
+     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
+     * @return the {@link Response}.
+     */
+    @ServiceMethod(returns = ReturnType.SINGLE)
+    public Response<Void> forMethodWithResponse(RequestContext requestContext) {
+        return this.instrumentation.instrumentWithResponse("SpecialWords.Operations.for", requestContext,
+            updatedContext -> {
+                return service.forMethod(this.client.getEndpoint(), updatedContext);
+            });
+    }
+
+    /**
+     * The from operation.
+     *
+     * @param requestContext The context to configure the HTTP request before HTTP client sends it.
+     * @throws IllegalArgumentException thrown if parameters fail the validation.
+     * @throws HttpResponseException thrown if the service returns an error.
+     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
+     * @return the {@link Response}.
+     */
+    @ServiceMethod(returns = ReturnType.SINGLE)
+    public Response<Void> fromWithResponse(RequestContext requestContext) {
+        return this.instrumentation.instrumentWithResponse("SpecialWords.Operations.from", requestContext,
+            updatedContext -> {
+                return service.from(this.client.getEndpoint(), updatedContext);
+            });
+    }
+
+    /**
+     * The global operation.
+     *
+     * @param requestContext The context to configure the HTTP request before HTTP client sends it.
+     * @throws IllegalArgumentException thrown if parameters fail the validation.
+     * @throws HttpResponseException thrown if the service returns an error.
+     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
+     * @return the {@link Response}.
+     */
+    @ServiceMethod(returns = ReturnType.SINGLE)
+    public Response<Void> globalWithResponse(RequestContext requestContext) {
+        return this.instrumentation.instrumentWithResponse("SpecialWords.Operations.global", requestContext,
+            updatedContext -> {
+                return service.global(this.client.getEndpoint(), updatedContext);
+            });
+    }
+
+    /**
+     * The ifMethod operation.
+     *
+     * @param requestContext The context to configure the HTTP request before HTTP client sends it.
+     * @throws IllegalArgumentException thrown if parameters fail the validation.
+     * @throws HttpResponseException thrown if the service returns an error.
+     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
+     * @return the {@link Response}.
+     */
+    @ServiceMethod(returns = ReturnType.SINGLE)
+    public Response<Void> ifMethodWithResponse(RequestContext requestContext) {
+        return this.instrumentation.instrumentWithResponse("SpecialWords.Operations.if", requestContext,
+            updatedContext -> {
+                return service.ifMethod(this.client.getEndpoint(), updatedContext);
+            });
+    }
+
+    /**
+     * The importMethod operation.
+     *
+     * @param requestContext The context to configure the HTTP request before HTTP client sends it.
+     * @throws IllegalArgumentException thrown if parameters fail the validation.
+     * @throws HttpResponseException thrown if the service returns an error.
+     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
+     * @return the {@link Response}.
+     */
+    @ServiceMethod(returns = ReturnType.SINGLE)
+    public Response<Void> importMethodWithResponse(RequestContext requestContext) {
+        return this.instrumentation.instrumentWithResponse("SpecialWords.Operations.import", requestContext,
+            updatedContext -> {
+                return service.importMethod(this.client.getEndpoint(), updatedContext);
+            });
+    }
+
+    /**
+     * The in operation.
+     *
+     * @param requestContext The context to configure the HTTP request before HTTP client sends it.
+     * @throws IllegalArgumentException thrown if parameters fail the validation.
+     * @throws HttpResponseException thrown if the service returns an error.
+     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
+     * @return the {@link Response}.
+     */
+    @ServiceMethod(returns = ReturnType.SINGLE)
+    public Response<Void> inWithResponse(RequestContext requestContext) {
+        return this.instrumentation.instrumentWithResponse("SpecialWords.Operations.in", requestContext,
+            updatedContext -> {
+                return service.in(this.client.getEndpoint(), updatedContext);
+            });
+    }
+
+    /**
+     * The is operation.
+     *
+     * @param requestContext The context to configure the HTTP request before HTTP client sends it.
+     * @throws IllegalArgumentException thrown if parameters fail the validation.
+     * @throws HttpResponseException thrown if the service returns an error.
+     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
+     * @return the {@link Response}.
+     */
+    @ServiceMethod(returns = ReturnType.SINGLE)
+    public Response<Void> isWithResponse(RequestContext requestContext) {
+        return this.instrumentation.instrumentWithResponse("SpecialWords.Operations.is", requestContext,
+            updatedContext -> {
+                return service.is(this.client.getEndpoint(), updatedContext);
+            });
+    }
+
+    /**
+     * The lambda operation.
+     *
+     * @param requestContext The context to configure the HTTP request before HTTP client sends it.
+     * @throws IllegalArgumentException thrown if parameters fail the validation.
+     * @throws HttpResponseException thrown if the service returns an error.
+     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
+     * @return the {@link Response}.
+     */
+    @ServiceMethod(returns = ReturnType.SINGLE)
+    public Response<Void> lambdaWithResponse(RequestContext requestContext) {
+        return this.instrumentation.instrumentWithResponse("SpecialWords.Operations.lambda", requestContext,
+            updatedContext -> {
+                return service.lambda(this.client.getEndpoint(), updatedContext);
+            });
+    }
+
+    /**
+     * The not operation.
+     *
+     * @param requestContext The context to configure the HTTP request before HTTP client sends it.
+     * @throws IllegalArgumentException thrown if parameters fail the validation.
+     * @throws HttpResponseException thrown if the service returns an error.
+     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
+     * @return the {@link Response}.
+     */
+    @ServiceMethod(returns = ReturnType.SINGLE)
+    public Response<Void> notWithResponse(RequestContext requestContext) {
+        return this.instrumentation.instrumentWithResponse("SpecialWords.Operations.not", requestContext,
+            updatedContext -> {
+                return service.not(this.client.getEndpoint(), updatedContext);
+            });
+    }
+
+    /**
+     * The or operation.
+     *
+     * @param requestContext The context to configure the HTTP request before HTTP client sends it.
+     * @throws IllegalArgumentException thrown if parameters fail the validation.
+     * @throws HttpResponseException thrown if the service returns an error.
+     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
+     * @return the {@link Response}.
+     */
+    @ServiceMethod(returns = ReturnType.SINGLE)
+    public Response<Void> orWithResponse(RequestContext requestContext) {
+        return this.instrumentation.instrumentWithResponse("SpecialWords.Operations.or", requestContext,
+            updatedContext -> {
+                return service.or(this.client.getEndpoint(), updatedContext);
+            });
+    }
+
+    /**
+     * The pass operation.
+     *
+     * @param requestContext The context to configure the HTTP request before HTTP client sends it.
+     * @throws IllegalArgumentException thrown if parameters fail the validation.
+     * @throws HttpResponseException thrown if the service returns an error.
+     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
+     * @return the {@link Response}.
+     */
+    @ServiceMethod(returns = ReturnType.SINGLE)
+    public Response<Void> passWithResponse(RequestContext requestContext) {
+        return this.instrumentation.instrumentWithResponse("SpecialWords.Operations.pass", requestContext,
+            updatedContext -> {
+                return service.pass(this.client.getEndpoint(), updatedContext);
+            });
+    }
+
+    /**
+     * The raise operation.
+     *
+     * @param requestContext The context to configure the HTTP request before HTTP client sends it.
+     * @throws IllegalArgumentException thrown if parameters fail the validation.
+     * @throws HttpResponseException thrown if the service returns an error.
+     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
+     * @return the {@link Response}.
+     */
+    @ServiceMethod(returns = ReturnType.SINGLE)
+    public Response<Void> raiseWithResponse(RequestContext requestContext) {
+        return this.instrumentation.instrumentWithResponse("SpecialWords.Operations.raise", requestContext,
+            updatedContext -> {
+                return service.raise(this.client.getEndpoint(), updatedContext);
+            });
+    }
+
+    /**
+     * The returnMethod operation.
+     *
+     * @param requestContext The context to configure the HTTP request before HTTP client sends it.
+     * @throws IllegalArgumentException thrown if parameters fail the validation.
+     * @throws HttpResponseException thrown if the service returns an error.
+     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
+     * @return the {@link Response}.
+     */
+    @ServiceMethod(returns = ReturnType.SINGLE)
+    public Response<Void> returnMethodWithResponse(RequestContext requestContext) {
+        return this.instrumentation.instrumentWithResponse("SpecialWords.Operations.return", requestContext,
+            updatedContext -> {
+                return service.returnMethod(this.client.getEndpoint(), updatedContext);
+            });
+    }
+
+    /**
+     * The tryMethod operation.
+     *
+     * @param requestContext The context to configure the HTTP request before HTTP client sends it.
+     * @throws IllegalArgumentException thrown if parameters fail the validation.
+     * @throws HttpResponseException thrown if the service returns an error.
+     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
+     * @return the {@link Response}.
+     */
+    @ServiceMethod(returns = ReturnType.SINGLE)
+    public Response<Void> tryMethodWithResponse(RequestContext requestContext) {
+        return this.instrumentation.instrumentWithResponse("SpecialWords.Operations.try", requestContext,
+            updatedContext -> {
+                return service.tryMethod(this.client.getEndpoint(), updatedContext);
+            });
+    }
+
+    /**
+     * The whileMethod operation.
+     *
+     * @param requestContext The context to configure the HTTP request before HTTP client sends it.
+     * @throws IllegalArgumentException thrown if parameters fail the validation.
+     * @throws HttpResponseException thrown if the service returns an error.
+     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
+     * @return the {@link Response}.
+     */
+    @ServiceMethod(returns = ReturnType.SINGLE)
+    public Response<Void> whileMethodWithResponse(RequestContext requestContext) {
+        return this.instrumentation.instrumentWithResponse("SpecialWords.Operations.while", requestContext,
+            updatedContext -> {
+                return service.whileMethod(this.client.getEndpoint(), updatedContext);
+            });
+    }
+
+    /**
+     * The with operation.
+     *
+     * @param requestContext The context to configure the HTTP request before HTTP client sends it.
+     * @throws IllegalArgumentException thrown if parameters fail the validation.
+     * @throws HttpResponseException thrown if the service returns an error.
+     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
+     * @return the {@link Response}.
+     */
+    @ServiceMethod(returns = ReturnType.SINGLE)
+    public Response<Void> withWithResponse(RequestContext requestContext) {
+        return this.instrumentation.instrumentWithResponse("SpecialWords.Operations.with", requestContext,
+            updatedContext -> {
+                return service.with(this.client.getEndpoint(), updatedContext);
+            });
+    }
+
+    /**
+     * The yield operation.
+     *
+     * @param requestContext The context to configure the HTTP request before HTTP client sends it.
+     * @throws IllegalArgumentException thrown if parameters fail the validation.
+     * @throws HttpResponseException thrown if the service returns an error.
+     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
+     * @return the {@link Response}.
+     */
+    @ServiceMethod(returns = ReturnType.SINGLE)
+    public Response<Void> yieldWithResponse(RequestContext requestContext) {
+        return this.instrumentation.instrumentWithResponse("SpecialWords.Operations.yield", requestContext,
+            updatedContext -> {
+                return service.yield(this.client.getEndpoint(), updatedContext);
+            });
+    }
+
+    /**
      * The interface defining all the services for SpecialWordsClientOperations to be used by the proxy service to
      * perform REST calls.
      */
     @ServiceInterface(name = "SpecialWordsClientOperations", host = "{endpoint}")
     public interface OperationsService {
-        static OperationsService getNewInstance(HttpPipeline pipeline) {
-            try {
-                Class<?> clazz = Class.forName("specialwords.implementation.OperationsServiceImpl");
-                return (OperationsService) clazz.getMethod("getNewInstance", HttpPipeline.class).invoke(null, pipeline);
-            } catch (ClassNotFoundException | NoSuchMethodException | IllegalAccessException
-                | InvocationTargetException e) {
-                throw new RuntimeException(e);
-            }
-
-        }
 
         @HttpRequestInformation(
             method = HttpMethod.GET,
@@ -291,566 +843,15 @@ public final class OperationsImpl {
             expectedStatusCodes = { 204 })
         @UnexpectedResponseExceptionDetail
         Response<Void> yield(@HostParam("endpoint") String endpoint, RequestContext requestContext);
-    }
 
-    /**
-     * The and operation.
-     * 
-     * @param requestContext The context to configure the HTTP request before HTTP client sends it.
-     * @throws IllegalArgumentException thrown if parameters fail the validation.
-     * @throws HttpResponseException thrown if the service returns an error.
-     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
-     * @return the {@link Response}.
-     */
-    @ServiceMethod(returns = ReturnType.SINGLE)
-    public Response<Void> andWithResponse(RequestContext requestContext) {
-        return this.instrumentation.instrumentWithResponse("SpecialWords.Operations.and", requestContext,
-            updatedContext -> {
-                return service.and(this.client.getEndpoint(), updatedContext);
-            });
-    }
-
-    /**
-     * The as operation.
-     * 
-     * @param requestContext The context to configure the HTTP request before HTTP client sends it.
-     * @throws IllegalArgumentException thrown if parameters fail the validation.
-     * @throws HttpResponseException thrown if the service returns an error.
-     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
-     * @return the {@link Response}.
-     */
-    @ServiceMethod(returns = ReturnType.SINGLE)
-    public Response<Void> asWithResponse(RequestContext requestContext) {
-        return this.instrumentation.instrumentWithResponse("SpecialWords.Operations.as", requestContext,
-            updatedContext -> {
-                return service.as(this.client.getEndpoint(), updatedContext);
-            });
-    }
-
-    /**
-     * The assertMethod operation.
-     * 
-     * @param requestContext The context to configure the HTTP request before HTTP client sends it.
-     * @throws IllegalArgumentException thrown if parameters fail the validation.
-     * @throws HttpResponseException thrown if the service returns an error.
-     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
-     * @return the {@link Response}.
-     */
-    @ServiceMethod(returns = ReturnType.SINGLE)
-    public Response<Void> assertMethodWithResponse(RequestContext requestContext) {
-        return this.instrumentation.instrumentWithResponse("SpecialWords.Operations.assert", requestContext,
-            updatedContext -> {
-                return service.assertMethod(this.client.getEndpoint(), updatedContext);
-            });
-    }
-
-    /**
-     * The async operation.
-     * 
-     * @param requestContext The context to configure the HTTP request before HTTP client sends it.
-     * @throws IllegalArgumentException thrown if parameters fail the validation.
-     * @throws HttpResponseException thrown if the service returns an error.
-     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
-     * @return the {@link Response}.
-     */
-    @ServiceMethod(returns = ReturnType.SINGLE)
-    public Response<Void> asyncWithResponse(RequestContext requestContext) {
-        return this.instrumentation.instrumentWithResponse("SpecialWords.Operations.async", requestContext,
-            updatedContext -> {
-                return service.async(this.client.getEndpoint(), updatedContext);
-            });
-    }
-
-    /**
-     * The await operation.
-     * 
-     * @param requestContext The context to configure the HTTP request before HTTP client sends it.
-     * @throws IllegalArgumentException thrown if parameters fail the validation.
-     * @throws HttpResponseException thrown if the service returns an error.
-     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
-     * @return the {@link Response}.
-     */
-    @ServiceMethod(returns = ReturnType.SINGLE)
-    public Response<Void> awaitWithResponse(RequestContext requestContext) {
-        return this.instrumentation.instrumentWithResponse("SpecialWords.Operations.await", requestContext,
-            updatedContext -> {
-                return service.await(this.client.getEndpoint(), updatedContext);
-            });
-    }
-
-    /**
-     * The breakMethod operation.
-     * 
-     * @param requestContext The context to configure the HTTP request before HTTP client sends it.
-     * @throws IllegalArgumentException thrown if parameters fail the validation.
-     * @throws HttpResponseException thrown if the service returns an error.
-     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
-     * @return the {@link Response}.
-     */
-    @ServiceMethod(returns = ReturnType.SINGLE)
-    public Response<Void> breakMethodWithResponse(RequestContext requestContext) {
-        return this.instrumentation.instrumentWithResponse("SpecialWords.Operations.break", requestContext,
-            updatedContext -> {
-                return service.breakMethod(this.client.getEndpoint(), updatedContext);
-            });
-    }
-
-    /**
-     * The classMethod operation.
-     * 
-     * @param requestContext The context to configure the HTTP request before HTTP client sends it.
-     * @throws IllegalArgumentException thrown if parameters fail the validation.
-     * @throws HttpResponseException thrown if the service returns an error.
-     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
-     * @return the {@link Response}.
-     */
-    @ServiceMethod(returns = ReturnType.SINGLE)
-    public Response<Void> classMethodWithResponse(RequestContext requestContext) {
-        return this.instrumentation.instrumentWithResponse("SpecialWords.Operations.class", requestContext,
-            updatedContext -> {
-                return service.classMethod(this.client.getEndpoint(), updatedContext);
-            });
-    }
-
-    /**
-     * The constructor operation.
-     * 
-     * @param requestContext The context to configure the HTTP request before HTTP client sends it.
-     * @throws IllegalArgumentException thrown if parameters fail the validation.
-     * @throws HttpResponseException thrown if the service returns an error.
-     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
-     * @return the {@link Response}.
-     */
-    @ServiceMethod(returns = ReturnType.SINGLE)
-    public Response<Void> constructorWithResponse(RequestContext requestContext) {
-        return this.instrumentation.instrumentWithResponse("SpecialWords.Operations.constructor", requestContext,
-            updatedContext -> {
-                return service.constructor(this.client.getEndpoint(), updatedContext);
-            });
-    }
-
-    /**
-     * The continueMethod operation.
-     * 
-     * @param requestContext The context to configure the HTTP request before HTTP client sends it.
-     * @throws IllegalArgumentException thrown if parameters fail the validation.
-     * @throws HttpResponseException thrown if the service returns an error.
-     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
-     * @return the {@link Response}.
-     */
-    @ServiceMethod(returns = ReturnType.SINGLE)
-    public Response<Void> continueMethodWithResponse(RequestContext requestContext) {
-        return this.instrumentation.instrumentWithResponse("SpecialWords.Operations.continue", requestContext,
-            updatedContext -> {
-                return service.continueMethod(this.client.getEndpoint(), updatedContext);
-            });
-    }
-
-    /**
-     * The def operation.
-     * 
-     * @param requestContext The context to configure the HTTP request before HTTP client sends it.
-     * @throws IllegalArgumentException thrown if parameters fail the validation.
-     * @throws HttpResponseException thrown if the service returns an error.
-     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
-     * @return the {@link Response}.
-     */
-    @ServiceMethod(returns = ReturnType.SINGLE)
-    public Response<Void> defWithResponse(RequestContext requestContext) {
-        return this.instrumentation.instrumentWithResponse("SpecialWords.Operations.def", requestContext,
-            updatedContext -> {
-                return service.def(this.client.getEndpoint(), updatedContext);
-            });
-    }
-
-    /**
-     * The del operation.
-     * 
-     * @param requestContext The context to configure the HTTP request before HTTP client sends it.
-     * @throws IllegalArgumentException thrown if parameters fail the validation.
-     * @throws HttpResponseException thrown if the service returns an error.
-     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
-     * @return the {@link Response}.
-     */
-    @ServiceMethod(returns = ReturnType.SINGLE)
-    public Response<Void> delWithResponse(RequestContext requestContext) {
-        return this.instrumentation.instrumentWithResponse("SpecialWords.Operations.del", requestContext,
-            updatedContext -> {
-                return service.del(this.client.getEndpoint(), updatedContext);
-            });
-    }
-
-    /**
-     * The elif operation.
-     * 
-     * @param requestContext The context to configure the HTTP request before HTTP client sends it.
-     * @throws IllegalArgumentException thrown if parameters fail the validation.
-     * @throws HttpResponseException thrown if the service returns an error.
-     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
-     * @return the {@link Response}.
-     */
-    @ServiceMethod(returns = ReturnType.SINGLE)
-    public Response<Void> elifWithResponse(RequestContext requestContext) {
-        return this.instrumentation.instrumentWithResponse("SpecialWords.Operations.elif", requestContext,
-            updatedContext -> {
-                return service.elif(this.client.getEndpoint(), updatedContext);
-            });
-    }
-
-    /**
-     * The elseMethod operation.
-     * 
-     * @param requestContext The context to configure the HTTP request before HTTP client sends it.
-     * @throws IllegalArgumentException thrown if parameters fail the validation.
-     * @throws HttpResponseException thrown if the service returns an error.
-     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
-     * @return the {@link Response}.
-     */
-    @ServiceMethod(returns = ReturnType.SINGLE)
-    public Response<Void> elseMethodWithResponse(RequestContext requestContext) {
-        return this.instrumentation.instrumentWithResponse("SpecialWords.Operations.else", requestContext,
-            updatedContext -> {
-                return service.elseMethod(this.client.getEndpoint(), updatedContext);
-            });
-    }
-
-    /**
-     * The except operation.
-     * 
-     * @param requestContext The context to configure the HTTP request before HTTP client sends it.
-     * @throws IllegalArgumentException thrown if parameters fail the validation.
-     * @throws HttpResponseException thrown if the service returns an error.
-     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
-     * @return the {@link Response}.
-     */
-    @ServiceMethod(returns = ReturnType.SINGLE)
-    public Response<Void> exceptWithResponse(RequestContext requestContext) {
-        return this.instrumentation.instrumentWithResponse("SpecialWords.Operations.except", requestContext,
-            updatedContext -> {
-                return service.except(this.client.getEndpoint(), updatedContext);
-            });
-    }
-
-    /**
-     * The exec operation.
-     * 
-     * @param requestContext The context to configure the HTTP request before HTTP client sends it.
-     * @throws IllegalArgumentException thrown if parameters fail the validation.
-     * @throws HttpResponseException thrown if the service returns an error.
-     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
-     * @return the {@link Response}.
-     */
-    @ServiceMethod(returns = ReturnType.SINGLE)
-    public Response<Void> execWithResponse(RequestContext requestContext) {
-        return this.instrumentation.instrumentWithResponse("SpecialWords.Operations.exec", requestContext,
-            updatedContext -> {
-                return service.exec(this.client.getEndpoint(), updatedContext);
-            });
-    }
-
-    /**
-     * The finallyMethod operation.
-     * 
-     * @param requestContext The context to configure the HTTP request before HTTP client sends it.
-     * @throws IllegalArgumentException thrown if parameters fail the validation.
-     * @throws HttpResponseException thrown if the service returns an error.
-     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
-     * @return the {@link Response}.
-     */
-    @ServiceMethod(returns = ReturnType.SINGLE)
-    public Response<Void> finallyMethodWithResponse(RequestContext requestContext) {
-        return this.instrumentation.instrumentWithResponse("SpecialWords.Operations.finally", requestContext,
-            updatedContext -> {
-                return service.finallyMethod(this.client.getEndpoint(), updatedContext);
-            });
-    }
-
-    /**
-     * The forMethod operation.
-     * 
-     * @param requestContext The context to configure the HTTP request before HTTP client sends it.
-     * @throws IllegalArgumentException thrown if parameters fail the validation.
-     * @throws HttpResponseException thrown if the service returns an error.
-     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
-     * @return the {@link Response}.
-     */
-    @ServiceMethod(returns = ReturnType.SINGLE)
-    public Response<Void> forMethodWithResponse(RequestContext requestContext) {
-        return this.instrumentation.instrumentWithResponse("SpecialWords.Operations.for", requestContext,
-            updatedContext -> {
-                return service.forMethod(this.client.getEndpoint(), updatedContext);
-            });
-    }
-
-    /**
-     * The from operation.
-     * 
-     * @param requestContext The context to configure the HTTP request before HTTP client sends it.
-     * @throws IllegalArgumentException thrown if parameters fail the validation.
-     * @throws HttpResponseException thrown if the service returns an error.
-     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
-     * @return the {@link Response}.
-     */
-    @ServiceMethod(returns = ReturnType.SINGLE)
-    public Response<Void> fromWithResponse(RequestContext requestContext) {
-        return this.instrumentation.instrumentWithResponse("SpecialWords.Operations.from", requestContext,
-            updatedContext -> {
-                return service.from(this.client.getEndpoint(), updatedContext);
-            });
-    }
-
-    /**
-     * The global operation.
-     * 
-     * @param requestContext The context to configure the HTTP request before HTTP client sends it.
-     * @throws IllegalArgumentException thrown if parameters fail the validation.
-     * @throws HttpResponseException thrown if the service returns an error.
-     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
-     * @return the {@link Response}.
-     */
-    @ServiceMethod(returns = ReturnType.SINGLE)
-    public Response<Void> globalWithResponse(RequestContext requestContext) {
-        return this.instrumentation.instrumentWithResponse("SpecialWords.Operations.global", requestContext,
-            updatedContext -> {
-                return service.global(this.client.getEndpoint(), updatedContext);
-            });
-    }
-
-    /**
-     * The ifMethod operation.
-     * 
-     * @param requestContext The context to configure the HTTP request before HTTP client sends it.
-     * @throws IllegalArgumentException thrown if parameters fail the validation.
-     * @throws HttpResponseException thrown if the service returns an error.
-     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
-     * @return the {@link Response}.
-     */
-    @ServiceMethod(returns = ReturnType.SINGLE)
-    public Response<Void> ifMethodWithResponse(RequestContext requestContext) {
-        return this.instrumentation.instrumentWithResponse("SpecialWords.Operations.if", requestContext,
-            updatedContext -> {
-                return service.ifMethod(this.client.getEndpoint(), updatedContext);
-            });
-    }
-
-    /**
-     * The importMethod operation.
-     * 
-     * @param requestContext The context to configure the HTTP request before HTTP client sends it.
-     * @throws IllegalArgumentException thrown if parameters fail the validation.
-     * @throws HttpResponseException thrown if the service returns an error.
-     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
-     * @return the {@link Response}.
-     */
-    @ServiceMethod(returns = ReturnType.SINGLE)
-    public Response<Void> importMethodWithResponse(RequestContext requestContext) {
-        return this.instrumentation.instrumentWithResponse("SpecialWords.Operations.import", requestContext,
-            updatedContext -> {
-                return service.importMethod(this.client.getEndpoint(), updatedContext);
-            });
-    }
-
-    /**
-     * The in operation.
-     * 
-     * @param requestContext The context to configure the HTTP request before HTTP client sends it.
-     * @throws IllegalArgumentException thrown if parameters fail the validation.
-     * @throws HttpResponseException thrown if the service returns an error.
-     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
-     * @return the {@link Response}.
-     */
-    @ServiceMethod(returns = ReturnType.SINGLE)
-    public Response<Void> inWithResponse(RequestContext requestContext) {
-        return this.instrumentation.instrumentWithResponse("SpecialWords.Operations.in", requestContext,
-            updatedContext -> {
-                return service.in(this.client.getEndpoint(), updatedContext);
-            });
-    }
-
-    /**
-     * The is operation.
-     * 
-     * @param requestContext The context to configure the HTTP request before HTTP client sends it.
-     * @throws IllegalArgumentException thrown if parameters fail the validation.
-     * @throws HttpResponseException thrown if the service returns an error.
-     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
-     * @return the {@link Response}.
-     */
-    @ServiceMethod(returns = ReturnType.SINGLE)
-    public Response<Void> isWithResponse(RequestContext requestContext) {
-        return this.instrumentation.instrumentWithResponse("SpecialWords.Operations.is", requestContext,
-            updatedContext -> {
-                return service.is(this.client.getEndpoint(), updatedContext);
-            });
-    }
-
-    /**
-     * The lambda operation.
-     * 
-     * @param requestContext The context to configure the HTTP request before HTTP client sends it.
-     * @throws IllegalArgumentException thrown if parameters fail the validation.
-     * @throws HttpResponseException thrown if the service returns an error.
-     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
-     * @return the {@link Response}.
-     */
-    @ServiceMethod(returns = ReturnType.SINGLE)
-    public Response<Void> lambdaWithResponse(RequestContext requestContext) {
-        return this.instrumentation.instrumentWithResponse("SpecialWords.Operations.lambda", requestContext,
-            updatedContext -> {
-                return service.lambda(this.client.getEndpoint(), updatedContext);
-            });
-    }
-
-    /**
-     * The not operation.
-     * 
-     * @param requestContext The context to configure the HTTP request before HTTP client sends it.
-     * @throws IllegalArgumentException thrown if parameters fail the validation.
-     * @throws HttpResponseException thrown if the service returns an error.
-     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
-     * @return the {@link Response}.
-     */
-    @ServiceMethod(returns = ReturnType.SINGLE)
-    public Response<Void> notWithResponse(RequestContext requestContext) {
-        return this.instrumentation.instrumentWithResponse("SpecialWords.Operations.not", requestContext,
-            updatedContext -> {
-                return service.not(this.client.getEndpoint(), updatedContext);
-            });
-    }
-
-    /**
-     * The or operation.
-     * 
-     * @param requestContext The context to configure the HTTP request before HTTP client sends it.
-     * @throws IllegalArgumentException thrown if parameters fail the validation.
-     * @throws HttpResponseException thrown if the service returns an error.
-     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
-     * @return the {@link Response}.
-     */
-    @ServiceMethod(returns = ReturnType.SINGLE)
-    public Response<Void> orWithResponse(RequestContext requestContext) {
-        return this.instrumentation.instrumentWithResponse("SpecialWords.Operations.or", requestContext,
-            updatedContext -> {
-                return service.or(this.client.getEndpoint(), updatedContext);
-            });
-    }
-
-    /**
-     * The pass operation.
-     * 
-     * @param requestContext The context to configure the HTTP request before HTTP client sends it.
-     * @throws IllegalArgumentException thrown if parameters fail the validation.
-     * @throws HttpResponseException thrown if the service returns an error.
-     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
-     * @return the {@link Response}.
-     */
-    @ServiceMethod(returns = ReturnType.SINGLE)
-    public Response<Void> passWithResponse(RequestContext requestContext) {
-        return this.instrumentation.instrumentWithResponse("SpecialWords.Operations.pass", requestContext,
-            updatedContext -> {
-                return service.pass(this.client.getEndpoint(), updatedContext);
-            });
-    }
-
-    /**
-     * The raise operation.
-     * 
-     * @param requestContext The context to configure the HTTP request before HTTP client sends it.
-     * @throws IllegalArgumentException thrown if parameters fail the validation.
-     * @throws HttpResponseException thrown if the service returns an error.
-     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
-     * @return the {@link Response}.
-     */
-    @ServiceMethod(returns = ReturnType.SINGLE)
-    public Response<Void> raiseWithResponse(RequestContext requestContext) {
-        return this.instrumentation.instrumentWithResponse("SpecialWords.Operations.raise", requestContext,
-            updatedContext -> {
-                return service.raise(this.client.getEndpoint(), updatedContext);
-            });
-    }
-
-    /**
-     * The returnMethod operation.
-     * 
-     * @param requestContext The context to configure the HTTP request before HTTP client sends it.
-     * @throws IllegalArgumentException thrown if parameters fail the validation.
-     * @throws HttpResponseException thrown if the service returns an error.
-     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
-     * @return the {@link Response}.
-     */
-    @ServiceMethod(returns = ReturnType.SINGLE)
-    public Response<Void> returnMethodWithResponse(RequestContext requestContext) {
-        return this.instrumentation.instrumentWithResponse("SpecialWords.Operations.return", requestContext,
-            updatedContext -> {
-                return service.returnMethod(this.client.getEndpoint(), updatedContext);
-            });
-    }
-
-    /**
-     * The tryMethod operation.
-     * 
-     * @param requestContext The context to configure the HTTP request before HTTP client sends it.
-     * @throws IllegalArgumentException thrown if parameters fail the validation.
-     * @throws HttpResponseException thrown if the service returns an error.
-     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
-     * @return the {@link Response}.
-     */
-    @ServiceMethod(returns = ReturnType.SINGLE)
-    public Response<Void> tryMethodWithResponse(RequestContext requestContext) {
-        return this.instrumentation.instrumentWithResponse("SpecialWords.Operations.try", requestContext,
-            updatedContext -> {
-                return service.tryMethod(this.client.getEndpoint(), updatedContext);
-            });
-    }
-
-    /**
-     * The whileMethod operation.
-     * 
-     * @param requestContext The context to configure the HTTP request before HTTP client sends it.
-     * @throws IllegalArgumentException thrown if parameters fail the validation.
-     * @throws HttpResponseException thrown if the service returns an error.
-     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
-     * @return the {@link Response}.
-     */
-    @ServiceMethod(returns = ReturnType.SINGLE)
-    public Response<Void> whileMethodWithResponse(RequestContext requestContext) {
-        return this.instrumentation.instrumentWithResponse("SpecialWords.Operations.while", requestContext,
-            updatedContext -> {
-                return service.whileMethod(this.client.getEndpoint(), updatedContext);
-            });
-    }
-
-    /**
-     * The with operation.
-     * 
-     * @param requestContext The context to configure the HTTP request before HTTP client sends it.
-     * @throws IllegalArgumentException thrown if parameters fail the validation.
-     * @throws HttpResponseException thrown if the service returns an error.
-     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
-     * @return the {@link Response}.
-     */
-    @ServiceMethod(returns = ReturnType.SINGLE)
-    public Response<Void> withWithResponse(RequestContext requestContext) {
-        return this.instrumentation.instrumentWithResponse("SpecialWords.Operations.with", requestContext,
-            updatedContext -> {
-                return service.with(this.client.getEndpoint(), updatedContext);
-            });
-    }
-
-    /**
-     * The yield operation.
-     * 
-     * @param requestContext The context to configure the HTTP request before HTTP client sends it.
-     * @throws IllegalArgumentException thrown if parameters fail the validation.
-     * @throws HttpResponseException thrown if the service returns an error.
-     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
-     * @return the {@link Response}.
-     */
-    @ServiceMethod(returns = ReturnType.SINGLE)
-    public Response<Void> yieldWithResponse(RequestContext requestContext) {
-        return this.instrumentation.instrumentWithResponse("SpecialWords.Operations.yield", requestContext,
-            updatedContext -> {
-                return service.yield(this.client.getEndpoint(), updatedContext);
-            });
+        static OperationsService getNewInstance(HttpPipeline pipeline) {
+            try {
+                Class<?> clazz = Class.forName("specialwords.implementation.OperationsServiceImpl");
+                return (OperationsService) clazz.getMethod("getNewInstance", HttpPipeline.class).invoke(null, pipeline);
+            } catch (ClassNotFoundException | NoSuchMethodException | IllegalAccessException
+                | InvocationTargetException e) {
+                throw new RuntimeException(e);
+            }
+        }
     }
 }

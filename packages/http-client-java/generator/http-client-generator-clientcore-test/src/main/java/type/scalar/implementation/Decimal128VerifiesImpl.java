@@ -22,10 +22,6 @@ import java.util.List;
  * An instance of this class provides access to all the operations defined in Decimal128Verifies.
  */
 public final class Decimal128VerifiesImpl {
-    /**
-     * The proxy service used to perform REST calls.
-     */
-    private final Decimal128VerifiesService service;
 
     /**
      * The service client containing this operation class.
@@ -38,8 +34,13 @@ public final class Decimal128VerifiesImpl {
     private final Instrumentation instrumentation;
 
     /**
+     * The proxy service used to perform REST calls.
+     */
+    private final Decimal128VerifiesService service;
+
+    /**
      * Initializes an instance of Decimal128VerifiesImpl.
-     * 
+     *
      * @param client the instance of the service client containing this operation class.
      */
     Decimal128VerifiesImpl(ScalarClientImpl client) {
@@ -49,43 +50,8 @@ public final class Decimal128VerifiesImpl {
     }
 
     /**
-     * The interface defining all the services for ScalarClientDecimal128Verifies to be used by the proxy service to
-     * perform REST calls.
-     */
-    @ServiceInterface(name = "ScalarClientDecimal128Verifies", host = "{endpoint}")
-    public interface Decimal128VerifiesService {
-        static Decimal128VerifiesService getNewInstance(HttpPipeline pipeline) {
-            try {
-                Class<?> clazz = Class.forName("type.scalar.implementation.Decimal128VerifiesServiceImpl");
-                return (Decimal128VerifiesService) clazz.getMethod("getNewInstance", HttpPipeline.class)
-                    .invoke(null, pipeline);
-            } catch (ClassNotFoundException | NoSuchMethodException | IllegalAccessException
-                | InvocationTargetException e) {
-                throw new RuntimeException(e);
-            }
-
-        }
-
-        @HttpRequestInformation(
-            method = HttpMethod.GET,
-            path = "/type/scalar/decimal128/prepare_verify",
-            expectedStatusCodes = { 200 })
-        @UnexpectedResponseExceptionDetail
-        Response<List<BigDecimal>> prepareVerify(@HostParam("endpoint") String endpoint,
-            @HeaderParam("Accept") String accept, RequestContext requestContext);
-
-        @HttpRequestInformation(
-            method = HttpMethod.POST,
-            path = "/type/scalar/decimal128/verify",
-            expectedStatusCodes = { 204 })
-        @UnexpectedResponseExceptionDetail
-        Response<Void> verify(@HostParam("endpoint") String endpoint, @HeaderParam("content-type") String contentType,
-            @BodyParam("application/json") BigDecimal body, RequestContext requestContext);
-    }
-
-    /**
      * The prepareVerify operation.
-     * 
+     *
      * @param requestContext The context to configure the HTTP request before HTTP client sends it.
      * @throws IllegalArgumentException thrown if parameters fail the validation.
      * @throws HttpResponseException thrown if the service returns an error.
@@ -103,7 +69,7 @@ public final class Decimal128VerifiesImpl {
 
     /**
      * The verify operation.
-     * 
+     *
      * @param body The body parameter.
      * @param requestContext The context to configure the HTTP request before HTTP client sends it.
      * @throws IllegalArgumentException thrown if parameters fail the validation.
@@ -118,5 +84,40 @@ public final class Decimal128VerifiesImpl {
                 final String contentType = "application/json";
                 return service.verify(this.client.getEndpoint(), contentType, body, updatedContext);
             });
+    }
+
+    /**
+     * The interface defining all the services for ScalarClientDecimal128Verifies to be used by the proxy service to
+     * perform REST calls.
+     */
+    @ServiceInterface(name = "ScalarClientDecimal128Verifies", host = "{endpoint}")
+    public interface Decimal128VerifiesService {
+
+        @HttpRequestInformation(
+            method = HttpMethod.GET,
+            path = "/type/scalar/decimal128/prepare_verify",
+            expectedStatusCodes = { 200 })
+        @UnexpectedResponseExceptionDetail
+        Response<List<BigDecimal>> prepareVerify(@HostParam("endpoint") String endpoint,
+            @HeaderParam("Accept") String accept, RequestContext requestContext);
+
+        @HttpRequestInformation(
+            method = HttpMethod.POST,
+            path = "/type/scalar/decimal128/verify",
+            expectedStatusCodes = { 204 })
+        @UnexpectedResponseExceptionDetail
+        Response<Void> verify(@HostParam("endpoint") String endpoint, @HeaderParam("content-type") String contentType,
+            @BodyParam("application/json") BigDecimal body, RequestContext requestContext);
+
+        static Decimal128VerifiesService getNewInstance(HttpPipeline pipeline) {
+            try {
+                Class<?> clazz = Class.forName("type.scalar.implementation.Decimal128VerifiesServiceImpl");
+                return (Decimal128VerifiesService) clazz.getMethod("getNewInstance", HttpPipeline.class)
+                    .invoke(null, pipeline);
+            } catch (ClassNotFoundException | NoSuchMethodException | IllegalAccessException
+                | InvocationTargetException e) {
+                throw new RuntimeException(e);
+            }
+        }
     }
 }

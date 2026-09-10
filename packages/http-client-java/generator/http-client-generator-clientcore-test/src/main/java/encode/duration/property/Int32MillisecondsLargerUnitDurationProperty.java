@@ -15,6 +15,7 @@ import java.time.Duration;
 @Metadata(properties = { MetadataProperties.IMMUTABLE })
 public final class Int32MillisecondsLargerUnitDurationProperty
     implements JsonSerializable<Int32MillisecondsLargerUnitDurationProperty> {
+
     /*
      * The value property.
      */
@@ -23,7 +24,7 @@ public final class Int32MillisecondsLargerUnitDurationProperty
 
     /**
      * Creates an instance of Int32MillisecondsLargerUnitDurationProperty class.
-     * 
+     *
      * @param value the value value to set.
      */
     @Metadata(properties = { MetadataProperties.GENERATED })
@@ -37,7 +38,7 @@ public final class Int32MillisecondsLargerUnitDurationProperty
 
     /**
      * Get the value property: The value property.
-     * 
+     *
      * @return the value value.
      */
     @Metadata(properties = { MetadataProperties.GENERATED })
@@ -58,7 +59,7 @@ public final class Int32MillisecondsLargerUnitDurationProperty
 
     /**
      * Reads an instance of Int32MillisecondsLargerUnitDurationProperty from the JsonReader.
-     * 
+     *
      * @param jsonReader The JsonReader being read.
      * @return An instance of Int32MillisecondsLargerUnitDurationProperty if the JsonReader was pointing to an instance
      * of it, or null if it was pointing to JSON null.
@@ -72,7 +73,6 @@ public final class Int32MillisecondsLargerUnitDurationProperty
             while (reader.nextToken() != JsonToken.END_OBJECT) {
                 String fieldName = reader.getFieldName();
                 reader.nextToken();
-
                 if ("value".equals(fieldName)) {
                     value = Duration.ofMillis(reader.getLong());
                 } else {

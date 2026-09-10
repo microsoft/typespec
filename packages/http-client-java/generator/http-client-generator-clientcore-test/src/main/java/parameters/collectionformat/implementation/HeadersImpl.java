@@ -22,10 +22,6 @@ import java.util.stream.Collectors;
  * An instance of this class provides access to all the operations defined in Headers.
  */
 public final class HeadersImpl {
-    /**
-     * The proxy service used to perform REST calls.
-     */
-    private final HeadersService service;
 
     /**
      * The service client containing this operation class.
@@ -38,8 +34,13 @@ public final class HeadersImpl {
     private final Instrumentation instrumentation;
 
     /**
+     * The proxy service used to perform REST calls.
+     */
+    private final HeadersService service;
+
+    /**
      * Initializes an instance of HeadersImpl.
-     * 
+     *
      * @param client the instance of the service client containing this operation class.
      */
     HeadersImpl(CollectionFormatClientImpl client) {
@@ -49,34 +50,8 @@ public final class HeadersImpl {
     }
 
     /**
-     * The interface defining all the services for CollectionFormatClientHeaders to be used by the proxy service to
-     * perform REST calls.
-     */
-    @ServiceInterface(name = "CollectionFormatClientHeaders", host = "{endpoint}")
-    public interface HeadersService {
-        static HeadersService getNewInstance(HttpPipeline pipeline) {
-            try {
-                Class<?> clazz = Class.forName("parameters.collectionformat.implementation.HeadersServiceImpl");
-                return (HeadersService) clazz.getMethod("getNewInstance", HttpPipeline.class).invoke(null, pipeline);
-            } catch (ClassNotFoundException | NoSuchMethodException | IllegalAccessException
-                | InvocationTargetException e) {
-                throw new RuntimeException(e);
-            }
-
-        }
-
-        @HttpRequestInformation(
-            method = HttpMethod.GET,
-            path = "/parameters/collection-format/header/csv",
-            expectedStatusCodes = { 204 })
-        @UnexpectedResponseExceptionDetail
-        Response<Void> csv(@HostParam("endpoint") String endpoint, @HeaderParam("colors") String colors,
-            RequestContext requestContext);
-    }
-
-    /**
      * The csv operation.
-     * 
+     *
      * @param colors Possible values for colors are [blue,red,green].
      * @param requestContext The context to configure the HTTP request before HTTP client sends it.
      * @throws IllegalArgumentException thrown if parameters fail the validation.
@@ -93,5 +68,31 @@ public final class HeadersImpl {
                     .collect(Collectors.joining(","));
                 return service.csv(this.client.getEndpoint(), colorsConverted, updatedContext);
             });
+    }
+
+    /**
+     * The interface defining all the services for CollectionFormatClientHeaders to be used by the proxy service to
+     * perform REST calls.
+     */
+    @ServiceInterface(name = "CollectionFormatClientHeaders", host = "{endpoint}")
+    public interface HeadersService {
+
+        @HttpRequestInformation(
+            method = HttpMethod.GET,
+            path = "/parameters/collection-format/header/csv",
+            expectedStatusCodes = { 204 })
+        @UnexpectedResponseExceptionDetail
+        Response<Void> csv(@HostParam("endpoint") String endpoint, @HeaderParam("colors") String colors,
+            RequestContext requestContext);
+
+        static HeadersService getNewInstance(HttpPipeline pipeline) {
+            try {
+                Class<?> clazz = Class.forName("parameters.collectionformat.implementation.HeadersServiceImpl");
+                return (HeadersService) clazz.getMethod("getNewInstance", HttpPipeline.class).invoke(null, pipeline);
+            } catch (ClassNotFoundException | NoSuchMethodException | IllegalAccessException
+                | InvocationTargetException e) {
+                throw new RuntimeException(e);
+            }
+        }
     }
 }

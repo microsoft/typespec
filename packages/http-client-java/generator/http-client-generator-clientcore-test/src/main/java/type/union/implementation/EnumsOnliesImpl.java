@@ -22,10 +22,6 @@ import type.union.GetResponse6;
  * An instance of this class provides access to all the operations defined in EnumsOnlies.
  */
 public final class EnumsOnliesImpl {
-    /**
-     * The proxy service used to perform REST calls.
-     */
-    private final EnumsOnliesService service;
 
     /**
      * The service client containing this operation class.
@@ -38,8 +34,13 @@ public final class EnumsOnliesImpl {
     private final Instrumentation instrumentation;
 
     /**
+     * The proxy service used to perform REST calls.
+     */
+    private final EnumsOnliesService service;
+
+    /**
      * Initializes an instance of EnumsOnliesImpl.
-     * 
+     *
      * @param client the instance of the service client containing this operation class.
      */
     EnumsOnliesImpl(UnionClientImpl client) {
@@ -49,40 +50,8 @@ public final class EnumsOnliesImpl {
     }
 
     /**
-     * The interface defining all the services for UnionClientEnumsOnlies to be used by the proxy service to perform
-     * REST calls.
-     */
-    @ServiceInterface(name = "UnionClientEnumsOnlies", host = "{endpoint}")
-    public interface EnumsOnliesService {
-        static EnumsOnliesService getNewInstance(HttpPipeline pipeline) {
-            try {
-                Class<?> clazz = Class.forName("type.union.implementation.EnumsOnliesServiceImpl");
-                return (EnumsOnliesService) clazz.getMethod("getNewInstance", HttpPipeline.class)
-                    .invoke(null, pipeline);
-            } catch (ClassNotFoundException | NoSuchMethodException | IllegalAccessException
-                | InvocationTargetException e) {
-                throw new RuntimeException(e);
-            }
-
-        }
-
-        @HttpRequestInformation(method = HttpMethod.GET, path = "/type/union/enums-only", expectedStatusCodes = { 200 })
-        @UnexpectedResponseExceptionDetail
-        Response<GetResponse6> get(@HostParam("endpoint") String endpoint, @HeaderParam("Accept") String accept,
-            RequestContext requestContext);
-
-        @HttpRequestInformation(
-            method = HttpMethod.POST,
-            path = "/type/union/enums-only",
-            expectedStatusCodes = { 204 })
-        @UnexpectedResponseExceptionDetail
-        Response<Void> send(@HostParam("endpoint") String endpoint, @HeaderParam("Content-Type") String contentType,
-            @BodyParam("application/json") SendRequest6 sendRequest6, RequestContext requestContext);
-    }
-
-    /**
      * The get operation.
-     * 
+     *
      * @param requestContext The context to configure the HTTP request before HTTP client sends it.
      * @throws IllegalArgumentException thrown if parameters fail the validation.
      * @throws HttpResponseException thrown if the service returns an error.
@@ -100,7 +69,7 @@ public final class EnumsOnliesImpl {
 
     /**
      * The send operation.
-     * 
+     *
      * @param prop The prop parameter.
      * @param requestContext The context to configure the HTTP request before HTTP client sends it.
      * @throws IllegalArgumentException thrown if parameters fail the validation.
@@ -116,5 +85,37 @@ public final class EnumsOnliesImpl {
                 SendRequest6 sendRequest6 = new SendRequest6(prop);
                 return service.send(this.client.getEndpoint(), contentType, sendRequest6, updatedContext);
             });
+    }
+
+    /**
+     * The interface defining all the services for UnionClientEnumsOnlies to be used by the proxy service to perform
+     * REST calls.
+     */
+    @ServiceInterface(name = "UnionClientEnumsOnlies", host = "{endpoint}")
+    public interface EnumsOnliesService {
+
+        @HttpRequestInformation(method = HttpMethod.GET, path = "/type/union/enums-only", expectedStatusCodes = { 200 })
+        @UnexpectedResponseExceptionDetail
+        Response<GetResponse6> get(@HostParam("endpoint") String endpoint, @HeaderParam("Accept") String accept,
+            RequestContext requestContext);
+
+        @HttpRequestInformation(
+            method = HttpMethod.POST,
+            path = "/type/union/enums-only",
+            expectedStatusCodes = { 204 })
+        @UnexpectedResponseExceptionDetail
+        Response<Void> send(@HostParam("endpoint") String endpoint, @HeaderParam("Content-Type") String contentType,
+            @BodyParam("application/json") SendRequest6 sendRequest6, RequestContext requestContext);
+
+        static EnumsOnliesService getNewInstance(HttpPipeline pipeline) {
+            try {
+                Class<?> clazz = Class.forName("type.union.implementation.EnumsOnliesServiceImpl");
+                return (EnumsOnliesService) clazz.getMethod("getNewInstance", HttpPipeline.class)
+                    .invoke(null, pipeline);
+            } catch (ClassNotFoundException | NoSuchMethodException | IllegalAccessException
+                | InvocationTargetException e) {
+                throw new RuntimeException(e);
+            }
+        }
     }
 }

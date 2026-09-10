@@ -21,10 +21,6 @@ import java.lang.reflect.InvocationTargetException;
  * An instance of this class provides access to all the operations defined in Basics.
  */
 public final class BasicsImpl {
-    /**
-     * The proxy service used to perform REST calls.
-     */
-    private final BasicsService service;
 
     /**
      * The service client containing this operation class.
@@ -37,8 +33,13 @@ public final class BasicsImpl {
     private final Instrumentation instrumentation;
 
     /**
+     * The proxy service used to perform REST calls.
+     */
+    private final BasicsService service;
+
+    /**
      * Initializes an instance of BasicsImpl.
-     * 
+     *
      * @param client the instance of the service client containing this operation class.
      */
     BasicsImpl(JsonlClientImpl client) {
@@ -48,43 +49,26 @@ public final class BasicsImpl {
     }
 
     /**
-     * The interface defining all the services for JsonlClientBasics to be used by the proxy service to perform REST
-     * calls.
+     * The receive operation.
+     *
+     * @param requestContext The context to configure the HTTP request before HTTP client sends it.
+     * @throws IllegalArgumentException thrown if parameters fail the validation.
+     * @throws HttpResponseException thrown if the service returns an error.
+     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
+     * @return the response body along with {@link Response}.
      */
-    @ServiceInterface(name = "JsonlClientBasics", host = "{endpoint}")
-    public interface BasicsService {
-        static BasicsService getNewInstance(HttpPipeline pipeline) {
-            try {
-                Class<?> clazz = Class.forName("streaming.jsonl.implementation.BasicsServiceImpl");
-                return (BasicsService) clazz.getMethod("getNewInstance", HttpPipeline.class).invoke(null, pipeline);
-            } catch (ClassNotFoundException | NoSuchMethodException | IllegalAccessException
-                | InvocationTargetException e) {
-                throw new RuntimeException(e);
-            }
-
-        }
-
-        @HttpRequestInformation(
-            method = HttpMethod.POST,
-            path = "/streaming/jsonl/basic/send",
-            expectedStatusCodes = { 204 })
-        @UnexpectedResponseExceptionDetail
-        Response<Void> send(@HostParam("endpoint") String endpoint, @HeaderParam("content-type") String contentType,
-            @BodyParam("application/jsonl") BinaryData body, @HeaderParam("Content-Length") long contentLength,
-            RequestContext requestContext);
-
-        @HttpRequestInformation(
-            method = HttpMethod.GET,
-            path = "/streaming/jsonl/basic/receive",
-            expectedStatusCodes = { 200 })
-        @UnexpectedResponseExceptionDetail
-        Response<BinaryData> receive(@HostParam("endpoint") String endpoint, @HeaderParam("Accept") String accept,
-            RequestContext requestContext);
+    @ServiceMethod(returns = ReturnType.SINGLE)
+    public Response<BinaryData> receiveWithResponse(RequestContext requestContext) {
+        return this.instrumentation.instrumentWithResponse("Streaming.Jsonl.Basic.receive", requestContext,
+            updatedContext -> {
+                final String accept = "application/jsonl";
+                return service.receive(this.client.getEndpoint(), accept, updatedContext);
+            });
     }
 
     /**
      * The send operation.
-     * 
+     *
      * @param body The body parameter.
      * @param contentLength The Content-Length header for the request.
      * @param requestContext The context to configure the HTTP request before HTTP client sends it.
@@ -103,20 +87,37 @@ public final class BasicsImpl {
     }
 
     /**
-     * The receive operation.
-     * 
-     * @param requestContext The context to configure the HTTP request before HTTP client sends it.
-     * @throws IllegalArgumentException thrown if parameters fail the validation.
-     * @throws HttpResponseException thrown if the service returns an error.
-     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
-     * @return the response body along with {@link Response}.
+     * The interface defining all the services for JsonlClientBasics to be used by the proxy service to perform REST
+     * calls.
      */
-    @ServiceMethod(returns = ReturnType.SINGLE)
-    public Response<BinaryData> receiveWithResponse(RequestContext requestContext) {
-        return this.instrumentation.instrumentWithResponse("Streaming.Jsonl.Basic.receive", requestContext,
-            updatedContext -> {
-                final String accept = "application/jsonl";
-                return service.receive(this.client.getEndpoint(), accept, updatedContext);
-            });
+    @ServiceInterface(name = "JsonlClientBasics", host = "{endpoint}")
+    public interface BasicsService {
+
+        @HttpRequestInformation(
+            method = HttpMethod.GET,
+            path = "/streaming/jsonl/basic/receive",
+            expectedStatusCodes = { 200 })
+        @UnexpectedResponseExceptionDetail
+        Response<BinaryData> receive(@HostParam("endpoint") String endpoint, @HeaderParam("Accept") String accept,
+            RequestContext requestContext);
+
+        @HttpRequestInformation(
+            method = HttpMethod.POST,
+            path = "/streaming/jsonl/basic/send",
+            expectedStatusCodes = { 204 })
+        @UnexpectedResponseExceptionDetail
+        Response<Void> send(@HostParam("endpoint") String endpoint, @HeaderParam("content-type") String contentType,
+            @BodyParam("application/jsonl") BinaryData body, @HeaderParam("Content-Length") long contentLength,
+            RequestContext requestContext);
+
+        static BasicsService getNewInstance(HttpPipeline pipeline) {
+            try {
+                Class<?> clazz = Class.forName("streaming.jsonl.implementation.BasicsServiceImpl");
+                return (BasicsService) clazz.getMethod("getNewInstance", HttpPipeline.class).invoke(null, pipeline);
+            } catch (ClassNotFoundException | NoSuchMethodException | IllegalAccessException
+                | InvocationTargetException e) {
+                throw new RuntimeException(e);
+            }
+        }
     }
 }

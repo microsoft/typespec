@@ -21,10 +21,6 @@ import type.property.valuetypes.CollectionsModelProperty;
  * An instance of this class provides access to all the operations defined in CollectionsModels.
  */
 public final class CollectionsModelsImpl {
-    /**
-     * The proxy service used to perform REST calls.
-     */
-    private final CollectionsModelsService service;
 
     /**
      * The service client containing this operation class.
@@ -37,8 +33,13 @@ public final class CollectionsModelsImpl {
     private final Instrumentation instrumentation;
 
     /**
+     * The proxy service used to perform REST calls.
+     */
+    private final CollectionsModelsService service;
+
+    /**
      * Initializes an instance of CollectionsModelsImpl.
-     * 
+     *
      * @param client the instance of the service client containing this operation class.
      */
     CollectionsModelsImpl(ValueTypesClientImpl client) {
@@ -48,43 +49,8 @@ public final class CollectionsModelsImpl {
     }
 
     /**
-     * The interface defining all the services for ValueTypesClientCollectionsModels to be used by the proxy service to
-     * perform REST calls.
-     */
-    @ServiceInterface(name = "ValueTypesClientCollectionsModels", host = "{endpoint}")
-    public interface CollectionsModelsService {
-        static CollectionsModelsService getNewInstance(HttpPipeline pipeline) {
-            try {
-                Class<?> clazz = Class.forName("type.property.valuetypes.implementation.CollectionsModelsServiceImpl");
-                return (CollectionsModelsService) clazz.getMethod("getNewInstance", HttpPipeline.class)
-                    .invoke(null, pipeline);
-            } catch (ClassNotFoundException | NoSuchMethodException | IllegalAccessException
-                | InvocationTargetException e) {
-                throw new RuntimeException(e);
-            }
-
-        }
-
-        @HttpRequestInformation(
-            method = HttpMethod.GET,
-            path = "/type/property/value-types/collections/model",
-            expectedStatusCodes = { 200 })
-        @UnexpectedResponseExceptionDetail
-        Response<CollectionsModelProperty> get(@HostParam("endpoint") String endpoint,
-            @HeaderParam("Accept") String accept, RequestContext requestContext);
-
-        @HttpRequestInformation(
-            method = HttpMethod.PUT,
-            path = "/type/property/value-types/collections/model",
-            expectedStatusCodes = { 204 })
-        @UnexpectedResponseExceptionDetail
-        Response<Void> put(@HostParam("endpoint") String endpoint, @HeaderParam("Content-Type") String contentType,
-            @BodyParam("application/json") CollectionsModelProperty body, RequestContext requestContext);
-    }
-
-    /**
      * Get call.
-     * 
+     *
      * @param requestContext The context to configure the HTTP request before HTTP client sends it.
      * @throws IllegalArgumentException thrown if parameters fail the validation.
      * @throws HttpResponseException thrown if the service returns an error.
@@ -102,7 +68,7 @@ public final class CollectionsModelsImpl {
 
     /**
      * Put operation.
-     * 
+     *
      * @param body body.
      * @param requestContext The context to configure the HTTP request before HTTP client sends it.
      * @throws IllegalArgumentException thrown if parameters fail the validation.
@@ -117,5 +83,40 @@ public final class CollectionsModelsImpl {
                 final String contentType = "application/json";
                 return service.put(this.client.getEndpoint(), contentType, body, updatedContext);
             });
+    }
+
+    /**
+     * The interface defining all the services for ValueTypesClientCollectionsModels to be used by the proxy service to
+     * perform REST calls.
+     */
+    @ServiceInterface(name = "ValueTypesClientCollectionsModels", host = "{endpoint}")
+    public interface CollectionsModelsService {
+
+        @HttpRequestInformation(
+            method = HttpMethod.GET,
+            path = "/type/property/value-types/collections/model",
+            expectedStatusCodes = { 200 })
+        @UnexpectedResponseExceptionDetail
+        Response<CollectionsModelProperty> get(@HostParam("endpoint") String endpoint,
+            @HeaderParam("Accept") String accept, RequestContext requestContext);
+
+        @HttpRequestInformation(
+            method = HttpMethod.PUT,
+            path = "/type/property/value-types/collections/model",
+            expectedStatusCodes = { 204 })
+        @UnexpectedResponseExceptionDetail
+        Response<Void> put(@HostParam("endpoint") String endpoint, @HeaderParam("Content-Type") String contentType,
+            @BodyParam("application/json") CollectionsModelProperty body, RequestContext requestContext);
+
+        static CollectionsModelsService getNewInstance(HttpPipeline pipeline) {
+            try {
+                Class<?> clazz = Class.forName("type.property.valuetypes.implementation.CollectionsModelsServiceImpl");
+                return (CollectionsModelsService) clazz.getMethod("getNewInstance", HttpPipeline.class)
+                    .invoke(null, pipeline);
+            } catch (ClassNotFoundException | NoSuchMethodException | IllegalAccessException
+                | InvocationTargetException e) {
+                throw new RuntimeException(e);
+            }
+        }
     }
 }

@@ -14,6 +14,7 @@ import javax.xml.stream.XMLStreamException;
  */
 @Metadata(properties = { MetadataProperties.IMMUTABLE })
 public final class XmlPet implements XmlSerializable<XmlPet> {
+
     /*
      * The Id property.
      */
@@ -28,7 +29,7 @@ public final class XmlPet implements XmlSerializable<XmlPet> {
 
     /**
      * Creates an instance of XmlPet class.
-     * 
+     *
      * @param id the id value to set.
      * @param name the name value to set.
      */
@@ -40,7 +41,7 @@ public final class XmlPet implements XmlSerializable<XmlPet> {
 
     /**
      * Get the id property: The Id property.
-     * 
+     *
      * @return the id value.
      */
     @Metadata(properties = { MetadataProperties.GENERATED })
@@ -50,7 +51,7 @@ public final class XmlPet implements XmlSerializable<XmlPet> {
 
     /**
      * Get the name property: The Name property.
-     * 
+     *
      * @return the name value.
      */
     @Metadata(properties = { MetadataProperties.GENERATED })
@@ -76,7 +77,7 @@ public final class XmlPet implements XmlSerializable<XmlPet> {
 
     /**
      * Reads an instance of XmlPet from the XmlReader.
-     * 
+     *
      * @param xmlReader The XmlReader being read.
      * @return An instance of XmlPet if the XmlReader was pointing to an instance of it, or null if it was pointing to
      * XML null.
@@ -90,7 +91,7 @@ public final class XmlPet implements XmlSerializable<XmlPet> {
 
     /**
      * Reads an instance of XmlPet from the XmlReader.
-     * 
+     *
      * @param xmlReader The XmlReader being read.
      * @param rootElementName Optional root element name to override the default defined by the model. Used to support
      * cases where the model can deserialize from different root element names.
@@ -107,7 +108,6 @@ public final class XmlPet implements XmlSerializable<XmlPet> {
             String name = null;
             while (reader.nextElement() != XmlToken.END_ELEMENT) {
                 QName elementName = reader.getElementName();
-
                 if ("Id".equals(elementName.getLocalPart())) {
                     id = reader.getStringElement();
                 } else if ("Name".equals(elementName.getLocalPart())) {

@@ -19,9 +19,16 @@ import java.util.function.Function;
  * Status values for the model with enum.
  */
 public final class Status implements ExpandableEnum<String>, JsonSerializable<Status> {
-    private static final Map<String, Status> VALUES = new ConcurrentHashMap<>();
 
     private static final Function<String, Status> NEW_INSTANCE = Status::new;
+
+    private static final Map<String, Status> VALUES = new ConcurrentHashMap<>();
+
+    /**
+     * Error status.
+     */
+    @Metadata(properties = { MetadataProperties.GENERATED })
+    public static final Status ERROR = fromValue("error");
 
     /**
      * Pending status.
@@ -35,52 +42,39 @@ public final class Status implements ExpandableEnum<String>, JsonSerializable<St
     @Metadata(properties = { MetadataProperties.GENERATED })
     public static final Status SUCCESS = fromValue("success");
 
-    /**
-     * Error status.
-     */
-    @Metadata(properties = { MetadataProperties.GENERATED })
-    public static final Status ERROR = fromValue("error");
-
     private final String value;
 
     private Status(String value) {
         this.value = value;
     }
 
-    /**
-     * Creates or finds a Status.
-     * 
-     * @param value a value to look for.
-     * @return the corresponding Status.
-     * @throws IllegalArgumentException if value is null.
-     */
     @Metadata(properties = { MetadataProperties.GENERATED })
-    public static Status fromValue(String value) {
-        if (value == null) {
-            throw new IllegalArgumentException("'value' cannot be null.");
-        }
-        return VALUES.computeIfAbsent(value, NEW_INSTANCE);
-    }
-
-    /**
-     * Gets known Status values.
-     * 
-     * @return Known Status values.
-     */
-    @Metadata(properties = { MetadataProperties.GENERATED })
-    public static Collection<Status> values() {
-        return new ArrayList<>(VALUES.values());
+    @Override
+    public boolean equals(Object obj) {
+        return this == obj;
     }
 
     /**
      * Gets the value of the Status instance.
-     * 
+     *
      * @return the value of the Status instance.
      */
     @Metadata(properties = { MetadataProperties.GENERATED })
     @Override
     public String getValue() {
         return this.value;
+    }
+
+    @Metadata(properties = { MetadataProperties.GENERATED })
+    @Override
+    public int hashCode() {
+        return Objects.hashCode(this.value);
+    }
+
+    @Metadata(properties = { MetadataProperties.GENERATED })
+    @Override
+    public String toString() {
+        return Objects.toString(this.value);
     }
 
     /**
@@ -94,7 +88,7 @@ public final class Status implements ExpandableEnum<String>, JsonSerializable<St
 
     /**
      * Reads an instance of Status from the JsonReader.
-     * 
+     *
      * @param jsonReader The JsonReader being read.
      * @return An instance of Status if the JsonReader was pointing to an instance of it, or null if the JsonReader was
      * pointing to JSON null.
@@ -114,21 +108,28 @@ public final class Status implements ExpandableEnum<String>, JsonSerializable<St
         return Status.fromValue(jsonReader.getString());
     }
 
+    /**
+     * Creates or finds a Status.
+     *
+     * @param value a value to look for.
+     * @return the corresponding Status.
+     * @throws IllegalArgumentException if value is null.
+     */
     @Metadata(properties = { MetadataProperties.GENERATED })
-    @Override
-    public String toString() {
-        return Objects.toString(this.value);
+    public static Status fromValue(String value) {
+        if (value == null) {
+            throw new IllegalArgumentException("'value' cannot be null.");
+        }
+        return VALUES.computeIfAbsent(value, NEW_INSTANCE);
     }
 
+    /**
+     * Gets known Status values.
+     *
+     * @return Known Status values.
+     */
     @Metadata(properties = { MetadataProperties.GENERATED })
-    @Override
-    public boolean equals(Object obj) {
-        return this == obj;
-    }
-
-    @Metadata(properties = { MetadataProperties.GENERATED })
-    @Override
-    public int hashCode() {
-        return Objects.hashCode(this.value);
+    public static Collection<Status> values() {
+        return new ArrayList<>(VALUES.values());
     }
 }

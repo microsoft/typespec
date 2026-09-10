@@ -17,11 +17,9 @@ import type.property.nullable.implementation.JsonMergePatchHelper;
  */
 @Metadata(properties = { MetadataProperties.FLUENT })
 public final class CollectionsStringProperty implements JsonSerializable<CollectionsStringProperty> {
-    /*
-     * Required property
-     */
+
     @Metadata(properties = { MetadataProperties.GENERATED })
-    private String requiredProperty;
+    private boolean jsonMergePatch;
 
     /*
      * Property
@@ -29,23 +27,22 @@ public final class CollectionsStringProperty implements JsonSerializable<Collect
     @Metadata(properties = { MetadataProperties.GENERATED })
     private List<String> nullableProperty;
 
+    /*
+     * Required property
+     */
+    @Metadata(properties = { MetadataProperties.GENERATED })
+    private String requiredProperty;
+
     /**
      * Stores updated model property, the value is property name, not serialized name.
      */
     @Metadata(properties = { MetadataProperties.GENERATED })
     private final Set<String> updatedProperties = new HashSet<>();
 
-    @Metadata(properties = { MetadataProperties.GENERATED })
-    private boolean jsonMergePatch;
-
-    @Metadata(properties = { MetadataProperties.GENERATED })
-    private void serializeAsJsonMergePatch(boolean jsonMergePatch) {
-        this.jsonMergePatch = jsonMergePatch;
-    }
-
     static {
         JsonMergePatchHelper
             .setCollectionsStringPropertyAccessor(new JsonMergePatchHelper.CollectionsStringPropertyAccessor() {
+
                 @Override
                 public CollectionsStringProperty prepareModelForJsonMergePatch(CollectionsStringProperty model,
                     boolean jsonMergePatchEnabled) {
@@ -68,32 +65,8 @@ public final class CollectionsStringProperty implements JsonSerializable<Collect
     }
 
     /**
-     * Get the requiredProperty property: Required property.
-     * 
-     * @return the requiredProperty value.
-     */
-    @Metadata(properties = { MetadataProperties.GENERATED })
-    public String getRequiredProperty() {
-        return this.requiredProperty;
-    }
-
-    /**
-     * Set the requiredProperty property: Required property.
-     * <p>Required when create the resource.</p>
-     * 
-     * @param requiredProperty the requiredProperty value to set.
-     * @return the CollectionsStringProperty object itself.
-     */
-    @Metadata(properties = { MetadataProperties.GENERATED })
-    public CollectionsStringProperty setRequiredProperty(String requiredProperty) {
-        this.requiredProperty = requiredProperty;
-        this.updatedProperties.add("requiredProperty");
-        return this;
-    }
-
-    /**
      * Get the nullableProperty property: Property.
-     * 
+     *
      * @return the nullableProperty value.
      */
     @Metadata(properties = { MetadataProperties.GENERATED })
@@ -104,7 +77,7 @@ public final class CollectionsStringProperty implements JsonSerializable<Collect
     /**
      * Set the nullableProperty property: Property.
      * <p>Required when create the resource.</p>
-     * 
+     *
      * @param nullableProperty the nullableProperty value to set.
      * @return the CollectionsStringProperty object itself.
      */
@@ -116,20 +89,32 @@ public final class CollectionsStringProperty implements JsonSerializable<Collect
     }
 
     /**
-     * {@inheritDoc}
+     * Get the requiredProperty property: Required property.
+     *
+     * @return the requiredProperty value.
      */
     @Metadata(properties = { MetadataProperties.GENERATED })
-    @Override
-    public JsonWriter toJson(JsonWriter jsonWriter) throws IOException {
-        if (jsonMergePatch) {
-            return toJsonMergePatch(jsonWriter);
-        } else {
-            jsonWriter.writeStartObject();
-            jsonWriter.writeStringField("requiredProperty", this.requiredProperty);
-            jsonWriter.writeArrayField("nullableProperty", this.nullableProperty,
-                (writer, element) -> writer.writeString(element));
-            return jsonWriter.writeEndObject();
-        }
+    public String getRequiredProperty() {
+        return this.requiredProperty;
+    }
+
+    /**
+     * Set the requiredProperty property: Required property.
+     * <p>Required when create the resource.</p>
+     *
+     * @param requiredProperty the requiredProperty value to set.
+     * @return the CollectionsStringProperty object itself.
+     */
+    @Metadata(properties = { MetadataProperties.GENERATED })
+    public CollectionsStringProperty setRequiredProperty(String requiredProperty) {
+        this.requiredProperty = requiredProperty;
+        this.updatedProperties.add("requiredProperty");
+        return this;
+    }
+
+    @Metadata(properties = { MetadataProperties.GENERATED })
+    private void serializeAsJsonMergePatch(boolean jsonMergePatch) {
+        this.jsonMergePatch = jsonMergePatch;
     }
 
     @Metadata(properties = { MetadataProperties.GENERATED })
@@ -154,8 +139,25 @@ public final class CollectionsStringProperty implements JsonSerializable<Collect
     }
 
     /**
+     * {@inheritDoc}
+     */
+    @Metadata(properties = { MetadataProperties.GENERATED })
+    @Override
+    public JsonWriter toJson(JsonWriter jsonWriter) throws IOException {
+        if (jsonMergePatch) {
+            return toJsonMergePatch(jsonWriter);
+        } else {
+            jsonWriter.writeStartObject();
+            jsonWriter.writeStringField("requiredProperty", this.requiredProperty);
+            jsonWriter.writeArrayField("nullableProperty", this.nullableProperty,
+                (writer, element) -> writer.writeString(element));
+            return jsonWriter.writeEndObject();
+        }
+    }
+
+    /**
      * Reads an instance of CollectionsStringProperty from the JsonReader.
-     * 
+     *
      * @param jsonReader The JsonReader being read.
      * @return An instance of CollectionsStringProperty if the JsonReader was pointing to an instance of it, or null if
      * it was pointing to JSON null.
@@ -168,7 +170,6 @@ public final class CollectionsStringProperty implements JsonSerializable<Collect
             while (reader.nextToken() != JsonToken.END_OBJECT) {
                 String fieldName = reader.getFieldName();
                 reader.nextToken();
-
                 if ("requiredProperty".equals(fieldName)) {
                     deserializedCollectionsStringProperty.requiredProperty = reader.getString();
                 } else if ("nullableProperty".equals(fieldName)) {
@@ -178,7 +179,6 @@ public final class CollectionsStringProperty implements JsonSerializable<Collect
                     reader.skipChildren();
                 }
             }
-
             return deserializedCollectionsStringProperty;
         });
     }

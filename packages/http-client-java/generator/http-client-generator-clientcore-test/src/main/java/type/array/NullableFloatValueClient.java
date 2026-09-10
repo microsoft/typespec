@@ -17,14 +17,15 @@ import type.array.implementation.NullableFloatValuesImpl;
  */
 @ServiceClient(builder = ArrayClientBuilder.class)
 public final class NullableFloatValueClient {
-    @Metadata(properties = { MetadataProperties.GENERATED })
-    private final NullableFloatValuesImpl serviceClient;
 
     private final Instrumentation instrumentation;
 
+    @Metadata(properties = { MetadataProperties.GENERATED })
+    private final NullableFloatValuesImpl serviceClient;
+
     /**
      * Initializes an instance of NullableFloatValueClient class.
-     * 
+     *
      * @param serviceClient the service client implementation.
      * @param instrumentation the instrumentation instance.
      */
@@ -36,7 +37,20 @@ public final class NullableFloatValueClient {
 
     /**
      * The get operation.
-     * 
+     *
+     * @throws HttpResponseException thrown if the service returns an error.
+     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
+     * @return the response.
+     */
+    @Metadata(properties = { MetadataProperties.GENERATED })
+    @ServiceMethod(returns = ReturnType.SINGLE)
+    public List<Double> get() {
+        return getWithResponse(RequestContext.none()).getValue();
+    }
+
+    /**
+     * The get operation.
+     *
      * @param requestContext The context to configure the HTTP request before HTTP client sends it.
      * @throws IllegalArgumentException thrown if parameters fail the validation.
      * @throws HttpResponseException thrown if the service returns an error.
@@ -51,21 +65,22 @@ public final class NullableFloatValueClient {
     }
 
     /**
-     * The get operation.
-     * 
+     * The put operation.
+     *
+     * @param body The body parameter.
+     * @throws IllegalArgumentException thrown if parameters fail the validation.
      * @throws HttpResponseException thrown if the service returns an error.
      * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
-     * @return the response.
      */
     @Metadata(properties = { MetadataProperties.GENERATED })
     @ServiceMethod(returns = ReturnType.SINGLE)
-    public List<Double> get() {
-        return getWithResponse(RequestContext.none()).getValue();
+    public void put(List<Double> body) {
+        putWithResponse(body, RequestContext.none());
     }
 
     /**
      * The put operation.
-     * 
+     *
      * @param body The body parameter.
      * @param requestContext The context to configure the HTTP request before HTTP client sends it.
      * @throws IllegalArgumentException thrown if parameters fail the validation.
@@ -78,19 +93,5 @@ public final class NullableFloatValueClient {
     public Response<Void> putWithResponse(List<Double> body, RequestContext requestContext) {
         return this.instrumentation.instrumentWithResponse("Type.Array.NullableFloatValue.put", requestContext,
             updatedContext -> this.serviceClient.putWithResponse(body, updatedContext));
-    }
-
-    /**
-     * The put operation.
-     * 
-     * @param body The body parameter.
-     * @throws IllegalArgumentException thrown if parameters fail the validation.
-     * @throws HttpResponseException thrown if the service returns an error.
-     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
-     */
-    @Metadata(properties = { MetadataProperties.GENERATED })
-    @ServiceMethod(returns = ReturnType.SINGLE)
-    public void put(List<Double> body) {
-        putWithResponse(body, RequestContext.none());
     }
 }

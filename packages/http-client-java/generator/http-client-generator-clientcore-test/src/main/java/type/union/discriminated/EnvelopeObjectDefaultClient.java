@@ -17,14 +17,15 @@ import type.union.discriminated.implementation.EnvelopeObjectDefaultsImpl;
  */
 @ServiceClient(builder = DiscriminatedClientBuilder.class)
 public final class EnvelopeObjectDefaultClient {
-    @Metadata(properties = { MetadataProperties.GENERATED })
-    private final EnvelopeObjectDefaultsImpl serviceClient;
 
     private final Instrumentation instrumentation;
 
+    @Metadata(properties = { MetadataProperties.GENERATED })
+    private final EnvelopeObjectDefaultsImpl serviceClient;
+
     /**
      * Initializes an instance of EnvelopeObjectDefaultClient class.
-     * 
+     *
      * @param serviceClient the service client implementation.
      * @param instrumentation the instrumentation instance.
      */
@@ -36,7 +37,40 @@ public final class EnvelopeObjectDefaultClient {
 
     /**
      * The get operation.
-     * 
+     *
+     * @throws HttpResponseException thrown if the service returns an error.
+     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
+     * @return test discriminated union with default envelope serialization.
+     * The discriminated union should serialize with "kind" as discriminator
+     * and "value" as envelope property.
+     */
+    @Metadata(properties = { MetadataProperties.GENERATED })
+    @ServiceMethod(returns = ReturnType.SINGLE)
+    public BinaryData get() {
+        final String kind = null;
+        return getWithResponse(kind, RequestContext.none()).getValue();
+    }
+
+    /**
+     * The get operation.
+     *
+     * @param kind The kind parameter.
+     * @throws IllegalArgumentException thrown if parameters fail the validation.
+     * @throws HttpResponseException thrown if the service returns an error.
+     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
+     * @return test discriminated union with default envelope serialization.
+     * The discriminated union should serialize with "kind" as discriminator
+     * and "value" as envelope property.
+     */
+    @Metadata(properties = { MetadataProperties.GENERATED })
+    @ServiceMethod(returns = ReturnType.SINGLE)
+    public BinaryData get(String kind) {
+        return getWithResponse(kind, RequestContext.none()).getValue();
+    }
+
+    /**
+     * The get operation.
+     *
      * @param kind The kind parameter.
      * @param requestContext The context to configure the HTTP request before HTTP client sends it.
      * @throws IllegalArgumentException thrown if parameters fail the validation.
@@ -54,9 +88,9 @@ public final class EnvelopeObjectDefaultClient {
     }
 
     /**
-     * The get operation.
-     * 
-     * @param kind The kind parameter.
+     * The put operation.
+     *
+     * @param input The input parameter.
      * @throws IllegalArgumentException thrown if parameters fail the validation.
      * @throws HttpResponseException thrown if the service returns an error.
      * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
@@ -66,29 +100,13 @@ public final class EnvelopeObjectDefaultClient {
      */
     @Metadata(properties = { MetadataProperties.GENERATED })
     @ServiceMethod(returns = ReturnType.SINGLE)
-    public BinaryData get(String kind) {
-        return getWithResponse(kind, RequestContext.none()).getValue();
-    }
-
-    /**
-     * The get operation.
-     * 
-     * @throws HttpResponseException thrown if the service returns an error.
-     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
-     * @return test discriminated union with default envelope serialization.
-     * The discriminated union should serialize with "kind" as discriminator
-     * and "value" as envelope property.
-     */
-    @Metadata(properties = { MetadataProperties.GENERATED })
-    @ServiceMethod(returns = ReturnType.SINGLE)
-    public BinaryData get() {
-        final String kind = null;
-        return getWithResponse(kind, RequestContext.none()).getValue();
+    public BinaryData put(BinaryData input) {
+        return putWithResponse(input, RequestContext.none()).getValue();
     }
 
     /**
      * The put operation.
-     * 
+     *
      * @param input The input parameter.
      * @param requestContext The context to configure the HTTP request before HTTP client sends it.
      * @throws IllegalArgumentException thrown if parameters fail the validation.
@@ -103,22 +121,5 @@ public final class EnvelopeObjectDefaultClient {
     public Response<BinaryData> putWithResponse(BinaryData input, RequestContext requestContext) {
         return this.instrumentation.instrumentWithResponse("Type.Union.Discriminated.Envelope.Object.Default.put",
             requestContext, updatedContext -> this.serviceClient.putWithResponse(input, updatedContext));
-    }
-
-    /**
-     * The put operation.
-     * 
-     * @param input The input parameter.
-     * @throws IllegalArgumentException thrown if parameters fail the validation.
-     * @throws HttpResponseException thrown if the service returns an error.
-     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
-     * @return test discriminated union with default envelope serialization.
-     * The discriminated union should serialize with "kind" as discriminator
-     * and "value" as envelope property.
-     */
-    @Metadata(properties = { MetadataProperties.GENERATED })
-    @ServiceMethod(returns = ReturnType.SINGLE)
-    public BinaryData put(BinaryData input) {
-        return putWithResponse(input, RequestContext.none()).getValue();
     }
 }

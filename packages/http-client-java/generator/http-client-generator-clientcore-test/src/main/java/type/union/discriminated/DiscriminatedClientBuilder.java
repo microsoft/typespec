@@ -40,18 +40,61 @@ import type.union.discriminated.implementation.DiscriminatedClientImpl;
 public final class DiscriminatedClientBuilder
     implements HttpTrait<DiscriminatedClientBuilder>, ProxyTrait<DiscriminatedClientBuilder>,
     ConfigurationTrait<DiscriminatedClientBuilder>, EndpointTrait<DiscriminatedClientBuilder> {
-    @Metadata(properties = { MetadataProperties.GENERATED })
-    private static final String SDK_NAME = "name";
-
-    @Metadata(properties = { MetadataProperties.GENERATED })
-    private static final String SDK_VERSION = "version";
 
     @Metadata(properties = { MetadataProperties.GENERATED })
     private static final Map<String, String> PROPERTIES
         = CoreUtils.getProperties("type-union-discriminated.properties");
 
     @Metadata(properties = { MetadataProperties.GENERATED })
+    private static final String SDK_NAME = "name";
+
+    @Metadata(properties = { MetadataProperties.GENERATED })
+    private static final String SDK_VERSION = "version";
+
+    /*
+     * The configuration store that is used during construction of the service client.
+     */
+    @Metadata(properties = { MetadataProperties.GENERATED })
+    private Configuration configuration;
+
+    /*
+     * The service endpoint
+     */
+    @Metadata(properties = { MetadataProperties.GENERATED })
+    private String endpoint;
+
+    /*
+     * The HTTP client used to send the request.
+     */
+    @Metadata(properties = { MetadataProperties.GENERATED })
+    private HttpClient httpClient;
+
+    /*
+     * The instrumentation configuration for HTTP requests and responses.
+     */
+    @Metadata(properties = { MetadataProperties.GENERATED })
+    private HttpInstrumentationOptions httpInstrumentationOptions;
+
+    @Metadata(properties = { MetadataProperties.GENERATED })
     private final List<HttpPipelinePolicy> pipelinePolicies;
+
+    /*
+     * The proxy options used during construction of the service client.
+     */
+    @Metadata(properties = { MetadataProperties.GENERATED })
+    private ProxyOptions proxyOptions;
+
+    /*
+     * The redirect options to configure redirect policy
+     */
+    @Metadata(properties = { MetadataProperties.GENERATED })
+    private HttpRedirectOptions redirectOptions;
+
+    /*
+     * The retry options to configure retry policy for failed requests.
+     */
+    @Metadata(properties = { MetadataProperties.GENERATED })
+    private HttpRetryOptions retryOptions;
 
     /**
      * Create an instance of the DiscriminatedClientBuilder.
@@ -61,11 +104,36 @@ public final class DiscriminatedClientBuilder
         this.pipelinePolicies = new ArrayList<>();
     }
 
-    /*
-     * The HTTP client used to send the request.
+    /**
+     * {@inheritDoc}.
      */
     @Metadata(properties = { MetadataProperties.GENERATED })
-    private HttpClient httpClient;
+    @Override
+    public DiscriminatedClientBuilder addHttpPipelinePolicy(HttpPipelinePolicy customPolicy) {
+        Objects.requireNonNull(customPolicy, "'customPolicy' cannot be null.");
+        pipelinePolicies.add(customPolicy);
+        return this;
+    }
+
+    /**
+     * {@inheritDoc}.
+     */
+    @Metadata(properties = { MetadataProperties.GENERATED })
+    @Override
+    public DiscriminatedClientBuilder configuration(Configuration configuration) {
+        this.configuration = configuration;
+        return this;
+    }
+
+    /**
+     * {@inheritDoc}.
+     */
+    @Metadata(properties = { MetadataProperties.GENERATED })
+    @Override
+    public DiscriminatedClientBuilder endpoint(String endpoint) {
+        this.endpoint = endpoint;
+        return this;
+    }
 
     /**
      * {@inheritDoc}.
@@ -77,11 +145,26 @@ public final class DiscriminatedClientBuilder
         return this;
     }
 
-    /*
-     * The retry options to configure retry policy for failed requests.
+    /**
+     * {@inheritDoc}.
      */
     @Metadata(properties = { MetadataProperties.GENERATED })
-    private HttpRetryOptions retryOptions;
+    @Override
+    public DiscriminatedClientBuilder
+        httpInstrumentationOptions(HttpInstrumentationOptions httpInstrumentationOptions) {
+        this.httpInstrumentationOptions = httpInstrumentationOptions;
+        return this;
+    }
+
+    /**
+     * {@inheritDoc}.
+     */
+    @Metadata(properties = { MetadataProperties.GENERATED })
+    @Override
+    public DiscriminatedClientBuilder httpRedirectOptions(HttpRedirectOptions redirectOptions) {
+        this.redirectOptions = redirectOptions;
+        return this;
+    }
 
     /**
      * {@inheritDoc}.
@@ -98,96 +181,61 @@ public final class DiscriminatedClientBuilder
      */
     @Metadata(properties = { MetadataProperties.GENERATED })
     @Override
-    public DiscriminatedClientBuilder addHttpPipelinePolicy(HttpPipelinePolicy customPolicy) {
-        Objects.requireNonNull(customPolicy, "'customPolicy' cannot be null.");
-        pipelinePolicies.add(customPolicy);
-        return this;
-    }
-
-    /*
-     * The redirect options to configure redirect policy
-     */
-    @Metadata(properties = { MetadataProperties.GENERATED })
-    private HttpRedirectOptions redirectOptions;
-
-    /**
-     * {@inheritDoc}.
-     */
-    @Metadata(properties = { MetadataProperties.GENERATED })
-    @Override
-    public DiscriminatedClientBuilder httpRedirectOptions(HttpRedirectOptions redirectOptions) {
-        this.redirectOptions = redirectOptions;
-        return this;
-    }
-
-    /*
-     * The instrumentation configuration for HTTP requests and responses.
-     */
-    @Metadata(properties = { MetadataProperties.GENERATED })
-    private HttpInstrumentationOptions httpInstrumentationOptions;
-
-    /**
-     * {@inheritDoc}.
-     */
-    @Metadata(properties = { MetadataProperties.GENERATED })
-    @Override
-    public DiscriminatedClientBuilder
-        httpInstrumentationOptions(HttpInstrumentationOptions httpInstrumentationOptions) {
-        this.httpInstrumentationOptions = httpInstrumentationOptions;
-        return this;
-    }
-
-    /*
-     * The proxy options used during construction of the service client.
-     */
-    @Metadata(properties = { MetadataProperties.GENERATED })
-    private ProxyOptions proxyOptions;
-
-    /**
-     * {@inheritDoc}.
-     */
-    @Metadata(properties = { MetadataProperties.GENERATED })
-    @Override
     public DiscriminatedClientBuilder proxyOptions(ProxyOptions proxyOptions) {
         this.proxyOptions = proxyOptions;
         return this;
     }
 
-    /*
-     * The configuration store that is used during construction of the service client.
-     */
-    @Metadata(properties = { MetadataProperties.GENERATED })
-    private Configuration configuration;
-
     /**
-     * {@inheritDoc}.
+     * Builds an instance of EnvelopeObjectCustomPropertiesClient class.
+     *
+     * @return an instance of EnvelopeObjectCustomPropertiesClient.
      */
     @Metadata(properties = { MetadataProperties.GENERATED })
-    @Override
-    public DiscriminatedClientBuilder configuration(Configuration configuration) {
-        this.configuration = configuration;
-        return this;
+    public EnvelopeObjectCustomPropertiesClient buildEnvelopeObjectCustomPropertiesClient() {
+        DiscriminatedClientImpl innerClient = buildInnerClient();
+        return new EnvelopeObjectCustomPropertiesClient(innerClient.getEnvelopeObjectCustomProperties(),
+            innerClient.getInstrumentation());
     }
 
-    /*
-     * The service endpoint
+    /**
+     * Builds an instance of EnvelopeObjectDefaultClient class.
+     *
+     * @return an instance of EnvelopeObjectDefaultClient.
      */
     @Metadata(properties = { MetadataProperties.GENERATED })
-    private String endpoint;
+    public EnvelopeObjectDefaultClient buildEnvelopeObjectDefaultClient() {
+        DiscriminatedClientImpl innerClient = buildInnerClient();
+        return new EnvelopeObjectDefaultClient(innerClient.getEnvelopeObjectDefaults(),
+            innerClient.getInstrumentation());
+    }
 
     /**
-     * {@inheritDoc}.
+     * Builds an instance of NoEnvelopeCustomDiscriminatorClient class.
+     *
+     * @return an instance of NoEnvelopeCustomDiscriminatorClient.
      */
     @Metadata(properties = { MetadataProperties.GENERATED })
-    @Override
-    public DiscriminatedClientBuilder endpoint(String endpoint) {
-        this.endpoint = endpoint;
-        return this;
+    public NoEnvelopeCustomDiscriminatorClient buildNoEnvelopeCustomDiscriminatorClient() {
+        DiscriminatedClientImpl innerClient = buildInnerClient();
+        return new NoEnvelopeCustomDiscriminatorClient(innerClient.getNoEnvelopeCustomDiscriminators(),
+            innerClient.getInstrumentation());
+    }
+
+    /**
+     * Builds an instance of NoEnvelopeDefaultClient class.
+     *
+     * @return an instance of NoEnvelopeDefaultClient.
+     */
+    @Metadata(properties = { MetadataProperties.GENERATED })
+    public NoEnvelopeDefaultClient buildNoEnvelopeDefaultClient() {
+        DiscriminatedClientImpl innerClient = buildInnerClient();
+        return new NoEnvelopeDefaultClient(innerClient.getNoEnvelopeDefaults(), innerClient.getInstrumentation());
     }
 
     /**
      * Builds an instance of DiscriminatedClientImpl with the provided parameters.
-     * 
+     *
      * @return an instance of DiscriminatedClientImpl.
      */
     @Metadata(properties = { MetadataProperties.GENERATED })
@@ -209,12 +257,6 @@ public final class DiscriminatedClientBuilder
     }
 
     @Metadata(properties = { MetadataProperties.GENERATED })
-    private void validateClient() {
-        // This method is invoked from 'buildInnerClient'/'buildClient' method.
-        // Developer can customize this method, to validate that the necessary conditions are met for the new client.
-    }
-
-    @Metadata(properties = { MetadataProperties.GENERATED })
     private HttpPipeline createHttpPipeline() {
         Configuration buildConfiguration
             = (configuration == null) ? Configuration.getGlobalConfiguration() : configuration;
@@ -231,50 +273,9 @@ public final class DiscriminatedClientBuilder
         return httpPipelineBuilder.httpClient(httpClient).build();
     }
 
-    /**
-     * Builds an instance of EnvelopeObjectDefaultClient class.
-     * 
-     * @return an instance of EnvelopeObjectDefaultClient.
-     */
     @Metadata(properties = { MetadataProperties.GENERATED })
-    public EnvelopeObjectDefaultClient buildEnvelopeObjectDefaultClient() {
-        DiscriminatedClientImpl innerClient = buildInnerClient();
-        return new EnvelopeObjectDefaultClient(innerClient.getEnvelopeObjectDefaults(),
-            innerClient.getInstrumentation());
-    }
-
-    /**
-     * Builds an instance of EnvelopeObjectCustomPropertiesClient class.
-     * 
-     * @return an instance of EnvelopeObjectCustomPropertiesClient.
-     */
-    @Metadata(properties = { MetadataProperties.GENERATED })
-    public EnvelopeObjectCustomPropertiesClient buildEnvelopeObjectCustomPropertiesClient() {
-        DiscriminatedClientImpl innerClient = buildInnerClient();
-        return new EnvelopeObjectCustomPropertiesClient(innerClient.getEnvelopeObjectCustomProperties(),
-            innerClient.getInstrumentation());
-    }
-
-    /**
-     * Builds an instance of NoEnvelopeDefaultClient class.
-     * 
-     * @return an instance of NoEnvelopeDefaultClient.
-     */
-    @Metadata(properties = { MetadataProperties.GENERATED })
-    public NoEnvelopeDefaultClient buildNoEnvelopeDefaultClient() {
-        DiscriminatedClientImpl innerClient = buildInnerClient();
-        return new NoEnvelopeDefaultClient(innerClient.getNoEnvelopeDefaults(), innerClient.getInstrumentation());
-    }
-
-    /**
-     * Builds an instance of NoEnvelopeCustomDiscriminatorClient class.
-     * 
-     * @return an instance of NoEnvelopeCustomDiscriminatorClient.
-     */
-    @Metadata(properties = { MetadataProperties.GENERATED })
-    public NoEnvelopeCustomDiscriminatorClient buildNoEnvelopeCustomDiscriminatorClient() {
-        DiscriminatedClientImpl innerClient = buildInnerClient();
-        return new NoEnvelopeCustomDiscriminatorClient(innerClient.getNoEnvelopeCustomDiscriminators(),
-            innerClient.getInstrumentation());
+    private void validateClient() {
+        // This method is invoked from 'buildInnerClient'/'buildClient' method.
+        // Developer can customize this method, to validate that the necessary conditions are met for the new client.
     }
 }

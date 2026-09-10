@@ -14,6 +14,7 @@ import java.util.List;
  */
 @Metadata(properties = { MetadataProperties.IMMUTABLE })
 public final class WithItemsRequest implements JsonSerializable<WithItemsRequest> {
+
     /*
      * The items property.
      */
@@ -22,7 +23,7 @@ public final class WithItemsRequest implements JsonSerializable<WithItemsRequest
 
     /**
      * Creates an instance of WithItemsRequest class.
-     * 
+     *
      * @param items the items value to set.
      */
     @Metadata(properties = { MetadataProperties.GENERATED })
@@ -32,7 +33,7 @@ public final class WithItemsRequest implements JsonSerializable<WithItemsRequest
 
     /**
      * Get the items property: The items property.
-     * 
+     *
      * @return the items value.
      */
     @Metadata(properties = { MetadataProperties.GENERATED })
@@ -53,7 +54,7 @@ public final class WithItemsRequest implements JsonSerializable<WithItemsRequest
 
     /**
      * Reads an instance of WithItemsRequest from the JsonReader.
-     * 
+     *
      * @param jsonReader The JsonReader being read.
      * @return An instance of WithItemsRequest if the JsonReader was pointing to an instance of it, or null if it was
      * pointing to JSON null.
@@ -67,7 +68,6 @@ public final class WithItemsRequest implements JsonSerializable<WithItemsRequest
             while (reader.nextToken() != JsonToken.END_OBJECT) {
                 String fieldName = reader.getFieldName();
                 reader.nextToken();
-
                 if ("items".equals(fieldName)) {
                     items = reader.readArray(reader1 -> reader1.getString());
                 } else {

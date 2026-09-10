@@ -21,10 +21,6 @@ import type.property.additionalproperties.IsUnknownAdditionalProperties;
  * An instance of this class provides access to all the operations defined in IsUnknowns.
  */
 public final class IsUnknownsImpl {
-    /**
-     * The proxy service used to perform REST calls.
-     */
-    private final IsUnknownsService service;
 
     /**
      * The service client containing this operation class.
@@ -37,8 +33,13 @@ public final class IsUnknownsImpl {
     private final Instrumentation instrumentation;
 
     /**
+     * The proxy service used to perform REST calls.
+     */
+    private final IsUnknownsService service;
+
+    /**
      * Initializes an instance of IsUnknownsImpl.
-     * 
+     *
      * @param client the instance of the service client containing this operation class.
      */
     IsUnknownsImpl(AdditionalPropertiesClientImpl client) {
@@ -48,43 +49,8 @@ public final class IsUnknownsImpl {
     }
 
     /**
-     * The interface defining all the services for AdditionalPropertiesClientIsUnknowns to be used by the proxy service
-     * to perform REST calls.
-     */
-    @ServiceInterface(name = "AdditionalPropertiesClientIsUnknowns", host = "{endpoint}")
-    public interface IsUnknownsService {
-        static IsUnknownsService getNewInstance(HttpPipeline pipeline) {
-            try {
-                Class<?> clazz
-                    = Class.forName("type.property.additionalproperties.implementation.IsUnknownsServiceImpl");
-                return (IsUnknownsService) clazz.getMethod("getNewInstance", HttpPipeline.class).invoke(null, pipeline);
-            } catch (ClassNotFoundException | NoSuchMethodException | IllegalAccessException
-                | InvocationTargetException e) {
-                throw new RuntimeException(e);
-            }
-
-        }
-
-        @HttpRequestInformation(
-            method = HttpMethod.GET,
-            path = "/type/property/additionalProperties/isRecordUnknown",
-            expectedStatusCodes = { 200 })
-        @UnexpectedResponseExceptionDetail
-        Response<IsUnknownAdditionalProperties> get(@HostParam("endpoint") String endpoint,
-            @HeaderParam("Accept") String accept, RequestContext requestContext);
-
-        @HttpRequestInformation(
-            method = HttpMethod.PUT,
-            path = "/type/property/additionalProperties/isRecordUnknown",
-            expectedStatusCodes = { 204 })
-        @UnexpectedResponseExceptionDetail
-        Response<Void> put(@HostParam("endpoint") String endpoint, @HeaderParam("Content-Type") String contentType,
-            @BodyParam("application/json") IsUnknownAdditionalProperties body, RequestContext requestContext);
-    }
-
-    /**
      * Get call.
-     * 
+     *
      * @param requestContext The context to configure the HTTP request before HTTP client sends it.
      * @throws IllegalArgumentException thrown if parameters fail the validation.
      * @throws HttpResponseException thrown if the service returns an error.
@@ -102,7 +68,7 @@ public final class IsUnknownsImpl {
 
     /**
      * Put operation.
-     * 
+     *
      * @param body body.
      * @param requestContext The context to configure the HTTP request before HTTP client sends it.
      * @throws IllegalArgumentException thrown if parameters fail the validation.
@@ -117,5 +83,40 @@ public final class IsUnknownsImpl {
                 final String contentType = "application/json";
                 return service.put(this.client.getEndpoint(), contentType, body, updatedContext);
             });
+    }
+
+    /**
+     * The interface defining all the services for AdditionalPropertiesClientIsUnknowns to be used by the proxy service
+     * to perform REST calls.
+     */
+    @ServiceInterface(name = "AdditionalPropertiesClientIsUnknowns", host = "{endpoint}")
+    public interface IsUnknownsService {
+
+        @HttpRequestInformation(
+            method = HttpMethod.GET,
+            path = "/type/property/additionalProperties/isRecordUnknown",
+            expectedStatusCodes = { 200 })
+        @UnexpectedResponseExceptionDetail
+        Response<IsUnknownAdditionalProperties> get(@HostParam("endpoint") String endpoint,
+            @HeaderParam("Accept") String accept, RequestContext requestContext);
+
+        @HttpRequestInformation(
+            method = HttpMethod.PUT,
+            path = "/type/property/additionalProperties/isRecordUnknown",
+            expectedStatusCodes = { 204 })
+        @UnexpectedResponseExceptionDetail
+        Response<Void> put(@HostParam("endpoint") String endpoint, @HeaderParam("Content-Type") String contentType,
+            @BodyParam("application/json") IsUnknownAdditionalProperties body, RequestContext requestContext);
+
+        static IsUnknownsService getNewInstance(HttpPipeline pipeline) {
+            try {
+                Class<?> clazz
+                    = Class.forName("type.property.additionalproperties.implementation.IsUnknownsServiceImpl");
+                return (IsUnknownsService) clazz.getMethod("getNewInstance", HttpPipeline.class).invoke(null, pipeline);
+            } catch (ClassNotFoundException | NoSuchMethodException | IllegalAccessException
+                | InvocationTargetException e) {
+                throw new RuntimeException(e);
+            }
+        }
     }
 }

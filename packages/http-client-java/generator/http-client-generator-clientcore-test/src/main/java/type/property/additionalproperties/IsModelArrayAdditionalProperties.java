@@ -16,11 +16,6 @@ import java.util.Map;
  */
 @Metadata(properties = { MetadataProperties.FLUENT })
 public final class IsModelArrayAdditionalProperties implements JsonSerializable<IsModelArrayAdditionalProperties> {
-    /*
-     * The knownProp property.
-     */
-    @Metadata(properties = { MetadataProperties.GENERATED })
-    private final List<ModelForRecord> knownProp;
 
     /*
      * The model is from Record<ModelForRecord[]> type.
@@ -28,9 +23,15 @@ public final class IsModelArrayAdditionalProperties implements JsonSerializable<
     @Metadata(properties = { MetadataProperties.GENERATED })
     private Map<String, List<ModelForRecord>> additionalProperties;
 
+    /*
+     * The knownProp property.
+     */
+    @Metadata(properties = { MetadataProperties.GENERATED })
+    private final List<ModelForRecord> knownProp;
+
     /**
      * Creates an instance of IsModelArrayAdditionalProperties class.
-     * 
+     *
      * @param knownProp the knownProp value to set.
      */
     @Metadata(properties = { MetadataProperties.GENERATED })
@@ -39,18 +40,8 @@ public final class IsModelArrayAdditionalProperties implements JsonSerializable<
     }
 
     /**
-     * Get the knownProp property: The knownProp property.
-     * 
-     * @return the knownProp value.
-     */
-    @Metadata(properties = { MetadataProperties.GENERATED })
-    public List<ModelForRecord> getKnownProp() {
-        return this.knownProp;
-    }
-
-    /**
      * Get the additionalProperties property: The model is from Record&lt;ModelForRecord[]&gt; type.
-     * 
+     *
      * @return the additionalProperties value.
      */
     @Metadata(properties = { MetadataProperties.GENERATED })
@@ -60,7 +51,7 @@ public final class IsModelArrayAdditionalProperties implements JsonSerializable<
 
     /**
      * Set the additionalProperties property: The model is from Record&lt;ModelForRecord[]&gt; type.
-     * 
+     *
      * @param additionalProperties the additionalProperties value to set.
      * @return the IsModelArrayAdditionalProperties object itself.
      */
@@ -69,6 +60,16 @@ public final class IsModelArrayAdditionalProperties implements JsonSerializable<
         setAdditionalProperties(Map<String, List<ModelForRecord>> additionalProperties) {
         this.additionalProperties = additionalProperties;
         return this;
+    }
+
+    /**
+     * Get the knownProp property: The knownProp property.
+     *
+     * @return the knownProp value.
+     */
+    @Metadata(properties = { MetadataProperties.GENERATED })
+    public List<ModelForRecord> getKnownProp() {
+        return this.knownProp;
     }
 
     /**
@@ -89,7 +90,7 @@ public final class IsModelArrayAdditionalProperties implements JsonSerializable<
 
     /**
      * Reads an instance of IsModelArrayAdditionalProperties from the JsonReader.
-     * 
+     *
      * @param jsonReader The JsonReader being read.
      * @return An instance of IsModelArrayAdditionalProperties if the JsonReader was pointing to an instance of it, or
      * null if it was pointing to JSON null.
@@ -104,14 +105,12 @@ public final class IsModelArrayAdditionalProperties implements JsonSerializable<
             while (reader.nextToken() != JsonToken.END_OBJECT) {
                 String fieldName = reader.getFieldName();
                 reader.nextToken();
-
                 if ("knownProp".equals(fieldName)) {
                     knownProp = reader.readArray(reader1 -> ModelForRecord.fromJson(reader1));
                 } else {
                     if (additionalProperties == null) {
                         additionalProperties = new LinkedHashMap<>();
                     }
-
                     List<ModelForRecord> additionalPropertiesArrayItem
                         = reader.readArray(reader1 -> ModelForRecord.fromJson(reader1));
                     additionalProperties.put(fieldName, additionalPropertiesArrayItem);
@@ -120,7 +119,6 @@ public final class IsModelArrayAdditionalProperties implements JsonSerializable<
             IsModelArrayAdditionalProperties deserializedIsModelArrayAdditionalProperties
                 = new IsModelArrayAdditionalProperties(knownProp);
             deserializedIsModelArrayAdditionalProperties.additionalProperties = additionalProperties;
-
             return deserializedIsModelArrayAdditionalProperties;
         });
     }

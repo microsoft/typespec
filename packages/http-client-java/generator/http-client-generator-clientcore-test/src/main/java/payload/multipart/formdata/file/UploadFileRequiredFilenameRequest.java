@@ -8,6 +8,7 @@ import io.clientcore.core.annotations.MetadataProperties;
  */
 @Metadata(properties = { MetadataProperties.IMMUTABLE })
 public final class UploadFileRequiredFilenameRequest {
+
     /*
      * The file property.
      */
@@ -16,7 +17,7 @@ public final class UploadFileRequiredFilenameRequest {
 
     /**
      * Creates an instance of UploadFileRequiredFilenameRequest class.
-     * 
+     *
      * @param file the file value to set.
      */
     @Metadata(properties = { MetadataProperties.GENERATED })
@@ -26,7 +27,7 @@ public final class UploadFileRequiredFilenameRequest {
 
     /**
      * Get the file property: The file property.
-     * 
+     *
      * @return the file value.
      */
     @Metadata(properties = { MetadataProperties.GENERATED })

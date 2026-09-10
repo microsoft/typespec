@@ -13,29 +13,6 @@ import java.io.IOException;
  */
 @Metadata(properties = { MetadataProperties.IMMUTABLE })
 public final class DictMethods implements JsonSerializable<DictMethods> {
-    /*
-     * The keys property.
-     */
-    @Metadata(properties = { MetadataProperties.GENERATED })
-    private final String keys;
-
-    /*
-     * The items property.
-     */
-    @Metadata(properties = { MetadataProperties.GENERATED })
-    private final String items;
-
-    /*
-     * The values property.
-     */
-    @Metadata(properties = { MetadataProperties.GENERATED })
-    private final String values;
-
-    /*
-     * The popitem property.
-     */
-    @Metadata(properties = { MetadataProperties.GENERATED })
-    private final String popitem;
 
     /*
      * The clear property.
@@ -44,22 +21,10 @@ public final class DictMethods implements JsonSerializable<DictMethods> {
     private final String clear;
 
     /*
-     * The update property.
+     * The copy property.
      */
     @Metadata(properties = { MetadataProperties.GENERATED })
-    private final String update;
-
-    /*
-     * The setdefault property.
-     */
-    @Metadata(properties = { MetadataProperties.GENERATED })
-    private final String setdefault;
-
-    /*
-     * The pop property.
-     */
-    @Metadata(properties = { MetadataProperties.GENERATED })
-    private final String pop;
+    private final String copy;
 
     /*
      * The get property.
@@ -68,14 +33,50 @@ public final class DictMethods implements JsonSerializable<DictMethods> {
     private final String get;
 
     /*
-     * The copy property.
+     * The items property.
      */
     @Metadata(properties = { MetadataProperties.GENERATED })
-    private final String copy;
+    private final String items;
+
+    /*
+     * The keys property.
+     */
+    @Metadata(properties = { MetadataProperties.GENERATED })
+    private final String keys;
+
+    /*
+     * The pop property.
+     */
+    @Metadata(properties = { MetadataProperties.GENERATED })
+    private final String pop;
+
+    /*
+     * The popitem property.
+     */
+    @Metadata(properties = { MetadataProperties.GENERATED })
+    private final String popitem;
+
+    /*
+     * The setdefault property.
+     */
+    @Metadata(properties = { MetadataProperties.GENERATED })
+    private final String setdefault;
+
+    /*
+     * The update property.
+     */
+    @Metadata(properties = { MetadataProperties.GENERATED })
+    private final String update;
+
+    /*
+     * The values property.
+     */
+    @Metadata(properties = { MetadataProperties.GENERATED })
+    private final String values;
 
     /**
      * Creates an instance of DictMethods class.
-     * 
+     *
      * @param keys the keys value to set.
      * @param items the items value to set.
      * @param values the values value to set.
@@ -103,48 +104,8 @@ public final class DictMethods implements JsonSerializable<DictMethods> {
     }
 
     /**
-     * Get the keys property: The keys property.
-     * 
-     * @return the keys value.
-     */
-    @Metadata(properties = { MetadataProperties.GENERATED })
-    public String getKeys() {
-        return this.keys;
-    }
-
-    /**
-     * Get the items property: The items property.
-     * 
-     * @return the items value.
-     */
-    @Metadata(properties = { MetadataProperties.GENERATED })
-    public String getItems() {
-        return this.items;
-    }
-
-    /**
-     * Get the values property: The values property.
-     * 
-     * @return the values value.
-     */
-    @Metadata(properties = { MetadataProperties.GENERATED })
-    public String getValues() {
-        return this.values;
-    }
-
-    /**
-     * Get the popitem property: The popitem property.
-     * 
-     * @return the popitem value.
-     */
-    @Metadata(properties = { MetadataProperties.GENERATED })
-    public String getPopitem() {
-        return this.popitem;
-    }
-
-    /**
      * Get the clear property: The clear property.
-     * 
+     *
      * @return the clear value.
      */
     @Metadata(properties = { MetadataProperties.GENERATED })
@@ -153,38 +114,18 @@ public final class DictMethods implements JsonSerializable<DictMethods> {
     }
 
     /**
-     * Get the update property: The update property.
-     * 
-     * @return the update value.
+     * Get the copy property: The copy property.
+     *
+     * @return the copy value.
      */
     @Metadata(properties = { MetadataProperties.GENERATED })
-    public String getUpdate() {
-        return this.update;
-    }
-
-    /**
-     * Get the setdefault property: The setdefault property.
-     * 
-     * @return the setdefault value.
-     */
-    @Metadata(properties = { MetadataProperties.GENERATED })
-    public String getSetdefault() {
-        return this.setdefault;
-    }
-
-    /**
-     * Get the pop property: The pop property.
-     * 
-     * @return the pop value.
-     */
-    @Metadata(properties = { MetadataProperties.GENERATED })
-    public String getPop() {
-        return this.pop;
+    public String getCopy() {
+        return this.copy;
     }
 
     /**
      * Get the get property: The get property.
-     * 
+     *
      * @return the get value.
      */
     @Metadata(properties = { MetadataProperties.GENERATED })
@@ -193,13 +134,73 @@ public final class DictMethods implements JsonSerializable<DictMethods> {
     }
 
     /**
-     * Get the copy property: The copy property.
-     * 
-     * @return the copy value.
+     * Get the items property: The items property.
+     *
+     * @return the items value.
      */
     @Metadata(properties = { MetadataProperties.GENERATED })
-    public String getCopy() {
-        return this.copy;
+    public String getItems() {
+        return this.items;
+    }
+
+    /**
+     * Get the keys property: The keys property.
+     *
+     * @return the keys value.
+     */
+    @Metadata(properties = { MetadataProperties.GENERATED })
+    public String getKeys() {
+        return this.keys;
+    }
+
+    /**
+     * Get the pop property: The pop property.
+     *
+     * @return the pop value.
+     */
+    @Metadata(properties = { MetadataProperties.GENERATED })
+    public String getPop() {
+        return this.pop;
+    }
+
+    /**
+     * Get the popitem property: The popitem property.
+     *
+     * @return the popitem value.
+     */
+    @Metadata(properties = { MetadataProperties.GENERATED })
+    public String getPopitem() {
+        return this.popitem;
+    }
+
+    /**
+     * Get the setdefault property: The setdefault property.
+     *
+     * @return the setdefault value.
+     */
+    @Metadata(properties = { MetadataProperties.GENERATED })
+    public String getSetdefault() {
+        return this.setdefault;
+    }
+
+    /**
+     * Get the update property: The update property.
+     *
+     * @return the update value.
+     */
+    @Metadata(properties = { MetadataProperties.GENERATED })
+    public String getUpdate() {
+        return this.update;
+    }
+
+    /**
+     * Get the values property: The values property.
+     *
+     * @return the values value.
+     */
+    @Metadata(properties = { MetadataProperties.GENERATED })
+    public String getValues() {
+        return this.values;
     }
 
     /**
@@ -224,7 +225,7 @@ public final class DictMethods implements JsonSerializable<DictMethods> {
 
     /**
      * Reads an instance of DictMethods from the JsonReader.
-     * 
+     *
      * @param jsonReader The JsonReader being read.
      * @return An instance of DictMethods if the JsonReader was pointing to an instance of it, or null if it was
      * pointing to JSON null.
@@ -247,7 +248,6 @@ public final class DictMethods implements JsonSerializable<DictMethods> {
             while (reader.nextToken() != JsonToken.END_OBJECT) {
                 String fieldName = reader.getFieldName();
                 reader.nextToken();
-
                 if ("keys".equals(fieldName)) {
                     keys = reader.getString();
                 } else if ("items".equals(fieldName)) {

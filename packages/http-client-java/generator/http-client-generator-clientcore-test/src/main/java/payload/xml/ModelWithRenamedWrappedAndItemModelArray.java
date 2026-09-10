@@ -17,6 +17,7 @@ import javax.xml.stream.XMLStreamException;
 @Metadata(properties = { MetadataProperties.IMMUTABLE })
 public final class ModelWithRenamedWrappedAndItemModelArray
     implements XmlSerializable<ModelWithRenamedWrappedAndItemModelArray> {
+
     /*
      * The AllBooks property.
      */
@@ -25,7 +26,7 @@ public final class ModelWithRenamedWrappedAndItemModelArray
 
     /**
      * Creates an instance of ModelWithRenamedWrappedAndItemModelArray class.
-     * 
+     *
      * @param books the books value to set.
      */
     @Metadata(properties = { MetadataProperties.GENERATED })
@@ -35,7 +36,7 @@ public final class ModelWithRenamedWrappedAndItemModelArray
 
     /**
      * Get the books property: The AllBooks property.
-     * 
+     *
      * @return the books value.
      */
     @Metadata(properties = { MetadataProperties.GENERATED })
@@ -68,7 +69,7 @@ public final class ModelWithRenamedWrappedAndItemModelArray
 
     /**
      * Reads an instance of ModelWithRenamedWrappedAndItemModelArray from the XmlReader.
-     * 
+     *
      * @param xmlReader The XmlReader being read.
      * @return An instance of ModelWithRenamedWrappedAndItemModelArray if the XmlReader was pointing to an instance of
      * it, or null if it was pointing to XML null.
@@ -82,7 +83,7 @@ public final class ModelWithRenamedWrappedAndItemModelArray
 
     /**
      * Reads an instance of ModelWithRenamedWrappedAndItemModelArray from the XmlReader.
-     * 
+     *
      * @param xmlReader The XmlReader being read.
      * @param rootElementName Optional root element name to override the default defined by the model. Used to support
      * cases where the model can deserialize from different root element names.
@@ -101,7 +102,6 @@ public final class ModelWithRenamedWrappedAndItemModelArray
             List<Book> books = null;
             while (reader.nextElement() != XmlToken.END_ELEMENT) {
                 QName elementName = reader.getElementName();
-
                 if ("AllBooks".equals(elementName.getLocalPart())) {
                     while (reader.nextElement() != XmlToken.END_ELEMENT) {
                         elementName = reader.getElementName();

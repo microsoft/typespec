@@ -17,14 +17,15 @@ import java.util.List;
  */
 @ServiceClient(builder = BytesClientBuilder.class)
 public final class HeaderClient {
-    @Metadata(properties = { MetadataProperties.GENERATED })
-    private final HeadersImpl serviceClient;
 
     private final Instrumentation instrumentation;
 
+    @Metadata(properties = { MetadataProperties.GENERATED })
+    private final HeadersImpl serviceClient;
+
     /**
      * Initializes an instance of HeaderClient class.
-     * 
+     *
      * @param serviceClient the service client implementation.
      * @param instrumentation the instrumentation instance.
      */
@@ -35,25 +36,8 @@ public final class HeaderClient {
     }
 
     /**
-     * The defaultMethod operation.
-     * 
-     * @param value The value parameter.
-     * @param requestContext The context to configure the HTTP request before HTTP client sends it.
-     * @throws IllegalArgumentException thrown if parameters fail the validation.
-     * @throws HttpResponseException thrown if the service returns an error.
-     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
-     * @return the {@link Response}.
-     */
-    @Metadata(properties = { MetadataProperties.GENERATED })
-    @ServiceMethod(returns = ReturnType.SINGLE)
-    public Response<Void> defaultMethodWithResponse(byte[] value, RequestContext requestContext) {
-        return this.instrumentation.instrumentWithResponse("Encode.Bytes.Header.default", requestContext,
-            updatedContext -> this.serviceClient.defaultMethodWithResponse(value, updatedContext));
-    }
-
-    /**
-     * The defaultMethod operation.
-     * 
+     * The base64 operation.
+     *
      * @param value The value parameter.
      * @throws IllegalArgumentException thrown if parameters fail the validation.
      * @throws HttpResponseException thrown if the service returns an error.
@@ -61,13 +45,13 @@ public final class HeaderClient {
      */
     @Metadata(properties = { MetadataProperties.GENERATED })
     @ServiceMethod(returns = ReturnType.SINGLE)
-    public void defaultMethod(byte[] value) {
-        defaultMethodWithResponse(value, RequestContext.none());
+    public void base64(byte[] value) {
+        base64WithResponse(value, RequestContext.none());
     }
 
     /**
      * The base64 operation.
-     * 
+     *
      * @param value The value parameter.
      * @param requestContext The context to configure the HTTP request before HTTP client sends it.
      * @throws IllegalArgumentException thrown if parameters fail the validation.
@@ -83,8 +67,8 @@ public final class HeaderClient {
     }
 
     /**
-     * The base64 operation.
-     * 
+     * The base64url operation.
+     *
      * @param value The value parameter.
      * @throws IllegalArgumentException thrown if parameters fail the validation.
      * @throws HttpResponseException thrown if the service returns an error.
@@ -92,13 +76,13 @@ public final class HeaderClient {
      */
     @Metadata(properties = { MetadataProperties.GENERATED })
     @ServiceMethod(returns = ReturnType.SINGLE)
-    public void base64(byte[] value) {
-        base64WithResponse(value, RequestContext.none());
+    public void base64url(byte[] value) {
+        base64urlWithResponse(value, RequestContext.none());
     }
 
     /**
      * The base64url operation.
-     * 
+     *
      * @param value The value parameter.
      * @param requestContext The context to configure the HTTP request before HTTP client sends it.
      * @throws IllegalArgumentException thrown if parameters fail the validation.
@@ -114,8 +98,8 @@ public final class HeaderClient {
     }
 
     /**
-     * The base64url operation.
-     * 
+     * The base64urlArray operation.
+     *
      * @param value The value parameter.
      * @throws IllegalArgumentException thrown if parameters fail the validation.
      * @throws HttpResponseException thrown if the service returns an error.
@@ -123,13 +107,13 @@ public final class HeaderClient {
      */
     @Metadata(properties = { MetadataProperties.GENERATED })
     @ServiceMethod(returns = ReturnType.SINGLE)
-    public void base64url(byte[] value) {
-        base64urlWithResponse(value, RequestContext.none());
+    public void base64urlArray(List<byte[]> value) {
+        base64urlArrayWithResponse(value, RequestContext.none());
     }
 
     /**
      * The base64urlArray operation.
-     * 
+     *
      * @param value The value parameter.
      * @param requestContext The context to configure the HTTP request before HTTP client sends it.
      * @throws IllegalArgumentException thrown if parameters fail the validation.
@@ -145,8 +129,8 @@ public final class HeaderClient {
     }
 
     /**
-     * The base64urlArray operation.
-     * 
+     * The defaultMethod operation.
+     *
      * @param value The value parameter.
      * @throws IllegalArgumentException thrown if parameters fail the validation.
      * @throws HttpResponseException thrown if the service returns an error.
@@ -154,7 +138,24 @@ public final class HeaderClient {
      */
     @Metadata(properties = { MetadataProperties.GENERATED })
     @ServiceMethod(returns = ReturnType.SINGLE)
-    public void base64urlArray(List<byte[]> value) {
-        base64urlArrayWithResponse(value, RequestContext.none());
+    public void defaultMethod(byte[] value) {
+        defaultMethodWithResponse(value, RequestContext.none());
+    }
+
+    /**
+     * The defaultMethod operation.
+     *
+     * @param value The value parameter.
+     * @param requestContext The context to configure the HTTP request before HTTP client sends it.
+     * @throws IllegalArgumentException thrown if parameters fail the validation.
+     * @throws HttpResponseException thrown if the service returns an error.
+     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
+     * @return the {@link Response}.
+     */
+    @Metadata(properties = { MetadataProperties.GENERATED })
+    @ServiceMethod(returns = ReturnType.SINGLE)
+    public Response<Void> defaultMethodWithResponse(byte[] value, RequestContext requestContext) {
+        return this.instrumentation.instrumentWithResponse("Encode.Bytes.Header.default", requestContext,
+            updatedContext -> this.serviceClient.defaultMethodWithResponse(value, updatedContext));
     }
 }

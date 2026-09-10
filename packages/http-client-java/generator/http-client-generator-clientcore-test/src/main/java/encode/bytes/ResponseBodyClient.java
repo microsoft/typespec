@@ -17,14 +17,15 @@ import io.clientcore.core.models.binarydata.BinaryData;
  */
 @ServiceClient(builder = BytesClientBuilder.class)
 public final class ResponseBodyClient {
-    @Metadata(properties = { MetadataProperties.GENERATED })
-    private final ResponseBodiesImpl serviceClient;
 
     private final Instrumentation instrumentation;
 
+    @Metadata(properties = { MetadataProperties.GENERATED })
+    private final ResponseBodiesImpl serviceClient;
+
     /**
      * Initializes an instance of ResponseBodyClient class.
-     * 
+     *
      * @param serviceClient the service client implementation.
      * @param instrumentation the instrumentation instance.
      */
@@ -35,95 +36,21 @@ public final class ResponseBodyClient {
     }
 
     /**
-     * The defaultMethod operation.
-     * 
-     * @param requestContext The context to configure the HTTP request before HTTP client sends it.
-     * @throws IllegalArgumentException thrown if parameters fail the validation.
+     * The base64 operation.
+     *
      * @throws HttpResponseException thrown if the service returns an error.
      * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
-     * @return the response body along with {@link Response}.
+     * @return represent a byte array.
      */
     @Metadata(properties = { MetadataProperties.GENERATED })
     @ServiceMethod(returns = ReturnType.SINGLE)
-    public Response<BinaryData> defaultMethodWithResponse(RequestContext requestContext) {
-        return this.instrumentation.instrumentWithResponse("Encode.Bytes.ResponseBody.default", requestContext,
-            updatedContext -> this.serviceClient.defaultMethodWithResponse(updatedContext));
-    }
-
-    /**
-     * The defaultMethod operation.
-     * 
-     * @throws HttpResponseException thrown if the service returns an error.
-     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
-     * @return the response.
-     */
-    @Metadata(properties = { MetadataProperties.GENERATED })
-    @ServiceMethod(returns = ReturnType.SINGLE)
-    public BinaryData defaultMethod() {
-        return defaultMethodWithResponse(RequestContext.none()).getValue();
-    }
-
-    /**
-     * The octetStream operation.
-     * 
-     * @param requestContext The context to configure the HTTP request before HTTP client sends it.
-     * @throws IllegalArgumentException thrown if parameters fail the validation.
-     * @throws HttpResponseException thrown if the service returns an error.
-     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
-     * @return the response body along with {@link Response}.
-     */
-    @Metadata(properties = { MetadataProperties.GENERATED })
-    @ServiceMethod(returns = ReturnType.SINGLE)
-    public Response<BinaryData> octetStreamWithResponse(RequestContext requestContext) {
-        return this.instrumentation.instrumentWithResponse("Encode.Bytes.ResponseBody.octetStream", requestContext,
-            updatedContext -> this.serviceClient.octetStreamWithResponse(updatedContext));
-    }
-
-    /**
-     * The octetStream operation.
-     * 
-     * @throws HttpResponseException thrown if the service returns an error.
-     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
-     * @return the response.
-     */
-    @Metadata(properties = { MetadataProperties.GENERATED })
-    @ServiceMethod(returns = ReturnType.SINGLE)
-    public BinaryData octetStream() {
-        return octetStreamWithResponse(RequestContext.none()).getValue();
-    }
-
-    /**
-     * The customContentType operation.
-     * 
-     * @param requestContext The context to configure the HTTP request before HTTP client sends it.
-     * @throws IllegalArgumentException thrown if parameters fail the validation.
-     * @throws HttpResponseException thrown if the service returns an error.
-     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
-     * @return the response body along with {@link Response}.
-     */
-    @Metadata(properties = { MetadataProperties.GENERATED })
-    @ServiceMethod(returns = ReturnType.SINGLE)
-    public Response<BinaryData> customContentTypeWithResponse(RequestContext requestContext) {
-        return this.instrumentation.instrumentWithResponse("Encode.Bytes.ResponseBody.customContentType",
-            requestContext, updatedContext -> this.serviceClient.customContentTypeWithResponse(updatedContext));
-    }
-
-    /**
-     * The customContentType operation.
-     * 
-     * @throws HttpResponseException thrown if the service returns an error.
-     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
-     * @return the response.
-     */
-    @Metadata(properties = { MetadataProperties.GENERATED })
-    @ServiceMethod(returns = ReturnType.SINGLE)
-    public BinaryData customContentType() {
-        return customContentTypeWithResponse(RequestContext.none()).getValue();
+    public byte[] base64() {
+        return base64WithResponse(RequestContext.none()).getValue();
     }
 
     /**
      * The base64 operation.
-     * 
+     *
      * @param requestContext The context to configure the HTTP request before HTTP client sends it.
      * @throws IllegalArgumentException thrown if parameters fail the validation.
      * @throws HttpResponseException thrown if the service returns an error.
@@ -138,21 +65,21 @@ public final class ResponseBodyClient {
     }
 
     /**
-     * The base64 operation.
-     * 
+     * The base64url operation.
+     *
      * @throws HttpResponseException thrown if the service returns an error.
      * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
-     * @return represent a byte array.
+     * @return the response.
      */
     @Metadata(properties = { MetadataProperties.GENERATED })
     @ServiceMethod(returns = ReturnType.SINGLE)
-    public byte[] base64() {
-        return base64WithResponse(RequestContext.none()).getValue();
+    public byte[] base64url() {
+        return base64urlWithResponse(RequestContext.none()).getValue();
     }
 
     /**
      * The base64url operation.
-     * 
+     *
      * @param requestContext The context to configure the HTTP request before HTTP client sends it.
      * @throws IllegalArgumentException thrown if parameters fail the validation.
      * @throws HttpResponseException thrown if the service returns an error.
@@ -167,15 +94,89 @@ public final class ResponseBodyClient {
     }
 
     /**
-     * The base64url operation.
-     * 
+     * The customContentType operation.
+     *
      * @throws HttpResponseException thrown if the service returns an error.
      * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
      * @return the response.
      */
     @Metadata(properties = { MetadataProperties.GENERATED })
     @ServiceMethod(returns = ReturnType.SINGLE)
-    public byte[] base64url() {
-        return base64urlWithResponse(RequestContext.none()).getValue();
+    public BinaryData customContentType() {
+        return customContentTypeWithResponse(RequestContext.none()).getValue();
+    }
+
+    /**
+     * The customContentType operation.
+     *
+     * @param requestContext The context to configure the HTTP request before HTTP client sends it.
+     * @throws IllegalArgumentException thrown if parameters fail the validation.
+     * @throws HttpResponseException thrown if the service returns an error.
+     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
+     * @return the response body along with {@link Response}.
+     */
+    @Metadata(properties = { MetadataProperties.GENERATED })
+    @ServiceMethod(returns = ReturnType.SINGLE)
+    public Response<BinaryData> customContentTypeWithResponse(RequestContext requestContext) {
+        return this.instrumentation.instrumentWithResponse("Encode.Bytes.ResponseBody.customContentType",
+            requestContext, updatedContext -> this.serviceClient.customContentTypeWithResponse(updatedContext));
+    }
+
+    /**
+     * The defaultMethod operation.
+     *
+     * @throws HttpResponseException thrown if the service returns an error.
+     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
+     * @return the response.
+     */
+    @Metadata(properties = { MetadataProperties.GENERATED })
+    @ServiceMethod(returns = ReturnType.SINGLE)
+    public BinaryData defaultMethod() {
+        return defaultMethodWithResponse(RequestContext.none()).getValue();
+    }
+
+    /**
+     * The defaultMethod operation.
+     *
+     * @param requestContext The context to configure the HTTP request before HTTP client sends it.
+     * @throws IllegalArgumentException thrown if parameters fail the validation.
+     * @throws HttpResponseException thrown if the service returns an error.
+     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
+     * @return the response body along with {@link Response}.
+     */
+    @Metadata(properties = { MetadataProperties.GENERATED })
+    @ServiceMethod(returns = ReturnType.SINGLE)
+    public Response<BinaryData> defaultMethodWithResponse(RequestContext requestContext) {
+        return this.instrumentation.instrumentWithResponse("Encode.Bytes.ResponseBody.default", requestContext,
+            updatedContext -> this.serviceClient.defaultMethodWithResponse(updatedContext));
+    }
+
+    /**
+     * The octetStream operation.
+     *
+     * @throws HttpResponseException thrown if the service returns an error.
+     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
+     * @return the response.
+     */
+    @Metadata(properties = { MetadataProperties.GENERATED })
+    @ServiceMethod(returns = ReturnType.SINGLE)
+    public BinaryData octetStream() {
+        return octetStreamWithResponse(RequestContext.none()).getValue();
+    }
+
+    /**
+     * The octetStream operation.
+     *
+     * @param requestContext The context to configure the HTTP request before HTTP client sends it.
+     * @throws IllegalArgumentException thrown if parameters fail the validation.
+     * @throws HttpResponseException thrown if the service returns an error.
+     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
+     * @return the response body along with {@link Response}.
+     */
+    @Metadata(properties = { MetadataProperties.GENERATED })
+    @ServiceMethod(returns = ReturnType.SINGLE)
+    public Response<BinaryData> octetStreamWithResponse(RequestContext requestContext) {
+        return this.instrumentation.instrumentWithResponse("Encode.Bytes.ResponseBody.octetStream", requestContext,
+            updatedContext -> this.serviceClient.octetStreamWithResponse(updatedContext));
     }
 }

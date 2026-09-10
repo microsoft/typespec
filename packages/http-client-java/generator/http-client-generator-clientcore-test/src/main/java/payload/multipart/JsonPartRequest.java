@@ -8,6 +8,7 @@ import io.clientcore.core.annotations.MetadataProperties;
  */
 @Metadata(properties = { MetadataProperties.IMMUTABLE })
 public final class JsonPartRequest {
+
     /*
      * The address property.
      */
@@ -22,7 +23,7 @@ public final class JsonPartRequest {
 
     /**
      * Creates an instance of JsonPartRequest class.
-     * 
+     *
      * @param address the address value to set.
      * @param profileImage the profileImage value to set.
      */
@@ -34,7 +35,7 @@ public final class JsonPartRequest {
 
     /**
      * Get the address property: The address property.
-     * 
+     *
      * @return the address value.
      */
     @Metadata(properties = { MetadataProperties.GENERATED })
@@ -44,7 +45,7 @@ public final class JsonPartRequest {
 
     /**
      * Get the profileImage property: The profileImage property.
-     * 
+     *
      * @return the profileImage value.
      */
     @Metadata(properties = { MetadataProperties.GENERATED })

@@ -23,10 +23,6 @@ import versioning.renamedfrom.RenamedFromServiceVersion;
  * Initializes a new instance of the RenamedFromClient type.
  */
 public final class RenamedFromClientImpl {
-    /**
-     * The proxy service used to perform REST calls.
-     */
-    private final RenamedFromClientService service;
 
     /**
      * Need to be set as 'http://localhost:3000' in client.
@@ -34,41 +30,9 @@ public final class RenamedFromClientImpl {
     private final String endpoint;
 
     /**
-     * Gets Need to be set as 'http://localhost:3000' in client.
-     * 
-     * @return the endpoint value.
-     */
-    public String getEndpoint() {
-        return this.endpoint;
-    }
-
-    /**
-     * Service version.
-     */
-    private final RenamedFromServiceVersion serviceVersion;
-
-    /**
-     * Gets Service version.
-     * 
-     * @return the serviceVersion value.
-     */
-    public RenamedFromServiceVersion getServiceVersion() {
-        return this.serviceVersion;
-    }
-
-    /**
      * The HTTP pipeline to send requests through.
      */
     private final HttpPipeline httpPipeline;
-
-    /**
-     * Gets The HTTP pipeline to send requests through.
-     * 
-     * @return the httpPipeline value.
-     */
-    public HttpPipeline getHttpPipeline() {
-        return this.httpPipeline;
-    }
 
     /**
      * The instance of instrumentation to report telemetry.
@@ -76,31 +40,23 @@ public final class RenamedFromClientImpl {
     private final Instrumentation instrumentation;
 
     /**
-     * Gets The instance of instrumentation to report telemetry.
-     * 
-     * @return the instrumentation value.
-     */
-    public Instrumentation getInstrumentation() {
-        return this.instrumentation;
-    }
-
-    /**
      * The NewInterfacesImpl object to access its operations.
      */
     private final NewInterfacesImpl newInterfaces;
 
     /**
-     * Gets the NewInterfacesImpl object to access its operations.
-     * 
-     * @return the NewInterfacesImpl object.
+     * The proxy service used to perform REST calls.
      */
-    public NewInterfacesImpl getNewInterfaces() {
-        return this.newInterfaces;
-    }
+    private final RenamedFromClientService service;
+
+    /**
+     * Service version.
+     */
+    private final RenamedFromServiceVersion serviceVersion;
 
     /**
      * Initializes an instance of RenamedFromClient client.
-     * 
+     *
      * @param httpPipeline The HTTP pipeline to send requests through.
      * @param instrumentation The instance of instrumentation to report telemetry.
      * @param endpoint Need to be set as 'http://localhost:3000' in client.
@@ -117,34 +73,53 @@ public final class RenamedFromClientImpl {
     }
 
     /**
-     * The interface defining all the services for RenamedFromClient to be used by the proxy service to perform REST
-     * calls.
+     * Gets Need to be set as 'http://localhost:3000' in client.
+     *
+     * @return the endpoint value.
      */
-    @ServiceInterface(name = "RenamedFromClient", host = "{endpoint}/versioning/renamed-from/api-version:{version}")
-    public interface RenamedFromClientService {
-        static RenamedFromClientService getNewInstance(HttpPipeline pipeline) {
-            try {
-                Class<?> clazz = Class.forName("versioning.renamedfrom.implementation.RenamedFromClientServiceImpl");
-                return (RenamedFromClientService) clazz.getMethod("getNewInstance", HttpPipeline.class)
-                    .invoke(null, pipeline);
-            } catch (ClassNotFoundException | NoSuchMethodException | IllegalAccessException
-                | InvocationTargetException e) {
-                throw new RuntimeException(e);
-            }
+    public String getEndpoint() {
+        return this.endpoint;
+    }
 
-        }
+    /**
+     * Gets The HTTP pipeline to send requests through.
+     *
+     * @return the httpPipeline value.
+     */
+    public HttpPipeline getHttpPipeline() {
+        return this.httpPipeline;
+    }
 
-        @HttpRequestInformation(method = HttpMethod.POST, path = "/test", expectedStatusCodes = { 200 })
-        @UnexpectedResponseExceptionDetail
-        Response<NewModel> newOp(@HostParam("endpoint") String endpoint, @HostParam("version") String version,
-            @QueryParam("newQuery") String newQuery, @HeaderParam("Content-Type") String contentType,
-            @HeaderParam("Accept") String accept, @BodyParam("application/json") NewModel body,
-            RequestContext requestContext);
+    /**
+     * Gets The instance of instrumentation to report telemetry.
+     *
+     * @return the instrumentation value.
+     */
+    public Instrumentation getInstrumentation() {
+        return this.instrumentation;
+    }
+
+    /**
+     * Gets the NewInterfacesImpl object to access its operations.
+     *
+     * @return the NewInterfacesImpl object.
+     */
+    public NewInterfacesImpl getNewInterfaces() {
+        return this.newInterfaces;
+    }
+
+    /**
+     * Gets Service version.
+     *
+     * @return the serviceVersion value.
+     */
+    public RenamedFromServiceVersion getServiceVersion() {
+        return this.serviceVersion;
     }
 
     /**
      * The newOp operation.
-     * 
+     *
      * @param newQuery The newQuery parameter.
      * @param body The body parameter.
      * @param requestContext The context to configure the HTTP request before HTTP client sends it.
@@ -162,5 +137,31 @@ public final class RenamedFromClientImpl {
                 return service.newOp(this.getEndpoint(), this.getServiceVersion().getVersion(), newQuery, contentType,
                     accept, body, updatedContext);
             });
+    }
+
+    /**
+     * The interface defining all the services for RenamedFromClient to be used by the proxy service to perform REST
+     * calls.
+     */
+    @ServiceInterface(name = "RenamedFromClient", host = "{endpoint}/versioning/renamed-from/api-version:{version}")
+    public interface RenamedFromClientService {
+
+        @HttpRequestInformation(method = HttpMethod.POST, path = "/test", expectedStatusCodes = { 200 })
+        @UnexpectedResponseExceptionDetail
+        Response<NewModel> newOp(@HostParam("endpoint") String endpoint, @HostParam("version") String version,
+            @QueryParam("newQuery") String newQuery, @HeaderParam("Content-Type") String contentType,
+            @HeaderParam("Accept") String accept, @BodyParam("application/json") NewModel body,
+            RequestContext requestContext);
+
+        static RenamedFromClientService getNewInstance(HttpPipeline pipeline) {
+            try {
+                Class<?> clazz = Class.forName("versioning.renamedfrom.implementation.RenamedFromClientServiceImpl");
+                return (RenamedFromClientService) clazz.getMethod("getNewInstance", HttpPipeline.class)
+                    .invoke(null, pipeline);
+            } catch (ClassNotFoundException | NoSuchMethodException | IllegalAccessException
+                | InvocationTargetException e) {
+                throw new RuntimeException(e);
+            }
+        }
     }
 }

@@ -18,14 +18,15 @@ import routes.implementation.QueryParametersQueryExpansionExplodesImpl;
  */
 @ServiceClient(builder = RoutesClientBuilder.class)
 public final class QueryParametersQueryExpansionExplodeClient {
-    @Metadata(properties = { MetadataProperties.GENERATED })
-    private final QueryParametersQueryExpansionExplodesImpl serviceClient;
 
     private final Instrumentation instrumentation;
 
+    @Metadata(properties = { MetadataProperties.GENERATED })
+    private final QueryParametersQueryExpansionExplodesImpl serviceClient;
+
     /**
      * Initializes an instance of QueryParametersQueryExpansionExplodeClient class.
-     * 
+     *
      * @param serviceClient the service client implementation.
      * @param instrumentation the instrumentation instance.
      */
@@ -37,25 +38,8 @@ public final class QueryParametersQueryExpansionExplodeClient {
     }
 
     /**
-     * The primitive operation.
-     * 
-     * @param param The param parameter.
-     * @param requestContext The context to configure the HTTP request before HTTP client sends it.
-     * @throws IllegalArgumentException thrown if parameters fail the validation.
-     * @throws HttpResponseException thrown if the service returns an error.
-     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
-     * @return the {@link Response}.
-     */
-    @Metadata(properties = { MetadataProperties.GENERATED })
-    @ServiceMethod(returns = ReturnType.SINGLE)
-    public Response<Void> primitiveWithResponse(String param, RequestContext requestContext) {
-        return this.instrumentation.instrumentWithResponse("Routes.QueryParameters.QueryExpansion.Explode.primitive",
-            requestContext, updatedContext -> this.serviceClient.primitiveWithResponse(param, updatedContext));
-    }
-
-    /**
-     * The primitive operation.
-     * 
+     * The array operation.
+     *
      * @param param The param parameter.
      * @throws IllegalArgumentException thrown if parameters fail the validation.
      * @throws HttpResponseException thrown if the service returns an error.
@@ -63,13 +47,13 @@ public final class QueryParametersQueryExpansionExplodeClient {
      */
     @Metadata(properties = { MetadataProperties.GENERATED })
     @ServiceMethod(returns = ReturnType.SINGLE)
-    public void primitive(String param) {
-        primitiveWithResponse(param, RequestContext.none());
+    public void array(List<String> param) {
+        arrayWithResponse(param, RequestContext.none());
     }
 
     /**
      * The array operation.
-     * 
+     *
      * @param param The param parameter.
      * @param requestContext The context to configure the HTTP request before HTTP client sends it.
      * @throws IllegalArgumentException thrown if parameters fail the validation.
@@ -85,8 +69,8 @@ public final class QueryParametersQueryExpansionExplodeClient {
     }
 
     /**
-     * The array operation.
-     * 
+     * The model operation.
+     *
      * @param param The param parameter.
      * @throws IllegalArgumentException thrown if parameters fail the validation.
      * @throws HttpResponseException thrown if the service returns an error.
@@ -94,44 +78,13 @@ public final class QueryParametersQueryExpansionExplodeClient {
      */
     @Metadata(properties = { MetadataProperties.GENERATED })
     @ServiceMethod(returns = ReturnType.SINGLE)
-    public void array(List<String> param) {
-        arrayWithResponse(param, RequestContext.none());
-    }
-
-    /**
-     * The record operation.
-     * 
-     * @param param The param parameter.
-     * @param requestContext The context to configure the HTTP request before HTTP client sends it.
-     * @throws IllegalArgumentException thrown if parameters fail the validation.
-     * @throws HttpResponseException thrown if the service returns an error.
-     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
-     * @return the {@link Response}.
-     */
-    @Metadata(properties = { MetadataProperties.GENERATED })
-    @ServiceMethod(returns = ReturnType.SINGLE)
-    public Response<Void> recordWithResponse(Map<String, Integer> param, RequestContext requestContext) {
-        return this.instrumentation.instrumentWithResponse("Routes.QueryParameters.QueryExpansion.Explode.record",
-            requestContext, updatedContext -> this.serviceClient.recordWithResponse(param, updatedContext));
-    }
-
-    /**
-     * The record operation.
-     * 
-     * @param param The param parameter.
-     * @throws IllegalArgumentException thrown if parameters fail the validation.
-     * @throws HttpResponseException thrown if the service returns an error.
-     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
-     */
-    @Metadata(properties = { MetadataProperties.GENERATED })
-    @ServiceMethod(returns = ReturnType.SINGLE)
-    public void record(Map<String, Integer> param) {
-        recordWithResponse(param, RequestContext.none());
+    public void model(ExpandParameters param) {
+        modelWithResponse(param, RequestContext.none());
     }
 
     /**
      * The model operation.
-     * 
+     *
      * @param param The param parameter.
      * @param requestContext The context to configure the HTTP request before HTTP client sends it.
      * @throws IllegalArgumentException thrown if parameters fail the validation.
@@ -147,8 +100,8 @@ public final class QueryParametersQueryExpansionExplodeClient {
     }
 
     /**
-     * The model operation.
-     * 
+     * The primitive operation.
+     *
      * @param param The param parameter.
      * @throws IllegalArgumentException thrown if parameters fail the validation.
      * @throws HttpResponseException thrown if the service returns an error.
@@ -156,7 +109,55 @@ public final class QueryParametersQueryExpansionExplodeClient {
      */
     @Metadata(properties = { MetadataProperties.GENERATED })
     @ServiceMethod(returns = ReturnType.SINGLE)
-    public void model(ExpandParameters param) {
-        modelWithResponse(param, RequestContext.none());
+    public void primitive(String param) {
+        primitiveWithResponse(param, RequestContext.none());
+    }
+
+    /**
+     * The primitive operation.
+     *
+     * @param param The param parameter.
+     * @param requestContext The context to configure the HTTP request before HTTP client sends it.
+     * @throws IllegalArgumentException thrown if parameters fail the validation.
+     * @throws HttpResponseException thrown if the service returns an error.
+     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
+     * @return the {@link Response}.
+     */
+    @Metadata(properties = { MetadataProperties.GENERATED })
+    @ServiceMethod(returns = ReturnType.SINGLE)
+    public Response<Void> primitiveWithResponse(String param, RequestContext requestContext) {
+        return this.instrumentation.instrumentWithResponse("Routes.QueryParameters.QueryExpansion.Explode.primitive",
+            requestContext, updatedContext -> this.serviceClient.primitiveWithResponse(param, updatedContext));
+    }
+
+    /**
+     * The record operation.
+     *
+     * @param param The param parameter.
+     * @throws IllegalArgumentException thrown if parameters fail the validation.
+     * @throws HttpResponseException thrown if the service returns an error.
+     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
+     */
+    @Metadata(properties = { MetadataProperties.GENERATED })
+    @ServiceMethod(returns = ReturnType.SINGLE)
+    public void record(Map<String, Integer> param) {
+        recordWithResponse(param, RequestContext.none());
+    }
+
+    /**
+     * The record operation.
+     *
+     * @param param The param parameter.
+     * @param requestContext The context to configure the HTTP request before HTTP client sends it.
+     * @throws IllegalArgumentException thrown if parameters fail the validation.
+     * @throws HttpResponseException thrown if the service returns an error.
+     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
+     * @return the {@link Response}.
+     */
+    @Metadata(properties = { MetadataProperties.GENERATED })
+    @ServiceMethod(returns = ReturnType.SINGLE)
+    public Response<Void> recordWithResponse(Map<String, Integer> param, RequestContext requestContext) {
+        return this.instrumentation.instrumentWithResponse("Routes.QueryParameters.QueryExpansion.Explode.record",
+            requestContext, updatedContext -> this.serviceClient.recordWithResponse(param, updatedContext));
     }
 }

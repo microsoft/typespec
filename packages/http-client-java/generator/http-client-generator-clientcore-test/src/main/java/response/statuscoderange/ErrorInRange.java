@@ -13,6 +13,7 @@ import java.io.IOException;
  */
 @Metadata(properties = { MetadataProperties.IMMUTABLE })
 public final class ErrorInRange implements JsonSerializable<ErrorInRange> {
+
     /*
      * The code property.
      */
@@ -27,7 +28,7 @@ public final class ErrorInRange implements JsonSerializable<ErrorInRange> {
 
     /**
      * Creates an instance of ErrorInRange class.
-     * 
+     *
      * @param code the code value to set.
      * @param message the message value to set.
      */
@@ -39,7 +40,7 @@ public final class ErrorInRange implements JsonSerializable<ErrorInRange> {
 
     /**
      * Get the code property: The code property.
-     * 
+     *
      * @return the code value.
      */
     @Metadata(properties = { MetadataProperties.GENERATED })
@@ -49,7 +50,7 @@ public final class ErrorInRange implements JsonSerializable<ErrorInRange> {
 
     /**
      * Get the message property: The message property.
-     * 
+     *
      * @return the message value.
      */
     @Metadata(properties = { MetadataProperties.GENERATED })
@@ -71,7 +72,7 @@ public final class ErrorInRange implements JsonSerializable<ErrorInRange> {
 
     /**
      * Reads an instance of ErrorInRange from the JsonReader.
-     * 
+     *
      * @param jsonReader The JsonReader being read.
      * @return An instance of ErrorInRange if the JsonReader was pointing to an instance of it, or null if it was
      * pointing to JSON null.
@@ -86,7 +87,6 @@ public final class ErrorInRange implements JsonSerializable<ErrorInRange> {
             while (reader.nextToken() != JsonToken.END_OBJECT) {
                 String fieldName = reader.getFieldName();
                 reader.nextToken();
-
                 if ("code".equals(fieldName)) {
                     code = reader.getString();
                 } else if ("message".equals(fieldName)) {

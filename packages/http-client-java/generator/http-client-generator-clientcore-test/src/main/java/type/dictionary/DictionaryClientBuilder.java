@@ -47,17 +47,60 @@ import type.dictionary.implementation.DictionaryClientImpl;
 public final class DictionaryClientBuilder
     implements HttpTrait<DictionaryClientBuilder>, ProxyTrait<DictionaryClientBuilder>,
     ConfigurationTrait<DictionaryClientBuilder>, EndpointTrait<DictionaryClientBuilder> {
+
+    @Metadata(properties = { MetadataProperties.GENERATED })
+    private static final Map<String, String> PROPERTIES = CoreUtils.getProperties("type-dictionary.properties");
+
     @Metadata(properties = { MetadataProperties.GENERATED })
     private static final String SDK_NAME = "name";
 
     @Metadata(properties = { MetadataProperties.GENERATED })
     private static final String SDK_VERSION = "version";
 
+    /*
+     * The configuration store that is used during construction of the service client.
+     */
     @Metadata(properties = { MetadataProperties.GENERATED })
-    private static final Map<String, String> PROPERTIES = CoreUtils.getProperties("type-dictionary.properties");
+    private Configuration configuration;
+
+    /*
+     * The service endpoint
+     */
+    @Metadata(properties = { MetadataProperties.GENERATED })
+    private String endpoint;
+
+    /*
+     * The HTTP client used to send the request.
+     */
+    @Metadata(properties = { MetadataProperties.GENERATED })
+    private HttpClient httpClient;
+
+    /*
+     * The instrumentation configuration for HTTP requests and responses.
+     */
+    @Metadata(properties = { MetadataProperties.GENERATED })
+    private HttpInstrumentationOptions httpInstrumentationOptions;
 
     @Metadata(properties = { MetadataProperties.GENERATED })
     private final List<HttpPipelinePolicy> pipelinePolicies;
+
+    /*
+     * The proxy options used during construction of the service client.
+     */
+    @Metadata(properties = { MetadataProperties.GENERATED })
+    private ProxyOptions proxyOptions;
+
+    /*
+     * The redirect options to configure redirect policy
+     */
+    @Metadata(properties = { MetadataProperties.GENERATED })
+    private HttpRedirectOptions redirectOptions;
+
+    /*
+     * The retry options to configure retry policy for failed requests.
+     */
+    @Metadata(properties = { MetadataProperties.GENERATED })
+    private HttpRetryOptions retryOptions;
 
     /**
      * Create an instance of the DictionaryClientBuilder.
@@ -67,11 +110,36 @@ public final class DictionaryClientBuilder
         this.pipelinePolicies = new ArrayList<>();
     }
 
-    /*
-     * The HTTP client used to send the request.
+    /**
+     * {@inheritDoc}.
      */
     @Metadata(properties = { MetadataProperties.GENERATED })
-    private HttpClient httpClient;
+    @Override
+    public DictionaryClientBuilder addHttpPipelinePolicy(HttpPipelinePolicy customPolicy) {
+        Objects.requireNonNull(customPolicy, "'customPolicy' cannot be null.");
+        pipelinePolicies.add(customPolicy);
+        return this;
+    }
+
+    /**
+     * {@inheritDoc}.
+     */
+    @Metadata(properties = { MetadataProperties.GENERATED })
+    @Override
+    public DictionaryClientBuilder configuration(Configuration configuration) {
+        this.configuration = configuration;
+        return this;
+    }
+
+    /**
+     * {@inheritDoc}.
+     */
+    @Metadata(properties = { MetadataProperties.GENERATED })
+    @Override
+    public DictionaryClientBuilder endpoint(String endpoint) {
+        this.endpoint = endpoint;
+        return this;
+    }
 
     /**
      * {@inheritDoc}.
@@ -83,11 +151,25 @@ public final class DictionaryClientBuilder
         return this;
     }
 
-    /*
-     * The retry options to configure retry policy for failed requests.
+    /**
+     * {@inheritDoc}.
      */
     @Metadata(properties = { MetadataProperties.GENERATED })
-    private HttpRetryOptions retryOptions;
+    @Override
+    public DictionaryClientBuilder httpInstrumentationOptions(HttpInstrumentationOptions httpInstrumentationOptions) {
+        this.httpInstrumentationOptions = httpInstrumentationOptions;
+        return this;
+    }
+
+    /**
+     * {@inheritDoc}.
+     */
+    @Metadata(properties = { MetadataProperties.GENERATED })
+    @Override
+    public DictionaryClientBuilder httpRedirectOptions(HttpRedirectOptions redirectOptions) {
+        this.redirectOptions = redirectOptions;
+        return this;
+    }
 
     /**
      * {@inheritDoc}.
@@ -104,95 +186,135 @@ public final class DictionaryClientBuilder
      */
     @Metadata(properties = { MetadataProperties.GENERATED })
     @Override
-    public DictionaryClientBuilder addHttpPipelinePolicy(HttpPipelinePolicy customPolicy) {
-        Objects.requireNonNull(customPolicy, "'customPolicy' cannot be null.");
-        pipelinePolicies.add(customPolicy);
-        return this;
-    }
-
-    /*
-     * The redirect options to configure redirect policy
-     */
-    @Metadata(properties = { MetadataProperties.GENERATED })
-    private HttpRedirectOptions redirectOptions;
-
-    /**
-     * {@inheritDoc}.
-     */
-    @Metadata(properties = { MetadataProperties.GENERATED })
-    @Override
-    public DictionaryClientBuilder httpRedirectOptions(HttpRedirectOptions redirectOptions) {
-        this.redirectOptions = redirectOptions;
-        return this;
-    }
-
-    /*
-     * The instrumentation configuration for HTTP requests and responses.
-     */
-    @Metadata(properties = { MetadataProperties.GENERATED })
-    private HttpInstrumentationOptions httpInstrumentationOptions;
-
-    /**
-     * {@inheritDoc}.
-     */
-    @Metadata(properties = { MetadataProperties.GENERATED })
-    @Override
-    public DictionaryClientBuilder httpInstrumentationOptions(HttpInstrumentationOptions httpInstrumentationOptions) {
-        this.httpInstrumentationOptions = httpInstrumentationOptions;
-        return this;
-    }
-
-    /*
-     * The proxy options used during construction of the service client.
-     */
-    @Metadata(properties = { MetadataProperties.GENERATED })
-    private ProxyOptions proxyOptions;
-
-    /**
-     * {@inheritDoc}.
-     */
-    @Metadata(properties = { MetadataProperties.GENERATED })
-    @Override
     public DictionaryClientBuilder proxyOptions(ProxyOptions proxyOptions) {
         this.proxyOptions = proxyOptions;
         return this;
     }
 
-    /*
-     * The configuration store that is used during construction of the service client.
-     */
-    @Metadata(properties = { MetadataProperties.GENERATED })
-    private Configuration configuration;
-
     /**
-     * {@inheritDoc}.
+     * Builds an instance of BooleanValueClient class.
+     *
+     * @return an instance of BooleanValueClient.
      */
     @Metadata(properties = { MetadataProperties.GENERATED })
-    @Override
-    public DictionaryClientBuilder configuration(Configuration configuration) {
-        this.configuration = configuration;
-        return this;
+    public BooleanValueClient buildBooleanValueClient() {
+        DictionaryClientImpl innerClient = buildInnerClient();
+        return new BooleanValueClient(innerClient.getBooleanValues(), innerClient.getInstrumentation());
     }
 
-    /*
-     * The service endpoint
+    /**
+     * Builds an instance of DatetimeValueClient class.
+     *
+     * @return an instance of DatetimeValueClient.
      */
     @Metadata(properties = { MetadataProperties.GENERATED })
-    private String endpoint;
+    public DatetimeValueClient buildDatetimeValueClient() {
+        DictionaryClientImpl innerClient = buildInnerClient();
+        return new DatetimeValueClient(innerClient.getDatetimeValues(), innerClient.getInstrumentation());
+    }
 
     /**
-     * {@inheritDoc}.
+     * Builds an instance of DurationValueClient class.
+     *
+     * @return an instance of DurationValueClient.
      */
     @Metadata(properties = { MetadataProperties.GENERATED })
-    @Override
-    public DictionaryClientBuilder endpoint(String endpoint) {
-        this.endpoint = endpoint;
-        return this;
+    public DurationValueClient buildDurationValueClient() {
+        DictionaryClientImpl innerClient = buildInnerClient();
+        return new DurationValueClient(innerClient.getDurationValues(), innerClient.getInstrumentation());
+    }
+
+    /**
+     * Builds an instance of Float32ValueClient class.
+     *
+     * @return an instance of Float32ValueClient.
+     */
+    @Metadata(properties = { MetadataProperties.GENERATED })
+    public Float32ValueClient buildFloat32ValueClient() {
+        DictionaryClientImpl innerClient = buildInnerClient();
+        return new Float32ValueClient(innerClient.getFloat32Values(), innerClient.getInstrumentation());
+    }
+
+    /**
+     * Builds an instance of Int32ValueClient class.
+     *
+     * @return an instance of Int32ValueClient.
+     */
+    @Metadata(properties = { MetadataProperties.GENERATED })
+    public Int32ValueClient buildInt32ValueClient() {
+        DictionaryClientImpl innerClient = buildInnerClient();
+        return new Int32ValueClient(innerClient.getInt32Values(), innerClient.getInstrumentation());
+    }
+
+    /**
+     * Builds an instance of Int64ValueClient class.
+     *
+     * @return an instance of Int64ValueClient.
+     */
+    @Metadata(properties = { MetadataProperties.GENERATED })
+    public Int64ValueClient buildInt64ValueClient() {
+        DictionaryClientImpl innerClient = buildInnerClient();
+        return new Int64ValueClient(innerClient.getInt64Values(), innerClient.getInstrumentation());
+    }
+
+    /**
+     * Builds an instance of ModelValueClient class.
+     *
+     * @return an instance of ModelValueClient.
+     */
+    @Metadata(properties = { MetadataProperties.GENERATED })
+    public ModelValueClient buildModelValueClient() {
+        DictionaryClientImpl innerClient = buildInnerClient();
+        return new ModelValueClient(innerClient.getModelValues(), innerClient.getInstrumentation());
+    }
+
+    /**
+     * Builds an instance of NullableFloatValueClient class.
+     *
+     * @return an instance of NullableFloatValueClient.
+     */
+    @Metadata(properties = { MetadataProperties.GENERATED })
+    public NullableFloatValueClient buildNullableFloatValueClient() {
+        DictionaryClientImpl innerClient = buildInnerClient();
+        return new NullableFloatValueClient(innerClient.getNullableFloatValues(), innerClient.getInstrumentation());
+    }
+
+    /**
+     * Builds an instance of RecursiveModelValueClient class.
+     *
+     * @return an instance of RecursiveModelValueClient.
+     */
+    @Metadata(properties = { MetadataProperties.GENERATED })
+    public RecursiveModelValueClient buildRecursiveModelValueClient() {
+        DictionaryClientImpl innerClient = buildInnerClient();
+        return new RecursiveModelValueClient(innerClient.getRecursiveModelValues(), innerClient.getInstrumentation());
+    }
+
+    /**
+     * Builds an instance of StringValueClient class.
+     *
+     * @return an instance of StringValueClient.
+     */
+    @Metadata(properties = { MetadataProperties.GENERATED })
+    public StringValueClient buildStringValueClient() {
+        DictionaryClientImpl innerClient = buildInnerClient();
+        return new StringValueClient(innerClient.getStringValues(), innerClient.getInstrumentation());
+    }
+
+    /**
+     * Builds an instance of UnknownValueClient class.
+     *
+     * @return an instance of UnknownValueClient.
+     */
+    @Metadata(properties = { MetadataProperties.GENERATED })
+    public UnknownValueClient buildUnknownValueClient() {
+        DictionaryClientImpl innerClient = buildInnerClient();
+        return new UnknownValueClient(innerClient.getUnknownValues(), innerClient.getInstrumentation());
     }
 
     /**
      * Builds an instance of DictionaryClientImpl with the provided parameters.
-     * 
+     *
      * @return an instance of DictionaryClientImpl.
      */
     @Metadata(properties = { MetadataProperties.GENERATED })
@@ -213,12 +335,6 @@ public final class DictionaryClientBuilder
     }
 
     @Metadata(properties = { MetadataProperties.GENERATED })
-    private void validateClient() {
-        // This method is invoked from 'buildInnerClient'/'buildClient' method.
-        // Developer can customize this method, to validate that the necessary conditions are met for the new client.
-    }
-
-    @Metadata(properties = { MetadataProperties.GENERATED })
     private HttpPipeline createHttpPipeline() {
         Configuration buildConfiguration
             = (configuration == null) ? Configuration.getGlobalConfiguration() : configuration;
@@ -235,124 +351,9 @@ public final class DictionaryClientBuilder
         return httpPipelineBuilder.httpClient(httpClient).build();
     }
 
-    /**
-     * Builds an instance of Int32ValueClient class.
-     * 
-     * @return an instance of Int32ValueClient.
-     */
     @Metadata(properties = { MetadataProperties.GENERATED })
-    public Int32ValueClient buildInt32ValueClient() {
-        DictionaryClientImpl innerClient = buildInnerClient();
-        return new Int32ValueClient(innerClient.getInt32Values(), innerClient.getInstrumentation());
-    }
-
-    /**
-     * Builds an instance of Int64ValueClient class.
-     * 
-     * @return an instance of Int64ValueClient.
-     */
-    @Metadata(properties = { MetadataProperties.GENERATED })
-    public Int64ValueClient buildInt64ValueClient() {
-        DictionaryClientImpl innerClient = buildInnerClient();
-        return new Int64ValueClient(innerClient.getInt64Values(), innerClient.getInstrumentation());
-    }
-
-    /**
-     * Builds an instance of BooleanValueClient class.
-     * 
-     * @return an instance of BooleanValueClient.
-     */
-    @Metadata(properties = { MetadataProperties.GENERATED })
-    public BooleanValueClient buildBooleanValueClient() {
-        DictionaryClientImpl innerClient = buildInnerClient();
-        return new BooleanValueClient(innerClient.getBooleanValues(), innerClient.getInstrumentation());
-    }
-
-    /**
-     * Builds an instance of StringValueClient class.
-     * 
-     * @return an instance of StringValueClient.
-     */
-    @Metadata(properties = { MetadataProperties.GENERATED })
-    public StringValueClient buildStringValueClient() {
-        DictionaryClientImpl innerClient = buildInnerClient();
-        return new StringValueClient(innerClient.getStringValues(), innerClient.getInstrumentation());
-    }
-
-    /**
-     * Builds an instance of Float32ValueClient class.
-     * 
-     * @return an instance of Float32ValueClient.
-     */
-    @Metadata(properties = { MetadataProperties.GENERATED })
-    public Float32ValueClient buildFloat32ValueClient() {
-        DictionaryClientImpl innerClient = buildInnerClient();
-        return new Float32ValueClient(innerClient.getFloat32Values(), innerClient.getInstrumentation());
-    }
-
-    /**
-     * Builds an instance of DatetimeValueClient class.
-     * 
-     * @return an instance of DatetimeValueClient.
-     */
-    @Metadata(properties = { MetadataProperties.GENERATED })
-    public DatetimeValueClient buildDatetimeValueClient() {
-        DictionaryClientImpl innerClient = buildInnerClient();
-        return new DatetimeValueClient(innerClient.getDatetimeValues(), innerClient.getInstrumentation());
-    }
-
-    /**
-     * Builds an instance of DurationValueClient class.
-     * 
-     * @return an instance of DurationValueClient.
-     */
-    @Metadata(properties = { MetadataProperties.GENERATED })
-    public DurationValueClient buildDurationValueClient() {
-        DictionaryClientImpl innerClient = buildInnerClient();
-        return new DurationValueClient(innerClient.getDurationValues(), innerClient.getInstrumentation());
-    }
-
-    /**
-     * Builds an instance of UnknownValueClient class.
-     * 
-     * @return an instance of UnknownValueClient.
-     */
-    @Metadata(properties = { MetadataProperties.GENERATED })
-    public UnknownValueClient buildUnknownValueClient() {
-        DictionaryClientImpl innerClient = buildInnerClient();
-        return new UnknownValueClient(innerClient.getUnknownValues(), innerClient.getInstrumentation());
-    }
-
-    /**
-     * Builds an instance of ModelValueClient class.
-     * 
-     * @return an instance of ModelValueClient.
-     */
-    @Metadata(properties = { MetadataProperties.GENERATED })
-    public ModelValueClient buildModelValueClient() {
-        DictionaryClientImpl innerClient = buildInnerClient();
-        return new ModelValueClient(innerClient.getModelValues(), innerClient.getInstrumentation());
-    }
-
-    /**
-     * Builds an instance of RecursiveModelValueClient class.
-     * 
-     * @return an instance of RecursiveModelValueClient.
-     */
-    @Metadata(properties = { MetadataProperties.GENERATED })
-    public RecursiveModelValueClient buildRecursiveModelValueClient() {
-        DictionaryClientImpl innerClient = buildInnerClient();
-        return new RecursiveModelValueClient(innerClient.getRecursiveModelValues(), innerClient.getInstrumentation());
-    }
-
-    /**
-     * Builds an instance of NullableFloatValueClient class.
-     * 
-     * @return an instance of NullableFloatValueClient.
-     */
-    @Metadata(properties = { MetadataProperties.GENERATED })
-    public NullableFloatValueClient buildNullableFloatValueClient() {
-        DictionaryClientImpl innerClient = buildInnerClient();
-        return new NullableFloatValueClient(innerClient.getNullableFloatValues(), innerClient.getInstrumentation());
+    private void validateClient() {
+        // This method is invoked from 'buildInnerClient'/'buildClient' method.
+        // Developer can customize this method, to validate that the necessary conditions are met for the new client.
     }
 }

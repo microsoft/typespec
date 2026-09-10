@@ -34,17 +34,60 @@ import parameters.spread.implementation.SpreadClientImpl;
 @ServiceClientBuilder(serviceClients = { ModelClient.class, AliasClient.class })
 public final class SpreadClientBuilder implements HttpTrait<SpreadClientBuilder>, ProxyTrait<SpreadClientBuilder>,
     ConfigurationTrait<SpreadClientBuilder>, EndpointTrait<SpreadClientBuilder> {
+
+    @Metadata(properties = { MetadataProperties.GENERATED })
+    private static final Map<String, String> PROPERTIES = CoreUtils.getProperties("parameters-spread.properties");
+
     @Metadata(properties = { MetadataProperties.GENERATED })
     private static final String SDK_NAME = "name";
 
     @Metadata(properties = { MetadataProperties.GENERATED })
     private static final String SDK_VERSION = "version";
 
+    /*
+     * The configuration store that is used during construction of the service client.
+     */
     @Metadata(properties = { MetadataProperties.GENERATED })
-    private static final Map<String, String> PROPERTIES = CoreUtils.getProperties("parameters-spread.properties");
+    private Configuration configuration;
+
+    /*
+     * The service endpoint
+     */
+    @Metadata(properties = { MetadataProperties.GENERATED })
+    private String endpoint;
+
+    /*
+     * The HTTP client used to send the request.
+     */
+    @Metadata(properties = { MetadataProperties.GENERATED })
+    private HttpClient httpClient;
+
+    /*
+     * The instrumentation configuration for HTTP requests and responses.
+     */
+    @Metadata(properties = { MetadataProperties.GENERATED })
+    private HttpInstrumentationOptions httpInstrumentationOptions;
 
     @Metadata(properties = { MetadataProperties.GENERATED })
     private final List<HttpPipelinePolicy> pipelinePolicies;
+
+    /*
+     * The proxy options used during construction of the service client.
+     */
+    @Metadata(properties = { MetadataProperties.GENERATED })
+    private ProxyOptions proxyOptions;
+
+    /*
+     * The redirect options to configure redirect policy
+     */
+    @Metadata(properties = { MetadataProperties.GENERATED })
+    private HttpRedirectOptions redirectOptions;
+
+    /*
+     * The retry options to configure retry policy for failed requests.
+     */
+    @Metadata(properties = { MetadataProperties.GENERATED })
+    private HttpRetryOptions retryOptions;
 
     /**
      * Create an instance of the SpreadClientBuilder.
@@ -54,11 +97,36 @@ public final class SpreadClientBuilder implements HttpTrait<SpreadClientBuilder>
         this.pipelinePolicies = new ArrayList<>();
     }
 
-    /*
-     * The HTTP client used to send the request.
+    /**
+     * {@inheritDoc}.
      */
     @Metadata(properties = { MetadataProperties.GENERATED })
-    private HttpClient httpClient;
+    @Override
+    public SpreadClientBuilder addHttpPipelinePolicy(HttpPipelinePolicy customPolicy) {
+        Objects.requireNonNull(customPolicy, "'customPolicy' cannot be null.");
+        pipelinePolicies.add(customPolicy);
+        return this;
+    }
+
+    /**
+     * {@inheritDoc}.
+     */
+    @Metadata(properties = { MetadataProperties.GENERATED })
+    @Override
+    public SpreadClientBuilder configuration(Configuration configuration) {
+        this.configuration = configuration;
+        return this;
+    }
+
+    /**
+     * {@inheritDoc}.
+     */
+    @Metadata(properties = { MetadataProperties.GENERATED })
+    @Override
+    public SpreadClientBuilder endpoint(String endpoint) {
+        this.endpoint = endpoint;
+        return this;
+    }
 
     /**
      * {@inheritDoc}.
@@ -70,11 +138,25 @@ public final class SpreadClientBuilder implements HttpTrait<SpreadClientBuilder>
         return this;
     }
 
-    /*
-     * The retry options to configure retry policy for failed requests.
+    /**
+     * {@inheritDoc}.
      */
     @Metadata(properties = { MetadataProperties.GENERATED })
-    private HttpRetryOptions retryOptions;
+    @Override
+    public SpreadClientBuilder httpInstrumentationOptions(HttpInstrumentationOptions httpInstrumentationOptions) {
+        this.httpInstrumentationOptions = httpInstrumentationOptions;
+        return this;
+    }
+
+    /**
+     * {@inheritDoc}.
+     */
+    @Metadata(properties = { MetadataProperties.GENERATED })
+    @Override
+    public SpreadClientBuilder httpRedirectOptions(HttpRedirectOptions redirectOptions) {
+        this.redirectOptions = redirectOptions;
+        return this;
+    }
 
     /**
      * {@inheritDoc}.
@@ -91,95 +173,36 @@ public final class SpreadClientBuilder implements HttpTrait<SpreadClientBuilder>
      */
     @Metadata(properties = { MetadataProperties.GENERATED })
     @Override
-    public SpreadClientBuilder addHttpPipelinePolicy(HttpPipelinePolicy customPolicy) {
-        Objects.requireNonNull(customPolicy, "'customPolicy' cannot be null.");
-        pipelinePolicies.add(customPolicy);
-        return this;
-    }
-
-    /*
-     * The redirect options to configure redirect policy
-     */
-    @Metadata(properties = { MetadataProperties.GENERATED })
-    private HttpRedirectOptions redirectOptions;
-
-    /**
-     * {@inheritDoc}.
-     */
-    @Metadata(properties = { MetadataProperties.GENERATED })
-    @Override
-    public SpreadClientBuilder httpRedirectOptions(HttpRedirectOptions redirectOptions) {
-        this.redirectOptions = redirectOptions;
-        return this;
-    }
-
-    /*
-     * The instrumentation configuration for HTTP requests and responses.
-     */
-    @Metadata(properties = { MetadataProperties.GENERATED })
-    private HttpInstrumentationOptions httpInstrumentationOptions;
-
-    /**
-     * {@inheritDoc}.
-     */
-    @Metadata(properties = { MetadataProperties.GENERATED })
-    @Override
-    public SpreadClientBuilder httpInstrumentationOptions(HttpInstrumentationOptions httpInstrumentationOptions) {
-        this.httpInstrumentationOptions = httpInstrumentationOptions;
-        return this;
-    }
-
-    /*
-     * The proxy options used during construction of the service client.
-     */
-    @Metadata(properties = { MetadataProperties.GENERATED })
-    private ProxyOptions proxyOptions;
-
-    /**
-     * {@inheritDoc}.
-     */
-    @Metadata(properties = { MetadataProperties.GENERATED })
-    @Override
     public SpreadClientBuilder proxyOptions(ProxyOptions proxyOptions) {
         this.proxyOptions = proxyOptions;
         return this;
     }
 
-    /*
-     * The configuration store that is used during construction of the service client.
-     */
-    @Metadata(properties = { MetadataProperties.GENERATED })
-    private Configuration configuration;
-
     /**
-     * {@inheritDoc}.
+     * Builds an instance of AliasClient class.
+     *
+     * @return an instance of AliasClient.
      */
     @Metadata(properties = { MetadataProperties.GENERATED })
-    @Override
-    public SpreadClientBuilder configuration(Configuration configuration) {
-        this.configuration = configuration;
-        return this;
+    public AliasClient buildAliasClient() {
+        SpreadClientImpl innerClient = buildInnerClient();
+        return new AliasClient(innerClient.getAlias(), innerClient.getInstrumentation());
     }
 
-    /*
-     * The service endpoint
-     */
-    @Metadata(properties = { MetadataProperties.GENERATED })
-    private String endpoint;
-
     /**
-     * {@inheritDoc}.
+     * Builds an instance of ModelClient class.
+     *
+     * @return an instance of ModelClient.
      */
     @Metadata(properties = { MetadataProperties.GENERATED })
-    @Override
-    public SpreadClientBuilder endpoint(String endpoint) {
-        this.endpoint = endpoint;
-        return this;
+    public ModelClient buildModelClient() {
+        SpreadClientImpl innerClient = buildInnerClient();
+        return new ModelClient(innerClient.getModels(), innerClient.getInstrumentation());
     }
 
     /**
      * Builds an instance of SpreadClientImpl with the provided parameters.
-     * 
+     *
      * @return an instance of SpreadClientImpl.
      */
     @Metadata(properties = { MetadataProperties.GENERATED })
@@ -200,12 +223,6 @@ public final class SpreadClientBuilder implements HttpTrait<SpreadClientBuilder>
     }
 
     @Metadata(properties = { MetadataProperties.GENERATED })
-    private void validateClient() {
-        // This method is invoked from 'buildInnerClient'/'buildClient' method.
-        // Developer can customize this method, to validate that the necessary conditions are met for the new client.
-    }
-
-    @Metadata(properties = { MetadataProperties.GENERATED })
     private HttpPipeline createHttpPipeline() {
         Configuration buildConfiguration
             = (configuration == null) ? Configuration.getGlobalConfiguration() : configuration;
@@ -222,25 +239,9 @@ public final class SpreadClientBuilder implements HttpTrait<SpreadClientBuilder>
         return httpPipelineBuilder.httpClient(httpClient).build();
     }
 
-    /**
-     * Builds an instance of ModelClient class.
-     * 
-     * @return an instance of ModelClient.
-     */
     @Metadata(properties = { MetadataProperties.GENERATED })
-    public ModelClient buildModelClient() {
-        SpreadClientImpl innerClient = buildInnerClient();
-        return new ModelClient(innerClient.getModels(), innerClient.getInstrumentation());
-    }
-
-    /**
-     * Builds an instance of AliasClient class.
-     * 
-     * @return an instance of AliasClient.
-     */
-    @Metadata(properties = { MetadataProperties.GENERATED })
-    public AliasClient buildAliasClient() {
-        SpreadClientImpl innerClient = buildInnerClient();
-        return new AliasClient(innerClient.getAlias(), innerClient.getInstrumentation());
+    private void validateClient() {
+        // This method is invoked from 'buildInnerClient'/'buildClient' method.
+        // Developer can customize this method, to validate that the necessary conditions are met for the new client.
     }
 }

@@ -16,14 +16,15 @@ import io.clientcore.core.instrumentation.Instrumentation;
  */
 @ServiceClient(builder = DatetimeClientBuilder.class)
 public final class ResponseHeaderClient {
-    @Metadata(properties = { MetadataProperties.GENERATED })
-    private final ResponseHeadersImpl serviceClient;
 
     private final Instrumentation instrumentation;
 
+    @Metadata(properties = { MetadataProperties.GENERATED })
+    private final ResponseHeadersImpl serviceClient;
+
     /**
      * Initializes an instance of ResponseHeaderClient class.
-     * 
+     *
      * @param serviceClient the service client implementation.
      * @param instrumentation the instrumentation instance.
      */
@@ -35,7 +36,19 @@ public final class ResponseHeaderClient {
 
     /**
      * The defaultMethod operation.
-     * 
+     *
+     * @throws HttpResponseException thrown if the service returns an error.
+     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
+     */
+    @Metadata(properties = { MetadataProperties.GENERATED })
+    @ServiceMethod(returns = ReturnType.SINGLE)
+    public void defaultMethod() {
+        defaultMethodWithResponse(RequestContext.none());
+    }
+
+    /**
+     * The defaultMethod operation.
+     *
      * @param requestContext The context to configure the HTTP request before HTTP client sends it.
      * @throws IllegalArgumentException thrown if parameters fail the validation.
      * @throws HttpResponseException thrown if the service returns an error.
@@ -50,20 +63,20 @@ public final class ResponseHeaderClient {
     }
 
     /**
-     * The defaultMethod operation.
-     * 
+     * The rfc3339 operation.
+     *
      * @throws HttpResponseException thrown if the service returns an error.
      * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
      */
     @Metadata(properties = { MetadataProperties.GENERATED })
     @ServiceMethod(returns = ReturnType.SINGLE)
-    public void defaultMethod() {
-        defaultMethodWithResponse(RequestContext.none());
+    public void rfc3339() {
+        rfc3339WithResponse(RequestContext.none());
     }
 
     /**
      * The rfc3339 operation.
-     * 
+     *
      * @param requestContext The context to configure the HTTP request before HTTP client sends it.
      * @throws IllegalArgumentException thrown if parameters fail the validation.
      * @throws HttpResponseException thrown if the service returns an error.
@@ -78,20 +91,20 @@ public final class ResponseHeaderClient {
     }
 
     /**
-     * The rfc3339 operation.
-     * 
+     * The rfc7231 operation.
+     *
      * @throws HttpResponseException thrown if the service returns an error.
      * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
      */
     @Metadata(properties = { MetadataProperties.GENERATED })
     @ServiceMethod(returns = ReturnType.SINGLE)
-    public void rfc3339() {
-        rfc3339WithResponse(RequestContext.none());
+    public void rfc7231() {
+        rfc7231WithResponse(RequestContext.none());
     }
 
     /**
      * The rfc7231 operation.
-     * 
+     *
      * @param requestContext The context to configure the HTTP request before HTTP client sends it.
      * @throws IllegalArgumentException thrown if parameters fail the validation.
      * @throws HttpResponseException thrown if the service returns an error.
@@ -106,20 +119,20 @@ public final class ResponseHeaderClient {
     }
 
     /**
-     * The rfc7231 operation.
-     * 
+     * The unixTimestamp operation.
+     *
      * @throws HttpResponseException thrown if the service returns an error.
      * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
      */
     @Metadata(properties = { MetadataProperties.GENERATED })
     @ServiceMethod(returns = ReturnType.SINGLE)
-    public void rfc7231() {
-        rfc7231WithResponse(RequestContext.none());
+    public void unixTimestamp() {
+        unixTimestampWithResponse(RequestContext.none());
     }
 
     /**
      * The unixTimestamp operation.
-     * 
+     *
      * @param requestContext The context to configure the HTTP request before HTTP client sends it.
      * @throws IllegalArgumentException thrown if parameters fail the validation.
      * @throws HttpResponseException thrown if the service returns an error.
@@ -131,17 +144,5 @@ public final class ResponseHeaderClient {
     public Response<Void> unixTimestampWithResponse(RequestContext requestContext) {
         return this.instrumentation.instrumentWithResponse("Encode.Datetime.ResponseHeader.unixTimestamp",
             requestContext, updatedContext -> this.serviceClient.unixTimestampWithResponse(updatedContext));
-    }
-
-    /**
-     * The unixTimestamp operation.
-     * 
-     * @throws HttpResponseException thrown if the service returns an error.
-     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
-     */
-    @Metadata(properties = { MetadataProperties.GENERATED })
-    @ServiceMethod(returns = ReturnType.SINGLE)
-    public void unixTimestamp() {
-        unixTimestampWithResponse(RequestContext.none());
     }
 }

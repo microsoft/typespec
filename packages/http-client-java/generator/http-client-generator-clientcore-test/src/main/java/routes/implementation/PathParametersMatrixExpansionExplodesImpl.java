@@ -23,10 +23,6 @@ import java.util.stream.Collectors;
  * An instance of this class provides access to all the operations defined in PathParametersMatrixExpansionExplodes.
  */
 public final class PathParametersMatrixExpansionExplodesImpl {
-    /**
-     * The proxy service used to perform REST calls.
-     */
-    private final PathParametersMatrixExpansionExplodesService service;
 
     /**
      * The service client containing this operation class.
@@ -39,8 +35,13 @@ public final class PathParametersMatrixExpansionExplodesImpl {
     private final Instrumentation instrumentation;
 
     /**
+     * The proxy service used to perform REST calls.
+     */
+    private final PathParametersMatrixExpansionExplodesService service;
+
+    /**
      * Initializes an instance of PathParametersMatrixExpansionExplodesImpl.
-     * 
+     *
      * @param client the instance of the service client containing this operation class.
      */
     PathParametersMatrixExpansionExplodesImpl(RoutesClientImpl client) {
@@ -50,71 +51,8 @@ public final class PathParametersMatrixExpansionExplodesImpl {
     }
 
     /**
-     * The interface defining all the services for RoutesClientPathParametersMatrixExpansionExplodes to be used by the
-     * proxy service to perform REST calls.
-     */
-    @ServiceInterface(name = "RoutesClientPathParametersMatrixExpansionExplodes", host = "{endpoint}")
-    public interface PathParametersMatrixExpansionExplodesService {
-        static PathParametersMatrixExpansionExplodesService getNewInstance(HttpPipeline pipeline) {
-            try {
-                Class<?> clazz
-                    = Class.forName("routes.implementation.PathParametersMatrixExpansionExplodesServiceImpl");
-                return (PathParametersMatrixExpansionExplodesService) clazz
-                    .getMethod("getNewInstance", HttpPipeline.class)
-                    .invoke(null, pipeline);
-            } catch (ClassNotFoundException | NoSuchMethodException | IllegalAccessException
-                | InvocationTargetException e) {
-                throw new RuntimeException(e);
-            }
-
-        }
-
-        @HttpRequestInformation(
-            method = HttpMethod.GET,
-            path = "/routes/path/matrix/explode/primitive{param}",
-            expectedStatusCodes = { 204 })
-        @UnexpectedResponseExceptionDetail
-        Response<Void> primitive(@HostParam("endpoint") String endpoint, @PathParam("param") String param,
-            RequestContext requestContext);
-
-        @HttpRequestInformation(
-            method = HttpMethod.GET,
-            path = "/routes/path/matrix/explode/array{param}",
-            expectedStatusCodes = { 204 })
-        @UnexpectedResponseExceptionDetail
-        Response<Void> array(@HostParam("endpoint") String endpoint, @PathParam("param") String param,
-            RequestContext requestContext);
-
-        @HttpRequestInformation(
-            method = HttpMethod.GET,
-            path = "/routes/path/matrix/explode/record{param}",
-            expectedStatusCodes = { 204 })
-        @UnexpectedResponseExceptionDetail
-        Response<Void> record(@HostParam("endpoint") String endpoint, @PathParam("param") Map<String, Integer> param,
-            RequestContext requestContext);
-    }
-
-    /**
-     * The primitive operation.
-     * 
-     * @param param The param parameter.
-     * @param requestContext The context to configure the HTTP request before HTTP client sends it.
-     * @throws IllegalArgumentException thrown if parameters fail the validation.
-     * @throws HttpResponseException thrown if the service returns an error.
-     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
-     * @return the {@link Response}.
-     */
-    @ServiceMethod(returns = ReturnType.SINGLE)
-    public Response<Void> primitiveWithResponse(String param, RequestContext requestContext) {
-        return this.instrumentation.instrumentWithResponse("Routes.PathParameters.MatrixExpansion.Explode.primitive",
-            requestContext, updatedContext -> {
-                return service.primitive(this.client.getEndpoint(), param, updatedContext);
-            });
-    }
-
-    /**
      * The array operation.
-     * 
+     *
      * @param param The param parameter.
      * @param requestContext The context to configure the HTTP request before HTTP client sends it.
      * @throws IllegalArgumentException thrown if parameters fail the validation.
@@ -134,8 +72,26 @@ public final class PathParametersMatrixExpansionExplodesImpl {
     }
 
     /**
+     * The primitive operation.
+     *
+     * @param param The param parameter.
+     * @param requestContext The context to configure the HTTP request before HTTP client sends it.
+     * @throws IllegalArgumentException thrown if parameters fail the validation.
+     * @throws HttpResponseException thrown if the service returns an error.
+     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
+     * @return the {@link Response}.
+     */
+    @ServiceMethod(returns = ReturnType.SINGLE)
+    public Response<Void> primitiveWithResponse(String param, RequestContext requestContext) {
+        return this.instrumentation.instrumentWithResponse("Routes.PathParameters.MatrixExpansion.Explode.primitive",
+            requestContext, updatedContext -> {
+                return service.primitive(this.client.getEndpoint(), param, updatedContext);
+            });
+    }
+
+    /**
      * The record operation.
-     * 
+     *
      * @param param The param parameter.
      * @param requestContext The context to configure the HTTP request before HTTP client sends it.
      * @throws IllegalArgumentException thrown if parameters fail the validation.
@@ -149,5 +105,50 @@ public final class PathParametersMatrixExpansionExplodesImpl {
             requestContext, updatedContext -> {
                 return service.record(this.client.getEndpoint(), param, updatedContext);
             });
+    }
+
+    /**
+     * The interface defining all the services for RoutesClientPathParametersMatrixExpansionExplodes to be used by the
+     * proxy service to perform REST calls.
+     */
+    @ServiceInterface(name = "RoutesClientPathParametersMatrixExpansionExplodes", host = "{endpoint}")
+    public interface PathParametersMatrixExpansionExplodesService {
+
+        @HttpRequestInformation(
+            method = HttpMethod.GET,
+            path = "/routes/path/matrix/explode/array{param}",
+            expectedStatusCodes = { 204 })
+        @UnexpectedResponseExceptionDetail
+        Response<Void> array(@HostParam("endpoint") String endpoint, @PathParam("param") String param,
+            RequestContext requestContext);
+
+        @HttpRequestInformation(
+            method = HttpMethod.GET,
+            path = "/routes/path/matrix/explode/primitive{param}",
+            expectedStatusCodes = { 204 })
+        @UnexpectedResponseExceptionDetail
+        Response<Void> primitive(@HostParam("endpoint") String endpoint, @PathParam("param") String param,
+            RequestContext requestContext);
+
+        @HttpRequestInformation(
+            method = HttpMethod.GET,
+            path = "/routes/path/matrix/explode/record{param}",
+            expectedStatusCodes = { 204 })
+        @UnexpectedResponseExceptionDetail
+        Response<Void> record(@HostParam("endpoint") String endpoint, @PathParam("param") Map<String, Integer> param,
+            RequestContext requestContext);
+
+        static PathParametersMatrixExpansionExplodesService getNewInstance(HttpPipeline pipeline) {
+            try {
+                Class<?> clazz
+                    = Class.forName("routes.implementation.PathParametersMatrixExpansionExplodesServiceImpl");
+                return (PathParametersMatrixExpansionExplodesService) clazz
+                    .getMethod("getNewInstance", HttpPipeline.class)
+                    .invoke(null, pipeline);
+            } catch (ClassNotFoundException | NoSuchMethodException | IllegalAccessException
+                | InvocationTargetException e) {
+                throw new RuntimeException(e);
+            }
+        }
     }
 }

@@ -22,10 +22,6 @@ import type.union.MixedLiteralsCases;
  * An instance of this class provides access to all the operations defined in MixedLiterals.
  */
 public final class MixedLiteralsImpl {
-    /**
-     * The proxy service used to perform REST calls.
-     */
-    private final MixedLiteralsService service;
 
     /**
      * The service client containing this operation class.
@@ -38,8 +34,13 @@ public final class MixedLiteralsImpl {
     private final Instrumentation instrumentation;
 
     /**
+     * The proxy service used to perform REST calls.
+     */
+    private final MixedLiteralsService service;
+
+    /**
      * Initializes an instance of MixedLiteralsImpl.
-     * 
+     *
      * @param client the instance of the service client containing this operation class.
      */
     MixedLiteralsImpl(UnionClientImpl client) {
@@ -49,43 +50,8 @@ public final class MixedLiteralsImpl {
     }
 
     /**
-     * The interface defining all the services for UnionClientMixedLiterals to be used by the proxy service to perform
-     * REST calls.
-     */
-    @ServiceInterface(name = "UnionClientMixedLiterals", host = "{endpoint}")
-    public interface MixedLiteralsService {
-        static MixedLiteralsService getNewInstance(HttpPipeline pipeline) {
-            try {
-                Class<?> clazz = Class.forName("type.union.implementation.MixedLiteralsServiceImpl");
-                return (MixedLiteralsService) clazz.getMethod("getNewInstance", HttpPipeline.class)
-                    .invoke(null, pipeline);
-            } catch (ClassNotFoundException | NoSuchMethodException | IllegalAccessException
-                | InvocationTargetException e) {
-                throw new RuntimeException(e);
-            }
-
-        }
-
-        @HttpRequestInformation(
-            method = HttpMethod.GET,
-            path = "/type/union/mixed-literals",
-            expectedStatusCodes = { 200 })
-        @UnexpectedResponseExceptionDetail
-        Response<GetResponse8> get(@HostParam("endpoint") String endpoint, @HeaderParam("Accept") String accept,
-            RequestContext requestContext);
-
-        @HttpRequestInformation(
-            method = HttpMethod.POST,
-            path = "/type/union/mixed-literals",
-            expectedStatusCodes = { 204 })
-        @UnexpectedResponseExceptionDetail
-        Response<Void> send(@HostParam("endpoint") String endpoint, @HeaderParam("Content-Type") String contentType,
-            @BodyParam("application/json") SendRequest8 sendRequest8, RequestContext requestContext);
-    }
-
-    /**
      * The get operation.
-     * 
+     *
      * @param requestContext The context to configure the HTTP request before HTTP client sends it.
      * @throws IllegalArgumentException thrown if parameters fail the validation.
      * @throws HttpResponseException thrown if the service returns an error.
@@ -103,7 +69,7 @@ public final class MixedLiteralsImpl {
 
     /**
      * The send operation.
-     * 
+     *
      * @param prop The prop parameter.
      * @param requestContext The context to configure the HTTP request before HTTP client sends it.
      * @throws IllegalArgumentException thrown if parameters fail the validation.
@@ -119,5 +85,40 @@ public final class MixedLiteralsImpl {
                 SendRequest8 sendRequest8 = new SendRequest8(prop);
                 return service.send(this.client.getEndpoint(), contentType, sendRequest8, updatedContext);
             });
+    }
+
+    /**
+     * The interface defining all the services for UnionClientMixedLiterals to be used by the proxy service to perform
+     * REST calls.
+     */
+    @ServiceInterface(name = "UnionClientMixedLiterals", host = "{endpoint}")
+    public interface MixedLiteralsService {
+
+        @HttpRequestInformation(
+            method = HttpMethod.GET,
+            path = "/type/union/mixed-literals",
+            expectedStatusCodes = { 200 })
+        @UnexpectedResponseExceptionDetail
+        Response<GetResponse8> get(@HostParam("endpoint") String endpoint, @HeaderParam("Accept") String accept,
+            RequestContext requestContext);
+
+        @HttpRequestInformation(
+            method = HttpMethod.POST,
+            path = "/type/union/mixed-literals",
+            expectedStatusCodes = { 204 })
+        @UnexpectedResponseExceptionDetail
+        Response<Void> send(@HostParam("endpoint") String endpoint, @HeaderParam("Content-Type") String contentType,
+            @BodyParam("application/json") SendRequest8 sendRequest8, RequestContext requestContext);
+
+        static MixedLiteralsService getNewInstance(HttpPipeline pipeline) {
+            try {
+                Class<?> clazz = Class.forName("type.union.implementation.MixedLiteralsServiceImpl");
+                return (MixedLiteralsService) clazz.getMethod("getNewInstance", HttpPipeline.class)
+                    .invoke(null, pipeline);
+            } catch (ClassNotFoundException | NoSuchMethodException | IllegalAccessException
+                | InvocationTargetException e) {
+                throw new RuntimeException(e);
+            }
+        }
     }
 }

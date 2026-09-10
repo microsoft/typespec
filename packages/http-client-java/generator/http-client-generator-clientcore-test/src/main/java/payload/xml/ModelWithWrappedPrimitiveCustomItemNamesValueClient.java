@@ -16,14 +16,15 @@ import payload.xml.implementation.ModelWithWrappedPrimitiveCustomItemNamesValues
  */
 @ServiceClient(builder = XmlClientBuilder.class)
 public final class ModelWithWrappedPrimitiveCustomItemNamesValueClient {
-    @Metadata(properties = { MetadataProperties.GENERATED })
-    private final ModelWithWrappedPrimitiveCustomItemNamesValuesImpl serviceClient;
 
     private final Instrumentation instrumentation;
 
+    @Metadata(properties = { MetadataProperties.GENERATED })
+    private final ModelWithWrappedPrimitiveCustomItemNamesValuesImpl serviceClient;
+
     /**
      * Initializes an instance of ModelWithWrappedPrimitiveCustomItemNamesValueClient class.
-     * 
+     *
      * @param serviceClient the service client implementation.
      * @param instrumentation the instrumentation instance.
      */
@@ -36,7 +37,20 @@ public final class ModelWithWrappedPrimitiveCustomItemNamesValueClient {
 
     /**
      * The get operation.
-     * 
+     *
+     * @throws HttpResponseException thrown if the service returns an error.
+     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
+     * @return §3.5 — Contains a wrapped primitive array with custom wrapper and item names.
+     */
+    @Metadata(properties = { MetadataProperties.GENERATED })
+    @ServiceMethod(returns = ReturnType.SINGLE)
+    public ModelWithWrappedPrimitiveCustomItemNames get() {
+        return getWithResponse(RequestContext.none()).getValue();
+    }
+
+    /**
+     * The get operation.
+     *
      * @param requestContext The context to configure the HTTP request before HTTP client sends it.
      * @throws IllegalArgumentException thrown if parameters fail the validation.
      * @throws HttpResponseException thrown if the service returns an error.
@@ -52,21 +66,22 @@ public final class ModelWithWrappedPrimitiveCustomItemNamesValueClient {
     }
 
     /**
-     * The get operation.
-     * 
+     * The put operation.
+     *
+     * @param input The input parameter.
+     * @throws IllegalArgumentException thrown if parameters fail the validation.
      * @throws HttpResponseException thrown if the service returns an error.
      * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
-     * @return §3.5 — Contains a wrapped primitive array with custom wrapper and item names.
      */
     @Metadata(properties = { MetadataProperties.GENERATED })
     @ServiceMethod(returns = ReturnType.SINGLE)
-    public ModelWithWrappedPrimitiveCustomItemNames get() {
-        return getWithResponse(RequestContext.none()).getValue();
+    public void put(ModelWithWrappedPrimitiveCustomItemNames input) {
+        putWithResponse(input, RequestContext.none());
     }
 
     /**
      * The put operation.
-     * 
+     *
      * @param input The input parameter.
      * @param requestContext The context to configure the HTTP request before HTTP client sends it.
      * @throws IllegalArgumentException thrown if parameters fail the validation.
@@ -81,19 +96,5 @@ public final class ModelWithWrappedPrimitiveCustomItemNamesValueClient {
         return this.instrumentation.instrumentWithResponse(
             "Payload.Xml.ModelWithWrappedPrimitiveCustomItemNamesValue.put", requestContext,
             updatedContext -> this.serviceClient.putWithResponse(input, updatedContext));
-    }
-
-    /**
-     * The put operation.
-     * 
-     * @param input The input parameter.
-     * @throws IllegalArgumentException thrown if parameters fail the validation.
-     * @throws HttpResponseException thrown if the service returns an error.
-     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
-     */
-    @Metadata(properties = { MetadataProperties.GENERATED })
-    @ServiceMethod(returns = ReturnType.SINGLE)
-    public void put(ModelWithWrappedPrimitiveCustomItemNames input) {
-        putWithResponse(input, RequestContext.none());
     }
 }

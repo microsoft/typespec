@@ -34,17 +34,66 @@ import versioning.removed.implementation.RemovedClientImpl;
 @ServiceClientBuilder(serviceClients = { RemovedClient.class })
 public final class RemovedClientBuilder implements HttpTrait<RemovedClientBuilder>, ProxyTrait<RemovedClientBuilder>,
     ConfigurationTrait<RemovedClientBuilder>, EndpointTrait<RemovedClientBuilder> {
+
+    @Metadata(properties = { MetadataProperties.GENERATED })
+    private static final Map<String, String> PROPERTIES = CoreUtils.getProperties("versioning-removed.properties");
+
     @Metadata(properties = { MetadataProperties.GENERATED })
     private static final String SDK_NAME = "name";
 
     @Metadata(properties = { MetadataProperties.GENERATED })
     private static final String SDK_VERSION = "version";
 
+    /*
+     * The configuration store that is used during construction of the service client.
+     */
     @Metadata(properties = { MetadataProperties.GENERATED })
-    private static final Map<String, String> PROPERTIES = CoreUtils.getProperties("versioning-removed.properties");
+    private Configuration configuration;
+
+    /*
+     * The service endpoint
+     */
+    @Metadata(properties = { MetadataProperties.GENERATED })
+    private String endpoint;
+
+    /*
+     * The HTTP client used to send the request.
+     */
+    @Metadata(properties = { MetadataProperties.GENERATED })
+    private HttpClient httpClient;
+
+    /*
+     * The instrumentation configuration for HTTP requests and responses.
+     */
+    @Metadata(properties = { MetadataProperties.GENERATED })
+    private HttpInstrumentationOptions httpInstrumentationOptions;
 
     @Metadata(properties = { MetadataProperties.GENERATED })
     private final List<HttpPipelinePolicy> pipelinePolicies;
+
+    /*
+     * The proxy options used during construction of the service client.
+     */
+    @Metadata(properties = { MetadataProperties.GENERATED })
+    private ProxyOptions proxyOptions;
+
+    /*
+     * The redirect options to configure redirect policy
+     */
+    @Metadata(properties = { MetadataProperties.GENERATED })
+    private HttpRedirectOptions redirectOptions;
+
+    /*
+     * The retry options to configure retry policy for failed requests.
+     */
+    @Metadata(properties = { MetadataProperties.GENERATED })
+    private HttpRetryOptions retryOptions;
+
+    /*
+     * Service version
+     */
+    @Metadata(properties = { MetadataProperties.GENERATED })
+    private RemovedServiceVersion serviceVersion;
 
     /**
      * Create an instance of the RemovedClientBuilder.
@@ -54,11 +103,36 @@ public final class RemovedClientBuilder implements HttpTrait<RemovedClientBuilde
         this.pipelinePolicies = new ArrayList<>();
     }
 
-    /*
-     * The HTTP client used to send the request.
+    /**
+     * {@inheritDoc}.
      */
     @Metadata(properties = { MetadataProperties.GENERATED })
-    private HttpClient httpClient;
+    @Override
+    public RemovedClientBuilder addHttpPipelinePolicy(HttpPipelinePolicy customPolicy) {
+        Objects.requireNonNull(customPolicy, "'customPolicy' cannot be null.");
+        pipelinePolicies.add(customPolicy);
+        return this;
+    }
+
+    /**
+     * {@inheritDoc}.
+     */
+    @Metadata(properties = { MetadataProperties.GENERATED })
+    @Override
+    public RemovedClientBuilder configuration(Configuration configuration) {
+        this.configuration = configuration;
+        return this;
+    }
+
+    /**
+     * {@inheritDoc}.
+     */
+    @Metadata(properties = { MetadataProperties.GENERATED })
+    @Override
+    public RemovedClientBuilder endpoint(String endpoint) {
+        this.endpoint = endpoint;
+        return this;
+    }
 
     /**
      * {@inheritDoc}.
@@ -70,11 +144,25 @@ public final class RemovedClientBuilder implements HttpTrait<RemovedClientBuilde
         return this;
     }
 
-    /*
-     * The retry options to configure retry policy for failed requests.
+    /**
+     * {@inheritDoc}.
      */
     @Metadata(properties = { MetadataProperties.GENERATED })
-    private HttpRetryOptions retryOptions;
+    @Override
+    public RemovedClientBuilder httpInstrumentationOptions(HttpInstrumentationOptions httpInstrumentationOptions) {
+        this.httpInstrumentationOptions = httpInstrumentationOptions;
+        return this;
+    }
+
+    /**
+     * {@inheritDoc}.
+     */
+    @Metadata(properties = { MetadataProperties.GENERATED })
+    @Override
+    public RemovedClientBuilder httpRedirectOptions(HttpRedirectOptions redirectOptions) {
+        this.redirectOptions = redirectOptions;
+        return this;
+    }
 
     /**
      * {@inheritDoc}.
@@ -91,101 +179,25 @@ public final class RemovedClientBuilder implements HttpTrait<RemovedClientBuilde
      */
     @Metadata(properties = { MetadataProperties.GENERATED })
     @Override
-    public RemovedClientBuilder addHttpPipelinePolicy(HttpPipelinePolicy customPolicy) {
-        Objects.requireNonNull(customPolicy, "'customPolicy' cannot be null.");
-        pipelinePolicies.add(customPolicy);
-        return this;
-    }
-
-    /*
-     * The redirect options to configure redirect policy
-     */
-    @Metadata(properties = { MetadataProperties.GENERATED })
-    private HttpRedirectOptions redirectOptions;
-
-    /**
-     * {@inheritDoc}.
-     */
-    @Metadata(properties = { MetadataProperties.GENERATED })
-    @Override
-    public RemovedClientBuilder httpRedirectOptions(HttpRedirectOptions redirectOptions) {
-        this.redirectOptions = redirectOptions;
-        return this;
-    }
-
-    /*
-     * The instrumentation configuration for HTTP requests and responses.
-     */
-    @Metadata(properties = { MetadataProperties.GENERATED })
-    private HttpInstrumentationOptions httpInstrumentationOptions;
-
-    /**
-     * {@inheritDoc}.
-     */
-    @Metadata(properties = { MetadataProperties.GENERATED })
-    @Override
-    public RemovedClientBuilder httpInstrumentationOptions(HttpInstrumentationOptions httpInstrumentationOptions) {
-        this.httpInstrumentationOptions = httpInstrumentationOptions;
-        return this;
-    }
-
-    /*
-     * The proxy options used during construction of the service client.
-     */
-    @Metadata(properties = { MetadataProperties.GENERATED })
-    private ProxyOptions proxyOptions;
-
-    /**
-     * {@inheritDoc}.
-     */
-    @Metadata(properties = { MetadataProperties.GENERATED })
-    @Override
     public RemovedClientBuilder proxyOptions(ProxyOptions proxyOptions) {
         this.proxyOptions = proxyOptions;
         return this;
     }
 
-    /*
-     * The configuration store that is used during construction of the service client.
-     */
-    @Metadata(properties = { MetadataProperties.GENERATED })
-    private Configuration configuration;
-
     /**
-     * {@inheritDoc}.
+     * Builds an instance of RemovedClient class.
+     *
+     * @return an instance of RemovedClient.
      */
     @Metadata(properties = { MetadataProperties.GENERATED })
-    @Override
-    public RemovedClientBuilder configuration(Configuration configuration) {
-        this.configuration = configuration;
-        return this;
+    public RemovedClient buildClient() {
+        RemovedClientImpl innerClient = buildInnerClient();
+        return new RemovedClient(innerClient, innerClient.getInstrumentation());
     }
-
-    /*
-     * The service endpoint
-     */
-    @Metadata(properties = { MetadataProperties.GENERATED })
-    private String endpoint;
-
-    /**
-     * {@inheritDoc}.
-     */
-    @Metadata(properties = { MetadataProperties.GENERATED })
-    @Override
-    public RemovedClientBuilder endpoint(String endpoint) {
-        this.endpoint = endpoint;
-        return this;
-    }
-
-    /*
-     * Service version
-     */
-    @Metadata(properties = { MetadataProperties.GENERATED })
-    private RemovedServiceVersion serviceVersion;
 
     /**
      * Sets Service version.
-     * 
+     *
      * @param serviceVersion the serviceVersion value.
      * @return the RemovedClientBuilder.
      */
@@ -197,7 +209,7 @@ public final class RemovedClientBuilder implements HttpTrait<RemovedClientBuilde
 
     /**
      * Builds an instance of RemovedClientImpl with the provided parameters.
-     * 
+     *
      * @return an instance of RemovedClientImpl.
      */
     @Metadata(properties = { MetadataProperties.GENERATED })
@@ -220,13 +232,6 @@ public final class RemovedClientBuilder implements HttpTrait<RemovedClientBuilde
     }
 
     @Metadata(properties = { MetadataProperties.GENERATED })
-    private void validateClient() {
-        // This method is invoked from 'buildInnerClient'/'buildClient' method.
-        // Developer can customize this method, to validate that the necessary conditions are met for the new client.
-        Objects.requireNonNull(endpoint, "'endpoint' cannot be null.");
-    }
-
-    @Metadata(properties = { MetadataProperties.GENERATED })
     private HttpPipeline createHttpPipeline() {
         Configuration buildConfiguration
             = (configuration == null) ? Configuration.getGlobalConfiguration() : configuration;
@@ -243,14 +248,10 @@ public final class RemovedClientBuilder implements HttpTrait<RemovedClientBuilde
         return httpPipelineBuilder.httpClient(httpClient).build();
     }
 
-    /**
-     * Builds an instance of RemovedClient class.
-     * 
-     * @return an instance of RemovedClient.
-     */
     @Metadata(properties = { MetadataProperties.GENERATED })
-    public RemovedClient buildClient() {
-        RemovedClientImpl innerClient = buildInnerClient();
-        return new RemovedClient(innerClient, innerClient.getInstrumentation());
+    private void validateClient() {
+        // This method is invoked from 'buildInnerClient'/'buildClient' method.
+        // Developer can customize this method, to validate that the necessary conditions are met for the new client.
+        Objects.requireNonNull(endpoint, "'endpoint' cannot be null.");
     }
 }

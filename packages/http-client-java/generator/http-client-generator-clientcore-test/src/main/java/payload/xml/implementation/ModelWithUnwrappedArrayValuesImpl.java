@@ -21,10 +21,6 @@ import payload.xml.ModelWithUnwrappedArray;
  * An instance of this class provides access to all the operations defined in ModelWithUnwrappedArrayValues.
  */
 public final class ModelWithUnwrappedArrayValuesImpl {
-    /**
-     * The proxy service used to perform REST calls.
-     */
-    private final ModelWithUnwrappedArrayValuesService service;
 
     /**
      * The service client containing this operation class.
@@ -37,8 +33,13 @@ public final class ModelWithUnwrappedArrayValuesImpl {
     private final Instrumentation instrumentation;
 
     /**
+     * The proxy service used to perform REST calls.
+     */
+    private final ModelWithUnwrappedArrayValuesService service;
+
+    /**
      * Initializes an instance of ModelWithUnwrappedArrayValuesImpl.
-     * 
+     *
      * @param client the instance of the service client containing this operation class.
      */
     ModelWithUnwrappedArrayValuesImpl(XmlClientImpl client) {
@@ -48,43 +49,8 @@ public final class ModelWithUnwrappedArrayValuesImpl {
     }
 
     /**
-     * The interface defining all the services for XmlClientModelWithUnwrappedArrayValues to be used by the proxy
-     * service to perform REST calls.
-     */
-    @ServiceInterface(name = "XmlClientModelWithUnwrappedArrayValues", host = "{endpoint}")
-    public interface ModelWithUnwrappedArrayValuesService {
-        static ModelWithUnwrappedArrayValuesService getNewInstance(HttpPipeline pipeline) {
-            try {
-                Class<?> clazz = Class.forName("payload.xml.implementation.ModelWithUnwrappedArrayValuesServiceImpl");
-                return (ModelWithUnwrappedArrayValuesService) clazz.getMethod("getNewInstance", HttpPipeline.class)
-                    .invoke(null, pipeline);
-            } catch (ClassNotFoundException | NoSuchMethodException | IllegalAccessException
-                | InvocationTargetException e) {
-                throw new RuntimeException(e);
-            }
-
-        }
-
-        @HttpRequestInformation(
-            method = HttpMethod.GET,
-            path = "/payload/xml/modelWithUnwrappedArray",
-            expectedStatusCodes = { 200 })
-        @UnexpectedResponseExceptionDetail
-        Response<ModelWithUnwrappedArray> get(@HostParam("endpoint") String endpoint,
-            @HeaderParam("Accept") String accept, RequestContext requestContext);
-
-        @HttpRequestInformation(
-            method = HttpMethod.PUT,
-            path = "/payload/xml/modelWithUnwrappedArray",
-            expectedStatusCodes = { 204 })
-        @UnexpectedResponseExceptionDetail
-        Response<Void> put(@HostParam("endpoint") String endpoint, @HeaderParam("content-type") String contentType,
-            @BodyParam("application/xml") ModelWithUnwrappedArray input, RequestContext requestContext);
-    }
-
-    /**
      * The get operation.
-     * 
+     *
      * @param requestContext The context to configure the HTTP request before HTTP client sends it.
      * @throws IllegalArgumentException thrown if parameters fail the validation.
      * @throws HttpResponseException thrown if the service returns an error.
@@ -102,7 +68,7 @@ public final class ModelWithUnwrappedArrayValuesImpl {
 
     /**
      * The put operation.
-     * 
+     *
      * @param input The input parameter.
      * @param requestContext The context to configure the HTTP request before HTTP client sends it.
      * @throws IllegalArgumentException thrown if parameters fail the validation.
@@ -117,5 +83,40 @@ public final class ModelWithUnwrappedArrayValuesImpl {
                 final String contentType = "application/xml";
                 return service.put(this.client.getEndpoint(), contentType, input, updatedContext);
             });
+    }
+
+    /**
+     * The interface defining all the services for XmlClientModelWithUnwrappedArrayValues to be used by the proxy
+     * service to perform REST calls.
+     */
+    @ServiceInterface(name = "XmlClientModelWithUnwrappedArrayValues", host = "{endpoint}")
+    public interface ModelWithUnwrappedArrayValuesService {
+
+        @HttpRequestInformation(
+            method = HttpMethod.GET,
+            path = "/payload/xml/modelWithUnwrappedArray",
+            expectedStatusCodes = { 200 })
+        @UnexpectedResponseExceptionDetail
+        Response<ModelWithUnwrappedArray> get(@HostParam("endpoint") String endpoint,
+            @HeaderParam("Accept") String accept, RequestContext requestContext);
+
+        @HttpRequestInformation(
+            method = HttpMethod.PUT,
+            path = "/payload/xml/modelWithUnwrappedArray",
+            expectedStatusCodes = { 204 })
+        @UnexpectedResponseExceptionDetail
+        Response<Void> put(@HostParam("endpoint") String endpoint, @HeaderParam("content-type") String contentType,
+            @BodyParam("application/xml") ModelWithUnwrappedArray input, RequestContext requestContext);
+
+        static ModelWithUnwrappedArrayValuesService getNewInstance(HttpPipeline pipeline) {
+            try {
+                Class<?> clazz = Class.forName("payload.xml.implementation.ModelWithUnwrappedArrayValuesServiceImpl");
+                return (ModelWithUnwrappedArrayValuesService) clazz.getMethod("getNewInstance", HttpPipeline.class)
+                    .invoke(null, pipeline);
+            } catch (ClassNotFoundException | NoSuchMethodException | IllegalAccessException
+                | InvocationTargetException e) {
+                throw new RuntimeException(e);
+            }
+        }
     }
 }

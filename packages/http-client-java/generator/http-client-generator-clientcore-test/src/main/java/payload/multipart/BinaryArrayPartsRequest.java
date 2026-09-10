@@ -9,6 +9,7 @@ import java.util.List;
  */
 @Metadata(properties = { MetadataProperties.IMMUTABLE })
 public final class BinaryArrayPartsRequest {
+
     /*
      * The id property.
      */
@@ -23,7 +24,7 @@ public final class BinaryArrayPartsRequest {
 
     /**
      * Creates an instance of BinaryArrayPartsRequest class.
-     * 
+     *
      * @param id the id value to set.
      * @param pictures the pictures value to set.
      */
@@ -35,7 +36,7 @@ public final class BinaryArrayPartsRequest {
 
     /**
      * Get the id property: The id property.
-     * 
+     *
      * @return the id value.
      */
     @Metadata(properties = { MetadataProperties.GENERATED })
@@ -45,7 +46,7 @@ public final class BinaryArrayPartsRequest {
 
     /**
      * Get the pictures property: The pictures property.
-     * 
+     *
      * @return the pictures value.
      */
     @Metadata(properties = { MetadataProperties.GENERATED })

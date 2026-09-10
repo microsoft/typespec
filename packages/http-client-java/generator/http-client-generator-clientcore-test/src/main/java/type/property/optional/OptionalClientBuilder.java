@@ -51,17 +51,60 @@ import type.property.optional.implementation.OptionalClientImpl;
         RequiredAndOptionalClient.class })
 public final class OptionalClientBuilder implements HttpTrait<OptionalClientBuilder>, ProxyTrait<OptionalClientBuilder>,
     ConfigurationTrait<OptionalClientBuilder>, EndpointTrait<OptionalClientBuilder> {
+
+    @Metadata(properties = { MetadataProperties.GENERATED })
+    private static final Map<String, String> PROPERTIES = CoreUtils.getProperties("type-property-optional.properties");
+
     @Metadata(properties = { MetadataProperties.GENERATED })
     private static final String SDK_NAME = "name";
 
     @Metadata(properties = { MetadataProperties.GENERATED })
     private static final String SDK_VERSION = "version";
 
+    /*
+     * The configuration store that is used during construction of the service client.
+     */
     @Metadata(properties = { MetadataProperties.GENERATED })
-    private static final Map<String, String> PROPERTIES = CoreUtils.getProperties("type-property-optional.properties");
+    private Configuration configuration;
+
+    /*
+     * The service endpoint
+     */
+    @Metadata(properties = { MetadataProperties.GENERATED })
+    private String endpoint;
+
+    /*
+     * The HTTP client used to send the request.
+     */
+    @Metadata(properties = { MetadataProperties.GENERATED })
+    private HttpClient httpClient;
+
+    /*
+     * The instrumentation configuration for HTTP requests and responses.
+     */
+    @Metadata(properties = { MetadataProperties.GENERATED })
+    private HttpInstrumentationOptions httpInstrumentationOptions;
 
     @Metadata(properties = { MetadataProperties.GENERATED })
     private final List<HttpPipelinePolicy> pipelinePolicies;
+
+    /*
+     * The proxy options used during construction of the service client.
+     */
+    @Metadata(properties = { MetadataProperties.GENERATED })
+    private ProxyOptions proxyOptions;
+
+    /*
+     * The redirect options to configure redirect policy
+     */
+    @Metadata(properties = { MetadataProperties.GENERATED })
+    private HttpRedirectOptions redirectOptions;
+
+    /*
+     * The retry options to configure retry policy for failed requests.
+     */
+    @Metadata(properties = { MetadataProperties.GENERATED })
+    private HttpRetryOptions retryOptions;
 
     /**
      * Create an instance of the OptionalClientBuilder.
@@ -71,11 +114,36 @@ public final class OptionalClientBuilder implements HttpTrait<OptionalClientBuil
         this.pipelinePolicies = new ArrayList<>();
     }
 
-    /*
-     * The HTTP client used to send the request.
+    /**
+     * {@inheritDoc}.
      */
     @Metadata(properties = { MetadataProperties.GENERATED })
-    private HttpClient httpClient;
+    @Override
+    public OptionalClientBuilder addHttpPipelinePolicy(HttpPipelinePolicy customPolicy) {
+        Objects.requireNonNull(customPolicy, "'customPolicy' cannot be null.");
+        pipelinePolicies.add(customPolicy);
+        return this;
+    }
+
+    /**
+     * {@inheritDoc}.
+     */
+    @Metadata(properties = { MetadataProperties.GENERATED })
+    @Override
+    public OptionalClientBuilder configuration(Configuration configuration) {
+        this.configuration = configuration;
+        return this;
+    }
+
+    /**
+     * {@inheritDoc}.
+     */
+    @Metadata(properties = { MetadataProperties.GENERATED })
+    @Override
+    public OptionalClientBuilder endpoint(String endpoint) {
+        this.endpoint = endpoint;
+        return this;
+    }
 
     /**
      * {@inheritDoc}.
@@ -87,11 +155,25 @@ public final class OptionalClientBuilder implements HttpTrait<OptionalClientBuil
         return this;
     }
 
-    /*
-     * The retry options to configure retry policy for failed requests.
+    /**
+     * {@inheritDoc}.
      */
     @Metadata(properties = { MetadataProperties.GENERATED })
-    private HttpRetryOptions retryOptions;
+    @Override
+    public OptionalClientBuilder httpInstrumentationOptions(HttpInstrumentationOptions httpInstrumentationOptions) {
+        this.httpInstrumentationOptions = httpInstrumentationOptions;
+        return this;
+    }
+
+    /**
+     * {@inheritDoc}.
+     */
+    @Metadata(properties = { MetadataProperties.GENERATED })
+    @Override
+    public OptionalClientBuilder httpRedirectOptions(HttpRedirectOptions redirectOptions) {
+        this.redirectOptions = redirectOptions;
+        return this;
+    }
 
     /**
      * {@inheritDoc}.
@@ -108,95 +190,190 @@ public final class OptionalClientBuilder implements HttpTrait<OptionalClientBuil
      */
     @Metadata(properties = { MetadataProperties.GENERATED })
     @Override
-    public OptionalClientBuilder addHttpPipelinePolicy(HttpPipelinePolicy customPolicy) {
-        Objects.requireNonNull(customPolicy, "'customPolicy' cannot be null.");
-        pipelinePolicies.add(customPolicy);
-        return this;
-    }
-
-    /*
-     * The redirect options to configure redirect policy
-     */
-    @Metadata(properties = { MetadataProperties.GENERATED })
-    private HttpRedirectOptions redirectOptions;
-
-    /**
-     * {@inheritDoc}.
-     */
-    @Metadata(properties = { MetadataProperties.GENERATED })
-    @Override
-    public OptionalClientBuilder httpRedirectOptions(HttpRedirectOptions redirectOptions) {
-        this.redirectOptions = redirectOptions;
-        return this;
-    }
-
-    /*
-     * The instrumentation configuration for HTTP requests and responses.
-     */
-    @Metadata(properties = { MetadataProperties.GENERATED })
-    private HttpInstrumentationOptions httpInstrumentationOptions;
-
-    /**
-     * {@inheritDoc}.
-     */
-    @Metadata(properties = { MetadataProperties.GENERATED })
-    @Override
-    public OptionalClientBuilder httpInstrumentationOptions(HttpInstrumentationOptions httpInstrumentationOptions) {
-        this.httpInstrumentationOptions = httpInstrumentationOptions;
-        return this;
-    }
-
-    /*
-     * The proxy options used during construction of the service client.
-     */
-    @Metadata(properties = { MetadataProperties.GENERATED })
-    private ProxyOptions proxyOptions;
-
-    /**
-     * {@inheritDoc}.
-     */
-    @Metadata(properties = { MetadataProperties.GENERATED })
-    @Override
     public OptionalClientBuilder proxyOptions(ProxyOptions proxyOptions) {
         this.proxyOptions = proxyOptions;
         return this;
     }
 
-    /*
-     * The configuration store that is used during construction of the service client.
-     */
-    @Metadata(properties = { MetadataProperties.GENERATED })
-    private Configuration configuration;
-
     /**
-     * {@inheritDoc}.
+     * Builds an instance of BooleanLiteralClient class.
+     *
+     * @return an instance of BooleanLiteralClient.
      */
     @Metadata(properties = { MetadataProperties.GENERATED })
-    @Override
-    public OptionalClientBuilder configuration(Configuration configuration) {
-        this.configuration = configuration;
-        return this;
+    public BooleanLiteralClient buildBooleanLiteralClient() {
+        OptionalClientImpl innerClient = buildInnerClient();
+        return new BooleanLiteralClient(innerClient.getBooleanLiterals(), innerClient.getInstrumentation());
     }
 
-    /*
-     * The service endpoint
+    /**
+     * Builds an instance of BytesClient class.
+     *
+     * @return an instance of BytesClient.
      */
     @Metadata(properties = { MetadataProperties.GENERATED })
-    private String endpoint;
+    public BytesClient buildBytesClient() {
+        OptionalClientImpl innerClient = buildInnerClient();
+        return new BytesClient(innerClient.getBytes(), innerClient.getInstrumentation());
+    }
 
     /**
-     * {@inheritDoc}.
+     * Builds an instance of CollectionsByteClient class.
+     *
+     * @return an instance of CollectionsByteClient.
      */
     @Metadata(properties = { MetadataProperties.GENERATED })
-    @Override
-    public OptionalClientBuilder endpoint(String endpoint) {
-        this.endpoint = endpoint;
-        return this;
+    public CollectionsByteClient buildCollectionsByteClient() {
+        OptionalClientImpl innerClient = buildInnerClient();
+        return new CollectionsByteClient(innerClient.getCollectionsBytes(), innerClient.getInstrumentation());
+    }
+
+    /**
+     * Builds an instance of CollectionsModelClient class.
+     *
+     * @return an instance of CollectionsModelClient.
+     */
+    @Metadata(properties = { MetadataProperties.GENERATED })
+    public CollectionsModelClient buildCollectionsModelClient() {
+        OptionalClientImpl innerClient = buildInnerClient();
+        return new CollectionsModelClient(innerClient.getCollectionsModels(), innerClient.getInstrumentation());
+    }
+
+    /**
+     * Builds an instance of DatetimeOperationClient class.
+     *
+     * @return an instance of DatetimeOperationClient.
+     */
+    @Metadata(properties = { MetadataProperties.GENERATED })
+    public DatetimeOperationClient buildDatetimeOperationClient() {
+        OptionalClientImpl innerClient = buildInnerClient();
+        return new DatetimeOperationClient(innerClient.getDatetimeOperations(), innerClient.getInstrumentation());
+    }
+
+    /**
+     * Builds an instance of DurationOperationClient class.
+     *
+     * @return an instance of DurationOperationClient.
+     */
+    @Metadata(properties = { MetadataProperties.GENERATED })
+    public DurationOperationClient buildDurationOperationClient() {
+        OptionalClientImpl innerClient = buildInnerClient();
+        return new DurationOperationClient(innerClient.getDurationOperations(), innerClient.getInstrumentation());
+    }
+
+    /**
+     * Builds an instance of FloatLiteralClient class.
+     *
+     * @return an instance of FloatLiteralClient.
+     */
+    @Metadata(properties = { MetadataProperties.GENERATED })
+    public FloatLiteralClient buildFloatLiteralClient() {
+        OptionalClientImpl innerClient = buildInnerClient();
+        return new FloatLiteralClient(innerClient.getFloatLiterals(), innerClient.getInstrumentation());
+    }
+
+    /**
+     * Builds an instance of IntLiteralClient class.
+     *
+     * @return an instance of IntLiteralClient.
+     */
+    @Metadata(properties = { MetadataProperties.GENERATED })
+    public IntLiteralClient buildIntLiteralClient() {
+        OptionalClientImpl innerClient = buildInnerClient();
+        return new IntLiteralClient(innerClient.getIntLiterals(), innerClient.getInstrumentation());
+    }
+
+    /**
+     * Builds an instance of PlainDateClient class.
+     *
+     * @return an instance of PlainDateClient.
+     */
+    @Metadata(properties = { MetadataProperties.GENERATED })
+    public PlainDateClient buildPlainDateClient() {
+        OptionalClientImpl innerClient = buildInnerClient();
+        return new PlainDateClient(innerClient.getPlainDates(), innerClient.getInstrumentation());
+    }
+
+    /**
+     * Builds an instance of PlainTimeClient class.
+     *
+     * @return an instance of PlainTimeClient.
+     */
+    @Metadata(properties = { MetadataProperties.GENERATED })
+    public PlainTimeClient buildPlainTimeClient() {
+        OptionalClientImpl innerClient = buildInnerClient();
+        return new PlainTimeClient(innerClient.getPlainTimes(), innerClient.getInstrumentation());
+    }
+
+    /**
+     * Builds an instance of RequiredAndOptionalClient class.
+     *
+     * @return an instance of RequiredAndOptionalClient.
+     */
+    @Metadata(properties = { MetadataProperties.GENERATED })
+    public RequiredAndOptionalClient buildRequiredAndOptionalClient() {
+        OptionalClientImpl innerClient = buildInnerClient();
+        return new RequiredAndOptionalClient(innerClient.getRequiredAndOptionals(), innerClient.getInstrumentation());
+    }
+
+    /**
+     * Builds an instance of StringLiteralClient class.
+     *
+     * @return an instance of StringLiteralClient.
+     */
+    @Metadata(properties = { MetadataProperties.GENERATED })
+    public StringLiteralClient buildStringLiteralClient() {
+        OptionalClientImpl innerClient = buildInnerClient();
+        return new StringLiteralClient(innerClient.getStringLiterals(), innerClient.getInstrumentation());
+    }
+
+    /**
+     * Builds an instance of StringOperationClient class.
+     *
+     * @return an instance of StringOperationClient.
+     */
+    @Metadata(properties = { MetadataProperties.GENERATED })
+    public StringOperationClient buildStringOperationClient() {
+        OptionalClientImpl innerClient = buildInnerClient();
+        return new StringOperationClient(innerClient.getStringOperations(), innerClient.getInstrumentation());
+    }
+
+    /**
+     * Builds an instance of UnionFloatLiteralClient class.
+     *
+     * @return an instance of UnionFloatLiteralClient.
+     */
+    @Metadata(properties = { MetadataProperties.GENERATED })
+    public UnionFloatLiteralClient buildUnionFloatLiteralClient() {
+        OptionalClientImpl innerClient = buildInnerClient();
+        return new UnionFloatLiteralClient(innerClient.getUnionFloatLiterals(), innerClient.getInstrumentation());
+    }
+
+    /**
+     * Builds an instance of UnionIntLiteralClient class.
+     *
+     * @return an instance of UnionIntLiteralClient.
+     */
+    @Metadata(properties = { MetadataProperties.GENERATED })
+    public UnionIntLiteralClient buildUnionIntLiteralClient() {
+        OptionalClientImpl innerClient = buildInnerClient();
+        return new UnionIntLiteralClient(innerClient.getUnionIntLiterals(), innerClient.getInstrumentation());
+    }
+
+    /**
+     * Builds an instance of UnionStringLiteralClient class.
+     *
+     * @return an instance of UnionStringLiteralClient.
+     */
+    @Metadata(properties = { MetadataProperties.GENERATED })
+    public UnionStringLiteralClient buildUnionStringLiteralClient() {
+        OptionalClientImpl innerClient = buildInnerClient();
+        return new UnionStringLiteralClient(innerClient.getUnionStringLiterals(), innerClient.getInstrumentation());
     }
 
     /**
      * Builds an instance of OptionalClientImpl with the provided parameters.
-     * 
+     *
      * @return an instance of OptionalClientImpl.
      */
     @Metadata(properties = { MetadataProperties.GENERATED })
@@ -217,12 +394,6 @@ public final class OptionalClientBuilder implements HttpTrait<OptionalClientBuil
     }
 
     @Metadata(properties = { MetadataProperties.GENERATED })
-    private void validateClient() {
-        // This method is invoked from 'buildInnerClient'/'buildClient' method.
-        // Developer can customize this method, to validate that the necessary conditions are met for the new client.
-    }
-
-    @Metadata(properties = { MetadataProperties.GENERATED })
     private HttpPipeline createHttpPipeline() {
         Configuration buildConfiguration
             = (configuration == null) ? Configuration.getGlobalConfiguration() : configuration;
@@ -239,179 +410,9 @@ public final class OptionalClientBuilder implements HttpTrait<OptionalClientBuil
         return httpPipelineBuilder.httpClient(httpClient).build();
     }
 
-    /**
-     * Builds an instance of StringOperationClient class.
-     * 
-     * @return an instance of StringOperationClient.
-     */
     @Metadata(properties = { MetadataProperties.GENERATED })
-    public StringOperationClient buildStringOperationClient() {
-        OptionalClientImpl innerClient = buildInnerClient();
-        return new StringOperationClient(innerClient.getStringOperations(), innerClient.getInstrumentation());
-    }
-
-    /**
-     * Builds an instance of BytesClient class.
-     * 
-     * @return an instance of BytesClient.
-     */
-    @Metadata(properties = { MetadataProperties.GENERATED })
-    public BytesClient buildBytesClient() {
-        OptionalClientImpl innerClient = buildInnerClient();
-        return new BytesClient(innerClient.getBytes(), innerClient.getInstrumentation());
-    }
-
-    /**
-     * Builds an instance of DatetimeOperationClient class.
-     * 
-     * @return an instance of DatetimeOperationClient.
-     */
-    @Metadata(properties = { MetadataProperties.GENERATED })
-    public DatetimeOperationClient buildDatetimeOperationClient() {
-        OptionalClientImpl innerClient = buildInnerClient();
-        return new DatetimeOperationClient(innerClient.getDatetimeOperations(), innerClient.getInstrumentation());
-    }
-
-    /**
-     * Builds an instance of DurationOperationClient class.
-     * 
-     * @return an instance of DurationOperationClient.
-     */
-    @Metadata(properties = { MetadataProperties.GENERATED })
-    public DurationOperationClient buildDurationOperationClient() {
-        OptionalClientImpl innerClient = buildInnerClient();
-        return new DurationOperationClient(innerClient.getDurationOperations(), innerClient.getInstrumentation());
-    }
-
-    /**
-     * Builds an instance of PlainDateClient class.
-     * 
-     * @return an instance of PlainDateClient.
-     */
-    @Metadata(properties = { MetadataProperties.GENERATED })
-    public PlainDateClient buildPlainDateClient() {
-        OptionalClientImpl innerClient = buildInnerClient();
-        return new PlainDateClient(innerClient.getPlainDates(), innerClient.getInstrumentation());
-    }
-
-    /**
-     * Builds an instance of PlainTimeClient class.
-     * 
-     * @return an instance of PlainTimeClient.
-     */
-    @Metadata(properties = { MetadataProperties.GENERATED })
-    public PlainTimeClient buildPlainTimeClient() {
-        OptionalClientImpl innerClient = buildInnerClient();
-        return new PlainTimeClient(innerClient.getPlainTimes(), innerClient.getInstrumentation());
-    }
-
-    /**
-     * Builds an instance of CollectionsByteClient class.
-     * 
-     * @return an instance of CollectionsByteClient.
-     */
-    @Metadata(properties = { MetadataProperties.GENERATED })
-    public CollectionsByteClient buildCollectionsByteClient() {
-        OptionalClientImpl innerClient = buildInnerClient();
-        return new CollectionsByteClient(innerClient.getCollectionsBytes(), innerClient.getInstrumentation());
-    }
-
-    /**
-     * Builds an instance of CollectionsModelClient class.
-     * 
-     * @return an instance of CollectionsModelClient.
-     */
-    @Metadata(properties = { MetadataProperties.GENERATED })
-    public CollectionsModelClient buildCollectionsModelClient() {
-        OptionalClientImpl innerClient = buildInnerClient();
-        return new CollectionsModelClient(innerClient.getCollectionsModels(), innerClient.getInstrumentation());
-    }
-
-    /**
-     * Builds an instance of StringLiteralClient class.
-     * 
-     * @return an instance of StringLiteralClient.
-     */
-    @Metadata(properties = { MetadataProperties.GENERATED })
-    public StringLiteralClient buildStringLiteralClient() {
-        OptionalClientImpl innerClient = buildInnerClient();
-        return new StringLiteralClient(innerClient.getStringLiterals(), innerClient.getInstrumentation());
-    }
-
-    /**
-     * Builds an instance of IntLiteralClient class.
-     * 
-     * @return an instance of IntLiteralClient.
-     */
-    @Metadata(properties = { MetadataProperties.GENERATED })
-    public IntLiteralClient buildIntLiteralClient() {
-        OptionalClientImpl innerClient = buildInnerClient();
-        return new IntLiteralClient(innerClient.getIntLiterals(), innerClient.getInstrumentation());
-    }
-
-    /**
-     * Builds an instance of FloatLiteralClient class.
-     * 
-     * @return an instance of FloatLiteralClient.
-     */
-    @Metadata(properties = { MetadataProperties.GENERATED })
-    public FloatLiteralClient buildFloatLiteralClient() {
-        OptionalClientImpl innerClient = buildInnerClient();
-        return new FloatLiteralClient(innerClient.getFloatLiterals(), innerClient.getInstrumentation());
-    }
-
-    /**
-     * Builds an instance of BooleanLiteralClient class.
-     * 
-     * @return an instance of BooleanLiteralClient.
-     */
-    @Metadata(properties = { MetadataProperties.GENERATED })
-    public BooleanLiteralClient buildBooleanLiteralClient() {
-        OptionalClientImpl innerClient = buildInnerClient();
-        return new BooleanLiteralClient(innerClient.getBooleanLiterals(), innerClient.getInstrumentation());
-    }
-
-    /**
-     * Builds an instance of UnionStringLiteralClient class.
-     * 
-     * @return an instance of UnionStringLiteralClient.
-     */
-    @Metadata(properties = { MetadataProperties.GENERATED })
-    public UnionStringLiteralClient buildUnionStringLiteralClient() {
-        OptionalClientImpl innerClient = buildInnerClient();
-        return new UnionStringLiteralClient(innerClient.getUnionStringLiterals(), innerClient.getInstrumentation());
-    }
-
-    /**
-     * Builds an instance of UnionIntLiteralClient class.
-     * 
-     * @return an instance of UnionIntLiteralClient.
-     */
-    @Metadata(properties = { MetadataProperties.GENERATED })
-    public UnionIntLiteralClient buildUnionIntLiteralClient() {
-        OptionalClientImpl innerClient = buildInnerClient();
-        return new UnionIntLiteralClient(innerClient.getUnionIntLiterals(), innerClient.getInstrumentation());
-    }
-
-    /**
-     * Builds an instance of UnionFloatLiteralClient class.
-     * 
-     * @return an instance of UnionFloatLiteralClient.
-     */
-    @Metadata(properties = { MetadataProperties.GENERATED })
-    public UnionFloatLiteralClient buildUnionFloatLiteralClient() {
-        OptionalClientImpl innerClient = buildInnerClient();
-        return new UnionFloatLiteralClient(innerClient.getUnionFloatLiterals(), innerClient.getInstrumentation());
-    }
-
-    /**
-     * Builds an instance of RequiredAndOptionalClient class.
-     * 
-     * @return an instance of RequiredAndOptionalClient.
-     */
-    @Metadata(properties = { MetadataProperties.GENERATED })
-    public RequiredAndOptionalClient buildRequiredAndOptionalClient() {
-        OptionalClientImpl innerClient = buildInnerClient();
-        return new RequiredAndOptionalClient(innerClient.getRequiredAndOptionals(), innerClient.getInstrumentation());
+    private void validateClient() {
+        // This method is invoked from 'buildInnerClient'/'buildClient' method.
+        // Developer can customize this method, to validate that the necessary conditions are met for the new client.
     }
 }

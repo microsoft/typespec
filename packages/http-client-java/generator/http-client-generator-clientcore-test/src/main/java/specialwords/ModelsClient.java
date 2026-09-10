@@ -49,14 +49,15 @@ import specialwords.models.Yield;
  */
 @ServiceClient(builder = SpecialWordsClientBuilder.class)
 public final class ModelsClient {
-    @Metadata(properties = { MetadataProperties.GENERATED })
-    private final ModelsImpl serviceClient;
 
     private final Instrumentation instrumentation;
 
+    @Metadata(properties = { MetadataProperties.GENERATED })
+    private final ModelsImpl serviceClient;
+
     /**
      * Initializes an instance of ModelsClient class.
-     * 
+     *
      * @param serviceClient the service client implementation.
      * @param instrumentation the instrumentation instance.
      */
@@ -68,7 +69,21 @@ public final class ModelsClient {
 
     /**
      * The withAnd operation.
-     * 
+     *
+     * @param body The body parameter.
+     * @throws IllegalArgumentException thrown if parameters fail the validation.
+     * @throws HttpResponseException thrown if the service returns an error.
+     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
+     */
+    @Metadata(properties = { MetadataProperties.GENERATED })
+    @ServiceMethod(returns = ReturnType.SINGLE)
+    public void withAnd(And body) {
+        withAndWithResponse(body, RequestContext.none());
+    }
+
+    /**
+     * The withAnd operation.
+     *
      * @param body The body parameter.
      * @param requestContext The context to configure the HTTP request before HTTP client sends it.
      * @throws IllegalArgumentException thrown if parameters fail the validation.
@@ -84,8 +99,8 @@ public final class ModelsClient {
     }
 
     /**
-     * The withAnd operation.
-     * 
+     * The withAs operation.
+     *
      * @param body The body parameter.
      * @throws IllegalArgumentException thrown if parameters fail the validation.
      * @throws HttpResponseException thrown if the service returns an error.
@@ -93,13 +108,13 @@ public final class ModelsClient {
      */
     @Metadata(properties = { MetadataProperties.GENERATED })
     @ServiceMethod(returns = ReturnType.SINGLE)
-    public void withAnd(And body) {
-        withAndWithResponse(body, RequestContext.none());
+    public void withAs(As body) {
+        withAsWithResponse(body, RequestContext.none());
     }
 
     /**
      * The withAs operation.
-     * 
+     *
      * @param body The body parameter.
      * @param requestContext The context to configure the HTTP request before HTTP client sends it.
      * @throws IllegalArgumentException thrown if parameters fail the validation.
@@ -115,8 +130,8 @@ public final class ModelsClient {
     }
 
     /**
-     * The withAs operation.
-     * 
+     * The withAssert operation.
+     *
      * @param body The body parameter.
      * @throws IllegalArgumentException thrown if parameters fail the validation.
      * @throws HttpResponseException thrown if the service returns an error.
@@ -124,13 +139,13 @@ public final class ModelsClient {
      */
     @Metadata(properties = { MetadataProperties.GENERATED })
     @ServiceMethod(returns = ReturnType.SINGLE)
-    public void withAs(As body) {
-        withAsWithResponse(body, RequestContext.none());
+    public void withAssert(Assert body) {
+        withAssertWithResponse(body, RequestContext.none());
     }
 
     /**
      * The withAssert operation.
-     * 
+     *
      * @param body The body parameter.
      * @param requestContext The context to configure the HTTP request before HTTP client sends it.
      * @throws IllegalArgumentException thrown if parameters fail the validation.
@@ -146,8 +161,8 @@ public final class ModelsClient {
     }
 
     /**
-     * The withAssert operation.
-     * 
+     * The withAsync operation.
+     *
      * @param body The body parameter.
      * @throws IllegalArgumentException thrown if parameters fail the validation.
      * @throws HttpResponseException thrown if the service returns an error.
@@ -155,13 +170,13 @@ public final class ModelsClient {
      */
     @Metadata(properties = { MetadataProperties.GENERATED })
     @ServiceMethod(returns = ReturnType.SINGLE)
-    public void withAssert(Assert body) {
-        withAssertWithResponse(body, RequestContext.none());
+    public void withAsync(Async body) {
+        withAsyncWithResponse(body, RequestContext.none());
     }
 
     /**
      * The withAsync operation.
-     * 
+     *
      * @param body The body parameter.
      * @param requestContext The context to configure the HTTP request before HTTP client sends it.
      * @throws IllegalArgumentException thrown if parameters fail the validation.
@@ -177,8 +192,8 @@ public final class ModelsClient {
     }
 
     /**
-     * The withAsync operation.
-     * 
+     * The withAwait operation.
+     *
      * @param body The body parameter.
      * @throws IllegalArgumentException thrown if parameters fail the validation.
      * @throws HttpResponseException thrown if the service returns an error.
@@ -186,13 +201,13 @@ public final class ModelsClient {
      */
     @Metadata(properties = { MetadataProperties.GENERATED })
     @ServiceMethod(returns = ReturnType.SINGLE)
-    public void withAsync(Async body) {
-        withAsyncWithResponse(body, RequestContext.none());
+    public void withAwait(Await body) {
+        withAwaitWithResponse(body, RequestContext.none());
     }
 
     /**
      * The withAwait operation.
-     * 
+     *
      * @param body The body parameter.
      * @param requestContext The context to configure the HTTP request before HTTP client sends it.
      * @throws IllegalArgumentException thrown if parameters fail the validation.
@@ -208,8 +223,8 @@ public final class ModelsClient {
     }
 
     /**
-     * The withAwait operation.
-     * 
+     * The withBreak operation.
+     *
      * @param body The body parameter.
      * @throws IllegalArgumentException thrown if parameters fail the validation.
      * @throws HttpResponseException thrown if the service returns an error.
@@ -217,13 +232,13 @@ public final class ModelsClient {
      */
     @Metadata(properties = { MetadataProperties.GENERATED })
     @ServiceMethod(returns = ReturnType.SINGLE)
-    public void withAwait(Await body) {
-        withAwaitWithResponse(body, RequestContext.none());
+    public void withBreak(Break body) {
+        withBreakWithResponse(body, RequestContext.none());
     }
 
     /**
      * The withBreak operation.
-     * 
+     *
      * @param body The body parameter.
      * @param requestContext The context to configure the HTTP request before HTTP client sends it.
      * @throws IllegalArgumentException thrown if parameters fail the validation.
@@ -239,8 +254,8 @@ public final class ModelsClient {
     }
 
     /**
-     * The withBreak operation.
-     * 
+     * The withClass operation.
+     *
      * @param body The body parameter.
      * @throws IllegalArgumentException thrown if parameters fail the validation.
      * @throws HttpResponseException thrown if the service returns an error.
@@ -248,13 +263,13 @@ public final class ModelsClient {
      */
     @Metadata(properties = { MetadataProperties.GENERATED })
     @ServiceMethod(returns = ReturnType.SINGLE)
-    public void withBreak(Break body) {
-        withBreakWithResponse(body, RequestContext.none());
+    public void withClass(ClassModel body) {
+        withClassWithResponse(body, RequestContext.none());
     }
 
     /**
      * The withClass operation.
-     * 
+     *
      * @param body The body parameter.
      * @param requestContext The context to configure the HTTP request before HTTP client sends it.
      * @throws IllegalArgumentException thrown if parameters fail the validation.
@@ -270,8 +285,8 @@ public final class ModelsClient {
     }
 
     /**
-     * The withClass operation.
-     * 
+     * The withConstructor operation.
+     *
      * @param body The body parameter.
      * @throws IllegalArgumentException thrown if parameters fail the validation.
      * @throws HttpResponseException thrown if the service returns an error.
@@ -279,13 +294,13 @@ public final class ModelsClient {
      */
     @Metadata(properties = { MetadataProperties.GENERATED })
     @ServiceMethod(returns = ReturnType.SINGLE)
-    public void withClass(ClassModel body) {
-        withClassWithResponse(body, RequestContext.none());
+    public void withConstructor(Constructor body) {
+        withConstructorWithResponse(body, RequestContext.none());
     }
 
     /**
      * The withConstructor operation.
-     * 
+     *
      * @param body The body parameter.
      * @param requestContext The context to configure the HTTP request before HTTP client sends it.
      * @throws IllegalArgumentException thrown if parameters fail the validation.
@@ -301,8 +316,8 @@ public final class ModelsClient {
     }
 
     /**
-     * The withConstructor operation.
-     * 
+     * The withContinue operation.
+     *
      * @param body The body parameter.
      * @throws IllegalArgumentException thrown if parameters fail the validation.
      * @throws HttpResponseException thrown if the service returns an error.
@@ -310,13 +325,13 @@ public final class ModelsClient {
      */
     @Metadata(properties = { MetadataProperties.GENERATED })
     @ServiceMethod(returns = ReturnType.SINGLE)
-    public void withConstructor(Constructor body) {
-        withConstructorWithResponse(body, RequestContext.none());
+    public void withContinue(Continue body) {
+        withContinueWithResponse(body, RequestContext.none());
     }
 
     /**
      * The withContinue operation.
-     * 
+     *
      * @param body The body parameter.
      * @param requestContext The context to configure the HTTP request before HTTP client sends it.
      * @throws IllegalArgumentException thrown if parameters fail the validation.
@@ -332,8 +347,8 @@ public final class ModelsClient {
     }
 
     /**
-     * The withContinue operation.
-     * 
+     * The withDef operation.
+     *
      * @param body The body parameter.
      * @throws IllegalArgumentException thrown if parameters fail the validation.
      * @throws HttpResponseException thrown if the service returns an error.
@@ -341,13 +356,13 @@ public final class ModelsClient {
      */
     @Metadata(properties = { MetadataProperties.GENERATED })
     @ServiceMethod(returns = ReturnType.SINGLE)
-    public void withContinue(Continue body) {
-        withContinueWithResponse(body, RequestContext.none());
+    public void withDef(Def body) {
+        withDefWithResponse(body, RequestContext.none());
     }
 
     /**
      * The withDef operation.
-     * 
+     *
      * @param body The body parameter.
      * @param requestContext The context to configure the HTTP request before HTTP client sends it.
      * @throws IllegalArgumentException thrown if parameters fail the validation.
@@ -363,8 +378,8 @@ public final class ModelsClient {
     }
 
     /**
-     * The withDef operation.
-     * 
+     * The withDel operation.
+     *
      * @param body The body parameter.
      * @throws IllegalArgumentException thrown if parameters fail the validation.
      * @throws HttpResponseException thrown if the service returns an error.
@@ -372,13 +387,13 @@ public final class ModelsClient {
      */
     @Metadata(properties = { MetadataProperties.GENERATED })
     @ServiceMethod(returns = ReturnType.SINGLE)
-    public void withDef(Def body) {
-        withDefWithResponse(body, RequestContext.none());
+    public void withDel(Del body) {
+        withDelWithResponse(body, RequestContext.none());
     }
 
     /**
      * The withDel operation.
-     * 
+     *
      * @param body The body parameter.
      * @param requestContext The context to configure the HTTP request before HTTP client sends it.
      * @throws IllegalArgumentException thrown if parameters fail the validation.
@@ -394,8 +409,8 @@ public final class ModelsClient {
     }
 
     /**
-     * The withDel operation.
-     * 
+     * The withElif operation.
+     *
      * @param body The body parameter.
      * @throws IllegalArgumentException thrown if parameters fail the validation.
      * @throws HttpResponseException thrown if the service returns an error.
@@ -403,13 +418,13 @@ public final class ModelsClient {
      */
     @Metadata(properties = { MetadataProperties.GENERATED })
     @ServiceMethod(returns = ReturnType.SINGLE)
-    public void withDel(Del body) {
-        withDelWithResponse(body, RequestContext.none());
+    public void withElif(Elif body) {
+        withElifWithResponse(body, RequestContext.none());
     }
 
     /**
      * The withElif operation.
-     * 
+     *
      * @param body The body parameter.
      * @param requestContext The context to configure the HTTP request before HTTP client sends it.
      * @throws IllegalArgumentException thrown if parameters fail the validation.
@@ -425,8 +440,8 @@ public final class ModelsClient {
     }
 
     /**
-     * The withElif operation.
-     * 
+     * The withElse operation.
+     *
      * @param body The body parameter.
      * @throws IllegalArgumentException thrown if parameters fail the validation.
      * @throws HttpResponseException thrown if the service returns an error.
@@ -434,13 +449,13 @@ public final class ModelsClient {
      */
     @Metadata(properties = { MetadataProperties.GENERATED })
     @ServiceMethod(returns = ReturnType.SINGLE)
-    public void withElif(Elif body) {
-        withElifWithResponse(body, RequestContext.none());
+    public void withElse(Else body) {
+        withElseWithResponse(body, RequestContext.none());
     }
 
     /**
      * The withElse operation.
-     * 
+     *
      * @param body The body parameter.
      * @param requestContext The context to configure the HTTP request before HTTP client sends it.
      * @throws IllegalArgumentException thrown if parameters fail the validation.
@@ -456,8 +471,8 @@ public final class ModelsClient {
     }
 
     /**
-     * The withElse operation.
-     * 
+     * The withExcept operation.
+     *
      * @param body The body parameter.
      * @throws IllegalArgumentException thrown if parameters fail the validation.
      * @throws HttpResponseException thrown if the service returns an error.
@@ -465,13 +480,13 @@ public final class ModelsClient {
      */
     @Metadata(properties = { MetadataProperties.GENERATED })
     @ServiceMethod(returns = ReturnType.SINGLE)
-    public void withElse(Else body) {
-        withElseWithResponse(body, RequestContext.none());
+    public void withExcept(Except body) {
+        withExceptWithResponse(body, RequestContext.none());
     }
 
     /**
      * The withExcept operation.
-     * 
+     *
      * @param body The body parameter.
      * @param requestContext The context to configure the HTTP request before HTTP client sends it.
      * @throws IllegalArgumentException thrown if parameters fail the validation.
@@ -487,8 +502,8 @@ public final class ModelsClient {
     }
 
     /**
-     * The withExcept operation.
-     * 
+     * The withExec operation.
+     *
      * @param body The body parameter.
      * @throws IllegalArgumentException thrown if parameters fail the validation.
      * @throws HttpResponseException thrown if the service returns an error.
@@ -496,13 +511,13 @@ public final class ModelsClient {
      */
     @Metadata(properties = { MetadataProperties.GENERATED })
     @ServiceMethod(returns = ReturnType.SINGLE)
-    public void withExcept(Except body) {
-        withExceptWithResponse(body, RequestContext.none());
+    public void withExec(Exec body) {
+        withExecWithResponse(body, RequestContext.none());
     }
 
     /**
      * The withExec operation.
-     * 
+     *
      * @param body The body parameter.
      * @param requestContext The context to configure the HTTP request before HTTP client sends it.
      * @throws IllegalArgumentException thrown if parameters fail the validation.
@@ -518,8 +533,8 @@ public final class ModelsClient {
     }
 
     /**
-     * The withExec operation.
-     * 
+     * The withFinally operation.
+     *
      * @param body The body parameter.
      * @throws IllegalArgumentException thrown if parameters fail the validation.
      * @throws HttpResponseException thrown if the service returns an error.
@@ -527,13 +542,13 @@ public final class ModelsClient {
      */
     @Metadata(properties = { MetadataProperties.GENERATED })
     @ServiceMethod(returns = ReturnType.SINGLE)
-    public void withExec(Exec body) {
-        withExecWithResponse(body, RequestContext.none());
+    public void withFinally(Finally body) {
+        withFinallyWithResponse(body, RequestContext.none());
     }
 
     /**
      * The withFinally operation.
-     * 
+     *
      * @param body The body parameter.
      * @param requestContext The context to configure the HTTP request before HTTP client sends it.
      * @throws IllegalArgumentException thrown if parameters fail the validation.
@@ -549,8 +564,8 @@ public final class ModelsClient {
     }
 
     /**
-     * The withFinally operation.
-     * 
+     * The withFor operation.
+     *
      * @param body The body parameter.
      * @throws IllegalArgumentException thrown if parameters fail the validation.
      * @throws HttpResponseException thrown if the service returns an error.
@@ -558,13 +573,13 @@ public final class ModelsClient {
      */
     @Metadata(properties = { MetadataProperties.GENERATED })
     @ServiceMethod(returns = ReturnType.SINGLE)
-    public void withFinally(Finally body) {
-        withFinallyWithResponse(body, RequestContext.none());
+    public void withFor(For body) {
+        withForWithResponse(body, RequestContext.none());
     }
 
     /**
      * The withFor operation.
-     * 
+     *
      * @param body The body parameter.
      * @param requestContext The context to configure the HTTP request before HTTP client sends it.
      * @throws IllegalArgumentException thrown if parameters fail the validation.
@@ -580,8 +595,8 @@ public final class ModelsClient {
     }
 
     /**
-     * The withFor operation.
-     * 
+     * The withFrom operation.
+     *
      * @param body The body parameter.
      * @throws IllegalArgumentException thrown if parameters fail the validation.
      * @throws HttpResponseException thrown if the service returns an error.
@@ -589,13 +604,13 @@ public final class ModelsClient {
      */
     @Metadata(properties = { MetadataProperties.GENERATED })
     @ServiceMethod(returns = ReturnType.SINGLE)
-    public void withFor(For body) {
-        withForWithResponse(body, RequestContext.none());
+    public void withFrom(From body) {
+        withFromWithResponse(body, RequestContext.none());
     }
 
     /**
      * The withFrom operation.
-     * 
+     *
      * @param body The body parameter.
      * @param requestContext The context to configure the HTTP request before HTTP client sends it.
      * @throws IllegalArgumentException thrown if parameters fail the validation.
@@ -611,8 +626,8 @@ public final class ModelsClient {
     }
 
     /**
-     * The withFrom operation.
-     * 
+     * The withGlobal operation.
+     *
      * @param body The body parameter.
      * @throws IllegalArgumentException thrown if parameters fail the validation.
      * @throws HttpResponseException thrown if the service returns an error.
@@ -620,13 +635,13 @@ public final class ModelsClient {
      */
     @Metadata(properties = { MetadataProperties.GENERATED })
     @ServiceMethod(returns = ReturnType.SINGLE)
-    public void withFrom(From body) {
-        withFromWithResponse(body, RequestContext.none());
+    public void withGlobal(Global body) {
+        withGlobalWithResponse(body, RequestContext.none());
     }
 
     /**
      * The withGlobal operation.
-     * 
+     *
      * @param body The body parameter.
      * @param requestContext The context to configure the HTTP request before HTTP client sends it.
      * @throws IllegalArgumentException thrown if parameters fail the validation.
@@ -642,8 +657,8 @@ public final class ModelsClient {
     }
 
     /**
-     * The withGlobal operation.
-     * 
+     * The withIf operation.
+     *
      * @param body The body parameter.
      * @throws IllegalArgumentException thrown if parameters fail the validation.
      * @throws HttpResponseException thrown if the service returns an error.
@@ -651,13 +666,13 @@ public final class ModelsClient {
      */
     @Metadata(properties = { MetadataProperties.GENERATED })
     @ServiceMethod(returns = ReturnType.SINGLE)
-    public void withGlobal(Global body) {
-        withGlobalWithResponse(body, RequestContext.none());
+    public void withIf(If body) {
+        withIfWithResponse(body, RequestContext.none());
     }
 
     /**
      * The withIf operation.
-     * 
+     *
      * @param body The body parameter.
      * @param requestContext The context to configure the HTTP request before HTTP client sends it.
      * @throws IllegalArgumentException thrown if parameters fail the validation.
@@ -673,8 +688,8 @@ public final class ModelsClient {
     }
 
     /**
-     * The withIf operation.
-     * 
+     * The withImport operation.
+     *
      * @param body The body parameter.
      * @throws IllegalArgumentException thrown if parameters fail the validation.
      * @throws HttpResponseException thrown if the service returns an error.
@@ -682,13 +697,13 @@ public final class ModelsClient {
      */
     @Metadata(properties = { MetadataProperties.GENERATED })
     @ServiceMethod(returns = ReturnType.SINGLE)
-    public void withIf(If body) {
-        withIfWithResponse(body, RequestContext.none());
+    public void withImport(Import body) {
+        withImportWithResponse(body, RequestContext.none());
     }
 
     /**
      * The withImport operation.
-     * 
+     *
      * @param body The body parameter.
      * @param requestContext The context to configure the HTTP request before HTTP client sends it.
      * @throws IllegalArgumentException thrown if parameters fail the validation.
@@ -704,8 +719,8 @@ public final class ModelsClient {
     }
 
     /**
-     * The withImport operation.
-     * 
+     * The withIn operation.
+     *
      * @param body The body parameter.
      * @throws IllegalArgumentException thrown if parameters fail the validation.
      * @throws HttpResponseException thrown if the service returns an error.
@@ -713,13 +728,13 @@ public final class ModelsClient {
      */
     @Metadata(properties = { MetadataProperties.GENERATED })
     @ServiceMethod(returns = ReturnType.SINGLE)
-    public void withImport(Import body) {
-        withImportWithResponse(body, RequestContext.none());
+    public void withIn(In body) {
+        withInWithResponse(body, RequestContext.none());
     }
 
     /**
      * The withIn operation.
-     * 
+     *
      * @param body The body parameter.
      * @param requestContext The context to configure the HTTP request before HTTP client sends it.
      * @throws IllegalArgumentException thrown if parameters fail the validation.
@@ -735,8 +750,8 @@ public final class ModelsClient {
     }
 
     /**
-     * The withIn operation.
-     * 
+     * The withIs operation.
+     *
      * @param body The body parameter.
      * @throws IllegalArgumentException thrown if parameters fail the validation.
      * @throws HttpResponseException thrown if the service returns an error.
@@ -744,13 +759,13 @@ public final class ModelsClient {
      */
     @Metadata(properties = { MetadataProperties.GENERATED })
     @ServiceMethod(returns = ReturnType.SINGLE)
-    public void withIn(In body) {
-        withInWithResponse(body, RequestContext.none());
+    public void withIs(Is body) {
+        withIsWithResponse(body, RequestContext.none());
     }
 
     /**
      * The withIs operation.
-     * 
+     *
      * @param body The body parameter.
      * @param requestContext The context to configure the HTTP request before HTTP client sends it.
      * @throws IllegalArgumentException thrown if parameters fail the validation.
@@ -766,8 +781,8 @@ public final class ModelsClient {
     }
 
     /**
-     * The withIs operation.
-     * 
+     * The withLambda operation.
+     *
      * @param body The body parameter.
      * @throws IllegalArgumentException thrown if parameters fail the validation.
      * @throws HttpResponseException thrown if the service returns an error.
@@ -775,13 +790,13 @@ public final class ModelsClient {
      */
     @Metadata(properties = { MetadataProperties.GENERATED })
     @ServiceMethod(returns = ReturnType.SINGLE)
-    public void withIs(Is body) {
-        withIsWithResponse(body, RequestContext.none());
+    public void withLambda(Lambda body) {
+        withLambdaWithResponse(body, RequestContext.none());
     }
 
     /**
      * The withLambda operation.
-     * 
+     *
      * @param body The body parameter.
      * @param requestContext The context to configure the HTTP request before HTTP client sends it.
      * @throws IllegalArgumentException thrown if parameters fail the validation.
@@ -797,8 +812,8 @@ public final class ModelsClient {
     }
 
     /**
-     * The withLambda operation.
-     * 
+     * The withNot operation.
+     *
      * @param body The body parameter.
      * @throws IllegalArgumentException thrown if parameters fail the validation.
      * @throws HttpResponseException thrown if the service returns an error.
@@ -806,13 +821,13 @@ public final class ModelsClient {
      */
     @Metadata(properties = { MetadataProperties.GENERATED })
     @ServiceMethod(returns = ReturnType.SINGLE)
-    public void withLambda(Lambda body) {
-        withLambdaWithResponse(body, RequestContext.none());
+    public void withNot(Not body) {
+        withNotWithResponse(body, RequestContext.none());
     }
 
     /**
      * The withNot operation.
-     * 
+     *
      * @param body The body parameter.
      * @param requestContext The context to configure the HTTP request before HTTP client sends it.
      * @throws IllegalArgumentException thrown if parameters fail the validation.
@@ -828,8 +843,8 @@ public final class ModelsClient {
     }
 
     /**
-     * The withNot operation.
-     * 
+     * The withOr operation.
+     *
      * @param body The body parameter.
      * @throws IllegalArgumentException thrown if parameters fail the validation.
      * @throws HttpResponseException thrown if the service returns an error.
@@ -837,13 +852,13 @@ public final class ModelsClient {
      */
     @Metadata(properties = { MetadataProperties.GENERATED })
     @ServiceMethod(returns = ReturnType.SINGLE)
-    public void withNot(Not body) {
-        withNotWithResponse(body, RequestContext.none());
+    public void withOr(Or body) {
+        withOrWithResponse(body, RequestContext.none());
     }
 
     /**
      * The withOr operation.
-     * 
+     *
      * @param body The body parameter.
      * @param requestContext The context to configure the HTTP request before HTTP client sends it.
      * @throws IllegalArgumentException thrown if parameters fail the validation.
@@ -859,8 +874,8 @@ public final class ModelsClient {
     }
 
     /**
-     * The withOr operation.
-     * 
+     * The withPass operation.
+     *
      * @param body The body parameter.
      * @throws IllegalArgumentException thrown if parameters fail the validation.
      * @throws HttpResponseException thrown if the service returns an error.
@@ -868,13 +883,13 @@ public final class ModelsClient {
      */
     @Metadata(properties = { MetadataProperties.GENERATED })
     @ServiceMethod(returns = ReturnType.SINGLE)
-    public void withOr(Or body) {
-        withOrWithResponse(body, RequestContext.none());
+    public void withPass(Pass body) {
+        withPassWithResponse(body, RequestContext.none());
     }
 
     /**
      * The withPass operation.
-     * 
+     *
      * @param body The body parameter.
      * @param requestContext The context to configure the HTTP request before HTTP client sends it.
      * @throws IllegalArgumentException thrown if parameters fail the validation.
@@ -890,8 +905,8 @@ public final class ModelsClient {
     }
 
     /**
-     * The withPass operation.
-     * 
+     * The withRaise operation.
+     *
      * @param body The body parameter.
      * @throws IllegalArgumentException thrown if parameters fail the validation.
      * @throws HttpResponseException thrown if the service returns an error.
@@ -899,13 +914,13 @@ public final class ModelsClient {
      */
     @Metadata(properties = { MetadataProperties.GENERATED })
     @ServiceMethod(returns = ReturnType.SINGLE)
-    public void withPass(Pass body) {
-        withPassWithResponse(body, RequestContext.none());
+    public void withRaise(Raise body) {
+        withRaiseWithResponse(body, RequestContext.none());
     }
 
     /**
      * The withRaise operation.
-     * 
+     *
      * @param body The body parameter.
      * @param requestContext The context to configure the HTTP request before HTTP client sends it.
      * @throws IllegalArgumentException thrown if parameters fail the validation.
@@ -921,8 +936,8 @@ public final class ModelsClient {
     }
 
     /**
-     * The withRaise operation.
-     * 
+     * The withReturn operation.
+     *
      * @param body The body parameter.
      * @throws IllegalArgumentException thrown if parameters fail the validation.
      * @throws HttpResponseException thrown if the service returns an error.
@@ -930,13 +945,13 @@ public final class ModelsClient {
      */
     @Metadata(properties = { MetadataProperties.GENERATED })
     @ServiceMethod(returns = ReturnType.SINGLE)
-    public void withRaise(Raise body) {
-        withRaiseWithResponse(body, RequestContext.none());
+    public void withReturn(Return body) {
+        withReturnWithResponse(body, RequestContext.none());
     }
 
     /**
      * The withReturn operation.
-     * 
+     *
      * @param body The body parameter.
      * @param requestContext The context to configure the HTTP request before HTTP client sends it.
      * @throws IllegalArgumentException thrown if parameters fail the validation.
@@ -952,8 +967,8 @@ public final class ModelsClient {
     }
 
     /**
-     * The withReturn operation.
-     * 
+     * The withTry operation.
+     *
      * @param body The body parameter.
      * @throws IllegalArgumentException thrown if parameters fail the validation.
      * @throws HttpResponseException thrown if the service returns an error.
@@ -961,13 +976,13 @@ public final class ModelsClient {
      */
     @Metadata(properties = { MetadataProperties.GENERATED })
     @ServiceMethod(returns = ReturnType.SINGLE)
-    public void withReturn(Return body) {
-        withReturnWithResponse(body, RequestContext.none());
+    public void withTry(Try body) {
+        withTryWithResponse(body, RequestContext.none());
     }
 
     /**
      * The withTry operation.
-     * 
+     *
      * @param body The body parameter.
      * @param requestContext The context to configure the HTTP request before HTTP client sends it.
      * @throws IllegalArgumentException thrown if parameters fail the validation.
@@ -983,8 +998,8 @@ public final class ModelsClient {
     }
 
     /**
-     * The withTry operation.
-     * 
+     * The withWhile operation.
+     *
      * @param body The body parameter.
      * @throws IllegalArgumentException thrown if parameters fail the validation.
      * @throws HttpResponseException thrown if the service returns an error.
@@ -992,13 +1007,13 @@ public final class ModelsClient {
      */
     @Metadata(properties = { MetadataProperties.GENERATED })
     @ServiceMethod(returns = ReturnType.SINGLE)
-    public void withTry(Try body) {
-        withTryWithResponse(body, RequestContext.none());
+    public void withWhile(While body) {
+        withWhileWithResponse(body, RequestContext.none());
     }
 
     /**
      * The withWhile operation.
-     * 
+     *
      * @param body The body parameter.
      * @param requestContext The context to configure the HTTP request before HTTP client sends it.
      * @throws IllegalArgumentException thrown if parameters fail the validation.
@@ -1014,8 +1029,8 @@ public final class ModelsClient {
     }
 
     /**
-     * The withWhile operation.
-     * 
+     * The withWith operation.
+     *
      * @param body The body parameter.
      * @throws IllegalArgumentException thrown if parameters fail the validation.
      * @throws HttpResponseException thrown if the service returns an error.
@@ -1023,13 +1038,13 @@ public final class ModelsClient {
      */
     @Metadata(properties = { MetadataProperties.GENERATED })
     @ServiceMethod(returns = ReturnType.SINGLE)
-    public void withWhile(While body) {
-        withWhileWithResponse(body, RequestContext.none());
+    public void withWith(With body) {
+        withWithWithResponse(body, RequestContext.none());
     }
 
     /**
      * The withWith operation.
-     * 
+     *
      * @param body The body parameter.
      * @param requestContext The context to configure the HTTP request before HTTP client sends it.
      * @throws IllegalArgumentException thrown if parameters fail the validation.
@@ -1045,8 +1060,8 @@ public final class ModelsClient {
     }
 
     /**
-     * The withWith operation.
-     * 
+     * The withYield operation.
+     *
      * @param body The body parameter.
      * @throws IllegalArgumentException thrown if parameters fail the validation.
      * @throws HttpResponseException thrown if the service returns an error.
@@ -1054,13 +1069,13 @@ public final class ModelsClient {
      */
     @Metadata(properties = { MetadataProperties.GENERATED })
     @ServiceMethod(returns = ReturnType.SINGLE)
-    public void withWith(With body) {
-        withWithWithResponse(body, RequestContext.none());
+    public void withYield(Yield body) {
+        withYieldWithResponse(body, RequestContext.none());
     }
 
     /**
      * The withYield operation.
-     * 
+     *
      * @param body The body parameter.
      * @param requestContext The context to configure the HTTP request before HTTP client sends it.
      * @throws IllegalArgumentException thrown if parameters fail the validation.
@@ -1073,19 +1088,5 @@ public final class ModelsClient {
     public Response<Void> withYieldWithResponse(Yield body, RequestContext requestContext) {
         return this.instrumentation.instrumentWithResponse("SpecialWords.Models.withYield", requestContext,
             updatedContext -> this.serviceClient.withYieldWithResponse(body, updatedContext));
-    }
-
-    /**
-     * The withYield operation.
-     * 
-     * @param body The body parameter.
-     * @throws IllegalArgumentException thrown if parameters fail the validation.
-     * @throws HttpResponseException thrown if the service returns an error.
-     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
-     */
-    @Metadata(properties = { MetadataProperties.GENERATED })
-    @ServiceMethod(returns = ReturnType.SINGLE)
-    public void withYield(Yield body) {
-        withYieldWithResponse(body, RequestContext.none());
     }
 }

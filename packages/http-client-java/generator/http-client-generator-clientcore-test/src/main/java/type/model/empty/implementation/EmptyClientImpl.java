@@ -23,10 +23,6 @@ import type.model.empty.EmptyOutput;
  * Initializes a new instance of the EmptyClient type.
  */
 public final class EmptyClientImpl {
-    /**
-     * The proxy service used to perform REST calls.
-     */
-    private final EmptyClientService service;
 
     /**
      * Service host.
@@ -34,27 +30,9 @@ public final class EmptyClientImpl {
     private final String endpoint;
 
     /**
-     * Gets Service host.
-     * 
-     * @return the endpoint value.
-     */
-    public String getEndpoint() {
-        return this.endpoint;
-    }
-
-    /**
      * The HTTP pipeline to send requests through.
      */
     private final HttpPipeline httpPipeline;
-
-    /**
-     * Gets The HTTP pipeline to send requests through.
-     * 
-     * @return the httpPipeline value.
-     */
-    public HttpPipeline getHttpPipeline() {
-        return this.httpPipeline;
-    }
 
     /**
      * The instance of instrumentation to report telemetry.
@@ -62,17 +40,13 @@ public final class EmptyClientImpl {
     private final Instrumentation instrumentation;
 
     /**
-     * Gets The instance of instrumentation to report telemetry.
-     * 
-     * @return the instrumentation value.
+     * The proxy service used to perform REST calls.
      */
-    public Instrumentation getInstrumentation() {
-        return this.instrumentation;
-    }
+    private final EmptyClientService service;
 
     /**
      * Initializes an instance of EmptyClient client.
-     * 
+     *
      * @param httpPipeline The HTTP pipeline to send requests through.
      * @param instrumentation The instance of instrumentation to report telemetry.
      * @param endpoint Service host.
@@ -85,51 +59,74 @@ public final class EmptyClientImpl {
     }
 
     /**
-     * The interface defining all the services for EmptyClient to be used by the proxy service to perform REST calls.
+     * The getEmpty operation.
+     *
+     * @param requestContext The context to configure the HTTP request before HTTP client sends it.
+     * @throws IllegalArgumentException thrown if parameters fail the validation.
+     * @throws HttpResponseException thrown if the service returns an error.
+     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
+     * @return empty model used in operation return type along with {@link Response}.
      */
-    @ServiceInterface(name = "EmptyClient", host = "{endpoint}")
-    public interface EmptyClientService {
-        static EmptyClientService getNewInstance(HttpPipeline pipeline) {
-            try {
-                Class<?> clazz = Class.forName("type.model.empty.implementation.EmptyClientServiceImpl");
-                return (EmptyClientService) clazz.getMethod("getNewInstance", HttpPipeline.class)
-                    .invoke(null, pipeline);
-            } catch (ClassNotFoundException | NoSuchMethodException | IllegalAccessException
-                | InvocationTargetException e) {
-                throw new RuntimeException(e);
-            }
+    @ServiceMethod(returns = ReturnType.SINGLE)
+    public Response<EmptyOutput> getEmptyWithResponse(RequestContext requestContext) {
+        return this.instrumentation.instrumentWithResponse("Type.Model.Empty.getEmpty", requestContext,
+            updatedContext -> {
+                final String accept = "application/json";
+                return service.getEmpty(this.getEndpoint(), accept, updatedContext);
+            });
+    }
 
-        }
+    /**
+     * Gets Service host.
+     *
+     * @return the endpoint value.
+     */
+    public String getEndpoint() {
+        return this.endpoint;
+    }
 
-        @HttpRequestInformation(
-            method = HttpMethod.PUT,
-            path = "/type/model/empty/alone",
-            expectedStatusCodes = { 204 })
-        @UnexpectedResponseExceptionDetail
-        Response<Void> putEmpty(@HostParam("endpoint") String endpoint, @HeaderParam("Content-Type") String contentType,
-            @BodyParam("application/json") EmptyInput input, RequestContext requestContext);
+    /**
+     * Gets The HTTP pipeline to send requests through.
+     *
+     * @return the httpPipeline value.
+     */
+    public HttpPipeline getHttpPipeline() {
+        return this.httpPipeline;
+    }
 
-        @HttpRequestInformation(
-            method = HttpMethod.GET,
-            path = "/type/model/empty/alone",
-            expectedStatusCodes = { 200 })
-        @UnexpectedResponseExceptionDetail
-        Response<EmptyOutput> getEmpty(@HostParam("endpoint") String endpoint, @HeaderParam("Accept") String accept,
-            RequestContext requestContext);
+    /**
+     * Gets The instance of instrumentation to report telemetry.
+     *
+     * @return the instrumentation value.
+     */
+    public Instrumentation getInstrumentation() {
+        return this.instrumentation;
+    }
 
-        @HttpRequestInformation(
-            method = HttpMethod.POST,
-            path = "/type/model/empty/round-trip",
-            expectedStatusCodes = { 200 })
-        @UnexpectedResponseExceptionDetail
-        Response<EmptyInputOutput> postRoundTripEmpty(@HostParam("endpoint") String endpoint,
-            @HeaderParam("Content-Type") String contentType, @HeaderParam("Accept") String accept,
-            @BodyParam("application/json") EmptyInputOutput body, RequestContext requestContext);
+    /**
+     * The postRoundTripEmpty operation.
+     *
+     * @param body The body parameter.
+     * @param requestContext The context to configure the HTTP request before HTTP client sends it.
+     * @throws IllegalArgumentException thrown if parameters fail the validation.
+     * @throws HttpResponseException thrown if the service returns an error.
+     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
+     * @return empty model used in both parameter and return type along with {@link Response}.
+     */
+    @ServiceMethod(returns = ReturnType.SINGLE)
+    public Response<EmptyInputOutput> postRoundTripEmptyWithResponse(EmptyInputOutput body,
+        RequestContext requestContext) {
+        return this.instrumentation.instrumentWithResponse("Type.Model.Empty.postRoundTripEmpty", requestContext,
+            updatedContext -> {
+                final String contentType = "application/json";
+                final String accept = "application/json";
+                return service.postRoundTripEmpty(this.getEndpoint(), contentType, accept, body, updatedContext);
+            });
     }
 
     /**
      * The putEmpty operation.
-     * 
+     *
      * @param input The input parameter.
      * @param requestContext The context to configure the HTTP request before HTTP client sends it.
      * @throws IllegalArgumentException thrown if parameters fail the validation.
@@ -147,41 +144,45 @@ public final class EmptyClientImpl {
     }
 
     /**
-     * The getEmpty operation.
-     * 
-     * @param requestContext The context to configure the HTTP request before HTTP client sends it.
-     * @throws IllegalArgumentException thrown if parameters fail the validation.
-     * @throws HttpResponseException thrown if the service returns an error.
-     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
-     * @return empty model used in operation return type along with {@link Response}.
+     * The interface defining all the services for EmptyClient to be used by the proxy service to perform REST calls.
      */
-    @ServiceMethod(returns = ReturnType.SINGLE)
-    public Response<EmptyOutput> getEmptyWithResponse(RequestContext requestContext) {
-        return this.instrumentation.instrumentWithResponse("Type.Model.Empty.getEmpty", requestContext,
-            updatedContext -> {
-                final String accept = "application/json";
-                return service.getEmpty(this.getEndpoint(), accept, updatedContext);
-            });
-    }
+    @ServiceInterface(name = "EmptyClient", host = "{endpoint}")
+    public interface EmptyClientService {
 
-    /**
-     * The postRoundTripEmpty operation.
-     * 
-     * @param body The body parameter.
-     * @param requestContext The context to configure the HTTP request before HTTP client sends it.
-     * @throws IllegalArgumentException thrown if parameters fail the validation.
-     * @throws HttpResponseException thrown if the service returns an error.
-     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
-     * @return empty model used in both parameter and return type along with {@link Response}.
-     */
-    @ServiceMethod(returns = ReturnType.SINGLE)
-    public Response<EmptyInputOutput> postRoundTripEmptyWithResponse(EmptyInputOutput body,
-        RequestContext requestContext) {
-        return this.instrumentation.instrumentWithResponse("Type.Model.Empty.postRoundTripEmpty", requestContext,
-            updatedContext -> {
-                final String contentType = "application/json";
-                final String accept = "application/json";
-                return service.postRoundTripEmpty(this.getEndpoint(), contentType, accept, body, updatedContext);
-            });
+        @HttpRequestInformation(
+            method = HttpMethod.GET,
+            path = "/type/model/empty/alone",
+            expectedStatusCodes = { 200 })
+        @UnexpectedResponseExceptionDetail
+        Response<EmptyOutput> getEmpty(@HostParam("endpoint") String endpoint, @HeaderParam("Accept") String accept,
+            RequestContext requestContext);
+
+        @HttpRequestInformation(
+            method = HttpMethod.POST,
+            path = "/type/model/empty/round-trip",
+            expectedStatusCodes = { 200 })
+        @UnexpectedResponseExceptionDetail
+        Response<EmptyInputOutput> postRoundTripEmpty(@HostParam("endpoint") String endpoint,
+            @HeaderParam("Content-Type") String contentType, @HeaderParam("Accept") String accept,
+            @BodyParam("application/json") EmptyInputOutput body, RequestContext requestContext);
+
+        @HttpRequestInformation(
+            method = HttpMethod.PUT,
+            path = "/type/model/empty/alone",
+            expectedStatusCodes = { 204 })
+        @UnexpectedResponseExceptionDetail
+        Response<Void> putEmpty(@HostParam("endpoint") String endpoint, @HeaderParam("Content-Type") String contentType,
+            @BodyParam("application/json") EmptyInput input, RequestContext requestContext);
+
+        static EmptyClientService getNewInstance(HttpPipeline pipeline) {
+            try {
+                Class<?> clazz = Class.forName("type.model.empty.implementation.EmptyClientServiceImpl");
+                return (EmptyClientService) clazz.getMethod("getNewInstance", HttpPipeline.class)
+                    .invoke(null, pipeline);
+            } catch (ClassNotFoundException | NoSuchMethodException | IllegalAccessException
+                | InvocationTargetException e) {
+                throw new RuntimeException(e);
+            }
+        }
     }
 }

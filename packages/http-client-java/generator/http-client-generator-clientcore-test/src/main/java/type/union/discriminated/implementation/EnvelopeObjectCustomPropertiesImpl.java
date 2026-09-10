@@ -22,10 +22,6 @@ import java.lang.reflect.InvocationTargetException;
  * An instance of this class provides access to all the operations defined in EnvelopeObjectCustomProperties.
  */
 public final class EnvelopeObjectCustomPropertiesImpl {
-    /**
-     * The proxy service used to perform REST calls.
-     */
-    private final EnvelopeObjectCustomPropertiesService service;
 
     /**
      * The service client containing this operation class.
@@ -38,8 +34,13 @@ public final class EnvelopeObjectCustomPropertiesImpl {
     private final Instrumentation instrumentation;
 
     /**
+     * The proxy service used to perform REST calls.
+     */
+    private final EnvelopeObjectCustomPropertiesService service;
+
+    /**
      * Initializes an instance of EnvelopeObjectCustomPropertiesImpl.
-     * 
+     *
      * @param client the instance of the service client containing this operation class.
      */
     EnvelopeObjectCustomPropertiesImpl(DiscriminatedClientImpl client) {
@@ -49,45 +50,8 @@ public final class EnvelopeObjectCustomPropertiesImpl {
     }
 
     /**
-     * The interface defining all the services for DiscriminatedClientEnvelopeObjectCustomProperties to be used by the
-     * proxy service to perform REST calls.
-     */
-    @ServiceInterface(name = "DiscriminatedClientEnvelopeObjectCustomProperties", host = "{endpoint}")
-    public interface EnvelopeObjectCustomPropertiesService {
-        static EnvelopeObjectCustomPropertiesService getNewInstance(HttpPipeline pipeline) {
-            try {
-                Class<?> clazz = Class
-                    .forName("type.union.discriminated.implementation.EnvelopeObjectCustomPropertiesServiceImpl");
-                return (EnvelopeObjectCustomPropertiesService) clazz.getMethod("getNewInstance", HttpPipeline.class)
-                    .invoke(null, pipeline);
-            } catch (ClassNotFoundException | NoSuchMethodException | IllegalAccessException
-                | InvocationTargetException e) {
-                throw new RuntimeException(e);
-            }
-
-        }
-
-        @HttpRequestInformation(
-            method = HttpMethod.GET,
-            path = "/type/union/discriminated/envelope/object/custom-properties",
-            expectedStatusCodes = { 200 })
-        @UnexpectedResponseExceptionDetail
-        Response<BinaryData> get(@HostParam("endpoint") String endpoint, @QueryParam("petType") String petType,
-            @HeaderParam("Accept") String accept, RequestContext requestContext);
-
-        @HttpRequestInformation(
-            method = HttpMethod.PUT,
-            path = "/type/union/discriminated/envelope/object/custom-properties",
-            expectedStatusCodes = { 200 })
-        @UnexpectedResponseExceptionDetail
-        Response<BinaryData> put(@HostParam("endpoint") String endpoint,
-            @HeaderParam("Content-Type") String contentType, @HeaderParam("Accept") String accept,
-            @BodyParam("application/json") BinaryData input, RequestContext requestContext);
-    }
-
-    /**
      * The get operation.
-     * 
+     *
      * @param petType The petType parameter.
      * @param requestContext The context to configure the HTTP request before HTTP client sends it.
      * @throws IllegalArgumentException thrown if parameters fail the validation.
@@ -108,7 +72,7 @@ public final class EnvelopeObjectCustomPropertiesImpl {
 
     /**
      * The put operation.
-     * 
+     *
      * @param input The input parameter.
      * @param requestContext The context to configure the HTTP request before HTTP client sends it.
      * @throws IllegalArgumentException thrown if parameters fail the validation.
@@ -126,5 +90,42 @@ public final class EnvelopeObjectCustomPropertiesImpl {
                 final String accept = "application/json";
                 return service.put(this.client.getEndpoint(), contentType, accept, input, updatedContext);
             });
+    }
+
+    /**
+     * The interface defining all the services for DiscriminatedClientEnvelopeObjectCustomProperties to be used by the
+     * proxy service to perform REST calls.
+     */
+    @ServiceInterface(name = "DiscriminatedClientEnvelopeObjectCustomProperties", host = "{endpoint}")
+    public interface EnvelopeObjectCustomPropertiesService {
+
+        @HttpRequestInformation(
+            method = HttpMethod.GET,
+            path = "/type/union/discriminated/envelope/object/custom-properties",
+            expectedStatusCodes = { 200 })
+        @UnexpectedResponseExceptionDetail
+        Response<BinaryData> get(@HostParam("endpoint") String endpoint, @QueryParam("petType") String petType,
+            @HeaderParam("Accept") String accept, RequestContext requestContext);
+
+        @HttpRequestInformation(
+            method = HttpMethod.PUT,
+            path = "/type/union/discriminated/envelope/object/custom-properties",
+            expectedStatusCodes = { 200 })
+        @UnexpectedResponseExceptionDetail
+        Response<BinaryData> put(@HostParam("endpoint") String endpoint,
+            @HeaderParam("Content-Type") String contentType, @HeaderParam("Accept") String accept,
+            @BodyParam("application/json") BinaryData input, RequestContext requestContext);
+
+        static EnvelopeObjectCustomPropertiesService getNewInstance(HttpPipeline pipeline) {
+            try {
+                Class<?> clazz = Class
+                    .forName("type.union.discriminated.implementation.EnvelopeObjectCustomPropertiesServiceImpl");
+                return (EnvelopeObjectCustomPropertiesService) clazz.getMethod("getNewInstance", HttpPipeline.class)
+                    .invoke(null, pipeline);
+            } catch (ClassNotFoundException | NoSuchMethodException | IllegalAccessException
+                | InvocationTargetException e) {
+                throw new RuntimeException(e);
+            }
+        }
     }
 }

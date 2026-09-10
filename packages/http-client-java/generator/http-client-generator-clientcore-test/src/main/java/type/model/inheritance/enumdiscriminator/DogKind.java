@@ -19,9 +19,10 @@ import java.util.function.Function;
  * extensible enum type for discriminator.
  */
 public final class DogKind implements ExpandableEnum<String>, JsonSerializable<DogKind> {
-    private static final Map<String, DogKind> VALUES = new ConcurrentHashMap<>();
 
     private static final Function<String, DogKind> NEW_INSTANCE = DogKind::new;
+
+    private static final Map<String, DogKind> VALUES = new ConcurrentHashMap<>();
 
     /**
      * Species golden.
@@ -35,40 +36,33 @@ public final class DogKind implements ExpandableEnum<String>, JsonSerializable<D
         this.value = value;
     }
 
-    /**
-     * Creates or finds a DogKind.
-     * 
-     * @param value a value to look for.
-     * @return the corresponding DogKind.
-     * @throws IllegalArgumentException if value is null.
-     */
     @Metadata(properties = { MetadataProperties.GENERATED })
-    public static DogKind fromValue(String value) {
-        if (value == null) {
-            throw new IllegalArgumentException("'value' cannot be null.");
-        }
-        return VALUES.computeIfAbsent(value, NEW_INSTANCE);
-    }
-
-    /**
-     * Gets known DogKind values.
-     * 
-     * @return Known DogKind values.
-     */
-    @Metadata(properties = { MetadataProperties.GENERATED })
-    public static Collection<DogKind> values() {
-        return new ArrayList<>(VALUES.values());
+    @Override
+    public boolean equals(Object obj) {
+        return this == obj;
     }
 
     /**
      * Gets the value of the DogKind instance.
-     * 
+     *
      * @return the value of the DogKind instance.
      */
     @Metadata(properties = { MetadataProperties.GENERATED })
     @Override
     public String getValue() {
         return this.value;
+    }
+
+    @Metadata(properties = { MetadataProperties.GENERATED })
+    @Override
+    public int hashCode() {
+        return Objects.hashCode(this.value);
+    }
+
+    @Metadata(properties = { MetadataProperties.GENERATED })
+    @Override
+    public String toString() {
+        return Objects.toString(this.value);
     }
 
     /**
@@ -82,7 +76,7 @@ public final class DogKind implements ExpandableEnum<String>, JsonSerializable<D
 
     /**
      * Reads an instance of DogKind from the JsonReader.
-     * 
+     *
      * @param jsonReader The JsonReader being read.
      * @return An instance of DogKind if the JsonReader was pointing to an instance of it, or null if the JsonReader was
      * pointing to JSON null.
@@ -102,21 +96,28 @@ public final class DogKind implements ExpandableEnum<String>, JsonSerializable<D
         return DogKind.fromValue(jsonReader.getString());
     }
 
+    /**
+     * Creates or finds a DogKind.
+     *
+     * @param value a value to look for.
+     * @return the corresponding DogKind.
+     * @throws IllegalArgumentException if value is null.
+     */
     @Metadata(properties = { MetadataProperties.GENERATED })
-    @Override
-    public String toString() {
-        return Objects.toString(this.value);
+    public static DogKind fromValue(String value) {
+        if (value == null) {
+            throw new IllegalArgumentException("'value' cannot be null.");
+        }
+        return VALUES.computeIfAbsent(value, NEW_INSTANCE);
     }
 
+    /**
+     * Gets known DogKind values.
+     *
+     * @return Known DogKind values.
+     */
     @Metadata(properties = { MetadataProperties.GENERATED })
-    @Override
-    public boolean equals(Object obj) {
-        return this == obj;
-    }
-
-    @Metadata(properties = { MetadataProperties.GENERATED })
-    @Override
-    public int hashCode() {
-        return Objects.hashCode(this.value);
+    public static Collection<DogKind> values() {
+        return new ArrayList<>(VALUES.values());
     }
 }

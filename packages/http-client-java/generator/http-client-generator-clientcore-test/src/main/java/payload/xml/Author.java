@@ -14,6 +14,7 @@ import javax.xml.stream.XMLStreamException;
  */
 @Metadata(properties = { MetadataProperties.IMMUTABLE })
 public final class Author implements XmlSerializable<Author> {
+
     /*
      * The name property.
      */
@@ -22,7 +23,7 @@ public final class Author implements XmlSerializable<Author> {
 
     /**
      * Creates an instance of Author class.
-     * 
+     *
      * @param name the name value to set.
      */
     @Metadata(properties = { MetadataProperties.GENERATED })
@@ -32,7 +33,7 @@ public final class Author implements XmlSerializable<Author> {
 
     /**
      * Get the name property: The name property.
-     * 
+     *
      * @return the name value.
      */
     @Metadata(properties = { MetadataProperties.GENERATED })
@@ -57,7 +58,7 @@ public final class Author implements XmlSerializable<Author> {
 
     /**
      * Reads an instance of Author from the XmlReader.
-     * 
+     *
      * @param xmlReader The XmlReader being read.
      * @return An instance of Author if the XmlReader was pointing to an instance of it, or null if it was pointing to
      * XML null.
@@ -71,7 +72,7 @@ public final class Author implements XmlSerializable<Author> {
 
     /**
      * Reads an instance of Author from the XmlReader.
-     * 
+     *
      * @param xmlReader The XmlReader being read.
      * @param rootElementName Optional root element name to override the default defined by the model. Used to support
      * cases where the model can deserialize from different root element names.
@@ -88,7 +89,6 @@ public final class Author implements XmlSerializable<Author> {
             String name = null;
             while (reader.nextElement() != XmlToken.END_ELEMENT) {
                 QName elementName = reader.getElementName();
-
                 if ("name".equals(elementName.getLocalPart())) {
                     name = reader.getStringElement();
                 } else {

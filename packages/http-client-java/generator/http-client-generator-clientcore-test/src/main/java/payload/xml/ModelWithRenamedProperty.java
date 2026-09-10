@@ -14,11 +14,6 @@ import javax.xml.stream.XMLStreamException;
  */
 @Metadata(properties = { MetadataProperties.IMMUTABLE })
 public final class ModelWithRenamedProperty implements XmlSerializable<ModelWithRenamedProperty> {
-    /*
-     * The renamedTitle property.
-     */
-    @Metadata(properties = { MetadataProperties.GENERATED })
-    private final String title;
 
     /*
      * The author property.
@@ -26,9 +21,15 @@ public final class ModelWithRenamedProperty implements XmlSerializable<ModelWith
     @Metadata(properties = { MetadataProperties.GENERATED })
     private final String author;
 
+    /*
+     * The renamedTitle property.
+     */
+    @Metadata(properties = { MetadataProperties.GENERATED })
+    private final String title;
+
     /**
      * Creates an instance of ModelWithRenamedProperty class.
-     * 
+     *
      * @param title the title value to set.
      * @param author the author value to set.
      */
@@ -39,23 +40,23 @@ public final class ModelWithRenamedProperty implements XmlSerializable<ModelWith
     }
 
     /**
-     * Get the title property: The renamedTitle property.
-     * 
-     * @return the title value.
-     */
-    @Metadata(properties = { MetadataProperties.GENERATED })
-    public String getTitle() {
-        return this.title;
-    }
-
-    /**
      * Get the author property: The author property.
-     * 
+     *
      * @return the author value.
      */
     @Metadata(properties = { MetadataProperties.GENERATED })
     public String getAuthor() {
         return this.author;
+    }
+
+    /**
+     * Get the title property: The renamedTitle property.
+     *
+     * @return the title value.
+     */
+    @Metadata(properties = { MetadataProperties.GENERATED })
+    public String getTitle() {
+        return this.title;
     }
 
     @Metadata(properties = { MetadataProperties.GENERATED })
@@ -77,7 +78,7 @@ public final class ModelWithRenamedProperty implements XmlSerializable<ModelWith
 
     /**
      * Reads an instance of ModelWithRenamedProperty from the XmlReader.
-     * 
+     *
      * @param xmlReader The XmlReader being read.
      * @return An instance of ModelWithRenamedProperty if the XmlReader was pointing to an instance of it, or null if it
      * was pointing to XML null.
@@ -91,7 +92,7 @@ public final class ModelWithRenamedProperty implements XmlSerializable<ModelWith
 
     /**
      * Reads an instance of ModelWithRenamedProperty from the XmlReader.
-     * 
+     *
      * @param xmlReader The XmlReader being read.
      * @param rootElementName Optional root element name to override the default defined by the model. Used to support
      * cases where the model can deserialize from different root element names.
@@ -110,7 +111,6 @@ public final class ModelWithRenamedProperty implements XmlSerializable<ModelWith
             String author = null;
             while (reader.nextElement() != XmlToken.END_ELEMENT) {
                 QName elementName = reader.getElementName();
-
                 if ("renamedTitle".equals(elementName.getLocalPart())) {
                     title = reader.getStringElement();
                 } else if ("author".equals(elementName.getLocalPart())) {

@@ -21,10 +21,6 @@ import type.property.additionalproperties.IsUnknownAdditionalPropertiesDiscrimin
  * An instance of this class provides access to all the operations defined in IsUnknownDiscriminateds.
  */
 public final class IsUnknownDiscriminatedsImpl {
-    /**
-     * The proxy service used to perform REST calls.
-     */
-    private final IsUnknownDiscriminatedsService service;
 
     /**
      * The service client containing this operation class.
@@ -37,8 +33,13 @@ public final class IsUnknownDiscriminatedsImpl {
     private final Instrumentation instrumentation;
 
     /**
+     * The proxy service used to perform REST calls.
+     */
+    private final IsUnknownDiscriminatedsService service;
+
+    /**
      * Initializes an instance of IsUnknownDiscriminatedsImpl.
-     * 
+     *
      * @param client the instance of the service client containing this operation class.
      */
     IsUnknownDiscriminatedsImpl(AdditionalPropertiesClientImpl client) {
@@ -48,45 +49,8 @@ public final class IsUnknownDiscriminatedsImpl {
     }
 
     /**
-     * The interface defining all the services for AdditionalPropertiesClientIsUnknownDiscriminateds to be used by the
-     * proxy service to perform REST calls.
-     */
-    @ServiceInterface(name = "AdditionalPropertiesClientIsUnknownDiscriminateds", host = "{endpoint}")
-    public interface IsUnknownDiscriminatedsService {
-        static IsUnknownDiscriminatedsService getNewInstance(HttpPipeline pipeline) {
-            try {
-                Class<?> clazz = Class
-                    .forName("type.property.additionalproperties.implementation.IsUnknownDiscriminatedsServiceImpl");
-                return (IsUnknownDiscriminatedsService) clazz.getMethod("getNewInstance", HttpPipeline.class)
-                    .invoke(null, pipeline);
-            } catch (ClassNotFoundException | NoSuchMethodException | IllegalAccessException
-                | InvocationTargetException e) {
-                throw new RuntimeException(e);
-            }
-
-        }
-
-        @HttpRequestInformation(
-            method = HttpMethod.GET,
-            path = "/type/property/additionalProperties/isUnknownDiscriminated",
-            expectedStatusCodes = { 200 })
-        @UnexpectedResponseExceptionDetail
-        Response<IsUnknownAdditionalPropertiesDiscriminated> get(@HostParam("endpoint") String endpoint,
-            @HeaderParam("Accept") String accept, RequestContext requestContext);
-
-        @HttpRequestInformation(
-            method = HttpMethod.PUT,
-            path = "/type/property/additionalProperties/isUnknownDiscriminated",
-            expectedStatusCodes = { 204 })
-        @UnexpectedResponseExceptionDetail
-        Response<Void> put(@HostParam("endpoint") String endpoint, @HeaderParam("Content-Type") String contentType,
-            @BodyParam("application/json") IsUnknownAdditionalPropertiesDiscriminated body,
-            RequestContext requestContext);
-    }
-
-    /**
      * Get call.
-     * 
+     *
      * @param requestContext The context to configure the HTTP request before HTTP client sends it.
      * @throws IllegalArgumentException thrown if parameters fail the validation.
      * @throws HttpResponseException thrown if the service returns an error.
@@ -104,7 +68,7 @@ public final class IsUnknownDiscriminatedsImpl {
 
     /**
      * Put operation.
-     * 
+     *
      * @param body body.
      * @param requestContext The context to configure the HTTP request before HTTP client sends it.
      * @throws IllegalArgumentException thrown if parameters fail the validation.
@@ -120,5 +84,42 @@ public final class IsUnknownDiscriminatedsImpl {
                 final String contentType = "application/json";
                 return service.put(this.client.getEndpoint(), contentType, body, updatedContext);
             });
+    }
+
+    /**
+     * The interface defining all the services for AdditionalPropertiesClientIsUnknownDiscriminateds to be used by the
+     * proxy service to perform REST calls.
+     */
+    @ServiceInterface(name = "AdditionalPropertiesClientIsUnknownDiscriminateds", host = "{endpoint}")
+    public interface IsUnknownDiscriminatedsService {
+
+        @HttpRequestInformation(
+            method = HttpMethod.GET,
+            path = "/type/property/additionalProperties/isUnknownDiscriminated",
+            expectedStatusCodes = { 200 })
+        @UnexpectedResponseExceptionDetail
+        Response<IsUnknownAdditionalPropertiesDiscriminated> get(@HostParam("endpoint") String endpoint,
+            @HeaderParam("Accept") String accept, RequestContext requestContext);
+
+        @HttpRequestInformation(
+            method = HttpMethod.PUT,
+            path = "/type/property/additionalProperties/isUnknownDiscriminated",
+            expectedStatusCodes = { 204 })
+        @UnexpectedResponseExceptionDetail
+        Response<Void> put(@HostParam("endpoint") String endpoint, @HeaderParam("Content-Type") String contentType,
+            @BodyParam("application/json") IsUnknownAdditionalPropertiesDiscriminated body,
+            RequestContext requestContext);
+
+        static IsUnknownDiscriminatedsService getNewInstance(HttpPipeline pipeline) {
+            try {
+                Class<?> clazz = Class
+                    .forName("type.property.additionalproperties.implementation.IsUnknownDiscriminatedsServiceImpl");
+                return (IsUnknownDiscriminatedsService) clazz.getMethod("getNewInstance", HttpPipeline.class)
+                    .invoke(null, pipeline);
+            } catch (ClassNotFoundException | NoSuchMethodException | IllegalAccessException
+                | InvocationTargetException e) {
+                throw new RuntimeException(e);
+            }
+        }
     }
 }

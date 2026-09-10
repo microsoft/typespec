@@ -16,14 +16,15 @@ import type.property.valuetypes.implementation.CollectionsStringsImpl;
  */
 @ServiceClient(builder = ValueTypesClientBuilder.class)
 public final class CollectionsStringClient {
-    @Metadata(properties = { MetadataProperties.GENERATED })
-    private final CollectionsStringsImpl serviceClient;
 
     private final Instrumentation instrumentation;
 
+    @Metadata(properties = { MetadataProperties.GENERATED })
+    private final CollectionsStringsImpl serviceClient;
+
     /**
      * Initializes an instance of CollectionsStringClient class.
-     * 
+     *
      * @param serviceClient the service client implementation.
      * @param instrumentation the instrumentation instance.
      */
@@ -35,7 +36,20 @@ public final class CollectionsStringClient {
 
     /**
      * Get call.
-     * 
+     *
+     * @throws HttpResponseException thrown if the service returns an error.
+     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
+     * @return call.
+     */
+    @Metadata(properties = { MetadataProperties.GENERATED })
+    @ServiceMethod(returns = ReturnType.SINGLE)
+    public CollectionsStringProperty get() {
+        return getWithResponse(RequestContext.none()).getValue();
+    }
+
+    /**
+     * Get call.
+     *
      * @param requestContext The context to configure the HTTP request before HTTP client sends it.
      * @throws IllegalArgumentException thrown if parameters fail the validation.
      * @throws HttpResponseException thrown if the service returns an error.
@@ -50,21 +64,22 @@ public final class CollectionsStringClient {
     }
 
     /**
-     * Get call.
-     * 
+     * Put operation.
+     *
+     * @param body body.
+     * @throws IllegalArgumentException thrown if parameters fail the validation.
      * @throws HttpResponseException thrown if the service returns an error.
      * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
-     * @return call.
      */
     @Metadata(properties = { MetadataProperties.GENERATED })
     @ServiceMethod(returns = ReturnType.SINGLE)
-    public CollectionsStringProperty get() {
-        return getWithResponse(RequestContext.none()).getValue();
+    public void put(CollectionsStringProperty body) {
+        putWithResponse(body, RequestContext.none());
     }
 
     /**
      * Put operation.
-     * 
+     *
      * @param body body.
      * @param requestContext The context to configure the HTTP request before HTTP client sends it.
      * @throws IllegalArgumentException thrown if parameters fail the validation.
@@ -77,19 +92,5 @@ public final class CollectionsStringClient {
     public Response<Void> putWithResponse(CollectionsStringProperty body, RequestContext requestContext) {
         return this.instrumentation.instrumentWithResponse("Type.Property.ValueTypes.CollectionsString.put",
             requestContext, updatedContext -> this.serviceClient.putWithResponse(body, updatedContext));
-    }
-
-    /**
-     * Put operation.
-     * 
-     * @param body body.
-     * @throws IllegalArgumentException thrown if parameters fail the validation.
-     * @throws HttpResponseException thrown if the service returns an error.
-     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
-     */
-    @Metadata(properties = { MetadataProperties.GENERATED })
-    @ServiceMethod(returns = ReturnType.SINGLE)
-    public void put(CollectionsStringProperty body) {
-        putWithResponse(body, RequestContext.none());
     }
 }

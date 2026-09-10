@@ -34,17 +34,66 @@ import versioning.added.implementation.AddedClientImpl;
 @ServiceClientBuilder(serviceClients = { AddedClient.class, InterfaceV2Client.class })
 public final class AddedClientBuilder implements HttpTrait<AddedClientBuilder>, ProxyTrait<AddedClientBuilder>,
     ConfigurationTrait<AddedClientBuilder>, EndpointTrait<AddedClientBuilder> {
+
+    @Metadata(properties = { MetadataProperties.GENERATED })
+    private static final Map<String, String> PROPERTIES = CoreUtils.getProperties("versioning-added.properties");
+
     @Metadata(properties = { MetadataProperties.GENERATED })
     private static final String SDK_NAME = "name";
 
     @Metadata(properties = { MetadataProperties.GENERATED })
     private static final String SDK_VERSION = "version";
 
+    /*
+     * The configuration store that is used during construction of the service client.
+     */
     @Metadata(properties = { MetadataProperties.GENERATED })
-    private static final Map<String, String> PROPERTIES = CoreUtils.getProperties("versioning-added.properties");
+    private Configuration configuration;
+
+    /*
+     * The service endpoint
+     */
+    @Metadata(properties = { MetadataProperties.GENERATED })
+    private String endpoint;
+
+    /*
+     * The HTTP client used to send the request.
+     */
+    @Metadata(properties = { MetadataProperties.GENERATED })
+    private HttpClient httpClient;
+
+    /*
+     * The instrumentation configuration for HTTP requests and responses.
+     */
+    @Metadata(properties = { MetadataProperties.GENERATED })
+    private HttpInstrumentationOptions httpInstrumentationOptions;
 
     @Metadata(properties = { MetadataProperties.GENERATED })
     private final List<HttpPipelinePolicy> pipelinePolicies;
+
+    /*
+     * The proxy options used during construction of the service client.
+     */
+    @Metadata(properties = { MetadataProperties.GENERATED })
+    private ProxyOptions proxyOptions;
+
+    /*
+     * The redirect options to configure redirect policy
+     */
+    @Metadata(properties = { MetadataProperties.GENERATED })
+    private HttpRedirectOptions redirectOptions;
+
+    /*
+     * The retry options to configure retry policy for failed requests.
+     */
+    @Metadata(properties = { MetadataProperties.GENERATED })
+    private HttpRetryOptions retryOptions;
+
+    /*
+     * Service version
+     */
+    @Metadata(properties = { MetadataProperties.GENERATED })
+    private AddedServiceVersion serviceVersion;
 
     /**
      * Create an instance of the AddedClientBuilder.
@@ -54,11 +103,36 @@ public final class AddedClientBuilder implements HttpTrait<AddedClientBuilder>, 
         this.pipelinePolicies = new ArrayList<>();
     }
 
-    /*
-     * The HTTP client used to send the request.
+    /**
+     * {@inheritDoc}.
      */
     @Metadata(properties = { MetadataProperties.GENERATED })
-    private HttpClient httpClient;
+    @Override
+    public AddedClientBuilder addHttpPipelinePolicy(HttpPipelinePolicy customPolicy) {
+        Objects.requireNonNull(customPolicy, "'customPolicy' cannot be null.");
+        pipelinePolicies.add(customPolicy);
+        return this;
+    }
+
+    /**
+     * {@inheritDoc}.
+     */
+    @Metadata(properties = { MetadataProperties.GENERATED })
+    @Override
+    public AddedClientBuilder configuration(Configuration configuration) {
+        this.configuration = configuration;
+        return this;
+    }
+
+    /**
+     * {@inheritDoc}.
+     */
+    @Metadata(properties = { MetadataProperties.GENERATED })
+    @Override
+    public AddedClientBuilder endpoint(String endpoint) {
+        this.endpoint = endpoint;
+        return this;
+    }
 
     /**
      * {@inheritDoc}.
@@ -70,11 +144,25 @@ public final class AddedClientBuilder implements HttpTrait<AddedClientBuilder>, 
         return this;
     }
 
-    /*
-     * The retry options to configure retry policy for failed requests.
+    /**
+     * {@inheritDoc}.
      */
     @Metadata(properties = { MetadataProperties.GENERATED })
-    private HttpRetryOptions retryOptions;
+    @Override
+    public AddedClientBuilder httpInstrumentationOptions(HttpInstrumentationOptions httpInstrumentationOptions) {
+        this.httpInstrumentationOptions = httpInstrumentationOptions;
+        return this;
+    }
+
+    /**
+     * {@inheritDoc}.
+     */
+    @Metadata(properties = { MetadataProperties.GENERATED })
+    @Override
+    public AddedClientBuilder httpRedirectOptions(HttpRedirectOptions redirectOptions) {
+        this.redirectOptions = redirectOptions;
+        return this;
+    }
 
     /**
      * {@inheritDoc}.
@@ -91,101 +179,36 @@ public final class AddedClientBuilder implements HttpTrait<AddedClientBuilder>, 
      */
     @Metadata(properties = { MetadataProperties.GENERATED })
     @Override
-    public AddedClientBuilder addHttpPipelinePolicy(HttpPipelinePolicy customPolicy) {
-        Objects.requireNonNull(customPolicy, "'customPolicy' cannot be null.");
-        pipelinePolicies.add(customPolicy);
-        return this;
-    }
-
-    /*
-     * The redirect options to configure redirect policy
-     */
-    @Metadata(properties = { MetadataProperties.GENERATED })
-    private HttpRedirectOptions redirectOptions;
-
-    /**
-     * {@inheritDoc}.
-     */
-    @Metadata(properties = { MetadataProperties.GENERATED })
-    @Override
-    public AddedClientBuilder httpRedirectOptions(HttpRedirectOptions redirectOptions) {
-        this.redirectOptions = redirectOptions;
-        return this;
-    }
-
-    /*
-     * The instrumentation configuration for HTTP requests and responses.
-     */
-    @Metadata(properties = { MetadataProperties.GENERATED })
-    private HttpInstrumentationOptions httpInstrumentationOptions;
-
-    /**
-     * {@inheritDoc}.
-     */
-    @Metadata(properties = { MetadataProperties.GENERATED })
-    @Override
-    public AddedClientBuilder httpInstrumentationOptions(HttpInstrumentationOptions httpInstrumentationOptions) {
-        this.httpInstrumentationOptions = httpInstrumentationOptions;
-        return this;
-    }
-
-    /*
-     * The proxy options used during construction of the service client.
-     */
-    @Metadata(properties = { MetadataProperties.GENERATED })
-    private ProxyOptions proxyOptions;
-
-    /**
-     * {@inheritDoc}.
-     */
-    @Metadata(properties = { MetadataProperties.GENERATED })
-    @Override
     public AddedClientBuilder proxyOptions(ProxyOptions proxyOptions) {
         this.proxyOptions = proxyOptions;
         return this;
     }
 
-    /*
-     * The configuration store that is used during construction of the service client.
-     */
-    @Metadata(properties = { MetadataProperties.GENERATED })
-    private Configuration configuration;
-
     /**
-     * {@inheritDoc}.
+     * Builds an instance of AddedClient class.
+     *
+     * @return an instance of AddedClient.
      */
     @Metadata(properties = { MetadataProperties.GENERATED })
-    @Override
-    public AddedClientBuilder configuration(Configuration configuration) {
-        this.configuration = configuration;
-        return this;
+    public AddedClient buildClient() {
+        AddedClientImpl innerClient = buildInnerClient();
+        return new AddedClient(innerClient, innerClient.getInstrumentation());
     }
 
-    /*
-     * The service endpoint
-     */
-    @Metadata(properties = { MetadataProperties.GENERATED })
-    private String endpoint;
-
     /**
-     * {@inheritDoc}.
+     * Builds an instance of InterfaceV2Client class.
+     *
+     * @return an instance of InterfaceV2Client.
      */
     @Metadata(properties = { MetadataProperties.GENERATED })
-    @Override
-    public AddedClientBuilder endpoint(String endpoint) {
-        this.endpoint = endpoint;
-        return this;
+    public InterfaceV2Client buildInterfaceV2Client() {
+        AddedClientImpl innerClient = buildInnerClient();
+        return new InterfaceV2Client(innerClient.getInterfaceV2s(), innerClient.getInstrumentation());
     }
-
-    /*
-     * Service version
-     */
-    @Metadata(properties = { MetadataProperties.GENERATED })
-    private AddedServiceVersion serviceVersion;
 
     /**
      * Sets Service version.
-     * 
+     *
      * @param serviceVersion the serviceVersion value.
      * @return the AddedClientBuilder.
      */
@@ -197,7 +220,7 @@ public final class AddedClientBuilder implements HttpTrait<AddedClientBuilder>, 
 
     /**
      * Builds an instance of AddedClientImpl with the provided parameters.
-     * 
+     *
      * @return an instance of AddedClientImpl.
      */
     @Metadata(properties = { MetadataProperties.GENERATED })
@@ -220,13 +243,6 @@ public final class AddedClientBuilder implements HttpTrait<AddedClientBuilder>, 
     }
 
     @Metadata(properties = { MetadataProperties.GENERATED })
-    private void validateClient() {
-        // This method is invoked from 'buildInnerClient'/'buildClient' method.
-        // Developer can customize this method, to validate that the necessary conditions are met for the new client.
-        Objects.requireNonNull(endpoint, "'endpoint' cannot be null.");
-    }
-
-    @Metadata(properties = { MetadataProperties.GENERATED })
     private HttpPipeline createHttpPipeline() {
         Configuration buildConfiguration
             = (configuration == null) ? Configuration.getGlobalConfiguration() : configuration;
@@ -243,25 +259,10 @@ public final class AddedClientBuilder implements HttpTrait<AddedClientBuilder>, 
         return httpPipelineBuilder.httpClient(httpClient).build();
     }
 
-    /**
-     * Builds an instance of AddedClient class.
-     * 
-     * @return an instance of AddedClient.
-     */
     @Metadata(properties = { MetadataProperties.GENERATED })
-    public AddedClient buildClient() {
-        AddedClientImpl innerClient = buildInnerClient();
-        return new AddedClient(innerClient, innerClient.getInstrumentation());
-    }
-
-    /**
-     * Builds an instance of InterfaceV2Client class.
-     * 
-     * @return an instance of InterfaceV2Client.
-     */
-    @Metadata(properties = { MetadataProperties.GENERATED })
-    public InterfaceV2Client buildInterfaceV2Client() {
-        AddedClientImpl innerClient = buildInnerClient();
-        return new InterfaceV2Client(innerClient.getInterfaceV2s(), innerClient.getInstrumentation());
+    private void validateClient() {
+        // This method is invoked from 'buildInnerClient'/'buildClient' method.
+        // Developer can customize this method, to validate that the necessary conditions are met for the new client.
+        Objects.requireNonNull(endpoint, "'endpoint' cannot be null.");
     }
 }

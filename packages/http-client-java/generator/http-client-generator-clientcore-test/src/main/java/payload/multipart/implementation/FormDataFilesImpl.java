@@ -23,10 +23,6 @@ import payload.multipart.formdata.file.UploadFileSpecificContentTypeRequest;
  * An instance of this class provides access to all the operations defined in FormDataFiles.
  */
 public final class FormDataFilesImpl {
-    /**
-     * The proxy service used to perform REST calls.
-     */
-    private final FormDataFilesService service;
 
     /**
      * The service client containing this operation class.
@@ -39,8 +35,13 @@ public final class FormDataFilesImpl {
     private final Instrumentation instrumentation;
 
     /**
+     * The proxy service used to perform REST calls.
+     */
+    private final FormDataFilesService service;
+
+    /**
      * Initializes an instance of FormDataFilesImpl.
-     * 
+     *
      * @param client the instance of the service client containing this operation class.
      */
     FormDataFilesImpl(MultiPartClientImpl client) {
@@ -50,57 +51,47 @@ public final class FormDataFilesImpl {
     }
 
     /**
-     * The interface defining all the services for MultiPartClientFormDataFiles to be used by the proxy service to
-     * perform REST calls.
+     * The uploadFileArray operation.
+     *
+     * @param body The body parameter.
+     * @param requestContext The context to configure the HTTP request before HTTP client sends it.
+     * @throws IllegalArgumentException thrown if parameters fail the validation.
+     * @throws HttpResponseException thrown if the service returns an error.
+     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
+     * @return the {@link Response}.
      */
-    @ServiceInterface(name = "MultiPartClientFormDataFiles", host = "{endpoint}")
-    public interface FormDataFilesService {
-        static FormDataFilesService getNewInstance(HttpPipeline pipeline) {
-            try {
-                Class<?> clazz = Class.forName("payload.multipart.implementation.FormDataFilesServiceImpl");
-                return (FormDataFilesService) clazz.getMethod("getNewInstance", HttpPipeline.class)
-                    .invoke(null, pipeline);
-            } catch (ClassNotFoundException | NoSuchMethodException | IllegalAccessException
-                | InvocationTargetException e) {
-                throw new RuntimeException(e);
-            }
+    @ServiceMethod(returns = ReturnType.SINGLE)
+    public Response<Void> uploadFileArrayWithResponse(UploadFileArrayRequest body, RequestContext requestContext) {
+        return this.instrumentation.instrumentWithResponse("Payload.MultiPart.FormData.File.uploadFileArray",
+            requestContext, updatedContext -> {
+                final String contentType = "multipart/form-data";
+                return service.uploadFileArray(this.client.getEndpoint(), contentType, body, updatedContext);
+            });
+    }
 
-        }
-
-        // @Multipart not supported by RestProxy
-        @HttpRequestInformation(
-            method = HttpMethod.POST,
-            path = "/multipart/form-data/file/specific-content-type",
-            expectedStatusCodes = { 204 })
-        @UnexpectedResponseExceptionDetail
-        Response<Void> uploadFileSpecificContentType(@HostParam("endpoint") String endpoint,
-            @HeaderParam("content-type") String contentType,
-            @BodyParam("multipart/form-data") UploadFileSpecificContentTypeRequest body, RequestContext requestContext);
-
-        // @Multipart not supported by RestProxy
-        @HttpRequestInformation(
-            method = HttpMethod.POST,
-            path = "/multipart/form-data/file/required-filename",
-            expectedStatusCodes = { 204 })
-        @UnexpectedResponseExceptionDetail
-        Response<Void> uploadFileRequiredFilename(@HostParam("endpoint") String endpoint,
-            @HeaderParam("content-type") String contentType,
-            @BodyParam("multipart/form-data") UploadFileRequiredFilenameRequest body, RequestContext requestContext);
-
-        // @Multipart not supported by RestProxy
-        @HttpRequestInformation(
-            method = HttpMethod.POST,
-            path = "/multipart/form-data/file/file-array",
-            expectedStatusCodes = { 204 })
-        @UnexpectedResponseExceptionDetail
-        Response<Void> uploadFileArray(@HostParam("endpoint") String endpoint,
-            @HeaderParam("content-type") String contentType,
-            @BodyParam("multipart/form-data") UploadFileArrayRequest body, RequestContext requestContext);
+    /**
+     * The uploadFileRequiredFilename operation.
+     *
+     * @param body The body parameter.
+     * @param requestContext The context to configure the HTTP request before HTTP client sends it.
+     * @throws IllegalArgumentException thrown if parameters fail the validation.
+     * @throws HttpResponseException thrown if the service returns an error.
+     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
+     * @return the {@link Response}.
+     */
+    @ServiceMethod(returns = ReturnType.SINGLE)
+    public Response<Void> uploadFileRequiredFilenameWithResponse(UploadFileRequiredFilenameRequest body,
+        RequestContext requestContext) {
+        return this.instrumentation.instrumentWithResponse("Payload.MultiPart.FormData.File.uploadFileRequiredFilename",
+            requestContext, updatedContext -> {
+                final String contentType = "multipart/form-data";
+                return service.uploadFileRequiredFilename(this.client.getEndpoint(), contentType, body, updatedContext);
+            });
     }
 
     /**
      * The uploadFileSpecificContentType operation.
-     * 
+     *
      * @param body The body parameter.
      * @param requestContext The context to configure the HTTP request before HTTP client sends it.
      * @throws IllegalArgumentException thrown if parameters fail the validation.
@@ -120,41 +111,51 @@ public final class FormDataFilesImpl {
     }
 
     /**
-     * The uploadFileRequiredFilename operation.
-     * 
-     * @param body The body parameter.
-     * @param requestContext The context to configure the HTTP request before HTTP client sends it.
-     * @throws IllegalArgumentException thrown if parameters fail the validation.
-     * @throws HttpResponseException thrown if the service returns an error.
-     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
-     * @return the {@link Response}.
+     * The interface defining all the services for MultiPartClientFormDataFiles to be used by the proxy service to
+     * perform REST calls.
      */
-    @ServiceMethod(returns = ReturnType.SINGLE)
-    public Response<Void> uploadFileRequiredFilenameWithResponse(UploadFileRequiredFilenameRequest body,
-        RequestContext requestContext) {
-        return this.instrumentation.instrumentWithResponse("Payload.MultiPart.FormData.File.uploadFileRequiredFilename",
-            requestContext, updatedContext -> {
-                final String contentType = "multipart/form-data";
-                return service.uploadFileRequiredFilename(this.client.getEndpoint(), contentType, body, updatedContext);
-            });
-    }
+    @ServiceInterface(name = "MultiPartClientFormDataFiles", host = "{endpoint}")
+    public interface FormDataFilesService {
 
-    /**
-     * The uploadFileArray operation.
-     * 
-     * @param body The body parameter.
-     * @param requestContext The context to configure the HTTP request before HTTP client sends it.
-     * @throws IllegalArgumentException thrown if parameters fail the validation.
-     * @throws HttpResponseException thrown if the service returns an error.
-     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
-     * @return the {@link Response}.
-     */
-    @ServiceMethod(returns = ReturnType.SINGLE)
-    public Response<Void> uploadFileArrayWithResponse(UploadFileArrayRequest body, RequestContext requestContext) {
-        return this.instrumentation.instrumentWithResponse("Payload.MultiPart.FormData.File.uploadFileArray",
-            requestContext, updatedContext -> {
-                final String contentType = "multipart/form-data";
-                return service.uploadFileArray(this.client.getEndpoint(), contentType, body, updatedContext);
-            });
+        // @Multipart not supported by RestProxy
+        @HttpRequestInformation(
+            method = HttpMethod.POST,
+            path = "/multipart/form-data/file/file-array",
+            expectedStatusCodes = { 204 })
+        @UnexpectedResponseExceptionDetail
+        Response<Void> uploadFileArray(@HostParam("endpoint") String endpoint,
+            @HeaderParam("content-type") String contentType,
+            @BodyParam("multipart/form-data") UploadFileArrayRequest body, RequestContext requestContext);
+
+        // @Multipart not supported by RestProxy
+        @HttpRequestInformation(
+            method = HttpMethod.POST,
+            path = "/multipart/form-data/file/required-filename",
+            expectedStatusCodes = { 204 })
+        @UnexpectedResponseExceptionDetail
+        Response<Void> uploadFileRequiredFilename(@HostParam("endpoint") String endpoint,
+            @HeaderParam("content-type") String contentType,
+            @BodyParam("multipart/form-data") UploadFileRequiredFilenameRequest body, RequestContext requestContext);
+
+        // @Multipart not supported by RestProxy
+        @HttpRequestInformation(
+            method = HttpMethod.POST,
+            path = "/multipart/form-data/file/specific-content-type",
+            expectedStatusCodes = { 204 })
+        @UnexpectedResponseExceptionDetail
+        Response<Void> uploadFileSpecificContentType(@HostParam("endpoint") String endpoint,
+            @HeaderParam("content-type") String contentType,
+            @BodyParam("multipart/form-data") UploadFileSpecificContentTypeRequest body, RequestContext requestContext);
+
+        static FormDataFilesService getNewInstance(HttpPipeline pipeline) {
+            try {
+                Class<?> clazz = Class.forName("payload.multipart.implementation.FormDataFilesServiceImpl");
+                return (FormDataFilesService) clazz.getMethod("getNewInstance", HttpPipeline.class)
+                    .invoke(null, pipeline);
+            } catch (ClassNotFoundException | NoSuchMethodException | IllegalAccessException
+                | InvocationTargetException e) {
+                throw new RuntimeException(e);
+            }
+        }
     }
 }

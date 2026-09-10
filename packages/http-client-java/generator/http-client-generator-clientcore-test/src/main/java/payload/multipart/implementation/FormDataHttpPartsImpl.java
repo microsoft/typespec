@@ -21,10 +21,6 @@ import payload.multipart.ComplexHttpPartsModelRequest;
  * An instance of this class provides access to all the operations defined in FormDataHttpParts.
  */
 public final class FormDataHttpPartsImpl {
-    /**
-     * The proxy service used to perform REST calls.
-     */
-    private final FormDataHttpPartsService service;
 
     /**
      * The service client containing this operation class.
@@ -37,8 +33,13 @@ public final class FormDataHttpPartsImpl {
     private final Instrumentation instrumentation;
 
     /**
+     * The proxy service used to perform REST calls.
+     */
+    private final FormDataHttpPartsService service;
+
+    /**
      * Initializes an instance of FormDataHttpPartsImpl.
-     * 
+     *
      * @param client the instance of the service client containing this operation class.
      */
     FormDataHttpPartsImpl(MultiPartClientImpl client) {
@@ -48,37 +49,8 @@ public final class FormDataHttpPartsImpl {
     }
 
     /**
-     * The interface defining all the services for MultiPartClientFormDataHttpParts to be used by the proxy service to
-     * perform REST calls.
-     */
-    @ServiceInterface(name = "MultiPartClientFormDataHttpParts", host = "{endpoint}")
-    public interface FormDataHttpPartsService {
-        static FormDataHttpPartsService getNewInstance(HttpPipeline pipeline) {
-            try {
-                Class<?> clazz = Class.forName("payload.multipart.implementation.FormDataHttpPartsServiceImpl");
-                return (FormDataHttpPartsService) clazz.getMethod("getNewInstance", HttpPipeline.class)
-                    .invoke(null, pipeline);
-            } catch (ClassNotFoundException | NoSuchMethodException | IllegalAccessException
-                | InvocationTargetException e) {
-                throw new RuntimeException(e);
-            }
-
-        }
-
-        // @Multipart not supported by RestProxy
-        @HttpRequestInformation(
-            method = HttpMethod.POST,
-            path = "/multipart/form-data/complex-parts-with-httppart",
-            expectedStatusCodes = { 204 })
-        @UnexpectedResponseExceptionDetail
-        Response<Void> jsonArrayAndFileArray(@HostParam("endpoint") String endpoint,
-            @HeaderParam("content-type") String contentType,
-            @BodyParam("multipart/form-data") ComplexHttpPartsModelRequest body, RequestContext requestContext);
-    }
-
-    /**
      * Test content-type: multipart/form-data for mixed scenarios.
-     * 
+     *
      * @param body The body parameter.
      * @param requestContext The context to configure the HTTP request before HTTP client sends it.
      * @throws IllegalArgumentException thrown if parameters fail the validation.
@@ -94,5 +66,34 @@ public final class FormDataHttpPartsImpl {
                 final String contentType = "multipart/form-data";
                 return service.jsonArrayAndFileArray(this.client.getEndpoint(), contentType, body, updatedContext);
             });
+    }
+
+    /**
+     * The interface defining all the services for MultiPartClientFormDataHttpParts to be used by the proxy service to
+     * perform REST calls.
+     */
+    @ServiceInterface(name = "MultiPartClientFormDataHttpParts", host = "{endpoint}")
+    public interface FormDataHttpPartsService {
+
+        // @Multipart not supported by RestProxy
+        @HttpRequestInformation(
+            method = HttpMethod.POST,
+            path = "/multipart/form-data/complex-parts-with-httppart",
+            expectedStatusCodes = { 204 })
+        @UnexpectedResponseExceptionDetail
+        Response<Void> jsonArrayAndFileArray(@HostParam("endpoint") String endpoint,
+            @HeaderParam("content-type") String contentType,
+            @BodyParam("multipart/form-data") ComplexHttpPartsModelRequest body, RequestContext requestContext);
+
+        static FormDataHttpPartsService getNewInstance(HttpPipeline pipeline) {
+            try {
+                Class<?> clazz = Class.forName("payload.multipart.implementation.FormDataHttpPartsServiceImpl");
+                return (FormDataHttpPartsService) clazz.getMethod("getNewInstance", HttpPipeline.class)
+                    .invoke(null, pipeline);
+            } catch (ClassNotFoundException | NoSuchMethodException | IllegalAccessException
+                | InvocationTargetException e) {
+                throw new RuntimeException(e);
+            }
+        }
     }
 }

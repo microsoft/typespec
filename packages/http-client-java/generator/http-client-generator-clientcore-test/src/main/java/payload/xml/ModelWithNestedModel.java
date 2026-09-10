@@ -14,6 +14,7 @@ import javax.xml.stream.XMLStreamException;
  */
 @Metadata(properties = { MetadataProperties.IMMUTABLE })
 public final class ModelWithNestedModel implements XmlSerializable<ModelWithNestedModel> {
+
     /*
      * The nested property.
      */
@@ -22,7 +23,7 @@ public final class ModelWithNestedModel implements XmlSerializable<ModelWithNest
 
     /**
      * Creates an instance of ModelWithNestedModel class.
-     * 
+     *
      * @param nested the nested value to set.
      */
     @Metadata(properties = { MetadataProperties.GENERATED })
@@ -32,7 +33,7 @@ public final class ModelWithNestedModel implements XmlSerializable<ModelWithNest
 
     /**
      * Get the nested property: The nested property.
-     * 
+     *
      * @return the nested value.
      */
     @Metadata(properties = { MetadataProperties.GENERATED })
@@ -58,7 +59,7 @@ public final class ModelWithNestedModel implements XmlSerializable<ModelWithNest
 
     /**
      * Reads an instance of ModelWithNestedModel from the XmlReader.
-     * 
+     *
      * @param xmlReader The XmlReader being read.
      * @return An instance of ModelWithNestedModel if the XmlReader was pointing to an instance of it, or null if it was
      * pointing to XML null.
@@ -72,7 +73,7 @@ public final class ModelWithNestedModel implements XmlSerializable<ModelWithNest
 
     /**
      * Reads an instance of ModelWithNestedModel from the XmlReader.
-     * 
+     *
      * @param xmlReader The XmlReader being read.
      * @param rootElementName Optional root element name to override the default defined by the model. Used to support
      * cases where the model can deserialize from different root element names.
@@ -89,7 +90,6 @@ public final class ModelWithNestedModel implements XmlSerializable<ModelWithNest
             SimpleModel nested = null;
             while (reader.nextElement() != XmlToken.END_ELEMENT) {
                 QName elementName = reader.getElementName();
-
                 if ("nested".equals(elementName.getLocalPart())) {
                     nested = SimpleModel.fromXml(reader, "nested");
                 } else {

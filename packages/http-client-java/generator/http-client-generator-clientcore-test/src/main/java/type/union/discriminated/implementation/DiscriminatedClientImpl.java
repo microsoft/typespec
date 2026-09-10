@@ -7,61 +7,11 @@ import io.clientcore.core.instrumentation.Instrumentation;
  * Initializes a new instance of the DiscriminatedClient type.
  */
 public final class DiscriminatedClientImpl {
+
     /**
      * Service host.
      */
     private final String endpoint;
-
-    /**
-     * Gets Service host.
-     * 
-     * @return the endpoint value.
-     */
-    public String getEndpoint() {
-        return this.endpoint;
-    }
-
-    /**
-     * The HTTP pipeline to send requests through.
-     */
-    private final HttpPipeline httpPipeline;
-
-    /**
-     * Gets The HTTP pipeline to send requests through.
-     * 
-     * @return the httpPipeline value.
-     */
-    public HttpPipeline getHttpPipeline() {
-        return this.httpPipeline;
-    }
-
-    /**
-     * The instance of instrumentation to report telemetry.
-     */
-    private final Instrumentation instrumentation;
-
-    /**
-     * Gets The instance of instrumentation to report telemetry.
-     * 
-     * @return the instrumentation value.
-     */
-    public Instrumentation getInstrumentation() {
-        return this.instrumentation;
-    }
-
-    /**
-     * The EnvelopeObjectDefaultsImpl object to access its operations.
-     */
-    private final EnvelopeObjectDefaultsImpl envelopeObjectDefaults;
-
-    /**
-     * Gets the EnvelopeObjectDefaultsImpl object to access its operations.
-     * 
-     * @return the EnvelopeObjectDefaultsImpl object.
-     */
-    public EnvelopeObjectDefaultsImpl getEnvelopeObjectDefaults() {
-        return this.envelopeObjectDefaults;
-    }
 
     /**
      * The EnvelopeObjectCustomPropertiesImpl object to access its operations.
@@ -69,27 +19,19 @@ public final class DiscriminatedClientImpl {
     private final EnvelopeObjectCustomPropertiesImpl envelopeObjectCustomProperties;
 
     /**
-     * Gets the EnvelopeObjectCustomPropertiesImpl object to access its operations.
-     * 
-     * @return the EnvelopeObjectCustomPropertiesImpl object.
+     * The EnvelopeObjectDefaultsImpl object to access its operations.
      */
-    public EnvelopeObjectCustomPropertiesImpl getEnvelopeObjectCustomProperties() {
-        return this.envelopeObjectCustomProperties;
-    }
+    private final EnvelopeObjectDefaultsImpl envelopeObjectDefaults;
 
     /**
-     * The NoEnvelopeDefaultsImpl object to access its operations.
+     * The HTTP pipeline to send requests through.
      */
-    private final NoEnvelopeDefaultsImpl noEnvelopeDefaults;
+    private final HttpPipeline httpPipeline;
 
     /**
-     * Gets the NoEnvelopeDefaultsImpl object to access its operations.
-     * 
-     * @return the NoEnvelopeDefaultsImpl object.
+     * The instance of instrumentation to report telemetry.
      */
-    public NoEnvelopeDefaultsImpl getNoEnvelopeDefaults() {
-        return this.noEnvelopeDefaults;
-    }
+    private final Instrumentation instrumentation;
 
     /**
      * The NoEnvelopeCustomDiscriminatorsImpl object to access its operations.
@@ -97,17 +39,13 @@ public final class DiscriminatedClientImpl {
     private final NoEnvelopeCustomDiscriminatorsImpl noEnvelopeCustomDiscriminators;
 
     /**
-     * Gets the NoEnvelopeCustomDiscriminatorsImpl object to access its operations.
-     * 
-     * @return the NoEnvelopeCustomDiscriminatorsImpl object.
+     * The NoEnvelopeDefaultsImpl object to access its operations.
      */
-    public NoEnvelopeCustomDiscriminatorsImpl getNoEnvelopeCustomDiscriminators() {
-        return this.noEnvelopeCustomDiscriminators;
-    }
+    private final NoEnvelopeDefaultsImpl noEnvelopeDefaults;
 
     /**
      * Initializes an instance of DiscriminatedClient client.
-     * 
+     *
      * @param httpPipeline The HTTP pipeline to send requests through.
      * @param instrumentation The instance of instrumentation to report telemetry.
      * @param endpoint Service host.
@@ -120,5 +58,68 @@ public final class DiscriminatedClientImpl {
         this.envelopeObjectCustomProperties = new EnvelopeObjectCustomPropertiesImpl(this);
         this.noEnvelopeDefaults = new NoEnvelopeDefaultsImpl(this);
         this.noEnvelopeCustomDiscriminators = new NoEnvelopeCustomDiscriminatorsImpl(this);
+    }
+
+    /**
+     * Gets Service host.
+     *
+     * @return the endpoint value.
+     */
+    public String getEndpoint() {
+        return this.endpoint;
+    }
+
+    /**
+     * Gets the EnvelopeObjectCustomPropertiesImpl object to access its operations.
+     *
+     * @return the EnvelopeObjectCustomPropertiesImpl object.
+     */
+    public EnvelopeObjectCustomPropertiesImpl getEnvelopeObjectCustomProperties() {
+        return this.envelopeObjectCustomProperties;
+    }
+
+    /**
+     * Gets the EnvelopeObjectDefaultsImpl object to access its operations.
+     *
+     * @return the EnvelopeObjectDefaultsImpl object.
+     */
+    public EnvelopeObjectDefaultsImpl getEnvelopeObjectDefaults() {
+        return this.envelopeObjectDefaults;
+    }
+
+    /**
+     * Gets The HTTP pipeline to send requests through.
+     *
+     * @return the httpPipeline value.
+     */
+    public HttpPipeline getHttpPipeline() {
+        return this.httpPipeline;
+    }
+
+    /**
+     * Gets The instance of instrumentation to report telemetry.
+     *
+     * @return the instrumentation value.
+     */
+    public Instrumentation getInstrumentation() {
+        return this.instrumentation;
+    }
+
+    /**
+     * Gets the NoEnvelopeCustomDiscriminatorsImpl object to access its operations.
+     *
+     * @return the NoEnvelopeCustomDiscriminatorsImpl object.
+     */
+    public NoEnvelopeCustomDiscriminatorsImpl getNoEnvelopeCustomDiscriminators() {
+        return this.noEnvelopeCustomDiscriminators;
+    }
+
+    /**
+     * Gets the NoEnvelopeDefaultsImpl object to access its operations.
+     *
+     * @return the NoEnvelopeDefaultsImpl object.
+     */
+    public NoEnvelopeDefaultsImpl getNoEnvelopeDefaults() {
+        return this.noEnvelopeDefaults;
     }
 }

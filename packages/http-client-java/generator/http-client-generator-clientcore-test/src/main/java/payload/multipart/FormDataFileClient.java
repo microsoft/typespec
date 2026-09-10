@@ -19,14 +19,15 @@ import payload.multipart.implementation.FormDataFilesImpl;
  */
 @ServiceClient(builder = MultiPartClientBuilder.class)
 public final class FormDataFileClient {
-    @Metadata(properties = { MetadataProperties.GENERATED })
-    private final FormDataFilesImpl serviceClient;
 
     private final Instrumentation instrumentation;
 
+    @Metadata(properties = { MetadataProperties.GENERATED })
+    private final FormDataFilesImpl serviceClient;
+
     /**
      * Initializes an instance of FormDataFileClient class.
-     * 
+     *
      * @param serviceClient the service client implementation.
      * @param instrumentation the instrumentation instance.
      */
@@ -37,8 +38,22 @@ public final class FormDataFileClient {
     }
 
     /**
-     * The uploadFileSpecificContentType operation.
-     * 
+     * The uploadFileArray operation.
+     *
+     * @param body The body parameter.
+     * @throws IllegalArgumentException thrown if parameters fail the validation.
+     * @throws HttpResponseException thrown if the service returns an error.
+     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
+     */
+    @Metadata(properties = { MetadataProperties.GENERATED })
+    @ServiceMethod(returns = ReturnType.SINGLE)
+    public void uploadFileArray(UploadFileArrayRequest body) {
+        uploadFileArrayWithResponse(body, RequestContext.none());
+    }
+
+    /**
+     * The uploadFileArray operation.
+     *
      * @param body The body parameter.
      * @param requestContext The context to configure the HTTP request before HTTP client sends it.
      * @throws IllegalArgumentException thrown if parameters fail the validation.
@@ -48,16 +63,14 @@ public final class FormDataFileClient {
      */
     @Metadata(properties = { MetadataProperties.GENERATED })
     @ServiceMethod(returns = ReturnType.SINGLE)
-    public Response<Void> uploadFileSpecificContentTypeWithResponse(UploadFileSpecificContentTypeRequest body,
-        RequestContext requestContext) {
-        return this.instrumentation.instrumentWithResponse(
-            "Payload.MultiPart.FormData.File.uploadFileSpecificContentType", requestContext,
-            updatedContext -> this.serviceClient.uploadFileSpecificContentTypeWithResponse(body, updatedContext));
+    public Response<Void> uploadFileArrayWithResponse(UploadFileArrayRequest body, RequestContext requestContext) {
+        return this.instrumentation.instrumentWithResponse("Payload.MultiPart.FormData.File.uploadFileArray",
+            requestContext, updatedContext -> this.serviceClient.uploadFileArrayWithResponse(body, updatedContext));
     }
 
     /**
-     * The uploadFileSpecificContentType operation.
-     * 
+     * The uploadFileRequiredFilename operation.
+     *
      * @param body The body parameter.
      * @throws IllegalArgumentException thrown if parameters fail the validation.
      * @throws HttpResponseException thrown if the service returns an error.
@@ -65,13 +78,13 @@ public final class FormDataFileClient {
      */
     @Metadata(properties = { MetadataProperties.GENERATED })
     @ServiceMethod(returns = ReturnType.SINGLE)
-    public void uploadFileSpecificContentType(UploadFileSpecificContentTypeRequest body) {
-        uploadFileSpecificContentTypeWithResponse(body, RequestContext.none());
+    public void uploadFileRequiredFilename(UploadFileRequiredFilenameRequest body) {
+        uploadFileRequiredFilenameWithResponse(body, RequestContext.none());
     }
 
     /**
      * The uploadFileRequiredFilename operation.
-     * 
+     *
      * @param body The body parameter.
      * @param requestContext The context to configure the HTTP request before HTTP client sends it.
      * @throws IllegalArgumentException thrown if parameters fail the validation.
@@ -89,8 +102,8 @@ public final class FormDataFileClient {
     }
 
     /**
-     * The uploadFileRequiredFilename operation.
-     * 
+     * The uploadFileSpecificContentType operation.
+     *
      * @param body The body parameter.
      * @throws IllegalArgumentException thrown if parameters fail the validation.
      * @throws HttpResponseException thrown if the service returns an error.
@@ -98,13 +111,13 @@ public final class FormDataFileClient {
      */
     @Metadata(properties = { MetadataProperties.GENERATED })
     @ServiceMethod(returns = ReturnType.SINGLE)
-    public void uploadFileRequiredFilename(UploadFileRequiredFilenameRequest body) {
-        uploadFileRequiredFilenameWithResponse(body, RequestContext.none());
+    public void uploadFileSpecificContentType(UploadFileSpecificContentTypeRequest body) {
+        uploadFileSpecificContentTypeWithResponse(body, RequestContext.none());
     }
 
     /**
-     * The uploadFileArray operation.
-     * 
+     * The uploadFileSpecificContentType operation.
+     *
      * @param body The body parameter.
      * @param requestContext The context to configure the HTTP request before HTTP client sends it.
      * @throws IllegalArgumentException thrown if parameters fail the validation.
@@ -114,22 +127,10 @@ public final class FormDataFileClient {
      */
     @Metadata(properties = { MetadataProperties.GENERATED })
     @ServiceMethod(returns = ReturnType.SINGLE)
-    public Response<Void> uploadFileArrayWithResponse(UploadFileArrayRequest body, RequestContext requestContext) {
-        return this.instrumentation.instrumentWithResponse("Payload.MultiPart.FormData.File.uploadFileArray",
-            requestContext, updatedContext -> this.serviceClient.uploadFileArrayWithResponse(body, updatedContext));
-    }
-
-    /**
-     * The uploadFileArray operation.
-     * 
-     * @param body The body parameter.
-     * @throws IllegalArgumentException thrown if parameters fail the validation.
-     * @throws HttpResponseException thrown if the service returns an error.
-     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
-     */
-    @Metadata(properties = { MetadataProperties.GENERATED })
-    @ServiceMethod(returns = ReturnType.SINGLE)
-    public void uploadFileArray(UploadFileArrayRequest body) {
-        uploadFileArrayWithResponse(body, RequestContext.none());
+    public Response<Void> uploadFileSpecificContentTypeWithResponse(UploadFileSpecificContentTypeRequest body,
+        RequestContext requestContext) {
+        return this.instrumentation.instrumentWithResponse(
+            "Payload.MultiPart.FormData.File.uploadFileSpecificContentType", requestContext,
+            updatedContext -> this.serviceClient.uploadFileSpecificContentTypeWithResponse(body, updatedContext));
     }
 }

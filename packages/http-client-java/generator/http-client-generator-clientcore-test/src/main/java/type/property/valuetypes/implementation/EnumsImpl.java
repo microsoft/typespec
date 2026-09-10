@@ -21,10 +21,6 @@ import type.property.valuetypes.EnumProperty;
  * An instance of this class provides access to all the operations defined in Enums.
  */
 public final class EnumsImpl {
-    /**
-     * The proxy service used to perform REST calls.
-     */
-    private final EnumsService service;
 
     /**
      * The service client containing this operation class.
@@ -37,8 +33,13 @@ public final class EnumsImpl {
     private final Instrumentation instrumentation;
 
     /**
+     * The proxy service used to perform REST calls.
+     */
+    private final EnumsService service;
+
+    /**
      * Initializes an instance of EnumsImpl.
-     * 
+     *
      * @param client the instance of the service client containing this operation class.
      */
     EnumsImpl(ValueTypesClientImpl client) {
@@ -48,42 +49,8 @@ public final class EnumsImpl {
     }
 
     /**
-     * The interface defining all the services for ValueTypesClientEnums to be used by the proxy service to perform REST
-     * calls.
-     */
-    @ServiceInterface(name = "ValueTypesClientEnums", host = "{endpoint}")
-    public interface EnumsService {
-        static EnumsService getNewInstance(HttpPipeline pipeline) {
-            try {
-                Class<?> clazz = Class.forName("type.property.valuetypes.implementation.EnumsServiceImpl");
-                return (EnumsService) clazz.getMethod("getNewInstance", HttpPipeline.class).invoke(null, pipeline);
-            } catch (ClassNotFoundException | NoSuchMethodException | IllegalAccessException
-                | InvocationTargetException e) {
-                throw new RuntimeException(e);
-            }
-
-        }
-
-        @HttpRequestInformation(
-            method = HttpMethod.GET,
-            path = "/type/property/value-types/enum",
-            expectedStatusCodes = { 200 })
-        @UnexpectedResponseExceptionDetail
-        Response<EnumProperty> get(@HostParam("endpoint") String endpoint, @HeaderParam("Accept") String accept,
-            RequestContext requestContext);
-
-        @HttpRequestInformation(
-            method = HttpMethod.PUT,
-            path = "/type/property/value-types/enum",
-            expectedStatusCodes = { 204 })
-        @UnexpectedResponseExceptionDetail
-        Response<Void> put(@HostParam("endpoint") String endpoint, @HeaderParam("Content-Type") String contentType,
-            @BodyParam("application/json") EnumProperty body, RequestContext requestContext);
-    }
-
-    /**
      * Get call.
-     * 
+     *
      * @param requestContext The context to configure the HTTP request before HTTP client sends it.
      * @throws IllegalArgumentException thrown if parameters fail the validation.
      * @throws HttpResponseException thrown if the service returns an error.
@@ -101,7 +68,7 @@ public final class EnumsImpl {
 
     /**
      * Put operation.
-     * 
+     *
      * @param body body.
      * @param requestContext The context to configure the HTTP request before HTTP client sends it.
      * @throws IllegalArgumentException thrown if parameters fail the validation.
@@ -116,5 +83,39 @@ public final class EnumsImpl {
                 final String contentType = "application/json";
                 return service.put(this.client.getEndpoint(), contentType, body, updatedContext);
             });
+    }
+
+    /**
+     * The interface defining all the services for ValueTypesClientEnums to be used by the proxy service to perform REST
+     * calls.
+     */
+    @ServiceInterface(name = "ValueTypesClientEnums", host = "{endpoint}")
+    public interface EnumsService {
+
+        @HttpRequestInformation(
+            method = HttpMethod.GET,
+            path = "/type/property/value-types/enum",
+            expectedStatusCodes = { 200 })
+        @UnexpectedResponseExceptionDetail
+        Response<EnumProperty> get(@HostParam("endpoint") String endpoint, @HeaderParam("Accept") String accept,
+            RequestContext requestContext);
+
+        @HttpRequestInformation(
+            method = HttpMethod.PUT,
+            path = "/type/property/value-types/enum",
+            expectedStatusCodes = { 204 })
+        @UnexpectedResponseExceptionDetail
+        Response<Void> put(@HostParam("endpoint") String endpoint, @HeaderParam("Content-Type") String contentType,
+            @BodyParam("application/json") EnumProperty body, RequestContext requestContext);
+
+        static EnumsService getNewInstance(HttpPipeline pipeline) {
+            try {
+                Class<?> clazz = Class.forName("type.property.valuetypes.implementation.EnumsServiceImpl");
+                return (EnumsService) clazz.getMethod("getNewInstance", HttpPipeline.class).invoke(null, pipeline);
+            } catch (ClassNotFoundException | NoSuchMethodException | IllegalAccessException
+                | InvocationTargetException e) {
+                throw new RuntimeException(e);
+            }
+        }
     }
 }

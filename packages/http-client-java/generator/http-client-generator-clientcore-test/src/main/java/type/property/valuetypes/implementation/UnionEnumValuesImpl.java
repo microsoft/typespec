@@ -21,10 +21,6 @@ import type.property.valuetypes.UnionEnumValueProperty;
  * An instance of this class provides access to all the operations defined in UnionEnumValues.
  */
 public final class UnionEnumValuesImpl {
-    /**
-     * The proxy service used to perform REST calls.
-     */
-    private final UnionEnumValuesService service;
 
     /**
      * The service client containing this operation class.
@@ -37,8 +33,13 @@ public final class UnionEnumValuesImpl {
     private final Instrumentation instrumentation;
 
     /**
+     * The proxy service used to perform REST calls.
+     */
+    private final UnionEnumValuesService service;
+
+    /**
      * Initializes an instance of UnionEnumValuesImpl.
-     * 
+     *
      * @param client the instance of the service client containing this operation class.
      */
     UnionEnumValuesImpl(ValueTypesClientImpl client) {
@@ -48,43 +49,8 @@ public final class UnionEnumValuesImpl {
     }
 
     /**
-     * The interface defining all the services for ValueTypesClientUnionEnumValues to be used by the proxy service to
-     * perform REST calls.
-     */
-    @ServiceInterface(name = "ValueTypesClientUnionEnumValues", host = "{endpoint}")
-    public interface UnionEnumValuesService {
-        static UnionEnumValuesService getNewInstance(HttpPipeline pipeline) {
-            try {
-                Class<?> clazz = Class.forName("type.property.valuetypes.implementation.UnionEnumValuesServiceImpl");
-                return (UnionEnumValuesService) clazz.getMethod("getNewInstance", HttpPipeline.class)
-                    .invoke(null, pipeline);
-            } catch (ClassNotFoundException | NoSuchMethodException | IllegalAccessException
-                | InvocationTargetException e) {
-                throw new RuntimeException(e);
-            }
-
-        }
-
-        @HttpRequestInformation(
-            method = HttpMethod.GET,
-            path = "/type/property/value-types/union-enum-value",
-            expectedStatusCodes = { 200 })
-        @UnexpectedResponseExceptionDetail
-        Response<UnionEnumValueProperty> get(@HostParam("endpoint") String endpoint,
-            @HeaderParam("Accept") String accept, RequestContext requestContext);
-
-        @HttpRequestInformation(
-            method = HttpMethod.PUT,
-            path = "/type/property/value-types/union-enum-value",
-            expectedStatusCodes = { 204 })
-        @UnexpectedResponseExceptionDetail
-        Response<Void> put(@HostParam("endpoint") String endpoint, @HeaderParam("Content-Type") String contentType,
-            @BodyParam("application/json") UnionEnumValueProperty body, RequestContext requestContext);
-    }
-
-    /**
      * Get call.
-     * 
+     *
      * @param requestContext The context to configure the HTTP request before HTTP client sends it.
      * @throws IllegalArgumentException thrown if parameters fail the validation.
      * @throws HttpResponseException thrown if the service returns an error.
@@ -102,7 +68,7 @@ public final class UnionEnumValuesImpl {
 
     /**
      * Put operation.
-     * 
+     *
      * @param body body.
      * @param requestContext The context to configure the HTTP request before HTTP client sends it.
      * @throws IllegalArgumentException thrown if parameters fail the validation.
@@ -117,5 +83,40 @@ public final class UnionEnumValuesImpl {
                 final String contentType = "application/json";
                 return service.put(this.client.getEndpoint(), contentType, body, updatedContext);
             });
+    }
+
+    /**
+     * The interface defining all the services for ValueTypesClientUnionEnumValues to be used by the proxy service to
+     * perform REST calls.
+     */
+    @ServiceInterface(name = "ValueTypesClientUnionEnumValues", host = "{endpoint}")
+    public interface UnionEnumValuesService {
+
+        @HttpRequestInformation(
+            method = HttpMethod.GET,
+            path = "/type/property/value-types/union-enum-value",
+            expectedStatusCodes = { 200 })
+        @UnexpectedResponseExceptionDetail
+        Response<UnionEnumValueProperty> get(@HostParam("endpoint") String endpoint,
+            @HeaderParam("Accept") String accept, RequestContext requestContext);
+
+        @HttpRequestInformation(
+            method = HttpMethod.PUT,
+            path = "/type/property/value-types/union-enum-value",
+            expectedStatusCodes = { 204 })
+        @UnexpectedResponseExceptionDetail
+        Response<Void> put(@HostParam("endpoint") String endpoint, @HeaderParam("Content-Type") String contentType,
+            @BodyParam("application/json") UnionEnumValueProperty body, RequestContext requestContext);
+
+        static UnionEnumValuesService getNewInstance(HttpPipeline pipeline) {
+            try {
+                Class<?> clazz = Class.forName("type.property.valuetypes.implementation.UnionEnumValuesServiceImpl");
+                return (UnionEnumValuesService) clazz.getMethod("getNewInstance", HttpPipeline.class)
+                    .invoke(null, pipeline);
+            } catch (ClassNotFoundException | NoSuchMethodException | IllegalAccessException
+                | InvocationTargetException e) {
+                throw new RuntimeException(e);
+            }
+        }
     }
 }

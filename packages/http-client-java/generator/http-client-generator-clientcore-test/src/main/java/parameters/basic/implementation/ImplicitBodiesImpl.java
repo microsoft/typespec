@@ -21,10 +21,6 @@ import parameters.basic.implicitbody.implementation.SimpleRequest;
  * An instance of this class provides access to all the operations defined in ImplicitBodies.
  */
 public final class ImplicitBodiesImpl {
-    /**
-     * The proxy service used to perform REST calls.
-     */
-    private final ImplicitBodiesService service;
 
     /**
      * The service client containing this operation class.
@@ -37,8 +33,13 @@ public final class ImplicitBodiesImpl {
     private final Instrumentation instrumentation;
 
     /**
+     * The proxy service used to perform REST calls.
+     */
+    private final ImplicitBodiesService service;
+
+    /**
      * Initializes an instance of ImplicitBodiesImpl.
-     * 
+     *
      * @param client the instance of the service client containing this operation class.
      */
     ImplicitBodiesImpl(BasicClientImpl client) {
@@ -48,35 +49,8 @@ public final class ImplicitBodiesImpl {
     }
 
     /**
-     * The interface defining all the services for BasicClientImplicitBodies to be used by the proxy service to perform
-     * REST calls.
-     */
-    @ServiceInterface(name = "BasicClientImplicitBodies", host = "{endpoint}")
-    public interface ImplicitBodiesService {
-        static ImplicitBodiesService getNewInstance(HttpPipeline pipeline) {
-            try {
-                Class<?> clazz = Class.forName("parameters.basic.implementation.ImplicitBodiesServiceImpl");
-                return (ImplicitBodiesService) clazz.getMethod("getNewInstance", HttpPipeline.class)
-                    .invoke(null, pipeline);
-            } catch (ClassNotFoundException | NoSuchMethodException | IllegalAccessException
-                | InvocationTargetException e) {
-                throw new RuntimeException(e);
-            }
-
-        }
-
-        @HttpRequestInformation(
-            method = HttpMethod.PUT,
-            path = "/parameters/basic/implicit-body/simple",
-            expectedStatusCodes = { 204 })
-        @UnexpectedResponseExceptionDetail
-        Response<Void> simple(@HostParam("endpoint") String endpoint, @HeaderParam("Content-Type") String contentType,
-            @BodyParam("application/json") SimpleRequest simpleRequest, RequestContext requestContext);
-    }
-
-    /**
      * The simple operation.
-     * 
+     *
      * @param name The name parameter.
      * @param requestContext The context to configure the HTTP request before HTTP client sends it.
      * @throws IllegalArgumentException thrown if parameters fail the validation.
@@ -92,5 +66,32 @@ public final class ImplicitBodiesImpl {
                 SimpleRequest simpleRequest = new SimpleRequest(name);
                 return service.simple(this.client.getEndpoint(), contentType, simpleRequest, updatedContext);
             });
+    }
+
+    /**
+     * The interface defining all the services for BasicClientImplicitBodies to be used by the proxy service to perform
+     * REST calls.
+     */
+    @ServiceInterface(name = "BasicClientImplicitBodies", host = "{endpoint}")
+    public interface ImplicitBodiesService {
+
+        @HttpRequestInformation(
+            method = HttpMethod.PUT,
+            path = "/parameters/basic/implicit-body/simple",
+            expectedStatusCodes = { 204 })
+        @UnexpectedResponseExceptionDetail
+        Response<Void> simple(@HostParam("endpoint") String endpoint, @HeaderParam("Content-Type") String contentType,
+            @BodyParam("application/json") SimpleRequest simpleRequest, RequestContext requestContext);
+
+        static ImplicitBodiesService getNewInstance(HttpPipeline pipeline) {
+            try {
+                Class<?> clazz = Class.forName("parameters.basic.implementation.ImplicitBodiesServiceImpl");
+                return (ImplicitBodiesService) clazz.getMethod("getNewInstance", HttpPipeline.class)
+                    .invoke(null, pipeline);
+            } catch (ClassNotFoundException | NoSuchMethodException | IllegalAccessException
+                | InvocationTargetException e) {
+                throw new RuntimeException(e);
+            }
+        }
     }
 }

@@ -8,6 +8,7 @@ import io.clientcore.core.annotations.MetadataProperties;
  */
 @Metadata(properties = { MetadataProperties.IMMUTABLE })
 public final class MultiPartRequest {
+
     /*
      * The id property.
      */
@@ -22,7 +23,7 @@ public final class MultiPartRequest {
 
     /**
      * Creates an instance of MultiPartRequest class.
-     * 
+     *
      * @param id the id value to set.
      * @param profileImage the profileImage value to set.
      */
@@ -34,7 +35,7 @@ public final class MultiPartRequest {
 
     /**
      * Get the id property: The id property.
-     * 
+     *
      * @return the id value.
      */
     @Metadata(properties = { MetadataProperties.GENERATED })
@@ -44,7 +45,7 @@ public final class MultiPartRequest {
 
     /**
      * Get the profileImage property: The profileImage property.
-     * 
+     *
      * @return the profileImage value.
      */
     @Metadata(properties = { MetadataProperties.GENERATED })

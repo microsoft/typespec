@@ -21,10 +21,6 @@ import type.property.valuetypes.ExtensibleEnumProperty;
  * An instance of this class provides access to all the operations defined in ExtensibleEnums.
  */
 public final class ExtensibleEnumsImpl {
-    /**
-     * The proxy service used to perform REST calls.
-     */
-    private final ExtensibleEnumsService service;
 
     /**
      * The service client containing this operation class.
@@ -37,8 +33,13 @@ public final class ExtensibleEnumsImpl {
     private final Instrumentation instrumentation;
 
     /**
+     * The proxy service used to perform REST calls.
+     */
+    private final ExtensibleEnumsService service;
+
+    /**
      * Initializes an instance of ExtensibleEnumsImpl.
-     * 
+     *
      * @param client the instance of the service client containing this operation class.
      */
     ExtensibleEnumsImpl(ValueTypesClientImpl client) {
@@ -48,43 +49,8 @@ public final class ExtensibleEnumsImpl {
     }
 
     /**
-     * The interface defining all the services for ValueTypesClientExtensibleEnums to be used by the proxy service to
-     * perform REST calls.
-     */
-    @ServiceInterface(name = "ValueTypesClientExtensibleEnums", host = "{endpoint}")
-    public interface ExtensibleEnumsService {
-        static ExtensibleEnumsService getNewInstance(HttpPipeline pipeline) {
-            try {
-                Class<?> clazz = Class.forName("type.property.valuetypes.implementation.ExtensibleEnumsServiceImpl");
-                return (ExtensibleEnumsService) clazz.getMethod("getNewInstance", HttpPipeline.class)
-                    .invoke(null, pipeline);
-            } catch (ClassNotFoundException | NoSuchMethodException | IllegalAccessException
-                | InvocationTargetException e) {
-                throw new RuntimeException(e);
-            }
-
-        }
-
-        @HttpRequestInformation(
-            method = HttpMethod.GET,
-            path = "/type/property/value-types/extensible-enum",
-            expectedStatusCodes = { 200 })
-        @UnexpectedResponseExceptionDetail
-        Response<ExtensibleEnumProperty> get(@HostParam("endpoint") String endpoint,
-            @HeaderParam("Accept") String accept, RequestContext requestContext);
-
-        @HttpRequestInformation(
-            method = HttpMethod.PUT,
-            path = "/type/property/value-types/extensible-enum",
-            expectedStatusCodes = { 204 })
-        @UnexpectedResponseExceptionDetail
-        Response<Void> put(@HostParam("endpoint") String endpoint, @HeaderParam("Content-Type") String contentType,
-            @BodyParam("application/json") ExtensibleEnumProperty body, RequestContext requestContext);
-    }
-
-    /**
      * Get call.
-     * 
+     *
      * @param requestContext The context to configure the HTTP request before HTTP client sends it.
      * @throws IllegalArgumentException thrown if parameters fail the validation.
      * @throws HttpResponseException thrown if the service returns an error.
@@ -102,7 +68,7 @@ public final class ExtensibleEnumsImpl {
 
     /**
      * Put operation.
-     * 
+     *
      * @param body body.
      * @param requestContext The context to configure the HTTP request before HTTP client sends it.
      * @throws IllegalArgumentException thrown if parameters fail the validation.
@@ -117,5 +83,40 @@ public final class ExtensibleEnumsImpl {
                 final String contentType = "application/json";
                 return service.put(this.client.getEndpoint(), contentType, body, updatedContext);
             });
+    }
+
+    /**
+     * The interface defining all the services for ValueTypesClientExtensibleEnums to be used by the proxy service to
+     * perform REST calls.
+     */
+    @ServiceInterface(name = "ValueTypesClientExtensibleEnums", host = "{endpoint}")
+    public interface ExtensibleEnumsService {
+
+        @HttpRequestInformation(
+            method = HttpMethod.GET,
+            path = "/type/property/value-types/extensible-enum",
+            expectedStatusCodes = { 200 })
+        @UnexpectedResponseExceptionDetail
+        Response<ExtensibleEnumProperty> get(@HostParam("endpoint") String endpoint,
+            @HeaderParam("Accept") String accept, RequestContext requestContext);
+
+        @HttpRequestInformation(
+            method = HttpMethod.PUT,
+            path = "/type/property/value-types/extensible-enum",
+            expectedStatusCodes = { 204 })
+        @UnexpectedResponseExceptionDetail
+        Response<Void> put(@HostParam("endpoint") String endpoint, @HeaderParam("Content-Type") String contentType,
+            @BodyParam("application/json") ExtensibleEnumProperty body, RequestContext requestContext);
+
+        static ExtensibleEnumsService getNewInstance(HttpPipeline pipeline) {
+            try {
+                Class<?> clazz = Class.forName("type.property.valuetypes.implementation.ExtensibleEnumsServiceImpl");
+                return (ExtensibleEnumsService) clazz.getMethod("getNewInstance", HttpPipeline.class)
+                    .invoke(null, pipeline);
+            } catch (ClassNotFoundException | NoSuchMethodException | IllegalAccessException
+                | InvocationTargetException e) {
+                throw new RuntimeException(e);
+            }
+        }
     }
 }

@@ -16,6 +16,7 @@ import javax.xml.stream.XMLStreamException;
  */
 @Metadata(properties = { MetadataProperties.IMMUTABLE })
 public final class ModelWithRenamedWrappedModelArray implements XmlSerializable<ModelWithRenamedWrappedModelArray> {
+
     /*
      * The AllItems property.
      */
@@ -24,7 +25,7 @@ public final class ModelWithRenamedWrappedModelArray implements XmlSerializable<
 
     /**
      * Creates an instance of ModelWithRenamedWrappedModelArray class.
-     * 
+     *
      * @param items the items value to set.
      */
     @Metadata(properties = { MetadataProperties.GENERATED })
@@ -34,7 +35,7 @@ public final class ModelWithRenamedWrappedModelArray implements XmlSerializable<
 
     /**
      * Get the items property: The AllItems property.
-     * 
+     *
      * @return the items value.
      */
     @Metadata(properties = { MetadataProperties.GENERATED })
@@ -67,7 +68,7 @@ public final class ModelWithRenamedWrappedModelArray implements XmlSerializable<
 
     /**
      * Reads an instance of ModelWithRenamedWrappedModelArray from the XmlReader.
-     * 
+     *
      * @param xmlReader The XmlReader being read.
      * @return An instance of ModelWithRenamedWrappedModelArray if the XmlReader was pointing to an instance of it, or
      * null if it was pointing to XML null.
@@ -81,7 +82,7 @@ public final class ModelWithRenamedWrappedModelArray implements XmlSerializable<
 
     /**
      * Reads an instance of ModelWithRenamedWrappedModelArray from the XmlReader.
-     * 
+     *
      * @param xmlReader The XmlReader being read.
      * @param rootElementName Optional root element name to override the default defined by the model. Used to support
      * cases where the model can deserialize from different root element names.
@@ -100,7 +101,6 @@ public final class ModelWithRenamedWrappedModelArray implements XmlSerializable<
             List<SimpleModel> items = null;
             while (reader.nextElement() != XmlToken.END_ELEMENT) {
                 QName elementName = reader.getElementName();
-
                 if ("AllItems".equals(elementName.getLocalPart())) {
                     while (reader.nextElement() != XmlToken.END_ELEMENT) {
                         elementName = reader.getElementName();

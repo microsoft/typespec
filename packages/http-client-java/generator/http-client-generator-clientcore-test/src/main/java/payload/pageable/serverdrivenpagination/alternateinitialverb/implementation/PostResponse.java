@@ -15,11 +15,6 @@ import payload.pageable.Pet;
  */
 @Metadata(properties = { MetadataProperties.IMMUTABLE })
 public final class PostResponse implements JsonSerializable<PostResponse> {
-    /*
-     * The pets property.
-     */
-    @Metadata(properties = { MetadataProperties.GENERATED })
-    private final List<Pet> pets;
 
     /*
      * The next property.
@@ -27,9 +22,15 @@ public final class PostResponse implements JsonSerializable<PostResponse> {
     @Metadata(properties = { MetadataProperties.GENERATED })
     private String next;
 
+    /*
+     * The pets property.
+     */
+    @Metadata(properties = { MetadataProperties.GENERATED })
+    private final List<Pet> pets;
+
     /**
      * Creates an instance of PostResponse class.
-     * 
+     *
      * @param pets the pets value to set.
      */
     @Metadata(properties = { MetadataProperties.GENERATED })
@@ -38,23 +39,23 @@ public final class PostResponse implements JsonSerializable<PostResponse> {
     }
 
     /**
-     * Get the pets property: The pets property.
-     * 
-     * @return the pets value.
-     */
-    @Metadata(properties = { MetadataProperties.GENERATED })
-    public List<Pet> getPets() {
-        return this.pets;
-    }
-
-    /**
      * Get the next property: The next property.
-     * 
+     *
      * @return the next value.
      */
     @Metadata(properties = { MetadataProperties.GENERATED })
     public String getNext() {
         return this.next;
+    }
+
+    /**
+     * Get the pets property: The pets property.
+     *
+     * @return the pets value.
+     */
+    @Metadata(properties = { MetadataProperties.GENERATED })
+    public List<Pet> getPets() {
+        return this.pets;
     }
 
     /**
@@ -71,7 +72,7 @@ public final class PostResponse implements JsonSerializable<PostResponse> {
 
     /**
      * Reads an instance of PostResponse from the JsonReader.
-     * 
+     *
      * @param jsonReader The JsonReader being read.
      * @return An instance of PostResponse if the JsonReader was pointing to an instance of it, or null if it was
      * pointing to JSON null.
@@ -86,7 +87,6 @@ public final class PostResponse implements JsonSerializable<PostResponse> {
             while (reader.nextToken() != JsonToken.END_OBJECT) {
                 String fieldName = reader.getFieldName();
                 reader.nextToken();
-
                 if ("pets".equals(fieldName)) {
                     pets = reader.readArray(reader1 -> Pet.fromJson(reader1));
                 } else if ("next".equals(fieldName)) {
@@ -97,7 +97,6 @@ public final class PostResponse implements JsonSerializable<PostResponse> {
             }
             PostResponse deserializedPostResponse = new PostResponse(pets);
             deserializedPostResponse.next = next;
-
             return deserializedPostResponse;
         });
     }

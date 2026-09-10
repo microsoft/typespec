@@ -16,14 +16,15 @@ import io.clientcore.core.instrumentation.Instrumentation;
  */
 @ServiceClient(builder = DocumentationClientBuilder.class)
 public final class TextFormattingClient {
-    @Metadata(properties = { MetadataProperties.GENERATED })
-    private final TextFormattingsImpl serviceClient;
 
     private final Instrumentation instrumentation;
 
+    @Metadata(properties = { MetadataProperties.GENERATED })
+    private final TextFormattingsImpl serviceClient;
+
     /**
      * Initializes an instance of TextFormattingClient class.
-     * 
+     *
      * @param serviceClient the service client implementation.
      * @param instrumentation the instrumentation instance.
      */
@@ -37,7 +38,21 @@ public final class TextFormattingClient {
      * This is **bold text** in the middle of a sentence.
      * This is a sentence with **multiple bold** sections and **another bold** section.
      * **This entire sentence is bold.**.
-     * 
+     *
+     * @throws HttpResponseException thrown if the service returns an error.
+     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
+     */
+    @Metadata(properties = { MetadataProperties.GENERATED })
+    @ServiceMethod(returns = ReturnType.SINGLE)
+    public void boldText() {
+        boldTextWithResponse(RequestContext.none());
+    }
+
+    /**
+     * This is **bold text** in the middle of a sentence.
+     * This is a sentence with **multiple bold** sections and **another bold** section.
+     * **This entire sentence is bold.**.
+     *
      * @param requestContext The context to configure the HTTP request before HTTP client sends it.
      * @throws IllegalArgumentException thrown if parameters fail the validation.
      * @throws HttpResponseException thrown if the service returns an error.
@@ -52,49 +67,18 @@ public final class TextFormattingClient {
     }
 
     /**
-     * This is **bold text** in the middle of a sentence.
-     * This is a sentence with **multiple bold** sections and **another bold** section.
-     * **This entire sentence is bold.**.
-     * 
+     * This sentence has **bold**, *italic*, and ***bold italic*** text.
+     * You can also combine them like **bold with *italic inside* bold**.
+     * Or *italic with **bold inside** italic*.
+     * This is a sentence with **bold**, *italic*, and ***bold italic*** text.
+     *
      * @throws HttpResponseException thrown if the service returns an error.
      * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
      */
     @Metadata(properties = { MetadataProperties.GENERATED })
     @ServiceMethod(returns = ReturnType.SINGLE)
-    public void boldText() {
-        boldTextWithResponse(RequestContext.none());
-    }
-
-    /**
-     * This is *italic text* in the middle of a sentence.
-     * This is a sentence with *multiple italic* sections and *another italic* section.
-     * *This entire sentence is italic.*.
-     * 
-     * @param requestContext The context to configure the HTTP request before HTTP client sends it.
-     * @throws IllegalArgumentException thrown if parameters fail the validation.
-     * @throws HttpResponseException thrown if the service returns an error.
-     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
-     * @return the {@link Response}.
-     */
-    @Metadata(properties = { MetadataProperties.GENERATED })
-    @ServiceMethod(returns = ReturnType.SINGLE)
-    public Response<Void> italicTextWithResponse(RequestContext requestContext) {
-        return this.instrumentation.instrumentWithResponse("Documentation.TextFormatting.italicText", requestContext,
-            updatedContext -> this.serviceClient.italicTextWithResponse(updatedContext));
-    }
-
-    /**
-     * This is *italic text* in the middle of a sentence.
-     * This is a sentence with *multiple italic* sections and *another italic* section.
-     * *This entire sentence is italic.*.
-     * 
-     * @throws HttpResponseException thrown if the service returns an error.
-     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
-     */
-    @Metadata(properties = { MetadataProperties.GENERATED })
-    @ServiceMethod(returns = ReturnType.SINGLE)
-    public void italicText() {
-        italicTextWithResponse(RequestContext.none());
+    public void combinedFormatting() {
+        combinedFormattingWithResponse(RequestContext.none());
     }
 
     /**
@@ -102,7 +86,7 @@ public final class TextFormattingClient {
      * You can also combine them like **bold with *italic inside* bold**.
      * Or *italic with **bold inside** italic*.
      * This is a sentence with **bold**, *italic*, and ***bold italic*** text.
-     * 
+     *
      * @param requestContext The context to configure the HTTP request before HTTP client sends it.
      * @throws IllegalArgumentException thrown if parameters fail the validation.
      * @throws HttpResponseException thrown if the service returns an error.
@@ -117,17 +101,34 @@ public final class TextFormattingClient {
     }
 
     /**
-     * This sentence has **bold**, *italic*, and ***bold italic*** text.
-     * You can also combine them like **bold with *italic inside* bold**.
-     * Or *italic with **bold inside** italic*.
-     * This is a sentence with **bold**, *italic*, and ***bold italic*** text.
-     * 
+     * This is *italic text* in the middle of a sentence.
+     * This is a sentence with *multiple italic* sections and *another italic* section.
+     * *This entire sentence is italic.*.
+     *
      * @throws HttpResponseException thrown if the service returns an error.
      * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
      */
     @Metadata(properties = { MetadataProperties.GENERATED })
     @ServiceMethod(returns = ReturnType.SINGLE)
-    public void combinedFormatting() {
-        combinedFormattingWithResponse(RequestContext.none());
+    public void italicText() {
+        italicTextWithResponse(RequestContext.none());
+    }
+
+    /**
+     * This is *italic text* in the middle of a sentence.
+     * This is a sentence with *multiple italic* sections and *another italic* section.
+     * *This entire sentence is italic.*.
+     *
+     * @param requestContext The context to configure the HTTP request before HTTP client sends it.
+     * @throws IllegalArgumentException thrown if parameters fail the validation.
+     * @throws HttpResponseException thrown if the service returns an error.
+     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
+     * @return the {@link Response}.
+     */
+    @Metadata(properties = { MetadataProperties.GENERATED })
+    @ServiceMethod(returns = ReturnType.SINGLE)
+    public Response<Void> italicTextWithResponse(RequestContext requestContext) {
+        return this.instrumentation.instrumentWithResponse("Documentation.TextFormatting.italicText", requestContext,
+            updatedContext -> this.serviceClient.italicTextWithResponse(updatedContext));
     }
 }

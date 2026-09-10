@@ -21,10 +21,6 @@ import type.property.additionalproperties.DifferentSpreadStringRecord;
  * An instance of this class provides access to all the operations defined in SpreadDifferentStrings.
  */
 public final class SpreadDifferentStringsImpl {
-    /**
-     * The proxy service used to perform REST calls.
-     */
-    private final SpreadDifferentStringsService service;
 
     /**
      * The service client containing this operation class.
@@ -37,8 +33,13 @@ public final class SpreadDifferentStringsImpl {
     private final Instrumentation instrumentation;
 
     /**
+     * The proxy service used to perform REST calls.
+     */
+    private final SpreadDifferentStringsService service;
+
+    /**
      * Initializes an instance of SpreadDifferentStringsImpl.
-     * 
+     *
      * @param client the instance of the service client containing this operation class.
      */
     SpreadDifferentStringsImpl(AdditionalPropertiesClientImpl client) {
@@ -48,44 +49,8 @@ public final class SpreadDifferentStringsImpl {
     }
 
     /**
-     * The interface defining all the services for AdditionalPropertiesClientSpreadDifferentStrings to be used by the
-     * proxy service to perform REST calls.
-     */
-    @ServiceInterface(name = "AdditionalPropertiesClientSpreadDifferentStrings", host = "{endpoint}")
-    public interface SpreadDifferentStringsService {
-        static SpreadDifferentStringsService getNewInstance(HttpPipeline pipeline) {
-            try {
-                Class<?> clazz = Class
-                    .forName("type.property.additionalproperties.implementation.SpreadDifferentStringsServiceImpl");
-                return (SpreadDifferentStringsService) clazz.getMethod("getNewInstance", HttpPipeline.class)
-                    .invoke(null, pipeline);
-            } catch (ClassNotFoundException | NoSuchMethodException | IllegalAccessException
-                | InvocationTargetException e) {
-                throw new RuntimeException(e);
-            }
-
-        }
-
-        @HttpRequestInformation(
-            method = HttpMethod.GET,
-            path = "/type/property/additionalProperties/spreadDifferentRecordString",
-            expectedStatusCodes = { 200 })
-        @UnexpectedResponseExceptionDetail
-        Response<DifferentSpreadStringRecord> get(@HostParam("endpoint") String endpoint,
-            @HeaderParam("Accept") String accept, RequestContext requestContext);
-
-        @HttpRequestInformation(
-            method = HttpMethod.PUT,
-            path = "/type/property/additionalProperties/spreadDifferentRecordString",
-            expectedStatusCodes = { 204 })
-        @UnexpectedResponseExceptionDetail
-        Response<Void> put(@HostParam("endpoint") String endpoint, @HeaderParam("Content-Type") String contentType,
-            @BodyParam("application/json") DifferentSpreadStringRecord body, RequestContext requestContext);
-    }
-
-    /**
      * Get call.
-     * 
+     *
      * @param requestContext The context to configure the HTTP request before HTTP client sends it.
      * @throws IllegalArgumentException thrown if parameters fail the validation.
      * @throws HttpResponseException thrown if the service returns an error.
@@ -103,7 +68,7 @@ public final class SpreadDifferentStringsImpl {
 
     /**
      * Put operation.
-     * 
+     *
      * @param body body.
      * @param requestContext The context to configure the HTTP request before HTTP client sends it.
      * @throws IllegalArgumentException thrown if parameters fail the validation.
@@ -118,5 +83,41 @@ public final class SpreadDifferentStringsImpl {
                 final String contentType = "application/json";
                 return service.put(this.client.getEndpoint(), contentType, body, updatedContext);
             });
+    }
+
+    /**
+     * The interface defining all the services for AdditionalPropertiesClientSpreadDifferentStrings to be used by the
+     * proxy service to perform REST calls.
+     */
+    @ServiceInterface(name = "AdditionalPropertiesClientSpreadDifferentStrings", host = "{endpoint}")
+    public interface SpreadDifferentStringsService {
+
+        @HttpRequestInformation(
+            method = HttpMethod.GET,
+            path = "/type/property/additionalProperties/spreadDifferentRecordString",
+            expectedStatusCodes = { 200 })
+        @UnexpectedResponseExceptionDetail
+        Response<DifferentSpreadStringRecord> get(@HostParam("endpoint") String endpoint,
+            @HeaderParam("Accept") String accept, RequestContext requestContext);
+
+        @HttpRequestInformation(
+            method = HttpMethod.PUT,
+            path = "/type/property/additionalProperties/spreadDifferentRecordString",
+            expectedStatusCodes = { 204 })
+        @UnexpectedResponseExceptionDetail
+        Response<Void> put(@HostParam("endpoint") String endpoint, @HeaderParam("Content-Type") String contentType,
+            @BodyParam("application/json") DifferentSpreadStringRecord body, RequestContext requestContext);
+
+        static SpreadDifferentStringsService getNewInstance(HttpPipeline pipeline) {
+            try {
+                Class<?> clazz = Class
+                    .forName("type.property.additionalproperties.implementation.SpreadDifferentStringsServiceImpl");
+                return (SpreadDifferentStringsService) clazz.getMethod("getNewInstance", HttpPipeline.class)
+                    .invoke(null, pipeline);
+            } catch (ClassNotFoundException | NoSuchMethodException | IllegalAccessException
+                | InvocationTargetException e) {
+                throw new RuntimeException(e);
+            }
+        }
     }
 }

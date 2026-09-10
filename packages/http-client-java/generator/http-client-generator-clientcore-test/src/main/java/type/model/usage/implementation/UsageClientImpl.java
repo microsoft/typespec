@@ -23,10 +23,6 @@ import type.model.usage.OutputRecord;
  * Initializes a new instance of the UsageClient type.
  */
 public final class UsageClientImpl {
-    /**
-     * The proxy service used to perform REST calls.
-     */
-    private final UsageClientService service;
 
     /**
      * Service host.
@@ -34,27 +30,9 @@ public final class UsageClientImpl {
     private final String endpoint;
 
     /**
-     * Gets Service host.
-     * 
-     * @return the endpoint value.
-     */
-    public String getEndpoint() {
-        return this.endpoint;
-    }
-
-    /**
      * The HTTP pipeline to send requests through.
      */
     private final HttpPipeline httpPipeline;
-
-    /**
-     * Gets The HTTP pipeline to send requests through.
-     * 
-     * @return the httpPipeline value.
-     */
-    public HttpPipeline getHttpPipeline() {
-        return this.httpPipeline;
-    }
 
     /**
      * The instance of instrumentation to report telemetry.
@@ -62,17 +40,13 @@ public final class UsageClientImpl {
     private final Instrumentation instrumentation;
 
     /**
-     * Gets The instance of instrumentation to report telemetry.
-     * 
-     * @return the instrumentation value.
+     * The proxy service used to perform REST calls.
      */
-    public Instrumentation getInstrumentation() {
-        return this.instrumentation;
-    }
+    private final UsageClientService service;
 
     /**
      * Initializes an instance of UsageClient client.
-     * 
+     *
      * @param httpPipeline The HTTP pipeline to send requests through.
      * @param instrumentation The instance of instrumentation to report telemetry.
      * @param endpoint Service host.
@@ -85,51 +59,56 @@ public final class UsageClientImpl {
     }
 
     /**
-     * The interface defining all the services for UsageClient to be used by the proxy service to perform REST calls.
+     * Gets Service host.
+     *
+     * @return the endpoint value.
      */
-    @ServiceInterface(name = "UsageClient", host = "{endpoint}")
-    public interface UsageClientService {
-        static UsageClientService getNewInstance(HttpPipeline pipeline) {
-            try {
-                Class<?> clazz = Class.forName("type.model.usage.implementation.UsageClientServiceImpl");
-                return (UsageClientService) clazz.getMethod("getNewInstance", HttpPipeline.class)
-                    .invoke(null, pipeline);
-            } catch (ClassNotFoundException | NoSuchMethodException | IllegalAccessException
-                | InvocationTargetException e) {
-                throw new RuntimeException(e);
-            }
+    public String getEndpoint() {
+        return this.endpoint;
+    }
 
-        }
+    /**
+     * Gets The HTTP pipeline to send requests through.
+     *
+     * @return the httpPipeline value.
+     */
+    public HttpPipeline getHttpPipeline() {
+        return this.httpPipeline;
+    }
 
-        @HttpRequestInformation(
-            method = HttpMethod.POST,
-            path = "/type/model/usage/input",
-            expectedStatusCodes = { 204 })
-        @UnexpectedResponseExceptionDetail
-        Response<Void> input(@HostParam("endpoint") String endpoint, @HeaderParam("Content-Type") String contentType,
-            @BodyParam("application/json") InputRecord input, RequestContext requestContext);
+    /**
+     * Gets The instance of instrumentation to report telemetry.
+     *
+     * @return the instrumentation value.
+     */
+    public Instrumentation getInstrumentation() {
+        return this.instrumentation;
+    }
 
-        @HttpRequestInformation(
-            method = HttpMethod.GET,
-            path = "/type/model/usage/output",
-            expectedStatusCodes = { 200 })
-        @UnexpectedResponseExceptionDetail
-        Response<OutputRecord> output(@HostParam("endpoint") String endpoint, @HeaderParam("Accept") String accept,
-            RequestContext requestContext);
-
-        @HttpRequestInformation(
-            method = HttpMethod.POST,
-            path = "/type/model/usage/input-output",
-            expectedStatusCodes = { 200 })
-        @UnexpectedResponseExceptionDetail
-        Response<InputOutputRecord> inputAndOutput(@HostParam("endpoint") String endpoint,
-            @HeaderParam("Content-Type") String contentType, @HeaderParam("Accept") String accept,
-            @BodyParam("application/json") InputOutputRecord body, RequestContext requestContext);
+    /**
+     * The inputAndOutput operation.
+     *
+     * @param body The body parameter.
+     * @param requestContext The context to configure the HTTP request before HTTP client sends it.
+     * @throws IllegalArgumentException thrown if parameters fail the validation.
+     * @throws HttpResponseException thrown if the service returns an error.
+     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
+     * @return record used both as operation parameter and return type along with {@link Response}.
+     */
+    @ServiceMethod(returns = ReturnType.SINGLE)
+    public Response<InputOutputRecord> inputAndOutputWithResponse(InputOutputRecord body,
+        RequestContext requestContext) {
+        return this.instrumentation.instrumentWithResponse("Type.Model.Usage.inputAndOutput", requestContext,
+            updatedContext -> {
+                final String contentType = "application/json";
+                final String accept = "application/json";
+                return service.inputAndOutput(this.getEndpoint(), contentType, accept, body, updatedContext);
+            });
     }
 
     /**
      * The input operation.
-     * 
+     *
      * @param input The input parameter.
      * @param requestContext The context to configure the HTTP request before HTTP client sends it.
      * @throws IllegalArgumentException thrown if parameters fail the validation.
@@ -147,7 +126,7 @@ public final class UsageClientImpl {
 
     /**
      * The output operation.
-     * 
+     *
      * @param requestContext The context to configure the HTTP request before HTTP client sends it.
      * @throws IllegalArgumentException thrown if parameters fail the validation.
      * @throws HttpResponseException thrown if the service returns an error.
@@ -164,23 +143,45 @@ public final class UsageClientImpl {
     }
 
     /**
-     * The inputAndOutput operation.
-     * 
-     * @param body The body parameter.
-     * @param requestContext The context to configure the HTTP request before HTTP client sends it.
-     * @throws IllegalArgumentException thrown if parameters fail the validation.
-     * @throws HttpResponseException thrown if the service returns an error.
-     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
-     * @return record used both as operation parameter and return type along with {@link Response}.
+     * The interface defining all the services for UsageClient to be used by the proxy service to perform REST calls.
      */
-    @ServiceMethod(returns = ReturnType.SINGLE)
-    public Response<InputOutputRecord> inputAndOutputWithResponse(InputOutputRecord body,
-        RequestContext requestContext) {
-        return this.instrumentation.instrumentWithResponse("Type.Model.Usage.inputAndOutput", requestContext,
-            updatedContext -> {
-                final String contentType = "application/json";
-                final String accept = "application/json";
-                return service.inputAndOutput(this.getEndpoint(), contentType, accept, body, updatedContext);
-            });
+    @ServiceInterface(name = "UsageClient", host = "{endpoint}")
+    public interface UsageClientService {
+
+        @HttpRequestInformation(
+            method = HttpMethod.POST,
+            path = "/type/model/usage/input",
+            expectedStatusCodes = { 204 })
+        @UnexpectedResponseExceptionDetail
+        Response<Void> input(@HostParam("endpoint") String endpoint, @HeaderParam("Content-Type") String contentType,
+            @BodyParam("application/json") InputRecord input, RequestContext requestContext);
+
+        @HttpRequestInformation(
+            method = HttpMethod.POST,
+            path = "/type/model/usage/input-output",
+            expectedStatusCodes = { 200 })
+        @UnexpectedResponseExceptionDetail
+        Response<InputOutputRecord> inputAndOutput(@HostParam("endpoint") String endpoint,
+            @HeaderParam("Content-Type") String contentType, @HeaderParam("Accept") String accept,
+            @BodyParam("application/json") InputOutputRecord body, RequestContext requestContext);
+
+        @HttpRequestInformation(
+            method = HttpMethod.GET,
+            path = "/type/model/usage/output",
+            expectedStatusCodes = { 200 })
+        @UnexpectedResponseExceptionDetail
+        Response<OutputRecord> output(@HostParam("endpoint") String endpoint, @HeaderParam("Accept") String accept,
+            RequestContext requestContext);
+
+        static UsageClientService getNewInstance(HttpPipeline pipeline) {
+            try {
+                Class<?> clazz = Class.forName("type.model.usage.implementation.UsageClientServiceImpl");
+                return (UsageClientService) clazz.getMethod("getNewInstance", HttpPipeline.class)
+                    .invoke(null, pipeline);
+            } catch (ClassNotFoundException | NoSuchMethodException | IllegalAccessException
+                | InvocationTargetException e) {
+                throw new RuntimeException(e);
+            }
+        }
     }
 }

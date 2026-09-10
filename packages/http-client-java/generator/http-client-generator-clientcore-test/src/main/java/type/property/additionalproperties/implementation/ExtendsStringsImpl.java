@@ -21,10 +21,6 @@ import type.property.additionalproperties.ExtendsStringAdditionalProperties;
  * An instance of this class provides access to all the operations defined in ExtendsStrings.
  */
 public final class ExtendsStringsImpl {
-    /**
-     * The proxy service used to perform REST calls.
-     */
-    private final ExtendsStringsService service;
 
     /**
      * The service client containing this operation class.
@@ -37,8 +33,13 @@ public final class ExtendsStringsImpl {
     private final Instrumentation instrumentation;
 
     /**
+     * The proxy service used to perform REST calls.
+     */
+    private final ExtendsStringsService service;
+
+    /**
      * Initializes an instance of ExtendsStringsImpl.
-     * 
+     *
      * @param client the instance of the service client containing this operation class.
      */
     ExtendsStringsImpl(AdditionalPropertiesClientImpl client) {
@@ -48,44 +49,8 @@ public final class ExtendsStringsImpl {
     }
 
     /**
-     * The interface defining all the services for AdditionalPropertiesClientExtendsStrings to be used by the proxy
-     * service to perform REST calls.
-     */
-    @ServiceInterface(name = "AdditionalPropertiesClientExtendsStrings", host = "{endpoint}")
-    public interface ExtendsStringsService {
-        static ExtendsStringsService getNewInstance(HttpPipeline pipeline) {
-            try {
-                Class<?> clazz
-                    = Class.forName("type.property.additionalproperties.implementation.ExtendsStringsServiceImpl");
-                return (ExtendsStringsService) clazz.getMethod("getNewInstance", HttpPipeline.class)
-                    .invoke(null, pipeline);
-            } catch (ClassNotFoundException | NoSuchMethodException | IllegalAccessException
-                | InvocationTargetException e) {
-                throw new RuntimeException(e);
-            }
-
-        }
-
-        @HttpRequestInformation(
-            method = HttpMethod.GET,
-            path = "/type/property/additionalProperties/extendsRecordString",
-            expectedStatusCodes = { 200 })
-        @UnexpectedResponseExceptionDetail
-        Response<ExtendsStringAdditionalProperties> get(@HostParam("endpoint") String endpoint,
-            @HeaderParam("Accept") String accept, RequestContext requestContext);
-
-        @HttpRequestInformation(
-            method = HttpMethod.PUT,
-            path = "/type/property/additionalProperties/extendsRecordString",
-            expectedStatusCodes = { 204 })
-        @UnexpectedResponseExceptionDetail
-        Response<Void> put(@HostParam("endpoint") String endpoint, @HeaderParam("Content-Type") String contentType,
-            @BodyParam("application/json") ExtendsStringAdditionalProperties body, RequestContext requestContext);
-    }
-
-    /**
      * Get call.
-     * 
+     *
      * @param requestContext The context to configure the HTTP request before HTTP client sends it.
      * @throws IllegalArgumentException thrown if parameters fail the validation.
      * @throws HttpResponseException thrown if the service returns an error.
@@ -103,7 +68,7 @@ public final class ExtendsStringsImpl {
 
     /**
      * Put operation.
-     * 
+     *
      * @param body body.
      * @param requestContext The context to configure the HTTP request before HTTP client sends it.
      * @throws IllegalArgumentException thrown if parameters fail the validation.
@@ -118,5 +83,41 @@ public final class ExtendsStringsImpl {
                 final String contentType = "application/json";
                 return service.put(this.client.getEndpoint(), contentType, body, updatedContext);
             });
+    }
+
+    /**
+     * The interface defining all the services for AdditionalPropertiesClientExtendsStrings to be used by the proxy
+     * service to perform REST calls.
+     */
+    @ServiceInterface(name = "AdditionalPropertiesClientExtendsStrings", host = "{endpoint}")
+    public interface ExtendsStringsService {
+
+        @HttpRequestInformation(
+            method = HttpMethod.GET,
+            path = "/type/property/additionalProperties/extendsRecordString",
+            expectedStatusCodes = { 200 })
+        @UnexpectedResponseExceptionDetail
+        Response<ExtendsStringAdditionalProperties> get(@HostParam("endpoint") String endpoint,
+            @HeaderParam("Accept") String accept, RequestContext requestContext);
+
+        @HttpRequestInformation(
+            method = HttpMethod.PUT,
+            path = "/type/property/additionalProperties/extendsRecordString",
+            expectedStatusCodes = { 204 })
+        @UnexpectedResponseExceptionDetail
+        Response<Void> put(@HostParam("endpoint") String endpoint, @HeaderParam("Content-Type") String contentType,
+            @BodyParam("application/json") ExtendsStringAdditionalProperties body, RequestContext requestContext);
+
+        static ExtendsStringsService getNewInstance(HttpPipeline pipeline) {
+            try {
+                Class<?> clazz
+                    = Class.forName("type.property.additionalproperties.implementation.ExtendsStringsServiceImpl");
+                return (ExtendsStringsService) clazz.getMethod("getNewInstance", HttpPipeline.class)
+                    .invoke(null, pipeline);
+            } catch (ClassNotFoundException | NoSuchMethodException | IllegalAccessException
+                | InvocationTargetException e) {
+                throw new RuntimeException(e);
+            }
+        }
     }
 }

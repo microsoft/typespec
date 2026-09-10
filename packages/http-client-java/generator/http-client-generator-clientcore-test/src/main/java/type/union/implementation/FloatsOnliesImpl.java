@@ -22,10 +22,6 @@ import type.union.GetResponseProp3;
  * An instance of this class provides access to all the operations defined in FloatsOnlies.
  */
 public final class FloatsOnliesImpl {
-    /**
-     * The proxy service used to perform REST calls.
-     */
-    private final FloatsOnliesService service;
 
     /**
      * The service client containing this operation class.
@@ -38,8 +34,13 @@ public final class FloatsOnliesImpl {
     private final Instrumentation instrumentation;
 
     /**
+     * The proxy service used to perform REST calls.
+     */
+    private final FloatsOnliesService service;
+
+    /**
      * Initializes an instance of FloatsOnliesImpl.
-     * 
+     *
      * @param client the instance of the service client containing this operation class.
      */
     FloatsOnliesImpl(UnionClientImpl client) {
@@ -49,43 +50,8 @@ public final class FloatsOnliesImpl {
     }
 
     /**
-     * The interface defining all the services for UnionClientFloatsOnlies to be used by the proxy service to perform
-     * REST calls.
-     */
-    @ServiceInterface(name = "UnionClientFloatsOnlies", host = "{endpoint}")
-    public interface FloatsOnliesService {
-        static FloatsOnliesService getNewInstance(HttpPipeline pipeline) {
-            try {
-                Class<?> clazz = Class.forName("type.union.implementation.FloatsOnliesServiceImpl");
-                return (FloatsOnliesService) clazz.getMethod("getNewInstance", HttpPipeline.class)
-                    .invoke(null, pipeline);
-            } catch (ClassNotFoundException | NoSuchMethodException | IllegalAccessException
-                | InvocationTargetException e) {
-                throw new RuntimeException(e);
-            }
-
-        }
-
-        @HttpRequestInformation(
-            method = HttpMethod.GET,
-            path = "/type/union/floats-only",
-            expectedStatusCodes = { 200 })
-        @UnexpectedResponseExceptionDetail
-        Response<GetResponse4> get(@HostParam("endpoint") String endpoint, @HeaderParam("Accept") String accept,
-            RequestContext requestContext);
-
-        @HttpRequestInformation(
-            method = HttpMethod.POST,
-            path = "/type/union/floats-only",
-            expectedStatusCodes = { 204 })
-        @UnexpectedResponseExceptionDetail
-        Response<Void> send(@HostParam("endpoint") String endpoint, @HeaderParam("Content-Type") String contentType,
-            @BodyParam("application/json") SendRequest4 sendRequest4, RequestContext requestContext);
-    }
-
-    /**
      * The get operation.
-     * 
+     *
      * @param requestContext The context to configure the HTTP request before HTTP client sends it.
      * @throws IllegalArgumentException thrown if parameters fail the validation.
      * @throws HttpResponseException thrown if the service returns an error.
@@ -103,7 +69,7 @@ public final class FloatsOnliesImpl {
 
     /**
      * The send operation.
-     * 
+     *
      * @param prop The prop parameter.
      * @param requestContext The context to configure the HTTP request before HTTP client sends it.
      * @throws IllegalArgumentException thrown if parameters fail the validation.
@@ -119,5 +85,40 @@ public final class FloatsOnliesImpl {
                 SendRequest4 sendRequest4 = new SendRequest4(prop);
                 return service.send(this.client.getEndpoint(), contentType, sendRequest4, updatedContext);
             });
+    }
+
+    /**
+     * The interface defining all the services for UnionClientFloatsOnlies to be used by the proxy service to perform
+     * REST calls.
+     */
+    @ServiceInterface(name = "UnionClientFloatsOnlies", host = "{endpoint}")
+    public interface FloatsOnliesService {
+
+        @HttpRequestInformation(
+            method = HttpMethod.GET,
+            path = "/type/union/floats-only",
+            expectedStatusCodes = { 200 })
+        @UnexpectedResponseExceptionDetail
+        Response<GetResponse4> get(@HostParam("endpoint") String endpoint, @HeaderParam("Accept") String accept,
+            RequestContext requestContext);
+
+        @HttpRequestInformation(
+            method = HttpMethod.POST,
+            path = "/type/union/floats-only",
+            expectedStatusCodes = { 204 })
+        @UnexpectedResponseExceptionDetail
+        Response<Void> send(@HostParam("endpoint") String endpoint, @HeaderParam("Content-Type") String contentType,
+            @BodyParam("application/json") SendRequest4 sendRequest4, RequestContext requestContext);
+
+        static FloatsOnliesService getNewInstance(HttpPipeline pipeline) {
+            try {
+                Class<?> clazz = Class.forName("type.union.implementation.FloatsOnliesServiceImpl");
+                return (FloatsOnliesService) clazz.getMethod("getNewInstance", HttpPipeline.class)
+                    .invoke(null, pipeline);
+            } catch (ClassNotFoundException | NoSuchMethodException | IllegalAccessException
+                | InvocationTargetException e) {
+                throw new RuntimeException(e);
+            }
+        }
     }
 }

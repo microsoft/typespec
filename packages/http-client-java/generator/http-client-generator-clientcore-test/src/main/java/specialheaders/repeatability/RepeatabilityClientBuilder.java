@@ -35,18 +35,61 @@ import specialheaders.repeatability.implementation.RepeatabilityClientImpl;
 public final class RepeatabilityClientBuilder
     implements HttpTrait<RepeatabilityClientBuilder>, ProxyTrait<RepeatabilityClientBuilder>,
     ConfigurationTrait<RepeatabilityClientBuilder>, EndpointTrait<RepeatabilityClientBuilder> {
-    @Metadata(properties = { MetadataProperties.GENERATED })
-    private static final String SDK_NAME = "name";
-
-    @Metadata(properties = { MetadataProperties.GENERATED })
-    private static final String SDK_VERSION = "version";
 
     @Metadata(properties = { MetadataProperties.GENERATED })
     private static final Map<String, String> PROPERTIES
         = CoreUtils.getProperties("specialheaders-repeatability.properties");
 
     @Metadata(properties = { MetadataProperties.GENERATED })
+    private static final String SDK_NAME = "name";
+
+    @Metadata(properties = { MetadataProperties.GENERATED })
+    private static final String SDK_VERSION = "version";
+
+    /*
+     * The configuration store that is used during construction of the service client.
+     */
+    @Metadata(properties = { MetadataProperties.GENERATED })
+    private Configuration configuration;
+
+    /*
+     * The service endpoint
+     */
+    @Metadata(properties = { MetadataProperties.GENERATED })
+    private String endpoint;
+
+    /*
+     * The HTTP client used to send the request.
+     */
+    @Metadata(properties = { MetadataProperties.GENERATED })
+    private HttpClient httpClient;
+
+    /*
+     * The instrumentation configuration for HTTP requests and responses.
+     */
+    @Metadata(properties = { MetadataProperties.GENERATED })
+    private HttpInstrumentationOptions httpInstrumentationOptions;
+
+    @Metadata(properties = { MetadataProperties.GENERATED })
     private final List<HttpPipelinePolicy> pipelinePolicies;
+
+    /*
+     * The proxy options used during construction of the service client.
+     */
+    @Metadata(properties = { MetadataProperties.GENERATED })
+    private ProxyOptions proxyOptions;
+
+    /*
+     * The redirect options to configure redirect policy
+     */
+    @Metadata(properties = { MetadataProperties.GENERATED })
+    private HttpRedirectOptions redirectOptions;
+
+    /*
+     * The retry options to configure retry policy for failed requests.
+     */
+    @Metadata(properties = { MetadataProperties.GENERATED })
+    private HttpRetryOptions retryOptions;
 
     /**
      * Create an instance of the RepeatabilityClientBuilder.
@@ -56,11 +99,36 @@ public final class RepeatabilityClientBuilder
         this.pipelinePolicies = new ArrayList<>();
     }
 
-    /*
-     * The HTTP client used to send the request.
+    /**
+     * {@inheritDoc}.
      */
     @Metadata(properties = { MetadataProperties.GENERATED })
-    private HttpClient httpClient;
+    @Override
+    public RepeatabilityClientBuilder addHttpPipelinePolicy(HttpPipelinePolicy customPolicy) {
+        Objects.requireNonNull(customPolicy, "'customPolicy' cannot be null.");
+        pipelinePolicies.add(customPolicy);
+        return this;
+    }
+
+    /**
+     * {@inheritDoc}.
+     */
+    @Metadata(properties = { MetadataProperties.GENERATED })
+    @Override
+    public RepeatabilityClientBuilder configuration(Configuration configuration) {
+        this.configuration = configuration;
+        return this;
+    }
+
+    /**
+     * {@inheritDoc}.
+     */
+    @Metadata(properties = { MetadataProperties.GENERATED })
+    @Override
+    public RepeatabilityClientBuilder endpoint(String endpoint) {
+        this.endpoint = endpoint;
+        return this;
+    }
 
     /**
      * {@inheritDoc}.
@@ -72,11 +140,26 @@ public final class RepeatabilityClientBuilder
         return this;
     }
 
-    /*
-     * The retry options to configure retry policy for failed requests.
+    /**
+     * {@inheritDoc}.
      */
     @Metadata(properties = { MetadataProperties.GENERATED })
-    private HttpRetryOptions retryOptions;
+    @Override
+    public RepeatabilityClientBuilder
+        httpInstrumentationOptions(HttpInstrumentationOptions httpInstrumentationOptions) {
+        this.httpInstrumentationOptions = httpInstrumentationOptions;
+        return this;
+    }
+
+    /**
+     * {@inheritDoc}.
+     */
+    @Metadata(properties = { MetadataProperties.GENERATED })
+    @Override
+    public RepeatabilityClientBuilder httpRedirectOptions(HttpRedirectOptions redirectOptions) {
+        this.redirectOptions = redirectOptions;
+        return this;
+    }
 
     /**
      * {@inheritDoc}.
@@ -93,96 +176,25 @@ public final class RepeatabilityClientBuilder
      */
     @Metadata(properties = { MetadataProperties.GENERATED })
     @Override
-    public RepeatabilityClientBuilder addHttpPipelinePolicy(HttpPipelinePolicy customPolicy) {
-        Objects.requireNonNull(customPolicy, "'customPolicy' cannot be null.");
-        pipelinePolicies.add(customPolicy);
-        return this;
-    }
-
-    /*
-     * The redirect options to configure redirect policy
-     */
-    @Metadata(properties = { MetadataProperties.GENERATED })
-    private HttpRedirectOptions redirectOptions;
-
-    /**
-     * {@inheritDoc}.
-     */
-    @Metadata(properties = { MetadataProperties.GENERATED })
-    @Override
-    public RepeatabilityClientBuilder httpRedirectOptions(HttpRedirectOptions redirectOptions) {
-        this.redirectOptions = redirectOptions;
-        return this;
-    }
-
-    /*
-     * The instrumentation configuration for HTTP requests and responses.
-     */
-    @Metadata(properties = { MetadataProperties.GENERATED })
-    private HttpInstrumentationOptions httpInstrumentationOptions;
-
-    /**
-     * {@inheritDoc}.
-     */
-    @Metadata(properties = { MetadataProperties.GENERATED })
-    @Override
-    public RepeatabilityClientBuilder
-        httpInstrumentationOptions(HttpInstrumentationOptions httpInstrumentationOptions) {
-        this.httpInstrumentationOptions = httpInstrumentationOptions;
-        return this;
-    }
-
-    /*
-     * The proxy options used during construction of the service client.
-     */
-    @Metadata(properties = { MetadataProperties.GENERATED })
-    private ProxyOptions proxyOptions;
-
-    /**
-     * {@inheritDoc}.
-     */
-    @Metadata(properties = { MetadataProperties.GENERATED })
-    @Override
     public RepeatabilityClientBuilder proxyOptions(ProxyOptions proxyOptions) {
         this.proxyOptions = proxyOptions;
         return this;
     }
 
-    /*
-     * The configuration store that is used during construction of the service client.
-     */
-    @Metadata(properties = { MetadataProperties.GENERATED })
-    private Configuration configuration;
-
     /**
-     * {@inheritDoc}.
+     * Builds an instance of RepeatabilityClient class.
+     *
+     * @return an instance of RepeatabilityClient.
      */
     @Metadata(properties = { MetadataProperties.GENERATED })
-    @Override
-    public RepeatabilityClientBuilder configuration(Configuration configuration) {
-        this.configuration = configuration;
-        return this;
-    }
-
-    /*
-     * The service endpoint
-     */
-    @Metadata(properties = { MetadataProperties.GENERATED })
-    private String endpoint;
-
-    /**
-     * {@inheritDoc}.
-     */
-    @Metadata(properties = { MetadataProperties.GENERATED })
-    @Override
-    public RepeatabilityClientBuilder endpoint(String endpoint) {
-        this.endpoint = endpoint;
-        return this;
+    public RepeatabilityClient buildClient() {
+        RepeatabilityClientImpl innerClient = buildInnerClient();
+        return new RepeatabilityClient(innerClient, innerClient.getInstrumentation());
     }
 
     /**
      * Builds an instance of RepeatabilityClientImpl with the provided parameters.
-     * 
+     *
      * @return an instance of RepeatabilityClientImpl.
      */
     @Metadata(properties = { MetadataProperties.GENERATED })
@@ -204,12 +216,6 @@ public final class RepeatabilityClientBuilder
     }
 
     @Metadata(properties = { MetadataProperties.GENERATED })
-    private void validateClient() {
-        // This method is invoked from 'buildInnerClient'/'buildClient' method.
-        // Developer can customize this method, to validate that the necessary conditions are met for the new client.
-    }
-
-    @Metadata(properties = { MetadataProperties.GENERATED })
     private HttpPipeline createHttpPipeline() {
         Configuration buildConfiguration
             = (configuration == null) ? Configuration.getGlobalConfiguration() : configuration;
@@ -226,14 +232,9 @@ public final class RepeatabilityClientBuilder
         return httpPipelineBuilder.httpClient(httpClient).build();
     }
 
-    /**
-     * Builds an instance of RepeatabilityClient class.
-     * 
-     * @return an instance of RepeatabilityClient.
-     */
     @Metadata(properties = { MetadataProperties.GENERATED })
-    public RepeatabilityClient buildClient() {
-        RepeatabilityClientImpl innerClient = buildInnerClient();
-        return new RepeatabilityClient(innerClient, innerClient.getInstrumentation());
+    private void validateClient() {
+        // This method is invoked from 'buildInnerClient'/'buildClient' method.
+        // Developer can customize this method, to validate that the necessary conditions are met for the new client.
     }
 }

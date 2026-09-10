@@ -15,11 +15,6 @@ import java.util.Map;
  */
 @Metadata(properties = { MetadataProperties.FLUENT })
 public final class IsFloatAdditionalProperties implements JsonSerializable<IsFloatAdditionalProperties> {
-    /*
-     * The id property
-     */
-    @Metadata(properties = { MetadataProperties.GENERATED })
-    private final double id;
 
     /*
      * The model is from Record<float32> type.
@@ -27,9 +22,15 @@ public final class IsFloatAdditionalProperties implements JsonSerializable<IsFlo
     @Metadata(properties = { MetadataProperties.GENERATED })
     private Map<String, Double> additionalProperties;
 
+    /*
+     * The id property
+     */
+    @Metadata(properties = { MetadataProperties.GENERATED })
+    private final double id;
+
     /**
      * Creates an instance of IsFloatAdditionalProperties class.
-     * 
+     *
      * @param id the id value to set.
      */
     @Metadata(properties = { MetadataProperties.GENERATED })
@@ -38,18 +39,8 @@ public final class IsFloatAdditionalProperties implements JsonSerializable<IsFlo
     }
 
     /**
-     * Get the id property: The id property.
-     * 
-     * @return the id value.
-     */
-    @Metadata(properties = { MetadataProperties.GENERATED })
-    public double getId() {
-        return this.id;
-    }
-
-    /**
      * Get the additionalProperties property: The model is from Record&lt;float32&gt; type.
-     * 
+     *
      * @return the additionalProperties value.
      */
     @Metadata(properties = { MetadataProperties.GENERATED })
@@ -59,7 +50,7 @@ public final class IsFloatAdditionalProperties implements JsonSerializable<IsFlo
 
     /**
      * Set the additionalProperties property: The model is from Record&lt;float32&gt; type.
-     * 
+     *
      * @param additionalProperties the additionalProperties value to set.
      * @return the IsFloatAdditionalProperties object itself.
      */
@@ -67,6 +58,16 @@ public final class IsFloatAdditionalProperties implements JsonSerializable<IsFlo
     public IsFloatAdditionalProperties setAdditionalProperties(Map<String, Double> additionalProperties) {
         this.additionalProperties = additionalProperties;
         return this;
+    }
+
+    /**
+     * Get the id property: The id property.
+     *
+     * @return the id value.
+     */
+    @Metadata(properties = { MetadataProperties.GENERATED })
+    public double getId() {
+        return this.id;
     }
 
     /**
@@ -87,7 +88,7 @@ public final class IsFloatAdditionalProperties implements JsonSerializable<IsFlo
 
     /**
      * Reads an instance of IsFloatAdditionalProperties from the JsonReader.
-     * 
+     *
      * @param jsonReader The JsonReader being read.
      * @return An instance of IsFloatAdditionalProperties if the JsonReader was pointing to an instance of it, or null
      * if it was pointing to JSON null.
@@ -102,20 +103,17 @@ public final class IsFloatAdditionalProperties implements JsonSerializable<IsFlo
             while (reader.nextToken() != JsonToken.END_OBJECT) {
                 String fieldName = reader.getFieldName();
                 reader.nextToken();
-
                 if ("id".equals(fieldName)) {
                     id = reader.getDouble();
                 } else {
                     if (additionalProperties == null) {
                         additionalProperties = new LinkedHashMap<>();
                     }
-
                     additionalProperties.put(fieldName, reader.getDouble());
                 }
             }
             IsFloatAdditionalProperties deserializedIsFloatAdditionalProperties = new IsFloatAdditionalProperties(id);
             deserializedIsFloatAdditionalProperties.additionalProperties = additionalProperties;
-
             return deserializedIsFloatAdditionalProperties;
         });
     }

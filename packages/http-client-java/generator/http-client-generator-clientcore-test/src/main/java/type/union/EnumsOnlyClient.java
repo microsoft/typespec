@@ -16,14 +16,15 @@ import type.union.implementation.EnumsOnliesImpl;
  */
 @ServiceClient(builder = UnionClientBuilder.class)
 public final class EnumsOnlyClient {
-    @Metadata(properties = { MetadataProperties.GENERATED })
-    private final EnumsOnliesImpl serviceClient;
 
     private final Instrumentation instrumentation;
 
+    @Metadata(properties = { MetadataProperties.GENERATED })
+    private final EnumsOnliesImpl serviceClient;
+
     /**
      * Initializes an instance of EnumsOnlyClient class.
-     * 
+     *
      * @param serviceClient the service client implementation.
      * @param instrumentation the instrumentation instance.
      */
@@ -35,7 +36,20 @@ public final class EnumsOnlyClient {
 
     /**
      * The get operation.
-     * 
+     *
+     * @throws HttpResponseException thrown if the service returns an error.
+     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
+     * @return the response.
+     */
+    @Metadata(properties = { MetadataProperties.GENERATED })
+    @ServiceMethod(returns = ReturnType.SINGLE)
+    public GetResponse6 get() {
+        return getWithResponse(RequestContext.none()).getValue();
+    }
+
+    /**
+     * The get operation.
+     *
      * @param requestContext The context to configure the HTTP request before HTTP client sends it.
      * @throws IllegalArgumentException thrown if parameters fail the validation.
      * @throws HttpResponseException thrown if the service returns an error.
@@ -50,21 +64,22 @@ public final class EnumsOnlyClient {
     }
 
     /**
-     * The get operation.
-     * 
+     * The send operation.
+     *
+     * @param prop The prop parameter.
+     * @throws IllegalArgumentException thrown if parameters fail the validation.
      * @throws HttpResponseException thrown if the service returns an error.
      * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
-     * @return the response.
      */
     @Metadata(properties = { MetadataProperties.GENERATED })
     @ServiceMethod(returns = ReturnType.SINGLE)
-    public GetResponse6 get() {
-        return getWithResponse(RequestContext.none()).getValue();
+    public void send(EnumsOnlyCases prop) {
+        sendWithResponse(prop, RequestContext.none());
     }
 
     /**
      * The send operation.
-     * 
+     *
      * @param prop The prop parameter.
      * @param requestContext The context to configure the HTTP request before HTTP client sends it.
      * @throws IllegalArgumentException thrown if parameters fail the validation.
@@ -77,19 +92,5 @@ public final class EnumsOnlyClient {
     public Response<Void> sendWithResponse(EnumsOnlyCases prop, RequestContext requestContext) {
         return this.instrumentation.instrumentWithResponse("Type.Union.EnumsOnly.send", requestContext,
             updatedContext -> this.serviceClient.sendWithResponse(prop, updatedContext));
-    }
-
-    /**
-     * The send operation.
-     * 
-     * @param prop The prop parameter.
-     * @throws IllegalArgumentException thrown if parameters fail the validation.
-     * @throws HttpResponseException thrown if the service returns an error.
-     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
-     */
-    @Metadata(properties = { MetadataProperties.GENERATED })
-    @ServiceMethod(returns = ReturnType.SINGLE)
-    public void send(EnumsOnlyCases prop) {
-        sendWithResponse(prop, RequestContext.none());
     }
 }

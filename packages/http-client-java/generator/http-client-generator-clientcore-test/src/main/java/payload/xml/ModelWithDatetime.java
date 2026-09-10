@@ -18,6 +18,7 @@ import javax.xml.stream.XMLStreamException;
  */
 @Metadata(properties = { MetadataProperties.IMMUTABLE })
 public final class ModelWithDatetime implements XmlSerializable<ModelWithDatetime> {
+
     /*
      * DateTime value with rfc3339 encoding.
      */
@@ -32,7 +33,7 @@ public final class ModelWithDatetime implements XmlSerializable<ModelWithDatetim
 
     /**
      * Creates an instance of ModelWithDatetime class.
-     * 
+     *
      * @param rfc3339 the rfc3339 value to set.
      * @param rfc7231 the rfc7231 value to set.
      */
@@ -48,7 +49,7 @@ public final class ModelWithDatetime implements XmlSerializable<ModelWithDatetim
 
     /**
      * Get the rfc3339 property: DateTime value with rfc3339 encoding.
-     * 
+     *
      * @return the rfc3339 value.
      */
     @Metadata(properties = { MetadataProperties.GENERATED })
@@ -58,7 +59,7 @@ public final class ModelWithDatetime implements XmlSerializable<ModelWithDatetim
 
     /**
      * Get the rfc7231 property: DateTime value with rfc7231 encoding.
-     * 
+     *
      * @return the rfc7231 value.
      */
     @Metadata(properties = { MetadataProperties.GENERATED })
@@ -88,7 +89,7 @@ public final class ModelWithDatetime implements XmlSerializable<ModelWithDatetim
 
     /**
      * Reads an instance of ModelWithDatetime from the XmlReader.
-     * 
+     *
      * @param xmlReader The XmlReader being read.
      * @return An instance of ModelWithDatetime if the XmlReader was pointing to an instance of it, or null if it was
      * pointing to XML null.
@@ -102,7 +103,7 @@ public final class ModelWithDatetime implements XmlSerializable<ModelWithDatetim
 
     /**
      * Reads an instance of ModelWithDatetime from the XmlReader.
-     * 
+     *
      * @param xmlReader The XmlReader being read.
      * @param rootElementName Optional root element name to override the default defined by the model. Used to support
      * cases where the model can deserialize from different root element names.
@@ -120,7 +121,6 @@ public final class ModelWithDatetime implements XmlSerializable<ModelWithDatetim
             OffsetDateTime rfc7231 = null;
             while (reader.nextElement() != XmlToken.END_ELEMENT) {
                 QName elementName = reader.getElementName();
-
                 if ("rfc3339".equals(elementName.getLocalPart())) {
                     rfc3339 = reader.getNullableElement(dateString -> OffsetDateTime.parse(dateString));
                 } else if ("rfc7231".equals(elementName.getLocalPart())) {

@@ -15,11 +15,6 @@ import java.util.Map;
  */
 @Metadata(properties = { MetadataProperties.FLUENT })
 public class DifferentSpreadModelRecord implements JsonSerializable<DifferentSpreadModelRecord> {
-    /*
-     * The knownProp property.
-     */
-    @Metadata(properties = { MetadataProperties.GENERATED })
-    private final String knownProp;
 
     /*
      * The model spread Record<ModelForRecord> with the different known property type
@@ -27,9 +22,15 @@ public class DifferentSpreadModelRecord implements JsonSerializable<DifferentSpr
     @Metadata(properties = { MetadataProperties.GENERATED })
     private Map<String, ModelForRecord> additionalProperties;
 
+    /*
+     * The knownProp property.
+     */
+    @Metadata(properties = { MetadataProperties.GENERATED })
+    private final String knownProp;
+
     /**
      * Creates an instance of DifferentSpreadModelRecord class.
-     * 
+     *
      * @param knownProp the knownProp value to set.
      */
     @Metadata(properties = { MetadataProperties.GENERATED })
@@ -38,19 +39,9 @@ public class DifferentSpreadModelRecord implements JsonSerializable<DifferentSpr
     }
 
     /**
-     * Get the knownProp property: The knownProp property.
-     * 
-     * @return the knownProp value.
-     */
-    @Metadata(properties = { MetadataProperties.GENERATED })
-    public String getKnownProp() {
-        return this.knownProp;
-    }
-
-    /**
      * Get the additionalProperties property: The model spread Record&lt;ModelForRecord&gt; with the different known
      * property type.
-     * 
+     *
      * @return the additionalProperties value.
      */
     @Metadata(properties = { MetadataProperties.GENERATED })
@@ -61,7 +52,7 @@ public class DifferentSpreadModelRecord implements JsonSerializable<DifferentSpr
     /**
      * Set the additionalProperties property: The model spread Record&lt;ModelForRecord&gt; with the different known
      * property type.
-     * 
+     *
      * @param additionalProperties the additionalProperties value to set.
      * @return the DifferentSpreadModelRecord object itself.
      */
@@ -69,6 +60,16 @@ public class DifferentSpreadModelRecord implements JsonSerializable<DifferentSpr
     public DifferentSpreadModelRecord setAdditionalProperties(Map<String, ModelForRecord> additionalProperties) {
         this.additionalProperties = additionalProperties;
         return this;
+    }
+
+    /**
+     * Get the knownProp property: The knownProp property.
+     *
+     * @return the knownProp value.
+     */
+    @Metadata(properties = { MetadataProperties.GENERATED })
+    public String getKnownProp() {
+        return this.knownProp;
     }
 
     /**
@@ -89,7 +90,7 @@ public class DifferentSpreadModelRecord implements JsonSerializable<DifferentSpr
 
     /**
      * Reads an instance of DifferentSpreadModelRecord from the JsonReader.
-     * 
+     *
      * @param jsonReader The JsonReader being read.
      * @return An instance of DifferentSpreadModelRecord if the JsonReader was pointing to an instance of it, or null if
      * it was pointing to JSON null.
@@ -104,21 +105,18 @@ public class DifferentSpreadModelRecord implements JsonSerializable<DifferentSpr
             while (reader.nextToken() != JsonToken.END_OBJECT) {
                 String fieldName = reader.getFieldName();
                 reader.nextToken();
-
                 if ("knownProp".equals(fieldName)) {
                     knownProp = reader.getString();
                 } else {
                     if (additionalProperties == null) {
                         additionalProperties = new LinkedHashMap<>();
                     }
-
                     additionalProperties.put(fieldName, ModelForRecord.fromJson(reader));
                 }
             }
             DifferentSpreadModelRecord deserializedDifferentSpreadModelRecord
                 = new DifferentSpreadModelRecord(knownProp);
             deserializedDifferentSpreadModelRecord.additionalProperties = additionalProperties;
-
             return deserializedDifferentSpreadModelRecord;
         });
     }

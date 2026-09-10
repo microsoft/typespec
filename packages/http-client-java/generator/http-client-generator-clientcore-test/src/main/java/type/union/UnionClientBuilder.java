@@ -45,17 +45,60 @@ import type.union.implementation.UnionClientImpl;
         MixedTypesClient.class })
 public final class UnionClientBuilder implements HttpTrait<UnionClientBuilder>, ProxyTrait<UnionClientBuilder>,
     ConfigurationTrait<UnionClientBuilder>, EndpointTrait<UnionClientBuilder> {
+
+    @Metadata(properties = { MetadataProperties.GENERATED })
+    private static final Map<String, String> PROPERTIES = CoreUtils.getProperties("type-union.properties");
+
     @Metadata(properties = { MetadataProperties.GENERATED })
     private static final String SDK_NAME = "name";
 
     @Metadata(properties = { MetadataProperties.GENERATED })
     private static final String SDK_VERSION = "version";
 
+    /*
+     * The configuration store that is used during construction of the service client.
+     */
     @Metadata(properties = { MetadataProperties.GENERATED })
-    private static final Map<String, String> PROPERTIES = CoreUtils.getProperties("type-union.properties");
+    private Configuration configuration;
+
+    /*
+     * The service endpoint
+     */
+    @Metadata(properties = { MetadataProperties.GENERATED })
+    private String endpoint;
+
+    /*
+     * The HTTP client used to send the request.
+     */
+    @Metadata(properties = { MetadataProperties.GENERATED })
+    private HttpClient httpClient;
+
+    /*
+     * The instrumentation configuration for HTTP requests and responses.
+     */
+    @Metadata(properties = { MetadataProperties.GENERATED })
+    private HttpInstrumentationOptions httpInstrumentationOptions;
 
     @Metadata(properties = { MetadataProperties.GENERATED })
     private final List<HttpPipelinePolicy> pipelinePolicies;
+
+    /*
+     * The proxy options used during construction of the service client.
+     */
+    @Metadata(properties = { MetadataProperties.GENERATED })
+    private ProxyOptions proxyOptions;
+
+    /*
+     * The redirect options to configure redirect policy
+     */
+    @Metadata(properties = { MetadataProperties.GENERATED })
+    private HttpRedirectOptions redirectOptions;
+
+    /*
+     * The retry options to configure retry policy for failed requests.
+     */
+    @Metadata(properties = { MetadataProperties.GENERATED })
+    private HttpRetryOptions retryOptions;
 
     /**
      * Create an instance of the UnionClientBuilder.
@@ -65,11 +108,36 @@ public final class UnionClientBuilder implements HttpTrait<UnionClientBuilder>, 
         this.pipelinePolicies = new ArrayList<>();
     }
 
-    /*
-     * The HTTP client used to send the request.
+    /**
+     * {@inheritDoc}.
      */
     @Metadata(properties = { MetadataProperties.GENERATED })
-    private HttpClient httpClient;
+    @Override
+    public UnionClientBuilder addHttpPipelinePolicy(HttpPipelinePolicy customPolicy) {
+        Objects.requireNonNull(customPolicy, "'customPolicy' cannot be null.");
+        pipelinePolicies.add(customPolicy);
+        return this;
+    }
+
+    /**
+     * {@inheritDoc}.
+     */
+    @Metadata(properties = { MetadataProperties.GENERATED })
+    @Override
+    public UnionClientBuilder configuration(Configuration configuration) {
+        this.configuration = configuration;
+        return this;
+    }
+
+    /**
+     * {@inheritDoc}.
+     */
+    @Metadata(properties = { MetadataProperties.GENERATED })
+    @Override
+    public UnionClientBuilder endpoint(String endpoint) {
+        this.endpoint = endpoint;
+        return this;
+    }
 
     /**
      * {@inheritDoc}.
@@ -81,11 +149,25 @@ public final class UnionClientBuilder implements HttpTrait<UnionClientBuilder>, 
         return this;
     }
 
-    /*
-     * The retry options to configure retry policy for failed requests.
+    /**
+     * {@inheritDoc}.
      */
     @Metadata(properties = { MetadataProperties.GENERATED })
-    private HttpRetryOptions retryOptions;
+    @Override
+    public UnionClientBuilder httpInstrumentationOptions(HttpInstrumentationOptions httpInstrumentationOptions) {
+        this.httpInstrumentationOptions = httpInstrumentationOptions;
+        return this;
+    }
+
+    /**
+     * {@inheritDoc}.
+     */
+    @Metadata(properties = { MetadataProperties.GENERATED })
+    @Override
+    public UnionClientBuilder httpRedirectOptions(HttpRedirectOptions redirectOptions) {
+        this.redirectOptions = redirectOptions;
+        return this;
+    }
 
     /**
      * {@inheritDoc}.
@@ -102,95 +184,125 @@ public final class UnionClientBuilder implements HttpTrait<UnionClientBuilder>, 
      */
     @Metadata(properties = { MetadataProperties.GENERATED })
     @Override
-    public UnionClientBuilder addHttpPipelinePolicy(HttpPipelinePolicy customPolicy) {
-        Objects.requireNonNull(customPolicy, "'customPolicy' cannot be null.");
-        pipelinePolicies.add(customPolicy);
-        return this;
-    }
-
-    /*
-     * The redirect options to configure redirect policy
-     */
-    @Metadata(properties = { MetadataProperties.GENERATED })
-    private HttpRedirectOptions redirectOptions;
-
-    /**
-     * {@inheritDoc}.
-     */
-    @Metadata(properties = { MetadataProperties.GENERATED })
-    @Override
-    public UnionClientBuilder httpRedirectOptions(HttpRedirectOptions redirectOptions) {
-        this.redirectOptions = redirectOptions;
-        return this;
-    }
-
-    /*
-     * The instrumentation configuration for HTTP requests and responses.
-     */
-    @Metadata(properties = { MetadataProperties.GENERATED })
-    private HttpInstrumentationOptions httpInstrumentationOptions;
-
-    /**
-     * {@inheritDoc}.
-     */
-    @Metadata(properties = { MetadataProperties.GENERATED })
-    @Override
-    public UnionClientBuilder httpInstrumentationOptions(HttpInstrumentationOptions httpInstrumentationOptions) {
-        this.httpInstrumentationOptions = httpInstrumentationOptions;
-        return this;
-    }
-
-    /*
-     * The proxy options used during construction of the service client.
-     */
-    @Metadata(properties = { MetadataProperties.GENERATED })
-    private ProxyOptions proxyOptions;
-
-    /**
-     * {@inheritDoc}.
-     */
-    @Metadata(properties = { MetadataProperties.GENERATED })
-    @Override
     public UnionClientBuilder proxyOptions(ProxyOptions proxyOptions) {
         this.proxyOptions = proxyOptions;
         return this;
     }
 
-    /*
-     * The configuration store that is used during construction of the service client.
-     */
-    @Metadata(properties = { MetadataProperties.GENERATED })
-    private Configuration configuration;
-
     /**
-     * {@inheritDoc}.
+     * Builds an instance of EnumsOnlyClient class.
+     *
+     * @return an instance of EnumsOnlyClient.
      */
     @Metadata(properties = { MetadataProperties.GENERATED })
-    @Override
-    public UnionClientBuilder configuration(Configuration configuration) {
-        this.configuration = configuration;
-        return this;
+    public EnumsOnlyClient buildEnumsOnlyClient() {
+        UnionClientImpl innerClient = buildInnerClient();
+        return new EnumsOnlyClient(innerClient.getEnumsOnlies(), innerClient.getInstrumentation());
     }
 
-    /*
-     * The service endpoint
+    /**
+     * Builds an instance of FloatsOnlyClient class.
+     *
+     * @return an instance of FloatsOnlyClient.
      */
     @Metadata(properties = { MetadataProperties.GENERATED })
-    private String endpoint;
+    public FloatsOnlyClient buildFloatsOnlyClient() {
+        UnionClientImpl innerClient = buildInnerClient();
+        return new FloatsOnlyClient(innerClient.getFloatsOnlies(), innerClient.getInstrumentation());
+    }
 
     /**
-     * {@inheritDoc}.
+     * Builds an instance of IntsOnlyClient class.
+     *
+     * @return an instance of IntsOnlyClient.
      */
     @Metadata(properties = { MetadataProperties.GENERATED })
-    @Override
-    public UnionClientBuilder endpoint(String endpoint) {
-        this.endpoint = endpoint;
-        return this;
+    public IntsOnlyClient buildIntsOnlyClient() {
+        UnionClientImpl innerClient = buildInnerClient();
+        return new IntsOnlyClient(innerClient.getIntsOnlies(), innerClient.getInstrumentation());
+    }
+
+    /**
+     * Builds an instance of MixedLiteralsClient class.
+     *
+     * @return an instance of MixedLiteralsClient.
+     */
+    @Metadata(properties = { MetadataProperties.GENERATED })
+    public MixedLiteralsClient buildMixedLiteralsClient() {
+        UnionClientImpl innerClient = buildInnerClient();
+        return new MixedLiteralsClient(innerClient.getMixedLiterals(), innerClient.getInstrumentation());
+    }
+
+    /**
+     * Builds an instance of MixedTypesClient class.
+     *
+     * @return an instance of MixedTypesClient.
+     */
+    @Metadata(properties = { MetadataProperties.GENERATED })
+    public MixedTypesClient buildMixedTypesClient() {
+        UnionClientImpl innerClient = buildInnerClient();
+        return new MixedTypesClient(innerClient.getMixedTypes(), innerClient.getInstrumentation());
+    }
+
+    /**
+     * Builds an instance of ModelsOnlyClient class.
+     *
+     * @return an instance of ModelsOnlyClient.
+     */
+    @Metadata(properties = { MetadataProperties.GENERATED })
+    public ModelsOnlyClient buildModelsOnlyClient() {
+        UnionClientImpl innerClient = buildInnerClient();
+        return new ModelsOnlyClient(innerClient.getModelsOnlies(), innerClient.getInstrumentation());
+    }
+
+    /**
+     * Builds an instance of StringAndArrayClient class.
+     *
+     * @return an instance of StringAndArrayClient.
+     */
+    @Metadata(properties = { MetadataProperties.GENERATED })
+    public StringAndArrayClient buildStringAndArrayClient() {
+        UnionClientImpl innerClient = buildInnerClient();
+        return new StringAndArrayClient(innerClient.getStringAndArrays(), innerClient.getInstrumentation());
+    }
+
+    /**
+     * Builds an instance of StringExtensibleClient class.
+     *
+     * @return an instance of StringExtensibleClient.
+     */
+    @Metadata(properties = { MetadataProperties.GENERATED })
+    public StringExtensibleClient buildStringExtensibleClient() {
+        UnionClientImpl innerClient = buildInnerClient();
+        return new StringExtensibleClient(innerClient.getStringExtensibles(), innerClient.getInstrumentation());
+    }
+
+    /**
+     * Builds an instance of StringExtensibleNamedClient class.
+     *
+     * @return an instance of StringExtensibleNamedClient.
+     */
+    @Metadata(properties = { MetadataProperties.GENERATED })
+    public StringExtensibleNamedClient buildStringExtensibleNamedClient() {
+        UnionClientImpl innerClient = buildInnerClient();
+        return new StringExtensibleNamedClient(innerClient.getStringExtensibleNameds(),
+            innerClient.getInstrumentation());
+    }
+
+    /**
+     * Builds an instance of StringsOnlyClient class.
+     *
+     * @return an instance of StringsOnlyClient.
+     */
+    @Metadata(properties = { MetadataProperties.GENERATED })
+    public StringsOnlyClient buildStringsOnlyClient() {
+        UnionClientImpl innerClient = buildInnerClient();
+        return new StringsOnlyClient(innerClient.getStringsOnlies(), innerClient.getInstrumentation());
     }
 
     /**
      * Builds an instance of UnionClientImpl with the provided parameters.
-     * 
+     *
      * @return an instance of UnionClientImpl.
      */
     @Metadata(properties = { MetadataProperties.GENERATED })
@@ -211,12 +323,6 @@ public final class UnionClientBuilder implements HttpTrait<UnionClientBuilder>, 
     }
 
     @Metadata(properties = { MetadataProperties.GENERATED })
-    private void validateClient() {
-        // This method is invoked from 'buildInnerClient'/'buildClient' method.
-        // Developer can customize this method, to validate that the necessary conditions are met for the new client.
-    }
-
-    @Metadata(properties = { MetadataProperties.GENERATED })
     private HttpPipeline createHttpPipeline() {
         Configuration buildConfiguration
             = (configuration == null) ? Configuration.getGlobalConfiguration() : configuration;
@@ -233,114 +339,9 @@ public final class UnionClientBuilder implements HttpTrait<UnionClientBuilder>, 
         return httpPipelineBuilder.httpClient(httpClient).build();
     }
 
-    /**
-     * Builds an instance of StringsOnlyClient class.
-     * 
-     * @return an instance of StringsOnlyClient.
-     */
     @Metadata(properties = { MetadataProperties.GENERATED })
-    public StringsOnlyClient buildStringsOnlyClient() {
-        UnionClientImpl innerClient = buildInnerClient();
-        return new StringsOnlyClient(innerClient.getStringsOnlies(), innerClient.getInstrumentation());
-    }
-
-    /**
-     * Builds an instance of StringExtensibleClient class.
-     * 
-     * @return an instance of StringExtensibleClient.
-     */
-    @Metadata(properties = { MetadataProperties.GENERATED })
-    public StringExtensibleClient buildStringExtensibleClient() {
-        UnionClientImpl innerClient = buildInnerClient();
-        return new StringExtensibleClient(innerClient.getStringExtensibles(), innerClient.getInstrumentation());
-    }
-
-    /**
-     * Builds an instance of StringExtensibleNamedClient class.
-     * 
-     * @return an instance of StringExtensibleNamedClient.
-     */
-    @Metadata(properties = { MetadataProperties.GENERATED })
-    public StringExtensibleNamedClient buildStringExtensibleNamedClient() {
-        UnionClientImpl innerClient = buildInnerClient();
-        return new StringExtensibleNamedClient(innerClient.getStringExtensibleNameds(),
-            innerClient.getInstrumentation());
-    }
-
-    /**
-     * Builds an instance of IntsOnlyClient class.
-     * 
-     * @return an instance of IntsOnlyClient.
-     */
-    @Metadata(properties = { MetadataProperties.GENERATED })
-    public IntsOnlyClient buildIntsOnlyClient() {
-        UnionClientImpl innerClient = buildInnerClient();
-        return new IntsOnlyClient(innerClient.getIntsOnlies(), innerClient.getInstrumentation());
-    }
-
-    /**
-     * Builds an instance of FloatsOnlyClient class.
-     * 
-     * @return an instance of FloatsOnlyClient.
-     */
-    @Metadata(properties = { MetadataProperties.GENERATED })
-    public FloatsOnlyClient buildFloatsOnlyClient() {
-        UnionClientImpl innerClient = buildInnerClient();
-        return new FloatsOnlyClient(innerClient.getFloatsOnlies(), innerClient.getInstrumentation());
-    }
-
-    /**
-     * Builds an instance of ModelsOnlyClient class.
-     * 
-     * @return an instance of ModelsOnlyClient.
-     */
-    @Metadata(properties = { MetadataProperties.GENERATED })
-    public ModelsOnlyClient buildModelsOnlyClient() {
-        UnionClientImpl innerClient = buildInnerClient();
-        return new ModelsOnlyClient(innerClient.getModelsOnlies(), innerClient.getInstrumentation());
-    }
-
-    /**
-     * Builds an instance of EnumsOnlyClient class.
-     * 
-     * @return an instance of EnumsOnlyClient.
-     */
-    @Metadata(properties = { MetadataProperties.GENERATED })
-    public EnumsOnlyClient buildEnumsOnlyClient() {
-        UnionClientImpl innerClient = buildInnerClient();
-        return new EnumsOnlyClient(innerClient.getEnumsOnlies(), innerClient.getInstrumentation());
-    }
-
-    /**
-     * Builds an instance of StringAndArrayClient class.
-     * 
-     * @return an instance of StringAndArrayClient.
-     */
-    @Metadata(properties = { MetadataProperties.GENERATED })
-    public StringAndArrayClient buildStringAndArrayClient() {
-        UnionClientImpl innerClient = buildInnerClient();
-        return new StringAndArrayClient(innerClient.getStringAndArrays(), innerClient.getInstrumentation());
-    }
-
-    /**
-     * Builds an instance of MixedLiteralsClient class.
-     * 
-     * @return an instance of MixedLiteralsClient.
-     */
-    @Metadata(properties = { MetadataProperties.GENERATED })
-    public MixedLiteralsClient buildMixedLiteralsClient() {
-        UnionClientImpl innerClient = buildInnerClient();
-        return new MixedLiteralsClient(innerClient.getMixedLiterals(), innerClient.getInstrumentation());
-    }
-
-    /**
-     * Builds an instance of MixedTypesClient class.
-     * 
-     * @return an instance of MixedTypesClient.
-     */
-    @Metadata(properties = { MetadataProperties.GENERATED })
-    public MixedTypesClient buildMixedTypesClient() {
-        UnionClientImpl innerClient = buildInnerClient();
-        return new MixedTypesClient(innerClient.getMixedTypes(), innerClient.getInstrumentation());
+    private void validateClient() {
+        // This method is invoked from 'buildInnerClient'/'buildClient' method.
+        // Developer can customize this method, to validate that the necessary conditions are met for the new client.
     }
 }

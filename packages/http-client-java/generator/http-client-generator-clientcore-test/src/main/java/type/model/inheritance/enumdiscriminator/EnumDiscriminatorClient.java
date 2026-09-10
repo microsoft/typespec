@@ -16,14 +16,15 @@ import type.model.inheritance.enumdiscriminator.implementation.EnumDiscriminator
  */
 @ServiceClient(builder = EnumDiscriminatorClientBuilder.class)
 public final class EnumDiscriminatorClient {
-    @Metadata(properties = { MetadataProperties.GENERATED })
-    private final EnumDiscriminatorClientImpl serviceClient;
 
     private final Instrumentation instrumentation;
 
+    @Metadata(properties = { MetadataProperties.GENERATED })
+    private final EnumDiscriminatorClientImpl serviceClient;
+
     /**
      * Initializes an instance of EnumDiscriminatorClient class.
-     * 
+     *
      * @param serviceClient the service client implementation.
      * @param instrumentation the instrumentation instance.
      */
@@ -35,7 +36,20 @@ public final class EnumDiscriminatorClient {
 
     /**
      * Receive model with extensible enum discriminator type.
-     * 
+     *
+     * @throws HttpResponseException thrown if the service returns an error.
+     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
+     * @return test extensible enum type for discriminator.
+     */
+    @Metadata(properties = { MetadataProperties.GENERATED })
+    @ServiceMethod(returns = ReturnType.SINGLE)
+    public Dog getExtensibleModel() {
+        return getExtensibleModelWithResponse(RequestContext.none()).getValue();
+    }
+
+    /**
+     * Receive model with extensible enum discriminator type.
+     *
      * @param requestContext The context to configure the HTTP request before HTTP client sends it.
      * @throws IllegalArgumentException thrown if parameters fail the validation.
      * @throws HttpResponseException thrown if the service returns an error.
@@ -51,21 +65,171 @@ public final class EnumDiscriminatorClient {
     }
 
     /**
-     * Receive model with extensible enum discriminator type.
-     * 
+     * Get a model omitting the discriminator.
+     *
      * @throws HttpResponseException thrown if the service returns an error.
      * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
-     * @return test extensible enum type for discriminator.
+     * @return a model omitting the discriminator.
      */
     @Metadata(properties = { MetadataProperties.GENERATED })
     @ServiceMethod(returns = ReturnType.SINGLE)
-    public Dog getExtensibleModel() {
-        return getExtensibleModelWithResponse(RequestContext.none()).getValue();
+    public Dog getExtensibleModelMissingDiscriminator() {
+        return getExtensibleModelMissingDiscriminatorWithResponse(RequestContext.none()).getValue();
+    }
+
+    /**
+     * Get a model omitting the discriminator.
+     *
+     * @param requestContext The context to configure the HTTP request before HTTP client sends it.
+     * @throws IllegalArgumentException thrown if parameters fail the validation.
+     * @throws HttpResponseException thrown if the service returns an error.
+     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
+     * @return a model omitting the discriminator along with {@link Response}.
+     */
+    @Metadata(properties = { MetadataProperties.GENERATED })
+    @ServiceMethod(returns = ReturnType.SINGLE)
+    public Response<Dog> getExtensibleModelMissingDiscriminatorWithResponse(RequestContext requestContext) {
+        return this.instrumentation.instrumentWithResponse(
+            "Type.Model.Inheritance.EnumDiscriminator.getExtensibleModelMissingDiscriminator", requestContext,
+            updatedContext -> this.serviceClient.getExtensibleModelMissingDiscriminatorWithResponse(updatedContext));
+    }
+
+    /**
+     * Get a model containing discriminator value never defined.
+     *
+     * @throws HttpResponseException thrown if the service returns an error.
+     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
+     * @return a model containing discriminator value never defined.
+     */
+    @Metadata(properties = { MetadataProperties.GENERATED })
+    @ServiceMethod(returns = ReturnType.SINGLE)
+    public Dog getExtensibleModelWrongDiscriminator() {
+        return getExtensibleModelWrongDiscriminatorWithResponse(RequestContext.none()).getValue();
+    }
+
+    /**
+     * Get a model containing discriminator value never defined.
+     *
+     * @param requestContext The context to configure the HTTP request before HTTP client sends it.
+     * @throws IllegalArgumentException thrown if parameters fail the validation.
+     * @throws HttpResponseException thrown if the service returns an error.
+     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
+     * @return a model containing discriminator value never defined along with {@link Response}.
+     */
+    @Metadata(properties = { MetadataProperties.GENERATED })
+    @ServiceMethod(returns = ReturnType.SINGLE)
+    public Response<Dog> getExtensibleModelWrongDiscriminatorWithResponse(RequestContext requestContext) {
+        return this.instrumentation.instrumentWithResponse(
+            "Type.Model.Inheritance.EnumDiscriminator.getExtensibleModelWrongDiscriminator", requestContext,
+            updatedContext -> this.serviceClient.getExtensibleModelWrongDiscriminatorWithResponse(updatedContext));
+    }
+
+    /**
+     * Receive model with fixed enum discriminator type.
+     *
+     * @throws HttpResponseException thrown if the service returns an error.
+     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
+     * @return test fixed enum type for discriminator.
+     */
+    @Metadata(properties = { MetadataProperties.GENERATED })
+    @ServiceMethod(returns = ReturnType.SINGLE)
+    public Snake getFixedModel() {
+        return getFixedModelWithResponse(RequestContext.none()).getValue();
+    }
+
+    /**
+     * Receive model with fixed enum discriminator type.
+     *
+     * @param requestContext The context to configure the HTTP request before HTTP client sends it.
+     * @throws IllegalArgumentException thrown if parameters fail the validation.
+     * @throws HttpResponseException thrown if the service returns an error.
+     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
+     * @return test fixed enum type for discriminator along with {@link Response}.
+     */
+    @Metadata(properties = { MetadataProperties.GENERATED })
+    @ServiceMethod(returns = ReturnType.SINGLE)
+    public Response<Snake> getFixedModelWithResponse(RequestContext requestContext) {
+        return this.instrumentation.instrumentWithResponse("Type.Model.Inheritance.EnumDiscriminator.getFixedModel",
+            requestContext, updatedContext -> this.serviceClient.getFixedModelWithResponse(updatedContext));
+    }
+
+    /**
+     * Get a model omitting the discriminator.
+     *
+     * @throws HttpResponseException thrown if the service returns an error.
+     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
+     * @return a model omitting the discriminator.
+     */
+    @Metadata(properties = { MetadataProperties.GENERATED })
+    @ServiceMethod(returns = ReturnType.SINGLE)
+    public Snake getFixedModelMissingDiscriminator() {
+        return getFixedModelMissingDiscriminatorWithResponse(RequestContext.none()).getValue();
+    }
+
+    /**
+     * Get a model omitting the discriminator.
+     *
+     * @param requestContext The context to configure the HTTP request before HTTP client sends it.
+     * @throws IllegalArgumentException thrown if parameters fail the validation.
+     * @throws HttpResponseException thrown if the service returns an error.
+     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
+     * @return a model omitting the discriminator along with {@link Response}.
+     */
+    @Metadata(properties = { MetadataProperties.GENERATED })
+    @ServiceMethod(returns = ReturnType.SINGLE)
+    public Response<Snake> getFixedModelMissingDiscriminatorWithResponse(RequestContext requestContext) {
+        return this.instrumentation.instrumentWithResponse(
+            "Type.Model.Inheritance.EnumDiscriminator.getFixedModelMissingDiscriminator", requestContext,
+            updatedContext -> this.serviceClient.getFixedModelMissingDiscriminatorWithResponse(updatedContext));
+    }
+
+    /**
+     * Get a model containing discriminator value never defined.
+     *
+     * @throws HttpResponseException thrown if the service returns an error.
+     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
+     * @return a model containing discriminator value never defined.
+     */
+    @Metadata(properties = { MetadataProperties.GENERATED })
+    @ServiceMethod(returns = ReturnType.SINGLE)
+    public Snake getFixedModelWrongDiscriminator() {
+        return getFixedModelWrongDiscriminatorWithResponse(RequestContext.none()).getValue();
+    }
+
+    /**
+     * Get a model containing discriminator value never defined.
+     *
+     * @param requestContext The context to configure the HTTP request before HTTP client sends it.
+     * @throws IllegalArgumentException thrown if parameters fail the validation.
+     * @throws HttpResponseException thrown if the service returns an error.
+     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
+     * @return a model containing discriminator value never defined along with {@link Response}.
+     */
+    @Metadata(properties = { MetadataProperties.GENERATED })
+    @ServiceMethod(returns = ReturnType.SINGLE)
+    public Response<Snake> getFixedModelWrongDiscriminatorWithResponse(RequestContext requestContext) {
+        return this.instrumentation.instrumentWithResponse(
+            "Type.Model.Inheritance.EnumDiscriminator.getFixedModelWrongDiscriminator", requestContext,
+            updatedContext -> this.serviceClient.getFixedModelWrongDiscriminatorWithResponse(updatedContext));
     }
 
     /**
      * Send model with extensible enum discriminator type.
-     * 
+     *
+     * @param input Dog to create.
+     * @throws IllegalArgumentException thrown if parameters fail the validation.
+     * @throws HttpResponseException thrown if the service returns an error.
+     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
+     */
+    @Metadata(properties = { MetadataProperties.GENERATED })
+    @ServiceMethod(returns = ReturnType.SINGLE)
+    public void putExtensibleModel(Dog input) {
+        putExtensibleModelWithResponse(input, RequestContext.none());
+    }
+
+    /**
+     * Send model with extensible enum discriminator type.
+     *
      * @param input Dog to create.
      * @param requestContext The context to configure the HTTP request before HTTP client sends it.
      * @throws IllegalArgumentException thrown if parameters fail the validation.
@@ -82,128 +246,8 @@ public final class EnumDiscriminatorClient {
     }
 
     /**
-     * Send model with extensible enum discriminator type.
-     * 
-     * @param input Dog to create.
-     * @throws IllegalArgumentException thrown if parameters fail the validation.
-     * @throws HttpResponseException thrown if the service returns an error.
-     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
-     */
-    @Metadata(properties = { MetadataProperties.GENERATED })
-    @ServiceMethod(returns = ReturnType.SINGLE)
-    public void putExtensibleModel(Dog input) {
-        putExtensibleModelWithResponse(input, RequestContext.none());
-    }
-
-    /**
-     * Get a model omitting the discriminator.
-     * 
-     * @param requestContext The context to configure the HTTP request before HTTP client sends it.
-     * @throws IllegalArgumentException thrown if parameters fail the validation.
-     * @throws HttpResponseException thrown if the service returns an error.
-     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
-     * @return a model omitting the discriminator along with {@link Response}.
-     */
-    @Metadata(properties = { MetadataProperties.GENERATED })
-    @ServiceMethod(returns = ReturnType.SINGLE)
-    public Response<Dog> getExtensibleModelMissingDiscriminatorWithResponse(RequestContext requestContext) {
-        return this.instrumentation.instrumentWithResponse(
-            "Type.Model.Inheritance.EnumDiscriminator.getExtensibleModelMissingDiscriminator", requestContext,
-            updatedContext -> this.serviceClient.getExtensibleModelMissingDiscriminatorWithResponse(updatedContext));
-    }
-
-    /**
-     * Get a model omitting the discriminator.
-     * 
-     * @throws HttpResponseException thrown if the service returns an error.
-     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
-     * @return a model omitting the discriminator.
-     */
-    @Metadata(properties = { MetadataProperties.GENERATED })
-    @ServiceMethod(returns = ReturnType.SINGLE)
-    public Dog getExtensibleModelMissingDiscriminator() {
-        return getExtensibleModelMissingDiscriminatorWithResponse(RequestContext.none()).getValue();
-    }
-
-    /**
-     * Get a model containing discriminator value never defined.
-     * 
-     * @param requestContext The context to configure the HTTP request before HTTP client sends it.
-     * @throws IllegalArgumentException thrown if parameters fail the validation.
-     * @throws HttpResponseException thrown if the service returns an error.
-     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
-     * @return a model containing discriminator value never defined along with {@link Response}.
-     */
-    @Metadata(properties = { MetadataProperties.GENERATED })
-    @ServiceMethod(returns = ReturnType.SINGLE)
-    public Response<Dog> getExtensibleModelWrongDiscriminatorWithResponse(RequestContext requestContext) {
-        return this.instrumentation.instrumentWithResponse(
-            "Type.Model.Inheritance.EnumDiscriminator.getExtensibleModelWrongDiscriminator", requestContext,
-            updatedContext -> this.serviceClient.getExtensibleModelWrongDiscriminatorWithResponse(updatedContext));
-    }
-
-    /**
-     * Get a model containing discriminator value never defined.
-     * 
-     * @throws HttpResponseException thrown if the service returns an error.
-     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
-     * @return a model containing discriminator value never defined.
-     */
-    @Metadata(properties = { MetadataProperties.GENERATED })
-    @ServiceMethod(returns = ReturnType.SINGLE)
-    public Dog getExtensibleModelWrongDiscriminator() {
-        return getExtensibleModelWrongDiscriminatorWithResponse(RequestContext.none()).getValue();
-    }
-
-    /**
-     * Receive model with fixed enum discriminator type.
-     * 
-     * @param requestContext The context to configure the HTTP request before HTTP client sends it.
-     * @throws IllegalArgumentException thrown if parameters fail the validation.
-     * @throws HttpResponseException thrown if the service returns an error.
-     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
-     * @return test fixed enum type for discriminator along with {@link Response}.
-     */
-    @Metadata(properties = { MetadataProperties.GENERATED })
-    @ServiceMethod(returns = ReturnType.SINGLE)
-    public Response<Snake> getFixedModelWithResponse(RequestContext requestContext) {
-        return this.instrumentation.instrumentWithResponse("Type.Model.Inheritance.EnumDiscriminator.getFixedModel",
-            requestContext, updatedContext -> this.serviceClient.getFixedModelWithResponse(updatedContext));
-    }
-
-    /**
-     * Receive model with fixed enum discriminator type.
-     * 
-     * @throws HttpResponseException thrown if the service returns an error.
-     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
-     * @return test fixed enum type for discriminator.
-     */
-    @Metadata(properties = { MetadataProperties.GENERATED })
-    @ServiceMethod(returns = ReturnType.SINGLE)
-    public Snake getFixedModel() {
-        return getFixedModelWithResponse(RequestContext.none()).getValue();
-    }
-
-    /**
      * Send model with fixed enum discriminator type.
-     * 
-     * @param input Snake to create.
-     * @param requestContext The context to configure the HTTP request before HTTP client sends it.
-     * @throws IllegalArgumentException thrown if parameters fail the validation.
-     * @throws HttpResponseException thrown if the service returns an error.
-     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
-     * @return the {@link Response}.
-     */
-    @Metadata(properties = { MetadataProperties.GENERATED })
-    @ServiceMethod(returns = ReturnType.SINGLE)
-    public Response<Void> putFixedModelWithResponse(Snake input, RequestContext requestContext) {
-        return this.instrumentation.instrumentWithResponse("Type.Model.Inheritance.EnumDiscriminator.putFixedModel",
-            requestContext, updatedContext -> this.serviceClient.putFixedModelWithResponse(input, updatedContext));
-    }
-
-    /**
-     * Send model with fixed enum discriminator type.
-     * 
+     *
      * @param input Snake to create.
      * @throws IllegalArgumentException thrown if parameters fail the validation.
      * @throws HttpResponseException thrown if the service returns an error.
@@ -216,62 +260,19 @@ public final class EnumDiscriminatorClient {
     }
 
     /**
-     * Get a model omitting the discriminator.
-     * 
+     * Send model with fixed enum discriminator type.
+     *
+     * @param input Snake to create.
      * @param requestContext The context to configure the HTTP request before HTTP client sends it.
      * @throws IllegalArgumentException thrown if parameters fail the validation.
      * @throws HttpResponseException thrown if the service returns an error.
      * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
-     * @return a model omitting the discriminator along with {@link Response}.
+     * @return the {@link Response}.
      */
     @Metadata(properties = { MetadataProperties.GENERATED })
     @ServiceMethod(returns = ReturnType.SINGLE)
-    public Response<Snake> getFixedModelMissingDiscriminatorWithResponse(RequestContext requestContext) {
-        return this.instrumentation.instrumentWithResponse(
-            "Type.Model.Inheritance.EnumDiscriminator.getFixedModelMissingDiscriminator", requestContext,
-            updatedContext -> this.serviceClient.getFixedModelMissingDiscriminatorWithResponse(updatedContext));
-    }
-
-    /**
-     * Get a model omitting the discriminator.
-     * 
-     * @throws HttpResponseException thrown if the service returns an error.
-     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
-     * @return a model omitting the discriminator.
-     */
-    @Metadata(properties = { MetadataProperties.GENERATED })
-    @ServiceMethod(returns = ReturnType.SINGLE)
-    public Snake getFixedModelMissingDiscriminator() {
-        return getFixedModelMissingDiscriminatorWithResponse(RequestContext.none()).getValue();
-    }
-
-    /**
-     * Get a model containing discriminator value never defined.
-     * 
-     * @param requestContext The context to configure the HTTP request before HTTP client sends it.
-     * @throws IllegalArgumentException thrown if parameters fail the validation.
-     * @throws HttpResponseException thrown if the service returns an error.
-     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
-     * @return a model containing discriminator value never defined along with {@link Response}.
-     */
-    @Metadata(properties = { MetadataProperties.GENERATED })
-    @ServiceMethod(returns = ReturnType.SINGLE)
-    public Response<Snake> getFixedModelWrongDiscriminatorWithResponse(RequestContext requestContext) {
-        return this.instrumentation.instrumentWithResponse(
-            "Type.Model.Inheritance.EnumDiscriminator.getFixedModelWrongDiscriminator", requestContext,
-            updatedContext -> this.serviceClient.getFixedModelWrongDiscriminatorWithResponse(updatedContext));
-    }
-
-    /**
-     * Get a model containing discriminator value never defined.
-     * 
-     * @throws HttpResponseException thrown if the service returns an error.
-     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
-     * @return a model containing discriminator value never defined.
-     */
-    @Metadata(properties = { MetadataProperties.GENERATED })
-    @ServiceMethod(returns = ReturnType.SINGLE)
-    public Snake getFixedModelWrongDiscriminator() {
-        return getFixedModelWrongDiscriminatorWithResponse(RequestContext.none()).getValue();
+    public Response<Void> putFixedModelWithResponse(Snake input, RequestContext requestContext) {
+        return this.instrumentation.instrumentWithResponse("Type.Model.Inheritance.EnumDiscriminator.putFixedModel",
+            requestContext, updatedContext -> this.serviceClient.putFixedModelWithResponse(input, updatedContext));
     }
 }

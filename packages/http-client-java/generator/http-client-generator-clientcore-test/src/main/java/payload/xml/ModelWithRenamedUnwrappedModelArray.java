@@ -16,6 +16,7 @@ import javax.xml.stream.XMLStreamException;
  */
 @Metadata(properties = { MetadataProperties.IMMUTABLE })
 public final class ModelWithRenamedUnwrappedModelArray implements XmlSerializable<ModelWithRenamedUnwrappedModelArray> {
+
     /*
      * The ModelItem property.
      */
@@ -24,7 +25,7 @@ public final class ModelWithRenamedUnwrappedModelArray implements XmlSerializabl
 
     /**
      * Creates an instance of ModelWithRenamedUnwrappedModelArray class.
-     * 
+     *
      * @param items the items value to set.
      */
     @Metadata(properties = { MetadataProperties.GENERATED })
@@ -34,7 +35,7 @@ public final class ModelWithRenamedUnwrappedModelArray implements XmlSerializabl
 
     /**
      * Get the items property: The ModelItem property.
-     * 
+     *
      * @return the items value.
      */
     @Metadata(properties = { MetadataProperties.GENERATED })
@@ -65,7 +66,7 @@ public final class ModelWithRenamedUnwrappedModelArray implements XmlSerializabl
 
     /**
      * Reads an instance of ModelWithRenamedUnwrappedModelArray from the XmlReader.
-     * 
+     *
      * @param xmlReader The XmlReader being read.
      * @return An instance of ModelWithRenamedUnwrappedModelArray if the XmlReader was pointing to an instance of it, or
      * null if it was pointing to XML null.
@@ -79,7 +80,7 @@ public final class ModelWithRenamedUnwrappedModelArray implements XmlSerializabl
 
     /**
      * Reads an instance of ModelWithRenamedUnwrappedModelArray from the XmlReader.
-     * 
+     *
      * @param xmlReader The XmlReader being read.
      * @param rootElementName Optional root element name to override the default defined by the model. Used to support
      * cases where the model can deserialize from different root element names.
@@ -98,7 +99,6 @@ public final class ModelWithRenamedUnwrappedModelArray implements XmlSerializabl
             List<SimpleModel> items = null;
             while (reader.nextElement() != XmlToken.END_ELEMENT) {
                 QName elementName = reader.getElementName();
-
                 if ("ModelItem".equals(elementName.getLocalPart())) {
                     if (items == null) {
                         items = new ArrayList<>();

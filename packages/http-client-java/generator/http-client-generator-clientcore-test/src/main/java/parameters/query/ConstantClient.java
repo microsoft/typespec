@@ -16,14 +16,15 @@ import parameters.query.implementation.ConstantsImpl;
  */
 @ServiceClient(builder = QueryClientBuilder.class)
 public final class ConstantClient {
-    @Metadata(properties = { MetadataProperties.GENERATED })
-    private final ConstantsImpl serviceClient;
 
     private final Instrumentation instrumentation;
 
+    @Metadata(properties = { MetadataProperties.GENERATED })
+    private final ConstantsImpl serviceClient;
+
     /**
      * Initializes an instance of ConstantClient class.
-     * 
+     *
      * @param serviceClient the service client implementation.
      * @param instrumentation the instrumentation instance.
      */
@@ -35,7 +36,19 @@ public final class ConstantClient {
 
     /**
      * post constant query value.
-     * 
+     *
+     * @throws HttpResponseException thrown if the service returns an error.
+     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
+     */
+    @Metadata(properties = { MetadataProperties.GENERATED })
+    @ServiceMethod(returns = ReturnType.SINGLE)
+    public void post() {
+        postWithResponse(RequestContext.none());
+    }
+
+    /**
+     * post constant query value.
+     *
      * @param requestContext The context to configure the HTTP request before HTTP client sends it.
      * @throws IllegalArgumentException thrown if parameters fail the validation.
      * @throws HttpResponseException thrown if the service returns an error.
@@ -47,17 +60,5 @@ public final class ConstantClient {
     public Response<Void> postWithResponse(RequestContext requestContext) {
         return this.instrumentation.instrumentWithResponse("Parameters.Query.Constant.post", requestContext,
             updatedContext -> this.serviceClient.postWithResponse(updatedContext));
-    }
-
-    /**
-     * post constant query value.
-     * 
-     * @throws HttpResponseException thrown if the service returns an error.
-     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
-     */
-    @Metadata(properties = { MetadataProperties.GENERATED })
-    @ServiceMethod(returns = ReturnType.SINGLE)
-    public void post() {
-        postWithResponse(RequestContext.none());
     }
 }

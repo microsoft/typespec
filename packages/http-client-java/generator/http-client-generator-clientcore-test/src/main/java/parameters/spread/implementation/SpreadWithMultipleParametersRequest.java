@@ -15,11 +15,6 @@ import java.util.List;
 @Metadata(properties = { MetadataProperties.FLUENT })
 public final class SpreadWithMultipleParametersRequest
     implements JsonSerializable<SpreadWithMultipleParametersRequest> {
-    /*
-     * required string
-     */
-    @Metadata(properties = { MetadataProperties.GENERATED })
-    private final String requiredString;
 
     /*
      * optional int
@@ -28,20 +23,26 @@ public final class SpreadWithMultipleParametersRequest
     private Integer optionalInt;
 
     /*
+     * optional string
+     */
+    @Metadata(properties = { MetadataProperties.GENERATED })
+    private List<String> optionalStringList;
+
+    /*
      * required int
      */
     @Metadata(properties = { MetadataProperties.GENERATED })
     private final List<Integer> requiredIntList;
 
     /*
-     * optional string
+     * required string
      */
     @Metadata(properties = { MetadataProperties.GENERATED })
-    private List<String> optionalStringList;
+    private final String requiredString;
 
     /**
      * Creates an instance of SpreadWithMultipleParametersRequest class.
-     * 
+     *
      * @param requiredString the requiredString value to set.
      * @param requiredIntList the requiredIntList value to set.
      */
@@ -52,18 +53,8 @@ public final class SpreadWithMultipleParametersRequest
     }
 
     /**
-     * Get the requiredString property: required string.
-     * 
-     * @return the requiredString value.
-     */
-    @Metadata(properties = { MetadataProperties.GENERATED })
-    public String getRequiredString() {
-        return this.requiredString;
-    }
-
-    /**
      * Get the optionalInt property: optional int.
-     * 
+     *
      * @return the optionalInt value.
      */
     @Metadata(properties = { MetadataProperties.GENERATED })
@@ -73,7 +64,7 @@ public final class SpreadWithMultipleParametersRequest
 
     /**
      * Set the optionalInt property: optional int.
-     * 
+     *
      * @param optionalInt the optionalInt value to set.
      * @return the SpreadWithMultipleParametersRequest object itself.
      */
@@ -84,18 +75,8 @@ public final class SpreadWithMultipleParametersRequest
     }
 
     /**
-     * Get the requiredIntList property: required int.
-     * 
-     * @return the requiredIntList value.
-     */
-    @Metadata(properties = { MetadataProperties.GENERATED })
-    public List<Integer> getRequiredIntList() {
-        return this.requiredIntList;
-    }
-
-    /**
      * Get the optionalStringList property: optional string.
-     * 
+     *
      * @return the optionalStringList value.
      */
     @Metadata(properties = { MetadataProperties.GENERATED })
@@ -105,7 +86,7 @@ public final class SpreadWithMultipleParametersRequest
 
     /**
      * Set the optionalStringList property: optional string.
-     * 
+     *
      * @param optionalStringList the optionalStringList value to set.
      * @return the SpreadWithMultipleParametersRequest object itself.
      */
@@ -113,6 +94,26 @@ public final class SpreadWithMultipleParametersRequest
     public SpreadWithMultipleParametersRequest setOptionalStringList(List<String> optionalStringList) {
         this.optionalStringList = optionalStringList;
         return this;
+    }
+
+    /**
+     * Get the requiredIntList property: required int.
+     *
+     * @return the requiredIntList value.
+     */
+    @Metadata(properties = { MetadataProperties.GENERATED })
+    public List<Integer> getRequiredIntList() {
+        return this.requiredIntList;
+    }
+
+    /**
+     * Get the requiredString property: required string.
+     *
+     * @return the requiredString value.
+     */
+    @Metadata(properties = { MetadataProperties.GENERATED })
+    public String getRequiredString() {
+        return this.requiredString;
     }
 
     /**
@@ -133,7 +134,7 @@ public final class SpreadWithMultipleParametersRequest
 
     /**
      * Reads an instance of SpreadWithMultipleParametersRequest from the JsonReader.
-     * 
+     *
      * @param jsonReader The JsonReader being read.
      * @return An instance of SpreadWithMultipleParametersRequest if the JsonReader was pointing to an instance of it,
      * or null if it was pointing to JSON null.
@@ -150,7 +151,6 @@ public final class SpreadWithMultipleParametersRequest
             while (reader.nextToken() != JsonToken.END_OBJECT) {
                 String fieldName = reader.getFieldName();
                 reader.nextToken();
-
                 if ("requiredString".equals(fieldName)) {
                     requiredString = reader.getString();
                 } else if ("requiredIntList".equals(fieldName)) {
@@ -167,7 +167,6 @@ public final class SpreadWithMultipleParametersRequest
                 = new SpreadWithMultipleParametersRequest(requiredString, requiredIntList);
             deserializedSpreadWithMultipleParametersRequest.optionalInt = optionalInt;
             deserializedSpreadWithMultipleParametersRequest.optionalStringList = optionalStringList;
-
             return deserializedSpreadWithMultipleParametersRequest;
         });
     }

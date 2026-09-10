@@ -19,9 +19,10 @@ import java.util.function.Function;
  * Verify enum member names that are special words using extensible enum (union).
  */
 public final class ExtensibleString implements ExpandableEnum<String>, JsonSerializable<ExtensibleString> {
-    private static final Map<String, ExtensibleString> VALUES = new ConcurrentHashMap<>();
 
     private static final Function<String, ExtensibleString> NEW_INSTANCE = ExtensibleString::new;
+
+    private static final Map<String, ExtensibleString> VALUES = new ConcurrentHashMap<>();
 
     /**
      * Static value and for ExtensibleString.
@@ -227,40 +228,33 @@ public final class ExtensibleString implements ExpandableEnum<String>, JsonSeria
         this.value = value;
     }
 
-    /**
-     * Creates or finds a ExtensibleString.
-     * 
-     * @param value a value to look for.
-     * @return the corresponding ExtensibleString.
-     * @throws IllegalArgumentException if value is null.
-     */
     @Metadata(properties = { MetadataProperties.GENERATED })
-    public static ExtensibleString fromValue(String value) {
-        if (value == null) {
-            throw new IllegalArgumentException("'value' cannot be null.");
-        }
-        return VALUES.computeIfAbsent(value, NEW_INSTANCE);
-    }
-
-    /**
-     * Gets known ExtensibleString values.
-     * 
-     * @return Known ExtensibleString values.
-     */
-    @Metadata(properties = { MetadataProperties.GENERATED })
-    public static Collection<ExtensibleString> values() {
-        return new ArrayList<>(VALUES.values());
+    @Override
+    public boolean equals(Object obj) {
+        return this == obj;
     }
 
     /**
      * Gets the value of the ExtensibleString instance.
-     * 
+     *
      * @return the value of the ExtensibleString instance.
      */
     @Metadata(properties = { MetadataProperties.GENERATED })
     @Override
     public String getValue() {
         return this.value;
+    }
+
+    @Metadata(properties = { MetadataProperties.GENERATED })
+    @Override
+    public int hashCode() {
+        return Objects.hashCode(this.value);
+    }
+
+    @Metadata(properties = { MetadataProperties.GENERATED })
+    @Override
+    public String toString() {
+        return Objects.toString(this.value);
     }
 
     /**
@@ -274,7 +268,7 @@ public final class ExtensibleString implements ExpandableEnum<String>, JsonSeria
 
     /**
      * Reads an instance of ExtensibleString from the JsonReader.
-     * 
+     *
      * @param jsonReader The JsonReader being read.
      * @return An instance of ExtensibleString if the JsonReader was pointing to an instance of it, or null if the
      * JsonReader was pointing to JSON null.
@@ -294,21 +288,28 @@ public final class ExtensibleString implements ExpandableEnum<String>, JsonSeria
         return ExtensibleString.fromValue(jsonReader.getString());
     }
 
+    /**
+     * Creates or finds a ExtensibleString.
+     *
+     * @param value a value to look for.
+     * @return the corresponding ExtensibleString.
+     * @throws IllegalArgumentException if value is null.
+     */
     @Metadata(properties = { MetadataProperties.GENERATED })
-    @Override
-    public String toString() {
-        return Objects.toString(this.value);
+    public static ExtensibleString fromValue(String value) {
+        if (value == null) {
+            throw new IllegalArgumentException("'value' cannot be null.");
+        }
+        return VALUES.computeIfAbsent(value, NEW_INSTANCE);
     }
 
+    /**
+     * Gets known ExtensibleString values.
+     *
+     * @return Known ExtensibleString values.
+     */
     @Metadata(properties = { MetadataProperties.GENERATED })
-    @Override
-    public boolean equals(Object obj) {
-        return this == obj;
-    }
-
-    @Metadata(properties = { MetadataProperties.GENERATED })
-    @Override
-    public int hashCode() {
-        return Objects.hashCode(this.value);
+    public static Collection<ExtensibleString> values() {
+        return new ArrayList<>(VALUES.values());
     }
 }

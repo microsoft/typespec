@@ -8,11 +8,6 @@ import io.clientcore.core.annotations.MetadataProperties;
  */
 @Metadata(properties = { MetadataProperties.FLUENT })
 public final class MultiBinaryPartsRequest {
-    /*
-     * The profileImage property.
-     */
-    @Metadata(properties = { MetadataProperties.GENERATED })
-    private final ProfileImageFileDetails profileImage;
 
     /*
      * The picture property.
@@ -20,9 +15,15 @@ public final class MultiBinaryPartsRequest {
     @Metadata(properties = { MetadataProperties.GENERATED })
     private PictureFileDetails picture;
 
+    /*
+     * The profileImage property.
+     */
+    @Metadata(properties = { MetadataProperties.GENERATED })
+    private final ProfileImageFileDetails profileImage;
+
     /**
      * Creates an instance of MultiBinaryPartsRequest class.
-     * 
+     *
      * @param profileImage the profileImage value to set.
      */
     @Metadata(properties = { MetadataProperties.GENERATED })
@@ -31,18 +32,8 @@ public final class MultiBinaryPartsRequest {
     }
 
     /**
-     * Get the profileImage property: The profileImage property.
-     * 
-     * @return the profileImage value.
-     */
-    @Metadata(properties = { MetadataProperties.GENERATED })
-    public ProfileImageFileDetails getProfileImage() {
-        return this.profileImage;
-    }
-
-    /**
      * Get the picture property: The picture property.
-     * 
+     *
      * @return the picture value.
      */
     @Metadata(properties = { MetadataProperties.GENERATED })
@@ -52,7 +43,7 @@ public final class MultiBinaryPartsRequest {
 
     /**
      * Set the picture property: The picture property.
-     * 
+     *
      * @param picture the picture value to set.
      * @return the MultiBinaryPartsRequest object itself.
      */
@@ -60,5 +51,15 @@ public final class MultiBinaryPartsRequest {
     public MultiBinaryPartsRequest setPicture(PictureFileDetails picture) {
         this.picture = picture;
         return this;
+    }
+
+    /**
+     * Get the profileImage property: The profileImage property.
+     *
+     * @return the profileImage value.
+     */
+    @Metadata(properties = { MetadataProperties.GENERATED })
+    public ProfileImageFileDetails getProfileImage() {
+        return this.profileImage;
     }
 }

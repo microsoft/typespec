@@ -14,6 +14,7 @@ import javax.xml.stream.XMLStreamException;
  */
 @Metadata(properties = { MetadataProperties.IMMUTABLE })
 public final class ModelWithNamespace implements XmlSerializable<ModelWithNamespace> {
+
     private static final String EXAMPLE_COM__SCHEMA = "http://example.com/schema";
 
     /*
@@ -30,7 +31,7 @@ public final class ModelWithNamespace implements XmlSerializable<ModelWithNamesp
 
     /**
      * Creates an instance of ModelWithNamespace class.
-     * 
+     *
      * @param id the id value to set.
      * @param title the title value to set.
      */
@@ -42,7 +43,7 @@ public final class ModelWithNamespace implements XmlSerializable<ModelWithNamesp
 
     /**
      * Get the id property: The id property.
-     * 
+     *
      * @return the id value.
      */
     @Metadata(properties = { MetadataProperties.GENERATED })
@@ -52,7 +53,7 @@ public final class ModelWithNamespace implements XmlSerializable<ModelWithNamesp
 
     /**
      * Get the title property: The title property.
-     * 
+     *
      * @return the title value.
      */
     @Metadata(properties = { MetadataProperties.GENERATED })
@@ -79,7 +80,7 @@ public final class ModelWithNamespace implements XmlSerializable<ModelWithNamesp
 
     /**
      * Reads an instance of ModelWithNamespace from the XmlReader.
-     * 
+     *
      * @param xmlReader The XmlReader being read.
      * @return An instance of ModelWithNamespace if the XmlReader was pointing to an instance of it, or null if it was
      * pointing to XML null.
@@ -93,7 +94,7 @@ public final class ModelWithNamespace implements XmlSerializable<ModelWithNamesp
 
     /**
      * Reads an instance of ModelWithNamespace from the XmlReader.
-     * 
+     *
      * @param xmlReader The XmlReader being read.
      * @param rootElementName Optional root element name to override the default defined by the model. Used to support
      * cases where the model can deserialize from different root element names.
@@ -111,7 +112,6 @@ public final class ModelWithNamespace implements XmlSerializable<ModelWithNamesp
             String title = null;
             while (reader.nextElement() != XmlToken.END_ELEMENT) {
                 QName elementName = reader.getElementName();
-
                 if ("id".equals(elementName.getLocalPart())) {
                     id = reader.getIntElement();
                 } else if ("title".equals(elementName.getLocalPart())) {

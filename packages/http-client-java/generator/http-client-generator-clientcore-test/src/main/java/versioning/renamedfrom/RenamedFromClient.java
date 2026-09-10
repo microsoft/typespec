@@ -16,14 +16,15 @@ import versioning.renamedfrom.implementation.RenamedFromClientImpl;
  */
 @ServiceClient(builder = RenamedFromClientBuilder.class)
 public final class RenamedFromClient {
-    @Metadata(properties = { MetadataProperties.GENERATED })
-    private final RenamedFromClientImpl serviceClient;
 
     private final Instrumentation instrumentation;
 
+    @Metadata(properties = { MetadataProperties.GENERATED })
+    private final RenamedFromClientImpl serviceClient;
+
     /**
      * Initializes an instance of RenamedFromClient class.
-     * 
+     *
      * @param serviceClient the service client implementation.
      * @param instrumentation the instrumentation instance.
      */
@@ -35,7 +36,23 @@ public final class RenamedFromClient {
 
     /**
      * The newOp operation.
-     * 
+     *
+     * @param newQuery The newQuery parameter.
+     * @param body The body parameter.
+     * @throws IllegalArgumentException thrown if parameters fail the validation.
+     * @throws HttpResponseException thrown if the service returns an error.
+     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
+     * @return the response.
+     */
+    @Metadata(properties = { MetadataProperties.GENERATED })
+    @ServiceMethod(returns = ReturnType.SINGLE)
+    public NewModel newOp(String newQuery, NewModel body) {
+        return newOpWithResponse(newQuery, body, RequestContext.none()).getValue();
+    }
+
+    /**
+     * The newOp operation.
+     *
      * @param newQuery The newQuery parameter.
      * @param body The body parameter.
      * @param requestContext The context to configure the HTTP request before HTTP client sends it.
@@ -49,21 +66,5 @@ public final class RenamedFromClient {
     public Response<NewModel> newOpWithResponse(String newQuery, NewModel body, RequestContext requestContext) {
         return this.instrumentation.instrumentWithResponse("Versioning.RenamedFrom.newOp", requestContext,
             updatedContext -> this.serviceClient.newOpWithResponse(newQuery, body, updatedContext));
-    }
-
-    /**
-     * The newOp operation.
-     * 
-     * @param newQuery The newQuery parameter.
-     * @param body The body parameter.
-     * @throws IllegalArgumentException thrown if parameters fail the validation.
-     * @throws HttpResponseException thrown if the service returns an error.
-     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
-     * @return the response.
-     */
-    @Metadata(properties = { MetadataProperties.GENERATED })
-    @ServiceMethod(returns = ReturnType.SINGLE)
-    public NewModel newOp(String newQuery, NewModel body) {
-        return newOpWithResponse(newQuery, body, RequestContext.none()).getValue();
     }
 }

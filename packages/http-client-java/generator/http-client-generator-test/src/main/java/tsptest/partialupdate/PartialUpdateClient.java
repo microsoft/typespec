@@ -38,6 +38,24 @@ public final class PartialUpdateClient {
 
     /**
      * The read operation.
+     *
+     * @throws HttpResponseException thrown if the request is rejected by server.
+     * @throws ClientAuthenticationException thrown if the request is rejected by server on status code 401.
+     * @throws ResourceNotFoundException thrown if the request is rejected by server on status code 404.
+     * @throws ResourceModifiedException thrown if the request is rejected by server on status code 409.
+     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
+     * @return the response.
+     */
+    @Generated
+    @ServiceMethod(returns = ReturnType.SINGLE)
+    public PartialUpdateModel read() {
+        // Generated convenience method for readWithResponse
+        RequestOptions requestOptions = new RequestOptions();
+        return readWithResponse(requestOptions).getValue().toObject(PartialUpdateModel.class);
+    }
+
+    /**
+     * The read operation.
      * <p><strong>Response Body Schema</strong></p>
      * 
      * <pre>
@@ -62,24 +80,6 @@ public final class PartialUpdateClient {
     @ServiceMethod(returns = ReturnType.SINGLE)
     public Response<BinaryData> readWithResponse(RequestOptions requestOptions) {
         return this.serviceClient.readWithResponse(requestOptions);
-    }
-
-    /**
-     * The read operation.
-     *
-     * @throws HttpResponseException thrown if the request is rejected by server.
-     * @throws ClientAuthenticationException thrown if the request is rejected by server on status code 401.
-     * @throws ResourceNotFoundException thrown if the request is rejected by server on status code 404.
-     * @throws ResourceModifiedException thrown if the request is rejected by server on status code 409.
-     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
-     * @return the response.
-     */
-    @Generated
-    @ServiceMethod(returns = ReturnType.SINGLE)
-    public PartialUpdateModel read() {
-        // Generated convenience method for readWithResponse
-        RequestOptions requestOptions = new RequestOptions();
-        return readWithResponse(requestOptions).getValue().toObject(PartialUpdateModel.class);
     }
 
     /**

@@ -21,10 +21,6 @@ import parameters.bodyoptionality.BodyModel;
  * Initializes a new instance of the BodyOptionalityClient type.
  */
 public final class BodyOptionalityClientImpl {
-    /**
-     * The proxy service used to perform REST calls.
-     */
-    private final BodyOptionalityClientService service;
 
     /**
      * Service host.
@@ -32,27 +28,9 @@ public final class BodyOptionalityClientImpl {
     private final String endpoint;
 
     /**
-     * Gets Service host.
-     * 
-     * @return the endpoint value.
-     */
-    public String getEndpoint() {
-        return this.endpoint;
-    }
-
-    /**
      * The HTTP pipeline to send requests through.
      */
     private final HttpPipeline httpPipeline;
-
-    /**
-     * Gets The HTTP pipeline to send requests through.
-     * 
-     * @return the httpPipeline value.
-     */
-    public HttpPipeline getHttpPipeline() {
-        return this.httpPipeline;
-    }
 
     /**
      * The instance of instrumentation to report telemetry.
@@ -60,31 +38,18 @@ public final class BodyOptionalityClientImpl {
     private final Instrumentation instrumentation;
 
     /**
-     * Gets The instance of instrumentation to report telemetry.
-     * 
-     * @return the instrumentation value.
-     */
-    public Instrumentation getInstrumentation() {
-        return this.instrumentation;
-    }
-
-    /**
      * The OptionalExplicitsImpl object to access its operations.
      */
     private final OptionalExplicitsImpl optionalExplicits;
 
     /**
-     * Gets the OptionalExplicitsImpl object to access its operations.
-     * 
-     * @return the OptionalExplicitsImpl object.
+     * The proxy service used to perform REST calls.
      */
-    public OptionalExplicitsImpl getOptionalExplicits() {
-        return this.optionalExplicits;
-    }
+    private final BodyOptionalityClientService service;
 
     /**
      * Initializes an instance of BodyOptionalityClient client.
-     * 
+     *
      * @param httpPipeline The HTTP pipeline to send requests through.
      * @param instrumentation The instance of instrumentation to report telemetry.
      * @param endpoint Service host.
@@ -98,46 +63,44 @@ public final class BodyOptionalityClientImpl {
     }
 
     /**
-     * The interface defining all the services for BodyOptionalityClient to be used by the proxy service to perform REST
-     * calls.
+     * Gets Service host.
+     *
+     * @return the endpoint value.
      */
-    @ServiceInterface(name = "BodyOptionalityClient", host = "{endpoint}")
-    public interface BodyOptionalityClientService {
-        static BodyOptionalityClientService getNewInstance(HttpPipeline pipeline) {
-            try {
-                Class<?> clazz
-                    = Class.forName("parameters.bodyoptionality.implementation.BodyOptionalityClientServiceImpl");
-                return (BodyOptionalityClientService) clazz.getMethod("getNewInstance", HttpPipeline.class)
-                    .invoke(null, pipeline);
-            } catch (ClassNotFoundException | NoSuchMethodException | IllegalAccessException
-                | InvocationTargetException e) {
-                throw new RuntimeException(e);
-            }
+    public String getEndpoint() {
+        return this.endpoint;
+    }
 
-        }
+    /**
+     * Gets The HTTP pipeline to send requests through.
+     *
+     * @return the httpPipeline value.
+     */
+    public HttpPipeline getHttpPipeline() {
+        return this.httpPipeline;
+    }
 
-        @HttpRequestInformation(
-            method = HttpMethod.POST,
-            path = "/parameters/body-optionality/required-explicit",
-            expectedStatusCodes = { 204 })
-        @UnexpectedResponseExceptionDetail
-        Response<Void> requiredExplicit(@HostParam("endpoint") String endpoint,
-            @HeaderParam("Content-Type") String contentType, @BodyParam("application/json") BodyModel body,
-            RequestContext requestContext);
+    /**
+     * Gets The instance of instrumentation to report telemetry.
+     *
+     * @return the instrumentation value.
+     */
+    public Instrumentation getInstrumentation() {
+        return this.instrumentation;
+    }
 
-        @HttpRequestInformation(
-            method = HttpMethod.POST,
-            path = "/parameters/body-optionality/required-implicit",
-            expectedStatusCodes = { 204 })
-        @UnexpectedResponseExceptionDetail
-        Response<Void> requiredImplicit(@HostParam("endpoint") String endpoint,
-            @HeaderParam("Content-Type") String contentType, @BodyParam("application/json") BodyModel bodyModel,
-            RequestContext requestContext);
+    /**
+     * Gets the OptionalExplicitsImpl object to access its operations.
+     *
+     * @return the OptionalExplicitsImpl object.
+     */
+    public OptionalExplicitsImpl getOptionalExplicits() {
+        return this.optionalExplicits;
     }
 
     /**
      * The requiredExplicit operation.
-     * 
+     *
      * @param body The body parameter.
      * @param requestContext The context to configure the HTTP request before HTTP client sends it.
      * @throws IllegalArgumentException thrown if parameters fail the validation.
@@ -156,7 +119,7 @@ public final class BodyOptionalityClientImpl {
 
     /**
      * The requiredImplicit operation.
-     * 
+     *
      * @param name The name parameter.
      * @param requestContext The context to configure the HTTP request before HTTP client sends it.
      * @throws IllegalArgumentException thrown if parameters fail the validation.
@@ -172,5 +135,43 @@ public final class BodyOptionalityClientImpl {
                 BodyModel bodyModel = new BodyModel(name);
                 return service.requiredImplicit(this.getEndpoint(), contentType, bodyModel, updatedContext);
             });
+    }
+
+    /**
+     * The interface defining all the services for BodyOptionalityClient to be used by the proxy service to perform REST
+     * calls.
+     */
+    @ServiceInterface(name = "BodyOptionalityClient", host = "{endpoint}")
+    public interface BodyOptionalityClientService {
+
+        @HttpRequestInformation(
+            method = HttpMethod.POST,
+            path = "/parameters/body-optionality/required-explicit",
+            expectedStatusCodes = { 204 })
+        @UnexpectedResponseExceptionDetail
+        Response<Void> requiredExplicit(@HostParam("endpoint") String endpoint,
+            @HeaderParam("Content-Type") String contentType, @BodyParam("application/json") BodyModel body,
+            RequestContext requestContext);
+
+        @HttpRequestInformation(
+            method = HttpMethod.POST,
+            path = "/parameters/body-optionality/required-implicit",
+            expectedStatusCodes = { 204 })
+        @UnexpectedResponseExceptionDetail
+        Response<Void> requiredImplicit(@HostParam("endpoint") String endpoint,
+            @HeaderParam("Content-Type") String contentType, @BodyParam("application/json") BodyModel bodyModel,
+            RequestContext requestContext);
+
+        static BodyOptionalityClientService getNewInstance(HttpPipeline pipeline) {
+            try {
+                Class<?> clazz
+                    = Class.forName("parameters.bodyoptionality.implementation.BodyOptionalityClientServiceImpl");
+                return (BodyOptionalityClientService) clazz.getMethod("getNewInstance", HttpPipeline.class)
+                    .invoke(null, pipeline);
+            } catch (ClassNotFoundException | NoSuchMethodException | IllegalAccessException
+                | InvocationTargetException e) {
+                throw new RuntimeException(e);
+            }
+        }
     }
 }

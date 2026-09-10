@@ -16,14 +16,15 @@ import type.property.valuetypes.implementation.StringLiteralsImpl;
  */
 @ServiceClient(builder = ValueTypesClientBuilder.class)
 public final class StringLiteralClient {
-    @Metadata(properties = { MetadataProperties.GENERATED })
-    private final StringLiteralsImpl serviceClient;
 
     private final Instrumentation instrumentation;
 
+    @Metadata(properties = { MetadataProperties.GENERATED })
+    private final StringLiteralsImpl serviceClient;
+
     /**
      * Initializes an instance of StringLiteralClient class.
-     * 
+     *
      * @param serviceClient the service client implementation.
      * @param instrumentation the instrumentation instance.
      */
@@ -35,7 +36,20 @@ public final class StringLiteralClient {
 
     /**
      * Get call.
-     * 
+     *
+     * @throws HttpResponseException thrown if the service returns an error.
+     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
+     * @return call.
+     */
+    @Metadata(properties = { MetadataProperties.GENERATED })
+    @ServiceMethod(returns = ReturnType.SINGLE)
+    public StringLiteralProperty get() {
+        return getWithResponse(RequestContext.none()).getValue();
+    }
+
+    /**
+     * Get call.
+     *
      * @param requestContext The context to configure the HTTP request before HTTP client sends it.
      * @throws IllegalArgumentException thrown if parameters fail the validation.
      * @throws HttpResponseException thrown if the service returns an error.
@@ -50,21 +64,22 @@ public final class StringLiteralClient {
     }
 
     /**
-     * Get call.
-     * 
+     * Put operation.
+     *
+     * @param body body.
+     * @throws IllegalArgumentException thrown if parameters fail the validation.
      * @throws HttpResponseException thrown if the service returns an error.
      * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
-     * @return call.
      */
     @Metadata(properties = { MetadataProperties.GENERATED })
     @ServiceMethod(returns = ReturnType.SINGLE)
-    public StringLiteralProperty get() {
-        return getWithResponse(RequestContext.none()).getValue();
+    public void put(StringLiteralProperty body) {
+        putWithResponse(body, RequestContext.none());
     }
 
     /**
      * Put operation.
-     * 
+     *
      * @param body body.
      * @param requestContext The context to configure the HTTP request before HTTP client sends it.
      * @throws IllegalArgumentException thrown if parameters fail the validation.
@@ -77,19 +92,5 @@ public final class StringLiteralClient {
     public Response<Void> putWithResponse(StringLiteralProperty body, RequestContext requestContext) {
         return this.instrumentation.instrumentWithResponse("Type.Property.ValueTypes.StringLiteral.put", requestContext,
             updatedContext -> this.serviceClient.putWithResponse(body, updatedContext));
-    }
-
-    /**
-     * Put operation.
-     * 
-     * @param body body.
-     * @throws IllegalArgumentException thrown if parameters fail the validation.
-     * @throws HttpResponseException thrown if the service returns an error.
-     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
-     */
-    @Metadata(properties = { MetadataProperties.GENERATED })
-    @ServiceMethod(returns = ReturnType.SINGLE)
-    public void put(StringLiteralProperty body) {
-        putWithResponse(body, RequestContext.none());
     }
 }

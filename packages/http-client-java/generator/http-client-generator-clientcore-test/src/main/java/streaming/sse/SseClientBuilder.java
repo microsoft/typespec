@@ -34,17 +34,60 @@ import streaming.sse.implementation.SseClientImpl;
 @ServiceClientBuilder(serviceClients = { UnnamedClient.class, NamedClient.class, RetrieveClient.class })
 public final class SseClientBuilder implements HttpTrait<SseClientBuilder>, ProxyTrait<SseClientBuilder>,
     ConfigurationTrait<SseClientBuilder>, EndpointTrait<SseClientBuilder> {
+
+    @Metadata(properties = { MetadataProperties.GENERATED })
+    private static final Map<String, String> PROPERTIES = CoreUtils.getProperties("streaming-sse.properties");
+
     @Metadata(properties = { MetadataProperties.GENERATED })
     private static final String SDK_NAME = "name";
 
     @Metadata(properties = { MetadataProperties.GENERATED })
     private static final String SDK_VERSION = "version";
 
+    /*
+     * The configuration store that is used during construction of the service client.
+     */
     @Metadata(properties = { MetadataProperties.GENERATED })
-    private static final Map<String, String> PROPERTIES = CoreUtils.getProperties("streaming-sse.properties");
+    private Configuration configuration;
+
+    /*
+     * The service endpoint
+     */
+    @Metadata(properties = { MetadataProperties.GENERATED })
+    private String endpoint;
+
+    /*
+     * The HTTP client used to send the request.
+     */
+    @Metadata(properties = { MetadataProperties.GENERATED })
+    private HttpClient httpClient;
+
+    /*
+     * The instrumentation configuration for HTTP requests and responses.
+     */
+    @Metadata(properties = { MetadataProperties.GENERATED })
+    private HttpInstrumentationOptions httpInstrumentationOptions;
 
     @Metadata(properties = { MetadataProperties.GENERATED })
     private final List<HttpPipelinePolicy> pipelinePolicies;
+
+    /*
+     * The proxy options used during construction of the service client.
+     */
+    @Metadata(properties = { MetadataProperties.GENERATED })
+    private ProxyOptions proxyOptions;
+
+    /*
+     * The redirect options to configure redirect policy
+     */
+    @Metadata(properties = { MetadataProperties.GENERATED })
+    private HttpRedirectOptions redirectOptions;
+
+    /*
+     * The retry options to configure retry policy for failed requests.
+     */
+    @Metadata(properties = { MetadataProperties.GENERATED })
+    private HttpRetryOptions retryOptions;
 
     /**
      * Create an instance of the SseClientBuilder.
@@ -54,11 +97,36 @@ public final class SseClientBuilder implements HttpTrait<SseClientBuilder>, Prox
         this.pipelinePolicies = new ArrayList<>();
     }
 
-    /*
-     * The HTTP client used to send the request.
+    /**
+     * {@inheritDoc}.
      */
     @Metadata(properties = { MetadataProperties.GENERATED })
-    private HttpClient httpClient;
+    @Override
+    public SseClientBuilder addHttpPipelinePolicy(HttpPipelinePolicy customPolicy) {
+        Objects.requireNonNull(customPolicy, "'customPolicy' cannot be null.");
+        pipelinePolicies.add(customPolicy);
+        return this;
+    }
+
+    /**
+     * {@inheritDoc}.
+     */
+    @Metadata(properties = { MetadataProperties.GENERATED })
+    @Override
+    public SseClientBuilder configuration(Configuration configuration) {
+        this.configuration = configuration;
+        return this;
+    }
+
+    /**
+     * {@inheritDoc}.
+     */
+    @Metadata(properties = { MetadataProperties.GENERATED })
+    @Override
+    public SseClientBuilder endpoint(String endpoint) {
+        this.endpoint = endpoint;
+        return this;
+    }
 
     /**
      * {@inheritDoc}.
@@ -70,11 +138,25 @@ public final class SseClientBuilder implements HttpTrait<SseClientBuilder>, Prox
         return this;
     }
 
-    /*
-     * The retry options to configure retry policy for failed requests.
+    /**
+     * {@inheritDoc}.
      */
     @Metadata(properties = { MetadataProperties.GENERATED })
-    private HttpRetryOptions retryOptions;
+    @Override
+    public SseClientBuilder httpInstrumentationOptions(HttpInstrumentationOptions httpInstrumentationOptions) {
+        this.httpInstrumentationOptions = httpInstrumentationOptions;
+        return this;
+    }
+
+    /**
+     * {@inheritDoc}.
+     */
+    @Metadata(properties = { MetadataProperties.GENERATED })
+    @Override
+    public SseClientBuilder httpRedirectOptions(HttpRedirectOptions redirectOptions) {
+        this.redirectOptions = redirectOptions;
+        return this;
+    }
 
     /**
      * {@inheritDoc}.
@@ -91,95 +173,47 @@ public final class SseClientBuilder implements HttpTrait<SseClientBuilder>, Prox
      */
     @Metadata(properties = { MetadataProperties.GENERATED })
     @Override
-    public SseClientBuilder addHttpPipelinePolicy(HttpPipelinePolicy customPolicy) {
-        Objects.requireNonNull(customPolicy, "'customPolicy' cannot be null.");
-        pipelinePolicies.add(customPolicy);
-        return this;
-    }
-
-    /*
-     * The redirect options to configure redirect policy
-     */
-    @Metadata(properties = { MetadataProperties.GENERATED })
-    private HttpRedirectOptions redirectOptions;
-
-    /**
-     * {@inheritDoc}.
-     */
-    @Metadata(properties = { MetadataProperties.GENERATED })
-    @Override
-    public SseClientBuilder httpRedirectOptions(HttpRedirectOptions redirectOptions) {
-        this.redirectOptions = redirectOptions;
-        return this;
-    }
-
-    /*
-     * The instrumentation configuration for HTTP requests and responses.
-     */
-    @Metadata(properties = { MetadataProperties.GENERATED })
-    private HttpInstrumentationOptions httpInstrumentationOptions;
-
-    /**
-     * {@inheritDoc}.
-     */
-    @Metadata(properties = { MetadataProperties.GENERATED })
-    @Override
-    public SseClientBuilder httpInstrumentationOptions(HttpInstrumentationOptions httpInstrumentationOptions) {
-        this.httpInstrumentationOptions = httpInstrumentationOptions;
-        return this;
-    }
-
-    /*
-     * The proxy options used during construction of the service client.
-     */
-    @Metadata(properties = { MetadataProperties.GENERATED })
-    private ProxyOptions proxyOptions;
-
-    /**
-     * {@inheritDoc}.
-     */
-    @Metadata(properties = { MetadataProperties.GENERATED })
-    @Override
     public SseClientBuilder proxyOptions(ProxyOptions proxyOptions) {
         this.proxyOptions = proxyOptions;
         return this;
     }
 
-    /*
-     * The configuration store that is used during construction of the service client.
-     */
-    @Metadata(properties = { MetadataProperties.GENERATED })
-    private Configuration configuration;
-
     /**
-     * {@inheritDoc}.
+     * Builds an instance of NamedClient class.
+     *
+     * @return an instance of NamedClient.
      */
     @Metadata(properties = { MetadataProperties.GENERATED })
-    @Override
-    public SseClientBuilder configuration(Configuration configuration) {
-        this.configuration = configuration;
-        return this;
+    public NamedClient buildNamedClient() {
+        SseClientImpl innerClient = buildInnerClient();
+        return new NamedClient(innerClient.getNameds(), innerClient.getInstrumentation());
     }
 
-    /*
-     * The service endpoint
+    /**
+     * Builds an instance of RetrieveClient class.
+     *
+     * @return an instance of RetrieveClient.
      */
     @Metadata(properties = { MetadataProperties.GENERATED })
-    private String endpoint;
+    public RetrieveClient buildRetrieveClient() {
+        SseClientImpl innerClient = buildInnerClient();
+        return new RetrieveClient(innerClient.getRetrieves(), innerClient.getInstrumentation());
+    }
 
     /**
-     * {@inheritDoc}.
+     * Builds an instance of UnnamedClient class.
+     *
+     * @return an instance of UnnamedClient.
      */
     @Metadata(properties = { MetadataProperties.GENERATED })
-    @Override
-    public SseClientBuilder endpoint(String endpoint) {
-        this.endpoint = endpoint;
-        return this;
+    public UnnamedClient buildUnnamedClient() {
+        SseClientImpl innerClient = buildInnerClient();
+        return new UnnamedClient(innerClient.getUnnameds(), innerClient.getInstrumentation());
     }
 
     /**
      * Builds an instance of SseClientImpl with the provided parameters.
-     * 
+     *
      * @return an instance of SseClientImpl.
      */
     @Metadata(properties = { MetadataProperties.GENERATED })
@@ -200,12 +234,6 @@ public final class SseClientBuilder implements HttpTrait<SseClientBuilder>, Prox
     }
 
     @Metadata(properties = { MetadataProperties.GENERATED })
-    private void validateClient() {
-        // This method is invoked from 'buildInnerClient'/'buildClient' method.
-        // Developer can customize this method, to validate that the necessary conditions are met for the new client.
-    }
-
-    @Metadata(properties = { MetadataProperties.GENERATED })
     private HttpPipeline createHttpPipeline() {
         Configuration buildConfiguration
             = (configuration == null) ? Configuration.getGlobalConfiguration() : configuration;
@@ -222,36 +250,9 @@ public final class SseClientBuilder implements HttpTrait<SseClientBuilder>, Prox
         return httpPipelineBuilder.httpClient(httpClient).build();
     }
 
-    /**
-     * Builds an instance of UnnamedClient class.
-     * 
-     * @return an instance of UnnamedClient.
-     */
     @Metadata(properties = { MetadataProperties.GENERATED })
-    public UnnamedClient buildUnnamedClient() {
-        SseClientImpl innerClient = buildInnerClient();
-        return new UnnamedClient(innerClient.getUnnameds(), innerClient.getInstrumentation());
-    }
-
-    /**
-     * Builds an instance of NamedClient class.
-     * 
-     * @return an instance of NamedClient.
-     */
-    @Metadata(properties = { MetadataProperties.GENERATED })
-    public NamedClient buildNamedClient() {
-        SseClientImpl innerClient = buildInnerClient();
-        return new NamedClient(innerClient.getNameds(), innerClient.getInstrumentation());
-    }
-
-    /**
-     * Builds an instance of RetrieveClient class.
-     * 
-     * @return an instance of RetrieveClient.
-     */
-    @Metadata(properties = { MetadataProperties.GENERATED })
-    public RetrieveClient buildRetrieveClient() {
-        SseClientImpl innerClient = buildInnerClient();
-        return new RetrieveClient(innerClient.getRetrieves(), innerClient.getInstrumentation());
+    private void validateClient() {
+        // This method is invoked from 'buildInnerClient'/'buildClient' method.
+        // Developer can customize this method, to validate that the necessary conditions are met for the new client.
     }
 }

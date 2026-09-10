@@ -16,14 +16,15 @@ import server.endpoint.notdefined.implementation.NotDefinedClientImpl;
  */
 @ServiceClient(builder = NotDefinedClientBuilder.class)
 public final class NotDefinedClient {
-    @Metadata(properties = { MetadataProperties.GENERATED })
-    private final NotDefinedClientImpl serviceClient;
 
     private final Instrumentation instrumentation;
 
+    @Metadata(properties = { MetadataProperties.GENERATED })
+    private final NotDefinedClientImpl serviceClient;
+
     /**
      * Initializes an instance of NotDefinedClient class.
-     * 
+     *
      * @param serviceClient the service client implementation.
      * @param instrumentation the instrumentation instance.
      */
@@ -35,7 +36,19 @@ public final class NotDefinedClient {
 
     /**
      * The valid operation.
-     * 
+     *
+     * @throws HttpResponseException thrown if the service returns an error.
+     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
+     */
+    @Metadata(properties = { MetadataProperties.GENERATED })
+    @ServiceMethod(returns = ReturnType.SINGLE)
+    public void valid() {
+        validWithResponse(RequestContext.none());
+    }
+
+    /**
+     * The valid operation.
+     *
      * @param requestContext The context to configure the HTTP request before HTTP client sends it.
      * @throws IllegalArgumentException thrown if parameters fail the validation.
      * @throws HttpResponseException thrown if the service returns an error.
@@ -47,17 +60,5 @@ public final class NotDefinedClient {
     public Response<Void> validWithResponse(RequestContext requestContext) {
         return this.instrumentation.instrumentWithResponse("Server.Endpoint.NotDefined.valid", requestContext,
             updatedContext -> this.serviceClient.validWithResponse(updatedContext));
-    }
-
-    /**
-     * The valid operation.
-     * 
-     * @throws HttpResponseException thrown if the service returns an error.
-     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
-     */
-    @Metadata(properties = { MetadataProperties.GENERATED })
-    @ServiceMethod(returns = ReturnType.SINGLE)
-    public void valid() {
-        validWithResponse(RequestContext.none());
     }
 }

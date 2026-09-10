@@ -16,14 +16,15 @@ import type.model.visibility.implementation.VisibilityClientImpl;
  */
 @ServiceClient(builder = VisibilityClientBuilder.class)
 public final class VisibilityClient {
-    @Metadata(properties = { MetadataProperties.GENERATED })
-    private final VisibilityClientImpl serviceClient;
 
     private final Instrumentation instrumentation;
 
+    @Metadata(properties = { MetadataProperties.GENERATED })
+    private final VisibilityClientImpl serviceClient;
+
     /**
      * Initializes an instance of VisibilityClient class.
-     * 
+     *
      * @param serviceClient the service client implementation.
      * @param instrumentation the instrumentation instance.
      */
@@ -34,8 +35,55 @@ public final class VisibilityClient {
     }
 
     /**
+     * The deleteModel operation.
+     *
+     * @param input The input parameter.
+     * @throws IllegalArgumentException thrown if parameters fail the validation.
+     * @throws HttpResponseException thrown if the service returns an error.
+     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
+     */
+    @Metadata(properties = { MetadataProperties.GENERATED })
+    @ServiceMethod(returns = ReturnType.SINGLE)
+    public void deleteModel(VisibilityModel input) {
+        deleteModelWithResponse(input, RequestContext.none());
+    }
+
+    /**
+     * The deleteModel operation.
+     *
+     * @param input The input parameter.
+     * @param requestContext The context to configure the HTTP request before HTTP client sends it.
+     * @throws IllegalArgumentException thrown if parameters fail the validation.
+     * @throws HttpResponseException thrown if the service returns an error.
+     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
+     * @return the {@link Response}.
+     */
+    @Metadata(properties = { MetadataProperties.GENERATED })
+    @ServiceMethod(returns = ReturnType.SINGLE)
+    public Response<Void> deleteModelWithResponse(VisibilityModel input, RequestContext requestContext) {
+        return this.instrumentation.instrumentWithResponse("Type.Model.Visibility.deleteModel", requestContext,
+            updatedContext -> this.serviceClient.deleteModelWithResponse(input, updatedContext));
+    }
+
+    /**
      * The getModel operation.
-     * 
+     *
+     * @param queryProp Required int32, illustrating a query property.
+     * @param input The input parameter.
+     * @throws IllegalArgumentException thrown if parameters fail the validation.
+     * @throws HttpResponseException thrown if the service returns an error.
+     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
+     * @return output model with visibility properties.
+     */
+    @Metadata(properties = { MetadataProperties.GENERATED })
+    @ServiceMethod(returns = ReturnType.SINGLE)
+    public VisibilityModel getModel(int queryProp, VisibilityModel input) {
+        return getModelWithResponse(queryProp, input, RequestContext.none()).getValue();
+    }
+
+    /**
+     * The getModel operation.
+     *
      * @param queryProp Required int32, illustrating a query property.
      * @param input The input parameter.
      * @param requestContext The context to configure the HTTP request before HTTP client sends it.
@@ -53,24 +101,23 @@ public final class VisibilityClient {
     }
 
     /**
-     * The getModel operation.
-     * 
+     * The headModel operation.
+     *
      * @param queryProp Required int32, illustrating a query property.
      * @param input The input parameter.
      * @throws IllegalArgumentException thrown if parameters fail the validation.
      * @throws HttpResponseException thrown if the service returns an error.
      * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
-     * @return output model with visibility properties.
      */
     @Metadata(properties = { MetadataProperties.GENERATED })
     @ServiceMethod(returns = ReturnType.SINGLE)
-    public VisibilityModel getModel(int queryProp, VisibilityModel input) {
-        return getModelWithResponse(queryProp, input, RequestContext.none()).getValue();
+    public void headModel(int queryProp, VisibilityModel input) {
+        headModelWithResponse(queryProp, input, RequestContext.none());
     }
 
     /**
      * The headModel operation.
-     * 
+     *
      * @param queryProp Required int32, illustrating a query property.
      * @param input The input parameter.
      * @param requestContext The context to configure the HTTP request before HTTP client sends it.
@@ -87,9 +134,8 @@ public final class VisibilityClient {
     }
 
     /**
-     * The headModel operation.
-     * 
-     * @param queryProp Required int32, illustrating a query property.
+     * The patchModel operation.
+     *
      * @param input The input parameter.
      * @throws IllegalArgumentException thrown if parameters fail the validation.
      * @throws HttpResponseException thrown if the service returns an error.
@@ -97,44 +143,13 @@ public final class VisibilityClient {
      */
     @Metadata(properties = { MetadataProperties.GENERATED })
     @ServiceMethod(returns = ReturnType.SINGLE)
-    public void headModel(int queryProp, VisibilityModel input) {
-        headModelWithResponse(queryProp, input, RequestContext.none());
-    }
-
-    /**
-     * The putModel operation.
-     * 
-     * @param input The input parameter.
-     * @param requestContext The context to configure the HTTP request before HTTP client sends it.
-     * @throws IllegalArgumentException thrown if parameters fail the validation.
-     * @throws HttpResponseException thrown if the service returns an error.
-     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
-     * @return the {@link Response}.
-     */
-    @Metadata(properties = { MetadataProperties.GENERATED })
-    @ServiceMethod(returns = ReturnType.SINGLE)
-    public Response<Void> putModelWithResponse(VisibilityModel input, RequestContext requestContext) {
-        return this.instrumentation.instrumentWithResponse("Type.Model.Visibility.putModel", requestContext,
-            updatedContext -> this.serviceClient.putModelWithResponse(input, updatedContext));
-    }
-
-    /**
-     * The putModel operation.
-     * 
-     * @param input The input parameter.
-     * @throws IllegalArgumentException thrown if parameters fail the validation.
-     * @throws HttpResponseException thrown if the service returns an error.
-     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
-     */
-    @Metadata(properties = { MetadataProperties.GENERATED })
-    @ServiceMethod(returns = ReturnType.SINGLE)
-    public void putModel(VisibilityModel input) {
-        putModelWithResponse(input, RequestContext.none());
+    public void patchModel(VisibilityModel input) {
+        patchModelWithResponse(input, RequestContext.none());
     }
 
     /**
      * The patchModel operation.
-     * 
+     *
      * @param input The input parameter.
      * @param requestContext The context to configure the HTTP request before HTTP client sends it.
      * @throws IllegalArgumentException thrown if parameters fail the validation.
@@ -150,8 +165,8 @@ public final class VisibilityClient {
     }
 
     /**
-     * The patchModel operation.
-     * 
+     * The postModel operation.
+     *
      * @param input The input parameter.
      * @throws IllegalArgumentException thrown if parameters fail the validation.
      * @throws HttpResponseException thrown if the service returns an error.
@@ -159,13 +174,13 @@ public final class VisibilityClient {
      */
     @Metadata(properties = { MetadataProperties.GENERATED })
     @ServiceMethod(returns = ReturnType.SINGLE)
-    public void patchModel(VisibilityModel input) {
-        patchModelWithResponse(input, RequestContext.none());
+    public void postModel(VisibilityModel input) {
+        postModelWithResponse(input, RequestContext.none());
     }
 
     /**
      * The postModel operation.
-     * 
+     *
      * @param input The input parameter.
      * @param requestContext The context to configure the HTTP request before HTTP client sends it.
      * @throws IllegalArgumentException thrown if parameters fail the validation.
@@ -181,8 +196,8 @@ public final class VisibilityClient {
     }
 
     /**
-     * The postModel operation.
-     * 
+     * The putModel operation.
+     *
      * @param input The input parameter.
      * @throws IllegalArgumentException thrown if parameters fail the validation.
      * @throws HttpResponseException thrown if the service returns an error.
@@ -190,13 +205,13 @@ public final class VisibilityClient {
      */
     @Metadata(properties = { MetadataProperties.GENERATED })
     @ServiceMethod(returns = ReturnType.SINGLE)
-    public void postModel(VisibilityModel input) {
-        postModelWithResponse(input, RequestContext.none());
+    public void putModel(VisibilityModel input) {
+        putModelWithResponse(input, RequestContext.none());
     }
 
     /**
-     * The deleteModel operation.
-     * 
+     * The putModel operation.
+     *
      * @param input The input parameter.
      * @param requestContext The context to configure the HTTP request before HTTP client sends it.
      * @throws IllegalArgumentException thrown if parameters fail the validation.
@@ -206,28 +221,29 @@ public final class VisibilityClient {
      */
     @Metadata(properties = { MetadataProperties.GENERATED })
     @ServiceMethod(returns = ReturnType.SINGLE)
-    public Response<Void> deleteModelWithResponse(VisibilityModel input, RequestContext requestContext) {
-        return this.instrumentation.instrumentWithResponse("Type.Model.Visibility.deleteModel", requestContext,
-            updatedContext -> this.serviceClient.deleteModelWithResponse(input, updatedContext));
-    }
-
-    /**
-     * The deleteModel operation.
-     * 
-     * @param input The input parameter.
-     * @throws IllegalArgumentException thrown if parameters fail the validation.
-     * @throws HttpResponseException thrown if the service returns an error.
-     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
-     */
-    @Metadata(properties = { MetadataProperties.GENERATED })
-    @ServiceMethod(returns = ReturnType.SINGLE)
-    public void deleteModel(VisibilityModel input) {
-        deleteModelWithResponse(input, RequestContext.none());
+    public Response<Void> putModelWithResponse(VisibilityModel input, RequestContext requestContext) {
+        return this.instrumentation.instrumentWithResponse("Type.Model.Visibility.putModel", requestContext,
+            updatedContext -> this.serviceClient.putModelWithResponse(input, updatedContext));
     }
 
     /**
      * The putReadOnlyModel operation.
-     * 
+     *
+     * @param input The input parameter.
+     * @throws IllegalArgumentException thrown if parameters fail the validation.
+     * @throws HttpResponseException thrown if the service returns an error.
+     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
+     * @return roundTrip model with readonly optional properties.
+     */
+    @Metadata(properties = { MetadataProperties.GENERATED })
+    @ServiceMethod(returns = ReturnType.SINGLE)
+    public ReadOnlyModel putReadOnlyModel(ReadOnlyModel input) {
+        return putReadOnlyModelWithResponse(input, RequestContext.none()).getValue();
+    }
+
+    /**
+     * The putReadOnlyModel operation.
+     *
      * @param input The input parameter.
      * @param requestContext The context to configure the HTTP request before HTTP client sends it.
      * @throws IllegalArgumentException thrown if parameters fail the validation.
@@ -240,20 +256,5 @@ public final class VisibilityClient {
     public Response<ReadOnlyModel> putReadOnlyModelWithResponse(ReadOnlyModel input, RequestContext requestContext) {
         return this.instrumentation.instrumentWithResponse("Type.Model.Visibility.putReadOnlyModel", requestContext,
             updatedContext -> this.serviceClient.putReadOnlyModelWithResponse(input, updatedContext));
-    }
-
-    /**
-     * The putReadOnlyModel operation.
-     * 
-     * @param input The input parameter.
-     * @throws IllegalArgumentException thrown if parameters fail the validation.
-     * @throws HttpResponseException thrown if the service returns an error.
-     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
-     * @return roundTrip model with readonly optional properties.
-     */
-    @Metadata(properties = { MetadataProperties.GENERATED })
-    @ServiceMethod(returns = ReturnType.SINGLE)
-    public ReadOnlyModel putReadOnlyModel(ReadOnlyModel input) {
-        return putReadOnlyModelWithResponse(input, RequestContext.none()).getValue();
     }
 }

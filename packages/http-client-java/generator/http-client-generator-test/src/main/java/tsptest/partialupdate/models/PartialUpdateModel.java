@@ -19,16 +19,19 @@ import java.io.IOException;
 public final class PartialUpdateModel implements JsonSerializable<PartialUpdateModel> {
 
     /*
+     * The aggregation function to be applied on the client metric. Allowed functions
+     * - ‘percentage’ - for error metric , ‘avg’, ‘p50’, ‘p90’, ‘p95’, ‘p99’, ‘min’,
+     * ‘max’ - for response_time_ms and latency metric, ‘avg’ - for requests_per_sec,
+     * ‘count’ - for requests
+     */
+    @Generated
+    private String aggregate;
+
+    /*
      * The boolean property.
      */
     @Generated
     private final boolean booleanProperty;
-
-    /*
-     * The string property.
-     */
-    @Generated
-    private final String string;
 
     /*
      * The bytes property.
@@ -37,13 +40,10 @@ public final class PartialUpdateModel implements JsonSerializable<PartialUpdateM
     private final byte[] bytes;
 
     /*
-     * The aggregation function to be applied on the client metric. Allowed functions
-     * - ‘percentage’ - for error metric , ‘avg’, ‘p50’, ‘p90’, ‘p95’, ‘p99’, ‘min’,
-     * ‘max’ - for response_time_ms and latency metric, ‘avg’ - for requests_per_sec,
-     * ‘count’ - for requests
+     * The string property.
      */
     @Generated
-    private String aggregate;
+    private final String string;
 
     /*
      * customized property
@@ -62,36 +62,6 @@ public final class PartialUpdateModel implements JsonSerializable<PartialUpdateM
         this.booleanProperty = booleanProperty;
         this.string = string;
         this.bytes = bytes;
-    }
-
-    /**
-     * Get the booleanProperty property: The boolean property.
-     *
-     * @return the booleanProperty value.
-     */
-    @Generated
-    public boolean isBooleanProperty() {
-        return this.booleanProperty;
-    }
-
-    /**
-     * Get the string property: The string property.
-     *
-     * @return the string value.
-     */
-    @Generated
-    public String getString() {
-        return this.string;
-    }
-
-    /**
-     * Get the bytes property: The bytes property.
-     *
-     * @return the bytes value.
-     */
-    @Generated
-    public byte[] getBytes() {
-        return CoreUtils.clone(this.bytes);
     }
 
     /**
@@ -117,6 +87,26 @@ public final class PartialUpdateModel implements JsonSerializable<PartialUpdateM
     }
 
     /**
+     * Get the bytes property: The bytes property.
+     *
+     * @return the bytes value.
+     */
+    @Generated
+    public byte[] getBytes() {
+        return CoreUtils.clone(this.bytes);
+    }
+
+    /**
+     * Get the string property: The string property.
+     *
+     * @return the string value.
+     */
+    @Generated
+    public String getString() {
+        return this.string;
+    }
+
+    /**
      * javadoc
      *
      * @return javadoc
@@ -132,6 +122,16 @@ public final class PartialUpdateModel implements JsonSerializable<PartialUpdateM
      */
     public void setTestProperty(String testProperty) {
         this.testProperty = testProperty;
+    }
+
+    /**
+     * Get the booleanProperty property: The boolean property.
+     *
+     * @return the booleanProperty value.
+     */
+    @Generated
+    public boolean isBooleanProperty() {
+        return this.booleanProperty;
     }
 
     /**

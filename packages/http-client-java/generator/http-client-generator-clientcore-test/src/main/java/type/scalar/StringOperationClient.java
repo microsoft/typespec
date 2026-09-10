@@ -16,14 +16,15 @@ import type.scalar.implementation.StringOperationsImpl;
  */
 @ServiceClient(builder = ScalarClientBuilder.class)
 public final class StringOperationClient {
-    @Metadata(properties = { MetadataProperties.GENERATED })
-    private final StringOperationsImpl serviceClient;
 
     private final Instrumentation instrumentation;
 
+    @Metadata(properties = { MetadataProperties.GENERATED })
+    private final StringOperationsImpl serviceClient;
+
     /**
      * Initializes an instance of StringOperationClient class.
-     * 
+     *
      * @param serviceClient the service client implementation.
      * @param instrumentation the instrumentation instance.
      */
@@ -35,7 +36,20 @@ public final class StringOperationClient {
 
     /**
      * get string value.
-     * 
+     *
+     * @throws HttpResponseException thrown if the service returns an error.
+     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
+     * @return string value.
+     */
+    @Metadata(properties = { MetadataProperties.GENERATED })
+    @ServiceMethod(returns = ReturnType.SINGLE)
+    public String get() {
+        return getWithResponse(RequestContext.none()).getValue();
+    }
+
+    /**
+     * get string value.
+     *
      * @param requestContext The context to configure the HTTP request before HTTP client sends it.
      * @throws IllegalArgumentException thrown if parameters fail the validation.
      * @throws HttpResponseException thrown if the service returns an error.
@@ -50,21 +64,22 @@ public final class StringOperationClient {
     }
 
     /**
-     * get string value.
-     * 
+     * put string value.
+     *
+     * @param body _.
+     * @throws IllegalArgumentException thrown if parameters fail the validation.
      * @throws HttpResponseException thrown if the service returns an error.
      * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
-     * @return string value.
      */
     @Metadata(properties = { MetadataProperties.GENERATED })
     @ServiceMethod(returns = ReturnType.SINGLE)
-    public String get() {
-        return getWithResponse(RequestContext.none()).getValue();
+    public void put(String body) {
+        putWithResponse(body, RequestContext.none());
     }
 
     /**
      * put string value.
-     * 
+     *
      * @param body _.
      * @param requestContext The context to configure the HTTP request before HTTP client sends it.
      * @throws IllegalArgumentException thrown if parameters fail the validation.
@@ -77,19 +92,5 @@ public final class StringOperationClient {
     public Response<Void> putWithResponse(String body, RequestContext requestContext) {
         return this.instrumentation.instrumentWithResponse("Type.Scalar.String.put", requestContext,
             updatedContext -> this.serviceClient.putWithResponse(body, updatedContext));
-    }
-
-    /**
-     * put string value.
-     * 
-     * @param body _.
-     * @throws IllegalArgumentException thrown if parameters fail the validation.
-     * @throws HttpResponseException thrown if the service returns an error.
-     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
-     */
-    @Metadata(properties = { MetadataProperties.GENERATED })
-    @ServiceMethod(returns = ReturnType.SINGLE)
-    public void put(String body) {
-        putWithResponse(body, RequestContext.none());
     }
 }

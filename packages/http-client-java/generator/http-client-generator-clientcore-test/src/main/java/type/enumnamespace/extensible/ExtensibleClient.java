@@ -16,14 +16,15 @@ import type.enumnamespace.extensible.implementation.StringOperationsImpl;
  */
 @ServiceClient(builder = ExtensibleClientBuilder.class)
 public final class ExtensibleClient {
-    @Metadata(properties = { MetadataProperties.GENERATED })
-    private final StringOperationsImpl serviceClient;
 
     private final Instrumentation instrumentation;
 
+    @Metadata(properties = { MetadataProperties.GENERATED })
+    private final StringOperationsImpl serviceClient;
+
     /**
      * Initializes an instance of ExtensibleClient class.
-     * 
+     *
      * @param serviceClient the service client implementation.
      * @param instrumentation the instrumentation instance.
      */
@@ -35,7 +36,20 @@ public final class ExtensibleClient {
 
     /**
      * The getKnownValue operation.
-     * 
+     *
+     * @throws HttpResponseException thrown if the service returns an error.
+     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
+     * @return days of the week.
+     */
+    @Metadata(properties = { MetadataProperties.GENERATED })
+    @ServiceMethod(returns = ReturnType.SINGLE)
+    public DaysOfWeekExtensibleEnum getKnownValue() {
+        return getKnownValueWithResponse(RequestContext.none()).getValue();
+    }
+
+    /**
+     * The getKnownValue operation.
+     *
      * @param requestContext The context to configure the HTTP request before HTTP client sends it.
      * @throws IllegalArgumentException thrown if parameters fail the validation.
      * @throws HttpResponseException thrown if the service returns an error.
@@ -50,21 +64,21 @@ public final class ExtensibleClient {
     }
 
     /**
-     * The getKnownValue operation.
-     * 
+     * The getUnknownValue operation.
+     *
      * @throws HttpResponseException thrown if the service returns an error.
      * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
      * @return days of the week.
      */
     @Metadata(properties = { MetadataProperties.GENERATED })
     @ServiceMethod(returns = ReturnType.SINGLE)
-    public DaysOfWeekExtensibleEnum getKnownValue() {
-        return getKnownValueWithResponse(RequestContext.none()).getValue();
+    public DaysOfWeekExtensibleEnum getUnknownValue() {
+        return getUnknownValueWithResponse(RequestContext.none()).getValue();
     }
 
     /**
      * The getUnknownValue operation.
-     * 
+     *
      * @param requestContext The context to configure the HTTP request before HTTP client sends it.
      * @throws IllegalArgumentException thrown if parameters fail the validation.
      * @throws HttpResponseException thrown if the service returns an error.
@@ -79,21 +93,22 @@ public final class ExtensibleClient {
     }
 
     /**
-     * The getUnknownValue operation.
-     * 
+     * The putKnownValue operation.
+     *
+     * @param body The body parameter.
+     * @throws IllegalArgumentException thrown if parameters fail the validation.
      * @throws HttpResponseException thrown if the service returns an error.
      * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
-     * @return days of the week.
      */
     @Metadata(properties = { MetadataProperties.GENERATED })
     @ServiceMethod(returns = ReturnType.SINGLE)
-    public DaysOfWeekExtensibleEnum getUnknownValue() {
-        return getUnknownValueWithResponse(RequestContext.none()).getValue();
+    public void putKnownValue(DaysOfWeekExtensibleEnum body) {
+        putKnownValueWithResponse(body, RequestContext.none());
     }
 
     /**
      * The putKnownValue operation.
-     * 
+     *
      * @param body The body parameter.
      * @param requestContext The context to configure the HTTP request before HTTP client sends it.
      * @throws IllegalArgumentException thrown if parameters fail the validation.
@@ -109,8 +124,8 @@ public final class ExtensibleClient {
     }
 
     /**
-     * The putKnownValue operation.
-     * 
+     * The putUnknownValue operation.
+     *
      * @param body The body parameter.
      * @throws IllegalArgumentException thrown if parameters fail the validation.
      * @throws HttpResponseException thrown if the service returns an error.
@@ -118,13 +133,13 @@ public final class ExtensibleClient {
      */
     @Metadata(properties = { MetadataProperties.GENERATED })
     @ServiceMethod(returns = ReturnType.SINGLE)
-    public void putKnownValue(DaysOfWeekExtensibleEnum body) {
-        putKnownValueWithResponse(body, RequestContext.none());
+    public void putUnknownValue(DaysOfWeekExtensibleEnum body) {
+        putUnknownValueWithResponse(body, RequestContext.none());
     }
 
     /**
      * The putUnknownValue operation.
-     * 
+     *
      * @param body The body parameter.
      * @param requestContext The context to configure the HTTP request before HTTP client sends it.
      * @throws IllegalArgumentException thrown if parameters fail the validation.
@@ -137,19 +152,5 @@ public final class ExtensibleClient {
     public Response<Void> putUnknownValueWithResponse(DaysOfWeekExtensibleEnum body, RequestContext requestContext) {
         return this.instrumentation.instrumentWithResponse("Type.Enum.Extensible.String.putUnknownValue",
             requestContext, updatedContext -> this.serviceClient.putUnknownValueWithResponse(body, updatedContext));
-    }
-
-    /**
-     * The putUnknownValue operation.
-     * 
-     * @param body The body parameter.
-     * @throws IllegalArgumentException thrown if parameters fail the validation.
-     * @throws HttpResponseException thrown if the service returns an error.
-     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
-     */
-    @Metadata(properties = { MetadataProperties.GENERATED })
-    @ServiceMethod(returns = ReturnType.SINGLE)
-    public void putUnknownValue(DaysOfWeekExtensibleEnum body) {
-        putUnknownValueWithResponse(body, RequestContext.none());
     }
 }

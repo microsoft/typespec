@@ -34,17 +34,60 @@ import parameters.basic.implementation.BasicClientImpl;
 @ServiceClientBuilder(serviceClients = { ExplicitBodyClient.class, ImplicitBodyClient.class })
 public final class BasicClientBuilder implements HttpTrait<BasicClientBuilder>, ProxyTrait<BasicClientBuilder>,
     ConfigurationTrait<BasicClientBuilder>, EndpointTrait<BasicClientBuilder> {
+
+    @Metadata(properties = { MetadataProperties.GENERATED })
+    private static final Map<String, String> PROPERTIES = CoreUtils.getProperties("parameters-basic.properties");
+
     @Metadata(properties = { MetadataProperties.GENERATED })
     private static final String SDK_NAME = "name";
 
     @Metadata(properties = { MetadataProperties.GENERATED })
     private static final String SDK_VERSION = "version";
 
+    /*
+     * The configuration store that is used during construction of the service client.
+     */
     @Metadata(properties = { MetadataProperties.GENERATED })
-    private static final Map<String, String> PROPERTIES = CoreUtils.getProperties("parameters-basic.properties");
+    private Configuration configuration;
+
+    /*
+     * The service endpoint
+     */
+    @Metadata(properties = { MetadataProperties.GENERATED })
+    private String endpoint;
+
+    /*
+     * The HTTP client used to send the request.
+     */
+    @Metadata(properties = { MetadataProperties.GENERATED })
+    private HttpClient httpClient;
+
+    /*
+     * The instrumentation configuration for HTTP requests and responses.
+     */
+    @Metadata(properties = { MetadataProperties.GENERATED })
+    private HttpInstrumentationOptions httpInstrumentationOptions;
 
     @Metadata(properties = { MetadataProperties.GENERATED })
     private final List<HttpPipelinePolicy> pipelinePolicies;
+
+    /*
+     * The proxy options used during construction of the service client.
+     */
+    @Metadata(properties = { MetadataProperties.GENERATED })
+    private ProxyOptions proxyOptions;
+
+    /*
+     * The redirect options to configure redirect policy
+     */
+    @Metadata(properties = { MetadataProperties.GENERATED })
+    private HttpRedirectOptions redirectOptions;
+
+    /*
+     * The retry options to configure retry policy for failed requests.
+     */
+    @Metadata(properties = { MetadataProperties.GENERATED })
+    private HttpRetryOptions retryOptions;
 
     /**
      * Create an instance of the BasicClientBuilder.
@@ -54,11 +97,36 @@ public final class BasicClientBuilder implements HttpTrait<BasicClientBuilder>, 
         this.pipelinePolicies = new ArrayList<>();
     }
 
-    /*
-     * The HTTP client used to send the request.
+    /**
+     * {@inheritDoc}.
      */
     @Metadata(properties = { MetadataProperties.GENERATED })
-    private HttpClient httpClient;
+    @Override
+    public BasicClientBuilder addHttpPipelinePolicy(HttpPipelinePolicy customPolicy) {
+        Objects.requireNonNull(customPolicy, "'customPolicy' cannot be null.");
+        pipelinePolicies.add(customPolicy);
+        return this;
+    }
+
+    /**
+     * {@inheritDoc}.
+     */
+    @Metadata(properties = { MetadataProperties.GENERATED })
+    @Override
+    public BasicClientBuilder configuration(Configuration configuration) {
+        this.configuration = configuration;
+        return this;
+    }
+
+    /**
+     * {@inheritDoc}.
+     */
+    @Metadata(properties = { MetadataProperties.GENERATED })
+    @Override
+    public BasicClientBuilder endpoint(String endpoint) {
+        this.endpoint = endpoint;
+        return this;
+    }
 
     /**
      * {@inheritDoc}.
@@ -70,11 +138,25 @@ public final class BasicClientBuilder implements HttpTrait<BasicClientBuilder>, 
         return this;
     }
 
-    /*
-     * The retry options to configure retry policy for failed requests.
+    /**
+     * {@inheritDoc}.
      */
     @Metadata(properties = { MetadataProperties.GENERATED })
-    private HttpRetryOptions retryOptions;
+    @Override
+    public BasicClientBuilder httpInstrumentationOptions(HttpInstrumentationOptions httpInstrumentationOptions) {
+        this.httpInstrumentationOptions = httpInstrumentationOptions;
+        return this;
+    }
+
+    /**
+     * {@inheritDoc}.
+     */
+    @Metadata(properties = { MetadataProperties.GENERATED })
+    @Override
+    public BasicClientBuilder httpRedirectOptions(HttpRedirectOptions redirectOptions) {
+        this.redirectOptions = redirectOptions;
+        return this;
+    }
 
     /**
      * {@inheritDoc}.
@@ -91,95 +173,36 @@ public final class BasicClientBuilder implements HttpTrait<BasicClientBuilder>, 
      */
     @Metadata(properties = { MetadataProperties.GENERATED })
     @Override
-    public BasicClientBuilder addHttpPipelinePolicy(HttpPipelinePolicy customPolicy) {
-        Objects.requireNonNull(customPolicy, "'customPolicy' cannot be null.");
-        pipelinePolicies.add(customPolicy);
-        return this;
-    }
-
-    /*
-     * The redirect options to configure redirect policy
-     */
-    @Metadata(properties = { MetadataProperties.GENERATED })
-    private HttpRedirectOptions redirectOptions;
-
-    /**
-     * {@inheritDoc}.
-     */
-    @Metadata(properties = { MetadataProperties.GENERATED })
-    @Override
-    public BasicClientBuilder httpRedirectOptions(HttpRedirectOptions redirectOptions) {
-        this.redirectOptions = redirectOptions;
-        return this;
-    }
-
-    /*
-     * The instrumentation configuration for HTTP requests and responses.
-     */
-    @Metadata(properties = { MetadataProperties.GENERATED })
-    private HttpInstrumentationOptions httpInstrumentationOptions;
-
-    /**
-     * {@inheritDoc}.
-     */
-    @Metadata(properties = { MetadataProperties.GENERATED })
-    @Override
-    public BasicClientBuilder httpInstrumentationOptions(HttpInstrumentationOptions httpInstrumentationOptions) {
-        this.httpInstrumentationOptions = httpInstrumentationOptions;
-        return this;
-    }
-
-    /*
-     * The proxy options used during construction of the service client.
-     */
-    @Metadata(properties = { MetadataProperties.GENERATED })
-    private ProxyOptions proxyOptions;
-
-    /**
-     * {@inheritDoc}.
-     */
-    @Metadata(properties = { MetadataProperties.GENERATED })
-    @Override
     public BasicClientBuilder proxyOptions(ProxyOptions proxyOptions) {
         this.proxyOptions = proxyOptions;
         return this;
     }
 
-    /*
-     * The configuration store that is used during construction of the service client.
-     */
-    @Metadata(properties = { MetadataProperties.GENERATED })
-    private Configuration configuration;
-
     /**
-     * {@inheritDoc}.
+     * Builds an instance of ExplicitBodyClient class.
+     *
+     * @return an instance of ExplicitBodyClient.
      */
     @Metadata(properties = { MetadataProperties.GENERATED })
-    @Override
-    public BasicClientBuilder configuration(Configuration configuration) {
-        this.configuration = configuration;
-        return this;
+    public ExplicitBodyClient buildExplicitBodyClient() {
+        BasicClientImpl innerClient = buildInnerClient();
+        return new ExplicitBodyClient(innerClient.getExplicitBodies(), innerClient.getInstrumentation());
     }
 
-    /*
-     * The service endpoint
-     */
-    @Metadata(properties = { MetadataProperties.GENERATED })
-    private String endpoint;
-
     /**
-     * {@inheritDoc}.
+     * Builds an instance of ImplicitBodyClient class.
+     *
+     * @return an instance of ImplicitBodyClient.
      */
     @Metadata(properties = { MetadataProperties.GENERATED })
-    @Override
-    public BasicClientBuilder endpoint(String endpoint) {
-        this.endpoint = endpoint;
-        return this;
+    public ImplicitBodyClient buildImplicitBodyClient() {
+        BasicClientImpl innerClient = buildInnerClient();
+        return new ImplicitBodyClient(innerClient.getImplicitBodies(), innerClient.getInstrumentation());
     }
 
     /**
      * Builds an instance of BasicClientImpl with the provided parameters.
-     * 
+     *
      * @return an instance of BasicClientImpl.
      */
     @Metadata(properties = { MetadataProperties.GENERATED })
@@ -200,12 +223,6 @@ public final class BasicClientBuilder implements HttpTrait<BasicClientBuilder>, 
     }
 
     @Metadata(properties = { MetadataProperties.GENERATED })
-    private void validateClient() {
-        // This method is invoked from 'buildInnerClient'/'buildClient' method.
-        // Developer can customize this method, to validate that the necessary conditions are met for the new client.
-    }
-
-    @Metadata(properties = { MetadataProperties.GENERATED })
     private HttpPipeline createHttpPipeline() {
         Configuration buildConfiguration
             = (configuration == null) ? Configuration.getGlobalConfiguration() : configuration;
@@ -222,25 +239,9 @@ public final class BasicClientBuilder implements HttpTrait<BasicClientBuilder>, 
         return httpPipelineBuilder.httpClient(httpClient).build();
     }
 
-    /**
-     * Builds an instance of ExplicitBodyClient class.
-     * 
-     * @return an instance of ExplicitBodyClient.
-     */
     @Metadata(properties = { MetadataProperties.GENERATED })
-    public ExplicitBodyClient buildExplicitBodyClient() {
-        BasicClientImpl innerClient = buildInnerClient();
-        return new ExplicitBodyClient(innerClient.getExplicitBodies(), innerClient.getInstrumentation());
-    }
-
-    /**
-     * Builds an instance of ImplicitBodyClient class.
-     * 
-     * @return an instance of ImplicitBodyClient.
-     */
-    @Metadata(properties = { MetadataProperties.GENERATED })
-    public ImplicitBodyClient buildImplicitBodyClient() {
-        BasicClientImpl innerClient = buildInnerClient();
-        return new ImplicitBodyClient(innerClient.getImplicitBodies(), innerClient.getInstrumentation());
+    private void validateClient() {
+        // This method is invoked from 'buildInnerClient'/'buildClient' method.
+        // Developer can customize this method, to validate that the necessary conditions are met for the new client.
     }
 }

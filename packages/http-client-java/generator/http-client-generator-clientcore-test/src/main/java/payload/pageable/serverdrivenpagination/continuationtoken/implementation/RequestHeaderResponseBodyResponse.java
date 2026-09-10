@@ -15,11 +15,6 @@ import payload.pageable.Pet;
  */
 @Metadata(properties = { MetadataProperties.IMMUTABLE })
 public final class RequestHeaderResponseBodyResponse implements JsonSerializable<RequestHeaderResponseBodyResponse> {
-    /*
-     * The pets property.
-     */
-    @Metadata(properties = { MetadataProperties.GENERATED })
-    private final List<Pet> pets;
 
     /*
      * The nextToken property.
@@ -27,9 +22,15 @@ public final class RequestHeaderResponseBodyResponse implements JsonSerializable
     @Metadata(properties = { MetadataProperties.GENERATED })
     private String nextToken;
 
+    /*
+     * The pets property.
+     */
+    @Metadata(properties = { MetadataProperties.GENERATED })
+    private final List<Pet> pets;
+
     /**
      * Creates an instance of RequestHeaderResponseBodyResponse class.
-     * 
+     *
      * @param pets the pets value to set.
      */
     @Metadata(properties = { MetadataProperties.GENERATED })
@@ -38,23 +39,23 @@ public final class RequestHeaderResponseBodyResponse implements JsonSerializable
     }
 
     /**
-     * Get the pets property: The pets property.
-     * 
-     * @return the pets value.
-     */
-    @Metadata(properties = { MetadataProperties.GENERATED })
-    public List<Pet> getPets() {
-        return this.pets;
-    }
-
-    /**
      * Get the nextToken property: The nextToken property.
-     * 
+     *
      * @return the nextToken value.
      */
     @Metadata(properties = { MetadataProperties.GENERATED })
     public String getNextToken() {
         return this.nextToken;
+    }
+
+    /**
+     * Get the pets property: The pets property.
+     *
+     * @return the pets value.
+     */
+    @Metadata(properties = { MetadataProperties.GENERATED })
+    public List<Pet> getPets() {
+        return this.pets;
     }
 
     /**
@@ -71,7 +72,7 @@ public final class RequestHeaderResponseBodyResponse implements JsonSerializable
 
     /**
      * Reads an instance of RequestHeaderResponseBodyResponse from the JsonReader.
-     * 
+     *
      * @param jsonReader The JsonReader being read.
      * @return An instance of RequestHeaderResponseBodyResponse if the JsonReader was pointing to an instance of it, or
      * null if it was pointing to JSON null.
@@ -86,7 +87,6 @@ public final class RequestHeaderResponseBodyResponse implements JsonSerializable
             while (reader.nextToken() != JsonToken.END_OBJECT) {
                 String fieldName = reader.getFieldName();
                 reader.nextToken();
-
                 if ("pets".equals(fieldName)) {
                     pets = reader.readArray(reader1 -> Pet.fromJson(reader1));
                 } else if ("nextToken".equals(fieldName)) {
@@ -98,7 +98,6 @@ public final class RequestHeaderResponseBodyResponse implements JsonSerializable
             RequestHeaderResponseBodyResponse deserializedRequestHeaderResponseBodyResponse
                 = new RequestHeaderResponseBodyResponse(pets);
             deserializedRequestHeaderResponseBodyResponse.nextToken = nextToken;
-
             return deserializedRequestHeaderResponseBodyResponse;
         });
     }

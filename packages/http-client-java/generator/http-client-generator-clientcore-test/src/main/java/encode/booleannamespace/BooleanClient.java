@@ -17,14 +17,15 @@ import io.clientcore.core.instrumentation.Instrumentation;
  */
 @ServiceClient(builder = BooleanClientBuilder.class)
 public final class BooleanClient {
-    @Metadata(properties = { MetadataProperties.GENERATED })
-    private final PropertiesImpl serviceClient;
 
     private final Instrumentation instrumentation;
 
+    @Metadata(properties = { MetadataProperties.GENERATED })
+    private final PropertiesImpl serviceClient;
+
     /**
      * Initializes an instance of BooleanClient class.
-     * 
+     *
      * @param serviceClient the service client implementation.
      * @param instrumentation the instrumentation instance.
      */
@@ -35,26 +36,8 @@ public final class BooleanClient {
     }
 
     /**
-     * The trueLower operation.
-     * 
-     * @param value The value parameter.
-     * @param requestContext The context to configure the HTTP request before HTTP client sends it.
-     * @throws IllegalArgumentException thrown if parameters fail the validation.
-     * @throws HttpResponseException thrown if the service returns an error.
-     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
-     * @return the response body along with {@link Response}.
-     */
-    @Metadata(properties = { MetadataProperties.GENERATED })
-    @ServiceMethod(returns = ReturnType.SINGLE)
-    public Response<BoolAsStringProperty> trueLowerWithResponse(BoolAsStringProperty value,
-        RequestContext requestContext) {
-        return this.instrumentation.instrumentWithResponse("Encode.Boolean.Property.trueLower", requestContext,
-            updatedContext -> this.serviceClient.trueLowerWithResponse(value, updatedContext));
-    }
-
-    /**
-     * The trueLower operation.
-     * 
+     * The falseLower operation.
+     *
      * @param value The value parameter.
      * @throws IllegalArgumentException thrown if parameters fail the validation.
      * @throws HttpResponseException thrown if the service returns an error.
@@ -63,13 +46,13 @@ public final class BooleanClient {
      */
     @Metadata(properties = { MetadataProperties.GENERATED })
     @ServiceMethod(returns = ReturnType.SINGLE)
-    public BoolAsStringProperty trueLower(BoolAsStringProperty value) {
-        return trueLowerWithResponse(value, RequestContext.none()).getValue();
+    public BoolAsStringProperty falseLower(BoolAsStringProperty value) {
+        return falseLowerWithResponse(value, RequestContext.none()).getValue();
     }
 
     /**
      * The falseLower operation.
-     * 
+     *
      * @param value The value parameter.
      * @param requestContext The context to configure the HTTP request before HTTP client sends it.
      * @throws IllegalArgumentException thrown if parameters fail the validation.
@@ -86,8 +69,8 @@ public final class BooleanClient {
     }
 
     /**
-     * The falseLower operation.
-     * 
+     * The falseMixed operation.
+     *
      * @param value The value parameter.
      * @throws IllegalArgumentException thrown if parameters fail the validation.
      * @throws HttpResponseException thrown if the service returns an error.
@@ -96,46 +79,13 @@ public final class BooleanClient {
      */
     @Metadata(properties = { MetadataProperties.GENERATED })
     @ServiceMethod(returns = ReturnType.SINGLE)
-    public BoolAsStringProperty falseLower(BoolAsStringProperty value) {
-        return falseLowerWithResponse(value, RequestContext.none()).getValue();
-    }
-
-    /**
-     * The trueUpper operation.
-     * 
-     * @param value The value parameter.
-     * @param requestContext The context to configure the HTTP request before HTTP client sends it.
-     * @throws IllegalArgumentException thrown if parameters fail the validation.
-     * @throws HttpResponseException thrown if the service returns an error.
-     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
-     * @return the response body along with {@link Response}.
-     */
-    @Metadata(properties = { MetadataProperties.GENERATED })
-    @ServiceMethod(returns = ReturnType.SINGLE)
-    public Response<BoolAsStringProperty> trueUpperWithResponse(BoolAsStringProperty value,
-        RequestContext requestContext) {
-        return this.instrumentation.instrumentWithResponse("Encode.Boolean.Property.trueUpper", requestContext,
-            updatedContext -> this.serviceClient.trueUpperWithResponse(value, updatedContext));
-    }
-
-    /**
-     * The trueUpper operation.
-     * 
-     * @param value The value parameter.
-     * @throws IllegalArgumentException thrown if parameters fail the validation.
-     * @throws HttpResponseException thrown if the service returns an error.
-     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
-     * @return the response.
-     */
-    @Metadata(properties = { MetadataProperties.GENERATED })
-    @ServiceMethod(returns = ReturnType.SINGLE)
-    public BoolAsStringProperty trueUpper(BoolAsStringProperty value) {
-        return trueUpperWithResponse(value, RequestContext.none()).getValue();
+    public BoolAsStringProperty falseMixed(BoolAsStringProperty value) {
+        return falseMixedWithResponse(value, RequestContext.none()).getValue();
     }
 
     /**
      * The falseMixed operation.
-     * 
+     *
      * @param value The value parameter.
      * @param requestContext The context to configure the HTTP request before HTTP client sends it.
      * @throws IllegalArgumentException thrown if parameters fail the validation.
@@ -152,8 +102,8 @@ public final class BooleanClient {
     }
 
     /**
-     * The falseMixed operation.
-     * 
+     * The trueLower operation.
+     *
      * @param value The value parameter.
      * @throws IllegalArgumentException thrown if parameters fail the validation.
      * @throws HttpResponseException thrown if the service returns an error.
@@ -162,7 +112,58 @@ public final class BooleanClient {
      */
     @Metadata(properties = { MetadataProperties.GENERATED })
     @ServiceMethod(returns = ReturnType.SINGLE)
-    public BoolAsStringProperty falseMixed(BoolAsStringProperty value) {
-        return falseMixedWithResponse(value, RequestContext.none()).getValue();
+    public BoolAsStringProperty trueLower(BoolAsStringProperty value) {
+        return trueLowerWithResponse(value, RequestContext.none()).getValue();
+    }
+
+    /**
+     * The trueLower operation.
+     *
+     * @param value The value parameter.
+     * @param requestContext The context to configure the HTTP request before HTTP client sends it.
+     * @throws IllegalArgumentException thrown if parameters fail the validation.
+     * @throws HttpResponseException thrown if the service returns an error.
+     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
+     * @return the response body along with {@link Response}.
+     */
+    @Metadata(properties = { MetadataProperties.GENERATED })
+    @ServiceMethod(returns = ReturnType.SINGLE)
+    public Response<BoolAsStringProperty> trueLowerWithResponse(BoolAsStringProperty value,
+        RequestContext requestContext) {
+        return this.instrumentation.instrumentWithResponse("Encode.Boolean.Property.trueLower", requestContext,
+            updatedContext -> this.serviceClient.trueLowerWithResponse(value, updatedContext));
+    }
+
+    /**
+     * The trueUpper operation.
+     *
+     * @param value The value parameter.
+     * @throws IllegalArgumentException thrown if parameters fail the validation.
+     * @throws HttpResponseException thrown if the service returns an error.
+     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
+     * @return the response.
+     */
+    @Metadata(properties = { MetadataProperties.GENERATED })
+    @ServiceMethod(returns = ReturnType.SINGLE)
+    public BoolAsStringProperty trueUpper(BoolAsStringProperty value) {
+        return trueUpperWithResponse(value, RequestContext.none()).getValue();
+    }
+
+    /**
+     * The trueUpper operation.
+     *
+     * @param value The value parameter.
+     * @param requestContext The context to configure the HTTP request before HTTP client sends it.
+     * @throws IllegalArgumentException thrown if parameters fail the validation.
+     * @throws HttpResponseException thrown if the service returns an error.
+     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
+     * @return the response body along with {@link Response}.
+     */
+    @Metadata(properties = { MetadataProperties.GENERATED })
+    @ServiceMethod(returns = ReturnType.SINGLE)
+    public Response<BoolAsStringProperty> trueUpperWithResponse(BoolAsStringProperty value,
+        RequestContext requestContext) {
+        return this.instrumentation.instrumentWithResponse("Encode.Boolean.Property.trueUpper", requestContext,
+            updatedContext -> this.serviceClient.trueUpperWithResponse(value, updatedContext));
     }
 }

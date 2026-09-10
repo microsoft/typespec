@@ -19,10 +19,6 @@ import java.lang.reflect.InvocationTargetException;
  * An instance of this class provides access to all the operations defined in SpecialChars.
  */
 public final class SpecialCharsImpl {
-    /**
-     * The proxy service used to perform REST calls.
-     */
-    private final SpecialCharsService service;
 
     /**
      * The service client containing this operation class.
@@ -35,8 +31,13 @@ public final class SpecialCharsImpl {
     private final Instrumentation instrumentation;
 
     /**
+     * The proxy service used to perform REST calls.
+     */
+    private final SpecialCharsService service;
+
+    /**
      * Initializes an instance of SpecialCharsImpl.
-     * 
+     *
      * @param client the instance of the service client containing this operation class.
      */
     SpecialCharsImpl(QueryClientImpl client) {
@@ -46,35 +47,8 @@ public final class SpecialCharsImpl {
     }
 
     /**
-     * The interface defining all the services for QueryClientSpecialChars to be used by the proxy service to perform
-     * REST calls.
-     */
-    @ServiceInterface(name = "QueryClientSpecialChars", host = "{endpoint}")
-    public interface SpecialCharsService {
-        static SpecialCharsService getNewInstance(HttpPipeline pipeline) {
-            try {
-                Class<?> clazz = Class.forName("parameters.query.implementation.SpecialCharsServiceImpl");
-                return (SpecialCharsService) clazz.getMethod("getNewInstance", HttpPipeline.class)
-                    .invoke(null, pipeline);
-            } catch (ClassNotFoundException | NoSuchMethodException | IllegalAccessException
-                | InvocationTargetException e) {
-                throw new RuntimeException(e);
-            }
-
-        }
-
-        @HttpRequestInformation(
-            method = HttpMethod.GET,
-            path = "/parameters/query/special-char/dollar-sign",
-            expectedStatusCodes = { 204 })
-        @UnexpectedResponseExceptionDetail
-        Response<Void> dollarSign(@HostParam("endpoint") String endpoint, @QueryParam("$filter") String filter,
-            RequestContext requestContext);
-    }
-
-    /**
      * The dollarSign operation.
-     * 
+     *
      * @param filter The filter parameter.
      * @param requestContext The context to configure the HTTP request before HTTP client sends it.
      * @throws IllegalArgumentException thrown if parameters fail the validation.
@@ -88,5 +62,32 @@ public final class SpecialCharsImpl {
             updatedContext -> {
                 return service.dollarSign(this.client.getEndpoint(), filter, updatedContext);
             });
+    }
+
+    /**
+     * The interface defining all the services for QueryClientSpecialChars to be used by the proxy service to perform
+     * REST calls.
+     */
+    @ServiceInterface(name = "QueryClientSpecialChars", host = "{endpoint}")
+    public interface SpecialCharsService {
+
+        @HttpRequestInformation(
+            method = HttpMethod.GET,
+            path = "/parameters/query/special-char/dollar-sign",
+            expectedStatusCodes = { 204 })
+        @UnexpectedResponseExceptionDetail
+        Response<Void> dollarSign(@HostParam("endpoint") String endpoint, @QueryParam("$filter") String filter,
+            RequestContext requestContext);
+
+        static SpecialCharsService getNewInstance(HttpPipeline pipeline) {
+            try {
+                Class<?> clazz = Class.forName("parameters.query.implementation.SpecialCharsServiceImpl");
+                return (SpecialCharsService) clazz.getMethod("getNewInstance", HttpPipeline.class)
+                    .invoke(null, pipeline);
+            } catch (ClassNotFoundException | NoSuchMethodException | IllegalAccessException
+                | InvocationTargetException e) {
+                throw new RuntimeException(e);
+            }
+        }
     }
 }

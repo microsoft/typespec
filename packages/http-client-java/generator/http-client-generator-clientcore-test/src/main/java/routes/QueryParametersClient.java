@@ -16,14 +16,15 @@ import routes.implementation.QueryParametersImpl;
  */
 @ServiceClient(builder = RoutesClientBuilder.class)
 public final class QueryParametersClient {
-    @Metadata(properties = { MetadataProperties.GENERATED })
-    private final QueryParametersImpl serviceClient;
 
     private final Instrumentation instrumentation;
 
+    @Metadata(properties = { MetadataProperties.GENERATED })
+    private final QueryParametersImpl serviceClient;
+
     /**
      * Initializes an instance of QueryParametersClient class.
-     * 
+     *
      * @param serviceClient the service client implementation.
      * @param instrumentation the instrumentation instance.
      */
@@ -34,25 +35,8 @@ public final class QueryParametersClient {
     }
 
     /**
-     * The templateOnly operation.
-     * 
-     * @param param The param parameter.
-     * @param requestContext The context to configure the HTTP request before HTTP client sends it.
-     * @throws IllegalArgumentException thrown if parameters fail the validation.
-     * @throws HttpResponseException thrown if the service returns an error.
-     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
-     * @return the {@link Response}.
-     */
-    @Metadata(properties = { MetadataProperties.GENERATED })
-    @ServiceMethod(returns = ReturnType.SINGLE)
-    public Response<Void> templateOnlyWithResponse(String param, RequestContext requestContext) {
-        return this.instrumentation.instrumentWithResponse("Routes.QueryParameters.templateOnly", requestContext,
-            updatedContext -> this.serviceClient.templateOnlyWithResponse(param, updatedContext));
-    }
-
-    /**
-     * The templateOnly operation.
-     * 
+     * The annotationOnly operation.
+     *
      * @param param The param parameter.
      * @throws IllegalArgumentException thrown if parameters fail the validation.
      * @throws HttpResponseException thrown if the service returns an error.
@@ -60,44 +44,13 @@ public final class QueryParametersClient {
      */
     @Metadata(properties = { MetadataProperties.GENERATED })
     @ServiceMethod(returns = ReturnType.SINGLE)
-    public void templateOnly(String param) {
-        templateOnlyWithResponse(param, RequestContext.none());
-    }
-
-    /**
-     * The explicit operation.
-     * 
-     * @param param The param parameter.
-     * @param requestContext The context to configure the HTTP request before HTTP client sends it.
-     * @throws IllegalArgumentException thrown if parameters fail the validation.
-     * @throws HttpResponseException thrown if the service returns an error.
-     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
-     * @return the {@link Response}.
-     */
-    @Metadata(properties = { MetadataProperties.GENERATED })
-    @ServiceMethod(returns = ReturnType.SINGLE)
-    public Response<Void> explicitWithResponse(String param, RequestContext requestContext) {
-        return this.instrumentation.instrumentWithResponse("Routes.QueryParameters.explicit", requestContext,
-            updatedContext -> this.serviceClient.explicitWithResponse(param, updatedContext));
-    }
-
-    /**
-     * The explicit operation.
-     * 
-     * @param param The param parameter.
-     * @throws IllegalArgumentException thrown if parameters fail the validation.
-     * @throws HttpResponseException thrown if the service returns an error.
-     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
-     */
-    @Metadata(properties = { MetadataProperties.GENERATED })
-    @ServiceMethod(returns = ReturnType.SINGLE)
-    public void explicit(String param) {
-        explicitWithResponse(param, RequestContext.none());
+    public void annotationOnly(String param) {
+        annotationOnlyWithResponse(param, RequestContext.none());
     }
 
     /**
      * The annotationOnly operation.
-     * 
+     *
      * @param param The param parameter.
      * @param requestContext The context to configure the HTTP request before HTTP client sends it.
      * @throws IllegalArgumentException thrown if parameters fail the validation.
@@ -113,8 +66,8 @@ public final class QueryParametersClient {
     }
 
     /**
-     * The annotationOnly operation.
-     * 
+     * The explicit operation.
+     *
      * @param param The param parameter.
      * @throws IllegalArgumentException thrown if parameters fail the validation.
      * @throws HttpResponseException thrown if the service returns an error.
@@ -122,7 +75,55 @@ public final class QueryParametersClient {
      */
     @Metadata(properties = { MetadataProperties.GENERATED })
     @ServiceMethod(returns = ReturnType.SINGLE)
-    public void annotationOnly(String param) {
-        annotationOnlyWithResponse(param, RequestContext.none());
+    public void explicit(String param) {
+        explicitWithResponse(param, RequestContext.none());
+    }
+
+    /**
+     * The explicit operation.
+     *
+     * @param param The param parameter.
+     * @param requestContext The context to configure the HTTP request before HTTP client sends it.
+     * @throws IllegalArgumentException thrown if parameters fail the validation.
+     * @throws HttpResponseException thrown if the service returns an error.
+     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
+     * @return the {@link Response}.
+     */
+    @Metadata(properties = { MetadataProperties.GENERATED })
+    @ServiceMethod(returns = ReturnType.SINGLE)
+    public Response<Void> explicitWithResponse(String param, RequestContext requestContext) {
+        return this.instrumentation.instrumentWithResponse("Routes.QueryParameters.explicit", requestContext,
+            updatedContext -> this.serviceClient.explicitWithResponse(param, updatedContext));
+    }
+
+    /**
+     * The templateOnly operation.
+     *
+     * @param param The param parameter.
+     * @throws IllegalArgumentException thrown if parameters fail the validation.
+     * @throws HttpResponseException thrown if the service returns an error.
+     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
+     */
+    @Metadata(properties = { MetadataProperties.GENERATED })
+    @ServiceMethod(returns = ReturnType.SINGLE)
+    public void templateOnly(String param) {
+        templateOnlyWithResponse(param, RequestContext.none());
+    }
+
+    /**
+     * The templateOnly operation.
+     *
+     * @param param The param parameter.
+     * @param requestContext The context to configure the HTTP request before HTTP client sends it.
+     * @throws IllegalArgumentException thrown if parameters fail the validation.
+     * @throws HttpResponseException thrown if the service returns an error.
+     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
+     * @return the {@link Response}.
+     */
+    @Metadata(properties = { MetadataProperties.GENERATED })
+    @ServiceMethod(returns = ReturnType.SINGLE)
+    public Response<Void> templateOnlyWithResponse(String param, RequestContext requestContext) {
+        return this.instrumentation.instrumentWithResponse("Routes.QueryParameters.templateOnly", requestContext,
+            updatedContext -> this.serviceClient.templateOnlyWithResponse(param, updatedContext));
     }
 }

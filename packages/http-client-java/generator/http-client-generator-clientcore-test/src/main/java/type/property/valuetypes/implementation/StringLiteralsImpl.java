@@ -21,10 +21,6 @@ import type.property.valuetypes.StringLiteralProperty;
  * An instance of this class provides access to all the operations defined in StringLiterals.
  */
 public final class StringLiteralsImpl {
-    /**
-     * The proxy service used to perform REST calls.
-     */
-    private final StringLiteralsService service;
 
     /**
      * The service client containing this operation class.
@@ -37,8 +33,13 @@ public final class StringLiteralsImpl {
     private final Instrumentation instrumentation;
 
     /**
+     * The proxy service used to perform REST calls.
+     */
+    private final StringLiteralsService service;
+
+    /**
      * Initializes an instance of StringLiteralsImpl.
-     * 
+     *
      * @param client the instance of the service client containing this operation class.
      */
     StringLiteralsImpl(ValueTypesClientImpl client) {
@@ -48,43 +49,8 @@ public final class StringLiteralsImpl {
     }
 
     /**
-     * The interface defining all the services for ValueTypesClientStringLiterals to be used by the proxy service to
-     * perform REST calls.
-     */
-    @ServiceInterface(name = "ValueTypesClientStringLiterals", host = "{endpoint}")
-    public interface StringLiteralsService {
-        static StringLiteralsService getNewInstance(HttpPipeline pipeline) {
-            try {
-                Class<?> clazz = Class.forName("type.property.valuetypes.implementation.StringLiteralsServiceImpl");
-                return (StringLiteralsService) clazz.getMethod("getNewInstance", HttpPipeline.class)
-                    .invoke(null, pipeline);
-            } catch (ClassNotFoundException | NoSuchMethodException | IllegalAccessException
-                | InvocationTargetException e) {
-                throw new RuntimeException(e);
-            }
-
-        }
-
-        @HttpRequestInformation(
-            method = HttpMethod.GET,
-            path = "/type/property/value-types/string/literal",
-            expectedStatusCodes = { 200 })
-        @UnexpectedResponseExceptionDetail
-        Response<StringLiteralProperty> get(@HostParam("endpoint") String endpoint,
-            @HeaderParam("Accept") String accept, RequestContext requestContext);
-
-        @HttpRequestInformation(
-            method = HttpMethod.PUT,
-            path = "/type/property/value-types/string/literal",
-            expectedStatusCodes = { 204 })
-        @UnexpectedResponseExceptionDetail
-        Response<Void> put(@HostParam("endpoint") String endpoint, @HeaderParam("Content-Type") String contentType,
-            @BodyParam("application/json") StringLiteralProperty body, RequestContext requestContext);
-    }
-
-    /**
      * Get call.
-     * 
+     *
      * @param requestContext The context to configure the HTTP request before HTTP client sends it.
      * @throws IllegalArgumentException thrown if parameters fail the validation.
      * @throws HttpResponseException thrown if the service returns an error.
@@ -102,7 +68,7 @@ public final class StringLiteralsImpl {
 
     /**
      * Put operation.
-     * 
+     *
      * @param body body.
      * @param requestContext The context to configure the HTTP request before HTTP client sends it.
      * @throws IllegalArgumentException thrown if parameters fail the validation.
@@ -117,5 +83,40 @@ public final class StringLiteralsImpl {
                 final String contentType = "application/json";
                 return service.put(this.client.getEndpoint(), contentType, body, updatedContext);
             });
+    }
+
+    /**
+     * The interface defining all the services for ValueTypesClientStringLiterals to be used by the proxy service to
+     * perform REST calls.
+     */
+    @ServiceInterface(name = "ValueTypesClientStringLiterals", host = "{endpoint}")
+    public interface StringLiteralsService {
+
+        @HttpRequestInformation(
+            method = HttpMethod.GET,
+            path = "/type/property/value-types/string/literal",
+            expectedStatusCodes = { 200 })
+        @UnexpectedResponseExceptionDetail
+        Response<StringLiteralProperty> get(@HostParam("endpoint") String endpoint,
+            @HeaderParam("Accept") String accept, RequestContext requestContext);
+
+        @HttpRequestInformation(
+            method = HttpMethod.PUT,
+            path = "/type/property/value-types/string/literal",
+            expectedStatusCodes = { 204 })
+        @UnexpectedResponseExceptionDetail
+        Response<Void> put(@HostParam("endpoint") String endpoint, @HeaderParam("Content-Type") String contentType,
+            @BodyParam("application/json") StringLiteralProperty body, RequestContext requestContext);
+
+        static StringLiteralsService getNewInstance(HttpPipeline pipeline) {
+            try {
+                Class<?> clazz = Class.forName("type.property.valuetypes.implementation.StringLiteralsServiceImpl");
+                return (StringLiteralsService) clazz.getMethod("getNewInstance", HttpPipeline.class)
+                    .invoke(null, pipeline);
+            } catch (ClassNotFoundException | NoSuchMethodException | IllegalAccessException
+                | InvocationTargetException e) {
+                throw new RuntimeException(e);
+            }
+        }
     }
 }

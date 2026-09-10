@@ -13,6 +13,7 @@ import java.io.IOException;
  */
 @Metadata(properties = { MetadataProperties.IMMUTABLE })
 public final class Filter implements JsonSerializable<Filter> {
+
     /*
      * The filter property.
      */
@@ -21,7 +22,7 @@ public final class Filter implements JsonSerializable<Filter> {
 
     /**
      * Creates an instance of Filter class.
-     * 
+     *
      * @param filter the filter value to set.
      */
     @Metadata(properties = { MetadataProperties.GENERATED })
@@ -31,7 +32,7 @@ public final class Filter implements JsonSerializable<Filter> {
 
     /**
      * Get the filter property: The filter property.
-     * 
+     *
      * @return the filter value.
      */
     @Metadata(properties = { MetadataProperties.GENERATED })
@@ -52,7 +53,7 @@ public final class Filter implements JsonSerializable<Filter> {
 
     /**
      * Reads an instance of Filter from the JsonReader.
-     * 
+     *
      * @param jsonReader The JsonReader being read.
      * @return An instance of Filter if the JsonReader was pointing to an instance of it, or null if it was pointing to
      * JSON null.
@@ -66,7 +67,6 @@ public final class Filter implements JsonSerializable<Filter> {
             while (reader.nextToken() != JsonToken.END_OBJECT) {
                 String fieldName = reader.getFieldName();
                 reader.nextToken();
-
                 if ("filter".equals(fieldName)) {
                     filter = reader.getString();
                 } else {

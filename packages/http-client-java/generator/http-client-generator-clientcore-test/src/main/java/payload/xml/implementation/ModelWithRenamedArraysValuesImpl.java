@@ -21,10 +21,6 @@ import payload.xml.ModelWithRenamedArrays;
  * An instance of this class provides access to all the operations defined in ModelWithRenamedArraysValues.
  */
 public final class ModelWithRenamedArraysValuesImpl {
-    /**
-     * The proxy service used to perform REST calls.
-     */
-    private final ModelWithRenamedArraysValuesService service;
 
     /**
      * The service client containing this operation class.
@@ -37,8 +33,13 @@ public final class ModelWithRenamedArraysValuesImpl {
     private final Instrumentation instrumentation;
 
     /**
+     * The proxy service used to perform REST calls.
+     */
+    private final ModelWithRenamedArraysValuesService service;
+
+    /**
      * Initializes an instance of ModelWithRenamedArraysValuesImpl.
-     * 
+     *
      * @param client the instance of the service client containing this operation class.
      */
     ModelWithRenamedArraysValuesImpl(XmlClientImpl client) {
@@ -48,43 +49,8 @@ public final class ModelWithRenamedArraysValuesImpl {
     }
 
     /**
-     * The interface defining all the services for XmlClientModelWithRenamedArraysValues to be used by the proxy service
-     * to perform REST calls.
-     */
-    @ServiceInterface(name = "XmlClientModelWithRenamedArraysValues", host = "{endpoint}")
-    public interface ModelWithRenamedArraysValuesService {
-        static ModelWithRenamedArraysValuesService getNewInstance(HttpPipeline pipeline) {
-            try {
-                Class<?> clazz = Class.forName("payload.xml.implementation.ModelWithRenamedArraysValuesServiceImpl");
-                return (ModelWithRenamedArraysValuesService) clazz.getMethod("getNewInstance", HttpPipeline.class)
-                    .invoke(null, pipeline);
-            } catch (ClassNotFoundException | NoSuchMethodException | IllegalAccessException
-                | InvocationTargetException e) {
-                throw new RuntimeException(e);
-            }
-
-        }
-
-        @HttpRequestInformation(
-            method = HttpMethod.GET,
-            path = "/payload/xml/modelWithRenamedArrays",
-            expectedStatusCodes = { 200 })
-        @UnexpectedResponseExceptionDetail
-        Response<ModelWithRenamedArrays> get(@HostParam("endpoint") String endpoint,
-            @HeaderParam("Accept") String accept, RequestContext requestContext);
-
-        @HttpRequestInformation(
-            method = HttpMethod.PUT,
-            path = "/payload/xml/modelWithRenamedArrays",
-            expectedStatusCodes = { 204 })
-        @UnexpectedResponseExceptionDetail
-        Response<Void> put(@HostParam("endpoint") String endpoint, @HeaderParam("content-type") String contentType,
-            @BodyParam("application/xml") ModelWithRenamedArrays input, RequestContext requestContext);
-    }
-
-    /**
      * The get operation.
-     * 
+     *
      * @param requestContext The context to configure the HTTP request before HTTP client sends it.
      * @throws IllegalArgumentException thrown if parameters fail the validation.
      * @throws HttpResponseException thrown if the service returns an error.
@@ -103,7 +69,7 @@ public final class ModelWithRenamedArraysValuesImpl {
 
     /**
      * The put operation.
-     * 
+     *
      * @param input The input parameter.
      * @param requestContext The context to configure the HTTP request before HTTP client sends it.
      * @throws IllegalArgumentException thrown if parameters fail the validation.
@@ -118,5 +84,40 @@ public final class ModelWithRenamedArraysValuesImpl {
                 final String contentType = "application/xml";
                 return service.put(this.client.getEndpoint(), contentType, input, updatedContext);
             });
+    }
+
+    /**
+     * The interface defining all the services for XmlClientModelWithRenamedArraysValues to be used by the proxy service
+     * to perform REST calls.
+     */
+    @ServiceInterface(name = "XmlClientModelWithRenamedArraysValues", host = "{endpoint}")
+    public interface ModelWithRenamedArraysValuesService {
+
+        @HttpRequestInformation(
+            method = HttpMethod.GET,
+            path = "/payload/xml/modelWithRenamedArrays",
+            expectedStatusCodes = { 200 })
+        @UnexpectedResponseExceptionDetail
+        Response<ModelWithRenamedArrays> get(@HostParam("endpoint") String endpoint,
+            @HeaderParam("Accept") String accept, RequestContext requestContext);
+
+        @HttpRequestInformation(
+            method = HttpMethod.PUT,
+            path = "/payload/xml/modelWithRenamedArrays",
+            expectedStatusCodes = { 204 })
+        @UnexpectedResponseExceptionDetail
+        Response<Void> put(@HostParam("endpoint") String endpoint, @HeaderParam("content-type") String contentType,
+            @BodyParam("application/xml") ModelWithRenamedArrays input, RequestContext requestContext);
+
+        static ModelWithRenamedArraysValuesService getNewInstance(HttpPipeline pipeline) {
+            try {
+                Class<?> clazz = Class.forName("payload.xml.implementation.ModelWithRenamedArraysValuesServiceImpl");
+                return (ModelWithRenamedArraysValuesService) clazz.getMethod("getNewInstance", HttpPipeline.class)
+                    .invoke(null, pipeline);
+            } catch (ClassNotFoundException | NoSuchMethodException | IllegalAccessException
+                | InvocationTargetException e) {
+                throw new RuntimeException(e);
+            }
+        }
     }
 }

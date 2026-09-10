@@ -16,14 +16,15 @@ import payload.xml.implementation.ModelWithDatetimeValuesImpl;
  */
 @ServiceClient(builder = XmlClientBuilder.class)
 public final class ModelWithDatetimeValueClient {
-    @Metadata(properties = { MetadataProperties.GENERATED })
-    private final ModelWithDatetimeValuesImpl serviceClient;
 
     private final Instrumentation instrumentation;
 
+    @Metadata(properties = { MetadataProperties.GENERATED })
+    private final ModelWithDatetimeValuesImpl serviceClient;
+
     /**
      * Initializes an instance of ModelWithDatetimeValueClient class.
-     * 
+     *
      * @param serviceClient the service client implementation.
      * @param instrumentation the instrumentation instance.
      */
@@ -35,7 +36,20 @@ public final class ModelWithDatetimeValueClient {
 
     /**
      * The get operation.
-     * 
+     *
+     * @throws HttpResponseException thrown if the service returns an error.
+     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
+     * @return contains datetime properties with different encodings.
+     */
+    @Metadata(properties = { MetadataProperties.GENERATED })
+    @ServiceMethod(returns = ReturnType.SINGLE)
+    public ModelWithDatetime get() {
+        return getWithResponse(RequestContext.none()).getValue();
+    }
+
+    /**
+     * The get operation.
+     *
      * @param requestContext The context to configure the HTTP request before HTTP client sends it.
      * @throws IllegalArgumentException thrown if parameters fail the validation.
      * @throws HttpResponseException thrown if the service returns an error.
@@ -50,21 +64,22 @@ public final class ModelWithDatetimeValueClient {
     }
 
     /**
-     * The get operation.
-     * 
+     * The put operation.
+     *
+     * @param input The input parameter.
+     * @throws IllegalArgumentException thrown if parameters fail the validation.
      * @throws HttpResponseException thrown if the service returns an error.
      * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
-     * @return contains datetime properties with different encodings.
      */
     @Metadata(properties = { MetadataProperties.GENERATED })
     @ServiceMethod(returns = ReturnType.SINGLE)
-    public ModelWithDatetime get() {
-        return getWithResponse(RequestContext.none()).getValue();
+    public void put(ModelWithDatetime input) {
+        putWithResponse(input, RequestContext.none());
     }
 
     /**
      * The put operation.
-     * 
+     *
      * @param input The input parameter.
      * @param requestContext The context to configure the HTTP request before HTTP client sends it.
      * @throws IllegalArgumentException thrown if parameters fail the validation.
@@ -77,19 +92,5 @@ public final class ModelWithDatetimeValueClient {
     public Response<Void> putWithResponse(ModelWithDatetime input, RequestContext requestContext) {
         return this.instrumentation.instrumentWithResponse("Payload.Xml.ModelWithDatetimeValue.put", requestContext,
             updatedContext -> this.serviceClient.putWithResponse(input, updatedContext));
-    }
-
-    /**
-     * The put operation.
-     * 
-     * @param input The input parameter.
-     * @throws IllegalArgumentException thrown if parameters fail the validation.
-     * @throws HttpResponseException thrown if the service returns an error.
-     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
-     */
-    @Metadata(properties = { MetadataProperties.GENERATED })
-    @ServiceMethod(returns = ReturnType.SINGLE)
-    public void put(ModelWithDatetime input) {
-        putWithResponse(input, RequestContext.none());
     }
 }

@@ -23,10 +23,6 @@ import versioning.madeoptional.TestModel;
  * Initializes a new instance of the MadeOptionalClient type.
  */
 public final class MadeOptionalClientImpl {
-    /**
-     * The proxy service used to perform REST calls.
-     */
-    private final MadeOptionalClientService service;
 
     /**
      * Need to be set as 'http://localhost:3000' in client.
@@ -34,41 +30,9 @@ public final class MadeOptionalClientImpl {
     private final String endpoint;
 
     /**
-     * Gets Need to be set as 'http://localhost:3000' in client.
-     * 
-     * @return the endpoint value.
-     */
-    public String getEndpoint() {
-        return this.endpoint;
-    }
-
-    /**
-     * Service version.
-     */
-    private final MadeOptionalServiceVersion serviceVersion;
-
-    /**
-     * Gets Service version.
-     * 
-     * @return the serviceVersion value.
-     */
-    public MadeOptionalServiceVersion getServiceVersion() {
-        return this.serviceVersion;
-    }
-
-    /**
      * The HTTP pipeline to send requests through.
      */
     private final HttpPipeline httpPipeline;
-
-    /**
-     * Gets The HTTP pipeline to send requests through.
-     * 
-     * @return the httpPipeline value.
-     */
-    public HttpPipeline getHttpPipeline() {
-        return this.httpPipeline;
-    }
 
     /**
      * The instance of instrumentation to report telemetry.
@@ -76,17 +40,18 @@ public final class MadeOptionalClientImpl {
     private final Instrumentation instrumentation;
 
     /**
-     * Gets The instance of instrumentation to report telemetry.
-     * 
-     * @return the instrumentation value.
+     * The proxy service used to perform REST calls.
      */
-    public Instrumentation getInstrumentation() {
-        return this.instrumentation;
-    }
+    private final MadeOptionalClientService service;
+
+    /**
+     * Service version.
+     */
+    private final MadeOptionalServiceVersion serviceVersion;
 
     /**
      * Initializes an instance of MadeOptionalClient client.
-     * 
+     *
      * @param httpPipeline The HTTP pipeline to send requests through.
      * @param instrumentation The instance of instrumentation to report telemetry.
      * @param endpoint Need to be set as 'http://localhost:3000' in client.
@@ -102,34 +67,44 @@ public final class MadeOptionalClientImpl {
     }
 
     /**
-     * The interface defining all the services for MadeOptionalClient to be used by the proxy service to perform REST
-     * calls.
+     * Gets Need to be set as 'http://localhost:3000' in client.
+     *
+     * @return the endpoint value.
      */
-    @ServiceInterface(name = "MadeOptionalClient", host = "{endpoint}/versioning/made-optional/api-version:{version}")
-    public interface MadeOptionalClientService {
-        static MadeOptionalClientService getNewInstance(HttpPipeline pipeline) {
-            try {
-                Class<?> clazz = Class.forName("versioning.madeoptional.implementation.MadeOptionalClientServiceImpl");
-                return (MadeOptionalClientService) clazz.getMethod("getNewInstance", HttpPipeline.class)
-                    .invoke(null, pipeline);
-            } catch (ClassNotFoundException | NoSuchMethodException | IllegalAccessException
-                | InvocationTargetException e) {
-                throw new RuntimeException(e);
-            }
+    public String getEndpoint() {
+        return this.endpoint;
+    }
 
-        }
+    /**
+     * Gets The HTTP pipeline to send requests through.
+     *
+     * @return the httpPipeline value.
+     */
+    public HttpPipeline getHttpPipeline() {
+        return this.httpPipeline;
+    }
 
-        @HttpRequestInformation(method = HttpMethod.POST, path = "/test", expectedStatusCodes = { 200 })
-        @UnexpectedResponseExceptionDetail
-        Response<TestModel> test(@HostParam("endpoint") String endpoint, @HostParam("version") String version,
-            @QueryParam("param") String param, @HeaderParam("Content-Type") String contentType,
-            @HeaderParam("Accept") String accept, @BodyParam("application/json") TestModel body,
-            RequestContext requestContext);
+    /**
+     * Gets The instance of instrumentation to report telemetry.
+     *
+     * @return the instrumentation value.
+     */
+    public Instrumentation getInstrumentation() {
+        return this.instrumentation;
+    }
+
+    /**
+     * Gets Service version.
+     *
+     * @return the serviceVersion value.
+     */
+    public MadeOptionalServiceVersion getServiceVersion() {
+        return this.serviceVersion;
     }
 
     /**
      * The test operation.
-     * 
+     *
      * @param body The body parameter.
      * @param param The param parameter.
      * @param requestContext The context to configure the HTTP request before HTTP client sends it.
@@ -147,5 +122,31 @@ public final class MadeOptionalClientImpl {
                 return service.test(this.getEndpoint(), this.getServiceVersion().getVersion(), param, contentType,
                     accept, body, updatedContext);
             });
+    }
+
+    /**
+     * The interface defining all the services for MadeOptionalClient to be used by the proxy service to perform REST
+     * calls.
+     */
+    @ServiceInterface(name = "MadeOptionalClient", host = "{endpoint}/versioning/made-optional/api-version:{version}")
+    public interface MadeOptionalClientService {
+
+        @HttpRequestInformation(method = HttpMethod.POST, path = "/test", expectedStatusCodes = { 200 })
+        @UnexpectedResponseExceptionDetail
+        Response<TestModel> test(@HostParam("endpoint") String endpoint, @HostParam("version") String version,
+            @QueryParam("param") String param, @HeaderParam("Content-Type") String contentType,
+            @HeaderParam("Accept") String accept, @BodyParam("application/json") TestModel body,
+            RequestContext requestContext);
+
+        static MadeOptionalClientService getNewInstance(HttpPipeline pipeline) {
+            try {
+                Class<?> clazz = Class.forName("versioning.madeoptional.implementation.MadeOptionalClientServiceImpl");
+                return (MadeOptionalClientService) clazz.getMethod("getNewInstance", HttpPipeline.class)
+                    .invoke(null, pipeline);
+            } catch (ClassNotFoundException | NoSuchMethodException | IllegalAccessException
+                | InvocationTargetException e) {
+                throw new RuntimeException(e);
+            }
+        }
     }
 }

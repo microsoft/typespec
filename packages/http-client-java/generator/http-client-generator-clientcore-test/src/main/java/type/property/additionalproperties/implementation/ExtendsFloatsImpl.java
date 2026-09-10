@@ -21,10 +21,6 @@ import type.property.additionalproperties.ExtendsFloatAdditionalProperties;
  * An instance of this class provides access to all the operations defined in ExtendsFloats.
  */
 public final class ExtendsFloatsImpl {
-    /**
-     * The proxy service used to perform REST calls.
-     */
-    private final ExtendsFloatsService service;
 
     /**
      * The service client containing this operation class.
@@ -37,8 +33,13 @@ public final class ExtendsFloatsImpl {
     private final Instrumentation instrumentation;
 
     /**
+     * The proxy service used to perform REST calls.
+     */
+    private final ExtendsFloatsService service;
+
+    /**
      * Initializes an instance of ExtendsFloatsImpl.
-     * 
+     *
      * @param client the instance of the service client containing this operation class.
      */
     ExtendsFloatsImpl(AdditionalPropertiesClientImpl client) {
@@ -48,44 +49,8 @@ public final class ExtendsFloatsImpl {
     }
 
     /**
-     * The interface defining all the services for AdditionalPropertiesClientExtendsFloats to be used by the proxy
-     * service to perform REST calls.
-     */
-    @ServiceInterface(name = "AdditionalPropertiesClientExtendsFloats", host = "{endpoint}")
-    public interface ExtendsFloatsService {
-        static ExtendsFloatsService getNewInstance(HttpPipeline pipeline) {
-            try {
-                Class<?> clazz
-                    = Class.forName("type.property.additionalproperties.implementation.ExtendsFloatsServiceImpl");
-                return (ExtendsFloatsService) clazz.getMethod("getNewInstance", HttpPipeline.class)
-                    .invoke(null, pipeline);
-            } catch (ClassNotFoundException | NoSuchMethodException | IllegalAccessException
-                | InvocationTargetException e) {
-                throw new RuntimeException(e);
-            }
-
-        }
-
-        @HttpRequestInformation(
-            method = HttpMethod.GET,
-            path = "/type/property/additionalProperties/extendsRecordFloat",
-            expectedStatusCodes = { 200 })
-        @UnexpectedResponseExceptionDetail
-        Response<ExtendsFloatAdditionalProperties> get(@HostParam("endpoint") String endpoint,
-            @HeaderParam("Accept") String accept, RequestContext requestContext);
-
-        @HttpRequestInformation(
-            method = HttpMethod.PUT,
-            path = "/type/property/additionalProperties/extendsRecordFloat",
-            expectedStatusCodes = { 204 })
-        @UnexpectedResponseExceptionDetail
-        Response<Void> put(@HostParam("endpoint") String endpoint, @HeaderParam("Content-Type") String contentType,
-            @BodyParam("application/json") ExtendsFloatAdditionalProperties body, RequestContext requestContext);
-    }
-
-    /**
      * Get call.
-     * 
+     *
      * @param requestContext The context to configure the HTTP request before HTTP client sends it.
      * @throws IllegalArgumentException thrown if parameters fail the validation.
      * @throws HttpResponseException thrown if the service returns an error.
@@ -103,7 +68,7 @@ public final class ExtendsFloatsImpl {
 
     /**
      * Put operation.
-     * 
+     *
      * @param body body.
      * @param requestContext The context to configure the HTTP request before HTTP client sends it.
      * @throws IllegalArgumentException thrown if parameters fail the validation.
@@ -118,5 +83,41 @@ public final class ExtendsFloatsImpl {
                 final String contentType = "application/json";
                 return service.put(this.client.getEndpoint(), contentType, body, updatedContext);
             });
+    }
+
+    /**
+     * The interface defining all the services for AdditionalPropertiesClientExtendsFloats to be used by the proxy
+     * service to perform REST calls.
+     */
+    @ServiceInterface(name = "AdditionalPropertiesClientExtendsFloats", host = "{endpoint}")
+    public interface ExtendsFloatsService {
+
+        @HttpRequestInformation(
+            method = HttpMethod.GET,
+            path = "/type/property/additionalProperties/extendsRecordFloat",
+            expectedStatusCodes = { 200 })
+        @UnexpectedResponseExceptionDetail
+        Response<ExtendsFloatAdditionalProperties> get(@HostParam("endpoint") String endpoint,
+            @HeaderParam("Accept") String accept, RequestContext requestContext);
+
+        @HttpRequestInformation(
+            method = HttpMethod.PUT,
+            path = "/type/property/additionalProperties/extendsRecordFloat",
+            expectedStatusCodes = { 204 })
+        @UnexpectedResponseExceptionDetail
+        Response<Void> put(@HostParam("endpoint") String endpoint, @HeaderParam("Content-Type") String contentType,
+            @BodyParam("application/json") ExtendsFloatAdditionalProperties body, RequestContext requestContext);
+
+        static ExtendsFloatsService getNewInstance(HttpPipeline pipeline) {
+            try {
+                Class<?> clazz
+                    = Class.forName("type.property.additionalproperties.implementation.ExtendsFloatsServiceImpl");
+                return (ExtendsFloatsService) clazz.getMethod("getNewInstance", HttpPipeline.class)
+                    .invoke(null, pipeline);
+            } catch (ClassNotFoundException | NoSuchMethodException | IllegalAccessException
+                | InvocationTargetException e) {
+                throw new RuntimeException(e);
+            }
+        }
     }
 }

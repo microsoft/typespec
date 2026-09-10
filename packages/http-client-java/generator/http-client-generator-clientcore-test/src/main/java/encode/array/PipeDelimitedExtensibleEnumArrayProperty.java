@@ -18,6 +18,7 @@ import java.util.stream.Collectors;
 @Metadata(properties = { MetadataProperties.IMMUTABLE })
 public final class PipeDelimitedExtensibleEnumArrayProperty
     implements JsonSerializable<PipeDelimitedExtensibleEnumArrayProperty> {
+
     /*
      * The value property.
      */
@@ -26,7 +27,7 @@ public final class PipeDelimitedExtensibleEnumArrayProperty
 
     /**
      * Creates an instance of PipeDelimitedExtensibleEnumArrayProperty class.
-     * 
+     *
      * @param value the value value to set.
      */
     @Metadata(properties = { MetadataProperties.GENERATED })
@@ -36,7 +37,7 @@ public final class PipeDelimitedExtensibleEnumArrayProperty
 
     /**
      * Get the value property: The value property.
-     * 
+     *
      * @return the value value.
      */
     @Metadata(properties = { MetadataProperties.GENERATED })
@@ -62,7 +63,7 @@ public final class PipeDelimitedExtensibleEnumArrayProperty
 
     /**
      * Reads an instance of PipeDelimitedExtensibleEnumArrayProperty from the JsonReader.
-     * 
+     *
      * @param jsonReader The JsonReader being read.
      * @return An instance of PipeDelimitedExtensibleEnumArrayProperty if the JsonReader was pointing to an instance of
      * it, or null if it was pointing to JSON null.
@@ -76,7 +77,6 @@ public final class PipeDelimitedExtensibleEnumArrayProperty
             while (reader.nextToken() != JsonToken.END_OBJECT) {
                 String fieldName = reader.getFieldName();
                 reader.nextToken();
-
                 if ("value".equals(fieldName)) {
                     value = reader.getNullable(nonNullReader -> {
                         String valueEncodedAsString = nonNullReader.getString();

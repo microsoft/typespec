@@ -16,14 +16,15 @@ import versioning.added.implementation.AddedClientImpl;
  */
 @ServiceClient(builder = AddedClientBuilder.class)
 public final class AddedClient {
-    @Metadata(properties = { MetadataProperties.GENERATED })
-    private final AddedClientImpl serviceClient;
 
     private final Instrumentation instrumentation;
 
+    @Metadata(properties = { MetadataProperties.GENERATED })
+    private final AddedClientImpl serviceClient;
+
     /**
      * Initializes an instance of AddedClient class.
-     * 
+     *
      * @param serviceClient the service client implementation.
      * @param instrumentation the instrumentation instance.
      */
@@ -35,7 +36,23 @@ public final class AddedClient {
 
     /**
      * The v1 operation.
-     * 
+     *
+     * @param headerV2 The headerV2 parameter.
+     * @param body The body parameter.
+     * @throws IllegalArgumentException thrown if parameters fail the validation.
+     * @throws HttpResponseException thrown if the service returns an error.
+     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
+     * @return the response.
+     */
+    @Metadata(properties = { MetadataProperties.GENERATED })
+    @ServiceMethod(returns = ReturnType.SINGLE)
+    public ModelV1 v1(String headerV2, ModelV1 body) {
+        return v1WithResponse(headerV2, body, RequestContext.none()).getValue();
+    }
+
+    /**
+     * The v1 operation.
+     *
      * @param headerV2 The headerV2 parameter.
      * @param body The body parameter.
      * @param requestContext The context to configure the HTTP request before HTTP client sends it.
@@ -52,9 +69,8 @@ public final class AddedClient {
     }
 
     /**
-     * The v1 operation.
-     * 
-     * @param headerV2 The headerV2 parameter.
+     * The v2 operation.
+     *
      * @param body The body parameter.
      * @throws IllegalArgumentException thrown if parameters fail the validation.
      * @throws HttpResponseException thrown if the service returns an error.
@@ -63,13 +79,13 @@ public final class AddedClient {
      */
     @Metadata(properties = { MetadataProperties.GENERATED })
     @ServiceMethod(returns = ReturnType.SINGLE)
-    public ModelV1 v1(String headerV2, ModelV1 body) {
-        return v1WithResponse(headerV2, body, RequestContext.none()).getValue();
+    public ModelV2 v2(ModelV2 body) {
+        return v2WithResponse(body, RequestContext.none()).getValue();
     }
 
     /**
      * The v2 operation.
-     * 
+     *
      * @param body The body parameter.
      * @param requestContext The context to configure the HTTP request before HTTP client sends it.
      * @throws IllegalArgumentException thrown if parameters fail the validation.
@@ -82,20 +98,5 @@ public final class AddedClient {
     public Response<ModelV2> v2WithResponse(ModelV2 body, RequestContext requestContext) {
         return this.instrumentation.instrumentWithResponse("Versioning.Added.v2", requestContext,
             updatedContext -> this.serviceClient.v2WithResponse(body, updatedContext));
-    }
-
-    /**
-     * The v2 operation.
-     * 
-     * @param body The body parameter.
-     * @throws IllegalArgumentException thrown if parameters fail the validation.
-     * @throws HttpResponseException thrown if the service returns an error.
-     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
-     * @return the response.
-     */
-    @Metadata(properties = { MetadataProperties.GENERATED })
-    @ServiceMethod(returns = ReturnType.SINGLE)
-    public ModelV2 v2(ModelV2 body) {
-        return v2WithResponse(body, RequestContext.none()).getValue();
     }
 }

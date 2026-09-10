@@ -17,6 +17,13 @@ import java.util.Map;
 @Metadata(properties = { MetadataProperties.FLUENT })
 public class IsUnknownAdditionalPropertiesDiscriminated
     implements JsonSerializable<IsUnknownAdditionalPropertiesDiscriminated> {
+
+    /*
+     * The model is Record<unknown> with a discriminator.
+     */
+    @Metadata(properties = { MetadataProperties.GENERATED })
+    private Map<String, BinaryData> additionalProperties;
+
     /*
      * The discriminator
      */
@@ -29,15 +36,9 @@ public class IsUnknownAdditionalPropertiesDiscriminated
     @Metadata(properties = { MetadataProperties.GENERATED })
     private final String name;
 
-    /*
-     * The model is Record<unknown> with a discriminator.
-     */
-    @Metadata(properties = { MetadataProperties.GENERATED })
-    private Map<String, BinaryData> additionalProperties;
-
     /**
      * Creates an instance of IsUnknownAdditionalPropertiesDiscriminated class.
-     * 
+     *
      * @param name the name value to set.
      */
     @Metadata(properties = { MetadataProperties.GENERATED })
@@ -46,28 +47,8 @@ public class IsUnknownAdditionalPropertiesDiscriminated
     }
 
     /**
-     * Get the kind property: The discriminator.
-     * 
-     * @return the kind value.
-     */
-    @Metadata(properties = { MetadataProperties.GENERATED })
-    public String getKind() {
-        return this.kind;
-    }
-
-    /**
-     * Get the name property: The name property.
-     * 
-     * @return the name value.
-     */
-    @Metadata(properties = { MetadataProperties.GENERATED })
-    public String getName() {
-        return this.name;
-    }
-
-    /**
      * Get the additionalProperties property: The model is Record&lt;unknown&gt; with a discriminator.
-     * 
+     *
      * @return the additionalProperties value.
      */
     @Metadata(properties = { MetadataProperties.GENERATED })
@@ -77,7 +58,7 @@ public class IsUnknownAdditionalPropertiesDiscriminated
 
     /**
      * Set the additionalProperties property: The model is Record&lt;unknown&gt; with a discriminator.
-     * 
+     *
      * @param additionalProperties the additionalProperties value to set.
      * @return the IsUnknownAdditionalPropertiesDiscriminated object itself.
      */
@@ -86,6 +67,26 @@ public class IsUnknownAdditionalPropertiesDiscriminated
         setAdditionalProperties(Map<String, BinaryData> additionalProperties) {
         this.additionalProperties = additionalProperties;
         return this;
+    }
+
+    /**
+     * Get the kind property: The discriminator.
+     *
+     * @return the kind value.
+     */
+    @Metadata(properties = { MetadataProperties.GENERATED })
+    public String getKind() {
+        return this.kind;
+    }
+
+    /**
+     * Get the name property: The name property.
+     *
+     * @return the name value.
+     */
+    @Metadata(properties = { MetadataProperties.GENERATED })
+    public String getName() {
+        return this.name;
     }
 
     /**
@@ -112,7 +113,7 @@ public class IsUnknownAdditionalPropertiesDiscriminated
 
     /**
      * Reads an instance of IsUnknownAdditionalPropertiesDiscriminated from the JsonReader.
-     * 
+     *
      * @param jsonReader The JsonReader being read.
      * @return An instance of IsUnknownAdditionalPropertiesDiscriminated if the JsonReader was pointing to an instance
      * of it, or null if it was pointing to JSON null.
@@ -124,7 +125,8 @@ public class IsUnknownAdditionalPropertiesDiscriminated
         return jsonReader.readObject(reader -> {
             String discriminatorValue = null;
             try (JsonReader readerToUse = reader.bufferObject()) {
-                readerToUse.nextToken(); // Prepare for reading
+                // Prepare for reading
+                readerToUse.nextToken();
                 while (readerToUse.nextToken() != JsonToken.END_OBJECT) {
                     String fieldName = readerToUse.getFieldName();
                     readerToUse.nextToken();
@@ -155,7 +157,6 @@ public class IsUnknownAdditionalPropertiesDiscriminated
             while (reader.nextToken() != JsonToken.END_OBJECT) {
                 String fieldName = reader.getFieldName();
                 reader.nextToken();
-
                 if ("name".equals(fieldName)) {
                     name = reader.getString();
                 } else if ("kind".equals(fieldName)) {
@@ -164,7 +165,6 @@ public class IsUnknownAdditionalPropertiesDiscriminated
                     if (additionalProperties == null) {
                         additionalProperties = new LinkedHashMap<>();
                     }
-
                     additionalProperties.put(fieldName,
                         reader.getNullable(nonNullReader -> BinaryData.fromObject(nonNullReader.readUntyped())));
                 }
@@ -173,7 +173,6 @@ public class IsUnknownAdditionalPropertiesDiscriminated
                 = new IsUnknownAdditionalPropertiesDiscriminated(name);
             deserializedIsUnknownAdditionalPropertiesDiscriminated.kind = kind;
             deserializedIsUnknownAdditionalPropertiesDiscriminated.additionalProperties = additionalProperties;
-
             return deserializedIsUnknownAdditionalPropertiesDiscriminated;
         });
     }

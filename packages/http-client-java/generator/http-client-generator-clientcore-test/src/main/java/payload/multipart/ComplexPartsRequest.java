@@ -9,11 +9,6 @@ import java.util.List;
  */
 @Metadata(properties = { MetadataProperties.IMMUTABLE })
 public final class ComplexPartsRequest {
-    /*
-     * The id property.
-     */
-    @Metadata(properties = { MetadataProperties.GENERATED })
-    private final String id;
 
     /*
      * The address property.
@@ -22,10 +17,10 @@ public final class ComplexPartsRequest {
     private final Address address;
 
     /*
-     * The profileImage property.
+     * The id property.
      */
     @Metadata(properties = { MetadataProperties.GENERATED })
-    private final ProfileImageFileDetails profileImage;
+    private final String id;
 
     /*
      * The pictures property.
@@ -33,9 +28,15 @@ public final class ComplexPartsRequest {
     @Metadata(properties = { MetadataProperties.GENERATED })
     private final List<PicturesFileDetails> pictures;
 
+    /*
+     * The profileImage property.
+     */
+    @Metadata(properties = { MetadataProperties.GENERATED })
+    private final ProfileImageFileDetails profileImage;
+
     /**
      * Creates an instance of ComplexPartsRequest class.
-     * 
+     *
      * @param id the id value to set.
      * @param address the address value to set.
      * @param profileImage the profileImage value to set.
@@ -51,18 +52,8 @@ public final class ComplexPartsRequest {
     }
 
     /**
-     * Get the id property: The id property.
-     * 
-     * @return the id value.
-     */
-    @Metadata(properties = { MetadataProperties.GENERATED })
-    public String getId() {
-        return this.id;
-    }
-
-    /**
      * Get the address property: The address property.
-     * 
+     *
      * @return the address value.
      */
     @Metadata(properties = { MetadataProperties.GENERATED })
@@ -71,22 +62,32 @@ public final class ComplexPartsRequest {
     }
 
     /**
-     * Get the profileImage property: The profileImage property.
-     * 
-     * @return the profileImage value.
+     * Get the id property: The id property.
+     *
+     * @return the id value.
      */
     @Metadata(properties = { MetadataProperties.GENERATED })
-    public ProfileImageFileDetails getProfileImage() {
-        return this.profileImage;
+    public String getId() {
+        return this.id;
     }
 
     /**
      * Get the pictures property: The pictures property.
-     * 
+     *
      * @return the pictures value.
      */
     @Metadata(properties = { MetadataProperties.GENERATED })
     public List<PicturesFileDetails> getPictures() {
         return this.pictures;
+    }
+
+    /**
+     * Get the profileImage property: The profileImage property.
+     *
+     * @return the profileImage value.
+     */
+    @Metadata(properties = { MetadataProperties.GENERATED })
+    public ProfileImageFileDetails getProfileImage() {
+        return this.profileImage;
     }
 }

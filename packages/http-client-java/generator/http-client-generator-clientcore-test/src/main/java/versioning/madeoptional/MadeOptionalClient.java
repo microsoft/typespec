@@ -16,14 +16,15 @@ import versioning.madeoptional.implementation.MadeOptionalClientImpl;
  */
 @ServiceClient(builder = MadeOptionalClientBuilder.class)
 public final class MadeOptionalClient {
-    @Metadata(properties = { MetadataProperties.GENERATED })
-    private final MadeOptionalClientImpl serviceClient;
 
     private final Instrumentation instrumentation;
 
+    @Metadata(properties = { MetadataProperties.GENERATED })
+    private final MadeOptionalClientImpl serviceClient;
+
     /**
      * Initializes an instance of MadeOptionalClient class.
-     * 
+     *
      * @param serviceClient the service client implementation.
      * @param instrumentation the instrumentation instance.
      */
@@ -35,25 +36,23 @@ public final class MadeOptionalClient {
 
     /**
      * The test operation.
-     * 
+     *
      * @param body The body parameter.
-     * @param param The param parameter.
-     * @param requestContext The context to configure the HTTP request before HTTP client sends it.
      * @throws IllegalArgumentException thrown if parameters fail the validation.
      * @throws HttpResponseException thrown if the service returns an error.
      * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
-     * @return the response body along with {@link Response}.
+     * @return the response.
      */
     @Metadata(properties = { MetadataProperties.GENERATED })
     @ServiceMethod(returns = ReturnType.SINGLE)
-    public Response<TestModel> testWithResponse(TestModel body, String param, RequestContext requestContext) {
-        return this.instrumentation.instrumentWithResponse("Versioning.MadeOptional.test", requestContext,
-            updatedContext -> this.serviceClient.testWithResponse(body, param, updatedContext));
+    public TestModel test(TestModel body) {
+        final String param = null;
+        return testWithResponse(body, param, RequestContext.none()).getValue();
     }
 
     /**
      * The test operation.
-     * 
+     *
      * @param body The body parameter.
      * @param param The param parameter.
      * @throws IllegalArgumentException thrown if parameters fail the validation.
@@ -69,17 +68,19 @@ public final class MadeOptionalClient {
 
     /**
      * The test operation.
-     * 
+     *
      * @param body The body parameter.
+     * @param param The param parameter.
+     * @param requestContext The context to configure the HTTP request before HTTP client sends it.
      * @throws IllegalArgumentException thrown if parameters fail the validation.
      * @throws HttpResponseException thrown if the service returns an error.
      * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
-     * @return the response.
+     * @return the response body along with {@link Response}.
      */
     @Metadata(properties = { MetadataProperties.GENERATED })
     @ServiceMethod(returns = ReturnType.SINGLE)
-    public TestModel test(TestModel body) {
-        final String param = null;
-        return testWithResponse(body, param, RequestContext.none()).getValue();
+    public Response<TestModel> testWithResponse(TestModel body, String param, RequestContext requestContext) {
+        return this.instrumentation.instrumentWithResponse("Versioning.MadeOptional.test", requestContext,
+            updatedContext -> this.serviceClient.testWithResponse(body, param, updatedContext));
     }
 }

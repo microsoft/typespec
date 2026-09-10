@@ -8,6 +8,7 @@ import io.clientcore.core.annotations.MetadataProperties;
  */
 @Metadata(properties = { MetadataProperties.IMMUTABLE })
 public final class FloatRequest {
+
     /*
      * The temperature property.
      */
@@ -16,7 +17,7 @@ public final class FloatRequest {
 
     /**
      * Creates an instance of FloatRequest class.
-     * 
+     *
      * @param temperature the temperature value to set.
      */
     @Metadata(properties = { MetadataProperties.GENERATED })
@@ -26,7 +27,7 @@ public final class FloatRequest {
 
     /**
      * Get the temperature property: The temperature property.
-     * 
+     *
      * @return the temperature value.
      */
     @Metadata(properties = { MetadataProperties.GENERATED })

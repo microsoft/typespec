@@ -40,6 +40,107 @@ public final class NamingJavaParserClient {
     }
 
     /**
+     * The getAnonymous operation.
+     *
+     * @throws HttpResponseException thrown if the request is rejected by server.
+     * @throws ClientAuthenticationException thrown if the request is rejected by server on status code 401.
+     * @throws ResourceNotFoundException thrown if the request is rejected by server on status code 404.
+     * @throws ResourceModifiedException thrown if the request is rejected by server on status code 409.
+     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
+     * @return the response.
+     */
+    @Generated
+    @ServiceMethod(returns = ReturnType.SINGLE)
+    public GetAnonymousResponse getAnonymous() {
+        // Generated convenience method for getAnonymousWithResponse
+        RequestOptions requestOptions = new RequestOptions();
+        return getAnonymousWithResponse(requestOptions).getValue().toObject(GetAnonymousResponse.class);
+    }
+
+    /**
+     * The getAnonymous operation.
+     * <p><strong>Response Body Schema</strong></p>
+     * 
+     * <pre>
+     * {@code
+     * {
+     *     name: String (Required)
+     * }
+     * }
+     * </pre>
+     *
+     * @param requestOptions The options to configure the HTTP request before HTTP client sends it.
+     * @throws HttpResponseException thrown if the request is rejected by server.
+     * @throws ClientAuthenticationException thrown if the request is rejected by server on status code 401.
+     * @throws ResourceNotFoundException thrown if the request is rejected by server on status code 404.
+     * @throws ResourceModifiedException thrown if the request is rejected by server on status code 409.
+     * @return the response body along with {@link Response}.
+     */
+    @Generated
+    @ServiceMethod(returns = ReturnType.SINGLE)
+    public Response<BinaryData> getAnonymousWithResponse(RequestOptions requestOptions) {
+        return this.serviceClient.getAnonymousWithResponse(requestOptions);
+    }
+
+    /**
+     * summary of POST op
+     *
+     * description of POST op.
+     *
+     * @param name summary of name query parameter
+     *
+     * description of name query parameter.
+     * @param body The body parameter.
+     * @throws IllegalArgumentException thrown if parameters fail the validation.
+     * @throws HttpResponseException thrown if the request is rejected by server.
+     * @throws ClientAuthenticationException thrown if the request is rejected by server on status code 401.
+     * @throws ResourceNotFoundException thrown if the request is rejected by server on status code 404.
+     * @throws ResourceModifiedException thrown if the request is rejected by server on status code 409.
+     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
+     * @return summary of Response.
+     */
+    @Generated
+    @ServiceMethod(returns = ReturnType.SINGLE)
+    public DataResponse post(String name, DataRequest body) {
+        // Generated convenience method for postWithResponse
+        RequestOptions requestOptions = new RequestOptions();
+        return postWithResponse(name, BinaryData.fromObject(body), requestOptions).getValue()
+            .toObject(DataResponse.class);
+    }
+
+    /**
+     * summary of POST op
+     *
+     * description of POST op.
+     *
+     * @param name summary of name query parameter
+     *
+     * description of name query parameter.
+     * @param body The body parameter.
+     * @param etag summary of etag header parameter
+     *
+     * description of etag header parameter.
+     * @throws IllegalArgumentException thrown if parameters fail the validation.
+     * @throws HttpResponseException thrown if the request is rejected by server.
+     * @throws ClientAuthenticationException thrown if the request is rejected by server on status code 401.
+     * @throws ResourceNotFoundException thrown if the request is rejected by server on status code 404.
+     * @throws ResourceModifiedException thrown if the request is rejected by server on status code 409.
+     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
+     * @return summary of Response.
+     */
+    @Generated
+    @ServiceMethod(returns = ReturnType.SINGLE)
+    public DataResponse post(String name, DataRequest body, String etag) {
+        // Generated convenience method for postWithResponse
+        RequestOptions requestOptions = new RequestOptions();
+        if (etag != null) {
+            requestOptions.setHeader(HttpHeaderName.ETAG, etag);
+        }
+        return postWithResponse(name, BinaryData.fromObject(body), requestOptions).getValue()
+            .toObject(DataResponse.class);
+    }
+
+    /**
      * summary of POST op
      *
      * description of POST op.
@@ -101,106 +202,5 @@ public final class NamingJavaParserClient {
     @ServiceMethod(returns = ReturnType.SINGLE)
     public Response<BinaryData> postWithResponse(String name, BinaryData body, RequestOptions requestOptions) {
         return this.serviceClient.postWithResponse(name, body, requestOptions);
-    }
-
-    /**
-     * The getAnonymous operation.
-     * <p><strong>Response Body Schema</strong></p>
-     * 
-     * <pre>
-     * {@code
-     * {
-     *     name: String (Required)
-     * }
-     * }
-     * </pre>
-     *
-     * @param requestOptions The options to configure the HTTP request before HTTP client sends it.
-     * @throws HttpResponseException thrown if the request is rejected by server.
-     * @throws ClientAuthenticationException thrown if the request is rejected by server on status code 401.
-     * @throws ResourceNotFoundException thrown if the request is rejected by server on status code 404.
-     * @throws ResourceModifiedException thrown if the request is rejected by server on status code 409.
-     * @return the response body along with {@link Response}.
-     */
-    @Generated
-    @ServiceMethod(returns = ReturnType.SINGLE)
-    public Response<BinaryData> getAnonymousWithResponse(RequestOptions requestOptions) {
-        return this.serviceClient.getAnonymousWithResponse(requestOptions);
-    }
-
-    /**
-     * summary of POST op
-     *
-     * description of POST op.
-     *
-     * @param name summary of name query parameter
-     *
-     * description of name query parameter.
-     * @param body The body parameter.
-     * @param etag summary of etag header parameter
-     *
-     * description of etag header parameter.
-     * @throws IllegalArgumentException thrown if parameters fail the validation.
-     * @throws HttpResponseException thrown if the request is rejected by server.
-     * @throws ClientAuthenticationException thrown if the request is rejected by server on status code 401.
-     * @throws ResourceNotFoundException thrown if the request is rejected by server on status code 404.
-     * @throws ResourceModifiedException thrown if the request is rejected by server on status code 409.
-     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
-     * @return summary of Response.
-     */
-    @Generated
-    @ServiceMethod(returns = ReturnType.SINGLE)
-    public DataResponse post(String name, DataRequest body, String etag) {
-        // Generated convenience method for postWithResponse
-        RequestOptions requestOptions = new RequestOptions();
-        if (etag != null) {
-            requestOptions.setHeader(HttpHeaderName.ETAG, etag);
-        }
-        return postWithResponse(name, BinaryData.fromObject(body), requestOptions).getValue()
-            .toObject(DataResponse.class);
-    }
-
-    /**
-     * summary of POST op
-     *
-     * description of POST op.
-     *
-     * @param name summary of name query parameter
-     *
-     * description of name query parameter.
-     * @param body The body parameter.
-     * @throws IllegalArgumentException thrown if parameters fail the validation.
-     * @throws HttpResponseException thrown if the request is rejected by server.
-     * @throws ClientAuthenticationException thrown if the request is rejected by server on status code 401.
-     * @throws ResourceNotFoundException thrown if the request is rejected by server on status code 404.
-     * @throws ResourceModifiedException thrown if the request is rejected by server on status code 409.
-     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
-     * @return summary of Response.
-     */
-    @Generated
-    @ServiceMethod(returns = ReturnType.SINGLE)
-    public DataResponse post(String name, DataRequest body) {
-        // Generated convenience method for postWithResponse
-        RequestOptions requestOptions = new RequestOptions();
-        return postWithResponse(name, BinaryData.fromObject(body), requestOptions).getValue()
-            .toObject(DataResponse.class);
-    }
-
-    /**
-     * The getAnonymous operation.
-     *
-     * @throws HttpResponseException thrown if the request is rejected by server.
-     * @throws ClientAuthenticationException thrown if the request is rejected by server on status code 401.
-     * @throws ResourceNotFoundException thrown if the request is rejected by server on status code 404.
-     * @throws ResourceModifiedException thrown if the request is rejected by server on status code 409.
-     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
-     * @return the response.
-     */
-    @Generated
-    @ServiceMethod(returns = ReturnType.SINGLE)
-    public GetAnonymousResponse getAnonymous() {
-        // Generated convenience method for getAnonymousWithResponse
-        RequestOptions requestOptions = new RequestOptions();
-        return getAnonymousWithResponse(requestOptions).getValue().toObject(GetAnonymousResponse.class);
     }
 }

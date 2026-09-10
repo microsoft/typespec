@@ -14,11 +14,6 @@ import java.io.IOException;
  */
 @Metadata(properties = { MetadataProperties.IMMUTABLE })
 public final class StringAndArrayCases implements JsonSerializable<StringAndArrayCases> {
-    /*
-     * This should be receive/send the string variant
-     */
-    @Metadata(properties = { MetadataProperties.GENERATED })
-    private final BinaryData string;
 
     /*
      * This should be receive/send the array variant
@@ -26,9 +21,15 @@ public final class StringAndArrayCases implements JsonSerializable<StringAndArra
     @Metadata(properties = { MetadataProperties.GENERATED })
     private final BinaryData array;
 
+    /*
+     * This should be receive/send the string variant
+     */
+    @Metadata(properties = { MetadataProperties.GENERATED })
+    private final BinaryData string;
+
     /**
      * Creates an instance of StringAndArrayCases class.
-     * 
+     *
      * @param string the string value to set.
      * @param array the array value to set.
      */
@@ -39,23 +40,23 @@ public final class StringAndArrayCases implements JsonSerializable<StringAndArra
     }
 
     /**
-     * Get the string property: This should be receive/send the string variant.
-     * 
-     * @return the string value.
-     */
-    @Metadata(properties = { MetadataProperties.GENERATED })
-    public BinaryData getString() {
-        return this.string;
-    }
-
-    /**
      * Get the array property: This should be receive/send the array variant.
-     * 
+     *
      * @return the array value.
      */
     @Metadata(properties = { MetadataProperties.GENERATED })
     public BinaryData getArray() {
         return this.array;
+    }
+
+    /**
+     * Get the string property: This should be receive/send the string variant.
+     *
+     * @return the string value.
+     */
+    @Metadata(properties = { MetadataProperties.GENERATED })
+    public BinaryData getString() {
+        return this.string;
     }
 
     /**
@@ -74,7 +75,7 @@ public final class StringAndArrayCases implements JsonSerializable<StringAndArra
 
     /**
      * Reads an instance of StringAndArrayCases from the JsonReader.
-     * 
+     *
      * @param jsonReader The JsonReader being read.
      * @return An instance of StringAndArrayCases if the JsonReader was pointing to an instance of it, or null if it was
      * pointing to JSON null.
@@ -89,7 +90,6 @@ public final class StringAndArrayCases implements JsonSerializable<StringAndArra
             while (reader.nextToken() != JsonToken.END_OBJECT) {
                 String fieldName = reader.getFieldName();
                 reader.nextToken();
-
                 if ("string".equals(fieldName)) {
                     string = reader.getNullable(nonNullReader -> BinaryData.fromObject(nonNullReader.readUntyped()));
                 } else if ("array".equals(fieldName)) {

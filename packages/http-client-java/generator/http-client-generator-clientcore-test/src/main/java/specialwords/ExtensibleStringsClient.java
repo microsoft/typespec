@@ -17,14 +17,15 @@ import specialwords.implementation.ExtensibleStringsImpl;
  */
 @ServiceClient(builder = SpecialWordsClientBuilder.class)
 public final class ExtensibleStringsClient {
-    @Metadata(properties = { MetadataProperties.GENERATED })
-    private final ExtensibleStringsImpl serviceClient;
 
     private final Instrumentation instrumentation;
 
+    @Metadata(properties = { MetadataProperties.GENERATED })
+    private final ExtensibleStringsImpl serviceClient;
+
     /**
      * Initializes an instance of ExtensibleStringsClient class.
-     * 
+     *
      * @param serviceClient the service client implementation.
      * @param instrumentation the instrumentation instance.
      */
@@ -36,7 +37,22 @@ public final class ExtensibleStringsClient {
 
     /**
      * The putExtensibleStringValue operation.
-     * 
+     *
+     * @param body The body parameter.
+     * @throws IllegalArgumentException thrown if parameters fail the validation.
+     * @throws HttpResponseException thrown if the service returns an error.
+     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
+     * @return verify enum member names that are special words using extensible enum (union).
+     */
+    @Metadata(properties = { MetadataProperties.GENERATED })
+    @ServiceMethod(returns = ReturnType.SINGLE)
+    public ExtensibleString putExtensibleStringValue(ExtensibleString body) {
+        return putExtensibleStringValueWithResponse(body, RequestContext.none()).getValue();
+    }
+
+    /**
+     * The putExtensibleStringValue operation.
+     *
      * @param body The body parameter.
      * @param requestContext The context to configure the HTTP request before HTTP client sends it.
      * @throws IllegalArgumentException thrown if parameters fail the validation.
@@ -52,20 +68,5 @@ public final class ExtensibleStringsClient {
         return this.instrumentation.instrumentWithResponse("SpecialWords.ExtensibleStrings.putExtensibleStringValue",
             requestContext,
             updatedContext -> this.serviceClient.putExtensibleStringValueWithResponse(body, updatedContext));
-    }
-
-    /**
-     * The putExtensibleStringValue operation.
-     * 
-     * @param body The body parameter.
-     * @throws IllegalArgumentException thrown if parameters fail the validation.
-     * @throws HttpResponseException thrown if the service returns an error.
-     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
-     * @return verify enum member names that are special words using extensible enum (union).
-     */
-    @Metadata(properties = { MetadataProperties.GENERATED })
-    @ServiceMethod(returns = ReturnType.SINGLE)
-    public ExtensibleString putExtensibleStringValue(ExtensibleString body) {
-        return putExtensibleStringValueWithResponse(body, RequestContext.none()).getValue();
     }
 }

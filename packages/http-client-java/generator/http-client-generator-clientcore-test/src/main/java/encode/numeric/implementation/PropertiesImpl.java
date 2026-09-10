@@ -23,10 +23,6 @@ import java.lang.reflect.InvocationTargetException;
  * An instance of this class provides access to all the operations defined in Properties.
  */
 public final class PropertiesImpl {
-    /**
-     * The proxy service used to perform REST calls.
-     */
-    private final PropertiesService service;
 
     /**
      * The service client containing this operation class.
@@ -39,8 +35,13 @@ public final class PropertiesImpl {
     private final Instrumentation instrumentation;
 
     /**
+     * The proxy service used to perform REST calls.
+     */
+    private final PropertiesService service;
+
+    /**
      * Initializes an instance of PropertiesImpl.
-     * 
+     *
      * @param client the instance of the service client containing this operation class.
      */
     PropertiesImpl(NumericClientImpl client) {
@@ -50,21 +51,75 @@ public final class PropertiesImpl {
     }
 
     /**
+     * The safeintAsString operation.
+     *
+     * @param value The value parameter.
+     * @param requestContext The context to configure the HTTP request before HTTP client sends it.
+     * @throws IllegalArgumentException thrown if parameters fail the validation.
+     * @throws HttpResponseException thrown if the service returns an error.
+     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
+     * @return the response body along with {@link Response}.
+     */
+    @ServiceMethod(returns = ReturnType.SINGLE)
+    public Response<SafeintAsStringProperty> safeintAsStringWithResponse(SafeintAsStringProperty value,
+        RequestContext requestContext) {
+        return this.instrumentation.instrumentWithResponse("Encode.Numeric.Property.safeintAsString", requestContext,
+            updatedContext -> {
+                final String contentType = "application/json";
+                final String accept = "application/json";
+                return service.safeintAsString(this.client.getEndpoint(), contentType, accept, value, updatedContext);
+            });
+    }
+
+    /**
+     * The uint32AsStringOptional operation.
+     *
+     * @param value The value parameter.
+     * @param requestContext The context to configure the HTTP request before HTTP client sends it.
+     * @throws IllegalArgumentException thrown if parameters fail the validation.
+     * @throws HttpResponseException thrown if the service returns an error.
+     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
+     * @return the response body along with {@link Response}.
+     */
+    @ServiceMethod(returns = ReturnType.SINGLE)
+    public Response<Uint32AsStringProperty> uint32AsStringOptionalWithResponse(Uint32AsStringProperty value,
+        RequestContext requestContext) {
+        return this.instrumentation.instrumentWithResponse("Encode.Numeric.Property.uint32AsStringOptional",
+            requestContext, updatedContext -> {
+                final String contentType = "application/json";
+                final String accept = "application/json";
+                return service.uint32AsStringOptional(this.client.getEndpoint(), contentType, accept, value,
+                    updatedContext);
+            });
+    }
+
+    /**
+     * The uint8AsString operation.
+     *
+     * @param value The value parameter.
+     * @param requestContext The context to configure the HTTP request before HTTP client sends it.
+     * @throws IllegalArgumentException thrown if parameters fail the validation.
+     * @throws HttpResponseException thrown if the service returns an error.
+     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
+     * @return the response body along with {@link Response}.
+     */
+    @ServiceMethod(returns = ReturnType.SINGLE)
+    public Response<Uint8AsStringProperty> uint8AsStringWithResponse(Uint8AsStringProperty value,
+        RequestContext requestContext) {
+        return this.instrumentation.instrumentWithResponse("Encode.Numeric.Property.uint8AsString", requestContext,
+            updatedContext -> {
+                final String contentType = "application/json";
+                final String accept = "application/json";
+                return service.uint8AsString(this.client.getEndpoint(), contentType, accept, value, updatedContext);
+            });
+    }
+
+    /**
      * The interface defining all the services for NumericClientProperties to be used by the proxy service to perform
      * REST calls.
      */
     @ServiceInterface(name = "NumericClientProperties", host = "{endpoint}")
     public interface PropertiesService {
-        static PropertiesService getNewInstance(HttpPipeline pipeline) {
-            try {
-                Class<?> clazz = Class.forName("encode.numeric.implementation.PropertiesServiceImpl");
-                return (PropertiesService) clazz.getMethod("getNewInstance", HttpPipeline.class).invoke(null, pipeline);
-            } catch (ClassNotFoundException | NoSuchMethodException | IllegalAccessException
-                | InvocationTargetException e) {
-                throw new RuntimeException(e);
-            }
-
-        }
 
         @HttpRequestInformation(
             method = HttpMethod.POST,
@@ -92,69 +147,15 @@ public final class PropertiesImpl {
         Response<Uint8AsStringProperty> uint8AsString(@HostParam("endpoint") String endpoint,
             @HeaderParam("Content-Type") String contentType, @HeaderParam("Accept") String accept,
             @BodyParam("application/json") Uint8AsStringProperty value, RequestContext requestContext);
-    }
 
-    /**
-     * The safeintAsString operation.
-     * 
-     * @param value The value parameter.
-     * @param requestContext The context to configure the HTTP request before HTTP client sends it.
-     * @throws IllegalArgumentException thrown if parameters fail the validation.
-     * @throws HttpResponseException thrown if the service returns an error.
-     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
-     * @return the response body along with {@link Response}.
-     */
-    @ServiceMethod(returns = ReturnType.SINGLE)
-    public Response<SafeintAsStringProperty> safeintAsStringWithResponse(SafeintAsStringProperty value,
-        RequestContext requestContext) {
-        return this.instrumentation.instrumentWithResponse("Encode.Numeric.Property.safeintAsString", requestContext,
-            updatedContext -> {
-                final String contentType = "application/json";
-                final String accept = "application/json";
-                return service.safeintAsString(this.client.getEndpoint(), contentType, accept, value, updatedContext);
-            });
-    }
-
-    /**
-     * The uint32AsStringOptional operation.
-     * 
-     * @param value The value parameter.
-     * @param requestContext The context to configure the HTTP request before HTTP client sends it.
-     * @throws IllegalArgumentException thrown if parameters fail the validation.
-     * @throws HttpResponseException thrown if the service returns an error.
-     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
-     * @return the response body along with {@link Response}.
-     */
-    @ServiceMethod(returns = ReturnType.SINGLE)
-    public Response<Uint32AsStringProperty> uint32AsStringOptionalWithResponse(Uint32AsStringProperty value,
-        RequestContext requestContext) {
-        return this.instrumentation.instrumentWithResponse("Encode.Numeric.Property.uint32AsStringOptional",
-            requestContext, updatedContext -> {
-                final String contentType = "application/json";
-                final String accept = "application/json";
-                return service.uint32AsStringOptional(this.client.getEndpoint(), contentType, accept, value,
-                    updatedContext);
-            });
-    }
-
-    /**
-     * The uint8AsString operation.
-     * 
-     * @param value The value parameter.
-     * @param requestContext The context to configure the HTTP request before HTTP client sends it.
-     * @throws IllegalArgumentException thrown if parameters fail the validation.
-     * @throws HttpResponseException thrown if the service returns an error.
-     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
-     * @return the response body along with {@link Response}.
-     */
-    @ServiceMethod(returns = ReturnType.SINGLE)
-    public Response<Uint8AsStringProperty> uint8AsStringWithResponse(Uint8AsStringProperty value,
-        RequestContext requestContext) {
-        return this.instrumentation.instrumentWithResponse("Encode.Numeric.Property.uint8AsString", requestContext,
-            updatedContext -> {
-                final String contentType = "application/json";
-                final String accept = "application/json";
-                return service.uint8AsString(this.client.getEndpoint(), contentType, accept, value, updatedContext);
-            });
+        static PropertiesService getNewInstance(HttpPipeline pipeline) {
+            try {
+                Class<?> clazz = Class.forName("encode.numeric.implementation.PropertiesServiceImpl");
+                return (PropertiesService) clazz.getMethod("getNewInstance", HttpPipeline.class).invoke(null, pipeline);
+            } catch (ClassNotFoundException | NoSuchMethodException | IllegalAccessException
+                | InvocationTargetException e) {
+                throw new RuntimeException(e);
+            }
+        }
     }
 }

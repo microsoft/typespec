@@ -18,14 +18,15 @@ import payload.contentnegotiation.implementation.DifferentBodiesImpl;
  */
 @ServiceClient(builder = ContentNegotiationClientBuilder.class)
 public final class DifferentBodyClient {
-    @Metadata(properties = { MetadataProperties.GENERATED })
-    private final DifferentBodiesImpl serviceClient;
 
     private final Instrumentation instrumentation;
 
+    @Metadata(properties = { MetadataProperties.GENERATED })
+    private final DifferentBodiesImpl serviceClient;
+
     /**
      * Initializes an instance of DifferentBodyClient class.
-     * 
+     *
      * @param serviceClient the service client implementation.
      * @param instrumentation the instrumentation instance.
      */
@@ -36,37 +37,21 @@ public final class DifferentBodyClient {
     }
 
     /**
-     * The getAvatarAsPng operation.
-     * 
-     * @param requestContext The context to configure the HTTP request before HTTP client sends it.
-     * @throws IllegalArgumentException thrown if parameters fail the validation.
-     * @throws HttpResponseException thrown if the service returns an error.
-     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
-     * @return the response body along with {@link Response}.
-     */
-    @Metadata(properties = { MetadataProperties.GENERATED })
-    @ServiceMethod(returns = ReturnType.SINGLE)
-    public Response<BinaryData> getAvatarAsPngWithResponse(RequestContext requestContext) {
-        return this.instrumentation.instrumentWithResponse("Payload.ContentNegotiation.DifferentBody.getAvatarAsPng",
-            requestContext, updatedContext -> this.serviceClient.getAvatarAsPngWithResponse(updatedContext));
-    }
-
-    /**
-     * The getAvatarAsPng operation.
-     * 
+     * The getAvatarAsJson operation.
+     *
      * @throws HttpResponseException thrown if the service returns an error.
      * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
      * @return the response.
      */
     @Metadata(properties = { MetadataProperties.GENERATED })
     @ServiceMethod(returns = ReturnType.SINGLE)
-    public BinaryData getAvatarAsPng() {
-        return getAvatarAsPngWithResponse(RequestContext.none()).getValue();
+    public PngImageAsJson getAvatarAsJson() {
+        return getAvatarAsJsonWithResponse(RequestContext.none()).getValue();
     }
 
     /**
      * The getAvatarAsJson operation.
-     * 
+     *
      * @param requestContext The context to configure the HTTP request before HTTP client sends it.
      * @throws IllegalArgumentException thrown if parameters fail the validation.
      * @throws HttpResponseException thrown if the service returns an error.
@@ -81,15 +66,31 @@ public final class DifferentBodyClient {
     }
 
     /**
-     * The getAvatarAsJson operation.
-     * 
+     * The getAvatarAsPng operation.
+     *
      * @throws HttpResponseException thrown if the service returns an error.
      * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
      * @return the response.
      */
     @Metadata(properties = { MetadataProperties.GENERATED })
     @ServiceMethod(returns = ReturnType.SINGLE)
-    public PngImageAsJson getAvatarAsJson() {
-        return getAvatarAsJsonWithResponse(RequestContext.none()).getValue();
+    public BinaryData getAvatarAsPng() {
+        return getAvatarAsPngWithResponse(RequestContext.none()).getValue();
+    }
+
+    /**
+     * The getAvatarAsPng operation.
+     *
+     * @param requestContext The context to configure the HTTP request before HTTP client sends it.
+     * @throws IllegalArgumentException thrown if parameters fail the validation.
+     * @throws HttpResponseException thrown if the service returns an error.
+     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
+     * @return the response body along with {@link Response}.
+     */
+    @Metadata(properties = { MetadataProperties.GENERATED })
+    @ServiceMethod(returns = ReturnType.SINGLE)
+    public Response<BinaryData> getAvatarAsPngWithResponse(RequestContext requestContext) {
+        return this.instrumentation.instrumentWithResponse("Payload.ContentNegotiation.DifferentBody.getAvatarAsPng",
+            requestContext, updatedContext -> this.serviceClient.getAvatarAsPngWithResponse(updatedContext));
     }
 }

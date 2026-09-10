@@ -16,14 +16,15 @@ import type.property.nullable.implementation.BytesImpl;
  */
 @ServiceClient(builder = NullableClientBuilder.class)
 public final class BytesClient {
-    @Metadata(properties = { MetadataProperties.GENERATED })
-    private final BytesImpl serviceClient;
 
     private final Instrumentation instrumentation;
 
+    @Metadata(properties = { MetadataProperties.GENERATED })
+    private final BytesImpl serviceClient;
+
     /**
      * Initializes an instance of BytesClient class.
-     * 
+     *
      * @param serviceClient the service client implementation.
      * @param instrumentation the instrumentation instance.
      */
@@ -35,7 +36,20 @@ public final class BytesClient {
 
     /**
      * Get models that will return all properties in the model.
-     * 
+     *
+     * @throws HttpResponseException thrown if the service returns an error.
+     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
+     * @return models that will return all properties in the model.
+     */
+    @Metadata(properties = { MetadataProperties.GENERATED })
+    @ServiceMethod(returns = ReturnType.SINGLE)
+    public BytesProperty getNonNull() {
+        return getNonNullWithResponse(RequestContext.none()).getValue();
+    }
+
+    /**
+     * Get models that will return all properties in the model.
+     *
      * @param requestContext The context to configure the HTTP request before HTTP client sends it.
      * @throws IllegalArgumentException thrown if parameters fail the validation.
      * @throws HttpResponseException thrown if the service returns an error.
@@ -50,21 +64,21 @@ public final class BytesClient {
     }
 
     /**
-     * Get models that will return all properties in the model.
-     * 
+     * Get models that will return the default object.
+     *
      * @throws HttpResponseException thrown if the service returns an error.
      * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
-     * @return models that will return all properties in the model.
+     * @return models that will return the default object.
      */
     @Metadata(properties = { MetadataProperties.GENERATED })
     @ServiceMethod(returns = ReturnType.SINGLE)
-    public BytesProperty getNonNull() {
-        return getNonNullWithResponse(RequestContext.none()).getValue();
+    public BytesProperty getNull() {
+        return getNullWithResponse(RequestContext.none()).getValue();
     }
 
     /**
      * Get models that will return the default object.
-     * 
+     *
      * @param requestContext The context to configure the HTTP request before HTTP client sends it.
      * @throws IllegalArgumentException thrown if parameters fail the validation.
      * @throws HttpResponseException thrown if the service returns an error.
@@ -79,21 +93,22 @@ public final class BytesClient {
     }
 
     /**
-     * Get models that will return the default object.
-     * 
+     * Put a body with all properties present.
+     *
+     * @param body The body parameter.
+     * @throws IllegalArgumentException thrown if parameters fail the validation.
      * @throws HttpResponseException thrown if the service returns an error.
      * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
-     * @return models that will return the default object.
      */
     @Metadata(properties = { MetadataProperties.GENERATED })
     @ServiceMethod(returns = ReturnType.SINGLE)
-    public BytesProperty getNull() {
-        return getNullWithResponse(RequestContext.none()).getValue();
+    public void patchNonNull(BytesProperty body) {
+        patchNonNullWithResponse(body, RequestContext.none());
     }
 
     /**
      * Put a body with all properties present.
-     * 
+     *
      * @param body The body parameter.
      * @param requestContext The context to configure the HTTP request before HTTP client sends it.
      * @throws IllegalArgumentException thrown if parameters fail the validation.
@@ -109,8 +124,8 @@ public final class BytesClient {
     }
 
     /**
-     * Put a body with all properties present.
-     * 
+     * Put a body with default properties.
+     *
      * @param body The body parameter.
      * @throws IllegalArgumentException thrown if parameters fail the validation.
      * @throws HttpResponseException thrown if the service returns an error.
@@ -118,13 +133,13 @@ public final class BytesClient {
      */
     @Metadata(properties = { MetadataProperties.GENERATED })
     @ServiceMethod(returns = ReturnType.SINGLE)
-    public void patchNonNull(BytesProperty body) {
-        patchNonNullWithResponse(body, RequestContext.none());
+    public void patchNull(BytesProperty body) {
+        patchNullWithResponse(body, RequestContext.none());
     }
 
     /**
      * Put a body with default properties.
-     * 
+     *
      * @param body The body parameter.
      * @param requestContext The context to configure the HTTP request before HTTP client sends it.
      * @throws IllegalArgumentException thrown if parameters fail the validation.
@@ -137,19 +152,5 @@ public final class BytesClient {
     public Response<Void> patchNullWithResponse(BytesProperty body, RequestContext requestContext) {
         return this.instrumentation.instrumentWithResponse("Type.Property.Nullable.Bytes.patchNull", requestContext,
             updatedContext -> this.serviceClient.patchNullWithResponse(body, updatedContext));
-    }
-
-    /**
-     * Put a body with default properties.
-     * 
-     * @param body The body parameter.
-     * @throws IllegalArgumentException thrown if parameters fail the validation.
-     * @throws HttpResponseException thrown if the service returns an error.
-     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
-     */
-    @Metadata(properties = { MetadataProperties.GENERATED })
-    @ServiceMethod(returns = ReturnType.SINGLE)
-    public void patchNull(BytesProperty body) {
-        patchNullWithResponse(body, RequestContext.none());
     }
 }

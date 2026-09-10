@@ -21,10 +21,6 @@ import payload.multipart.formdata.httpparts.nonstring.FloatRequest;
  * An instance of this class provides access to all the operations defined in FormDataHttpPartsNonStrings.
  */
 public final class FormDataHttpPartsNonStringsImpl {
-    /**
-     * The proxy service used to perform REST calls.
-     */
-    private final FormDataHttpPartsNonStringsService service;
 
     /**
      * The service client containing this operation class.
@@ -37,8 +33,13 @@ public final class FormDataHttpPartsNonStringsImpl {
     private final Instrumentation instrumentation;
 
     /**
+     * The proxy service used to perform REST calls.
+     */
+    private final FormDataHttpPartsNonStringsService service;
+
+    /**
      * Initializes an instance of FormDataHttpPartsNonStringsImpl.
-     * 
+     *
      * @param client the instance of the service client containing this operation class.
      */
     FormDataHttpPartsNonStringsImpl(MultiPartClientImpl client) {
@@ -48,38 +49,8 @@ public final class FormDataHttpPartsNonStringsImpl {
     }
 
     /**
-     * The interface defining all the services for MultiPartClientFormDataHttpPartsNonStrings to be used by the proxy
-     * service to perform REST calls.
-     */
-    @ServiceInterface(name = "MultiPartClientFormDataHttpPartsNonStrings", host = "{endpoint}")
-    public interface FormDataHttpPartsNonStringsService {
-        static FormDataHttpPartsNonStringsService getNewInstance(HttpPipeline pipeline) {
-            try {
-                Class<?> clazz
-                    = Class.forName("payload.multipart.implementation.FormDataHttpPartsNonStringsServiceImpl");
-                return (FormDataHttpPartsNonStringsService) clazz.getMethod("getNewInstance", HttpPipeline.class)
-                    .invoke(null, pipeline);
-            } catch (ClassNotFoundException | NoSuchMethodException | IllegalAccessException
-                | InvocationTargetException e) {
-                throw new RuntimeException(e);
-            }
-
-        }
-
-        // @Multipart not supported by RestProxy
-        @HttpRequestInformation(
-            method = HttpMethod.POST,
-            path = "/multipart/form-data/non-string-float",
-            expectedStatusCodes = { 204 })
-        @UnexpectedResponseExceptionDetail
-        Response<Void> floatMethod(@HostParam("endpoint") String endpoint,
-            @HeaderParam("content-type") String contentType, @BodyParam("multipart/form-data") FloatRequest body,
-            RequestContext requestContext);
-    }
-
-    /**
      * Test content-type: multipart/form-data for non string.
-     * 
+     *
      * @param body The body parameter.
      * @param requestContext The context to configure the HTTP request before HTTP client sends it.
      * @throws IllegalArgumentException thrown if parameters fail the validation.
@@ -94,5 +65,35 @@ public final class FormDataHttpPartsNonStringsImpl {
                 final String contentType = "multipart/form-data";
                 return service.floatMethod(this.client.getEndpoint(), contentType, body, updatedContext);
             });
+    }
+
+    /**
+     * The interface defining all the services for MultiPartClientFormDataHttpPartsNonStrings to be used by the proxy
+     * service to perform REST calls.
+     */
+    @ServiceInterface(name = "MultiPartClientFormDataHttpPartsNonStrings", host = "{endpoint}")
+    public interface FormDataHttpPartsNonStringsService {
+
+        // @Multipart not supported by RestProxy
+        @HttpRequestInformation(
+            method = HttpMethod.POST,
+            path = "/multipart/form-data/non-string-float",
+            expectedStatusCodes = { 204 })
+        @UnexpectedResponseExceptionDetail
+        Response<Void> floatMethod(@HostParam("endpoint") String endpoint,
+            @HeaderParam("content-type") String contentType, @BodyParam("multipart/form-data") FloatRequest body,
+            RequestContext requestContext);
+
+        static FormDataHttpPartsNonStringsService getNewInstance(HttpPipeline pipeline) {
+            try {
+                Class<?> clazz
+                    = Class.forName("payload.multipart.implementation.FormDataHttpPartsNonStringsServiceImpl");
+                return (FormDataHttpPartsNonStringsService) clazz.getMethod("getNewInstance", HttpPipeline.class)
+                    .invoke(null, pipeline);
+            } catch (ClassNotFoundException | NoSuchMethodException | IllegalAccessException
+                | InvocationTargetException e) {
+                throw new RuntimeException(e);
+            }
+        }
     }
 }

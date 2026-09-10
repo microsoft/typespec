@@ -25,10 +25,8 @@ import payload.pageable.XmlPet;
  * An instance of this class provides access to all the operations defined in XmlPaginations.
  */
 public final class XmlPaginationsImpl {
-    /**
-     * The proxy service used to perform REST calls.
-     */
-    private final XmlPaginationsService service;
+
+    private static final ClientLogger LOGGER = new ClientLogger(XmlPaginationsImpl.class);
 
     /**
      * The service client containing this operation class.
@@ -41,8 +39,13 @@ public final class XmlPaginationsImpl {
     private final Instrumentation instrumentation;
 
     /**
+     * The proxy service used to perform REST calls.
+     */
+    private final XmlPaginationsService service;
+
+    /**
      * Initializes an instance of XmlPaginationsImpl.
-     * 
+     *
      * @param client the instance of the service client containing this operation class.
      */
     XmlPaginationsImpl(PageableClientImpl client) {
@@ -52,96 +55,8 @@ public final class XmlPaginationsImpl {
     }
 
     /**
-     * The interface defining all the services for PageableClientXmlPaginations to be used by the proxy service to
-     * perform REST calls.
-     */
-    @ServiceInterface(name = "PageableClientXmlPaginations", host = "{endpoint}")
-    public interface XmlPaginationsService {
-        static XmlPaginationsService getNewInstance(HttpPipeline pipeline) {
-            try {
-                Class<?> clazz = Class.forName("payload.pageable.implementation.XmlPaginationsServiceImpl");
-                return (XmlPaginationsService) clazz.getMethod("getNewInstance", HttpPipeline.class)
-                    .invoke(null, pipeline);
-            } catch (ClassNotFoundException | NoSuchMethodException | IllegalAccessException
-                | InvocationTargetException e) {
-                throw new RuntimeException(e);
-            }
-
-        }
-
-        @HttpRequestInformation(
-            method = HttpMethod.GET,
-            path = "/payload/pageable/xml/list-with-continuation",
-            expectedStatusCodes = { 200 })
-        @UnexpectedResponseExceptionDetail
-        Response<XmlPetListResult> listWithContinuation(@HostParam("endpoint") String endpoint,
-            @QueryParam("marker") String marker, @HeaderParam("Accept") String accept, RequestContext requestContext);
-
-        @HttpRequestInformation(
-            method = HttpMethod.GET,
-            path = "/payload/pageable/xml/list-with-next-link",
-            expectedStatusCodes = { 200 })
-        @UnexpectedResponseExceptionDetail
-        Response<XmlPetListResultWithNextLink> listWithNextLink(@HostParam("endpoint") String endpoint,
-            @HeaderParam("Accept") String accept, RequestContext requestContext);
-
-        @HttpRequestInformation(method = HttpMethod.GET, path = "{nextLink}", expectedStatusCodes = { 200 })
-        @UnexpectedResponseExceptionDetail
-        Response<XmlPetListResultWithNextLink> listWithNextLinkNext(
-            @PathParam(value = "nextLink", encoded = true) String nextLink, @HostParam("endpoint") String endpoint,
-            @HeaderParam("Accept") String accept, RequestContext requestContext);
-    }
-
-    /**
      * The listWithContinuation operation.
-     * 
-     * @param marker The marker parameter.
-     * @throws IllegalArgumentException thrown if parameters fail the validation.
-     * @throws HttpResponseException thrown if the service returns an error.
-     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
-     * @return the XML response for listing pets along with {@link PagedResponse}.
-     */
-    @ServiceMethod(returns = ReturnType.SINGLE)
-    public PagedResponse<XmlPet> listWithContinuationSinglePage(String marker) {
-        return this.instrumentation.instrumentWithResponse("Payload.Pageable.XmlPagination.listWithContinuation",
-            RequestContext.none(), updatedContext -> {
-                final String accept = "application/xml";
-                Response<XmlPetListResult> res
-                    = service.listWithContinuation(this.client.getEndpoint(), marker, accept, updatedContext);
-                return new PagedResponse<>(res.getRequest(), res.getStatusCode(), res.getHeaders(),
-                    res.getValue().getPets(),
-                    res.getValue().getNextMarker() != null ? res.getValue().getNextMarker() : null, null, null, null,
-                    null);
-            });
-    }
-
-    /**
-     * The listWithContinuation operation.
-     * 
-     * @param marker The marker parameter.
-     * @param requestContext The context to configure the HTTP request before HTTP client sends it.
-     * @throws IllegalArgumentException thrown if parameters fail the validation.
-     * @throws HttpResponseException thrown if the service returns an error.
-     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
-     * @return the XML response for listing pets along with {@link PagedResponse}.
-     */
-    @ServiceMethod(returns = ReturnType.SINGLE)
-    public PagedResponse<XmlPet> listWithContinuationSinglePage(String marker, RequestContext requestContext) {
-        return this.instrumentation.instrumentWithResponse("Payload.Pageable.XmlPagination.listWithContinuation",
-            requestContext, updatedContext -> {
-                final String accept = "application/xml";
-                Response<XmlPetListResult> res
-                    = service.listWithContinuation(this.client.getEndpoint(), marker, accept, updatedContext);
-                return new PagedResponse<>(res.getRequest(), res.getStatusCode(), res.getHeaders(),
-                    res.getValue().getPets(),
-                    res.getValue().getNextMarker() != null ? res.getValue().getNextMarker() : null, null, null, null,
-                    null);
-            });
-    }
-
-    /**
-     * The listWithContinuation operation.
-     * 
+     *
      * @param marker The marker parameter.
      * @throws HttpResponseException thrown if the service returns an error.
      * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
@@ -175,7 +90,7 @@ public final class XmlPaginationsImpl {
 
     /**
      * The listWithContinuation operation.
-     * 
+     *
      * @param marker The marker parameter.
      * @param requestContext The context to configure the HTTP request before HTTP client sends it.
      * @throws IllegalArgumentException thrown if parameters fail the validation.
@@ -210,50 +125,55 @@ public final class XmlPaginationsImpl {
     }
 
     /**
-     * The listWithNextLink operation.
-     * 
+     * The listWithContinuation operation.
+     *
+     * @param marker The marker parameter.
+     * @throws IllegalArgumentException thrown if parameters fail the validation.
      * @throws HttpResponseException thrown if the service returns an error.
      * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
-     * @return the XML response for listing pets with next link along with {@link PagedResponse}.
+     * @return the XML response for listing pets along with {@link PagedResponse}.
      */
     @ServiceMethod(returns = ReturnType.SINGLE)
-    public PagedResponse<XmlPet> listWithNextLinkSinglePage() {
-        return this.instrumentation.instrumentWithResponse("Payload.Pageable.XmlPagination.listWithNextLink",
+    public PagedResponse<XmlPet> listWithContinuationSinglePage(String marker) {
+        return this.instrumentation.instrumentWithResponse("Payload.Pageable.XmlPagination.listWithContinuation",
             RequestContext.none(), updatedContext -> {
                 final String accept = "application/xml";
-                Response<XmlPetListResultWithNextLink> res
-                    = service.listWithNextLink(this.client.getEndpoint(), accept, updatedContext);
+                Response<XmlPetListResult> res
+                    = service.listWithContinuation(this.client.getEndpoint(), marker, accept, updatedContext);
                 return new PagedResponse<>(res.getRequest(), res.getStatusCode(), res.getHeaders(),
-                    res.getValue().getPets(), null,
-                    res.getValue().getNextLink() != null ? res.getValue().getNextLink() : null, null, null, null);
+                    res.getValue().getPets(),
+                    res.getValue().getNextMarker() != null ? res.getValue().getNextMarker() : null, null, null, null,
+                    null);
             });
     }
 
     /**
-     * The listWithNextLink operation.
-     * 
+     * The listWithContinuation operation.
+     *
+     * @param marker The marker parameter.
      * @param requestContext The context to configure the HTTP request before HTTP client sends it.
      * @throws IllegalArgumentException thrown if parameters fail the validation.
      * @throws HttpResponseException thrown if the service returns an error.
      * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
-     * @return the XML response for listing pets with next link along with {@link PagedResponse}.
+     * @return the XML response for listing pets along with {@link PagedResponse}.
      */
     @ServiceMethod(returns = ReturnType.SINGLE)
-    public PagedResponse<XmlPet> listWithNextLinkSinglePage(RequestContext requestContext) {
-        return this.instrumentation.instrumentWithResponse("Payload.Pageable.XmlPagination.listWithNextLink",
+    public PagedResponse<XmlPet> listWithContinuationSinglePage(String marker, RequestContext requestContext) {
+        return this.instrumentation.instrumentWithResponse("Payload.Pageable.XmlPagination.listWithContinuation",
             requestContext, updatedContext -> {
                 final String accept = "application/xml";
-                Response<XmlPetListResultWithNextLink> res
-                    = service.listWithNextLink(this.client.getEndpoint(), accept, updatedContext);
+                Response<XmlPetListResult> res
+                    = service.listWithContinuation(this.client.getEndpoint(), marker, accept, updatedContext);
                 return new PagedResponse<>(res.getRequest(), res.getStatusCode(), res.getHeaders(),
-                    res.getValue().getPets(), null,
-                    res.getValue().getNextLink() != null ? res.getValue().getNextLink() : null, null, null, null);
+                    res.getValue().getPets(),
+                    res.getValue().getNextMarker() != null ? res.getValue().getNextMarker() : null, null, null, null,
+                    null);
             });
     }
 
     /**
      * The listWithNextLink operation.
-     * 
+     *
      * @param requestContext The context to configure the HTTP request before HTTP client sends it.
      * @throws IllegalArgumentException thrown if parameters fail the validation.
      * @throws HttpResponseException thrown if the service returns an error.
@@ -294,7 +214,7 @@ public final class XmlPaginationsImpl {
 
     /**
      * Get the next page of items.
-     * 
+     *
      * @param nextLink The URL to get the next list of items.
      * @throws IllegalArgumentException thrown if parameters fail the validation.
      * @throws HttpResponseException thrown if the service returns an error.
@@ -316,7 +236,7 @@ public final class XmlPaginationsImpl {
 
     /**
      * Get the next page of items.
-     * 
+     *
      * @param nextLink The URL to get the next list of items.
      * @param requestContext The context to configure the HTTP request before HTTP client sends it.
      * @throws IllegalArgumentException thrown if parameters fail the validation.
@@ -337,5 +257,86 @@ public final class XmlPaginationsImpl {
             });
     }
 
-    private static final ClientLogger LOGGER = new ClientLogger(XmlPaginationsImpl.class);
+    /**
+     * The listWithNextLink operation.
+     *
+     * @throws HttpResponseException thrown if the service returns an error.
+     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
+     * @return the XML response for listing pets with next link along with {@link PagedResponse}.
+     */
+    @ServiceMethod(returns = ReturnType.SINGLE)
+    public PagedResponse<XmlPet> listWithNextLinkSinglePage() {
+        return this.instrumentation.instrumentWithResponse("Payload.Pageable.XmlPagination.listWithNextLink",
+            RequestContext.none(), updatedContext -> {
+                final String accept = "application/xml";
+                Response<XmlPetListResultWithNextLink> res
+                    = service.listWithNextLink(this.client.getEndpoint(), accept, updatedContext);
+                return new PagedResponse<>(res.getRequest(), res.getStatusCode(), res.getHeaders(),
+                    res.getValue().getPets(), null,
+                    res.getValue().getNextLink() != null ? res.getValue().getNextLink() : null, null, null, null);
+            });
+    }
+
+    /**
+     * The listWithNextLink operation.
+     *
+     * @param requestContext The context to configure the HTTP request before HTTP client sends it.
+     * @throws IllegalArgumentException thrown if parameters fail the validation.
+     * @throws HttpResponseException thrown if the service returns an error.
+     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
+     * @return the XML response for listing pets with next link along with {@link PagedResponse}.
+     */
+    @ServiceMethod(returns = ReturnType.SINGLE)
+    public PagedResponse<XmlPet> listWithNextLinkSinglePage(RequestContext requestContext) {
+        return this.instrumentation.instrumentWithResponse("Payload.Pageable.XmlPagination.listWithNextLink",
+            requestContext, updatedContext -> {
+                final String accept = "application/xml";
+                Response<XmlPetListResultWithNextLink> res
+                    = service.listWithNextLink(this.client.getEndpoint(), accept, updatedContext);
+                return new PagedResponse<>(res.getRequest(), res.getStatusCode(), res.getHeaders(),
+                    res.getValue().getPets(), null,
+                    res.getValue().getNextLink() != null ? res.getValue().getNextLink() : null, null, null, null);
+            });
+    }
+
+    /**
+     * The interface defining all the services for PageableClientXmlPaginations to be used by the proxy service to
+     * perform REST calls.
+     */
+    @ServiceInterface(name = "PageableClientXmlPaginations", host = "{endpoint}")
+    public interface XmlPaginationsService {
+
+        @HttpRequestInformation(
+            method = HttpMethod.GET,
+            path = "/payload/pageable/xml/list-with-continuation",
+            expectedStatusCodes = { 200 })
+        @UnexpectedResponseExceptionDetail
+        Response<XmlPetListResult> listWithContinuation(@HostParam("endpoint") String endpoint,
+            @QueryParam("marker") String marker, @HeaderParam("Accept") String accept, RequestContext requestContext);
+
+        @HttpRequestInformation(
+            method = HttpMethod.GET,
+            path = "/payload/pageable/xml/list-with-next-link",
+            expectedStatusCodes = { 200 })
+        @UnexpectedResponseExceptionDetail
+        Response<XmlPetListResultWithNextLink> listWithNextLink(@HostParam("endpoint") String endpoint,
+            @HeaderParam("Accept") String accept, RequestContext requestContext);
+
+        @HttpRequestInformation(method = HttpMethod.GET, path = "{nextLink}", expectedStatusCodes = { 200 })
+        @UnexpectedResponseExceptionDetail
+        Response<XmlPetListResultWithNextLink> listWithNextLinkNext(
+            @PathParam(value = "nextLink", encoded = true) String nextLink, @HostParam("endpoint") String endpoint,
+            @HeaderParam("Accept") String accept, RequestContext requestContext);
+
+        static XmlPaginationsService getNewInstance(HttpPipeline pipeline) {
+            try {
+                Class<?> clazz = Class.forName("payload.pageable.implementation.XmlPaginationsServiceImpl");
+                return (XmlPaginationsService) clazz.getMethod("getNewInstance", HttpPipeline.class)
+                    .invoke(null, pipeline);
+            } catch (ClassNotFoundException | NoSuchMethodException | IllegalAccessException
+                | InvocationTargetException e) {
+                throw new RuntimeException(e);
+            }
+        }
+    }
 }

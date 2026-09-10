@@ -24,10 +24,6 @@ import java.util.stream.Collectors;
  * An instance of this class provides access to all the operations defined in Queries.
  */
 public final class QueriesImpl {
-    /**
-     * The proxy service used to perform REST calls.
-     */
-    private final QueriesService service;
 
     /**
      * The service client containing this operation class.
@@ -40,8 +36,13 @@ public final class QueriesImpl {
     private final Instrumentation instrumentation;
 
     /**
+     * The proxy service used to perform REST calls.
+     */
+    private final QueriesService service;
+
+    /**
      * Initializes an instance of QueriesImpl.
-     * 
+     *
      * @param client the instance of the service client containing this operation class.
      */
     QueriesImpl(BytesClientImpl client) {
@@ -51,115 +52,8 @@ public final class QueriesImpl {
     }
 
     /**
-     * The interface defining all the services for BytesClientQueries to be used by the proxy service to perform REST
-     * calls.
-     */
-    @ServiceInterface(name = "BytesClientQueries", host = "{endpoint}")
-    public interface QueriesService {
-        static QueriesService getNewInstance(HttpPipeline pipeline) {
-            try {
-                Class<?> clazz = Class.forName("encode.bytes.implementation.QueriesServiceImpl");
-                return (QueriesService) clazz.getMethod("getNewInstance", HttpPipeline.class).invoke(null, pipeline);
-            } catch (ClassNotFoundException | NoSuchMethodException | IllegalAccessException
-                | InvocationTargetException e) {
-                throw new RuntimeException(e);
-            }
-
-        }
-
-        @HttpRequestInformation(
-            method = HttpMethod.GET,
-            path = "/encode/bytes/query/default",
-            expectedStatusCodes = { 204 })
-        @UnexpectedResponseExceptionDetail
-        Response<Void> defaultMethod(@HostParam("endpoint") String endpoint, @QueryParam("value") String value,
-            RequestContext requestContext);
-
-        @HttpRequestInformation(
-            method = HttpMethod.GET,
-            path = "/encode/bytes/query/base64",
-            expectedStatusCodes = { 204 })
-        @UnexpectedResponseExceptionDetail
-        Response<Void> base64(@HostParam("endpoint") String endpoint, @QueryParam("value") String value,
-            RequestContext requestContext);
-
-        @HttpRequestInformation(
-            method = HttpMethod.GET,
-            path = "/encode/bytes/query/base64url",
-            expectedStatusCodes = { 204 })
-        @UnexpectedResponseExceptionDetail
-        Response<Void> base64url(@HostParam("endpoint") String endpoint, @QueryParam("value") Base64Uri value,
-            RequestContext requestContext);
-
-        @HttpRequestInformation(
-            method = HttpMethod.GET,
-            path = "/encode/bytes/query/base64url-array",
-            expectedStatusCodes = { 204 })
-        @UnexpectedResponseExceptionDetail
-        Response<Void> base64urlArray(@HostParam("endpoint") String endpoint, @QueryParam("value") String value,
-            RequestContext requestContext);
-    }
-
-    /**
-     * The defaultMethod operation.
-     * 
-     * @param value The value parameter.
-     * @param requestContext The context to configure the HTTP request before HTTP client sends it.
-     * @throws IllegalArgumentException thrown if parameters fail the validation.
-     * @throws HttpResponseException thrown if the service returns an error.
-     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
-     * @return the {@link Response}.
-     */
-    @ServiceMethod(returns = ReturnType.SINGLE)
-    public Response<Void> defaultMethodWithResponse(byte[] value, RequestContext requestContext) {
-        return this.instrumentation.instrumentWithResponse("Encode.Bytes.Query.default", requestContext,
-            updatedContext -> {
-                String valueConverted = new String(Base64.getEncoder().encode(value));
-                return service.defaultMethod(this.client.getEndpoint(), valueConverted, updatedContext);
-            });
-    }
-
-    /**
-     * The base64 operation.
-     * 
-     * @param value The value parameter.
-     * @param requestContext The context to configure the HTTP request before HTTP client sends it.
-     * @throws IllegalArgumentException thrown if parameters fail the validation.
-     * @throws HttpResponseException thrown if the service returns an error.
-     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
-     * @return the {@link Response}.
-     */
-    @ServiceMethod(returns = ReturnType.SINGLE)
-    public Response<Void> base64WithResponse(byte[] value, RequestContext requestContext) {
-        return this.instrumentation.instrumentWithResponse("Encode.Bytes.Query.base64", requestContext,
-            updatedContext -> {
-                String valueConverted = new String(Base64.getEncoder().encode(value));
-                return service.base64(this.client.getEndpoint(), valueConverted, updatedContext);
-            });
-    }
-
-    /**
-     * The base64url operation.
-     * 
-     * @param value The value parameter.
-     * @param requestContext The context to configure the HTTP request before HTTP client sends it.
-     * @throws IllegalArgumentException thrown if parameters fail the validation.
-     * @throws HttpResponseException thrown if the service returns an error.
-     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
-     * @return the {@link Response}.
-     */
-    @ServiceMethod(returns = ReturnType.SINGLE)
-    public Response<Void> base64urlWithResponse(byte[] value, RequestContext requestContext) {
-        return this.instrumentation.instrumentWithResponse("Encode.Bytes.Query.base64url", requestContext,
-            updatedContext -> {
-                Base64Uri valueConverted = Base64Uri.encode(value);
-                return service.base64url(this.client.getEndpoint(), valueConverted, updatedContext);
-            });
-    }
-
-    /**
      * The base64urlArray operation.
-     * 
+     *
      * @param value The value parameter.
      * @param requestContext The context to configure the HTTP request before HTTP client sends it.
      * @throws IllegalArgumentException thrown if parameters fail the validation.
@@ -196,7 +90,6 @@ public final class QueriesImpl {
                                 if (itemValueString.charAt(endOffset) != '"') {
                                     break;
                                 }
-
                                 endOffset--;
                             }
                             return itemValueString.substring(startOffset, endOffset + 1);
@@ -205,5 +98,112 @@ public final class QueriesImpl {
                     .collect(Collectors.joining(","));
                 return service.base64urlArray(this.client.getEndpoint(), valueConverted, updatedContext);
             });
+    }
+
+    /**
+     * The base64url operation.
+     *
+     * @param value The value parameter.
+     * @param requestContext The context to configure the HTTP request before HTTP client sends it.
+     * @throws IllegalArgumentException thrown if parameters fail the validation.
+     * @throws HttpResponseException thrown if the service returns an error.
+     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
+     * @return the {@link Response}.
+     */
+    @ServiceMethod(returns = ReturnType.SINGLE)
+    public Response<Void> base64urlWithResponse(byte[] value, RequestContext requestContext) {
+        return this.instrumentation.instrumentWithResponse("Encode.Bytes.Query.base64url", requestContext,
+            updatedContext -> {
+                Base64Uri valueConverted = Base64Uri.encode(value);
+                return service.base64url(this.client.getEndpoint(), valueConverted, updatedContext);
+            });
+    }
+
+    /**
+     * The base64 operation.
+     *
+     * @param value The value parameter.
+     * @param requestContext The context to configure the HTTP request before HTTP client sends it.
+     * @throws IllegalArgumentException thrown if parameters fail the validation.
+     * @throws HttpResponseException thrown if the service returns an error.
+     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
+     * @return the {@link Response}.
+     */
+    @ServiceMethod(returns = ReturnType.SINGLE)
+    public Response<Void> base64WithResponse(byte[] value, RequestContext requestContext) {
+        return this.instrumentation.instrumentWithResponse("Encode.Bytes.Query.base64", requestContext,
+            updatedContext -> {
+                String valueConverted = new String(Base64.getEncoder().encode(value));
+                return service.base64(this.client.getEndpoint(), valueConverted, updatedContext);
+            });
+    }
+
+    /**
+     * The defaultMethod operation.
+     *
+     * @param value The value parameter.
+     * @param requestContext The context to configure the HTTP request before HTTP client sends it.
+     * @throws IllegalArgumentException thrown if parameters fail the validation.
+     * @throws HttpResponseException thrown if the service returns an error.
+     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
+     * @return the {@link Response}.
+     */
+    @ServiceMethod(returns = ReturnType.SINGLE)
+    public Response<Void> defaultMethodWithResponse(byte[] value, RequestContext requestContext) {
+        return this.instrumentation.instrumentWithResponse("Encode.Bytes.Query.default", requestContext,
+            updatedContext -> {
+                String valueConverted = new String(Base64.getEncoder().encode(value));
+                return service.defaultMethod(this.client.getEndpoint(), valueConverted, updatedContext);
+            });
+    }
+
+    /**
+     * The interface defining all the services for BytesClientQueries to be used by the proxy service to perform REST
+     * calls.
+     */
+    @ServiceInterface(name = "BytesClientQueries", host = "{endpoint}")
+    public interface QueriesService {
+
+        @HttpRequestInformation(
+            method = HttpMethod.GET,
+            path = "/encode/bytes/query/base64",
+            expectedStatusCodes = { 204 })
+        @UnexpectedResponseExceptionDetail
+        Response<Void> base64(@HostParam("endpoint") String endpoint, @QueryParam("value") String value,
+            RequestContext requestContext);
+
+        @HttpRequestInformation(
+            method = HttpMethod.GET,
+            path = "/encode/bytes/query/base64url",
+            expectedStatusCodes = { 204 })
+        @UnexpectedResponseExceptionDetail
+        Response<Void> base64url(@HostParam("endpoint") String endpoint, @QueryParam("value") Base64Uri value,
+            RequestContext requestContext);
+
+        @HttpRequestInformation(
+            method = HttpMethod.GET,
+            path = "/encode/bytes/query/base64url-array",
+            expectedStatusCodes = { 204 })
+        @UnexpectedResponseExceptionDetail
+        Response<Void> base64urlArray(@HostParam("endpoint") String endpoint, @QueryParam("value") String value,
+            RequestContext requestContext);
+
+        @HttpRequestInformation(
+            method = HttpMethod.GET,
+            path = "/encode/bytes/query/default",
+            expectedStatusCodes = { 204 })
+        @UnexpectedResponseExceptionDetail
+        Response<Void> defaultMethod(@HostParam("endpoint") String endpoint, @QueryParam("value") String value,
+            RequestContext requestContext);
+
+        static QueriesService getNewInstance(HttpPipeline pipeline) {
+            try {
+                Class<?> clazz = Class.forName("encode.bytes.implementation.QueriesServiceImpl");
+                return (QueriesService) clazz.getMethod("getNewInstance", HttpPipeline.class).invoke(null, pipeline);
+            } catch (ClassNotFoundException | NoSuchMethodException | IllegalAccessException
+                | InvocationTargetException e) {
+                throw new RuntimeException(e);
+            }
+        }
     }
 }

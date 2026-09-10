@@ -17,6 +17,7 @@ import java.util.stream.Collectors;
  */
 @Metadata(properties = { MetadataProperties.IMMUTABLE })
 public final class CommaDelimitedEnumArrayProperty implements JsonSerializable<CommaDelimitedEnumArrayProperty> {
+
     /*
      * The value property.
      */
@@ -25,7 +26,7 @@ public final class CommaDelimitedEnumArrayProperty implements JsonSerializable<C
 
     /**
      * Creates an instance of CommaDelimitedEnumArrayProperty class.
-     * 
+     *
      * @param value the value value to set.
      */
     @Metadata(properties = { MetadataProperties.GENERATED })
@@ -35,7 +36,7 @@ public final class CommaDelimitedEnumArrayProperty implements JsonSerializable<C
 
     /**
      * Get the value property: The value property.
-     * 
+     *
      * @return the value value.
      */
     @Metadata(properties = { MetadataProperties.GENERATED })
@@ -61,7 +62,7 @@ public final class CommaDelimitedEnumArrayProperty implements JsonSerializable<C
 
     /**
      * Reads an instance of CommaDelimitedEnumArrayProperty from the JsonReader.
-     * 
+     *
      * @param jsonReader The JsonReader being read.
      * @return An instance of CommaDelimitedEnumArrayProperty if the JsonReader was pointing to an instance of it, or
      * null if it was pointing to JSON null.
@@ -75,7 +76,6 @@ public final class CommaDelimitedEnumArrayProperty implements JsonSerializable<C
             while (reader.nextToken() != JsonToken.END_OBJECT) {
                 String fieldName = reader.getFieldName();
                 reader.nextToken();
-
                 if ("value".equals(fieldName)) {
                     value = reader.getNullable(nonNullReader -> {
                         String valueEncodedAsString = nonNullReader.getString();

@@ -21,10 +21,6 @@ import java.lang.reflect.InvocationTargetException;
  * An instance of this class provides access to all the operations defined in ResponseBodies.
  */
 public final class ResponseBodiesImpl {
-    /**
-     * The proxy service used to perform REST calls.
-     */
-    private final ResponseBodiesService service;
 
     /**
      * The service client containing this operation class.
@@ -37,8 +33,13 @@ public final class ResponseBodiesImpl {
     private final Instrumentation instrumentation;
 
     /**
+     * The proxy service used to perform REST calls.
+     */
+    private final ResponseBodiesService service;
+
+    /**
      * Initializes an instance of ResponseBodiesImpl.
-     * 
+     *
      * @param client the instance of the service client containing this operation class.
      */
     ResponseBodiesImpl(BytesClientImpl client) {
@@ -48,68 +49,62 @@ public final class ResponseBodiesImpl {
     }
 
     /**
-     * The interface defining all the services for BytesClientResponseBodies to be used by the proxy service to perform
-     * REST calls.
+     * The base64url operation.
+     *
+     * @param requestContext The context to configure the HTTP request before HTTP client sends it.
+     * @throws IllegalArgumentException thrown if parameters fail the validation.
+     * @throws HttpResponseException thrown if the service returns an error.
+     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
+     * @return the response body along with {@link Response}.
      */
-    @ServiceInterface(name = "BytesClientResponseBodies", host = "{endpoint}")
-    public interface ResponseBodiesService {
-        static ResponseBodiesService getNewInstance(HttpPipeline pipeline) {
-            try {
-                Class<?> clazz = Class.forName("encode.bytes.implementation.ResponseBodiesServiceImpl");
-                return (ResponseBodiesService) clazz.getMethod("getNewInstance", HttpPipeline.class)
-                    .invoke(null, pipeline);
-            } catch (ClassNotFoundException | NoSuchMethodException | IllegalAccessException
-                | InvocationTargetException e) {
-                throw new RuntimeException(e);
-            }
+    @ServiceMethod(returns = ReturnType.SINGLE)
+    public Response<byte[]> base64urlWithResponse(RequestContext requestContext) {
+        return this.instrumentation.instrumentWithResponse("Encode.Bytes.ResponseBody.base64url", requestContext,
+            updatedContext -> {
+                final String accept = "application/json";
+                return service.base64url(this.client.getEndpoint(), accept, updatedContext);
+            });
+    }
 
-        }
+    /**
+     * The base64 operation.
+     *
+     * @param requestContext The context to configure the HTTP request before HTTP client sends it.
+     * @throws IllegalArgumentException thrown if parameters fail the validation.
+     * @throws HttpResponseException thrown if the service returns an error.
+     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
+     * @return represent a byte array along with {@link Response}.
+     */
+    @ServiceMethod(returns = ReturnType.SINGLE)
+    public Response<byte[]> base64WithResponse(RequestContext requestContext) {
+        return this.instrumentation.instrumentWithResponse("Encode.Bytes.ResponseBody.base64", requestContext,
+            updatedContext -> {
+                final String accept = "application/json";
+                return service.base64(this.client.getEndpoint(), accept, updatedContext);
+            });
+    }
 
-        @HttpRequestInformation(
-            method = HttpMethod.GET,
-            path = "/encode/bytes/body/response/default",
-            expectedStatusCodes = { 200 })
-        @UnexpectedResponseExceptionDetail
-        Response<BinaryData> defaultMethod(@HostParam("endpoint") String endpoint, @HeaderParam("Accept") String accept,
-            RequestContext requestContext);
-
-        @HttpRequestInformation(
-            method = HttpMethod.GET,
-            path = "/encode/bytes/body/response/octet-stream",
-            expectedStatusCodes = { 200 })
-        @UnexpectedResponseExceptionDetail
-        Response<BinaryData> octetStream(@HostParam("endpoint") String endpoint, @HeaderParam("Accept") String accept,
-            RequestContext requestContext);
-
-        @HttpRequestInformation(
-            method = HttpMethod.GET,
-            path = "/encode/bytes/body/response/custom-content-type",
-            expectedStatusCodes = { 200 })
-        @UnexpectedResponseExceptionDetail
-        Response<BinaryData> customContentType(@HostParam("endpoint") String endpoint,
-            @HeaderParam("Accept") String accept, RequestContext requestContext);
-
-        @HttpRequestInformation(
-            method = HttpMethod.GET,
-            path = "/encode/bytes/body/response/base64",
-            expectedStatusCodes = { 200 })
-        @UnexpectedResponseExceptionDetail
-        Response<byte[]> base64(@HostParam("endpoint") String endpoint, @HeaderParam("Accept") String accept,
-            RequestContext requestContext);
-
-        @HttpRequestInformation(
-            method = HttpMethod.GET,
-            path = "/encode/bytes/body/response/base64url",
-            expectedStatusCodes = { 200 },
-            returnValueWireType = Base64Uri.class)
-        @UnexpectedResponseExceptionDetail
-        Response<byte[]> base64url(@HostParam("endpoint") String endpoint, @HeaderParam("Accept") String accept,
-            RequestContext requestContext);
+    /**
+     * The customContentType operation.
+     *
+     * @param requestContext The context to configure the HTTP request before HTTP client sends it.
+     * @throws IllegalArgumentException thrown if parameters fail the validation.
+     * @throws HttpResponseException thrown if the service returns an error.
+     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
+     * @return the response body along with {@link Response}.
+     */
+    @ServiceMethod(returns = ReturnType.SINGLE)
+    public Response<BinaryData> customContentTypeWithResponse(RequestContext requestContext) {
+        return this.instrumentation.instrumentWithResponse("Encode.Bytes.ResponseBody.customContentType",
+            requestContext, updatedContext -> {
+                final String accept = "image/png";
+                return service.customContentType(this.client.getEndpoint(), accept, updatedContext);
+            });
     }
 
     /**
      * The defaultMethod operation.
-     * 
+     *
      * @param requestContext The context to configure the HTTP request before HTTP client sends it.
      * @throws IllegalArgumentException thrown if parameters fail the validation.
      * @throws HttpResponseException thrown if the service returns an error.
@@ -127,7 +122,7 @@ public final class ResponseBodiesImpl {
 
     /**
      * The octetStream operation.
-     * 
+     *
      * @param requestContext The context to configure the HTTP request before HTTP client sends it.
      * @throws IllegalArgumentException thrown if parameters fail the validation.
      * @throws HttpResponseException thrown if the service returns an error.
@@ -144,56 +139,62 @@ public final class ResponseBodiesImpl {
     }
 
     /**
-     * The customContentType operation.
-     * 
-     * @param requestContext The context to configure the HTTP request before HTTP client sends it.
-     * @throws IllegalArgumentException thrown if parameters fail the validation.
-     * @throws HttpResponseException thrown if the service returns an error.
-     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
-     * @return the response body along with {@link Response}.
+     * The interface defining all the services for BytesClientResponseBodies to be used by the proxy service to perform
+     * REST calls.
      */
-    @ServiceMethod(returns = ReturnType.SINGLE)
-    public Response<BinaryData> customContentTypeWithResponse(RequestContext requestContext) {
-        return this.instrumentation.instrumentWithResponse("Encode.Bytes.ResponseBody.customContentType",
-            requestContext, updatedContext -> {
-                final String accept = "image/png";
-                return service.customContentType(this.client.getEndpoint(), accept, updatedContext);
-            });
-    }
+    @ServiceInterface(name = "BytesClientResponseBodies", host = "{endpoint}")
+    public interface ResponseBodiesService {
 
-    /**
-     * The base64 operation.
-     * 
-     * @param requestContext The context to configure the HTTP request before HTTP client sends it.
-     * @throws IllegalArgumentException thrown if parameters fail the validation.
-     * @throws HttpResponseException thrown if the service returns an error.
-     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
-     * @return represent a byte array along with {@link Response}.
-     */
-    @ServiceMethod(returns = ReturnType.SINGLE)
-    public Response<byte[]> base64WithResponse(RequestContext requestContext) {
-        return this.instrumentation.instrumentWithResponse("Encode.Bytes.ResponseBody.base64", requestContext,
-            updatedContext -> {
-                final String accept = "application/json";
-                return service.base64(this.client.getEndpoint(), accept, updatedContext);
-            });
-    }
+        @HttpRequestInformation(
+            method = HttpMethod.GET,
+            path = "/encode/bytes/body/response/base64",
+            expectedStatusCodes = { 200 })
+        @UnexpectedResponseExceptionDetail
+        Response<byte[]> base64(@HostParam("endpoint") String endpoint, @HeaderParam("Accept") String accept,
+            RequestContext requestContext);
 
-    /**
-     * The base64url operation.
-     * 
-     * @param requestContext The context to configure the HTTP request before HTTP client sends it.
-     * @throws IllegalArgumentException thrown if parameters fail the validation.
-     * @throws HttpResponseException thrown if the service returns an error.
-     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
-     * @return the response body along with {@link Response}.
-     */
-    @ServiceMethod(returns = ReturnType.SINGLE)
-    public Response<byte[]> base64urlWithResponse(RequestContext requestContext) {
-        return this.instrumentation.instrumentWithResponse("Encode.Bytes.ResponseBody.base64url", requestContext,
-            updatedContext -> {
-                final String accept = "application/json";
-                return service.base64url(this.client.getEndpoint(), accept, updatedContext);
-            });
+        @HttpRequestInformation(
+            method = HttpMethod.GET,
+            path = "/encode/bytes/body/response/base64url",
+            expectedStatusCodes = { 200 },
+            returnValueWireType = Base64Uri.class)
+        @UnexpectedResponseExceptionDetail
+        Response<byte[]> base64url(@HostParam("endpoint") String endpoint, @HeaderParam("Accept") String accept,
+            RequestContext requestContext);
+
+        @HttpRequestInformation(
+            method = HttpMethod.GET,
+            path = "/encode/bytes/body/response/custom-content-type",
+            expectedStatusCodes = { 200 })
+        @UnexpectedResponseExceptionDetail
+        Response<BinaryData> customContentType(@HostParam("endpoint") String endpoint,
+            @HeaderParam("Accept") String accept, RequestContext requestContext);
+
+        @HttpRequestInformation(
+            method = HttpMethod.GET,
+            path = "/encode/bytes/body/response/default",
+            expectedStatusCodes = { 200 })
+        @UnexpectedResponseExceptionDetail
+        Response<BinaryData> defaultMethod(@HostParam("endpoint") String endpoint, @HeaderParam("Accept") String accept,
+            RequestContext requestContext);
+
+        @HttpRequestInformation(
+            method = HttpMethod.GET,
+            path = "/encode/bytes/body/response/octet-stream",
+            expectedStatusCodes = { 200 })
+        @UnexpectedResponseExceptionDetail
+        Response<BinaryData> octetStream(@HostParam("endpoint") String endpoint, @HeaderParam("Accept") String accept,
+            RequestContext requestContext);
+
+        static ResponseBodiesService getNewInstance(HttpPipeline pipeline) {
+            try {
+                Class<?> clazz = Class.forName("encode.bytes.implementation.ResponseBodiesServiceImpl");
+                return (ResponseBodiesService) clazz.getMethod("getNewInstance", HttpPipeline.class)
+                    .invoke(null, pipeline);
+            } catch (ClassNotFoundException | NoSuchMethodException | IllegalAccessException
+                | InvocationTargetException e) {
+                throw new RuntimeException(e);
+            }
+        }
     }
 }

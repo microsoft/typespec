@@ -16,14 +16,15 @@ import payload.xml.implementation.XmlErrorValuesImpl;
  */
 @ServiceClient(builder = XmlClientBuilder.class)
 public final class XmlErrorValueClient {
-    @Metadata(properties = { MetadataProperties.GENERATED })
-    private final XmlErrorValuesImpl serviceClient;
 
     private final Instrumentation instrumentation;
 
+    @Metadata(properties = { MetadataProperties.GENERATED })
+    private final XmlErrorValuesImpl serviceClient;
+
     /**
      * Initializes an instance of XmlErrorValueClient class.
-     * 
+     *
      * @param serviceClient the service client implementation.
      * @param instrumentation the instrumentation instance.
      */
@@ -35,7 +36,20 @@ public final class XmlErrorValueClient {
 
     /**
      * The get operation.
-     * 
+     *
+     * @throws HttpResponseException thrown if the service returns an error.
+     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
+     * @return §1.1 — Contains fields of primitive types.
+     */
+    @Metadata(properties = { MetadataProperties.GENERATED })
+    @ServiceMethod(returns = ReturnType.SINGLE)
+    public SimpleModel get() {
+        return getWithResponse(RequestContext.none()).getValue();
+    }
+
+    /**
+     * The get operation.
+     *
      * @param requestContext The context to configure the HTTP request before HTTP client sends it.
      * @throws IllegalArgumentException thrown if parameters fail the validation.
      * @throws HttpResponseException thrown if the service returns an error.
@@ -47,18 +61,5 @@ public final class XmlErrorValueClient {
     public Response<SimpleModel> getWithResponse(RequestContext requestContext) {
         return this.instrumentation.instrumentWithResponse("Payload.Xml.XmlErrorValue.get", requestContext,
             updatedContext -> this.serviceClient.getWithResponse(updatedContext));
-    }
-
-    /**
-     * The get operation.
-     * 
-     * @throws HttpResponseException thrown if the service returns an error.
-     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
-     * @return §1.1 — Contains fields of primitive types.
-     */
-    @Metadata(properties = { MetadataProperties.GENERATED })
-    @ServiceMethod(returns = ReturnType.SINGLE)
-    public SimpleModel get() {
-        return getWithResponse(RequestContext.none()).getValue();
     }
 }

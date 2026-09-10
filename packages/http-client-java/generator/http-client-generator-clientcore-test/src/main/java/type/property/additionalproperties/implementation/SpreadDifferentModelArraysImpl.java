@@ -21,10 +21,6 @@ import type.property.additionalproperties.DifferentSpreadModelArrayRecord;
  * An instance of this class provides access to all the operations defined in SpreadDifferentModelArrays.
  */
 public final class SpreadDifferentModelArraysImpl {
-    /**
-     * The proxy service used to perform REST calls.
-     */
-    private final SpreadDifferentModelArraysService service;
 
     /**
      * The service client containing this operation class.
@@ -37,8 +33,13 @@ public final class SpreadDifferentModelArraysImpl {
     private final Instrumentation instrumentation;
 
     /**
+     * The proxy service used to perform REST calls.
+     */
+    private final SpreadDifferentModelArraysService service;
+
+    /**
      * Initializes an instance of SpreadDifferentModelArraysImpl.
-     * 
+     *
      * @param client the instance of the service client containing this operation class.
      */
     SpreadDifferentModelArraysImpl(AdditionalPropertiesClientImpl client) {
@@ -48,44 +49,8 @@ public final class SpreadDifferentModelArraysImpl {
     }
 
     /**
-     * The interface defining all the services for AdditionalPropertiesClientSpreadDifferentModelArrays to be used by
-     * the proxy service to perform REST calls.
-     */
-    @ServiceInterface(name = "AdditionalPropertiesClientSpreadDifferentModelArrays", host = "{endpoint}")
-    public interface SpreadDifferentModelArraysService {
-        static SpreadDifferentModelArraysService getNewInstance(HttpPipeline pipeline) {
-            try {
-                Class<?> clazz = Class
-                    .forName("type.property.additionalproperties.implementation.SpreadDifferentModelArraysServiceImpl");
-                return (SpreadDifferentModelArraysService) clazz.getMethod("getNewInstance", HttpPipeline.class)
-                    .invoke(null, pipeline);
-            } catch (ClassNotFoundException | NoSuchMethodException | IllegalAccessException
-                | InvocationTargetException e) {
-                throw new RuntimeException(e);
-            }
-
-        }
-
-        @HttpRequestInformation(
-            method = HttpMethod.GET,
-            path = "/type/property/additionalProperties/spreadDifferentRecordModelArray",
-            expectedStatusCodes = { 200 })
-        @UnexpectedResponseExceptionDetail
-        Response<DifferentSpreadModelArrayRecord> get(@HostParam("endpoint") String endpoint,
-            @HeaderParam("Accept") String accept, RequestContext requestContext);
-
-        @HttpRequestInformation(
-            method = HttpMethod.PUT,
-            path = "/type/property/additionalProperties/spreadDifferentRecordModelArray",
-            expectedStatusCodes = { 204 })
-        @UnexpectedResponseExceptionDetail
-        Response<Void> put(@HostParam("endpoint") String endpoint, @HeaderParam("Content-Type") String contentType,
-            @BodyParam("application/json") DifferentSpreadModelArrayRecord body, RequestContext requestContext);
-    }
-
-    /**
      * Get call.
-     * 
+     *
      * @param requestContext The context to configure the HTTP request before HTTP client sends it.
      * @throws IllegalArgumentException thrown if parameters fail the validation.
      * @throws HttpResponseException thrown if the service returns an error.
@@ -103,7 +68,7 @@ public final class SpreadDifferentModelArraysImpl {
 
     /**
      * Put operation.
-     * 
+     *
      * @param body body.
      * @param requestContext The context to configure the HTTP request before HTTP client sends it.
      * @throws IllegalArgumentException thrown if parameters fail the validation.
@@ -118,5 +83,41 @@ public final class SpreadDifferentModelArraysImpl {
                 final String contentType = "application/json";
                 return service.put(this.client.getEndpoint(), contentType, body, updatedContext);
             });
+    }
+
+    /**
+     * The interface defining all the services for AdditionalPropertiesClientSpreadDifferentModelArrays to be used by
+     * the proxy service to perform REST calls.
+     */
+    @ServiceInterface(name = "AdditionalPropertiesClientSpreadDifferentModelArrays", host = "{endpoint}")
+    public interface SpreadDifferentModelArraysService {
+
+        @HttpRequestInformation(
+            method = HttpMethod.GET,
+            path = "/type/property/additionalProperties/spreadDifferentRecordModelArray",
+            expectedStatusCodes = { 200 })
+        @UnexpectedResponseExceptionDetail
+        Response<DifferentSpreadModelArrayRecord> get(@HostParam("endpoint") String endpoint,
+            @HeaderParam("Accept") String accept, RequestContext requestContext);
+
+        @HttpRequestInformation(
+            method = HttpMethod.PUT,
+            path = "/type/property/additionalProperties/spreadDifferentRecordModelArray",
+            expectedStatusCodes = { 204 })
+        @UnexpectedResponseExceptionDetail
+        Response<Void> put(@HostParam("endpoint") String endpoint, @HeaderParam("Content-Type") String contentType,
+            @BodyParam("application/json") DifferentSpreadModelArrayRecord body, RequestContext requestContext);
+
+        static SpreadDifferentModelArraysService getNewInstance(HttpPipeline pipeline) {
+            try {
+                Class<?> clazz = Class
+                    .forName("type.property.additionalproperties.implementation.SpreadDifferentModelArraysServiceImpl");
+                return (SpreadDifferentModelArraysService) clazz.getMethod("getNewInstance", HttpPipeline.class)
+                    .invoke(null, pipeline);
+            } catch (ClassNotFoundException | NoSuchMethodException | IllegalAccessException
+                | InvocationTargetException e) {
+                throw new RuntimeException(e);
+            }
+        }
     }
 }

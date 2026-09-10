@@ -17,6 +17,7 @@ import java.util.stream.Collectors;
  */
 @Metadata(properties = { MetadataProperties.IMMUTABLE })
 public final class NewlineDelimitedEnumArrayProperty implements JsonSerializable<NewlineDelimitedEnumArrayProperty> {
+
     /*
      * The value property.
      */
@@ -25,7 +26,7 @@ public final class NewlineDelimitedEnumArrayProperty implements JsonSerializable
 
     /**
      * Creates an instance of NewlineDelimitedEnumArrayProperty class.
-     * 
+     *
      * @param value the value value to set.
      */
     @Metadata(properties = { MetadataProperties.GENERATED })
@@ -35,7 +36,7 @@ public final class NewlineDelimitedEnumArrayProperty implements JsonSerializable
 
     /**
      * Get the value property: The value property.
-     * 
+     *
      * @return the value value.
      */
     @Metadata(properties = { MetadataProperties.GENERATED })
@@ -61,7 +62,7 @@ public final class NewlineDelimitedEnumArrayProperty implements JsonSerializable
 
     /**
      * Reads an instance of NewlineDelimitedEnumArrayProperty from the JsonReader.
-     * 
+     *
      * @param jsonReader The JsonReader being read.
      * @return An instance of NewlineDelimitedEnumArrayProperty if the JsonReader was pointing to an instance of it, or
      * null if it was pointing to JSON null.
@@ -75,7 +76,6 @@ public final class NewlineDelimitedEnumArrayProperty implements JsonSerializable
             while (reader.nextToken() != JsonToken.END_OBJECT) {
                 String fieldName = reader.getFieldName();
                 reader.nextToken();
-
                 if ("value".equals(fieldName)) {
                     value = reader.getNullable(nonNullReader -> {
                         String valueEncodedAsString = nonNullReader.getString();

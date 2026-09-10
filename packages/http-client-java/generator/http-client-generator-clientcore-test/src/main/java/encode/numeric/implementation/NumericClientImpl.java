@@ -7,19 +7,11 @@ import io.clientcore.core.instrumentation.Instrumentation;
  * Initializes a new instance of the NumericClient type.
  */
 public final class NumericClientImpl {
+
     /**
      * Service host.
      */
     private final String endpoint;
-
-    /**
-     * Gets Service host.
-     * 
-     * @return the endpoint value.
-     */
-    public String getEndpoint() {
-        return this.endpoint;
-    }
 
     /**
      * The HTTP pipeline to send requests through.
@@ -27,27 +19,9 @@ public final class NumericClientImpl {
     private final HttpPipeline httpPipeline;
 
     /**
-     * Gets The HTTP pipeline to send requests through.
-     * 
-     * @return the httpPipeline value.
-     */
-    public HttpPipeline getHttpPipeline() {
-        return this.httpPipeline;
-    }
-
-    /**
      * The instance of instrumentation to report telemetry.
      */
     private final Instrumentation instrumentation;
-
-    /**
-     * Gets The instance of instrumentation to report telemetry.
-     * 
-     * @return the instrumentation value.
-     */
-    public Instrumentation getInstrumentation() {
-        return this.instrumentation;
-    }
 
     /**
      * The PropertiesImpl object to access its operations.
@@ -55,17 +29,8 @@ public final class NumericClientImpl {
     private final PropertiesImpl properties;
 
     /**
-     * Gets the PropertiesImpl object to access its operations.
-     * 
-     * @return the PropertiesImpl object.
-     */
-    public PropertiesImpl getProperties() {
-        return this.properties;
-    }
-
-    /**
      * Initializes an instance of NumericClient client.
-     * 
+     *
      * @param httpPipeline The HTTP pipeline to send requests through.
      * @param instrumentation The instance of instrumentation to report telemetry.
      * @param endpoint Service host.
@@ -75,5 +40,41 @@ public final class NumericClientImpl {
         this.instrumentation = instrumentation;
         this.endpoint = endpoint;
         this.properties = new PropertiesImpl(this);
+    }
+
+    /**
+     * Gets Service host.
+     *
+     * @return the endpoint value.
+     */
+    public String getEndpoint() {
+        return this.endpoint;
+    }
+
+    /**
+     * Gets The HTTP pipeline to send requests through.
+     *
+     * @return the httpPipeline value.
+     */
+    public HttpPipeline getHttpPipeline() {
+        return this.httpPipeline;
+    }
+
+    /**
+     * Gets The instance of instrumentation to report telemetry.
+     *
+     * @return the instrumentation value.
+     */
+    public Instrumentation getInstrumentation() {
+        return this.instrumentation;
+    }
+
+    /**
+     * Gets the PropertiesImpl object to access its operations.
+     *
+     * @return the PropertiesImpl object.
+     */
+    public PropertiesImpl getProperties() {
+        return this.properties;
     }
 }

@@ -14,6 +14,7 @@ import javax.xml.stream.XMLStreamException;
  */
 @Metadata(properties = { MetadataProperties.IMMUTABLE })
 public final class ModelWithEnum implements XmlSerializable<ModelWithEnum> {
+
     /*
      * The status property.
      */
@@ -22,7 +23,7 @@ public final class ModelWithEnum implements XmlSerializable<ModelWithEnum> {
 
     /**
      * Creates an instance of ModelWithEnum class.
-     * 
+     *
      * @param status the status value to set.
      */
     @Metadata(properties = { MetadataProperties.GENERATED })
@@ -32,7 +33,7 @@ public final class ModelWithEnum implements XmlSerializable<ModelWithEnum> {
 
     /**
      * Get the status property: The status property.
-     * 
+     *
      * @return the status value.
      */
     @Metadata(properties = { MetadataProperties.GENERATED })
@@ -57,7 +58,7 @@ public final class ModelWithEnum implements XmlSerializable<ModelWithEnum> {
 
     /**
      * Reads an instance of ModelWithEnum from the XmlReader.
-     * 
+     *
      * @param xmlReader The XmlReader being read.
      * @return An instance of ModelWithEnum if the XmlReader was pointing to an instance of it, or null if it was
      * pointing to XML null.
@@ -71,7 +72,7 @@ public final class ModelWithEnum implements XmlSerializable<ModelWithEnum> {
 
     /**
      * Reads an instance of ModelWithEnum from the XmlReader.
-     * 
+     *
      * @param xmlReader The XmlReader being read.
      * @param rootElementName Optional root element name to override the default defined by the model. Used to support
      * cases where the model can deserialize from different root element names.
@@ -88,7 +89,6 @@ public final class ModelWithEnum implements XmlSerializable<ModelWithEnum> {
             Status status = null;
             while (reader.nextElement() != XmlToken.END_ELEMENT) {
                 QName elementName = reader.getElementName();
-
                 if ("status".equals(elementName.getLocalPart())) {
                     status = Status.fromValue(reader.getStringElement());
                 } else {

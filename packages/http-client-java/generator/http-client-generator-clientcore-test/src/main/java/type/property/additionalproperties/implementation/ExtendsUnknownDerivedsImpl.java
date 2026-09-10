@@ -21,10 +21,6 @@ import type.property.additionalproperties.ExtendsUnknownAdditionalPropertiesDeri
  * An instance of this class provides access to all the operations defined in ExtendsUnknownDeriveds.
  */
 public final class ExtendsUnknownDerivedsImpl {
-    /**
-     * The proxy service used to perform REST calls.
-     */
-    private final ExtendsUnknownDerivedsService service;
 
     /**
      * The service client containing this operation class.
@@ -37,8 +33,13 @@ public final class ExtendsUnknownDerivedsImpl {
     private final Instrumentation instrumentation;
 
     /**
+     * The proxy service used to perform REST calls.
+     */
+    private final ExtendsUnknownDerivedsService service;
+
+    /**
      * Initializes an instance of ExtendsUnknownDerivedsImpl.
-     * 
+     *
      * @param client the instance of the service client containing this operation class.
      */
     ExtendsUnknownDerivedsImpl(AdditionalPropertiesClientImpl client) {
@@ -48,45 +49,8 @@ public final class ExtendsUnknownDerivedsImpl {
     }
 
     /**
-     * The interface defining all the services for AdditionalPropertiesClientExtendsUnknownDeriveds to be used by the
-     * proxy service to perform REST calls.
-     */
-    @ServiceInterface(name = "AdditionalPropertiesClientExtendsUnknownDeriveds", host = "{endpoint}")
-    public interface ExtendsUnknownDerivedsService {
-        static ExtendsUnknownDerivedsService getNewInstance(HttpPipeline pipeline) {
-            try {
-                Class<?> clazz = Class
-                    .forName("type.property.additionalproperties.implementation.ExtendsUnknownDerivedsServiceImpl");
-                return (ExtendsUnknownDerivedsService) clazz.getMethod("getNewInstance", HttpPipeline.class)
-                    .invoke(null, pipeline);
-            } catch (ClassNotFoundException | NoSuchMethodException | IllegalAccessException
-                | InvocationTargetException e) {
-                throw new RuntimeException(e);
-            }
-
-        }
-
-        @HttpRequestInformation(
-            method = HttpMethod.GET,
-            path = "/type/property/additionalProperties/extendsRecordUnknownDerived",
-            expectedStatusCodes = { 200 })
-        @UnexpectedResponseExceptionDetail
-        Response<ExtendsUnknownAdditionalPropertiesDerived> get(@HostParam("endpoint") String endpoint,
-            @HeaderParam("Accept") String accept, RequestContext requestContext);
-
-        @HttpRequestInformation(
-            method = HttpMethod.PUT,
-            path = "/type/property/additionalProperties/extendsRecordUnknownDerived",
-            expectedStatusCodes = { 204 })
-        @UnexpectedResponseExceptionDetail
-        Response<Void> put(@HostParam("endpoint") String endpoint, @HeaderParam("Content-Type") String contentType,
-            @BodyParam("application/json") ExtendsUnknownAdditionalPropertiesDerived body,
-            RequestContext requestContext);
-    }
-
-    /**
      * Get call.
-     * 
+     *
      * @param requestContext The context to configure the HTTP request before HTTP client sends it.
      * @throws IllegalArgumentException thrown if parameters fail the validation.
      * @throws HttpResponseException thrown if the service returns an error.
@@ -104,7 +68,7 @@ public final class ExtendsUnknownDerivedsImpl {
 
     /**
      * Put operation.
-     * 
+     *
      * @param body body.
      * @param requestContext The context to configure the HTTP request before HTTP client sends it.
      * @throws IllegalArgumentException thrown if parameters fail the validation.
@@ -120,5 +84,42 @@ public final class ExtendsUnknownDerivedsImpl {
                 final String contentType = "application/json";
                 return service.put(this.client.getEndpoint(), contentType, body, updatedContext);
             });
+    }
+
+    /**
+     * The interface defining all the services for AdditionalPropertiesClientExtendsUnknownDeriveds to be used by the
+     * proxy service to perform REST calls.
+     */
+    @ServiceInterface(name = "AdditionalPropertiesClientExtendsUnknownDeriveds", host = "{endpoint}")
+    public interface ExtendsUnknownDerivedsService {
+
+        @HttpRequestInformation(
+            method = HttpMethod.GET,
+            path = "/type/property/additionalProperties/extendsRecordUnknownDerived",
+            expectedStatusCodes = { 200 })
+        @UnexpectedResponseExceptionDetail
+        Response<ExtendsUnknownAdditionalPropertiesDerived> get(@HostParam("endpoint") String endpoint,
+            @HeaderParam("Accept") String accept, RequestContext requestContext);
+
+        @HttpRequestInformation(
+            method = HttpMethod.PUT,
+            path = "/type/property/additionalProperties/extendsRecordUnknownDerived",
+            expectedStatusCodes = { 204 })
+        @UnexpectedResponseExceptionDetail
+        Response<Void> put(@HostParam("endpoint") String endpoint, @HeaderParam("Content-Type") String contentType,
+            @BodyParam("application/json") ExtendsUnknownAdditionalPropertiesDerived body,
+            RequestContext requestContext);
+
+        static ExtendsUnknownDerivedsService getNewInstance(HttpPipeline pipeline) {
+            try {
+                Class<?> clazz = Class
+                    .forName("type.property.additionalproperties.implementation.ExtendsUnknownDerivedsServiceImpl");
+                return (ExtendsUnknownDerivedsService) clazz.getMethod("getNewInstance", HttpPipeline.class)
+                    .invoke(null, pipeline);
+            } catch (ClassNotFoundException | NoSuchMethodException | IllegalAccessException
+                | InvocationTargetException e) {
+                throw new RuntimeException(e);
+            }
+        }
     }
 }

@@ -17,11 +17,6 @@ import payload.pageable.XmlPet;
  */
 @Metadata(properties = { MetadataProperties.IMMUTABLE })
 public final class XmlPetListResult implements XmlSerializable<XmlPetListResult> {
-    /*
-     * The Pets property.
-     */
-    @Metadata(properties = { MetadataProperties.GENERATED })
-    private final List<XmlPet> pets;
 
     /*
      * The NextMarker property.
@@ -29,9 +24,15 @@ public final class XmlPetListResult implements XmlSerializable<XmlPetListResult>
     @Metadata(properties = { MetadataProperties.GENERATED })
     private String nextMarker;
 
+    /*
+     * The Pets property.
+     */
+    @Metadata(properties = { MetadataProperties.GENERATED })
+    private final List<XmlPet> pets;
+
     /**
      * Creates an instance of XmlPetListResult class.
-     * 
+     *
      * @param pets the pets value to set.
      */
     @Metadata(properties = { MetadataProperties.GENERATED })
@@ -40,23 +41,23 @@ public final class XmlPetListResult implements XmlSerializable<XmlPetListResult>
     }
 
     /**
-     * Get the pets property: The Pets property.
-     * 
-     * @return the pets value.
-     */
-    @Metadata(properties = { MetadataProperties.GENERATED })
-    public List<XmlPet> getPets() {
-        return this.pets;
-    }
-
-    /**
      * Get the nextMarker property: The NextMarker property.
-     * 
+     *
      * @return the nextMarker value.
      */
     @Metadata(properties = { MetadataProperties.GENERATED })
     public String getNextMarker() {
         return this.nextMarker;
+    }
+
+    /**
+     * Get the pets property: The Pets property.
+     *
+     * @return the pets value.
+     */
+    @Metadata(properties = { MetadataProperties.GENERATED })
+    public List<XmlPet> getPets() {
+        return this.pets;
     }
 
     @Metadata(properties = { MetadataProperties.GENERATED })
@@ -83,7 +84,7 @@ public final class XmlPetListResult implements XmlSerializable<XmlPetListResult>
 
     /**
      * Reads an instance of XmlPetListResult from the XmlReader.
-     * 
+     *
      * @param xmlReader The XmlReader being read.
      * @return An instance of XmlPetListResult if the XmlReader was pointing to an instance of it, or null if it was
      * pointing to XML null.
@@ -97,7 +98,7 @@ public final class XmlPetListResult implements XmlSerializable<XmlPetListResult>
 
     /**
      * Reads an instance of XmlPetListResult from the XmlReader.
-     * 
+     *
      * @param xmlReader The XmlReader being read.
      * @param rootElementName Optional root element name to override the default defined by the model. Used to support
      * cases where the model can deserialize from different root element names.
@@ -115,7 +116,6 @@ public final class XmlPetListResult implements XmlSerializable<XmlPetListResult>
             String nextMarker = null;
             while (reader.nextElement() != XmlToken.END_ELEMENT) {
                 QName elementName = reader.getElementName();
-
                 if ("Pets".equals(elementName.getLocalPart())) {
                     while (reader.nextElement() != XmlToken.END_ELEMENT) {
                         elementName = reader.getElementName();
@@ -136,7 +136,6 @@ public final class XmlPetListResult implements XmlSerializable<XmlPetListResult>
             }
             XmlPetListResult deserializedXmlPetListResult = new XmlPetListResult(pets);
             deserializedXmlPetListResult.nextMarker = nextMarker;
-
             return deserializedXmlPetListResult;
         });
     }

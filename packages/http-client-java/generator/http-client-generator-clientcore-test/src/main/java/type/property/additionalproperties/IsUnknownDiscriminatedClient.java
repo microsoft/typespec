@@ -16,14 +16,15 @@ import type.property.additionalproperties.implementation.IsUnknownDiscriminateds
  */
 @ServiceClient(builder = AdditionalPropertiesClientBuilder.class)
 public final class IsUnknownDiscriminatedClient {
-    @Metadata(properties = { MetadataProperties.GENERATED })
-    private final IsUnknownDiscriminatedsImpl serviceClient;
 
     private final Instrumentation instrumentation;
 
+    @Metadata(properties = { MetadataProperties.GENERATED })
+    private final IsUnknownDiscriminatedsImpl serviceClient;
+
     /**
      * Initializes an instance of IsUnknownDiscriminatedClient class.
-     * 
+     *
      * @param serviceClient the service client implementation.
      * @param instrumentation the instrumentation instance.
      */
@@ -35,7 +36,20 @@ public final class IsUnknownDiscriminatedClient {
 
     /**
      * Get call.
-     * 
+     *
+     * @throws HttpResponseException thrown if the service returns an error.
+     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
+     * @return call.
+     */
+    @Metadata(properties = { MetadataProperties.GENERATED })
+    @ServiceMethod(returns = ReturnType.SINGLE)
+    public IsUnknownAdditionalPropertiesDiscriminated get() {
+        return getWithResponse(RequestContext.none()).getValue();
+    }
+
+    /**
+     * Get call.
+     *
      * @param requestContext The context to configure the HTTP request before HTTP client sends it.
      * @throws IllegalArgumentException thrown if parameters fail the validation.
      * @throws HttpResponseException thrown if the service returns an error.
@@ -51,21 +65,22 @@ public final class IsUnknownDiscriminatedClient {
     }
 
     /**
-     * Get call.
-     * 
+     * Put operation.
+     *
+     * @param body body.
+     * @throws IllegalArgumentException thrown if parameters fail the validation.
      * @throws HttpResponseException thrown if the service returns an error.
      * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
-     * @return call.
      */
     @Metadata(properties = { MetadataProperties.GENERATED })
     @ServiceMethod(returns = ReturnType.SINGLE)
-    public IsUnknownAdditionalPropertiesDiscriminated get() {
-        return getWithResponse(RequestContext.none()).getValue();
+    public void put(IsUnknownAdditionalPropertiesDiscriminated body) {
+        putWithResponse(body, RequestContext.none());
     }
 
     /**
      * Put operation.
-     * 
+     *
      * @param body body.
      * @param requestContext The context to configure the HTTP request before HTTP client sends it.
      * @throws IllegalArgumentException thrown if parameters fail the validation.
@@ -80,19 +95,5 @@ public final class IsUnknownDiscriminatedClient {
         return this.instrumentation.instrumentWithResponse(
             "Type.Property.AdditionalProperties.IsUnknownDiscriminated.put", requestContext,
             updatedContext -> this.serviceClient.putWithResponse(body, updatedContext));
-    }
-
-    /**
-     * Put operation.
-     * 
-     * @param body body.
-     * @throws IllegalArgumentException thrown if parameters fail the validation.
-     * @throws HttpResponseException thrown if the service returns an error.
-     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
-     */
-    @Metadata(properties = { MetadataProperties.GENERATED })
-    @ServiceMethod(returns = ReturnType.SINGLE)
-    public void put(IsUnknownAdditionalPropertiesDiscriminated body) {
-        putWithResponse(body, RequestContext.none());
     }
 }

@@ -8,6 +8,7 @@ import io.clientcore.core.annotations.MetadataProperties;
  */
 @Metadata(properties = { MetadataProperties.IMMUTABLE })
 public final class MultiPartRequestWithWireName {
+
     /*
      * The id property.
      */
@@ -22,7 +23,7 @@ public final class MultiPartRequestWithWireName {
 
     /**
      * Creates an instance of MultiPartRequestWithWireName class.
-     * 
+     *
      * @param identifier the identifier value to set.
      * @param image the image value to set.
      */
@@ -34,7 +35,7 @@ public final class MultiPartRequestWithWireName {
 
     /**
      * Get the identifier property: The id property.
-     * 
+     *
      * @return the identifier value.
      */
     @Metadata(properties = { MetadataProperties.GENERATED })
@@ -44,7 +45,7 @@ public final class MultiPartRequestWithWireName {
 
     /**
      * Get the image property: The profileImage property.
-     * 
+     *
      * @return the image value.
      */
     @Metadata(properties = { MetadataProperties.GENERATED })

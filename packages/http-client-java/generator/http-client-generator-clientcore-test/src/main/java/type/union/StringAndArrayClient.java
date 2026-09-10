@@ -16,14 +16,15 @@ import type.union.implementation.StringAndArraysImpl;
  */
 @ServiceClient(builder = UnionClientBuilder.class)
 public final class StringAndArrayClient {
-    @Metadata(properties = { MetadataProperties.GENERATED })
-    private final StringAndArraysImpl serviceClient;
 
     private final Instrumentation instrumentation;
 
+    @Metadata(properties = { MetadataProperties.GENERATED })
+    private final StringAndArraysImpl serviceClient;
+
     /**
      * Initializes an instance of StringAndArrayClient class.
-     * 
+     *
      * @param serviceClient the service client implementation.
      * @param instrumentation the instrumentation instance.
      */
@@ -35,7 +36,20 @@ public final class StringAndArrayClient {
 
     /**
      * The get operation.
-     * 
+     *
+     * @throws HttpResponseException thrown if the service returns an error.
+     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
+     * @return the response.
+     */
+    @Metadata(properties = { MetadataProperties.GENERATED })
+    @ServiceMethod(returns = ReturnType.SINGLE)
+    public GetResponse7 get() {
+        return getWithResponse(RequestContext.none()).getValue();
+    }
+
+    /**
+     * The get operation.
+     *
      * @param requestContext The context to configure the HTTP request before HTTP client sends it.
      * @throws IllegalArgumentException thrown if parameters fail the validation.
      * @throws HttpResponseException thrown if the service returns an error.
@@ -50,21 +64,22 @@ public final class StringAndArrayClient {
     }
 
     /**
-     * The get operation.
-     * 
+     * The send operation.
+     *
+     * @param prop The prop parameter.
+     * @throws IllegalArgumentException thrown if parameters fail the validation.
      * @throws HttpResponseException thrown if the service returns an error.
      * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
-     * @return the response.
      */
     @Metadata(properties = { MetadataProperties.GENERATED })
     @ServiceMethod(returns = ReturnType.SINGLE)
-    public GetResponse7 get() {
-        return getWithResponse(RequestContext.none()).getValue();
+    public void send(StringAndArrayCases prop) {
+        sendWithResponse(prop, RequestContext.none());
     }
 
     /**
      * The send operation.
-     * 
+     *
      * @param prop The prop parameter.
      * @param requestContext The context to configure the HTTP request before HTTP client sends it.
      * @throws IllegalArgumentException thrown if parameters fail the validation.
@@ -77,19 +92,5 @@ public final class StringAndArrayClient {
     public Response<Void> sendWithResponse(StringAndArrayCases prop, RequestContext requestContext) {
         return this.instrumentation.instrumentWithResponse("Type.Union.StringAndArray.send", requestContext,
             updatedContext -> this.serviceClient.sendWithResponse(prop, updatedContext));
-    }
-
-    /**
-     * The send operation.
-     * 
-     * @param prop The prop parameter.
-     * @throws IllegalArgumentException thrown if parameters fail the validation.
-     * @throws HttpResponseException thrown if the service returns an error.
-     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
-     */
-    @Metadata(properties = { MetadataProperties.GENERATED })
-    @ServiceMethod(returns = ReturnType.SINGLE)
-    public void send(StringAndArrayCases prop) {
-        sendWithResponse(prop, RequestContext.none());
     }
 }

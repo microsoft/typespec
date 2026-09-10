@@ -20,39 +20,22 @@ import java.util.function.Function;
  */
 public final class DaysOfWeekExtensibleEnum
     implements ExpandableEnum<String>, JsonSerializable<DaysOfWeekExtensibleEnum> {
-    private static final Map<String, DaysOfWeekExtensibleEnum> VALUES = new ConcurrentHashMap<>();
 
     private static final Function<String, DaysOfWeekExtensibleEnum> NEW_INSTANCE = DaysOfWeekExtensibleEnum::new;
 
-    /**
-     * Monday.
-     */
-    @Metadata(properties = { MetadataProperties.GENERATED })
-    public static final DaysOfWeekExtensibleEnum MONDAY = fromValue("Monday");
-
-    /**
-     * Tuesday.
-     */
-    @Metadata(properties = { MetadataProperties.GENERATED })
-    public static final DaysOfWeekExtensibleEnum TUESDAY = fromValue("Tuesday");
-
-    /**
-     * Wednesday.
-     */
-    @Metadata(properties = { MetadataProperties.GENERATED })
-    public static final DaysOfWeekExtensibleEnum WEDNESDAY = fromValue("Wednesday");
-
-    /**
-     * Thursday.
-     */
-    @Metadata(properties = { MetadataProperties.GENERATED })
-    public static final DaysOfWeekExtensibleEnum THURSDAY = fromValue("Thursday");
+    private static final Map<String, DaysOfWeekExtensibleEnum> VALUES = new ConcurrentHashMap<>();
 
     /**
      * Friday.
      */
     @Metadata(properties = { MetadataProperties.GENERATED })
     public static final DaysOfWeekExtensibleEnum FRIDAY = fromValue("Friday");
+
+    /**
+     * Monday.
+     */
+    @Metadata(properties = { MetadataProperties.GENERATED })
+    public static final DaysOfWeekExtensibleEnum MONDAY = fromValue("Monday");
 
     /**
      * Saturday.
@@ -66,46 +49,57 @@ public final class DaysOfWeekExtensibleEnum
     @Metadata(properties = { MetadataProperties.GENERATED })
     public static final DaysOfWeekExtensibleEnum SUNDAY = fromValue("Sunday");
 
+    /**
+     * Thursday.
+     */
+    @Metadata(properties = { MetadataProperties.GENERATED })
+    public static final DaysOfWeekExtensibleEnum THURSDAY = fromValue("Thursday");
+
+    /**
+     * Tuesday.
+     */
+    @Metadata(properties = { MetadataProperties.GENERATED })
+    public static final DaysOfWeekExtensibleEnum TUESDAY = fromValue("Tuesday");
+
+    /**
+     * Wednesday.
+     */
+    @Metadata(properties = { MetadataProperties.GENERATED })
+    public static final DaysOfWeekExtensibleEnum WEDNESDAY = fromValue("Wednesday");
+
     private final String value;
 
     private DaysOfWeekExtensibleEnum(String value) {
         this.value = value;
     }
 
-    /**
-     * Creates or finds a DaysOfWeekExtensibleEnum.
-     * 
-     * @param value a value to look for.
-     * @return the corresponding DaysOfWeekExtensibleEnum.
-     * @throws IllegalArgumentException if value is null.
-     */
     @Metadata(properties = { MetadataProperties.GENERATED })
-    public static DaysOfWeekExtensibleEnum fromValue(String value) {
-        if (value == null) {
-            throw new IllegalArgumentException("'value' cannot be null.");
-        }
-        return VALUES.computeIfAbsent(value, NEW_INSTANCE);
-    }
-
-    /**
-     * Gets known DaysOfWeekExtensibleEnum values.
-     * 
-     * @return Known DaysOfWeekExtensibleEnum values.
-     */
-    @Metadata(properties = { MetadataProperties.GENERATED })
-    public static Collection<DaysOfWeekExtensibleEnum> values() {
-        return new ArrayList<>(VALUES.values());
+    @Override
+    public boolean equals(Object obj) {
+        return this == obj;
     }
 
     /**
      * Gets the value of the DaysOfWeekExtensibleEnum instance.
-     * 
+     *
      * @return the value of the DaysOfWeekExtensibleEnum instance.
      */
     @Metadata(properties = { MetadataProperties.GENERATED })
     @Override
     public String getValue() {
         return this.value;
+    }
+
+    @Metadata(properties = { MetadataProperties.GENERATED })
+    @Override
+    public int hashCode() {
+        return Objects.hashCode(this.value);
+    }
+
+    @Metadata(properties = { MetadataProperties.GENERATED })
+    @Override
+    public String toString() {
+        return Objects.toString(this.value);
     }
 
     /**
@@ -119,7 +113,7 @@ public final class DaysOfWeekExtensibleEnum
 
     /**
      * Reads an instance of DaysOfWeekExtensibleEnum from the JsonReader.
-     * 
+     *
      * @param jsonReader The JsonReader being read.
      * @return An instance of DaysOfWeekExtensibleEnum if the JsonReader was pointing to an instance of it, or null if
      * the JsonReader was pointing to JSON null.
@@ -139,21 +133,28 @@ public final class DaysOfWeekExtensibleEnum
         return DaysOfWeekExtensibleEnum.fromValue(jsonReader.getString());
     }
 
+    /**
+     * Creates or finds a DaysOfWeekExtensibleEnum.
+     *
+     * @param value a value to look for.
+     * @return the corresponding DaysOfWeekExtensibleEnum.
+     * @throws IllegalArgumentException if value is null.
+     */
     @Metadata(properties = { MetadataProperties.GENERATED })
-    @Override
-    public String toString() {
-        return Objects.toString(this.value);
+    public static DaysOfWeekExtensibleEnum fromValue(String value) {
+        if (value == null) {
+            throw new IllegalArgumentException("'value' cannot be null.");
+        }
+        return VALUES.computeIfAbsent(value, NEW_INSTANCE);
     }
 
+    /**
+     * Gets known DaysOfWeekExtensibleEnum values.
+     *
+     * @return Known DaysOfWeekExtensibleEnum values.
+     */
     @Metadata(properties = { MetadataProperties.GENERATED })
-    @Override
-    public boolean equals(Object obj) {
-        return this == obj;
-    }
-
-    @Metadata(properties = { MetadataProperties.GENERATED })
-    @Override
-    public int hashCode() {
-        return Objects.hashCode(this.value);
+    public static Collection<DaysOfWeekExtensibleEnum> values() {
+        return new ArrayList<>(VALUES.values());
     }
 }

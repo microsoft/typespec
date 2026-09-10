@@ -21,10 +21,6 @@ import type.property.additionalproperties.SpreadRecordForNonDiscriminatedUnion2;
  * An instance of this class provides access to all the operations defined in SpreadRecordNonDiscriminatedUnion2s.
  */
 public final class SpreadRecordNonDiscriminatedUnion2sImpl {
-    /**
-     * The proxy service used to perform REST calls.
-     */
-    private final SpreadRecordNonDiscriminatedUnion2sService service;
 
     /**
      * The service client containing this operation class.
@@ -37,8 +33,13 @@ public final class SpreadRecordNonDiscriminatedUnion2sImpl {
     private final Instrumentation instrumentation;
 
     /**
+     * The proxy service used to perform REST calls.
+     */
+    private final SpreadRecordNonDiscriminatedUnion2sService service;
+
+    /**
      * Initializes an instance of SpreadRecordNonDiscriminatedUnion2sImpl.
-     * 
+     *
      * @param client the instance of the service client containing this operation class.
      */
     SpreadRecordNonDiscriminatedUnion2sImpl(AdditionalPropertiesClientImpl client) {
@@ -48,45 +49,8 @@ public final class SpreadRecordNonDiscriminatedUnion2sImpl {
     }
 
     /**
-     * The interface defining all the services for AdditionalPropertiesClientSpreadRecordNonDiscriminatedUnion2s to be
-     * used by the proxy service to perform REST calls.
-     */
-    @ServiceInterface(name = "AdditionalPropertiesClientSpreadRecordNonDiscriminatedUnion2s", host = "{endpoint}")
-    public interface SpreadRecordNonDiscriminatedUnion2sService {
-        static SpreadRecordNonDiscriminatedUnion2sService getNewInstance(HttpPipeline pipeline) {
-            try {
-                Class<?> clazz = Class.forName(
-                    "type.property.additionalproperties.implementation.SpreadRecordNonDiscriminatedUnion2sServiceImpl");
-                return (SpreadRecordNonDiscriminatedUnion2sService) clazz
-                    .getMethod("getNewInstance", HttpPipeline.class)
-                    .invoke(null, pipeline);
-            } catch (ClassNotFoundException | NoSuchMethodException | IllegalAccessException
-                | InvocationTargetException e) {
-                throw new RuntimeException(e);
-            }
-
-        }
-
-        @HttpRequestInformation(
-            method = HttpMethod.GET,
-            path = "/type/property/additionalProperties/spreadRecordNonDiscriminatedUnion2",
-            expectedStatusCodes = { 200 })
-        @UnexpectedResponseExceptionDetail
-        Response<SpreadRecordForNonDiscriminatedUnion2> get(@HostParam("endpoint") String endpoint,
-            @HeaderParam("Accept") String accept, RequestContext requestContext);
-
-        @HttpRequestInformation(
-            method = HttpMethod.PUT,
-            path = "/type/property/additionalProperties/spreadRecordNonDiscriminatedUnion2",
-            expectedStatusCodes = { 204 })
-        @UnexpectedResponseExceptionDetail
-        Response<Void> put(@HostParam("endpoint") String endpoint, @HeaderParam("Content-Type") String contentType,
-            @BodyParam("application/json") SpreadRecordForNonDiscriminatedUnion2 body, RequestContext requestContext);
-    }
-
-    /**
      * Get call.
-     * 
+     *
      * @param requestContext The context to configure the HTTP request before HTTP client sends it.
      * @throws IllegalArgumentException thrown if parameters fail the validation.
      * @throws HttpResponseException thrown if the service returns an error.
@@ -105,7 +69,7 @@ public final class SpreadRecordNonDiscriminatedUnion2sImpl {
 
     /**
      * Put operation.
-     * 
+     *
      * @param body body.
      * @param requestContext The context to configure the HTTP request before HTTP client sends it.
      * @throws IllegalArgumentException thrown if parameters fail the validation.
@@ -121,5 +85,42 @@ public final class SpreadRecordNonDiscriminatedUnion2sImpl {
                 final String contentType = "application/json";
                 return service.put(this.client.getEndpoint(), contentType, body, updatedContext);
             });
+    }
+
+    /**
+     * The interface defining all the services for AdditionalPropertiesClientSpreadRecordNonDiscriminatedUnion2s to be
+     * used by the proxy service to perform REST calls.
+     */
+    @ServiceInterface(name = "AdditionalPropertiesClientSpreadRecordNonDiscriminatedUnion2s", host = "{endpoint}")
+    public interface SpreadRecordNonDiscriminatedUnion2sService {
+
+        @HttpRequestInformation(
+            method = HttpMethod.GET,
+            path = "/type/property/additionalProperties/spreadRecordNonDiscriminatedUnion2",
+            expectedStatusCodes = { 200 })
+        @UnexpectedResponseExceptionDetail
+        Response<SpreadRecordForNonDiscriminatedUnion2> get(@HostParam("endpoint") String endpoint,
+            @HeaderParam("Accept") String accept, RequestContext requestContext);
+
+        @HttpRequestInformation(
+            method = HttpMethod.PUT,
+            path = "/type/property/additionalProperties/spreadRecordNonDiscriminatedUnion2",
+            expectedStatusCodes = { 204 })
+        @UnexpectedResponseExceptionDetail
+        Response<Void> put(@HostParam("endpoint") String endpoint, @HeaderParam("Content-Type") String contentType,
+            @BodyParam("application/json") SpreadRecordForNonDiscriminatedUnion2 body, RequestContext requestContext);
+
+        static SpreadRecordNonDiscriminatedUnion2sService getNewInstance(HttpPipeline pipeline) {
+            try {
+                Class<?> clazz = Class.forName(
+                    "type.property.additionalproperties.implementation.SpreadRecordNonDiscriminatedUnion2sServiceImpl");
+                return (SpreadRecordNonDiscriminatedUnion2sService) clazz
+                    .getMethod("getNewInstance", HttpPipeline.class)
+                    .invoke(null, pipeline);
+            } catch (ClassNotFoundException | NoSuchMethodException | IllegalAccessException
+                | InvocationTargetException e) {
+                throw new RuntimeException(e);
+            }
+        }
     }
 }

@@ -15,23 +15,6 @@ import java.util.Map;
  */
 @Metadata(properties = { MetadataProperties.FLUENT })
 public final class Resource implements JsonSerializable<Resource> {
-    /*
-     * The name property.
-     */
-    @Metadata(properties = { MetadataProperties.GENERATED })
-    private final String name;
-
-    /*
-     * The description property.
-     */
-    @Metadata(properties = { MetadataProperties.GENERATED })
-    private String description;
-
-    /*
-     * The map property.
-     */
-    @Metadata(properties = { MetadataProperties.GENERATED })
-    private Map<String, InnerModel> map;
 
     /*
      * The array property.
@@ -40,10 +23,10 @@ public final class Resource implements JsonSerializable<Resource> {
     private List<InnerModel> array;
 
     /*
-     * The intValue property.
+     * The description property.
      */
     @Metadata(properties = { MetadataProperties.GENERATED })
-    private Integer intValue;
+    private String description;
 
     /*
      * The floatValue property.
@@ -63,9 +46,27 @@ public final class Resource implements JsonSerializable<Resource> {
     @Metadata(properties = { MetadataProperties.GENERATED })
     private List<Integer> intArray;
 
+    /*
+     * The intValue property.
+     */
+    @Metadata(properties = { MetadataProperties.GENERATED })
+    private Integer intValue;
+
+    /*
+     * The map property.
+     */
+    @Metadata(properties = { MetadataProperties.GENERATED })
+    private Map<String, InnerModel> map;
+
+    /*
+     * The name property.
+     */
+    @Metadata(properties = { MetadataProperties.GENERATED })
+    private final String name;
+
     /**
      * Creates an instance of Resource class.
-     * 
+     *
      * @param name the name value to set.
      */
     @Metadata(properties = { MetadataProperties.GENERATED })
@@ -74,62 +75,8 @@ public final class Resource implements JsonSerializable<Resource> {
     }
 
     /**
-     * Get the name property: The name property.
-     * 
-     * @return the name value.
-     */
-    @Metadata(properties = { MetadataProperties.GENERATED })
-    public String getName() {
-        return this.name;
-    }
-
-    /**
-     * Get the description property: The description property.
-     * 
-     * @return the description value.
-     */
-    @Metadata(properties = { MetadataProperties.GENERATED })
-    public String getDescription() {
-        return this.description;
-    }
-
-    /**
-     * Set the description property: The description property.
-     * 
-     * @param description the description value to set.
-     * @return the Resource object itself.
-     */
-    @Metadata(properties = { MetadataProperties.GENERATED })
-    public Resource setDescription(String description) {
-        this.description = description;
-        return this;
-    }
-
-    /**
-     * Get the map property: The map property.
-     * 
-     * @return the map value.
-     */
-    @Metadata(properties = { MetadataProperties.GENERATED })
-    public Map<String, InnerModel> getMap() {
-        return this.map;
-    }
-
-    /**
-     * Set the map property: The map property.
-     * 
-     * @param map the map value to set.
-     * @return the Resource object itself.
-     */
-    @Metadata(properties = { MetadataProperties.GENERATED })
-    public Resource setMap(Map<String, InnerModel> map) {
-        this.map = map;
-        return this;
-    }
-
-    /**
      * Get the array property: The array property.
-     * 
+     *
      * @return the array value.
      */
     @Metadata(properties = { MetadataProperties.GENERATED })
@@ -139,7 +86,7 @@ public final class Resource implements JsonSerializable<Resource> {
 
     /**
      * Set the array property: The array property.
-     * 
+     *
      * @param array the array value to set.
      * @return the Resource object itself.
      */
@@ -150,30 +97,30 @@ public final class Resource implements JsonSerializable<Resource> {
     }
 
     /**
-     * Get the intValue property: The intValue property.
-     * 
-     * @return the intValue value.
+     * Get the description property: The description property.
+     *
+     * @return the description value.
      */
     @Metadata(properties = { MetadataProperties.GENERATED })
-    public Integer getIntValue() {
-        return this.intValue;
+    public String getDescription() {
+        return this.description;
     }
 
     /**
-     * Set the intValue property: The intValue property.
-     * 
-     * @param intValue the intValue value to set.
+     * Set the description property: The description property.
+     *
+     * @param description the description value to set.
      * @return the Resource object itself.
      */
     @Metadata(properties = { MetadataProperties.GENERATED })
-    public Resource setIntValue(Integer intValue) {
-        this.intValue = intValue;
+    public Resource setDescription(String description) {
+        this.description = description;
         return this;
     }
 
     /**
      * Get the floatValue property: The floatValue property.
-     * 
+     *
      * @return the floatValue value.
      */
     @Metadata(properties = { MetadataProperties.GENERATED })
@@ -183,7 +130,7 @@ public final class Resource implements JsonSerializable<Resource> {
 
     /**
      * Set the floatValue property: The floatValue property.
-     * 
+     *
      * @param floatValue the floatValue value to set.
      * @return the Resource object itself.
      */
@@ -195,7 +142,7 @@ public final class Resource implements JsonSerializable<Resource> {
 
     /**
      * Get the innerModel property: The innerModel property.
-     * 
+     *
      * @return the innerModel value.
      */
     @Metadata(properties = { MetadataProperties.GENERATED })
@@ -205,7 +152,7 @@ public final class Resource implements JsonSerializable<Resource> {
 
     /**
      * Set the innerModel property: The innerModel property.
-     * 
+     *
      * @param innerModel the innerModel value to set.
      * @return the Resource object itself.
      */
@@ -217,7 +164,7 @@ public final class Resource implements JsonSerializable<Resource> {
 
     /**
      * Get the intArray property: The intArray property.
-     * 
+     *
      * @return the intArray value.
      */
     @Metadata(properties = { MetadataProperties.GENERATED })
@@ -227,7 +174,7 @@ public final class Resource implements JsonSerializable<Resource> {
 
     /**
      * Set the intArray property: The intArray property.
-     * 
+     *
      * @param intArray the intArray value to set.
      * @return the Resource object itself.
      */
@@ -235,6 +182,60 @@ public final class Resource implements JsonSerializable<Resource> {
     public Resource setIntArray(List<Integer> intArray) {
         this.intArray = intArray;
         return this;
+    }
+
+    /**
+     * Get the intValue property: The intValue property.
+     *
+     * @return the intValue value.
+     */
+    @Metadata(properties = { MetadataProperties.GENERATED })
+    public Integer getIntValue() {
+        return this.intValue;
+    }
+
+    /**
+     * Set the intValue property: The intValue property.
+     *
+     * @param intValue the intValue value to set.
+     * @return the Resource object itself.
+     */
+    @Metadata(properties = { MetadataProperties.GENERATED })
+    public Resource setIntValue(Integer intValue) {
+        this.intValue = intValue;
+        return this;
+    }
+
+    /**
+     * Get the map property: The map property.
+     *
+     * @return the map value.
+     */
+    @Metadata(properties = { MetadataProperties.GENERATED })
+    public Map<String, InnerModel> getMap() {
+        return this.map;
+    }
+
+    /**
+     * Set the map property: The map property.
+     *
+     * @param map the map value to set.
+     * @return the Resource object itself.
+     */
+    @Metadata(properties = { MetadataProperties.GENERATED })
+    public Resource setMap(Map<String, InnerModel> map) {
+        this.map = map;
+        return this;
+    }
+
+    /**
+     * Get the name property: The name property.
+     *
+     * @return the name value.
+     */
+    @Metadata(properties = { MetadataProperties.GENERATED })
+    public String getName() {
+        return this.name;
     }
 
     /**
@@ -257,7 +258,7 @@ public final class Resource implements JsonSerializable<Resource> {
 
     /**
      * Reads an instance of Resource from the JsonReader.
-     * 
+     *
      * @param jsonReader The JsonReader being read.
      * @return An instance of Resource if the JsonReader was pointing to an instance of it, or null if it was pointing
      * to JSON null.
@@ -278,7 +279,6 @@ public final class Resource implements JsonSerializable<Resource> {
             while (reader.nextToken() != JsonToken.END_OBJECT) {
                 String fieldName = reader.getFieldName();
                 reader.nextToken();
-
                 if ("name".equals(fieldName)) {
                     name = reader.getString();
                 } else if ("description".equals(fieldName)) {
@@ -307,7 +307,6 @@ public final class Resource implements JsonSerializable<Resource> {
             deserializedResource.floatValue = floatValue;
             deserializedResource.innerModel = innerModel;
             deserializedResource.intArray = intArray;
-
             return deserializedResource;
         });
     }

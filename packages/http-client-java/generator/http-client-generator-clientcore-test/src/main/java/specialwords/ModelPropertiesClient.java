@@ -19,14 +19,15 @@ import specialwords.modelproperties.SameAsModel;
  */
 @ServiceClient(builder = SpecialWordsClientBuilder.class)
 public final class ModelPropertiesClient {
-    @Metadata(properties = { MetadataProperties.GENERATED })
-    private final ModelPropertiesImpl serviceClient;
 
     private final Instrumentation instrumentation;
 
+    @Metadata(properties = { MetadataProperties.GENERATED })
+    private final ModelPropertiesImpl serviceClient;
+
     /**
      * Initializes an instance of ModelPropertiesClient class.
-     * 
+     *
      * @param serviceClient the service client implementation.
      * @param instrumentation the instrumentation instance.
      */
@@ -37,25 +38,8 @@ public final class ModelPropertiesClient {
     }
 
     /**
-     * The sameAsModel operation.
-     * 
-     * @param body The body parameter.
-     * @param requestContext The context to configure the HTTP request before HTTP client sends it.
-     * @throws IllegalArgumentException thrown if parameters fail the validation.
-     * @throws HttpResponseException thrown if the service returns an error.
-     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
-     * @return the {@link Response}.
-     */
-    @Metadata(properties = { MetadataProperties.GENERATED })
-    @ServiceMethod(returns = ReturnType.SINGLE)
-    public Response<Void> sameAsModelWithResponse(SameAsModel body, RequestContext requestContext) {
-        return this.instrumentation.instrumentWithResponse("SpecialWords.ModelProperties.sameAsModel", requestContext,
-            updatedContext -> this.serviceClient.sameAsModelWithResponse(body, updatedContext));
-    }
-
-    /**
-     * The sameAsModel operation.
-     * 
+     * The dictMethods operation.
+     *
      * @param body The body parameter.
      * @throws IllegalArgumentException thrown if parameters fail the validation.
      * @throws HttpResponseException thrown if the service returns an error.
@@ -63,13 +47,13 @@ public final class ModelPropertiesClient {
      */
     @Metadata(properties = { MetadataProperties.GENERATED })
     @ServiceMethod(returns = ReturnType.SINGLE)
-    public void sameAsModel(SameAsModel body) {
-        sameAsModelWithResponse(body, RequestContext.none());
+    public void dictMethods(DictMethods body) {
+        dictMethodsWithResponse(body, RequestContext.none());
     }
 
     /**
      * The dictMethods operation.
-     * 
+     *
      * @param body The body parameter.
      * @param requestContext The context to configure the HTTP request before HTTP client sends it.
      * @throws IllegalArgumentException thrown if parameters fail the validation.
@@ -85,8 +69,8 @@ public final class ModelPropertiesClient {
     }
 
     /**
-     * The dictMethods operation.
-     * 
+     * The sameAsModel operation.
+     *
      * @param body The body parameter.
      * @throws IllegalArgumentException thrown if parameters fail the validation.
      * @throws HttpResponseException thrown if the service returns an error.
@@ -94,13 +78,44 @@ public final class ModelPropertiesClient {
      */
     @Metadata(properties = { MetadataProperties.GENERATED })
     @ServiceMethod(returns = ReturnType.SINGLE)
-    public void dictMethods(DictMethods body) {
-        dictMethodsWithResponse(body, RequestContext.none());
+    public void sameAsModel(SameAsModel body) {
+        sameAsModelWithResponse(body, RequestContext.none());
+    }
+
+    /**
+     * The sameAsModel operation.
+     *
+     * @param body The body parameter.
+     * @param requestContext The context to configure the HTTP request before HTTP client sends it.
+     * @throws IllegalArgumentException thrown if parameters fail the validation.
+     * @throws HttpResponseException thrown if the service returns an error.
+     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
+     * @return the {@link Response}.
+     */
+    @Metadata(properties = { MetadataProperties.GENERATED })
+    @ServiceMethod(returns = ReturnType.SINGLE)
+    public Response<Void> sameAsModelWithResponse(SameAsModel body, RequestContext requestContext) {
+        return this.instrumentation.instrumentWithResponse("SpecialWords.ModelProperties.sameAsModel", requestContext,
+            updatedContext -> this.serviceClient.sameAsModelWithResponse(body, updatedContext));
     }
 
     /**
      * The withList operation.
-     * 
+     *
+     * @param body The body parameter.
+     * @throws IllegalArgumentException thrown if parameters fail the validation.
+     * @throws HttpResponseException thrown if the service returns an error.
+     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
+     */
+    @Metadata(properties = { MetadataProperties.GENERATED })
+    @ServiceMethod(returns = ReturnType.SINGLE)
+    public void withList(ModelWithList body) {
+        withListWithResponse(body, RequestContext.none());
+    }
+
+    /**
+     * The withList operation.
+     *
      * @param body The body parameter.
      * @param requestContext The context to configure the HTTP request before HTTP client sends it.
      * @throws IllegalArgumentException thrown if parameters fail the validation.
@@ -113,19 +128,5 @@ public final class ModelPropertiesClient {
     public Response<Void> withListWithResponse(ModelWithList body, RequestContext requestContext) {
         return this.instrumentation.instrumentWithResponse("SpecialWords.ModelProperties.withList", requestContext,
             updatedContext -> this.serviceClient.withListWithResponse(body, updatedContext));
-    }
-
-    /**
-     * The withList operation.
-     * 
-     * @param body The body parameter.
-     * @throws IllegalArgumentException thrown if parameters fail the validation.
-     * @throws HttpResponseException thrown if the service returns an error.
-     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
-     */
-    @Metadata(properties = { MetadataProperties.GENERATED })
-    @ServiceMethod(returns = ReturnType.SINGLE)
-    public void withList(ModelWithList body) {
-        withListWithResponse(body, RequestContext.none());
     }
 }

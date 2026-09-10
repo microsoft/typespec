@@ -22,10 +22,6 @@ import type.union.GetResponseProp2;
  * An instance of this class provides access to all the operations defined in IntsOnlies.
  */
 public final class IntsOnliesImpl {
-    /**
-     * The proxy service used to perform REST calls.
-     */
-    private final IntsOnliesService service;
 
     /**
      * The service client containing this operation class.
@@ -38,8 +34,13 @@ public final class IntsOnliesImpl {
     private final Instrumentation instrumentation;
 
     /**
+     * The proxy service used to perform REST calls.
+     */
+    private final IntsOnliesService service;
+
+    /**
      * Initializes an instance of IntsOnliesImpl.
-     * 
+     *
      * @param client the instance of the service client containing this operation class.
      */
     IntsOnliesImpl(UnionClientImpl client) {
@@ -49,36 +50,8 @@ public final class IntsOnliesImpl {
     }
 
     /**
-     * The interface defining all the services for UnionClientIntsOnlies to be used by the proxy service to perform REST
-     * calls.
-     */
-    @ServiceInterface(name = "UnionClientIntsOnlies", host = "{endpoint}")
-    public interface IntsOnliesService {
-        static IntsOnliesService getNewInstance(HttpPipeline pipeline) {
-            try {
-                Class<?> clazz = Class.forName("type.union.implementation.IntsOnliesServiceImpl");
-                return (IntsOnliesService) clazz.getMethod("getNewInstance", HttpPipeline.class).invoke(null, pipeline);
-            } catch (ClassNotFoundException | NoSuchMethodException | IllegalAccessException
-                | InvocationTargetException e) {
-                throw new RuntimeException(e);
-            }
-
-        }
-
-        @HttpRequestInformation(method = HttpMethod.GET, path = "/type/union/ints-only", expectedStatusCodes = { 200 })
-        @UnexpectedResponseExceptionDetail
-        Response<GetResponse3> get(@HostParam("endpoint") String endpoint, @HeaderParam("Accept") String accept,
-            RequestContext requestContext);
-
-        @HttpRequestInformation(method = HttpMethod.POST, path = "/type/union/ints-only", expectedStatusCodes = { 204 })
-        @UnexpectedResponseExceptionDetail
-        Response<Void> send(@HostParam("endpoint") String endpoint, @HeaderParam("Content-Type") String contentType,
-            @BodyParam("application/json") SendRequest3 sendRequest3, RequestContext requestContext);
-    }
-
-    /**
      * The get operation.
-     * 
+     *
      * @param requestContext The context to configure the HTTP request before HTTP client sends it.
      * @throws IllegalArgumentException thrown if parameters fail the validation.
      * @throws HttpResponseException thrown if the service returns an error.
@@ -96,7 +69,7 @@ public final class IntsOnliesImpl {
 
     /**
      * The send operation.
-     * 
+     *
      * @param prop The prop parameter.
      * @param requestContext The context to configure the HTTP request before HTTP client sends it.
      * @throws IllegalArgumentException thrown if parameters fail the validation.
@@ -112,5 +85,33 @@ public final class IntsOnliesImpl {
                 SendRequest3 sendRequest3 = new SendRequest3(prop);
                 return service.send(this.client.getEndpoint(), contentType, sendRequest3, updatedContext);
             });
+    }
+
+    /**
+     * The interface defining all the services for UnionClientIntsOnlies to be used by the proxy service to perform REST
+     * calls.
+     */
+    @ServiceInterface(name = "UnionClientIntsOnlies", host = "{endpoint}")
+    public interface IntsOnliesService {
+
+        @HttpRequestInformation(method = HttpMethod.GET, path = "/type/union/ints-only", expectedStatusCodes = { 200 })
+        @UnexpectedResponseExceptionDetail
+        Response<GetResponse3> get(@HostParam("endpoint") String endpoint, @HeaderParam("Accept") String accept,
+            RequestContext requestContext);
+
+        @HttpRequestInformation(method = HttpMethod.POST, path = "/type/union/ints-only", expectedStatusCodes = { 204 })
+        @UnexpectedResponseExceptionDetail
+        Response<Void> send(@HostParam("endpoint") String endpoint, @HeaderParam("Content-Type") String contentType,
+            @BodyParam("application/json") SendRequest3 sendRequest3, RequestContext requestContext);
+
+        static IntsOnliesService getNewInstance(HttpPipeline pipeline) {
+            try {
+                Class<?> clazz = Class.forName("type.union.implementation.IntsOnliesServiceImpl");
+                return (IntsOnliesService) clazz.getMethod("getNewInstance", HttpPipeline.class).invoke(null, pipeline);
+            } catch (ClassNotFoundException | NoSuchMethodException | IllegalAccessException
+                | InvocationTargetException e) {
+                throw new RuntimeException(e);
+            }
+        }
     }
 }

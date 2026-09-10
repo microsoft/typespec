@@ -12,11 +12,6 @@ import javax.xml.stream.XMLStreamException;
  */
 @Metadata(properties = { MetadataProperties.IMMUTABLE })
 public final class ModelWithText implements XmlSerializable<ModelWithText> {
-    /*
-     * The language property.
-     */
-    @Metadata(properties = { MetadataProperties.GENERATED })
-    private final String language;
 
     /*
      * The content property.
@@ -24,9 +19,15 @@ public final class ModelWithText implements XmlSerializable<ModelWithText> {
     @Metadata(properties = { MetadataProperties.GENERATED })
     private final String content;
 
+    /*
+     * The language property.
+     */
+    @Metadata(properties = { MetadataProperties.GENERATED })
+    private final String language;
+
     /**
      * Creates an instance of ModelWithText class.
-     * 
+     *
      * @param language the language value to set.
      * @param content the content value to set.
      */
@@ -37,23 +38,23 @@ public final class ModelWithText implements XmlSerializable<ModelWithText> {
     }
 
     /**
-     * Get the language property: The language property.
-     * 
-     * @return the language value.
-     */
-    @Metadata(properties = { MetadataProperties.GENERATED })
-    public String getLanguage() {
-        return this.language;
-    }
-
-    /**
      * Get the content property: The content property.
-     * 
+     *
      * @return the content value.
      */
     @Metadata(properties = { MetadataProperties.GENERATED })
     public String getContent() {
         return this.content;
+    }
+
+    /**
+     * Get the language property: The language property.
+     *
+     * @return the language value.
+     */
+    @Metadata(properties = { MetadataProperties.GENERATED })
+    public String getLanguage() {
+        return this.language;
     }
 
     @Metadata(properties = { MetadataProperties.GENERATED })
@@ -74,7 +75,7 @@ public final class ModelWithText implements XmlSerializable<ModelWithText> {
 
     /**
      * Reads an instance of ModelWithText from the XmlReader.
-     * 
+     *
      * @param xmlReader The XmlReader being read.
      * @return An instance of ModelWithText if the XmlReader was pointing to an instance of it, or null if it was
      * pointing to XML null.
@@ -88,7 +89,7 @@ public final class ModelWithText implements XmlSerializable<ModelWithText> {
 
     /**
      * Reads an instance of ModelWithText from the XmlReader.
-     * 
+     *
      * @param xmlReader The XmlReader being read.
      * @param rootElementName Optional root element name to override the default defined by the model. Used to support
      * cases where the model can deserialize from different root element names.

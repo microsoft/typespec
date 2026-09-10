@@ -21,10 +21,6 @@ import payload.xml.ModelWithAttributes;
  * An instance of this class provides access to all the operations defined in ModelWithAttributesValues.
  */
 public final class ModelWithAttributesValuesImpl {
-    /**
-     * The proxy service used to perform REST calls.
-     */
-    private final ModelWithAttributesValuesService service;
 
     /**
      * The service client containing this operation class.
@@ -37,8 +33,13 @@ public final class ModelWithAttributesValuesImpl {
     private final Instrumentation instrumentation;
 
     /**
+     * The proxy service used to perform REST calls.
+     */
+    private final ModelWithAttributesValuesService service;
+
+    /**
      * Initializes an instance of ModelWithAttributesValuesImpl.
-     * 
+     *
      * @param client the instance of the service client containing this operation class.
      */
     ModelWithAttributesValuesImpl(XmlClientImpl client) {
@@ -48,43 +49,8 @@ public final class ModelWithAttributesValuesImpl {
     }
 
     /**
-     * The interface defining all the services for XmlClientModelWithAttributesValues to be used by the proxy service to
-     * perform REST calls.
-     */
-    @ServiceInterface(name = "XmlClientModelWithAttributesValues", host = "{endpoint}")
-    public interface ModelWithAttributesValuesService {
-        static ModelWithAttributesValuesService getNewInstance(HttpPipeline pipeline) {
-            try {
-                Class<?> clazz = Class.forName("payload.xml.implementation.ModelWithAttributesValuesServiceImpl");
-                return (ModelWithAttributesValuesService) clazz.getMethod("getNewInstance", HttpPipeline.class)
-                    .invoke(null, pipeline);
-            } catch (ClassNotFoundException | NoSuchMethodException | IllegalAccessException
-                | InvocationTargetException e) {
-                throw new RuntimeException(e);
-            }
-
-        }
-
-        @HttpRequestInformation(
-            method = HttpMethod.GET,
-            path = "/payload/xml/modelWithAttributes",
-            expectedStatusCodes = { 200 })
-        @UnexpectedResponseExceptionDetail
-        Response<ModelWithAttributes> get(@HostParam("endpoint") String endpoint, @HeaderParam("Accept") String accept,
-            RequestContext requestContext);
-
-        @HttpRequestInformation(
-            method = HttpMethod.PUT,
-            path = "/payload/xml/modelWithAttributes",
-            expectedStatusCodes = { 204 })
-        @UnexpectedResponseExceptionDetail
-        Response<Void> put(@HostParam("endpoint") String endpoint, @HeaderParam("content-type") String contentType,
-            @BodyParam("application/xml") ModelWithAttributes input, RequestContext requestContext);
-    }
-
-    /**
      * The get operation.
-     * 
+     *
      * @param requestContext The context to configure the HTTP request before HTTP client sends it.
      * @throws IllegalArgumentException thrown if parameters fail the validation.
      * @throws HttpResponseException thrown if the service returns an error.
@@ -102,7 +68,7 @@ public final class ModelWithAttributesValuesImpl {
 
     /**
      * The put operation.
-     * 
+     *
      * @param input The input parameter.
      * @param requestContext The context to configure the HTTP request before HTTP client sends it.
      * @throws IllegalArgumentException thrown if parameters fail the validation.
@@ -117,5 +83,40 @@ public final class ModelWithAttributesValuesImpl {
                 final String contentType = "application/xml";
                 return service.put(this.client.getEndpoint(), contentType, input, updatedContext);
             });
+    }
+
+    /**
+     * The interface defining all the services for XmlClientModelWithAttributesValues to be used by the proxy service to
+     * perform REST calls.
+     */
+    @ServiceInterface(name = "XmlClientModelWithAttributesValues", host = "{endpoint}")
+    public interface ModelWithAttributesValuesService {
+
+        @HttpRequestInformation(
+            method = HttpMethod.GET,
+            path = "/payload/xml/modelWithAttributes",
+            expectedStatusCodes = { 200 })
+        @UnexpectedResponseExceptionDetail
+        Response<ModelWithAttributes> get(@HostParam("endpoint") String endpoint, @HeaderParam("Accept") String accept,
+            RequestContext requestContext);
+
+        @HttpRequestInformation(
+            method = HttpMethod.PUT,
+            path = "/payload/xml/modelWithAttributes",
+            expectedStatusCodes = { 204 })
+        @UnexpectedResponseExceptionDetail
+        Response<Void> put(@HostParam("endpoint") String endpoint, @HeaderParam("content-type") String contentType,
+            @BodyParam("application/xml") ModelWithAttributes input, RequestContext requestContext);
+
+        static ModelWithAttributesValuesService getNewInstance(HttpPipeline pipeline) {
+            try {
+                Class<?> clazz = Class.forName("payload.xml.implementation.ModelWithAttributesValuesServiceImpl");
+                return (ModelWithAttributesValuesService) clazz.getMethod("getNewInstance", HttpPipeline.class)
+                    .invoke(null, pipeline);
+            } catch (ClassNotFoundException | NoSuchMethodException | IllegalAccessException
+                | InvocationTargetException e) {
+                throw new RuntimeException(e);
+            }
+        }
     }
 }

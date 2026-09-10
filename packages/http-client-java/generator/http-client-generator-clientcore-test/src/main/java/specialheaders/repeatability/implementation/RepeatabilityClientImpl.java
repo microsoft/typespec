@@ -22,10 +22,6 @@ import java.util.UUID;
  * Initializes a new instance of the RepeatabilityClient type.
  */
 public final class RepeatabilityClientImpl {
-    /**
-     * The proxy service used to perform REST calls.
-     */
-    private final RepeatabilityClientService service;
 
     /**
      * Service host.
@@ -33,27 +29,9 @@ public final class RepeatabilityClientImpl {
     private final String endpoint;
 
     /**
-     * Gets Service host.
-     * 
-     * @return the endpoint value.
-     */
-    public String getEndpoint() {
-        return this.endpoint;
-    }
-
-    /**
      * The HTTP pipeline to send requests through.
      */
     private final HttpPipeline httpPipeline;
-
-    /**
-     * Gets The HTTP pipeline to send requests through.
-     * 
-     * @return the httpPipeline value.
-     */
-    public HttpPipeline getHttpPipeline() {
-        return this.httpPipeline;
-    }
 
     /**
      * The instance of instrumentation to report telemetry.
@@ -61,17 +39,13 @@ public final class RepeatabilityClientImpl {
     private final Instrumentation instrumentation;
 
     /**
-     * Gets The instance of instrumentation to report telemetry.
-     * 
-     * @return the instrumentation value.
+     * The proxy service used to perform REST calls.
      */
-    public Instrumentation getInstrumentation() {
-        return this.instrumentation;
-    }
+    private final RepeatabilityClientService service;
 
     /**
      * Initializes an instance of RepeatabilityClient client.
-     * 
+     *
      * @param httpPipeline The HTTP pipeline to send requests through.
      * @param instrumentation The instance of instrumentation to report telemetry.
      * @param endpoint Service host.
@@ -84,37 +58,35 @@ public final class RepeatabilityClientImpl {
     }
 
     /**
-     * The interface defining all the services for RepeatabilityClient to be used by the proxy service to perform REST
-     * calls.
+     * Gets Service host.
+     *
+     * @return the endpoint value.
      */
-    @ServiceInterface(name = "RepeatabilityClient", host = "{endpoint}")
-    public interface RepeatabilityClientService {
-        static RepeatabilityClientService getNewInstance(HttpPipeline pipeline) {
-            try {
-                Class<?> clazz
-                    = Class.forName("specialheaders.repeatability.implementation.RepeatabilityClientServiceImpl");
-                return (RepeatabilityClientService) clazz.getMethod("getNewInstance", HttpPipeline.class)
-                    .invoke(null, pipeline);
-            } catch (ClassNotFoundException | NoSuchMethodException | IllegalAccessException
-                | InvocationTargetException e) {
-                throw new RuntimeException(e);
-            }
+    public String getEndpoint() {
+        return this.endpoint;
+    }
 
-        }
+    /**
+     * Gets The HTTP pipeline to send requests through.
+     *
+     * @return the httpPipeline value.
+     */
+    public HttpPipeline getHttpPipeline() {
+        return this.httpPipeline;
+    }
 
-        @HttpRequestInformation(
-            method = HttpMethod.POST,
-            path = "/special-headers/repeatability/immediateSuccess",
-            expectedStatusCodes = { 204 })
-        @UnexpectedResponseExceptionDetail
-        Response<Void> immediateSuccess(@HostParam("endpoint") String endpoint,
-            @HeaderParam("repeatability-request-id") String repeatabilityRequestId,
-            @HeaderParam("repeatability-first-sent") String repeatabilityFirstSent, RequestContext requestContext);
+    /**
+     * Gets The instance of instrumentation to report telemetry.
+     *
+     * @return the instrumentation value.
+     */
+    public Instrumentation getInstrumentation() {
+        return this.instrumentation;
     }
 
     /**
      * Check we recognize Repeatability-Request-ID and Repeatability-First-Sent.
-     * 
+     *
      * @param requestContext The context to configure the HTTP request before HTTP client sends it.
      * @throws IllegalArgumentException thrown if parameters fail the validation.
      * @throws HttpResponseException thrown if the service returns an error.
@@ -128,5 +100,34 @@ public final class RepeatabilityClientImpl {
                 return service.immediateSuccess(this.getEndpoint(), UUID.randomUUID().toString(),
                     DateTimeRfc1123.toRfc1123String(OffsetDateTime.now()), updatedContext);
             });
+    }
+
+    /**
+     * The interface defining all the services for RepeatabilityClient to be used by the proxy service to perform REST
+     * calls.
+     */
+    @ServiceInterface(name = "RepeatabilityClient", host = "{endpoint}")
+    public interface RepeatabilityClientService {
+
+        @HttpRequestInformation(
+            method = HttpMethod.POST,
+            path = "/special-headers/repeatability/immediateSuccess",
+            expectedStatusCodes = { 204 })
+        @UnexpectedResponseExceptionDetail
+        Response<Void> immediateSuccess(@HostParam("endpoint") String endpoint,
+            @HeaderParam("repeatability-request-id") String repeatabilityRequestId,
+            @HeaderParam("repeatability-first-sent") String repeatabilityFirstSent, RequestContext requestContext);
+
+        static RepeatabilityClientService getNewInstance(HttpPipeline pipeline) {
+            try {
+                Class<?> clazz
+                    = Class.forName("specialheaders.repeatability.implementation.RepeatabilityClientServiceImpl");
+                return (RepeatabilityClientService) clazz.getMethod("getNewInstance", HttpPipeline.class)
+                    .invoke(null, pipeline);
+            } catch (ClassNotFoundException | NoSuchMethodException | IllegalAccessException
+                | InvocationTargetException e) {
+                throw new RuntimeException(e);
+            }
+        }
     }
 }

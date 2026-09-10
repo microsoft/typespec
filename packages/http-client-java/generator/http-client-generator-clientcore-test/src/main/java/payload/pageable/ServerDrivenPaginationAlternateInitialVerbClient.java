@@ -17,14 +17,15 @@ import payload.pageable.serverdrivenpagination.alternateinitialverb.Filter;
  */
 @ServiceClient(builder = PageableClientBuilder.class)
 public final class ServerDrivenPaginationAlternateInitialVerbClient {
-    @Metadata(properties = { MetadataProperties.GENERATED })
-    private final ServerDrivenPaginationAlternateInitialVerbsImpl serviceClient;
 
     private final Instrumentation instrumentation;
 
+    @Metadata(properties = { MetadataProperties.GENERATED })
+    private final ServerDrivenPaginationAlternateInitialVerbsImpl serviceClient;
+
     /**
      * Initializes an instance of ServerDrivenPaginationAlternateInitialVerbClient class.
-     * 
+     *
      * @param serviceClient the service client implementation.
      * @param instrumentation the instrumentation instance.
      */
@@ -37,7 +38,7 @@ public final class ServerDrivenPaginationAlternateInitialVerbClient {
 
     /**
      * The post operation.
-     * 
+     *
      * @param body The body parameter.
      * @throws IllegalArgumentException thrown if parameters fail the validation.
      * @throws HttpResponseException thrown if the service returns an error.
@@ -52,7 +53,7 @@ public final class ServerDrivenPaginationAlternateInitialVerbClient {
 
     /**
      * The post operation.
-     * 
+     *
      * @param body The body parameter.
      * @param requestContext The context to configure the HTTP request before HTTP client sends it.
      * @throws IllegalArgumentException thrown if parameters fail the validation.
