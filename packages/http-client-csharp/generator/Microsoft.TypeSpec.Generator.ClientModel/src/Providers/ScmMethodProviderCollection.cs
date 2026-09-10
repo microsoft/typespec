@@ -875,9 +875,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
             }
 
             var isSpecialCaseType = responseBodyType.Equals(typeof(BinaryData))
-                || responseBodyType.IsReadOnlyMemory
-                || responseBodyType.IsList
-                || responseBodyType.IsDictionary
+                || responseBodyType.IsCollection
                 || IsPlainTextResponse(responseBodyType);
 
             if (!isSpecialCaseType && (responseBodyType.IsFrameworkType || responseBodyType.IsEnum))
@@ -941,14 +939,20 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
             => HasPlainTextContentType() && IsSupportedPlainTextType(responseBodyType);
 
         private bool HasPlainTextContentType()
-            => ServiceMethod.Operation.Responses.Any(r => r.IsErrorResponse is false && r.ContentTypes.Contains("text/plain"));
+        {
+            var contentTypes = ServiceMethod.Operation.Responses
+                .Where(r => r.IsErrorResponse is false)
+                .SelectMany(r => r.ContentTypes)
+                .ToList();
+            return contentTypes.Count > 0 && contentTypes.All(ct => ct == "text/plain");
+        }
 
         private static bool IsSupportedPlainTextType(CSharpType type)
         {
             var nonNullableType = type.WithNullable(false);
             if (nonNullableType.IsEnum)
             {
-                return IsSupportedPlainTextType(nonNullableType.UnderlyingEnumType!);
+                return IsSupportedPlainTextType(nonNullableType.UnderlyingEnumType);
             }
 
             if (!nonNullableType.IsFrameworkType)
@@ -956,24 +960,27 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
                 return false;
             }
 
-            var frameworkType = nonNullableType.FrameworkType;
-            return frameworkType == typeof(string)
-                || frameworkType == typeof(bool)
-                || frameworkType == typeof(byte)
-                || frameworkType == typeof(sbyte)
-                || frameworkType == typeof(short)
-                || frameworkType == typeof(ushort)
-                || frameworkType == typeof(int)
-                || frameworkType == typeof(uint)
-                || frameworkType == typeof(long)
-                || frameworkType == typeof(ulong)
-                || frameworkType == typeof(float)
-                || frameworkType == typeof(double)
-                || frameworkType == typeof(decimal)
-                || frameworkType == typeof(Guid)
-                || frameworkType == typeof(Uri)
-                || frameworkType == typeof(TimeSpan)
-                || frameworkType == typeof(DateTimeOffset);
+            return nonNullableType.FrameworkType switch
+            {
+                Type t when t == typeof(string) => true,
+                Type t when t == typeof(bool) => true,
+                Type t when t == typeof(byte) => true,
+                Type t when t == typeof(sbyte) => true,
+                Type t when t == typeof(short) => true,
+                Type t when t == typeof(ushort) => true,
+                Type t when t == typeof(int) => true,
+                Type t when t == typeof(uint) => true,
+                Type t when t == typeof(long) => true,
+                Type t when t == typeof(ulong) => true,
+                Type t when t == typeof(float) => true,
+                Type t when t == typeof(double) => true,
+                Type t when t == typeof(decimal) => true,
+                Type t when t == typeof(Guid) => true,
+                Type t when t == typeof(Uri) => true,
+                Type t when t == typeof(TimeSpan) => true,
+                Type t when t == typeof(DateTimeOffset) => true,
+                _ => false
+            };
         }
 
         /// <summary>
@@ -985,7 +992,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
             var nonNullableType = valueType.WithNullable(false);
             if (nonNullableType.IsEnum)
             {
-                return nonNullableType.ToEnum(GetPlainTextValueConversion(nonNullableType.UnderlyingEnumType!, content));
+                return nonNullableType.ToEnum(GetPlainTextValueConversion(nonNullableType.UnderlyingEnumType, content));
             }
 
             var invariantCulture = new MemberExpression(typeof(CultureInfo), nameof(CultureInfo.InvariantCulture));
@@ -997,7 +1004,10 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
                 Type t when t == typeof(Guid) => Static<Guid>().Invoke(nameof(Guid.Parse), content).As<Guid>(),
                 Type t when t == typeof(Uri) => New.Instance(typeof(Uri), content),
                 Type t when t == typeof(TimeSpan) => content.As<string>().ParseTimeSpan(Literal(SerializationFormat.Duration_Constant.ToFormatSpecifier()!)),
-                Type t when t == typeof(DateTimeOffset) => content.As<string>().ParseDateTimeOffset(Literal("O")),
+                // "U" is reserved by TypeFormattersDefinition.ParseDateTimeOffset for Unix-time parsing; any other
+                // specifier (including this one) falls through to standard invariant-culture DateTimeOffset parsing,
+                // matching the default (non-Unix) format used by the JSON deserialization path.
+                Type t when t == typeof(DateTimeOffset) => content.As<string>().ParseDateTimeOffset(Literal(SerializationFormat.DateTime_ISO8601.ToFormatSpecifier()!)),
                 _ => Static(frameworkType).Invoke(nameof(int.Parse), [content, invariantCulture]).As(frameworkType)
             };
         }

@@ -1725,6 +1725,26 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers
         }
 
         [Test]
+        public void MixedContentTypeScalarResponseUsesJsonConversion()
+        {
+            // When a response declares text/plain alongside another content type (e.g. application/json), the
+            // wire format cannot be assumed to be raw text, so the JSON conversion path must be used instead.
+            var operation = InputFactory.Operation("GetScalar", responses:
+                [InputFactory.OperationResponse([200], InputPrimitiveType.Int32, contentTypes: ["application/json", "text/plain"])]);
+            var serviceMethod = InputFactory.BasicServiceMethod("GetScalar", operation);
+            var inputClient = InputFactory.Client("TestClient", methods: [serviceMethod]);
+
+            MockHelpers.LoadMockGenerator();
+            var client = ScmCodeModelGenerator.Instance.TypeFactory.CreateClient(inputClient);
+            var method = new ScmMethodProviderCollection(serviceMethod, client!)
+                .Single(m => m.Kind == ScmMethodKind.Convenience && m.Signature.Name == "GetScalar");
+
+            using var writer = new CodeWriter();
+            writer.WriteMethod(method);
+            Assert.AreEqual(Helpers.GetExpectedFromFile(), writer.ToString(false));
+        }
+
+        [Test]
         public void TestUnionResponseType()
         {
             var inputUnionFooType = InputFactory.Union([InputFactory.Model("Foo", properties:
