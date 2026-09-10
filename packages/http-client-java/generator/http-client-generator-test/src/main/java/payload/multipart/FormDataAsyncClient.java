@@ -687,11 +687,13 @@ public final class FormDataAsyncClient {
     public Mono<Response<Void>> anonymousModelWithResponse(AnonymousModelRequest body, RequestOptions requestOptions) {
         // Generated convenience method for anonymousModelWithResponseInternal
         requestOptions = requestOptions == null ? new RequestOptions() : requestOptions;
-        return anonymousModelWithResponseInternal(new MultipartFormDataHelper(requestOptions)
-            .serializeFileField("profileImage", body.getProfileImage().getContent(),
-                body.getProfileImage().getContentType(), body.getProfileImage().getFilename())
-            .end()
-            .getRequestBody(), requestOptions);
+        return anonymousModelWithResponseInternal(
+            new MultipartFormDataHelper(requestOptions)
+                .serializeFileField("profileImage", body.getProfileImage().getContent(),
+                    body.getProfileImage().getContentType(), body.getProfileImage().getFilename())
+                .end()
+                .getRequestBody(),
+            requestOptions);
     }
 
     /**
@@ -711,10 +713,12 @@ public final class FormDataAsyncClient {
     public Mono<Void> anonymousModel(AnonymousModelRequest body) {
         // Generated convenience method for anonymousModelWithResponseInternal
         RequestOptions requestOptions = new RequestOptions();
-        return anonymousModelWithResponseInternal(new MultipartFormDataHelper(requestOptions)
-            .serializeFileField("profileImage", body.getProfileImage().getContent(),
-                body.getProfileImage().getContentType(), body.getProfileImage().getFilename())
-            .end()
-            .getRequestBody(), requestOptions).flatMap(FluxUtil::toMono);
+        return anonymousModelWithResponseInternal(
+            new MultipartFormDataHelper(requestOptions)
+                .serializeFileField("profileImage", body.getProfileImage().getContent(),
+                    body.getProfileImage().getContentType(), body.getProfileImage().getFilename())
+                .end()
+                .getRequestBody(),
+            requestOptions).flatMap(FluxUtil::toMono);
     }
 }

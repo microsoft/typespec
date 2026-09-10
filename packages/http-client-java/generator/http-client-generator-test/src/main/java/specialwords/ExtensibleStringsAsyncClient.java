@@ -88,6 +88,6 @@ public final class ExtensibleStringsAsyncClient {
         RequestOptions requestOptions = new RequestOptions();
         return putExtensibleStringValueWithResponse(BinaryData.fromObject(body == null ? null : body.toString()),
             requestOptions).flatMap(FluxUtil::toMono)
-            .map(protocolMethodData -> ExtensibleString.fromString(protocolMethodData.toObject(String.class)));
+                .map(protocolMethodData -> ExtensibleString.fromString(protocolMethodData.toObject(String.class)));
     }
 }

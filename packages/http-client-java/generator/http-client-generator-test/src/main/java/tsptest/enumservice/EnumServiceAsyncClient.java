@@ -647,7 +647,7 @@ public final class EnumServiceAsyncClient {
         return setStringEnumArrayWithResponse(colorArray.stream()
             .map(paramItemValue -> Objects.toString(paramItemValue, ""))
             .collect(Collectors.toList()), requestOptions).flatMap(FluxUtil::toMono)
-            .map(protocolMethodData -> protocolMethodData.toString());
+                .map(protocolMethodData -> protocolMethodData.toString());
     }
 
     /**
@@ -670,7 +670,7 @@ public final class EnumServiceAsyncClient {
         return setStringEnumArrayWithResponse(colorArray.stream()
             .map(paramItemValue -> Objects.toString(paramItemValue, ""))
             .collect(Collectors.toList()), requestOptions).flatMap(FluxUtil::toMono)
-            .map(protocolMethodData -> protocolMethodData.toString());
+                .map(protocolMethodData -> protocolMethodData.toString());
     }
 
     /**

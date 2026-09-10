@@ -198,7 +198,7 @@ public final class OptionalAsyncClient {
         }
         return putWithResponse(requestHeaderRequired, booleanRequired, booleanRequiredNullable, stringRequired,
             stringRequiredNullable, requestOptions).flatMap(FluxUtil::toMono)
-            .map(protocolMethodData -> protocolMethodData.toObject(AllPropertiesOptional.class));
+                .map(protocolMethodData -> protocolMethodData.toObject(AllPropertiesOptional.class));
     }
 
     /**
@@ -225,6 +225,6 @@ public final class OptionalAsyncClient {
         RequestOptions requestOptions = new RequestOptions();
         return putWithResponse(requestHeaderRequired, booleanRequired, booleanRequiredNullable, stringRequired,
             stringRequiredNullable, requestOptions).flatMap(FluxUtil::toMono)
-            .map(protocolMethodData -> protocolMethodData.toObject(AllPropertiesOptional.class));
+                .map(protocolMethodData -> protocolMethodData.toObject(AllPropertiesOptional.class));
     }
 }

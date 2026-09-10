@@ -331,12 +331,12 @@ public final class FlattenAsyncClient {
         String filter = options.getFilter();
         SendLongRequest sendLongRequestObj = new SendLongRequest(options.getInput(), options.getDataInt(),
             options.getRequiredUser(), options.getTitle(), options.getStatus()).setUser(options.getUser())
-            .setDataIntOptional(options.getDataIntOptional())
-            .setDataLong(options.getDataLong())
-            .setDataFloat(options.getDataFloat())
-            .setLongProperty(options.getLongParameter())
-            .setDescription(options.getDescription())
-            .setDummy(options.getDummy());
+                .setDataIntOptional(options.getDataIntOptional())
+                .setDataLong(options.getDataLong())
+                .setDataFloat(options.getDataFloat())
+                .setLongProperty(options.getLongParameter())
+                .setDescription(options.getDescription())
+                .setDummy(options.getDummy());
         BinaryData sendLongRequest = BinaryData.fromObject(sendLongRequestObj);
         if (filter != null) {
             requestOptions.addQueryParam("filter", filter, false);
