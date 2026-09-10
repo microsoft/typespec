@@ -39,28 +39,25 @@ public final class PetOperationsClient {
     /**
      * Update a pet as a pet.
      * <p><strong>Request Body Schema</strong></p>
-     * 
-     * <pre>
-     * {@code
+     * <!-- @formatter:off -->
+     * <pre>{@code
      * {
      *     kind: String (Required)
      *     name: String (Required)
      *     trained: boolean (Required)
      * }
-     * }
-     * </pre>
-     * 
+     * }</pre>
+     * <!-- @formatter:on -->
      * <p><strong>Response Body Schema</strong></p>
-     * 
-     * <pre>
-     * {@code
+     * <!-- @formatter:off -->
+     * <pre>{@code
      * {
      *     kind: String (Required)
      *     name: String (Required)
      *     trained: boolean (Required)
      * }
-     * }
-     * </pre>
+     * }</pre>
+     * <!-- @formatter:on -->
      * 
      * @param pet The pet parameter.
      * @param requestOptions The options to configure the HTTP request before HTTP client sends it.
@@ -79,28 +76,25 @@ public final class PetOperationsClient {
     /**
      * Update a dog as a pet.
      * <p><strong>Request Body Schema</strong></p>
-     * 
-     * <pre>
-     * {@code
+     * <!-- @formatter:off -->
+     * <pre>{@code
      * {
      *     kind: String (Required)
      *     name: String (Required)
      *     trained: boolean (Required)
      * }
-     * }
-     * </pre>
-     * 
+     * }</pre>
+     * <!-- @formatter:on -->
      * <p><strong>Response Body Schema</strong></p>
-     * 
-     * <pre>
-     * {@code
+     * <!-- @formatter:off -->
+     * <pre>{@code
      * {
      *     kind: String (Required)
      *     name: String (Required)
      *     trained: boolean (Required)
      * }
-     * }
-     * </pre>
+     * }</pre>
+     * <!-- @formatter:on -->
      * 
      * @param pet The pet parameter.
      * @param requestOptions The options to configure the HTTP request before HTTP client sends it.

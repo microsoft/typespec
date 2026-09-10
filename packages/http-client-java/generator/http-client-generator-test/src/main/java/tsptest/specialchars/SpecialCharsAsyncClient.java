@@ -42,19 +42,16 @@ public final class SpecialCharsAsyncClient {
     /**
      * The read operation.
      * <p><strong>Request Body Schema</strong></p>
-     * 
-     * <pre>
-     * {@code
+     * <!-- @formatter:off -->
+     * <pre>{@code
      * {
      *     id: String (Required)
      * }
-     * }
-     * </pre>
-     * 
+     * }</pre>
+     * <!-- @formatter:on -->
      * <p><strong>Response Body Schema</strong></p>
-     * 
-     * <pre>
-     * {@code
+     * <!-- @formatter:off -->
+     * <pre>{@code
      * {
      *     id: String (Required)
      *     aggregate: String (Optional)
@@ -62,8 +59,8 @@ public final class SpecialCharsAsyncClient {
      *     requestName: String (Optional)
      *     value: Double (Optional)
      * }
-     * }
-     * </pre>
+     * }</pre>
+     * <!-- @formatter:on -->
      * 
      * @param readRequest The readRequest parameter.
      * @param requestOptions The options to configure the HTTP request before HTTP client sends it.

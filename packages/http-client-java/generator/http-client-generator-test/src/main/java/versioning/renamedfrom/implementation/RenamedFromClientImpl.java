@@ -186,28 +186,25 @@ public final class RenamedFromClientImpl {
     /**
      * The newOp operation.
      * <p><strong>Request Body Schema</strong></p>
-     * 
-     * <pre>
-     * {@code
+     * <!-- @formatter:off -->
+     * <pre>{@code
      * {
      *     newProp: String (Required)
      *     enumProp: String(newEnumMember) (Required)
      *     unionProp: BinaryData (Required)
      * }
-     * }
-     * </pre>
-     * 
+     * }</pre>
+     * <!-- @formatter:on -->
      * <p><strong>Response Body Schema</strong></p>
-     * 
-     * <pre>
-     * {@code
+     * <!-- @formatter:off -->
+     * <pre>{@code
      * {
      *     newProp: String (Required)
      *     enumProp: String(newEnumMember) (Required)
      *     unionProp: BinaryData (Required)
      * }
-     * }
-     * </pre>
+     * }</pre>
+     * <!-- @formatter:on -->
      * 
      * @param newQuery The newQuery parameter.
      * @param body The body parameter.
@@ -230,28 +227,25 @@ public final class RenamedFromClientImpl {
     /**
      * The newOp operation.
      * <p><strong>Request Body Schema</strong></p>
-     * 
-     * <pre>
-     * {@code
+     * <!-- @formatter:off -->
+     * <pre>{@code
      * {
      *     newProp: String (Required)
      *     enumProp: String(newEnumMember) (Required)
      *     unionProp: BinaryData (Required)
      * }
-     * }
-     * </pre>
-     * 
+     * }</pre>
+     * <!-- @formatter:on -->
      * <p><strong>Response Body Schema</strong></p>
-     * 
-     * <pre>
-     * {@code
+     * <!-- @formatter:off -->
+     * <pre>{@code
      * {
      *     newProp: String (Required)
      *     enumProp: String(newEnumMember) (Required)
      *     unionProp: BinaryData (Required)
      * }
-     * }
-     * </pre>
+     * }</pre>
+     * <!-- @formatter:on -->
      * 
      * @param newQuery The newQuery parameter.
      * @param body The body parameter.

@@ -42,18 +42,17 @@ public final class ModelInOperationClient {
      * Expected body parameter:
      * ```json
      * {
-     * "name": "Madge"
+     *   "name": "Madge"
      * }
      * ```.
      * <p><strong>Request Body Schema</strong></p>
-     * 
-     * <pre>
-     * {@code
+     * <!-- @formatter:off -->
+     * <pre>{@code
      * {
      *     name: String (Required)
      * }
-     * }
-     * </pre>
+     * }</pre>
+     * <!-- @formatter:on -->
      * 
      * @param body The body parameter.
      * @param requestOptions The options to configure the HTTP request before HTTP client sends it.
@@ -73,18 +72,17 @@ public final class ModelInOperationClient {
      * Expected response body:
      * ```json
      * {
-     * "name": "Madge"
+     *   "name": "Madge"
      * }
      * ```.
      * <p><strong>Response Body Schema</strong></p>
-     * 
-     * <pre>
-     * {@code
+     * <!-- @formatter:off -->
+     * <pre>{@code
      * {
      *     name: String (Required)
      * }
-     * }
-     * </pre>
+     * }</pre>
+     * <!-- @formatter:on -->
      * 
      * @param requestOptions The options to configure the HTTP request before HTTP client sends it.
      * @throws HttpResponseException thrown if the request is rejected by server.
@@ -111,34 +109,31 @@ public final class ModelInOperationClient {
      * Expected response body:
      * ```json
      * {
-     * "result": {
-     * "name": "Madge"
-     * }
+     *   "result": {
+     *     "name": "Madge"
+     *   }
      * }
      * ```.
      * <p><strong>Request Body Schema</strong></p>
-     * 
-     * <pre>
-     * {@code
+     * <!-- @formatter:off -->
+     * <pre>{@code
      * {
      *     result (Required): {
      *         name: String (Required)
      *     }
      * }
-     * }
-     * </pre>
-     * 
+     * }</pre>
+     * <!-- @formatter:on -->
      * <p><strong>Response Body Schema</strong></p>
-     * 
-     * <pre>
-     * {@code
+     * <!-- @formatter:off -->
+     * <pre>{@code
      * {
      *     result (Required): {
      *         name: String (Required)
      *     }
      * }
-     * }
-     * </pre>
+     * }</pre>
+     * <!-- @formatter:on -->
      * 
      * @param body The body parameter.
      * @param requestOptions The options to configure the HTTP request before HTTP client sends it.
@@ -160,17 +155,16 @@ public final class ModelInOperationClient {
      * Expected body parameter:
      * ```json
      * {
-     * "name": "name",
-     * "desc": "desc"
+     *   "name": "name",
+     *   "desc": "desc"
      * }
      * ```.
      * <p><strong>Request Body Schema</strong></p>
-     * 
-     * <pre>
-     * {@code
+     * <!-- @formatter:off -->
+     * <pre>{@code
      * BinaryData
-     * }
-     * </pre>
+     * }</pre>
+     * <!-- @formatter:on -->
      * 
      * @param body The body parameter.
      * @param requestOptions The options to configure the HTTP request before HTTP client sends it.

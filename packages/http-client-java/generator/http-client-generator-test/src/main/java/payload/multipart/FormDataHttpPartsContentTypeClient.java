@@ -115,13 +115,11 @@ public final class FormDataHttpPartsContentTypeClient {
         RequestOptions requestOptions) {
         // Generated convenience method for imageJpegContentTypeWithResponseInternal
         requestOptions = requestOptions == null ? new RequestOptions() : requestOptions;
-        return imageJpegContentTypeWithResponseInternal(
-            new MultipartFormDataHelper(requestOptions)
-                .serializeFileField("profileImage", body.getProfileImage().getContent(),
-                    body.getProfileImage().getContentType(), body.getProfileImage().getFilename())
-                .end()
-                .getRequestBody(),
-            requestOptions);
+        return imageJpegContentTypeWithResponseInternal(new MultipartFormDataHelper(requestOptions)
+            .serializeFileField("profileImage", body.getProfileImage().getContent(),
+                body.getProfileImage().getContentType(), body.getProfileImage().getFilename())
+            .end()
+            .getRequestBody(), requestOptions);
     }
 
     /**
@@ -140,13 +138,11 @@ public final class FormDataHttpPartsContentTypeClient {
     public void imageJpegContentType(FileWithHttpPartSpecificContentTypeRequest body) {
         // Generated convenience method for imageJpegContentTypeWithResponseInternal
         RequestOptions requestOptions = new RequestOptions();
-        imageJpegContentTypeWithResponseInternal(
-            new MultipartFormDataHelper(requestOptions)
-                .serializeFileField("profileImage", body.getProfileImage().getContent(),
-                    body.getProfileImage().getContentType(), body.getProfileImage().getFilename())
-                .end()
-                .getRequestBody(),
-            requestOptions).getValue();
+        imageJpegContentTypeWithResponseInternal(new MultipartFormDataHelper(requestOptions)
+            .serializeFileField("profileImage", body.getProfileImage().getContent(),
+                body.getProfileImage().getContentType(), body.getProfileImage().getFilename())
+            .end()
+            .getRequestBody(), requestOptions).getValue();
     }
 
     /**
@@ -168,13 +164,11 @@ public final class FormDataHttpPartsContentTypeClient {
         RequestOptions requestOptions) {
         // Generated convenience method for requiredContentTypeWithResponseInternal
         requestOptions = requestOptions == null ? new RequestOptions() : requestOptions;
-        return requiredContentTypeWithResponseInternal(
-            new MultipartFormDataHelper(requestOptions)
-                .serializeFileField("profileImage", body.getProfileImage().getContent(),
-                    body.getProfileImage().getContentType(), body.getProfileImage().getFilename())
-                .end()
-                .getRequestBody(),
-            requestOptions);
+        return requiredContentTypeWithResponseInternal(new MultipartFormDataHelper(requestOptions)
+            .serializeFileField("profileImage", body.getProfileImage().getContent(),
+                body.getProfileImage().getContentType(), body.getProfileImage().getFilename())
+            .end()
+            .getRequestBody(), requestOptions);
     }
 
     /**
@@ -193,13 +187,11 @@ public final class FormDataHttpPartsContentTypeClient {
     public void requiredContentType(FileWithHttpPartRequiredContentTypeRequest body) {
         // Generated convenience method for requiredContentTypeWithResponseInternal
         RequestOptions requestOptions = new RequestOptions();
-        requiredContentTypeWithResponseInternal(
-            new MultipartFormDataHelper(requestOptions)
-                .serializeFileField("profileImage", body.getProfileImage().getContent(),
-                    body.getProfileImage().getContentType(), body.getProfileImage().getFilename())
-                .end()
-                .getRequestBody(),
-            requestOptions).getValue();
+        requiredContentTypeWithResponseInternal(new MultipartFormDataHelper(requestOptions)
+            .serializeFileField("profileImage", body.getProfileImage().getContent(),
+                body.getProfileImage().getContentType(), body.getProfileImage().getFilename())
+            .end()
+            .getRequestBody(), requestOptions).getValue();
     }
 
     /**
@@ -221,13 +213,11 @@ public final class FormDataHttpPartsContentTypeClient {
         RequestOptions requestOptions) {
         // Generated convenience method for optionalContentTypeWithResponseInternal
         requestOptions = requestOptions == null ? new RequestOptions() : requestOptions;
-        return optionalContentTypeWithResponseInternal(
-            new MultipartFormDataHelper(requestOptions)
-                .serializeFileField("profileImage", body.getProfileImage().getContent(),
-                    body.getProfileImage().getContentType(), body.getProfileImage().getFilename())
-                .end()
-                .getRequestBody(),
-            requestOptions);
+        return optionalContentTypeWithResponseInternal(new MultipartFormDataHelper(requestOptions)
+            .serializeFileField("profileImage", body.getProfileImage().getContent(),
+                body.getProfileImage().getContentType(), body.getProfileImage().getFilename())
+            .end()
+            .getRequestBody(), requestOptions);
     }
 
     /**
@@ -246,12 +236,10 @@ public final class FormDataHttpPartsContentTypeClient {
     public void optionalContentType(FileWithHttpPartOptionalContentTypeRequest body) {
         // Generated convenience method for optionalContentTypeWithResponseInternal
         RequestOptions requestOptions = new RequestOptions();
-        optionalContentTypeWithResponseInternal(
-            new MultipartFormDataHelper(requestOptions)
-                .serializeFileField("profileImage", body.getProfileImage().getContent(),
-                    body.getProfileImage().getContentType(), body.getProfileImage().getFilename())
-                .end()
-                .getRequestBody(),
-            requestOptions).getValue();
+        optionalContentTypeWithResponseInternal(new MultipartFormDataHelper(requestOptions)
+            .serializeFileField("profileImage", body.getProfileImage().getContent(),
+                body.getProfileImage().getContentType(), body.getProfileImage().getFilename())
+            .end()
+            .getRequestBody(), requestOptions).getValue();
     }
 }

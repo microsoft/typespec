@@ -118,8 +118,11 @@ public final class FormDataFileClient {
         // Generated convenience method for uploadFileSpecificContentTypeWithResponseInternal
         requestOptions = requestOptions == null ? new RequestOptions() : requestOptions;
         return uploadFileSpecificContentTypeWithResponseInternal(
-            new MultipartFormDataHelper(requestOptions).serializeFileField("file", body.getFile().getContent(),
-                body.getFile().getContentType(), body.getFile().getFilename()).end().getRequestBody(),
+            new MultipartFormDataHelper(requestOptions)
+                .serializeFileField("file", body.getFile().getContent(), body.getFile().getContentType(),
+                    body.getFile().getFilename())
+                .end()
+                .getRequestBody(),
             requestOptions);
     }
 
@@ -140,8 +143,11 @@ public final class FormDataFileClient {
         // Generated convenience method for uploadFileSpecificContentTypeWithResponseInternal
         RequestOptions requestOptions = new RequestOptions();
         uploadFileSpecificContentTypeWithResponseInternal(
-            new MultipartFormDataHelper(requestOptions).serializeFileField("file", body.getFile().getContent(),
-                body.getFile().getContentType(), body.getFile().getFilename()).end().getRequestBody(),
+            new MultipartFormDataHelper(requestOptions)
+                .serializeFileField("file", body.getFile().getContent(), body.getFile().getContentType(),
+                    body.getFile().getFilename())
+                .end()
+                .getRequestBody(),
             requestOptions).getValue();
     }
 
@@ -165,8 +171,11 @@ public final class FormDataFileClient {
         // Generated convenience method for uploadFileRequiredFilenameWithResponseInternal
         requestOptions = requestOptions == null ? new RequestOptions() : requestOptions;
         return uploadFileRequiredFilenameWithResponseInternal(
-            new MultipartFormDataHelper(requestOptions).serializeFileField("file", body.getFile().getContent(),
-                body.getFile().getContentType(), body.getFile().getFilename()).end().getRequestBody(),
+            new MultipartFormDataHelper(requestOptions)
+                .serializeFileField("file", body.getFile().getContent(), body.getFile().getContentType(),
+                    body.getFile().getFilename())
+                .end()
+                .getRequestBody(),
             requestOptions);
     }
 
@@ -187,8 +196,11 @@ public final class FormDataFileClient {
         // Generated convenience method for uploadFileRequiredFilenameWithResponseInternal
         RequestOptions requestOptions = new RequestOptions();
         uploadFileRequiredFilenameWithResponseInternal(
-            new MultipartFormDataHelper(requestOptions).serializeFileField("file", body.getFile().getContent(),
-                body.getFile().getContentType(), body.getFile().getFilename()).end().getRequestBody(),
+            new MultipartFormDataHelper(requestOptions)
+                .serializeFileField("file", body.getFile().getContent(), body.getFile().getContentType(),
+                    body.getFile().getFilename())
+                .end()
+                .getRequestBody(),
             requestOptions).getValue();
     }
 

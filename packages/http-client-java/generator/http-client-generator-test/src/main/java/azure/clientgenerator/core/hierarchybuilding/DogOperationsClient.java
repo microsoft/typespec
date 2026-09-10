@@ -39,30 +39,27 @@ public final class DogOperationsClient {
     /**
      * Update a dog as a dog.
      * <p><strong>Request Body Schema</strong></p>
-     * 
-     * <pre>
-     * {@code
+     * <!-- @formatter:off -->
+     * <pre>{@code
      * {
      *     kind: String (Required)
      *     name: String (Required)
      *     trained: boolean (Required)
      *     breed: String (Required)
      * }
-     * }
-     * </pre>
-     * 
+     * }</pre>
+     * <!-- @formatter:on -->
      * <p><strong>Response Body Schema</strong></p>
-     * 
-     * <pre>
-     * {@code
+     * <!-- @formatter:off -->
+     * <pre>{@code
      * {
      *     kind: String (Required)
      *     name: String (Required)
      *     trained: boolean (Required)
      *     breed: String (Required)
      * }
-     * }
-     * </pre>
+     * }</pre>
+     * <!-- @formatter:on -->
      * 
      * @param dog The dog parameter.
      * @param requestOptions The options to configure the HTTP request before HTTP client sends it.

@@ -142,15 +142,13 @@ public final class MultipleContentTypesOnRequestsImpl {
     /**
      * one data type maps to multiple content types.
      * <p><strong>Request Body Schema</strong></p>
-     * 
-     * <pre>
-     * {@code
+     * <!-- @formatter:off -->
+     * <pre>{@code
      * BinaryData
-     * }
-     * </pre>
+     * }</pre>
+     * <!-- @formatter:on -->
      * 
-     * @param contentType The contentType parameter. Allowed values: "application/octet-stream", "image/jpeg",
-     * "image/png", "application/json-patch+json".
+     * @param contentType The contentType parameter. Allowed values: "application/octet-stream", "image/jpeg", "image/png", "application/json-patch+json".
      * @param data The data parameter.
      * @param requestOptions The options to configure the HTTP request before HTTP client sends it.
      * @throws HttpResponseException thrown if the request is rejected by server.
@@ -170,15 +168,13 @@ public final class MultipleContentTypesOnRequestsImpl {
     /**
      * one data type maps to multiple content types.
      * <p><strong>Request Body Schema</strong></p>
-     * 
-     * <pre>
-     * {@code
+     * <!-- @formatter:off -->
+     * <pre>{@code
      * BinaryData
-     * }
-     * </pre>
+     * }</pre>
+     * <!-- @formatter:on -->
      * 
-     * @param contentType The contentType parameter. Allowed values: "application/octet-stream", "image/jpeg",
-     * "image/png", "application/json-patch+json".
+     * @param contentType The contentType parameter. Allowed values: "application/octet-stream", "image/jpeg", "image/png", "application/json-patch+json".
      * @param data The data parameter.
      * @param requestOptions The options to configure the HTTP request before HTTP client sends it.
      * @throws HttpResponseException thrown if the request is rejected by server.
@@ -197,15 +193,13 @@ public final class MultipleContentTypesOnRequestsImpl {
     /**
      * multiple data types map to multiple content types using shared route.
      * <p><strong>Request Body Schema</strong></p>
-     * 
-     * <pre>
-     * {@code
+     * <!-- @formatter:off -->
+     * <pre>{@code
      * BinaryData
-     * }
-     * </pre>
+     * }</pre>
+     * <!-- @formatter:on -->
      * 
-     * @param contentType The contentType parameter. Allowed values: "application/octet-stream", "image/jpeg",
-     * "image/png".
+     * @param contentType The contentType parameter. Allowed values: "application/octet-stream", "image/jpeg", "image/png".
      * @param data The data parameter.
      * @param requestOptions The options to configure the HTTP request before HTTP client sends it.
      * @throws HttpResponseException thrown if the request is rejected by server.
@@ -225,15 +219,13 @@ public final class MultipleContentTypesOnRequestsImpl {
     /**
      * multiple data types map to multiple content types using shared route.
      * <p><strong>Request Body Schema</strong></p>
-     * 
-     * <pre>
-     * {@code
+     * <!-- @formatter:off -->
+     * <pre>{@code
      * BinaryData
-     * }
-     * </pre>
+     * }</pre>
+     * <!-- @formatter:on -->
      * 
-     * @param contentType The contentType parameter. Allowed values: "application/octet-stream", "image/jpeg",
-     * "image/png".
+     * @param contentType The contentType parameter. Allowed values: "application/octet-stream", "image/jpeg", "image/png".
      * @param data The data parameter.
      * @param requestOptions The options to configure the HTTP request before HTTP client sends it.
      * @throws HttpResponseException thrown if the request is rejected by server.
@@ -252,15 +244,14 @@ public final class MultipleContentTypesOnRequestsImpl {
     /**
      * multiple data types map to multiple content types using shared route.
      * <p><strong>Request Body Schema</strong></p>
-     * 
-     * <pre>
-     * {@code
+     * <!-- @formatter:off -->
+     * <pre>{@code
      * {
      *     id: String (Required)
      *     name: String (Required)
      * }
-     * }
-     * </pre>
+     * }</pre>
+     * <!-- @formatter:on -->
      * 
      * @param data The data parameter.
      * @param requestOptions The options to configure the HTTP request before HTTP client sends it.
@@ -282,15 +273,14 @@ public final class MultipleContentTypesOnRequestsImpl {
     /**
      * multiple data types map to multiple content types using shared route.
      * <p><strong>Request Body Schema</strong></p>
-     * 
-     * <pre>
-     * {@code
+     * <!-- @formatter:off -->
+     * <pre>{@code
      * {
      *     id: String (Required)
      *     name: String (Required)
      * }
-     * }
-     * </pre>
+     * }</pre>
+     * <!-- @formatter:on -->
      * 
      * @param data The data parameter.
      * @param requestOptions The options to configure the HTTP request before HTTP client sends it.
@@ -311,15 +301,13 @@ public final class MultipleContentTypesOnRequestsImpl {
     /**
      * multiple data types map to multiple content types using shared route.
      * <p><strong>Request Body Schema</strong></p>
-     * 
-     * <pre>
-     * {@code
+     * <!-- @formatter:off -->
+     * <pre>{@code
      * BinaryData
-     * }
-     * </pre>
+     * }</pre>
+     * <!-- @formatter:on -->
      * 
-     * @param contentType The contentType parameter. Allowed values: "application/json", "application/octet-stream",
-     * "image/jpeg", "image/png".
+     * @param contentType The contentType parameter. Allowed values: "application/json", "application/octet-stream", "image/jpeg", "image/png".
      * @param data The data parameter.
      * @param requestOptions The options to configure the HTTP request before HTTP client sends it.
      * @throws HttpResponseException thrown if the request is rejected by server.
@@ -338,15 +326,13 @@ public final class MultipleContentTypesOnRequestsImpl {
     /**
      * multiple data types map to multiple content types using shared route.
      * <p><strong>Request Body Schema</strong></p>
-     * 
-     * <pre>
-     * {@code
+     * <!-- @formatter:off -->
+     * <pre>{@code
      * BinaryData
-     * }
-     * </pre>
+     * }</pre>
+     * <!-- @formatter:on -->
      * 
-     * @param contentType The contentType parameter. Allowed values: "application/json", "application/octet-stream",
-     * "image/jpeg", "image/png".
+     * @param contentType The contentType parameter. Allowed values: "application/json", "application/octet-stream", "image/jpeg", "image/png".
      * @param data The data parameter.
      * @param requestOptions The options to configure the HTTP request before HTTP client sends it.
      * @throws HttpResponseException thrown if the request is rejected by server.

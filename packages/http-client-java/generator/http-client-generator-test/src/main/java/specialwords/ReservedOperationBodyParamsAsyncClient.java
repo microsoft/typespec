@@ -42,16 +42,15 @@ public final class ReservedOperationBodyParamsAsyncClient {
     /**
      * The withItems operation.
      * <p><strong>Request Body Schema</strong></p>
-     * 
-     * <pre>
-     * {@code
+     * <!-- @formatter:off -->
+     * <pre>{@code
      * {
      *     items (Required): [
      *         String (Required)
      *     ]
      * }
-     * }
-     * </pre>
+     * }</pre>
+     * <!-- @formatter:on -->
      * 
      * @param withItemsRequest The withItemsRequest parameter.
      * @param requestOptions The options to configure the HTTP request before HTTP client sends it.
