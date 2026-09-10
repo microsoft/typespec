@@ -35,81 +35,6 @@ namespace Microsoft.TypeSpec.Generator.Tests.Providers.ModelProviders
         }
 
         [Test]
-        public async Task CanRenameModelByQualifiedName()
-        {
-            var unnamed = InputFactory.Model("Info", @namespace: "Sample.Unnamed");
-            var protocol = InputFactory.Model("Info", @namespace: "Sample.Protocol");
-            var mockGenerator = await MockHelpers.LoadMockGeneratorAsync(
-                inputModelTypes: [unnamed, protocol],
-                compilation: async () => await Helpers.GetCompilationFromDirectoryAsync());
-
-            var providers = mockGenerator.Object.OutputLibrary.TypeProviders;
-            var models = providers.OfType<ModelProvider>().ToArray();
-            var unnamedProvider = models.Single(model => model.Type.Namespace == "Sample.Unnamed");
-            var protocolProvider = models.Single(model => model.Type.Namespace == "Sample.Protocol");
-
-            Assert.IsNull(unnamedProvider.CustomCodeView);
-            Assert.AreEqual("Info", unnamedProvider.Name);
-            AssertCommon(protocolProvider, "Sample.Protocol", "ProtocolInfo");
-            Assert.AreNotEqual(unnamedProvider.RelativeFilePath, protocolProvider.RelativeFilePath);
-
-            var factory = providers.Single(provider => provider is ModelFactoryProvider);
-            Assert.That(factory.Methods.Select(method => method.Signature.Name),
-                Is.EquivalentTo(new[] { "Info", "ProtocolInfo" }));
-            Assert.That(factory.Methods.Select(method => method.Signature.ReturnType),
-                Is.EquivalentTo(new[] { unnamedProvider.Type, protocolProvider.Type }));
-
-            Assert.IsNull(mockGenerator.Object.SourceInputModel.FindForTypeInCurrentCompilation("Sample.protocol", "Info"));
-            var differentName = new ModelProvider(InputFactory.Model("Other", @namespace: "Sample.Protocol"));
-            Assert.IsNull(differentName.CustomCodeView);
-            Assert.AreEqual("Other", differentName.Name);
-        }
-
-        [Test]
-        public async Task CanRenameModelsByQualifiedNames()
-        {
-            await MockHelpers.LoadMockGeneratorAsync(
-                compilation: async () => await Helpers.GetCompilationFromDirectoryAsync());
-
-            var unnamed = new ModelProvider(InputFactory.Model("Info", @namespace: "Sample.Unnamed"));
-            var protocol = new ModelProvider(InputFactory.Model("Info", @namespace: "Sample.Protocol"));
-
-            AssertCommon(unnamed, "Customized.Models", "UnnamedInfo");
-            AssertCommon(protocol, "Customized.Models", "ProtocolInfo");
-            Assert.AreNotEqual(unnamed.RelativeFilePath, protocol.RelativeFilePath);
-        }
-
-        [Test]
-        public async Task QualifiedNameOverridesSimpleName()
-        {
-            await MockHelpers.LoadMockGeneratorAsync(
-                compilation: async () => await Helpers.GetCompilationFromDirectoryAsync());
-
-            var unnamed = new ModelProvider(InputFactory.Model("Info", @namespace: "Sample.Unnamed"));
-            var protocol = new ModelProvider(InputFactory.Model("Info", @namespace: "Sample.Protocol"));
-
-            AssertCommon(unnamed, "Customized.Models", "DefaultInfo");
-            AssertCommon(protocol, "Customized.Models", "ProtocolInfo");
-        }
-
-        [Test]
-        public async Task CanRenameEnumByQualifiedName()
-        {
-            await MockHelpers.LoadMockGeneratorAsync(
-                compilation: async () => await Helpers.GetCompilationFromDirectoryAsync());
-
-            var first = new FixedEnumProvider(
-                InputFactory.StringEnum("Status", [("ready", "ready")], clientNamespace: "Sample.First"), null);
-            var second = new FixedEnumProvider(
-                InputFactory.StringEnum("Status", [("ready", "ready")], clientNamespace: "Sample.Second"), null);
-
-            AssertCommon(first, "Customized.Models", "FirstStatus");
-            Assert.IsNull(second.CustomCodeView);
-            Assert.AreEqual("Status", second.Name);
-            Assert.AreEqual("Sample.Second", second.Type.Namespace);
-        }
-
-        [Test]
         public async Task CanChangeEnumName()
         {
             await MockHelpers.LoadMockGeneratorAsync(compilation: async () => await Helpers.GetCompilationFromDirectoryAsync());
@@ -144,7 +69,7 @@ namespace Microsoft.TypeSpec.Generator.Tests.Providers.ModelProviders
             Assert.AreEqual("Prop2", modelTypeProvider.CustomCodeView.Properties[0].Name);
             var wireInfo = modelTypeProvider.CustomCodeView.Properties[0].WireInfo;
             Assert.IsNotNull(wireInfo);
-            Assert.AreEqual("prop1", wireInfo!.SerializedName);
+            Assert.AreEqual( "prop1", wireInfo!.SerializedName);
 
             Assert.AreEqual(0, modelTypeProvider.Properties.Count);
 
