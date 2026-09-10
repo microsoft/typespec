@@ -6,5 +6,6 @@ public virtual async global::System.Threading.Tasks.Task<global::System.ClientMo
     global::System.ClientModel.ClientResult result = await this.UpdateResourceAsync(content, param2, param3, cancellationToken.ToRequestOptions()).ConfigureAwait(false);
     using global::System.IO.Stream stream = result.GetRawResponse().Content.ToStream();
     using global::System.Text.Json.JsonDocument document = global::System.Text.Json.JsonDocument.Parse(stream);
-    return global::System.ClientModel.ClientResult.FromValue(document.RootElement.GetString(), result.GetRawResponse());
+    string value = document.RootElement.GetString();
+    return global::System.ClientModel.ClientResult.FromValue(value, result.GetRawResponse());
 }

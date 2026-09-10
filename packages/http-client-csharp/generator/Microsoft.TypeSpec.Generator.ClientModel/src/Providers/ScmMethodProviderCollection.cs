@@ -295,7 +295,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
                     Declare("result", This.Invoke(protocolMethod.Signature, [.. GetProtocolMethodArguments(paramDeclarations)], isAsync).ToApi<ClientResponseApi>(), out ClientResponseApi result),
                     .. GetStackVariablesForReturnValueConversion(result, responseBodyType, isAsync, out var resultDeclarations),
                     IsConvertibleFromBinaryData(responseBodyType)
-                        ? Return(result.FromValue(GetResultConversion(result, result.GetRawResponse(), responseBodyType, resultDeclarations), result.GetRawResponse()))
+                        ? GetResultConversionStatements(result, result.GetRawResponse(), responseBodyType, resultDeclarations)
                         :
                         new[]
                         {
@@ -854,6 +854,39 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
             return scopedApi.Add(element);
         }
 
+        private MethodBodyStatement[] GetResultConversionStatements(ClientResponseApi result, HttpResponseApi response, CSharpType responseBodyType, Dictionary<string, ValueExpression> declarations)
+        {
+            var isSpecialCaseType = responseBodyType.Equals(typeof(BinaryData))
+                || responseBodyType.IsReadOnlyMemory
+                || responseBodyType.IsList
+                || responseBodyType.IsDictionary
+                || IsPlainTextResponse(responseBodyType);
+
+            if (!isSpecialCaseType && (responseBodyType.IsFrameworkType || responseBodyType.IsEnum))
+            {
+                var element = declarations["document"].As<JsonDocument>().RootElement();
+                var deserializedValue = ScmCodeModelGenerator.Instance.TypeFactory.DeserializeJsonValue(
+                    responseBodyType.WithNullable(false),
+                    element,
+                    declarations["data"].As<BinaryData>(),
+                    ScmCodeModelGenerator.Instance.ModelSerializationExtensionsDefinition.WireOptionsField.As<ModelReaderWriterOptions>(),
+                    responseBodyType.Equals(typeof(TimeSpan)) || responseBodyType.Equals(typeof(TimeSpan?))
+                        ? SerializationFormat.Duration_Constant
+                        : SerializationFormat.Default);
+                var valueExpression = responseBodyType.IsNullable
+                    ? new TernaryConditionalExpression(element.ValueKindEqualsNull(), Null.CastTo(responseBodyType), deserializedValue)
+                    : deserializedValue;
+
+                return
+                [
+                    Declare("value", responseBodyType, valueExpression, out var value),
+                    Return(result.FromValue(value, response))
+                ];
+            }
+
+            return [Return(result.FromValue(GetResultConversion(result, response, responseBodyType, declarations), response))];
+        }
+
         private ValueExpression GetResultConversion(ClientResponseApi result, HttpResponseApi response, CSharpType responseBodyType, Dictionary<string, ValueExpression> declarations)
         {
             if (responseBodyType.Equals(typeof(BinaryData)))
@@ -875,21 +908,6 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
             if (IsPlainTextResponse(responseBodyType))
             {
                 return response.Content().InvokeToString();
-            }
-            if (responseBodyType.IsFrameworkType || responseBodyType.IsEnum)
-            {
-                var element = declarations["document"].As<JsonDocument>().RootElement();
-                var value = ScmCodeModelGenerator.Instance.TypeFactory.DeserializeJsonValue(
-                    responseBodyType.WithNullable(false),
-                    element,
-                    declarations["data"].As<BinaryData>(),
-                    ScmCodeModelGenerator.Instance.ModelSerializationExtensionsDefinition.WireOptionsField.As<ModelReaderWriterOptions>(),
-                    responseBodyType.Equals(typeof(TimeSpan)) || responseBodyType.Equals(typeof(TimeSpan?))
-                        ? SerializationFormat.Duration_Constant
-                        : SerializationFormat.Default);
-                return responseBodyType.IsNullable
-                    ? new TernaryConditionalExpression(element.ValueKindEqualsNull(), Null.CastTo(responseBodyType), value)
-                    : value;
             }
             return result.CastTo(responseBodyType);
         }

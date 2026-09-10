@@ -40,7 +40,8 @@ namespace Sample
             global::System.ClientModel.ClientResult result = this.GetData(itemId, filter, region, sort, cancellationToken.ToRequestOptions());
             using global::System.IO.Stream stream = result.GetRawResponse().Content.ToStream();
             using global::System.Text.Json.JsonDocument document = global::System.Text.Json.JsonDocument.Parse(stream);
-            return global::System.ClientModel.ClientResult.FromValue(document.RootElement.GetString(), result.GetRawResponse());
+            string value = document.RootElement.GetString();
+            return global::System.ClientModel.ClientResult.FromValue(value, result.GetRawResponse());
         }
 
         public virtual async global::System.Threading.Tasks.Task<global::System.ClientModel.ClientResult<string>> GetDataAsync(string itemId, int filter, string region, string sort = default, global::System.Threading.CancellationToken cancellationToken = default)
@@ -51,7 +52,8 @@ namespace Sample
             global::System.ClientModel.ClientResult result = await this.GetDataAsync(itemId, filter, region, sort, cancellationToken.ToRequestOptions()).ConfigureAwait(false);
             using global::System.IO.Stream stream = result.GetRawResponse().Content.ToStream();
             using global::System.Text.Json.JsonDocument document = global::System.Text.Json.JsonDocument.Parse(stream);
-            return global::System.ClientModel.ClientResult.FromValue(document.RootElement.GetString(), result.GetRawResponse());
+            string value = document.RootElement.GetString();
+            return global::System.ClientModel.ClientResult.FromValue(value, result.GetRawResponse());
         }
 
 #pragma warning disable AZC0002 // Back-compat overload preserves the previous method signature where CancellationToken was the trailing parameter. Making it optional would introduce an ambiguous call with the new method.

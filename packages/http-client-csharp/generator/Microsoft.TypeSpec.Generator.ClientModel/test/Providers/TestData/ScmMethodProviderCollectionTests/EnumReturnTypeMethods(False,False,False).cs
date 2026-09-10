@@ -3,5 +3,6 @@ public virtual global::System.ClientModel.ClientResult<global::Sample.Models.Tes
     global::System.ClientModel.ClientResult result = this.GetEnum(cancellationToken.ToRequestOptions());
     using global::System.IO.Stream stream = result.GetRawResponse().Content.ToStream();
     using global::System.Text.Json.JsonDocument document = global::System.Text.Json.JsonDocument.Parse(stream);
-    return global::System.ClientModel.ClientResult.FromValue(document.RootElement.GetInt32().ToTestEnum(), result.GetRawResponse());
+    global::Sample.Models.TestEnum value = document.RootElement.GetInt32().ToTestEnum();
+    return global::System.ClientModel.ClientResult.FromValue(value, result.GetRawResponse());
 }
