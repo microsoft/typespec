@@ -3050,12 +3050,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers.ClientProvide
             Assert.IsNotNull(body);
 
             var result = body!.ToDisplayString();
-            Assert.AreEqual(
-                "global::Sample.Argument.AssertNotNullOrEmpty(param1, nameof(param1));\n\n" +
-                "using global::System.ClientModel.BinaryContent content = global::System.ClientModel.BinaryContent.Create(global::System.BinaryData.FromString(param1));\n" +
-                "global::System.ClientModel.ClientResult result = this.GetData(param3, param2, content, cancellationToken.ToRequestOptions());\n" +
-                "return global::System.ClientModel.ClientResult.FromValue(result.GetRawResponse().Content.ToObjectFromJson<string>(), result.GetRawResponse());\n",
-                result);
+            Assert.AreEqual(Helpers.GetExpectedFromFile("Sync"), result);
 
             var asyncConvenienceMethod = convenienceMethods
                 .FirstOrDefault(m => m.Signature.Modifiers.HasFlag(MethodSignatureModifiers.Async));
@@ -3065,12 +3060,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers.ClientProvide
             Assert.IsNotNull(body);
 
             result = body!.ToDisplayString();
-            Assert.AreEqual(
-                "global::Sample.Argument.AssertNotNullOrEmpty(param1, nameof(param1));\n\n" +
-                "using global::System.ClientModel.BinaryContent content = global::System.ClientModel.BinaryContent.Create(global::System.BinaryData.FromString(param1));\n" +
-                "global::System.ClientModel.ClientResult result = await this.GetDataAsync(param3, param2, content, cancellationToken.ToRequestOptions()).ConfigureAwait(false);\n" +
-                "return global::System.ClientModel.ClientResult.FromValue(result.GetRawResponse().Content.ToObjectFromJson<string>(), result.GetRawResponse());\n",
-               result);
+            Assert.AreEqual(Helpers.GetExpectedFromFile("Async"), result);
         }
 
         [Test]
@@ -3147,12 +3137,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers.ClientProvide
             Assert.IsNotNull(body);
 
             var result = body!.ToDisplayString();
-            Assert.AreEqual(
-                "global::Sample.Argument.AssertNotNullOrEmpty(param1, nameof(param1));\n\n" +
-                "using global::System.ClientModel.BinaryContent content = global::System.ClientModel.BinaryContent.Create(global::System.BinaryData.FromString(param1));\n" +
-                "global::System.ClientModel.ClientResult result = this.UpdateResource(content, param2, param3, cancellationToken.ToRequestOptions());\n" +
-                "return global::System.ClientModel.ClientResult.FromValue(result.GetRawResponse().Content.ToObjectFromJson<string>(), result.GetRawResponse());\n",
-                result);
+            Assert.AreEqual(Helpers.GetExpectedFromFile("Sync"), result);
 
             var asyncConvenienceMethod = convenienceMethods
                 .FirstOrDefault(m => m.Signature.Modifiers.HasFlag(MethodSignatureModifiers.Async));
@@ -3162,12 +3147,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers.ClientProvide
             Assert.IsNotNull(body);
 
             result = body!.ToDisplayString();
-            Assert.AreEqual(
-               "global::Sample.Argument.AssertNotNullOrEmpty(param1, nameof(param1));\n\n" +
-               "using global::System.ClientModel.BinaryContent content = global::System.ClientModel.BinaryContent.Create(global::System.BinaryData.FromString(param1));\n" +
-               "global::System.ClientModel.ClientResult result = await this.UpdateResourceAsync(content, param2, param3, cancellationToken.ToRequestOptions()).ConfigureAwait(false);\n" +
-               "return global::System.ClientModel.ClientResult.FromValue(result.GetRawResponse().Content.ToObjectFromJson<string>(), result.GetRawResponse());\n",
-               result);
+            Assert.AreEqual(Helpers.GetExpectedFromFile("Async"), result);
         }
 
         [Test]

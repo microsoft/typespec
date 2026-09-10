@@ -2,9 +2,11 @@
 
 #nullable disable
 
+using System;
 using System.ClientModel;
 using System.ClientModel.Primitives;
 using System.ComponentModel;
+using System.Text.Json;
 using System.Threading;
 using System.Threading.Tasks;
 using Sample.Models;
@@ -34,7 +36,9 @@ namespace Sample
             global::Sample.Argument.AssertNotNull(body, nameof(body));
 
             global::System.ClientModel.ClientResult result = this.GetData(param1, body, param3, cancellationToken.ToRequestOptions());
-            return global::System.ClientModel.ClientResult.FromValue(result.GetRawResponse().Content.ToObjectFromJson<string>(), result.GetRawResponse());
+            global::System.BinaryData data = result.GetRawResponse().Content;
+            using global::System.Text.Json.JsonDocument document = global::System.Text.Json.JsonDocument.Parse(data);
+            return global::System.ClientModel.ClientResult.FromValue(document.RootElement.GetString(), result.GetRawResponse());
         }
 
         public virtual async global::System.Threading.Tasks.Task<global::System.ClientModel.ClientResult<string>> GetDataAsync(int param1, global::Sample.Models.SampleModel body, bool? param3 = default, global::System.Threading.CancellationToken cancellationToken = default)
@@ -42,7 +46,9 @@ namespace Sample
             global::Sample.Argument.AssertNotNull(body, nameof(body));
 
             global::System.ClientModel.ClientResult result = await this.GetDataAsync(param1, body, param3, cancellationToken.ToRequestOptions()).ConfigureAwait(false);
-            return global::System.ClientModel.ClientResult.FromValue(result.GetRawResponse().Content.ToObjectFromJson<string>(), result.GetRawResponse());
+            global::System.BinaryData data = result.GetRawResponse().Content;
+            using global::System.Text.Json.JsonDocument document = global::System.Text.Json.JsonDocument.Parse(data);
+            return global::System.ClientModel.ClientResult.FromValue(document.RootElement.GetString(), result.GetRawResponse());
         }
 
 #pragma warning disable AZC0002 // Back-compat overload preserves the previous method signature where CancellationToken was the trailing parameter. Making it optional would introduce an ambiguous call with the new method.

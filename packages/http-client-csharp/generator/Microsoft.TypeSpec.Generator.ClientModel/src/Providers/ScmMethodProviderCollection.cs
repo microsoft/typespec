@@ -634,6 +634,21 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
                     out declarations);
             }
 
+            if (IsConvertibleFromBinaryData(responseBodyType)
+                && (responseBodyType.IsFrameworkType || responseBodyType.IsEnum)
+                && !responseBodyType.Equals(typeof(BinaryData))
+                && !IsPlainTextResponse(responseBodyType))
+            {
+                var statements = new MethodBodyStatement[]
+                {
+                    Declare("data", result.GetRawResponse().Content(), out var data),
+                    UsingDeclare("document", data.Parse(), out var document)
+                };
+                declarations["data"] = data;
+                declarations["document"] = document;
+                return statements;
+            }
+
             return [];
         }
 
@@ -855,20 +870,30 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
             {
                 return declarations["value"].CastTo(new CSharpType(responseBodyType.OutputType.FrameworkType, responseBodyType.Arguments[0], responseBodyType.Arguments[1]));
             }
-            if (responseBodyType.Equals(typeof(string)) && ServiceMethod.Operation.Responses.Any(r => r.IsErrorResponse is false && r.ContentTypes.Contains("text/plain")))
+            if (IsPlainTextResponse(responseBodyType))
             {
                 return response.Content().InvokeToString();
             }
-            if (responseBodyType.IsFrameworkType)
+            if (responseBodyType.IsFrameworkType || responseBodyType.IsEnum)
             {
-                return response.Content().ToObjectFromJson(responseBodyType);
-            }
-            if (responseBodyType.IsEnum)
-            {
-                return responseBodyType.ToEnum(response.Content().ToObjectFromJson(responseBodyType.UnderlyingEnumType));
+                var element = declarations["document"].As<JsonDocument>().RootElement();
+                var value = ScmCodeModelGenerator.Instance.TypeFactory.DeserializeJsonValue(
+                    responseBodyType.WithNullable(false),
+                    element,
+                    declarations["data"].As<BinaryData>(),
+                    ScmCodeModelGenerator.Instance.ModelSerializationExtensionsDefinition.WireOptionsField.As<ModelReaderWriterOptions>(),
+                    responseBodyType.Equals(typeof(TimeSpan)) || responseBodyType.Equals(typeof(TimeSpan?))
+                        ? SerializationFormat.Duration_Constant
+                        : SerializationFormat.Default);
+                return responseBodyType.IsNullable
+                    ? new TernaryConditionalExpression(element.ValueKindEqualsNull(), Null.CastTo(responseBodyType), value)
+                    : value;
             }
             return result.CastTo(responseBodyType);
         }
+
+        private bool IsPlainTextResponse(CSharpType responseBodyType)
+            => responseBodyType.Equals(typeof(string)) && ServiceMethod.Operation.Responses.Any(r => r.IsErrorResponse is false && r.ContentTypes.Contains("text/plain"));
 
         private static bool ShouldBuildStackVarForFrameworkType(CSharpType type)
         {
