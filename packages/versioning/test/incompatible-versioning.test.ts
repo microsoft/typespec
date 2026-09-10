@@ -314,6 +314,23 @@ describe("versioning: validate incompatible references", () => {
       });
     });
 
+    it("emit diagnostic when referenced type is removed while property remains available", async () => {
+      const diagnostics = await runner.diagnose(`
+        @removed(Versions.v2)
+        model Target {}
+
+        @added(Versions.v1)
+        model Source {
+          target: Target;
+        }
+      `);
+      expectDiagnostics(diagnostics, {
+        code: "@typespec/versioning/incompatible-versioned-reference",
+        message:
+          "'TestService.Source.target' is referencing type 'TestService.Target' which does not exist in version 'v2'.",
+      });
+    });
+
     it("emit diagnostic when using @typeChangedFrom with a type parameter that does not yet exist", async () => {
       const diagnostics = await runner.diagnose(`        
         @test
