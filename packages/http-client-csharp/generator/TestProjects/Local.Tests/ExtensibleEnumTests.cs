@@ -24,7 +24,7 @@ namespace TestProjects.Local.Tests
         [TestCase(true, true)]
         public async Task EnumResponseDeserialization(bool hasBom, bool isAsync)
         {
-            var content = BinaryData.FromString((hasBom ? "\uFEFF" : "") + "\"Monday\"");
+            var content = BinaryData.FromString((hasBom ? "\uFEFF" : "") + "Monday");
             var response = new Mock<PipelineResponse>();
             response.SetupGet(r => r.Content).Returns(content);
             var protocolResult = ClientResult.FromResponse(response.Object);

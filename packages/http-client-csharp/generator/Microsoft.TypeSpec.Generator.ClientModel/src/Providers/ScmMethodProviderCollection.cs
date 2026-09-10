@@ -1,12 +1,15 @@
 // Copyright (c) Microsoft Corporation. All rights reserved.
 // Licensed under the MIT License.
 
+// cspell:ignore FEFF
+
 using System;
 using System.ClientModel;
 using System.ClientModel.Primitives;
 using System.Collections;
 using System.Collections.Generic;
 using System.Diagnostics.CodeAnalysis;
+using System.Globalization;
 using System.IO;
 using System.Linq;
 using System.Net.ServerSentEvents;
@@ -637,7 +640,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
             if (IsConvertibleFromBinaryData(responseBodyType)
                 && (responseBodyType.IsFrameworkType || responseBodyType.IsEnum)
                 && !responseBodyType.Equals(typeof(BinaryData))
-                && !IsPlainTextResponse(responseBodyType))
+                && !IsPlainTextConversion(responseBodyType))
             {
                 var data = result.GetRawResponse().Content();
                 // The stream overload preserves UTF-8 BOM handling from ToObjectFromJson.
@@ -856,6 +859,21 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
 
         private MethodBodyStatement[] GetResultConversionStatements(ClientResponseApi result, HttpResponseApi response, CSharpType responseBodyType, Dictionary<string, ValueExpression> declarations)
         {
+            // Operations that return a non-string primitive or enum with a text/plain content type are not JSON-encoded,
+            // so the value must be parsed from the raw response text instead of going through JsonDocument. A leading
+            // UTF-8 BOM is stripped first to match the tolerance previously provided by JsonDocument/ToObjectFromJson.
+            if (IsPlainTextConversion(responseBodyType) && !responseBodyType.Equals(typeof(string)))
+            {
+                var content = response.Content().InvokeToString().Invoke(nameof(string.TrimStart), Literal('\uFEFF')).As<string>();
+                var valueExpression = GetPlainTextValueConversion(responseBodyType, content);
+
+                return
+                [
+                    Declare("value", responseBodyType, valueExpression, out var value),
+                    Return(result.FromValue(value, response))
+                ];
+            }
+
             var isSpecialCaseType = responseBodyType.Equals(typeof(BinaryData))
                 || responseBodyType.IsReadOnlyMemory
                 || responseBodyType.IsList
@@ -913,7 +931,76 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
         }
 
         private bool IsPlainTextResponse(CSharpType responseBodyType)
-            => responseBodyType.Equals(typeof(string)) && ServiceMethod.Operation.Responses.Any(r => r.IsErrorResponse is false && r.ContentTypes.Contains("text/plain"));
+            => responseBodyType.Equals(typeof(string)) && HasPlainTextContentType();
+
+        /// <summary>
+        /// Whether <paramref name="responseBodyType"/> has a text/plain content type and is a type this generator
+        /// knows how to parse directly from the raw response text, without treating it as JSON.
+        /// </summary>
+        private bool IsPlainTextConversion(CSharpType responseBodyType)
+            => HasPlainTextContentType() && IsSupportedPlainTextType(responseBodyType);
+
+        private bool HasPlainTextContentType()
+            => ServiceMethod.Operation.Responses.Any(r => r.IsErrorResponse is false && r.ContentTypes.Contains("text/plain"));
+
+        private static bool IsSupportedPlainTextType(CSharpType type)
+        {
+            var nonNullableType = type.WithNullable(false);
+            if (nonNullableType.IsEnum)
+            {
+                return IsSupportedPlainTextType(nonNullableType.UnderlyingEnumType!);
+            }
+
+            if (!nonNullableType.IsFrameworkType)
+            {
+                return false;
+            }
+
+            var frameworkType = nonNullableType.FrameworkType;
+            return frameworkType == typeof(string)
+                || frameworkType == typeof(bool)
+                || frameworkType == typeof(byte)
+                || frameworkType == typeof(sbyte)
+                || frameworkType == typeof(short)
+                || frameworkType == typeof(ushort)
+                || frameworkType == typeof(int)
+                || frameworkType == typeof(uint)
+                || frameworkType == typeof(long)
+                || frameworkType == typeof(ulong)
+                || frameworkType == typeof(float)
+                || frameworkType == typeof(double)
+                || frameworkType == typeof(decimal)
+                || frameworkType == typeof(Guid)
+                || frameworkType == typeof(Uri)
+                || frameworkType == typeof(TimeSpan)
+                || frameworkType == typeof(DateTimeOffset);
+        }
+
+        /// <summary>
+        /// Builds an expression that parses <paramref name="content"/> (the raw text/plain response body) into
+        /// <paramref name="valueType"/>, without relying on JSON parsing or reflection-based conversion.
+        /// </summary>
+        private ValueExpression GetPlainTextValueConversion(CSharpType valueType, ValueExpression content)
+        {
+            var nonNullableType = valueType.WithNullable(false);
+            if (nonNullableType.IsEnum)
+            {
+                return nonNullableType.ToEnum(GetPlainTextValueConversion(nonNullableType.UnderlyingEnumType!, content));
+            }
+
+            var invariantCulture = new MemberExpression(typeof(CultureInfo), nameof(CultureInfo.InvariantCulture));
+            var frameworkType = nonNullableType.FrameworkType;
+            return frameworkType switch
+            {
+                Type t when t == typeof(string) => content,
+                Type t when t == typeof(bool) => Static<bool>().Invoke(nameof(bool.Parse), content).As<bool>(),
+                Type t when t == typeof(Guid) => Static<Guid>().Invoke(nameof(Guid.Parse), content).As<Guid>(),
+                Type t when t == typeof(Uri) => New.Instance(typeof(Uri), content),
+                Type t when t == typeof(TimeSpan) => content.As<string>().ParseTimeSpan(Literal(SerializationFormat.Duration_Constant.ToFormatSpecifier()!)),
+                Type t when t == typeof(DateTimeOffset) => content.As<string>().ParseDateTimeOffset(Literal("O")),
+                _ => Static(frameworkType).Invoke(nameof(int.Parse), [content, invariantCulture]).As(frameworkType)
+            };
+        }
 
         private static bool ShouldBuildStackVarForFrameworkType(CSharpType type)
         {

@@ -1669,6 +1669,59 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers
             Assert.AreEqual(Helpers.GetExpectedFromFile(), writer.ToString(false));
         }
 
+        [TestCase(typeof(int))]
+        [TestCase(typeof(bool))]
+        [TestCase(typeof(TimeSpan))]
+        public void PlainTextScalarReturnTypeMethods(Type type)
+        {
+            InputType inputType = type switch
+            {
+                { } t when t == typeof(int) => InputPrimitiveType.Int32,
+                { } t when t == typeof(bool) => InputPrimitiveType.Boolean,
+                { } t when t == typeof(TimeSpan) => InputPrimitiveType.PlainTime,
+                _ => throw new NotSupportedException()
+            };
+
+            var operation = InputFactory.Operation("GetPlainTextScalar", responses:
+                [InputFactory.OperationResponse([200], inputType, contentTypes: ["text/plain"])]);
+            var serviceMethod = InputFactory.BasicServiceMethod("GetPlainTextScalar", operation);
+            var inputClient = InputFactory.Client("TestClient", methods: [serviceMethod]);
+
+            MockHelpers.LoadMockGenerator();
+            var client = ScmCodeModelGenerator.Instance.TypeFactory.CreateClient(inputClient);
+            var method = new ScmMethodProviderCollection(serviceMethod, client!)
+                .Single(m => m.Kind == ScmMethodKind.Convenience && m.Signature.Name == "GetPlainTextScalar");
+
+            using var writer = new CodeWriter();
+            writer.WriteMethod(method);
+            Assert.AreEqual(Helpers.GetExpectedFromFile(type.Name), writer.ToString(false));
+        }
+
+        [TestCase(true, true)]
+        [TestCase(true, false)]
+        [TestCase(false, true)]
+        [TestCase(false, false)]
+        public void PlainTextEnumReturnTypeMethods(bool isString, bool isExtensible)
+        {
+            InputType inputType = isString
+                ? InputFactory.StringEnum("TestEnum", [("Value", "value")], isExtensible: isExtensible)
+                : InputFactory.Int32Enum("TestEnum", [("Value", 1)], isExtensible: isExtensible);
+
+            var operation = InputFactory.Operation("GetPlainTextEnum", responses:
+                [InputFactory.OperationResponse([200], inputType, contentTypes: ["text/plain"])]);
+            var serviceMethod = InputFactory.BasicServiceMethod("GetPlainTextEnum", operation);
+            var inputClient = InputFactory.Client("TestClient", methods: [serviceMethod]);
+
+            MockHelpers.LoadMockGenerator();
+            var client = ScmCodeModelGenerator.Instance.TypeFactory.CreateClient(inputClient);
+            var method = new ScmMethodProviderCollection(serviceMethod, client!)
+                .Single(m => m.Kind == ScmMethodKind.Convenience && m.Signature.Name == "GetPlainTextEnum");
+
+            using var writer = new CodeWriter();
+            writer.WriteMethod(method);
+            Assert.AreEqual(Helpers.GetExpectedFromFile($"{isString},{isExtensible}"), writer.ToString(false));
+        }
+
         [Test]
         public void TestUnionResponseType()
         {
