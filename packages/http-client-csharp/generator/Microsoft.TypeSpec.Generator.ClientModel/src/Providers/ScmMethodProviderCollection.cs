@@ -640,7 +640,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
             if (IsConvertibleFromBinaryData(responseBodyType)
                 && (responseBodyType.IsFrameworkType || responseBodyType.IsEnum)
                 && !responseBodyType.Equals(typeof(BinaryData))
-                && !IsPlainTextConversion(responseBodyType))
+                && GetPlainTextValueConversion(responseBodyType, result.GetRawResponse()) is null)
             {
                 var data = result.GetRawResponse().Content();
                 // The stream overload preserves UTF-8 BOM handling from ToObjectFromJson.
@@ -859,27 +859,18 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
 
         private MethodBodyStatement[] GetResultConversionStatements(ClientResponseApi result, HttpResponseApi response, CSharpType responseBodyType, Dictionary<string, ValueExpression> declarations)
         {
-            // Operations that return a non-string primitive or enum with a text/plain content type are not JSON-encoded,
-            // so the value must be parsed from the raw response text instead of going through JsonDocument. A leading
-            // UTF-8 BOM is stripped first to match the tolerance previously provided by JsonDocument/ToObjectFromJson.
-            if (IsPlainTextConversion(responseBodyType) && !responseBodyType.Equals(typeof(string)))
+            if (!responseBodyType.Equals(typeof(string)) && GetPlainTextValueConversion(responseBodyType, response) is { } plainTextValue)
             {
-                var content = response.Content().InvokeToString().Invoke(nameof(string.TrimStart), Literal('\uFEFF')).As<string>();
-                var deserializedValue = GetPlainTextValueConversion(responseBodyType, content);
-                var valueExpression = responseBodyType.IsNullable
-                    ? new TernaryConditionalExpression(content.Equal(Literal("null")), Null.CastTo(responseBodyType), deserializedValue)
-                    : deserializedValue;
-
                 return
                 [
-                    Declare("value", responseBodyType, valueExpression, out var value),
+                    Declare("value", responseBodyType, plainTextValue, out var value),
                     Return(result.FromValue(value, response))
                 ];
             }
 
             var isSpecialCaseType = responseBodyType.Equals(typeof(BinaryData))
                 || responseBodyType.IsCollection
-                || IsPlainTextResponse(responseBodyType);
+                || (responseBodyType.Equals(typeof(string)) && HasOnlyPlainTextContentType());
 
             if (!isSpecialCaseType && (responseBodyType.IsFrameworkType || responseBodyType.IsEnum))
             {
@@ -924,88 +915,77 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
             {
                 return declarations["value"].CastTo(new CSharpType(responseBodyType.OutputType.FrameworkType, responseBodyType.Arguments[0], responseBodyType.Arguments[1]));
             }
-            if (IsPlainTextResponse(responseBodyType))
+            if (responseBodyType.Equals(typeof(string)) && HasOnlyPlainTextContentType())
             {
                 return response.Content().InvokeToString();
             }
             return result.CastTo(responseBodyType);
         }
 
-        private bool IsPlainTextResponse(CSharpType responseBodyType)
-            => responseBodyType.Equals(typeof(string)) && HasPlainTextContentType();
-
-        /// <summary>
-        /// Whether <paramref name="responseBodyType"/> has a text/plain content type and is a type this generator
-        /// knows how to parse directly from the raw response text, without treating it as JSON.
-        /// </summary>
-        private bool IsPlainTextConversion(CSharpType responseBodyType)
-            => HasPlainTextContentType() && IsSupportedPlainTextType(responseBodyType);
-
-        private bool HasPlainTextContentType()
+        private ValueExpression? GetPlainTextValueConversion(CSharpType responseBodyType, HttpResponseApi response)
         {
-            var contentTypes = ServiceMethod.Operation.Responses
-                .Where(r => r.IsErrorResponse is false)
-                .SelectMany(r => r.ContentTypes);
-            return contentTypes.Any() && contentTypes.All(contentType => contentType == "text/plain");
-        }
-
-        private static bool IsSupportedPlainTextType(CSharpType type)
-        {
-            var nonNullableType = type.WithNullable(false);
-            if (nonNullableType is { IsEnum: true, UnderlyingEnumType: { } underlyingEnumType })
+            if (!HasOnlyPlainTextContentType())
             {
-                return IsSupportedPlainTextType(underlyingEnumType);
+                return null;
             }
 
-            return nonNullableType.FrameworkType switch
-            {
-                Type t when nonNullableType.IsFrameworkType
-                    && (t == typeof(string)
-                        || t == typeof(bool)
-                        || t == typeof(byte)
-                        || t == typeof(sbyte)
-                        || t == typeof(short)
-                        || t == typeof(ushort)
-                        || t == typeof(int)
-                        || t == typeof(uint)
-                        || t == typeof(long)
-                        || t == typeof(ulong)
-                        || t == typeof(float)
-                        || t == typeof(double)
-                        || t == typeof(decimal)
-                        || t == typeof(Guid)
-                        || t == typeof(Uri)
-                        || t == typeof(TimeSpan)
-                        || t == typeof(DateTimeOffset)) => true,
-                _ => false
-            };
-        }
-
-        /// <summary>
-        /// Builds an expression that parses <paramref name="content"/> (the raw text/plain response body) into
-        /// <paramref name="valueType"/>, without relying on JSON parsing or reflection-based conversion.
-        /// </summary>
-        private ValueExpression GetPlainTextValueConversion(CSharpType valueType, ValueExpression content)
-        {
-            var nonNullableType = valueType.WithNullable(false);
+            // Primitive and enum text/plain bodies are not JSON-encoded. Strip a leading UTF-8 BOM to preserve
+            // the tolerance previously provided by JsonDocument/ToObjectFromJson.
+            var content = response.Content().InvokeToString().Invoke(nameof(string.TrimStart), Literal('\uFEFF')).As<string>();
+            var nonNullableType = responseBodyType.WithNullable(false);
+            var typeToDeserialize = nonNullableType;
+            CSharpType? enumType = null;
             if (nonNullableType is { IsEnum: true, UnderlyingEnumType: { } underlyingEnumType })
             {
-                return nonNullableType.ToEnum(GetPlainTextValueConversion(underlyingEnumType, content));
+                enumType = nonNullableType;
+                typeToDeserialize = underlyingEnumType;
             }
 
             var invariantCulture = new MemberExpression(typeof(CultureInfo), nameof(CultureInfo.InvariantCulture));
-            var frameworkType = nonNullableType.FrameworkType;
-            return frameworkType switch
+            ValueExpression? deserializedValue = typeToDeserialize.FrameworkType switch
             {
                 Type t when t == typeof(string) => content,
                 Type t when t == typeof(bool) => Static<bool>().Invoke(nameof(bool.Parse), content).As<bool>(),
                 Type t when t == typeof(Guid) => Static<Guid>().Invoke(nameof(Guid.Parse), content).As<Guid>(),
                 Type t when t == typeof(Uri) => New.Instance(typeof(Uri), content),
                 Type t when t == typeof(TimeSpan) => content.As<string>().ParseTimeSpan(Literal(SerializationFormat.Duration_Constant.ToFormatSpecifier() ?? throw new InvalidOperationException())),
-                Type t when t == typeof(TimeSpan) => content.As<string>().ParseTimeSpan(Literal(SerializationFormat.Duration_Constant.ToFormatSpecifier() ?? throw new InvalidOperationException())),
                 Type t when t == typeof(DateTimeOffset) => content.As<string>().ParseDateTimeOffset(Literal(GetResponseSerializationFormat().ToFormatSpecifier())),
-                _ => Static(frameworkType).Invoke(nameof(int.Parse), [content, invariantCulture]).As(frameworkType)
+                Type frameworkType when typeToDeserialize.IsFrameworkType
+                    && (frameworkType == typeof(byte)
+                        || frameworkType == typeof(sbyte)
+                        || frameworkType == typeof(short)
+                        || frameworkType == typeof(ushort)
+                        || frameworkType == typeof(int)
+                        || frameworkType == typeof(uint)
+                        || frameworkType == typeof(long)
+                        || frameworkType == typeof(ulong)
+                        || frameworkType == typeof(float)
+                        || frameworkType == typeof(double)
+                        || frameworkType == typeof(decimal))
+                    => Static(frameworkType).Invoke(nameof(int.Parse), [content, invariantCulture]).As(frameworkType),
+                _ => null
             };
+            if (deserializedValue is null)
+            {
+                return null;
+            }
+
+            if (enumType is not null)
+            {
+                deserializedValue = enumType.ToEnum(deserializedValue);
+            }
+
+            return responseBodyType.IsNullable
+                ? new TernaryConditionalExpression(content.Equal(Literal("null")), Null.CastTo(responseBodyType), deserializedValue)
+                : deserializedValue;
+        }
+
+        private bool HasOnlyPlainTextContentType()
+        {
+            var contentTypes = ServiceMethod.Operation.Responses
+                .Where(r => r.IsErrorResponse is false)
+                .SelectMany(r => r.ContentTypes);
+            return contentTypes.Any() && contentTypes.All(contentType => contentType == "text/plain");
         }
 
         private SerializationFormat GetResponseSerializationFormat()
