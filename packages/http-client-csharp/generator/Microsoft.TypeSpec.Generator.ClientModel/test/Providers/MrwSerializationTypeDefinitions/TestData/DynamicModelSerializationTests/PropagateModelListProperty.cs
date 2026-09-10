@@ -19,11 +19,19 @@ namespace Sample
             {
                 int propertyLength = "p1"u8.Length;
                 global::System.ReadOnlySpan<byte> currentSlice = local.Slice(propertyLength);
+                if ((P1 == null))
+                {
+                    return false;
+                }
                 if (currentSlice.IsEmpty)
                 {
                     return TryResolveP1Array(out value);
                 }
                 if ((!currentSlice.TryGetIndex(out int index, out int bytesConsumed) || (index >= P1.Count)))
+                {
+                    return false;
+                }
+                if ((P1[index] == null))
                 {
                     return false;
                 }
@@ -42,7 +50,15 @@ namespace Sample
             {
                 int propertyLength = "p1"u8.Length;
                 global::System.ReadOnlySpan<byte> currentSlice = local.Slice(propertyLength);
+                if ((P1 == null))
+                {
+                    return false;
+                }
                 if ((!currentSlice.TryGetIndex(out int index, out int bytesConsumed) || (index >= P1.Count)))
+                {
+                    return false;
+                }
+                if ((P1[index] == null))
                 {
                     return false;
                 }

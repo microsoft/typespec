@@ -1,5 +1,12 @@
 # Change Log - typespec-vs
 
+## 1.16.0
+
+### Bug Fixes
+
+- [#11300](https://github.com/microsoft/typespec/pull/11300) Disable NuGet package auditing during cross-platform Visual Studio extension builds so restores do not fail when the vulnerability feed is unavailable.
+
+
 ## 1.15.0
 
 No changes, version bump only.

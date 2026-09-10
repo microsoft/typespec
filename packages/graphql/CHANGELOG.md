@@ -1,5 +1,9 @@
 # Change Log - @typespec/graphql
 
+## 0.3.0
+
+No changes, version bump only.
+
 ## 0.2.0
 
 ### Bug Fixes

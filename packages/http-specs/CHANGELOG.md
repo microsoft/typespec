@@ -1,5 +1,30 @@
 # @typespec/http-specs
 
+## 0.1.0-alpha.42
+
+### Features
+
+- [#11677](https://github.com/microsoft/typespec/pull/11677) Add scenario for an operation whose successful response is either a model body (`200`) or no content (`204`).
+  
+  ```tsp
+  op getBody(): {
+    @statusCode statusCode: 200;
+    @body layout: BlobLayout;
+  } | {
+    @statusCode statusCode: 204;
+  };
+  ```
+- [#11613](https://github.com/microsoft/typespec/pull/11613) Add SSE protocol coverage for event IDs, retry fields, and reconnection
+  
+  ```tsp
+  op reconnect(): SSEStream<ProtocolEvents>;
+  ```
+
+### Bug Fixes
+
+- [#11590](https://github.com/microsoft/typespec/pull/11590) Exclude build artifacts from published packages
+
+
 ## 0.1.0-alpha.41
 
 No changes, version bump only.

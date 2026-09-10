@@ -1,5 +1,12 @@
 # Change Log - @typespec/playground
 
+## 0.17.1
+
+### Bug Fixes
+
+- [#11660](https://github.com/microsoft/typespec/pull/11660) Preserve a sample's preferred emitter and compiler options when loading it in the playground.
+
+
 ## 0.17.0
 
 ### Features

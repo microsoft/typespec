@@ -1,5 +1,12 @@
 # Changelog - @typespec/http-canonicalization
 
+## 0.16.4
+
+### Bug Fixes
+
+- [#11590](https://github.com/microsoft/typespec/pull/11590) Exclude build artifacts from published packages
+
+
 ## 0.16.3
 
 No changes, version bump only.
