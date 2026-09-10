@@ -878,7 +878,6 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
             }
 
             var isSpecialCaseType = responseBodyType.Equals(typeof(BinaryData))
-                || responseBodyType.IsReadOnlyMemory
                 || responseBodyType.IsCollection
                 || IsPlainTextResponse(responseBodyType);
 
@@ -944,8 +943,10 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
 
         private bool HasPlainTextContentType()
         {
-            var responses = ServiceMethod.Operation.Responses.Where(r => r.IsErrorResponse is false);
-            return responses.Any() && responses.All(r => r.ContentTypes.Count == 1 && r.ContentTypes[0] == "text/plain");
+            var contentTypes = ServiceMethod.Operation.Responses
+                .Where(r => r.IsErrorResponse is false)
+                .SelectMany(r => r.ContentTypes);
+            return contentTypes.Any() && contentTypes.All(contentType => contentType == "text/plain");
         }
 
         private static bool IsSupportedPlainTextType(CSharpType type)
@@ -1000,6 +1001,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
                 Type t when t == typeof(bool) => Static<bool>().Invoke(nameof(bool.Parse), content).As<bool>(),
                 Type t when t == typeof(Guid) => Static<Guid>().Invoke(nameof(Guid.Parse), content).As<Guid>(),
                 Type t when t == typeof(Uri) => New.Instance(typeof(Uri), content),
+                Type t when t == typeof(TimeSpan) => content.As<string>().ParseTimeSpan(Literal(SerializationFormat.Duration_Constant.ToFormatSpecifier() ?? throw new InvalidOperationException())),
                 Type t when t == typeof(TimeSpan) => content.As<string>().ParseTimeSpan(Literal(SerializationFormat.Duration_Constant.ToFormatSpecifier() ?? throw new InvalidOperationException())),
                 Type t when t == typeof(DateTimeOffset) => content.As<string>().ParseDateTimeOffset(Literal(GetResponseSerializationFormat().ToFormatSpecifier())),
                 _ => Static(frameworkType).Invoke(nameof(int.Parse), [content, invariantCulture]).As(frameworkType)
