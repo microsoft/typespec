@@ -1678,6 +1678,9 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers
         [TestCase(typeof(TimeSpan))]
         [TestCase(typeof(TimeSpan?))]
         [TestCase(typeof(DateTimeOffset))]
+        [TestCase(typeof(Uri))]
+        [TestCase(typeof(byte))]
+        [TestCase(typeof(sbyte))]
         public void PlainTextScalarReturnTypeMethods(Type type)
         {
             var underlyingType = Nullable.GetUnderlyingType(type);
@@ -1687,6 +1690,9 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers
                 { } t when t == typeof(bool) => InputPrimitiveType.Boolean,
                 { } t when t == typeof(TimeSpan) => InputPrimitiveType.PlainTime,
                 { } t when t == typeof(DateTimeOffset) => InputPrimitiveType.PlainDate,
+                { } t when t == typeof(Uri) => InputPrimitiveType.Url,
+                { } t when t == typeof(byte) => new InputPrimitiveType(InputPrimitiveTypeKind.UInt8, "uint8", "TypeSpec.uint8"),
+                { } t when t == typeof(sbyte) => new InputPrimitiveType(InputPrimitiveTypeKind.Int8, "int8", "TypeSpec.int8"),
                 _ => throw new NotSupportedException()
             };
             if (underlyingType != null)

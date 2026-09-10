@@ -297,7 +297,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
                     .. GetStackVariablesForProtocolParamConversion(convenienceBodyParameters, out var paramDeclarations),
                     Declare("result", This.Invoke(protocolMethod.Signature, [.. GetProtocolMethodArguments(paramDeclarations)], isAsync).ToApi<ClientResponseApi>(), out ClientResponseApi result),
                     .. GetStackVariablesForReturnValueConversion(result, responseBodyType, isAsync, out var resultDeclarations),
-                    IsConvertibleFromBinaryData(responseBodyType)
+                    ShouldUseResultConversionStatements(responseBodyType)
                         ? GetResultConversionStatements(result, result.GetRawResponse(), responseBodyType, resultDeclarations)
                         :
                         new[]
@@ -1011,6 +1011,16 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
                    type.Equals(typeof(DateTimeOffset?)) ||
                    type.Equals(typeof(Guid)) ||
                    type.Equals(typeof(Guid?));
+        }
+
+        // Text/plain primitive and enum responses are parsed directly from the response content, bypassing the
+        // BinaryData/JsonDocument conversion path entirely. Route them through GetResultConversionStatements even
+        // when the response body type isn't in the IsConvertibleFromBinaryData allow-list (e.g. Guid, Uri, or the
+        // byte/short/unsigned integer types), otherwise they would incorrectly fall back to JSON parsing.
+        private bool ShouldUseResultConversionStatements(CSharpType responseBodyType)
+        {
+            return IsConvertibleFromBinaryData(responseBodyType)
+                || ((responseBodyType.IsFrameworkType || responseBodyType.IsEnum) && HasOnlyPlainTextContentType());
         }
 
         private static bool IsConvertibleFromBinaryData(CSharpType type)
