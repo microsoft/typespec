@@ -6,6 +6,7 @@ using System;
 using System.ClientModel;
 using System.ClientModel.Primitives;
 using System.ComponentModel;
+using System.IO;
 using System.Text.Json;
 using System.Threading;
 using System.Threading.Tasks;
@@ -36,8 +37,8 @@ namespace Sample
 
             using global::System.ClientModel.BinaryContent content0 = global::System.ClientModel.BinaryContent.Create(global::System.BinaryData.FromString(content));
             global::System.ClientModel.ClientResult result = this.GetData(param1, content0, @select, cancellationToken.ToRequestOptions());
-            global::System.BinaryData data = result.GetRawResponse().Content;
-            using global::System.Text.Json.JsonDocument document = global::System.Text.Json.JsonDocument.Parse(data);
+            using global::System.IO.Stream stream = result.GetRawResponse().Content.ToStream();
+            using global::System.Text.Json.JsonDocument document = global::System.Text.Json.JsonDocument.Parse(stream);
             return global::System.ClientModel.ClientResult.FromValue(document.RootElement.GetString(), result.GetRawResponse());
         }
 
@@ -47,8 +48,8 @@ namespace Sample
 
             using global::System.ClientModel.BinaryContent content0 = global::System.ClientModel.BinaryContent.Create(global::System.BinaryData.FromString(content));
             global::System.ClientModel.ClientResult result = await this.GetDataAsync(param1, content0, @select, cancellationToken.ToRequestOptions()).ConfigureAwait(false);
-            global::System.BinaryData data = result.GetRawResponse().Content;
-            using global::System.Text.Json.JsonDocument document = global::System.Text.Json.JsonDocument.Parse(data);
+            using global::System.IO.Stream stream = result.GetRawResponse().Content.ToStream();
+            using global::System.Text.Json.JsonDocument document = global::System.Text.Json.JsonDocument.Parse(stream);
             return global::System.ClientModel.ClientResult.FromValue(document.RootElement.GetString(), result.GetRawResponse());
         }
 

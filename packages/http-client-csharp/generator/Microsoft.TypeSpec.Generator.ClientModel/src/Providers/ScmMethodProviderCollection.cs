@@ -639,10 +639,12 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
                 && !responseBodyType.Equals(typeof(BinaryData))
                 && !IsPlainTextResponse(responseBodyType))
             {
+                var data = result.GetRawResponse().Content();
+                // The stream overload preserves UTF-8 BOM handling from ToObjectFromJson.
                 var statements = new MethodBodyStatement[]
                 {
-                    Declare("data", result.GetRawResponse().Content(), out var data),
-                    UsingDeclare("document", data.Parse(), out var document)
+                    UsingDeclare("stream", data.ToStream(), out var stream),
+                    UsingDeclare("document", JsonDocumentSnippets.Parse(stream), out var document)
                 };
                 declarations["data"] = data;
                 declarations["document"] = document;

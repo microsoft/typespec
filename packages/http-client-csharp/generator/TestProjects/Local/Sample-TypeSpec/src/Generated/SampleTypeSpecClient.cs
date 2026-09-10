@@ -10,6 +10,7 @@ using System.ClientModel;
 using System.ClientModel.Primitives;
 using System.Collections.Generic;
 using System.Diagnostics.CodeAnalysis;
+using System.IO;
 using System.Linq;
 using System.Net.ServerSentEvents;
 using System.Text.Json;
@@ -1087,8 +1088,8 @@ namespace SampleTypeSpec
         public virtual ClientResult<DaysOfWeekExtensibleEnum> GetUnknownValue(CancellationToken cancellationToken = default)
         {
             ClientResult result = GetUnknownValue(cancellationToken.ToRequestOptions());
-            BinaryData data = result.GetRawResponse().Content;
-            using JsonDocument document = JsonDocument.Parse(data);
+            using Stream stream = result.GetRawResponse().Content.ToStream();
+            using JsonDocument document = JsonDocument.Parse(stream);
             return ClientResult.FromValue(new DaysOfWeekExtensibleEnum(document.RootElement.GetString()), result.GetRawResponse());
         }
 
@@ -1098,8 +1099,8 @@ namespace SampleTypeSpec
         public virtual async Task<ClientResult<DaysOfWeekExtensibleEnum>> GetUnknownValueAsync(CancellationToken cancellationToken = default)
         {
             ClientResult result = await GetUnknownValueAsync(cancellationToken.ToRequestOptions()).ConfigureAwait(false);
-            BinaryData data = result.GetRawResponse().Content;
-            using JsonDocument document = JsonDocument.Parse(data);
+            using Stream stream = result.GetRawResponse().Content.ToStream();
+            using JsonDocument document = JsonDocument.Parse(stream);
             return ClientResult.FromValue(new DaysOfWeekExtensibleEnum(document.RootElement.GetString()), result.GetRawResponse());
         }
 
