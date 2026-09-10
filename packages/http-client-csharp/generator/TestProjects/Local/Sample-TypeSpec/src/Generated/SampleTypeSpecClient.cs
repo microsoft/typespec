@@ -1086,7 +1086,8 @@ namespace SampleTypeSpec
         public virtual ClientResult<DaysOfWeekExtensibleEnum> GetUnknownValue(CancellationToken cancellationToken = default)
         {
             ClientResult result = GetUnknownValue(cancellationToken.ToRequestOptions());
-            DaysOfWeekExtensibleEnum value = new DaysOfWeekExtensibleEnum(result.GetRawResponse().Content.ToString().TrimStart('﻿'));
+            string content = result.GetRawResponse().Content.ToString().TrimStart('﻿');
+            DaysOfWeekExtensibleEnum value = new DaysOfWeekExtensibleEnum(content);
             return ClientResult.FromValue(value, result.GetRawResponse());
         }
 
@@ -1096,7 +1097,8 @@ namespace SampleTypeSpec
         public virtual async Task<ClientResult<DaysOfWeekExtensibleEnum>> GetUnknownValueAsync(CancellationToken cancellationToken = default)
         {
             ClientResult result = await GetUnknownValueAsync(cancellationToken.ToRequestOptions()).ConfigureAwait(false);
-            DaysOfWeekExtensibleEnum value = new DaysOfWeekExtensibleEnum(result.GetRawResponse().Content.ToString().TrimStart('﻿'));
+            string content = result.GetRawResponse().Content.ToString().TrimStart('﻿');
+            DaysOfWeekExtensibleEnum value = new DaysOfWeekExtensibleEnum(content);
             return ClientResult.FromValue(value, result.GetRawResponse());
         }
 
