@@ -3,7 +3,10 @@
 
 using System;
 using System.ClientModel.Primitives;
+using System.Collections.Generic;
 using System.Linq;
+using Microsoft.CodeAnalysis;
+using Microsoft.CodeAnalysis.CSharp.Syntax;
 using Microsoft.TypeSpec.Generator.ClientModel.Providers;
 using Microsoft.TypeSpec.Generator.Expressions;
 using Microsoft.TypeSpec.Generator.Primitives;
@@ -15,10 +18,38 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.StubLibrary
     internal class StubLibraryVisitor : ScmLibraryVisitor
     {
         private readonly ValueExpression _throwNull = ThrowExpression(Null);
+        private readonly Lazy<HashSet<string>> _usedCustomizationAttributes = new(GetUsedCustomizationAttributes);
+
+        private static HashSet<string> GetUsedCustomizationAttributes()
+        {
+            var names = new HashSet<string>(StringComparer.Ordinal);
+            var compilation = CodeModelGenerator.Instance.SourceInputModel.Customization;
+            if (compilation is not null)
+            {
+                foreach (var syntaxTree in compilation.SyntaxTrees)
+                {
+                    var semanticModel = compilation.GetSemanticModel(syntaxTree);
+                    foreach (var attribute in syntaxTree.GetRoot().DescendantNodes().OfType<AttributeSyntax>())
+                    {
+                        for (var type = semanticModel.GetTypeInfo(attribute).Type as INamedTypeSymbol;
+                            type is not null;
+                            type = type.BaseType)
+                        {
+                            names.Add(type.ToDisplayString());
+                        }
+                    }
+                }
+            }
+
+            return names;
+        }
 
         protected override TypeProvider? VisitType(TypeProvider type)
         {
+            var isUsedCustomizationAttribute = type is CustomCodeAttributeDefinition &&
+                _usedCustomizationAttributes.Value.Contains($"{type.Type.Namespace}.{type.Name}");
             if (!type.DeclarationModifiers.HasFlag(TypeSignatureModifiers.Public) &&
+                !isUsedCustomizationAttribute &&
                 !type.Name.StartsWith("Unknown", StringComparison.Ordinal) &&
                 !type.Name.Equals("MultiPartFormDataBinaryContent", StringComparison.Ordinal))
             {

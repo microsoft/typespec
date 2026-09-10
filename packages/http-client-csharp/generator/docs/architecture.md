@@ -113,7 +113,7 @@ The TypeSpec Generator follows a layered architecture designed for extensibility
 
 - **`Configuration`**: Centralized configuration management from JSON input
 - **`GeneratorContext`**: Runtime context and dependency injection container
-- **`SourceInputModel`**: Integration with existing custom code via Roslyn analysis
+- **`SourceInputModel`**: Integration with existing custom code via Roslyn analysis. `CodeGenType` accepts an original type's simple name or namespace-qualified name; qualified names take precedence and allow same-named models in different namespaces to be customized independently.
 
 ### 8. **Emitter Communication Layer**
 
@@ -145,7 +145,6 @@ The generation process follows a well-defined pipeline:
    - Apply generator-specific customizations
    - Build method signatures and type hierarchies
 
-
 4. **Source Integration**
 
    - Analyze existing custom code using Roslyn
@@ -157,7 +156,6 @@ The generation process follows a well-defined pipeline:
    - Execute registered visitors in dependency order
    - Apply transformations, validations, and enhancements
    - Support for both built-in and plugin-provided visitors
-
 
 6. **Code Generation**
 
