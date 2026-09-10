@@ -1672,17 +1672,27 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers
         }
 
         [TestCase(typeof(int))]
+        [TestCase(typeof(int?))]
         [TestCase(typeof(bool))]
+        [TestCase(typeof(bool?))]
         [TestCase(typeof(TimeSpan))]
+        [TestCase(typeof(TimeSpan?))]
+        [TestCase(typeof(DateTimeOffset))]
         public void PlainTextScalarReturnTypeMethods(Type type)
         {
-            InputType inputType = type switch
+            var underlyingType = Nullable.GetUnderlyingType(type);
+            InputType inputType = (underlyingType ?? type) switch
             {
                 { } t when t == typeof(int) => InputPrimitiveType.Int32,
                 { } t when t == typeof(bool) => InputPrimitiveType.Boolean,
                 { } t when t == typeof(TimeSpan) => InputPrimitiveType.PlainTime,
+                { } t when t == typeof(DateTimeOffset) => InputPrimitiveType.PlainDate,
                 _ => throw new NotSupportedException()
             };
+            if (underlyingType != null)
+            {
+                inputType = new InputNullableType(inputType);
+            }
 
             var operation = InputFactory.Operation("GetPlainTextScalar", responses:
                 [InputFactory.OperationResponse([200], inputType, contentTypes: ["text/plain"])]);
@@ -1696,18 +1706,27 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers
 
             using var writer = new CodeWriter();
             writer.WriteMethod(method);
-            Assert.AreEqual(Helpers.GetExpectedFromFile(type.Name), writer.ToString(false));
+            var baselineName = underlyingType != null ? $"{underlyingType.Name}Nullable" : type.Name;
+            Assert.AreEqual(Helpers.GetExpectedFromFile(baselineName), writer.ToString(false));
         }
 
-        [TestCase(true, true)]
-        [TestCase(true, false)]
-        [TestCase(false, true)]
-        [TestCase(false, false)]
-        public void PlainTextEnumReturnTypeMethods(bool isString, bool isExtensible)
+        [TestCase(true, true, false)]
+        [TestCase(true, false, false)]
+        [TestCase(false, true, false)]
+        [TestCase(false, false, false)]
+        [TestCase(true, true, true)]
+        [TestCase(true, false, true)]
+        [TestCase(false, true, true)]
+        [TestCase(false, false, true)]
+        public void PlainTextEnumReturnTypeMethods(bool isString, bool isExtensible, bool isNullable)
         {
             InputType inputType = isString
                 ? InputFactory.StringEnum("TestEnum", [("Value", "value")], isExtensible: isExtensible)
                 : InputFactory.Int32Enum("TestEnum", [("Value", 1)], isExtensible: isExtensible);
+            if (isNullable)
+            {
+                inputType = new InputNullableType(inputType);
+            }
 
             var operation = InputFactory.Operation("GetPlainTextEnum", responses:
                 [InputFactory.OperationResponse([200], inputType, contentTypes: ["text/plain"])]);
@@ -1721,7 +1740,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers
 
             using var writer = new CodeWriter();
             writer.WriteMethod(method);
-            Assert.AreEqual(Helpers.GetExpectedFromFile($"{isString},{isExtensible}"), writer.ToString(false));
+            Assert.AreEqual(Helpers.GetExpectedFromFile($"{isString},{isExtensible},{isNullable}"), writer.ToString(false));
         }
 
         [Test]

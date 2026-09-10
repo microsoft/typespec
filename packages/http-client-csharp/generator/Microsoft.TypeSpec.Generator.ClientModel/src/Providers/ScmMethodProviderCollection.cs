@@ -865,7 +865,10 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
             if (IsPlainTextConversion(responseBodyType) && !responseBodyType.Equals(typeof(string)))
             {
                 var content = response.Content().InvokeToString().Invoke(nameof(string.TrimStart), Literal('\uFEFF')).As<string>();
-                var valueExpression = GetPlainTextValueConversion(responseBodyType, content);
+                var deserializedValue = GetPlainTextValueConversion(responseBodyType, content);
+                var valueExpression = responseBodyType.IsNullable
+                    ? new TernaryConditionalExpression(content.Equal(Literal("null")), Null.CastTo(responseBodyType), deserializedValue)
+                    : deserializedValue;
 
                 return
                 [
@@ -876,8 +879,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
 
             var isSpecialCaseType = responseBodyType.Equals(typeof(BinaryData))
                 || responseBodyType.IsReadOnlyMemory
-                || responseBodyType.IsList
-                || responseBodyType.IsDictionary
+                || responseBodyType.IsCollection
                 || IsPlainTextResponse(responseBodyType);
 
             if (!isSpecialCaseType && (responseBodyType.IsFrameworkType || responseBodyType.IsEnum))
@@ -941,39 +943,41 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
             => HasPlainTextContentType() && IsSupportedPlainTextType(responseBodyType);
 
         private bool HasPlainTextContentType()
-            => ServiceMethod.Operation.Responses.Any(r => r.IsErrorResponse is false && r.ContentTypes.Contains("text/plain"));
+        {
+            var responses = ServiceMethod.Operation.Responses.Where(r => r.IsErrorResponse is false);
+            return responses.Any() && responses.All(r => r.ContentTypes.Count == 1 && r.ContentTypes[0] == "text/plain");
+        }
 
         private static bool IsSupportedPlainTextType(CSharpType type)
         {
             var nonNullableType = type.WithNullable(false);
-            if (nonNullableType.IsEnum)
+            if (nonNullableType is { IsEnum: true, UnderlyingEnumType: { } underlyingEnumType })
             {
-                return IsSupportedPlainTextType(nonNullableType.UnderlyingEnumType!);
+                return IsSupportedPlainTextType(underlyingEnumType);
             }
 
-            if (!nonNullableType.IsFrameworkType)
+            return nonNullableType.FrameworkType switch
             {
-                return false;
-            }
-
-            var frameworkType = nonNullableType.FrameworkType;
-            return frameworkType == typeof(string)
-                || frameworkType == typeof(bool)
-                || frameworkType == typeof(byte)
-                || frameworkType == typeof(sbyte)
-                || frameworkType == typeof(short)
-                || frameworkType == typeof(ushort)
-                || frameworkType == typeof(int)
-                || frameworkType == typeof(uint)
-                || frameworkType == typeof(long)
-                || frameworkType == typeof(ulong)
-                || frameworkType == typeof(float)
-                || frameworkType == typeof(double)
-                || frameworkType == typeof(decimal)
-                || frameworkType == typeof(Guid)
-                || frameworkType == typeof(Uri)
-                || frameworkType == typeof(TimeSpan)
-                || frameworkType == typeof(DateTimeOffset);
+                Type t when nonNullableType.IsFrameworkType
+                    && (t == typeof(string)
+                        || t == typeof(bool)
+                        || t == typeof(byte)
+                        || t == typeof(sbyte)
+                        || t == typeof(short)
+                        || t == typeof(ushort)
+                        || t == typeof(int)
+                        || t == typeof(uint)
+                        || t == typeof(long)
+                        || t == typeof(ulong)
+                        || t == typeof(float)
+                        || t == typeof(double)
+                        || t == typeof(decimal)
+                        || t == typeof(Guid)
+                        || t == typeof(Uri)
+                        || t == typeof(TimeSpan)
+                        || t == typeof(DateTimeOffset)) => true,
+                _ => false
+            };
         }
 
         /// <summary>
@@ -983,9 +987,9 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
         private ValueExpression GetPlainTextValueConversion(CSharpType valueType, ValueExpression content)
         {
             var nonNullableType = valueType.WithNullable(false);
-            if (nonNullableType.IsEnum)
+            if (nonNullableType is { IsEnum: true, UnderlyingEnumType: { } underlyingEnumType })
             {
-                return nonNullableType.ToEnum(GetPlainTextValueConversion(nonNullableType.UnderlyingEnumType!, content));
+                return nonNullableType.ToEnum(GetPlainTextValueConversion(underlyingEnumType, content));
             }
 
             var invariantCulture = new MemberExpression(typeof(CultureInfo), nameof(CultureInfo.InvariantCulture));
@@ -996,10 +1000,19 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
                 Type t when t == typeof(bool) => Static<bool>().Invoke(nameof(bool.Parse), content).As<bool>(),
                 Type t when t == typeof(Guid) => Static<Guid>().Invoke(nameof(Guid.Parse), content).As<Guid>(),
                 Type t when t == typeof(Uri) => New.Instance(typeof(Uri), content),
-                Type t when t == typeof(TimeSpan) => content.As<string>().ParseTimeSpan(Literal(SerializationFormat.Duration_Constant.ToFormatSpecifier()!)),
-                Type t when t == typeof(DateTimeOffset) => content.As<string>().ParseDateTimeOffset(Literal("O")),
+                Type t when t == typeof(TimeSpan) => content.As<string>().ParseTimeSpan(Literal(SerializationFormat.Duration_Constant.ToFormatSpecifier() ?? throw new InvalidOperationException())),
+                Type t when t == typeof(DateTimeOffset) => content.As<string>().ParseDateTimeOffset(Literal(GetResponseSerializationFormat().ToFormatSpecifier())),
                 _ => Static(frameworkType).Invoke(nameof(int.Parse), [content, invariantCulture]).As(frameworkType)
             };
+        }
+
+        private SerializationFormat GetResponseSerializationFormat()
+        {
+            var responseBodyType = ServiceMethod.Operation.Responses
+                .FirstOrDefault(r => r.IsErrorResponse is false)?.BodyType;
+            return responseBodyType is null
+                ? SerializationFormat.Default
+                : ScmCodeModelGenerator.Instance.TypeFactory.GetSerializationFormat(responseBodyType);
         }
 
         private static bool ShouldBuildStackVarForFrameworkType(CSharpType type)
