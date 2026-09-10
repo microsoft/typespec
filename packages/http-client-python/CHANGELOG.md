@@ -2,7 +2,7 @@
 
 ## 0.37.2
 
-### Features
+### Bump dependencies
 
 - [#11919](https://github.com/microsoft/typespec/pull/11919) Update dependencies for TypeSpec 1.16.0.
 
