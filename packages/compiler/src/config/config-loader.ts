@@ -132,10 +132,14 @@ export async function loadTypeSpecConfigFile(
       };
     }
 
-    return {
+    const merged = {
       ...parent,
       ...config,
     };
+    if (parent.linter && config.linter) {
+      merged.linter = { ...parent.linter, ...config.linter };
+    }
+    return merged;
   }
 
   return {
