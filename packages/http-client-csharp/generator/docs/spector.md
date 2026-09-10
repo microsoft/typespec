@@ -18,6 +18,8 @@ For example if you want to generate the non stubbed version of `http/authenticat
 ./eng/scripts/Generate.ps1 http/authentication/api-key -Stubbed $false
 ```
 
+For C#-specific TypeSpec customizations, add a `customizations.tsp` file at the root of the generated test project, alongside `tspCodeModel.json`. The generation and Spector test scripts import this file in addition to the original spec. This allows scoped decorators such as `@clientName` to resolve naming conflicts without modifying the installed specs or their wire contracts. See the SSE streaming project's `customizations.tsp` for an example.
+
 ## Writing Spector tests
 
 Generating the stubs allows us write tests against the public API surface that will compile. To do this we add a test class in same folder structure although this time we will modify the casing slightly to match dotnet standards.
