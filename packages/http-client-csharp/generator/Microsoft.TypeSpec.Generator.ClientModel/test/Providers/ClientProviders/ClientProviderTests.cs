@@ -3049,8 +3049,9 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers.ClientProvide
             var body = syncConvenienceMethod!.BodyStatements;
             Assert.IsNotNull(body);
 
-            var result = body!.ToDisplayString();
-            Assert.AreEqual(Helpers.GetExpectedFromFile("Sync"), result);
+            using var syncWriter = new CodeWriter();
+            syncWriter.WriteMethod(syncConvenienceMethod);
+            Assert.AreEqual(Helpers.GetExpectedFromFile("Sync"), syncWriter.ToString(false));
 
             var asyncConvenienceMethod = convenienceMethods
                 .FirstOrDefault(m => m.Signature.Modifiers.HasFlag(MethodSignatureModifiers.Async));
@@ -3059,8 +3060,9 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers.ClientProvide
             body = asyncConvenienceMethod!.BodyStatements;
             Assert.IsNotNull(body);
 
-            result = body!.ToDisplayString();
-            Assert.AreEqual(Helpers.GetExpectedFromFile("Async"), result);
+            using var asyncWriter = new CodeWriter();
+            asyncWriter.WriteMethod(asyncConvenienceMethod);
+            Assert.AreEqual(Helpers.GetExpectedFromFile("Async"), asyncWriter.ToString(false));
         }
 
         [Test]
@@ -3136,8 +3138,9 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers.ClientProvide
             var body = syncConvenienceMethod!.BodyStatements;
             Assert.IsNotNull(body);
 
-            var result = body!.ToDisplayString();
-            Assert.AreEqual(Helpers.GetExpectedFromFile("Sync"), result);
+            using var syncWriter = new CodeWriter();
+            syncWriter.WriteMethod(syncConvenienceMethod);
+            Assert.AreEqual(Helpers.GetExpectedFromFile("Sync"), syncWriter.ToString(false));
 
             var asyncConvenienceMethod = convenienceMethods
                 .FirstOrDefault(m => m.Signature.Modifiers.HasFlag(MethodSignatureModifiers.Async));
@@ -3146,8 +3149,9 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers.ClientProvide
             body = asyncConvenienceMethod!.BodyStatements;
             Assert.IsNotNull(body);
 
-            result = body!.ToDisplayString();
-            Assert.AreEqual(Helpers.GetExpectedFromFile("Async"), result);
+            using var asyncWriter = new CodeWriter();
+            asyncWriter.WriteMethod(asyncConvenienceMethod);
+            Assert.AreEqual(Helpers.GetExpectedFromFile("Async"), asyncWriter.ToString(false));
         }
 
         [Test]

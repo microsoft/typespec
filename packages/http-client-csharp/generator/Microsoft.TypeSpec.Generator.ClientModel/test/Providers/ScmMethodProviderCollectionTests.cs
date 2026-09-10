@@ -1616,7 +1616,9 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers
                    && m.Signature.Name == $"{inputOperation.Name.ToIdentifierName()}{(isAsync ? "Async" : "")}");
 
             var baselineName = underlyingType != null ? $"{underlyingType.Name}Nullable" : type.Name;
-            Assert.AreEqual(Helpers.GetExpectedFromFile($"{baselineName}{(isAsync ? "Async" : "")}"), convenienceMethod!.BodyStatements!.ToDisplayString());
+            using var writer = new CodeWriter();
+            writer.WriteMethod(convenienceMethod!);
+            Assert.AreEqual(Helpers.GetExpectedFromFile($"{baselineName}{(isAsync ? "Async" : "")}"), writer.ToString(false));
         }
 
         [TestCase(true, true, false)]
@@ -1644,7 +1646,9 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers
             var method = new ScmMethodProviderCollection(serviceMethod, client!)
                 .Single(m => m.Kind == ScmMethodKind.Convenience && m.Signature.Name == "GetEnum");
 
-            Assert.AreEqual(Helpers.GetExpectedFromFile($"{isString},{isExtensible},{isNullable}"), method.BodyStatements!.ToDisplayString());
+            using var writer = new CodeWriter();
+            writer.WriteMethod(method);
+            Assert.AreEqual(Helpers.GetExpectedFromFile($"{isString},{isExtensible},{isNullable}"), writer.ToString(false));
         }
 
         [Test]
@@ -1660,7 +1664,9 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers
             var method = new ScmMethodProviderCollection(serviceMethod, client!)
                 .Single(m => m.Kind == ScmMethodKind.Convenience && m.Signature.Name == "GetText");
 
-            Assert.AreEqual(Helpers.GetExpectedFromFile(), method.BodyStatements!.ToDisplayString());
+            using var writer = new CodeWriter();
+            writer.WriteMethod(method);
+            Assert.AreEqual(Helpers.GetExpectedFromFile(), writer.ToString(false));
         }
 
         [Test]
