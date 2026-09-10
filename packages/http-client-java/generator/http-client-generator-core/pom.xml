@@ -89,12 +89,11 @@
       <artifactId>google-java-format</artifactId>
       <version>1.28.0</version>
     </dependency>
-    <!-- 3.27.0 aligns with the version used when Spotless uses Eclipse 4.21 / 4.21.0. -->
-    <!-- In the future when this is upgraded it might slightly change code formatting. -->
+    <!-- JDT Core and ECJ are pinned to Java 17-compatible releases. -->
     <dependency>
       <groupId>org.eclipse.jdt</groupId>
       <artifactId>org.eclipse.jdt.core</artifactId>
-      <version>3.27.0</version>
+      <version>3.47.0</version>
       <exclusions>
         <exclusion>
           <!-- org.eclipse.team.core is optional, exclude it. -->
@@ -103,12 +102,16 @@
         </exclusion>
       </exclusions>
     </dependency>
-    <!-- Need to manually list all transitive dependencies of Eclipse JDT Core as it specified its dependencies with -->
-    <!-- ranges and newer versions require Java 17, and we want to stay compatible with Java 11 for now. -->
+    <dependency>
+      <groupId>org.eclipse.jdt</groupId>
+      <artifactId>ecj</artifactId>
+      <version>3.46.100</version>
+    </dependency>
+    <!-- Pin Eclipse platform dependencies to retain Java 17 runtime compatibility. -->
     <dependency>
       <groupId>org.eclipse.platform</groupId>
       <artifactId>org.eclipse.core.resources</artifactId>
-      <version>3.15.100</version>
+      <version>3.24.100</version>
       <exclusions>
         <exclusion>
           <!-- org.eclipse.ant.core is optional, exclude it. -->
@@ -120,63 +123,63 @@
     <dependency>
       <groupId>org.eclipse.platform</groupId>
       <artifactId>org.eclipse.core.expressions</artifactId>
-      <version>3.8.0</version>
+      <version>3.9.700</version>
     </dependency>
     <dependency>
       <groupId>org.eclipse.platform</groupId>
       <artifactId>org.eclipse.core.runtime</artifactId>
-      <version>3.23.0</version>
+      <version>3.35.0</version>
     </dependency>
     <dependency>
       <groupId>org.eclipse.platform</groupId>
       <artifactId>org.eclipse.core.jobs</artifactId>
-      <version>3.12.0</version>
+      <version>3.15.900</version>
     </dependency>
     <dependency>
       <groupId>org.eclipse.platform</groupId>
       <artifactId>org.eclipse.equinox.preferences</artifactId>
-      <version>3.9.0</version>
+      <version>3.12.100</version>
     </dependency>
     <dependency>
       <groupId>org.eclipse.platform</groupId>
       <artifactId>org.eclipse.core.contenttype</artifactId>
-      <version>3.8.0</version>
+      <version>3.9.900</version>
     </dependency>
     <dependency>
       <groupId>org.eclipse.platform</groupId>
       <artifactId>org.eclipse.equinox.app</artifactId>
-      <version>1.6.0</version>
+      <version>1.7.600</version>
     </dependency>
     <dependency>
       <groupId>org.eclipse.platform</groupId>
       <artifactId>org.eclipse.core.filesystem</artifactId>
-      <version>1.9.100</version>
+      <version>1.11.500</version>
     </dependency>
     <dependency>
       <groupId>org.eclipse.platform</groupId>
       <artifactId>org.eclipse.equinox.registry</artifactId>
-      <version>3.11.0</version>
+      <version>3.12.600</version>
     </dependency>
     <dependency>
       <groupId>org.eclipse.platform</groupId>
       <artifactId>org.eclipse.equinox.common</artifactId>
-      <version>3.15.0</version>
+      <version>3.21.0</version>
     </dependency>
     <dependency>
       <groupId>org.eclipse.platform</groupId>
       <!-- cSpell:ignore osgi -->
       <artifactId>org.eclipse.osgi</artifactId>
-      <version>3.17.0</version>
+      <version>3.24.300</version>
     </dependency>
     <dependency>
       <groupId>org.eclipse.platform</groupId>
       <artifactId>org.eclipse.text</artifactId>
-      <version>3.12.0</version>
+      <version>3.14.800</version>
     </dependency>
     <dependency>
       <groupId>org.eclipse.platform</groupId>
       <artifactId>org.eclipse.core.commands</artifactId>
-      <version>3.10.100</version>
+      <version>3.13.0</version>
     </dependency>
 
     <dependency>
