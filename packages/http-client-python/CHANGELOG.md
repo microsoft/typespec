@@ -1,6 +1,6 @@
 # Change Log - @typespec/http-client-python
 
-## 0.38.0
+## 0.37.2
 
 ### Features
 
