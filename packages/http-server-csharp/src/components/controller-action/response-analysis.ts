@@ -29,13 +29,13 @@ export function getSuccessStatusCode(
         continue;
       }
       if (vt.kind === "Model") {
-        if (isErrorModel(program, vt)) continue;
         // Skip models with @error decorator or error-range status codes
+        if (isErrorModel(program, vt)) continue;
         const result = analyzeResponseModel(vt);
         if (result.statusCode !== undefined && result.statusCode >= 400) continue;
         return result;
       }
-      return { statusCode: 200, hasBody: true };
+      continue;
     }
     if (hasVoidSuccess) {
       return { statusCode: 204, hasBody: false };
