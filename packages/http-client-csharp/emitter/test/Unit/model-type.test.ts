@@ -1566,5 +1566,11 @@ describe("Test isFileType propagation", () => {
     strictEqual(bodyType.kind, "model");
     strictEqual(bodyType.crossLanguageDefinitionId, "TypeSpec.Http.File");
     strictEqual(bodyType.isFileType, true);
+
+    const contentTypeParam = method.operation.parameters.find((p) => p.name === "contentType");
+    ok(contentTypeParam);
+    strictEqual(contentTypeParam.type.kind, "string");
+    strictEqual(contentTypeParam.optional, true);
+    strictEqual(contentTypeParam.defaultValue?.value, "application/octet-stream");
   });
 });

@@ -35,6 +35,10 @@ function Get-TspCommand {
     )
     $emitterDir = Resolve-Path (Join-Path $PSScriptRoot '..' '..')
     $command = "npx tsp compile $specFile"
+    $customizationFile = Join-Path $generationDir "client.tsp"
+    if (Test-Path $customizationFile) {
+        $command += " --import $customizationFile"
+    }
     $command += " --trace @typespec/http-client-csharp"
     $command += " --emit $emitterDir"
     $configFile = Join-Path $generationDir "tspconfig.yaml"
