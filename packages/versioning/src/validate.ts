@@ -848,6 +848,23 @@ function validateAvailabilityForRef(
       });
     }
     if (
+      sourceVal === Availability.Available &&
+      targetVal === Availability.Removed &&
+      findAvailabilityAfterVersion(key, Availability.Removed, sourceAvail) === undefined
+    ) {
+      reportDiagnostic(program, {
+        code: "incompatible-versioned-reference",
+        messageId: "doesNotExist",
+        format: {
+          sourceName: getTypeName(source),
+          targetName: getTypeName(target),
+          version: key,
+        },
+        target: source,
+        codefixes: getVersionRemovalCodeFixes(key, source, program),
+      });
+    }
+    if (
       [Availability.Removed].includes(sourceVal) &&
       [Availability.Unavailable].includes(targetVal)
     ) {
