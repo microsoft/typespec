@@ -676,7 +676,7 @@
     {
       "$id": "66",
       "kind": "model",
-      "name": "ProtocolInfo",
+      "name": "Info",
       "apiVersions": [],
       "namespace": "Streaming.Sse.Protocol",
       "crossLanguageDefinitionId": "Streaming.Sse.Protocol.Info",

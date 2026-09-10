@@ -3,6 +3,7 @@
   <ItemGroup>
     <ProjectReference Include="..\..\Microsoft.TypeSpec.Generator\test\common\Microsoft.TypeSpec.Generator.Tests.Common.csproj" />
     <ProjectReference Include="..\..\TestProjects\Local.Tests\TestProjects.Local.Tests.csproj" />
+    <ProjectReference Include="..\..\Microsoft.TypeSpec.Generator.ClientModel.StubLibrary\src\Microsoft.TypeSpec.Generator.ClientModel.StubLibrary.csproj" />
     <ProjectReference Include="..\src\Microsoft.TypeSpec.Generator.ClientModel.csproj" />
   </ItemGroup>
 

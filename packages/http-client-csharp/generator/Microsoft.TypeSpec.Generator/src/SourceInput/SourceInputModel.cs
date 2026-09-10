@@ -121,10 +121,11 @@ namespace Microsoft.TypeSpec.Generator.SourceInput
 
             var fullyQualifiedMetadataName = GetFullyQualifiedMetadataName(ns, name, declaringTypeName);
 
-            // Either find by the CodeGenType attribute in customization or by the actual type name.
+            // Qualified CodeGenType names take precedence so same-named types can be customized independently.
             INamedTypeSymbol? type = null;
             if (ReferenceEquals(compilation, Customization) &&
-                _nameMap.Value.TryGetValue(name, out var mappedType) &&
+                (_nameMap.Value.TryGetValue(fullyQualifiedMetadataName, out var mappedType) ||
+                    _nameMap.Value.TryGetValue(name, out mappedType)) &&
                 IsContainingTypeMatch(mappedType, ns, declaringTypeName))
             {
                 type = mappedType;
