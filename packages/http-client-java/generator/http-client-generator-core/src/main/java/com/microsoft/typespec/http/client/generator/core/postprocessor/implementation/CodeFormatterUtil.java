@@ -3,7 +3,6 @@
 
 package com.microsoft.typespec.http.client.generator.core.postprocessor.implementation;
 
-import com.github.javaparser.StaticJavaParser;
 import com.github.javaparser.ast.CompilationUnit;
 import com.github.javaparser.ast.ImportDeclaration;
 import com.github.javaparser.printer.configuration.ImportOrderingStrategy;
@@ -11,19 +10,32 @@ import com.github.javaparser.printer.configuration.imports.DefaultImportOrdering
 import com.google.googlejavaformat.FormatterDiagnostic;
 import com.google.googlejavaformat.java.FormatterException;
 import com.google.googlejavaformat.java.RemoveUnusedImports;
+import com.microsoft.typespec.http.client.generator.core.customization.Editor;
 import com.microsoft.typespec.http.client.generator.core.extension.plugin.NewPlugin;
 import com.microsoft.typespec.http.client.generator.core.util.Constants;
-import java.util.AbstractMap;
 import java.util.ArrayList;
-import java.util.Collection;
+import java.util.Arrays;
+import java.util.Comparator;
+import java.util.HashMap;
+import java.util.HashSet;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
+import java.util.concurrent.Callable;
+import java.util.concurrent.ExecutionException;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.concurrent.Future;
+import java.util.concurrent.atomic.AtomicInteger;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
 import org.eclipse.jdt.core.ToolFactory;
+import org.eclipse.jdt.core.compiler.IScanner;
+import org.eclipse.jdt.core.compiler.ITerminalSymbols;
+import org.eclipse.jdt.core.compiler.InvalidInputException;
 import org.eclipse.jdt.core.formatter.CodeFormatter;
 import org.eclipse.jdt.internal.compiler.env.IModule;
 import org.eclipse.jface.text.Document;
@@ -36,6 +48,8 @@ import org.w3c.dom.NodeList;
  * Utility class that handles code formatting.
  */
 public final class CodeFormatterUtil {
+    private static final int MAX_FORMATTER_WORKERS = 4;
+    private static final int FILES_PER_FORMATTER_WORKER = 32;
 
     /**
      * Formats the given files by removing unused imports and applying Eclipse code formatting.
@@ -44,7 +58,11 @@ public final class CodeFormatterUtil {
      * @param plugin The plugin to use to write the formatted files.
      */
     public static void formatCode(Map<String, String> files, NewPlugin plugin, Logger logger) {
-        formatCodeInternal(files, logger).forEach(entry -> plugin.writeFile(entry.getKey(), entry.getValue(), null));
+        formatCode(new Editor(files), plugin, logger);
+    }
+
+    public static void formatCode(Editor editor, NewPlugin plugin, Logger logger) {
+        formatCodeInternal(editor, logger).forEach(entry -> plugin.writeFile(entry.getKey(), entry.getValue(), null));
     }
 
     /**
@@ -55,30 +73,278 @@ public final class CodeFormatterUtil {
      * @throws RuntimeException If code formatting fails.
      */
     public static List<String> formatCode(Map<String, String> files) {
-        return formatCodeInternal(files, null).map(Map.Entry::getValue).collect(Collectors.toList());
+        return formatCode(new Editor(files));
     }
 
-    private static Stream<Map.Entry<String, String>> formatCodeInternal(Map<String, String> files, Logger logger) {
+    public static List<String> formatCode(Editor editor) {
+        return formatCodeInternal(editor, null).map(Map.Entry::getValue).collect(Collectors.toList());
+    }
+
+    private static Stream<Map.Entry<String, String>> formatCodeInternal(Editor editor, Logger logger) {
+        String configuredWorkers = System.getProperty("codegen.java.formatter.parallelism");
+        if (configuredWorkers == null) {
+            configuredWorkers = System.getenv("TYPESPEC_JAVA_FORMATTER_PARALLELISM");
+        }
+        int parallelism = resolveParallelism(editor.getContents().size(), Runtime.getRuntime().availableProcessors(),
+            configuredWorkers);
+        return formatCodeInternal(editor, logger, parallelism);
+    }
+
+    static int resolveParallelism(int fileCount, int availableProcessors, String configuredWorkers) {
+        int workers = Math.max(1, fileCount / FILES_PER_FORMATTER_WORKER);
+        if (configuredWorkers != null) {
+            try {
+                workers = Integer.parseInt(configuredWorkers);
+            } catch (NumberFormatException exception) {
+                throw new IllegalArgumentException(
+                    "Formatter parallelism must be a positive integer: " + configuredWorkers, exception);
+            }
+            if (workers < 1) {
+                throw new IllegalArgumentException(
+                    "Formatter parallelism must be a positive integer: " + configuredWorkers);
+            }
+        }
+        return Math.max(1,
+            Math.min(Math.min(workers, MAX_FORMATTER_WORKERS), Math.min(fileCount, availableProcessors)));
+    }
+
+    static Stream<Map.Entry<String, String>> formatCodeInternal(Editor editor, Logger logger, int parallelism) {
         Map<String, String> eclipseSettings = loadEclipseSettings();
         DefaultImportOrderingStrategy orderingStrategy = new DefaultImportOrderingStrategy();
         orderingStrategy.setSortImportsAlphabetically(true);
 
-        return removeUnusedImports(files.entrySet(), logger).stream().map(entry -> {
+        Map<String, String> files = new LinkedHashMap<>();
+        Map<String, Exception> parseFailures = new HashMap<>();
+        Set<String> moduleInfoFiles = new HashSet<>();
+        for (Map.Entry<String, String> entry : editor.getContents().entrySet()) {
             try {
-                String file = reorderImports(entry.getValue(), orderingStrategy);
-                file = formatCode(file, entry.getKey(), ToolFactory.createCodeFormatter(eclipseSettings));
-                return Map.entry(entry.getKey(), file);
-            } catch (Exception e) {
-                // print file content
-                String errorMessage
-                    = "Failed to format file: " + entry.getKey() + ". File content: \n" + entry.getValue();
-                if (logger != null) {
-                    logger.error(errorMessage);
+                CompilationUnit compilationUnit = editor.getCachedCompilationUnit(entry.getKey());
+                String reordered = null;
+                if (compilationUnit == null) {
+                    reordered = reorderUntouchedImports(entry.getValue());
+                    if (reordered == null) {
+                        compilationUnit = editor.getCompilationUnit(entry.getKey());
+                    }
                 }
-
-                throw new RuntimeException(errorMessage, e);
+                if (entry.getKey().endsWith(IModule.MODULE_INFO_JAVA)
+                    && (compilationUnit == null || compilationUnit.getModule().isPresent())) {
+                    moduleInfoFiles.add(entry.getKey());
+                }
+                if (compilationUnit != null) {
+                    reordered = reorderImports(entry.getValue(), compilationUnit,
+                        editor.isCompilationUnitModified(entry.getKey()), orderingStrategy);
+                }
+                files.put(entry.getKey(), reordered);
+            } catch (Exception exception) {
+                files.put(entry.getKey(), entry.getValue());
+                parseFailures.put(entry.getKey(), exception);
+            } finally {
+                editor.releaseCompilationUnit(entry.getKey());
             }
-        });
+        }
+
+        List<FormattingResult> results = formatFiles(new ArrayList<>(files.entrySet()), moduleInfoFiles, parseFailures,
+            eclipseSettings, Math.max(1, Math.min(parallelism, MAX_FORMATTER_WORKERS)));
+        StringBuilder errorCapture = new StringBuilder();
+        for (FormattingResult result : results) {
+            if (result.failure instanceof FormatterException) {
+                String[] fileLines = result.content.split("\n");
+                for (FormatterDiagnostic diagnostic : ((FormatterException) result.failure).diagnostics()) {
+                    appendDiagnosticError(errorCapture, diagnostic, result.fileName, fileLines, logger);
+                }
+            }
+        }
+        if (errorCapture.length() > 0) {
+            throw new IllegalStateException("Google Java Formatter encountered errors:\n" + errorCapture);
+        }
+        for (FormattingResult result : results) {
+            if (result.failure != null) {
+                String message = "Failed to format file: " + result.fileName + ". File content: \n" + result.content;
+                if (logger != null) {
+                    logger.error(message);
+                }
+                throw new RuntimeException(message, result.failure);
+            }
+        }
+        return results.stream().map(result -> Map.entry(result.fileName, result.content));
+    }
+
+    private static List<FormattingResult> formatFiles(List<Map.Entry<String, String>> files,
+        Set<String> moduleInfoFiles, Map<String, Exception> parseFailures, Map<String, String> eclipseSettings,
+        int parallelism) {
+        if (files.isEmpty()) {
+            return List.of();
+        }
+        FormattingResult[] results = new FormattingResult[files.size()];
+        AtomicInteger nextFile = new AtomicInteger();
+        Callable<Void> worker = () -> {
+            CodeFormatter formatter = ToolFactory.createCodeFormatter(new HashMap<>(eclipseSettings));
+            int index;
+            while ((index = nextFile.getAndIncrement()) < files.size()) {
+                if (Thread.currentThread().isInterrupted()) {
+                    throw new InterruptedException("Formatting was cancelled.");
+                }
+                Map.Entry<String, String> file = files.get(index);
+                results[index] = formatFile(file, moduleInfoFiles.contains(file.getKey()),
+                    parseFailures.get(file.getKey()), formatter);
+            }
+            return null;
+        };
+        ExecutorService executor = null;
+        try {
+            if (parallelism == 1) {
+                worker.call();
+            } else {
+                AtomicInteger threadNumber = new AtomicInteger();
+                executor = Executors.newFixedThreadPool(Math.min(parallelism, files.size()), task -> {
+                    Thread thread = new Thread(task, "java-codegen-formatter-" + threadNumber.incrementAndGet());
+                    thread.setDaemon(true);
+                    return thread;
+                });
+                List<Callable<Void>> workers = new ArrayList<>();
+                for (int workerIndex = 0; workerIndex < Math.min(parallelism, files.size()); workerIndex++) {
+                    workers.add(worker);
+                }
+                for (Future<Void> future : executor.invokeAll(workers)) {
+                    future.get();
+                }
+            }
+        } catch (InterruptedException exception) {
+            Thread.currentThread().interrupt();
+            throw new IllegalStateException("Interrupted while formatting Java files.", exception);
+        } catch (ExecutionException exception) {
+            throw new IllegalStateException("Failed to format Java files.", exception.getCause());
+        } catch (Exception exception) {
+            throw new IllegalStateException("Failed to format Java files.", exception);
+        } finally {
+            if (executor != null) {
+                executor.shutdownNow();
+            }
+        }
+        return Arrays.asList(results);
+    }
+
+    private static FormattingResult formatFile(Map.Entry<String, String> file, boolean moduleInfo,
+        Exception parseFailure, CodeFormatter formatter) {
+        String content = file.getValue();
+        try {
+            content = RemoveUnusedImports.removeUnusedImports(content);
+            if (parseFailure != null) {
+                return new FormattingResult(file.getKey(), content, parseFailure);
+            }
+            return new FormattingResult(file.getKey(), formatCode(content, moduleInfo, formatter), null);
+        } catch (Exception exception) {
+            return new FormattingResult(file.getKey(), content, exception);
+        }
+    }
+
+    private static final class FormattingResult {
+        private final String fileName;
+        private final String content;
+        private final Exception failure;
+
+        private FormattingResult(String fileName, String content, Exception failure) {
+            this.fileName = fileName;
+            this.content = content;
+            this.failure = failure;
+        }
+    }
+
+    private static String reorderUntouchedImports(String file) throws InvalidInputException {
+        IScanner scanner = ToolFactory.createScanner(true, false, false, "17");
+        scanner.setSource(file.toCharArray());
+        List<String> imports = new ArrayList<>();
+        int importStart = -1;
+        int importEnd = -1;
+        int parentheses = 0;
+        boolean commentAfterImport = false;
+        int token;
+        while ((token = scanner.getNextToken()) != ITerminalSymbols.TokenNameEOF) {
+            if (isComment(token)) {
+                if (importEnd >= 0) {
+                    String gap = file.substring(importEnd, scanner.getCurrentTokenStartPosition());
+                    if (gap.indexOf('\n') < 0 && gap.indexOf('\r') < 0) {
+                        return null;
+                    }
+                    commentAfterImport = true;
+                }
+            } else if (token == ITerminalSymbols.TokenNameLPAREN) {
+                parentheses++;
+            } else if (token == ITerminalSymbols.TokenNameRPAREN) {
+                parentheses--;
+            } else if (parentheses == 0 && token == ITerminalSymbols.TokenNameimport) {
+                int declarationStart = scanner.getCurrentTokenStartPosition();
+                int lineStart
+                    = Math.max(file.lastIndexOf('\n', declarationStart), file.lastIndexOf('\r', declarationStart)) + 1;
+                if (commentAfterImport || !file.substring(lineStart, declarationStart).isBlank()) {
+                    return null;
+                }
+                if (importStart < 0) {
+                    importStart = declarationStart;
+                }
+                StringBuilder declaration = new StringBuilder();
+                boolean expectName = true;
+                boolean canBeStatic = true;
+                boolean wildcard = false;
+                while ((token = scanner.getNextToken()) != ITerminalSymbols.TokenNameSEMICOLON) {
+                    if (token == ITerminalSymbols.TokenNameEOF
+                        || isComment(token)
+                        || !Arrays.equals(scanner.getRawTokenSource(), scanner.getCurrentTokenSource())) {
+                        return null;
+                    }
+                    if (token == ITerminalSymbols.TokenNamestatic && canBeStatic) {
+                        canBeStatic = false;
+                        declaration.append("static ");
+                        continue;
+                    }
+                    canBeStatic = false;
+                    if (expectName && token == ITerminalSymbols.TokenNameIdentifier) {
+                        expectName = false;
+                    } else if (expectName
+                        && token == ITerminalSymbols.TokenNameMULTIPLY
+                        && declaration.length() > 0
+                        && declaration.charAt(declaration.length() - 1) == '.') {
+                        expectName = false;
+                        wildcard = true;
+                    } else if (!expectName && !wildcard && token == ITerminalSymbols.TokenNameDOT) {
+                        expectName = true;
+                    } else {
+                        return null;
+                    }
+                    declaration.append(scanner.getCurrentTokenSource());
+                }
+                if (expectName) {
+                    return null;
+                }
+                imports.add(declaration.toString());
+                importEnd = scanner.getCurrentTokenEndPosition() + 1;
+            } else if (parentheses == 0
+                && (token == ITerminalSymbols.TokenNameclass
+                    || token == ITerminalSymbols.TokenNameinterface
+                    || token == ITerminalSymbols.TokenNameenum
+                    || token == ITerminalSymbols.TokenNameLBRACE)) {
+                break;
+            }
+        }
+        if (imports.isEmpty()) {
+            return file;
+        }
+        imports.sort(Comparator.comparing((String declaration) -> !declaration.startsWith("static "))
+            .thenComparing(declaration -> declaration.endsWith(".*")
+                ? declaration.substring(0, declaration.length() - 2)
+                : declaration));
+        String ordered = imports.stream()
+            .distinct()
+            .map(declaration -> "import " + declaration + ";")
+            .collect(Collectors.joining("\n"));
+        return (file.substring(0, importStart) + ordered + file.substring(importEnd)).replace("\r\n", "\n")
+            .replace('\r', '\n');
+    }
+
+    private static boolean isComment(int token) {
+        return token == ITerminalSymbols.TokenNameCOMMENT_LINE
+            || token == ITerminalSymbols.TokenNameCOMMENT_BLOCK
+            || token == ITerminalSymbols.TokenNameCOMMENT_JAVADOC;
     }
 
     /**
@@ -115,16 +381,24 @@ public final class CodeFormatterUtil {
      * results in newline removal and trailing space removal which is just noise for us.
      *
      * @param file The Java file to reorder imports for.
+     * @param compilationUnit The shared parsed file.
+     * @param modified Whether AST edits have invalidated the original import positions.
      * @param orderingStrategy The import ordering strategy to use.
      * @return The Java file with reordered imports, or if the file has no imports the file as-is.
      */
     @SuppressWarnings("OptionalGetWithoutIsPresent")
-    private static String reorderImports(String file, ImportOrderingStrategy orderingStrategy) {
-        CompilationUnit compilationUnit = StaticJavaParser.parse(file);
+    private static String reorderImports(String file, CompilationUnit compilationUnit, boolean modified,
+        ImportOrderingStrategy orderingStrategy) {
         com.github.javaparser.ast.NodeList<ImportDeclaration> imports = compilationUnit.getImports();
         if (imports.isEmpty()) {
             // File has no imports, nothing to reorder.
             return file;
+        }
+
+        if (modified) {
+            compilationUnit.setImports(new com.github.javaparser.ast.NodeList<>(
+                distinctImports(orderingStrategy.sortImports(imports).get(0))));
+            return compilationUnit.toString();
         }
 
         // Positions of the existing imports in the file.
@@ -187,69 +461,22 @@ public final class CodeFormatterUtil {
         return sb.toString();
     }
 
-    private static String formatCode(String file, String fileName, CodeFormatter codeFormatter) throws Exception {
+    private static String formatCode(String file, boolean isModuleInfo, CodeFormatter codeFormatter) throws Exception {
         IDocument doc = new Document(file);
 
-        boolean isModuleInfo = fileName.endsWith(IModule.MODULE_INFO_JAVA);
-        if (isModuleInfo) {
-            // candidate module-info.java, confirm by check file content about module declaration
-            CompilationUnit compilationUnit = StaticJavaParser.parse(file);
-            if (compilationUnit.getModule().isEmpty()) {
-                // not module-info.java
-                isModuleInfo = false;
-            }
-        }
         int kind = isModuleInfo ? CodeFormatter.K_MODULE_INFO : CodeFormatter.K_COMPILATION_UNIT;
         kind |= CodeFormatter.F_INCLUDE_COMMENTS;
         TextEdit edit = codeFormatter.format(kind, file, 0, file.length(), 0, Constants.NEW_LINE);
+        if (edit == null && isModuleInfo) {
+            edit = codeFormatter.format(CodeFormatter.K_COMPILATION_UNIT | CodeFormatter.F_INCLUDE_COMMENTS, file, 0,
+                file.length(), 0, Constants.NEW_LINE);
+        }
+        if (edit == null) {
+            throw new IllegalStateException("Eclipse could not format the Java source.");
+        }
         edit.apply(doc);
 
         return doc.get();
-    }
-
-    /*
-     * In previous iterations of code formatting, we let Spotless use Google Java Formatter to remove unused imports.
-     * This worked well when code was valid, but when there were errors Spotless would halt processing on the first
-     * issue found. This meant that resolving issues were difficult, as it could take many iterations to resolve the
-     * regressions introduced.
-     *
-     * This then resulted in a new design where when Spotless failed on the entire fileset we would run Spotless
-     * individually on each file, and log the error message with the file content. This worked, but was tremendously
-     * slow as it required running many Maven processes, one for each file.
-     *
-     * This new implementation takes a dependency on google-java-format to run Google Java Formatter ourselves. This
-     * allows us to control error handling by processing all files, in-memory (much faster than letting Spotless run
-     * Google Java Formatter), and capturing all issues before attempting Spotless formatting (which now excludes
-     * unused import removal).
-     */
-    private static List<Map.Entry<String, String>> removeUnusedImports(Collection<Map.Entry<String, String>> files,
-        Logger logger) {
-        List<Map.Entry<String, String>> updatedFiles = new ArrayList<>(files.size());
-
-        // Tracker for errors encountered while running Google Java Formatter.
-        StringBuilder errorCapture = new StringBuilder();
-
-        for (Map.Entry<String, String> file : files) {
-            String content = file.getValue();
-            try {
-                // Use Google Java Formatter to remove unused imports.
-                updatedFiles.add(
-                    new AbstractMap.SimpleEntry<>(file.getKey(), RemoveUnusedImports.removeUnusedImports(content)));
-            } catch (FormatterException ex) {
-                String[] fileLines = content.split("\n");
-                // Capture the error message and continue processing other files.
-                for (FormatterDiagnostic diagnostic : ex.diagnostics()) {
-                    appendDiagnosticError(errorCapture, diagnostic, file.getKey(), fileLines, logger);
-                }
-            }
-            file.setValue(content);
-        }
-
-        if (errorCapture.length() > 0) {
-            throw new IllegalStateException("Google Java Formatter encountered errors:\n" + errorCapture);
-        }
-
-        return updatedFiles;
     }
 
     private static void appendDiagnosticError(StringBuilder errorCapture, FormatterDiagnostic diagnostic,

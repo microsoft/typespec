@@ -3,28 +3,41 @@
 
 package com.microsoft.typespec.http.client.generator.core.postprocessor;
 
+import com.github.javaparser.StaticJavaParser;
 import com.microsoft.typespec.http.client.generator.core.customization.Customization;
-import com.microsoft.typespec.http.client.generator.core.customization.implementation.Utils;
-import com.microsoft.typespec.http.client.generator.core.extension.base.util.FileUtils;
+import com.microsoft.typespec.http.client.generator.core.customization.Editor;
 import com.microsoft.typespec.http.client.generator.core.extension.plugin.JavaSettings;
 import com.microsoft.typespec.http.client.generator.core.extension.plugin.NewPlugin;
 import com.microsoft.typespec.http.client.generator.core.extension.plugin.PluginLogger;
 import com.microsoft.typespec.http.client.generator.core.partialupdate.util.PartialUpdateHandler;
 import com.microsoft.typespec.http.client.generator.core.postprocessor.implementation.CodeFormatterUtil;
 import io.clientcore.core.serialization.json.JsonReader;
+import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.IOException;
+import java.io.OutputStream;
 import java.io.UncheckedIOException;
 import java.net.URI;
 import java.net.URL;
 import java.net.URLClassLoader;
+import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Locale;
 import java.util.Map;
-import java.util.UUID;
-import java.util.concurrent.TimeUnit;
+import java.util.stream.Collectors;
+import javax.tools.DiagnosticCollector;
+import javax.tools.FileObject;
+import javax.tools.ForwardingJavaFileManager;
+import javax.tools.JavaCompiler;
+import javax.tools.JavaFileManager;
+import javax.tools.JavaFileObject;
+import javax.tools.SimpleJavaFileObject;
+import javax.tools.StandardJavaFileManager;
+import javax.tools.ToolProvider;
 import org.slf4j.Logger;
 
 public class Postprocessor {
@@ -38,12 +51,13 @@ public class Postprocessor {
 
     @SuppressWarnings("unchecked")
     public void postProcess(Map<String, String> fileContents) {
+        Editor editor = new Editor(fileContents);
         String jarPath = JavaSettings.getInstance().getCustomizationJarPath();
         String className = JavaSettings.getInstance().getCustomizationClass();
 
         if (className == null) {
             try {
-                writeToFiles(fileContents, plugin, logger);
+                writeToFiles(editor, plugin, logger);
             } catch (Exception e) {
                 logger.error("Failed to complete postprocessing.", e);
                 throw new RuntimeException("Failed to complete postprocessing.", e);
@@ -99,14 +113,14 @@ public class Postprocessor {
             try {
                 Customization customization = customizationClass.getConstructor().newInstance();
                 logger.info("Running customization, this may take a while...");
-                fileContents = customization.run(fileContents, logger);
+                customization.run(editor, logger);
             } catch (Exception e) {
                 logger.error("Unable to complete customization", e);
                 throw new RuntimeException("Unable to complete customization", e);
             }
 
             // Step 2: Print to files
-            writeToFiles(fileContents, plugin, logger);
+            writeToFiles(editor, plugin, logger);
         } catch (Exception e) {
             logger.error("Failed to complete postprocessing.", e);
             throw new RuntimeException("Failed to complete postprocessing.", e);
@@ -114,12 +128,16 @@ public class Postprocessor {
     }
 
     public static void writeToFiles(Map<String, String> javaFiles, NewPlugin plugin, Logger logger) {
+        writeToFiles(new Editor(javaFiles), plugin, logger);
+    }
+
+    public static void writeToFiles(Editor editor, NewPlugin plugin, Logger logger) {
         JavaSettings settings = JavaSettings.getInstance();
         if (settings.isHandlePartialUpdate()) {
-            handlePartialUpdate(javaFiles, plugin, logger);
+            handlePartialUpdate(editor, plugin, logger);
         }
 
-        CodeFormatterUtil.formatCode(javaFiles, plugin, logger);
+        CodeFormatterUtil.formatCode(editor, plugin, logger);
     }
 
     private static String getReadme(NewPlugin plugin) {
@@ -161,40 +179,72 @@ public class Postprocessor {
         }
     }
 
-    @SuppressWarnings("unchecked")
     public static Class<? extends Customization> loadCustomizationClass(String className, String code) {
-        Path customizationCompile = null;
-        try {
-            customizationCompile = FileUtils.createTempDirectory("customizationCompile" + UUID.randomUUID());
+        JavaCompiler compiler = ToolProvider.getSystemJavaCompiler();
+        if (compiler == null) {
+            throw new IllegalStateException(
+                "A Java Development Kit (JDK) is required to compile customization source files.");
+        }
 
-            Path pomPath = customizationCompile.resolve("compile-pom.xml");
-            Files.copy(Postprocessor.class.getClassLoader().getResourceAsStream("readme/pom.xml"), pomPath);
-
-            Path sourcePath = customizationCompile.resolve("src/main/java/" + className + ".java");
-            Files.createDirectories(sourcePath.getParent());
-
-            Files.writeString(sourcePath, code);
-
-            attemptMavenInstall(pomPath);
-
-            URL fileUrl = customizationCompile.resolve("target/classes").toUri().toURL();
-            URLClassLoader classLoader
-                = URLClassLoader.newInstance(new URL[] { fileUrl }, ClassLoader.getSystemClassLoader());
-            return (Class<? extends Customization>) Class.forName(className, true, classLoader);
-        } catch (Exception ex) {
-            throw new RuntimeException(ex);
-        } finally {
-            if (customizationCompile != null) {
-                Utils.deleteDirectory(customizationCompile.toFile());
+        DiagnosticCollector<JavaFileObject> diagnostics = new DiagnosticCollector<>();
+        Map<String, ByteArrayOutputStream> compiledClasses = new HashMap<>();
+        JavaFileObject source = new SimpleJavaFileObject(
+            URI.create("string:///" + className.replace('.', '/') + JavaFileObject.Kind.SOURCE.extension),
+            JavaFileObject.Kind.SOURCE) {
+            @Override
+            public CharSequence getCharContent(boolean ignoreEncodingErrors) {
+                return code;
             }
+        };
+
+        try (JavaFileManager fileManager = new ForwardingJavaFileManager<StandardJavaFileManager>(
+            compiler.getStandardFileManager(diagnostics, Locale.ROOT, StandardCharsets.UTF_8)) {
+            @Override
+            public JavaFileObject getJavaFileForOutput(Location location, String binaryName, JavaFileObject.Kind kind,
+                FileObject sibling) {
+                return new SimpleJavaFileObject(URI.create("bytes:///" + binaryName.replace('.', '/') + kind.extension),
+                    kind) {
+                    @Override
+                    public OutputStream openOutputStream() {
+                        ByteArrayOutputStream output = new ByteArrayOutputStream();
+                        compiledClasses.put(binaryName, output);
+                        return output;
+                    }
+                };
+            }
+        }) {
+            List<String> options = List.of("-classpath", System.getProperty("java.class.path"), "-proc:none");
+            if (!compiler.getTask(null, fileManager, diagnostics, options, null, List.of(source)).call()) {
+                throw new IllegalStateException("Failed to compile customization class " + className + ":\n"
+                    + diagnostics.getDiagnostics().stream().map(Object::toString).collect(Collectors.joining("\n")));
+            }
+        } catch (IOException ex) {
+            throw new UncheckedIOException("Failed to compile customization class " + className, ex);
+        }
+
+        ClassLoader classLoader = new ClassLoader(Customization.class.getClassLoader()) {
+            @Override
+            protected Class<?> findClass(String binaryName) throws ClassNotFoundException {
+                ByteArrayOutputStream output = compiledClasses.get(binaryName);
+                if (output == null) {
+                    throw new ClassNotFoundException(binaryName);
+                }
+                byte[] bytes = output.toByteArray();
+                return defineClass(binaryName, bytes, 0, bytes.length);
+            }
+        };
+        try {
+            return Class.forName(className, true, classLoader).asSubclass(Customization.class);
+        } catch (ClassNotFoundException | ClassCastException ex) {
+            throw new IllegalStateException("Unable to load compiled customization class " + className, ex);
         }
     }
 
-    private static void handlePartialUpdate(Map<String, String> fileContents, NewPlugin plugin, Logger logger) {
+    private static void handlePartialUpdate(Editor editor, NewPlugin plugin, Logger logger) {
         logger.info("Begin handle partial update...");
         // handle partial update
         // currently only support add additional interface or overload a generated method in sync and async client
-        fileContents.replaceAll((path, generatedFileContent) -> {
+        for (String path : editor.getContents().keySet()) {
             if (path.endsWith(".java")) { // only handle for .java file
                 // get existing file path
                 // use output-folder from autorest, if exists and is absolute path
@@ -212,39 +262,18 @@ public class Postprocessor {
                 if (Files.exists(existingFilePath)) {
                     try {
                         String existingFileContent = Files.readString(existingFilePath);
-                        return PartialUpdateHandler.handlePartialUpdateForFile(generatedFileContent,
-                            existingFileContent);
+                        PartialUpdateHandler
+                            .mergeCompilationUnits(editor.getCompilationUnit(path),
+                                StaticJavaParser.parse(existingFileContent))
+                            .ifPresent(compilationUnit -> editor.setCompilationUnit(path, compilationUnit));
                     } catch (IOException e) {
                         logger.error("Unable to get content from file path", e);
                         throw new UncheckedIOException(e);
                     }
                 }
             }
-            return generatedFileContent;
-        });
+        }
         logger.info("Finish handle partial update.");
     }
 
-    private static void attemptMavenInstall(Path pomPath) {
-        String[] command = Utils.isWindows()
-            ? new String[] { "cmd", "/c", "mvn", "compiler:compile", "-f", pomPath.toString() }
-            : new String[] { "mvn", "compiler:compile", "-f", pomPath.toString() };
-
-        try {
-            File outputFile = Files.createTempFile(pomPath.getParent(), "compile", ".log").toFile();
-            Process process = new ProcessBuilder(command).redirectErrorStream(true)
-                .redirectOutput(ProcessBuilder.Redirect.to(outputFile))
-                .start();
-            process.waitFor(60, TimeUnit.SECONDS);
-
-            if (process.isAlive() || process.exitValue() != 0) {
-                process.destroyForcibly();
-                throw new RuntimeException("Compile failed to complete within 60 seconds or failed with an error code. "
-                    + Files.readString(outputFile.toPath()) + "If this happens 'mvn compile -f " + pomPath
-                    + "' to install dependencies manually.");
-            }
-        } catch (IOException | InterruptedException ex) {
-            throw new RuntimeException("Failed to run compile on generated code.", ex);
-        }
-    }
 }

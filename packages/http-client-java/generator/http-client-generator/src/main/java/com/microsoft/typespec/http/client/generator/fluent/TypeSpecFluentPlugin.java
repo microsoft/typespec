@@ -41,6 +41,8 @@ public class TypeSpecFluentPlugin extends FluentGen {
         super(new TypeSpecPlugin.MockConnection(), "dummy", "dummy");
         this.emitterOptions = options;
 
+        SETTINGS_MAP.put("debug",
+            LOGGER.isDebugEnabled() || (options.getDevOptions() != null && options.getDevOptions().isDebug()));
         SETTINGS_MAP.put("namespace", options.getNamespace());
         if (!CoreUtils.isNullOrEmpty(options.getOutputDir())) {
             SETTINGS_MAP.put("output-folder", options.getOutputDir());
