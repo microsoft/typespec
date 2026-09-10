@@ -676,15 +676,15 @@
     {
       "$id": "66",
       "kind": "model",
-      "name": "Info",
+      "name": "ProtocolInfo",
       "apiVersions": [],
       "namespace": "Streaming.Sse.Protocol",
-      "crossLanguageDefinitionId": "Streaming.Sse.Protocol.Info",
+      "crossLanguageDefinitionId": "Streaming.Sse.Protocol.ProtocolInfo",
       "usage": "Output,Json",
       "decorators": [],
       "serializationOptions": {
         "json": {
-          "name": "Info"
+          "name": "ProtocolInfo"
         }
       },
       "isExactName": false,
@@ -707,7 +707,7 @@
           "discriminator": false,
           "flatten": false,
           "decorators": [],
-          "crossLanguageDefinitionId": "Streaming.Sse.Protocol.Info.message",
+          "crossLanguageDefinitionId": "Streaming.Sse.Protocol.ProtocolInfo.message",
           "serializationOptions": {
             "json": {
               "name": "message"

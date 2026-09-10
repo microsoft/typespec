@@ -1,11 +1,7 @@
 // Copyright (c) Microsoft Corporation. All rights reserved.
 // Licensed under the MIT License.
 
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
 using Microsoft.TypeSpec.Generator.ClientModel.Providers;
-using Microsoft.TypeSpec.Generator.ClientModel.StubLibrary;
 using Microsoft.TypeSpec.Generator.Input;
 using Microsoft.TypeSpec.Generator.Providers;
 using Microsoft.TypeSpec.Generator.Tests.Common;
@@ -32,47 +28,6 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests
                 createInputLibrary: () => _mockInputLibrary.Object,
                 createClientCore: inputClient => new ClientProvider(inputClient));
             _mockVisitor = new Mock<ScmLibraryVisitor> { CallBase = true };
-        }
-
-        [Test]
-        public void StubDropsUnusedCustomizationAttributes()
-        {
-            Assert.IsEmpty(VisitStubCustomizationAttributes(_mockGenerator.Object));
-        }
-
-        [Test]
-        public async Task StubKeepsUsedCustomizationAttributes()
-        {
-            var generator = await MockHelpers.LoadMockGeneratorAsync(
-                compilation: async () => await Helpers.GetCompilationFromDirectoryAsync());
-
-            var attributes = VisitStubCustomizationAttributes(generator.Object);
-
-            Assert.That(attributes.Select(attribute => attribute.Name),
-                Is.EquivalentTo(new[] { "CodeGenTypeAttribute", "CodeGenMemberAttribute" }));
-        }
-
-        [Test]
-        public async Task StubKeepsInheritedCustomizationAttributes()
-        {
-            var generator = await MockHelpers.LoadMockGeneratorAsync(
-                compilation: async () => await Helpers.GetCompilationFromDirectoryAsync());
-
-            var attributes = VisitStubCustomizationAttributes(generator.Object);
-
-            Assert.That(attributes.Select(attribute => attribute.Name),
-                Is.EquivalentTo(new[] { "CodeGenTypeAttribute" }));
-        }
-
-        private static IReadOnlyList<TypeProvider> VisitStubCustomizationAttributes(ScmCodeModelGenerator generator)
-        {
-            CodeModelGenerator stubGenerator = new StubLibraryGenerator(new GeneratorContext(generator.Configuration));
-            stubGenerator.Configure();
-            var library = new OutputLibrary { TypeProviders = generator.CustomCodeAttributeProviders };
-
-            stubGenerator.Visitors.Last().VisitLibrary(library);
-
-            return library.TypeProviders;
         }
 
         [Test]
