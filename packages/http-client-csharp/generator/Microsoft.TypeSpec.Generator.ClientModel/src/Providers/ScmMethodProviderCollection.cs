@@ -302,7 +302,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
                     // when the response body type isn't in the IsConvertibleFromBinaryData allow-list (e.g. Guid, Uri, or the
                     // byte/short/unsigned integer types), otherwise they would incorrectly fall back to JSON parsing.
                     IsConvertibleFromBinaryData(responseBodyType)
-                        || ((responseBodyType.IsFrameworkType || responseBodyType.IsEnum) && HasOnlyPlainTextContentType())
+                        || (IsPlainTextParsableType(responseBodyType) && HasOnlyPlainTextContentType())
                         ? GetResultConversionStatements(result, result.GetRawResponse(), responseBodyType, resultDeclarations)
                         :
                         new[]
@@ -864,7 +864,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
 
         private MethodBodyStatement[] GetResultConversionStatements(ClientResponseApi result, HttpResponseApi response, CSharpType responseBodyType, Dictionary<string, ValueExpression> declarations)
         {
-            if (!responseBodyType.Equals(typeof(string)) && HasOnlyPlainTextContentType())
+            if (!responseBodyType.Equals(typeof(string)) && IsPlainTextParsableType(responseBodyType) && HasOnlyPlainTextContentType())
             {
                 var contentExpression = response.Content().InvokeToString().Invoke(nameof(string.TrimStart), Literal('\uFEFF')).As<string>();
                 return
@@ -931,17 +931,11 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
 
         private ValueExpression GetPlainTextValueConversion(CSharpType responseBodyType, ValueExpression content)
         {
-            var nonNullableType = responseBodyType.WithNullable(false);
-            var typeToDeserialize = nonNullableType;
-            CSharpType? enumType = null;
-            if (nonNullableType is { IsEnum: true, UnderlyingEnumType: { } underlyingEnumType })
-            {
-                enumType = nonNullableType;
-                typeToDeserialize = underlyingEnumType;
-            }
+            var parseType = GetPlainTextParseType(responseBodyType, out var enumType)
+                ?? throw new InvalidOperationException($"Unsupported plain text response type: {responseBodyType}.");
 
             var invariantCulture = new MemberExpression(typeof(CultureInfo), nameof(CultureInfo.InvariantCulture));
-            var deserializedValue = typeToDeserialize.FrameworkType switch
+            var deserializedValue = parseType switch
             {
                 Type t when t == typeof(string) => content,
                 Type t when t == typeof(bool) => Static<bool>().Invoke(nameof(bool.Parse), content).As<bool>(),
@@ -949,20 +943,8 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
                 Type t when t == typeof(Uri) => New.Instance(typeof(Uri), content),
                 Type t when t == typeof(TimeSpan) => content.As<string>().ParseTimeSpan(Literal(SerializationFormat.Duration_Constant.ToFormatSpecifier() ?? throw new InvalidOperationException())),
                 Type t when t == typeof(DateTimeOffset) => content.As<string>().ParseDateTimeOffset(Literal(GetResponseSerializationFormat().ToFormatSpecifier())),
-                Type frameworkType when typeToDeserialize.IsFrameworkType
-                    && (frameworkType == typeof(byte)
-                        || frameworkType == typeof(sbyte)
-                        || frameworkType == typeof(short)
-                        || frameworkType == typeof(ushort)
-                        || frameworkType == typeof(int)
-                        || frameworkType == typeof(uint)
-                        || frameworkType == typeof(long)
-                        || frameworkType == typeof(ulong)
-                        || frameworkType == typeof(float)
-                        || frameworkType == typeof(double)
-                        || frameworkType == typeof(decimal))
-                    => Static(frameworkType).Invoke(nameof(int.Parse), [content, invariantCulture]).As(frameworkType),
-                _ => Static(typeToDeserialize.FrameworkType).Invoke(nameof(int.Parse), [content, invariantCulture]).As(typeToDeserialize.FrameworkType)
+                // The remaining supported types are numeric and all expose a static Parse(string, IFormatProvider) method.
+                _ => Static(parseType).Invoke(nameof(int.Parse), [content, invariantCulture]).As(parseType)
             };
 
             if (enumType is not null)
@@ -973,6 +955,53 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
             return responseBodyType.IsNullable
                 ? new TernaryConditionalExpression(content.Equal(Literal("null")), Null.CastTo(responseBodyType), deserializedValue)
                 : deserializedValue;
+        }
+
+        private static bool IsPlainTextParsableType(CSharpType responseBodyType)
+            => GetPlainTextParseType(responseBodyType, out _) is not null;
+
+        /// <summary>
+        /// Gets the framework type that a raw text response body is parsed into, or <c>null</c> when the response body
+        /// type isn't a primitive or enum that can be parsed from raw text. Types such as <see cref="BinaryData"/>,
+        /// collections and generated models keep their existing conversion.
+        /// </summary>
+        private static Type? GetPlainTextParseType(CSharpType responseBodyType, out CSharpType? enumType)
+        {
+            enumType = null;
+            var typeToParse = responseBodyType.WithNullable(false);
+            if (typeToParse is { IsEnum: true, UnderlyingEnumType: { } underlyingEnumType })
+            {
+                enumType = typeToParse;
+                typeToParse = underlyingEnumType;
+            }
+
+            if (!typeToParse.IsFrameworkType)
+            {
+                return null;
+            }
+
+            var frameworkType = typeToParse.FrameworkType;
+            return frameworkType switch
+            {
+                Type t when t == typeof(string)
+                    || t == typeof(bool)
+                    || t == typeof(Guid)
+                    || t == typeof(Uri)
+                    || t == typeof(TimeSpan)
+                    || t == typeof(DateTimeOffset)
+                    || t == typeof(byte)
+                    || t == typeof(sbyte)
+                    || t == typeof(short)
+                    || t == typeof(ushort)
+                    || t == typeof(int)
+                    || t == typeof(uint)
+                    || t == typeof(long)
+                    || t == typeof(ulong)
+                    || t == typeof(float)
+                    || t == typeof(double)
+                    || t == typeof(decimal) => frameworkType,
+                _ => null
+            };
         }
 
         private bool HasOnlyPlainTextContentType()

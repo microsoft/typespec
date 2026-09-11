@@ -1749,6 +1749,39 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers
             Assert.AreEqual(Helpers.GetExpectedFromFile($"{isString},{isExtensible},{isNullable}"), writer.ToString(false));
         }
 
+        [TestCase("BinaryData")]
+        [TestCase("Model")]
+        [TestCase("List")]
+        [TestCase("Dictionary")]
+        public void PlainTextSpecialCaseResponsesPreserveExistingConversion(string kind)
+        {
+            // Raw binary, generated model and collection responses are not parsed from raw text even when text/plain
+            // is their only content type, they keep their existing conversion.
+            InputType inputType = kind switch
+            {
+                "BinaryData" => InputPrimitiveType.Any,
+                "Model" => InputFactory.Model("TestModel", properties:
+                    [InputFactory.Property("name", InputPrimitiveType.String, isRequired: true)]),
+                "List" => InputFactory.Array(InputPrimitiveType.Int32),
+                "Dictionary" => InputFactory.Dictionary(InputPrimitiveType.Int32),
+                _ => throw new NotSupportedException()
+            };
+
+            var operation = InputFactory.Operation("GetSpecialCase", responses:
+                [InputFactory.OperationResponse([200], inputType, contentTypes: ["text/plain"])]);
+            var serviceMethod = InputFactory.BasicServiceMethod("GetSpecialCase", operation);
+            var inputClient = InputFactory.Client("TestClient", methods: [serviceMethod]);
+
+            MockHelpers.LoadMockGenerator();
+            var client = ScmCodeModelGenerator.Instance.TypeFactory.CreateClient(inputClient);
+            var method = new ScmMethodProviderCollection(serviceMethod, client!)
+                .Single(m => m.Kind == ScmMethodKind.Convenience && m.Signature.Name == "GetSpecialCase");
+
+            using var writer = new CodeWriter();
+            writer.WriteMethod(method);
+            Assert.AreEqual(Helpers.GetExpectedFromFile(kind), writer.ToString(false));
+        }
+
         [Test]
         public void MixedContentTypeScalarResponseUsesJsonConversion()
         {
