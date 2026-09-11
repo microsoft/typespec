@@ -673,6 +673,9 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
 
 #pragma warning restore SCME0001 // Type is for evaluation purposes only and is subject to change or removal in future updates.
 
+        /// <summary>
+        /// Builds a JSONPath. Set <paramref name="escapeForCSharpInterpolatedString"/> when the path is written into a <see cref="FormattableStringExpression"/> template.
+        /// </summary>
         private static string BuildJsonPathForElement(string propertySerializedName, List<ValueExpression> indices, bool escapeForCSharpInterpolatedString = false)
         {
             var count = indices.Count;
@@ -690,12 +693,12 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
         private static string BuildJsonPathForProperty(string propertySerializedName, bool escapeForCSharpInterpolatedString)
         {
             var jsonPath = RequiresJsonPathBracketNotation(propertySerializedName)
-                ? $"$[\"{EscapeJsonPathSegment(propertySerializedName)}\"]"
+                ? $"$[\"{EscapeBackslashAndDoubleQuote(propertySerializedName)}\"]"
                 : $"$.{propertySerializedName}";
 
             // FormattableStringExpression writes raw interpolated string text, unlike LiteralU8 which escapes string contents.
             return escapeForCSharpInterpolatedString
-                ? EscapeForCSharpString(jsonPath)
+                ? EscapeBackslashAndDoubleQuote(jsonPath)
                 : jsonPath;
         }
 
@@ -703,7 +706,19 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
         {
             return propertySerializedName.Length == 0 ||
                 !IsJsonPathIdentifierStart(propertySerializedName[0]) ||
-                propertySerializedName.Skip(1).Any(c => !IsJsonPathIdentifierPart(c));
+                HasNonJsonPathIdentifierPart(propertySerializedName);
+        }
+
+        private static bool HasNonJsonPathIdentifierPart(string propertySerializedName)
+        {
+            for (int i = 1; i < propertySerializedName.Length; i++)
+            {
+                if (!IsJsonPathIdentifierPart(propertySerializedName[i]))
+                {
+                    return true;
+                }
+            }
+            return false;
         }
 
         private static bool IsJsonPathIdentifierStart(char c)
@@ -714,16 +729,6 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
         private static bool IsJsonPathIdentifierPart(char c)
         {
             return IsJsonPathIdentifierStart(c) || char.IsDigit(c);
-        }
-
-        private static string EscapeJsonPathSegment(string value)
-        {
-            return EscapeBackslashAndDoubleQuote(value);
-        }
-
-        private static string EscapeForCSharpString(string value)
-        {
-            return EscapeBackslashAndDoubleQuote(value);
         }
 
         private static string EscapeBackslashAndDoubleQuote(string value)
