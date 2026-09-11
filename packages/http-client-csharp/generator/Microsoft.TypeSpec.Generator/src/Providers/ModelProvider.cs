@@ -607,7 +607,9 @@ namespace Microsoft.TypeSpec.Generator.Providers
         {
             var resolvedType = resolvedProvider.Type;
             return resolvedProvider is NamedTypeSymbolProvider
-                ? ApplyTypeConstruction(resolvedType, requestedType)
+                ? requestedType.IsFrameworkType
+                    ? requestedType
+                    : ApplyTypeConstruction(resolvedType, requestedType)
                 : resolvedType;
         }
 

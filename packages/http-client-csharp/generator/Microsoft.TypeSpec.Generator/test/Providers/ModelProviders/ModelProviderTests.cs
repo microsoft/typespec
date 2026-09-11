@@ -550,6 +550,46 @@ namespace Microsoft.TypeSpec.Generator.Tests.Providers.ModelProviders
         }
 
         [Test]
+        public async Task BackCompat_BaseTypeIsRestoredUsingEntrypointBuildOrder()
+        {
+            var previousBase = InputFactory.Model("PreviousBase", properties: []);
+            var currentBase = InputFactory.Model("CurrentBase", properties: []);
+            var derivedModel = InputFactory.Model("DerivedModel", properties: [], baseModel: currentBase);
+
+            await MockHelpers.LoadMockGeneratorAsync(
+                inputModelTypes: [previousBase, currentBase, derivedModel],
+                lastContractCompilation: async () => await Helpers.GetCompilationFromDirectoryAsync(
+                    method: nameof(BackCompat_BaseTypeChangePreservesLastContractBaseType)));
+
+            var outputTypes = CodeModelGenerator.Instance.OutputLibrary.TypeProviders.ToArray();
+            foreach (var type in outputTypes)
+            {
+                type.EnsureBuilt();
+            }
+
+            var modelProvider = outputTypes
+                .OfType<ModelProvider>()
+                .Single(t => t.Name == "DerivedModel");
+            Assert.AreEqual(previousBase.Name, modelProvider.BaseType?.Name,
+                "EnsureBuilt must apply base restoration while materializing constructors and the model hierarchy");
+
+            foreach (var type in outputTypes)
+            {
+                type.ProcessTypeForBackCompatibility();
+            }
+
+            Assert.Multiple(() =>
+            {
+                Assert.AreEqual(previousBase.Name, modelProvider.BaseType?.Name,
+                    "The entrypoint's later member back-compat pass must retain the restored base");
+                Assert.AreEqual(previousBase.Name, modelProvider.BaseModelProvider?.Name,
+                    "Dependent base-provider state must use the restored base");
+                Assert.AreEqual(previousBase.Name, modelProvider.Type.BaseType?.Name,
+                    "The model type cached during the entrypoint build must use the restored base");
+            });
+        }
+
+        [Test]
         public async Task BackCompat_BaseTypeIsNotRestoredWhenRemovalAcceptedInBaseline()
         {
             var previousBase = InputFactory.Model("PreviousBase", properties: []);
@@ -975,6 +1015,11 @@ namespace Microsoft.TypeSpec.Generator.Tests.Providers.ModelProviders
                 Assert.AreEqual(nameof(Exception), modelProvider.BaseType?.Name,
                     "A model must remain assignable to its previously shipped non-generated CLR base type");
                 Assert.AreEqual(nameof(System), modelProvider.BaseType?.Namespace);
+                Assert.IsTrue(modelProvider.LastContractView?.BaseType?.IsFrameworkType,
+                    "The last-contract System.Exception base must retain its framework representation");
+                Assert.IsTrue(modelProvider.BaseType?.IsFrameworkType,
+                    "Restoring System.Exception must not replace its framework-backed CSharpType with a string-backed type");
+                Assert.AreEqual(typeof(Exception), modelProvider.BaseType?.FrameworkType);
                 Assert.IsInstanceOf<NamedTypeSymbolProvider>(modelProvider.BaseTypeProvider,
                     "The preserved base should resolve from the current referenced assemblies without a generated model provider");
                 Assert.AreEqual("NestedBase", nestedModelProvider.BaseType?.Name,
