@@ -30,7 +30,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
             parentIndices ??= [];
 
             var jsonPathTemplate = BuildJsonPathForElement(serializedName, parentIndices);
-            var csharpJsonPathTemplate = BuildJsonPathForElement(serializedName, parentIndices, escapeForCSharpString: true);
+            var csharpJsonPathTemplate = BuildJsonPathForElement(serializedName, parentIndices, escapeForCSharpInterpolatedString: true);
             ValueExpression jsonPath = parentIndices.Count > 0
                 ? Utf8Snippets.GetBytes(new FormattableStringExpression(csharpJsonPathTemplate, [.. parentIndices]).As<string>())
                 : LiteralU8(jsonPathTemplate);
@@ -111,7 +111,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
             var indexDeclaration = Declare<int>("i", out var indexVar);
             var allIndices = new List<ValueExpression>(parentIndices) { indexVar };
             var jsonPathTemplate = BuildJsonPathForElement(serializedName, parentIndices);
-            var csharpJsonPathTemplate = BuildJsonPathForElement(serializedName, parentIndices, escapeForCSharpString: true);
+            var csharpJsonPathTemplate = BuildJsonPathForElement(serializedName, parentIndices, escapeForCSharpInterpolatedString: true);
             // The prefix overload includes indexed descendants, unlike an exact-path Contains check.
             var hasPatchDeclaration = Declare(
                 "hasPatch",
@@ -621,7 +621,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
                 _jsonPatchProperty!.As<JsonPatch>().Contains(LiteralU8("$"), LiteralU8(serializedName)),
                 out var hasPatch);
             var itemPath = Utf8Snippets.GetBytes(new FormattableStringExpression(
-                BuildJsonPathForElement(serializedName, [indexVar], escapeForCSharpString: true),
+                BuildJsonPathForElement(serializedName, [indexVar], escapeForCSharpInterpolatedString: true),
                 [indexVar]).As<string>());
             isActive = Not(hasPatch).Or(Not(_jsonPatchProperty!.As<JsonPatch>().IsRemoved(itemPath))).And(isActive);
             var forStatement = new ForStatement(
@@ -672,10 +672,10 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
 
 #pragma warning restore SCME0001 // Type is for evaluation purposes only and is subject to change or removal in future updates.
 
-        private static string BuildJsonPathForElement(string propertySerializedName, List<ValueExpression> indices, bool escapeForCSharpString = false)
+        private static string BuildJsonPathForElement(string propertySerializedName, List<ValueExpression> indices, bool escapeForCSharpInterpolatedString = false)
         {
             var count = indices.Count;
-            var result = BuildJsonPathForProperty(propertySerializedName, escapeForCSharpString);
+            var result = BuildJsonPathForProperty(propertySerializedName, escapeForCSharpInterpolatedString);
             for (int i = 0; i < count; i++)
             {
                 result += indices[i] is MemberExpression
@@ -686,15 +686,31 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
             return result;
         }
 
-        private static string BuildJsonPathForProperty(string propertySerializedName, bool escapeForCSharpString)
+        private static string BuildJsonPathForProperty(string propertySerializedName, bool escapeForCSharpInterpolatedString)
         {
-            var jsonPath = propertySerializedName.Contains('.')
-                ? $"$[\"{propertySerializedName}\"]"
+            var jsonPath = RequiresJsonPathBracketNotation(propertySerializedName)
+                ? $"$[\"{EscapeJsonPathQuotedStringContent(propertySerializedName)}\"]"
                 : $"$.{propertySerializedName}";
 
-            return escapeForCSharpString
-                ? jsonPath.Replace("\"", "\\\"")
+            // FormattableStringExpression writes raw interpolated string text, unlike LiteralU8 which escapes string contents.
+            return escapeForCSharpInterpolatedString
+                ? EscapeCSharpStringContent(jsonPath)
                 : jsonPath;
+        }
+
+        private static bool RequiresJsonPathBracketNotation(string propertySerializedName)
+        {
+            return propertySerializedName.Any(c => c is '.' or '[' or ']' or '"' or '\'' or '\\' || char.IsWhiteSpace(c));
+        }
+
+        private static string EscapeJsonPathQuotedStringContent(string value)
+        {
+            return value.Replace("\\", "\\\\").Replace("\"", "\\\"");
+        }
+
+        private static string EscapeCSharpStringContent(string value)
+        {
+            return value.Replace("\\", "\\\\").Replace("\"", "\\\"");
         }
 
         private static ValueExpression GetDeserializationMethodInvocationForType(
