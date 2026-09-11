@@ -5,5 +5,5 @@
 
 {{ imports }}
 {% for nu in code_model.named_unions %}
-{{nu.name}} = {{nu.type_definition()}}
+{{nu.name}}: TypeAlias = {{nu.type_definition()}}
 {% endfor %}
