@@ -2,6 +2,7 @@
 // Licensed under the MIT License.
 
 using System.Collections.Generic;
+using System.Threading.Tasks;
 using Microsoft.TypeSpec.Generator.Input;
 using Microsoft.TypeSpec.Generator.Primitives;
 using Microsoft.TypeSpec.Generator.SourceInput;
@@ -410,6 +411,16 @@ namespace Microsoft.TypeSpec.Generator.Tests.SourceInput
             // Ns.Foo only has a constructor overload that takes arguments in the baseline, so querying
             // its parameterless constructor must not match that overload.
             Assert.IsFalse(baseline.IsMethodRemovalSuppressed("Ns.Foo", ".ctor", []));
+        }
+
+        [Test]
+        public async Task SourceInputModelResolvesGlobalNamespaceType()
+        {
+            var compilation = await Helpers.GetCompilationFromSourceFilesAsync(
+                [("Global.cs", "public class ExternalBase { }")]);
+            var sourceInput = new SourceInputModel(compilation, lastContract: null);
+
+            Assert.IsNotNull(sourceInput.FindForTypeInCurrentCompilation("", "ExternalBase"));
         }
 
         [Test]

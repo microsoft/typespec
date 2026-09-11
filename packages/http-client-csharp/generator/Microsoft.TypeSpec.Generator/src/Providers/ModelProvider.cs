@@ -174,7 +174,7 @@ namespace Microsoft.TypeSpec.Generator.Providers
 
             // Preserve the existing fallback for unresolved custom base types. Last-contract bases
             // are selected only after they have been resolved against the current build.
-            if (CustomCodeView?.BaseType != null)
+            if (CustomCodeView?.BaseType != null && !string.IsNullOrEmpty(GetMetadataNamespace(baseType)))
             {
                 var systemObjectTypeProvider = new SystemObjectTypeProvider(baseType);
                 CodeModelGenerator.Instance.TypeFactory.CSharpTypeMap[baseType] = systemObjectTypeProvider;
@@ -420,14 +420,18 @@ namespace Microsoft.TypeSpec.Generator.Providers
 
         private bool WouldCreateBaseTypeCycle(TypeProvider previousBase)
         {
-            var currentNamespace = CustomCodeView?.Type.Namespace ?? BuildNamespace();
-            var currentName = CustomCodeView?.Name ?? BuildName();
+            var currentType = CustomCodeView?.Type;
+            var currentNamespace = currentType is null ? BuildNamespace() : GetMetadataNamespace(currentType);
+            var currentMetadataName = currentType?.ClrMetadataName ??
+                (DeclaringTypeProvider is null
+                    ? BuildName()
+                    : $"{DeclaringTypeProvider.Type.ClrMetadataName}+{BuildName()}");
             var visited = new HashSet<TypeProvider>();
             for (TypeProvider? provider = previousBase; provider is not null && visited.Add(provider);)
             {
                 if (ReferenceEquals(provider, this) ||
-                    string.Equals(provider.Type.Namespace, currentNamespace, StringComparison.Ordinal) &&
-                    string.Equals(provider.Name, currentName, StringComparison.Ordinal))
+                    string.Equals(GetMetadataNamespace(provider.Type), currentNamespace, StringComparison.Ordinal) &&
+                    string.Equals(provider.Type.ClrMetadataName, currentMetadataName, StringComparison.Ordinal))
                 {
                     return true;
                 }
