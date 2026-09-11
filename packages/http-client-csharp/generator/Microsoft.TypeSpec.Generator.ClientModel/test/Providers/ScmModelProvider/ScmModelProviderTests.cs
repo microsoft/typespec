@@ -1,16 +1,23 @@
 // Copyright (c) Microsoft Corporation. All rights reserved.
 // Licensed under the MIT License.
 
+using System;
 using System.Collections.Generic;
 using System.Diagnostics.CodeAnalysis;
+using System.IO;
 using System.Linq;
+using System.Text;
 using System.Text.Json.Serialization;
 using System.Threading.Tasks;
+using Microsoft.CodeAnalysis;
+using Microsoft.TypeSpec.Generator.EmitterRpc;
 using Microsoft.TypeSpec.Generator.Expressions;
 using Microsoft.TypeSpec.Generator.Input;
 using Microsoft.TypeSpec.Generator.Primitives;
 using Microsoft.TypeSpec.Generator.Snippets;
+using Microsoft.TypeSpec.Generator.SourceInput;
 using Microsoft.TypeSpec.Generator.Tests.Common;
+using Moq;
 using NUnit.Framework;
 using ScmModel = Microsoft.TypeSpec.Generator.ClientModel.Providers.ScmModelProvider;
 
@@ -260,6 +267,181 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers.ScmModelProvi
             // The serialization partial no longer carries the parameterless mocking constructor (avoids CS0111).
             var serializationContent = new TypeProviderWriter(model.SerializationProviders.Single()).Write().Content;
             Assert.AreEqual(Helpers.GetExpectedFromFile("Serialization"), serializationContent);
+        }
+
+        [Test]
+        public async Task BackCompat_DifferentLastContractBaseIsNotRestoredAcrossDiscriminatorHierarchy()
+        {
+            var previousBase = InputFactory.Model("previousBase", properties: []);
+            var derivedModel = InputFactory.Model(
+                "derivedModel",
+                discriminatedKind: "derived",
+                usage: InputModelTypeUsage.Json,
+                properties: []);
+            var currentBase = InputFactory.Model(
+                "currentBase",
+                usage: InputModelTypeUsage.Json,
+                properties:
+                [
+                    InputFactory.Property("kind", InputPrimitiveType.String, isRequired: true, isDiscriminator: true)
+                ],
+                discriminatedModels: new Dictionary<string, InputModelType> { ["derived"] = derivedModel });
+
+            await MockHelpers.LoadMockGeneratorAsync(
+                lastContractCompilation: async () => await Helpers.GetCompilationFromDirectoryAsync(),
+                inputModels: () => [previousBase, currentBase, derivedModel]);
+
+            var models = ScmCodeModelGenerator.Instance.OutputLibrary.TypeProviders
+                .OfType<ScmModel>()
+                .ToArray();
+            foreach (var model in models)
+            {
+                model.ProcessTypeForBackCompatibility();
+            }
+
+            var derivedProvider = models.Single(t => t.Name == "DerivedModel");
+            Assert.Multiple(() =>
+            {
+                Assert.AreEqual("PreviousBase", derivedProvider.LastContractView?.BaseType?.Name,
+                    "The regression requires a different last-contract base");
+                Assert.AreEqual("CurrentBase", derivedProvider.BaseType?.Name,
+                    "The current discriminator hierarchy must remain assignable");
+                Assert.That(models, Has.Some.Matches<ScmModel>(m => m.IsUnknownDiscriminatorModel),
+                    "The current discriminator hierarchy should include its unknown subtype");
+            });
+
+            string[] supportingProviderNames = ["ModelSerializationExtensions", "ChangeTrackingDictionary", "SampleContext", "TypeFormatters", "SerializationFormat"];
+            var generatedProviders = ScmCodeModelGenerator.Instance.OutputLibrary.TypeProviders
+                .Where(provider => provider is ScmModel || supportingProviderNames.Contains(provider.Name))
+                .Concat(models.SelectMany(model => model.SerializationProviders))
+                .Distinct()
+                .ToArray();
+            var sourceFiles = generatedProviders
+                .Select(provider => (
+                    Name: $"{provider.Name}.cs",
+                    Content: new TypeProviderWriter(provider).Write().Content))
+                .Append((
+                    Name: "SampleContext.Default.cs",
+                    Content: "namespace Sample { public partial class SampleContext { public static SampleContext Default => null; } }"))
+                .Append((
+                    Name: "SampleTypeSpecContext.Default.cs",
+                    Content: "namespace SampleTypeSpec { public partial class SampleTypeSpecContext : System.ClientModel.Primitives.ModelReaderWriterContext { public static SampleTypeSpecContext Default => null; } }"));
+            var compilation = await Helpers.GetCompilationFromSourceFilesAsync(sourceFiles);
+            Assert.That(
+                compilation.GetDiagnostics().Where(d => d.Severity is DiagnosticSeverity.Warning or DiagnosticSeverity.Error),
+                Is.Empty,
+                "The discriminator deserializer should compile after incompatible base restoration is skipped");
+        }
+
+        [Test]
+        public async Task BackCompat_SuppressedPreviousBaseInDiscriminatorHierarchyUsesBaselineAcceptedPath()
+        {
+            const string lastContractSource = """
+                namespace Sample.Models
+                {
+                    public class PreviousBase { }
+                    public class DerivedModel : PreviousBase { }
+                }
+                """;
+            var previousBase = InputFactory.Model("previousBase", properties: []);
+            var derivedModel = InputFactory.Model(
+                "derivedModel",
+                discriminatedKind: "derived",
+                properties: []);
+            var currentBase = InputFactory.Model(
+                "currentBase",
+                properties:
+                [
+                    InputFactory.Property("kind", InputPrimitiveType.String, isRequired: true, isDiscriminator: true)
+                ],
+                discriminatedModels: new Dictionary<string, InputModelType> { ["derived"] = derivedModel });
+            var baseline = ApiCompatBaseline.Parse(
+                ["TypesMustExist: Type 'Sample.Models.PreviousBase' does not exist"]);
+
+            var mockGenerator = await MockHelpers.LoadMockGeneratorAsync(
+                lastContractCompilation: async () => await Helpers.GetCompilationFromSourceFilesAsync([("LastContract.cs", lastContractSource)]),
+                inputModels: () => [previousBase, currentBase, derivedModel],
+                apiCompatBaseline: baseline);
+            using var emitterStream = new MemoryStream();
+            using var emitter = new Emitter(emitterStream);
+            mockGenerator.Setup(generator => generator.Emitter).Returns(emitter);
+
+            var derivedProvider = ScmCodeModelGenerator.Instance.OutputLibrary.TypeProviders
+                .OfType<ScmModel>()
+                .Single(model => model.Name == "DerivedModel");
+            derivedProvider.ProcessTypeForBackCompatibility();
+            emitter.WriteBufferedMessages();
+            emitterStream.Position = 0;
+            using var reader = new StreamReader(emitterStream, Encoding.UTF8, leaveOpen: true);
+            var emitterOutput = await reader.ReadToEndAsync();
+
+            Assert.Multiple(() =>
+            {
+                Assert.AreEqual("CurrentBase", derivedProvider.BaseType?.Name);
+                Assert.That(emitterOutput,
+                    Does.Contain("Back-Compat Skipped For ApiCompat Baseline Accepted Removal"));
+                Assert.That(emitterOutput, Does.Not.Contain("incompatible-backcompat-base-type"));
+            });
+        }
+
+        [Test]
+        public async Task BackCompat_DiscriminatedLastContractBaseIsNotRestoredForCurrentStandaloneModel()
+        {
+            var currentSubtype = InputFactory.Model(
+                "currentSubtype",
+                discriminatedKind: "current",
+                properties: []);
+            var previousBase = InputFactory.Model(
+                "previousBase",
+                properties:
+                [
+                    InputFactory.Property("kind", InputPrimitiveType.String, isRequired: true, isDiscriminator: true)
+                ],
+                discriminatedModels: new Dictionary<string, InputModelType> { ["current"] = currentSubtype });
+            var derivedModel = InputFactory.Model(
+                "derivedModel",
+                usage: InputModelTypeUsage.Json,
+                properties: []);
+
+            await MockHelpers.LoadMockGeneratorAsync(
+                lastContractCompilation: async () => await Helpers.GetCompilationFromDirectoryAsync(),
+                inputModels: () => [previousBase, currentSubtype, derivedModel]);
+
+            var models = ScmCodeModelGenerator.Instance.OutputLibrary.TypeProviders
+                .OfType<ScmModel>()
+                .ToArray();
+            var derivedProvider = models.Single(t => t.Name == "DerivedModel");
+
+            derivedProvider.ProcessTypeForBackCompatibility();
+
+            Assert.AreEqual("PreviousBase", derivedProvider.LastContractView?.BaseType?.Name,
+                "The regression requires the model to have left its last-contract discriminator hierarchy");
+
+            string[] supportingProviderNames = ["Argument", "ModelSerializationExtensions", "ChangeTrackingDictionary", "SampleContext", "TypeFormatters", "SerializationFormat"];
+            var generatedProviders = ScmCodeModelGenerator.Instance.OutputLibrary.TypeProviders
+                .Where(provider => provider is ScmModel || supportingProviderNames.Contains(provider.Name))
+                .Concat(models.SelectMany(model => model.SerializationProviders))
+                .Distinct();
+            var sourceFiles = generatedProviders.Select(provider => (
+                    Name: $"{provider.Name}.cs",
+                    Content: new TypeProviderWriter(provider).Write().Content))
+                .Append((
+                    Name: "SampleContext.Default.cs",
+                    Content: "namespace Sample { public partial class SampleContext { public static SampleContext Default => null; } }"))
+                .Append((
+                    Name: "SampleTypeSpecContext.Default.cs",
+                    Content: "namespace SampleTypeSpec { public partial class SampleTypeSpecContext : System.ClientModel.Primitives.ModelReaderWriterContext { public static SampleTypeSpecContext Default => null; } }"));
+            var compilation = await Helpers.GetCompilationFromSourceFilesAsync(sourceFiles);
+            Assert.Multiple(() =>
+            {
+                Assert.That(
+                    compilation.GetDiagnostics().Where(diagnostic =>
+                        diagnostic.Severity is DiagnosticSeverity.Warning or DiagnosticSeverity.Error),
+                    Is.Empty,
+                    "The standalone model should compile after its incompatible discriminated base restoration is skipped");
+                Assert.IsNull(derivedProvider.BaseType,
+                    "A discriminator base requiring a discriminator argument must not be restored for a standalone model");
+            });
         }
 
         [Test]

@@ -10,6 +10,8 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using Microsoft.CodeAnalysis;
+using Microsoft.CodeAnalysis.CSharp;
+using Microsoft.TypeSpec.Generator.EmitterRpc;
 using Microsoft.TypeSpec.Generator.Input;
 using Microsoft.TypeSpec.Generator.Primitives;
 using Microsoft.TypeSpec.Generator.Providers;
@@ -525,6 +527,1139 @@ namespace Microsoft.TypeSpec.Generator.Tests.Providers.ModelProviders
         }
 
         [Test]
+        public async Task BackCompat_BaseTypeChangePreservesLastContractBaseType()
+        {
+            var previousBase = InputFactory.Model("PreviousBase", properties: []);
+            var currentBase = InputFactory.Model("CurrentBase", properties: []);
+            var derivedModel = InputFactory.Model("DerivedModel", properties: [], baseModel: currentBase);
+
+            await MockHelpers.LoadMockGeneratorAsync(
+                inputModelTypes: [previousBase, currentBase, derivedModel],
+                lastContractCompilation: async () => await Helpers.GetCompilationFromDirectoryAsync());
+
+            var modelProvider = CodeModelGenerator.Instance.OutputLibrary.TypeProviders
+                .OfType<ModelProvider>()
+                .Single(t => t.Name == "DerivedModel");
+
+            Assert.AreEqual("PreviousBase", modelProvider.LastContractView?.BaseType?.Name,
+                "The regression requires the previously shipped base type to be available from the last contract");
+
+            modelProvider.ProcessTypeForBackCompatibility();
+
+            Assert.AreEqual(previousBase.Name, modelProvider.BaseType?.Name,
+                "A model must remain assignable to its previously shipped CLR base type");
+        }
+
+        [Test]
+        public async Task BackCompat_BaseTypeIsRestoredUsingEntrypointBuildOrder()
+        {
+            var previousBase = InputFactory.Model("PreviousBase", properties: []);
+            var currentBase = InputFactory.Model("CurrentBase", properties: []);
+            var derivedModel = InputFactory.Model("DerivedModel", properties: [], baseModel: currentBase);
+
+            await MockHelpers.LoadMockGeneratorAsync(
+                inputModelTypes: [previousBase, currentBase, derivedModel],
+                lastContractCompilation: async () => await Helpers.GetCompilationFromDirectoryAsync(
+                    method: nameof(BackCompat_BaseTypeChangePreservesLastContractBaseType)));
+
+            var outputTypes = CodeModelGenerator.Instance.OutputLibrary.TypeProviders.ToArray();
+            foreach (var type in outputTypes)
+            {
+                type.EnsureBuilt();
+            }
+
+            var modelProvider = outputTypes
+                .OfType<ModelProvider>()
+                .Single(t => t.Name == "DerivedModel");
+            Assert.AreEqual(previousBase.Name, modelProvider.BaseType?.Name,
+                "EnsureBuilt must apply base restoration while materializing constructors and the model hierarchy");
+
+            foreach (var type in outputTypes)
+            {
+                type.ProcessTypeForBackCompatibility();
+            }
+
+            Assert.Multiple(() =>
+            {
+                Assert.AreEqual(previousBase.Name, modelProvider.BaseType?.Name,
+                    "The entrypoint's later member back-compat pass must retain the restored base");
+                Assert.AreEqual(previousBase.Name, modelProvider.BaseModelProvider?.Name,
+                    "Dependent base-provider state must use the restored base");
+                Assert.AreEqual(previousBase.Name, modelProvider.Type.BaseType?.Name,
+                    "The model type cached during the entrypoint build must use the restored base");
+            });
+        }
+
+        [Test]
+        public async Task BackCompat_LaterBaseResolutionPreservesPreVisitorRename()
+        {
+            var previousBase = InputFactory.Model("PreviousBase", properties: []);
+            var derivedModel = InputFactory.Model("DerivedModel", properties: []);
+
+            var mockGenerator = await MockHelpers.LoadMockGeneratorAsync(
+                inputModelTypes: [derivedModel, previousBase],
+                lastContractCompilation: async () => await Helpers.GetCompilationFromDirectoryAsync(
+                    method: nameof(BackCompat_BaseTypeChangePreservesLastContractBaseType)));
+            mockGenerator.Object.AddVisitor(new PreVisitModelRenamingVisitor("DerivedModel", "RenamedDerivedModel"));
+
+            var provider = CodeModelGenerator.Instance.OutputLibrary.TypeProviders
+                .OfType<ModelProvider>()
+                .Single(model => model.Name == "RenamedDerivedModel");
+
+            Assert.Multiple(() =>
+            {
+                Assert.AreEqual("PreviousBase", provider.BaseType?.Name,
+                    "The later input model must be available when base resolution is retried");
+                Assert.IsTrue(mockGenerator.Object.TypeFactory.TypeProvidersByName.ContainsKey("RenamedDerivedModel"),
+                    "The pre-visitor name and its lookup entry must survive the base-resolution retry");
+                Assert.IsFalse(mockGenerator.Object.TypeFactory.TypeProvidersByName.ContainsKey("DerivedModel"));
+            });
+        }
+
+        [Test]
+        public async Task BackCompat_PostVisitorMemberCollisionRejectsRestoredBase()
+        {
+            var previousBase = InputFactory.Model(
+                "PreviousBase",
+                properties: [InputFactory.Property("id", InputPrimitiveType.String)]);
+            var derivedModel = InputFactory.Model(
+                "DerivedModel",
+                properties: [InputFactory.Property("other", InputPrimitiveType.String)]);
+
+            await MockHelpers.LoadMockGeneratorAsync(
+                inputModelTypes: [previousBase, derivedModel],
+                lastContractCompilation: async () => await Helpers.GetCompilationFromDirectoryAsync());
+
+            var providers = CodeModelGenerator.Instance.OutputLibrary.TypeProviders.ToArray();
+            foreach (var provider in providers)
+            {
+                provider.EnsureBuilt();
+            }
+
+            var derivedProvider = providers.OfType<ModelProvider>().Single(provider => provider.Name == "DerivedModel");
+            Assert.AreEqual("PreviousBase", derivedProvider.BaseType?.Name);
+
+            derivedProvider.Properties.Single(property => property.Name == "Other").Update(name: "Id");
+            derivedProvider.ProcessTypeForBackCompatibility();
+
+            var renamedProperty = derivedProvider.Properties.Single(property => property.Name == "Id");
+            Assert.Multiple(() =>
+            {
+                Assert.AreEqual("PreviousBase", derivedProvider.BaseType?.Name,
+                    "A visitor rename should not discard the restored compatibility base");
+                Assert.IsTrue(renamedProperty.Modifiers.HasFlag(MethodSignatureModifiers.New),
+                    "A visitor-created collision must emit an explicit new modifier to avoid CS0108");
+                Assert.That(derivedProvider.Constructors, Is.Not.Empty,
+                    "Base-dependent constructor state must remain intact");
+            });
+        }
+
+        [Test]
+        public async Task BackCompat_BaseTypeIsNotRestoredWhenRemovalAcceptedInBaseline()
+        {
+            var previousBase = InputFactory.Model("PreviousBase", properties: []);
+            var currentBase = InputFactory.Model("CurrentBase", properties: []);
+            var derivedModel = InputFactory.Model("DerivedModel", properties: [], baseModel: currentBase);
+            var baseline = Helpers.GetApiCompatBaselineFromFile(fileExtension: ".xml");
+
+            await MockHelpers.LoadMockGeneratorAsync(
+                inputModelTypes: [previousBase, currentBase, derivedModel],
+                lastContractCompilation: async () => await Helpers.GetCompilationFromDirectoryAsync(),
+                apiCompatBaseline: baseline);
+
+            var modelProvider = CodeModelGenerator.Instance.OutputLibrary.TypeProviders
+                .OfType<ModelProvider>()
+                .Single(t => t.Name == "DerivedModel");
+
+            Assert.AreEqual(previousBase.Name, modelProvider.LastContractView?.BaseType?.Name,
+                "The regression requires the suppressed type to be the last-contract base");
+
+            modelProvider.ProcessTypeForBackCompatibility();
+
+            Assert.AreEqual(currentBase.Name, modelProvider.BaseType?.Name,
+                "The previous base must not be restored when its removal is accepted in the ApiCompat baseline");
+        }
+
+        [Test]
+        public async Task BackCompat_BaseTypeHookCanKeepCurrentBaseType()
+        {
+            var previousBase = InputFactory.Model("PreviousBase", properties: []);
+            var currentBase = InputFactory.Model("CurrentBase", properties: []);
+            var derivedModel = InputFactory.Model("DerivedModel", properties: [], baseModel: currentBase);
+
+            await MockHelpers.LoadMockGeneratorAsync(
+                createModelCore: input => input == derivedModel
+                    ? new BaseTypeBackCompatibilityOverridingModelProvider(input)
+                    : new ModelProvider(input),
+                inputModelTypes: [previousBase, currentBase, derivedModel],
+                lastContractCompilation: async () => await Helpers.GetCompilationFromDirectoryAsync(
+                    method: nameof(BackCompat_BaseTypeChangePreservesLastContractBaseType)));
+
+            var modelProvider = CodeModelGenerator.Instance.OutputLibrary.TypeProviders
+                .OfType<BaseTypeBackCompatibilityOverridingModelProvider>()
+                .Single();
+
+            Assert.Multiple(() =>
+            {
+                Assert.AreEqual(previousBase.Name, modelProvider.LastContractView?.BaseType?.Name,
+                    "The default back-compat behavior would restore the previous base");
+                Assert.AreEqual(currentBase.Name, modelProvider.CapturedCurrentBase?.Name,
+                    "The hook should receive the base selected from the current input model");
+                Assert.AreEqual(currentBase.Name, modelProvider.BaseType?.Name,
+                    "A downstream provider can override the hook to retain the current base");
+            });
+        }
+
+        [TestCase("sharedProperty", "sharedProperty", false, false)]
+        [TestCase("sharedProperty", "sharedProperty", true, false)]
+        [TestCase("shared-property", "shared_property", false, false)]
+        [TestCase("previousBase", "previousBaseProperty", false, false)]
+        [TestCase("IpAddress", "IpAddress", false, true)]
+        public async Task BackCompat_GeneratedLastContractBaseWithPropertyCollisionIsNotRestored(
+            string previousPropertyName,
+            string currentPropertyName,
+            bool hasMismatchedType,
+            bool previousPropertyIsExact)
+        {
+            var previousBase = InputFactory.Model(
+                "PreviousBase",
+                properties: [InputFactory.Property(previousPropertyName, InputPrimitiveType.String, isExactName: previousPropertyIsExact)]);
+            var currentBase = InputFactory.Model("CurrentBase", properties: []);
+            var derivedModel = InputFactory.Model(
+                "DerivedModel",
+                properties:
+                [
+                    InputFactory.Property(
+                        currentPropertyName,
+                        hasMismatchedType ? InputPrimitiveType.Int32 : InputPrimitiveType.String)
+                ],
+                baseModel: currentBase);
+
+            await MockHelpers.LoadMockGeneratorAsync(
+                inputModelTypes: [previousBase, currentBase, derivedModel],
+                lastContractCompilation: async () => await Helpers.GetCompilationFromDirectoryAsync());
+
+            var modelProviders = CodeModelGenerator.Instance.OutputLibrary.TypeProviders
+                .OfType<ModelProvider>()
+                .ToArray();
+            var derivedProvider = modelProviders.Single(t => t.Name == "DerivedModel");
+
+            derivedProvider.ProcessTypeForBackCompatibility();
+
+            Assert.AreEqual(currentBase.Name, derivedProvider.BaseType?.Name,
+                "The previous base must not be restored when it would collide with a directly declared current property");
+
+            var syntaxTrees = modelProviders.Select(provider =>
+                CSharpSyntaxTree.ParseText(new TypeProviderWriter(provider).Write().Content));
+            var references = AppDomain.CurrentDomain.GetAssemblies()
+                .Where(a => !a.IsDynamic && !string.IsNullOrEmpty(a.Location))
+                .Select(a => MetadataReference.CreateFromFile(a.Location));
+            var compilation = CSharpCompilation.Create(
+                "PropertyCollisionModels",
+                syntaxTrees,
+                references,
+                new CSharpCompilationOptions(OutputKind.DynamicallyLinkedLibrary));
+            Assert.That(
+                compilation.GetDiagnostics().Where(d => d.Severity is DiagnosticSeverity.Warning or DiagnosticSeverity.Error),
+                Is.Empty,
+                "The generated model hierarchy should compile after the incompatible base restoration is skipped");
+        }
+
+        [Test]
+        public async Task BackCompat_GeneratedLastContractBaseWithAdditionalPropertiesCollisionIsNotRestored()
+        {
+            var previousBase = InputFactory.Model(
+                "PreviousBase",
+                properties: [],
+                additionalProperties: InputPrimitiveType.String);
+            var currentBase = InputFactory.Model("CurrentBase", properties: []);
+            var derivedModel = InputFactory.Model(
+                "DerivedModel",
+                properties: [],
+                baseModel: currentBase,
+                additionalProperties: InputPrimitiveType.String);
+
+            await MockHelpers.LoadMockGeneratorAsync(
+                inputModelTypes: [previousBase, currentBase, derivedModel],
+                lastContractCompilation: async () => await Helpers.GetCompilationFromDirectoryAsync());
+
+            var modelProviders = CodeModelGenerator.Instance.OutputLibrary.TypeProviders
+                .OfType<ModelProvider>()
+                .ToArray();
+            var previousBaseProvider = modelProviders.Single(t => t.Name == "PreviousBase");
+            var derivedProvider = modelProviders.Single(t => t.Name == "DerivedModel");
+
+            derivedProvider.ProcessTypeForBackCompatibility();
+
+            Assert.Multiple(() =>
+            {
+                Assert.That(previousBaseProvider.Properties.Select(property => property.Name),
+                    Does.Contain("AdditionalProperties"),
+                    "The previous base must synthesize the colliding additional-properties property");
+                Assert.That(derivedProvider.Properties.Select(property => property.Name),
+                    Does.Contain("AdditionalProperties"),
+                    "The current derived model must synthesize the same property name");
+                Assert.AreEqual(currentBase.Name, derivedProvider.BaseType?.Name,
+                    "The previous base must not be restored when its property collides with a synthesized current property");
+            });
+
+            var generatedProviders = modelProviders.Cast<TypeProvider>()
+                .Concat(CodeModelGenerator.Instance.OutputLibrary.TypeProviders.Where(provider =>
+                    provider.Name == "ChangeTrackingDictionary"));
+            var syntaxTrees = generatedProviders.Select(provider =>
+                CSharpSyntaxTree.ParseText(new TypeProviderWriter(provider).Write().Content));
+            var references = AppDomain.CurrentDomain.GetAssemblies()
+                .Where(assembly => !assembly.IsDynamic && !string.IsNullOrEmpty(assembly.Location))
+                .Select(assembly => MetadataReference.CreateFromFile(assembly.Location));
+            var compilation = CSharpCompilation.Create(
+                "AdditionalPropertiesCollisionModels",
+                syntaxTrees,
+                references,
+                new CSharpCompilationOptions(OutputKind.DynamicallyLinkedLibrary));
+            Assert.That(
+                compilation.GetDiagnostics().Where(diagnostic =>
+                    diagnostic.Severity is DiagnosticSeverity.Warning or DiagnosticSeverity.Error),
+                Is.Empty,
+                "The generated model hierarchy should compile after the incompatible base restoration is skipped");
+        }
+
+        [Test]
+        public async Task BackCompat_RestoredBaseWithPropertyCollisionInCurrentDescendantIsNotRestored()
+        {
+            var previousBase = InputFactory.Model(
+                "PreviousBase",
+                properties: [InputFactory.Property("id", InputPrimitiveType.String)]);
+            var derivedModel = InputFactory.Model("DerivedModel", properties: []);
+            var grandChild = InputFactory.Model(
+                "GrandChild",
+                properties: [InputFactory.Property("id", InputPrimitiveType.String)],
+                baseModel: derivedModel);
+
+            await MockHelpers.LoadMockGeneratorAsync(
+                inputModelTypes: [previousBase, derivedModel, grandChild],
+                lastContractCompilation: async () => await Helpers.GetCompilationFromDirectoryAsync());
+
+            var modelProviders = CodeModelGenerator.Instance.OutputLibrary.TypeProviders
+                .OfType<ModelProvider>()
+                .ToArray();
+            var derivedProvider = modelProviders.Single(t => t.Name == "DerivedModel");
+
+            derivedProvider.ProcessTypeForBackCompatibility();
+
+            var syntaxTrees = modelProviders.Select(provider =>
+                CSharpSyntaxTree.ParseText(new TypeProviderWriter(provider).Write().Content));
+            var references = AppDomain.CurrentDomain.GetAssemblies()
+                .Where(assembly => !assembly.IsDynamic && !string.IsNullOrEmpty(assembly.Location))
+                .Select(assembly => MetadataReference.CreateFromFile(assembly.Location));
+            var compilation = CSharpCompilation.Create(
+                "DescendantPropertyCollisionModels",
+                syntaxTrees,
+                references,
+                new CSharpCompilationOptions(OutputKind.DynamicallyLinkedLibrary));
+            Assert.Multiple(() =>
+            {
+                Assert.That(
+                    compilation.GetDiagnostics().Where(diagnostic =>
+                        diagnostic.Severity is DiagnosticSeverity.Warning or DiagnosticSeverity.Error),
+                    Is.Empty,
+                    "The generated hierarchy should compile after restoration that conflicts with a current descendant is skipped");
+                Assert.IsNull(derivedProvider.BaseType,
+                    "The previous base must not be restored when it would make a current descendant override a non-virtual property");
+            });
+        }
+
+        [Test]
+        public async Task BackCompat_RestoredBaseThatCurrentlyDerivesFromModelIsNotRestored()
+        {
+            var modelA = InputFactory.Model("ModelA", properties: []);
+            var modelB = InputFactory.Model("ModelB", properties: [], baseModel: modelA);
+
+            await MockHelpers.LoadMockGeneratorAsync(
+                inputModelTypes: [modelA, modelB],
+                lastContractCompilation: async () => await Helpers.GetCompilationFromDirectoryAsync());
+
+            var modelProviders = CodeModelGenerator.Instance.OutputLibrary.TypeProviders
+                .OfType<ModelProvider>()
+                .ToArray();
+            var modelAProvider = modelProviders.Single(t => t.Name == "ModelA");
+
+            modelAProvider.ProcessTypeForBackCompatibility();
+
+            Assert.IsNull(modelAProvider.BaseType,
+                "The previous base must not be restored when it currently derives from this model");
+
+            var syntaxTrees = modelProviders.Select(provider =>
+                CSharpSyntaxTree.ParseText(new TypeProviderWriter(provider).Write().Content));
+            var references = AppDomain.CurrentDomain.GetAssemblies()
+                .Where(assembly => !assembly.IsDynamic && !string.IsNullOrEmpty(assembly.Location))
+                .Select(assembly => MetadataReference.CreateFromFile(assembly.Location));
+            var compilation = CSharpCompilation.Create(
+                "InvertedBaseHierarchyModels",
+                syntaxTrees,
+                references,
+                new CSharpCompilationOptions(OutputKind.DynamicallyLinkedLibrary));
+            Assert.That(
+                compilation.GetDiagnostics().Where(diagnostic =>
+                    diagnostic.Severity is DiagnosticSeverity.Warning or DiagnosticSeverity.Error),
+                Is.Empty,
+                "The generated hierarchy should compile after restoration that would create a base cycle is skipped");
+        }
+
+        [Test]
+        public async Task BackCompat_SymbolBackedLastContractBaseWithPropertyCollisionIsNotRestored()
+        {
+            var currentBase = InputFactory.Model("CurrentBase", properties: []);
+            var derivedModel = InputFactory.Model(
+                "DerivedModel",
+                properties: [InputFactory.Property("sharedProperty", InputPrimitiveType.String)],
+                baseModel: currentBase);
+            var privatePropertyDerivedModel = InputFactory.Model(
+                "PrivatePropertyDerivedModel",
+                properties: [InputFactory.Property("privateProperty", InputPrimitiveType.String)],
+                baseModel: currentBase);
+
+            var mockGenerator = await MockHelpers.LoadMockGeneratorAsync(
+                inputModelTypes: [currentBase, derivedModel, privatePropertyDerivedModel],
+                compilation: async () => await Helpers.GetCompilationFromDirectoryAsync("Current"),
+                lastContractCompilation: async () => await Helpers.GetCompilationFromDirectoryAsync("LastContract"));
+
+            var modelProviders = CodeModelGenerator.Instance.OutputLibrary.TypeProviders
+                .OfType<ModelProvider>()
+                .ToArray();
+            var modelProvider = modelProviders.Single(t => t.Name == "DerivedModel");
+            var privatePropertyModelProvider = modelProviders.Single(t => t.Name == "PrivatePropertyDerivedModel");
+
+            modelProvider.ProcessTypeForBackCompatibility();
+            privatePropertyModelProvider.ProcessTypeForBackCompatibility();
+
+            Assert.Multiple(() =>
+            {
+                Assert.AreEqual(currentBase.Name, modelProvider.BaseType?.Name,
+                    "The previous symbol-backed base must not be restored when one of its properties collides with a directly declared current property");
+                Assert.AreEqual("ExternalBase", privatePropertyModelProvider.BaseType?.Name,
+                    "A private base property is not inherited and must not block restoration");
+            });
+
+            var syntaxTrees = modelProviders
+                .Select(provider => CSharpSyntaxTree.ParseText(new TypeProviderWriter(provider).Write().Content))
+                .Concat(mockGenerator.Object.SourceInputModel.Customization!.SyntaxTrees.Where(tree =>
+                    Path.GetFileName(tree.FilePath) == "ExternalBase.cs"));
+            var references = AppDomain.CurrentDomain.GetAssemblies()
+                .Where(a => !a.IsDynamic && !string.IsNullOrEmpty(a.Location))
+                .Select(a => MetadataReference.CreateFromFile(a.Location));
+            var compilation = CSharpCompilation.Create(
+                "SymbolBackedPropertyCollisionModels",
+                syntaxTrees,
+                references,
+                new CSharpCompilationOptions(OutputKind.DynamicallyLinkedLibrary));
+            Assert.That(
+                compilation.GetDiagnostics().Where(d => d.Severity is DiagnosticSeverity.Warning or DiagnosticSeverity.Error),
+                Is.Empty,
+                "The generated model hierarchy should compile after the incompatible symbol-backed base restoration is skipped");
+        }
+
+        [Test]
+        public async Task BackCompat_CustomBaseTakesPrecedenceOverDifferentLastContractBase()
+        {
+            var previousBase = InputFactory.Model("PreviousBase", properties: []);
+            var currentBase = InputFactory.Model("CurrentBase", properties: []);
+            var derivedModel = InputFactory.Model("DerivedModel", properties: [], baseModel: currentBase);
+
+            await MockHelpers.LoadMockGeneratorAsync(
+                inputModelTypes: [previousBase, currentBase, derivedModel],
+                compilation: async () => await Helpers.GetCompilationFromDirectoryAsync("Current"),
+                lastContractCompilation: async () => await Helpers.GetCompilationFromDirectoryAsync("LastContract"));
+
+            var modelProvider = CodeModelGenerator.Instance.OutputLibrary.TypeProviders
+                .OfType<ModelProvider>()
+                .Single(t => t.Name == "DerivedModel");
+
+            modelProvider.ProcessTypeForBackCompatibility();
+
+            Assert.AreEqual("CustomBase", modelProvider.BaseType?.Name,
+                "An explicit custom base must remain authoritative when the previous base cannot be restored without conflicting partial declarations");
+        }
+
+        [Test]
+        public async Task BackCompat_CurrentBaseDerivedFromLastContractBaseIsPreserved()
+        {
+            var previousBase = InputFactory.Model("PreviousBase", properties: []);
+            var currentBase = InputFactory.Model("CurrentBase", properties: [], baseModel: previousBase);
+            var derivedModel = InputFactory.Model("DerivedModel", properties: [], baseModel: currentBase);
+
+            await MockHelpers.LoadMockGeneratorAsync(
+                inputModelTypes: [previousBase, currentBase, derivedModel],
+                lastContractCompilation: async () => await Helpers.GetCompilationFromDirectoryAsync(
+                    method: nameof(BackCompat_BaseTypeChangePreservesLastContractBaseType)));
+
+            var modelProvider = CodeModelGenerator.Instance.OutputLibrary.TypeProviders
+                .OfType<ModelProvider>()
+                .Single(t => t.Name == "DerivedModel");
+
+            modelProvider.ProcessTypeForBackCompatibility();
+
+            Assert.AreEqual(currentBase.Name, modelProvider.BaseType?.Name,
+                "The current base should remain when it already derives from the previously shipped base");
+        }
+
+        [Test]
+        public async Task BackCompat_BaseTypeChangePreservesNonGeneratedLastContractBaseType()
+        {
+            const string nestedBaseSource = """
+                namespace Sample.Models
+                {
+                    public class Outer
+                    {
+                        public class Middle
+                        {
+                            public class NestedBase
+                            {
+                            }
+                        }
+                    }
+
+                    public class OtherOuter
+                    {
+                        public class Middle
+                        {
+                            public class NestedBase
+                            {
+                            }
+                        }
+                    }
+
+                    public class GenericBase<T>
+                    {
+                    }
+                }
+                """;
+            var currentBase = InputFactory.Model("CurrentBase", properties: []);
+            var derivedModel = InputFactory.Model("DerivedModel", properties: [], baseModel: currentBase);
+            var nestedDerivedModel = InputFactory.Model("NestedDerivedModel", properties: [], baseModel: currentBase);
+            var genericDerivedModel = InputFactory.Model("GenericDerivedModel", properties: [], baseModel: currentBase);
+
+            var mockGenerator = await MockHelpers.LoadMockGeneratorAsync(
+                inputModelTypes: [currentBase, derivedModel, nestedDerivedModel, genericDerivedModel],
+                compilation: async () => await Helpers.GetCompilationFromSourceFilesAsync(
+                    [("NestedBase.cs", nestedBaseSource)]),
+                lastContractCompilation: async () => await Helpers.GetCompilationFromDirectoryAsync());
+
+            var placeholderType = new CSharpType(typeof(Exception));
+            mockGenerator.Object.TypeFactory.CSharpTypeMap[placeholderType] = new SystemObjectTypeProvider(placeholderType);
+            var unrelatedNestedBase = mockGenerator.Object.SourceInputModel.FindForTypeInCurrentCompilation(
+                "Sample.Models",
+                "NestedBase",
+                "OtherOuter+Middle");
+            Assert.IsNotNull(unrelatedNestedBase);
+            mockGenerator.Object.TypeFactory.CSharpTypeMap[unrelatedNestedBase!.Type] = unrelatedNestedBase;
+
+            var modelProviders = CodeModelGenerator.Instance.OutputLibrary.TypeProviders
+                .OfType<ModelProvider>()
+                .ToArray();
+            var modelProvider = modelProviders.Single(t => t.Name == "DerivedModel");
+            var nestedModelProvider = modelProviders.Single(t => t.Name == "NestedDerivedModel");
+            var genericModelProvider = modelProviders.Single(t => t.Name == "GenericDerivedModel");
+
+            Assert.Multiple(() =>
+            {
+                Assert.AreEqual(nameof(Exception), modelProvider.LastContractView?.BaseType?.Name);
+                Assert.AreEqual(nameof(System), modelProvider.LastContractView?.BaseType?.Namespace,
+                    "The regression requires the previously shipped framework base type to be available from the last contract");
+                Assert.AreEqual("NestedBase", nestedModelProvider.LastContractView?.BaseType?.Name,
+                    "The regression requires a multi-level nested base type");
+                Assert.AreEqual("GenericBase", genericModelProvider.LastContractView?.BaseType?.Name,
+                    "The regression requires a constructed generic base type");
+            });
+
+            modelProvider.ProcessTypeForBackCompatibility();
+            nestedModelProvider.ProcessTypeForBackCompatibility();
+            genericModelProvider.ProcessTypeForBackCompatibility();
+
+            Assert.Multiple(() =>
+            {
+                Assert.AreEqual(nameof(Exception), modelProvider.BaseType?.Name,
+                    "A model must remain assignable to its previously shipped non-generated CLR base type");
+                Assert.AreEqual(nameof(System), modelProvider.BaseType?.Namespace);
+                Assert.IsTrue(modelProvider.LastContractView?.BaseType?.IsFrameworkType,
+                    "The last-contract System.Exception base must retain its framework representation");
+                Assert.IsTrue(modelProvider.BaseType?.IsFrameworkType,
+                    "Restoring System.Exception must not replace its framework-backed CSharpType with a string-backed type");
+                Assert.AreEqual(typeof(Exception), modelProvider.BaseType?.FrameworkType);
+                Assert.IsInstanceOf<NamedTypeSymbolProvider>(modelProvider.BaseTypeProvider,
+                    "The preserved base should resolve from the current referenced assemblies without a generated model provider");
+                Assert.AreEqual("NestedBase", nestedModelProvider.BaseType?.Name,
+                    "A nested base should resolve using its complete CLR declaring-type metadata name");
+                Assert.AreEqual("Outer", nestedModelProvider.BaseType?.DeclaringType?.DeclaringType?.Name);
+                Assert.AreEqual("GenericBase", genericModelProvider.BaseType?.Name,
+                    "A generic base should resolve using its metadata arity");
+                Assert.That(genericModelProvider.BaseType?.Arguments, Has.Count.EqualTo(1));
+                Assert.AreEqual("global::Sample.Models.GenericBase<string>", genericModelProvider.BaseType?.ToString(),
+                    "The restored base must retain its last-contract generic construction");
+            });
+        }
+
+        [Test]
+        public async Task BackCompat_NonGeneratedLastContractBaseWithoutParameterlessConstructorIsNotRestored()
+        {
+            var currentBase = InputFactory.Model("CurrentBase", properties: []);
+            var derivedModel = InputFactory.Model("DerivedModel", properties: [], baseModel: currentBase);
+
+            await MockHelpers.LoadMockGeneratorAsync(
+                inputModelTypes: [currentBase, derivedModel],
+                compilation: async () => await Helpers.GetCompilationFromDirectoryAsync("Current"),
+                lastContractCompilation: async () => await Helpers.GetCompilationFromDirectoryAsync("LastContract"));
+
+            var modelProvider = CodeModelGenerator.Instance.OutputLibrary.TypeProviders
+                .OfType<ModelProvider>()
+                .Single(t => t.Name == "DerivedModel");
+
+            Assert.AreEqual("ExternalBase", modelProvider.LastContractView?.BaseType?.Name,
+                "The regression requires a resolvable previous base without a parameterless constructor");
+
+            modelProvider.ProcessTypeForBackCompatibility();
+
+            Assert.AreEqual(currentBase.Name, modelProvider.BaseType?.Name,
+                "The previous base must not be restored when generated constructors cannot chain to it");
+        }
+
+        [Test]
+        public async Task BackCompat_ReferencedLastContractBaseWithInternalParameterlessConstructorIsNotRestored()
+        {
+            const string externalBaseSource = """
+                namespace Sample.Models
+                {
+                    public class ExternalBase
+                    {
+                        internal ExternalBase() { }
+                        public ExternalBase(string value) { }
+                    }
+                }
+                """;
+            var externalCompilation = CSharpCompilation.Create(
+                "ExternalAssembly",
+                [CSharpSyntaxTree.ParseText(externalBaseSource)],
+                [MetadataReference.CreateFromFile(typeof(object).Assembly.Location)],
+                new CSharpCompilationOptions(OutputKind.DynamicallyLinkedLibrary));
+            using var externalAssembly = new MemoryStream();
+            var emitResult = externalCompilation.Emit(externalAssembly);
+            Assert.That(emitResult.Success, Is.True, string.Join(Environment.NewLine, emitResult.Diagnostics));
+            var externalReference = MetadataReference.CreateFromImage(externalAssembly.ToArray());
+
+            var currentBase = InputFactory.Model("CurrentBase", properties: []);
+            var derivedModel = InputFactory.Model("DerivedModel", properties: [], baseModel: currentBase);
+
+            var mockGenerator = await MockHelpers.LoadMockGeneratorAsync(
+                inputModelTypes: [currentBase, derivedModel],
+                additionalMetadataReferences: [externalReference],
+                compilation: async () =>
+                {
+                    var compilation = await Helpers.GetCompilationFromSourceFilesAsync([]);
+                    return compilation.WithOptions(
+                        ((CSharpCompilationOptions)compilation.Options).WithMetadataImportOptions(MetadataImportOptions.All));
+                },
+                lastContractCompilation: async () => await Helpers.GetCompilationFromDirectoryAsync("LastContract"));
+
+            var referencedBase = mockGenerator.Object.SourceInputModel.FindForTypeInCurrentCompilation(
+                "Sample.Models", "ExternalBase", includeReferencedAssemblies: true);
+            Assert.IsNotNull(referencedBase, "The previous base must resolve from the referenced assembly");
+            Assert.That(referencedBase!.Constructors, Has.Some.Matches<ConstructorProvider>(c =>
+                c.Signature.Parameters.Count == 0 && c.Signature.Modifiers.HasFlag(MethodSignatureModifiers.Internal)));
+            Assert.That(referencedBase.Constructors, Has.Some.Matches<ConstructorProvider>(c =>
+                c.Signature.Parameters.Count == 1 && c.Signature.Modifiers.HasFlag(MethodSignatureModifiers.Public)));
+
+            var modelProvider = CodeModelGenerator.Instance.OutputLibrary.TypeProviders
+                .OfType<ModelProvider>()
+                .Single(t => t.Name == "DerivedModel");
+
+            Assert.AreEqual("ExternalBase", modelProvider.LastContractView?.BaseType?.Name,
+                "The regression requires a previous base that resolves from a referenced assembly");
+
+            modelProvider.ProcessTypeForBackCompatibility();
+
+            Assert.AreEqual(currentBase.Name, modelProvider.BaseType?.Name,
+                "An internal constructor from a referenced assembly is not accessible to the generated derived model");
+        }
+
+        [Test]
+        public async Task BackCompat_InaccessibleReferencedLastContractBasesAreNotRestored()
+        {
+            const string externalBaseSource = """
+                namespace Sample.Models
+                {
+                    internal class ExternalBase
+                    {
+                        public ExternalBase() { }
+                    }
+
+                    internal class Outer
+                    {
+                        public class NestedBase
+                        {
+                            public NestedBase() { }
+                        }
+                    }
+
+                    public class GenericBase<T>
+                    {
+                        public GenericBase() { }
+                    }
+
+                    internal class GenericArgument
+                    {
+                    }
+
+                    public class StructGenericBase<T> where T : struct
+                    {
+                        public StructGenericBase() { }
+                    }
+
+                    public class ConstraintArgument
+                    {
+                    }
+
+                    public class ComparableGenericBase<T> where T : System.IComparable<T>
+                    {
+                        public ComparableGenericBase() { }
+                    }
+                }
+                """;
+            var externalCompilation = CSharpCompilation.Create(
+                "ExternalAssembly",
+                [CSharpSyntaxTree.ParseText(externalBaseSource)],
+                [MetadataReference.CreateFromFile(typeof(object).Assembly.Location)],
+                new CSharpCompilationOptions(OutputKind.DynamicallyLinkedLibrary));
+            using var externalAssembly = new MemoryStream();
+            var emitResult = externalCompilation.Emit(externalAssembly);
+            Assert.That(emitResult.Success, Is.True, string.Join(Environment.NewLine, emitResult.Diagnostics));
+            var externalReference = MetadataReference.CreateFromImage(externalAssembly.ToArray());
+
+            var currentBase = InputFactory.Model("CurrentBase", properties: []);
+            var inaccessibleDerived = InputFactory.Model("InaccessibleDerived", properties: [], baseModel: currentBase);
+            var nestedDerived = InputFactory.Model("NestedDerived", properties: [], baseModel: currentBase);
+            var genericDerived = InputFactory.Model("GenericDerived", properties: [], baseModel: currentBase);
+            var missingArgumentDerived = InputFactory.Model("MissingArgumentDerived", properties: [], baseModel: currentBase);
+            var invalidConstraintDerived = InputFactory.Model("InvalidConstraintDerived", properties: [], baseModel: currentBase);
+            var comparableDerived = InputFactory.Model("ComparableDerived", properties: [], baseModel: currentBase);
+            var symbolStructDerived = InputFactory.Model("SymbolStructDerived", properties: [], modelAsStruct: true);
+
+            var mockGenerator = await MockHelpers.LoadMockGeneratorAsync(
+                inputModelTypes: [currentBase, inaccessibleDerived, nestedDerived, genericDerived, missingArgumentDerived, invalidConstraintDerived, comparableDerived, symbolStructDerived],
+                additionalMetadataReferences: [externalReference],
+                compilation: async () =>
+                {
+                    var compilation = await Helpers.GetCompilationFromSourceFilesAsync([]);
+                    return compilation.WithOptions(
+                        ((CSharpCompilationOptions)compilation.Options).WithMetadataImportOptions(MetadataImportOptions.All));
+                },
+                lastContractCompilation: async () => await Helpers.GetCompilationFromDirectoryAsync());
+
+            var missingArgumentType = mockGenerator.Object.SourceInputModel
+                .FindForTypeInLastContract("Sample.Models", "MissingArgument")!.Type;
+            mockGenerator.Object.TypeFactory.CSharpTypeMap[missingArgumentType] = new SystemObjectTypeProvider(missingArgumentType);
+
+            var modelProviders = CodeModelGenerator.Instance.OutputLibrary.TypeProviders
+                .OfType<ModelProvider>()
+                .ToArray();
+            var inaccessibleProvider = modelProviders.Single(t => t.Name == "InaccessibleDerived");
+            var nestedProvider = modelProviders.Single(t => t.Name == "NestedDerived");
+            var genericProvider = modelProviders.Single(t => t.Name == "GenericDerived");
+            var missingArgumentProvider = modelProviders.Single(t => t.Name == "MissingArgumentDerived");
+            var invalidConstraintProvider = modelProviders.Single(t => t.Name == "InvalidConstraintDerived");
+            var comparableProvider = modelProviders.Single(t => t.Name == "ComparableDerived");
+            var symbolStructProvider = modelProviders.Single(t => t.Name == "SymbolStructDerived");
+
+            inaccessibleProvider.ProcessTypeForBackCompatibility();
+            nestedProvider.ProcessTypeForBackCompatibility();
+            genericProvider.ProcessTypeForBackCompatibility();
+            missingArgumentProvider.ProcessTypeForBackCompatibility();
+            invalidConstraintProvider.ProcessTypeForBackCompatibility();
+            comparableProvider.ProcessTypeForBackCompatibility();
+            symbolStructProvider.ProcessTypeForBackCompatibility();
+
+            var syntaxTrees = modelProviders.Select(provider =>
+                CSharpSyntaxTree.ParseText(new TypeProviderWriter(provider).Write().Content));
+            var references = AppDomain.CurrentDomain.GetAssemblies()
+                .Where(assembly => !assembly.IsDynamic && !string.IsNullOrEmpty(assembly.Location))
+                .Select(assembly => MetadataReference.CreateFromFile(assembly.Location))
+                .Append(externalReference);
+            var generatedCompilation = CSharpCompilation.Create(
+                "InaccessibleBaseModels",
+                syntaxTrees,
+                references,
+                new CSharpCompilationOptions(OutputKind.DynamicallyLinkedLibrary));
+
+            Assert.Multiple(() =>
+            {
+                Assert.That(
+                    generatedCompilation.GetDiagnostics().Where(diagnostic =>
+                        diagnostic.Severity is DiagnosticSeverity.Warning or DiagnosticSeverity.Error),
+                    Is.Empty,
+                    "The generated models should compile after inaccessible base restoration is skipped");
+                Assert.AreEqual(currentBase.Name, inaccessibleProvider.BaseType?.Name,
+                    "An inaccessible referenced base must not be restored");
+                Assert.AreEqual(currentBase.Name, nestedProvider.BaseType?.Name,
+                    "A base nested in an inaccessible declaring type must not be restored");
+                Assert.AreEqual(currentBase.Name, genericProvider.BaseType?.Name,
+                    "A constructed base with an inaccessible generic argument must not be restored");
+                Assert.AreEqual(currentBase.Name, missingArgumentProvider.BaseType?.Name,
+                    "A constructed base with an unavailable generic argument must not be restored");
+                Assert.AreEqual(currentBase.Name, invalidConstraintProvider.BaseType?.Name,
+                    "A constructed base with an argument that violates current constraints must not be restored");
+                Assert.AreEqual("ComparableGenericBase", comparableProvider.BaseType?.Name,
+                    "A valid self-referential generic constraint must be substituted before validation");
+                Assert.IsNull(symbolStructProvider.BaseType,
+                    "A current struct must not restore a symbol-backed class base");
+            });
+        }
+
+        [Test]
+        public async Task BackCompat_InvalidGeneratedLastContractBasesAreNotRestored()
+        {
+            const string customizationSource = """
+                namespace Sample.Models
+                {
+                    public sealed partial class SealedBase
+                    {
+                    }
+                }
+                """;
+            const string lastContractSource = """
+                namespace Sample.Models
+                {
+                    public class InternalBase { }
+                    public class StructBase { }
+                    public class SealedBase { }
+                    public class PreviousBase { }
+                    public class InternalBaseDerived : InternalBase { }
+                    public class StructBaseDerived : StructBase { }
+                    public class SealedBaseDerived : SealedBase { }
+                    public class CurrentStruct : PreviousBase { }
+                }
+                """;
+            var internalBase = InputFactory.Model("InternalBase", access: "internal", properties: []);
+            var structBase = InputFactory.Model("StructBase", properties: [], modelAsStruct: true);
+            var sealedBase = InputFactory.Model("SealedBase", properties: []);
+            var previousBase = InputFactory.Model("PreviousBase", properties: []);
+            var currentBase = InputFactory.Model("CurrentBase", properties: []);
+            var internalBaseDerived = InputFactory.Model("InternalBaseDerived", properties: [], baseModel: currentBase);
+            var structBaseDerived = InputFactory.Model("StructBaseDerived", properties: [], baseModel: currentBase);
+            var sealedBaseDerived = InputFactory.Model("SealedBaseDerived", properties: [], baseModel: currentBase);
+            var currentStruct = InputFactory.Model("CurrentStruct", properties: [], modelAsStruct: true);
+
+            await MockHelpers.LoadMockGeneratorAsync(
+                inputModelTypes: [internalBase, structBase, sealedBase, previousBase, currentBase, internalBaseDerived, structBaseDerived, sealedBaseDerived, currentStruct],
+                compilation: async () => await Helpers.GetCompilationFromSourceFilesAsync([("Customization.cs", customizationSource)]),
+                lastContractCompilation: async () => await Helpers.GetCompilationFromSourceFilesAsync([("LastContract.cs", lastContractSource)]));
+
+            var modelProviders = CodeModelGenerator.Instance.OutputLibrary.TypeProviders
+                .OfType<ModelProvider>()
+                .ToArray();
+            var internalDerivedProvider = modelProviders.Single(t => t.Name == "InternalBaseDerived");
+            var structDerivedProvider = modelProviders.Single(t => t.Name == "StructBaseDerived");
+            var sealedDerivedProvider = modelProviders.Single(t => t.Name == "SealedBaseDerived");
+            var currentStructProvider = modelProviders.Single(t => t.Name == "CurrentStruct");
+
+            internalDerivedProvider.ProcessTypeForBackCompatibility();
+            structDerivedProvider.ProcessTypeForBackCompatibility();
+            sealedDerivedProvider.ProcessTypeForBackCompatibility();
+            currentStructProvider.ProcessTypeForBackCompatibility();
+
+            Assert.Multiple(() =>
+            {
+                Assert.AreEqual(currentBase.Name, internalDerivedProvider.BaseType?.Name,
+                    "A public model must not restore an internal generated base");
+                Assert.AreEqual(currentBase.Name, structDerivedProvider.BaseType?.Name,
+                    "A generated struct must not be restored as a class base");
+                Assert.AreEqual(currentBase.Name, sealedDerivedProvider.BaseType?.Name,
+                    "A sealed generated model must not be restored as a base");
+                Assert.IsNull(currentStructProvider.BaseType,
+                    "A current struct must not restore a previously published class base");
+            });
+        }
+
+        [Test]
+        public async Task BackCompat_CustomMemberCollisionWithLastContractBaseIsNotRestored()
+        {
+            const string customizationSource = """
+                namespace Sample.Models
+                {
+                    public partial class CustomPropertyDerived
+                    {
+                        public string Id { get; set; }
+                    }
+
+                    public partial class CustomFieldDerived
+                    {
+                        public string Id;
+                    }
+
+                    public partial class PreviousBase
+                    {
+                        public string CustomProperty { get; set; }
+                        public string CustomField;
+                        public void Run() { }
+                    }
+
+                    public partial class BaseCustomMethodDerived
+                    {
+                        public void Run() { }
+                    }
+                }
+                """;
+            const string lastContractSource = """
+                namespace Sample.Models
+                {
+                    public class PreviousBase
+                    {
+                        public string Id { get; set; }
+                    }
+
+                    public class CustomPropertyDerived : PreviousBase { }
+                    public class CustomFieldDerived : PreviousBase { }
+                    public class BaseCustomPropertyDerived : PreviousBase { }
+                    public class BaseCustomFieldDerived : PreviousBase { }
+                    public class BaseCustomMethodDerived : PreviousBase { }
+                }
+                """;
+            var previousBase = InputFactory.Model(
+                "PreviousBase",
+                properties: [InputFactory.Property("id", InputPrimitiveType.String)]);
+            var propertyDerived = InputFactory.Model("CustomPropertyDerived", properties: []);
+            var fieldDerived = InputFactory.Model("CustomFieldDerived", properties: []);
+            var baseCustomPropertyDerived = InputFactory.Model(
+                "BaseCustomPropertyDerived",
+                properties: [InputFactory.Property("customProperty", InputPrimitiveType.String)]);
+            var baseCustomFieldDerived = InputFactory.Model(
+                "BaseCustomFieldDerived",
+                properties: [InputFactory.Property("customField", InputPrimitiveType.String)]);
+            var baseCustomMethodDerived = InputFactory.Model("BaseCustomMethodDerived", properties: []);
+
+            await MockHelpers.LoadMockGeneratorAsync(
+                inputModelTypes: [previousBase, propertyDerived, fieldDerived, baseCustomPropertyDerived, baseCustomFieldDerived, baseCustomMethodDerived],
+                compilation: async () => await Helpers.GetCompilationFromSourceFilesAsync([("Customization.cs", customizationSource)]),
+                lastContractCompilation: async () => await Helpers.GetCompilationFromSourceFilesAsync([("LastContract.cs", lastContractSource)]));
+
+            var modelProviders = CodeModelGenerator.Instance.OutputLibrary.TypeProviders
+                .OfType<ModelProvider>()
+                .ToArray();
+            var propertyDerivedProvider = modelProviders.Single(t => t.Name == "CustomPropertyDerived");
+            var fieldDerivedProvider = modelProviders.Single(t => t.Name == "CustomFieldDerived");
+            var baseCustomPropertyProvider = modelProviders.Single(t => t.Name == "BaseCustomPropertyDerived");
+            var baseCustomFieldProvider = modelProviders.Single(t => t.Name == "BaseCustomFieldDerived");
+            var baseCustomMethodProvider = modelProviders.Single(t => t.Name == "BaseCustomMethodDerived");
+
+            propertyDerivedProvider.ProcessTypeForBackCompatibility();
+            fieldDerivedProvider.ProcessTypeForBackCompatibility();
+            baseCustomPropertyProvider.ProcessTypeForBackCompatibility();
+            baseCustomFieldProvider.ProcessTypeForBackCompatibility();
+            baseCustomMethodProvider.ProcessTypeForBackCompatibility();
+
+            Assert.Multiple(() =>
+            {
+                Assert.IsNull(propertyDerivedProvider.BaseType,
+                    "The previous base must not be restored when it collides with a custom property");
+                Assert.IsNull(fieldDerivedProvider.BaseType,
+                    "The previous base must not be restored when it collides with a custom field");
+                Assert.IsNull(baseCustomPropertyProvider.BaseType,
+                    "The previous base must not be restored when its custom property collides with a current property");
+                Assert.IsNull(baseCustomFieldProvider.BaseType,
+                    "The previous base must not be restored when its custom field collides with a current property");
+                Assert.IsNull(baseCustomMethodProvider.BaseType,
+                    "The previous base must not be restored when its custom method collides with a current custom method");
+            });
+        }
+
+        [Test]
+        public async Task BackCompat_BaseRestorationFailuresEmitDiagnostics()
+        {
+            const string currentSource = """
+                namespace Sample.Models
+                {
+                    public class ExternalBase
+                    {
+                        public ExternalBase(string value) { }
+                    }
+                }
+                """;
+            const string lastContractSource = """
+                namespace Sample.Models
+                {
+                    public class PreviousBase { public string Id { get; set; } }
+                    public class ExternalBase { }
+                    public class CollisionDerived : PreviousBase { }
+                    public class UnavailableDerived : ExternalBase { }
+                }
+                """;
+            var previousBase = InputFactory.Model(
+                "PreviousBase",
+                properties: [InputFactory.Property("id", InputPrimitiveType.String)]);
+            var collisionDerived = InputFactory.Model(
+                "CollisionDerived",
+                properties: [InputFactory.Property("id", InputPrimitiveType.String)]);
+            var unavailableDerived = InputFactory.Model("UnavailableDerived", properties: []);
+
+            var mockGenerator = await MockHelpers.LoadMockGeneratorAsync(
+                inputModelTypes: [previousBase, collisionDerived, unavailableDerived],
+                compilation: async () => await Helpers.GetCompilationFromSourceFilesAsync([("Current.cs", currentSource)]),
+                lastContractCompilation: async () => await Helpers.GetCompilationFromSourceFilesAsync([("LastContract.cs", lastContractSource)]));
+            using var emitterStream = new MemoryStream();
+            using var emitter = new Emitter(emitterStream);
+            mockGenerator.Setup(generator => generator.Emitter).Returns(emitter);
+
+            var providers = CodeModelGenerator.Instance.OutputLibrary.TypeProviders.OfType<ModelProvider>().ToArray();
+            providers.Single(provider => provider.Name == "CollisionDerived").ProcessTypeForBackCompatibility();
+            providers.Single(provider => provider.Name == "UnavailableDerived").ProcessTypeForBackCompatibility();
+            emitterStream.Position = 0;
+            using var reader = new StreamReader(emitterStream, Encoding.UTF8, leaveOpen: true);
+            var output = await reader.ReadToEndAsync();
+
+            Assert.Multiple(() =>
+            {
+                Assert.That(output, Does.Contain(DiagnosticCodes.IncompatibleBackcompatBaseType));
+                Assert.That(output, Does.Contain(DiagnosticCodes.UnavailableBackcompatType));
+                Assert.That(output, Does.Contain("cannot be resolved as an accessible, inheritable base"));
+            });
+        }
+
+        [Test]
+        public async Task BackCompat_InvalidSystemObjectModelBaseIsNotRestored()
+        {
+            const string currentSource = """
+                namespace Sample.Models
+                {
+                    public sealed class ExternalBase
+                    {
+                        public ExternalBase(string value) { }
+                    }
+                }
+                """;
+            const string lastContractSource = """
+                namespace Sample.Models
+                {
+                    public class ExternalBase { }
+                    public class DerivedModel : ExternalBase { }
+                }
+                """;
+            var externalType = new CSharpType("ExternalBase", "Sample.Models", false, false, null, [], true, false);
+            var mappedBase = InputFactory.Model("ExternalBase", properties: []);
+            var derived = InputFactory.Model("DerivedModel", properties: []);
+
+            await MockHelpers.LoadMockGeneratorAsync(
+                createModelCore: input => input == mappedBase
+                    ? new SystemObjectModelProvider(externalType, input)
+                    : new ModelProvider(input),
+                inputModelTypes: [mappedBase, derived],
+                compilation: async () => await Helpers.GetCompilationFromSourceFilesAsync([("Current.cs", currentSource)]),
+                lastContractCompilation: async () => await Helpers.GetCompilationFromSourceFilesAsync([("LastContract.cs", lastContractSource)]));
+
+            var derivedProvider = CodeModelGenerator.Instance.OutputLibrary.TypeProviders
+                .OfType<ModelProvider>()
+                .Single(provider => provider.Name == "DerivedModel");
+            derivedProvider.ProcessTypeForBackCompatibility();
+
+            Assert.IsNull(derivedProvider.BaseType,
+                "A mapped external model must be validated against its wrapped CLR type before restoration");
+        }
+
+        [Test]
+        public async Task BackCompat_ExplicitObjectAndSymbolBackedCyclesAreNotRestored()
+        {
+            const string customizationSource = """
+                namespace Sample.Models
+                {
+                    public partial class ExplicitObjectDerived : object { }
+                    public partial class InterfaceDerived : System.IDisposable { public void Dispose() { } }
+                    public partial class CycleDerived { }
+                    public class ExternalBase : CycleDerived { }
+                }
+                """;
+            const string lastContractSource = """
+                namespace Sample.Models
+                {
+                    public class PreviousBase { }
+                    public class ExternalBase { }
+                    public class ExplicitObjectDerived : PreviousBase { }
+                    public class InterfaceDerived : PreviousBase { }
+                    public class CycleDerived : ExternalBase { }
+                }
+                """;
+            var previousBase = InputFactory.Model("PreviousBase", properties: []);
+            var explicitObjectDerived = InputFactory.Model("ExplicitObjectDerived", properties: []);
+            var interfaceDerived = InputFactory.Model("InterfaceDerived", properties: []);
+            var cycleDerived = InputFactory.Model("CycleDerived", properties: []);
+
+            await MockHelpers.LoadMockGeneratorAsync(
+                inputModelTypes: [previousBase, explicitObjectDerived, interfaceDerived, cycleDerived],
+                compilation: async () => await Helpers.GetCompilationFromSourceFilesAsync([("Customization.cs", customizationSource)]),
+                lastContractCompilation: async () => await Helpers.GetCompilationFromSourceFilesAsync([("LastContract.cs", lastContractSource)]));
+
+            var providers = CodeModelGenerator.Instance.OutputLibrary.TypeProviders.OfType<ModelProvider>().ToArray();
+            var explicitObjectProvider = providers.Single(provider => provider.Name == "ExplicitObjectDerived");
+            var interfaceProvider = providers.Single(provider => provider.Name == "InterfaceDerived");
+            var cycleProvider = providers.Single(provider => provider.Name == "CycleDerived");
+
+            explicitObjectProvider.ProcessTypeForBackCompatibility();
+            interfaceProvider.ProcessTypeForBackCompatibility();
+            cycleProvider.ProcessTypeForBackCompatibility();
+
+            Assert.Multiple(() =>
+            {
+                Assert.IsNull(explicitObjectProvider.BaseType,
+                    "An explicit object base in custom code must remain authoritative across partial declarations");
+                Assert.AreEqual("PreviousBase", interfaceProvider.BaseType?.Name,
+                    "An interface-only custom base list must not block class-base restoration");
+                Assert.IsNull(cycleProvider.BaseType,
+                    "A symbol-backed candidate whose base chain reaches the current model must not be restored");
+            });
+        }
+
+        [Test]
+        public async Task BackCompat_LastContractBaseRestoresInheritedProperties()
+        {
+            var previousBase = InputFactory.Model(
+                "PreviousBase",
+                properties:
+                [
+                    InputFactory.Property("id", InputPrimitiveType.String),
+                    InputFactory.Property("location", InputPrimitiveType.String),
+                    InputFactory.Property("tags", InputFactory.Dictionary(InputPrimitiveType.String)),
+                ]);
+            var currentBase = InputFactory.Model(
+                "CurrentBase",
+                properties:
+                [
+                    InputFactory.Property("id", InputPrimitiveType.String),
+                    InputFactory.Property("location", InputPrimitiveType.String),
+                    InputFactory.Property("tags", InputFactory.Dictionary(InputPrimitiveType.String)),
+                ]);
+            var derivedModel = InputFactory.Model(
+                "DerivedModel",
+                properties: [InputFactory.Property("childProp", InputPrimitiveType.String)],
+                baseModel: currentBase);
+
+            await MockHelpers.LoadMockGeneratorAsync(
+                inputModelTypes: [previousBase, currentBase, derivedModel],
+                lastContractCompilation: async () => await Helpers.GetCompilationFromDirectoryAsync());
+
+            var modelProvider = CodeModelGenerator.Instance.OutputLibrary.TypeProviders
+                .OfType<ModelProvider>()
+                .Single(t => t.Name == "DerivedModel");
+
+            modelProvider.ProcessTypeForBackCompatibility();
+
+            Assert.Multiple(() =>
+            {
+                Assert.AreEqual(previousBase.Name, modelProvider.BaseType?.Name,
+                    "The previously shipped base type must be preserved");
+                Assert.That(modelProvider.BaseTypeProvider?.Properties.Select(p => p.Name),
+                    Is.EquivalentTo(new[] { "Id", "Location", "Tags" }),
+                    "Properties shipped on the previous GA base must remain inherited");
+                Assert.That(modelProvider.Properties.Select(p => p.Name), Is.EqualTo(new[] { "ChildProp" }),
+                    "Properties supplied by the preserved base must not be duplicated on the derived model");
+            });
+        }
+
+        [Test]
         public void OverridingBuildBaseType_AutoResolvesBaseModelProviderForGeneratedModel()
         {
             var inputBase = InputFactory.Model("baseModel", usage: InputModelTypeUsage.Input, properties: []);
@@ -623,6 +1758,21 @@ namespace Microsoft.TypeSpec.Generator.Tests.Providers.ModelProviders
             }
 
             protected override CSharpType? BuildBaseType() => _redirectedBaseType;
+        }
+
+        private sealed class BaseTypeBackCompatibilityOverridingModelProvider : ModelProvider
+        {
+            public BaseTypeBackCompatibilityOverridingModelProvider(InputModelType inputModel) : base(inputModel)
+            {
+            }
+
+            public CSharpType? CapturedCurrentBase { get; private set; }
+
+            protected override CSharpType? BuildBaseTypeForBackCompatibility(CSharpType? currentBase)
+            {
+                CapturedCurrentBase = currentBase;
+                return currentBase;
+            }
         }
 
         // Regression: custom code (such as an inheritable system base model) can produce a base
@@ -3522,6 +4672,18 @@ namespace Microsoft.TypeSpec.Generator.Tests.Providers.ModelProviders
             else
             {
                 Assert.IsNull(rawDataField, "Expected _additionalBinaryDataProperties field to NOT be generated for XML-only models");
+            }
+        }
+
+        private sealed class PreVisitModelRenamingVisitor(string sourceName, string targetName) : LibraryVisitor
+        {
+            protected internal override ModelProvider? PreVisitModel(InputModelType model, ModelProvider? type)
+            {
+                if (type is not null && model.Name == sourceName)
+                {
+                    type.Update(name: targetName);
+                }
+                return type;
             }
         }
 

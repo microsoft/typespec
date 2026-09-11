@@ -35,6 +35,43 @@ namespace Microsoft.TypeSpec.Generator
         // Maps C# type names to TypeProviders for efficient lookup when resolving types by name
         internal IDictionary<string, TypeProvider> TypeProvidersByName { get; } = new Dictionary<string, TypeProvider>();
 
+        private bool _allInputModelsCreated;
+        private bool _creatingAllInputModels;
+        private readonly HashSet<ModelProvider> _pendingBaseResolution = [];
+
+        internal bool IsCreatingAllInputModels => _creatingAllInputModels;
+
+        internal void MarkPendingBaseResolution(ModelProvider provider)
+            => _pendingBaseResolution.Add(provider);
+
+        internal void EnsureAllInputModelsCreated()
+        {
+            if (_allInputModelsCreated || _creatingAllInputModels)
+            {
+                return;
+            }
+
+            _creatingAllInputModels = true;
+            try
+            {
+                foreach (var model in CodeModelGenerator.Instance.InputLibrary.InputNamespace.Models)
+                {
+                    CreateModel(model);
+                }
+                _allInputModelsCreated = true;
+            }
+            finally
+            {
+                _creatingAllInputModels = false;
+            }
+
+            foreach (var provider in _pendingBaseResolution)
+            {
+                provider.RetryPendingBaseResolution();
+            }
+            _pendingBaseResolution.Clear();
+        }
+
         private Dictionary<EnumCacheKey, EnumProvider?> EnumCache { get; } = [];
 
         private Dictionary<InputType, CSharpType?> TypeCache { get; } = [];

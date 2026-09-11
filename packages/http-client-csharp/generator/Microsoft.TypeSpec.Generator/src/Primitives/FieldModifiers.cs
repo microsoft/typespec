@@ -14,6 +14,7 @@ namespace Microsoft.TypeSpec.Generator.Primitives
         Private = 1 << 3,
         Static = 1 << 4,
         ReadOnly = 1 << 5,
-        Const = 1 << 6
+        Const = 1 << 6,
+        New = 1 << 7
     }
 }

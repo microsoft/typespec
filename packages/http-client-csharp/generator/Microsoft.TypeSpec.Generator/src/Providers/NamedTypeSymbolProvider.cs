@@ -50,6 +50,235 @@ namespace Microsoft.TypeSpec.Generator.Providers
 
         internal string MetadataSimpleName => _metadataSimpleName ??= _namedTypeSymbol.Name;
 
+        internal bool HasAccessibleParameterlessConstructor => _namedTypeSymbol.InstanceConstructors.Any(constructor =>
+            constructor.Parameters.Length == 0 && IsConstructorAccessibleFromGeneratedType(constructor));
+
+        internal bool CanBeInherited => _namedTypeSymbol.TypeKind == TypeKind.Class &&
+            !_namedTypeSymbol.IsSealed &&
+            !_namedTypeSymbol.IsStatic;
+
+        internal bool HasExplicitClassBaseDeclaration
+        {
+            get
+            {
+                foreach (var declaration in _namedTypeSymbol.DeclaringSyntaxReferences
+                    .Select(reference => reference.GetSyntax())
+                    .OfType<TypeDeclarationSyntax>())
+                {
+                    if (declaration.BaseList is null)
+                    {
+                        continue;
+                    }
+
+                    var semanticModel = _compilation.GetSemanticModel(declaration.SyntaxTree);
+                    if (declaration.BaseList.Types.Any(baseType =>
+                        semanticModel.GetTypeInfo(baseType.Type).Type is { TypeKind: not TypeKind.Interface }))
+                    {
+                        return true;
+                    }
+                }
+
+                return false;
+            }
+        }
+
+        internal bool IsFromCurrentAssembly =>
+            SymbolEqualityComparer.Default.Equals(_namedTypeSymbol.ContainingAssembly, _compilation.Assembly);
+
+        internal bool IsAccessibleFromGeneratedType(CSharpType constructedType, bool requiresPublicAccessibility)
+        {
+            if (!IsNamedTypeAccessible(_namedTypeSymbol, requiresPublicAccessibility) ||
+                constructedType.DeclaringType is not null && !IsTypeAccessible(constructedType.DeclaringType, requiresPublicAccessibility))
+            {
+                return false;
+            }
+
+            return constructedType.Arguments.All(argument => IsTypeAccessible(argument, requiresPublicAccessibility));
+        }
+
+        private bool IsTypeAccessible(CSharpType type, bool requiresPublicAccessibility)
+        {
+            if (type.DeclaringType is not null && !IsTypeAccessible(type.DeclaringType, requiresPublicAccessibility))
+            {
+                return false;
+            }
+
+            var metadataNamespace = type;
+            while (metadataNamespace.DeclaringType is not null)
+            {
+                metadataNamespace = metadataNamespace.DeclaringType;
+            }
+
+            var metadataName = string.IsNullOrEmpty(metadataNamespace.Namespace)
+                ? type.ClrMetadataName
+                : $"{metadataNamespace.Namespace}.{type.ClrMetadataName}";
+            var symbol = _compilation.GetTypeByMetadataName(metadataName);
+            if (symbol is not null && !IsNamedTypeAccessible(symbol, requiresPublicAccessibility))
+            {
+                return false;
+            }
+
+            return type.Arguments.All(argument => IsTypeAccessible(argument, requiresPublicAccessibility));
+        }
+
+        private bool IsNamedTypeAccessible(INamedTypeSymbol type, bool requiresPublicAccessibility)
+        {
+            for (var current = type; current is not null; current = current.ContainingType)
+            {
+                if (current.DeclaredAccessibility == Accessibility.Public)
+                {
+                    continue;
+                }
+
+                if (!requiresPublicAccessibility &&
+                    current.DeclaredAccessibility is Accessibility.Internal or Accessibility.ProtectedOrInternal &&
+                    SymbolEqualityComparer.Default.Equals(current.ContainingAssembly, _compilation.Assembly))
+                {
+                    continue;
+                }
+
+                return false;
+            }
+
+            return true;
+        }
+
+        internal bool SatisfiesGenericConstraints(CSharpType constructedType)
+        {
+            if (_namedTypeSymbol.TypeParameters.Length != constructedType.Arguments.Count)
+            {
+                return _namedTypeSymbol.TypeParameters.Length == 0;
+            }
+
+            for (var i = 0; i < _namedTypeSymbol.TypeParameters.Length; i++)
+            {
+                var parameter = _namedTypeSymbol.TypeParameters[i];
+                var argument = constructedType.Arguments[i];
+                var argumentSymbol = ResolveTypeSymbol(argument);
+
+                if (parameter.HasReferenceTypeConstraint && argument.IsValueType ||
+                    parameter.HasValueTypeConstraint && (!argument.IsValueType || argument.IsNullable) ||
+                    parameter.HasUnmanagedTypeConstraint && argumentSymbol?.IsUnmanagedType != true ||
+                    parameter.HasNotNullConstraint && argument.IsNullable)
+                {
+                    return false;
+                }
+
+                if (parameter.HasConstructorConstraint &&
+                    (argumentSymbol is not INamedTypeSymbol namedArgument ||
+                        !namedArgument.IsValueType &&
+                        (namedArgument.IsAbstract || !namedArgument.InstanceConstructors.Any(constructor =>
+                            constructor.Parameters.Length == 0 && constructor.DeclaredAccessibility == Accessibility.Public))))
+                {
+                    return false;
+                }
+
+                if (parameter.ConstraintTypes.Length > 0)
+                {
+                    if (argumentSymbol is null)
+                    {
+                        return false;
+                    }
+
+                    var substitutions = new Dictionary<ISymbol, ITypeSymbol>(SymbolEqualityComparer.Default);
+                    for (var substitutionIndex = 0; substitutionIndex < _namedTypeSymbol.TypeParameters.Length; substitutionIndex++)
+                    {
+                        var substitution = ResolveTypeSymbol(constructedType.Arguments[substitutionIndex]);
+                        if (substitution is not null)
+                        {
+                            substitutions[_namedTypeSymbol.TypeParameters[substitutionIndex]] = substitution;
+                        }
+                    }
+                    foreach (var constraintType in parameter.ConstraintTypes)
+                    {
+                        var substitutedConstraint = SubstituteTypeParameters(constraintType, substitutions);
+                        if (substitutedConstraint is null ||
+                            _compilation is not CSharpCompilation csharpCompilation ||
+                            !csharpCompilation.ClassifyConversion(argumentSymbol, substitutedConstraint).IsImplicit)
+                        {
+                            return false;
+                        }
+                    }
+                }
+            }
+
+            return true;
+        }
+
+        private ITypeSymbol? SubstituteTypeParameters(
+            ITypeSymbol type,
+            IReadOnlyDictionary<ISymbol, ITypeSymbol> substitutions)
+        {
+            if (type is ITypeParameterSymbol typeParameter)
+            {
+                return substitutions.TryGetValue(typeParameter, out var substitution) ? substitution : typeParameter;
+            }
+
+            if (type is IArrayTypeSymbol arrayType)
+            {
+                var elementType = SubstituteTypeParameters(arrayType.ElementType, substitutions);
+                return elementType is null ? null : _compilation.CreateArrayTypeSymbol(elementType, arrayType.Rank);
+            }
+
+            if (type is not INamedTypeSymbol namedType || namedType.TypeArguments.Length == 0)
+            {
+                return type;
+            }
+
+            var arguments = new ITypeSymbol[namedType.TypeArguments.Length];
+            for (var i = 0; i < arguments.Length; i++)
+            {
+                var argument = SubstituteTypeParameters(namedType.TypeArguments[i], substitutions);
+                if (argument is null)
+                {
+                    return null;
+                }
+                arguments[i] = argument;
+            }
+
+            return namedType.ConstructedFrom.Construct(arguments);
+        }
+
+        private ITypeSymbol? ResolveTypeSymbol(CSharpType type)
+        {
+            var metadataNamespace = type;
+            while (metadataNamespace.DeclaringType is not null)
+            {
+                metadataNamespace = metadataNamespace.DeclaringType;
+            }
+
+            var metadataName = string.IsNullOrEmpty(metadataNamespace.Namespace)
+                ? type.ClrMetadataName
+                : $"{metadataNamespace.Namespace}.{type.ClrMetadataName}";
+            var symbol = _compilation.GetTypeByMetadataName(metadataName);
+            if (symbol is null || type.Arguments.Count == 0)
+            {
+                return symbol;
+            }
+
+            var argumentSymbols = new ITypeSymbol[type.Arguments.Count];
+            for (var i = 0; i < argumentSymbols.Length; i++)
+            {
+                var argumentSymbol = ResolveTypeSymbol(type.Arguments[i]);
+                if (argumentSymbol is null)
+                {
+                    return null;
+                }
+                argumentSymbols[i] = argumentSymbol;
+            }
+
+            return symbol.Arity == argumentSymbols.Length ? symbol.Construct(argumentSymbols) : null;
+        }
+
+        private bool IsConstructorAccessibleFromGeneratedType(IMethodSymbol constructor)
+            => constructor.DeclaredAccessibility switch
+            {
+                Accessibility.Public or Accessibility.Protected or Accessibility.ProtectedOrInternal => true,
+                Accessibility.Internal or Accessibility.ProtectedAndInternal =>
+                    SymbolEqualityComparer.Default.Equals(constructor.ContainingAssembly, _compilation.Assembly),
+                _ => false,
+            };
+
         private protected sealed override NamedTypeSymbolProvider? BuildCustomCodeView(string? generatedTypeName = default, string? generatedTypeNamespace = default) => null;
         private protected sealed override TypeProvider? BuildLastContractView(string? generatedTypeName = default, string? generatedTypeNamespace = default) => null;
 
@@ -71,6 +300,10 @@ namespace Microsoft.TypeSpec.Generator.Providers
         protected override string BuildName() => _namedTypeSymbol.Name;
 
         protected override string BuildNamespace() => _namedTypeSymbol.ContainingNamespace.GetFullyQualifiedNameFromDisplayString();
+
+        protected override TypeProvider? BuildDeclaringTypeProvider() => _namedTypeSymbol.ContainingType is null
+            ? null
+            : new NamedTypeSymbolProvider(_namedTypeSymbol.ContainingType, _compilation);
 
         protected override IReadOnlyList<AttributeStatement> BuildAttributes()
             => [.. _namedTypeSymbol.GetAttributes().Select(a => new AttributeStatement(a))];

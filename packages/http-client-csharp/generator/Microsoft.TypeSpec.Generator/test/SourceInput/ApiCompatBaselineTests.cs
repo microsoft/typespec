@@ -2,6 +2,7 @@
 // Licensed under the MIT License.
 
 using System.Collections.Generic;
+using System.Threading.Tasks;
 using Microsoft.TypeSpec.Generator.Input;
 using Microsoft.TypeSpec.Generator.Primitives;
 using Microsoft.TypeSpec.Generator.SourceInput;
@@ -413,6 +414,16 @@ namespace Microsoft.TypeSpec.Generator.Tests.SourceInput
         }
 
         [Test]
+        public async Task SourceInputModelResolvesGlobalNamespaceType()
+        {
+            var compilation = await Helpers.GetCompilationFromSourceFilesAsync(
+                [("Global.cs", "public class ExternalBase { }")]);
+            var sourceInput = new SourceInputModel(compilation, lastContract: null);
+
+            Assert.IsNotNull(sourceInput.FindForTypeInCurrentCompilation("", "ExternalBase"));
+        }
+
+        [Test]
         public void ReferencesSuppressedTypeMatchesDirectType()
         {
             var baseline = Helpers.GetApiCompatBaselineFromFile(fileExtension: _fileExtension, method: "SuppressedString");
@@ -432,6 +443,18 @@ namespace Microsoft.TypeSpec.Generator.Tests.SourceInput
 
             var listOfInt = new CSharpType(typeof(IList<>), new CSharpType(typeof(int)));
             Assert.IsFalse(baseline.ReferencesSuppressedType(listOfInt));
+        }
+
+        [Test]
+        public void ReferencesSuppressedTypeMatchesCompleteNestedTypeIdentity()
+        {
+            var baseline = ApiCompatBaseline.Parse(
+                ["TypesMustExist: Type 'Sample.Models.Outer+Middle+NestedBase' does not exist"]);
+            var outer = new CSharpType("Outer", "Sample.Models", false, false, null, [], true, false);
+            var middle = new CSharpType("Middle", "Sample.Models", false, false, outer, [], true, false);
+            var nested = new CSharpType("NestedBase", "Sample.Models", false, false, middle, [], true, false);
+
+            Assert.IsTrue(baseline.ReferencesSuppressedType(nested));
         }
 
         [Test]
