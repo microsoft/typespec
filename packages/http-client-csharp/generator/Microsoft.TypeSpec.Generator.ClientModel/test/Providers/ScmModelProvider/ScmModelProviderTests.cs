@@ -329,6 +329,66 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers.ScmModelProvi
         }
 
         [Test]
+        public async Task BackCompat_DiscriminatedLastContractBaseIsNotRestoredForCurrentStandaloneModel()
+        {
+            var currentSubtype = InputFactory.Model(
+                "currentSubtype",
+                discriminatedKind: "current",
+                properties: []);
+            var previousBase = InputFactory.Model(
+                "previousBase",
+                properties:
+                [
+                    InputFactory.Property("kind", InputPrimitiveType.String, isRequired: true, isDiscriminator: true)
+                ],
+                discriminatedModels: new Dictionary<string, InputModelType> { ["current"] = currentSubtype });
+            var derivedModel = InputFactory.Model(
+                "derivedModel",
+                usage: InputModelTypeUsage.Json,
+                properties: []);
+
+            await MockHelpers.LoadMockGeneratorAsync(
+                lastContractCompilation: async () => await Helpers.GetCompilationFromDirectoryAsync(),
+                inputModels: () => [previousBase, currentSubtype, derivedModel]);
+
+            var models = ScmCodeModelGenerator.Instance.OutputLibrary.TypeProviders
+                .OfType<ScmModel>()
+                .ToArray();
+            var derivedProvider = models.Single(t => t.Name == "DerivedModel");
+
+            derivedProvider.ProcessTypeForBackCompatibility();
+
+            Assert.AreEqual("PreviousBase", derivedProvider.LastContractView?.BaseType?.Name,
+                "The regression requires the model to have left its last-contract discriminator hierarchy");
+
+            string[] supportingProviderNames = ["Argument", "ModelSerializationExtensions", "ChangeTrackingDictionary", "SampleContext", "TypeFormatters", "SerializationFormat"];
+            var generatedProviders = ScmCodeModelGenerator.Instance.OutputLibrary.TypeProviders
+                .Where(provider => provider is ScmModel || supportingProviderNames.Contains(provider.Name))
+                .Concat(models.SelectMany(model => model.SerializationProviders))
+                .Distinct();
+            var sourceFiles = generatedProviders.Select(provider => (
+                    Name: $"{provider.Name}.cs",
+                    Content: new TypeProviderWriter(provider).Write().Content))
+                .Append((
+                    Name: "SampleContext.Default.cs",
+                    Content: "namespace Sample { public partial class SampleContext { public static SampleContext Default => null; } }"))
+                .Append((
+                    Name: "SampleTypeSpecContext.Default.cs",
+                    Content: "namespace SampleTypeSpec { public partial class SampleTypeSpecContext : System.ClientModel.Primitives.ModelReaderWriterContext { public static SampleTypeSpecContext Default => null; } }"));
+            var compilation = await Helpers.GetCompilationFromSourceFilesAsync(sourceFiles);
+            Assert.Multiple(() =>
+            {
+                Assert.That(
+                    compilation.GetDiagnostics().Where(diagnostic =>
+                        diagnostic.Severity is DiagnosticSeverity.Warning or DiagnosticSeverity.Error),
+                    Is.Empty,
+                    "The standalone model should compile after its incompatible discriminated base restoration is skipped");
+                Assert.IsNull(derivedProvider.BaseType,
+                    "A discriminator base requiring a discriminator argument must not be restored for a standalone model");
+            });
+        }
+
+        [Test]
         public async Task BackCompat_AccessibleParameterlessSerializationConstructorIsPreserved()
         {
             var inputModel = InputFactory.Model(

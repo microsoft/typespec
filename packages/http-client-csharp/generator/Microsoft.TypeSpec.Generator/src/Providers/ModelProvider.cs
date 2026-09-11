@@ -289,11 +289,29 @@ namespace Microsoft.TypeSpec.Generator.Providers
                 return currentBase;
             }
 
-            if (HasDirectPropertyNameCollision(resolvedPreviousBaseProvider))
+            if (WouldCreateBaseTypeCycle(resolvedPreviousBaseProvider))
             {
                 ReportIncompatibleBackcompatBaseType(
                     previousBase,
-                    "the current model directly declares a property from the previous base hierarchy");
+                    "the previous base currently derives from this model");
+                return currentBase;
+            }
+
+            if (_inputModel.DiscriminatorValue is null &&
+                _inputModel.DiscriminatorProperty is null &&
+                resolvedPreviousBaseProvider is ModelProvider { _isDiscriminatedBaseType: true })
+            {
+                ReportIncompatibleBackcompatBaseType(
+                    previousBase,
+                    "the previous base requires a discriminator value but the current model does not participate in that discriminator hierarchy");
+                return currentBase;
+            }
+
+            if (HasPropertyNameCollisionInCurrentHierarchy(resolvedPreviousBaseProvider))
+            {
+                ReportIncompatibleBackcompatBaseType(
+                    previousBase,
+                    "the current model hierarchy declares a property from the previous base hierarchy");
                 return currentBase;
             }
 
@@ -379,25 +397,89 @@ namespace Microsoft.TypeSpec.Generator.Providers
             return false;
         }
 
-        private bool HasDirectPropertyNameCollision(TypeProvider previousBase)
+        private bool WouldCreateBaseTypeCycle(TypeProvider previousBase)
         {
-            var enclosingTypeName = BuildName();
-            var directPropertyNames = _inputModel.Properties
-                .Select(property => GetGeneratedPropertyName(property, enclosingTypeName))
-                .ToHashSet(StringComparer.Ordinal);
-            directPropertyNames.UnionWith(GetGeneratedAdditionalPropertyNames(previousBase));
-            if (directPropertyNames.Count == 0)
+            var visited = new HashSet<ModelProvider>();
+            for (var model = previousBase as ModelProvider; model is not null && visited.Add(model);)
+            {
+                if (ReferenceEquals(model, this))
+                {
+                    return true;
+                }
+
+                var customBase = model.CustomCodeView?.BaseType;
+                if (customBase is not null)
+                {
+                    model = ResolveGeneratedModel(customBase);
+                    continue;
+                }
+
+                model = model._inputModel.BaseModel is null
+                    ? null
+                    : CodeModelGenerator.Instance.TypeFactory.CreateModel(model._inputModel.BaseModel);
+            }
+
+            return false;
+        }
+
+        private static ModelProvider? ResolveGeneratedModel(CSharpType type)
+        {
+            if (string.IsNullOrEmpty(type.Namespace) &&
+                CodeModelGenerator.Instance.TypeFactory.TypeProvidersByName.TryGetValue(type.Name, out var namedProvider))
+            {
+                return namedProvider as ModelProvider;
+            }
+
+            foreach (var (mappedType, provider) in CodeModelGenerator.Instance.TypeFactory.CSharpTypeMap)
+            {
+                if (provider is ModelProvider model && AreMetadataTypesEqual(mappedType, type))
+                {
+                    return model;
+                }
+            }
+
+            return null;
+        }
+
+        private bool HasPropertyNameCollisionInCurrentHierarchy(TypeProvider previousBase)
+        {
+            var inheritedPropertyNames = new HashSet<string>(StringComparer.Ordinal);
+            var visitedBases = new HashSet<TypeProvider>();
+            for (TypeProvider? provider = previousBase; provider is not null && visitedBases.Add(provider); provider = provider.BaseTypeProvider)
+            {
+                inheritedPropertyNames.UnionWith(provider.Properties
+                    .Where(IsInheritedProperty)
+                    .Select(property => property.Name));
+            }
+
+            if (inheritedPropertyNames.Count == 0)
             {
                 return false;
             }
 
-            var visited = new HashSet<TypeProvider>();
-            for (TypeProvider? provider = previousBase; provider is not null && visited.Add(provider); provider = provider.BaseTypeProvider)
+            var visitedModels = new HashSet<ModelProvider>();
+            var pendingModels = new Stack<ModelProvider>();
+            pendingModels.Push(this);
+            while (pendingModels.Count > 0)
             {
-                if (provider.Properties.Any(property =>
-                    IsInheritedProperty(property) && directPropertyNames.Contains(property.Name)))
+                var model = pendingModels.Pop();
+                if (!visitedModels.Add(model))
+                {
+                    continue;
+                }
+
+                var enclosingTypeName = model.BuildName();
+                if (model._inputModel.Properties
+                    .Select(property => model.GetGeneratedPropertyName(property, enclosingTypeName))
+                    .Concat(model.GetGeneratedAdditionalPropertyNames(previousBase))
+                    .Any(inheritedPropertyNames.Contains))
                 {
                     return true;
+                }
+
+                foreach (var derivedModel in model.DerivedModels)
+                {
+                    pendingModels.Push(derivedModel);
                 }
             }
 

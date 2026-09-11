@@ -693,6 +693,88 @@ namespace Microsoft.TypeSpec.Generator.Tests.Providers.ModelProviders
         }
 
         [Test]
+        public async Task BackCompat_RestoredBaseWithPropertyCollisionInCurrentDescendantIsNotRestored()
+        {
+            var previousBase = InputFactory.Model(
+                "PreviousBase",
+                properties: [InputFactory.Property("id", InputPrimitiveType.String)]);
+            var derivedModel = InputFactory.Model("DerivedModel", properties: []);
+            var grandChild = InputFactory.Model(
+                "GrandChild",
+                properties: [InputFactory.Property("id", InputPrimitiveType.String)],
+                baseModel: derivedModel);
+
+            await MockHelpers.LoadMockGeneratorAsync(
+                inputModelTypes: [previousBase, derivedModel, grandChild],
+                lastContractCompilation: async () => await Helpers.GetCompilationFromDirectoryAsync());
+
+            var modelProviders = CodeModelGenerator.Instance.OutputLibrary.TypeProviders
+                .OfType<ModelProvider>()
+                .ToArray();
+            var derivedProvider = modelProviders.Single(t => t.Name == "DerivedModel");
+
+            derivedProvider.ProcessTypeForBackCompatibility();
+
+            var syntaxTrees = modelProviders.Select(provider =>
+                CSharpSyntaxTree.ParseText(new TypeProviderWriter(provider).Write().Content));
+            var references = AppDomain.CurrentDomain.GetAssemblies()
+                .Where(assembly => !assembly.IsDynamic && !string.IsNullOrEmpty(assembly.Location))
+                .Select(assembly => MetadataReference.CreateFromFile(assembly.Location));
+            var compilation = CSharpCompilation.Create(
+                "DescendantPropertyCollisionModels",
+                syntaxTrees,
+                references,
+                new CSharpCompilationOptions(OutputKind.DynamicallyLinkedLibrary));
+            Assert.Multiple(() =>
+            {
+                Assert.That(
+                    compilation.GetDiagnostics().Where(diagnostic =>
+                        diagnostic.Severity is DiagnosticSeverity.Warning or DiagnosticSeverity.Error),
+                    Is.Empty,
+                    "The generated hierarchy should compile after restoration that conflicts with a current descendant is skipped");
+                Assert.IsNull(derivedProvider.BaseType,
+                    "The previous base must not be restored when it would make a current descendant override a non-virtual property");
+            });
+        }
+
+        [Test]
+        public async Task BackCompat_RestoredBaseThatCurrentlyDerivesFromModelIsNotRestored()
+        {
+            var modelA = InputFactory.Model("ModelA", properties: []);
+            var modelB = InputFactory.Model("ModelB", properties: [], baseModel: modelA);
+
+            await MockHelpers.LoadMockGeneratorAsync(
+                inputModelTypes: [modelA, modelB],
+                lastContractCompilation: async () => await Helpers.GetCompilationFromDirectoryAsync());
+
+            var modelProviders = CodeModelGenerator.Instance.OutputLibrary.TypeProviders
+                .OfType<ModelProvider>()
+                .ToArray();
+            var modelAProvider = modelProviders.Single(t => t.Name == "ModelA");
+
+            modelAProvider.ProcessTypeForBackCompatibility();
+
+            Assert.IsNull(modelAProvider.BaseType,
+                "The previous base must not be restored when it currently derives from this model");
+
+            var syntaxTrees = modelProviders.Select(provider =>
+                CSharpSyntaxTree.ParseText(new TypeProviderWriter(provider).Write().Content));
+            var references = AppDomain.CurrentDomain.GetAssemblies()
+                .Where(assembly => !assembly.IsDynamic && !string.IsNullOrEmpty(assembly.Location))
+                .Select(assembly => MetadataReference.CreateFromFile(assembly.Location));
+            var compilation = CSharpCompilation.Create(
+                "InvertedBaseHierarchyModels",
+                syntaxTrees,
+                references,
+                new CSharpCompilationOptions(OutputKind.DynamicallyLinkedLibrary));
+            Assert.That(
+                compilation.GetDiagnostics().Where(diagnostic =>
+                    diagnostic.Severity is DiagnosticSeverity.Warning or DiagnosticSeverity.Error),
+                Is.Empty,
+                "The generated hierarchy should compile after restoration that would create a base cycle is skipped");
+        }
+
+        [Test]
         public async Task BackCompat_SymbolBackedLastContractBaseWithPropertyCollisionIsNotRestored()
         {
             var currentBase = InputFactory.Model("CurrentBase", properties: []);
