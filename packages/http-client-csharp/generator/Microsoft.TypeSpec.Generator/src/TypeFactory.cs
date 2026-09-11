@@ -36,20 +36,40 @@ namespace Microsoft.TypeSpec.Generator
         internal IDictionary<string, TypeProvider> TypeProvidersByName { get; } = new Dictionary<string, TypeProvider>();
 
         private bool _allInputModelsCreated;
+        private bool _creatingAllInputModels;
+        private readonly HashSet<ModelProvider> _pendingBaseResolution = [];
+
+        internal bool IsCreatingAllInputModels => _creatingAllInputModels;
+
+        internal void MarkPendingBaseResolution(ModelProvider provider)
+            => _pendingBaseResolution.Add(provider);
 
         internal void EnsureAllInputModelsCreated()
         {
-            if (_allInputModelsCreated)
+            if (_allInputModelsCreated || _creatingAllInputModels)
             {
                 return;
             }
 
-            // Set this before creation because model construction can recursively request resolution.
-            _allInputModelsCreated = true;
-            foreach (var model in CodeModelGenerator.Instance.InputLibrary.InputNamespace.Models)
+            _creatingAllInputModels = true;
+            try
             {
-                CreateModel(model);
+                foreach (var model in CodeModelGenerator.Instance.InputLibrary.InputNamespace.Models)
+                {
+                    CreateModel(model);
+                }
+                _allInputModelsCreated = true;
             }
+            finally
+            {
+                _creatingAllInputModels = false;
+            }
+
+            foreach (var provider in _pendingBaseResolution)
+            {
+                provider.Reset();
+            }
+            _pendingBaseResolution.Clear();
         }
 
         private Dictionary<EnumCacheKey, EnumProvider?> EnumCache { get; } = [];

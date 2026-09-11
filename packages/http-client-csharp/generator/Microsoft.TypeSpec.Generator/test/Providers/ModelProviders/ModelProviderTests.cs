@@ -591,6 +591,36 @@ namespace Microsoft.TypeSpec.Generator.Tests.Providers.ModelProviders
         }
 
         [Test]
+        public async Task BackCompat_PostVisitorMemberCollisionRejectsRestoredBase()
+        {
+            var previousBase = InputFactory.Model(
+                "PreviousBase",
+                properties: [InputFactory.Property("id", InputPrimitiveType.String)]);
+            var derivedModel = InputFactory.Model(
+                "DerivedModel",
+                properties: [InputFactory.Property("other", InputPrimitiveType.String)]);
+
+            await MockHelpers.LoadMockGeneratorAsync(
+                inputModelTypes: [previousBase, derivedModel],
+                lastContractCompilation: async () => await Helpers.GetCompilationFromDirectoryAsync());
+
+            var providers = CodeModelGenerator.Instance.OutputLibrary.TypeProviders.ToArray();
+            foreach (var provider in providers)
+            {
+                provider.EnsureBuilt();
+            }
+
+            var derivedProvider = providers.OfType<ModelProvider>().Single(provider => provider.Name == "DerivedModel");
+            Assert.AreEqual("PreviousBase", derivedProvider.BaseType?.Name);
+
+            derivedProvider.Properties.Single(property => property.Name == "Other").Update(name: "Id");
+            derivedProvider.ProcessTypeForBackCompatibility();
+
+            Assert.IsNull(derivedProvider.BaseType,
+                "A member renamed by a visitor must be checked against the restored base before emission");
+        }
+
+        [Test]
         public async Task BackCompat_BaseTypeIsNotRestoredWhenRemovalAcceptedInBaseline()
         {
             var previousBase = InputFactory.Model("PreviousBase", properties: []);

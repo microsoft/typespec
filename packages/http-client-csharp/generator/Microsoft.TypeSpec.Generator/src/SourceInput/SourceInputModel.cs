@@ -102,9 +102,10 @@ namespace Microsoft.TypeSpec.Generator.SourceInput
                 : compilation.Assembly.GetTypeByMetadataName(fullyQualifiedMetadataName);
 
         private static string GetFullyQualifiedMetadataName(string ns, string name, string? declaringTypeName)
-            => declaringTypeName != null
-                ? $"{ns}.{declaringTypeName}+{name}"
-                : $"{ns}.{name}";
+        {
+            var typeName = declaringTypeName != null ? $"{declaringTypeName}+{name}" : name;
+            return string.IsNullOrEmpty(ns) ? typeName : $"{ns}.{typeName}";
+        }
 
         private TypeProvider? FindTypeInCompilation(
             Compilation? compilation,

@@ -71,6 +71,8 @@ namespace Microsoft.TypeSpec.Generator.Providers
         private List<PropertyProvider>? _additionalPropertyProperties;
         private ModelProvider? _baseModelProvider;
         private ConstructorProvider? _fullConstructor;
+        private bool _hasPostVisitorBaseOverride;
+        private CSharpType? _postVisitorBaseOverride;
         internal PropertyProvider? DiscriminatorProperty { get; private set; }
 
         private readonly bool _isDiscriminatedBaseType;
@@ -193,6 +195,10 @@ namespace Microsoft.TypeSpec.Generator.Providers
             _additionalPropertyFields = null;
             _additionalPropertyProperties = null;
             _isMultiLevelDiscriminator = null;
+            _baseTypeProvider = null;
+            _baseModelProvider = null;
+            _hasPostVisitorBaseOverride = false;
+            _postVisitorBaseOverride = null;
         }
 
         private protected override void ResetConstructors()
@@ -251,6 +257,11 @@ namespace Microsoft.TypeSpec.Generator.Providers
 
         protected override CSharpType? BuildBaseType()
         {
+            if (_hasPostVisitorBaseOverride)
+            {
+                return _postVisitorBaseOverride;
+            }
+
             var currentBase = BuildCurrentBaseType();
             return BuildBaseTypeForBackCompatibility(currentBase);
         }
@@ -463,33 +474,7 @@ namespace Microsoft.TypeSpec.Generator.Providers
 
         private bool HasMemberNameCollisionInCurrentHierarchy(TypeProvider previousBase)
         {
-            var inheritedMemberNames = new HashSet<string>(StringComparer.Ordinal);
-            var visitedBases = new HashSet<TypeProvider>();
-            for (TypeProvider? provider = previousBase; provider is not null && visitedBases.Add(provider); provider = provider.BaseTypeProvider)
-            {
-                inheritedMemberNames.UnionWith(provider.Properties
-                    .Where(property => IsInheritedMember(property.Modifiers, provider))
-                    .Select(property => property.Name));
-                inheritedMemberNames.UnionWith(provider.Fields
-                    .Where(field => IsInheritedMember((MethodSignatureModifiers)field.Modifiers, provider))
-                    .Select(field => field.Name));
-                inheritedMemberNames.UnionWith(provider.Methods
-                    .Where(method => IsInheritedMember(method.Signature.Modifiers, provider))
-                    .Select(method => method.Signature.Name));
-                if (provider.CustomCodeView is { } customView)
-                {
-                    inheritedMemberNames.UnionWith(customView.Properties
-                        .Where(property => IsInheritedMember(property.Modifiers, customView))
-                        .Select(property => property.Name));
-                    inheritedMemberNames.UnionWith(customView.Fields
-                        .Where(field => IsInheritedMember((MethodSignatureModifiers)field.Modifiers, customView))
-                        .Select(field => field.Name));
-                    inheritedMemberNames.UnionWith(customView.Methods
-                        .Where(method => IsInheritedMember(method.Signature.Modifiers, customView))
-                        .Select(method => method.Signature.Name));
-                }
-            }
-
+            var inheritedMemberNames = GetInheritedMemberNames(previousBase);
             if (inheritedMemberNames.Count == 0)
             {
                 return false;
@@ -527,6 +512,85 @@ namespace Microsoft.TypeSpec.Generator.Providers
             return false;
         }
 
+        internal void RevalidateBaseTypeAfterVisitors()
+        {
+            var previousBase = LastContractView?.BaseType;
+            var restoredBaseProvider = BaseTypeProvider;
+            if (previousBase is null || BaseType is null || restoredBaseProvider is null ||
+                !AreMetadataTypesEqual(BaseType, previousBase))
+            {
+                return;
+            }
+
+            var inheritedMemberNames = GetInheritedMemberNames(restoredBaseProvider);
+            var visitedModels = new HashSet<ModelProvider>();
+            var pendingModels = new Stack<ModelProvider>();
+            pendingModels.Push(this);
+            while (pendingModels.Count > 0)
+            {
+                var model = pendingModels.Pop();
+                if (!visitedModels.Add(model))
+                {
+                    continue;
+                }
+
+                var currentMemberNames = model.Properties.Select(property => property.Name)
+                    .Concat(model.Fields.Select(field => field.Name))
+                    .Concat(model.Methods.Select(method => method.Signature.Name))
+                    .Concat(model.CustomCodeView?.Properties.Select(property => property.Name) ?? [])
+                    .Concat(model.CustomCodeView?.Fields.Select(field => field.Name) ?? [])
+                    .Concat(model.CustomCodeView?.Methods.Select(method => method.Signature.Name) ?? []);
+                if (currentMemberNames.Any(inheritedMemberNames.Contains))
+                {
+                    _postVisitorBaseOverride = BuildCurrentBaseType();
+                    _hasPostVisitorBaseOverride = true;
+                    SetBaseType(_postVisitorBaseOverride);
+                    _baseTypeProvider = null;
+                    _baseModelProvider = null;
+                    ReportIncompatibleBackcompatBaseType(
+                        previousBase,
+                        "a post-visitor member name conflicts with the previous base hierarchy");
+                    return;
+                }
+
+                foreach (var derivedModel in model.DerivedModels)
+                {
+                    pendingModels.Push(derivedModel);
+                }
+            }
+        }
+
+        private static HashSet<string> GetInheritedMemberNames(TypeProvider previousBase)
+        {
+            var inheritedMemberNames = new HashSet<string>(StringComparer.Ordinal);
+            var visitedBases = new HashSet<TypeProvider>();
+            for (TypeProvider? provider = previousBase; provider is not null && visitedBases.Add(provider); provider = provider.BaseTypeProvider)
+            {
+                inheritedMemberNames.UnionWith(provider.Properties
+                    .Where(property => IsInheritedMember(property.Modifiers, provider))
+                    .Select(property => property.Name));
+                inheritedMemberNames.UnionWith(provider.Fields
+                    .Where(field => IsInheritedMember((MethodSignatureModifiers)field.Modifiers, provider))
+                    .Select(field => field.Name));
+                inheritedMemberNames.UnionWith(provider.Methods
+                    .Where(method => IsInheritedMember(method.Signature.Modifiers, provider))
+                    .Select(method => method.Signature.Name));
+                if (provider.CustomCodeView is { } customView)
+                {
+                    inheritedMemberNames.UnionWith(customView.Properties
+                        .Where(property => IsInheritedMember(property.Modifiers, customView))
+                        .Select(property => property.Name));
+                    inheritedMemberNames.UnionWith(customView.Fields
+                        .Where(field => IsInheritedMember((MethodSignatureModifiers)field.Modifiers, customView))
+                        .Select(field => field.Name));
+                    inheritedMemberNames.UnionWith(customView.Methods
+                        .Where(method => IsInheritedMember(method.Signature.Modifiers, customView))
+                        .Select(method => method.Signature.Name));
+                }
+            }
+            return inheritedMemberNames;
+        }
+
         private static bool IsInheritedMember(MethodSignatureModifiers modifiers, TypeProvider declaringProvider)
         {
             if (modifiers.HasFlag(MethodSignatureModifiers.Public) ||
@@ -537,7 +601,9 @@ namespace Microsoft.TypeSpec.Generator.Providers
             }
 
             var sameAssembly = declaringProvider is not NamedTypeSymbolProvider namedType || namedType.IsFromCurrentAssembly;
-            return sameAssembly && modifiers.HasFlag(MethodSignatureModifiers.Internal);
+            return sameAssembly &&
+                (modifiers.HasFlag(MethodSignatureModifiers.Internal) ||
+                    modifiers.HasFlag(MethodSignatureModifiers.Protected) && modifiers.HasFlag(MethodSignatureModifiers.Private));
         }
 
         private string GetGeneratedPropertyName(InputModelProperty property, string enclosingTypeName)
@@ -595,10 +661,10 @@ namespace Microsoft.TypeSpec.Generator.Providers
 
         private bool TryResolveTypeInCurrentBuild(CSharpType type, [NotNullWhen(true)] out TypeProvider? resolvedProvider)
         {
-            foreach (var provider in CodeModelGenerator.Instance.TypeFactory.CSharpTypeMap.Values)
+            foreach (var (mappedType, provider) in CodeModelGenerator.Instance.TypeFactory.CSharpTypeMap)
             {
                 if (provider is not null &&
-                    AreMetadataTypesEqual(provider.Type, type) &&
+                    AreMetadataTypesEqual(mappedType, type) &&
                     TryUseProviderAsBase(provider, type, out resolvedProvider))
                 {
                     return true;
@@ -609,10 +675,10 @@ namespace Microsoft.TypeSpec.Generator.Providers
             // deciding that no generated provider is available.
             CodeModelGenerator.Instance.TypeFactory.EnsureAllInputModelsCreated();
 
-            foreach (var provider in CodeModelGenerator.Instance.TypeFactory.CSharpTypeMap.Values)
+            foreach (var (mappedType, provider) in CodeModelGenerator.Instance.TypeFactory.CSharpTypeMap)
             {
                 if (provider is not null &&
-                    AreMetadataTypesEqual(provider.Type, type) &&
+                    AreMetadataTypesEqual(mappedType, type) &&
                     TryUseProviderAsBase(provider, type, out resolvedProvider))
                 {
                     return true;
@@ -624,13 +690,18 @@ namespace Microsoft.TypeSpec.Generator.Providers
                 GetMetadataSimpleName(type),
                 type.DeclaringType?.ClrMetadataName,
                 includeReferencedAssemblies: true);
-            if (currentProvider is null)
+            if (currentProvider is not null && TryUseProviderAsBase(currentProvider, type, out resolvedProvider))
             {
-                resolvedProvider = null;
-                return false;
+                return true;
             }
 
-            return TryUseProviderAsBase(currentProvider, type, out resolvedProvider);
+            if (CodeModelGenerator.Instance.TypeFactory.IsCreatingAllInputModels)
+            {
+                CodeModelGenerator.Instance.TypeFactory.MarkPendingBaseResolution(this);
+            }
+
+            resolvedProvider = null;
+            return false;
         }
 
         private static string GetMetadataSimpleName(CSharpType type)
@@ -742,7 +813,7 @@ namespace Microsoft.TypeSpec.Generator.Providers
             {
                 var frameworkType = systemType.FrameworkType;
                 return frameworkType.IsClass && !frameworkType.IsSealed &&
-                    (!DeclarationModifiers.HasFlag(TypeSignatureModifiers.Public) || frameworkType.IsPublic || frameworkType.IsNestedPublic) &&
+                    IsFrameworkTypeAccessible(systemType, DeclarationModifiers.HasFlag(TypeSignatureModifiers.Public)) &&
                     (frameworkType.GetConstructor(System.Type.EmptyTypes) is not null ||
                     frameworkType.GetConstructors(System.Reflection.BindingFlags.Instance | System.Reflection.BindingFlags.Public | System.Reflection.BindingFlags.NonPublic)
                         .Any(constructor => constructor.GetParameters().Length == 0 &&
@@ -760,6 +831,32 @@ namespace Microsoft.TypeSpec.Generator.Providers
                 namedType.IsAccessibleFromGeneratedType(
                     requestedType,
                     DeclarationModifiers.HasFlag(TypeSignatureModifiers.Public));
+        }
+
+        private static bool IsFrameworkTypeAccessible(CSharpType type, bool requiresPublicAccessibility)
+        {
+            if (!type.IsFrameworkType ||
+                requiresPublicAccessibility && !IsPublicFrameworkType(type.FrameworkType) ||
+                type.DeclaringType is not null && !IsFrameworkTypeAccessible(type.DeclaringType, requiresPublicAccessibility))
+            {
+                return false;
+            }
+
+            return type.Arguments.All(argument =>
+                !requiresPublicAccessibility || argument.IsPublic &&
+                (!argument.IsFrameworkType || IsPublicFrameworkType(argument.FrameworkType)));
+
+            static bool IsPublicFrameworkType(System.Type frameworkType)
+            {
+                for (var current = frameworkType; current is not null; current = current.DeclaringType)
+                {
+                    if (!current.IsPublic && !current.IsNestedPublic)
+                    {
+                        return false;
+                    }
+                }
+                return true;
+            }
         }
 
         private bool CanUseGeneratedModelAsBase(ModelProvider provider)
